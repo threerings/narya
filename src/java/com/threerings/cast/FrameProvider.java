@@ -1,9 +1,7 @@
 //
-// $Id: FrameProvider.java,v 1.1 2001/11/27 08:09:35 mdb Exp $
+// $Id: FrameProvider.java,v 1.2 2002/05/04 19:38:13 mdb Exp $
 
 package com.threerings.cast;
-
-import com.threerings.media.sprite.MultiFrameImage;
 
 /**
  * Provides a mechanism where by a character component can obtain access
@@ -16,6 +14,6 @@ public interface FrameProvider
      * the specified action of the specified component. May return null if
      * the specified action does not exist for the specified component.
      */
-    public MultiFrameImage[] getFrames (
+    public ActionFrames getFrames (
         CharacterComponent component, String action);
 }

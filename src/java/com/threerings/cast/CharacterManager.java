@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.18 2002/05/04 06:57:24 mdb Exp $
+// $Id: CharacterManager.java,v 1.19 2002/05/04 19:38:13 mdb Exp $
 
 package com.threerings.cast;
 
@@ -7,10 +7,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.HashMap;
 
+import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
 import org.apache.commons.collections.LRUMap;
-
-import com.threerings.media.sprite.MultiFrameImage;
 
 import com.threerings.util.DirectionCodes;
 
@@ -152,13 +151,13 @@ public class CharacterManager
      * @exception IllegalArgumentException thrown if any of the components
      * referenced in the descriptor do not support the specified action.
      */
-    protected MultiFrameImage[] getActionFrames (
+    protected ActionFrames getActionFrames (
         CharacterDescriptor descrip, String action)
         throws NoSuchComponentException
     {
         // first check the in-memory cache; which is keyed on both values
         Tuple key = new Tuple(descrip, action);
-        MultiFrameImage[] frames = (MultiFrameImage[])_frames.get(key);
+        ActionFrames frames = (ActionFrames)_frames.get(key);
 
         // next check the disk cache
         if (frames == null && _acache != null) {
@@ -169,8 +168,6 @@ public class CharacterManager
 
         // if that failed, we'll just have to generate the danged things
         if (frames == null) {
-            Log.info("Creating frames [descrip=" + descrip +
-                     ", action=" + action + "].");
             // do the compositing
             frames = createCompositeFrames(descrip, action);
             // cache the result on disk if we've got such a cache
@@ -193,7 +190,7 @@ public class CharacterManager
      * @exception IllegalArgumentException thrown if any of the components
      * referenced in the descriptor do not support the specified action.
      */
-    protected MultiFrameImage[] createCompositeFrames (
+    protected ActionFrames createCompositeFrames (
         CharacterDescriptor descrip, String action)
         throws NoSuchComponentException
     {
@@ -215,23 +212,19 @@ public class CharacterManager
         // sort them into the proper rendering order
         Arrays.sort(components);
 
-        // create the multiframe image and colorization arrays that we'll
-        // supply to the lazy compositing result multiframe image
-        CompositedFrameImage[] frames =
-            new CompositedFrameImage[DIRECTION_COUNT];
+        // create an array with the action frames for each component
+        ActionFrames[] sources = new ActionFrames[ccount];
         zations = new Colorization[ccount][];
-        for (int orient = 0; orient < DIRECTION_COUNT; orient++) {
-            MultiFrameImage[] sources = new MultiFrameImage[ccount];
-            for (int cc = 0; cc < ccount; cc++) {
-                ColorizedComponent ccomp = components[cc];
-                sources[cc] = ccomp.component.getFrames(action)[orient];
-                zations[cc] = ccomp.zations;
+        for (int ii = 0; ii < ccount; ii++) {
+            sources[ii] = components[ii].component.getFrames(action);
+            if (zations != null) {
+                zations[ii] = components[ii].zations;
             }
-            frames[orient] = new CompositedFrameImage(
-                action + orient, sources, zations);
         }
 
-        return frames;
+        // use those to create an entity that will lazily composite things
+        // together as they are needed
+        return new CompositedActionFrames(action, sources, zations);
     }
 
     /** Used when compositing component frame images. */

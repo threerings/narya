@@ -1,9 +1,11 @@
 //
-// $Id: BundledComponentRepository.java,v 1.9 2002/03/16 03:15:04 shaper Exp $
+// $Id: BundledComponentRepository.java,v 1.10 2002/05/04 19:38:14 mdb Exp $
 
 package com.threerings.cast.bundle;
 
+import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,8 +27,7 @@ import com.threerings.resource.ResourceBundle;
 import com.threerings.resource.ResourceManager;
 
 import com.threerings.media.ImageManager;
-
-import com.threerings.media.sprite.MultiFrameImage;
+import com.threerings.media.util.ImageUtil;
 
 import com.threerings.media.tile.ImageProvider;
 import com.threerings.media.tile.TileSet;
@@ -34,7 +35,9 @@ import com.threerings.media.tile.NoSuchTileException;
 
 import com.threerings.util.DirectionCodes;
 
+import com.threerings.cast.ActionFrames;
 import com.threerings.cast.CharacterComponent;
+import com.threerings.cast.Colorization;
 import com.threerings.cast.ComponentClass;
 import com.threerings.cast.ComponentRepository;
 import com.threerings.cast.FrameProvider;
@@ -249,7 +252,7 @@ public class BundledComponentRepository
         }
 
         // documentation inherited
-        public MultiFrameImage[] getFrames (
+        public ActionFrames getFrames (
             CharacterComponent component, String action)
         {
             // get the tileset for this action
@@ -270,14 +273,7 @@ public class BundledComponentRepository
             try {
                 TileSet fset = aset.clone(path);
                 fset.setImageProvider(this);
-
-                // and create the necessary multiframe image instances
-                MultiFrameImage[] frames = new MultiFrameImage[DIRECTION_COUNT];
-                for (int i = 0; i < frames.length; i++) {
-                    frames[i] = new TileSetFrameImage(fset, i);
-                }
-
-                return frames;
+                return new TileSetFrameImage(fset);
 
             } catch (CloneNotSupportedException cnse) {
                 Log.warning("Unable to clone tileset [action=" + action +
@@ -295,16 +291,15 @@ public class BundledComponentRepository
      * Used to provide multiframe images using data obtained from a
      * tileset.
      */
-    protected static class TileSetFrameImage implements MultiFrameImage
+    protected static class TileSetFrameImage implements ActionFrames
     {
         /**
          * Constructs a tileset frame image with the specified tileset and
          * for the specified orientation.
          */
-        public TileSetFrameImage (TileSet set, int orientation)
+        public TileSetFrameImage (TileSet set)
         {
             _set = set;
-            _orient = orientation;
         }
 
         // documentation inherited
@@ -313,8 +308,71 @@ public class BundledComponentRepository
             return _set.getTileCount() / DIRECTION_COUNT;
         }
 
-        // documentation inherited
-        public Image getFrame (int index)
+        // documentation inherited from interface
+        public int getWidth (int index)
+        {
+            Image img = getImage(index);
+            return (img == null) ? 0 : img.getWidth(null);
+        }
+
+        // documentation inherited from interface
+        public int getHeight (int index)
+        {
+            Image img = getImage(index);
+            return (img == null) ? 0 : img.getHeight(null);
+        }
+
+        // documentation inherited from interface
+        public void paintFrame (Graphics g, int index, int x, int y)
+        {
+            Image img = getImage(index);
+            if (img != null) {
+                g.drawImage(img, x, y, null);
+            }
+        }
+
+        // documentation inherited from interface
+        public boolean hitTest (int index, int x, int y)
+        {
+            Image img = getImage(index);
+            return (img != null) ? ImageUtil.hitTest(img, x, y) : false;
+        }
+
+        // documentation inherited from interface
+        public void setOrientation (int orient)
+        {
+            _orient = orient;
+        }
+
+        // documentation inherited from interface
+        public void paintColoredFrame (
+            Graphics g, int index, int x, int y, Colorization[] zations)
+        {
+            BufferedImage img = (BufferedImage)getImage(index);
+            if (img == null) {
+                return;
+            }
+
+            // create a recolored image with which to render
+            if (zations != null) {
+                int zcount = zations.length;
+                Colorization cz;
+                for (int zz = 0; zz < zcount; zz++) {
+                    if ((cz = zations[zz]) == null) {
+                        continue;
+                    }
+                    img = ImageUtil.recolorImage(
+                        img, cz.rootColor, cz.range, cz.offsets);
+                }
+            }
+
+            g.drawImage(img, x, y, null);
+        }
+
+        /**
+         * Fetches the requested tile image.
+         */
+        protected Image getImage (int index)
         {
             int tileIndex = _orient * getFrameCount() + index;
             try {

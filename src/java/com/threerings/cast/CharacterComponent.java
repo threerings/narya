@@ -1,5 +1,5 @@
 //
-// $Id: CharacterComponent.java,v 1.5 2002/02/19 22:09:50 mdb Exp $
+// $Id: CharacterComponent.java,v 1.6 2002/05/04 19:38:13 mdb Exp $
 
 package com.threerings.cast;
 
@@ -7,7 +7,6 @@ import java.io.Serializable;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.sprite.Sprite;
 
 /**
@@ -46,7 +45,7 @@ public class CharacterComponent implements Serializable
      * if no animation for the specified action is available for this
      * component.
      */
-    public MultiFrameImage[] getFrames (String action)
+    public ActionFrames getFrames (String action)
     {
         return _frameProvider.getFrames(this, action);
     }

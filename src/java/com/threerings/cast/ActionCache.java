@@ -1,9 +1,7 @@
 //
-// $Id: ActionCache.java,v 1.1 2002/02/07 03:20:29 mdb Exp $
+// $Id: ActionCache.java,v 1.2 2002/05/04 19:38:13 mdb Exp $
 
 package com.threerings.cast;
-
-import com.threerings.media.sprite.MultiFrameImage;
 
 /**
  * A mechanism for caching composited character action animations on disk.
@@ -14,7 +12,7 @@ public interface ActionCache
      * Fetches from the cache a composited set of images for a particular
      * character for a particular action.
      */
-    public MultiFrameImage[] getActionFrames (
+    public ActionFrames getActionFrames (
         CharacterDescriptor descrip, String action);
 
     /**
@@ -22,5 +20,5 @@ public interface ActionCache
      * character be cached.
      */
     public void cacheActionFrames (
-        CharacterDescriptor descrip, String action, MultiFrameImage[] frames);
+        CharacterDescriptor descrip, String action, ActionFrames frames);
 }

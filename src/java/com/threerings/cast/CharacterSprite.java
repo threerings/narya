@@ -1,9 +1,8 @@
 //
-// $Id: CharacterSprite.java,v 1.27 2002/04/17 15:53:49 mdb Exp $
+// $Id: CharacterSprite.java,v 1.28 2002/05/04 19:38:13 mdb Exp $
 
 package com.threerings.cast;
 
-import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.sprite.Path;
 import com.threerings.media.sprite.ImageSprite;
 
@@ -111,12 +110,13 @@ public class CharacterSprite extends ImageSprite
 
         try {
             // obtain our animation frames for this action sequence
-            _frames = _charmgr.getActionFrames(_descrip, action);
+            _aframes = _charmgr.getActionFrames(_descrip, action);
+            _aframes.setOrientation(_orient);
 
             // update the sprite render attributes
             setOrigin(actseq.origin.x, actseq.origin.y);
             setFrameRate(actseq.framesPerSecond);
-            setFrames(_frames[_orient]);
+            setFrames(_aframes);
 
         } catch (NoSuchComponentException nsce) {
             Log.warning("Character sprite references non-existent " +
@@ -129,17 +129,10 @@ public class CharacterSprite extends ImageSprite
     {
         super.setOrientation(orient);
 
-        // sanity check
-        if (orient < 0 || orient >= _frames.length) {
-            String errmsg = "Invalid orientation requested " +
-                "[orient=" + orient +
-                ", fcount=" + ((_frames == null) ? -1 : _frames.length) + "]";
-            throw new IllegalArgumentException(errmsg);
-        }
-
         // update the sprite frames to reflect the direction
-        if (_frames != null) {
-            setFrames(_frames[orient]);
+        if (_aframes != null) {
+            _aframes.setOrientation(orient);
+            setFrames(_aframes);
         }
     }
 
@@ -162,7 +155,7 @@ public class CharacterSprite extends ImageSprite
     {
         super.updateRenderOffset();
 
-        if (_frame != null) {
+        if (_frames != null) {
             // our location is based on the character origin coordinates
             _rxoff = -_xorigin;
             _ryoff = -_yorigin;
@@ -223,7 +216,7 @@ public class CharacterSprite extends ImageSprite
 
     /** The animation frames for the active action sequence in each
      * orientation. */
-    protected MultiFrameImage[] _frames;
+    protected ActionFrames _aframes;
 
     /** The origin of the sprite. */
     protected int _xorigin, _yorigin;
