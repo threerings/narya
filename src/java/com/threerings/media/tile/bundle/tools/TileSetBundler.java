@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundler.java,v 1.17 2003/06/17 23:29:33 ray Exp $
+// $Id: TileSetBundler.java,v 1.18 2003/06/18 00:34:47 ray Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -38,6 +38,7 @@ import com.threerings.media.image.FastImageIO;
 import com.threerings.media.image.ImageUtil;
 import com.threerings.media.image.Mirage;
 
+import com.threerings.media.tile.ImageProvider;
 import com.threerings.media.tile.ObjectTileSet;
 import com.threerings.media.tile.SimpleCachingImageProvider;
 import com.threerings.media.tile.TileSet;
@@ -307,12 +308,6 @@ public class TileSetBundler
             return false;
         }
 
-        // now we have to create the actual bundle file
-        FileOutputStream fout = new FileOutputStream(target);
-        Manifest manifest = new Manifest();
-        JarOutputStream jar = new JarOutputStream(fout, manifest);
-        jar.setLevel(Deflater.BEST_COMPRESSION);
-
         // create an image provider for loading our tileset images
         SimpleCachingImageProvider improv = new SimpleCachingImageProvider() {
             protected BufferedImage loadImage (String path)
@@ -320,6 +315,30 @@ public class TileSetBundler
                 return ImageIO.read(new File(bundleDesc.getParent(), path));
             }
         };
+
+        return createBundle(target, bundle, improv, bundleDesc.getParent());
+    }
+
+    /**
+     * Finish the creation of a tileset bundle jar file.
+     *
+     * @param target the tileset bundle file that will be created.
+     * @param TileSetBundle contains the tilesets we'd like to save out to
+     * the bundle.
+     * @param improv the image provider.
+     * @param imageBase the base directory for getting images for non
+     * ObjectTileSet tilesets.
+     */
+    public static boolean createBundle (
+        File target, TileSetBundle bundle, ImageProvider improv,
+        String imageBase)
+        throws IOException
+    {
+        // now we have to create the actual bundle file
+        FileOutputStream fout = new FileOutputStream(target);
+        Manifest manifest = new Manifest();
+        JarOutputStream jar = new JarOutputStream(fout, manifest);
+        jar.setLevel(Deflater.BEST_COMPRESSION);
 
         try {
             // write all of the image files to the bundle, converting the
@@ -379,7 +398,7 @@ public class TileSetBundler
                 } else {
                     // read the image file and convert it to our custom
                     // format in the bundle
-                    File ifile = new File(bundleDesc.getParent(), imagePath);
+                    File ifile = new File(imageBase, imagePath);
                     try {
                         BufferedImage image = ImageIO.read(ifile);
                         if (FastImageIO.canWrite(image)) {
@@ -424,7 +443,7 @@ public class TileSetBundler
     }
 
     /** Replaces the image suffix with <code>.raw</code>. */
-    protected String adjustImagePath (String imagePath)
+    protected static String adjustImagePath (String imagePath)
     {
         int didx = imagePath.lastIndexOf(".");
         return ((didx == -1) ? imagePath :
