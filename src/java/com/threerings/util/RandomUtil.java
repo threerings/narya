@@ -24,7 +24,6 @@ package com.threerings.util;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.RandomAccess;
 
 import com.samskivert.util.IntListUtil;
 
@@ -152,10 +151,6 @@ public class RandomUtil
     public static Object pickRandom (List values)
     {
         int size = values.size();
-        if (!(values instanceof RandomAccess)) {
-            return pickRandom(values.iterator(), size);
-        }
-
         if (size == 0) {
             throw new IllegalArgumentException(
                 "Must have at least one element [size=" + size + "]");
@@ -173,10 +168,6 @@ public class RandomUtil
     public static Object pickRandom (List values, Object skip)
     {
         int size = values.size();
-        if (!(values instanceof RandomAccess)) {
-            return pickRandom(values.iterator(), size, skip);
-        }
-
         if (size < 2) {
             throw new IllegalArgumentException(
                 "Must have at least one element [size=" + size + "]");
