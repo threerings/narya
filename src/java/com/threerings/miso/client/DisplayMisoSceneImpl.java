@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.28 2001/08/15 01:08:49 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.29 2001/08/15 01:10:09 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -48,7 +48,7 @@ public class MisoScene implements Scene
     public static final String[] XLATE_LAYERS = { "Base", "Fringe", "Object" };
 
     /** Scene id to denote an unset or otherwise invalid scene id. */
-    public static final short SID_INVALID = -1;
+    public static final int SID_INVALID = -1;
 
     /** The tiles comprising the scene. */
     public Tile tiles[][][];
@@ -317,7 +317,7 @@ public class MisoScene implements Scene
     protected String _name;
 
     /** The unique scene id. */
-    protected short _sid;
+    protected int _sid;
 
     /** The locations within the scene. */
     protected ArrayList _locations;
