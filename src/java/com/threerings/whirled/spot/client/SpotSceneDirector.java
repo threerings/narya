@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.8 2001/12/16 21:59:25 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.9 2001/12/16 22:09:17 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -67,9 +67,8 @@ public class SpotSceneDirector
         // wire ourselves up to hear about leave place notifications
         locdir.addLocationObserver(new LocationAdapter() {
             public void locationDidChange (PlaceObject place) {
-                // we need to clear out our cluster chat object
-                // subscriptions when we leave a place
-                clearClusterScrips();
+                // we need to clear some things out when we leave a place
+                handleDeparture();
             }
         });
     }
@@ -292,10 +291,14 @@ public class SpotSceneDirector
     }
 
     /**
-     * Clears out any cluster subscriptions we may have.
+     * Clean up after a few things when we depart from a scene.
      */
-    protected void clearClusterScrips ()
+    protected void handleDeparture ()
     {
+        // clear out our last known location id
+        _locationId = -1;
+
+        // unwire and clear out our cluster chat object if we've got one
         if (_chatdir != null && _clobj != null) {
             // unwire the auxilliary chat object
             _chatdir.removeAuxilliarySource(_clobj);
