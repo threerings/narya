@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.41 2002/03/19 01:10:02 mdb Exp $
+// $Id: DObject.java,v 1.42 2002/03/20 03:19:51 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -179,6 +179,27 @@ public class DObject
     }
 
     /**
+     * Provides this object with an entity that can be used to validate
+     * subscription requests and events before they are processed. The
+     * access controller is handy for ensuring that clients are behaving
+     * as expected and for preventing impermissible modifications or event
+     * dispatches on a distributed object.
+     */
+    public void setAccessController (AccessController controller)
+    {
+        _controller = controller;
+    }        
+
+    /**
+     * Returns a reference to the access controller in use by this object
+     * or null if none has been configured.
+     */
+    public AccessController getAccessController ()
+    {
+        return _controller;
+    }
+
+    /**
      * At times, an entity on the server may need to ensure that events it
      * has queued up have made it through the event queue and are applied
      * to their respective objects before a service may safely be
@@ -262,9 +283,10 @@ public class DObject
     /**
      * Checks to ensure that the specified subscriber has access to this
      * object. This will be called before satisfying a subscription
-     * request. By default objects are accessible to all subscribers, but
-     * certain objects may wish to implement more fine grained access
-     * control.
+     * request. If an {@link AccessController} has been specified for this
+     * object, it will be used to determine whether or not to allow the
+     * subscription request. If no controller is set, the subscription
+     * will be allowed.
      *
      * @param sub the subscriber that will subscribe to this object.
      *
@@ -273,14 +295,19 @@ public class DObject
      */
     public boolean checkPermissions (Subscriber sub)
     {
-        return true;
+        if (_controller != null) {
+            return _controller.allowSubscribe(this, sub);
+        } else {
+            return true;
+        }
     }
 
     /**
      * Checks to ensure that this event which is about to be processed,
-     * has the appropriate permissions. By default objects accept all
-     * manner of events, but certain objects may wish to implement more
-     * fine grained access control.
+     * has the appropriate permissions. If an {@link AccessController} has
+     * been specified for this object, it will be used to determine
+     * whether or not to allow the even dispatch. If no controller is set,
+     * all events are allowed.
      *
      * @param event the event that will be dispatched, object permitting.
      *
@@ -289,7 +316,11 @@ public class DObject
      */
     public boolean checkPermissions (DEvent event)
     {
-        return true;
+        if (_controller != null) {
+            return _controller.allowDispatch(this, event);
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -647,6 +678,10 @@ public class DObject
 
     /** A reference to our object manager. */
     protected DObjectManager _omgr;
+
+    /** The entity that tells us if an event or subscription request
+     * should be allowed. */
+    protected AccessController _controller;
 
     /** A list of outstanding locks. */
     protected Object[] _locks;
