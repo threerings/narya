@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.19 2003/07/14 22:18:18 ray Exp $
+// $Id: ResourceBundle.java,v 1.20 2003/08/09 05:42:13 mdb Exp $
 
 package com.threerings.resource;
 
@@ -82,25 +82,24 @@ public class ResourceBundle
     /**
      * Called by the resource manager once it has ensured that our
      * resource jar file is up to date and ready for reading.
+     *
+     * @return true if we successfully unpacked our resources, false if we
+     * encountered errors in doing so.
      */
-    public void sourceIsReady ()
+    public boolean sourceIsReady ()
     {
         // make a note of our source's last modification time
         _sourceLastMod = _source.lastModified();
 
         // if we are unpacking files, the time to do so is now
         if (_unpacked != null && _unpacked.lastModified() != _sourceLastMod) {
-            boolean resolved = false;
             try {
-                resolved = !resolveJarFile();
+                resolveJarFile();
             } catch (IOException ioe) {
                 Log.warning("Failure resolving jar file '" + _source +
                             "': " + ioe + ".");
-            }
-            if (!resolved) {
-                String errmsg = "Source ready but failed to resolve jar " +
-                    "[source=" + _source + "]";
-                throw new IllegalStateException(errmsg);
+                closeJar();
+                return false;
             }
 
             Log.info("Unpacking into " + _cache + "...");
@@ -108,14 +107,14 @@ public class ResourceBundle
                 if (!_cache.mkdir()) {
                     Log.warning("Failed to create bundle cache directory '" +
                                 _cache + "'.");
+                    closeJar();
                     // we are hopelessly fucked
-                    return;
+                    return false;
                 }
             } else {
                 FileUtil.recursiveClean(_cache);
             }
 
-            boolean failure = false;
             Enumeration entries = _jarSource.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = (JarEntry)entries.nextElement();
@@ -128,7 +127,6 @@ public class ResourceBundle
                     if (!efile.exists() && !efile.mkdir()) {
                         Log.warning("Failed to create bundle entry path '" +
                                     efile + "'.");
-                        failure = true;
                     }
                     continue;
                 }
@@ -139,10 +137,10 @@ public class ResourceBundle
                 if (!parent.exists() && !parent.mkdirs()) {
                     Log.warning("Failed to create bundle entry parent '" +
                                 parent + "'.");
-                    failure = true;
                     continue;
                 }
 
+                boolean failure = false;
                 BufferedOutputStream fout = null;
                 InputStream jin = null;
                 try {
@@ -157,22 +155,77 @@ public class ResourceBundle
                     StreamUtil.close(jin);
                     StreamUtil.close(fout);
                 }
-            }
 
-            // if everything unpacked smoothly, create our unpack stamp
-            if (!failure) {
-                try {
-                    _unpacked.createNewFile();
-                    if (!_unpacked.setLastModified(_sourceLastMod)) {
-                        Log.warning("Failed to set last mod on stamp file '" +
-                                    _unpacked + "'.");
-                    }
-                } catch (IOException ioe) {
-                    Log.warning("Failure creating stamp file '" + _unpacked +
-                                "': " + ioe + ".");
+                // if something went awry, delete everything in the hopes
+                // that next time things will work
+                if (failure) {
+                    wipeBundle();
+                    return false;
                 }
             }
+
+            // close the jar file now that it's all unpacked
+            closeJar();
+
+            // if everything unpacked smoothly, create our unpack stamp
+            try {
+                _unpacked.createNewFile();
+                if (!_unpacked.setLastModified(_sourceLastMod)) {
+                    Log.warning("Failed to set last mod on stamp file '" +
+                                _unpacked + "'.");
+                }
+            } catch (IOException ioe) {
+                Log.warning("Failure creating stamp file '" + _unpacked +
+                            "': " + ioe + ".");
+                // no need to stick a fork in things at this point
+            }
         }
+
+        return true;
+    }
+
+    /**
+     * Closes our (possibly opened) jar file.
+     */
+    protected void closeJar ()
+    {
+        try {
+            if (_jarSource != null) {
+                _jarSource.close();
+            }
+        } catch (Exception ioe) {
+            Log.warning("Failed to close jar file [path=" + _source +
+                        ", error=" + ioe + "].");
+        }
+    }
+
+    /**
+     * Clears out everything associated with this resource bundle in the
+     * hopes that we can download it afresh and everything will work the
+     * next time around.
+     */
+    protected void wipeBundle ()
+    {
+        // clear out our cache directory
+        if (_cache != null) {
+            FileUtil.recursiveClean(_cache);
+        }
+
+        // delete our unpack stamp file
+        if (_unpacked != null) {
+            _unpacked.delete();
+        }
+
+        // close and delete our source jar file
+        if (_source != null) {
+            closeJar();
+            _source.delete();
+        }
+
+        // also clear out any .vers file that the downloader might be
+        // maintaining if this is a versioned resource bundle
+        File vfile = new File(FileUtil.resuffix(_source, ".jar", ".vers"));
+        vfile.delete();
     }
 
     /**
