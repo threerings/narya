@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.19 2003/01/21 22:02:37 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.20 2003/01/22 02:02:04 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -91,9 +91,16 @@ public class ClientDObjectMgr
     // inherit documentation from the interface
     public void removedLastSubscriber (DObject obj)
     {
+        // move this object into the dead pool so that we don't claim to
+        // have it around anymore; once our unsubscribe message is
+        // processed, it'll be 86ed
+        int ooid = obj.getOid();
+        _ocache.remove(ooid);
+        _dead.put(ooid, obj);
+
         // ship off an unsubscribe message to the server; we'll remove the
         // object from our table when we get the unsub ack
-        _comm.postMessage(new UnsubscribeRequest(obj.getOid()));
+        _comm.postMessage(new UnsubscribeRequest(ooid));
     }
 
     /**
@@ -131,15 +138,11 @@ public class ClientDObjectMgr
                 registerObjectAndNotify(((ObjectResponse)obj).getObject());
 
             } else if (obj instanceof UnsubscribeResponse) {
-                // now that the server has removed our subscription, we
-                // can remove the object from our local table because we
-                // should not receive further events for this object; it's
-                // possible that the object was destroyed (and thus
-                // removed from our table) in between our request to
-                // unsubscribe and the unsub response from the server,
-                // otherwise we'd log a warning if we failed to remove the
-                // object from our local table here
-                _ocache.remove(((UnsubscribeResponse)obj).getOid());
+                int oid = ((UnsubscribeResponse)obj).getOid();
+                if (_dead.remove(oid) == null) {
+                    Log.warning("Received unsub ACK from unknown object " +
+                                "[oid=" + oid + "].");
+                }
 
             } else if (obj instanceof FailureResponse) {
                 int oid = ((FailureResponse)obj).getOid();
@@ -179,10 +182,13 @@ public class ClientDObjectMgr
         }
 
         // look up the object on which we're dispatching this event
-        DObject target = (DObject)_ocache.get(event.getTargetOid());
+        int toid = event.getTargetOid();
+        DObject target = (DObject)_ocache.get(toid);
         if (target == null) {
-            Log.info("Unable to dispatch event on non-proxied " +
-                     "object [event=" + event + "].");
+            if (!_dead.containsKey(toid)) {
+                Log.warning("Unable to dispatch event on non-proxied " +
+                            "object [event=" + event + "].");
+            }
             return;
         }
 
@@ -193,10 +199,10 @@ public class ClientDObjectMgr
             // if this is an object destroyed event, we need to remove the
             // object from our object table
             if (event instanceof ObjectDestroyedEvent) {
-                Log.info("Uncaching destroyed object " +
-                         "[oid=" + target.getOid() +
-                         ", class=" + target.getClass().getName() + "].");
-                _ocache.remove(target.getOid());
+//                 Log.info("Pitching destroyed object " +
+//                          "[oid=" + toid + ", class=" +
+//                          StringUtil.shortClassName(target) + "].");
+                _ocache.remove(toid);
             }
 
             // have the object pass this event on to its listeners
@@ -363,13 +369,13 @@ public class ClientDObjectMgr
     /** Our primary dispatch queue. */
     protected Queue _actions = new Queue();
 
-    /**
-     * This table contains all of the distributed objects that are active
-     * on this client.
-     */
+    /** All of the distributed objects that are active on this client. */
     protected HashIntMap _ocache = new HashIntMap();
 
-    /** This table contains pending subscriptions. */
+    /** Objects that have been marked for death. */
+    protected HashIntMap _dead = new HashIntMap();
+
+    /** Pending object subscriptions. */
     protected HashIntMap _penders = new HashIntMap();
 
     /** A debug hook that allows the dumping of all objects in the object
