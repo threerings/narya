@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.18 2002/09/09 23:22:28 ray Exp $
+// $Id: SpotSceneManager.java,v 1.19 2002/09/12 23:04:04 ray Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -229,12 +229,8 @@ public class SpotSceneManager extends SceneManager
             _locationOccs[locidx] = bodyOid;
         }
 
-        // update a clone of their occupant info, we need to clone because
-        // the original could still be in the queue as part of another
-        // event going out to the clients.
-        soi = (SpotOccupantInfo) soi.clone();
+        // update the location and broadcast to the place
         soi.locationId = locationId;
-        // and broadcast the update to the place
         _plobj.updateOccupantInfo(soi);
 
         // figure out the cluster chat oid
