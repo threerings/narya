@@ -1,11 +1,12 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- $Id: actions.xml,v 1.7 2002/03/27 21:50:01 mdb Exp $ -->
+<!-- $Id: actions.xml,v 1.8 2002/06/26 21:56:35 mdb Exp $ -->
 
 <!-- test component action definitions -->
 <actions>
   <action name="standing">
     <framesPerSecond>5</framesPerSecond>
     <origin>50,112</origin>
+    <orients>SW, W, NW, N, NE, E, SE, S</orients>
     <tileset>
       <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
       <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
@@ -18,6 +19,7 @@
   <action name="walking">
     <framesPerSecond>7.3</framesPerSecond>
     <origin>50,112</origin>
+    <orients>SW, W, NW, N, NE, E, SE, S</orients>
     <tileset>
       <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
       <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
@@ -30,90 +32,7 @@
   <action name="behind_back">
     <framesPerSecond>5</framesPerSecond>
     <origin>50,112</origin>
-    <tileset>
-      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
-      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
-      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
-      <offsetPos>0, 0</offsetPos>
-      <gapSize>0, 0</gapSize>
-    </tileset>
-  </action>
-
-  <action name="brandishing">
-    <framesPerSecond>5</framesPerSecond>
-    <origin>50,112</origin>
-    <tileset>
-      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
-      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
-      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
-      <offsetPos>0, 0</offsetPos>
-      <gapSize>0, 0</gapSize>
-    </tileset>
-  </action>
-
-  <action name="crossed_arms">
-    <framesPerSecond>5</framesPerSecond>
-    <origin>50,112</origin>
-    <tileset>
-      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
-      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
-      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
-      <offsetPos>0, 0</offsetPos>
-      <gapSize>0, 0</gapSize>
-    </tileset>
-  </action>
-
-  <action name="defeat">
-    <framesPerSecond>5</framesPerSecond>
-    <origin>50,112</origin>
-    <tileset>
-      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
-      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
-      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
-      <offsetPos>0, 0</offsetPos>
-      <gapSize>0, 0</gapSize>
-    </tileset>
-  </action>
-
-  <action name="drinking">
-    <framesPerSecond>5</framesPerSecond>
-    <origin>50,112</origin>
-    <tileset>
-      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
-      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
-      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
-      <offsetPos>0, 0</offsetPos>
-      <gapSize>0, 0</gapSize>
-    </tileset>
-  </action>
-
-  <action name="on_hips">
-    <framesPerSecond>5</framesPerSecond>
-    <origin>50,112</origin>
-    <tileset>
-      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
-      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
-      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
-      <offsetPos>0, 0</offsetPos>
-      <gapSize>0, 0</gapSize>
-    </tileset>
-  </action>
-
-  <action name="standing_two">
-    <framesPerSecond>5</framesPerSecond>
-    <origin>50,112</origin>
-    <tileset>
-      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
-      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
-      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
-      <offsetPos>0, 0</offsetPos>
-      <gapSize>0, 0</gapSize>
-    </tileset>
-  </action>
-
-  <action name="victory">
-    <framesPerSecond>5</framesPerSecond>
-    <origin>50,112</origin>
+    <orients>SW, W, NW, N, NE, E, SE, S</orients>
     <tileset>
       <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
       <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
@@ -125,11 +44,29 @@
 
   <action name="sailing">
     <framesPerSecond>8</framesPerSecond>
-    <origin>22,46</origin>
+    <origin>87,80</origin>
+    <orients>
+      SW, W, NW, N, NE, E, SE, S, WSW, WNW, NNW, NNE, ENE, ESE, SSE, SSW
+    </orients>
     <tileset>
-      <widths>44, 44, 44, 44, 44, 44, 44, 44</widths>
-      <heights>46, 46, 46, 46, 46, 46, 46, 46</heights>
-      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
+      <widths>168, 168, 168, 168, 168, 168, 168, 168</widths>
+      <heights>128, 128, 128, 128, 128, 128, 128, 128</heights>
+      <tileCounts>12, 12, 12, 12, 12, 12, 12, 12</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+    </tileset>
+  </action>
+
+  <action name="sailing_small">
+    <framesPerSecond>8</framesPerSecond>
+    <origin>42,34</origin>
+    <orients>
+      SW, W, NW, N, NE, E, SE, S, WSW, WNW, NNW, NNE, ENE, ESE, SSE, SSW
+    </orients>
+    <tileset>
+      <widths>84, 84, 84, 84, 84, 84, 84, 84</widths>
+      <heights>64, 64, 64, 64, 64, 64, 64, 64</heights>
+      <tileCounts>2, 2, 2, 2, 2, 2, 2, 2</tileCounts>
       <offsetPos>0, 0</offsetPos>
       <gapSize>0, 0</gapSize>
     </tileset>
