@@ -1,7 +1,7 @@
 //
-// $Id: XMLTileSetParser.java,v 1.5 2001/11/29 21:58:15 mdb Exp $
+// $Id: XMLTileSetParser.java,v 1.6 2002/02/05 20:29:10 mdb Exp $
 
-package com.threerings.media.tools.tile.xml;
+package com.threerings.media.tile.tools.xml;
 
 import java.io.IOException;
 import java.io.InputStream;

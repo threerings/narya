@@ -1,7 +1,7 @@
 //
-// $Id: DumpBundle.java,v 1.1 2001/12/16 23:12:37 shaper Exp $
+// $Id: DumpBundle.java,v 1.2 2002/02/05 20:29:09 mdb Exp $
 
-package com.threerings.cast.tools.bundle;
+package com.threerings.cast.bundle.tools;
 
 import java.io.File;
 import java.util.HashMap;

@@ -1,5 +1,5 @@
 //
-// $Id: BaseTileSetRuleSet.java,v 1.8 2002/02/02 01:09:53 mdb Exp $
+// $Id: BaseTileSetRuleSet.java,v 1.9 2002/02/05 20:29:10 mdb Exp $
 
 package com.threerings.miso.tile.tools.xml;
 
@@ -10,7 +10,7 @@ import com.samskivert.util.StringUtil;
 import com.samskivert.xml.CallMethodSpecialRule;
 
 import com.threerings.media.tile.TileSet;
-import com.threerings.media.tools.tile.xml.SwissArmyTileSetRuleSet;
+import com.threerings.media.tile.tools.xml.SwissArmyTileSetRuleSet;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.tile.BaseTileSet;

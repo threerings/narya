@@ -69,14 +69,14 @@
   <target name="cbundles" description="Build component bundles.">
     <!-- first build the metadata bundle -->
     <taskdef name="metabundle"
-      classname="com.threerings.cast.tools.bundle.MetadataBundlerTask"/>
+      classname="com.threerings.cast.bundle.tools.MetadataBundlerTask"/>
     <metabundle actiondef="${cbundle.dir}/actions.xml"
       classdef="${cbundle.dir}/classes.xml"
       target="${cbundle.dir}/metadata.jar"/>
 
     <!-- then a component bundle -->
     <taskdef name="cbundle"
-      classname="com.threerings.cast.tools.bundle.ComponentBundlerTask"/>
+      classname="com.threerings.cast.bundle.tools.ComponentBundlerTask"/>
     <cbundle target="${cbundle.dir}/components.jar"
       mapfile="${cbundle.dir}/components.map">
       <fileset dir="${cbundle.dir}" includes="**/*.png"/>
@@ -86,7 +86,7 @@
   <!-- test the tileset bundling process -->
   <target name="tsbundles" description="Build tileset bundles.">
     <taskdef name="tilebundle"
-      classname="com.threerings.media.tools.tile.bundle.TileSetBundlerTask"/>
+      classname="com.threerings.media.tile.bundle.tools.TileSetBundlerTask"/>
     <tilebundle config="${tbundle.dir}/bundler-config.xml"
       mapfile="${tbundle.dir}/tilesets.map"
       bundledef="${tbundle.dir}/ground/bundle.xml"

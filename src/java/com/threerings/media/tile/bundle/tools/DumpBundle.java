@@ -1,7 +1,7 @@
 //
-// $Id: DumpBundle.java,v 1.5 2002/01/16 03:01:45 mdb Exp $
+// $Id: DumpBundle.java,v 1.6 2002/02/05 20:29:09 mdb Exp $
 
-package com.threerings.media.tools.tile.bundle;
+package com.threerings.media.tile.bundle.tools;
 
 import java.io.File;
 import java.util.Iterator;

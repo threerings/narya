@@ -1,7 +1,7 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.2 2001/11/29 00:15:25 mdb Exp $
+// $Id: ComponentBundlerTask.java,v 1.3 2002/02/05 20:29:09 mdb Exp $
 
-package com.threerings.cast.tools.bundle;
+package com.threerings.cast.bundle.tools;
 
 import java.io.File;
 import java.io.FileInputStream;

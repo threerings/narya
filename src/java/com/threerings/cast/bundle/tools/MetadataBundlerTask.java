@@ -1,7 +1,7 @@
 //
-// $Id: MetadataBundlerTask.java,v 1.1 2001/11/27 08:09:35 mdb Exp $
+// $Id: MetadataBundlerTask.java,v 1.2 2002/02/05 20:29:09 mdb Exp $
 
-package com.threerings.cast.tools.bundle;
+package com.threerings.cast.bundle.tools;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -27,7 +27,7 @@ import org.apache.commons.digester.Digester;
 import com.samskivert.util.Tuple;
 
 import com.threerings.media.tile.TileSet;
-import com.threerings.media.tools.tile.xml.SwissArmyTileSetRuleSet;
+import com.threerings.media.tile.tools.xml.SwissArmyTileSetRuleSet;
 
 import com.threerings.cast.ActionSequence;
 import com.threerings.cast.ComponentClass;

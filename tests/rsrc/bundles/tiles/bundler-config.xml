@@ -6,7 +6,7 @@
   <mapping>
     <path>bundle/base</path>
     <ruleset>
-      com.threerings.miso.tools.tile.xml.BaseTileSetRuleSet
+      com.threerings.miso.tile.tools.xml.BaseTileSetRuleSet
     </ruleset>
   </mapping>
 
@@ -14,7 +14,7 @@
   <mapping>
     <path>bundle/fringe</path>
     <ruleset>
-      com.threerings.media.tools.tile.xml.SwissArmyTileSetRuleSet
+      com.threerings.media.tile.tools.xml.SwissArmyTileSetRuleSet
     </ruleset>
   </mapping>
 
@@ -22,7 +22,7 @@
   <mapping>
     <path>bundle/object</path>
     <ruleset>
-      com.threerings.media.tools.tile.xml.ObjectTileSetRuleSet
+      com.threerings.media.tile.tools.xml.ObjectTileSetRuleSet
     </ruleset>
   </mapping>
 </bundler-config>

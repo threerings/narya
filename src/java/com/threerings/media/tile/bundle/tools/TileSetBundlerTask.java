@@ -1,7 +1,7 @@
 //
-// $Id: TileSetBundlerTask.java,v 1.1 2001/11/29 00:14:11 mdb Exp $
+// $Id: TileSetBundlerTask.java,v 1.2 2002/02/05 20:29:09 mdb Exp $
 
-package com.threerings.media.tools.tile.bundle;
+package com.threerings.media.tile.bundle.tools;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +9,7 @@ import java.io.IOException;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
-import com.threerings.media.tools.tile.MapFileTileSetIDBroker;
+import com.threerings.media.tile.tools.MapFileTileSetIDBroker;
 
 /**
  * Ant task for creating tilset bundles.

@@ -1,7 +1,7 @@
 //
-// $Id: SwissArmyTileSetRuleSet.java,v 1.7 2001/11/29 21:58:15 mdb Exp $
+// $Id: SwissArmyTileSetRuleSet.java,v 1.8 2002/02/05 20:29:09 mdb Exp $
 
-package com.threerings.media.tools.tile.xml;
+package com.threerings.media.tile.tools.xml;
 
 import java.awt.Dimension;
 import java.awt.Point;

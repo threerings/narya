@@ -1,7 +1,7 @@
 //
-// $Id: XMLTileSetParserTest.java,v 1.2 2001/11/29 21:55:56 mdb Exp $
+// $Id: XMLTileSetParserTest.java,v 1.3 2002/02/05 20:29:09 mdb Exp $
 
-package com.threerings.media.tools.tile.xml;
+package com.threerings.media.tile.tools.xml;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -55,5 +55,5 @@ public class XMLTileSetParserTest extends TestCase
     }
 
     protected static final String TILESET_PATH =
-        "rsrc/media/tools/tile/xml/tilesets.xml";
+        "rsrc/media/tile/tools/xml/tilesets.xml";
 }

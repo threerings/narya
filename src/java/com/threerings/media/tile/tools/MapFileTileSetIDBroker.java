@@ -1,7 +1,7 @@
 //
-// $Id: MapFileTileSetIDBroker.java,v 1.1 2001/11/29 00:14:11 mdb Exp $
+// $Id: MapFileTileSetIDBroker.java,v 1.2 2002/02/05 20:29:09 mdb Exp $
 
-package com.threerings.media.tools.tile;
+package com.threerings.media.tile.tools;
 
 import java.io.File;
 import java.io.FileInputStream;

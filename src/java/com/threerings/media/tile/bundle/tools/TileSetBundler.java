@@ -1,7 +1,7 @@
 //
-// $Id: TileSetBundler.java,v 1.3 2001/11/29 21:58:15 mdb Exp $
+// $Id: TileSetBundler.java,v 1.4 2002/02/05 20:29:09 mdb Exp $
 
-package com.threerings.media.tools.tile.bundle;
+package com.threerings.media.tile.bundle.tools;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,7 +32,7 @@ import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileSetIDBroker;
 import com.threerings.media.tile.bundle.BundleUtil;
 import com.threerings.media.tile.bundle.TileSetBundle;
-import com.threerings.media.tools.tile.xml.TileSetRuleSet;
+import com.threerings.media.tile.tools.xml.TileSetRuleSet;
 
 /**
  * The tileset bundler is used to create tileset bundles from a set of XML
@@ -50,13 +50,13 @@ import com.threerings.media.tools.tile.xml.TileSetRuleSet;
  *   <mapping>
  *     <path>bundle.tilesets.uniform</path>
  *     <ruleset>
- *       com.threerings.media.tools.tile.xml.UniformTileSetRuleSet
+ *       com.threerings.media.tile.tools.xml.UniformTileSetRuleSet
  *     </ruleset>
  *   </mapping>
  *   <mapping>
  *     <path>bundle.tilesets.object</path>
  *     <ruleset>
- *       com.threerings.media.tools.tile.xml.ObjectTileSetRuleSet
+ *       com.threerings.media.tile.tools.xml.ObjectTileSetRuleSet
  *     </ruleset>
  *   </mapping>
  * </bundler-config>

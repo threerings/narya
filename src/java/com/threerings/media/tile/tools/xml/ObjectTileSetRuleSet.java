@@ -1,7 +1,7 @@
 //
-// $Id: ObjectTileSetRuleSet.java,v 1.3 2001/12/18 08:37:54 mdb Exp $
+// $Id: ObjectTileSetRuleSet.java,v 1.4 2002/02/05 20:29:09 mdb Exp $
 
-package com.threerings.media.tools.tile.xml;
+package com.threerings.media.tile.tools.xml;
 
 import java.awt.Dimension;
 import java.awt.Point;
