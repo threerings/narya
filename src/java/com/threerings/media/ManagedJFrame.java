@@ -1,9 +1,10 @@
 //
-// $Id: ManagedJFrame.java,v 1.4 2003/03/25 23:05:58 mdb Exp $
+// $Id: ManagedJFrame.java,v 1.5 2003/03/30 00:00:00 mdb Exp $
 
 package com.threerings.media;
 
 import java.awt.Graphics;
+import java.awt.GraphicsConfiguration;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -33,6 +34,14 @@ public class ManagedJFrame extends JFrame
     public ManagedJFrame (String title)
     {
         super(title);
+    }
+
+    /**
+     * Constructs a managed frame in the specified graphics configuration.
+     */
+    public ManagedJFrame (GraphicsConfiguration gc)
+    {
+        super(gc);
     }
 
     /**
