@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.20 2001/08/02 00:42:02 shaper Exp $
+// $Id: IsoSceneView.java,v 1.21 2001/08/02 05:08:23 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -20,10 +20,11 @@ import java.util.ArrayList;
 public class IsoSceneView implements EditableSceneView
 {
     /**
-     * Construct an IsoSceneView object and initialize it with the
-     * given tile manager.
+     * Construct an IsoSceneView object.
      *
      * @param tilemgr the tile manager.
+     * @param spritemgr the sprite manager.
+     * @param model the data model.
      */
     public IsoSceneView (TileManager tilemgr, SpriteManager spritemgr,
                          IsoSceneModel model)
@@ -179,7 +180,7 @@ public class IsoSceneView implements EditableSceneView
     protected void paintMouseLines (Graphics2D gfx)
     {
         Point[] lx = _model.lineX, ly = _model.lineY;
-        
+
 	// draw the baseline x-axis line
 	gfx.setColor(Color.red);
 	gfx.drawLine(lx[0].x, lx[0].y, lx[1].x, lx[1].y);
@@ -207,12 +208,21 @@ public class IsoSceneView implements EditableSceneView
      */
     protected void paintCoords (Graphics2D gfx, int x, int y, int sx, int sy)
     {
+        FontMetrics fm = gfx.getFontMetrics(_font);
+
 	gfx.setFont(_font);
 	gfx.setColor(Color.white);
-	gfx.drawString("" + x, sx + _model.tilehwid - 2,
-                       sy + _model.tilehhei - 2);
-	gfx.drawString("" + y, sx + _model.tilehwid - 2,
-                       sy + _model.tilehei - 2);
+
+        int cx = _model.tilehwid, cy = _model.tilehhei;
+        int fhei = fm.getAscent();
+
+        // draw x-coordinate
+        String str = "" + x;
+        gfx.drawString(str, sx + cx - fm.stringWidth(str), sy + cy);
+
+        // draw y-coordinate
+        str = "" + y;
+        gfx.drawString(str, sx + cx - fm.stringWidth(str), sy + cy + fhei);
     }
 
     /**
@@ -310,12 +320,12 @@ public class IsoSceneView implements EditableSceneView
 
 	// calculate line parallel to the y-axis (from mouse pos to x-axis)
 	ly[0].setLocation(sx, sy);
-	int bY = (int)(sy - (_model.SLOPE_Y * sx));
+	int bY = (int)(sy - (_model.slopeY * sx));
 
 	// determine intersection of x- and y-axis lines
 	ly[1].x = (int)((bY - (_model.bX + _model.origin.y)) /
-                        (_model.SLOPE_X - _model.SLOPE_Y));
-	ly[1].y = (int)((_model.SLOPE_Y * ly[1].x) + bY);
+                        (_model.slopeX - _model.slopeY));
+	ly[1].y = (int)((_model.slopeY * ly[1].x) + bY);
 
 	// determine distance of mouse pos along the x axis
 	int xdist = (int) MathUtil.distance(
@@ -339,8 +349,8 @@ public class IsoSceneView implements EditableSceneView
      */
     protected void tileToScreen (int x, int y, Point spos)
     {
-        spos.x = _model.lineX[0].x + ((x - y - 1) * _model.tilehwid);
-        spos.y = _model.lineX[0].y + ((x + y) * _model.tilehhei);
+        spos.x = _model.origin.x + ((x - y - 1) * _model.tilehwid);
+        spos.y = _model.origin.y + ((x + y) * _model.tilehhei);
     }
 
     public void setScene (Scene scene)

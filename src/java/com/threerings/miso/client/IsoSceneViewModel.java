@@ -1,10 +1,12 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.1 2001/08/02 00:42:02 shaper Exp $
+// $Id: IsoSceneViewModel.java,v 1.2 2001/08/02 05:08:23 shaper Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.Dimension;
 import java.awt.Point;
+
+import com.threerings.miso.Log;
 
 /**
  * The IsoSceneModel provides a holding place for the myriad
@@ -35,6 +37,9 @@ public class IsoSceneModel
 
     /** The y-intercept of the x-axis line. */
     public int bX;
+
+    /** The slope of the x- and y-axis lines. */
+    public float slopeX, slopeY;
 
     /** The last calculated x- and y-axis mouse position tracking lines. */
     public Point lineX[], lineY[];
@@ -77,6 +82,10 @@ public class IsoSceneModel
 
         // calculate the number of tile rows to render
         tilerows = (Scene.TILE_WIDTH * Scene.TILE_HEIGHT) - 1;
+
+        // calculate the slope of the x- and y-axis lines
+        slopeX = (float)tilehei / (float)tilewid;
+        slopeY = -slopeX;
     }
 
     /**
@@ -131,16 +140,10 @@ public class IsoSceneModel
 
         // determine the starting point
         lineX[0].setLocation(origin.x, origin.y);
-	bX = (int)-(SLOPE_X * origin.x);
+	bX = (int)-(slopeX * origin.x);
 
         // determine the ending point
 	lineX[1].x = lineX[0].x + (tilehwid * Scene.TILE_WIDTH);
-	lineX[1].y = lineX[0].y + (int)((SLOPE_X * lineX[1].x) + bX);
+	lineX[1].y = lineX[0].y + (int)((slopeX * lineX[1].x) + bX);
     }
-
-    /** The slope of the x-axis line. */
-    protected final float SLOPE_X = 0.5f;
-
-    /** The slope of the y-axis line. */
-    protected final float SLOPE_Y = -0.5f;
 }
