@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.26 2003/05/03 00:45:36 ray Exp $
+// $Id: ResourceManager.java,v 1.27 2003/05/03 00:51:13 ray Exp $
 
 package com.threerings.resource;
 
@@ -27,6 +27,7 @@ import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 
+import com.samskivert.util.FileUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.resource.DownloadManager.DownloadDescriptor;
@@ -178,20 +179,7 @@ public class ResourceManager
             {
                 File dir = ResourceBundle.getCacheDir();
                 Log.info("Deleting narya temp cache directory '" + dir + "'.");
-                recursiveDelete(dir);
-            }
-
-            protected void recursiveDelete (File file)
-            {
-                if (file.isDirectory()) {
-                    File[] files = file.listFiles();
-                    for (int ii = 0; ii < files.length; ii++) {
-                        recursiveDelete(files[ii]);
-                    }
-                }
-                if (!file.delete()) {
-                    Log.warning("Failed to delete " + file + ".");
-                }
+                FileUtil.recursiveDelete(dir);
             }
         });
     }
