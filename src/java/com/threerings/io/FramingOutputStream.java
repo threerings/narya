@@ -96,17 +96,13 @@ public class FramingOutputStream extends OutputStream
     {
         int ocapacity = _buffer.capacity();
         int ncapacity = _buffer.position() + needed;
-        if (ncapacity <= ocapacity) {
-            System.err.println("Why would I not expand? " +
-                "[ocapacity=" + ocapacity + ", ncapacity=" + ncapacity + "].");
-        }
-	//if (ncapacity > ocapacity) {
+	if (ncapacity > ocapacity) {
             // increase the buffer size in large increments
             ncapacity = Math.max(ocapacity << 1, ncapacity);
             ByteBuffer newbuf = ByteBuffer.allocate(ncapacity);
             newbuf.put((ByteBuffer)_buffer.flip());
 	    _buffer = newbuf;
-//	}
+	}
     }
 
     /**
