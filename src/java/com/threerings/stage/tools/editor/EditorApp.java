@@ -35,7 +35,6 @@ import com.threerings.util.MessageManager;
 import com.threerings.resource.ResourceManager;
 
 import com.threerings.media.FrameManager;
-import com.threerings.media.IconManager;
 import com.threerings.media.image.ColorPository;
 import com.threerings.media.image.ImageManager;
 import com.threerings.media.sound.SoundManager;
@@ -125,7 +124,6 @@ public class EditorApp implements Runnable
         try {
             _tsrepo = new BundledTileSetRepository(_rmgr, _imgr, "tilesets");
             _tilemgr.setTileSetRepository(_tsrepo);
-            _iconmgr = new IconManager(_tilemgr, ICON_MANAGER_CONFIG);
             _crepo = new BundledComponentRepository(
                 _rmgr, _imgr, "components");
         } catch (IOException e) {
@@ -134,7 +132,6 @@ public class EditorApp implements Runnable
             return;
         }
 
-        _iconmgr.setSource("general");
         _colpos = ColorPository.loadColorPository(_rmgr);
         _soundmgr = new SoundManager(_rmgr, null, null);
         _kbdmgr = new KeyboardManager();
@@ -279,10 +276,6 @@ public class EditorApp implements Runnable
             return _msgmgr;
         }
 
-        public IconManager getIconManager () {
-            return _iconmgr;
-        }
-
         public SoundManager getSoundManager() {
             return _soundmgr;
         }
@@ -338,15 +331,10 @@ public class EditorApp implements Runnable
     protected TileSetRepository _tsrepo;
     protected ColorPository _colpos;
     protected MessageManager _msgmgr;
-    protected IconManager _iconmgr;
     protected SoundManager _soundmgr;
     protected KeyboardManager _kbdmgr;
     protected BundledComponentRepository _crepo;
     protected KeyDispatcher _keydisp;
-    
-    /** The path to the config file for the icon manager. */
-    protected static final String ICON_MANAGER_CONFIG =
-        "rsrc/config/stage/iconmgr.properties";
 
     /** A debug hook that toggles debug rendering of traversable tiles. */
     protected static RuntimeAdjust.BooleanAdjust _viewFullScreen =
