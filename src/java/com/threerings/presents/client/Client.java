@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.10 2001/07/19 18:08:20 mdb Exp $
+// $Id: Client.java,v 1.11 2001/07/25 00:51:05 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -43,6 +43,12 @@ public class Client
      * be processed. The invoker can then queue that runnable up on the
      * AWT thread if it is so inclined to make life simpler for the rest
      * of the application.
+     *
+     * @param creds the credentials to use when logging on to the server.
+     * These can be null, but <code>setCredentials</code> must then be
+     * called before any call to <code>logon</code>.
+     * @param invoker an invoker that can be used to process incoming
+     * events.
      */
     public Client (Credentials creds, Invoker invoker)
     {
@@ -126,6 +132,16 @@ public class Client
     public Credentials getCredentials ()
     {
         return _creds;
+    }
+
+    /**
+     * Sets the credentials that will be used by this client to
+     * authenticate with the server. This should be done before any call
+     * to <code>logon</code>.
+     */
+    public void setCredentials (Credentials creds)
+    {
+        _creds = creds;
     }
 
     /**
