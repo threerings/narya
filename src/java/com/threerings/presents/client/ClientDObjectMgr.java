@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.16 2002/07/23 05:52:48 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.17 2002/09/23 18:19:07 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -186,7 +186,8 @@ public class ClientDObjectMgr
             // object from our object table
             if (event instanceof ObjectDestroyedEvent) {
                 Log.info("Uncaching destroyed object " +
-                         "[oid=" + target.getOid() + "].");
+                         "[oid=" + target.getOid() +
+                         ", class=" + target.getClass().getName() + "].");
                 _ocache.remove(target.getOid());
             }
 
