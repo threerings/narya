@@ -1,5 +1,5 @@
 //
-// $Id: DropBoard.java,v 1.8 2004/08/29 06:50:47 mdb Exp $
+// $Id: DropBoard.java,v 1.9 2004/10/20 00:16:39 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -740,10 +740,10 @@ public class DropBoard extends Board
     // documentation inherited
     public Object clone ()
     {
-        int size = _bwid*_bhei;
-        int[] data = new int[size];
-        System.arraycopy(_board, 0, data, 0, size);
-        return new DropBoard(data, _bwid, _bhei);
+        DropBoard board = (DropBoard)super.clone();
+        board._board = new int[_board.length];
+        System.arraycopy(_board, 0, board._board, 0, _board.length);
+        return board;
     }
 
     /**
