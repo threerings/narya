@@ -997,9 +997,13 @@ public class GameManager extends PlaceManager
 
             case GameObject.CANCELLED:
                 // fall through to GAME_OVER case
+                
             case GameObject.GAME_OVER:
-                // now we do our end of game processing
-                gameDidEnd();
+                // Call gameDidEnd only if it was actually started
+                if (((Integer)event.getOldValue()).intValue() ==
+                    GameObject.IN_PLAY) {
+                    gameDidEnd();
+                }
                 break;
             }
         }
