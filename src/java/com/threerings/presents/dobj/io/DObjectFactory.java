@@ -1,7 +1,7 @@
 //
-// $Id: DObjectFactory.java,v 1.4 2001/06/09 23:39:04 mdb Exp $
+// $Id: DObjectFactory.java,v 1.5 2001/06/11 17:42:20 mdb Exp $
 
-package com.threerings.cocktail.cher.dobj.net;
+package com.threerings.cocktail.cher.dobj.io;
 
 import java.io.IOException;
 import java.io.DataInputStream;
