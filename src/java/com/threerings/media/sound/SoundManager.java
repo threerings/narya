@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.37 2002/12/04 21:42:34 ray Exp $
+// $Id: SoundManager.java,v 1.38 2002/12/07 22:41:10 mdb Exp $
 
 package com.threerings.media;
 
@@ -91,6 +91,8 @@ public class SoundManager
     {
         // save things off
         _rmgr = rmgr;
+
+        if (!SOUND_ENABLED) return;
 
         // create a thread to plays sounds and load sound
         // data from the resource manager
@@ -258,6 +260,8 @@ public class SoundManager
      */
     public void lock (String pkgPath, String key)
     {
+        if (!SOUND_ENABLED) return;
+
         synchronized (_queue) {
             _queue.append(LOCK);
             _queue.append(new SoundKey(pkgPath, key));
@@ -269,6 +273,8 @@ public class SoundManager
      */
     public void unlock (String pkgPath, String key)
     {
+        if (!SOUND_ENABLED) return;
+
         synchronized (_queue) {
             _queue.append(UNLOCK);
             _queue.append(new SoundKey(pkgPath, key));
@@ -301,6 +307,8 @@ public class SoundManager
      */
     public void play (SoundType type, String pkgPath, String key)
     {
+        if (!SOUND_ENABLED) return;
+
         if (type == null) {
             // let the lazy kids play too
             type = DEFAULT;
@@ -335,6 +343,10 @@ public class SoundManager
      */
     public void pushMusic (String pkgPath, String key, int numloops)
     {
+        if (!SOUND_ENABLED) {
+            return;
+        }
+
         synchronized (_queue) {
             _queue.append(PLAYMUSIC);
             _queue.append(new MusicInfo(pkgPath, key, numloops));
@@ -1065,4 +1077,7 @@ public class SoundManager
 
     /** The buffer size in bytes used when reading audio file data. */
     protected static final int BUFFER_SIZE = 1024 * 24;
+
+    /** Used to disable sound entirely. */
+    protected static final boolean SOUND_ENABLED = false;
 }
