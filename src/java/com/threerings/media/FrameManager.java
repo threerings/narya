@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.40 2003/05/02 15:09:57 mdb Exp $
+// $Id: FrameManager.java,v 1.41 2003/05/02 23:53:55 mdb Exp $
 
 package com.threerings.media;
 
@@ -35,6 +35,7 @@ import javax.swing.event.AncestorListener;
 import com.samskivert.swing.Label;
 import com.samskivert.util.DebugChords;
 import com.samskivert.util.ObserverList;
+import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
 
@@ -824,7 +825,11 @@ public abstract class FrameManager
             "When active a flip-buffer will be used to manage our " +
             "rendering, otherwise a volatile back buffer is used " +
             "[requires restart]", "narya.media.frame",
-            MediaPrefs.config, false);
+            // back buffer rendering doesn't work on the Mac, so we
+            // default to flip buffer on that platform; we still allow it
+            // to be toggled so that we can easily test things when they
+            // release new JVMs
+            MediaPrefs.config, RunAnywhere.isMacOS());
 
     /** Allows us to tweak the sleep granularity. */
     protected static RuntimeAdjust.IntAdjust _sleepGranularity =
