@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.5 2001/08/02 01:48:08 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.6 2001/08/11 04:03:25 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -43,32 +43,33 @@ public class PlaceRegistry implements Subscriber
      * place object or null if an error occurred creating the place or
      * place manager.
      *
+     * @exception InstantiationException thrown if an error occurs trying
+     * to instantiate and initialize the place manager.
+     *
      * @see PlaceConfig#PLACEOBJ_CLASS
      * @see PlaceConfig#PLACEMGR_CLASS
      */
     public PlaceManager createPlace (Properties config)
+        throws InstantiationException
     {
         String pobjcl = config.getProperty(PlaceConfig.PLACEOBJ_CLASS);
         if (pobjcl == null) {
-            Log.warning("No place object classname specified in " +
-                        "place config [config=" + config + "].");
-            return null;
+            throw new InstantiationException(
+                "No place object classname specified in place config.");
         }
 
         String pmgrcl = config.getProperty(PlaceConfig.PLACEMGR_CLASS);
         if (pobjcl == null) {
-            Log.warning("No place manager classname specified in " +
-                        "place config [config=" + config + "].");
-            return null;
+            throw new InstantiationException(
+                "No place manager classname specified in place config.");
         }
 
         try {
             return createPlace(Class.forName(pobjcl),
                                Class.forName(pmgrcl), config);
         } catch (Exception e) {
-            Log.warning("Unable to instantiate place object or " +
-                        "manager class [error=" + e + "].");
-            return null;
+            throw new InstantiationException(
+                "Error instantiating class: " + e);
         }
     }
 
@@ -85,12 +86,16 @@ public class PlaceRegistry implements Subscriber
      *
      * @return a reference to the place manager that will manage the new
      * place object.
+     *
+     * @exception InstantiationException thrown if an error occurs trying
+     * to instantiate and initialize the place manager.
      */
     public PlaceManager createPlace (Class pobjClass, Class pmgrClass,
                                      Properties config)
+        throws InstantiationException
     {
-        // create a place manager for this place
         try {
+            // create a place manager for this place
             PlaceManager pmgr = (PlaceManager)pmgrClass.newInstance();
             // let the pmgr know about us
             pmgr.init(this, config);
@@ -103,12 +108,9 @@ public class PlaceRegistry implements Subscriber
 
             return pmgr;
 
-        } catch (Exception e) {
-            Log.warning("Error creating place " +
-                        "[pobjc=" + pobjClass.getName() +
-                        ", pmgrc=" + pmgrClass.getName() +
-                        ", error=" + e + "].");
-            return null;
+        } catch (IllegalAccessException iae) {
+            throw new InstantiationException(
+                "Error instantiating place manager: " + iae);
         }
     }
 
