@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.25 2002/12/07 01:10:25 shaper Exp $
+// $Id: CharacterManager.java,v 1.26 2002/12/07 02:04:31 shaper Exp $
 
 package com.threerings.cast;
 
@@ -184,13 +184,29 @@ public class CharacterManager
 
         // periodically report our action cache performance
         if (!_cacheStatThrottle.throttleOp()) {
+            long size = getEstimatedCacheMemoryUsage();
             int[] eff = _frames.getTrackedEffectiveness();
             Log.debug("CharacterManager LRU " +
-                      "[hits=" + eff[0] + ", misses=" + eff[1] +
-                      ", size=" + _frames.size() + "].");
+                      "[mem=" + (size / 1024) + "k, size=" + _frames.size() +
+                      ", hits=" + eff[0] + ", misses=" + eff[1] + "].");
         }
 
         return frames;
+    }
+
+    /**
+     * Returns the estimated memory usage in bytes for all images
+     * currently cached by the cached action frames.
+     */
+    protected long getEstimatedCacheMemoryUsage ()
+    {
+        long size = 0;
+        Iterator iter = _frames.values().iterator();
+        while (iter.hasNext()) {
+            ActionFrames frame = (ActionFrames)iter.next();
+            size += frame.getEstimatedMemoryUsage();
+        }
+        return size;
     }
 
     /**

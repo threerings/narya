@@ -1,5 +1,5 @@
 //
-// $Id: ActionFrames.java,v 1.6 2002/09/17 19:11:13 mdb Exp $
+// $Id: ActionFrames.java,v 1.7 2002/12/07 02:04:31 shaper Exp $
 
 package com.threerings.cast;
 
@@ -49,4 +49,10 @@ public interface ActionFrames
      * colorizations applied to the frame images.
      */
     public ActionFrames cloneColorized (Colorization[] zations);
+
+    /**
+     * Returns the estimated memory usage in bytes for all images cached
+     * internally for use by the action frames.
+     */
+    public long getEstimatedMemoryUsage ();
 }

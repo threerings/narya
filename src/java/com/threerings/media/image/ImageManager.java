@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.30 2002/12/07 01:10:25 shaper Exp $
+// $Id: ImageManager.java,v 1.31 2002/12/07 02:04:32 shaper Exp $
 
 package com.threerings.media;
 
@@ -155,9 +155,10 @@ public class ImageManager
     protected void reportCachePerformance ()
     {
         if (!_cacheStatThrottle.throttleOp()) {
-            int size = getCachedImageSize() / 1024;
+            long size = ImageUtil.getEstimatedMemoryUsage(
+                _imgs.values().iterator());
             int[] eff = _imgs.getTrackedEffectiveness();
-            Log.debug("ImageManager LRU [area=" + size + "k pixels" +
+            Log.debug("ImageManager LRU [mem=" + (size / 1024) + "k" +
                       ", size=" + _imgs.size() +  ", hits=" + eff[0] +
                       ", misses=" + eff[1] + "].");
         }
@@ -262,21 +263,6 @@ public class ImageManager
         gfx.dispose();
 
         return dest;
-    }
-
-    /**
-     * Returns the estimated size of the cached images as the total area
-     * in pixels occupied by all images.
-     */
-    protected int getCachedImageSize ()
-    {
-        Iterator iter = _imgs.values().iterator();
-        int size = 0;
-        while (iter.hasNext()) {
-            Image image = (Image)iter.next();
-            size += (image.getWidth(null) * image.getHeight(null));
-        }
-        return size;
     }
 
     /** A reference to the resource manager via which we load image data

@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.19 2002/10/18 23:47:27 shaper Exp $
+// $Id: BundledComponentRepository.java,v 1.20 2002/12/07 02:04:31 shaper Exp $
 
 package com.threerings.cast.bundle;
 
@@ -414,6 +414,15 @@ public class BundledComponentRepository
         {
             return new TileSetFrameImage(
                 _set.cloneColorized(zations), _actseq);
+        }
+
+        // documentation inherited from interface
+        public long getEstimatedMemoryUsage ()
+        {
+            throw new RuntimeException(
+                "Can't provide memory usage information since " +
+                "TileSetFrameImage makes use of an underlying tile set " +
+                "and we don't know said tileset's memory usage.");
         }
 
         /**

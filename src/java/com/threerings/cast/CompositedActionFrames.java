@@ -1,5 +1,5 @@
 //
-// $Id: CompositedActionFrames.java,v 1.8 2002/09/17 19:11:13 mdb Exp $
+// $Id: CompositedActionFrames.java,v 1.9 2002/12/07 02:04:31 shaper Exp $
 
 package com.threerings.cast;
 
@@ -112,6 +112,21 @@ public class CompositedActionFrames
     public ActionFrames cloneColorized (Colorization[] zations)
     {
         throw new RuntimeException("What you talkin' about Willis?");
+    }
+
+    // documentation inherited from interface
+    public long getEstimatedMemoryUsage ()
+    {
+        long size = 0;
+        for (int orient = 0; orient < _orientCount; orient++) {
+            for (int ii = 0; ii < _images[orient].length; ii++) {
+                Image image = _images[orient][ii];
+                if (image != null) {
+                    size += ImageUtil.getEstimatedMemoryUsage(image);
+                }
+            }
+        }
+        return size;
     }
 
     // documentation inherited

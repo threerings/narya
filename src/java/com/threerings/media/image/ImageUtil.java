@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.18 2002/11/15 09:29:40 shaper Exp $
+// $Id: ImageUtil.java,v 1.19 2002/12/07 02:04:32 shaper Exp $
 
 package com.threerings.media.util;
 
@@ -23,6 +23,7 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 import com.samskivert.util.StringUtil;
 
@@ -525,6 +526,33 @@ public class ImageUtil
         tbounds.y = firstrow;
         tbounds.width = maxx - minx + 1;
         tbounds.height = lastrow - firstrow + 1;
+    }
+
+    /**
+     * Returns the estimated memory usage in bytes for the specified
+     * image.
+     */
+    public static long getEstimatedMemoryUsage (Image image)
+    {
+        int area = image.getWidth(null) * image.getHeight(null);
+        // TODO: we assume an int per pixel for now, but should really
+        // study the sample model if it's a buffered image to do more
+        // intelligent estimation.
+        return (area * 4);
+    }
+
+    /**
+     * Returns the estimated memory usage in bytes for all images in the
+     * supplied iterator.
+     */
+    public static long getEstimatedMemoryUsage (Iterator iter)
+    {
+        long size = 0;
+        while (iter.hasNext()) {
+            Image image = (Image)iter.next();
+            size += getEstimatedMemoryUsage(image);
+        }
+        return size;
     }
 
     /**
