@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.13 2002/04/06 02:08:21 ray Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.14 2002/04/06 02:43:34 ray Exp $
 
 package com.threerings.miso.scene.tools;
 
@@ -85,8 +85,8 @@ public class EditableMisoSceneImpl
     // documentation inherited
     public void setBaseTiles (Rectangle r, BaseTile tile, int fqTileId)
     {
-        for (int x = r.x; x < r.width; x++) {
-            for (int y = r.y; y < r.height; y++) {
+        for (int x = r.x; x < r.x + r.width; x++) {
+            for (int y = r.y; y < r.y + r.height; y++) {
                 _base.setTile(x, y, tile);
                 _model.baseTileIds[_model.width*y + x] = fqTileId;
             }
