@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.20 2003/08/09 05:42:13 mdb Exp $
+// $Id: ResourceBundle.java,v 1.21 2003/08/11 20:34:21 mdb Exp $
 
 package com.threerings.resource;
 
@@ -267,16 +267,14 @@ public class ResourceBundle
             return null;
         }
 
-        // make sure said resource exists in the first place
-        JarEntry entry = _jarSource.getJarEntry(path);
-        if (entry == null) {
-//             Log.info("Couldn't locate " + path + " in " + _jarSource + ".");
-            return null;
-        }
-
         // if we have been unpacked, return our unpacked file
         if (_cache != null) {
-            return new File(_cache, path);
+            File cfile = new File(_cache, path);
+            if (cfile.exists()) {
+                return cfile;
+            } else {
+                return null;
+            }
         }
 
         // otherwise, we unpack resources as needed into a temp directory
@@ -284,6 +282,12 @@ public class ResourceBundle
         File tfile = new File(getCacheDir(), tpath);
         if (tfile.exists() && (tfile.lastModified() > _sourceLastMod)) {
             return tfile;
+        }
+
+        JarEntry entry = _jarSource.getJarEntry(path);
+        if (entry == null) {
+//             Log.info("Couldn't locate " + path + " in " + _jarSource + ".");
+            return null;
         }
 
         // copy the resource into the temporary file
@@ -322,8 +326,7 @@ public class ResourceBundle
         try {
             resolveJarFile();
             return (_jarSource == null) ? "[file=" + _source + "]" :
-                "[path=" + _jarSource.getName() +
-                ", entries=" + _jarSource.size() + "]";
+                "[path=" + _jarSource.getName() + "]";
 
         } catch (IOException ioe) {
             return "[file=" + _source + ", ioe=" + ioe + "]";
