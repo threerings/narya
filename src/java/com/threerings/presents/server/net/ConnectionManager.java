@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.39 2004/06/03 09:02:47 mdb Exp $
+// $Id: ConnectionManager.java,v 1.40 2004/08/04 02:31:18 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -26,6 +26,7 @@ import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.presents.Log;
 
+import com.threerings.presents.data.ConMgrStats;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.DownstreamMessage;
@@ -52,6 +53,15 @@ public class ConnectionManager extends LoopingThread
     {
         _port = port;
         _selector = SelectorProvider.provider().openSelector();
+
+        // create our stats record
+        _stats = new ConMgrStats();
+        _stats.outQueueSize = new int[60];
+        _stats.overQueueSize = new int[60];
+        _stats.bytesIn = new int[60];
+        _stats.bytesOut = new int[60];
+        _stats.msgsIn = new int[60];
+        _stats.msgsOut = new int[60];
 
         // register as a "state of server" reporter
         PresentsServer.registerReporter(this);
@@ -87,6 +97,16 @@ public class ConnectionManager extends LoopingThread
     public Authenticator getAuthenticator ()
     {
         return _author;
+    }
+
+    /**
+     * Returns our current runtime statistics. When the stats are fetched
+     * the counters are rolled to the next bucket. 60 buckets are tracked.
+     */
+    public synchronized ConMgrStats getStats ()
+    {
+        _stats.increment();
+        return _stats;
     }
 
     /**
@@ -382,10 +402,12 @@ public class ConnectionManager extends LoopingThread
                 if (got != 0) {
                     synchronized (this) {
                         _bytesIn += got;
+                        _stats.bytesIn[_stats.current] += got;
                         // we know that the handlers only report having
                         // read bytes when they have a whole message, so
                         // we can count thusly
                         _msgsIn++;
+                        _stats.msgsIn[_stats.current]++;
                     }
                 }
 
@@ -470,6 +492,8 @@ public class ConnectionManager extends LoopingThread
     {
         _msgsOut += msgs;
         _bytesOut += bytes;
+        _stats.msgsOut[_stats.current] += msgs;
+        _stats.bytesOut[_stats.current] += bytes;
     }
 
     // documentation inherited
@@ -699,6 +723,9 @@ public class ConnectionManager extends LoopingThread
 
     /** Messages read and written in the last reporting period. */
     protected int _msgsIn, _msgsOut;
+
+    /** Our current runtime stats. */
+    protected ConMgrStats _stats;
 
     /** Used to create an overflow queue on the first partial write. */
     protected PartialWriteHandler _oflowHandler = new PartialWriteHandler() {
