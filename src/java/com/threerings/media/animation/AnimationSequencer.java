@@ -1,5 +1,5 @@
 //
-// $Id: AnimationSequencer.java,v 1.10 2002/11/06 00:05:16 shaper Exp $
+// $Id: AnimationSequencer.java,v 1.11 2002/11/06 01:39:32 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -7,6 +7,8 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import java.util.ArrayList;
+
+import com.samskivert.util.StringUtil;
 
 import com.threerings.media.Log;
 
@@ -120,7 +122,7 @@ public abstract class AnimationSequencer extends Animation
 //         boolean finished = _finished;
         _finished = ((_queued.size() + _running.size()) == 0);
 //         if (!finished && _finished) {
-//             Log.info("Finishing sequence  at " + (tickStamp%100000) + ".");
+//             Log.info("Finishing sequence at " + (tickStamp%10000) + ".");
 //         }
     }
 
@@ -178,7 +180,7 @@ public abstract class AnimationSequencer extends Animation
 
         public void fire (long when)
         {
-//             Log.info("Firing " + this + " at " + (when%100000) + ".");
+//             Log.info("Firing " + this + " at " + (when%10000) + ".");
 
             // if we have an animation, start it up and await its
             // completion
@@ -195,7 +197,8 @@ public abstract class AnimationSequencer extends Animation
 
         public void fireCompletion (long when)
         {
-//             Log.info("Completing " + this + " at " + (when%100000) + ".");
+//             Log.info("Completing " + this + " at " + (when%10000) + ".");
+
             // call the completion action, if there is one
             if (_completionAction != null) {
                 try {
@@ -224,10 +227,10 @@ public abstract class AnimationSequencer extends Animation
 
         public String toString ()
         {
-            return "[anim=" + ((_anim == null) ? "<none>" :
-                               _anim.getClass().getName()) +
-                ", action=" + (_completionAction != null) +
-                ", delta=" + _delta + ", trigger=" + (_trigger != null) + "]";
+            return "[anim=" + StringUtil.shortClassName(_anim) +
+                ((_anim == null) ? "" : ("/" + _anim.hashCode())) +
+                ", action=" + _completionAction +
+                ", delta=" + _delta + ", trig=" + (_trigger != null) + "]";
         }
 
         protected Animation _anim;
