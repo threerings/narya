@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.22 2003/03/11 04:43:14 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.23 2003/04/10 17:48:42 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -166,6 +166,7 @@ public class ClientDObjectMgr
 
             } else if (obj instanceof EventNotification) {
                 DEvent evt = ((EventNotification)obj).getEvent();
+//                 Log.info("Dispatch event: " + evt);
                 dispatchEvent(evt);
 
             } else if (obj instanceof ObjectResponse) {
@@ -202,8 +203,6 @@ public class ClientDObjectMgr
      */
     protected void dispatchEvent (DEvent event)
     {
-        // Log.info("Dispatch event: " + event);
-
         // if this is a compound event, we need to process its contained
         // events in order
         if (event instanceof CompoundEvent) {

@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.61 2003/03/30 19:38:56 mdb Exp $
+// $Id: DObject.java,v 1.62 2003/04/10 17:48:42 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -16,18 +16,26 @@ import com.threerings.presents.Log;
 /**
  * The distributed object forms the foundation of the Presents system. All
  * information shared among users of the system is done via distributed
- * objects. A distributed object has a set of subscribers. These
- * subscribers have access to the object or a proxy of the object and
- * therefore have access to the data stored in the object's members at all
- * times.
+ * objects. A distributed object has a set of listeners. These listeners
+ * have access to the object or a proxy of the object and therefore have
+ * access to the data stored in the object's members at all times.
  *
- * <p> When there is any change to that data, initiated by one of the
- * subscribers, an event is generated which is dispatched to all
- * subscribers of the object, notifying them of that change and affecting
- * that change to the copy of the object maintained at each client. In
- * this way, both a respository of shared information and a mechanism for
- * asynchronous notification are made available as a fundamental
- * application building blocks.
+ * <p> Additionally, an object as a set of subscribers. Subscribers manage
+ * the lifespan of the object; while a subscriber is subscribed, the
+ * listeners registered with an object will be notified of events. When
+ * the subscriber unsubscribes, the object becomes non-live and the
+ * listeners are no longer notified. <em>Note:</em> on the server, object
+ * subscription is merely a formality as all objects remain live all the
+ * time, so <em>do not</em> depend on event notifications ceasing when a
+ * subscriber has relinquished its subscription. Always unregister all
+ * listeners when they no longer need to hear from an object.
+ *
+ * <p> When there is any change to the the object's fields data, an event
+ * is generated which is dispatched to all listeners of the object,
+ * notifying them of that change and effecting that change to the copy of
+ * the object maintained at each client. In this way, both a respository
+ * of shared information and a mechanism for asynchronous notification are
+ * made available as a fundamental application building blocks.
  *
  * <p> To define what information is shared, an application creates a
  * distributed object declaration which is much like a class declaration
@@ -78,14 +86,16 @@ import com.threerings.presents.Log;
  * These method calls on the actual distributed object will result in the
  * proper attribute change events being generated and dispatched.
  *
- * <p> Note that distributed object fields can only be of a limited set of
- * supported types. These types are:
+ * <p> Note that distributed object fields can be any of the following set
+ * of primitive types:
  *
  * <code><pre>
- * byte, short, int, long, float, double
- * Byte, Short, Integer, Long, Float, Double, String
- * byte[], short[], int[], long[], float[], double[], String[]
+ * boolean, byte, short, int, long, float, double
+ * Boolean, Byte, Short, Integer, Long, Float, Double, String
+ * boolean[], byte[], short[], int[], long[], float[], double[], String[]
  * </pre></code>
+ *
+ * Fields of type {@link Streamable} can also be used.
  */
 public class DObject implements Streamable
 {
@@ -173,11 +183,9 @@ public class DObject implements Streamable
         Object[] els = ListUtil.testAndAdd(_listeners, listener);
         if (els != null) {
             _listeners = els;
-
         } else {
-            // complain if an object requests to add itself more than once
-            Log.warning("Refusing listener that's already in the list " +
-                        "[dobj=" + which() + ", listener=" + listener + "]");
+            Log.warning("Refusing repeat listener registration " +
+                        "[dobj=" + which() + ", list=" + listener + "]");
             Thread.dumpStack();
         }
     }
@@ -341,24 +349,19 @@ public class DObject implements Streamable
     /**
      * Called by the distributed object manager after it has applied an
      * event to this object. This dispatches an event notification to all
-     * of the subscribers of this object.
+     * of the listeners registered with this object.
      *
      * @param event the event that was just applied.
      */
     public void notifyListeners (DEvent event)
     {
-        // if we have no listeners, we're home free
         if (_listeners == null) {
             return;
         }
 
-        // iterate over the listener list, performing the necessary
-        // notifications
         int llength = _listeners.length;
         for (int i = 0; i < llength; i++) {
             Object listener = _listeners[i];
-
-            // skip empty slots
             if (listener == null) {
                 continue;
             }
@@ -374,8 +377,34 @@ public class DObject implements Streamable
 
             } catch (Exception e) {
                 Log.warning("Listener choked during notification " +
-                            "[listener=" + listener +
-                            ", event=" + event + "].");
+                            "[list=" + listener + ", event=" + event + "].");
+                Log.logStackTrace(e);
+            }
+        }
+    }
+
+    /**
+     * Called by the distributed object manager after it has applied an
+     * event to this object. This dispatches an event notification to all
+     * of the proxy listeners registered with this object.
+     *
+     * @param event the event that was just applied.
+     */
+    public void notifyProxies (DEvent event)
+    {
+        if (_subs == null) {
+            return;
+        }
+
+        for (int ii = 0, ll = _subs.length; ii < ll; ii++) {
+            Object sub = _subs[ii];
+            try {
+                if (sub != null && sub instanceof ProxySubscriber) {
+                    ((ProxySubscriber)sub).eventReceived(event);
+                }
+            } catch (Exception e) {
+                Log.warning("Proxy choked during notification " +
+                            "[sub=" + sub + ", event=" + event + "].");
                 Log.logStackTrace(e);
             }
         }
@@ -565,19 +594,18 @@ public class DObject implements Streamable
      *
      * <p> When the transaction is complete, the caller must call {@link
      * #commitTransaction} or {@link CompoundEvent#commit} to commit the
-     * transaction and release all involved objects back to their normal
+     * transaction and release the object back to its normal
      * non-transacting state. If the caller decides not to commit their
      * transaction, they must call {@link #cancelTransaction} or {@link
-     * CompoundEvent#cancel} to cancel the transaction and release all
-     * involved objects. Failure to do so will cause the pooch to be
-     * totally screwed.
+     * CompoundEvent#cancel} to cancel the transaction. Failure to do so
+     * will cause the pooch to be totally screwed.
      *
      * <p> Note: like all other distributed object operations,
      * transactions are not thread safe. It is expected that a single
      * thread will handle all distributed object operations and that
      * thread will begin and complete a transaction before giving up
      * control to unknown code which might try to operate on the
-     * transacting distributed object (or objects).
+     * transacting distributed object.
      *
      * <p> Note also: if the object is already engaged in a transaction, a
      * transaction participant count will be incremented to note that an
@@ -589,19 +617,8 @@ public class DObject implements Streamable
      * cancels the transaction, the entire transaction is cancelled for
      * all participants, regardless of whether the other participants
      * attempted to commit the transaction.
-     *
-     * <p> Note also: nested transactions are not allowed when an object
-     * is joined to another object's transaction via {@link
-     * #joinTransaction}.
-     *
-     * @return the compound event that encapsulates the transaction. This
-     * can be ignored if the transaction will be limited to this object,
-     * but if it is desired that other objects be involved in the
-     * transaction, the caller will need to pass the {@link CompoundEvent}
-     * returned by this method to a call to {@link #joinTransaction} on
-     * the other objects that are involved.
      */
-    public CompoundEvent startTransaction ()
+    public void startTransaction ()
     {
         // sanity check
         if (!isActive()) {
@@ -611,40 +628,10 @@ public class DObject implements Streamable
         }
 
         if (_tevent != null) {
-            // a transaction count of -1 indicates that we're joined to
-            // another objects transaction that should not allow
-            // transaction nesting
-            if (_tcount == -1) {
-                String errmsg = "Object involved in shared transaction, " +
-                    "nesting not allowed [dobj=" + this + "]";
-                throw new IllegalStateException(errmsg);
-            } else {
-                _tcount++;
-            }
-
+            _tcount++;
         } else {
-            _tevent = new CompoundEvent(_omgr);
-            _tevent.addObject(this);
+            _tevent = new CompoundEvent(this, _omgr);
         }
-        return _tevent;
-    }
-
-    /**
-     * Causes this object to join the supplied transaction. See {@link
-     * #startTransaction} for more information on transactions. The
-     * transaction can be committed by a call to {@link
-     * #commitTransaction} on any participanting object.
-     */
-    public void joinTransaction (CompoundEvent event)
-    {
-        if (_tevent != null) {
-            String errmsg = "Cannot join transaction while already " +
-                "transacting [dobj=" + this + "]";
-            throw new IllegalStateException(errmsg);
-        }
-        _tevent = event;
-        _tevent.addObject(this);
-        _tcount = -1; // make a note that nesting is not allowed
     }
 
     /**

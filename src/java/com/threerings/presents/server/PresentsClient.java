@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.53 2003/03/30 21:04:18 mdb Exp $
+// $Id: PresentsClient.java,v 1.54 2003/04/10 17:48:42 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -15,9 +15,8 @@ import com.threerings.presents.data.ClientObject;
 
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.EventListener;
 import com.threerings.presents.dobj.ObjectAccessException;
-import com.threerings.presents.dobj.Subscriber;
+import com.threerings.presents.dobj.ProxySubscriber;
 
 import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.BootstrapNotification;
@@ -54,8 +53,7 @@ import com.threerings.presents.server.net.MessageHandler;
  * conmgr thread and therefore also need not be synchronized.
  */
 public class PresentsClient
-    implements Subscriber, EventListener, MessageHandler,
-               ClientResolutionListener
+    implements ProxySubscriber, MessageHandler, ClientResolutionListener
 {
     /** Used by {@link #setUsername} to report success or failure. */
     public static interface UserChangeListener
@@ -416,7 +414,6 @@ public class PresentsClient
     {
         DObject object = (DObject)_subscrips.remove(oid);
         if (object != null) {
-            object.removeListener(this);
             object.removeSubscriber(this);
         } else {
             Log.warning("Requested to unmap non-existent subscription " +
@@ -435,7 +432,6 @@ public class PresentsClient
             DObject object = (DObject)enum.next();
 //              Log.info("Clearing subscription [client=" + this +
 //                       ", obj=" + object.getOid() + "].");
-            object.removeListener(this);
             object.removeSubscriber(this);
         }
     }
@@ -649,8 +645,6 @@ public class PresentsClient
         // queue up an object response
         Connection conn = getConnection();
         if (conn != null) {
-            // add ourselves as an event listener
-            object.addListener(this);
             // pass the successful subscrip on to the client
             conn.postMessage(new ObjectResponse(object));
             // make a note of this new subscription

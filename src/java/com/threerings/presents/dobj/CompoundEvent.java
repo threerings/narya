@@ -1,5 +1,5 @@
 //
-// $Id: CompoundEvent.java,v 1.8 2002/12/20 23:41:26 mdb Exp $
+// $Id: CompoundEvent.java,v 1.9 2003/04/10 17:48:42 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -27,9 +27,9 @@ public class CompoundEvent extends DEvent
     /**
      * Constructs a compound event and prepares it for operation.
      */
-    public CompoundEvent (DObjectManager omgr)
+    public CompoundEvent (DObject target, DObjectManager omgr)
     {
-        super(0); // we don't have a single target object oid
+        super(target.getOid());
 
         // sanity check
         if (omgr == null) {
@@ -38,20 +38,8 @@ public class CompoundEvent extends DEvent
         }
 
         _omgr = omgr;
+        _target = target;
         _events = new StreamableArrayList();
-    }
-
-    /**
-     * Lets the event know that this dobject is participating in their
-     * transaction. The supplied dobject will have their transaction
-     * cleared when this event is committed or cancelled.
-     */
-    public void addObject (DObject object)
-    {
-        if (_participants == null) {
-            _participants = new ArrayList();
-        }
-        _participants.add(object);
     }
 
     /**
@@ -66,6 +54,7 @@ public class CompoundEvent extends DEvent
 
     /**
      * Returns the list of events contained within this compound event.
+     * Don't mess with it.
      */
     public List getEvents ()
     {
@@ -80,13 +69,20 @@ public class CompoundEvent extends DEvent
      */
     public void commit ()
     {
-        // first clear our participants
-        clearParticipants();
+        // first clear our target
+        clearTarget();
 
         // then post this event onto the queue (but only if we actually
         // accumulated some events)
-        if (_events.size() > 0) {
+        switch (_events.size()) {
+        case 0: // nothing doing
+            break;
+        case 1: // no point in being compound
+            _omgr.postEvent((DEvent)_events.get(0));
+            break;
+        default: // now we're talking
             _omgr.postEvent(this);
+            break;
         }
     }
 
@@ -96,8 +92,8 @@ public class CompoundEvent extends DEvent
      */
     public void cancel ()
     {
-        // clear our participants
-        clearParticipants();
+        // clear our target
+        clearTarget();
         // clear our event queue in case someone holds onto us
         _events.clear();
     }
@@ -125,18 +121,13 @@ public class CompoundEvent extends DEvent
     }
 
     /**
-     * Calls out to all of the participating dobjects, clearing their
-     * transaction reference.
+     * Calls out to our target object, clearing its transaction reference.
      */
-    protected void clearParticipants ()
+    protected void clearTarget ()
     {
-        if (_participants != null) {
-            int psize = _participants.size();
-            for (int i = 0; i < psize; i++) {
-                DObject obj = (DObject)_participants.get(i);
-                obj.clearTransaction();
-            }
-            _participants = null;
+        if (_target != null) {
+            _target.clearTransaction();
+            _target = null;
         }
     }
 
@@ -154,10 +145,8 @@ public class CompoundEvent extends DEvent
      * committed. */
     protected transient DObjectManager _omgr;
 
-    /** A list of the dobject participants in this transaction. They will
-     * be notified when we are committed or cancelled so that they can
-     * stop posting their events to us. */
-    protected transient ArrayList _participants;
+    /** The object for which we're managing a transaction. */
+    protected transient DObject _target;
 
     /** A list of the events associated with this compound event. */
     protected StreamableArrayList _events;

@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.30 2003/03/31 04:11:24 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.31 2003/04/10 17:48:42 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -23,7 +23,7 @@ import com.threerings.presents.dobj.*;
  * server. By virtue of running on the server, it manages its objects
  * directly rather than managing proxies of objects which is what is done
  * on the client. Thus it simply queues up events and dispatches them to
- * subscribers.
+ * listeners.
  *
  * <p> The server object manager is meant to run on the main thread of the
  * server application and thus provides a method to be invoked by the
@@ -180,18 +180,9 @@ public class PresentsDObjectMgr
                 }
 
             } else if (unit instanceof CompoundEvent) {
-                // if this is a compound event, we need to apply each
-                // event indivdually
-                CompoundEvent event = (CompoundEvent)unit;
-                List events = event.getEvents();
-                int ecount = events.size();
-                for (int i = 0; i < ecount; i++) {
-                    processEvent((DEvent)events.get(i));
-                }
+                processCompoundEvent((CompoundEvent)unit);
 
             } else {
-                // otherwise it's a regular event, so do the standard
-                // processing
                 processEvent((DEvent)unit);
             }
 
@@ -218,8 +209,44 @@ public class PresentsDObjectMgr
     }
 
     /**
+     * Performs the processing associated with a compound event, notifying
+     * listeners and the like.
+     */
+    protected void processCompoundEvent (CompoundEvent event)
+    {
+        List events = event.getEvents();
+        int ecount = events.size();
+
+        // look up the target object
+        DObject target = (DObject)_objects.get(event.getTargetOid());
+        if (target == null) {
+            Log.debug("Compound event target no longer exists " +
+                      "[event=" + event + "].");
+            return;
+        }
+
+        // check the permissions on all of the events
+        for (int ii = 0; ii < ecount; ii++) {
+            DEvent sevent = (DEvent)events.get(ii);
+            if (!target.checkPermissions(sevent)) {
+                Log.warning("Event failed permissions check " +
+                            "[event=" + sevent + ", target=" + target + "].");
+                return;
+            }
+        }
+
+        // dispatch the events
+        for (int ii = 0; ii < ecount; ii++) {
+            dispatchEvent((DEvent)events.get(ii), target);
+        }
+
+        // always notify proxies of compound events
+        target.notifyProxies(event);
+    }
+
+    /**
      * Performs the processing associated with an event, notifying
-     * subscribers and the like.
+     * listeners and the like.
      */
     protected void processEvent (DEvent event)
     {
@@ -244,22 +271,36 @@ public class PresentsDObjectMgr
             return;
         }
 
+        if (dispatchEvent(event, target)) {
+            // unless requested not to, notify any proxies
+            target.notifyProxies(event);
+        }
+    }
+
+    /**
+     * Dispatches an event after the target object has been resolved and
+     * the permissions have been checked. This is used by {@link
+     * #processEvent} and {@link #processCompoundEvent}.
+     *
+     * @return the value returned by {@link DEvent#applyToObject}.
+     */
+    protected boolean dispatchEvent (DEvent event, DObject target)
+    {
+        boolean notify = true; // assume always notify
         try {
-            // do any internal management necessary based on this
-            // event
+            // do any internal management necessary based on this event
             Method helper = (Method)_helpers.get(event.getClass());
             if (helper != null) {
                 // invoke the helper method
-                Object rv =
-                    helper.invoke(this, new Object[] { event, target });
+                Object rv = helper.invoke(this, new Object[] { event, target });
                 // if helper returns false, we abort event processing
                 if (!((Boolean)rv).booleanValue()) {
-                    return;
+                    return false;
                 }
             }
 
             // everything's good so far, apply the event to the object
-            boolean notify = event.applyToObject(target);
+            notify = event.applyToObject(target);
 
             // if the event returns false from applyToObject, this
             // means it's a silent event and we shouldn't notify the
@@ -276,6 +317,7 @@ public class PresentsDObjectMgr
 
         // track the number of events dispatched
         ++_eventCount;
+        return true;
     }
 
     /**
