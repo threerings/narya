@@ -1,8 +1,9 @@
 //
-// $Id: FlipFrameManager.java,v 1.3 2003/05/02 23:54:56 mdb Exp $
+// $Id: FlipFrameManager.java,v 1.4 2003/05/05 01:41:57 mdb Exp $
 
 package com.threerings.media;
 
+import java.awt.AWTException;
 import java.awt.BufferCapabilities;
 import java.awt.Graphics2D;
 import java.awt.ImageCapabilities;
@@ -27,7 +28,13 @@ public class FlipFrameManager extends FrameManager
             BufferCapabilities cap = new BufferCapabilities(
                 new ImageCapabilities(true), new ImageCapabilities(true),
                 BufferCapabilities.FlipContents.COPIED);
-            _frame.createBufferStrategy(2);
+            try {
+                _frame.createBufferStrategy(2, cap);
+            } catch (AWTException ae) {
+                Log.warning("Failed creating flip bufstrat: " + ae + ".");
+                // fall back to one without custom capabilities
+                _frame.createBufferStrategy(2);
+            }
             _bufstrat = _frame.getBufferStrategy();
         }
 
