@@ -143,21 +143,25 @@ public abstract class CardPanel extends VirtualMediaPanel
         
         MouseInputAdapter mia = new MouseInputAdapter() {
             public void mousePressed (MouseEvent me) {
-                if (_activeCardSprite != null) {
+                if (_activeCardSprite != null &&
+                    isManaged(_activeCardSprite)) {
                     _handleX = _activeCardSprite.getX() - me.getX();
                     _handleY = _activeCardSprite.getY() - me.getY();        
                     _hasBeenDragged = false;
                 }
             }
             public void mouseReleased (MouseEvent me) {
-                if (_activeCardSprite != null && _hasBeenDragged) {
+                if (_activeCardSprite != null &&
+                    isManaged(_activeCardSprite) && 
+                    _hasBeenDragged) {
                     _activeCardSprite.queueNotification(
                         new CardSpriteDraggedOp(_activeCardSprite, me)
                     );
                 }
             }
             public void mouseClicked (MouseEvent me) {
-                if (_activeCardSprite != null) {
+                if (_activeCardSprite != null &&
+                    isManaged(_activeCardSprite)) {
                     _activeCardSprite.queueNotification(
                         new CardSpriteClickedOp(_activeCardSprite, me)
                     );
@@ -173,7 +177,8 @@ public abstract class CardPanel extends VirtualMediaPanel
                         (CardSprite)newHighestHit : null);
                 
                 if (_activeCardSprite != newActiveCardSprite) {
-                    if (_activeCardSprite != null) {
+                    if (_activeCardSprite != null &&
+                        isManaged(_activeCardSprite)) {
                         _activeCardSprite.queueNotification(
                             new CardSpriteExitedOp(_activeCardSprite, me)
                         );
@@ -189,6 +194,7 @@ public abstract class CardPanel extends VirtualMediaPanel
             public void mouseDragged (MouseEvent me)
             {
                 if (_activeCardSprite != null &&
+                    isManaged(_activeCardSprite) &&
                     _activeCardSprite.isDraggable()) {
                     _activeCardSprite.setLocation(
                         me.getX() + _handleX,
