@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.5 2001/07/19 07:48:25 mdb Exp $
+// $Id: TestClient.java,v 1.6 2001/07/19 18:08:20 mdb Exp $
 
 package com.threerings.cocktail.cher.client.test;
 
@@ -87,9 +87,9 @@ public class TestClient
         return false;
     }
 
-    public void handleTestSucceeded (String response)
+    public void handleTestSucceeded (String one, int two)
     {
-        Log.info("Got test response [rsp=" + response + "].");
+        Log.info("Got test response [one=" + one + ", two=" + two + "].");
     }
 
     public static void main (String[] args)

@@ -1,5 +1,5 @@
 //
-// $Id: DEvent.java,v 1.3 2001/06/01 19:56:13 mdb Exp $
+// $Id: DEvent.java,v 1.4 2001/07/19 18:08:20 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -36,6 +36,25 @@ public abstract class DEvent
         throws ObjectAccessException;
 
     /**
+     * Returns the object id of the client that generated this event. This
+     * will only be valid on the server, it will return -1 otherwise.
+     */
+    public int getSourceOid ()
+    {
+        return _soid;
+    }
+
+    /**
+     * Do not call this method. Sets the source oid of the client that
+     * generated this event. It is automatically called by the client
+     * management code when a client forwards an event to the server.
+     */
+    public void setSourceOid (int sourceOid)
+    {
+        _soid = sourceOid;
+    }
+
+    /**
      * Constructs a new distributed object event that pertains to the
      * specified distributed object.
      */
@@ -46,4 +65,7 @@ public abstract class DEvent
 
     /** The oid of the object that is the target of this event. */
     protected int _toid;
+
+    /** The oid of the client that generated this event. */
+    protected int _soid;
 }

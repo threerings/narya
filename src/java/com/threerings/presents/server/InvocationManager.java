@@ -1,5 +1,5 @@
 //
-// $Id: InvocationManager.java,v 1.3 2001/07/19 07:48:25 mdb Exp $
+// $Id: InvocationManager.java,v 1.4 2001/07/19 18:08:20 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -51,7 +51,7 @@ public class InvocationManager
      * Registers the supplied invocation provider instance as the handler
      * for all invocation requests for the specified module.
      */
-    public void registerProvider (String module, Object provider)
+    public void registerProvider (String module, InvocationProvider provider)
     {
         _providers.put(module, provider);
     }
@@ -90,10 +90,11 @@ public class InvocationManager
         Object[] args = mevt.getArgs();
         String module = (String)args[0];
         String procedure = (String)args[1];
-        int invid = ((Integer)args[2]).intValue();
+        Integer invid = (Integer)args[2];
 
         // locate a provider for this module
-        Object provider = _providers.get(module);
+        InvocationProvider provider =
+            (InvocationProvider)_providers.get(module);
         if (provider == null) {
             Log.warning("No provider registered for invocation request " +
                         "[evt=" + mevt + "].");
@@ -115,12 +116,24 @@ public class InvocationManager
         }
 
         // and invoke it
+        Object[] rargs = null;
         try {
-            procmeth.invoke(provider, margs);
+            rargs = (Object[])procmeth.invoke(provider, margs);
         } catch (Exception e) {
             Log.warning("Error invoking invocation procedure " +
                         "[provider=" + provider + ", method=" + procmeth +
                         ", error=" + e + "].");
+        }
+
+        // if there is a response to be delivered, do so
+        if (rargs != null) {
+            // fill in the invocation id
+            rargs[1] = invid;
+            // and create a message event for delivery to the client
+            MessageEvent revt = new MessageEvent(
+                mevt.getSourceOid(), InvocationObject.MESSAGE_NAME, rargs);
+            // and ship it off
+            CherServer.omgr.postEvent(revt);
         }
 
         return true;

@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.2 2001/07/19 07:09:16 mdb Exp $
+// $Id: InvocationDirector.java,v 1.3 2001/07/19 18:08:20 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -44,6 +44,7 @@ public class InvocationManager
      */
     public InvocationManager (Client client, int imoid)
     {
+        _client = client;
         _omgr = client.getDObjectManager();
         _imoid = imoid;
 
@@ -97,12 +98,17 @@ public class InvocationManager
 
     public void objectAvailable (DObject object)
     {
-        // nothing doing
+        // let the client know that we're ready to go now that we've got
+        // our subscription to the client object
+        _client.invocationManagerReady();
     }
 
     public void requestFailed (int oid, ObjectAccessException cause)
     {
-        // nothing doing
+        // aiya! we were unable to subscribe to the client object. we're
+        // hosed, hosed, hosed
+        Log.warning("Invocation manager unable to subscribe to client " +
+                    "object. All is wrong in the universe.");
     }
 
     /**
@@ -176,6 +182,7 @@ public class InvocationManager
         }
     }
 
+    protected Client _client;
     protected DObjectManager _omgr;
     protected int _imoid;
     protected ClientObject _clobj;

@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.7 2001/07/19 07:48:25 mdb Exp $
+// $Id: PresentsClient.java,v 1.8 2001/07/19 18:08:20 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -69,6 +69,14 @@ public class Client implements Subscriber, MessageHandler
     public String getUsername ()
     {
         return _username;
+    }
+
+    /**
+     * Returns the client object that is associated with this client.
+     */
+    public ClientObject getClientObject ()
+    {
+        return _clobj;
     }
 
     /**
@@ -289,10 +297,15 @@ public class Client implements Subscriber, MessageHandler
         public void dispatch (Client client, UpstreamMessage msg)
         {
             ForwardEventRequest req = (ForwardEventRequest)msg;
-            Log.info("Forwarding event [client=" + client +
-                     ", event=" + req.getEvent() + "].");
+            DEvent fevt = req.getEvent();
+
+            // fill in the proper source oid
+            fevt.setSourceOid(client.getClientObject().getOid());
+
             // forward the event to the omgr for processing
-            CherServer.omgr.postEvent(req.getEvent());
+            Log.info("Forwarding event [client=" + client +
+                     ", event=" + fevt + "].");
+            CherServer.omgr.postEvent(fevt);
         }
     }
 
