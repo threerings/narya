@@ -1,12 +1,13 @@
 //
-// $Id: PathNode.java,v 1.2 2001/08/02 20:43:03 shaper Exp $
+// $Id: PathNode.java,v 1.3 2001/08/02 21:02:56 shaper Exp $
 
 package com.threerings.miso.sprite;
 
 import java.awt.Point;
 
 /**
- * The PathNode object is a single destination point in a Path.
+ * The <code>PathNode</code> is a single destination point in a
+ * <code>Path</code>.
  */
 public class PathNode
 {
@@ -17,7 +18,7 @@ public class PathNode
     public int dir;
 
     /**
-     * Construct a PathNode object.
+     * Construct a <code>PathNode</code> object.
      *
      * @param x the node x-position.
      * @param y the node y-position.

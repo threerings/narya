@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.2 2001/08/02 20:43:03 shaper Exp $
+// $Id: LineSegmentPath.java,v 1.3 2001/08/02 21:02:56 shaper Exp $
 
 package com.threerings.miso.sprite;
 
@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 
 /**
- * The Path class represents the path a sprite follows while
- * meandering about the screen.  There must be at least two nodes in
- * any worthwhile path.  The direction of the first node in the path
- * is meaningless since the sprite begins at that node and will
- * therefore never be heading towards it.
+ * The <code>Path</code> class represents the path a sprite follows
+ * while meandering about the screen.  There must be at least two
+ * nodes in any worthwhile path.  The direction of the first node in
+ * the path is meaningless since the sprite begins at that node and
+ * will therefore never be heading towards it.
  */
 public class Path
 {
@@ -29,13 +29,21 @@ public class Path
     public static final int DIR_SOUTHEAST = 7;
 
     /**
-     * Construct a Path object.
+     * Construct a <code>Path</code> object.
      */
     public Path ()
     {
         _nodes = new ArrayList();
     }
 
+    /**
+     * Construct a <code>Path</code> object with the specified
+     * starting node coordinates.  An arbitrary direction will be
+     * assigned to the starting node.
+     *
+     * @param x the starting node x-position.
+     * @param y the starting node y-position.
+     */
     public Path (int x, int y)
     {
         _nodes = new ArrayList();

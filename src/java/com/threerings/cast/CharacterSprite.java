@@ -1,5 +1,5 @@
 //
-// $Id: MobileSprite.java,v 1.3 2001/08/02 00:42:02 shaper Exp $
+// $Id: CharacterSprite.java,v 1.1 2001/08/02 21:02:56 shaper Exp $
 
 package com.threerings.miso.sprite;
 
@@ -8,31 +8,31 @@ import com.threerings.miso.tile.Tile;
 import com.threerings.miso.tile.TileManager;
 
 /**
- * A MobileSprite is a sprite that can face in one of eight compass
- * directions and that can be animated moving from one location to
- * another (e.g., a human's legs move and arms swing.)
+ * A <code>AmbulatorySprite</code> is a sprite that can face in one of
+ * eight compass directions and animate itself walking along any
+ * chosen path.
  */
-public class MobileSprite extends Sprite
+public class AmbulatorySprite extends Sprite
 {
     /**
-     * Construct a MobileSprite object, loading the tiles used to
-     * display the sprite from specified tileset via the given tile
-     * manager.
+     * Construct a <code>AmbulatorySprite</code>, loading the tiles
+     * used to display the sprite from the given tileset via the given
+     * tile manager.
      *
      * @param x the sprite x-position in pixels.
      * @param y the sprite y-position in pixels.
      * @param tilemgr the tile manager to retrieve tiles from.
      * @param tsid the tileset id containing the sprite tiles.
      */
-    public MobileSprite (SpriteManager spritemgr, int x, int y,
-                         TileManager tilemgr, int tsid)
+    public AmbulatorySprite (SpriteManager spritemgr, int x, int y,
+                             TileManager tilemgr, int tsid)
     {
         super(spritemgr, x, y);
 
-        _charTiles = getTiles(tilemgr, tsid);
+        _dirTiles = getTiles(tilemgr, tsid);
         _dir = Path.DIR_SOUTH;
 
-        setTiles(_charTiles[0]);
+        setTiles(_dirTiles[0]);
     }
 
     /**
@@ -70,37 +70,23 @@ public class MobileSprite extends Sprite
      * @param x the destination x-position.
      * @param y the destination y-position.
      */
-    public void setDestination (int x, int y)
+    protected void moveAlongPath ()
     {
+        // select the new path node
+        super.moveAlongPath();
+
+        // bail if we're at the end of the path
+        if (_dest == null) {
+            // stop any walking animation
+            setAnimationDelay(ANIM_NONE);
+            return;
+        }
+
         // update the sprite tiles to reflect the direction
-        setTiles(_charTiles[_dir = getDirection(x, y)]);
+        setTiles(_dirTiles[_dir = _dest.dir]);
 
-        // call superclass to effect the beginnings of the move
-        super.setDestination(x, y);
-
-        if (_state == STATE_MOVING) {
-            setAnimationDelay(0);
-        }
-    }
-
-    /**
-     * Return the directional constant corresponding to the direction
-     * the specified point is in from the sprite.
-     */
-    protected int getDirection (int x, int y)
-    {
-        if (x >= this.x - DIR_BUFFER && x <= this.x + DIR_BUFFER) {
-            return (y < this.y) ? Path.DIR_NORTH : Path.DIR_SOUTH;
-
-        } else if (y >= this.y - DIR_BUFFER && y <= this.y + DIR_BUFFER) {
-            return (x >= this.x) ? Path.DIR_EAST : Path.DIR_WEST;
-
-        } else if (x > this.x) {
-            return (y < this.y) ? Path.DIR_NORTHEAST : Path.DIR_SOUTHEAST;
-
-        } else {
-            return (y < this.y) ? Path.DIR_NORTHWEST : Path.DIR_SOUTHWEST;
-        }
+        // start tile animation to show movement
+        setAnimationDelay(0);
     }
 
     /** The number of frames of animation for each direction. */
@@ -113,7 +99,7 @@ public class MobileSprite extends Sprite
     protected static final int DIR_BUFFER = 20;
 
     /** The animation frames for the sprite facing each direction. */
-    protected Tile[][] _charTiles;
+    protected Tile[][] _dirTiles;
 
     /** The direction the sprite is currently facing. */
     protected int _dir;
