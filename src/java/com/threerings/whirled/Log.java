@@ -1,5 +1,5 @@
 //
-// $Id: Log.java,v 1.1 2001/08/11 04:09:50 mdb Exp $
+// $Id: Log.java,v 1.2 2003/09/22 23:57:20 mdb Exp $
 
 package com.threerings.whirled;
 
@@ -11,6 +11,12 @@ public class Log
 {
     public static com.samskivert.util.Log log =
 	new com.samskivert.util.Log("whirled");
+
+    /** Convenience function. */
+    public static boolean debug ()
+    {
+        return log.getLevel() == com.samskivert.util.Log.DEBUG;
+    }
 
     /** Convenience function. */
     public static void debug (String message)
