@@ -203,8 +203,7 @@ public class Table
     {
         for (int i = 0; i < occupants.length; i++) {
             if (username.equals(occupants[i])) {
-                occupants[i] = null;
-                bodyOids[i] = 0;
+                clearOccupantPos(i);
                 return true;
             }
         }
@@ -223,12 +222,21 @@ public class Table
     {
         for (int i = 0; i < bodyOids.length; i++) {
             if (bodyOid == bodyOids[i]) {
-                occupants[i] = null;
-                bodyOids[i] = 0;
+                clearOccupantPos(i);
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Internal method used for clearing an occupant once we've located
+     * the right position.
+     */
+    protected void clearOccupantPos (int position)
+    {
+        occupants[position] = null;
+        bodyOids[position] = 0;
     }
 
     /**
