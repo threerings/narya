@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.39 2002/02/09 07:50:37 mdb Exp $
+// $Id: DObject.java,v 1.40 2002/03/18 23:21:26 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -579,43 +579,43 @@ public class DObject
     /**
      * Calls by derived instances when a set adder method was called.
      */
-    protected void requestElementAdd (String name, DSet.Element elem)
+    protected void requestEntryAdd (String name, DSet.Entry entry)
     {
         try {
             DSet set = (DSet)getAttribute(name);
-            // dispatch an element added event
-            postEvent(new ElementAddedEvent(
-                          _oid, name, elem, !set.homogenous()));
+            // dispatch an entry added event
+            postEvent(new EntryAddedEvent(
+                          _oid, name, entry, !set.homogenous()));
 
         } catch (ObjectAccessException oae) {
-            Log.warning("Unable to request elementAdd [name=" + name +
-                        ", elem=" + elem + ", error=" + oae + "].");
+            Log.warning("Unable to request entryAdd [name=" + name +
+                        ", entry=" + entry + ", error=" + oae + "].");
         }
     }
 
     /**
      * Calls by derived instances when a set remover method was called.
      */
-    protected void requestElementRemove (String name, Object key)
+    protected void requestEntryRemove (String name, Object key)
     {
-        // dispatch an element removed event
-        postEvent(new ElementRemovedEvent(_oid, name, key));
+        // dispatch an entry removed event
+        postEvent(new EntryRemovedEvent(_oid, name, key));
     }
 
     /**
      * Calls by derived instances when a set updater method was called.
      */
-    protected void requestElementUpdate (String name, DSet.Element elem)
+    protected void requestEntryUpdate (String name, DSet.Entry entry)
     {
         try {
             DSet set = (DSet)getAttribute(name);
-            // dispatch an element updated event
-            postEvent(new ElementUpdatedEvent(
-                          _oid, name, elem, !set.homogenous()));
+            // dispatch an entry updated event
+            postEvent(new EntryUpdatedEvent(
+                          _oid, name, entry, !set.homogenous()));
 
         } catch (ObjectAccessException oae) {
-            Log.warning("Unable to request elementUpdate [name=" + name +
-                        ", elem=" + elem + ", error=" + oae + "].");
+            Log.warning("Unable to request entryUpdate [name=" + name +
+                        ", entry=" + entry + ", error=" + oae + "].");
         }
     }
 

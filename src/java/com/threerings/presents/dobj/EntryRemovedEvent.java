@@ -1,5 +1,5 @@
 //
-// $Id: EntryRemovedEvent.java,v 1.7 2002/02/01 23:32:37 mdb Exp $
+// $Id: EntryRemovedEvent.java,v 1.8 2002/03/18 23:21:26 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -10,30 +10,29 @@ import java.io.IOException;
 import com.threerings.presents.io.ValueMarshaller;
 
 /**
- * An element removed event is dispatched when an element is removed from
- * a <code>DSet</code> attribute of a distributed object. It can also be
- * constructed to request the removal of an element from a set and posted
- * to the dobjmgr.
+ * An entry removed event is dispatched when an entry is removed from a
+ * {@link DSet} attribute of a distributed object. It can also be
+ * constructed to request the removal of an entry from a set and posted to
+ * the dobjmgr.
  *
  * @see DObjectManager#postEvent
  */
-public class ElementRemovedEvent extends TypedEvent
+public class EntryRemovedEvent extends TypedEvent
 {
     /** The typed object code for this event. */
     public static final short TYPE = TYPE_BASE + 9;
 
     /**
-     * Constructs a new element removed event on the specified target
-     * object with the supplied set attribute name and element key to
-     * remove.
+     * Constructs a new entry removed event on the specified target object
+     * with the supplied set attribute name and entry key to remove.
      *
      * @param targetOid the object id of the object from whose set we will
-     * remove an element.
+     * remove an entry.
      * @param name the name of the attribute from which to remove the
-     * specified element.
-     * @param key the element key that identifies the element to remove.
+     * specified entry.
+     * @param key the entry key that identifies the entry to remove.
      */
-    public ElementRemovedEvent (int targetOid, String name, Object key)
+    public EntryRemovedEvent (int targetOid, String name, Object key)
     {
         super(targetOid);
         _name = name;
@@ -44,7 +43,7 @@ public class ElementRemovedEvent extends TypedEvent
      * Constructs a blank instance of this event in preparation for
      * unserialization from the network.
      */
-    public ElementRemovedEvent ()
+    public EntryRemovedEvent ()
     {
     }
 
@@ -58,7 +57,7 @@ public class ElementRemovedEvent extends TypedEvent
     }
 
     /**
-     * Returns the key that identifies the element that has been removed.
+     * Returns the key that identifies the entry that has been removed.
      */
     public Object getKey ()
     {
@@ -105,7 +104,7 @@ public class ElementRemovedEvent extends TypedEvent
     protected void notifyListener (Object listener)
     {
         if (listener instanceof SetListener) {
-            ((SetListener)listener).elementRemoved(this);
+            ((SetListener)listener).entryRemoved(this);
         }
     }
 

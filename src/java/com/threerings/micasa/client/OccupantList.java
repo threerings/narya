@@ -1,5 +1,5 @@
 //
-// $Id: OccupantList.java,v 1.4 2001/12/20 01:10:52 shaper Exp $
+// $Id: OccupantList.java,v 1.5 2002/03/18 23:21:26 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -42,7 +42,7 @@ public class OccupantList
     public void willEnterPlace (PlaceObject plobj)
     {
         // add all of the occupants of the place to our list
-        Iterator users = plobj.occupantInfo.elements();
+        Iterator users = plobj.occupantInfo.entries();
         while (users.hasNext()) {
             OccupantInfo info = (OccupantInfo)users.next();
             _model.addElement(info.username);

@@ -1,5 +1,5 @@
 //
-// $Id: OccupantInfo.java,v 1.5 2001/12/15 04:20:00 mdb Exp $
+// $Id: OccupantInfo.java,v 1.6 2002/03/18 23:21:26 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -28,9 +28,9 @@ import com.threerings.presents.dobj.DSet;
  * is requested.
  */
 public class OccupantInfo
-    implements DSet.Element, Cloneable
+    implements DSet.Entry, Cloneable
 {
-    /** The body object id of this occupant (and our element key). */
+    /** The body object id of this occupant (and our entry key). */
     public Integer bodyOid;
 
     /** The username of this occupant. */

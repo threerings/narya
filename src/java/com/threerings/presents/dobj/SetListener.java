@@ -1,5 +1,5 @@
 //
-// $Id: SetListener.java,v 1.2 2002/02/03 04:38:05 mdb Exp $
+// $Id: SetListener.java,v 1.3 2002/03/18 23:21:26 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -12,29 +12,29 @@ package com.threerings.presents.dobj;
 public interface SetListener extends ChangeListener
 {
     /**
-     * Called when an element added event has been dispatched on an
+     * Called when an entry added event has been dispatched on an
      * object. This will be called <em>after</em> the event has been
      * applied to the object.
      *
      * @param event The event that was dispatched on the object.
      */
-    public void elementAdded (ElementAddedEvent event);
+    public void entryAdded (EntryAddedEvent event);
 
     /**
-     * Called when an element updated event has been dispatched on an
+     * Called when an entry updated event has been dispatched on an
      * object. This will be called <em>after</em> the event has been
      * applied to the object.
      *
      * @param event The event that was dispatched on the object.
      */
-    public void elementUpdated (ElementUpdatedEvent event);
+    public void entryUpdated (EntryUpdatedEvent event);
 
     /**
-     * Called when an element removed event has been dispatched on an
+     * Called when an entry removed event has been dispatched on an
      * object. This will be called <em>after</em> the event has been
      * applied to the object.
      *
      * @param event The event that was dispatched on the object.
      */
-    public void elementRemoved (ElementRemovedEvent event);
+    public void entryRemoved (EntryRemovedEvent event);
 }

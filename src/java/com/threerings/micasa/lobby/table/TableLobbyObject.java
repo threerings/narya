@@ -1,5 +1,5 @@
 //
-// $Id: TableLobbyObject.java,v 1.3 2002/03/08 01:06:12 mdb Exp $
+// $Id: TableLobbyObject.java,v 1.4 2002/03/18 23:21:26 mdb Exp $
 
 package com.threerings.micasa.lobby.table;
 
@@ -42,39 +42,39 @@ public class TableLobbyObject
     }
 
     /**
-     * Requests that the specified element be added to the
+     * Requests that the specified entry be added to the
      * <code>tableSet</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    public void addToTableSet (DSet.Element elem)
+    public void addToTableSet (DSet.Entry elem)
     {
-        requestElementAdd(TABLE_SET, elem);
+        requestEntryAdd(TABLE_SET, elem);
     }
 
     /**
-     * Requests that the element matching the supplied key be removed from
+     * Requests that the entry matching the supplied key be removed from
      * the <code>tableSet</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
     public void removeFromTableSet (Object key)
     {
-        requestElementRemove(TABLE_SET, key);
+        requestEntryRemove(TABLE_SET, key);
     }
 
     /**
-     * Requests that the specified element be updated in the
+     * Requests that the specified entry be updated in the
      * <code>tableSet</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    public void updateTableSet (DSet.Element elem)
+    public void updateTableSet (DSet.Entry elem)
     {
-        requestElementUpdate(TABLE_SET, elem);
+        requestEntryUpdate(TABLE_SET, elem);
     }
 
     /**
      * Requests that the <code>tableSet</code> field be set to the
      * specified value. Generally one only adds, updates and removes
-     * elements of a distributed set, but certain situations call for a
+     * entries of a distributed set, but certain situations call for a
      * complete replacement of the set value. The local value will be
      * updated immediately and an event will be propagated through the
      * system to notify all listeners that the attribute did

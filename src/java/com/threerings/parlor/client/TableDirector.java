@@ -1,13 +1,13 @@
 //
-// $Id: TableDirector.java,v 1.5 2001/10/23 23:52:01 mdb Exp $
+// $Id: TableDirector.java,v 1.6 2002/03/18 23:21:26 mdb Exp $
 
 package com.threerings.parlor.client;
 
 import java.util.ArrayList;
 
-import com.threerings.presents.dobj.ElementAddedEvent;
-import com.threerings.presents.dobj.ElementUpdatedEvent;
-import com.threerings.presents.dobj.ElementRemovedEvent;
+import com.threerings.presents.dobj.EntryAddedEvent;
+import com.threerings.presents.dobj.EntryUpdatedEvent;
+import com.threerings.presents.dobj.EntryRemovedEvent;
 import com.threerings.presents.dobj.SetListener;
 
 import com.threerings.crowd.data.BodyObject;
@@ -190,10 +190,10 @@ public class TableDirector
     }
 
     // documentation inherited
-    public void elementAdded (ElementAddedEvent event)
+    public void entryAdded (EntryAddedEvent event)
     {
         if (event.getName().equals(_tableField)) {
-            Table table = (Table)event.getElement();
+            Table table = (Table)event.getEntry();
 
             // check to see if we just joined a table
             checkSeatedness(table);
@@ -204,10 +204,10 @@ public class TableDirector
     }
 
     // documentation inherited
-    public void elementUpdated (ElementUpdatedEvent event)
+    public void entryUpdated (EntryUpdatedEvent event)
     {
         if (event.getName().equals(_tableField)) {
-            Table table = (Table)event.getElement();
+            Table table = (Table)event.getEntry();
 
             // check to see if we just joined or left a table
             checkSeatedness(table);
@@ -218,7 +218,7 @@ public class TableDirector
     }
 
     // documentation inherited
-    public void elementRemoved (ElementRemovedEvent event)
+    public void entryRemoved (EntryRemovedEvent event)
     {
         if (event.getName().equals(_tableField)) {
             Integer tableId = (Integer)event.getKey();

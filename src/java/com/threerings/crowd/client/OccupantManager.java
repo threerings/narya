@@ -1,5 +1,5 @@
 //
-// $Id: OccupantManager.java,v 1.10 2001/12/20 02:48:21 mdb Exp $
+// $Id: OccupantManager.java,v 1.11 2002/03/18 23:21:25 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -89,7 +89,7 @@ public class OccupantManager
             return null;
         }
 
-        Iterator iter = _place.occupantInfo.elements();
+        Iterator iter = _place.occupantInfo.entries();
         while (iter.hasNext()) {
             OccupantInfo info = (OccupantInfo)iter.next();
             if (info.username.equals(username)) {
@@ -121,7 +121,7 @@ public class OccupantManager
         _place.addListener(this);
 
         // cache the occupant info for the occupants in this room
-        Iterator iter = _place.occupantInfo.elements();
+        Iterator iter = _place.occupantInfo.entries();
         while (iter.hasNext()) {
             OccupantInfo info = (OccupantInfo)iter.next();
             _ocache.put(info.getBodyOid(), info);
@@ -137,7 +137,7 @@ public class OccupantManager
     /**
      * Deals with all of the processing when an occupant shows up.
      */
-    public void elementAdded (ElementAddedEvent event)
+    public void entryAdded (EntryAddedEvent event)
     {
         // bail if this isn't for the OCCUPANT_INFO field
         if (!event.getName().equals(PlaceObject.OCCUPANT_INFO)) {
@@ -145,7 +145,7 @@ public class OccupantManager
         }
 
         // put the info in our cache for use when we get a left event
-        OccupantInfo info = (OccupantInfo)event.getElement();
+        OccupantInfo info = (OccupantInfo)event.getEntry();
         int bodyOid = info.getBodyOid();
         _ocache.put(bodyOid, info);
 
@@ -159,7 +159,7 @@ public class OccupantManager
     /**
      * Deals with all of the processing when an occupant is updated.
      */
-    public void elementUpdated (ElementUpdatedEvent event)
+    public void entryUpdated (EntryUpdatedEvent event)
     {
         // bail if this isn't for the OCCUPANT_INFO field
         if (!event.getName().equals(PlaceObject.OCCUPANT_INFO)) {
@@ -167,7 +167,7 @@ public class OccupantManager
         }
 
         // update our cache
-        OccupantInfo info = (OccupantInfo)event.getElement();
+        OccupantInfo info = (OccupantInfo)event.getEntry();
         int bodyOid = info.getBodyOid();
         _ocache.put(bodyOid, info);
 
@@ -181,7 +181,7 @@ public class OccupantManager
     /**
      * Deals with all of the processing when an occupant leaves.
      */
-    public void elementRemoved (ElementRemovedEvent event)
+    public void entryRemoved (EntryRemovedEvent event)
     {
         // bail if this isn't for the OCCUPANT_INFO field
         if (!event.getName().equals(PlaceObject.OCCUPANT_INFO)) {

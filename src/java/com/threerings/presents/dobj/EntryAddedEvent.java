@@ -1,5 +1,5 @@
 //
-// $Id: EntryAddedEvent.java,v 1.6 2002/02/04 00:50:11 mdb Exp $
+// $Id: EntryAddedEvent.java,v 1.7 2002/03/18 23:21:26 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -8,40 +8,39 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import com.threerings.presents.Log;
-import com.threerings.presents.dobj.io.ElementUtil;
+import com.threerings.presents.dobj.io.EntryUtil;
 
 /**
- * An element added event is dispatched when an element is added to a
- * <code>DSet</code> attribute of a distributed element. It can also be
- * constructed to request the addition of an element to a set and posted
- * to the dobjmgr.
+ * An entry added event is dispatched when an entry is added to a {@link
+ * DSet} attribute of a distributed entry. It can also be constructed to
+ * request the addition of an entry to a set and posted to the dobjmgr.
  *
  * @see DObjectManager#postEvent
  */
-public class ElementAddedEvent extends TypedEvent
+public class EntryAddedEvent extends TypedEvent
 {
     /** The typed object code for this event. */
     public static final short TYPE = TYPE_BASE + 8;
 
     /**
-     * Constructs a new element added event on the specified target object
-     * with the supplied set attribute name and element to add.
+     * Constructs a new entry added event on the specified target object
+     * with the supplied set attribute name and entry to add.
      *
      * @param targetOid the object id of the object to whose set we will
-     * add an element.
+     * add an entry.
      * @param name the name of the attribute to which to add the specified
-     * element.
-     * @param elem the element to add to the set attribute.
-     * @param qualified whether or not the element need be qualified with
+     * entry.
+     * @param entry the entry to add to the set attribute.
+     * @param qualified whether or not the entry need be qualified with
      * its class when serializing (true for heterogenous sets, false for
      * homogenous sets).
      */
-    public ElementAddedEvent (int targetOid, String name, DSet.Element elem,
+    public EntryAddedEvent (int targetOid, String name, DSet.Entry entry,
                               boolean qualified)
     {
         super(targetOid);
         _name = name;
-        _elem = elem;
+        _entry = entry;
         _qualified = qualified;
     }
 
@@ -49,12 +48,12 @@ public class ElementAddedEvent extends TypedEvent
      * Constructs a blank instance of this event in preparation for
      * unserialization from the network.
      */
-    public ElementAddedEvent ()
+    public EntryAddedEvent ()
     {
     }
 
     /**
-     * Returns the name of the set attribute to which an element has been
+     * Returns the name of the set attribute to which an entry has been
      * added.
      */
     public String getName ()
@@ -63,11 +62,11 @@ public class ElementAddedEvent extends TypedEvent
     }
 
     /**
-     * Returns the element that has been added.
+     * Returns the entry that has been added.
      */
-    public DSet.Element getElement ()
+    public DSet.Entry getEntry ()
     {
-        return _elem;
+        return _entry;
     }
 
     /**
@@ -79,18 +78,18 @@ public class ElementAddedEvent extends TypedEvent
         DSet set = (DSet)target.getAttribute(_name);
 
         // now that we have access to our target set, we can unflatten our
-        // element (if need be)
-        if (_elem == null) {
+        // entry (if need be)
+        if (_entry == null) {
             try {
-                _elem = ElementUtil.unflatten(set, _bytes);
+                _entry = EntryUtil.unflatten(set, _bytes);
             } catch (Exception e) {
-                Log.warning("Error unflattening element " + this + ".");
+                Log.warning("Error unflattening entry " + this + ".");
                 Log.logStackTrace(e);
                 return false;
             }
         }
 
-        set.add(_elem);
+        set.add(_entry);
         return true;
     }
 
@@ -106,7 +105,7 @@ public class ElementAddedEvent extends TypedEvent
     {
         super.writeTo(out);
         out.writeUTF(_name);
-        ElementUtil.flatten(out, _elem, _qualified);
+        EntryUtil.flatten(out, _entry, _qualified);
     }
 
     // documentation inherited
@@ -116,9 +115,9 @@ public class ElementAddedEvent extends TypedEvent
         super.readFrom(in);
         _name = in.readUTF();
 
-        // we read in the raw element data now and decode it later when we
+        // we read in the raw entry data now and decode it later when we
         // have access to the object and the DSet instance that knows what
-        // type of element we need to decode
+        // type of entry we need to decode
         int bcount = in.readInt();
         _bytes = new byte[bcount];
         in.readFully(_bytes, 0, bcount);
@@ -128,7 +127,7 @@ public class ElementAddedEvent extends TypedEvent
     protected void notifyListener (Object listener)
     {
         if (listener instanceof SetListener) {
-            ((SetListener)listener).elementAdded(this);
+            ((SetListener)listener).entryAdded(this);
         }
     }
 
@@ -138,11 +137,11 @@ public class ElementAddedEvent extends TypedEvent
         buf.append("ELADD:");
         super.toString(buf);
         buf.append(", name=").append(_name);
-        buf.append(", elem=").append(_elem);
+        buf.append(", entry=").append(_entry);
     }
 
     protected String _name;
     protected byte[] _bytes;
-    protected DSet.Element _elem;
+    protected DSet.Entry _entry;
     protected boolean _qualified;
 }

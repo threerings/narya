@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.27 2002/02/14 18:08:53 mdb Exp $
+// $Id: PlaceManager.java,v 1.28 2002/03/18 23:21:26 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -136,7 +136,7 @@ public class PlaceManager
         _plobj = plobj;
 
         // configure the occupant info set
-        plobj.occupantInfo.setElementType(getOccupantInfoClass());
+        plobj.occupantInfo.setEntryType(getOccupantInfoClass());
 
         // we'll need to hear about place object events
         plobj.addListener(this);

@@ -1,5 +1,5 @@
 //
-// $Id: TypedObjectRegistry.java,v 1.8 2001/10/23 20:22:47 mdb Exp $
+// $Id: TypedObjectRegistry.java,v 1.9 2002/03/18 23:21:26 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -66,11 +66,11 @@ public class TypedObjectRegistry
                                          ReleaseLockEvent.class);
         TypedObjectFactory.registerClass(ObjectDestroyedEvent.TYPE,
                                          ObjectDestroyedEvent.class);
-        TypedObjectFactory.registerClass(ElementAddedEvent.TYPE,
-                                         ElementAddedEvent.class);
-        TypedObjectFactory.registerClass(ElementRemovedEvent.TYPE,
-                                         ElementRemovedEvent.class);
-        TypedObjectFactory.registerClass(ElementUpdatedEvent.TYPE,
-                                         ElementUpdatedEvent.class);
+        TypedObjectFactory.registerClass(EntryAddedEvent.TYPE,
+                                         EntryAddedEvent.class);
+        TypedObjectFactory.registerClass(EntryRemovedEvent.TYPE,
+                                         EntryRemovedEvent.class);
+        TypedObjectFactory.registerClass(EntryUpdatedEvent.TYPE,
+                                         EntryUpdatedEvent.class);
     }
 }

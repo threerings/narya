@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.15 2002/02/08 05:14:22 mdb Exp $
+// $Id: DSet.java,v 1.16 2002/03/18 23:21:26 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -15,81 +15,81 @@ import com.threerings.presents.io.Streamable;
 
 /**
  * The distributed set class provides a means by which an unordered set of
- * objects can be maintained as a distributed object field. Elements can
- * be added to and removed from the set, requests for which will generate
+ * objects can be maintained as a distributed object field. Entries can be
+ * added to and removed from the set, requests for which will generate
  * events much like other distributed object fields.
  *
  * <p> A set can be either homogenous, whereby the type of object to be
  * contained in the set is configured before the set is used and does not
- * change; or heterogenous, whereby a set can contain any type of element
- * as long as it implements {@link Element}. Homogenous sets take
- * advantage of their homogeneity by not transfering the classname of each
- * element as it is sent over the wire.
+ * change; or heterogenous, whereby a set can contain any type of entry as
+ * long as it implements {@link Entry}. Homogenous sets take advantage of
+ * their homogeneity by not transfering the classname of each entry as it
+ * is sent over the wire.
  *
- * <p> Classes that wish to act as set elements must implement the {@link
- * com.threerings.presents.dobj.DSet.Element} interface which extends
- * {@link Streamable} and adds the requirement that the object provide a
- * key which will be used to identify element equality. Thus an element is
- * declared to be in a set of the object returned by that element's
- * <code>geyKey()</code> method is equal (using <code>equal()</code>) to
- * the element returned by the <code>getKey()</code> method of some other
- * element in the set.  Additionally, in the case of element removal, only
- * the key for the element to be removed will be transmitted with the
- * removal event to save network bandwidth. Lastly, the object returned by
- * <code>getKey()</code> must be a valid distributed object type.
+ * <p> Classes that wish to act as set entries must implement the {@link
+ * Entry} interface which extends {@link Streamable} and adds the
+ * requirement that the object provide a key which will be used to
+ * identify entry equality. Thus an entry is declared to be in a set of
+ * the object returned by that entry's <code>geyKey()</code> method is
+ * equal (using <code>equal()</code>) to the entry returned by the
+ * <code>getKey()</code> method of some other entry in the set.
+ * Additionally, in the case of entry removal, only the key for the entry
+ * to be removed will be transmitted with the removal event to save
+ * network bandwidth. Lastly, the object returned by <code>getKey()</code>
+ * must be a valid distributed object type.
  */
 public class DSet
     implements Streamable, Cloneable
 {
     /**
-     * Elements of the set must implement this interface.
+     * Entries of the set must implement this interface.
      */
-    public static interface Element extends Streamable
+    public static interface Entry extends Streamable
     {
         /**
-         * Each element provide an associated key which is used to
-         * determine its uniqueness in the set. See the {@link DSet} class
+         * Each entry provide an associated key which is used to determine
+         * its uniqueness in the set. See the {@link DSet} class
          * documentation for further information.
          */
         public Object getKey ();
     }
 
     /**
-     * Constructs a distributed set that will contain the specified
-     * element type.
+     * Constructs a distributed set that will contain the specified entry
+     * type.
      */
-    public DSet (Class elementType)
+    public DSet (Class entryType)
     {
-        setElementType(elementType);
+        setEntryType(entryType);
     }
 
     /**
      * Creates a distributed set and populates it with values from the
      * supplied iterator. This should be done before the set is unleashed
-     * into the wild distributed object world because no associated
-     * element added events will be generated. Additionally, this
-     * operation does not check for duplicates when adding elements, so
-     * one should be sure that the iterator contains only unique elements.
+     * into the wild distributed object world because no associated entry
+     * added events will be generated. Additionally, this operation does
+     * not check for duplicates when adding entries, so one should be sure
+     * that the iterator contains only unique entries.
      *
-     * @param elementType the type of elements that will be stored in this
-     * set. <em>Only</em> elements of this <em>exact</em> type may be
+     * @param entryType the type of entries that will be stored in this
+     * set. <em>Only</em> entries of this <em>exact</em> type may be
      * stored in the set.
      * @param source an iterator from which we will initially populate the
      * set.
      */
-    public DSet (Class elementType, Iterator source)
+    public DSet (Class entryType, Iterator source)
     {
         this(source);
-        setElementType(elementType);
+        setEntryType(entryType);
     }
 
     /**
      * Creates a distributed set and populates it with values from the
      * supplied iterator. This should be done before the set is unleashed
-     * into the wild distributed object world because no associated
-     * element added events will be generated. Additionally, this
-     * operation does not check for duplicates when adding elements, so
-     * one should be sure that the iterator contains only unique elements.
+     * into the wild distributed object world because no associated entry
+     * added events will be generated. Additionally, this operation does
+     * not check for duplicates when adding entries, so one should be sure
+     * that the iterator contains only unique entries.
      *
      * @param source an iterator from which we will initially populate the
      * set.
@@ -97,56 +97,55 @@ public class DSet
     public DSet (Iterator source)
     {
         for (int index = 0; source.hasNext(); index++) {
-            Element elem = (Element)source.next();
+            Entry elem = (Entry)source.next();
 
             // expand the array if necessary
-            if (index >= _elements.length) {
+            if (index >= _entries.length) {
                 expand(index);
             }
 
             // insert the item
-            _elements[index] = elem;
+            _entries[index] = elem;
             _size++;
         }
     }
 
     /**
-     * Constructs a distributed set without specifying the element
-     * type. The set will assume that it is heterogenous, unless a
-     * homogenous class type is otherwise specified via {@link
-     * #setElementType}.
+     * Constructs a distributed set without specifying the entry type. The
+     * set will assume that it is heterogenous, unless a homogenous class
+     * type is otherwise specified via {@link #setEntryType}.
      */
     public DSet ()
     {
     }
 
     /**
-     * Returns true if this set contains only elements of exactly the same
+     * Returns true if this set contains only entries of exactly the same
      * type, false if not.
      */
     public boolean homogenous ()
     {
-        return _elementType != null;
+        return _entryType != null;
     }
 
     /**
-     * Indicates what type of elements will be stored in this set. This
-     * can be called multiple times before the set is used (in the event
-     * that one wishes to further specialize the contents of a set that
-     * has already been configured to use a particular element type), but
-     * once the set goes into use, it must not be changed. Also bear in
-     * mind that the class of elements added to the set are not checked at
-     * runtime, and adding elements of invalid class will simply result in
+     * Indicates what type of entries will be stored in this set. This can
+     * be called multiple times before the set is used (in the event that
+     * one wishes to further specialize the contents of a set that has
+     * already been configured to use a particular entry type), but once
+     * the set goes into use, it must not be changed. Also bear in mind
+     * that the class of entries added to the set are not checked at
+     * runtime, and adding entries of invalid class will simply result in
      * the serialization mechanism failing when an event is dispatched to
-     * broadcast the addition of an element.
+     * broadcast the addition of an entry.
      */
-    public void setElementType (Class elementType)
+    public void setEntryType (Class entryType)
     {
-        _elementType = elementType;
+        _entryType = entryType;
     }
 
     /**
-     * Returns the number of elements in this set.
+     * Returns the number of entries in this set.
      */
     public int size ()
     {
@@ -154,18 +153,18 @@ public class DSet
     }
 
     /**
-     * Returns true if the set contains an element whose
+     * Returns true if the set contains an entry whose
      * <code>getKey()</code> method returns a key that
      * <code>equals()</code> the key returned by <code>getKey()</code> of
-     * the supplied element. Returns false otherwise.
+     * the supplied entry. Returns false otherwise.
      */
-    public boolean contains (Element elem)
+    public boolean contains (Entry elem)
     {
         return containsKey(elem.getKey());
     }
 
     /**
-     * Returns true if an element in the set has a key that
+     * Returns true if an entry in the set has a key that
      * <code>equals()</code> the supplied key. Returns false otherwise.
      */
     public boolean containsKey (Object key)
@@ -174,18 +173,18 @@ public class DSet
     }
 
     /**
-     * Returns the element that matches
-     * (<code>getKey().equals(key)</code>) the specified key or null if no
-     * element could be found that matches the key.
+     * Returns the entry that matches (<code>getKey().equals(key)</code>)
+     * the specified key or null if no entry could be found that matches
+     * the key.
      */
-    public Element get (Object key)
+    public Entry get (Object key)
     {
-        // scan the array looking for a matching element
-        int elength = _elements.length;
+        // scan the array looking for a matching entry
+        int elength = _entries.length;
         for (int i = 0; i < elength; i++) {
             // the array may be sparse
-            if (_elements[i] != null) {
-                Element elem = _elements[i];
+            if (_entries[i] != null) {
+                Entry elem = _entries[i];
                 if (elem.getKey().equals(key)) {
                     return elem;
                 }
@@ -195,26 +194,26 @@ public class DSet
     }
 
     /**
-     * Returns an iterator over the elements of this set. It does not
+     * Returns an iterator over the entries of this set. It does not
      * support modification (nor iteration while modifications are being
      * made to the set). It should not be kept around as it can quickly
      * become out of date.
      */
-    public Iterator elements ()
+    public Iterator entries ()
     {
         return new Iterator() {
             public boolean hasNext ()
             {
-                // we need to scan to the next element the first time
+                // we need to scan to the next entry the first time
                 if (_index < 0) {
                     scanToNext();
                 }
-                return (_index < _elements.length);
+                return (_index < _entries.length);
             }
 
             public Object next ()
             {
-                Object val = _elements[_index];
+                Object val = _entries[_index];
                 scanToNext();
                 return val;
             }
@@ -226,8 +225,8 @@ public class DSet
 
             protected void scanToNext ()
             {
-                for (_index++; _index < _elements.length; _index++) {
-                    if (_elements[_index] != null) {
+                for (_index++; _index < _entries.length; _index++) {
+                    if (_entries[_index] != null) {
                         return;
                     }
                 }
@@ -238,24 +237,24 @@ public class DSet
     }
 
     /**
-     * Adds the specified element to the set. This should not be called
+     * Adds the specified entry to the set. This should not be called
      * directly, instead the associated <code>addTo{Set}()</code> method
      * should be called on the distributed object that contains the set in
      * question.
      *
-     * @return true if the element was added, false if it was already in
+     * @return true if the entry was added, false if it was already in
      * the set.
      */
-    protected boolean add (Element elem)
+    protected boolean add (Entry elem)
     {
         Object key = elem.getKey();
-        int elength = _elements.length;
+        int elength = _entries.length;
         int index = elength;
 
-        // scan the array looking for a slot and/or the element already in
+        // scan the array looking for a slot and/or the entry already in
         // the set
         for (int i = 0; i < elength; i++) {
-            Element el = _elements[i];
+            Entry el = _entries[i];
             // the array may be sparse
             if (el == null) {
                 if (index == elength) {
@@ -267,47 +266,47 @@ public class DSet
         }
 
         // expand the array if necessary
-        if (index >= _elements.length) {
+        if (index >= _entries.length) {
             expand(index);
         }
 
         // insert the item
-        _elements[index] = elem;
+        _entries[index] = elem;
         _size++;
         return true;
     }
 
     /**
-     * Removes the specified element from the set. This should not be
-     * called directly, instead the associated
-     * <code>removeFrom{Set}()</code> method should be called on the
-     * distributed object that contains the set in question.
+     * Removes the specified entry from the set. This should not be called
+     * directly, instead the associated <code>removeFrom{Set}()</code>
+     * method should be called on the distributed object that contains the
+     * set in question.
      *
-     * @return true if the element was removed, false if it was not in the
+     * @return true if the entry was removed, false if it was not in the
      * set.
      */
-    protected boolean remove (Element elem)
+    protected boolean remove (Entry elem)
     {
         return removeKey(elem.getKey());
     }
 
     /**
-     * Removes from the set the element whose key matches the supplied
+     * Removes from the set the entry whose key matches the supplied
      * key. This should not be called directly, instead the associated
      * <code>removeFrom{Set}()</code> method should be called on the
      * distributed object that contains the set in question.
      *
-     * @return true if a matching element was removed, false if no element
+     * @return true if a matching entry was removed, false if no entry
      * in the set matched the key.
      */
     protected boolean removeKey (Object key)
     {
-        // scan the array looking for a matching element
-        int elength = _elements.length;
+        // scan the array looking for a matching entry
+        int elength = _entries.length;
         for (int i = 0; i < elength; i++) {
-            Element el = _elements[i];
+            Entry el = _entries[i];
             if (el != null && el.getKey().equals(key)) {
-                _elements[i] = null;
+                _entries[i] = null;
                 _size--;
                 return true;
             }
@@ -316,25 +315,25 @@ public class DSet
     }
 
     /**
-     * Updates the specified element by locating an element whose key
-     * matches the key of the supplied element and overwriting it. This
-     * should not be called directly, instead the associated
+     * Updates the specified entry by locating an entry whose key matches
+     * the key of the supplied entry and overwriting it. This should not
+     * be called directly, instead the associated
      * <code>update{Set}()</code> method should be called on the
      * distributed object that contains the set in question.
      *
-     * @return true if the element was updated, false if it was not
+     * @return true if the entry was updated, false if it was not
      * already in the set (in which case nothing is updated).
      */
-    protected boolean update (Element elem)
+    protected boolean update (Entry elem)
     {
         Object key = elem.getKey();
 
-        // scan the array looking for a matching element
-        int elength = _elements.length;
+        // scan the array looking for a matching entry
+        int elength = _entries.length;
         for (int i = 0; i < elength; i++) {
-            Element el = _elements[i];
+            Entry el = _entries[i];
             if (el != null && el.getKey().equals(key)) {
-                _elements[i] = elem;
+                _entries[i] = elem;
                 return true;
             }
         }
@@ -348,17 +347,17 @@ public class DSet
     public void writeTo (DataOutputStream out)
         throws IOException
     {
-        if (_elementType == null) {
+        if (_entryType == null) {
             out.writeUTF("");
         } else {
-            out.writeUTF(_elementType.getName());
+            out.writeUTF(_entryType.getName());
         }
         out.writeInt(_size);
-        int elength = _elements.length;
+        int elength = _entries.length;
         for (int i = 0; i < elength; i++) {
-            Element elem = _elements[i];
+            Entry elem = _entries[i];
             if (elem != null) {
-                if (_elementType == null) {
+                if (_entryType == null) {
                     out.writeUTF(elem.getClass().getName());
                 }
                 elem.writeTo(out);
@@ -372,45 +371,45 @@ public class DSet
     public void readFrom (DataInputStream in)
         throws IOException
     {
-        // read our element class and forName() it (if we read an element
+        // read our entry class and forName() it (if we read an entry
         // class, we're a homogenous set; otherwise we're heterogenous)
         String eclass = in.readUTF();
         try {
             if (!StringUtil.blank(eclass)) {
-                _elementType = Class.forName(eclass);
+                _entryType = Class.forName(eclass);
             }
 
         } catch (Exception e) {
-            String err = "Unable to instantiate element class [err=" + e + "]";
+            String err = "Unable to instantiate entry class [err=" + e + "]";
             throw new IOException(err);
         }
 
-        // find out how many elements we'll be reading
+        // find out how many entries we'll be reading
         _size = in.readInt();
 
-        // make sure we can fit _size elements
+        // make sure we can fit _size entries
         expand(_size);
 
         for (int i = 0; i < _size; i++) {
-            _elements[i] = readElement(in);
+            _entries[i] = readEntry(in);
         }
     }
 
     /**
-     * Reads an element from the wire and unserializes it. Takes into
+     * Reads an entry from the wire and unserializes it. Takes into
      * account whether or not we're a homogenous set.
      */
-    public Element readElement (DataInputStream in)
+    public Entry readEntry (DataInputStream in)
         throws IOException
     {
         try {
-            Element elem = null;
+            Entry elem = null;
 
-            // instantiate the appropriate element instance
-            if (_elementType != null) {
-                elem = (Element)_elementType.newInstance();
+            // instantiate the appropriate entry instance
+            if (_entryType != null) {
+                elem = (Entry)_entryType.newInstance();
             } else {
-                elem = (Element)Class.forName(in.readUTF()).newInstance();
+                elem = (Entry)Class.forName(in.readUTF()).newInstance();
             }
 
             // unserialize it and return it
@@ -418,7 +417,7 @@ public class DSet
             return elem;
 
         } catch (Exception e) {
-            Log.warning("Unable to unserialize set element " +
+            Log.warning("Unable to unserialize set entry " +
                         "[set=" + this + "].");
             Log.logStackTrace(e);
             return null;
@@ -430,9 +429,9 @@ public class DSet
      */
     public Object clone ()
     {
-        DSet nset = new DSet(_elementType);
-        nset._elements = new Element[_elements.length];
-        System.arraycopy(_elements, 0, nset._elements, 0, _elements.length);
+        DSet nset = new DSet(_entryType);
+        nset._entries = new Entry[_entries.length];
+        System.arraycopy(_entries, 0, nset._entries, 0, _entries.length);
         nset._size = _size;
         return nset;
     }
@@ -443,15 +442,15 @@ public class DSet
     public String toString ()
     {
         StringBuffer buf = new StringBuffer("[");
-        if (_elementType == null) {
+        if (_entryType == null) {
             buf.append("etype=NONE");
         } else {
-            buf.append("etype=").append(_elementType.getName());
+            buf.append("etype=").append(_entryType.getName());
         }
         buf.append(", elems=(");
         String prefix = "";
-        for (int i = 0; i < _elements.length; i++) {
-            Element elem = _elements[i];
+        for (int i = 0; i < _entries.length; i++) {
+            Entry elem = _entries[i];
             if (elem != null) {
                 buf.append(prefix);
                 prefix = ", ";
@@ -473,7 +472,7 @@ public class DSet
         }
 
         // increase our length in powers of two until we're big enough
-        int tlength = _elements.length;
+        int tlength = _entries.length;
         while (index >= tlength) {
             tlength *= 2;
         }
@@ -486,18 +485,18 @@ public class DSet
         }
 
         // create a new array and copy our data into it
-        Element[] elems = new Element[tlength];
-        System.arraycopy(_elements, 0, elems, 0, _elements.length);
-        _elements = elems;
+        Entry[] elems = new Entry[tlength];
+        System.arraycopy(_entries, 0, elems, 0, _entries.length);
+        _entries = elems;
     }
 
-    /** The type of element this set holds. */
-    protected Class _elementType;
+    /** The type of entry this set holds. */
+    protected Class _entryType;
 
-    /** The elements of the set (in a sparse array). */
-    protected Element[] _elements = new Element[INITIAL_CAPACITY];
+    /** The entries of the set (in a sparse array). */
+    protected Entry[] _entries = new Entry[INITIAL_CAPACITY];
 
-    /** The number of elements in this set. */
+    /** The number of entries in this set. */
     protected int _size;
 
     /** The default capacity of a set instance. */

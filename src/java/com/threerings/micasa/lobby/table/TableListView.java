@@ -1,5 +1,5 @@
 //
-// $Id: TableListView.java,v 1.3 2002/02/08 23:55:24 mdb Exp $
+// $Id: TableListView.java,v 1.4 2002/03/18 23:21:26 mdb Exp $
 
 package com.threerings.micasa.lobby.table;
 
@@ -132,7 +132,7 @@ public class TableListView
         // iterate over the tables already active in this lobby and put
         // them in their respective lists
         TableLobbyObject tlobj = (TableLobbyObject)place;
-        Iterator iter = tlobj.tableSet.elements();
+        Iterator iter = tlobj.tableSet.entries();
         while (iter.hasNext()) {
             tableAdded((Table)iter.next());
         }

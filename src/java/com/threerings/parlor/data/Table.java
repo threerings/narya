@@ -1,5 +1,5 @@
 //
-// $Id: Table.java,v 1.7 2002/02/01 23:32:37 mdb Exp $
+// $Id: Table.java,v 1.8 2002/03/18 23:21:26 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -20,7 +20,7 @@ import com.threerings.parlor.game.GameConfig;
  * the Parlor services.
  */
 public class Table
-    implements DSet.Element, ParlorCodes
+    implements DSet.Entry, ParlorCodes
 {
     /** The unique identifier for this table. */
     public Integer tableId;

@@ -1,5 +1,5 @@
 //
-// $Id: EntryUpdatedEvent.java,v 1.4 2002/02/04 00:50:11 mdb Exp $
+// $Id: EntryUpdatedEvent.java,v 1.5 2002/03/18 23:21:26 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -8,40 +8,39 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import com.threerings.presents.Log;
-import com.threerings.presents.dobj.io.ElementUtil;
+import com.threerings.presents.dobj.io.EntryUtil;
 
 /**
- * An element updated event is dispatched when an element of a
- * <code>DSet</code> is updated. It can also be constructed to request the
- * update of an element and posted to the dobjmgr.
+ * An entry updated event is dispatched when an entry of a {@link DSet} is
+ * updated. It can also be constructed to request the update of an entry
+ * and posted to the dobjmgr.
  *
  * @see DObjectManager#postEvent
  */
-public class ElementUpdatedEvent extends TypedEvent
+public class EntryUpdatedEvent extends TypedEvent
 {
     /** The typed object code for this event. */
     public static final short TYPE = TYPE_BASE + 10;
 
     /**
-     * Constructs a new element updated event on the specified target
-     * object for the specified set name and with the supplied updated
-     * element.
+     * Constructs a new entry updated event on the specified target object
+     * for the specified set name and with the supplied updated entry.
      *
      * @param targetOid the object id of the object to whose set we will
-     * add an element.
+     * add an entry.
      * @param name the name of the attribute in which to update the
-     * specified element.
-     * @param elem the element to update.
-     * @param qualified whether or not the element need be qualified with
+     * specified entry.
+     * @param entry the entry to update.
+     * @param qualified whether or not the entry need be qualified with
      * its class when serializing (true for heterogenous sets, false for
      * homogenous sets).
      */
-    public ElementUpdatedEvent (int targetOid, String name, DSet.Element elem,
+    public EntryUpdatedEvent (int targetOid, String name, DSet.Entry entry,
                               boolean qualified)
     {
         super(targetOid);
         _name = name;
-        _elem = elem;
+        _entry = entry;
         _qualified = qualified;
     }
 
@@ -49,12 +48,12 @@ public class ElementUpdatedEvent extends TypedEvent
      * Constructs a blank instance of this event in preparation for
      * unserialization from the network.
      */
-    public ElementUpdatedEvent ()
+    public EntryUpdatedEvent ()
     {
     }
 
     /**
-     * Returns the name of the set attribute for which an element has been
+     * Returns the name of the set attribute for which an entry has been
      * updated.
      */
     public String getName ()
@@ -63,11 +62,11 @@ public class ElementUpdatedEvent extends TypedEvent
     }
 
     /**
-     * Returns the element that has been updated.
+     * Returns the entry that has been updated.
      */
-    public DSet.Element getElement ()
+    public DSet.Entry getEntry ()
     {
-        return _elem;
+        return _entry;
     }
 
     /**
@@ -79,21 +78,21 @@ public class ElementUpdatedEvent extends TypedEvent
         DSet set = (DSet)target.getAttribute(_name);
 
         // now that we have access to our target set, we can unflatten our
-        // element (if need be)
-        if (_elem == null) {
+        // entry (if need be)
+        if (_entry == null) {
             try {
-                _elem = ElementUtil.unflatten(set, _bytes);
+                _entry = EntryUtil.unflatten(set, _bytes);
             } catch (Exception e) {
-                Log.warning("Error unflattening element " + this + ".");
+                Log.warning("Error unflattening entry " + this + ".");
                 Log.logStackTrace(e);
                 return false;
             }
         }
 
-        // update the element
-        if (!set.update(_elem)) {
+        // update the entry
+        if (!set.update(_entry)) {
             // complain if we didn't update anything
-            Log.warning("No matching element to update " + this + ".");
+            Log.warning("No matching entry to update " + this + ".");
             return false;
         }
 
@@ -112,7 +111,7 @@ public class ElementUpdatedEvent extends TypedEvent
     {
         super.writeTo(out);
         out.writeUTF(_name);
-        ElementUtil.flatten(out, _elem, _qualified);
+        EntryUtil.flatten(out, _entry, _qualified);
     }
 
     // documentation inherited
@@ -122,9 +121,9 @@ public class ElementUpdatedEvent extends TypedEvent
         super.readFrom(in);
         _name = in.readUTF();
 
-        // we read in the raw element data now and decode it later when we
+        // we read in the raw entry data now and decode it later when we
         // have access to the object and the DSet instance that knows what
-        // type of element we need to decode
+        // type of entry we need to decode
         int bcount = in.readInt();
         _bytes = new byte[bcount];
         in.readFully(_bytes, 0, bcount);
@@ -134,7 +133,7 @@ public class ElementUpdatedEvent extends TypedEvent
     protected void notifyListener (Object listener)
     {
         if (listener instanceof SetListener) {
-            ((SetListener)listener).elementUpdated(this);
+            ((SetListener)listener).entryUpdated(this);
         }
     }
 
@@ -144,11 +143,11 @@ public class ElementUpdatedEvent extends TypedEvent
         buf.append("ELUPD:");
         super.toString(buf);
         buf.append(", name=").append(_name);
-        buf.append(", elem=").append(_elem);
+        buf.append(", entry=").append(_entry);
     }
 
     protected String _name;
     protected byte[] _bytes;
-    protected DSet.Element _elem;
+    protected DSet.Entry _entry;
     protected boolean _qualified;
 }
