@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.27 2002/11/26 02:14:25 mdb Exp $
+// $Id: ClientManager.java,v 1.28 2002/11/29 23:40:32 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -33,6 +33,22 @@ import com.threerings.presents.server.util.SafeInterval;
 public class ClientManager
     implements ConnectionObserver, PresentsServer.Reporter
 {
+    /**
+     * Used by {@link #applyToClient}.
+     */
+    public static interface ClientOp
+    {
+        /**
+         * Called with the resolved client object.
+         */
+        public void apply (ClientObject clobj);
+
+        /**
+         * Called if the client resolution fails.
+         */
+        public void resolutionFailed (Exception e);
+    }
+
     /**
      * Constructs a client manager that will interact with the supplied
      * connection manager.
@@ -128,6 +144,15 @@ public class ClientManager
     protected final String toKey (String username)
     {
         return username.toLowerCase();
+    }
+
+    /**
+     * Resolves the specified client, applies the supplied client
+     * operation to them and releases the client.
+     */
+    public void applyToClient (String username, ClientOp clop)
+    {
+        resolveClientObject(username, new ClientOpResolver(clop));
     }
 
     /**
@@ -364,6 +389,40 @@ public class ClientManager
                 client.endSession();
             }
         }
+    }
+
+    /** Used by {@link #applyToClient}. */
+    protected class ClientOpResolver
+        implements ClientResolutionListener
+    {
+        public ClientOpResolver (ClientOp clop)
+        {
+            _clop = clop;
+        }
+
+        // documentation inherited from interface
+        public void clientResolved (String username, ClientObject clobj)
+        {
+            try {
+                _clop.apply(clobj);
+
+            } catch (Exception e) {
+                Log.warning("Client op failed [username=" + username +
+                            ", clop=" + _clop + "].");
+                Log.logStackTrace(e);
+
+            } finally {
+                releaseClientObject(username);
+            }
+        }
+
+        // documentation inherited from interface
+        public void resolutionFailed (String username, Exception reason)
+        {
+            _clop.resolutionFailed(reason);
+        }
+
+        protected ClientOp _clop;
     }
 
     /** A mapping from usernames to client instances. */
