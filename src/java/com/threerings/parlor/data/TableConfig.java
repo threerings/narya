@@ -1,5 +1,5 @@
 //
-// $Id: TableConfig.java,v 1.4 2004/08/27 02:20:13 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -50,4 +50,14 @@ public interface TableConfig
      * Sets the desired number of players to the specified value.
      */
     public void setDesiredPlayers (int desiredPlayers);
+    
+    /**
+     * Checks whether or not this is a configuration for a private table.
+     */
+    public boolean isPrivateTable ();
+    
+    /**
+     * Sets whether nor not this is a configuration for a private table.
+     */
+    public void setPrivateTable (boolean privateTable);
 }
