@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.2 2001/08/16 03:45:43 mdb Exp $
+// $Id: DSet.java,v 1.3 2001/08/16 04:22:50 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -43,8 +43,8 @@ public class DSet
     {
         /**
          * Each element provide an associated key which is used to
-         * determine its uniqueness in the set. See the <code>DSet</code>
-         * class documentation for further information.
+         * determine its uniqueness in the set. See the {@link DSet} class
+         * documentation for further information.
          */
         public Object getKey ();
     }
