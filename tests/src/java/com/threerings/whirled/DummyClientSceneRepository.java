@@ -1,7 +1,7 @@
 //
-// $Id: DummyClientSceneRepository.java,v 1.2 2001/10/05 23:59:37 mdb Exp $
+// $Id: DummyClientSceneRepository.java,v 1.3 2001/11/08 02:07:36 mdb Exp $
 
-package com.threerings.whirled.test;
+package com.threerings.whirled;
 
 import java.io.IOException;
 

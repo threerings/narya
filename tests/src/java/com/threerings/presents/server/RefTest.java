@@ -1,11 +1,10 @@
 //
-// $Id: RefTest.java,v 1.4 2001/10/24 00:36:40 mdb Exp $
+// $Id: RefTest.java,v 1.5 2001/11/08 02:07:36 mdb Exp $
 
-package com.threerings.presents.server.test;
+package com.threerings.presents.server;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.dobj.*;
-import com.threerings.presents.server.PresentsServer;
 
 /**
  * Tests the oid list reference tracking code.

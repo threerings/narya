@@ -1,7 +1,7 @@
 //
-// $Id: TestApp.java,v 1.2 2001/11/01 01:40:42 shaper Exp $
+// $Id: TestApp.java,v 1.3 2001/11/08 02:07:36 mdb Exp $
 
-package com.threerings.cast.builder.test;
+package com.threerings.cast.builder;
 
 import java.io.IOException;
 import javax.swing.JFrame;
@@ -9,10 +9,10 @@ import javax.swing.JFrame;
 import com.samskivert.util.Config;
 import com.samskivert.swing.util.SwingUtil;
 
+import com.threerings.media.ImageManager;
+
 import com.threerings.cast.Log;
 import com.threerings.cast.CharacterManager;
-
-import com.threerings.media.ImageManager;
 
 import com.threerings.miso.util.MisoUtil;
 

@@ -1,7 +1,7 @@
 //
-// $Id: TestObject.dobj,v 1.4 2001/10/11 04:07:53 mdb Exp $
+// $Id: TestObject.dobj,v 1.5 2001/11/08 02:07:36 mdb Exp $
 
-package com.threerings.presents.server.test;
+package com.threerings.presents.server;
 
 import com.threerings.presents.dobj.*;
 

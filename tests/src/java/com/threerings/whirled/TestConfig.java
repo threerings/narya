@@ -1,7 +1,7 @@
 //
-// $Id: TestConfig.java,v 1.2 2001/10/11 04:07:54 mdb Exp $
+// $Id: TestConfig.java,v 1.3 2001/11/08 02:07:36 mdb Exp $
 
-package com.threerings.whirled.test;
+package com.threerings.whirled;
 
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.whirled.server.SceneManager;

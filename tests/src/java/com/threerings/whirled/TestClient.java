@@ -1,7 +1,7 @@
 //
-// $Id: TestClient.java,v 1.6 2001/10/11 04:07:54 mdb Exp $
+// $Id: TestClient.java,v 1.7 2001/11/08 02:07:36 mdb Exp $
 
-package com.threerings.whirled.test;
+package com.threerings.whirled;
 
 import com.samskivert.util.Config;
 import com.samskivert.util.Queue;

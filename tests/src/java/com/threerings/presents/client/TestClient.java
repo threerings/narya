@@ -1,16 +1,14 @@
 //
-// $Id: TestClient.java,v 1.11 2001/10/12 00:03:03 mdb Exp $
+// $Id: TestClient.java,v 1.12 2001/11/08 02:07:36 mdb Exp $
 
-package com.threerings.presents.client.test;
+package com.threerings.presents.client;
 
 import com.samskivert.util.Queue;
 
 import com.threerings.presents.Log;
-import com.threerings.presents.net.*;
-import com.threerings.presents.client.*;
 import com.threerings.presents.dobj.*;
-
-import com.threerings.presents.server.test.TestObject;
+import com.threerings.presents.net.*;
+import com.threerings.presents.server.TestObject;
 
 /**
  * A standalone test client.

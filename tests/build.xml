@@ -1,0 +1,61 @@
+<!-- build configuration -->
+<project name="narya tests" default="test" basedir=".">
+
+  <!-- things you may want to change -->
+  <property name="build.compiler" value="jikes"/>
+  <property name="java.libraries" value="/usr/share/java"/>
+  <property name="junit.fork"     value="false"/>
+
+  <!-- things you probably don't want to change -->
+  <property name="test.dir"   value="."/>
+  <property name="src.dir"    value="src/java"/>
+  <property name="deploy.dir" value="dist"/>
+
+  <!-- declare our classpath -->
+  <path id="classpath">
+    <pathelement location="../${deploy.dir}/classes"/>
+    <pathelement location="${deploy.dir}/classes"/>
+    <fileset dir="../lib" includes="**/*.jar"/>
+    <fileset dir="${java.libraries}" includes="**/*.jar"/>
+  </path>
+
+  <!-- prepares the application directories -->
+  <target name="prepare">
+    <mkdir dir="${deploy.dir}"/>
+    <mkdir dir="${deploy.dir}/classes"/>
+    <copy todir="${deploy.dir}/classes">
+      <fileset dir="${src.dir}" includes="**/*.properties"/>
+    </copy>
+    <copy todir="${deploy.dir}/classes/rsrc">
+      <fileset dir="rsrc" includes="**/*"/>
+    </copy>
+  </target>
+
+  <!-- cleans out the installed application -->
+  <target name="clean">
+    <delete dir="${deploy.dir}"/>
+  </target>
+
+  <!-- build the java class files -->
+  <target name="compile" depends="prepare">
+    <javac srcdir="${src.dir}" destdir="${deploy.dir}/classes"
+           debug="on" optimize="off" deprecation="off">
+      <classpath refid="classpath"/>
+    </javac>
+  </target>
+
+  <!-- run the tests -->
+  <target name="test" depends="compile" description="Run tests.">
+    <junit printsummary="no" haltonfailure="yes" fork="${junit.fork}">
+      <classpath refid="classpath"/>
+      <sysproperty key="test_dir" value="${test.dir}"/>
+      <formatter type="brief" usefile="false"/>
+      <batchtest>
+        <fileset dir="${src.dir}">
+          <include name="**/*Test.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+</project>

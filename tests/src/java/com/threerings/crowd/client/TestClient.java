@@ -1,7 +1,7 @@
 //
-// $Id: TestClient.java,v 1.6 2001/10/11 04:07:51 mdb Exp $
+// $Id: TestClient.java,v 1.7 2001/11/08 02:07:36 mdb Exp $
 
-package com.threerings.crowd.client.test;
+package com.threerings.crowd.client;
 
 import com.samskivert.util.Config;
 import com.samskivert.util.Queue;
@@ -11,7 +11,6 @@ import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.net.*;
 
 import com.threerings.crowd.Log;
-import com.threerings.crowd.client.*;
 import com.threerings.crowd.util.CrowdContext;
 
 public class TestClient

@@ -1,12 +1,11 @@
 //
-// $Id: TestFrame.java,v 1.1 2001/10/30 16:16:01 shaper Exp $
+// $Id: TestFrame.java,v 1.2 2001/11/08 02:07:36 mdb Exp $
 
-package com.threerings.cast.builder.test;
+package com.threerings.cast.builder;
 
 import javax.swing.JFrame;
 
 import com.threerings.cast.CharacterManager;
-import com.threerings.cast.builder.BuilderPanel;
 
 public class TestFrame extends JFrame
 {

@@ -1,7 +1,7 @@
 //
-// $Id: TestManager.java,v 1.2 2001/10/11 21:12:29 mdb Exp $
+// $Id: TestManager.java,v 1.3 2001/11/08 02:07:36 mdb Exp $
 
-package com.threerings.parlor.test;
+package com.threerings.parlor;
 
 import com.threerings.parlor.game.GameManager;
 
