@@ -1,5 +1,5 @@
 //
-// $Id: Animation.java,v 1.1 2002/01/11 16:17:33 shaper Exp $
+// $Id: Animation.java,v 1.2 2002/03/12 22:54:16 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -45,7 +45,7 @@ public abstract class Animation
      */
     public void invalidate ()
     {
-        _animmgr.addDirtyRect(_bounds);
+        _animmgr.addDirtyRect(new Rectangle(_bounds));
     }
 
     /**
