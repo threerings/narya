@@ -1,5 +1,5 @@
 //
-// $Id: TrackedObject.java,v 1.3 2004/08/14 01:52:46 mdb Exp $
+// $Id: TrackedObject.java,v 1.4 2004/08/14 01:56:32 ray Exp $
 
 package com.threerings.util;
 
@@ -36,8 +36,6 @@ public class TrackedObject
     protected void finalize ()
         throws Throwable
     {
-        super.finalize();
-
         Class clazz = getClass();
         synchronized (_map) {
             int[] count = (int[])_map.get(clazz);
@@ -48,6 +46,8 @@ public class TrackedObject
                             "[class=" + clazz + "].");
             }
         }
+
+        super.finalize();
     }
 
     /**
