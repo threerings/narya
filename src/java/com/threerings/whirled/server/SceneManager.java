@@ -1,5 +1,5 @@
 //
-// $Id: SceneManager.java,v 1.6 2001/10/11 04:07:54 mdb Exp $
+// $Id: SceneManager.java,v 1.7 2001/10/24 00:58:12 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -38,7 +38,9 @@ public class SceneManager extends PlaceManager
     protected void didStartup ()
     {
         super.didStartup();
-        _screg.sceneManagerDidInit(this);
+
+        // let the scene registry know that we're up and running
+        _screg.sceneManagerDidStart(this);
 
         // register a chat message handler because we want to support
         // chatting
@@ -46,6 +48,18 @@ public class SceneManager extends PlaceManager
         registerMessageHandler(ChatService.SPEAK_REQUEST, handler);
     }
 
+    /**
+     * Called when we have shutdown.
+     */
+    protected void didShutdown ()
+    {
+        super.didShutdown();
+
+        // unregister ourselves with the scene registry
+        _screg.unmapSceneManager(this);
+    }
+
+    // documentation inherited
     protected void toString (StringBuffer buf)
     {
         super.toString(buf);

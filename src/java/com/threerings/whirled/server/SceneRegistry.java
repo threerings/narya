@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.7 2001/10/24 00:38:54 mdb Exp $
+// $Id: SceneRegistry.java,v 1.8 2001/10/24 00:58:12 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -153,6 +153,9 @@ public class SceneRegistry
         }
     }
 
+    /**
+     * Called when the scene resolution has completed successfully.
+     */
     protected void processSuccessfulResolution (Scene scene)
     {
         // now that the scene is loaded, we can create a scene manager for
@@ -180,6 +183,9 @@ public class SceneRegistry
         }
     }
 
+    /**
+     * Called if resolving the scene fails for some reason.
+     */
     protected void processFailedResolution (int sceneId, Exception cause)
     {
         // alas things didn't work out, notify our penders
@@ -197,7 +203,11 @@ public class SceneRegistry
         }
     }
 
-    protected void sceneManagerDidInit (SceneManager scmgr)
+    /**
+     * Called by the scene manager once it has started up (meaning that it
+     * has its place object and is ready to roll).
+     */
+    protected void sceneManagerDidStart (SceneManager scmgr)
     {
         // register this scene manager in our table
         int sceneId = scmgr.getScene().getId();
@@ -222,17 +232,15 @@ public class SceneRegistry
     }
 
     /**
-     * Called when a place is destroyed. We clean up our extra scene
-     * information here.
+     * Called by the scene manager when it is shut down.
      */
-    protected void placeWasDestroyed (PlaceManager pmgr)
+    protected void unmapSceneManager (SceneManager scmgr)
     {
-        super.placeWasDestroyed(pmgr);
-
-        // if this is a scene manager, remove it from our scene table
-        if (pmgr instanceof SceneManager) {
-            SceneManager scmgr = (SceneManager)pmgr;
-            _scenemgrs.remove(scmgr.getScene().getId());
+        if (_scenemgrs.remove(scmgr.getScene().getId()) == null) {
+            Log.warning("Requested to unmap unmapped scene manager " +
+                        "[scmgr=" + scmgr + "].");
+        } else {
+            Log.info("Unmapped scene manager " + scmgr + ".");
         }
     }
 
