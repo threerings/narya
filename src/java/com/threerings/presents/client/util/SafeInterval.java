@@ -1,5 +1,5 @@
 //
-// $Id: SafeInterval.java,v 1.1 2002/06/05 02:50:57 mdb Exp $
+// $Id: SafeInterval.java,v 1.2 2003/11/12 23:37:47 mdb Exp $
 
 package com.threerings.presents.client.util;
 
@@ -47,9 +47,13 @@ public abstract class SafeInterval
     /** Handles the proper scheduling and queueing. */
     public void intervalExpired (int id, Object arg)
     {
+        _iid = id;
         _client.getInvoker().invokeLater(this);
     }
 
     /** The client via which we queue ourselves when we expire. */
     protected Client _client;
+
+    /** Configured with our current interval id when we are triggered. */
+    protected int _iid;
 }
