@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.20 2003/05/08 16:10:50 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.21 2003/06/24 02:24:54 ray Exp $
 
 package com.threerings.media;
 
@@ -259,16 +259,16 @@ public class VirtualMediaPanel extends MediaPanel
 
         int width = getWidth(), height = getHeight();
         int nx = _vbounds.x, ny = _vbounds.y;
+        Rectangle bounds = _fpath.getBounds();
 
         // figure out where to move
         switch (_fmode) {
         case CENTER_ON_PATHABLE:
-            nx = _fpath.getX() - width/2;
-            ny = _fpath.getY() - height/2;
+            nx = bounds.x + (bounds.width - width)/2;
+            ny = bounds.y + (bounds.height - height)/2;
             break;
 
         case ENCLOSE_PATHABLE:
-            Rectangle bounds = _fpath.getBounds();
             if (nx > bounds.x) {
                 nx = bounds.x;
             } else if (nx + width < bounds.x + bounds.width) {
