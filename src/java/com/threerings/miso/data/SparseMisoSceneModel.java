@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneModel.java,v 1.12 2004/03/30 01:30:38 eric Exp $
+// $Id: SparseMisoSceneModel.java,v 1.13 2004/03/31 02:16:12 eric Exp $
 
 package com.threerings.miso.data;
 
@@ -260,18 +260,6 @@ public class SparseMisoSceneModel extends MisoSceneModel
     }
 
     /**
-     * Visit all the objects in the section at the specified cords.
-     */
-    public void visitObjects (int x, int y, ObjectVisitor visitor)
-    {
-        Section sect = getSection(x, y, false);
-        if (sect == null) {
-            return;
-        }
-        visitSection(sect, visitor, false);
-    }
-
-    /**
      * Informs the supplied visitor of each object in this scene.
      *
      * @param interestingOnly if true, only the interesting objects will
@@ -281,28 +269,18 @@ public class SparseMisoSceneModel extends MisoSceneModel
     {
         for (Iterator iter = getSections(); iter.hasNext(); ) {
             Section sect = (Section)iter.next();
-            visitSection(sect, visitor, interestingOnly);
-        }
-    }
-
-    /**
-     * Visit all the objects (or just interesting if specified) in the
-     * specified section.
-     */
-    protected void visitSection (Section sect, ObjectVisitor visitor,
-                                 boolean interestingOnly)
-    {
-        for (int oo = 0; oo < sect.objectInfo.length; oo++) {
-            ObjectInfo oinfo = sect.objectInfo[oo];
-            visitor.visit(oinfo);
-        }
-        if (!interestingOnly) {
-            ObjectInfo info = new ObjectInfo();
-            for (int oo = 0; oo < sect.objectTileIds.length; oo++) {
-                info.tileId = sect.objectTileIds[oo];
-                info.x = sect.objectXs[oo];
-                info.y = sect.objectYs[oo];
-                visitor.visit(info);
+            for (int oo = 0; oo < sect.objectInfo.length; oo++) {
+                ObjectInfo oinfo = sect.objectInfo[oo];
+                visitor.visit(oinfo);
+            }
+            if (!interestingOnly) {
+                ObjectInfo info = new ObjectInfo();
+                for (int oo = 0; oo < sect.objectTileIds.length; oo++) {
+                    info.tileId = sect.objectTileIds[oo];
+                    info.x = sect.objectXs[oo];
+                    info.y = sect.objectYs[oo];
+                    visitor.visit(info);
+                }
             }
         }
     }
