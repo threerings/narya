@@ -1,5 +1,5 @@
 //
-// $Id: Mp3Player.java,v 1.1 2002/11/22 04:23:31 ray Exp $
+// $Id: Mp3Player.java,v 1.2 2002/11/22 19:21:12 ray Exp $
 
 package com.threerings.media;
 
@@ -22,7 +22,11 @@ import org.apache.commons.io.StreamUtils;
 import com.threerings.resource.ResourceManager;
 
 /**
- * Does something extraordinary.
+ * Plays mp3 files. Depends on three external jar files that aren't even
+ * imported here:
+ *     tritonus_share.jar
+ *     tritonus_mp3.jar
+ *     javalayer.jar
  */
 public class Mp3Player extends MusicPlayer
 {
@@ -104,7 +108,7 @@ public class Mp3Player extends MusicPlayer
         };
 
         _player.setDaemon(true);
-        _player.setPriority(_player.getPriority() + 1);
+        //_player.setPriority(_player.getPriority() + 1);
         _player.start();
     }
 
@@ -120,7 +124,9 @@ public class Mp3Player extends MusicPlayer
         // TODO
     }
 
+    /** The thread that transfers data to the line. */
     protected Thread _player;
 
+    /** The size of our buffer. */
     protected static final int BUFFER_SIZE = 8192;
 }

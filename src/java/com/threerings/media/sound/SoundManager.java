@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.24 2002/11/22 04:23:31 ray Exp $
+// $Id: SoundManager.java,v 1.25 2002/11/22 19:21:12 ray Exp $
 
 package com.threerings.media;
 
@@ -50,8 +50,6 @@ import com.threerings.media.Log;
  */
 // TODO:
 //   - fade music out when stopped?
-//   -- CLEANUP is NEEDED (lots of references to Sequences, when we're now
-//   playing mods and mp3s as well. )
 public class SoundManager
     implements MusicPlayer.MusicEventListener
 {
@@ -424,9 +422,11 @@ public class SoundManager
             // set up the new player
             try {
                 _musicPlayer = (MusicPlayer) playerClass.newInstance();
+                _musicPlayer.init(_rmgr, this);
+
             } catch (Exception e) {
                 Log.warning("Unable to instantiate music player [class=" +
-                        playerClass + "].");
+                        playerClass + ", e=" + e + "].");
 
                 // scrap it, try again with the next song
                 _musicPlayer = null;
@@ -435,7 +435,6 @@ public class SoundManager
                 return;
             }
 
-            _musicPlayer.init(_rmgr, this);
             _musicPlayer.setVolume(_musicVol);
         }
 

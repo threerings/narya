@@ -1,16 +1,17 @@
 //
-// $Id: MusicPlayer.java,v 1.1 2002/11/22 04:23:31 ray Exp $
+// $Id: MusicPlayer.java,v 1.2 2002/11/22 19:21:12 ray Exp $
 
 package com.threerings.media;
 
 import com.threerings.resource.ResourceManager;
 
 /**
- * Does something extraordinary.
+ * Abstract music player.
  */
 public abstract class MusicPlayer
 {
     /**
+     * A watcher interested in music events.
      */
     public interface MusicEventListener
     {
@@ -22,9 +23,11 @@ public abstract class MusicPlayer
     }
 
     /**
+     * Initialize the music player.
      */
     public final void init (
         ResourceManager rmgr, MusicEventListener musicListener)
+        throws Exception
     {
         _rmgr = rmgr;
         _musicListener = musicListener;
@@ -36,6 +39,7 @@ public abstract class MusicPlayer
      * Do your init here.
      */
     public void init ()
+        throws Exception
     {
     }
 

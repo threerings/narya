@@ -1,5 +1,5 @@
 //
-// $Id: ModPlayer.java,v 1.3 2002/11/22 04:23:31 ray Exp $
+// $Id: ModPlayer.java,v 1.4 2002/11/22 19:21:12 ray Exp $
 
 package com.threerings.media;
 
@@ -18,20 +18,16 @@ import micromod.resamplers.LinearResampler;
 import com.threerings.resource.ResourceManager;
 
 /**
- * Does something extraordinary.
+ * A player that plays .mod format music.
  */
 public class ModPlayer extends MusicPlayer
 {
     // documentation inherited
     public void init ()
+        throws Exception
     {
-        try {
-            _device = new NaryaSoundDevice();
-            _device.start();
-        } catch (OutputDeviceException ode) {
-            Log.warning("Unable to allocate sound channel for mod playing " +
-                "[e=" + ode + "].");
-        }
+        _device = new NaryaSoundDevice();
+        _device.start();
     }
 
     // documentation inherited
@@ -117,6 +113,9 @@ public class ModPlayer extends MusicPlayer
         }
     }
 
+    /** The thread that does the work. */
     protected Thread _player;
+
+    /** The sound output device. */
     protected NaryaSoundDevice _device;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: MidiPlayer.java,v 1.1 2002/11/22 04:23:31 ray Exp $
+// $Id: MidiPlayer.java,v 1.2 2002/11/22 19:21:12 ray Exp $
 
 package com.threerings.media;
 
@@ -17,25 +17,21 @@ import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
 
 /**
- * Does something extraordinary.
+ * Plays midi/rmf sounds using Java's sequencer, which is susceptible
+ * to the accuracy of System.currentTimeMillis() and so currently sounds
+ * like "ass" under Windows.
  */
 public class MidiPlayer extends MusicPlayer
     implements MetaEventListener
 {
     // documentation inherited
     public void init ()
+        throws Exception
     {
-        try {
-            Sequencer seq = MidiSystem.getSequencer();
-            seq.open();
-            if (seq instanceof Synthesizer) {
-                _channels = ((Synthesizer) seq).getChannels();
-                //updateMusicVolume();
-            }
-            _sequencer = seq;
-
-        } catch (MidiUnavailableException mue) {
-            Log.warning("Midi unavailable! [e=" + mue + "].");
+        _sequencer = MidiSystem.getSequencer();
+        _sequencer.open();
+        if (_sequencer instanceof Synthesizer) {
+            _channels = ((Synthesizer) _sequencer).getChannels();
         }
     }
 
