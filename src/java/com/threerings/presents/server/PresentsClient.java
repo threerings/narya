@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.40 2002/09/24 00:50:45 mdb Exp $
+// $Id: PresentsClient.java,v 1.41 2002/09/26 17:49:36 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -435,7 +435,7 @@ public class PresentsClient
      */
     protected void sendBootstrap ()
     {
-        Log.info("Sending bootstrap " + this + ".");
+//         Log.info("Sending bootstrap " + this + ".");
 
         // create and populate our bootstrap data
         BootstrapData data = createBootstrapData();
