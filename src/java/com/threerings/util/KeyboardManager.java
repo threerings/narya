@@ -1,13 +1,13 @@
           //
-// $Id: KeyboardManager.java,v 1.3 2001/12/14 01:14:50 shaper Exp $
+// $Id: KeyboardManager.java,v 1.4 2001/12/17 22:13:19 shaper Exp $
 
 package com.threerings.yohoho.puzzle.util;
 
 import java.awt.Component;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.Iterator;
 
 import com.samskivert.swing.Controller;
@@ -24,7 +24,7 @@ import com.threerings.yohoho.Log;
  * rate, and will begin repeating a key immediately after it is held down
  * rather than depending on the system-specific key repeat delay/rate.
  */
-public class KeyboardManager implements KeyListener
+public class KeyboardManager
 {
     /**
      * Constructs a keyboard manager.
@@ -40,7 +40,14 @@ public class KeyboardManager implements KeyListener
         _xlate = xlate;
 
         // listen to key events
-        target.addKeyListener(this);
+        target.addKeyListener(new KeyAdapter () {
+            public void keyPressed (KeyEvent e) {
+                KeyboardManager.this.keyPressed(e);
+            }
+            public void keyReleased (KeyEvent e) {
+                KeyboardManager.this.keyReleased(e);
+            }
+        });
 
         // listen to focus events so that we can cease repeating if we
         // lose focus
@@ -95,7 +102,7 @@ public class KeyboardManager implements KeyListener
     }
 
     // documentation inherited
-    public void keyPressed (KeyEvent e)
+    protected void keyPressed (KeyEvent e)
     {
         logKey("keyPressed", e);
 
@@ -120,7 +127,7 @@ public class KeyboardManager implements KeyListener
     }
 
     // documentation inherited
-    public void keyReleased (KeyEvent e)
+    protected void keyReleased (KeyEvent e)
     {
         logKey("keyReleased", e);
 
@@ -131,21 +138,10 @@ public class KeyboardManager implements KeyListener
 
         // get the info object for this key
         KeyInfo info = (KeyInfo)_keys.get(e.getKeyCode());
-        if (info == null) {
-            // Log.warning("Received key released event for a key that " +
-            // "seems not to have been previously pressed " +
-            // "[e=" + e + "].");
-            return;
+        if (info != null) {
+            // remember the last time we received a key release
+            info.setReleaseTime(System.currentTimeMillis());
         }
-
-        // remember the last time we received a key release
-        info.setReleaseTime(System.currentTimeMillis());
-    }
-
-    // documentation inherited
-    public void keyTyped (KeyEvent e)
-    {
-        // logKey("keyTyped", e);
     }
 
     /**
@@ -153,8 +149,10 @@ public class KeyboardManager implements KeyListener
      */
     protected void logKey (String msg, KeyEvent e)
     {
-        int keyCode = e.getKeyCode();
-        Log.info(msg + " [key=" + KeyEvent.getKeyText(keyCode) + "].");
+        if (DEBUG_EVENTS) {
+            int keyCode = e.getKeyCode();
+            Log.info(msg + " [key=" + KeyEvent.getKeyText(keyCode) + "].");
+        }
     }
 
     protected class KeyInfo implements Interval
@@ -182,9 +180,12 @@ public class KeyboardManager implements KeyListener
                 // register an interval to post the command associated
                 // with the key press until the key is decidedly released
                 _iid = IntervalManager.register(this, _pressDelay, null, true);
+                if (DEBUG_EVENTS) {
+                    Log.info("Pressing key [key=" + _keyText + "].");
+                }
 
-                // post the initial key press command if applicable
                 if (_pressCommand != null) {
+                    // post the initial key press command
                     Controller.postAction(_target, _pressCommand);
                 }
             }
@@ -204,22 +205,27 @@ public class KeyboardManager implements KeyListener
          */
         public synchronized void release ()
         {
-            Log.info("Releasing key [key=" + _keyText + "].");
+            // bail if we're not currently pressed
+            if (_iid == -1) {
+                return;
+            }
 
-            // remove the sub-interval, if any
+            if (DEBUG_EVENTS) {
+                Log.info("Releasing key [key=" + _keyText + "].");
+            }
+
+            // remove the repeat interval
+            IntervalManager.remove(_iid);
+            _iid = -1;
+
             if (_siid != -1) {
+                // remove the sub-interval
                 IntervalManager.remove(_siid);
                 _siid = -1;
             }
 
-            // remove the repeat interval
-            if (_iid != -1) {
-                IntervalManager.remove(_iid);
-                _iid = -1;
-            }
-
-            // post the key release command if applicable
             if (_releaseCommand != null) {
+                // post the key release command
                 Controller.postAction(_target, _releaseCommand);
             }
         }
@@ -231,26 +237,29 @@ public class KeyboardManager implements KeyListener
             long deltaPress = now - _lastPress;
             long deltaRelease = now - _lastRelease;
 
+            if (KeyboardManager.DEBUG_INTERVAL) {
+                Log.info("Interval [id=" + id + ", key=" + _keyText +
+                         ", deltaPress=" + deltaPress +
+                         ", deltaRelease=" + deltaRelease + "].");
+            }
+
             if (id == _iid) {
                 // handle a normal interval where we either (a) create a
                 // sub-interval if we can't yet determine definitively
                 // whether the key is still down, (b) cease repeating if
                 // we're certain the key is now up, or (c) repeat the key
                 // command if we're certain the key is still down
-
-                Log.info("normal interval [key=" + _keyText +
-                         ", deltaPress=" + deltaPress +
-                         ", deltaRelease=" + deltaRelease + "].");
-
                 if (_lastRelease != _lastPress) {
                     if (deltaRelease < _repeatDelay) {
                         // register a one-shot sub-interval to
                         // definitively check whether the key was released
-                        Log.info("Registering sub-interval to check key " +
-                                 "release.");
                         long delay = _repeatDelay - deltaRelease;
                         _siid = IntervalManager.register(
                             this, delay, new Long(_lastPress), false);
+                        if (KeyboardManager.DEBUG_INTERVAL) {
+                            Log.info("Registered sub-interval " +
+                                     "[id=" + _siid + "].");
+                        }
 
                     } else {
                         // we know the key was released, so cease repeating
@@ -259,7 +268,6 @@ public class KeyboardManager implements KeyListener
 
                 } else if (_pressCommand != null) {
                     // post the key press command again
-                    // Log.info("Repeating command [cmd=" + _pressCommand + "].");
                     Controller.postAction(_target, _pressCommand);
                 }
 
@@ -268,19 +276,17 @@ public class KeyboardManager implements KeyListener
                 // really been released since the normal interval expired
                 // at an inopportune time for a definitive check
 
-                Log.info("sub-interval [key=" + _keyText +
-                         ", deltaPress=" + deltaPress +
-                         ", deltaRelease=" + deltaRelease + "].");
-
                 // clear out the non-recurring sub-interval identifier
                 _siid = -1;
 
                 // make sure the key hasn't been pressed again since the
                 // sub-interval was registered
                 if (_lastPress != ((Long)arg).longValue()) {
-                    Log.warning("Key pressed since sub-interval was " +
-                                "registered, aborting release check " +
-                                "[key=" + _keyText + "].");
+                    if (KeyboardManager.DEBUG_INTERVAL) {
+                        Log.warning("Key pressed since sub-interval was " +
+                                    "registered, aborting release check " +
+                                    "[key=" + _keyText + "].");
+                    }
                     return;
                 }
 
@@ -291,7 +297,6 @@ public class KeyboardManager implements KeyListener
 
                 } else if (_pressCommand != null) {
                     // post the key command again
-                    // Log.info("Repeating command [cmd=" + _pressCommand + "].");
                     Controller.postAction(_target, _pressCommand);
                 }
             }
@@ -332,6 +337,12 @@ public class KeyboardManager implements KeyListener
         /** The key code associated with this key info object. */
         protected int _keyCode;
     }
+
+    /** Whether to output debugging info for individual key events. */
+    protected static final boolean DEBUG_EVENTS = true;
+
+    /** Whether to output debugging info for interval callbacks. */
+    protected static final boolean DEBUG_INTERVAL = true;
 
     /** The default repeat delay. */
     protected static final long DEFAULT_REPEAT_DELAY = 50L;
