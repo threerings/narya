@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.10 2001/11/12 20:56:56 mdb Exp $
+// $Id: SceneRegistry.java,v 1.11 2001/12/13 07:23:25 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -211,6 +211,9 @@ public class SceneRegistry
      */
     protected void processFailedResolution (int sceneId, Exception cause)
     {
+        Log.info("Failed to resolve scene [sceneId=" + sceneId +
+                 ", cause=" + cause + "].");
+
         // alas things didn't work out, notify our penders
         ArrayList penders = (ArrayList)_penders.remove(sceneId);
         if (penders != null) {
