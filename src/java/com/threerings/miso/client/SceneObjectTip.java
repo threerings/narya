@@ -1,5 +1,5 @@
 //
-// $Id: SceneObjectTip.java,v 1.2 2003/04/26 00:48:47 mdb Exp $
+// $Id: SceneObjectTip.java,v 1.3 2003/06/19 22:12:51 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -55,7 +55,7 @@ public class SceneObjectTip extends LabelSausage
     public void layout (Graphics2D gfx, Rectangle tipFor, Rectangle boundary,
                         Collection othertips)
     {
-        layout(gfx, PAD);
+        layout(gfx, ICON_PAD, EXTRA_PAD);
         bounds = new Rectangle(_size);
         boundary = MAX_RECT;
 
@@ -118,8 +118,11 @@ public class SceneObjectTip extends LabelSausage
         }
     }
 
-    /** The number of pixels to reserve between elements of the tip. */
-    protected static final int PAD = 3;
+    /** The number of pixels to pad around the icon. */
+    protected static final int ICON_PAD = 4;
+
+    /** The number of pixels to pad between the icon and text. */
+    protected static final int EXTRA_PAD = 2;
 
     /** The maximum height above the bottom of the object bounds that we are
      * to center ourselves. */
