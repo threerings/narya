@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.6 2001/08/04 03:06:39 mdb Exp $
+// $Id: LocationDirector.java,v 1.7 2001/08/14 03:23:06 mdb Exp $
 
 package com.threerings.cocktail.party.client;
 
@@ -60,13 +60,8 @@ public class LocationManager
     {
         // first check to see if our observers are happy with this move
         // request
-        for (int i = 0; i < _observers.size(); i++) {
-            LocationObserver obs = (LocationObserver)_observers.get(i);
-            if (!obs.locationMayChange(placeId)) {
-                Log.info("Location change vetoed by observer " +
-                         "[pid=" + placeId + ", obs=" + obs + "].");
-                return;
-            }
+        if (!mayMoveTo(placeId)) {
+            return;
         }
 
         // complain if we're over-writing a pending request
@@ -87,6 +82,74 @@ public class LocationManager
 
         // issue a moveTo request
         LocationService.moveTo(_ctx.getClient(), placeId, this);
+    }
+
+    /**
+     * This can be called by derived classes that need to coopt the moving
+     * process to extend it in some way or other. In such situations, they
+     * should call this method before moving to a new location to check to
+     * be sure that all of the registered location observers are amenable
+     * to a location change.
+     *
+     * @param placeId the place oid of our tentative new location.
+     *
+     * @return true if everyone is happy with the move, false if it was
+     * vetoed by one of the location observers.
+     */
+    protected boolean mayMoveTo (int placeId)
+    {
+        for (int i = 0; i < _observers.size(); i++) {
+            LocationObserver obs = (LocationObserver)_observers.get(i);
+            if (!obs.locationMayChange(placeId)) {
+                Log.info("Location change vetoed by observer " +
+                         "[pid=" + placeId + ", obs=" + obs + "].");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * This can be called by derived classes that need to coopt the moving
+     * process to extend it in some way or other. In such situations, they
+     * will be responsible for receiving the successful move response and
+     * they should let the location manager know that the move has been
+     * effected.
+     *
+     * @param placeId the place oid of our new location.
+     */
+    protected void didMoveTo (int placeId)
+    {
+        DObjectManager omgr = _ctx.getDObjectManager();
+
+        // unsubscribe from our old place object
+        if (_place != null) {
+            omgr.unsubscribeFromObject(_place.getOid(), this);
+            _place = null;
+        }
+
+        // make a note that we're now mostly in the new location
+        _previousPlaceId = _placeId;
+        _placeId = _pendingPlaceId;
+
+        // subscribe to our new place object to complete the move
+        omgr.subscribeToObject(_placeId, this);
+    }
+
+    /**
+     * This can be called by derived classes that need to coopt the moving
+     * process to extend it in some way or other. If the coopted move
+     * request fails, this failure can be propagated to the location
+     * observers if appropriate.
+     *
+     * @param placeId the place oid to which we failed to move.
+     * @param reason the reason code given for failure.
+     */
+    protected void failedToMoveTo (int placeId, String reason)
+    {
+        // let our observers know what's up
+        notifyFailure(placeId, reason);
     }
 
     public void clientDidLogon (Client client)
@@ -147,21 +210,11 @@ public class LocationManager
      */
     public void handleMoveSucceeded (int invid)
     {
-        DObjectManager omgr = _ctx.getDObjectManager();
+        // handle the successful move
+        didMoveTo(_pendingPlaceId);
 
-        // unsubscribe from our old place object
-        if (_place != null) {
-            omgr.unsubscribeFromObject(_place.getOid(), this);
-            _place = null;
-        }
-
-        // make a note that we're now mostly in the new location
-        _previousPlaceId = _placeId;
-        _placeId = _pendingPlaceId;
+        // and clear out the tracked pending oid
         _pendingPlaceId = -1;
-
-        // subscribe to our new place object to complete the move
-        omgr.subscribeToObject(_placeId, this);
     }
 
     /**
@@ -203,8 +256,9 @@ public class LocationManager
         // let the kids know shit be fucked
         notifyFailure(placeId, "m.unable_to_fetch_place_object");
 
-        // if we were previously somewhere, try going back there
-        if (_previousPlaceId != -1) {
+        // if we were previously somewhere (and that somewhere isn't where
+        // we just tried to go), try going back to that happy place
+        if (_previousPlaceId != -1 && _previousPlaceId != placeId) {
             moveTo(_previousPlaceId);
         }
     }
