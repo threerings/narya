@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneModel.java,v 1.13 2004/03/31 02:16:12 eric Exp $
+// $Id: SparseMisoSceneModel.java,v 1.14 2004/08/13 20:48:27 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -97,14 +97,14 @@ public class SparseMisoSceneModel extends MisoSceneModel
             baseTileIds[(row-y)*width+(col-x)] = fqBaseTileId;
         }
 
-        public void addObject (ObjectInfo info) {
+        public boolean addObject (ObjectInfo info) {
             // sanity check: see if there is already an object of this
             // type at these coordinates
             if (ListUtil.indexOfEqual(objectInfo, info) != -1 ||
                 indexOfUn(info) != -1) {
                 Log.warning("Refusing to add duplicate interesting " +
                             "object " + info + ".");
-                return;
+                return false;
             }
 
             if (info.isInteresting()) {
@@ -114,6 +114,7 @@ public class SparseMisoSceneModel extends MisoSceneModel
                 objectXs = ArrayUtil.append(objectXs, (short)info.x);
                 objectYs = ArrayUtil.append(objectYs, (short)info.y);
             }
+            return true;
         }
 
         public boolean removeObject (ObjectInfo info) {
@@ -329,9 +330,9 @@ public class SparseMisoSceneModel extends MisoSceneModel
     }
 
     // documentation inherited
-    public void addObject (ObjectInfo info)
+    public boolean addObject (ObjectInfo info)
     {
-        getSection(info.x, info.y, true).addObject(info);
+        return getSection(info.x, info.y, true).addObject(info);
     }
 
     // documentation inherited

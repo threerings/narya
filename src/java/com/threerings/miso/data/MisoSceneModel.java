@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneModel.java,v 1.19 2004/02/25 14:43:57 mdb Exp $
+// $Id: MisoSceneModel.java,v 1.20 2004/08/13 20:48:27 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -75,8 +75,11 @@ public abstract class MisoSceneModel extends SimpleStreamableObject
 
     /**
      * Adds an object to this scene.
+     *
+     * @return true if the object was added, false if the add was rejected
+     * due to being a duplicate.
      */
-    public abstract void addObject (ObjectInfo info);
+    public abstract boolean addObject (ObjectInfo info);
 
     /**
      * Updates an object in this scene.

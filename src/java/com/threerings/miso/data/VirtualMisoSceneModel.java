@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMisoSceneModel.java,v 1.4 2004/02/25 14:43:57 mdb Exp $
+// $Id: VirtualMisoSceneModel.java,v 1.5 2004/08/13 20:48:27 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -21,7 +21,7 @@ public abstract class VirtualMisoSceneModel extends MisoSceneModel
     }
 
     // documentation inherited from interface
-    public void addObject (ObjectInfo info)
+    public boolean addObject (ObjectInfo info)
     {
         throw new UnsupportedOperationException();
     }

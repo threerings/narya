@@ -1,5 +1,5 @@
 //
-// $Id: SimpleMisoSceneModel.java,v 1.5 2003/04/19 22:40:34 mdb Exp $
+// $Id: SimpleMisoSceneModel.java,v 1.6 2004/08/13 20:48:27 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -126,7 +126,7 @@ public class SimpleMisoSceneModel extends MisoSceneModel
     }
 
     // documentation inherited
-    public void addObject (ObjectInfo info)
+    public boolean addObject (ObjectInfo info)
     {
         if (info.isInteresting()) {
             objectInfo = (ObjectInfo[])ArrayUtil.append(objectInfo, info);
@@ -135,6 +135,7 @@ public class SimpleMisoSceneModel extends MisoSceneModel
             objectXs = ArrayUtil.append(objectXs, (short)info.x);
             objectYs = ArrayUtil.append(objectYs, (short)info.y);
         }
+        return true;
     }
 
     // documentation inherited
