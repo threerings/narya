@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.39 2003/07/17 21:39:15 mdb Exp $
+// $Id: Client.java,v 1.40 2003/08/08 20:20:39 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -8,6 +8,8 @@ import java.util.List;
 
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.ResultListener;
+import com.samskivert.util.Interval;
+import com.samskivert.util.IntervalManager;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
@@ -322,6 +324,18 @@ public class Client
         // this will initiate the logon process
         _comm = new Communicator(this);
         _comm.logon();
+
+        // register an interval that we'll use to keep the clock synced
+        // and to send pings when appropriate
+        _piid = IntervalManager.register(new Interval() {
+            public void intervalExpired (int id, Object arg) {
+                if (id != _piid) {
+                    IntervalManager.remove(id);
+                } else {
+                    tick();
+                }
+            }
+        }, 5000L, null, true);
     }
 
     /**
@@ -351,6 +365,9 @@ public class Client
             return false;
         }
 
+        // kill our tick interval
+        _piid = -1;
+
         // ask the communicator to send a logoff message and disconnect
         // from the server
         _comm.logoff();
@@ -359,33 +376,45 @@ public class Client
     }
 
     /**
+     * Called every five seconds; ensures that we ping the server if we
+     * haven't communicated in a long while and periodically resyncs the
+     * client and server clock deltas.
+     */
+    protected void tick ()
+    {
+        long now = System.currentTimeMillis();
+
+        if (_dcalc != null) {
+            // if we're syncing the clock, send another ping
+            PingRequest req = new PingRequest();
+            _comm.postMessage(req);
+            _dcalc.sentPing(req);
+
+        } else if (now - _comm.getLastWrite() > PingRequest.PING_INTERVAL) {
+            // if we haven't sent anything over the network in a while, we
+            // ping the server to let it know that we're still alive
+            _comm.postMessage(new PingRequest());
+
+        } else if (now - _lastSync > CLOCK_SYNC_INTERVAL) {
+            // resync our clock with the server
+            establishClockDelta(now);
+        }
+    }
+
+    /**
      * Called during initialization to initiate a sequence of ping/pong
      * messages which will be used to determine (with "good enough"
      * accuracy) the difference between the client clock and the server
      * clock so that we can later interpret server timestamps.
      */
-    protected void establishClockDelta ()
+    protected void establishClockDelta (long now)
     {
         // create a new delta calculator and start the process
         _dcalc = new DeltaCalculator();
         PingRequest req = new PingRequest();
         _comm.postMessage(req);
         _dcalc.sentPing(req);
-    }
-
-    /**
-     * This is called when we've completed the process of pinging the
-     * server a few times to establish our clock delta.
-     */
-    protected void clockDeltaEstablished ()
-    {
-        // initialize our invocation director
-        _invdir.init(_comm.getDObjectManager(), _cloid, this);
-
-        // we can't quite call initialization completed at this point
-        // because we need for the invocation director to fully initialize
-        // (which requires a round trip to the server) before turning the
-        // client loose to do things like request invocation services
+        _lastSync = now;
     }
 
     /**
@@ -484,9 +513,17 @@ public class Client
         // extract bootstrap information
         _cloid = data.clientOid;
 
+        // initialize our invocation director
+        _invdir.init(_comm.getDObjectManager(), _cloid, this);
+
         // send a few pings to the server to establish the clock offset
         // between this client and server standard time
-        establishClockDelta();
+        establishClockDelta(System.currentTimeMillis());
+
+        // we can't quite call initialization completed at this point
+        // because we need for the invocation director to fully initialize
+        // (which requires a round trip to the server) before turning the
+        // client loose to do things like request invocation services
     }
 
     /**
@@ -502,21 +539,15 @@ public class Client
             return;
         }
 
-        if (_dcalc.gotPong(pong)) {
-            // we're either done with our calculations, so we can grab the
-            // time delta and finish our business...
-            _serverDelta = _dcalc.getTimeDelta();
-            // free up our delta calculator
-            _dcalc = null;
-            // let the client continue with its initialization
-            clockDeltaEstablished();
-            Log.info("Time offset from server: " + _serverDelta + "ms.");
+        // we update the delta after every receipt so as to immediately
+        // obtain an estimate of the clock delta and then refine it as
+        // more packets come in
+        boolean done = _dcalc.gotPong(pong);
+        _serverDelta = _dcalc.getTimeDelta();
 
-        } else {
-            // ...or we'll either be sending another ping
-            PingRequest req = new PingRequest();
-            _comm.postMessage(req);
-            _dcalc.sentPing(req);
+        if (done) {
+            Log.info("Time offset from server: " + _serverDelta + "ms.");
+            _dcalc = null;
         }
     }
 
@@ -636,6 +667,15 @@ public class Client
     /** Used when establishing our clock delta between the client and
      * server. */
     protected DeltaCalculator _dcalc;
+
+    /** The last time at which we synced our clock with the server. */
+    protected long _lastSync;
+
+    /** Our tick interval id. */
+    protected int _piid = -1;
+
+    /** How often we recompute our time offset from the server. */
+    protected static final long CLOCK_SYNC_INTERVAL = 600 * 1000L;
 
     // client observer codes
     static final int CLIENT_DID_LOGON = 0;

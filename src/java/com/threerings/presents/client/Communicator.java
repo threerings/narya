@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.32 2003/07/17 21:39:15 mdb Exp $
+// $Id: Communicator.java,v 1.33 2003/08/08 20:20:39 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -13,8 +13,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import com.samskivert.io.NestableIOException;
-import com.samskivert.util.Interval;
-import com.samskivert.util.IntervalManager;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 import com.samskivert.util.RuntimeAdjust;
@@ -96,15 +94,6 @@ public class Communicator
         // start up the writer thread if everything went successfully
         _reader = new Reader();
         _reader.start();
-
-        // register an interval to send pings when appropriate
-        _piid = IntervalManager.register(new Interval() {
-            public void intervalExpired (int id, Object arg) {
-                if (checkNeedsPing()) {
-                    postMessage(new PingRequest());
-                }
-            }
-        }, 5000L, null, true);
     }
 
     /**
@@ -119,8 +108,6 @@ public class Communicator
         if (_channel == null) {
             return;
         }
-
-        stopPingInterval();
 
         // post a logoff message
         postMessage(new LogoffRequest());
@@ -236,9 +223,6 @@ public class Communicator
         // clear out our reader reference
         _reader = null;
 
-        // in case we haven't already done it.
-        stopPingInterval();
-
         if (_writer == null) {
             // there's no writer during authentication, so we may be
             // responsible for closing the socket channel
@@ -332,33 +316,20 @@ public class Communicator
     }
 
     /**
+     * Returns the time at which we last sent a packet to the server.
+     */
+    protected synchronized long getLastWrite ()
+    {
+        return _lastWrite;
+    }
+
+    /**
      * Makes a note of the time at which we last communicated with the
      * server.
      */
     protected synchronized void updateWriteStamp ()
     {
         _lastWrite = System.currentTimeMillis();
-    }
-
-    /**
-     * Checks to see if we need to send a ping to the server because we
-     * haven't communicated in sufficiently long.
-     */
-    protected synchronized boolean checkNeedsPing ()
-    {
-        long now = System.currentTimeMillis();
-        return (now - _lastWrite > PingRequest.PING_INTERVAL);
-    }
-
-    /**
-     * Stops our ping interval.
-     */
-    protected void stopPingInterval ()
-    {
-        if (_piid != -1) {
-            IntervalManager.remove(_piid);
-            _piid = -1;
-        }
     }
 
     /**
@@ -600,7 +571,6 @@ public class Communicator
     protected SocketChannel _channel;
     protected Queue _msgq = new Queue();
 
-    protected int _piid = -1;
     protected long _lastWrite;
 
     /** We use this to frame our upstream messages. */
