@@ -1,11 +1,14 @@
 //
-// $Id: ChatPanel.java,v 1.4 2001/10/11 04:13:33 mdb Exp $
+// $Id: ChatPanel.java,v 1.5 2001/10/18 20:52:58 mdb Exp $
 
 package com.threerings.micasa.client;
 
 import java.awt.Color;
+import java.awt.Dimension;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.*;
 import javax.swing.text.*;
 import java.util.StringTokenizer;
@@ -67,6 +70,19 @@ public class ChatPanel
 
         // focus the chat input field by default
         _entry.requestFocus();
+    }
+
+    /**
+     * For appliations where the chat box has extremely limited space, the
+     * send button can be removed to leave more space for the text input
+     * box.
+     */
+    public void removeSendButton ()
+    {
+        if (_send.isVisible()) {
+            // _send.getParent().remove(_send);
+            _send.setVisible(false);
+        }
     }
 
     protected void createStyles (JTextPane text)
@@ -228,6 +244,18 @@ public class ChatPanel
         // nothing doing
     }
 
+    public Dimension getPreferredSize ()
+    {
+        Dimension size = super.getPreferredSize();
+        // always prefer a sensible but not overly large width. this also
+        // prevents us from inheriting a foolishly large preferred width
+        // from the JTextPane which sometimes decides it wants to be as
+        // wide as its widest line of text rather than wrap that line of
+        // text.
+        size.width = PREFERRED_WIDTH;
+        return size;
+    }
+
     protected CrowdContext _ctx;
     protected ChatDirector _chatdtr;
 
@@ -240,4 +268,7 @@ public class ChatPanel
     protected Style _msgStyle;
     protected Style _errStyle;
     protected Style _noticeStyle;
+
+    /** A width that isn't so skinny that the text is teeny. */
+    protected static final int PREFERRED_WIDTH = 200;
 }
