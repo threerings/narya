@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaApplet.java,v 1.4 2001/10/25 23:43:02 mdb Exp $
+// $Id: MiCasaApplet.java,v 1.5 2002/01/19 04:16:02 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -29,7 +29,8 @@ public class MiCasaApplet extends Applet
             _frame = new MiCasaFrame();
 
             // create our client instance
-            _client = new MiCasaClient(_frame);
+            _client = new MiCasaClient();
+            _client.init(_frame);
 
             String username = requireParameter("username");
             String authkey = requireParameter("authkey");
