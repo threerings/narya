@@ -1,5 +1,5 @@
 //
-// $Id: BobbleAnimation.java,v 1.4 2002/04/25 16:23:30 mdb Exp $
+// $Id: BobbleAnimation.java,v 1.5 2002/11/20 02:18:49 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -26,10 +26,10 @@ public class BobbleAnimation extends Animation
      * @param sy the starting y-position.
      * @param rx the horizontal bobble range.
      * @param ry the vertical bobble range.
-     * @param length the time to animate in milliseconds.
+     * @param duration the time to animate in milliseconds.
      */
     public BobbleAnimation (
-        Image image, int sx, int sy, int rx, int ry, int length)
+        Image image, int sx, int sy, int rx, int ry, int duration)
     {
         super(new Rectangle(sx - rx, sy - ry, sx + image.getWidth(null) + rx,
                             sy + image.getHeight(null) + ry));
@@ -42,13 +42,18 @@ public class BobbleAnimation extends Animation
         _ry = ry;
 
         // calculate animation ending time
-        _end = System.currentTimeMillis() + length;
+        _duration = duration;
     }
 
     // documentation inherited
-    public void tick (long timestamp)
+    public void tick (long tickStamp)
     {
-        _finished = (timestamp >= _end);
+        // grab our ending time on our first tick
+        if (_end == 0L) {
+            _end = tickStamp + _duration;
+        }
+
+        _finished = (tickStamp >= _end);
         invalidate();
 
         // calculate the latest position
@@ -95,6 +100,6 @@ public class BobbleAnimation extends Animation
     /** The image to animate. */
     protected Image _image;
 
-    /** The ending animation time. */
-    protected long _end;
+    /** Animation ending timing information. */
+    protected long _duration, _end;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: RainAnimation.java,v 1.4 2002/04/25 16:23:30 mdb Exp $
+// $Id: RainAnimation.java,v 1.5 2002/11/20 02:18:49 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -19,32 +19,32 @@ public class RainAnimation extends Animation
      * of raindrops and their dimensions.
      *
      * @param bounds the bounding rectangle for the animation.
-     * @param delay the number of seconds the animation should last.
+     * @param duration the number of seconds the animation should last.
      */
-    public RainAnimation (Rectangle bounds, long delay)
+    public RainAnimation (Rectangle bounds, long duration)
     {
         super(bounds);
 
-        init(delay, DEFAULT_COUNT, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        init(duration, DEFAULT_COUNT, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
     /**
      * Constructs a rain animation.
      *
      * @param bounds the bounding rectangle for the animation.
-     * @param delay the number of seconds the animation should last.
+     * @param duration the number of seconds the animation should last.
      * @param count the number of raindrops to render in each frame.
      * @param wid the width of a raindrop's bounding rectangle.
      * @param hei the height of a raindrop's bounding rectangle.
      */
     public RainAnimation (
-        Rectangle bounds, long delay, int count, int wid, int hei)
+        Rectangle bounds, long duration, int count, int wid, int hei)
     {
         super(bounds);
-        init(delay, count, wid, hei);
+        init(duration, count, wid, hei);
     }
 
-    protected void init (long delay, int count, int wid, int hei)
+    protected void init (long duration, int count, int wid, int hei)
     {
         // save things off
         _count = count;
@@ -55,13 +55,18 @@ public class RainAnimation extends Animation
         _drops = new int[count];
 
         // calculate ending time
-        _end = System.currentTimeMillis() + delay;
+        _duration = duration;
     }
 
     // documentation inherited
-    public void tick (long timestamp)
+    public void tick (long tickStamp)
     {
-        _finished = (timestamp >= _end);
+        // grab our ending time on our first tick
+        if (_end == 0L) {
+            _end = tickStamp + _duration;
+        }
+
+        _finished = (tickStamp >= _end);
 
         // calculate the latest raindrop locations
         for (int ii = 0; ii < _count; ii++) {
@@ -106,6 +111,6 @@ public class RainAnimation extends Animation
     /** The raindrop locations. */
     protected int[] _drops;
 
-    /** The ending animation time. */
-    protected long _end;
+    /** Animation ending timing information. */
+    protected long _duration, _end;
 }

@@ -1,11 +1,13 @@
 //
-// $Id: PerformanceMonitor.java,v 1.4 2002/04/23 01:16:28 mdb Exp $
+// $Id: PerformanceMonitor.java,v 1.5 2002/11/20 02:18:49 mdb Exp $
 
 package com.threerings.media.util;
 
 import java.util.HashMap;
 
 import com.threerings.media.Log;
+import com.threerings.media.timer.MediaTimer;
+import com.threerings.media.timer.SystemMediaTimer;
 
 /**
  * Provides a simple mechanism for monitoring the number of times an
@@ -112,8 +114,27 @@ public class PerformanceMonitor
         action.tick();
     }
 
+    /**
+     * Used to configure the performance monitor with a particular {@link
+     * MediaTimer} implementation. By default it uses a pure-Java
+     * implementation which isn't extremely accurate across platforms.
+     */
+    public static void setMediaTimer (MediaTimer timer)
+    {
+        _timer = timer;
+    }
+
+    /** Used by the performance actions. */
+    protected synchronized static long getTimeStamp ()
+    {
+        return _timer.getElapsedMillis();
+    }
+
     /** The observers monitoring some set of actions. */
     protected static HashMap _observers = new HashMap();
+
+    /** Used to obtain high resolution time stamps. */
+    protected static MediaTimer _timer = new SystemMediaTimer();
 }
 
 /**
@@ -127,14 +148,14 @@ class PerformanceAction
         _obs = obs;
         _name = name;
         _delta = delta;
-        _lastDelta = System.currentTimeMillis();
+        _lastDelta = PerformanceMonitor.getTimeStamp();
     }
 
     public void tick ()
     {
         _numTicks++;
 
-        long now = System.currentTimeMillis();
+        long now = PerformanceMonitor.getTimeStamp();
         long passed = now - _lastDelta;
         if (passed >= _delta) {
             // update the last checkpoint time

@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.21 2002/10/29 20:33:51 shaper Exp $
+// $Id: MediaPanel.java,v 1.22 2002/11/20 02:18:49 mdb Exp $
 
 package com.threerings.media;
 
@@ -93,12 +93,12 @@ public class MediaPanel extends JComponent
 
         if (_paused = paused) {
             // make a note of our pause time
-            _pauseTime = System.currentTimeMillis();
+            _pauseTime = _framemgr.getTimeStamp();
 
         } else {
             // let the animation and sprite managers know that we just
             // warped into the future
-            long delta = System.currentTimeMillis() - _pauseTime;
+            long delta = _framemgr.getTimeStamp() - _pauseTime;
             _animmgr.fastForward(delta);
             _spritemgr.fastForward(delta);
 

@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.20 2002/11/16 00:15:57 mdb Exp $
+// $Id: FrameManager.java,v 1.21 2002/11/20 02:18:49 mdb Exp $
 
 package com.threerings.media;
 
@@ -34,6 +34,7 @@ import com.samskivert.util.IntervalManager;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.media.timer.MediaTimer;
 import com.threerings.media.util.PerformanceMonitor;
 import com.threerings.media.util.PerformanceObserver;
 
@@ -101,10 +102,11 @@ public class FrameManager
      *
      * @see GraphicsDevice#setFullScreenWindow
      */
-    public FrameManager (Frame frame)
+    public FrameManager (Frame frame, MediaTimer timer)
     {
         _frame = frame;
         _frame.setIgnoreRepaint(true);
+        _timer = timer;
 
         // set up our custom repaint manager
         _remgr = new FrameRepaintManager(_frame);
@@ -150,13 +152,23 @@ public class FrameManager
     }
 
     /**
+     * Returns a millisecond granularity time stamp using the {@link
+     * MediaTimer} with which this frame manager was configured.
+     * <em>Note:</em> this should only be called from the AWT thread.
+     */
+    public long getTimeStamp ()
+    {
+        return _timer.getElapsedMillis();
+    }
+
+    /**
      * Starts up the per-frame tick
      */
     public void start ()
     {
-        if (_timer == null) {
-            _timer = new Timer(true);
-            _timer.scheduleAtFixedRate(_callTick, new Date(), _millisPerFrame);
+        if (_ticker == null) {
+            _ticker = new Timer(true);
+            _ticker.scheduleAtFixedRate(_callTick, new Date(), _millisPerFrame);
         }
     }
 
@@ -165,9 +177,9 @@ public class FrameManager
      */
     public synchronized void stop ()
     {
-        if (_timer != null) {
-            _timer.cancel();
-            _timer = null;
+        if (_ticker != null) {
+            _ticker.cancel();
+            _ticker = null;
         }
     }
 
@@ -177,7 +189,7 @@ public class FrameManager
      */
     public synchronized boolean isRunning ()
     {
-        return (_timer != null);
+        return (_ticker != null);
     }
 
     /**
@@ -527,6 +539,9 @@ public class FrameManager
     /** The frame into which we do our rendering. */
     protected Frame _frame;
 
+    /** Used to obtain timing measurements. */
+    protected MediaTimer _timer;
+
     /** Our custom repaint manager. */
     protected FrameRepaintManager _remgr;
 
@@ -541,7 +556,7 @@ public class FrameManager
     protected long _millisPerFrame = 14;
 
     /** The timer that dispatches our frame ticks. */
-    protected Timer _timer;
+    protected Timer _ticker;
 
     /** Used to detect when we need to drop frames. */
     protected boolean _ticking;
@@ -564,7 +579,7 @@ public class FrameManager
     protected TimerTask _callTick = new TimerTask () {
         public void run () {
             if (EventQueue.isDispatchThread()) {
-                tick(System.currentTimeMillis());
+                tick(_timer.getElapsedMillis());
             } else if (!isTicking()) {
                 EventQueue.invokeLater(this);
             } else {
