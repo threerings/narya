@@ -426,6 +426,11 @@ public abstract class PuzzleManager extends GameManager
     protected void reportPlayerKnockedOut (int pidx)
     {
         BodyObject user = getPlayer(pidx);
+        if (user == null) {
+            // body object can be null for ai players
+            return;
+        }
+        
         OidList knocky = new OidList(1);
         knocky.add(user.getOid());
 
