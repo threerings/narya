@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.19 2003/09/22 23:57:20 mdb Exp $
+// $Id: SceneRegistry.java,v 1.20 2003/09/25 00:26:16 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -193,6 +193,13 @@ public class SceneRegistry
                                     "neither a scene nor a reason for " +
                                     "failure!?");
                     }
+                }
+
+                public String toString ()
+                {
+                    return "SceneRegistry.SceneLoader " +
+                        (_model == null ? "" : _model.name) +
+                        "(" + fsceneId + ")";
                 }
 
                 protected SceneModel _model;
