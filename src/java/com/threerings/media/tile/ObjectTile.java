@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTile.java,v 1.10 2002/06/21 18:52:36 mdb Exp $
+// $Id: ObjectTile.java,v 1.11 2002/06/25 01:19:08 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -99,19 +99,6 @@ public class ObjectTile extends Tile
     {
         _originX = x;
         _originY = y;
-    }
-
-    /**
-     * Returns true if the object tile's bounds contain the specified
-     * point, and if there is a non-transparent pixel in the tile image at
-     * the specified point, false if not.
-     *
-     * @param x the x offset into the object tile's bounds to test.
-     * @param y the y offset into the object tile's bounds to test.
-     */
-    public boolean hitTest (int x, int y)
-    {
-        return ImageUtil.hitTest(_image, x, y);
     }
 
     // documentation inherited
