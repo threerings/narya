@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.27 2003/05/09 01:12:06 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.28 2003/05/12 02:03:31 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -26,6 +26,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import javax.swing.Icon;
+import javax.swing.JFrame;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,7 +97,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         if (_resolver == null) {
             _resolver = new SceneBlockResolver();
             _resolver.setDaemon(true);
-            _resolver.setPriority(Thread.currentThread().getPriority()-2);
+            _resolver.setPriority(Thread.MIN_PRIORITY);
             _resolver.start();
         }
     }
@@ -113,6 +114,9 @@ public class MisoScenePanel extends VirtualMediaPanel
         _blocks.clear();
         _vizobjs.clear();
         _masks.clear();
+        if (_dpanel != null) {
+            _dpanel.newScene();
+        }
 
         centerOnTile(0, 0);
         if (isShowing()) {
@@ -265,6 +269,32 @@ public class MisoScenePanel extends VirtualMediaPanel
     {
         if (_activeMenu != null) {
             _activeMenu.deactivate();
+        }
+    }
+
+    // documentation inherited
+    public void addNotify ()
+    {
+        super.addNotify();
+
+        if (_resolveDebug.getValue()) {
+            _dpanel = new ResolutionView(this);
+            _dframe = new JFrame("Scene block resolver");
+            _dframe.setContentPane(_dpanel);
+            _dframe.pack();
+            _dframe.show();
+        }
+    }
+
+    // documentation inherited
+    public void removeNotify ()
+    {
+        super.removeNotify();
+
+        if (_dpanel != null) {
+            _dframe.dispose();
+            _dpanel = null;
+            _dframe = null;
         }
     }
 
@@ -481,6 +511,16 @@ public class MisoScenePanel extends VirtualMediaPanel
     // documentation inherited
     public boolean canTraverse (Object traverser, int tx, int ty)
     {
+        // if the tile is not on-screen, no traversy
+        MisoUtil.tileToScreen(_metrics, tx, ty, _tcoords);
+        _trect.setLocation(_tcoords);
+        _trect.width = _metrics.tilewid;
+        _trect.height = _metrics.tilehei;
+        if (!_vbounds.intersects(_trect)) {
+            return false;
+        }
+
+        // if it is on screen, check the tile traversability
         SceneBlock block = getBlock(tx, ty);
         return (block == null) ? false : block.canTraverse(traverser, tx, ty);
     }
@@ -625,6 +665,9 @@ public class MisoScenePanel extends VirtualMediaPanel
             key.y = block.getBounds().y;
             if (!_rethinkOp.blocks.contains(key)) {
                 Log.debug("Flushing block " + block + ".");
+                if (_dpanel != null) {
+                    _dpanel.blockCleared(block);
+                }
                 iter.remove();
             }
         }
@@ -643,6 +686,9 @@ public class MisoScenePanel extends VirtualMediaPanel
                 // queue the block up to be resolved
                 _pendingBlocks++;
                 _resolver.resolveBlock(block);
+                if (_dpanel != null) {
+                    _dpanel.queuedBlock(block);
+                }
             }
         }
         _rethinkOp.blocks.clear();
@@ -666,8 +712,8 @@ public class MisoScenePanel extends VirtualMediaPanel
      */
     protected void computeInfluentialBounds ()
     {
-        int infborx = _vbounds.width/3;
-        int infbory = _vbounds.height/3;
+        int infborx = 3*_vbounds.width/4;
+        int infbory = _vbounds.height/2;
         _ibounds.setBounds(_vbounds.x-infborx, _vbounds.y-infbory,
                            _vbounds.width+2*infborx,
                            // we go extra on the height because objects
@@ -676,11 +722,45 @@ public class MisoScenePanel extends VirtualMediaPanel
     }
 
     /**
+     * Returns the bounds for which all intersecting scene blocks are kept
+     * resolved. Do not modify the rectangle returned by this method.
+     */
+    protected Rectangle getInfluentialBounds ()
+    {
+        return _ibounds;
+    }
+
+    /**
+     * Called by the scene block when it has started its resolution.
+     */
+    protected void blockResolving (SceneBlock block)
+    {
+        if (_dpanel != null) {
+            _dpanel.resolvingBlock(block);
+        }
+    }
+
+    /**
+     * Called by the scene block if it has come up for resolution but is
+     * no longer influential.
+     */
+    protected void blockAbandoned (SceneBlock block)
+    {
+        if (_dpanel != null) {
+            _dpanel.blockCleared(block);
+        }
+    }
+
+    /**
      * Called by a scene block when it has completed its resolution
      * process.
      */
     protected void blockResolved (SceneBlock block)
     {
+        if (_dpanel != null) {
+            _dpanel.resolvedBlock(block);
+        }
+
         Rectangle sbounds = block.getScreenBounds();
         if (!_delayRepaint && sbounds != null && sbounds.intersects(_vbounds)) {
             Log.warning("Block visible during resolution " + block + ".");
@@ -1395,8 +1475,11 @@ public class MisoScenePanel extends VirtualMediaPanel
     /** Used to paint tiles. */
     protected PaintTileOp _paintOp = new PaintTileOp();
 
-    /** Used when dirtying sprites. */
+    /** Temporary point used for intermediate calculations. */
     protected Point _tcoords = new Point();
+
+    /** Temporary rectangle used for intermediate calculations. */
+    protected Rectangle _trect = new Rectangle();
 
     /** Used to collect the list of sprites "hit" by a particular mouse
      * location. */
@@ -1430,6 +1513,10 @@ public class MisoScenePanel extends VirtualMediaPanel
     /** A scene block resolver shared by all scene panels. */
     protected static SceneBlockResolver _resolver;
 
+    // used to display debugging information on scene block resolution
+    protected JFrame _dframe;
+    protected ResolutionView _dpanel;
+
     /** A debug hook that toggles debug rendering of traversable tiles. */
     protected static RuntimeAdjust.BooleanAdjust _traverseDebug =
         new RuntimeAdjust.BooleanAdjust(
@@ -1449,6 +1536,12 @@ public class MisoScenePanel extends VirtualMediaPanel
         new RuntimeAdjust.BooleanAdjust(
             "Toggles debug rendering of sprite paths in the iso scene view.",
             "narya.miso.iso_paths_debug_render", MisoPrefs.config, false);
+
+    /** A debug hook that toggles the block resolution display. */
+    protected static RuntimeAdjust.BooleanAdjust _resolveDebug =
+        new RuntimeAdjust.BooleanAdjust(
+            "Enables a view displaying the status of scene block resolution.",
+            "narya.miso.iso_paths_debug_resolve", MisoPrefs.config, false);
 
     /** The stroke used to draw dirty rectangles. */
     protected static final Stroke DIRTY_RECT_STROKE = new BasicStroke(2);

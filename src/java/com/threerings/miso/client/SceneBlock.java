@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.14 2003/04/28 20:41:13 mdb Exp $
+// $Id: SceneBlock.java,v 1.15 2003/05/12 02:03:31 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -62,8 +62,10 @@ public class SceneBlock
         // if we got canned before we were resolved, go ahead and bail now
         if (_panel.getBlock(_bounds.x, _bounds.y) != this) {
             // Log.info("Not resolving abandoned block " + this + ".");
+            _panel.blockAbandoned(this);
             return false;
         }
+        _panel.blockResolving(this);
 
         // start with the bounds of the footprint polygon
         Rectangle sbounds = new Rectangle(_footprint.getBounds());
