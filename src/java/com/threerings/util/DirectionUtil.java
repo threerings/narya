@@ -1,5 +1,5 @@
 //
-// $Id: DirectionUtil.java,v 1.11 2004/08/27 02:20:36 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -143,7 +143,7 @@ public class DirectionUtil implements DirectionCodes
      */
     public static int getDirection (Point a, Point b)
     {
-        return getDirection(a.x, a.y, b.x, b.y);
+        return getDirection(a.getX(), a.getY(), b.getX(), b.getY());
     }
 
     /**
@@ -155,6 +155,19 @@ public class DirectionUtil implements DirectionCodes
      * toward the top of the screen.
      */
     public static int getDirection (int ax, int ay, int bx, int by)
+    {
+        return getDirection(Math.atan2(by-ay, bx-ax));
+    }
+
+    /**
+     * Returns which of the eight compass directions that point
+     * <code>b</code> lies in from point <code>a</code> as one of the
+     * {@link DirectionCodes} direction constants. <em>Note:</em> that the
+     * coordinates supplied are assumed to be logical (screen) rather than
+     * cartesian coordinates and <code>NORTH</code> is considered to point
+     * toward the top of the screen.
+     */
+    public static int getDirection (double ax, double ay, double bx, double by)
     {
         return getDirection(Math.atan2(by-ay, bx-ax));
     }
