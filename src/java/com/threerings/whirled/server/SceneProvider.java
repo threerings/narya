@@ -1,5 +1,5 @@
 //
-// $Id: SceneProvider.java,v 1.13 2002/12/03 06:58:57 mdb Exp $
+// $Id: SceneProvider.java,v 1.14 2002/12/14 01:51:00 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -76,28 +76,39 @@ public class SceneProvider
         BodyObject source, SceneManager scmgr, int sceneVersion,
         SceneMoveListener listener)
     {
-        // move to the place object associated with this scene
-        PlaceObject plobj = scmgr.getPlaceObject();
-        int ploid = plobj.getOid();
-
         try {
-            // try doing the actual move
-            PlaceConfig config = _locprov.moveTo(source, ploid);
-
-            // now that we've finally moved, we can update the user object
-            // with the new scene id
-            ((ScenedBodyObject)source).setSceneId(scmgr.getScene().getId());
-
-            // check to see if they need a newer version of the scene data
-            SceneModel model = scmgr.getSceneModel();
-            if (sceneVersion < model.version) {
-                listener.moveSucceededPlusUpdate(ploid, config, model);
-            } else {
-                listener.moveSucceeded(ploid, config);
-            }
-
+            effectSceneMove(source, scmgr, sceneVersion, listener);
         } catch (InvocationException sfe) {
             listener.requestFailed(sfe.getMessage());
+        }
+    }
+
+    /**
+     * Moves the supplied body into the supplied (already resolved) scene
+     * and informs the supplied listener if the move is successfuly.
+     *
+     * @exception InvocationException thrown if a failure occurs
+     * attempting to move the user into the place associated with the
+     * scene.
+     */
+    public void effectSceneMove (BodyObject source, SceneManager scmgr,
+                                 int sceneVersion, SceneMoveListener listener)
+        throws InvocationException
+    {
+        // move to the place object associated with this scene
+        int ploid = scmgr.getPlaceObject().getOid();
+        PlaceConfig config = _locprov.moveTo(source, ploid);
+
+        // now that we've finally moved, we can update the user object
+        // with the new scene id
+        ((ScenedBodyObject)source).setSceneId(scmgr.getScene().getId());
+
+        // check to see if they need a newer version of the scene data
+        SceneModel model = scmgr.getSceneModel();
+        if (sceneVersion < model.version) {
+            listener.moveSucceededPlusUpdate(ploid, config, model);
+        } else {
+            listener.moveSucceeded(ploid, config);
         }
     }
 

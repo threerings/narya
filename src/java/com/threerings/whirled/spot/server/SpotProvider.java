@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.13 2002/08/14 19:07:58 mdb Exp $
+// $Id: SpotProvider.java,v 1.14 2002/12/14 01:51:00 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -122,32 +122,15 @@ public class SpotProvider
         BodyObject source, SpotSceneManager scmgr, int sceneVer,
         int exitPortalId, int destLocId, SceneMoveListener listener)
     {
-        // move to the place object associated with this scene
-        PlaceObject plobj = scmgr.getPlaceObject();
-        int ploid = plobj.getOid();
-        int bodyOid = source.getOid();
-
         // let the destination scene manager know that we're coming in
+        int bodyOid = source.getOid();
         scmgr.mapEnteringBody(bodyOid, destLocId);
 
         try {
-            // try doing the actual move
-            PlaceConfig config = _plreg.locprov.moveTo(source, ploid);
-
-            // check to see if they need a newer version of the scene data
-            SceneModel model = scmgr.getSceneModel();
-            if (sceneVer < model.version) {
-                // then send the moveTo response
-                listener.moveSucceededPlusUpdate(ploid, config, model);
-
-            } else {
-                // then send the moveTo response
-                listener.moveSucceeded(ploid, config);
-            }
-
+            // move to the place object associated with this scene
+            _screg.sceneprov.effectSceneMove(source, scmgr, sceneVer, listener);
         } catch (InvocationException sfe) {
             listener.requestFailed(sfe.getMessage());
-
             // and let the destination scene manager know that we're no
             // longer coming in
             scmgr.clearEnteringBody(bodyOid);
