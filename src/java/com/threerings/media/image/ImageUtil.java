@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.6 2002/03/08 01:38:12 mdb Exp $
+// $Id: ImageUtil.java,v 1.7 2002/03/08 21:05:01 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -13,6 +13,7 @@ import java.awt.Transparency;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
 
 import com.samskivert.util.StringUtil;
@@ -111,36 +112,34 @@ public class ImageUtil
         float[] rHSV = Color.RGBtoHSB(rootColor.getRed(), rootColor.getGreen(),
                                       rootColor.getBlue(), null);
         int[] frHSV = toFixedHSV(rHSV, null);
+        int[] rgb = new int[3];
 
         // now process the image
         IndexColorModel icm = (IndexColorModel)cm;
         int size = icm.getMapSize();
         int[] rgbs = new int[size];
-        byte[] reds = new byte[size];
-        byte[] greens = new byte[size];
-        byte[] blues = new byte[size];
-        byte[] alphas = new byte[size];
 
         // fetch the color data
         icm.getRGBs(rgbs);
-        icm.getReds(reds);
-        icm.getGreens(greens);
-        icm.getBlues(blues);
-        icm.getAlphas(alphas);
 
         // convert the colors to HSV
         float[] hsv = new float[3];
         int[] fhsv = new int[3];
+        int tpixel = -1;
         for (int i = 0; i < size; i++) {
+            int value = rgbs[i];
+
             // don't fiddle with alpha pixels
-            if (alphas[i] != -1) {
+            if ((value & 0xFF000000) == 0) {
+                tpixel = i;
                 continue;
             }
 
             // convert the color to HSV
-            Color color = new Color(rgbs[i]);
-            Color.RGBtoHSB(color.getRed(), color.getGreen(),
-                           color.getBlue(), hsv);
+            int red = (value >> 16) & 0xFF;
+            int green = (value >> 8) & 0xFF;
+            int blue = (value >> 0) & 0xFF;
+            Color.RGBtoHSB(red, green, blue, hsv);
 
             // check to see that this color is sufficiently "close" to the
             // root color based on the supplied distance parameters
@@ -157,32 +156,37 @@ public class ImageUtil
             }
 
             // massage the HSV bands and update the RGBs array
-            for (int band = 0; band < offsets.length; band++) {
-                hsv[band] += offsets[band];
-
-                // for hue, we wrap around
-                if (band == 0) {
-                    if (hsv[band] > 1.0) {
-                        hsv[band] -= 1.0;
-                    }
-                } else {
-                    // otherwise we clip
-                    hsv[band] = Math.max(hsv[band], 0);
-                    hsv[band] = Math.min(hsv[band], 1);
-                }
-            }
-
-            int rgb = Color.HSBtoRGB(hsv[0], hsv[1], hsv[2]);
-            Color ncolor = new Color(rgb);
-            reds[i] = (byte)ncolor.getRed();
-            greens[i] = (byte)ncolor.getGreen();
-            blues[i] = (byte)ncolor.getBlue();
+            rgbs[i] = recolorColor(hsv, offsets);
         }
 
         // create a new image with the adjusted color palette
         IndexColorModel nicm = new IndexColorModel(
-            8, size, reds, greens, blues, alphas);
+            icm.getPixelSize(), size, rgbs, 0, icm.hasAlpha(),
+            icm.getTransparentPixel(), icm.getTransferType());
         return new BufferedImage(nicm, image.getRaster(), false, null);
+    }
+
+    /**
+     * Adjusts the supplied color by the specified offests, taking the
+     * appropriate measures for hue (wrapping it around) and saturation
+     * and value (clipping).
+     *
+     * @return the RGB value of the recolored color.
+     */
+    public static int recolorColor (float[] hsv, float[] offsets)
+    {
+        // for hue, we wrap around
+        hsv[0] += offsets[0];
+        if (hsv[0] > 1.0) {
+            hsv[0] -= 1.0;
+        }
+
+        // otherwise we clip
+        hsv[1] = Math.min(Math.max(hsv[1] + offsets[1], 0), 1);
+        hsv[2] = Math.min(Math.max(hsv[2] + offsets[2], 0), 1);
+
+        // convert back to RGB space
+        return Color.HSBtoRGB(hsv[0], hsv[1], hsv[2]);
     }
 
     /**
