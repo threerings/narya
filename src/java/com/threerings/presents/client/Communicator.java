@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.26 2003/01/21 00:17:16 mdb Exp $
+// $Id: Communicator.java,v 1.27 2003/01/21 05:27:48 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -581,7 +581,7 @@ public class Communicator
     protected ClientDObjectMgr _omgr;
 
     /** Used to control low-level message logging. */
-    protected RuntimeAdjust.BooleanAdjust _logMessages =
+    protected static RuntimeAdjust.BooleanAdjust _logMessages =
         new RuntimeAdjust.BooleanAdjust(
             "Toggles whether or not all sent and received low-level " +
             "network events are logged.", "narya.presents.log_events",
