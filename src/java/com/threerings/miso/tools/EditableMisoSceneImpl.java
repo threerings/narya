@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.14 2002/04/06 02:43:34 ray Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.15 2002/04/09 01:58:37 ray Exp $
 
 package com.threerings.miso.scene.tools;
 
@@ -136,9 +136,8 @@ public class EditableMisoSceneImpl
     // documentation inherited
     public void clearBaseTile (int x, int y)
     {
-        _base.setTile(x, y, _defaultBaseTile);
-        // clear it out in the model
-        _model.baseTileIds[_model.width*y + x] = _defaultBaseTileId;
+        // implemented as a set of the default tile
+        setBaseTile(x, y, _defaultBaseTile, _defaultBaseTileId);
     }
 
     // documentation inherited
