@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.11 2001/07/28 01:31:51 shaper Exp $
+// $Id: TileSet.java,v 1.12 2001/07/28 01:35:06 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -103,9 +103,9 @@ public class TileSet
         // final image x-position is based on tile width and gap distance
         tx += (xidx * (_rowWidth[ridx] + _gapDist.x));
 
-    	Log.info("Retrieving tile image [tid=" + tid + ", ridx=" +
-    		 ridx + ", xidx=" + xidx + ", tx=" + tx +
-    		 ", ty=" + ty + "].");
+//          Log.info("Retrieving tile image [tid=" + tid + ", ridx=" +
+//                   ridx + ", xidx=" + xidx + ", tx=" + tx +
+//                   ", ty=" + ty + "].");
 
 	// crop the tile-sized image chunk from the full image
 	return imgr.getImageCropped(
