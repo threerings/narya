@@ -1,49 +1,16 @@
 //
-// $Id: TestObject.dobj,v 1.6 2002/02/05 20:27:59 mdb Exp $
+// $Id: TestObject.dobj,v 1.7 2002/02/08 23:17:38 mdb Exp $
 
 package com.threerings.presents.server;
 
 import com.threerings.presents.dobj.*;
 
 /**
- * I use this to test until I get the actual DObject generation script
- * working.
+ * A test distributed object.
  */
 public class TestObject extends DObject
 {
-    public static final String FOO = "foo";
-    public static final String BAR = "bar";
-    public static final String LIST = "list";
-
     public int foo;
     public String bar;
     public OidList list = new OidList();
-
-    public void setFoo (int foo)
-    {
-        requestAttributeChange(FOO, new Integer(foo));
-    }
-
-    public void setBar (String bar)
-    {
-        requestAttributeChange(BAR, bar);
-    }
-
-    /**
-     * Requests that the specified oid be added to the
-     * <code>list</code> oid list.
-     */
-    public void addToList (int oid)
-    {
-        requestOidAdd(LIST, oid);
-    }
-
-    /**
-     * Requests that the specified oid be removed from the
-     * <code>list</code> oid list.
-     */
-    public void removeFromList (int oid)
-    {
-        requestOidRemove(LIST, oid);
-    }
 }
