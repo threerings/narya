@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.11 2002/11/15 01:49:47 ray Exp $
+// $Id: SoundManager.java,v 1.12 2002/11/15 02:06:41 ray Exp $
 
 package com.threerings.media;
 
@@ -263,16 +263,14 @@ public class SoundManager
         }
 
         // get the sound data from our LRU cache
-        byte[] data = getAudioData(path);
-        if (data == null) {
+        Object[] stuff = getAudioData(path);
+        if (stuff == null) {
             return; // borked!
         }
 
         try {
-            AudioInputStream stream = AudioSystem.getAudioInputStream(
-                new ByteArrayInputStream(data));
-            DataLine.Info info = new DataLine.Info(
-                Clip.class, stream.getFormat());
+            DataLine.Info info = (DataLine.Info) stuff[0];
+            AudioInputStream stream = (AudioInputStream) stuff[1];
 
             Clip clip = (Clip) AudioSystem.getLine(info);
             clip.open(stream);
@@ -281,13 +279,12 @@ public class SoundManager
             rec.start(type);
             _active.add(rec);
 
+            // and rewind the stream to the beginning for next time
+            stream.reset();
+
         } catch (IOException ioe) {
             Log.warning("Error loading sound file [path=" + path +
                 ", e=" + ioe + "].");
-
-        } catch (UnsupportedAudioFileException uafe) {
-            Log.warning("Unsupported sound format [path=" + path + ", e=" +
-                uafe + "].");
 
         } catch (LineUnavailableException lue) {
             Log.warning("Line not available to play sound [path=" + path +
@@ -337,24 +334,33 @@ public class SoundManager
     /**
      * Get the audio data for the specified path.
      */
-    protected byte[] getAudioData (String path)
+    protected Object[] getAudioData (String path)
     {
-        byte[] data = (byte[]) _dataCache.get(path);
-        if (data != null) {
-            return data;
+        Object[] stuff = (Object[]) _dataCache.get(path);
+        if (stuff != null) {
+            return stuff;
         }
 
         try {
-            data = StreamUtils.streamAsBytes(
+            byte[] data = StreamUtils.streamAsBytes(
                 _rmgr.getResource(path), BUFFER_SIZE);
-            _dataCache.put(path, data);
+            AudioInputStream stream = AudioSystem.getAudioInputStream(
+                new ByteArrayInputStream(data));
+            DataLine.Info info = new DataLine.Info(
+                Clip.class, stream.getFormat());
+            stuff = new Object[] { info, stream };
+            _dataCache.put(path, stuff);
+
+        } catch (UnsupportedAudioFileException uafe) {
+            Log.warning("Unsupported sound format [path=" + path + ", e=" +
+                uafe + "].");
 
         } catch (IOException ioe) {
             Log.warning("Error loading sound file [path=" + path + ", e=" + 
                 ioe + "].");
         }
 
-        return data;
+        return stuff;
     }
 
     /**
