@@ -1,5 +1,5 @@
 //
-// $Id: Scene.java,v 1.1 2001/08/11 04:09:50 mdb Exp $
+// $Id: Scene.java,v 1.2 2001/08/16 18:05:17 shaper Exp $
 
 package com.threerings.whirled.data;
 
@@ -13,5 +13,5 @@ public interface Scene
 
     public int getVersion ();
 
-    public int[] getExitIds ();
+    public int[] getPortalIds ();
 }

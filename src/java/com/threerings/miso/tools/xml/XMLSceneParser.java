@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.11 2001/08/15 01:08:49 mdb Exp $
+// $Id: XMLSceneParser.java,v 1.12 2001/08/16 18:05:17 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -74,9 +74,9 @@ public class XMLSceneParser extends DefaultHandler
 	    int vals[] = StringUtil.parseIntArray(_chars.toString());
 	    _scClusters.add(toCluster(_scLocations, vals));
 
-	} else if (qName.equals("exits")) {
+	} else if (qName.equals("portals")) {
             String vals[] = StringUtil.parseStringArray(_chars.toString());
-	    _scExits = toExitList(_scLocations, vals);
+	    _scPortals = toPortalList(_scLocations, vals);
 
 	} else if (qName.equals("row")) {
             if (_scLnum == MisoScene.LAYER_BASE) {
@@ -89,7 +89,7 @@ public class XMLSceneParser extends DefaultHandler
             // construct the scene object on tag close
             _scene = new MisoScene(
                 _tilemgr, _scName, _scLocations, _scClusters,
-		_scExits, _scTiles);
+		_scPortals, _scTiles);
 
             Log.info("Constructed parsed scene [scene=" + _scene + "].");
 	}
@@ -215,8 +215,8 @@ public class XMLSceneParser extends DefaultHandler
 
     /**
      * Given an array of string values, return a list of
-     * <code>Exit</code> objects constructed from each successive
-     * triplet of values as (locidx, scene name) in the array.  The
+     * <code>Portal</code> objects constructed from each successive
+     * triplet of values as (locidx, portal name) in the array.  The
      * list of <code>Location</code> objects must have already been
      * fully read previously.
      *
@@ -229,27 +229,27 @@ public class XMLSceneParser extends DefaultHandler
      * @param ArrayList the location list.
      * @param vals the String values.
      *
-     * @return the exit list, or null if an error occurred.
+     * @return the portal list, or null if an error occurred.
      */
-    protected ArrayList toExitList (ArrayList locs, String[] vals)
+    protected ArrayList toPortalList (ArrayList locs, String[] vals)
     {
         // make sure we have an appropriate number of values
         if ((vals.length % 2) != 0) return null;
 
-	// read in all of the exits
-	ArrayList exits = new ArrayList();
+	// read in all of the portals
+	ArrayList portals = new ArrayList();
 	for (int ii = 0; ii < vals.length; ii += 2) {
 	    int locidx = getInt(vals[ii]);
 
-	    // create the exit and add to the list
-	    Exit exit = new Exit((Location)locs.get(locidx), vals[ii+1]);
-	    exits.add(exit);
+	    // create the portal and add to the list
+	    Portal portal = new Portal((Location)locs.get(locidx), vals[ii+1]);
+	    portals.add(portal);
 
 	    // upgrade the corresponding location in the location list
-	    locs.set(locidx, exit);
+	    locs.set(locidx, portal);
 	}
 
-        return exits;
+        return portals;
     }
 
     /**
@@ -273,7 +273,7 @@ public class XMLSceneParser extends DefaultHandler
 	int width = MisoScene.TILE_WIDTH, height = MisoScene.TILE_HEIGHT;
 	_scTiles = new Tile[width][height][MisoScene.NUM_LAYERS];
 	_scLocations = null;
-	_scExits = null;
+	_scPortals = null;
 	_scClusters = new ArrayList();
     }	
 
@@ -326,7 +326,7 @@ public class XMLSceneParser extends DefaultHandler
     /** Temporary storage of scene object values and data. */
     protected StringBuffer _chars;
     protected String _scName;
-    protected ArrayList _scLocations, _scExits, _scClusters;
+    protected ArrayList _scLocations, _scPortals, _scClusters;
     protected Tile[][][] _scTiles;
     protected int _scLnum, _scRownum, _scColstart;
 }

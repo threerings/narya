@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.29 2001/08/15 01:10:09 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.30 2001/08/16 18:05:16 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -71,7 +71,7 @@ public class MisoScene implements Scene
 
         _locations = new ArrayList();
 	_clusters = new ArrayList();
-        _exits = new ArrayList();
+        _portals = new ArrayList();
 
 	tiles = new Tile[TILE_WIDTH][TILE_HEIGHT][NUM_LAYERS];
 	_deftile = _tilemgr.getTile(deftsid, deftid);
@@ -92,19 +92,19 @@ public class MisoScene implements Scene
      * @param tilemgr the tile manager.
      * @param name the scene name.
      * @param locations the locations.
-     * @param exits the exits.
+     * @param portals the portals.
      * @param tiles the tiles comprising the scene.
      */
     public MisoScene (
         TileManager tilemgr, String name, ArrayList locations,
-        ArrayList clusters, ArrayList exits, Tile tiles[][][])
+        ArrayList clusters, ArrayList portals, Tile tiles[][][])
     {
         _tilemgr = tilemgr;
         _sid = SID_INVALID;
         _name = name;
         _locations = locations;
 	_clusters = clusters;
-        _exits = exits;
+        _portals = portals;
         this.tiles = tiles;
     }
 
@@ -139,26 +139,26 @@ public class MisoScene implements Scene
     }
 
     /**
-     * Add the specified exit to the scene.  Adds the exit to the
+     * Add the specified portal to the scene.  Adds the portal to the
      * location list as well if it's not already present and removes
      * it from any cluster it may reside in.
      *
-     * @param exit the exit.
+     * @param portal the portal.
      */
-    public void addExit (Exit exit)
+    public void addPortal (Portal portal)
     {
 	// make sure it's in the location list and absent from any cluster
-	updateLocation(exit, -1);
+	updateLocation(portal, -1);
 
-	// don't allow adding an exit more than once
-	if (_exits.contains(exit)) {
-	    Log.warning("Attempt to add already-existing exit " +
-			"[exit=" + exit + "].");
+	// don't allow adding an portal more than once
+	if (_portals.contains(portal)) {
+	    Log.warning("Attempt to add already-existing portal " +
+			"[portal=" + portal + "].");
 	    return;
 	}
 
 	// add it to the list
-	_exits.add(exit);
+	_portals.add(portal);
     }
 
     /**
@@ -182,8 +182,8 @@ public class MisoScene implements Scene
 
     /**
      * Remove the given location object from the location list, and
-     * from any containing cluster.  If the location is an exit, it
-     * is removed from the exit list as well.
+     * from any containing cluster.  If the location is an portal, it
+     * is removed from the portal list as well.
      *
      * @param loc the location object.
      */
@@ -192,15 +192,15 @@ public class MisoScene implements Scene
 	// remove from the location list
 	if (!_locations.remove(loc)) {
 	    // we didn't know about it, so it can't be in a cluster or
-	    // the exit list
+	    // the portal list
 	    return;
 	}
 
 	// remove from any possible cluster
 	ClusterUtil.remove(_clusters, loc);
 
-	// remove from any possible existence on the exit list
-	_exits.remove(loc);
+	// remove from any possible existence on the portal list
+	_portals.remove(loc);
     }
 
     /**
@@ -230,9 +230,9 @@ public class MisoScene implements Scene
     }
 
     /**
-     * Returns the scene ids of the exits from this scene.
+     * Returns the scene ids of the portals from this scene.
      */
-    public int[] getExitIds ()
+    public int[] getPortalIds ()
     {
         return null;
     }
@@ -254,11 +254,11 @@ public class MisoScene implements Scene
     }
 
     /**
-     * Return the scene exits list.
+     * Return the scene portals list.
      */
-    public ArrayList getExits ()
+    public ArrayList getPortals ()
     {
-        return _exits;
+        return _portals;
     }
 
     /**
@@ -306,7 +306,7 @@ public class MisoScene implements Scene
         buf.append(", sid=").append(_sid);
         buf.append(", locations=").append(StringUtil.toString(_locations));
         buf.append(", clusters=").append(StringUtil.toString(_clusters));
-        buf.append(", exits=").append(StringUtil.toString(_exits));
+        buf.append(", portals=").append(StringUtil.toString(_portals));
         return buf.append("]").toString();
     }
 
@@ -325,8 +325,8 @@ public class MisoScene implements Scene
     /** The clusters within the scene. */
     protected ArrayList _clusters;
 
-    /** The exits to different scenes. */
-    protected ArrayList _exits;
+    /** The portals to different scenes. */
+    protected ArrayList _portals;
 
     /** The default tile for the base layer in the scene. */
     protected Tile _deftile;

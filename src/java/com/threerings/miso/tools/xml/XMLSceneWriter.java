@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneWriter.java,v 1.9 2001/08/15 01:08:49 mdb Exp $
+// $Id: XMLSceneWriter.java,v 1.10 2001/08/16 18:05:17 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -21,8 +21,8 @@ import com.threerings.miso.tile.Tile;
  * com.threerings.miso.scene.MisoScene} object to an XML file.
  *
  * <p> The scene id is omitted as the scene id is assigned when the
- * scene template is actually loaded into a server.  Similarly, exit
- * points are specified by scene name rather than scene id.
+ * scene template is actually loaded into a server.  Similarly,
+ * portals are named and bound to their target scene ids later.
  */
 public class XMLSceneWriter extends DataWriter
 {
@@ -57,7 +57,7 @@ public class XMLSceneWriter extends DataWriter
 	    writeClusters(scene);
 	    endElement("clusters");
 
-            dataElement("exits", getExitData(scene));
+            dataElement("portals", getPortalData(scene));
 
             startElement("tiles");
             for (int lnum = 0; lnum < MisoScene.NUM_LAYERS; lnum++) {
@@ -132,25 +132,25 @@ public class XMLSceneWriter extends DataWriter
     }
 
     /**
-     * Return a string representation of the exits in the scene.  Each
-     * exit is specified by a comma-delimited tuple of (location
-     * index, scene name) values.
+     * Return a string representation of the portals in the scene.  Each
+     * portal is specified by a comma-delimited tuple of (location
+     * index, portal name) values.
      *
      * @param scene the scene object.
      *
-     * @return the exits in String format.
+     * @return the portals in String format.
      */
-    protected String getExitData (MisoScene scene)
+    protected String getPortalData (MisoScene scene)
     {
 	ArrayList locs = scene.getLocations();
-	ArrayList exits = scene.getExits();
+	ArrayList portals = scene.getPortals();
 
         StringBuffer buf = new StringBuffer();
-	int size = exits.size();
+	int size = portals.size();
         for (int ii = 0; ii < size; ii++) {
-	    Exit exit = (Exit)exits.get(ii);
-	    buf.append(locs.indexOf(exit)).append(",");
-	    buf.append(exit.name);
+	    Portal portal = (Portal)portals.get(ii);
+	    buf.append(locs.indexOf(portal)).append(",");
+	    buf.append(portal.name);
             if (ii < size - 1) buf.append(",");
         }
 

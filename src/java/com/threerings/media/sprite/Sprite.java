@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.12 2001/08/15 22:48:41 shaper Exp $
+// $Id: Sprite.java,v 1.13 2001/08/16 18:05:16 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -214,8 +214,6 @@ public class Sprite
 	    stop();
             return;
         }
-
-        Log.info("moveAlongPath [dest=" + _dest + "].");
 
 	// if we're already here, move on to the next node
 	if (x == _dest.loc.x && y == _dest.loc.y) {

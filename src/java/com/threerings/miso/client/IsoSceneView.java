@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.48 2001/08/15 22:16:43 shaper Exp $
+// $Id: IsoSceneView.java,v 1.49 2001/08/16 18:05:16 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -359,7 +359,7 @@ public class IsoSceneView implements EditableSceneView
 	    gfx.rotate(rot);
 
 	    // draw the triangle
-	    Color fcol = (loc instanceof Exit) ? Color.green : Color.yellow;
+	    Color fcol = (loc instanceof Portal) ? Color.green : Color.yellow;
 	    gfx.setColor(fcol);
 	    gfx.fill(tri);
 
@@ -460,8 +460,7 @@ public class IsoSceneView implements EditableSceneView
 	if (y < (screenY + _model.tilehhei)) {
 	    ty--;
 	    for (int ii = 0; ii < numh; ii++) {
-		if (!_dirty[tx][ty]) _numDirty++;
-		_dirty[tx++][ty--] = true;
+		addDirtyTile(tx++, ty--);
 	    }
 	}
 
@@ -500,8 +499,7 @@ public class IsoSceneView implements EditableSceneView
 
 	    // add all tiles in the row to the dirty set
 	    for (int jj = 0; jj < length; jj++) {
-		if (!_dirty[tx][ty]) _numDirty++;
-		_dirty[tx++][ty--] = true;
+		addDirtyTile(tx++, ty--);
 	    }
 
 	    // step along the x- or y-axis appropriately
@@ -517,6 +515,30 @@ public class IsoSceneView implements EditableSceneView
 	    // toggle whether we're drawing an odd-numbered row
 	    isodd = !isodd;
 	}
+    }
+
+    protected void addDirtyTile (int x, int y)
+    {
+	// constrain x-coordinate to a valid range
+	if (x < 0) {
+	    x = 0;
+	} else if (x >= MisoScene.TILE_WIDTH) {
+	    x = MisoScene.TILE_WIDTH - 1;
+	}
+
+	// constrain y-coordinate to a valid range
+	if (y < 0) {
+	    y = 0;
+	} else if (y >= MisoScene.TILE_HEIGHT) {
+	    y = MisoScene.TILE_HEIGHT - 1;
+	}
+
+	// do nothing if the tile's already dirty
+	if (_dirty[x][y]) return;
+
+	// mark the tile dirty
+	_numDirty++;
+	_dirty[x][y] = true;
     }
 
     public void setScene (MisoScene scene)
@@ -629,9 +651,9 @@ public class IsoSceneView implements EditableSceneView
 	_scene.updateLocation(loc, clusteridx);
     }
 
-    public void addExit (Exit exit)
+    public void addPortal (Portal portal)
     {
-	_scene.addExit(exit);
+	_scene.addPortal(portal);
     }
 
     public void removeLocation (Location loc)
