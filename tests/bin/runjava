@@ -64,7 +64,9 @@ foreach $dir (@dirs) {
     next unless (defined $dir);
     if (opendir(DIR, $dir)) {
         foreach $lib (grep { /.(zip|jar)/ && -f "$dir/$_" } readdir(DIR)) {
-            $classpath .= ":$dir/$lib";
+            # skip narya-*.jar because we have the narya build directory
+            # in our classpath
+            $classpath .= ":$dir/$lib" unless $lib =~ /narya/;
         }
         closedir DIR;
     }
