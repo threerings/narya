@@ -175,9 +175,6 @@
     <jar destfile="${deploy.dir}/${app.name}-cast.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/cast/**"/>
     </jar>
-    <jar destfile="${deploy.dir}/${app.name}-nodemap.jar">
-      <fileset dir="${classes.dir}" includes="com/threerings/nodemap/**"/>
-    </jar>
   </target>
 
   <!-- generate a class hierarchy diagram -->
