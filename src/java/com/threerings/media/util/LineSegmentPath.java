@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.7 2001/08/21 21:18:42 mdb Exp $
+// $Id: LineSegmentPath.java,v 1.8 2001/09/05 00:40:17 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -73,6 +73,18 @@ public class Path
     public void addNode (int x, int y, int dir)
     {
         _nodes.add(new PathNode(x, y, dir));
+    }
+
+    /**
+     * Add a node to the path with the specified destination point.
+     * An arbitrary direction will be assigned to the node.
+     *
+     * @param x the x-position.
+     * @param y the y-position.
+     */
+    public void addNode (int x, int y)
+    {
+        _nodes.add(new PathNode(x, y, Path.DIR_NORTH));
     }
 
     /**
