@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.64 2003/05/22 17:23:53 mdb Exp $
+// $Id: DObject.java,v 1.65 2003/07/20 17:02:26 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -792,7 +792,9 @@ public class DObject implements Streamable
             // immediately
             boolean alreadyApplied = false;
             if (_omgr != null && _omgr.isManager(this)) {
-                set.add(entry);
+                if (!set.add(entry)) {
+                    Thread.dumpStack();
+                }
                 alreadyApplied = true;
             }
             // dispatch an entry added event

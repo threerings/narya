@@ -1,5 +1,5 @@
 //
-// $Id: EntryAddedEvent.java,v 1.10 2003/03/10 18:29:54 mdb Exp $
+// $Id: EntryAddedEvent.java,v 1.11 2003/07/20 17:02:26 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -67,7 +67,9 @@ public class EntryAddedEvent extends NamedEvent
     {
         if (!_alreadyApplied) {
             DSet set = (DSet)target.getAttribute(_name);
-            set.add(_entry);
+            if (!set.add(_entry)) {
+                Log.warning("Duplicate entryAdd: " + this);
+            }
         }
         return true;
     }
