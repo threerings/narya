@@ -1,5 +1,5 @@
 //
-// $Id: ClassEditor.java,v 1.3 2001/11/27 08:09:35 mdb Exp $
+// $Id: ClassEditor.java,v 1.4 2004/02/25 14:39:34 mdb Exp $
 
 package com.threerings.cast.builder;
 
@@ -11,9 +11,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.samskivert.swing.*;
-import com.samskivert.util.StringUtil;
 
-import com.threerings.cast.Log;
 import com.threerings.cast.ComponentClass;
 
 /**

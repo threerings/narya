@@ -1,5 +1,5 @@
 //
-// $Id: AdminProvider.java,v 1.2 2002/08/14 19:07:48 mdb Exp $
+// $Id: AdminProvider.java,v 1.3 2004/02/25 14:39:14 mdb Exp $
 
 package com.threerings.admin.server;
 
@@ -7,7 +7,6 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 
-import com.threerings.admin.Log;
 import com.threerings.admin.client.AdminService;
 
 /**

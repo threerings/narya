@@ -1,17 +1,13 @@
 //
-// $Id: BundledComponentRepository.java,v 1.29 2003/07/02 00:01:17 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.30 2004/02/25 14:39:34 mdb Exp $
 
 package com.threerings.cast.bundle;
 
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,15 +28,12 @@ import com.threerings.media.image.Colorization;
 import com.threerings.media.image.FastImageIO;
 import com.threerings.media.image.ImageDataProvider;
 import com.threerings.media.image.ImageManager;
-import com.threerings.media.image.ImageUtil;
-import com.threerings.media.image.Mirage;
 
 import com.threerings.media.tile.IMImageProvider;
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TrimmedTile;
-import com.threerings.media.util.MultiFrameImage;
 
 import com.threerings.util.DirectionCodes;
 

@@ -1,13 +1,9 @@
 //
-// $Id: ActionFrames.java,v 1.9 2003/01/20 19:37:58 mdb Exp $
+// $Id: ActionFrames.java,v 1.10 2004/02/25 14:39:34 mdb Exp $
 
 package com.threerings.cast;
 
-import java.awt.Graphics;
-import java.awt.Image;
-
 import com.threerings.media.image.Colorization;
-import com.threerings.util.DirectionCodes;
 
 /**
  * Encapsulates a set of frames in each of {@link

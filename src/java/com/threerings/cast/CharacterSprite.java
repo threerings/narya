@@ -1,15 +1,13 @@
 //
-// $Id: CharacterSprite.java,v 1.45 2003/07/28 04:06:38 mdb Exp $
+// $Id: CharacterSprite.java,v 1.46 2004/02/25 14:39:34 mdb Exp $
 
 package com.threerings.cast;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import javax.swing.SwingUtilities;
 
 import com.threerings.media.sprite.ImageSprite;
-import com.threerings.media.util.Path;
 
 /**
  * A character sprite is a sprite that animates itself while walking

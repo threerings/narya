@@ -1,21 +1,16 @@
 //
-// $Id: SpritePanel.java,v 1.16 2003/01/18 03:13:08 mdb Exp $
+// $Id: SpritePanel.java,v 1.17 2004/02/25 14:39:34 mdb Exp $
 
 package com.threerings.cast.builder;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 
 import javax.swing.JPanel;
 
-import java.util.List;
-
 import com.threerings.util.DirectionCodes;
 
-import com.threerings.cast.Log;
 import com.threerings.cast.CharacterDescriptor;
 import com.threerings.cast.CharacterManager;
 import com.threerings.cast.CharacterSprite;

@@ -1,18 +1,13 @@
 //
-// $Id: ConfigEditorPanel.java,v 1.6 2002/09/25 03:01:14 mdb Exp $
+// $Id: ConfigEditorPanel.java,v 1.7 2004/02/25 14:39:14 mdb Exp $
 
 package com.threerings.admin.client;
-
-import java.awt.Font;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.event.AncestorEvent;
 
 import com.samskivert.swing.VGroupLayout;
-import com.samskivert.swing.event.AncestorAdapter;
-import com.samskivert.util.StringUtil;
 
 import com.threerings.media.SafeScrollPane;
 import com.threerings.presents.util.PresentsContext;

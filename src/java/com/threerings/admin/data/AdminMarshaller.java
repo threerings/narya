@@ -1,10 +1,9 @@
 //
-// $Id: AdminMarshaller.java,v 1.2 2002/08/20 19:38:13 mdb Exp $
+// $Id: AdminMarshaller.java,v 1.3 2004/02/25 14:39:14 mdb Exp $
 
 package com.threerings.admin.data;
 
 import com.threerings.admin.client.AdminService;
-import com.threerings.admin.client.AdminService.ConfigInfoListener;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
@@ -17,7 +16,7 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
  * to the requesting client.
  *
  * <p> Generated from <code>
- * $Id: AdminMarshaller.java,v 1.2 2002/08/20 19:38:13 mdb Exp $
+ * $Id: AdminMarshaller.java,v 1.3 2004/02/25 14:39:14 mdb Exp $
  * </code>
  */
 public class AdminMarshaller extends InvocationMarshaller

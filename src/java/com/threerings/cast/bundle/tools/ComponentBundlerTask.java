@@ -1,10 +1,8 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.19 2003/06/17 23:29:33 ray Exp $
+// $Id: ComponentBundlerTask.java,v 1.20 2004/02/25 14:39:34 mdb Exp $
 
 package com.threerings.cast.bundle.tools;
 
-import java.awt.Image;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
@@ -28,16 +26,12 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.JarEntry;
 import java.util.zip.Deflater;
 
-import org.xml.sax.SAXException;
 import org.apache.commons.digester.Digester;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.SortableArrayList;
-import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
-
-import org.apache.commons.io.StreamUtils;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;

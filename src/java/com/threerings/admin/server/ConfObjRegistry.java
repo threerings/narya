@@ -1,5 +1,5 @@
 //
-// $Id: ConfObjRegistry.java,v 1.6 2003/09/18 21:35:02 mdb Exp $
+// $Id: ConfObjRegistry.java,v 1.7 2004/02/25 14:39:14 mdb Exp $
 
 package com.threerings.admin.server;
 
@@ -10,9 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import com.samskivert.util.Config;
-import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;

@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.33 2003/01/20 19:37:58 mdb Exp $
+// $Id: CharacterManager.java,v 1.34 2004/02/25 14:39:34 mdb Exp $
 
 package com.threerings.cast;
 
@@ -8,7 +8,6 @@ import java.util.HashMap;
 
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.RuntimeAdjust;
-import com.samskivert.util.StringUtil;
 import com.samskivert.util.Throttle;
 import com.samskivert.util.Tuple;
 

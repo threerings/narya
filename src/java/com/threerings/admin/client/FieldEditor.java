@@ -1,5 +1,5 @@
 //
-// $Id: FieldEditor.java,v 1.8 2003/10/27 05:34:19 mdb Exp $
+// $Id: FieldEditor.java,v 1.9 2004/02/25 14:39:14 mdb Exp $
 
 package com.threerings.admin.client;
 
@@ -14,10 +14,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.event.AncestorEvent;
 
 import com.samskivert.swing.HGroupLayout;
-import com.samskivert.swing.event.AncestorAdapter;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.dobj.AttributeChangeListener;

@@ -1,5 +1,5 @@
 //
-// $Id: MetadataBundlerTask.java,v 1.4 2003/06/17 23:29:33 ray Exp $
+// $Id: MetadataBundlerTask.java,v 1.5 2004/02/25 14:39:34 mdb Exp $
 
 package com.threerings.cast.bundle.tools;
 
@@ -9,7 +9,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectOutputStream;
 
 import java.util.ArrayList;
@@ -22,7 +21,6 @@ import java.util.zip.Deflater;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
-import org.xml.sax.SAXException;
 import org.apache.commons.digester.Digester;
 
 import com.samskivert.util.Tuple;

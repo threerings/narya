@@ -1,5 +1,5 @@
 //
-// $Id: BuilderModel.java,v 1.4 2001/11/27 08:09:35 mdb Exp $
+// $Id: BuilderModel.java,v 1.5 2004/02/25 14:39:34 mdb Exp $
 
 package com.threerings.cast.builder;
 
@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import com.samskivert.util.CollectionUtil;
 

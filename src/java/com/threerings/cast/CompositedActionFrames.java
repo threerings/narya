@@ -1,24 +1,13 @@
 //
-// $Id: CompositedActionFrames.java,v 1.15 2003/01/20 19:37:58 mdb Exp $
+// $Id: CompositedActionFrames.java,v 1.16 2004/02/25 14:39:34 mdb Exp $
 
 package com.threerings.cast;
-
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Transparency;
-import java.util.Arrays;
-import java.util.Comparator;
 
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.image.Colorization;
 import com.threerings.media.image.ImageManager;
-import com.threerings.media.image.Mirage;
-import com.threerings.media.image.VolatileMirage;
-import com.threerings.media.util.MultiFrameImage;
 
 import com.threerings.cast.CharacterComponent;
 import com.threerings.util.DirectionCodes;

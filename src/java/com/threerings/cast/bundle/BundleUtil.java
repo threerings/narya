@@ -1,9 +1,8 @@
 //
-// $Id: BundleUtil.java,v 1.6 2003/05/14 21:34:01 ray Exp $
+// $Id: BundleUtil.java,v 1.7 2004/02/25 14:39:34 mdb Exp $
 
 package com.threerings.cast.bundle;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InvalidClassException;

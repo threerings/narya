@@ -1,5 +1,5 @@
 //
-// $Id: CastUtil.java,v 1.9 2002/04/15 18:18:20 mdb Exp $
+// $Id: CastUtil.java,v 1.10 2004/02/25 14:39:34 mdb Exp $
 
 package com.threerings.cast.util;
 
@@ -7,11 +7,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.samskivert.util.CollectionUtil;
-import com.samskivert.util.StringUtil;
 import com.threerings.util.RandomUtil;
 
 import com.threerings.cast.CharacterDescriptor;
-import com.threerings.cast.CharacterManager;
 import com.threerings.cast.ComponentClass;
 import com.threerings.cast.ComponentRepository;
 import com.threerings.cast.Log;

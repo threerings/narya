@@ -1,13 +1,11 @@
 //
-// $Id: CharacterComponent.java,v 1.8 2002/08/19 22:58:15 mdb Exp $
+// $Id: CharacterComponent.java,v 1.9 2004/02/25 14:39:34 mdb Exp $
 
 package com.threerings.cast;
 
 import java.io.Serializable;
 
 import com.samskivert.util.StringUtil;
-
-import com.threerings.media.sprite.Sprite;
 
 /**
  * The character component represents a single component that can be

@@ -1,13 +1,11 @@
 //
-// $Id: ComponentPanel.java,v 1.7 2002/06/19 23:24:04 mdb Exp $
+// $Id: ComponentPanel.java,v 1.8 2004/02/25 14:39:34 mdb Exp $
 
 package com.threerings.cast.builder;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 
 import com.samskivert.swing.*;
 

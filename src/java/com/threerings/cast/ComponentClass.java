@@ -1,5 +1,5 @@
 //
-// $Id: ComponentClass.java,v 1.8 2002/12/19 21:44:12 mdb Exp $
+// $Id: ComponentClass.java,v 1.9 2004/02/25 14:39:34 mdb Exp $
 
 package com.threerings.cast;
 
@@ -7,8 +7,6 @@ import java.io.Serializable;
 
 import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.SortableArrayList;
-
-import com.threerings.util.DirectionUtil;
 
 /**
  * Denotes a class of components to which {@link CharacterComponent}
