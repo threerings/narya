@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.20 2002/11/20 01:33:34 ray Exp $
+// $Id: SoundManager.java,v 1.21 2002/11/20 02:41:38 ray Exp $
 
 package com.threerings.media;
 
@@ -106,6 +106,7 @@ public class SoundManager
         _player = new Thread("narya SoundManager") {
             public void run () {
                 Object command = null;
+                SoundKey key = null;
                 String path = null;
                 MidiInfo midiInfo = null;
 
@@ -118,10 +119,11 @@ public class SoundManager
 
                             // some commands have an additional argument.
                             if ((PLAY == command) ||
-                                (STOPMUSIC == command) ||
                                 (LOCK == command) ||
                                 (UNLOCK == command)) {
+                                key = (SoundKey) _queue.get();
 
+                            } else if (STOPMUSIC == command) {
                                 path = (String) _queue.get();
 
                             } else if (PLAYMUSIC == command) {
@@ -131,7 +133,7 @@ public class SoundManager
 
                         // execute the command outside of the queue synch
                         if (PLAY == command) {
-                            playSound(path);
+                            playSound(key);
 
                         } else if (PLAYMUSIC == command) {
                             playSequence(midiInfo);
@@ -140,11 +142,11 @@ public class SoundManager
                             stopSequence(path);
 
                         } else if (LOCK == command) {
-                            _clipCache.lock(path);
-                            getClipData(path); // preload
+                            _clipCache.lock(key);
+                            getClipData(key); // preload
 
                         } else if (UNLOCK == command) {
-                            _clipCache.unlock(path);
+                            _clipCache.unlock(key);
 
                         } else if (FLUSH == command) {
                             flushResources(false);
@@ -259,22 +261,22 @@ public class SoundManager
      * Optionally lock the sound data prior to playing, to guarantee
      * that it will be quickly available for playing.
      */
-    public void lock (String path)
+    public void lock (String set, String path)
     {
         synchronized (_queue) {
             _queue.append(LOCK);
-            _queue.append(path);
+            _queue.append(new SoundKey(set, path));
         }
     }
 
     /**
      * Unlock the specified sound so that its resources can be freed.
      */
-    public void unlock (String path)
+    public void unlock (String set, String path)
     {
         synchronized (_queue) {
             _queue.append(UNLOCK);
-            _queue.append(path);
+            _queue.append(new SoundKey(set, path));
         }
     }
 
@@ -282,7 +284,7 @@ public class SoundManager
      * Play the specified sound of as the specified type of sound.
      * Note that a sound need not be locked prior to playing.
      */
-    public void play (SoundType type, String path)
+    public void play (SoundType type, String set, String path)
     {
         if (type == null) {
             // let the lazy kids play too
@@ -293,7 +295,7 @@ public class SoundManager
             synchronized (_queue) {
                 if (_queue.size() < MAX_QUEUE_SIZE) {
                     _queue.append(PLAY);
-                    _queue.append(path);
+                    _queue.append(new SoundKey(set, path));
 
                 } else {
                     Log.warning("SoundManager not playing sound because " +
@@ -411,17 +413,17 @@ public class SoundManager
      * On the SoundManager thread,
      * plays the sound file with the given pathname.
      */
-    protected void playSound (String path)
+    protected void playSound (SoundKey key)
     {
         // see if we can restart a previously used sound that's still
         // hanging out.
-        if (restartSound(path)) {
+        if (restartSound(key)) {
             return;
         }
 
         try {
             // get the sound data from our LRU cache
-            ClipInfo info = getClipData(path);
+            ClipInfo info = getClipData(key);
             if (info == null) {
                 return; // borked!
             }
@@ -429,20 +431,20 @@ public class SoundManager
             Clip clip = (Clip) AudioSystem.getLine(info.info);
             clip.open(info.stream);
 
-            SoundRecord rec = new SoundRecord(path, clip);
+            SoundRecord rec = new SoundRecord(key, clip);
             rec.start(_clipVol);
             _activeClips.add(rec);
 
         } catch (IOException ioe) {
-            Log.warning("Error loading sound file [path=" + path +
+            Log.warning("Error loading sound file [key=" + key +
                 ", e=" + ioe + "].");
 
         } catch (UnsupportedAudioFileException uafe) {
-            Log.warning("Unsupported sound format [path=" + path + ", e=" +
+            Log.warning("Unsupported sound format [key=" + key + ", e=" +
                 uafe + "].");
 
         } catch (LineUnavailableException lue) {
-            Log.warning("Line not available to play sound [path=" + path +
+            Log.warning("Line not available to play sound [key=" + key +
                 ", e=" + lue + "].");
         }
     }
@@ -450,14 +452,14 @@ public class SoundManager
     /**
      * Attempt to reuse a clip that's already been loaded.
      */
-    protected boolean restartSound (String path)
+    protected boolean restartSound (SoundKey key)
     {
         long now = System.currentTimeMillis();
 
         // we just go through all the sounds. There'll be 32 max, so fuckit.
         for (int ii=0, nn=_activeClips.size(); ii < nn; ii++) {
             SoundRecord rec = (SoundRecord) _activeClips.get(ii);
-            if (rec.path.equals(path) && rec.isStoppedSince(now)) {
+            if (rec.key.equals(key) && rec.isStoppedSince(now)) {
                 rec.restart(_clipVol);
                 return true;
             }
@@ -734,10 +736,10 @@ public class SoundManager
     /**
      * Get the audio data for the specified path.
      */
-    protected ClipInfo getClipData (String path)
+    protected ClipInfo getClipData (SoundKey key)
         throws IOException, UnsupportedAudioFileException
     {
-        ClipInfo info = (ClipInfo) _clipCache.get(path);
+        ClipInfo info = (ClipInfo) _clipCache.get(key);
         if (info != null) {
             // we are re-using an old stream, make sure to rewind it.
             info.stream.reset();
@@ -745,11 +747,11 @@ public class SoundManager
         } else {
             // set it up and put it in the cache
             AudioInputStream stream = AudioSystem.getAudioInputStream(
-                getResource(path));
+                getResource(key.set, key.path));
             DataLine.Info dinfo = new DataLine.Info(
                 Clip.class, stream.getFormat());
             info = new ClipInfo(dinfo, stream);
-            _clipCache.put(path, info);
+            _clipCache.put(key, info);
         }
 
         return info;
@@ -767,7 +769,8 @@ public class SoundManager
             stream.reset();
 
         } else {
-            stream = getResource(path);
+            // TODO: unhack
+            stream = getResource("boot", path);
             _midiCache.put(path, stream);
         }
 
@@ -779,11 +782,11 @@ public class SoundManager
      * Get the data specified by the path from the resource bundle.
      * No caching is done.
      */
-    protected InputStream getResource (String path)
+    protected InputStream getResource (String set, String path)
         throws IOException
     {
         return new ByteArrayInputStream(StreamUtils.streamAsBytes(
-                _rmgr.getResource(path), BUFFER_SIZE));
+                _rmgr.getResource(set, path), BUFFER_SIZE));
     }
 
     /**
@@ -794,14 +797,14 @@ public class SoundManager
     protected static class SoundRecord
         implements LineListener
     {
-        public String path;
+        public SoundKey key;
 
         /**
          * Construct a SoundRecord.
          */
-        public SoundRecord (String path, Clip clip)
+        public SoundRecord (SoundKey key, Clip clip)
         {
-            this.path = path;
+            this.key = key;
             _clip = clip;
 
             // The mess:
@@ -989,6 +992,44 @@ public class SoundManager
 
         /** The clip we're wrapping. */
         protected Clip _clip;
+    }
+
+    /**
+     * A key for tracking sounds.
+     */
+    protected static class SoundKey
+    {
+        public String path;
+
+        public String set;
+
+        public SoundKey (String set, String path)
+        {
+            this.set = set;
+            this.path = path;
+        }
+
+        // documentation inherited
+        public String toString ()
+        {
+            return "SoundKey{set=" + set + ", path=" + path + "}";
+        }
+
+        // documentation inherited
+        public int hashCode ()
+        {
+            return path.hashCode() ^ set.hashCode();
+        }
+
+        // documentation inherited
+        public boolean equals (Object o)
+        {
+            if (o instanceof SoundKey) {
+                SoundKey that = (SoundKey) o;
+                return (this.path == that.path) && (this.set == that.set);
+            }
+            return false;
+        }
     }
 
     /**
