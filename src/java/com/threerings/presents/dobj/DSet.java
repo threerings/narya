@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.28 2003/04/05 20:30:44 mdb Exp $
+// $Id: DSet.java,v 1.29 2003/07/11 01:21:23 ray Exp $
 
 package com.threerings.presents.dobj;
 
@@ -116,7 +116,7 @@ public class DSet
      * Returns true if an entry in the set has a key that
      * <code>equals()</code> the supplied key. Returns false otherwise.
      */
-    public boolean containsKey (Object key)
+    public boolean containsKey (Comparable key)
     {
         return get(key) != null;
     }
@@ -126,20 +126,13 @@ public class DSet
      * the specified key or null if no entry could be found that matches
      * the key.
      */
-    public Entry get (Object key)
+    public Entry get (Comparable key)
     {
-        // scan the array looking for a matching entry
-        int elength = _entries.length;
-        for (int i = 0; i < elength; i++) {
-            // the array may be sparse
-            if (_entries[i] != null) {
-                Entry elem = _entries[i];
-                if (elem.getKey().equals(key)) {
-                    return elem;
-                }
-            }
-        }
-        return null;
+        // determine where we'll be adding the new element
+        int eidx = ArrayUtil.binarySearch(
+            _entries, 0, _size, key, ENTRY_COMP);
+
+        return (eidx < 0) ? null : _entries[eidx];
     }
 
     /**
