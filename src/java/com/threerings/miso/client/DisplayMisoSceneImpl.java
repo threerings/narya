@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.30 2001/08/16 18:05:16 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.31 2001/08/16 22:05:01 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -150,7 +150,7 @@ public class MisoScene implements Scene
 	// make sure it's in the location list and absent from any cluster
 	updateLocation(portal, -1);
 
-	// don't allow adding an portal more than once
+	// don't allow adding a portal more than once
 	if (_portals.contains(portal)) {
 	    Log.warning("Attempt to add already-existing portal " +
 			"[portal=" + portal + "].");
@@ -163,7 +163,7 @@ public class MisoScene implements Scene
 
     /**
      * Return the location object at the given full coordinates, or
-     * null if no location is currently present.
+     * null if no location is currently present at that location.
      *
      * @param x the full x-position coordinate.
      * @param y the full y-position coordinate.
@@ -182,7 +182,7 @@ public class MisoScene implements Scene
 
     /**
      * Remove the given location object from the location list, and
-     * from any containing cluster.  If the location is an portal, it
+     * from any containing cluster.  If the location is a portal, it
      * is removed from the portal list as well.
      *
      * @param loc the location object.
@@ -201,6 +201,34 @@ public class MisoScene implements Scene
 
 	// remove from any possible existence on the portal list
 	_portals.remove(loc);
+    }
+
+    /**
+     * Set the default entrance portal for this scene.
+     *
+     * @param entrance the entrance portal.
+     */
+    public void setEntrance (Portal entrance)
+    {
+	_entrance = entrance;
+    }
+
+    /**
+     * Return the portal with the given name, or null if the portal
+     * isn't found in the portal list.
+     *
+     * @param name the portal name.
+     *
+     * @return the portal object.
+     */
+    public Portal getPortal (String name)
+    {
+	int size = _portals.size();
+	for (int ii = 0; ii < size; ii++) {
+	    Portal portal = (Portal)_portals.get(ii);
+	    if (portal.name.equals(name)) return portal;
+	}
+	return null;
     }
 
     /**
@@ -318,6 +346,9 @@ public class MisoScene implements Scene
 
     /** The unique scene id. */
     protected int _sid;
+
+    /** The default entrance portal. */
+    protected Portal _entrance;
 
     /** The locations within the scene. */
     protected ArrayList _locations;

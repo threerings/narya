@@ -1,5 +1,5 @@
 //
-// $Id: Portal.java,v 1.1 2001/08/16 18:05:17 shaper Exp $
+// $Id: Portal.java,v 1.2 2001/08/16 22:05:01 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -13,6 +13,12 @@ public class Portal extends Location
     /** The portal name used for binding the portal to another scene. */
     public String name;
 
+    /** The destination scene id. */
+    public int sid;
+
+    /** The destination portal within the destination scene. */
+    public Portal dest;
+
     /**
      * Construct an <code>Portal</code> object.
      *
@@ -23,6 +29,19 @@ public class Portal extends Location
     {
 	super(loc.x, loc.y, loc.orient);
 	this.name = name;
+	sid = MisoScene.SID_INVALID;
+    }
+
+    /**
+     * Set the destination information for this portal.
+     *
+     * @param sid the scene id.
+     * @param dest the destination portal.
+     */
+    public void setDestination (int sid, Portal dest)
+    {
+	this.sid = sid;
+	this.dest = dest;
     }
 
     /**
@@ -32,5 +51,7 @@ public class Portal extends Location
     {
 	super.toString(buf);
         buf.append(", name=").append(name);
+	buf.append(", sid=").append(sid);
+	buf.append(", dest=").append(dest);
     }
 }

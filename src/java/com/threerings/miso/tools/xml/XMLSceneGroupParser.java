@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneGroupParser.java,v 1.1 2001/08/16 20:14:06 shaper Exp $
+// $Id: XMLSceneGroupParser.java,v 1.2 2001/08/16 22:05:01 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -14,6 +14,7 @@ import com.samskivert.util.*;
 import com.samskivert.xml.XMLUtil;
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;
+import com.threerings.whirled.data.Scene;
 
 /**
  * Parses an XML scene group description file, loads the referenced
@@ -29,6 +30,26 @@ public class XMLSceneGroupParser extends DefaultHandler
 			      String qName, Attributes attributes)
     {
 	_tag = qName;
+
+	if (_tag.equals("scene")) {
+	    // construct a new scene info object
+	    _info.curscene = new SceneInfo(attributes.getValue("src"));
+
+	    // add it to the list of scene info objects
+	    _info.sceneinfo.add(_info.curscene);
+
+	} else if (_tag.equals("portal")) {
+	    // pull out the portal data
+	    String src = attributes.getValue("src");
+	    String destScene = attributes.getValue("destScene");
+	    String dest = attributes.getValue("dest");
+
+	    // construct a new portal info object
+	    PortalInfo pinfo = new PortalInfo(src, destScene, dest);
+
+	    // add it to the current scene's list of portal info objects
+	    _info.curscene.portals.add(pinfo);
+	}
     }
 
     public void endElement (String uri, String localName, String qName)
@@ -36,6 +57,24 @@ public class XMLSceneGroupParser extends DefaultHandler
 	// we know we've received the entirety of the character data
         // for the elements we're tracking at this point, so proceed
         // with saving off element data for later use.
+	String str = _chars.toString();
+
+	if (qName.equals("name")) {
+	    _info.curscene.name = str;
+
+	} else if (qName.equals("entrance")) {
+	    _info.curscene.entrance = str;
+
+	} else if (qName.equals("scene")) {
+	    // TODO: load scene from scene repository and set
+	    // _info.curscene.scene to the resulting scene object
+
+	} else if (qName.equals("scenegroup")) {
+	    // now that we've obtained all scene info and fully loaded
+	    // the associated scene objects, resolve bindings between
+	    // all scenes in the group.
+	    _info.resolveBindings();
+	}
 
 	// note that we're not within a tag to avoid considering any
 	// characters during this quiescent time
@@ -73,12 +112,13 @@ public class XMLSceneGroupParser extends DefaultHandler
 
             // prepare temporary data storage for parsing
 	    _chars = new StringBuffer();
+	    _info = new SceneGroupInfo();
 
             // read the XML input stream and construct all scene objects
 	    XMLUtil.parse(this, bis);
 
             // return the final list of scene objects
-            return _info.scenes;
+            return _info.getScenes();
 
         } catch (ParserConfigurationException pce) {
   	    throw new IOException(pce.toString());
@@ -107,14 +147,112 @@ public class XMLSceneGroupParser extends DefaultHandler
      */
     class SceneGroupInfo
     {
-	/** The list of scenes constructed once parsing is complete. */
-	public ArrayList scenes;
-
 	/** The scene info for all scenes described in the group. */
 	public ArrayList sceneinfo;
 
 	/** The current scene info. */
 	public SceneInfo curscene;
+
+	public SceneGroupInfo ()
+	{
+	    sceneinfo = new ArrayList();
+	}
+
+	/**
+	 * Return a list of the scene objects contained within all
+	 * scene info objects.  Intended to be called once all parsing
+	 * and resolving of portal bindings has been completed.
+	 */
+	public List getScenes ()
+	{
+	    ArrayList scenes = new ArrayList();
+	    int size = sceneinfo.size();
+	    for (int ii = 0; ii < size; ii++) {
+		scenes.add(((SceneInfo)sceneinfo.get(ii)).scene);
+	    }
+	    return scenes;
+	}
+
+	/**
+	 * Return the scene object associated with the named scene
+	 * info object.
+	 *
+	 * @param name the scene info name.
+	 *
+	 * @return the scene object or null if the scene info object
+	 *         isn't found or has no scene object.
+	 */
+	public MisoScene getScene (String name)
+	{
+	    int size = sceneinfo.size();
+	    for (int ii = 0; ii < size; ii++) {
+		SceneInfo sinfo = (SceneInfo)sceneinfo.get(ii);
+		if (sinfo.name.equals(name)) return sinfo.scene;
+	    }
+	    return null;
+	}
+
+	/**
+	 * Resolve portal bindings and set entrance portal for all scenes.
+	 */
+	public void resolveBindings ()
+	{
+	    int size = sceneinfo.size();
+	    for (int ii = 0; ii < size; ii++) {
+		// retrieve the next scene info object
+		SceneInfo sinfo = (SceneInfo)sceneinfo.get(ii);
+
+		int psize = sinfo.portals.size();
+		for (int jj = 0; jj < psize; jj++) {
+		    // retrieve the next portal info object
+		    PortalInfo pinfo = (PortalInfo)sinfo.portals.get(jj);
+
+		    // resolve the portal binding
+		    resolvePortal(sinfo, pinfo);
+
+		    // set the entrance portal
+		    Portal entrance = sinfo.scene.getPortal(sinfo.entrance);
+		    sinfo.scene.setEntrance(entrance);
+		}
+	    }
+	}
+
+	/**
+	 * Resolve the binding for the portal in the given scene.
+	 *
+	 * @param sinfo the scene info.
+	 * @param pinfo the portal info.
+	 */
+	protected void resolvePortal (SceneInfo sinfo, PortalInfo pinfo)
+	{
+	    // get the source portal object
+	    Portal src = sinfo.scene.getPortal(pinfo.src);
+	    if (src == null) {
+		Log.warning(
+		    "Missing source portal [scene=" + sinfo.name +
+		    ", pinfo=" + pinfo + "].");
+		return;
+	    }
+
+	    // get the destination scene
+	    MisoScene destScene = getScene(pinfo.destScene);
+	    if (destScene == null) {
+		Log.warning(
+		    "Missing destination scene [scene=" + sinfo.name +
+		    ", pinfo=" + pinfo + "].");
+	    }
+
+	    // get the destination portal object
+	    Portal dest = destScene.getPortal(pinfo.dest);
+	    if (dest == null) {
+		Log.warning(
+		    "Missing destination portal [scene=" + sinfo.name +
+		    ", pinfo=" + pinfo + "].");
+	    }
+
+	    // update source portal with full destination information
+	    src.setDestination(destScene.getId(), dest);
+	}	    
     }
 
     /**
@@ -134,9 +272,13 @@ public class XMLSceneGroupParser extends DefaultHandler
 	/** The list of portal info objects describing portal bindings. */
 	public ArrayList portals;
 
+	/** The scene object obtained from the scene repository. */
+	public MisoScene scene;
+
 	public SceneInfo (String src)
 	{
 	    this.src = src;
+	    portals = new ArrayList();
 	}
     }
 
@@ -159,6 +301,15 @@ public class XMLSceneGroupParser extends DefaultHandler
 	    this.src = src;
 	    this.destScene = destScene;
 	    this.dest = dest;
+	}
+
+	public String toString ()
+	{
+	    StringBuffer buf = new StringBuffer();
+	    buf.append("[src=").append(src);
+	    buf.append(", dest=").append(dest);
+	    buf.append(", destScene=").append(destScene);
+	    return buf.append("]").toString();
 	}
     }
 }
