@@ -1,7 +1,11 @@
 //
-// $Id: MisoSceneModel.java,v 1.2 2001/11/29 00:17:14 mdb Exp $
+// $Id: MisoSceneModel.java,v 1.3 2001/11/30 21:54:34 mdb Exp $
 
 package com.threerings.miso.scene;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 import com.samskivert.util.StringUtil;
 
@@ -29,6 +33,52 @@ public class MisoSceneModel
     /** The combined tile ids (tile set id and tile id) of the files in
      * the object layer in (x, y, tile id) format. */
     public int[] objectTileIds;
+
+    // documentation inherited
+    public void writeTo (DataOutputStream out)
+        throws IOException
+    {
+        out.writeInt(width);
+        out.writeInt(height);
+
+        // write out the base and fringe layers
+        int tcount = width*height;
+        for (int i = 0; i < tcount; i++) {
+            out.writeInt(baseTileIds[i]);
+            out.writeInt(fringeTileIds[i]);
+        }
+
+        // write out the object layer
+        int otc = objectTileIds.length;
+        out.writeInt(otc);
+        for (int i = 0; i < otc; i++) {
+            out.writeInt(objectTileIds[i]);
+        }
+    }
+
+    // documentation inherited
+    public void readFrom (DataInputStream in)
+        throws IOException
+    {
+        width = in.readInt();
+        height = in.readInt();
+
+        // read in the base and fringe layers
+        int tcount = width*height;
+        baseTileIds = new int[tcount];
+        fringeTileIds = new int[tcount];
+        for (int i = 0; i < tcount; i++) {
+            baseTileIds[i] = in.readInt();
+            fringeTileIds[i] = in.readInt();
+        }
+
+        // read in the object layer
+        int otc = in.readInt();
+        objectTileIds = new int[otc];
+        for (int i = 0; i < otc; i++) {
+            objectTileIds[i] = in.readInt();
+        }
+    }
 
     /**
      * Generates a string representation of this scene model.

@@ -1,5 +1,5 @@
 //
-// $Id: SceneModel.java,v 1.3 2001/11/29 19:32:06 mdb Exp $
+// $Id: SceneModel.java,v 1.4 2001/11/30 21:54:34 mdb Exp $
 
 package com.threerings.whirled.data;
 
@@ -63,26 +63,6 @@ public class SceneModel implements Streamable
     }
 
     /**
-     * Creates and returns a blank scene model.
-     */
-    public static SceneModel blankSceneModel ()
-    {
-        SceneModel model = new SceneModel();
-        populateBlankSceneModel(model);
-        return model;
-    }
-
-    /**
-     * Populates a blank scene model with blank values.
-     */
-    protected static void populateBlankSceneModel (SceneModel model)
-    {
-        model.sceneId = -1;
-        model.version = 0;
-        model.neighborIds = new int[0];
-    }
-
-    /**
      * Generates a string representation of this scene model.
      */
     public String toString ()
@@ -101,5 +81,25 @@ public class SceneModel implements Streamable
         buf.append("sceneId=").append(sceneId);
         buf.append(", version=").append(version);
         buf.append(", neighborIds=").append(StringUtil.toString(neighborIds));
+    }
+
+    /**
+     * Creates and returns a blank scene model.
+     */
+    public static SceneModel blankSceneModel ()
+    {
+        SceneModel model = new SceneModel();
+        populateBlankSceneModel(model);
+        return model;
+    }
+
+    /**
+     * Populates a blank scene model with blank values.
+     */
+    protected static void populateBlankSceneModel (SceneModel model)
+    {
+        model.sceneId = -1;
+        model.version = 0;
+        model.neighborIds = new int[0];
     }
 }
