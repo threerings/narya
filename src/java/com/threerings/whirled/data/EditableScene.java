@@ -1,5 +1,5 @@
 //
-// $Id: EditableScene.java,v 1.2 2001/09/28 01:46:10 mdb Exp $
+// $Id: EditableScene.java,v 1.3 2001/10/05 23:59:36 mdb Exp $
 
 package com.threerings.whirled.data;
 
@@ -19,9 +19,4 @@ public interface EditableScene extends Scene
      * Updates the scene's version.
      */
     public void setVersion (int version);
-
-    /**
-     * Updates the scene's name.
-     */
-    public void setName (String name);
 }

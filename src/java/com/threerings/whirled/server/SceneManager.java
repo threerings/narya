@@ -1,5 +1,5 @@
 //
-// $Id: SceneManager.java,v 1.4 2001/09/05 01:08:30 shaper Exp $
+// $Id: SceneManager.java,v 1.5 2001/10/05 23:59:36 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -11,6 +11,10 @@ import com.threerings.whirled.data.Scene;
 
 public class SceneManager extends PlaceManager
 {
+    /**
+     * Returns the scene object (not the scene distributed object)
+     * associated with this scene.
+     */
     public Scene getScene ()
     {
         return _scene;

@@ -1,12 +1,12 @@
 //
-// $Id: SceneProvider.java,v 1.2 2001/10/01 22:16:02 mdb Exp $
+// $Id: SceneProvider.java,v 1.3 2001/10/05 23:59:36 mdb Exp $
 
 package com.threerings.whirled.server;
 
 import com.threerings.cocktail.cher.server.InvocationProvider;
+import com.threerings.cocktail.cher.server.ServiceFailedException;
 
-import com.threerings.cocktail.party.data.BodyObject;
-import com.threerings.cocktail.party.data.PlaceObject;
+import com.threerings.cocktail.party.data.*;
 import com.threerings.cocktail.party.server.LocationProvider;
 
 import com.threerings.whirled.Log;
@@ -67,19 +67,19 @@ public class SceneProvider
         PlaceObject plobj = scmgr.getPlaceObject();
         int ploid = plobj.getOid();
 
-        // try doing the actual move
-        String rcode = LocationProvider.moveTo(source, ploid);
+        try {
+            // try doing the actual move
+            PlaceConfig config = LocationProvider.moveTo(source, ploid);
 
-        // if the move failed, let them know
-        if (!rcode.equals(SUCCESS)) {
-            sendResponse(source, invid, MOVE_FAILED_RESPONSE, rcode);
-            return;
+            // check to see if they need a newer version of the scene data
+
+            // then send the moveTo response
+            sendResponse(source, invid, MOVE_SUCCEEDED_RESPONSE,
+                         new Integer(ploid), config);
+
+        } catch (ServiceFailedException sfe) {
+            sendResponse(source, invid, MOVE_FAILED_RESPONSE,
+                         sfe.getMessage());
         }
-
-        // otherwise check to see if they need a newer version of the
-        // scene data
-
-        sendResponse(source, invid, MOVE_SUCCEEDED_RESPONSE,
-                     new Integer(ploid));
     }
 }

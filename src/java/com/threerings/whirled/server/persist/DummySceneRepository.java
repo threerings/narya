@@ -1,7 +1,7 @@
 //
-// $Id: DummySceneRepository.java,v 1.3 2001/09/21 03:15:02 mdb Exp $
+// $Id: DummySceneRepository.java,v 1.4 2001/10/05 23:59:37 mdb Exp $
 
-package com.threerings.whirled.server.test;
+package com.threerings.whirled.test;
 
 import com.samskivert.io.PersistenceException;
 

@@ -1,5 +1,5 @@
 //
-// $Id: WhirledServer.java,v 1.5 2001/10/02 02:08:16 mdb Exp $
+// $Id: WhirledServer.java,v 1.6 2001/10/05 23:59:36 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -11,7 +11,7 @@ import com.threerings.cocktail.party.server.PartyServer;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.server.persist.SceneRepository;
-import com.threerings.whirled.server.test.DummySceneRepository;
+import com.threerings.whirled.test.DummySceneRepository;
 
 /**
  * The whirled server extends the party server and provides access to

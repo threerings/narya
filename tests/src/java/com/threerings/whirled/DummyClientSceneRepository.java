@@ -1,7 +1,7 @@
 //
-// $Id: DummyClientSceneRepository.java,v 1.1 2001/08/14 06:51:07 mdb Exp $
+// $Id: DummyClientSceneRepository.java,v 1.2 2001/10/05 23:59:37 mdb Exp $
 
-package com.threerings.whirled.client.test;
+package com.threerings.whirled.test;
 
 import java.io.IOException;
 
@@ -15,7 +15,7 @@ import com.threerings.whirled.util.NoSuchSceneException;
  * in fact it just creates new blank scenes when requested to load a scene
  * and does nothing when requested to save one.
  */
-public class DummySceneRepository implements SceneRepository
+public class DummyClientSceneRepository implements SceneRepository
 {
     // documentation inherited
     public Scene loadScene (int sceneId)

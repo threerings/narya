@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.4 2001/10/02 02:08:16 mdb Exp $
+// $Id: SceneDirector.java,v 1.5 2001/10/05 23:59:36 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -11,6 +11,7 @@ import com.threerings.cocktail.cher.dobj.ObjectAccessException;
 
 import com.threerings.cocktail.party.client.LocationDirector;
 import com.threerings.cocktail.party.client.LocationObserver;
+import com.threerings.cocktail.party.data.PlaceConfig;
 import com.threerings.cocktail.party.data.PlaceObject;
 
 import com.threerings.whirled.Log;
@@ -101,11 +102,12 @@ public class SceneDirector
     /**
      * Called in response to a successful <code>moveTo</code> request.
      */
-    public void handleMoveSucceeded (int invid, int placeId)
+    public void handleMoveSucceeded (
+        int invid, int placeId, PlaceConfig config)
     {
         // our move request was successful, deal with subscribing to our
         // new place object
-        didMoveTo(placeId);
+        didMoveTo(placeId, config);
 
         // since we're committed to moving to the new scene, we'll
         // parallelize and go ahead and load up the new scene now rather

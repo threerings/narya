@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.3 2001/10/02 02:08:16 mdb Exp $
+// $Id: SceneRegistry.java,v 1.4 2001/10/05 23:59:36 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -76,7 +76,7 @@ public class SceneRegistry
      * active. The supplied callback instance will be notified, on the
      * dobjmgr thread, when the scene has been resolved. If the scene is
      * already active, it will be notified immediately (before the call to
-     * <code>resolveScene</code> returns).
+     * {@link #resolveScene} returns).
      *
      * @param sceneId the id of the scene to resolve.
      * @param resolver a reference to a callback instance that will be
@@ -161,7 +161,7 @@ public class SceneRegistry
 
         try {
             SceneManager scmgr = (SceneManager)
-                PartyServer.plreg.createPlace(SceneManager.class);
+                PartyServer.plreg.createPlace(scene.getPlaceConfig());
 
             // configure the scene manager with references to useful
             // stuff; we'll somehow need to convey configuration

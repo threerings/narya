@@ -1,7 +1,7 @@
 //
-// $Id: TestClient.java,v 1.3 2001/10/01 22:16:02 mdb Exp $
+// $Id: TestClient.java,v 1.4 2001/10/05 23:59:37 mdb Exp $
 
-package com.threerings.whirled.client.test;
+package com.threerings.whirled.test;
 
 import com.samskivert.util.Config;
 import com.samskivert.util.Queue;
@@ -29,7 +29,7 @@ public class TestClient
         // create the handles for our various services
         _config = new Config();
         _client = new Client(creds, this);
-        _screp = new DummySceneRepository();
+        _screp = new DummyClientSceneRepository();
         _occmgr = new OccupantManager(_ctx);
         _scdir = new SceneDirector(_ctx, _screp);
 

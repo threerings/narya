@@ -1,7 +1,9 @@
 //
-// $Id: Scene.java,v 1.4 2001/09/21 02:30:35 mdb Exp $
+// $Id: Scene.java,v 1.5 2001/10/05 23:59:36 mdb Exp $
 
 package com.threerings.whirled.data;
+
+import com.threerings.cocktail.party.data.PlaceConfig;
 
 /**
  * The base scene interface. This encapsulates the minimum information
@@ -9,9 +11,6 @@ package com.threerings.whirled.data;
  */
 public interface Scene
 {
-    /** Scene id to denote an unset or otherwise invalid scene id. */
-    public static final int SID_INVALID = -1;
-
     /**
      * Returns the scene's unique identifier.
      */
@@ -26,14 +25,21 @@ public interface Scene
     public int getVersion ();
 
     /**
-     * Returns the scene's name. Every scene has a descriptive name.
-     */
-    public String getName ();
-
-    /**
      * Returns the scene ids of all scenes that neighbor this scene. A
      * neighboring scene is one to which the user can traverse from this
      * scene and vice versa.
      */
     public int[] getNeighborIds ();
+
+    /**
+     * A scene is associated with a place on the server. Because the
+     * scenes are loaded on demand, the scene implementation must be able
+     * to provide a place config instance for each scene. This will allow
+     * the server to figure out what manager class to instantiate to
+     * manage the scene and all the client to figure out what controller
+     * class to instantiate to controll the scene. Additionally, it may
+     * contain runtime configuration information needed by the application
+     * using the Whirled services.
+     */
+    public PlaceConfig getPlaceConfig ();
 }
