@@ -1,0 +1,34 @@
+    /**
+     * Requests that the <code>$field</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public void set$upfield ($type value)
+    {
+        $type ovalue = this.$field;
+        requestAttributeChange(
+            $capfield, $wrapfield, $wrapofield);
+        this.$field = value;
+    }
+#if ($elemtype)
+
+    /**
+     * Requests that the <code>index</code>th element of
+     * <code>$field</code> field be set to the specified value.
+     * The local value will be updated immediately and an event will be
+     * propagated through the system to notify all listeners that the
+     * attribute did change. Proxied copies of this object (on clients)
+     * will apply the value change when they received the attribute
+     * changed notification.
+     */
+    public void set${upfield}At ($elemtype value, int index)
+    {
+        $elemtype ovalue = this.$field[index];
+        requestElementUpdate(
+            $capfield, index, $wrapelem, $wrapoelem);
+        this.$field[index] = value;
+    }
+#end

@@ -1,5 +1,5 @@
 //
-// $Id: AttributeChangedEvent.java,v 1.16 2004/08/27 02:20:20 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -32,26 +32,6 @@ import com.samskivert.util.StringUtil;
  */
 public class AttributeChangedEvent extends NamedEvent
 {
-    /**
-     * Constructs a new attribute changed event on the specified target
-     * object with the supplied attribute name and value.
-     *
-     * @param targetOid the object id of the object whose attribute has
-     * changed.
-     * @param name the name of the attribute (data member) that has
-     * changed.
-     * @param value the new value of the attribute (in the case of
-     * primitive types, the reflection-defined object-alternative is
-     * used).
-     */
-    public AttributeChangedEvent (int targetOid, String name,
-                                  Object value, Object oldValue)
-    {
-        super(targetOid, name);
-        _value = value;
-        _oldValue = oldValue;
-    }
-
     /**
      * Constructs a blank instance of this event in preparation for
      * unserialization from the network.
@@ -128,13 +108,39 @@ public class AttributeChangedEvent extends NamedEvent
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
-        // grab the previous value (if we're on the client)
+        // if we have no old value, that means we're not running on the
+        // master server and we have not already applied this attribute
+        // change to the object, so we must grab the previous value and
+        // actually apply the attribute change
         if (_oldValue == UNSET_OLD_VALUE) {
             _oldValue = target.getAttribute(_name);
+            // pass the new value on to the object (this uses reflection
+            // and is slow)
+            target.setAttribute(_name, _value);
         }
-        // pass the new value on to the object
-        target.setAttribute(_name, _value);
         return true;
+    }
+
+    /**
+     * Constructs a new attribute changed event on the specified target
+     * object with the supplied attribute name and value. <em>Do not
+     * construct these objects by hand.</em> Use {@link
+     * DObject#changeAttribute} instead.
+     *
+     * @param targetOid the object id of the object whose attribute has
+     * changed.
+     * @param name the name of the attribute (data member) that has
+     * changed.
+     * @param value the new value of the attribute (in the case of
+     * primitive types, the reflection-defined object-alternative is
+     * used).
+     */
+    protected AttributeChangedEvent (
+        int targetOid, String name, Object value, Object oldValue)
+    {
+        super(targetOid, name);
+        _value = value;
+        _oldValue = oldValue;
     }
 
     // documentation inherited

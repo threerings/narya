@@ -21,15 +21,26 @@
     <fileset dir="lib" includes="**/*.jar"/>
   </path>
 
-  <!-- generates .java files for all .dobj files -->
-  <target name="gendobj">
-    <apply executable="bin/gendobj" failonerror="true" parallel="true">
-      <fileset dir="src/java" includes="**/*.dobj"/>
-    </apply>
+  <!-- generates additional methods for distributed object classes -->
+  <target name="gendobj" depends="prepare"> 
+    <taskdef name="dobj"
+             classname="com.threerings.presents.tools.GenDObjectTask"
+             classpathref="classpath"/>
+    <!-- make sure the dobject class files are all compiled -->
+    <javac srcdir="src/java" destdir="${classes.dir}"
+           debug="on" optimize="${build.optimize}" deprecation="on"
+           source="1.4" target="1.4">
+      <classpath refid="classpath"/>
+      <include name="**/*Object.java"/>
+    </javac>
+    <!-- now generate the associated files -->
+    <dobj classpathref="classpath">
+      <fileset dir="src/java" includes="**/*Object.java"/>
+    </dobj>
   </target>
 
-  <!-- generates marshaller and dispatcher classes for all invocation
-       service declarations -->
+  <!-- generates marshaller and dispatcher classes for all invocation -->
+  <!-- service declarations -->
   <target name="genservice"> 
     <taskdef name="service"
              classname="com.threerings.presents.tools.GenServiceTask"
@@ -63,7 +74,7 @@
   </target>
 
   <!-- prepares the application directories -->
-  <target name="prepare" depends="gendobj">
+  <target name="prepare">
     <mkdir dir="${deploy.dir}"/>
     <mkdir dir="${classes.dir}"/>
     <mkdir dir="${classes.dir}/rsrc"/>

@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.79 2004/10/23 17:36:32 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -23,10 +23,13 @@ package com.threerings.presents.dobj;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
@@ -292,8 +295,13 @@ public class DObject extends TrackedObject
      */
     public void addToSet (String setName, DSet.Entry entry)
     {
-        getSet(setName); // validate the set
-        requestEntryAdd(setName, entry);
+        String mname = "addTo" + StringUtils.capitalize(setName);
+        try {
+            Method m = getClass().getMethod(mname, ENTRY_CLASS_ARGS);
+            m.invoke(this, new Object[] { entry });
+        } catch (Exception e) {
+            throw new IllegalArgumentException("No such set: " + setName);
+        }
     }
 
     /**
@@ -301,8 +309,13 @@ public class DObject extends TrackedObject
      */
     public void updateSet (String setName, DSet.Entry entry)
     {
-        getSet(setName); // validate the set
-        requestEntryUpdate(setName, entry);
+        String mname = "update" + StringUtils.capitalize(setName);
+        try {
+            Method m = getClass().getMethod(mname, ENTRY_CLASS_ARGS);
+            m.invoke(this, new Object[] { entry });
+        } catch (Exception e) {
+            throw new IllegalArgumentException("No such set: " + setName);
+        }
     }
 
     /**
@@ -310,8 +323,13 @@ public class DObject extends TrackedObject
      */
     public void removeFromSet (String setName, Comparable key)
     {
-        getSet(setName); // validate the set
-        requestEntryRemove(setName, key);
+        String mname = "removeFrom" + StringUtils.capitalize(setName);
+        try {
+            Method m = getClass().getMethod(mname, KEY_CLASS_ARGS);
+            m.invoke(this, new Object[] { key });
+        } catch (Exception e) {
+            throw new IllegalArgumentException("No such set: " + setName);
+        }
     }
 
     /**
@@ -503,6 +521,28 @@ public class DObject extends TrackedObject
     }
 
     /**
+     * Requests that the specified attribute be changed to the specified
+     * value. Normally the generated setter methods should be used but in
+     * rare cases a caller may wish to update distributed fields in a
+     * generic manner.
+     */
+    public void changeAttribute (String name, Object value)
+        throws ObjectAccessException
+    {
+        try {
+            Field f = getField(name);
+            requestAttributeChange(name, value, f.get(this));
+            f.set(this, value);
+
+        } catch (Exception e) {
+            String errmsg = "changeAttribute() failure [name=" + name +
+                ", value=" + value +
+                ", vclass=" + value.getClass().getName() + "].";
+            throw new ObjectAccessException(errmsg, e);
+        }
+    }
+
+    /**
      * Sets the named attribute to the specified value. This is only used
      * by the internals of the event dispatch mechanism and should not be
      * called directly by users. Use the generated attribute setter
@@ -512,39 +552,10 @@ public class DObject extends TrackedObject
         throws ObjectAccessException
     {
         try {
-            // for values that contain other values (arrays and DSets), we
-            // need to clone them before putting them in the object
-            // because otherwise a subsequent event might come along and
-            // modify these values before the networking thread has had a
-            // chance to propagate this event to the clients
-
-            // i wish i could just call value.clone() but Object declares
-            // clone() to be inaccessible, so we must cast the values to
-            // their actual types to gain access to the widened clone()
-            // methods
-            if (value instanceof DSet) {
-                value = ((DSet)value).clone();
-            } else if (value instanceof int[]) {
-                value = ((int[])value).clone();
-            } else if (value instanceof String[]) {
-                value = ((String[])value).clone();
-            } else if (value instanceof byte[]) {
-                value = ((byte[])value).clone();
-            } else if (value instanceof long[]) {
-                value = ((long[])value).clone();
-            } else if (value instanceof float[]) {
-                value = ((float[])value).clone();
-            } else if (value instanceof short[]) {
-                value = ((short[])value).clone();
-            } else if (value instanceof double[]) {
-                value = ((double[])value).clone();
-            }
-
-            // now actually set the value
             getField(name).set(this, value);
 
         } catch (Exception e) {
-            String errmsg = "Attribute setting failure [name=" + name +
+            String errmsg = "setAttribute() failure [name=" + name +
                 ", value=" + value +
                 ", vclass=" + value.getClass().getName() + "].";
             throw new ObjectAccessException(errmsg, e);
@@ -564,7 +575,7 @@ public class DObject extends TrackedObject
             return getField(name).get(this);
 
         } catch (Exception e) {
-            String errmsg = "Attribute getting failure [name=" + name + "].";
+            String errmsg = "getAttribute() failure [name=" + name + "].";
             throw new ObjectAccessException(errmsg, e);
         }
     }
@@ -812,36 +823,23 @@ public class DObject extends TrackedObject
      * Called by derived instances when an attribute setter method was
      * called.
      */
-    protected void requestAttributeChange (String name, Object value)
+    protected void requestAttributeChange (
+        String name, Object value, Object oldValue)
     {
-        try {
-            // dispatch an attribute changed event
-            postEvent(new AttributeChangedEvent(
-                          _oid, name, value, getAttribute(name)));
-
-        } catch (ObjectAccessException oae) {
-            Log.warning("Unable to request attributeChange [name=" + name +
-                        ", value=" + value + ", error=" + oae + "].");
-        }
+        // dispatch an attribute changed event
+        postEvent(new AttributeChangedEvent(_oid, name, value, oldValue));
     }
 
     /**
      * Called by derived instances when an element updater method was
      * called.
      */
-    protected void requestElementUpdate (String name, Object value, int index)
+    protected void requestElementUpdate (
+        String name, int index, Object value, Object oldValue)
     {
-        try {
-            // dispatch an attribute changed event
-            Object oldValue = Array.get(getAttribute(name), index);
-            postEvent(new ElementUpdatedEvent(
-                          _oid, name, value, oldValue, index));
-
-        } catch (ObjectAccessException oae) {
-            Log.warning("Unable to request elementUpdate [name=" + name +
-                        ", value=" + value + ", index=" + index +
-                        ", error=" + oae + "].");
-        }
+        // dispatch an attribute changed event
+        postEvent(new ElementUpdatedEvent(
+                      _oid, name, value, oldValue, index));
     }
 
     /**
@@ -865,72 +863,48 @@ public class DObject extends TrackedObject
     /**
      * Calls by derived instances when a set adder method was called.
      */
-    protected void requestEntryAdd (String name, DSet.Entry entry)
+    protected void requestEntryAdd (String name, DSet set, DSet.Entry entry)
     {
-        try {
-            DSet set = (DSet)getAttribute(name);
-            // if we're on the authoritative server, we update the set
-            // immediately
-            boolean alreadyApplied = false;
-            if (_omgr != null && _omgr.isManager(this)) {
-                if (!set.add(entry)) {
-                    Thread.dumpStack();
-                }
-                alreadyApplied = true;
+        // if we're on the authoritative server, we update the set immediately
+        boolean alreadyApplied = false;
+        if (_omgr != null && _omgr.isManager(this)) {
+            if (!set.add(entry)) {
+                Thread.dumpStack();
             }
-            // dispatch an entry added event
-            postEvent(new EntryAddedEvent(_oid, name, entry, alreadyApplied));
-
-        } catch (ObjectAccessException oae) {
-            Log.warning("Unable to request entryAdd [name=" + name +
-                        ", entry=" + entry + ", error=" + oae + "].");
+            alreadyApplied = true;
         }
+        // dispatch an entry added event
+        postEvent(new EntryAddedEvent(_oid, name, entry, alreadyApplied));
     }
 
     /**
      * Calls by derived instances when a set remover method was called.
      */
-    protected void requestEntryRemove (String name, Comparable key)
+    protected void requestEntryRemove (String name, DSet set, Comparable key)
     {
-        try {
-            DSet set = (DSet)getAttribute(name);
-            // if we're on the authoritative server, we update the set
-            // immediately
-            DSet.Entry oldEntry = null;
-            if (_omgr != null && _omgr.isManager(this)) {
-                oldEntry = set.get(key);
-                set.removeKey(key);
-            }
-            // dispatch an entry removed event
-            postEvent(new EntryRemovedEvent(_oid, name, key, oldEntry));
-
-        } catch (ObjectAccessException oae) {
-            Log.warning("Unable to request entryRemove [name=" + name +
-                        ", key=" + key + ", error=" + oae + "].");
+        // if we're on the authoritative server, we update the set immediately
+        DSet.Entry oldEntry = null;
+        if (_omgr != null && _omgr.isManager(this)) {
+            oldEntry = set.get(key);
+            set.removeKey(key);
         }
+        // dispatch an entry removed event
+        postEvent(new EntryRemovedEvent(_oid, name, key, oldEntry));
     }
 
     /**
      * Calls by derived instances when a set updater method was called.
      */
-    protected void requestEntryUpdate (String name, DSet.Entry entry)
+    protected void requestEntryUpdate (String name, DSet set, DSet.Entry entry)
     {
-        try {
-            DSet set = (DSet)getAttribute(name);
-            // if we're on the authoritative server, we update the set
-            // immediately
-            DSet.Entry oldEntry = null;
-            if (_omgr != null && _omgr.isManager(this)) {
-                oldEntry = set.get(entry.getKey());
-                set.update(entry);
-            }
-            // dispatch an entry updated event
-            postEvent(new EntryUpdatedEvent(_oid, name, entry, oldEntry));
-
-        } catch (ObjectAccessException oae) {
-            Log.warning("Unable to request entryUpdate [name=" + name +
-                        ", entry=" + entry + ", error=" + oae + "].");
+        // if we're on the authoritative server, we update the set immediately
+        DSet.Entry oldEntry = null;
+        if (_omgr != null && _omgr.isManager(this)) {
+            oldEntry = set.get(entry.getKey());
+            set.update(entry);
         }
+        // dispatch an entry updated event
+        postEvent(new EntryUpdatedEvent(_oid, name, entry, oldEntry));
     }
 
     /**
@@ -1004,4 +978,12 @@ public class DObject extends TrackedObject
             return ((Field)o1).getName().compareTo(((Field)o2).getName());
         }
     };
+
+    /** Used when calling set methods dynamically. */
+    protected static final Class[] ENTRY_CLASS_ARGS =
+        new Class[] { DSet.Entry.class };
+
+    /** Used when calling set methods dynamically. */
+    protected static final Class[] KEY_CLASS_ARGS =
+        new Class[] { Comparable.class };
 }

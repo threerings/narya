@@ -1,0 +1,19 @@
+    /**
+     * Requests that <code>oid</code> be added to the <code>$field</code>
+     * oid list. The list will not change until the event is actually
+     * propagated through the system.
+     */
+    public void addTo$upfield (int oid)
+    {
+        requestOidAdd($capfield, oid);
+    }
+
+    /**
+     * Requests that <code>oid</code> be removed from the
+     * <code>$field</code> oid list. The list will not change until the
+     * event is actually propagated through the system.
+     */
+    public void removeFrom$upfield (int oid)
+    {
+        requestOidRemove($capfield, oid);
+    }

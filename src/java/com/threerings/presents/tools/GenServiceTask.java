@@ -70,7 +70,7 @@ public class GenServiceTask extends InvocationTask
 
         public String getName ()
         {
-            String name = simpleName(listener);
+            String name = GenUtil.simpleName(listener);
             name = StringUtil.replace(name, "Listener", "");
             int didx = name.indexOf(".");
             return name.substring(didx+1);
@@ -118,7 +118,7 @@ public class GenServiceTask extends InvocationTask
             Class[] args = m.getParameterTypes();
             for (int aa = 0; aa < args.length; aa++) {
                 if (_ilistener.isAssignableFrom(args[aa]) &&
-                    simpleName(args[aa]).startsWith(sname + ".")) {
+                    GenUtil.simpleName(args[aa]).startsWith(sname + ".")) {
                     checkedAdd(listeners, new ServiceListener(
                                    service, args[aa], imports));
                 }

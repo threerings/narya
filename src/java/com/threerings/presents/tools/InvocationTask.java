@@ -3,7 +3,6 @@
 
 package com.threerings.presents.tools;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -14,9 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -58,7 +54,7 @@ public abstract class InvocationTask extends Task
 
         public String getMarshaller ()
         {
-            String name = simpleName(listener);
+            String name = GenUtil.simpleName(listener);
             // handle ye olde special case
             if (name.equals("InvocationService.InvocationListener")) {
                 return "ListenerMarshaller";
@@ -108,7 +104,7 @@ public abstract class InvocationTask extends Task
                 // InvocationService listeners, we need to import its
                 // marshaller as well
                 if (_ilistener.isAssignableFrom(arg) &&
-                    !simpleName(arg).startsWith("InvocationService")) {
+                    !GenUtil.simpleName(arg).startsWith("InvocationService")) {
                     String mname = arg.getName();
                     mname = StringUtil.replace(mname, "Service", "Marshaller");
                     mname = StringUtil.replace(mname, "Listener", "Marshaller");
@@ -131,7 +127,8 @@ public abstract class InvocationTask extends Task
                 if (buf.length() > 0) {
                     buf.append(", ");
                 }
-                buf.append(simpleName(args[ii])).append(" arg").append(ii+1);
+                buf.append(GenUtil.simpleName(args[ii]));
+                buf.append(" arg").append(ii+1);
             }
             return buf.toString();
         }
@@ -144,7 +141,7 @@ public abstract class InvocationTask extends Task
                 if (buf.length() > 0) {
                     buf.append(", ");
                 }
-                buf.append(wrapArgument(args[ii], ii+1));
+                buf.append(boxArgument(args[ii], ii+1));
             }
             return buf.toString();
         }
@@ -167,60 +164,28 @@ public abstract class InvocationTask extends Task
                 if (buf.length() > 0) {
                     buf.append(", ");
                 }
-                buf.append(unwrapArgument(args[ii], listenerMode ? ii : ii-1,
+                buf.append(unboxArgument(args[ii], listenerMode ? ii : ii-1,
                                           listenerMode));
             }
             return buf.toString();
         }
 
-        protected String wrapArgument (Class clazz, int index)
+        protected String boxArgument (Class clazz, int index)
         {
-            if (clazz == Boolean.TYPE) {
-                return "new Boolean(arg" + index + ")";
-            } else if (clazz == Byte.TYPE) {
-                return "new Byte(arg" + index + ")";
-            } else if (clazz == Character.TYPE) {
-                return "new Character(arg" + index + ")";
-            } else if (clazz == Short.TYPE) {
-                return "new Short(arg" + index + ")";
-            } else if (clazz == Integer.TYPE) {
-                return "new Integer(arg" + index + ")";
-            } else if (clazz == Long.TYPE) {
-                return "new Long(arg" + index + ")";
-            } else if (clazz == Float.TYPE) {
-                return "new Float(arg" + index + ")";
-            } else if (clazz == Double.TYPE) {
-                return "new Double(arg" + index + ")";
-            } else if (_ilistener.isAssignableFrom(clazz)) {
-                return "listener" + index;
+            if (_ilistener.isAssignableFrom(clazz)) {
+                return GenUtil.boxArgument(clazz,  "listener" + index);
             } else {
-                return "arg" + index;
+                return GenUtil.boxArgument(clazz,  "arg" + index);
             }
         }
 
-        protected String unwrapArgument (
+        protected String unboxArgument (
             Class clazz, int index, boolean listenerMode)
         {
-            if (clazz == Boolean.TYPE) {
-                return "((Boolean)args[" + index + "]).booleanValue()";
-            } else if (clazz == Byte.TYPE) {
-                return "((Byte)args[" + index + "]).byteValue()";
-            } else if (clazz == Character.TYPE) {
-                return "((Character)args[" + index + "]).charValue()";
-            } else if (clazz == Short.TYPE) {
-                return "((Short)args[" + index + "]).shortValue()";
-            } else if (clazz == Integer.TYPE) {
-                return "((Integer)args[" + index + "]).intValue()";
-            } else if (clazz == Long.TYPE) {
-                return "((Long)args[" + index + "]).longValue()";
-            } else if (clazz == Float.TYPE) {
-                return "((Float)args[" + index + "]).floatValue()";
-            } else if (clazz == Double.TYPE) {
-                return "((Double)args[" + index + "]).doubleValue()";
-            } else if (listenerMode && _ilistener.isAssignableFrom(clazz)) {
+            if (listenerMode && _ilistener.isAssignableFrom(clazz)) {
                 return "listener" + index;
             } else {
-                return "(" + simpleName(clazz) + ")args[" + index + "]";
+                return GenUtil.unboxArgument(clazz, "args[" + index + "]");
             }
         }
     }
@@ -294,35 +259,9 @@ public abstract class InvocationTask extends Task
     {
         // System.err.println("Processing " + source + "...");
         // load up the file and determine it's package and classname
-        String pkgname = null, name = null;
+        String name = null;
         try {
-            BufferedReader bin = new BufferedReader(new FileReader(source));
-            String line;
-            while ((line = bin.readLine()) != null) {
-                Matcher pm = PACKAGE_PATTERN.matcher(line);
-                if (pm.find()) {
-                    pkgname = pm.group(1);
-                }
-                Matcher nm = NAME_PATTERN.matcher(line);
-                if (nm.find()) {
-                    name = nm.group(1);
-                    break;
-                }
-            }
-            bin.close();
-
-            // make sure we found something
-            if (name == null) {
-                System.err.println(
-                    "Unable to locate interface name in " + source + ".");
-                return;
-            }
-
-            // prepend the package name to get a name we can Class.forName()
-            if (pkgname != null) {
-                name = pkgname + "." + name;
-            }
-
+            name = GenUtil.readClassName(source);
         } catch (Exception e) {
             System.err.println(
                 "Failed to parse " + source + ": " + e.getMessage());
@@ -361,18 +300,6 @@ public abstract class InvocationTask extends Task
         }
     }
 
-    protected static String simpleName (Class clazz)
-    {
-        if (clazz.isArray()) {
-            return simpleName(clazz.getComponentType()) + "[]";
-        } else {
-            Package pkg = clazz.getPackage();
-            int offset = (pkg == null) ? 0 : pkg.getName().length()+1;
-            String name = clazz.getName().substring(offset);
-            return StringUtil.replace(name, "$", ".");
-        }
-    }
-
     protected static String importify (String name)
     {
         int didx = name.indexOf("$");
@@ -394,12 +321,4 @@ public abstract class InvocationTask extends Task
     /** {@link InvocationListener} resolved with the proper classloader so
      * that we can compare it to loaded derived classes. */
     protected Class _ilistener;
-
-    /** A regular expression for matching the package declaration. */
-    protected static final Pattern PACKAGE_PATTERN =
-        Pattern.compile("^\\s*package\\s+(\\S+)\\W");
-
-    /** A regular expression for matching the interface declaration. */
-    protected static final Pattern NAME_PATTERN =
-        Pattern.compile("^\\s*public\\s+interface\\s+(\\S+)(\\W|$)");
 }
