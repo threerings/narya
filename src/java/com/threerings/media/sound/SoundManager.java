@@ -299,6 +299,9 @@ public class SoundManager
             };
             spooler.setDaemon(true);
             spooler.start();
+            if (_verbose.getValue()) {
+                Log.info("Started new player thread.");
+            }
         }
 
         return queued;
@@ -487,6 +490,7 @@ public class SoundManager
         throws IOException, UnsupportedAudioFileException
     {
         byte[][] data;
+        boolean verbose = _verbose.getValue();
         synchronized (_clipCache) {
             // if we're testing, clear all non-locked sounds every time
             if (isTesting()) {
@@ -494,12 +498,18 @@ public class SoundManager
             }
 
             data = (byte[][]) _clipCache.get(key);
+            if (verbose && data != null) {
+                Log.info("clip loaded from cache [" + key + "].");
+            }
 
             // see if it's in the locked cache (we first look in the regular
             // clip cache so that locked clips that are still cached continue
             // to be moved to the head of the LRU queue)
             if (data == null) {
                 data = (byte[][]) _lockedClips.get(key);
+                if (verbose && data != null) {
+                    Log.info("clip loaded from lock [" + key + "].");
+                }
             }
 
             if (data == null) {
@@ -522,6 +532,9 @@ public class SoundManager
                     String bundle = c.getValue("bundle", (String)null);
                     for (int ii=0; ii < names.length; ii++) {
                         data[ii] = loadClipData(bundle, names[ii]);
+                    }
+                    if (verbose) {
+                        Log.info("clip loaded from rscmgr [" + key + "].");
                     }
                 }
 
