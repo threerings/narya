@@ -355,6 +355,15 @@ public class GameManager extends PlaceManager
     }
 
     /**
+     * Returns whether the player at the specified player index is actively
+     * playing the game
+     */
+    public boolean isActivePlayer (int pidx)
+    {
+        return _gameobj.isActivePlayer(pidx);
+    }
+
+    /**
      * Returns the unique round identifier for the current round.
      */
     public int getRoundId ()

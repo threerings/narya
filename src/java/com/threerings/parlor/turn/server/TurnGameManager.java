@@ -67,6 +67,12 @@ public interface TurnGameManager
     public int getPlayerCount ();
 
     /**
+     * Extending {@link GameManager} should automatically handle
+     * implementing this method.
+     */
+    public boolean isActivePlayer (int pidx);
+
+    /**
      * Called when we are about to start the next turn. Implementations
      * can do whatever pre-start turn activities need to be done.
      */
