@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.28 2003/07/12 22:34:03 mdb Exp $
+// $Id: InvocationDirector.java,v 1.29 2003/07/16 18:03:30 ray Exp $
 
 package com.threerings.presents.client;
 
@@ -335,8 +335,8 @@ public class InvocationDirector
                 _clobj.addListener(InvocationDirector.this);
 
                 // reregister our receivers
+                _clobj.startTransaction();
                 try {
-                    _clobj.startTransaction();
                     Iterator iter = receivers.entries();
                     while (iter.hasNext()) {
                         _clobj.addToReceivers((Registration)iter.next());

@@ -1,5 +1,5 @@
 //
-// $Id: LocationProvider.java,v 1.19 2003/02/26 17:54:56 mdb Exp $
+// $Id: LocationProvider.java,v 1.20 2003/07/16 18:03:30 ray Exp $
 
 package com.threerings.crowd.server;
 
@@ -155,8 +155,8 @@ public class LocationProvider
             PlaceObject pold = (PlaceObject)_omgr.getObject(oldloc);
             if (pold != null) {
                 Integer key = new Integer(bodoid);
+                pold.startTransaction();
                 try {
-                    pold.startTransaction();
                     // remove their occupant info (which is keyed on oid)
                     pold.removeFromOccupantInfo(key);
                     // and remove them from the occupant list

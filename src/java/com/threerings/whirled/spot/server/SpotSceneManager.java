@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.41 2003/06/03 21:41:33 ray Exp $
+// $Id: SpotSceneManager.java,v 1.42 2003/07/16 18:03:30 ray Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -423,20 +423,23 @@ public class SpotSceneManager extends SceneManager
             removeFromCluster(body.getOid());
 
             put(body.getOid(), body);
+            _ssobj.startTransaction();
             try {
                 body.startTransaction();
-                _ssobj.startTransaction();
-                bodyAdded(this, body); // do the hokey pokey
+                try {
+                    bodyAdded(this, body); // do the hokey pokey
 
-                if (_clobj != null) {
-                    ((ClusteredBodyObject)body).setClusterOid(
-                        _clobj.getOid());
-                    _clobj.addToOccupants(body.getOid());
-                    _ssobj.updateClusters(_cluster);
+                    if (_clobj != null) {
+                        ((ClusteredBodyObject)body).setClusterOid(
+                            _clobj.getOid());
+                        _clobj.addToOccupants(body.getOid());
+                        _ssobj.updateClusters(_cluster);
+                    }
+
+                } finally {
+                    body.commitTransaction();
                 }
-
             } finally {
-                body.commitTransaction();
                 _ssobj.commitTransaction();
             }
 
@@ -454,19 +457,22 @@ public class SpotSceneManager extends SceneManager
                 return;
             }
 
+            body.startTransaction();
             try {
-                body.startTransaction();
                 _ssobj.startTransaction();
-                ((ClusteredBodyObject)body).setClusterOid(-1);
-                bodyRemoved(this, body); // do the hokey pokey
+                try {
+                    ((ClusteredBodyObject)body).setClusterOid(-1);
+                    bodyRemoved(this, body); // do the hokey pokey
 
-                if (_clobj != null) {
-                    _clobj.removeFromOccupants(bodyOid);
-                    _ssobj.updateClusters(_cluster);
+                    if (_clobj != null) {
+                        _clobj.removeFromOccupants(bodyOid);
+                        _ssobj.updateClusters(_cluster);
+                    }
+
+                } finally {
+                    _ssobj.commitTransaction();
                 }
-
             } finally {
-                _ssobj.commitTransaction();
                 body.commitTransaction();
             }
 

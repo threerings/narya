@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.66 2003/06/29 23:11:23 mdb Exp $
+// $Id: GameManager.java,v 1.67 2003/07/16 18:03:30 ray Exp $
 
 package com.threerings.parlor.game;
 
@@ -659,8 +659,8 @@ public class GameManager extends PlaceManager
             return;
         }
 
+        _gameobj.startTransaction();
         try {
-            _gameobj.startTransaction();
 
             // let the derived class do its pre-end stuff
             gameWillEnd();
