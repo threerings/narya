@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.8 2004/04/30 00:02:21 ray Exp $
+// $Id: PuzzleController.java,v 1.9 2004/05/05 02:38:22 ray Exp $
 
 package com.threerings.puzzle.client;
 
@@ -10,7 +10,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 import java.util.ArrayList;
 
@@ -155,27 +154,16 @@ public abstract class PuzzleController extends GameController
 
         // if we're moving focus to chat..
         if (chatting) {
-            // don't let mouse clicks land on the board
-            final MouseHijacker jack = new MouseHijacker(_panel.getBoardView());
-
-            // ...enable "click to unchat" mode in the puzzle board view
-            MouseAdapter unpauser = new MouseAdapter() {
-                public void mousePressed (MouseEvent event) {
-                    _panel.removeMouseListener(this);
-                    _panel.getBoardView().removeMouseListener(this);
-                    jack.release();
-                    setChatting(false);
-                }
-            };
-            _panel.addMouseListener(unpauser);
-            _panel.getBoardView().addMouseListener(unpauser);
+            if (_unpauser != null) {
+                Log.warning("Huh? Already have a mouse unpauser?");
+                _unpauser.release();
+            }
+            _unpauser = new Unpauser(_panel);
 
         } else {
-            // if we were unpaused with a key event, blow away the hijacker
-            // business
-            MouseListener[] mousers = _panel.getMouseListeners();
-            if (mousers.length == 1) {
-                mousers[0].mousePressed(null);
+            if (_unpauser != null) {
+                _unpauser.release();
+                _unpauser = null;
             }
         }
 
@@ -891,6 +879,39 @@ public abstract class PuzzleController extends GameController
             }
         });
     }
+
+    /**
+     * Catches clicks an unpauses, without passing the click through
+     * to the puzzle.
+     */
+    class Unpauser extends MouseHijacker
+    {
+        public Unpauser (PuzzlePanel panel)
+        {
+            super(panel.getBoardView());
+            _panel = panel;
+            panel.addMouseListener(_clicker);
+            panel.getBoardView().addMouseListener(_clicker);
+        }
+
+        public Component release ()
+        {
+            _panel.removeMouseListener(_clicker);
+            _panel.getBoardView().removeMouseListener(_clicker);
+            return super.release();
+        }
+
+        protected MouseAdapter _clicker = new MouseAdapter() {
+            public void mousePressed (MouseEvent event) {
+                setChatting(false); // this will call release
+            }
+        };
+
+        protected PuzzlePanel _panel;
+    }
+
+    /** The mouse jockey for unpausing our puzzles. */
+    protected Unpauser _unpauser;
 
     /** Handles the sending of puzzle progress updates. We can't just
      * register an interval for this because sometimes the clock goes
