@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.43 2003/01/17 00:21:10 mdb Exp $
+// $Id: SoundManager.java,v 1.44 2003/01/20 20:07:05 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -41,11 +41,14 @@ import org.apache.commons.lang.Constant;
 import com.samskivert.util.Config;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.Queue;
+import com.samskivert.util.RuntimeAdjust;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.resource.ResourceManager;
 import com.threerings.util.RandomUtil;
 
 import com.threerings.media.Log;
+import com.threerings.media.MediaPrefs;
 
 /**
  * Manages the playing of audio files.
@@ -205,14 +208,6 @@ public class SoundManager
         } else {
             _disabledTypes.add(type);
         }
-    }
-
-    /**
-     * Set the test sound clip directory.
-     */
-    public void setTestDir (String testy)
-    {
-        _testDir = testy;
     }
 
     /**
@@ -632,7 +627,7 @@ public class SoundManager
         throws IOException, UnsupportedAudioFileException
     {
         // if we're testing, clear all non-locked sounds every time
-        if (_testDir != null) {
+        if (! StringUtil.blank(_testDir.getValue())) {
             _clipCache.clear();
         }
 
@@ -683,12 +678,13 @@ public class SoundManager
 
     protected InputStream getTestClip (SoundKey key)
     {
-        if (_testDir == null) {
+        String testDirectory = _testDir.getValue();
+        if (StringUtil.blank(testDirectory)) {
             return null;
         }
 
         final String namePrefix = key.key + ".";
-        File f = new File(_testDir);
+        File f = new File(testDirectory);
         File[] list = f.listFiles(new FilenameFilter() {
             public boolean accept (File f, String name)
             {
@@ -1042,9 +1038,6 @@ public class SoundManager
         }
     }
 
-    /** Directory from which we load test sounds. */
-    protected String _testDir;
-
     /** The resource manager from which we obtain audio files. */
     protected ResourceManager _rmgr;
 
@@ -1091,6 +1084,12 @@ public class SoundManager
     protected Constant LOCK = new Constant("LOCK");
     protected Constant UNLOCK = new Constant("UNLOCK");
     protected Constant DIE = new Constant("DIE");
+
+    /** A pref that specifies a directory for us to get test sounds from. */
+    protected static RuntimeAdjust.FileAdjust _testDir =
+        new RuntimeAdjust.FileAdjust(
+            "Test sound directory", "narya.media.sound.test_dir",
+            MediaPrefs.config, true, "");
 
     /** Music action constants. */
     protected static final int NONE = 0;
