@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.47 2004/08/27 02:20:23 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.48 2004/10/28 21:59:00 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -409,8 +409,8 @@ public class PresentsDObjectMgr
     {
         int oid = target.getOid();
 
-//          Log.info("Removing destroyed object from table " +
-//                   "[oid=" + oid + "].");
+//        Log.info("Removing destroyed object from table " +
+//                 "[oid=" + oid + "].");
 
         // remove the object from the table
         _objects.remove(oid);
@@ -435,7 +435,7 @@ public class PresentsDObjectMgr
                     // post an object removed event to clear the reference
                     postEvent(new ObjectRemovedEvent(
                         ref.reffingOid, ref.field, oid));
-//                      Log.info("Forcing removal " + ref + ".");
+//                    Log.info("Forcing removal " + ref + ".");
 
                 } else {
                     Log.info("Dangling reference from inactive object " +
@@ -501,14 +501,20 @@ public class PresentsDObjectMgr
             }
         }
 
-        if (ref == null) {
+        // if a referred object and referring object are both destroyed without
+        // allowing the referred object destruction to process the ObjectRemoved
+        // event which is auto-generated, the subsequent destruction of the
+        // referring object will attempt to clear the reference to the referred
+        // object which no longer exists; so we don't complain about non-
+        // existent references if the referree is already destroyed
+        if (ref == null && _objects.containsKey(reffedOid)) {
             Log.warning("Requested to clear out non-existent reference " +
                         "[refferOid=" + reffer.getOid() +
                         ", field=" + field +
                         ", reffedOid=" + reffedOid + "].");
 
-//          } else {
-//              Log.info("Cleared out reference " + ref + ".");
+//        } else {
+//            Log.info("Cleared out reference " + ref + ".");
         }
     }
 
@@ -565,7 +571,7 @@ public class PresentsDObjectMgr
         // finally add the reference
         refs[rpos] = ref;
 
-//          Log.info("Tracked reference " + ref + ".");
+//        Log.info("Tracked reference " + ref + ".");
         return true;
     }
 
@@ -583,6 +589,9 @@ public class PresentsDObjectMgr
         int toid = target.getOid();
         int oid = ore.getOid();
 
+//        Log.info("Processing object removed [from=" + toid +
+//                 ", roid=" + toid + "].");
+
         // get the reference vector for the referenced object
         Reference[] refs = (Reference[])_refs.get(oid);
         if (refs == null) {
@@ -591,9 +600,9 @@ public class PresentsDObjectMgr
             // generate object removed events for all of its referencees.
             // so we opt not to log anything in this case
 
-//              Log.warning("Object removed without reference to track it " +
-//                          "[toid=" + toid + ", field=" + field +
-//                          ", oid=" + oid + "].");
+//            Log.info("Object removed without reference to track it " +
+//                     "[toid=" + toid + ", field=" + field +
+//                     ", oid=" + oid + "].");
             return true;
         }
 
@@ -601,7 +610,7 @@ public class PresentsDObjectMgr
         for (int i = 0; i < refs.length; i++) {
             Reference ref = refs[i];
             if (ref != null && ref.equals(toid, field)) {
-//                  Log.info("Removed reference " + refs[i] + ".");
+//                Log.info("Removed reference " + refs[i] + ".");
                 refs[i] = null;
                 return true;
             }
