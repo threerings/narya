@@ -1,5 +1,5 @@
 //
-// $Id: JNLPDownloader.java,v 1.14 2003/12/15 20:04:09 mdb Exp $
+// $Id: JNLPDownloader.java,v 1.15 2003/12/18 18:32:34 mdb Exp $
 
 package com.threerings.resource;
 
@@ -189,15 +189,21 @@ public class JNLPDownloader extends Downloader
         }
 
         // attempt to delete any old stale bundles as well
-        try {
-            String pathex = StringUtil.replace(
-                _desc.destFile.getPath(), _desc.version, "\\d+.\\d+");
-            String cpath = _desc.destFile.getPath();
-            File pdir = _desc.destFile.getParentFile();
-            File[] files = pdir.listFiles();
-            for (int ii = 0; ii < files.length; ii++) {
-                String path = files[ii].getPath();
-                if (!path.equals(cpath) && path.matches(pathex)) {
+        if (_desc.version != null) {
+            try {
+                String cpath = _desc.destFile.getPath();
+                String pcpath = ResourceManager.unversionPath(cpath, ".jar");
+                File pdir = _desc.destFile.getParentFile();
+                File[] files = pdir.listFiles();
+                for (int ii = 0; ii < files.length; ii++) {
+                    String path = files[ii].getPath();
+                    if (path.equals(cpath) || !path.endsWith(".jar")) {
+                        continue;
+                    }
+                    String ppath = ResourceManager.unversionPath(path, ".jar");
+                    if (!pcpath.equals(ppath)) {
+                        continue;
+                    }
                     if (!files[ii].delete()) {
                         Log.warning("Unable to delete stale bundle '" +
                                     files[ii].getPath() + "'.");
@@ -205,10 +211,10 @@ public class JNLPDownloader extends Downloader
                         Log.info("Deleted stale bundle '" + files[ii] + "'.");
                     }
                 }
+            } catch (Exception e) {
+                Log.warning("Failure deleting stale bundles.");
+                Log.logStackTrace(e);
             }
-        } catch (Exception e) {
-            Log.warning("Failure deleting stale bundles.");
-            Log.logStackTrace(e);
         }
 
         PrintWriter pout = new PrintWriter(
