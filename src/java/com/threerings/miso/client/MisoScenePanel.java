@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.33 2003/05/20 23:58:27 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.34 2003/05/21 00:28:22 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -691,7 +691,7 @@ public class MisoScenePanel extends VirtualMediaPanel
                     this, origin.x, origin.y,
                     _metrics.blockwid, _metrics.blockhei);
                 boolean visible =
-                    block.getFootprint().getBounds().intersects(_vbounds);
+                    block.getFootprint().getBounds().intersects(_vibounds);
                 _blocks.put(bkey, block);
 
                 // queue the block up to be resolved
@@ -718,7 +718,11 @@ public class MisoScenePanel extends VirtualMediaPanel
     /**
      * Called during the {@link #rethink} process, configures {@link
      * #_ibounds} to contain the bounds of the potentially "influential"
-     * world. Everything that intersects the influential area will be
+     * world and {@link #_ivbounds} to contain bounds that are used to
+     * determine which blocks should be resolved before making the view
+     * visible.
+     * 
+     * <p> Everything that intersects the influential area will be
      * resolved on the expectation that it could be scrolled into view at
      * any time. The influential bounds should be large enough that the
      * time between a block becoming influential and the time at which it
@@ -735,6 +739,8 @@ public class MisoScenePanel extends VirtualMediaPanel
                            // we go extra on the height because objects
                            // below can influence fairly high up
                            _vbounds.height+3*infbory);
+        _vibounds.setBounds(_vbounds.x, _vbounds.y,
+                            _vbounds.width, _vbounds.height+infbory);
     }
 
     /**
@@ -1457,6 +1463,10 @@ public class MisoScenePanel extends VirtualMediaPanel
 
     /** Contains the bounds of our "area of influence" in screen coords. */
     protected Rectangle _ibounds = new Rectangle();
+
+    /** Contains the bounds of our visible "area of influence" in screen
+     * coords. */
+    protected Rectangle _vibounds = new Rectangle();
 
     /** Used by {@link #rethink}. */
     protected RethinkOp _rethinkOp = new RethinkOp();
