@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.39 2002/09/18 02:32:57 mdb Exp $
+// $Id: IsoUtil.java,v 1.40 2002/10/16 20:39:46 ray Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -87,63 +87,6 @@ public class IsoUtil
 
         // bottom-center point
         boundsPoly.addPoint(rx, ry);
-
-        return boundsPoly;
-    }
-
-    /**
-     * Returns a polygon bounding the given object tile display image,
-     * with the bottom of the polygon shaped to conform to the known
-     * object dimensions. This is currently not used.
-     *
-     * @param model the scene view model.
-     * @param tx the x tile-coordinate of the object tile.
-     * @param ty the y tile-coordinate of the object tile.
-     * @param tile the object tile.
-     *
-     * @return the bounding polygon.
-     */
-    public static Polygon getTightObjectBounds (
-        IsoSceneViewModel model, SceneObject scobj)
-    {
-        Point tpos = tileToScreen(model, scobj.x, scobj.y, new Point());
-
-        // if the tile has an origin, use that, otherwise compute the
-        // origin based on the tile footprint
-        int tox = scobj.tile.getOriginX(), toy = scobj.tile.getOriginY();
-        if (tox == -1 || toy == -1) {
-            tox = scobj.tile.getBaseWidth() * model.tilehwid;
-            toy = scobj.tile.getHeight();
-        }
-
-        float slope = (float)model.tilehei / (float)model.tilewid;
-        int oox = tpos.x + model.tilehwid, ooy = tpos.y + model.tilehei;
-        int sx = oox - tox, sy =  ooy - toy;
-
-        Polygon boundsPoly = new SmartPolygon();
-        int rx = sx, ry = sy;
-
-        // top-left point
-        boundsPoly.addPoint(rx, ry);
-
-        // top-right point
-        rx = sx + scobj.tile.getWidth();
-        boundsPoly.addPoint(rx, ry);
-
-        // bottom-right point
-        ry = ooy - (int)((rx-oox) * slope);
-        boundsPoly.addPoint(rx, ry);
-
-        // bottom-middle point
-        boundsPoly.addPoint(tpos.x + model.tilehwid, tpos.y + model.tilehei);
-
-        // bottom-left point
-        rx = sx;
-        ry = ooy - (int)(tox * slope);
-        boundsPoly.addPoint(rx, ry);
-
-        // top-left point
-        boundsPoly.addPoint(sx, sy);
 
         return boundsPoly;
     }
