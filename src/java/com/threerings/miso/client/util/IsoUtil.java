@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.24 2002/03/26 23:35:02 ray Exp $
+// $Id: IsoUtil.java,v 1.25 2002/04/02 01:05:49 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -95,16 +95,16 @@ public class IsoUtil
     /**
      * Returns a polygon bounding the given object tile display image,
      * with the bottom of the polygon shaped to conform to the known
-     * object dimensions.
+     * object dimensions. This is currently not used.
      *
      * @param model the scene view model.
-     * @param root the polygon for the root tile at which the object
-     * is located.
+     * @param root the polygon for the root tile at which the object is
+     * located.
      * @param tile the object tile.
      *
      * @return the bounding polygon.
      */
-    public static Polygon getObjectBounds (
+    public static Polygon getTightObjectBounds (
         IsoSceneViewModel model, Polygon root, ObjectTile tile)
     {
         Rectangle bounds = root.getBounds();
@@ -148,6 +148,37 @@ public class IsoUtil
         boundsPoly.addPoint(sx, sy);
 
         return boundsPoly;
+    }
+
+    /**
+     * Returns a rectangle that encloses the entire object image, with the
+     * upper left set to the appropriate values for rendering the object
+     * image.
+     *
+     * @param model the scene view model.
+     * @param root the polygon for the root tile at which the object is
+     * located.
+     * @param tile the object tile.
+     *
+     * @return the bounding rectangle.
+     */
+    public static Rectangle getObjectBounds (
+        IsoSceneViewModel model, Polygon root, ObjectTile tile)
+    {
+        Rectangle bounds = root.getBounds();
+
+        // if the tile has an origin, use that, otherwise compute the
+        // origin based on the tile footprint
+        int tox = tile.getOriginX(), toy = tile.getOriginY();
+        if (tox == -1 || toy == -1) {
+            tox = tile.getBaseWidth() * model.tilehwid;
+            toy = tile.getHeight();
+        }
+
+        int oox = bounds.x + model.tilehwid, ooy = bounds.y + model.tilehei;
+        int sx = oox - tox, sy =  ooy - toy;
+
+        return new Rectangle(sx, sy, tile.getWidth(), tile.getHeight());
     }
 
     /**
