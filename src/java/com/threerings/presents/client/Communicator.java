@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.25 2002/11/18 18:53:10 mdb Exp $
+// $Id: Communicator.java,v 1.26 2003/01/21 00:17:16 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -10,12 +10,14 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 import com.samskivert.io.NestableIOException;
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
+import com.samskivert.util.RuntimeAdjust;
 
 import com.threerings.io.FramedInputStream;
 import com.threerings.io.FramingOutputStream;
@@ -24,8 +26,16 @@ import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.dobj.DObjectManager;
-import com.threerings.presents.net.*;
-import java.net.InetSocketAddress;
+import com.threerings.presents.net.AuthRequest;
+import com.threerings.presents.net.AuthResponse;
+import com.threerings.presents.net.AuthResponseData;
+import com.threerings.presents.net.DownstreamMessage;
+import com.threerings.presents.net.ForwardEventRequest;
+import com.threerings.presents.net.LogoffRequest;
+import com.threerings.presents.net.PingRequest;
+import com.threerings.presents.net.SubscribeRequest;
+import com.threerings.presents.net.UnsubscribeRequest;
+import com.threerings.presents.net.UpstreamMessage;
 
 /**
  * The client performs all network I/O on separate threads (one for
@@ -271,7 +281,9 @@ public class Communicator
     protected void sendMessage (UpstreamMessage msg)
         throws IOException
     {
-//         Log.info("Sending message " + msg + ".");
+        if (_logMessages.getValue()) {
+            Log.info("SEND " + msg);
+        }
 
         // first we write the message so that we can measure it's length
         _oout.writeObject(msg);
@@ -332,7 +344,9 @@ public class Communicator
 
         try {
             DownstreamMessage msg = (DownstreamMessage)_oin.readObject();
-//             Log.info("Received message " + msg + ".");
+            if (_logMessages.getValue()) {
+                Log.info("RECEIVE " + msg);
+            }
             return msg;
 
         } catch (ClassNotFoundException cnfe) {
@@ -347,7 +361,6 @@ public class Communicator
      */
     protected void processMessage (DownstreamMessage msg)
     {
-        // Log.info("Process msg: " + msg);
         // post this message to the dobjmgr queue
         _omgr.processMessage(msg);
     }
@@ -566,4 +579,11 @@ public class Communicator
     protected ObjectInputStream _oin;
 
     protected ClientDObjectMgr _omgr;
+
+    /** Used to control low-level message logging. */
+    protected RuntimeAdjust.BooleanAdjust _logMessages =
+        new RuntimeAdjust.BooleanAdjust(
+            "Toggles whether or not all sent and received low-level " +
+            "network events are logged.", "narya.presents.log_events",
+            PresentsPrefs.config, false);
 }
