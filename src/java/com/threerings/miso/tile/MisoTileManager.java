@@ -1,5 +1,5 @@
 //
-// $Id: MisoTileManager.java,v 1.3 2003/01/08 04:09:03 mdb Exp $
+// $Id: MisoTileManager.java,v 1.4 2003/01/13 22:55:12 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -38,7 +38,7 @@ public class MisoTileManager extends TileManager
                 CompiledConfig.loadConfig(in);
 
             // if we've found it, create our auto fringer with it
-            _fringer = new AutoFringer(config, this);
+            _fringer = new AutoFringer(config, imgr, this);
 
         } catch (IOException ioe) {
             Log.warning("Unable to load fringe configuration " +

@@ -1,15 +1,13 @@
 //
-// $Id: FringeTile.java,v 1.3 2002/05/09 16:47:48 mdb Exp $
+// $Id: FringeTile.java,v 1.4 2003/01/13 22:55:12 mdb Exp $
 
 package com.threerings.miso.tile;
 
-import java.awt.Image;
-import java.awt.Graphics;
-import java.awt.Shape;
-import java.awt.Rectangle;
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 
 import com.threerings.media.tile.Tile;
+import com.threerings.media.image.Mirage;
 
 /**
  * A fringe tile may be composed of multiple images.
@@ -19,32 +17,33 @@ public class FringeTile extends Tile
     /**
      * Construct a fringe tile with the specified image.
      */
-    public FringeTile (Image img)
+    public FringeTile (Mirage mirage)
     {
-        super(img, new Rectangle(
-                  0, 0, img.getWidth(null), img.getHeight(null)));
+        super(mirage);
     }
 
     /**
-     * Add another image to this FringeTile.
+     * Add another image to this fringe tile.
      */
-    public void addExtraImage (Image img)
+    public void addExtraImage (Mirage mirage)
     {
         if (_extras == null) {
             _extras = new ArrayList();
         }
-        _extras.add(img);
+        _extras.add(mirage);
     }
 
     // documentation inherited
-    public void paint (Graphics gfx, int x, int y)
+    public void paint (Graphics2D gfx, int x, int y)
     {
-        gfx.drawImage(_image, x, y, null);
+        // paint our main image
+        super.paint(gfx, x, y);
 
         if (_extras != null) {
             int size = _extras.size();
-            for (int ii=0; ii < size; ii++) {
-                gfx.drawImage((Image) _extras.get(ii), x, y, null);
+            for (int ii = 0; ii < size; ii++) {
+                Mirage image = (Mirage)_extras.get(ii);
+                image.paint(gfx, x, y);
             }
         }
     }

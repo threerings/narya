@@ -1,21 +1,25 @@
 //
-// $Id: AutoFringer.java,v 1.15 2003/01/08 04:09:03 mdb Exp $
+// $Id: AutoFringer.java,v 1.16 2003/01/13 22:55:12 mdb Exp $
 
 package com.threerings.miso.tile;
 
-import java.awt.Rectangle;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.Transparency;
 import java.awt.image.BufferedImage;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
-import java.util.HashMap;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.QuickSort;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.Log;
+import com.threerings.media.image.BufferedMirage;
 
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
@@ -28,6 +32,10 @@ import com.threerings.media.tile.UniformTileSet;
 
 import com.threerings.media.image.ImageUtil;
 
+import com.threerings.media.image.BackedVolatileMirage;
+import com.threerings.media.image.ImageManager;
+import com.threerings.media.image.Mirage;
+
 import com.threerings.miso.scene.MisoSceneModel;
 
 /**
@@ -39,9 +47,11 @@ public class AutoFringer
     /**
      * Construct an AutoFringer
      */
-    public AutoFringer (FringeConfiguration fringeconf, TileManager tmgr)
+    public AutoFringer (FringeConfiguration fringeconf, ImageManager imgr,
+                        TileManager tmgr)
     {
         _fringeconf = fringeconf;
+        _imgr = imgr;
         _tmgr = tmgr;
     }
 
@@ -87,12 +97,12 @@ public class AutoFringer
         }
 
         // and then we throw maskcache out...
-        long now = System.currentTimeMillis();
-        long size = ImageUtil.getEstimatedMemoryUsage(
-            maskcache.values().iterator());
-        Log.debug("Finished fringing scene [ms=" + (now - start) +
-                  ", mem=" + (size / 1024) + "k" +
-                  ", size=" + maskcache.size() + "].");
+//         long now = System.currentTimeMillis();
+//         long size = ImageUtil.getEstimatedMemoryUsage(
+//             maskcache.values().iterator());
+//         Log.debug("Finished fringing scene [ms=" + (now - start) +
+//                   ", mem=" + (size / 1024) + "k" +
+//                   ", size=" + maskcache.size() + "].");
     }
 
     /**
@@ -110,17 +120,16 @@ public class AutoFringer
         int underset = scene.getBaseTile(col, row) >> 16;
 
         // walk through our influence tiles
-        for (int y=Math.max(0, row - 1); y < Math.min(hei, row + 2); y++) {
-
-            for (int x=Math.max(0, col - 1); x < Math.min(wid, col + 2); x++) {
-
+        int maxy = Math.min(hei, row + 2);
+        int maxx = Math.min(wid, col + 2);
+        for (int y = Math.max(0, row - 1); y < maxy; y++) {
+            for (int x = Math.max(0, col - 1); x < maxx; x++) {
                 // we sensibly do not consider ourselves
                 if ((x == col) && (y == row)) {
                     continue;
                 }
 
                 int baseset = scene.getBaseTile(x, y) >> 16;
-
                 int pri = _fringeconf.fringesOn(baseset, underset);
                 if (pri == -1) {
                     continue;
@@ -137,8 +146,8 @@ public class AutoFringer
             }
         }
 
-        int numfringers = fringers.size();
         // if nothing fringed, we're done.
+        int numfringers = fringers.size();
         if (numfringers == 0) {
             return null;
         }
@@ -162,20 +171,13 @@ public class AutoFringer
         // sort the array so that higher priority fringers get drawn first
         QuickSort.sort(fringers);
 
-        FringeTile tile = null;
-        for (int ii=0; ii < fringers.length; ii++) {
+        BufferedImage ftimg = null;
+        for (int ii = 0; ii < fringers.length; ii++) {
             int[] indexes = getFringeIndexes(fringers[ii].bits);
-
-            for (int jj=0; jj < indexes.length; jj++) {
+            for (int jj = 0; jj < indexes.length; jj++) {
                 try {
-                    Image fimg = getTileImage(fringers[ii].baseset,
-                                              indexes[jj], masks, rando);
-                    if (tile == null) {
-                        tile = new FringeTile(fimg);
-                    } else {
-                        tile.addExtraImage(fimg);
-                    }
-
+                    ftimg = getTileImage(ftimg, fringers[ii].baseset,
+                                         indexes[jj], masks, rando);
                 } catch (NoSuchTileException nste) {
                     Log.warning("Autofringer couldn't find a needed tile " +
                                 "[error=" + nste + "].");
@@ -186,38 +188,64 @@ public class AutoFringer
             }
         }
 
-        return tile;
+        return new Tile(new BufferedMirage(ftimg));
     }
 
     /**
      * Retrieve or compose an image for the specified fringe.
      */
-    protected Image getTileImage (int baseset, int index,
-                                  HashMap masks, Random rando)
+    protected BufferedImage getTileImage (
+        BufferedImage ftimg, int baseset, int index,
+        HashMap masks, Random rando)
         throws NoSuchTileException, NoSuchTileSetException
     {
         FringeConfiguration.FringeTileSetRecord tsr =
             _fringeconf.getRandomFringe(baseset, rando);
         int fringeset = tsr.fringe_tsid;
+        TileSet fset = _tmgr.getTileSet(fringeset);
 
         if (!tsr.mask) {
-            // oh good, this is easy.
-            return _tmgr.getTile(fringeset, index).getImage();
+            // oh good, this is easy
+            Tile stamp = fset.getTile(index);
+            return stampTileImage(stamp, ftimg, stamp.getWidth(),
+                                  stamp.getHeight());
         }
 
         // otherwise, it's a mask.. look for it in the cache..
-        Long maskkey = new Long(
-            (((long) baseset) << 32) + (fringeset << 16) + index);
-
-        Image img = (Image) masks.get(maskkey);
+        Long maskkey = new Long((((long) baseset) << 32) +
+                                (fringeset << 16) + index);
+        BufferedImage img = (BufferedImage)masks.get(maskkey);
         if (img == null) {
-            img = ImageUtil.composeMaskedImage(
-                (BufferedImage) _tmgr.getTile(fringeset, index).getImage(),
-                (BufferedImage) _tmgr.getTile(baseset, 0).getImage());
+            BufferedImage fsrc = fset.getTileImage(index);
+            BufferedImage bsrc = _tmgr.getTileSet(baseset).getTileImage(0);
+            img = ImageUtil.composeMaskedImage(fsrc, bsrc);
             masks.put(maskkey, img);
         }
+        ftimg = stampTileImage(img, ftimg, img.getWidth(null),
+                               img.getHeight(null));
 
-        return img;
+        return ftimg;
+    }
+
+    /** Helper function for {@link #getTileImage}. */
+    protected BufferedImage stampTileImage (Object stamp, BufferedImage ftimg,
+                                            int width, int height)
+    {
+        // create the target image if necessary
+        if (ftimg == null) {
+            ftimg = _imgr.createImage(width, height, Transparency.BITMASK);
+        }
+        Graphics2D gfx = (Graphics2D)ftimg.getGraphics();
+        try {
+            if (stamp instanceof Tile) {
+                ((Tile)stamp).paint(gfx, 0, 0);
+            } else {
+                gfx.drawImage((BufferedImage)stamp, 0, 0, null);
+            }
+        } finally {
+            gfx.dispose();
+        }
+        return ftimg;
     }
 
     /**
@@ -380,9 +408,7 @@ public class AutoFringer
         }
     }
 
-    /** Our tile manager. */
+    protected ImageManager _imgr;
     protected TileManager _tmgr;
-
-    /** Our fringe configuration. */
     protected FringeConfiguration _fringeconf;
 }
