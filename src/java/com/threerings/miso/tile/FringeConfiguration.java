@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfiguration.java,v 1.7 2002/04/06 01:38:32 mdb Exp $
+// $Id: FringeConfiguration.java,v 1.8 2002/04/06 20:50:30 ray Exp $
 
 package com.threerings.miso.tile;
 
@@ -92,9 +92,10 @@ public class FringeConfiguration implements Serializable
     }
 
     /**
-     * Does the first tileset fringe upon the second?
+     * If the first base tileset fringes upon the second, return the
+     * fringe priority of the first base tileset, otherwise return -1.
      */
-    public boolean fringesOn (int first, int second)
+    public int fringesOn (int first, int second)
     {
         FringeRecord f1 = (FringeRecord) _frecs.get(first);
 
@@ -109,12 +110,12 @@ public class FringeConfiguration implements Serializable
                 // and we only fringe if second doesn't exist or has a lower
                 // priority
                 if ((null == f2) || (f1.priority > f2.priority)) {
-                    return true;
+                    return f1.priority;
                 }
             }
         }
 
-        return false;
+        return -1;
     }
 
     /**

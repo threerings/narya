@@ -1,12 +1,17 @@
 //
-// $Id: AutoFringer.java,v 1.4 2002/04/06 03:52:28 ray Exp $
+// $Id: AutoFringer.java,v 1.5 2002/04/06 20:50:30 ray Exp $
 
 package com.threerings.miso.tile;
 
 import java.awt.Rectangle;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.HashMap;
+
+import com.samskivert.util.HashIntMap;
+import com.samskivert.util.QuickSort;
 
 import com.threerings.media.Log;
 
@@ -78,18 +83,12 @@ public class AutoFringer
     protected Tile getFringeTile (MisoSceneModel scene, int row, int col,
                                   HashMap masks)
     {
+        HashIntMap fringers = new HashIntMap();
         int hei = scene.height;
         int wid = scene.width;
 
         // get the tileset id of the base tile we are considering
         int underset = scene.baseTileIds[row * wid + col] >> 16;
-
-        // hold the tileset of the base tile that will fringe on us
-        // (initially set to bogus value)
-        int overset = -1;
-
-        // the pieces of fringe that are turned on by influencing tiles
-        int fringebits = 0;
 
         // walk through our influence tiles
         for (int y=Math.max(0, row - 1); y < Math.min(hei, row + 2); y++) {
@@ -103,53 +102,82 @@ public class AutoFringer
 
                 int baseset = scene.baseTileIds[y * wid + x] >> 16;
 
-                // if this set does not fringe on us, move on to the next
-                if (!_fringeconf.fringesOn(baseset, underset)) {
+                int pri = _fringeconf.fringesOn(baseset, underset);
+                if (pri == -1) {
                     continue;
                 }
 
-                if (overset == -1) {
-                    // if this is the first fringer we've seen
-                    // remember that fact
-                    overset = baseset;
-                } else if (overset != baseset) {
-                    // oh no! two different fringes want to fringe this
-                    // tile. We don't support that, so instead: no fringe!
-                    Log.debug("Two different base tilesets affect fringe " +
-                              "and so we fail with no fringe [x=" + col +
-                              ", y=" + row + "].");
-
-                    return null;
+                FringerRec fringer = (FringerRec) fringers.get(baseset);
+                if (fringer == null) {
+                    fringer = new FringerRec(baseset, pri);
+                    fringers.put(baseset, fringer);
                 }
 
                 // now turn on the appropriate fringebits
-                fringebits |= FLAGMATRIX[y - row + 1][x - col + 1];
+                fringer.bits |= FLAGMATRIX[y - row + 1][x - col + 1];
             }
         }
 
-        // now we've looked at all the influencing tiles
-
-        // look up the appropriate fringe index according to which bits
-        // are turned on
-        int index = _fringeconf.getTileIndexFromFringeBits(fringebits);
-        if (index == -1) {
-
-            // our fringes do not specify a tile to use in this case.
+        int numfringers = fringers.size();
+        // if nothing fringed, we're done.
+        if (numfringers == 0) {
             return null;
         }
 
-        try {
-            return getTile(overset, index, masks);
-        } catch (NoSuchTileException nste) {
-            Log.warning("Autofringer couldn't find a needed tile.");
-            return null;
-        } catch (NoSuchTileSetException nstse) {
-            Log.warning("Autofringer couldn't find a needed tileset.");
-            return null;
+        // otherwise compose a FringeTile from the specified fringes
+        FringerRec[] frecs = new FringerRec[numfringers];
+        Iterator iter = fringers.elements();
+        for (int ii=0; ii < frecs.length; ii++) {
+            frecs[ii] = (FringerRec) iter.next();
         }
+
+        return composeFringeTile(frecs, masks);
     }
 
-    protected Tile getTile (int baseset, int index, HashMap masks)
+    /**
+     * Compose a FringeTile out of the various fringe images needed.
+     */
+    protected Tile composeFringeTile (FringerRec[] fringers, HashMap masks)
+    {
+        // sort the array so that higher priority fringers get drawn first
+        QuickSort.sort(fringers);
+
+        FringeTile tile = null;
+
+        for (int ii=0; ii < fringers.length; ii++) {
+            int index = _fringeconf.getTileIndexFromFringeBits(
+                            fringers[ii].bits);
+
+            // TODO: decompose bits into multiple fringe tile images :^)
+            if (index == -1) {
+                continue; // for now we bail.
+            }
+
+            try {
+                Image fimg = getTileImage(fringers[ii].baseset, index, masks);
+                if (tile == null) {
+                    tile = new FringeTile(fimg);
+                } else {
+                    tile.addExtraImage(fimg);
+                }
+
+            } catch (NoSuchTileException nste) {
+                Log.warning("Autofringer couldn't find a needed tile " +
+                            "[error=" + nste + "].");
+            } catch (NoSuchTileSetException nstse) {
+                Log.warning("Autofringer couldn't find a needed tileset " +
+                            "[error=" + nstse + "].");
+            }
+        }
+
+        return tile;
+    }
+
+
+    /**
+     * Retrieve or compose an image for the specified fringe.
+     */
+    protected Image getTileImage (int baseset, int index, HashMap masks)
         throws NoSuchTileException, NoSuchTileSetException
     {
         FringeConfiguration.FringeTileSetRecord tsr =
@@ -159,24 +187,46 @@ public class AutoFringer
 
         if (!tsr.mask) {
             // oh good, this is easy.
-            return _tmgr.getTile(fringeset, index);
+            return _tmgr.getTile(fringeset, index).getImage();
         }
 
         // otherwise, it's a mask.. look for it in the cache..
         Long maskkey = new Long(
             (((long) baseset) << 32) + (fringeset << 16) + index);
 
-        Tile t = (Tile) masks.get(maskkey);
-        if (t == null) {
-            t = new FringeTile(ImageUtil.composeMaskedImage(
+        Image img = (Image) masks.get(maskkey);
+        if (img == null) {
+            img = ImageUtil.composeMaskedImage(
                 (BufferedImage) _tmgr.getTile(fringeset, index).getImage(),
-                (BufferedImage) _tmgr.getTile(baseset, 0).getImage()));
+                (BufferedImage) _tmgr.getTile(baseset, 0).getImage());
 
-            masks.put(maskkey, t);
+            masks.put(maskkey, img);
             Log.debug("created cached fringe image");
         }
 
-        return t;
+        return img;
+    }
+
+    /**
+     * A record for holding information about a particular fringe as we're
+     * computing what it will look like.
+     */
+    static private class FringerRec implements Comparable
+    {
+        int baseset;
+        int priority;
+        int bits;
+
+        public FringerRec (int base, int pri)
+        {
+            baseset = base;
+            priority = pri;
+        }
+
+        public int compareTo (Object o)
+        {
+            return priority - ((FringerRec) o).priority;
+        }
     }
 
     // fringe bits
