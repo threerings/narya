@@ -1,5 +1,5 @@
 //
-// $Id: DisplaySpotSceneImpl.java,v 1.1 2001/11/13 02:25:35 mdb Exp $
+// $Id: DisplaySpotSceneImpl.java,v 1.2 2001/11/29 00:16:11 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -60,6 +60,12 @@ public class DisplaySpotSceneImpl extends DisplaySceneImpl
             // everything goes into the locations array
             _locations[i] = loc;
         }
+    }
+
+    // documentation inherited
+    public int getDefaultEntranceId ()
+    {
+        return _model.defaultEntranceId;
     }
 
     // documentation inherited
