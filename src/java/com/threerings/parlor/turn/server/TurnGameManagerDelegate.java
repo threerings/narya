@@ -190,6 +190,13 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
         int oturnIdx = _turnIdx;
         do {
             _turnIdx = (_turnIdx + 1) % size;
+            if (_turnIdx == oturnIdx) {
+                // if we've wrapped all the way around, stop where we are
+                // even if the current player is not active.
+                Log.warning("1 or less active players. Unable to properly " +
+                    "change turn.");
+                break;
+            }
         } while (_tgmgr.getPlayerName(_turnIdx) == null ||
                  !_tgmgr.isActivePlayer(_turnIdx));
     }
