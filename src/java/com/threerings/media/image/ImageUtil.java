@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.28 2003/01/24 21:48:14 mdb Exp $
+// $Id: ImageUtil.java,v 1.29 2003/01/24 22:54:08 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -258,21 +258,15 @@ public class ImageUtil
         ImageManager imgr, BufferedImage src, Color tcolor, int thickness,
         float startAlpha, float endAlpha)
     {
-        Raster srcdata = src.getData(); 
-        int wid = src.getWidth(), hei = src.getHeight();
-
         // create the destination image
+        int wid = src.getWidth(), hei = src.getHeight();
         BufferedImage dest = imgr.createImage(
             wid, hei, Transparency.TRANSLUCENT);
 
         // prepare various bits of working data
-        int srcTrans = src.getColorModel().getTransparency();
-        int[] tpixel = new int[] {
-            tcolor.getRed(), tcolor.getGreen(), tcolor.getBlue(),
-            (int)(startAlpha * 255)};
-        int[] curpixel = new int[4];
-        int[] workpixel = new int[4];
-        WritableRaster destdata = dest.getRaster();
+        int spixel = (tcolor.getRGB() & RGB_MASK);
+        int salpha = (int)(startAlpha * 255);
+        int tpixel = (spixel | (salpha << 24));
         boolean[] traced = new boolean[wid * hei];
         int stepAlpha = (thickness <= 1) ? 0 :
             (int)(((startAlpha - endAlpha) * 255) / (thickness - 1));
@@ -290,28 +284,24 @@ public class ImageUtil
                 // clear out the array of pixels traced this go-around
                 Arrays.fill(traced, false);
                 // use the destination image as our new source
-                srcdata = dest.getData();
+                src = dest;
                 // decrement the trace pixel alpha-level
-                tpixel[3] = Math.max(0, tpixel[3] - stepAlpha);
+                salpha -= Math.max(0, stepAlpha);
+                tpixel = (spixel | (salpha << 24));
             }
 
             for (int yy = 0; yy < hei; yy++) {
                 for (int xx = 0; xx < wid; xx++) {
                     // get the pixel we're checking
-                    srcdata.getPixel(xx, yy, curpixel);
+                    int argb = src.getRGB(xx, yy);
 
-                    if (!isTransparentPixel(curpixel)) {
+                    if ((argb & TRANS_MASK) != 0) {
                         // copy any pixel that isn't transparent
-                        if (tt == 0 && srcTrans == Transparency.BITMASK) {
-                            // give any non-transparent pixel full opacity
-                            curpixel[3] = 255;
-                        }
-                        destdata.setPixel(xx, yy, curpixel);
+                        dest.setRGB(xx, yy, argb);
 
                     } else if (bordersNonTransparentPixel(
-                                   srcdata, wid, hei, traced,
-                                   xx, yy, workpixel)) {
-                        destdata.setPixel(xx, yy, tpixel);
+                                   src, wid, hei, traced, xx, yy)) {
+                        dest.setRGB(xx, yy, tpixel);
                         // note that we traced this pixel this pass so
                         // that it doesn't impact other-pixel borderedness
                         traced[(yy*wid)+xx] = true;
@@ -328,8 +318,7 @@ public class ImageUtil
      * pixel.
      */
     protected static boolean bordersNonTransparentPixel (
-        Raster data, int wid, int hei, boolean[] traced,
-        int x, int y, int[] workpixel)
+        BufferedImage data, int wid, int hei, boolean[] traced, int x, int y)
     {
         // check the three-pixel row above the pixel
         if (y > 0) {
@@ -338,8 +327,7 @@ public class ImageUtil
                     continue;
                 }
 
-                data.getPixel(rxx, y - 1, workpixel);
-                if (!isTransparentPixel(workpixel)) {
+                if ((data.getRGB(rxx, y - 1) & TRANS_MASK) != 0) {
                     return true;
                 }
             }
@@ -347,16 +335,14 @@ public class ImageUtil
 
         // check the pixel to the left
         if (x > 0 && !traced[(y*wid)+(x-1)]) {
-            data.getPixel(x - 1, y, workpixel);
-            if (!isTransparentPixel(workpixel)) {
+            if ((data.getRGB(x - 1, y) & TRANS_MASK) != 0) {
                 return true;
             }
         }
 
         // check the pixel to the right
         if (x < wid - 1 && !traced[(y*wid)+(x+1)]) {
-            data.getPixel(x + 1, y, workpixel);
-            if (!isTransparentPixel(workpixel)) {
+            if ((data.getRGB(x + 1, y) & TRANS_MASK) != 0) {
                 return true;
             }
         }
@@ -368,22 +354,13 @@ public class ImageUtil
                     continue;
                 }
 
-                data.getPixel(rxx, y + 1, workpixel);
-                if (!isTransparentPixel(workpixel)) {
+                if ((data.getRGB(rxx, y + 1) & TRANS_MASK) != 0) {
                     return true;
                 }
             }
         }
 
         return false;
-    }
-
-    /**
-     * Returns whether the given pixel is completely transparent.
-     */
-    protected static boolean isTransparentPixel (int[] pixel)
-    {
-        return (pixel[3] == 0);
     }
 
     /**
@@ -595,4 +572,10 @@ public class ImageUtil
 
     /** The graphics configuration for the default screen device. */
     protected static GraphicsConfiguration _gc;
+
+    /** Used when seeking fully transparent pixels for outlining. */
+    protected static final int TRANS_MASK = (0xFF << 24);
+
+    /** Used when outlining. */
+    protected static final int RGB_MASK = 0x00FFFFFF;
 }
