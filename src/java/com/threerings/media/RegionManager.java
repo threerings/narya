@@ -1,5 +1,5 @@
 //
-// $Id: RegionManager.java,v 1.10 2002/11/22 01:54:59 mdb Exp $
+// $Id: RegionManager.java,v 1.11 2004/02/03 07:32:41 ray Exp $
 
 package com.threerings.media;
 
@@ -71,6 +71,7 @@ public class RegionManager
             if (Log.getLevel() == Log.log.DEBUG) {
                 Thread.dumpStack();
             }
+            return; // Let's not do it!
         }
 
         if (isValidSize(rect.width, rect.height)) {
