@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.8 2002/05/15 23:54:34 mdb Exp $
+// $Id: FrameManager.java,v 1.9 2002/05/22 01:48:08 shaper Exp $
 
 package com.threerings.media;
 
@@ -25,10 +25,9 @@ import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.RepaintManager;
 
-import java.util.ArrayList;
-
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
+import com.samskivert.util.ObserverList;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.util.PerformanceMonitor;
@@ -218,19 +217,8 @@ public class FrameManager
     protected void tickParticipants (long tickStamp)
     {
         // tick all of our frame participants
-        int pcount = _participants.size();
-        for (int ii = 0; ii < pcount; ii++) {
-            FrameParticipant part = (FrameParticipant)
-                _participants.get(ii);
-            try {
-                part.tick(tickStamp);
-            } catch (Throwable t) {
-                Log.warning("Frame participant choked during tick " +
-                            "[part=" +
-                            StringUtil.safeToString(part) + "].");
-                Log.logStackTrace(t);
-            }
-        }
+        _participantTickOp.setTickStamp(tickStamp);
+        _participants.apply(_participantTickOp);
 
         // validate any invalid components
         try {
@@ -280,7 +268,6 @@ public class FrameManager
                 incremental = false;
             }
 
-            Rectangle bounds = new Rectangle();
             Graphics g = null, fg = null;
             try {
                 g = _backimg.getGraphics();
@@ -294,54 +281,8 @@ public class FrameManager
 
                 // paint our frame participants (which want to be handled
                 // specially)
-                int pcount = _participants.size();
-                for (int ii = 0; ii < pcount; ii++) {
-                    FrameParticipant part = (FrameParticipant)
-                        _participants.get(ii);
-                    Component pcomp = part.getComponent();
-                    if (pcomp == null) {
-                        continue;
-                    }
-
-                    // get the bounds of this component
-                    pcomp.getBounds(bounds);
-
-                    // the bounds adjustment we're about to call will add
-                    // in the components initial bounds offsets, so we
-                    // remove them here
-                    bounds.setLocation(0, 0);
-
-                    // convert them into top-level coordinates; also note
-                    // that if this component does not have a valid or
-                    // visible root, we don't want to paint it either
-                    if (getRoot(pcomp, bounds) == null) {
-                        continue;
-                    }
-
-                    try {
-                        // render this participant
-                        g.setClip(bounds);
-                        g.translate(bounds.x, bounds.y);
-                        pcomp.paint(g);
-                        g.translate(-bounds.x, -bounds.y);
-
-                    } catch (Throwable t) {
-                        String ptos = StringUtil.safeToString(part);
-                        Log.warning("Frame participant choked during paint " +
-                                    "[part=" + ptos + "].");
-                        Log.logStackTrace(t);
-                    }
-
-                    // render any components in our layered pane that are
-                    // not in the default layer (the clipping rectangle is
-                    // still set appropriately)
-                    JLayeredPane lpane =
-                        JLayeredPane.getLayeredPaneAbove(pcomp);
-                    renderLayer(g, bounds, lpane, JLayeredPane.PALETTE_LAYER);
-                    renderLayer(g, bounds, lpane, JLayeredPane.MODAL_LAYER);
-                    renderLayer(g, bounds, lpane, JLayeredPane.POPUP_LAYER);
-                    renderLayer(g, bounds, lpane, JLayeredPane.DRAG_LAYER);
-                }
+                _participantPaintOp.setGraphics(g);
+                _participants.apply(_participantPaintOp);
 
                 // repaint any widgets that have declared there need to be
                 // repainted since the last tick
@@ -495,6 +436,117 @@ public class FrameManager
         return null;
     }
 
+    /**
+     * An observer operation that calls {@link FrameParticipant#tick} with
+     * a specified tick stamp for all {@link FrameParticipant} objects in
+     * the observer list to which this operation is applied.
+     */
+    protected class ParticipantTickOp
+        implements ObserverList.ObserverOp
+    {
+        /**
+         * Sets the tick stamp to be applied to the participants.
+         */
+        public void setTickStamp (long tickStamp)
+        {
+            _tickStamp = tickStamp;
+        }
+
+        // documentation inherited
+        public boolean apply (Object observer)
+        {
+            try {
+                ((FrameParticipant)observer).tick(_tickStamp);
+            } catch (Throwable t) {
+                Log.warning("Frame participant choked during tick " +
+                            "[part=" +
+                            StringUtil.safeToString(observer) + "].");
+                Log.logStackTrace(t);
+            }
+            return true;
+        }
+
+        /** The tick stamp to be applied to each frame participant. */
+        protected long _tickStamp;
+    }
+
+    /**
+     * An observer operation that paints the components associated with
+     * all {@link FrameParticipant} objects in the observer list to which
+     * this operation is applied.
+     */
+    protected class ParticipantPaintOp
+        implements ObserverList.ObserverOp
+    {
+        /**
+         * Sets the graphics context to which the frame participants
+         * render themselves.
+         */
+        public void setGraphics (Graphics g)
+        {
+            _g = g;
+        }
+
+        // documentation inherited
+        public boolean apply (Object observer)
+        {
+            FrameParticipant part = (FrameParticipant)observer;
+            Component pcomp = part.getComponent();
+            if (pcomp == null) {
+                return true;
+            }
+
+            // get the bounds of this component
+            pcomp.getBounds(_bounds);
+
+            // the bounds adjustment we're about to call will add
+            // in the components initial bounds offsets, so we
+            // remove them here
+            _bounds.setLocation(0, 0);
+
+            // convert them into top-level coordinates; also note
+            // that if this component does not have a valid or
+            // visible root, we don't want to paint it either
+            if (getRoot(pcomp, _bounds) == null) {
+                return true;
+            }
+
+            try {
+                // render this participant
+                _g.setClip(_bounds);
+                _g.translate(_bounds.x, _bounds.y);
+                pcomp.paint(_g);
+                _g.translate(-_bounds.x, -_bounds.y);
+
+            } catch (Throwable t) {
+                String ptos = StringUtil.safeToString(part);
+                Log.warning("Frame participant choked during paint " +
+                            "[part=" + ptos + "].");
+                Log.logStackTrace(t);
+            }
+
+            // render any components in our layered pane that are
+            // not in the default layer (the clipping rectangle is
+            // still set appropriately)
+            JLayeredPane lpane =
+                JLayeredPane.getLayeredPaneAbove(pcomp);
+            renderLayer(_g, _bounds, lpane, JLayeredPane.PALETTE_LAYER);
+            renderLayer(_g, _bounds, lpane, JLayeredPane.MODAL_LAYER);
+            renderLayer(_g, _bounds, lpane, JLayeredPane.POPUP_LAYER);
+            renderLayer(_g, _bounds, lpane, JLayeredPane.DRAG_LAYER);
+
+            return true;
+        }
+
+        /** The graphics context to which the participants render. */
+        protected Graphics _g;
+
+        /** A handy rectangle that we reuse time and again to avoid having
+         * to instantiate a new rectangle in the midst of the core
+         * rendering loop. */
+        protected Rectangle _bounds = new Rectangle();
+    }
+
     /** The frame into which we do our rendering. */
     protected Frame _frame;
 
@@ -529,5 +581,13 @@ public class FrameManager
     };
 
     /** The entites that are ticked each frame. */
-    protected ArrayList _participants = new ArrayList();
+    protected ObserverList _participants =
+        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
+
+    /** The observer operation applied to all frame participants each tick. */
+    protected ParticipantTickOp _participantTickOp = new ParticipantTickOp();
+
+    /** The observer operation applied to all frame participants each time
+     * the frame is rendered. */
+    protected ParticipantPaintOp _participantPaintOp = new ParticipantPaintOp();
 }
