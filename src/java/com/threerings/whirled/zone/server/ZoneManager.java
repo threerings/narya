@@ -1,8 +1,9 @@
 //
-// $Id: ZoneManager.java,v 1.2 2001/12/13 05:49:50 mdb Exp $
+// $Id: ZoneManager.java,v 1.3 2002/02/07 03:26:58 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
+import com.threerings.crowd.data.BodyObject;
 import com.threerings.whirled.zone.data.ZoneSummary;
 
 /**
@@ -43,4 +44,29 @@ public interface ZoneManager
      * is successfully resolved or is known to have failed to resolve.
      */
     public void resolveZone (int zoneId, ResolutionListener listener);
+
+    /**
+     * Called when a body has requested to enter a zone. The zone manager
+     * may return null to indicate that the body is allowed access to the
+     * zone or a string error code indicating the reason for denial of
+     * access (which will be propagated back to the requesting client).
+     * This method is called <em>after</em> the zone is resolved so that
+     * the zone manager may complete the ratification process without
+     * blocking (which it must do).
+     *
+     * @param body the body object of the user that desires access to the
+     * specified zone.
+     * @param zoneId the id of the zone to which the user desires access.
+     */
+    public String ratifyBodyEntry (BodyObject body, int zoneId);
+
+    /**
+     * Called when a body has been granted access to a zone. This method
+     * must not block.
+     *
+     * @param body the body object of the user that was just granted
+     * access to a zone.
+     * @param zoneId the id of the zone to which they were granted access.
+     */
+    public void bodyDidEnterZone (BodyObject body, int zoneId);
 }

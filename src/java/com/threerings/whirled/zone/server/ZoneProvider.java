@@ -1,5 +1,5 @@
 //
-// $Id: ZoneProvider.java,v 1.4 2001/12/17 00:56:19 mdb Exp $
+// $Id: ZoneProvider.java,v 1.5 2002/02/07 03:26:58 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -105,6 +105,14 @@ public class ZoneProvider
         final ZoneSummary fsum = summary;
         final int fsceneVer = sceneVer;
 
+        // give the zone manager a chance to veto the request
+        ZoneManager zmgr = _zonereg.getZoneManager(summary.zoneId);
+        String errmsg = zmgr.ratifyBodyEntry(source, summary.zoneId);
+        if (errmsg != null) {
+            sendResponse(fsource, finvid, MOVE_FAILED_RESPONSE, errmsg);
+            return;
+        }
+
         // create a callback object that will handle the resolution or
         // failed resolution of the scene
         SceneRegistry.ResolutionListener rl =
@@ -161,6 +169,10 @@ public class ZoneProvider
                 sendResponse(source, invid, MOVE_SUCCEEDED_RESPONSE,
                              new Integer(ploid), config, summary);
             }
+
+            // let the zone manager know that someone just came on in
+            ZoneManager zmgr = _zonereg.getZoneManager(summary.zoneId);
+            zmgr.bodyDidEnterZone(source, summary.zoneId);
 
         } catch (ServiceFailedException sfe) {
             sendResponse(source, invid,
