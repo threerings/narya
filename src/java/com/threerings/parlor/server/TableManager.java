@@ -136,6 +136,11 @@ public class TableManager
         // also stick it into our tables tables
         _tables.put(table.getTableId(), table);
 
+        // if the table has only one seat, start the game immediately
+        if (table.shouldBeStarted()) {
+            createGame(table);
+        }
+
         // finally let the caller know what the new table id is
         return table.getTableId();
     }
@@ -178,11 +183,7 @@ public class TableManager
 
         // if the table is sufficiently full, start the game automatically
         if (table.shouldBeStarted()) {
-            // fill the players array into the game config
-            table.config.players = table.getPlayers();
-            // and create the game
             createGame(table);
-
         } else {
             // make a mapping from this occupant to this table
             _boidMap.put(joiner.getOid(), table);
@@ -263,6 +264,9 @@ public class TableManager
     protected void createGame (final Table table)
         throws InvocationException
     {
+        // fill the players array into the game config
+        table.config.players = table.getPlayers();
+
         PlaceRegistry.CreationObserver obs =
             new PlaceRegistry.CreationObserver() {
             public void placeCreated (PlaceObject plobj, PlaceManager pmgr) {
