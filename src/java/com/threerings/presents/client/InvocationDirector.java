@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.22 2002/09/19 23:36:59 mdb Exp $
+// $Id: InvocationDirector.java,v 1.23 2002/10/27 22:24:20 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -193,7 +193,7 @@ public class InvocationDirector
         // server-side entities only sort of pretending to be a client
         event.setSourceOid(_clobj.getOid());
 
-//         Log.info("Sending invocation request " + event + ".");
+        Log.debug("Sending invreq " + event + ".");
 
         // now dispatch the event
         _omgr.postEvent(event);
