@@ -1,7 +1,9 @@
 //
-// $Id: CompiledTileSetManager.java,v 1.7 2001/07/23 18:52:51 shaper Exp $
+// $Id: CompiledTileSetManager.java,v 1.8 2001/08/16 23:17:46 mdb Exp $
 
 package com.threerings.miso.tile;
+
+import com.threerings.media.tile.TileSetManagerImpl;
 
 public class CompiledTileSetManager extends TileSetManagerImpl
 {
