@@ -1,5 +1,5 @@
 //
-// $Id: BundledTileSetRepository.java,v 1.2 2001/11/21 02:42:15 mdb Exp $
+// $Id: BundledTileSetRepository.java,v 1.3 2001/11/29 00:12:42 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -50,6 +50,15 @@ public class BundledTileSetRepository
         // tileset bundles
         ResourceBundle[] rbundles = rmgr.getResourceSet(name);
 
+        // sanity check
+        if (rbundles == null) {
+            Log.warning("Unable to fetch tileset resource set " +
+                        "[name=" + name + "]. Perhaps it's not defined " +
+                        "in the resource manager config?");
+            _bundles = new TileSetBundle[0];
+            return;
+        }
+
         // iterate over the resource bundles in the set, loading up the
         // tileset bundles in each resource bundle
         ArrayList tbundles = new ArrayList();;
@@ -68,12 +77,29 @@ public class BundledTileSetRepository
                 Log.warning("Unable to load tileset bundles from resource " +
                             "bundle [rbundle=" + rbundles[i] +
                             ", error=" + e + "].");
+                Log.logStackTrace(e);
             }
         }
 
         // finally create one big fat array of all of the tileset bundles
         _bundles = new TileSetBundle[tbundles.size()];
         tbundles.toArray(_bundles);
+    }
+
+    // documentation inherited
+    public Iterator enumerateTileSetIds ()
+        throws PersistenceException
+    {
+        return new CompoundIterator(new IteratorProvider() {
+            public Iterator nextIterator () {
+                if (_bidx < _bundles.length) {
+                    return _bundles[_bidx++].enumerateTileSetIds();
+                } else {
+                    return null;
+                }
+            }
+            protected int _bidx = 0;
+        });
     }
 
     // documentation inherited
