@@ -24,13 +24,12 @@ package com.threerings.puzzle.server;
 import java.util.Arrays;
 
 import com.samskivert.util.IntListUtil;
-import com.samskivert.util.IntervalManager;
+import com.samskivert.util.Interval;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.OidList;
-import com.threerings.presents.server.util.SafeInterval;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.server.CrowdServer;
@@ -253,15 +252,15 @@ public abstract class PuzzleManager extends GameManager
         sendStatusUpdate();
 
         long statusInterval = getStatusInterval();
-        if (_uiid == -1 && statusInterval > 0) {
+        if (_statusInterval == null && statusInterval > 0) {
             // register the status update interval to address subsequent
             // periodic updates
-            _uiid = IntervalManager.register(
-                new SafeInterval(CrowdServer.omgr) {
-                    public void run () {
-                        sendStatusUpdate();
-                    }
-                }, statusInterval, null, true);
+            _statusInterval = new Interval(CrowdServer.omgr) {
+                public void expired () {
+                    sendStatusUpdate();
+                }
+            };
+            _statusInterval.schedule(statusInterval, true);
         }
     }
 
@@ -408,10 +407,10 @@ public abstract class PuzzleManager extends GameManager
     // documentation inherited
     protected void gameDidEnd ()
     {
-        if (_uiid != -1) {
+        if (_statusInterval != null) {
             // remove the client update interval
-            IntervalManager.remove(_uiid);
-            _uiid = -1;
+            _statusInterval.cancel();
+            _statusInterval = null;
         }
 
         // send along one final status update
@@ -441,10 +440,10 @@ public abstract class PuzzleManager extends GameManager
         super.didShutdown();
 
         // make sure our update interval is unregistered
-        if (_uiid != -1) {
+        if (_statusInterval != null) {
             // remove the client update interval
-            IntervalManager.remove(_uiid);
-            _uiid = -1;
+            _statusInterval.cancel();
+            _statusInterval = null;
         }
 
         // clear out our service registration
@@ -738,8 +737,8 @@ public abstract class PuzzleManager extends GameManager
     /** The player boards. */
     protected Board[] _boards;
 
-    /** The client update interval identifier. */
-    protected int _uiid = -1;
+    /** The client update interval. */
+    protected Interval _statusInterval;
 
     /** Used to track the last time we received a progress event from each
      * player in this puzzle. */

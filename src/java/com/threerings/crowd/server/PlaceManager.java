@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.51 2004/08/27 02:12:34 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -26,13 +26,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
-import com.samskivert.util.IntervalManager;
+import com.samskivert.util.Interval;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsDObjectMgr;
-import com.threerings.presents.server.util.SafeInterval;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
@@ -468,21 +467,13 @@ public class PlaceManager
         // queue up a shutdown interval
         long idlePeriod = idleUnloadPeriod();
         if (idlePeriod > 0L) {
-            SafeInterval si = new SafeInterval((PresentsDObjectMgr)_omgr) {
-                public void intervalExpired (int id, Object arg) {
-                    _iid = id;
-                    super.intervalExpired(id, arg);
+            _shutdownInterval = new Interval((PresentsDObjectMgr)_omgr) {
+                public void expired () {
+                    Log.debug("Unloading idle place '" + where () + "'.");
+                    shutdown();
                 }
-                public void run () {
-                    if (_iid == _shutdownId) {
-                        _shutdownId = -1;
-                        Log.debug("Unloading idle place '" + where () + "'.");
-                        shutdown();
-                    }
-                }
-                protected int _iid;
             };
-            _shutdownId = IntervalManager.register(si, idlePeriod, null, false);
+            _shutdownInterval.schedule(idlePeriod);
         }
     }
 
@@ -491,9 +482,9 @@ public class PlaceManager
      */
     protected void cancelShutdowner ()
     {
-        if (_shutdownId != -1) {
-            IntervalManager.remove(_shutdownId);
-            _shutdownId = -1;
+        if (_shutdownInterval != null) {
+            _shutdownInterval.cancel();
+            _shutdownInterval = null;
         }
     }
 
@@ -690,8 +681,8 @@ public class PlaceManager
     /** Used to keep a canonical copy of the occupant info records. */
     protected HashIntMap _occInfo = new HashIntMap();
 
-    /** The id of the interval currently registered to shut this place
-     * down after a certain period of idility. Is <code>-1</code> if no
+    /** The interval currently registered to shut this place
+     * down after a certain period of idility, or null if no
      * interval is currently registered. */
-    protected int _shutdownId = -1;
+    protected Interval _shutdownInterval;
 }

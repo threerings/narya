@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.48 2004/10/28 21:59:00 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -30,8 +30,8 @@ import sun.misc.Perf;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Histogram;
-import com.samskivert.util.Invoker;
 import com.samskivert.util.Queue;
+import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Throttle;
 
@@ -52,8 +52,7 @@ import com.threerings.presents.dobj.*;
  * requested to shut down.
  */
 public class PresentsDObjectMgr
-    implements RootDObjectManager, Invoker.ResultReceiver,
-               PresentsServer.Reporter
+    implements RootDObjectManager, RunQueue, PresentsServer.Reporter
 {
     /**
      * Creates the dobjmgr and prepares it for operation.
@@ -146,8 +145,10 @@ public class PresentsDObjectMgr
      * opportunity. The code will be queued up with the rest of the events
      * and invoked in turn. Like event processing code, the code should
      * not take long to complete and should <em>definitely</em> not block.
+     *
+     * From interface RunQueue
      */
-    public void postUnit (Runnable unit)
+    public void postRunnable (Runnable unit)
     {
         // just append it to the queue
         _evqueue.append(unit);
@@ -172,8 +173,10 @@ public class PresentsDObjectMgr
      * that is doing distributed object event dispatch. Code that wishes
      * to enforce that it is either always or never called on the event
      * dispatch thread will want to make use of this method.
+     *
+     * From interface RunQueue
      */
-    public synchronized boolean isEventDispatchThread ()
+    public synchronized boolean isDispatchThread ()
     {
         return Thread.currentThread() == _dobjThread;
     }
@@ -378,7 +381,7 @@ public class PresentsDObjectMgr
      */
     public void harshShutdown ()
     {
-        postUnit(new Runnable() {
+        postRunnable(new Runnable() {
             public void run () {
                 _running = false;
             }

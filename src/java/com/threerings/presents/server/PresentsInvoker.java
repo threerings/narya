@@ -1,5 +1,5 @@
 //
-// $Id: PresentsInvoker.java,v 1.2 2004/08/27 02:20:23 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -110,7 +110,7 @@ public class PresentsInvoker extends Invoker
             // if the queue isn't empty, re-post
             } else if (!_omgr.queueIsEmpty()) {
                 _loopCount++;
-                _omgr.postUnit(this);
+                _omgr.postRunnable(this);
 
             // if the invoker still has stuff and we're still under the pass
             // limit, go ahead and pass it back to the invoker

@@ -1,5 +1,5 @@
 //
-// $Id: KeyboardManager.java,v 1.20 2004/08/27 02:20:36 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -39,7 +39,6 @@ import javax.swing.event.AncestorListener;
 import com.samskivert.swing.Controller;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Interval;
-import com.samskivert.util.IntervalManager;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.RunAnywhere;
 
@@ -405,7 +404,7 @@ public class KeyboardManager
         lostFocus();
     }
 
-    protected class KeyInfo implements Interval
+    protected class KeyInfo extends Interval
     {
         /**
          * Constructs a key info object for the given key code.
@@ -431,17 +430,16 @@ public class KeyboardManager
                 postPress(time);
             }
 
-            if (_iid == -1 && _pressDelay > 0) {
+            if (!_scheduled && _pressDelay > 0) {
                 // register an interval to post the key press command
                 // until the key is decidedly released
                 if (_repeatDelay > 0) {
-                    _iid = IntervalManager.register(
-                        this, _repeatDelay, this, false);
+                    schedule(_repeatDelay, _pressDelay);
 
                 } else {
-                    _iid = IntervalManager.register(
-                        this, _pressDelay, null, true);
+                    schedule(_pressDelay, true);
                 }
+                _scheduled = true;
 
                 if (DEBUG_EVENTS) {
                     Log.info("Pressing key [key=" + _keyText + "].");
@@ -503,15 +501,9 @@ public class KeyboardManager
             }
 
             // remove the repeat interval
-            if (_iid != -1) {
-                IntervalManager.remove(_iid);
-                _iid = -1;
-            }
-
-            if (_siid != -1) {
-                // remove the sub-interval
-                IntervalManager.remove(_siid);
-                _siid = -1;
+            if (_scheduled) {
+                cancel();
+                _scheduled = false;
             }
 
             if (_releaseCommand != null) {
@@ -524,25 +516,24 @@ public class KeyboardManager
         }
 
         // documentation inherited
-        public synchronized void intervalExpired (int id, Object arg)
+        public synchronized void expired ()
         {
             long now = System.currentTimeMillis();
             long deltaPress = now - _lastPress;
             long deltaRelease = now - _lastRelease;
 
             if (KeyboardManager.DEBUG_INTERVAL) {
-                Log.info("Interval [id=" + id + ", key=" + _keyText +
+                Log.info("Interval [key=" + _keyText +
                          ", deltaPress=" + deltaPress +
                          ", deltaRelease=" + deltaRelease + "].");
             }
 
-            if (id == _iid) {
-                // handle a normal interval where we either (a) create a
-                // sub-interval if we can't yet determine definitively
-                // whether the key is still down, (b) cease repeating if
-                // we're certain the key is now up, or (c) repeat the key
-                // command if we're certain the key is still down
-                if (_lastRelease != _lastPress) {
+            // handle a normal interval where we either (a) create a
+            // sub-interval if we can't yet determine definitively
+            // whether the key is still down, (b) cease repeating if
+            // we're certain the key is now up, or (c) repeat the key
+            // command if we're certain the key is still down
+            if (_lastRelease != _lastPress) {
 //                     if (deltaRelease < _repeatDelay) {
 //                         // register a one-shot sub-interval to
 //                         // definitively check whether the key was released
@@ -555,25 +546,20 @@ public class KeyboardManager
 //                         }
 
 //                     } else {
-                        // we know the key was released, so cease repeating
-                        release(now);
+                    // we know the key was released, so cease repeating
+                    release(now);
 //                     }
 
-                } else if (_lastPress != 0 && _pressCommand != null) {
-                    // post the key press command again
-                    postPress(now);
+            } else if (_lastPress != 0 && _pressCommand != null) {
+                // post the key press command again
+                postPress(now);
+            }
+        }
 
-                    if (arg == this) {
-                        // this key had a specific repeat delay interval
-                        // that may differ from the once-started repeat
-                        // rate, and so we need to re-register the
-                        // interval to make use of the proper time and to
-                        // continue repeating henceforth
-                        _iid = IntervalManager.register(
-                            this, _pressDelay, null, true);
-                    }
-                }
-
+/*
+ * Old stuff- sub interval stuff was commented out prior to my
+ * reworking of Interval, I'll be damned if I'm going to convert this
+ * code that wasn't even being used.
             } else if (id == _siid) {
                 // handle the sub-interval that checks whether the key has
                 // really been released since the normal interval expired
@@ -604,6 +590,7 @@ public class KeyboardManager
                 }
             }
         }
+        **/
 
         /**
          * Posts the press command for this key and notifies all key
@@ -631,14 +618,8 @@ public class KeyboardManager
             return "[key=" + _keyText + "]";
         }
 
-        /** The unique interval identifier for the sub-interval used to
-         * handle the case where the main interval wakes up to repeat the
-         * currently pressed key and the last key release event was
-         * received more recently than the expected repeat delay. */
-        protected int _siid = -1;
-
-        /** The unique interval identifier for the key repeat interval. */
-        protected int _iid = -1;
+        /** True if we are a scheduled interval. */
+        protected boolean _scheduled = false;
 
         /** The last time a key released event was received for this key. */
         protected long _lastRelease;

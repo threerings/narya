@@ -1,5 +1,5 @@
 //
-// $Id: RobotPlayer.java,v 1.3 2004/08/27 02:20:36 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import com.samskivert.swing.Controller;
 import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.Interval;
-import com.samskivert.util.IntervalManager;
 
 import com.threerings.util.RandomUtil;
 
@@ -41,7 +40,7 @@ import com.threerings.util.RandomUtil;
  * events can be simulated in that fashion (e.g., a right shift key
  * press), and this seemed somehow more proper in any case.
  */
-public class RobotPlayer implements Interval
+public class RobotPlayer extends Interval
 {
     /**
      * Constructs a robot player.
@@ -62,14 +61,13 @@ public class RobotPlayer implements Interval
      */
     public void setActive (boolean active)
     {
-        if (active && !isActive()) {
-            // start the robot player
-            _iid = IntervalManager.register(this, _robotDelay, null, true);
-
-        } else if (!active && isActive()) {
-            // stop the robot player
-            IntervalManager.remove(_iid);
-            _iid = -1;
+        if (active != _active) {
+            if (active) {
+                schedule(_robotDelay, true);
+            } else {
+                cancel(); // stop the robot player
+            }
+            _active = active;
         }
     }
 
@@ -93,11 +91,11 @@ public class RobotPlayer implements Interval
      */
     public boolean isActive ()
     {
-        return (_iid != -1);
+        return _active;
     }
 
     // documentation inherited
-    public void intervalExpired (int id, Object arg)
+    public void expired ()
     {
         // post a random key press command
         int idx = RandomUtil.getInt(_press.size());
@@ -109,8 +107,8 @@ public class RobotPlayer implements Interval
     /** The default robot delay. */
     protected static final long DEFAULT_ROBOT_DELAY = 500L;
 
-    /** The unique robot interval identifier. */
-    protected int _iid = -1;
+    /** Whether the robot is active or not. */
+    protected boolean _active = false;
 
     /** The milliseconds between posting each action command. */
     protected long _robotDelay = DEFAULT_ROBOT_DELAY;

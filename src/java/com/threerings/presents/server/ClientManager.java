@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import com.samskivert.util.IntervalManager;
+import com.samskivert.util.Interval;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.util.Name;
@@ -38,7 +38,6 @@ import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.Credentials;
 import com.threerings.presents.server.net.*;
-import com.threerings.presents.server.util.SafeInterval;
 
 /**
  * The client manager is responsible for managing the clients (surprise,
@@ -82,11 +81,11 @@ public class ClientManager
 
         // start up an interval that will check for expired clients and
         // flush them from the bowels of the server
-        IntervalManager.register(new SafeInterval(PresentsServer.omgr) {
-            public void run () {
+        new Interval(PresentsServer.omgr) {
+            public void expired () {
                 flushClients();
             }
-        }, CLIENT_FLUSH_INTERVAL, null, true);
+        }.schedule(CLIENT_FLUSH_INTERVAL, true);
 
         // register as a "state of server" reporter and a shutdowner
         PresentsServer.registerReporter(this);

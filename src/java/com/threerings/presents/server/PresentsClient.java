@@ -438,7 +438,7 @@ public class PresentsClient
      */
     protected void safeEndSession ()
     {
-        PresentsServer.omgr.postUnit(new Runnable() {
+        PresentsServer.omgr.postRunnable(new Runnable() {
             public void run () {
                 if (getClientObject() == null) {
                     // refuse to end the session unless the client is
@@ -624,7 +624,7 @@ public class PresentsClient
         // our connection reference. once the connection ref is null, no
         // more subscriptions will be processed (even those that were
         // queued up before the connection went away)
-        PresentsServer.omgr.postUnit(new Runnable() {
+        PresentsServer.omgr.postRunnable(new Runnable() {
             public void run () {
                 sessionConnectionClosed();
             }

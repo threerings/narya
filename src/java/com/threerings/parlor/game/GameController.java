@@ -99,7 +99,7 @@ public abstract class GameController extends PlaceController
         Name username = 
             ((BodyObject)_ctx.getClient().getClientObject()).username;
         if (_gobj.getPlayerIndex(username) != -1) {
-            _ctx.getClient().getInvoker().invokeLater(new Runnable() {
+            _ctx.getClient().getRunQueue().postRunnable(new Runnable() {
                 public void run () {
                     // finally let the game manager know that we're ready
                     // to roll

@@ -23,7 +23,7 @@ package com.threerings.presents.server;
 
 import java.util.ArrayList;
 
-import com.samskivert.util.IntervalManager;
+import com.samskivert.util.Interval;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.SystemInfo;
@@ -33,7 +33,6 @@ import com.threerings.util.signal.SignalManager;
 import com.threerings.presents.Log;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.server.net.ConnectionManager;
-import com.threerings.presents.server.util.SafeInterval;
 
 /**
  * The presents server provides a central point of access to the various
@@ -130,11 +129,11 @@ public class PresentsServer
         TimeBaseProvider.init(invmgr, omgr);
 
         // queue up an interval which will generate reports
-        IntervalManager.register(new SafeInterval(omgr) {
-            public void run () {
+        new Interval(omgr) {
+            public void expired () {
                 generateReport(System.currentTimeMillis());
             }
-        }, REPORT_INTERVAL, null, true);
+        }.schedule(REPORT_INTERVAL, true);
     }
 
     /**
@@ -154,7 +153,7 @@ public class PresentsServer
     {
         // post a unit that will start up the connection manager when
         // everything else in the dobjmgr queue is processed
-        omgr.postUnit(new Runnable() {
+        omgr.postRunnable(new Runnable() {
             public void run () {
                 // start up the connection manager
                 conmgr.start();
@@ -215,12 +214,15 @@ public class PresentsServer
             }
         }
 
-        report.append("* samskivert.IntervalManager:\n");
+        /* The following Interval debug methods are no longer supported,
+         * but they could be added back easily if needed.
+        report.append("* samskivert.Interval:\n");
         report.append("- Registered intervals: ");
-        report.append(IntervalManager.registeredIntervalCount());
+        report.append(Interval.registeredIntervalCount());
         report.append("\n- Fired since last report: ");
-        report.append(IntervalManager.getAndClearFiredIntervals());
+        report.append(Interval.getAndClearFiredIntervals());
         report.append("\n");
+        */
 
         // strip off the final newline
         int blen = report.length();
@@ -277,7 +279,7 @@ public class PresentsServer
      */
     public void queueShutdown ()
     {
-        omgr.postUnit(new Runnable() {
+        omgr.postRunnable(new Runnable() {
             public void run () {
                 shutdown();
             }

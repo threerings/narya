@@ -22,9 +22,9 @@
 package com.threerings.presents.client;
 
 import com.samskivert.util.Interval;
-import com.samskivert.util.IntervalManager;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.RunAnywhere;
+import com.samskivert.util.RunQueue;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
@@ -47,41 +47,27 @@ public class Client
     public static final int DEFAULT_SERVER_PORT = 4007;
 
     /**
-     * This is used by the client to allow dobj event dispatching to take
-     * place along side the activities of the rest of the application
-     * (usually this means running dobj events on the AWT thread).
-     */
-    public static interface Invoker
-    {
-        /**
-         * Requests that the supplied runnable be queued up for invocation
-         * on the main event dispatching thread of the application.
-         */
-        public void invokeLater (Runnable run);
-    }
-
-    /**
      * Constructs a client object with the supplied credentials and
-     * invoker. The creds will be used to authenticate with any server to
-     * which this client attempts to connect. The invoker is used to
+     * RunQueue. The creds will be used to authenticate with any server to
+     * which this client attempts to connect. The RunQueue is used to
      * operate the distributed object event dispatch mechanism. To allow
      * the dobj event dispatch to coexist with threads like the AWT
-     * thread, the client will request that the invoker queue up a
+     * thread, the client will request that the RunQueue queue up a
      * runnable whenever there are distributed object events that need to
-     * be processed. The invoker can then queue that runnable up on the
+     * be processed. The RunQueue can then queue that runnable up on the
      * AWT thread if it is so inclined to make life simpler for the rest
      * of the application.
      *
      * @param creds the credentials to use when logging on to the server.
      * These can be null, but <code>setCredentials</code> must then be
      * called before any call to <code>logon</code>.
-     * @param invoker an invoker that can be used to process incoming
+     * @param runQueue a RunQueue that can be used to process incoming
      * events.
      */
-    public Client (Credentials creds, Invoker invoker)
+    public Client (Credentials creds, RunQueue runQueue)
     {
         _creds = creds;
-        _invoker = invoker;
+        _runQueue = runQueue;
     }
 
     /**
@@ -125,12 +111,12 @@ public class Client
     }
 
     /**
-     * Returns the invoker in use by this client. This can be used to
+     * Returns the RunQueue in use by this client. This can be used to
      * queue up event dispatching stints.
      */
-    public Invoker getInvoker ()
+    public RunQueue getRunQueue ()
     {
-        return _invoker;
+        return _runQueue;
     }
 
     /**
@@ -369,15 +355,12 @@ public class Client
 
         // register an interval that we'll use to keep the clock synced
         // and to send pings when appropriate
-        _piid = IntervalManager.register(new Interval() {
-            public void intervalExpired (int id, Object arg) {
-                if (id != _piid) {
-                    IntervalManager.remove(id);
-                } else {
-                    tick();
-                }
+        _tickInterval = new Interval() {
+            public void expired () {
+                tick();
             }
-        }, 5000L, null, true);
+        };
+        _tickInterval.schedule(5000L, true);
     }
 
     /**
@@ -408,7 +391,8 @@ public class Client
         }
 
         // kill our tick interval
-        _piid = -1;
+        _tickInterval.cancel();
+        _tickInterval = null;
 
         // ask the communicator to send a logoff message and disconnect
         // from the server
@@ -517,17 +501,17 @@ public class Client
         };
 
         // we need to run immediately if this is WILL_LOGOFF or if we have
-        // no invoker (which currently only happens in some really obscure
+        // no RunQueue (which currently only happens in some really obscure
         // circumstances where we're using a Client instance on the server
         // so that we can sort of pretend to be a real client)
-        if (code == CLIENT_WILL_LOGOFF || _invoker == null) {
+        if (code == CLIENT_WILL_LOGOFF || _runQueue == null) {
             unit.run();
             return noty.getRejected();
 
         } else {
             // otherwise we can queue this notification up with our
-            // invoker and ensure that it's run on the proper thread
-            _invoker.invokeLater(unit);
+            // RunQueue and ensure that it's run on the proper thread
+            _runQueue.postRunnable(unit);
             return false;
         }
     }
@@ -537,10 +521,10 @@ public class Client
         // we know that prior to the call to this method, the observers
         // were notified with CLIENT_DID_LOGOFF; that may not have been
         // invoked yet, so we don't want to clear out our communicator
-        // reference immediately; instead we queue up an invoker unit to
+        // reference immediately; instead we queue up a runnable unit to
         // do so to ensure that it won't happen until CLIENT_DID_LOGOFF
         // was dispatched
-        _invoker.invokeLater(new Runnable() {
+        _runQueue.postRunnable(new Runnable() {
             public void run () {
                 // clear out our references
                 _comm = null;
@@ -677,7 +661,7 @@ public class Client
 
     /** An entity that gives us the ability to process events on the main
      * client thread (which is also the AWT thread). */
-    protected Invoker _invoker;
+    protected RunQueue _runQueue;
 
     /** The data associated with our authentication response. */
     protected AuthResponseData _authData;
@@ -723,7 +707,7 @@ public class Client
     protected long _lastSync;
 
     /** Our tick interval id. */
-    protected int _piid = -1;
+    protected Interval _tickInterval;
 
     /** How often we recompute our time offset from the server. */
     protected static final long CLOCK_SYNC_INTERVAL = 600 * 1000L;

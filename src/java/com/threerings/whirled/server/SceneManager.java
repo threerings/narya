@@ -1,5 +1,5 @@
 //
-// $Id: SceneManager.java,v 1.19 2004/08/27 02:20:43 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -107,7 +107,7 @@ public class SceneManager extends PlaceManager
 
         // Wait until us and all of our subclasses have completely finished
         // running didStartup prior to registering the scene as being ready.
-        PresentsServer.omgr.postUnit(new Runnable() {
+        PresentsServer.omgr.postRunnable(new Runnable() {
             public void run () {
                 _screg.sceneManagerDidStart(SceneManager.this);
             }

@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.74 2004/08/27 02:12:40 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -49,7 +49,6 @@ import org.apache.commons.io.IOUtils;
 
 import com.samskivert.util.Config;
 import com.samskivert.util.Interval;
-import com.samskivert.util.IntervalManager;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.Queue;
 import com.samskivert.util.RuntimeAdjust;
@@ -375,9 +374,13 @@ public class SoundManager
         }
 
         if (_player != null && (_clipVol != 0f) && isEnabled(type)) {
-            SoundKey skey = new SoundKey(pkgPath, key, delay);
+            final SoundKey skey = new SoundKey(pkgPath, key, delay);
             if (delay > 0) {
-                IntervalManager.register(_playLater, delay, skey, false);
+                new Interval() {
+                    public void expired () {
+                        addToPlayQueue(skey);
+                    }
+                }.schedule(delay);
             } else {
                 addToPlayQueue(skey);
             }
@@ -1253,13 +1256,6 @@ public class SoundManager
 
     /** If we every play a sound successfully, this is set to true. */
     protected boolean _soundSeemsToWork = false;
-
-    /** An interval that plays sounds later. */
-    protected Interval _playLater = new Interval() {
-        public void intervalExpired (int id, Object rock) {
-            addToPlayQueue((SoundKey) rock);
-        }
-    };
 
     /** Volume levels for both sound clips and music. */
     protected float _clipVol = 1f, _musicVol = 1f;

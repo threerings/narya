@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorApp.java,v 1.17 2004/08/27 02:12:52 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -26,7 +26,6 @@ import javax.swing.JFrame;
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.Interval;
-import com.samskivert.util.IntervalManager;
 import com.samskivert.util.ResultListener;
 
 import com.threerings.util.Name;
@@ -167,11 +166,11 @@ public class SimulatorApp
         // wholly independent thread to wait for the server to be ready as
         // in normal circumstances they are entirely different processes;
         // so we just wait half a second which does the job
-        IntervalManager.register(new Interval() {
-            public void intervalExpired (int id, Object arg) {
+        new Interval() {
+            public void expired () {
                 _client.getParlorContext().getClient().logon();
             }
-        }, 500L, null, false);
+        }.schedule(500L);
     }
 
     public static void main (String[] args)

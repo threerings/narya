@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import com.samskivert.util.IntervalManager;
+import com.samskivert.util.Interval;
 import com.samskivert.util.RepeatCallTracker;
 import com.samskivert.util.StringUtil;
 import com.threerings.util.Name;
@@ -35,7 +35,6 @@ import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.OidList;
-import com.threerings.presents.server.util.SafeInterval;
 
 import com.threerings.crowd.chat.server.SpeakProvider;
 
@@ -72,13 +71,13 @@ public class GameManager extends PlaceManager
         _managers.add(this);
 
         // and start up a tick interval if we've not already got one
-        if (_tiid == -1) {
-            _tiid = IntervalManager.register(
-                new SafeInterval(CrowdServer.omgr) {
-                    public void run () {
-                        tickAllGames();
-                    }
-                }, TICK_DELAY, null, true);
+        if (_tickInterval == null) {
+            _tickInterval = new Interval(CrowdServer.omgr) {
+                public void expired () {
+                    tickAllGames();
+                }
+            };
+            _tickInterval.schedule(TICK_DELAY, true);
         }
     }
 
@@ -443,11 +442,11 @@ public class GameManager extends PlaceManager
 
         // start up a no-show timer if needed
         if (needsNoShowTimer()) {
-            IntervalManager.register(new SafeInterval(CrowdServer.omgr) {
-                public void run () {
+            new Interval(CrowdServer.omgr) {
+                public void expired () {
                     checkForNoShows();
                 }
-            }, NOSHOW_DELAY, null, false);
+            }.schedule(NOSHOW_DELAY);
         }
     }
 
@@ -471,8 +470,8 @@ public class GameManager extends PlaceManager
 
         // remove the tick interval if there are no remaining managers
         if (_managers.size() == 0) {
-            IntervalManager.remove(_tiid);
-            _tiid = -1;
+            _tickInterval.cancel();
+            _tickInterval = null;
         }
 
         // clear out our service registration
@@ -610,7 +609,7 @@ public class GameManager extends PlaceManager
         if (_committedState == GameObject.IN_PLAY) {
             Log.info("Postponing start of still-ending game " +
                      "[which=" + _gameobj.which() + "].");
-            CrowdServer.omgr.postUnit(new Runnable() {
+            CrowdServer.omgr.postRunnable(new Runnable() {
                 public void run () {
                     startGame();
                 }
@@ -1087,8 +1086,8 @@ public class GameManager extends PlaceManager
     /** A list of all currently active game managers. */
     protected static ArrayList _managers = new ArrayList();
 
-    /** The interval id for the game manager tick interval. */
-    protected static int _tiid = -1;
+    /** The interval for the game manager tick. */
+    protected static Interval _tickInterval;
 
     /** We give players 30 seconds to turn up in a puzzle and after that,
      * they're considered a no show. */

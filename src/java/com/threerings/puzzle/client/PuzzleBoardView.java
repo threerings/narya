@@ -399,7 +399,7 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
             // animationDidFinish() call and we want everyone to finish
             // processing their business before we go clearing the action,
             // so we queue this up to be run after the tick is complete
-            _ctx.getClient().getInvoker().invokeLater(new Runnable() {
+            _ctx.getClient().getRunQueue().postRunnable(new Runnable() {
                 public void run () {
                     _pctrl.boardActionCleared();
                 }

@@ -1,5 +1,5 @@
 //
-// $Id: AIGameTicker.java,v 1.6 2004/08/27 02:20:14 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -24,15 +24,14 @@ package com.threerings.parlor.game;
 import java.util.Iterator;
 import java.util.HashSet;
 
-import com.samskivert.util.IntervalManager;
+import com.samskivert.util.Interval;
 
-import com.threerings.presents.server.util.SafeInterval;
 import com.threerings.crowd.server.CrowdServer;
 
 /**
  * Handles ticking all the GameManagers that are hosting games with AIs.
  */
-public class AIGameTicker extends SafeInterval
+public class AIGameTicker extends Interval
 {
     /** The frequency with which we dispatch AI game ticks. */
     public static final long TICK_FREQUENCY = 3333L; // every 3 1/3 seconds
@@ -66,7 +65,7 @@ public class AIGameTicker extends SafeInterval
         super(CrowdServer.omgr);
         _games = new HashSet();
 
-        _id = IntervalManager.register(this, TICK_FREQUENCY, null, true);
+        schedule(TICK_FREQUENCY, true);
     }
 
     /**
@@ -88,15 +87,15 @@ public class AIGameTicker extends SafeInterval
 
         // if there aren't any AIs, let's stop running
         if (_games.isEmpty()) {
+            cancel();
             _ticker = null;
-            IntervalManager.remove(_id);
         }
     }
 
     /**
      * Tick all the game AIs while on the dobj thread.
      */
-    public void run ()
+    public void expired ()
     {
         Iterator iter = _games.iterator();
         while (iter.hasNext()) {
@@ -106,9 +105,6 @@ public class AIGameTicker extends SafeInterval
 
     /** Our set of ai games. */
     protected HashSet _games;
-
-    /** Our interval id. */
-    protected int _id;
 
     /** Our single ticker for all AI games. */
     protected static AIGameTicker _ticker;

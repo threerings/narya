@@ -21,15 +21,16 @@
 
 package com.threerings.micasa.simulator.client;
 
+import java.awt.EventQueue;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import java.io.IOException;
 
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import com.samskivert.util.Config;
+import com.samskivert.util.RunQueue;
 import com.threerings.util.MessageManager;
 
 import com.threerings.presents.client.Client;
@@ -48,7 +49,7 @@ import com.threerings.micasa.client.MiCasaFrame;
 import com.threerings.micasa.util.MiCasaContext;
 
 public class SimpleClient
-    implements Client.Invoker, SimulatorClient
+    implements RunQueue, SimulatorClient
 {
     public SimpleClient (SimulatorFrame frame)
         throws IOException
@@ -106,11 +107,17 @@ public class SimpleClient
         return _ctx;
     }
 
-    // documentation inherited
-    public void invokeLater (Runnable run)
+    // documentation inherited from interface RunQueue
+    public void postRunnable (Runnable run)
     {
-        // queue it on up on the swing thread
-        SwingUtilities.invokeLater(run);
+        // queue it on up on the awt thread
+        EventQueue.invokeLater(run);
+    }
+
+    // documentation inherited from interface RunQueue
+    public boolean isDispatchThread ()
+    {
+        return EventQueue.isDispatchThread();
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.26 2004/08/27 02:20:17 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -32,10 +32,9 @@ import com.samskivert.util.DebugChords;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Queue;
 import com.samskivert.util.StringUtil;
-import com.samskivert.util.IntervalManager;
+import com.samskivert.util.Interval;
 
 import com.threerings.presents.Log;
-import com.threerings.presents.client.util.SafeInterval;
 import com.threerings.presents.dobj.*;
 import com.threerings.presents.net.*;
 
@@ -68,11 +67,11 @@ public class ClientDObjectMgr
             DUMP_OTABLE_MODMASK, DUMP_OTABLE_KEYCODE, DUMP_OTABLE_HOOK);
 
         // register a flush interval
-        IntervalManager.register(new SafeInterval(client) {
-            public void run () {
+        new Interval(client.getRunQueue()) {
+            public void expired () {
                 flushObjects();
             }
-        }, FLUSH_INTERVAL, null, true);
+        }.schedule(FLUSH_INTERVAL, true);
     }
 
     // documentation inherited from interface
@@ -111,7 +110,7 @@ public class ClientDObjectMgr
         // queue up an action
         _actions.append(new ObjectAction(oid, target, subscribe));
         // and queue up the omgr to get invoked on the invoker thread
-        _client.getInvoker().invokeLater(this);
+        _client.getRunQueue().postRunnable(this);
     }
 
     // inherit documentation from the interface
@@ -170,7 +169,7 @@ public class ClientDObjectMgr
         // append it to our queue
         _actions.append(msg);
         // and queue ourselves up to be run
-        _client.getInvoker().invokeLater(this);
+        _client.getRunQueue().postRunnable(this);
     }
 
     /**
