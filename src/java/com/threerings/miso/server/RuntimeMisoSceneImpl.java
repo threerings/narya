@@ -1,13 +1,13 @@
 //
-// $Id: RuntimeMisoSceneImpl.java,v 1.1 2002/12/11 23:07:21 shaper Exp $
+// $Id: RuntimeMisoSceneImpl.java,v 1.2 2003/01/31 23:10:45 mdb Exp $
 
 package com.threerings.miso.server;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.threerings.miso.scene.MisoSceneModel;
-import com.threerings.miso.scene.SceneObject;
+import com.threerings.miso.data.MisoSceneModel;
+import com.threerings.miso.data.ObjectInfo;
 
 /**
  * A basic implementation of the {@link RuntimeMisoScene} interface which
@@ -18,41 +18,22 @@ public class RuntimeMisoSceneImpl
 {
     /**
      * Creates an instance that will obtain data from the supplied scene
-     * model and place config.
+     * model.
      */
     public RuntimeMisoSceneImpl (MisoSceneModel model)
     {
-        // keep a casted reference to our scene model around
-        _model = model;
-
-        // build a list of all objects in the scene
-        populateSceneObjects();
-    }
-
-    /**
-     * Gathers and stores information about all objects in the scene.
-     */
-    protected void populateSceneObjects ()
-    {
-        int ocount = _model.objectTileIds.length;
-        for (int ii = 0; ii < ocount; ii += 3) {
-            RuntimeSceneObject scobj = new RuntimeSceneObject();
-            scobj.x = _model.objectTileIds[ii];
-            scobj.y = _model.objectTileIds[ii+1];
-            scobj.action = _model.objectActions[ii/3];
-            _objects.add(scobj);
+        // stick all of the interesting scene objects into an array list
+        for (int ii = 0, ll = model.objectInfo.length; ii < ll; ii++) {
+            _objects.add(model.objectInfo[ii]);
         }
     }
 
     // documentation inherited
-    public Iterator enumerateSceneObjects ()
+    public Iterator enumerateObjects ()
     {
         return _objects.iterator();
     }
 
-    /** A casted reference to our scene model. */
-    protected MisoSceneModel _model;
-
-    /** The scene object records. */
+    /** The object info records. */
     protected ArrayList _objects = new ArrayList();
 }

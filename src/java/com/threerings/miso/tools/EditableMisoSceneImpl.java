@@ -1,11 +1,12 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.24 2002/09/23 23:07:11 mdb Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.25 2003/01/31 23:10:45 mdb Exp $
 
-package com.threerings.miso.scene.tools;
+package com.threerings.miso.tools;
 
 import java.awt.Point;
 import java.awt.Rectangle;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -21,10 +22,11 @@ import com.threerings.miso.tile.BaseTile;
 import com.threerings.miso.tile.BaseTileSet;
 import com.threerings.miso.tile.MisoTileManager;
 
-import com.threerings.miso.scene.DisplayMisoSceneImpl;
-import com.threerings.miso.scene.MisoSceneModel;
-import com.threerings.miso.scene.SceneObject;
-import com.threerings.miso.scene.util.IsoUtil;
+import com.threerings.miso.client.DisplayMisoSceneImpl;
+import com.threerings.miso.client.DisplayObjectInfo;
+import com.threerings.miso.client.util.IsoUtil;
+import com.threerings.miso.data.MisoSceneModel;
+import com.threerings.miso.data.ObjectInfo;
 
 /**
  * The default implementation of the {@link EditableMisoScene} interface.
@@ -111,20 +113,22 @@ public class EditableMisoSceneImpl
     }
 
     // documentation inherited
-    public SceneObject addSceneObject (
+    public DisplayObjectInfo addObject (
         ObjectTile tile, int x, int y, int fqTileId)
     {
+        // sanity check
+        if (x > Short.MAX_VALUE || y > Short.MAX_VALUE ||
+            x < Short.MIN_VALUE || y < Short.MIN_VALUE) {
+            throw new IllegalArgumentException(
+                "Invalid tile coordinates [x=" + x + ", y=" + y + "]");
+        }
+
         // create a scene object record and add it to the list
-        EditableSceneObject scobj = (EditableSceneObject)
-            createSceneObject(x, y, tile);
-        scobj.fqTileId = fqTileId;
-        _objects.add(scobj);
+        DisplayObjectInfo info = new DisplayObjectInfo(fqTileId, x, y);
+        initObject(info, tile);
+        _objects.add(info);
 
-        // toggle the "covered" flag on in all base tiles below this
-        // object tile
-        setObjectTileFootprint(tile, x, y, true);
-
-        return scobj;
+        return info;
     }
 
     // documentation inherited
@@ -136,12 +140,12 @@ public class EditableMisoSceneImpl
     }
 
     // documentation inherited
-    public boolean removeSceneObject (SceneObject scobj)
+    public boolean removeObject (DisplayObjectInfo info)
     {
-        if (_objects.remove(scobj)) {
+        if (_objects.remove(info)) {
             // toggle the "covered" flag off on the base tiles in this object
             // tile's footprint
-            setObjectTileFootprint(scobj.tile, scobj.x, scobj.y, false);
+            setObjectTileFootprint(info.tile, info.x, info.y, false);
             return true;
         } else {
             return false;
@@ -152,66 +156,24 @@ public class EditableMisoSceneImpl
     public MisoSceneModel getMisoSceneModel ()
     {
         // we need to flush the object layer to the model prior to
-        // returning it
-        int ocount = _objects.size();
-
-        // but only do it if we've actually got some objects
-        if (ocount > 0) {
-            int[] otids = new int[ocount*3];
-            String[] actions = new String[ocount];
-            byte[] prios = new byte[ocount];
-
-            for (int ii = 0; ii < ocount; ii++) {
-                EditableSceneObject scobj = (EditableSceneObject)
-                    _objects.get(ii);
-                otids[3*ii] = scobj.x;
-                otids[3*ii+1] = scobj.y;
-                otids[3*ii+2] = scobj.fqTileId;
-                actions[ii] = scobj.action;
-                prios[ii] = scobj.priority;
+        // returning it; first split our objects into two lists
+        ArrayList ilist = new ArrayList();
+        ArrayList ulist = new ArrayList();
+        for (int ii = 0, ll = _objects.size(); ii < ll; ii++) {
+            ObjectInfo info = (ObjectInfo)_objects.get(ii);
+            if (info.isInteresting()) {
+                // convert to a plain object info record
+                ilist.add(new ObjectInfo(info));
+            } else {
+                ulist.add(info);
             }
-
-            // stuff the new arrays into the model
-            _model.objectTileIds = otids;
-            _model.objectActions = actions;
-            _model.objectPrios = prios;
         }
+
+        // now populate the scene model appropriately
+        MisoSceneModel.populateObjects(_model, ilist, ulist);
 
         // and we're ready to roll
         return _model;
-    }
-
-    // documentation inherited
-    protected SceneObject createSceneObject (int x, int y, ObjectTile tile)
-    {
-        return new EditableSceneObject(x, y, tile);
-    }
-
-    // documentation inherited
-    protected SceneObject expandObject (
-        int col, int row, int tsid, int tid, int fqTid, int objidx)
-        throws NoSuchTileException, NoSuchTileSetException
-    {
-        // do the actual object creation
-        EditableSceneObject scobj = (EditableSceneObject)
-            super.expandObject(col, row, tsid, tid, fqTid, objidx);
-
-        // we need this to track object layer mods
-        scobj.fqTileId = fqTid;
-
-        // pass on the objecty goodness
-        return scobj;
-    }
-
-    /** Used to report information on objects in this scene. */
-    protected static class EditableSceneObject extends SceneObject
-    {
-        public int fqTileId;
-
-        public EditableSceneObject (int x, int y, ObjectTile tile)
-        {
-            super(x, y, tile);
-        }
     }
 
     /** The default tileset with which to fill the base layer. */

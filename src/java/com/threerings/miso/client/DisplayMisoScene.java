@@ -1,14 +1,14 @@
 //
-// $Id: DisplayMisoScene.java,v 1.8 2003/01/13 22:53:56 mdb Exp $
+// $Id: DisplayMisoScene.java,v 1.9 2003/01/31 23:10:45 mdb Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.miso.client;
 
 import java.awt.Rectangle;
 
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
 
-import com.threerings.miso.scene.util.ObjectSet;
+import com.threerings.miso.client.util.ObjectSet;
 import com.threerings.miso.tile.BaseTile;
 
 /**
@@ -30,10 +30,10 @@ public interface DisplayMisoScene
     public Tile getFringeTile (int x, int y);
 
     /**
-     * Populates the supplied scene object set with all objects whose
+     * Populates the supplied object set with info on all objects whose
      * origin falls in the requested region.
      */
-    public void getSceneObjects (Rectangle region, ObjectSet set);
+    public void getObjects (Rectangle region, ObjectSet set);
 
     /**
      * Returns true if the supplied traverser can traverse the specified

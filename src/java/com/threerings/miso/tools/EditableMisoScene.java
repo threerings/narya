@@ -1,7 +1,7 @@
 //
-// $Id: EditableMisoScene.java,v 1.18 2002/09/23 21:54:50 mdb Exp $
+// $Id: EditableMisoScene.java,v 1.19 2003/01/31 23:10:45 mdb Exp $
 
-package com.threerings.miso.scene.tools;
+package com.threerings.miso.tools;
 
 import java.awt.Rectangle;
 
@@ -9,9 +9,9 @@ import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileUtil;
 
-import com.threerings.miso.scene.DisplayMisoScene;
-import com.threerings.miso.scene.MisoSceneModel;
-import com.threerings.miso.scene.SceneObject;
+import com.threerings.miso.client.DisplayMisoScene;
+import com.threerings.miso.client.DisplayObjectInfo;
+import com.threerings.miso.data.MisoSceneModel;
 import com.threerings.miso.tile.BaseTile;
 import com.threerings.miso.tile.BaseTileSet;
 
@@ -70,7 +70,7 @@ public interface EditableMisoScene
      *
      * @return the new scene object instance.
      */
-    public SceneObject addSceneObject (
+    public DisplayObjectInfo addObject (
         ObjectTile tile, int x, int y, int fqTileId);
 
     /**
@@ -81,7 +81,7 @@ public interface EditableMisoScene
     /**
      * Removes the specified object from the scene.
      */
-    public boolean removeSceneObject (SceneObject scobj);
+    public boolean removeObject (DisplayObjectInfo scobj);
 
     /**
      * Returns a reference to the miso scene model that reflects the

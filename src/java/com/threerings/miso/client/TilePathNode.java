@@ -1,7 +1,7 @@
 //
-// $Id: TilePathNode.java,v 1.2 2002/05/31 03:38:03 mdb Exp $
+// $Id: TilePathNode.java,v 1.3 2003/01/31 23:10:45 mdb Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.miso.client;
 
 import com.threerings.media.util.PathNode;
 

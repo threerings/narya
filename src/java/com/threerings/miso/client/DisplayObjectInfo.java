@@ -1,44 +1,56 @@
 //
-// $Id: DisplayObjectInfo.java,v 1.5 2002/11/28 03:41:58 mdb Exp $
+// $Id: DisplayObjectInfo.java,v 1.6 2003/01/31 23:10:45 mdb Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.miso.client;
 
 import java.awt.Rectangle;
 
-import com.samskivert.util.StringUtil;
-
 import com.threerings.media.tile.ObjectTile;
+import com.threerings.miso.data.ObjectInfo;
 
 /**
  * Used to track information about an object in the scene.
  */
-public class SceneObject
+public class DisplayObjectInfo extends ObjectInfo
 {
     /** A reference to the object tile itself. */
     public ObjectTile tile;
 
-    /** The x and y tile coordinates of the object. */
-    public int x = -1, y = -1;
-
-    /** The object's render priority. */
-    public byte priority = 0;
-
-    /** The action associated with this object or null if it has no
-     * action. */
-    public String action;
-
     /** The object's bounding rectangle. This will be filled in
-     * automatically by the Miso scene view when the object is used. */
+     * automatically by the scene view when the object is used. */
     public Rectangle bounds;
 
     /**
      * Convenience constructor.
      */
-    public SceneObject (int x, int y, ObjectTile tile)
+    public DisplayObjectInfo (int tileId, int x, int y)
+    {
+        super(tileId, x, y);
+    }
+
+    /**
+     * Convenience constructor.
+     */
+    public DisplayObjectInfo (ObjectInfo source)
+    {
+        super(source);
+    }
+
+    /**
+     * Provides this display object with a reference to its object tile
+     * when it becomes available. This must be called before the tile is
+     * used in any sort of display circumstances.
+     */
+    public void setObjectTile (ObjectTile tile)
     {
         this.tile = tile;
-        this.x = x;
-        this.y = y;
+
+        // if we don't already have an overridden render priority; use the
+        // one from our object tile (assuming we have one)
+        if (priority == 0 && tile != null) {
+            priority = (byte)Math.max(
+                Byte.MIN_VALUE, Math.min(Byte.MAX_VALUE, tile.getPriority()));
+        }
     }
 
     /**
@@ -49,30 +61,5 @@ public class SceneObject
     public boolean setHovered (boolean hovered)
     {
         return false;
-    }
-
-    // documentation inherited
-    public boolean equals (Object other)
-    {
-        if (other instanceof SceneObject) {
-            SceneObject oso = (SceneObject)other;
-            return (x == oso.x && y == oso.y && tile == oso.tile);
-        } else {
-            return false;
-        }
-    }
-
-    // documentation inherited
-    public int hashCode ()
-    {
-        return x ^ y ^ tile.hashCode();
-    }
-
-    /**
-     * Generates a string representation of this instance.
-     */
-    public String toString ()
-    {
-        return StringUtil.fieldsToString(this);
     }
 }

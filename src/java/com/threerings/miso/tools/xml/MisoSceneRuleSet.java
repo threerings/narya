@@ -1,16 +1,20 @@
 //
-// $Id: MisoSceneRuleSet.java,v 1.11 2002/09/23 23:53:33 mdb Exp $
+// $Id: MisoSceneRuleSet.java,v 1.12 2003/01/31 23:10:46 mdb Exp $
 
-package com.threerings.miso.scene.tools.xml;
+package com.threerings.miso.tools.xml;
+
+import java.util.ArrayList;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.RuleSetBase;
 
 import com.samskivert.xml.CallMethodSpecialRule;
 import com.samskivert.xml.SetFieldRule;
+import com.samskivert.xml.SetPropertyFieldsRule;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.MisoSceneModel;
+import com.threerings.miso.data.MisoSceneModel;
+import com.threerings.miso.data.ObjectInfo;
 
 /**
  * Used to parse a {@link MisoSceneModel} from XML.
@@ -58,31 +62,37 @@ public class MisoSceneRuleSet extends RuleSetBase
                          new SetFieldRule(digester, "vheight"));
         digester.addRule(_prefix + "/base",
                          new SetFieldRule(digester, "baseTileIds"));
-        digester.addRule(_prefix + "/object",
-                         new SetFieldRule(digester, "objectTileIds"));
-        digester.addRule(_prefix + "/actions",
-                         new SetFieldRule(digester, "objectActions"));
-        digester.addRule(_prefix + "/priorities",
-                         new SetFieldRule(digester, "objectPrios"));
 
-        // we have to unfuck the objectActions field in the event that
-        // there's one object in the objects element which has a blank
-        // action string (which the parser will parse as a zero length
-        // array, when we want a length one array with a blank string)
-        digester.addRule(_prefix, new CallMethodSpecialRule(digester) {
+        digester.addObjectCreate(_prefix + "/objects",
+                                 ArrayList.class.getName());
+        digester.addObjectCreate(_prefix + "/objects/object",
+                                 ObjectInfo.class.getName());
+        digester.addSetNext(_prefix + "/objects/object", "add",
+                            Object.class.getName());
+
+        digester.addRule(_prefix + "/objects/object",
+                         new SetPropertyFieldsRule(digester));
+
+        digester.addRule(_prefix + "/objects", new CallMethodSpecialRule(
+                             digester) {
             public void parseAndSet (String bodyText, Object target)
                 throws Exception
             {
-                MisoSceneModel model = (MisoSceneModel)target;
-                if (model.objectTileIds.length > 0 &&
-                    model.objectActions.length == 0) {
-                    model.objectActions = new String[1];
+                ArrayList ilist = (ArrayList)target;
+                ArrayList ulist = new ArrayList();
+                MisoSceneModel model = (MisoSceneModel)this.digester.peek(1);
+
+                // filter interesting and uninteresting into two lists
+                for (int ii = 0; ii < ilist.size(); ii++) {
+                    ObjectInfo info = (ObjectInfo)ilist.get(ii);
+                    if (!info.isInteresting()) {
+                        ilist.remove(ii--);
+                        ulist.add(info);
+                    }
                 }
 
-                // create our object priorities if we don't have 'em
-                if (model.objectPrios == null) {
-                    model.objectPrios = new byte[model.objectActions.length];
-                }
+                // now populate the model
+                MisoSceneModel.populateObjects(model, ilist, ulist);
             }
         });
     }

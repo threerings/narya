@@ -1,5 +1,5 @@
 //
-// $Id: EditableSpotSceneImpl.java,v 1.10 2001/12/16 21:22:31 mdb Exp $
+// $Id: EditableSpotSceneImpl.java,v 1.11 2003/01/31 23:10:46 mdb Exp $
 
 package com.threerings.whirled.tools.spot;
 
@@ -201,6 +201,8 @@ public class EditableSpotSceneImpl extends EditableSceneImpl
      */
     protected void flushToModel ()
     {
+        super.flushToModel();
+
         List locations = _delegate.getLocations();
 
         // flush the locations

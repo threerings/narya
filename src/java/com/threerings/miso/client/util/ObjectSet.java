@@ -1,7 +1,7 @@
 //
-// $Id: ObjectSet.java,v 1.2 2002/10/15 21:01:39 ray Exp $
+// $Id: ObjectSet.java,v 1.3 2003/01/31 23:10:45 mdb Exp $
 
-package com.threerings.miso.scene.util;
+package com.threerings.miso.client.util;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -9,31 +9,36 @@ import java.util.Comparator;
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.ListUtil;
 
-import com.threerings.miso.scene.SceneObject;
+import com.threerings.miso.Log;
+import com.threerings.miso.client.DisplayObjectInfo;
 
 /**
  * Used to store an (arbitrarily) ordered, low-impact iteratable (doesn't
- * require object creation), set of {@link SceneObject} instances.
+ * require object creation), set of {@link DisplayObjectInfo} instances.
  */
 public class ObjectSet
 {
     /**
-     * Inserts the supplied scene object into the set.
+     * Inserts the supplied object into the set.
      *
      * @return true if it was inserted, false if the object was already in
      * the set.
      */
-    public boolean insert (SceneObject scobj)
+    public boolean insert (DisplayObjectInfo info)
     {
         // bail if it's already in the set
-        int ipos = indexOf(scobj);
+        int ipos = indexOf(info);
         if (ipos >= 0) {
+            // log a warning because the caller shouldn't be doing this
+            Log.warning("Requested to add a display object to a set that " +
+                        "already contains such an object [ninfo=" + info +
+                        ", oinfo=" + _objs[ipos] + "].");
             return false;
         }
 
         // otherwise insert it
         ipos = -(ipos+1);
-        _scobjs = ListUtil.insert(_scobjs, ipos, scobj);
+        _objs = ListUtil.insert(_objs, ipos, info);
         _size++;
         return true;
     }
@@ -42,13 +47,13 @@ public class ObjectSet
      * Returns true if the specified object is in the set, false if it is
      * not.
      */
-    public boolean contains (SceneObject scobj)
+    public boolean contains (DisplayObjectInfo info)
     {
-        return (indexOf(scobj) >= 0);
+        return (indexOf(info) >= 0);
     }
 
     /**
-     * Returns the number of scene objects in this set.
+     * Returns the number of objects in this set.
      */
     public int size ()
     {
@@ -56,12 +61,12 @@ public class ObjectSet
     }
 
     /**
-     * Returns the scene object with the specified index. The index must &
-     * be between <code>0</code> and {@link #size}<code>-1</code>.
+     * Returns the object with the specified index. The index must & be
+     * between <code>0</code> and {@link #size}<code>-1</code>.
      */
-    public SceneObject get (int index)
+    public DisplayObjectInfo get (int index)
     {
-        return (SceneObject)_scobjs[index];
+        return (DisplayObjectInfo)_objs[index];
     }
 
     /**
@@ -69,18 +74,18 @@ public class ObjectSet
      */
     public void remove (int index)
     {
-        ListUtil.remove(_scobjs, index);
+        ListUtil.remove(_objs, index);
         _size--;
     }
 
     /**
-     * Removes the specified scene object from the set.
+     * Removes the specified object from the set.
      *
      * @return true if it was removed, false if it was not in the set.
      */
-    public boolean remove (SceneObject scobj)
+    public boolean remove (DisplayObjectInfo info)
     {
-        int opos = indexOf(scobj);
+        int opos = indexOf(info);
         if (opos >= 0) {
             remove(opos);
             return true;
@@ -95,30 +100,50 @@ public class ObjectSet
     public void clear ()
     {
         _size = 0;
-        Arrays.fill(_scobjs, null);
+        Arrays.fill(_objs, null);
+    }
+
+    /**
+     * Returns a string representation of this instance.
+     */
+    public String toString ()
+    {
+        StringBuffer buf = new StringBuffer("[");
+        for (int ii = 0; ii < _size; ii++) {
+            if (ii > 0) {
+                buf.append(", ");
+            }
+            buf.append(_objs[ii]);
+        }
+        return buf.append("]").toString();
     }
 
     /**
      * Returns the index of the object or it's insertion index if it is
      * not in the set.
      */
-    protected final int indexOf (SceneObject scobj)
+    protected final int indexOf (DisplayObjectInfo info)
     {
-        return ArrayUtil.binarySearch(_scobjs, 0, _size, scobj, SCOBJ_COMP);
+        return ArrayUtil.binarySearch(_objs, 0, _size, info, INFO_COMP);
     }
 
-    /** Our sorted array of scene objects. */
-    protected Object[] _scobjs = new Object[DEFAULT_SIZE];
+    /** Our sorted array of objects. */
+    protected Object[] _objs = new Object[DEFAULT_SIZE];
 
     /** The number of objects in the set. */
     protected int _size;
 
-    /** We simply sort the scene objects in order of their hash code. We
-     * don't care about their orderer, it simply needs to exist to support
-     * binary search. */
-    protected static final Comparator SCOBJ_COMP = new Comparator() {
+    /** We simply sort the objects in order of their hash code. We don't
+     * care about their order, it exists only to support binary search. */
+    protected static final Comparator INFO_COMP = new Comparator() {
         public int compare (Object o1, Object o2) {
-            return o1.hashCode() - o2.hashCode();
+            DisplayObjectInfo do1 = (DisplayObjectInfo)o1;
+            DisplayObjectInfo do2 = (DisplayObjectInfo)o2;
+            if (do1.tileId == do2.tileId) {
+                return ((do1.x << 16) + do1.y) - ((do2.x << 16) + do2.y);
+            } else {
+                return do1.tileId - do2.tileId;
+            }
         }
     };
 

@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.17 2003/01/14 02:50:54 mdb Exp $
+// $Id: AutoFringer.java,v 1.18 2003/01/31 23:10:45 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -36,7 +36,7 @@ import com.threerings.media.image.BackedVolatileMirage;
 import com.threerings.media.image.ImageManager;
 import com.threerings.media.image.Mirage;
 
-import com.threerings.miso.scene.MisoSceneModel;
+import com.threerings.miso.data.MisoSceneModel;
 
 /**
  * Automatically fringes a scene according to the rules in the

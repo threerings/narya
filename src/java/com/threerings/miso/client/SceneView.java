@@ -1,7 +1,7 @@
 //
-// $Id: SceneView.java,v 1.32 2003/01/13 22:53:56 mdb Exp $
+// $Id: SceneView.java,v 1.33 2003/01/31 23:10:45 mdb Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.miso.client;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -79,7 +79,7 @@ public interface SceneView
 
     /**
      * Returns information about the object over which the mouse is
-     * currently hovering (either a {@link SceneObject} or a {@link
+     * currently hovering (either a {@link DisplayObjectInfo} or a {@link
      * Sprite}), or null if the mouse is not hovering over anything of
      * interest.
      */

@@ -1,13 +1,16 @@
 //
-// $Id: MisoSceneWriter.java,v 1.8 2002/09/23 23:07:11 mdb Exp $
+// $Id: MisoSceneWriter.java,v 1.9 2003/01/31 23:10:46 mdb Exp $
 
-package com.threerings.miso.scene.tools.xml;
+package com.threerings.miso.tools.xml;
 
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.AttributesImpl;
+
 import com.megginson.sax.DataWriter;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.miso.scene.MisoSceneModel;
+import com.threerings.miso.data.MisoSceneModel;
+import com.threerings.miso.data.ObjectInfo;
 
 /**
  * Generates an XML representation of a {@link MisoSceneModel}.
@@ -42,11 +45,53 @@ public class MisoSceneWriter
         writer.dataElement("viewheight", Integer.toString(model.vheight));
         writer.dataElement("base",
                            StringUtil.toString(model.baseTileIds, "", ""));
-        writer.dataElement("object",
-                           StringUtil.toString(model.objectTileIds, "", ""));
-        writer.dataElement("actions",
-                           StringUtil.joinEscaped(model.objectActions));
-        writer.dataElement("priorities",
-                           StringUtil.toString(model.objectPrios, "", ""));
+
+        // write our uninteresting object tile information
+        writer.startElement("objects");
+        for (int ii = 0; ii < model.objectTileIds.length; ii++) {
+            AttributesImpl attrs = new AttributesImpl();
+            attrs.addAttribute("", "tileId", "", "",
+                               String.valueOf(model.objectTileIds[ii]));
+            attrs.addAttribute("", "x", "", "",
+                               String.valueOf(model.objectXs[ii]));
+            attrs.addAttribute("", "y", "", "",
+                               String.valueOf(model.objectYs[ii]));
+            writer.emptyElement("", "object", "", attrs);
+        }
+
+        // write our uninteresting object tile information
+        for (int ii = 0; ii < model.objectInfo.length; ii++) {
+            ObjectInfo info = model.objectInfo[ii];
+            AttributesImpl attrs = new AttributesImpl();
+            attrs.addAttribute("", "tileId", "", "",
+                               String.valueOf(info.tileId));
+            attrs.addAttribute("", "x", "", "", String.valueOf(info.x));
+            attrs.addAttribute("", "y", "", "", String.valueOf(info.y));
+
+            if (!StringUtil.blank(info.action)) {
+                attrs.addAttribute("", "action", "", "", info.action);
+            }
+
+            if (info.priority != 0) {
+                attrs.addAttribute("", "priority", "", "",
+                                   String.valueOf(info.priority));
+            }
+
+            if (info.sx != 0 || info.sy != 0) {
+                attrs.addAttribute("", "sx",  "", "",
+                                   String.valueOf(info.sx));
+                attrs.addAttribute("", "sy",  "", "",
+                                   String.valueOf(info.sy));
+                attrs.addAttribute("", "sorient",  "", "",
+                                   String.valueOf(info.sorient));
+            }
+
+            if (info.zations != 0) {
+                attrs.addAttribute("", "zations",  "", "",
+                                   String.valueOf(info.zations));
+            }
+            writer.emptyElement("", "object", "", attrs);
+        }
+        writer.endElement("objects");
     }
 }

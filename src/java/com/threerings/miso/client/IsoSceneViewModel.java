@@ -1,14 +1,14 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.27 2003/01/15 21:12:45 shaper Exp $
+// $Id: IsoSceneViewModel.java,v 1.28 2003/01/31 23:10:45 mdb Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.miso.client;
 
 import java.awt.Point;
 import java.awt.Rectangle;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.MisoConfig;
-import com.threerings.miso.scene.util.IsoUtil;
+import com.threerings.miso.client.util.IsoUtil;
 
 /**
  * Provides a holding place for the myriad parameters and bits of data

@@ -1,7 +1,7 @@
 //
-// $Id: TilePath.java,v 1.12 2003/01/13 22:53:56 mdb Exp $
+// $Id: TilePath.java,v 1.13 2003/01/31 23:10:45 mdb Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.miso.client;
 
 import java.awt.*;
 import java.util.List;
@@ -14,7 +14,7 @@ import com.threerings.media.util.PathNode;
 import com.threerings.media.util.Pathable;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.util.IsoUtil;
+import com.threerings.miso.client.util.IsoUtil;
 
 /**
  * The tile path represents a path of tiles through a scene.  The path is

@@ -1,7 +1,7 @@
 //
-// $Id: AStarPathUtil.java,v 1.24 2003/01/15 21:44:52 shaper Exp $
+// $Id: AStarPathUtil.java,v 1.25 2003/01/31 23:10:45 mdb Exp $
 
-package com.threerings.miso.scene.util;
+package com.threerings.miso.client.util;
 
 import java.awt.Point;
 import java.util.*;
@@ -11,7 +11,7 @@ import com.samskivert.util.HashIntMap;
 import com.threerings.media.util.MathUtil;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.DisplayMisoScene;
+import com.threerings.miso.client.DisplayMisoScene;
 import com.threerings.miso.tile.BaseTile;
 
 /**

@@ -1,7 +1,7 @@
 //
-// $Id: SceneViewPanel.java,v 1.48 2003/01/15 21:12:45 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.49 2003/01/31 23:10:45 mdb Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.miso.client;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -22,7 +22,7 @@ import com.threerings.media.sprite.Sprite;
 import com.threerings.media.sprite.SpriteManager;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.util.IsoUtil;
+import com.threerings.miso.client.util.IsoUtil;
 
 /**
  * The scene view panel is responsible for managing a {@link

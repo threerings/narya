@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.23 2003/01/18 22:59:17 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.24 2003/01/31 23:10:46 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -41,12 +41,12 @@ public class SpotSceneManager extends SceneManager
         SpotSceneManager mgr = (SpotSceneManager)
             CrowdServer.plreg.getPlaceManager(body.location);
         if (mgr != null) {
-            SpotSceneModel model = (SpotSceneModel) mgr.getSceneModel();
+            RuntimeSpotScene scene = (RuntimeSpotScene)mgr.getScene();
             try {
-                mgr.handleChangeLocRequest(body, model.defaultEntranceId);
+                mgr.handleChangeLocRequest(body, scene.getDefaultEntranceId());
             } catch (InvocationException ie) {
-                Log.warning("Could not walk user to default portal [error=" +
-                    ie + "].");
+                Log.warning("Could not walk user to default portal " +
+                            "[error=" + ie + "].");
             }
         }
     }

@@ -1,14 +1,12 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.64 2003/01/13 22:53:56 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.65 2003/01/31 23:10:45 mdb Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.miso.client;
 
 import java.awt.Rectangle;
 
 import java.util.ArrayList;
 import java.util.Random;
-
-import com.samskivert.util.StringUtil;
 
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
@@ -17,7 +15,9 @@ import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileLayer;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.util.ObjectSet;
+import com.threerings.miso.client.util.ObjectSet;
+import com.threerings.miso.data.MisoSceneModel;
+import com.threerings.miso.data.ObjectInfo;
 import com.threerings.miso.tile.AutoFringer;
 import com.threerings.miso.tile.BaseTile;
 import com.threerings.miso.tile.BaseTileLayer;
@@ -57,6 +57,62 @@ public class DisplayMisoSceneImpl
     }
 
     /**
+     * Provides this display miso scene with a tile manager from which it
+     * can load up all of its tiles.
+     */
+    public void setTileManager (MisoTileManager tmgr)
+    {
+        _tmgr = tmgr;
+        _fringer = tmgr.getAutoFringer();
+        populateLayers();
+    }
+
+    // documentation inherited from interface
+    public BaseTile getBaseTile (int x, int y)
+    {
+        return _base.getTile(x, y);
+    }
+
+    // documentation inherited from interface
+    public Tile getFringeTile (int x, int y)
+    {
+        return _fringe.getTile(x, y);
+    }
+
+    // documentation inherited from interface
+    public void getObjects (Rectangle region, ObjectSet set)
+    {
+        // iterate over all of our objects, creating and including scene
+        // objects for those that intersect the region
+        int ocount = _objects.size();
+        for (int ii = 0; ii < ocount; ii++) {
+            DisplayObjectInfo scobj = (DisplayObjectInfo)_objects.get(ii);
+            if (region.contains(scobj.x, scobj.y)) {
+                set.insert(scobj);
+            }
+        }
+    }
+
+    // documentation inherited from interface
+    public boolean canTraverse (Object trav, int x, int y)
+    {
+        BaseTile tile = getBaseTile(x, y);
+        return (((tile == null) || tile.isPassable()) &&
+                !_covered[y*_model.width+x]);
+    }
+
+    /**
+     * Return a string representation of this Miso scene object.
+     */
+    public String toString ()
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append("[width=").append(_base.getWidth());
+        buf.append(", height=").append(_base.getHeight());
+        return buf.append("]").toString();
+    }
+
+    /**
      * Instructs this miso scene to use the supplied model instead of its
      * current model. This should be followed up by a called to {@link
      * #setTileManager} or {@link #populateLayers} if a tile manager has
@@ -73,17 +129,20 @@ public class DisplayMisoSceneImpl
         _base = new BaseTileLayer(new BaseTile[swid*shei], swid, shei);
         _fringe = new TileLayer(new Tile[swid*shei], swid, shei);
         _covered = new boolean[swid*shei];
-    }
 
-    /**
-     * Provides this display miso scene with a tile manager from which it
-     * can load up all of its tiles.
-     */
-    public void setTileManager (MisoTileManager tmgr)
-    {
-        _tmgr = tmgr;
-        _fringer = tmgr.getAutoFringer();
-        populateLayers();
+        // create display object infos for our uninteresting objects
+        int ocount = (_model.objectTileIds == null) ? 0 :
+            _model.objectTileIds.length;
+        for (int ii = 0; ii < ocount; ii++) {
+            _objects.add(new DisplayObjectInfo(_model.objectTileIds[ii],
+                                               _model.objectXs[ii],
+                                               _model.objectYs[ii]));
+        }
+
+        // create display object infos for our interesting objects
+        for (int ii = 0, ll = _model.objectInfo.length; ii < ll; ii++) {
+            _objects.add(new DisplayObjectInfo(_model.objectInfo[ii]));
+        }
     }
 
     /**
@@ -127,132 +186,57 @@ public class DisplayMisoSceneImpl
             }
         }
 
-        // sanity check the object layer info
-        int ocount = _model.objectTileIds.length;
-        if (ocount % 3 != 0) {
-            throw new IllegalArgumentException(
-                "model.objectTileIds.length % 3 != 0");
-        }
-
-        // create object tile instances for our objects
-        for (int ii = 0; ii < ocount; ii += 3) {
-            int col = _model.objectTileIds[ii];
-            int row = _model.objectTileIds[ii+1];
-            int fqTid = _model.objectTileIds[ii+2];
-            int tsid = (fqTid >> 16) & 0xFFFF, tid = (fqTid & 0xFFFF);
-            try {
-                expandObject(col, row, tsid, tid, fqTid, ii/3);
-            } catch (NoSuchTileSetException te) {
-                Log.warning("Scene contains non-existent object tile " +
-                            "[tsid=" + tsid + ", tid=" + tid +
-                            ", col=" + col + ", row=" + row + "].");
-            }
+        // populate our display objects with object tiles
+        int ocount = _objects.size();
+        for (int ii = 0; ii < ocount; ii++) {
+            populateObject((DisplayObjectInfo)_objects.get(ii));
         }
     }
 
     /**
-     * Called to expand each object read from the model into an actual
-     * object tile instance with the appropriate additional data.
-     *
-     * @return the scene object record for the newly created object tile
-     * (which will have been put into all the appropriate lists and
-     * tables).
+     * Called to populate an object with its object tile when we have been
+     * configured with a tile manager from which to obtain such things.
      */
-    protected SceneObject expandObject (
-        int col, int row, int tsid, int tid, int fqTid, int objidx)
-        throws NoSuchTileException, NoSuchTileSetException
+    protected void populateObject (DisplayObjectInfo info)
     {
-        // create and initialize an object info record for this object
-        SceneObject scobj = createSceneObject(
-            col, row, (ObjectTile)_tmgr.getTile(tsid, tid));
+        int tsid = (info.tileId >> 16) & 0xFFFF, tid = (info.tileId & 0xFFFF);
+        try {
+            initObject(info, (ObjectTile)_tmgr.getTile(tsid, tid));
+        } catch (NoSuchTileSetException te) {
+            Log.warning("Scene contains non-existent object tile " +
+                        "[info=" + info + ", tsid=" + tsid +
+                        ", tid=" + tid + "].");
+        }
+    }
 
-        // assign the object's remaining attributes
-        if (!StringUtil.blank(_model.objectActions[objidx])) {
-            scobj.action = _model.objectActions[objidx];
-        }
-        // if we have object priorities, use 'em
-        if (_model.objectPrios != null) {
-            scobj.priority = _model.objectPrios[objidx];
-        }
+    /**
+     * Initializes the supplied object with its object tile and configures
+     * any necessary peripheral scene business that couldn't be configured
+     * prior to the object having its tile.
+     */
+    protected void initObject (DisplayObjectInfo info, ObjectTile tile)
+    {
+        // configure the object info with its object tile
+        info.setObjectTile(tile);
 
         // generate a "shadow" for this object tile by toggling the
         // "covered" flag on in all base tiles below it (to prevent
         // sprites from walking on those tiles)
-        setObjectTileFootprint(scobj.tile, col, row, true);
-
-        // add the info record to the list
-        _objects.add(scobj);
-
-        // return the object info so that derived classes may access it
-        return scobj;
-    }
-
-    // documentation inherited from interface
-    public BaseTile getBaseTile (int x, int y)
-    {
-        return _base.getTile(x, y);
-    }
-
-    // documentation inherited from interface
-    public Tile getFringeTile (int x, int y)
-    {
-        return _fringe.getTile(x, y);
-    }
-
-    // documentation inherited from interface
-    public void getSceneObjects (Rectangle region, ObjectSet set)
-    {
-        // iterate over all of our objects, creating and including scene
-        // objects for those that intersect the region
-        int ocount = _objects.size();
-        for (int ii = 0; ii < ocount; ii++) {
-            SceneObject scobj = (SceneObject)_objects.get(ii);
-            if (region.contains(scobj.x, scobj.y)) {
-                set.insert(scobj);
-            }
-        }
-    }
-
-    // documentation inherited from interface
-    public boolean canTraverse (Object trav, int x, int y)
-    {
-        BaseTile tile = getBaseTile(x, y);
-        return (((tile == null) || tile.isPassable()) &&
-                !_covered[y*_model.width+x]);
+        setObjectTileFootprint(info.tile, info.x, info.y, true);
     }
 
     /**
-     * Return a string representation of this Miso scene object.
-     */
-    public String toString ()
-    {
-        StringBuffer buf = new StringBuffer();
-        buf.append("[width=").append(_base.getWidth());
-        buf.append(", height=").append(_base.getHeight());
-        return buf.append("]").toString();
-    }
-
-    /**
-     * Creates a scene object record. This allows derived classes to
-     * provide extended records.
-     */
-    protected SceneObject createSceneObject (int x, int y, ObjectTile tile)
-    {
-        return new SceneObject(x, y, tile);
-    }
-
-    /**
-     * Locates the scene object record for the object tile at the
+     * Locates the display object info record for the object tile at the
      * specified location. Two of the same kind of object tile cannot
      * exist at the same location.
      */
-    protected SceneObject getSceneObject (ObjectTile tile, int x, int y)
+    protected DisplayObjectInfo getObjectInfo (ObjectTile tile, int x, int y)
     {
         int ocount = _objects.size();
         for (int ii = 0; ii < ocount; ii++) {
-            SceneObject scobj = (SceneObject)_objects.get(ii);
-            if (scobj.tile == tile && scobj.x == x && scobj.y == y) {
-                return scobj;
+            DisplayObjectInfo oinfo = (DisplayObjectInfo)_objects.get(ii);
+            if (oinfo.tile == tile && oinfo.x == x && oinfo.y == y) {
+                return oinfo;
             }
         }
         return null;

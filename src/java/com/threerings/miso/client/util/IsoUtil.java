@@ -1,7 +1,7 @@
 //
-// $Id: IsoUtil.java,v 1.42 2003/01/13 22:53:56 mdb Exp $
+// $Id: IsoUtil.java,v 1.43 2003/01/31 23:10:45 mdb Exp $
 
-package com.threerings.miso.scene.util;
+package com.threerings.miso.client.util;
 
 import java.awt.Point;
 import java.awt.Polygon;
@@ -16,8 +16,8 @@ import com.threerings.util.DirectionCodes;
 import com.threerings.util.DirectionUtil;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.IsoSceneViewModel;
-import com.threerings.miso.scene.SceneObject;
+import com.threerings.miso.client.IsoSceneViewModel;
+import com.threerings.miso.client.DisplayObjectInfo;
 
 /**
  * The <code>IsoUtil</code> class is a holding place for miscellaneous
@@ -38,7 +38,7 @@ public class IsoUtil
      * @return the bounding polygon.
      */
     public static Polygon getObjectFootprint (
-        IsoSceneViewModel model, SceneObject scobj)
+        IsoSceneViewModel model, DisplayObjectInfo scobj)
     {
         Polygon boundsPoly = new SmartPolygon();
         Point tpos = tileToScreen(model, scobj.x, scobj.y, new Point());
@@ -84,7 +84,7 @@ public class IsoUtil
      * @return the bounding rectangle.
      */
     public static Rectangle getObjectBounds (
-        IsoSceneViewModel model, SceneObject scobj)
+        IsoSceneViewModel model, DisplayObjectInfo scobj)
     {
         Point tpos = tileToScreen(model, scobj.x, scobj.y, new Point());
 
@@ -110,7 +110,7 @@ public class IsoUtil
      * the objects occupy the specified coordinates, false if not.
      */
     public static boolean objectFootprintsOverlap (
-        SceneObject so1, SceneObject so2)
+        DisplayObjectInfo so1, DisplayObjectInfo so2)
     {
         return (so2.x > so1.x - so1.tile.getBaseWidth() &&
                 so1.x > so2.x - so2.tile.getBaseWidth() &&

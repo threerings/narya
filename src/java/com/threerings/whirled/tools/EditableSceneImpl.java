@@ -1,5 +1,5 @@
 //
-// $Id: EditableSceneImpl.java,v 1.6 2001/12/12 19:06:15 mdb Exp $
+// $Id: EditableSceneImpl.java,v 1.7 2003/01/31 23:10:46 mdb Exp $
 
 package com.threerings.whirled.tools;
 
@@ -121,7 +121,16 @@ public class EditableSceneImpl implements EditableScene
     // documentation inherited
     public EditableSceneModel getSceneModel ()
     {
+        flushToModel();
         return _emodel;
+    }
+
+    /**
+     * Derived classes should override this method and flush any editable
+     * modifications to the scene model when this method is called.
+     */
+    protected void flushToModel ()
+    {
     }
 
     /** A reference to our scene model. */

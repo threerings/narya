@@ -1,7 +1,7 @@
 //
-// $Id: DirtyItemList.java,v 1.17 2002/10/16 01:53:10 ray Exp $
+// $Id: DirtyItemList.java,v 1.18 2003/01/31 23:10:45 mdb Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.miso.client;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -17,7 +17,7 @@ import com.samskivert.util.StringUtil;
 import com.threerings.media.Log;
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.tile.ObjectTile;
-import com.threerings.miso.scene.util.IsoUtil;
+import com.threerings.miso.client.util.IsoUtil;
 
 /**
  * The dirty item list keeps track of dirty sprites and object tiles
@@ -48,10 +48,10 @@ public class DirtyItemList
      * @param footprint the footprint of the object tile if it should be
      * rendered, null otherwise.
      */
-    public void appendDirtyObject (SceneObject scobj, Shape footprint)
+    public void appendDirtyObject (DisplayObjectInfo info, Shape footprint)
     {
         DirtyItem item = getDirtyItem();
-        item.init(scobj, scobj.bounds, footprint, scobj.x, scobj.y);
+        item.init(info, info.bounds, footprint, info.x, info.y);
         _items.add(item);
     }
 
@@ -234,8 +234,8 @@ public class DirtyItemList
             // rightmost tiles are equivalent
             lx = rx = ox;
             ly = ry = oy;
-            if (obj instanceof SceneObject) {
-                ObjectTile tile = ((SceneObject)obj).tile;
+            if (obj instanceof DisplayObjectInfo) {
+                ObjectTile tile = ((DisplayObjectInfo)obj).tile;
                 lx -= (tile.getBaseWidth() - 1);
                 ry -= (tile.getBaseHeight() - 1);
             }
@@ -258,7 +258,7 @@ public class DirtyItemList
             if (obj instanceof Sprite) {
                 ((Sprite)obj).paint(gfx);
             } else {
-                ((SceneObject)obj).tile.paint(gfx, bounds.x, bounds.y);
+                ((DisplayObjectInfo)obj).tile.paint(gfx, bounds.x, bounds.y);
             }
         }
 
@@ -289,7 +289,7 @@ public class DirtyItemList
 //             }
 
 //             // objects are equivalent if they are the same object
-//             if ((obj instanceof SceneObject) && (b.obj instanceof SceneObject)) {
+//             if ((obj instanceof DisplayObjectInfo) && (b.obj instanceof DisplayObjectInfo)) {
 //                 return (obj == b.obj);
 //             }
 
@@ -534,10 +534,10 @@ public class DirtyItemList
             // priority scene; this allows us to avoid all sorts of sticky
             // business wherein the render order between two overlapping
             // objects cannot be determined without a z-buffer
-            if ((da.obj instanceof SceneObject) &&
-                (db.obj instanceof SceneObject)) {
-                SceneObject soa = (SceneObject)da.obj;
-                SceneObject sob = (SceneObject)db.obj;
+            if ((da.obj instanceof DisplayObjectInfo) &&
+                (db.obj instanceof DisplayObjectInfo)) {
+                DisplayObjectInfo soa = (DisplayObjectInfo)da.obj;
+                DisplayObjectInfo sob = (DisplayObjectInfo)db.obj;
                 if (IsoUtil.objectFootprintsOverlap(soa, sob)) {
                     return (soa.priority - sob.priority);
                 }

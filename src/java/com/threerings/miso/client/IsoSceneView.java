@@ -1,7 +1,7 @@
 //
-// $Id: IsoSceneView.java,v 1.130 2003/01/15 21:12:45 shaper Exp $
+// $Id: IsoSceneView.java,v 1.131 2003/01/31 23:10:45 mdb Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.miso.client;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -36,10 +36,10 @@ import com.threerings.media.tile.Tile;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.MisoPrefs;
-import com.threerings.miso.scene.DirtyItemList.DirtyItem;
-import com.threerings.miso.scene.util.AStarPathUtil;
-import com.threerings.miso.scene.util.IsoUtil;
-import com.threerings.miso.scene.util.ObjectSet;
+import com.threerings.miso.client.DirtyItemList.DirtyItem;
+import com.threerings.miso.client.util.AStarPathUtil;
+import com.threerings.miso.client.util.IsoUtil;
+import com.threerings.miso.client.util.ObjectSet;
 import com.threerings.miso.tile.BaseTile;
 
 /**
@@ -124,12 +124,12 @@ public class IsoSceneView implements SceneView
         // grab all available objects
         Rectangle rect = new Rectangle(Short.MIN_VALUE, Short.MIN_VALUE,
                                        2*Short.MAX_VALUE, 2*Short.MAX_VALUE);
-        _scene.getSceneObjects(rect, _objects);
+        _scene.getObjects(rect, _objects);
 
         // and fill in the new objects' bounds
         int ocount = _objects.size();
         for (int ii = 0; ii < ocount; ii++) {
-            SceneObject scobj = _objects.get(ii);
+            DisplayObjectInfo scobj = _objects.get(ii);
             if (scobj.bounds == null) {
                 scobj.bounds = IsoUtil.getObjectBounds(_model, scobj);
             }
@@ -194,8 +194,8 @@ public class IsoSceneView implements SceneView
         Polygon hpoly = null;
 
         // if we have a hover object, do some business
-        if (_hobject != null && _hobject instanceof SceneObject) {
-            SceneObject scobj = (SceneObject)_hobject;
+        if (_hobject != null && _hobject instanceof DisplayObjectInfo) {
+            DisplayObjectInfo scobj = (DisplayObjectInfo)_hobject;
             if (scobj.action != null || _hmode == HIGHLIGHT_ALWAYS) {
                 hpoly = IsoUtil.getObjectFootprint(_model, scobj);
             }
@@ -421,7 +421,7 @@ public class IsoSceneView implements SceneView
         // add any objects impacted by the dirty rectangle
         int ocount = _objects.size();
         for (int ii = 0; ii < ocount; ii++) {
-            SceneObject scobj = (SceneObject)_objects.get(ii);
+            DisplayObjectInfo scobj = _objects.get(ii);
             if (!scobj.bounds.intersects(clip)) {
                 continue;
             }
@@ -467,13 +467,13 @@ public class IsoSceneView implements SceneView
         // grab all available objects
         Rectangle rect = new Rectangle(Short.MIN_VALUE, Short.MIN_VALUE,
                                        2*Short.MAX_VALUE, 2*Short.MAX_VALUE);
-        _scene.getSceneObjects(rect, _objects);
-        addAdditionalSceneObjects(_objects);
+        _scene.getObjects(rect, _objects);
+        addAdditionalObjects(_objects);
 
         // and fill in those objects' bounds
         int ocount = _objects.size();
         for (int ii = 0; ii < ocount; ii++) {
-            SceneObject scobj = _objects.get(ii);
+            DisplayObjectInfo scobj = _objects.get(ii);
             scobj.bounds = IsoUtil.getObjectBounds(_model, scobj);
         }
     }
@@ -482,7 +482,7 @@ public class IsoSceneView implements SceneView
      * A place for subclasses to add any additional scene objects they
      * may have.
      */
-    protected void addAdditionalSceneObjects (ObjectSet set)
+    protected void addAdditionalObjects (ObjectSet set)
     {
         // nothing by default
     }
@@ -581,8 +581,8 @@ public class IsoSceneView implements SceneView
         }
 
         // unhover the old
-        if (_hobject instanceof SceneObject) {
-            SceneObject oldhov = (SceneObject) _hobject;
+        if (_hobject instanceof DisplayObjectInfo) {
+            DisplayObjectInfo oldhov = (DisplayObjectInfo) _hobject;
             if (oldhov.setHovered(false)) {
                 _remgr.invalidateRegion(oldhov.bounds);
             }
@@ -593,8 +593,8 @@ public class IsoSceneView implements SceneView
         _hobject = newHover;
 
         // hover the new
-        if (_hobject instanceof SceneObject) {
-            SceneObject newhov = (SceneObject) _hobject;
+        if (_hobject instanceof DisplayObjectInfo) {
+            DisplayObjectInfo newhov = (DisplayObjectInfo) _hobject;
             if (newhov.setHovered(true)) {
                 _remgr.invalidateRegion(newhov.bounds);
             }
@@ -622,7 +622,7 @@ public class IsoSceneView implements SceneView
     {
         int ocount = _objects.size();
         for (int ii = 0; ii < ocount; ii++) {
-            SceneObject scobj = (SceneObject)_objects.get(ii);
+            DisplayObjectInfo scobj = (DisplayObjectInfo)_objects.get(ii);
             Rectangle pbounds = scobj.bounds;
             // skip bounding rects that don't contain the point
             if (!pbounds.contains(x, y)) {

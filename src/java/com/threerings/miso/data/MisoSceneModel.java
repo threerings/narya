@@ -1,13 +1,11 @@
 //
-// $Id: MisoSceneModel.java,v 1.10 2002/09/23 23:07:11 mdb Exp $
+// $Id: MisoSceneModel.java,v 1.11 2003/01/31 23:10:45 mdb Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.miso.data;
 
-import com.samskivert.util.StringUtil;
+import java.util.ArrayList;
 
 import com.threerings.io.SimpleStreamableObject;
-
-import com.threerings.miso.Log;
 
 /**
  * The scene model is the bare bones representation of the data for a
@@ -29,24 +27,26 @@ public class MisoSceneModel extends SimpleStreamableObject
     /** The viewport height in tiles. */
     public int vheight;
 
-    /** The combined tile ids (tile set id and tile id)
-     * in compressed format.
-     * Don't go poking around in here, use the accessor methods. */
+    /** The combined tile ids (tile set id and tile id) in compressed
+     * format.  Don't go poking around in here, use the accessor
+     * methods. */
     public int[] baseTileIds;
 
-    /** The combined tile ids (tile set id and tile id) of the files in
-     * the object layer in (x, y, tile id) format. */
+    /** The combined tile ids (tile set id and tile id) of the
+     * "uninteresting" tiles in the object layer. */
     public int[] objectTileIds;
 
-    /** The action strings associated with the object tiles in the order
-     * that the tiles are specified in the {@link #objectTileIds} array.
-     * Elements of this array may be null but will be converted to the
-     * empty string during serialization. */
-    public String[] objectActions;
+    /** The x coordinate of the "uninteresting" tiles in the object
+     * layer. */
+    public short[] objectXs;
 
-    /** Render priorities for each object tile in the scene, which are
-     * used to resolve overlapped object render order conflicts. */
-    public byte[] objectPrios;
+    /** The y coordinate of the "uninteresting" tiles in the object
+     * layer. */
+    public short[] objectYs;
+
+    /** Information records for the "interesting" objects in the object
+     * layer. */
+    public ObjectInfo[] objectInfo;
 
     /**
      * Get the fully-qualified tile id of the base tile at the specified
@@ -140,9 +140,35 @@ public class MisoSceneModel extends SimpleStreamableObject
         MisoSceneModel model = (MisoSceneModel)super.clone();
         model.baseTileIds = (int[])baseTileIds.clone();
         model.objectTileIds = (int[])objectTileIds.clone();
-        model.objectActions = (String[])objectActions.clone();
-        model.objectPrios = (byte[])objectPrios.clone();
+        model.objectXs = (short[])objectXs.clone();
+        model.objectYs = (short[])objectYs.clone();
+        model.objectInfo = (ObjectInfo[])objectInfo.clone();
         return model;
+    }
+
+    /**
+     * Populates the interesting and uninteresting parts of a miso scene
+     * model given lists of {@link ObjectInfo} records for each.
+     */
+    public static void populateObjects (MisoSceneModel model,
+                                        ArrayList ilist, ArrayList ulist)
+    {
+        // set up the uninteresting arrays
+        int ucount = ulist.size();
+        model.objectTileIds = new int[ucount];
+        model.objectXs = new short[ucount];
+        model.objectYs = new short[ucount];
+        for (int ii = 0; ii < ucount; ii++) {
+            ObjectInfo info = (ObjectInfo)ulist.get(ii);
+            model.objectTileIds[ii] = info.tileId;
+            model.objectXs[ii] = (short)info.x;
+            model.objectYs[ii] = (short)info.y;
+        }
+
+        // set up the interesting array
+        int icount = ilist.size();
+        model.objectInfo = new ObjectInfo[icount];
+        ilist.toArray(model.objectInfo);
     }
 
     /**
@@ -180,7 +206,8 @@ public class MisoSceneModel extends SimpleStreamableObject
         model.vheight = vheight;
         model.allocateBaseTileArray();
         model.objectTileIds = new int[0];
-        model.objectActions = new String[0];
-        model.objectPrios = new byte[0];
+        model.objectXs = new short[0];
+        model.objectYs = new short[0];
+        model.objectInfo = new ObjectInfo[0];
     }
 }
