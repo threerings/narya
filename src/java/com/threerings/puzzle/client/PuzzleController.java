@@ -938,9 +938,15 @@ public abstract class PuzzleController extends GameController
     protected KeyListener _globalKeyListener = new KeyAdapter() {
         public void keyReleased (KeyEvent e)
         {
-            if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            int keycode = e.getKeyCode();
+            if (keycode == KeyEvent.VK_ESCAPE) {
                 // toggle pausyness, my pussycat
                 setChatting(!isChatting());
+            } else if (keycode == KeyEvent.VK_P && !isChatting() &&
+                !_panel._xlate.hasCommand(KeyEvent.VK_P)) {
+
+                // if they hit the P key while puzzling, pause
+                setChatting(true);
             }
         }
     };
