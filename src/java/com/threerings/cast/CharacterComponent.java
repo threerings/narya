@@ -1,5 +1,5 @@
 //
-// $Id: CharacterComponent.java,v 1.6 2002/05/04 19:38:13 mdb Exp $
+// $Id: CharacterComponent.java,v 1.7 2002/08/19 22:28:05 mdb Exp $
 
 package com.threerings.cast;
 
@@ -73,4 +73,8 @@ public class CharacterComponent implements Serializable
 
     /** The entity from which we obtain our animation frames. */
     protected FrameProvider _frameProvider;
+
+    /** Increase this value when object's serialized state is impacted by
+     * a class change (modification of fields, inheritance). */
+    private long serialVersionUID = 1;
 }

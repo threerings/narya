@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfiguration.java,v 1.11 2002/05/07 00:05:02 mdb Exp $
+// $Id: FringeConfiguration.java,v 1.12 2002/08/19 22:28:05 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -129,4 +129,8 @@ public class FringeConfiguration implements Serializable
 
     /** The mapping from base tileset id to fringerecord. */
     protected HashIntMap _frecs = new HashIntMap();
+
+    /** Increase this value when object's serialized state is impacted by
+     * a class change (modification of fields, inheritance). */
+    private long serialVersionUID = 1;
 }

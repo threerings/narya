@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedTileSet.java,v 1.3 2002/06/21 18:44:27 mdb Exp $
+// $Id: TrimmedTileSet.java,v 1.4 2002/08/19 22:28:05 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -94,4 +94,8 @@ public class TrimmedTileSet extends TileSet
      * within the untrimmed image at which the trimmed image should be
      * rendered. */
     protected Rectangle[] _tbounds;
+
+    /** Increase this value when object's serialized state is impacted by
+     * a class change (modification of fields, inheritance). */
+    private long serialVersionUID = 1;
 }

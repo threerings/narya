@@ -1,5 +1,5 @@
 //
-// $Id: ActionSequence.java,v 1.5 2002/07/24 22:24:05 mdb Exp $
+// $Id: ActionSequence.java,v 1.6 2002/08/19 22:28:05 mdb Exp $
 
 package com.threerings.cast;
 
@@ -47,4 +47,8 @@ public class ActionSequence implements Serializable
             ", origin=" + origin +
             ", orients=" + (orients == null ? 0 : orients.length) + "]";
     }
+
+    /** Increase this value when object's serialized state is impacted by
+     * a class change (modification of fields, inheritance). */
+    private long serialVersionUID = 1;
 }
