@@ -1,9 +1,13 @@
 //
-// $Id: ImageLoadingSpeed.java,v 1.2 2003/01/13 22:57:45 mdb Exp $
+// $Id: ImageLoadingSpeed.java,v 1.3 2003/04/25 15:52:39 mdb Exp $
 
 package com.threerings.media;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import javax.imageio.stream.FileImageInputStream;
+
 import java.io.*;
 
 import com.threerings.resource.ResourceManager;
@@ -21,33 +25,20 @@ public class ImageLoadingSpeed
             System.exit(-1);
         }
 
-        ResourceManager rmgr = new ResourceManager("rsrc");
-        rmgr.initBundles(null, "config/resource/manager.properties", null);
-        ImageManager imgr = new ImageManager(rmgr, null);
         long start = System.currentTimeMillis();
-
-//         // serialize our image
-//         try {
-//             FileOutputStream fout = new FileOutputStream("image.dat");
-//             ObjectOutputStream oout = new ObjectOutputStream(fout);
-//             oout.writeObject(image);
-//             oout.close();
-
-//         } catch (IOException ioe) {
-//             ioe.printStackTrace(System.err);
-//             System.exit(-1);
-//         }
-
         int iter = 0;
         while (true) {
-//         for (int iter = 0; iter < IMAGE_LOAD_ITERS; iter++) {
             String path = args[iter%args.length];
-            if (path.startsWith("rsrc/")) {
-                path = path.substring(5);
+
+            try {
+                FileImageInputStream fis =
+                    new FileImageInputStream(new File(path));
+                BufferedImage image =  ImageIO.read(fis);
+                int width = image.getWidth();
+            } catch (IOException ioe) {
+                ioe.printStackTrace(System.err);
+                System.exit(-1);
             }
-            Image image = null;
-//             image = imgr.getImage(path);
-            image = imgr.getImage("components", path);
 
             if (++iter == 100) {
                 long now = System.currentTimeMillis();
@@ -57,37 +48,13 @@ public class ImageLoadingSpeed
                                    " times in " + elapsed + "ms.");
                 System.err.println("An average of " + (elapsed/iter) +
                                    "ms per image.");
-                start = now;
-                iter = 0;
 
                 System.gc();
-                try { Thread.sleep(5000); } catch (Throwable t) {}
+                try { Thread.sleep(1000); } catch (Throwable t) {}
+
+                start = now;
+                iter = 0;
             }
         }
-
-//         try {
-//             FileInputStream fin = new FileInputStream("image.dat");
-//             BufferedInputStream bin = new BufferedInputStream(fin);
-//             ObjectInputStream oin = new ObjectInputStream(bin);
-//             image = (Image)oin.readObject();
-//             System.out.println(image);
-
-//         } catch (ClassNotFoundException cnfe) {
-//             cnfe.printStackTrace(System.err);
-//             System.exit(-1);
-
-//         } catch (IOException ioe) {
-//             ioe.printStackTrace(System.err);
-//             System.exit(-1);
-//         }
-        
-//         long elapsed = System.currentTimeMillis() - start;
-
-//         System.err.println("Loaded " + args.length + " images a total of " +
-//                            IMAGE_LOAD_ITERS + " times in " + elapsed + "ms.");
-//         System.err.println("An average of " + (elapsed/IMAGE_LOAD_ITERS) +
-//                            "ms per image.");
     }
-
-    protected static final int IMAGE_LOAD_ITERS = 100;
 }
