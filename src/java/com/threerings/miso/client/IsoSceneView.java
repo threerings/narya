@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.32 2001/08/09 05:44:07 shaper Exp $
+// $Id: IsoSceneView.java,v 1.33 2001/08/09 06:26:52 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -334,11 +334,21 @@ public class IsoSceneView implements EditableSceneView
 
     public void setHighlightedTile (int sx, int sy)
     {
+	if (sx == -1 && sy == -1) {
+	    _htile.setLocation(-1, -1);
+	    return;
+	}
+
         IsoUtil.screenToTile(_model, sx, sy, _htile);
     }
 
     public void setHighlightedFull (int x, int y)
     {
+	if (x == -1 && y == -1) {
+	    _hfull.setLocation(-1, -1);
+	    return;
+	}
+
 	IsoUtil.screenToFull(_model, x, y, _hfull);
     }
 
