@@ -1,5 +1,5 @@
 //
-// $Id: AnimationObserver.java,v 1.1 2002/01/11 16:17:33 shaper Exp $
+// $Id: AnimationObserver.java,v 1.2 2003/04/30 00:45:02 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -10,10 +10,7 @@ package com.threerings.media.animation;
 public interface AnimationObserver
 {
     /**
-     * This method is called by the {@link AnimationManager} when
-     * something interesting involving the animation happens.
-     *
-     * @param event the animation event.
+     * Called when the observed animation has completed.
      */
-    public void handleEvent (AnimationEvent event);
+    public void animationCompleted (Animation anim, long when);
 }

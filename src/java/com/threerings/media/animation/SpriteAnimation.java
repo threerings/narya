@@ -1,20 +1,18 @@
 //
-// $Id: SpriteAnimation.java,v 1.2 2002/11/06 01:40:39 mdb Exp $
+// $Id: SpriteAnimation.java,v 1.3 2003/04/30 00:45:02 mdb Exp $
 
 package com.threerings.media.animation;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-import com.threerings.media.sprite.PathCompletedEvent;
 import com.threerings.media.sprite.Sprite;
-import com.threerings.media.sprite.SpriteEvent;
 import com.threerings.media.sprite.SpriteManager;
-import com.threerings.media.sprite.SpriteObserver;
+import com.threerings.media.sprite.PathObserver;
 import com.threerings.media.util.Path;
 
 public class SpriteAnimation extends Animation
-    implements SpriteObserver
+    implements PathObserver
 {
     /**
      * Constructs a sprite animation for the given sprite. The first time
@@ -54,13 +52,17 @@ public class SpriteAnimation extends Animation
         // nothing for now
     }
 
-    // documentation inherited
-    public void handleEvent (SpriteEvent event)
+    // documentation inherited from interface
+    public void pathCancelled (Sprite sprite, Path path)
     {
-        if (event instanceof PathCompletedEvent) {
-            _finished = true;
-        }
-    }    
+        _finished = true;
+    }
+
+    // documentation inherited from interface
+    public void pathCompleted (Sprite sprite, Path path, long when)
+    {
+        _finished = true;
+    }
 
     // documentation inherited
     protected void didFinish ()

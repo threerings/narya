@@ -1,5 +1,5 @@
 //
-// $Id: Animation.java,v 1.9 2002/10/08 21:03:37 ray Exp $
+// $Id: Animation.java,v 1.10 2003/04/30 00:45:02 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -58,17 +58,6 @@ public abstract class Animation extends AbstractMedia
     public void addAnimationObserver (AnimationObserver obs)
     {
         addObserver(obs);
-    }
-
-    /**
-     * Notifies any animation observers that the given animation event has
-     * occurred.
-     */
-    public void notifyObservers (AnimationEvent event)
-    {
-        if (_observers != null) {
-            _mgr.queueNotification(_observers, event);
-        }
     }
 
     /** Whether the animation is finished. */

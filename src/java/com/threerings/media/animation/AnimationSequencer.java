@@ -1,5 +1,5 @@
 //
-// $Id: AnimationSequencer.java,v 1.12 2002/11/06 07:40:05 shaper Exp $
+// $Id: AnimationSequencer.java,v 1.13 2003/04/30 00:45:02 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -153,8 +153,7 @@ public abstract class AnimationSequencer extends Animation
         implements AnimationObserver
     {
         public AnimRecord (Animation anim, long delta, AnimRecord trigger,
-                           Runnable completionAction)
-        {
+                           Runnable completionAction) {
             _anim = anim;
             _delta = delta;
             _trigger = trigger;
@@ -218,11 +217,9 @@ public abstract class AnimationSequencer extends Animation
             tick(when);
         }
 
-        public void handleEvent (AnimationEvent event)
+        public void animationCompleted (Animation anim, long when)
         {
-            if (event instanceof AnimationCompletedEvent) {
-                fireCompletion(event.getWhen());
-            }
+            fireCompletion(when);
         }
 
         public String toString ()

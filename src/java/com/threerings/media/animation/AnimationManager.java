@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.15 2002/11/05 20:51:50 mdb Exp $
+// $Id: AnimationManager.java,v 1.16 2003/04/30 00:45:02 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -50,45 +50,34 @@ public class AnimationManager extends AbstractMediaManager
     {
         super.tickAllMedia(tickStamp);
 
-        // remove any finished animations
-        for (int ii=_media.size() - 1; ii >= 0; ii--) {
+        for (int ii = _media.size() - 1; ii >= 0; ii--) {
             Animation anim = (Animation)_media.get(ii);
-            if (anim.isFinished()) {
-                // let any animation observers know that we're done
-                anim.notifyObservers(
-                    new AnimationCompletedEvent(anim, tickStamp));
-                // un-register the animation
-                unregisterAnimation(anim);
-                // let the animation clean itself up as necessary
-                anim.didFinish();
-                // Log.info("Removed finished animation [anim=" + anim + "].");
+            if (!anim.isFinished()) {
+                continue;
             }
+
+            // as the anim is finished, remove it and notify observers
+            anim.queueNotification(new AnimCompletedOp(anim, tickStamp));
+            unregisterAnimation(anim);
+            anim.didFinish();
+            // Log.info("Removed finished animation " + anim + ".");
         }
     }
 
-    // documentation inherited
-    protected void dispatchEvent (ObserverList observers, Object event)
+    /** Used to dispatch {@link AnimationObserver#animationCompleted}. */
+    protected static class AnimCompletedOp implements ObserverList.ObserverOp
     {
-        _dispatchOp.init((AnimationEvent)event);
-        observers.apply(_dispatchOp);
-    }
-
-    /** Used by {@link #dispatchEvent}. */
-    protected static class DispatchOp implements ObserverList.ObserverOp
-    {
-        public void init (AnimationEvent event)
-        {
-            _event = event;
+        public AnimCompletedOp (Animation anim, long when) {
+            _anim = anim;
+            _when = when;
         }
 
-        public boolean apply (Object observer)
-        {
-            ((AnimationObserver)observer).handleEvent(_event);
+        public boolean apply (Object observer) {
+            ((AnimationObserver)observer).animationCompleted(_anim, _when);
             return true;
         }
 
-        protected AnimationEvent _event;
-    };
-
-    protected DispatchOp _dispatchOp = new DispatchOp();
+        protected Animation _anim;
+        protected long _when;
+    }
 }

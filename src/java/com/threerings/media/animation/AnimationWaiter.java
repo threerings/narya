@@ -1,5 +1,5 @@
 //
-// $Id: AnimationWaiter.java,v 1.2 2002/08/23 23:18:14 shaper Exp $
+// $Id: AnimationWaiter.java,v 1.3 2003/04/30 00:45:02 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -34,19 +34,16 @@ public abstract class AnimationWaiter
         }
     }
 
-    // documentation inherited
-    public void handleEvent (AnimationEvent event)
+    // documentation inherited from interface
+    public void animationCompleted (Animation anim, long when)
     {
-        if (event instanceof AnimationCompletedEvent) {
-            // note that the animation is finished
-            Animation anim = event.getAnimation();
-            animationDidFinish(anim);
-            _animCount--;
+        // note that the animation is finished
+        animationDidFinish(anim);
+        _animCount--;
 
-            // let derived classes know when all is done
-            if (_animCount == 0) {
-                allAnimationsFinished();
-            }
+        // let derived classes know when all is done
+        if (_animCount == 0) {
+            allAnimationsFinished();
         }
     }
 

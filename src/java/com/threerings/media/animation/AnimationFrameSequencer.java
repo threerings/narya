@@ -1,9 +1,11 @@
 //
-// $Id: AnimationFrameSequencer.java,v 1.5 2003/04/14 20:36:16 ray Exp $
+// $Id: AnimationFrameSequencer.java,v 1.6 2003/04/30 00:45:02 mdb Exp $
 
 package com.threerings.media.animation;
 
 import java.util.Arrays;
+
+import com.samskivert.util.ObserverList;
 
 import com.threerings.media.util.FrameSequencer;
 import com.threerings.media.util.MultiFrameImage;
@@ -19,8 +21,9 @@ public interface AnimationFrameSequencer extends FrameSequencer
     public void setAnimation (Animation anim);
 
     /**
-     * A frame sequencer that can step through a series of frames in any order
-     * and speed and send events when specific frames are reached.
+     * A sequencer that can step through a series of frames in any order
+     * and speed and notify (via {@link SequencedAnimationObserver}) when
+     * specific frames are reached.
      */
     public static class MultiFunction implements AnimationFrameSequencer
     {
@@ -178,9 +181,9 @@ public interface AnimationFrameSequencer extends FrameSequencer
         protected void checkNotify (long tickStamp)
         {
             if (_marks[_curIdx]) {
-                _animation.notifyObservers(
-                    new FrameReachedEvent(
-                        _animation, tickStamp, _sequence[_curIdx], _curIdx));
+                _animation.queueNotification(
+                    new FrameReachedOp(_animation, tickStamp,
+                                       _sequence[_curIdx], _curIdx));
             }
         }
 
@@ -213,5 +216,29 @@ public interface AnimationFrameSequencer extends FrameSequencer
 
         /** The animation that we're sequencing for. */
         protected Animation _animation;
+
+        /** Used to dispatch {@link AnimationObserver#frameReached}. */
+        protected static class FrameReachedOp implements ObserverList.ObserverOp
+        {
+            public FrameReachedOp (Animation anim, long when,
+                                   int frameIdx, int frameSeq) {
+                _anim = anim;
+                _when = when;
+                _frameIdx = frameIdx;
+                _frameSeq = frameSeq;
+            }
+
+            public boolean apply (Object observer) {
+                if (observer instanceof SequencedAnimationObserver) {
+                    ((SequencedAnimationObserver)observer).frameReached(
+                        _anim, _when, _frameIdx, _frameSeq);
+                }
+                return true;
+            }
+
+            protected Animation _anim;
+            protected long _when;
+            protected int _frameIdx, _frameSeq;
+        }
     }
 }
