@@ -1,0 +1,11 @@
+Mi Casa Design -*- mode: outline -*-
+
+* Overview
+
+The Mi Casa service is a combination of a game server and a client
+framework for hosting relatively simple, networked, multiplayer games. The
+service is designed for hosting games implemented using the Parlor
+services and built on top of the Cocktail networking platform.
+
+The Mi Casa service is comprised of a server that can be configured to
+have any number of lobbies in which users can get together to play games.
