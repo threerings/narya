@@ -1,5 +1,5 @@
 //
-// $Id: SceneObject.java,v 1.8 2003/05/27 18:25:19 mdb Exp $
+// $Id: SceneObject.java,v 1.9 2003/05/31 00:52:15 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -147,10 +147,16 @@ public class SceneObject
      */
     public boolean objectFootprintOverlaps (SceneObject so)
     {
-        return (so.info.x > info.x - tile.getBaseWidth() &&
-                info.x > so.info.x - so.tile.getBaseWidth() &&
-                so.info.y > info.y - tile.getBaseHeight() &&
-                info.y > so.info.y - so.tile.getBaseHeight());
+        return _frect.intersects(so._frect);
+    }
+
+    /**
+     * Returns true if this object's footprint overlaps the supplied tile
+     * coordinate rectangle.
+     */
+    public boolean objectFootprintOverlaps (Rectangle rect)
+    {
+        return _frect.intersects(rect);
     }
 
     /**
@@ -257,10 +263,11 @@ public class SceneObject
                                tile.getWidth(), tile.getHeight());
 
         // compute our object footprint as well
-        int fx = info.x-tile.getBaseWidth()+1;
-        int fy = info.y-tile.getBaseHeight()+1;
+        _frect = new Rectangle(info.x - tile.getBaseWidth() + 1,
+                               info.y - tile.getBaseHeight() + 1,
+                               tile.getBaseWidth(), tile.getBaseHeight());
         _footprint = MisoUtil.getFootprintPolygon(
-            metrics, fx, fy, tile.getBaseWidth(), tile.getBaseHeight());
+            metrics, _frect.x, _frect.y, _frect.width, _frect.height);
 
         // compute our object spot if we've got one
         if (tile.hasSpot()) {
@@ -284,6 +291,9 @@ public class SceneObject
     {
         return info + "[" + StringUtil.toString(bounds) + "]";
     }
+
+    /** Our object as a tile coordinate rectangle. */
+    protected Rectangle _frect;
 
     /** Our object footprint as a polygon. */
     protected Polygon _footprint;
