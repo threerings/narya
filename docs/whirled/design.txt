@@ -44,3 +44,7 @@ with moveTo request and serialized scene data with moveTo response
 
 Client should avoid unsubscribing from scene objects straight away so that
 it can avoid resubscribing if they bounce back and forth between scenes.
+
+We'll want the scenes to adhere to some sort of hierarchy so that we can
+associate properties files with classes of scenes which will be used to
+configure the scene managers when they are initialized.
