@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.16 2001/07/27 17:54:08 shaper Exp $
+// $Id: IsoSceneView.java,v 1.17 2001/07/28 01:31:51 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -27,7 +27,7 @@ public class IsoSceneView implements EditableSceneView
     {
 	_tmgr = tmgr;
 
-	_bounds = new Rectangle(0, 0, DEF_BOUNDS_WIDTH, DEF_BOUNDS_HEIGHT);
+	_bounds = new Dimension(DEF_BOUNDS_WIDTH, DEF_BOUNDS_HEIGHT);
 
 	_htile = new Point();
 	_htile.x = _htile.y = -1;
@@ -96,7 +96,7 @@ public class IsoSceneView implements EditableSceneView
 	    int length = (ty - tx) + 1;
 
 	    // determine starting screen x-position
-	    int screenX = DEF_CENTER_X - ((length) * Tile.HALF_WIDTH);
+	    int screenX = DEF_CENTER_X - ((length) * ISO_TILE_HALFWIDTH);
 
 	    for (int jj = 0; jj < length; jj++) {
 
@@ -107,7 +107,7 @@ public class IsoSceneView implements EditableSceneView
 
 		    // determine screen y-position, accounting for
 		    // tile image height
-		    int ypos = screenY - (tile.height - Tile.HEIGHT);
+		    int ypos = screenY - (tile.height - ISO_TILE_HEIGHT);
 
 		    // draw the tile image at the appropriate screen position
 		    gfx.drawImage(tile.img, screenX, ypos, null);
@@ -117,7 +117,7 @@ public class IsoSceneView implements EditableSceneView
   		if (_showCoords) paintCoords(gfx, tx, ty, screenX, screenY);
 
 		// each tile is one tile-width to the right of the previous
-		screenX += Tile.WIDTH;
+		screenX += ISO_TILE_WIDTH;
 
 		// advance tile x and decrement tile y as we move to
 		// the right drawing the row
@@ -126,7 +126,7 @@ public class IsoSceneView implements EditableSceneView
 	    }
 
 	    // each row is a half-tile-height away from the previous row
-	    screenY += Tile.HALF_HEIGHT;
+	    screenY += ISO_TILE_HALFHEIGHT;
 
 	    // advance starting y-axis coordinate unless we've hit bottom
 	    if ((++my) > Scene.TILE_HEIGHT - 1) my = Scene.TILE_HEIGHT - 1;
@@ -170,8 +170,10 @@ public class IsoSceneView implements EditableSceneView
     {
 	gfx.setFont(_font);
 	gfx.setColor(Color.white);
-	gfx.drawString(""+x, sx+Tile.HALF_WIDTH-2, sy+Tile.HALF_HEIGHT-2);
-	gfx.drawString(""+y, sx+Tile.HALF_WIDTH-2, sy+Tile.HEIGHT-2);
+	gfx.drawString("" + x, sx + ISO_TILE_HALFWIDTH - 2,
+                       sy + ISO_TILE_HALFHEIGHT - 2);
+	gfx.drawString("" + y, sx + ISO_TILE_HALFWIDTH - 2,
+                       sy + ISO_TILE_HEIGHT - 2);
     }
 
     /**
@@ -193,14 +195,14 @@ public class IsoSceneView implements EditableSceneView
 	gfx.setColor(HLT_COLOR);
 
         // draw the tile outline
-	gfx.drawLine(spos.x, spos.y + Tile.HALF_HEIGHT,
-		     spos.x + Tile.HALF_WIDTH, spos.y);
-	gfx.drawLine(spos.x + Tile.HALF_WIDTH, spos.y,
-		     spos.x + Tile.WIDTH, spos.y + Tile.HALF_HEIGHT);
-	gfx.drawLine(spos.x + Tile.WIDTH, spos.y + Tile.HALF_HEIGHT,
-		     spos.x + Tile.HALF_WIDTH, spos.y + Tile.HEIGHT);
-	gfx.drawLine(spos.x + Tile.HALF_WIDTH, spos.y + Tile.HEIGHT,
-		     spos.x, spos.y + Tile.HALF_HEIGHT);
+	gfx.drawLine(spos.x, spos.y + ISO_TILE_HALFHEIGHT,
+		     spos.x + ISO_TILE_HALFWIDTH, spos.y);
+	gfx.drawLine(spos.x + ISO_TILE_HALFWIDTH, spos.y,
+		     spos.x + ISO_TILE_WIDTH, spos.y + ISO_TILE_HALFHEIGHT);
+	gfx.drawLine(spos.x + ISO_TILE_WIDTH, spos.y + ISO_TILE_HALFHEIGHT,
+		     spos.x + ISO_TILE_HALFWIDTH, spos.y + ISO_TILE_HEIGHT);
+	gfx.drawLine(spos.x + ISO_TILE_HALFWIDTH, spos.y + ISO_TILE_HEIGHT,
+		     spos.x, spos.y + ISO_TILE_HALFHEIGHT);
 
         // restore the original stroke
 	gfx.setStroke(ostroke);
@@ -231,7 +233,7 @@ public class IsoSceneView implements EditableSceneView
 	_lineX[0].y = DEF_CENTER_Y;
 
         // determine the ending point
-	_lineX[1].x = _lineX[0].x + (Tile.HALF_WIDTH * Scene.TILE_WIDTH);
+	_lineX[1].x = _lineX[0].x + (ISO_TILE_HALFWIDTH * Scene.TILE_WIDTH);
 	_lineX[1].y = _lineX[0].y + (int)((SLOPE_X * _lineX[1].x) + _bX);
     }
 
@@ -277,8 +279,8 @@ public class IsoSceneView implements EditableSceneView
      */
     protected void tileToScreen (int x, int y, Point spos)
     {
-        spos.x = _lineX[0].x + ((x - y - 1) * Tile.HALF_WIDTH);
-        spos.y = _lineX[0].y + ((x + y) * Tile.HALF_HEIGHT);
+        spos.x = _lineX[0].x + ((x - y - 1) * ISO_TILE_HALFWIDTH);
+        spos.y = _lineX[0].y + ((x + y) * ISO_TILE_HALFHEIGHT);
     }
 
     public void setScene (Scene scene)
@@ -298,11 +300,17 @@ public class IsoSceneView implements EditableSceneView
 	_scene.tiles[tpos.x][tpos.y][lnum] = tile;
     }
 
+    protected static final int ISO_TILE_HEIGHT = 16;
+    protected static final int ISO_TILE_WIDTH = 32;
+
+    protected static final int ISO_TILE_HALFHEIGHT = ISO_TILE_HEIGHT / 2;
+    protected static final int ISO_TILE_HALFWIDTH = ISO_TILE_WIDTH / 2;
+
     /** The default width of a scene in pixels. */
-    protected static final int DEF_BOUNDS_WIDTH = 18 * Tile.WIDTH;
+    protected static final int DEF_BOUNDS_WIDTH = 18 * ISO_TILE_WIDTH;
 
     /** The default height of a scene in pixels. */
-    protected static final int DEF_BOUNDS_HEIGHT = 37 * Tile.HEIGHT;
+    protected static final int DEF_BOUNDS_HEIGHT = 37 * ISO_TILE_HEIGHT;
 
     /** The total number of tile rows to render the full scene view. */
     protected static final int TILE_RENDER_ROWS =
@@ -312,12 +320,12 @@ public class IsoSceneView implements EditableSceneView
     protected static final int DEF_CENTER_X = DEF_BOUNDS_WIDTH / 2;
 
     /** The starting y-position to render the view. */
-    protected static final int DEF_CENTER_Y = -(9 * Tile.HEIGHT);
+    protected static final int DEF_CENTER_Y = -(9 * ISO_TILE_HEIGHT);
 
     /** The length of a tile edge in pixels from an isometric perspective. */
     protected static final float TILE_EDGE_LENGTH = (float)
-        Math.sqrt((Tile.HALF_WIDTH * Tile.HALF_WIDTH) +
-                  (Tile.HALF_HEIGHT * Tile.HALF_HEIGHT));
+        Math.sqrt((ISO_TILE_HALFWIDTH * ISO_TILE_HALFWIDTH) +
+                  (ISO_TILE_HALFHEIGHT * ISO_TILE_HALFHEIGHT));
 
     /** The color to draw the highlighted tile. */
     protected static final Color HLT_COLOR = Color.green;
@@ -337,8 +345,8 @@ public class IsoSceneView implements EditableSceneView
     /** The last calculated x- and y-axis mouse position tracking lines. */
     protected Point _lineX[], _lineY[];
 
-    /** The bounds rectangle for the view. */
-    protected Rectangle _bounds;
+    /** The bounds dimensions for the view. */
+    protected Dimension _bounds;
 
     /** The currently highlighted tile. */
     protected Point _htile;

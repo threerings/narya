@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.11 2001/07/23 22:31:48 shaper Exp $
+// $Id: TileManager.java,v 1.12 2001/07/28 01:31:51 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -46,7 +46,9 @@ public class TileManager
 	if ((tile.img = _tilesetmgr.getTileImage(tsid, tid)) == null) {
 	    Log.warning("Null tile image [tsid="+tsid+", tid="+tid+"].");
 	}
-	tile.height = (short)((BufferedImage)tile.img).getHeight();
+        BufferedImage bimg = (BufferedImage)tile.img;
+	tile.height = (short)bimg.getHeight();
+        tile.width = (short)bimg.getWidth();
 
 	_tiles.put(utid, tile);
 

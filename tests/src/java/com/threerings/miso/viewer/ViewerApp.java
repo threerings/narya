@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.1 2001/07/25 17:38:15 shaper Exp $
+// $Id: ViewerApp.java,v 1.2 2001/07/28 01:31:51 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -28,7 +28,7 @@ public class ViewerApp
         // create and size the main application frame
 	_frame = new ViewerFrame();
 	_frame.setSize(WIDTH, HEIGHT);
-//  	SwingUtil.centerFrame(_frame);
+  	SwingUtil.centerWindow(_frame);
 
 	// create the handles on our various services
 	_config = createConfig();

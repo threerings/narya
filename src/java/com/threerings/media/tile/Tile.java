@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.7 2001/07/23 18:52:51 shaper Exp $
+// $Id: Tile.java,v 1.8 2001/07/28 01:31:51 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -19,18 +19,11 @@ public class Tile
     /** The tile identifier within the set. */
     public short tid;
 
+    /** The tile width in pixels. */
+    public short width;
+
     /** The tile height in pixels. */
-    public short height; // the tile height in pixels
-
-    /** The height and width of a tile image in pixels. */
-    public static final int HEIGHT = 16;
-    public static final int WIDTH = 32;
-
-    /** Halved tile width in pixels for use in common calculations. */
-    public static final int HALF_HEIGHT = HEIGHT / 2;
-
-    /** Halved tile height in pixels for use in common calculations. */
-    public static final int HALF_WIDTH = WIDTH / 2;
+    public short height;
 
     /**
      * Construct a new tile with the specified identifiers.  Intended

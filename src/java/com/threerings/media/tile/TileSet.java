@@ -1,9 +1,10 @@
 //
-// $Id: TileSet.java,v 1.10 2001/07/23 18:52:51 shaper Exp $
+// $Id: TileSet.java,v 1.11 2001/07/28 01:31:51 shaper Exp $
 
 package com.threerings.miso.tile;
 
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.image.*;
 
 import com.samskivert.util.StringUtil;
@@ -14,11 +15,6 @@ import com.threerings.media.ImageManager;
  * A tileset stores information on a single logical set of tiles.  It
  * provides a clean interface for the TileManager to retrieve
  * individual tile images from a particular tile in the tileset.
- *
- * <p> The width of each tile in every tileset is a constant
- * <code>Tile.WIDTH</code> in pixels.  The tile count in each row can
- * vary.  The height of the tiles in each row can also vary.  This
- * information is obtained from the config object.
  *
  * <p> Tiles are retrieved from the tile set by the TileManager, and
  * are referenced by their tile id (essentially the tile number,
@@ -32,13 +28,17 @@ public class TileSet
      * Construct a new TileSet object with the given parameters.
      */
     public TileSet (String name, int tsid, String imgFile,
-		    int[] rowHeight, int[] tileCount)
+		    int[] rowWidth, int[] rowHeight, int[] tileCount,
+                    Point offsetPos, Point gapDist)
     {
 	_name = name;
 	_tsid = tsid;
 	_imgFile = imgFile;
+        _rowWidth = rowWidth;
 	_rowHeight = rowHeight;
 	_tileCount = tileCount;
+        _offsetPos = offsetPos;
+        _gapDist = gapDist;
 
 	// determine the total number of tiles in the set
 	for (int ii = 0; ii < _tileCount.length; ii++)
@@ -86,22 +86,30 @@ public class TileSet
 
 	// find the row number containing the sought-after tile
 	int ridx, tcount, ty, tx;
-	ridx = tcount = ty = tx = 0;
+	ridx = tcount = 0;
+
+        // start tile image position at image start offset
+        tx = _offsetPos.x;
+        ty = _offsetPos.y;
+
 	while ((tcount += _tileCount[ridx]) < tid + 1) {
-	    ty += _rowHeight[ridx++];
+            // increment tile image position by row height and gap distance
+	    ty += (_rowHeight[ridx++] + _gapDist.y);
 	}
 
-	// determine the horizontal index of this tile in the row
+        // determine the horizontal index of this tile in the row
 	int xidx = tid - (tcount - _tileCount[ridx]);
-	tx = Tile.WIDTH * xidx;
 
-//    	Log.info("Retrieving tile image [tid=" + tid + ", ridx=" +
-//    		 ridx + ", xidx=" + xidx + ", tx=" + tx +
-//    		 ", ty=" + ty + "].");
+        // final image x-position is based on tile width and gap distance
+        tx += (xidx * (_rowWidth[ridx] + _gapDist.x));
+
+    	Log.info("Retrieving tile image [tid=" + tid + ", ridx=" +
+    		 ridx + ", xidx=" + xidx + ", tx=" + tx +
+    		 ", ty=" + ty + "].");
 
 	// crop the tile-sized image chunk from the full image
-	return imgr.getImageCropped(_imgTiles, tx, ty,
-				    Tile.WIDTH, _rowHeight[ridx]);
+	return imgr.getImageCropped(
+            _imgTiles, tx, ty, _rowWidth[ridx], _rowHeight[ridx]);
     }
 
     /**
@@ -116,11 +124,20 @@ public class TileSet
 	buf.append(", tsid=").append(_tsid);
 	buf.append(", numtiles=").append(_numTiles);
 
+	buf.append(", rowwidth=");
+	StringUtil.toString(buf, _rowWidth);
+
 	buf.append(", rowheight=");
 	StringUtil.toString(buf, _rowHeight);
 
 	buf.append(", tilecount=");
 	StringUtil.toString(buf, _tileCount);
+
+        buf.append(", offsetpos=(").append(_offsetPos.x);
+        buf.append(", ").append(_offsetPos.y).append(")");
+
+        buf.append(", gapdist=(").append(_gapDist.x);
+        buf.append(", ").append(_gapDist.y).append(")");
 
 	return buf.append("]").toString();
     }
@@ -134,11 +151,26 @@ public class TileSet
     /** The tileset unique identifier. */
     protected int _tsid;
 
+    /** The width of the tiles in each row in pixels. */
+    protected int _rowWidth[];
+
     /** The height of each row in pixels. */
     protected int _rowHeight[];
 
     /** The number of tiles in each row. */
     protected int _tileCount[];
+
+    /**
+     * The offset distance (x, y) in pixels from the top-left of the
+     * image to the start of the first tile image.
+     */
+    protected Point _offsetPos;
+
+    /**
+     * The distance (x, y) in pixels between each tile in each row
+     * horizontally, and between each row of tiles vertically.
+     */
+    protected Point _gapDist;
 
     /** The total number of tiles. */
     protected int _numTiles;

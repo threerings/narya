@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.1 2001/07/25 17:38:15 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.2 2001/07/28 01:31:51 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -27,19 +27,33 @@ public class SceneViewPanel extends JPanel
     public SceneViewPanel (ViewerContext ctx)
     {
 	_ctx = ctx;
-    	_view = new IsoSceneView(_ctx.getTileManager());
 
+        // construct the view object
+        _view = new IsoSceneView(_ctx.getTileManager());
+
+        // listen to the desired events
 	addMouseListener(this);
 	addMouseMotionListener(this);
 
+        // load up the initial scene
+        prepareStartingScene();
+    }
+
+    /**
+     * Load and set up the starting scene for display.
+     */
+    protected void prepareStartingScene ()
+    {
         // get the scene repository
         XMLFileSceneRepository repo = (XMLFileSceneRepository)
             _ctx.getSceneManager().getSceneRepository();
 
-        // load the starting scene
+        // get the starting scene filename
         Config config = _ctx.getConfig();
         String fname = config.getValue(CONF_SCENE, (String)DEF_SCENE);
+
         try {
+            // load and set up the scene
             _view.setScene(repo.loadScene(fname));
         } catch (IOException ioe) {
             Log.warning("Exception loading scene [fname=" + fname +
@@ -62,12 +76,14 @@ public class SceneViewPanel extends JPanel
     {
 	super.paint(g);
 	_view.paint(g);
+        Log.info("paint()");
     }
 
     /** MouseListener interface methods */
 
     public void mouseClicked (MouseEvent e)
     {
+        Log.info("mouseClicked [x=" + e.getX() + ", y=" + e.getY() + "].");
     }
 
     public void mouseEntered (MouseEvent e) { }
@@ -76,6 +92,7 @@ public class SceneViewPanel extends JPanel
 
     public void mousePressed (MouseEvent e)
     {
+        Log.info("mousePressed [x=" + e.getX() + ", y=" + e.getY() + "].");
     }
 
     public void mouseReleased (MouseEvent e) { }
