@@ -1,5 +1,5 @@
 //
-// $Id: FieldMarshaller.java,v 1.4 2002/12/21 00:44:25 mdb Exp $
+// $Id: FieldMarshaller.java,v 1.5 2003/07/11 01:22:16 ray Exp $
 
 package com.threerings.io;
 
@@ -39,8 +39,13 @@ public abstract class FieldMarshaller
             createMarshallers();
         }
 
-        // if we have an exact match, use that
         Class ftype = field.getType();
+        if (ftype.isInterface()) {
+            // if the class is a pure interface, use Object.
+            ftype = Object.class;
+        }
+
+        // if we have an exact match, use that
         FieldMarshaller fm = (FieldMarshaller)_marshallers.get(ftype);
 
         // otherwise if the class is a streamable, use the streamable
