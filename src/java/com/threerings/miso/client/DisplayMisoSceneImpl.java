@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.45 2001/11/27 22:17:42 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.46 2001/11/29 19:30:51 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -48,7 +48,7 @@ public class DisplayMisoSceneImpl
         for (int column = 0; column < shei; column++) {
             for (int row = 0; row < swid; row++) {
                 // first do the base layer
-                int tsid = model.baseTileIds[swid*row+column];
+                int tsid = model.baseTileIds[swid*column+row];
                 if (tsid > 0) {
                     int tid = (tsid & 0xFFFF);
                     tsid >>= 16;
@@ -63,7 +63,7 @@ public class DisplayMisoSceneImpl
                 }
 
                 // then the fringe layer
-                tsid = model.fringeTileIds[swid*row+column];
+                tsid = model.fringeTileIds[swid*column+row];
                 if (tsid > 0) {
                     int tid = (tsid & 0xFFFF);
                     tsid >>= 16;
