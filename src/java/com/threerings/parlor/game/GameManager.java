@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.13 2001/10/18 18:39:10 mdb Exp $
+// $Id: GameManager.java,v 1.14 2001/10/24 01:00:54 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -96,14 +96,24 @@ public class GameManager
     }
 
     // documentation inherited
-    protected void bodyEntered (int bodyOid)
-    {
-    }
-
-    // documentation inherited
     protected void bodyLeft (int bodyOid)
     {
+        super.bodyLeft(bodyOid);
+
         // deal with disappearing players
+    }
+
+    /**
+     * When a game room becomes empty, we cancel the game if it's still in
+     * progress and close down the game room.
+     */
+    protected void placeBecameEmpty ()
+    {
+        Log.info("Game room empty. Going away. [game=" + _gameobj + "].");
+
+        // shut down the place (which will destroy the game object and
+        // clean up after everything)
+        shutdown();
     }
 
     /**
