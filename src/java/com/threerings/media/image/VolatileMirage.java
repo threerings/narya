@@ -1,5 +1,5 @@
 //
-// $Id: VolatileMirage.java,v 1.3 2003/01/14 04:18:25 mdb Exp $
+// $Id: VolatileMirage.java,v 1.4 2003/01/17 02:30:21 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -83,6 +83,12 @@ public abstract class VolatileMirage implements Mirage
     {
 //         return ImageUtil.hitTest(_image.getSnapshot(), x, y);
         return ImageUtil.hitTest(_image, x, y);
+    }
+
+    // documentation inherited from interface
+    public long getEstimatedMemoryUsage ()
+    {
+        return ImageUtil.getEstimatedMemoryUsage(_image.getRaster());
     }
 
     // documentation inherited from interface

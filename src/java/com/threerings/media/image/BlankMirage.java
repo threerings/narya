@@ -1,5 +1,5 @@
 //
-// $Id: BlankMirage.java,v 1.1 2003/01/13 22:49:46 mdb Exp $
+// $Id: BlankMirage.java,v 1.2 2003/01/17 02:30:21 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -40,6 +40,12 @@ public class BlankMirage implements Mirage
     public boolean hitTest (int x, int y)
     {
         return false;
+    }
+
+    // documentation inherited from interface
+    public long getEstimatedMemoryUsage ()
+    {
+        return 0;
     }
 
     // documentation inherited from interface

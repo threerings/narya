@@ -1,5 +1,5 @@
 //
-// $Id: Mirage.java,v 1.1 2003/01/13 22:49:46 mdb Exp $
+// $Id: Mirage.java,v 1.2 2003/01/17 02:30:21 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -40,4 +40,10 @@ public interface Mirage
      * should <em>not</em> be modified by the caller.
      */
     public BufferedImage getSnapshot ();
+
+    /**
+     * Returns an estimate of the memory consumed by this mirage's image
+     * raster data.
+     */
+    public long getEstimatedMemoryUsage ();
 }

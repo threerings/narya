@@ -1,5 +1,5 @@
 //
-// $Id: BufferedMirage.java,v 1.1 2003/01/13 22:49:46 mdb Exp $
+// $Id: BufferedMirage.java,v 1.2 2003/01/17 02:30:21 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -38,6 +38,12 @@ public class BufferedMirage implements Mirage
     public boolean hitTest (int x, int y)
     {
         return ImageUtil.hitTest(_image, x, y);
+    }
+
+    // documentation inherited from interface
+    public long getEstimatedMemoryUsage ()
+    {
+        return ImageUtil.getEstimatedMemoryUsage(_image.getRaster());
     }
 
     // documentation inherited from interface
