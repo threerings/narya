@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.1 2001/08/01 03:22:54 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.2 2001/08/01 17:00:59 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -44,6 +44,8 @@ public class PlaceRegistry implements Subscriber
         // create a place manager for this place
         try {
             PlaceManager pmgr = (PlaceManager)pmgrClass.newInstance();
+            // let the pmgr know about us
+            pmgr.init(this);
             // stick the manager on the creation queue because we know
             // we'll get our calls to objectAvailable()/requestFailed() in
             // the order that we call createObject()
@@ -109,9 +111,8 @@ public class PlaceRegistry implements Subscriber
             return;
         }
 
-        // initialize the place manager with the newly created place
-        // object
-        pmgr.init((PlaceObject)object);
+        // start the place manager up with the newly created place object
+        pmgr.startup((PlaceObject)object);
 
         // stick the manager into our table
         _pmgrs.put(object.getOid(), pmgr);

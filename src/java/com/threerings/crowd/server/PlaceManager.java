@@ -1,10 +1,9 @@
 //
-// $Id: PlaceManager.java,v 1.3 2001/08/01 03:22:54 mdb Exp $
+// $Id: PlaceManager.java,v 1.4 2001/08/01 17:00:58 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
 import com.threerings.cocktail.cher.dobj.*;
-
 import com.threerings.cocktail.party.data.PlaceObject;
 
 /**
@@ -20,14 +19,35 @@ import com.threerings.cocktail.party.data.PlaceObject;
  * interactions with the place registry to manage place registration. It
  * handles the place-related component of chatting. It also provides the
  * basis for place-based access control.
+ *
+ * <p> A derived class is expected to achieve its functionality via the
+ * callback functions:
+ *
+ * <pre>
+ * protected void didStartup ()
+ * protected void willShutdown ()
+ * protected void didShutdown ()
+ * </pre>
+ *
+ * as well as through additions to <code>handlEvent</code>.
  */
 public class PlaceManager implements Subscriber
 {
     /**
+     * Called by the place registry after creating this place manager.
+     * Initialization is followed by startup which happens when the place
+     * object that this manager will manage is available.
+     */
+    public void init (PlaceRegistry registry)
+    {
+        _registry = registry;
+    }
+
+    /**
      * Called by the place manager after the place object has been
      * successfully created.
      */
-    public void init (PlaceObject plobj)
+    public void startup (PlaceObject plobj)
     {
         // keep track of this
         _plobj = plobj;
@@ -39,10 +59,16 @@ public class PlaceManager implements Subscriber
         plobj.addSubscriber(this);
 
         // let our derived classes do their thang
-        didInit();
+        didStartup();
     }
 
-    protected void didInit ()
+    /**
+     * Derived classes should override this (and be sure to call
+     * <code>super.didStartup()</code>) to perform any startup time
+     * initialization. The place object will be available by the time this
+     * method is executed.
+     */
+    protected void didStartup ()
     {
     }
 
@@ -54,29 +80,28 @@ public class PlaceManager implements Subscriber
         return _plobj;
     }
 
+    // nothing doing
     public void objectAvailable (DObject object)
     {
     }
 
+    // nothing doing
     public void requestFailed (int oid, ObjectAccessException cause)
     {
     }
 
+    /**
+     * Derived classes can override this to handle events, but they must
+     * be sure to pass unknown events up to their super class.
+     */
     public boolean handleEvent (DEvent event, DObject target)
     {
         return true;
     }
 
-    /**
-     * Called by the place registry after creating this place manager.
-     * This is necessary so that the manager can inform the place registry
-     * when the place goes away.
-     */
-    public void setRegistry (PlaceRegistry registry)
-    {
-        _registry = registry;
-    }
-
+    /** A reference to the place object that we manage. */
     protected PlaceObject _plobj;
+
+    /** A reference to the place registry with which we're registered. */
     protected PlaceRegistry _registry;
 }
