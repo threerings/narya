@@ -1,11 +1,12 @@
 //
-// $Id: TileSetBundle.java,v 1.9 2002/08/19 22:58:15 mdb Exp $
+// $Id: TileSetBundle.java,v 1.10 2002/09/23 18:19:57 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
 import java.awt.Image;
 import javax.imageio.ImageIO;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +39,14 @@ public class TileSetBundle extends HashIntMap
     {
         _bundle = bundle;
         _imgr = imgr;
+    }
+
+    /**
+     * Returns the bundle file from which our tiles are fetched.
+     */
+    public File getSource ()
+    {
+        return _bundle.getSource();
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: BundledTileSetRepository.java,v 1.5 2001/11/30 02:34:57 mdb Exp $
+// $Id: BundledTileSetRepository.java,v 1.6 2002/09/23 18:19:57 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -78,6 +78,40 @@ public class BundledTileSetRepository
         // finally create one big fat array of all of the tileset bundles
         _bundles = new TileSetBundle[tbundles.size()];
         tbundles.toArray(_bundles);
+    }
+
+    /**
+     * Searches for the tileset with the specified name, which must reside
+     * in a tileset bundle identified by the supplied bundle identifying
+     * string.
+     *
+     * @param bundleId a string that will be substring matched against the
+     * names of all known tileset bundles. Only bundles whose bundle file
+     * path contains this string will be searched.
+     * @param setName the name of the tileset to be located.
+     *
+     * @return The first tileset matching the supplied parameters or null
+     * if no matching tileset could be found.
+     */
+    public TileSet locateTileSet (String bundleId, String setName)
+    {
+        int bcount = _bundles.length;
+        for (int ii = 0; ii < bcount; ii++) {
+            TileSetBundle tsb = _bundles[ii];
+            // skip non-matching bundles
+            if (tsb.getSource().getPath().indexOf(bundleId) == -1) {
+                continue;
+            }
+            // search for the tileset in this bundle
+            Iterator tsiter = tsb.enumerateTileSets();
+            while (tsiter.hasNext()) {
+                TileSet set = (TileSet)tsiter.next();
+                if (set.getName().equals(setName)) {
+                    return set;
+                }
+            }
+        }
+        return null;
     }
 
     // documentation inherited
