@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorApp.java,v 1.10 2002/07/12 03:50:24 mdb Exp $
+// $Id: SimulatorApp.java,v 1.11 2002/07/15 03:09:29 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -96,12 +96,23 @@ public class SimulatorApp
         // start up the client
         Client client = _client.getParlorContext().getClient();
 
-        // we're connecting to our own server
-        client.setServer("localhost", Client.DEFAULT_SERVER_PORT);
+        // obtain the port information from system properties
+        int port = Client.DEFAULT_SERVER_PORT;
+        String portstr = System.getProperty("port");
+        if (portstr != null) {
+            try {
+                port = Integer.parseInt(portstr);
+            } catch (NumberFormatException nfe) {
+                Log.warning("Invalid port specification '" + portstr + "'.");
+            }
+        }
+        Log.info("Connecting to localhost:" + port + ".");
+        client.setServer("localhost", port);
 
         // we want to exit when we logged off or failed to log on
         client.addClientObserver(new ClientAdapter() {
             public void clientFailedToLogon (Client c, Exception cause) {
+                Log.info("Client failed to logon: " + cause);
                 System.exit(0);
             }
             public void clientDidLogoff (Client c) {

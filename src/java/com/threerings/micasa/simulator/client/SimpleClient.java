@@ -1,5 +1,5 @@
 //
-// $Id: SimpleClient.java,v 1.5 2002/07/12 03:49:37 mdb Exp $
+// $Id: SimpleClient.java,v 1.6 2002/07/15 03:09:29 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -45,9 +45,6 @@ public class SimpleClient
         _locdir = new LocationDirector(_ctx);
         _occdir = new OccupantDirector(_ctx);
         _pardtr = new ParlorDirector(_ctx);
-
-        // for test purposes, hardcode the server info
-        _client.setServer("localhost", 4007);
 
         // keep this for later
         _frame = frame;
