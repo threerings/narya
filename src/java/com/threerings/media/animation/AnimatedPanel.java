@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.14 2002/02/19 07:19:04 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.15 2002/02/19 19:56:49 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -47,15 +47,13 @@ public class AnimatedPanel extends Canvas implements AnimatedView
      */
     public AnimatedPanel ()
     {
-	// set our attributes for optimal display performance
-        // setIgnoreRepaint(true);
-
         // create our animation manager
         _animmgr = new AnimationManager(this);
 
         // create a sprite manager if we haven't been requested not to
         if (needsSpriteManager()) {
-            _animmgr.setSpriteManager(new SpriteManager());
+            _spritemgr = new SpriteManager();
+            _animmgr.setSpriteManager(_spritemgr);
         }
     }
 
@@ -203,9 +201,20 @@ public class AnimatedPanel extends Canvas implements AnimatedView
                 invalidRects.add(new Rectangle(0, 0, width, -dy));
             }
 
-            // let our derived classes do whatever they need to do to
-            // prepare to be scrolled
-            viewWillScroll(dx, dy);
+            // make sure we're actually scrolling before telling people
+            // about it
+            if (dx != 0 || dy != 0) {
+                // if we are working with a sprite manager, let it know
+                // that we're about to scroll out from under its sprites
+                // and allow it to provide us with more dirty rects
+                if (_spritemgr != null) {
+                    _spritemgr.viewWillScroll(dx, dy, invalidRects);
+                }
+
+                // let our derived classes do whatever they need to do to
+                // prepare to be scrolled
+                viewWillScroll(dx, dy);
+            }
         }
 
         // if we didn't scroll and have no invalid rects, there's no need
@@ -241,6 +250,10 @@ public class AnimatedPanel extends Canvas implements AnimatedView
                     invalidRects.clear();
                     invalidRects.add(new Rectangle(0, 0, width, height));
                     Log.info("Lost back buffer, redrawing.");
+
+                } else if (dx != 0 || dy != 0) {
+                    // if it was OK, we may need to do some scrolling
+                    g.copyArea(0, 0, width, height, -dx, -dy);
                 }
 
                 // now do our actual rendering
@@ -254,19 +267,21 @@ public class AnimatedPanel extends Canvas implements AnimatedView
             try {
                 g = getGraphics();
 
-                // do any scrolling that we need to do
-                if (_stime != 0) {
-                    // if it was OK, we may need to do some scrolling
-                    g.copyArea(0, 0, width, height, -dx, -dy);
-                }
-
-                // iterate through the invalid rectangles, copying those
-                // areas from the back buffer to the display
-                int isize = invalidRects.size();
-                for (int i = 0; i < isize; i++) {
-                    Rectangle rect = (Rectangle)invalidRects.get(i);
-                    g.setClip(rect);
+                // if we're scrolling, we've got to copy the whole image
+                // to the screen, otherwise we can just copy the dirty
+                // regions
+                if (dx != 0 || dy != 0) {
                     g.drawImage(_backimg, 0, 0, null);
+
+                } else {
+                    // iterate through the invalid rectangles, copying
+                    // those areas from the back buffer to the display
+                    int isize = invalidRects.size();
+                    for (int i = 0; i < isize; i++) {
+                        Rectangle rect = (Rectangle)invalidRects.get(i);
+                        g.setClip(rect);
+                        g.drawImage(_backimg, 0, 0, null);
+                    }
                 }
 
             } finally {
@@ -311,6 +326,9 @@ public class AnimatedPanel extends Canvas implements AnimatedView
 
     /** The animation manager we use in this panel. */
     protected AnimationManager _animmgr;
+
+    /** The sprite manager in use by this panel. */
+    protected SpriteManager _spritemgr;
 
     /** The image used to render off-screen. */
     protected VolatileImage _backimg;
