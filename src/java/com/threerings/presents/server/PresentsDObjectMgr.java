@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.29 2003/03/10 18:29:54 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.30 2003/03/31 04:11:24 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -223,6 +223,12 @@ public class PresentsDObjectMgr
      */
     protected void processEvent (DEvent event)
     {
+        // handle graceful shutdown
+        if (event instanceof ShutdownEvent) {
+            _running = false;
+            return;
+        }
+
         // look up the target object
         DObject target = (DObject)_objects.get(event.getTargetOid());
         if (target == null) {
@@ -278,8 +284,6 @@ public class PresentsDObjectMgr
      */
     public void shutdown ()
     {
-        _running = false;
-
         // stick a bogus object on the event queue to ensure that the mgr
         // wakes up and smells the coffee
         _evqueue.append(new ShutdownEvent());

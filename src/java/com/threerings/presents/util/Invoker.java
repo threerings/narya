@@ -1,5 +1,5 @@
 //
-// $Id: Invoker.java,v 1.5 2002/10/05 23:35:21 mdb Exp $
+// $Id: Invoker.java,v 1.6 2003/03/31 04:11:24 mdb Exp $
 
 package com.threerings.presents.util;
 
@@ -120,17 +120,20 @@ public class Invoker extends LoopingThread
                 Log.warning("Invocation unit failed [unit=" + unit + "].");
                 Log.logStackTrace(e);
             }
-        }
 
-        // if it's not a runnable, it was probably just an object posted
-        // to our queue to wake us up in time to die, so we just ignore it
+        } else {
+            // if it's not a runnable, it was just an object posted to our
+            // queue to wake us up and tell us to go away
+            _running = false;
+        }
     }
 
     // documentation inherited
-    protected void kick ()
+    public void shutdown ()
     {
-        // add a non-runnable to the queue which will be ignored by the
-        // invoker but will cause it to wake up and go away
+        // we do some custom shutdown business: add a non-runnable to the
+        // queue which, when the invoker gets to it, will cause it to shut
+        // itself down
         _queue.append(new Integer(0));
     }
 
