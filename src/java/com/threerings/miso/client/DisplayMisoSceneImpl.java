@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.62 2002/09/23 23:07:11 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.63 2002/12/11 23:05:07 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -135,7 +135,7 @@ public class DisplayMisoSceneImpl
         }
 
         // create object tile instances for our objects
-        for (int ii = 0; ii < ocount; ii+= 3) {
+        for (int ii = 0; ii < ocount; ii += 3) {
             int col = _model.objectTileIds[ii];
             int row = _model.objectTileIds[ii+1];
             int fqTid = _model.objectTileIds[ii+2];
