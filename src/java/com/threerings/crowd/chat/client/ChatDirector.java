@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.52 2003/09/22 19:15:12 ray Exp $
+// $Id: ChatDirector.java,v 1.53 2003/09/23 23:03:34 mdb Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -416,13 +416,15 @@ public class ChatDirector extends BasicDirector
      */
     public void setAwayMessage (String message)
     {
-        // pass the buck right on along
-        message = filter(message, null, true);
-        if (message == null) {
-            // they filtered away their own away message..
-            // change it to something
-            message = "...";
+        if (message != null) {
+            message = filter(message, null, true);
+            if (message == null) {
+                // they filtered away their own away message..
+                // change it to something
+                message = "...";
+            }
         }
+        // pass the buck right on along
         _cservice.away(_ctx.getClient(), message);
     }
 
