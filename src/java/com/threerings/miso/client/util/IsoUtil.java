@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.3 2001/08/15 02:30:27 shaper Exp $
+// $Id: IsoUtil.java,v 1.4 2001/08/15 03:13:06 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -9,6 +9,7 @@ import java.awt.Polygon;
 import com.threerings.media.sprite.Path;
 import com.threerings.media.util.MathUtil;
 
+import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;
 
 /**
