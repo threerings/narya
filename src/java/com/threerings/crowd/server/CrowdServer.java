@@ -1,5 +1,5 @@
 //
-// $Id: CrowdServer.java,v 1.13 2002/08/14 19:07:49 mdb Exp $
+// $Id: CrowdServer.java,v 1.14 2002/10/21 20:56:20 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -17,9 +17,6 @@ import com.threerings.crowd.data.BodyObject;
  */
 public class CrowdServer extends PresentsServer
 {
-    /** The namespace used for server config properties. */
-    public static final String CONFIG_KEY = "crowd";
-
     /** The place registry. */
     public static PlaceRegistry plreg;
 
@@ -43,11 +40,6 @@ public class CrowdServer extends PresentsServer
 
         // initialize the chat services
         ChatProvider.init(invmgr, omgr);
-
-//         // register our invocation service providers
-//         String[] providers = null;
-//         providers = CrowdConfig.config.getValue(PROVIDERS_KEY, providers);
-//         registerProviders(providers);
 
         Log.info("Crowd server initialized.");
     }

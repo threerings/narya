@@ -1,10 +1,7 @@
 //
-// $Id: MiCasaServer.java,v 1.6 2002/08/14 19:07:49 mdb Exp $
+// $Id: MiCasaServer.java,v 1.7 2002/10/21 20:56:20 mdb Exp $
 
 package com.threerings.micasa.server;
-
-import com.samskivert.jdbc.ConnectionProvider;
-import com.samskivert.jdbc.StaticConnectionProvider;
 
 import com.threerings.crowd.server.CrowdServer;
 import com.threerings.parlor.server.ParlorManager;
@@ -18,9 +15,6 @@ import com.threerings.micasa.lobby.LobbyRegistry;
  */
 public class MiCasaServer extends CrowdServer
 {
-    /** The database connection provider in use by this server. */
-    public static ConnectionProvider conprov;
-
     /** The parlor manager in operation on this server. */
     public static ParlorManager parmgr = new ParlorManager();
 
@@ -45,10 +39,6 @@ public class MiCasaServer extends CrowdServer
         // initialize the lobby registry
         lobreg.init(invmgr);
 
-        // create our connection provider
-        String dbmap = MiCasaConfig.config.getValue(DBMAP_KEY, DEF_DBMAP);
-        conprov = new StaticConnectionProvider(dbmap);
-
         Log.info("MiCasa server initialized.");
     }
 
@@ -63,9 +53,4 @@ public class MiCasaServer extends CrowdServer
             Log.logStackTrace(e);
         }
     }
-
-    // connection provider related configuration info
-    protected final static String DBMAP_KEY = "dbmap";
-    protected final static String DEF_DBMAP =
-        "rsrc/config/micasa/dbmap.properties";
 }

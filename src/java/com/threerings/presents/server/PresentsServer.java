@@ -1,9 +1,10 @@
 //
-// $Id: PresentsServer.java,v 1.25 2002/10/01 05:15:45 mdb Exp $
+// $Id: PresentsServer.java,v 1.26 2002/10/21 20:56:20 mdb Exp $
 
 package com.threerings.presents.server;
 
 import com.threerings.presents.Log;
+import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.server.net.ConnectionManager;
 import com.threerings.presents.util.Invoker;
@@ -20,9 +21,6 @@ import com.threerings.presents.util.Invoker;
  */
 public class PresentsServer
 {
-    /** The namespace used for server config properties. */
-    public static final String CONFIG_KEY = "presents";
-
     /** The manager of network connections. */
     public static ConnectionManager conmgr;
 
@@ -54,7 +52,7 @@ public class PresentsServer
         invoker.start();
 
         // create our connection manager
-        conmgr = new ConnectionManager();
+        conmgr = new ConnectionManager(getListenPort());
         conmgr.setAuthenticator(new DummyAuthenticator());
 
         // create our client manager
@@ -65,58 +63,16 @@ public class PresentsServer
 
         // initialize the time base services
         TimeBaseProvider.init(invmgr, omgr);
-
-//         // register our invocation service providers
-//         registerProviders(PresentsConfig.getProviders());
     }
 
-//     /**
-//      * Registers invocation service providers as parsed from a
-//      * configuration file. Each string in the array should contain an
-//      * expression of the form:
-//      *
-//      * <pre>
-//      * module = provider fully-qualified class name
-//      * </pre>
-//      *
-//      * A comma separated list of these can be specified in the
-//      * configuration file and loaded into a string array easily. These
-//      * providers will be instantiated and registered with the invocation
-//      * manager.
-//      */
-//     protected void registerProviders (String[] providers)
-//     {
-//         // ignore null arrays to make life easier for the caller
-//         if (providers == null) {
-//             return;
-//         }
-
-//         for (int i = 0; i < providers.length; i++) {
-//             int eidx = providers[i].indexOf("=");
-//             if (eidx == -1) {
-//                 Log.warning("Ignoring bogus provider declaration " +
-//                             "[decl=" + providers[i] + "].");
-//                 continue;
-//             }
-
-//             String module = providers[i].substring(0, eidx).trim();
-//             String pname = providers[i].substring(eidx+1).trim();
-
-//             // instantiate the provider class and register it
-//             try {
-//                 Class pclass = Class.forName(pname);
-//                 InvocationProvider provider = (InvocationProvider)
-//                     pclass.newInstance();
-//                 invmgr.registerProvider(module, provider);
-//                 Log.info("Registered provider [module=" + module +
-//                          ", provider=" + pname + "].");
-
-//             } catch (Exception e) {
-//                 Log.warning("Unable to register provider [module=" + module +
-//                             ", provider=" + pname + ", error=" + e + "].");
-//             }
-//         }
-//     }
+    /**
+     * Returns the port on which the connection manager will listen for
+     * client connections.
+     */
+    protected int getListenPort ()
+    {
+        return Client.DEFAULT_SERVER_PORT;
+    }
 
     /**
      * Starts up all of the server services and enters the main server

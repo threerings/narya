@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.21 2002/07/25 20:23:25 mdb Exp $
+// $Id: ConnectionManager.java,v 1.22 2002/10/21 20:56:21 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -21,7 +21,6 @@ import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.DownstreamMessage;
 
 import com.threerings.presents.server.Authenticator;
-import com.threerings.presents.server.PresentsConfig;
 import com.threerings.presents.server.PresentsServer;
 
 /**
@@ -36,18 +35,11 @@ public class ConnectionManager extends LoopingThread
     /**
      * Constructs and initialized a connection manager (binding the socket
      * on which it will listen for client connections).
-     *
-     * @param config A config object from which the connection manager
-     * will fetch its configuration parameters.
      */
-    public ConnectionManager ()
+    public ConnectionManager (int port)
         throws IOException
     {
-        // the listen port is specified in our configuration
-        _port = PresentsConfig.config.getValue(
-            CM_PORT_KEY, Client.DEFAULT_SERVER_PORT);
-
-        // we use this to wait for activity on our sockets
+        _port = port;
         _selset = new SelectSet();
 
         try {
@@ -377,9 +369,6 @@ public class ConnectionManager extends LoopingThread
     protected Queue _authq = new Queue();
 
     protected ArrayList _observers = new ArrayList();
-
-    /** The config key for our listening port. */
-    protected static final String CM_PORT_KEY = "conmgr_port";
 
     /**
      * How long we wait for network events before checking our running
