@@ -1,11 +1,12 @@
 //
-// $Id: MisoSceneRuleSet.java,v 1.6 2002/02/02 01:09:53 mdb Exp $
+// $Id: MisoSceneRuleSet.java,v 1.7 2002/02/02 01:32:18 mdb Exp $
 
 package com.threerings.miso.scene.tools.xml;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.RuleSetBase;
 
+import com.samskivert.xml.CallMethodSpecialRule;
 import com.samskivert.xml.SetFieldRule;
 
 import com.threerings.miso.scene.MisoSceneModel;
@@ -58,6 +59,22 @@ public class MisoSceneRuleSet extends RuleSetBase
                          new SetFieldRule(digester, "objectTileIds"));
         digester.addRule(_prefix + "/actions",
                          new SetFieldRule(digester, "objectActions"));
+
+        // we have to unfuck the objectActions field in the event that
+        // there's one object in the objects element which has a blank
+        // action string (which the parser will parse as a zero length
+        // array, when we want a length one array with a blank string)
+        digester.addRule(_prefix, new CallMethodSpecialRule(digester) {
+            public void parseAndSet (String bodyText, Object target)
+                throws Exception
+            {
+                MisoSceneModel model = (MisoSceneModel)target;
+                if (model.objectTileIds.length > 0 &&
+                    model.objectActions.length == 0) {
+                    model.objectActions = new String[1];
+                }
+            }
+        });
     }
 
     /** The prefix at which me match our scenes. */
