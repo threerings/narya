@@ -1,5 +1,5 @@
 //
-// $Id: InvocationProvider.java,v 1.2 2001/07/19 19:18:07 mdb Exp $
+// $Id: InvocationProvider.java,v 1.3 2001/07/23 21:13:29 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -49,6 +49,15 @@ package com.threerings.cocktail.cher.server;
  */
 public class InvocationProvider
 {
+    /**
+     * Creates a response array properly configured with the supplied name
+     * and no arguments.
+     */
+    protected Object[] createResponse (String name)
+    {
+        return new Object[] { name, null };
+    }
+
     /**
      * Creates a response array properly configured with the supplied name
      * and single argument.
