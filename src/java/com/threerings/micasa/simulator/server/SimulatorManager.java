@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorManager.java,v 1.7 2002/03/05 05:33:25 mdb Exp $
+// $Id: SimulatorManager.java,v 1.8 2002/03/26 01:30:37 shaper Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -137,7 +137,7 @@ public class SimulatorManager
 
             // resolve client objects for all of our simulants
             for (int ii = 1; ii < _playerCount; ii++) {
-                String username = "simulant" + (_sims.size() + 1);
+                String username = "simulant" + ii;
                 _clmgr.resolveClientObject(username, listener);
             }
         }
