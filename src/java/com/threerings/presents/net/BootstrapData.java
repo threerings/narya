@@ -1,12 +1,12 @@
 //
-// $Id: BootstrapData.java,v 1.1 2001/07/19 07:09:16 mdb Exp $
+// $Id: BootstrapData.java,v 1.2 2001/10/09 18:17:52 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
 import com.threerings.cocktail.cher.dobj.DObject;
 
 /**
- * An <code>BootstrapData</code> object is communicated back to the client
+ * A <code>BootstrapData</code> object is communicated back to the client
  * after authentication has succeeded and after the server is fully
  * prepared to deal with the client. It contains information the client
  * will need to interact with the server.
@@ -19,8 +19,11 @@ public class BootstrapData extends DObject
     /** The oid to which to send invocation requests. */
     public int invOid;
 
-    public String toString ()
+    // documentation inherited
+    public void toString (StringBuffer buf)
     {
-        return "[clientOid=" + clientOid + ", invOid=" + invOid + "]";
+        super.toString(buf);
+        buf.append(", clientOid=").append(clientOid);
+        buf.append(", invOid=").append(invOid);
     }
 }
