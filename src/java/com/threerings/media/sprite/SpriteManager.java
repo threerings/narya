@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.36 2002/09/20 02:12:33 mdb Exp $
+// $Id: SpriteManager.java,v 1.37 2002/09/20 02:19:53 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -245,7 +245,7 @@ public class SpriteManager
         // we tick sprites in reverse order so as not to freak out if a
         // sprite is removed as a result of our calling tick() on it
         int size = _sprites.size();
-	for (int ii = size-1; ii >= 0; ii++) {
+	for (int ii = size-1; ii >= 0; ii--) {
             Sprite sprite = (Sprite)_sprites.get(ii);
 	    sprite.tick(tickStamp);
         }
