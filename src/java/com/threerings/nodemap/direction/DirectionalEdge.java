@@ -1,5 +1,5 @@
 //
-// $Id: DirectionalEdge.java,v 1.2 2001/08/23 23:44:12 shaper Exp $
+// $Id: DirectionalEdge.java,v 1.3 2001/08/24 22:13:10 shaper Exp $
 
 package com.threerings.nodemap.direction;
 
@@ -50,5 +50,11 @@ public class DirectionalEdge extends Edge
 	int cdy = dy + (dst.getHeight() / 2);
 
 	g.drawLine(csx, csy, cdx, cdy);
+    }
+
+    public void toString (StringBuffer buf)
+    {
+	super.toString(buf);
+	buf.append(", dir=").append(dir);
     }
 }
