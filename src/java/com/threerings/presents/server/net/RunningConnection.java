@@ -1,5 +1,5 @@
 //
-// $Id: RunningConnection.java,v 1.10 2002/12/22 06:36:30 mdb Exp $
+// $Id: RunningConnection.java,v 1.11 2002/12/22 19:13:38 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -38,6 +38,6 @@ public class RunningConnection extends Connection
     public String toString ()
     {
         return "[mode=RUNNING, id=" + (hashCode() % 1000) +
-            ", addr=" + getIPAddress() + "]";
+            ", addr=" + getInetAddress() + "]";
     }
 }
