@@ -1,5 +1,5 @@
 //
-// $Id: UniformTileSet.java,v 1.1 2001/11/08 03:04:44 mdb Exp $
+// $Id: UniformTileSet.java,v 1.2 2001/11/08 06:58:57 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -55,8 +55,8 @@ public class UniformTileSet extends TileSet
 
         // figure out from whence to crop the tile
         int tilesPerRow = tsimg.getWidth(null) / _width;
-        int row = tilesPerRow / tileId;
-        int col = tilesPerRow % tileId;
+        int row = tileId / tilesPerRow;
+        int col = tileId % tilesPerRow;
 
 	// crop the tile-sized image chunk from the full image
 	return _imgmgr.getImageCropped(
