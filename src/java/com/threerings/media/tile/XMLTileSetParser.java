@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParser.java,v 1.6 2001/07/23 22:31:48 shaper Exp $
+// $Id: XMLTileSetParser.java,v 1.7 2001/07/24 22:52:02 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -84,7 +84,6 @@ public class XMLTileSetParser extends DefaultHandler
 	    }
 
             // read all tileset descriptions from the XML input stream
-            XMLTileSetParser parser = new XMLTileSetParser();
 	    XMLUtil.parse(this, tis);
 
             return _tilesets;

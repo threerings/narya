@@ -1,18 +1,20 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.12 2001/07/24 19:15:51 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.13 2001/07/24 22:52:02 shaper Exp $
 
 package com.threerings.miso.scene;
-
-import com.threerings.miso.tile.Tile;
-import com.threerings.miso.tile.TileManager;
 
 import java.awt.Point;
 import java.io.*;
 
+import com.samskivert.util.StringUtil;
+import com.threerings.miso.tile.Tile;
+import com.threerings.miso.tile.TileManager;
+
 /**
- * A scene represents the data model corresponding to a single screen
- * for game play.  For instance, one scene might display a portion of
- * a street with several buildings scattered about on the periphery.
+ * A Scene object represents the data model corresponding to a single
+ * screen for game play.  For instance, one scene might display a
+ * portion of a street with several buildings scattered about on the
+ * periphery.
  */
 public class Scene
 {
@@ -37,6 +39,9 @@ public class Scene
     /** String translations of each tile layer name. */
     public static final String[] XLATE_LAYERS = { "Base", "Object" };
 
+    /** Scene id to denote an unset or otherwise invalid scene id. */
+    public static final int SID_INVALID = -1;
+
     /** The tiles comprising the scene. */
     public Tile tiles[][][];
 
@@ -49,6 +54,7 @@ public class Scene
     public Scene (TileManager tilemgr, int sid)
     {
 	_tilemgr = tilemgr;
+        _sid = (short)sid;
 	_name = DEF_SCENE_NAME;
         _hotspots = new Point[0];
         _exits = new ExitPoint[0];
@@ -64,6 +70,29 @@ public class Scene
 		}
 	    }
 	}
+    }
+
+    /**
+     * Construct a new Scene object with the given values, specifying
+     * the tile manager from which the scene obtains tiles.
+     *
+     * @param tilemgr the tile manager.
+     * @param sid the scene id.
+     * @param name the scene name.
+     * @param hotspots the hotspot points.
+     * @param exits the exit points.
+     * @param tiles the tiles comprising the scene.
+     */
+    public Scene (TileManager tilemgr, int sid, String name,
+                  Point hotspots[], ExitPoint exits[],
+                  Tile tiles[][][])
+    {
+        _tilemgr = tilemgr;
+        _sid = (short)sid;
+        _name = name;
+        _hotspots = hotspots;
+        _exits = exits;
+        this.tiles = tiles;
     }
 
     /**
@@ -115,6 +144,19 @@ public class Scene
 	}
 
 	return numTiles;
+    }
+
+    /**
+     * Return a string representation of this Scene object.
+     */
+    public String toString ()
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append("[name=").append(_name);
+        buf.append(", sid=").append(_sid);
+        buf.append(", hotspots=").append(StringUtil.toString(_hotspots));
+        buf.append(", exits=").append(StringUtil.toString(_exits));
+        return buf.append("]").toString();
     }
 
     /** The default scene name. */

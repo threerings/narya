@@ -1,5 +1,5 @@
 //
-// $Id: ExitPoint.java,v 1.4 2001/07/24 19:15:51 shaper Exp $
+// $Id: ExitPoint.java,v 1.5 2001/07/24 22:52:02 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -12,9 +12,22 @@ public class ExitPoint
     /** Coordinates for this exit point. */
     public byte x, y;
 
+    /** The scene name this exit transitions to. */
+    public String name;
+
     /** The scene id this exit transitions to. */
     public short sid;
 
-    /** The scene name this exit transitions to. */
-    public String name;
+    /**
+     * Return a String representation of this ExitPoint object.
+     */
+    public String toString ()
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append("[x=").append(x);
+        buf.append(", y=").append(y);
+        buf.append(", name=").append(name);
+        buf.append(", sid=").append(sid);
+        return buf.append("]").toString();
+    }
 }
