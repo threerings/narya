@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.9 2001/12/14 16:07:30 shaper Exp $
+// $Id: ChatPanel.java,v 1.10 2001/12/16 21:47:13 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -137,6 +137,7 @@ public class ChatPanel
         StyleConstants.setForeground(_noticeStyle, Color.magenta);
     }
 
+    // documentation inherited
     public void actionPerformed (ActionEvent e)
     {
 	String cmd = e.getActionCommand();
@@ -148,16 +149,19 @@ public class ChatPanel
 	}
     }
 
+    // documentation inherited
     public void occupantEntered (OccupantInfo info)
     {
         displayOccupantMessage("*** " + info.username + " entered.");
     }
 
+    // documentation inherited
     public void occupantLeft (OccupantInfo info)
     {
         displayOccupantMessage("*** " + info.username + " left.");
     }
 
+    // documentation inherited
     public void occupantUpdated (OccupantInfo info)
     {
     }
@@ -214,7 +218,9 @@ public class ChatPanel
         _entry.setText("");
     }
 
-    public void displaySpeakMessage (String speaker, String message)
+    // documentation inherited
+    public void displaySpeakMessage (
+        String type, String speaker, String message)
     {
         // wrap the speaker in brackets
         speaker = "<" + speaker + "> ";
@@ -230,7 +236,8 @@ public class ChatPanel
         }
     }
 
-    public void displaySystemMessage (String message)
+    // documentation inherited
+    public void displaySystemMessage (String type, String message)
     {
         // stick a newline on the message
         message = message + "\n";
@@ -256,6 +263,7 @@ public class ChatPanel
         }
     }
 
+    // documentation inherited
     public void displayTellMessage (String speaker, String message)
     {
         // wrap the speaker in brackets
@@ -272,6 +280,7 @@ public class ChatPanel
         }
     }
 
+    // documentation inherited
     public void handleResponse (int reqid, String status)
     {
         if (!status.equals(ChatCodes.SUCCESS)) {
@@ -292,11 +301,13 @@ public class ChatPanel
         }
     }
 
+    // documentation inherited
     public void didLeavePlace (PlaceObject place)
     {
         // nothing doing
     }
 
+    // documentation inherited
     public Dimension getPreferredSize ()
     {
         Dimension size = super.getPreferredSize();
