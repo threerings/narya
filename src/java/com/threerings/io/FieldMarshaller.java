@@ -1,10 +1,11 @@
 //
-// $Id: FieldMarshaller.java,v 1.5 2003/07/11 01:22:16 ray Exp $
+// $Id: FieldMarshaller.java,v 1.6 2004/02/03 15:02:13 mdb Exp $
 
 package com.threerings.io;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Date;
 import java.util.HashMap;
 
 import com.threerings.presents.Log;
@@ -240,6 +241,18 @@ public abstract class FieldMarshaller
                 Field field, Object source, ObjectOutputStream out)
                 throws Exception {
                 out.writeUTF((String)field.get(source));
+            }
+        });
+        _marshallers.put(Date.class, new FieldMarshaller() {
+            public void readField (
+                Field field, Object target, ObjectInputStream in)
+                throws Exception {
+                field.set(target, new Date(in.readLong()));
+            }
+            public void writeField (
+                Field field, Object source, ObjectOutputStream out)
+                throws Exception {
+                out.writeLong(((Date)field.get(source)).getTime());
             }
         });
 
