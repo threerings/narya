@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.35 2003/08/08 03:11:55 ray Exp $
+// $Id: PresentsDObjectMgr.java,v 1.36 2003/08/15 18:50:02 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -709,8 +709,8 @@ public class PresentsDObjectMgr
             return false;
         }
 
-        protected Class _class;
-        protected Subscriber _target;
+        protected transient Class _class;
+        protected transient Subscriber _target;
     }
 
     /**
