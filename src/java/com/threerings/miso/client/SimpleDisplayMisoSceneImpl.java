@@ -1,5 +1,5 @@
 //
-// $Id: SimpleDisplayMisoSceneImpl.java,v 1.3 2003/04/01 02:17:58 mdb Exp $
+// $Id: SimpleDisplayMisoSceneImpl.java,v 1.4 2003/04/07 22:04:39 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -150,7 +150,7 @@ public class SimpleDisplayMisoSceneImpl extends SimpleMisoSceneImpl
     public boolean canTraverse (Object trav, int x, int y)
     {
         BaseTile tile = getBaseTile(x, y);
-        return (((tile == null) || tile.isPassable()) &&
+        return (((tile != null) && tile.isPassable()) &&
                 !_covered[y*_model.width+x]);
     }
 
