@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.28 2002/11/29 23:40:32 mdb Exp $
+// $Id: ClientManager.java,v 1.29 2003/03/02 03:47:06 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -118,12 +118,12 @@ public class ClientManager
 
     /**
      * Returns the client instance that manages the client session for the
-     * specified credentials or null if that client is not currently
-     * connected to the server.
+     * specified authentication username or null if that client is not
+     * currently connected to the server.
      */
-    public PresentsClient getClient (Credentials creds)
+    public PresentsClient getClient (String authUsername)
     {
-        return (PresentsClient)_usermap.get(creds);
+        return (PresentsClient)_usermap.get(authUsername.toLowerCase());
     }
 
     /**
@@ -252,10 +252,10 @@ public class ClientManager
         Connection conn, AuthRequest req, AuthResponse rsp)
     {
         Credentials creds = req.getCredentials();
-        String username = creds.getUsername();
+        String username = creds.getUsername().toLowerCase();
 
         // see if a client is already registered with these credentials
-        PresentsClient client = (PresentsClient)_usermap.get(creds);
+        PresentsClient client = getClient(username);
 
         if (client != null) {
             Log.info("Resuming session [username=" + username +
@@ -272,7 +272,7 @@ public class ClientManager
                 client.startSession(this, creds, conn);
 
                 // map their client instance
-                _usermap.put(creds, client);
+                _usermap.put(username, client);
 
             } catch (Exception e) {
                 Log.warning("Failed to instantiate client instance to " +
@@ -344,7 +344,8 @@ public class ClientManager
         String username = client.getUsername();
 
         // remove the client from the username map
-        PresentsClient rc = (PresentsClient)_usermap.remove(creds);
+        PresentsClient rc = (PresentsClient)
+            _usermap.remove(creds.getUsername().toLowerCase());
 
         // sanity check just because we can
         if (rc == null) {
@@ -425,7 +426,7 @@ public class ClientManager
         protected ClientOp _clop;
     }
 
-    /** A mapping from usernames to client instances. */
+    /** A mapping from auth username to client instances. */
     protected HashMap _usermap = new HashMap();
 
     /** A mapping from connections to client instances. */
