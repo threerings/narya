@@ -1,5 +1,5 @@
 //
-// $Id: ModeUtil.java,v 1.2 2002/04/28 01:30:10 mdb Exp $
+// $Id: ModeUtil.java,v 1.3 2002/05/09 18:43:56 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -63,7 +63,8 @@ public class ModeUtil
         for (int i = 0; i < modes.length; i++) {
             if (modes[i].getWidth() == 800 &&
                 modes[i].getHeight() == 600 &&
-                modes[i].getBitDepth() >= minimumDepth) {
+                modes[i].getBitDepth() >= minimumDepth &&
+                modes[i].getRefreshRate() <= 75) {
                 mset.add(modes[i]);
             }
         }
