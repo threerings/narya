@@ -1,19 +1,10 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: tilesets.xml,v 1.22 2001/10/17 22:10:04 shaper Exp $ -->
+<!-- $Id: tilesets.xml,v 1.23 2001/10/17 22:25:17 shaper Exp $ -->
 
 <!-- Initial test tileset description data. -->
 
 <tilesetgroup>
-
-  <tileset tsid="1003" name="Red Character">
-    <imagefile>media/miso/tiles/character.png</imagefile>
-    <rowheight>94, 94, 94, 94, 94, 94, 94, 94</rowheight>
-    <rowwidth>94, 94, 94, 94, 94, 94, 94, 94</rowwidth>
-    <tilecount>8, 8, 8, 8, 8, 8, 8, 8</tilecount>
-    <offsetpos>52, 51</offsetpos>
-    <gapdist>39, 18</gapdist>
-  </tileset>
 
   <tileset tsid="1004" name="Sample" layer="Base">
     <imagefile>media/miso/tiles/sample.png</imagefile>
