@@ -1,5 +1,5 @@
 //
-// $Id: EntryUpdatedEvent.java,v 1.11 2003/04/30 22:32:04 mdb Exp $
+// $Id: EntryUpdatedEvent.java,v 1.12 2003/05/01 02:11:22 ray Exp $
 
 package com.threerings.presents.dobj;
 
@@ -65,13 +65,11 @@ public class EntryUpdatedEvent extends NamedEvent
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
-        if (_oldEntry == null) {
+        // only apply the change if we haven't already
+        if (_oldEntry == UNSET_OLD_ENTRY) {
             DSet set = (DSet)target.getAttribute(_name);
-
             // fetch the previous value for interested callers
-            if (_oldEntry != UNSET_OLD_ENTRY) {
-                _oldEntry = set.get(_entry.getKey());
-            }
+            _oldEntry = set.get(_entry.getKey());
 
             // update the entry
             if (!set.update(_entry)) {
