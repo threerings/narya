@@ -127,10 +127,10 @@ public class StageScenePanel extends MisoScenePanel
     {
         _scene = scene;
         if (_scene != null) {
+            _rizer = new SceneColorizer(_ctx.getColorPository(), scene);
             recomputePortals();
             setSceneModel(StageMisoSceneModel.getSceneModel(
                               scene.getSceneModel()));
-            _rizer = new SceneColorizer(_ctx.getColorPository(), scene);
         } else {
             Log.warning("Zoiks! We can't display a null scene!");
             // TODO: display something to the user letting them know that
