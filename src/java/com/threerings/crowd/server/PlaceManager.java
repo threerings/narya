@@ -211,6 +211,17 @@ public class PlaceManager
     }
 
     /**
+     * Adds the supplied delegate to the list for this manager.
+     */
+    public void addDelegate (PlaceManagerDelegate delegate)
+    {
+        if (_delegates == null) {
+            _delegates = new ArrayList();
+        }
+        _delegates.add(delegate);
+    }
+
+    /**
      * Provides an opportunity for place managers to ratify the creation
      * of a place based on whatever criterion they may require (based on
      * information available to the manager at this post-init() but
@@ -622,17 +633,6 @@ public class PlaceManager
     {
         buf.append("place=").append(_plobj);
         buf.append(", config=").append(_config);
-    }
-
-    /**
-     * Adds the supplied delegate to the list for this manager.
-     */
-    protected void addDelegate (PlaceManagerDelegate delegate)
-    {
-        if (_delegates == null) {
-            _delegates = new ArrayList();
-        }
-        _delegates.add(delegate);
     }
 
     /**
