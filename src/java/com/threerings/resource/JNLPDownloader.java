@@ -1,5 +1,5 @@
 //
-// $Id: JNLPDownloader.java,v 1.8 2003/08/20 03:53:35 mdb Exp $
+// $Id: JNLPDownloader.java,v 1.9 2003/10/29 02:42:56 mdb Exp $
 
 package com.threerings.resource;
 
@@ -25,6 +25,7 @@ import com.sun.javaws.jardiff.JarDiffPatcher;
 import com.samskivert.io.StreamUtil;
 import com.samskivert.util.FileUtil;
 import com.samskivert.util.StringUtil;
+import com.threerings.util.RandomUtil;
 
 import com.threerings.resource.DownloadManager.DownloadDescriptor;
 import com.threerings.resource.DownloadManager.DownloadObserver;
@@ -125,10 +126,16 @@ public class JNLPDownloader extends Downloader
                 FileUtil.resuffix(_desc.destFile, ".jar", ".old"));
             if (!_desc.destFile.renameTo(oldDest)) {
                 Log.warning("Unable to move " + _desc.destFile + " to " +
-                            oldDest + ". Cleaning up and failing.");
-                // attempt to blow everything away before choking so that
-                // next time we'll download afresh
-                cleanUpAndFail(null);
+                            oldDest + ". Trying another strategy.");
+                oldDest = new File(_desc.destFile,
+                                   RandomUtil.rand.nextLong() + ".jar");
+                if (!_desc.destFile.renameTo(oldDest)) {
+                    Log.warning("Unable to move " + _desc.destFile + " to " +
+                                oldDest + ". Giving up and wiping.");
+                    // attempt to blow everything away before choking so that
+                    // next time we'll download afresh
+                    cleanUpAndFail(null);
+                }
             }
 
             // now apply the patch
