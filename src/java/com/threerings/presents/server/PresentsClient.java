@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.50 2003/01/21 22:02:37 mdb Exp $
+// $Id: PresentsClient.java,v 1.51 2003/01/24 21:36:04 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -490,7 +490,12 @@ public class PresentsClient
         populateBootstrapData(data);
 
         // create a send bootstrap notification
-        _conn.postMessage(new BootstrapNotification(data));
+        if (_conn != null) {
+            _conn.postMessage(new BootstrapNotification(data));
+        } else {
+            Log.warning("Have no connection on which to deliver " +
+                        "bootstrap notification " + this + ".");
+        }
     }
 
     /**
