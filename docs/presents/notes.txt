@@ -1,5 +1,12 @@
 Cher Mk3 Notes -*- outline -*-
 
+* Marshaller
+Consider how the dobject marshaller deals with classes loaded and reloaded
+using flushable classloaders.
+
+Also consider whether access to the marshaller cache needs to be
+synchronized.
+
 * Check into "connection closed by peer" thread exiting on client
 
 * TypedObjectFactory
