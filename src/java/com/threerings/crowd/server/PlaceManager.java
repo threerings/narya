@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.11 2001/08/21 01:17:25 shaper Exp $
+// $Id: PlaceManager.java,v 1.12 2001/08/21 22:34:20 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -200,8 +200,10 @@ public class PlaceManager implements Subscriber
         // if this is a message event, see if we have a handler for it
         if (event instanceof MessageEvent) {
             MessageEvent mevt = (MessageEvent)event;
-            MessageHandler handler = (MessageHandler)
-                _msghandlers.get(mevt.getName());
+            MessageHandler handler = null;
+            if (_msghandlers != null) {
+                handler = (MessageHandler)_msghandlers.get(mevt.getName());
+            }
             if (handler != null) {
                 handler.handleEvent(mevt, (PlaceObject)target);
             }
