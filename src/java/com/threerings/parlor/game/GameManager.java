@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.20 2002/02/13 18:50:15 mdb Exp $
+// $Id: GameManager.java,v 1.21 2002/02/14 07:28:12 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -138,6 +138,19 @@ public class GameManager extends PlaceManager
     }
 
     /**
+     * Called when all players have arrived in the game room. By default,
+     * this starts up the game, but a manager may wish to override this
+     * and start the game according to different criterion.
+     */
+    protected void playersAllHere ()
+    {
+        // start up the game (if we haven't already)
+        if (_gameobj.state == GameObject.AWAITING_PLAYERS) {
+            startGame();
+        }
+    }
+
+    /**
      * This is called when the game is ready to start (all players
      * involved have delivered their "am ready" notifications). It calls
      * {@link #gameWillStart}, sets the necessary wheels in motion and
@@ -147,6 +160,13 @@ public class GameManager extends PlaceManager
      */
     public void startGame ()
     {
+        // complain if we're already started
+        if (_gameobj.state == GameObject.IN_PLAY) {
+            Log.warning("Requested to start an already in-play game " +
+                        "[game=" + _gameobj + "].");
+            return;
+        }
+
         // let the derived class do its pre-start stuff
         gameWillStart();
 
@@ -250,8 +270,7 @@ public class GameManager extends PlaceManager
         public void handleEvent (MessageEvent event, PlaceManager pmgr)
         {
             int cloid = event.getSourceOid();
-            BodyObject body = (BodyObject)
-                CrowdServer.omgr.getObject(cloid);
+            BodyObject body = (BodyObject)CrowdServer.omgr.getObject(cloid);
             if (body == null) {
                 Log.warning("Player sent am ready notification and then " +
                             "disappeared [event=" + event + "].");
@@ -270,10 +289,9 @@ public class GameManager extends PlaceManager
                 }
             }
 
-            // if everyone is now ready to go, start up the game (if we
-            // haven't already)
-            if (allSet && _gameobj.state == GameObject.AWAITING_PLAYERS) {
-                startGame();
+            // if everyone is now ready to go, make a note of it
+            if (allSet) {
+                playersAllHere();
             }
         }
     }
