@@ -1,5 +1,5 @@
 //
-// $Id: ChatCodes.java,v 1.20 2004/08/27 02:12:31 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,6 +22,9 @@
 package com.threerings.crowd.chat.data;
 
 import com.threerings.presents.data.InvocationCodes;
+
+import com.threerings.crowd.chat.client.ChatDirector;
+import com.threerings.crowd.chat.client.SpeakService;
 
 /**
  * Contains codes used by the chat invocation services.

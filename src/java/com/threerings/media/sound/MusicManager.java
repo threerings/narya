@@ -75,7 +75,7 @@ public class MusicManager
     /**
      * Sets the volume for music.
      *
-     * @param val a volume parameter between 0f and 1f, inclusive.
+     * @param vol a volume parameter between 0f and 1f, inclusive.
      */
     public void setMusicVolume (float vol)
     {

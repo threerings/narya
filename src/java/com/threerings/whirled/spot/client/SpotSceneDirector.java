@@ -169,7 +169,7 @@ public class SpotSceneDirector extends BasicDirector
      * specified location.
      *
      * @param loc the new location to which to move.
-     * @param obs will be notified of success or failure. Most client
+     * @param listener will be notified of success or failure. Most client
      * entities find out about location changes via changes to the
      * occupant info data, but the initiator of a location change request
      * can be notified of its success or failure, primarily so that it can

@@ -1,5 +1,5 @@
 //
-// $Id: GameManagerDelegate.java,v 1.9 2004/10/22 19:27:54 ray Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -57,7 +57,7 @@ public class GameManagerDelegate extends PlaceManagerDelegate
      * the game is IN_PLAY.
      *
      * @param pidx the player index to fake some gameplay for.
-     * @param skill the base skill level of the AI (0 - 100 inclusive).
+     * @param ai a record indicating the AI's configuration.
      */
     public void tickAI (int pidx, AI ai)
     {

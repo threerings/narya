@@ -1,5 +1,5 @@
 //
-// $Id: SceneSummary.java,v 1.8 2004/08/27 02:20:51 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -24,6 +24,7 @@ package com.threerings.whirled.zone.data;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.Streamable;
+import com.threerings.util.DirectionCodes;
 import com.threerings.util.DirectionUtil;
 
 /**

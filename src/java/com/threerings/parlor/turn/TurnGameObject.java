@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameObject.java,v 1.7 2004/08/27 02:20:15 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,6 +22,8 @@
 package com.threerings.parlor.turn;
 
 import com.threerings.util.Name;
+
+import com.threerings.parlor.game.GameObject;
 
 /**
  * Games that wish to support turn-based play must implement this

@@ -1,5 +1,5 @@
 //
-// $Id: SpriteIcon.java,v 1.6 2004/08/27 02:12:41 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -38,8 +38,7 @@ public class SpriteIcon implements Icon
      * itself. This sprite should not be used for anything else while
      * being used in this icon because it will be "moved" when the icon is
      * rendered. The sprite's origin will be set to the bottom center of
-     * the label. If this is undesirable, the origin can be offset via
-     * {@link #setOriginOffset}.
+     * the label.
      */
     public SpriteIcon (Sprite sprite)
     {
@@ -51,8 +50,7 @@ public class SpriteIcon implements Icon
      * itself. This sprite should not be used for anything else while
      * being used in this icon because it will be "moved" when the icon is
      * rendered. The sprite's origin will be set to the bottom center of
-     * the label. If this is undesirable, the origin can be offset via
-     * {@link #setOriginOffset}.
+     * the label.
      *
      * @param sprite the sprite to render in this label.
      * @param padding the number of pixels of blank space to put on all

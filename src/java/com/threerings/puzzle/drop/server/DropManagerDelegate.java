@@ -1,5 +1,5 @@
 //
-// $Id: DropManagerDelegate.java,v 1.5 2004/08/29 06:50:47 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -51,7 +51,7 @@ import com.threerings.puzzle.drop.util.PieceDropper;
  * <p> A puzzle game using these services will then need to extend this
  * delegate, implementing the necessary methods to customize it for the
  * particulars of their game and then register it with their game manager
- * via {@link GameManager#addDelegate}.
+ * via {@link PuzzleManager#addDelegate}.
  *
  * <p> It also keeps track of, for each player, board level information,
  * and player game status.  Miscellaneous utility routines are provided

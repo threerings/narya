@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundler.java,v 1.21 2004/08/27 02:12:43 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -197,7 +197,7 @@ public class TileSetBundler
      *
      * @param idBroker the tileset id broker that will be used to map
      * tileset names to tileset ids.
-     * @param bundleDef a file object pointing to the bundle description
+     * @param bundleDesc a file object pointing to the bundle description
      * file.
      * @param targetPath the path of the tileset bundle file that will be
      * created.
@@ -332,8 +332,8 @@ public class TileSetBundler
      * Finish the creation of a tileset bundle jar file.
      *
      * @param target the tileset bundle file that will be created.
-     * @param TileSetBundle contains the tilesets we'd like to save out to
-     * the bundle.
+     * @param bundle contains the tilesets we'd like to save out to the
+     * bundle.
      * @param improv the image provider.
      * @param imageBase the base directory for getting images for non
      * ObjectTileSet tilesets.

@@ -1,5 +1,5 @@
 //
-// $Id: SpotService.java,v 1.17 2004/08/27 02:20:44 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -39,7 +39,7 @@ public interface SpotService extends InvocationService
      * Requests to traverse the specified portal.
      *
      * @param portalId the portal to be traversed.
-     * @param descSceneVer the version of the destination scene data that
+     * @param destSceneVer the version of the destination scene data that
      * the client has in its local repository.
      */
     public void traversePortal (

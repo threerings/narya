@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleService.java,v 1.5 2004/10/21 02:54:43 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -28,8 +28,7 @@ import com.threerings.puzzle.data.SolitairePuzzleConfig;
 
 /**
  * The puzzle services provide a mechanism by which the client can enter
- * and leave puzzles. These services should not be used directly, but
- * instead should be accessed via the {@link PuzzleDirector}.
+ * and leave puzzles.
  */
 public interface PuzzleService extends InvocationService
 {

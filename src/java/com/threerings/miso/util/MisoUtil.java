@@ -1,5 +1,5 @@
 //
-// $Id: MisoUtil.java,v 1.24 2004/08/27 02:20:10 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -471,7 +471,7 @@ public class MisoUtil
      * Adds the supplied fine coordinates to the supplied tile coordinates
      * to compute full coordinates.
      *
-     * @retun the point object supplied as <code>full</code>.
+     * @return the point object supplied as <code>full</code>.
      */
     public static Point tilePlusFineToFull (MisoSceneMetrics metrics,
                                             int tileX, int tileY,

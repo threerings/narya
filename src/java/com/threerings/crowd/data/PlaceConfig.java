@@ -25,6 +25,9 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.io.TrackedStreamableObject;
 
+import com.threerings.crowd.client.LocationDirector;
+import com.threerings.crowd.client.PlaceController;
+
 /**
  * The place config class encapsulates the configuration information for a
  * particular type of place. The hierarchy of place config objects mimics

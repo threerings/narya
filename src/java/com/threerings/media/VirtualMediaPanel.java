@@ -282,7 +282,7 @@ public class VirtualMediaPanel extends MediaPanel
 
     /**
      * Called during our tick when we have adjusted the view location. The
-     * {@link _vbounds} will already have been updated to reflect our new
+     * {@link #_vbounds} will already have been updated to reflect our new
      * view coordinates.
      *
      * @param dx the delta scrolled in the x direction (in pixels).

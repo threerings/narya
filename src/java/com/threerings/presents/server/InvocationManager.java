@@ -1,5 +1,5 @@
 //
-// $Id: InvocationManager.java,v 1.23 2004/08/27 02:20:23 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -27,6 +27,7 @@ import com.samskivert.util.HashIntMap;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.io.Streamable;
 import com.threerings.util.StreamableArrayList;
 
 import com.threerings.presents.Log;

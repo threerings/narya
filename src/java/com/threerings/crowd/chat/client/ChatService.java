@@ -1,5 +1,5 @@
 //
-// $Id: ChatService.java,v 1.14 2004/08/27 02:12:30 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -43,7 +43,7 @@ public interface ChatService extends InvocationService
         /**
          * Communicates the response to a {@link #tell} request.
          *
-         * @param idletime the number of ms the tellee has been idle or 0L
+         * @param idleTime the number of ms the tellee has been idle or 0L
          * if they are not idle.
          * @param awayMessage the away message configured by the told
          * player or null if they have no away message.

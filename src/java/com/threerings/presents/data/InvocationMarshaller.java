@@ -1,5 +1,5 @@
 //
-// $Id: InvocationMarshaller.java,v 1.6 2004/08/27 02:20:19 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -28,6 +28,8 @@ import com.threerings.io.Streamable;
 import com.threerings.presents.Log;
 
 import com.threerings.presents.client.Client;
+import com.threerings.presents.client.InvocationService.ConfirmListener;
+import com.threerings.presents.client.InvocationService.ResultListener;
 import com.threerings.presents.client.InvocationService;
 
 import com.threerings.presents.dobj.DObjectManager;

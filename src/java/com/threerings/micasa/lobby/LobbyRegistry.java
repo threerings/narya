@@ -1,5 +1,5 @@
 //
-// $Id: LobbyRegistry.java,v 1.11 2004/08/27 02:12:50 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -94,7 +94,6 @@ public class LobbyRegistry
      * Initializes the registry. It will use the supplied configuration
      * instance to determine which lobbies to load, etc.
      *
-     * @param config the server configuration.
      * @param invmgr a reference to the server's invocation manager.
      */
     public void init (InvocationManager invmgr)

@@ -1,5 +1,5 @@
 //
-// $Id: ClusteredBodyObject.java,v 1.4 2004/08/27 02:20:45 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -24,7 +24,7 @@ package com.threerings.whirled.spot.data;
 import com.threerings.whirled.data.ScenedBodyObject;
 
 /**
- * Defines some required methods for a {@link BodyObject} that is to
+ * Defines some required methods for a {@link ScenedBodyObject} that is to
  * participate in the Whirled Spot system.
  */
 public interface ClusteredBodyObject extends ScenedBodyObject

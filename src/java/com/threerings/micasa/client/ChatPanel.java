@@ -37,6 +37,7 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
 import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;

@@ -1,5 +1,5 @@
 //
-// $Id: CompositedActionFrames.java,v 1.17 2004/08/27 02:12:25 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -26,6 +26,7 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.media.image.Colorization;
 import com.threerings.media.image.ImageManager;
+import com.threerings.media.util.MultiFrameImage;
 
 import com.threerings.cast.CharacterComponent;
 import com.threerings.util.DirectionCodes;

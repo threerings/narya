@@ -118,14 +118,18 @@
 
   <!-- build the javadoc documentation -->
   <target name="javadoc" depends="prepare">
-    <javadoc sourcepath="src/java"
-             packagenames="com.threerings.*"
-             destdir="${javadoc.home}"
-             additionalparam="-breakiterator"
-             link="http://dev.threerings.net/devel/docs/narya/">
+    <javadoc packagenames="com.threerings.*" destdir="${javadoc.home}"
+             additionalparam="-breakiterator -quiet"
+             link="http://www.threerings.net/code/narya/narya/docs/api">
       <classpath refid="classpath"/>
       <link href="http://java.sun.com/j2se/1.4/docs/api/"/>
-      <link href="http://dev.threerings.net/devel/docs/samskivert/"/>
+      <link href="http://samskivert.com/code/samskivert/samskivert/docs/api"/>
+      <fileset dir="src/java" includes="**/*.java">
+        <exclude name="**/OggPlayer.java"/>
+        <exclude name="**/ModPlayer.java"/>
+        <exclude name="**/MidiPlayer.java"/>
+        <exclude name="**/Mp3Player.java"/>
+      </fileset>
     </javadoc>
     <copy todir="${javadoc.home}">
       <fileset dir="src/java" includes="**/*.png"/>

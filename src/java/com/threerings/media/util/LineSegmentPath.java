@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.30 2004/08/27 02:12:47 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -80,12 +80,8 @@ public class LineSegmentPath
     }
 
     /**
-     * Constructs a line segment path with the specified list of
-     * points.  An arbitrary direction will be assigned to the
-     * starting node.
-     *
-     * @param x the starting node x-position.
-     * @param y the starting node y-position.
+     * Constructs a line segment path with the specified list of points.
+     * An arbitrary direction will be assigned to the starting node.
      */
     public LineSegmentPath (List points)
     {

@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneMetrics.java,v 1.6 2004/08/27 02:20:10 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -20,6 +20,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.miso.util;
+
+import com.threerings.miso.client.MisoScenePanel;
 
 /**
  * Contains information on the configuration of a particular isometric

@@ -1,5 +1,5 @@
 //
-// $Id: TableDirector.java,v 1.11 2004/08/27 02:20:12 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -36,6 +36,7 @@ import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.data.Table;
+import com.threerings.parlor.data.TableLobbyObject;
 import com.threerings.parlor.game.GameConfig;
 import com.threerings.parlor.util.ParlorContext;
 

@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.62 2004/10/28 17:49:02 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -152,7 +152,7 @@ public abstract class TileSet
     }
 
     /**
-     * Equivalent to {@link# getTile(int,Colorizer)} with a null
+     * Equivalent to {@link #getTile(int,Colorizer)} with a null
      * <code>Colorizer</code> argument.
      */
     public Tile getTile (int tileIndex)

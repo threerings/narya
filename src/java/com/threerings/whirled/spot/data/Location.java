@@ -1,5 +1,5 @@
 //
-// $Id: Location.java,v 1.10 2004/08/27 02:20:45 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,6 +22,7 @@
 package com.threerings.whirled.spot.data;
 
 import com.threerings.io.TrackedStreamableObject;
+import com.threerings.util.DirectionCodes;
 import com.threerings.util.DirectionUtil;
 
 /**

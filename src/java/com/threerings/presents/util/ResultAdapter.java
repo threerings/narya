@@ -1,5 +1,5 @@
 //
-// $Id: ResultAdapter.java,v 1.2 2004/08/27 02:20:26 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -28,10 +28,10 @@ import com.threerings.presents.data.InvocationCodes;
 import com.threerings.presents.server.InvocationException;
 
 /**
- * Adapts the response from a {@link ResultListener} to an {@link
- * InvocationService.ResultListener} if the failure is an instance fo
- * {@link InvocationException} the message will be passed on to the result
- * listener, otherwise they will be provided with {@link
+ * Adapts the response from a {@link ResultListener} to an
+ * <code>InvocationService.ResultListener</code> if the failure is an
+ * instance fo {@link InvocationException} the message will be passed on
+ * to the result listener, otherwise they will be provided with {@link
  * InvocationCodes#INTERNAL_ERROR}.
  */
 public class ResultAdapter implements ResultListener

@@ -78,8 +78,6 @@ public class AIGameTicker extends Interval
 
     /**
      * Remove the specified manager from receiving AI ticks.
-     *
-     * @return true if there are no more games.
      */
     protected void removeAIGame (GameManager mgr)
     {

@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.52 2004/08/27 02:20:47 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -217,11 +217,6 @@ public class SpotSceneManager extends SceneManager
      *
      * @param source the body to be moved.
      * @param loc the location to which to move the body.
-     * @param cluster if zero, a new cluster will be created and assigned
-     * to the moving user; if -1, the moving user will be removed from any
-     * cluster they currently occupy and not made to occupy a new cluster;
-     * if the bodyOid of another user, the moving user will be made to
-     * join the other user's cluster.
      *
      * @exception InvocationException thrown with a reason code explaining
      * the failure if there is a problem processing the request.

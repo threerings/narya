@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.28 2004/08/27 02:20:39 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -31,6 +31,7 @@ import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
 
 import com.threerings.crowd.client.LocationDirector;
+import com.threerings.crowd.client.LocationObserver;
 import com.threerings.crowd.data.PlaceConfig;
 
 import com.threerings.whirled.Log;
@@ -67,7 +68,7 @@ public class SceneDirector extends BasicDirector
      * which the scene director will coordinate when changing location.
      * @param screp the entity from which the scene director will load
      * scene data from the local client scene storage.
-     * @param dsfact the factory that knows which derivation of {@link
+     * @param fact the factory that knows which derivation of {@link
      * Scene} to create for the current system.
      */
     public SceneDirector (WhirledContext ctx, LocationDirector locdir,

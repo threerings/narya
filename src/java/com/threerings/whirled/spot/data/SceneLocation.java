@@ -1,5 +1,5 @@
 //
-// $Id: SceneLocation.java,v 1.2 2004/08/27 02:20:45 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -67,6 +67,6 @@ public class SceneLocation extends Location
         return _key;
     }
 
-    /** Used for {@link #geyKey}. */
+    /** Used for {@link #getKey}. */
     protected transient Integer _key;
 }

@@ -424,8 +424,8 @@ public class MisoScenePanel extends VirtualMediaPanel
 
     /**
      * Programmatically "click" a scene object. This results in a call to
-     * {@link handleObjectPressed} with click coordinates in the center of
-     * the object.
+     * {@link #handleObjectPressed} with click coordinates in the center
+     * of the object.
      */
     public void pressObject (SceneObject scobj)
     {
@@ -846,7 +846,7 @@ public class MisoScenePanel extends VirtualMediaPanel
     /**
      * Called during the {@link #rethink} process, configures {@link
      * #_ibounds} to contain the bounds of the potentially "influential"
-     * world and {@link #_ivbounds} to contain bounds that are used to
+     * world and {@link #_vibounds} to contain bounds that are used to
      * determine which blocks should be resolved before making the view
      * visible.
      * 
@@ -1079,8 +1079,6 @@ public class MisoScenePanel extends VirtualMediaPanel
 
     /**
      * Change the hover object to the new object.
-     *
-     * @return true if we need to repaint the entire scene. Bah!
      */
     protected void changeHoverObject (Object newHover)
     {

@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.30 2004/08/27 02:20:06 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -64,7 +64,7 @@ public class DirtyItemList
      * Appends the dirty object tile at the given coordinates to the dirty
      * item list.
      *
-     * @param scene the scene object that is dirty.
+     * @param scobj the scene object that is dirty.
      */
     public void appendDirtyObject (SceneObject scobj)
     {
@@ -217,7 +217,7 @@ public class DirtyItemList
 
     /**
      * Returns an abbreviated string representation of the two given dirty
-     * items. See {@link #toString(DirtyItem}.
+     * items. See {@link #toString(DirtyItem)}.
      */
     protected static String toString (DirtyItem a, DirtyItem b)
     {
@@ -229,7 +229,7 @@ public class DirtyItemList
 
     /**
      * Returns an abbreviated string representation of the given dirty
-     * items. See {@link #toString(DirtyItem}.
+     * items. See {@link #toString(DirtyItem)}.
      */
     protected static String toString (SortableArrayList items)
     {

@@ -1,5 +1,5 @@
 //
-// $Id: FramingOutputStream.java,v 1.5 2004/08/27 02:12:36 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -108,7 +108,7 @@ public class FramingOutputStream extends OutputStream
     /**
      * Writes the frame length to the beginning of our buffer and returns
      * it for writing to the appropriate channel. This should be followed
-     * by a call to {@link #reset} when the frame has been written.
+     * by a call to {@link #resetFrame} when the frame has been written.
      */
     public ByteBuffer frameAndReturnBuffer ()
     {

@@ -313,7 +313,7 @@ public class ChatDirector extends BasicDirector
      * Requests that a speak message with the specified mode be generated
      * and delivered via the supplied speak service instance (which will
      * be associated with a particular "speak object"). The message will
-     * first be validated by all registered {@link ChatValidator}s (and
+     * first be validated by all registered {@link ChatFilter}s (and
      * possibly vetoed) before being dispatched.
      *
      * @param speakService the speak service to use when generating the
@@ -366,7 +366,7 @@ public class ChatDirector extends BasicDirector
      *
      * @param target the username of the user to which the tell message
      * should be delivered.
-     * @param message the contents of the tell message.
+     * @param msg the contents of the tell message.
      * @param rl an optional result listener if you'd like to be notified
      * of success or failure.
      */

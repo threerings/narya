@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.60 2004/08/27 02:12:38 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -189,7 +189,7 @@ public class ImageManager
      * using the supplied path to identify the image.
      *
      * <p> Additionally the image is optimized for display in the current
-     * graphics configuration. Consider using {@link getMirage(String)}
+     * graphics configuration. Consider using {@link #getMirage(ImageKey)}
      * instead of prepared images as they (some day) will automatically
      * use volatile images to increase performance.
      */
@@ -203,10 +203,9 @@ public class ImageManager
      * obtaining the image from the supplied resource set.
      *
      * <p> Additionally the image is optimized for display in the current
-     * graphics configuration. Consider using {@link
-     * getMirage(String,String)} instead of prepared images as they (some
-     * day) will automatically use volatile images to increase
-     * performance.
+     * graphics configuration. Consider using {@link #getMirage(ImageKey)}
+     * instead of prepared images as they (some day) will automatically
+     * use volatile images to increase performance.
      */
     public BufferedImage getPreparedImage (String rset, String path)
     {
@@ -220,9 +219,9 @@ public class ImageManager
      *
      * <p> Additionally the image is optimized for display in the current
      * graphics configuration. Consider using {@link
-     * getMirage(String,String,Colorizationp[]} instead of prepared images
-     * as they (some day) will automatically use volatile images to
-     * increase performance.
+     * #getMirage(ImageKey,Colorization[])} instead of prepared images as
+     * they (some day) will automatically use volatile images to increase
+     * performance.
      */
     public BufferedImage getPreparedImage (String rset, String path,
                                            Colorization[] zations)

@@ -44,6 +44,7 @@ import com.threerings.crowd.server.AccessControl;
 import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.crowd.chat.client.ChatService.TellListener;
+import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.UserMessage;
 
@@ -160,7 +161,7 @@ public class ChatProvider
     }
 
     /**
-     * Processes a {@link ClientService#broadcast} request.
+     * Processes a {@link ChatService#broadcast} request.
      */
     public void broadcast (ClientObject caller, String message,
                            InvocationListener listener)
@@ -223,7 +224,7 @@ public class ChatProvider
     }
 
     /**
-     * Processes a {@link ClientService#away} request.
+     * Processes a {@link ChatService#away} request.
      */
     public void away (ClientObject caller, String message)
     {

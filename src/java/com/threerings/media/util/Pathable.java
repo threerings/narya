@@ -1,5 +1,5 @@
 //
-// $Id: Pathable.java,v 1.7 2004/08/27 02:12:47 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,6 +22,8 @@
 package com.threerings.media.util;
 
 import java.awt.Rectangle;
+
+import com.threerings.util.DirectionCodes;
 
 /**
  * Used in conjunction with a {@link Path}.

@@ -1,5 +1,5 @@
 //
-// $Id: GeomUtil.java,v 1.9 2004/08/27 02:12:35 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -114,9 +114,9 @@ public class GeomUtil
      * is only considered valid if it lies upon the segment.
      * Note that Point extends Point2D.
      *
-     * @param p1,&nbsp;p2 the coordinates of the first line.
+     * @param p1 and p2 the coordinates of the first line.
      * @param seg1 if the first line should be considered a segment.
-     * @param p3,&nbsp;p4 the coordinates of the second line.
+     * @param p3 and p4 the coordinates of the second line.
      * @param seg2 if the second line should be considered a segment.
      * @param result the point that will be filled in with the intersecting
      * point.

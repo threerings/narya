@@ -168,7 +168,7 @@ public class ResourceManager
 
     /**
      * Creates a resource manager with the specified class loader via
-     * which to load classes. See {@link ResourceManager(String)} for
+     * which to load classes. See {@link #ResourceManager(String)} for
      * further documentation.
      */
     public ResourceManager (String resourceRoot, ClassLoader loader)

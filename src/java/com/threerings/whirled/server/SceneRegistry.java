@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.24 2004/08/27 02:20:43 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -150,7 +150,7 @@ public class SceneRegistry
      * {@link #resolveScene} returns).
      *
      * @param sceneId the id of the scene to resolve.
-     * @param resolver a reference to a callback instance that will be
+     * @param target a reference to a callback instance that will be
      * notified when the scene has been resolved (which may be immediately
      * if the scene is already active).
      */

@@ -1,5 +1,5 @@
 //
-// $Id: CompositedMultiFrameImage.java,v 1.2 2004/08/27 02:12:25 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -38,7 +38,7 @@ import com.threerings.cast.TrimmedMultiFrameImage;
 
 /**
  * Used to composite the action frames for a particular orientation of a
- * {@link CompositedActionSequence}.
+ * {@link CompositedActionFrames}.
  */
 public class CompositedMultiFrameImage
     implements TrimmedMultiFrameImage

@@ -1,5 +1,5 @@
 //
-// $Id: TileSetRuleSet.java,v 1.8 2004/08/27 02:12:44 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -26,6 +26,7 @@ import org.apache.commons.digester.RuleSetBase;
 
 import com.samskivert.util.StringUtil;
 import com.samskivert.xml.ValidatedSetNextRule.Validator;
+import com.samskivert.xml.ValidatedSetNextRule;
 
 import com.threerings.media.Log;
 import com.threerings.media.tile.TileSet;

@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.55 2004/10/28 17:21:56 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -25,6 +25,7 @@ import java.applet.Applet;
 
 import java.awt.Component;
 import java.awt.Graphics2D;
+import java.awt.GraphicsDevice;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;

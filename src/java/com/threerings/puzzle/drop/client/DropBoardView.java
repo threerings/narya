@@ -1,5 +1,5 @@
 //
-// $Id: DropBoardView.java,v 1.9 2004/10/21 18:07:37 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -297,7 +297,7 @@ public abstract class DropBoardView extends PuzzleBoardView
     /**
      * Returns true if the piece that is supposed to be at the specified
      * coordinates is not yet there but is actually en route to that
-     * location (due to a call to {@link #movePIece}).
+     * location (due to a call to {@link #movePiece}).
      */
     protected boolean isMoving (int px, int py)
     {
@@ -446,7 +446,7 @@ public abstract class DropBoardView extends PuzzleBoardView
      * @param score the score text to display.
      * @param color the color of the text.
      * @param fontSize the size of the text; a value between 0 and {@link
-     * #getPuzzleFontSizeCount} - 1.
+     * #FONT_SIZES}.length - 1.
      */
     public ScoreAnimation createScoreAnimation (
         String score, Color color, int fontSize)
@@ -484,7 +484,7 @@ public abstract class DropBoardView extends PuzzleBoardView
      * @param score the score text to display.
      * @param color the color of the text.
      * @param fontSize the size of the text; a value between 0 and {@link
-     * #getPuzzleFontSizeCount} - 1.
+     * #FONT_SIZES}.length - 1.
      * @param x the left coordinate in board coordinates of the rectangle
      * within which the score is to be centered.
      * @param y the bottom coordinate in board coordinates of the

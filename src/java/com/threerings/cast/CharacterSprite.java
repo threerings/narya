@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.47 2004/08/27 02:12:25 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -24,6 +24,7 @@ package com.threerings.cast;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import javax.swing.SwingUtilities;
 
 import com.threerings.media.sprite.ImageSprite;
 

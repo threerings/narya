@@ -1,5 +1,5 @@
 //
-// $Id: CompiledConfigParser.java,v 1.5 2004/08/27 02:20:35 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -28,6 +28,9 @@ import java.io.Serializable;
 
 import org.xml.sax.SAXException;
 import org.apache.commons.digester.Digester;
+
+import com.threerings.tools.CompiledConfigTask;
+import com.threerings.util.CompiledConfig;
 
 /**
  * An abstract base implementation of a parser that is used to compile

@@ -1,5 +1,5 @@
 //
-// $Id: ObjectInfo.java,v 1.7 2004/08/27 02:20:06 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,6 +22,8 @@
 package com.threerings.miso.data;
 
 import com.samskivert.util.StringUtil;
+
+import com.threerings.io.SimpleStreamableObject;
 import com.threerings.io.TrackedStreamableObject;
 import com.threerings.media.tile.TileUtil;
 

@@ -1,5 +1,5 @@
 //
-// $Id: Streamer.java,v 1.9 2004/08/27 02:12:36 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -246,8 +246,8 @@ public class Streamer
      * specified stream.
      *
      * @param object the instance to be read from the stream.
-     * @param out the stream from which to read the instance.
-     * @param useWriter whether or not to use the custom
+     * @param in the stream from which to read the instance.
+     * @param useReader whether or not to use the custom
      * <code>readObject</code> if one exists.
      */
     public void readObject (

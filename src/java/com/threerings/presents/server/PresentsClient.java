@@ -636,10 +636,6 @@ public class PresentsClient
      * this session has been closed and unmapped. If the user logged off
      * before closing their connection, this will be preceded by a call to
      * {@link #sessionDidEnd}.
-     *
-     * @param clobj the client object is explicitly passed to this method
-     * because {@link #_clobj} may have already been cleared out if this
-     * is being called due to the termination of a session.
      */
     protected void sessionConnectionClosed ()
     {
