@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.74 2001/11/29 23:08:27 mdb Exp $
+// $Id: IsoSceneView.java,v 1.75 2001/11/29 23:35:37 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -234,6 +234,11 @@ public class IsoSceneView implements SceneView
                 }
                 if ((tile = fringe.getTile(xx, yy)) != null) {
                     tile.paint(gfx, _polys[xx][yy]);
+                }
+
+                // if we're showing coordinates, outline the tiles as well
+                if (_model.showCoords) {
+                    gfx.draw(_polys[xx][yy]);
                 }
 	    }
 	}
