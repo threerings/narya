@@ -1,5 +1,5 @@
 //
-// $Id: NodeMapPanel.java,v 1.8 2001/12/18 12:43:12 mdb Exp $
+// $Id: NodeMapPanel.java,v 1.9 2002/06/15 02:00:05 shaper Exp $
 
 package com.threerings.nodemap;
 
@@ -157,7 +157,6 @@ public class NodeMapPanel extends JPanel
     {
         if (_map != null) {
             _map.handleMouseMoved(e.getX(), e.getY());
-            repaint();
         }
     }
 
