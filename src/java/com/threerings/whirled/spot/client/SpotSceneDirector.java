@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.37 2004/11/11 02:10:56 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -27,9 +27,9 @@ import com.samskivert.util.StringUtil;
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService.ConfirmListener;
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
-
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.ObjectAccessException;
@@ -334,10 +334,11 @@ public class SpotSceneDirector extends BasicDirector
     {
         super.clientDidLogon(client);
 
-        if (client instanceof ClusteredBodyObject) {
+        ClientObject clientObj = client.getClientObject();
+        if (clientObj instanceof ClusteredBodyObject) {
             // listen to the client object
-            client.getClientObject().addListener(this);
-            _self = (ClusteredBodyObject)client.getClientObject();
+            clientObj.addListener(this);
+            _self = (ClusteredBodyObject) clientObj;
 
             // we may need to subscribe to a cluster due to session resumption
             maybeUpdateCluster();
@@ -350,8 +351,9 @@ public class SpotSceneDirector extends BasicDirector
         super.clientObjectDidChange(client);
 
         // listen to the client object
-        client.getClientObject().addListener(this);
-        _self = (ClusteredBodyObject)client.getClientObject();
+        ClientObject clientObj = client.getClientObject();
+        clientObj.addListener(this);
+        _self = (ClusteredBodyObject) clientObj;
     }
 
     // documentation inherited
