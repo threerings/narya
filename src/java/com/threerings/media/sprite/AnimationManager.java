@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.19 2001/12/16 05:43:00 shaper Exp $
+// $Id: AnimationManager.java,v 1.20 2001/12/16 08:05:06 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -37,43 +37,54 @@ public class AnimationManager
         // register to monitor the refresh action 
         PerformanceMonitor.register(this, "refresh", 1000);
 
-	// register the refresh interval immediately if the component
-	// is already showing on-screen
+	// register the refresh interval immediately if the component is
+	// already showing on-screen
 	JComponent target = _view.getComponent();
   	if (target.isShowing()) {
-	    registerInterval();
+	    start();
 	}
 
 	// listen to the view's ancestor events
 	target.addAncestorListener(new AncestorAdapter() {
             public void ancestorAdded (AncestorEvent event) {
-                if (_iid == -1) {
-                    // register the refresh interval since we're now visible
-                    registerInterval();
-                }
+                // start ourselves up when our animated view is added
+                start();
             }
             public void ancestorRemoved (AncestorEvent event) {
-                // un-register the refresh interval since we're now hidden
-                IntervalManager.remove(_iid);
-                _iid = -1;
+                // automatically shutdown if our animated view is hidden
+                stop();
             }
         });
-
-        // create a ticker for queueing up tick requests on the AWT thread
-        _ticker = new Runnable() {
-            public void run () {
-                tick();
-            }
-        };
     }
 
     /**
-     * Register the animation manager's refresh interval with the
-     * interval manager.
+     * Starts the animation manager to doing its business.
      */
-    protected void registerInterval ()
+    public synchronized void start ()
     {
-	_iid = IntervalManager.register(this, REFRESH_INTERVAL, null, true);
+        if (_ticker == null) {
+            // create ticker for queueing up tick requests on AWT thread
+            _ticker = new Runnable() {
+                public void run () {
+                    tick();
+                }
+            };
+            // register the refresh interval
+            _iid = IntervalManager.register(this, REFRESH_INTERVAL, null, true);
+        }
+    }
+
+    /**
+     * Instructs the animation manager to stop doing its business.
+     */
+    public synchronized void stop ()
+    {
+        if (_ticker != null) {
+            _ticker = null;
+            // un-register the refresh interval since we're now hidden
+            IntervalManager.remove(_iid);
+            _iid = -1;
+        }
     }
 
     /**
@@ -83,8 +94,7 @@ public class AnimationManager
      */
     protected synchronized boolean requestTick ()
     {
-        if (_ticking++ > 0) return false;
-        return true;
+        return !(_ticking++ > 0);
     }
 
     /**
@@ -112,7 +122,7 @@ public class AnimationManager
     {
         if (requestTick()) {
             // throw the tick task on the AWT thread task queue
-            SwingUtilities.invokeLater(_ticker);
+            queueTick();
         }
     }
 
@@ -122,6 +132,13 @@ public class AnimationManager
      */
     protected void tick ()
     {
+        synchronized (this) {
+            // see if we were shutdown since we were last queued up
+            if (_ticker == null) {
+                return;
+            }
+        }
+
         // every tick should have a timestamp associated with it
         long now = System.currentTimeMillis();
 
@@ -146,6 +163,17 @@ public class AnimationManager
             // request for at least one more tick since we started
             // this tick, so we want to queue up another tick
             // immediately
+            queueTick();
+        }
+    }
+
+    /**
+     * Queues up a tick on the AWT event handler thread, iff we are still
+     * operating.
+     */
+    protected synchronized void queueTick ()
+    {
+        if (_ticker != null) {
             SwingUtilities.invokeLater(_ticker);
         }
     }
@@ -155,12 +183,6 @@ public class AnimationManager
     {
         Log.info(name + " [ticks=" + ticks + "].");
     }
-
-    /** The desired number of refresh operations per second. */
-    protected static final int FRAME_RATE = 70;
-
-    /** The milliseconds to sleep to obtain desired frame rate. */
-    protected static final long REFRESH_INTERVAL = 1000 / FRAME_RATE;
 
     /** The ticker runnable that we put on the AWT thread periodically. */
     protected Runnable _ticker;
@@ -176,4 +198,10 @@ public class AnimationManager
 
     /** The view on which we are animating. */
     protected AnimatedView _view;
+
+    /** The desired number of refresh operations per second. */
+    protected static final int FRAME_RATE = 70;
+
+    /** The milliseconds to sleep to obtain desired frame rate. */
+    protected static final long REFRESH_INTERVAL = 1000 / FRAME_RATE;
 }
