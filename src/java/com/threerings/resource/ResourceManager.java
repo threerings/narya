@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.38 2003/10/29 22:31:55 mdb Exp $
+// $Id: ResourceManager.java,v 1.39 2003/10/29 23:09:48 mdb Exp $
 
 package com.threerings.resource;
 
@@ -870,13 +870,35 @@ public class ResourceManager
         if (!suffix.startsWith(".")) {
             suffix = "." + suffix;
         }
-        int sidx = path.indexOf(suffix);
+        int sidx = path.lastIndexOf(suffix);
         if (sidx == -1) {
             Log.warning("Invalid unversioned path, missing suffix " +
                         "[path=" + path + ", suffix=" + suffix + "].");
             return path;
         }
         return path.substring(0, sidx) + "__V" + version + suffix;
+    }
+
+    /**
+     * Creates an unversioned version of the supplied path. If the path is
+     * not versioned, the existing path will be returned.
+     */
+    public static String unversionPath (String path, String suffix)
+    {
+        if (!suffix.startsWith(".")) {
+            suffix = "." + suffix;
+        }
+        int vidx = path.indexOf("__V");
+        if (vidx == -1) {
+            return path;
+        }
+        int sidx = path.lastIndexOf(suffix);
+        if (sidx == -1) {
+            Log.warning("Invalid versioned path, missing suffix " +
+                        "[path=" + path + ", suffix=" + suffix + "].");
+            return path;
+        }
+        return path.substring(0, vidx) + suffix;
     }
 
     /**

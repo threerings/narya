@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.24 2003/10/22 18:50:27 mdb Exp $
+// $Id: ResourceBundle.java,v 1.25 2003/10/29 23:09:48 mdb Exp $
 
 package com.threerings.resource;
 
@@ -50,7 +50,9 @@ public class ResourceBundle
     {
         _source = source;
         if (unpack) {
-            String root = stripSuffix(source.getPath());
+            String root = ResourceManager.unversionPath(
+                source.getPath(), ".jar");
+            root = stripSuffix(root);
             _unpacked = new File(root + ".stamp");
             _cache = new File(root);
         }

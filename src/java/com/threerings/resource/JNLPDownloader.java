@@ -1,5 +1,5 @@
 //
-// $Id: JNLPDownloader.java,v 1.10 2003/10/29 22:31:55 mdb Exp $
+// $Id: JNLPDownloader.java,v 1.11 2003/10/29 23:09:48 mdb Exp $
 
 package com.threerings.resource;
 
@@ -194,6 +194,16 @@ public class JNLPDownloader extends Downloader
             }
             if (!_patchFile.delete()) {
                 Log.warning("Failed to delete patch file " + _curFile + ".");
+            }
+
+            // delete any old unversioned version of the .jar file
+            File unverDest = new File(ResourceManager.unversionPath(
+                                          _desc.destFile.getPath(), ".jar"));
+            if (unverDest.exists()) {
+                if (!unverDest.delete()) {
+                    Log.warning("Failed to delete old unversioned bundle '" +
+                                unverDest + "'.");
+                }
             }
         }
 
