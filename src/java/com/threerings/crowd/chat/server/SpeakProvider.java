@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.1 2002/08/14 19:07:49 mdb Exp $
+// $Id: SpeakProvider.java,v 1.2 2002/09/13 06:42:42 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -117,8 +117,7 @@ public class SpeakProvider
         } else {
             outargs = new Object[] { speaker, bundle, message, new Byte(mode) };
         }
-        speakObj.postEvent(
-            new MessageEvent(speakObj.getOid(), SPEAK_NOTIFICATION, outargs));
+        speakObj.postMessage(SPEAK_NOTIFICATION, outargs);
     }
 
     /**
@@ -136,9 +135,8 @@ public class SpeakProvider
     public static void sendSystemSpeak (
         DObject speakObj, String bundle, String message)
     {
-        speakObj.postEvent(
-            new MessageEvent(speakObj.getOid(), SYSTEM_NOTIFICATION,
-                             new Object[] { bundle, message }));
+        speakObj.postMessage(SYSTEM_NOTIFICATION,
+                             new Object[] { bundle, message });
     }
 
     /** Our speech object. */
