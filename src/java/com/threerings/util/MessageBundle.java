@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.19 2003/03/05 23:27:39 mdb Exp $
+// $Id: MessageBundle.java,v 1.20 2003/05/20 20:58:31 mdb Exp $
 
 package com.threerings.util;
 
@@ -399,11 +399,10 @@ public class MessageBundle
     {
         // sanity check
         if (bundle.indexOf(QUAL_PREFIX) != -1 ||
-            bundle.indexOf(QUAL_SEP) != -1 ||
-            key.indexOf(QUAL_PREFIX) != -1) {
+            bundle.indexOf(QUAL_SEP) != -1) {
             String errmsg = "Message bundle may not contain '" + QUAL_PREFIX +
-                "' or '" + QUAL_SEP + "' and message key may not contain '" +
-                QUAL_PREFIX + "' [bundle=" + bundle + ", key=" + key + "]";
+                "' or '" + QUAL_SEP + "' [bundle=" + bundle +
+                ", key=" + key + "]";
             throw new IllegalArgumentException(errmsg);
         }
         return QUAL_PREFIX + bundle + QUAL_SEP + key;
