@@ -1,5 +1,5 @@
 //
-// $Id: SceneObject.java,v 1.2 2003/04/18 18:33:07 mdb Exp $
+// $Id: SceneObject.java,v 1.3 2003/04/18 23:17:33 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -205,9 +205,10 @@ public class SceneObject
                                tile.getWidth(), tile.getHeight());
 
         // compute our object footprint as well
+        int fx = info.x-tile.getBaseWidth()+1;
+        int fy = info.y-tile.getBaseHeight()+1;
         _footprint = MisoUtil.getFootprintPolygon(
-            metrics, info.x-tile.getWidth()+1, info.y-tile.getHeight()+1,
-            tile.getWidth(), tile.getHeight());
+            metrics, fx, fy, tile.getBaseWidth(), tile.getBaseHeight());
 
         // compute our object spot if we've got one
         if (tile.hasSpot()) {
