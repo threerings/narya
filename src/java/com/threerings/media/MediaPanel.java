@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.41 2004/02/25 14:43:17 mdb Exp $
+// $Id: MediaPanel.java,v 1.42 2004/04/06 03:53:26 mdb Exp $
 
 package com.threerings.media;
 
@@ -144,6 +144,14 @@ public class MediaPanel extends JComponent
     }
 
     /**
+     * @return true if the sprite is already added to this panel.
+     */
+    public boolean isManaged (Sprite sprite)
+    {
+        return _spritemgr.isManaged(sprite);
+    }
+
+    /**
      * Removes a sprite from this panel.
      */
     public void removeSprite (Sprite sprite)
@@ -166,6 +174,14 @@ public class MediaPanel extends JComponent
     public void addAnimation (Animation anim)
     {
         _animmgr.registerAnimation(anim);
+    }
+
+    /**
+     * @return true if the animation is already added to this panel.
+     */
+    public boolean isManaged (Animation anim)
+    {
+        return _animmgr.isManaged(anim);
     }
 
     /**
