@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.13 2001/12/16 05:39:16 mdb Exp $
+// $Id: SceneRegistry.java,v 1.14 2002/05/24 05:58:55 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -119,7 +119,7 @@ public class SceneRegistry
             return;
         }
 
-        Log.info("Resolving scene [id=" + sceneId + "].");
+        Log.debug("Resolving scene [id=" + sceneId + "].");
 
         // otherwise we've got to resolve the scene and call them back
         // later; we can manipulate the penders table with impunity here
@@ -142,7 +142,7 @@ public class SceneRegistry
             // keywords...
             final int fsceneId = sceneId;
 
-            Log.info("Invoking scene lookup [id=" + sceneId + "].");
+            Log.debug("Invoking scene lookup [id=" + sceneId + "].");
 
             // then we queue up an execution unit that'll load the scene
             // and initialize it and all that
@@ -245,8 +245,8 @@ public class SceneRegistry
         int sceneId = scmgr.getScene().getId();
         _scenemgrs.put(sceneId, scmgr);
 
-        Log.info("Registering scene manager [scid=" + sceneId +
-                 ", scmgr=" + scmgr + "].");
+        Log.debug("Registering scene manager [scid=" + sceneId +
+                  ", scmgr=" + scmgr + "].");
 
         // now notify any penders
         ArrayList penders = (ArrayList)_penders.remove(sceneId);
@@ -272,7 +272,7 @@ public class SceneRegistry
             Log.warning("Requested to unmap unmapped scene manager " +
                         "[scmgr=" + scmgr + "].");
         } else {
-            Log.info("Unmapped scene manager " + scmgr + ".");
+            Log.debug("Unmapped scene manager " + scmgr + ".");
         }
     }
 
