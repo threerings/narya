@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.7 2001/08/14 03:23:06 mdb Exp $
+// $Id: LocationDirector.java,v 1.8 2001/08/14 06:49:28 mdb Exp $
 
 package com.threerings.cocktail.party.client;
 
@@ -49,6 +49,15 @@ public class LocationManager
     public void removeLocationObserver (LocationObserver observer)
     {
         _observers.remove(observer);
+    }
+
+    /**
+     * Returns the place object for the location we currently occupy or
+     * null if we're not currently occupying any location.
+     */
+    public PlaceObject getPlaceObject ()
+    {
+        return _plobj;
     }
 
     /**
@@ -124,14 +133,14 @@ public class LocationManager
         DObjectManager omgr = _ctx.getDObjectManager();
 
         // unsubscribe from our old place object
-        if (_place != null) {
-            omgr.unsubscribeFromObject(_place.getOid(), this);
-            _place = null;
+        if (_plobj != null) {
+            omgr.unsubscribeFromObject(_plobj.getOid(), this);
+            _plobj = null;
         }
 
         // make a note that we're now mostly in the new location
         _previousPlaceId = _placeId;
-        _placeId = _pendingPlaceId;
+        _placeId = placeId;
 
         // subscribe to our new place object to complete the move
         omgr.subscribeToObject(_placeId, this);
@@ -233,12 +242,12 @@ public class LocationManager
     public void objectAvailable (DObject object)
     {
         // yay, we have our new place object
-        _place = (PlaceObject)object;
+        _plobj = (PlaceObject)object;
 
         // let our observers know that all is well on the western front
         for (int i = 0; i < _observers.size(); i++) {
             LocationObserver obs = (LocationObserver)_observers.get(i);
-            obs.locationDidChange(_place);
+            obs.locationDidChange(_plobj);
         }
     }
 
@@ -256,6 +265,21 @@ public class LocationManager
         // let the kids know shit be fucked
         notifyFailure(placeId, "m.unable_to_fetch_place_object");
 
+        // try to return to our previous location
+        recoverFailedMove(placeId);
+    }
+
+    /**
+     * If a <code>moveTo</code> request fails because we are unable to
+     * fetch our new place object, we need to do something to recover. By
+     * default that means attempting to return to the last location we
+     * occupied, but derived classes may need to do things differently.
+     *
+     * @param placeId the place id that we tried to move to but that
+     * failed.
+     */
+    protected void recoverFailedMove (int placeId)
+    {
         // if we were previously somewhere (and that somewhere isn't where
         // we just tried to go), try going back to that happy place
         if (_previousPlaceId != -1 && _previousPlaceId != placeId) {
@@ -287,7 +311,7 @@ public class LocationManager
     protected int _placeId = -1;
 
     /** The place object that we currently occupy. */
-    protected PlaceObject _place;
+    protected PlaceObject _plobj;
 
     /**
      * The oid of the place for which we have an outstanding moveTo
