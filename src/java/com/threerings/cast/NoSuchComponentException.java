@@ -1,5 +1,5 @@
 //
-// $Id: NoSuchComponentException.java,v 1.2 2001/11/27 08:09:35 mdb Exp $
+// $Id: NoSuchComponentException.java,v 1.3 2002/02/19 22:09:50 mdb Exp $
 
 package com.threerings.cast;
 
@@ -13,6 +13,14 @@ public class NoSuchComponentException extends Exception
     {
         super("No such component [componentId=" + componentId + "]");
         _componentId = componentId;
+    }
+
+    public NoSuchComponentException (
+        String componentClass, String componentName)
+    {
+        super("No such component [class=" + componentClass +
+              ", name=" + componentName + "]");
+        _componentId = -1;
     }
 
     public int getComponentId ()

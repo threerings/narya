@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.6 2002/02/18 00:06:57 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.7 2002/02/19 22:09:50 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -131,6 +132,31 @@ public class BundledComponentRepository
     }
 
     // documentation inherited
+    public CharacterComponent getComponent (String className, String compName)
+        throws NoSuchComponentException
+    {
+        // look up the list for that class
+        ArrayList comps = (ArrayList)_classComps.get(className);
+        if (comps != null) {
+            // scan the list for the named component
+            int ccount = comps.size();
+            for (int i = 0; i < ccount; i++) {
+                CharacterComponent comp = (CharacterComponent)comps.get(i);
+                if (comp.name.equals(compName)) {
+                    return comp;
+                }
+            }
+        }
+        throw new NoSuchComponentException(className, compName);
+    }
+
+    // documentation inherited
+    public ComponentClass getComponentClass (String className)
+    {
+        return (ComponentClass)_classes.get(className);
+    }
+
+    // documentation inherited
     public Iterator enumerateComponentClasses ()
     {
         return _classes.values().iterator();
@@ -174,8 +200,21 @@ public class BundledComponentRepository
         CharacterComponent component = new CharacterComponent(
             componentId, cname, clazz, fprov);
 
-        // cache it
+        // stick it into the appropriate tables
         _components.put(componentId, component);
+
+        // we have a hash of lists for mapping components by class/name
+        ArrayList comps = (ArrayList)_classComps.get(cclass);
+        if (comps == null) {
+            comps = new ArrayList();
+            _classComps.put(cclass, comps);
+        }
+        if (!comps.contains(component)) {
+            comps.add(component);
+        } else {
+            Log.info("Requested to register the same component twice? " +
+                     "[component=" + component + "].");
+        }
     }
 
     /**
@@ -306,6 +345,9 @@ public class BundledComponentRepository
 
     /** A table of component classes. */
     protected HashMap _classes;
+
+    /** A table of component lists indexed on classname. */
+    protected HashMap _classComps = new HashMap();
 
     /** The component table. */
     protected HashIntMap _components = new HashIntMap();

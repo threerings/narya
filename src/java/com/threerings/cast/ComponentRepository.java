@@ -1,5 +1,5 @@
 //
-// $Id: ComponentRepository.java,v 1.4 2001/11/27 08:09:35 mdb Exp $
+// $Id: ComponentRepository.java,v 1.5 2002/02/19 22:09:50 mdb Exp $
 
 package com.threerings.cast;
 
@@ -19,6 +19,19 @@ public interface ComponentRepository
      */
     public CharacterComponent getComponent (int componentId)
         throws NoSuchComponentException;
+
+    /**
+     * Returns the {@link CharacterComponent} object with the given
+     * component class and name.
+     */
+    public CharacterComponent getComponent (String className, String compName)
+        throws NoSuchComponentException;
+
+    /**
+     * Returns the {@link ComponentClass} with the specified name or null
+     * if none exists with that name.
+     */
+    public ComponentClass getComponentClass (String className);
 
     /**
      * Iterates over the {@link ComponentClass} instances representing all
