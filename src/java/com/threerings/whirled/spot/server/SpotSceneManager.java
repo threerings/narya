@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.8 2002/06/14 23:03:44 ray Exp $
+// $Id: SpotSceneManager.java,v 1.9 2002/06/19 23:22:51 ray Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -214,6 +214,21 @@ public class SpotSceneManager extends SceneManager
                         "[cidx=" + clusterIndex + ", chatter=" + source +
                         ", message=" + message + "].");
         }
+    }
+
+    /**
+     * @return true if the specified user is in the scene and
+     * in a valid location (not on a portal).
+     */
+    protected boolean inValidLocation (BodyObject body)
+    {
+        int bodyOid = body.getOid();
+        for (int ii=0; ii < _locationOccs.length; ii++) {
+            if (_locationOccs[ii] == bodyOid) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
