@@ -1,5 +1,5 @@
 //
-// $Id: MultiFrameAnimation.java,v 1.6 2004/08/27 02:12:38 mdb Exp $
+// $Id: MultiFrameAnimation.java,v 1.7 2004/10/05 01:08:00 eric Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,10 +22,10 @@
 package com.threerings.media.animation;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 
 import com.threerings.media.util.FrameSequencer;
 import com.threerings.media.util.MultiFrameImage;
-import java.awt.Rectangle;
 
 /**
  * Animates a sequence of image frames in place with a particular frame
