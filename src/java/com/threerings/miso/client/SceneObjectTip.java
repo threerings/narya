@@ -1,5 +1,5 @@
 //
-// $Id: SceneObjectTip.java,v 1.3 2003/06/19 22:12:51 mdb Exp $
+// $Id: SceneObjectTip.java,v 1.4 2004/01/11 08:26:18 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -11,6 +11,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import java.util.Collection;
+import java.util.Comparator;
 
 import javax.swing.Icon;
 import javax.swing.UIManager;
@@ -20,6 +21,7 @@ import com.samskivert.swing.LabelSausage;
 import com.samskivert.swing.LabelStyleConstants;
 import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.SortableArrayList;
 
 /**
  * A lightweight tooltip used by the {@link MisoScenePanel}. The tip
@@ -34,6 +36,19 @@ import com.samskivert.util.StringUtil;
  */
 public class SceneObjectTip extends LabelSausage
 {
+    /**
+     * Used to position a scene tip in relation to the object with which
+     * it is associated.
+     */
+    public static interface TipLayout
+    {
+        /**
+         * Position the supplied tip relative to the supplied scene object.
+         */
+        public void layout (Graphics2D gfx, Rectangle boundary,
+                            SceneObject tipFor, SceneObjectTip tip);
+    }
+
     /** The bounding box of this tip, or null prior to layout(). */
     public Rectangle bounds;
 
@@ -48,29 +63,25 @@ public class SceneObjectTip extends LabelSausage
     /**
      * Called to initialize the tip so that it can be painted.
      *
-     * @param tipFor the bounding rectangle for the object we tip for.
+     * @param tipFor the scene object that we're a tip for.
      * @param boundary the boundary of all displayable space.
      * @param othertips other tip boundaries that we should avoid.
      */
-    public void layout (Graphics2D gfx, Rectangle tipFor, Rectangle boundary,
+    public void layout (Graphics2D gfx, SceneObject tipFor, Rectangle boundary,
                         Collection othertips)
     {
         layout(gfx, ICON_PAD, EXTRA_PAD);
         bounds = new Rectangle(_size);
-        boundary = MAX_RECT;
 
-        // center in the on-screen portion of the bounding box of the
-        // object we're tipping for, but don't go above MAX_HEIGHT from
-        // the bottom...
-        Rectangle anchor = boundary.intersection(tipFor);
-        bounds.setLocation(
-            anchor.x + (anchor.width - bounds.width) / 2,
-            anchor.y + Math.max(
-                (anchor.height - bounds.height) / 2,
-                anchor.height - MAX_HEIGHT));
-
-        // and jiggle it to not overlap any other tips
-        SwingUtil.positionRect(bounds, boundary, othertips);
+        // locate the most appropriate tip layout
+        for (int ii = 0, ll = _layouts.size(); ii < ll; ii++) {
+            LayoutReg reg = (LayoutReg)_layouts.get(ii);
+            String act = tipFor.info.action == null ? "" : tipFor.info.action;
+            if (act.startsWith(reg.prefix)) {
+                reg.layout.layout(gfx, boundary, tipFor, this);
+                break;
+            }
+        }
     }
 
     /**
@@ -87,6 +98,21 @@ public class SceneObjectTip extends LabelSausage
     public String toString ()
     {
         return _label.getText() + "[" + StringUtil.toString(bounds) + "]";
+    }
+
+    /**
+     * It may be desirable to layout object tips specially depending on
+     * what sort of actions they represent, so we allow different tip
+     * layout algorithms to be registered for particular object prefixes.
+     * The registration is simply a list searched from longest string to
+     * shortest string for the first match to an object's action.
+     */
+    public static void registerTipLayout (String prefix, TipLayout layout)
+    {
+        LayoutReg reg = new LayoutReg();
+        reg.prefix = prefix;
+        reg.layout = layout;
+        _layouts.insertSorted(reg);
     }
 
     // documentation inherited
@@ -118,19 +144,48 @@ public class SceneObjectTip extends LabelSausage
         }
     }
 
+    /** Used to store {@link TipLayout} registrations. */
+    protected static class LayoutReg implements Comparable
+    {
+        /** The prefix that defines our applicability. */
+        public String prefix;
+
+        /** The layout to use for objects matching our prefix. */
+        public TipLayout layout;
+
+        // documentation inherited from interface
+        public int compareTo (Object o) {
+            LayoutReg or = (LayoutReg)o;
+            if (or.prefix.length() == prefix.length()) {
+                return or.prefix.compareTo(prefix);
+            } else {
+                return or.prefix.length() - prefix.length();
+            }
+        }
+    }
+
+    /** Our default tip layout algorithm which centers the tip in the
+     * bounds of the object in question. */
+    protected static class DefaultLayout implements TipLayout
+    {
+        public void layout (Graphics2D gfx, Rectangle boundary,
+                            SceneObject tipFor, SceneObjectTip tip) {
+            tip.bounds.setLocation(
+                tipFor.bounds.x + (tipFor.bounds.width-tip.bounds.width) / 2,
+                tipFor.bounds.y + (tipFor.bounds.height-tip.bounds.height) / 2);
+        }
+    }
+
+    /** Contains a sorted list of layout registrations. */
+    protected static SortableArrayList _layouts = new SortableArrayList();
+
     /** The number of pixels to pad around the icon. */
     protected static final int ICON_PAD = 4;
 
     /** The number of pixels to pad between the icon and text. */
     protected static final int EXTRA_PAD = 2;
 
-    /** The maximum height above the bottom of the object bounds that we are
-     * to center ourselves. */
-    protected static final int MAX_HEIGHT = 80;
-
-    /** Since we don't bound our tooltips into the view, we provide this
-     * generous region in which they may lay themselves out. */
-    protected static final Rectangle MAX_RECT = new Rectangle(
-        Integer.MIN_VALUE/2, Integer.MIN_VALUE/2,
-        Integer.MAX_VALUE, Integer.MAX_VALUE);
+    static {
+        registerTipLayout("", new DefaultLayout());
+    }
 }

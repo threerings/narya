@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.54 2004/01/07 22:03:08 ray Exp $
+// $Id: MisoScenePanel.java,v 1.55 2004/01/11 08:26:18 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -1255,7 +1255,7 @@ public class MisoScenePanel extends VirtualMediaPanel
             for (Iterator iter = _tips.keySet().iterator(); iter.hasNext(); ) {
                 SceneObject scobj = (SceneObject)iter.next();
                 SceneObjectTip tip = (SceneObjectTip)_tips.get(scobj);
-                tip.layout(gfx, scobj.bounds, _vbounds, boxlist);
+                tip.layout(gfx, scobj, _vbounds, boxlist);
                 boxlist.add(tip.bounds);
             }
             _tipsLaidOut = true;
