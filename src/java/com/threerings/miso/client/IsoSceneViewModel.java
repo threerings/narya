@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.11 2001/08/29 19:50:46 shaper Exp $
+// $Id: IsoSceneViewModel.java,v 1.12 2001/08/29 20:07:54 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -86,41 +86,25 @@ public class IsoSceneViewModel
 	scenehei = config.getValue(SCENE_HEIGHT_KEY, DEF_SCENE_HEIGHT);
 
 	// get the tile dimensions
-	int twid = config.getValue(TILE_WIDTH_KEY, DEF_TILE_WIDTH);
-	int thei = config.getValue(TILE_HEIGHT_KEY, DEF_TILE_HEIGHT);
-
-	// set tile dimensions and pre-calculate related member data
-	// based on now-known tile and scene dimensions
-        setTileDimensions(twid, thei);
+	tilewid = config.getValue(TILE_WIDTH_KEY, DEF_TILE_WIDTH);
+	tilehei = config.getValue(TILE_HEIGHT_KEY, DEF_TILE_HEIGHT);
 
 	// set the fine coordinate granularity
-	setFineGranularity(config.getValue(FINE_GRAN_KEY, DEF_FINE_GRAN));
+	finegran = config.getValue(FINE_GRAN_KEY, DEF_FINE_GRAN);
 
 	// set the desired scene view bounds
 	int svwid = config.getValue(SCENE_VWIDTH_KEY, DEF_SCENE_VWIDTH);
 	int svhei = config.getValue(SCENE_VHEIGHT_KEY, DEF_SCENE_VHEIGHT);
-	setBounds(svwid * twid, svhei * thei);
+	bounds = new Dimension(svwid * tilewid, svhei * tilehei);
 
 	// set the scene display origin
 	int offy = config.getValue(SCENE_OFFSET_Y_KEY, DEF_OFFSET_Y);
-        setOrigin(bounds.width / 2, offy * thei);
+        origin = new Point((bounds.width / 2), (offy * tilehei));
 
 	// set our various flags
         showCoords = config.getValue(SHOW_COORDS_KEY, DEF_SHOW_COORDS);
 	showLocs = config.getValue(SHOW_COORDS_KEY, DEF_SHOW_COORDS);
 	showPaths = config.getValue(SHOW_PATHS_KEY, DEF_SHOW_PATHS);
-    }
-
-    /**
-     * Set the number of fine coordinates within a tile.  The
-     * granularity determines the number of coordinates on both the x-
-     * and y-axis.
-     *
-     * @param gran the number of fine coordinates on each axis.
-     */
-    public void setFineGranularity (int gran)
-    {
-	finegran = gran;
     }
 
     /**
@@ -170,77 +154,14 @@ public class IsoSceneViewModel
     }
 
     /**
-     * Set the dimensions of the tiles that comprise the base layer of
-     * the isometric view and therefore drive the view geometry as a
-     * whole.
-     *
-     * @param width the tile width in pixels.
-     * @param height the tile height in pixels.
-     */
-    public void setTileDimensions (int width, int height)
-    {
-        // save the dimensions
-        tilewid = width;
-        tilehei = height;
-
-        // halve the dimensions
-        tilehwid = width / 2;
-        tilehhei = height / 2;
-
-        // calculate the length of a tile edge in pixels
-        tilelen = (float) Math.sqrt(
-            (tilehwid * tilehwid) + (tilehhei * tilehhei));
-
-        // calculate the number of tile rows to render
-        tilerows = (scenewid * scenehei) - 1;
-
-        // calculate the slope of the x- and y-axis lines
-        slopeX = (float)tilehei / (float)tilewid;
-        slopeY = -slopeX;
-    }
-
-    /**
-     * Set the origin position at which the isometric view is
-     * displayed in screen pixel coordinates.
-     *
-     * @param x the x-position in pixels.
-     * @param y the y-position in pixels.
-     */
-    public void setOrigin (int x, int y)
-    {
-        // save the requested origin
-        origin = new Point(x, y);
-    }
-
-    /**
-     * Set the desired bounds for the view.  The actual resulting
-     * bounds will be based on the number of whole tiles that fit in
-     * the requested bounds vertically and horizontally.  For the
-     * bounds to be calculated correctly, therefore, the desired tile
-     * dimensions should have been previously set via
-     * <code>setTileDimensions()</code>.
-     *
-     * @param width the bounds width in pixels.
-     * @param height the bounds height in pixels.
-     */
-    public void setBounds (int width, int height)
-    {
-        // determine the actual bounds based on the number of whole
-        // tiles that fit in the requested bounds
-        int bwid = (width / tilewid) * tilewid;
-        int bhei = (height / tilehei) * tilehei;
-
-        // save our calculated boundaries in pixel coordinates
-        bounds = new Dimension(bwid, bhei);
-    }
-
-    /**
-     * Pre-calculate various values that are commonly used in working
-     * with an isometric view.  Includes x-axis line values for use in
-     * converting coordinates, and fine coordinate dimensions.
+     * Pre-calculate various member data that are commonly used in
+     * working with an isometric view.
      */
     public void precalculate ()
     {
+	// pre-calculate tile-related data
+	precalculateTiles();
+
 	// calculate scene-based x-axis line for conversion from
 	// screen to tile coordinates
 
@@ -272,6 +193,27 @@ public class IsoSceneViewModel
 	// calculate the fine coordinate dimensions
 	finehwid = (int)((float)tilehwid / (float)finegran);
 	finehhei = (int)((float)tilehhei / (float)finegran);
+    }
+
+    /**
+     * Pre-calculate various tile-related member data.
+     */
+    protected void precalculateTiles ()
+    {
+        // halve the dimensions
+        tilehwid = (tilewid / 2);
+        tilehhei = (tilehei / 2);
+
+        // calculate the length of a tile edge in pixels
+        tilelen = (float) Math.sqrt(
+            (tilehwid * tilehwid) + (tilehhei * tilehhei));
+
+        // calculate the number of tile rows to render
+        tilerows = (scenewid * scenehei) - 1;
+
+        // calculate the slope of the x- and y-axis lines
+        slopeX = (float)tilehei / (float)tilewid;
+        slopeY = -slopeX;
     }
 
     /** The config key for tile width in pixels. */
