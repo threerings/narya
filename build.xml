@@ -3,40 +3,40 @@
 
   <!-- configuration parameters -->
   <property name="app.name"       value="narya"/>
-  <property name="deploy.home"    value="dist"/>
-  <property name="dist.home"      value="${deploy.home}"/>
+  <property name="deploy.dir"    value="dist"/>
+  <property name="dist.home"      value="${deploy.dir}"/>
   <property name="dist.jar"       value="${app.name}.jar"/>
-  <property name="javadoc.home"   value="${deploy.home}/docs"/>
+  <property name="javadoc.home"   value="${deploy.dir}/docs"/>
   <property name="build.compiler" value="jikes"/>
   <property name="java.libraries" value="/usr/share/java"/>
 
   <!-- prepares the application directories -->
   <target name="prepare">
-    <mkdir dir="${deploy.home}"/>
-    <mkdir dir="${deploy.home}/classes"/>
-    <mkdir dir="${deploy.home}/classes/rsrc"/>
+    <mkdir dir="${deploy.dir}"/>
+    <mkdir dir="${deploy.dir}/classes"/>
+    <mkdir dir="${deploy.dir}/classes/rsrc"/>
     <mkdir dir="${javadoc.home}"/>
-    <copy todir="${deploy.home}/classes">
+    <copy todir="${deploy.dir}/classes">
       <fileset dir="src/java" includes="**/*.properties"/>
     </copy>
-    <copy todir="${deploy.home}/classes/rsrc">
+    <copy todir="${deploy.dir}/classes/rsrc">
       <fileset dir="rsrc" includes="**/*"/>
     </copy>
   </target>
 
   <!-- cleans out the installed application -->
   <target name="clean">
-    <delete dir="${deploy.home}"/>
+    <delete dir="${deploy.dir}"/>
   </target>
 
   <!-- build the java class files -->
   <target name="compile" depends="prepare">
-    <javac srcdir="src/java" destdir="${deploy.home}/classes"
+    <javac srcdir="src/java" destdir="${deploy.dir}/classes"
            debug="on" optimize="off" deprecation="off">
       <classpath>
         <fileset dir="${java.libraries}" includes="**/*.jar"/>
         <fileset dir="lib" includes="**/*.jar"/>
-        <pathelement location="${deploy.home}/classes"/>
+        <pathelement location="${deploy.dir}/classes"/>
       </classpath>
     </javac>
   </target>
@@ -49,7 +49,7 @@
       <classpath>
         <fileset dir="${java.libraries}" includes="**/*.jar"/>
         <fileset dir="lib" includes="**/*.jar"/>
-        <pathelement location="${deploy.home}/classes"/>
+        <pathelement location="${deploy.dir}/classes"/>
       </classpath>
     </javadoc>
   </target>
@@ -60,7 +60,7 @@
   <!-- builds our distribution files (war and jar) -->
   <target name="dist" depends="prepare,compile">
     <jar file="${dist.home}/${dist.jar}"
-         basedir="${deploy.home}/classes"/>
+         basedir="${deploy.dir}/classes"/>
   </target>
 
 </project>
