@@ -1,5 +1,5 @@
 //
-// $Id: Path.java,v 1.5 2002/04/25 16:23:30 mdb Exp $
+// $Id: Path.java,v 1.6 2002/05/17 21:12:48 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -48,18 +48,6 @@ public interface Path
      * illusion of flowing smoothly forward.
      */
     public void fastForward (long timeDelta);
-
-    /**
-     * Sets the velocity of this sprite in pixels per millisecond. The
-     * velocity is measured as pixels traversed along the path that the
-     * sprite is traveling rather than in the x or y directions
-     * individually.  Note that the sprite velocity should not be changed
-     * while a path is being traversed; doing so may result in the sprite
-     * position changing unexpectedly.
-     *
-     * @param velocity the sprite velocity in pixels per millisecond.
-     */
-    public void setVelocity (float velocity);
 
     /**
      * Called when the view that contains the sprite following this path
