@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.18 2002/04/28 03:14:15 mdb Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.19 2002/05/03 04:12:48 mdb Exp $
 
 package com.threerings.miso.scene.tools;
 
@@ -8,7 +8,6 @@ import java.awt.Rectangle;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Random;
 
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
@@ -18,7 +17,6 @@ import com.threerings.media.tile.TileUtil;
 
 import com.threerings.miso.Log;
 
-import com.threerings.miso.tile.AutoFringer;
 import com.threerings.miso.tile.BaseTile;
 import com.threerings.miso.tile.BaseTileSet;
 import com.threerings.miso.tile.MisoTileManager;
@@ -48,7 +46,6 @@ public class EditableMisoSceneImpl
         throws NoSuchTileException, NoSuchTileSetException
     {
         super(model, tmgr);
-        _fringer = tmgr.getAutoFringer();
     }
 
     /**
@@ -99,8 +96,8 @@ public class EditableMisoSceneImpl
 
                 } catch (NoSuchTileException nste) {
                     // not going to happen
-                    Log.warning("A tileset is lying to me [error=" + nste +
-                                "].");
+                    Log.warning("A tileset is lying to me " +
+                                "[error=" + nste + "].");
                 }
             }
         }
@@ -242,10 +239,4 @@ public class EditableMisoSceneImpl
 
     /** The tileset id of the default base tileset. */
     protected int _defaultBaseTileSetId;
-
-    /** The autofringer. */
-    protected AutoFringer _fringer;
-
-    /** A random number generator for filling random base tiles and fringes. */
-    protected Random _rando = new Random();
 }

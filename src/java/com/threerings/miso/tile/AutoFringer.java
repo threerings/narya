@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.9 2002/04/09 18:05:07 ray Exp $
+// $Id: AutoFringer.java,v 1.10 2002/05/03 04:12:48 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -49,7 +49,15 @@ public class AutoFringer
      */
     public void fringe (MisoSceneModel scene, TileLayer fringelayer, long seed)
     {
-        Random rando = new Random(seed);
+        fringe(scene, fringelayer, new Random(seed));
+    }
+
+    /**
+     * Automatically fringe the entire scene.
+     */
+    public void fringe (
+        MisoSceneModel scene, TileLayer fringelayer, Random rando)
+    {
         fringe(scene, fringelayer,
                new Rectangle(0, 0, scene.width, scene.height), rando);
     }

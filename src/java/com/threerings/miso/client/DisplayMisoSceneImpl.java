@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.56 2002/04/28 01:37:02 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.57 2002/05/03 04:12:48 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Random;
 
 import com.samskivert.util.StringUtil;
 
@@ -17,6 +18,7 @@ import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileLayer;
 
 import com.threerings.miso.Log;
+import com.threerings.miso.tile.AutoFringer;
 import com.threerings.miso.tile.BaseTile;
 import com.threerings.miso.tile.BaseTileLayer;
 import com.threerings.miso.tile.MisoTileManager;
@@ -90,6 +92,7 @@ public class DisplayMisoSceneImpl
         throws NoSuchTileException, NoSuchTileSetException
     {
         _tmgr = tmgr;
+        _fringer = tmgr.getAutoFringer();
         populateLayers();
     }
 
@@ -104,6 +107,11 @@ public class DisplayMisoSceneImpl
     {
         int swid = _base.getWidth();
         int shei = _base.getHeight();
+
+        // if we have a fringer, fill in our fringe
+        if (_fringer != null) {
+            _fringer.fringe(_model, _fringe, _rando);
+        }
 
         // populate the base and fringe layers
         for (int column = 0; column < shei; column++) {
@@ -282,4 +290,10 @@ public class DisplayMisoSceneImpl
 
     /** A map from object tile to action string. */
     protected HashMap _actions = new HashMap();
+
+    /** The autofringer. */
+    protected AutoFringer _fringer;
+
+    /** A random number generator for filling random base tiles and fringes. */
+    protected Random _rando = new Random();
 }
