@@ -1,5 +1,5 @@
 //
-// $Id: MapFileTileSetIDBroker.java,v 1.6 2002/09/23 18:53:01 mdb Exp $
+// $Id: MapFileTileSetIDBroker.java,v 1.7 2002/09/26 02:08:47 mdb Exp $
 
 package com.threerings.media.tile.tools;
 
@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import com.samskivert.io.PersistenceException;
+import com.samskivert.util.QuickSort;
 
 import com.threerings.media.tile.TileSetIDBroker;
 
@@ -143,12 +144,16 @@ public class MapFileTileSetIDBroker implements TileSetIDBroker
     public static void writeMapFile (BufferedWriter bout, HashMap map)
         throws IOException
     {
+        String[] lines = new String[map.size()];
         Iterator iter = map.keySet().iterator();
-        while (iter.hasNext()) {
+        for (int ii = 0; iter.hasNext(); ii++) {
             String key = (String)iter.next();
             Integer value = (Integer)map.get(key);
-            String line = key + SEP_STR + value;
-            bout.write(line, 0, line.length());
+            lines[ii] = key + SEP_STR + value;
+        }
+        QuickSort.sort(lines);
+        for (int ii = 0; ii < lines.length; ii++) {
+            bout.write(lines[ii], 0, lines[ii].length());
             bout.newLine();
         }
         bout.flush();
