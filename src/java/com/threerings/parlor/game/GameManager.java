@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.64 2003/06/03 21:41:33 ray Exp $
+// $Id: GameManager.java,v 1.65 2003/06/04 02:50:19 ray Exp $
 
 package com.threerings.parlor.game;
 
@@ -344,7 +344,7 @@ public class GameManager extends PlaceManager
         }
 
         // otherwise, just deliver the message
-        SpeakProvider.sendSystemSpeak(_gameobj, msgbundle, msg);
+        SpeakProvider.sendInfo(_gameobj, msgbundle, msg);
     }
 
     // documentation inherited

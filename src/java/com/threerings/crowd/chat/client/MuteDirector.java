@@ -1,5 +1,5 @@
 //
-// $Id: MuteDirector.java,v 1.8 2003/06/03 21:41:33 ray Exp $
+// $Id: MuteDirector.java,v 1.9 2003/06/04 02:50:18 ray Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -96,7 +96,7 @@ public class MuteDirector extends BasicDirector
     public void setMuted (String username, boolean mute)
     {
         if (mute ? _mutelist.add(username) : _mutelist.remove(username)) {
-            _chatdir.displayFeedbackMessage(MessageBundle.tcompose(
+            _chatdir.displayFeedback(null, MessageBundle.tcompose(
                 mute ? "m.muted" : "m.unmuted", username));
             notifyObservers(username, mute);
         }
@@ -123,7 +123,7 @@ public class MuteDirector extends BasicDirector
     public boolean validateTell (String target, String msg)
     {
         if (isMuted(target)) {
-            _chatdir.displayFeedbackMessage("m.no_tell_mute");
+            _chatdir.displayFeedback(null, "m.no_tell_mute");
             return false;
         }
 

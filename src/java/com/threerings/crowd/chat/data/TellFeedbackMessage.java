@@ -1,12 +1,12 @@
 //
-// $Id: TellFeedbackMessage.java,v 1.1 2003/06/03 23:46:10 ray Exp $
+// $Id: TellFeedbackMessage.java,v 1.2 2003/06/04 02:50:18 ray Exp $
 
 package com.threerings.crowd.chat.data;
 
 /**
  * A feedback message to indicate that a tell succeeded.
  */
-public class TellFeedbackMessage extends FeedbackMessage
+public class TellFeedbackMessage extends ChatMessage
 {
     /**
      * A tell feedback message is only composed on the client.

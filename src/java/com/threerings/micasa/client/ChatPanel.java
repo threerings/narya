@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.24 2003/06/03 23:36:18 ray Exp $
+// $Id: ChatPanel.java,v 1.25 2003/06/04 02:50:19 ray Exp $
 
 package com.threerings.micasa.client;
 
@@ -38,7 +38,6 @@ import com.threerings.crowd.chat.client.ChatDirector;
 import com.threerings.crowd.chat.client.ChatDisplay;
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.ChatMessage;
-import com.threerings.crowd.chat.data.FeedbackMessage;
 import com.threerings.crowd.chat.data.SystemMessage;
 import com.threerings.crowd.chat.data.UserMessage;
 
@@ -240,8 +239,7 @@ public class ChatPanel
                 append(msg.message + "\n", _msgStyle);
             }
 
-        } else if ((message instanceof SystemMessage) ||
-                   (message instanceof FeedbackMessage)) {
+        } else if (message instanceof SystemMessage) {
             append(message.message + "\n", _noticeStyle);
 
         } else {

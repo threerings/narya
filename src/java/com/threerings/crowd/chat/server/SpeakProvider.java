@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.5 2003/06/03 21:41:33 ray Exp $
+// $Id: SpeakProvider.java,v 1.6 2003/06/04 02:50:18 ray Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -125,10 +125,13 @@ public class SpeakProvider
     }
 
     /**
-     * Sends a system message notification to the specified object with
+     * Sends a system INFO message notification to the specified object with
      * the supplied message content. A system message is one that will be
      * rendered where the speak messages are rendered, but in a way that
      * makes it clear that it is a message from the server.
+     *
+     * Info messages are sent when something happens that was neither
+     * directly triggered by the user, nor requires direct action.
      *
      * @param speakObj the object on which to deliver the message.
      * @param bundle the name of the localization bundle that should be
@@ -136,10 +139,61 @@ public class SpeakProvider
      * client.
      * @param message the text of the message.
      */
-    public static void sendSystemSpeak (
+    public static void sendInfo (
         DObject speakObj, String bundle, String message)
     {
-        sendMessage(speakObj, new SystemMessage(message, bundle));
+        sendSystem(speakObj, bundle, message, SystemMessage.INFO);
+    }
+
+    /**
+     * Sends a system FEEDBACK message notification to the specified
+     * object with the supplied message content. A system message is one
+     * that will be rendered where the speak messages are rendered,
+     * but in a way that makes it clear that it is a message from the server.
+     *
+     * Feedback messages are sent in direct response to a user action,
+     * usually to indicate success or failure of the user's action.
+     *
+     * @param speakObj the object on which to deliver the message.
+     * @param bundle the name of the localization bundle that should be
+     * used to translate this system message prior to displaying it to the
+     * client.
+     * @param message the text of the message.
+     */
+    public static void sendFeedback (
+        DObject speakObj, String bundle, String message)
+    {
+        sendSystem(speakObj, bundle, message, SystemMessage.FEEDBACK);
+    }
+
+    /**
+     * Sends a system ATTENTION message notification to the specified
+     * object with the supplied message content. A system message is one
+     * that will be rendered where the speak messages are rendered,
+     * but in a way that makes it clear that it is a message from the server.
+     *
+     * Attention messages are sent when something requires user action
+     * that did not result from direct action by the user.
+     *
+     * @param speakObj the object on which to deliver the message.
+     * @param bundle the name of the localization bundle that should be
+     * used to translate this system message prior to displaying it to the
+     * client.
+     * @param message the text of the message.
+     */
+    public static void sendAttention (
+        DObject speakObj, String bundle, String message)
+    {
+        sendSystem(speakObj, bundle, message, SystemMessage.ATTENTION);
+    }
+
+    /**
+     * Send the specified system message on the specified dobj.
+     */
+    protected static void sendSystem (
+        DObject speakObj, String bundle, String message, byte attLevel)
+    {
+        sendMessage(speakObj, new SystemMessage(message, bundle, attLevel));
     }
 
     /**

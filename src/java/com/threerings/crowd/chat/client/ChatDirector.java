@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.45 2003/06/03 23:36:18 ray Exp $
+// $Id: ChatDirector.java,v 1.46 2003/06/04 02:50:18 ray Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -28,7 +28,6 @@ import com.threerings.crowd.util.CrowdContext;
 
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.ChatMessage;
-import com.threerings.crowd.chat.data.FeedbackMessage;
 import com.threerings.crowd.chat.data.SystemMessage;
 import com.threerings.crowd.chat.data.TellFeedbackMessage;
 import com.threerings.crowd.chat.data.UserMessage;
@@ -209,64 +208,69 @@ public class ChatDirector extends BasicDirector
             }
         });
     }
-
+    
     /**
-     * Requests that the specified system message be dispatched to all
-     * registered chat displays. The message will be delivered as if it
-     * were received on the main chat object (meaning the chat type will
-     * be {@link ChatCodes#PLACE_CHAT_TYPE}).
+     * Display a system INFO message as if it had come from the server.
+     * The localtype of the message will be PLACE_CHAT_TYPE.
      *
-     * @param bundle the message bundle identifier that should be used to
-     * localize this message.
-     * @param message the localizable message string.
+     * Info messages are sent when something happens that was neither
+     * directly triggered by the user, nor requires direct action.
      */
-    public void displaySystemMessage (String bundle, String message)
+    public void displayInfo (String bundle, String message)
     {
-        displaySystemMessage(bundle, message, PLACE_CHAT_TYPE);
+        displaySystem(bundle, message, SystemMessage.INFO, PLACE_CHAT_TYPE);
     }
 
     /**
-     * Requests that the specified system message be dispatched to all
-     * registered chat displays.
+     * Display a system INFO message as if it had come from the server.
      *
-     * @param bundle the message bundle identifier that should be used to
-     * localize this message.
-     * @param message the localizable message string.
-     * @param localtype {@link ChatCodes#PLACE_CHAT_TYPE} if the message was
-     * received on the place object or the type associated with the
-     * auxiliary chat object on which the message was received.
+     * Info messages are sent when something happens that was neither
+     * directly triggered by the user, nor requires direct action.
      */
-    public void displaySystemMessage (
-        String bundle, String message, String localtype)
+    public void displayInfo (String bundle, String message, String localtype)
     {
+        displaySystem(bundle, message, SystemMessage.INFO, localtype);
+    }
+
+    /**
+     * Display a system FEEDBACK message as if it had come from the server.
+     * The localtype of the message will be PLACE_CHAT_TYPE.
+     *
+     * Feedback messages are sent in direct response to a user action,
+     * usually to indicate success or failure of the user's action.
+     */
+    public void displayFeedback (String bundle, String message)
+    {
+        displaySystem(
+            bundle, message, SystemMessage.FEEDBACK, PLACE_CHAT_TYPE);
+    }
+
+    /**
+     * Display a system ATTENTION message as if it had come from the server.
+     * The localtype of the message will be PLACE_CHAT_TYPE.
+     *
+     * Attention messages are sent when something requires user action
+     * that did not result from direct action by the user.
+     */
+    public void displayAttention (String bundle, String message)
+    {
+        displaySystem(
+            bundle, message, SystemMessage.ATTENTION, PLACE_CHAT_TYPE);
+    }
+
+    /**
+     * Display the specified system message as if it had come from the server.
+     */
+    protected void displaySystem (
+        String bundle, String message, byte attLevel, String localtype)
+    {
+        // nothing should be untranslated, so pass the default bundle if need
+        // be.
+        if (bundle == null) {
+            bundle = _bundle;
+        }
         SystemMessage msg = new SystemMessage();
-        msg.setClientInfo(xlate(bundle, message), localtype);
-        dispatchMessage(msg);
-    }
-
-    /**
-     * Displays a feedback message translated with the default bundle.
-     */
-    public void displayFeedbackMessage (String message)
-    {
-        displayFeedbackMessage(_bundle, message);
-    }
-
-    /**
-     * Displays a feedback message.
-     */
-    public void displayFeedbackMessage (String bundle, String message)
-    {
-        displayFeedbackMessage(bundle, message, PLACE_CHAT_TYPE);
-    }
-
-    /**
-     * Displays a feedback message.
-     */
-    public void displayFeedbackMessage (String bundle, String message,
-        String localtype)
-    {
-        FeedbackMessage msg = new FeedbackMessage();
+        msg.attentionLevel = attLevel;
         msg.setClientInfo(xlate(bundle, message), localtype);
         dispatchMessage(msg);
     }
@@ -333,7 +337,7 @@ public class ChatDirector extends BasicDirector
         _cservice.broadcast(
             _ctx.getClient(), message, new ChatService.InvocationListener() {
                 public void requestFailed (String reason) {
-                    displayFeedbackMessage(
+                    displayFeedback(
                         _bundle, MessageBundle.compose(
                             "m.broadcast_failed", reason));
                 }
@@ -388,7 +392,7 @@ public class ChatDirector extends BasicDirector
             public void requestFailed (String reason) {
                 String msg = MessageBundle.compose(
                     "m.tell_failed", MessageBundle.taint(target), reason);
-                displayFeedbackMessage(_bundle, msg);
+                displayFeedback(_bundle, msg);
                 if (rl != null) {
                     rl.requestFailed(null);
                 }
