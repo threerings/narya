@@ -1,9 +1,11 @@
 //
-// $Id: IsoUtil.java,v 1.20 2002/02/06 23:38:45 mdb Exp $
+// $Id: IsoUtil.java,v 1.21 2002/02/19 04:02:50 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
 import java.awt.*;
+
+import com.samskivert.swing.SmartPolygon;
 
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.tile.ObjectTile;
@@ -53,7 +55,7 @@ public class IsoUtil
     public static Polygon getObjectFootprint (
         IsoSceneViewModel model, Polygon root, ObjectTile tile)
     {
-        Polygon boundsPoly = new Polygon();
+        Polygon boundsPoly = new SmartPolygon();
 	Rectangle bounds = root.getBounds();
 
         int bwid = tile.getBaseWidth(), bhei = tile.getBaseHeight();
@@ -113,7 +115,7 @@ public class IsoUtil
         int oox = bounds.x + model.tilehwid, ooy = bounds.y + model.tilehei;
         int sx = oox - tox, sy =  ooy - toy;
 
-        Polygon boundsPoly = new Polygon();
+        Polygon boundsPoly = new SmartPolygon();
         int rx = sx, ry = sy;
 
         // top-left point
@@ -428,7 +430,7 @@ public class IsoUtil
         IsoUtil.tileToScreen(model, x, y, spos);
 
         // create a polygon framing the tile
-        Polygon poly = new Polygon();
+        Polygon poly = new SmartPolygon();
         poly.addPoint(spos.x, spos.y + model.tilehhei);
         poly.addPoint(spos.x + model.tilehwid, spos.y);
         poly.addPoint(spos.x + model.tilewid, spos.y + model.tilehhei);
