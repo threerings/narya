@@ -1,12 +1,9 @@
 //
-// $Id: TileSetBundle.java,v 1.13 2003/01/13 22:49:47 mdb Exp $
+// $Id: TileSetBundle.java,v 1.14 2003/04/27 06:35:09 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
-import java.awt.Image;
-import javax.imageio.ImageIO;
-import javax.imageio.stream.FileImageInputStream;
-import javax.imageio.stream.ImageInputStream;
+import java.awt.image.BufferedImage;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,11 +14,13 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import java.util.Iterator;
+import javax.imageio.ImageIO;
 
 import com.samskivert.util.HashIntMap;
 
 import com.threerings.resource.ResourceBundle;
 
+import com.threerings.media.image.FastImageIO;
 import com.threerings.media.image.ImageDataProvider;
 import com.threerings.media.tile.TileSet;
 
@@ -89,10 +88,14 @@ public class TileSetBundle extends HashIntMap
     }
 
     // documentation inherited from interface
-    public ImageInputStream loadImageData (String path)
+    public BufferedImage loadImage (String path)
         throws IOException
     {
-        return new FileImageInputStream(_bundle.getResourceFile(path));
+        if (path.endsWith(FastImageIO.FILE_SUFFIX)) {
+            return FastImageIO.read(_bundle.getResourceFile(path));
+        } else {
+            return ImageIO.read(_bundle.getResourceFile(path));
+        }
     }
 
     // custom serialization process
