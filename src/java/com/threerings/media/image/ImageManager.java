@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.53 2003/04/28 17:38:06 mdb Exp $
+// $Id: ImageManager.java,v 1.54 2003/05/02 22:59:20 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -176,6 +176,29 @@ public class ImageManager
         }
 
         return getImage(getImageKey(rset, path), zations);
+    }
+
+    /**
+     * Like {@link #getImage(String,String)} but the specified
+     * colorizations are applied to the image before it is returned.
+     * Additionally the image is optimized for display in the current
+     * graphics configuration. Consider using {@link getMirage} instead of
+     * prepared images as they (some day) will automatically use volatile
+     * images to increase performance.
+     */
+    public BufferedImage getPreparedImage (String rset, String path,
+                                           Colorization[] zations)
+    {
+        BufferedImage image = getImage(rset, path, zations);
+        BufferedImage prepped = null;
+        if (image != null) {
+            prepped = createImage(image.getWidth(), image.getHeight(),
+                                  image.getColorModel().getTransparency());
+            Graphics2D pg = prepped.createGraphics();
+            pg.drawImage(image, 0, 0, null);
+            pg.dispose();
+        }
+        return prepped;
     }
 
     /**
