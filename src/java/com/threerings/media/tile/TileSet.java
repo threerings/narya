@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.55 2003/06/04 22:00:59 mdb Exp $
+// $Id: TileSet.java,v 1.56 2003/06/05 17:32:03 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -8,7 +8,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
 
-import java.lang.ref.WeakReference;
+import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -199,9 +199,9 @@ public abstract class TileSet
             _key.tileSet = this;
             _key.tileIndex = tileIndex;
             _key.zations = zations;
-            WeakReference wref = (WeakReference)_atiles.get(_key);
-            if (wref != null) {
-                tile = (Tile)wref.get();
+            SoftReference sref = (SoftReference)_atiles.get(_key);
+            if (sref != null) {
+                tile = (Tile)sref.get();
             }
         }
 
@@ -211,7 +211,7 @@ public abstract class TileSet
             tile.key = new Tile.Key(this, tileIndex, zations);
             initTile(tile, tileIndex, zations);
             synchronized (_atiles) {
-                _atiles.put(tile.key, new WeakReference(tile));
+                _atiles.put(tile.key, new SoftReference(tile));
             }
         }
 
@@ -375,8 +375,8 @@ public abstract class TileSet
             // first total up the active tiles
             Iterator iter = _atiles.values().iterator();
             while (iter.hasNext()) {
-                WeakReference wref = (WeakReference)iter.next();
-                Tile tile = (Tile)wref.get();
+                SoftReference sref = (SoftReference)iter.next();
+                Tile tile = (Tile)sref.get();
                 if (tile != null) {
                     asize++;
                     amem += tile.getEstimatedMemoryUsage();
