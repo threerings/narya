@@ -3,8 +3,11 @@
 
   <!-- things you may want to change -->
   <property name="build.compiler" value="jikes"/>
-  <property name="java.libraries" value="/usr/share/java"/>
   <property name="junit.fork"     value="true"/>
+
+  <!-- we want to access the environment -->
+  <property environment="env"/>
+  <property name="java.libraries" value="${env.JAVA_LIBS}"/>
 
   <!-- things you probably don't want to change -->
   <property name="test.dir"   value="."/>
@@ -52,7 +55,7 @@
     <junit printsummary="no" haltonfailure="yes" fork="${junit.fork}">
       <classpath refid="classpath"/>
       <sysproperty key="test_dir" value="${test.dir}"/>
-      <sysproperty key="application.root" value="${test.dir}"/>
+      <sysproperty key="resource_url" value="file:${test.dir}/rsrc"/>
       <formatter type="brief" usefile="false"/>
       <batchtest>
         <fileset dir="${src.dir}">
