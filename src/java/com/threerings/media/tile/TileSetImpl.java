@@ -1,5 +1,5 @@
 //
-// $Id: TileSetImpl.java,v 1.1 2001/10/11 00:41:26 shaper Exp $
+// $Id: TileSetImpl.java,v 1.2 2001/10/12 16:36:58 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -37,8 +37,8 @@ public class TileSetImpl implements TileSet
     /** The number of tiles in the tileset. */
     public int numTiles;
 
-    /** Mapping of object tile ids to object dimensions. */
-    public HashIntMap objects = new HashIntMap();
+    /** Whether this set produces object tiles. */
+    public boolean isObjectSet = false;
 
     /**
      * The offset distance (x, y) in pixels from the top-left of the
@@ -123,11 +123,24 @@ public class TileSetImpl implements TileSet
      */
     protected Tile createTile (int tid)
     {
-	int size[] = (int[])objects.get(tid);
-	if (size != null) {
-	    return new ObjectTile(tsid, tid, size[0], size[1]);
+        // construct an object tile if the tile set was specified as such
+	if (isObjectSet) {
+            // default object dimensions to (1, 1)
+            int wid = 1, hei = 1;
+
+            // retrieve object dimensions if known
+            if (_objects != null) {
+                int size[] = (int[])_objects.get(tid);
+                if (size != null) {
+                    wid = size[0];
+                    hei = size[1];
+                }
+            }
+
+	    return new ObjectTile(tsid, tid, wid, hei);
 	}
 
+        // construct a basic tile
 	return new Tile(tsid, tid);
     }
 
@@ -191,6 +204,18 @@ public class TileSetImpl implements TileSet
 	return imgmgr.getImageCropped(
             _imgTiles, tx, ty, rowWidth[ridx], rowHeight[ridx]);
     }
+
+    protected void addObjectInfo (int tid, int size[])
+    {
+        if (_objects == null) {
+            _objects = new HashIntMap();
+        }
+
+        _objects.put(tid, size);
+    }
+
+    /** Mapping of object tile ids to object dimensions. */
+    protected HashIntMap _objects;
 
     /** The image containing all tile images for this set. */
     protected Image _imgTiles;

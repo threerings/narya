@@ -1,11 +1,12 @@
 //
-// $Id: XMLTileSetParser.java,v 1.16 2001/10/11 00:41:26 shaper Exp $
+// $Id: XMLTileSetParser.java,v 1.17 2001/10/12 16:36:58 shaper Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Point;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.*;
@@ -74,9 +75,18 @@ public class XMLTileSetParser extends DefaultHandler
 	_tag = qName;
 
 	if (_tag.equals("tileset")) {
+            // construct the new tile set
+            _tset = createTileSet();
+
+            // note whether it contains object tiles
+            String str = attributes.getValue("layer");
+            _tset.isObjectSet = str.toLowerCase().equals(LAYER_OBJECT);
+
+            // get the tile set id
 	    _tset.tsid = getInt(attributes.getValue("tsid"));
 
-	    String str = attributes.getValue("name");
+            // get the tile set name
+	    str = attributes.getValue("name");
 	    _tset.name = (str == null) ? DEF_NAME : str;
 
 	} else if (_tag.equals("object")) {
@@ -87,7 +97,7 @@ public class XMLTileSetParser extends DefaultHandler
 	    int hei = getInt(attributes.getValue("height"));
 
 	    // add the object info to the tileset object hashtable
-	    _tset.objects.put(tid, new int[] { wid, hei });
+	    _tset.addObjectInfo(tid, new int[] { wid, hei });
 	}
     }
 
@@ -120,7 +130,7 @@ public class XMLTileSetParser extends DefaultHandler
     }
 
     // documentation inherited
-    public ArrayList loadTileSets (String fname) throws IOException
+    public List loadTileSets (String fname) throws IOException
     {
 	try {
 	    InputStream tis = ConfigUtil.getStream(fname);
@@ -154,7 +164,7 @@ public class XMLTileSetParser extends DefaultHandler
     protected void init ()
     {
 	_chars = new StringBuffer();
-	_tset = createTileSet();
+	_tset = null;
     }
 
     /**
@@ -164,7 +174,7 @@ public class XMLTileSetParser extends DefaultHandler
      */
     protected TileSetImpl createTileSet ()
     {
-	return new TileSetImpl();
+        return new TileSetImpl();
     }
 
     /**
@@ -197,6 +207,9 @@ public class XMLTileSetParser extends DefaultHandler
 
     /** Default tileset name. */
     protected static final String DEF_NAME = "Untitled";
+
+    /** String constant denoting an object tile set. */
+    protected static final String LAYER_OBJECT = "object";
 
     /** The XML element tag currently being processed. */
     protected String _tag;
