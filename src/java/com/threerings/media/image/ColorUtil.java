@@ -1,5 +1,5 @@
 //
-// $Id: ColorUtil.java,v 1.2 2002/03/26 23:35:01 ray Exp $
+// $Id: ColorUtil.java,v 1.3 2002/07/18 23:14:02 ray Exp $
 
 package com.threerings.media.util;
 
@@ -20,5 +20,20 @@ public class ColorUtil
         return new Color((c1.getRed() + c2.getRed()) >> 1,
                          (c1.getGreen() + c2.getGreen()) >> 1,
                          (c1.getBlue() + c2.getBlue()) >> 1);
+    }
+
+    /**
+     * Blends the two supplied colors, using the supplied percentage
+     * as the amount of the first color to use.
+     *
+     * @param firstperc The percentage of the first color to use, from 0.0f
+     * to 1.0f inclusive.
+     */
+    public static final Color blend (Color c1, Color c2, float firstperc)
+    {
+        float p2 = 1.0f - firstperc;
+        return new Color((int) (c1.getRed() * firstperc + c2.getRed() * p2),
+                 (int) (c1.getGreen() * firstperc + c2.getGreen() * p2),
+                 (int) (c1.getBlue() * firstperc + c2.getBlue() * p2));
     }
 }
