@@ -1,5 +1,5 @@
 //
-// $Id: Location.java,v 1.6 2003/02/12 07:23:31 mdb Exp $
+// $Id: Location.java,v 1.7 2003/03/25 19:28:58 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -73,6 +73,15 @@ public class Location extends SimpleStreamableObject
         } else {
             return false;
         }
+    }
+
+    /**
+     * Location equivalence means that the coordinates and orientation are
+     * the same.
+     */
+    public boolean equivalent (Location oloc)
+    {
+        return equals(oloc) && (orient == oloc.orient);
     }
 
     /**

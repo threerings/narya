@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.28 2003/03/17 19:34:26 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.29 2003/03/25 19:28:59 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -337,14 +337,21 @@ public class SpotSceneManager extends SceneManager
         public boolean addBody (BodyObject body)
         {
             if (body instanceof ClusteredBodyObject) {
+                // if they're already in the cluster, do nothing
+                if (containsKey(body.getOid())) {
+                    return false;
+                }
+
                 put(body.getOid(), body);
                 _cluster.occupants++;
                 recomputeCenter();
                 if (_clobj != null) {
-                    _ssobj.updateClusters(_cluster);
-                    _clobj.addToOccupants(body.getOid());
                     ((ClusteredBodyObject)body).setClusterOid(_clobj.getOid());
+                    _clobj.addToOccupants(body.getOid());
+                    _ssobj.updateClusters(_cluster);
                 }
+
+                Log.info("Added " + body.who() + " to "+ this + ".");
                 return true;
 
             } else {
@@ -362,15 +369,17 @@ public class SpotSceneManager extends SceneManager
                 Log.warning("Requested to remove unknown body from cluster " +
                             "[cloid=" + _clobj.getOid() +
                             ", size=" + size() + ", who=" + bodyOid + "].");
-            } else {
-                body.setClusterOid(-1);
-                _cluster.occupants--;
-                recomputeCenter();
-                if (_clobj != null) {
-                    _clobj.removeFromOccupants(bodyOid);
-                    _ssobj.updateClusters(_cluster);
-                }
+                return;
             }
+
+            body.setClusterOid(-1);
+            _cluster.occupants--;
+            recomputeCenter();
+            if (_clobj != null) {
+                _clobj.removeFromOccupants(bodyOid);
+                _ssobj.updateClusters(_cluster);
+            }
+            Log.info("Removed " + bodyOid + " from "+ this + ".");
 
             // if we've removed our last body; stick a fork in ourselves
             if (size() == 0) {
@@ -388,10 +397,6 @@ public class SpotSceneManager extends SceneManager
             // keep this feller around
             _clobj = (ClusterObject)object;
 
-            // configure our cluster record and publish it
-            _cluster.clusterOid = _clobj.getOid();
-            _ssobj.addToClusters(_cluster);
-
             // let any mapped users know about our cluster
             Iterator iter = values().iterator();
             while (iter.hasNext()) {
@@ -399,6 +404,10 @@ public class SpotSceneManager extends SceneManager
                 body.setClusterOid(_clobj.getOid());
                 _clobj.addToOccupants(((BodyObject)body).getOid());
             }
+
+            // configure our cluster record and publish it
+            _cluster.clusterOid = _clobj.getOid();
+            _ssobj.addToClusters(_cluster);
 
             // if we didn't manage to add our creating user when we first
             // started up, there's no point in our sticking around
@@ -420,6 +429,11 @@ public class SpotSceneManager extends SceneManager
             }
         }
 
+        public String toString ()
+        {
+            return "[cluster=" + _cluster + ", size=" + size() + "]";
+        }
+
         protected void recomputeCenter ()
         {
             int tx = 0, ty = 0, count = 0;
@@ -437,16 +451,19 @@ public class SpotSceneManager extends SceneManager
                 }
             }
 
-            // convert the center back to "location" coordinates
-            coordsToLocation(tx/count, ty/count, _scratch);
-            _cluster.x = _scratch.x;
-            _cluster.y = _scratch.y;
+            if (count > 1) {
+                // convert the center back to "location" coordinates
+                coordsToLocation(tx/count, ty/count, _scratch);
+                _cluster.x = _scratch.x;
+                _cluster.y = _scratch.y;
+            }
         }
 
         protected void destroy ()
         {
             Log.info("Cluster empty, going away " +
                      "[cloid=" + _clobj.getOid() + "].");
+            _ssobj.removeFromClusters(_cluster.getKey());
             CrowdServer.omgr.destroyObject(_clobj.getOid());
         }
 

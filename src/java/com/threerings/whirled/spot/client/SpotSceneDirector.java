@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.21 2003/02/12 07:23:31 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.22 2003/03/25 19:28:58 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -177,7 +177,7 @@ public class SpotSceneDirector extends BasicDirector
     {
         // refuse if there's a pending location change or if we're already
         // at the specified location
-        if (loc.equals(_location) || (_pendingLoc != null)) {
+        if (loc.equivalent(_location) || (_pendingLoc != null)) {
             Log.info("Not going to " + loc + "; we're at " + _location +
                      " and we're headed to " + _pendingLoc + ".");
             return;
