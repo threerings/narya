@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.13 2002/02/19 05:03:17 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.14 2002/02/19 07:19:04 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -134,6 +134,15 @@ public class AnimatedPanel extends Canvas implements AnimatedView
         // the normal Canvas.update() fills itself with its background
         // color before calling paint() which we definitely don't want
         paint(g);
+    }
+
+    // documentation inherited
+    public void validate ()
+    {
+        super.validate();
+
+        // if we change size, clear out our old back buffer
+        _backimg = null;
     }
 
     // documentation inherited
