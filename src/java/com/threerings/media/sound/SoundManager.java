@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.44 2003/01/20 20:07:05 ray Exp $
+// $Id: SoundManager.java,v 1.45 2003/02/07 02:53:49 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -661,7 +661,7 @@ public class SoundManager
                 for (int ii=0; ii < names.length; ii++) {
                     InputStream clipin = null;
                     try {
-                        _rmgr.getResource(bundle, names[ii]);
+                        clipin = _rmgr.getResource(bundle, names[ii]);
                     } catch (FileNotFoundException fnfe) {
                         // try from the classpath
                         clipin = _rmgr.getResource(names[ii]);
@@ -1103,5 +1103,5 @@ public class SoundManager
     protected static final int BUFFER_SIZE = 1024 * 24;
 
     /** Used to disable sound entirely. */
-    protected static final boolean SOUND_ENABLED = false;
+    protected static final boolean SOUND_ENABLED = true;
 }
