@@ -1,9 +1,10 @@
 //
-// $Id: LocationMarshaller.java,v 1.3 2004/02/25 14:41:47 mdb Exp $
+// $Id: LocationMarshaller.java,v 1.4 2004/02/25 14:51:51 mdb Exp $
 
 package com.threerings.crowd.data;
 
 import com.threerings.crowd.client.LocationService;
+import com.threerings.crowd.client.LocationService.MoveListener;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
@@ -15,10 +16,6 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
- *
- * <p> Generated from <code>
- * $Id: LocationMarshaller.java,v 1.3 2004/02/25 14:41:47 mdb Exp $
- * </code>
  */
 public class LocationMarshaller extends InvocationMarshaller
     implements LocationService
@@ -67,5 +64,4 @@ public class LocationMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 12:33:02 08/20/02.
 }
