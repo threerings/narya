@@ -21,12 +21,12 @@
 
 package com.threerings.parlor.card.client;
 
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import javax.swing.event.MouseInputAdapter;
 
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.event.CommandEvent;
@@ -144,7 +144,7 @@ public abstract class CardPanel extends VirtualMediaPanel
     {
         super(frameManager);
         
-        MouseAdapter ma = new MouseAdapter() {
+        MouseInputAdapter mia = new MouseInputAdapter() {
             public void mousePressed (MouseEvent me) {
                 if (_activeSprite != null && !isManaged(_activeSprite)) {
                     _activeSprite = null;
@@ -188,11 +188,6 @@ public abstract class CardPanel extends VirtualMediaPanel
                     );
                 }
             }
-        };
-            
-        addMouseListener(ma);
-        
-        MouseMotionAdapter mma = new MouseMotionAdapter() {
             public void mouseMoved (MouseEvent me)
             {
                 Sprite newActiveSprite = null;
@@ -252,8 +247,9 @@ public abstract class CardPanel extends VirtualMediaPanel
                 }
             }
         };
-        
-        addMouseMotionListener(mma);
+            
+        addMouseListener(mia);
+        addMouseMotionListener(mia);
     }
     
     /**

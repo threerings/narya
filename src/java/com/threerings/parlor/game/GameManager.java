@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.76 2004/10/22 19:27:54 ray Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -33,6 +33,8 @@ import com.threerings.util.Name;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.OidList;
 import com.threerings.presents.server.util.SafeInterval;
 
 import com.threerings.crowd.chat.server.SpeakProvider;
@@ -56,7 +58,7 @@ import com.threerings.parlor.server.ParlorSender;
  * bodies in that location.
  */
 public class GameManager extends PlaceManager
-    implements ParlorCodes, GameProvider, AttributeChangeListener
+    implements ParlorCodes, GameCodes, GameProvider, AttributeChangeListener
 {
     // documentation inherited
     protected void didInit ()
@@ -253,6 +255,22 @@ public class GameManager extends PlaceManager
     {
     }
 
+    /**
+     * Returns the user object for the player with the specified index or
+     * null if the player at that index is not online.
+     */
+    public BodyObject getPlayer (int playerIdx)
+    {
+        // if we have their oid, use that
+        int ploid = _playerOids[playerIdx];
+        if (ploid > 0) {
+            return (BodyObject)CrowdServer.omgr.getObject(ploid);
+        }
+        // otherwise look them up by name
+        Name name = getPlayerName(playerIdx);
+        return (name == null) ? null : CrowdServer.lookupBody(name);
+    }
+    
     /**
      * Sets the specified player as an AI with the specified skill.  It is
      * assumed that this will be set soon after the player names for all
@@ -740,6 +758,17 @@ public class GameManager extends PlaceManager
     }
 
     /**
+     * Returns whether game conclusion antics such as rating updates
+     * should be performed when an in-play game is ended.  Derived classes
+     * may wish to override this method to customize the conditions under
+     * which the game is concluded.
+     */
+    public boolean shouldConcludeGame ()
+    {
+        return (_gameobj.state == GameObject.GAME_OVER);
+    }
+    
+    /**
      * Called when the game is about to end, but before the game end
      * notification has been delivered to the players.  Derived classes
      * should override this if they need to perform some pre-end
@@ -776,9 +805,44 @@ public class GameManager extends PlaceManager
             }
         });
 
+        // report the winners and losers if appropriate
+        int winnerCount = _gameobj.getWinnerCount();
+        if (shouldConcludeGame() && winnerCount > 0 && !_gameobj.isDraw()) {
+            reportWinnersAndLosers();
+        }
+        
         // calculate ratings and all that...
     }
 
+    /**
+     * Report winner and loser oids to each room that any of the
+     * winners/losers is in.
+     */
+    protected void reportWinnersAndLosers ()
+    {
+        OidList winners = new OidList();
+        OidList losers = new OidList();
+        OidList places = new OidList();
+
+        Object[] args = new Object[] { winners, losers };
+
+        for (int ii=0, nn=_playerOids.length; ii < nn; ii++) {
+            BodyObject user = getPlayer(ii);
+            if (user != null) {
+                places.add(user.location);
+                (_gameobj.isWinner(ii) ? winners : losers).add(user.getOid());
+            }
+        }
+
+        // now send a message event to each room
+        for (int ii=0, nn = places.size(); ii < nn; ii++) {
+            DObject place = CrowdServer.omgr.getObject(places.get(ii));
+            if (place != null) {
+                place.postMessage(WINNERS_AND_LOSERS, args);
+            }
+        }
+    }
+    
     /**
      * Called when the game is to be reset to its starting state in
      * preparation for a new game without actually ending the current

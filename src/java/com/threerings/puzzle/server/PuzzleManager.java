@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleManager.java,v 1.17 2004/10/28 19:29:59 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -65,22 +65,6 @@ public abstract class PuzzleManager extends GameManager
     public Board[] getBoards ()
     {
         return _boards;
-    }
-
-    /**
-     * Returns the user object for the player with the specified index or
-     * null if the player at that index is not online.
-     */
-    public BodyObject getPlayer (int playerIdx)
-    {
-        // if we have their oid, use that
-        int ploid = _playerOids[playerIdx];
-        if (ploid > 0) {
-            return (BodyObject)CrowdServer.omgr.getObject(ploid);
-        }
-        // otherwise look them up by name
-        Name name = getPlayerName(playerIdx);
-        return (name == null) ? null : CrowdServer.lookupBody(name);
     }
 
     /**
@@ -170,17 +154,6 @@ public abstract class PuzzleManager extends GameManager
             // people in his/her room
             reportPlayerKnockedOut(pidx);
         }
-    }
-
-    /**
-     * Returns whether game conclusion antics such as rating updates
-     * should be performed when an in-play game is ended.  Derived classes
-     * may wish to override this method to customize the conditions under
-     * which the game is concluded.
-     */
-    public boolean shouldConcludeGame ()
-    {
-        return (_puzobj.state == PuzzleObject.GAME_OVER);
     }
 
     /**
@@ -444,42 +417,7 @@ public abstract class PuzzleManager extends GameManager
         // send along one final status update
         sendStatusUpdate();
 
-        // report the winners and losers if appropriate
-        int winnerCount = _puzobj.getWinnerCount();
-        if (shouldConcludeGame() && winnerCount > 0 && !_puzobj.isDraw()) {
-            reportWinnersAndLosers();
-        }
-
         super.gameDidEnd();
-    }
-
-    /**
-     * Report winner and loser oids to each room that any of the
-     * winners/losers is in.
-     */
-    protected void reportWinnersAndLosers ()
-    {
-        OidList winners = new OidList();
-        OidList losers = new OidList();
-        OidList places = new OidList();
-
-        Object[] args = new Object[] { winners, losers };
-
-        for (int ii=0, nn=_playerOids.length; ii < nn; ii++) {
-            BodyObject user = getPlayer(ii);
-            if (user != null) {
-                places.add(user.location);
-                (_puzobj.isWinner(ii) ? winners : losers).add(user.getOid());
-            }
-        }
-
-        // now send a message event to each room
-        for (int ii=0, nn = places.size(); ii < nn; ii++) {
-            DObject place = CrowdServer.omgr.getObject(places.get(ii));
-            if (place != null) {
-                place.postMessage(WINNERS_AND_LOSERS, args);
-            }
-        }
     }
 
     /**
