@@ -1,5 +1,5 @@
 //
-// $Id: ColorPository.java,v 1.7 2004/08/30 22:07:33 ray Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -85,6 +85,48 @@ public class ColorPository implements Serializable
                 record.cclass = this;
                 colors.put(record.colorId, record);
             }
+        }
+
+        /**
+         * Translants a color identified in string form into the id that
+         * should be used to look up its information.  Throws an
+         * exception if no color could be found that associates with
+         * that name.
+         *
+         * FIXME: This lookup could be sped up a lot with some cached
+         * data tables if it looked like this function would get called
+         * in time critical situations.
+         */
+        public int getColorId (String name)
+            throws Exception
+        {
+            // Check if the string is itself a number
+            try {
+                byte id = Byte.parseByte(name);
+                if (colors.containsKey(id)) {
+                    return id;
+                }
+            } catch (NumberFormatException e) {
+                // Guess it must be something else
+            }
+
+            // Look for name matches among all colors
+            Iterator iter = colors.values().iterator();
+            while (iter.hasNext()) {
+                ColorRecord color = (ColorRecord)iter.next();
+                if (color.name.equalsIgnoreCase(name)) {
+                    return color.colorId;
+                }
+            }
+
+            // That input wasn't a color
+            //
+            // FIXME: I tried to make this throw a FormatException
+            // but it would never compile.  For some reason, the
+            // "import java.text.FormatException;" line complained
+            // that FormatException wasn't part of java.text,
+            // contrary to the documentation.
+            throw new Exception("No color named '" + name + "'");
         }
 
         /** Returns a random starting id from the entries in this
