@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.52 2003/02/01 04:43:47 mdb Exp $
+// $Id: PresentsClient.java,v 1.53 2003/03/30 21:04:18 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -381,6 +381,18 @@ public class PresentsClient
 
         // clear out the client object so that we know the session is over
         _clobj = null;
+    }
+
+    /**
+     * This is called when the server is shut down in the middle of a
+     * client session. In this circumstance, {@link #endSession} will
+     * <em>not</em> be called and so any persistent data that might
+     * normally be flushed at the end of a client's session should likely
+     * be flushed here.
+     */
+    public void shutdown  ()
+    {
+        // nothing to do by default
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.29 2003/03/02 03:47:06 mdb Exp $
+// $Id: ClientManager.java,v 1.30 2003/03/30 21:04:18 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import com.samskivert.util.IntervalManager;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
@@ -31,7 +32,8 @@ import com.threerings.presents.server.util.SafeInterval;
  * boot for application-defined reasons).
  */
 public class ClientManager
-    implements ConnectionObserver, PresentsServer.Reporter
+    implements ConnectionObserver, PresentsServer.Reporter,
+               PresentsServer.Shutdowner
 {
     /**
      * Used by {@link #applyToClient}.
@@ -68,6 +70,22 @@ public class ClientManager
 
         // register as a "state of server" reporter
         PresentsServer.registerReporter(this);
+    }
+
+    // documentation inherited from interface
+    public void shutdown ()
+    {
+        // inform all of our clients that they are being shut down
+        for (Iterator iter = _usermap.values().iterator(); iter.hasNext(); ) {
+            PresentsClient pc = (PresentsClient)iter.next();
+            try {
+                pc.shutdown();
+            } catch (Exception e) {
+                Log.warning("Client choked in shutdonw() [client=" +
+                            StringUtil.safeToString(pc) + "].");
+                Log.logStackTrace(e);
+            }
+        }
     }
 
     /**
