@@ -44,7 +44,7 @@ import com.threerings.parlor.client.GameConfigurator;
  * matchmaking mechanism.
  */
 public abstract class GameConfig extends PlaceConfig implements Cloneable
-{ 
+{
     /** The usernames of the players involved in this game, or an empty
      * array if such information is not needed by this particular game. */
     public Name[] players = new Name[0];
@@ -56,19 +56,25 @@ public abstract class GameConfig extends PlaceConfig implements Cloneable
      * Returns the game rating type.
      */
     public abstract byte getRatingTypeId ();
-    
+
     /**
      * Returns a translatable label describing this game.
      */
-    public abstract String getGameName ();
-    
+    public String getGameName ()
+    {
+        // the whole getRatingTypeId(), getGameName(), getBundleName()
+        // business should be cleaned up. we should have getGameIdent()
+        // and everything should have a default implementation using that
+        return "m." + getBundleName();
+    }
+
     /**
      * Returns the message bundle identifier for the bundle that should be
      * used to translate the translatable strings used to describe the
      * game config parameters.
      */
     public abstract String getBundleName ();
-    
+
     /**
      * Creates a configurator that can be used to create a user interface
      * for configuring this instance prior to starting the game. If no
@@ -88,7 +94,7 @@ public abstract class GameConfig extends PlaceConfig implements Cloneable
     {
         return new String[0];
     }
-    
+
     /**
      * Returns true if this game config object is equal to the supplied
      * object (meaning it is also a game config object and its
@@ -116,7 +122,7 @@ public abstract class GameConfig extends PlaceConfig implements Cloneable
         // look ma, it's so sophisticated!
         return getClass().hashCode() + (rated ? 1 : 0);
     }
-    
+
     // documentation inherited
     public Object clone ()
     {
