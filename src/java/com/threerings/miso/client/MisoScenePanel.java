@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.50 2003/09/08 18:42:38 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.51 2003/10/15 23:20:40 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -250,7 +250,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         Point dest = MisoUtil.screenToTile(_metrics, x, y, new Point());
 
         // TODO: compute this value from the screen size or something
-        int longestPath = 50;
+        int longestPath = 20;
 
         // get a reasonable tile path through the scene
         long start = System.currentTimeMillis();
