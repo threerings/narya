@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.26 2003/02/13 21:55:22 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.27 2003/02/14 21:34:26 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -189,10 +189,12 @@ public class SpotSceneManager extends SceneManager
             _ssobj.updateOccupantLocs(sloc);
         }
 
-        // handle the cluster situation
+        // handle the cluster situation; -1 means remove, our own oid
+        // means leave us in whatever cluster we're already in; someone
+        // else's oid means join their cluster or start one with them
         if (cluster == -1) {
             removeFromCluster(source.getOid());
-        } else {
+        } else if (cluster != source.getOid()) {
             createOrJoinCluster(cluster, source);
         }
     }
