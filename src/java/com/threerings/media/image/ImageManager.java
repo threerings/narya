@@ -1,15 +1,11 @@
 //
-// $Id: ImageManager.java,v 1.11 2001/12/13 05:15:16 mdb Exp $
+// $Id: ImageManager.java,v 1.12 2002/01/18 17:55:43 shaper Exp $
 
 package com.threerings.media;
 
 import java.awt.Component;
 import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.Image;
-import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
 import java.io.InputStream;
@@ -43,12 +39,6 @@ public class ImageManager
     public ImageManager (ResourceManager rmgr, Component context)
     {
 	_rmgr = rmgr;
-
-        // obtain information on our graphics environment
-        GraphicsEnvironment genv =
-            GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice gdev = genv.getDefaultScreenDevice();
-        _gconf = gdev.getDefaultConfiguration();
 
         // try to figure out which image loader we'll be using
         try {
@@ -92,8 +82,7 @@ public class ImageManager
         int sheight = src.getHeight(null);
 
         // now convert the image to a format optimized for display
-        BufferedImage dest = _gconf.createCompatibleImage(
-            swidth, sheight, Transparency.BITMASK);
+        BufferedImage dest = ImageUtil.createImage(swidth, sheight);
         Graphics2D g2 = dest.createGraphics();
         g2.drawImage(src, 0, 0, null);
         g2.dispose();
@@ -111,9 +100,6 @@ public class ImageManager
 
     /** A cache of loaded images. */
     protected HashMap _imgs = new HashMap();
-
-    /** The graphics configuration of our default display device. */
-    protected GraphicsConfiguration _gconf;
 
     /** The classname of the ImageIO-based image loader which we attempt
      * to use but fallback from if we're not running a JVM that has

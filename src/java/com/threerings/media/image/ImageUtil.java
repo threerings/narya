@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.2 2002/01/18 17:48:11 shaper Exp $
+// $Id: ImageUtil.java,v 1.3 2002/01/18 17:55:43 shaper Exp $
 
 package com.threerings.media;
 
@@ -48,11 +48,11 @@ public class ImageUtil
     }
 
     /**
-     * Creates a new blank, translucent image with the given dimensions.
-     * The format of the created image is compatible with the graphics
-     * configuration of the default screen device, such that no format
-     * conversion will be necessary when rendering the image to that
-     * device.
+     * Creates a new blank image with the given dimensions and
+     * transparency set to {@link Transparency#BITMASK}.  The format of
+     * the created image is compatible with the graphics configuration of
+     * the default screen device, such that no format conversion will be
+     * necessary when rendering the image to that device.
      *
      * @param width the desired image width.
      * @param height the desired image height.
@@ -61,7 +61,7 @@ public class ImageUtil
      */
     public static BufferedImage createImage (int width, int height)
     {
-        return createImage(width, height, Transparency.TRANSLUCENT);
+        return createImage(width, height, Transparency.BITMASK);
     }
 
     /**
@@ -87,6 +87,7 @@ public class ImageUtil
     /** The graphics configuration for the default screen device. */
     protected static GraphicsConfiguration _gc;
     static {
+        // obtain information on our graphics environment
         GraphicsEnvironment env =
             GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = env.getDefaultScreenDevice();
