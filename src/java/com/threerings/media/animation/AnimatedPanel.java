@@ -1,11 +1,11 @@
 //
-// $Id: AnimatedPanel.java,v 1.18 2002/03/08 01:37:51 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.19 2002/04/06 04:49:43 mdb Exp $
 
 package com.threerings.media.animation;
 
 import java.awt.AWTException;
 import java.awt.BufferCapabilities;
-import java.awt.Canvas;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Graphics;
@@ -16,8 +16,13 @@ import java.awt.Rectangle;
 import java.awt.image.BufferStrategy;
 import java.awt.image.VolatileImage;
 
+import javax.swing.event.AncestorEvent;
+import javax.swing.JComponent;
+
+import java.util.ArrayList;
 import java.util.List;
 
+import com.samskivert.swing.event.AncestorAdapter;
 import com.samskivert.util.Histogram;
 import com.samskivert.util.StringUtil;
 
@@ -26,11 +31,11 @@ import com.threerings.media.sprite.SpriteManager;
 
 /**
  * The animated panel provides a useful extensible implementation of a
- * {@link Canvas} that implements the {@link AnimatedView} interface. It
- * takes care of automatically creating an animation manager and a sprite
- * manager to manage the animations that take place within this panel. If
- * a sprite manager is not needed, {@link #needsSpriteManager} can be
- * overridden to prevent it from being created.
+ * {@link JComponent} that implements the {@link AnimatedView} interface.
+ * It takes care of automatically creating an animation manager and a
+ * sprite manager to manage the animations that take place within this
+ * panel. If a sprite manager is not needed, {@link #needsSpriteManager}
+ * can be overridden to prevent it from being created.
  *
  * <p> Users of the animated panel must be sure to call {@link #stop} when
  * their panel is no longer being displayed and {@link #start} to start it
@@ -40,7 +45,8 @@ import com.threerings.media.sprite.SpriteManager;
  * <p> Sub-classes should override {@link #render} to draw their
  * panel-specific contents.
  */
-public class AnimatedPanel extends Canvas implements AnimatedView
+public class AnimatedPanel extends JComponent
+    implements AnimatedView
 {
     /**
      * Constructs an animated panel.
@@ -55,6 +61,23 @@ public class AnimatedPanel extends Canvas implements AnimatedView
             _spritemgr = new SpriteManager();
             _animmgr.setSpriteManager(_spritemgr);
         }
+
+        // turn off double buffering because we handle our own rendering;
+        // it's not enough to turn it off for this component, we need to
+        // climb all the way up the chain, otherwise one of our parents
+        // might be painting and decide to do its own double buffering
+        addAncestorListener(new AncestorAdapter() {
+            public void ancestorAdded (AncestorEvent event) {
+                Component c = AnimatedPanel.this;
+                while (c != null) {
+                    if (c instanceof JComponent) {
+                        ((JComponent)c).setDoubleBuffered(false);
+                    }
+                    c = c.getParent();
+                }
+                setOpaque(true);
+            }
+        });
     }
 
     /**
@@ -123,27 +146,39 @@ public class AnimatedPanel extends Canvas implements AnimatedView
     // documentation inherited
     public void paint (Graphics g)
     {
-        // we don't paint directly any more, we pass the dirty rect to the
-        // animation manager to queue up along with our next repaint
-        Rectangle dirty = g.getClipBounds();
-        // we need to adjust the dirty rect by our viewport offset before
-        // passing it to the animation manager
-        dirty.translate(_tx, _ty);
-        _animmgr.addDirtyRect(dirty);
+        // convert the clipping rectangle into the proper coordinates and
+        // call into our rendering system
+        Rectangle r = g.getClipBounds();
+        r.translate(_tx, _ty);
+        _paintList.add(r);
+        // we have to tell paintImmediately() to use the graphics object
+        // that we were passed, otherwise Swing will fuck everything to
+        // the high heavens
+        paintImmediately(g, _paintList);
+        _paintList.clear();
     }
 
     // documentation inherited
-    public void update (Graphics g)
+    public void paintImmediately (int x, int y, int w, int h)
     {
-        // the normal Canvas.update() fills itself with its background
-        // color before calling paint() which we definitely don't want
-        paint(g);
+        paintImmediately(new Rectangle(x, y, w, h));
     }
 
     // documentation inherited
-    public void validate ()
+    public void paintImmediately (Rectangle r)
     {
-        super.validate();
+        // convert the clipping rectangle into the proper coordinates and
+        // call into our rendering system
+        r.translate(_tx, _ty);
+        _paintList.add(r);
+        paintImmediately(_paintList);
+        _paintList.clear();
+    }
+
+    // documentation inherited
+    public void doLayout ()
+    {
+        super.doLayout();
 
         // if we change size, clear out our old back buffer
         _backimg = null;
@@ -166,6 +201,18 @@ public class AnimatedPanel extends Canvas implements AnimatedView
 
     // documentation inherited
     public void paintImmediately (List invalidRects)
+    {
+        paintImmediately(null, invalidRects);
+    }
+
+    /**
+     * Renders this animated panel. If the supplied graphics reference is
+     * non-null, we will render to that instance, otherwise a graphics
+     * object will be obtained via a call to {@link #getGraphics}. This
+     * method, of course, must be called from the AWT thread or mayhem
+     * will ensue.
+     */
+    protected void paintImmediately (Graphics gfx, List invalidRects)
     {
         // no use in painting if we're not showing or if we've not yet
         // been validated
@@ -300,7 +347,11 @@ public class AnimatedPanel extends Canvas implements AnimatedView
 
             // draw the back buffer to the screen
             try {
-                g = getGraphics();
+                if (gfx == null) {
+                    g = getGraphics();
+                } else {
+                    g = gfx;
+                }
 
                 // if we're scrolling, we've got to copy the whole image
                 // to the screen, otherwise we can just copy the dirty
@@ -414,6 +465,7 @@ public class AnimatedPanel extends Canvas implements AnimatedView
     /** A histogram for tracking how frequently we're rendered. */
     protected Histogram _histo = new Histogram(0, 1, 100);
 
-    /** The number of buffers to use when rendering. */
-    protected static final int BUFFER_COUNT = 2;
+    /** Used to pass dirty regions supplied by the AWT to the rendering
+     * system. */
+    protected ArrayList _paintList = new ArrayList();
 }
