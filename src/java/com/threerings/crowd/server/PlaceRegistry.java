@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.6 2001/08/11 04:03:25 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.7 2001/08/16 04:28:36 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -112,6 +112,15 @@ public class PlaceRegistry implements Subscriber
             throw new InstantiationException(
                 "Error instantiating place manager: " + iae);
         }
+    }
+
+    /**
+     * Returns the place manager associated with the specified place
+     * object id or null if no such place exists.
+     */
+    public PlaceManager getPlaceManager (int placeOid)
+    {
+        return (PlaceManager)_pmgrs.get(placeOid);
     }
 
     /**

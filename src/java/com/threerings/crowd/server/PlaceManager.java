@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.7 2001/08/04 01:13:36 mdb Exp $
+// $Id: PlaceManager.java,v 1.8 2001/08/16 04:28:36 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -9,7 +9,7 @@ import java.util.Properties;
 import com.threerings.cocktail.cher.dobj.*;
 
 import com.threerings.cocktail.party.Log;
-import com.threerings.cocktail.party.data.PlaceObject;
+import com.threerings.cocktail.party.data.*;
 
 /**
  * The place manager is the server-side entity that handles all
@@ -58,6 +58,9 @@ public class PlaceManager implements Subscriber
         // keep track of this
         _plobj = plobj;
 
+        // configure the occupant info set
+        plobj.occupantInfo.setElementType(getOccupantInfoClass());
+
         // we'll want to be included among the place object's subscribers;
         // we know that we can call addSubscriber() directly because the
         // place manager is doing all of our initialization on the dobjmgr
@@ -76,6 +79,54 @@ public class PlaceManager implements Subscriber
      */
     protected void didStartup ()
     {
+    }
+
+    /**
+     * When the manager starts up, it configures its place object occupant
+     * info set by setting the type of occupant info objects it will
+     * contain. Managers that wish to use derived occupant info classes
+     * should override this function and return a reference to their
+     * derived class.
+     */
+    protected Class getOccupantInfoClass ()
+    {
+        return OccupantInfo.class;
+    }
+
+    /**
+     * Builds an occupant info record for the specified body object. This
+     * is called by the location services when a body enters a place. It
+     * should not be overridden by derived classes, they should override
+     * {@link #populateOccupantInfo}, which is set up for that sort of
+     * thing.
+     */
+    public OccupantInfo buildOccupantInfo (BodyObject body)
+    {
+        // create a new occupant info instance
+        try {
+            OccupantInfo info = (OccupantInfo)
+                getOccupantInfoClass().newInstance();
+            populateOccupantInfo(info, body);
+            return info;
+
+        } catch (Exception e) {
+            Log.warning("Failure building occupant info " +
+                        "[body=" + body + "].");
+            Log.logStackTrace(e);
+            return null;
+        }
+    }
+
+    /**
+     * Derived classes should override this method if they are making use
+     * of a derived occupant info class. They should call the super
+     * implementation and then populate the occupant info fields in their
+     * extended object.
+     */
+    protected void populateOccupantInfo (OccupantInfo info, BodyObject body)
+    {
+        // the base occupant info is only their username
+        info.username = body.username;
     }
 
     /**

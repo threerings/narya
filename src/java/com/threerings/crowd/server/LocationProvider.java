@@ -1,15 +1,15 @@
 //
-// $Id: LocationProvider.java,v 1.5 2001/08/11 02:07:20 mdb Exp $
+// $Id: LocationProvider.java,v 1.6 2001/08/16 04:28:36 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
 import com.threerings.cocktail.cher.dobj.DObject;
-import com.threerings.cocktail.cher.server.CherServer;
 import com.threerings.cocktail.cher.server.InvocationProvider;
 import com.threerings.cocktail.cher.util.Codes;
 
 import com.threerings.cocktail.party.Log;
 import com.threerings.cocktail.party.data.*;
+import com.threerings.cocktail.party.server.PartyServer;
 
 /**
  * This class provides the server end of the location services.
@@ -43,8 +43,8 @@ public class LocationProvider extends InvocationProvider
     public static String moveTo (BodyObject source, int placeId)
     {
         // make sure the place in question actually exists
-        DObject pobj = CherServer.omgr.getObject(placeId);
-        if (pobj == null || !(pobj instanceof PlaceObject)) {
+        PlaceManager pmgr = PartyServer.plreg.getPlaceManager(placeId);
+        if (pmgr == null) {
             Log.info("Requested to move to non-existent place " +
                      "[source=" + source + ", place=" + placeId + "].");
             return "m.no_such_place";
@@ -69,8 +69,18 @@ public class LocationProvider extends InvocationProvider
             // remove them from the occupant list of the previous location
             try {
                 PlaceObject pold = (PlaceObject)
-                    CherServer.omgr.getObject(source.location);
-                pold.removeFromOccupants(source.getOid());
+                    PartyServer.omgr.getObject(source.location);
+                if (pold != null) {
+                    pold.removeFromOccupants(source.getOid());
+                    // also remove their occupant info (which is keyed on
+                    // username)
+                    pold.removeFromOccupantInfo(source.username);
+
+                } else {
+                    Log.info("Body's prior location no longer around? " +
+                             "[boid=" + source.getOid() +
+                             ", poid=" + source.location + "].");
+                }
 
             } catch (ClassCastException cce) {
                 Log.warning("Body claims to be at location which " +
@@ -80,12 +90,19 @@ public class LocationProvider extends InvocationProvider
             }
         }
 
-        // add the body object id to the place object's occupant list
-        PlaceObject place = (PlaceObject)pobj;
-        place.addToOccupants(source.getOid());
-
-        // set their new location
+        // set the body's new location
+        PlaceObject place = pmgr.getPlaceObject();
         source.setLocation(place.getOid());
+
+        // generate a new occupant info record and add it to the target
+        // location
+        OccupantInfo info = pmgr.buildOccupantInfo(source);
+        if (info != null) {
+            place.addToOccupantInfo(info);
+        }
+
+        // add the body object id to the place object's occupant list
+        place.addToOccupants(source.getOid());
 
         // and finally queue up a lock release event to release the lock
         // once all these events are processed
