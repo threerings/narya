@@ -1,11 +1,12 @@
 //
-// $Id: PresentsServer.java,v 1.30 2003/01/14 22:36:58 shaper Exp $
+// $Id: PresentsServer.java,v 1.31 2003/03/30 20:40:47 mdb Exp $
 
 package com.threerings.presents.server;
 
 import java.util.ArrayList;
 
 import com.samskivert.util.IntervalManager;
+import com.samskivert.util.ObserverList;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.SystemInfo;
 
@@ -45,6 +46,16 @@ public class PresentsServer
          */
         public void appendReport (
             StringBuffer buffer, long now, long sinceLast);
+    }
+
+    /** Implementers of this interface will be notified when the server is
+     * shutting down. */
+    public static interface Shutdowner
+    {
+        /**
+         * Called when the server is shutting down.
+         */
+        public void shutdown ();
     }
 
     /** The manager of network connections. */
@@ -194,13 +205,36 @@ public class PresentsServer
     }
 
     /**
-     * Requests that the server shut down.
+     * Requests that the server shut down. All registered shutdown
+     * participants will be shut down, following which the server process
+     * will be terminated.
      */
     public static void shutdown ()
     {
-        // shut down our managers
+        // shut down the connection manager (this will cease all network
+        // activity but not actually close the connections)
         conmgr.shutdown();
+
+        // shut down all shutdown participants
+        _downers.apply(new ObserverList.ObserverOp() {
+            public boolean apply (Object observer) {
+                ((Shutdowner)observer).shutdown();
+                return true;
+            }
+        });
+
+        // finally shut down the invoker and distributed object manager
+        invoker.shutdown();
         omgr.shutdown();
+    }
+
+    /**
+     * Registers an entity that will be notified when the server is
+     * shutting down.
+     */
+    public static void registerShutdowner (Shutdowner downer)
+    {
+        _downers.add(downer);
     }
 
     public static void main (String[] args)
@@ -247,6 +281,10 @@ public class PresentsServer
 
     /** Used to generate "state of server" reports. */
     protected static ArrayList _reporters = new ArrayList();
+
+    /** A list of shutdown participants. */
+    protected static ObserverList _downers =
+        new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
 
     /** The frequency with which we generate "state of server" reports. */
     protected static final long REPORT_INTERVAL = 15 * 60 * 1000L;
