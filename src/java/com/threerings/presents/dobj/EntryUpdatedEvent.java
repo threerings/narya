@@ -1,5 +1,5 @@
 //
-// $Id: EntryUpdatedEvent.java,v 1.5 2002/03/18 23:21:26 mdb Exp $
+// $Id: EntryUpdatedEvent.java,v 1.6 2002/04/18 00:31:26 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -92,7 +92,8 @@ public class EntryUpdatedEvent extends TypedEvent
         // update the entry
         if (!set.update(_entry)) {
             // complain if we didn't update anything
-            Log.warning("No matching entry to update " + this + ".");
+            Log.warning("No matching entry to update [entry=" + this +
+                        ", set=" + set + "].");
             return false;
         }
 
