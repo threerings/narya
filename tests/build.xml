@@ -114,13 +114,15 @@
       target="${cbundle.dir}/pirate/components.jar"
       mapfile="${cbundle.dir}/components.map"
       root="${cbundle.dir}/pirate">
-      <fileset dir="${cbundle.dir}/pirate" includes="**/*.png"/>
+      <fileset dir="${cbundle.dir}/pirate" includes="**/*.png"
+        excludes="components/**"/>
     </cbundle>
     <cbundle actiondef="${cbundle.dir}/actions.xml"
       target="${cbundle.dir}/vessel/components.jar"
       mapfile="${cbundle.dir}/components.map"
       root="${cbundle.dir}/vessel">
-      <fileset dir="${cbundle.dir}/vessel" includes="**/*.png"/>
+      <fileset dir="${cbundle.dir}/vessel" includes="**/*.png"
+        excludes="components/**"/>
     </cbundle>
   </target>
 
