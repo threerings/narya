@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.18 2002/08/14 19:07:53 mdb Exp $
+// $Id: GameController.java,v 1.19 2002/09/18 19:26:05 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -138,7 +138,7 @@ public abstract class GameController extends PlaceController
      */
     public int getRoundId ()
     {
-        return _gobj.roundId;
+        return (_gobj == null) ? -1 : _gobj.roundId;
     }
 
     /**
