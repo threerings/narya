@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.28 2002/12/12 23:56:36 shaper Exp $
+// $Id: ConnectionManager.java,v 1.29 2003/04/27 01:32:08 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -415,7 +415,8 @@ public class ConnectionManager extends LoopingThread
                     pwh.handlePartialWrite(conn, buffer);
 
                 } else if (wrote > 10000) {
-                    Log.info("Big write [conn=" + conn + ", msg=" + outmsg +
+                    Log.info("Big write [conn=" + conn +
+                             ", msg=" + StringUtil.shortClassName(outmsg) +
                              ", wrote=" + wrote + "].");
                 }
 
