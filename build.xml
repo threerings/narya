@@ -1,15 +1,19 @@
 <?xml version="1.0" standalone="yes"?>
-
 <!-- build configuration -->
 <project name="narya" default="compile" basedir=".">
 
+  <!-- import overriding properties -->
+  <property file="build.properties"/>
+
   <!-- configuration parameters -->
   <property name="app.name"       value="narya"/>
-  <property name="deploy.dir"     value="dist"/>
-  <property name="dist.jar"       value="${app.name}.jar"/>
-  <property name="javadoc.home"   value="${deploy.dir}/docs"/>
   <property name="build.compiler" value="jikes"/>
   <property name="build.optimize" value="off"/>
+  <property name="deploy.dir"     value="dist"/>
+
+  <!-- derived properties -->  
+  <property name="dist.jar"       value="${app.name}.jar"/>
+  <property name="javadoc.home"   value="${deploy.dir}/docs"/>
 
   <!-- we want to access the environment -->
   <property environment="env"/>
@@ -64,6 +68,7 @@
              destdir="${javadoc.home}"
              additionalparam="-breakiterator">
       <classpath refid="classpath"/>
+      <link href="http://java.sun.com/j2se/1.4/docs/api/"/>
     </javadoc>
     <copy todir="${javadoc.home}">
       <fileset dir="src/java" includes="**/*.png"/>
