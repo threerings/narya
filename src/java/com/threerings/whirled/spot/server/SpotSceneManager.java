@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.20 2002/09/13 00:20:43 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.21 2002/11/04 23:02:10 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -19,6 +19,7 @@ import com.threerings.crowd.server.CrowdServer;
 import com.threerings.whirled.server.SceneManager;
 
 import com.threerings.whirled.spot.Log;
+import com.threerings.whirled.spot.data.ClusterObject;
 import com.threerings.whirled.spot.data.SpotCodes;
 import com.threerings.whirled.spot.data.SpotOccupantInfo;
 import com.threerings.whirled.spot.data.SpotSceneModel;
@@ -134,7 +135,7 @@ public class SpotSceneManager extends SceneManager
 
         // now issue the object creation requests
         for (int i = 0; i < _clusterObjs.length; i++) {
-            _omgr.createObject(DObject.class, sub);
+            _omgr.createObject(ClusterObject.class, sub);
         }
 
         // create an array in which to track the occupants of each
