@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.16 2001/09/21 02:30:35 mdb Exp $
+// $Id: XMLSceneParser.java,v 1.17 2001/10/08 21:04:25 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -17,6 +17,7 @@ import com.threerings.media.tile.*;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;
+import com.threerings.miso.tile.MisoTile;
 
 /**
  * Parse an XML scene description file and construct a scene object.
@@ -103,7 +104,9 @@ public class XMLSceneParser extends DefaultHandler
     public void characters (char ch[], int start, int length)
     {
 	// bail if we're not within a meaningful tag
-	if (_tag == null) return;
+	if (_tag == null) {
+	    return;
+	}
 
   	_chars.append(ch, start, length);
     }
@@ -131,7 +134,7 @@ public class XMLSceneParser extends DefaultHandler
 
         // create the tile objects in the tile array
         for (int xx = 0; xx < vals.length; xx += 2) {
-            Tile tile = _tilemgr.getTile(vals[xx], vals[xx + 1]);
+            MisoTile tile = (MisoTile)_tilemgr.getTile(vals[xx], vals[xx + 1]);
             info.tiles[xx / 2][info.rownum][info.lnum] = tile;
         }
     }
@@ -162,7 +165,7 @@ public class XMLSceneParser extends DefaultHandler
 
         // create the tile objects in the tile array
         for (int xx = 0; xx < vals.length; xx += 2) {
-            Tile tile = _tilemgr.getTile(vals[xx], vals[xx + 1]);
+            MisoTile tile = (MisoTile)_tilemgr.getTile(vals[xx], vals[xx + 1]);
 	    int xidx = info.colstart + (xx / 2);
             info.tiles[xidx][info.rownum][info.lnum] = tile;
         }
@@ -234,7 +237,9 @@ public class XMLSceneParser extends DefaultHandler
     protected ArrayList toPortalList (ArrayList locs, String[] vals)
     {
         // make sure we have an appropriate number of values
-        if ((vals.length % 2) != 0) return null;
+        if ((vals.length % 2) != 0) {
+	    return null;
+	}
 
 	// read in all of the portals
 	ArrayList portals = new ArrayList();
@@ -342,7 +347,7 @@ public class XMLSceneParser extends DefaultHandler
 	public ArrayList clusters;
 
 	/** The tile array. */
-	public Tile[][][] tiles;
+	public MisoTile[][][] tiles;
 
 	/** The current layer number being processed. */
 	public int lnum;
@@ -359,7 +364,7 @@ public class XMLSceneParser extends DefaultHandler
 	public SceneInfo ()
 	{
 	    int width = _model.scenewid, height = _model.scenehei;
-	    tiles = new Tile[width][height][MisoScene.NUM_LAYERS];
+	    tiles = new MisoTile[width][height][MisoScene.NUM_LAYERS];
 	    clusters = new ArrayList();
 	}
 

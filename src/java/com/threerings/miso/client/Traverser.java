@@ -1,9 +1,9 @@
 //
-// $Id: Traverser.java,v 1.2 2001/08/16 23:14:21 mdb Exp $
+// $Id: Traverser.java,v 1.3 2001/10/08 21:04:25 shaper Exp $
 
 package com.threerings.miso.scene;
 
-import com.threerings.media.tile.Tile;
+import com.threerings.miso.tile.MisoTile;
 
 /**
  * The <code>Traverser</code> interface should be implemented by
@@ -21,5 +21,5 @@ public interface Traverser
      *
      * @return whether the tile is traversable.
      */
-    public boolean canTraverse (Tile tile);
+    public boolean canTraverse (MisoTile tile);
 }

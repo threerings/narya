@@ -1,12 +1,12 @@
 //
-// $Id: CharacterSprite.java,v 1.9 2001/09/13 19:10:26 mdb Exp $
+// $Id: CharacterSprite.java,v 1.10 2001/10/08 21:04:25 shaper Exp $
 
 package com.threerings.miso.scene;
 
 import com.threerings.media.sprite.*;
-import com.threerings.media.tile.Tile;
 
 import com.threerings.miso.Log;
+import com.threerings.miso.tile.MisoTile;
 
 /**
  * An <code>AmbulatorySprite</code> is a sprite that can face in one of
@@ -48,7 +48,7 @@ public class AmbulatorySprite extends Sprite implements Traverser
         setFrames(_anims[_orient]);
     }
 
-    public boolean canTraverse (Tile tile)
+    public boolean canTraverse (MisoTile tile)
     {
 	// by default, passability is solely the province of the tile
 	return tile.passable;

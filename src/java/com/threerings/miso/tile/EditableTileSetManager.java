@@ -1,5 +1,5 @@
 //
-// $Id: EditableTileSetManager.java,v 1.10 2001/08/29 18:41:46 shaper Exp $
+// $Id: EditableTileSetManager.java,v 1.11 2001/10/08 21:04:25 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -30,7 +30,7 @@ public class EditableTileSetManager extends TileSetManagerImpl
         String fname = config.getValue(TILESETS_KEY, (String)null);
         ArrayList tilesets = null;
         try {
-            tilesets = new XMLTileSetParser().loadTileSets(fname);
+            tilesets = new XMLMisoTileSetParser().loadTileSets(fname);
         } catch (IOException ioe) {
 	    Log.warning("Exception loading tileset [fname=" + fname +
 			", ioe=" + ioe + "].");

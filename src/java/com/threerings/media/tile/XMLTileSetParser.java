@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParser.java,v 1.14 2001/09/27 18:43:08 shaper Exp $
+// $Id: XMLTileSetParser.java,v 1.15 2001/10/08 21:04:25 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -24,16 +24,59 @@ import com.threerings.media.Log;
 public class XMLTileSetParser extends DefaultHandler
     implements TileSetParser
 {
+    /**
+     * This method is called when an element is fully parsed.  The
+     * complete parsed data for the element is passed in the given
+     * string.
+     *
+     * @param qName the element name.
+     * @param str the full parsed data for the element.
+     */
+    protected void finishElement (String qName, String str)
+    {
+	if (qName.equals("imagefile")) {
+	    _model.imgFile = str;
+
+	} else if (qName.equals("rowwidth")) {
+	    _model.rowWidth = StringUtil.parseIntArray(str);
+
+	} else if (qName.equals("rowheight")) {
+	    _model.rowHeight = StringUtil.parseIntArray(str);
+
+	} else if (qName.equals("tilecount")) {
+	    _model.tileCount = StringUtil.parseIntArray(str);
+
+	    // calculate the total number of tiles in the tileset
+	    for (int ii = 0; ii < _model.tileCount.length; ii++) {
+		_model.numTiles += _model.tileCount[ii];
+	    }
+
+	} else if (qName.equals("offsetpos")) {
+            getPoint(str, _model.offsetPos);
+
+        } else if (qName.equals("gapdist")) {
+            getPoint(str, _model.gapDist);
+
+        } else if (qName.equals("tileset")) {
+	    // construct the tileset on tag close and add it to the
+	    // list of tilesets constructed thus far
+	    _tilesets.add(_tset);
+
+	    // prepare to read another tileset object
+	    init();
+	}
+    }
+
     public void startElement (String uri, String localName,
 			      String qName, Attributes attributes)
     {
 	_tag = qName;
 
 	if (_tag.equals("tileset")) {
-	    _info.tsid = getTileSetId(attributes.getValue("tsid"));
+	    _model.tsid = getTileSetId(attributes.getValue("tsid"));
 
 	    String str = attributes.getValue("name");
-	    _info.name = (str == null) ? DEF_NAME : str;
+	    _model.name = (str == null) ? DEF_NAME : str;
 	}
     }
 
@@ -43,42 +86,7 @@ public class XMLTileSetParser extends DefaultHandler
         // for the elements we're tracking at this point, so proceed
         // with saving off element values for use when we construct
         // the tileset object.
-	String str = _chars.toString().trim();
-
-	if (qName.equals("imagefile")) {
-	    _info.imgfile = str;
-
-	} else if (qName.equals("rowwidth")) {
-	    _info.rowwidth = StringUtil.parseIntArray(str);
-
-	} else if (qName.equals("rowheight")) {
-	    _info.rowheight = StringUtil.parseIntArray(str);
-
-	} else if (qName.equals("tilecount")) {
-	    _info.tilecount = StringUtil.parseIntArray(str);
-
-	    // calculate the total number of tiles in the tileset
-	    for (int ii = 0; ii < _info.tilecount.length; ii++) {
-		_info.numtiles += _info.tilecount[ii];
-	    }
-
-	} else if (qName.equals("passable")) {
-	    _info.passable = StringUtil.parseIntArray(str);
-
-	} else if (qName.equals("offsetpos")) {
-            getPoint(str, _info.offsetpos);
-
-        } else if (qName.equals("gapdist")) {
-            getPoint(str, _info.gapdist);
-
-        } else if (qName.equals("tileset")) {
-	    // construct the tileset on tag close and add it to the
-	    // list of tilesets constructed thus far
-	    _tilesets.add(_info.constructTileSet());
-
-	    // prepare to read another tileset object
-	    init();
-	}
+	finishElement(qName, _chars.toString().trim());
 
 	// note that we're not within a tag to avoid considering any
 	// characters during this quiescent time
@@ -132,7 +140,16 @@ public class XMLTileSetParser extends DefaultHandler
     protected void init ()
     {
 	_chars = new StringBuffer();
-	_info = new TileSetInfo();
+	_tset = createTileSet();
+	_model = _tset.getModel();
+    }
+
+    /**
+     * Constructs and returns a new tile set object.
+     */
+    protected TileSet createTileSet ()
+    {
+	return new TileSet();
     }
 
     /**
@@ -182,64 +199,9 @@ public class XMLTileSetParser extends DefaultHandler
     /** Temporary storage of character data while parsing. */
     protected StringBuffer _chars;
 
-    /** Temporary storage of tileset info while parsing. */
-    protected TileSetInfo _info;
+    /** The tile set whose model is populated while parsing. */
+    protected TileSet _tset;
 
-    /**
-     * A class to hold temporary information on a tileset.
-     */
-    class TileSetInfo
-    {
-	/** The tileset name. */
-	public String name;
-
-	/** The tileset id. */
-	public int tsid;
-
-	/** The tileset full image file path. */
-	public String imgfile;
-
-	/** The width of the tiles in each row. */
-	public int[] rowwidth;
-
-	/** The height of the tiles in each row. */
-	public int[] rowheight;
-
-	/** The number of tiles in each row. */
-	public int[] tilecount;
-
-	/** The passability of each tile. */
-	public int[] passable;
-
-	/** The number of tiles in the tileset. */
-	public int numtiles;
-
-	/** The offset position at which tiles begin in the tile image. */
-	public Point offsetpos;
-
-	/** The gap distance between each tile in the tile image. */
-	public Point gapdist;
-
-	public TileSetInfo ()
-	{
-	    offsetpos = new Point();
-	    gapdist = new Point();
-	}	    
-
-	public TileSet constructTileSet ()
-	{
-	    // if passability is unspecified, default to all passable
-	    if (passable == null) {
-		passable = new int[numtiles];
-		for (int ii = 0; ii < numtiles; ii++) {
-		    passable[ii] = 1;
-		}
-	    }
-
-	    // construct a tileset object using all gathered data
-	    return new TileSet(
-		name, tsid, imgfile, rowwidth, rowheight, tilecount,
-		passable, offsetpos, gapdist);
-	}
-    }
+    /** The tile set data model populated while parsing. */
+    protected TileSet.TileSetModel _model;
 }

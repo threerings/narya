@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.12 2001/09/28 01:24:27 mdb Exp $
+// $Id: Tile.java,v 1.13 2001/10/08 21:04:25 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -24,9 +24,6 @@ public class Tile
 
     /** The tile height in pixels. */
     public short height;
-
-    /** Whether the tile is passable. */
-    public boolean passable;
 
     /**
      * Construct a new tile with the specified identifiers.  Intended

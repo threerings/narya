@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.37 2001/09/28 01:46:10 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.38 2001/10/08 21:04:25 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -10,12 +10,12 @@ import java.util.List;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileManager;
 import com.threerings.whirled.data.Scene;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.util.ClusterUtil;
+import com.threerings.miso.tile.MisoTile;
 
 /**
  * A scene object represents the data model corresponding to a single
@@ -47,8 +47,8 @@ public class MisoSceneImpl implements EditableMisoScene
 	_clusters = new ArrayList();
         _portals = new ArrayList();
 
-	_tiles = new Tile[_model.scenewid][_model.scenehei][NUM_LAYERS];
-	_deftile = _tilemgr.getTile(deftsid, deftid);
+	_tiles = new MisoTile[_model.scenewid][_model.scenehei][NUM_LAYERS];
+	_deftile = (MisoTile)_tilemgr.getTile(deftsid, deftid);
 	for (int xx = 0; xx < _model.scenewid; xx++) {
 	    for (int yy = 0; yy < _model.scenehei; yy++) {
 		for (int ii = 0; ii < NUM_LAYERS; ii++) {
@@ -73,7 +73,7 @@ public class MisoSceneImpl implements EditableMisoScene
     public MisoSceneImpl (IsoSceneViewModel model, TileManager tilemgr,
                           String name, ArrayList locations,
                           ArrayList clusters, ArrayList portals,
-                          Tile[][][] tiles)
+                          MisoTile[][][] tiles)
     {
 	_model = model;
 	_tilemgr = tilemgr;
@@ -110,13 +110,13 @@ public class MisoSceneImpl implements EditableMisoScene
     }
 
     // documentation inherited
-    public Tile[][][] getTiles ()
+    public MisoTile[][][] getTiles ()
     {
         return _tiles;
     }
 
     // documentation inherited
-    public Tile getDefaultTile ()
+    public MisoTile getDefaultTile ()
     {
 	return _deftile;
     }
@@ -261,7 +261,7 @@ public class MisoSceneImpl implements EditableMisoScene
     protected int _version;
 
     /** The tiles comprising the scene. */
-    public Tile[][][] _tiles;
+    public MisoTile[][][] _tiles;
 
     /** The default entrance portal. */
     protected Portal _entrance;
@@ -276,7 +276,7 @@ public class MisoSceneImpl implements EditableMisoScene
     protected ArrayList _portals;
 
     /** The default tile for the base layer in the scene. */
-    protected Tile _deftile;
+    protected MisoTile _deftile;
 
     /** The iso scene view data model. */
     protected IsoSceneViewModel _model;

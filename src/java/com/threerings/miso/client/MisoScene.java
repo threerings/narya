@@ -1,11 +1,11 @@
 //
-// $Id: MisoScene.java,v 1.3 2001/10/05 23:58:36 mdb Exp $
+// $Id: MisoScene.java,v 1.4 2001/10/08 21:04:25 shaper Exp $
 
 package com.threerings.miso.scene;
 
 import java.util.List;
 
-import com.threerings.media.tile.Tile;
+import com.threerings.miso.tile.MisoTile;
 
 /**
  * A scene object represents the data model corresponding to a single
@@ -42,12 +42,12 @@ public interface MisoScene
     /**
      * Return the tiles that comprise this scene.
      */
-    public Tile[][][] getTiles ();
+    public MisoTile[][][] getTiles ();
 
     /**
      * Return the default tile for the base layer of the scene.
      */
-    public Tile getDefaultTile ();
+    public MisoTile getDefaultTile ();
 
     /**
      * Return the locations in this scene. The locations list should

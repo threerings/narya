@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.16 2001/10/01 22:18:24 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.17 2001/10/08 21:04:26 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -80,6 +80,12 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 
         // get the path from here to there
         Path path = _view.getPath(_sprite, x, y);
+	if (path == null) {
+	    _sprite.cancelMove();
+	    return;
+	}
+
+	((LineSegmentPath)path).setVelocity(100f/1000f);
 	_sprite.move(path);
     }
 
