@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.29 2002/12/22 07:27:20 mdb Exp $
+// $Id: PresentsServer.java,v 1.30 2003/01/14 22:36:58 shaper Exp $
 
 package com.threerings.presents.server;
 
@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import com.samskivert.util.IntervalManager;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.SystemInfo;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.client.Client;
@@ -69,6 +70,12 @@ public class PresentsServer
     public void init ()
         throws Exception
     {
+        // output general system information
+        SystemInfo si = new SystemInfo();
+        Log.info("Starting up server [os=" + si.osToString() +
+                 ", jvm=" + si.jvmToString() +
+                 ", mem=" + si.memoryToString() + "].");
+
         // create our distributed object manager
         omgr = new PresentsDObjectMgr();
 
