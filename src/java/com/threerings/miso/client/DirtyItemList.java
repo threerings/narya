@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.16 2002/10/15 21:01:39 ray Exp $
+// $Id: DirtyItemList.java,v 1.17 2002/10/16 01:53:10 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -390,12 +390,6 @@ public class DirtyItemList
             return result;
         }
 
-        // documentation inherited
-        public boolean equals (Object obj)
-        {
-	    return (obj == this);
-        }
-
         /**
          * Returns whether two dirty items have a partitioning object
          * between them on the given axis.
@@ -506,7 +500,10 @@ public class DirtyItemList
                     return 0;
                 }
 
-                if ((da.obj instanceof Sprite) && (db.obj instanceof Sprite)) {
+                boolean aIsSprite = (da.obj instanceof Sprite);
+                boolean bIsSprite = (db.obj instanceof Sprite);
+
+                if (aIsSprite && bIsSprite) {
                     Sprite as = (Sprite)da.obj, bs = (Sprite)db.obj;
                     // we're comparing two sprites co-existing on the same
                     // tile, first check their render order
@@ -522,6 +519,13 @@ public class DirtyItemList
                     // if they're at the same height, just use hashCode()
                     // to establish a consistent arbitrary ordering
                     return (as.hashCode() - bs.hashCode());
+
+                // otherwise, always put a sprite on top of a non-sprite
+                } else if (aIsSprite) {
+                    return 1;
+
+                } else if (bIsSprite) {
+                    return -1;
                 }
             }
 
