@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.68 2003/11/24 18:07:58 mdb Exp $
+// $Id: GameManager.java,v 1.69 2003/11/24 18:09:03 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -555,13 +555,10 @@ public class GameManager extends PlaceManager
 
         // make sure everyone has turned up
         if (!allPlayersReady()) {
-            if (warnOnUnreadyStart()) {
-                Log.warning(
-                    "Requested to start a game that is still " +
-                    "awaiting players [game=" + _gameobj.which() +
-                    ", pnames=" + StringUtil.toString(_gameobj.players) +
-                    ", poids=" + StringUtil.toString(_playerOids) + "].");
-            }
+            Log.warning("Requested to start a game that is still " +
+                        "awaiting players [game=" + _gameobj.which() +
+                        ", pnames=" + StringUtil.toString(_gameobj.players) +
+                        ", poids=" + StringUtil.toString(_playerOids) + "].");
             return false;
         }
 
@@ -572,16 +569,6 @@ public class GameManager extends PlaceManager
         _gameobj.setState(GameObject.IN_PLAY);
 
         // when our events are applied, we'll call gameDidStart()
-        return true;
-    }
-
-    /**
-     * Indicates whether or not we should issue a warning if {@link
-     * #startGame} is called on a game where all players have not yet
-     * reported in as ready.
-     */
-    protected boolean warnOnUnreadyStart ()
-    {
         return true;
     }
 
