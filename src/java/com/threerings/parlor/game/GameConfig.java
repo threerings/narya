@@ -1,5 +1,5 @@
 //
-// $Id: GameConfig.java,v 1.3 2001/10/01 22:17:34 mdb Exp $
+// $Id: GameConfig.java,v 1.4 2001/10/03 03:43:37 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -93,6 +93,6 @@ public abstract class GameConfig implements Streamable
     protected void toString (StringBuffer buf)
     {
         buf.append("type=").append(getClass().getName());
-        buf.append("rated=").append(rated);
+        buf.append(", rated=").append(rated);
     }
 }
