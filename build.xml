@@ -54,8 +54,8 @@
     </javadoc>
   </target>
 
-  <!-- the default target is to rebuild everything -->
-  <target name="all" depends="clean,prepare,compile,javadoc"/>
+  <!-- a target for rebuilding everything -->
+  <target name="all" depends="clean,prepare,compile,javadoc,dist"/>
 
   <!-- builds our distribution files (war and jar) -->
   <target name="dist" depends="prepare,compile">
