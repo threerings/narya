@@ -56,6 +56,12 @@ import com.threerings.media.sprite.ButtonSprite;
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.sprite.SpriteManager;
 
+import com.threerings.media.sprite.action.ActionSprite;
+import com.threerings.media.sprite.action.ArmingSprite;
+import com.threerings.media.sprite.action.CommandSprite;
+import com.threerings.media.sprite.action.DisableableSprite;
+import com.threerings.media.sprite.action.HoverSprite;
+
 /**
  * Provides a useful extensible framework for rendering animated displays
  * that use sprites and animations. Sprites and animations can be added to
@@ -185,13 +191,13 @@ public class MediaPanel extends JComponent
     {
         _spritemgr.addSprite(sprite);
         
-        if (sprite instanceof ButtonSprite &&
-            _buttonSpriteCount++ == 0) {
-            if (_buttonHandler == null) {
-                _buttonHandler = new ButtonHandler();
+        if (((sprite instanceof ActionSprite) ||
+             (sprite instanceof HoverSprite)) && (_actionSpriteCount++ == 0)) {
+            if (_actionHandler == null) {
+                _actionHandler = new ActionSpriteHandler();
             }
-            addMouseListener(_buttonHandler);
-            addMouseMotionListener(_buttonHandler);
+            addMouseListener(_actionHandler);
+            addMouseMotionListener(_actionHandler);
         }
     }
 
@@ -210,11 +216,10 @@ public class MediaPanel extends JComponent
     {
         _spritemgr.removeSprite(sprite);
         
-        if (sprite instanceof ButtonSprite &&
-            --_buttonSpriteCount == 0)
-        {
-            removeMouseListener(_buttonHandler);
-            removeMouseMotionListener(_buttonHandler);
+        if (((sprite instanceof ActionSprite) ||
+             (sprite instanceof HoverSprite)) && (--_actionSpriteCount == 0)) {
+            removeMouseListener(_actionHandler);
+            removeMouseMotionListener(_actionHandler);
         }
     }
 
@@ -224,6 +229,12 @@ public class MediaPanel extends JComponent
     public void clearSprites ()
     {
         _spritemgr.clearMedia();
+
+        if (_actionHandler != null) {
+            removeMouseListener(_actionHandler);
+            removeMouseMotionListener(_actionHandler);
+            _actionSpriteCount = 0;
+        }
     }
 
     /**
@@ -607,51 +618,100 @@ public class MediaPanel extends JComponent
     /** Used to keep metrics. */
     protected float _dirtyPerTick;
 
-    /** Handles button manipulation. */
-    protected class ButtonHandler extends MouseInputAdapter
+    /** Handles ActionSprite/HoverSprite/ArmingSprite manipulation. */
+    protected class ActionSpriteHandler extends MouseInputAdapter
     {
+        // documentation inherited
         public void mousePressed (MouseEvent me)
         {
-            Sprite highestHit = _spritemgr.getHighestHitSprite(
-                me.getX(), me.getY());
-           
-            if (highestHit instanceof ButtonSprite &&
-                ((ButtonSprite)highestHit).isEnabled()) {
-                _activeButton = (ButtonSprite)highestHit;
-                _activeButton.setPressed(true);
+            if (_activeSprite == null) {
+                // see if we can find one
+                Sprite s = getHit(me);
+                if (s instanceof ActionSprite) {
+                    _activeSprite = s;
+                }
+            }
+
+            if (_activeSprite instanceof ArmingSprite) {
+                ((ArmingSprite) _activeSprite).setArmed(true);
             }
         }
         
+        // documentation inherited
         public void mouseReleased (MouseEvent me)
         {
-            if (_activeButton != null) {
-                CommandEvent ce = new CommandEvent(MediaPanel.this,
-                    _activeButton.getActionCommand(),
-                    _activeButton.getCommandArgument(),
-                    me.getWhen(), me.getModifiers());
-                Controller.postAction(ce);
-                _activeButton.setPressed(false);
-                _activeButton = null;
+            if ((_activeSprite instanceof ActionSprite) &&
+                    _activeSprite.hitTest(me.getX(), me.getY())) {
+                if (_activeSprite instanceof CommandSprite) {
+                    CommandSprite cs = (CommandSprite) _activeSprite;
+                    Controller.postAction(MediaPanel.this,
+                        cs.getActionCommand(), cs.getCommandArgument());
+
+                } else {
+                    Controller.postAction(MediaPanel.this,
+                        ((ActionSprite) _activeSprite).getActionCommand());
+                }
             }
+
+            if (!(_activeSprite instanceof HoverSprite)) {
+                _activeSprite = null;
+            }
+
+            mouseMoved(me);
         }
-                
+
+        // documentation inherited
         public void mouseDragged (MouseEvent me)
         {
-            if (_activeButton != null &&
-                !_activeButton.contains(me.getX(), me.getY())) {
-                _activeButton.setPressed(false);
-                _activeButton = null;
+            if (_activeSprite instanceof ArmingSprite) {
+                ((ArmingSprite) _activeSprite).setArmed(
+                    _activeSprite.hitTest(me.getX(), me.getY()));
             }
         }
-        
-        protected ButtonSprite _activeButton;
+
+        // documentation inherited
+        public void mouseMoved (MouseEvent me)
+        {
+            if (_activeSprite instanceof HoverSprite) {
+                if (!_activeSprite.hitTest(me.getX(), me.getY())) {
+                    ((HoverSprite) _activeSprite).setHovered(false);
+                    _activeSprite = null;
+                }
+            }
+
+            if (_activeSprite == null) {
+                Sprite s = getHit(me);
+                if (s instanceof HoverSprite) {
+                    ((HoverSprite) s).setHovered(true);
+                    _activeSprite = s;
+                }
+            }
+        }
+
+        /**
+         * Utility method, get the highest sprite, return it
+         * if it's enabled.
+         */
+        protected Sprite getHit (MouseEvent me)
+        {
+            Sprite s = _spritemgr.getHighestHitSprite(me.getX(), me.getY());
+            if (!(s instanceof DisableableSprite) ||
+                 ((DisableableSprite) s).isEnabled()) {
+                return s;
+            } else {
+                return null;
+            }
+        }
+
+        /** The active hover sprite, or action sprite. */
+        protected Sprite _activeSprite;
     }
     
-    /** The active button handler, or null for none. */
-    protected ButtonHandler _buttonHandler;
+    /** The action sprite handler, or null for none. */
+    protected ActionSpriteHandler _actionHandler;
     
-    /** The number of button sprites being managed. */
-    protected int _buttonSpriteCount;
+    /** The number of action/hover sprites being managed. */
+    protected int _actionSpriteCount;
     
     // used to render performance metrics
     protected String _perfStatus = "";
