@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.7 2001/07/18 22:45:35 shaper Exp $
+// $Id: IsoSceneView.java,v 1.8 2001/07/19 00:22:02 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -44,16 +44,13 @@ public class IsoSceneView implements SceneView
 
     public void paint (Graphics g)
     {
-	Graphics2D g2 = (Graphics2D)g;
+	Graphics2D gfx = (Graphics2D)g;
 
-	_offGraphics.setColor(Color.red);
-	_offGraphics.fillRect(0, 0, _bounds.width, _bounds.height);
+	gfx.setColor(Color.red);
+	gfx.fillRect(0, 0, _bounds.width, _bounds.height);
 
 	// draw the full scene into the offscreen image buffer
-	renderScene(_offGraphics, _viewX, _viewY);
-
-	// copy offscreen buffer to the given graphics context
-	g2.drawImage(_offImg, null, 0, 0);
+	renderScene(gfx, _viewX, _viewY);
     }
 
     protected void renderScene (Graphics2D g2, int x, int y)
@@ -229,18 +226,6 @@ public class IsoSceneView implements SceneView
 	_scene = scene;
     }
 
-    public void setTarget (Component target)
-    {
-	_target = target;
-
-	int width = _bounds.width, height = _bounds.height;
-	_offImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-	_offGraphics = _offImg.createGraphics();
-
-	Log.info("Creating offscreen [width=" + width + ", height=" +
-		 height + "].");
-    }
-
     public void setTile (int x, int y, int lnum, Tile tile)
     {
 	Point tpos = screenToTile(x, y);
@@ -255,9 +240,6 @@ public class IsoSceneView implements SceneView
 
     protected Point _lineX[], _lineY[];
 
-    protected BufferedImage _offImg;
-    protected Graphics2D _offGraphics;
-
     protected Rectangle _bounds;
     protected int _viewX, _viewY;
 
@@ -268,6 +250,5 @@ public class IsoSceneView implements SceneView
     protected Font _font;
 
     protected Scene _scene;
-    protected Component _target;
     protected TileManager _tmgr;
 }

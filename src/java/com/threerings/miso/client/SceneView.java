@@ -1,5 +1,5 @@
 //
-// $Id: SceneView.java,v 1.4 2001/07/18 21:45:42 shaper Exp $
+// $Id: SceneView.java,v 1.5 2001/07/19 00:22:02 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -29,11 +29,6 @@ public interface SceneView
      * Set the scene that we're rendering.
      */
     public void setScene (Scene scene);
-
-    /**
-     * Set the target component to which we're rendering.
-     */
-    public void setTarget (Component target);
 
     /**
      * Set the tile at the specified location and layer in the scene.
