@@ -1,5 +1,5 @@
 //
-// $Id: FramedInputStream.java,v 1.1 2001/05/22 21:51:29 mdb Exp $
+// $Id: FramedInputStream.java,v 1.2 2001/05/22 22:01:08 mdb Exp $
 
 package com.samskivert.cocktail.cher.io;
 
@@ -78,7 +78,9 @@ public class FramedInputStream extends InputStream
         }
 
         // read the data into the buffer
-        source.read(_buffer, _count, flength);
+        if (source.read(_buffer, _count, flength) < flength) {
+            throw new EOFException();
+        }
         _count = newcount;
 
         return flength;
