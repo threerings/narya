@@ -1,9 +1,12 @@
 //
-// $Id: SceneManager.java,v 1.2 2001/08/21 01:07:19 mdb Exp $
+// $Id: SceneManager.java,v 1.3 2001/08/22 00:09:52 mdb Exp $
 
 package com.threerings.whirled.server;
 
+import com.threerings.cocktail.party.chat.ChatMessageHandler;
+import com.threerings.cocktail.party.chat.ChatService;
 import com.threerings.cocktail.party.server.PlaceManager;
+
 import com.threerings.whirled.data.Scene;
 
 public class SceneManager extends PlaceManager
@@ -32,6 +35,11 @@ public class SceneManager extends PlaceManager
     {
         super.didStartup();
         _screg.sceneManagerDidInit(this);
+
+        // register a chat message handler because we want to support
+        // chatting
+        MessageHandler handler = new ChatMessageHandler();
+        registerMessageHandler(ChatService.SPEAK_REQUEST, handler);
     }
 
     protected void toString (StringBuffer buf)
