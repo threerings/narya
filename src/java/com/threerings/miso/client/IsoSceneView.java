@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.79 2001/12/16 05:42:16 shaper Exp $
+// $Id: IsoSceneView.java,v 1.80 2001/12/16 08:31:17 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -208,6 +208,7 @@ public class IsoSceneView implements SceneView
     {
         // Log.info("renderScene");
         renderTiles(gfx);
+        renderBaseDecorations(gfx);
         renderDirtyItems(gfx);
     }
 
@@ -242,6 +243,16 @@ public class IsoSceneView implements SceneView
                 }
 	    }
 	}
+    }
+
+    /**
+     * A function where derived classes can paint things after the base
+     * tiles have been rendered but before anything else has been rendered
+     * (so that whatever is painted appears to be on the ground).
+     */
+    protected void renderBaseDecorations (Graphics2D gfx)
+    {
+        // nothing for now
     }
 
     /**
