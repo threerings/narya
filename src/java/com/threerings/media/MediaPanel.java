@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.30 2003/03/25 23:05:58 mdb Exp $
+// $Id: MediaPanel.java,v 1.31 2003/04/01 03:38:03 mdb Exp $
 
 package com.threerings.media;
 
@@ -231,7 +231,13 @@ public class MediaPanel extends JComponent
             _dirtyPerTick = (float)dirty/100;
         }
 
-        return (!_tickPaintPending || _remgr.haveDirtyRegions());
+        // if we have no dirty regions, clear our pending tick indicator
+        // because we're not going to get painted
+        boolean needsPaint = _remgr.haveDirtyRegions();
+        if (!needsPaint) {
+            _tickPaintPending = false;
+        }
+        return needsPaint;
     }
 
     // documentation inherited from interface
