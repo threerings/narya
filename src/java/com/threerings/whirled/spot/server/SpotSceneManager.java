@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.2 2001/12/16 05:15:27 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.3 2001/12/16 08:07:53 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -136,6 +136,18 @@ public class SpotSceneManager extends SceneManager
             throw new ServiceFailedException(INTERNAL_ERROR);
         }
 
+        // clear out any location they previously occupied
+        if (soi.locationId > 0) {
+            int oldlocidx = _sscene.getLocationIndex(soi.locationId);
+            if (oldlocidx == -1) {
+                Log.warning("Changing location for body that was " +
+                            "previously in an invalid location " +
+                            "[info=" + soi + "].");
+            } else {
+                _locationOccs[oldlocidx] = 0;
+            }
+        }
+
         // stick our new friend into that location
         _locationOccs[locidx] = bodyOid;
         // update their occupant info
@@ -179,6 +191,22 @@ public class SpotSceneManager extends SceneManager
                         "[cidx=" + clusterIndex +
                         ", chatter=" + source.username +
                         ", message=" + message + "].");
+        }
+    }
+
+    /**
+     * When an occupant leaves the room, we want to clear out any location
+     * they may have occupied.
+     */
+    protected void bodyLeft (int bodyOid)
+    {
+        super.bodyLeft(bodyOid);
+
+        for (int i = 0; i < _locationOccs.length; i++) {
+            if (_locationOccs[i] == bodyOid) {
+                _locationOccs[i] = 0;
+                break;
+            }
         }
     }
 
