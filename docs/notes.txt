@@ -12,3 +12,12 @@ Remove dependencies of nodemap on miso.
 Perhaps provide an application identifier to the resource manager so that
 it can cache resource sets in a unique directory in the event that
 multiple Narya using applications are run on the same machine.
+
+Make Object{Input|Output}Stream which manages mapping from Streamable
+class to two-byte identifier wherein the class name is only transmitted
+the first time the class is seen on the stream and is subsequently
+identified by the two-byte identifier. The client and server can use these
+streams on either end to efficiently transport serializables. They will
+need to be reset when the client loses connection. Check to see if
+Serializable support already does this (in which case we can just use it
+directly).
