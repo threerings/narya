@@ -1,5 +1,5 @@
 //
-// $Id: ClientAdapter.java,v 1.1 2001/08/22 00:08:12 mdb Exp $
+// $Id: ClientAdapter.java,v 1.2 2001/09/13 19:08:21 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -10,7 +10,7 @@ package com.threerings.cocktail.cher.client;
  * it and overrides just the callbacks they care about.
  *
  * <p> Note that the client adapter defaults to always ratifying a call to
- * {@link * #clientWillLogoff} by returning true.
+ * {@link #clientWillLogoff} by returning true.
  */
 public class ClientAdapter implements ClientObserver
 {
