@@ -1,5 +1,5 @@
 //
-// $Id: AuthManager.java,v 1.6 2001/12/03 20:14:51 mdb Exp $
+// $Id: AuthManager.java,v 1.7 2001/12/04 01:48:51 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -25,7 +25,20 @@ import com.threerings.presents.net.AuthResponse;
  */
 public class AuthManager extends LoopingThread
 {
+    /**
+     * Constructs an auth manager which will use the specified
+     * authenticator to authorize logon requests.
+     */
     public AuthManager (Authenticator author)
+    {
+        setAuthenticator(author);
+    }
+
+    /**
+     * Specifies the authenticator that should be used by the auth manager
+     * to authenticate logon requests.
+     */
+    public void setAuthenticator (Authenticator author)
     {
         _author = author;
     }
