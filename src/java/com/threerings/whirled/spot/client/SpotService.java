@@ -1,5 +1,5 @@
 //
-// $Id: SpotService.java,v 1.5 2002/04/15 16:28:03 shaper Exp $
+// $Id: SpotService.java,v 1.6 2002/04/17 17:07:13 ray Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -40,7 +40,7 @@ public class SpotService implements SpotCodes
      * location.
      */
     public static void changeLoc (Client client, int sceneId, int locationId,
-                                  SpotSceneDirector rsptarget)
+                                  Object rsptarget)
     {
         InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] { new Integer(sceneId),
