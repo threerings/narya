@@ -1,5 +1,5 @@
 //
-// $Id: SceneModel.java,v 1.5 2001/12/12 02:47:17 mdb Exp $
+// $Id: SceneModel.java,v 1.6 2001/12/12 19:06:15 mdb Exp $
 
 package com.threerings.whirled.data;
 
@@ -27,6 +27,9 @@ public class SceneModel
     /** This scene's unique identifier. */
     public int sceneId;
 
+    /** The human readable name of this scene. */
+    public String sceneName;
+
     /** The version number of this scene. Versions are incremented
      * whenever modifications are made to a scene so that clients can
      * determine whether or not they have the latest version of a
@@ -42,6 +45,7 @@ public class SceneModel
         throws IOException
     {
         out.writeInt(sceneId);
+        out.writeUTF(sceneName);
         out.writeInt(version);
         int nlength = neighborIds.length;
         out.writeInt(nlength);
@@ -55,6 +59,7 @@ public class SceneModel
         throws IOException
     {
         sceneId = in.readInt();
+        sceneName = in.readUTF();
         version = in.readInt();
         int nlength = in.readInt();
         neighborIds = new int[nlength];
@@ -89,6 +94,7 @@ public class SceneModel
     protected void toString (StringBuffer buf)
     {
         buf.append("sceneId=").append(sceneId);
+        buf.append(", name=").append(sceneName);
         buf.append(", version=").append(version);
         buf.append(", neighborIds=").append(StringUtil.toString(neighborIds));
     }
@@ -109,6 +115,7 @@ public class SceneModel
     protected static void populateBlankSceneModel (SceneModel model)
     {
         model.sceneId = -1;
+        model.sceneName = "<blank>";
         model.version = 0;
         model.neighborIds = new int[0];
     }

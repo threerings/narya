@@ -1,5 +1,5 @@
 //
-// $Id: DisplaySceneImpl.java,v 1.1 2001/11/12 20:56:55 mdb Exp $
+// $Id: DisplaySceneImpl.java,v 1.2 2001/12/12 19:06:15 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -26,6 +26,12 @@ public class DisplaySceneImpl implements DisplayScene
     public int getId ()
     {
         return _model.sceneId;
+    }
+
+    // documentation inherited
+    public String getName ()
+    {
+        return _model.sceneName;
     }
 
     // documentation inherited

@@ -1,5 +1,5 @@
 //
-// $Id: DisplayScene.java,v 1.1 2001/11/12 20:56:55 mdb Exp $
+// $Id: DisplayScene.java,v 1.2 2001/12/12 19:06:15 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -25,6 +25,11 @@ public interface DisplayScene
      * Returns the unique identifier for this scene.
      */
     public int getId ();
+
+    /**
+     * Returns the name of this scene.
+     */
+    public String getName ();
 
     /**
      * Returns the version number of this scene.

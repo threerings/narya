@@ -1,5 +1,5 @@
 //
-// $Id: EditableSceneImpl.java,v 1.5 2001/12/05 08:45:06 mdb Exp $
+// $Id: EditableSceneImpl.java,v 1.6 2001/12/12 19:06:15 mdb Exp $
 
 package com.threerings.whirled.tools;
 
@@ -51,6 +51,12 @@ public class EditableSceneImpl implements EditableScene
     }
 
     // documentation inherited
+    public String getName ()
+    {
+        return _delegate.getName();
+    }
+
+    // documentation inherited
     public int getVersion ()
     {
         return _delegate.getVersion();
@@ -75,6 +81,12 @@ public class EditableSceneImpl implements EditableScene
     }
 
     // documentation inherited
+    public void setName (String name)
+    {
+        _model.sceneName = name;
+    }
+
+    // documentation inherited
     public void setVersion (int version)
     {
         _model.version = version;
@@ -84,18 +96,6 @@ public class EditableSceneImpl implements EditableScene
     public void setNeighborIds (int[] neighborIds)
     {
         _model.neighborIds = neighborIds;
-    }
-
-    // documentation inherited
-    public String getName ()
-    {
-        return _emodel.sceneName;
-    }
-
-    // documentation inherited
-    public void setName (String name)
-    {
-        _emodel.sceneName = name;
     }
 
     // documentation inherited

@@ -1,5 +1,5 @@
 //
-// $Id: EditableSceneModel.java,v 1.3 2001/12/12 02:47:17 mdb Exp $
+// $Id: EditableSceneModel.java,v 1.4 2001/12/12 19:06:15 mdb Exp $
 
 package com.threerings.whirled.tools;
 
@@ -16,9 +16,6 @@ public class EditableSceneModel
 {
     /** The scene model that we extend. */
     public SceneModel sceneModel;
-
-    /** The human readable name of this scene. */
-    public String sceneName;
 
     /** The human readable name of this scene's neighbors. */
     public ArrayList neighborNames;
@@ -65,7 +62,6 @@ public class EditableSceneModel
      */
     protected void toString (StringBuffer buf)
     {
-        buf.append(", sceneName=").append(sceneName);
         buf.append(", neighborNames=").
             append(StringUtil.toString(neighborNames));
     }
@@ -86,7 +82,6 @@ public class EditableSceneModel
      */
     protected static void populateBlankSceneModel (EditableSceneModel model)
     {
-        model.sceneName = "";
         model.neighborNames = new ArrayList();
     }
 }

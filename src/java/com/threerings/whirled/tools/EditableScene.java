@@ -1,5 +1,5 @@
 //
-// $Id: EditableScene.java,v 1.3 2001/12/05 03:38:09 mdb Exp $
+// $Id: EditableScene.java,v 1.4 2001/12/12 19:06:15 mdb Exp $
 
 package com.threerings.whirled.tools;
 
@@ -33,6 +33,11 @@ public interface EditableScene extends DisplayScene
     public void setId (int sceneId);
 
     /**
+     * Sets the human readable name of this scene.
+     */
+    public void setName (String name);
+
+    /**
      * Sets this scene's version number.
      */
     public void setVersion (int version);
@@ -41,16 +46,6 @@ public interface EditableScene extends DisplayScene
      * Sets the ids of the neighbors of this scene.
      */
     public void setNeighborIds (int[] neighborIds);
-
-    /**
-     * Returns the human readable name of this scene.
-     */
-    public String getName ();
-
-    /**
-     * Setse the human readable name of this scene.
-     */
-    public void setName (String name);
 
     /**
      * Returns the names of the neighbors of this scene.
