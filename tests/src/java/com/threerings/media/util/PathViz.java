@@ -1,5 +1,5 @@
 //
-// $Id: PathViz.java,v 1.3 2003/04/26 17:56:26 mdb Exp $
+// $Id: PathViz.java,v 1.4 2004/02/25 14:51:26 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -15,7 +15,6 @@ import com.threerings.media.ManagedJFrame;
 import com.threerings.media.MediaPanel;
 
 import com.threerings.media.sprite.Sprite;
-import com.threerings.media.util.*;
 
 /**
  * A test app that is useful for visualizing paths during their

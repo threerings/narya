@@ -1,5 +1,5 @@
 //
-// $Id: CharSpriteViz.java,v 1.4 2003/02/12 07:24:07 mdb Exp $
+// $Id: CharSpriteViz.java,v 1.5 2004/02/25 14:51:25 mdb Exp $
 
 package com.threerings.cast;
 
@@ -103,7 +103,8 @@ public class CharSpriteViz extends JPanel
 
         try {
             ResourceManager rmgr = new ResourceManager("rsrc");
-            rmgr.initBundles(null, "config/resource/manager.properties", null);
+            rmgr.initBundles(
+                null, "config/resource/manager.properties", null, null);
             ImageManager imgr = new ImageManager(rmgr, frame);
             ComponentRepository crepo =
                 new BundledComponentRepository(rmgr, imgr, "components");

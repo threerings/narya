@@ -1,11 +1,10 @@
 //
-// $Id: KeyboardManagerApp.java,v 1.4 2002/11/12 22:55:32 shaper Exp $
+// $Id: KeyboardManagerApp.java,v 1.5 2004/02/25 14:51:26 mdb Exp $
 
 package com.threerings.util;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;

@@ -1,14 +1,11 @@
 //
-// $Id: BuildTestTileSetBundle.java,v 1.6 2002/04/06 02:03:32 mdb Exp $
+// $Id: BuildTestTileSetBundle.java,v 1.7 2004/02/25 14:51:26 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.test.TestUtil;

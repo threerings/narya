@@ -1,11 +1,10 @@
 //
-// $Id: ScrollingScene.java,v 1.13 2003/04/17 19:21:17 mdb Exp $
+// $Id: ScrollingScene.java,v 1.14 2004/02/25 14:51:26 mdb Exp $
 
 package com.threerings.miso.client;
 
 import java.awt.Rectangle;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -13,8 +12,6 @@ import com.samskivert.io.PersistenceException;
 
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
-import com.threerings.media.tile.ObjectTile;
-import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileSetRepository;
 

@@ -1,16 +1,13 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.58 2003/04/25 15:52:25 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.59 2004/02/25 14:51:26 mdb Exp $
 
 package com.threerings.miso.viewer;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import com.threerings.util.RandomUtil;
-import com.threerings.media.FrameManager;
 
 import com.threerings.cast.CharacterDescriptor;
 import com.threerings.cast.CharacterManager;
@@ -18,12 +15,12 @@ import com.threerings.cast.CharacterSprite;
 import com.threerings.cast.ComponentRepository;
 import com.threerings.cast.util.CastUtil;
 
-import com.threerings.media.sprite.PathCompletedEvent;
-import com.threerings.media.sprite.SpriteEvent;
+import com.threerings.media.sprite.PathObserver;
+import com.threerings.media.sprite.Sprite;
 import com.threerings.media.sprite.SpriteManager;
-import com.threerings.media.sprite.SpriteObserver;
 import com.threerings.media.util.LineSegmentPath;
 
+import com.threerings.media.util.Path;
 import com.threerings.media.util.PerformanceMonitor;
 import com.threerings.media.util.PerformanceObserver;
 
@@ -34,7 +31,7 @@ import com.threerings.miso.data.MisoSceneModel;
 import com.threerings.miso.util.MisoContext;
 
 public class ViewerSceneViewPanel extends MisoScenePanel
-    implements PerformanceObserver, SpriteObserver
+    implements PerformanceObserver, PathObserver
 {
     /**
      * Construct the panel and initialize it with a context.
@@ -51,7 +48,7 @@ public class ViewerSceneViewPanel extends MisoScenePanel
 
         // create the manipulable sprite
         _sprite = createSprite(_spritemgr, charmgr, _descUser);
-        setFollowsPathable(_sprite);
+        setFollowsPathable(_sprite, CENTER_ON_PATHABLE);
 
         // create the decoy sprites
         createDecoys(_spritemgr, charmgr);
@@ -155,7 +152,7 @@ public class ViewerSceneViewPanel extends MisoScenePanel
     protected boolean createPath (CharacterSprite s, int x, int y)
     {
         // get the path from here to there
-        LineSegmentPath path = (LineSegmentPath)getPath(s, x, y);
+        LineSegmentPath path = (LineSegmentPath)getPath(s, x, y, true);
 	if (path == null) {
 	    s.cancelMove();
 	    return false;
@@ -181,16 +178,19 @@ public class ViewerSceneViewPanel extends MisoScenePanel
     }
 
     // documentation inherited
-    public void handleEvent (SpriteEvent event)
+    public void pathCompleted (Sprite sprite, Path path, long when)
     {
-        if (event instanceof PathCompletedEvent) {
-            CharacterSprite s = (CharacterSprite)event.getSprite();
-
-            if (s != _sprite) {
-                // move the sprite to a new random location
-                createRandomPath(s);
-            }
+        CharacterSprite s = (CharacterSprite)sprite;
+        if (s != _sprite) {
+            // move the sprite to a new random location
+            createRandomPath(s);
         }
+    }
+
+    // documentation inherited
+    public void pathCancelled (Sprite sprite, Path path)
+    {
+        // nothing doing
     }
 
     /** The number of decoy characters milling about. */

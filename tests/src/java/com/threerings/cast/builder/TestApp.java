@@ -1,5 +1,5 @@
 //
-// $Id: TestApp.java,v 1.16 2003/01/13 22:57:45 mdb Exp $
+// $Id: TestApp.java,v 1.17 2004/02/25 14:51:25 mdb Exp $
 
 package com.threerings.cast.builder;
 
@@ -11,7 +11,6 @@ import com.samskivert.swing.util.SwingUtil;
 import com.threerings.media.image.ImageManager;
 import com.threerings.resource.ResourceManager;
 
-import com.threerings.cast.Log;
 import com.threerings.cast.CharacterManager;
 import com.threerings.cast.ComponentRepository;
 import com.threerings.cast.bundle.BundledComponentRepository;
@@ -26,7 +25,8 @@ public class TestApp
         SwingUtil.centerWindow(_frame);
 
         ResourceManager rmgr = new ResourceManager("rsrc");
-        rmgr.initBundles(null, "config/resource/manager.properties", null);
+        rmgr.initBundles(
+            null, "config/resource/manager.properties", null, null);
         ImageManager imgr = new ImageManager(rmgr, _frame);
 
         ComponentRepository crepo =

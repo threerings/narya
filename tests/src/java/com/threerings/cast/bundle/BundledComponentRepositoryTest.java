@@ -1,10 +1,9 @@
 //
-// $Id: BundledComponentRepositoryTest.java,v 1.8 2003/01/13 22:57:45 mdb Exp $
+// $Id: BundledComponentRepositoryTest.java,v 1.9 2004/02/25 14:51:25 mdb Exp $
 
 package com.threerings.cast.bundle;
 
 import java.util.Iterator;
-import com.samskivert.util.StringUtil;
 
 import com.threerings.cast.ComponentClass;
 import com.threerings.media.image.ImageManager;
@@ -24,7 +23,8 @@ public class BundledComponentRepositoryTest extends TestCase
     {
         try {
             ResourceManager rmgr = new ResourceManager("rsrc");
-            rmgr.initBundles(null, "config/resource/manager.properties", null);
+            rmgr.initBundles(
+                null, "config/resource/manager.properties", null, null);
             ImageManager imgr = new ImageManager(rmgr, null);
             BundledComponentRepository repo =
                 new BundledComponentRepository(rmgr, imgr, "components");

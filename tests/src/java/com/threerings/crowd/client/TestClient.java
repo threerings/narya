@@ -1,8 +1,9 @@
 //
-// $Id: TestClient.java,v 1.12 2002/11/12 22:55:15 shaper Exp $
+// $Id: TestClient.java,v 1.13 2004/02/25 14:51:25 mdb Exp $
 
 package com.threerings.crowd.client;
 
+import com.samskivert.util.Config;
 import com.samskivert.util.Queue;
 
 import com.threerings.presents.client.*;
@@ -99,6 +100,11 @@ public class TestClient
 
     protected class CrowdContextImpl implements CrowdContext
     {
+        public Config getConfig ()
+        {
+            return null;
+        }
+        
         public Client getClient ()
         {
             return _client;

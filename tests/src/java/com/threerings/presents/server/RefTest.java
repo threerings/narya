@@ -1,12 +1,11 @@
 //
-// $Id: RefTest.java,v 1.8 2002/04/15 16:34:36 shaper Exp $
+// $Id: RefTest.java,v 1.9 2004/02/25 14:51:26 mdb Exp $
 
 package com.threerings.presents.server;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.dobj.*;
 
 /**
@@ -63,7 +62,7 @@ public class RefTest
             } else {
                 // Log.info("Other object destroyed.");
                 // go bye bye
-                _omgr.shutdown();
+                _omgr.harshShutdown();
             }
 
         } else if (event instanceof ObjectRemovedEvent) {

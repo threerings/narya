@@ -1,9 +1,8 @@
 //
-// $Id: SoundTestApp.java,v 1.5 2003/04/17 19:21:17 mdb Exp $
+// $Id: SoundTestApp.java,v 1.6 2004/02/25 14:51:25 mdb Exp $
 
 package com.threerings.media.sound;
 
-import com.samskivert.util.StringUtil;
 import com.threerings.resource.ResourceManager;
 import com.threerings.media.Log;
 

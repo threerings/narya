@@ -1,8 +1,9 @@
 //
-// $Id: TestClient.java,v 1.11 2002/11/12 22:55:15 shaper Exp $
+// $Id: TestClient.java,v 1.12 2004/02/25 14:51:26 mdb Exp $
 
 package com.threerings.parlor;
 
+import com.samskivert.util.Config;
 import com.samskivert.util.Queue;
 
 import com.threerings.presents.client.*;
@@ -147,6 +148,11 @@ public class TestClient
 
     protected class ParlorContextImpl implements ParlorContext
     {
+        public Config getConfig ()
+        {
+            return null;
+        }
+
         public Client getClient ()
         {
             return _client;

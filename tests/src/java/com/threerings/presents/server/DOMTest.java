@@ -1,14 +1,11 @@
 //
-// $Id: DOMTest.java,v 1.9 2002/04/15 16:34:36 shaper Exp $
+// $Id: DOMTest.java,v 1.10 2004/02/25 14:51:26 mdb Exp $
 
 package com.threerings.presents.server;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 
-import com.samskivert.util.StringUtil;
-
-import com.threerings.presents.Log;
 import com.threerings.presents.dobj.*;
 
 /**
@@ -52,7 +49,7 @@ public class DOMTest extends TestCase
     public void requestFailed (int oid, ObjectAccessException cause)
     {
         fail("Request failed: " + cause);
-        _omgr.shutdown();
+        _omgr.harshShutdown();
     }
 
     public void attributeChanged (AttributeChangedEvent event)
@@ -63,7 +60,7 @@ public class DOMTest extends TestCase
 
         // shutdown once we receive our last update
         if (++_fcount == fields.length) {
-            _omgr.shutdown();
+            _omgr.harshShutdown();
         }
     }
 

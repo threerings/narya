@@ -1,18 +1,14 @@
 //
-// $Id: ImageLoadingSpeed.java,v 1.4 2003/04/27 06:38:48 mdb Exp $
+// $Id: ImageLoadingSpeed.java,v 1.5 2004/02/25 14:51:25 mdb Exp $
 
 package com.threerings.media;
 
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
-import javax.imageio.stream.FileImageInputStream;
 
 import java.io.*;
 
 import com.threerings.media.image.FastImageIO;
-import com.threerings.media.image.ImageManager;
-import com.threerings.resource.ResourceManager;
 
 /**
  * Tests our image loading speed.

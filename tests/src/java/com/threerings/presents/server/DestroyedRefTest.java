@@ -1,5 +1,5 @@
 //
-// $Id: DestroyedRefTest.java,v 1.8 2002/04/15 16:34:36 shaper Exp $
+// $Id: DestroyedRefTest.java,v 1.9 2004/02/25 14:51:26 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -71,7 +71,7 @@ public class DestroyedRefTest
 
         } else if (event instanceof AttributeChangedEvent) {
             // go bye bye
-            _omgr.shutdown();
+            _omgr.harshShutdown();
 
         } else {
             fail("Got unexpected event: " + event);

@@ -1,8 +1,9 @@
 //
-// $Id: TestClient.java,v 1.15 2003/02/12 07:24:08 mdb Exp $
+// $Id: TestClient.java,v 1.16 2004/02/25 14:51:26 mdb Exp $
 
 package com.threerings.whirled;
 
+import com.samskivert.util.Config;
 import com.samskivert.util.Queue;
 
 import com.threerings.presents.client.*;
@@ -138,6 +139,11 @@ public class TestClient
 
     protected class WhirledContextImpl implements WhirledContext
     {
+        public Config getConfig ()
+        {
+            return null;
+        }
+
         public Client getClient ()
         {
             return _client;

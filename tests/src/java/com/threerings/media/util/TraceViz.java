@@ -1,12 +1,10 @@
 //
-// $Id: TraceViz.java,v 1.4 2003/01/24 22:54:48 mdb Exp $
+// $Id: TraceViz.java,v 1.5 2004/02/25 14:51:26 mdb Exp $
 
 package com.threerings.media.util;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
 import java.io.File;

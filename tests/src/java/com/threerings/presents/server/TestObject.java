@@ -1,5 +1,5 @@
 //
-// $Id: TestObject.java,v 1.3 2002/03/19 01:10:03 mdb Exp $
+// $Id: TestObject.java,v 1.4 2004/02/25 14:51:26 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -41,8 +41,8 @@ public class TestObject extends DObject
      */
     public void setFoo (int foo)
     {
-        this.foo = foo;
         requestAttributeChange(FOO, new Integer(foo));
+        this.foo = foo;
     }
 
     /**
@@ -55,8 +55,8 @@ public class TestObject extends DObject
      */
     public void setBar (String bar)
     {
-        this.bar = bar;
         requestAttributeChange(BAR, bar);
+        this.bar = bar;
     }
 
     /**
@@ -69,8 +69,8 @@ public class TestObject extends DObject
      */
     public void setInts (int[] ints)
     {
-        this.ints = ints;
         requestAttributeChange(INTS, ints);
+        this.ints = ints;
     }
 
     /**
@@ -83,8 +83,8 @@ public class TestObject extends DObject
      */
     public void setIntsAt (int value, int index)
     {
-        this.ints[index] = value;
         requestElementUpdate(INTS, new Integer(value), index);
+        this.ints[index] = value;
     }
 
     /**
@@ -97,8 +97,8 @@ public class TestObject extends DObject
      */
     public void setStrings (String[] strings)
     {
-        this.strings = strings;
         requestAttributeChange(STRINGS, strings);
+        this.strings = strings;
     }
 
     /**
@@ -111,8 +111,8 @@ public class TestObject extends DObject
      */
     public void setStringsAt (String value, int index)
     {
-        this.strings[index] = value;
         requestElementUpdate(STRINGS, value, index);
+        this.strings[index] = value;
     }
 
     /**

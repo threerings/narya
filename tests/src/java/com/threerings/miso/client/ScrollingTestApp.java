@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.23 2003/04/26 17:56:26 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.24 2004/02/25 14:51:26 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -7,11 +7,8 @@ import java.awt.DisplayMode;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.Image;
-import java.awt.Point;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.Config;
@@ -21,13 +18,10 @@ import com.threerings.resource.ResourceManager;
 import com.threerings.media.FrameManager;
 import com.threerings.media.image.ImageManager;
 import com.threerings.media.util.LinePath;
-import com.threerings.media.util.MultiFrameImage;
-import com.threerings.media.util.MultiFrameImageImpl;
+import com.threerings.media.util.Path;
 
-import com.threerings.media.sprite.PathCompletedEvent;
+import com.threerings.media.sprite.PathAdapter;
 import com.threerings.media.sprite.Sprite;
-import com.threerings.media.sprite.SpriteEvent;
-import com.threerings.media.sprite.SpriteObserver;
 
 import com.threerings.media.tile.bundle.BundledTileSetRepository;
 
@@ -80,7 +74,8 @@ public class ScrollingTestApp
 
         // we don't need to configure anything
         ResourceManager rmgr = new ResourceManager("rsrc");
-        rmgr.initBundles(null, "config/resource/manager.properties", null);
+        rmgr.initBundles(
+            null, "config/resource/manager.properties", null, null);
         ImageManager imgr = new ImageManager(rmgr, _frame);
 	_tilemgr = new MisoTileManager(rmgr, imgr);
         _tilemgr.setTileSetRepository(
@@ -123,16 +118,14 @@ public class ScrollingTestApp
                         ", name=" + scname + "].");
         }
 
-        _ship.addSpriteObserver(new SpriteObserver() {
-            public void handleEvent (SpriteEvent event) {
-                if (event instanceof PathCompletedEvent) {
-                    // keep scrolling for a spell
-                    if (++_sidx < DX.length) {
-                        int x = _ship.getX(), y = _ship.getY();
-                        LinePath path = new LinePath(
-                            x, y, x + DX[_sidx], y + DY[_sidx], 30000l);
-                        _ship.move(path);
-                    }
+        _ship.addSpriteObserver(new PathAdapter() {
+            public void pathCompleted (Sprite sprite, Path path, long when) {
+                // keep scrolling for a spell
+                if (++_sidx < DX.length) {
+                    int x = _ship.getX(), y = _ship.getY();
+                    LinePath lpath = new LinePath(
+                        x, y, x + DX[_sidx], y + DY[_sidx], 30000l);
+                    _ship.move(lpath);
                 }
             }
             protected int _sidx = -1;
@@ -141,7 +134,7 @@ public class ScrollingTestApp
         });
 
         // make the panel follow the ship around
-        _panel.setFollowsPathable(_ship);
+        _panel.setFollowsPathable(_ship, MisoScenePanel.CENTER_ON_PATHABLE);
         int x = _ship.getX(), y = _ship.getY();
         _ship.move(new LinePath(x, y, x, y + 1000, 3000l));
 
