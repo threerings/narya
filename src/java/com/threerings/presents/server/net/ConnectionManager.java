@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.36 2003/10/07 22:41:24 mdb Exp $
+// $Id: ConnectionManager.java,v 1.37 2003/10/26 05:18:13 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -276,7 +276,8 @@ public class ConnectionManager extends LoopingThread
                 int size = oqueue.size();
                 if ((size > 500) && (size % 50 == 0)) {
                     Log.warning("Aiya, big overflow queue for " + conn +
-                                " [size=" + size + "].");
+                                " [size=" + size +
+                                ", adding=" + tup.right + "].");
                 }
                 oqueue.add(tup.right);
                 continue;
