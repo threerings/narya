@@ -21,6 +21,8 @@
 
 package com.threerings.presents.dobj;
 
+import java.util.HashMap;
+
 import com.samskivert.util.StringUtil;
 
 /**
@@ -114,9 +116,24 @@ public class AttributeChangedEvent extends NamedEvent
         // actually apply the attribute change
         if (_oldValue == UNSET_OLD_VALUE) {
             _oldValue = target.getAttribute(_name);
-            // pass the new value on to the object (this uses reflection
-            // and is slow)
-            target.setAttribute(_name, _value);
+            Object value = _value;
+            if (value != null) {
+                Class vclass = value.getClass();
+                if (vclass.isPrimitive()) {
+                    // do nothing; we check this to avoid the more
+                    // expensive isAssignableFrom check on primitives
+                    // which are far and away the most common case
+                } else if (vclass.isArray()) {
+                    Cloner cloner = (Cloner)_cloners.get(vclass);
+                    if (cloner != null) {
+                        value = cloner.clone(value);
+                    }
+                } else if (DSet.class.isAssignableFrom(vclass)) {
+                    value = ((DSet)value).clone();
+                }
+            }
+            // pass the new value on to the object
+            target.setAttribute(_name, value);
         }
         return true;
     }
@@ -160,6 +177,66 @@ public class AttributeChangedEvent extends NamedEvent
         StringUtil.toString(buf, _value);
     }
 
+    /** Used to clone object attributes without a zillion calls to
+     * instanceof. */
+    protected static interface Cloner {
+        public Object clone (Object object);
+    }
+
     protected Object _value;
     protected transient Object _oldValue = UNSET_OLD_VALUE;
+
+    /** Contains {@link Cloner}s for types that need cloning. */
+    protected static HashMap _cloners = new HashMap();
+
+    /** Object prototypes we can use to get the appropriate class objects
+     * for use when setting up {@link #_cloners}. */
+    protected static final Object[] ARRAY_PROTOS = new Object[] {
+        new String[0], new byte[0], new char[0], new short[0], new int[0],
+        new long[0], new float[0], new double[0]
+    };
+
+    // set up our cloners
+    static {
+        _cloners.put(ARRAY_PROTOS[0], new Cloner() {
+            public Object clone (Object obj) {
+                return ((String[])obj).clone();
+            }
+        });
+        _cloners.put(ARRAY_PROTOS[1], new Cloner() {
+            public Object clone (Object obj) {
+                return ((byte[])obj).clone();
+            }
+        });
+        _cloners.put(ARRAY_PROTOS[2], new Cloner() {
+            public Object clone (Object obj) {
+                return ((char[])obj).clone();
+            }
+        });
+        _cloners.put(ARRAY_PROTOS[3], new Cloner() {
+            public Object clone (Object obj) {
+                return ((short[])obj).clone();
+            }
+        });
+        _cloners.put(ARRAY_PROTOS[4], new Cloner() {
+            public Object clone (Object obj) {
+                return ((int[])obj).clone();
+            }
+        });
+        _cloners.put(ARRAY_PROTOS[5], new Cloner() {
+            public Object clone (Object obj) {
+                return ((long[])obj).clone();
+            }
+        });
+        _cloners.put(ARRAY_PROTOS[6], new Cloner() {
+            public Object clone (Object obj) {
+                return ((float[])obj).clone();
+            }
+        });
+        _cloners.put(ARRAY_PROTOS[7], new Cloner() {
+            public Object clone (Object obj) {
+                return ((double[])obj).clone();
+            }
+        });
+    }
 }

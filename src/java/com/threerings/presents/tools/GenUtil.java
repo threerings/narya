@@ -117,6 +117,19 @@ public class GenUtil
     }
 
     /**
+     * Potentially clones the supplied argument if it is the type that
+     * needs such treatment.
+     */
+    public static String cloneArgument (Class dsclazz, Class clazz, String name)
+    {
+        if (clazz.isArray() || dsclazz.isAssignableFrom(clazz)) {
+            return "(" + simpleName(clazz) + ")" + name + ".clone()";
+        } else {
+            return name;
+        }
+    }
+
+    /**
      * Reads in the supplied source file and locates the package and class
      * or interface name and returns a fully qualified class name.
      */

@@ -38,8 +38,8 @@
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    public void set$upfield ($type $field)
+    public void set$upfield ($type value)
     {
-        requestAttributeChange($capfield, $field, this.$field);
-        this.$field = $field;
+        requestAttributeChange($capfield, value, this.$field);
+        this.$field = $clonefield;
     }
