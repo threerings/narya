@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameManager.java,v 1.3 2001/10/17 23:29:42 mdb Exp $
+// $Id: TurnGameManager.java,v 1.4 2001/10/19 21:07:06 mdb Exp $
 
 package com.threerings.parlor.turn;
 
@@ -54,7 +54,7 @@ public class TurnGameManager extends GameManager
     {
         // TODO: sort out a better random number generator and make it
         // available via the parlor services
-        _turnIdx = MathUtil.random(_playerOids.length);
+        _turnIdx = MathUtil.random(_players.length);
     }
 
     /**
@@ -68,20 +68,19 @@ public class TurnGameManager extends GameManager
      */
     protected void startTurn ()
     {
+        // sanity check
+        if (_turnIdx < 0 || _turnIdx >= _players.length) {
+            Log.warning("startTurn() called with invalid turn index " +
+                        "[turnIdx=" + _turnIdx + "].");
+            // abort, abort
+            return;
+        }
+
         // let the derived class do their thing
         turnWillStart();
 
         // and set the turn indicator accordingly
-        int boid = _playerOids[_turnIdx];
-        BodyObject body = (BodyObject)CrowdServer.omgr.getObject(boid);
-        if (body != null) {
-            _turnGame.setTurnHolder(body.username);
-
-        } else {
-            Log.warning("Unable to start turn; turn holder isn't around " +
-                        "[username=" + _players[_turnIdx] +
-                        ", boid=" + boid + "].");
-        }
+        _turnGame.setTurnHolder(_players[_turnIdx]);
     }
 
     /**
@@ -141,7 +140,7 @@ public class TurnGameManager extends GameManager
     protected void setNextTurnHolder ()
     {
         // next!
-        _turnIdx = (_turnIdx + 1) % _playerOids.length;
+        _turnIdx = (_turnIdx + 1) % _players.length;
     }
 
     /**
@@ -164,7 +163,7 @@ public class TurnGameManager extends GameManager
     /** A reference to our game object. */
     protected TurnGameObject _turnGame;
 
-    /** The offset into the _playerOids array of the current turn holder
-     * or -1 if it's no one's turn. */
+    /** The offset into the _players array of the current turn holder or
+     * -1 if it's no one's turn. */
     protected int _turnIdx = -1;
 }
