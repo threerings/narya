@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.26 2002/10/27 21:24:58 mdb Exp $
+// $Id: LocationDirector.java,v 1.27 2002/11/03 01:15:36 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -137,6 +137,7 @@ public class LocationDirector extends BasicDirector
         _pendingPlaceId = placeId;
 
         // issue a moveTo request
+        Log.info("Issuing moveTo(" + placeId + ").");
         _lservice.moveTo(_ctx.getClient(), placeId, this);
         return true;
     }

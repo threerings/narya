@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.21 2002/10/27 21:24:58 mdb Exp $
+// $Id: SceneDirector.java,v 1.22 2002/11/03 01:15:36 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -112,6 +112,7 @@ public class SceneDirector extends BasicDirector
         }
 
         // issue a moveTo request
+        Log.info("Issuing moveTo(" + sceneId + ", " + sceneVers + ").");
         _sservice.moveTo(_ctx.getClient(), sceneId, sceneVers, this);
         return true;
     }

@@ -1,5 +1,5 @@
 //
-// $Id: ZoneDirector.java,v 1.10 2002/10/27 21:24:58 mdb Exp $
+// $Id: ZoneDirector.java,v 1.11 2002/11/03 01:15:36 mdb Exp $
 
 package com.threerings.whirled.zone.client;
 
@@ -118,6 +118,8 @@ public class ZoneDirector extends BasicDirector
         }
 
         // issue a moveTo request
+        Log.info("Issuing zoned moveTo(" + zoneId + ", " +
+                 sceneId + ", " + sceneVers + ").");
         _zservice.moveTo(_ctx.getClient(), zoneId, sceneId, sceneVers, this);
         return true;
     }
