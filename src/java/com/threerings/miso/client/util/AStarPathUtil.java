@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.6 2001/10/11 00:41:27 shaper Exp $
+// $Id: AStarPathUtil.java,v 1.7 2001/10/22 21:32:13 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -103,18 +103,14 @@ public class AStarPathUtil
     protected static void considerStep (
 	AStarInfo info, AStarNode n, int x, int y)
     {
-	// skip node if it's outside the map bounds
-	if (x < 0 || y < 0 || x >= info.tilewid || y >= info.tilehei) {
-	    return;
-	}
+        // skip node if it's outside the map bounds or otherwise impassable
+        if (!isStepValid(info, n.x, n.y, x, y)) {
+            return;
+        }
 
-	// skip node if it's impassable
-	if (!info.trav.canTraverse(info.tiles[x][y])) {
-	    return;
-	}
-
-	// calculate the new cost for this node
-	int newg = n.g + 1; // cost to go node-to-node is always 1 for now
+	// calculate the new cost for this node.  the cost to go
+	// node-to-node is always 1 for now.
+	int newg = n.g + 1;
 
 	// retrieve the node corresponding to this location
 	AStarNode np = getNode(info, x, y);
@@ -167,6 +163,66 @@ public class AStarPathUtil
 	}
 
 	return path;
+    }
+
+    /**
+     * Returns whether moving from the given source to destination
+     * coordinates is a valid move.
+     */
+    protected static boolean isStepValid (
+        AStarInfo info, int sx, int sy, int dx, int dy)
+    {
+        // not traversable if the destination itself fails test
+	if (!isTraversable(info, dx, dy)) {
+            return false;
+        }
+
+        // if the step is diagonal, make sure the corners don't impede
+        // our progress
+        if (dx == sx - 1 && dy == sy - 1) {
+            return isTraversable(info, sx - 1, sy, sx, sy - 1);
+
+        } else if (dx == sx + 1 && dy == sy - 1) {
+            return isTraversable(info, sx, sy - 1, sx + 1, sy);
+
+        } else if (dx == sx - 1 && dy == sy + 1) {
+            return isTraversable(info, sx - 1, sy, sx, sy + 1);
+
+        } else if (dx == sx + 1 && dy == sy + 1) {
+            return isTraversable(info, sx + 1, sy, sx, sy + 1);
+        }
+
+        // non-diagonals are always traversable
+        return true;
+    }
+
+    /**
+     * Returns whether the given coordinate is valid and traversable.
+     */
+    protected static boolean isTraversable (AStarInfo info, int x, int y)
+    {
+        return (isCoordinateValid(info, x, y) &&
+                info.trav.canTraverse(info.tiles[x][y]));
+    }
+
+    /**
+     * Returns whether both of the given coordinates are valid and
+     * traversable.
+     */
+    protected static boolean isTraversable (
+        AStarInfo info, int x1, int y1, int x2, int y2)
+    {
+        return (isTraversable(info, x1, y1) &&
+                isTraversable(info, x2, y2));
+    }
+
+    /**
+     * Returns whether the given coordinate is valid based on the
+     * dimensions of the map being traversed.
+     */
+    protected static boolean isCoordinateValid (AStarInfo info, int x, int y)
+    {
+	return (x >= 0 && y >= 0 && x < info.tilewid && y < info.tilehei);
     }
 
     /**
