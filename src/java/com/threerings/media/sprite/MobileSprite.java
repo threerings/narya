@@ -1,5 +1,5 @@
 //
-// $Id: MobileSprite.java,v 1.2 2001/07/31 01:38:28 shaper Exp $
+// $Id: MobileSprite.java,v 1.3 2001/08/02 00:42:02 shaper Exp $
 
 package com.threerings.miso.sprite;
 
@@ -24,11 +24,14 @@ public class MobileSprite extends Sprite
      * @param tilemgr the tile manager to retrieve tiles from.
      * @param tsid the tileset id containing the sprite tiles.
      */
-    public MobileSprite (int x, int y, TileManager tilemgr, int tsid)
+    public MobileSprite (SpriteManager spritemgr, int x, int y,
+                         TileManager tilemgr, int tsid)
     {
-        super(x, y);
+        super(spritemgr, x, y);
+
         _charTiles = getTiles(tilemgr, tsid);
-        _dir = DIR_SOUTH;
+        _dir = Path.DIR_SOUTH;
+
         setTiles(_charTiles[0]);
     }
 
@@ -36,7 +39,7 @@ public class MobileSprite extends Sprite
      * Returns a two-dimensional array of tiles corresponding to the
      * frames of animation used to render the mobile sprite in each of
      * the directions it may face.  The tileset id referenced must
-     * contain <code>NUM_DIRECTIONS</code> rows of tiles, with each
+     * contain <code>Path.NUM_DIRECTIONS</code> rows of tiles, with each
      * row containing <code>NUM_DIR_FRAMES</code> tiles.
      *
      * @param tilemgr the tile manager to retrieve tiles from.
@@ -47,9 +50,9 @@ public class MobileSprite extends Sprite
     protected Tile[][] getTiles (TileManager tilemgr, int tsid)
     {
         Tile[][] tiles =
-            new Tile[NUM_DIRECTIONS][NUM_DIR_FRAMES];
+            new Tile[Path.NUM_DIRECTIONS][NUM_DIR_FRAMES];
 
-        for (int ii = 0; ii < NUM_DIRECTIONS; ii++) {
+        for (int ii = 0; ii < Path.NUM_DIRECTIONS; ii++) {
             for (int jj = 0; jj < NUM_DIR_FRAMES; jj++) {
                 int idx = (ii * NUM_DIR_FRAMES) + jj;
                 tiles[ii][jj] = tilemgr.getTile(tsid, idx);
@@ -87,31 +90,18 @@ public class MobileSprite extends Sprite
     protected int getDirection (int x, int y)
     {
         if (x >= this.x - DIR_BUFFER && x <= this.x + DIR_BUFFER) {
-            return (y < this.y) ? DIR_NORTH : DIR_SOUTH;
+            return (y < this.y) ? Path.DIR_NORTH : Path.DIR_SOUTH;
 
         } else if (y >= this.y - DIR_BUFFER && y <= this.y + DIR_BUFFER) {
-            return (x >= this.x) ? DIR_EAST : DIR_WEST;
+            return (x >= this.x) ? Path.DIR_EAST : Path.DIR_WEST;
 
         } else if (x > this.x) {
-            return (y < this.y) ? DIR_NORTHEAST : DIR_SOUTHEAST;
+            return (y < this.y) ? Path.DIR_NORTHEAST : Path.DIR_SOUTHEAST;
 
         } else {
-            return (y < this.y) ? DIR_NORTHWEST : DIR_SOUTHWEST;
+            return (y < this.y) ? Path.DIR_NORTHWEST : Path.DIR_SOUTHWEST;
         }
     }
-
-    /** The number of distinct directions the character may face. */
-    protected static final int NUM_DIRECTIONS = 8;
-
-    // Direction constants
-    protected static final int DIR_SOUTH = 0;
-    protected static final int DIR_SOUTHWEST = 1;
-    protected static final int DIR_WEST = 2;
-    protected static final int DIR_NORTHWEST = 3;
-    protected static final int DIR_NORTH = 4;
-    protected static final int DIR_NORTHEAST = 5;
-    protected static final int DIR_EAST = 6;
-    protected static final int DIR_SOUTHEAST = 7;
 
     /** The number of frames of animation for each direction. */
     protected static final int NUM_DIR_FRAMES = 8;

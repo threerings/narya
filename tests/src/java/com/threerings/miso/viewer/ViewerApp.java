@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.2 2001/07/28 01:31:51 shaper Exp $
+// $Id: ViewerApp.java,v 1.3 2001/08/02 00:42:02 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -103,7 +103,7 @@ public class ViewerApp
 
     /** The desired width and height for the main application window. */
     protected static final int WIDTH = 800;
-    protected static final int HEIGHT = 600;
+    protected static final int HEIGHT = 622;
 
     /** The config object. */
     protected Config _config;

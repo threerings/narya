@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.3 2001/07/31 01:38:28 shaper Exp $
+// $Id: Sprite.java,v 1.4 2001/08/02 00:42:02 shaper Exp $
 
 package com.threerings.miso.sprite;
 
@@ -25,13 +25,14 @@ public class Sprite
     /**
      * Construct a Sprite object.
      *
+     * @param spritemgr the sprite manager.
      * @param x the sprite x-position in pixels.
      * @param y the sprite y-position in pixels.
      * @param tiles the tiles used to display the sprite.
      */
-    public Sprite (int x, int y, Tile[] tiles)
+    public Sprite (SpriteManager spritemgr, int x, int y, Tile[] tiles)
     {
-        init(x, y, tiles);
+        init(spritemgr, x, y, tiles);
     }
 
     /**
@@ -39,29 +40,35 @@ public class Sprite
      * sprite should be populated with a set of tiles used to display
      * it via a subsequent call to <code>setTiles()</code>.
      *
+     * @param spritemgr the sprite manager.
      * @param x the sprite x-position in pixels.
      * @param y the sprite y-position in pixels.
      */
-    public Sprite (int x, int y)
+    public Sprite (SpriteManager spritemgr, int x, int y)
     {
-        init(x, y, null);
+        init(spritemgr, x, y, null);
     }
 
     /**
-     * Initialize the sprite object with the specified parameters.
+     * Initialize the sprite object with its variegated parameters.
      */
-    protected void init (int x, int y, Tile[] tiles)
+    protected void init (SpriteManager spritemgr, int x, int y, Tile[] tiles)
     {
+        _spritemgr = spritemgr;
+
         this.x = x;
         this.y = y;
 
         _curFrame = 0;
         _animDelay = -1;
         _numTicks = 0;
+
         setTiles(_tiles);
 
         _dest = new Point();
         _state = STATE_NONE;
+
+        invalidate();
     }        
 
     /**
@@ -72,6 +79,7 @@ public class Sprite
         int xpos = x - (_curTile.width / 2);
         int ypos = y - _curTile.height;
         gfx.drawImage(_curTile.img, xpos, ypos, null);
+//          Log.info("Sprite painting image [x=" + xpos + ", y=" + ypos + "].");
     }
 
     /**
@@ -87,9 +95,22 @@ public class Sprite
      */
     public boolean inside (int x, int y, int width, int height)
     {
-        // treat the sprite as having a width and height of 1 pixel for now
+        // note that we consider the current tile for sprite
+        // width/height, and since the tile may change we're at the
+        // mercy of the tile creators to make sure all tiles for a
+        // given sprite are the same width.
+
+        // we might want to check this when tiles are set for the
+        // sprite, or require that the sprite width/height be
+        // specified separately when the sprite is created.  or
+        // perhaps we'd like to be able to have sprites with variable
+        // width?  i can't think why.
+
         return (this.x >= x && this.x < (x + width) &&
                 this.y >= y && this.y < (y + height));
+
+//          return (this.x >= x && this.x + _curTile.width < (x + width) &&
+//                  this.y >= y && this.y + _curTile.height < (y + height));
     }
 
     /**
@@ -113,6 +134,7 @@ public class Sprite
         _tiles = tiles;
         if (_tiles != null) {
             _curTile = _tiles[_curFrame];
+            invalidate();
         }
     }
 
@@ -144,6 +166,25 @@ public class Sprite
     }
 
     /**
+     * Invalidate the sprite's display rectangle for later repainting.
+     */
+    public void invalidate ()
+    {
+        if (_curTile == null) return;
+
+        int xpos = x - (_curTile.width / 2);
+        int ypos = y - _curTile.height;
+
+        Rectangle dirty =
+            new Rectangle(xpos, ypos, _curTile.width, _curTile.height);
+
+//          Log.info("Sprite dirtying rect [x=" + dirty.x + ", y=" + dirty.y +
+//                   ", width=" + dirty.width + ", height=" + dirty.height + "].");
+
+        _spritemgr.addDirtyRect(dirty);
+    }
+
+    /**
      * This method is called periodically by the SpriteManager to give
      * the sprite a chance to update its state. 
      */
@@ -154,6 +195,7 @@ public class Sprite
             _numTicks = 0;
             if (++_curFrame > _tiles.length - 1) _curFrame = 0;
             _curTile = _tiles[_curFrame];
+            invalidate();
         }
 
         switch (_state) {
@@ -170,6 +212,9 @@ public class Sprite
                 x = _dest.x;
                 y = _dest.y;
 
+                // invalidate the sprite in its new location
+                invalidate();
+
                 // and note our stoppage
                 _animDelay = -1;
                 _state = STATE_NONE;
@@ -178,7 +223,7 @@ public class Sprite
         }
     }
 
-    // State constants. 
+    /** State constants. */
     protected static final int STATE_NONE = 0;
     protected static final int STATE_MOVING = 1;
 
@@ -208,4 +253,7 @@ public class Sprite
 
     /** The number of ticks since the last tile animation. */
     protected int _numTicks;
+
+    /** The sprite manager. */
+    protected SpriteManager _spritemgr;
 }

@@ -1,9 +1,10 @@
 //
-// $Id: SpriteManager.java,v 1.3 2001/07/31 01:38:28 shaper Exp $
+// $Id: SpriteManager.java,v 1.4 2001/08/02 00:42:02 shaper Exp $
 
 package com.threerings.miso.sprite;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import com.threerings.miso.Log;
@@ -19,6 +20,17 @@ public class SpriteManager
     public SpriteManager ()
     {
         _sprites = new ArrayList();
+        _dirty = new ArrayList();
+    }
+
+    /**
+     * Add a rectangle to the dirty rectangle list.
+     *
+     * @param rect the rectangle to add.
+     */
+    public void addDirtyRect (Rectangle rect)
+    {
+        _dirty.add(rect);
     }
 
     /**
@@ -29,6 +41,38 @@ public class SpriteManager
     public void addSprite (Sprite sprite)
     {
         _sprites.add(sprite);
+    }
+
+    /**
+     * Return the list of dirty rects in screen pixel coordinates that
+     * have been created by any sprites since the last time the dirty
+     * rects were requested.
+     *
+     * @return the list of dirty rects.
+     */
+    public ArrayList getDirtyRects ()
+    {
+        // create a copy of the dirty rectangles
+        ArrayList dirty = (ArrayList)_dirty.clone();
+
+        // clear out the list
+        _dirty.clear();
+
+        // return the full original list
+        return dirty;
+    }
+
+    /**
+     * Start a sprite moving along a particular path.  The sprite will
+     * continue to be moved along the path until the final destination
+     * is reached, or until the sprite is brought to a halt by some
+     * has-yet-to-be-determined means.
+     *
+     * @param sprite the sprite to move.
+     * @param path the path to move the sprite along.
+     */
+    public void moveSprite (Sprite sprite, Path path)
+    {
     }
 
     /**
@@ -58,9 +102,9 @@ public class SpriteManager
     }
 
     /**
-     * Call <code>Sprite.tick()</code> on all sprite objects to give
-     * them a chance to move themselves about, change their display
-     * image, and so forth.
+     * Call <code>tick()</code> on all sprite objects to give them a
+     * chance to move themselves about, change their display image,
+     * and so forth.
      */
     public void tick ()
     {
@@ -73,4 +117,7 @@ public class SpriteManager
 
     /** The sprite objects we're managing. */
     protected ArrayList _sprites;
+
+    /** The dirty rectangles created by sprites. */
+    protected ArrayList _dirty;
 }
