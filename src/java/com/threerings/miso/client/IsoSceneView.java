@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.84 2002/01/31 01:07:02 mdb Exp $
+// $Id: IsoSceneView.java,v 1.85 2002/01/31 02:10:00 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.media.animation.AnimationManager;
 import com.threerings.media.sprite.Path;
@@ -59,7 +60,7 @@ public class IsoSceneView implements SceneView
     /** Instructs the scene view to highlight whatever tile the mouse is
      * over, regardless of whether or not it is an object tile. This is
      * generally only useful in an editor rather than a game. */
-    public static final int HIGHLIGHT_ALL = 2;
+    public static final int HIGHLIGHT_ALL = 3;
 
     /**
      * Constructs an iso scene view.
@@ -186,9 +187,23 @@ public class IsoSceneView implements SceneView
 
         Polygon hpoly = null;
 
+        // if the highlighted object is an object tile, we want to
+        // highlight that
+        if (_hobject instanceof ObjectTile) {
+            // if we're only highlighting objects with actions, make sure
+            // this one has an action
+            if (_hmode != HIGHLIGHT_WITH_ACTION ||
+                !StringUtil.blank(_scene.getObjectAction(
+                                      _hcoords.x, _hcoords.y))) {
+                hpoly = IsoUtil.getObjectFootprint(
+                    _model, _polys[_hcoords.x][_hcoords.y],
+                    (ObjectTile)_hobject);
+            }
+        }
+
         // if we have no highlight object, but we're in HIGHLIGHT_ALL,
         // then paint the bounds of the highlighted base tile
-        if (_hobject == null && _hmode == HIGHLIGHT_ALL &&
+        if (hpoly == null && _hmode == HIGHLIGHT_ALL &&
             _hcoords.x != -1 && _hcoords.y != -1) {
             hpoly = _polys[_hcoords.x][_hcoords.y];
         }
@@ -688,6 +703,12 @@ public class IsoSceneView implements SceneView
         int x = e.getX(), y = e.getY();
         boolean repaint = false;
 
+        // update the base tile coordinates that the mouse is over (if
+        // it's also over an object tile, we'll override these values)
+        if (_hmode == HIGHLIGHT_ALL) {
+            repaint = (updateTileCoords(x, y, _hcoords) || repaint);
+        }
+
         // compute the list of objects over which the mouse is hovering
         _hitList.clear();
         _hitSpritesList.clear();
@@ -714,17 +735,19 @@ public class IsoSceneView implements SceneView
             hobject = items[items.length-1].obj;
         }
 
+        // if this is an object tile, we need to update the hcoords
+        if (hobject != null && hobject instanceof ObjectTile) {
+            DirtyItem item = items[items.length-1];
+            _hcoords.x = item.ox;
+            _hcoords.y = item.oy;
+        }
+
         // if this hover object is different than before, we'll need to be
         // repainted
         if (hobject != _hobject) {
             _hobject = hobject;
             System.out.println("New hover object: " + hobject);
             repaint = true;
-        }
-
-        // update the tile coordinates that the mouse is over
-        if (_hmode == HIGHLIGHT_ALL) {
-            repaint = (updateTileCoords(x, y, _hcoords) || repaint);
         }
 
         return repaint;
@@ -738,30 +761,31 @@ public class IsoSceneView implements SceneView
      */
     protected void getHitObjects (DirtyItemList list, int x, int y)
     {
-//         ObjectTileLayer tiles = _scene.getObjectLayer();
-//         Iterator iter = _objpolys.keys();
+        ObjectTileLayer tiles = _scene.getObjectLayer();
+        Iterator iter = _objpolys.keys();
 
-//         while (iter.hasNext()) {
-//             // get the object's coordinates and bounding polygon
-//             int coord = ((Integer)iter.next()).intValue();
-//             Polygon poly = (Polygon)_objpolys.get(coord);
+        while (iter.hasNext()) {
+            // get the object's coordinates and bounding polygon
+            int coord = ((Integer)iter.next()).intValue();
+            Polygon poly = (Polygon)_objpolys.get(coord);
 
-//             // skip polys that don't contain the point
-//             if (!poly.contains(x, y)) {
-//                 continue;
-//             }
+            // skip polys that don't contain the point
+            if (!poly.contains(x, y)) {
+                continue;
+            }
 
-//             // do further analysis on those that do
-//             int tx = coord >> 16, ty = coord & 0x0000FFFF;
-//             ObjectTile tile = tiles.getTile(tx, ty);
+            // now check that the pixel in the tile image is
+            // non-transparent at that point
+            int tx = coord >> 16, ty = coord & 0x0000FFFF;
+            ObjectTile tile = tiles.getTile(tx, ty);
+            Rectangle pbounds = poly.getBounds();
+            if (!tile.hitTest(x - pbounds.x, y - pbounds.y)) {
+                continue;
+            }
 
-//             // get the dirty portion of the object
-//             Rectangle drect = poly.getBounds();
-//             _dirtyItems.appendDirtyObject(
-//                 , poly, tx, ty, drect);
-//             // Log.info("Dirtied item: Object(" + tx + ", " +
-//             // ty + ")");
-//         }
+            // we've passed the test, add the object to the list
+            list.appendDirtyObject(tile, poly, tx, ty, pbounds);
+        }
     }
 
     // documentation inherited
@@ -851,9 +875,10 @@ public class IsoSceneView implements SceneView
     protected DirtyItemList _hitList = new DirtyItemList();
 
     /** The highlight mode. */
-    protected int _hmode = HIGHLIGHT_NEVER;
+    protected int _hmode = HIGHLIGHT_ALWAYS;
 
-    /** The coordinates of the currently highlighted tile. */
+    /** The coordinates of the currently highlighted base or object
+     * tile. */
     protected Point _hcoords = new Point(-1, -1);
 
     /** The object that the mouse is currently hovering over. */
