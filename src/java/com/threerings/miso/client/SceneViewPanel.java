@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.23 2002/01/11 16:17:34 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.24 2002/01/19 07:04:46 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -32,8 +32,8 @@ public class SceneViewPanel extends AnimatedPanel
         // save off references
         _spritemgr = spritemgr;
 
-        // create an animation manager for this panel
-        _animmgr = new AnimationManager(_spritemgr, this);
+        // configure our animation manager with the sprite manager
+        _animmgr.setSpriteManager(_spritemgr);
 
         // create the data model for the scene view
         _viewmodel = new IsoSceneViewModel(config);
@@ -124,7 +124,4 @@ public class SceneViewPanel extends AnimatedPanel
 
     /** A reference to the active sprite manager. */
     protected SpriteManager _spritemgr;
-
-    /** A reference to the active animation manager. */
-    protected AnimationManager _animmgr;
 }
