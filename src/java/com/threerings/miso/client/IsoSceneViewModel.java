@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.20 2002/02/17 08:09:11 mdb Exp $
+// $Id: IsoSceneViewModel.java,v 1.21 2002/02/18 00:37:55 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -94,15 +94,6 @@ public class IsoSceneViewModel
 	// set the fine coordinate granularity
 	finegran = config.getValue(FINE_GRAN_KEY, DEF_FINE_GRAN);
 
-	// set the desired scene view bounds
-	int svwid = config.getValue(SCENE_VWIDTH_KEY, DEF_SCENE_VWIDTH);
-	int svhei = config.getValue(SCENE_VHEIGHT_KEY, DEF_SCENE_VHEIGHT);
-	bounds = new Rectangle(0, 0, svwid * tilewid, svhei * tilehei);
-
-	// set the scene display origin
-	int offy = config.getValue(SCENE_OFFSET_Y_KEY, DEF_OFFSET_Y);
-        origin = new Point((bounds.width / 2), (offy * tilehei));
-
 	// set our various flags
         showCoords = config.getValue(SHOW_COORDS_KEY, DEF_SHOW_COORDS);
 	showPaths = config.getValue(SHOW_PATHS_KEY, DEF_SHOW_PATHS);
@@ -110,7 +101,41 @@ public class IsoSceneViewModel
                                          DEF_SHOW_FOOTPRINTS);
 
         // precalculate various things
-        precalculate();
+	int svwid = config.getValue(SCENE_VWIDTH_KEY, DEF_SCENE_VWIDTH);
+	int svhei = config.getValue(SCENE_VHEIGHT_KEY, DEF_SCENE_VHEIGHT);
+	int offy = config.getValue(SCENE_OFFSET_Y_KEY, DEF_OFFSET_Y);
+        precalculate(svwid, svhei, offy);
+    }
+
+    /**
+     * Constructs an iso scene view model by directly specifying the
+     * desired scene configuration parameters.
+     *
+     * @param scenewid the total scene width in tiles.
+     * @param scenehei the total scene height in tiles.
+     * @param tilewid the width in pixels of the tiles.
+     * @param tilehei the height in pixels of the tiles.
+     * @param finegran the number of sub-tile divisions to use for fine
+     * coordinates.
+     * @param svwid the width in tiles of the viewport.
+     * @param svhei the height in tiles of the viewport.
+     * @param offy the offset of the top of the viewport in tile count.
+     */
+    public IsoSceneViewModel (int scenewid, int scenehei,
+                              int tilewid, int tilehei, int finegran,
+                              int svwid, int svhei, int offy)
+    {
+        // keep track of this stuff
+        this.scenewid = scenewid;
+        this.scenehei = scenehei;
+        this.tilewid = tilewid;
+        this.tilehei = tilehei;
+        this.finegran = finegran;
+
+        // let our flags default to false
+
+        // precalculate various things
+        precalculate(svwid, svhei, offy);
     }
 
     /**
@@ -174,8 +199,14 @@ public class IsoSceneViewModel
      * Pre-calculate various member data that are commonly used in working
      * with an isometric view.
      */
-    protected void precalculate ()
+    protected void precalculate (int svwid, int svhei, int offy)
     {
+	// set the desired scene view bounds
+	bounds = new Rectangle(0, 0, svwid * tilewid, svhei * tilehei);
+
+	// set the scene display origin
+        origin = new Point((bounds.width / 2), (offy * tilehei));
+
 	// pre-calculate tile-related data
 	precalculateTiles();
 
