@@ -1,5 +1,5 @@
 //
-// $Id: AnimationSequencer.java,v 1.5 2002/11/05 21:23:55 mdb Exp $
+// $Id: AnimationSequencer.java,v 1.6 2002/11/05 21:27:49 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -77,14 +77,6 @@ public abstract class AnimationSequencer extends Animation
         _lastStamp = 0;
     }
 
-    /**
-     * Returns the number of animations being managed by this sequencer.
-     */
-    public int getAnimationCount ()
-    {
-        return _queued.size();
-    }
-
     // documentation inherited
     public void tick (long tickStamp)
     {
@@ -116,19 +108,6 @@ public abstract class AnimationSequencer extends Animation
         _finished = ((_queued.size() + _running.size()) == 0);
     }
 
-    /**
-     * Called when the time comes to add an animation.  Derived classes
-     * must implement this method and do whatever they deem necessary in
-     * order to add the given animation to the animation manager and any
-     * other interested parties.
-     *
-     * @param anim the animation to be added.
-     * @param tickStamp the tick stamp provided by the animation manager
-     * when the sequencer animation decided the time had come to add the
-     * animation.
-     */
-    public abstract void addAnimation (Animation anim, long tickStamp);
-
     // documentation inherited
     public void paint (Graphics2D gfx)
     {
@@ -140,6 +119,17 @@ public abstract class AnimationSequencer extends Animation
     {
         _lastStamp += timeDelta;
     }
+
+    /**
+     * Called when the time comes to start an animation.  Derived classes
+     * must implement this method and pass the animation on to their
+     * animation manager and do whatever else they need to do with
+     * operating animations.
+     *
+     * @param anim the animation to be displayed.
+     * @param tickStamp the timestamp at which this animation was fired.
+     */
+    protected abstract void startAnimation (Animation anim, long tickStamp);
 
     protected class AnimRecord
         implements AnimationObserver
