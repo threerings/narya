@@ -1,5 +1,5 @@
 //
-// $Id: PuzzlePanel.java,v 1.5 2004/08/27 02:20:27 mdb Exp $
+// $Id: PuzzlePanel.java,v 1.6 2004/10/28 18:37:49 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.ControllerProvider;
 import com.samskivert.swing.util.SwingUtil;
+import com.samskivert.util.RuntimeAdjust;
 
 import com.threerings.util.KeyTranslator;
 import com.threerings.util.RobotPlayer;
@@ -180,7 +181,8 @@ public abstract class PuzzlePanel extends JPanel
     public void startAction ()
     {
         // make the first player a robot player
-        if (ROBOT_TEST && _controller.getPlayerIndex() == 0) {
+
+        if (_robotTest.getValue() && _controller.getPlayerIndex() == 0) {
             setRobotPlayer(true);
         }
     }
@@ -191,7 +193,7 @@ public abstract class PuzzlePanel extends JPanel
     public void clearAction ()
     {
         // deactivate the robot player
-        if (ROBOT_TEST && _controller.getPlayerIndex() == 0) {
+        if (_robotTest.getValue() && _controller.getPlayerIndex() == 0) {
             setRobotPlayer(false);
         }
     }
@@ -268,4 +270,11 @@ public abstract class PuzzlePanel extends JPanel
 
     /** The puzzle game controller. */
     protected PuzzleController _controller;
+
+    /** A debug hook that toggles activation of the robot test player. */
+    protected static RuntimeAdjust.BooleanAdjust _robotTest =
+        new RuntimeAdjust.BooleanAdjust(
+            "Activates the robot test player which will make random moves " +
+            "in any activated puzzle.", "narya.puzzle.robot_tester",
+            PuzzlePrefs.config, false);
 }

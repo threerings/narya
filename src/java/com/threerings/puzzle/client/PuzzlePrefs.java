@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleGameCodes.java,v 1.3 2004/10/28 18:37:49 mdb Exp $
+// $Id: PuzzlePrefs.java,v 1.1 2004/10/28 18:37:49 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -19,14 +19,17 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.puzzle.data;
+package com.threerings.puzzle.client;
+
+import com.samskivert.util.Config;
 
 /**
- * Contains codes used by the puzzle game client implementations. This
- * differs from {@link PuzzleCodes} as that is related to the puzzle
- * services which span the client and the server.
+ * Provides access to runtime configuration parameters for this package
+ * and its subpackages.
  */
-public interface PuzzleGameCodes
+public class PuzzlePrefs
 {
-    // Nothing at the moment.
+    /** Used to load our preferences from a properties file and map them
+     * to the persistent Java preferences repository. */
+    public static Config config = new Config("rsrc/config/puzzle");
 }
