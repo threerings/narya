@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.17 2002/12/12 22:24:51 mdb Exp $
+// $Id: MessageBundle.java,v 1.18 2002/12/12 22:27:25 shaper Exp $
 
 package com.threerings.util;
 
@@ -150,7 +150,7 @@ public class MessageBundle
      */
     public String get (String key, Object[] args)
     {
-        // if this is a qualfied key, we need to pass the buck to the
+        // if this is a qualified key, we need to pass the buck to the
         // appropriate message bundle
         if (key.startsWith(QUAL_PREFIX)) {
             MessageBundle qbundle = _msgmgr.getBundle(getBundle(key));
@@ -176,7 +176,7 @@ public class MessageBundle
      */
     public String xlate (String compoundKey)
     {
-        // if this is a qualfied key, we need to pass the buck to the
+        // if this is a qualified key, we need to pass the buck to the
         // appropriate message bundle; we have to do it here because we
         // want the compound arguments of this key to be translated in the
         // context of the containing message bundle qualification
