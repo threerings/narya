@@ -1,5 +1,5 @@
 //
-// $Id: FramingOutputStream.java,v 1.1 2002/07/23 05:42:34 mdb Exp $
+// $Id: FramingOutputStream.java,v 1.2 2002/11/05 02:16:46 mdb Exp $
 
 package com.threerings.io;
 
@@ -88,10 +88,12 @@ public class FramingOutputStream extends OutputStream
     /**
      * Writes the contents of this framing output stream to the target
      * output stream, prefixed by an integer with value equal to the
-     * number of bytes written folling that integer. It then resets the
+     * number of bytes written following that integer. It then resets the
      * framing output stream to prepare for another framed message.
+     *
+     * @return the total number of bytes written.
      */
-    public void writeFrameAndReset (OutputStream target)
+    public int writeFrameAndReset (OutputStream target)
         throws IOException
     {
         // prefix the frame with the byte count in network byte order (the
@@ -109,6 +111,8 @@ public class FramingOutputStream extends OutputStream
 
         // reset our internal buffer
         reset();
+
+        return count + 4;
     }
 
     public void reset ()
