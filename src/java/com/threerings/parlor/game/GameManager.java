@@ -1,9 +1,10 @@
 //
-// $Id: GameManager.java,v 1.36 2002/06/19 23:18:58 mdb Exp $
+// $Id: GameManager.java,v 1.37 2002/06/19 23:41:25 shaper Exp $
 
 package com.threerings.parlor.game;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import com.threerings.presents.dobj.AttributeChangeListener;
@@ -80,19 +81,25 @@ public class GameManager extends PlaceManager
      * @param pidx the player index of the AI.
      * @param skill the skill level, from 0 to 100 inclusive.
      */
-    public void setAI (int pidx, byte skill)
+    public void setAI (final int pidx, final byte skill)
     {
         if (_AIs == null) {
+            // create and initialize the AI skill level array
             _AIs = new byte[_players.length];
-            for (int ii=0; ii < _players.length; ii++) {
-                _AIs[ii] = -1;
-            }
-
+            Arrays.fill(_AIs, (byte)-1);
             // set up a delegate op for AI ticking
             _tickAIOp = new TickAIDelegateOp();
         }
 
+        // save off the AI's skill level
         _AIs[pidx] = skill;
+
+        // let the delegates know that the player's been made an AI
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                ((GameManagerDelegate)delegate).setAI(pidx, skill);
+            }
+        });
     }
 
     /**
@@ -117,15 +124,6 @@ public class GameManager extends PlaceManager
     public int getPlayerCount ()
     {
         return _players.length;
-    }
-
-    /**
-     * Returns an array of the AI skill levels if AIs are present in this
-     * game.
-     */
-    public byte[] getAIs ()
-    {
-        return _AIs;
     }
 
     /**

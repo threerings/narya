@@ -1,5 +1,5 @@
 //
-// $Id: GameManagerDelegate.java,v 1.4 2002/04/19 21:40:38 ray Exp $
+// $Id: GameManagerDelegate.java,v 1.5 2002/06/19 23:41:25 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -67,6 +67,14 @@ public class GameManagerDelegate extends PlaceManagerDelegate
      * the game is reset.
      */
     public void gameDidReset ()
+    {
+    }
+
+    /**
+     * Called when the specified player has been set as an AI with the
+     * given skill level (ranging from 0 to 100 inclusive.)
+     */
+    public void setAI (int pidx, byte skill)
     {
     }
 }
