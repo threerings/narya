@@ -1,5 +1,5 @@
 //
-// $Id: DEvent.java,v 1.13 2003/04/30 22:32:04 mdb Exp $
+// $Id: DEvent.java,v 1.14 2003/07/22 22:54:14 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -35,6 +35,17 @@ public abstract class DEvent implements Streamable
     public int getTargetOid ()
     {
         return _toid;
+    }
+
+    /**
+     * Some events are used only internally on the server and need not be
+     * broadcast to subscribers, proxy or otherwise. Such events can
+     * return true here and short-circuit the normal proxy event dispatch
+     * mechanism.
+     */
+    public boolean isPrivate ()
+    {
+        return false;
     }
 
     /**

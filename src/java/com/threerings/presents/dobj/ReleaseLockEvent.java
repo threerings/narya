@@ -1,5 +1,5 @@
 //
-// $Id: ReleaseLockEvent.java,v 1.7 2002/12/20 23:29:04 mdb Exp $
+// $Id: ReleaseLockEvent.java,v 1.8 2003/07/22 22:54:14 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -34,6 +34,13 @@ public class ReleaseLockEvent extends NamedEvent
      */
     public ReleaseLockEvent ()
     {
+    }
+
+    // documentation inherited
+    public boolean isPrivate ()
+    {
+        // we need only run on the server; no need to propagate to proxies
+        return true;
     }
 
     /**

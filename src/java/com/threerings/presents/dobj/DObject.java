@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.65 2003/07/20 17:02:26 mdb Exp $
+// $Id: DObject.java,v 1.66 2003/07/22 22:54:14 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -402,7 +402,7 @@ public class DObject implements Streamable
      */
     public void notifyProxies (DEvent event)
     {
-        if (_subs == null) {
+        if (_subs == null || event.isPrivate()) {
             return;
         }
 
