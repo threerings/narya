@@ -1,11 +1,12 @@
 //
-// $Id: TraceViz.java,v 1.2 2003/01/13 22:57:45 mdb Exp $
+// $Id: TraceViz.java,v 1.3 2003/01/15 02:17:52 shaper Exp $
 
 package com.threerings.media.util;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
 import java.io.File;
@@ -22,6 +23,7 @@ import com.samskivert.swing.VGroupLayout;
 import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.media.Log;
+import com.threerings.media.image.ImageManager;
 import com.threerings.media.image.ImageUtil;
 
 /**
@@ -32,23 +34,36 @@ public class TraceViz
     public TraceViz (String[] args)
         throws IOException
     {
+        // create the frame and image manager
         _frame = new JFrame();
         _frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        ImageManager imgr = new ImageManager(null, _frame);
 
+        // set up the content panel
         JPanel content = (JPanel)_frame.getContentPane();
         content.setBackground(Color.white);
         content.setLayout(new VGroupLayout());
 
-        // create a compatible image
+        // load the image
         BufferedImage image = ImageIO.read(new File(args[0]));
-        BufferedImage cimage = ImageUtil.createImage(
-            image.getWidth(null), image.getHeight(null));
+        if (image == null) {
+            throw new RuntimeException("Failed to read file " +
+                                       "[file=" + args[0] + "].");
+        }
+
+        // create a compatible image
+        BufferedImage cimage = imgr.createImage(
+            image.getWidth(null), image.getHeight(null),
+            Transparency.TRANSLUCENT);
         Graphics g = cimage.getGraphics();
         g.drawImage(image, 0, 0, null);
         g.dispose();
 
+        // create the traced image
         Image timage = ImageUtil.createTracedImage(
-            cimage, Color.red, 5, 0.4f, 0.1f);
+            imgr, cimage, Color.red, 5, 0.4f, 0.1f);
+
+        // display the original and traced image
         content.add(new JLabel(new ImageIcon(cimage)));
         content.add(new JLabel(new ImageIcon(timage)));
     }
@@ -63,6 +78,13 @@ public class TraceViz
     public static void main (String[] args)
     {
         try {
+            if (args.length == 0) {
+                System.out.println(
+                    "Usage: java com.threerings.media.util.TraceViz " +
+                    "<image file>");
+                return;
+            }
+
             TraceViz app = new TraceViz(args);
             app.run();
 
