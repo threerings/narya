@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.10 2003/02/06 19:13:49 mdb Exp $
+// $Id: ResourceBundle.java,v 1.11 2003/04/27 03:27:21 mdb Exp $
 
 package com.threerings.resource;
 
@@ -200,6 +200,14 @@ public class ResourceBundle
                 "Failed to resolve resource bundle jar file " +
                 "[file=" + _source + "]", ioe);
         }
+    }
+
+    /**
+     * Returns the cache directory used for unpacked resources.
+     */
+    public static File getCacheDir ()
+    {
+        return _tmpdir;
     }
 
     /** The file from which we construct our jar file. */
