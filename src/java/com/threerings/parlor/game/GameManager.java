@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.62 2003/04/11 21:29:21 mdb Exp $
+// $Id: GameManager.java,v 1.63 2003/05/26 21:27:18 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -793,7 +793,7 @@ public class GameManager extends PlaceManager
      * Returns true if all (non-AI) players have delivered their {@link
      * #playerReady} notifications, false if they have not.
      */
-    protected boolean allPlayersReady ()
+    public boolean allPlayersReady ()
     {
         for (int ii = 0; ii < getPlayerSlots(); ii++) {
             if (!playerIsReady(ii)) {
@@ -809,7 +809,7 @@ public class GameManager extends PlaceManager
      * meant to be a player in the specified slot and they have not yet
      * reported that they are ready.
      */
-    protected boolean playerIsReady (int pidx)
+    public boolean playerIsReady (int pidx)
     {
         return (!_gameobj.isOccupiedPlayer(pidx) ||  // unoccupied slot
                 _playerOids[pidx] != 0 ||            // player is ready
