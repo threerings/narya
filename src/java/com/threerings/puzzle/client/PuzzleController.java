@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.19 2004/10/29 16:32:10 mdb Exp $
+// $Id: PuzzleController.java,v 1.20 2004/11/12 20:03:35 ray Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -734,6 +734,15 @@ public abstract class PuzzleController extends GameController
     }
 
     /**
+     * Are we syncing boards for this puzzle?
+     * By default, we defer to the PuzzlePanel and its runtime config.
+     */
+    protected boolean isSyncingBoards ()
+    {
+        return PuzzlePanel.isSyncingBoards();
+    }
+
+    /**
      * Adds the given progress event and a snapshot of the supplied board
      * state to the set of progress events and associated board states for
      * later transmission to the server.
@@ -749,7 +758,7 @@ public abstract class PuzzleController extends GameController
         }
 
         _events.add(new Integer(event));
-        if (PuzzlePanel.isSyncingBoards()) {
+        if (isSyncingBoards()) {
             _states.add((board == null) ? null : board.clone());
             if (board == null) {
                 Log.warning("Added progress event with no associated board " +
@@ -780,12 +789,11 @@ public abstract class PuzzleController extends GameController
 
         // create an array of the board states that correspond with those
         // events (if state syncing is enabled)
-        if (PuzzlePanel.isSyncingBoards()) {
-            int scount = _states.size();
-            Board[] states = new Board[scount];
-            for (int ii = 0; ii < scount; ii++) {
-                states[ii] = (Board)_states.remove(0);
-            }
+        int numStates = _states.size();
+        if (numStates == size) { // ie, if we have a board to match every event
+            Board[] states = new Board[numStates];
+            _states.toArray(states);
+            _states.clear();
 
             // send the update progress request
             _puzobj.puzzleGameService.updateProgressSync(
