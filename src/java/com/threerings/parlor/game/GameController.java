@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.4 2001/10/09 17:20:39 mdb Exp $
+// $Id: GameController.java,v 1.5 2001/10/11 03:12:38 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -29,7 +29,7 @@ import com.threerings.parlor.util.ParlorContext;
  * distributed object events.
  */
 public abstract class GameController
-    extends PlaceController implements Subscriber
+    extends PlaceController implements Subscriber, GameCodes
 {
     /**
      * Initializes this game controller with the game configuration that
@@ -63,6 +63,11 @@ public abstract class GameController
 
         // and add ourselves as a subscriber
         _gobj.addSubscriber(this);
+
+        // finally let the game manager know that we're ready to roll
+        MessageEvent mevt = new MessageEvent(
+            _gobj.getOid(), PLAYER_READY_NOTIFICATION, null);
+        _ctx.getDObjectManager().postEvent(mevt);
     }
 
     // documentation inherited
