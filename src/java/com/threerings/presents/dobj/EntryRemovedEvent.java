@@ -1,5 +1,5 @@
 //
-// $Id: EntryRemovedEvent.java,v 1.3 2001/08/16 03:45:43 mdb Exp $
+// $Id: EntryRemovedEvent.java,v 1.4 2001/08/21 19:33:38 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -90,7 +90,7 @@ public class ElementRemovedEvent extends TypedEvent
         ValueMarshaller.writeTo(out, _key);
     }
 
-    public void readExternal (DataInputStream in)
+    public void readFrom (DataInputStream in)
         throws IOException
     {
         super.readFrom(in);
