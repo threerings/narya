@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.97 2002/02/17 23:45:36 mdb Exp $
+// $Id: IsoSceneView.java,v 1.98 2002/02/19 01:26:17 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -179,14 +179,18 @@ public class IsoSceneView implements SceneView
     }
 
     // documentation inherited
-    public void paint (Graphics g)
+    public void paint (Graphics2D gfx, List invalidRects)
     {
 	if (_scene == null) {
             Log.warning("Scene view painted with null scene.");
             return;
         }
 
-	Graphics2D gfx = (Graphics2D)g;
+        // invalidate the invalid rectangles
+        int rsize = invalidRects.size();
+        for (int ii = 0; ii < rsize; ii++) {
+            invalidateRect((Rectangle)invalidRects.get(ii));
+        }
 
         // translate according to our scroll parameters
         gfx.translate(-_xoff, -_yoff);
@@ -517,18 +521,12 @@ public class IsoSceneView implements SceneView
         return poly;
     }
 
-    // documentation inherited
-    public void invalidateRects (List rects)
-    {
-        int size = rects.size();
-        for (int ii = 0; ii < size; ii++) {
-            Rectangle r = (Rectangle)rects.get(ii);
-            invalidateRect(r);
-        }
-    }
-
-    // documentation inherited
-    public void invalidateRect (Rectangle rect)
+    /**
+     * Invalidates the specified rectangle in preparation for
+     * rendering. Items that overlap the rectangle as well as tiles that
+     * overlap the rectangle will be marked as needing to be rerendered.
+     */
+    protected void invalidateRect (Rectangle rect)
     {
         // dirty the tiles impacted by this rectangle
         Rectangle tileBounds = invalidateScreenRect(rect);
@@ -825,7 +823,15 @@ public class IsoSceneView implements SceneView
         // repainted
         if (hobject != _hobject) {
             _hobject = hobject;
-            repaint = true;
+
+            // we need to repaint if we're highlighting objects, but if
+            // we're only highlighting objects with actions, we only need
+            // to repaint if the object has an action
+            if (_hmode != HIGHLIGHT_NEVER) {
+                repaint = (_hmode == HIGHLIGHT_WITH_ACTION) ?
+                    (_scene.getObjectAction(_hcoords.x, _hcoords.y) != null) :
+                    true;
+            }
         }
 
         return repaint;
