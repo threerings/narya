@@ -1,5 +1,5 @@
 //
-// $Id: JNLPDownloader.java,v 1.6 2003/08/09 05:27:07 mdb Exp $
+// $Id: JNLPDownloader.java,v 1.7 2003/08/20 03:52:36 mdb Exp $
 
 package com.threerings.resource;
 
@@ -41,12 +41,14 @@ public class JNLPDownloader extends Downloader
 
         // determine which version we already have, if any
         _vfile = new File(FileUtil.resuffix(_desc.destFile, ".jar", ".vers"));
-        try {
-            BufferedReader vin = new BufferedReader(new FileReader(_vfile));
-            _cvers = vin.readLine();
-        } catch (IOException ioe) {
-            Log.warning("Error reading version file [path=" + _vfile +
-                        ", error=" + ioe + "].");
+        if (_vfile.exists()) {
+            try {
+                BufferedReader vin = new BufferedReader(new FileReader(_vfile));
+                _cvers = vin.readLine();
+            } catch (IOException ioe) {
+                Log.warning("Error reading version file [path=" + _vfile +
+                            ", error=" + ioe + "].");
+            }
         }
     }
 
