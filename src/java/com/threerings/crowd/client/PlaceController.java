@@ -1,5 +1,5 @@
 //
-// $Id: PlaceController.java,v 1.11 2003/01/09 00:26:56 mdb Exp $
+// $Id: PlaceController.java,v 1.12 2003/01/09 02:46:58 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -107,12 +107,14 @@ public abstract class PlaceController extends Controller
 
     /**
      * Called before a request is submitted to the server to leave the
-     * current place. The request to leave may be rejected, but if a place
-     * controller needs to make a final communication to the place manager
-     * before it leaves, it should so do here. This is the only place in
-     * which the controller is guaranteed to be able to communicate to the
-     * place manager, as by the time {@link #didLeavePlace} is called, the
-     * place manager may have already been destroyed.
+     * current place. As such, this method may be called multiple times
+     * before {@link #didLeavePlace} is finally called. The request to
+     * leave may be rejected, but if a place controller needs to flush any
+     * information to the place manager before it leaves, it should so do
+     * here. This is the only place in which the controller is guaranteed
+     * to be able to communicate to the place manager, as by the time
+     * {@link #didLeavePlace} is called, the place manager may have
+     * already been destroyed.
      */
     public void mayLeavePlace (final PlaceObject plobj)
     {

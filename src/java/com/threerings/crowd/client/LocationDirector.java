@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.28 2003/01/09 00:26:56 mdb Exp $
+// $Id: LocationDirector.java,v 1.29 2003/01/09 02:46:58 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -185,15 +185,7 @@ public class LocationDirector extends BasicDirector
 
         // if we're actually going somewhere, let the controller know that
         // we might be leaving
-        if (_controller != null) {
-            try {
-                _controller.mayLeavePlace(_plobj);
-            } catch (Exception e) {
-                Log.warning("Place controller choked in " +
-                            "didLeavePlace [plobj=" + _plobj + "].");
-                Log.logStackTrace(e);
-            }
-        }
+        mayLeavePlace();
 
         // if we have a result listener, let it know if we failed
         // or keep it for later if we're still going
@@ -206,6 +198,23 @@ public class LocationDirector extends BasicDirector
         }
         // and return the result
         return !vetoed[0];
+    }
+
+    /**
+     * Called to inform our controller that we may be leaving the current
+     * place.
+     */
+    protected void mayLeavePlace ()
+    {
+        if (_controller != null) {
+            try {
+                _controller.mayLeavePlace(_plobj);
+            } catch (Exception e) {
+                Log.warning("Place controller choked in " +
+                            "mayLeavePlace [plobj=" + _plobj + "].");
+                Log.logStackTrace(e);
+            }
+        }
     }
 
     /**
@@ -353,6 +362,7 @@ public class LocationDirector extends BasicDirector
         super.clientDidLogoff(client);
 
         // clear ourselves out and inform observers of our departure
+        mayLeavePlace();
         didLeavePlace();
 
         // let our observers know that we're no longer in a location
@@ -410,6 +420,7 @@ public class LocationDirector extends BasicDirector
         Log.info("Moving at request of server [placeId=" + placeId + "].");
 
         // clear out our old place information
+        mayLeavePlace();
         didLeavePlace();
 
         // move to the new place
