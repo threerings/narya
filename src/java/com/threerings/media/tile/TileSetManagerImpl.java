@@ -1,5 +1,5 @@
 //
-// $Id: TileSetManagerImpl.java,v 1.4 2001/07/18 22:45:35 shaper Exp $
+// $Id: TileSetManagerImpl.java,v 1.5 2001/07/20 02:23:34 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -18,6 +18,12 @@ public abstract class TileSetManagerImpl implements TileSetManager
 	_imgr = imgr;
     }
 
+    public int getNumTilesInSet (int tsid)
+    {
+	TileSet tset = getTileSet(tsid);
+	return (tset != null) ? tset.getNumTiles() : -1;
+    }
+
     public TileSet getTileSet (int tsid)
     {
 	return (TileSet)_tilesets.get(tsid);
@@ -29,7 +35,7 @@ public abstract class TileSetManagerImpl implements TileSetManager
 	return (tset != null) ? tset.getTileImage(_imgr, tid) : null;
     }
 
-    public ArrayList getTileSets ()
+    public ArrayList getAllTileSets ()
     {
 	int size = _tilesets.size();
 	if (size == 0) return null;

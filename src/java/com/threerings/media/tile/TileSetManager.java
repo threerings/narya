@@ -1,5 +1,5 @@
 //
-// $Id: TileSetManager.java,v 1.5 2001/07/18 22:45:35 shaper Exp $
+// $Id: TileSetManager.java,v 1.6 2001/07/20 02:23:34 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -11,6 +11,16 @@ import java.util.ArrayList;
 public interface TileSetManager
 {
     /**
+     * Return the total number of tiles in the specified tileset.
+     */
+    public int getNumTilesInSet (int tsid);
+
+    /**
+     * Return a list of all tilesets available for use.
+     */
+    public ArrayList getAllTileSets ();
+
+    /**
      * Return the tileset object corresponding to the specified tileset id.
      */
     public TileSet getTileSet (int tsid);
@@ -19,11 +29,6 @@ public interface TileSetManager
      * Return the image corresponding to the specified tileset and tile id.
      */
     public Image getTileImage (int tsid, int tid);
-
-    /**
-     * Return a list of all tilesets available for use.
-     */
-    public ArrayList getTileSets ();
 
     /**
      * Return the total number of tilesets.

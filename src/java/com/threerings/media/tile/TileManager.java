@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.7 2001/07/18 22:45:35 shaper Exp $
+// $Id: TileManager.java,v 1.8 2001/07/20 02:23:34 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -25,24 +25,6 @@ public class TileManager
     public TileManager (TileSetManager tsmgr)
     {
 	_tsmgr = tsmgr;
-    }
-
-    /**
-     * Return the total number of tiles in the specified tileset.
-     */
-    public int getNumTilesInSet (int tsid)
-    {
-	TileSet tset = _tsmgr.getTileSet(tsid);
-	if (tset == null) return -1;
-	return tset.getNumTiles();
-    }
-
-    /**
-     * Return a list of all tilesets available for use.
-     */
-    public ArrayList getTileSets ()
-    {
-	return _tsmgr.getTileSets();
     }
 
     /**
