@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.67 2003/12/22 22:25:34 mdb Exp $
+// $Id: SoundManager.java,v 1.68 2004/02/04 19:04:46 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -382,7 +382,7 @@ public class SoundManager
         synchronized (_queue) {
             if (_queue.size() < MAX_QUEUE_SIZE) {
 //                 if (_verbose.getValue()) {
-                    Log.info("Sound request [key=" + skey + "].");
+                    Log.info("Sound request [key=" + skey.key + "].");
 //                 }
                 _queue.append(PLAY);
                 _queue.append(skey);
@@ -437,6 +437,9 @@ public class SoundManager
     protected void playSound (SoundKey key)
     {
         if (key.isExpired()) {
+//            if (_verbose.getValue()) {
+                Log.info("Sound expired [key=" + key.key + "].");
+//            }
             return;
         }
 
@@ -451,6 +454,7 @@ public class SoundManager
                 new ByteArrayInputStream(data));
 
             LineSpooler.play(stream, _clipVol, key);
+            _soundSeemsToWork = true;
 
         } catch (IOException ioe) {
             Log.warning("Error loading sound file [key=" + key +
@@ -461,11 +465,16 @@ public class SoundManager
                         ", e=" + uafe + "].");
 
         } catch (LineUnavailableException lue) {
-            // this error comes every goddamned time we play a sound on
-            // someone with a misconfigured sound card, so let's just keep
-            // it to ourselves
-            Log.debug("Line not available to play sound [key=" + key +
-                      ", e=" + lue + "].");
+            String err = "Line not available to play sound [key=" + key.key +
+                      ", e=" + lue + "].";
+            if (_soundSeemsToWork) {
+                Log.warning(err);
+            } else {
+                // this error comes every goddamned time we play a sound on
+                // someone with a misconfigured sound card, so let's just keep
+                // it to ourselves
+                Log.debug(err);
+            }
         }
     }
 
@@ -1216,6 +1225,9 @@ public class SoundManager
 
     /** The queue of sound clips to be played. */
     protected Queue _queue = new Queue();
+
+    /** If we every play a sound successfully, this is set to true. */
+    protected boolean _soundSeemsToWork = false;
 
     /** An interval that plays sounds later. */
     protected Interval _playLater = new Interval() {
