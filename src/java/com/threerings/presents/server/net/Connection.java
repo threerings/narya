@@ -1,5 +1,5 @@
 //
-// $Id: Connection.java,v 1.16 2003/08/20 19:32:27 mdb Exp $
+// $Id: Connection.java,v 1.17 2004/02/21 00:51:02 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -239,6 +239,7 @@ public abstract class Connection implements NetEventHandler
                 bytesIn = _fin.available() + 4;
                 // parse the message and pass it on
                 UpstreamMessage msg = (UpstreamMessage)_oin.readObject();
+                msg.received = when;
 //                 Log.info("Read message " + msg + ".");
                 _handler.handleMessage(msg);
             }

@@ -1,5 +1,5 @@
 //
-// $Id: UpstreamMessage.java,v 1.11 2002/12/20 23:41:26 mdb Exp $
+// $Id: UpstreamMessage.java,v 1.12 2004/02/21 00:51:02 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -19,6 +19,9 @@ public abstract class UpstreamMessage extends SimpleStreamableObject
      * appropriate upstream request message.
      */
     public short messageId;
+
+    /** A timestamp indicating when this upstream message was received. */
+    public transient long received;
 
     /**
      * Each upstream message derived class must provide a zero argument
