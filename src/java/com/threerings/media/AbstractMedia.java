@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMedia.java,v 1.12 2004/08/27 02:12:37 mdb Exp $
+// $Id: AbstractMedia.java,v 1.13 2004/11/11 23:52:43 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -39,6 +39,11 @@ import com.samskivert.util.StringUtil;
 public abstract class AbstractMedia
     implements Shape
 {
+    /** A {@link #_renderOrder} value at or above which, indicates that this
+     * media is in the HUD (heads up display) and should not scroll when the
+     * view scrolls. */
+    public static final int HUD_LAYER = 65536;
+
     /**
      * Instantiate an abstract media object.
      */
@@ -173,6 +178,8 @@ public abstract class AbstractMedia
      * appropriate manager and must not change while the manager is
      * managing it. If you wish to change the render order, remove the
      * media from the manager, change the order and add it back again.
+     *
+     * @see #HUD_LAYER
      */
     public void setRenderOrder (int renderOrder)
     {
@@ -201,6 +208,29 @@ public abstract class AbstractMedia
                             "[media=" + this + ", op=" + amop + "].");
             }
         }
+    }
+
+    /**
+     * Called by the {@link AbstractMediaManager} when we are in a
+     * {@link VirtualMediaPanel} that just scrolled.
+     */
+    public void viewLocationDidChange (int dx, int dy)
+    {
+        if (_renderOrder >= HUD_LAYER) {
+            setLocation(_bounds.x + dx, _bounds.y + dy);
+        }
+    }
+
+    /**
+     * Dumps this media to a String object.
+     */
+    public String toString ()
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append(StringUtil.shortClassName(this));
+        buf.append("[");
+        toString(buf);
+        return buf.append("]").toString();
     }
 
     /**
@@ -267,18 +297,6 @@ public abstract class AbstractMedia
         if (_observers != null) {
             _observers.remove(obs);
         }
-    }
-
-    /**
-     * Dumps this media to a String object.
-     */
-    public String toString ()
-    {
-        StringBuffer buf = new StringBuffer();
-        buf.append(StringUtil.shortClassName(this));
-        buf.append("[");
-        toString(buf);
-        return buf.append("]").toString();
     }
 
     /**

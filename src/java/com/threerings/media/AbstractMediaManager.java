@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMediaManager.java,v 1.13 2004/08/27 02:12:37 mdb Exp $
+// $Id: AbstractMediaManager.java,v 1.14 2004/11/11 23:52:43 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -137,6 +137,21 @@ public abstract class AbstractMediaManager
     public boolean isManaged (AbstractMedia media)
     {
         return _media.contains(media);
+    }
+
+    /**
+     * Called by a {@link VirtualMediaPanel} when the view that contains our
+     * media is scrolled.
+     *
+     * @param dx the scrolled distance in the x direction (in pixels).
+     * @param dy the scrolled distance in the y direction (in pixels).
+     */
+    public void viewLocationDidChange (int dx, int dy)
+    {
+        // let our media know
+        for (int ii = 0, ll = _media.size(); ii < ll; ii++) {
+            ((AbstractMedia)_media.get(ii)).viewLocationDidChange(dx, dy);
+        }
     }
 
     /**

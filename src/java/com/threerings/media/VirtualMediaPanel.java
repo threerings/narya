@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.28 2004/10/29 19:33:16 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.29 2004/11/11 23:52:43 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -25,6 +25,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
 import javax.swing.SwingUtilities;
 
@@ -101,6 +102,21 @@ public class VirtualMediaPanel extends MediaPanel
         return _vbounds;
     }
 
+    /**
+     * Adds an entity that will be informed when the view scrolls.
+     */
+    public void addViewTracker (ViewTracker tracker)
+    {
+        _trackers.add(tracker);
+    }
+
+    /**
+     * Removes an entity from the view trackers list.
+     */
+    public void removeViewTracker (ViewTracker tracker)
+    {
+        _trackers.remove(tracker);
+    }
     /**
      * Instructs the view to follow the supplied pathable; ensuring that
      * the view's coordinates are adjusted according to the follow mode.
@@ -256,6 +272,15 @@ public class VirtualMediaPanel extends MediaPanel
             sdirty.translate(-dx, -dy);
             dirtyScreenRect(sdirty);
         }
+
+        // inform our view trackers
+        for (int ii = 0, ll = _trackers.size(); ii < ll; ii++) {
+            ((ViewTracker)_trackers.get(ii)).viewLocationDidChange(dx, dy);
+        }
+
+        // let our sprites and animations know what's up
+        _animmgr.viewLocationDidChange(dx, dy);
+        _spritemgr.viewLocationDidChange(dx, dy);
     }
 
     /**
@@ -417,4 +442,7 @@ public class VirtualMediaPanel extends MediaPanel
     /** We need to know our absolute coordinates in order to work around
      * the Windows copyArea() bug. */
     protected Rectangle _abounds = new Rectangle();
+
+    /** A list of entities to be informed when the view scrolls. */
+    protected ArrayList _trackers = new ArrayList();
 }
