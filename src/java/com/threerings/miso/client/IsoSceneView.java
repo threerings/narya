@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.86 2002/01/31 02:10:36 mdb Exp $
+// $Id: IsoSceneView.java,v 1.87 2002/01/31 02:12:35 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -746,7 +746,6 @@ public class IsoSceneView implements SceneView
         // repainted
         if (hobject != _hobject) {
             _hobject = hobject;
-            System.out.println("New hover object: " + hobject);
             repaint = true;
         }
 
