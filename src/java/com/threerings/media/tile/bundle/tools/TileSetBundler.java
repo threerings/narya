@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundler.java,v 1.13 2003/01/24 21:51:26 mdb Exp $
+// $Id: TileSetBundler.java,v 1.14 2003/02/28 00:46:52 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -211,10 +211,13 @@ public class TileSetBundler
      * file.
      * @param target the tileset bundle file that will be created.
      *
+     * @return true if the bundle was rebuilt, false if it was not because
+     * the bundle file was newer than all involved source files.
+     *
      * @exception IOException thrown if an error occurs reading, writing
      * or processing anything.
      */
-    public void createBundle (
+    public boolean createBundle (
         TileSetIDBroker idBroker, final File bundleDesc, File target)
         throws IOException
     {
@@ -235,6 +238,11 @@ public class TileSetBundler
             fin.close();
         }
 
+        // we want to make sure that at least one of the tileset image
+        // files or the bundle definition file is newer than the bundle
+        // file, otherwise consider the bundle up to date
+        long newest = bundleDesc.lastModified();
+
         // create a tileset bundle to hold our tilesets
         TileSetBundle bundle = new TileSetBundle();
 
@@ -249,6 +257,21 @@ public class TileSetBundler
                     Log.warning("Tileset was parsed, but received no name " +
                                 "[set=" + set + "]. Skipping.");
                     continue;
+                }
+
+                // make sure this tileset's image file exists and check
+                // it's last modified date
+                File tsfile = new File(bundleDesc.getParent(),
+                                       set.getImagePath());
+                if (!tsfile.exists()) {
+                    System.err.println("Tile set missing image file " +
+                                       "[bundle=" + bundleDesc.getPath() +
+                                       ", name=" + set.getName() +
+                                       ", imgpath=" + tsfile.getPath() + "].");
+                    continue;
+                }
+                if (tsfile.lastModified() > newest) {
+                    newest = tsfile.lastModified();
                 }
 
                 // assign a tilset id to the tileset and bundle it
@@ -275,6 +298,11 @@ public class TileSetBundler
                             "back to broker's persistent store " +
                             "[error=" + pe + "].");
             }
+        }
+
+        // see if our newest file is newer than the tileset bundle
+        if (newest < target.lastModified()) {
+            return false;
         }
 
         // now we have to create the actual bundle file
@@ -364,6 +392,8 @@ public class TileSetBundler
 
             // finally close up the jar file and call ourself done
             jar.close();
+
+            return true;
 
         } catch (IOException ioe) {
             // remove the incomplete jar file and rethrow the exception
