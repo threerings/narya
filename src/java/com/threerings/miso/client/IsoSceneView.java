@@ -1,9 +1,10 @@
 //
-// $Id: IsoSceneView.java,v 1.17 2001/07/28 01:31:51 shaper Exp $
+// $Id: IsoSceneView.java,v 1.18 2001/07/30 15:38:52 shaper Exp $
 
 package com.threerings.miso.scene;
 
 import com.threerings.miso.Log;
+import com.threerings.miso.sprite.SpriteManager;
 import com.threerings.miso.tile.Tile;
 import com.threerings.miso.tile.TileManager;
 import com.threerings.miso.util.MathUtil;
@@ -21,11 +22,12 @@ public class IsoSceneView implements EditableSceneView
      * Construct an IsoSceneView object and initialize it with the
      * given tile manager.
      *
-     * @param tmgr the tile manager.
+     * @param tilemgr the tile manager.
      */
-    public IsoSceneView (TileManager tmgr)
+    public IsoSceneView (TileManager tilemgr, SpriteManager spritemgr)
     {
-	_tmgr = tmgr;
+	_tilemgr = tilemgr;
+        _spritemgr = spritemgr;
 
 	_bounds = new Dimension(DEF_BOUNDS_WIDTH, DEF_BOUNDS_HEIGHT);
 
@@ -111,7 +113,12 @@ public class IsoSceneView implements EditableSceneView
 
 		    // draw the tile image at the appropriate screen position
 		    gfx.drawImage(tile.img, screenX, ypos, null);
-		}
+                }
+
+                // draw all sprites residing in the current line of tiles
+                _spritemgr.renderSprites(
+                    gfx, screenX, screenY, (length * ISO_TILE_WIDTH),
+                    ISO_TILE_HEIGHT);
 
 		// draw tile coordinates in each tile
   		if (_showCoords) paintCoords(gfx, tx, ty, screenX, screenY);
@@ -360,6 +367,9 @@ public class IsoSceneView implements EditableSceneView
     /** The scene object to be displayed. */
     protected Scene _scene;
 
+    /** The sprite manager. */
+    protected SpriteManager _spritemgr;
+
     /** The tile manager. */
-    protected TileManager _tmgr;
+    protected TileManager _tilemgr;
 }

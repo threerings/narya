@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.2 2001/07/28 01:31:51 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.3 2001/07/30 15:38:52 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -13,6 +13,7 @@ import com.threerings.miso.Log;
 import com.threerings.miso.viewer.util.ViewerContext;
 import com.threerings.miso.scene.*;
 import com.threerings.miso.scene.xml.XMLFileSceneRepository;
+import com.threerings.miso.sprite.SpriteManager;
 
 /**
  * The SceneViewPanel class is responsible for managing a SceneView,
@@ -24,12 +25,12 @@ public class SceneViewPanel extends JPanel
     /**
      * Construct the panel and initialize it with a context.
      */
-    public SceneViewPanel (ViewerContext ctx)
+    public SceneViewPanel (ViewerContext ctx, SpriteManager spritemgr)
     {
 	_ctx = ctx;
 
         // construct the view object
-        _view = new IsoSceneView(_ctx.getTileManager());
+        _view = new IsoSceneView(_ctx.getTileManager(), spritemgr);
 
         // listen to the desired events
 	addMouseListener(this);
