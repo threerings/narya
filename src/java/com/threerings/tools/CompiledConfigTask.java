@@ -1,7 +1,7 @@
 //
-// $Id: CompiledConfigTask.java,v 1.1 2002/03/08 06:15:21 mdb Exp $
+// $Id: CompiledConfigTask.java,v 1.2 2002/04/02 01:55:26 mdb Exp $
 
-package com.threerings.yohoho.tools;
+package com.threerings.tools;
 
 import java.io.File;
 import java.io.Serializable;
@@ -9,8 +9,8 @@ import java.io.Serializable;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
-import com.threerings.yohoho.tools.xml.CompiledConfigParser;
-import com.threerings.yohoho.util.CompiledConfig;
+import com.threerings.tools.xml.CompiledConfigParser;
+import com.threerings.util.CompiledConfig;
 
 /**
  * Used to parse configuration information from an XML file and create the

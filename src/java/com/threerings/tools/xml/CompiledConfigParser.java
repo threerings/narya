@@ -1,7 +1,7 @@
 //
-// $Id: CompiledConfigParser.java,v 1.2 2002/03/08 09:40:21 mdb Exp $
+// $Id: CompiledConfigParser.java,v 1.3 2002/04/02 01:55:26 mdb Exp $
 
-package com.threerings.yohoho.tools.xml;
+package com.threerings.tools.xml;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,8 +11,8 @@ import java.io.Serializable;
 import org.xml.sax.SAXException;
 import org.apache.commons.digester.Digester;
 
-import com.threerings.yohoho.util.CompiledConfig;
-import com.threerings.yohoho.tools.CompiledConfigTask;
+import com.threerings.util.CompiledConfig;
+import com.threerings.tools.CompiledConfigTask;
 
 /**
  * An abstract base implementation of a parser that is used to compile

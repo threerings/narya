@@ -1,7 +1,7 @@
 //
-// $Id: CompiledConfig.java,v 1.2 2002/03/08 08:30:05 mdb Exp $
+// $Id: CompiledConfig.java,v 1.3 2002/04/02 01:55:26 mdb Exp $
 
-package com.threerings.yohoho.util;
+package com.threerings.util;
 
 import java.io.File;
 import java.io.FileOutputStream;
