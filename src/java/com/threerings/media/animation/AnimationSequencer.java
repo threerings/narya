@@ -1,5 +1,5 @@
 //
-// $Id: AnimationSequencer.java,v 1.11 2002/11/06 01:39:32 mdb Exp $
+// $Id: AnimationSequencer.java,v 1.12 2002/11/06 07:40:05 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -174,7 +174,7 @@ public abstract class AnimationSequencer extends Animation
                     true : !_running.contains(_trigger);
 
             } else {
-                return (lastStamp + _delta >= now);
+                return (lastStamp + _delta <= now);
             }
         }
 
