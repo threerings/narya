@@ -1,11 +1,13 @@
 //
-// $Id: SceneBlock.java,v 1.1 2003/04/17 19:21:16 mdb Exp $
+// $Id: SceneBlock.java,v 1.2 2003/04/18 18:33:31 mdb Exp $
 
 package com.threerings.miso.client;
 
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.util.Arrays;
 
+import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
 
@@ -17,6 +19,7 @@ import com.threerings.media.tile.TileSet;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.data.MisoSceneModel;
+import com.threerings.miso.data.ObjectInfo;
 import com.threerings.miso.tile.BaseTile;
 import com.threerings.miso.util.MisoUtil;
 import com.threerings.miso.util.ObjectSet;
@@ -34,6 +37,7 @@ public class SceneBlock
     public SceneBlock (
         MisoScenePanel panel, int tx, int ty, int width, int height)
     {
+        _panel = panel;
         _bounds = new Rectangle(tx, ty, width, height);
         _base = new BaseTile[width*height];
         _fringe = new Tile[width*height];
@@ -45,7 +49,6 @@ public class SceneBlock
 
         // resolve our base tiles
         MisoSceneModel model = panel.getSceneModel();
-        TileManager tmgr = panel.getTileManager();
         for (int yy = 0; yy < height; yy++) {
             for (int xx = 0; xx < width; xx++) {
                 int x = tx + xx, y = ty + yy;
@@ -54,28 +57,10 @@ public class SceneBlock
                     continue;
                 }
 
-                // this is a bit magical, but the tile manager will fetch
-                // tiles from the tileset repository and the tile set id
-                // from which we request this tile must map to a base tile
-                // as provided by the repository, so we just cast it to a
-                // base tile and know that all is well
-                String errmsg = null;
-                int tidx = yy*width+xx;
-                try {
-                    _base[tidx] = (BaseTile)tmgr.getTile(fqTileId);
-                } catch (ClassCastException cce) {
-                    errmsg = "Scene contains non-base tile in base layer";
-                } catch (NoSuchTileSetException nste) {
-                    errmsg = "Scene contains non-existent tileset";
-                } catch (NoSuchTileException nste) {
-                    errmsg = "Scene contains non-existent tile";
-                }
+                updateBaseTile(fqTileId, x, y);
 
-                if (errmsg != null) {
-                    Log.warning(errmsg + " [fqtid=" + fqTileId +
-                                ", x=" + x + ", y=" + y + "].");
-                }
-
+                // if there's no tile here, we don't need no fringe
+                int tidx = index(x, y);
                 if (_base[tidx] == null) {
                     continue;
                 }
@@ -130,6 +115,90 @@ public class SceneBlock
     }
 
     /**
+     * Informs this scene block that the specified base tile has been
+     * changed.
+     */
+    public void updateBaseTile (int fqTileId, int tx, int ty)
+    {
+        String errmsg = null;
+
+        // this is a bit magical: we pass the fully qualified tile id to
+        // the tile manager which loads up from the configured tileset
+        // repository the appropriate tileset (which should be a
+        // BaseTileSet) and then extracts the appropriate base tile (the
+        // index of which is also in the fqTileId)
+        try {
+            _base[index(tx, ty)] = (BaseTile)
+                _panel.getTileManager().getTile(fqTileId);
+        } catch (ClassCastException cce) {
+            errmsg = "Scene contains non-base tile in base layer";
+        } catch (NoSuchTileSetException nste) {
+            errmsg = "Scene contains non-existent tileset";
+        } catch (NoSuchTileException nste) {
+            errmsg = "Scene contains non-existent tile";
+        }
+
+        if (errmsg != null) {
+            Log.warning(errmsg + " [fqtid=" + fqTileId +
+                        ", x=" + tx + ", y=" + ty + "].");
+        }
+    }
+
+    /**
+     * Instructs this block to recompute its fringe at the specified
+     * location.
+     */
+    public void updateFringe (int tx, int ty)
+    {
+        int tidx = index(tx, ty);
+        if (_base[tidx] != null) {
+            _fringe[tidx] = _panel.computeFringeTile(tx, ty);
+        }
+    }
+
+    /**
+     * Adds the supplied object to this block. Coverage is not computed
+     * for the added object, a subsequent call to {@link #update} will be
+     * needed.
+     */
+    public void addObject (ObjectInfo info)
+    {
+        _objects = (SceneObject[])
+            ArrayUtil.append(_objects, new SceneObject(_panel, info));
+
+        // clear out our neighbors array so that the subsequent update
+        // causes us to recompute our coverage
+        Arrays.fill(_neighbors, null);
+    }
+
+    /**
+     * Removes the specified object from this block. Coverage is not
+     * recomputed, so a subsequent call to {@link #update} will be needed.
+     *
+     * @return true if the object was deleted, false if it was not found
+     * in our object list.
+     */
+    public boolean deleteObject (ObjectInfo info)
+    {
+        int oidx = -1;
+        for (int ii = 0; ii < _objects.length; ii++) {
+            if (_objects[ii].info.equals(info)) {
+                oidx = ii;
+                break;
+            }
+        }
+        if (oidx == -1) {
+            return false;
+        }
+        _objects = (SceneObject[])ArrayUtil.splice(_objects, oidx, 1);
+
+        // clear out our neighbors array so that the subsequent update
+        // causes us to recompute our coverage
+        Arrays.fill(_neighbors, null);
+        return true;
+    }
+
+    /**
      * Returns true if the specified traverser can traverse the specified
      * tile (which is assumed to be in the bounds of this scene block).
      */
@@ -140,19 +209,19 @@ public class SceneBlock
     }
 
     /**
-     * Returns the index into our arrays of the specified tile.
-     */
-    protected final int index (int tx, int ty)
-    {
-        return (ty-_bounds.y)*_bounds.width + (tx-_bounds.x);
-    }
-
-    /**
      * Returns a string representation of this instance.
      */
     public String toString ()
     {
         return StringUtil.toString(_bounds) + ":" + _objects.length;
+    }
+
+    /**
+     * Returns the index into our arrays of the specified tile.
+     */
+    protected final int index (int tx, int ty)
+    {
+        return (ty-_bounds.y)*_bounds.width + (tx-_bounds.x);
     }
 
     /**
@@ -234,6 +303,9 @@ public class SceneBlock
     {
         _covered[index(tx, ty)] = true;
     }
+
+    /** The panel for which we contain a block. */
+    protected MisoScenePanel _panel;
 
     /** The bounds of (in tile coordinates) of this block. */
     protected Rectangle _bounds;
