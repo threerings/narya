@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.12 2001/10/25 23:36:06 mdb Exp $
+// $Id: ConnectionManager.java,v 1.13 2001/10/25 23:37:13 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -11,6 +11,7 @@ import ninja2.core.io_core.nbio.*;
 import com.samskivert.util.*;
 
 import com.threerings.presents.Log;
+import com.threerings.presents.client.Client;
 import com.threerings.presents.io.FramingOutputStream;
 import com.threerings.presents.io.TypedObjectFactory;
 import com.threerings.presents.net.Credentials;
