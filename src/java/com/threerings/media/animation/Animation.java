@@ -1,5 +1,5 @@
 //
-// $Id: Animation.java,v 1.13 2004/08/27 02:12:38 mdb Exp $
+// $Id: Animation.java,v 1.14 2004/09/10 22:16:54 eric Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -94,6 +94,14 @@ public abstract class Animation extends AbstractMedia
         addObserver(obs);
     }
 
+    /**
+     * Removes an animation observer from this animation's list of observers.
+     */
+    public void removeAnimationObserver (AnimationObserver obs)
+    {
+        removeObserver(obs);
+    }
+    
     /** Whether the animation is finished. */
     protected boolean _finished = false;
 
