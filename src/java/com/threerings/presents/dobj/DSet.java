@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.32 2004/08/27 02:20:20 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -158,8 +158,21 @@ public class DSet
      * support modification (nor iteration while modifications are being
      * made to the set). It should not be kept around as it can quickly
      * become out of date.
+     *
+     * @deprecated
      */
     public Iterator entries ()
+    {
+        return iterator();
+    }
+
+    /**
+     * Returns an iterator over the entries of this set. It does not
+     * support modification (nor iteration while modifications are being
+     * made to the set). It should not be kept around as it can quickly
+     * become out of date.
+     */
+    public Iterator iterator ()
     {
         // the crazy sanity checks
         if (_size < 0 ||_size > _entries.length ||
