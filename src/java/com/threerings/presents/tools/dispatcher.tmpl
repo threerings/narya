@@ -1,0 +1,47 @@
+package $package;
+
+#foreach ($import in $imports)
+import $import;
+#end
+
+/**
+ * Dispatches requests to the {@link ${name}Provider}.
+ */
+public class ${name}Dispatcher extends InvocationDispatcher
+{
+    /**
+     * Creates a dispatcher that may be registered to dispatch invocation
+     * service requests for the specified provider.
+     */
+    public ${name}Dispatcher (${name}Provider provider)
+    {
+        this.provider = provider;
+    }
+
+    // documentation inherited
+    public InvocationMarshaller createMarshaller ()
+    {
+        return new ${name}Marshaller();
+    }
+
+    // documentation inherited
+    public void dispatchRequest (
+        ClientObject source, int methodId, Object[] args)
+        throws InvocationException
+    {
+        switch (methodId) {
+#foreach ($m in $methods)
+        case ${name}Marshaller.$m.code:
+            ((${name}Provider)provider).${m.method.name}(
+                source#if ($m.hasArgs()),
+#end
+                $m.getUnwrappedArgList(false)
+            );
+            return;
+
+#end
+        default:
+            super.dispatchRequest(source, methodId, args);
+        }
+    }
+}

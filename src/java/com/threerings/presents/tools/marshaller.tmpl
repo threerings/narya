@@ -1,0 +1,71 @@
+package $package;
+
+#foreach ($import in $imports)
+import $import;
+#end
+
+/**
+ * Provides the implementation of the {@link ${name}Service} interface
+ * that marshalls the arguments and delivers the request to the provider
+ * on the server. Also provides an implementation of the response listener
+ * interfaces that marshall the response arguments and deliver them back
+ * to the requesting client.
+ */
+public class ${name}Marshaller extends InvocationMarshaller
+    implements ${name}Service
+{
+#foreach ($l in $listeners)
+    // documentation inherited
+    public static class ${l.name}Marshaller extends ListenerMarshaller
+        implements ${l.name}Listener
+    {
+#foreach ($lm in $l.methods)
+        /** The method id used to dispatch {@link #$lm.method.name}
+         * responses. */
+        public static final int $lm.code = $velocityCount;
+
+        // documentation inherited from interface
+        public void $lm.method.name ($lm.argList)
+        {
+            omgr.postEvent(new InvocationResponseEvent(
+                               callerOid, requestId, $lm.code,
+                               new Object[] { $lm.getWrappedArgList(false) }));
+        }
+
+#end
+        // documentation inherited
+        public void dispatchResponse (int methodId, Object[] args)
+        {
+            switch (methodId) {
+#foreach ($lm in $l.methods)
+            case $lm.code:
+                ((${l.name}Listener)listener).${lm.method.name}(
+                    ${lm.getUnwrappedArgList(true)});
+                return;
+
+#end
+            default:
+                super.dispatchResponse(methodId, args);
+            }
+        }
+    }
+
+#end
+#foreach ($m in $methods)
+    /** The method id used to dispatch {@link #$m.method.name} requests. */
+    public static final int $m.code = $velocityCount;
+
+    // documentation inherited from interface
+    public void $m.method.name ($m.argList)
+    {
+#foreach ($la in $m.listenerArgs)
+        $la.marshaller listener$la.index = new ${la.marshaller}();
+        listener${la.index}.listener = arg$la.index;
+#end
+        sendRequest(arg1, $m.code, new Object[] {
+            $m.getWrappedArgList(true)
+        });
+    }
+
+#end
+}

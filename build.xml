@@ -30,21 +30,21 @@
 
   <!-- generates marshaller and dispatcher classes for all invocation
        service declarations -->
-  <target name="genservice">
+  <target name="genservice"> 
+    <taskdef name="service"
+             classname="com.threerings.presents.tools.GenServiceTask"/>
     <!-- make sure the service class files are all compiled -->
     <javac srcdir="src/java" destdir="${classes.dir}"
            debug="on" optimize="${build.optimize}" deprecation="on">
       <classpath refid="classpath"/>
       <include name="**/*Service.java"/>
+      <exclude name="**/InvocationService.java"/>
     </javac>
-    <apply executable="bin/genservice" failonerror="true" parallel="true">
-      <arg value="--classpath"/>
-      <arg value="${classes.dir}"/>
-      <arg value="--sourcedir"/>
-      <arg value="src/java"/>
+    <!-- now generate the associated files -->
+    <service header="lib/SOURCE_HEADER">
       <fileset dir="src/java" includes="**/*Service.java"
         excludes="**/InvocationService.java"/>
-    </apply>
+    </service>
   </target>
 
   <!-- generates sender and decoder classes for all invocation
@@ -68,6 +68,7 @@
     <mkdir dir="${javadoc.home}"/>
     <copy todir="${classes.dir}">
       <fileset dir="src/java" includes="**/*.properties"/>
+      <fileset dir="src/java" includes="**/*.tmpl"/>
     </copy>
     <copy todir="${classes.dir}/rsrc">
       <fileset dir="rsrc" includes="**/*" excludes="**/bundles/**"/>
