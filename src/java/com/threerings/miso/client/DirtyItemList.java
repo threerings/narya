@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.23 2003/03/30 02:15:13 mdb Exp $
+// $Id: DirtyItemList.java,v 1.24 2003/04/07 23:32:47 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -13,12 +13,14 @@ import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.Comparator;
 
+import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.Log;
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.tile.ObjectTile;
+import com.threerings.miso.MisoPrefs;
 import com.threerings.miso.client.util.IsoUtil;
 
 /**
@@ -311,7 +313,7 @@ public class DirtyItemList
             // paint the item
             if (obj instanceof Sprite) {
                 ((Sprite)obj).paint(gfx);
-            } else {
+            } else if (!_hideObjects.getValue()) {
                 ((DisplayObjectInfo)obj).tile.paint(gfx, bounds.x, bounds.y);
             }
 
@@ -731,4 +733,10 @@ public class DirtyItemList
                     ((DirtyItem)o2).getRearDepth());
         }
     };
+
+    /** A debug hook that toggles debug rendering of object footprints. */
+    protected static RuntimeAdjust.BooleanAdjust _hideObjects =
+        new RuntimeAdjust.BooleanAdjust(
+            "Turns off the rendering of objects in the scene.",
+            "narya.miso.hide_objects", MisoPrefs.config, false);
 }
