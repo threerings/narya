@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.10 2001/12/16 21:47:13 mdb Exp $
+// $Id: ChatPanel.java,v 1.11 2001/12/17 01:06:35 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import java.util.StringTokenizer;
 
 import javax.swing.JButton;
@@ -16,7 +17,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+
 import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
+
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Style;

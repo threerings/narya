@@ -1,5 +1,5 @@
 //
-// $Id: ChatDisplay.java,v 1.5 2001/12/16 21:46:46 mdb Exp $
+// $Id: ChatDisplay.java,v 1.6 2001/12/17 01:06:34 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -17,7 +17,7 @@ public interface ChatDisplay
      * method after the speak message is accepted by the server and
      * broadcast to everyone in the place.
      *
-     * @param type {@link ChatCodes.PLACE_CHAT_TYPE} for a speak message
+     * @param type {@link ChatCodes#PLACE_CHAT_TYPE} for a speak message
      * delivered via the place object, or for messages delivered via an
      * auxilliary chat object, the type code provided when that auxilliary
      * object was registered.
@@ -44,7 +44,7 @@ public interface ChatDisplay
      * server and should be displayed visually differently from speak
      * messages.
      *
-     * @param type {@link ChatCodes.PLACE_CHAT_TYPE} for a speak message
+     * @param type {@link ChatCodes#PLACE_CHAT_TYPE} for a speak message
      * delivered via the place object, or for messages delivered via an
      * auxilliary chat object, the type code provided when that auxilliary
      * object was registered.
