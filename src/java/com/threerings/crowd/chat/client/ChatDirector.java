@@ -1,10 +1,11 @@
 //
-// $Id: ChatDirector.java,v 1.4 2001/08/04 02:54:28 mdb Exp $
+// $Id: ChatDirector.java,v 1.5 2001/08/04 03:13:26 mdb Exp $
 
 package com.threerings.cocktail.party.chat;
 
 import java.util.ArrayList;
 import com.threerings.cocktail.cher.dobj.*;
+import com.threerings.cocktail.cher.util.Codes;
 
 import com.threerings.cocktail.party.Log;
 import com.threerings.cocktail.party.client.LocationObserver;
@@ -158,8 +159,11 @@ public class ChatManager
      */
     public void handleTellNotification (String source, String message)
     {
-        Log.info("Tell notification [src=" + source +
-                 ", msg=" + message + "].");
+        // pass this on to our chat displays
+        for (int i = 0; i < _displays.size(); i++) {
+            ChatDisplay display = (ChatDisplay)_displays.get(i);
+            display.displayTellMessage(source, message);
+        }
     }
 
     /**
@@ -167,9 +171,13 @@ public class ChatManager
      *
      * @param invid the invocation id of the tell request.
      */
-    public void handleTellSuccess (int invid)
+    public void handleTellSucceded (int invid)
     {
-        Log.info("Tell succeeded [invid=" + invid + "].");
+        // pass this on to our chat displays
+        for (int i = 0; i < _displays.size(); i++) {
+            ChatDisplay display = (ChatDisplay)_displays.get(i);
+            display.handleResponse(invid, Codes.SUCCESS);
+        }
     }
 
     /**
@@ -180,8 +188,11 @@ public class ChatManager
      */
     public void handleTellFailed (int invid, String reason)
     {
-        Log.info("Tell failed [invid=" + invid +
-                 ", reason=" + reason + "].");
+        // pass this on to our chat displays
+        for (int i = 0; i < _displays.size(); i++) {
+            ChatDisplay display = (ChatDisplay)_displays.get(i);
+            display.handleResponse(invid, reason);
+        }
     }
 
     protected void handleSpeakMessage (Object[] args)
