@@ -1,5 +1,5 @@
 /*
- * $Id: com_threerings_util_unsafe_Unsafe.c,v 1.2 2003/05/09 18:40:07 mdb Exp $
+ * $Id$
  */
 
 #include <stdio.h>

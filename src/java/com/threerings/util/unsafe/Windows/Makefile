@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.1 2003/05/09 03:22:16 mdb Exp $
+# $Id$
 
 NAME=unsafe
 
