@@ -1,5 +1,5 @@
 //
-// $Id: ObjectInputStream.java,v 1.1 2002/07/23 05:42:34 mdb Exp $
+// $Id: ObjectInputStream.java,v 1.2 2002/12/02 22:10:10 mdb Exp $
 
 package com.threerings.io;
 
@@ -8,6 +8,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.Log;
 
@@ -79,7 +80,14 @@ public class ObjectInputStream extends DataInputStream
 
                 // sanity check
                 if (cmap == null) {
-                    String errmsg = "Aiya! Read object code for which we " +
+                    // this will help with debugging
+                    Log.warning("Internal stream error, no class metadata " +
+                                "[code=" + code + ", ois=" + this + "].");
+                    Thread.dumpStack();
+                    Log.warning("ObjectInputStream mappings " +
+                                StringUtil.toString(_classmap.entrySet()) +
+                                ".");
+                    String errmsg = "Read object code for which we " +
                         "have no registered class metadata [code=" + code + "]";
                     throw new RuntimeException(errmsg);
                 }
@@ -145,6 +153,16 @@ public class ObjectInputStream extends DataInputStream
 
         // read the instance data
         _streamer.readObject(_current, this, false);
+    }
+
+    /**
+     * Generates a string representation of this instance.
+     */
+    public String toString ()
+    {
+        return "[hash=" + hashCode() + ", mappings=" + _classmap.size() +
+            ", current=" + StringUtil.safeToString(_current) +
+            ", streamer=" + _streamer + "]";
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: Streamer.java,v 1.1 2002/07/23 05:42:34 mdb Exp $
+// $Id: Streamer.java,v 1.2 2002/12/02 22:10:10 mdb Exp $
 
 package com.threerings.io;
 
@@ -297,6 +297,16 @@ public class Streamer
                 throw new NestableIOException(errmsg, e);
             }
         }
+    }
+
+    /**
+     * Generates a string representation of this instance.
+     */
+    public String toString ()
+    {
+        return "[target=" + _target.getName() + ", delegate=" + _delegate +
+            ", fcount=" + _fields.length + ", reader=" + _reader +
+            ", writer=" + _writer + "]";
     }
 
     /**
