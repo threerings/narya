@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.21 2003/06/25 17:17:41 ray Exp $
+// $Id: ChatProvider.java,v 1.22 2003/07/01 21:50:18 eric Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -36,6 +36,22 @@ public class ChatProvider
 {
     /** The access control identifier for broadcast chat privileges. */
     public static final String BROADCAST_TOKEN = "crowd.chat.broadcast";
+
+
+    /** Interface to allow an auto response to a tell message. */
+    public static interface TellAutoResponder {
+        public void sentTell (BodyObject teller, BodyObject tellee,
+                              String message);
+    }
+
+    /**
+     * Set the auto tell responder for the chat provider. Only one auto
+     * responder is allowed.
+     */
+    public static void setTellAutoResponder (TellAutoResponder autoRespond)
+    {
+        _autoRespond = autoRespond;
+    }
 
     /**
      * Initializes the chat services and registers a chat provider with
@@ -83,6 +99,11 @@ public class ChatProvider
         } else {
             // normal success
             listener.tellSucceeded();
+        }
+
+        // do the autoresponse if needed
+        if (_autoRespond != null) {
+            _autoRespond.sentTell(source, tobj, message);
         }
     }
 
@@ -137,4 +158,7 @@ public class ChatProvider
 
     /** The distributed object manager used by the chat services. */
     protected static DObjectManager _omgr;
+
+    /** Reference to our auto responder object. */
+    protected static TellAutoResponder _autoRespond;
 }
