@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.11 2002/06/18 22:38:12 mdb Exp $
+// $Id: DirtyItemList.java,v 1.12 2002/07/08 21:41:30 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -32,7 +32,7 @@ public class DirtyItemList
      * @param tx the sprite's x tile position.
      * @param ty the sprite's y tile position.
      */
-    public void appendDirtySprite (MisoCharacterSprite sprite, int tx, int ty)
+    public void appendDirtySprite (Sprite sprite, int tx, int ty)
     {
         DirtyItem item = getDirtyItem();
         item.init(sprite, null, null, tx, ty);
@@ -462,8 +462,8 @@ public class DirtyItemList
             int startidx = aidx + 1, endidx = startidx + size;
             for (int pidx = startidx; pidx < endidx; pidx++) {
                 DirtyItem dp = (DirtyItem)sitems.get(pidx);
-                if (dp.obj instanceof MisoCharacterSprite) {
-                    // character sprites can't partition things
+                if (dp.obj instanceof Sprite) {
+                    // sprites can't partition things
                     continue;
                 } else if ((dp.obj == da.obj) ||
                            (dp.obj == db.obj)) {
@@ -510,18 +510,13 @@ public class DirtyItemList
                     return 0;
                 }
 
-                if ((da.obj instanceof MisoCharacterSprite) &&
-                    (db.obj instanceof MisoCharacterSprite)) {
+                if ((da.obj instanceof Sprite) && (db.obj instanceof Sprite)) {
                     // we're comparing two sprites co-existing on the same
-                    // tile, so study their fine coordinates
-                    MisoCharacterSprite as = (MisoCharacterSprite)da.obj;
-                    MisoCharacterSprite bs = (MisoCharacterSprite)db.obj;
-
-                    int ahei = as.getFineX() + as.getFineY();
-                    int bhei = bs.getFineX() + bs.getFineY();
-                    int diff = ahei - bhei;
-                    // if they're at the same vertical row of intra-tile
-                    // tiles, just use hashCode() for consistency
+                    // tile, so simply sort them by y-position
+                    Sprite as = (Sprite)da.obj, bs = (Sprite)db.obj;
+                    int diff = as.getY() - bs.getY();
+                    // if they're at the same height, just use hashCode()
+                    // to establish a consistent arbitrary ordering
                     return (diff != 0) ? diff :
                         (as.hashCode() - bs.hashCode());
                 }

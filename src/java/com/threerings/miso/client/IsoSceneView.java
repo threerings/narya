@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.116 2002/06/29 01:32:28 ray Exp $
+// $Id: IsoSceneView.java,v 1.117 2002/07/08 21:41:30 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -26,6 +26,7 @@ import com.samskivert.util.HashIntMap;
 
 import com.threerings.media.RegionManager;
 
+import com.threerings.media.sprite.Sprite;
 import com.threerings.media.sprite.SpriteManager;
 import com.threerings.media.util.Path;
 
@@ -363,15 +364,32 @@ public class IsoSceneView implements SceneView
         _spritemgr.getIntersectingSprites(_dirtySprites, clip);
         int size = _dirtySprites.size();
         for (int ii = 0; ii < size; ii++) {
-            MisoCharacterSprite sprite = (MisoCharacterSprite)
-                _dirtySprites.get(ii);
+            Sprite sprite = (Sprite)_dirtySprites.get(ii);
             Rectangle bounds = sprite.getBounds();
             if (!bounds.intersects(clip)) {
                 continue;
             }
 
-            _dirtyItems.appendDirtySprite(
-                sprite, sprite.getTileX(), sprite.getTileY());
+            // if this is a miso character sprite, we can use its cached
+            // tile coordinates
+            int tx, ty;
+            if (sprite instanceof MisoCharacterSprite) {
+                MisoCharacterSprite mcs = (MisoCharacterSprite)sprite;
+                tx = mcs.getTileX();
+                ty = mcs.getTileY();
+
+            } else {
+                // otherwise we have to compute them from the screen
+                // coordinates of the sprite
+                IsoUtil.screenToTile(
+                    _model, sprite.getX(), sprite.getY(), _tcoords);
+                tx = _tcoords.x;
+                ty = _tcoords.y;
+            }
+
+            // finally add the sprite and its tile coordinates to the list
+            // of dirty items
+            _dirtyItems.appendDirtySprite(sprite, tx, ty);
             // Log.info("Dirtied item: " + sprite);
         }
 
@@ -682,6 +700,9 @@ public class IsoSceneView implements SceneView
 
     /** Used when rendering tiles. */
     protected Rectangle _tbounds;
+
+    /** Used when dirtying sprites. */
+    protected Point _tcoords = new Point();
 
     /** Used to collect the list of sprites "hit" by a particular mouse
      * location. */

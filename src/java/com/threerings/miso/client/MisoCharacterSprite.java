@@ -1,5 +1,5 @@
 //
-// $Id: MisoCharacterSprite.java,v 1.4 2002/06/20 07:47:14 shaper Exp $
+// $Id: MisoCharacterSprite.java,v 1.5 2002/07/08 21:41:30 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -43,24 +43,6 @@ public class MisoCharacterSprite extends CharacterSprite
     }
 
     /**
-     * Returns the sprite's location on the x-axis within its current
-     * tile in fine coordinates.
-     */
-    public int getFineX ()
-    {
-        return _finex;
-    }
-
-    /**
-     * Returns the sprite's location on the y-axis within its current
-     * tile in fine coordinates.
-     */
-    public int getFineY ()
-    {
-        return _finey;
-    }
-
-    /**
      * Sets the sprite's location in tile coordinates; the sprite is
      * not actually moved in any way.  This method is only intended
      * for use in updating the sprite's stored position which is made
@@ -72,31 +54,14 @@ public class MisoCharacterSprite extends CharacterSprite
         _tiley = y;
     }
 
-    /**
-     * Sets the sprite's location in fine coordinates; the sprite is
-     * not actually moved in any way.  This method is only intended
-     * for use in updating the sprite's stored position which is made
-     * accessible to others that may care to review it.
-     */
-    public void setFineLocation (int x, int y)
-    {
-        _finex = x;
-        _finey = y;
-    }
-
     // documentation inherited
     protected void toString (StringBuffer buf)
     {
         super.toString(buf);
         buf.append(", tilex=").append(_tilex);
         buf.append(", tiley=").append(_tiley);
-        buf.append(", finex=").append(_finex);
-        buf.append(", finey=").append(_finey);
     }
 
     /** The sprite location in tile coordinates. */
     protected int _tilex, _tiley;
-
-    /** The sprite location in fine coordinates. */
-    protected int _finex, _finey;
 }

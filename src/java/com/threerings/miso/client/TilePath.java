@@ -1,5 +1,5 @@
 //
-// $Id: TilePath.java,v 1.9 2002/06/22 00:59:02 ray Exp $
+// $Id: TilePath.java,v 1.10 2002/07/08 21:41:30 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -71,14 +71,6 @@ public class TilePath extends LineSegmentPath
                     _arrived = true;
                 }
             }
-
-            // get the sprite's latest fine coordinates
-            IsoUtil.tileToScreen(_model, mcs.getTileX(), mcs.getTileY(), pos);
-            Point fpos = new Point();
-            IsoUtil.pixelToFine(_model, sx - pos.x, sy - pos.y, fpos);
-
-            // inform the sprite
-            mcs.setFineLocation(fpos.x, fpos.y);
 
             // Log.info("Sprite moved [s=" + mcs + "].");
         }

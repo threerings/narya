@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.37 2002/07/02 23:15:53 shaper Exp $
+// $Id: IsoUtil.java,v 1.38 2002/07/08 21:41:30 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -44,8 +44,6 @@ public class IsoUtil
         // set the sprite's tile and fine coordinates
         sprite.setTileLocation(
             IsoUtil.fullToTile(fpos.x), IsoUtil.fullToTile(fpos.y));
-        sprite.setFineLocation(
-            IsoUtil.fullToFine(fpos.x), IsoUtil.fullToFine(fpos.y));
     }
 
     /**
