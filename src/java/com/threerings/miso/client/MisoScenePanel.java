@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.41 2003/05/31 00:56:38 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.42 2003/06/02 18:57:15 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -384,16 +384,16 @@ public class MisoScenePanel extends VirtualMediaPanel
             return;
         }
 
-        // make the menu surround the clicked object, but don't go crazy
-        // if the object is huge
+        // make the menu surround the clicked object, but with consistent size
         Rectangle mbounds = new Rectangle(scobj.bounds);
-        if (mbounds.width > 100) {
-            mbounds.x += (mbounds.width-100)/2;
-            mbounds.width = 100;
+        Dimension radbox = getObjectRadialSize();
+        if (mbounds.width != radbox.width) {
+            mbounds.x += (mbounds.width-radbox.width)/2;
+            mbounds.width = radbox.width;
         }
-        if (mbounds.height > 100) {
-            mbounds.y += (mbounds.height-100)/2;
-            mbounds.height = 100;
+        if (mbounds.height != radbox.height) {
+            mbounds.y += (mbounds.height-radbox.height)/2;
+            mbounds.height = radbox.height;
         }
 
         _activeMenu = menu;
@@ -403,6 +403,17 @@ public class MisoScenePanel extends VirtualMediaPanel
             }
         });
         _activeMenu.activate(this, mbounds, scobj);
+    }
+
+    /**
+     * Returns the size of the rectangle around which we create an
+     * object's radial menu. The default is a sensible size, but derived
+     * classes may wish to tune the value to make their menus lay out in a
+     * more aestetically pleasing manner.
+     */
+    protected Dimension getObjectRadialSize ()
+    {
+        return DEF_RADIAL_RECT;
     }
 
     /**
@@ -1616,4 +1627,8 @@ public class MisoScenePanel extends VirtualMediaPanel
     /** The alpha used to fill tiles for debugging purposes. */
     protected static final Composite ALPHA_FILL_TILE =
         AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
+
+    /** The default size of the "box" that defines the size of our radial
+     * menu circles. */
+    protected static final Dimension DEF_RADIAL_RECT = new Dimension(80, 80);
 }
