@@ -1,11 +1,9 @@
 //
-// $Id: AnimationManager.java,v 1.14 2002/10/08 21:03:37 ray Exp $
+// $Id: AnimationManager.java,v 1.15 2002/11/05 20:51:50 mdb Exp $
 
 package com.threerings.media.animation;
 
-import java.util.ArrayList;
-
-import com.samskivert.util.SortableArrayList;
+import com.samskivert.util.ObserverList;
 
 import com.threerings.media.AbstractMediaManager;
 import com.threerings.media.Log;
@@ -57,7 +55,8 @@ public class AnimationManager extends AbstractMediaManager
             Animation anim = (Animation)_media.get(ii);
             if (anim.isFinished()) {
                 // let any animation observers know that we're done
-                anim.notifyObservers(new AnimationCompletedEvent(anim));
+                anim.notifyObservers(
+                    new AnimationCompletedEvent(anim, tickStamp));
                 // un-register the animation
                 unregisterAnimation(anim);
                 // let the animation clean itself up as necessary
@@ -68,11 +67,28 @@ public class AnimationManager extends AbstractMediaManager
     }
 
     // documentation inherited
-    protected void dispatchEvent (ArrayList observers, Object event)
+    protected void dispatchEvent (ObserverList observers, Object event)
     {
-        AnimationEvent aevt = (AnimationEvent) event;
-        for (int ii=0, nn=observers.size(); ii < nn; ii++) {
-            ((AnimationObserver) observers.get(ii)).handleEvent(aevt);
-        }
+        _dispatchOp.init((AnimationEvent)event);
+        observers.apply(_dispatchOp);
     }
+
+    /** Used by {@link #dispatchEvent}. */
+    protected static class DispatchOp implements ObserverList.ObserverOp
+    {
+        public void init (AnimationEvent event)
+        {
+            _event = event;
+        }
+
+        public boolean apply (Object observer)
+        {
+            ((AnimationObserver)observer).handleEvent(_event);
+            return true;
+        }
+
+        protected AnimationEvent _event;
+    };
+
+    protected DispatchOp _dispatchOp = new DispatchOp();
 }

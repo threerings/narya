@@ -1,5 +1,5 @@
 //
-// $Id: AnimationFrameSequencer.java,v 1.2 2002/09/30 06:18:46 shaper Exp $
+// $Id: AnimationFrameSequencer.java,v 1.3 2002/11/05 20:51:50 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -100,7 +100,8 @@ public interface AnimationFrameSequencer extends FrameSequencer
             // obtain our starting timestamp if we don't already have one
             if (_nextStamp == 0L) {
                 _nextStamp = tickStamp + _delays[_curIdx];
-                checkNotify(); // we might need to notify on the first frame
+                // we might need to notify on the first frame
+                checkNotify(tickStamp);
             }
 
             // we may have rushed through more than one frame since the last
@@ -114,7 +115,7 @@ public interface AnimationFrameSequencer extends FrameSequencer
                         return -1;
                     }
                 }
-                checkNotify();
+                checkNotify(tickStamp);
                 _nextStamp += _delays[_curIdx];
             }
 
@@ -132,12 +133,12 @@ public interface AnimationFrameSequencer extends FrameSequencer
         /**
          * Check to see if we need to notify that we've reached a marked frame.
          */
-        protected void checkNotify ()
+        protected void checkNotify (long tickStamp)
         {
             if (_marks[_curIdx]) {
                 _animation.notifyObservers(
                     new FrameReachedEvent(
-                        _animation, _sequence[_curIdx], _curIdx));
+                        _animation, tickStamp, _sequence[_curIdx], _curIdx));
             }
         }
 
