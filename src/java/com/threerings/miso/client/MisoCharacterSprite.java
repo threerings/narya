@@ -1,5 +1,5 @@
 //
-// $Id: MisoCharacterSprite.java,v 1.3 2001/11/27 22:17:42 mdb Exp $
+// $Id: MisoCharacterSprite.java,v 1.4 2002/06/20 07:47:14 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -16,8 +16,7 @@ import com.threerings.miso.tile.BaseTile;
  * sprite will only be moved about via the {@link TilePath}, which
  * will itself keep the sprite coordinates properly up to date.
  */
-public class MisoCharacterSprite
-    extends CharacterSprite
+public class MisoCharacterSprite extends CharacterSprite
     implements Traverser
 {
     // documentation inherited
