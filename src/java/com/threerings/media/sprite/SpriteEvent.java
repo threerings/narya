@@ -1,5 +1,5 @@
 //
-// $Id: SpriteEvent.java,v 1.2 2001/09/13 19:36:20 mdb Exp $
+// $Id: SpriteEvent.java,v 1.3 2002/12/04 02:45:09 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -13,10 +13,12 @@ public class SpriteEvent
      * Create a sprite event.
      *
      * @param sprite the involved sprite.
+     * @param when the time at which this event took place.
      */
-    public SpriteEvent (Sprite sprite)
+    public SpriteEvent (Sprite sprite, long when)
     {
 	_sprite = sprite;
+        _when = when;
     }
 
     /**
@@ -27,6 +29,17 @@ public class SpriteEvent
 	return _sprite;
     }
 
+    /**
+     * Returns the time associated with this event.
+     */
+    public long getWhen ()
+    {
+        return _when;
+    }
+
     /** The sprite associated with this event. */
     protected Sprite _sprite;
+
+    /** The time associated with this event. */
+    protected long _when;
 }

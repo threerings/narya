@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.54 2002/12/02 20:11:24 mdb Exp $
+// $Id: Sprite.java,v 1.55 2002/12/04 02:45:09 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -252,14 +252,14 @@ public abstract class Sprite extends AbstractMedia
     /**
      * Called by the active path when it has completed.
      */
-    public void pathCompleted ()
+    public void pathCompleted (long timestamp)
     {
         // keep a reference to the path just completed
         Path oldpath = _path;
         // clear out the path we've now finished
 	_path = null;
         // inform observers that we've finished our path
-        notifyObservers(new PathCompletedEvent(this, oldpath));
+        notifyObservers(new PathCompletedEvent(this, timestamp, oldpath));
     }
 
     // documentation inherited

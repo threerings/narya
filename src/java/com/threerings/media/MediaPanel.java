@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.23 2002/11/20 03:11:43 mdb Exp $
+// $Id: MediaPanel.java,v 1.24 2002/12/04 02:45:09 shaper Exp $
 
 package com.threerings.media;
 
@@ -83,6 +83,8 @@ public class MediaPanel extends JComponent
      */
     public void setPaused (boolean paused)
     {
+        Log.info("setPaused [paused=" + paused + "].");
+
         // sanity check
         if ((paused && (_pauseTime != 0)) ||
             (!paused && (_pauseTime == 0))) {

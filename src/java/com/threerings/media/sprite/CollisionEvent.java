@@ -1,5 +1,5 @@
 //
-// $Id: CollisionEvent.java,v 1.1 2001/09/13 19:36:20 mdb Exp $
+// $Id: CollisionEvent.java,v 1.2 2002/12/04 02:45:09 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -12,9 +12,9 @@ public class CollisionEvent extends SpriteEvent
     /**
      * Constructs a collision event for the specified sprites.
      */
-    public CollisionEvent (Sprite sprite, Sprite other)
+    public CollisionEvent (Sprite sprite, long when, Sprite other)
     {
-        super(sprite);
+        super(sprite, when);
         _other = other;
     }
 

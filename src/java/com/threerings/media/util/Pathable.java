@@ -1,5 +1,5 @@
 //
-// $Id: Pathable.java,v 1.4 2002/07/02 23:15:53 shaper Exp $
+// $Id: Pathable.java,v 1.5 2002/12/04 02:45:09 shaper Exp $
 
 package com.threerings.media.util;
 
@@ -54,5 +54,5 @@ public interface Pathable
     /**
      * Called by a path when this pathable finishes moving along its path.
      */
-    public void pathCompleted ();
+    public void pathCompleted (long timestamp);
 }

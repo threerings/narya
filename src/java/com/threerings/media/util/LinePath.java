@@ -1,5 +1,5 @@
 //
-// $Id: LinePath.java,v 1.10 2002/09/17 03:59:05 mdb Exp $
+// $Id: LinePath.java,v 1.11 2002/12/04 02:45:09 shaper Exp $
 
 package com.threerings.media.util;
 
@@ -45,7 +45,7 @@ public class LinePath extends TimedPath
         // to the prearranged spot and get the hell out
         if (timestamp >= _startStamp + _duration) {
             pable.setLocation(_dest.x, _dest.y);
-            pable.pathCompleted();
+            pable.pathCompleted(timestamp);
             return true;
         }
 

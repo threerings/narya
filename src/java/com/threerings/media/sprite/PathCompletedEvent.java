@@ -1,5 +1,5 @@
 //
-// $Id: PathCompletedEvent.java,v 1.2 2002/05/31 03:38:03 mdb Exp $
+// $Id: PathCompletedEvent.java,v 1.3 2002/12/04 02:45:09 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -15,9 +15,9 @@ public class PathCompletedEvent extends SpriteEvent
      * Constructs a path completed event for the specified sprite and
      * path.
      */
-    public PathCompletedEvent (Sprite sprite, Path path)
+    public PathCompletedEvent (Sprite sprite, long when, Path path)
     {
-        super(sprite);
+        super(sprite, when);
         _path = path;
     }
 

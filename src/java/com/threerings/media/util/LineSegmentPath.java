@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.25 2002/06/18 22:25:33 mdb Exp $
+// $Id: LineSegmentPath.java,v 1.26 2002/12/04 02:45:09 shaper Exp $
 
 package com.threerings.media.util;
 
@@ -172,7 +172,7 @@ public class LineSegmentPath
                 pable.setLocation(node.loc.x, node.loc.y);
             }
             // and let the pathable know that we're done
-	    pable.pathCompleted();
+	    pable.pathCompleted(timestamp);
 	    return;
 	}
 
@@ -239,7 +239,7 @@ public class LineSegmentPath
         if (!_niter.hasNext()) {
             // move the pathable to the location of our last destination
             pable.setLocation(_dest.loc.x, _dest.loc.y);
-            pable.pathCompleted();
+            pable.pathCompleted(now);
             return true;
         }
 
