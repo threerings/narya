@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.39 2003/08/08 21:39:29 mdb Exp $
+// $Id: MediaPanel.java,v 1.40 2003/08/08 21:43:05 mdb Exp $
 
 package com.threerings.media;
 
@@ -208,6 +208,8 @@ public class MediaPanel extends JComponent
                 _perfLabel = new Label(
                     "", Label.OUTLINE, Color.white, Color.black,
                     new Font("Arial", Font.PLAIN, 10));
+            }
+            if (_perfRect == null) {
                 _perfRect = new Rectangle(5, 5, 0, 0);
             }
 
@@ -352,7 +354,7 @@ public class MediaPanel extends JComponent
         paint(gfx, dirty);
 
         // render our performance debugging if it's enabled
-        if (_perfLabel != null && _perfDebug.getValue()) {
+        if (_perfRect != null && _perfDebug.getValue()) {
             gfx.setClip(null);
             _perfLabel.render(gfx, _perfRect.x, _perfRect.y);
         }
@@ -534,7 +536,7 @@ public class MediaPanel extends JComponent
             protected void adjusted (boolean newValue) {
                 // clear out some things if we're turned off
                 if (!newValue) {
-                    _perfLabel = null;
+                    _perfRect = null;
                 }
             }
         };
