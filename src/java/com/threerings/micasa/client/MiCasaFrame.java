@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaFrame.java,v 1.6 2002/07/12 17:01:28 mdb Exp $
+// $Id: MiCasaFrame.java,v 1.7 2002/07/12 17:06:52 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -32,6 +32,9 @@ public class MiCasaFrame
     public MiCasaFrame (String title)
     {
         super(title);
+
+        // we'll handle shutting things down ourselves
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     }
 
     /**
