@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.14 2001/12/17 03:32:52 mdb Exp $
+// $Id: LineSegmentPath.java,v 1.15 2002/03/16 03:12:12 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -12,6 +12,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.samskivert.util.StringUtil;
+
+import com.threerings.util.DirectionCodes;
+
 import com.threerings.media.util.MathUtil;
 
 /**
@@ -21,7 +24,8 @@ import com.threerings.media.util.MathUtil;
  * node in the path is meaningless since the sprite begins at that
  * node and will therefore never be heading towards it.
  */
-public class LineSegmentPath implements Path
+public class LineSegmentPath
+    implements DirectionCodes, Path
 {
     /**
      * Constructs a line segment path.
@@ -29,6 +33,19 @@ public class LineSegmentPath implements Path
     public LineSegmentPath ()
     {
         _nodes = new ArrayList();
+    }
+
+    /**
+     * Constructs a line segment path that consists of a single segment
+     * connecting the point <code>(x1, y1)</code> with <code>(x2,
+     * y2)</code>.  The orientation for both nodes in the path is
+     * <code>NONE</code>.
+     */
+    public LineSegmentPath (int x1, int y1, int x2, int y2)
+    {
+        _nodes = new ArrayList();
+        _nodes.add(new PathNode(x1, y1, NONE));
+        _nodes.add(new PathNode(x2, y2, NONE));
     }
 
     /**
@@ -162,8 +179,8 @@ public class LineSegmentPath implements Path
         _nodestamp = startstamp;
 
         // figure out the distance from source to destination
-        _seglength = MathUtil.distance(_src.loc.x, _src.loc.y,
-                                       _dest.loc.x, _dest.loc.y);
+        _seglength = MathUtil.distance(
+            _src.loc.x, _src.loc.y, _dest.loc.x, _dest.loc.y);
 
         // if we're already there (the segment length is zero), we skip to
         // the next segment
@@ -208,7 +225,7 @@ public class LineSegmentPath implements Path
         for (int ii = 0; ii < size; ii++) {
             Point p = (Point)points.get(ii);
 
-            int dir = (ii == 0) ? Sprite.NORTH : getDirection(last, p);
+            int dir = (ii == 0) ? NORTH : getDirection(last, p);
             addNode(p.x, p.y, dir);
             last = p;
         }
@@ -236,31 +253,31 @@ public class LineSegmentPath implements Path
     }        
 
     /**
-     * Returns the direction that point <code>b</code> lies in from
-     * point <code>a</code> as one of the <code>Sprite</code>
-     * direction constants.
+     * Returns the direction that point <code>b</code> lies in from point
+     * <code>a</code> as one of the {@link DirectionCodes} direction
+     * constants.
      */
     protected int getDirection (Point a, Point b)
     {
         if (a.x == b.x && a.y > b.y) {
-            return Sprite.NORTH;
+            return NORTH;
         } else if (a.x < b.x && a.y > b.y) {
-            return Sprite.NORTHEAST;
+            return NORTHEAST;
         } else if (a.x > b.x && a.y == b.y) {
-            return Sprite.EAST;
+            return EAST;
         } else if (a.x > b.x && a.y < b.y) {
-            return Sprite.SOUTHEAST;
+            return SOUTHEAST;
         } else if (a.x == b.x && a.y < b.y) {
-            return Sprite.SOUTH;
+            return SOUTH;
         } else if (a.x > b.x && a.y < b.y) {
-            return Sprite.SOUTHWEST;
+            return SOUTHWEST;
         } else if (a.x > b.x && a.y == b.y) {
-            return Sprite.WEST;
+            return WEST;
         } else if (a.x > b.x && a.y > b.y) {
-            return Sprite.NORTHWEST;
+            return NORTHWEST;
+        } else {
+            return NONE;
         }
-
-        return Sprite.NONE;
     }
 
     /** The nodes that make up the path. */
