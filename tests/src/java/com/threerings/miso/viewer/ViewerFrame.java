@@ -1,5 +1,5 @@
 //
-// $Id: ViewerFrame.java,v 1.19 2001/10/11 00:41:27 shaper Exp $
+// $Id: ViewerFrame.java,v 1.20 2001/10/11 16:20:06 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -58,21 +58,6 @@ class ViewerFrame extends JFrame implements WindowListener
         ViewerSceneViewPanel svpanel =
 	    new ViewerSceneViewPanel(_ctx, spritemgr, sprite);
 	top.add(svpanel, GroupLayout.FIXED);
-
-	// create a sub-panel to hold the side panels
-	JPanel sub = new JPanel();
-	gl = new VGroupLayout(GroupLayout.STRETCH);
-	gl.setOffAxisPolicy(GroupLayout.STRETCH);
-	gl.setJustification(GroupLayout.TOP);
-	sub.setLayout(gl);
-
-	// add the various side-panels
-	sub.add(new StatusPanel(), GroupLayout.FIXED);
-	sub.add(new ManagementPanel());
-	sub.add(new ChatPanel());
-
-	// add the sub-panel to the main panel
-	top.add(sub);
 
 	// add the main panel to the frame
 	getContentPane().add(top, BorderLayout.CENTER);
