@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.3 2002/04/25 16:23:30 mdb Exp $
+// $Id: MediaPanel.java,v 1.4 2002/04/27 04:57:05 mdb Exp $
 
 package com.threerings.media;
 
@@ -12,6 +12,7 @@ import java.awt.Shape;
 
 import javax.swing.JComponent;
 import javax.swing.RepaintManager;
+import javax.swing.SwingUtilities;
 import javax.swing.event.AncestorEvent;
 
 import java.util.ArrayList;
@@ -111,24 +112,8 @@ public class MediaPanel extends JComponent
         _last = System.currentTimeMillis();
         _ttime = _last + millis;
 
-//         // figure out the lesser (but non-zero) of the two scroll deltas
-//         int absx = Math.abs(dx), absy = Math.abs(dy);
-//         int mindist = absx;
-//         if (absx == 0) {
-//             mindist = absy;
-//         } else if (absy == 0) {
-//             mindist = absx;
-//         } else {
-//             mindist = Math.min(absx, absy);
-//         }
-
-//         // let the animation manager know how "fast" we'll be scrolling so
-//         // that it can determine its frame rate
-//         int mspp = (int)(millis/mindist);
-//         _animmgr.setScrolling(mspp);
-
 //         Log.info("Scrolling [dx=" + dx + ", dy=" + dy +
-//                  ", millis=" + millis + "ms, mspp=" + mspp + "].");
+//                  ", millis=" + millis + "ms.");
     }
 
     /**
@@ -218,15 +203,16 @@ public class MediaPanel extends JComponent
         _ty = (vsize.height - size.height)/2;
 
 //         Log.info("Size: " + size + ", vsize: " + vsize +
-//                  ", tx: " + _ty + ", ty: " + _ty + ".");
+//                  ", tx: " + _tx + ", ty: " + _ty + ".");
     }
 
     // documentation inherited
     public void invalidate ()
     {
         super.invalidate();
+
         // invalidate our bounds with the region manager
-        _remgr.invalidateRegion(getBounds());
+        _remgr.invalidateRegion(_tx, _ty, getWidth(), getHeight());
     }
 
     // documentation inherited from interface
@@ -245,7 +231,7 @@ public class MediaPanel extends JComponent
                 _dx = _scrollx;
                 _dy = _scrolly;
 
-//                 Log.info("Scrolling rest [dx=" + dx + ", dy=" + dy + "].");
+//                 Log.info("Scrolling rest [dx=" + _dx + ", dy=" + _dy + "].");
 
             } else {
                 // otherwise figure out how many milliseconds have gone by
@@ -259,7 +245,7 @@ public class MediaPanel extends JComponent
                 _dy = Math.round((float)(_scrolly * dt) / rt);
 
 //                 Log.info("Scrolling delta [dt=" + dt + ", rt=" + rt +
-//                          ", dx=" + dx + ", dy=" + dy + "].");
+//                          ", dx=" + _dx + ", dy=" + _dy + "].");
             }
 
             // and add invalid rectangles for the exposed areas
@@ -323,13 +309,14 @@ public class MediaPanel extends JComponent
     // documentation inherited
     public void repaint (long tm, int x, int y, int width, int height)
     {
-        _remgr.invalidateRegion(x, y, width, height);
+        _remgr.invalidateRegion(_tx + x, _ty + y, width, height);
     }
 
     // documentation inherited
     public void paint (Graphics g)
     {
         Graphics2D gfx = (Graphics2D)g;
+        int width = getWidth(), height = getHeight();
 
         // no use in painting if we're not showing or if we've not yet
         // been validated
@@ -342,6 +329,7 @@ public class MediaPanel extends JComponent
         if (!_tickPaintPending) {
             Shape clip = g.getClip();
             Rectangle dirty = (clip == null) ? getBounds() : clip.getBounds();
+            dirty.translate(_tx, _ty);
             _remgr.invalidateRegion(dirty);
 
         } else {
@@ -363,11 +351,14 @@ public class MediaPanel extends JComponent
         Rectangle[] dirty = _remgr.getDirtyRegions();
         int dcount = dirty.length;
 
+        // clip the dirty regions to the viewport
+        for (int ii = 0; ii < dcount; ii++) {
+            SwingUtilities.computeIntersection(
+                _tx, _ty, width, height, dirty[ii]);
+        }
+
         // translate into happy space
         gfx.translate(-_tx, -_ty);
-        for (int ii = 0; ii < dcount; ii++) {
-            dirty[ii].translate(_tx, _ty);
-        }
 
         // paint the behind the scenes stuff
         paintBehind(gfx, dirty);
