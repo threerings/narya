@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.19 2001/10/25 23:36:06 mdb Exp $
+// $Id: Client.java,v 1.20 2002/02/09 20:45:23 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -69,7 +69,7 @@ public class Client
      *
      * @see ClientObserver
      */
-    public void addObserver (ClientObserver observer)
+    public void addClientObserver (ClientObserver observer)
     {
         synchronized (_observers) {
             // disallow multiple instances of the same observer
@@ -84,7 +84,7 @@ public class Client
      * the observer will no longer receive notifications of state changes
      * within the client.
      */
-    public void removeObserver (ClientObserver observer)
+    public void removeClientObserver (ClientObserver observer)
     {
         synchronized (_observers) {
             _observers.remove(observer);
