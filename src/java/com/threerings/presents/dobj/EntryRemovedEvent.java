@@ -1,5 +1,5 @@
 //
-// $Id: EntryRemovedEvent.java,v 1.1 2001/08/16 03:31:09 mdb Exp $
+// $Id: EntryRemovedEvent.java,v 1.2 2001/08/16 03:33:11 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -12,8 +12,8 @@ import com.threerings.cocktail.cher.dobj.io.ValueMarshaller;
 /**
  * An element removed event is dispatched when an element is removed from
  * a <code>DSet</code> attribute of a distributed object. It can also be
- * constructed to request the removal of an element from a
- * <code>DSet</code> attribute of an object and posted to the dobjmgr.
+ * constructed to request the removal of an element from a set and posted
+ * to the dobjmgr.
  *
  * @see DObjectManager#postEvent
  */

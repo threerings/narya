@@ -1,5 +1,5 @@
 //
-// $Id: EntryAddedEvent.java,v 1.1 2001/08/16 03:31:09 mdb Exp $
+// $Id: EntryAddedEvent.java,v 1.2 2001/08/16 03:33:11 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -10,8 +10,8 @@ import com.threerings.cocktail.cher.Log;
 /**
  * An element added event is dispatched when an element is added to a
  * <code>DSet</code> attribute of a distributed element. It can also be
- * constructed to request the addition of an element to a
- * <code>DSet</code> attribute of an element and posted to the dobjmgr.
+ * constructed to request the addition of an element to a set and posted
+ * to the dobjmgr.
  *
  * @see DObjectManager#postEvent
  */
