@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.43 2002/09/20 04:53:42 mdb Exp $
+// $Id: GameManager.java,v 1.44 2002/10/03 17:16:15 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -342,8 +342,8 @@ public class GameManager extends PlaceManager
      */
     protected void placeBecameEmpty ()
     {
-        Log.info("Game room empty. Going away. " +
-                 "[gameOid=" + _gameobj.getOid() + "].");
+//         Log.info("Game room empty. Going away. " +
+//                  "[gameOid=" + _gameobj.getOid() + "].");
 
         // cancel the game if it was in play
         if (_gameobj.state == GameObject.IN_PLAY) {
