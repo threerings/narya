@@ -1,16 +1,19 @@
 //
-// $Id: CharacterSprite.java,v 1.4 2001/08/14 23:35:22 mdb Exp $
+// $Id: CharacterSprite.java,v 1.5 2001/08/15 02:30:27 shaper Exp $
 
-package com.threerings.media.sprite;
+package com.threerings.miso.scene;
 
-import com.threerings.media.Log;
+import com.threerings.media.sprite.*;
+import com.threerings.miso.Log;
+import com.threerings.miso.tile.Tile;
+import com.threerings.miso.tile.Traverser;
 
 /**
  * An <code>AmbulatorySprite</code> is a sprite that can face in one of
  * the various compass directions and that can animate itself walking
  * along some chosen path.
  */
-public class AmbulatorySprite extends Sprite
+public class AmbulatorySprite extends Sprite implements Traverser
 {
     /**
      * Construct an <code>AmbulatorySprite</code>, with a multi-frame
@@ -59,6 +62,12 @@ public class AmbulatorySprite extends Sprite
 
         // start tile animation to show movement
         setAnimationDelay(0);
+    }
+
+    public boolean canTraverse (Tile tile)
+    {
+	// by default, passability is solely the province of the tile
+	return tile.passable;
     }
 
     /** The animation frames for the sprite facing each direction. */

@@ -1,13 +1,13 @@
 //
-// $Id: TileUtil.java,v 1.1 2001/08/14 23:35:22 mdb Exp $
+// $Id: TileUtil.java,v 1.2 2001/08/15 02:30:27 shaper Exp $
 
 package com.threerings.miso.tile;
 
 import java.awt.Image;
 
-import com.threerings.media.sprite.AmbulatorySprite;
 import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.sprite.Path;
+import com.threerings.miso.scene.AmbulatorySprite;
 
 /**
  * Tile-related utility functions.

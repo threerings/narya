@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.9 2001/08/15 00:10:58 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.10 2001/08/15 02:30:28 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -24,7 +24,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
      * Construct the panel and initialize it with a context.
      */
     public ViewerSceneViewPanel (
-	ViewerContext ctx, SpriteManager spritemgr, Sprite sprite)
+	ViewerContext ctx, SpriteManager spritemgr, AmbulatorySprite sprite)
     {
 	super(ctx.getTileManager(), spritemgr);
 
@@ -120,7 +120,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     AnimationManager _animmgr;
 
     /** The sprite we're manipulating within the view. */
-    protected Sprite _sprite;
+    protected AmbulatorySprite _sprite;
 
     /** The context object. */
     protected ViewerContext _ctx;

@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.9 2001/08/13 19:54:39 shaper Exp $
+// $Id: Tile.java,v 1.10 2001/08/15 02:30:27 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -30,10 +30,10 @@ public class Tile
 
     /**
      * Construct a new tile with the specified identifiers.  Intended
-     * only for use by the <code>TileManager</code>.  Do not call this
+     * only for use by the <code>TileSet</code>.  Do not call this
      * method.
      *
-     * @see TileManager#getTile
+     * @see TileSet#getTile
      */
     public Tile (int tsid, int tid)
     {

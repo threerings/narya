@@ -1,5 +1,5 @@
 //
-// $Id: ViewerFrame.java,v 1.11 2001/08/15 01:08:49 mdb Exp $
+// $Id: ViewerFrame.java,v 1.12 2001/08/15 02:30:28 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -13,6 +13,7 @@ import com.samskivert.swing.*;
 import com.threerings.media.sprite.*;
 
 import com.threerings.miso.Log;
+import com.threerings.miso.scene.AmbulatorySprite;
 import com.threerings.miso.tile.TileManager;
 import com.threerings.miso.tile.TileUtil;
 import com.threerings.miso.viewer.util.ViewerContext;

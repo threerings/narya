@@ -1,0 +1,277 @@
+//
+// $Id: AStarPathUtil.java,v 1.1 2001/08/15 02:30:27 shaper Exp $
+
+package com.threerings.miso.scene.util;
+
+import java.awt.Point;
+import java.util.*;
+
+import com.threerings.miso.Log;
+import com.threerings.miso.tile.Tile;
+import com.threerings.miso.tile.Traverser;
+import com.threerings.media.util.MathUtil;
+
+/**
+ * The <code>AStarPathUtil</code> class provides a facility for
+ * finding a reasonable path between two points in a scene using the
+ * A* search algorithm.
+ *
+ * <p> See the path-finding article on
+ * <a href="http://www.gamasutra.com/features/19990212/sm_01.htm">
+ * Gamasutra</a> for more detailed information.
+ */
+public class AStarPathUtil
+{
+    /**
+     * Return a list of <code>Point</code> objects representing a path
+     * from coordinates <code>(ax, by)</code> to
+     * <code>(bx, by)</code>, inclusive, determined by performing an
+     * A* search in the given array of tiles.  Assumes the starting
+     * and destination nodes are traversable by the specified
+     * traverser.
+     *
+     * @param tiles the tile array.
+     * @param tilewid the tile array width.
+     * @param tilehei the tile array height.
+     * @param trav the traverser to follow the path.
+     * @param ax the starting x-position in tile coordinates.
+     * @param ay the starting y-position in tile coordinates.
+     * @param bx the ending x-position in tile coordinates.
+     * @param by the ending y-position in tile coordinates.
+     *
+     * @return the list of points in the path.
+     */
+    public static List getPath (
+	Tile tiles[][][], int tilewid, int tilehei, Traverser trav,
+	int ax, int ay, int bx, int by)
+    {
+	AStarInfo info = new AStarInfo(tiles, tilewid, tilehei, trav, bx, by);
+
+	// set up the starting node
+	AStarNode s = getNode(info, ax, ay);
+	s.g = 0;
+	s.h = getDistanceEstimate(ax, ay, bx, by);
+	s.f = s.g + s.h;
+
+	// push starting node on the open list
+	info.open.add(s);
+
+	// while there are more nodes on the open list
+	while (info.open.size() > 0) {
+
+	    // pop the best node so far from open
+	    AStarNode n = (AStarNode)info.open.first();
+	    info.open.remove(n);
+
+	    // if node is a goal node
+	    if (n.x == bx && n.y == by) {
+		// construct and return the acceptable path
+		return getNodePath(n);
+	    }
+
+	    // TODO: don't allow diagonal traversal if horiz and vert
+	    // are impassable.
+
+	    // consider each successor of the node
+	    considerStep(info, n, n.x - 1, n.y - 1);
+	    considerStep(info, n, n.x, n.y - 1);
+	    considerStep(info, n, n.x + 1, n.y - 1);
+	    considerStep(info, n, n.x - 1, n.y);
+	    considerStep(info, n, n.x + 1, n.y);
+	    considerStep(info, n, n.x - 1, n.y + 1);
+	    considerStep(info, n, n.x, n.y + 1);
+	    considerStep(info, n, n.x + 1, n.y + 1);
+
+	    // push the node on the closed list
+	    info.closed.add(n);
+	}
+
+	// no path found
+	return null;
+    }
+
+    /**
+     * Consider the step <code>(n.x, n.y)</code> to <code>(x, y)</code>
+     * for possible inclusion in the path.
+     *
+     * @param info the info object.
+     * @param n the originating node for the step.
+     * @param x the x-coordinate for the destination step.
+     * @param y the y-coordinate for the destination step.
+     */
+    protected static void considerStep (
+	AStarInfo info, AStarNode n, int x, int y)
+    {
+	// skip node if it's outside the map bounds
+	if (x < 0 || y < 0 || x >= info.tilewid || y >= info.tilehei) {
+	    return;
+	}
+
+	// skip node if it's impassable
+	// TODO: fix hard-coded consideration of only the base layer
+	if (!info.trav.canTraverse(info.tiles[x][y][0])) return;
+
+	// calculate the new cost for this node
+	int newg = n.g + 1; // getCost() is always 1?
+
+	// retrieve the node corresponding to this location
+	AStarNode np = getNode(info, x, y);
+
+	// skip if it's already in the open or closed list or if its
+	// actual cost is less than the just-calculated cost
+	// TODO: shouldn't <= below be >=?
+	if ((info.open.contains(np) || info.closed.contains(np)) &&
+	    np.g <= newg) {
+	    return;
+	}
+
+	// update the node's information
+	np.parent = n;
+	np.g = newg;
+	np.h = getDistanceEstimate(np.x, np.y, info.destx, info.desty);
+	np.f = np.g + np.h;
+
+	// remove it from the closed list if it's present
+	info.closed.remove(np);
+
+	// add it to the open list in case it's not already there
+	info.open.add(np);
+    }
+
+    /**
+     * Return a list of <code>Point</code> objects detailing the path
+     * from the first node (the given node's ultimate parent) to the
+     * ending node (the given node itself.)
+     *
+     * @param n the ending node in the path.
+     *
+     * @return the list detailing the path.
+     */
+    protected static List getNodePath (AStarNode n)
+    {
+	AStarNode cur = n;
+	ArrayList path = new ArrayList();
+
+	while (cur != null) {
+	    // add to the head of the list since we're traversing from
+	    // the end to the beginning
+	    path.add(0, new Point(cur.x, cur.y));
+
+	    // advance to the next node in the path
+	    cur = cur.parent;
+	}
+
+	return path;
+    }
+
+    /**
+     * Return the <code>AStarNode</code> object corresponding to the
+     * specified tile coordinate.  Creates the node and saves it in
+     * the node array if this is its first reference.
+     */
+    protected static AStarNode getNode (AStarInfo info, int x, int y)
+    {
+	AStarNode n = info.nodes[x][y];
+	return (n == null) ? (info.nodes[x][y] = new AStarNode(x, y)) : n;
+    }
+
+    /**
+     * Return a heuristic estimate of the cost to get from
+     * <code>(ax, ay)</code> to <code>(bx, by)</code>.
+     */
+    protected static int getDistanceEstimate (int ax, int ay, int bx, int by)
+    {
+	return (int)MathUtil.distance(ax, ay, bx, by);
+    }
+}
+
+/**
+ * A holding class to contain the wealth of information referenced
+ * while performing an A* search for a path through a tile array.
+ */
+class AStarInfo
+{
+    /** The array of tiles being traversed. */
+    public Tile tiles[][][];
+
+    /** The tile array dimensions. */
+    public int tilewid, tilehei;
+
+    /** The traverser moving along the path. */
+    public Traverser trav;
+
+    /** The array of A*-specific node info to match the tile array. */
+    public AStarNode nodes[][];
+
+    /** The set of open nodes being searched. */
+    public SortedSet open;
+
+    /** The set of closed nodes being searched. */
+    public ArrayList closed;
+
+    /** The destination coordinates in the tile array. */
+    public int destx, desty;
+
+    public AStarInfo (
+	Tile tiles[][][], int tilewid, int tilehei, Traverser trav,
+	int destx, int desty)
+    {
+	// save off references
+	this.tiles = tiles;
+	this.tilewid = tilewid;
+	this.tilehei = tilehei;
+	this.trav = trav;
+	this.destx = destx;
+	this.desty = desty;
+
+	// construct the node array
+	nodes = new AStarNode[tilewid][tilehei];
+
+	// construct the open and closed lists
+	open = new TreeSet();
+	closed = new ArrayList();
+    }
+}
+
+/**
+ * A class that represents a single traversable node in the tile array
+ * along with its current A*-specific search information.
+ */
+class AStarNode implements Comparable
+{
+    /** The node coordinates. */
+    public int x, y;
+
+    /** The actual cheapest cost of arriving here from the start. */
+    public int g;
+
+    /** The heuristic estimate of the cost to the goal from here. */
+    public int h;
+
+    /** The score assigned to this node. */
+    public int f;
+
+    /** The node from which we reached this node. */
+    public AStarNode parent;
+
+    public AStarNode (int x, int y)
+    {
+	this.x = x;
+	this.y = y;
+    }
+
+    public int compareTo (Object o)
+    {
+	int bf = ((AStarNode)o).f;
+
+	if (f == bf){
+	    return 0;
+	}
+
+	if (f < bf)  {
+	    return -1;
+	}
+
+	return 1;
+    }
+}

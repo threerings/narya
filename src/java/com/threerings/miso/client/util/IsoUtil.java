@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.2 2001/08/14 23:35:22 mdb Exp $
+// $Id: IsoUtil.java,v 1.3 2001/08/15 02:30:27 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -48,7 +48,7 @@ public class IsoUtil
 	int tby = bfpos.y / FULL_TILE_FACTOR;
 
 	// compare tile coordinates to determine direction
-	int dir = getIsoDirection(model, tax, tay, tbx, tby);
+	int dir = getIsoDirection(tax, tay, tbx, tby);
 	if (dir != Path.DIR_NONE) return dir;
 
 	// destination point is in the same tile as the
@@ -62,7 +62,7 @@ public class IsoUtil
 	int fby = bfpos.y - (tby * FULL_TILE_FACTOR);
 
 	// compare fine coordinates to determine direction
-	dir = getIsoDirection(model, fax, fay, fbx, fby);
+	dir = getIsoDirection(fax, fay, fbx, fby);
 
 	// arbitrarily return southwest if fine coords were also equivalent
 	return (dir == -1) ? Path.DIR_SOUTHWEST : dir;
@@ -84,8 +84,7 @@ public class IsoUtil
      *         class's direction constants, or <code>Path.DIR_NONE</code> 
      *         if point B is equivalent to point A.
      */
-    public static int getIsoDirection (
-	IsoSceneModel model, int ax, int ay, int bx, int by)
+    public static int getIsoDirection (int ax, int ay, int bx, int by)
     {
 	if (bx > ax) {
 	    if (by == ay) return Path.DIR_SOUTH;
@@ -99,6 +98,16 @@ public class IsoUtil
 	    if (by == ay) return Path.DIR_NORTH;
 	    return (by < ay) ? Path.DIR_NORTHEAST : Path.DIR_NORTHWEST;
 	}
+    }
+
+    public static int fullToTile (int val)
+    {
+	return (val / FULL_TILE_FACTOR);
+    }
+
+    public static int fullToFine (int val)
+    {
+	return (val - ((val / FULL_TILE_FACTOR) * FULL_TILE_FACTOR));
     }
 
     /**

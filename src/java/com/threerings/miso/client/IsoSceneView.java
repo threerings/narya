@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.44 2001/08/15 01:08:49 mdb Exp $
+// $Id: IsoSceneView.java,v 1.45 2001/08/15 02:30:27 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -15,6 +15,7 @@ import com.threerings.media.sprite.*;
 import com.threerings.miso.Log;
 import com.threerings.miso.tile.Tile;
 import com.threerings.miso.tile.TileManager;
+import com.threerings.miso.scene.util.AStarPathUtil;
 import com.threerings.miso.scene.util.IsoUtil;
 
 /**
@@ -539,7 +540,7 @@ public class IsoSceneView implements EditableSceneView
         _model.precalculate();
     }
 
-    public Path getPath (Sprite sprite, int x, int y)
+    public Path getPath (AmbulatorySprite sprite, int x, int y)
     {
         // make sure the destination point is within our bounds
         if (x < 0 || x >= _model.bounds.width ||
@@ -550,13 +551,43 @@ public class IsoSceneView implements EditableSceneView
 	// constrain destination pixels to fine coordinates
 	Point fpos = new Point();
 	IsoUtil.screenToFull(_model, x, y, fpos);
-	Point spos = new Point();
-	IsoUtil.fullToScreen(_model, fpos.x, fpos.y, spos);
+//  	Point spos = new Point();
+//  	IsoUtil.fullToScreen(_model, fpos.x, fpos.y, spos);
 
-	// create path from current loc to destination
+	// calculate tile coordinates for start and end position
+	Point stpos = new Point();
+	IsoUtil.screenToTile(_model, sprite.x, sprite.y, stpos);
+	int tbx = IsoUtil.fullToTile(fpos.x);
+	int tby = IsoUtil.fullToTile(fpos.y);
+
+	// get a reasonable path from start to end
+	List tilepath =
+	    AStarPathUtil.getPath(
+		_scene.tiles, MisoScene.TILE_WIDTH, MisoScene.TILE_HEIGHT,
+		sprite, stpos.x, stpos.y, tbx, tby);
+
+	// construct the path object and starting node
         Path path = new Path(sprite.x, sprite.y);
-	int dir = IsoUtil.getDirection(_model, sprite.x, sprite.y, x, y);
-        path.addNode(spos.x, spos.y, dir);
+
+	// add all nodes on the calculated path
+	Point nspos = new Point();
+	int size = tilepath.size();
+	Point prev = stpos;
+	for (int ii = 0; ii < size; ii++) {
+	    Point n = (Point)tilepath.get(ii);
+
+	    // determine the direction this node lies in from the
+	    // previous node
+	    int dir = IsoUtil.getIsoDirection(prev.x, prev.y, n.x, n.y);
+
+	    // determine the node's position in screen pixel coordinates 
+	    IsoUtil.tileToScreen(_model, n.x, n.y, nspos);
+
+	    // add the node to the path
+	    path.addNode(nspos.x, nspos.y, dir);
+
+	    prev = n;
+	}
 
         return path;
     }
