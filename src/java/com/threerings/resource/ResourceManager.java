@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.35 2003/08/15 23:23:05 mdb Exp $
+// $Id: ResourceManager.java,v 1.36 2003/09/24 23:54:59 mdb Exp $
 
 package com.threerings.resource;
 
@@ -229,9 +229,13 @@ public class ResourceManager
      * the caller doesn't care to be informed; note that in the latter
      * case, the calling thread will block until bundle updating is
      * complete.
+     *
+     * @exception IOException thrown if we are unable to download our
+     * resource manager configuration from the support resource URL.
      */
     public void initBundles (String resourceURL, String configPath,
                              String version, BundleDownloadObserver downloadObs)
+        throws IOException
     {
         _version = version;
 
@@ -262,6 +266,7 @@ public class ResourceManager
         } catch (MalformedURLException mue) {
             Log.warning("Invalid resource URL [url=" + resourceURL +
                         ", error=" + mue + "].");
+            throw new IOException("Invalid resource url '" + resourceURL + "'");
         }
 
         // if no dynamic resource URL has been specified, use the normal
@@ -274,7 +279,20 @@ public class ResourceManager
                   ", drurl=" + _drurl + "].");
 
         // load up our configuration
-        Properties config = loadConfig(configPath);
+        Properties config = new Properties();
+        URL curl = null;
+        try {
+            if (configPath != null) {
+                curl = new URL(_rurl, configPath);
+                config.load(curl.openStream());
+            }
+        } catch (MalformedURLException mue) {
+            Log.warning("Unable to construct config URL [resourceURL=" + _rurl +
+                        ", configPath=" + configPath + ", error=" + mue + "].");
+            String errmsg = "Invalid config url [resourceURL=" + _rurl +
+                ", configPath=" + configPath + "]";
+            throw new IOException(errmsg);
+        }
 
         // resolve the configured resource sets
         ArrayList dlist = new ArrayList();
@@ -550,36 +568,6 @@ public class ResourceManager
             }
         }
         return unpacked;
-    }
-
-    /**
-     * Loads up the most recent version of the resource manager
-     * configuration.
-     */
-    protected Properties loadConfig (String configPath)
-    {
-        Properties config = new Properties();
-        URL curl = null;
-
-        try {
-            if (configPath != null) {
-                curl = new URL(_rurl, configPath);
-                config.load(curl.openStream());
-            }
-
-        } catch (MalformedURLException mue) {
-            Log.warning("Unable to construct config URL " +
-                        "[resourceURL=" + _rurl +
-                        ", configPath=" + configPath +
-                        ", error=" + mue + "].");
-
-        } catch (IOException ioe) {
-            // complain if some other error occurs
-            Log.warning("Error loading resource manager configuration " +
-                        "[url=" + curl + ", error=" + ioe + "].");
-        }
-
-        return config;
     }
 
     /**
