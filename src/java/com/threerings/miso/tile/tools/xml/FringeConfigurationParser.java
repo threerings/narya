@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfigurationParser.java,v 1.11 2004/08/27 02:20:08 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -83,7 +83,7 @@ public class FringeConfigurationParser extends CompiledConfigParser
         vrule = new ValidatedSetNextRule("addFringeRecord", val) {
             // parse the fringe record, converting tileset names to
             // tileset ids
-            public void begin (Attributes attrs)
+            public void begin (String namespace, String lname, Attributes attrs)
                 throws Exception
             {
                 FringeRecord frec = (FringeRecord) digester.peek();
@@ -132,7 +132,7 @@ public class FringeConfigurationParser extends CompiledConfigParser
         };
         vrule = new ValidatedSetNextRule("addTileset", val) {
             // parse the fringe tilesetrecord, converting tileset names to ids
-            public void begin (Attributes attrs)
+            public void begin (String namespace, String lname, Attributes attrs)
                 throws Exception
             {
                 FringeTileSetRecord f = (FringeTileSetRecord) digester.peek();
