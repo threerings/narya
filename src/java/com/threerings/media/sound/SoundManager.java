@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.38 2002/12/07 22:41:10 mdb Exp $
+// $Id: SoundManager.java,v 1.39 2002/12/09 04:42:54 shaper Exp $
 
 package com.threerings.media;
 
@@ -29,7 +29,6 @@ import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
-import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -39,7 +38,6 @@ import org.apache.commons.io.StreamUtils;
 
 import com.samskivert.util.Config;
 import com.samskivert.util.LockableLRUHashMap;
-import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.Queue;
 
 import com.threerings.resource.ResourceManager;
