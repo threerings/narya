@@ -1,5 +1,5 @@
 //
-// $Id: Handler.java,v 1.3 2003/05/06 18:48:18 ray Exp $
+// $Id: Handler.java,v 1.4 2003/05/07 05:31:09 mdb Exp $
 
 package com.threerings.resource;
 
@@ -25,6 +25,12 @@ public class Handler extends URLStreamHandler
      */
     public static void registerHandler (ResourceManager rmgr)
     {
+        // if we already have a resource manager registered; don't
+        // register another one
+        if (_rmgr != null) {
+            Log.warning("Refusing duplicate resource handler registration.");
+            return;
+        }
         _rmgr = rmgr;
 
         // There are two ways to do this.
