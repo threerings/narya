@@ -1,19 +1,19 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- $Id: classes.xml,v 1.5 2002/03/05 07:09:59 mdb Exp $ -->
+<!-- $Id: classes.xml,v 1.6 2002/03/08 22:37:21 mdb Exp $ -->
 
 <!-- test component class definitions -->
 <classes>
   <!-- character component classes -->
-  <class name="feet" renderPriority="0"/>
-  <class name="legs" renderPriority="1"/>
-  <class name="hand_left" renderPriority="2"/>
-  <class name="hand_right" renderPriority="2"/>
-  <class name="torso" renderPriority="3"/>
-  <class name="head" renderPriority="4"/>
-  <class name="eyepatch" renderPriority="5"/>
-  <class name="hair" renderPriority="6"/>
-  <class name="hat" renderPriority="7"/>
-  <class name="familiars" renderPriority="8"/>
+  <class name="male/feet" renderPriority="0"/>
+  <class name="male/legs" renderPriority="1"/>
+  <class name="male/hand_left" renderPriority="2"/>
+  <class name="male/hand_right" renderPriority="2"/>
+  <class name="male/torso" renderPriority="3"/>
+  <class name="male/head" renderPriority="4"/>
+  <class name="male/eyepatch" renderPriority="5"/>
+  <class name="male/hair" renderPriority="6"/>
+  <class name="male/hat" renderPriority="7"/>
+  <class name="male/familiars" renderPriority="8"/>
 
   <!-- vessel classes -->
   <class name="navsail" renderPriority="0"/>

@@ -92,11 +92,13 @@
 
     <!-- build the component bundles -->
     <cbundle target="${cbundle.dir}/pirate/components.jar"
-      mapfile="${cbundle.dir}/components.map">
+      mapfile="${cbundle.dir}/components.map"
+      root="${cbundle.dir}/pirate">
       <fileset dir="${cbundle.dir}/pirate" includes="**/*.png"/>
     </cbundle>
     <cbundle target="${cbundle.dir}/vessel/components.jar"
-      mapfile="${cbundle.dir}/components.map">
+      mapfile="${cbundle.dir}/components.map"
+      root="${cbundle.dir}/vessel">
       <fileset dir="${cbundle.dir}/vessel" includes="**/*.png"/>
     </cbundle>
   </target>
