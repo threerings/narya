@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: matchclasses,v 1.3 2003/07/24 21:26:40 mdb Exp $
+# $Id: matchclasses,v 1.4 2003/07/24 22:12:52 mdb Exp $
 #
 # A script which inspects a hierarchy of classes and generates lists of
 # classes that match specified criterion. The criterion are that a class
@@ -104,26 +104,28 @@ while (@gclasses) {
         my $goods = $_;
 
         # strip off the close brace
-        $goods =~ s: .$::g;
+        $goods =~ s:\s*{\s*$::g;
 
         # interfaces are now at the end of the line
         my @ifaces;
-        if ($goods =~ s: implements ([A-Za-z0-9.\$]+)::g) {
+        if ($goods =~ s: implements (.*)$::g) {
             my $idefs = $1;
             $idefs =~ s:\s+$::g;
             $idefs =~ s:\. :\$:g;
+            $idefs =~ s: ::g;
             $idefs =~ s:\$([^0-9]):.$1:g;
-            @ifaces = split(/, /, $idefs);
+            @ifaces = split(/,/, $idefs);
         }
 
         # now the parent class or parent interfaces are at the end
         my @parents;
-        if ($goods =~ s: extends ([A-Za-z0-9.\$]+)::g) {
+        if ($goods =~ s: extends (.*)$::g) {
             my $pdefs = $1;
             $pdefs =~ s:\s+$::g;
             $pdefs =~ s:\. :\$:g;
+            $pdefs =~ s: ::g;
             $pdefs =~ s:\$([^0-9]):.$1:g;
-            @parents = split(/, /, $pdefs);
+            @parents = split(/,/, $pdefs);
         }
 
         # last is the class name
