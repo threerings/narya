@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.123 2002/10/17 02:12:42 ray Exp $
+// $Id: IsoSceneView.java,v 1.124 2002/10/18 19:44:00 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -466,15 +466,6 @@ public class IsoSceneView implements SceneView
         // nothing by default
     }
 
-    /**
-     * A place for subclasses to react to the hover object changing.
-     * One of the supplied arguments may be null.
-     */
-    protected void hoverObjectChanged (Object oldHover, Object newHover)
-    {
-        // nothing by default
-    }
-
     // documentation inherited
     public Path getPath (MisoCharacterSprite sprite, int x, int y)
     {
@@ -548,38 +539,56 @@ public class IsoSceneView implements SceneView
             hobject = item.obj;
         }
 
-        // if this hover object is different than before, we'll need to be
-        // repainted unless we're not highlighting anything
-        if (hobject != _hobject) {
-            repaint |= (_hmode != HIGHLIGHT_NEVER);
-
-            // unhover the old
-            if (_hobject instanceof SceneObject) {
-                SceneObject oldhov = (SceneObject) _hobject;
-                if (oldhov.setHovered(false)) {
-                    _remgr.invalidateRegion(oldhov.bounds);
-                }
-            }
-
-            hoverObjectChanged(_hobject, hobject);
-            // set the new 
-            _hobject = hobject;
-
-            // hover the new
-            if (_hobject instanceof SceneObject) {
-                SceneObject newhov = (SceneObject) _hobject;
-                if (newhov.setHovered(true)) {
-                    _remgr.invalidateRegion(newhov.bounds);
-                }
-            }
-//             Log.info("New hover object [ho=" + _hobject + "].");
-        }
+        repaint |= changeHoverObject(hobject);
 
         // clear out the hitlists
         _hitList.clear();
         _hitSprites.clear();
 
         return repaint;
+    }
+
+    /**
+     * Change the hover object to the new object.
+     *
+     * @return true if we need to repaint the entire scene. Bah!
+     */
+    protected boolean changeHoverObject (Object newHover)
+    {
+        if (newHover == _hobject) {
+            return false; // no change, no repaint
+        }
+
+        // unhover the old
+        if (_hobject instanceof SceneObject) {
+            SceneObject oldhov = (SceneObject) _hobject;
+            if (oldhov.setHovered(false)) {
+                _remgr.invalidateRegion(oldhov.bounds);
+            }
+        }
+
+        hoverObjectChanged(_hobject, newHover);
+        // set the new 
+        _hobject = newHover;
+
+        // hover the new
+        if (_hobject instanceof SceneObject) {
+            SceneObject newhov = (SceneObject) _hobject;
+            if (newhov.setHovered(true)) {
+                _remgr.invalidateRegion(newhov.bounds);
+            }
+        }
+
+        return (_hmode != HIGHLIGHT_NEVER);
+    }
+
+    /**
+     * A place for subclasses to react to the hover object changing.
+     * One of the supplied arguments may be null.
+     */
+    protected void hoverObjectChanged (Object oldHover, Object newHover)
+    {
+        // nothing by default
     }
 
     /**
@@ -615,7 +624,7 @@ public class IsoSceneView implements SceneView
     {
         // clear the highlight tracking data
         _hcoords.setLocation(-1, -1);
-        _hobject = null;
+        changeHoverObject(null);
     }
 
     // documentation inherited
