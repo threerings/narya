@@ -1,8 +1,9 @@
 //
-// $Id: CrowdClient.java,v 1.19 2002/12/03 06:58:57 mdb Exp $
+// $Id: CrowdClient.java,v 1.20 2002/12/04 02:47:03 mdb Exp $
 
 package com.threerings.crowd.server;
 
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.PresentsClient;
 
 import com.threerings.crowd.Log;
@@ -18,16 +19,14 @@ import com.threerings.crowd.server.CrowdServer;
 public class CrowdClient extends PresentsClient
 {
     // documentation inherited
-    protected void sessionConnectionClosed ()
+    protected void sessionConnectionClosed (ClientObject clobj)
     {
-        super.sessionConnectionClosed();
+        super.sessionConnectionClosed(clobj);
 
-        if (_clobj != null) {
-            // note that the user's disconnected
-            BodyObject bobj = (BodyObject)_clobj;
-            BodyProvider.updateOccupantStatus(
-                bobj, bobj.location, OccupantInfo.DISCONNECTED);
-        }
+        // note that the user's disconnected
+        BodyObject bobj = (BodyObject)clobj;
+        BodyProvider.updateOccupantStatus(
+            bobj, bobj.location, OccupantInfo.DISCONNECTED);
     }
 
     // documentation inherited

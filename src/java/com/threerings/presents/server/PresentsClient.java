@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.45 2002/11/26 02:14:25 mdb Exp $
+// $Id: PresentsClient.java,v 1.46 2002/12/04 02:47:03 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -507,6 +507,10 @@ public class PresentsClient
         // clear out our connection reference
         setConnection(null);
 
+        // we want to pass this to session connection closed even if we
+        // end up clearing it out before that method is actually run
+        final ClientObject clobj = _clobj;
+
         // clear out our subscriptions. we need to do this on the dobjmgr
         // thread. it is important that we do this *after* we clear out
         // our connection reference. once the connection ref is null, no
@@ -514,7 +518,7 @@ public class PresentsClient
         // queued up before the connection went away)
         PresentsServer.omgr.postUnit(new Runnable() {
             public void run () {
-                sessionConnectionClosed();
+                sessionConnectionClosed(clobj);
             }
         });
     }
@@ -524,8 +528,12 @@ public class PresentsClient
      * this session has been closed and unmapped. If the user logged off
      * before closing their connection, this will be preceded by a call to
      * {@link #sessionDidEnd}.
+     *
+     * @param clobj the client object is explicitly passed to this method
+     * because {@link #_clobj} may have already been cleared out if this
+     * is being called due to the termination of a session.
      */
-    protected void sessionConnectionClosed ()
+    protected void sessionConnectionClosed (ClientObject clobj)
     {
         // clear out our dobj subscriptions in case they weren't cleared
         // by a call to sessionDidEnd
