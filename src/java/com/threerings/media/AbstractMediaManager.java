@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMediaManager.java,v 1.2 2002/11/05 20:50:42 mdb Exp $
+// $Id: AbstractMediaManager.java,v 1.3 2002/11/26 02:47:04 shaper Exp $
 
 package com.threerings.media;
 
@@ -16,7 +16,7 @@ import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
 
 /**
- * Manages, ticks, and paints AbstractMedia.
+ * Manages, ticks, and paints {@link AbstractMedia}.
  */
 public abstract class AbstractMediaManager
     implements MediaConstants
@@ -30,7 +30,7 @@ public abstract class AbstractMediaManager
     }
 
     /**
-     * Provides access to the region manager that the mediamanager is using.
+     * Returns region manager in use by this manager.
      */
     public RegionManager getRegionManager ()
     {
@@ -58,9 +58,10 @@ public abstract class AbstractMediaManager
                      clip.intersects(media.getBounds())) {
                     media.paint(gfx);
                 }
+
             } catch (Exception e) {
                 Log.warning("Failed to render media " +
-                    "[media=" + media + ", e=" + e + "].");
+                            "[media=" + media + ", e=" + e + "].");
                 Log.logStackTrace(e);
             }
         }
@@ -72,8 +73,10 @@ public abstract class AbstractMediaManager
      */
     public void tick (long tickStamp)
     {
+        _tickStamp = tickStamp;
         tickAllMedia(tickStamp);
         dispatchNotifications();
+        _tickStamp = 0;
     }
 
     /**
@@ -112,12 +115,17 @@ public abstract class AbstractMediaManager
     {
         if (_media.contains(media)) {
             Log.warning("Attempt to insert media more than once " +
-                "[media=" + media + "].");
+                        "[media=" + media + "].");
             return false;
         }
 
         _media.insertSorted(media, RENDER_ORDER);
         media.init(this);
+        if (_tickStamp > 0) {
+            // if we're in the middle of ticking, tick the inserted media
+            // so that we can paint it when the time comes
+            media.tick(_tickStamp);
+        }
         return true;
     }
 
@@ -133,7 +141,7 @@ public abstract class AbstractMediaManager
             return true;
         }
         Log.warning("Attempt to remove media that wasn't inserted " +
-            "[media=" + media + "].");
+                    "[media=" + media + "].");
         return false;
     }
 
@@ -183,6 +191,10 @@ public abstract class AbstractMediaManager
 
     /** Our render-order sorted list of media. */
     protected SortableArrayList _media = new SortableArrayList();
+
+    /** The tick stamp if the manager is in the midst of a call to {@link
+     * #tick}, else <code>0</code>. */
+    protected long _tickStamp;
 
     /** Used to sort media by render order. */
     protected static final Comparator RENDER_ORDER = new Comparator() {
