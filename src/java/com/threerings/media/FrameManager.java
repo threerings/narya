@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.31 2002/12/09 05:13:45 mdb Exp $
+// $Id: FrameManager.java,v 1.32 2003/01/15 02:21:07 shaper Exp $
 
 package com.threerings.media;
 
@@ -10,21 +10,30 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.Image;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.awt.Window;
 
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import java.awt.image.BufferStrategy;
 import java.awt.image.VolatileImage;
 
 import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 import java.util.Date;
 import java.util.Timer;
@@ -67,7 +76,7 @@ import com.threerings.media.timer.SystemMediaTimer;
  * loop).
  *
  * <li> Painting the user interface hierarchy: the top-level component
- * (the frame) is painted (via a call to {@link Frame#paint}) into a flip
+ * (the frame) is painted (via a call to {@link JFrame#paint}) into a flip
  * buffer (if supported, an off-screen buffer if not). Updates that were
  * computed during the tick should be rendered in this call to paint. The
  * paint call will propagate down to all components in the UI hierarchy,
@@ -113,9 +122,9 @@ public class FrameManager
      * obtain timing information, which is available on every platform,
      * but returns inaccurate time stamps on many platforms.
      *
-     * @see #FrameManager(Frame, MediaTimer)
+     * @see #FrameManager(JFrame, MediaTimer)
      */
-    public FrameManager (Frame frame)
+    public FrameManager (JFrame frame)
     {
         this(frame, new SystemMediaTimer());
     }
@@ -129,7 +138,7 @@ public class FrameManager
      *
      * @see GraphicsDevice#setFullScreenWindow
      */
-    public FrameManager (Frame frame, MediaTimer timer)
+    public FrameManager (JFrame frame, MediaTimer timer)
     {
         _frame = frame;
         _frame.setIgnoreRepaint(true);
@@ -146,6 +155,101 @@ public class FrameManager
         // register a debug hook to toggle the frame rate display
         DebugChords.registerHook(
             FPS_DISPLAY_MODMASK, FPS_DISPLAY_KEYCODE, FPS_DISPLAY_HOOK);
+
+        if (DEBUG_EVENTS) {
+            addTestListeners();
+        }
+    }
+
+    /**
+     * Adds a variety of listeners to the frame in order to provide
+     * visibility into the various events received by the frame.
+     */
+    protected void addTestListeners ()
+    {
+        // add a test window listener
+        _frame.addWindowListener(new WindowListener() {
+            public void windowActivated (WindowEvent e) {
+                Log.info("Window activated [evt=" + e + "].");
+            }
+
+            public void windowClosed (WindowEvent e) {
+                Log.info("Window closed [evt=" + e + "].");
+            }
+
+            public void windowClosing (WindowEvent e) {
+                Log.info("Window closing [evt=" + e + "].");
+            }
+
+            public void windowDeactivated (WindowEvent e) {
+                Log.info("Window deactivated [evt=" + e + "].");
+            }
+
+            public void windowDeiconified (WindowEvent e) {
+                Log.info("Window deiconified [evt=" + e + "].");
+            }
+
+            public void windowIconified (WindowEvent e) {
+                Log.info("Window iconified [evt=" + e + "].");
+            }
+
+            public void windowOpened (WindowEvent e) {
+                Log.info("Window opened [evt=" + e + "].");
+            }
+        });
+
+        // add a component listener
+        _frame.addComponentListener(new ComponentListener() {
+            public void componentHidden (ComponentEvent e) {
+                Log.info("Window component hidden [evt=" + e + "].");
+            }
+
+            public void componentShown (ComponentEvent e) {
+                Log.info("Window component shown [evt=" + e + "].");
+            }
+
+            public void componentMoved (ComponentEvent e) {
+                Log.info("Window component moved [evt=" + e + "].");
+            }
+
+            public void componentResized (ComponentEvent e) {
+                Log.info("Window component resized [evt=" + e + "].");
+            }
+        });
+
+        // add test ancestor focus listener
+        _frame.getRootPane().addAncestorListener(
+            new AncestorListener() {
+                public void ancestorAdded (AncestorEvent e) {
+                    Log.info("Root pane ancestor added [e=" + e + "].");
+                }
+
+                public void ancestorRemoved (AncestorEvent e) {
+                    Log.info("Root pane ancestor removed [e=" + e + "].");
+                }
+
+                public void ancestorMoved (AncestorEvent e) {
+                    Log.info("Root pane ancestor moved [e=" + e + "].");
+                }
+            });
+
+        // add test key event dispatcher
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().
+            addKeyEventDispatcher(new KeyEventDispatcher() {
+                public boolean dispatchKeyEvent (KeyEvent e) {
+//                     if ((e.getModifiersEx() & KeyEvent.ALT_DOWN_MASK) != 0 &&
+//                         e.getKeyCode() == KeyEvent.VK_TAB) {
+//                         Log.info("Detected alt-tab key event " +
+//                                  "[e=" + e + "].");
+//                         // attempt to eat the event so that windows
+//                         // doesn't alt-tab into unhappy land
+//                         e.consume();
+//                         return true;
+//                     }
+
+                    return false;
+                }
+            });
     }
 
     /**
@@ -168,12 +272,7 @@ public class FrameManager
      */
     public void registerFrameParticipant (FrameParticipant participant)
     {
-        if (_participants.contains(participant)) {
-            Log.warning("Ingoring already registered participant " +
-                        participant + ".");
-        } else {
-            _participants.add(participant);
-        }
+        _participants.add(participant);
     }
 
     /**
@@ -390,7 +489,7 @@ public class FrameManager
         }
 
         // dirty our previous bounds
-        JComponent comp = (JComponent)((JFrame)_frame).getRootPane();
+        JComponent comp = (JComponent)_frame.getRootPane();
         Dimension lsize = _perfLabel.getSize();
         _remgr.addDirtyRegion(comp, FPS_X, FPS_Y, lsize.width, lsize.height);
 
@@ -484,7 +583,12 @@ public class FrameManager
 
         // clear out our frame graphics in case that became invalid for
         // the same reasons our back buffer became invalid
-        _fgfx = null;
+        if (_fgfx != null) {
+            _fgfx.dispose();
+            _fgfx = null;
+        }
+
+//         Log.info("Created back buffer.");
     }
 
     /**
@@ -714,7 +818,7 @@ public class FrameManager
     };
 
     /** The frame into which we do our rendering. */
-    protected Frame _frame;
+    protected JFrame _frame;
 
     /** Used to obtain timing measurements. */
     protected MediaTimer _timer;
@@ -810,4 +914,7 @@ public class FrameManager
 
     /** The key code for our frame rate display debug hook (f). */
     protected static int FPS_DISPLAY_KEYCODE = KeyEvent.VK_F;
+
+    /** Whether to enable AWT event debugging for the frame. */
+    protected static final boolean DEBUG_EVENTS = false;
 }
