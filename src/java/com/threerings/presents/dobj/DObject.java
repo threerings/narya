@@ -1,11 +1,13 @@
 //
-// $Id: DObject.java,v 1.66 2003/07/22 22:54:14 mdb Exp $
+// $Id: DObject.java,v 1.67 2003/09/23 17:16:46 mdb Exp $
 
 package com.threerings.presents.dobj;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
@@ -100,6 +102,13 @@ import com.threerings.presents.Log;
  */
 public class DObject implements Streamable
 {
+    public DObject ()
+    {
+        // introspect our fields into a sorted array
+        _fields = getClass().getFields();
+        Arrays.sort(_fields, FIELD_COMP);
+    }
+
     /**
      * Returns the object id of this object. All objects in the system
      * have a unique object id.
@@ -459,7 +468,7 @@ public class DObject implements Streamable
             }
 
             // now actually set the value
-            getClass().getField(name).set(this, value);
+            getField(name).set(this, value);
 
         } catch (Exception e) {
             String errmsg = "Attribute setting failure [name=" + name +
@@ -479,7 +488,7 @@ public class DObject implements Streamable
         throws ObjectAccessException
     {
         try {
-            return getClass().getField(name).get(this);
+            return getField(name).get(this);
 
         } catch (Exception e) {
             String errmsg = "Attribute getting failure [name=" + name + "].";
@@ -852,8 +861,33 @@ public class DObject implements Streamable
         }
     }
 
+    /**
+     * Returns the {@link Field} with the specified name or null if there
+     * is none such.
+     */
+    protected final Field getField (String name)
+    {
+	int low = 0, high = _fields.length-1;
+	while (low <= high) {
+	    int mid = (low + high) >> 1;
+	    Field midVal = _fields[mid];
+	    int cmp = midVal.getName().compareTo(name);
+	    if (cmp < 0) {
+		low = mid + 1;
+	    } else if (cmp > 0) {
+		high = mid - 1;
+	    } else {
+		return midVal; // key found
+            }
+	}
+	return null; // key not found.
+    }
+
     /** Our object id. */
     protected int _oid;
+
+    /** An array of our fields, sorted for efficient lookup. */
+    protected transient Field[] _fields;
 
     /** A reference to our object manager. */
     protected transient DObjectManager _omgr;
@@ -887,4 +921,11 @@ public class DObject implements Streamable
     /** Indicates whether we want to be destroyed when our last subscriber
      * is removed. */
     protected transient boolean _deathWish = false;
+
+    /** Used to sort and search {@link #_fields}. */
+    protected static final Comparator FIELD_COMP = new Comparator() {
+        public int compare (Object o1, Object o2) {
+            return ((Field)o1).getName().compareTo(((Field)o2).getName());
+        }
+    };
 }
