@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMediaManager.java,v 1.6 2003/01/18 20:14:03 mdb Exp $
+// $Id: AbstractMediaManager.java,v 1.7 2003/01/18 22:25:30 mdb Exp $
 
 package com.threerings.media;
 
@@ -98,6 +98,15 @@ public abstract class AbstractMediaManager
         for (int ii=0, nn=_media.size(); ii < nn; ii++) {
             ((AbstractMedia) _media.get(ii)).fastForward(timeDelta);
         }
+    }
+
+    /**
+     * Returns true if the specified media is being managed by this media
+     * manager.
+     */
+    public boolean isManaged (AbstractMedia media)
+    {
+        return _media.contains(media);
     }
 
     /**
