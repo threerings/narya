@@ -1,5 +1,5 @@
 //
-// $Id: FramedInputStream.java,v 1.9 2001/10/24 00:35:37 mdb Exp $
+// $Id: FramedInputStream.java,v 1.10 2002/06/18 22:07:38 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -162,7 +162,9 @@ public class FramedInputStream extends InputStream
 
         // figure out how much data we'll return
 	if (_pos >= _count) {
-	    return -1;
+            // if they asked to read zero bytes and we have no bytes
+            // remaining; we're supposed to return 0 rather than EOF
+	    return (len == 0) ? 0 : -1;
 	}
 	if (_pos + len > _count) {
 	    len = _count - _pos;
