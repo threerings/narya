@@ -1,5 +1,5 @@
 //
-// $Id: AnimationFrameSequencer.java,v 1.4 2003/04/14 17:16:23 ray Exp $
+// $Id: AnimationFrameSequencer.java,v 1.5 2003/04/14 20:36:16 ray Exp $
 
 package com.threerings.media.animation;
 
@@ -78,6 +78,26 @@ public interface AnimationFrameSequencer extends FrameSequencer
             _delay = msPerFrame;
         }
 
+        /**
+         * Set the length of the sequence we are to use, or 0 means set
+         * it to the length of the sequence array that we were constructed with.
+         */
+        public void setLength (int len)
+        {
+            _length = (len == 0) ? _sequence.length : len;
+            if (_curIdx >= _length) {
+                _curIdx = 0;
+            }
+        }
+
+        /**
+         * Do we reset the animation on init? Default is true.
+         */
+        public void setResetOnInit (boolean resets)
+        {
+            _resets = resets;
+        }
+
         // documentation inherited from interface
         public void init (MultiFrameImage source)
         {
@@ -92,8 +112,10 @@ public interface AnimationFrameSequencer extends FrameSequencer
                 }
             }
 
-            _nextStamp = 0L;
-            _curIdx = 0;
+            if (_resets) {
+                _lastStamp = 0L;
+                _curIdx = 0;
+            }
         }
 
         // documentation inherited from interface
@@ -102,27 +124,21 @@ public interface AnimationFrameSequencer extends FrameSequencer
             _animation = anim;
         }
 
-        /**
-         * Set the length of the sequence we are to use.
-         */
-        public void setLength (int len)
-        {
-            _length = len;
-        }
-
         // documentation inherited from interface
         public int tick (long tickStamp)
         {
             // obtain our starting timestamp if we don't already have one
-            if (_nextStamp == 0L) {
-                _nextStamp = tickStamp + getDelay(_curIdx);
+            if (_lastStamp == 0L) {
+                _lastStamp = tickStamp;
                 // we might need to notify on the first frame
                 checkNotify(tickStamp);
             }
 
             // we may have rushed through more than one frame since the last
             // tick, but we want to always notify even if we never displayed
-            while (tickStamp >= _nextStamp) {
+            long curdelay = getDelay(_curIdx);
+            while (tickStamp >= (_lastStamp + curdelay)) {
+                _lastStamp += curdelay;
                 _curIdx++;
                 if (_curIdx == _length) {
                     if (_loop) {
@@ -132,7 +148,9 @@ public interface AnimationFrameSequencer extends FrameSequencer
                     }
                 }
                 checkNotify(tickStamp);
-                _nextStamp += getDelay(_curIdx);
+
+                // get the delay for checking the next frame
+                curdelay = getDelay(_curIdx);
             }
 
             // return the right frame
@@ -143,7 +161,7 @@ public interface AnimationFrameSequencer extends FrameSequencer
         public void fastForward (long timeDelta)
         {
             // this method should be called "unpause"
-            _nextStamp += timeDelta;
+            _lastStamp += timeDelta;
         }
 
         /**
@@ -172,6 +190,9 @@ public interface AnimationFrameSequencer extends FrameSequencer
         /** The length of our animation sequence. */
         protected int _length;
 
+        /** Do we reset on init? */
+        protected boolean _resets = true;
+
         /** The sequence of frames to display. */
         protected int[] _sequence;
 
@@ -187,8 +208,8 @@ public interface AnimationFrameSequencer extends FrameSequencer
         /** Does the animation loop? */
         protected boolean _loop;
 
-        /** The time at which we'll switch to the next frame. */
-        protected long _nextStamp;
+        /** The time at which we were last ticked. */
+        protected long _lastStamp;
 
         /** The animation that we're sequencing for. */
         protected Animation _animation;
