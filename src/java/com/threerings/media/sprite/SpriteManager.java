@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.32 2002/06/20 00:54:53 mdb Exp $
+// $Id: SpriteManager.java,v 1.33 2002/06/25 17:31:17 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -112,6 +112,22 @@ public class SpriteManager
         _sprites.remove(sprite);
         // clear out our manager reference
         sprite.shutdown();
+    }
+
+    /**
+     * Clears all sprites from the sprite manager. This does not
+     * invalidate their vacated bounds because it is assumed that either
+     * the whole view will be repainted after this or it is going away
+     * entirely. The sprites will be {@link Sprite#shutdown}, however.
+     */
+    public void clearSprites ()
+    {
+        int size = _sprites.size();
+        for (int ii = 0; ii < size; ii++) {
+            Sprite sprite = (Sprite)_sprites.get(ii);
+            sprite.shutdown();
+        }
+        _sprites.clear();
     }
 
     /**

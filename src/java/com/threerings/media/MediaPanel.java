@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.16 2002/06/25 01:00:22 mdb Exp $
+// $Id: MediaPanel.java,v 1.17 2002/06/25 17:31:16 mdb Exp $
 
 package com.threerings.media;
 
@@ -130,6 +130,14 @@ public class MediaPanel extends JComponent
     public void removeSprite (Sprite sprite)
     {
         _spritemgr.removeSprite(sprite);
+    }
+
+    /**
+     * Removes all sprites from this panel.
+     */
+    public void clearSprites ()
+    {
+        _spritemgr.clearSprites();
     }
 
     /**
