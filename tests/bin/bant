@@ -1,6 +1,8 @@
 #!/bin/sh
 #
-# Invokes ant with the necessary class to build the component bundles.
+# $Id: bant,v 1.2 2001/11/29 00:19:35 mdb Exp $
+#
+# Invokes ant with the necessary classpath to build the bundles.
 
 BINDIR=`dirname $0`
 
@@ -10,5 +12,5 @@ SYSTEMCP=`echo /usr/share/java/*.jar | tr ' ' ':'`
 PROJECTCP=`echo $BINDIR/../../lib/*.jar | tr ' ' ':'`
 # also add narya.jar
 export CLASSPATH=$BINDIR/../../dist/narya.jar:$PROJECTCP:$SYSTEMCP
-# and invoke ant with the proper target
-ant "$@" cbundles
+# and invoke ant with the passed through targets
+ant "$@"
