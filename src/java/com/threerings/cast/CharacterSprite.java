@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.22 2002/03/04 22:47:06 mdb Exp $
+// $Id: CharacterSprite.java,v 1.23 2002/03/08 22:35:55 mdb Exp $
 
 package com.threerings.cast;
 
@@ -30,6 +30,18 @@ public class CharacterSprite
     }
 
     /**
+     * Reconfigures this sprite to use the specified character descriptor.
+     */
+    public void setCharacterDescriptor (CharacterDescriptor descrip)
+    {
+        // keep the new descriptor
+        _descrip = descrip;
+
+        // reset our action which will reload our frames
+        setActionSequence(_action);
+    }
+
+    /**
      * Specifies the action to use when the sprite is at rest. The default
      * is <code>STANDING</code>.
      */
@@ -53,6 +65,10 @@ public class CharacterSprite
      */
     public void setActionSequence (String action)
     {
+        // keep track of our current action in case someone swaps out our
+        // character description
+        _action = action;
+
         // get a reference to the action sequence so that we can obtain
         // our animation frames and configure our frames per second
         ActionSequence actseq = _charmgr.getActionSequence(action);
@@ -161,6 +177,9 @@ public class CharacterSprite
 
     /** A reference to the character manager that created us. */
     protected CharacterManager _charmgr;
+
+    /** The action we are currently displaying. */
+    protected String _action;
 
     /** The animation frames for the active action sequence in each
      * orientation. */
