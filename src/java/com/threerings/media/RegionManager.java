@@ -1,5 +1,5 @@
 //
-// $Id: RegionManager.java,v 1.6 2002/10/29 23:44:23 shaper Exp $
+// $Id: RegionManager.java,v 1.7 2002/10/30 00:26:53 mdb Exp $
 
 package com.threerings.media;
 
@@ -22,7 +22,7 @@ public class RegionManager
      */
     public void invalidateRegion (int x, int y, int width, int height)
     {
-        if (width != 0 && height != 0) {
+        if (isValidSize(width, height)) {
             addDirtyRegion(new Rectangle(x, y, width, height));
         }
     }
@@ -34,7 +34,7 @@ public class RegionManager
      */
     public void invalidateRegion (Rectangle rect)
     {
-        if (rect.width != 0 && rect.height != 0) {
+        if (isValidSize(rect.width, rect.height)) {
             addDirtyRegion((Rectangle)rect.clone());
         }
     }
@@ -47,16 +47,36 @@ public class RegionManager
      */
     public void addDirtyRegion (Rectangle rect)
     {
-        // sanity-check the rectangle
-        if (rect == null || (rect.width <= 0 || rect.height <= 0)) {
-            Log.warning("Attempt to add invalid rectangle as a dirty " +
-                        "region?! [rect=" + StringUtil.toString(rect) + "].");
+        // sanity check
+        if (rect == null) {
+            Log.warning("Attempt to dirty a null rect!?");
             Thread.dumpStack();
             return;
         }
 
-        // Log.info("Invalidating " + StringUtil.toString(rect));
-        _dirty.add(rect);
+        if (isValidSize(rect.width, rect.height)) {
+            // Log.info("Invalidating " + StringUtil.toString(rect));
+            _dirty.add(rect);
+        }
+    }
+
+    /** Used to ensure our dirty regions are not invalid. */
+    protected final boolean isValidSize (int width, int height)
+    {
+        if (width < 0 || height < 0) {
+            Log.warning("Attempt to add invalid dirty region?! " +
+                        "[size=" + width + "x" + height + "].");
+            Thread.dumpStack();
+            return false;
+
+        } else if (width == 0 || height == 0) {
+            // no need to complain about zero sized rectangles, just
+            // ignore them
+            return false;
+
+        } else {
+            return true;
+        }
     }
 
     /**
