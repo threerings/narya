@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.java,v 1.18 2004/03/06 11:29:19 mdb Exp $
+// $Id: GameObject.java,v 1.19 2004/05/19 01:24:10 ray Exp $
 
 package com.threerings.parlor.game;
 
@@ -199,6 +199,10 @@ public class GameObject extends PlaceObject
      */
     public void setState (int state)
     {
+        if ((state == GAME_OVER || state == CANCELLED) &&
+            (this.state == GAME_OVER || this.state == CANCELLED)) {
+            Thread.dumpStack();
+        }
         requestAttributeChange(STATE, new Integer(state));
         this.state = state;
     }
