@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.11 2001/08/08 23:48:51 mdb Exp $
+// $Id: PresentsServer.java,v 1.12 2001/08/08 23:56:20 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -61,7 +61,7 @@ public class CherServer
         // create our authentication manager
         authmgr = new AuthManager(new DummyAuthenticator());
         // create our connection manager
-        conmgr = new ConnectionManager(authmgr);
+        conmgr = new ConnectionManager(config, authmgr);
         // create our client manager
         clmgr = new ClientManager(conmgr);
         // create our distributed object manager

@@ -1,22 +1,21 @@
 //
-// $Id: ConnectionManager.java,v 1.8 2001/08/07 20:38:58 mdb Exp $
+// $Id: ConnectionManager.java,v 1.9 2001/08/08 23:56:20 mdb Exp $
 
 package com.threerings.cocktail.cher.server.net;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import ninja2.core.io_core.nbio.*;
 
-import com.samskivert.util.LoopingThread;
-import com.samskivert.util.Tuple;
-import com.samskivert.util.Queue;
+import ninja2.core.io_core.nbio.*;
+import com.samskivert.util.*;
 
 import com.threerings.cocktail.cher.Log;
 import com.threerings.cocktail.cher.io.FramingOutputStream;
 import com.threerings.cocktail.cher.io.TypedObjectFactory;
 import com.threerings.cocktail.cher.net.Credentials;
 import com.threerings.cocktail.cher.net.DownstreamMessage;
+import com.threerings.cocktail.cher.server.CherServer;
 
 /**
  * The connection manager manages the socket on which connections are
@@ -31,13 +30,15 @@ public class ConnectionManager extends LoopingThread
      * Constructs and initialized a connection manager (binding the socket
      * on which it will listen for client connections).
      *
+     * @param config A config object from which the connection manager
+     * will fetch its configuration parameters.
      * @param authmgr The authentication manager to use when
      * authenticating client connections.
      */
-    public ConnectionManager (AuthManager authmgr)
+    public ConnectionManager (Config config, AuthManager authmgr)
         throws IOException
     {
-        int port = DEFAULT_CM_PORT;
+        _port = config.getValue(CM_PORT_KEY, DEFAULT_CM_PORT);
 
         // keep a handle on our authentication manager
         _authmgr = authmgr;
@@ -48,7 +49,7 @@ public class ConnectionManager extends LoopingThread
         _selset = new SelectSet();
 
         // create our listening socket and add it to the select set
-        _listener = new NonblockingServerSocket(port);
+        _listener = new NonblockingServerSocket(_port);
         _litem = new SelectItem(_listener, Selectable.ACCEPT_READY);
         // when an ACCEPT_READY event happens, we do this:
         _litem.obj = new NetEventHandler() {
@@ -128,7 +129,7 @@ public class ConnectionManager extends LoopingThread
 
     protected void willStart ()
     {
-        Log.info("Connection Manager thread running.");
+        Log.info("Connection Manager listening [port=" + _port + "].");
     }
 
     /**
@@ -294,6 +295,7 @@ public class ConnectionManager extends LoopingThread
         _authq.append(conn);
     }
 
+    protected int _port;
     protected AuthManager _authmgr;
     protected SelectSet _selset;
 
@@ -307,6 +309,10 @@ public class ConnectionManager extends LoopingThread
     protected Queue _authq = new Queue();
 
     protected ArrayList _observers = new ArrayList();
+
+    /** The config key for our listening port. */
+    protected static final String CM_PORT_KEY =
+        CherServer.CONFIG_KEY + ".conmgr_port";
 
     /** The default port on which we listen for connections. */
     protected static final int DEFAULT_CM_PORT = 4007;
