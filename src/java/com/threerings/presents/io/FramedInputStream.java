@@ -1,5 +1,5 @@
 //
-// $Id: FramedInputStream.java,v 1.7 2001/10/11 04:07:52 mdb Exp $
+// $Id: FramedInputStream.java,v 1.8 2001/10/18 01:42:42 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.samskivert.util.StringUtil;
-
 import com.threerings.presents.Log;
 
 /**
@@ -89,10 +88,10 @@ public class FramedInputStream extends InputStream
             _count = 0;
 
             // decode the frame length
-            _length = (_header[0] << 24) & 0xFF;
-            _length += (_header[1] << 16) & 0xFF;
-            _length += (_header[2] << 8) & 0xFF;
-            _length += _header[3] & 0xFF;
+            _length = (_header[0] & 0xFF) << 24;
+            _length += (_header[1] & 0xFF) << 16;
+            _length += (_header[2] & 0xFF) << 8;
+            _length += (_header[3] & 0xFF);
 
             // if necessary, expand our buffer to accomodate the frame
             if (_length > _buffer.length) {
@@ -124,7 +123,7 @@ public class FramedInputStream extends InputStream
      */
     public int read ()
     {
-	return (_pos < _count) ? (_buffer[_pos++] & 0xff) : -1;
+	return (_pos < _count) ? (_buffer[_pos++] & 0xFF) : -1;
     }
 
     /**
