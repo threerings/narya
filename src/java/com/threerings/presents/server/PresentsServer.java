@@ -1,9 +1,7 @@
 //
-// $Id: PresentsServer.java,v 1.19 2002/03/28 22:32:32 mdb Exp $
+// $Id: PresentsServer.java,v 1.20 2002/03/28 23:59:33 mdb Exp $
 
 package com.threerings.presents.server;
-
-import com.samskivert.util.Config;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.dobj.DObjectManager;

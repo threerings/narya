@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.45 2002/03/28 22:32:33 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.46 2002/03/28 23:59:34 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -9,7 +9,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import java.util.List;
-import com.samskivert.util.Config;
 
 import com.threerings.cast.CharacterDescriptor;
 import com.threerings.cast.CharacterManager;

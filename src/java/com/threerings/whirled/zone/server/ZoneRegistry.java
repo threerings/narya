@@ -1,9 +1,8 @@
 //
-// $Id: ZoneRegistry.java,v 1.5 2002/01/29 02:05:49 mdb Exp $
+// $Id: ZoneRegistry.java,v 1.6 2002/03/28 23:59:33 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
-import com.samskivert.util.Config;
 import com.samskivert.util.HashIntMap;
 
 import com.threerings.presents.server.InvocationManager;
@@ -21,8 +20,7 @@ public class ZoneRegistry
     /**
      * Creates a zone manager with the supplied configuration.
      */
-    public ZoneRegistry (
-        Config config, InvocationManager invmgr, SceneRegistry screg)
+    public ZoneRegistry (InvocationManager invmgr, SceneRegistry screg)
     {
         // create a zone provider and register it with the invocation
         // services
