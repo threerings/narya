@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.36 2002/01/31 01:03:45 mdb Exp $
+// $Id: Sprite.java,v 1.37 2002/02/20 03:13:57 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -312,6 +312,9 @@ public class Sprite implements DirectionCodes
             return;
         }
 
+        // start with our old bounds
+        Rectangle dirty = new Rectangle(_bounds);
+
         _frames = frames;
         _frameIdx %= _frames.getFrameCount();
         _frame = _frames.getFrame(_frameIdx);
@@ -326,9 +329,12 @@ public class Sprite implements DirectionCodes
             _bounds.height = _frame.getHeight(null);
         }
 
+        // add our new bounds
+        dirty.add(_bounds);
+
         updateRenderOffset();
         updateRenderOrigin();
-        invalidate();
+        invalidate(dirty);
     }
 
     /**
