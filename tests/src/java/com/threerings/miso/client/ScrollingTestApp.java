@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.5 2002/02/19 20:03:13 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.6 2002/02/19 22:08:25 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -25,9 +25,10 @@ import com.threerings.media.sprite.MultiFrameImageImpl;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.bundle.BundledTileSetRepository;
 
+import com.threerings.cast.CharacterComponent;
 import com.threerings.cast.CharacterDescriptor;
 import com.threerings.cast.CharacterManager;
-import com.threerings.cast.ComponentClass;
+import com.threerings.cast.NoSuchComponentException;
 import com.threerings.cast.bundle.BundledComponentRepository;
 
 import com.threerings.miso.Log;
@@ -83,7 +84,7 @@ public class ScrollingTestApp
 
         // create the various managers
         BundledComponentRepository crepo =
-            new BundledComponentRepository(rmgr, imgr, "ships");
+            new BundledComponentRepository(rmgr, imgr, "components");
         CharacterManager charmgr = new CharacterManager(crepo);
         charmgr.setCharacterClass(MisoCharacterSprite.class);
 
@@ -92,23 +93,25 @@ public class ScrollingTestApp
         _frame.setPanel(_panel);
 
         // create our "ship" sprite
-        ComponentClass slclass = crepo.getComponentClass("smsloop");
-        Iterator cids = crepo.enumerateComponentIds(slclass);
-        CharacterDescriptor desc = null;
-        // there should be only one component in this class, which we use
-        // to create our character descriptor
-        if (cids.hasNext()) {
-            int cid = ((Integer)cids.next()).intValue();
-            desc = new CharacterDescriptor(new int[] { cid });
-        }
+        String scclass = "navsail", scname = "smsloop";
+        try {
+            CharacterComponent ccomp = crepo.getComponent(scclass, scname);
+            CharacterDescriptor desc = new CharacterDescriptor(
+                new int[] { ccomp.componentId });
 
-        // now create the actual sprite and stick 'em in the scene
-        MisoCharacterSprite s =
-            (MisoCharacterSprite)charmgr.getCharacter(desc);
-        if (s != null) {
-            s.setActionSequence(MisoCharacterSprite.STANDING);
-            s.setLocation(160 - s.getWidth()/2, 144 + s.getHeight()/2);
-            _panel.addSprite(s);
+            // now create the actual sprite and stick 'em in the scene
+            MisoCharacterSprite s =
+                (MisoCharacterSprite)charmgr.getCharacter(desc);
+            if (s != null) {
+                s.setRestingAction("sailing");
+                s.setActionSequence("sailing");
+                s.setLocation(160 - s.getWidth()/2, 144 + s.getHeight()/2);
+                _panel.addSprite(s);
+            }
+
+        } catch (NoSuchComponentException nsce) {
+            Log.warning("Can't locate ship component [class=" + scclass +
+                        ", name=" + scname + "].");
         }
 
         // set the scene to our scrolling scene
