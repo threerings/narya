@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.13 2002/03/11 19:51:24 mdb Exp $
+// $Id: ClientController.java,v 1.14 2002/05/21 04:47:48 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -37,7 +37,7 @@ public class ClientController extends Controller
 
         // create the logon panel and display it
         _logonPanel = new LogonPanel(_ctx);
-//          _frame.setPanel(_logonPanel);
+        _frame.setPanel(_logonPanel);
     }
 
     // documentation inherited

@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaApp.java,v 1.6 2002/02/09 20:47:11 mdb Exp $
+// $Id: MiCasaApp.java,v 1.7 2002/05/21 04:47:48 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -62,6 +62,7 @@ public class MiCasaApp
         // we want to exit when we logged off or failed to log on
         client.addClientObserver(new ClientAdapter() {
             public void clientFailedToLogon (Client c, Exception cause) {
+                Log.info("Client failed to logon [cause=" + cause + "].");
                 System.exit(0);
             }
             public void clientDidLogoff (Client c) {
@@ -71,15 +72,12 @@ public class MiCasaApp
 
         // configure the client with some credentials and logon
         String username = System.getProperty("username");
-        if (username == null) {
-            username =
-                "bob" + ((int)(Math.random() * Integer.MAX_VALUE) % 500);
+        if (username != null) {
+            // create and set our credentials
+            Credentials creds = new UsernamePasswordCreds(username, "test");
+            client.setCredentials(creds);
+            client.logon();
         }
-
-        // create and set our credentials
-        Credentials creds = new UsernamePasswordCreds(username, "test");
-        client.setCredentials(creds);
-        client.logon();
     }
 
     public static void main (String[] args)

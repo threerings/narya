@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaClient.java,v 1.12 2002/04/15 14:38:45 shaper Exp $
+// $Id: MiCasaClient.java,v 1.13 2002/05/21 04:47:48 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -46,7 +46,7 @@ public class MiCasaClient
         createContextServices();
 
         // for test purposes, hardcode the server info
-        _client.setServer("bering", 4007);
+        _client.setServer("localhost", 4007);
 
         // keep this for later
         _frame = frame;
@@ -180,5 +180,5 @@ public class MiCasaClient
 
     /** The prefix prepended to localization bundle names before looking
      * them up in the classpath. */
-    protected static final String MESSAGE_MANAGER_PREFIX = "rsrc.messages";
+    protected static final String MESSAGE_MANAGER_PREFIX = "rsrc.i18n";
 }
