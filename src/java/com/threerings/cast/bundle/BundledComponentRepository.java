@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.18 2002/09/17 19:11:13 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.19 2002/10/18 23:47:27 shaper Exp $
 
 package com.threerings.cast.bundle;
 
@@ -127,6 +127,15 @@ public class BundledComponentRepository
         } catch (ClassNotFoundException cnfe) {
             throw new NestableIOException(
                 "Internal error unserializing metadata", cnfe);
+        }
+
+        // if we failed to load our classes or actions, create empty
+        // hashtables so that we can safely enumerate our emptiness
+        if (_actions == null) {
+            _actions = new HashMap();
+        }
+        if (_classes == null) {
+            _classes = new HashMap();
         }
     }
 
