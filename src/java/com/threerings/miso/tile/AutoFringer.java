@@ -1,11 +1,12 @@
 //
-// $Id: AutoFringer.java,v 1.5 2002/04/06 20:50:30 ray Exp $
+// $Id: AutoFringer.java,v 1.6 2002/04/06 22:07:41 ray Exp $
 
 package com.threerings.miso.tile;
 
 import java.awt.Rectangle;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.HashMap;
@@ -145,34 +146,31 @@ public class AutoFringer
         FringeTile tile = null;
 
         for (int ii=0; ii < fringers.length; ii++) {
-            int index = _fringeconf.getTileIndexFromFringeBits(
-                            fringers[ii].bits);
+            int[] indexes = getFringeIndexes(fringers[ii].bits);
+            for (int jj=0; jj < indexes.length; jj++) {
 
-            // TODO: decompose bits into multiple fringe tile images :^)
-            if (index == -1) {
-                continue; // for now we bail.
-            }
+                try {
+                    Image fimg = getTileImage(fringers[ii].baseset,
+                                              indexes[jj], masks);
 
-            try {
-                Image fimg = getTileImage(fringers[ii].baseset, index, masks);
-                if (tile == null) {
-                    tile = new FringeTile(fimg);
-                } else {
-                    tile.addExtraImage(fimg);
+                    if (tile == null) {
+                        tile = new FringeTile(fimg);
+                    } else {
+                        tile.addExtraImage(fimg);
+                    }
+
+                } catch (NoSuchTileException nste) {
+                    Log.warning("Autofringer couldn't find a needed tile " +
+                                "[error=" + nste + "].");
+                } catch (NoSuchTileSetException nstse) {
+                    Log.warning("Autofringer couldn't find a needed tileset " +
+                                "[error=" + nstse + "].");
                 }
-
-            } catch (NoSuchTileException nste) {
-                Log.warning("Autofringer couldn't find a needed tile " +
-                            "[error=" + nste + "].");
-            } catch (NoSuchTileSetException nstse) {
-                Log.warning("Autofringer couldn't find a needed tileset " +
-                            "[error=" + nstse + "].");
             }
         }
 
         return tile;
     }
-
 
     /**
      * Retrieve or compose an image for the specified fringe.
@@ -201,10 +199,66 @@ public class AutoFringer
                 (BufferedImage) _tmgr.getTile(baseset, 0).getImage());
 
             masks.put(maskkey, img);
-            Log.debug("created cached fringe image");
         }
 
         return img;
+    }
+
+    /**
+     * Get the fringe index specified by the fringebits. If no index
+     * is available, try breaking down the bits into contiguous regions of
+     * bits and look for indexes for those.
+     */
+    protected int[] getFringeIndexes (int bits)
+    {
+        int index = _fringeconf.getTileIndexFromFringeBits(bits);
+        if (index != -1) {
+            int[] ret = new int[1];
+            ret[0] = index;
+            return ret;
+        }
+
+        // otherwise, split the bits into contiguous components
+
+        // look for a zero and start our first split
+        int start = 0;
+        while ((((1 << start) & bits) != 0) && (start < NUM_FRINGEBITS)) {
+            start++;
+        }
+
+        if (start == NUM_FRINGEBITS) {
+            // we never found an empty fringebit, and since index (above)
+            // was already -1, we have no fringe tile for these bits.. sad.
+            return new int[0];
+        }
+
+        ArrayList indexes = new ArrayList();
+        int weebits = 0;
+        for (int ii=(start + 1) % NUM_FRINGEBITS; ii != start;
+             ii = (ii + 1) % NUM_FRINGEBITS) {
+
+            if (((1 << ii) & bits) != 0) {
+                weebits |= (1 << ii);
+            } else if (weebits != 0) {
+                index = _fringeconf.getTileIndexFromFringeBits(weebits);
+                if (index != -1) {
+                    indexes.add(new Integer(index));
+                }
+                weebits = 0;
+            }
+        }
+        if (weebits != 0) {
+            index = _fringeconf.getTileIndexFromFringeBits(weebits);
+            if (index != -1) {
+                indexes.add(new Integer(index));
+            }
+        }
+
+        int[] ret = new int[indexes.size()];
+        for (int ii=0; ii < ret.length; ii++) {
+            ret[ii] = ((Integer) indexes.get(ii)).intValue();
+        }
+        return ret;
     }
 
     /**
@@ -240,6 +294,8 @@ public class AutoFringer
     private static final int SOUTHWEST = 1 << 5;
     private static final int WEST      = 1 << 6;
     private static final int NORTHWEST = 1 << 7;
+
+    private static final int NUM_FRINGEBITS = 8;
 
     // A matrix mapping adjacent tiles to which fringe bits 
     // they affect.
