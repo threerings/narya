@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.71 2004/03/06 11:29:19 mdb Exp $
+// $Id: GameManager.java,v 1.72 2004/07/10 01:32:54 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -464,7 +464,8 @@ public class GameManager extends PlaceManager
 //                  "[game=" + _gameobj.which() + "].");
 
         // cancel the game if it was not already over
-        if (_gameobj.state != GameObject.GAME_OVER) {
+        if (_gameobj.state != GameObject.GAME_OVER &&
+            _gameobj.state != GameObject.CANCELLED) {
             _gameobj.setState(GameObject.CANCELLED);
         }
 
@@ -527,7 +528,10 @@ public class GameManager extends PlaceManager
     protected void handlePartialNoShow ()
     {
         // cancel the game
-        _gameobj.setState(GameObject.CANCELLED);
+        if (_gameobj.state != GameObject.GAME_OVER &&
+            _gameobj.state != GameObject.CANCELLED) {
+            _gameobj.setState(GameObject.CANCELLED);
+        }
     }
 
     /**
@@ -652,6 +656,15 @@ public class GameManager extends PlaceManager
      */
     public void endGame ()
     {
+        // TEMP: debug pending rating repeat bug
+        if (_gameEndTrace != null) {
+            Log.warning("Requested to end already ended game " +
+                        "[game=" + _gameobj.which() + "].");
+            Thread.dumpStack();
+        }
+        _gameEndTrace = new Exception().getStackTrace();
+        // END TEMP
+
         if (_gameobj.state != GameObject.IN_PLAY) {
             Log.debug("Refusing to end game that was not in play " +
                       "[game=" + _gameobj.which() + "].");
@@ -660,7 +673,6 @@ public class GameManager extends PlaceManager
 
         _gameobj.startTransaction();
         try {
-
             // let the derived class do its pre-end stuff
             gameWillEnd();
 
@@ -967,6 +979,9 @@ public class GameManager extends PlaceManager
 
     /** Our delegate operator to tick AIs. */
     protected TickAIDelegateOp _tickAIOp;
+
+    /** TEMP: debugging the pending rating double release bug. */
+    protected StackTraceElement[] _gameEndTrace;
 
     /** A list of all currently active game managers. */
     protected static ArrayList _managers = new ArrayList();
