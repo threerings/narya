@@ -1,5 +1,5 @@
 //
-// $Id: AnimationSequencer.java,v 1.16 2004/09/18 22:56:35 mdb Exp $
+// $Id: AnimationSequencer.java,v 1.17 2004/11/11 23:53:06 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -160,6 +160,17 @@ public class AnimationSequencer extends Animation
         _lastStamp += timeDelta;
     }
 
+    // documentation inherited
+    public void viewLocationDidChange (int dx, int dy)
+    {
+        super.viewLocationDidChange(dx, dy);
+
+        // track cumulative view location changes so that we can adjust our
+        // animations before we start them
+        _vdx += dx;
+        _vdy += dy;
+    }
+
     /**
      * Called when the time comes to start an animation.  Derived classes
      * may override this method and pass the animation on to their
@@ -172,6 +183,12 @@ public class AnimationSequencer extends Animation
      */
     protected void startAnimation (Animation anim, long tickStamp)
     {
+        // account for any view scrolling that happened before this animation
+        // was actually added to the view
+        if (_vdx != 0 || _vdy != 0) {
+            anim.viewLocationDidChange(_vdx, _vdy);
+        }
+
         _animmgr.registerAnimation(anim);
     }
 
@@ -272,4 +289,7 @@ public class AnimationSequencer extends Animation
 
     /** The timestamp at which we fired the last animation. */
     protected long _lastStamp;
+
+    /** Used to track view scrolling while animations are in limbo. */
+    protected int _vdx, _vdy;
 }
