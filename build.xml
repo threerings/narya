@@ -52,6 +52,9 @@
         <pathelement location="${deploy.dir}/classes"/>
       </classpath>
     </javadoc>
+    <copy todir="${javadoc.home}">
+      <fileset dir="src/java" includes="**/*.png"/>
+    </copy>
   </target>
 
   <!-- a target for rebuilding everything -->
