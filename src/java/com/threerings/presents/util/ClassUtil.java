@@ -1,5 +1,5 @@
 //
-// $Id: ClassUtil.java,v 1.4 2001/10/11 04:07:53 mdb Exp $
+// $Id: ClassUtil.java,v 1.5 2002/02/10 02:13:31 mdb Exp $
 
 package com.threerings.presents.util;
 
@@ -67,7 +67,8 @@ public class ClassUtil
             // nothing to do here but fall through and return null
             Log.info("No such method [name=" + name +
                      ", tclass=" + tclass.getName() + 
-                     ", args=" + StringUtil.toString(args) + "].");
+                     ", args=" + StringUtil.toString(args) +
+                     ", error=" + nsme + "].");
 
         } catch (SecurityException se) {
             Log.warning("Unable to look up method? " +
