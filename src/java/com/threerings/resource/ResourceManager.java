@@ -1,11 +1,13 @@
 //
-// $Id: ResourceManager.java,v 1.41 2004/06/15 18:25:13 mdb Exp $
+// $Id: ResourceManager.java,v 1.42 2004/06/18 17:41:39 mdb Exp $
 
 package com.threerings.resource;
 
 import java.awt.EventQueue;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -25,6 +27,8 @@ import java.util.StringTokenizer;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
+
+import org.apache.commons.io.StreamUtils;
 
 import com.samskivert.util.ResultListener;
 import com.samskivert.util.StringUtil;
@@ -281,7 +285,6 @@ public class ResourceManager
         try {
             if (configPath != null) {
                 curl = new URL(_rurl, configPath);
-                config.load(curl.openStream());
             }
 
         } catch (MalformedURLException mue) {
@@ -290,11 +293,21 @@ public class ResourceManager
             String errmsg = "Invalid config url [resourceURL=" + _rurl +
                 ", configPath=" + configPath + "]";
             throw new IOException(errmsg);
+        }
+
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        try {
+            if (curl != null) {
+                // download the properties file into a buffer
+                StreamUtils.pipe(curl.openStream(), bout);
+                config.load(new ByteArrayInputStream(bout.toByteArray()));
+            }
 
         } catch (Exception e) {
             Log.warning("Unable to load resource mgr properties " +
                         "[resourceURL=" + _rurl + ", configPath=" + configPath +
                         ", error=" + e + "].");
+            Log.warning("Bogus properties: " + bout.toString("UTF-8"));
             Log.logStackTrace(e);
             String errmsg = "Unable to load resource manager config " +
                 "[resourceURL=" + _rurl + ", configPath=" + configPath + "]";
