@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.37 2002/10/31 23:27:16 mdb Exp $
+// $Id: ChatDirector.java,v 1.38 2002/11/04 20:06:15 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -39,6 +39,17 @@ public class ChatDirector extends BasicDirector
          * Called when the list of chatters has been changed.
          */
         public void chattersUpdated (Iterator chatternames);
+    }
+
+    /**
+     * A validator for adding usernames to the chatter list.
+     */
+    public static interface ChatterValidator
+    {
+        /**
+         * Returns true if the username can be added to the chatters list.
+         */
+        public boolean isChatterValid (String username);
     }
 
     /**
@@ -134,10 +145,25 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
+     * Sets the validator that decides if a username is valid to be
+     * added to the chatter list, or null if no such filtering is desired.
+     */
+    public void setChatterValidator (ChatterValidator validator)
+    {
+        _chatterValidator = validator;
+    }
+
+    /**
      * Adds a chatter to our list of recent chatters.
      */
     protected void addChatter (String name)
     {
+        // check to see if the chatter validator approves..
+        if ((_chatterValidator != null) &&
+            (!_chatterValidator.isChatterValid(name))) {
+            return;
+        }
+
         boolean wasthere = _chatters.remove(name);
         _chatters.addFirst(name);
 
@@ -602,6 +628,9 @@ public class ChatDirector extends BasicDirector
 
     /** An optionally present mutelist director. */
     protected MuteDirector _muter;
+
+    /** Validator of who may be added to the chatters list. */
+    protected ChatterValidator _chatterValidator;
 
     /** Usernames of users we've recently chatted with. */
     protected LinkedList _chatters = new LinkedList();
