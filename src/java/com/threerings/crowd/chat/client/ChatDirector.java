@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.56 2003/12/03 23:38:45 mdb Exp $
+// $Id: ChatDirector.java,v 1.57 2004/02/25 14:41:47 mdb Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -609,8 +609,10 @@ public class ChatDirector extends BasicDirector
         super.clientDidLogoff(client);
 
         // stop listening to it for tells
-        removeAuxiliarySource(_clobj);
-        _clobj = null;
+        if (_clobj != null) {
+            removeAuxiliarySource(_clobj);
+            _clobj = null;
+        }
 
         clearDisplays();
 

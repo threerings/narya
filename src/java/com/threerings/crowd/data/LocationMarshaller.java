@@ -1,10 +1,9 @@
 //
-// $Id: LocationMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+// $Id: LocationMarshaller.java,v 1.3 2004/02/25 14:41:47 mdb Exp $
 
 package com.threerings.crowd.data;
 
 import com.threerings.crowd.client.LocationService;
-import com.threerings.crowd.client.LocationService.MoveListener;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
@@ -18,7 +17,7 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
  * to the requesting client.
  *
  * <p> Generated from <code>
- * $Id: LocationMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+ * $Id: LocationMarshaller.java,v 1.3 2004/02/25 14:41:47 mdb Exp $
  * </code>
  */
 public class LocationMarshaller extends InvocationMarshaller

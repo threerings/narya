@@ -1,5 +1,5 @@
 //
-// $Id: Log.java,v 1.3 2003/09/22 23:59:39 mdb Exp $
+// $Id: Log.java,v 1.4 2004/02/25 14:41:47 mdb Exp $
 
 package com.threerings.crowd;
 
@@ -15,7 +15,8 @@ public class Log
     /** Convenience function. */
     public static boolean debug ()
     {
-        return log.getLevel() == com.samskivert.util.Log.DEBUG;
+        return (com.samskivert.util.Log.getLevel() == 
+                com.samskivert.util.Log.DEBUG);
     }
 
     /** Convenience function. */

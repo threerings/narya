@@ -1,5 +1,5 @@
 //
-// $Id: BodyProvider.java,v 1.6 2003/09/11 03:20:06 mdb Exp $
+// $Id: BodyProvider.java,v 1.7 2004/02/25 14:41:47 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -11,7 +11,6 @@ import com.threerings.presents.server.InvocationProvider;
 import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
-import com.threerings.crowd.data.PlaceObject;
 
 /**
  * Provides the server-side side of the body-related invocation services.

@@ -1,10 +1,9 @@
 //
-// $Id: LocationSender.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+// $Id: LocationSender.java,v 1.3 2004/02/25 14:41:47 mdb Exp $
 
 package com.threerings.crowd.server;
 
 import com.threerings.crowd.client.LocationDecoder;
-import com.threerings.crowd.client.LocationReceiver;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationSender;
 
@@ -13,7 +12,7 @@ import com.threerings.presents.server.InvocationSender;
  * client.
  *
  * <p> Generated from <code>
- * $Id: LocationSender.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+ * $Id: LocationSender.java,v 1.3 2004/02/25 14:41:47 mdb Exp $
  * </code>
  */
 public class LocationSender extends InvocationSender

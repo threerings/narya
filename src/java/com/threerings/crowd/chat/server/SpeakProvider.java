@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.18 2003/12/09 21:01:43 mdb Exp $
+// $Id: SpeakProvider.java,v 1.19 2004/02/25 14:41:47 mdb Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -10,7 +10,6 @@ import com.samskivert.util.ObserverList;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.Log;

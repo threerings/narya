@@ -1,12 +1,10 @@
 //
-// $Id: ChatMarshaller.java,v 1.6 2003/09/18 17:53:48 mdb Exp $
+// $Id: ChatMarshaller.java,v 1.7 2004/02/25 14:41:47 mdb Exp $
 
 package com.threerings.crowd.chat.data;
 
 import com.threerings.crowd.chat.client.ChatService;
-import com.threerings.crowd.chat.client.ChatService.TellListener;
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService.InvocationListener;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 

@@ -1,12 +1,11 @@
 //
-// $Id: PlaceManager.java,v 1.49 2004/01/11 17:43:12 ray Exp $
+// $Id: PlaceManager.java,v 1.50 2004/02/25 14:41:47 mdb Exp $
 
 package com.threerings.crowd.server;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Properties;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.IntervalManager;

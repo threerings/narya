@@ -1,16 +1,14 @@
 //
-// $Id: CrowdClient.java,v 1.23 2003/06/14 00:47:16 mdb Exp $
+// $Id: CrowdClient.java,v 1.24 2004/02/25 14:41:47 mdb Exp $
 
 package com.threerings.crowd.server;
 
-import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.PresentsClient;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.chat.server.SpeakProvider;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
-import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.CrowdServer;
 
 /**

@@ -1,12 +1,11 @@
 //
-// $Id: LocationService.java,v 1.7 2002/08/14 19:07:49 mdb Exp $
+// $Id: LocationService.java,v 1.8 2004/02/25 14:41:47 mdb Exp $
 
 package com.threerings.crowd.client;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.data.PlaceConfig;
 
 /**

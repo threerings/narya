@@ -1,5 +1,5 @@
 //
-// $Id: LocationProvider.java,v 1.21 2003/08/09 04:58:25 mdb Exp $
+// $Id: LocationProvider.java,v 1.22 2004/02/25 14:41:47 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -16,7 +16,6 @@ import com.threerings.crowd.client.LocationService;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.LocationCodes;
-import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 

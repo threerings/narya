@@ -1,12 +1,11 @@
 //
-// $Id: PlaceConfig.java,v 1.5 2003/02/11 06:00:51 mdb Exp $
+// $Id: PlaceConfig.java,v 1.6 2004/02/25 14:41:47 mdb Exp $
 
 package com.threerings.crowd.data;
 
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.SimpleStreamableObject;
-import com.threerings.crowd.client.PlaceController;
 
 /**
  * The place config class encapsulates the configuration information for a

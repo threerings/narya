@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.25 2003/09/18 17:53:48 mdb Exp $
+// $Id: ChatProvider.java,v 1.26 2004/02/25 14:41:47 mdb Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -12,16 +12,15 @@ import com.threerings.util.TimeUtil;
 import com.threerings.presents.client.InvocationService.InvocationListener;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObjectManager;
-import com.threerings.presents.dobj.MessageEvent;
 
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
+import com.threerings.crowd.server.AccessControl;
 import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.crowd.chat.client.ChatService.TellListener;
@@ -139,7 +138,7 @@ public class ChatProvider
 
         // make sure the requesting user has broadcast privileges
         if (!CrowdServer.actrl.checkAccess(body, BROADCAST_TOKEN)) {
-            throw new InvocationException(CrowdServer.actrl.LACK_ACCESS);
+            throw new InvocationException(AccessControl.LACK_ACCESS);
         }
 
         Iterator iter = CrowdServer.plreg.enumeratePlaces();

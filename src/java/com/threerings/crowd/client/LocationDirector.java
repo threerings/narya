@@ -1,10 +1,7 @@
 //
-// $Id: LocationDirector.java,v 1.31 2003/10/03 20:41:31 mdb Exp $
+// $Id: LocationDirector.java,v 1.32 2004/02/25 14:41:47 mdb Exp $
 
 package com.threerings.crowd.client;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.ObserverList.ObserverOp;
@@ -14,7 +11,6 @@ import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
 
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
 

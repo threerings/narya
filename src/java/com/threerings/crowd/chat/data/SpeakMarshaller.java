@@ -1,12 +1,11 @@
 //
-// $Id: SpeakMarshaller.java,v 1.3 2003/06/03 21:41:33 ray Exp $
+// $Id: SpeakMarshaller.java,v 1.4 2004/02/25 14:41:47 mdb Exp $
 
 package com.threerings.crowd.chat.data;
 
 import com.threerings.crowd.chat.client.SpeakService;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
-import com.threerings.presents.dobj.InvocationResponseEvent;
 
 /**
  * Provides the implementation of the {@link SpeakService} interface
