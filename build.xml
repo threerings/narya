@@ -94,6 +94,10 @@
     <javac srcdir="src/java" destdir="${classes.dir}"
            debug="on" optimize="{$build.optimize}" deprecation="on">
       <classpath refid="classpath"/>
+      <exclude name="**/OggPlayer.java"/>
+      <exclude name="**/ModPlayer.java"/>
+      <exclude name="**/MidiPlayer.java"/>
+      <exclude name="**/Mp3Player.java"/>
     </javac>
   </target>
 

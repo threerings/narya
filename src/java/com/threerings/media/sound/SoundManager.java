@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.57 2003/04/05 20:48:04 ray Exp $
+// $Id: SoundManager.java,v 1.58 2003/04/06 04:36:01 mdb Exp $
 
 package com.threerings.media.sound;
 
@@ -514,21 +514,21 @@ public class SoundManager
     {
         path = path.toLowerCase();
 
-        if (path.endsWith(".mid") || path.endsWith(".rmf")) {
-            return MidiPlayer.class;
+//         if (path.endsWith(".mid") || path.endsWith(".rmf")) {
+//             return MidiPlayer.class;
 
-        } else if (path.endsWith(".mod")) {
-            return ModPlayer.class;
+//         } else if (path.endsWith(".mod")) {
+//             return ModPlayer.class;
 
-        } else if (path.endsWith(".mp3")) {
-            return Mp3Player.class;
+//         } else if (path.endsWith(".mp3")) {
+//             return Mp3Player.class;
 
-        } else if (path.endsWith(".ogg")) {
-            return OggPlayer.class;
+//         } else if (path.endsWith(".ogg")) {
+//             return OggPlayer.class;
 
-        } else {
+//         } else {
             return null;
-        }
+//         }
     }
 
     /**
