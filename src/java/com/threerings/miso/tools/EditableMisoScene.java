@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoScene.java,v 1.8 2001/11/29 00:18:15 mdb Exp $
+// $Id: EditableMisoScene.java,v 1.9 2001/12/05 07:29:06 mdb Exp $
 
 package com.threerings.miso.tools.scene;
 
@@ -97,4 +97,10 @@ public interface EditableMisoScene
      * changes that have been made to this editable miso scene.
      */
     public MisoSceneModel getMisoSceneModel ();
+
+    /**
+     * Replaces the model in use by this editable miso scene with the
+     * specified model.
+     */
+    public void setMisoSceneModel (MisoSceneModel model);
 }

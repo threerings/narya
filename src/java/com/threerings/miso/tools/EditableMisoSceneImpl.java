@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.5 2001/11/29 23:08:28 mdb Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.6 2001/12/05 07:29:06 mdb Exp $
 
 package com.threerings.miso.tools.scene;
 
@@ -36,21 +36,28 @@ public class EditableMisoSceneImpl
         throws NoSuchTileException, NoSuchTileSetException
     {
         super(model, tmgr);
+        unpackObjectLayer();
+    }
 
-        // we'll need to be keeping this
-        _model = model;
+    /**
+     * Constructs an instance that will be used to display and edit the
+     * supplied miso scene data. The tiles identified by the scene model
+     * will not be loaded until a tile manager is provided via {@link
+     * #setTileManager}.
+     *
+     * @param model the scene data that we'll be displaying.
+     */
+    public EditableMisoSceneImpl (MisoSceneModel model)
+    {
+        super(model);
+        unpackObjectLayer();
+    }
 
-        // we need this to track object layer mods
-        _objectTileIds = new int[_model.baseTileIds.length];
-
-        // populate our non-spare array
-        int[] otids = model.objectTileIds;
-        for (int i = 0; i < otids.length; i += 3) {
-            int x = otids[i];
-            int y = otids[i+1];
-            int fqTileId = otids[i+2];
-            _objectTileIds[model.width*y + x] = fqTileId;
-        }
+    // documentation inherited
+    public void setMisoSceneModel (MisoSceneModel model)
+    {
+        super.setMisoSceneModel(model);
+        unpackObjectLayer();
     }
 
     // documentation inherited
@@ -170,9 +177,24 @@ public class EditableMisoSceneImpl
         return _model;
     }
 
-    /** Our scene model, which we always keep in sync with our display
-     * model data. */
-    protected MisoSceneModel _model;
+    /**
+     * Unpacks the object layer into an array that we can update along
+     * with the other layers.
+     */
+    protected void unpackObjectLayer ()
+    {
+        // we need this to track object layer mods
+        _objectTileIds = new int[_model.baseTileIds.length];
+
+        // populate our non-spare array
+        int[] otids = _model.objectTileIds;
+        for (int i = 0; i < otids.length; i += 3) {
+            int x = otids[i];
+            int y = otids[i+1];
+            int fqTileId = otids[i+2];
+            _objectTileIds[_model.width*y + x] = fqTileId;
+        }
+    }
 
     /** A non-sparse array where we can keep track of the object tile
      * ids. */
