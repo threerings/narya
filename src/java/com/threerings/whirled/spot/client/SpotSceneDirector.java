@@ -1,9 +1,10 @@
 //
-// $Id: SpotSceneDirector.java,v 1.13 2002/06/14 01:27:53 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.14 2002/06/14 01:40:16 ray Exp $
 
 package com.threerings.whirled.spot.client;
 
 import java.util.Iterator;
+import com.samskivert.util.ResultListener;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.dobj.DObject;
@@ -94,6 +95,17 @@ public class SpotSceneDirector
      */
     public boolean traversePortal (int portalId)
     {
+        return traversePortal(portalId, null);
+    }
+
+    /**
+     * Requests that this client move to the location specified by the
+     * supplied portal id. A request will be made and when the response is
+     * received, the location observers will be notified of success or
+     * failure.
+     */
+    public boolean traversePortal (int portalId, ResultListener rl)
+    {
         // look up the destination scene and location
         DisplaySpotScene scene = (DisplaySpotScene)_scdir.getScene();
         if (scene == null) {
@@ -122,7 +134,7 @@ public class SpotSceneDirector
         }
 
         // prepare to move to this scene (sets up pending data)
-        if (!_scdir.prepareMoveTo(targetSceneId)) {
+        if (!_scdir.prepareMoveTo(targetSceneId, rl)) {
             return false;
         }
 

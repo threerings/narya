@@ -1,10 +1,11 @@
 //
-// $Id: SceneDirector.java,v 1.18 2002/06/14 01:24:49 mdb Exp $
+// $Id: SceneDirector.java,v 1.19 2002/06/14 01:40:16 ray Exp $
 
 package com.threerings.whirled.client;
 
 import java.io.IOException;
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.ResultListener;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationReceiver;
@@ -101,7 +102,7 @@ public class SceneDirector
         }
 
         // prepare to move to this scene (sets up pending data)
-        if (!prepareMoveTo(sceneId)) {
+        if (!prepareMoveTo(sceneId, null)) {
             return false;
         }
 
@@ -124,11 +125,11 @@ public class SceneDirector
      * the scene repository. This can be called by cooperating directors
      * that need to coopt the moveTo process.
      */
-    public boolean prepareMoveTo (int sceneId)
+    public boolean prepareMoveTo (int sceneId, ResultListener rl)
     {
         // first check to see if our observers are happy with this move
         // request
-        if (!_locdir.mayMoveTo(sceneId)) {
+        if (!_locdir.mayMoveTo(sceneId, rl)) {
             return false;
         }
 

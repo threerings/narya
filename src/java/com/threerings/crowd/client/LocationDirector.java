@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.23 2002/06/14 01:24:48 mdb Exp $
+// $Id: LocationDirector.java,v 1.24 2002/06/14 01:40:16 ray Exp $
 
 package com.threerings.crowd.client;
 
@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.ObserverList.ObserverOp;
+import com.samskivert.util.ResultListener;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationReceiver;
@@ -105,7 +106,7 @@ public class LocationDirector
     {
         // first check to see if our observers are happy with this move
         // request
-        if (!mayMoveTo(placeId)) {
+        if (!mayMoveTo(placeId, null)) {
             return false;
         }
 
@@ -170,7 +171,7 @@ public class LocationDirector
      * @return true if everyone is happy with the move, false if it was
      * vetoed by one of the location observers.
      */
-    public boolean mayMoveTo (final int placeId)
+    public boolean mayMoveTo (final int placeId, ResultListener rl)
     {
         final boolean[] vetoed = new boolean[1];
         _observers.apply(new ObserverOp() {
@@ -180,6 +181,17 @@ public class LocationDirector
                 return true;
             }
         });
+
+        // if we have a result listener, let it know if we failed
+        // or keep it for later if we're still going
+        if (rl != null) {
+            if (vetoed[0]) {
+                rl.requestFailed(new MoveVetoedException());
+            } else {
+                _moveListener = rl;
+            }
+        }
+        // and return the result
         return !vetoed[0];
     }
 
@@ -195,6 +207,11 @@ public class LocationDirector
      */
     public void didMoveTo (int placeId, PlaceConfig config)
     {
+        if (_moveListener != null) {
+            _moveListener.requestCompleted(config);
+            _moveListener = null;
+        }
+
         // keep track of our previous place id
         _previousPlaceId = _placeId;
 
@@ -266,6 +283,11 @@ public class LocationDirector
      */
     public void failedToMoveTo (int placeId, String reason)
     {
+        if (_moveListener != null) {
+            _moveListener.requestFailed(new MoveFailedException(reason));
+            _moveListener = null;
+        }
+
         // clear out our last request time
         _lastRequestTime = 0;
 
@@ -499,6 +521,10 @@ public class LocationDirector
     /** The entity that deals when we fail to subscribe to a place
      * object. */
     protected FailureHandler _failureHandler;
+
+    /** A listener that wants to know if we succeeded or
+     * how we failed to move.  */
+    protected ResultListener _moveListener;
 
     /** The operation used to inform observers that the location changed. */
     protected ObserverOp _didChangeOp = new ObserverOp() {

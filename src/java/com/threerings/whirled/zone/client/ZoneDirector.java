@@ -1,9 +1,11 @@
 //
-// $Id: ZoneDirector.java,v 1.7 2002/06/14 01:24:49 mdb Exp $
+// $Id: ZoneDirector.java,v 1.8 2002/06/14 01:40:16 ray Exp $
 
 package com.threerings.whirled.zone.client;
 
 import java.util.ArrayList;
+
+import com.samskivert.util.ResultListener;
 
 import com.threerings.presents.client.InvocationReceiver;
 import com.threerings.crowd.data.PlaceConfig;
@@ -78,6 +80,16 @@ public class ZoneDirector
      */
     public boolean moveTo (int zoneId, int sceneId)
     {
+        return moveTo(zoneId, sceneId, null);
+    }
+
+    /**
+     * Requests that this client move the specified scene in the specified
+     * zone. A request will be made and when the response is received, the
+     * location observers will be notified of success or failure.
+     */
+    public boolean moveTo (int zoneId, int sceneId, ResultListener rl)
+    {
         // if the requested zone is the same as our current zone, we just
         // want a regular old moveTo request
         if (_summary != null && zoneId == _summary.zoneId) {
@@ -86,7 +98,7 @@ public class ZoneDirector
 
         // otherwise, we make a zoned moveTo request; prepare to move to
         // this scene (sets up pending data)
-        if (!_scdir.prepareMoveTo(sceneId)) {
+        if (!_scdir.prepareMoveTo(sceneId, rl)) {
             return false;
         }
 
@@ -171,7 +183,7 @@ public class ZoneDirector
         _scdir.didLeaveScene();
 
         // move to the new zone and scene
-        moveTo(zoneId, sceneId);
+        moveTo(zoneId, sceneId, null);
     }
 
     /**
