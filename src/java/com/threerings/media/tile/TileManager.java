@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.37 2004/10/28 17:49:02 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -20,6 +20,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.media.tile;
+
+import java.lang.ref.SoftReference;
 
 import java.util.HashMap;
 
@@ -107,14 +109,16 @@ public class TileManager
         String bundle, String imgPath, int width, int height)
     {
         String key = bundle + "::" + imgPath;
-        UniformTileSet uts = (UniformTileSet)_handcache.get(key);
+        SoftReference ref = (SoftReference) _handcache.get(key);
+        UniformTileSet uts = (ref == null) ? null
+                                           : (UniformTileSet) ref.get();
         if (uts == null) {
             uts = new UniformTileSet();
             uts.setImageProvider(_defaultProvider);
             uts.setImagePath(imgPath);
             uts.setWidth(width);
             uts.setHeight(height);
-            _handcache.put(key, uts);
+            _handcache.put(key, new SoftReference(uts));
         }
         return uts;
     }
