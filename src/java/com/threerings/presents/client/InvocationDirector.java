@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.29 2003/07/16 18:03:30 ray Exp $
+// $Id: InvocationDirector.java,v 1.30 2003/07/20 17:02:59 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -48,6 +48,12 @@ public class InvocationDirector
      */
     public void init (DObjectManager omgr, final int cloid, Client client)
     {
+        // sanity check
+        if (_clobj != null) {
+            Log.warning("Zoiks, client object around during invmgr init!");
+            cleanup();
+        }
+
         // keep these for later
         _omgr = omgr;
         _client = client;
@@ -55,14 +61,16 @@ public class InvocationDirector
         // add ourselves as a subscriber to the client object
         _omgr.subscribeToObject(cloid, new Subscriber() {
             public void objectAvailable (DObject object) {
-                // keep a handle on this bad boy
-                _clobj = (ClientObject)object;
+                ClientObject clobj = (ClientObject)object;
 
                 // add ourselves as an event listener
-                _clobj.addListener(InvocationDirector.this);
+                clobj.addListener(InvocationDirector.this);
 
                 // clear out our previous registrations
-                _clobj.setReceivers(new DSet());
+                clobj.setReceivers(new DSet());
+
+                // keep a handle on this bad boy
+                _clobj = clobj;
 
                 // assign a mapping to already registered receivers
                 assignReceiverIds();
