@@ -1,5 +1,5 @@
 //
-// $Id: DownloadManager.java,v 1.7 2003/05/27 07:51:49 mdb Exp $
+// $Id: DownloadManager.java,v 1.8 2003/08/05 01:33:20 mdb Exp $
 
 package com.threerings.resource;
 
@@ -61,8 +61,13 @@ public class DownloadManager
         public void downloadProgress (int percent, long remaining);
 
         /**
-         * Called after the download has completed on the download manager
-         * thread, immediately after reporting download progress of 100%.
+         * Called on the download thread during the patching of jar files.
+         */
+        public void patchingProgress (int percent);
+
+        /**
+         * Called after the download and patching has completed on the
+         * download manager thread.
          */
         public void postDownloadHook ();
 
@@ -95,11 +100,11 @@ public class DownloadManager
         /** The destination file to which the file is to be written. */
         public File destFile;
 
-        /** The last-modified timestamp of the source file. */
-        public long lastModified;
+        /** The version of the file to be downloaded. */
+        public String version;
 
-        /** The size in bytes of the source files. */
-        public long fileSize;
+        /** The last-modified timestamp of the source. */
+        public long lastModified;
 
         /** The last-modified timestamp of the destination file. */
         public long destLastModified;
@@ -108,13 +113,32 @@ public class DownloadManager
         public long destFileSize;
 
         /**
-         * Constructs a download descriptor to retrieve the given file
-         * from the given URL.
+         * Constructs a download descriptor to retrieve the specified
+         * version of the given file from the given URL.
          */
-        public DownloadDescriptor (URL url, File file)
+        public DownloadDescriptor (URL url, File file, String version)
         {
             this.sourceURL = url;
             this.destFile = file;
+            this.version = version;
+        }
+
+        /**
+         * Creates the appropriate type of downloader for this descriptor.
+         */
+        public Downloader createDownloader ()
+            throws IOException
+        {
+            String protocol = sourceURL.getProtocol();
+            if (protocol.equals("file")) {
+                return new FileDownloader();
+            } else if (protocol.equals("http")) {
+                return new JNLPDownloader();
+            } else {
+                throw new IOException(
+                    "Unknown source file protocol " +
+                    "[protocol=" + protocol + ", desc=" + this + "].");
+            }
         }
 
         /** Returns a string representation of this instance. */
@@ -218,51 +242,10 @@ public class DownloadManager
             DownloadDescriptor desc = (DownloadDescriptor)descriptors.get(ii);
 
             try {
-                // get the source file information
-                desc.fileSize = 0;
-                desc.lastModified = 0;
-                String protocol = desc.sourceURL.getProtocol();
-                if (protocol.equals("file")) {
-                    // read the file information directly from the file system
-                    File tfile = new File(desc.sourceURL.getPath());
-                    desc.fileSize = tfile.length();
-                    desc.lastModified = tfile.lastModified();
-
-                } else if (protocol.equals("http")) {
-                    // read the file information via an HTTP HEAD request
-                    HttpURLConnection ucon = (HttpURLConnection)
-                        desc.sourceURL.openConnection();
-                    ucon.setRequestMethod("HEAD");
-                    ucon.connect();
-                    desc.fileSize = ucon.getContentLength();
-                    desc.lastModified = ucon.getLastModified();
-
-                } else {
-                    throw new IOException(
-                        "Unknown source file protocol " +
-                        "[protocol=" + protocol + ", desc=" + desc + "].");
-                }
-
-                // determine whether we actually need to fetch the file by
-                // checking to see whether we have a local copy at all,
-                // and if so, whether its file size or last-modified time
-                // differs from the source file
-                desc.destFileSize = desc.destFile.length();
-                desc.destLastModified = desc.destFile.lastModified();
-                if ((!desc.destFile.exists()) ||
-                    (desc.destFileSize != desc.fileSize) ||
-                    (desc.destLastModified < (desc.lastModified - DELTA)) ||
-                    (desc.destLastModified > (desc.lastModified + DELTA))) {
-                    // increment the total file size to be fetched
-                    pinfo.totalSize += desc.fileSize;
-                    // add the file to the list of files to be fetched
-                    fetch.add(desc);
-                    Log.debug("File deemed stale " +
-                              "[url=" + desc.sourceURL + "].");
-
-                } else {
-                    Log.debug("File deemed up-to-date " +
-                              "[url=" + desc.sourceURL + "].");
+                Downloader loader = desc.createDownloader();
+                loader.init(desc);
+                if (loader.checkUpdate(pinfo)) {
+                    fetch.add(loader);
                 }
 
             } catch (final IOException ioe) {
@@ -273,15 +256,16 @@ public class DownloadManager
             }
         }
 
+        Log.info("Initiating download of " + pinfo.totalSize + " bytes.");
         // download all stale files
         size = fetch.size();
         pinfo.start = System.currentTimeMillis();
         for (int ii = 0; ii < size; ii++) {
-            DownloadDescriptor desc = (DownloadDescriptor)fetch.get(ii);
+            Downloader loader = (Downloader)fetch.get(ii);
             try {
-                processDownload(desc, obs, pinfo);
+                loader.processDownload(this, obs, pinfo, _buffer);
             } catch (IOException ioe) {
-                notifyFailed(obs, desc, ioe);
+                notifyFailed(obs, loader.getDescriptor(), ioe);
                 if (fragile) {
                     return;
                 }
@@ -290,9 +274,7 @@ public class DownloadManager
 
         // make sure to always let the observer know that we've wrapped up
         // by reporting 100% completion
-        if (!pinfo.complete) {
-            notifyProgress(obs, 100, 0L);
-        }
+        notifyProgress(obs, 100, 0L);
     }
 
     /** Helper function. */
@@ -348,71 +330,6 @@ public class DownloadManager
     }
 
     /**
-     * Processes a single download descriptor.
-     */
-    protected void processDownload (
-        DownloadDescriptor desc, DownloadObserver obs, ProgressInfo pinfo)
-        throws IOException
-    {
-        // download the resource bundle from the specified URL
-        URLConnection ucon = desc.sourceURL.openConnection();
-
-        // prepare to read the data from the URL into the cache file
-        Log.info("Downloading file [url=" + desc.sourceURL + "].");
-        InputStream in = ucon.getInputStream();
-        FileOutputStream out = new FileOutputStream(desc.destFile);
-        int read;
-
-        // read in the file data
-        while ((read = in.read(_buffer)) != -1) {
-            // write it out to our local copy
-            out.write(_buffer, 0, read);
-            // report our progress to the download observer as a
-            // percentage of the total file data to be transferred
-            pinfo.currentSize += read;
-            int pctdone = pinfo.getPercentDone();
-            pinfo.complete = (pctdone >= 100);
-            // if we've finished downloading everything, hold off on
-            // notifying the observer until we're done working with the
-            // file to ensure that any action the observer may take with
-            // respect to the downloaded files can be safely undertaken
-            if (!pinfo.complete) {
-                // update the transfer rate to reflect the bit of data we
-                // just transferred
-                long now = System.currentTimeMillis();
-                pinfo.updateXferRate(now);
-
-                // notify the progress observer if it's been sufficiently
-                // long since our last notification
-                if ((now - pinfo.lastUpdate) >= UPDATE_DELAY) {
-                    pinfo.lastUpdate = now;
-                    long remaining = pinfo.getXferTimeRemaining();
-                    notifyProgress(obs, pctdone, remaining);
-                }
-            }
-        }
-
-        // close the streams
-        in.close();
-        out.close();
-
-        // if we have a last modified time, we want to adjust our cache
-        // file accordingly
-        if (desc.lastModified != 0) {
-            if (!desc.destFile.setLastModified(desc.lastModified)) {
-                Log.warning("Failed to set last-modified date " +
-                            "[file=" + desc.destFile + "].");
-            }
-        }
-
-        if (pinfo.complete) {
-            // let the observer know we're finished now that we've
-            // finished all of our work with the file
-            notifyProgress(obs, 100, 0L);
-        }
-    }
-
-    /**
      * A record describing a single download request.
      */
     protected static class DownloadRecord
@@ -427,62 +344,6 @@ public class DownloadManager
         public boolean fragile;
     }
 
-    /**
-     * A record detailing the progress of a download request.
-     */
-    protected class ProgressInfo
-    {
-        /** The total file size in bytes to be transferred. */
-        public long totalSize;
-
-        /** The file size in bytes transferred thus far. */
-        public long currentSize;
-
-        /** The time at which the file transfer began. */
-        public long start;
-
-        /** The current transfer rate in bytes per second. */
-        public long bytesPerSecond;
-
-        /** The time at which the last progress update was posted to the
-         * progress observer. */
-        public long lastUpdate;
-
-        /** Whether the download has completed and the progress observer
-         * notified. */
-        public boolean complete;
-
-        /**
-         * Returns the percent completion, based on data size transferred,
-         * of the file transfer.
-         */
-        public int getPercentDone ()
-        {
-            return (int)((currentSize / (float)totalSize) * 100f);
-        }
-
-        /**
-         * Updates the bytes per second transfer rate for the download
-         * associated with this progress info record.
-         */
-        public void updateXferRate (long now)
-        {
-            long secs = (now - start) / 1000L;
-            bytesPerSecond = (secs == 0) ? 0 : (currentSize / secs);
-        }
-
-        /**
-         * Returns the estimated transfer time remaining for the download
-         * associated with this progress info record, or <code>-1</code> if
-         * the transfer time cannot currently be estimated.
-         */
-        public long getXferTimeRemaining ()
-        {
-            return (bytesPerSecond == 0) ? -1 :
-                (totalSize - currentSize) / bytesPerSecond;
-        }
-    }
-
     /** The downloading thread. */
     protected Thread _dlthread;
 
@@ -495,12 +356,14 @@ public class DownloadManager
     /** The data buffer size for reading file data. */
     protected static final int BUFFER_SIZE = 2048;
 
-    /** The last-modified difference in milliseconds allowed between the
-     * source and destination file without considering the destination
-     * file to be out of date. */
-    protected static final long DELTA = 5000L;
-
-    /** The delay in milliseconds between notifying progress observers of
-     * file download progress. */
-    protected static final long UPDATE_DELAY = 2500L;
+    /** Indicates whether or not we're using versioned resources. */
+    protected static boolean VERSIONING = false;
+    static {
+        try {
+            VERSIONING = "true".equalsIgnoreCase(
+                System.getProperty("versioned_rsrcs"));
+        } catch (Throwable t) {
+            // no versioning, no problem
+        }
+    }
 }

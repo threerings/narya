@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.31 2003/06/19 01:30:27 ray Exp $
+// $Id: ResourceManager.java,v 1.32 2003/08/05 01:33:20 mdb Exp $
 
 package com.threerings.resource;
 
@@ -208,6 +208,8 @@ public class ResourceManager
      * <code>resource_url</code> will be used, if available.
      * @param configPath the path (relative to the resource URL) of the
      * resource definition file.
+     * @param version the version of the resource bundles to be
+     * downloaded.
      * @param downloadObs the bundle download observer to notify of
      * download progress and success or failure, or <code>null</code> if
      * the caller doesn't care to be informed; note that in the latter
@@ -215,8 +217,10 @@ public class ResourceManager
      * complete.
      */
     public void initBundles (String resourceURL, String configPath,
-                             BundleDownloadObserver downloadObs)
+                             String version, BundleDownloadObserver downloadObs)
     {
+        _version = version;
+
         // if the resource URL wasn't provided, we try to figure it out
         // for ourselves
         if (resourceURL == null) {
@@ -245,6 +249,33 @@ public class ResourceManager
             Log.warning("Invalid resource URL [url=" + resourceURL +
                         ", error=" + mue + "].");
         }
+
+        // now attempt to locate the dynamic resource URL
+        try {
+            String dynResURL = System.getProperty("dyn_rsrc_url");
+            if (dynResURL != null) {
+                // make sure there's a slash at the end of the URL
+                if (!dynResURL.endsWith("/")) {
+                    dynResURL += "/";
+                }
+                try {
+                    _drurl = new URL(dynResURL);
+                } catch (MalformedURLException mue) {
+                    Log.warning("Invalid dynamic resource URL " +
+                                "[url=" + dynResURL + ", error=" + mue + "].");
+                }
+            }
+        } catch (SecurityException se) {
+        }
+
+        // if no dynamic resource URL was specified, use the normal
+        // resource URL in its stead
+        if (_drurl == null) {
+            _drurl = _rurl;
+        }
+
+        Log.debug("Resource manager ready [rurl=" + _rurl +
+                  ", drurl=" + _drurl + "].");
 
         // load up our configuration
         Properties config = loadConfig(configPath);
@@ -294,12 +325,12 @@ public class ResourceManager
      * Resolve the specified dynamic bundle and return it on the specified
      * result listener.
      */
-    public void resolveDynamicBundle (String path,
-        final ResultListener listener)
+    public void resolveDynamicBundle (String path, String version,
+                                      final ResultListener listener)
     {
         URL burl;
         try {
-            burl = new URL(_rurl, path);
+            burl = new URL(_drurl, path);
         } catch (MalformedURLException mue) {
             listener.requestFailed(mue);
             return;
@@ -313,10 +344,10 @@ public class ResourceManager
             return;
         }
 
-        // slap this on the list for retrieval or update by the
-        // download manager
+        // slap this on the list for retrieval or update by the download
+        // manager
         ArrayList list = new ArrayList();
-        list.add(new DownloadDescriptor(burl, bundle.getSource()));
+        list.add(new DownloadDescriptor(burl, bundle.getSource(), version));
 
         // TODO: There should only be one download manager for all dynamic
         // bundles, with each bundle waiting its turn to use it.
@@ -329,6 +360,9 @@ public class ResourceManager
             }
 
             public void downloadProgress (int percent, long remaining) {
+            }
+
+            public void patchingProgress (int percent) {
             }
 
             public void postDownloadHook () {
@@ -382,6 +416,10 @@ public class ResourceManager
             }
 
             public void downloadProgress (int percent, long remaining) {
+                // nothing for now
+            }
+
+            public void patchingProgress (int percent) {
                 // nothing for now
             }
 
@@ -440,6 +478,11 @@ public class ResourceManager
 
             public void downloadProgress (int percent, long remaining) {
                 obs.downloadProgress(percent, remaining);
+            }
+
+            public void patchingProgress (int percent) {
+                // TODO:
+                // obs.patchingProgress(percent)?
             }
 
             public void postDownloadHook () {
@@ -596,7 +639,7 @@ public class ResourceManager
 
                 // slap this on the list for retrieval or update by the
                 // download manager
-                dlist.add(new DownloadDescriptor(burl, cfile));
+                dlist.add(new DownloadDescriptor(burl, cfile, _version));
 
                 // finally, add the file that will be cached to the set as
                 // a resource bundle
@@ -783,8 +826,14 @@ public class ResourceManager
     /** The classloader we use for classpath-based resource loading. */
     protected ClassLoader _loader;
 
+    /** The version of the resource bundles we'll be downloading. */
+    protected String _version;
+
     /** The url via which we download our bundles. */
     protected URL _rurl;
+
+    /** The url via which we download our dynamically generated bundles. */
+    protected URL _drurl;
 
     /** The prefix we prepend to resource paths before attempting to load
      * them from the classpath. */
