@@ -1,5 +1,5 @@
 //
-// $Id: OccupantInfo.java,v 1.10 2002/10/26 02:40:30 shaper Exp $
+// $Id: OccupantInfo.java,v 1.11 2002/10/30 00:42:37 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -35,6 +35,9 @@ public class OccupantInfo extends SimpleStreamableObject
 
     /** Constant value for {@link #status}. */
     public static final byte DISCONNECTED = 2;
+
+    /** Maps status codes to human readable strings. */
+    public static final String[] X_STATUS = { "active", "idle", "discon" };
 
     /** The body object id of this occupant (and our entry key). */
     public Integer bodyOid;
