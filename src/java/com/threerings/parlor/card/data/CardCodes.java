@@ -1,5 +1,5 @@
 //
-// $Id: CardCodes.java,v 1.2 2004/10/22 23:19:07 andrzej Exp $
+// $Id: CardCodes.java,v 1.3 2004/11/01 22:10:21 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -28,17 +28,17 @@ import com.threerings.presents.data.InvocationCodes;
  */
 public interface CardCodes extends InvocationCodes
 {
-    /** The suit of hearts. */
-    public static final int HEARTS = 0;
+    /** The suit of spades. */
+    public static final int SPADES = 0;
     
-    /** The suit of diamonds. */
-    public static final int DIAMONDS = 1;
+    /** The suit of hearts. */
+    public static final int HEARTS = 1;
     
     /** The suit of clubs. */
     public static final int CLUBS = 2;
     
-    /** The suit of spades. */
-    public static final int SPADES = 3;
+    /** The suit of diamonds. */
+    public static final int DIAMONDS = 3;
     
     /** The number of the jack. */
     public static final int JACK = 11;

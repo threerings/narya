@@ -1,5 +1,5 @@
 //
-// $Id: Deck.java,v 1.5 2004/10/22 23:19:07 andrzej Exp $
+// $Id: Deck.java,v 1.6 2004/11/01 22:10:21 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -72,15 +72,15 @@ public class Deck implements CardCodes,
     {
         cards.clear();
         
-        for (int i=HEARTS;i<=SPADES;i++) {
+        for (int i=SPADES;i<=DIAMONDS;i++) {
             for (int j=2;j<=ACE;j++) {
                 cards.add(new Card(j, i));
             }
         }
         
         if (includeJokers) {
-            cards.add(new Card(RED_JOKER, 0));
-            cards.add(new Card(BLACK_JOKER, 0));
+            cards.add(new Card(RED_JOKER, 3));
+            cards.add(new Card(BLACK_JOKER, 3));
         }
     }
     

@@ -1,5 +1,5 @@
 //
-// $Id: Card.java,v 1.6 2004/10/22 23:19:07 andrzej Exp $
+// $Id: Card.java,v 1.7 2004/11/01 22:10:21 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -31,10 +31,8 @@ import com.threerings.presents.dobj.DSet;
 /**
  * Instances of this class represent individual playing cards.
  */
-public class Card implements CardCodes,
-                             DSet.Entry
+public class Card implements DSet.Entry, Comparable, CardCodes
 {
-    
     /**
      * No-arg constructor for deserialization.
      */
@@ -49,18 +47,18 @@ public class Card implements CardCodes,
      */
     public int getNumber ()
     {
-        return (_value >> 2);
+        return (_value & 0x1F);
     }
     
     /**
-     * Returns the suit of the card: HEARTS, DIAMONDS, CLUBS, or
-     * SPADES.  If the card is the joker, the suit is undefined.
+     * Returns the suit of the card: SPADES, HEARTS, DIAMONDS, or
+     * CLUBS.  If the card is the joker, the suit is undefined.
      *
      * @return the suit of the card
      */
     public int getSuit ()
     {
-        return (_value & 0x03);
+        return (_value >> 5);
     }
     
     /**
@@ -121,7 +119,7 @@ public class Card implements CardCodes,
         
         return number == RED_JOKER || number == BLACK_JOKER ||
                (number >= 2 && number <= ACE &&
-                suit >= HEARTS && suit <= SPADES);
+                suit >= SPADES && suit <= DIAMONDS);
     }
     
     // Documentation inherited.
@@ -161,6 +159,29 @@ public class Card implements CardCodes,
     }
     
     /**
+     * Compares this card to another.  The card order is the same as the
+     * initial deck ordering: two through ten, jack, queen, king, ace for
+     * spades, hearts, clubs, and diamonds, then the red joker and the
+     * black joker.
+     *
+     * @param other the other card to compare this to
+     * @return -1, 0, or +1, depending on whether this card is less than,
+     * equal to, or greater than the other card
+     */
+    public int compareTo (Object other)
+    {
+        int otherValue = ((Card)other)._value;
+        
+        if (_value > otherValue) {
+            return +1;
+        } else if(_value < otherValue) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+    
+    /**
      * Returns a string representation of this card.
      *
      * @return a description of this card
@@ -193,10 +214,10 @@ public class Card implements CardCodes,
             }
             
             switch (getSuit()) {
-                case HEARTS: sb.append('h'); break;
-                case DIAMONDS: sb.append('d'); break;
-                case CLUBS: sb.append('c'); break;
                 case SPADES: sb.append('s'); break;
+                case HEARTS: sb.append('h'); break;
+                case CLUBS: sb.append('c'); break;
+                case DIAMONDS: sb.append('d'); break;
                 default: sb.append('?'); break;
             }
             
@@ -205,16 +226,15 @@ public class Card implements CardCodes,
     }
     
     /**
-     * Package-only constructor for Deck.
+     * Protected constructor for Deck.
      *
      * @param number the number of the card
      * @param suit the suit of the card
      */
-    Card (int number, int suit)
+    protected Card (int number, int suit)
     {
-        _value = (byte)((number << 2) | suit);
+        _value = (byte)((suit << 5) | number);
     }
-    
     
     /** The number of the card. */
     protected byte _value;
