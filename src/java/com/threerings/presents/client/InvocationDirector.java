@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.6 2001/08/04 02:54:01 mdb Exp $
+// $Id: InvocationDirector.java,v 1.7 2001/08/14 06:47:15 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -173,13 +173,19 @@ public class InvocationManager
         Object[] rargs = new Object[args.length-1];
         System.arraycopy(args, 1, rargs, 0, rargs.length);
 
-        // and invoke the response method
+        // and invoke the response method; we'd cache these but the key
+        // for the method would have to include all of the class names of
+        // all of the arguments and would probably be more expensive to
+        // create than just reflecting the method (we should really test
+        // this because that's half intuition and half wild-ass guess, but
+        // we're going with it for now)
         String mname = "handle" + name;
-        Method rspmeth = ClassUtil.getMethod(mname, rsptarg, _methcache);
+        Method rspmeth = ClassUtil.getMethod(mname, rsptarg, rargs);
         if (rspmeth == null) {
             Log.warning("Unable to resolve response method " +
                         "[target=" + rsptarg.getClass().getName() +
-                        ", method=" + mname + "].");
+                        ", method=" + mname +
+                        ", args=" + StringUtil.toString(rargs) + "].");
             return;
         }
 
@@ -213,13 +219,19 @@ public class InvocationManager
         Object[] nargs = new Object[args.length-2];
         System.arraycopy(args, 2, nargs, 0, nargs.length);
 
-        // and invoke the receiver method
+        // and invoke the receiver method; we'd cache these but the key
+        // for the method would have to include all of the class names of
+        // all of the arguments and would probably be more expensive to
+        // create than just reflecting the method (we should really test
+        // this because that's half intuition and half wild-ass guess, but
+        // we're going with it for now)
         String mname = "handle" + proc + "Notification";
-        Method rspmeth = ClassUtil.getMethod(mname, receiver, _methcache);
+        Method rspmeth = ClassUtil.getMethod(mname, receiver, nargs);
         if (rspmeth == null) {
             Log.warning("Unable to resolve receiver method " +
                         "[target=" + receiver.getClass().getName() +
-                        ", method=" + mname + "].");
+                        ", method=" + mname +
+                        ", args=" + StringUtil.toString(nargs) + "].");
             return;
         }
 
@@ -257,5 +269,4 @@ public class InvocationManager
     protected int _invocationId;
     protected IntMap _targets = new IntMap();
     protected HashMap _receivers = new HashMap();
-    protected HashMap _methcache = new HashMap();
 }
