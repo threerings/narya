@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundle.java,v 1.1 2001/11/18 04:09:21 mdb Exp $
+// $Id: TileSetBundle.java,v 1.2 2001/11/20 03:48:41 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -8,16 +8,16 @@ import javax.imageio.ImageIO;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import java.util.Iterator;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 import com.samskivert.util.HashIntMap;
 
+import com.threerings.resource.ResourceBundle;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.ImageProvider;
 
@@ -33,7 +33,7 @@ public class TileSetBundle
      * Initializes this resource bundle with a reference to the jarfile
      * from which it was loaded and from which it can load image data.
      */
-    public void init (JarFile bundle)
+    public void init (ResourceBundle bundle)
     {
         _bundle = bundle;
     }
@@ -54,20 +54,29 @@ public class TileSetBundle
         return (TileSet)get(tileSetId);
     }
 
+    /**
+     * Enumerates the tilesets in this tileset bundle.
+     */
+    public Iterator enumerateTileSets ()
+    {
+        return values().iterator();
+    }
+
     // documentation inherited
     public BufferedImage loadImage (String path)
         throws IOException
     {
         // obtain the image data from our jarfile
-        JarEntry entry = _bundle.getJarEntry(path);
-        if (entry == null) {
-            String errmsg = "Cannot load image resource from bundle " +
+        InputStream imgin = _bundle.getResource(path);
+        if (imgin == null) {
+            String errmsg = "No such image in resource bundle " +
                 "[bundle=" + _bundle + ", path=" + path + "].";
             throw new FileNotFoundException(errmsg);
         }
-        return ImageIO.read(_bundle.getInputStream(entry));
+        return ImageIO.read(imgin);
     }
 
+    // custom serialization process
     private void writeObject (ObjectOutputStream out)
         throws IOException
     {
@@ -81,6 +90,7 @@ public class TileSetBundle
         }
     }        
 
+    // custom unserialization process
     private void readObject (ObjectInputStream in)
         throws IOException, ClassNotFoundException
     {
@@ -89,10 +99,11 @@ public class TileSetBundle
         for (int i = 0; i < count; i++) {
             int tileSetId = in.readInt();
             TileSet set = (TileSet)in.readObject();
+            set.setImageProvider(this);
             put(tileSetId, set);
         }
     }
 
-    /** Our resource bundle. */
-    protected JarFile _bundle;
+    /** That from which we load our tile images. */
+    protected ResourceBundle _bundle;
  }
