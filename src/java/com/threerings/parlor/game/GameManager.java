@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.31 2002/06/01 23:14:53 ray Exp $
+// $Id: GameManager.java,v 1.32 2002/06/03 21:08:57 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -104,6 +104,14 @@ public class GameManager extends PlaceManager
     public boolean isGameOver ()
     {
         return (_gameobj.state == GameObject.GAME_OVER);
+    }
+
+    /**
+     * Returns the unique round identifier for the current round.
+     */
+    public int getRoundId ()
+    {
+        return _roundId;
     }
 
     // documentation inherited
@@ -320,6 +328,9 @@ public class GameManager extends PlaceManager
         // let the derived class do its pre-reset stuff
         gameWillReset();
 
+        // increment the round identifier
+        _roundId++;
+
         // do the standard game start processing
         gameWillStart();
         _gameobj.setState(GameObject.IN_PLAY);
@@ -439,8 +450,11 @@ public class GameManager extends PlaceManager
     /** The oids of our player and AI body objects. */
     protected int[] _playerOids;
 
+    /** The unique round identifier for the current round. */
+    protected int _roundId;
+
     /** If AIs are present, contains their skill levels, or -1 at human
-     * player indexes.. */
+     * player indexes. */
     protected byte[] _AIs;
 
     /** Our delegate operator to tick AIs. */
