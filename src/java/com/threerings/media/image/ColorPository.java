@@ -1,5 +1,5 @@
 //
-// $Id: ColorPository.java,v 1.1 2003/01/31 23:10:45 mdb Exp $
+// $Id: ColorPository.java,v 1.2 2003/03/29 02:30:14 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -261,7 +261,7 @@ public class ColorPository implements Serializable
         if (crec != null) {
             ColorRecord color = (ColorRecord)crec.colors.get(colorId);
             if (color != null) {
-                color.getColorization();
+                return color.getColorization();
             }
         }
         return null;
