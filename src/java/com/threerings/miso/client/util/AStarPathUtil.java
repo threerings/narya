@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.10 2001/11/29 23:35:59 mdb Exp $
+// $Id: AStarPathUtil.java,v 1.11 2002/02/07 19:57:24 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -75,14 +75,14 @@ public class AStarPathUtil
 	    // are impassable.
 
 	    // consider each successor of the node
-	    considerStep(info, n, n.x - 1, n.y - 1);
-	    considerStep(info, n, n.x, n.y - 1);
-	    considerStep(info, n, n.x + 1, n.y - 1);
-	    considerStep(info, n, n.x - 1, n.y);
-	    considerStep(info, n, n.x + 1, n.y);
-	    considerStep(info, n, n.x - 1, n.y + 1);
-	    considerStep(info, n, n.x, n.y + 1);
-	    considerStep(info, n, n.x + 1, n.y + 1);
+	    considerStep(info, n, n.x - 1, n.y - 1, 14);
+	    considerStep(info, n, n.x, n.y - 1, 10);
+	    considerStep(info, n, n.x + 1, n.y - 1, 14);
+	    considerStep(info, n, n.x - 1, n.y, 10);
+	    considerStep(info, n, n.x + 1, n.y, 10);
+	    considerStep(info, n, n.x - 1, n.y + 1, 14);
+	    considerStep(info, n, n.x, n.y + 1, 10);
+	    considerStep(info, n, n.x + 1, n.y + 1, 14);
 
 	    // push the node on the closed list
 	    info.closed.add(n);
@@ -102,16 +102,15 @@ public class AStarPathUtil
      * @param y the y-coordinate for the destination step.
      */
     protected static void considerStep (
-	AStarInfo info, AStarNode n, int x, int y)
+	AStarInfo info, AStarNode n, int x, int y, int cost)
     {
         // skip node if it's outside the map bounds or otherwise impassable
         if (!isStepValid(info, n.x, n.y, x, y)) {
             return;
         }
 
-	// calculate the new cost for this node.  the cost to go
-	// node-to-node is always 1 for now.
-	int newg = n.g + 1;
+	// calculate the new cost for this node
+	int newg = n.g + cost;
 
 	// retrieve the node corresponding to this location
 	AStarNode np = getNode(info, x, y);
@@ -238,12 +237,16 @@ public class AStarPathUtil
     }
 
     /**
-     * Return a heuristic estimate of the cost to get from
-     * <code>(ax, ay)</code> to <code>(bx, by)</code>.
+     * Return a heuristic estimate of the cost to get from <code>(ax,
+     * ay)</code> to <code>(bx, by)</code>.
      */
     protected static int getDistanceEstimate (int ax, int ay, int bx, int by)
     {
-	return Math.max(Math.abs(bx - ax), Math.abs(by - ay));
+        // we're doing all of our cost calculations based on geometric
+        // distance times ten
+        int xsq = 10 * (bx - ax); xsq = xsq * xsq;
+        int ysq = 10 * (by - ay); ysq = ysq * ysq;
+        return (int)Math.sqrt(xsq + ysq);
     }
 }
 
@@ -330,12 +333,12 @@ class AStarNode implements Comparable
     {
 	int bf = ((AStarNode)o).f;
 
-	// since the set contract is fulfilled using the equality
-	// results returned here, and we'd like to allow multiple
-	// nodes with equivalent scores in our set, we explicitly
-	// define object equivalence as the result of object.equals(),
-	// else we use the unique node id since it will return a
-	// consistent ordering for the objects.
+	// since the set contract is fulfilled using the equality results
+	// returned here, and we'd like to allow multiple nodes with
+	// equivalent scores in our set, we explicitly define object
+	// equivalence as the result of object.equals(), else we use the
+	// unique node id since it will return a consistent ordering for
+	// the objects.
   	if (f == bf) {
 	    return (this == o) ? 0 : (id - ((AStarNode)o).id);
   	}
