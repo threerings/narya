@@ -1,5 +1,5 @@
 //
-// $Id: XMLComponentParser.java,v 1.4 2001/11/18 04:09:21 mdb Exp $
+// $Id: XMLComponentParser.java,v 1.5 2001/11/20 04:15:43 mdb Exp $
 
 package com.threerings.cast.tools.xml;
 
@@ -14,7 +14,7 @@ import com.samskivert.util.*;
 import com.samskivert.xml.SimpleParser;
 
 import com.threerings.media.tile.TileSet;
-import com.threerings.media.tile.xml.XMLTileSetParser;
+import com.threerings.media.tools.tile.xml.XMLTileSetParser;
 
 import com.threerings.cast.Log;
 import com.threerings.cast.ActionSequence;

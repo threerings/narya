@@ -1,13 +1,13 @@
 //
-// $Id: BaseTileSetRuleSet.java,v 1.2 2001/11/18 04:27:56 mdb Exp $
+// $Id: BaseTileSetRuleSet.java,v 1.3 2001/11/20 04:15:44 mdb Exp $
 
-package com.threerings.media.tile.xml;
+package com.threerings.miso.tools.tile.xml;
 
 import org.xml.sax.Attributes;
 import org.apache.commons.digester.Digester;
 
 import com.threerings.media.tile.TileSet;
-import com.threerings.media.tile.xml.SwissArmyTileSetRuleSet;
+import com.threerings.media.tools.tile.xml.SwissArmyTileSetRuleSet;
 import com.threerings.miso.tile.MisoTileSet;
 
 /**
