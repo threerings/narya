@@ -1,5 +1,5 @@
 //
-// $Id: RandomUtil.java,v 1.6 2003/03/05 02:50:28 ray Exp $
+// $Id: RandomUtil.java,v 1.7 2003/03/18 19:38:30 ray Exp $
 
 package com.threerings.util;
 
@@ -44,6 +44,8 @@ public class RandomUtil
      * corresponding array element.
      *
      * @param weights an array of positive integers.
+     * @return an index into the array, or -1 if the sum of the weights
+     * is less than 1. 
      *
      * For example, passing in {1, 0, 3, 4} will return
      * <table><tr><td>0</td><td>1/8th of the time</td></tr>
@@ -53,7 +55,11 @@ public class RandomUtil
      */
     public static int getWeightedIndex (int[] weights)
     {
-        int pick = getInt(IntListUtil.sum(weights));
+        int sum = IntListUtil.sum(weights);
+        if (sum < 1) {
+            return -1;
+        }
+        int pick = getInt(sum);
         for (int ii=0, nn=weights.length; ii < nn; ii++) {
             pick -= weights[ii];
             if (pick < 0) {
