@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.22 2001/11/27 08:40:34 mdb Exp $
+// $Id: TileSet.java,v 1.23 2001/12/07 01:33:29 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -227,7 +227,7 @@ public abstract class TileSet
      * @return the tileset image or null if an error occurred loading the
      * image.
      */
-    protected BufferedImage getTilesetImage ()
+    protected Image getTilesetImage ()
     {
         // return it straight away if it's already loaded
 	if (_tilesetImg != null) {
@@ -281,5 +281,5 @@ public abstract class TileSet
     /** The image containing all tile images for this set. This is private
      * because it should be accessed via {@link #getTilesetImage} even by
      * derived classes. */
-    private transient BufferedImage _tilesetImg;
+    private transient Image _tilesetImg;
 }

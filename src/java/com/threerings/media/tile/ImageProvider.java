@@ -1,9 +1,9 @@
 //
-// $Id: ImageProvider.java,v 1.1 2001/11/18 04:09:21 mdb Exp $
+// $Id: ImageProvider.java,v 1.2 2001/12/07 01:33:29 mdb Exp $
 
 package com.threerings.media.tile;
 
-import java.awt.image.BufferedImage;
+import java.awt.Image;
 import java.io.IOException;
 
 /**
@@ -21,6 +21,6 @@ public interface ImageProvider
      * @exception IOException thrown if an error occurs loading the image
      * data.
      */
-    public BufferedImage loadImage (String path)
+    public Image loadImage (String path)
         throws IOException;
 }

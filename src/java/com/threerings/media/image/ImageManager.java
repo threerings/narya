@@ -1,12 +1,14 @@
 //
-// $Id: ImageManager.java,v 1.8 2001/11/30 02:33:34 mdb Exp $
+// $Id: ImageManager.java,v 1.9 2001/12/07 01:33:29 mdb Exp $
 
 package com.threerings.media;
 
+import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
@@ -17,7 +19,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 
 import javax.imageio.stream.ImageInputStream;
@@ -33,9 +34,13 @@ public class ImageManager
 {
     /**
      * Construct an image manager with the specified {@link
-     * ResourceManager} from which it will obtain its data.
+     * ResourceManager} from which it will obtain its data. A non-null
+     * <code>context</code> must be provided if there is any expectation
+     * that the image manager will not be able to load images via the
+     * ImageIO services and will have to fallback to Toolkit-style
+     * loading.
      */
-    public ImageManager (ResourceManager rmgr)
+    public ImageManager (ResourceManager rmgr, Component context)
     {
 	_rmgr = rmgr;
 
@@ -44,16 +49,25 @@ public class ImageManager
             GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gdev = genv.getDefaultScreenDevice();
         _gconf = gdev.getDefaultConfiguration();
+
+        // try to figure out which image loader we'll be using
+        try {
+            _loader = (ImageLoader)Class.forName(IMAGEIO_LOADER).newInstance();
+        } catch (Exception e) {
+            Log.info("Unable to use ImageIO to load images. " +
+                     "Falling back to Toolkit.");
+            _loader = new ToolkitLoader(context);
+        }
     }
 
     /**
      * Loads the image via the resource manager using the specified path
      * and caches it for faster retrieval henceforth.
      */
-    public BufferedImage getImage (String path)
+    public Image getImage (String path)
         throws IOException
     {
-	BufferedImage img = (BufferedImage)_imgs.get(path);
+	Image img = (Image)_imgs.get(path);
 	if (img != null) {
 	    // Log.info("Retrieved image from cache [path=" + path + "].");
 	    return img;
@@ -70,19 +84,12 @@ public class ImageManager
      * environment and decodes the image data from the specified source
      * image into that target image. The resulting image is not cached.
      */
-    public BufferedImage createImage (InputStream source)
+    public Image createImage (InputStream source)
         throws IOException
     {
-        // this seems to choke when decoding the compressed image data
-        // which may mean it's a JDK bug or something, but I'd like to see
-        // it resolved so that the image manager will work on applets
-        // 
-        // ImageInputStream iis = new MemoryCacheImageInputStream(source);
-        // BufferedImage src = ImageIO.read(iis);
-
-        BufferedImage src = ImageIO.read(source);
-        int swidth = src.getWidth();
-        int sheight = src.getHeight();
+        Image src = _loader.loadImage(source);
+        int swidth = src.getWidth(null);
+        int sheight = src.getHeight(null);
 
         // now convert the image to a format optimized for display
         BufferedImage dest = _gconf.createCompatibleImage(
@@ -98,9 +105,19 @@ public class ImageManager
      * by default. */
     protected ResourceManager _rmgr;
 
+    /** The image loader via which we convert an input stream into an
+     * image. */
+    protected ImageLoader _loader;
+
     /** A cache of loaded images. */
     protected HashMap _imgs = new HashMap();
 
     /** The graphics configuration of our default display device. */
     protected GraphicsConfiguration _gconf;
+
+    /** The classname of the ImageIO-based image loader which we attempt
+     * to use but fallback from if we're not running a JVM that has
+     * ImageIO support. */
+    protected static final String IMAGEIO_LOADER =
+        "com.threerings.media.ImageIOLoader";
 }

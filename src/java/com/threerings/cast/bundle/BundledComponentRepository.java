@@ -1,10 +1,9 @@
 //
-// $Id: BundledComponentRepository.java,v 1.3 2001/11/30 02:34:57 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.4 2001/12/07 01:33:29 mdb Exp $
 
 package com.threerings.cast.bundle;
 
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -196,7 +195,7 @@ public class BundledComponentRepository
         }
 
         // documentation inherited
-        public BufferedImage loadImage (String path)
+        public Image loadImage (String path)
             throws IOException
         {
             // obtain the image data from our resource bundle

@@ -1,9 +1,9 @@
 //
-// $Id: TileSetBundle.java,v 1.4 2001/11/30 02:34:57 mdb Exp $
+// $Id: TileSetBundle.java,v 1.5 2001/12/07 01:33:29 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
-import java.awt.image.BufferedImage;
+import java.awt.Image;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -73,7 +73,7 @@ public class TileSetBundle
     }
 
     // documentation inherited
-    public BufferedImage loadImage (String path)
+    public Image loadImage (String path)
         throws IOException
     {
         // obtain the image data from our jarfile

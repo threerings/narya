@@ -1,13 +1,12 @@
 //
-// $Id: UniformTileSet.java,v 1.4 2001/11/29 21:57:31 mdb Exp $
+// $Id: UniformTileSet.java,v 1.5 2001/12/07 01:33:29 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 
 import com.threerings.media.Log;
-import com.threerings.media.ImageManager;
+import com.threerings.media.ImageUtil;
 
 /**
  * A uniform tileset is one that is composed of tiles that are all the
@@ -68,7 +67,7 @@ public class UniformTileSet extends TileSet
     // documentation inherited
     protected Image extractTileImage (int tileId)
     {
-        BufferedImage tsimg = getTilesetImage();
+        Image tsimg = getTilesetImage();
         if (tsimg == null) {
             return null;
         }
@@ -79,7 +78,8 @@ public class UniformTileSet extends TileSet
         int col = tileId % tilesPerRow;
 
 	// crop the tile-sized image chunk from the full image
-	return tsimg.getSubimage(_width*col, _height*row, _width, _height);
+	return ImageUtil.getSubimage(
+            tsimg, _width*col, _height*row, _width, _height);
     }
 
     // documentation inherited

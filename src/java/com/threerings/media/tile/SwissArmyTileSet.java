@@ -1,12 +1,11 @@
 //
-// $Id: SwissArmyTileSet.java,v 1.4 2001/11/29 21:57:31 mdb Exp $
+// $Id: SwissArmyTileSet.java,v 1.5 2001/12/07 01:33:29 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Dimension;
-import java.awt.image.BufferedImage;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -14,7 +13,7 @@ import java.io.ObjectInputStream;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.Log;
-import com.threerings.media.ImageManager;
+import com.threerings.media.ImageUtil;
 
 /**
  * The swiss army tileset supports a diverse variety of tiles in the
@@ -131,7 +130,7 @@ public class SwissArmyTileSet extends TileSet
     // documentation inherited
     protected Image extractTileImage (int tileIndex)
     {
-        BufferedImage tsimg = getTilesetImage();
+        Image tsimg = getTilesetImage();
         if (tsimg == null) {
             return null;
         }
@@ -160,7 +159,8 @@ public class SwissArmyTileSet extends TileSet
 //                  ", tx=" + tx + ", ty=" + ty + "].");
 
 	// crop the tile-sized image chunk from the full image
-	return tsimg.getSubimage(tx, ty, _widths[ridx], _heights[ridx]);
+	return ImageUtil.getSubimage(
+            tsimg, tx, ty, _widths[ridx], _heights[ridx]);
     }
 
     private void readObject (ObjectInputStream in)

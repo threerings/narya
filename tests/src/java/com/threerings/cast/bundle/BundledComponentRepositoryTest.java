@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepositoryTest.java,v 1.3 2001/11/30 02:35:37 mdb Exp $
+// $Id: BundledComponentRepositoryTest.java,v 1.4 2001/12/07 01:33:29 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -23,7 +23,7 @@ public class BundledComponentRepositoryTest extends TestCase
     {
         try {
             ResourceManager rmgr = new ResourceManager(null, "rsrc");
-            ImageManager imgr = new ImageManager(rmgr);
+            ImageManager imgr = new ImageManager(rmgr, null);
             BundledComponentRepository repo =
                 new BundledComponentRepository(rmgr, imgr, "components");
 

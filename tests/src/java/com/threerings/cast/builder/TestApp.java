@@ -1,5 +1,5 @@
 //
-// $Id: TestApp.java,v 1.9 2001/11/30 02:35:37 mdb Exp $
+// $Id: TestApp.java,v 1.10 2001/12/07 01:33:29 mdb Exp $
 
 package com.threerings.cast.builder;
 
@@ -34,7 +34,7 @@ public class TestApp
         MisoUtil.bindProperties(_config);
 
         ResourceManager rmgr = new ResourceManager(null, "rsrc");
-        ImageManager imgr = new ImageManager(rmgr);
+        ImageManager imgr = new ImageManager(rmgr, _frame);
 
         ComponentRepository crepo =
             new BundledComponentRepository(rmgr, imgr, "components");

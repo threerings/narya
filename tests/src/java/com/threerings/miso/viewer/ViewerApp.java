@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.19 2001/11/30 02:35:37 mdb Exp $
+// $Id: ViewerApp.java,v 1.20 2001/12/07 01:33:29 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -42,10 +42,14 @@ public class ViewerApp
             System.exit(-1);
         }
 
+        // create and size the main application frame
+	_frame = new ViewerFrame();
+	_frame.setSize(WIDTH, HEIGHT);
+
         // we don't need to configure anything
         _config = new Config();
         ResourceManager rmgr = new ResourceManager(null, "rsrc");
-        ImageManager imgr = new ImageManager(rmgr);
+        ImageManager imgr = new ImageManager(rmgr, _frame);
 	_tilemgr = new TileManager(imgr);
         _tilemgr.setTileSetRepository(
             new BundledTileSetRepository(rmgr, imgr, "tilesets"));
@@ -61,10 +65,6 @@ public class ViewerApp
         BundledComponentRepository crepo =
             new BundledComponentRepository(rmgr, imgr, "components");
         CharacterManager charmgr = new CharacterManager(crepo);
-
-        // create and size the main application frame
-	_frame = new ViewerFrame();
-	_frame.setSize(WIDTH, HEIGHT);
 
         // create our scene view panel
         _panel = new ViewerSceneViewPanel(ctx, spritemgr, charmgr, crepo);

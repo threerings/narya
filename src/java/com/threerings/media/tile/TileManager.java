@@ -1,9 +1,9 @@
 //
-// $Id: TileManager.java,v 1.22 2001/11/30 02:34:57 mdb Exp $
+// $Id: TileManager.java,v 1.23 2001/12/07 01:33:29 mdb Exp $
 
 package com.threerings.media.tile;
 
-import java.awt.image.BufferedImage;
+import java.awt.Image;
 import java.io.IOException;
 
 import com.samskivert.io.PersistenceException;
@@ -136,7 +136,7 @@ public class TileManager implements ImageProvider
     }
 
     // documentation inherited
-    public BufferedImage loadImage (String path)
+    public Image loadImage (String path)
         throws IOException
     {
         // load up the image data from the resource manager
