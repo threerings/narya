@@ -1,18 +1,19 @@
 //
-// $Id: Sprite.java,v 1.16 2001/08/22 02:14:57 mdb Exp $
+// $Id: Sprite.java,v 1.17 2001/09/05 00:40:33 shaper Exp $
 
 package com.threerings.media.sprite;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.threerings.media.Log;
 import com.threerings.media.util.MathUtil;
 
 /**
- * The <code>Sprite</code> class represents a single moveable object
- * within a scene.  A sprite has a position within the scene, and a set of
- * images used to render it (perhaps multiple frames for animation).
+ * The sprite class represents a single moveable object in an animated
+ * view.  A sprite has a position within the view, and a set of images
+ * used to render it (perhaps multiple frames for animation).
  */
 public class Sprite
 {
@@ -31,7 +32,7 @@ public class Sprite
     /**
      * Construct a sprite object without any associated frames. The sprite
      * should be populated with a set of frames used to display it via a
-     * subsequent call to <code>setFrames()</code>.
+     * subsequent call to {@link #setFrames}.
      *
      * @param x the sprite x-position in pixels.
      * @param y the sprite y-position in pixels.
@@ -58,8 +59,44 @@ public class Sprite
     }
 
     /**
+     * Returns the sprite's width in pixels.
+     */
+    public int getWidth ()
+    {
+	return _rbounds.width;
+    }
+
+    /**
+     * Returns the sprite's height in pixels.
+     */
+    public int getHeight ()
+    {
+	return _rbounds.height;
+    }
+
+    /**
+     * Returns the sprite's rendered bounds in pixels.
+     */
+    public Rectangle getBounds ()
+    {
+	return _rbounds;
+    }
+
+    /**
+     * Return whether the sprite is currently moving (following an
+     * assigned path.)
+     */
+    public boolean isMoving ()
+    {
+	return (_dest != null);
+    }
+
+    /**
      * Moves the sprite to the specified location. The location specified
      * will be used as the center of the bottom edge of the sprite.
+     *
+     * @param x the x-position in pixels.
+     * @param y the y-position in pixels.
      */
     public void setLocation (int x, int y)
     {
@@ -100,6 +137,8 @@ public class Sprite
     /**
      * Called by the sprite manager when a sprite is added to said manager
      * for management.
+     *
+     * @param mgr the sprite manager.
      */
     protected void setSpriteManager (SpriteManager mgr)
     {
@@ -208,7 +247,7 @@ public class Sprite
     }
 
     /**
-     * Set the sprite's velocity when walking.
+     * Set the sprite's velocity when following a path.
      *
      * @param vx the x-axis velocity.
      * @param vy the y-axis velocity.
@@ -225,7 +264,7 @@ public class Sprite
     public void stop ()
     {
 	// TODO: make sure we come to a stop on a full coordinate,
-	// even in the case where we aborted a path walk mid-traversal.
+	// even in the case where we aborted a path mid-traversal.
 	_dest = null;
 	_path = null;
 	_fullpath = null;
@@ -243,8 +282,9 @@ public class Sprite
     {
         // make sure following the path is a sensible thing to do
         if (path == null || path.size() < 2) {
-	    // halt movement if we're walking since, regardless of its
-	    // reasonableness, we've been asked to follow a new path
+	    // halt any previously existing movement since, regardless
+	    // of its reasonableness, we've been asked to follow a new
+	    // path
 	    stop();
 	    return;
 	}
@@ -268,11 +308,18 @@ public class Sprite
      */
     protected void moveAlongPath ()
     {
-        // if no more nodes remain, clear out our path and bail
         if (!_path.hasNext()) {
+	    // inform observers that we've finished our path
+	    notifyObservers(SpriteObserver.FINISHED_PATH, _path);
+	    // clear out our path and bail
 	    stop();
             return;
         }
+
+	if (_dest != null) {
+	    // inform observers that we've finished a path node
+	    notifyObservers(SpriteObserver.FINISHED_PATH_NODE, _dest);
+	}
 
         // grab the next node in our path
         _dest = (PathNode)_path.next();
@@ -388,6 +435,46 @@ public class Sprite
     }
 
     /**
+     * Add a sprite observer to observe this sprite's events.
+     *
+     * @param obs the sprite observer.
+     */
+    public void addSpriteObserver (SpriteObserver obs)
+    {
+	// create the observer list if it doesn't yet exist
+	if (_observers == null) {
+	    _observers = new ArrayList();
+	}
+
+	// make sure each observer observes only once
+	if (_observers.contains(obs)) {
+	    Log.info("Attempt to observe sprite already observing " +
+		     "[sprite=" + this + ", obs=" + obs + "].");
+	    return;
+	}
+
+	// add the observer
+	_observers.add(obs);
+    }
+
+    /**
+     * Inform all sprite observers of a sprite event.
+     *
+     * @param eventCode the type of sprite event.
+     * @param arg the argument associated with the event.
+     */
+    protected void notifyObservers (int eventCode, Object arg)
+    {
+	if (_observers == null) return;
+
+	int size = _observers.size();
+	for (int ii = 0; ii < size; ii++) {
+	    SpriteObserver obs = (SpriteObserver)_observers.get(ii);
+	    obs.spriteChanged(this, eventCode, arg);
+	}
+    }
+
+    /**
      * Return a string representation of the sprite.
      */
     public String toString ()
@@ -441,8 +528,11 @@ public class Sprite
     /** When moving, the full path the sprite is traversing. */
     protected Path _fullpath;
 
-    /** The sprite velocity when walking. */
+    /** The sprite velocity when moving. */
     protected Point _vel;
+
+    /** The sprite observers observing this sprite. */
+    protected ArrayList _observers;
 
     /** The sprite manager. */
     protected SpriteManager _spritemgr;
