@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.19 2002/02/13 03:21:28 mdb Exp $
+// $Id: GameManager.java,v 1.20 2002/02/13 18:50:15 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -74,6 +74,14 @@ public class GameManager extends PlaceManager
         return _players;
     }
 
+    /**
+     * Returns whether the game is over.
+     */
+    public boolean isGameOver ()
+    {
+        return (_gameobj.state == GameObject.GAME_OVER);
+    }
+
     // documentation inherited
     protected void didStartup ()
     {
@@ -137,7 +145,7 @@ public class GameManager extends PlaceManager
      * one or both of the calldown functions (rather than this function)
      * if they need to do things before or after the game starts.
      */
-    protected void startGame ()
+    public void startGame ()
     {
         // let the derived class do its pre-start stuff
         gameWillStart();
@@ -188,7 +196,7 @@ public class GameManager extends PlaceManager
      * calldown functions to determine the winner of the game and then
      * transition the game to the <code>GAME_OVER</code> state.
      */
-    protected void endGame ()
+    public void endGame ()
     {
         // figure out who won...
 
