@@ -1,5 +1,5 @@
 //
-// $Id: ChatCodes.java,v 1.9 2002/07/22 22:54:03 ray Exp $
+// $Id: ChatCodes.java,v 1.10 2002/07/26 20:35:01 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -13,7 +13,7 @@ public interface ChatCodes extends InvocationCodes
     /** The module name for the chat services. */
     public static final String MODULE_NAME = "chat";
 
-    /** The chat type code for chat messages delivered on the place object
+    /** The chat localtype code for chat messages delivered on the place object
      * currently occupied by the client. This is the only type of chat
      * message that will be delivered unless the chat director is
      * explicitly provided with other chat message sources via {@link
@@ -28,6 +28,9 @@ public interface ChatCodes extends InvocationCodes
 
     /** The message identifier for a system notification message. */
     public static final String SYSTEM_NOTIFICATION = "sysnot";
+
+    /** The chat localtype for tells. */
+    public static final String TELL_CHAT_TYPE = "tellChat";
 
     /** The message identifier for a tell request. */
     public static final String TELL_REQUEST = "Tell";

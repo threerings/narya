@@ -1,15 +1,19 @@
 //
-// $Id: ChatDirector.java,v 1.27 2002/07/22 22:54:03 ray Exp $
+// $Id: ChatDirector.java,v 1.28 2002/07/26 20:35:01 ray Exp $
 
 package com.threerings.crowd.chat;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Tuple;
 
 import com.threerings.presents.client.*;
 import com.threerings.presents.dobj.*;
+
+import com.threerings.util.MessageBundle;
+import com.threerings.util.MessageManager;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.client.LocationObserver;
@@ -31,10 +35,12 @@ public class ChatDirector
      * observer so that it can automatically process place constrained
      * chat.
      */
-    public ChatDirector (CrowdContext ctx)
+    public ChatDirector (CrowdContext ctx, MessageManager msgmgr, String bundle)
     {
         // keep the context around
         _ctx = ctx;
+        _msgmgr = msgmgr;
+        _bundle = bundle;
 
         // register for chat notifications
         _ctx.getClient().getInvocationDirector().registerReceiver(
@@ -102,28 +108,41 @@ public class ChatDirector
      */
     public void displaySystemMessage (String bundle, String message)
     {
-        displaySystemMessage(PLACE_CHAT_TYPE, bundle, message);
+        displaySystemMessage(bundle, message, PLACE_CHAT_TYPE);
     }
 
     /**
      * Requests that the specified system message be dispatched to all
      * registered chat displays.
      *
-     * @param type {@link ChatCodes#PLACE_CHAT_TYPE} if the message was
-     * received on the place object or the type associated with the
-     * auxiliary chat object on which the message was received.
      * @param bundle the message bundle identifier that should be used to
      * localize this message.
      * @param message the localizable message string.
+     * @param localtype {@link ChatCodes#PLACE_CHAT_TYPE} if the message was
+     * received on the place object or the type associated with the
+     * auxiliary chat object on which the message was received.
      */
     public void displaySystemMessage (
-        String type, String bundle, String message)
+        String bundle, String message, String localtype)
     {
-        // pass this on to our chat displays
-        for (int i = 0; i < _displays.size(); i++) {
-            ChatDisplay display = (ChatDisplay)_displays.get(i);
-            display.displaySystemMessage(type, bundle, message);
-        }
+        dispatchMessage(new SystemMessage(xlate(bundle, message), localtype));
+    }
+
+    /**
+     * Display a feedback message.
+     */
+    public void displayFeedbackMessage (String bundle, String message)
+    {
+        displayFeedbackMessage(bundle, message, PLACE_CHAT_TYPE);
+    }
+
+    /**
+     * Display a feedback message.
+     */
+    public void displayFeedbackMessage (String bundle, String message,
+        String localtype)
+    {
+        dispatchMessage(new FeedbackMessage(xlate(bundle, message), localtype));
     }
 
     /**
@@ -145,8 +164,8 @@ public class ChatDirector
         }
 
         // make sure they can say what they want to say
-        for (int ii = 0; ii < _validators.size(); ii++) {
-            if (!((ChatValidator)_validators.get(ii)).validateSpeak(message)) {
+        for (Iterator iter = _validators.iterator(); iter.hasNext(); ) {
+            if (!((ChatValidator) iter.next()).validateSpeak(message)) {
                 return -1;
             }
         }
@@ -179,8 +198,8 @@ public class ChatDirector
     public int requestTell (String target, String message)
     {
         // make sure they can say what they want to say
-        for (int ii = 0; ii < _validators.size(); ii++) {
-            if (!((ChatValidator)_validators.get(ii)).validateTell(
+        for (Iterator iter = _validators.iterator(); iter.hasNext(); ) {
+            if (!((ChatValidator) iter.next()).validateTell(
                     target, message)) {
                 return -1;
             }
@@ -198,11 +217,14 @@ public class ChatDirector
      * chat director assumes the caller will be managing the subscription
      * to this object and will remain subscribed to it for as long as it
      * remains in effect as an auxiliary chat source.
+     *
+     * @param localtype a type to be associated with all chat messages
+     * that arrive on the specified DObject.
      */
-    public void addAuxiliarySource (String type, DObject source)
+    public void addAuxiliarySource (DObject source, String localtype)
     {
         source.addListener(this);
-        _auxes.put(source.getOid(), type);
+        _auxes.put(source.getOid(), localtype);
     }
 
     /**
@@ -247,9 +269,11 @@ public class ChatDirector
     {
         String name = event.getName();
         if (name.equals(ChatService.SPEAK_NOTIFICATION)) {
-            handleSpeakMessage(getType(event.getTargetOid()), event.getArgs());
+            handleSpeakMessage(getLocalType(event.getTargetOid()),
+                event.getArgs());
         } else if (name.equals(ChatService.SYSTEM_NOTIFICATION)) {
-            handleSystemMessage(getType(event.getTargetOid()), event.getArgs());
+            handleSystemMessage(getLocalType(event.getTargetOid()),
+                event.getArgs());
         }
     }
 
@@ -263,11 +287,8 @@ public class ChatDirector
             return;
         }
 
-        // pass this on to our chat displays
-        for (int i = 0; i < _displays.size(); i++) {
-            ChatDisplay display = (ChatDisplay)_displays.get(i);
-            display.displayTellMessage(source, null, message);
-        }
+        dispatchMessage(new UserMessage(message, ChatCodes.TELL_CHAT_TYPE,
+            source, ChatCodes.DEFAULT_MODE));
     }
 
     /**
@@ -280,11 +301,7 @@ public class ChatDirector
     public void handleTellNotification (
         String source, String bundle, String message)
     {
-        // pass this on to our chat displays
-        for (int i = 0; i < _displays.size(); i++) {
-            ChatDisplay display = (ChatDisplay)_displays.get(i);
-            display.displayTellMessage(source, bundle, message);
-        }
+        handleTellNotification(source, xlate(bundle, message));
     }
 
     /**
@@ -304,10 +321,8 @@ public class ChatDirector
 
         // pass this on to our chat displays
         String target = (String)tup.left, message = (String)tup.right;
-        for (int i = 0; i < _displays.size(); i++) {
-            ChatDisplay display = (ChatDisplay)_displays.get(i);
-            display.handleTellSucceeded(invid, target, message);
-        }
+        displayFeedbackMessage(_bundle,
+            MessageBundle.tcompose("m.told_format", target, message));
     }
 
     /**
@@ -328,10 +343,9 @@ public class ChatDirector
 
         // pass this on to our chat displays
         String target = (String)tup.left;
-        for (int i = 0; i < _displays.size(); i++) {
-            ChatDisplay display = (ChatDisplay)_displays.get(i);
-            display.handleTellFailed(invid, target, reason);
-        }
+
+        displayFeedbackMessage(_bundle,
+            MessageBundle.compose("m.tell_failed", target, reason));
     }
 
     /**
@@ -343,14 +357,13 @@ public class ChatDirector
      * auxiliary chat object on which the message was received.
      * @param args the arguments provided with the speak notification.
      */
-    protected void handleSpeakMessage (String type, Object[] args)
+    protected void handleSpeakMessage (String localtype, Object[] args)
     {
         String speaker = (String)args[0];
         if (isBlocked(speaker)) {
             return;
         }
 
-        String bundle = null;
         String message;
         byte mode;
 
@@ -361,16 +374,11 @@ public class ChatDirector
             mode = ((Byte) args[2]).byteValue();
 
         } else {
-            bundle = (String)args[1];
-            message = (String)args[2];
+            message = xlate((String) args[1], (String) args[2]);
             mode = ((Byte) args[3]).byteValue();
         }
 
-        // pass this on to our chat displays
-        for (int i = 0; i < _displays.size(); i++) {
-            ChatDisplay display = (ChatDisplay)_displays.get(i);
-            display.displaySpeakMessage(type, speaker, bundle, message, mode);
-        }
+        dispatchMessage(new UserMessage(message, localtype, speaker, mode));
     }
 
     /**
@@ -383,18 +391,44 @@ public class ChatDirector
      * @param args the arguments provided with the system message
      * notification.
      */
-    protected void handleSystemMessage (String type, Object[] args)
+    protected void handleSystemMessage (String localtype, Object[] args)
     {
-        String bundle = (String)args[0];
-        String message = (String)args[1];
-        displaySystemMessage(type, bundle, message);
+        displaySystemMessage((String) args[0], (String) args[1], localtype);
+    }
+
+    /**
+     * Translate the specified message using the specified bundle.
+     */
+    protected String xlate (String bundle, String message)
+    {
+        if (bundle != null && _msgmgr != null) {
+            MessageBundle msgb = _msgmgr.getBundle(bundle);
+            if (msgb == null) {
+                Log.warning("No message bundle available to translate " +
+                    "message [bundle=" + bundle + ", message=" +
+                    message + "].");
+            } else {
+                message = msgb.xlate(message);
+            }
+        }
+        return message;
+    }
+
+    /**
+     * Dispatch the provided message to our ChatDisplays.
+     */
+    protected void dispatchMessage (ChatMessage msg)
+    {
+        for (Iterator iter = _displays.iterator(); iter.hasNext(); ) {
+            ((ChatDisplay) iter.next()).displayMessage(msg);
+        }
     }
 
     /**
      * Looks up and returns the message type associated with the specified
      * oid.
      */
-    protected String getType (int oid)
+    protected String getLocalType (int oid)
     {
         String type = (String)_auxes.get(oid);
         return (type == null) ? PLACE_CHAT_TYPE : type;
@@ -411,6 +445,12 @@ public class ChatDirector
 
     /** Our active chat context. */
     protected CrowdContext _ctx;
+
+    /** The message manager. */
+    protected MessageManager _msgmgr;
+
+    /** The bundle to use for our own internal messages. */
+    protected String _bundle;
 
     /** The place object that we currently occupy. */
     protected PlaceObject _place;

@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.17 2002/07/22 22:54:04 ray Exp $
+// $Id: ChatPanel.java,v 1.18 2002/07/26 20:35:01 ray Exp $
 
 package com.threerings.micasa.client;
 
@@ -37,6 +37,10 @@ import com.threerings.util.MessageBundle;
 import com.threerings.crowd.chat.ChatCodes;
 import com.threerings.crowd.chat.ChatDirector;
 import com.threerings.crowd.chat.ChatDisplay;
+import com.threerings.crowd.chat.ChatMessage;
+import com.threerings.crowd.chat.FeedbackMessage;
+import com.threerings.crowd.chat.SystemMessage;
+import com.threerings.crowd.chat.UserMessage;
 import com.threerings.crowd.client.OccupantObserver;
 import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.data.OccupantInfo;
@@ -55,7 +59,7 @@ public class ChatPanel
         _ctx = ctx;
 
         // create our chat director and register ourselves with it
-        _chatdtr = new ChatDirector(_ctx);
+        _chatdtr = new ChatDirector(_ctx, null, null);
         _chatdtr.addChatDisplay(this);
 
         // register as an occupant observer
@@ -174,15 +178,7 @@ public class ChatPanel
 
     protected void displayOccupantMessage (String message)
     {
-        // stick a newline on the message
-        message = message + "\n";
-
-        Document doc = _text.getDocument();
-        try {
-            doc.insertString(doc.getLength(), message, _noticeStyle);
-        } catch (BadLocationException ble) {
-            Log.warning("Unable to insert text!? [error=" + ble + "].");
-        }
+        append(message + "\n", _noticeStyle);
     }
 
     protected void sendText ()
@@ -224,122 +220,45 @@ public class ChatPanel
         _entry.setText("");
     }
 
-    // documentation inherited
-    public void displaySpeakMessage (
-        String type, String speaker, String bundle, String message, byte mode)
+    // documentation inherited from interface ChatDisplay
+    public void displayMessage (ChatMessage message)
     {
-        // wrap the speaker in brackets
-        speaker = "<" + speaker + "> ";
-
-        // translate the message if necessary
-        message = xlate(bundle, message);
-
-        // stick a newline on the message
-        message = message + "\n";
-
-        Document doc = _text.getDocument();
-        try {
-            doc.insertString(doc.getLength(), speaker, _nameStyle);
-            doc.insertString(doc.getLength(), message, _msgStyle);
-        } catch (BadLocationException ble) {
-            Log.warning("Unable to insert text!? [error=" + ble + "].");
-        }
-    }
-
-    // documentation inherited
-    public void displaySystemMessage (
-        String type, String bundle, String message)
-    {
-        // translate the message
-        message = xlate(bundle, message);
-
-        // stick a newline on the message
-        message = message + "\n";
-
-        Document doc = _text.getDocument();
-        try {
-            doc.insertString(doc.getLength(), message, _errStyle);
-        } catch (BadLocationException ble) {
-            Log.warning("Unable to insert text!? [error=" + ble + "].");
-        }
-    }
-
-    /**
-     * Translates the supplied message using the supplied bundle
-     * identifier iff the bundle identifier is not null. Otherwise it
-     * returns the original message.
-     */
-    protected String xlate (String bundle, String message)
-    {
-        if (bundle != null) {
-            MessageBundle msgb = _ctx.getMessageManager().getBundle(bundle);
-            if (msgb == null) {
-                Log.warning("No message bundle available to translate " +
-                            "[bundle=" + bundle + ", msg=" + message + "].");
+        if (message instanceof UserMessage) {
+            UserMessage msg = (UserMessage) message;
+            if (msg.localtype == ChatCodes.TELL_CHAT_TYPE) {
+                append("[" + msg.speaker + " whispers] ", _nameStyle);
+                append(msg.message + "\n", _msgStyle);
             } else {
-                message = msgb.xlate(message);
+                append("<" + msg.speaker + "> ", _nameStyle);
+                append(msg.message + "\n", _msgStyle);
             }
+
+        } else if ((message instanceof SystemMessage) ||
+                   (message instanceof FeedbackMessage)) {
+            append(message.message + "\n", _noticeStyle);
+
+        } else {
+            Log.warning("Received unknown message type [message=" +
+                        message + "].");
         }
-        return message;
     }
 
     protected void displayError (String message)
     {
-        // stick a newline on the message
-        message = message + "\n";
+        append(message + "\n", _errStyle);
+    }
 
+    /**
+     * Append the specified text in the specified style.
+     */
+    protected void append (String text, Style style)
+    {
         Document doc = _text.getDocument();
         try {
-            doc.insertString(doc.getLength(), message, _errStyle);
+            doc.insertString(doc.getLength(), text, style);
         } catch (BadLocationException ble) {
             Log.warning("Unable to insert text!? [error=" + ble + "].");
         }
-    }
-
-    // documentation inherited
-    public void displayTellMessage (
-        String speaker, String bundle, String message)
-    {
-        // wrap the speaker in brackets
-        speaker = "[" + speaker + " whispers] ";
-
-        // translate the message if necessary
-        message = xlate(bundle, message);
-
-        // stick a newline on the message
-        message = message + "\n";
-
-        Document doc = _text.getDocument();
-        try {
-            doc.insertString(doc.getLength(), speaker, _nameStyle);
-            doc.insertString(doc.getLength(), message, _msgStyle);
-        } catch (BadLocationException ble) {
-            Log.warning("Unable to insert text!? [error=" + ble + "].");
-        }
-    }
-
-    // documentation inherited from interface
-    public void handleTellSucceeded (int reqid, String target, String message)
-    {
-        // wrap the speaker in brackets
-        target = "[You whispered to " + target + "] ";
-
-        // stick a newline on the message
-        message = message + "\n";
-
-        Document doc = _text.getDocument();
-        try {
-            doc.insertString(doc.getLength(), target, _nameStyle);
-            doc.insertString(doc.getLength(), message, _msgStyle);
-        } catch (BadLocationException ble) {
-            Log.warning("Unable to insert text!? [error=" + ble + "].");
-        }
-    }
-
-    // documentation inherited from interface
-    public void handleTellFailed (int reqid, String target, String reason)
-    {
-        displayError(reason);
     }
 
     public void willEnterPlace (PlaceObject place)
