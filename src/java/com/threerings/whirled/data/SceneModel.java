@@ -1,5 +1,5 @@
 //
-// $Id: SceneModel.java,v 1.4 2001/11/30 21:54:34 mdb Exp $
+// $Id: SceneModel.java,v 1.5 2001/12/12 02:47:17 mdb Exp $
 
 package com.threerings.whirled.data;
 
@@ -21,7 +21,8 @@ import com.threerings.presents.io.Streamable;
  * what is transmitted over the wire when communicating scenes from the
  * server to the client.
  */
-public class SceneModel implements Streamable
+public class SceneModel
+    implements Streamable, Cloneable
 {
     /** This scene's unique identifier. */
     public int sceneId;
@@ -70,6 +71,15 @@ public class SceneModel implements Streamable
         StringBuffer buf = new StringBuffer("[");
         toString(buf);
         return buf.append("]").toString();
+    }
+
+    // documentation inherited
+    public Object clone ()
+        throws CloneNotSupportedException
+    {
+        SceneModel model = (SceneModel)super.clone();
+        model.neighborIds = (int[])neighborIds.clone();
+        return model;
     }
 
     /**

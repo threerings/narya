@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneModel.java,v 1.3 2001/11/30 21:54:34 mdb Exp $
+// $Id: MisoSceneModel.java,v 1.4 2001/12/12 02:47:17 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -15,6 +15,7 @@ import com.samskivert.util.StringUtil;
  * instance of {@link DisplayMisoScene}.
  */
 public class MisoSceneModel
+    implements Cloneable
 {
     /** The width of the scene in tile units. */
     public int width;
@@ -89,6 +90,19 @@ public class MisoSceneModel
             ", baseTileIds=" + StringUtil.toString(baseTileIds) +
             ", fringeTileIds=" + StringUtil.toString(fringeTileIds) +
             ", objectTileIds=" + StringUtil.toString(objectTileIds) + "]";
+    }
+
+    /**
+     * Creates a copy of this Miso scene model.
+     */
+    public Object clone ()
+        throws CloneNotSupportedException
+    {
+        MisoSceneModel model = (MisoSceneModel)super.clone();
+        model.baseTileIds = (int[])baseTileIds.clone();
+        model.fringeTileIds = (int[])fringeTileIds.clone();
+        model.objectTileIds = (int[])objectTileIds.clone();
+        return model;
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneModel.java,v 1.5 2001/12/04 22:34:04 mdb Exp $
+// $Id: SpotSceneModel.java,v 1.6 2001/12/12 02:47:17 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -125,6 +125,21 @@ public class SpotSceneModel extends SceneModel
             portalIds[i] = in.readInt();
             targetLocIds[i] = in.readInt();
         }
+    }
+
+    // documentation inherited
+    public Object clone ()
+        throws CloneNotSupportedException
+    {
+        SpotSceneModel model = (SpotSceneModel)super.clone();
+        model.locationIds = (int[])locationIds.clone();
+        model.locationX = (int[])locationX.clone();
+        model.locationY = (int[])locationY.clone();
+        model.locationOrients = (int[])locationOrients.clone();
+        model.locationClusters = (int[])locationClusters.clone();
+        model.portalIds = (int[])portalIds.clone();
+        model.targetLocIds = (int[])targetLocIds.clone();
+        return model;
     }
 
     /**

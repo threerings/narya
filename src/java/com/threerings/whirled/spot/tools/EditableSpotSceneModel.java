@@ -1,5 +1,5 @@
 //
-// $Id: EditableSpotSceneModel.java,v 1.2 2001/12/05 03:38:09 mdb Exp $
+// $Id: EditableSpotSceneModel.java,v 1.3 2001/12/12 02:47:17 mdb Exp $
 
 package com.threerings.whirled.tools.spot;
 
@@ -19,6 +19,23 @@ public class EditableSpotSceneModel extends EditableSceneModel
     /** The names of the portals in neighboring scenes to which our
      * portals link. */
     public String[] targetPortalNames;
+
+    // documentation inherited
+    public Object clone ()
+        throws CloneNotSupportedException
+    {
+        return cloneWithDelegate((SpotSceneModel)spotSceneModel.clone());
+    }
+
+    // documentation inherited
+    protected Object cloneWithDelegate (SpotSceneModel spotSceneModel)
+        throws CloneNotSupportedException
+    {
+        EditableSpotSceneModel essm = (EditableSpotSceneModel)
+            super.cloneWithDelegate(spotSceneModel);
+        essm.spotSceneModel = spotSceneModel;
+        return essm;
+    }
 
     /**
      * Derived classes override this to tack their <code>toString</code>

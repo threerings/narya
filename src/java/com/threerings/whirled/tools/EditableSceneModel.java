@@ -1,5 +1,5 @@
 //
-// $Id: EditableSceneModel.java,v 1.2 2001/12/05 03:38:09 mdb Exp $
+// $Id: EditableSceneModel.java,v 1.3 2001/12/12 02:47:17 mdb Exp $
 
 package com.threerings.whirled.tools;
 
@@ -32,6 +32,22 @@ public class EditableSceneModel
         delegatesToString(buf);
         toString(buf);
         return buf.append("]").toString();
+    }
+
+    // documentation inherited
+    public Object clone ()
+        throws CloneNotSupportedException
+    {
+        return cloneWithDelegate((SceneModel)sceneModel.clone());
+    }
+
+    // documentation inherited
+    protected Object cloneWithDelegate (SceneModel sceneModel)
+        throws CloneNotSupportedException
+    {
+        EditableSceneModel esm = (EditableSceneModel)super.clone();
+        esm.sceneModel = sceneModel;
+        return esm;
     }
 
     /**
