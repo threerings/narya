@@ -123,7 +123,8 @@ public class GenUtil
     public static String cloneArgument (Class dsclazz, Class clazz, String name)
     {
         if (clazz.isArray() || dsclazz.isAssignableFrom(clazz)) {
-            return "(" + simpleName(clazz) + ")" + name + ".clone()";
+            return "(" + name + " == null) ? null : " +
+                "(" + simpleName(clazz) + ")" + name + ".clone()";
         } else {
             return name;
         }
