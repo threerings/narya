@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.33 2003/01/08 04:09:02 mdb Exp $
+// $Id: ImageManager.java,v 1.34 2003/01/08 05:17:35 ray Exp $
 
 package com.threerings.media.image;
 
@@ -309,7 +309,7 @@ public class ImageManager
      * to use but fallback from if we're not running a JVM that has
      * ImageIO support. */
     protected static final String IMAGEIO_LOADER =
-        "com.threerings.media.ImageIOLoader";
+        "com.threerings.media.image.ImageIOLoader";
 
     /** The maximum number of images that may be cached at any one time. */
     protected static final int IMAGE_CACHE_SIZE = 30;
