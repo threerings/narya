@@ -1,19 +1,34 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: components.xml,v 1.1 2001/10/26 01:17:21 shaper Exp $ -->
+<!-- $Id: components.xml,v 1.2 2001/11/02 02:51:11 shaper Exp $ -->
 
 <!-- Initial test character component description data. -->
 
-<charactercomponents>
+<charactercomponents 
+ imagedir="media/miso/tiles/components/"
+ tilesets="rsrc/config/miso/tilesets-components.xml">
 
-  <componenttypes>
-    <type ctid="1" frames="5" fps="5" origin="47, 80"/>
-    <type ctid="2" frames="6" fps="5" origin="47, 80"/>
-  </componenttypes>
+  <!-- Action sequences. -->
+
+  <actions>
+    <action asid="0" name="Standing" fileid="standing" tsid="0"
+     fps="5" origin="47, 80"/>
+    <action asid="1" name="Walking" fileid="walking" tsid="1" 
+     fps="5" origin="47, 80"/>
+  </actions>
+
+  <!-- Component classes. -->
+
+  <classes>
+    <class clid="0" name="Hat" render="1"/>
+    <class clid="1" name="Torso" render="0"/>
+  </classes>
+
+  <!-- Component descriptions. -->
 
   <components>
-    <component cid="1011" ctid="1"/>
-    <component cid="1012" ctid="2"/>
+    <component cid="7" fileid="hat_tri" asids="0, 1" clid="0"/>
+    <component cid="13" fileid="torso_red" asids="0, 1" clid="1"/>
   </components>
 
 </charactercomponents>
