@@ -1,5 +1,5 @@
 //
-// $Id: JNLPDownloader.java,v 1.16 2004/02/25 14:49:39 mdb Exp $
+// $Id: JNLPDownloader.java,v 1.17 2004/06/16 09:25:52 mdb Exp $
 
 package com.threerings.resource;
 
@@ -95,10 +95,13 @@ public class JNLPDownloader extends Downloader
             throw new IOException(errmsg);
         }
 
-        // if we're versioning, we know we need an update
-        info.totalSize += ucon.getContentLength();
-        Log.info(getResourceURL() + " requires " + ucon.getContentLength() +
-                 " byte update.");
+        // if we're versioning, we know we need an update; force the
+        // content length to be at least 1 so that we behave marginally
+        // sensibly (ticking off each file as we download it) if our
+        // server doesn't provide content-length for some assinine reason
+        int cl = Math.max(ucon.getContentLength(), 1);
+        info.totalSize += cl;
+        Log.info(getResourceURL() + " requires " + cl + " byte update.");
         return true;
     }
 
