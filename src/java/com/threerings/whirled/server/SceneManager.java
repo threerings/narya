@@ -1,13 +1,13 @@
 //
-// $Id: SceneManager.java,v 1.17 2004/05/19 22:09:04 ray Exp $
+// $Id: SceneManager.java,v 1.18 2004/06/29 03:22:22 mdb Exp $
 
 package com.threerings.whirled.server;
 
 import com.samskivert.io.PersistenceException;
+import com.samskivert.util.Invoker;
 
 import com.threerings.crowd.server.PlaceManager;
 import com.threerings.presents.server.PresentsServer;
-import com.threerings.presents.util.Invoker;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.data.Scene;

@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.40 2004/06/03 09:03:06 mdb Exp $
+// $Id: PresentsServer.java,v 1.41 2004/06/29 03:22:22 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -16,7 +16,6 @@ import com.threerings.presents.Log;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.server.net.ConnectionManager;
 import com.threerings.presents.server.util.SafeInterval;
-import com.threerings.presents.util.Invoker;
 
 /**
  * The presents server provides a central point of access to the various
@@ -75,7 +74,7 @@ public class PresentsServer
     /** This is used to invoke background tasks that should not be allowed
      * to tie up the distributed object manager thread. This is generally
      * used to talk to databases and other (relatively) slow entities. */
-    public static Invoker invoker;
+    public static PresentsInvoker invoker;
 
     /**
      * Initializes all of the server services and prepares for operation.
@@ -96,7 +95,7 @@ public class PresentsServer
         omgr = new PresentsDObjectMgr();
 
         // create and start up our invoker
-        invoker = new Invoker(omgr);
+        invoker = new PresentsInvoker(omgr);
         invoker.start();
 
         // create our connection manager

@@ -1,12 +1,12 @@
 //
-// $Id: SceneRegistry.java,v 1.22 2004/02/25 14:50:28 mdb Exp $
+// $Id: SceneRegistry.java,v 1.23 2004/06/29 03:22:22 mdb Exp $
 
 package com.threerings.whirled.server;
 
 import java.util.ArrayList;
 
 import com.samskivert.util.HashIntMap;
-import com.threerings.presents.util.Invoker;
+import com.samskivert.util.Invoker;
 
 import com.threerings.presents.server.InvocationManager;
 

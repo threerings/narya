@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.42 2004/02/21 02:18:56 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.43 2004/06/29 03:22:22 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -12,6 +12,7 @@ import sun.misc.Perf;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Histogram;
+import com.samskivert.util.Invoker;
 import com.samskivert.util.Queue;
 import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.StringUtil;
@@ -34,7 +35,8 @@ import com.threerings.presents.dobj.*;
  * requested to shut down.
  */
 public class PresentsDObjectMgr
-    implements RootDObjectManager, PresentsServer.Reporter
+    implements RootDObjectManager, Invoker.ResultReceiver,
+               PresentsServer.Reporter
 {
     /**
      * Creates the dobjmgr and prepares it for operation.

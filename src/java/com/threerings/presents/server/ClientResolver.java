@@ -1,10 +1,11 @@
 //
-// $Id: ClientResolver.java,v 1.5 2004/06/13 08:51:57 mdb Exp $
+// $Id: ClientResolver.java,v 1.6 2004/06/29 03:22:22 mdb Exp $
 
 package com.threerings.presents.server;
 
 import java.util.ArrayList;
 
+import com.samskivert.util.Invoker;
 import com.threerings.util.Name;
 
 import com.threerings.presents.Log;
@@ -12,7 +13,6 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
-import com.threerings.presents.util.Invoker;
 
 /**
  * Used to resolve client data when a user starts a session (or when some
