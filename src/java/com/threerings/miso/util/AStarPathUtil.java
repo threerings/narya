@@ -1,7 +1,7 @@
 //
-// $Id: AStarPathUtil.java,v 1.27 2003/04/12 02:14:52 mdb Exp $
+// $Id: AStarPathUtil.java,v 1.1 2003/04/17 19:21:16 mdb Exp $
 
-package com.threerings.miso.client.util;
+package com.threerings.miso.util;
 
 import java.awt.Point;
 import java.util.*;

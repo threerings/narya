@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.56 2003/02/12 07:24:08 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.57 2003/04/17 19:21:17 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -28,25 +28,22 @@ import com.threerings.media.util.PerformanceMonitor;
 import com.threerings.media.util.PerformanceObserver;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.client.DisplayMisoScene;
-import com.threerings.miso.client.IsoSceneView;
-import com.threerings.miso.client.IsoSceneViewModel;
-import com.threerings.miso.client.SceneViewPanel;
-import com.threerings.miso.client.util.IsoUtil;
+import com.threerings.miso.MisoConfig;
+import com.threerings.miso.client.MisoScenePanel;
+import com.threerings.miso.data.MisoSceneModel;
 import com.threerings.miso.util.MisoContext;
 
-public class ViewerSceneViewPanel extends SceneViewPanel
+public class ViewerSceneViewPanel extends MisoScenePanel
     implements PerformanceObserver, SpriteObserver
 {
     /**
      * Construct the panel and initialize it with a context.
      */
     public ViewerSceneViewPanel (MisoContext ctx,
-                                 FrameManager framemgr,
                                  CharacterManager charmgr,
                                  ComponentRepository crepo)
     {
-	super(framemgr, new IsoSceneViewModel());
+	super(ctx, MisoConfig.getSceneMetrics());
 
         // create the character descriptors
         _descUser = CastUtil.getRandomDescriptor("female", crepo);
@@ -56,26 +53,17 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         _sprite = createSprite(_spritemgr, charmgr, _descUser);
         setFollowsPathable(_sprite);
 
-//         // turn on object highlighting
-//         ((IsoSceneView)_view).setHighlightMode(IsoSceneView.HIGHLIGHT_ALWAYS);
-
         // create the decoy sprites
         createDecoys(_spritemgr, charmgr);
-
-        // listen to the desired events
-	addMouseListener(new MouseAdapter() {
-            public void mousePressed (MouseEvent e) {
-                ViewerSceneViewPanel.this.mousePressed(e);
-            }
-        });
 
 	PerformanceMonitor.register(this, "paint", 1000);
     }
 
     // documentation inherited
-    public void setScene (DisplayMisoScene scene)
+    public void setSceneModel (MisoSceneModel model)
     {
-        super.setScene(scene);
+        super.setSceneModel(model);
+        Log.info("Using " + model + ".");
 
         // now that we have a scene, we can create valid paths for our
         // decoy sprites
@@ -138,10 +126,13 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         Log.info(name + " [ticks=" + ticks + "].");
     }
 
-    /** MouseListener interface methods */
+    // documentation inherited
     public void mousePressed (MouseEvent e)
     {
+        super.mousePressed(e);
+
         int x = e.getX(), y = e.getY();
+        Log.info("Mouse pressed +" + x + "+" + y);
 
         switch (e.getModifiers()) {
         case MouseEvent.BUTTON1_MASK:
@@ -164,7 +155,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     protected boolean createPath (CharacterSprite s, int x, int y)
     {
         // get the path from here to there
-        LineSegmentPath path = (LineSegmentPath)_view.getPath(s, x, y);
+        LineSegmentPath path = (LineSegmentPath)getPath(s, x, y);
 	if (path == null) {
 	    s.cancelMove();
 	    return false;
@@ -181,7 +172,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
      */
     protected void createRandomPath (CharacterSprite s)
     {
-        Dimension d = _viewmodel.bounds.getSize();
+        Dimension d = _metrics.bounds.getSize();
 
         int x, y;
         do {
@@ -204,7 +195,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     }
 
     /** The number of decoy characters milling about. */
-    protected static final int NUM_DECOYS = 100;
+    protected static final int NUM_DECOYS = 5;
 
     /** The character descriptor for the user character. */
     protected CharacterDescriptor _descUser;

@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingScene.java,v 1.12 2003/02/12 07:24:07 mdb Exp $
+// $Id: ScrollingScene.java,v 1.13 2003/04/17 19:21:17 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -18,15 +18,17 @@ import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileSetRepository;
 
-import com.threerings.miso.client.util.ObjectSet;
+import com.threerings.miso.data.MisoSceneModel;
 import com.threerings.miso.tile.BaseTile;
 import com.threerings.miso.tile.BaseTileSet;
 import com.threerings.miso.util.MisoContext;
+import com.threerings.miso.util.ObjectSet;
+import com.threerings.miso.data.ObjectInfo;
 
 /**
  * Provides an infinite array of tiles in which to scroll.
  */
-public class ScrollingScene extends VirtualDisplayMisoSceneImpl
+public class ScrollingScene extends MisoSceneModel
 {
     public ScrollingScene (MisoContext ctx)
         throws NoSuchTileSetException, NoSuchTileException, PersistenceException
@@ -58,6 +60,33 @@ public class ScrollingScene extends VirtualDisplayMisoSceneImpl
         for (int ii = 0; ii < wtset.getTileCount(); ii++) {
             _tiles[ii] = (BaseTile)wtset.getTile(ii);
         }
+    }
+
+    public int getBaseTileId (int x, int y)
+    {
+        return -1;
+    }
+
+    public boolean setBaseTile (int fqTileId, int x, int y)
+    {
+        return false;
+    }
+
+    public void addObject (ObjectInfo info)
+    {
+    }
+
+    public void getObjects (Rectangle region, ObjectSet set)
+    {
+    }
+
+    public void updateObject (ObjectInfo info)
+    {
+    }
+
+    public boolean removeObject (ObjectInfo info)
+    {
+        return false;
     }
 
     // documentation inherited from interface

@@ -1,47 +1,30 @@
 //
-// $Id: MisoSceneModel.java,v 1.13 2003/04/12 02:14:10 mdb Exp $
+// $Id: MisoSceneModel.java,v 1.14 2003/04/17 19:21:16 mdb Exp $
 
 package com.threerings.miso.data;
 
-import java.util.ArrayList;
-
-import com.samskivert.util.ArrayUtil;
-import com.samskivert.util.IntListUtil;
-import com.samskivert.util.ListUtil;
+import java.awt.Rectangle;
+import java.util.Random;
 
 import com.threerings.io.SimpleStreamableObject;
+
+import com.threerings.media.tile.TileUtil;
 import com.threerings.media.util.MathUtil;
+
+import com.threerings.miso.util.ObjectSet;
 
 /**
  * Contains basic information for a miso scene model that is shared among
- * every specialized model implementation.
+ * the specialized model implementations.
  */
-public class MisoSceneModel extends SimpleStreamableObject
+public abstract class MisoSceneModel extends SimpleStreamableObject
     implements Cloneable
 {
-    /** The width of this scene or section of the scene (depending on the
-     * model implementation), in tile units. */
+    /** The width of this scene in tiles. */
     public short width;
 
-    /** The height of this scene or section of the scene (depending on the
-     * model implementation), in tile units. */
+    /** The height of this scene in tiles. */
     public short height;
-
-    /** The combined tile ids (tile set id and tile id) of the
-     * "uninteresting" tiles in the object layer. */
-    public int[] objectTileIds;
-
-    /** The x coordinate of the "uninteresting" tiles in the object
-     * layer. */
-    public short[] objectXs;
-
-    /** The y coordinate of the "uninteresting" tiles in the object
-     * layer. */
-    public short[] objectYs;
-
-    /** Information records for the "interesting" objects in the object
-     * layer. */
-    public ObjectInfo[] objectInfo;
 
     /**
      * Creates a completely uninitialized model suitable for little more
@@ -60,47 +43,74 @@ public class MisoSceneModel extends SimpleStreamableObject
             Short.MIN_VALUE, width, Short.MAX_VALUE);
         this.height = (short)MathUtil.bound(
             Short.MIN_VALUE, height, Short.MAX_VALUE);
-
-        // start with zero-length object arrays
-        objectTileIds = new int[0];
-        objectXs = new short[0];
-        objectYs = new short[0];
-        objectInfo = new ObjectInfo[0];
     }
 
     /**
-     * Adds an object to this model.
+     * Returns the fully qualified tile id of the base tile at the
+     * specified coordinates. <code>-1</code> will be returned if there is
+     * no tile at the specified coordinate.
      */
-    public void addObject (ObjectInfo info)
+    public abstract int getBaseTileId (int x, int y);
+
+    /**
+     * Updates the tile at the specified location in the base layer.
+     *
+     * <p> Note that if there are fringe tiles associated with this scene,
+     * calling this method may result in the surrounding fringe tiles
+     * being cleared and subsequently recalculated. This should not be
+     * called on a displaying scene unless you know what you are doing.
+     *
+     * @param fqTileId the fully-qualified tile id (@see
+     * TileUtil#getFQTileId}) of the tile to set.
+     * @param x the x-coordinate of the tile to set.
+     * @param y the y-coordinate of the tile to set.
+     *
+     * @return false if the specified tile coordinates are outside of the
+     * scene and the tile was not saved, true otherwise.
+     */
+    public abstract boolean setBaseTile (int fqTileId, int x, int y);
+
+    /**
+     * Fill a rectangular area with random tiles from the specified base
+     * tileset.
+     *
+     * @param r the region to be filled.
+     * @param setId the id of the tileset to use when filling.
+     * @param setSize the number of tiles in the tileset.
+     */
+    public void setBaseTiles (Rectangle r, int setId, int setSize)
     {
-        if (info.isInteresting()) {
-            objectInfo = (ObjectInfo[])ArrayUtil.append(objectInfo, info);
-        } else {
-            objectTileIds = ArrayUtil.append(objectTileIds, info.tileId);
-            objectXs = ArrayUtil.append(objectXs, (short)info.x);
-            objectYs = ArrayUtil.append(objectYs, (short)info.y);
+        for (int x = r.x; x < r.x + r.width; x++) {
+            for (int y = r.y; y < r.y + r.height; y++) {
+                int index = _rando.nextInt(setSize);
+                setBaseTile(TileUtil.getFQTileId(setId, index), x, y);
+            }
         }
     }
 
     /**
-     * Removes an object from this model.
+     * Populates the supplied object set with info on all objects whose
+     * origin falls in the requested region.
      */
-    public void removeObject (ObjectInfo info)
-    {
-        // look for it in the interesting info array
-        int oidx = ListUtil.indexOfEqual(objectInfo, info);
-        if (oidx != -1) {
-            objectInfo = (ObjectInfo[])ArrayUtil.splice(objectInfo, oidx, 1);
-        }
+    public abstract void getObjects (Rectangle region, ObjectSet set);
 
-        // look for it in the uninteresting arrays
-        oidx = IntListUtil.indexOf(objectTileIds, info.tileId);
-        if (oidx != -1) {
-            objectTileIds = ArrayUtil.splice(objectTileIds, oidx, 1);
-            objectXs = ArrayUtil.splice(objectXs, oidx, 1);
-            objectYs = ArrayUtil.splice(objectYs, oidx, 1);
-        }
-    }
+    /**
+     * Adds an object to this scene.
+     */
+    public abstract void addObject (ObjectInfo info);
+
+    /**
+     * Updates an object in this scene.
+     */
+    public abstract void updateObject (ObjectInfo info);
+
+    /**
+     * Removes the specified object from the scene.
+     *
+     * @return true if it was removed, false if the object was not in the
+     * scene.
+     */
+    public abstract boolean removeObject (ObjectInfo info);
 
     /**
      * Creates a copy of this scene model.
@@ -108,39 +118,12 @@ public class MisoSceneModel extends SimpleStreamableObject
     public Object clone ()
     {
         try {
-            MisoSceneModel model = (MisoSceneModel)super.clone();
-            model.objectTileIds = (int[])objectTileIds.clone();
-            model.objectXs = (short[])objectXs.clone();
-            model.objectYs = (short[])objectYs.clone();
-            model.objectInfo = (ObjectInfo[])objectInfo.clone();
-            return model;
+            return (MisoSceneModel)super.clone();
         } catch (CloneNotSupportedException cnse) {
             throw new RuntimeException("MisoSceneModel.clone: " + cnse);
         }
     }
 
-    /**
-     * Populates the interesting and uninteresting parts of a miso scene
-     * model given lists of {@link ObjectInfo} records for each.
-     */
-    public static void populateObjects (MisoSceneModel model,
-                                        ArrayList ilist, ArrayList ulist)
-    {
-        // set up the uninteresting arrays
-        int ucount = ulist.size();
-        model.objectTileIds = new int[ucount];
-        model.objectXs = new short[ucount];
-        model.objectYs = new short[ucount];
-        for (int ii = 0; ii < ucount; ii++) {
-            ObjectInfo info = (ObjectInfo)ulist.get(ii);
-            model.objectTileIds[ii] = info.tileId;
-            model.objectXs[ii] = (short)info.x;
-            model.objectYs[ii] = (short)info.y;
-        }
-
-        // set up the interesting array
-        int icount = ilist.size();
-        model.objectInfo = new ObjectInfo[icount];
-        ilist.toArray(model.objectInfo);
-    }
+    /** A random number generator for filling random base tiles. */
+    protected transient Random _rando = new Random();
 }

@@ -1,5 +1,5 @@
 //
-// $Id: SoundTestApp.java,v 1.4 2003/01/13 22:57:45 mdb Exp $
+// $Id: SoundTestApp.java,v 1.5 2003/04/17 19:21:17 mdb Exp $
 
 package com.threerings.media.sound;
 
@@ -18,7 +18,7 @@ public class SoundTestApp
         }
 
         ResourceManager rmgr = new ResourceManager("rsrc");
-        _soundmgr = new SoundManager(rmgr);
+        _soundmgr = new SoundManager(rmgr, null, null);
         _keys = args;
     }
 

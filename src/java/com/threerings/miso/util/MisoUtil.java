@@ -1,7 +1,7 @@
 //
-// $Id: IsoUtil.java,v 1.45 2003/02/12 05:36:18 mdb Exp $
+// $Id: MisoUtil.java,v 1.18 2003/04/17 19:21:16 mdb Exp $
 
-package com.threerings.miso.client.util;
+package com.threerings.miso.util;
 
 import java.awt.Point;
 import java.awt.Polygon;
@@ -16,108 +16,13 @@ import com.threerings.util.DirectionCodes;
 import com.threerings.util.DirectionUtil;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.client.IsoSceneViewModel;
-import com.threerings.miso.client.DisplayObjectInfo;
 
 /**
- * The <code>IsoUtil</code> class is a holding place for miscellaneous
- * isometric-display-related utility routines.
+ * Miscellaneous isometric-display-related utility routines.
  */
-public class IsoUtil
+public class MisoUtil
     implements DirectionCodes
 {
-    /**
-     * Returns a polygon bounding all footprint tiles of the given
-     * object tile.
-     *
-     * @param model the scene view model.
-     * @param tx the x tile-coordinate of the object tile.
-     * @param ty the y tile-coordinate of the object tile.
-     * @param tile the object tile.
-     *
-     * @return the bounding polygon.
-     */
-    public static Polygon getObjectFootprint (
-        IsoSceneViewModel model, DisplayObjectInfo scobj)
-    {
-        Polygon boundsPoly = new SmartPolygon();
-        Point tpos = tileToScreen(model, scobj.x, scobj.y, new Point());
-
-        int bwid = scobj.tile.getBaseWidth(), bhei = scobj.tile.getBaseHeight();
-        int oox = tpos.x + model.tilehwid, ooy = tpos.y + model.tilehei;
-        int rx = oox, ry = ooy;
-
-        // bottom-center point
-        boundsPoly.addPoint(rx, ry);
-
-        // left point
-        rx -= bwid * model.tilehwid;
-        ry -= bwid * model.tilehhei;
-        boundsPoly.addPoint(rx, ry);
-
-        // top-center point
-        rx += bhei * model.tilehwid;
-        ry -= bhei * model.tilehhei;
-        boundsPoly.addPoint(rx, ry);
-
-        // right point
-        rx += bwid * model.tilehwid;
-        ry += bwid * model.tilehhei;
-        boundsPoly.addPoint(rx, ry);
-
-        // bottom-center point
-        boundsPoly.addPoint(rx, ry);
-
-        return boundsPoly;
-    }
-
-    /**
-     * Returns a rectangle that encloses the entire object image, with the
-     * upper left set to the appropriate values for rendering the object
-     * image.
-     *
-     * @param model the scene view model.
-     * @param tx the x tile-coordinate of the object tile.
-     * @param ty the y tile-coordinate of the object tile.
-     * @param tile the object tile.
-     *
-     * @return the bounding rectangle.
-     */
-    public static Rectangle getObjectBounds (
-        IsoSceneViewModel model, DisplayObjectInfo scobj)
-    {
-        Point tpos = tileToScreen(model, scobj.x, scobj.y, new Point());
-
-        // if the tile has an origin, use that, otherwise compute the
-        // origin based on the tile footprint
-        int tox = scobj.tile.getOriginX(), toy = scobj.tile.getOriginY();
-        if (tox == Integer.MIN_VALUE) {
-            tox = scobj.tile.getBaseWidth() * model.tilehwid;
-        }
-        if (toy == Integer.MIN_VALUE) {
-            toy = scobj.tile.getHeight();
-        }
-
-        int oox = tpos.x + model.tilehwid, ooy = tpos.y + model.tilehei;
-        int sx = oox - tox, sy =  ooy - toy;
-
-        return new Rectangle(
-            sx, sy, scobj.tile.getWidth(), scobj.tile.getHeight());
-    }
-
-    /**
-     * Returns true if the footprints of the two object tiles overlap when
-     * the objects occupy the specified coordinates, false if not.
-     */
-    public static boolean objectFootprintsOverlap (
-        DisplayObjectInfo so1, DisplayObjectInfo so2)
-    {
-        return (so2.x > so1.x - so1.tile.getBaseWidth() &&
-                so1.x > so2.x - so2.tile.getBaseWidth() &&
-                so2.y > so1.y - so1.tile.getBaseHeight() &&
-                so1.y > so2.y - so2.tile.getBaseHeight());
-    }
-
     /**
      * Given two points in screen pixel coordinates, return the
      * compass direction that point B lies in from point A from an
@@ -132,14 +37,14 @@ public class IsoUtil
      *         class's direction constants.
      */
     public static int getDirection (
-        IsoSceneViewModel model, int ax, int ay, int bx, int by)
+        MisoSceneMetrics metrics, int ax, int ay, int bx, int by)
     {
         Point afpos = new Point(), bfpos = new Point();
 
         // convert screen coordinates to full coordinates to get both
         // tile coordinates and fine coordinates
-        screenToFull(model, ax, ay, afpos);
-        screenToFull(model, bx, by, bfpos);
+        screenToFull(metrics, ax, ay, afpos);
+        screenToFull(metrics, bx, by, bfpos);
 
         // pull out the tile coordinates for each point
         int tax = afpos.x / FULL_TILE_FACTOR;
@@ -278,16 +183,18 @@ public class IsoUtil
      * parameter.
      */
     public static Point screenToTile (
-        IsoSceneViewModel model, int sx, int sy, Point tpos)
+        MisoSceneMetrics metrics, int sx, int sy, Point tpos)
     {
         // determine the upper-left of the quadrant that contains our
         // point
-        int zx = (int)Math.floor((float)(sx - model.origin.x) / model.tilewid);
-        int zy = (int)Math.floor((float)(sy - model.origin.y) / model.tilehei);
+        int zx = (int)Math.floor((float)(sx - metrics.origin.x) /
+                                 metrics.tilewid);
+        int zy = (int)Math.floor((float)(sy - metrics.origin.y) /
+                                 metrics.tilehei);
 
         // these are the screen coordinates of the tile's top
-        int ox = (zx * model.tilewid + model.origin.x),
-            oy = (zy * model.tilehei + model.origin.y);
+        int ox = (zx * metrics.tilewid + metrics.origin.x),
+            oy = (zy * metrics.tilehei + metrics.origin.y);
 
         // these are the tile coordinates
         tpos.x = zy + zx; tpos.y = zy - zx;
@@ -295,11 +202,11 @@ public class IsoUtil
         // now determine which of the four tiles our point occupies
         int dx = sx - ox, dy = sy - oy;
 
-        if (Math.round(model.slopeY * dx + model.tilehei) <= dy) {
+        if (Math.round(metrics.slopeY * dx + metrics.tilehei) <= dy) {
             tpos.x += 1;
         }
 
-        if (Math.round(model.slopeX * dx) > dy) {
+        if (Math.round(metrics.slopeX * dx) > dy) {
             tpos.y -= 1;
         }
 
@@ -313,8 +220,10 @@ public class IsoUtil
 
     /**
      * Convert the given tile-based coordinates to their corresponding
-     * screen-based pixel coordinates.  Converted coordinates are
-     * placed in the given point object.
+     * screen-based pixel coordinates. The screen coordinate for a tile is
+     * the upper-left coordinate of the rectangle that bounds the tile
+     * polygon. Converted coordinates are placed in the given point
+     * object.
      *
      * @param x the tile x-position coordinate.
      * @param y the tile y-position coordinate.
@@ -324,10 +233,10 @@ public class IsoUtil
      * parameter.
      */
     public static Point tileToScreen (
-        IsoSceneViewModel model, int x, int y, Point spos)
+        MisoSceneMetrics metrics, int x, int y, Point spos)
     {
-        spos.x = model.origin.x + ((x - y - 1) * model.tilehwid);
-        spos.y = model.origin.y + ((x + y) * model.tilehhei);
+        spos.x = metrics.origin.x + ((x - y - 1) * metrics.tilehwid);
+        spos.y = metrics.origin.y + ((x + y) * metrics.tilehhei);
         return spos;
     }
 
@@ -341,10 +250,10 @@ public class IsoUtil
      * @param ppos the point object to place coordinates in.
      */
     public static void fineToPixel (
-        IsoSceneViewModel model, int x, int y, Point ppos)
+        MisoSceneMetrics metrics, int x, int y, Point ppos)
     {
-        ppos.x = model.tilehwid + ((x - y) * model.finehwid);
-        ppos.y = (x + y) * model.finehhei;
+        ppos.x = metrics.tilehwid + ((x - y) * metrics.finehwid);
+        ppos.y = (x + y) * metrics.finehhei;
     }
 
     /**
@@ -358,28 +267,28 @@ public class IsoUtil
      * @param fpos the point object to place coordinates in.
      */
     public static void pixelToFine (
-        IsoSceneViewModel model, int x, int y, Point fpos)
+        MisoSceneMetrics metrics, int x, int y, Point fpos)
     {
         // calculate line parallel to the y-axis (from the given
         // x/y-pos to the x-axis)
-        float bY = y - (model.fineSlopeY * x);
+        float bY = y - (metrics.fineSlopeY * x);
 
         // determine intersection of x- and y-axis lines
-        int crossx = (int)((bY - model.fineBX) /
-                           (model.fineSlopeX - model.fineSlopeY));
-        int crossy = (int)((model.fineSlopeY * crossx) + bY);
+        int crossx = (int)((bY - metrics.fineBX) /
+                           (metrics.fineSlopeX - metrics.fineSlopeY));
+        int crossy = (int)((metrics.fineSlopeY * crossx) + bY);
 
         // TODO: final position should check distance between our
         // position and the surrounding fine coords and return the
         // actual closest fine coord, rather than just dividing.
 
         // determine distance along the x-axis
-        float xdist = MathUtil.distance(model.tilehwid, 0, crossx, crossy);
-        fpos.x = (int)(xdist / model.finelen);
+        float xdist = MathUtil.distance(metrics.tilehwid, 0, crossx, crossy);
+        fpos.x = (int)(xdist / metrics.finelen);
 
         // determine distance along the y-axis
         float ydist = MathUtil.distance(x, y, crossx, crossy);
-        fpos.y = (int)(ydist / model.finelen);
+        fpos.y = (int)(ydist / metrics.finelen);
     }
 
     /**
@@ -395,17 +304,17 @@ public class IsoUtil
      * @return the point passed in to receive the coordinates.
      */
     public static Point screenToFull (
-        IsoSceneViewModel model, int sx, int sy, Point fpos)
+        MisoSceneMetrics metrics, int sx, int sy, Point fpos)
     {
         // get the tile coordinates
         Point tpos = new Point();
-        screenToTile(model, sx, sy, tpos);
+        screenToTile(metrics, sx, sy, tpos);
 
         // get the screen coordinates for the containing tile
-        Point spos = tileToScreen(model, tpos.x, tpos.y, new Point());
+        Point spos = tileToScreen(metrics, tpos.x, tpos.y, new Point());
 
         // get the fine coordinates within the containing tile
-        pixelToFine(model, sx - spos.x, sy - spos.y, fpos);
+        pixelToFine(metrics, sx - spos.x, sy - spos.y, fpos);
 
         // toss in the tile coordinates for good measure
         fpos.x += (tpos.x * FULL_TILE_FACTOR);
@@ -426,16 +335,16 @@ public class IsoUtil
      * @return the point passed in to receive the coordinates.
      */
     public static Point fullToScreen (
-        IsoSceneViewModel model, int x, int y, Point spos)
+        MisoSceneMetrics metrics, int x, int y, Point spos)
     {
         // get the tile screen position
         int tx = x / FULL_TILE_FACTOR, ty = y / FULL_TILE_FACTOR;
-        Point tspos = tileToScreen(model, tx, ty, new Point());
+        Point tspos = tileToScreen(metrics, tx, ty, new Point());
 
         // get the pixel position of the fine coords within the tile
         Point ppos = new Point();
         int fx = x - (tx * FULL_TILE_FACTOR), fy = y - (ty * FULL_TILE_FACTOR);
-        fineToPixel(model, fx, fy, ppos);
+        fineToPixel(metrics, fx, fy, ppos);
 
         // final position is tile position offset by fine position
         spos.x = tspos.x + ppos.x;
@@ -449,9 +358,9 @@ public class IsoUtil
      * coordinate plus a fine coordinate remainder). The fine coordinate
      * is assumed to be relative to tile <code>(0, 0)</code>.
      */
-    public static int fineToFull (IsoSceneViewModel model, int fine)
+    public static int fineToFull (MisoSceneMetrics metrics, int fine)
     {
-        return toFull(fine / model.finegran, fine % model.finegran);
+        return toFull(fine / metrics.finegran, fine % metrics.finegran);
     }
 
     /**
@@ -470,61 +379,58 @@ public class IsoUtil
      * @param y the tile y-position coordinate.
      */
     public static Polygon getTilePolygon (
-        IsoSceneViewModel model, int x, int y)
+        MisoSceneMetrics metrics, int x, int y)
     {
-        // get the top-left screen coordinate for the tile
-        Point spos = IsoUtil.tileToScreen(model, x, y, new Point());
-
-        // create a polygon framing the tile
-        Polygon poly = new SmartPolygon();
-        poly.addPoint(spos.x, spos.y + model.tilehhei);
-        poly.addPoint(spos.x + model.tilehwid, spos.y);
-        poly.addPoint(spos.x + model.tilewid, spos.y + model.tilehhei);
-        poly.addPoint(spos.x + model.tilehwid, spos.y + model.tilehei);
-
-        return poly;
+        return getFootprintPolygon(metrics, x, y, 1, 1);
     }
 
     /**
      * Return a screen-coordinates polygon framing the two specified
      * tile-coordinate points.
      */
-    public static Polygon getMultiTilePolygon (IsoSceneViewModel model,
+    public static Polygon getMultiTilePolygon (MisoSceneMetrics metrics,
                                                Point sp1, Point sp2)
     {
-        int minx, maxx, miny, maxy;
-        Point[] p = new Point[4];
+        int x = Math.min(sp1.x, sp2.x), y = Math.min(sp1.y, sp2.y);
+        int width = Math.abs(sp1.x-sp2.x), height = Math.abs(sp1.y-sp2.y);
+        return getFootprintPolygon(metrics, x, y, width, height);
+    }
 
-        // load in all possible screen coords
-        p[0] = IsoUtil.tileToScreen(model, sp1.x, sp1.y, new Point());
-        p[1] = IsoUtil.tileToScreen(model, sp2.x, sp2.y, new Point());
-        p[2] = IsoUtil.tileToScreen(model, sp1.x, sp2.y, new Point());
-        p[3] = IsoUtil.tileToScreen(model, sp2.x, sp1.y, new Point());
+    /**
+     * Returns a polygon framing the specified scene footprint.
+     *
+     * @param x the x tile coordinate of the "upper-left" of the footprint.
+     * @param y the y tile coordinate of the "upper-left" of the footprint.
+     * @param width the width in tiles of the footprint.
+     * @param height the height in tiles of the footprint.
+     */
+    public static Polygon getFootprintPolygon (
+        MisoSceneMetrics metrics, int x, int y, int width, int height)
+    {
+        SmartPolygon footprint = new SmartPolygon();
+        Point tpos = MisoUtil.tileToScreen(metrics, x, y, new Point());
 
-        // locate the indexes of min/max for x and y
-        minx = maxx = miny = maxy = 0;
-        for (int ii=1; ii < 4; ii++) {
-            if (p[ii].x < p[minx].x) {
-                minx = ii;
-            } else if (p[ii].x > p[maxx].x) {
-                maxx = ii;
-            }
+        // start with top-center point
+        int rx = tpos.x + metrics.tilehwid, ry = tpos.y;
+        footprint.addPoint(rx, ry);
+        // right point
+        rx += width * metrics.tilehwid;
+        ry += width * metrics.tilehhei;
+        footprint.addPoint(rx, ry);
+        // bottom-center point
+        rx -= height * metrics.tilehwid;
+        ry += height * metrics.tilehhei;
+        footprint.addPoint(rx, ry);
+        // left point
+        rx -= width * metrics.tilehwid;
+        ry -= width * metrics.tilehhei;
+        footprint.addPoint(rx, ry);
+        // end with top-center point
+        rx -= height * metrics.tilehwid;
+        ry += height * metrics.tilehhei;
+        footprint.addPoint(rx, ry);
 
-            if (p[ii].y < p[miny].y) {
-                miny = ii;
-            } else if (p[ii].y > p[maxy].y) {
-                maxy = ii;
-            }
-        }
-
-        // now make the polygon! Whoo!
-        Polygon poly = new SmartPolygon();
-        poly.addPoint(p[minx].x, p[minx].y + model.tilehhei);
-        poly.addPoint(p[miny].x + model.tilehwid, p[miny].y);
-        poly.addPoint(p[maxx].x + model.tilewid, p[maxx].y + model.tilehhei);
-        poly.addPoint(p[maxy].x + model.tilehwid, p[maxy].y + model.tilehei);
-
-        return poly;
+        return footprint;
     }
 
     /**
@@ -533,22 +439,22 @@ public class IsoUtil
      *
      * @retun the point object supplied as <code>full</code>.
      */
-    public static Point tilePlusFineToFull (IsoSceneViewModel model,
+    public static Point tilePlusFineToFull (MisoSceneMetrics metrics,
                                             int tileX, int tileY,
                                             int fineX, int fineY,
                                             Point full)
     {
-        int dtx = fineX / model.finegran;
-        int dty = fineY / model.finegran;
-        int fx = fineX - dtx * model.finegran;
+        int dtx = fineX / metrics.finegran;
+        int dty = fineY / metrics.finegran;
+        int fx = fineX - dtx * metrics.finegran;
         if (fx < 0) {
             dtx--;
-            fx += model.finegran;
+            fx += metrics.finegran;
         }
-        int fy = fineY - dty * model.finegran;
+        int fy = fineY - dty * metrics.finegran;
         if (fy < 0) {
             dty--;
-            fy += model.finegran;
+            fy += metrics.finegran;
         }
 
         full.x = toFull(tileX + dtx, fx);

@@ -1,8 +1,9 @@
 //
-// $Id: MisoContext.java,v 1.9 2002/04/06 02:04:23 mdb Exp $
+// $Id: MisoContext.java,v 1.10 2003/04/17 19:21:16 mdb Exp $
 
 package com.threerings.miso.util;
 
+import com.threerings.media.FrameManager;
 import com.threerings.miso.tile.MisoTileManager;
 
 /**
@@ -11,6 +12,11 @@ import com.threerings.miso.tile.MisoTileManager;
  */
 public interface MisoContext
 {
+    /**
+     * Returns the frame manager that our scene panel will interact with.
+     */
+    public FrameManager getFrameManager ();
+
     /**
      * Returns a reference to the tile manager. This reference is valid
      * for the lifetime of the application.

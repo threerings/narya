@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.14 2003/04/12 01:26:29 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.15 2003/04/17 19:21:16 mdb Exp $
 
 package com.threerings.media;
 
@@ -224,7 +224,17 @@ public class VirtualMediaPanel extends MediaPanel
             // between here and the call to paint() for this tick don't
             // booch everything
             _vbounds.x = _nx; _vbounds.y = _ny;
+
+            // let derived classes react if they so desire
+            viewLocationDidChange(_vbounds.x, _vbounds.y);
         }
+    }
+
+    /**
+     * Called during our tick when we have adjusted the view location.
+     */
+    protected void viewLocationDidChange (int nx, int ny)
+    {
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.24 2003/04/07 23:32:47 mdb Exp $
+// $Id: DirtyItemList.java,v 1.25 2003/04/17 19:21:16 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -13,15 +13,14 @@ import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.Log;
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.tile.ObjectTile;
+
 import com.threerings.miso.MisoPrefs;
-import com.threerings.miso.client.util.IsoUtil;
 
 /**
  * The dirty item list keeps track of dirty sprites and object tiles
@@ -33,9 +32,8 @@ public class DirtyItemList
      * Creates a dirt item list that will handle dirty items for the
      * specified view.
      */
-    public DirtyItemList (IsoSceneView view)
+    public DirtyItemList ()
     {
-        _view = view;
     }
 
     /**
@@ -49,7 +47,7 @@ public class DirtyItemList
     public void appendDirtySprite (Sprite sprite, int tx, int ty)
     {
         DirtyItem item = getDirtyItem();
-        item.init(sprite, null, null, tx, ty);
+        item.init(sprite, tx, ty);
         _items.add(item);
     }
 
@@ -58,13 +56,11 @@ public class DirtyItemList
      * item list.
      *
      * @param scene the scene object that is dirty.
-     * @param footprint the footprint of the object tile if it should be
-     * rendered, null otherwise.
      */
-    public void appendDirtyObject (DisplayObjectInfo info, Shape footprint)
+    public void appendDirtyObject (SceneObject scobj)
     {
         DirtyItem item = getDirtyItem();
-        item.init(info, info.bounds, footprint, info.x, info.y);
+        item.init(scobj, scobj.info.x, scobj.info.y);
         _items.add(item);
     }
 
@@ -257,13 +253,6 @@ public class DirtyItemList
         /** The dirtied object; one of either a sprite or an object tile. */
         public Object obj;
 
-        /** The bounds of the dirty item if it's an object tile. */
-        public Rectangle bounds;
-
-        /** The footprint of the dirty item if it's an object tile and
-         * we're drawing footprints. */
-        public Shape footprint;
-
         /** The origin tile coordinates. */
         public int ox, oy;
 
@@ -276,12 +265,9 @@ public class DirtyItemList
         /**
          * Initializes a dirty item.
          */
-        public void init (Object obj, Rectangle bounds, Shape footprint,
-                          int x, int y)
+        public void init (Object obj, int x, int y)
         {
             this.obj = obj;
-            this.bounds = bounds;
-            this.footprint = footprint;
             this.ox = x;
             this.oy = y;
 
@@ -290,8 +276,8 @@ public class DirtyItemList
             // rightmost tiles are equivalent
             lx = rx = ox;
             ly = ry = oy;
-            if (obj instanceof DisplayObjectInfo) {
-                ObjectTile tile = ((DisplayObjectInfo)obj).tile;
+            if (obj instanceof SceneObject) {
+                ObjectTile tile = ((SceneObject)obj).tile;
                 lx -= (tile.getBaseWidth() - 1);
                 ry -= (tile.getBaseHeight() - 1);
             }
@@ -304,47 +290,10 @@ public class DirtyItemList
          */
         public void paint (Graphics2D gfx)
         {
-            // if there's a footprint, paint that
-            if (footprint != null) {
-                gfx.setColor(Color.black);
-                gfx.draw(footprint);
-            }
-
-            // paint the item
             if (obj instanceof Sprite) {
                 ((Sprite)obj).paint(gfx);
-            } else if (!_hideObjects.getValue()) {
-                ((DisplayObjectInfo)obj).tile.paint(gfx, bounds.x, bounds.y);
-            }
-
-            // and paint the object's spot if it has one
-            if (footprint != null && obj instanceof DisplayObjectInfo) {
-                DisplayObjectInfo info = (DisplayObjectInfo)obj;
-                if (info.tile.hasSpot()) {
-                    // get the spot's center coordinate
-                    Point fpos = _view.getObjectSpot(info);
-                    Point spos = _view.getScreenCoords(fpos.x, fpos.y);
-
-                    // translate the origin to center on the portal
-                    gfx.translate(spos.x, spos.y);
-
-                    // rotate to reflect the spot orientation
-                    double rot = (Math.PI / 4.0f) *
-                        info.tile.getSpotOrient();
-                    gfx.rotate(rot);
-
-                    // draw the spot triangle
-                    gfx.setColor(Color.green);
-                    gfx.fill(_spotTri);
-
-                    // outline the triangle in black
-                    gfx.setColor(Color.black);
-                    gfx.draw(_spotTri);
-
-                    // restore the original transform
-                    gfx.rotate(-rot);
-                    gfx.translate(-spos.x, -spos.y);
-                }
+            } else {
+                ((SceneObject)obj).paint(gfx);
             }
         }
 
@@ -363,8 +312,8 @@ public class DirtyItemList
          */
         public int getRenderPriority ()
         {
-            if (obj instanceof DisplayObjectInfo) {
-                return ((DisplayObjectInfo)obj).getPriority();
+            if (obj instanceof SceneObject) {
+                return ((SceneObject)obj).getPriority();
             } else {
                 return 0;
             }
@@ -378,7 +327,6 @@ public class DirtyItemList
         public void clear ()
         {
             obj = null;
-            bounds = null;
         }
 
         // documentation inherited
@@ -475,11 +423,11 @@ public class DirtyItemList
 
             // if the two objects are scene objects and they overlap, we
             // compare them solely based on their human assigned priority
-            if ((da.obj instanceof DisplayObjectInfo) &&
-                (db.obj instanceof DisplayObjectInfo)) {
-                DisplayObjectInfo soa = (DisplayObjectInfo)da.obj;
-                DisplayObjectInfo sob = (DisplayObjectInfo)db.obj;
-                if (IsoUtil.objectFootprintsOverlap(soa, sob)) {
+            if ((da.obj instanceof SceneObject) &&
+                (db.obj instanceof SceneObject)) {
+                SceneObject soa = (SceneObject)da.obj;
+                SceneObject sob = (SceneObject)db.obj;
+                if (soa.objectFootprintOverlaps(sob)) {
                     int result = soa.getPriority() - sob.getPriority();
                     if (DEBUG_COMPARE) {
                         String items = DirtyItemList.toString(da, db);
@@ -674,9 +622,6 @@ public class DirtyItemList
         }
     }
 
-    /** The view for which we're managing dirty items. */
-    protected IsoSceneView _view;
-
     /** The list of dirty items. */
     protected SortableArrayList _items = new SortableArrayList();
 
@@ -694,16 +639,6 @@ public class DirtyItemList
 
     /** Unused dirty items. */
     protected ArrayList _freelist = new ArrayList();
-
-    /** The triangle used to render an object's spot. */
-    protected static Polygon _spotTri;
-
-    static {
-        _spotTri = new Polygon();
-        _spotTri.addPoint(-3, -3);
-        _spotTri.addPoint(3, -3);
-        _spotTri.addPoint(0, 3);
-    };
 
     /** Whether to log debug info when comparing pairs of dirty items. */
     protected static final boolean DEBUG_COMPARE = false;
@@ -733,10 +668,4 @@ public class DirtyItemList
                     ((DirtyItem)o2).getRearDepth());
         }
     };
-
-    /** A debug hook that toggles debug rendering of object footprints. */
-    protected static RuntimeAdjust.BooleanAdjust _hideObjects =
-        new RuntimeAdjust.BooleanAdjust(
-            "Turns off the rendering of objects in the scene.",
-            "narya.miso.hide_objects", MisoPrefs.config, false);
 }

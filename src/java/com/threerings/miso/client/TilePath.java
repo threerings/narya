@@ -1,5 +1,5 @@
 //
-// $Id: TilePath.java,v 1.13 2003/01/31 23:10:45 mdb Exp $
+// $Id: TilePath.java,v 1.14 2003/04/17 19:21:16 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -14,7 +14,8 @@ import com.threerings.media.util.PathNode;
 import com.threerings.media.util.Pathable;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.client.util.IsoUtil;
+import com.threerings.miso.util.MisoSceneMetrics;
+import com.threerings.miso.util.MisoUtil;
 
 /**
  * The tile path represents a path of tiles through a scene.  The path is
@@ -28,7 +29,8 @@ public class TilePath extends LineSegmentPath
     /**
      * Constructs a tile path.
      *
-     * @param model the iso scene view model the path is associated with.
+     * @param metrics the metrics for the scene the with which the path is
+     * associated.
      * @param sprite the sprite to follow the path.
      * @param tiles the tiles to be traversed during the path.
      * @param destx the destination x-position in screen pixel
@@ -36,10 +38,10 @@ public class TilePath extends LineSegmentPath
      * @param desty the destination y-position in screen pixel
      * coordinates.
      */
-    public TilePath (IsoSceneViewModel model, Sprite sprite,
+    public TilePath (MisoSceneMetrics metrics, Sprite sprite,
                      List tiles, int destx, int desty)
     {
-        _model = model;
+        _metrics = metrics;
 
         // set up the path nodes
         createPath(sprite, tiles, destx, desty);
@@ -58,7 +60,7 @@ public class TilePath extends LineSegmentPath
             // check whether we've arrived at the destination tile
             if (!_arrived) {
                 // get the sprite's latest tile coordinates
-                IsoUtil.screenToTile(_model, sx, sy, pos);
+                MisoUtil.screenToTile(_metrics, sx, sy, pos);
 
                 // if the sprite has reached the destination tile,
                 // update the sprite's tile location and remember
@@ -98,12 +100,12 @@ public class TilePath extends LineSegmentPath
     {
 	// constrain destination pixels to fine coordinates
 	Point fpos = new Point();
-	IsoUtil.screenToFull(_model, destx, desty, fpos);
+	MisoUtil.screenToFull(_metrics, destx, desty, fpos);
 
         // add the starting path node
         Point ipos = new Point();
         int sx = sprite.getX(), sy = sprite.getY();
-        IsoUtil.screenToTile(_model, sx, sy, ipos);
+        MisoUtil.screenToTile(_metrics, sx, sy, ipos);
         addNode(ipos.x, ipos.y, sx, sy, NORTH);
 
 	// TODO: make more visually appealing path segments from start
@@ -117,15 +119,15 @@ public class TilePath extends LineSegmentPath
             Point next = (Point)tiles.get(ii);
 
             // determine the direction from previous to next node
-            int dir = IsoUtil.getIsoDirection(prev.x, prev.y, next.x, next.y);
+            int dir = MisoUtil.getIsoDirection(prev.x, prev.y, next.x, next.y);
 
             // determine the node's position in screen pixel coordinates
-            IsoUtil.tileToScreen(_model, next.x, next.y, spos);
+            MisoUtil.tileToScreen(_metrics, next.x, next.y, spos);
 
             // add the node to the path, wandering through the middle
             // of each tile in the path for now
-            int dsx = spos.x + _model.tilehwid;
-            int dsy = spos.y + _model.tilehhei;
+            int dsx = spos.x + _metrics.tilehwid;
+            int dsy = spos.y + _metrics.tilehhei;
             addNode(next.x, next.y, dsx, dsy, dir);
 
             prev = next;
@@ -133,22 +135,22 @@ public class TilePath extends LineSegmentPath
 
         // get the final destination point's screen coordinates
         // constrained to the closest full coordinate
-        IsoUtil.fullToScreen(_model, fpos.x, fpos.y, spos);
+        MisoUtil.fullToScreen(_metrics, fpos.x, fpos.y, spos);
 
         // get the tile coordinates for the final destination tile
-        int tdestx = IsoUtil.fullToTile(fpos.x);
-        int tdesty = IsoUtil.fullToTile(fpos.y);
+        int tdestx = MisoUtil.fullToTile(fpos.x);
+        int tdesty = MisoUtil.fullToTile(fpos.y);
 
         // get the facing direction for the final node
         int dir;
         if (prev.x == ipos.x && prev.y == ipos.y) {
             // if destination is within starting tile, direction is
             // determined by studying the fine coordinates
-            dir = IsoUtil.getDirection(_model, sx, sy, spos.x, spos.y);
+            dir = MisoUtil.getDirection(_metrics, sx, sy, spos.x, spos.y);
 
         } else {
             // else it's based on the last tile we traversed
-            dir = IsoUtil.getIsoDirection(prev.x, prev.y, tdestx, tdesty);
+            dir = MisoUtil.getIsoDirection(prev.x, prev.y, tdestx, tdesty);
         }
 
     	// add the final destination path node
@@ -176,6 +178,6 @@ public class TilePath extends LineSegmentPath
     /** The destination tile path node. */
     protected TilePathNode _dest;
 
-    /** The iso scene view model. */
-    protected IsoSceneViewModel _model;
+    /** The scene metrics. */
+    protected MisoSceneMetrics _metrics;
 }

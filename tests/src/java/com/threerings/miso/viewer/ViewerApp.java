@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.37 2003/02/12 07:24:08 mdb Exp $
+// $Id: ViewerApp.java,v 1.38 2003/04/17 19:21:17 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -21,7 +21,6 @@ import com.threerings.cast.CharacterManager;
 import com.threerings.cast.bundle.BundledComponentRepository;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.client.SimpleDisplayMisoSceneImpl;
 import com.threerings.miso.data.SimpleMisoSceneModel;
 import com.threerings.miso.tile.MisoTileManager;
 import com.threerings.miso.tools.xml.SimpleMisoSceneParser;
@@ -83,19 +82,19 @@ public class ViewerApp
         CharacterManager charmgr = new CharacterManager(imgr, crepo);
 
         // create our scene view panel
-        _panel = new ViewerSceneViewPanel(ctx, _framemgr, charmgr, crepo);
+        _panel = new ViewerSceneViewPanel(ctx, charmgr, crepo);
         _frame.setPanel(_panel);
 
         // load up the scene specified by the user
         try {
-            SimpleMisoSceneParser parser = new SimpleMisoSceneParser("miso");
+            SimpleMisoSceneParser parser = new SimpleMisoSceneParser("");
             SimpleMisoSceneModel model = parser.parseScene(args[0]);
             if (model == null) {
                 Log.warning("No miso scene found in scene file " +
                             "[path=" + args[0] + "].");
                 System.exit(-1);
             }
-            _panel.setScene(new SimpleDisplayMisoSceneImpl(model, _tilemgr));
+            _panel.setSceneModel(model);
 
         } catch (Exception e) {
             Log.warning("Unable to parse scene [path=" + args[0] + "].");
@@ -128,6 +127,11 @@ public class ViewerApp
 	{
 	    return _tilemgr;
 	}
+
+        public FrameManager getFrameManager ()
+        {
+            return _framemgr;
+        }
     }
 
     /**

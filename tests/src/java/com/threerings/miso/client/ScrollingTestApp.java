@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.20 2003/02/12 07:24:07 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.21 2003/04/17 19:21:17 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -98,7 +98,7 @@ public class ScrollingTestApp
         CharacterManager charmgr = new CharacterManager(imgr, crepo);
 
         // create our scene view panel
-        _panel = new SceneViewPanel(_framemgr, new IsoSceneViewModel());
+        _panel = new MisoScenePanel(ctx, MisoConfig.getSceneMetrics());
         _frame.setPanel(_panel);
 
         // create our "ship" sprite
@@ -114,8 +114,8 @@ public class ScrollingTestApp
                 _ship.setFollowingPathAction("sailing");
                 _ship.setRestingAction("sailing");
                 _ship.setActionSequence("sailing");
-                _ship.setLocation(_panel.getModel().bounds.width/2,
-                                  _panel.getModel().bounds.height/2);
+                _ship.setLocation(_panel.getSceneMetrics().bounds.width/2,
+                                  _panel.getSceneMetrics().bounds.height/2);
                 _panel.addSprite(_ship);
             }
 
@@ -161,7 +161,7 @@ public class ScrollingTestApp
         }
 
         try {
-            _panel.setScene(new ScrollingScene(ctx));
+            _panel.setSceneModel(new ScrollingScene(ctx));
         } catch (Exception e) {
             Log.warning("Error creating scene: " + e);
             Log.logStackTrace(e);
@@ -174,9 +174,12 @@ public class ScrollingTestApp
      */
     protected class ContextImpl implements MisoContext
     {
-	public MisoTileManager getTileManager ()
-	{
+	public MisoTileManager getTileManager () {
 	    return _tilemgr;
+	}
+
+	public FrameManager getFrameManager () {
+	    return _framemgr;
 	}
     }
 
@@ -214,7 +217,7 @@ public class ScrollingTestApp
     protected ScrollingFrame _frame;
 
     /** The main panel. */
-    protected SceneViewPanel _panel;
+    protected MisoScenePanel _panel;
 
     /** The ship in the center of our screen. */
     protected CharacterSprite _ship;

@@ -1,7 +1,7 @@
 //
-// $Id: ObjectSet.java,v 1.4 2003/02/12 05:36:44 mdb Exp $
+// $Id: ObjectSet.java,v 1.1 2003/04/17 19:21:17 mdb Exp $
 
-package com.threerings.miso.client.util;
+package com.threerings.miso.util;
 
 import java.util.Arrays;
 import java.util.Comparator;

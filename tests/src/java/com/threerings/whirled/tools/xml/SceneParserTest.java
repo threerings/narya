@@ -1,5 +1,5 @@
 //
-// $Id: SceneParserTest.java,v 1.4 2003/02/12 07:24:08 mdb Exp $
+// $Id: SceneParserTest.java,v 1.5 2003/04/17 19:21:17 mdb Exp $
 
 package com.threerings.whirled.tools.xml;
 
@@ -8,7 +8,7 @@ import com.samskivert.test.TestUtil;
 import junit.framework.Test;
 import junit.framework.TestCase;
 
-import com.threerings.whirled.data.Scene;
+import com.threerings.whirled.data.SceneModel;
 
 public class SceneParserTest extends TestCase
 {
@@ -22,7 +22,7 @@ public class SceneParserTest extends TestCase
         try {
             SceneParser parser = new SceneParser("scene");
             String tspath = TestUtil.getResourcePath(TEST_SCENE_PATH);
-            Scene scene = parser.parseScene(tspath);
+            SceneModel scene = parser.parseScene(tspath);
             System.out.println("Parsed " + scene + ".");
 
         } catch (Exception e) {

@@ -1,13 +1,16 @@
 //
-// $Id: SimpleMisoSceneModel.java,v 1.2 2003/04/12 02:14:10 mdb Exp $
+// $Id: SimpleMisoSceneModel.java,v 1.3 2003/04/17 19:21:16 mdb Exp $
 
 package com.threerings.miso.data;
 
+import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.IntListUtil;
 import com.samskivert.util.ListUtil;
+
+import com.threerings.miso.util.ObjectSet;
 
 /**
  * Contains miso scene data for a scene that is assumed to be reasonably
@@ -33,6 +36,22 @@ public class SimpleMisoSceneModel extends MisoSceneModel
      * methods. */
     public int[] baseTileIds;
 
+    /** The combined tile ids (tile set id and tile id) of the
+     * "uninteresting" tiles in the object layer. */
+    public int[] objectTileIds;
+
+    /** The x coordinate of the "uninteresting" tiles in the object
+     * layer. */
+    public short[] objectXs;
+
+    /** The y coordinate of the "uninteresting" tiles in the object
+     * layer. */
+    public short[] objectYs;
+
+    /** Information records for the "interesting" objects in the object
+     * layer. */
+    public ObjectInfo[] objectInfo;
+
     /**
      * Creates a completely uninitialized model suitable for little more
      * than unserialization.
@@ -50,24 +69,22 @@ public class SimpleMisoSceneModel extends MisoSceneModel
         this.vwidth = vwidth;
         this.vheight = vheight;
         allocateBaseTileArray();
+
+        // start with zero-length object arrays
+        objectTileIds = new int[0];
+        objectXs = new short[0];
+        objectYs = new short[0];
+        objectInfo = new ObjectInfo[0];
     }
 
-    /**
-     * Get the fully-qualified tile id of the base tile at the specified
-     * row and column.
-     */
-    public int getBaseTile (int col, int row)
+    // documentation inherited
+    public int getBaseTileId (int col, int row)
     {
         int index = getIndex(col, row);
         return (index == -1) ? 0 : baseTileIds[index];
     }
 
-    /**
-     * Set the fully-qualified tile id of a base tile.
-     *
-     * @return false if the specified tile coordinates are outside
-     * of the viewport and the tile was not saved.
-     */
+    // documentation inherited
     public boolean setBaseTile (int col, int row, int fqBaseTileId)
     {
         int index = getIndex(col, row);
@@ -76,6 +93,80 @@ public class SimpleMisoSceneModel extends MisoSceneModel
         }
         baseTileIds[index] = fqBaseTileId;
         return true;
+    }
+
+    // documentation inherited
+    public void getObjects (Rectangle region, ObjectSet set)
+    {
+        // first look for intersecting interesting objects
+        for (int ii = 0; ii < objectInfo.length; ii++) {
+            ObjectInfo info = objectInfo[ii];
+            if (region.contains(info.x, info.y)) {
+                set.insert(info);
+            }
+        }
+
+        // now look for intersecting non-interesting objects
+        for (int ii = 0; ii < objectTileIds.length; ii++) {
+            int x = objectXs[ii], y = objectYs[ii];
+            if (region.contains(x, y)) {
+                set.insert(new ObjectInfo(objectTileIds[ii], x, y));
+            }
+        }
+    }
+
+    // documentation inherited
+    public void addObject (ObjectInfo info)
+    {
+        if (info.isInteresting()) {
+            objectInfo = (ObjectInfo[])ArrayUtil.append(objectInfo, info);
+        } else {
+            objectTileIds = ArrayUtil.append(objectTileIds, info.tileId);
+            objectXs = ArrayUtil.append(objectXs, (short)info.x);
+            objectYs = ArrayUtil.append(objectYs, (short)info.y);
+        }
+    }
+
+    // documentation inherited
+    public void updateObject (ObjectInfo info)
+    {
+        // not efficient, but this is only done in editing situations
+        removeObject(info);
+        addObject(info);
+    }
+
+    // documentation inherited
+    public boolean removeObject (ObjectInfo info)
+    {
+        // look for it in the interesting info array
+        int oidx = ListUtil.indexOfEqual(objectInfo, info);
+        if (oidx != -1) {
+            objectInfo = (ObjectInfo[])ArrayUtil.splice(objectInfo, oidx, 1);
+            return true;
+        }
+
+        // look for it in the uninteresting arrays
+        oidx = IntListUtil.indexOf(objectTileIds, info.tileId);
+        if (oidx != -1) {
+            objectTileIds = ArrayUtil.splice(objectTileIds, oidx, 1);
+            objectXs = ArrayUtil.splice(objectXs, oidx, 1);
+            objectYs = ArrayUtil.splice(objectYs, oidx, 1);
+            return true;
+        }
+
+        return false;
+    }
+
+    // documentation inherited
+    public Object clone ()
+    {
+        SimpleMisoSceneModel model = (SimpleMisoSceneModel)super.clone();
+        model.baseTileIds = (int[])baseTileIds.clone();
+        model.objectTileIds = (int[])objectTileIds.clone();
+        model.objectXs = (short[])objectXs.clone();
+        model.objectYs = (short[])objectYs.clone();
+        model.objectInfo = (ObjectInfo[])objectInfo.clone();
+        return model;
     }
 
     /**
@@ -135,11 +226,28 @@ public class SimpleMisoSceneModel extends MisoSceneModel
         baseTileIds = new int[vwidth + vheight + ((vwidth * vheight) << 1)];
     }
 
-    // documentation inherited
-    public Object clone ()
+    /**
+     * Populates the interesting and uninteresting parts of a miso scene
+     * model given lists of {@link ObjectInfo} records for each.
+     */
+    public static void populateObjects (SimpleMisoSceneModel model,
+                                        ArrayList ilist, ArrayList ulist)
     {
-        SimpleMisoSceneModel model = (SimpleMisoSceneModel)super.clone();
-        model.baseTileIds = (int[])baseTileIds.clone();
-        return model;
+        // set up the uninteresting arrays
+        int ucount = ulist.size();
+        model.objectTileIds = new int[ucount];
+        model.objectXs = new short[ucount];
+        model.objectYs = new short[ucount];
+        for (int ii = 0; ii < ucount; ii++) {
+            ObjectInfo info = (ObjectInfo)ulist.get(ii);
+            model.objectTileIds[ii] = info.tileId;
+            model.objectXs[ii] = (short)info.x;
+            model.objectYs[ii] = (short)info.y;
+        }
+
+        // set up the interesting array
+        int icount = ilist.size();
+        model.objectInfo = new ObjectInfo[icount];
+        ilist.toArray(model.objectInfo);
     }
 }

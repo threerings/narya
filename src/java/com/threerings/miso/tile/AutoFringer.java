@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.19 2003/02/12 05:38:12 mdb Exp $
+// $Id: AutoFringer.java,v 1.20 2003/04/17 19:21:16 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -32,7 +32,7 @@ import com.threerings.media.image.BackedVolatileMirage;
 import com.threerings.media.image.ImageManager;
 import com.threerings.media.image.Mirage;
 
-import com.threerings.miso.data.MisoScene;
+import com.threerings.miso.data.MisoSceneModel;
 
 /**
  * Automatically fringes a scene according to the rules in the supplied
@@ -56,7 +56,7 @@ public class AutoFringer
      * Compute and return the fringe tile to be inserted at the specified
      * location.
      */
-    public Tile getFringeTile (MisoScene scene, int col, int row,
+    public Tile getFringeTile (MisoSceneModel scene, int col, int row,
                                HashMap masks, Random rando)
     {
         // get the tileset id of the base tile we are considering

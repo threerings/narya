@@ -1,5 +1,5 @@
 //
-// $Id: DummyClientSceneRepository.java,v 1.5 2001/11/18 04:09:21 mdb Exp $
+// $Id: DummyClientSceneRepository.java,v 1.6 2003/04/17 19:21:17 mdb Exp $
 
 package com.threerings.whirled;
 
@@ -26,7 +26,14 @@ public class DummyClientSceneRepository implements SceneRepository
     }
 
     // documentation inherited
-    public void updateSceneModel (SceneModel scene)
+    public void storeSceneModel (SceneModel model)
+        throws IOException
+    {
+        // nothing doing
+    }
+
+    // documentation inherited
+    public void deleteSceneModel (int sceneId)
         throws IOException
     {
         // nothing doing
