@@ -124,7 +124,7 @@
 
     <!-- build the fringe configurations -->
     <taskdef name="conffringe"
-             classname="com.threerings.miso.tile.tools.CompileFringeConfigurationTask"/>
+      classname="com.threerings.miso.tile.tools.CompileFringeConfigurationTask"/>
     <conffringe
      tilesetmap="${tbundle.dir}/tilesets.map"
      fringedef="rsrc/config/miso/tile/fringeconf.xml"
