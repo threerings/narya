@@ -101,6 +101,8 @@
   <target name="ncompile" depends="prepare">
     <exec dir="src/java/com/threerings/util/keybd/i686-Linux" 
      executable="make"/>
+    <exec dir="src/java/com/threerings/util/signal/i686-Linux" 
+     executable="make"/>
   </target>
 
   <!-- build the javadoc documentation -->
