@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.43 2004/07/13 16:37:40 mdb Exp $
+// $Id: ResourceManager.java,v 1.44 2004/07/14 14:06:46 mdb Exp $
 
 package com.threerings.resource;
 
@@ -9,12 +9,10 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -28,13 +26,9 @@ import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 
-import org.apache.commons.io.CopyUtils;
-
+import com.samskivert.net.PathUtil;
 import com.samskivert.util.ResultListener;
 import com.samskivert.util.StringUtil;
-
-import com.threerings.resource.DownloadManager.DownloadDescriptor;
-import com.threerings.resource.DownloadManager.DownloadObserver;
 
 /**
  * The resource manager is responsible for maintaining a repository of
@@ -53,10 +47,10 @@ import com.threerings.resource.DownloadManager.DownloadObserver;
  *
  * <p> Applications that wish to make use of resource sets and their
  * associated bundles must call {@link #initBundles} after constructing
- * the resource manager, providing the URL of a resource definition file
+ * the resource manager, providing the path to a resource definition file
  * which describes these resource sets. The definition file will be loaded
  * and the resource bundles defined within will be loaded relative to the
- * resource definition URL.  The bundles will be cached in the user's home
+ * resource directory.  The bundles will be cached in the user's home
  * directory and only reloaded when the source resources have been
  * updated. The resource definition file looks something like the
  * following:
@@ -86,64 +80,51 @@ import com.threerings.resource.DownloadManager.DownloadObserver;
 public class ResourceManager
 {
     /**
-     * Provides facilities for notifying an observer of resource bundle
-     * download progress.
+     * Provides facilities for notifying an observer of the resource
+     * unpacking process.
      */
-    public interface BundleDownloadObserver
+    public interface InitObserver
     {
         /**
-         * If this method returns true the download observer callbacks
-         * will be called on the AWT thread, allowing the observer to do
-         * things like safely update user interfaces, etc. If false, it
-         * will be called on a special download thread.
+         * Indicates a percent completion along with an estimated time
+         * remaining in seconds.
          */
-        public boolean notifyOnAWTThread ();
+        public void progress (int percent, long remaining);
 
         /**
-         * Called when the resource manager is about to check for an
-         * update of any of our resource sets.
+         * Indicates that there was a failure unpacking our resource
+         * bundles.
          */
-        public void checkingForUpdate ();
+        public void initializationFailed (Exception e);
+    }
 
-        /**
-         * Called to inform the observer of ongoing progress toward
-         * completion of the overall bundle downloading task.  The caller
-         * is guaranteed to get at least one call reporting 100%
-         * completion.
-         *
-         * @param percent the percent completion of the download.
-         * @param remaining the estimated download time remaining in
-         * seconds, or <code>-1</code> if the time can not yet be
-         * determined.
-         */
-        public void downloadProgress (int percent, long remaining);
+    /**
+     * An adapter that wraps an {@link InitObserver} and routes all method
+     * invocations to the AWT thread.
+     */
+    public static class AWTInitObserver implements InitObserver
+    {
+        public AWTInitObserver (InitObserver obs) {
+            _obs = obs;
+        }
 
-        /**
-         * Called to inform the observer that the bundle patching process
-         * has begun. This follows the download phase, but is optional.
-         */
-        public void patching ();
+        public void progress (final int percent, final long remaining) {
+            EventQueue.invokeLater(new Runnable() {
+                public void run () {
+                    _obs.progress(percent, remaining);
+                }
+            });
+        }
 
-        /**
-         * Called to inform the observer that the bundle unpacking process
-         * has begun. This follows the download or patching phase.
-         */
-        public void unpacking ();
+        public void initializationFailed (final Exception e) {
+            EventQueue.invokeLater(new Runnable() {
+                public void run () {
+                    _obs.initializationFailed(e);
+                }
+            });
+        }
 
-        /**
-         * Called to indicate that we have validated and unpacked our
-         * bundles and are fully ready to go. A call to {@link
-         * #dowloadProgress} with 100 percent completion is guaranteed to
-         * precede this call and optionally one to {@link #patching} and
-         * {@link #unpacking}.
-         */
-        public void downloadComplete ();
-
-        /**
-         * Called if a failure occurs while checking for an update or
-         * downloading all resource sets.
-         */
-        public void downloadFailed (Exception e);
+        protected InitObserver _obs;
     }
 
     /**
@@ -164,52 +145,12 @@ public class ResourceManager
         // keep track of our root path
         _rootPath = resourceRoot;
 
-        // make root path end with a slash (not the platform dependent
-        // file system separator character as resource paths are passed to
-        // ClassLoader.getResource() which requires / as its separator)
-        if (!_rootPath.endsWith("/")) {
-            _rootPath = _rootPath + "/";
-        }
-
         // use the classloader that loaded us
         _loader = getClass().getClassLoader();
 
         // set up a URL handler so that things can be loaded via
         // urls with the 'resource' protocol
         Handler.registerHandler(this);
-
-        // sort our our default cache path
-        _baseCachePath = "";
-        try {
-            // first check for an explicitly specified cache directory
-            _baseCachePath = System.getProperty("narya.resource.cache_dir");
-            // if that's null, try putting it into their home directory
-            if (_baseCachePath == null) {
-                _baseCachePath = System.getProperty("user.home");
-            }
-            if (!_baseCachePath.endsWith(File.separator)) {
-                _baseCachePath += File.separator;
-            }
-            _baseCachePath += (CACHE_PATH + File.separator);
-        } catch (SecurityException se) {
-            Log.info("Can't obtain user.home system property. Probably " +
-                     "won't be able to create our cache directory " +
-                     "either. [error=" + se + "].");
-        }
-    }
-
-    /**
-     * Instructs the resource manager to store cached resources in the
-     * specified directory. This must be called before {@link
-     * #initBundles} if it is going to be called at all. If it is not
-     * called, the default cache directory will be used.
-     */
-    public void setCachePath (String cachePath)
-    {
-        if (!cachePath.endsWith(File.separator)) {
-            cachePath += File.separator;
-        }
-        _baseCachePath = cachePath;
     }
 
     /**
@@ -217,100 +158,56 @@ public class ResourceManager
      * manager.  Applications that wish to make use of resource bundles
      * should call this method after constructing the resource manager.
      *
-     * @param resourceURL the base URL from which resources are loaded.
-     * Relative paths specified in the resource definition file will be
-     * loaded relative to this path. If this is null, the system property
-     * <code>resource_url</code> will be used, if available.
-     * @param configPath the path (relative to the resource URL) of the
+     * @param resourceDir the base directory to which the paths in the
+     * supplied configuration file are relative. If this is null, the
+     * system property <code>resource_dir</code> will be used, if
+     * available.
+     * @param configPath the path (relative to the resource dir) of the
      * resource definition file.
-     * @param version the version of the resource bundles to be
-     * downloaded.
-     * @param downloadObs the bundle download observer to notify of
-     * download progress and success or failure, or <code>null</code> if
+     * @param initObs a bundle initialization observer to notify of
+     * unpacking progress and success or failure, or <code>null</code> if
      * the caller doesn't care to be informed; note that in the latter
-     * case, the calling thread will block until bundle updating is
+     * case, the calling thread will block until bundle unpacking is
      * complete.
      *
-     * @exception IOException thrown if we are unable to download our
-     * resource manager configuration from the support resource URL.
+     * @exception IOException thrown if we are unable to read our resource
+     * manager configuration.
      */
-    public void initBundles (String resourceURL, String configPath,
-                             String version, BundleDownloadObserver downloadObs)
+    public void initBundles (
+        String resourceDir, String configPath, InitObserver initObs)
         throws IOException
     {
-        _version = version;
-
-        // if the resource URL wasn't provided, we try to figure it out
-        // for ourselves
-        if (resourceURL == null) {
+        // if the resource directory wasn't provided, we try to figure it
+        // out for ourselves
+        if (resourceDir == null) {
             try {
                 // first look for the explicit system property
-                resourceURL = System.getProperty("resource_url");
-
+                resourceDir = System.getProperty("resource_dir");
                 // if that doesn't work, fall back to the current directory
-                if (resourceURL == null) {
-                    resourceURL = "file:" + System.getProperty("user.dir");
+                if (resourceDir == null) {
+                    resourceDir = System.getProperty("user.dir");
                 }
 
             } catch (SecurityException se) {
-                resourceURL = "file:" + File.separator;
+                resourceDir = File.separator;
             }
         }
 
-        // make sure there's a slash at the end of the URL
-        if (!resourceURL.endsWith("/")) {
-            resourceURL += "/";
+        // make sure there's a trailing slash
+        if (!resourceDir.endsWith(File.separator)) {
+            resourceDir += File.separator;
         }
-
-        try {
-            _rurl = new URL(resourceURL);
-        } catch (MalformedURLException mue) {
-            Log.warning("Invalid resource URL [url=" + resourceURL +
-                        ", error=" + mue + "].");
-            throw new IOException("Invalid resource url '" + resourceURL + "'");
-        }
-
-        // if no dynamic resource URL has been specified, use the normal
-        // resource URL in its stead
-        if (_drurl == null) {
-            _drurl = _rurl;
-        }
-
-        Log.debug("Resource manager ready [rurl=" + _rurl +
-                  ", drurl=" + _drurl + "].");
+        _rdir = new File(resourceDir);
 
         // load up our configuration
         Properties config = new Properties();
-        URL curl = null;
         try {
-            if (configPath != null) {
-                curl = new URL(_rurl, configPath);
-            }
-
-        } catch (MalformedURLException mue) {
-            Log.warning("Unable to construct config URL [resourceURL=" + _rurl +
-                        ", configPath=" + configPath + ", error=" + mue + "].");
-            String errmsg = "Invalid config url [resourceURL=" + _rurl +
-                ", configPath=" + configPath + "]";
-            throw new IOException(errmsg);
-        }
-
-        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        try {
-            if (curl != null) {
-                // download the properties file into a buffer
-                CopyUtils.copy(curl.openStream(), bout);
-                config.load(new ByteArrayInputStream(bout.toByteArray()));
-            }
-
+            config.load(new FileInputStream(new File(_rdir, configPath)));
         } catch (Exception e) {
-            Log.warning("Unable to load resource mgr properties " +
-                        "[resourceURL=" + _rurl + ", configPath=" + configPath +
-                        ", error=" + e + "].");
-            Log.warning("Bogus properties: " + bout.toString("UTF-8"));
-            Log.logStackTrace(e);
             String errmsg = "Unable to load resource manager config " +
-                "[resourceURL=" + _rurl + ", configPath=" + configPath + "]";
+                "[rdir=" + _rdir + ", cpath=" + configPath + "]";
+            Log.warning(errmsg + ".");
+            Log.logStackTrace(e);
             throw new IOException(errmsg);
         }
 
@@ -326,74 +223,62 @@ public class ResourceManager
             resolveResourceSet(setName, config.getProperty(key), dlist);
         }
 
-        // start the download, blocking if we've no observer
-        DownloadManager dlmgr = new DownloadManager();
-        if (downloadObs == null) {
-            downloadBlocking(dlmgr, dlist);
-        } else {
-            downloadNonBlocking(dlmgr, dlist, downloadObs);
+        // if there's no observer, we'll need to block the caller
+        if (initObs == null) {
+            initObs = BLOCKER;
+        }
+
+        // start a thread to unpack our bundles
+        Unpacker unpack = new Unpacker(dlist, initObs);
+        unpack.start();
+
+        if (initObs == BLOCKER) {
+            try {
+                synchronized (BLOCKER) {
+                    initObs.wait();
+                }
+            } catch (InterruptedException ie) {
+                Log.warning("Interrupted while waiting for bundles to unpack.");
+            }
         }
     }
 
     /**
-     * Configures the resource manager with a custom dynamic resource
-     * URL. If it is not thusly configured, it will use the normal
-     * resource URL for dynamic resources.
+     * Given a path relative to the resource directory, the path is
+     * properly jimmied (assuming we always use /) and combined with the
+     * resource directory to yield a {@link File} object that can be used
+     * to access the resource.
      */
-    public void setDynamicResourceURL (String dynResURL)
+    public File getResourceFile (String path)
     {
-        // make sure there's a slash at the end of the URL
-        if (!dynResURL.endsWith("/")) {
-            dynResURL += "/";
+        if (!"/".equals(File.separator)) {
+            path = StringUtil.replace(path, "/", File.separator);
         }
-
-        try {
-            _drurl = new URL(dynResURL);
-        } catch (MalformedURLException mue) {
-            Log.warning("Invalid dynamic resource URL " +
-                        "[url=" + dynResURL + ", error=" + mue + "].");
-        }
+        return new File(_rdir, path);
     }
 
     /**
-     * Create the resource bundle for the specified set and path.
+     * Checks to see if the specified bundle exists, is unpacked and is
+     * ready to be used.
      */
-    protected ResourceBundle createResourceBundle (String setName, String path)
+    public boolean checkBundle (String path)
     {
-        createCacheDirectory(setName);
-        File cfile = new File(genCachePath(setName, path));
-
-        return new ResourceBundle(cfile, true, true);
+        return new ResourceBundle(
+            getResourceFile(path), true, true).isUnpacked();
     }
 
     /**
-     * Checks to see if the specified dynamic bundle is already here
-     * and ready to roll.
+     * Resolve the specified bundle (the bundle file must already exist in
+     * the appropriate place on the file system) and return it on the
+     * specified result listener. Note that the result listener may be
+     * notified before this method returns on the caller's thread if the
+     * bundle is already resolved, or it may be notified on a brand new
+     * thread if the bundle requires unpacking.
      */
-    public boolean checkDynamicBundle (String path)
+    public void resolveBundle (String path, final ResultListener listener)
     {
-        return createResourceBundle(_dnset, path).isUnpacked();
-    }
-
-    /**
-     * Resolve the specified dynamic bundle and return it on the specified
-     * result listener.
-     */
-    public void resolveDynamicBundle (String path, String version,
-                                      final ResultListener listener)
-    {
-        URL burl;
-        try {
-            burl = new URL(_drurl, path);
-        } catch (MalformedURLException mue) {
-            listener.requestFailed(mue);
-            return;
-        }
-
-        // note our dynamic bundle set
-        _dnset = DYNAMIC_BUNDLE_SET + StringUtil.md5hex(_drurl.toString());
-
-        final ResourceBundle bundle = createResourceBundle(_dnset, path);
+        final ResourceBundle bundle =
+            new ResourceBundle(getResourceFile(path), true, true);
         if (bundle.isUnpacked()) {
             if (bundle.sourceIsReady()) {
                 listener.requestCompleted(bundle);
@@ -404,319 +289,20 @@ public class ResourceManager
             return;
         }
 
-        // slap this on the list for retrieval or update by the download
-        // manager
+        // start a thread to unpack our bundles
         ArrayList list = new ArrayList();
-        list.add(new DownloadDescriptor(burl, bundle.getSource(), version));
-
-        // TODO: There should only be one download manager for all dynamic
-        // bundles, with each bundle waiting its turn to use it.
-        DownloadObserver obs = new DownloadObserver() {
-            public boolean notifyOnAWTThread () {
-                return false;
-            }
-
-            public void resolvingDownloads () {
-            }
-
-            public void downloadProgress (int percent, long remaining) {
-            }
-
-            public void patching () {
-            }
-
-            public void postDownloadHook () {
-            }
-
-            public void downloadComplete ()
-            {
-                final boolean unpacked = bundle.sourceIsReady();
-                EventQueue.invokeLater(new Runnable() {
-                    public void run () {
-                        if (unpacked) {
-                            listener.requestCompleted(bundle);
-                        } else {
-                            String errmsg = "Bundle initialization failed.";
-                            listener.requestFailed(new IOException(errmsg));
-                        }
-                    }
-                });
-            }
-
-            public void downloadFailed (
-                DownloadDescriptor desc, final Exception e)
-            {
-                Log.warning("Failed to download file " +
-                            "[desc=" + desc + ", e=" + e + "].");
-                EventQueue.invokeLater(new Runnable() {
-                    public void run () {
-                        listener.requestFailed(e);
-                    }
-                });
-            }
-        };
-
-        DownloadManager dlmgr = new DownloadManager();
-        dlmgr.download(list, true, obs);
-    }
-
-    /**
-     * Downloads the files in the supplied download list, blocking the
-     * calling thread until the download is complete or a failure has
-     * occurred.
-     */
-    protected void downloadBlocking (DownloadManager dlmgr, List dlist)
-    {
-        // create an object to wait on while the download takes place
-        final Object lock = new Object();
-
-        // create the observer that will notify us when all is finished
-        DownloadObserver obs = new DownloadObserver() {
-            public boolean notifyOnAWTThread () {
-                return false;
-            }
-
-            public void resolvingDownloads () {
-                // nothing for now
-            }
-
-            public void downloadProgress (int percent, long remaining) {
-                // nothing for now
-            }
-
-            public void patching () {
-                // nothing for now
-            }
-
-            public void postDownloadHook () {
-                bundlesDownloaded();
-            }
-
-            public void downloadComplete () {
-                synchronized (lock) {
-                    // wake things up as the download is finished
-                    lock.notify();
+        list.add(bundle);
+        Unpacker unpack = new Unpacker(list, new InitObserver() {
+            public void progress (int percent, long remaining) {
+                if (percent == 100) {
+                    listener.requestCompleted(bundle);
                 }
             }
-
-            public void downloadFailed (DownloadDescriptor desc, Exception e) {
-                Log.warning("Failed to download file " +
-                            "[desc=" + desc + ", e=" + e + "].");
-                synchronized (lock) {
-                    // wake things up since we're fragile and so a
-                    // single failure means all is booched
-                    lock.notify();
-                }
+            public void initializationFailed (Exception e) {
+                listener.requestFailed(e);
             }
-        };
-
-        synchronized (lock) {
-            // pass the descriptors on to the download manager
-            dlmgr.download(dlist, true, obs);
-
-            try {
-                // block until the download has completed
-                lock.wait();
-            } catch (InterruptedException ie) {
-                Log.warning("Thread interrupted while waiting for download " +
-                            "to complete [ie=" + ie + "].");
-            }
-        }
-    }
-
-    /**
-     * Downloads the files in the supplied download list asynchronously,
-     * notifying the download observer of ongoing progress.
-     */
-    protected void downloadNonBlocking (
-        DownloadManager dlmgr, List dlist, final BundleDownloadObserver obs)
-    {
-        // pass the descriptors on to the download manager
-        dlmgr.download(dlist, true, new DownloadObserver() {
-            public boolean notifyOnAWTThread () {
-                return obs.notifyOnAWTThread();
-            }
-
-            public void resolvingDownloads () {
-                obs.checkingForUpdate();
-            }
-
-            public void downloadProgress (int percent, long remaining) {
-                obs.downloadProgress(percent, remaining);
-            }
-
-            public void patching () {
-                obs.patching();
-            }
-
-            public void postDownloadHook () {
-                obs.unpacking();
-                _unpacked = bundlesDownloaded();
-            }
-
-            public void downloadComplete () {
-                if (_unpacked) {
-                    obs.downloadComplete();
-                } else {
-                    String errmsg = "Bundle(s) failed initialization.";
-                    obs.downloadFailed(new IOException(errmsg));
-                }
-            }
-
-            public void downloadFailed (DownloadDescriptor desc, Exception e) {
-                obs.downloadFailed(e);
-            }
-
-            protected boolean _unpacked;
         });
-    }
-
-    /**
-     * Called when our resource bundle downloads have completed.
-     *
-     * @return true if we are fully operational, false if one or more
-     * bundles failed to initialize.
-     */
-    protected boolean bundlesDownloaded ()
-    {
-        // let our bundles know that it's ok for them to access their
-        // resource files
-        Iterator iter = _sets.values().iterator();
-        boolean unpacked = true;
-        while (iter.hasNext()) {
-            ResourceBundle[] bundles = (ResourceBundle[])iter.next();
-            for (int ii = 0; ii < bundles.length; ii++) {
-                unpacked = bundles[ii].sourceIsReady() && unpacked;
-            }
-        }
-        return unpacked;
-    }
-
-    /**
-     * Ensures that the cache directory for the specified resource set is
-     * created.
-     *
-     * @return true if the directory was successfully created (or was
-     * already there), false if we failed to create it.
-     */
-    protected boolean createCacheDirectory (String setName)
-    {
-        // compute the path to the top-level cache directory if we haven't
-        // already been so configured
-        if (_cachePath == null) {
-            // start with the base cache path
-            _cachePath = _baseCachePath;
-            if (!createDirectory(_cachePath)) {
-                return false;
-            }
-
-            // next incorporate the resource URL into the cache path so
-            // that files fetched from different resource roots do not
-            // overwrite one another
-            _cachePath += StringUtil.md5hex(_rurl.toString()) + File.separator;
-            if (!createDirectory(_cachePath)) {
-                return false;
-            }
-
-            Log.debug("Caching bundles in '" + _cachePath + "'.");
-        }
-
-        // ensure that the set-specific cache directory exists
-        return createDirectory(_cachePath + setName);
-    }
-
-    /**
-     * Creates the specified directory if it doesn't already exist.
-     *
-     * @return true if directory was created (or existed), false if not.
-     */
-    protected boolean createDirectory (String path)
-    {
-        File cdir = new File(path);
-        if (cdir.exists()) {
-            if (!cdir.isDirectory()) {
-                Log.warning("Cache dir exists but isn't a directory?! " +
-                            "[path=" + path + "].");
-                return false;
-            }
-
-        } else {
-            if (!cdir.mkdirs()) {
-                Log.warning("Unable to create cache dir. " +
-                            "[path=" + path + "].");
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Generates the name of the bundle cache file given the name of the
-     * resource set to which it belongs and the relative path URL.
-     */
-    protected String genCachePath (String setName, String resourcePath)
-    {
-        return _cachePath + setName + File.separator +
-            StringUtil.replace(resourcePath, "/", "-");
-    }
-
-    /**
-     * Loads up a resource set based on the supplied definition
-     * information.
-     */
-    protected void resolveResourceSet (
-        String setName, String definition, List dlist)
-    {
-        StringTokenizer tok = new StringTokenizer(definition, ":");
-        ArrayList set = new ArrayList();
-
-        while (tok.hasMoreTokens()) {
-            String path = tok.nextToken().trim();
-            URL burl = null;
-
-            try {
-                burl = new URL(_rurl, path);
-
-                // make sure the cache directory exists for this set
-                createCacheDirectory(setName);
-
-                // compute the versioned path for this bundle if we have a
-                // version configured
-                String vpath = path;
-                if (DownloadManager.VERSIONING && !StringUtil.blank(_version)) {
-                    vpath = versionPath(
-                        path, _version, getSuffix(path, ".jar"));
-                }
-
-                // compute the path to the cache file for this bundle
-                File cfile = new File(genCachePath(setName, path));
-                File vfile = new File(genCachePath(setName, vpath));
-
-                // slap this on the list for retrieval or update by the
-                // download manager
-                dlist.add(new DownloadDescriptor(burl, cfile, _version));
-
-                // finally, add the file that will be cached to the set as
-                // a resource bundle
-                set.add(new ResourceBundle(vfile, true, true));
-
-            } catch (MalformedURLException mue) {
-                Log.warning("Unable to create URL for resource " +
-                            "[set=" + setName + ", path=" + path +
-                            ", error=" + mue + "].");
-            }
-        }
-
-        // convert our array list into an array and stick it in the table
-        ResourceBundle[] setvec = new ResourceBundle[set.size()];
-        set.toArray(setvec);
-        _sets.put(setName, setvec);
-
-        // if this is our default resource bundle, keep a reference to it
-        if (DEFAULT_RESOURCE_SET.equals(setName)) {
-            _default = setvec;
-        }
+        unpack.start();
     }
 
     /**
@@ -742,7 +328,7 @@ public class ResourceManager
         }
 
         // if we didn't find anything, try the classloader
-        String rpath = _rootPath + path;
+        String rpath = PathUtil.appendPath(_rootPath, path);
         in = _loader.getResourceAsStream(rpath);
         if (in != null) {
             return in;
@@ -776,7 +362,7 @@ public class ResourceManager
         }
 
         // if we didn't find anything, try the classloader
-        String rpath = _rootPath + path;
+        String rpath = PathUtil.appendPath(_rootPath, path);
         InputStream in = _loader.getResourceAsStream(rpath);
         if (in != null) {
             return new MemoryCacheImageInputStream(new BufferedInputStream(in));
@@ -880,86 +466,88 @@ public class ResourceManager
     }
 
     /**
-     * Creates a versioned path using the supplied version string, path
-     * and file suffix. For example <code>foo/bar/baz.jar</code> becomes
-     * <code>foo/bar/baz__Vversion.jar</code>.
+     * Loads up a resource set based on the supplied definition
+     * information.
      */
-    public static String versionPath (
-        String path, String version, String suffix)
+    protected void resolveResourceSet (
+        String setName, String definition, List dlist)
     {
-        if (!suffix.startsWith(".")) {
-            suffix = "." + suffix;
+        StringTokenizer tok = new StringTokenizer(definition, ":");
+        ArrayList set = new ArrayList();
+
+        while (tok.hasMoreTokens()) {
+            String path = tok.nextToken().trim();
+            ResourceBundle bundle =
+                new ResourceBundle(getResourceFile(path), true, true);
+            set.add(bundle);
+            if (bundle.isUnpacked() && bundle.sourceIsReady()) {
+                continue;
+            }
+            dlist.add(bundle);
         }
-        int sidx = path.lastIndexOf(suffix);
-        if (sidx == -1) {
-            Log.warning("Invalid unversioned path, missing suffix " +
-                        "[path=" + path + ", suffix=" + suffix + "].");
-            return path;
+
+        // convert our array list into an array and stick it in the table
+        ResourceBundle[] setvec = new ResourceBundle[set.size()];
+        set.toArray(setvec);
+        _sets.put(setName, setvec);
+
+        // if this is our default resource bundle, keep a reference to it
+        if (DEFAULT_RESOURCE_SET.equals(setName)) {
+            _default = setvec;
         }
-        return path.substring(0, sidx) + "__V" + version + suffix;
     }
 
-    /**
-     * Creates an unversioned version of the supplied path. If the path is
-     * not versioned, the existing path will be returned.
-     */
-    public static String unversionPath (String path, String suffix)
+    /** Used to unpack bundles on a separate thread. */
+    protected static class Unpacker extends Thread
     {
-        if (!suffix.startsWith(".")) {
-            suffix = "." + suffix;
+        public Unpacker (List bundles, InitObserver obs)
+        {
+            _bundles = bundles;
+            _obs = obs;
         }
-        int vidx = path.indexOf("__V");
-        if (vidx == -1) {
-            return path;
-        }
-        int sidx = path.lastIndexOf(suffix);
-        if (sidx == -1) {
-            Log.warning("Invalid versioned path, missing suffix " +
-                        "[path=" + path + ", suffix=" + suffix + "].");
-            return path;
-        }
-        return path.substring(0, vidx) + suffix;
-    }
 
-    /**
-     * Returns the suffix of the specified path, ie. <code>.jar</code> if
-     * the path references a file that ends in <code>.jar</code>.
-     */
-    public static String getSuffix (String path, String defsuf)
-    {
-        int didx = path.lastIndexOf(".");
-        if (didx == -1) {
-            return defsuf;
-        } else {
-            return path.substring(didx);
+        public void run ()
+        {
+            try {
+                int count = 0;
+                for (Iterator iter = _bundles.iterator(); iter.hasNext(); ) {
+                    ResourceBundle bundle = (ResourceBundle)iter.next();
+                    if (!bundle.sourceIsReady()) {
+                        Log.warning("Bundle failed to initialize " +
+                                    bundle + ".");
+                    }
+                    if (_obs != null) {
+                        int pct = count*100/_bundles.size();
+                        if (pct < 100) {
+                            _obs.progress(pct, 1);
+                        }
+                    }
+                    count++;
+                }
+                if (_obs != null) {
+                    _obs.progress(100, 0);
+                }
+
+            } catch (Exception e) {
+                if (_obs != null) {
+                    _obs.initializationFailed(e);
+                }
+            }
         }
+
+        protected List _bundles;
+        protected InitObserver _obs;
     }
 
     /** The classloader we use for classpath-based resource loading. */
     protected ClassLoader _loader;
 
-    /** The version of the resource bundles we'll be downloading. */
-    protected String _version;
-
-    /** The url via which we download our bundles. */
-    protected URL _rurl;
-
-    /** The url via which we download our dynamically generated bundles. */
-    protected URL _drurl;
-
-    /** The resource set we use for dynamic resources from a particular
-     * dynamic bundle URL. */
-    protected String _dnset;
+    /** The directory that contains our resource bundles. */
+    protected File _rdir;
 
     /** The prefix we prepend to resource paths before attempting to load
      * them from the classpath. */
     protected String _rootPath;
-
-    /** The path to the directory that will contain our bundle cache. */
-    protected String _baseCachePath;
-
-    /** The path to our bundle cache directory. */
-    protected String _cachePath;
 
     /** Our default resource set. */
     protected ResourceBundle[] _default = new ResourceBundle[0];
@@ -974,9 +562,15 @@ public class ResourceManager
     /** The name of the default resource set. */
     protected static final String DEFAULT_RESOURCE_SET = "default";
 
-    /** The name of our resource bundle cache directory. */
-    protected static final String CACHE_PATH = ".narya";
-
-    /** The name of the resource set where we store dynamic bundles. */
-    protected static final String DYNAMIC_BUNDLE_SET = "_dynamic";
+    /** Used to block observerless bundle unpacking. */
+    protected static InitObserver BLOCKER = new InitObserver() {
+        public void progress (int percent, long remaining) {
+            if (percent >= 100) {
+                synchronized (this) { notify(); }
+            }
+        }
+        public void initializationFailed (Exception e) {
+            synchronized (this) { notify(); }
+        }
+    };
 }
