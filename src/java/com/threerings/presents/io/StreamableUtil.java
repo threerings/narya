@@ -1,5 +1,5 @@
 //
-// $Id: StreamableUtil.java,v 1.2 2002/03/20 22:58:26 mdb Exp $
+// $Id: StreamableUtil.java,v 1.3 2002/03/20 23:08:22 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -100,6 +100,13 @@ public class StreamableUtil
             // get the next streamable to write out
             Streamable s = values[ii];
 
+            // if this index is empty, write -1 as the class identifier to
+            // indicate such
+            if (s == null) {
+                out.writeShort(-1);
+                continue;
+            }
+
             // look up the class id
             cname = s.getClass().getName();
             short cidx = (short)ListUtil.indexOfEqual(cnames, cname);
@@ -153,6 +160,12 @@ public class StreamableUtil
         for (int ii = 0; ii < size; ii++) {
             // read the class id number
             short cidx = in.readShort();
+
+            // if the class identifier is -1, that means this is a null
+            // element
+            if (cidx == -1) {
+                continue;
+            }
 
             // look up the class name
             String cname = (cidx > cnames.length - 1) ? null :
