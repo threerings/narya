@@ -1,0 +1,25 @@
+Required external libraries
+---------------------------
+
+The cocktail code requires the following external Java libraries (JAR
+files) to be placed (or symlinked) here in the lib/ directory or in the
+shared library directory specified in the build.xml file
+(${java.libraries}).
+
+* The samskivert package:
+  (check out from CVS: projects/samskivert)
+
+* MM MySQL driver:
+  http://mmmysql.sourceforge.net/
+
+* Matt Welsh's Non-blocking IO library:
+  http://www.cs.berkeley.edu/~mdw/proj/java-nbio/
+
+  (The native code shared library should be built and placed into
+  lib/i686-Linux where it will be automatically added to LD_LIBRARY_PATH
+  by the runjava script. Alternatively you can put it into your
+  LD_LIBRARY_PATH by hand.)
+
+Once the jar files are in place (regardless of what they are named), the
+build system will automatically include them in the compile-time
+classpath.
