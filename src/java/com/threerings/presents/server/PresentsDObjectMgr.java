@@ -202,25 +202,26 @@ public class PresentsDObjectMgr
                 start = _timer.highResCounter();
             }
 
-            // if this is a runnable, it's just an executable unit that
-            // should be invoked
-            if (unit instanceof Runnable) {
-                try {
+            try {
+                if (unit instanceof Runnable) {
+                    // if this is a runnable, it's just an executable unit
+                    // that should be invoked
                     ((Runnable)unit).run();
-                } catch (Exception e) {
-                    Log.warning("Execution unit failed [unit=" + unit + "].");
-                    Log.logStackTrace(e);
-                } catch (OutOfMemoryError oome) {
-                    handleFatalError(unit, oome);
-                } catch (StackOverflowError soe) {
-                    handleFatalError(unit, soe);
+
+                } else if (unit instanceof CompoundEvent) {
+                    processCompoundEvent((CompoundEvent)unit);
+
+                } else {
+                    processEvent((DEvent)unit);
                 }
 
-            } else if (unit instanceof CompoundEvent) {
-                processCompoundEvent((CompoundEvent)unit);
-
-            } else {
-                processEvent((DEvent)unit);
+            } catch (Exception e) {
+                Log.warning("Execution unit failed [unit=" + unit + "].");
+                Log.logStackTrace(e);
+            } catch (OutOfMemoryError oome) {
+                handleFatalError(unit, oome);
+            } catch (StackOverflowError soe) {
+                handleFatalError(unit, soe);
             }
 
             if (start != 0L) {
