@@ -1,5 +1,5 @@
 //
-// $Id: TileSetManagerImpl.java,v 1.8 2001/07/23 22:31:48 shaper Exp $
+// $Id: TileSetManagerImpl.java,v 1.9 2001/08/13 19:54:39 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -10,13 +10,15 @@ import java.util.Enumeration;
 
 import com.samskivert.util.*;
 import com.threerings.media.ImageManager;
+import com.threerings.miso.Log;
 
 public abstract class TileSetManagerImpl implements TileSetManager
 {
     /**
-     * Initialize the TileSetManager with a Config object to obtain
-     * configuration information and an ImageManager object for use in
-     * retrieving tile images.
+     * Initialize the <code>TileSetManager</code>.
+     *
+     * @param config the config object.
+     * @param imgmgr the image manager.
      */
     public void init (Config config, ImageManager imgmgr)
     {
@@ -35,10 +37,10 @@ public abstract class TileSetManagerImpl implements TileSetManager
 	return (TileSet)_tilesets.get(tsid);
     }
 
-    public Image getTileImage (int tsid, int tid)
+    public Tile getTile (int tsid, int tid)
     {
 	TileSet tset = getTileSet(tsid);
-	return (tset != null) ? tset.getTileImage(_imgmgr, tid) : null;
+	return (tset == null) ? null : tset.getTile(_imgmgr, tid);
     }
 
     public ArrayList getAllTileSets ()
@@ -53,7 +55,12 @@ public abstract class TileSetManagerImpl implements TileSetManager
 	return _tilesets.size();
     }
 
+    /** The config object. */
     protected Config _config;
+
+    /** The image manager. */
     protected ImageManager _imgmgr;
+
+    /** The available tilesets keyed by tileset id. */
     protected IntMap _tilesets = new IntMap();
 }

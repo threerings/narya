@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.12 2001/07/28 01:35:06 shaper Exp $
+// $Id: TileSet.java,v 1.13 2001/08/13 19:54:39 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -13,23 +13,23 @@ import com.threerings.media.ImageManager;
 
 /**
  * A tileset stores information on a single logical set of tiles.  It
- * provides a clean interface for the TileManager to retrieve
- * individual tile images from a particular tile in the tileset.
+ * provides a clean interface for the <code>TileSetManager</code> to
+ * retrieve individual tiles from the tileset.
  *
- * <p> Tiles are retrieved from the tile set by the TileManager, and
- * are referenced by their tile id (essentially the tile number,
- * assuming the tile at the top-left of the image is tile id 0 and
- * tiles are numbered left to right, top to bottom, in ascending
- * order.
+ * <p> Tiles are referenced by their tile id.  The tile id is
+ * essentially the tile number, assuming the tile at the top-left of
+ * the image is tile id 0 and tiles are numbered left to right, top to
+ * bottom, in ascending order.
  */
 public class TileSet
 {
     /**
-     * Construct a new TileSet object with the given parameters.
+     * Construct a new <code>TileSet</code> object.
      */
-    public TileSet (String name, int tsid, String imgFile,
-		    int[] rowWidth, int[] rowHeight, int[] tileCount,
-                    Point offsetPos, Point gapDist)
+    public TileSet (
+	String name, int tsid, String imgFile,
+	int[] rowWidth, int[] rowHeight, int[] tileCount, int[] passable,
+	Point offsetPos, Point gapDist)
     {
 	_name = name;
 	_tsid = tsid;
@@ -37,12 +37,14 @@ public class TileSet
         _rowWidth = rowWidth;
 	_rowHeight = rowHeight;
 	_tileCount = tileCount;
+	_passable = passable;
         _offsetPos = offsetPos;
         _gapDist = gapDist;
 
 	// determine the total number of tiles in the set
-	for (int ii = 0; ii < _tileCount.length; ii++)
+	for (int ii = 0; ii < _tileCount.length; ii++) {
 	    _numTiles += _tileCount[ii];
+	}
     }
 
     /**
@@ -72,12 +74,17 @@ public class TileSet
     /**
      * Return the image corresponding to the specified tile id within
      * this tile set.
+     *
+     * @param imgmgr the image manager.
+     * @param tid the tile id.
+     *
+     * @return the tile image.
      */
-    public Image getTileImage (ImageManager imgr, int tid)
+    protected Image getTileImage (ImageManager imgmgr, int tid)
     {
 	// load the full tile image if we don't already have it
 	if (_imgTiles == null) {
-	    if ((_imgTiles = imgr.getImage(_imgFile)) == null) {
+	    if ((_imgTiles = imgmgr.getImage(_imgFile)) == null) {
 		Log.warning("Failed to retrieve full tileset image " +
 			    "[file=" + _imgFile + "].");
 		return null;
@@ -108,8 +115,41 @@ public class TileSet
 //                   ", ty=" + ty + "].");
 
 	// crop the tile-sized image chunk from the full image
-	return imgr.getImageCropped(
+	return imgmgr.getImageCropped(
             _imgTiles, tx, ty, _rowWidth[ridx], _rowHeight[ridx]);
+    }
+
+    /**
+     * Return the <code>Tile</code> object from this tileset
+     * corresponding to the specified tile id.  The tile image is
+     * retrieved from the given image manager.
+     *
+     * @param imgmgr the image manager.
+     * @param tid the tile identifier.
+     *
+     * @return the tile object.
+     */
+    public Tile getTile (ImageManager imgmgr, int tid)
+    {
+	// create the tile object
+	Tile tile = new Tile(_tsid, tid);
+
+	// retrieve the tile image
+	tile.img = getTileImage(imgmgr, tid);
+	if (tile.img == null) {
+	    Log.warning("Null tile image " +
+			"[tsid=" + _tsid + ", tid=" + tid + "].");
+	}
+
+	// populate the tile's dimensions
+        BufferedImage bimg = (BufferedImage)tile.img;
+	tile.height = (short)bimg.getHeight();
+        tile.width = (short)bimg.getWidth();
+
+	// and its passability
+	tile.passable = (_passable[tid] == 1);
+
+	return tile;
     }
 
     /**
@@ -118,27 +158,10 @@ public class TileSet
     public String toString ()
     {
 	StringBuffer buf = new StringBuffer();
-
 	buf.append("[name=").append(_name);
 	buf.append(", file=").append(_imgFile);
 	buf.append(", tsid=").append(_tsid);
 	buf.append(", numtiles=").append(_numTiles);
-
-	buf.append(", rowwidth=");
-	StringUtil.toString(buf, _rowWidth);
-
-	buf.append(", rowheight=");
-	StringUtil.toString(buf, _rowHeight);
-
-	buf.append(", tilecount=");
-	StringUtil.toString(buf, _tileCount);
-
-        buf.append(", offsetpos=(").append(_offsetPos.x);
-        buf.append(", ").append(_offsetPos.y).append(")");
-
-        buf.append(", gapdist=(").append(_gapDist.x);
-        buf.append(", ").append(_gapDist.y).append(")");
-
 	return buf.append("]").toString();
     }
 
@@ -159,6 +182,9 @@ public class TileSet
 
     /** The number of tiles in each row. */
     protected int _tileCount[];
+
+    /** Whether each tile is passable. */
+    protected int _passable[];
 
     /**
      * The offset distance (x, y) in pixels from the top-left of the

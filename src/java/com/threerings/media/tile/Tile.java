@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.8 2001/07/28 01:31:51 shaper Exp $
+// $Id: Tile.java,v 1.9 2001/08/13 19:54:39 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -25,9 +25,13 @@ public class Tile
     /** The tile height in pixels. */
     public short height;
 
+    /** Whether the tile is passable. */
+    public boolean passable;
+
     /**
      * Construct a new tile with the specified identifiers.  Intended
-     * only for use by the TileManager.  Do not use this method.
+     * only for use by the <code>TileManager</code>.  Do not call this
+     * method.
      *
      * @see TileManager#getTile
      */

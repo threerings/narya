@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParser.java,v 1.10 2001/08/13 15:00:24 shaper Exp $
+// $Id: XMLTileSetParser.java,v 1.11 2001/08/13 19:54:39 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -61,6 +61,14 @@ public class XMLTileSetParser extends DefaultHandler
 	} else if (qName.equals("tilecount")) {
 	    _tsTileCount = StringUtil.parseIntArray(str);
 
+	    // calculate the total number of tiles in the tileset
+	    for (int ii = 0; ii < _tsTileCount.length; ii++) {
+		_tsNumTiles += _tsTileCount[ii];
+	    }
+
+	} else if (qName.equals("passable")) {
+	    _tsPassable = StringUtil.parseIntArray(str);
+
 	} else if (qName.equals("offsetpos")) {
             getPoint(str, _tsOffsetPos);
 
@@ -68,15 +76,7 @@ public class XMLTileSetParser extends DefaultHandler
             getPoint(str, _tsGapDist);
 
         } else if (qName.equals("tileset")) {
-	    // construct the tileset object on tag close
-	    TileSet tset = new TileSet(
-		_tsName, _tsTsid, _tsImgFile, _tsRowWidth, _tsRowHeight,
-                _tsTileCount, _tsOffsetPos, _tsGapDist);
-
-	    _tilesets.add(tset);
-
-            // prepare to read another tileset object
-            init();
+	    constructTileSet();
         }
 
 	// note that we're not within a tag to avoid considering any
@@ -85,6 +85,28 @@ public class XMLTileSetParser extends DefaultHandler
 
         // and clear out the character data we're gathering
         _chars = new StringBuffer();
+    }
+
+    protected void constructTileSet ()
+    {
+	// if passability is unspecified, default to all passable
+	if (_tsPassable == null) {
+	    _tsPassable = new int[_tsNumTiles];
+	    for (int ii = 0; ii < _tsNumTiles; ii++) {
+		_tsPassable[ii] = 1;
+	    }
+	}
+
+	// construct the tileset object on tag close
+	TileSet tset = new TileSet(
+	    _tsName, _tsTsid, _tsImgFile,
+	    _tsRowWidth, _tsRowHeight, _tsTileCount, _tsPassable,
+	    _tsOffsetPos, _tsGapDist);
+
+	_tilesets.add(tset);
+
+	// prepare to read another tileset object
+	init();
     }
 
     public void characters (char ch[], int start, int length)
@@ -128,6 +150,8 @@ public class XMLTileSetParser extends DefaultHandler
     {
         _tsOffsetPos = new Point();
         _tsGapDist = new Point();
+	_tsPassable = null;
+	_tsNumTiles = 0;
 	_chars = new StringBuffer();
     }
 
@@ -156,6 +180,7 @@ public class XMLTileSetParser extends DefaultHandler
     protected String _tsName;
     protected int    _tsTsid;
     protected String _tsImgFile;
-    protected int[]  _tsRowWidth, _tsRowHeight, _tsTileCount;
+    protected int[]  _tsRowWidth, _tsRowHeight, _tsTileCount, _tsPassable;
+    protected int    _tsNumTiles;
     protected Point  _tsOffsetPos, _tsGapDist;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.13 2001/08/13 15:00:24 shaper Exp $
+// $Id: TileManager.java,v 1.14 2001/08/13 19:54:39 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -52,15 +52,8 @@ public class TileManager
 	    return tile;
 	}
 
-	// retrieve the tile image from the tileset
-	tile = new Tile(tsid, tid);
-	if ((tile.img = _tilesetmgr.getTileImage(tsid, tid)) == null) {
-	    Log.warning("Null tile image [tsid="+tsid+", tid="+tid+"].");
-	}
-        BufferedImage bimg = (BufferedImage)tile.img;
-	tile.height = (short)bimg.getHeight();
-        tile.width = (short)bimg.getWidth();
-
+	// retrieve the tile from the tileset
+	tile = _tilesetmgr.getTile(tsid, tid);
 	_tiles.put(utid, tile);
 
 //  	Log.info("Loaded tile into cache [tsid="+tsid+", tid="+tid+"].");

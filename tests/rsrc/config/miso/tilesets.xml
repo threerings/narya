@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: tilesets.xml,v 1.7 2001/08/09 04:33:11 shaper Exp $ -->
+<!-- $Id: tilesets.xml,v 1.8 2001/08/13 19:54:39 shaper Exp $ -->
 
 <!-- Initial test tileset description data. -->
 
@@ -51,6 +51,7 @@
     <rowheight>48</rowheight>
     <rowwidth>64</rowwidth>
     <tilecount>14</tilecount>
+    <passable>1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1</passable>
   </tileset>
 
 </tilesetgroup>
