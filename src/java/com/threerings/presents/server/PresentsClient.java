@@ -1,9 +1,10 @@
 //
-// $Id: PresentsClient.java,v 1.48 2002/12/15 18:32:19 mdb Exp $
+// $Id: PresentsClient.java,v 1.49 2002/12/22 19:16:31 mdb Exp $
 
 package com.threerings.presents.server;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -114,6 +115,16 @@ public class PresentsClient
     public String getUsername ()
     {
         return _username;
+    }
+
+    /**
+     * Returns the address of the connected client or null if this client
+     * is not connected.
+     */
+    public InetAddress getInetAddress ()
+    {
+        Connection conn = getConnection();
+        return (conn == null) ? null : conn.getInetAddress();
     }
 
     /**
@@ -353,11 +364,15 @@ public class PresentsClient
             PresentsServer.conmgr.closeConnection(conn);
         }
 
-        // and clean up after ourselves
-        sessionDidEnd();
+        // if we don't have a client object, we failed to resolve in the
+        // first place, in which case we have to cope as best we can
+        if (_clobj != null) {
+            // and clean up after ourselves
+            sessionDidEnd();
 
-        // release (and destroy) our client object
-        _cmgr.releaseClientObject(_username);
+            // release (and destroy) our client object
+            _cmgr.releaseClientObject(_username);
+        }
 
         // let the client manager know that we're audi 5000
         _cmgr.clientDidEndSession(this);
@@ -775,8 +790,15 @@ public class PresentsClient
             // can safely end the session
             PresentsServer.omgr.postUnit(new Runnable() {
                 public void run () {
-                    // end the session in a civilized manner
-                    client.endSession();
+                    if (client.getClientObject() == null) {
+                        // refuse to end the session unless the client is
+                        // fully resolved
+                        Log.warning("Refusing logoff request from " +
+                                    "still-resolving client " + client + ".");
+                    } else {
+                        // end the session in a civilized manner
+                        client.endSession();
+                    }
                 }
             });
         }
