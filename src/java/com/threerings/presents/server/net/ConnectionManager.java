@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.31 2003/05/10 01:05:33 mdb Exp $
+// $Id: ConnectionManager.java,v 1.32 2003/08/09 05:00:01 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -410,16 +410,16 @@ public class ConnectionManager extends LoopingThread
 
                 if (buffer.remaining() > 0) {
                     fully = false;
-                    Log.info("Partial write [conn=" + conn +
-                             ", msg=" + StringUtil.shortClassName(outmsg) +
-                             ", wrote=" + wrote +
-                             ", size=" + buffer.limit() + "].");
+//                     Log.info("Partial write [conn=" + conn +
+//                              ", msg=" + StringUtil.shortClassName(outmsg) +
+//                              ", wrote=" + wrote +
+//                              ", size=" + buffer.limit() + "].");
                     pwh.handlePartialWrite(conn, buffer);
 
-                } else if (wrote > 10000) {
-                    Log.info("Big write [conn=" + conn +
-                             ", msg=" + StringUtil.shortClassName(outmsg) +
-                             ", wrote=" + wrote + "].");
+//                 } else if (wrote > 10000) {
+//                     Log.info("Big write [conn=" + conn +
+//                              ", msg=" + StringUtil.shortClassName(outmsg) +
+//                              ", wrote=" + wrote + "].");
                 }
 
             } finally {
