@@ -1,9 +1,10 @@
 //
-// $Id: ImageManager.java,v 1.49 2003/04/25 18:21:28 mdb Exp $
+// $Id: ImageManager.java,v 1.50 2003/04/25 22:12:14 mdb Exp $
 
 package com.threerings.media.image;
 
 import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Rectangle;
@@ -264,6 +265,10 @@ public class ImageManager
      */
     protected BufferedImage loadImage (ImageKey key)
     {
+//         if (EventQueue.isDispatchThread()) {
+//             Log.info("Loading image on AWT thread " + key + ".");
+//         }
+
         BufferedImage image = null;
         ImageInputStream imgin = null;
         try {
