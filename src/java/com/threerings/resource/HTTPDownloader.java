@@ -1,5 +1,5 @@
 //
-// $Id: HTTPDownloader.java,v 1.1 2003/08/08 17:45:00 mdb Exp $
+// $Id: HTTPDownloader.java,v 1.2 2003/08/18 21:50:03 mdb Exp $
 
 package com.threerings.resource;
 
@@ -66,5 +66,14 @@ public class HTTPDownloader extends Downloader
 
         Log.info("Downloading updated jar [url=" + _desc.sourceURL + "].");
         downloadContent(dmgr, obs, pinfo, buffer, ucon, _desc.destFile);
+
+        // if we have a last modified time, we want to adjust our cache
+        // file accordingly
+        if (_desc.lastModified != 0) {
+            if (!_desc.destFile.setLastModified(_desc.lastModified)) {
+                Log.warning("Failed to set last-modified date " +
+                            "[file=" + _desc.destFile + "].");
+            }
+        }
     }
 }
