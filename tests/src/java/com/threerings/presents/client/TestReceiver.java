@@ -1,12 +1,12 @@
 //
-// $Id: TestReceiver.java,v 1.1 2001/07/19 19:18:06 mdb Exp $
+// $Id: TestReceiver.java,v 1.2 2001/08/04 02:31:20 mdb Exp $
 
 package com.threerings.cocktail.cher.client.test;
 
 import com.threerings.cocktail.cher.Log;
 import com.threerings.cocktail.cher.client.InvocationReceiver;
 
-public class TestReceiver extends InvocationReceiver
+public class TestReceiver implements InvocationReceiver
 {
     public void handleTestNotification (int one, String two)
     {
