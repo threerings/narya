@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.21 2001/08/08 00:28:49 mdb Exp $
+// $Id: DObject.java,v 1.22 2001/08/11 00:11:53 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -122,8 +122,10 @@ public class DObject
     {
         if (_subscribers.remove(sub)) {
             // if we removed something, check to see if we just removed
-            // the last subscriber from our list
-            if (_subscribers.size() == 0) {
+            // the last subscriber from our list; we also want to be sure
+            // that we're still active otherwise there's no need to notify
+            // our objmgr because we don't have one
+            if (_subscribers.size() == 0 && _mgr != null) {
                 _mgr.removedLastSubscriber(this);
             }
         }
