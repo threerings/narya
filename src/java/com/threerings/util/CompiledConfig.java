@@ -1,5 +1,5 @@
 //
-// $Id: CompiledConfig.java,v 1.1 2002/03/08 06:15:21 mdb Exp $
+// $Id: CompiledConfig.java,v 1.2 2002/03/08 08:30:05 mdb Exp $
 
 package com.threerings.yohoho.util;
 
@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+
+import com.samskivert.io.NestableIOException;
 
 /**
  * Used to load and store compiled configuration data (generally XML files
@@ -22,10 +24,15 @@ public class CompiledConfig
      * Unserializes a configuration object from the supplied input stream.
      */
     public static Serializable loadConfig (InputStream source)
-        throws IOException, ClassNotFoundException
+        throws IOException
     {
-        ObjectInputStream oin = new ObjectInputStream(source);
-        return (Serializable)oin.readObject();
+        try {
+            ObjectInputStream oin = new ObjectInputStream(source);
+            return (Serializable)oin.readObject();
+        } catch (ClassNotFoundException cnfe) {
+            String errmsg = "Unknown config class";
+            throw new NestableIOException(errmsg, cnfe);
+        }
     }
 
     /**
