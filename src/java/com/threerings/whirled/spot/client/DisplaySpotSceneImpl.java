@@ -1,5 +1,5 @@
 //
-// $Id: DisplaySpotSceneImpl.java,v 1.2 2001/11/29 00:16:11 mdb Exp $
+// $Id: DisplaySpotSceneImpl.java,v 1.3 2001/12/05 03:38:09 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -43,23 +43,73 @@ public class DisplaySpotSceneImpl extends DisplaySceneImpl
 
             if (model.locationIds[i] == pid) {
                 // add this portal to the portals array
-                _portals[pidx] = new Portal(
-                    pid, model.locationX[i], model.locationY[i],
-                    model.locationOrients[i], model.neighborIds[pidx],
-                    model.targetLocIds[pidx]);
+                _portals[pidx] = createPortal();
+                populatePortal(model, _portals[pidx], i, pidx);
                 loc = _portals[pidx];
                 pidx++;
 
             } else {
-                loc = new Location(
-                    model.locationIds[i], model.locationX[i],
-                    model.locationY[i], model.locationOrients[i],
-                    model.locationClusters[i]);
+                loc = createLocation();
+                populateLocation(model, loc, i);
             }
 
             // everything goes into the locations array
             _locations[i] = loc;
         }
+    }
+
+    /**
+     * Returns a new location instance.
+     */
+    protected Location createLocation ()
+    {
+        return new Location();
+    }
+
+    /**
+     * Populates a location instance with the specified index, using
+     * information from the model.
+     *
+     * @param model the scene model.
+     * @param loc the location instance to populate.
+     * @param lidx the location index in the model arrays.
+     */
+    protected void populateLocation (
+        SpotSceneModel model, Location loc, int lidx)
+    {
+        loc.locationId = model.locationIds[lidx];
+        loc.x = model.locationX[lidx];
+        loc.y = model.locationY[lidx];
+        loc.orientation = model.locationOrients[lidx];
+        loc.clusterIndex = model.locationClusters[lidx];
+    }
+
+    /**
+     * Returns a new portal instance.
+     */
+    protected Portal createPortal ()
+    {
+        return new Portal();
+    }
+
+    /**
+     * Populates a portal instance with the specified index, using
+     * information from the model.
+     *
+     * @param model the scene model.
+     * @param port the portal to populate.
+     * @param lidx the location index in the model arrays.
+     * @param pidx the portal index in the model arrays.
+     */
+    protected void populatePortal (
+        SpotSceneModel model, Portal port, int lidx, int pidx)
+    {
+        // populate the location fields
+        populateLocation(model, port, lidx);
+
+        // populate the portal-specific fields
+        port.targetSceneId = model.neighborIds[pidx];
+        port.targetLocId = model.targetLocIds[pidx];
     }
 
     // documentation inherited

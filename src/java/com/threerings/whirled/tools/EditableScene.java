@@ -1,7 +1,9 @@
 //
-// $Id: EditableScene.java,v 1.2 2001/12/04 22:34:04 mdb Exp $
+// $Id: EditableScene.java,v 1.3 2001/12/05 03:38:09 mdb Exp $
 
 package com.threerings.whirled.tools;
+
+import java.util.ArrayList;
 
 import com.threerings.whirled.client.DisplayScene;
 import com.threerings.whirled.data.SceneModel;
@@ -53,12 +55,21 @@ public interface EditableScene extends DisplayScene
     /**
      * Returns the names of the neighbors of this scene.
      */
-    public String[] getNeighborNames ();
+    public ArrayList getNeighborNames ();
 
     /**
-     * Sets the names of the neighbors of this scene.
+     * Adds a neighbor to this scene. If the neighbor is already listed
+     * among the neighbors, it will not be added again.
      */
-    public void setNeighborNames (String[] neighborNames);
+    public void addNeighbor (String neighborName);
+
+    /**
+     * Adds a neighbor to this scene.
+     *
+     * @return true if the neighbor was removed, false if they were not in
+     * the neighbor list.
+     */
+    public boolean removeNeighbor (String neighborName);
 
     /** 
      * Implementations must provide an editable scene model that

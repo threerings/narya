@@ -1,5 +1,5 @@
 //
-// $Id: Location.java,v 1.2 2001/12/03 19:40:11 mdb Exp $
+// $Id: Location.java,v 1.3 2001/12/05 03:38:09 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -28,18 +28,6 @@ public class Location
     /** The cluster to which this location belongs or -1 if it belongs to
      * no cluster. */
     public int clusterIndex;
-
-    /**
-     * Constructs a location with the supplied values.
-     */
-    public Location (int id, int x, int y, int orientation, int clusterIndex)
-    {
-        this.locationId = id;
-        this.x = x;
-        this.y = y;
-        this.orientation = orientation;
-        this.clusterIndex = clusterIndex;
-    }
 
     /**
      * Location equality is determined by location id.

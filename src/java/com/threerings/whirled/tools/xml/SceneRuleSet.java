@@ -1,17 +1,16 @@
 //
-// $Id: SceneRuleSet.java,v 1.1 2001/11/29 19:31:52 mdb Exp $
+// $Id: SceneRuleSet.java,v 1.2 2001/12/05 03:38:09 mdb Exp $
 
 package com.threerings.whirled.tools.xml;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.RuleSetBase;
 
-import com.samskivert.xml.SetFieldRule;
-
-import com.threerings.whirled.data.SceneModel;
+import com.threerings.whirled.tools.EditableScene;
+import com.threerings.whirled.tools.EditableSceneImpl;
 
 /**
- * Used to parse a {@link SceneModel} from XML.
+ * Used to parse an {@link EditableScene} from XML.
  */
 public class SceneRuleSet extends RuleSetBase
 {
@@ -21,9 +20,9 @@ public class SceneRuleSet extends RuleSetBase
      * scene in the following XML file:
      *
      * <pre>
-     * &lt;scene&gt;
-     *   &lt;sceneId&gt;50&lt;/sceneId&gt;
-     *   &lt;version&gt;50&lt;/version&gt;
+     * &lt;scene name="Scene Name" version="3"&gt;
+     *   &lt;neighbor&gt;North Scene&lt;/neighbor&gt;
+     *   &lt;neighbor&gt;West Scene&lt;/neighbor&gt;
      *   &lt;!-- ... --&gt;
      * &lt;/scene&gt;
      * </pre>
@@ -39,26 +38,21 @@ public class SceneRuleSet extends RuleSetBase
      */
     public void addRuleInstances (Digester digester)
     {
-        // this creates the appropriate instance when we encounter our
-        // prefix tag
-        digester.addObjectCreate(_prefix, getSceneModelClass().getName());
+        // this creates the appropriate instance when we encounter our tag
+        digester.addObjectCreate(_prefix, getSceneClass().getName());
 
         // set up rules to parse and set our fields
-        digester.addRule(_prefix + "/sceneId",
-                         new SetFieldRule(digester, "sceneId"));
-        digester.addRule(_prefix + "/version",
-                         new SetFieldRule(digester, "version"));
-        digester.addRule(_prefix + "/neighborIds",
-                         new SetFieldRule(digester, "neighborIds"));
+        digester.addSetProperties(_prefix);
+        digester.addCallMethod(_prefix + "/neighbor", "addNeighbor", 0);
     }
 
     /**
-     * This indicates the class (which should derive from {@link
-     * SceneModel}) to be instantiated during the parsing process.
+     * This indicates the class (which should implement {@link
+     * EditableScene}) to be instantiated during the parsing process.
      */
-    protected Class getSceneModelClass ()
+    protected Class getSceneClass ()
     {
-        return SceneModel.class;
+        return EditableSceneImpl.class;
     }
 
     /** The prefix at which me match our scenes. */

@@ -1,5 +1,5 @@
 //
-// $Id: Portal.java,v 1.3 2001/12/04 22:34:04 mdb Exp $
+// $Id: Portal.java,v 1.4 2001/12/05 03:38:09 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -25,24 +25,13 @@ public class Portal extends Location
 
     /** The location identifier of the location at which a body will enter
      * the target scene when they "use" this portal. */
-    public int targetLocationId;
-
-    /**
-     * Constructs a portal with the supplied values.
-     */
-    public Portal (int id, int x, int y, int orientation,
-                   int targetSceneId, int targetLocationId)
-    {
-        super(id, x, y, orientation, -1);
-        this.targetSceneId = targetSceneId;
-        this.targetLocationId = targetLocationId;
-    }
+    public int targetLocId;
 
     // documentation inherited
     protected void toString (StringBuffer buf)
     {
         super.toString(buf);
         buf.append(", targetScene=").append(targetSceneId);
-        buf.append(", targetLoc=").append(targetLocationId);
+        buf.append(", targetLoc=").append(targetLocId);
     }
 }

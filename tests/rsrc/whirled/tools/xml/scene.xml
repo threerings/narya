@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<!-- test scene parser -->
+<scene name="Test Scene" version="42">
+  <neighbor>Some neighbor</neighbor>
+  <neighbor>Some other neighbor</neighbor>
+  <neighbor>Yet another neighbor</neighbor>
+</scene>

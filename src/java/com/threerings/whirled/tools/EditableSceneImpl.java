@@ -1,7 +1,9 @@
 //
-// $Id: EditableSceneImpl.java,v 1.3 2001/12/04 22:34:04 mdb Exp $
+// $Id: EditableSceneImpl.java,v 1.4 2001/12/05 03:38:09 mdb Exp $
 
 package com.threerings.whirled.tools;
+
+import java.util.ArrayList;
 
 import com.threerings.whirled.client.DisplaySceneImpl;
 import com.threerings.whirled.data.SceneModel;
@@ -20,6 +22,15 @@ public class EditableSceneImpl
     public EditableSceneImpl (EditableSceneModel model)
     {
         super(model.sceneModel, null);
+        _emodel = model;
+    }
+
+    /**
+     * Creates an instance that will create and use a blank scene model.
+     */
+    public EditableSceneImpl ()
+    {
+        this(EditableSceneModel.blankSceneModel());
     }
 
     // documentation inherited
@@ -53,15 +64,23 @@ public class EditableSceneImpl
     }
 
     // documentation inherited
-    public String[] getNeighborNames ()
+    public ArrayList getNeighborNames ()
     {
         return _emodel.neighborNames;
     }
 
     // documentation inherited
-    public void setNeighborNames (String[] neighborNames)
+    public void addNeighbor (String neighborName)
     {
-        _emodel.neighborNames = neighborNames;
+        if (!_emodel.neighborNames.contains(neighborName)) {
+            _emodel.neighborNames.add(neighborName);
+        }
+    }
+
+    // documentation inherited
+    public boolean removeNeighbor (String neighborName)
+    {
+        return _emodel.neighborNames.remove(neighborName);
     }
 
     // documentation inherited

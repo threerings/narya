@@ -1,5 +1,5 @@
 //
-// $Id: EditableSpotScene.java,v 1.3 2001/12/04 22:34:04 mdb Exp $
+// $Id: EditableSpotScene.java,v 1.4 2001/12/05 03:38:09 mdb Exp $
 
 package com.threerings.whirled.tools.spot;
 
@@ -30,12 +30,12 @@ public interface EditableSpotScene
     /**
      * Adds a location to this scene.
      */
-    public void addLocation (EditableLocation location);
+    public void addLocation (Location location);
 
     /**
      * Removes the specified location from the scene.
      */
-    public void removeLocation (EditableLocation location);
+    public void removeLocation (Location location);
 
     /**
      * Adds a portal to this scene (it should be added appropriately to
