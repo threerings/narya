@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.60 2003/03/10 18:29:54 mdb Exp $
+// $Id: DObject.java,v 1.61 2003/03/30 19:38:56 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -778,7 +778,7 @@ public class DObject implements Streamable
             // if we're on the authoritative server, we update the set
             // immediately
             boolean alreadyApplied = false;
-            if (_omgr.isManager(this)) {
+            if (_omgr != null && _omgr.isManager(this)) {
 //                 Log.info("Immediately adding [name=" + name +
 //                          ", entry=" + entry + "].");
                 set.add(entry);
@@ -803,7 +803,7 @@ public class DObject implements Streamable
             // if we're on the authoritative server, we update the set
             // immediately
             DSet.Entry oldEntry = null;
-            if (_omgr.isManager(this)) {
+            if (_omgr != null && _omgr.isManager(this)) {
 //                 Log.info("Immediately removing [name=" + name +
 //                          ", key=" + key + "].");
                 oldEntry = set.get(key);
@@ -828,7 +828,7 @@ public class DObject implements Streamable
             // if we're on the authoritative server, we update the set
             // immediately
             DSet.Entry oldEntry = null;
-            if (_omgr.isManager(this)) {
+            if (_omgr != null && _omgr.isManager(this)) {
 //                 Log.info("Immediately updating [name=" + name +
 //                          ", entry=" + entry + "].");
                 oldEntry = set.get(entry.getKey());
