@@ -1,5 +1,5 @@
 //
-// $Id: Connection.java,v 1.4 2001/06/02 01:30:37 mdb Exp $
+// $Id: Connection.java,v 1.5 2001/08/03 03:09:58 mdb Exp $
 
 package com.threerings.cocktail.cher.server.net;
 
@@ -128,6 +128,7 @@ public abstract class Connection implements NetEventHandler
         } catch (IOException ioe) {
             Log.warning("Error reading message from socket " +
                         "[socket=" + _socket + ", error=" + ioe + "].");
+            Log.logStackTrace(ioe);
             // let the connection manager know that something when awry
             _cmgr.connectionFailed(this, ioe);
         }
