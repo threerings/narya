@@ -85,6 +85,14 @@ public class GameManager extends PlaceManager
             };
             _tickInterval.schedule(TICK_DELAY, true);
         }
+
+        // configure our AIs
+        int aicount = (_gameconfig.ais == null) ? 0 : _gameconfig.ais.length;
+        for (int ii = 0; ii < aicount; ii++) {
+            if (_gameconfig.ais[ii] != null) {
+                setAI(ii, _gameconfig.ais[ii]);
+            }
+        }
     }
 
     /**
@@ -475,6 +483,19 @@ public class GameManager extends PlaceManager
         return !isPartyGame();
     }
 
+    /**
+     * Derived classes that need their AIs to be ticked periodically
+     * should override this method and return true. Many AIs can act
+     * entirely in reaction to game state changes and need no periodic
+     * ticking which is why ticking is disabled by default.
+     *
+     * @see #tickAIs
+     */
+    protected boolean needsAITick ()
+    {
+        return false;
+    }
+
     // documentation inherited
     protected void didShutdown ()
     {
@@ -688,7 +709,7 @@ public class GameManager extends PlaceManager
         }
 
         // and register ourselves to receive AI ticks
-        if (_AIs != null) {
+        if (_AIs != null && needsAITick()) {
             AIGameTicker.registerAIGame(this);
         }
     }
@@ -808,7 +829,7 @@ public class GameManager extends PlaceManager
     protected void gameDidEnd ()
     {
         // remove ourselves from the AI ticker, if applicable
-        if (_AIs != null) {
+        if (_AIs != null && needsAITick()) {
             AIGameTicker.unregisterAIGame(this);
         }
 

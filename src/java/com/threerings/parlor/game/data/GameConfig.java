@@ -52,6 +52,12 @@ public abstract class GameConfig extends PlaceConfig implements Cloneable
     /** Indicates whether or not this game is rated. */
     public boolean rated = true;
 
+    /** Configurations for AIs to be used in this game. Slots with real
+     * players should be null and slots with AIs should contain
+     * configuration for those AIs. A null array indicates no use of AIs
+     * at all. */
+    public GameAI[] ais;
+
     /**
      * Returns the message bundle identifier for the bundle that should be
      * used to translate the translatable strings used to describe the
