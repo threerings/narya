@@ -1,5 +1,5 @@
 //
-// $Id: CrowdClient.java,v 1.21 2002/12/05 16:39:21 mdb Exp $
+// $Id: CrowdClient.java,v 1.22 2002/12/09 17:19:04 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -36,10 +36,16 @@ public class CrowdClient extends PresentsClient
     {
         super.sessionWillResume();
 
-        // note that the user's active once more
-        BodyObject bobj = (BodyObject)_clobj;
-        BodyProvider.updateOccupantStatus(
-            bobj, bobj.location, OccupantInfo.ACTIVE);
+        if (_clobj != null) {
+            // note that the user's active once more
+            BodyObject bobj = (BodyObject)_clobj;
+            BodyProvider.updateOccupantStatus(
+                bobj, bobj.location, OccupantInfo.ACTIVE);
+
+        } else {
+            Log.warning("Session resumed but we have no client object!? " +
+                        "[client=" + this + "].");
+        }
     }
 
     // documentation inherited
