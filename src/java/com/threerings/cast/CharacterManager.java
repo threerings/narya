@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.12 2002/02/07 03:20:29 mdb Exp $
+// $Id: CharacterManager.java,v 1.13 2002/02/09 23:39:17 shaper Exp $
 
 package com.threerings.cast;
 
@@ -120,7 +120,7 @@ public class CharacterManager
 
         // next check the disk cache
         if (frames == null && _acache != null) {
-            frames = getActionFrames(descrip, action);
+            frames = _acache.getActionFrames(descrip, action);
             // cache the result in memory
             _frames.put(key, frames);
         }
