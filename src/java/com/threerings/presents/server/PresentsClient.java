@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.46 2002/12/04 02:47:03 mdb Exp $
+// $Id: PresentsClient.java,v 1.47 2002/12/05 16:20:45 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -342,6 +342,15 @@ public class PresentsClient
 
         // and clean up after ourselves
         sessionDidEnd();
+
+        // release (and destroy) our client object
+        _cmgr.releaseClientObject(_username);
+
+        // let the client manager know that we're audi 5000
+        _cmgr.clientDidEndSession(this);
+
+        // clear out the client object so that we know the session is over
+        _clobj = null;
     }
 
     /**
@@ -436,15 +445,6 @@ public class PresentsClient
         // about inability to forward the object destroyed event we're
         // about to generate
         clearSubscrips();
-
-        // release (and destroy) our client object
-        _cmgr.releaseClientObject(_username);
-
-        // let the client manager know that we're audi 5000
-        _cmgr.clientDidEndSession(this);
-
-        // clear out the client object so that we know the session is over
-        _clobj = null;
     }
 
     /**
@@ -507,10 +507,6 @@ public class PresentsClient
         // clear out our connection reference
         setConnection(null);
 
-        // we want to pass this to session connection closed even if we
-        // end up clearing it out before that method is actually run
-        final ClientObject clobj = _clobj;
-
         // clear out our subscriptions. we need to do this on the dobjmgr
         // thread. it is important that we do this *after* we clear out
         // our connection reference. once the connection ref is null, no
@@ -518,7 +514,7 @@ public class PresentsClient
         // queued up before the connection went away)
         PresentsServer.omgr.postUnit(new Runnable() {
             public void run () {
-                sessionConnectionClosed(clobj);
+                sessionConnectionClosed();
             }
         });
     }
@@ -533,7 +529,7 @@ public class PresentsClient
      * because {@link #_clobj} may have already been cleared out if this
      * is being called due to the termination of a session.
      */
-    protected void sessionConnectionClosed (ClientObject clobj)
+    protected void sessionConnectionClosed ()
     {
         // clear out our dobj subscriptions in case they weren't cleared
         // by a call to sessionDidEnd
