@@ -130,7 +130,7 @@ public class CardSprite extends OrientableImageSprite
     /**
      * Updates the mirage according to the current state.
      */
-    private void updateMirage ()
+    protected void updateMirage ()
     {
         setMirage(_facingUp ? _panel.getCardImage(_card) :
             _panel.getCardBackImage());

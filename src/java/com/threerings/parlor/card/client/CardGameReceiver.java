@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: ParlorReceiver.java 3099 2004-08-27 02:21:06Z mdb $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,55 +21,30 @@
 
 package com.threerings.parlor.card.client;
 
-import com.threerings.crowd.data.PlaceObject;
-
 import com.threerings.parlor.card.data.Card;
-import com.threerings.parlor.card.data.CardCodes;
 import com.threerings.parlor.card.data.Hand;
 
-import com.threerings.parlor.game.GameController;
+import com.threerings.presents.client.InvocationReceiver;
 
 /**
- * A controller class for card games.  Handles common functions like
- * accepting dealt hands.
+ * Defines, for the card game services, a set of notifications delivered
+ * asynchronously by the server to the client.
  */
-public abstract class CardGameController extends GameController
-    implements CardCodes, CardGameReceiver
+public interface CardGameReceiver extends InvocationReceiver
 {
-    // Documentation inherited.
-    public void willEnterPlace (PlaceObject plobj)
-    {
-        super.willEnterPlace(plobj);
-        
-        _ctx.getClient().getInvocationDirector().registerReceiver(
-            new CardGameDecoder(this));
-    }
-    
-    // Documentation inherited.
-    public void didLeavePlace (PlaceObject plobj)
-    {
-        super.didLeavePlace(plobj);
-        
-        _ctx.getClient().getInvocationDirector().unregisterReceiver(
-            CardGameDecoder.RECEIVER_CODE);
-    }
-    
     /**
-     * Called when the server deals the client a new hand of cards.  Default
-     * implementation does nothing.
+     * Dispatched to the client when it has received a hand of cards.
      *
-     * @param hand the hand dealt to the user
+     * @param hand the received hand
      */
-    public void receivedHand (Hand hand)
-    {}
+    public void receivedHand (Hand hand);
     
     /**
      * Dispatched to the client when it has received a set of cards
-     * from another player.  Default implementation does nothing.
+     * from another player.
      *
      * @param plidx the index of the player providing the cards
      * @param cards the cards received
      */
-    public void receivedCardsFromPlayer (int plidx, Card[] cards)
-    {}
+    public void receivedCardsFromPlayer (int plidx, Card[] cards);
 }

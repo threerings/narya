@@ -21,16 +21,23 @@
 
 package com.threerings.parlor.card.server;
 
+import com.threerings.crowd.data.BodyObject;
+
 import com.threerings.parlor.card.Log;
 
+import com.threerings.parlor.card.data.Card;
 import com.threerings.parlor.card.data.CardCodes;
+import com.threerings.parlor.card.data.CardGameMarshaller;
+import com.threerings.parlor.card.data.CardGameObject;
 import com.threerings.parlor.card.data.Deck;
 import com.threerings.parlor.card.data.Hand;
 
 import com.threerings.parlor.game.GameManager;
 
+import com.threerings.presents.client.InvocationService.ConfirmListener;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.MessageEvent;
+import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.PresentsServer;
 
 /**
@@ -38,8 +45,28 @@ import com.threerings.presents.server.PresentsServer;
  * hands of cards to all players.
  */
 public class CardGameManager extends GameManager
-                             implements CardCodes
+    implements CardCodes, CardGameProvider
 {
+    // Documentation inherited.
+    protected void didStartup ()
+    {
+        super.didStartup();
+        
+        _cardgameobj = (CardGameObject)_gameobj;
+        
+        _cardgameobj.setCardGameService(
+            (CardGameMarshaller)PresentsServer.invmgr.registerDispatcher(
+                new CardGameDispatcher(this), false));
+    }
+    
+    // Documentation inherited.
+    protected void didShutdown ()
+    {
+        super.didShutdown();
+        
+        PresentsServer.invmgr.clearDispatcher(_cardgameobj.cardGameService);
+    }
+    
     /**
      * Deals a hand of cards to the player at the specified index from
      * the given Deck.
@@ -58,7 +85,7 @@ public class CardGameManager extends GameManager
         else {
             Hand hand = deck.dealHand(size);
             
-            CardSender.sendHand(
+            CardGameSender.sendHand(
                 (ClientObject)PresentsServer.omgr.getObject(
                     _playerOids[playerIndex]), hand);
             
@@ -90,5 +117,82 @@ public class CardGameManager extends GameManager
             
             return hands;
         }
-    }    
+    }
+    
+    /**
+     * Gets the player index of the specified client object, or -1
+     * if the client object does not represent a player.
+     */
+    public int getPlayerIndex (ClientObject client)
+    {
+        int oid = client.getOid();
+        for (int i=0;i<_playerOids.length;i++) {
+            if (_playerOids[i] == oid) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    /**
+     * Checks whether or not it is acceptable to transfer the given set of
+     * cards from the first player to the second.  Default implementation
+     * simply returns true.
+     *
+     * @param fromPlayerIdx the index of the sending player
+     * @param toPlayerIdx the index of the receiving player
+     * @param cards the cards to send
+     * @return true if the transfer is should proceed, false otherwise
+     */
+    protected boolean acceptTransferBetweenPlayers(int fromPlayerIdx,
+        int toPlayerIdx, Card[] cards)
+    {
+        return true;
+    }
+    
+    /**
+     * Processes a request to send a set of cards from one player to another.
+     * Calls {@link #acceptTransferBetweenPlayers
+     * acceptTransferBetweenPlayers} to determine whether or not
+     * to process the transfer, and {@link #transferCardsBetweenPlayers 
+     * transferCardsBetweenPlayers} to
+     * perform the transfer if accepted.
+     *
+     * @param client the client object
+     * @param playerIndex the index of the player to receive the cards
+     * @param cards the cards to send
+     * @param cl a listener to notify on success/failure
+     */
+    public void sendCardsToPlayer (ClientObject client, int playerIndex,
+        Card[] cards, ConfirmListener cl)
+        throws InvocationException
+    {
+        int fromPlayerIdx = getPlayerIndex(client);
+        
+        if (acceptTransferBetweenPlayers(fromPlayerIdx, playerIndex, cards)) {
+            transferCardsBetweenPlayers(getPlayerIndex(client), playerIndex,
+                cards);
+            cl.requestProcessed();
+        } else {
+            throw new InvocationException("m.transfer_rejected");
+        }
+    }
+    
+    /**
+     * Sends a set of cards from one player to another.
+     *
+     * @param fromPlayerIdx the index of the player sending the cards
+     * @param toPlayerIdx the index of the player receiving the cards
+     * @param cards the cards to be exchanged
+     */
+    public void transferCardsBetweenPlayers (int fromPlayerIdx,
+        int toPlayerIdx, Card[] cards)
+    {
+        CardGameSender.sendCardsFromPlayer(
+            (ClientObject)PresentsServer.omgr.getObject(
+                _playerOids[toPlayerIdx]), fromPlayerIdx, cards);
+    }
+    
+    /** The card game object. */
+    protected CardGameObject _cardgameobj;
 }
