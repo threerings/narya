@@ -1,5 +1,5 @@
 //
-// $Id: IconManager.java,v 1.8 2004/10/28 17:49:02 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -29,10 +29,13 @@ import java.awt.Component;
 import java.awt.Graphics;
 
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.StringUtil;
+
+import com.threerings.media.image.ImageUtil;
 
 import com.threerings.media.tile.TileIcon;
 import com.threerings.media.tile.TileManager;
@@ -150,7 +153,8 @@ public class IconManager
                         ", index=" + index + ", error=" + e + "].");
         }
 
-        return _errorIcon;
+        // return an error icon
+        return new ImageIcon(ImageUtil.createErrorImage(32, 32));
     }
 
     /** The tile manager we use to load tilesets. */
@@ -166,20 +170,6 @@ public class IconManager
     /** A cache of our icon tilesets. */
     protected LRUHashMap _icons = new LRUHashMap(ICON_CACHE_SIZE);
     
-    /** The icon we return when we are unable to load a requested icon. */
-    protected Icon _errorIcon = new Icon() {
-        public void paintIcon (Component c, Graphics g, int x, int y) {
-            g.setColor(Color.black);
-            g.fillRect(x, y, 16, 16);
-        }
-        public int getIconWidth () {
-            return 16;
-        }
-        public int getIconHeight () {
-            return 16;
-        }
-    };
-
     /** The suffix we append to an icon set name to obtain the tileset
      * image path configuration parameter. */
     protected static final String PATH_SUFFIX = ".path";
