@@ -1,9 +1,11 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.17 2003/01/07 00:59:21 mdb Exp $
+// $Id: ComponentBundlerTask.java,v 1.18 2003/01/13 22:53:04 mdb Exp $
 
 package com.threerings.cast.bundle.tools;
 
 import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
 import java.io.BufferedInputStream;
@@ -42,6 +44,7 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 
 import com.threerings.media.tile.ImageProvider;
+import com.threerings.media.tile.SimpleCachingImageProvider;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TrimmedTileSet;
 import com.threerings.media.tile.tools.xml.SwissArmyTileSetRuleSet;
@@ -139,6 +142,14 @@ public class ComponentBundlerTask extends Task
             return;
         }
 
+        // create an image provider for loading our component images
+        ImageProvider improv = new SimpleCachingImageProvider() {
+            protected BufferedImage loadImage (String path)
+                throws IOException {
+                return ImageIO.read(new File(path));
+            }
+        };
+
         System.out.println("Generating " + _target.getPath() + "...");
 
         try {
@@ -189,12 +200,7 @@ public class ComponentBundlerTask extends Task
                     // tileset and stuff the new trimmed image into the
                     // jar file at the same time
                     aset.setImagePath(cfile.getPath());
-                    aset.setImageProvider(new ImageProvider() {
-                        public Image loadImage (String path)
-                            throws IOException {
-                            return ImageIO.read(new File(path));
-                        }
-                    });
+                    aset.setImageProvider(improv);
 
                     TrimmedTileSet tset = null;
                     try {
@@ -205,8 +211,8 @@ public class ComponentBundlerTask extends Task
                             "Failure trimming tileset " +
                             "[class=" + info[0] + ", name=" + info[1] +
                             ", action=" + info[2] +
-                            ", srcimg=" + aset.getImagePath() +
-                            ", error=" + t.getMessage() + "].");
+                            ", srcimg=" + aset.getImagePath() + "].");
+                        t.printStackTrace(System.err);
                     }
 
                     // then write our trimmed tileset to the jar file

@@ -1,8 +1,9 @@
 //
-// $Id: BundleUtil.java,v 1.3 2002/09/17 21:05:35 mdb Exp $
+// $Id: BundleUtil.java,v 1.4 2003/01/13 22:53:04 mdb Exp $
 
 package com.threerings.cast.bundle;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InvalidClassException;
@@ -42,9 +43,10 @@ public class BundleUtil
      * Attempts to load an object from the supplied resource bundle with
      * the specified path.
      *
-     * @return the unserialized object in question or null if no
-     * serialized object data was available at the specified path.
+     * @return the unserialized object in question.
      *
+     * @exception FileNotFoundException thrown if no object exists with
+     * the specified path.
      * @exception IOException thrown if an I/O error occurs while reading
      * the object from the bundle.
      */     
@@ -54,7 +56,7 @@ public class BundleUtil
         try {
             InputStream bin = bundle.getResource(path);
             if (bin == null) {
-                return null;
+                throw new FileNotFoundException(path);
             }
             return new ObjectInputStream(bin).readObject();
 

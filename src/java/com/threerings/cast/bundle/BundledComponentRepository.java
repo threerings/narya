@@ -1,9 +1,9 @@
 //
-// $Id: BundledComponentRepository.java,v 1.22 2003/01/08 04:09:02 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.23 2003/01/13 22:53:04 mdb Exp $
 
 package com.threerings.cast.bundle;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import javax.imageio.stream.FileImageInputStream;
+import javax.imageio.stream.ImageInputStream;
+
 import com.samskivert.io.NestableIOException;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.IntIntMap;
@@ -29,10 +32,12 @@ import com.threerings.resource.ResourceBundle;
 import com.threerings.resource.ResourceManager;
 
 import com.threerings.media.image.Colorization;
+import com.threerings.media.image.ImageDataProvider;
 import com.threerings.media.image.ImageManager;
 import com.threerings.media.image.ImageUtil;
+import com.threerings.media.image.Mirage;
 
-import com.threerings.media.tile.ImageProvider;
+import com.threerings.media.tile.IMImageProvider;
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileSet;
@@ -104,14 +109,17 @@ public class BundledComponentRepository
 
             // now go back and load up all of the component information
             for (int i = 0; i < rbundles.length; i++) {
-                HashIntMap comps = (HashIntMap)BundleUtil.loadObject(
-                    rbundles[i], BundleUtil.COMPONENTS_PATH);
-                if (comps == null) {
+                HashIntMap comps = null;
+                try {
+                    comps = (HashIntMap)BundleUtil.loadObject(
+                        rbundles[i], BundleUtil.COMPONENTS_PATH);
+                } catch (FileNotFoundException fnfe) {
                     continue;
                 }
 
                 // create a frame provider for this bundle
-                FrameProvider fprov = new ResourceBundleProvider(rbundles[i]);
+                FrameProvider fprov =
+                    new ResourceBundleProvider(_imgr, rbundles[i]);
 
                 // now create character component instances for each component
                 // in the serialized table
@@ -241,38 +249,30 @@ public class BundledComponentRepository
      * Instances of these provide images to our component action tilesets
      * and frames to our components.
      */
-    protected class ResourceBundleProvider
-        implements ImageProvider, FrameProvider
+    protected class ResourceBundleProvider extends IMImageProvider
+        implements ImageDataProvider, FrameProvider
     {
         /**
          * Constructs an instance that will obtain image data from the
          * specified resource bundle.
          */
-        public ResourceBundleProvider (ResourceBundle bundle)
+        public ResourceBundleProvider (ImageManager imgr, ResourceBundle bundle)
         {
+            super(imgr, (String)null);
+            _dprov = this;
             _bundle = bundle;
         }
 
-        // documentation inherited
-        public Image loadImage (String path)
-            throws IOException
+        // documentation inherited from interface
+        public String getIdent ()
         {
-            // obtain the image data from our resource bundle
-            InputStream imgin = null;
-            try {
-                imgin = _bundle.getResource(path);
-                if (imgin == null) {
-                    String errmsg = "No such image in resource bundle " +
-                        "[bundle=" + _bundle + ", path=" + path + "].";
-                    throw new FileNotFoundException(errmsg);
-                }
-                return _imgr.loadImage(imgin);
+            return "bcr:" + _bundle.getSource();
+        }
 
-            } finally {
-                if (imgin != null) {
-                    imgin.close();
-                }
-            }
+        // documentation inherited from interface
+        public ImageInputStream loadImageData (String path) throws IOException
+        {
+            return new FileImageInputStream(_bundle.getResourceFile(path));
         }
 
         // documentation inherited
@@ -295,8 +295,9 @@ public class BundledComponentRepository
 
             try {
                 TileSet aset = null;
-                aset = (TileSet)BundleUtil.loadObject(_bundle, path);
-                if (aset == null) {
+                try {
+                    aset = (TileSet)BundleUtil.loadObject(_bundle, path);
+                } catch (FileNotFoundException fnfe) {
                     Log.debug("Falling back to default [path=" + path + "].");
                     // try loading the default tileset
                     path = root + ActionSequence.DEFAULT_SEQUENCE +
@@ -375,7 +376,7 @@ public class BundledComponentRepository
                 }
 
                 // documentation inherited from interface
-                public void paintFrame (Graphics g, int index, int x, int y)
+                public void paintFrame (Graphics2D g, int index, int x, int y)
                 {
                     Tile tile = getTile(orient, index);
                     if (tile != null) {
@@ -395,8 +396,7 @@ public class BundledComponentRepository
                 {
                     Tile tile = getTile(orient, index);
                     if (tile instanceof TrimmedTile) {
-                        TrimmedTile ttile = (TrimmedTile)tile;
-                        bounds.setBounds(ttile.getTrimmedBounds());
+                        ((TrimmedTile)tile).getTrimmedBounds(bounds);
                     } else {
                         bounds.setBounds(
                             0, 0, tile.getWidth(), tile.getHeight());
@@ -420,8 +420,7 @@ public class BundledComponentRepository
         // documentation inherited from interface
         public ActionFrames cloneColorized (Colorization[] zations)
         {
-            return new TileSetFrameImage(
-                _set.cloneColorized(zations), _actseq);
+            return new TileSetFrameImage(_set.clone(zations), _actseq);
         }
 
         // documentation inherited from interface

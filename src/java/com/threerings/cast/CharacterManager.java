@@ -1,17 +1,19 @@
 //
-// $Id: CharacterManager.java,v 1.29 2003/01/08 04:09:02 mdb Exp $
+// $Id: CharacterManager.java,v 1.30 2003/01/13 22:53:04 mdb Exp $
 
 package com.threerings.cast;
 
 import java.util.Iterator;
 import java.util.HashMap;
 
+import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Throttle;
 import com.samskivert.util.Tuple;
 
 import com.threerings.media.image.Colorization;
+import com.threerings.media.image.ImageManager;
 import com.threerings.util.DirectionCodes;
 
 import com.threerings.cast.CompositedActionFrames.ComponentFrames;
@@ -28,9 +30,10 @@ public class CharacterManager
     /**
      * Constructs the character manager.
      */
-    public CharacterManager (ComponentRepository crepo)
+    public CharacterManager (ImageManager imgr, ComponentRepository crepo)
     {
-        // keep this around
+        // keep these around
+        _imgr = imgr;
         _crepo = crepo;
 
         // populate our actions table
@@ -40,8 +43,12 @@ public class CharacterManager
             _actions.put(action.name, action);
         }
 
-        // TODO
-        _frames.setTracking(true);
+        // create our in-memory action cache
+        int acsize = ConfigUtil.getSystemProperty(
+            "narya.cast.action_cache_size", DEFAULT_ACTION_CACHE_SIZE);
+        Log.debug("Creating action cache [size=" + acsize + "].");
+        _frames = new LRUHashMap(acsize);
+        _frames.setTracking(true); // TODO
     }
 
     /**
@@ -247,8 +254,11 @@ public class CharacterManager
 
         // use those to create an entity that will lazily composite things
         // together as they are needed
-        return new CompositedActionFrames(action, sources);
+        return new CompositedActionFrames(_imgr, action, sources);
     }
+
+    /** The image manager with whom we interact. */
+    protected ImageManager _imgr;
 
     /** The component repository. */
     protected ComponentRepository _crepo;
@@ -257,7 +267,7 @@ public class CharacterManager
     protected HashMap _actions = new HashMap();
 
     /** A cache of composited animation frames. */
-    protected LRUHashMap _frames = new LRUHashMap(ACTION_CACHE_SIZE);
+    protected LRUHashMap _frames;
 
     /** The character class to be created. */
     protected Class _charClass = CharacterSprite.class;
@@ -270,5 +280,5 @@ public class CharacterManager
 
     /** The number of actions to cache before we start clearing them
      * out. */
-    protected static final int ACTION_CACHE_SIZE = 30;
+    protected static final int DEFAULT_ACTION_CACHE_SIZE = 30;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: SpritePanel.java,v 1.14 2002/06/19 23:24:04 mdb Exp $
+// $Id: SpritePanel.java,v 1.15 2003/01/13 22:53:04 mdb Exp $
 
 package com.threerings.cast.builder;
 
@@ -87,7 +87,7 @@ public class SpritePanel extends JPanel
      */
     protected void setSprite (CharacterSprite sprite)
     {
-        sprite.setActionSequence(StandardActions.STANDING);
+        sprite.setActionSequence(StandardActions.STANDING, false);
         sprite.setOrientation(WEST);
         _sprite = sprite;
         centerSprite();

@@ -1,10 +1,11 @@
 //
-// $Id: CompositedActionFrames.java,v 1.11 2003/01/08 04:09:02 mdb Exp $
+// $Id: CompositedActionFrames.java,v 1.12 2003/01/13 22:53:04 mdb Exp $
 
 package com.threerings.cast;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -12,7 +13,9 @@ import java.util.Comparator;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.image.Colorization;
-import com.threerings.media.image.ImageUtil;
+import com.threerings.media.image.ImageManager;
+import com.threerings.media.image.Mirage;
+import com.threerings.media.image.VolatileMirage;
 import com.threerings.media.util.MultiFrameImage;
 
 import com.threerings.cast.CharacterComponent;
@@ -23,7 +26,7 @@ import com.threerings.util.DirectionCodes;
  * to lazily create composited character frames when they are requested.
  */
 public class CompositedActionFrames
-    implements ActionFrames, DirectionCodes, Comparator
+    implements ActionFrames, DirectionCodes
 {
     /** Used to associate a {@link CharacterComponent} with its {@link
      * ActionFrames} for a particular action. */
@@ -43,7 +46,8 @@ public class CompositedActionFrames
      * source frames and colorization configuration. The actual component
      * frame images will not be composited until they are requested.
      */
-    public CompositedActionFrames (String action, ComponentFrames[] sources)
+    public CompositedActionFrames (ImageManager imgr, String action,
+                                   ComponentFrames[] sources)
     {
         // sanity check
         if (sources == null || sources.length == 0) {
@@ -51,6 +55,7 @@ public class CompositedActionFrames
                 "frames! [sources=" + StringUtil.toString(sources) + "].";
             throw new RuntimeException(errmsg);
         }
+        _imgr = imgr;
         _sources = sources;
         _action = action;
 
@@ -59,8 +64,7 @@ public class CompositedActionFrames
         // the counts from the first source and orientation
         _orientCount = _sources[0].frames.getOrientationCount();
         _frameCount = _sources[0].frames.getFrames(NORTH).getFrameCount();
-        _images = new Image[_orientCount][_frameCount];
-        _bounds = new Rectangle[_orientCount][_frameCount];
+        _images = new CompositedMirage[_orientCount][_frameCount];
     }
 
     // documentation inherited from interface
@@ -81,29 +85,29 @@ public class CompositedActionFrames
             // documentation inherited from interface
             public int getWidth (int index) {
                 // composite the frame if necessary
-                if (_bounds[orient][index] == null) {
+                if (_images[orient][index] == null) {
                     getFrame(orient, index);
                 }
-                return _bounds[orient][index].width;
+                return _images[orient][index].getWidth();
             }
 
             // documentation inherited from interface
             public int getHeight (int index) {
                 // composite the frame if necessary
-                if (_bounds[orient][index] == null) {
+                if (_images[orient][index] == null) {
                     getFrame(orient, index);
                 }
-                return _bounds[orient][index].height;
+                return _images[orient][index].getHeight();
             }
 
             // documentation inherited from interface
-            public void paintFrame (Graphics g, int index, int x, int y) {
-                g.drawImage(getFrame(orient, index), x, y, null);
+            public void paintFrame (Graphics2D g, int index, int x, int y) {
+                getFrame(orient, index).paint(g, x, y);
             }
 
             // documentation inherited from interface
             public boolean hitTest (int index, int x, int y) {
-                return ImageUtil.hitTest(getFrame(orient, index), x, y);
+                return getFrame(orient, index).hitTest(x, y);
             }
 
             // documentation inherited from interface
@@ -116,13 +120,13 @@ public class CompositedActionFrames
     // documentation inherited from interface
     public int getXOrigin (int orient, int frameIdx)
     {
-        return _bounds[orient][frameIdx].x;
+        return _images[orient][frameIdx].getXOrigin();
     }
 
     // documentation inherited from interface
     public int getYOrigin (int orient, int frameIdx)
     {
-        return _bounds[orient][frameIdx].y;
+        return _images[orient][frameIdx].getYOrigin();
     }
 
     // documentation inherited from interface
@@ -137,119 +141,134 @@ public class CompositedActionFrames
         long size = 0;
         for (int orient = 0; orient < _orientCount; orient++) {
             for (int ii = 0; ii < _images[orient].length; ii++) {
-                Image image = _images[orient][ii];
-                if (image != null) {
-                    size += ImageUtil.getEstimatedMemoryUsage(image);
+                Mirage mirage = _images[orient][ii];
+                if (mirage == null) {
+                    continue;
                 }
+                // TODO: do the right thing here
+                size += (mirage.getWidth() * mirage.getHeight() * 4);
             }
         }
         return size;
     }
 
-    // documentation inherited from interface
-    public int compare (Object o1, Object o2)
-    {
-        ComponentFrames cf1 = (ComponentFrames)o1, cf2 = (ComponentFrames)o2;
-        return (cf1.ccomp.componentClass.getRenderPriority(_action, _sorient) -
-                cf2.ccomp.componentClass.getRenderPriority(_action, _sorient));
-    }
-
     // documentation inherited
-    protected Image getFrame (int orient, int index)
+    protected Mirage getFrame (int orient, int index)
     {
-        // create the arrays for this orientation if we haven't yet
-        if (_images[orient] == null) {
-            _images[orient] = new Image[_frameCount];
-            _bounds[orient] = new Rectangle[_frameCount];
-        }
-
         // create the frame if we don't already have it
         if (_images[orient][index] == null) {
-//             Log.info("Compositing [orient=" + orient +
+//             Log.info("Compositing [action=" + _action + ", orient=" + orient +
 //                      ", index=" + index + "].");
-            _images[orient][index] = compositeFrames(orient, index);
+            _images[orient][index] = new CompositedMirage(_imgr, orient, index);
         }
 
         return _images[orient][index];
     }
 
     /**
-     * Renders and returns the <code>index</code>th image from each of the
-     * supplied source multi-frame images to a newly created buffered
-     * image. This is used to render a single frame of a composited
-     * character action, and accordingly, the source image array should be
-     * already sorted into the proper rendering order.
+     * Used to create our mirage using the source action frame images.
      */
-    protected Image compositeFrames (int orient, int index)
+    protected class CompositedMirage extends VolatileMirage
+        implements Comparator
     {
-        int scount = _sources.length;
-//         long start = System.currentTimeMillis();
+        public CompositedMirage (ImageManager imgr, int orient, int index)
+        {
+            super(imgr, new Rectangle(0, 0, 0, 0));
 
-//         // DEBUG
-//         int width = 0, height = 0;
+            // keep these for later
+            _orient = orient;
+            _index = index;
 
-        // sort the sources appropriately for this orientation
-        _sorient = orient;
-        Arrays.sort(_sources, this);
+            // first we need to determine the bounds of the rectangle that
+            // will enclose all of our various components
+            Rectangle tbounds = new Rectangle();
+            int scount = _sources.length;
+            for (int ii = 0; ii < scount; ii++) {
+                TrimmedMultiFrameImage source =
+                    _sources[ii].frames.getFrames(orient);
+                source.getTrimmedBounds(index, tbounds);
 
-        // first we need to determine the bounds of the rectangle that
-        // will enclose all of our various components
-        Rectangle tbounds = new Rectangle();
-        Rectangle bounds = _bounds[orient][index] = new Rectangle(0, 0, 0, 0);
-        for (int ii = 0; ii < scount; ii++) {
-            TrimmedMultiFrameImage source =
-                _sources[ii].frames.getFrames(orient);
-            source.getTrimmedBounds(index, tbounds);
-            // the first one defines our initial bounds
-            if (bounds.width == 0 && bounds.height == 0) {
-                bounds.setBounds(tbounds);
-            } else {
-                bounds.add(tbounds);
+                // the first one defines our initial bounds
+                if (_bounds.width == 0 && _bounds.height == 0) {
+                    _bounds.setBounds(tbounds);
+                } else {
+                    _bounds.add(tbounds);
+                }
             }
 
-//             // DEBUG
-//             for (int ff = 0; ff < _frameCount; ff++) {
-//                 width = Math.max(width, source.getWidth(ff));
-//                 height = Math.max(height, source.getHeight(ff));
-//             }
+            // compute our new origin
+            _origin.x = (_sources[0].frames.getXOrigin(orient, index) -
+                         _bounds.x);
+            _origin.y = (_sources[0].frames.getYOrigin(orient, index) -
+                         _bounds.y);
+//             Log.info("New origin [x=" + _origin.x + ", y=" + _origin.y + "].");
+
+            // render our volatile image for the first time
+            createVolatileImage();
         }
 
-        // create the image now that we know how big it should be
-        Image dest = ImageUtil.createImage(bounds.width, bounds.height);
-        Graphics g = dest.getGraphics();
-
-        // now render each of the components into a composited frame
-        for (int ii = 0; ii < scount; ii++) {
-            TrimmedMultiFrameImage source =
-                _sources[ii].frames.getFrames(orient);
-            source.getTrimmedBounds(index, tbounds);
-
-            // render this frame for this particular action for this
-            // component into the target image
-            source.paintFrame(g, index, -bounds.x, -bounds.y);
+        public int getXOrigin ()
+        {
+            return _origin.x;
         }
 
-        // clean up after ourselves
-        if (g != null) {
-            g.dispose();
+        public int getYOrigin ()
+        {
+            return _origin.y;
         }
 
-//         Log.info("Composited [orient=" + orient + ", index=" + index +
-//                  ", tbounds=" + StringUtil.toString(bounds) +
-//                  ", width=" + width + ", height=" + height + "].");
+        // documentation inherited from interface
+        public int compare (Object o1, Object o2)
+        {
+            ComponentFrames cf1 = (ComponentFrames)o1,
+                cf2 = (ComponentFrames)o2;
+            return (cf1.ccomp.componentClass.getRenderPriority(
+                        _action, _sorient) -
+                    cf2.ccomp.componentClass.getRenderPriority(
+                        _action, _sorient));
+        }
 
-        // keep track of our new origin
-        bounds.x = (_sources[0].frames.getXOrigin(orient, index) - bounds.x);
-        bounds.y = (_sources[0].frames.getYOrigin(orient, index) - bounds.y);
+        // documentation inherited
+        protected void refreshVolatileImage ()
+        {
+//             long start = System.currentTimeMillis();
 
-//         Log.info("New origin [x=" + bounds.x + ", y=" + bounds.y + "].");
+            // sort the sources appropriately for this orientation
+            _sorient = _orient;
+            Arrays.sort(_sources, this);
 
-//         long now = System.currentTimeMillis();
-//         Log.info("Composited " + sources.length + " frames in " +
-//                  (now-start) + " millis.");
+            // now render each of the components into a composited frame
+            int scount = _sources.length;
+            Graphics2D g = (Graphics2D)_image.getGraphics();
+            try {
+                for (int ii = 0; ii < scount; ii++) {
+                    TrimmedMultiFrameImage source =
+                        _sources[ii].frames.getFrames(_orient);
+                    source.paintFrame(g, _index, -_bounds.x, -_bounds.y);
+                }
+            } finally {
+                // clean up after ourselves
+                if (g != null) {
+                    g.dispose();
+                }
+            }
 
-        return dest;
+//             Log.info("Composited [orient=" + _orient + ", index=" + _index +
+//                      ", tbounds=" + StringUtil.toString(_bounds) + "].");
+
+//             long now = System.currentTimeMillis();
+//             Log.info("Composited " + scount + " frames in " +
+//                      (now-start) + " millis.");
+        }
+
+        protected int _orient;
+        protected int _index;
+        protected Point _origin = new Point();
     }
+
+    /** The image manager from whom we can obtain prepared volatile images
+     * onto which to render our composited actions. */
+    protected ImageManager _imgr;
 
     /** The action for which we're compositing frames. */
     protected String _action;
@@ -267,8 +286,5 @@ public class CompositedActionFrames
     protected ComponentFrames[] _sources;
 
     /** The frame images. */
-    protected Image[][] _images;
-
-    /** Used to track our trimmed frame bounds. */
-    protected Rectangle[][] _bounds;
+    protected CompositedMirage[][] _images;
 }
