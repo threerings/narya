@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.15 2001/10/12 20:26:00 mdb Exp $
+// $Id: InvocationDirector.java,v 1.16 2001/11/27 21:37:58 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -119,6 +119,16 @@ public class InvocationDirector
     public void registerReceiver (String module, InvocationReceiver receiver)
     {
         _receivers.put(module, receiver);
+    }
+
+    /**
+     * Removes the registration for the supplied invocation receiver
+     * instance as the handler for invocation notifications for the
+     * specified module.
+     */
+    public void unregisterReceiver (String module)
+    {
+        _receivers.remove(module);
     }
 
     // documentation inherited
