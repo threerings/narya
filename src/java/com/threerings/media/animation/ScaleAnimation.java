@@ -122,6 +122,11 @@ public class ScaleAnimation extends Animation
             _scale = scale;
             invalidate();
         }
+
+        // Check if the animation completed
+        if (weight >= 1.0f) {
+            _finished = true;
+        }
     }
 
     // documentation inherited
