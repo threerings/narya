@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.61 2004/08/27 02:20:06 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.62 2004/08/30 22:08:15 ray Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -1595,9 +1595,6 @@ public class MisoScenePanel extends VirtualMediaPanel
 
     /** The scene model to be displayed. */
     protected MisoSceneModel _model;
-
-    /** Used to colorize object tiles in this scene. */
-    protected TileSet.Colorizer _rizer;
 
     /** Tracks the size at which we were last "rethunk". */
     protected Dimension _rsize = new Dimension();
