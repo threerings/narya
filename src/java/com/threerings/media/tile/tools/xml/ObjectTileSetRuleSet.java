@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSetRuleSet.java,v 1.7 2003/02/04 02:59:47 mdb Exp $
+// $Id: ObjectTileSetRuleSet.java,v 1.8 2003/02/11 06:18:59 mdb Exp $
 
 package com.threerings.media.tile.tools.xml;
 
@@ -11,6 +11,7 @@ import org.apache.commons.digester.Digester;
 
 import com.samskivert.util.StringUtil;
 import com.samskivert.xml.CallMethodSpecialRule;
+import com.threerings.util.DirectionUtil;
 
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.ObjectTileSet;
@@ -133,8 +134,20 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
             new CallMethodSpecialRule(digester) {
                 public void parseAndSet (String bodyText, Object target)
                 {
-                    byte[] sorients = StringUtil.parseByteArray(bodyText);
-                    ((ObjectTileSet)target).setSpotOrients(sorients);
+                    ObjectTileSet set = (ObjectTileSet)target;
+                    String[] ostrs = StringUtil.parseStringArray(bodyText);
+                    byte[] sorients = new byte[ostrs.length];
+                    for (int ii = 0; ii < sorients.length; ii++) {
+                        sorients[ii] = (byte)
+                            DirectionUtil.fromShortString(ostrs[ii]);
+                        if (sorients[ii] == DirectionUtil.NONE) {
+                            System.err.println("Invalid spot orientation " +
+                                               "[set=" + set.getName() +
+                                               ", idx=" + ii +
+                                               ", orient=" + ostrs[ii] + "].");
+                        }
+                    }
+                    set.setSpotOrients(sorients);
                 }
             });
     }
