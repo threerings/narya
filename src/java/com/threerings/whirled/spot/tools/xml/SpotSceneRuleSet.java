@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneRuleSet.java,v 1.2 2001/12/05 03:38:09 mdb Exp $
+// $Id: SpotSceneRuleSet.java,v 1.3 2001/12/05 03:40:32 mdb Exp $
 
 package com.threerings.whirled.tools.spot.xml;
 
@@ -43,7 +43,10 @@ public class SpotSceneRuleSet extends SceneRuleSet
         digester.addSetNext(_prefix + "/portal", "addPortal", epclass);
     }
 
-    // documentation inherited
+    /**
+     * This indicates the class (which should implement {@link
+     * EditableSpotScene}) to be instantiated during the parsing process.
+     */
     protected Class getSceneClass ()
     {
         return EditableSpotSceneImpl.class;
