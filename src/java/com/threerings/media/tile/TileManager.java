@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.29 2003/02/12 05:32:54 mdb Exp $
+// $Id: TileManager.java,v 1.30 2003/02/28 02:03:43 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -174,6 +174,9 @@ public class TileManager
             TileSet set = (TileSet)_byname.get(name);
             if (set == null) {
                 set = _setrep.getTileSet(name);
+                if (set == null) {
+                    throw new NoSuchTileSetException(name);
+                }
                 _byname.put(name, set);
             }
             return set;
