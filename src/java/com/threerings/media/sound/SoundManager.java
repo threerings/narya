@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.3 2002/07/26 00:16:47 ray Exp $
+// $Id: SoundManager.java,v 1.4 2002/07/26 16:00:19 mdb Exp $
 
 package com.threerings.media;
 
@@ -49,7 +49,7 @@ public class SoundManager
         // create a thread to manage the sound queue
         _player = new Thread() {
             public void run () {
-                while (Thread.currentThread() == _player) {
+                while (amRunning()) {
                     // wait for a sound
                     _clips.waitForItem();
 
@@ -69,10 +69,19 @@ public class SoundManager
     /**
      * Shut the damn thing off.
      */
-    public void shutdown ()
+    public synchronized void shutdown ()
     {
         _player = null;
         _clips.append(this); // signal death
+    }
+
+    /**
+     * Used by the sound playing thread to determine whether or not to
+     * shut down.
+     */
+    protected synchronized boolean amRunning ()
+    {
+        return (_player == Thread.currentThread());
     }
 
     /**
