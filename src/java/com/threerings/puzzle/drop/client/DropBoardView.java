@@ -1,5 +1,5 @@
 //
-// $Id: DropBoardView.java,v 1.7 2004/09/16 00:08:28 mdb Exp $
+// $Id: DropBoardView.java,v 1.8 2004/10/20 02:23:36 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -197,7 +197,13 @@ public abstract class DropBoardView extends PuzzleBoardView
         }
         Sprite sprite = createPieceSprite(piece, sx, sy);
         if (sprite != null) {
+            // position the piece properly to start
+            Point start = new Point();
+            getPiecePosition(sx, sy, start);
+            sprite.setLocation(start.x, start.y);
+            // now add it to the view
             addSprite(sprite);
+            // and potentially move it into place
             movePiece(sprite, sx, sy, tx, ty, duration);
         }
     }
