@@ -1,5 +1,5 @@
 //
-// $Id: CrowdClient.java,v 1.25 2004/08/27 02:12:34 mdb Exp $
+// $Id: CrowdClient.java,v 1.26 2004/10/01 22:04:18 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -75,6 +75,10 @@ public class CrowdClient extends PresentsClient
         // clear out our location so that anyone listening for such things
         // will know that we've left
         clearLocation(body);
+
+        // reset our status in case this object remains around until they
+        // start their next session (which could happen very soon)
+        BodyProvider.updateOccupantStatus(body, -1, OccupantInfo.ACTIVE);
 
         // clear our chat history
         if (body != null) {
