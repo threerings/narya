@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameControllerDelegate.java,v 1.1 2002/02/12 06:57:30 mdb Exp $
+// $Id: TurnGameControllerDelegate.java,v 1.2 2002/02/13 03:21:28 mdb Exp $
 
 package com.threerings.parlor.turn;
 
@@ -7,9 +7,12 @@ import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.AttributeChangeListener;
 
 import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.PlaceConfig;
+import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
 
 import com.threerings.parlor.game.GameController;
+import com.threerings.parlor.game.GameControllerDelegate;
 import com.threerings.parlor.game.GameObject;
 
 /**
@@ -20,7 +23,7 @@ import com.threerings.parlor.game.GameObject;
  * implement the {@link TurnGameController} interface so that it can be
  * notified when turn-based game events take place.
  */
-public class TurnGameControllerDelegate
+public class TurnGameControllerDelegate extends GameControllerDelegate
     implements AttributeChangeListener
 {
     /**
@@ -30,15 +33,10 @@ public class TurnGameControllerDelegate
      */
     public TurnGameControllerDelegate (TurnGameController tgctrl)
     {
-        _tgctrl = tgctrl;
-    }
+        super((GameController)tgctrl);
 
-    /**
-     * This must be called from {@link GameController#init}.
-     */
-    public void init (CrowdContext ctx)
-    {
-        _ctx = ctx;
+        // keep this around for later
+        _tgctrl = tgctrl;
     }
 
     /**
@@ -52,27 +50,29 @@ public class TurnGameControllerDelegate
                 _turnGame.getTurnHolder().equals(self.username));
     }
 
-    /**
-     * This must be called from {@link GameController#willEnterPlace}.
-     */
-    public void willEnterPlace (GameObject gobj)
+    // documentation inherited
+    public void init (CrowdContext ctx, PlaceConfig config)
+    {
+        _ctx = ctx;
+    }
+
+    // documentation inherited
+    public void willEnterPlace (PlaceObject plobj)
     {
         // get a casted reference to the object
-        _gameObj = gobj;
-        _turnGame = (TurnGameObject)gobj;
+        _gameObj = (GameObject)plobj;
+        _turnGame = (TurnGameObject)plobj;
         _thfield = _turnGame.getTurnHolderFieldName();
 
         // and add ourselves as a listener
-        gobj.addListener(this);
+        plobj.addListener(this);
     }
 
-    /**
-     * This must be called from {@link GameController#didLeavePlace}.
-     */
-    public void didLeavePlace (GameObject gobj)
+    // documentation inherited
+    public void didLeavePlace (PlaceObject plobj)
     {
         // remove our listenership
-        gobj.removeListener(this);
+        plobj.removeListener(this);
 
         // clean up
         _turnGame = null;
@@ -87,11 +87,11 @@ public class TurnGameControllerDelegate
         }
     }
 
-    /** A reference to our client context. */
-    protected CrowdContext _ctx;
-
     /** The turn game controller for whom we are delegating. */
     protected TurnGameController _tgctrl;
+
+    /** A reference to our client context. */
+    protected CrowdContext _ctx;
 
     /** A reference to our game object. */
     protected GameObject _gameObj;

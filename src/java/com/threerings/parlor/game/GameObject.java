@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.java,v 1.1 2002/02/08 23:55:25 mdb Exp $
+// $Id: GameObject.java,v 1.2 2002/02/13 03:21:28 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -32,13 +32,13 @@ public class GameObject extends PlaceObject
     public static final int AWAITING_PLAYERS = 0;
 
     /** A game state constant indicating that the game is in play. */
-    public static final int IN_PLAY = 1;
+    public static final int IN_PLAY = AWAITING_PLAYERS+1;
 
     /** A game state constant indicating that the game ended normally. */
-    public static final int GAME_OVER = 2;
+    public static final int GAME_OVER = IN_PLAY+2;
 
     /** A game state constant indicating that the game was cancelled. */
-    public static final int CANCELLED = 3;
+    public static final int CANCELLED = GAME_OVER+3;
 
     /** The game state, one of {@link #AWAITING_PLAYERS}, {@link #IN_PLAY},
      * {@link #GAME_OVER}, or {@link #CANCELLED}. */

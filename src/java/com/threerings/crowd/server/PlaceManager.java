@@ -1,8 +1,9 @@
 //
-// $Id: PlaceManager.java,v 1.25 2001/12/14 00:11:17 mdb Exp $
+// $Id: PlaceManager.java,v 1.26 2002/02/13 03:21:28 mdb Exp $
 
 package com.threerings.crowd.server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -16,7 +17,10 @@ import com.threerings.presents.dobj.ObjectRemovedEvent;
 import com.threerings.presents.dobj.OidListListener;
 
 import com.threerings.crowd.Log;
-import com.threerings.crowd.data.*;
+import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.OccupantInfo;
+import com.threerings.crowd.data.PlaceConfig;
+import com.threerings.crowd.data.PlaceObject;
 
 /**
  * The place manager is the server-side entity that handles all
@@ -101,6 +105,13 @@ public class PlaceManager
         _config = config;
         _omgr = omgr;
 
+        // initialize our delegates
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                delegate.didInit(_config);
+            }
+        });
+
         // let derived classes do initialization stuff
         didInit();
     }
@@ -131,6 +142,13 @@ public class PlaceManager
         // we'll need to hear about place object events
         plobj.addListener(this);
 
+        // let our delegates know that we've started up
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                delegate.didStartup(_plobj);
+            }
+        });
+
         // let our derived classes do their thang
         didStartup();
     }
@@ -153,6 +171,16 @@ public class PlaceManager
     {
         // destroy the object and everything will follow from that
         CrowdServer.omgr.destroyObject(_plobj.getOid());
+
+        // let our delegates know that we've shut down
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                delegate.didShutdown();
+            }
+        });
+
+        // let our derived classes do their thang
+        didShutdown();
     }
 
     /**
@@ -217,16 +245,23 @@ public class PlaceManager
     /**
      * Called when a body object enters this place.
      */
-    protected void bodyEntered (int bodyOid)
+    protected void bodyEntered (final int bodyOid)
     {
         Log.info("Body entered [ploid=" + _plobj.getOid() +
                  ", oid=" + bodyOid + "].");
+
+        // let our delegates know what's up
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                delegate.bodyEntered(bodyOid);
+            }
+        });
     }
 
     /**
      * Called when a body object leaves this place.
      */
-    protected void bodyLeft (int bodyOid)
+    protected void bodyLeft (final int bodyOid)
     {
         Log.info("Body left [ploid=" + _plobj.getOid() +
                  ", oid=" + bodyOid + "].");
@@ -238,6 +273,13 @@ public class PlaceManager
         if (_plobj.occupantInfo.containsKey(key)) {
             _plobj.removeFromOccupantInfo(key);
         }
+
+        // let our delegates know what's up
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                delegate.bodyLeft(bodyOid);
+            }
+        });
 
         // if that leaves us with zero occupants, maybe do something
         if (_plobj.occupants.size() == 0) {
@@ -253,6 +295,12 @@ public class PlaceManager
      */
     protected void placeBecameEmpty ()
     {
+        // let our delegates know what's up
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                delegate.placeBecameEmpty();
+            }
+        });
     }
 
     /**
@@ -356,6 +404,38 @@ public class PlaceManager
         buf.append(", config=").append(_config);
     }
 
+    /**
+     * Adds the supplied delegate to the list for this manager.
+     */
+    protected void addDelegate (PlaceManagerDelegate delegate)
+    {
+        if (_delegates == null) {
+            _delegates = new ArrayList();
+        }
+        _delegates.add(delegate);
+    }
+
+    /**
+     * Used to call methods in delegates.
+     */
+    protected static interface DelegateOp
+    {
+        public void apply (PlaceManagerDelegate delegate);
+    }
+
+    /**
+     * Applies the supplied operation to the registered delegates.
+     */
+    protected void applyToDelegates (DelegateOp op)
+    {
+        if (_delegates != null) {
+            int dcount = _delegates.size();
+            for (int i = 0; i < dcount; i++) {
+                op.apply((PlaceManagerDelegate)_delegates.get(i));
+            }
+        }
+    }
+
     /** A distributed object manager for doing dobj stuff. */
     protected DObjectManager _omgr;
 
@@ -370,4 +450,7 @@ public class PlaceManager
 
     /** Message handlers are used to process message events. */
     protected HashMap _msghandlers;
+
+    /** A list of the delegates in use by this manager. */
+    protected ArrayList _delegates;
 }

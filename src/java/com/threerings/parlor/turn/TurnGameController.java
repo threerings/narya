@@ -1,13 +1,15 @@
 //
-// $Id: TurnGameController.java,v 1.3 2002/02/12 06:57:30 mdb Exp $
+// $Id: TurnGameController.java,v 1.4 2002/02/13 03:21:28 mdb Exp $
 
 package com.threerings.parlor.turn;
+
+import com.threerings.parlor.game.GameController;
 
 /**
  * Games that wish to make use of the turn game services should have their
  * controller implement this interface and create an instance of {@link
- * TurnGameControllerDelegate}, calling out to it at the appropriate
- * times.
+ * TurnGameControllerDelegate} which should be passed to {@link
+ * GameController#addDelegate}.
  */
 public interface TurnGameController
 {

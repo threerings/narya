@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.8 2001/10/12 00:03:03 mdb Exp $
+// $Id: GameController.java,v 1.9 2002/02/13 03:21:28 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -8,7 +8,9 @@ import java.awt.event.ActionEvent;
 import com.samskivert.swing.Controller;
 
 import com.threerings.presents.dobj.*;
+
 import com.threerings.crowd.client.PlaceController;
+import com.threerings.crowd.client.PlaceControllerDelegate;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
@@ -26,8 +28,7 @@ import com.threerings.parlor.util.ParlorContext;
  * subscription to the game object and dispatch of commands and
  * distributed object events.
  */
-public abstract class GameController
-    extends PlaceController
+public abstract class GameController extends PlaceController
     implements AttributeChangeListener, GameCodes
 {
     /**
@@ -127,6 +128,12 @@ public abstract class GameController
      */
     protected void gameDidStart ()
     {
+        // let our delegates do their business
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceControllerDelegate delegate) {
+                ((GameControllerDelegate)delegate).gameDidStart();
+            }
+        });
     }
 
     /**
@@ -136,6 +143,12 @@ public abstract class GameController
      */
     protected void gameDidEnd ()
     {
+        // let our delegates do their business
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceControllerDelegate delegate) {
+                ((GameControllerDelegate)delegate).gameDidEnd();
+            }
+        });
     }
 
     /**
@@ -143,6 +156,12 @@ public abstract class GameController
      */
     protected void gameWasCancelled ()
     {
+        // let our delegates do their business
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceControllerDelegate delegate) {
+                ((GameControllerDelegate)delegate).gameWasCancelled();
+            }
+        });
     }
 
     /** A reference to the active parlor context. */

@@ -1,31 +1,24 @@
 //
-// $Id: TurnGameManagerDelegate.java,v 1.3 2002/02/12 07:17:33 mdb Exp $
+// $Id: TurnGameManagerDelegate.java,v 1.4 2002/02/13 03:21:28 mdb Exp $
 
 package com.threerings.parlor.turn;
 
+import com.threerings.crowd.data.PlaceObject;
+
 import com.threerings.parlor.Log;
 import com.threerings.parlor.game.GameManager;
+import com.threerings.parlor.game.GameManagerDelegate;
 import com.threerings.parlor.util.MathUtil;
 
 /**
  * Performs the server-side turn-based game processing for a turn based
- * game. Games which wish to make use of the turn services must call the
- * following methods on the delegate at the appropriate times:
- *
- * <pre>
- * init()
- * gameDidStart()
- * startTurn()
- * endTurn()
- * </pre>
- *
- * They must also implement the {@link TurnGameManager} interface. If the
- * game requires specialized behavior from its delegate, it can extend the
- * delegate and override the many methods that have been provided for just
- * such a purpose (e.g. {@link #setFirstTurnHolder}, {@link
- * #setNextTurnHolder}).
+ * game. Game managers which wish to make use of the turn services must
+ * implement {@link TurnGameManager} either create an instance of this
+ * class, or an instance of a derivation which customizes the behavior,
+ * either of which would be passed to {@link GameManager#addDelegate} to
+ * be activated.
  */
-public class TurnGameManagerDelegate
+public class TurnGameManagerDelegate extends GameManagerDelegate
 {
     /**
      * Constructs a delegate that will manage the turn game state and call
@@ -34,34 +27,8 @@ public class TurnGameManagerDelegate
      */
     public TurnGameManagerDelegate (TurnGameManager tgmgr)
     {
+        super((GameManager)tgmgr);
         _tgmgr = tgmgr;
-    }
-
-    /**
-     * This should be called from {@link GameManager#didStartup} to
-     * initialize the delegate.
-     */
-    public void init (TurnGameObject turnGame)
-    {
-        _turnGame = turnGame;
-    }
-
-    /**
-     * This should be called from {@link GameManager#gameDidStart} to let
-     * the turn delegate perform start of game processing.
-     */
-    public void gameDidStart ()
-    {
-        // grab the players array
-        _players = _tgmgr.getPlayers();
-
-        // figure out who will be first
-        setFirstTurnHolder();
-
-        // and start the first turn if we should apparently do so
-        if (_turnIdx != -1) {
-            startTurn();
-        }
     }
 
     /**
@@ -80,17 +47,6 @@ public class TurnGameManagerDelegate
             }
         }
         return -1;
-    }
-
-    /**
-     * This is called to determine whichi player will take the first
-     * turn. The default implementation chooses a player at random.
-     */
-    protected void setFirstTurnHolder ()
-    {
-        // TODO: sort out a better random number generator and make it
-        // available via the parlor services
-        _turnIdx = MathUtil.random(_players.length);
     }
 
     /**
@@ -147,6 +103,41 @@ public class TurnGameManagerDelegate
         if (_turnIdx != -1) {
             startTurn();
         }
+    }
+
+    // documentation inherited
+    public void didStartup (PlaceObject plobj)
+    {
+        _turnGame = (TurnGameObject)plobj;
+    }
+
+    /**
+     * This should be called from {@link GameManager#gameDidStart} to let
+     * the turn delegate perform start of game processing.
+     */
+    public void gameDidStart ()
+    {
+        // grab the players array
+        _players = _tgmgr.getPlayers();
+
+        // figure out who will be first
+        setFirstTurnHolder();
+
+        // and start the first turn if we should apparently do so
+        if (_turnIdx != -1) {
+            startTurn();
+        }
+    }
+
+    /**
+     * This is called to determine whichi player will take the first
+     * turn. The default implementation chooses a player at random.
+     */
+    protected void setFirstTurnHolder ()
+    {
+        // TODO: sort out a better random number generator and make it
+        // available via the parlor services
+        _turnIdx = MathUtil.random(_players.length);
     }
 
     /**

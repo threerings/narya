@@ -1,9 +1,10 @@
 //
-// $Id: PlaceController.java,v 1.5 2001/10/12 19:31:15 mdb Exp $
+// $Id: PlaceController.java,v 1.6 2002/02/13 03:21:28 mdb Exp $
 
 package com.threerings.crowd.client;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import com.samskivert.swing.Controller;
 
 import com.threerings.crowd.data.PlaceConfig;
@@ -41,6 +42,13 @@ public abstract class PlaceController
         // create our user interface
         _view = createPlaceView();
 
+        // initialize our delegates
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceControllerDelegate delegate) {
+                delegate.init(_ctx, _config);
+            }
+        });
+
         // let the derived classes do any initialization stuff
         didInit();
     }
@@ -52,6 +60,16 @@ public abstract class PlaceController
      */
     protected void didInit ()
     {
+    }
+
+    /**
+     * Returns a reference to the place view associated with this
+     * controller. This is only valid after a call has been made to {@link
+     * #init}.
+     */
+    public PlaceView getPlaceView ()
+    {
+        return _view;
     }
 
     /**
@@ -68,7 +86,7 @@ public abstract class PlaceController
      * PlaceViewUtil#dispatchWillEnterPlace}. Derived classes can override
      * this and perform any other starting up that they need to do
      */
-    public void willEnterPlace (PlaceObject plobj)
+    public void willEnterPlace (final PlaceObject plobj)
     {
         if (_view != null ) {
             // let the UI hierarchy know that we've got our place
@@ -76,6 +94,13 @@ public abstract class PlaceController
             // and display the user interface
             _ctx.setPlaceView(_view);
         }
+
+        // let our delegates know what's up 
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceControllerDelegate delegate) {
+                delegate.willEnterPlace(plobj);
+            }
+        });
     }
 
     /**
@@ -85,12 +110,19 @@ public abstract class PlaceController
      * <code>super.didLeavePlace</code>) and perform any necessary
      * cleanup.
      */
-    public void didLeavePlace (PlaceObject plobj)
+    public void didLeavePlace (final PlaceObject plobj)
     {
         // let the UI hierarchy know that we're outta here
         if (_view != null ) {
             PlaceViewUtil.dispatchDidLeavePlace(_view, plobj);
         }
+
+        // let our delegates know what's up 
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceControllerDelegate delegate) {
+                delegate.didLeavePlace(plobj);
+            }
+        });
     }
 
     /**
@@ -98,9 +130,51 @@ public abstract class PlaceController
      * should be sure to call <code>super.handleAction</code> for events
      * they don't specifically handle.
      */
-    public boolean handleAction (ActionEvent action)
+    public boolean handleAction (final ActionEvent action)
     {
-        return false;
+        final boolean[] handled = new boolean[0];
+
+        // let our delegates have a crack at the action
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceControllerDelegate delegate) {
+                // we take advantage of short-circuiting here
+                handled[0] = handled[0] || delegate.handleAction(action);
+            }
+        });
+
+        return handled[0];
+    }
+
+    /**
+     * Adds the supplied delegate to the list for this controller.
+     */
+    protected void addDelegate (PlaceControllerDelegate delegate)
+    {
+        if (_delegates == null) {
+            _delegates = new ArrayList();
+        }
+        _delegates.add(delegate);
+    }
+
+    /**
+     * Used to call methods in delegates.
+     */
+    protected static interface DelegateOp
+    {
+        public void apply (PlaceControllerDelegate delegate);
+    }
+
+    /**
+     * Applies the supplied operation to the registered delegates.
+     */
+    protected void applyToDelegates (DelegateOp op)
+    {
+        if (_delegates != null) {
+            int dcount = _delegates.size();
+            for (int i = 0; i < dcount; i++) {
+                op.apply((PlaceControllerDelegate)_delegates.get(i));
+            }
+        }
     }
 
     /** A reference to the active client context. */
@@ -115,4 +189,7 @@ public abstract class PlaceController
 
     /** A reference to the root user interface component. */
     protected PlaceView _view;
+
+    /** A list of the delegates in use by this controller. */
+    protected ArrayList _delegates;
 }

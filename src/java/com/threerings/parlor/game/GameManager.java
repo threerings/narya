@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.18 2002/02/12 06:57:29 mdb Exp $
+// $Id: GameManager.java,v 1.19 2002/02/13 03:21:28 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -9,9 +9,11 @@ import com.threerings.presents.dobj.MessageEvent;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceObject;
+
 import com.threerings.crowd.server.PlaceManager;
 import com.threerings.crowd.server.CrowdServer;
 import com.threerings.crowd.server.CrowdServer;
+import com.threerings.crowd.server.PlaceManagerDelegate;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.client.ParlorCodes;
@@ -25,8 +27,7 @@ import com.threerings.parlor.client.ParlorCodes;
  * implicitly played in a location, the players of the game implicitly
  * bodies in that location.
  */
-public class GameManager
-    extends PlaceManager
+public class GameManager extends PlaceManager
     implements ParlorCodes, GameCodes, AttributeChangeListener
 {
     // documentation inherited
@@ -158,6 +159,12 @@ public class GameManager
      */
     protected void gameWillStart ()
     {
+        // let our delegates do their business
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                ((GameManagerDelegate)delegate).gameWillStart();
+            }
+        });
     }
 
     /**
@@ -168,6 +175,12 @@ public class GameManager
      */
     protected void gameDidStart ()
     {
+        // let our delegates do their business
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                ((GameManagerDelegate)delegate).gameDidStart();
+            }
+        });
     }
 
     /**
@@ -195,6 +208,13 @@ public class GameManager
      */
     protected void gameDidEnd ()
     {
+        // let our delegates do their business
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                ((GameManagerDelegate)delegate).gameDidEnd();
+            }
+        });
+
         // calculate ratings and all that...
     }
 
