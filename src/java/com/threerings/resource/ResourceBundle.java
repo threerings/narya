@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.1 2001/11/20 00:21:41 mdb Exp $
+// $Id: ResourceBundle.java,v 1.2 2001/11/20 03:46:28 mdb Exp $
 
 package com.threerings.resource;
 
@@ -53,6 +53,25 @@ public class ResourceBundle
             stream = _source.getInputStream(entry);
         }
         return stream;
+    }
+
+    /**
+     * Returns true if this resource bundle contains the resource with the
+     * specified path. This avoids actually loading the resource, in the
+     * event that the caller only cares to know that the resource exists.
+     */
+    public boolean containsResource (String path)
+    {
+        return (_source.getJarEntry(path) != null);
+    }
+
+    /**
+     * Returns a string representation of this resource bundle.
+     */
+    public String toString ()
+    {
+        return "[path=" + _source.getName() +
+            ", entries=" + _source.size() + "]";
     }
 
     /** The jar file from which we load resources. */
