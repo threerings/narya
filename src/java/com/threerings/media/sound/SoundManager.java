@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.1 2002/07/24 21:28:09 shaper Exp $
+// $Id: SoundManager.java,v 1.2 2002/07/24 21:39:43 shaper Exp $
 
 package com.threerings.media;
 
@@ -68,8 +68,10 @@ public class SoundManager
      */
     public void play (String path)
     {
-        Log.debug("Queueing sound [path=" + path + "].");
-        _clips.append(path);
+        if (_player != null) {
+            Log.debug("Queueing sound [path=" + path + "].");
+            _clips.append(path);
+        }
     }
 
     /**
