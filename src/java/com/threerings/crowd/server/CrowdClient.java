@@ -1,9 +1,11 @@
 //
-// $Id: CrowdClient.java,v 1.8 2002/03/05 05:33:25 mdb Exp $
+// $Id: CrowdClient.java,v 1.9 2002/09/17 01:23:09 mdb Exp $
 
 package com.threerings.crowd.server;
 
 import com.threerings.presents.server.PresentsClient;
+
+import com.threerings.crowd.data.BodyObject;
 
 /**
  * The crowd client extends the presents client but doesn't really do
@@ -13,4 +15,12 @@ import com.threerings.presents.server.PresentsClient;
  */
 public class CrowdClient extends PresentsClient
 {
+    // documentation inherited
+    public void setUsername (String username)
+    {
+        super.setUsername(username);
+
+        // update the username in our body object
+        ((BodyObject)_clobj).setUsername(username);
+    }
 }
