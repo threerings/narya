@@ -1,5 +1,5 @@
 //
-// $Id: BuildTestTileSetBundle.java,v 1.5 2002/02/05 20:29:09 mdb Exp $
+// $Id: BuildTestTileSetBundle.java,v 1.6 2002/04/06 02:03:32 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -53,6 +53,11 @@ public class BuildTestTileSetBundle
                 put(tileSetName, id);
             }
             return id.intValue();
+        }
+
+        public boolean tileSetMapped (String tileSetName)
+        {
+            return containsKey(tileSetName);
         }
 
         public void commit ()
