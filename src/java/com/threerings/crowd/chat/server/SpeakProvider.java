@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.8 2003/06/14 00:55:19 mdb Exp $
+// $Id: SpeakProvider.java,v 1.9 2003/06/14 00:59:24 mdb Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -291,6 +291,10 @@ public class SpeakProvider
             if (dobj != null && dobj instanceof BodyObject) {
                 noteMessage(((BodyObject)dobj).username, message);
             }
+        }
+
+        public void apply (String username) {
+            noteMessage(username, message);
         }
     }
 
