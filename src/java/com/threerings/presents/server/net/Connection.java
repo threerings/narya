@@ -1,5 +1,5 @@
 //
-// $Id: Connection.java,v 1.8 2002/07/23 05:52:49 mdb Exp $
+// $Id: Connection.java,v 1.9 2002/10/26 02:37:59 shaper Exp $
 
 package com.threerings.presents.server.net;
 
@@ -180,7 +180,7 @@ public abstract class Connection implements NetEventHandler
 
     /**
      * Sets the object output stream used by this connection. This should
-     * obly be called by the connection manager.
+     * only be called by the connection manager.
      */
     protected void setObjectOutputStream (ObjectOutputStream oout)
     {
