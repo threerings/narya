@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.1 2002/01/11 16:17:33 shaper Exp $
+// $Id: AnimatedPanel.java,v 1.2 2002/01/19 07:04:28 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -18,8 +18,14 @@ import com.threerings.media.Log;
 
 /**
  * The animated panel provides a useful extensible implementation of a
- * {@link Canvas} that implements the {@link AnimatedView} interface.
- * Sub-classes should override {@link #render} to draw their
+ * {@link Canvas} that implements the {@link AnimatedView} interface. It
+ * takes care of automatically creating an animation manager to manage the
+ * animations that take place within this panel. Derived classes should
+ * provide said animation manager with a reference to the sprite manager
+ * in use by the application, if needed (via {@link
+ * AnimationManager#setSpriteManager}).
+ *
+ * <p> Sub-classes should override {@link #render} to draw their
  * panel-specific contents, and may choose to override {@link
  * #invalidateRects} and {@link #invalidateRect} to optimize their
  * internal rendering.
@@ -33,20 +39,17 @@ public class AnimatedPanel extends Canvas implements AnimatedView
     {
 	// set our attributes for optimal display performance
         // setIgnoreRepaint(true);
+
+        // create our animation manager
+        _animmgr = new AnimationManager(this);
     }
 
     // documentation inherited
     public void paint (Graphics g)
     {
-        // Log.info("AnimatedPanel paint");
-        update(g);
-    }
-
-    // documentation inherited
-    public void update (Graphics g)
-    {
-        // Log.info("AnimatedPanel update");
-        paintImmediately();
+        // we don't paint directly any more, we pass the dirty rect to the
+        // animation manager to queue up along with our next repaint
+        _animmgr.addDirtyRect(g.getClipBounds());
     }
 
     /**
@@ -132,6 +135,9 @@ public class AnimatedPanel extends Canvas implements AnimatedView
 
     /** The number of buffers to use when rendering. */
     protected static final int BUFFER_COUNT = 2;
+
+    /** The animation manager we use in this panel. */
+    protected AnimationManager _animmgr;
 
     /** The buffer strategy used for optimal animation rendering. */
     protected BufferStrategy _strategy;
