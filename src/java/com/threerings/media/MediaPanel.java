@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.9 2002/05/31 07:33:52 mdb Exp $
+// $Id: MediaPanel.java,v 1.10 2002/06/11 00:05:31 mdb Exp $
 
 package com.threerings.media;
 
@@ -123,14 +123,14 @@ public class MediaPanel extends JComponent
     /**
      * Instructs the view to allow the supplied path to "scroll" it such
      * that the center point of the view follows the supplied path. The
-     * supplied origin coordinates will be used to report our initial
-     * coordinates to the path and will be updated as the path "moves" us
-     * around.
+     * view will initially report its position as being in the center of
+     * the view and will update those coordinates as it is scrolled by the
+     * path.
      */
-    public void setPath (Path path, Point origin)
+    public void setPath (Path path)
     {
-        _path = path;
-        _porigin = origin;
+        Dimension vsize = getViewSize();
+        _porigin.setLocation(vsize.width/2, vsize.height/2);
         _pathable = new Pathable() {
             // documentation inherited from interface
             public int getX () {
@@ -149,7 +149,7 @@ public class MediaPanel extends JComponent
                 _dx = x - _porigin.x;
                 _dy = y - _porigin.y;
 
-                // and update our origin
+                // update our origin
                 _porigin.x = x;
                 _porigin.y = y;
             }
@@ -168,9 +168,8 @@ public class MediaPanel extends JComponent
             public void pathCompleted () {
                 MediaPanel.this.pathCompleted();
             }
-
-            protected Point _offset;
         };
+        _path = path;
         _path.init(_pathable, System.currentTimeMillis());
     }
 
@@ -202,7 +201,6 @@ public class MediaPanel extends JComponent
         // we're all done; clear out our business
         _path = null;
         _pathable = null;
-        _porigin = null;
 
         // call our standard callback
         viewFinishedScrolling();
@@ -674,7 +672,7 @@ public class MediaPanel extends JComponent
     protected Pathable _pathable;
 
     /** The origin of the view as represented to the path. */
-    protected Point _porigin;
+    protected Point _porigin = new Point();
 
     /** Used to correlate tick()s with paint()s. */
     protected boolean _tickPaintPending = false;
