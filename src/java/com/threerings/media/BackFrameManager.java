@@ -1,5 +1,5 @@
 //
-// $Id: BackFrameManager.java,v 1.1 2003/04/26 17:56:26 mdb Exp $
+// $Id: BackFrameManager.java,v 1.2 2003/04/27 01:30:25 mdb Exp $
 
 package com.threerings.media;
 
@@ -79,7 +79,7 @@ public class BackFrameManager extends FrameManager
         if (_fgfx == null || _backimg == null) {
             return;
         }
-        Log.info("Restoring from back " + StringUtil.toString(dirty) + ".");
+//         Log.info("Restoring from back " + StringUtil.toString(dirty) + ".");
         _fgfx.setClip(dirty);
         _fgfx.drawImage(_backimg, 0, 0, null);
         _fgfx.setClip(null);
