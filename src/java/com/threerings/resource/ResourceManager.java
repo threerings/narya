@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.16 2002/09/30 09:36:22 shaper Exp $
+// $Id: ResourceManager.java,v 1.17 2002/10/25 17:21:00 mdb Exp $
 
 package com.threerings.resource;
 
@@ -320,31 +320,46 @@ public class ResourceManager
      * @return true if the directory was successfully created (or was
      * already there), false if we failed to create it.
      */
-    protected boolean createCacheDirectory (String setName)
+    protected boolean createCacheDirectory (URL resourceURL, String setName)
     {
         // get the path to the top-level cache directory if we don't
         // already have it
         if (_cachePath == null) {
             try {
                 // first check for an explicitly specified cache directory
-                String dir = System.getProperty("rsrc_cache_dir");
+                _cachePath = System.getProperty("rsrc_cache_dir");
                 // if that's null, try putting it into their home directory
-                if (dir == null) {
-                    dir = System.getProperty("user.home") +
-                        File.separator + CACHE_PATH;
+                if (_cachePath == null) {
+                    _cachePath = System.getProperty("user.home");
                 }
-                _cachePath = (dir + File.separator);
+                _cachePath += File.separator;
+
             } catch (SecurityException se) {
                 Log.info("Can't obtain user.home system property. Probably " +
                          "won't be able to create our cache directory " +
                          "either. [error=" + se + "].");
                 _cachePath = "";
             }
-        }
 
-        // make sure the main cache directory exists
-        if (!createDirectory(_cachePath)) {
-            return false;
+            // create our directories one at a time: first the top-level
+            // cache directory
+            _cachePath += CACHE_PATH + File.separator;
+            if (!createDirectory(_cachePath)) {
+                return false;
+            }
+
+            // next incorporate the resource URL into the cache path so
+            // that files fetched from different resource roots do not
+            // overwrite one another
+            _cachePath +=
+                StringUtil.md5hex(resourceURL.toString()) + File.separator;
+            if (!createDirectory(_cachePath)) {
+                return false;
+            }
+
+            Log.debug("Generated cache path '" + _cachePath + "' from " +
+                      "root '" + _rootPath + "'.");
+
         }
 
         // ensure that the set-specific cache directory exists
@@ -381,7 +396,8 @@ public class ResourceManager
      * Generates the name of the bundle cache file given the name of the
      * resource set to which it belongs and the relative path URL.
      */
-    protected String genCachePath (String setName, String resourcePath)
+    protected String genCachePath (
+        URL resourceURL, String setName, String resourcePath)
     {
         return _cachePath + setName + File.separator +
             StringUtil.replace(resourcePath, "/", "-");
@@ -405,10 +421,10 @@ public class ResourceManager
                 burl = new URL(resourceURL, path);
 
                 // make sure the cache directory exists for this set
-                createCacheDirectory(setName);
+                createCacheDirectory(resourceURL, setName);
 
                 // compute the path to the cache file for this bundle
-                File cfile = new File(genCachePath(setName, path));
+                File cfile = new File(genCachePath(resourceURL, setName, path));
 
                 // slap this on the list for retrieval or update by the
                 // download manager
