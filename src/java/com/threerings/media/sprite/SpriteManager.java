@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.20 2002/01/31 01:04:13 mdb Exp $
+// $Id: SpriteManager.java,v 1.21 2002/02/19 03:57:53 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.samskivert.util.CollectionUtil;
+import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.Tuple;
 
 import com.threerings.media.Log;
@@ -29,7 +30,7 @@ public class SpriteManager
      */
     public SpriteManager ()
     {
-        _sprites = new ArrayList();
+        _sprites = new SortableArrayList();
 	_notify = new ArrayList();
         _dirty = new ArrayList();
     }
@@ -167,7 +168,7 @@ public class SpriteManager
 	tickSprites(timestamp);
 
 	// re-sort the sprite list to account for potential new positions
-	sortSprites();
+	_sprites.sort(SPRITE_COMP);
 
 	// notify sprite observers of any collisions
 	handleCollisions();
@@ -200,20 +201,6 @@ public class SpriteManager
             Sprite sprite = (Sprite)_sprites.get(ii);
 	    sprite.tick(timestamp);
         }
-    }
-
-    /**
-     * Sort the sprite list in order of ascending x-coordinate.
-     */
-    protected void sortSprites ()
-    {
-	Object[] sprites = new Sprite[_sprites.size()];
-	_sprites.toArray(sprites);
-	Arrays.sort(sprites, SPRITE_COMP);
-	_sprites.clear();
-	for (int ii = 0; ii < sprites.length; ii++) {
-	    _sprites.add(sprites[ii]);
-	}
     }
 
     /**
