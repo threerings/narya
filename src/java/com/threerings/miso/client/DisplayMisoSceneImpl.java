@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.33 2001/08/29 19:50:46 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.34 2001/09/21 00:21:40 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -108,6 +108,103 @@ public class MisoScene implements Scene
         this.tiles = tiles;
     }
 
+    // documentation inherited
+    public String getName ()
+    {
+        return _name;
+    }
+
+    // documentation inherited
+    public int getId ()
+    {
+        return _sid;
+    }
+
+    // documentation inherited
+    public int getVersion ()
+    {
+        // fake it for now
+        return 1;
+    }
+
+    // documentation inherited
+    public int[] getNeighborIds ()
+    {
+        return null;
+    }
+
+    /**
+     * Return the default tile for the base layer of the scene.
+     */
+    public Tile getDefaultTile ()
+    {
+	return _deftile;
+    }
+
+    /**
+     * Return the scene locations list.
+     */
+    public ArrayList getLocations ()
+    {
+        return _locations;
+    }
+
+    /**
+     * Return the cluster list.
+     */
+    public ArrayList getClusters ()
+    {
+	return _clusters;
+    }
+
+    /**
+     * Return the scene portals list.
+     */
+    public ArrayList getPortals ()
+    {
+        return _portals;
+    }
+
+    /**
+     * Set the default entrance portal for this scene.
+     *
+     * @param entrance the entrance portal.
+     */
+    public void setEntrance (Portal entrance)
+    {
+	_entrance = entrance;
+    }
+
+    /**
+     * Return the number of clusters in the scene.
+     */
+    public int getNumClusters ()
+    {
+	return _clusters.size();
+    }
+
+    /**
+     * Return the number of actual (non-null) tiles present in the
+     * specified tile layer for this scene.
+     */
+    public int getNumLayerTiles (int lnum)
+    {
+	if (lnum == LAYER_BASE) {
+	    return _model.scenewid * _model.scenehei;
+	}
+
+	int numTiles = 0;
+	for (int xx = 0; xx < _model.scenewid; xx++) {
+	    for (int yy = 0; yy < _model.scenehei; yy++) {
+		if (tiles[xx][yy] != null) {
+		    numTiles++;
+		}
+	    }
+	}
+
+	return numTiles;
+    }
+
     /**
      * Return the cluster index number the given location is in, or -1
      * if the location is not in any cluster.
@@ -204,16 +301,6 @@ public class MisoScene implements Scene
     }
 
     /**
-     * Set the default entrance portal for this scene.
-     *
-     * @param entrance the entrance portal.
-     */
-    public void setEntrance (Portal entrance)
-    {
-	_entrance = entrance;
-    }
-
-    /**
      * Return the portal with the given name, or null if the portal
      * isn't found in the portal list.
      *
@@ -229,102 +316,6 @@ public class MisoScene implements Scene
 	    if (portal.name.equals(name)) return portal;
 	}
 	return null;
-    }
-
-    /**
-     * Return the scene name.
-     */
-    public String getName ()
-    {
-        return _name;
-    }
-
-    /**
-     * Return the scene identifier.
-     */
-    public int getId ()
-    {
-        return _sid;
-    }
-
-    /**
-     * Returns this scene's version number (which is incremented when it
-     * is modified and stored into the scene repository).
-     */
-    public int getVersion ()
-    {
-        // fake it for now
-        return 1;
-    }
-
-    /**
-     * Returns the scene ids of the portals from this scene.
-     */
-    public int[] getPortalIds ()
-    {
-        return null;
-    }
-
-    /**
-     * Return the scene locations list.
-     */
-    public ArrayList getLocations ()
-    {
-        return _locations;
-    }
-
-    /**
-     * Return the cluster list.
-     */
-    public ArrayList getClusters ()
-    {
-	return _clusters;
-    }
-
-    /**
-     * Return the scene portals list.
-     */
-    public ArrayList getPortals ()
-    {
-        return _portals;
-    }
-
-    /**
-     * Return the number of clusters in the scene.
-     */
-    public int getNumClusters ()
-    {
-	return _clusters.size();
-    }
-
-    /**
-     * Return the number of actual (non-null) tiles present in the
-     * specified tile layer for this scene.
-     */
-    public int getNumLayerTiles (int lnum)
-    {
-	if (lnum == LAYER_BASE) {
-	    return _model.scenewid * _model.scenehei;
-	}
-
-	int numTiles = 0;
-	for (int xx = 0; xx < _model.scenewid; xx++) {
-	    for (int yy = 0; yy < _model.scenehei; yy++) {
-		if (tiles[xx][yy] != null) {
-		    numTiles++;
-		}
-	    }
-	}
-
-	return numTiles;
-    }
-
-    /**
-     * Return the default tile for the base layer of the scene.
-     */
-    public Tile getDefaultTile ()
-    {
-	return _deftile;
     }
 
     /**

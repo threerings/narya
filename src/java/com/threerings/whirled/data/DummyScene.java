@@ -1,5 +1,5 @@
 //
-// $Id: DummyScene.java,v 1.2 2001/08/16 18:05:17 shaper Exp $
+// $Id: DummyScene.java,v 1.3 2001/09/21 00:21:40 mdb Exp $
 
 package com.threerings.whirled.client.test;
 
@@ -22,7 +22,12 @@ public class DummyScene implements Scene
         return 1;
     }
 
-    public int[] getPortalIds ()
+    public String getName ()
+    {
+        return "scene";
+    }
+
+    public int[] getNeighborIds ()
     {
         return null;
     }
