@@ -1,5 +1,5 @@
 //
-// $Id: ObjectResponse.java,v 1.2 2001/05/23 04:03:40 mdb Exp $
+// $Id: ObjectResponse.java,v 1.3 2001/05/29 03:28:50 mdb Exp $
 
 package com.samskivert.cocktail.cher.net;
 
@@ -8,7 +8,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
 import com.samskivert.cocktail.cher.dobj.DObject;
-import com.samskivert.cocktail.cher.io.TypedObjectFactory;
+import com.samskivert.cocktail.cher.dobj.DObjectFactory;
 
 public class ObjectResponse extends DownstreamMessage
 {
@@ -43,7 +43,7 @@ public class ObjectResponse extends DownstreamMessage
     {
         super.writeTo(out);
         out.writeShort(messageId);
-        TypedObjectFactory.writeTo(out, _dobj);
+        DObjectFactory.writeTo(out, _dobj);
     }
 
     public void readFrom (DataInputStream in)
@@ -51,7 +51,7 @@ public class ObjectResponse extends DownstreamMessage
     {
         super.readFrom(in);
         messageId = in.readShort();
-        _dobj = (DObject)TypedObjectFactory.readFrom(in);
+        _dobj = (DObject)DObjectFactory.readFrom(in);
     }
 
     /** The object which is associated with this response. */
