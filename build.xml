@@ -15,26 +15,11 @@
   <property name="javadoc.home"   value="${deploy.dir}/docs"/>
   <property name="classes.dir"    value="${deploy.dir}/classes"/>
 
-  <!-- we want to access the environment -->
-  <property environment="env"/>
-
   <!-- declare our classpath business -->
-  <path id="base.classpath">
+  <path id="classpath">
     <pathelement location="${classes.dir}"/>
     <fileset dir="lib" includes="**/*.jar"/>
   </path>
-  <path id="classpath">
-    <path refid="base.classpath"/>
-  </path>
-
-  <!-- include JAVA_LIBS jars in our classpath if it exists -->
-  <target name="check-java-libs" if="env.JAVA_LIBS">
-    <!-- overwrite the classpath with one that contains JAVA_LIBS jars -->
-    <path id="classpath">
-      <path refid="base.classpath"/>
-      <fileset dir="${env.JAVA_LIBS}" includes="**/*.jar"/>
-    </path>
-  </target>
 
   <!-- generates .java files for all .dobj files -->
   <target name="gendobj">
@@ -76,7 +61,7 @@
   </target>
 
   <!-- prepares the application directories -->
-  <target name="prepare" depends="check-java-libs,gendobj">
+  <target name="prepare" depends="gendobj">
     <mkdir dir="${deploy.dir}"/>
     <mkdir dir="${classes.dir}"/>
     <mkdir dir="${classes.dir}/rsrc"/>
