@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.2 2002/06/18 23:34:34 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.3 2002/06/19 02:34:39 mdb Exp $
 
 package com.threerings.media;
 
@@ -109,6 +109,16 @@ public class VirtualMediaPanel extends MediaPanel
     }
 
     // documentation inherited
+    public void doLayout ()
+    {
+        super.doLayout();
+
+        // we need to obtain our absolute screen coordinates to work
+        // around the Windows copyArea() bug
+        FrameManager.getRoot(this, _abounds);
+    }
+
+    // documentation inherited
     protected void didTick (long tickStamp)
     {
         super.didTick(tickStamp);
@@ -165,8 +175,17 @@ public class VirtualMediaPanel extends MediaPanel
         if (_dx != 0 || _dy != 0) {
             int cx = (_dx > 0) ? _dx : 0;
             int cy = (_dy > 0) ? _dy : 0;
-            gfx.copyArea(cx, cy, width - Math.abs(_dx),
+
+            // on windows, attempting to call copyArea() on a translated
+            // graphics context results in boochness; so we have to
+            // untranslate the graphics context, do our copyArea() and
+            // then translate it back
+            gfx.translate(-_abounds.x, -_abounds.y);
+            gfx.copyArea(_abounds.x + cx, _abounds.y + cy,
+                         width - Math.abs(_dx),
                          height - Math.abs(_dy), -_dx, -_dy);
+            gfx.translate(_abounds.x, _abounds.y);
+
             // and clear out our scroll deltas
             _dx = 0; _dy = 0;
         }
@@ -206,6 +225,7 @@ public class VirtualMediaPanel extends MediaPanel
     /** Our target offsets to be effected on the next tick. */
     protected int _nx, _ny;
 
+    /** Our scroll offsets. */
     protected int _dx, _dy;
 
     /** A region of interest which we'll try to keep visible. */
@@ -213,4 +233,8 @@ public class VirtualMediaPanel extends MediaPanel
 
     /** The pathable being followed. */
     protected Pathable _fpath;
+
+    /** We need to know our absolute coordinates in order to work around
+     * the Windows copyArea() bug. */
+    protected Rectangle _abounds = new Rectangle();
 }
