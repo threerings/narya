@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneRuleSet.java,v 1.7 2002/02/02 01:32:18 mdb Exp $
+// $Id: MisoSceneRuleSet.java,v 1.8 2002/05/16 02:25:19 ray Exp $
 
 package com.threerings.miso.scene.tools.xml;
 
@@ -53,8 +53,6 @@ public class MisoSceneRuleSet extends RuleSetBase
                          new SetFieldRule(digester, "height"));
         digester.addRule(_prefix + "/base",
                          new SetFieldRule(digester, "baseTileIds"));
-        digester.addRule(_prefix + "/fringe",
-                         new SetFieldRule(digester, "fringeTileIds"));
         digester.addRule(_prefix + "/object",
                          new SetFieldRule(digester, "objectTileIds"));
         digester.addRule(_prefix + "/actions",
@@ -73,6 +71,9 @@ public class MisoSceneRuleSet extends RuleSetBase
                     model.objectActions.length == 0) {
                     model.objectActions = new String[1];
                 }
+
+                // and allocate the fringe tile layer
+                model.fringeTileIds = new int[model.baseTileIds.length];
             }
         });
     }

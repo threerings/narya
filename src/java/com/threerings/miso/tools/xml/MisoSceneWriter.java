@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneWriter.java,v 1.5 2002/02/02 01:09:53 mdb Exp $
+// $Id: MisoSceneWriter.java,v 1.6 2002/05/16 02:25:19 ray Exp $
 
 package com.threerings.miso.scene.tools.xml;
 
@@ -40,8 +40,7 @@ public class MisoSceneWriter
         writer.dataElement("height", Integer.toString(model.height));
         writer.dataElement("base",
                            StringUtil.toString(model.baseTileIds, "", ""));
-        writer.dataElement("fringe",
-                           StringUtil.toString(model.fringeTileIds, "", ""));
+        // note that we don't write the fringe layer.
         writer.dataElement("object",
                            StringUtil.toString(model.objectTileIds, "", ""));
         writer.dataElement("actions",

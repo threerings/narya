@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneModel.java,v 1.5 2002/01/30 18:28:32 mdb Exp $
+// $Id: MisoSceneModel.java,v 1.6 2002/05/16 02:25:19 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -62,9 +62,8 @@ public class MisoSceneModel
         ibuf.put(height);
         ibuf.put(otc);
 
-        // insert the layer data
+        // insert the layer data (except fringe)
         ibuf.put(baseTileIds);
-        ibuf.put(fringeTileIds);
         ibuf.put(objectTileIds);
 
         // now write the binary data out to the output stream
@@ -96,11 +95,8 @@ public class MisoSceneModel
             baseTileIds[i] = in.readInt();
         }
 
-        // read in the fringe layer
+        // allocate, but don't read, the fringe layer
         fringeTileIds = new int[tcount];
-        for (int i = 0; i < tcount; i++) {
-            fringeTileIds[i] = in.readInt();
-        }
 
         // read in the object layer
         objectTileIds = new int[otc];
