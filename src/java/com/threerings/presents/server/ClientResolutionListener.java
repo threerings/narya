@@ -1,5 +1,5 @@
 //
-// $Id: ClientResolutionListener.java,v 1.1 2002/03/05 05:33:25 mdb Exp $
+// $Id: ClientResolutionListener.java,v 1.2 2002/11/29 23:40:01 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -22,4 +22,3 @@ public interface ClientResolutionListener
      */
     public void resolutionFailed (String username, Exception reason);
 }
-
