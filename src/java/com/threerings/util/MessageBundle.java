@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.3 2002/02/28 23:13:54 mdb Exp $
+// $Id: MessageBundle.java,v 1.4 2002/02/28 23:16:42 mdb Exp $
 
 package com.threerings.util;
 
@@ -158,7 +158,7 @@ public class MessageBundle
      * Call this to "taint" any string that has been entered by an entity
      * outside the application so that the translation code knows not to
      * attempt to translate this string when doing recursive translations
-     * ({@see #xlate}).
+     * (see {@link #xlate}).
      */
     public static String taint (String text)
     {

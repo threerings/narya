@@ -1,5 +1,5 @@
 //
-// $Id: ChatCodes.java,v 1.5 2002/02/06 22:47:16 mdb Exp $
+// $Id: ChatCodes.java,v 1.6 2002/02/28 23:16:42 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -34,7 +34,7 @@ public interface ChatCodes extends InvocationCodes
 
     /** The response identifier for a successful tell request. This is
      * mapped by the invocation services to a call to {@link
-     * ChatDirector#handleTellSucceded}. */
+     * ChatDirector#handleTellSucceeded}. */
     public static final String TELL_SUCCEEDED_RESPONSE = "TellSucceeded";
 
     /** The response identifier for a failed tell request. This is mapped
