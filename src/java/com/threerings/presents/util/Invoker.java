@@ -1,5 +1,5 @@
 //
-// $Id: Invoker.java,v 1.4 2002/03/05 03:17:46 mdb Exp $
+// $Id: Invoker.java,v 1.5 2002/10/05 23:35:21 mdb Exp $
 
 package com.threerings.presents.util;
 
@@ -87,6 +87,7 @@ public class Invoker extends LoopingThread
      */
     public Invoker (PresentsDObjectMgr omgr)
     {
+        super("presents.Invoker");
         _omgr = omgr;
     }
 
