@@ -1,10 +1,11 @@
 //
-// $Id: CrowdClient.java,v 1.11 2002/10/26 02:40:30 shaper Exp $
+// $Id: CrowdClient.java,v 1.12 2002/10/27 02:04:50 shaper Exp $
 
 package com.threerings.crowd.server;
 
 import com.threerings.presents.server.PresentsClient;
 
+import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
@@ -22,21 +23,10 @@ public class CrowdClient extends PresentsClient
         super.wasUnmapped();
 
         if (_clobj != null) {
+            // note that the user's disconnected
             BodyObject bobj = (BodyObject)_clobj;
-
-            // get the location the user is occupying
-            PlaceObject plobj = (PlaceObject)
-                CrowdServer.omgr.getObject(bobj.location);
-            if (plobj != null) {
-                // update their occupant info with their new connection
-                // status
-                OccupantInfo info = (OccupantInfo)plobj.occupantInfo.get(
-                    new Integer(bobj.getOid()));
-                if (info != null) {
-                    info.status = OccupantInfo.DISCONNECTED;
-                    plobj.updateOccupantInfo(info);
-                }
-            }
+            updateOccupantStatus(
+                bobj.getOid(), bobj.location, OccupantInfo.DISCONNECTED);
         }
     }
 
@@ -45,17 +35,26 @@ public class CrowdClient extends PresentsClient
     {
         super.sessionWillResume();
 
+        // note that the user's active once more
         BodyObject bobj = (BodyObject)_clobj;
+        updateOccupantStatus(bobj.getOid(), bobj.location, OccupantInfo.ACTIVE);
+    }
 
-        // get the location the user is occupying
-        PlaceObject plobj = (PlaceObject)
-            CrowdServer.omgr.getObject(bobj.location);
+    /**
+     * Updates the connection status for the given body object's occupant
+     * info in the specified location.
+     */
+    protected void updateOccupantStatus (
+        int bodyOid, int locationId, byte status)
+    {
+        // get the place object for the specified location
+        PlaceObject plobj = (PlaceObject)CrowdServer.omgr.getObject(locationId);
         if (plobj != null) {
-            // update their occupant info with their new connection status
+            // update the occupant info with the new connection status
             OccupantInfo info = (OccupantInfo)plobj.occupantInfo.get(
-                new Integer(bobj.getOid()));
-            if (info != null) {
-                info.status = OccupantInfo.ACTIVE;
+                new Integer(bodyOid));
+            if (info != null && info.status != status) {
+                info.status = status;
                 plobj.updateOccupantInfo(info);
             }
         }
