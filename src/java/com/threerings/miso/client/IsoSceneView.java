@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.120 2002/09/23 21:54:50 mdb Exp $
+// $Id: IsoSceneView.java,v 1.121 2002/09/24 05:33:51 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -96,14 +96,6 @@ public class IsoSceneView implements SceneView
         _hmode = hmode;
     }
 
-    /**
-     * Returns a reference to the scene being displayed by this view.
-     */
-    public DisplayMisoScene getScene ()
-    {
-        return _scene;
-    }
-
     // documentation inherited
     public void setScene (DisplayMisoScene scene)
     {
@@ -115,6 +107,34 @@ public class IsoSceneView implements SceneView
 
         // invalidate the entire screen as there's a new scene in town
         invalidate();
+    }
+
+    /**
+     * Big fat HACKola: checks the display scene for new objects that
+     * weren't there last time around and adds info for them into the
+     * scene.
+     */
+    public void grabNewObjects ()
+    {
+        // grab all available objects
+        Rectangle rect = new Rectangle(Short.MIN_VALUE, Short.MIN_VALUE,
+                                       2*Short.MAX_VALUE, 2*Short.MAX_VALUE);
+        _scene.getSceneObjects(rect, _objects);
+
+        // and fill in the new objects' bounds
+        int ocount = _objects.size();
+        for (int ii = 0; ii < ocount; ii++) {
+            SceneObject scobj = _objects.get(ii);
+            if (scobj.bounds == null) {
+                scobj.bounds = IsoUtil.getObjectBounds(_model, scobj);
+            }
+        }
+    }
+
+    // documentation inherited
+    public DisplayMisoScene getScene ()
+    {
+        return _scene;
     }
 
     /**
