@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.19 2002/11/19 21:17:35 ray Exp $
+// $Id: SoundManager.java,v 1.20 2002/11/20 01:33:34 ray Exp $
 
 package com.threerings.media;
 
@@ -103,7 +103,7 @@ public class SoundManager
 
         // create a thread to plays sounds and load sound
         // data from the resource manager
-        _player = new Thread() {
+        _player = new Thread("narya SoundManager") {
             public void run () {
                 Object command = null;
                 String path = null;
@@ -493,16 +493,20 @@ public class SoundManager
 
         // start the new one
         try {
-            _sequencer.setSequence(getMidiData(info.path));
-            if (info.msPosition != -1) {
-                // TODO: this doesn't work correctly
-                _sequencer.setTickPosition(info.tickPosition);
-                _sequencer.setMicrosecondPosition(info.msPosition);
-                info.msPosition = -1;
+            if (info.path.endsWith(".mp3")) {
+                _mp3player.start(info.path);
+            } else {
+                _sequencer.setSequence(getMidiData(info.path));
+                if (info.msPosition != -1) {
+                    // TODO: this doesn't work correctly
+                    _sequencer.setTickPosition(info.tickPosition);
+                    _sequencer.setMicrosecondPosition(info.msPosition);
+                    info.msPosition = -1;
+                }
+                _sequencer.start();
+                //updateMusicVolume();
+                //Log.info("Now playing : " + info.path);
             }
-            _sequencer.start();
-            //updateMusicVolume();
-            //Log.info("Now playing : " + info.path);
 
         } catch (InvalidMidiDataException imda) {
             Log.warning("Invalid midi data, not playing [path=" +
@@ -523,15 +527,19 @@ public class SoundManager
             return;
         }
 
+        // see what was playing
+        MidiInfo current = (MidiInfo) _midiStack.getFirst();
+
         // stop the existing song
         if (!wasStopped) {
             // TODO: fade?
             _stoppingSong = true;
-            _sequencer.stop();
+            if (current.path.endsWith(".mp3")) {
+                _mp3player.stop();
+            } else {
+                _sequencer.stop();
+            }
         }
-
-        // see what was playing
-        MidiInfo current = (MidiInfo) _midiStack.getFirst();
 
         switch (current.loops) {
         default:
@@ -563,9 +571,15 @@ public class SoundManager
 
             // if we're currently playing this song..
             if (path.equals(current.path)) {
+
                 // stop it
                 _stoppingSong = true;
-                _sequencer.stop();
+                if (path.endsWith(".mp3")) {
+                    _mp3player.stop();
+                } else {
+                    _sequencer.stop();
+                }
+
                 // remove it from the stack
                 _midiStack.removeFirst();
                 // start playing the next..
@@ -592,8 +606,11 @@ public class SoundManager
      */
     protected void initMidi ()
     {
+        _mp3player = new MP3Manager(_rmgr, this);
+
         try {
             Sequencer seq = MidiSystem.getSequencer();
+//            Sequencer seq = getTritonusSequencer();
             seq.open();
             if (seq instanceof Synthesizer) {
                 _midiChannels = ((Synthesizer) seq).getChannels();
@@ -602,10 +619,40 @@ public class SoundManager
             _sequencer = seq;
             _sequencer.addMetaEventListener(this);
 
+            Log.info("Seq class: " + _sequencer.getClass());
+
+//            _sequencer.getTransmitter().setReceiver(new Receiver() {
+//                public void close ()
+//                {
+//                }
+//
+//                public void send (javax.sound.midi.MidiMessage msg, long stamp)
+//                {
+//                    Log.info("msg : " + msg);
+//                }
+//            });
+
         } catch (MidiUnavailableException mue) {
             Log.warning("Midi unavailable. Can't play music.");
             return;
         }
+    }
+
+    protected Sequencer getTritonusSequencer ()
+        throws MidiUnavailableException
+    {
+        MidiDevice.Info[] info = MidiSystem.getMidiDeviceInfo();
+        for (int ii=0; ii < info.length; ii++) {
+            if (info[ii].toString().indexOf("Tritonus") != -1) {
+                MidiDevice dev = MidiSystem.getMidiDevice(info[ii]);
+                if (dev instanceof Sequencer) {
+                    return (Sequencer) dev;
+                }
+            }
+        }
+
+        Log.info("ACK SPUTTER!");
+        return MidiSystem.getSequencer();
     }
 
     /**
@@ -647,13 +694,20 @@ public class SoundManager
 //                    new String(msg.getData()));
 
         if (msg.getType() == MIDI_END_OF_TRACK) {
+            songStopEvent();
+        }
+    }
 
-            if (_stoppingSong) {
-                _stoppingSong = false;
-            } else {
-                stopCurrentSong(true);
-                playTopSong();
-            }
+    /**
+     * Submitted by external players like the MP3Manager.
+     */
+    public void songStopEvent ()
+    {
+        if (_stoppingSong) {
+            _stoppingSong = false;
+        } else {
+            stopCurrentSong(true);
+            playTopSong();
         }
     }
 
@@ -1017,6 +1071,8 @@ public class SoundManager
 
     /** The sequencer that plays midi music. */
     protected Sequencer _sequencer;
+
+    protected MP3Manager _mp3player;
 
     /** The receiver used to send midi from the sequencer to an alternate
      * midi device. */
