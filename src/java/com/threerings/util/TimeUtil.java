@@ -1,5 +1,5 @@
 //
-// $Id: TimeUtil.java,v 1.1 2002/10/30 01:47:12 ray Exp $
+// $Id: TimeUtil.java,v 1.2 2004/06/04 22:14:11 ray Exp $
 
 package com.threerings.util;
 
@@ -20,6 +20,9 @@ public class TimeUtil
     /** Granularity constant. */
     public static final byte HOUR = 3;
 
+    /** Granularity constant. */
+    public static final byte DAY = 4;
+
     /**
      * Get a translatable string specifying the magnitude of the specified
      * duration. Results will be between "1 second" and "X hours", with
@@ -37,7 +40,6 @@ public class TimeUtil
         }
 
         int seconds = (int) Math.round(duration / 1000f);
-
         if (granularity <= SECOND) {
             if (seconds < 2) {
                 return "m.1second";
@@ -48,7 +50,6 @@ public class TimeUtil
         }
 
         int minutes = (int) Math.round(seconds / 60f);
-
         if (granularity <= MINUTE) {
             if (minutes < 2) {
                 return "m.1minute";
@@ -59,13 +60,21 @@ public class TimeUtil
         }
 
         int hours = (int) Math.round(minutes / 60f);
-
-        if (hours < 2) {
-            return "m.1hour";
-        } else {
-            return MessageBundle.tcompose("m.hours", String.valueOf(hours));
+        if (granularity <= HOUR) {
+            if (hours < 2) {
+                return "m.1hour";
+            } else if (hours < 24) {
+                return MessageBundle.tcompose("m.hours", String.valueOf(hours));
+            }
         }
 
-        // TODO: days? weeks? months? 
+        int days = (int) Math.round(hours / 24f);
+        if (days < 2) {
+            return "m.1day";
+        } else {
+            return MessageBundle.tcompose("m.days", String.valueOf(days));
+        }
+
+        // TODO: weeks? months? 
     }
 }
