@@ -47,6 +47,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import org.apache.commons.io.IOUtils;
 
 import com.samskivert.util.Config;
+import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.Interval;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.Queue;
@@ -708,8 +709,8 @@ public class SoundManager
             String propPath = key.pkgPath + Sounds.PROP_NAME;
             Properties props = new Properties();
             try {
-                props.load(_rmgr.getClassLoader().getResourceAsStream(
-                               propPath + ".properties"));
+                props = ConfigUtil.loadInheritedProperties(
+                    propPath + ".properties", _rmgr.getClassLoader());
             } catch (IOException ioe) {
                 Log.warning("Failed to load sound properties " +
                             "[path=" + propPath + ", error=" + ioe + "].");
