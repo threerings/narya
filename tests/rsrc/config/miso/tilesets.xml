@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: tilesets.xml,v 1.11 2001/08/27 21:05:23 shaper Exp $ -->
+<!-- $Id: tilesets.xml,v 1.12 2001/08/30 01:15:19 shaper Exp $ -->
 
 <!-- Initial test tileset description data. -->
 
@@ -91,7 +91,7 @@
     <imagefile>media/miso/tiles/editor-icons.png</imagefile>
     <rowheight>22</rowheight>
     <rowwidth>20</rowwidth>
-    <tilecount>10</tilecount>
+    <tilecount>5</tilecount>
   </tileset>
 
 </tilesetgroup>
