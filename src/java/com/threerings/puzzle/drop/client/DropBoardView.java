@@ -1,5 +1,5 @@
 //
-// $Id: DropBoardView.java,v 1.6 2004/09/15 18:48:09 mdb Exp $
+// $Id: DropBoardView.java,v 1.7 2004/09/16 00:08:28 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -176,7 +176,8 @@ public abstract class DropBoardView extends PuzzleBoardView
         }
         int spos = sy * _bwid + sx;
         if (_pieces[spos] != null) {
-            ((ImageSprite)_pieces[spos]).setMirage(getPieceImage(piece));
+            ((ImageSprite)_pieces[spos]).setMirage(
+                getPieceImage(piece, sx, sy, NORTH));
         } else {
             createPiece(piece, sx, sy);
         }
