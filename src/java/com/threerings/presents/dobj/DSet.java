@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.30 2003/07/11 01:49:52 mdb Exp $
+// $Id: DSet.java,v 1.31 2003/07/13 02:59:27 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -215,6 +215,8 @@ public class DSet
 
         // if the element is already in the set, bail now
         if (eidx >= 0) {
+            Log.warning("Refusing to add duplicate entry [set=" + this +
+                        ", entry=" + elem + "].");
             return false;
         }
 
