@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.11 2002/05/04 19:34:14 mdb Exp $
+// $Id: ImageUtil.java,v 1.12 2002/05/04 21:36:32 ray Exp $
 
 package com.threerings.media.util;
 
@@ -282,7 +282,7 @@ public class ImageUtil
         if (image instanceof BufferedImage) {
             BufferedImage bimage = (BufferedImage)image;
             int argb = bimage.getRGB(x, y);
-            int alpha = argb >> 24;
+            // int alpha = argb >> 24;
             // Log.info("Checking [x=" + x + ", y=" + y + ", " + alpha);
 
             // it's only a hit if the pixel is non-transparent
