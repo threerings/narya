@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneModel.java,v 1.6 2003/04/25 22:26:25 mdb Exp $
+// $Id: SparseMisoSceneModel.java,v 1.7 2003/05/16 17:26:07 ray Exp $
 
 package com.threerings.miso.data;
 
@@ -170,6 +170,24 @@ public class SparseMisoSceneModel extends MisoSceneModel
                     set.insert(new ObjectInfo(objectTileIds[ii], x, y));
                 }
             }
+        }
+
+        /**
+         * Returns true if this section contains no data beyond the default.
+         * Used when saving a sparse scene: we omit blank sections.
+         */
+        public boolean isBlank ()
+        {
+            if ((objectTileIds.length != 0) || (objectInfo.length != 0)) {
+                return false;
+            }
+            for (int ii=0, nn=baseTileIds.length; ii < nn; ii++) {
+                if (baseTileIds[ii] != 0) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public Object clone () {
