@@ -1,5 +1,5 @@
 //
-// $Id: AIGameTicker.java,v 1.2 2002/04/19 21:33:21 ray Exp $
+// $Id: AIGameTicker.java,v 1.3 2002/06/10 21:37:13 ray Exp $
 
 package com.threerings.parlor.game;
 
@@ -9,12 +9,13 @@ import java.util.HashSet;
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
 
+import com.threerings.presents.server.util.SafeInterval;
 import com.threerings.crowd.server.CrowdServer;
 
 /**
  * Handles ticking all the GameManagers that are hosting games with AIs.
  */
-public class AIGameTicker implements Interval, Runnable
+public class AIGameTicker extends SafeInterval
 {
     /**
      * Register the specified GameManager to receive AI ticks.
@@ -42,6 +43,7 @@ public class AIGameTicker implements Interval, Runnable
      */
     private AIGameTicker ()
     {
+        super(CrowdServer.omgr);
         _games = new HashSet();
 
         _id = IntervalManager.register(this, TICK_FREQUENCY, null, true);
@@ -69,12 +71,6 @@ public class AIGameTicker implements Interval, Runnable
             _ticker = null;
             IntervalManager.remove(_id);
         }
-    }
-
-    // documentation inherited from interface
-    public void intervalExpired (int id, Object arg)
-    {
-        CrowdServer.omgr.postUnit(this);
     }
 
     /**
