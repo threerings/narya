@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.37 2003/05/04 23:28:18 mdb Exp $
+// $Id: MediaPanel.java,v 1.38 2003/05/08 05:46:45 mdb Exp $
 
 package com.threerings.media;
 
@@ -282,6 +282,15 @@ public class MediaPanel extends JComponent
         if (!needsPaint) {
             _tickPaintPending = false;
         }
+
+        // regardless of whether or not we paint, we need to let our
+        // abstract media managers know that we've gotten to the point of
+        // painting because they need to remain prepared to deal with
+        // media changes that happen any time between the tick() and the
+        // paint() and thus need to know when paint() happens
+        _animmgr.willPaint();
+        _spritemgr.willPaint();
+
         return needsPaint;
     }
 
@@ -303,14 +312,6 @@ public class MediaPanel extends JComponent
     public void paint (Graphics g)
     {
         Graphics2D gfx = (Graphics2D)g;
-
-        // regardless of whether or not we paint, we need to let our
-        // abstract media managers know that we've gotten to the point of
-        // painting because they need to remain prepared to deal with
-        // media changes that happen any time between the tick() and the
-        // paint() and thus need to know when paint() happens
-        _animmgr.willPaint();
-        _spritemgr.willPaint();
 
         // no use in painting if we're not showing or if we've not yet
         // been validated
