@@ -1,9 +1,7 @@
 //
-// $Id: BodyProvider.java,v 1.1 2002/11/01 00:39:18 shaper Exp $
+// $Id: BodyProvider.java,v 1.2 2002/11/01 21:33:21 shaper Exp $
 
 package com.threerings.crowd.server;
-
-import com.threerings.presents.dobj.DObjectManager;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationException;
@@ -25,10 +23,8 @@ public class BodyProvider
      * Constructs and initializes a body provider instance which will be
      * used to handle all body-related invocation service requests.
      */
-    public static void init (InvocationManager invmgr, DObjectManager omgr)
+    public static void init (InvocationManager invmgr)
     {
-        _omgr = omgr;
-
         // register a provider instance
         invmgr.registerDispatcher(new BodyDispatcher(new BodyProvider()), true);
     }
@@ -52,7 +48,7 @@ public class BodyProvider
         }
 
         // update their status!
-        Log.info("setIdle [user=" + bobj.username +
+        Log.info("Setting user idle state [user=" + bobj.username +
                  ", status=" + nstatus + "].");
         updateOccupantStatus(bobj, bobj.location, nstatus);
     }
@@ -73,10 +69,15 @@ public class BodyProvider
         body.setStatus(status);
         body.statusTime = System.currentTimeMillis();
 
+        // get the place manager for the specified location
+        PlaceManager pmgr = CrowdServer.plreg.getPlaceManager(locationId);
+        if (pmgr == null) {
+            return;
+        }
+
         // get the place object for the specified location (which is, in
         // theory, occupied by this user)
-        PlaceObject plobj = (PlaceObject)
-            CrowdServer.omgr.getObject(locationId);
+        PlaceObject plobj = pmgr.getPlaceObject();
         if (plobj == null) {
             return;
         }
@@ -86,10 +87,7 @@ public class BodyProvider
             plobj.occupantInfo.get(new Integer(body.getOid()));
         if (info != null) {
             info.status = status;
-            plobj.updateOccupantInfo(info);
+            pmgr.updateOccupantInfo(info);
         }
     }
-
-    /** The distributed object manager used by the chat services. */
-    protected static DObjectManager _omgr;
 }
