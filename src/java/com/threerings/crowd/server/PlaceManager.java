@@ -1,10 +1,11 @@
 //
-// $Id: PlaceManager.java,v 1.39 2002/10/26 02:40:30 shaper Exp $
+// $Id: PlaceManager.java,v 1.40 2002/10/31 01:12:08 shaper Exp $
 
 package com.threerings.crowd.server;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Properties;
 
 import com.samskivert.util.HashIntMap;
@@ -100,6 +101,20 @@ public class PlaceManager
     public OccupantInfo getOccupantInfo (int bodyOid)
     {
         return (OccupantInfo)_occInfo.get(bodyOid);
+    }
+
+    /**
+     * Applies the supplied occupant operation to each occupant currently
+     * present in this place.
+     */
+    public void applyToOccupants (OccupantOp op)
+    {
+        if (_plobj != null) {
+            Iterator iter = _plobj.occupantInfo.entries();
+            while (iter.hasNext()) {
+                op.apply((OccupantInfo)iter.next());
+            }
+        }
     }
 
     /**
