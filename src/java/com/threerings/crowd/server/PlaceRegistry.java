@@ -82,6 +82,22 @@ public class PlaceRegistry
     }
 
     /**
+     * By overriding this method, it is possible to customize the place
+     * registry to cause it to load the classes associated with a
+     * particular place via a custom class loader. That loader may enforce
+     * restricted privileges or obtain the classes from some special
+     * source.
+     *
+     * @return the class loader to use when instantiating the {@link
+     * PlaceManager} associated with the supplied {@link
+     * PlaceConfig}. This method <em>must not</em> return null.
+     */
+    public ClassLoader getClassLoader (PlaceConfig config)
+    {
+        return getClass().getClassLoader();
+    }
+
+    /**
      * Creates and registers a new place manager along with the place
      * object to be managed. The registry takes care of tracking the
      * creation of the object and informing the manager when it is
@@ -262,22 +278,6 @@ public class PlaceRegistry
 //                      "[class=" + pmgr.getClass().getName() +
 //                      ", ploid=" + ploid + "].");
         }
-    }
-
-    /**
-     * By overriding this method, it is possible to customize the place
-     * registry to cause it to load the classes associated with a
-     * particular place via a custom class loader. That loader may enforce
-     * restricted privileges or obtain the classes from some special
-     * source.
-     *
-     * @return the class loader to use when instantiating the {@link
-     * PlaceManager} associated with the supplied {@link
-     * PlaceConfig}. This method <em>must not</em> return null.
-     */
-    protected ClassLoader getClassLoader (PlaceConfig config)
-    {
-        return getClass().getClassLoader();
     }
 
     /** The invocation manager with which we operate. */

@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.69 2004/10/27 01:27:44 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -145,6 +145,19 @@ public class PresentsClient
     {
         Connection conn = getConnection();
         return (conn == null) ? null : conn.getInetAddress();
+    }
+
+    /**
+     * Configures this client with a custom class loader that will be used
+     * when unserializing classes from the network.
+     */
+    public void setClassLoader (ClassLoader loader)
+    {
+        _loader = loader;
+        Connection conn = getConnection();
+        if (conn != null) {
+            conn.setClassLoader(loader);
+        }
     }
 
     /**
@@ -660,6 +673,11 @@ public class PresentsClient
         // a connection rather than clearing one out)
         if (_conn != null) {
             _conn.setMessageHandler(this);
+
+            // configure any active custom class loader
+            if (_loader != null) {
+                _conn.setClassLoader(_loader);
+            }
         }
 
         // make a note that our network status changed
@@ -897,8 +915,7 @@ public class PresentsClient
     protected Connection _conn;
     protected ClientObject _clobj;
     protected HashIntMap _subscrips = new HashIntMap();
-
-    protected static HashMap _disps = new HashMap();
+    protected ClassLoader _loader;
 
     /** The time at which this client started their session. */
     protected long _sessionStamp;
@@ -915,6 +932,9 @@ public class PresentsClient
     protected int _messagesIn;
     protected int _messagesOut;
     protected int _messagesDropped;
+
+    /** A mapping of message dispatchers. */
+    protected static HashMap _disps = new HashMap();
 
     /** The amount of time after disconnection a user is allowed before
      * their session is forcibly ended. */

@@ -1,5 +1,5 @@
 //
-// $Id: LocationProvider.java,v 1.23 2004/08/27 02:12:34 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -28,14 +28,15 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
+import com.threerings.presents.server.PresentsClient;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.client.LocationService;
-
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.LocationCodes;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
+import com.threerings.crowd.server.CrowdServer;
 
 /**
  * This class provides the server end of the location services.
@@ -113,6 +114,16 @@ public class LocationProvider
             // if we're still locked, a previous moveTo request hasn't
             // been fully processed
             throw new InvocationException(MOVE_IN_PROGRESS);
+        }
+
+        // configure the client accordingly if they're moving to a place
+        // that uses a custom class loader
+        PresentsClient client = CrowdServer.clmgr.getClient(source.username);
+        if (client != null) {
+            client.setClassLoader(_plreg.getClassLoader(pmgr.getConfig()));
+        } else {
+            Log.warning("No client for moveTo class loader fiddling? " +
+                        "[who=" + source.username + "].");
         }
 
         try {

@@ -1,5 +1,5 @@
 //
-// $Id: Connection.java,v 1.20 2004/08/27 02:20:24 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -78,6 +78,17 @@ public abstract class Connection implements NetEventHandler
     public void setMessageHandler (MessageHandler handler)
     {
         _handler = handler;
+    }
+
+    /**
+     * Configures this connection with a custom class loader.
+     */
+    public void setClassLoader (ClassLoader loader)
+    {
+        _loader = loader;
+        if (_oin != null) {
+            _oin.setClassLoader(loader);
+        }
     }
 
     /**
@@ -175,6 +186,9 @@ public abstract class Connection implements NetEventHandler
         _fin = other._fin;
         _oin = other._oin;
         _oout = other._oout;
+        if (_loader != null) {
+            _oin.setClassLoader(_loader);
+        }
     }
 
     /**
@@ -242,6 +256,9 @@ public abstract class Connection implements NetEventHandler
             if (_fin == null) {
                 _fin = new FramedInputStream();
                 _oin = new ObjectInputStream(_fin);
+                if (_loader != null) {
+                    _oin.setClassLoader(_loader);
+                }
             }
 
             // there may be more than one frame in the buffer, so we keep
@@ -318,10 +335,10 @@ public abstract class Connection implements NetEventHandler
 
     protected FramedInputStream _fin;
     protected ObjectInputStream _oin;
-
     protected ObjectOutputStream _oout;
 
     protected MessageHandler _handler;
+    protected ClassLoader _loader;
 
     /** The number of milliseconds beyond the ping interval that we allow
      * a client's network connection to be idle before we forcibly

@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.46 2004/08/27 02:20:34 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -160,14 +160,21 @@ public class ResourceManager
      */
     public ResourceManager (String resourceRoot)
     {
-        // keep track of our root path
+        this(resourceRoot, ResourceManager.class.getClassLoader());
+    }
+
+    /**
+     * Creates a resource manager with the specified class loader via
+     * which to load classes. See {@link ResourceManager(String)} for
+     * further documentation.
+     */
+    public ResourceManager (String resourceRoot, ClassLoader loader)
+    {
         _rootPath = resourceRoot;
+        _loader = loader;
 
-        // use the classloader that loaded us
-        _loader = getClass().getClassLoader();
-
-        // set up a URL handler so that things can be loaded via
-        // urls with the 'resource' protocol
+        // set up a URL handler so that things can be loaded via urls with
+        // the 'resource' protocol
         Handler.registerHandler(this);
     }
 
@@ -372,6 +379,7 @@ public class ResourceManager
 
         // if we didn't find anything, try the classloader
         String rpath = PathUtil.appendPath(_rootPath, path);
+        Log.info("looing for resource in " + _loader);
         in = _loader.getResourceAsStream(rpath);
         if (in != null) {
             return in;
@@ -406,6 +414,7 @@ public class ResourceManager
 
         // if we didn't find anything, try the classloader
         String rpath = PathUtil.appendPath(_rootPath, path);
+        Log.info("looing for resource in " + _loader);
         InputStream in = _loader.getResourceAsStream(rpath);
         if (in != null) {
             return new MemoryCacheImageInputStream(new BufferedInputStream(in));
