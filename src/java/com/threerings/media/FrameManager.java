@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.23 2002/11/22 01:53:39 mdb Exp $
+// $Id: FrameManager.java,v 1.24 2002/12/03 19:28:04 mdb Exp $
 
 package com.threerings.media;
 
@@ -208,41 +208,22 @@ public class FrameManager
     }
 
     /**
-     * Returns true if we are in the middle of a call to {@link #tick}.
-     */
-    protected synchronized boolean isTicking ()
-    {
-        return _ticking;
-    }
-
-    /**
      * Called to perform the frame processing and rendering.
      */
     protected void tick (long tickStamp)
     {
-        try {
-            synchronized (this) {
-                _ticking = true;
-            }
-
-            // if our frame is not showing (or is impossibly sized), don't try
-            // rendering anything
-            if (_frame.isShowing() &&
-                _frame.getWidth() > 0 && _frame.getHeight() > 0) {
-                // tick our participants
-                tickParticipants(tickStamp);
-                // repaint our participants
-                paintParticipants(tickStamp);
-            }
-
-            // note that we've done a frame
-//             PerformanceMonitor.tick(this, "frame-rate");
-
-        } finally {
-            synchronized (this) {
-                _ticking = false;
-            }
+        // if our frame is not showing (or is impossibly sized), don't try
+        // rendering anything
+        if (_frame.isShowing() &&
+            _frame.getWidth() > 0 && _frame.getHeight() > 0) {
+            // tick our participants
+            tickParticipants(tickStamp);
+            // repaint our participants
+            paintParticipants(tickStamp);
         }
+
+//         // note that we've done a frame
+//         PerformanceMonitor.tick(this, "frame-rate");
     }
 
     /**
@@ -611,9 +592,6 @@ public class FrameManager
     /** The timer that dispatches our frame ticks. */
     protected Timer _ticker;
 
-    /** Used to detect when we need to drop frames. */
-    protected boolean _ticking;
-
     /** The graphics object from our back buffer. */
     protected Graphics _bgfx;
 
@@ -632,13 +610,60 @@ public class FrameManager
     protected TimerTask _callTick = new TimerTask () {
         public void run () {
             if (EventQueue.isDispatchThread()) {
-                tick(_timer.getElapsedMillis());
-            } else if (!isTicking()) {
+                long elapsed = _timer.getElapsedMillis();
+                try {
+                    tick(elapsed);
+                } finally {
+                    clearTicking(elapsed);
+                }
+
+            } else if (testAndSet()) {
                 EventQueue.invokeLater(this);
+
             } else {
                 // drop the frame
             }
         }
+
+        protected final synchronized boolean testAndSet ()
+        {
+            if (REPORT_FRAME_RATE) {
+                _tries++;
+            }
+            if (!_ticking) {
+                _ticking = true;
+                return true;
+            }
+            return false;
+        }
+
+        protected final synchronized void clearTicking (long elapsed)
+        {
+            if (REPORT_FRAME_RATE) {
+                if (++_ticks == 1500) {
+                    long time = (elapsed - _lastTick);
+                    float trps = _tries * 1000f / time;
+                    float tips = _ticks * 1000f / time;
+                    Log.info("Frame manager stats [tries/sec=" + trps +
+                             ", ticks/sec=" + tips + "].");
+                    _lastTick = elapsed;
+                    _ticks = _tries = 0;
+                }
+            }
+            _ticking = false;
+        }
+
+        /** Used to detect when we need to drop frames. */
+        protected boolean _ticking;
+
+        /** Used to compute metrics. */
+        protected int _tries, _ticks, _time;
+
+        /** Used to compute metrics. */
+        protected long _lastTick;
+
+        /** Toggles whether or not metrics are tracked and reported. */
+        protected static final boolean REPORT_FRAME_RATE = true;
     };
 
     /** The entites that are ticked each frame. */
