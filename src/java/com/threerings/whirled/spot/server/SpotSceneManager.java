@@ -1,7 +1,9 @@
 //
-// $Id: SpotSceneManager.java,v 1.1 2001/12/14 00:12:32 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.2 2001/12/16 05:15:27 mdb Exp $
 
 package com.threerings.whirled.spot.server;
+
+import com.samskivert.util.IntIntMap;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.Subscriber;
@@ -10,6 +12,7 @@ import com.threerings.presents.server.ServiceFailedException;
 
 import com.threerings.crowd.chat.ChatProvider;
 import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.whirled.server.SceneManager;
 
 import com.threerings.whirled.spot.Log;
@@ -24,6 +27,26 @@ import com.threerings.whirled.spot.data.SpotOccupantInfo;
 public class SpotSceneManager extends SceneManager
     implements SpotCodes
 {
+    /**
+     * Prepares a mapping for an entering body, indicating that they will
+     * be entering at the specified location id. When the time comes to
+     * prepare that body's occupant info, we will use the supplied
+     * location id as their starting location.
+     */
+    public void mapEnteringBody (int bodyOid, int locationId)
+    {
+        _entering.put(bodyOid, locationId);
+    }
+
+    /**
+     * If scene entry fails, this can be called to undo a scene entry
+     * mapping.
+     */
+    public void clearEnteringBody (int bodyOid)
+    {
+        _entering.remove(bodyOid);
+    }
+
     // documentation inherited
     protected void gotSceneData ()
     {
@@ -60,6 +83,27 @@ public class SpotSceneManager extends SceneManager
         // create an array in which to track the occupants of each
         // location
         _locationOccs = new int[_sscene.getLocationCount()];
+    }
+
+    /**
+     * When a user is entering a scene, we populate their occupant info
+     * with the location prepared by the portal traversal code or with the
+     * default entrance for the scene if no preparation was done.
+     */
+    protected void populateOccupantInfo (OccupantInfo info, BodyObject body)
+    {
+        super.populateOccupantInfo(info, body);
+
+        // we have a table for tracking the locations of entering bodies
+        // which is populated by the portal traversal code when a body
+        // requests to enter our scene. if there's a mapped entrance
+        // location for this body, use it, otherwise assume they're coming
+        // in at the default entrance
+        int entryLocId = _entering.remove(body.getOid());
+        if (entryLocId == -1) {
+            entryLocId = _sscene.getDefaultEntranceId();
+        }
+        ((SpotOccupantInfo)info).locationId = entryLocId;
     }
 
     /**
@@ -169,4 +213,8 @@ public class SpotSceneManager extends SceneManager
 
     /** Oids of the bodies that occupy each of our locations. */
     protected int[] _locationOccs;
+
+    /** A table of mappings from body oids to entry location ids for
+     * bodies that are entering our scene. */
+    protected IntIntMap _entering = new IntIntMap();
 }

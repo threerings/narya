@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.2 2001/12/14 23:12:39 mdb Exp $
+// $Id: SpotProvider.java,v 1.3 2001/12/16 05:15:27 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -95,8 +95,9 @@ public class SpotProvider extends InvocationProvider
             SceneRegistry.ResolutionListener rl =
                 new SceneRegistry.ResolutionListener() {
                     public void sceneWasResolved (SceneManager scmgr) {
+                        SpotSceneManager sscmgr = (SpotSceneManager)scmgr;
                         finishTraversePortalRequest(
-                            fsource, finvid, scmgr, fsceneVer,
+                            fsource, finvid, sscmgr, fsceneVer,
                             fportalId, destLocId);
                     }
 
@@ -125,12 +126,13 @@ public class SpotProvider extends InvocationProvider
      * to have been loaded into the server.
      */
     protected void finishTraversePortalRequest (
-        BodyObject source, int invid, SceneManager scmgr,
+        BodyObject source, int invid, SpotSceneManager scmgr,
         int sceneVer, int exitPortalId, int destLocId)
     {
         // move to the place object associated with this scene
         PlaceObject plobj = scmgr.getPlaceObject();
         int ploid = plobj.getOid();
+        int bodyOid = source.getOid();
 
         // if they were in a scene (and at a location) prior to issuing
         // this traverse portal request, we need to send a notification to
@@ -144,16 +146,14 @@ public class SpotProvider extends InvocationProvider
         // ripping apart moveTo and restructuring the code with this
         // requirement in mind
         int oldLocId =
-            updateLocation(source.location, source.getOid(), exitPortalId);
+            updateLocation(source.location, bodyOid, exitPortalId);
+
+        // let the destination scene manager know that we're coming in
+        scmgr.mapEnteringBody(bodyOid, destLocId);
 
         try {
             // try doing the actual move
             PlaceConfig config = LocationProvider.moveTo(source, ploid);
-
-            // now that the move succeeded, we need to update the occupant
-            // info in the new place object with this user's entry
-            // location
-            updateLocation(ploid, source.getOid(), destLocId);
 
             // check to see if they need a newer version of the scene data
             SceneModel model = scmgr.getSceneModel();
@@ -173,7 +173,11 @@ public class SpotProvider extends InvocationProvider
 
             // we need to undo the move to the exit portal location that
             // we enacted earlier
-            updateLocation(source.location, source.getOid(), oldLocId);
+            updateLocation(source.location, bodyOid, oldLocId);
+
+            // and let the destination scene manager know that we're no
+            // longer coming in
+            scmgr.clearEnteringBody(bodyOid);
         }
     }
 
