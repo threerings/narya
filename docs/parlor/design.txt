@@ -125,3 +125,6 @@ trigger invite cleanup)?
 
 Add MessageHandler validators so that turn based games can easily reject
 message events from non-turn-holders.
+
+Perhaps have playerReady() and playerReturned() callbacks in GameManager
+to dispatch PlayerReady notifications to derived classes.
