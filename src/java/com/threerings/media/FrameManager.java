@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.35 2003/03/25 23:06:51 mdb Exp $
+// $Id: FrameManager.java,v 1.36 2003/04/19 01:04:29 mdb Exp $
 
 package com.threerings.media;
 
@@ -395,7 +395,8 @@ public class FrameManager
             GraphicsConfiguration gc = _frame.getGraphicsConfiguration();
 
             // create our off-screen buffer if necessary
-            if (_backimg == null) {
+            if (_backimg == null || _backimg.getWidth() != _frame.getWidth() ||
+                _backimg.getHeight() != _frame.getHeight()) {
                 createBackBuffer(gc);
             }
 
