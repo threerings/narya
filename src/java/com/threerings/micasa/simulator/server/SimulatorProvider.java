@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorProvider.java,v 1.2 2002/08/14 19:07:51 mdb Exp $
+// $Id: SimulatorProvider.java,v 1.3 2003/01/21 22:10:18 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -32,7 +32,7 @@ public class SimulatorProvider
     public void createGame (ClientObject caller, GameConfig config,
                             String simClass, int playerCount)
     {
-        Log.info("handleCreateGameRequest [caller=" + caller +
+        Log.info("handleCreateGameRequest [caller=" + caller.who() +
                  ", config=" + config + ", simClass=" + simClass +
                  ", playerCount=" + playerCount + "].");
 
