@@ -1,5 +1,5 @@
 //
-// $Id: FadeAnimation.java,v 1.1 2002/01/11 16:17:33 shaper Exp $
+// $Id: FadeAnimation.java,v 1.2 2002/01/11 16:53:34 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -13,9 +13,9 @@ import java.awt.Rectangle;
 import com.threerings.media.Log;
 
 /**
- * An animation that displays an image fading from invisibility to full
- * opacity, or vice-versa.  The animation is finished when the target
- * opacity is reached.
+ * An animation that displays an image fading from one alpha level to
+ * another in specified increments over time.  The animation is finished
+ * when the specified target alpha is reached.
  */
 public class FadeAnimation extends Animation
 {
@@ -57,12 +57,12 @@ public class FadeAnimation extends Animation
         _alpha = Math.min(_startAlpha + (msecs * _step), 1.0f);
         _comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, _alpha);
 
-        // check whether we're done and dirty ourselves
+        // check whether we're done
         _finished = ((_startAlpha < _target) ? (_alpha >= _target) :
                      (_alpha <= _target));
-        invalidate();
 
-        // Log.info("Ticked fade [anim=" + this + "].");
+        // dirty ourselves
+        invalidate();
     }
 
     // documentation inherited
@@ -91,7 +91,7 @@ public class FadeAnimation extends Animation
         buf.append(", target=").append(_target);
     }
 
-    /** The composite object used to render the image with desired opacity. */
+    /** The composite used to render the image with the current alpha. */
     protected Composite _comp;
 
     /** The current alpha of the image. */

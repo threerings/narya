@@ -1,5 +1,5 @@
 //
-// $Id: BobbleAnimation.java,v 1.1 2002/01/11 16:17:33 shaper Exp $
+// $Id: BobbleAnimation.java,v 1.2 2002/01/11 16:53:34 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -42,10 +42,6 @@ public class BobbleAnimation extends Animation
 
         // calculate animation ending time
         _end = System.currentTimeMillis() + length;
-
-        // calculate the dirty rectangle bounds
-        int wid = image.getWidth(null), hei = image.getHeight(null);
-        // _bounds = new Rectangle(sx - rx, sy - ry, sx + wid + rx, sy + hei + ry);
     }
 
     // documentation inherited

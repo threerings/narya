@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.1 2002/01/11 16:17:33 shaper Exp $
+// $Id: AnimationManager.java,v 1.2 2002/01/11 16:53:34 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -217,7 +217,7 @@ public class AnimationManager
         removeFinishedAnimations();
 
 	// update refresh-rate information
-	PerformanceMonitor.tick(AnimationManager.this, "refresh");
+	// PerformanceMonitor.tick(AnimationManager.this, "refresh");
 
         if (finishedTick()) {
             // finishedTick returning true means there's been a
@@ -237,9 +237,6 @@ public class AnimationManager
         int size = _anims.size();
         for (int ii = 0; ii < size; ii++) {
             ((Animation)_anims.get(ii)).tick(timestamp);
-//             if (anim.isFinished()) {
-//                 anim.notifyObservers(new AnimationWillCompleteEvent(anim));
-//             }
         }
     }
 
@@ -257,7 +254,7 @@ public class AnimationManager
                 anim.notifyObservers(new AnimationCompletedEvent(anim));
                 // un-register the animation
                 unregisterAnimation(anim);
-                Log.info("Removed finished animation [anim=" + anim + "].");
+                // Log.info("Removed finished animation [anim=" + anim + "].");
             }
         }
     }
