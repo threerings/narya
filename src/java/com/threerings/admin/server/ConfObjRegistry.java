@@ -1,5 +1,5 @@
 //
-// $Id: ConfObjRegistry.java,v 1.3 2002/09/23 01:35:10 mdb Exp $
+// $Id: ConfObjRegistry.java,v 1.4 2003/01/22 01:40:32 mdb Exp $
 
 package com.threerings.admin.server;
 
@@ -181,6 +181,10 @@ public class ConfObjRegistry
                     int[] defval = (int[])field.get(confObj);
                     field.set(confObj, config.getValue(key, defval));
 
+                } else if (type.equals(FLOAT_ARRAY_PROTO.getClass())) {
+                    float[] defval = (float[])field.get(confObj);
+                    field.set(confObj, config.getValue(key, defval));
+
                 } else if (type.equals(STRING_ARRAY_PROTO.getClass())) {
                     String[] defval = (String[])field.get(confObj);
                     field.set(confObj, config.getValue(key, defval));
@@ -226,6 +230,7 @@ public class ConfObjRegistry
         }
 
         protected static final int[] INT_ARRAY_PROTO = new int[0];
+        protected static final float[] FLOAT_ARRAY_PROTO = new float[0];
         protected static final String[] STRING_ARRAY_PROTO = new String[0];
     }
 
