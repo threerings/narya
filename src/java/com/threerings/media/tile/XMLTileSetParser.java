@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParser.java,v 1.8 2001/07/28 01:31:51 shaper Exp $
+// $Id: XMLTileSetParser.java,v 1.9 2001/08/08 00:33:54 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -32,8 +32,43 @@ public class XMLTileSetParser extends DefaultHandler
 
     public void endElement (String uri, String localName, String qName)
     {
-	// construct the tileset object on tag close
-	if (qName.equals("tileset")) {
+	// we know we've received the entirety of the character data
+        // for the elements we're tracking at this point, so proceed
+        // with saving off element values for use when we construct
+        // the tileset object.
+	String str = _chars.toString();
+
+	if (qName.equals("name")) {
+	    _tsName = str.trim();
+
+	} else if (qName.equals("tsid")) {
+	    try {
+		_tsTsid = Integer.parseInt(str);
+	    } catch (NumberFormatException nfe) {
+		Log.warning("Malformed integer tilesetid [str=" + str + "].");
+		_tsTsid = -1;
+	    }
+
+	} else if (qName.equals("imagefile")) {
+	    _tsImgFile = str;
+
+	} else if (qName.equals("rowwidth")) {
+	    _tsRowWidth = StringUtil.parseIntArray(str);
+
+	} else if (qName.equals("rowheight")) {
+	    _tsRowHeight = StringUtil.parseIntArray(str);
+
+	} else if (qName.equals("tilecount")) {
+	    _tsTileCount = StringUtil.parseIntArray(str);
+
+	} else if (qName.equals("offsetpos")) {
+            getPoint(str, _tsOffsetPos);
+
+        } else if (qName.equals("gapdist")) {
+            getPoint(str, _tsGapDist);
+
+        } else if (qName.equals("tileset")) {
+	    // construct the tileset object on tag close
 	    TileSet tset = new TileSet(
 		_tsName, _tsTsid, _tsImgFile, _tsRowWidth, _tsRowHeight,
                 _tsTileCount, _tsOffsetPos, _tsGapDist);
@@ -47,6 +82,9 @@ public class XMLTileSetParser extends DefaultHandler
 	// note that we're not within a tag to avoid considering any
 	// characters during this quiescent time
 	_tag = null;
+
+        // and clear out the character data we're gathering
+        _chars = new StringBuffer();
     }
 
     public void characters (char ch[], int start, int length)
@@ -54,39 +92,7 @@ public class XMLTileSetParser extends DefaultHandler
 	// bail if we're not within a meaningful tag
 	if (_tag == null) return;
 
-  	String str = String.copyValueOf(ch, start, length);
-
-	// store the value associated with the current tag for use
-	// when we construct the tileset object.
-	if (_tag.equals("name")) {
-	    _tsName = str;
-
-	} else if (_tag.equals("tsid")) {
-	    try {
-		_tsTsid = Integer.parseInt(str);
-	    } catch (NumberFormatException nfe) {
-		Log.warning("Malformed integer tilesetid [str=" + str + "].");
-		_tsTsid = -1;
-	    }
-
-	} else if (_tag.equals("imagefile")) {
-	    _tsImgFile = str;
-
-	} else if (_tag.equals("rowwidth")) {
-	    _tsRowWidth = StringUtil.parseIntArray(str);
-
-	} else if (_tag.equals("rowheight")) {
-	    _tsRowHeight = StringUtil.parseIntArray(str);
-
-	} else if (_tag.equals("tilecount")) {
-	    _tsTileCount = StringUtil.parseIntArray(str);
-
-	} else if (_tag.equals("offsetpos")) {
-            getPoint(str, _tsOffsetPos);
-
-        } else if (_tag.equals("gapdist")) {
-            getPoint(str, _tsGapDist);
-        }
+  	_chars.append(ch, start, length);
     }
 
     public ArrayList loadTileSets (String fname) throws IOException
@@ -122,6 +128,7 @@ public class XMLTileSetParser extends DefaultHandler
     {
         _tsOffsetPos = new Point();
         _tsGapDist = new Point();
+	_chars = new StringBuffer();
     }
 
     /**
@@ -145,6 +152,7 @@ public class XMLTileSetParser extends DefaultHandler
     protected ArrayList _tilesets = new ArrayList();
 
     // temporary storage of tileset object values
+    protected StringBuffer _chars;
     protected String _tsName;
     protected int    _tsTsid;
     protected String _tsImgFile;
