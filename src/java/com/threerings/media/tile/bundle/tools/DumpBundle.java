@@ -1,5 +1,5 @@
 //
-// $Id: DumpBundle.java,v 1.10 2003/05/13 21:33:58 ray Exp $
+// $Id: DumpBundle.java,v 1.11 2003/07/28 04:07:30 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -24,7 +24,8 @@ public class DumpBundle
         boolean dumpTiles = false;
 
         if (args.length < 1) {
-            String usage = "Usage: DumpBundle bundle.jar [bundle.jar ...]";
+            String usage = "Usage: DumpBundle [-tiles] " +
+                "(bundle.jar|tsbundle.dat) [...]";
             System.err.println(usage);
             System.exit(-1);
         }
@@ -42,9 +43,14 @@ public class DumpBundle
 
             File file = new File(args[i]);
             try {
-                ResourceBundle bundle = new ResourceBundle(file);
-                TileSetBundle tsb = BundleUtil.extractBundle(bundle);
-                tsb.init(bundle);
+                TileSetBundle tsb = null;
+                if (args[i].endsWith(".jar")) {
+                    ResourceBundle bundle = new ResourceBundle(file);
+                    tsb = BundleUtil.extractBundle(bundle);
+                    tsb.init(bundle);
+                } else {
+                    tsb = BundleUtil.extractBundle(file);
+                }
 
                 Iterator tsids = tsb.enumerateTileSetIds();
                 while (tsids.hasNext()) {
