@@ -1,5 +1,5 @@
 //
-// $Id: SpotService.java,v 1.12 2003/02/12 07:23:31 mdb Exp $
+// $Id: SpotService.java,v 1.13 2003/02/13 21:55:22 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -44,11 +44,11 @@ public interface SpotService extends InvocationService
      * location.
      *
      * @param loc the location to which to move.
-     * @param cluster if zero, a new cluster will be created and assigned
-     * to the calling user; if -1, the calling user will be removed from
-     * any cluster they currently occupy and not made to occupy a new
-     * cluster; if the bodyOid of another user, the calling user will be
-     * made to join the target user's cluster.
+     * @param cluster if -1, the calling user will be removed from any
+     * cluster they currently occupy and not made to occupy a new cluster;
+     * if the bodyOid of another user, the calling user will be made to
+     * join the target user's cluster, or create a cluster with the target
+     * user if they are not already in one.
      */
     public void changeLoc (Client client, Location loc, int cluster,
                            ChangeLocListener listener);

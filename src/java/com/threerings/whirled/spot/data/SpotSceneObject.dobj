@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneObject.dobj,v 1.1 2003/02/12 07:23:31 mdb Exp $
+// $Id: SpotSceneObject.dobj,v 1.2 2003/02/13 21:55:22 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -14,4 +14,7 @@ public class SpotSceneObject extends SceneObject
     /** A distributed set containing {@link SceneLocation} records for all
      * occupants of this scene. */
     public DSet occupantLocs = new DSet();
+
+    /** Contains information on all {@link Cluster}s in this scene. */
+    public DSet clusters = new DSet();
 }

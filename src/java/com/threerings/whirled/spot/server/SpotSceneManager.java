@@ -1,8 +1,9 @@
 //
-// $Id: SpotSceneManager.java,v 1.25 2003/02/12 07:23:31 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.26 2003/02/13 21:55:22 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
+import java.awt.Point;
 import java.util.Iterator;
 
 import com.samskivert.util.ArrayIntSet;
@@ -22,6 +23,7 @@ import com.threerings.crowd.server.CrowdServer;
 import com.threerings.whirled.server.SceneManager;
 
 import com.threerings.whirled.spot.Log;
+import com.threerings.whirled.spot.data.Cluster;
 import com.threerings.whirled.spot.data.ClusterObject;
 import com.threerings.whirled.spot.data.ClusteredBodyObject;
 import com.threerings.whirled.spot.data.Location;
@@ -171,6 +173,8 @@ public class SpotSceneManager extends SceneManager
             throw new InvocationException(INTERNAL_ERROR);
         }
 
+        // TODO: make sure the location isn't too close to another user
+
         // update the user's location information in the scene which will
         // indicate to the client that their avatar should be moved from
         // its current position to their new position
@@ -186,16 +190,10 @@ public class SpotSceneManager extends SceneManager
         }
 
         // handle the cluster situation
-        switch (cluster) {
-        case 0:
-            createNewCluster(source);
-            break;
-        case -1:
+        if (cluster == -1) {
             removeFromCluster(source.getOid());
-            break;
-        default:
-            addToCluster(cluster, source);
-            break;
+        } else {
+            createOrJoinCluster(cluster, source);
         }
     }
 
@@ -219,24 +217,37 @@ public class SpotSceneManager extends SceneManager
 
     /**
      * Adds the specified user to the cluster occupied by the specified
-     * other user.
+     * other user or creates a new cluster for the two users if neither is
+     * already clustered.
      */
-    protected void addToCluster (int memberOid, BodyObject joiner)
+    protected void createOrJoinCluster (int memberOid, BodyObject joiner)
     {
         ClusterRecord clrec = (ClusterRecord)_clusters.get(memberOid);
-        if (clrec == null) {
-            // this isn't completely impossible as the last user might
-            // leave a cluster just as another user is entering it, but
-            // before the entering user's client was informed that the
-            // cluster went away
-            Log.info("Can't add user to non-existent cluster; " +
-                     "creating a new one just for them " +
-                     "[memberOid=" + memberOid +
-                     ", joiner=" + joiner.who() + "].");
-            clrec = new ClusterRecord();
+        if (clrec != null) {
+            // if the cluster already exists, add this user and be done
+            if (clrec.addBody(joiner)) {
+                _clusters.put(joiner.getOid(), clrec);
+            }
+            return;
         }
+
+        // otherwise we have to create a new cluster and add our two
+        // charter members!
+        clrec = new ClusterRecord();
+        BodyObject member = (BodyObject)CrowdServer.omgr.getObject(memberOid);
+        if (member == null) {
+            Log.warning("Can't create cluster, missing target " +
+                        "[creator=" + joiner.who() +
+                        ", targetOid=" + memberOid + "].");
+            return;
+        }
+
+        // add our two lovely users to the newly created cluster
         if (clrec.addBody(joiner)) {
             _clusters.put(joiner.getOid(), clrec);
+        }
+        if (clrec.addBody(member)) {
+            _clusters.put(member.getOid(), clrec);
         }
     }
 
@@ -270,10 +281,38 @@ public class SpotSceneManager extends SceneManager
     }
 
     /**
+     * Converts the x and y coordinates in the supplied location object to
+     * Cartesian coordinates that can be manipulated geometrically. The
+     * default implementation assumes the location coordinates are
+     * Cartesian, but systems that use different coordinate systems will
+     * want to override this method and perform the appropriate
+     * conversions.
+     */
+    protected void locationToCoords (int lx, int ly, Point coords)
+    {
+        coords.x = lx;
+        coords.y = ly;
+    }
+
+    /**
+     * Converts the supplied x and y coordinates (obtained from a prior
+     * call to {@link #locationToCoords}) to location coordinates that can
+     * be sent back to the client. The default implementation assumes the
+     * location coordinates are Cartesian, but systems that use different
+     * coordinate systems will want to override this method and perform
+     * the appropriate conversions.
+     */
+    protected void coordsToLocation (int cx, int cy, Point loc)
+    {
+        loc.x = cx;
+        loc.y = cy;
+    }
+
+    /**
      * Used to manage clusters which are groups of users that can chat to
      * one another.
      */
-    protected static class ClusterRecord extends HashIntMap
+    protected class ClusterRecord extends HashIntMap
         implements Subscriber
     {
         public ClusterRecord ()
@@ -284,11 +323,14 @@ public class SpotSceneManager extends SceneManager
         public boolean addBody (BodyObject body)
         {
             if (body instanceof ClusteredBodyObject) {
+                put(body.getOid(), body);
+                _cluster.occupants++;
+                recomputeCenter();
                 if (_clobj != null) {
+                    _ssobj.updateClusters(_cluster);
+                    _clobj.addToOccupants(body.getOid());
                     ((ClusteredBodyObject)body).setClusterOid(_clobj.getOid());
                 }
-                put(body.getOid(), body);
-                _clobj.addToOccupants(body.getOid());
                 return true;
 
             } else {
@@ -308,7 +350,12 @@ public class SpotSceneManager extends SceneManager
                             ", size=" + size() + ", who=" + bodyOid + "].");
             } else {
                 body.setClusterOid(-1);
-                _clobj.removeFromOccupants(bodyOid);
+                _cluster.occupants--;
+                recomputeCenter();
+                if (_clobj != null) {
+                    _clobj.removeFromOccupants(bodyOid);
+                    _ssobj.updateClusters(_cluster);
+                }
             }
 
             // if we've removed our last body; stick a fork in ourselves
@@ -327,11 +374,16 @@ public class SpotSceneManager extends SceneManager
             // keep this feller around
             _clobj = (ClusterObject)object;
 
+            // configure our cluster record and publish it
+            _cluster.clusterOid = _clobj.getOid();
+            _ssobj.addToClusters(_cluster);
+
             // let any mapped users know about our cluster
             Iterator iter = values().iterator();
             while (iter.hasNext()) {
                 ClusteredBodyObject body = (ClusteredBodyObject)iter.next();
                 body.setClusterOid(_clobj.getOid());
+                _clobj.addToOccupants(((BodyObject)body).getOid());
             }
 
             // if we didn't manage to add our creating user when we first
@@ -354,6 +406,29 @@ public class SpotSceneManager extends SceneManager
             }
         }
 
+        protected void recomputeCenter ()
+        {
+            int tx = 0, ty = 0, count = 0;
+
+            // compute the average x and y position of all our cluster
+            // occupants
+            Iterator iter = _ssobj.occupantLocs.entries();
+            while (iter.hasNext()) {
+                SceneLocation sloc = (SceneLocation)iter.next();
+                if (containsKey(sloc.bodyOid)) {
+                    locationToCoords(sloc.x, sloc.y, _scratch);
+                    tx += _scratch.x;
+                    ty += _scratch.x;
+                    count++;
+                }
+            }
+
+            // convert the center back to "location" coordinates
+            coordsToLocation(tx/count, ty/count, _scratch);
+            _cluster.x = _scratch.x;
+            _cluster.y = _scratch.y;
+        }
+
         protected void destroy ()
         {
             Log.info("Cluster empty, going away " +
@@ -362,6 +437,8 @@ public class SpotSceneManager extends SceneManager
         }
 
         protected ClusterObject _clobj;
+        protected Cluster _cluster = new Cluster();
+        protected Point _scratch = new Point();
     }
 
     /** A casted reference to our place object. */
