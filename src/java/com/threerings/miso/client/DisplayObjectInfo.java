@@ -1,5 +1,5 @@
 //
-// $Id: DisplayObjectInfo.java,v 1.3 2002/09/23 23:07:11 mdb Exp $
+// $Id: DisplayObjectInfo.java,v 1.4 2002/10/16 01:53:57 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -38,6 +38,16 @@ public class SceneObject
         this.tile = tile;
         this.x = x;
         this.y = y;
+    }
+
+    /**
+     * Indicate to the scene object that it is being hovered over.
+     * 
+     * @return true if the object should be repainted.
+     */
+    public boolean setHovered (boolean hovered)
+    {
+        return false;
     }
 
     // documentation inherited
