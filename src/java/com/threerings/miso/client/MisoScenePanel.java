@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.12 2003/04/22 18:12:40 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.13 2003/04/22 22:00:51 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -472,6 +472,12 @@ public class MisoScenePanel extends VirtualMediaPanel
     {
         SceneBlock block = getBlock(tx, ty);
         return (block == null) ? false : block.canTraverse(traverser, tx, ty);
+    }
+
+    // documentation inherited from interface
+    public Rectangle getViewBounds ()
+    {
+        return _vbounds;
     }
 
     // documentation inherited from interface
