@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.3 2001/07/25 01:38:08 shaper Exp $
+// $Id: XMLSceneParser.java,v 1.4 2001/07/27 17:52:07 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -156,8 +156,6 @@ public class XMLSceneParser extends DefaultHandler
         }
 
         // create the tile objects in the tile array
-        Log.info("Sparse row data [colstart=" + _scColstart +
-                 ", rownum=" + _scRownum + ", lnum=" + _scLnum + "].");
         for (int xx = 0; xx < vals.length; xx += 2) {
             Tile tile = _tilemgr.getTile(vals[xx], vals[xx + 1]);
             _scTiles[_scColstart + (xx / 2)][_scRownum][_scLnum] = tile;
