@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.28 2001/10/25 01:39:38 shaper Exp $
+// $Id: Sprite.java,v 1.29 2001/10/25 03:01:13 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -123,15 +123,26 @@ public class Sprite
     {
         // create a starting dirty rectangle with our current position
         Rectangle dirty = new Rectangle(_bounds);
+
         // move ourselves
         _x = x;
         _y = y;
-        // we need to update our draw position which is based on the size
-        // of our current frame
+
+        // we need to update our draw position which is based on the
+        // size of our current frame
         updateRenderOrigin();
-        // grow the dirty rectangle to reflect our new location
-        dirty.add(_bounds);
-        // and invalidate the whole shebang
+
+        if (dirty.intersects(_bounds)) {
+            // grow the dirty rectangle to reflect our new location
+            dirty.add(_bounds);
+        } else {
+            // dirty the new rectangle separately from the old to
+            // avoid potentially creating a large dirty rectangle if
+            // the sprite warps from place to place
+            invalidate(new Rectangle(_bounds));
+        }
+
+        // invalidate the potentially-grown starting dirty rectangle
         invalidate(dirty);
     }
 
