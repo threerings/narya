@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.15 2002/02/19 19:56:49 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.16 2002/02/21 00:20:22 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -213,7 +213,7 @@ public class AnimatedPanel extends Canvas implements AnimatedView
 
                 // let our derived classes do whatever they need to do to
                 // prepare to be scrolled
-                viewWillScroll(dx, dy);
+                viewWillScroll(dx, dy, now);
             }
         }
 
@@ -299,8 +299,15 @@ public class AnimatedPanel extends Canvas implements AnimatedView
      * contents of the offscreen buffer, but the derived class will need
      * to do whatever is necessary to prepare to repaint the exposed
      * regions as well as update it's own internal state accordingly.
+     *
+     * @param dx the distance (in pixels) that the view will scroll in the
+     * x direction.
+     * @param dy the distance (in pixels) that the view will scroll in the
+     * y direction.
+     * @param now the current time, provided because we have it and
+     * scrolling views are likely to want to use it in calculating stuff.
      */
-    protected void viewWillScroll (int dx, int dy)
+    protected void viewWillScroll (int dx, int dy, long now)
     {
         // nothing to do here
     }
