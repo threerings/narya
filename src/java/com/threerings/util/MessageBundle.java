@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.1 2002/01/29 20:44:35 mdb Exp $
+// $Id: MessageBundle.java,v 1.2 2002/02/09 01:35:26 mdb Exp $
 
 package com.threerings.util;
 
@@ -50,11 +50,12 @@ public class MessageBundle
 
     /**
      * Obtains the translation for the specified message key. The
-     * specified argument is substituted into the translated string. See
-     * {@link MessageFormat} for more information on how the substitution
-     * is performed. If a translation message does not exist for the
-     * specified key, an error is logged and the key itself (plus the
-     * argument) is returned so that the caller need not worry about
+     * specified argument is substituted into the translated string.
+     *
+     * <p> See {@link MessageFormat} for more information on how the
+     * substitution is performed. If a translation message does not exist
+     * for the specified key, an error is logged and the key itself (plus
+     * the argument) is returned so that the caller need not worry about
      * handling a null response.
      */
     public String get (String key, Object arg1)
@@ -64,11 +65,12 @@ public class MessageBundle
 
     /**
      * Obtains the translation for the specified message key. The
-     * specified arguments are substituted into the translated string. See
-     * {@link MessageFormat} for more information on how the substitution
-     * is performed. If a translation message does not exist for the
-     * specified key, an error is logged and the key itself (plus the
-     * arguments) is returned so that the caller need not worry about
+     * specified arguments are substituted into the translated string.
+     *
+     * <p> See {@link MessageFormat} for more information on how the
+     * substitution is performed. If a translation message does not exist
+     * for the specified key, an error is logged and the key itself (plus
+     * the arguments) is returned so that the caller need not worry about
      * handling a null response.
      */
     public String get (String key, Object arg1, Object arg2)
@@ -78,11 +80,12 @@ public class MessageBundle
 
     /**
      * Obtains the translation for the specified message key. The
-     * specified arguments are substituted into the translated string. See
-     * {@link MessageFormat} for more information on how the substitution
-     * is performed. If a translation message does not exist for the
-     * specified key, an error is logged and the key itself (plus the
-     * arguments) is returned so that the caller need not worry about
+     * specified arguments are substituted into the translated string.
+     *
+     * <p> See {@link MessageFormat} for more information on how the
+     * substitution is performed. If a translation message does not exist
+     * for the specified key, an error is logged and the key itself (plus
+     * the arguments) is returned so that the caller need not worry about
      * handling a null response.
      */
     public String get (String key, Object arg1, Object arg2, Object arg3)
@@ -92,11 +95,12 @@ public class MessageBundle
 
     /**
      * Obtains the translation for the specified message key. The
-     * specified arguments are substituted into the translated string. See
-     * {@link MessageFormat} for more information on how the substitution
-     * is performed. If a translation message does not exist for the
-     * specified key, an error is logged and the key itself (plus the
-     * arguments) is returned so that the caller need not worry about
+     * specified arguments are substituted into the translated string.
+     *
+     * <p> See {@link MessageFormat} for more information on how the
+     * substitution is performed. If a translation message does not exist
+     * for the specified key, an error is logged and the key itself (plus
+     * the arguments) is returned so that the caller need not worry about
      * handling a null response.
      */
     public String get (String key, Object[] args)
@@ -109,6 +113,34 @@ public class MessageBundle
             Log.warning("Missing translation message " +
                         "[bundle=" + _path + ", key=" + key + "].");
             return key + StringUtil.toString(args);
+        }
+    }
+
+    /**
+     * Obtains the translation for the specified compound message key. A
+     * compound key contains the message key followed by a tab separated
+     * list of message arguments which will be subsituted into the
+     * translation string.
+     *
+     * <p> See {@link MessageFormat} for more information on how the
+     * substitution is performed. If a translation message does not exist
+     * for the specified key, an error is logged and the key itself (plus
+     * the arguments) is returned so that the caller need not worry about
+     * handling a null response.
+     */
+    public String xlate (String compoundKey)
+    {
+        // to be more efficient about creating unnecessary objects, we
+        // do some checking before splitting
+        int tidx = compoundKey.indexOf("\t");
+        if (tidx == -1) {
+            return get(compoundKey);
+
+        } else {
+            String key = compoundKey.substring(0, tidx);
+            String argstr = compoundKey.substring(tidx+1);
+            String[] args = StringUtil.split(argstr, "\t");
+            return get(key, args);
         }
     }
 
