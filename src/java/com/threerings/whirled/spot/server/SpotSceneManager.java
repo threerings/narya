@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.45 2003/09/22 23:48:58 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.46 2003/10/10 19:18:18 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -51,6 +51,12 @@ public class SpotSceneManager extends SceneManager
             CrowdServer.plreg.getPlaceManager(body.location);
         if (mgr != null) {
             SpotScene scene = (SpotScene)mgr.getScene();
+            if (scene == null) {
+                Log.warning("No scene in moveBodyToDefaultPortal()? " +
+                            "[who=" + body.who() +
+                            ", where=" + mgr.where() + "].");
+                return;
+            }
             try {
                 Location eloc = scene.getDefaultEntrance().getLocation();
                 mgr.handleChangeLoc(body, eloc);
