@@ -1,7 +1,9 @@
 //
-// $Id: Location.java,v 1.3 2001/12/05 03:38:09 mdb Exp $
+// $Id: Location.java,v 1.4 2001/12/05 09:06:30 mdb Exp $
 
 package com.threerings.whirled.spot.data;
+
+import java.awt.Point;
 
 /**
  * A location represents a place to stand in a scene. More specifically,
@@ -30,13 +32,25 @@ public class Location
     public int clusterIndex;
 
     /**
-     * Location equality is determined by location id.
+     * Location equality is determined by location id. Locations will
+     * claim to be equal to an <code>Integer</code> object with a value
+     * equal to the location id and will claim to be equal to a
+     * <code>Point</code> object with x and y coordinates equal to the x
+     * and y coordinates of the location.
      */
     public boolean equals (Object other)
     {
         if (other instanceof Location) {
             Location oloc = (Location)other;
             return locationId == oloc.locationId;
+
+        } else if (other instanceof Integer) {
+            return locationId == ((Integer)other).intValue();
+
+        } else if (other instanceof Point) {
+            Point p = (Point)other;
+            return (x == p.x && y == p.y);
+
         } else {
             return false;
         }
