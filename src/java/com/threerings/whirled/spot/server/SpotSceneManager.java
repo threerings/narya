@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.44 2003/09/22 23:42:49 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.45 2003/09/22 23:48:58 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -292,6 +292,10 @@ public class SpotSceneManager extends SceneManager
         // make sure we're in the same scene as said user
         BodyObject friend = (BodyObject)tobj;
         if (friend.location != joiner.location) {
+            Log.info("Refusing cluster join from non-proximate user " +
+                     "[joiner=" + joiner.who() + ", jloc=" + joiner.location +
+                     ", target=" + friend.who() +
+                     ", tloc=" + friend.location + "].");
             throw new InvocationException(NO_SUCH_CLUSTER);
         }
 
