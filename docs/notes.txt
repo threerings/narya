@@ -3,5 +3,8 @@ Narya Notes -*- mode: outline -*-
 * Media framework
 Make sure the animation and sprite stuff is general purpose.
 
+Fix all the code that presently loads up tiles from tilesets by id which
+should really be loading the tilesets by path.
+
 * General
 Remove dependencies of nodemap on miso.

@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.8 2001/10/24 00:58:12 mdb Exp $
+// $Id: SceneRegistry.java,v 1.9 2001/11/09 21:47:09 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -46,6 +46,17 @@ public class SceneRegistry
         // we'll use this to do database stuff
         _invoker = new Invoker();
         _invoker.start();
+    }
+
+    /**
+     * Fetches the scene manager assosciated with the specified scene.
+     *
+     * @return the scene manager for the specified scene or null if no
+     * scene manager is loaded for that scene.
+     */
+    public SceneManager getSceneManager (int sceneId)
+    {
+        return (SceneManager)_scenemgrs.get(sceneId);
     }
 
     /**
