@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.48 2003/12/13 02:59:05 mdb Exp $
+// $Id: FrameManager.java,v 1.49 2003/12/19 18:31:11 mdb Exp $
 
 package com.threerings.media;
 
@@ -775,11 +775,6 @@ public abstract class FrameManager
                 } finally {
                     clearTicking(elapsed);
                 }
-
-                // call currentTimeMillis so that we are notified ASAP if
-                // time leaps into the past as it's useful for debugging
-                // other problems
-                RunAnywhere.currentTimeMillis();
             }
         };
 
