@@ -1,5 +1,5 @@
 //
-// $Id: UniformTileSetRuleSet.java,v 1.4 2001/11/21 02:42:15 mdb Exp $
+// $Id: UniformTileSetRuleSet.java,v 1.5 2001/11/29 20:39:37 mdb Exp $
 
 package com.threerings.media.tools.tile.xml;
 
@@ -15,7 +15,7 @@ import com.threerings.media.tile.UniformTileSet;
  *
  * <pre>
  * &lt;tileset name="Sample Uniform Tileset"&gt;
- *   &lt;imgpath&gt;path/to/image.png&lt;/imgpath&gt;
+ *   &lt;imagePath&gt;path/to/image.png&lt;/imagePath&gt;
  *   &lt;!-- the width of each tile in pixels --&gt;
  *   &lt;width&gt;64&lt;/width&gt;
  *   &lt;!-- the height of each tile in pixels --&gt;
