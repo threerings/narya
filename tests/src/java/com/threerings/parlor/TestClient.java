@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.9 2002/08/14 19:07:59 mdb Exp $
+// $Id: TestClient.java,v 1.10 2002/10/01 04:44:39 shaper Exp $
 
 package com.threerings.parlor;
 
@@ -73,6 +73,11 @@ public class TestClient
             TestConfig config = new TestConfig();
             _pardtr.invite("invitee", config, this);
         }
+    }
+
+    public void clientObjectDidChange (Client client)
+    {
+        Log.info("Client object did change [client=" + client + "].");
     }
 
     public void clientFailedToLogon (Client client, Exception cause)

@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.10 2002/04/15 14:38:45 shaper Exp $
+// $Id: TestClient.java,v 1.11 2002/10/01 04:44:39 shaper Exp $
 
 package com.threerings.crowd.client;
 
@@ -56,6 +56,11 @@ public class TestClient
 
         // request to move to a place
         _ctx.getLocationDirector().moveTo(15);
+    }
+
+    public void clientObjectDidChange (Client client)
+    {
+        Log.info("Client object did change [client=" + client + "].");
     }
 
     public void clientFailedToLogon (Client client, Exception cause)

@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.14 2002/08/14 19:07:59 mdb Exp $
+// $Id: TestClient.java,v 1.15 2002/10/01 04:44:40 shaper Exp $
 
 package com.threerings.presents.client;
 
@@ -50,6 +50,11 @@ public class TestClient
         TestService service = (TestService)
             client.requireService(TestService.class);
         service.getTestOid(client, this);
+    }
+
+    public void clientObjectDidChange (Client client)
+    {
+        Log.info("Client object did change [client=" + client + "].");
     }
 
     public void clientDidLogoff (Client client)

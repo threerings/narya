@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.12 2002/04/15 14:38:46 shaper Exp $
+// $Id: TestClient.java,v 1.13 2002/10/01 04:44:40 shaper Exp $
 
 package com.threerings.whirled;
 
@@ -68,6 +68,11 @@ public class TestClient
 
         // request to move to scene 0
         _ctx.getSceneDirector().moveTo(0);
+    }
+
+    public void clientObjectDidChange (Client client)
+    {
+        Log.info("Client object did change [client=" + client + "].");
     }
 
     public void clientFailedToLogon (Client client, Exception cause)
