@@ -1,5 +1,5 @@
 //
-// $Id: KeyTranslatorImpl.java,v 1.7 2004/08/27 02:20:36 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -161,7 +161,7 @@ public class KeyTranslatorImpl implements KeyTranslator
         return commands.iterator();
     }
 
-    protected class KeyRecord
+    protected static class KeyRecord
     {
         /** The command to be posted when the key is pressed. */
         public String pressCommand;
