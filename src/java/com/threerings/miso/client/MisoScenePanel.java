@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.7 2003/04/19 02:01:56 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.8 2003/04/19 17:06:08 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -102,11 +102,25 @@ public class MisoScenePanel extends VirtualMediaPanel
         _vizobjs.clear();
         _masks.clear();
 
-        // recenter and rethink!
-        setViewLocation((_metrics.bounds.width - _vbounds.width)/2,
-                        (_metrics.bounds.height - _vbounds.height)/2);
+        // recenter and rethink
+        centerOnTile(_model.width/2, _model.height/2);
         rethink();
         repaint();
+    }
+
+    /**
+     * Moves the scene such that the specified tile is in the center.
+     */
+    public void centerOnTile (int tx, int ty)
+    {
+        Rectangle trect = MisoUtil.getTilePolygon(_metrics, tx, ty).getBounds();
+        int nx = trect.x + trect.width/2 - _vbounds.width/2;
+        int ny = trect.y + trect.height/2 - _vbounds.height/2;
+//         Log.info("Centering on t:" + StringUtil.coordsToString(tx, ty) +
+//                  " b:" + StringUtil.toString(trect) +
+//                  " vb: " + StringUtil.toString(_vbounds) +
+//                  ", n:" + StringUtil.coordsToString(nx, ny) + ".");
+        setViewLocation(nx, ny);
     }
 
     /**
@@ -479,25 +493,6 @@ public class MisoScenePanel extends VirtualMediaPanel
         _activeMenu = null;
     }
 
-    // documentation inherited
-    public void doLayout ()
-    {
-        super.doLayout();
-
-        // start out centered in the display
-        setViewLocation((_metrics.bounds.width - _vbounds.width)/2,
-                        (_metrics.bounds.height - _vbounds.height)/2);
-
-        // repaint the whole kit and kaboodle
-        if (EventQueue.isDispatchThread()) {
-            repaint();
-        }
-
-//         Log.info("View: " + StringUtil.toString(_vbounds) +
-//                  ", vsize: " + StringUtil.toString(_metrics.bounds) +
-//                  ", nx: " + _nx + ", ny: " + _ny + ".");
-    }
-
     /**
      * Returns the desired size for the panel based on the requested and
      * calculated bounds of the scene view.
@@ -513,29 +508,22 @@ public class MisoScenePanel extends VirtualMediaPanel
     {
         super.setBounds(x, y, width, height);
 
-        // if we change size, force a rethink
+        // if we change size...
         if (width != _rsize.width || height != _rsize.height) {
+            // ...adjust our view location to preserve the center of the
+            // screen...
+            int dx = (_rsize.width-width)/2, dy = (_rsize.height-height)/2;
+//             Log.info("Adjusting offset " +
+//                      "rsize:" + StringUtil.toString(_rsize) +
+//                      " nsize:" + width + "x" + height +
+//                      " vb:" + StringUtil.toString(_vbounds) +
+//                      " d:" + StringUtil.coordsToString(dx, dy) + ".");
+            setViewLocation(_nx+dx, _ny+dy);
             _rsize.setSize(width, height);
-//             Log.info("Size change rethink");
+
+            // ...and force a rethink
             rethink();
         }
-    }
-
-    // documentation inherited
-    public void setViewLocation (int x, int y)
-    {
-        // if we're bounded, make sure no one tries to set our view
-        // location outside the bounds defined by the view model
-        if (_metrics.bounded) {
-            int minx = _metrics.bounds.x,
-                maxx = _metrics.bounds.width-getWidth();
-            int miny = _metrics.bounds.y,
-                maxy = _metrics.bounds.height-getHeight();
-            if (x < minx) { x = minx; } else if (x > maxx) { x = maxx; }
-            if (y < miny) { y = miny; } else if (y > maxy) { y = maxy; }
-        }
-
-        super.setViewLocation(x, y);
     }
 
     // documentation inherited
