@@ -1,9 +1,6 @@
 Parlor Design -*- mode: outline -*-
 
-* Notes
-
 * Overview
-
 The Parlor package intends to provide a framework that supports the
 implementation of simple networked games. These may be turn based, puzzle,
 party, or other types of games that involve one or more players acting out
@@ -18,7 +15,6 @@ to implementing simple online games.
 The services provided are divided into the following components:
 
 ** Game configuration and creation
-
 Games are likely to have a variety of configuration options that need be
 negotiated before the game starts and then communicated to the game
 management code. Additionally, players must be brought together via some
@@ -42,7 +38,6 @@ This component aims to provide the following services:
   them to the game manager.
 
 ** Game state management
-
 Once the game has begun, a means is needed to share the public game state
 with the players of the game and to communicate private game state if and
 when necessary. This component uses the Cocktail distributed object
@@ -50,7 +45,6 @@ services to share information among the players and provide channels of
 communication between the game manager and the players.
 
 ** Game flow management
-
 Many games share a common order of events or flow. Turn based games, for
 example, tend to progress by each player taking the action appropriate for
 their turn after which the turn proceeds to the next player. This
@@ -60,16 +54,64 @@ game implementation to the authoring only of code specific to the game in
 question.
 
 ** Rating calculation and tracking
-
 Rating calculation and tracking are popular components of most online
 games. The Parlor services will incorporate hooks for calculating ratings
 adjustments for players when a game's outcome has been decided and will
 provide a framework for storing those ratings persistently.
 
 ** Player availability management
-
 A plague of online gameplay is that any of the players may disconnect from
 the game server at any time, or simply stop responding. The Parlor
 services aim to provide common facilities for handling disappeared or
 unresponsive players in whatever way is most appropriate for each
 particular game.
+
+* Technical design
+What follows is a class by class breakdown of the Parlor services, each
+with a brief description of the class's functionality and role in
+implementing the services. Package names are listed relative to the base
+Parlor package.
+
+** data.GameObject
+Maintains the public shared state of a game and provides a means by which
+the game manager can broadcast information to all of the players and
+observers of a game.
+
+** server.GameManager
+Primarily responsible for all game management on the server. Handles
+updates to the game state, manages game flow, keeps track of players.
+
+** data.GameConfig
+Used when configuring a game before creating it. Contains all the
+configuration options for a particular game, is populated on the client
+and delivered with a game creation request.
+
+** server.ParlorManager
+Manages the game managers. Provides information like all publicly visible,
+in progress games of a particular type.
+
+** client.ParlorService
+Provides the client interface to the various game services, like:
+
+- Sending an invitation to another player
+- Sending a game creation request
+
+** server.ParlorProvider
+Provides the server implementation of the various game services that
+aren't handled by a game manager (generally those that take place before a
+game has started):
+
+- Delivering an invitation to another player
+- Handling a game creation request
+
+** client.ParlorDirector
+Handles the creation of games on the client side. As the server notifies a
+client when there presence is required for a game in which they are a
+participant, the game director is the entity listening for those
+notifications and it dispatches the necessary information to the client
+entity that is responsible for creating the user interface for a
+particular game and participating in the game on the client side.
+
+* Notes
+Where does the panel/view, controller stuff fit in? Should it be in its
+own package and used by the Parlor services or provided directly?
