@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: tilesets.xml,v 1.14 2001/09/05 00:38:35 shaper Exp $ -->
+<!-- $Id: tilesets.xml,v 1.15 2001/09/06 01:36:13 shaper Exp $ -->
 
 <!-- Initial test tileset description data. -->
 
@@ -110,7 +110,16 @@
     <imagefile>media/miso/tiles/sword-pieces.png</imagefile>
     <rowheight>10</rowheight>
     <rowwidth>10</rowwidth>
-    <tilecount>4</tilecount>
+    <tilecount>8</tilecount>
+  </tileset>
+
+  <tileset>
+    <name>Sword Blocks</name>
+    <tsid>1011</tsid>
+    <imagefile>media/miso/tiles/sword-blocks.png</imagefile>
+    <rowheight>10</rowheight>
+    <rowwidth>10</rowwidth>
+    <tilecount>36</tilecount>
   </tileset>
 
 </tilesetgroup>
