@@ -1,10 +1,11 @@
 //
-// $Id: ManagedJFrame.java,v 1.1 2002/04/23 01:16:27 mdb Exp $
+// $Id: ManagedJFrame.java,v 1.2 2002/04/28 02:50:32 mdb Exp $
 
 package com.threerings.media;
 
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.Shape;
 
 import javax.swing.JFrame;
 import javax.swing.RepaintManager;
@@ -38,10 +39,15 @@ public class ManagedJFrame extends JFrame
      */
     public void update (Graphics g)
     {
-        Rectangle clip = g.getClip().getBounds();
+        Shape clip = clip = g.getClip();
         if (clip != null) {
+            Rectangle cb = clip.getBounds();
             RepaintManager.currentManager(this).addDirtyRegion(
-                getRootPane(), clip.x, clip.y, clip.width, clip.height);
+                getRootPane(), cb.x, cb.y, cb.width, cb.height);
+
+        } else {
+            RepaintManager.currentManager(this).addDirtyRegion(
+                getRootPane(), 0, 0, getWidth(), getHeight());
         }
     }
 }
