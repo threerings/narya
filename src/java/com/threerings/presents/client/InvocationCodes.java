@@ -1,5 +1,5 @@
 //
-// $Id: InvocationCodes.java,v 1.3 2001/10/19 18:03:06 mdb Exp $
+// $Id: InvocationCodes.java,v 1.4 2002/01/22 02:50:36 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -23,4 +23,9 @@ public interface InvocationCodes
      * explain in any meaningful way (things like null pointer
      * exceptions). */
     public static final String INTERNAL_ERROR = "m.internal_error";
+
+    /** An error code returned to clients when a service cannot be
+     * performed because the requesting client does not have the proper
+     * access. */
+    public static final String ACCESS_DENIED = "m.access_denied";
 }
