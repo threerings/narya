@@ -1,5 +1,5 @@
 //
-// $Id: BodyObject.dobj,v 1.7 2002/02/04 01:47:20 mdb Exp $
+// $Id: BodyObject.dobj,v 1.8 2002/02/08 23:10:36 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -7,12 +7,6 @@ import com.threerings.presents.data.ClientObject;
 
 public class BodyObject extends ClientObject
 {
-    /** The field name of the <code>username</code> field. */
-    public static final String USERNAME = "username";
-
-    /** The field name of the <code>location</code> field. */
-    public static final String LOCATION = "location";
-
     /**
      * The username associated with this body object.
      */
@@ -23,26 +17,4 @@ public class BodyObject extends ClientObject
      * currently occupy no place.
      */
     public int location = -1;
-
-    public void setUsername (String username)
-    {
-        requestAttributeChange(USERNAME, username);
-    }
-
-    public void setUsernameImmediate (String username)
-    {
-        this.username = username;
-        requestAttributeChange(USERNAME, username);
-    }
-
-    public void setLocation (int location)
-    {
-        requestAttributeChange(LOCATION, new Integer(location));
-    }
-
-    public void setLocationImmediate (int location)
-    {
-        this.location = location;
-        requestAttributeChange(LOCATION, new Integer(location));
-    }
 }
