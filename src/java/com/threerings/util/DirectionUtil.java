@@ -1,5 +1,5 @@
 //
-// $Id: DirectionUtil.java,v 1.8 2003/02/12 07:22:04 mdb Exp $
+// $Id: DirectionUtil.java,v 1.9 2003/05/07 19:41:57 ray Exp $
 
 package com.threerings.util;
 
@@ -193,6 +193,32 @@ public class DirectionUtil implements DirectionCodes
     {
         theta = ((theta + Math.PI) * 8) / Math.PI;
         return ANGLE_MAP[(int)Math.round(theta) % FINE_DIRECTION_COUNT];
+    }
+
+    /**
+     * Move the specified point the specified number of logical
+     * pixels in the specified direction. Fine coordinates are
+     * not supported.
+     */
+    public static void moveDirection (Point p, int direction, int dx, int dy)
+    {
+        if (direction >= DIRECTION_COUNT) {
+            throw new IllegalArgumentException(
+                "Fine coordinates not supported.");
+        }
+
+        switch (direction) {
+            case NORTH: case NORTHWEST: case NORTHEAST: p.y -= dy;
+        }
+        switch (direction) {
+            case SOUTH: case SOUTHWEST: case SOUTHEAST: p.y += dy;
+        }
+        switch (direction) {
+            case WEST: case SOUTHWEST: case NORTHWEST: p.x -= dx;
+        }
+        switch (direction) {
+            case EAST: case SOUTHEAST: case NORTHEAST: p.x += dx;
+        }
     }
 
     /** Direction constant string names. */
