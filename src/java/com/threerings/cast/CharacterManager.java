@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.17 2002/04/15 23:06:49 mdb Exp $
+// $Id: CharacterManager.java,v 1.18 2002/05/04 06:57:24 mdb Exp $
 
 package com.threerings.cast;
 
@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.HashMap;
 
 import com.samskivert.util.Tuple;
+import org.apache.commons.collections.LRUMap;
 
 import com.threerings.media.sprite.MultiFrameImage;
 
@@ -168,6 +169,8 @@ public class CharacterManager
 
         // if that failed, we'll just have to generate the danged things
         if (frames == null) {
+            Log.info("Creating frames [descrip=" + descrip +
+                     ", action=" + action + "].");
             // do the compositing
             frames = createCompositeFrames(descrip, action);
             // cache the result on disk if we've got such a cache
@@ -194,8 +197,6 @@ public class CharacterManager
         CharacterDescriptor descrip, String action)
         throws NoSuchComponentException
     {
-        MultiFrameImage[] frames = new MultiFrameImage[DIRECTION_COUNT];
-
         int[] cids = descrip.getComponentIds();
         int ccount = cids.length;
         Colorization[][] zations = descrip.getColorizations();
@@ -214,12 +215,20 @@ public class CharacterManager
         // sort them into the proper rendering order
         Arrays.sort(components);
 
-        // now composite the component frames, one atop the next; using
-        // the colorizations if we have them
-        for (int i = 0; i < ccount; i++) {
-            ColorizedComponent cc = components[i];
-            TileUtil.compositeFrames(
-                frames, cc.component.getFrames(action), cc.zations);
+        // create the multiframe image and colorization arrays that we'll
+        // supply to the lazy compositing result multiframe image
+        CompositedFrameImage[] frames =
+            new CompositedFrameImage[DIRECTION_COUNT];
+        zations = new Colorization[ccount][];
+        for (int orient = 0; orient < DIRECTION_COUNT; orient++) {
+            MultiFrameImage[] sources = new MultiFrameImage[ccount];
+            for (int cc = 0; cc < ccount; cc++) {
+                ColorizedComponent ccomp = components[cc];
+                sources[cc] = ccomp.component.getFrames(action)[orient];
+                zations[cc] = ccomp.zations;
+            }
+            frames[orient] = new CompositedFrameImage(
+                action + orient, sources, zations);
         }
 
         return frames;
@@ -250,11 +259,15 @@ public class CharacterManager
     protected HashMap _actions = new HashMap();
 
     /** A cache of composited animation frames. */
-    protected HashMap _frames = new HashMap();
+    protected LRUMap _frames = new LRUMap(ACTION_CACHE_SIZE);
 
     /** The character class to be created. */
     protected Class _charClass = CharacterSprite.class;
 
     /** The action animation cache, if we have one. */
     protected ActionCache _acache;
+
+    /** The number of actions to cache before we start clearing them
+     * out. */
+    protected static final int ACTION_CACHE_SIZE = 5;
 }

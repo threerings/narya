@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.12 2002/03/16 03:15:05 shaper Exp $
+// $Id: TileUtil.java,v 1.13 2002/05/04 06:57:24 mdb Exp $
 
 package com.threerings.cast.util;
 
@@ -21,98 +21,112 @@ import com.threerings.cast.Colorization;
 public class TileUtil
     implements DirectionCodes
 {
+//     /**
+//      * Renders each of the given <code>src</code> component frames into
+//      * the corresponding frames of <code>dest</code>, allocating blank
+//      * image frames for <code>dest</code> if none yet exist. If
+//      * <code>zations</code> is not null, the provided list of
+//      * colorizations will be applied as well.
+//      *
+//      * @throws IllegalArgumentException if the frame count of the source
+//      * and destination images don't match.
+//      */
+//     public static void compositeFrames (
+//         MultiFrameImage[] dest, MultiFrameImage[] src,
+//         Colorization[] zations)
+//     {
+//         for (int orient = 0; orient < DIRECTION_COUNT; orient++) {
+//             MultiFrameImage sframes = src[orient];
+//             MultiFrameImage dframes = dest[orient];
+
+//             // create blank destination frames if needed
+//             if (dframes == null) {
+//                 dframes = (dest[orient] = new BlankFrameImage(sframes));
+//             }
+
+//             // sanity check
+//             int dsize = dframes.getFrameCount();
+//             int ssize = sframes.getFrameCount();
+//             if (dsize != ssize) {
+//                 String errmsg = "Can't composite images with inequal " +
+//                     "frame counts [dest=" + dsize + ", src=" + ssize + "].";
+//                 throw new IllegalArgumentException(errmsg);
+//             }
+
+//             // slap the images together
+//             for (int ii = 0; ii < dsize; ii++) {
+//                 Image dimg = dframes.getFrame(ii);
+//                 BufferedImage simg = (BufferedImage)sframes.getFrame(ii);
+
+//                 // recolor the source image
+//                 if (zations != null) {
+//                     for (int i = 0; i < zations.length; i++) {
+//                         Colorization cz = zations[i];
+//                         if (zations[i] != null) {
+//                             simg = ImageUtil.recolorImage(
+//                                 simg, cz.rootColor, cz.range, cz.offsets);
+//                         }
+//                     }
+//                 }
+
+//                 // now splat the recolored image onto the target
+//                 Graphics g = dimg.getGraphics();
+//                 g.drawImage(simg, 0, 0, null);
+//                 g.dispose();
+//             }
+//         }
+//     }
+
     /**
-     * Renders each of the given <code>src</code> component frames into
-     * the corresponding frames of <code>dest</code>, allocating blank
-     * image frames for <code>dest</code> if none yet exist. If
-     * <code>zations</code> is not null, the provided list of
-     * colorizations will be applied as well.
-     *
-     * @throws IllegalArgumentException if the frame count of the source
-     * and destination images don't match.
+     * Renders and returns the <code>index</code>th image from each of the
+     * supplied source multi-frame images to a newly created buffered
+     * image. This is used to render a single frame of a composited
+     * character action, and accordingly, the source image array should be
+     * already sorted into the proper rendering order.
      */
-    public static void compositeFrames (
-        MultiFrameImage[] dest, MultiFrameImage[] src,
-        Colorization[] zations)
+    public static Image compositeFrames (
+        int index, MultiFrameImage[] sources, Colorization[][] zations)
     {
-        for (int orient = 0; orient < DIRECTION_COUNT; orient++) {
-            MultiFrameImage sframes = src[orient];
-            MultiFrameImage dframes = dest[orient];
+        Image dest = null;
+        Graphics g = null;
 
-            // create blank destination frames if needed
-            if (dframes == null) {
-                dframes = (dest[orient] = new BlankFrameImage(sframes));
+        long start = System.currentTimeMillis();
+        for (int ii = 0; ii < sources.length; ii++) {
+            BufferedImage simg = (BufferedImage)sources[ii].getFrame(index);
+
+            // create the image now that we know how big it should be
+            if (dest == null) {
+                dest = ImageUtil.createImage(
+                    simg.getWidth(null), simg.getHeight(null));
+                g = dest.getGraphics();
             }
 
-            // sanity check
-            int dsize = dframes.getFrameCount();
-            int ssize = sframes.getFrameCount();
-            if (dsize != ssize) {
-                String errmsg = "Can't composite images with inequal " +
-                    "frame counts [dest=" + dsize + ", src=" + ssize + "].";
-                throw new IllegalArgumentException(errmsg);
-            }
-
-            // slap the images together
-            for (int ii = 0; ii < dsize; ii++) {
-                Image dimg = dframes.getFrame(ii);
-                BufferedImage simg = (BufferedImage)sframes.getFrame(ii);
-
-                // recolor the source image
-                if (zations != null) {
-                    for (int i = 0; i < zations.length; i++) {
-                        Colorization cz = zations[i];
-                        if (zations[i] != null) {
-                            simg = ImageUtil.recolorImage(
-                                simg, cz.rootColor, cz.range, cz.offsets);
-                        }
+            // recolor the source image
+            if (zations != null) {
+                int zcount = zations[ii].length;
+                for (int zz = 0; zz < zcount; zz++) {
+                    Colorization cz = zations[ii][zz];
+                    if (cz != null) {
+                        simg = ImageUtil.recolorImage(
+                            simg, cz.rootColor, cz.range, cz.offsets);
                     }
                 }
-
-                // now splat the recolored image onto the target
-                Graphics g = dimg.getGraphics();
-                g.drawImage(simg, 0, 0, null);
-                g.dispose();
             }
-        }
-    }
 
-    /**
-     * An implementation of the {@link MultiFrameImage} interface that
-     * initializes itself to contain a specified number of blank
-     * frames of the requested dimensions.
-     */
-    protected static class BlankFrameImage implements MultiFrameImage
-    {
-        /**
-         * Constructs a blank frame image based on the dimensions of
-         * template multi-frame image.
-         */
-        public BlankFrameImage (MultiFrameImage template)
-        {
-            int frameCount = template.getFrameCount();
-            _images = new Image[frameCount];
-            for (int i = 0; i < frameCount; i++) {
-                Image img = template.getFrame(i);
-                _images[i] = ImageUtil.createImage(
-                    img.getWidth(null), img.getHeight(null));
-            }
+            // now splat the recolored image onto the target
+            g.drawImage(simg, 0, 0, null);
         }
 
-        // documentation inherited
-        public int getFrameCount ()
-        {
-            return _images.length;
+        // clean up after ourselves
+        if (g != null) {
+            g.dispose();
         }
 
-        // documentation inherited
-        public Image getFrame (int index)
-        {
-            return _images[index];
-        }
+        long now = System.currentTimeMillis();
+        Log.info("Composited " + sources.length + " frames in " +
+                 (now-start) + " millis.");
 
-        /** The frame images. */
-        protected Image[] _images;
+        return dest;
     }
 
     /** The image file name suffix appended to component image file names. */
