@@ -1,5 +1,5 @@
 //
-// $Id: JNLPDownloader.java,v 1.1 2003/08/05 01:33:20 mdb Exp $
+// $Id: JNLPDownloader.java,v 1.2 2003/08/05 06:54:01 mdb Exp $
 
 package com.threerings.resource;
 
@@ -75,7 +75,8 @@ public class JNLPDownloader extends Downloader
         ucon.connect();
 
         // make sure we got a satisfactory response code
-        if (ucon.getResponseCode() != HttpURLConnection.HTTP_OK) {
+        if (ucon.getResponseCode() != HttpURLConnection.HTTP_OK ||
+            JNLP_ERROR_TYPE.equals(ucon.getContentType())) {
             String errmsg = "Unable to check up-to-date for " +
                 getResourceURL() + ": " + ucon.getResponseCode();
             throw new IOException(errmsg);
@@ -101,7 +102,8 @@ public class JNLPDownloader extends Downloader
         ucon.connect();
 
         // make sure we got a satisfactory response code
-        if (ucon.getResponseCode() != HttpURLConnection.HTTP_OK) {
+        if (ucon.getResponseCode() != HttpURLConnection.HTTP_OK ||
+            JNLP_ERROR_TYPE.equals(ucon.getContentType())) {
             String errmsg = "Unable to download update for " +
                 getResourceURL() + ": " + ucon.getResponseCode();
             throw new IOException(errmsg);
@@ -182,6 +184,9 @@ public class JNLPDownloader extends Downloader
      */
     protected URL getResourceURL ()
     {
+        if (_desc.version == null) {
+            return _desc.sourceURL;
+        }
         URL rsrcURL = _desc.sourceURL;
         String vargs = _desc.sourceURL.getPath() +
             "?version-id=" + _desc.version;
@@ -233,4 +238,9 @@ public class JNLPDownloader extends Downloader
     /** The mime-type of a jardiff patch file. */
     protected static final String JARDIFF_TYPE =
         "application/x-java-archive-diff";
+
+    /** The mime-type indicating a jnlp-servlet error. Why they don't just
+     * use an HTTP error response code, I dare not attempt to imagine. */
+    protected static final String JNLP_ERROR_TYPE =
+        "application/x-java-jnlp-error";
 }
