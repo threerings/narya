@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.10 2001/07/23 18:52:51 shaper Exp $
+// $Id: TileManager.java,v 1.11 2001/07/23 22:31:48 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -20,9 +20,9 @@ public class TileManager
     /**
      * Initialize the tile manager with the given TileSetManager object.
      */
-    public TileManager (TileSetManager tsmgr)
+    public TileManager (TileSetManager tilesetmgr)
     {
-	_tsmgr = tsmgr;
+	_tilesetmgr = tilesetmgr;
     }
 
     /**
@@ -43,7 +43,7 @@ public class TileManager
 
 	// retrieve the tile image from the tileset
 	tile = new Tile(tsid, tid);
-	if ((tile.img = _tsmgr.getTileImage(tsid, tid)) == null) {
+	if ((tile.img = _tilesetmgr.getTileImage(tsid, tid)) == null) {
 	    Log.warning("Null tile image [tsid="+tsid+", tid="+tid+"].");
 	}
 	tile.height = (short)((BufferedImage)tile.img).getHeight();
@@ -60,12 +60,12 @@ public class TileManager
      */
     public TileSetManager getTileSetManager ()
     {
-	return _tsmgr;
+	return _tilesetmgr;
     }
 
     /** Cache of tiles that have been requested thus far. */
     protected IntMap _tiles = new IntMap();
 
-    /** Our tileset manager. */
-    protected TileSetManager _tsmgr;
+    /** The tileset manager. */
+    protected TileSetManager _tilesetmgr;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.9 2001/07/23 18:52:51 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.10 2001/07/23 22:31:47 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -16,24 +16,25 @@ import java.io.*;
  */
 public class Scene
 {
+    /** String translations of each tile layer name. */
     public static final String[] XLATE_LAYERS = { "Base", "Object" };
 
-    public Tile tiles[][][];  // the tiles comprising the scene
+    /** The tiles comprising the scene. */
+    public Tile tiles[][][];
 
     /**
-     * Construct a new Scene object initialized to a default state.
+     * Construct a new Scene object initialized to a default state,
+     * specifying the tile manager from which the scene obtains tiles.
+     *
+     * @param tilemgr the tile manager.
      */
-    public Scene (TileManager tmgr)
+    public Scene (TileManager tilemgr, int sid)
     {
-	_tmgr = tmgr;
-
+	_tilemgr = tilemgr;
 	_name = DEF_SCENE_NAME;
-	_sid = 0;
-	_version = VERSION;
-
 	tiles = new Tile[TILE_WIDTH][TILE_HEIGHT][NUM_LAYERS];
 
-	Tile tile = _tmgr.getTile(DEF_TSID, DEF_TID);
+	Tile tile = _tilemgr.getTile(DEF_TSID, DEF_TID);
 	for (int xx = 0; xx < TILE_WIDTH; xx++) {
 	    for (int yy = 0; yy < TILE_HEIGHT; yy++) {
 		for (int ii = 0; ii < NUM_LAYERS; ii++) {
@@ -44,7 +45,39 @@ public class Scene
 	    }
 	}
     }
-    
+
+    /**
+     * Return the scene name.
+     */
+    public String getName ()
+    {
+        return _name;
+    }
+
+    /**
+     * Return the scene identifier.
+     */
+    public short getId ()
+    {
+        return _sid;
+    }
+
+    /**
+     * Return the scene hot spots array.
+     */
+    public Point[] getHotSpots ()
+    {
+        return _hotspots;
+    }
+
+    /**
+     * Return the scene exit points array.
+     */
+    public ExitPoint[] getExits ()
+    {
+        return _exits;
+    }
+
     /**
      * Return the number of actual (non-null) tiles present in the
      * specified tile layer for this scene.
@@ -75,12 +108,12 @@ public class Scene
 	// read scene header information
 	_name    = dis.readUTF();
 	_sid     = dis.readShort();
-	_version = dis.readShort();
+	short version = dis.readShort();
 
 	// make sure we can understand the file format
-	if (_version < 0 || _version > VERSION) {
+	if (version < 0 || version > VERSION) {
 	    throw new IOException("Can't understand scene file format " +
-				  " [version=" + _version + "]");
+				  " [version=" + version + "]");
 	}
 
 	// allocate full tile array.  null tiles denote tiles in absentia.
@@ -94,7 +127,7 @@ public class Scene
 		short tid = dis.readShort();
 
 		// retrieve tile from tile manager
-		tiles[xx][yy][LAYER_BASE] = _tmgr.getTile(tsid, tid);
+		tiles[xx][yy][LAYER_BASE] = _tilemgr.getTile(tsid, tid);
 	    }
 	}
 
@@ -111,7 +144,7 @@ public class Scene
 		byte ty = dis.readByte();
 
 		// retrieve tile from tile manager
-		tiles[tx][ty][lnum] = _tmgr.getTile(tsid, tid);
+		tiles[tx][ty][lnum] = _tilemgr.getTile(tsid, tid);
 	    }
 	}
 	
@@ -145,7 +178,7 @@ public class Scene
 	// write scene header information
 	dos.writeUTF(_name);
 	dos.writeShort(_sid);
-	dos.writeShort(_version);
+	dos.writeShort(VERSION);
 
 	// write tiles for the base layer
 	for (int xx = 0; xx < TILE_WIDTH; xx++) {
@@ -190,28 +223,45 @@ public class Scene
 	}
     }
 
-    // the latest scene file format version number
+    /** The latest scene file format version. */
     protected static final short VERSION = 1;
 
-    // scene width/height in tiles
+    /** The scene width in tiles. */
     protected static final int TILE_WIDTH = 55;
+
+    /** The scene height in tiles. */
     protected static final int TILE_HEIGHT = 55;
 
-    // layer identifiers and total number of layers
+    /** The base layer id. */
     protected static final int LAYER_BASE = 0;
+
+    /** The object layer id. */
     protected static final int LAYER_OBJECT = 1;
+
+    /** The total number of layers. */
     protected static final int NUM_LAYERS = 2;
 
+    /** The default scene name. */
     protected static final String DEF_SCENE_NAME = "Untitled Scene";
 
+    /** The default tileset id. */
     protected static final short DEF_TSID = 1000;
+
+    /** The default tile id. */
     protected static final short DEF_TID = 1;
 
-    protected String _name;        // the scene name
-    protected short _sid;          // the unique scene id
-    protected short _version;      // file format version
-    protected Point _hotspots[];   // hot spot zone points
-    protected ExitPoint _exits[];  // exit points to different scenes
+    /** The scene name. */
+    protected String _name;
 
-    protected TileManager _tmgr;
+    /** The unique scene id. */
+    protected short _sid;
+
+    /** Hot-spot zone points */
+    protected Point _hotspots[];
+
+    /** Exit points to different scenes. */
+    protected ExitPoint _exits[];
+
+    /** The tile manager. */
+    protected TileManager _tilemgr;
 }

@@ -1,19 +1,18 @@
 //
-// $Id: XMLTileSetParser.java,v 1.5 2001/07/23 18:52:51 shaper Exp $
+// $Id: XMLTileSetParser.java,v 1.6 2001/07/23 22:31:48 shaper Exp $
 
 package com.threerings.miso.tile;
-
-import com.threerings.miso.Log;
-
-import com.samskivert.util.StringUtil;
-import com.samskivert.xml.XMLUtil;
-
-import org.xml.sax.*;
-import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.*;
 import java.util.ArrayList;
 import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.*;
+import org.xml.sax.helpers.DefaultHandler;
+
+import com.samskivert.util.*;
+import com.samskivert.xml.XMLUtil;
+import com.threerings.miso.Log;
 
 /**
  * Parse an XML tileset description file and construct tileset objects
@@ -75,13 +74,22 @@ public class XMLTileSetParser extends DefaultHandler
 	}
     }
 
-    public ArrayList loadTileSets (InputStream tis) throws IOException
+    public ArrayList loadTileSets (String fname) throws IOException
     {
-    	try {
-	    XMLUtil.parse(this, tis);
-	    return _tilesets;
+	try {
+	    InputStream tis = ConfigUtil.getStream(fname);
+	    if (tis == null) {
+		Log.warning("Couldn't find file [fname=" + fname + "].");
+		return _tilesets;
+	    }
 
-	} catch (ParserConfigurationException pce) {
+            // read all tileset descriptions from the XML input stream
+            XMLTileSetParser parser = new XMLTileSetParser();
+	    XMLUtil.parse(this, tis);
+
+            return _tilesets;
+
+        } catch (ParserConfigurationException pce) {
   	    throw new IOException(pce.toString());
 
 	} catch (SAXException saxe) {

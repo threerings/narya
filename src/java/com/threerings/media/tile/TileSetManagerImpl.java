@@ -1,5 +1,5 @@
 //
-// $Id: TileSetManagerImpl.java,v 1.7 2001/07/23 18:52:51 shaper Exp $
+// $Id: TileSetManagerImpl.java,v 1.8 2001/07/23 22:31:48 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -43,9 +43,6 @@ public abstract class TileSetManagerImpl implements TileSetManager
 
     public ArrayList getAllTileSets ()
     {
-	int size = _tilesets.size();
-	if (size == 0) return null;
-
 	ArrayList list = new ArrayList();
 	CollectionUtil.addAll(list, _tilesets.elements());
 	return list;

@@ -1,5 +1,5 @@
 //
-// $Id: MisoUtil.java,v 1.2 2001/07/23 18:52:51 shaper Exp $
+// $Id: MisoUtil.java,v 1.3 2001/07/23 22:31:48 shaper Exp $
 
 package com.threerings.miso.util;
 
@@ -39,12 +39,15 @@ public class MisoUtil
      *
      * @return the new SceneManager object or null if an error occurred.
      */
-    public static SceneManager createSceneManager (Config config)
+    public static SceneManager
+        createSceneManager (Config config, TileManager tilemgr)
     {
 	try {
-	    return (SceneManager)
+	    SceneManagerImpl scenemgr = (SceneManagerImpl)
 		config.instantiateValue("miso.scenemgr", DEF_SCENEMGR);
-
+            scenemgr.init(tilemgr);
+            return scenemgr;
+            
 	} catch (Exception e) {
 	    Log.warning("Failed to instantiate scene manager [e=" + e + "].");
 	    return null;
