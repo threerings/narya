@@ -1,5 +1,5 @@
 //
-// $Id: Connection.java,v 1.15 2002/12/22 19:13:38 mdb Exp $
+// $Id: Connection.java,v 1.16 2003/08/20 19:32:27 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -272,7 +272,7 @@ public abstract class Connection implements NetEventHandler
             return false;
         }
         if (isClosed()) {
-            return false;
+            return true;
         }
         Log.info("Disconnecting non-communicative client [conn=" + this +
                  ", idle=" + idleMillis + "ms].");
