@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.44 2003/03/25 20:53:16 mdb Exp $
+// $Id: CharacterSprite.java,v 1.45 2003/07/28 04:06:38 mdb Exp $
 
 package com.threerings.cast;
 
@@ -101,6 +101,13 @@ public class CharacterSprite extends ImageSprite
      */
     public void setActionSequence (String action)
     {
+        // sanity check
+        if (action == null) {
+            Log.warning("Refusing to set null action sequence " + this + ".");
+            Thread.dumpStack();
+            return;
+        }
+
         // no need to noop
         if (action.equals(_action)) {
             return;
