@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.32 2003/01/17 02:28:32 mdb Exp $
+// $Id: CharacterManager.java,v 1.33 2003/01/20 19:37:58 mdb Exp $
 
 package com.threerings.cast;
 
@@ -43,15 +43,16 @@ public class CharacterManager
             _actions.put(action.name, action);
         }
 
-        // create our in-memory action cache
+        // create a cache for our composited action frames
         int acsize = _cacheSize.getValue();
         Log.debug("Creating action cache [size=" + acsize + "k].");
-        _frames = new LRUHashMap(acsize*1024, new LRUHashMap.ItemSizer() {
+        _frameCache = new LRUHashMap(acsize*1024, new LRUHashMap.ItemSizer() {
             public int computeSize (Object value) {
-                return (int)((ActionFrames)value).getEstimatedMemoryUsage();
+                return (int)((CompositedMultiFrameImage)
+                             value).getEstimatedMemoryUsage();
             }
         });
-        _frames.setTracking(true); // TODO
+        _frameCache.setTracking(true); // TODO
     }
 
     /**
@@ -169,36 +170,22 @@ public class CharacterManager
         CharacterDescriptor descrip, String action)
         throws NoSuchComponentException
     {
-        // first check the in-memory cache; which is keyed on both values
         Tuple key = new Tuple(descrip, action);
-        ActionFrames frames = (ActionFrames)_frames.get(key);
-
-        // next check the disk cache
-        if (frames == null && _acache != null) {
-            frames = _acache.getActionFrames(descrip, action);
-            // cache the result in memory
-            _frames.put(key, frames);
-        }
-
-        // if that failed, we'll just have to generate the danged things
+        ActionFrames frames = (ActionFrames)_actionFrames.get(key);
         if (frames == null) {
-            // do the compositing
+            // this doesn't actually composite the images, but prepares an
+            // object to be able to do so
             frames = createCompositeFrames(descrip, action);
-            // cache the result on disk if we've got such a cache
-            if (_acache != null) {
-                _acache.cacheActionFrames(descrip, action, frames);
-            }
-            // cache the result in memory as well
-            _frames.put(key, frames);
+            _actionFrames.put(key, frames);
         }
 
-        // periodically report our action cache performance
+        // periodically report our frame image cache performance
         if (!_cacheStatThrottle.throttleOp()) {
             long size = getEstimatedCacheMemoryUsage();
-            int[] eff = _frames.getTrackedEffectiveness();
-            Log.debug("CharacterManager LRU " +
-                      "[mem=" + (size / 1024) + "k, size=" + _frames.size() +
-                      ", hits=" + eff[0] + ", misses=" + eff[1] + "].");
+            int[] eff = _frameCache.getTrackedEffectiveness();
+            Log.debug("CharacterManager LRU [mem=" + (size / 1024) + "k" +
+                      ", size=" + _frameCache.size() + ", hits=" + eff[0] +
+                      ", misses=" + eff[1] + "].");
         }
 
         return frames;
@@ -211,10 +198,10 @@ public class CharacterManager
     protected long getEstimatedCacheMemoryUsage ()
     {
         long size = 0;
-        Iterator iter = _frames.values().iterator();
+        Iterator iter = _frameCache.values().iterator();
         while (iter.hasNext()) {
-            ActionFrames frame = (ActionFrames)iter.next();
-            size += frame.getEstimatedMemoryUsage();
+            size += ((CompositedMultiFrameImage)
+                     iter.next()).getEstimatedMemoryUsage();
         }
         return size;
     }
@@ -257,7 +244,7 @@ public class CharacterManager
 
         // use those to create an entity that will lazily composite things
         // together as they are needed
-        return new CompositedActionFrames(_imgr, action, sources);
+        return new CompositedActionFrames(_imgr, _frameCache, action, sources);
     }
 
     /** The image manager with whom we interact. */
@@ -269,8 +256,12 @@ public class CharacterManager
     /** A table of our action sequences. */
     protected HashMap _actions = new HashMap();
 
+    /** A table of composited action sequences (these don't reference the
+     * actual image data directly and thus take up little memory). */
+    protected HashMap _actionFrames = new HashMap();
+
     /** A cache of composited animation frames. */
-    protected LRUHashMap _frames;
+    protected LRUHashMap _frameCache;
 
     /** The character class to be created. */
     protected Class _charClass = CharacterSprite.class;
@@ -287,5 +278,5 @@ public class CharacterManager
         new RuntimeAdjust.IntAdjust(
             "Size (in kb of memory used) of the character manager LRU " +
             "action cache [requires restart]", "narya.cast.action_cache_size",
-            CastPrefs.config, 2*1024);
+            CastPrefs.config, 1024);
 }
