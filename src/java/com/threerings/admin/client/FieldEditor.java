@@ -1,5 +1,5 @@
 //
-// $Id: FieldEditor.java,v 1.4 2002/09/23 01:31:49 mdb Exp $
+// $Id: FieldEditor.java,v 1.5 2002/10/02 20:10:20 mdb Exp $
 
 package com.threerings.admin.client;
 
@@ -108,11 +108,23 @@ public class FieldEditor extends JPanel
                 updateBorder(true);
             }
 
+        } else if (_field.getType().equals(Long.class) ||
+                   _field.getType().equals(Long.TYPE)) {
+            try {
+                value = new Long(_value.getText());
+            } catch (NumberFormatException nfe) {
+                updateBorder(true);
+            }
+
         } else if (_field.getType().equals(String.class)) {
             value = _value.getText();
 
         } else if (_field.getType().equals(Boolean.TYPE)) {
             value = new Boolean(_value.getText().equalsIgnoreCase("true"));
+
+        } else {
+            Log.warning("Unknown field type '" + _field.getName() + "': " +
+                        _field.getType().getName() + ".");
         }
 
         // submit an attribute changed event with the new value
