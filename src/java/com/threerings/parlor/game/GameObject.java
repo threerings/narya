@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.java,v 1.21 2004/09/01 21:02:44 ray Exp $
+// $Id: GameObject.java,v 1.22 2004/09/13 16:11:10 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -225,10 +225,6 @@ public class GameObject extends PlaceObject
      */
     public void setState (int state)
     {
-        if ((state == GAME_OVER || state == CANCELLED) &&
-            (this.state == GAME_OVER || this.state == CANCELLED)) {
-            Thread.dumpStack();
-        }
         requestAttributeChange(STATE, new Integer(state));
         this.state = state;
     }
