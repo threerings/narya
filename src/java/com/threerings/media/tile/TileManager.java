@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.12 2001/07/28 01:31:51 shaper Exp $
+// $Id: TileManager.java,v 1.13 2001/08/13 15:00:24 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -12,13 +12,18 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 /**
- * Provides a simplified interface for managing multiple tilesets and
- * tiles.
+ * The <code>TileManager</code> class provides a simplified interface
+ * for retrieving and caching tiles.
+ *
+ * @see TileSetManager
  */
 public class TileManager
 {
     /**
-     * Initialize the tile manager with the given TileSetManager object.
+     * Initialize the tile manager with the given
+     * <code>TileSetManager</code> object.
+     *
+     * @param tilesetmgr the tileset manager.
      */
     public TileManager (TileSetManager tilesetmgr)
     {
@@ -26,7 +31,13 @@ public class TileManager
     }
 
     /**
-     * Return the Tile object for the specified tileset and tile id.
+     * Return the <code>Tile</code> object for the specified tileset
+     * and tile id.
+     *
+     * @param tsid the tileset id.
+     * @param tid the tile id.
+     *
+     * @return the tile object.
      */
     public Tile getTile (int tsid, int tid)
     {

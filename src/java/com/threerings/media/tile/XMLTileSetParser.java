@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParser.java,v 1.9 2001/08/08 00:33:54 shaper Exp $
+// $Id: XMLTileSetParser.java,v 1.10 2001/08/13 15:00:24 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -151,7 +151,7 @@ public class XMLTileSetParser extends DefaultHandler
     /** The tilesets constructed thus far. */
     protected ArrayList _tilesets = new ArrayList();
 
-    // temporary storage of tileset object values
+    /** Temporary storage of tileset object values. */
     protected StringBuffer _chars;
     protected String _tsName;
     protected int    _tsTsid;

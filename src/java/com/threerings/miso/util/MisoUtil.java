@@ -1,5 +1,5 @@
 //
-// $Id: MisoUtil.java,v 1.4 2001/07/24 16:10:19 shaper Exp $
+// $Id: MisoUtil.java,v 1.5 2001/08/13 15:00:24 shaper Exp $
 
 package com.threerings.miso.util;
 
@@ -25,7 +25,7 @@ public class MisoUtil
     /**
      * Populate the config object with miso configuration values.
      *
-     * @param config the Config object to populate.
+     * @param config the <code>Config</code> object to populate.
      */
     public static void bindProperties (Config config) throws IOException
     {
@@ -33,12 +33,12 @@ public class MisoUtil
     }
 
     /**
-     * Create a SceneManager object, reading the class name to
-     * instantiate from the "miso.scenemgr" config value. 
+     * Create a <code>SceneManager</code> object, reading the class
+     * name to instantiate from the config object.
      *
-     * @param config the Config object.
+     * @param config the <code>Config</code> object.
      *
-     * @return the new SceneManager object or null if an error occurred.
+     * @return the new scene manager object or null if an error occurred.
      */
     public static SceneManager
         createSceneManager (Config config, TileManager tilemgr)
@@ -59,12 +59,12 @@ public class MisoUtil
     }
 
     /**
-     * Create a TileManager object.
+     * Create a <code>TileManager</code> object.
      *
-     * @param config the Config object.
+     * @param config the <code>Config</code> object.
      * @param frame the root frame to which images will be rendered.
      *
-     * @return the new TileManager object or null if an error occurred.
+     * @return the new tile manager object or null if an error occurred.
      */
     public static TileManager createTileManager (Config config, Frame frame)
     {
@@ -77,9 +77,9 @@ public class MisoUtil
     }
 
     /**
-     * Create a ResourceManager object.
+     * Create a <code>ResourceManager</code> object.
      *
-     * @return the new ResourceManager object or null if an error occurred.
+     * @return the new resource manager object or null if an error occurred.
      */
     protected static ResourceManager createResourceManager ()
     {
@@ -97,13 +97,14 @@ public class MisoUtil
     }	
 
     /**
-     * Create a TileSetManager object, reading the class name to
-     * instantiate from the "miso.tilesetmgr" config value. 
+     * Create a <code>TileSetManager</code> object, reading the class
+     * name to instantiate from the config object.
      *
-     * @param config the Config object.
-     * @param imgmgr the ImageManager object from which images are obtained.
+     * @param config the <code>Config</code> object.
+     * @param imgmgr the <code>ImageManager</code> object from which
+     * images are obtained.
      *
-     * @return the new TileSetManager object or null if an error occurred.
+     * @return the new tileset manager object or null if an error occurred.
      */
     protected static TileSetManager
         createTileSetManager (Config config, ImageManager imgmgr)
@@ -122,11 +123,11 @@ public class MisoUtil
 	return tilesetmgr;
     }
 
-    /** The default SceneManager class name. */
+    /** The default scene repository class name. */
     protected static final String DEF_SCENEREPO =
         XMLFileSceneRepository.class.getName();
 
-    /** The default TileSetManager class name. */
+    /** The default tileset manager class name. */
     protected static final String DEF_TILESETMGR =
         EditableTileSetManager.class.getName();
 }

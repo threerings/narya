@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.9 2001/08/13 05:42:36 shaper Exp $
+// $Id: XMLSceneParser.java,v 1.10 2001/08/13 15:00:24 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -323,7 +323,7 @@ public class XMLSceneParser extends DefaultHandler
     /** The tile manager object for use in constructing scenes. */
     protected TileManager _tilemgr;
 
-    // temporary storage of scene object values and data
+    /** Temporary storage of scene object values and data. */
     protected StringBuffer _chars;
     protected String _scName;
     protected ArrayList _scLocations, _scExits, _scClusters;

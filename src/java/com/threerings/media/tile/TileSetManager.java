@@ -1,5 +1,5 @@
 //
-// $Id: TileSetManager.java,v 1.9 2001/07/23 22:31:48 shaper Exp $
+// $Id: TileSetManager.java,v 1.10 2001/08/13 15:00:24 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -9,11 +9,13 @@ import java.awt.Image;
 import java.util.ArrayList;
 
 /**
- * The TileSetManager provides tileset management functionality
- * intended for use by the TileManager.  It provides facilities for
- * obtaining information about individual tilesets, retrieving an list
- * of all tilesets available, and retrieving the image associated with
- * a particular tile in a set.
+ * The <code>TileSetManager</code> provides tileset management
+ * functionality intended for use by the <code>TileManager</code>.  It
+ * provides facilities for obtaining information about individual
+ * tilesets, retrieving an list of all tilesets available, and
+ * retrieving the image associated with a particular tile in a set.
+ *
+ * @see TileManager
  */
 public interface TileSetManager
 {
@@ -27,7 +29,8 @@ public interface TileSetManager
     public int getNumTilesInSet (int tsid);
 
     /**
-     * Return an ArrayList containing all TileSet objects available.
+     * Return an <code>ArrayList</code> containing all
+     * <code>TileSet</code> objects available.
      *
      * @return the list of tilesets.
      */

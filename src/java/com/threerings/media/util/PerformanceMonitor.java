@@ -1,5 +1,5 @@
 //
-// $Id: PerformanceMonitor.java,v 1.1 2001/08/02 00:42:02 shaper Exp $
+// $Id: PerformanceMonitor.java,v 1.2 2001/08/13 15:00:24 shaper Exp $
 
 package com.threerings.miso.util;
 
@@ -24,7 +24,7 @@ import com.threerings.miso.Log;
  * <p> Note that this is <em>not</em> intended to be used as an
  * industrial-strength profiling or performance monitoring tool.  The
  * checkpoint time interval granularity is in milliseconds, not
- * microseconds; and the observer's <code>checkpoint()</code> method
+ * microseconds, and the observer's <code>checkpoint()</code> method
  * will never be called until/unless a subsequent call to
  * <code>tick()</code> is made after the requested number of
  * milliseconds have passed since the last checkpoint.
@@ -117,6 +117,10 @@ public class PerformanceMonitor
     protected static HashMap _observers = new HashMap();
 }
 
+/**
+ * This class represents the individual actions being tracked by the
+ * <code>PerformanceMonitor</code> class.
+ */
 class PerformanceAction
 {
     public PerformanceAction (PerformanceObserver obs, String name, long delta)
@@ -155,9 +159,18 @@ class PerformanceAction
         return buf.append("]").toString();
     }
 
+    /** The performance observer. */
     protected PerformanceObserver _obs;
+
+    /** The action name. */
     protected String _name;
+
+    /** The number of milliseconds between each checkpoint. */
     protected long _delta;
+
+    /** The time the last time a checkpoint was made. */ 
     protected long _lastDelta;
+
+    /** The number of ticks since the last checkpoint. */
     protected int _numTicks;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.1 2001/08/02 21:02:56 shaper Exp $
+// $Id: CharacterSprite.java,v 1.2 2001/08/13 15:00:24 shaper Exp $
 
 package com.threerings.miso.sprite;
 
@@ -8,16 +8,15 @@ import com.threerings.miso.tile.Tile;
 import com.threerings.miso.tile.TileManager;
 
 /**
- * A <code>AmbulatorySprite</code> is a sprite that can face in one of
- * eight compass directions and animate itself walking along any
- * chosen path.
+ * An <code>AmbulatorySprite</code> is a sprite that can face in one
+ * of the various compass directions and that can animate itself
+ * walking along some chosen path.
  */
 public class AmbulatorySprite extends Sprite
 {
     /**
-     * Construct a <code>AmbulatorySprite</code>, loading the tiles
-     * used to display the sprite from the given tileset via the given
-     * tile manager.
+     * Construct an <code>AmbulatorySprite</code>, loading the tiles
+     * used to display the sprite from the given tileset.
      *
      * @param x the sprite x-position in pixels.
      * @param y the sprite y-position in pixels.
@@ -91,12 +90,6 @@ public class AmbulatorySprite extends Sprite
 
     /** The number of frames of animation for each direction. */
     protected static final int NUM_DIR_FRAMES = 8;
-
-    /**
-     * The buffer space in pixels allowed for horizontal or vertical
-     * selection of movement north/south or east/west, respectively.
-     */ 
-    protected static final int DIR_BUFFER = 20;
 
     /** The animation frames for the sprite facing each direction. */
     protected Tile[][] _dirTiles;

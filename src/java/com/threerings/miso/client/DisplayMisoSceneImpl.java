@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.25 2001/08/13 05:42:36 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.26 2001/08/13 15:00:24 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -65,11 +65,12 @@ public class Scene
 
 	_sid = SID_INVALID;
 	_name = DEF_SCENE_NAME;
+
         _locations = new ArrayList();
 	_clusters = new ArrayList();
         _exits = new ArrayList();
 
-	    tiles = new Tile[TILE_WIDTH][TILE_HEIGHT][NUM_LAYERS];
+	tiles = new Tile[TILE_WIDTH][TILE_HEIGHT][NUM_LAYERS];
 	_deftile = _tilemgr.getTile(deftsid, deftid);
 	for (int xx = 0; xx < TILE_WIDTH; xx++) {
 	    for (int yy = 0; yy < TILE_HEIGHT; yy++) {
