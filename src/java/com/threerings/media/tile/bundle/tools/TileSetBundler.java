@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundler.java,v 1.1 2001/11/21 02:42:15 mdb Exp $
+// $Id: TileSetBundler.java,v 1.2 2001/11/29 00:13:20 mdb Exp $
 
 package com.threerings.media.tools.tile.bundle;
 
@@ -97,6 +97,16 @@ public class TileSetBundler
     public TileSetBundler (String configPath)
         throws IOException
     {
+        this(new File(configPath));
+    }
+
+    /**
+     * Constructs a tileset bundler with the specified bundler config
+     * file.
+     */
+    public TileSetBundler (File configFile)
+        throws IOException
+    {
         // we parse our configuration with a digester
         Digester digester = new Digester();
 
@@ -117,7 +127,7 @@ public class TileSetBundler
         digester.addCallParam("bundler-config/mapping/ruleset", 1);
 
         // now go like the wind
-        FileInputStream fin = new FileInputStream(configPath);
+        FileInputStream fin = new FileInputStream(configFile);
         try {
             digester.parse(fin);
         } catch (SAXException saxe) {
@@ -171,6 +181,27 @@ public class TileSetBundler
      */
     public void createBundle (
         TileSetIDBroker idBroker, File bundleDesc, String targetPath)
+        throws IOException
+    {
+        createBundle(idBroker, bundleDesc, new File(targetPath));
+    }
+
+    /**
+     * Creates a tileset bundle at the location specified by the
+     * <code>targetPath</code> parameter, based on the description
+     * provided via the <code>bundleDesc</code> parameter.
+     *
+     * @param idBroker the tileset id broker that will be used to map
+     * tileset names to tileset ids.
+     * @param bundleDef a file object pointing to the bundle description
+     * file.
+     * @param target the tileset bundle file that will be created.
+     *
+     * @exception IOException thrown if an error occurs reading, writing
+     * or processing anything.
+     */
+    public void createBundle (
+        TileSetIDBroker idBroker, File bundleDesc, File target)
         throws IOException
     {
         // stick an array list on the top of the stack into which we will
@@ -232,7 +263,6 @@ public class TileSetBundler
         }
 
         // now we have to create the actual bundle file
-        File target = new File(targetPath);
         FileOutputStream fout = new FileOutputStream(target);
         Manifest manifest = new Manifest();
         JarOutputStream jar = new JarOutputStream(fout, manifest);
