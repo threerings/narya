@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.15 2002/05/09 16:49:16 mdb Exp $
+// $Id: ImageUtil.java,v 1.16 2002/06/19 08:24:22 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -11,6 +11,7 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Transparency;
 
@@ -95,6 +96,18 @@ public class ImageUtil
         int width, int height, int transparency)
     {
         return _gc.createCompatibleImage(width, height, transparency);
+    }
+
+    /**
+     * Creates a new buffered image with the same sample model and color
+     * model as the source image but with the new width and height.
+     */
+    public static BufferedImage createCompatibleImage (
+        BufferedImage source, int width, int height)
+    {
+        WritableRaster raster =
+            source.getRaster().createCompatibleWritableRaster(width, height);
+        return new BufferedImage(source.getColorModel(), raster, false, null);
     }
 
     /**
@@ -302,6 +315,63 @@ public class ImageUtil
                         "[image=" + image + "].");
             return true;
         }
+    }
+
+    /**
+     * Computes the bounds of the smallest rectangle that contains all
+     * non-transparent pixels of this image. This isn't extremely
+     * efficient, so you shouldn't be doing this anywhere exciting.
+     */
+    public static void computeTrimmedBounds (
+        BufferedImage image, Rectangle tbounds)
+    {
+        // this could be more efficient, but it's run as a batch process
+        // and doesn't really take that long anyway
+        int width = image.getWidth(), height = image.getHeight();
+
+        int firstrow = -1, lastrow = -1, minx = width, maxx = 0;
+        for (int yy = 0; yy < height; yy++) {
+
+            int firstidx = -1, lastidx = -1;
+            for (int xx = 0; xx < width; xx++) {
+                // if this pixel is transparent, do nothing
+                int argb = image.getRGB(xx, yy);
+                if ((argb >> 24) == 0) {
+                    continue;
+                }
+
+                // otherwise, if we've not seen a non-transparent pixel,
+                // make a note that this is the first non-transparent
+                // pixel in the row
+                if (firstidx == -1) {
+                    firstidx = xx;
+                }
+                // keep track of the last non-transparent pixel we saw
+                lastidx = xx;
+            }
+
+            // if we saw no pixels on this row, we can bail now
+            if (firstidx == -1) {
+                continue;
+            }
+
+            // update our min and maxx
+            minx = Math.min(firstidx, minx);
+            maxx = Math.max(lastidx, maxx);
+
+            // otherwise keep track of the first row on which we see
+            // pixels and the last row on which we see pixels
+            if (firstrow == -1) {
+                firstrow = yy;
+            }
+            lastrow = yy;
+        }
+
+        // fill in the dimensions
+        tbounds.x = minx;
+        tbounds.y = firstrow;
+        tbounds.width = maxx - minx + 1;
+        tbounds.height = lastrow - firstrow + 1;
     }
 
     /** The graphics configuration for the default screen device. */
