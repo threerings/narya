@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.28 2003/02/04 02:59:47 mdb Exp $
+// $Id: TileManager.java,v 1.29 2003/02/12 05:32:54 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -12,13 +12,15 @@ import java.util.Iterator;
 import com.samskivert.io.PersistenceException;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.IntTuple;
+import com.samskivert.util.LRUHashMap;
 
-import com.threerings.media.Log;
 import com.threerings.media.image.Colorization;
 import com.threerings.media.image.ImageDataProvider;
 import com.threerings.media.image.ImageManager;
 import com.threerings.media.image.Mirage;
-import com.samskivert.util.LRUHashMap;
+
+import com.threerings.media.Log;
+import com.threerings.media.tile.TileUtil;
 
 /**
  * The tile manager provides a simplified interface for retrieving and
@@ -181,6 +183,19 @@ public class TileManager
                         ", error=" + pe + "].");
             throw new NoSuchTileSetException(name);
         }
+    }
+
+    /**
+     * Returns the {@link Tile} object with the specified fully qualified
+     * tile id.
+     *
+     * @see TileUtil#getFQTileId
+     */
+    public Tile getTile (int fqTileId)
+	throws NoSuchTileSetException, NoSuchTileException
+    {
+        return getTile(TileUtil.getTileSetId(fqTileId),
+                       TileUtil.getTileIndex(fqTileId));
     }
 
     /**
