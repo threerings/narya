@@ -268,6 +268,7 @@ public class SpotSceneManager extends SceneManager
             Log.warning("Changing loc for occupant without previous loc " +
                         "[where=" + where() + ", who=" + source.who() +
                         ", nloc=" + loc + "].");
+            Thread.dumpStack();
             _ssobj.addToOccupantLocs(sloc);
         } else {
             _ssobj.updateOccupantLocs(sloc);
