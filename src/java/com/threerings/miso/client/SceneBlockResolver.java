@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlockResolver.java,v 1.3 2003/05/02 18:09:56 mdb Exp $
+// $Id: SceneBlockResolver.java,v 1.4 2003/05/12 01:53:19 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -24,10 +24,46 @@ public class SceneBlockResolver extends LoopingThread
         _queue.append(block);
     }
 
+    /**
+     * Temporarily suspends the scene block resolution thread.
+     */
+    public synchronized void suspendResolution ()
+    {
+        _resolving = false;
+    }
+
+    /**
+     * Restores the operation of the scene block resolution thread after a
+     * previous call to {@link #suspendResolution}.
+     */
+    public synchronized void restoreResolution ()
+    {
+        _resolving = true;
+        notify();
+    }
+
+    /**
+     * Returns the number of scene blocks on the resolution queue.
+     */
+    public int queueSize ()
+    {
+        return _queue.size();
+    }
+
     // documentation inherited
     public void iterate ()
     {
         final SceneBlock block = (SceneBlock)_queue.get();
+
+        while (!_resolving) {
+            synchronized (this) {
+                try {
+                    wait();
+                } catch (InterruptedException ie) {
+                    Log.info("Resolver interrupted.");
+                }
+            }
+        }
 
         try {
             Log.debug("Resolving block " + block + ".");
@@ -51,4 +87,7 @@ public class SceneBlockResolver extends LoopingThread
 
     /** The invoker's queue of units to be executed. */
     protected Queue _queue = new Queue();
+
+    /** Indicates whether or not we are resolving or suspended. */
+    protected boolean _resolving = true;
 }
