@@ -1,9 +1,10 @@
 //
-// $Id: GeomUtil.java,v 1.1 2002/06/25 00:22:44 mdb Exp $
+// $Id: GeomUtil.java,v 1.2 2002/06/28 01:29:08 mdb Exp $
 
 package com.threerings.geom;
 
 import java.awt.Point;
+import com.samskivert.util.StringUtil;
 
 /**
  * General geometry utilites.
@@ -22,6 +23,43 @@ public class GeomUtil
     {
         return ((v1e.x - v1s.x) * (v2e.x - v2s.x) +
                 (v1e.y - v1s.y) * (v2e.y - v2s.y));
+    }
+
+    /**
+     * Computes and returns the dot product of the two vectors.  See
+     * {@link #dot(Point,Point,Point,Point)} for an explanation of the
+     * arguments
+     */
+    public static int dot (int v1sx, int v1sy, int v1ex, int v1ey,
+                           int v2sx, int v2sy, int v2ex, int v2ey)
+    {
+        return ((v1ex - v1sx) * (v2ex - v2sx) + (v1ey - v1sy) * (v2ey - v2sy));
+    }
+
+    /**
+     * Computes and returns the dot product of the two vectors. The
+     * vectors are assumed to start with the same coordinate and end with
+     * different coordinates.
+     *
+     * @param vs the starting point of both vectors.
+     * @param v1e the ending point of the first vector.
+     * @param v2e the ending point of the second vector.
+     */
+    public static int dot (Point vs, Point v1e, Point v2e)
+    {
+        return ((v1e.x - vs.x) * (v2e.x - vs.x) +
+                (v1e.y - vs.y) * (v2e.y - vs.y));
+    }
+
+    /**
+     * Computes and returns the dot product of the two vectors.
+     * See {@link #dot(Point,Point,Point)} for an explanation of the
+     * arguments
+     */
+    public static int dot (int vsx, int vsy, int v1ex, int v1ey,
+                           int v2ex, int v2ey)
+    {
+        return ((v1ex - vsx) * (v2ex - vsx) + (v1ey - vsy) * (v2ey - vsy));
     }
 
     /**
@@ -49,5 +87,29 @@ public class GeomUtil
         n.x = p1.x + Math.round(Ax * u);
         n.y = p1.y + Math.round(Ay * u);
         return n;
+    }
+
+    /**
+     * Returns less than zero if <code>p2</code> is on the left hand side
+     * of the line created by <code>p1</code> and <code>theta</code> and
+     * greater than zero if it is on the right hand side. In theory, it
+     * will return zero if the point is on the line, but due to rounding
+     * errors it almost always decides that it's not exactly on the line.
+     *
+     * @param p1 the point on the line whose side we're checking.
+     * @param theta the (logical) angle defining the line.
+     * @param p2 the point that lies on one side or the other of the line.
+     */
+    public static int whichSide (Point p1, double theta, Point p2)
+    {
+        // obtain the point defining the right hand normal (N)
+        theta += Math.PI/2;
+        int x = p1.x + (int)Math.round(1000*Math.cos(theta)),
+            y = p1.y + (int)Math.round(1000*Math.sin(theta));
+
+        // now dot the vector from p1->p2 with the vector from p1->N, if
+        // it's positive, we're on the right hand side, if it's negative
+        // we're on the left hand side and if it's zero, we're on the line
+        return dot(p1.x, p1.y, p2.x, p2.y, x, y);
     }
 }
