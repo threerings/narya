@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.27 2002/04/19 18:33:10 ray Exp $
+// $Id: GameManager.java,v 1.28 2002/04/19 21:16:42 ray Exp $
 
 package com.threerings.parlor.game;
 
@@ -82,6 +82,9 @@ public class GameManager extends PlaceManager
             for (int ii=0; ii < _players.length; ii++) {
                 _AIs[ii] = -1;
             }
+
+            // set up a delegate op for AI ticking
+            _tickAIOp = new TickAIDelegateOp();
 
             // and register ourselves to receive AI ticks
             AIGameTicker.registerAIGame(this);
@@ -254,7 +257,21 @@ public class GameManager extends PlaceManager
      */
     protected void tickAIs ()
     {
-        // subclasses should implement their AI gameplay here
+        for (int ii=0; ii < _AIs.length; ii++) {
+            byte level = _AIs[ii];
+            if (level != -1) {
+                tickAI(ii, level);
+            }
+        }
+    }
+
+    /**
+     * Called by tickAIs to tick each AI in the game.
+     */
+    protected void tickAI (int pidx, byte level)
+    {
+        _tickAIOp.setAI(pidx, level);
+        applyToDelegates(_tickAIOp);
     }
 
     /**
@@ -393,6 +410,22 @@ public class GameManager extends PlaceManager
         }
     }
 
+    protected class TickAIDelegateOp implements DelegateOp
+    {
+        public void apply (PlaceManagerDelegate delegate) {
+            ((GameManagerDelegate) delegate).tickAI(_pidx, _level);
+        }
+
+        public void setAI (int pidx, byte level)
+        {
+            _pidx = pidx;
+            _level = level;
+        }
+
+        protected int _pidx;
+        protected byte _level;
+    }
+
     /** A reference to our game configuration. */
     protected GameConfig _gconfig;
 
@@ -408,4 +441,7 @@ public class GameManager extends PlaceManager
     /** If AIs are present, contains their skill levels, or -1 at human
      * player indexes.. */
     protected byte[] _AIs;
+
+    /** Our delegate operator to tick AIs. */
+    protected TickAIDelegateOp _tickAIOp;
 }

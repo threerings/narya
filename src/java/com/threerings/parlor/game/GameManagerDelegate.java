@@ -1,5 +1,5 @@
 //
-// $Id: GameManagerDelegate.java,v 1.2 2002/04/14 00:26:05 mdb Exp $
+// $Id: GameManagerDelegate.java,v 1.3 2002/04/19 21:16:42 ray Exp $
 
 package com.threerings.parlor.game;
 
@@ -31,6 +31,16 @@ public class GameManagerDelegate extends PlaceManagerDelegate
      * Called by the game manager after the game was started.
      */
     public void gameDidStart ()
+    {
+    }
+
+    /**
+     * Called by the manager when we should do some AI.
+     *
+     * @param pidx the player index to fake some gameplay for.
+     * @param skill the base skill level of the AI (0 - 100 inclusive).
+     */
+    public void tickAI (int pidx, byte skill)
     {
     }
 
