@@ -1,5 +1,5 @@
 //
-// $Id: MathUtil.java,v 1.8 2003/04/12 02:06:35 mdb Exp $
+// $Id: MathUtil.java,v 1.9 2003/04/19 22:28:28 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -75,5 +75,22 @@ public class MathUtil
     public static int sign (int value)
     {
         return (value < 0) ? -1 : 1;
+    }
+
+    /**
+     * Computes the floored division <code>dividend/divisor</code> which
+     * is useful when dividing potentially negative numbers into bins. For
+     * positive numbers, it is the same as normal division, for negative
+     * numbers it returns <code>(dividend - divisor + 1) / divisor</code>.
+     *
+     * <p> For example, the following numbers floorDiv 10 are:
+     * <pre>
+     * -15 -10 -8 -2 0 2 8 10 15
+     *  -2  -1 -1 -1 0 0 0  1  1
+     * </pre>
+     */
+    public static int floorDiv (int dividend, int divisor)
+    {
+        return ((dividend >= 0) ? dividend : (dividend - divisor + 1))/divisor;
     }
 }
