@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.44 2003/12/03 23:38:58 mdb Exp $
+// $Id: Client.java,v 1.45 2003/12/13 02:50:12 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -396,12 +396,23 @@ public class Client
      */
     protected void tick ()
     {
+        long now = System.currentTimeMillis();
+
+        // sanity check to see if we're missing idle ticks for long stretches
+        if (_lastTicked == 0L) {
+            _lastTicked = now;
+        }
+        long delta = now - _lastTicked;
+        if (delta > 10000L) {
+            Log.warning("Long inter-tick interval!? [delta=" + delta + "].");
+        }
+        _lastTicked = now;
+
         // if we're not connected, skip it
         if (_comm == null) {
             return;
         }
 
-        long now = System.currentTimeMillis();
         if (_dcalc != null) {
             // if we're syncing the clock, send another ping
             PingRequest req = new PingRequest();
@@ -411,6 +422,7 @@ public class Client
         } else if (now - _comm.getLastWrite() > PingRequest.PING_INTERVAL) {
             // if we haven't sent anything over the network in a while, we
             // ping the server to let it know that we're still alive
+            Log.info("Client idle, PINGing.");
             _comm.postMessage(new PingRequest());
 
         } else if (now - _lastSync > CLOCK_SYNC_INTERVAL) {
@@ -691,6 +703,9 @@ public class Client
 
     /** Our tick interval id. */
     protected int _piid = -1;
+
+    /** Check to ensure that we're not missing ticks. */
+    protected long _lastTicked;
 
     /** How often we recompute our time offset from the server. */
     protected static final long CLOCK_SYNC_INTERVAL = 600 * 1000L;
