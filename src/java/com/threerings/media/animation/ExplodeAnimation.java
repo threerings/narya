@@ -1,5 +1,5 @@
 //
-// $Id: ExplodeAnimation.java,v 1.5 2002/01/19 06:06:05 shaper Exp $
+// $Id: ExplodeAnimation.java,v 1.6 2002/01/31 17:34:20 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -37,6 +37,10 @@ public class ExplodeAnimation extends Animation
 
         /** The chunk rotational velocity in rotations per millisecond. */
         public float rvel;
+
+        /** The animation length in milliseconds, or -1 if the animation
+         * should continue until all pieces are outside the bounds. */
+        public long delay;
     }
 
     /**
@@ -165,7 +169,8 @@ public class ExplodeAnimation extends Animation
         // increment the rotation angle
         _angle += _info.rvel;
 
-        _finished = (inside == 0);
+        _finished = (inside == 0) ||
+            (_info.delay > -1 && timestamp >= (_start + _info.delay));
         invalidate();
     }
 
