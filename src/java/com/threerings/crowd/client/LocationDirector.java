@@ -1,13 +1,17 @@
 //
-// $Id: LocationDirector.java,v 1.3 2001/07/23 21:14:27 mdb Exp $
+// $Id: LocationDirector.java,v 1.4 2001/07/23 22:59:43 mdb Exp $
 
 package com.threerings.cocktail.party.client;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.threerings.cocktail.cher.client.*;
 import com.threerings.cocktail.cher.dobj.*;
 
 import com.threerings.cocktail.party.Log;
 import com.threerings.cocktail.party.data.BodyObject;
+import com.threerings.cocktail.party.data.PlaceObject;
 import com.threerings.cocktail.party.util.PartyContext;
 
 /**
@@ -18,7 +22,7 @@ import com.threerings.cocktail.party.util.PartyContext;
  * before actually issuing the request.
  */
 public class LocationManager
-    implements ClientObserver
+    implements ClientObserver, Subscriber
 {
     public LocationManager (PartyContext ctx)
     {
@@ -36,6 +40,33 @@ public class LocationManager
      */
     public void moveTo (int placeId)
     {
+        // first check to see if our observers are happy with this move
+        // request
+        for (int i = 0; i < _observers.size(); i++) {
+            LocationObserver obs = (LocationObserver)_observers.get(i);
+            if (!obs.locationMayChange(placeId)) {
+                Log.info("Location change vetoed by observer " +
+                         "[pid=" + placeId + ", obs=" + obs + "].");
+                return;
+            }
+        }
+
+        // complain if we're over-writing a pending request
+        if (_pendingPlaceId != -1) {
+            Log.warning("We appear to have a moveTo request outstanding " +
+                        "[ppid=" + _pendingPlaceId +
+                        ", npid=" + placeId + "].");
+            // but we're going to fall through and do it anyway because
+            // refusing to switch rooms at this point will inevitably
+            // result in some strange bug causing a move request to be
+            // dropped by the server and the client that did it to be
+            // totally hosed because they can no longer move to new
+            // locations because they still have an outstanding request
+        }
+
+        // make a note of our pending place id
+        _pendingPlaceId = placeId;
+
         // issue a moveTo request
         LocationService.moveTo(_ctx.getClient(), placeId, this);
     }
@@ -98,7 +129,21 @@ public class LocationManager
      */
     public void handleMoveSucceeded ()
     {
-        Log.info("Move succeeded.");
+        DObjectManager omgr = _ctx.getDObjectManager();
+
+        // unsubscribe from our old place object
+        if (_place != null) {
+            omgr.unsubscribeFromObject(_place.getOid(), this);
+            _place = null;
+        }
+
+        // make a note that we're now mostly in the new location
+        _previousPlaceId = _placeId;
+        _placeId = _pendingPlaceId;
+        _pendingPlaceId = -1;
+
+        // subscribe to our new place object to complete the move
+        omgr.subscribeToObject(_placeId, this);
     }
 
     /**
@@ -106,8 +151,78 @@ public class LocationManager
      */
     public void handleMoveFailed (String reason)
     {
-        Log.info("Move failed [reason=" + reason + "].");
+        // clear out our pending request oid
+        int placeId = _pendingPlaceId;
+        _pendingPlaceId = -1;
+
+        // let our observers know that something has gone horribly awry
+        notifyFailure(placeId, reason);
     }
 
+    public void objectAvailable (DObject object)
+    {
+        // yay, we have our new place object
+        _place = (PlaceObject)object;
+
+        // let our observers know that all is well on the western front
+        for (int i = 0; i < _observers.size(); i++) {
+            LocationObserver obs = (LocationObserver)_observers.get(i);
+            obs.locationDidChange(_place);
+        }
+    }
+
+    public void requestFailed (int oid, ObjectAccessException cause)
+    {
+        // aiya! we were unable to fetch our new place object; something
+        // is badly wrong
+        Log.warning("Aiya! Unable to fetch place object for new location " +
+                    "[plid=" + oid + ", reason=" + cause + "].");
+
+        // clear out our half initialized place info
+        int placeId = _placeId;
+        _placeId = -1;
+
+        // let the kids know shit be fucked
+        notifyFailure(placeId, "m.unable_to_fetch_place_object");
+
+        // if we were previously somewhere, try going back there
+        if (_previousPlaceId != -1) {
+            moveTo(_previousPlaceId);
+        }
+    }
+
+    public boolean handleEvent (DEvent event, DObject target)
+    {
+        // nothing to do here, but remain subscribed
+        return true;
+    }
+
+    protected void notifyFailure (int placeId, String reason)
+    {
+        for (int i = 0; i < _observers.size(); i++) {
+            LocationObserver obs = (LocationObserver)_observers.get(i);
+            obs.locationChangeFailed(placeId, reason);
+        }
+    }
+
+    /** The context through which we access needed services. */
     protected PartyContext _ctx;
+
+    /** Our location observer list. */
+    protected List _observers = new ArrayList();
+
+    /** The oid of the place we currently occupy. */
+    protected int _placeId = -1;
+
+    /** The place object that we currently occupy. */
+    protected PlaceObject _place;
+
+    /**
+     * The oid of the place for which we have an outstanding moveTo
+     * request, or -1 if we have no outstanding request.
+     */
+    protected int _pendingPlaceId = -1;
+
+    /** The oid of the place we previously occupied. */
+    protected int _previousPlaceId = -1;
 }
