@@ -1,15 +1,16 @@
 //
-// $Id: ImageManager.java,v 1.4 2001/09/06 01:35:05 shaper Exp $
+// $Id: ImageManager.java,v 1.5 2001/10/25 22:10:32 mdb Exp $
 
 package com.threerings.media;
-
-import com.threerings.miso.Log;
-import com.threerings.resource.ResourceManager;
 
 import java.awt.*;
 import java.awt.image.*;
 import java.io.IOException;
 import java.util.Hashtable;
+
+import com.threerings.resource.ResourceManager;
+
+import com.threerings.media.Log;
 
 /**
  * The ImageManager class provides a single point of access for image
