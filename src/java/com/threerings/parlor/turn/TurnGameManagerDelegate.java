@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameManagerDelegate.java,v 1.6 2002/08/06 23:23:39 shaper Exp $
+// $Id: TurnGameManagerDelegate.java,v 1.7 2002/08/07 21:17:50 shaper Exp $
 
 package com.threerings.parlor.turn;
 
@@ -52,10 +52,12 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
     /**
      * Called to start the next turn. It calls {@link
      * TurnGameManager#turnWillStart} to allow our owning manager to
-     * perform any pre-turn processing and then sets the turn holder that
+     * perform any pre-start turn processing, sets the turn holder that
      * was configured either when the game started or when finishing up
-     * the last turn. This assumes that a valid turn holder has been
-     * assigned. If some pre-game preparation needs take place in a
+     * the last turn, and then calls {@link TurnGameManager#turnDidStart}
+     * to allow the manager to perform any post-start turn
+     * processing. This assumes that a valid turn holder has been
+     * assigned. If some pre-game preparation needs to take place in a
      * non-turn-based manner, this function should not be called until it
      * is time to start the first turn.
      */
