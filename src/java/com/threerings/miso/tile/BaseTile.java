@@ -1,5 +1,5 @@
 //
-// $Id: BaseTile.java,v 1.4 2002/02/06 17:13:06 mdb Exp $
+// $Id: BaseTile.java,v 1.5 2002/02/07 02:58:46 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -63,5 +63,5 @@ public class BaseTile extends Tile
     protected boolean _passable = true;
 
     /** Whether the tile is covered by an object tile. */
-    protected boolean _covered = true;
+    protected boolean _covered = false;
 }
