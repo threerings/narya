@@ -240,7 +240,7 @@ public class SparseMisoSceneModel extends MisoSceneModel
     public short swidth, sheight;
 
     /** The tileset to use when we have no tile data. */
-    public int defTileSet = 8;
+    public int defTileSet = 0;
 
     /**
      * Creates a scene model with the specified bounds.
