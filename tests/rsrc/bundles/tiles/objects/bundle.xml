@@ -1,5 +1,5 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- $Id: bundle.xml,v 1.1 2001/11/29 21:55:56 mdb Exp $ -->
+<!-- $Id: bundle.xml,v 1.2 2001/12/18 09:16:31 mdb Exp $ -->
 
 <!-- Object tile bundle tileset descriptions. -->
 <bundle>
@@ -13,6 +13,87 @@
       <gapSize>4, 0</gapSize>
       <objectWidths>4, 3, 4, 3</objectWidths>
       <objectHeights>3, 4, 3, 4</objectHeights>
+    </tileset>
+
+    <tileset name="Tavern">
+      <imagePath>tavern.png</imagePath>
+      <widths>289</widths>
+      <heights>291</heights>
+      <tileCounts>4</tileCounts>
+      <offsetPos>3, 3</offsetPos>
+      <gapSize>7, 0</gapSize>
+      <objectWidths>3, 6, 3, 6</objectWidths>
+      <objectHeights>6, 3, 6, 3</objectHeights>
+    </tileset>
+
+    <tileset name="Bush">
+      <imagePath>bush.png</imagePath>
+      <widths>150</widths>
+      <heights>150</heights>
+      <tileCounts>4</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+      <objectWidths>2, 2, 2, 2</objectWidths>
+      <objectHeights>2, 2, 2, 2</objectHeights>
+      <xOrigins>75, 75, 75, 75</xOrigins>
+      <yOrigins>140, 140, 140, 140</yOrigins>
+    </tileset>
+
+    <tileset name="Chest and booty">
+      <imagePath>chest_extra.png</imagePath>
+      <widths>150</widths>
+      <heights>150</heights>
+      <tileCounts>4</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+      <objectWidths>2, 3, 2, 3</objectWidths>
+      <objectHeights>3, 2, 3, 2</objectHeights>
+    </tileset>
+
+    <tileset name="Chest o' gold">
+      <imagePath>chest_gold.png</imagePath>
+      <widths>130</widths>
+      <heights>130</heights>
+      <tileCounts>4</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+      <objectWidths>2, 2, 2, 2</objectWidths>
+      <objectHeights>2, 2, 2, 2</objectHeights>
+    </tileset>
+
+    <tileset name="Things">
+      <imagePath>things.png</imagePath>
+      <widths>60</widths>
+      <heights>60</heights>
+      <tileCounts>4</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+      <objectWidths>1, 1, 1, 1</objectWidths>
+      <objectHeights>1, 1, 1, 1</objectHeights>
+    </tileset>
+
+    <tileset name="Table">
+      <imagePath>table.png</imagePath>
+      <widths>189</widths>
+      <heights>189</heights>
+      <tileCounts>4</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+      <objectWidths>3, 3, 3, 3</objectWidths>
+      <objectHeights>3, 3, 3, 3</objectHeights>
+    </tileset>
+
+    <tileset name="Tree">
+      <imagePath>tree.png</imagePath>
+      <widths>300</widths>
+      <heights>300</heights>
+      <tileCounts>4</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+      <objectWidths>2, 2, 2, 2</objectWidths>
+      <objectHeights>2, 2, 2, 2</objectHeights>
+      <xOrigins>145, 155, 150, 145</xOrigins>
+      <yOrigins>300, 300, 300, 300</yOrigins>
     </tileset>
   </object>
 </bundle>
