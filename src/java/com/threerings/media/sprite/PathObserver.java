@@ -1,5 +1,5 @@
 //
-// $Id: PathObserver.java,v 1.1 2003/04/30 00:44:36 mdb Exp $
+// $Id: PathObserver.java,v 1.2 2003/05/04 18:50:23 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -20,6 +20,12 @@ public interface PathObserver
 
     /**
      * Called when a sprite completes its traversal of a path.
+     *
+     * @param sprite the sprite that completed its path.
+     * @param path the path that was completed.
+     * @param when the tick stamp of the media tick on which the path was
+     * completed (see {@link SpriteManager#tick}) (this may not be in the
+     * same time domain as {@link System#currentTimeMillis}).
      */
     public void pathCompleted (Sprite sprite, Path path, long when);
 }
