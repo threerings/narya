@@ -1,5 +1,5 @@
 //
-// $Id: MisoUtil.java,v 1.5 2001/08/13 15:00:24 shaper Exp $
+// $Id: MisoUtil.java,v 1.6 2001/08/15 00:00:51 mdb Exp $
 
 package com.threerings.miso.util;
 
@@ -33,27 +33,26 @@ public class MisoUtil
     }
 
     /**
-     * Create a <code>SceneManager</code> object, reading the class
-     * name to instantiate from the config object.
+     * Create an <code>XMLFileSceneRepository</code> object, reading the
+     * name of the class to instantiate from the config object.
      *
      * @param config the <code>Config</code> object.
      *
-     * @return the new scene manager object or null if an error occurred.
+     * @return the new scene repository object or null if an error
+     * occurred.
      */
-    public static SceneManager
-        createSceneManager (Config config, TileManager tilemgr)
+    public static XMLFileSceneRepository createSceneRepository (
+        Config config, TileManager tilemgr)
     {
 	try {
-            SceneRepositoryImpl scenerepo = (SceneRepositoryImpl)
+            XMLFileSceneRepository scenerepo = (XMLFileSceneRepository)
                 config.instantiateValue("miso.scenerepo", DEF_SCENEREPO);
             scenerepo.init(config, tilemgr);
-
-	    SceneManager scenemgr = new SceneManager(scenerepo);
-
-            return scenemgr;
+            return scenerepo;
 
 	} catch (Exception e) {
-	    Log.warning("Failed to instantiate scene manager [e=" + e + "].");
+	    Log.warning("Failed to instantiate scene repository " +
+                        "[e=" + e + "].");
 	    return null;
 	}
     }
@@ -106,8 +105,8 @@ public class MisoUtil
      *
      * @return the new tileset manager object or null if an error occurred.
      */
-    protected static TileSetManager
-        createTileSetManager (Config config, ImageManager imgmgr)
+    protected static TileSetManager createTileSetManager (
+        Config config, ImageManager imgmgr)
     {
 	TileSetManagerImpl tilesetmgr = null;
 	try {

@@ -1,9 +1,11 @@
 //
-// $Id: ViewerContext.java,v 1.1 2001/07/25 17:38:15 shaper Exp $
+// $Id: ViewerContext.java,v 1.2 2001/08/15 00:00:52 mdb Exp $
 
 package com.threerings.miso.viewer.util;
 
 import com.samskivert.util.Context;
+
+import com.threerings.miso.scene.SceneRepository;
 import com.threerings.miso.util.MisoContext;
 
 /**
@@ -12,5 +14,8 @@ import com.threerings.miso.util.MisoContext;
  */
 public interface ViewerContext extends MisoContext, Context
 {
-    // nothing for now.
+    /**
+     * Returns the scene repository that we can use to get scenes.
+     */
+    public SceneRepository getSceneRepository ();
 }

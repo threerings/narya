@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.3 2001/08/02 00:42:02 shaper Exp $
+// $Id: ViewerApp.java,v 1.4 2001/08/15 00:00:51 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -8,8 +8,9 @@ import java.io.IOException;
 
 import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.Config;
+
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.SceneManager;
+import com.threerings.miso.scene.SceneRepository;
 import com.threerings.miso.tile.TileManager;
 import com.threerings.miso.util.MisoUtil;
 import com.threerings.miso.viewer.util.ViewerContext;
@@ -33,7 +34,7 @@ public class ViewerApp
 	// create the handles on our various services
 	_config = createConfig();
 	_tilemgr = MisoUtil.createTileManager(_config, _frame);
-	_scenemgr = MisoUtil.createSceneManager(_config, _tilemgr);
+	_screpo = MisoUtil.createSceneRepository(_config, _tilemgr);
 	_ctx = new ViewerContextImpl();
 
     	// initialize the frame with the now-prepared context
@@ -63,8 +64,8 @@ public class ViewerApp
 
     /**
      * The implementation of the ViewerContext interface that provides
-     * handles to the config and manager objects that offer commonly
-     * used services.
+     * handles to the config and manager objects that offer commonly used
+     * services.
      */
     protected class ViewerContextImpl implements ViewerContext
     {
@@ -73,15 +74,15 @@ public class ViewerApp
 	    return _config;
 	}
 
-	public SceneManager getSceneManager ()
-	{
-	    return _scenemgr;
-	}
-
 	public TileManager getTileManager ()
 	{
 	    return _tilemgr;
 	}
+
+        public SceneRepository getSceneRepository ()
+        {
+            return _screpo;
+        }
     }
 
     /**
@@ -108,8 +109,8 @@ public class ViewerApp
     /** The config object. */
     protected Config _config;
 
-    /** The scene manager object. */
-    protected SceneManager _scenemgr;
+    /** The scene repository. */
+    protected SceneRepository _screpo;
 
     /** The tile manager object. */
     protected TileManager _tilemgr;
