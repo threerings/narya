@@ -1,5 +1,5 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.14 2002/09/23 18:53:01 mdb Exp $
+// $Id: ComponentBundlerTask.java,v 1.15 2002/09/26 02:05:59 mdb Exp $
 
 package com.threerings.cast.bundle.tools;
 
@@ -30,6 +30,7 @@ import org.apache.commons.digester.Digester;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
 
@@ -433,11 +434,22 @@ public class ComponentBundlerTask extends Task
             bout.newLine();
 
             // write out the keys and values
+            SortableArrayList lines = new SortableArrayList();
             Iterator keys = keySet().iterator();
             while (keys.hasNext()) {
                 Tuple key = (Tuple)keys.next();
                 Integer value = (Integer)get(key);
                 String line = key.left + SEP_STR + key.right + SEP_STR + value;
+                lines.add(line);
+            }
+
+            // sort the output
+            lines.sort();
+
+            // now write it to the file
+            int lcount = lines.size();
+            for (int ii = 0; ii < lcount; ii++) {
+                String line = (String)lines.get(ii);
                 bout.write(line, 0, line.length());
                 bout.newLine();
             }
