@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.70 2003/10/25 22:08:02 mdb Exp $
+// $Id: DObject.java,v 1.71 2003/12/11 18:36:32 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -121,6 +121,16 @@ public class DObject implements Streamable
     public int getOid ()
     {
         return _oid;
+    }
+
+    /**
+     * Returns the dobject manager under the auspices of which this object
+     * operates. This could be <code>null</code> if the object is not
+     * active.
+     */
+    public DObjectManager getManager ()
+    {
+        return _omgr;
     }
 
     /**
