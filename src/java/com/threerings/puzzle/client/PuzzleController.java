@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.15 2004/10/16 00:06:37 mdb Exp $
+// $Id: PuzzleController.java,v 1.16 2004/10/23 01:19:39 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -35,6 +35,7 @@ import com.samskivert.swing.util.MouseHijacker;
 
 import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.ObserverList;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.media.FrameParticipant;
 import com.threerings.media.sound.SoundCodes;
@@ -764,8 +765,8 @@ public abstract class PuzzleController extends GameController
         int[] events = CollectionUtil.toIntArray(_events);
         _events.clear();
 
-//         Log.info("Sending progress [round=" + _puzobj.roundId +
-//                  ", events=" + StringUtil.toString(events) + "].");
+//        Log.info("Sending progress [round=" + _puzobj.roundId +
+//                 ", events=" + StringUtil.toString(events) + "].");
 
         // create an array of the board states that correspond with those
         // events (if state syncing is enabled)
