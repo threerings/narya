@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.30 2003/05/15 23:03:29 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.31 2003/05/16 00:49:16 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -232,6 +232,15 @@ public class MisoScenePanel extends VirtualMediaPanel
         // get a reasonable tile path through the scene
         List points = AStarPathUtil.getPath(
             this, sprite, longestPath, src.x, src.y, dest.x, dest.y);
+
+        // sanity check the number of nodes searched so that we can keep
+        // an eye out for bogosity
+        int considered = AStarPathUtil.getConsidered();
+        if (considered > longestPath*5) {
+            Log.warning("Considered " + considered + " nodes for path from " +
+                        StringUtil.toString(src) + " to " +
+                        StringUtil.toString(dest) + ".");
+        }
 
         // construct a path object to guide the sprite on its merry way
         return (points == null) ? null :
@@ -511,29 +520,18 @@ public class MisoScenePanel extends VirtualMediaPanel
     // documentation inherited
     public boolean canTraverse (Object traverser, int tx, int ty)
     {
-        // if the tile is not on-screen, we may want to refuse traversal
-        if (!allowOffScreenTraversal()) {
-            MisoUtil.tileToScreen(_metrics, tx, ty, _tcoords);
-            _trect.setLocation(_tcoords);
-            _trect.width = _metrics.tilewid;
-            _trect.height = _metrics.tilehei;
-            if (!_vbounds.intersects(_trect)) {
-                return false;
-            }
-        }
-
-        // otherwise, check the tile traversability
         SceneBlock block = getBlock(tx, ty);
-        return (block == null) ? false : block.canTraverse(traverser, tx, ty);
+        return (block == null) ? canTraverseUnresolved(traverser, tx, ty) :
+            block.canTraverse(traverser, tx, ty);
     }
 
     /**
-     * Derived classes can control whether or not we allow paths to be
-     * computed that take the client off-screen.
+     * Derived classes can control whether or not we consider unresolved
+     * tiles to be traversable or not.
      */
-    protected boolean allowOffScreenTraversal ()
+    protected boolean canTraverseUnresolved (Object traverser, int tx, int ty)
     {
-        return true;
+        return false;
     }
 
     // documentation inherited from interface
@@ -1490,9 +1488,6 @@ public class MisoScenePanel extends VirtualMediaPanel
 
     /** Temporary point used for intermediate calculations. */
     protected Point _tcoords = new Point();
-
-    /** Temporary rectangle used for intermediate calculations. */
-    protected Rectangle _trect = new Rectangle();
 
     /** Used to collect the list of sprites "hit" by a particular mouse
      * location. */
