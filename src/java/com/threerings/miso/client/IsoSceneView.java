@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.91 2002/02/06 23:14:56 mdb Exp $
+// $Id: IsoSceneView.java,v 1.92 2002/02/12 08:54:49 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -140,10 +140,6 @@ public class IsoSceneView implements SceneView
 
 	Graphics2D gfx = (Graphics2D)g;
 
-	// clip everything to the overall scene view bounds
-    	Shape oldclip = gfx.getClip();
-    	gfx.setClip(_model.bounds);
-
 	if (_numDirty == 0) {
             // invalidate the entire screen
             invalidate();
@@ -176,9 +172,6 @@ public class IsoSceneView implements SceneView
 
         // paint any extra goodies
 	paintExtras(gfx);
-
-	// restore the original clipping region
-	gfx.setClip(oldclip);
     }
 
     /**
