@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: gendobj,v 1.5 2002/02/08 23:59:36 mdb Exp $
+# $Id: gendobj,v 1.6 2002/02/09 00:10:19 mdb Exp $
 #
 # gendobj is used to generate DObject source file definitons basded on
 # abbreviated declarations. Because DObject fields all have standard
@@ -166,6 +166,8 @@ sub print_dobj_setters
         $dobjval = "new Boolean($field)";
     } elsif ($type eq "byte") {
         $dobjval = "new Byte($field)";
+    } elsif ($type eq "short") {
+        $dobjval = "new Short($field)";
     } elsif ($type eq "int") {
         $dobjval = "new Integer($field)";
     } elsif ($type eq "long") {
