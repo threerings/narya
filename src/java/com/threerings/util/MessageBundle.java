@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.18 2002/12/12 22:27:25 shaper Exp $
+// $Id: MessageBundle.java,v 1.19 2003/03/05 23:27:39 mdb Exp $
 
 package com.threerings.util;
 
@@ -91,6 +91,43 @@ public class MessageBundle
             }
         }
         return null;
+    }
+
+    /**
+     * Obtains the translation for the specified message key accounting
+     * for plurality in the following manner. Assuming a message key of
+     * <code>m.widgets</code>, the following translations should be
+     * defined:
+     * <pre>
+     * m.widgets.0 = no widgets.
+     * m.widgets.1 = {0} widget.
+     * m.widgets.n = {0} widgets.
+     * </pre>
+     *
+     * The specified argument is substituted into the translated string as
+     * appropriate. Consider using:
+     *
+     * <pre>
+     * m.widgets.n = {0,number,integer} widgets.
+     * </pre>
+     *
+     * to obtain proper insertion of commas and dots as appropriate for
+     * the locale.
+     */
+    public String get (String key, int value)
+    {
+        // we could use ChoiceFormat for this, but there's no indication
+        // that it does anything more useful than what we're doing here
+        // when it comes to handling plurals
+        String format;
+        switch (value) {
+        case 0: format = getResourceString(key + ".0"); break;
+        case 1: format = getResourceString(key + ".1"); break;
+        default: format = getResourceString(key + ".n"); break;
+        }
+        Object[] args = new Object[] { new Integer(value) };
+        return (format == null) ? (key + StringUtil.toString(args)) :
+            MessageFormat.format(format, args);
     }
 
     /**
