@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.37 2003/10/27 11:43:26 mdb Exp $
+// $Id: ResourceManager.java,v 1.38 2003/10/29 22:31:55 mdb Exp $
 
 package com.threerings.resource;
 
@@ -661,8 +661,17 @@ public class ResourceManager
                 // make sure the cache directory exists for this set
                 createCacheDirectory(setName);
 
+                // compute the versioned path for this bundle if we have a
+                // version configured
+                String vpath = path;
+                if (DownloadManager.VERSIONING && !StringUtil.blank(_version)) {
+                    vpath = versionPath(
+                        path, _version, getSuffix(path, ".jar"));
+                }
+
                 // compute the path to the cache file for this bundle
                 File cfile = new File(genCachePath(setName, path));
+                File vfile = new File(genCachePath(setName, vpath));
 
                 // slap this on the list for retrieval or update by the
                 // download manager
@@ -670,7 +679,7 @@ public class ResourceManager
 
                 // finally, add the file that will be cached to the set as
                 // a resource bundle
-                set.add(new ResourceBundle(cfile, true, true));
+                set.add(new ResourceBundle(vfile, true, true));
 
             } catch (MalformedURLException mue) {
                 Log.warning("Unable to create URL for resource " +
@@ -848,6 +857,40 @@ public class ResourceManager
     public ResourceBundle[] getResourceSet (String name)
     {
         return (ResourceBundle[])_sets.get(name);
+    }
+
+    /**
+     * Creates a versioned path using the supplied version string, path
+     * and file suffix. For example <code>foo/bar/baz.jar</code> becomes
+     * <code>foo/bar/baz__Vversion.jar</code>.
+     */
+    public static String versionPath (
+        String path, String version, String suffix)
+    {
+        if (!suffix.startsWith(".")) {
+            suffix = "." + suffix;
+        }
+        int sidx = path.indexOf(suffix);
+        if (sidx == -1) {
+            Log.warning("Invalid unversioned path, missing suffix " +
+                        "[path=" + path + ", suffix=" + suffix + "].");
+            return path;
+        }
+        return path.substring(0, sidx) + "__V" + version + suffix;
+    }
+
+    /**
+     * Returns the suffix of the specified path, ie. <code>.jar</code> if
+     * the path references a file that ends in <code>.jar</code>.
+     */
+    public static String getSuffix (String path, String defsuf)
+    {
+        int didx = path.lastIndexOf(".");
+        if (didx == -1) {
+            return defsuf;
+        } else {
+            return path.substring(didx);
+        }
     }
 
     /** The classloader we use for classpath-based resource loading. */

@@ -1,5 +1,5 @@
 //
-// $Id: JNLPDownloader.java,v 1.9 2003/10/29 02:42:56 mdb Exp $
+// $Id: JNLPDownloader.java,v 1.10 2003/10/29 22:31:55 mdb Exp $
 
 package com.threerings.resource;
 
@@ -40,12 +40,52 @@ public class JNLPDownloader extends Downloader
     {
         super.init(ddesc);
 
-        // determine which version we already have, if any
+        String dpath = _desc.destFile.getPath();
+
+        // determine the path of our version file before we version the
+        // path of the destination file
         _vfile = new File(FileUtil.resuffix(_desc.destFile, ".jar", ".vers"));
-        if (_vfile.exists() && _desc.destFile.exists()) {
+
+        // if we're using a version, adjust our destination file path
+        // based on said version
+        if (!StringUtil.blank(_desc.version)) {
+            _desc.destFile = new File(
+                ResourceManager.versionPath(dpath, _desc.version, ".jar"));
+        }
+
+        // determine which version we already have, if any
+        if (_vfile.exists()) {
             try {
                 BufferedReader vin = new BufferedReader(new FileReader(_vfile));
                 _cvers = vin.readLine();
+
+                // make sure the version referenced by that file still
+                // exists; if not ignore our "current version"
+                _curFile = new File(ResourceManager.versionPath(
+                                        dpath, _cvers, ".jar"));
+                if (!_curFile.exists()) {
+                    // for backwards compatibility, check to see if we
+                    // have an old non-versioned-path version of our
+                    // existing version
+                    File legacyFile = new File(dpath);
+                    if (legacyFile.exists()) {
+                        if (!legacyFile.renameTo(_curFile)) {
+                            Log.warning("Failed to rename legacy bundle to " +
+                                        "versioned name [cur=" + _curFile +
+                                        ", leg=" + legacyFile + "].");
+                            // just cope and we won't be able to blow away
+                            // this version of the resources
+                            _curFile = legacyFile;
+                        } else {
+                            Log.info("Renamed legacy bundle [cur=" + _curFile +
+                                     ", leg=" + legacyFile + "].");
+                        }
+
+                    } else {
+                        _cvers = null;
+                    }
+                }
+
             } catch (IOException ioe) {
                 Log.warning("Error reading version file [path=" + _vfile +
                             ", error=" + ioe + "].");
@@ -106,7 +146,7 @@ public class JNLPDownloader extends Downloader
         if (ucon.getContentType().equals(JARDIFF_TYPE)) {
             Log.info("Downloading patch [url=" + rsrcURL + "].");
             _patchFile = new File(
-                FileUtil.resuffix(_desc.destFile, ".jar", ".diff"));
+                FileUtil.resuffix(_curFile, ".jar", ".diff"));
             downloadContent(dmgr, obs, pinfo, buffer, ucon, _patchFile);
 
         } else {
@@ -121,25 +161,9 @@ public class JNLPDownloader extends Downloader
         throws IOException
     {
         if (_patchFile != null) {
-            // move the old jar out of the way
-            File oldDest = new File(
-                FileUtil.resuffix(_desc.destFile, ".jar", ".old"));
-            if (!_desc.destFile.renameTo(oldDest)) {
-                Log.warning("Unable to move " + _desc.destFile + " to " +
-                            oldDest + ". Trying another strategy.");
-                oldDest = new File(_desc.destFile,
-                                   RandomUtil.rand.nextLong() + ".jar");
-                if (!_desc.destFile.renameTo(oldDest)) {
-                    Log.warning("Unable to move " + _desc.destFile + " to " +
-                                oldDest + ". Giving up and wiping.");
-                    // attempt to blow everything away before choking so that
-                    // next time we'll download afresh
-                    cleanUpAndFail(null);
-                }
-            }
-
             // now apply the patch
-            Log.info("Applying patch [old=" + oldDest + ", path=" + _patchFile +
+            Log.info("Applying patch [old=" + _curFile +
+                     ", patch=" + _patchFile +
                      ", new=" + _desc.destFile + "].");
             Patcher.PatchDelegate delegate = new Patcher.PatchDelegate() {
                 public void patching (int value) {
@@ -153,7 +177,7 @@ public class JNLPDownloader extends Downloader
             try {
                 out = new BufferedOutputStream(
                     new FileOutputStream(_desc.destFile));
-                patcher.applyPatch(delegate, oldDest.getPath(),
+                patcher.applyPatch(delegate, _curFile.getPath(),
                                    _patchFile.getPath(), out);
                 out.close();
 
@@ -161,13 +185,16 @@ public class JNLPDownloader extends Downloader
                 Log.warning("Failure applying patch [rfile=" + _desc.destFile +
                             ", error=" + ioe + "]. Cleaning up and failing.");
                 StreamUtil.close(out);
-                oldDest.delete();
                 cleanUpAndFail(ioe);
             }
 
             // clean up the old jar and the patch file
-            oldDest.delete();
-            _patchFile.delete();
+            if (!_curFile.delete()) {
+                Log.warning("Failed to delete old bundle " + _curFile + ".");
+            }
+            if (!_patchFile.delete()) {
+                Log.warning("Failed to delete patch file " + _curFile + ".");
+            }
         }
 
         PrintWriter pout = new PrintWriter(
@@ -210,7 +237,7 @@ public class JNLPDownloader extends Downloader
     protected void cleanUpAndFail (IOException cause)
         throws IOException
     {
-        if (!_desc.destFile.delete()) {
+        if (_curFile != null) {
             Log.warning("Failed to delete " + _desc.destFile +
                         " in cleanUpAndFail().");
         }
@@ -240,6 +267,9 @@ public class JNLPDownloader extends Downloader
 
     /** The current version of the resource if we have one. */
     protected String _cvers;
+
+    /** The existing version of our bundle file. */
+    protected File _curFile;
 
     /** The mime-type of a jardiff patch file. */
     protected static final String JARDIFF_TYPE =

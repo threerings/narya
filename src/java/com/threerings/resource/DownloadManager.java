@@ -1,5 +1,5 @@
 //
-// $Id: DownloadManager.java,v 1.13 2003/10/23 20:31:28 ray Exp $
+// $Id: DownloadManager.java,v 1.14 2003/10/29 22:31:55 mdb Exp $
 
 package com.threerings.resource;
 
@@ -27,6 +27,9 @@ import com.samskivert.util.StringUtil;
  */
 public class DownloadManager
 {
+    /** Indicates whether or not we're using versioned resources. */
+    public static boolean VERSIONING = false;
+
     /**
      * Provides facilities for notifying an observer of file download
      * progress.
@@ -384,8 +387,6 @@ public class DownloadManager
     /** The data buffer size for reading file data. */
     protected static final int BUFFER_SIZE = 2048;
 
-    /** Indicates whether or not we're using versioned resources. */
-    protected static boolean VERSIONING = false;
     static {
         try {
             VERSIONING = "true".equalsIgnoreCase(
