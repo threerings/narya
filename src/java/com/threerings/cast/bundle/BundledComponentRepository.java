@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.28 2003/07/01 21:56:10 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.29 2003/07/02 00:01:17 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -286,21 +286,44 @@ public class BundledComponentRepository
                 return null;
             }
 
-            // first try loading up a tileset customized for this action
             String root = component.componentClass.name + "/" +
                 component.name + "/";
-            String path = root + action + BundleUtil.TILESET_EXTENSION;
+            String cpath = root + action + BundleUtil.TILESET_EXTENSION;
+            String dpath = root + ActionSequence.DEFAULT_SEQUENCE +
+                BundleUtil.TILESET_EXTENSION;
+
+            // look to see if this tileset is already cached (as the
+            // custom action or the default action)
+            TileSet aset = (TileSet)_setcache.get(cpath);
+            if (aset == null) {
+                aset = (TileSet)_setcache.get(dpath);
+                if (aset != null) {
+                    // save ourselves a lookup next time
+                    _setcache.put(cpath, aset);
+                }
+            }
 
             try {
-                TileSet aset = (TileSet)BundleUtil.loadObject(_bundle, path);
+                // then try loading up a tileset customized for this action
                 if (aset == null) {
-                    Log.debug("Falling back to default [path=" + path + "].");
-                    // try loading the default tileset
-                    path = root + ActionSequence.DEFAULT_SEQUENCE +
-                        BundleUtil.TILESET_EXTENSION;
-                    aset = (TileSet)BundleUtil.loadObject(_bundle, path);
+                    aset = (TileSet)BundleUtil.loadObject(_bundle, cpath);
                 }
+
+                // if that failed, try loading the default tileset
+                if (aset == null) {
+                    aset = (TileSet)BundleUtil.loadObject(_bundle, dpath);
+                    _setcache.put(dpath, aset);
+                }
+
+                // if that failed too, we're hosed
+                if (aset == null) {
+                    Log.warning("Unable to locate tileset for action '" +
+                                action + "' " + component + ".");
+                    return null;
+                }
+
                 aset.setImageProvider(this);
+                _setcache.put(cpath, aset);
                 return new TileSetFrameImage(aset, actseq);
 
             } catch (Exception e) {
@@ -313,6 +336,9 @@ public class BundledComponentRepository
 
         /** The resource bundle from which we obtain image data. */
         protected ResourceBundle _bundle;
+
+        /** Cache of tilesets loaded from our bundle. */
+        protected HashMap _setcache = new HashMap();
     }
 
     /**
