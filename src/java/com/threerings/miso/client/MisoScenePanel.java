@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.16 2003/04/26 02:16:18 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.17 2003/04/28 18:08:57 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -13,6 +13,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
@@ -529,6 +530,10 @@ public class MisoScenePanel extends VirtualMediaPanel
             setViewLocation(_nx+dx, _ny+dy);
             _rsize.setSize(width, height);
 
+            // make a note that we should not repaint until we get all of
+            // our blocks
+            _delayRepaint = true;
+
             // ...and force a rethink
             rethink();
         }
@@ -655,6 +660,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         // recompute our visible object set
         if (--_pendingBlocks == 0) {
             recomputeVisible();
+            _delayRepaint = false;
             _remgr.invalidateRegion(_vbounds);
         }
 
@@ -891,6 +897,15 @@ public class MisoScenePanel extends VirtualMediaPanel
         } else {
             return false;
         }
+    }
+
+    // documentation inherited
+    public void paint (Graphics g)
+    {
+        if (_delayRepaint) {
+            return;
+        }
+        super.paint(g);
     }
 
     // documentation inherited
@@ -1325,6 +1340,8 @@ public class MisoScenePanel extends VirtualMediaPanel
 
     /** A count of blocks in the process of being resolved. */
     protected int _pendingBlocks;
+
+    protected boolean _delayRepaint = false;
 
     /** A list of the potentially visible objects in the scene. */
     protected ArrayList _vizobjs = new ArrayList();
