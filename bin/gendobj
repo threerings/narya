@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: gendobj,v 1.14 2002/08/09 03:35:47 mdb Exp $
+# $Id: gendobj,v 1.15 2003/02/26 17:54:55 mdb Exp $
 #
 # gendobj is used to generate DObject source file definitons basded on
 # abbreviated declarations. Because DObject fields all have standard
@@ -179,7 +179,7 @@ sub print_dobj_setters
      * the <code>$field</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    public void removeFrom$cfield (Object key)
+    public void removeFrom$cfield (Comparable key)
     {
         requestEntryRemove($fcode, key);
     }

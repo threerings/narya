@@ -1,5 +1,5 @@
 //
-// $Id: ClientObject.java,v 1.5 2002/11/26 02:14:24 mdb Exp $
+// $Id: ClientObject.java,v 1.6 2003/02/26 17:54:56 mdb Exp $
 
 package com.threerings.presents.data;
 
@@ -78,7 +78,7 @@ public class ClientObject extends DObject
      * the <code>receivers</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    public void removeFromReceivers (Object key)
+    public void removeFromReceivers (Comparable key)
     {
         requestEntryRemove(RECEIVERS, key);
     }

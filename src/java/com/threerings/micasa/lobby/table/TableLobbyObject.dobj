@@ -1,5 +1,5 @@
 //
-// $Id: TableLobbyObject.dobj,v 1.3 2002/07/23 05:54:52 mdb Exp $
+// $Id: TableLobbyObject.dobj,v 1.4 2003/02/26 17:54:56 mdb Exp $
 
 package com.threerings.micasa.lobby.table;
 
@@ -33,7 +33,7 @@ public class TableLobbyObject
     }
 
     // documentation inherited from interface
-    public void removeFromTables (Object key)
+    public void removeFromTables (Comparable key)
     {
         removeFromTableSet(key);
     }

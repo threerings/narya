@@ -1,5 +1,5 @@
 //
-// $Id: PlaceObject.java,v 1.9 2002/10/09 06:33:48 mdb Exp $
+// $Id: PlaceObject.java,v 1.10 2003/02/26 17:54:55 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -97,7 +97,7 @@ public class PlaceObject extends DObject
      * the <code>occupantInfo</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    public void removeFromOccupantInfo (Object key)
+    public void removeFromOccupantInfo (Comparable key)
     {
         requestEntryRemove(OCCUPANT_INFO, key);
     }

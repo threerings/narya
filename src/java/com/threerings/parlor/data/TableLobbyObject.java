@@ -1,5 +1,5 @@
 //
-// $Id: TableLobbyObject.java,v 1.1 2001/10/19 02:04:29 mdb Exp $
+// $Id: TableLobbyObject.java,v 1.2 2003/02/26 17:54:56 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -34,5 +34,5 @@ public interface TableLobbyObject
      * Removes the table instance that matches the specified key from the
      * tables set (using the appropriate distributed object mechanisms).
      */
-    public void removeFromTables (Object key);
+    public void removeFromTables (Comparable key);
 }

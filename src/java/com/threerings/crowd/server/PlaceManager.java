@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.42 2003/02/05 00:23:33 mdb Exp $
+// $Id: PlaceManager.java,v 1.43 2003/02/26 17:54:56 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -380,7 +380,7 @@ public class PlaceManager
         // if their occupant info hasn't been removed (which may be the
         // case if they logged off rather than left via a MoveTo request),
         // we need to get it on out of here
-        Object key = new Integer(bodyOid);
+        Integer key = new Integer(bodyOid);
         if (_plobj.occupantInfo.containsKey(key)) {
             _plobj.removeFromOccupantInfo(key);
         }

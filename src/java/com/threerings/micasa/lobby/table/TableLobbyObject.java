@@ -1,5 +1,5 @@
 //
-// $Id: TableLobbyObject.java,v 1.5 2002/07/23 05:54:52 mdb Exp $
+// $Id: TableLobbyObject.java,v 1.6 2003/02/26 17:54:56 mdb Exp $
 
 package com.threerings.micasa.lobby.table;
 
@@ -36,7 +36,7 @@ public class TableLobbyObject
     }
 
     // documentation inherited from interface
-    public void removeFromTables (Object key)
+    public void removeFromTables (Comparable key)
     {
         removeFromTableSet(key);
     }
@@ -56,7 +56,7 @@ public class TableLobbyObject
      * the <code>tableSet</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    public void removeFromTableSet (Object key)
+    public void removeFromTableSet (Comparable key)
     {
         requestEntryRemove(TABLE_SET, key);
     }

@@ -1,5 +1,5 @@
 //
-// $Id: EntryRemovedEvent.java,v 1.11 2002/12/20 23:29:04 mdb Exp $
+// $Id: EntryRemovedEvent.java,v 1.12 2003/02/26 17:54:56 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -23,7 +23,7 @@ public class EntryRemovedEvent extends NamedEvent
      * specified entry.
      * @param key the entry key that identifies the entry to remove.
      */
-    public EntryRemovedEvent (int targetOid, String name, Object key)
+    public EntryRemovedEvent (int targetOid, String name, Comparable key)
     {
         super(targetOid, name);
         _key = key;
@@ -40,7 +40,7 @@ public class EntryRemovedEvent extends NamedEvent
     /**
      * Returns the key that identifies the entry that has been removed.
      */
-    public Object getKey ()
+    public Comparable getKey ()
     {
         return _key;
     }
@@ -83,6 +83,6 @@ public class EntryRemovedEvent extends NamedEvent
         buf.append(", key=").append(_key);
     }
 
-    protected Object _key;
+    protected Comparable _key;
     protected transient DSet.Entry _oldEntry;
 }

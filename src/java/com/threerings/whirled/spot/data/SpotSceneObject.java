@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneObject.java,v 1.2 2003/02/13 21:55:22 mdb Exp $
+// $Id: SpotSceneObject.java,v 1.3 2003/02/26 17:54:56 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -39,7 +39,7 @@ public class SpotSceneObject extends SceneObject
      * the <code>occupantLocs</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    public void removeFromOccupantLocs (Object key)
+    public void removeFromOccupantLocs (Comparable key)
     {
         requestEntryRemove(OCCUPANT_LOCS, key);
     }
@@ -85,7 +85,7 @@ public class SpotSceneObject extends SceneObject
      * the <code>clusters</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    public void removeFromClusters (Object key)
+    public void removeFromClusters (Comparable key)
     {
         requestEntryRemove(CLUSTERS, key);
     }

@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.58 2003/02/18 18:59:08 mdb Exp $
+// $Id: DObject.java,v 1.59 2003/02/26 17:54:56 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -787,7 +787,7 @@ public class DObject implements Streamable
     /**
      * Calls by derived instances when a set remover method was called.
      */
-    protected void requestEntryRemove (String name, Object key)
+    protected void requestEntryRemove (String name, Comparable key)
     {
         // dispatch an entry removed event
         postEvent(new EntryRemovedEvent(_oid, name, key));
