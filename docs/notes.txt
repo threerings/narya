@@ -1,4 +1,4 @@
-Cocktail Notes -*- mode: outline -*-
+Narya Notes -*- mode: outline -*-
 
 * Media framework
 Make sure the animation and sprite stuff is general purpose.

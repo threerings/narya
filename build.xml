@@ -1,8 +1,8 @@
 <!-- build configuration -->
-<project name="cocktail" default="compile" basedir=".">
+<project name="narya" default="compile" basedir=".">
 
   <!-- configuration parameters -->
-  <property name="app.name"       value="cocktail"/>
+  <property name="app.name"       value="narya"/>
   <property name="deploy.home"    value="dist"/>
   <property name="dist.home"      value="${deploy.home}"/>
   <property name="dist.jar"       value="${app.name}.jar"/>
