@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.45 2004/07/07 03:10:24 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.46 2004/08/23 21:01:36 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -14,7 +14,6 @@ import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Histogram;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.Queue;
-import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Throttle;
 
@@ -631,33 +630,6 @@ public class PresentsDObjectMgr
         report.append("- Events since last report: ").append(processed);
         report.append("\n");
         _lastEventCount = _eventCount;
-
-        // summarize the objects in our dobject table
-        HashMap ccount = new HashMap();
-        SortableArrayList clist = new SortableArrayList();
-        for (Iterator iter = _objects.values().iterator(); iter.hasNext(); ) {
-            DObject obj = (DObject)iter.next();
-            String clazz = obj.getClass().getName();
-            int[] count = (int[])ccount.get(clazz);
-            if (count == null) {
-                count = new int[] { 0 };
-                ccount.put(clazz, count);
-                clist.add(clazz);
-            }
-            count[0]++;
-        }
-
-        // sort our list of dobject types
-        clist.sort();
-
-        report.append("- DObject count: ").append(_objects.size());
-        report.append("\n");
-        for (int ii = 0; ii < clist.size(); ii++) {
-            String clazz = (String)clist.get(ii);
-            int count = ((int[])ccount.get(clazz))[0];
-            report.append("  ").append(clazz).append(": ").append(count);
-            report.append("\n");
-        }
 
         report.append("- Unit profiles: ").append(_profiles.size());
         report.append("\n");
