@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.43 2003/01/15 02:50:36 mdb Exp $
+// $Id: ImageManager.java,v 1.44 2003/01/17 02:29:32 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -95,8 +95,12 @@ public class ImageManager
 
         // create our image cache
         int icsize = _cacheSize.getValue();
-        Log.debug("Creating image cache [size=" + icsize + "].");
-        _ccache = new LRUHashMap(icsize);
+        Log.debug("Creating image cache [size=" + icsize + "k].");
+        _ccache = new LRUHashMap(icsize * 1024, new LRUHashMap.ItemSizer() {
+            public int computeSize (Object value) {
+                return (int)((CacheRecord)value).getEstimatedMemoryUsage();
+            }
+        });
 
         // try to figure out which image loader we'll be using
         try {
@@ -206,6 +210,9 @@ public class ImageManager
         if (image == null) {
             Log.warning("Failed to load image " + key + ".");
         }
+
+//         Log.info("Loaded " + key.path + ", image=" + image +
+//                  ", size=" + ImageUtil.getEstimatedMemoryUsage(image));
 
         // create a cache record
         crec = new CacheRecord(image);
@@ -499,8 +506,9 @@ public class ImageManager
      * framework. */
     protected static RuntimeAdjust.IntAdjust _cacheSize =
         new RuntimeAdjust.IntAdjust(
-            "Size (in images) of the image manager LRU cache [requires reboot]",
-            "narya.media.image.cache_size", MediaPrefs.config, 100);
+            "Size (in kb of memory used) of the image manager LRU cache " +
+            "[requires restart]", "narya.media.image.cache_size",
+            MediaPrefs.config, 2*1024);
 
     /** Controls whether or not we prepare images or use raw versions. */
     protected static RuntimeAdjust.BooleanAdjust _prepareImages =
