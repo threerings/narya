@@ -1,25 +1,9 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- $Id: bundle.xml,v 1.2 2002/02/07 02:53:19 shaper Exp $ -->
+<!-- $Id: bundle.xml,v 1.3 2002/02/07 06:56:26 mdb Exp $ -->
 
 <!-- Ground tile bundle tileset descriptions. -->
 <bundle>
   <base>
-    <tileset name="Sample">
-      <imagePath>sample.png</imagePath>
-      <heights>48</heights>
-      <widths>64</widths>
-      <tileCounts>14</tileCounts>
-      <passable>1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1</passable>
-    </tileset>
-
-    <tileset name="Landscape">
-      <imagePath>landscape.png</imagePath>
-      <heights>48</heights>
-      <widths>64</widths>
-      <tileCounts>5</tileCounts>
-      <passable>1, 0, 1, 1, 1</passable>
-    </tileset>
-
     <tileset name="Cobble">
       <imagePath>cobble.png</imagePath>
       <heights>48</heights>
