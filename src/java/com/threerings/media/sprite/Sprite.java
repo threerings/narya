@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.33 2001/12/19 07:43:09 mdb Exp $
+// $Id: Sprite.java,v 1.34 2002/01/07 23:51:52 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -319,11 +319,11 @@ public class Sprite implements DirectionCodes
      */
     public void move (Path path)
     {
-        // save our path
-        _path = path;
+        // initialize the path
+        path.init(this, System.currentTimeMillis());
 
-        // and initialize it
-        _path.init(this, System.currentTimeMillis());
+        // and save it off
+        _path = path;
     }
 
     /**
