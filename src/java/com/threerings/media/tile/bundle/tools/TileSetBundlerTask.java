@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundlerTask.java,v 1.3 2002/04/03 22:21:35 mdb Exp $
+// $Id: TileSetBundlerTask.java,v 1.4 2002/09/11 20:28:05 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -90,6 +90,8 @@ public class TileSetBundlerTask extends Task
                     File bfile = new File(bpath);
 
                     // create the bundle
+                    System.out.println(
+                        "Creating bundle from '" + cpath + "'...");
                     bundler.createBundle(broker, cfile, bfile);
                 }
             }
