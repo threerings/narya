@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.95 2002/02/17 08:01:15 mdb Exp $
+// $Id: IsoSceneView.java,v 1.96 2002/02/17 08:09:11 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -643,7 +643,7 @@ public class IsoSceneView implements SceneView
 
                 // compute the footprint if we're rendering those
                 Polygon foot = null;
-                if (_renderObjectFootprints) {
+                if (_model.showFootprints) {
                     foot = IsoUtil.getObjectFootprint(
                         _model, getTilePoly(tx, ty), metrics.tile);
                 }
@@ -714,13 +714,13 @@ public class IsoSceneView implements SceneView
 
         // compute the list of objects over which the mouse is hovering
         _hitList.clear();
-        _hitSpritesList.clear();
+        _hitSprites.clear();
         // add the sprites that contain the point
-        _spritemgr.getHitSprites(_hitSpritesList, x, y);
-        int hslen = _hitSpritesList.size();
+        _spritemgr.getHitSprites(_hitSprites, x, y);
+        int hslen = _hitSprites.size();
         for (int i = 0; i < hslen; i++) {
             MisoCharacterSprite sprite =
-                (MisoCharacterSprite)_hitSpritesList.get(i);
+                (MisoCharacterSprite)_hitSprites.get(i);
             _hitList.appendDirtySprite(
                 sprite, sprite.getTileX(), sprite.getTileY(),
                 sprite.getBounds());
@@ -862,13 +862,7 @@ public class IsoSceneView implements SceneView
     /** The scene to be displayed. */
     protected DisplayMisoScene _scene;
 
-    /** The stroke used to draw dirty rectangles. */
-    protected static final Stroke DIRTY_RECT_STROKE = new BasicStroke(2);
-
-    /** The font to draw tile coordinates. */
-    protected Font _font = new Font("Arial", Font.PLAIN, 7);
-
-    /** Polygon instances for all of our tiles. */
+    /** Polygon outlines for all of our base tiles. */
     protected Polygon _polys[][];
 
     /** Metric information for all of the object tiles. */
@@ -891,7 +885,7 @@ public class IsoSceneView implements SceneView
 
     /** Used to collect the list of sprites "hit" by a particular mouse
      * location. */
-    protected List _hitSpritesList = new ArrayList();
+    protected List _hitSprites = new ArrayList();
 
     /** The list that we use to track and sort the items over which the
      * mouse is hovering. */
@@ -907,9 +901,12 @@ public class IsoSceneView implements SceneView
     /** The object that the mouse is currently hovering over. */
     protected Object _hobject;
 
-    /** If true, object footprints are rendered when rendering objects. */
-    protected boolean _renderObjectFootprints;
+    /** The font to draw tile coordinates. */
+    protected Font _font = new Font("Arial", Font.PLAIN, 7);
 
     /** The stroke object used to draw highlighted tiles and coordinates. */
     protected BasicStroke _hstroke = new BasicStroke(2);
+
+    /** The stroke used to draw dirty rectangles. */
+    protected static final Stroke DIRTY_RECT_STROKE = new BasicStroke(2);
 }

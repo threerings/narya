@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.19 2002/02/17 07:17:08 mdb Exp $
+// $Id: IsoSceneViewModel.java,v 1.20 2002/02/17 08:09:11 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -72,6 +72,9 @@ public class IsoSceneViewModel
     /** Whether sprite paths should be drawn. */
     public boolean showPaths;
 
+    /** Whether object footprints should be drawn. */
+    public boolean showFootprints;
+
     /**
      * Construct an iso scene view model with view parameters as
      * specified in the given config object.
@@ -103,6 +106,8 @@ public class IsoSceneViewModel
 	// set our various flags
         showCoords = config.getValue(SHOW_COORDS_KEY, DEF_SHOW_COORDS);
 	showPaths = config.getValue(SHOW_PATHS_KEY, DEF_SHOW_PATHS);
+	showFootprints = config.getValue(SHOW_FOOTPRINTS_KEY,
+                                         DEF_SHOW_FOOTPRINTS);
 
         // precalculate various things
         precalculate();
@@ -268,6 +273,10 @@ public class IsoSceneViewModel
     protected static final String SHOW_PATHS_KEY =
 	MisoUtil.CONFIG_KEY + ".show_paths";
 
+    /** The config key for whether to show object tile footprints. */
+    protected static final String SHOW_FOOTPRINTS_KEY =
+	MisoUtil.CONFIG_KEY + ".show_footprints";
+
     /** Default scene view parameters. */
     protected static final int DEF_TILE_WIDTH = 64;
     protected static final int DEF_TILE_HEIGHT = 48;
@@ -279,6 +288,7 @@ public class IsoSceneViewModel
     protected static final int DEF_OFFSET_Y = -5;
     protected static final boolean DEF_SHOW_COORDS = false;
     protected static final boolean DEF_SHOW_PATHS = false;
+    protected static final boolean DEF_SHOW_FOOTPRINTS = false;
 
     /** The model listeners. */
     protected ArrayList _listeners = new ArrayList();
