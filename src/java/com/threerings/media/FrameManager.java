@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.26 2002/12/03 19:42:21 mdb Exp $
+// $Id: FrameManager.java,v 1.27 2002/12/04 01:25:17 mdb Exp $
 
 package com.threerings.media;
 
@@ -166,6 +166,26 @@ public class FrameManager
     public long getTimeStamp ()
     {
         return _timer.getElapsedMillis();
+    }
+
+    /**
+     * Returns the frequency with which the frame manager is attempting to
+     * call {@link #tick}.
+     */
+    public float getAttemptedFramesPerSecond ()
+    {
+        return _fps[0];
+    }
+
+    /**
+     * Returns the frequency with which the frame manager is able to call
+     * {@link #tick} given that frames must be dropped if the previous
+     * call to {@link #tick} has not finished when the time comes for the
+     * next call.
+     */
+    public float getAchievedFramesPerSecond ()
+    {
+        return _fps[1];
     }
 
     /**
@@ -582,6 +602,9 @@ public class FrameManager
     /** The timer that dispatches our frame ticks. */
     protected Timer _ticker;
 
+    /** Used to track and report frames per second. */
+    protected float[] _fps = new float[2];
+
     /** The graphics object from our back buffer. */
     protected Graphics _bgfx;
 
@@ -608,9 +631,7 @@ public class FrameManager
 
         protected final synchronized boolean testAndSet ()
         {
-            if (REPORT_FRAME_RATE) {
-                _tries++;
-            }
+            _tries++;
             if (!_ticking) {
                 _ticking = true;
                 return true;
@@ -620,16 +641,16 @@ public class FrameManager
 
         protected final synchronized void clearTicking (long elapsed)
         {
-            if (REPORT_FRAME_RATE) {
-                if (++_ticks == 1500) {
-                    long time = (elapsed - _lastTick);
-                    float trps = _tries * 1000f / time;
-                    float tips = _ticks * 1000f / time;
-                    Log.info("Frame manager stats [tries/sec=" + trps +
-                             ", ticks/sec=" + tips + "].");
-                    _lastTick = elapsed;
-                    _ticks = _tries = 0;
+            if (++_ticks == 100) {
+                long time = (elapsed - _lastTick);
+                _fps[0] = _tries * 1000f / time;
+                _fps[1] = _ticks * 1000f / time;
+                if (REPORT_FRAME_RATE) {
+                    Log.info("Frame manager stats [tries/sec=" + _fps[0] +
+                             ", ticks/sec=" + _fps[1] + "].");
                 }
+                _lastTick = elapsed;
+                _ticks = _tries = 0;
             }
             _ticking = false;
         }
@@ -658,7 +679,7 @@ public class FrameManager
         /** Used to compute metrics. */
         protected long _lastTick;
 
-        /** Toggles whether or not metrics are tracked and reported. */
+        /** Toggles whether or not metrics are reported. */
         protected static final boolean REPORT_FRAME_RATE = true;
     };
 
