@@ -1,5 +1,5 @@
 //
-// $Id: AttributeChangedEvent.java,v 1.5 2001/06/12 02:57:30 mdb Exp $
+// $Id: AttributeChangedEvent.java,v 1.6 2001/06/13 05:15:49 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -39,6 +39,14 @@ public class AttributeChangedEvent extends TypedEvent
         super(targetOid);
         _name = name;
         _value = value;
+    }
+
+    /**
+     * Constructs a blank instance of this event in preparation for
+     * unserialization from the network.
+     */
+    public AttributeChangedEvent ()
+    {
     }
 
     /**
