@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfiguration.java,v 1.10 2002/04/15 21:30:56 ray Exp $
+// $Id: FringeConfiguration.java,v 1.11 2002/05/07 00:05:02 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.miso.Log;
 
@@ -45,7 +46,14 @@ public class FringeConfiguration implements Serializable
         {
             return ((base_tsid != 0) && (priority > 0));
         }
-     }
+
+        /** Generates a string representation of this instance. */
+        public String toString ()
+        {
+            return "[base_tsid=" + base_tsid + ", priority=" + priority +
+                ", tilesets=" + StringUtil.toString(tilesets) + "]";
+        }
+    }
 
     /**
      * Used to parse the tileset fringe definitions.
@@ -62,6 +70,12 @@ public class FringeConfiguration implements Serializable
         public boolean isValid ()
         {
             return (fringe_tsid != 0);
+        }
+
+        /** Generates a string representation of this instance. */
+        public String toString ()
+        {
+            return "[fringe_tsid=" + fringe_tsid + ", mask=" + mask + "]";
         }
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfigurationParser.java,v 1.7 2002/04/08 19:40:04 ray Exp $
+// $Id: FringeConfigurationParser.java,v 1.8 2002/05/07 00:05:02 mdb Exp $
 
 package com.threerings.miso.tile.tools.xml;
 
@@ -60,7 +60,8 @@ public class FringeConfigurationParser extends CompiledConfigParser
                             return true;
                         } else {
                             Log.warning("A FringeRecord was not added " +
-                                "because it was improperly specified.");
+                                        "because it was improperly specified " +
+                                        "[record=" + target + "].");
                             return false;
                         }
                     }
