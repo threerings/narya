@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.2 2001/10/06 00:25:29 mdb Exp $
+// $Id: GameController.java,v 1.3 2001/10/06 01:36:19 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -10,6 +10,7 @@ import com.samskivert.swing.Controller;
 import com.threerings.cocktail.cher.dobj.*;
 import com.threerings.cocktail.party.client.PlaceController;
 import com.threerings.cocktail.party.data.PlaceConfig;
+import com.threerings.cocktail.party.data.PlaceObject;
 import com.threerings.cocktail.party.util.PartyContext;
 
 import com.threerings.parlor.Log;
@@ -48,6 +49,28 @@ public abstract class GameController
         // cast our references
         _ctx = (ParlorContext)ctx;
         _config = (GameConfig)config;
+    }
+
+    // documentation inherited
+    public void willEnterPlace (PlaceObject plobj)
+    {
+        super.willEnterPlace(plobj);
+
+        // obtain a casted reference
+        _gobj = (GameObject)plobj;
+
+        // and add ourselves as a subscriber
+        _gobj.addSubscriber(this);
+    }
+
+    // documentation inherited
+    public void didLeavePlace (PlaceObject plobj)
+    {
+        super.willEnterPlace(plobj);
+
+        // unsubscribe from the game object
+        _gobj.removeSubscriber(this);
+        _gobj = null;
     }
 
     /**
