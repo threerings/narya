@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.29 2002/03/05 06:15:43 mdb Exp $
+// $Id: PresentsClient.java,v 1.30 2002/04/26 02:32:27 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -278,11 +278,9 @@ public class PresentsClient
         // about to generate
         clearSubscrips();
 
-        // then let the client manager know what's up
+        // then let the client manager know what's up (it will take care
+        // of destroying our client object for us)
         _cmgr.clientDidEndSession(this);
-
-        // destroy the client object
-        PresentsServer.omgr.destroyObject(_clobj.getOid());
     }
 
     /**

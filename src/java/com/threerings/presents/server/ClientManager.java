@@ -1,10 +1,11 @@
 //
-// $Id: ClientManager.java,v 1.17 2002/04/18 22:37:08 mdb Exp $
+// $Id: ClientManager.java,v 1.18 2002/04/26 02:32:27 mdb Exp $
 
 package com.threerings.presents.server;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import com.threerings.presents.Log;
@@ -171,9 +172,46 @@ public class ClientManager implements ConnectionObserver
     {
         // we only remove the mapping if there's not a session in progress
         // (which is indicated by a mapping in the usermap table)
-        if (!_usermap.containsKey(username)) {
+        if (!_locks.contains(username)) {
             ClientObject clobj = (ClientObject)_objmap.remove(username);
             PresentsServer.omgr.destroyObject(clobj.getOid());
+        }
+    }
+
+    /**
+     * When a client object becomes part of an active session, this method
+     * should be called to ensure that it is not unloaded by any entities
+     * that temporarily resolve and release the object. This is called
+     * automatically when a real user starts a session by establishing a
+     * network connection with the server. If a client session is managed
+     * via some other mechanism (bots managed by the server, for example),
+     * this method and its corresponding {@link #releaseClientObject}
+     * should be called at the beginning and end of the faked client
+     * session respectively.
+     */
+    public synchronized void lockClientObject (String username)
+    {
+        if (_locks.contains(username)) {
+            Log.warning("Requested to lock already locked user " +
+                        "[username=" + username + "].");
+            Thread.dumpStack();
+
+        } else {
+            _locks.add(username);
+        }
+    }
+
+    /**
+     * Releases a client object when their session has ended.
+     *
+     * @see #lockClientObject
+     */
+    public synchronized void releaseClientObject (String username)
+    {
+        if (!_locks.remove(username)) {
+            Log.warning("Requested to unlock a user that was not locked " +
+                        "[username=" + username + "].");
+            Thread.dumpStack();
         }
     }
 
@@ -197,8 +235,14 @@ public class ClientManager implements ConnectionObserver
                      ", conn=" + conn + "].");
             // create a new client and stick'em in the table
             try {
+                // create a client and start up its session
                 client = (PresentsClient)_clientClass.newInstance();
                 client.startSession(this, username, conn);
+
+                // lock this client for the duration of this session
+                lockClientObject(username);
+
+                // map their client instance
                 _usermap.put(username, client);
 
             } catch (Exception e) {
@@ -258,8 +302,10 @@ public class ClientManager implements ConnectionObserver
         String username = client.getUsername();
         // remove the client from the username map
         PresentsClient rc = (PresentsClient)_usermap.remove(username);
-        // and the client object mapping as well
-        _objmap.remove(username);
+        // release the client session
+        releaseClientObject(username);
+        // and unmap (and destroy) their client object
+        unmapClientObject(username);
 
         // sanity check just because we can
         if (rc == null) {
@@ -284,6 +330,9 @@ public class ClientManager implements ConnectionObserver
 
     /** A mapping of pending client resolvers. */
     protected HashMap _penders = new HashMap();
+
+    /** A set containing the usernames of all locked clients. */
+    protected HashSet _locks = new HashSet();
 
     /** The client class in use. */
     protected Class _clientClass = PresentsClient.class;
