@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.31 2002/02/19 05:03:17 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.32 2002/02/19 07:20:13 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -149,6 +149,14 @@ public class SceneViewPanel extends AnimatedPanel
     // documentation inherited
     protected void render (Graphics2D gfx, List invalidRects)
     {
+        // we have to translate all of the invalid rects into our
+        // translated coordinate space before passing them on to the
+        // underlying view code
+        int isize = invalidRects.size();
+        for (int i = 0; i < isize; i++) {
+            ((Rectangle)invalidRects.get(i)).translate(_tx, _ty);
+        }
+
         // translate into happy space
         gfx.translate(-_tx, -_ty);
 
@@ -160,6 +168,13 @@ public class SceneViewPanel extends AnimatedPanel
 
         // translate back out of happy space
         gfx.translate(_tx, _ty);
+
+        // now we translate them back out (because the animated panel
+        // needs to use them as they were); we translate in and out rather
+        // than copy them to save on object creation overhead
+        for (int i = 0; i < isize; i++) {
+            ((Rectangle)invalidRects.get(i)).translate(-_tx, -_ty);
+        }
     }
 
     /**
