@@ -1,5 +1,5 @@
 //
-// $Id: SpriteIcon.java,v 1.1 2002/05/16 02:58:59 mdb Exp $
+// $Id: SpriteIcon.java,v 1.2 2002/05/16 03:00:29 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -21,7 +21,7 @@ public class SpriteIcon implements Icon
      * being used in this icon because it will be "moved" when the icon is
      * rendered. The sprite's origin will be set to the bottom center of
      * the label. If this is undesirable, the origin can be offset via
-     * {@link #setOriginOffsets}.
+     * {@link #setOriginOffset}.
      */
     public SpriteIcon (Sprite sprite)
     {
@@ -33,7 +33,7 @@ public class SpriteIcon implements Icon
      * when trying to get sprites that weren't designed to be stuffed into
      * labels to behave appropriately).
      */
-    public void setOriginOffsets (int offx, int offy)
+    public void setOriginOffset (int offx, int offy)
     {
         _offx = offx;
         _offy = offy;
