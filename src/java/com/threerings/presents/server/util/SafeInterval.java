@@ -1,10 +1,10 @@
 //
-// $Id: SafeInterval.java,v 1.1 2002/05/24 21:03:15 mdb Exp $
+// $Id: SafeInterval.java,v 1.2 2002/05/24 21:38:24 mdb Exp $
 
 package com.threerings.presents.server.util;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import com.samskivert.util.Interval;
+import com.samskivert.util.IntervalManager;
 
 import com.threerings.presents.server.PresentsDObjectMgr;
 
@@ -12,22 +12,21 @@ import com.threerings.presents.server.PresentsDObjectMgr;
  * Used in conjunction with the {@link PresentsDObjectMgr}, this class
  * provides a means by which code can be run on the dobjmgr thread at some
  * point in the future, either as a recurring interval or as a one shot
- * deal. The code is built on top of the standard Java {@link Timer}
- * services.
+ * deal. The code is built on top of the {@link IntervalManager} services.
  *
  * <p> A {@link SafeInterval} instance should be created and then
- * scheduled to run using the standard {@link Timer} services. For
- * example:
+ * scheduled to run using the {@link IntervalManager}. For example:
  *
  * <pre>
- *     Timer.schedule(new SafeInterval(_omgr) {
- *         public void intervalExpired () {
+ *     IntervalManager.register(new SafeInterval(_omgr) {
+ *         public void run () {
  *             System.out.println("Foo!");
  *         }
- *      }, 25L * 1000L);
+ *      }, 25L * 1000L, null, false);
  * </pre>
  */
-public abstract class SafeInterval extends TimerTask
+public abstract class SafeInterval
+    implements Runnable, Interval
 {
     /**
      * Creates a safe interval instance that will queue itself up for
@@ -41,44 +40,16 @@ public abstract class SafeInterval extends TimerTask
     /**
      * Called (on the dobjmgr thread) when the interval period has
      * expired. If this is a recurring interval, this method will be
-     * called each time the interval expires (until {@link #cancel} is
-     * called on this instance).
+     * called each time the interval expires.
      */
-    public abstract void intervalExpired ();
+    public abstract void run ();
 
     /** Handles the proper scheduling and queueing. */
-    public void run ()
+    public void intervalExpired (int id, Object arg)
     {
-        boolean flipped = isFlipped();
-        flip();
-        if (flipped) {
-            intervalExpired();
-        } else {
-            _omgr.postUnit(this);
-        }
-    }
-
-    /** Returns whether or not we're running on the timer thread or the
-     * dobjmgr thread. It is synchronized because the variable that tracks
-     * this state is inspected on both threads. */
-    protected synchronized boolean isFlipped ()
-    {
-        return _flipped;
-    }
-
-    /** Flips our mode (see {@link #isFlipped}). It is synchronized
-     * because the variable that tracks this state is updated on both
-     * threads. */
-    public synchronized void flip ()
-    {
-        _flipped = !_flipped;
+        _omgr.postUnit(this);
     }
 
     /** The dobjmgr on which we queue ourselves when we expire. */
     protected PresentsDObjectMgr _omgr;
-
-    /** Because {@link #run} is called both when the interval expires and
-     * when the dobjmgr invokes us, we have to use this toggle to figure
-     * out when to do what. */
-    protected boolean _flipped;
 }
