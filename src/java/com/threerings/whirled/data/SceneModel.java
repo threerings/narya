@@ -1,5 +1,5 @@
 //
-// $Id: SceneModel.java,v 1.6 2001/12/12 19:06:15 mdb Exp $
+// $Id: SceneModel.java,v 1.7 2002/02/01 23:43:45 mdb Exp $
 
 package com.threerings.whirled.data;
 
@@ -9,6 +9,7 @@ import java.io.DataOutputStream;
 
 import com.samskivert.util.StringUtil;
 import com.threerings.presents.io.Streamable;
+import com.threerings.presents.io.StreamableUtil;
 
 /**
  * The scene model is the bare bones representation of the data for a
@@ -47,11 +48,7 @@ public class SceneModel
         out.writeInt(sceneId);
         out.writeUTF(sceneName);
         out.writeInt(version);
-        int nlength = neighborIds.length;
-        out.writeInt(nlength);
-        for (int i = 0; i < nlength; i++) {
-            out.writeInt(neighborIds[i]);
-        }
+        StreamableUtil.writeInts(out, neighborIds);
     }
 
     // documentation inherited
@@ -61,11 +58,7 @@ public class SceneModel
         sceneId = in.readInt();
         sceneName = in.readUTF();
         version = in.readInt();
-        int nlength = in.readInt();
-        neighborIds = new int[nlength];
-        for (int i = 0; i < nlength; i++) {
-            neighborIds[i] = in.readInt();
-        }
+        neighborIds = StreamableUtil.readInts(in);
     }
 
     /**

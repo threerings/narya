@@ -1,5 +1,5 @@
 //
-// $Id: Lobby.java,v 1.2 2001/10/11 04:13:33 mdb Exp $
+// $Id: Lobby.java,v 1.3 2002/02/01 23:43:45 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
+import com.threerings.presents.io.Marshaller;
 import com.threerings.presents.io.Streamable;
 
 /**
@@ -47,18 +48,14 @@ public class Lobby implements Streamable
     public void writeTo (DataOutputStream out)
         throws IOException
     {
-        out.writeInt(placeOid);
-        out.writeUTF(gameIdent);
-        out.writeUTF(name);
+        Marshaller.writeObject(out, this);
     }
 
     // documentation inherited
     public void readFrom (DataInputStream in)
         throws IOException
     {
-        placeOid = in.readInt();
-        gameIdent = in.readUTF();
-        name = in.readUTF();
+        Marshaller.readObject(in, this);
     }
 
     public String toString ()
