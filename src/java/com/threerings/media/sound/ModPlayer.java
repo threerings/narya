@@ -1,5 +1,5 @@
 //
-// $Id: ModPlayer.java,v 1.1 2002/11/20 04:03:09 ray Exp $
+// $Id: ModPlayer.java,v 1.2 2002/11/20 23:06:33 ray Exp $
 
 package com.threerings.media;
 
@@ -26,6 +26,13 @@ public class ModPlayer
     {
         _rmgr = rmgr;
         _smgr = smgr;
+
+        try {
+            _device = new NaryaSoundDevice();
+        } catch (OutputDeviceException ode) {
+            Log.warning("Unable to allocate sound channel for mod playing " +
+                "[e=" + ode + "].");
+        }
     }
 
     public void stop ()
@@ -35,16 +42,6 @@ public class ModPlayer
 
     public void start (String set, String path)
     {
-        PCM16StreamOutputDevice devvy = null;
-
-        try {
-            devvy = new JavaSoundOutputDevice(
-                new SS16LEAudioFormatConverter(), 44100, 1000);
-        } catch (OutputDeviceException ode) {
-            Log.warning("Oh we're fucked with the mod [e=" + ode + "].");
-            return;
-        }
-
         Module module = null;
         try {
             module = ModuleLoader.read(
@@ -54,15 +51,13 @@ public class ModPlayer
             return;
         }
 
-
-        final PCM16StreamOutputDevice outdev = devvy;
         final MicroMod mod = new MicroMod(
-            module, outdev, new LinearResampler());
+            module, _device, new LinearResampler());
 
         _player = new Thread("narya mod player") {
             public void run () {
 
-                outdev.start();
+                _device.start();
                 while ((_player == Thread.currentThread()) &&
                        (mod.getSequenceLoopCount() == 0)) {
 
@@ -73,7 +68,7 @@ public class ModPlayer
                         // WFCares
                     }
                 }
-                outdev.stop();
+                _device.stop();
                 _smgr.songStopEvent();
             }
         };
@@ -82,7 +77,38 @@ public class ModPlayer
         _player.start();
     }
 
+    /**
+     * Set the volume of the midiplayer.
+     * @param vol 0f - 1f (inclusive).
+     */
+    public void setVolume (float vol)
+    {
+        _device.setVolume(vol);
+    }
+
+    /**
+     * A class that allows us to access the dataline so we can adjust
+     * the volume.
+     */
+    protected static class NaryaSoundDevice extends JavaSoundOutputDevice
+    {
+        public NaryaSoundDevice ()
+            throws OutputDeviceException
+        {
+            super(new SS16LEAudioFormatConverter(), 44100, 1000);
+        }
+
+        /**
+         * Adjust the volume of the line that we're sending our mod data to.
+         */
+        public void setVolume (float vol)
+        {
+            SoundManager.adjustVolume(sourceDataLine, vol);
+        }
+    }
+
     protected Thread _player;
+    protected NaryaSoundDevice _device;
 
     protected ResourceManager _rmgr;
     protected SoundManager _smgr;

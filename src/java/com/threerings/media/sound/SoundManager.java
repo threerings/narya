@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.22 2002/11/20 04:03:09 ray Exp $
+// $Id: SoundManager.java,v 1.23 2002/11/20 23:06:33 ray Exp $
 
 package com.threerings.media;
 
@@ -621,6 +621,7 @@ public class SoundManager
     {
         _mp3player = new MP3Manager(_rmgr, this);
         _modplayer = new ModPlayer(_rmgr, this);
+        _modplayer.setVolume(_musicVol);
 
         try {
             Sequencer seq = MidiSystem.getSequencer();
@@ -690,6 +691,10 @@ public class SoundManager
      */
     protected void updateMusicVolume ()
     {
+        if (_modplayer != null) {
+            _modplayer.setVolume(_musicVol);
+        }
+
         if (_midiChannels == null) {
             Log.warning("Cannot modify music volume!");
 
@@ -800,6 +805,52 @@ public class SoundManager
                 _rmgr.getResource(key.set, key.path), BUFFER_SIZE));
     }
 
+//    /**
+//     * Adjust the volume of this clip.
+//     */
+//    protected static void adjustVolumeIdeally (Line line, float volume)
+//    {
+//        if (line.isControlSupported(FloatControl.Type.VOLUME)) {
+//            FloatControl vol = (FloatControl) 
+//                line.getControl(FloatControl.Type.VOLUME);
+//
+//            float min = vol.getMinimum();
+//            float max = vol.getMaximum();
+//
+//            float ourval = (volume * (max - min)) + min;
+//            Log.debug("adjust vol: [min=" + min + ", ourval=" + ourval +
+//                ", max=" + max + "].");
+//            vol.setValue(ourval);
+//
+//        } else {
+//            // fall back
+//            adjustVolume(line, volume);
+//        }
+//    }
+
+    /**
+     * Use the gain control to implement volume.
+     */
+    protected static void adjustVolume (Line line, float vol)
+    {
+        FloatControl control = (FloatControl) 
+            line.getControl(FloatControl.Type.MASTER_GAIN);
+
+        // the only problem is that gain is specified in decibals,
+        // which is a logarithmic scale.
+        // Since we want max volume to leave the sample unchanged, our
+        // maximum volume translates into a 0db gain.
+        float gain;
+        if (vol == 0f) {
+            gain = control.getMinimum();
+        } else {
+            gain = (float) ((Math.log(vol) / Math.log(10.0)) * 20.0);
+        }
+
+        control.setValue(gain);
+        //Log.info("Set gain: " + gain);
+    }
+
     /**
      * A record to help us manage the use of sound resources.
      * We don't free the resources associated with a clip immediately, because
@@ -855,7 +906,7 @@ public class SoundManager
          */
         public void start (float volume)
         {
-            adjustVolume(volume);
+            adjustVolume(_clip, volume);
             _clip.start();
             didStart();
         }
@@ -946,52 +997,6 @@ public class SoundManager
         private final boolean areListening ()
         {
             return _length == AudioSystem.NOT_SPECIFIED;
-        }
-
-//        /**
-//         * Adjust the volume of this clip.
-//         */
-//        protected void adjustVolume (float volume)
-//        {
-//            if (_clip.isControlSupported(FloatControl.Type.VOLUME)) {
-//                FloatControl vol = (FloatControl) 
-//                    _clip.getControl(FloatControl.Type.VOLUME);
-//
-//                float min = vol.getMinimum();
-//                float max = vol.getMaximum();
-//
-//                float ourval = (volume * (max - min)) + min;
-//                Log.debug("adjust vol: [min=" + min + ", ourval=" + ourval +
-//                    ", max=" + max + "].");
-//                vol.setValue(ourval);
-//
-//            } else {
-//                // fall back
-//                adjustVolumeFallback(vol);
-//            }
-//        }
-
-        /**
-         * Use the gain control to implement volume.
-         */
-        protected void adjustVolume (float vol)
-        {
-            FloatControl control = (FloatControl) 
-                _clip.getControl(FloatControl.Type.MASTER_GAIN);
-
-            // the only problem is that gain is specified in decibals,
-            // which is a logarithmic scale.
-            // Since we want max volume to leave the sample unchanged, our
-            // maximum volume translates into a 0db gain.
-            float gain;
-            if (vol == 0f) {
-                gain = control.getMinimum();
-            } else {
-                gain = (float) ((Math.log(vol) / Math.log(10.0)) * 20.0);
-            }
-
-            control.setValue(gain);
-            //Log.info("Set gain: " + gain);
         }
 
         /** The timestamp of the moment this clip last stopped playing. */
