@@ -1,8 +1,9 @@
 //
-// $Id: KeyTranslatorImpl.java,v 1.3 2002/01/18 23:32:14 shaper Exp $
+// $Id: KeyTranslatorImpl.java,v 1.4 2003/01/14 00:53:38 shaper Exp $
 
 package com.threerings.util;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
@@ -15,55 +16,123 @@ import com.samskivert.util.HashIntMap;
 public class KeyTranslatorImpl implements KeyTranslator
 {
     /**
-     * Adds a mapping from key press to action command string.
+     * Adds a mapping from a key press to an action command string that
+     * will auto-repeat at a default repeat rate.
      */
     public void addPressCommand (int keyCode, String command)
     {
-        _press.put(keyCode, command);
+        addPressCommand(keyCode, command, DEFAULT_REPEAT_RATE);
     }
 
     /**
-     * Adds a mapping from key release to action command string.
+     * Adds a mapping from a key press to an action command string that
+     * will auto-repeat at the specified repeat rate.  Overwrites any
+     * existing mapping and repeat rate that may have already been
+     * registered.
+     *
+     * @param rate the number of times each second that the key press
+     * should be repeated while the key is down; passing <code>0</code>
+     * will result in no repeating.
+     */
+    public void addPressCommand (int keyCode, String command, int rate)
+    {
+        KeyRecord krec = getKeyRecord(keyCode);
+        krec.pressCommand = command;
+        krec.repeatRate = rate;
+    }
+
+    /**
+     * Adds a mapping from a key release to an action command string.
+     * Overwrites any existing mapping that may already have been
+     * registered.
      */
     public void addReleaseCommand (int keyCode, String command)
     {
-        _release.put(keyCode, command);
+        KeyRecord krec = getKeyRecord(keyCode);
+        krec.releaseCommand = command;
+    }
+
+    /**
+     * Returns the key record for the specified key, creating it and
+     * inserting it in the key table if necessary.
+     */
+    protected KeyRecord getKeyRecord (int keyCode)
+    {
+        KeyRecord krec = (KeyRecord)_keys.get(keyCode);
+        if (krec == null) {
+            krec = new KeyRecord();
+            _keys.put(keyCode, krec);
+        }
+        return krec;
     }
 
     // documentation inherited
     public boolean hasCommand (int keyCode)
     {
-        return (_press.get(keyCode) != null ||
-                _release.get(keyCode) != null);
+        return (_keys.get(keyCode) != null);
     }
 
     // documentation inherited
     public String getPressCommand (int keyCode)
     {
-        return (String)_press.get(keyCode);
+        KeyRecord krec = (KeyRecord)_keys.get(keyCode);
+        return (krec == null) ? null : krec.pressCommand;
     }
 
     // documentation inherited
     public String getReleaseCommand (int keyCode)
     {
-        return (String)_release.get(keyCode);
+        KeyRecord krec = (KeyRecord)_keys.get(keyCode);
+        return (krec == null) ? null : krec.releaseCommand;
+    }
+
+    // documentation inherited
+    public int getRepeatRate (int keyCode)
+    {
+        KeyRecord krec = (KeyRecord)_keys.get(keyCode);
+        return (krec == null) ? 0 : krec.repeatRate;
     }
 
     // documentation inherited
     public Iterator enumeratePressCommands ()
     {
-        return _press.values().iterator();
+        ArrayList commands = new ArrayList();
+        Iterator iter = _keys.values().iterator();
+        while (iter.hasNext()) {
+            KeyRecord krec = (KeyRecord)iter.next();
+            commands.add(krec.pressCommand);
+        }
+        return commands.iterator();
     }
 
     // documentation inherited
     public Iterator enumerateReleaseCommands ()
     {
-        return _release.values().iterator();
+        ArrayList commands = new ArrayList();
+        Iterator iter = _keys.values().iterator();
+        while (iter.hasNext()) {
+            KeyRecord krec = (KeyRecord)iter.next();
+            commands.add(krec.releaseCommand);
+        }
+        return commands.iterator();
     }
 
-    /** The mapping for key presses from key codes to action commands. */
-    protected HashIntMap _press = new HashIntMap();
+    protected class KeyRecord
+    {
+        /** The command to be posted when the key is pressed. */
+        public String pressCommand;
 
-    /** The mapping for key releases from key codes to action commands. */
-    protected HashIntMap _release = new HashIntMap();
+        /** The command to be posted when the key is released. */
+        public String releaseCommand;
+
+        /** The rate in presses per second at which the key is to be
+         * auto-repeated. */
+        public int repeatRate;
+    }
+
+    /** The keys for which commands are registered. */
+    protected HashIntMap _keys = new HashIntMap();
+
+    /** The default key press repeat rate. */
+    protected static final int DEFAULT_REPEAT_RATE = 3;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: KeyTranslator.java,v 1.3 2002/01/18 23:32:14 shaper Exp $
+// $Id: KeyTranslator.java,v 1.4 2003/01/14 00:53:38 shaper Exp $
 
 package com.threerings.util;
 
@@ -33,6 +33,12 @@ public interface KeyTranslator
      * if there is no associated command.
      */
     public String getReleaseCommand (int keyCode);
+
+    /**
+     * Returns the number of times each second that key presses are to be
+     * automatically repeated while the key is held down.
+     */
+    public int getRepeatRate (int keyCode);
 
     /**
      * Returns an iterator that iterates over the available press

@@ -1,5 +1,5 @@
 //
-// $Id: KeyboardManager.java,v 1.15 2003/01/12 00:26:39 shaper Exp $
+// $Id: KeyboardManager.java,v 1.16 2003/01/14 00:53:38 shaper Exp $
 
 package com.threerings.util;
 
@@ -191,15 +191,6 @@ public class KeyboardManager
     public void setRepeatDelay (long delay)
     {
         _repeatDelay = delay;
-    }
-
-    /**
-     * Sets the delay in milliseconds between each repeat key action
-     * command posted by the keyboard manager while a key is down.
-     */
-    public void setPressDelay (long delay)
-    {
-        _pressDelay = delay;
     }
 
     /**
@@ -404,6 +395,8 @@ public class KeyboardManager
             _keyText = KeyEvent.getKeyText(_keyCode);
             _pressCommand = _xlate.getPressCommand(_keyCode);
             _releaseCommand = _xlate.getReleaseCommand(_keyCode);
+            int rate = _xlate.getRepeatRate(_keyCode);
+            _pressDelay = (rate == 0) ? 0 : (1000L / rate);
         }
 
         /**
@@ -411,22 +404,23 @@ public class KeyboardManager
          */
         public synchronized void setPressTime (long time)
         {
-            _lastPress = time;
-            _lastRelease = time;
+            if (_lastPress == 0 && _pressCommand != null) {
+                // post the initial key press command
+                postPress(time);
+            }
 
-            if (_iid == -1) {
-                // register an interval to post the command associated
-                // with the key press until the key is decidedly released
-                _iid = IntervalManager.register(this, _pressDelay, null, true);
+            if (_iid == -1 && _pressDelay > 0) {
+                // register an interval to post the key press command
+                // until the key is decidedly released
+                _iid = IntervalManager.register(
+                    this, _pressDelay, null, true);
                 if (DEBUG_EVENTS) {
                     Log.info("Pressing key [key=" + _keyText + "].");
                 }
-
-                if (_pressCommand != null) {
-                    // post the initial key press command
-                    postPress(time);
-                }
             }
+
+            _lastPress = time;
+            _lastRelease = time;
         }
 
         /**
@@ -471,7 +465,7 @@ public class KeyboardManager
         public synchronized void release (long timestamp)
         {
             // bail if we're not currently pressed
-            if (_iid == -1) {
+            if (_lastPress == 0) {
                 return;
             }
 
@@ -495,6 +489,9 @@ public class KeyboardManager
                 // post the key release command
                 postRelease(timestamp);
             }
+
+            // clear out the last press and release timestamps
+            _lastPress = _lastRelease = 0;
         }
 
         // documentation inherited
@@ -621,6 +618,9 @@ public class KeyboardManager
 
         /** The key code associated with this key info object. */
         protected int _keyCode;
+
+        /** The milliseconds to sleep between sending repeat key commands. */
+        protected long _pressDelay;
     }
 
     /** An observer operation to notify observers of a key event. */
@@ -660,15 +660,9 @@ public class KeyboardManager
     /** The default repeat delay. */
     protected static final long DEFAULT_REPEAT_DELAY = 50L;
 
-    /** The default key press delay. */
-    protected static final long DEFAULT_PRESS_DELAY = 150L;
-
     /** The expected approximate milliseconds between each key
      * release/press event while the key is being auto-repeated. */
     protected long _repeatDelay = DEFAULT_REPEAT_DELAY;
-
-    /** The milliseconds to sleep between sending repeat key commands. */
-    protected long _pressDelay = DEFAULT_PRESS_DELAY;
 
     /** A hashtable mapping key codes to {@link KeyInfo} objects. */
     protected HashIntMap _keys = new HashIntMap();
