@@ -1,5 +1,5 @@
 //
-// $Id: PlaceController.java,v 1.8 2002/03/21 00:55:10 mdb Exp $
+// $Id: PlaceController.java,v 1.9 2002/05/13 23:03:24 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -176,6 +176,24 @@ public abstract class PlaceController extends Controller
             int dcount = _delegates.size();
             for (int i = 0; i < dcount; i++) {
                 op.apply((PlaceControllerDelegate)_delegates.get(i));
+            }
+        }
+    }
+
+    /**
+     * Applies the supplied operation to the registered delegates that
+     * derive from the specified class.
+     */
+    protected void applyToDelegates (Class dclass, DelegateOp op)
+    {
+        if (_delegates != null) {
+            int dcount = _delegates.size();
+            for (int i = 0; i < dcount; i++) {
+                PlaceControllerDelegate delegate =
+                    (PlaceControllerDelegate)_delegates.get(i);
+                if (dclass.isAssignableFrom(delegate.getClass())) {
+                    op.apply(delegate);
+                }
             }
         }
     }
