@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.19 2003/05/31 00:56:38 mdb Exp $
+// $Id: SceneBlock.java,v 1.20 2003/07/12 04:16:32 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -84,6 +84,8 @@ public class SceneBlock
         Rectangle obounds = null;
 
         // resolve our base tiles
+        long now = System.currentTimeMillis();
+        int baseCount = 0, fringeCount = 0;
         MisoSceneModel model = _panel.getSceneModel();
         for (int yy = 0; yy < _bounds.height; yy++) {
             for (int xx = 0; xx < _bounds.width; xx++) {
@@ -95,6 +97,7 @@ public class SceneBlock
 
                 // load up this base tile
                 updateBaseTile(fqTileId, x, y);
+                baseCount++;
 
                 // if there's no tile here, we don't need no fringe
                 int tidx = index(x, y);
@@ -104,17 +107,39 @@ public class SceneBlock
 
                 // compute the fringe for this tile
                 _fringe[tidx] = _panel.computeFringeTile(x, y);
+                fringeCount++;
             }
+        }
+
+        // DEBUG: check for long resolution times
+        long stamp = System.currentTimeMillis();
+        long elapsed = stamp - now;
+        if (elapsed > 500L) {
+            Log.warning("Base and fringe resolution took long time " +
+                        "[block=" + this + ", baseCount=" + baseCount +
+                        ", fringeCount=" + fringeCount +
+                        ", elapsed=" + elapsed + "].");
         }
 
         // resolve our objects
         ObjectSet set = new ObjectSet();
         model.getObjects(_bounds, set);
         _objects = new SceneObject[set.size()];
+        now = System.currentTimeMillis();
         for (int ii = 0; ii < _objects.length; ii++) {
             _objects[ii] = new SceneObject(_panel, set.get(ii));
             sbounds.add(_objects[ii].bounds);
             obounds = GeomUtil.grow(obounds, _objects[ii].bounds);
+
+            // DEBUG: check for long resolution times
+            stamp = System.currentTimeMillis();
+            elapsed = stamp - now;
+            now = stamp;
+            if (elapsed > 250L) {
+                Log.warning("Scene object took look time to resolve " +
+                            "[block=" + this + ", scobj=" + _objects[ii] +
+                            ", elapsed=" + elapsed + "].");
+            }
         }
 
         // resolve our default tileset
