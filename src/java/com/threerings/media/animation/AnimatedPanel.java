@@ -1,11 +1,12 @@
 //
-// $Id: AnimatedPanel.java,v 1.6 2002/02/17 07:13:59 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.7 2002/02/17 23:40:43 mdb Exp $
 
 package com.threerings.media.animation;
 
 import java.awt.AWTException;
 import java.awt.BufferCapabilities;
 import java.awt.Canvas;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.ImageCapabilities;
@@ -81,6 +82,31 @@ public class AnimatedPanel extends Canvas implements AnimatedView
         _animmgr.stop();
     }
 
+    /**
+     * Instructs the view to begin scrolling with the specified velocities
+     * in milliseconds per pixel.
+     */
+    public void setScrolling (int msppx, int msppy)
+    {
+        // set our scrolling parameters
+        _msppx = msppx;
+        _msppy = msppy;
+        _lastx = _lasty = 0;
+
+        // if the velocities are zero, stop the scrolling, otherwise make
+        // a note of the time at which scrolling started
+        if (msppx == 0 && msppy == 0) {
+            _stime = 0;
+            _animmgr.setScrolling(0);
+        } else {
+            _stime = System.currentTimeMillis();
+            // set our scrolling speed to the (absolute value of the)
+            // lower of the two velocities
+            int scrollvel = Math.min(Math.abs(_msppx), Math.abs(_msppy));
+            _animmgr.setScrolling(scrollvel);
+        }
+    }
+
     // documentation inherited
     public void paint (Graphics g)
     {
@@ -120,7 +146,7 @@ public class AnimatedPanel extends Canvas implements AnimatedView
     }
 
     // documentation inherited
-    public void paintImmediately ()
+    public void paintImmediately (int invalidRectCount)
     {
         // no use in painting if we're not showing or if we've not yet
         // been validated
@@ -135,17 +161,67 @@ public class AnimatedPanel extends Canvas implements AnimatedView
             Log.info("Created buffer strategy [strategy=" + _strategy + "].");
         }
 
+        // if scrolling is enabled, determine the scrolling delta to be
+        // used and do the business
+        int dx = 0, dy = 0;
+        if (_stime != 0) {
+            // compute the total distance scrolled since we started (to
+            // avoid rounding errors)
+            long now = System.currentTimeMillis();
+            int xdist = (int)((now - _stime) / _msppx);
+            int ydist = (int)((now - _stime) / _msppy);
+
+            // determine how many pixels further along we've moved
+            dx = (xdist - _lastx);
+            dy = (ydist - _lasty);
+
+            // make a note of our latest position
+            _lastx = xdist;
+            _lasty = ydist;
+
+            // let our derived classes do whatever they need to do to
+            // prepare to be scrolled
+            viewWillScroll(dx, dy);
+        }
+
+        // if we didn't scroll and have no invalid rects, there's no need
+        // to repaint anything
+        if (invalidRectCount == 0 && dx == 0 && dy == 0) {
+            return;
+        }
+
         // render the panel
         Graphics g = null;
         try {
             g = _strategy.getDrawGraphics();
+
+            // if we're scrolling, do the deed
+            if (_stime != 0) {
+                Dimension size = getSize();
+                g.copyArea(0, 0, size.width, size.height, -dx, -dy);
+            }
+
+            // now do our actual rendering
             render((Graphics2D)g);
+
         } finally {
             if (g != null) {
                 g.dispose();
             }
         }
         _strategy.show();
+    }
+
+    /**
+     * This is called, when the view is scrolling, just before a call to
+     * {@link #render}. The animated panel will take care of scrolling the
+     * contents of the offscreen buffer, but the derived class will need
+     * to do whatever is necessary to prepare to repaint the exposed
+     * regions as well as update it's own internal state accordingly.
+     */
+    protected void viewWillScroll (int dx, int dy)
+    {
+        // nothing to do here
     }
 
     // documentation inherited
@@ -177,12 +253,22 @@ public class AnimatedPanel extends Canvas implements AnimatedView
         }
     }
 
-    /** The number of buffers to use when rendering. */
-    protected static final int BUFFER_COUNT = 2;
-
     /** The animation manager we use in this panel. */
     protected AnimationManager _animmgr;
 
     /** The buffer strategy used for optimal animation rendering. */
     protected BufferStrategy _strategy;
+
+    /** The scrolling velocity in milliseconds per pixel. */
+    protected int _msppx, _msppy;
+
+    /** The time at which the scrolling velocity was set. */
+    protected long _stime;
+
+    /** Used to determine how many pixels we've scrolled since the
+     * scrolling velocity was last set. */
+    protected int _lastx, _lasty;
+
+    /** The number of buffers to use when rendering. */
+    protected static final int BUFFER_COUNT = 2;
 }
