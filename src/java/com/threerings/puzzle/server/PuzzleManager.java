@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleManager.java,v 1.4 2003/11/26 18:04:37 mdb Exp $
+// $Id: PuzzleManager.java,v 1.5 2003/11/26 23:16:43 mdb Exp $
 
 package com.threerings.puzzle.server;
 
@@ -504,7 +504,7 @@ public abstract class PuzzleManager extends GameManager
             // if we have state syncing enabled, make sure the board is
             // correct before applying the event
             if (before && (states != null)) {
-                compareBoards(pidx, states[ii]);
+                compareBoards(pidx, states[ii], gevent, before);
             }
 
             // apply the event to the player's board
@@ -515,7 +515,7 @@ public abstract class PuzzleManager extends GameManager
 
             // maybe we are comparing boards afterwards
             if (!before && (states != null)) {
-                compareBoards(pidx, states[ii]);
+                compareBoards(pidx, states[ii], gevent, before);
             }
         }
     }
@@ -523,29 +523,39 @@ public abstract class PuzzleManager extends GameManager
     /**
      * Compare our server board to the specified sent-back user board.
      */
-    protected void compareBoards (int pidx, Board boardstate)
+    protected void compareBoards (int pidx, Board boardstate,
+                                  int gevent, boolean before)
     {
-//         Log.info("About to apply progress event [game=" + _puzobj.which() +
-//                  ", pidx=" + pidx + "].");
+        if (DEBUG_PUZZLE) {
+            Log.info((before ? "About to apply " : "Just applied ") +
+                     "[game=" + _puzobj.which() + ", pidx=" + pidx +
+                     ", event=" + gevent + "].");
+        }
+        if (boardstate == null) {
+            if (DEBUG_PUZZLE) {
+                Log.info("No board state provided. Can't compare.");
+            }
+            return;
+        }
+        boolean equal = _boards[pidx].equals(boardstate);
+        if (!equal) {
+            Log.warning("Client and server board states not equal! " +
+                        "[game=" + _puzobj.which() +
+                        ", type=" + _puzobj.getClass().getName() + "].");
+        }
         if (DEBUG_PUZZLE) {
             // if we're debugging, dump the board state every time
             // we're about to apply an event
             _boards[pidx].dumpAndCompare(boardstate);
         }
-
-        if (!_boards[pidx].equals(boardstate)) {
-            Log.warning("Client and server board states not equal! " +
-                        "[game=" + _puzobj.which() +
-                        ", type=" + _puzobj.getClass().getName() +
-                        "].");
-            if (!DEBUG_PUZZLE) {
-                // otherwise, dump the board state only if the
-                // client's board differs from the server's
-                _boards[pidx].dumpAndCompare(boardstate);
-            } else {
-                // and if we're debugging, bail out so that we
-                // know something's royally borked
+        if (!equal) {
+            if (DEBUG_PUZZLE) {
+                // bail out so that we know something's royally borked
                 System.exit(0);
+            } else {
+                // dump the board state since we're not debugging and
+                // didn't just do it above
+                _boards[pidx].dumpAndCompare(boardstate);
             }
         }
     }
