@@ -1,0 +1,118 @@
+#
+# $Id: design.txt,v 1.1 2001/07/10 22:18:55 shaper Exp $
+
+Date: 07/10/01
+Venue: General discussion in vast sweeping loft area.
+Participants: mdb, shaper.
+
+Main game play uses an isometric graphical view to display the current
+game area.  This section of the screen is referred to as the "scene"
+hereafter.
+
+Targetting a screen resolution of 800x600.  Toolbar and info areas may
+be on the right side of the screen, below, or both, still TBD.  Scene
+display area will be either 600x600 or 640x480 correspondingly.  Will
+use JDK 1.2 or 1.3 allowing us to make use of Java 2D and the new Java
+Sound APIs, among other happy things.
+
+Scenes are non-scrollable.  Exits are expected to be placed largely,
+though not exclusively, around the borders of the scene (esp. at
+building entrances.)  Moving the mouse over an exit causes an arrow to
+appear flashing to illustrate that clicking on the exit will move the
+player to a new scene.
+
+Characters will be displayed in the scene using "fine" coordinates (an
+additional grid within each tile) to allow them to move smoothly.
+
+TBD: art details, how many frames of animation, what kinds of things
+can be carried, paper-doll-ing of character clothing, possibility of
+color-replacement to allow increased re-use of clothing art.
+
+Scene Description
+-----------------
+- sid: unique screen identifier
+- name: screen name
+- version: screen description file format version
+- tile array: full NxM set of tiles for L0, sparse for L1+
+- hot spots: the "zones" wherein people congregate in each scene, a set 
+  of screen coords
+- exits: set of screen coords and associated sids that the exits lead to
+
+Potential Classes
+-----------------
+
+ScreenIDBroker: dynamic screen creation and obtaining/tracking screen ids
+ScreenManager: screen retrieval, caching
+TileManager: tile retrieval, caching
+Config: tileset/tile info
+
+Tile Sets and Tiles
+-------------------
+
+General high-level categories of tiles:
+
+3 * outside (three prospective themes)
+    ship    } item (potentially present in all)
+    house
+
+Tiles will be identified by a combination of a 16-bit tile set id and
+a 16-bit tile id within that set.
+
+Estimating:
+
+400 tiles per screen
+1000 screens = (approx) 1.6 MB (highly compressible)
+
+Tileset config info associated with each tile set includes, for each
+row of tiles in the tile set, the "row height" (height of the tiles in
+that row), and the "tile count" (number of tiles in that row).
+
+Buildings in the scene, as an example, will then be comprised of a
+contiguous grouping of tiles that are the same width as all other
+tiles, but of greater height than the ground tiles.  The scene editor
+tool could automate the placement of buildings by allowing pre-defined
+groupings of tiles and facilitating rotating building tile entities,
+etc. as needed, but we'll wait on doing fancy things like this
+until/unless we decide we need it since it's not yet clear that we
+need particularly fancy scene design tools.
+
+Note that the scene editing tools should be designed such that they
+can be used in part within the game itself, since players will be
+allowed some degree of freedom w.r.t. designing and placing their own
+homes (and perhaps landscaping?).
+
+Tilesets are intended to be used as an entity that contains tiles
+corresponding to whatever logical groupings seem reasonable.  E.g.,
+perhaps one tileset will contain all "ground" tiles; "spanish house"
+tiles; etc.  Split tilesets as necessary (multiple ground tilesets
+if/when we have enough to warrant it.)  Perhaps number the tileset
+identifiers into meaningful groupings, i.e., all ground tilesets have
+a tileset identifier in the range of 0 - 999, all building in 2000 -
+3000, etc.
+
+Character animation frames may be performed by passing fully qualified
+tile id and number of frames to animate, frames must be contiguous
+tiles thereafter.  character images will likely be handled as a
+special case above and beyond our general tile antics.
+
+Look into using PNG file format for images.  PNG supported in JDK 1.3+
+and probably JAI 1.1 for earlier JDK versions.  use PNG alpha-channel
+rather than separate masks for handling image transparency.
+
+Look into perhaps using bitmap masks to reduce the drawable area
+needed for drawing tiles (e.g. exclude corners of iso squares), but
+only if noteworthy perf gain achieved.  Perhaps other similar
+worthwhile uses.
+
+TBD:
+
+- Resource mgmt: when is screen data and art loaded, how big are the
+  chunks of data downloaded, what's the user experience during
+  download like.
+
+- on-screen "map" display of the surrounding scenes, the scenes
+  comprising a town, etc.  potentially impacts how we allow placement
+  of exits in a scene since allowing folks to place exits to their
+  houses/bldgs willy-nilly may make map generation wacky.  perhaps
+  useful for game designer use as well when laying things out and
+  "surveying the landscape."
