@@ -820,7 +820,7 @@ public class SoundManager
 
     /** The maximum time after which we throw away a sound rather
      * than play it. */
-    protected static final long MAX_SOUND_DELAY = 400L;
+    protected static final long MAX_SOUND_DELAY = 1000L;
 
     /** The size of the line's buffer. */
     protected static final int LINEBUF_SIZE = 8 * 1024;
