@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.59 2004/08/27 02:12:30 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -632,6 +632,8 @@ public class ChatDirector extends BasicDirector
             removeAuxiliarySource(_clobj);
             _clobj = null;
         }
+        // in fact, clear out all auxiliary sources
+        _auxes.clear();
 
         clearDisplays();
 
