@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.31 2002/05/24 20:15:04 ray Exp $
+// $Id: IsoUtil.java,v 1.32 2002/05/24 20:32:11 ray Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -310,7 +310,7 @@ public class IsoUtil
             // offset the direction by -1, ie change SOUTHWEST to SOUTH
             dir = (dir + 7) % 8;
         }
-        return nonproj;
+        return dir;
     }
 
     /**
