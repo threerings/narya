@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.129 2003/01/15 04:25:45 shaper Exp $
+// $Id: IsoSceneView.java,v 1.130 2003/01/15 21:12:45 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -168,7 +168,7 @@ public class IsoSceneView implements SceneView
         renderDirtyItems(gfx, dirtyRect);
 
         // draw sprite paths
-        if (_model.showPaths) {
+        if (_pathsDebug.getValue()) {
             _spritemgr.renderSpritePaths(gfx);
         }
 
@@ -239,13 +239,12 @@ public class IsoSceneView implements SceneView
         // if we're showing coordinates, we need to do some setting up
         int thw = 0, thh = 0, fhei = 0;
         FontMetrics fm = null;
-        if (_model.showCoords) {
+        if (_coordsDebug.getValue()) {
             fm = gfx.getFontMetrics(_font);
             fhei = fm.getAscent();
             thw = _model.tilehwid;
             thh = _model.tilehhei;
             gfx.setFont(_font);
-            gfx.setColor(Color.white);
         }
 
         // determine which tiles intersect this clipping region: this is
@@ -316,7 +315,7 @@ public class IsoSceneView implements SceneView
                         passable = ((BaseTile)tile).isPassable();
 
                         // highlight impassable tiles
-                        if (_isoRenderDebug.getValue() && !passable) {
+                        if (_traverseDebug.getValue() && !passable) {
                             fillTile(gfx, tx, ty, Color.yellow);
                         }
                     }
@@ -326,7 +325,7 @@ public class IsoSceneView implements SceneView
                     }
 
                     // highlight passable non-traversable tiles
-                    if (_isoRenderDebug.getValue() && passable && 
+                    if (_traverseDebug.getValue() && passable && 
                         !_scene.canTraverse(null, tx, ty)) {
                         fillTile(gfx, tx, ty, Color.green);
                     }
@@ -338,9 +337,8 @@ public class IsoSceneView implements SceneView
                 }
 
                 // if we're showing coordinates, do that
-                if (_model.showCoords) {
-                    // outline the tile
-//                     gfx.draw(tpoly);
+                if (_coordsDebug.getValue()) {
+                    gfx.setColor(Color.white);
 
                     // get the top-left screen coordinates of the tile
                     int sx = _tbounds.x, sy = _tbounds.y;
@@ -430,7 +428,7 @@ public class IsoSceneView implements SceneView
 
             // compute the footprint if we're rendering those
             Polygon foot = null;
-            if (_model.showFootprints) {
+            if (_fprintDebug.getValue()) {
                 foot = IsoUtil.getObjectFootprint(_model, scobj);
             }
 
@@ -739,11 +737,32 @@ public class IsoSceneView implements SceneView
     /** The stroke object used to draw highlighted tiles and coordinates. */
     protected BasicStroke _hstroke = new BasicStroke(2);
 
-    /** A debug hook that toggles debug rendering in the iso scene view. */
-    protected static RuntimeAdjust.BooleanAdjust _isoRenderDebug =
+    /** A debug hook that toggles debug rendering of traversable tiles. */
+    protected static RuntimeAdjust.BooleanAdjust _traverseDebug =
         new RuntimeAdjust.BooleanAdjust(
-            "Toggles debug rendering in the iso scene view.",
-            "narya.miso.iso_debug_render", MisoPrefs.config, false);
+            "Toggles debug rendering of traversable and impassable tiles in " +
+            "the iso scene view.", "narya.miso.iso_traverse_debug_render",
+            MisoPrefs.config, false);
+
+    /** A debug hook that toggles debug rendering of tile coordinates. */
+    protected static RuntimeAdjust.BooleanAdjust _coordsDebug =
+        new RuntimeAdjust.BooleanAdjust(
+            "Toggles debug rendering of tile coordinates in the iso scene " +
+            "view.", "narya.miso.iso_coords_debug_render",
+            MisoPrefs.config, false);
+
+    /** A debug hook that toggles debug rendering of sprite paths. */
+    protected static RuntimeAdjust.BooleanAdjust _pathsDebug =
+        new RuntimeAdjust.BooleanAdjust(
+            "Toggles debug rendering of sprite paths in the iso scene view.",
+            "narya.miso.iso_paths_debug_render", MisoPrefs.config, false);
+
+    /** A debug hook that toggles debug rendering of object footprints. */
+    protected static RuntimeAdjust.BooleanAdjust _fprintDebug =
+        new RuntimeAdjust.BooleanAdjust(
+            "Toggles debug rendering of object footprints in the iso scene " +
+            "view.", "narya.miso.iso_fprint_debug_render",
+            MisoPrefs.config, false);
 
     /** The stroke used to draw dirty rectangles. */
     protected static final Stroke DIRTY_RECT_STROKE = new BasicStroke(2);

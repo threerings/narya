@@ -1,11 +1,10 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.26 2002/06/21 00:04:41 mdb Exp $
+// $Id: IsoSceneViewModel.java,v 1.27 2003/01/15 21:12:45 shaper Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.ArrayList;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.MisoConfig;
@@ -71,15 +70,6 @@ public class IsoSceneViewModel
     /** The slope of the x- and y-axis lines within a tile. */
     public float fineSlopeX, fineSlopeY;
 
-    /** Whether tile coordinates should be drawn. */
-    public boolean showCoords;
-
-    /** Whether sprite paths should be drawn. */
-    public boolean showPaths;
-
-    /** Whether object footprints should be drawn. */
-    public boolean showFootprints;
-
     /**
      * Construct an iso scene view model with view parameters as
      * specified in the given config object.
@@ -106,13 +96,6 @@ public class IsoSceneViewModel
 
 	// set the fine coordinate granularity
 	finegran = MisoConfig.config.getValue(FINE_GRAN_KEY, DEF_FINE_GRAN);
-
-	// set our various flags
-        showCoords = MisoConfig.config.getValue(
-            SHOW_COORDS_KEY, DEF_SHOW_COORDS);
-	showPaths = MisoConfig.config.getValue(SHOW_PATHS_KEY, DEF_SHOW_PATHS);
-	showFootprints = MisoConfig.config.getValue(
-            SHOW_FOOTPRINTS_KEY, DEF_SHOW_FOOTPRINTS);
 
         // precalculate various things
 	int offy = MisoConfig.config.getValue(SCENE_OFFSET_Y_KEY, DEF_OFFSET_Y);
@@ -154,31 +137,6 @@ public class IsoSceneViewModel
     }
 
     /**
-     * Add an iso scene view model listener.
-     *
-     * @param l the listener.
-     */
-    public void addListener (IsoSceneViewModelListener l)
-    {
-        if (!_listeners.contains(l)) {
-            _listeners.add(l);
-        }
-    }
-
-    /**
-     * Notify all model listeners that the iso scene view model has
-     * changed.
-     */
-    protected void notifyListeners (int event)
-    {
-	int size = _listeners.size();
-	for (int ii = 0; ii < size; ii++) {
-	    ((IsoSceneViewModelListener)_listeners.get(ii)).
-                viewChanged(event);
-	}
-    }
-
-    /**
      * Returns whether the given tile coordinate is a valid coordinate
      * within the scene.
      */
@@ -199,24 +157,6 @@ public class IsoSceneViewModel
         return (isCoordinateValid(tx, ty) &&
                 fx >= 0 && fx < finegran &&
                 fy >= 0 && fy < finegran);
-    }
-
-    /**
-     * Toggle whether coordinates should be drawn for each tile.
-     */
-    public void toggleShowCoordinates ()
-    {
-	showCoords = !showCoords;
-        notifyListeners(IsoSceneViewModelListener.SHOW_COORDINATES_CHANGED);
-    }
-
-    /**
-     * Toggle whether footprints should be drawn for each object tile.
-     */
-    public void toggleShowFootprints ()
-    {
-	showFootprints = !showFootprints;
-        notifyListeners(IsoSceneViewModelListener.SHOW_FOOTPRINTS_CHANGED);
     }
 
     /**
@@ -312,15 +252,6 @@ public class IsoSceneViewModel
     /** The config key for scene origin vertical offset in tile count. */
     protected static final String SCENE_OFFSET_Y_KEY = "scene_offset_y";
 
-    /** The config key for whether to show tile coordinates. */
-    protected static final String SHOW_COORDS_KEY = "show_coords";
-
-    /** The config key for whether to show sprite paths. */
-    protected static final String SHOW_PATHS_KEY = "show_paths";
-
-    /** The config key for whether to show object tile footprints. */
-    protected static final String SHOW_FOOTPRINTS_KEY = "show_footprints";
-
     /** Default scene view parameters. */
     protected static final int DEF_TILE_WIDTH = 64;
     protected static final int DEF_TILE_HEIGHT = 48;
@@ -330,10 +261,4 @@ public class IsoSceneViewModel
     protected static final int DEF_SCENE_WIDTH = 22;
     protected static final int DEF_SCENE_HEIGHT = 22;
     protected static final int DEF_OFFSET_Y = -5;
-    protected static final boolean DEF_SHOW_COORDS = false;
-    protected static final boolean DEF_SHOW_PATHS = false;
-    protected static final boolean DEF_SHOW_FOOTPRINTS = false;
-
-    /** The model listeners. */
-    protected ArrayList _listeners = new ArrayList();
 }

@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.47 2002/12/05 23:06:30 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.48 2003/01/15 21:12:45 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -30,7 +30,6 @@ import com.threerings.miso.scene.util.IsoUtil;
  * UI events.
  */
 public class SceneViewPanel extends VirtualMediaPanel
-    implements IsoSceneViewModelListener
 {
     /**
      * Constructs the scene view panel with the supplied view model.
@@ -44,10 +43,6 @@ public class SceneViewPanel extends VirtualMediaPanel
 
         // create the data model for the scene view
         _viewmodel = model;
-
-        // listen to the iso scene view model to receive notice when
-        // the scene display has changed and needs must be repainted
-        _viewmodel.addListener(this);
 
 	// create the scene view
         _view = newSceneView(_spritemgr, _viewmodel);
@@ -169,13 +164,6 @@ public class SceneViewPanel extends VirtualMediaPanel
     {
 	return (_viewmodel == null || isPreferredSizeSet()) ?
             super.getPreferredSize() : _viewmodel.bounds.getSize();
-    }
-
-    // documentation inherited
-    public void viewChanged (int event)
-    {
-        // update the scene view display
-        repaint();
     }
 
     /** The scene view data model. */
