@@ -1,11 +1,11 @@
 //
-// $Id: PuzzleProvider.java,v 1.4 2004/06/22 14:08:58 mdb Exp $
+// $Id: PuzzleProvider.java,v 1.5 2004/07/10 04:17:21 mdb Exp $
 
 package com.threerings.puzzle.server;
 
 import com.threerings.util.Name;
 
-import com.threerings.presents.client.InvocationService.InvocationListener;
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.InvocationException;
@@ -46,7 +46,7 @@ public class PuzzleProvider
      */
     public void startPuzzle (
         ClientObject caller, SolitairePuzzleConfig config,
-        InvocationListener listener)
+        InvocationService.ConfirmListener listener)
         throws InvocationException
     {
         BodyObject user = (BodyObject)caller;
@@ -63,7 +63,9 @@ public class PuzzleProvider
             GameManager gmgr = (GameManager)_plreg.createPlace(config, null);
 
             // the game manager will take care of notifying the player
-            // that the game has been created once it has been started up
+            // that the game has been created once it has been started up;
+            // but we let the caller know that we processed their request
+            listener.requestProcessed();
 
         } catch (InstantiationException ie) {
             Log.warning("Error instantiating puzzle manager " +

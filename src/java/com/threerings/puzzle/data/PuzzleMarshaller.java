@@ -1,11 +1,11 @@
 //
-// $Id: PuzzleMarshaller.java,v 1.2 2004/06/22 14:08:58 mdb Exp $
+// $Id: PuzzleMarshaller.java,v 1.3 2004/07/10 04:17:21 mdb Exp $
 
 package com.threerings.puzzle.data;
 
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService.InvocationListener;
+import com.threerings.presents.client.InvocationService.ConfirmListener;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 import com.threerings.puzzle.client.PuzzleService;
@@ -57,9 +57,9 @@ public class PuzzleMarshaller extends InvocationMarshaller
     public static final int START_PUZZLE = 1;
 
     // documentation inherited from interface
-    public void startPuzzle (Client arg1, SolitairePuzzleConfig arg2, InvocationListener arg3)
+    public void startPuzzle (Client arg1, SolitairePuzzleConfig arg2, ConfirmListener arg3)
     {
-        ListenerMarshaller listener3 = new ListenerMarshaller();
+        ConfirmMarshaller listener3 = new ConfirmMarshaller();
         listener3.listener = arg3;
         sendRequest(arg1, START_PUZZLE, new Object[] {
             arg2, listener3

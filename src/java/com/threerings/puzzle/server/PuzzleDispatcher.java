@@ -1,11 +1,11 @@
 //
-// $Id: PuzzleDispatcher.java,v 1.2 2004/06/22 14:08:58 mdb Exp $
+// $Id: PuzzleDispatcher.java,v 1.3 2004/07/10 04:17:21 mdb Exp $
 
 package com.threerings.puzzle.server;
 
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService.InvocationListener;
+import com.threerings.presents.client.InvocationService.ConfirmListener;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
@@ -44,7 +44,7 @@ public class PuzzleDispatcher extends InvocationDispatcher
         case PuzzleMarshaller.START_PUZZLE:
             ((PuzzleProvider)provider).startPuzzle(
                 source,
-                (SolitairePuzzleConfig)args[0], (InvocationListener)args[1]
+                (SolitairePuzzleConfig)args[0], (ConfirmListener)args[1]
             );
             return;
 

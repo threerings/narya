@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleService.java,v 1.2 2004/06/22 14:08:58 mdb Exp $
+// $Id: PuzzleService.java,v 1.3 2004/07/10 04:17:21 mdb Exp $
 
 package com.threerings.puzzle.client;
 
@@ -31,7 +31,7 @@ public interface PuzzleService extends InvocationService
      * puzzle.
      */
     public void startPuzzle (Client client, SolitairePuzzleConfig config,
-                             InvocationListener listener);
+                             ConfirmListener listener);
 
     /**
      * Requests that this client enter the specified puzzle.
