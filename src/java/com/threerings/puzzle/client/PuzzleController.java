@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.17 2004/10/28 18:59:35 mdb Exp $
+// $Id: PuzzleController.java,v 1.18 2004/10/28 19:20:04 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -739,7 +739,7 @@ public abstract class PuzzleController extends GameController
         }
 
         _events.add(new Integer(event));
-        if (_puzconfig.syncBoardState()) {
+        if (PuzzlePanel.isSyncingBoards()) {
             _states.add((board == null) ? null : board.clone());
             if (board == null) {
                 Log.warning("Added progress event with no associated board " +
@@ -751,7 +751,7 @@ public abstract class PuzzleController extends GameController
 
     /**
      * Sends the server a game progress update with the list of events, as
-     * well as board states if {@link #SYNC_BOARD_STATE} is true.
+     * well as board states if {@link PuzzlePanel#isSyncingBoards} is true.
      */
     public void sendProgressUpdate ()
     {
@@ -770,7 +770,7 @@ public abstract class PuzzleController extends GameController
 
         // create an array of the board states that correspond with those
         // events (if state syncing is enabled)
-        if (_puzconfig.syncBoardState()) {
+        if (PuzzlePanel.isSyncingBoards()) {
             int scount = _states.size();
             Board[] states = new Board[scount];
             for (int ii = 0; ii < scount; ii++) {

@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleGameService.java,v 1.2 2004/08/27 02:20:27 mdb Exp $
+// $Id: PuzzleGameService.java,v 1.3 2004/10/28 19:20:04 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -41,8 +41,8 @@ public interface PuzzleGameService extends InvocationService, PuzzleCodes
 
     /**
      * Debug variant of {@link #updateProgress} that is only used when
-     * {@link #SYNC_BOARD_STATE} is true and which includes the board
-     * states associated with each event.
+     * {@link PuzzlePanel#isSyncingBoards} is true and which includes the
+     * board states associated with each event.
      */
     public void updateProgressSync (
         Client client, int roundId, int[] events, Board[] states);

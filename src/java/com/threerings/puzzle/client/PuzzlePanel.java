@@ -1,5 +1,5 @@
 //
-// $Id: PuzzlePanel.java,v 1.7 2004/10/28 18:53:26 mdb Exp $
+// $Id: PuzzlePanel.java,v 1.8 2004/10/28 19:20:04 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -253,6 +253,12 @@ public abstract class PuzzlePanel extends JPanel
         return _robotTest.getValue();
     }
 
+    /** Returns true if board syncing is activated. */
+    public static boolean isSyncingBoards ()
+    {
+        return _syncBoardState.getValue();
+    }
+
     /** Our puzzle context. */
     protected PuzzleContext _ctx;
 
@@ -282,5 +288,12 @@ public abstract class PuzzlePanel extends JPanel
         new RuntimeAdjust.BooleanAdjust(
             "Activates the robot test player which will make random moves " +
             "in any activated puzzle.", "narya.puzzle.robot_tester",
+            PuzzlePrefs.config, false);
+
+    /** A debug hook that toggles activation of board syncing. */
+    protected static RuntimeAdjust.BooleanAdjust _syncBoardState =
+        new RuntimeAdjust.BooleanAdjust(
+            "Sends a snapshot of the puzzle board with every event to aid " +
+            "in debugging.", "narya.puzzle.sync_board_state",
             PuzzlePrefs.config, false);
 }
