@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.39 2002/04/23 01:18:17 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.40 2002/04/23 03:11:17 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -176,7 +176,7 @@ public class SceneViewPanel extends MediaPanel
     protected void paintBits (Graphics2D gfx, int layer, Rectangle clip)
     {
         Shape oclip = gfx.getClip();
-        gfx.setClip(clip);
+        gfx.clipRect(clip.x, clip.y, clip.width, clip.height);
         _animmgr.renderAnimations(gfx, layer, clip);
         gfx.setClip(oclip);
     }
