@@ -1,5 +1,5 @@
 //
-// $Id: PlaceControllerDelegate.java,v 1.1 2002/02/13 03:21:28 mdb Exp $
+// $Id: PlaceControllerDelegate.java,v 1.2 2003/01/09 00:27:26 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -43,6 +43,19 @@ public class PlaceControllerDelegate
      * Called to let the delegate know that we're entering a place.
      */
     public void willEnterPlace (PlaceObject plobj)
+    {
+    }
+
+    /**
+     * Called before a request is submitted to the server to leave the
+     * current place. The request to leave may be rejected, but if a place
+     * controller needs to make a final communication to the place manager
+     * before it leaves, it should so do here. This is the only place in
+     * which the controller is guaranteed to be able to communicate to the
+     * place manager, as by the time {@link #didLeavePlace} is called, the
+     * place manager may have already been destroyed.
+     */
+    public void mayLeavePlace (final PlaceObject plobj)
     {
     }
 
