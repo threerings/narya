@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.7 2001/08/16 23:14:21 mdb Exp $
+// $Id: CharacterSprite.java,v 1.8 2001/08/21 19:40:30 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -26,10 +26,9 @@ public class AmbulatorySprite extends Sprite implements Traverser
      * @param anims the set of multi-frame images to use when animating
      * the sprite in each of the compass directions.
      */
-    public AmbulatorySprite (SpriteManager spritemgr, int x, int y,
-                             MultiFrameImage[] anims)
+    public AmbulatorySprite (int x, int y, MultiFrameImage[] anims)
     {
-        super(spritemgr, x, y);
+        super(x, y);
 
         _anims = anims;
         _dir = Path.DIR_SOUTH;

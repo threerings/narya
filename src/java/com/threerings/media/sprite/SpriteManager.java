@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.8 2001/08/21 00:58:36 mdb Exp $
+// $Id: SpriteManager.java,v 1.9 2001/08/21 19:40:30 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -39,7 +39,12 @@ public class SpriteManager
      */
     public void addSprite (Sprite sprite)
     {
+        // let the sprite know about us
+        sprite.setSpriteManager(this);
+        // add the sprite to our list
         _sprites.add(sprite);
+        // and invalidate the sprite's original position
+        sprite.invalidate();
     }
 
     /**
@@ -50,7 +55,12 @@ public class SpriteManager
      */
     public void removeSprite (Sprite sprite)
     {
+        // invalidate the current sprite position
+        sprite.invalidate();
+        // remove the sprite from our list
         _sprites.remove(sprite);
+        // clear out our manager reference
+        sprite.setSpriteManager(null);
     }
 
     /**

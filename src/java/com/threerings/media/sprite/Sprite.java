@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.13 2001/08/16 18:05:16 shaper Exp $
+// $Id: Sprite.java,v 1.14 2001/08/21 19:40:30 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -25,15 +25,13 @@ public class Sprite
     /**
      * Construct a sprite object.
      *
-     * @param spritemgr the sprite manager.
      * @param x the sprite x-position in pixels.
      * @param y the sprite y-position in pixels.
      * @param frames the multi-frame image used to display the sprite.
      */
-    public Sprite (SpriteManager spritemgr, int x, int y,
-                   MultiFrameImage frames)
+    public Sprite (int x, int y, MultiFrameImage frames)
     {
-        init(spritemgr, x, y, frames);
+        init(x, y, frames);
     }
 
     /**
@@ -41,23 +39,37 @@ public class Sprite
      * should be populated with a set of frames used to display it via a
      * subsequent call to <code>setFrames()</code>.
      *
-     * @param spritemgr the sprite manager.
      * @param x the sprite x-position in pixels.
      * @param y the sprite y-position in pixels.
      */
-    public Sprite (SpriteManager spritemgr, int x, int y)
+    public Sprite (int x, int y)
     {
-        init(spritemgr, x, y, null);
+        init(x, y, null);
+    }
+
+    /**
+     * Moves the sprite to the specified location. The location specified
+     * will be used as the center of the bottom edge of the sprite.
+     */
+    public void setLocation (int x, int y)
+    {
+        // invalidate our current position
+        invalidate();
+        // move ourselves
+        this.x = x;
+        this.y = y;
+        // we need to update our draw position which is based on the size
+        // of our current frame
+        updateDrawPosition();
+        // invalidate our new position
+        invalidate();
     }
 
     /**
      * Initialize the sprite object with its variegated parameters.
      */
-    protected void init (
-        SpriteManager spritemgr, int x, int y, MultiFrameImage frames)
+    protected void init (int x, int y, MultiFrameImage frames)
     {
-        _spritemgr = spritemgr;
-
         this.x = x;
         this.y = y;
 
@@ -75,6 +87,15 @@ public class Sprite
 
         invalidate();
     }        
+
+    /**
+     * Called by the sprite manager when a sprite is added to said manager
+     * for management.
+     */
+    protected void setSpriteManager (SpriteManager mgr)
+    {
+        _spritemgr = mgr;
+    }
 
     /**
      * Paint the sprite to the specified graphics context.
@@ -238,10 +259,16 @@ public class Sprite
     {
         if (_frame == null) return;
 
-        Rectangle dirty = new Rectangle(
-            _drawx, _drawy, _frame.getWidth(null), _frame.getHeight(null));
+        if (_spritemgr != null) {
+            Rectangle dirty = new Rectangle(
+                _drawx, _drawy,
+                _frame.getWidth(null), _frame.getHeight(null));
+            _spritemgr.addDirtyRect(dirty);
 
-        _spritemgr.addDirtyRect(dirty);
+        } else {
+            Log.warning("Was invalidated but have no sprite manager " +
+                        this + ".");
+        }
     }
 
     /**
