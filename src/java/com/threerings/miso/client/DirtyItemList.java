@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.20 2003/02/07 22:06:28 mdb Exp $
+// $Id: DirtyItemList.java,v 1.21 2003/02/11 05:47:28 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -284,18 +284,12 @@ public class DirtyItemList
             // sprites are equivalent if they're the same sprite
             DirtyItem b = (DirtyItem)other;
             return obj.equals(b.obj);
-//             if ((obj instanceof Sprite) && (b.obj instanceof Sprite)) {
-//                 return (obj == b.obj);
-//             }
+        }
 
-//             // objects are equivalent if they are the same object
-//             if ((obj instanceof DisplayObjectInfo) && (b.obj instanceof DisplayObjectInfo)) {
-//                 return (obj == b.obj);
-//             }
-
-//             // object-to-sprite are distinguished simply by origin tile
-//             // coordinate since they can never occupy the same tile
-//             return (ox == b.ox && oy == b.oy);
+        // documentation inherited
+        public int hashCode ()
+        {
+            return obj.hashCode();
         }
 
         /**
@@ -348,14 +342,18 @@ public class DirtyItemList
                 }
             }
 
-            // if they do overlap, incorporate render priority
-            if (da.obj instanceof DisplayObjectInfo &&
-                db.obj instanceof DisplayObjectInfo) {
-                return (((DisplayObjectInfo)da.obj).getPriority() -
-                        ((DisplayObjectInfo)db.obj).getPriority());
-            } else {
-                return 0;
+            // if they do overlap, incorporate render priority; assume
+            // non-display objects have a render priority of zero
+            int aprio = 0;
+            if (da.obj instanceof DisplayObjectInfo) {
+                aprio = ((DisplayObjectInfo)da.obj).getPriority();
             }
+            int bprio = 0;
+            if (db.obj instanceof DisplayObjectInfo) {
+                bprio = ((DisplayObjectInfo)db.obj).getPriority();
+            }
+
+            return aprio - bprio;
         }
 
         /** The axis this comparator sorts on. */
