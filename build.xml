@@ -14,9 +14,13 @@
   <target name="prepare">
     <mkdir dir="${deploy.home}"/>
     <mkdir dir="${deploy.home}/classes"/>
+    <mkdir dir="${deploy.home}/classes/rsrc"/>
     <mkdir dir="${javadoc.home}"/>
     <copy todir="${deploy.home}/classes">
       <fileset dir="src/java" includes="**/*.properties"/>
+    </copy>
+    <copy todir="${deploy.home}/classes/rsrc">
+      <fileset dir="rsrc" includes="**/*"/>
     </copy>
   </target>
 
