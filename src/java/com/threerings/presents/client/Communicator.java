@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.16 2001/10/11 04:07:52 mdb Exp $
+// $Id: Communicator.java,v 1.17 2002/03/15 19:11:14 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -290,7 +290,6 @@ public class Communicator
 
             } catch (Exception e) {
                 Log.info("Logon failed: " + e);
-                Log.logStackTrace(e);
                 // let the observers know that we've failed
                 _client.notifyObservers(Client.CLIENT_FAILED_TO_LOGON, e);
                 // and terminate our communicator thread
@@ -308,9 +307,12 @@ public class Communicator
 
             // look up the address of the target server
             InetAddress host = InetAddress.getByName(_client.getHostname());
+            int port = _client.getPort();
 
             // establish a socket connection to said server
-            _socket = new Socket(host, _client.getPort());
+            Log.info("Connecting to server [host=" + host +
+                     ", port=" + port + "].");
+            _socket = new Socket(host, port);
 
             // get a handle on our input and output streams
             _in = _socket.getInputStream();
