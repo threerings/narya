@@ -1,10 +1,11 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.14 2001/10/17 22:21:22 shaper Exp $
+// $Id: IsoSceneViewModel.java,v 1.15 2001/10/18 21:01:44 shaper Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.ArrayList;
 
 import com.samskivert.util.Config;
 
@@ -110,6 +111,31 @@ public class IsoSceneViewModel
     }
 
     /**
+     * Add an iso scene view model listener.
+     *
+     * @param l the listener.
+     */
+    public void addListener (IsoSceneViewModelListener l)
+    {
+        if (!_listeners.contains(l)) {
+            _listeners.add(l);
+        }
+    }
+
+    /**
+     * Notify all model listeners that the iso scene view model has
+     * changed.
+     */
+    protected void notifyListeners (int event)
+    {
+	int size = _listeners.size();
+	for (int ii = 0; ii < size; ii++) {
+	    ((IsoSceneViewModelListener)_listeners.get(ii)).
+                viewChanged(event);
+	}
+    }
+
+    /**
      * Returns whether the given tile coordinate is a valid coordinate
      * within the scene.
      */
@@ -133,49 +159,21 @@ public class IsoSceneViewModel
     }
 
     /**
-     * Return whether locations in the scene are currently drawn.
+     * Toggle whether locations in the scene should be drawn.
      */
-    public boolean getShowLocations ()
+    public void toggleShowLocations ()
     {
-	return showLocs;
+	showLocs = !showLocs;
+        notifyListeners(IsoSceneViewModelListener.SHOW_LOCATIONS_CHANGED);
     }
 
     /**
-     * Set whether locations in the scene should be drawn.
-     *
-     * @param show whether to show locations.
+     * Toggle whether coordinates should be drawn for each tile.
      */
-    public void setShowLocations (boolean show)
+    public void toggleShowCoordinates ()
     {
-	showLocs = show;
-    }
-
-    /**
-     * Return whether coordinates are currently drawn for each tile.
-     */
-    public boolean getShowCoordinates ()
-    {
-	return showCoords;
-    }
-
-    /**
-     * Set whether coordinates should be drawn for each tile.
-     *
-     * @param show whether to show coordinates.
-     */
-    public void setShowCoordinates (boolean show)
-    {
-	showCoords = show;
-    }
-
-    /**
-     * Set whether sprite paths should be drawn.
-     *
-     * @param show whether to show paths.
-     */
-    public void setShowSpritePaths (boolean show)
-    {
-	showPaths = show;
+	showCoords = !showCoords;
+        notifyListeners(IsoSceneViewModelListener.SHOW_COORDINATES_CHANGED);
     }
 
     /**
@@ -297,4 +295,7 @@ public class IsoSceneViewModel
     protected static final boolean DEF_SHOW_COORDS = false;
     protected static final boolean DEF_SHOW_LOCS = false;
     protected static final boolean DEF_SHOW_PATHS = false;
+
+    /** The model listeners. */
+    protected ArrayList _listeners = new ArrayList();
 }

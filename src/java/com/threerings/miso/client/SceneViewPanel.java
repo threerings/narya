@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.16 2001/10/17 22:21:22 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.17 2001/10/18 21:01:44 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -18,6 +18,7 @@ import com.threerings.miso.util.MisoUtil;
  * UI events.
  */
 public class SceneViewPanel extends AnimatedPanel
+    implements IsoSceneViewModelListener
 {
     /**
      * Constructs the scene view panel.
@@ -25,10 +26,22 @@ public class SceneViewPanel extends AnimatedPanel
     public SceneViewPanel (Config config, SpriteManager spritemgr)
     {
         // create the data model for the scene view
-        _smodel = new IsoSceneViewModel(config);
+        _scenemodel = new IsoSceneViewModel(config);
+
+        // listen to the iso scene view model to receive notice when
+        // location or coordinate display is toggled
+        _scenemodel.addListener(this);
 
 	// create the scene view
-        _view = newSceneView(spritemgr, _smodel);
+        _view = newSceneView(spritemgr, _scenemodel);
+    }
+
+    /**
+     * Gets the iso scene view model associated with this panel.
+     */
+    public IsoSceneViewModel getModel ()
+    {
+        return _scenemodel;
     }
 
     /**
@@ -75,13 +88,20 @@ public class SceneViewPanel extends AnimatedPanel
      */
     public Dimension getPreferredSize ()
     {
-        Dimension psize = (_smodel == null) ?
-            super.getPreferredSize() : _smodel.bounds;
+        Dimension psize = (_scenemodel == null) ?
+            super.getPreferredSize() : _scenemodel.bounds;
 	return psize;
     }
 
+    // documentation inherited
+    public void viewChanged (int event)
+    {
+        // update the scene view display
+        repaint();
+    }
+
     /** The scene view data model. */
-    protected IsoSceneViewModel _smodel;
+    protected IsoSceneViewModel _scenemodel;
 
     /** The scene view we're managing. */
     protected SceneView _view;
