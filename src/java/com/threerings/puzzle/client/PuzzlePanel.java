@@ -1,5 +1,5 @@
 //
-// $Id: PuzzlePanel.java,v 1.3 2004/02/25 14:48:44 mdb Exp $
+// $Id: PuzzlePanel.java,v 1.4 2004/08/16 22:58:06 mdb Exp $
 
 package com.threerings.puzzle.client;
 
@@ -108,6 +108,14 @@ public abstract class PuzzlePanel extends JPanel
             // make sure the UI updates
             SwingUtil.refresh(this);
         }
+    }
+
+    /**
+     * Returns true if an overlay panel is currently being displayed.
+     */
+    public boolean hasOverlay ()
+    {
+        return _opanel != null;
     }
 
     /**
