@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.44 2003/06/03 21:41:33 ray Exp $
+// $Id: ChatDirector.java,v 1.45 2003/06/03 23:36:18 ray Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -8,6 +8,7 @@ import java.util.LinkedList;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.ObserverList;
+import com.samskivert.util.ResultListener;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
@@ -346,38 +347,51 @@ public class ChatDirector extends BasicDirector
      * @param target the username of the user to which the tell message
      * should be delivered.
      * @param message the contents of the tell message.
+     * @param rl an optional result listener if you'd like to be notified
+     * of success or failure.
      */
-    public void requestTell (final String target, final String message)
+    public void requestTell (
+        final String target, final String message, final ResultListener rl)
     {
         // make sure they can say what they want to say
         _validateMessageOp.setMessage(target, message);
         _validators.apply(_validateMessageOp);
         if (!_validateMessageOp.isValid()) {
+            if (rl != null) {
+                rl.requestFailed(null);
+            }
             return;
         }
 
         // create a listener that will report success or failure
         ChatService.TellListener listener = new ChatService.TellListener() {
             public void tellSucceeded () {
-                dispatchMessage(new TellFeedbackMessage(
-                    xlate(_bundle, MessageBundle.tcompose(
-                    "m.told_format", target, message))));
-                addChatter(target);
+                success(xlate(_bundle, MessageBundle.tcompose(
+                    "m.told_format", target, message)));
             }
 
             public void tellSucceededIdle (long idletime) {
-                dispatchMessage(new TellFeedbackMessage(
-                    xlate(_bundle, MessageBundle.compose(
+                success(xlate(_bundle, MessageBundle.compose(
                     "m.told_idle_format", MessageBundle.taint(target),
                     MessageBundle.taint(message),
-                    TimeUtil.getTimeOrderString(idletime, TimeUtil.MINUTE)))));
+                    TimeUtil.getTimeOrderString(idletime, TimeUtil.MINUTE))));
+            }
+
+            protected void success (String feedback) {
+                dispatchMessage(new TellFeedbackMessage(feedback));
                 addChatter(target);
+                if (rl != null) {
+                    rl.requestCompleted(target);
+                }
             }
 
             public void requestFailed (String reason) {
                 String msg = MessageBundle.compose(
                     "m.tell_failed", MessageBundle.taint(target), reason);
                 displayFeedbackMessage(_bundle, msg);
+                if (rl != null) {
+                    rl.requestFailed(null);
+                }
             }
         };
 

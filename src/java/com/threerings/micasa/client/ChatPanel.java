@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.23 2003/06/03 21:41:33 ray Exp $
+// $Id: ChatPanel.java,v 1.24 2003/06/03 23:36:18 ray Exp $
 
 package com.threerings.micasa.client;
 
@@ -206,7 +206,7 @@ public class ChatPanel
             String message = text.substring(uidx + username.length()).trim();
 
             // request to send this text as a tell message
-            _chatdtr.requestTell(username, message);
+            _chatdtr.requestTell(username, message, null);
 
         } else if (text.startsWith("/clear")) {
             // clear the chat box
