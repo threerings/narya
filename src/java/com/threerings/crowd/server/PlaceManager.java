@@ -602,7 +602,8 @@ public class PlaceManager
     }
 
     // documentation inherited from interface
-    public boolean isValidSpeaker (DObject speakObj, ClientObject speaker)
+    public boolean isValidSpeaker (DObject speakObj, ClientObject speaker,
+                                   byte mode)
     {
         // only allow people in the room to speak
         return _plobj.occupants.contains(speaker.getOid());

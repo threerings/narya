@@ -63,7 +63,8 @@ public class SpeakProvider
          * via the speak provider with which this validator was
          * registered.
          */
-        public boolean isValidSpeaker (DObject speakObj, ClientObject speaker);
+        public boolean isValidSpeaker (DObject speakObj, ClientObject speaker,
+                                       byte mode);
     }
 
     /**
@@ -133,7 +134,7 @@ public class SpeakProvider
         // have to do this validation here. Or not.
         if ((mode == BROADCAST_MODE) ||
             (_validator != null &&
-             !_validator.isValidSpeaker(_speakObj, caller))) {
+             !_validator.isValidSpeaker(_speakObj, caller, mode))) {
             Log.warning("Refusing invalid speak request " +
                         "[caller=" + caller.who() +
                         ", speakObj=" + _speakObj.which() +
