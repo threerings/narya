@@ -1,7 +1,10 @@
 //
-// $Id: TileSetBundler.java,v 1.6 2002/04/03 22:20:50 mdb Exp $
+// $Id: TileSetBundler.java,v 1.7 2002/06/21 18:53:13 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
+
+import java.awt.Image;
+import javax.imageio.ImageIO;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,8 +31,13 @@ import com.samskivert.io.NestableIOException;
 import com.samskivert.io.PersistenceException;
 
 import com.threerings.media.Log;
+
+import com.threerings.media.tile.ImageProvider;
+import com.threerings.media.tile.ObjectTileSet;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileSetIDBroker;
+import com.threerings.media.tile.TrimmedObjectTileSet;
+
 import com.threerings.media.tile.bundle.BundleUtil;
 import com.threerings.media.tile.bundle.TileSetBundle;
 import com.threerings.media.tile.tools.xml.TileSetRuleSet;
@@ -202,7 +210,7 @@ public class TileSetBundler
      * or processing anything.
      */
     public void createBundle (
-        TileSetIDBroker idBroker, File bundleDesc, File target)
+        TileSetIDBroker idBroker, final File bundleDesc, File target)
         throws IOException
     {
         // stick an array list on the top of the stack into which we will
@@ -270,18 +278,12 @@ public class TileSetBundler
         JarOutputStream jar = new JarOutputStream(fout, manifest);
 
         try {
-            // first write a serialized representation of the tileset
-            // bundle object to the bundle jar file
-            JarEntry entry = new JarEntry(BundleUtil.METADATA_PATH);
-            jar.putNextEntry(entry);
-            ObjectOutputStream oout = new ObjectOutputStream(jar);
-            oout.writeObject(bundle);
-            oout.flush();
-
-            // now write all of the image files to the bundle
-            Iterator setiter = bundle.enumerateTileSets();
-            while (setiter.hasNext()) {
-                TileSet set = (TileSet)setiter.next();
+            // write all of the image files to the bundle, converting the
+            // tilesets to trimmed tilesets in the process
+            Iterator iditer = bundle.enumerateTileSetIds();
+            while (iditer.hasNext()) {
+                int tileSetId = ((Integer)iditer.next()).intValue();
+                TileSet set = bundle.getTileSet(tileSetId);
                 String imagePath = set.getImagePath();
 
                 // sanity checks
@@ -291,12 +293,48 @@ public class TileSetBundler
                     continue;
                 }
 
-                // open the image and pipe it into the jar file
-                File imgfile = new File(bundleDesc.getParent(), imagePath);
-                FileInputStream imgin = new FileInputStream(imgfile);
+                // let the jar file know what's coming
                 jar.putNextEntry(new JarEntry(imagePath));
-                StreamUtils.pipe(imgin, jar);
+
+                // if this is an object tileset, we can't trim it!
+                if (set instanceof ObjectTileSet) {
+                    // set the tileset up with an image provider; we need to
+                    // do this so that we can trim it!
+                    set.setImageProvider(new ImageProvider() {
+                        public Image loadImage (String path)
+                            throws IOException {
+                            File source = new File(bundleDesc.getParent(),
+                                                   path);
+                            return ImageIO.read(source);
+                        }
+                    });
+
+                    // create a trimmed object tileset, which will write
+                    // the trimmed tileset image to the jar output stream
+                    TrimmedObjectTileSet tset =
+                        TrimmedObjectTileSet.trimObjectTileSet(
+                            (ObjectTileSet)set, jar);
+                    tset.setImagePath(imagePath);
+                    Log.info("Trimmed! " + tset);
+                    // replace the original set with the trimmed tileset
+                    // in the tileset bundle
+                    bundle.addTileSet(tileSetId, tset);
+
+                } else {
+                    // open the image and pipe it into the jar file
+                    File imgfile = new File(bundleDesc.getParent(), imagePath);
+                    FileInputStream imgin = new FileInputStream(imgfile);
+                    StreamUtils.pipe(imgin, jar);
+                }
             }
+
+            // now write a serialized representation of the tileset bundle
+            // object to the bundle jar file
+            JarEntry entry = new JarEntry(BundleUtil.METADATA_PATH);
+            jar.putNextEntry(entry);
+            ObjectOutputStream oout = new ObjectOutputStream(jar);
+            oout.writeObject(bundle);
+            oout.flush();
 
             // finally close up the jar file and call ourself done
             jar.close();
