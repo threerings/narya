@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneRepository.java,v 1.4 2001/08/02 18:59:00 shaper Exp $
+// $Id: XMLSceneRepository.java,v 1.5 2001/08/09 00:01:58 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -30,43 +30,71 @@ public class XMLFileSceneRepository extends SceneRepositoryImpl
     public void init (Config config, TileManager tilemgr)
     {
         super.init(config, tilemgr);
-        _root = _config.getValue(CFG_ROOT, DEF_ROOT);
+
+	// get path-related information
+	_sep = System.getProperty("file.separator", "/");
+	_root = System.getProperty("root", "");
+        _sceneRoot = _config.getValue(CFG_SROOT, DEF_SROOT);
+
+	// create the parser and writer objects
         _parser = new XMLSceneParser(_tilemgr);
         _writer = new XMLSceneWriter();
     }
 
     /**
+     * Return the path to the scene root directory.
+     */
+    public String getScenePath ()
+    {
+	return _root + _sep + _sceneRoot + _sep;
+    }
+
+    /**
      * Loads and returns a Scene object for the scene described in the
-     * specified XML file.
+     * specified XML file.  The filename should be relative to the
+     * scene root directory.
      *
      * @param fname the full pathname to the file.
      * @return the Scene object.
      */
     public Scene loadScene (String fname) throws IOException
     {
-        return _parser.loadScene(fname);
+	String path = getScenePath() + fname;
+	Log.info("Loading scene [path=" + path + "].");
+
+        return _parser.loadScene(path);
     }
 
     /**
      * Writes a scene to the specified file in the scene root
-     * directory in XML format.
+     * directory in XML format.  The filename should be relative to
+     * the scene root directory.
      *
      * @param scene the scene to save.
      * @param fname the file to write the scene to.
      */
     public void saveScene (Scene scene, String fname) throws IOException
     {
-        _writer.saveScene(scene, fname);
+	String path = getScenePath() + fname;
+	Log.info("Saving scene [path=" + path + "].");
+
+        _writer.saveScene(scene, path);
     }
 
     /** The config key for the root scene directory. */
-    protected static final String CFG_ROOT = "miso.sceneroot";
+    protected static final String CFG_SROOT = "miso.sceneroot";
 
     /** The default root scene directory path. */
-    protected static final String DEF_ROOT = "rsrc/scenes";
+    protected static final String DEF_SROOT = "rsrc/scenes";
+
+    /** The main program absolute root directory. */
+    protected String _root;
 
     /** The root scene directory path. */
-    protected String _root;
+    protected String _sceneRoot;
+
+    /** The file separator string. */
+    protected String _sep;
 
     /** The parser object for reading scenes from files. */
     protected XMLSceneParser _parser;
