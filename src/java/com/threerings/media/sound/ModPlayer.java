@@ -1,5 +1,5 @@
 //
-// $Id: ModPlayer.java,v 1.2 2002/11/20 23:06:33 ray Exp $
+// $Id: ModPlayer.java,v 1.3 2002/11/22 04:23:31 ray Exp $
 
 package com.threerings.media;
 
@@ -20,36 +20,32 @@ import com.threerings.resource.ResourceManager;
 /**
  * Does something extraordinary.
  */
-public class ModPlayer
+public class ModPlayer extends MusicPlayer
 {
-    public ModPlayer (ResourceManager rmgr, SoundManager smgr)
+    // documentation inherited
+    public void init ()
     {
-        _rmgr = rmgr;
-        _smgr = smgr;
-
         try {
             _device = new NaryaSoundDevice();
+            _device.start();
         } catch (OutputDeviceException ode) {
             Log.warning("Unable to allocate sound channel for mod playing " +
                 "[e=" + ode + "].");
         }
     }
 
-    public void stop ()
+    // documentation inherited
+    public void shutdown ()
     {
-        _player = null;
+        _device.stop();
     }
 
+    // documentation inherited
     public void start (String set, String path)
+        throws Exception
     {
-        Module module = null;
-        try {
-            module = ModuleLoader.read(
-                new DataInputStream(_rmgr.getResource(set, path)));
-        } catch (IOException ioe) {
-            Log.warning("error loading oh shit oh shit: [e=" + ioe + "].");
-            return;
-        }
+        Module module = ModuleLoader.read(
+            new DataInputStream(_rmgr.getResource(set, path)));
 
         final MicroMod mod = new MicroMod(
             module, _device, new LinearResampler());
@@ -57,9 +53,7 @@ public class ModPlayer
         _player = new Thread("narya mod player") {
             public void run () {
 
-                _device.start();
-                while ((_player == Thread.currentThread()) &&
-                       (mod.getSequenceLoopCount() == 0)) {
+                while (mod.getSequenceLoopCount() == 0) {
 
                     mod.doRealTimePlayback();
                     try {
@@ -67,9 +61,14 @@ public class ModPlayer
                     } catch (InterruptedException ie) {
                         // WFCares
                     }
+
+                    if (_player != Thread.currentThread()) {
+                        // we were stopped!
+                        return;
+                    }
                 }
-                _device.stop();
-                _smgr.songStopEvent();
+                _device.drain();
+                _musicListener.musicStopped();
             }
         };
 
@@ -77,10 +76,13 @@ public class ModPlayer
         _player.start();
     }
 
-    /**
-     * Set the volume of the midiplayer.
-     * @param vol 0f - 1f (inclusive).
-     */
+    // documentation inherited
+    public void stop ()
+    {
+        _player = null;
+    }
+
+    // documentation inherited
     public void setVolume (float vol)
     {
         _device.setVolume(vol);
@@ -105,11 +107,16 @@ public class ModPlayer
         {
             SoundManager.adjustVolume(sourceDataLine, vol);
         }
+
+        /**
+         * Access the drain method of the line.
+         */
+        public void drain ()
+        {
+            sourceDataLine.drain();
+        }
     }
 
     protected Thread _player;
     protected NaryaSoundDevice _device;
-
-    protected ResourceManager _rmgr;
-    protected SoundManager _smgr;
 }

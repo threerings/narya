@@ -1,5 +1,5 @@
 //
-// $Id: MP3Manager.java,v 1.2 2002/11/20 04:03:09 ray Exp $
+// $Id: Mp3Player.java,v 1.1 2002/11/22 04:23:31 ray Exp $
 
 package com.threerings.media;
 
@@ -24,21 +24,24 @@ import com.threerings.resource.ResourceManager;
 /**
  * Does something extraordinary.
  */
-public class MP3Manager
+public class Mp3Player extends MusicPlayer
 {
-    public MP3Manager (ResourceManager rmgr, SoundManager smgr)
+    // documentation inherited
+    public void init ()
     {
-        _rmgr = rmgr;
-        _smgr = smgr;
     }
 
-    public void stop ()
+    // documentation inherited
+    public void shutdown ()
     {
-        _player = null;
     }
 
+    // documentation inherited
     public void start (final String set, final String path)
+        throws Exception
     {
+        // TODO: some stuff needs to come out of here and into init/shutdown
+        // but we'll deal with all that later, d00d.
         _player = new Thread("narya mp3 relay") {
             public void run () {
                 AudioInputStream inStream = null;
@@ -79,7 +82,7 @@ public class MP3Manager
 
                 byte[] data = new byte[BUFFER_SIZE];
                 int count = 0;
-                while (_player == Thread.currentThread()) {
+                while (count >= 0) {
                     try {
                         count = inStream.read(data, 0, data.length);
                     } catch (IOException ioe) {
@@ -88,13 +91,15 @@ public class MP3Manager
                     }
                     if (count >= 0) {
                         line.write(data, 0, count);
-                    } else {
-                        break;
+                    }
+                    if (_player != Thread.currentThread()) {
+                        return;
                     }
                 }
 
+                line.drain();
                 line.close();
-                _smgr.songStopEvent();
+                _musicListener.musicStopped();
             }
         };
 
@@ -103,10 +108,19 @@ public class MP3Manager
         _player.start();
     }
 
+    // documentation inherited
+    public void stop ()
+    {
+        _player = null;
+    }
+
+    // documentation inherited
+    public void setVolume (float volume)
+    {
+        // TODO
+    }
+
     protected Thread _player;
 
-    protected ResourceManager _rmgr;
-    protected SoundManager _smgr;
-
-    protected static final int BUFFER_SIZE = 128000;
+    protected static final int BUFFER_SIZE = 8192;
 }

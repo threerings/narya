@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.23 2002/11/20 23:06:33 ray Exp $
+// $Id: SoundManager.java,v 1.24 2002/11/22 04:23:31 ray Exp $
 
 package com.threerings.media;
 
@@ -15,17 +15,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MetaEventListener;
-import javax.sound.midi.MetaMessage;
-import javax.sound.midi.MidiChannel;
-import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.Receiver;
-import javax.sound.midi.Sequencer;
-import javax.sound.midi.Synthesizer;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -64,7 +53,7 @@ import com.threerings.media.Log;
 //   -- CLEANUP is NEEDED (lots of references to Sequences, when we're now
 //   playing mods and mp3s as well. )
 public class SoundManager
-    implements MetaEventListener
+    implements MusicPlayer.MusicEventListener
 {
     /**
      * Create instances of this for your application to differentiate
@@ -109,7 +98,7 @@ public class SoundManager
             public void run () {
                 Object command = null;
                 SoundKey key = null;
-                MidiInfo midiInfo = null;
+                MusicInfo musicInfo = null;
 
                 while (amRunning()) {
                     try {
@@ -126,7 +115,7 @@ public class SoundManager
                                 key = (SoundKey) _queue.get();
 
                             } else if (PLAYMUSIC == command) {
-                                midiInfo = (MidiInfo) _queue.get();
+                                musicInfo = (MusicInfo) _queue.get();
                             }
                         }
 
@@ -135,10 +124,10 @@ public class SoundManager
                             playSound(key);
 
                         } else if (PLAYMUSIC == command) {
-                            playSequence(midiInfo);
+                            playMusic(musicInfo);
 
                         } else if (STOPMUSIC == command) {
-                            stopSequence(key);
+                            stopMusic(key);
 
                         } else if (LOCK == command) {
                             _clipCache.lock(key);
@@ -159,7 +148,7 @@ public class SoundManager
                         } else if (DIE == command) {
                             _resourceFreer.stop();
                             flushResources(true);
-                            shutdownMidi();
+                            shutdownMusic();
                         }
                     } catch (Exception e) {
                         Log.warning("Captured exception in SoundManager loop.");
@@ -320,7 +309,7 @@ public class SoundManager
     {
         synchronized (_queue) {
             _queue.append(PLAYMUSIC);
-            _queue.append(new MidiInfo(set, path, numloops));
+            _queue.append(new MusicInfo(set, path, numloops));
         }
     }
 
@@ -333,78 +322,6 @@ public class SoundManager
         synchronized (_queue) {
             _queue.append(STOPMUSIC);
             _queue.append(new SoundKey(set, path));
-        }
-    }
-
-    /**
-     * Get a list of alternate midi devices.
-     */
-    public MidiDevice.Info[] getAlternateMidiDevices ()
-    {
-        ArrayList infos = new ArrayList();
-        CollectionUtil.addAll(infos, MidiSystem.getMidiDeviceInfo());
-
-        // remove the synth/seqs, leaving only hardware midi thingies
-        for (Iterator iter=infos.iterator(); iter.hasNext(); ) {
-            try {
-                MidiDevice dev = MidiSystem.getMidiDevice(
-                    (MidiDevice.Info) iter.next());
-                if ((dev instanceof Sequencer) ||
-                    (dev instanceof Synthesizer)) {
-                    iter.remove();
-                }
-            } catch (MidiUnavailableException mue) {
-                iter.remove();
-            }
-        }
-
-        return (MidiDevice.Info[]) infos.toArray(
-            new MidiDevice.Info[infos.size()]);
-    }
-
-    /**
-     * Attempt to use the alternate midi device for output.
-     * Return true if we're using it.
-     */
-    public boolean useAlternateDevice (MidiDevice.Info devinfo)
-    {
-        Log.info("Trying alternate device: " + devinfo);
-        try {
-            MidiDevice dev = MidiSystem.getMidiDevice(devinfo);
-            Receiver rec = dev.getReceiver();
-            if (rec == null) {
-                Log.info("Got no device!");
-                return false;
-            }
-            _stoppingSong = true;
-            _sequencer.stop();
-            _sequencer.close();
-
-            Receiver old = _sequencer.getTransmitter().getReceiver();
-            Log.info("Old receiver: " + old);
-            if (old != null) {
-                old.close();
-            }
-            _sequencer.open();
-
-            // THIS DOESN'T WORK.
-            // See bug #4347135, specifically notes on the bottom.
-            _sequencer.getTransmitter().setReceiver(rec);
-            playTopSong();
-
-            // possibly shut down an old receiver
-            if (_receiver != null) {
-                _receiver.close();
-            }
-            // set the new receiver
-            _receiver = rec;
-
-            return true;
-
-        } catch (MidiUnavailableException mue) {
-            Log.warning("Use of alternate device failed [e=" + mue +
-                ", device=" + devinfo + "].");
-            return false;
         }
     }
 
@@ -468,88 +385,107 @@ public class SoundManager
     }
 
     /**
-     * Play a sequence from the specified path.
+     * Play a song from the specified path.
      */
-    protected void playSequence (MidiInfo info)
+    protected void playMusic (MusicInfo info)
     {
-        if (_sequencer == null) {
-            initMidi();
+        Log.info("Playing: " + info);
+        // stop whatever's currently playing
+        if (_musicPlayer != null) {
+            _musicPlayer.stop();
+            handleMusicStopped();
         }
 
-        stopCurrentSong(false);
-        _midiStack.addFirst(info);
-        playTopSong();
+        // add the new song
+        _musicStack.addFirst(info);
+
+        // and play it
+        playTopMusic();
     }
 
     /**
      * Start the specified sequence.
      */
-    protected void playTopSong ()
+    protected void playTopMusic ()
     {
-        if (_midiStack.isEmpty()) {
+        if (_musicStack.isEmpty()) {
             return;
         }
 
-        MidiInfo info = (MidiInfo) _midiStack.getFirst();
+        MusicInfo info = (MusicInfo) _musicStack.getFirst();
+        Class playerClass = getMusicPlayerClass(info.path);
 
-        // start the new one
-        try {
-            if (info.path.endsWith(".mp3")) {
-                _mp3player.start(info.set, info.path);
-
-            } else if (info.path.endsWith(".mod")) {
-                _modplayer.start(info.set, info.path);
-
-            } else {
-                _sequencer.setSequence(getMidiData(info));
-                if (info.msPosition != -1) {
-                    // TODO: this doesn't work correctly
-                    _sequencer.setTickPosition(info.tickPosition);
-                    _sequencer.setMicrosecondPosition(info.msPosition);
-                    info.msPosition = -1;
-                }
-                _sequencer.start();
-                //updateMusicVolume();
-                //Log.info("Now playing : " + info.path);
+        // shutdown the old player if we're switching music types
+        if (! playerClass.isInstance(_musicPlayer)) {
+            if (_musicPlayer != null) {
+                _musicPlayer.shutdown();
             }
 
-        } catch (InvalidMidiDataException imda) {
-            Log.warning("Invalid midi data, not playing [path=" +
-                info.path + "].");
+            // set up the new player
+            try {
+                _musicPlayer = (MusicPlayer) playerClass.newInstance();
+            } catch (Exception e) {
+                Log.warning("Unable to instantiate music player [class=" +
+                        playerClass + "].");
 
-        } catch (IOException ioe) {
-            Log.warning("ioe=" + ioe);
+                // scrap it, try again with the next song
+                _musicPlayer = null;
+                _musicStack.removeFirst();
+                playTopMusic();
+                return;
+            }
+
+            _musicPlayer.init(_rmgr, this);
+            _musicPlayer.setVolume(_musicVol);
+        }
+
+        // play!
+        try {
+            _musicPlayer.start(info.set, info.path);
+        } catch (Exception e) {
+            Log.warning("Error playing music, skipping [e=" + e +
+                ", set=" + info.set + ", path=" + info.path + "].");
+            _musicStack.removeFirst();
+            playTopMusic();
+            return;
+        }
+    }
+
+    /**
+     * Get the appropriate music player for the specified music file.
+     */
+    protected static Class getMusicPlayerClass (String path)
+    {
+        path = path.toLowerCase();
+
+        if (path.endsWith(".mid") || path.endsWith(".rmf")) {
+            return MidiPlayer.class;
+
+        } else if (path.endsWith(".mod")) {
+            return ModPlayer.class;
+
+        } else if (path.endsWith(".mp3")) {
+            return Mp3Player.class;
+
+        } else {
+            return null;
         }
     }
 
     /**
      * Stop whatever song is currently playing and deal with the
-     * MidiInfo associated with it.
+     * MusicInfo associated with it.
      */
-    protected void stopCurrentSong (boolean wasStopped)
+    protected void handleMusicStopped ()
     {
-        if (_midiStack.isEmpty()) {
+        if (_musicStack.isEmpty()) {
             return;
         }
 
         // see what was playing
-        MidiInfo current = (MidiInfo) _midiStack.getFirst();
+        MusicInfo current = (MusicInfo) _musicStack.getFirst();
 
-        // stop the existing song
-        if (!wasStopped) {
-            // TODO: fade?
-            _stoppingSong = true;
-            if (current.path.endsWith(".mp3")) {
-                _mp3player.stop();
-
-            } else if (current.path.endsWith(".mod")) {
-                _modplayer.stop();
-
-            } else {
-                _sequencer.stop();
-            }
-        }
-
+        // see how many times the song was to loop and act accordingly
         switch (current.loops) {
         default:
             current.loops--;
@@ -557,15 +493,7 @@ public class SoundManager
 
         case 1:
             // sorry charlie
-            _midiStack.removeFirst();
-            break;
-
-        case -1:
-            // save info...
-            // TODO: this doesn't seem to work, and is out-n-out broken
-            // if we use the tickPos
-            current.msPosition = _sequencer.getMicrosecondPosition();
-            current.tickPosition = _sequencer.getTickPosition();
+            _musicStack.removeFirst();
             break;
         }
     }
@@ -573,34 +501,27 @@ public class SoundManager
     /**
      * Stop the sequence at the specified path.
      */
-    protected void stopSequence (SoundKey key)
+    protected void stopMusic (SoundKey key)
     {
-        if (! _midiStack.isEmpty()) {
-            MidiInfo current = (MidiInfo) _midiStack.getFirst();
+        Log.info("Stopping: " + key);
+        if (! _musicStack.isEmpty()) {
+            MusicInfo current = (MusicInfo) _musicStack.getFirst();
 
             // if we're currently playing this song..
             if (key.equals(current)) {
+                Log.info("is top song!");
 
                 // stop it
-                _stoppingSong = true;
-                if (key.path.endsWith(".mp3")) {
-                    _mp3player.stop();
-
-                } else if (key.path.endsWith(".mod")) {
-                    _modplayer.stop();
-
-                } else {
-                    _sequencer.stop();
-                }
+                _musicPlayer.stop();
 
                 // remove it from the stack
-                _midiStack.removeFirst();
+                _musicStack.removeFirst();
                 // start playing the next..
-                playTopSong();
+                playTopMusic();
 
             } else {
                 // we aren't currently playing this song. Simply remove.
-                for (Iterator iter=_midiStack.iterator(); iter.hasNext(); ) {
+                for (Iterator iter=_musicStack.iterator(); iter.hasNext(); ) {
                     if (key.equals(iter.next())) {
                         iter.remove();
                         return;
@@ -615,118 +536,27 @@ public class SoundManager
     }
 
     /**
-     * Initialize the midi system.
-     */
-    protected void initMidi ()
-    {
-        _mp3player = new MP3Manager(_rmgr, this);
-        _modplayer = new ModPlayer(_rmgr, this);
-        _modplayer.setVolume(_musicVol);
-
-        try {
-            Sequencer seq = MidiSystem.getSequencer();
-//            Sequencer seq = getTritonusSequencer();
-            seq.open();
-            if (seq instanceof Synthesizer) {
-                _midiChannels = ((Synthesizer) seq).getChannels();
-                //updateMusicVolume();
-            }
-            _sequencer = seq;
-            _sequencer.addMetaEventListener(this);
-
-            Log.info("Seq class: " + _sequencer.getClass());
-
-//            _sequencer.getTransmitter().setReceiver(new Receiver() {
-//                public void close ()
-//                {
-//                }
-//
-//                public void send (javax.sound.midi.MidiMessage msg, long stamp)
-//                {
-//                    Log.info("msg : " + msg);
-//                }
-//            });
-
-        } catch (MidiUnavailableException mue) {
-            Log.warning("Midi unavailable. Can't play music.");
-            return;
-        }
-    }
-
-    protected Sequencer getTritonusSequencer ()
-        throws MidiUnavailableException
-    {
-        MidiDevice.Info[] info = MidiSystem.getMidiDeviceInfo();
-        for (int ii=0; ii < info.length; ii++) {
-            if (info[ii].toString().indexOf("Tritonus") != -1) {
-                MidiDevice dev = MidiSystem.getMidiDevice(info[ii]);
-                if (dev instanceof Sequencer) {
-                    return (Sequencer) dev;
-                }
-            }
-        }
-
-        Log.info("ACK SPUTTER!");
-        return MidiSystem.getSequencer();
-    }
-
-    /**
-     * Stop playing and shutdown the midi system.
-     */
-    protected void shutdownMidi ()
-    {
-        _sequencer.removeMetaEventListener(this);
-        stopCurrentSong(false);
-        _sequencer.close();
-        if (_receiver != null) {
-            _receiver.close();
-        }
-        _sequencer = null;
-        _midiChannels = null;
-        _midiStack.clear();
-    }
-
-    /**
      * Attempt to modify the music volume for any playing tracks.
      */
     protected void updateMusicVolume ()
     {
-        if (_modplayer != null) {
-            _modplayer.setVolume(_musicVol);
-        }
-
-        if (_midiChannels == null) {
-            Log.warning("Cannot modify music volume!");
-
-        } else {
-            int setting = (int) (_musicVol * 127.0);
-            for (int ii=0; ii < _midiChannels.length; ii++) {
-                _midiChannels[ii].controlChange(MIDI_VOLUME_CONTROL, setting);
-            }
+        if (_musicPlayer != null) {
+            _musicPlayer.setVolume(_musicVol);
         }
     }
 
-    // documentation inherited from interface MetaEventListener
-    public void meta (MetaMessage msg)
+    // documentation inherited from interface MusicPlayer.MusicEventListener
+    public void musicStopped ()
     {
-//        Log.info("meta message: " + msg.getType() + ", msg=" +
-//                    new String(msg.getData()));
-
-        if (msg.getType() == MIDI_END_OF_TRACK) {
-            songStopEvent();
-        }
+        handleMusicStopped();
+        playTopMusic();
     }
 
-    /**
-     * Submitted by external players like the MP3Manager.
-     */
-    public void songStopEvent ()
+    protected void shutdownMusic ()
     {
-        if (_stoppingSong) {
-            _stoppingSong = false;
-        } else {
-            stopCurrentSong(true);
-            playTopSong();
+        if (_musicPlayer != null) {
+            _musicPlayer.stop();
+            _musicPlayer.shutdown();
         }
     }
 
@@ -764,7 +594,8 @@ public class SoundManager
         } else {
             // set it up and put it in the cache
             AudioInputStream stream = AudioSystem.getAudioInputStream(
-                getResource(key));
+                new ByteArrayInputStream(StreamUtils.streamAsBytes(
+                _rmgr.getResource(key.set, key.path), BUFFER_SIZE)));
             DataLine.Info dinfo = new DataLine.Info(
                 Clip.class, stream.getFormat());
             info = new ClipInfo(dinfo, stream);
@@ -772,37 +603,6 @@ public class SoundManager
         }
 
         return info;
-    }
-
-    /**
-     * Get the midi data for the specified path.
-     */
-    protected InputStream getMidiData (MidiInfo info)
-        throws IOException
-    {
-        InputStream stream = (InputStream) _midiCache.get(info);
-        if (stream != null) {
-            // reset the stream for the new user
-            stream.reset();
-
-        } else {
-            stream = getResource(info);
-            _midiCache.put(info, stream);
-        }
-
-        return stream;
-    }
-
-
-    /**
-     * Get the data specified by the path from the resource bundle.
-     * No caching is done.
-     */
-    protected InputStream getResource (SoundKey key)
-        throws IOException
-    {
-        return new ByteArrayInputStream(StreamUtils.streamAsBytes(
-                _rmgr.getResource(key.set, key.path), BUFFER_SIZE));
     }
 
 //    /**
@@ -1042,7 +842,8 @@ public class SoundManager
         {
             if (o instanceof SoundKey) {
                 SoundKey that = (SoundKey) o;
-                return (this.path == that.path) && (this.set == that.set);
+                return this.path.equals(that.path) &&
+                       this.set.equals(that.set);
             }
             return false;
         }
@@ -1067,18 +868,14 @@ public class SoundManager
     }
 
     /**
-     * A class that tracks the information about our playing midi files.
+     * A class that tracks the information about our playing music files.
      */
-    protected static class MidiInfo extends SoundKey
+    protected static class MusicInfo extends SoundKey
     {
         /** How many times to loop, or -1 for forever. */
         public int loops;
 
-        /** The position of big loopers, or -1 if none. */
-        public long tickPosition = -1;
-        public long msPosition = -1;
-
-        public MidiInfo (String set, String path, int loops)
+        public MusicInfo (String set, String path, int loops)
         {
             super(set, path);
             this.loops = loops;
@@ -1106,10 +903,6 @@ public class SoundManager
 
     /** The queue of sound clips to be played. */
     protected Queue _queue = new Queue();
-    
-    /** So that we ignore the stopped meta event when we stop a song
-     * ourselves. */
-    protected boolean _stoppingSong = false;
 
     /** Volume levels for both sound clips and music. */
     protected float _clipVol = 1f, _musicVol = 1f;
@@ -1117,28 +910,14 @@ public class SoundManager
     /** The cache of recent audio clips . */
     protected LockableLRUHashMap _clipCache = new LockableLRUHashMap(10);
 
-    /** The cache of recent midi sequences. */
-    protected LRUHashMap _midiCache = new LRUHashMap(4);
-
     /** The clips that are currently active. */
     protected ArrayList _activeClips = new ArrayList();
 
-    /** The sequencer that plays midi music. */
-    protected Sequencer _sequencer;
-
-    protected MP3Manager _mp3player;
-
-    protected ModPlayer _modplayer;
-
-    /** The receiver used to send midi from the sequencer to an alternate
-     * midi device. */
-    protected Receiver _receiver;
-
-    /** The channels in the sequencer, which we'll use to fuxor volumes. */
-    protected MidiChannel[] _midiChannels;
-
     /** The stack of songs that we're playing. */
-    protected LinkedList _midiStack = new LinkedList();
+    protected LinkedList _musicStack = new LinkedList();
+
+    /** The current music player, if any. */
+    protected MusicPlayer _musicPlayer;
 
     /** A set of soundTypes for which sound is enabled. */
     protected HashSet _disabledTypes = new HashSet();
@@ -1152,12 +931,6 @@ public class SoundManager
     protected Object UNLOCK = new Object();
     protected Object FLUSH = new Object();
     protected Object DIE = new Object();
-
-    /** This is apparently the midi code for end of track. Wack. */
-    protected static final int MIDI_END_OF_TRACK = 47;
-
-    /** The midi control for volume is 7. Ooooooo. */
-    protected static final int MIDI_VOLUME_CONTROL = 7;
 
     /** The queue size at which we start to ignore requests to play sounds. */
     protected static final int MAX_QUEUE_SIZE = 100;
