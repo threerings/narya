@@ -1,11 +1,7 @@
 //
-// $Id: TypedObject.java,v 1.3 2001/05/30 23:58:31 mdb Exp $
+// $Id: TypedObject.java,v 1.4 2001/08/16 03:25:14 mdb Exp $
 
 package com.threerings.cocktail.cher.io;
-
-import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
 /**
  * A typed object is one that is associated with a particular type code.
@@ -15,7 +11,7 @@ import java.io.DataOutputStream;
  *
  * @see TypedObjectFactory
  */
-public interface TypedObject
+public interface TypedObject extends Streamable
 {
     /**
      * Each typed object class must associate itself with a type value via
@@ -26,16 +22,4 @@ public interface TypedObject
      * @return The type code associated with this object.
      */
     public short getType ();
-
-    /**
-     * Each typed object class must be able to write itself to a stream.
-     */
-    public void writeTo (DataOutputStream out)
-        throws IOException;
-
-    /**
-     * Each typed object class must be able to read itself from a stream.
-     */
-    public void readFrom (DataInputStream in)
-        throws IOException;
 }
