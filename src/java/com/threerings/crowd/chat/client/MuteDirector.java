@@ -1,8 +1,9 @@
 //
-// $Id: MuteDirector.java,v 1.2 2002/07/27 01:58:57 ray Exp $
+// $Id: MuteDirector.java,v 1.3 2002/10/25 20:32:41 ray Exp $
 
 package com.threerings.crowd.chat;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import com.threerings.crowd.util.CrowdContext;
@@ -15,6 +16,18 @@ import com.threerings.crowd.util.CrowdContext;
 public class MuteDirector
     implements ChatValidator
 {
+    /**
+     * An interface that can be registered with the MuteDirector to
+     * receive notifications to the mutelist.
+     */
+    public static interface MuteObserver
+    {
+        /**
+         * The specified player was added or removed from the mutelist.
+         */
+        public void muteChanged (String playername, boolean nowMuted);
+    }
+
     /**
      * Should be instantiated after the ChatDirector.
      */
@@ -36,6 +49,24 @@ public class MuteDirector
     }
 
     /**
+     * Add the specified mutelist observer.
+     */
+    public void addMuteObserver (MuteObserver obs)
+    {
+        if (!_observers.contains(obs)) {
+            _observers.add(obs);
+        }
+    }
+
+    /**
+     * Remove the specified mutelist observer.
+     */
+    public void removeMuteObserver (MuteObserver obs)
+    {
+        _observers.remove(obs);
+    }
+
+    /**
      * Check to see if the specified user is muted.
      */
     public boolean isMuted (String username)
@@ -48,10 +79,8 @@ public class MuteDirector
      */
     public void setMuted (String username, boolean mute)
     {
-        if (mute) {
-            _mutelist.add(username);
-        } else {
-            _mutelist.remove(username);
+        if (mute ? _mutelist.add(username) : _mutelist.remove(username)) {
+            notifyObservers(username, mute);
         }
     }
 
@@ -72,9 +101,22 @@ public class MuteDirector
         return true; // let it go through..
     }
 
+    /**
+     * Notify our observers of a change in the mutelist.
+     */
+    protected void notifyObservers (String username, boolean muted)
+    {
+        for (int ii=0, nn=_observers.size(); ii < nn; ii++) {
+            ((MuteObserver) _observers.get(ii)).muteChanged(username, muted);
+        }
+    }
+
     /** The chat director that we're working hard for. */
     protected ChatDirector _chatdir;
 
     /** The mutelist. */
     protected HashSet _mutelist = new HashSet();
+
+    /** List of mutelist observers. */
+    protected ArrayList _observers = new ArrayList();
 }
