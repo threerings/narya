@@ -1,5 +1,5 @@
 //
-// $Id: CrowdClient.java,v 1.18 2002/12/02 23:18:06 mdb Exp $
+// $Id: CrowdClient.java,v 1.19 2002/12/03 06:58:57 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -47,9 +47,21 @@ public class CrowdClient extends PresentsClient
         // clear out our location so that anyone listening for such things
         // will know that we've left
         if (_clobj != null) {
-            CrowdServer.plreg.locprov.leaveOccupiedPlace((BodyObject)_clobj);
+            clearLocation((BodyObject)_clobj);
         }
 
         super.sessionDidEnd();
+    }
+
+    /**
+     * When the user ends their session, this method is called to clear
+     * out any location they might occupy. The default implementation
+     * takes care of standard crowd location occupancy, but users of other
+     * services may which to override this method and clear the user out
+     * of a scene, zone or other location-derived occupancy.
+     */
+    protected void clearLocation (BodyObject bobj)
+    {
+        CrowdServer.plreg.locprov.leaveOccupiedPlace(bobj);
     }
 }

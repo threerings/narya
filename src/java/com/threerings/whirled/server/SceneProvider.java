@@ -1,5 +1,5 @@
 //
-// $Id: SceneProvider.java,v 1.12 2002/09/20 00:54:06 mdb Exp $
+// $Id: SceneProvider.java,v 1.13 2002/12/03 06:58:57 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -113,6 +113,20 @@ public class SceneProvider
 
         // then send a forced move notification
         SceneSender.forcedMove(source, sceneId);
+    }
+
+    /**
+     * Ejects the specified body from their current scene and zone. This
+     * is the zone equivalent to {@link
+     * LocationProvider#leaveOccupiedPlace}.
+     */
+    public void leaveOccupiedScene (ScenedBodyObject source)
+    {
+        // remove them from their occupied place
+        _locprov.leaveOccupiedPlace((BodyObject)source);
+
+        // and clear out their scene information
+        source.setSceneId(-1);
     }
 
     /** The location provider we use to handle low-level location stuff. */

@@ -1,5 +1,5 @@
 //
-// $Id: ZoneProvider.java,v 1.12 2002/10/04 01:33:10 mdb Exp $
+// $Id: ZoneProvider.java,v 1.13 2002/12/03 06:58:57 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -185,13 +185,27 @@ public class ZoneProvider
      * request to move to the specified new zone and scene. This is the
      * zone-equivalent to {@link LocationProvider#moveBody}.
      */
-    public void moveBody (BodyObject source, int zoneId, int sceneId)
+    public void moveBody (ZonedBodyObject source, int zoneId, int sceneId)
     {
-        // first remove them from their old place
-        _locprov.leaveOccupiedPlace(source);
+        // first remove them from their old location
+        leaveOccupiedZone(source);
 
         // then send a forced move notification
-        ZoneSender.forcedMove(source, zoneId, sceneId);
+        ZoneSender.forcedMove((BodyObject)source, zoneId, sceneId);
+    }
+
+    /**
+     * Ejects the specified body from their current scene and zone. This
+     * is the zone equivalent to {@link
+     * LocationProvider#leaveOccupiedPlace}.
+     */
+    public void leaveOccupiedZone (ZonedBodyObject source)
+    {
+        // remove them from their occupied scene
+        _screg.sceneprov.leaveOccupiedScene(source);
+
+        // and clear out their zone information
+        source.setZoneId(-1);
     }
 
     /** The entity that handles basic location changes. */
