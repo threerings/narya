@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneMetrics.java,v 1.3 2003/04/19 23:06:20 mdb Exp $
+// $Id: MisoSceneMetrics.java,v 1.4 2003/05/12 02:04:16 mdb Exp $
 
 package com.threerings.miso.util;
 
@@ -24,7 +24,7 @@ public class MisoSceneMetrics
     public int finegran;
 
     /** Dimensions of our scene blocks in tile count. */
-    public short blockwid = 9, blockhei = 9;
+    public short blockwid = 4, blockhei = 4;
 
     /** The length of a tile edge in pixels. */
     public float tilelen;
