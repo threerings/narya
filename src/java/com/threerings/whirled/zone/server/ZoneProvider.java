@@ -1,5 +1,5 @@
 //
-// $Id: ZoneProvider.java,v 1.18 2004/08/27 02:20:51 mdb Exp $
+// $Id: ZoneProvider.java,v 1.19 2004/10/30 04:33:22 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -67,7 +67,6 @@ public class ZoneProvider
      * Processes a request from a client to move to a scene in a new zone.
      *
      * @param caller the user requesting the move.
-     * @param invid the invocation id of the request.
      * @param zoneId the qualified zone id of the new zone.
      * @param sceneId the identifier of the new scene.
      * @param sceneVer the version of the scene model currently held by
