@@ -1,5 +1,5 @@
 <!-- build configuration -->
-<project name="narya tests" default="test" basedir=".">
+<project name="narya tests" default="compile" basedir=".">
 
   <!-- things you may want to change -->
   <property name="build.compiler" value="jikes"/>
