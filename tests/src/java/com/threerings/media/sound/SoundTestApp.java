@@ -1,5 +1,5 @@
 //
-// $Id: SoundTestApp.java,v 1.2 2002/11/12 22:55:59 shaper Exp $
+// $Id: SoundTestApp.java,v 1.3 2002/12/10 21:36:53 mdb Exp $
 
 package com.threerings.media;
 
@@ -13,20 +13,31 @@ public class SoundTestApp
     {
         if (args.length == 0) {
             Log.info("Usage: runjava com.threerings.media.SoundTestApp " +
-                     "<file1> [<file2> <file3> ...]");
+                     "<key1> [<key2> <key3> ...]");
             System.exit(0);
         }
 
         ResourceManager rmgr = new ResourceManager("rsrc");
         _soundmgr = new SoundManager(rmgr);
-        _files = args;
+        _keys = args;
     }
 
     public void run ()
     {
-        for (int ii = 0; ii < _files.length; ii++) {
-            _soundmgr.play(SoundManager.DEFAULT, _files[ii]);
+        for (int ii = 0; ii < _keys.length; ii++) {
+            System.out.println("Playing " + _keys[ii] + ".");
+            _soundmgr.play(SoundManager.DEFAULT,
+                           "com/threerings/media/", _keys[ii]);
         }
+        _soundmgr.shutdown();
+
+        // the sound manager starts up threads that never seem to exit so
+        // we have to stick a fork in things after a short while
+        try {
+            Thread.sleep(5000L);
+        } catch (InterruptedException ie) {
+        }
+        System.exit(0);
     }
 
     public static void main (String[] args)
@@ -35,6 +46,6 @@ public class SoundTestApp
         app.run();
     }
 
-    protected String[] _files;
+    protected String[] _keys;
     protected SoundManager _soundmgr;
 }
