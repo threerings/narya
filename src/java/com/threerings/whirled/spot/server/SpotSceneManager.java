@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.17 2002/08/20 18:21:45 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.18 2002/09/09 23:22:28 ray Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -15,6 +15,7 @@ import com.threerings.presents.server.InvocationException;
 import com.threerings.crowd.chat.SpeakProvider;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
+import com.threerings.crowd.server.CrowdServer;
 import com.threerings.whirled.server.SceneManager;
 
 import com.threerings.whirled.spot.Log;
@@ -31,6 +32,24 @@ import com.threerings.whirled.spot.util.SpotSceneUtil;
 public class SpotSceneManager extends SceneManager
     implements SpotCodes
 {
+    /**
+     * Move the specified body to the default portal, if possible.
+     */
+    public static void moveBodyToDefaultPortal (BodyObject body)
+    {
+        SpotSceneManager mgr = (SpotSceneManager)
+            CrowdServer.plreg.getPlaceManager(body.location);
+        if (mgr != null) {
+            SpotSceneModel model = (SpotSceneModel) mgr.getSceneModel();
+            try {
+                mgr.handleChangeLocRequest(body, model.defaultEntranceId);
+            } catch (InvocationException ie) {
+                Log.warning("Could not walk user to default portal [error=" +
+                    ie + "].");
+            }
+        }
+    }
+
     /**
      * Prepares a mapping for an entering body, indicating that they will
      * be entering at the specified location id. When the time comes to
