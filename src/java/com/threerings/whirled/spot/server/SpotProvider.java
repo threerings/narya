@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.20 2003/08/13 00:11:03 mdb Exp $
+// $Id: SpotProvider.java,v 1.21 2003/10/25 00:10:35 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -108,6 +108,16 @@ public class SpotProvider
         SceneRegistry.ResolutionListener rl =
             new SceneRegistry.ResolutionListener() {
                 public void sceneWasResolved (SceneManager scmgr) {
+                    // make sure our caller is still around; under heavy
+                    // load, clients might end their session while the
+                    // scene is resolving
+                    if (!fsource.isActive()) {
+                        Log.info("Abandoning portal traversal, client gone " +
+                                 "[who=" + fsource.who()  +
+                                 ", dest=" + scmgr.where() + "].");
+                        return;
+                    }
+
                     // let the source manager know that this guy is
                     // departing via the specified portal
                     srcmgr.willTraversePortal(fsource, fdest);

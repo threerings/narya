@@ -1,5 +1,5 @@
 //
-// $Id: ZoneProvider.java,v 1.15 2003/06/11 02:48:07 mdb Exp $
+// $Id: ZoneProvider.java,v 1.16 2003/10/25 00:10:35 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -115,10 +115,18 @@ public class ZoneProvider
 
         // create a callback object that will handle the resolution or
         // failed resolution of the scene
-        SceneRegistry.ResolutionListener rl =
-            new SceneRegistry.ResolutionListener()
-        {
+        SceneRegistry.ResolutionListener rl = null;
+        rl = new SceneRegistry.ResolutionListener() {
             public void sceneWasResolved (SceneManager scmgr) {
+                // make sure our caller is still around; under heavy load,
+                // clients might end their session while the scene is
+                // resolving
+                if (!fsource.isActive()) {
+                    Log.info("Abandoning zone move, client gone " +
+                             "[who=" + fsource.who()  +
+                             ", dest=" + scmgr.where() + "].");
+                    return;
+                }
                 finishMoveTo(fsource, fsum, scmgr, fsceneVer, flistener);
             }
 

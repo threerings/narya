@@ -1,5 +1,5 @@
 //
-// $Id: SceneProvider.java,v 1.17 2003/06/11 02:48:07 mdb Exp $
+// $Id: SceneProvider.java,v 1.18 2003/10/25 00:10:35 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -46,17 +46,22 @@ public class SceneProvider
 
         // create a callback object that will handle the resolution or
         // failed resolution of the scene
-        SceneRegistry.ResolutionListener rl =
-            new SceneRegistry.ResolutionListener()
-        {
-            public void sceneWasResolved (SceneManager scmgr)
-            {
+        SceneRegistry.ResolutionListener rl = null;
+        rl = new SceneRegistry.ResolutionListener() {
+            public void sceneWasResolved (SceneManager scmgr) {
+                // make sure our caller is still around; under heavy load,
+                // clients might end their session while the scene is
+                // resolving
+                if (!source.isActive()) {
+                    Log.info("Abandoning scene move, client gone " +
+                             "[who=" + source.who()  +
+                             ", dest=" + scmgr.where() + "].");
+                    return;
+                }
                 finishMoveToRequest(source, scmgr, sceneVer, listener);
             }
 
-            public void sceneFailedToResolve (
-                int rsceneId, Exception reason)
-            {
+            public void sceneFailedToResolve (int rsceneId, Exception reason) {
                 Log.warning("Unable to resolve scene [sceneid=" + rsceneId +
                             ", reason=" + reason + "].");
                 // pretend like the scene doesn't exist to the client
