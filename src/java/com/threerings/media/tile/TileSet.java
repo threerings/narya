@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.51 2003/05/12 02:03:53 mdb Exp $
+// $Id: TileSet.java,v 1.52 2003/05/13 02:16:21 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -44,8 +44,11 @@ public abstract class TileSet
         /**
          * Returns the colorization to be used for the specified named
          * colorization class.
+         *
+         * @param index the index of the colorization being requested in
+         * the tileset's colorization list.
          */
-        public Colorization getColorization (String zation);
+        public Colorization getColorization (int index, String zation);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedObjectTileSet.java,v 1.10 2003/04/01 02:16:28 mdb Exp $
+// $Id: TrimmedObjectTileSet.java,v 1.11 2003/05/13 02:16:21 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -88,7 +88,7 @@ public class TrimmedObjectTileSet extends TileSet
         if (rizer != null && _zations != null) {
             zations = new Colorization[_zations.length];
             for (int ii = 0; ii < _zations.length; ii++) {
-                zations[ii] = rizer.getColorization(_zations[ii]);
+                zations[ii] = rizer.getColorization(ii, _zations[ii]);
             }
         }
         return zations;
