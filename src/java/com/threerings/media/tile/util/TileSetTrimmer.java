@@ -1,5 +1,5 @@
 //
-// $Id: TileSetTrimmer.java,v 1.2 2002/06/21 18:09:37 mdb Exp $
+// $Id: TileSetTrimmer.java,v 1.3 2002/09/09 20:26:52 shaper Exp $
 
 package com.threerings.media.tile.util;
 
@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
+import java.awt.image.RasterFormatException;
 import java.awt.image.WritableRaster;
 
 import javax.imageio.ImageIO;
@@ -108,8 +109,16 @@ public class TileSetTrimmer
         }
 
         // create the new tileset image
-        BufferedImage image = ImageUtil.createCompatibleImage(
-            (BufferedImage)source.getTileSetImage(), nextx, maxy);
+        BufferedImage image = null;
+        try {
+            image = ImageUtil.createCompatibleImage(
+                (BufferedImage)source.getTileSetImage(), nextx, maxy);
+
+        } catch (RasterFormatException rfe) {
+            throw new IOException("Failed to create trimmed tileset image " +
+                                  "[wid=" + nextx + ", hei=" + maxy +
+                                  ", tset=" + source + ", rfe=" + rfe + "].");
+        }
 
         // copy the tile data
         WritableRaster drast = image.getRaster();
