@@ -1,0 +1,141 @@
+//
+// $Id: SimulatorApp.java,v 1.1 2001/12/19 09:32:02 shaper Exp $
+
+package com.threerings.micasa.simulator.client;
+
+import com.samskivert.swing.util.SwingUtil;
+
+import com.threerings.presents.client.Client;
+import com.threerings.presents.client.ClientAdapter;
+import com.threerings.presents.net.Credentials;
+import com.threerings.presents.net.UsernamePasswordCreds;
+
+import com.threerings.micasa.Log;
+import com.threerings.micasa.simulator.data.SimulatorInfo;
+import com.threerings.micasa.simulator.server.SimulatorServer;
+
+/**
+ * The simulator application is a test harness to facilitate development
+ * and debugging of games.
+ */
+public class SimulatorApp
+{
+    public void init (String[] args) throws Exception
+    {
+        // create the server
+        SimulatorServer server = new SimulatorServer();
+        server.init();
+        _serverThread = new ServerThread(server);
+
+        // create a frame
+        _frame = new SimulatorFrame();
+
+        // create the simulator info object
+        SimulatorInfo siminfo = new SimulatorInfo();
+        siminfo.gameConfigClass = args[0];
+        siminfo.simClass = args[1];
+        siminfo.playerCount = getInt(
+            System.getProperty("playercount"), DEFAULT_PLAYER_COUNT);
+
+        // create our client instance
+        _client = new SimulatorClient(_frame, siminfo);
+    }
+
+    public void run ()
+    {
+        // size and display the window
+        int wid = getInt(System.getProperty("width"), 800);
+        int hei = getInt(System.getProperty("height"), 600);
+        _frame.setSize(wid, hei);
+        SwingUtil.centerWindow(_frame);
+        _frame.show();
+
+        // start up the server
+        _serverThread.start();
+
+        // start up the client
+        Client client = _client.getContext().getClient();
+
+        // we're connecting to our own server
+        client.setServer("localhost", Client.DEFAULT_SERVER_PORT);
+
+        // we want to exit when we logged off or failed to log on
+        client.addObserver(new ClientAdapter() {
+            public void clientFailedToLogon (Client c, Exception cause) {
+                System.exit(0);
+            }
+            public void clientDidLogoff (Client c) {
+                System.exit(0);
+            }
+        });
+
+        // configure the client with some credentials and logon
+        String username = System.getProperty("username");
+        if (username == null) {
+            username =
+                "bob" + ((int)(Math.random() * Integer.MAX_VALUE) % 500);
+        }
+
+        // create and set our credentials
+        Credentials creds = new UsernamePasswordCreds(username, "test");
+        client.setCredentials(creds);
+        client.logon();
+    }
+
+    public static void main (String[] args)
+    {
+        if (args.length < 2) {
+            String msg = "Usage:\n" +
+                "    java com.threerings.simulator.SimulatorApp " +
+                "<game config class name> <simulant class name>\n" +
+                "Optional properties:\n" +
+                "    -Dusername=<user>\n" +
+                "    -Dplayercount=<number>\n" +
+                "    -Dwidth=<width>\n" +
+                "    -Dheight=<height>";
+            System.out.println(msg);
+            return;
+        }
+
+        SimulatorApp app = new SimulatorApp();
+        try {
+            app.init(args);
+        } catch (Exception e) {
+            Log.warning("Error initializing application.");
+            Log.logStackTrace(e);
+        }
+
+        app.run();
+    }
+
+    protected int getInt (String value, int defval)
+    {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException nfe) {
+            return defval;
+        }
+    }
+
+    protected static class ServerThread extends Thread
+    {
+        public ServerThread (SimulatorServer server)
+        {
+            _server = server;
+        }
+
+        public void run ()
+        {
+            _server.run();
+        }
+
+        protected SimulatorServer _server;
+    }
+
+    /** The default number of players in the game. */
+    protected static final int DEFAULT_PLAYER_COUNT = 2;
+
+    protected SimulatorClient _client;
+    protected SimulatorFrame _frame;
+    protected ServerThread _serverThread;
+}
