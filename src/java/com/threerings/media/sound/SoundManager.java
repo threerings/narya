@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.12 2002/11/15 02:06:41 ray Exp $
+// $Id: SoundManager.java,v 1.13 2002/11/15 05:34:43 ray Exp $
 
 package com.threerings.media;
 
@@ -14,6 +14,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MetaEventListener;
+import javax.sound.midi.MetaMessage;
+import javax.sound.midi.MidiChannel;
+import javax.sound.midi.MidiSystem;
+import javax.sound.midi.MidiUnavailableException;
+import javax.sound.midi.Sequencer;
+import javax.sound.midi.Synthesizer;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -46,14 +56,12 @@ import com.threerings.media.Log;
  * Manages the playing of audio files.
  */
 // TODO:
-// - maybe a way to put items in the queue with a timestamp,
-//   and if they're processed after that time, we cut them out.
-// - looping a sound (is this really needed? Music should loop, but sfx?)
-// - Music is special type that has it's own methods
-//   - push()
-//   - pop()
-//   - fade music out when it's popped and was playing
+//   - fade music out when stopped?
+//   - redo volume stuff so that there is SFX and music volume, and then
+//   sounds can be turned on/off by SoundType
+//   - sounds only seem to loop once. WTF?
 public class SoundManager
+    implements MetaEventListener
 {
     /**
      * Create instances of this for your application to differentiate
@@ -111,10 +119,10 @@ public class SoundManager
                                 type = (SoundType) _queue.get();
                                 path = (String) _queue.get();
 
-                            } else if (LOCK == command) {
-                                path = (String) _queue.get();
-
-                            } else if (UNLOCK == command) {
+                            } else if ((PLAYMUSIC == command) ||
+                                       (STOPMUSIC == command) ||
+                                       (LOCK == command) ||
+                                       (UNLOCK == command)) {
                                 path = (String) _queue.get();
                             }
                         }
@@ -122,6 +130,12 @@ public class SoundManager
                         // execute the command outside of the queue synch
                         if (PLAY == command) {
                             playSound(type, path);
+
+                        } else if (PLAYMUSIC == command) {
+                            playSequence(path);
+
+                        } else if (STOPMUSIC == command) {
+                            stopSequence(path);
 
                         } else if (LOCK == command) {
                             _dataCache.lock(path);
@@ -200,6 +214,16 @@ public class SoundManager
         return (vol != null) ? vol.floatValue() : 1f;
     }
 
+    public void setMusicVolume (float vol)
+    {
+        // TODO
+    }
+
+    public float getMusicVolume ()
+    {
+        return 1f; // TODO
+    }
+
     /**
      * Optionally lock the sound data prior to playing, to guarantee
      * that it will be quickly available for playing.
@@ -250,6 +274,22 @@ public class SoundManager
         }
     }
 
+    public void pushMusic (String path)
+    {
+        synchronized (_queue) {
+            _queue.append(PLAYMUSIC);
+            _queue.append(path);
+        }
+    }
+
+    public void removeMusic (String path)
+    {
+        synchronized (_queue) {
+            _queue.append(STOPMUSIC);
+            _queue.append(path);
+        }
+    }
+
     /**
      * On the SoundManager thread,
      * plays the sound file with the given pathname.
@@ -277,7 +317,7 @@ public class SoundManager
 
             SoundRecord rec = new SoundRecord(path, clip);
             rec.start(type);
-            _active.add(rec);
+            _activeClips.add(rec);
 
             // and rewind the stream to the beginning for next time
             stream.reset();
@@ -300,8 +340,8 @@ public class SoundManager
         long now = System.currentTimeMillis();
 
         // we just go through all the sounds. There'll be 32 max, so fuckit.
-        for (int ii=0, nn=_active.size(); ii < nn; ii++) {
-            SoundRecord rec = (SoundRecord) _active.get(ii);
+        for (int ii=0, nn=_activeClips.size(); ii < nn; ii++) {
+            SoundRecord rec = (SoundRecord) _activeClips.get(ii);
             if (rec.path.equals(path) && rec.isStoppedSince(now)) {
                 rec.restart(type);
                 return true;
@@ -309,6 +349,87 @@ public class SoundManager
         }
 
         return false;
+    }
+
+    /**
+     * Play a sequence from the specified path.
+     */
+    protected void playSequence (String path)
+    {
+        if (_sequencer == null) {
+            try {
+                Sequencer seq = MidiSystem.getSequencer();
+                seq.open();
+                if (seq instanceof Synthesizer) {
+                    _midiChannels = ((Synthesizer)  seq).getChannels();
+                }
+                _sequencer = seq;
+                _sequencer.addMetaEventListener(this);
+
+            } catch (MidiUnavailableException mue) {
+                Log.warning("Midi unavailable. Can't play music.");
+                return;
+            }
+        }
+
+        // stop the existing song
+        _sequencer.stop();
+
+        // start the new one
+        try {
+            _sequencer.setSequence(getResource(path));
+            _sequencer.start();
+            _midiStack.addFirst(path);
+
+        } catch (InvalidMidiDataException imda) {
+            Log.warning("Invalid midi data, not playing [path=" + path + "].");
+
+        } catch (IOException ioe) {
+            Log.warning("ioe=" + ioe);
+        }
+    }
+
+    /**
+     * Stop the sequence at the specified path.
+     */
+    protected void stopSequence (String path)
+    {
+        if (_midiStack.isEmpty()) {
+            return;
+        }
+
+        // if we're currently playing this song..
+        if (path.equals(_midiStack.getFirst())) {
+            // remove it from the stack
+            _midiStack.removeFirst();
+
+            if (_midiStack.isEmpty()) {
+                // no more to play? Stop and shutdown.
+                _sequencer.stop();
+                _sequencer.close();
+                _sequencer.removeMetaEventListener(this);
+                _sequencer = null;
+                _midiChannels = null;
+
+            } else {
+                // play the next one on the stack (will also stop this one)
+                playSequence((String) _midiStack.removeFirst());
+            }
+        }
+    }
+
+    // documentation inherited from interface MetaEventListener
+    public void meta (MetaMessage msg)
+    {
+        if (msg.getType() == MIDI_END_OF_TRACK) {
+            // loop that puppy
+//            _sequencer.stop();
+//            _sequencer.setTickPosition(0);
+            _sequencer.start();
+        }
+//
+//        Log.info("meta message: " + msg.getType() + ", msg=" +
+//                    new String(msg.getData()));
     }
 
     /**
@@ -322,7 +443,7 @@ public class SoundManager
     {
         long then = System.currentTimeMillis() - EXPIRE_TIME;
 
-        for (Iterator iter=_active.iterator(); iter.hasNext(); ) {
+        for (Iterator iter=_activeClips.iterator(); iter.hasNext(); ) {
             SoundRecord rec = (SoundRecord) iter.next();
             if (force || rec.isStoppedSince(then)) {
                 iter.remove();
@@ -342,10 +463,8 @@ public class SoundManager
         }
 
         try {
-            byte[] data = StreamUtils.streamAsBytes(
-                _rmgr.getResource(path), BUFFER_SIZE);
             AudioInputStream stream = AudioSystem.getAudioInputStream(
-                new ByteArrayInputStream(data));
+                getResource(path));
             DataLine.Info info = new DataLine.Info(
                 Clip.class, stream.getFormat());
             stuff = new Object[] { info, stream };
@@ -361,6 +480,17 @@ public class SoundManager
         }
 
         return stuff;
+    }
+
+    /**
+     * Get the data specified by the path from the resource bundle.
+     * No caching is done.
+     */
+    protected InputStream getResource (String path)
+        throws IOException
+    {
+        return new ByteArrayInputStream(StreamUtils.streamAsBytes(
+                _rmgr.getResource(path), BUFFER_SIZE));
     }
 
     /**
@@ -613,17 +743,31 @@ public class SoundManager
     protected LockableLRUHashMap _dataCache = new LockableLRUHashMap(10);
 
     /** The clips that are currently active. */
-    protected ArrayList _active = new ArrayList();
+    protected ArrayList _activeClips = new ArrayList();
+
+    /** The sequencer that plays midi music. */
+    protected Sequencer _sequencer;
+
+    /** The channels in the sequencer, which we'll use to fuxor volumes. */
+    protected MidiChannel[] _midiChannels;
+
+    /** The stack of songs that we're playing. */
+    protected LinkedList _midiStack = new LinkedList();
 
     /** A set of soundTypes for which sound is enabled. */
     protected HashMap _volumes = new HashMap();
 
     /** Signals to the queue to do different things. */
     protected Object PLAY = new Object();
+    protected Object PLAYMUSIC = new Object();
+    protected Object STOPMUSIC = new Object();
     protected Object LOCK = new Object();
     protected Object UNLOCK = new Object();
     protected Object FLUSH = new Object();
     protected Object DIE = new Object();
+
+    /** This is apparently the midi code for end of track. Wack. */
+    protected static final int MIDI_END_OF_TRACK = 47;
 
     /** Default volume float object if no others found for a sound type. */
     protected static final Float DEFAULT_VOLUME = new Float(1f);
