@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.25 2002/12/03 19:29:35 mdb Exp $
+// $Id: FrameManager.java,v 1.26 2002/12/03 19:42:21 mdb Exp $
 
 package com.threerings.media;
 
@@ -598,21 +598,12 @@ public class FrameManager
 
     /** Used to effect periodic calls to {@link #tick}. */
     protected TimerTask _callTick = new TimerTask () {
-        public void run () {
-            if (EventQueue.isDispatchThread()) {
-                long elapsed = _timer.getElapsedMillis();
-                try {
-                    tick(elapsed);
-                } finally {
-                    clearTicking(elapsed);
-                }
-
-            } else if (testAndSet()) {
-                EventQueue.invokeLater(this);
-
-            } else {
-                // drop the frame
+        public void run ()
+        {
+            if (testAndSet()) {
+                EventQueue.invokeLater(_awtTicker);
             }
+            // else: drop the frame
         }
 
         protected final synchronized boolean testAndSet ()
@@ -642,6 +633,21 @@ public class FrameManager
             }
             _ticking = false;
         }
+
+        /** Used to invoke the call to {@link #tick} on the AWT event
+         * queue thread. */
+        protected Runnable _awtTicker = new Runnable ()
+        {
+            public void run ()
+            {
+                long elapsed = _timer.getElapsedMillis();
+                try {
+                    tick(elapsed);
+                } finally {
+                    clearTicking(elapsed);
+                }
+            }
+        };
 
         /** Used to detect when we need to drop frames. */
         protected boolean _ticking;
