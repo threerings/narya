@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.5 2001/08/02 04:59:54 mdb Exp $
+// $Id: LocationDirector.java,v 1.6 2001/08/04 03:06:39 mdb Exp $
 
 package com.threerings.cocktail.party.client;
 
@@ -145,7 +145,7 @@ public class LocationManager
     /**
      * Called in response to a successful <code>moveTo</code> request.
      */
-    public void handleMoveSucceeded ()
+    public void handleMoveSucceeded (int invid)
     {
         DObjectManager omgr = _ctx.getDObjectManager();
 
@@ -167,7 +167,7 @@ public class LocationManager
     /**
      * Called in response to a failed <code>moveTo</code> request.
      */
-    public void handleMoveFailed (String reason)
+    public void handleMoveFailed (int invid, String reason)
     {
         // clear out our pending request oid
         int placeId = _pendingPlaceId;
