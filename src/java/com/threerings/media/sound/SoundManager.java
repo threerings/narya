@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.52 2003/03/23 04:10:50 ray Exp $
+// $Id: SoundManager.java,v 1.53 2003/03/24 19:35:18 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -91,13 +91,16 @@ public class SoundManager
     /**
      * Constructs a sound manager.
      *
+     * @param defaultClipBundle
      * @param defaultClipPath The pathname of a sound clip to use as a
      * fallback if another sound clip cannot be located.
      */
-    public SoundManager (ResourceManager rmgr, String defaultClipPath)
+    public SoundManager (
+        ResourceManager rmgr, String defaultClipBundle, String defaultClipPath)
     {
         // save things off
         _rmgr = rmgr;
+        _defaultClipBundle = defaultClipBundle;
         _defaultClipPath = defaultClipPath;
 
         if (!SOUND_ENABLED) return;
@@ -139,9 +142,11 @@ public class SoundManager
                             stopMusic(key);
 
                         } else if (LOCK == command) {
-                            getClipData(key); // preload
-                            // copy the cached sound into the lock map
-                            _lockedClips.put(key, _clipCache.get(key));
+                            if (!isTesting()) {
+                                getClipData(key); // preload
+                                // copy the cached sound into the lock map
+                                _lockedClips.put(key, _clipCache.get(key));
+                            }
 
                         } else if (UNLOCK == command) {
                             _lockedClips.remove(key);
@@ -634,13 +639,21 @@ public class SoundManager
     }
 
     /**
+     * @return true if we're using a test sound directory.
+     */
+    protected boolean isTesting ()
+    {
+        return !StringUtil.blank(_testDir.getValue());
+    }
+
+    /**
      * Get the audio data for the specified path.
      */
     protected byte[] getClipData (SoundKey key)
         throws IOException, UnsupportedAudioFileException
     {
         // if we're testing, clear all non-locked sounds every time
-        if (! StringUtil.blank(_testDir.getValue())) {
+        if (isTesting()) {
             _clipCache.clear();
         }
 
@@ -689,20 +702,46 @@ public class SoundManager
             return null;
         }
 
-        final String namePrefix = key.key + ".";
+        final String namePrefix = key.key;
         File f = new File(testDirectory);
         File[] list = f.listFiles(new FilenameFilter() {
             public boolean accept (File f, String name)
             {
-                return name.startsWith(namePrefix);
+                if (name.startsWith(namePrefix)) {
+                    String backhalf = name.substring(namePrefix.length());
+                    int dot = backhalf.indexOf('.');
+                    if (dot == -1) {
+                        dot = backhalf.length();
+                    }
+
+                    // allow the file if the portion of the name
+                    // after the prefix but before the extension is blank
+                    // or a parsable integer
+                    String extra = backhalf.substring(0, dot);
+                    if ("".equals(extra)) {
+                        return true;
+                    } else {
+                        try {
+                            Integer.parseInt(extra);
+                            // success!
+                            return true;
+                        } catch (NumberFormatException nfe) {
+                            // not a number, we fall through...
+                        }
+                    }
+                    // else fall through
+                }
+                return false;
             }
         });
-        if ((list != null) && (list.length > 0)) {
+        int size = (list == null) ? 0 : list.length;
+        if (size > 0) {
+            File pick = list[RandomUtil.getInt(size)];
             try {
-                return new FileInputStream(list[0]);
+                return new FileInputStream(pick);
             } catch (Exception e) {
                 Log.warning("Error reading test sound [e=" + e + ", file=" +
-                    list[0] + "].");
+                    pick + "].");
             }
         }
         return null;
@@ -726,11 +765,17 @@ public class SoundManager
                     ", path=" + path + "].");
                 if (_defaultClipPath != null) {
                     try {
-                        clipin = _rmgr.getResource(_defaultClipPath);
+                        clipin = _rmgr.getResource(
+                            _defaultClipBundle, _defaultClipPath);
                     } catch (FileNotFoundException fnfe3) {
-                        Log.warning("Additionally, the default fallback " +
-                            "sound could not be located [path=" +
-                            _defaultClipPath + "].");
+                        try {
+                            clipin = _rmgr.getResource(_defaultClipPath);
+                        } catch (FileNotFoundException fnfe4) {
+                            Log.warning("Additionally, the default fallback " +
+                                "sound could not be located [bundle=" +
+                                _defaultClipBundle + ", path=" +
+                                _defaultClipPath + "].");
+                        }
                     }
                 } else {
                     Log.warning("No fallback default sound specified!");
@@ -1084,7 +1129,7 @@ public class SoundManager
     }
 
     /** The path of the default sound to use for missing sounds. */
-    protected String _defaultClipPath;
+    protected String _defaultClipBundle, _defaultClipPath;
 
     /** The resource manager from which we obtain audio files. */
     protected ResourceManager _rmgr;
