@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.16 2001/11/08 05:39:51 mdb Exp $
+// $Id: PresentsServer.java,v 1.17 2002/02/09 07:49:41 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -57,11 +57,9 @@ public class PresentsServer
         // create our authentication manager
         authmgr = new AuthManager(new DummyAuthenticator());
         // create our connection manager
-        if (createConnectionManager()) {
-            conmgr = new ConnectionManager(config, authmgr);
-            // create our client manager
-            clmgr = new ClientManager(conmgr);
-        }
+        conmgr = new ConnectionManager(config, authmgr);
+        // create our client manager
+        clmgr = new ClientManager(conmgr);
         // create our distributed object manager
         omgr = new PresentsDObjectMgr();
         // create our invocation manager
@@ -120,16 +118,6 @@ public class PresentsServer
     }
 
     /**
-     * In local testing mode, we don't want to create a connection manager
-     * and listen to client connections. So we provide this method that
-     * can be overridden by a testing server.
-     */
-    protected boolean createConnectionManager ()
-    {
-        return true;
-    }
-
-    /**
      * Starts up all of the server services and enters the main server
      * event loop.
      */
@@ -138,9 +126,7 @@ public class PresentsServer
         // start up the auth manager
         authmgr.start();
         // start up the connection manager
-        if (conmgr != null) {
-            conmgr.start();
-        }
+        conmgr.start();
         // invoke the dobjmgr event loop
         omgr.run();
     }
@@ -152,9 +138,7 @@ public class PresentsServer
     {
         // shut down our managers
         authmgr.shutdown();
-        if (conmgr != null) {
-            conmgr.shutdown();
-        }
+        conmgr.shutdown();
         omgr.shutdown();
     }
 
