@@ -1,23 +1,17 @@
 //
-// $Id: DisplayMisoScene.java,v 1.9 2003/01/31 23:10:45 mdb Exp $
+// $Id: DisplayMisoScene.java,v 1.10 2003/02/12 07:21:15 mdb Exp $
 
 package com.threerings.miso.client;
 
-import java.awt.Rectangle;
-
-import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
-
-import com.threerings.miso.client.util.ObjectSet;
+import com.threerings.miso.data.MisoScene;
 import com.threerings.miso.tile.BaseTile;
 
 /**
- * Makes available the information from the {@link MisoSceneModel} in a
- * form that is amenable to actually displaying the scene in a user
- * interface. As with all display scene implementations, the information
- * provided is read-only and should never be modified by the caller.
+ * Extends the {@link MisoScene} with functionality needed only by
+ * entities that plan to display a miso scene.
  */
-public interface DisplayMisoScene
+public interface DisplayMisoScene extends MisoScene
 {
     /**
      * Returns the base tile at the specified coordinates.
@@ -28,12 +22,6 @@ public interface DisplayMisoScene
      * Returns the fringe tile at the specified coordinates.
      */
     public Tile getFringeTile (int x, int y);
-
-    /**
-     * Populates the supplied object set with info on all objects whose
-     * origin falls in the requested region.
-     */
-    public void getObjects (Rectangle region, ObjectSet set);
 
     /**
      * Returns true if the supplied traverser can traverse the specified
