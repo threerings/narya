@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.5 2003/04/19 00:56:35 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.6 2003/04/19 01:04:57 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -102,10 +102,10 @@ public class MisoScenePanel extends VirtualMediaPanel
         _vizobjs.clear();
         _masks.clear();
 
-        // this will cause us to relayout which will center us in the
-        // middle of the scene which will cause us to rethink and load up
-        // all the necessary scene blocks to display ourselves; magic!
-        revalidate();
+        // recenter and rethink!
+        setViewLocation((_metrics.bounds.width - _vbounds.width)/2,
+                        (_metrics.bounds.height - _vbounds.height)/2);
+        rethink();
     }
 
     /**
