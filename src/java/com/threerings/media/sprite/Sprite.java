@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.53 2002/11/20 05:33:20 mdb Exp $
+// $Id: Sprite.java,v 1.54 2002/12/02 20:11:24 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -285,7 +285,10 @@ public abstract class Sprite extends AbstractMedia
             _path.init(this, _pathStamp = tickStamp);
         }
 
-        return _path.tick(this, tickStamp);
+        // it's possible that as a result of init() the path completed and
+        // removed itself with a call to pathCompleted(), so we have to be
+        // careful here
+        return (_path == null) ? true : _path.tick(this, tickStamp);
     }
 
     // documentation inherited

@@ -1,5 +1,5 @@
 //
-// $Id: TimedPath.java,v 1.1 2002/09/17 03:59:05 mdb Exp $
+// $Id: TimedPath.java,v 1.2 2002/12/02 20:11:24 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -34,8 +34,8 @@ public abstract class TimedPath implements Path
         // make a note of when we started
         _startStamp = timestamp;
 
-        // update our position to the start of the path
-        tick(pable, timestamp);
+        // we'll be ticked immediately following init() which will update
+        // our position to the start of our path
     }
 
     // documentation inherited

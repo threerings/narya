@@ -1,5 +1,5 @@
 //
-// $Id: Path.java,v 1.8 2002/06/18 22:25:33 mdb Exp $
+// $Id: Path.java,v 1.9 2002/12/02 20:11:24 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -21,7 +21,8 @@ public interface Path
 {
     /**
      * Called once to let the path prepare itself for the process of
-     * animating the supplied pathable.
+     * animating the supplied pathable. Path users should also call {@link
+     * #tick} after {@link #init} with the same initialization timestamp.
      */
     public void init (Pathable pable, long tickStamp);
 
