@@ -245,7 +245,7 @@ public class Communicator
             closeChannel();
 
             // let the client know when we finally go away
-            _client.communicatorDidExit();
+            _client.cleanup();
         }
 
         Log.debug("Reader thread exited.");
@@ -270,7 +270,7 @@ public class Communicator
 
         // let the client know when we finally go away
         if (_reader == null) {
-            _client.communicatorDidExit();
+            _client.cleanup();
         }
     }
 

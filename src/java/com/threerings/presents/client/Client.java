@@ -99,6 +99,22 @@ public class Client
     }
 
     /**
+     * Sets whether or not this client is operating in standalone mode.
+     */
+    public void setStandalone (boolean standalone)
+    {
+        _standalone = standalone;
+    }
+    
+    /**
+     * Checks whether or not this client is operating in a standalone mode.
+     */
+    public boolean isStandalone ()
+    {
+        return _standalone;
+    }
+    
+    /**
      * Configures the client to communicate with the server on the
      * supplied hostname/port combination.
      *
@@ -409,6 +425,16 @@ public class Client
     }
 
     /**
+     * For standalone mode, this notifies observers that the client has logged
+     * off and cleans up.
+     */
+    public void standaloneLogoff ()
+    {
+        notifyObservers(CLIENT_DID_LOGOFF, null);
+        cleanup();
+    }
+    
+    /**
      * Called by the {@link ClientDObjectMgr} when our bootstrap
      * notification arrives. If the client and server are being run in
      * "merged" mode in a single JVM, this is how the client is configured
@@ -556,7 +582,7 @@ public class Client
         }
     }
 
-    synchronized void communicatorDidExit ()
+    synchronized void cleanup ()
     {
         // we know that prior to the call to this method, the observers
         // were notified with CLIENT_DID_LOGOFF; that may not have been
@@ -571,6 +597,7 @@ public class Client
                 _omgr = null;
                 _clobj = null;
                 _cloid = -1;
+                _standalone = false;
                 // and let our invocation director know we're logged off
                 _invdir.cleanup();
             }
@@ -690,6 +717,9 @@ public class Client
     /** Our client distributed object. */
     protected ClientObject _clobj;
 
+    /** Whether or not this client is operating in a standalone mode. */
+    protected boolean _standalone;
+    
     /** The game server host. */
     protected String _hostname;
 

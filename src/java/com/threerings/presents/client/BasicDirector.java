@@ -1,5 +1,5 @@
 //
-// $Id: BasicDirector.java,v 1.4 2004/08/27 02:20:17 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -40,13 +40,18 @@ public class BasicDirector
      */
     protected BasicDirector (PresentsContext ctx)
     {
+        // save context
+        _ctx = ctx;
+        
         // listen for session start and end
         Client client = ctx.getClient();
         client.addClientObserver(this);
 
         // if we're already logged on, fire off a call to fetch services
         if (client.isLoggedOn()) {
-            fetchServices(client);
+            if (isAvailable()) {
+                fetchServices(client);
+            }
             clientObjectUpdated(client);
         }
     }
@@ -54,7 +59,9 @@ public class BasicDirector
     // documentation inherited from interface
     public void clientDidLogon (Client client)
     {
-        fetchServices(client);
+        if (isAvailable()) {
+            fetchServices(client);
+        }
         clientObjectUpdated(client);
     }
 
@@ -70,6 +77,43 @@ public class BasicDirector
     }
 
     /**
+     * Sets whether or not this director is available in standalone mode.
+     */
+    public void setAvailableInStandalone (boolean available)
+    {
+        _availableInStandalone = available;
+    }
+    
+    /**
+     * Checks whether or not this director is available in standalone mode
+     * (defaults to false).
+     */
+    public boolean isAvailableInStandalone ()
+    {
+        return _availableInStandalone;
+    }
+    
+    /**
+     * Checks whether this director is available in the current mode.
+     */
+    protected boolean isAvailable ()
+    {
+        return isAvailableInStandalone() || !_ctx.getClient().isStandalone();
+    }
+    
+    /**
+     * If this director is not currently available, throws a
+     * {@link RuntimeException}.
+     */
+    protected void assertAvailable ()
+    {
+        if (!isAvailable()) {
+            throw new RuntimeException(getClass().getName() +
+                " not available in standalone mode!");
+        }
+    }
+    
+    /**
      * Called in three circumstances: when a director is created and we've
      * already logged on; when we first log on and when the client object
      * changes after we've already logged on.
@@ -81,11 +125,17 @@ public class BasicDirector
     /**
      * Derived directors can override this method and obtain any services
      * they'll need during their operation via calls to {@link
-     * Client#getService}. It will automatically be called when the client
-     * logs on or when the director is constructed if it is constructed
-     * after the client is already logged on.
+     * Client#getService}. If the director is available, it will automatically
+     * be called when the client logs on or when the director is constructed
+     * if it is constructed after the client is already logged on.
      */
     protected void fetchServices (Client client)
     {
     }
+
+    /** The application context. */
+    protected PresentsContext _ctx;
+    
+    /** Whether or not this director is available in standalone mode. */
+    protected boolean _availableInStandalone;
 }
