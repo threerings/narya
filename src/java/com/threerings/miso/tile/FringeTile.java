@@ -1,10 +1,10 @@
 //
-// $Id: FringeTile.java,v 1.2 2002/05/06 18:08:32 mdb Exp $
+// $Id: FringeTile.java,v 1.3 2002/05/09 16:47:48 mdb Exp $
 
 package com.threerings.miso.tile;
 
 import java.awt.Image;
-import java.awt.Graphics2D;
+import java.awt.Graphics;
 import java.awt.Shape;
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class FringeTile extends Tile
     }
 
     // documentation inherited
-    public void paint (Graphics2D gfx, int x, int y)
+    public void paint (Graphics gfx, int x, int y)
     {
         gfx.drawImage(_image, x, y, null);
 
