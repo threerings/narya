@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.58 2003/01/17 03:44:20 mdb Exp $
+// $Id: Sprite.java,v 1.59 2003/01/17 03:50:10 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -215,15 +215,6 @@ public abstract class Sprite extends AbstractMedia
      */
     public void move (Path path)
     {
-        // if we already have a path, complain like the dickens
-        if (_path != null) {
-            Log.warning("Refusing to set path; we've already got one " +
-                        "[sprite=" + this + ", cpath=" + _path +
-                        ", npath=" + path + "].");
-            Thread.dumpStack();
-            return;
-        }
-
         // save off this path
         _path = path;
 
