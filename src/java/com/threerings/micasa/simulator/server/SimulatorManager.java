@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorManager.java,v 1.1 2001/12/19 09:32:02 shaper Exp $
+// $Id: SimulatorManager.java,v 1.2 2001/12/19 10:02:53 shaper Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import com.samskivert.util.Config;
 
 import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.server.InvocationManager;
@@ -20,6 +21,7 @@ import com.threerings.crowd.server.PlaceManager;
 import com.threerings.crowd.server.PlaceRegistry;
 import com.threerings.crowd.server.PlaceRegistry.CreationObserver;
 
+import com.threerings.parlor.game.GameCodes;
 import com.threerings.parlor.game.GameConfig;
 import com.threerings.parlor.game.GameManager;
 import com.threerings.parlor.game.GameObject;
@@ -32,7 +34,8 @@ import com.threerings.micasa.simulator.client.SimulatorCodes;
  * The simulator manager is responsible for handling the simulator
  * services on the server side.
  */
-public class SimulatorManager implements SimulatorCodes
+public class SimulatorManager
+    implements GameCodes, SimulatorCodes
 {
     /**
      * Initializes the simulator manager manager. This should be called by
@@ -101,9 +104,6 @@ public class SimulatorManager implements SimulatorCodes
         // documentation inherited
         public void placeCreated (PlaceObject place, PlaceManager pmgr)
         {
-            Log.info("Simulator provider notified of place creation " +
-                     "[place=" + place + "].");
-
             // cast the place to the game object for the game we're creating
             _gobj = (GameObject)place;
 
@@ -112,11 +112,9 @@ public class SimulatorManager implements SimulatorCodes
             Subscriber sub = new Subscriber() {
                 public void objectAvailable (DObject object)
                 {
-                    Log.info("Simulant body object is available.");
-
                     // set up the simulant's body object
                     BodyObject bobj = (BodyObject)object;
-                    bobj.username = "simulant" + _sims.size();
+                    bobj.username = "simulant" + (_sims.size() + 1);
 
                     // hold onto it for later game creation
                     _sims.add(bobj);
@@ -130,9 +128,8 @@ public class SimulatorManager implements SimulatorCodes
                 public void requestFailed (
                     int oid, ObjectAccessException cause)
                 {
-                    Log.warning("Unable to create simulant object " +
-                                "[class=" + _simClass +
-                                ", error=" + cause + "].");
+                    Log.warning("Unable to create simulant body object " +
+                                "[error=" + cause + "].");
                 }
             };
 
@@ -156,7 +153,7 @@ public class SimulatorManager implements SimulatorCodes
                 try {
                     sim = (Simulant)Class.forName(_simClass).newInstance();
                 } catch (Exception e) {
-                    Log.warning("Can't create simulant " +
+                    Log.warning("Unable to create simulant " +
                                 "[class=" + _simClass + "].");
                     return;
                 }
@@ -177,6 +174,12 @@ public class SimulatorManager implements SimulatorCodes
                                 "[e=" + e + "].");
                     return;
                 }
+
+                // let the game manager know that the simulant's ready
+                MessageEvent mevt = new MessageEvent(
+                    _gobj.getOid(), PLAYER_READY_NOTIFICATION, null);
+                mevt.setSourceOid(bobj.getOid());
+                SimulatorServer.omgr.postEvent(mevt);
             }
         }
 
