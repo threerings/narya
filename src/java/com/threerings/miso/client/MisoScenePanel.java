@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.49 2003/08/16 03:42:28 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.50 2003/09/08 18:42:38 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -253,16 +253,19 @@ public class MisoScenePanel extends VirtualMediaPanel
         int longestPath = 50;
 
         // get a reasonable tile path through the scene
+        long start = System.currentTimeMillis();
         List points = AStarPathUtil.getPath(
             this, sprite, longestPath, src.x, src.y, dest.x, dest.y);
+        long duration = System.currentTimeMillis() - start;
 
         // sanity check the number of nodes searched so that we can keep
         // an eye out for bogosity
         int considered = AStarPathUtil.getConsidered();
-        if (considered > longestPath*5) {
+        if (considered > longestPath*5 || duration > 1000L) {
             Log.warning("Considered " + considered + " nodes for path from " +
                         StringUtil.toString(src) + " to " +
-                        StringUtil.toString(dest) + ".");
+                        StringUtil.toString(dest) +
+                        " [duration=" + duration + "].");
         }
 
         // construct a path object to guide the sprite on its merry way
