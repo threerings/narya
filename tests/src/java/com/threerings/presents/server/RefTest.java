@@ -1,5 +1,5 @@
 //
-// $Id: RefTest.java,v 1.7 2002/02/09 07:50:04 mdb Exp $
+// $Id: RefTest.java,v 1.8 2002/04/15 16:34:36 shaper Exp $
 
 package com.threerings.presents.server;
 
@@ -59,7 +59,7 @@ public class RefTest
         } else if (event instanceof ObjectDestroyedEvent) {
             if (toid == _objtwo.getOid()) {
                 // Log.info("List won't yet be empty: " + _objone.list);
-                assert("List not empty", _objone.list.size() > 0);
+                assertTrue("List not empty", _objone.list.size() > 0);
             } else {
                 // Log.info("Other object destroyed.");
                 // go bye bye
@@ -68,7 +68,7 @@ public class RefTest
 
         } else if (event instanceof ObjectRemovedEvent) {
             // Log.info("List should be empty: " + _objone.list);
-            assert("List empty", _objone.list.size() == 0);
+            assertTrue("List empty", _objone.list.size() == 0);
             // finally destroy the other object to complete the circle
             _objone.destroy();
         }

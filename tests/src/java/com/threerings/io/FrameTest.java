@@ -1,5 +1,5 @@
 //
-// $Id: FrameTest.java,v 1.6 2001/12/13 01:35:52 mdb Exp $
+// $Id: FrameTest.java,v 1.7 2002/04/15 16:34:36 shaper Exp $
 
 package com.threerings.presents.io;
 
@@ -44,22 +44,22 @@ public class FrameTest extends TestCase
 
         // read the first frame
         fin.readFrame(in);
-        assert("string1", STRING1.equals(din.readUTF()));
-        assert("string2", STRING2.equals(din.readUTF()));
-        assert("string3", STRING3.equals(din.readUTF()));
-        assert("hit eof", fin.read() == -1);
+        assertTrue("string1", STRING1.equals(din.readUTF()));
+        assertTrue("string2", STRING2.equals(din.readUTF()));
+        assertTrue("string3", STRING3.equals(din.readUTF()));
+        assertTrue("hit eof", fin.read() == -1);
 
         // read the second frame
         fin.readFrame(in);
-        assert("string4", STRING4.equals(din.readUTF()));
-        assert("string5", STRING5.equals(din.readUTF()));
-        assert("string6", STRING6.equals(din.readUTF()));
-        assert("hit eof", fin.read() == -1);
+        assertTrue("string4", STRING4.equals(din.readUTF()));
+        assertTrue("string5", STRING5.equals(din.readUTF()));
+        assertTrue("string6", STRING6.equals(din.readUTF()));
+        assertTrue("hit eof", fin.read() == -1);
 
         // read the third frame
         fin.readFrame(in);
-        assert("string7", STRING7.equals(din.readUTF()));
-        assert("hit eof", fin.read() == -1);
+        assertTrue("string7", STRING7.equals(din.readUTF()));
+        assertTrue("hit eof", fin.read() == -1);
     }
 
     public void runTest ()

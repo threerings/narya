@@ -1,5 +1,5 @@
 //
-// $Id: StreamableUtilTest.java,v 1.1 2002/03/20 22:58:26 mdb Exp $
+// $Id: StreamableUtilTest.java,v 1.2 2002/04/15 16:34:36 shaper Exp $
 
 package com.threerings.presents.io;
 
@@ -105,7 +105,7 @@ public class StreamableUtilTest extends TestCase
             Boink[] nboinks = (Boink[])StreamableUtil.readStreamables(din);
 
             // make sure all went well
-            assert("boinks == nboinks", Arrays.equals(boinks, nboinks));
+            assertTrue("boinks == nboinks", Arrays.equals(boinks, nboinks));
 
             // System.out.println("nboinks: " + StringUtil.toString(nboinks));
 

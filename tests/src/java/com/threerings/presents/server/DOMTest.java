@@ -1,5 +1,5 @@
 //
-// $Id: DOMTest.java,v 1.8 2002/03/19 01:10:03 mdb Exp $
+// $Id: DOMTest.java,v 1.9 2002/04/15 16:34:36 shaper Exp $
 
 package com.threerings.presents.server;
 
@@ -57,9 +57,9 @@ public class DOMTest extends TestCase
 
     public void attributeChanged (AttributeChangedEvent event)
     {
-        assert(fields[_fcount] + " == " + values[_fcount],
-               event.getName().equals(fields[_fcount]) &&
-               event.getValue().equals(values[_fcount]));
+        assertTrue(fields[_fcount] + " == " + values[_fcount],
+                   event.getName().equals(fields[_fcount]) &&
+                   event.getValue().equals(values[_fcount]));
 
         // shutdown once we receive our last update
         if (++_fcount == fields.length) {

@@ -1,5 +1,5 @@
 //
-// $Id: DestroyedRefTest.java,v 1.7 2002/02/09 07:50:04 mdb Exp $
+// $Id: DestroyedRefTest.java,v 1.8 2002/04/15 16:34:36 shaper Exp $
 
 package com.threerings.presents.server;
 
@@ -66,8 +66,8 @@ public class DestroyedRefTest
 
         } else if (event instanceof ObjectAddedEvent &&
                    toid == _objtwo.getOid()) {
-            assert("list should contain only one oid",
-                   _objtwo.list.size() == 1);
+            assertTrue("list should contain only one oid",
+                       _objtwo.list.size() == 1);
 
         } else if (event instanceof AttributeChangedEvent) {
             // go bye bye
