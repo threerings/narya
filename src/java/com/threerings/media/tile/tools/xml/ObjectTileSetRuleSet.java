@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSetRuleSet.java,v 1.6 2003/01/29 21:53:51 mdb Exp $
+// $Id: ObjectTileSetRuleSet.java,v 1.7 2003/02/04 02:59:47 mdb Exp $
 
 package com.threerings.media.tile.tools.xml;
 
@@ -93,7 +93,7 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
             new CallMethodSpecialRule(digester) {
                 public void parseAndSet (String bodyText, Object target)
                 {
-                    int[] prios = StringUtil.parseIntArray(bodyText);
+                    byte[] prios = StringUtil.parseByteArray(bodyText);
                     ((ObjectTileSet)target).setPriorities(prios);
                 }
             });
@@ -105,6 +105,36 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
                 {
                     String[] zations = StringUtil.parseStringArray(bodyText);
                     ((ObjectTileSet)target).setColorizations(zations);
+                }
+            });
+
+        digester.addRule(
+            _prefix + TILESET_PATH + "/xspots",
+            new CallMethodSpecialRule(digester) {
+                public void parseAndSet (String bodyText, Object target)
+                {
+                    short[] xspots = StringUtil.parseShortArray(bodyText);
+                    ((ObjectTileSet)target).setXSpots(xspots);
+                }
+            });
+
+        digester.addRule(
+            _prefix + TILESET_PATH + "/yspots",
+            new CallMethodSpecialRule(digester) {
+                public void parseAndSet (String bodyText, Object target)
+                {
+                    short[] yspots = StringUtil.parseShortArray(bodyText);
+                    ((ObjectTileSet)target).setYSpots(yspots);
+                }
+            });
+
+        digester.addRule(
+            _prefix + TILESET_PATH + "/sorients",
+            new CallMethodSpecialRule(digester) {
+                public void parseAndSet (String bodyText, Object target)
+                {
+                    byte[] sorients = StringUtil.parseByteArray(bodyText);
+                    ((ObjectTileSet)target).setSpotOrients(sorients);
                 }
             });
     }

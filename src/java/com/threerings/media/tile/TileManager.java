@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.27 2003/01/13 22:49:46 mdb Exp $
+// $Id: TileManager.java,v 1.28 2003/02/04 02:59:47 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -193,6 +193,23 @@ public class TileManager
      * @return the tile object.
      */
     public Tile getTile (int tileSetId, int tileIndex)
+	throws NoSuchTileSetException, NoSuchTileException
+    {
+        TileSet set = getTileSet(tileSetId);
+        return set.getTile(tileIndex);
+    }
+
+    /**
+     * Returns the {@link Tile} object from the specified tileset at the
+     * specified index with the specified colorizations applied to it.
+     *
+     * @param tileSetId the tileset id.
+     * @param tileIndex the index of the tile to be retrieved.
+     * @param zations colorizations to be applied to the tile image.
+     *
+     * @return the tile object.
+     */
+    public Tile getTile (int tileSetId, int tileIndex, Colorization[] zations)
 	throws NoSuchTileSetException, NoSuchTileException
     {
         TileSet set = getTileSet(tileSetId);

@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedObjectTileSet.java,v 1.4 2003/01/15 09:28:43 mdb Exp $
+// $Id: TrimmedObjectTileSet.java,v 1.5 2003/02/04 02:59:47 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -7,6 +7,7 @@ import java.awt.Rectangle;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
 
 import com.samskivert.util.StringUtil;
 
@@ -41,6 +42,9 @@ public class TrimmedObjectTileSet extends TileSet
         ObjectTile tile = new ObjectTile(tileImage);
         tile.setBase(_ometrics[tileIndex].width, _ometrics[tileIndex].height);
         tile.setOrigin(_ometrics[tileIndex].x, _ometrics[tileIndex].y);
+        if (_bits != null) {
+            tile.setPriority(_bits[tileIndex].priority);
+        }
         return tile;
     }
 
@@ -50,6 +54,8 @@ public class TrimmedObjectTileSet extends TileSet
         super.toString(buf);
 	buf.append(", ometrics=").append(StringUtil.toString(_ometrics));
 	buf.append(", bounds=").append(StringUtil.toString(_bounds));
+	buf.append(", bits=").append(StringUtil.toString(_bits));
+	buf.append(", zations=").append(StringUtil.toString(_zations));
     }
 
     /**
@@ -75,6 +81,15 @@ public class TrimmedObjectTileSet extends TileSet
         tset._bounds = new Rectangle[tcount];
         tset._ometrics = new Rectangle[tcount];
 
+        // create our bits if needed
+        if (source._priorities != null ||
+            source._xspots != null) {
+            tset._bits = new Bits[tcount];
+        }
+
+        // copy our colorizations
+        tset._zations = source.getColorizations();
+
         // fill in the original object metrics
         for (int ii = 0; ii < tcount; ii++) {
             tset._ometrics[ii] = new Rectangle();
@@ -86,6 +101,19 @@ public class TrimmedObjectTileSet extends TileSet
             }
             tset._ometrics[ii].width = source._owidths[ii];
             tset._ometrics[ii].height = source._oheights[ii];
+
+            // fill in our bits
+            if (tset._bits != null) {
+                tset._bits[ii] = new Bits();
+            }
+            if (source._priorities != null) {
+                tset._bits[ii].priority = source._priorities[ii];
+            }
+            if (source._xspots != null) {
+                tset._bits[ii].xspot = source._xspots[ii];
+                tset._bits[ii].yspot = source._yspots[ii];
+                tset._bits[ii].sorient = source._sorients[ii];
+            }
         }
 
         // create the trimmed tileset image
@@ -109,6 +137,32 @@ public class TrimmedObjectTileSet extends TileSet
         return tset;
     }
 
+    /** Extra bits related to object tiles. */
+    protected static class Bits implements Serializable
+    {
+        /** The default render priority for this object. */
+        public byte priority;
+
+        /** The x coordinate of the "spot" associated with this object. */
+        public short xspot;
+
+        /** The y coordinate of the "spot" associated with this object. */
+        public short yspot;
+
+        /** The orientation of the "spot" associated with this object. */
+        public short sorient;
+
+        /** Generates a string representation of this instance. */
+        public String toString ()
+        {
+            return StringUtil.fieldsToString(this);
+        }
+
+        /** Increase this value when object's serialized state is impacted
+         * by a class change (modification of fields, inheritance). */
+        private static final long serialVersionUID = 1;
+    }
+
     /** Contains the width and height of each object tile and the offset
      * into the tileset image of their image data. */
     protected Rectangle[] _bounds;
@@ -116,6 +170,12 @@ public class TrimmedObjectTileSet extends TileSet
     /** Contains the origin offset for each object tile and the object
      * footprint width and height (in tile units). */
     protected Rectangle[] _ometrics;
+
+    /** Extra bits relating to our objects. */
+    protected Bits[] _bits;
+
+    /** Colorization classes that apply to our objects. */
+    protected String[] _zations;
 
     /** Increase this value when object's serialized state is impacted by
      * a class change (modification of fields, inheritance). */

@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSet.java,v 1.12 2003/01/29 21:53:51 mdb Exp $
+// $Id: ObjectTileSet.java,v 1.13 2003/02/04 02:59:47 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -55,7 +55,7 @@ public class ObjectTileSet extends SwissArmyTileSet
     /**
      * Sets the default render priorities for our object tiles.
      */
-    public void setPriorities (int[] priorities)
+    public void setPriorities (byte[] priorities)
     {
         _priorities = priorities;
     }
@@ -67,6 +67,58 @@ public class ObjectTileSet extends SwissArmyTileSet
     public void setColorizations (String[] zations)
     {
         _zations = zations;
+    }
+
+    /**
+     * Sets the x offset to the "spots" associated with our object tiles.
+     */
+    public void setXSpots (short[] xspots)
+    {
+        _xspots = xspots;
+    }
+
+    /**
+     * Sets the y offset to the "spots" associated with our object tiles.
+     */
+    public void setYSpots (short[] yspots)
+    {
+        _yspots = yspots;
+    }
+
+    /**
+     * Sets the orientation of the "spots" associated with our object
+     * tiles.
+     */
+    public void setSpotOrients (byte[] sorients)
+    {
+        _sorients = sorients;
+    }
+
+    /**
+     * Returns the x coordinate of the spot associated with the specified
+     * tile index.
+     */
+    public int getXSpot (int tileIdx)
+    {
+        return (_xspots == null) ? 0 : _xspots[tileIdx];
+    }
+
+    /**
+     * Returns the y coordinate of the spot associated with the specified
+     * tile index.
+     */
+    public int getYSpot (int tileIdx)
+    {
+        return (_yspots == null) ? 0 : _yspots[tileIdx];
+    }
+
+    /**
+     * Returns the orientation of the spot associated with the specified
+     * tile index.
+     */
+    public int getSpotOrient (int tileIdx)
+    {
+        return (_sorients == null) ? 0 : _sorients[tileIdx];
     }
 
     /**
@@ -88,6 +140,9 @@ public class ObjectTileSet extends SwissArmyTileSet
 	buf.append(", yorigins=").append(StringUtil.toString(_yorigins));
 	buf.append(", prios=").append(StringUtil.toString(_priorities));
 	buf.append(", zations=").append(StringUtil.toString(_zations));
+	buf.append(", xspots=").append(StringUtil.toString(_xspots));
+	buf.append(", yspots=").append(StringUtil.toString(_yspots));
+	buf.append(", sorients=").append(StringUtil.toString(_sorients));
     }
 
     /**
@@ -122,10 +177,19 @@ public class ObjectTileSet extends SwissArmyTileSet
     protected int[] _yorigins;
 
     /** The default render priorities of our objects. */
-    protected int[] _priorities;
+    protected byte[] _priorities;
 
     /** Colorization classes that apply to our objects. */
     protected String[] _zations;
+
+    /** The x offset to the "spots" associated with our tiles. */
+    protected short[] _xspots;
+
+    /** The y offset to the "spots" associated with our tiles. */
+    protected short[] _yspots;
+
+    /** The orientation of the "spots" associated with our tiles. */
+    protected byte[] _sorients;
 
     /** Increase this value when object's serialized state is impacted by
      * a class change (modification of fields, inheritance). */
