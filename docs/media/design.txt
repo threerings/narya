@@ -1,0 +1,37 @@
+Media Design Notes -*- mode: outline -*-
+
+* Tile system
+** Classes
+Tile
+TileSet
+
+TileManager
+TileSetRepository
+
+TileSetIDBroker
+
+XMLTileSetParser
+
+TileSetBundle
+BundledTileSetRepository
+TileSetBundler
+
+** Tile management
+Managing tilesets by id involves creating tileset bundles from XML tileset
+descriptions.
+
+Tileset bundles contain both the tileset images and the tileset metadata
+(in the form of serialized tileset classes?)
+
+Tileset bundle creation maintains a stable tileset name to tileset id
+mapping through the use of a TileSetIDBroker which maintains the name to
+id mapping (in a database or however it likes)
+
+Sample tileset XML description (for uniform tiles):
+
+<tileset type="uniform" name="Tileset name">
+  <imagepath>foo/bar/tiles.png</imagepath>
+  <width>64</width>
+  <height>48</height>
+  <tileCount>16</tileCount>
+</tileset>

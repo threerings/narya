@@ -1,0 +1,14 @@
+Media Notes -*- mode: outline -*-
+
+* Old notes
+- Possibly modify TileSet to load images via image manager (move image
+  provider up to media so that image manager can use tileset's image
+  provider to load the image data) so that they can be cached (and more
+  importantly, flushed from the cache). Presently tilesets are loaded into
+  memory when tileset bundles are loaded and remain loaded forever.
+
+* 07/19/2002
+** Virtual media panel
+- Make sure doLayout() is getting called soon enough to ensure that we
+  don't improperly scroll the wrong thing if we're hijacked while in the
+  middle of scrolling
