@@ -1,5 +1,5 @@
 //
-// $Id: MessageManager.java,v 1.3 2002/05/01 02:45:00 mdb Exp $
+// $Id: MessageManager.java,v 1.4 2002/05/01 02:47:18 mdb Exp $
 
 package com.threerings.util;
 
@@ -94,13 +94,18 @@ public class MessageManager
         // if the resource bundle contains a special resource, we'll
         // interpret that as a derivation of MessageBundle to instantiate
         // for handling that class
-        String mbclass = null;
         if (rbundle != null) {
-            mbclass = rbundle.getString(MBUNDLE_CLASS_KEY);
-        }
-        if (!StringUtil.blank(mbclass)) {
+            String mbclass = null;
             try {
-                bundle = (MessageBundle)Class.forName(mbclass).newInstance();
+                mbclass = rbundle.getString(MBUNDLE_CLASS_KEY);
+                if (!StringUtil.blank(mbclass)) {
+                    bundle = (MessageBundle)
+                        Class.forName(mbclass).newInstance();
+                }
+
+            } catch (MissingResourceException mre) {
+                // nothing to worry about
+
             } catch (Throwable t) {
                 Log.warning("Failure instantiating custom message bundle " +
                             "[mbclass=" + mbclass + ", error=" + t + "].");
