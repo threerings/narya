@@ -1,41 +1,33 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: tilesets.xml,v 1.16 2001/09/07 18:21:20 shaper Exp $ -->
+<!-- $Id: tilesets.xml,v 1.17 2001/09/27 18:41:13 shaper Exp $ -->
 
 <!-- Initial test tileset description data. -->
 
 <tilesetgroup>
 
-  <tileset>
-    <name>Ground</name>
-    <tsid>1000</tsid>
+  <tileset tsid="1000" name="Ground">
     <imagefile>media/miso/tiles/base.png</imagefile>
     <rowheight>16, 16</rowheight>
     <rowwidth>32, 32</rowwidth>
     <tilecount>10, 10</tilecount>
   </tileset>
 
-  <tileset>
-    <name>Wall</name>
-    <tsid>1001</tsid>
+  <tileset tsid="1001" name="Wall">
     <imagefile>media/miso/tiles/wall.png</imagefile>
     <rowheight>45, 45</rowheight>
     <rowwidth>32, 32</rowwidth>
     <tilecount>3, 3</tilecount>
   </tileset>
 
-  <tileset>
-    <name>Icons</name>
-    <tsid>1002</tsid>
+  <tileset tsid="1002" name="Icons">
     <imagefile>media/miso/tiles/icons.png</imagefile>
     <rowheight>20, 49</rowheight>
     <rowwidth>32, 32</rowwidth>
     <tilecount>9, 2</tilecount>
   </tileset>
 
-  <tileset>
-    <name>Red Character</name>
-    <tsid>1003</tsid>
+  <tileset tsid="1003" name="Red Character">
     <imagefile>media/miso/tiles/character.png</imagefile>
     <rowheight>94, 94, 94, 94, 94, 94, 94, 94</rowheight>
     <rowwidth>94, 94, 94, 94, 94, 94, 94, 94</rowwidth>
@@ -44,9 +36,7 @@
     <gapdist>39, 18</gapdist>
   </tileset>
 
-  <tileset>
-    <name>Yellow Character</name>
-    <tsid>1005</tsid>
+  <tileset tsid="1005" name="Yellow Character">
     <imagefile>media/miso/tiles/character-yellow.png</imagefile>
     <rowheight>94, 94, 94, 94, 94, 94, 94, 94</rowheight>
     <rowwidth>94, 94, 94, 94, 94, 94, 94, 94</rowwidth>
@@ -55,9 +45,7 @@
     <gapdist>39, 18</gapdist>
   </tileset>
 
-  <tileset>
-    <name>Black Character</name>
-    <tsid>1006</tsid>
+  <tileset tsid="1006" name="Black Character">
     <imagefile>media/miso/tiles/character-black.png</imagefile>
     <rowheight>94, 94, 94, 94, 94, 94, 94, 94</rowheight>
     <rowwidth>94, 94, 94, 94, 94, 94, 94, 94</rowwidth>
@@ -66,9 +54,7 @@
     <gapdist>39, 18</gapdist>
   </tileset>
 
-  <tileset>
-    <name>Sample</name>
-    <tsid>1004</tsid>
+  <tileset tsid="1004" name="Sample">
     <imagefile>media/miso/tiles/sample.png</imagefile>
     <rowheight>48</rowheight>
     <rowwidth>64</rowwidth>
@@ -76,27 +62,21 @@
     <passable>1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1</passable>
   </tileset>
 
-  <tileset>
-    <name>Node Icons</name>
-    <tsid>1007</tsid>
+  <tileset tsid="1007" name="Node Icons">
     <imagefile>media/miso/tiles/node-icons.png</imagefile>
     <rowheight>16</rowheight>
     <rowwidth>16</rowwidth>
     <tilecount>8</tilecount>
   </tileset>
 
-  <tileset>
-    <name>Editor Icons</name>
-    <tsid>1008</tsid>
+  <tileset tsid="1008" name="Editor Icons">
     <imagefile>media/miso/tiles/editor-icons.png</imagefile>
     <rowheight>22</rowheight>
     <rowwidth>20</rowwidth>
     <tilecount>5</tilecount>
   </tileset>
 
-  <tileset>
-    <name>Building</name>
-    <tsid>1009</tsid>
+  <tileset tsid="1009" name="Building">
     <imagefile>media/miso/tiles/building.png</imagefile>
     <rowheight>240</rowheight>
     <rowwidth>64</rowwidth>
@@ -104,22 +84,11 @@
     <passable>0, 0, 0, 0, 0, 0</passable>
   </tileset>
 
-  <tileset>
-    <name>Sword Pieces</name>
-    <tsid>1010</tsid>
-    <imagefile>media/miso/tiles/sword-pieces.png</imagefile>
+  <tileset tsid="1010" name="Sword Pieces">
+    <imagefile>media/miso/tiles/sword-pieces.gif</imagefile>
     <rowheight>10</rowheight>
     <rowwidth>10</rowwidth>
-    <tilecount>8</tilecount>
-  </tileset>
-
-  <tileset>
-    <name>Sword Blocks</name>
-    <tsid>1011</tsid>
-    <imagefile>media/miso/tiles/sword-blocks.png</imagefile>
-    <rowheight>10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10</rowheight>
-    <rowwidth>10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10</rowwidth>
-    <tilecount>3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3</tilecount>
+    <tilecount>44</tilecount>
   </tileset>
 
 </tilesetgroup>
