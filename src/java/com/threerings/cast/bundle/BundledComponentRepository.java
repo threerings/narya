@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.30 2004/02/25 14:39:34 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.31 2004/07/03 03:25:48 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -87,15 +87,15 @@ public class BundledComponentRepository
             for (int i = 0; i < rcount; i++) {
                 if (_actions == null) {
                     _actions = (HashMap)BundleUtil.loadObject(
-                        rbundles[i], BundleUtil.ACTIONS_PATH);
+                        rbundles[i], BundleUtil.ACTIONS_PATH, true);
                 }
                 if (_actionSets == null) {
                     _actionSets = (HashMap)BundleUtil.loadObject(
-                        rbundles[i], BundleUtil.ACTION_SETS_PATH);
+                        rbundles[i], BundleUtil.ACTION_SETS_PATH, true);
                 }
                 if (_classes == null) {
                     _classes = (HashMap)BundleUtil.loadObject(
-                        rbundles[i], BundleUtil.CLASSES_PATH);
+                        rbundles[i], BundleUtil.CLASSES_PATH, true);
                 }
             }
 
@@ -103,7 +103,7 @@ public class BundledComponentRepository
             for (int i = 0; i < rbundles.length; i++) {
                 HashIntMap comps = null;
                 comps = (HashIntMap)BundleUtil.loadObject(
-                    rbundles[i], BundleUtil.COMPONENTS_PATH);
+                    rbundles[i], BundleUtil.COMPONENTS_PATH, true);
                 if (comps == null) {
                     continue;
                 }
@@ -299,12 +299,14 @@ public class BundledComponentRepository
             try {
                 // then try loading up a tileset customized for this action
                 if (aset == null) {
-                    aset = (TileSet)BundleUtil.loadObject(_bundle, cpath);
+                    aset = (TileSet)BundleUtil.loadObject(
+                        _bundle, cpath, false);
                 }
 
                 // if that failed, try loading the default tileset
                 if (aset == null) {
-                    aset = (TileSet)BundleUtil.loadObject(_bundle, dpath);
+                    aset = (TileSet)BundleUtil.loadObject(
+                        _bundle, dpath, false);
                     _setcache.put(dpath, aset);
                 }
 

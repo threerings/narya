@@ -1,5 +1,5 @@
 //
-// $Id: DumpBundle.java,v 1.2 2002/02/05 20:29:09 mdb Exp $
+// $Id: DumpBundle.java,v 1.3 2004/07/03 03:25:48 mdb Exp $
 
 package com.threerings.cast.bundle.tools;
 
@@ -33,19 +33,19 @@ public class DumpBundle
                 ResourceBundle bundle = new ResourceBundle(file);
 
                 HashMap actions = (HashMap)BundleUtil.loadObject(
-                    bundle, BundleUtil.ACTIONS_PATH);
+                    bundle, BundleUtil.ACTIONS_PATH, false);
                 dumpTable("actions: ", actions);
 
                 HashMap actionSets = (HashMap)BundleUtil.loadObject(
-                    bundle, BundleUtil.ACTION_SETS_PATH);
+                    bundle, BundleUtil.ACTION_SETS_PATH, false);
                 dumpTable("actionSets: ", actionSets);
 
                 HashMap classes = (HashMap)BundleUtil.loadObject(
-                    bundle, BundleUtil.CLASSES_PATH);
+                    bundle, BundleUtil.CLASSES_PATH, false);
                 dumpTable("classes: ", classes);
 
                 HashIntMap comps = (HashIntMap)BundleUtil.loadObject(
-                    bundle, BundleUtil.COMPONENTS_PATH);
+                    bundle, BundleUtil.COMPONENTS_PATH, false);
                 dumpTable("components: ", comps);
 
             } catch (Exception e) {

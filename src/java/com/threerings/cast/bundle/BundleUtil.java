@@ -1,5 +1,5 @@
 //
-// $Id: BundleUtil.java,v 1.7 2004/02/25 14:39:34 mdb Exp $
+// $Id: BundleUtil.java,v 1.8 2004/07/03 03:25:48 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -44,12 +44,19 @@ public class BundleUtil
      * Attempts to load an object from the supplied resource bundle with
      * the specified path.
      *
+     * @param wipeBundleOnFailure if there is an error reading the object
+     * from the bundle and this parameter is true, we will instruct the
+     * bundle to delete its underlying jar file before propagating the
+     * exception with the expectation that it will be redownloaded and
+     * repaired the next time the application is run.
+     *
      * @return the unserialized object in question.
      *
      * @exception IOException thrown if an I/O error occurs while reading
      * the object from the bundle.
      */     
-    public static Object loadObject (ResourceBundle bundle, String path)
+    public static Object loadObject (ResourceBundle bundle, String path,
+                                     boolean wipeBundleOnFailure)
         throws IOException, ClassNotFoundException
     {
         InputStream bin = null;
@@ -66,6 +73,17 @@ public class BundleUtil
                         ", element=" + path +
                         ", error=" + ice.getMessage() + "].");
             return null;
+
+        } catch (IOException ioe) {
+            Log.warning("Error reading resource from bundle " +
+                        "[bundle=" + bundle + ", path=" + path +
+                        ", wiping?=" + wipeBundleOnFailure + "].");
+            if (wipeBundleOnFailure) {
+                StreamUtil.close(bin);
+                bin = null;
+                bundle.wipeBundle();
+            }
+            throw ioe;
 
         } finally {
             StreamUtil.close(bin);
