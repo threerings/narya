@@ -1,12 +1,12 @@
 //
-// $Id: Portal.java,v 1.2 2001/08/16 22:05:01 shaper Exp $
+// $Id: Portal.java,v 1.3 2001/08/21 01:15:16 shaper Exp $
 
 package com.threerings.miso.scene;
 
 /**
- * The <code>Portal</code> class represents a <code>Location</code> in
- * a scene that both leads to a different scene and serves as a
- * potential entrance into its containing scene.
+ * The portal class represents a {@link Location} in a scene that both
+ * leads to a different scene and serves as a potential entrance into
+ * its containing scene.
  */
 public class Portal extends Location
 {
@@ -20,7 +20,7 @@ public class Portal extends Location
     public Portal dest;
 
     /**
-     * Construct an <code>Portal</code> object.
+     * Construct a portal object.
      *
      * @param loc the location associated with the portal.
      * @param name the portal name.
@@ -42,6 +42,15 @@ public class Portal extends Location
     {
 	this.sid = sid;
 	this.dest = dest;
+    }
+
+    /**
+     * Return whether this portal has a valid destination scene and
+     * portal.
+     */
+    public boolean hasDestination ()
+    {
+	return (sid != MisoScene.SID_INVALID && dest != null);
     }
 
     /**

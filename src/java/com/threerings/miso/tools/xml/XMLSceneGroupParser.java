@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneGroupParser.java,v 1.2 2001/08/16 22:05:01 shaper Exp $
+// $Id: XMLSceneGroupParser.java,v 1.3 2001/08/21 01:15:16 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -74,6 +74,9 @@ public class XMLSceneGroupParser extends DefaultHandler
 	    // the associated scene objects, resolve bindings between
 	    // all scenes in the group.
 	    _info.resolveBindings();
+
+	    // warn about any remaining un-bound portals
+	    _info.checkUnboundPortals();
 	}
 
 	// note that we're not within a tag to avoid considering any
@@ -193,7 +196,7 @@ public class XMLSceneGroupParser extends DefaultHandler
 	}
 
 	/**
-	 * Resolve portal bindings and set entrance portal for all scenes.
+	 * Resolve the portal bindings and entrance portal for all scenes.
 	 */
 	public void resolveBindings ()
 	{
@@ -210,9 +213,8 @@ public class XMLSceneGroupParser extends DefaultHandler
 		    // resolve the portal binding
 		    resolvePortal(sinfo, pinfo);
 
-		    // set the entrance portal
-		    Portal entrance = sinfo.scene.getPortal(sinfo.entrance);
-		    sinfo.scene.setEntrance(entrance);
+		    // resolve the entrance portal
+		    resolveEntrance(sinfo);
 		}
 	    }
 	}
@@ -228,31 +230,78 @@ public class XMLSceneGroupParser extends DefaultHandler
 	    // get the source portal object
 	    Portal src = sinfo.scene.getPortal(pinfo.src);
 	    if (src == null) {
-		Log.warning(
-		    "Missing source portal [scene=" + sinfo.name +
-		    ", pinfo=" + pinfo + "].");
+		Log.warning("Missing source portal [scene=" + sinfo.name +
+			    ", pinfo=" + pinfo + "].");
 		return;
 	    }
 
 	    // get the destination scene
 	    MisoScene destScene = getScene(pinfo.destScene);
 	    if (destScene == null) {
-		Log.warning(
-		    "Missing destination scene [scene=" + sinfo.name +
-		    ", pinfo=" + pinfo + "].");
+		Log.warning("Missing destination scene [scene=" + sinfo.name +
+			    ", pinfo=" + pinfo + "].");
+		return;
 	    }
 
 	    // get the destination portal object
 	    Portal dest = destScene.getPortal(pinfo.dest);
 	    if (dest == null) {
-		Log.warning(
-		    "Missing destination portal [scene=" + sinfo.name +
-		    ", pinfo=" + pinfo + "].");
+		Log.warning("Missing destination portal [scene=" + sinfo.name +
+			    ", pinfo=" + pinfo + "].");
+		return;
 	    }
 
 	    // update source portal with full destination information
 	    src.setDestination(destScene.getId(), dest);
-	}	    
+	}
+
+	/**
+	 * Resolve the binding for the entrance portal in the given scene.
+	 *
+	 * @param sinfo the scene info.
+	 */
+	protected void resolveEntrance (SceneInfo sinfo)
+	{
+	    Portal entrance = sinfo.scene.getPortal(sinfo.entrance);
+	    if (entrance == null) {
+		Log.warning( "Missing entrance portal [scene=" + sinfo.name +
+			     ", entrance=" + sinfo.entrance + "].");
+		return;
+	    }
+
+	    sinfo.scene.setEntrance(entrance);
+	}
+
+	/**
+	 * Scan through all scenes and output a warning message if any
+	 * portals are found that aren't bound to a destination
+	 * portal.  Intended for calling after {@link
+	 * #resolveBindings} is called to make sure the scene group
+	 * description wasn't lacking a binding for some portal; or,
+	 * that the scenes don't contain any unintended or unnecessary
+	 * portals.
+	 */
+	public void checkUnboundPortals ()
+	{
+	    int size = sceneinfo.size();
+	    for (int ii = 0; ii < size; ii++) {
+		// retrieve the next scene info object
+		SceneInfo sinfo = (SceneInfo)sceneinfo.get(ii);
+
+		// get the portals in the scene
+		List portals = sinfo.scene.getPortals();
+
+		// check each portal to make sure it has a valid destination
+		int psize = portals.size();
+		for (int jj = 0; jj < size; jj++) {
+		    Portal portal = (Portal)portals.get(jj);
+		    if (!portal.hasDestination()) {
+			Log.warning("Unbound portal [scene=" + sinfo.name +
+				    ", portal=" + portal + "].");
+		    }
+		}
+	    }
+	}
     }
 
     /**
