@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.49 2002/09/19 16:38:03 mdb Exp $
+// $Id: DObject.java,v 1.50 2002/09/25 03:02:00 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -514,9 +514,9 @@ public class DObject implements Streamable
     public String toString ()
     {
         StringBuffer buf = new StringBuffer();
-        StringUtil.fieldsToString(buf, this);
+        StringUtil.fieldsToString(buf, this, "\n");
         if (buf.length() > 0) {
-            buf.insert(0, ", ");
+            buf.insert(0, "\n");
         }
         buf.insert(0, _oid);
         buf.insert(0, "[oid=");
