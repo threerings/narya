@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.34 2002/09/13 05:08:00 mdb Exp $
+// $Id: PlaceManager.java,v 1.35 2002/09/13 05:11:59 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -270,7 +270,7 @@ public class PlaceManager
             _occInfo.put(info.getBodyOid(), info);
 
             // clone the canonical copy and insert it into the DSet
-            _plobj.updateOccupantInfo((OccupantInfo)info.clone());
+            _plobj.addToOccupantInfo((OccupantInfo)info.clone());
 
             return info;
 
