@@ -1,5 +1,5 @@
 //
-// $Id: AuthResponse.java,v 1.9 2001/10/11 04:07:53 mdb Exp $
+// $Id: AuthResponse.java,v 1.10 2001/12/03 22:01:57 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -42,6 +42,27 @@ public class AuthResponse extends DownstreamMessage
         return _data;
     }
 
+    /**
+     * The authenticator can stuff information into the auth response that
+     * will be made available to the client management code on the server
+     * after the authentication process has completed. This is provided
+     * because the authenticator will likely end up doing things like
+     * loading information from a database which it will want to pass
+     * along to the running system once authentication is complete.
+     */
+    public void setAuthInfo (Object authInfo)
+    {
+        _authInfo = authInfo;
+    }
+
+    /**
+     * Returns the auth info provided by the authenticator implementation.
+     */
+    public Object getAuthInfo ()
+    {
+        return _authInfo;
+    }
+
     public short getType ()
     {
         return TYPE;
@@ -67,4 +88,7 @@ public class AuthResponse extends DownstreamMessage
     }
 
     protected AuthResponseData _data;
+
+    /** Stores auth info provided by the authenticator. */
+    protected Object _authInfo;
 }

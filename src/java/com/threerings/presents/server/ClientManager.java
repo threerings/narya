@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.12 2001/12/03 20:14:51 mdb Exp $
+// $Id: ClientManager.java,v 1.13 2001/12/03 22:01:57 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -98,7 +98,7 @@ public class ClientManager implements ConnectionObserver
         if (client != null) {
             Log.info("Session resumed [username=" + username +
                      ", conn=" + conn + "].");
-            client.resumeSession(conn, rsp.getData());
+            client.resumeSession(conn, rsp.getAuthInfo());
 
         } else {
             Log.info("Session initiated [username=" + username +
@@ -106,7 +106,7 @@ public class ClientManager implements ConnectionObserver
             // create a new client and stick'em in the table
             try {
                 client = (PresentsClient)_clientClass.newInstance();
-                client.startSession(this, username, conn, rsp.getData());
+                client.startSession(this, username, conn, rsp.getAuthInfo());
                 _usermap.put(username, client);
             } catch (Exception e) {
                 Log.warning("Failed to instantiate client instance to " +

@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.25 2001/12/03 20:14:51 mdb Exp $
+// $Id: PresentsClient.java,v 1.26 2001/12/03 22:01:57 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -11,9 +11,31 @@ import com.samskivert.util.HashIntMap;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.dobj.*;
-import com.threerings.presents.net.*;
-import com.threerings.presents.server.net.*;
+
+import com.threerings.presents.dobj.DEvent;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.EventListener;
+import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.Subscriber;
+import com.threerings.presents.dobj.TypedEvent;
+
+import com.threerings.presents.net.BootstrapData;
+import com.threerings.presents.net.BootstrapNotification;
+import com.threerings.presents.net.EventNotification;
+import com.threerings.presents.net.UpstreamMessage;
+
+import com.threerings.presents.net.ForwardEventRequest;
+import com.threerings.presents.net.LogoffRequest;
+import com.threerings.presents.net.PingRequest;
+import com.threerings.presents.net.SubscribeRequest;
+import com.threerings.presents.net.UnsubscribeRequest;
+
+import com.threerings.presents.net.FailureResponse;
+import com.threerings.presents.net.ObjectResponse;
+import com.threerings.presents.net.PongResponse;
+
+import com.threerings.presents.server.net.Connection;
+import com.threerings.presents.server.net.MessageHandler;
 
 /**
  * A client object represents a client session in the server. It is
@@ -54,7 +76,7 @@ public class PresentsClient
      */
     protected void startSession (
         ClientManager cmgr, String username, Connection conn,
-        final AuthResponseData rdata)
+        final Object authInfo)
     {
         _cmgr = cmgr;
         _username = username;
@@ -67,7 +89,7 @@ public class PresentsClient
             public void objectAvailable (DObject object)
             {
                 setClientObject((ClientObject)object);
-                sessionWillStart(rdata);
+                sessionWillStart(authInfo);
                 sendBootstrap();
             }
 
@@ -97,8 +119,7 @@ public class PresentsClient
      * authenticates as this already established client. This must only be
      * called from the congmr thread.
      */
-    protected void resumeSession (
-        Connection conn, final AuthResponseData rdata)
+    protected void resumeSession (Connection conn, final Object authInfo)
     {
         Connection oldconn = getConnection();
 
@@ -124,7 +145,7 @@ public class PresentsClient
             {
                 // now that we're on the dobjmgr thread we can resume our
                 // session resumption
-                finishResumeSession(rdata);
+                finishResumeSession(authInfo);
                 return false;
             }
         };
@@ -136,10 +157,10 @@ public class PresentsClient
      * resumption. We call some call backs and send the bootstrap info to
      * the client.
      */
-    protected void finishResumeSession (AuthResponseData rdata)
+    protected void finishResumeSession (Object authInfo)
     {
         // let derived classes do any session resuming
-        sessionWillResume(rdata);
+        sessionWillResume(authInfo);
 
         // send off a bootstrap notification immediately because we've
         // already got our client object
@@ -240,10 +261,10 @@ public class PresentsClient
      * thread which means that object manipulations are OK, but client
      * instance manipulations must done carefully.
      *
-     * @param rdata the data object delivered to the client during the
-     * authentication phase.
+     * @param authInfo optional information provided by the authenticator
+     * that it obtained during the authentication phase.
      */
-    protected void sessionWillStart (AuthResponseData rdata)
+    protected void sessionWillStart (Object authInfo)
     {
     }
 
@@ -258,10 +279,10 @@ public class PresentsClient
      * thread which means that object manipulations are OK, but client
      * instance manipulations must done carefully.
      *
-     * @param rdata the data object delivered to the client during the
-     * authentication phase.
+     * @param authInfo optional information provided by the authenticator
+     * that it obtained during the authentication phase.
      */
-    protected void sessionWillResume (AuthResponseData rdata)
+    protected void sessionWillResume (Object authInfo)
     {
     }
 
