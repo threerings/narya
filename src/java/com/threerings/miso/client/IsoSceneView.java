@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.117 2002/07/08 21:41:30 mdb Exp $
+// $Id: IsoSceneView.java,v 1.118 2002/09/05 02:21:54 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -635,6 +635,22 @@ public class IsoSceneView implements SceneView
     public Point getHoverCoords ()
     {
         return _hcoords;
+    }
+
+    /**
+     * Returns the bounds of the given object in the scene in screen
+     * coordinates, or <code>null</code> if there is no such object.
+     */
+    public Rectangle getObjectTileBounds (int x, int y, ObjectTile tile)
+    {
+        Iterator iter = _objects.iterator();
+        while (iter.hasNext()) {
+            ObjectMetrics metrics = (ObjectMetrics)iter.next();
+            if (metrics.tile == tile && metrics.x == x && metrics.y == y) {
+                return metrics.bounds;
+            }
+        }
+        return null;
     }
 
     /**
