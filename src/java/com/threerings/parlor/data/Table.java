@@ -1,5 +1,5 @@
 //
-// $Id: Table.java,v 1.18 2004/08/27 02:20:13 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -20,6 +20,10 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.parlor.data;
+
+import java.io.IOException;
+
+import com.threerings.io.ObjectInputStream;
 
 import com.samskivert.util.StringUtil;
 import com.threerings.util.Name;
@@ -94,6 +98,18 @@ public class Table
     {
     }
 
+    /**
+     * Extends default behavior to initialize transient members.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
+    {
+        in.defaultReadObject();
+        
+        // initialize casted reference
+        _tconfig = (TableConfig)config;
+    }
+    
     /**
      * A convenience function for accessing the table id as an int.
      */
