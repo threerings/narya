@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.47 2003/04/09 22:02:05 mdb Exp $
+// $Id: ImageManager.java,v 1.48 2003/04/25 15:51:34 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import com.sun.imageio.plugins.png.PNGImageReaderSpi;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 
@@ -102,15 +101,6 @@ public class ImageManager
             }
         });
         _ccache.setTracking(true);
-
-        // try to figure out which image loader we'll be using
-        try {
-            _loader = (ImageLoader)Class.forName(IMAGEIO_LOADER).newInstance();
-        } catch (Throwable t) {
-            Log.info("Unable to use ImageIO to load images. " +
-                     "Falling back to Toolkit [error=" + t + "].");
-            _loader = new ToolkitLoader(context);
-        }
 
         // obtain our graphics configuration
         if (context != null) {
@@ -275,6 +265,9 @@ public class ImageManager
             Log.debug("Loading image " + key + ".");
             imgin = key.daprov.loadImageData(key.path);
             image = loadImage(imgin);
+            if (image == null) {
+                Log.warning("ImageIO.read(" + key + ") returned null.");
+            }
 
         } catch (Exception e) {
             Log.warning("Unable to load image '" + key + "'.");
@@ -315,9 +308,11 @@ public class ImageManager
     protected BufferedImage loadImage (ImageInputStream imgin)
         throws IOException
     {
+//         ParameterBlock pb = new ParameterBlock();
+//         pb.add(imgin);
+//         return JAI.create("BMP", pb);
+
         return ImageIO.read(imgin);
-//         _reader.setInput(imgin, false, false);
-//         return _reader.read(0, null);
     }
 
     /**
@@ -480,10 +475,6 @@ public class ImageManager
      * by default. */
     protected ResourceManager _rmgr;
 
-    /** The image loader via which we convert an input stream into an
-     * image. */
-    protected ImageLoader _loader;
-
     /** A cache of loaded images. */
     protected LRUHashMap _ccache;
 
@@ -508,11 +499,6 @@ public class ImageManager
         }
     };
 
-//     /** Temporary hacked PNG reader that actually closes its
-//      * InflaterInputStream when it's done with it. */
-//     protected PNGImageReader _reader =
-//         new PNGImageReader(new PNGImageReaderSpi());
-
     /** Data providers for different resource sets. */
     protected HashMap _providers = new HashMap();
 
@@ -535,10 +521,4 @@ public class ImageManager
         new RuntimeAdjust.BooleanAdjust(
             "Cause image manager to return blank images.",
             "narya.media.image.run_blank", MediaPrefs.config, false);
-
-    /** The classname of the ImageIO-based image loader which we attempt
-     * to use but fallback from if we're not running a JVM that has
-     * ImageIO support. */
-    protected static final String IMAGEIO_LOADER =
-        "com.threerings.media.image.ImageIOLoader";
 }
