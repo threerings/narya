@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.14 2002/05/24 05:58:55 mdb Exp $
+// $Id: SceneRegistry.java,v 1.15 2002/05/26 02:24:46 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -50,7 +50,7 @@ public class SceneRegistry
         _scfact = new DefaultRuntimeSceneFactory();
 
         // create/register a scene provider with the invocation services
-        SceneProvider provider = new SceneProvider(this);
+        SceneProvider provider = new SceneProvider(invmgr, this);
         invmgr.registerProvider(SceneProvider.MODULE_NAME, provider);
     }
 

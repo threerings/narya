@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.21 2002/05/22 21:44:54 shaper Exp $
+// $Id: ChatDirector.java,v 1.22 2002/05/26 02:24:45 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -34,15 +34,9 @@ public class ChatDirector
         // keep the context around
         _ctx = ctx;
 
-        // register a client observer that will register us as the chat
-        // receiver when we log on
-        _ctx.getClient().addClientObserver(new ClientAdapter() {
-            public void clientDidLogon (Client client)
-            {
-                client.getInvocationDirector().registerReceiver(
-                    MODULE_NAME, ChatDirector.this);
-            }
-        });
+        // register for chat notifications
+        _ctx.getClient().getInvocationDirector().registerReceiver(
+            MODULE_NAME, this);
 
         // register ourselves as a location observer
         _ctx.getLocationDirector().addLocationObserver(this);

@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.13 2002/05/22 21:48:44 shaper Exp $
+// $Id: SceneDirector.java,v 1.14 2002/05/26 02:24:46 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -232,6 +232,36 @@ public class SceneDirector
 
         // let our observers know that something has gone horribly awry
         _locdir.failedToMoveTo(sceneId, reason);
+    }
+
+    /**
+     * Called to clean up our place and scene state information when we
+     * leave a scene.
+     */
+    public void didLeaveScene ()
+    {
+        // let the location director know what's up
+        _locdir.didLeavePlace();
+
+        // clear out our own scene state
+        clearScene();
+    }
+
+    /**
+     * Called when the server has decided to forcibly move us to another
+     * scene. The server first ejects us from our previous scene and then
+     * sends us a notification with our new location. We then turn around
+     * and issue a standard moveTo request.
+     */
+    public void handleMoveNotification (int sceneId)
+    {
+        Log.info("Moving at request of server [sceneId=" + sceneId + "].");
+
+        // clear out our old scene and place data
+        didLeaveScene();
+
+        // move to the new scene
+        moveTo(sceneId);
     }
 
     /**

@@ -1,8 +1,9 @@
 //
-// $Id: ZoneProvider.java,v 1.7 2002/05/03 00:00:17 mdb Exp $
+// $Id: ZoneProvider.java,v 1.8 2002/05/26 02:24:46 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
+import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 import com.threerings.presents.server.ServiceFailedException;
 
@@ -33,8 +34,10 @@ public class ZoneProvider
      * constructed and registered by the {@link ZoneRegistry}, which a
      * zone-using system must create and initialize in their server.
      */
-    public ZoneProvider (ZoneRegistry zonereg, SceneRegistry screg)
+    public ZoneProvider (
+        InvocationManager invmgr, ZoneRegistry zonereg, SceneRegistry screg)
     {
+        _invmgr = invmgr;
         _zonereg = zonereg;
         _screg = screg;
     }
@@ -173,6 +176,25 @@ public class ZoneProvider
                          MOVE_FAILED_RESPONSE, sfe.getMessage());
         }
     }
+
+    /**
+     * Ejects the specified body from their current scene and sends them a
+     * request to move to the specified new zone and scene. This is the
+     * zone-equivalent to {@link LocationProvider#moveBody}.
+     */
+    public void moveBody (BodyObject source, int zoneId, int sceneId)
+    {
+        // first remove them from their old place
+        LocationProvider.leaveOccupiedPlace(source);
+
+        // then send a move notification
+        _invmgr.sendNotification(
+            source.getOid(), MODULE_NAME, MOVE_NOTIFICATION,
+            new Object[] { new Integer(zoneId), new Integer(sceneId) });
+    }
+
+    /** The invocation manager with which we interact. */
+    protected InvocationManager _invmgr;
 
     /** The zone registry with which we communicate. */
     protected ZoneRegistry _zonereg;

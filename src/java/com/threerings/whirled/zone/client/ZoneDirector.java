@@ -1,5 +1,5 @@
 //
-// $Id: ZoneDirector.java,v 1.4 2001/12/17 04:11:40 mdb Exp $
+// $Id: ZoneDirector.java,v 1.5 2002/05/26 02:24:46 mdb Exp $
 
 package com.threerings.whirled.zone.client;
 
@@ -147,6 +147,24 @@ public class ZoneDirector
 
         // and let the observers know what's up
         notifyObservers(reason);
+    }
+
+    /**
+     * Called when the server has decided to forcibly move us to another
+     * zone and scene. The server first ejects us from our previous scene
+     * and then sends us a notification with our new location. We then
+     * turn around and issue a standard moveTo request.
+     */
+    public void handleMoveNotification (int zoneId, int sceneId)
+    {
+        Log.info("Moving at request of server [zoneId=" + zoneId +
+                 ", sceneId=" + sceneId + "].");
+
+        // clear out our old scene and place data
+        _scdir.didLeaveScene();
+
+        // move to the new zone and scene
+        moveTo(zoneId, sceneId);
     }
 
     /**

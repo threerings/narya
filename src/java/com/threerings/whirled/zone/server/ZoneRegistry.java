@@ -1,5 +1,5 @@
 //
-// $Id: ZoneRegistry.java,v 1.6 2002/03/28 23:59:33 mdb Exp $
+// $Id: ZoneRegistry.java,v 1.7 2002/05/26 02:24:46 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -24,7 +24,7 @@ public class ZoneRegistry
     {
         // create a zone provider and register it with the invocation
         // services
-        ZoneProvider provider = new ZoneProvider(this, screg);
+        ZoneProvider provider = new ZoneProvider(invmgr, this, screg);
         invmgr.registerProvider(ZoneProvider.MODULE_NAME, provider);
     }
 

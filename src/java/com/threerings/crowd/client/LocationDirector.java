@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.19 2002/05/22 21:46:53 shaper Exp $
+// $Id: LocationDirector.java,v 1.20 2002/05/26 02:24:46 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -10,6 +10,7 @@ import com.samskivert.util.ObserverList;
 import com.samskivert.util.ObserverList.ObserverOp;
 
 import com.threerings.presents.client.Client;
+import com.threerings.presents.client.InvocationReceiver;
 import com.threerings.presents.client.SessionObserver;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
@@ -18,6 +19,7 @@ import com.threerings.presents.dobj.Subscriber;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.LocationCodes;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
@@ -30,7 +32,7 @@ import com.threerings.crowd.util.CrowdContext;
  * before actually issuing the request.
  */
 public class LocationDirector
-    implements SessionObserver, Subscriber
+    implements LocationCodes, SessionObserver, Subscriber, InvocationReceiver
 {
     /**
      * Used to recover from a moveTo request that was accepted but
@@ -57,6 +59,10 @@ public class LocationDirector
 
         // register ourselves as a client observer
         ctx.getClient().addClientObserver(this);
+
+        // register for location notifications
+        _ctx.getClient().getInvocationDirector().registerReceiver(
+            MODULE_NAME, this);
     }
 
     /**
@@ -174,11 +180,13 @@ public class LocationDirector
      */
     public void didMoveTo (int placeId, PlaceConfig config)
     {
+        // keep track of our previous place id
+        _previousPlaceId = _placeId;
+
         // do some cleaning up in case we were previously in a place
         didLeavePlace();
 
         // make a note that we're now mostly in the new location
-        _previousPlaceId = _placeId;
         _placeId = placeId;
 
         Class cclass = config.getControllerClass();
@@ -199,12 +207,12 @@ public class LocationDirector
     }
 
     /**
-     * Called when we're leaving our current location.  Informs the
+     * Called when we're leaving our current location. Informs the
      * location's controller that we're departing, unsubscribes from the
      * location's place object, and clears out our internal place
      * information.
      */
-    protected void didLeavePlace ()
+    public void didLeavePlace ()
     {
         if (_plobj != null) {
             // let the old controller know that things are going away
@@ -244,6 +252,7 @@ public class LocationDirector
         notifyFailure(placeId, reason);
     }
 
+    // documentation inherited from interface
     public void clientDidLogon (Client client)
     {
         // get a copy of our body object
@@ -270,6 +279,7 @@ public class LocationDirector
         // we'll want to be going there straight away
     }
 
+    // documentation inherited from interface
     public void clientDidLogoff (Client client)
     {
         // clear ourselves out and inform observers of our departure
@@ -305,6 +315,23 @@ public class LocationDirector
 
         // let our observers know that something has gone horribly awry
         notifyFailure(placeId, reason);
+    }
+
+    /**
+     * Called when the server has decided to forcibly move us to another
+     * room. The server first ejects us from our previous room and then
+     * sends us a notification with our new location. We then turn around
+     * and issue a standard moveTo request.
+     */
+    public void handleMoveNotification (int placeId)
+    {
+        Log.info("Moving at request of server [placeId=" + placeId + "].");
+
+        // clear out our old place information
+        didLeavePlace();
+
+        // move to the new place
+        moveTo(placeId);
     }
 
     /**
