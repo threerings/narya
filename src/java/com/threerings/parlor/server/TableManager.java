@@ -1,5 +1,5 @@
 //
-// $Id: TableManager.java,v 1.2 2001/10/24 01:14:38 mdb Exp $
+// $Id: TableManager.java,v 1.3 2001/10/25 23:02:17 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -211,6 +211,12 @@ public class TableManager
         // request that the user be removed from the table
         if (!table.clearOccupant(leaver.username)) {
             throw new ServiceFailedException(NOT_AT_TABLE);
+        }
+
+        // remove the mapping from this user to the table
+        if (_boidMap.remove(leaver.getOid()) == null) {
+            Log.warning("No body to table mapping to clear? " +
+                        "[leaver=" + leaver + ", table=" + table + "].");
         }
 
         // either update or delete the table depending on whether or not
