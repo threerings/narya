@@ -1,5 +1,5 @@
 //
-// $Id: ZoneRegistry.java,v 1.2 2001/12/04 01:06:33 mdb Exp $
+// $Id: ZoneRegistry.java,v 1.3 2001/12/13 05:46:11 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -10,6 +10,7 @@ import com.threerings.presents.server.InvocationManager;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.server.SceneRegistry;
+import com.threerings.whirled.zone.server.util.ZoneUtil;
 
 /**
  * The zone registry takes care of mapping zone requests to the
@@ -50,10 +51,13 @@ public class ZoneRegistry
 
     /**
      * Returns the zone manager that handles the specified zone id.
+     *
+     * @param qualifiedZoneId the qualified zone id for which the manager
+     * should be looked up.
      */
-    public ZoneManager getZoneManager (int zoneId)
+    public ZoneManager getZoneManager (int qualifiedZoneId)
     {
-        int zoneType = (0xFF000000 & zoneId) >> 24;
+        int zoneType = ZoneUtil.zoneType(qualifiedZoneId);
         return (ZoneManager)_managers.get(zoneType);
     }
 
