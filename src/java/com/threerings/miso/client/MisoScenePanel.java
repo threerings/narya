@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.56 2004/01/11 12:22:05 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.57 2004/01/12 05:53:59 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -254,8 +254,14 @@ public class MisoScenePanel extends VirtualMediaPanel
     /**
      * Computes a path for the specified sprite to the specified tile
      * coordinates.
+     *
+     * @param loose if true, an approximate path will be returned if a
+     * complete path cannot be located. This path will navigate the sprite
+     * "legally" as far as possible and then walk the sprite in a straight
+     * line to its final destination. This is generally only useful if the
+     * the path goes "off screen".
      */
-    public Path getPath (Sprite sprite, int x, int y)
+    public Path getPath (Sprite sprite, int x, int y, boolean loose)
     {
         // sanity check
         if (sprite == null) {
@@ -274,7 +280,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         // get a reasonable tile path through the scene
         long start = System.currentTimeMillis();
         List points = AStarPathUtil.getPath(
-            this, sprite, longestPath, src.x, src.y, dest.x, dest.y);
+            this, sprite, longestPath, src.x, src.y, dest.x, dest.y, loose);
         long duration = System.currentTimeMillis() - start;
 
         // sanity check the number of nodes searched so that we can keep
