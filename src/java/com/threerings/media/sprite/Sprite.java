@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.51 2002/10/08 21:03:37 ray Exp $
+// $Id: Sprite.java,v 1.52 2002/11/05 03:38:59 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -53,6 +53,24 @@ public abstract class Sprite extends AbstractMedia
     public int getY ()
     {
         return _oy;
+    }
+
+    /**
+     * Returns the offset to the sprite's origin from the upper-left of
+     * the sprite's image.
+     */
+    public int getXOffset ()
+    {
+        return _oxoff;
+    }
+
+    /**
+     * Returns the offset to the sprite's origin from the upper-left of
+     * the sprite's image.
+     */
+    public int getYOffset ()
+    {
+        return _oyoff;
     }
 
     /**
