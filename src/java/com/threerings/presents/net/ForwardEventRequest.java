@@ -1,5 +1,5 @@
 //
-// $Id: ForwardEventRequest.java,v 1.7 2001/06/11 17:44:04 mdb Exp $
+// $Id: ForwardEventRequest.java,v 1.8 2001/07/19 19:30:14 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -58,6 +58,11 @@ public class ForwardEventRequest extends UpstreamMessage
         super.readFrom(in);
         // read the event in from the stream
         _event = (TypedEvent)TypedObjectFactory.readFrom(in);
+    }
+
+    public String toString ()
+    {
+        return "[type=FWD, msgid=" + messageId + ", evt=" + _event + "]";
     }
 
     /** The event which we are forwarding. */

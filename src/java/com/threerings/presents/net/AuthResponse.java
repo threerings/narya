@@ -1,5 +1,5 @@
 //
-// $Id: AuthResponse.java,v 1.7 2001/07/19 07:09:16 mdb Exp $
+// $Id: AuthResponse.java,v 1.8 2001/07/19 19:30:14 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -59,6 +59,11 @@ public class AuthResponse extends DownstreamMessage
     {
         super.readFrom(in);
         _data = (AuthResponseData)DObjectFactory.readFrom(in);
+    }
+
+    public String toString ()
+    {
+        return "[type=ARSP, msgid=" + messageId + ", data=" + _data + "]";
     }
 
     protected AuthResponseData _data;

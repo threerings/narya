@@ -1,5 +1,5 @@
 //
-// $Id: ObjectResponse.java,v 1.9 2001/07/19 07:09:16 mdb Exp $
+// $Id: ObjectResponse.java,v 1.10 2001/07/19 19:30:14 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -53,6 +53,11 @@ public class ObjectResponse extends DownstreamMessage
     {
         super.readFrom(in);
         _dobj = (DObject)DObjectFactory.readFrom(in);
+    }
+
+    public String toString ()
+    {
+        return "[type=ORSP, msgid=" + messageId + ", obj=" + _dobj + "]";
     }
 
     /** The object which is associated with this response. */

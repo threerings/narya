@@ -1,5 +1,5 @@
 //
-// $Id: UpstreamMessage.java,v 1.6 2001/06/11 17:20:36 mdb Exp $
+// $Id: UpstreamMessage.java,v 1.7 2001/07/19 19:30:14 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -64,6 +64,11 @@ public abstract class UpstreamMessage implements TypedObject
         throws IOException
     {
         messageId = in.readShort();
+    }
+
+    public String toString ()
+    {
+        return "[msgid=" + messageId + "]";
     }
 
     /**

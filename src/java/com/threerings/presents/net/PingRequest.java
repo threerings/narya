@@ -1,5 +1,5 @@
 //
-// $Id: PingRequest.java,v 1.3 2001/06/05 21:29:51 mdb Exp $
+// $Id: PingRequest.java,v 1.4 2001/07/19 19:30:14 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -19,5 +19,10 @@ public class PingRequest extends UpstreamMessage
     public short getType ()
     {
         return TYPE;
+    }
+
+    public String toString ()
+    {
+        return "[type=PING, msgid=" + messageId + "]";
     }
 }

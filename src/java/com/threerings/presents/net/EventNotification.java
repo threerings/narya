@@ -1,5 +1,5 @@
 //
-// $Id: EventNotification.java,v 1.8 2001/07/19 07:09:16 mdb Exp $
+// $Id: EventNotification.java,v 1.9 2001/07/19 19:30:14 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -55,6 +55,11 @@ public class EventNotification extends DownstreamMessage
         super.readFrom(in);
         // read the event in from the stream
         _event = (TypedEvent)TypedObjectFactory.readFrom(in);
+    }
+
+    public String toString ()
+    {
+        return "[type=EVT, msgid=" + messageId + ", evt=" + _event + "]";
     }
 
     /** The event which we are forwarding. */

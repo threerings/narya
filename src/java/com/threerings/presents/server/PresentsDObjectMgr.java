@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.7 2001/07/19 19:18:07 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.8 2001/07/19 19:30:14 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -210,8 +210,7 @@ public class CherDObjectMgr implements DObjectManager
                 // insert it into the table
                 _objects.put(oid, obj);
 
-                Log.info("Created object [oid=" + oid +
-                         ", obj=" + obj + "].");
+                Log.info("Created object [obj=" + obj + "].");
 
                 if (_target != null) {
                     // add the subscriber to this object's subscriber list

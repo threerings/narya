@@ -1,5 +1,5 @@
 //
-// $Id: DownstreamMessage.java,v 1.6 2001/06/11 17:20:36 mdb Exp $
+// $Id: DownstreamMessage.java,v 1.7 2001/07/19 19:30:14 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -64,5 +64,10 @@ public abstract class DownstreamMessage implements TypedObject
         throws IOException
     {
         // we don't do anything here, but we may want to some day
+    }
+
+    public String toString ()
+    {
+        return "[msgid=" + messageId + "]";
     }
 }

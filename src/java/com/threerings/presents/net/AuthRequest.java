@@ -1,5 +1,5 @@
 //
-// $Id: AuthRequest.java,v 1.5 2001/06/02 01:30:37 mdb Exp $
+// $Id: AuthRequest.java,v 1.6 2001/07/19 19:30:14 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -52,6 +52,11 @@ public class AuthRequest extends UpstreamMessage
     {
         super.readFrom(in);
         _creds = (Credentials)TypedObjectFactory.readFrom(in);
+    }
+
+    public String toString ()
+    {
+        return "[type=AREQ, msgid=" + messageId + ", creds=" + _creds + "]";
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: SubscribeRequest.java,v 1.3 2001/06/05 22:44:31 mdb Exp $
+// $Id: SubscribeRequest.java,v 1.4 2001/07/19 19:30:14 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -54,6 +54,11 @@ public class SubscribeRequest extends UpstreamMessage
     {
         super.readFrom(in);
         _oid = in.readInt();
+    }
+
+    public String toString ()
+    {
+        return "[type=SUB, msgid=" + messageId + ", oid=" + _oid + "]";
     }
 
     /**

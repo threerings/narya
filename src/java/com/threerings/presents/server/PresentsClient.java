@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.8 2001/07/19 18:08:20 mdb Exp $
+// $Id: PresentsClient.java,v 1.9 2001/07/19 19:30:14 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -243,6 +243,12 @@ public class Client implements Subscriber, MessageHandler
                      "[client=" + this + ", event=" + event + "].");
         }
         return true;
+    }
+
+    public String toString ()
+    {
+        return "[username=" + _username + ", conn=" + _conn +
+            ", cloid=" + ((_clobj == null) ? -1 : _clobj.getOid()) + "]";
     }
 
     /**

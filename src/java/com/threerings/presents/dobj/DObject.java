@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.12 2001/07/19 05:56:20 mdb Exp $
+// $Id: DObject.java,v 1.13 2001/07/19 19:30:14 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -233,6 +233,11 @@ public class DObject
     public void setOid (int oid)
     {
         _oid = oid;
+    }
+
+    public String toString ()
+    {
+        return "[oid=" + _oid + "]";
     }
 
     /**

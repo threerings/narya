@@ -1,5 +1,5 @@
 //
-// $Id: Credentials.java,v 1.5 2001/06/02 01:30:37 mdb Exp $
+// $Id: Credentials.java,v 1.6 2001/07/19 19:30:14 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -73,6 +73,11 @@ public abstract class Credentials implements TypedObject
         throws IOException
     {
         _username = in.readUTF();
+    }
+
+    public String toString ()
+    {
+        return "[username=" + _username + "]";
     }
 
     protected String _username;

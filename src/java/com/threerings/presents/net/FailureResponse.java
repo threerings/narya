@@ -1,5 +1,5 @@
 //
-// $Id: FailureResponse.java,v 1.5 2001/07/19 07:09:16 mdb Exp $
+// $Id: FailureResponse.java,v 1.6 2001/07/19 19:30:14 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -51,6 +51,11 @@ public class FailureResponse extends DownstreamMessage
     {
         super.readFrom(in);
         _oid = in.readInt();
+    }
+
+    public String toString ()
+    {
+        return "[type=FAIL, msgid=" + messageId + ", oid=" + _oid + "]";
     }
 
     protected int _oid;

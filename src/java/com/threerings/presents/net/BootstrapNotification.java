@@ -1,5 +1,5 @@
 //
-// $Id: BootstrapNotification.java,v 1.1 2001/07/19 07:09:16 mdb Exp $
+// $Id: BootstrapNotification.java,v 1.2 2001/07/19 19:30:14 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -60,6 +60,11 @@ public class BootstrapNotification extends DownstreamMessage
     {
         super.readFrom(in);
         _data = (BootstrapData)DObjectFactory.readFrom(in);
+    }
+
+    public String toString ()
+    {
+        return "[type=BOOT, msgid=" + messageId + ", data=" + _data + "]";
     }
 
     /** The data associated with this notification. */
