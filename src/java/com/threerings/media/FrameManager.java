@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.11 2002/06/18 22:25:33 mdb Exp $
+// $Id: FrameManager.java,v 1.12 2002/06/19 00:52:34 mdb Exp $
 
 package com.threerings.media;
 
@@ -267,37 +267,30 @@ public class FrameManager
                 incremental = false;
             }
 
-            Graphics g = null, fg = null;
-            try {
-                g = _backimg.getGraphics();
-                fg = _frame.getGraphics();
-//                 g = _bufstrat.getDrawGraphics();
+//             g = _bufstrat.getDrawGraphics();
 
-                // dirty everything if we're not incrementally rendering
-                if (!incremental) {
-                    _frame.update(g);
-                }
-
-                // paint our frame participants (which want to be handled
-                // specially)
-                _participantPaintOp.setGraphics(g);
-                _participants.apply(_participantPaintOp);
-
-                // repaint any widgets that have declared there need to be
-                // repainted since the last tick
-                _remgr.paintComponents(g);
-
-                fg.drawImage(_backimg, 0, 0, null);
-//                 _bufstrat.show();
-
-            } finally {
-                if (g != null) {
-                    g.dispose();
-                }
-                if (fg != null) {
-                    fg.dispose();
-                }
+            // dirty everything if we're not incrementally rendering
+            if (!incremental) {
+                _frame.update(_bgfx);
             }
+
+            // paint our frame participants (which want to be handled
+            // specially)
+            _participantPaintOp.setGraphics(_bgfx);
+            _participants.apply(_participantPaintOp);
+
+            // repaint any widgets that have declared there need to be
+            // repainted since the last tick
+            _remgr.paintComponents(_bgfx);
+
+            // we cache our frame's graphics object so that we can avoid
+            // instantiating a new one on every tick
+            if (_fgfx == null) {
+                _fgfx = _frame.getGraphics();
+            }
+            _fgfx.drawImage(_backimg, 0, 0, null);
+
+//             _bufstrat.show();
 
             // if we loop through a second time, we'll need to rerender
             // everything
@@ -397,20 +390,23 @@ public class FrameManager
      */
     protected void createBackBuffer (GraphicsConfiguration gc)
     {
+        // if we have an old image, clear it out
+        if (_backimg != null) {
+            _backimg.flush();
+            _bgfx.dispose();
+        }
+
         // create the offscreen buffer
         int width = _frame.getWidth(), height = _frame.getHeight();
         _backimg = gc.createCompatibleVolatileImage(width, height);
 
         // fill the back buffer with white
-        Graphics g = null;
-        try {
-            g = _backimg.getGraphics();
-            g.fillRect(0, 0, width, height);
-        } finally {
-            if (g != null) {
-                g.dispose();
-            }
-        }
+        _bgfx = _backimg.getGraphics();
+        _bgfx.fillRect(0, 0, width, height);
+
+        // clear out our frame graphics in case that became invalid for
+        // the same reasons our back buffer became invalid
+        _fgfx = null;
     }
 
     /**
@@ -571,6 +567,12 @@ public class FrameManager
 
     /** Used to queue up a tick. */
     protected Ticker _ticker;
+
+    /** The graphics object from our back buffer. */
+    protected Graphics _bgfx;
+
+    /** The graphics object from our frame. */
+    protected Graphics _fgfx;
 
     /** Used to avoid creating rectangles when rendering layered
      * components. */
