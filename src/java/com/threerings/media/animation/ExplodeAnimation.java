@@ -1,5 +1,5 @@
 //
-// $Id: ExplodeAnimation.java,v 1.10 2002/07/31 23:33:46 shaper Exp $
+// $Id: ExplodeAnimation.java,v 1.11 2002/08/15 20:53:50 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -110,7 +110,8 @@ public class ExplodeAnimation extends Animation
 
         _info.rvel = (float)((2.0f * Math.PI) * _info.rvel);
         _chunkcount = (_info.xchunk * _info.ychunk);
-        _cpos = new int[_chunkcount];
+        _cxpos = new int[_chunkcount];
+        _cypos = new int[_chunkcount];
         _sxvel = new float[_chunkcount];
         _syvel = new float[_chunkcount];
 
@@ -125,8 +126,8 @@ public class ExplodeAnimation extends Animation
             // initialize chunk position
             int xpos = ii % _info.xchunk;
             int ypos = ii / _info.xchunk;
-            _cpos[ii] = ((_ox + (xpos * _cwid)) << 16 |
-                         (_oy + (ypos * _chei)));
+            _cxpos[ii] = _ox + (xpos * _cwid);
+            _cypos[ii] = _oy + (ypos * _chei);
 
             // initialize chunk velocity
             _sxvel[ii] = RandomUtil.getFloat(_info.xvel) *
@@ -144,12 +145,16 @@ public class ExplodeAnimation extends Animation
     public void setStartTime (long timestamp)
     {
         _start = timestamp;
+        if (_info.delay != -1) {
+            _end = _start + _info.delay;
+        }
     }
 
     // documentation inherited
     public void fastForward (long timeDelta)
     {
         _start += timeDelta;
+        _end += timeDelta;
     }
 
     // documentation inherited
@@ -167,26 +172,21 @@ public class ExplodeAnimation extends Animation
         // move all chunks and check whether any remain to be animated
         int inside = 0;
         for (int ii = 0; ii < _chunkcount; ii++) {
-            // retrieve the current chunk position
-            int x = _cpos[ii] >> 16;
-            int y = _cpos[ii] & 0xFFFF;
-
             // determine the chunk travel distance
             int xtrav = (int)(_sxvel[ii] * msecs);
-            int ytrav = (int)((_syvel[ii] * msecs) +
-                              (0.5f * _info.yacc * (msecs * msecs)));
+            int ytrav = (int)
+                ((_syvel[ii] * msecs) + (0.5f * _info.yacc * (msecs * msecs)));
 
             // determine the chunk movement direction
             int xpos = ii % _info.xchunk;
             int ypos = ii / _info.xchunk;
 
             // update the chunk position
-            x = _ox + (xpos * _cwid) + xtrav;
-            y = _oy + (ypos * _chei) + ytrav;
-            _cpos[ii] = (x << 16 | y);
+            _cxpos[ii] = _ox + (xpos * _cwid) + xtrav;
+            _cypos[ii] = _oy + (ypos * _chei) + ytrav;
 
             // note whether this chunk is still within our bounds
-            if (_bounds.contains(x, y)) {
+            if (_bounds.contains(_cxpos[ii], _cypos[ii])) {
                 inside++;
             }
         }
@@ -194,8 +194,10 @@ public class ExplodeAnimation extends Animation
         // increment the rotation angle
         _angle += _info.rvel;
 
-        _finished = (inside == 0) ||
-            (_info.delay > -1 && timestamp >= (_start + _info.delay));
+        // note whether we're finished
+        _finished = (inside == 0) || (_info.delay != -1 && timestamp >= _end);
+
+        // dirty ourselves
         invalidate();
     }
 
@@ -213,10 +215,6 @@ public class ExplodeAnimation extends Animation
         }
 
         for (int ii = 0; ii < _chunkcount; ii++) {
-            // get the chunk location on-screen
-            int x = _cpos[ii] >> 16;
-            int y = _cpos[ii] & 0xFFFF;
-
             // get the chunk position within the image
             int xpos = ii % _info.xchunk;
             int ypos = ii / _info.xchunk;
@@ -226,7 +224,7 @@ public class ExplodeAnimation extends Animation
             int yoff = -(ypos * _chei);
 
             // translate the origin to center on the chunk
-            int tx = x + _hcwid, ty = y + _hchei;
+            int tx = _cxpos[ii] + _hcwid, ty = _cypos[ii] + _hchei;
             gfx.translate(tx, ty);
 
             // set up the desired rotation
@@ -279,8 +277,11 @@ public class ExplodeAnimation extends Animation
     /** The starting y-axis velocity of each chunk. */
     protected float[] _syvel;
 
-    /** The current position of each chunk. */
-    protected int[] _cpos;
+    /** The current x-axis position of each chunk. */
+    protected int[] _cxpos;
+
+    /** The current y-axis position of each chunk. */
+    protected int[] _cypos;
 
     /** The individual chunk dimensions in pixels. */
     protected int _cwid, _chei;
@@ -306,6 +307,9 @@ public class ExplodeAnimation extends Animation
 
     /** The starting animation time. */
     protected long _start;
+
+    /** The ending animation time. */
+    protected long _end;
 
     /** The percent alpha with which to render the chunks. */
     protected float _alpha;
