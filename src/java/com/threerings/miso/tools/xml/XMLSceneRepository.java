@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneRepository.java,v 1.14 2001/11/08 03:04:44 mdb Exp $
+// $Id: XMLSceneRepository.java,v 1.15 2001/11/08 18:36:56 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -37,7 +37,6 @@ public class XMLSceneRepository
         _tilemgr = tilemgr;
 
 	// get path-related information
-	_root = System.getProperty("root", "");
         _sceneRoot = _config.getValue(SCENEROOT_KEY, DEF_SCENEROOT);
 
 	// create an iso scene view model detailing scene dimensions
@@ -95,9 +94,6 @@ public class XMLSceneRepository
 
     /** The tile manager from which the scenes obtain their tiles. */
     protected TileManager _tilemgr;
-
-    /** The main program absolute root directory. */
-    protected String _root;
 
     /** The root scene directory path. */
     protected String _sceneRoot;
