@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.36 2003/01/13 22:49:46 mdb Exp $
+// $Id: TileSet.java,v 1.37 2003/01/15 00:47:09 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -8,12 +8,13 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
 
-import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.LRUHashMap;
+import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
 
 import com.threerings.media.Log;
+import com.threerings.media.MediaPrefs;
 import com.threerings.media.image.Colorization;
 import com.threerings.media.image.Mirage;
 
@@ -140,8 +141,8 @@ public abstract class TileSet
 
         // create our tile cache if necessary
         if (_tiles == null) {
-            int tcsize = ConfigUtil.getSystemProperty(
-                "narya.media.tile.cache_size", DEFAULT_TILE_CACHE_SIZE);
+            int tcsize = MediaPrefs.config.getValue(
+                TILE_CACHE_SIZE_KEY, DEFAULT_TILE_CACHE_SIZE);
             Log.debug("Creating tile cache [size=" + tcsize + "].");
             _tiles = new LRUHashMap(tcsize);
         }
@@ -301,6 +302,17 @@ public abstract class TileSet
     /** A weak cache of our tiles. */
     protected static LRUHashMap _tiles;
 
+    /** The config key for our cache size property. */
+    protected static final String TILE_CACHE_SIZE_KEY =
+        "narya.media.tile.cache_size";
+
     /** The default tile cache size. */
     protected static final int DEFAULT_TILE_CACHE_SIZE = 500;
+
+    /** Register our tile cache size with the runtime adjustments
+     * framework. */
+    protected static RuntimeAdjust.IntAdjust _cacheSize =
+        new RuntimeAdjust.IntAdjust(
+            "Size (in tiles) of the tile LRU cache [requires reboot]",
+            TILE_CACHE_SIZE_KEY, MediaPrefs.config, DEFAULT_TILE_CACHE_SIZE);
 }

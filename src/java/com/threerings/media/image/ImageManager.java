@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.37 2003/01/14 04:05:56 mdb Exp $
+// $Id: ImageManager.java,v 1.38 2003/01/15 00:47:08 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -27,13 +27,14 @@ import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 
 import com.samskivert.io.NestableIOException;
-import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.LRUHashMap;
+import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Throttle;
 import com.samskivert.util.Tuple;
 
 import com.threerings.media.Log;
+import com.threerings.media.MediaPrefs;
 import com.threerings.resource.ResourceManager;
 
 /**
@@ -93,8 +94,8 @@ public class ImageManager
 	_rmgr = rmgr;
 
         // create our image cache
-        int icsize = ConfigUtil.getSystemProperty(
-            "narya.media.image.cache_size", DEFAULT_IMAGE_CACHE_SIZE);
+        int icsize = MediaPrefs.config.getValue(
+            IMAGE_CACHE_SIZE_KEY, DEFAULT_IMAGE_CACHE_SIZE);
         Log.debug("Creating image cache [size=" + icsize + "].");
         _ccache = new LRUHashMap(icsize);
 
@@ -491,6 +492,17 @@ public class ImageManager
     protected static final String IMAGEIO_LOADER =
         "com.threerings.media.image.ImageIOLoader";
 
+    /** The config key for our cache size property. */
+    protected static final String IMAGE_CACHE_SIZE_KEY =
+        "narya.media.image.cache_size";
+
     /** The maximum number of images that may be cached at any one time. */
     protected static final int DEFAULT_IMAGE_CACHE_SIZE = 100;
+
+    /** Register our image cache size with the runtime adjustments
+     * framework. */
+    protected static RuntimeAdjust.IntAdjust _cacheSize =
+        new RuntimeAdjust.IntAdjust(
+            "Size (in images) of the image manager LRU cache [requires reboot]",
+            IMAGE_CACHE_SIZE_KEY, MediaPrefs.config, DEFAULT_IMAGE_CACHE_SIZE);
 }
