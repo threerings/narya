@@ -1,5 +1,5 @@
 //
-// $Id: WhichSideViz.java,v 1.1 2002/06/28 01:29:32 mdb Exp $
+// $Id: WhichSideViz.java,v 1.2 2002/06/28 01:31:11 mdb Exp $
 
 package com.threerings.geom;
 
@@ -45,8 +45,8 @@ public class WhichSideViz extends JPanel
         g.setColor(Color.white);
         g.drawLine(_center.x, _center.y, _center.x - dx, _center.y - dy);
 
-        int nx = (int)Math.round(1000*Math.cos(_theta + Math.PI/2)),
-            ny = (int)Math.round(1000*Math.sin(_theta + Math.PI/2));
+        int nx = _center.x + (int)Math.round(1000*Math.cos(_theta + Math.PI/2)),
+            ny = _center.y + (int)Math.round(1000*Math.sin(_theta + Math.PI/2));
         g.setColor(Color.pink);
         g.drawLine(_center.x, _center.y, nx, ny);
 
@@ -65,7 +65,7 @@ public class WhichSideViz extends JPanel
         g.drawString(str, _spot.x, _spot.y);
 
         // kick theta along for the next tick because it's fun
-//         _theta += (float)(Math.PI/100);
+        _theta += (float)(Math.PI/100);
     }
 
     public void mouseDragged (MouseEvent event)
