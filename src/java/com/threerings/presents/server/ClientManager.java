@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.19 2002/04/26 02:34:11 mdb Exp $
+// $Id: ClientManager.java,v 1.20 2002/07/10 01:26:21 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -172,9 +172,16 @@ public class ClientManager implements ConnectionObserver
     {
         // we only remove the mapping if there's not a session in progress
         // (which is indicated by an entry in the locks table)
-        if (!_locks.contains(username)) {
-            ClientObject clobj = (ClientObject)_objmap.remove(username);
+        if (_locks.contains(username)) {
+            return;
+        }
+
+        ClientObject clobj = (ClientObject)_objmap.remove(username);
+        if (clobj != null) {
             PresentsServer.omgr.destroyObject(clobj.getOid());
+        } else {
+            Log.warning("Requested to unmap non-existent client object " +
+                        "[username=" + username + "].");
         }
     }
 
@@ -274,6 +281,7 @@ public class ClientManager implements ConnectionObserver
         } else {
             Log.info("Unmapped connection failed? [conn=" + conn +
                      ", fault=" + fault + "].");
+            Thread.dumpStack();
         }
     }
 
@@ -290,6 +298,7 @@ public class ClientManager implements ConnectionObserver
 
         } else {
             Log.info("Closed unmapped connection? [conn=" + conn + "].");
+            Thread.dumpStack();
         }
     }
 
@@ -302,21 +311,29 @@ public class ClientManager implements ConnectionObserver
         String username = client.getUsername();
         // remove the client from the username map
         PresentsClient rc = (PresentsClient)_usermap.remove(username);
-        // release the client session
-        releaseClient(username);
-        // and unmap (and destroy) their client object
-        unmapClientObject(username);
 
         // sanity check just because we can
         if (rc == null) {
             Log.warning("Unregistered client ended session " +
                         "[client=" + client + "].");
+            Thread.dumpStack();
+
+            // if they weren't in the username mapping, bail out now
+            // because the subsequent unmappings would just fail if we
+            // tried to do them for an unmapped client
+            return;
+
         } else if (rc != client) {
             Log.warning("Different clients with same username!? " +
                         "[c1=" + rc + ", c2=" + client + "].");
         } else {
             Log.info("Ending session [client=" + client + "].");
         }
+
+        // release the client session
+        releaseClient(username);
+        // and unmap (and destroy) their client object
+        unmapClientObject(username);
     }
 
     /** A mapping from usernames to client instances. */
