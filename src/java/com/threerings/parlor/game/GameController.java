@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.3 2001/10/06 01:36:19 mdb Exp $
+// $Id: GameController.java,v 1.4 2001/10/09 17:20:39 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -44,11 +44,13 @@ public abstract class GameController
      */
     public void init (PartyContext ctx, PlaceConfig config)
     {
-        super.init(ctx, config);
-
-        // cast our references
+        // cast our references before we call super.init() so that when
+        // super.init() calls createPlaceView(), we have our casted
+        // references already in place
         _ctx = (ParlorContext)ctx;
         _config = (GameConfig)config;
+
+        super.init(ctx, config);
     }
 
     // documentation inherited
