@@ -1,9 +1,11 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.11 2002/02/07 00:24:36 shaper Exp $
+// $Id: ClientDObjectMgr.java,v 1.12 2002/02/09 07:50:37 mdb Exp $
 
 package com.threerings.presents.client;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Queue;
 import com.samskivert.util.StringUtil;
@@ -152,6 +154,17 @@ public class ClientDObjectMgr
     protected void dispatchEvent (DEvent event)
     {
         // Log.info("Dispatch event: " + event);
+
+        // if this is a compound event, we need to process its contained
+        // events in order
+        if (event instanceof CompoundEvent) {
+            List events = ((CompoundEvent)event).getEvents();
+            int ecount = events.size();
+            for (int i = 0; i < ecount; i++) {
+                dispatchEvent((DEvent)events.get(i));
+            }
+            return;
+        }
 
         // look up the object on which we're dispatching this event
         DObject target = (DObject)_ocache.get(event.getTargetOid());

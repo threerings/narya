@@ -1,10 +1,11 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.22 2002/02/02 09:53:00 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.23 2002/02/09 07:50:37 mdb Exp $
 
 package com.threerings.presents.server;
 
 import java.lang.reflect.*;
 import java.util.HashMap;
+import java.util.List;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Queue;
@@ -132,60 +133,77 @@ public class PresentsDObjectMgr implements RootDObjectManager
                     Log.warning("Execution unit failed [unit=" + unit + "].");
                     Log.logStackTrace(e);
                 }
-                continue;
-            }
 
-            // otherwise it's an event, so we do more complicated
-            // processing
-            DEvent event = (DEvent)unit;
-
-            // look up the target object
-            DObject target = (DObject)_objects.get(event.getTargetOid());
-            if (target == null) {
-                Log.warning("Event target no longer exists " +
-                            "[event=" + event + "].");
-                continue;
-            }
-
-            // check the event's permissions
-            if (!target.checkPermissions(event)) {
-                Log.warning("Event failed permissions check " +
-                            "[event=" + event + ", target=" + target + "].");
-                continue;
-            }
-
-            try {
-                // do any internal management necessary based on this
-                // event
-                Method helper = (Method)_helpers.get(event.getClass());
-                if (helper != null) {
-                    // invoke the helper method
-                    Object rv =
-                        helper.invoke(this, new Object[] { event, target });
-                    // if helper returns false, we abort event processing
-                    if (!((Boolean)rv).booleanValue()) {
-                        continue;
-                    }
+            } else if (unit instanceof CompoundEvent) {
+                // if this is a compound event, we need to apply each
+                // event indivdually
+                CompoundEvent event = (CompoundEvent)unit;
+                List events = event.getEvents();
+                int ecount = events.size();
+                for (int i = 0; i < ecount; i++) {
+                    processEvent((DEvent)events.get(i));
                 }
 
-                // everything's good so far, apply the event to the object
-                boolean notify = event.applyToObject(target);
-
-                // if the event returns false from applyToObject, this
-                // means it's a silent event and we shouldn't notify the
-                // listeners
-                if (notify) {
-                    target.notifyListeners(event);
-                }
-
-            } catch (Exception e) {
-                Log.warning("Failure processing event [event=" + event +
-                            ", target=" + target + "].");
-                Log.logStackTrace(e);
+            } else {
+                // otherwise it's a regular event, so do the standard
+                // processing
+                processEvent((DEvent)unit);
             }
         }
 
         Log.info("DOMGR exited.");
+    }
+
+    /**
+     * Performs the processing associated with an event, notifying
+     * subscribers and the like.
+     */
+    protected void processEvent (DEvent event)
+    {
+        // look up the target object
+        DObject target = (DObject)_objects.get(event.getTargetOid());
+        if (target == null) {
+            Log.warning("Event target no longer exists " +
+                        "[event=" + event + "].");
+            return;
+        }
+
+        // check the event's permissions
+        if (!target.checkPermissions(event)) {
+            Log.warning("Event failed permissions check " +
+                        "[event=" + event + ", target=" + target + "].");
+            return;
+        }
+
+        try {
+            // do any internal management necessary based on this
+            // event
+            Method helper = (Method)_helpers.get(event.getClass());
+            if (helper != null) {
+                // invoke the helper method
+                Object rv =
+                    helper.invoke(this, new Object[] { event, target });
+                // if helper returns false, we abort event processing
+                if (!((Boolean)rv).booleanValue()) {
+                    return;
+                }
+            }
+
+            // everything's good so far, apply the event to the object
+            boolean notify = event.applyToObject(target);
+
+            // if the event returns false from applyToObject, this
+            // means it's a silent event and we shouldn't notify the
+            // listeners
+            if (notify) {
+                target.notifyListeners(event);
+            }
+
+        } catch (Exception e) {
+            Log.warning("Failure processing event [event=" + event +
+                        ", target=" + target + "].");
+            Log.logStackTrace(e);
+        }
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.38 2002/02/06 22:47:28 mdb Exp $
+// $Id: DObject.java,v 1.39 2002/02/09 07:50:37 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -130,8 +130,8 @@ public class DObject
             // the last subscriber from our list; we also want to be sure
             // that we're still active otherwise there's no need to notify
             // our objmgr because we don't have one
-            if (--_scount == 0 && _mgr != null) {
-                _mgr.removedLastSubscriber(this);
+            if (--_scount == 0 && _omgr != null) {
+                _omgr.removedLastSubscriber(this);
             }
         }
     }
@@ -226,8 +226,7 @@ public class DObject
     public void releaseLock (String name)
     {
         // queue up a release lock event
-        ReleaseLockEvent event = new ReleaseLockEvent(_oid, name);
-        _mgr.postEvent(event);
+        postEvent(new ReleaseLockEvent(_oid, name));
     }
 
     /**
@@ -257,7 +256,7 @@ public class DObject
      */
     public void destroy ()
     {
-        _mgr.postEvent(new ObjectDestroyedEvent(_oid));
+        postEvent(new ObjectDestroyedEvent(_oid));
     }
 
     /**
@@ -410,7 +409,7 @@ public class DObject
      */
     public boolean isActive ()
     {
-        return _mgr != null;
+        return _omgr != null;
     }
 
     /**
@@ -421,9 +420,9 @@ public class DObject
      *
      * @see DObjectManager#createObject
      */
-    public void setManager (DObjectManager mgr)
+    public void setManager (DObjectManager omgr)
     {
-        _mgr = mgr;
+        _omgr = omgr;
     }
 
     /**
@@ -449,15 +448,114 @@ public class DObject
     }
 
     /**
+     * Begins a transaction on this distributed object. In some
+     * situations, it is desirable to cause multiple changes to
+     * distributed object fields in one unified operation. Starting a
+     * transaction causes all subsequent field modifications to be stored
+     * in a single compound event which can then be committed, dispatching
+     * and applying all included events in a single group. Additionally,
+     * the events are dispatched over the network in a single unit which
+     * can significantly enhance network efficiency.
+     *
+     * <p> When the transaction is complete, the caller must call {@link
+     * #commitTransaction} or {@link CompoundEvent#commit} to commit the
+     * transaction and release all involved objects back to their normal
+     * non-transacting state. If the caller decides not to commit their
+     * transaction, they must call {@link #cancelTransaction} or {@link
+     * CompoundEvent#cancel} to cancel the transaction and release all
+     * involved objects. Failure to do so will cause the pooch to be
+     * totally screwed.
+     *
+     * <p> Note: like all other distributed object operations,
+     * transactions are not thread safe. It is expected that a single
+     * thread will handle all distributed object operations and that
+     * thread will begin and complete a transaction before giving up
+     * control to unknown code which might try to operate on the
+     * transacting distributed object (or objects).
+     *
+     * @return the compound event that encapsulates the transaction. This
+     * can be ignored if the transaction will be limited to this object,
+     * but if it is desired that other objects be involved in the
+     * transaction, the caller will need to pass the {@link CompoundEvent}
+     * returned by this method to a call to {@link #joinTransaction} on
+     * the other objects that are involved.
+     */
+    public CompoundEvent startTransaction ()
+    {
+        if (_tevent != null) {
+            String errmsg = "Cannot start transaction on dobject that " +
+                "is already transacting [dobj=" + this + "]";
+            throw new IllegalStateException(errmsg);
+        }
+        _tevent = new CompoundEvent(_omgr);
+        _tevent.addObject(this);
+        return _tevent;
+    }
+
+    /**
+     * Causes this object to join the supplied transaction. See {@link
+     * #startTransaction} for more information on transactions.
+     */
+    public void joinTransaction (CompoundEvent event)
+    {
+        if (_tevent != null) {
+            String errmsg = "Cannot join transaction while already " +
+                "transacting [dobj=" + this + "]";
+            throw new IllegalStateException(errmsg);
+        }
+        _tevent = event;
+        _tevent.addObject(this);
+    }
+
+    /**
+     * Commits the transaction in which this distributed object is
+     * involved.
+     *
+     * @see CompoundEvent#commit
+     */
+    public void commitTransaction ()
+    {
+        if (_tevent == null) {
+            String errmsg = "Cannot commit: not involved in a transaction " +
+                "[dobj=" + this + "]";
+            throw new IllegalStateException(errmsg);
+        }
+        _tevent.commit();
+    }        
+
+    /**
+     * Cancels the transaction in which this distributed object is
+     * involved.
+     *
+     * @see CompoundEvent#cancel
+     */
+    public void cancelTransaction ()
+    {
+        if (_tevent == null) {
+            String errmsg = "Cannot cancel: not involved in a transaction " +
+                "[dobj=" + this + "]";
+            throw new IllegalStateException(errmsg);
+        }
+        _tevent.cancel();
+    }        
+
+    /**
+     * Removes this object from participation in any transaction in which
+     * it might be taking part.
+     */
+    protected void clearTransaction ()
+    {
+        _tevent = null;
+    }
+
+    /**
      * Called by derived instances when an attribute setter method was
      * called.
      */
     protected void requestAttributeChange (String name, Object value)
     {
-        // generate an attribute changed event
-        DEvent event = new AttributeChangedEvent(_oid, name, value);
-        // and dispatch it to our dobjmgr
-        _mgr.postEvent(event);
+        // dispatch an attribute changed event
+        postEvent(new AttributeChangedEvent(_oid, name, value));
     }
 
     /**
@@ -465,10 +563,8 @@ public class DObject
      */
     protected void requestOidAdd (String name, int oid)
     {
-        // generate an object added event
-        DEvent event = new ObjectAddedEvent(_oid, name, oid);
-        // and dispatch it to our dobjmgr
-        _mgr.postEvent(event);
+        // dispatch an object added event
+        postEvent(new ObjectAddedEvent(_oid, name, oid));
     }
 
     /**
@@ -476,10 +572,8 @@ public class DObject
      */
     protected void requestOidRemove (String name, int oid)
     {
-        // generate an object removed event
-        DEvent event = new ObjectRemovedEvent(_oid, name, oid);
-        // and dispatch it to our dobjmgr
-        _mgr.postEvent(event);
+        // dispatch an object removed event
+        postEvent(new ObjectRemovedEvent(_oid, name, oid));
     }
 
     /**
@@ -489,11 +583,9 @@ public class DObject
     {
         try {
             DSet set = (DSet)getAttribute(name);
-            // generate an element added event
-            DEvent event = new ElementAddedEvent(
-                _oid, name, elem, !set.homogenous());
-            // and dispatch it to our dobjmgr
-            _mgr.postEvent(event);
+            // dispatch an element added event
+            postEvent(new ElementAddedEvent(
+                          _oid, name, elem, !set.homogenous()));
 
         } catch (ObjectAccessException oae) {
             Log.warning("Unable to request elementAdd [name=" + name +
@@ -506,10 +598,8 @@ public class DObject
      */
     protected void requestElementRemove (String name, Object key)
     {
-        // generate an element removed event
-        DEvent event = new ElementRemovedEvent(_oid, name, key);
-        // and dispatch it to our dobjmgr
-        _mgr.postEvent(event);
+        // dispatch an element removed event
+        postEvent(new ElementRemovedEvent(_oid, name, key));
     }
 
     /**
@@ -519,11 +609,9 @@ public class DObject
     {
         try {
             DSet set = (DSet)getAttribute(name);
-            // generate an element updated event
-            DEvent event = new ElementUpdatedEvent(
-                _oid, name, elem, !set.homogenous());
-            // and dispatch it to our dobjmgr
-            _mgr.postEvent(event);
+            // dispatch an element updated event
+            postEvent(new ElementUpdatedEvent(
+                          _oid, name, elem, !set.homogenous()));
 
         } catch (ObjectAccessException oae) {
             Log.warning("Unable to request elementUpdate [name=" + name +
@@ -531,11 +619,24 @@ public class DObject
         }
     }
 
+    /**
+     * Posts the specified event either to our dobject manager or to the
+     * compound event for which we are currently transacting.
+     */
+    protected void postEvent (TypedEvent event)
+    {
+        if (_tevent != null) {
+            _tevent.postEvent(event);
+        } else {
+            _omgr.postEvent(event);
+        }
+    }
+
     /** Our object id. */
     protected int _oid;
 
     /** A reference to our object manager. */
-    protected DObjectManager _mgr;
+    protected DObjectManager _omgr;
 
     /** A list of outstanding locks. */
     protected Object[] _locks;
@@ -548,4 +649,8 @@ public class DObject
 
     /** Our subscriber count. */
     protected int _scount;
+
+    /** The compound event associated with our transaction, if we're
+     * currently in a transaction. */
+    protected CompoundEvent _tevent;
 }
