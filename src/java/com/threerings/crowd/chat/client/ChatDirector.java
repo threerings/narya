@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.50 2003/09/18 17:53:48 mdb Exp $
+// $Id: ChatDirector.java,v 1.51 2003/09/18 18:13:28 mdb Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.ResultListener;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
@@ -23,6 +24,7 @@ import com.threerings.util.TimeUtil;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.client.LocationObserver;
+import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
 
@@ -481,6 +483,7 @@ public class ChatDirector extends BasicDirector
             ChatMessage msg = (ChatMessage) event.getArgs()[0];
             String localtype = getLocalType(event.getTargetOid());
             String message = msg.message;
+            String autoResponse = null;
 
             // if the message came from a user, make sure we want to hear it
             if (msg instanceof UserMessage) {
@@ -492,6 +495,13 @@ public class ChatDirector extends BasicDirector
                 } else if (USER_CHAT_TYPE.equals(localtype)) {
                     // if it was a tell, add the speaker as a chatter
                     addChatter(speaker);
+
+                    // note whether or not we have an auto-response
+                    BodyObject self = (BodyObject)
+                        _ctx.getClient().getClientObject();
+                    if (!StringUtil.blank(self.awayMessage)) {
+                        autoResponse = self.awayMessage;
+                    }
                 }
             }
 
@@ -500,6 +510,14 @@ public class ChatDirector extends BasicDirector
 
             // and send it off!
             dispatchMessage(msg);
+
+            // if we auto-responded, report as much
+            if (autoResponse != null) {
+                String teller = ((UserMessage) msg).speaker;
+                String amsg = MessageBundle.tcompose(
+                    "m.auto_responded", teller, autoResponse);
+                displayFeedback(_bundle, amsg);
+            }
         }
     }
 
