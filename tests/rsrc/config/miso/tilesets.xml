@@ -1,12 +1,12 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: tilesets.xml,v 1.20 2001/10/11 15:22:44 shaper Exp $ -->
+<!-- $Id: tilesets.xml,v 1.21 2001/10/15 23:53:43 shaper Exp $ -->
 
 <!-- Initial test tileset description data. -->
 
 <tilesetgroup>
 
-  <tileset tsid="1003" name="Red Character" layer="Fringe">
+  <tileset tsid="1003" name="Red Character">
     <imagefile>media/miso/tiles/character.png</imagefile>
     <rowheight>94, 94, 94, 94, 94, 94, 94, 94</rowheight>
     <rowwidth>94, 94, 94, 94, 94, 94, 94, 94</rowwidth>
@@ -23,14 +23,14 @@
     <passable>1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1</passable>
   </tileset>
 
-  <tileset tsid="1007" name="Node Icons" layer="Fringe">
+  <tileset tsid="1007" name="Node Icons">
     <imagefile>media/miso/tiles/node-icons.png</imagefile>
     <rowheight>16</rowheight>
     <rowwidth>16</rowwidth>
     <tilecount>8</tilecount>
   </tileset>
 
-  <tileset tsid="1008" name="Editor Icons" layer="Fringe">
+  <tileset tsid="1008" name="Editor Icons">
     <imagefile>media/miso/tiles/editor-icons.png</imagefile>
     <rowheight>22</rowheight>
     <rowwidth>20</rowwidth>

@@ -1,18 +1,16 @@
 //
-// $Id: XMLSceneParser.java,v 1.19 2001/10/13 01:08:59 shaper Exp $
+// $Id: XMLSceneParser.java,v 1.20 2001/10/15 23:53:43 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
 import java.awt.Point;
 import java.io.*;
 import java.util.ArrayList;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.*;
-import org.xml.sax.helpers.DefaultHandler;
 
 import com.samskivert.util.*;
-import com.samskivert.xml.XMLUtil;
+import com.samskivert.xml.SimpleParser;
 
 import com.threerings.media.tile.*;
 
@@ -27,7 +25,7 @@ import com.threerings.miso.tile.MisoTile;
  *
  * @see XMLSceneWriter
  */
-public class XMLSceneParser extends DefaultHandler
+public class XMLSceneParser extends SimpleParser
 {
     public XMLSceneParser (IsoSceneViewModel model, TileManager tilemgr)
     {
@@ -35,32 +33,28 @@ public class XMLSceneParser extends DefaultHandler
         _tilemgr = tilemgr;
     }
 
-    public void startElement (String uri, String localName,
-			      String qName, Attributes attributes)
+    // documentation inherited
+    public void startElement (
+        String uri, String localName, String qName, Attributes attributes)
     {
-	_tag = qName;
-        if (_tag.equals("layer")) {
-            _info.lnum = getInt(attributes.getValue("lnum"));
+        if (qName.equals("layer")) {
+            _info.lnum = parseInt(attributes.getValue("lnum"));
 
-        } else if (_tag.equals("row")) {
-            _info.rownum = getInt(attributes.getValue("rownum"));
-	    _info.colstart = getInt(attributes.getValue("colstart"));
+        } else if (qName.equals("row")) {
+            _info.rownum = parseInt(attributes.getValue("rownum"));
+	    _info.colstart = parseInt(attributes.getValue("colstart"));
         }
     }
 
-    public void endElement (String uri, String localName, String qName)
+    // documentation inherited
+    public void finishElement (
+        String uri, String localName, String qName, String data)
     {
-	// we know we've received the entirety of the character data
-        // for the elements we're tracking at this point, so proceed
-        // with saving off element values for use when we construct
-        // the scene object.
-	String str = _chars.toString().trim();
-
 	if (qName.equals("name")) {
-	    _info.scene.name = str;
+	    _info.scene.name = data;
 
 	} else if (qName.equals("version")) {
-            int version = getInt(str);
+            int version = parseInt(data);
             if (version < 0 || version > XMLSceneVersion.VERSION) {
                 Log.warning(
                     "Unrecognized scene file format version, will attempt " + 
@@ -70,40 +64,23 @@ public class XMLSceneParser extends DefaultHandler
             }
 
 	} else if (qName.equals("locations")) {
-            int vals[] = StringUtil.parseIntArray(str);
+            int vals[] = StringUtil.parseIntArray(data);
             addLocations(_info.scene.locations, vals);
 
 	} else if (qName.equals("cluster")) {
-	    int vals[] = StringUtil.parseIntArray(str);
+	    int vals[] = StringUtil.parseIntArray(data);
 	    _info.scene.clusters.add(toCluster(_info.scene.locations, vals));
 
 	} else if (qName.equals("portals")) {
-            String vals[] = StringUtil.parseStringArray(str);
+            String vals[] = StringUtil.parseStringArray(data);
 	    addPortals(_info.scene.portals, _info.scene.locations, vals);
 
 	} else if (qName.equals("row")) {
-	    addTileRow(_info, str);
+	    addTileRow(_info, data);
 
         } else if (qName.equals("scene")) {
 	    // nothing for now
 	}
-
-	// note that we're not within a tag to avoid considering any
-	// characters during this quiescent time
-	_tag = null;
-
-        // and clear out the character data we're gathering
-        _chars = new StringBuffer();
-    }
-
-    public void characters (char ch[], int start, int length)
-    {
-	// bail if we're not within a meaningful tag
-	if (_tag == null) {
-	    return;
-	}
-
-  	_chars.append(ch, start, length);
     }
 
     /**
@@ -257,7 +234,7 @@ public class XMLSceneParser extends DefaultHandler
 
 	// read in all of the portals
 	for (int ii = 0; ii < vals.length; ii += 2) {
-	    int locidx = getInt(vals[ii]);
+	    int locidx = parseInt(vals[ii]);
 
 	    // create the portal and add to the list
 	    Portal portal = new Portal((Location)locs.get(locidx), vals[ii+1]);
@@ -269,26 +246,6 @@ public class XMLSceneParser extends DefaultHandler
     }
 
     /**
-     * Parse the given string as an integer and return the integer
-     * value, or -1 if the string is malformed.
-     */
-    protected int getInt (String str)
-    {
-        try {
-            return (str == null) ? -1 : Integer.parseInt(str);
-        } catch (NumberFormatException nfe) {
-            Log.warning("Malformed integer value [str=" + str + "].");
-            return -1;
-        }
-    }
-
-    protected void init ()
-    {
-	_chars = new StringBuffer();
-	_info = new SceneInfo();
-    }	
-
-    /**
      * Parse the specified XML file and return a miso scene object with
      * the data contained therein.
      *
@@ -298,47 +255,19 @@ public class XMLSceneParser extends DefaultHandler
      */
     public EditableMisoScene loadScene (String fname) throws IOException
     {
-        _fname = fname;
-
-	try {
-            // get the file input stream
-	    FileInputStream fis = new FileInputStream(fname);
-            BufferedInputStream bis = new BufferedInputStream(fis);
-
-            // prepare temporary data storage for parsing
-	    init();
-
-            // read the XML input stream and construct the scene object
-	    XMLUtil.parse(this, bis);
-
-            // place shadow tiles for any objects in the scene
-            _info.scene.prepareAllObjectTiles();
-
-            // return the final scene object
-            return _info.scene;
-
-        } catch (ParserConfigurationException pce) {
-  	    throw new IOException(pce.toString());
-
-	} catch (SAXException saxe) {
-	    throw new IOException(saxe.toString());
-	}
+	_info = new SceneInfo();
+        parseFile(fname);
+        // place shadow tiles for any objects in the scene
+        _info.scene.prepareAllObjectTiles();
+        // return the final scene object
+        return _info.scene;
     }
-
-    /** The file currently being processed. */
-    protected String _fname;
-
-    /** The XML element tag currently being processed. */
-    protected String _tag;
 
     /** The iso scene view data model. */
     protected IsoSceneViewModel _model;
 
     /** The tile manager object for use in constructing scenes. */
     protected TileManager _tilemgr;
-
-    /** Temporary storage of character data while parsing. */
-    protected StringBuffer _chars;
 
     /** Temporary storage of scene info while parsing. */
     protected SceneInfo _info;

@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneUtil.java,v 1.3 2001/10/11 00:41:27 shaper Exp $
+// $Id: MisoSceneUtil.java,v 1.4 2001/10/15 23:53:43 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -101,5 +101,5 @@ public class MisoSceneUtil
     }
 
     /** The default layer index for an unknown named layer. */
-    protected static final int DEF_LAYER = MisoScene.LAYER_BASE;
+    protected static final int DEF_LAYER = -1;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerFrame.java,v 1.20 2001/10/11 16:20:06 shaper Exp $
+// $Id: ViewerFrame.java,v 1.21 2001/10/15 23:53:43 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -16,6 +16,7 @@ import com.threerings.media.tile.TileException;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.AmbulatorySprite;
+import com.threerings.miso.scene.CharacterManager;
 import com.threerings.miso.tile.TileUtil;
 import com.threerings.miso.viewer.util.ViewerContext;
 
@@ -43,8 +44,17 @@ class ViewerFrame extends JFrame implements WindowListener
         SpriteManager spritemgr = new SpriteManager();
         TileManager tilemgr = _ctx.getTileManager();
 
+        // construct the character manager from which we obtain our sprite
+        CharacterManager charmgr = new CharacterManager(
+            ctx.getConfig(), tilemgr);
+
         // add the test character sprite to the sprite manager
-	AmbulatorySprite sprite = createSprite(tilemgr, spritemgr);
+	AmbulatorySprite sprite = charmgr.getCharacter(TSID_CHAR);
+        if (sprite != null) {
+            sprite.setLocation(300, 300);
+            spritemgr.addSprite(sprite);
+            Log.info("Created sprite [sprite=" + sprite + "].");
+        }
 
 	// create a top-level panel to manage everything
 	JPanel top = new JPanel();
@@ -61,17 +71,6 @@ class ViewerFrame extends JFrame implements WindowListener
 
 	// add the main panel to the frame
 	getContentPane().add(top, BorderLayout.CENTER);
-    }
-
-    protected AmbulatorySprite createSprite (TileManager tilemgr,
-					     SpriteManager spritemgr)
-    {
-	MultiFrameImage[] anims =
-	    TileUtil.getAmbulatorySpriteFrames(tilemgr, TSID_CHAR);
-	AmbulatorySprite sprite = new AmbulatorySprite(300, 300, anims);
-        spritemgr.addSprite(sprite);
-
-	return sprite;
     }
 
     /** WindowListener interface methods */

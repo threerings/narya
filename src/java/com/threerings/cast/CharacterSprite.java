@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.11 2001/10/12 00:41:48 shaper Exp $
+// $Id: CharacterSprite.java,v 1.12 2001/10/15 23:53:43 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -9,9 +9,8 @@ import com.threerings.miso.Log;
 import com.threerings.miso.tile.MisoTile;
 
 /**
- * An <code>AmbulatorySprite</code> is a sprite that can face in one of
- * the various compass directions and that can animate itself walking
- * along some chosen path.
+ * An ambulatory sprite is a sprite that animates itself while walking
+ * about in a scene.
  */
 public class AmbulatorySprite extends Sprite implements Traverser
 {
@@ -47,6 +46,13 @@ public class AmbulatorySprite extends Sprite implements Traverser
     }
 
     // documentation inherited
+    public void cancelMove ()
+    {
+        super.cancelMove();
+        halt();
+    }
+
+    // documentation inherited
     protected void pathBeginning ()
     {
         super.pathBeginning();
@@ -59,7 +65,15 @@ public class AmbulatorySprite extends Sprite implements Traverser
     protected void pathCompleted ()
     {
         super.pathCompleted();
+        halt();
+    }
 
+    /**
+     * Updates the sprite animation frame to reflect the cessation of
+     * movement and disables any further animation.
+     */
+    protected void halt ()
+    {
         // come to a halt looking settled and at peace
         _frame = _frames.getFrame(_frameIdx = 0);
         invalidate();

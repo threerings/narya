@@ -1,0 +1,11 @@
+<?xml version="1.0" standalone="yes"?>
+
+<!-- $Id: characters.xml,v 1.1 2001/10/15 23:53:43 shaper Exp $ -->
+
+<!-- Initial test character description data. -->
+
+<characters>
+
+  <character tsid="1003" frames="8" fps="8"/>
+
+</characters>

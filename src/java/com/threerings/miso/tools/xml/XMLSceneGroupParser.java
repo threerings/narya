@@ -1,45 +1,43 @@
 //
-// $Id: XMLSceneGroupParser.java,v 1.5 2001/09/28 01:31:32 mdb Exp $
+// $Id: XMLSceneGroupParser.java,v 1.6 2001/10/15 23:53:43 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
 import java.io.*;
 import java.util.*;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.*;
-import org.xml.sax.helpers.DefaultHandler;
 
 import com.samskivert.util.*;
-import com.samskivert.xml.XMLUtil;
+import com.samskivert.xml.SimpleParser;
+
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;
 import com.threerings.miso.scene.util.MisoSceneUtil;
+
 import com.threerings.whirled.data.Scene;
 
 /**
  * Parses an XML scene group description file, loads the referenced
  * scenes into the runtime scene repository, and creates bindings
- * between the portals in the scenes.
- *
- * <p> Does not currently perform validation on the input XML stream,
- * though the parsing code assumes the XML document is well-formed.
+ * between the portals in the scenes.  Does not currently perform
+ * validation on the input XML stream, though the parsing code assumes
+ * the XML document is well-formed.
  */
-public class XMLSceneGroupParser extends DefaultHandler
+public class XMLSceneGroupParser extends SimpleParser
 {
-    public void startElement (String uri, String localName,
-			      String qName, Attributes attributes)
+    // documentation inherited
+    public void startElement (
+        String uri, String localName, String qName, Attributes attributes)
     {
-	_tag = qName;
-
-	if (_tag.equals("scene")) {
+	if (qName.equals("scene")) {
 	    // construct a new scene info object
 	    _info.curscene = new SceneInfo(attributes.getValue("src"));
 
 	    // add it to the list of scene info objects
 	    _info.sceneinfo.add(_info.curscene);
 
-	} else if (_tag.equals("portal")) {
+	} else if (qName.equals("portal")) {
 	    // pull out the portal data
 	    String src = attributes.getValue("src");
 	    String destScene = attributes.getValue("destScene");
@@ -53,18 +51,15 @@ public class XMLSceneGroupParser extends DefaultHandler
 	}
     }
 
-    public void endElement (String uri, String localName, String qName)
+    // documentation inherited
+    public void finishElement (
+        String uri, String localName, String qName, String data)
     {
-	// we know we've received the entirety of the character data
-        // for the elements we're tracking at this point, so proceed
-        // with saving off element data for later use.
-	String str = _chars.toString();
-
 	if (qName.equals("name")) {
-	    _info.curscene.name = str;
+	    _info.curscene.name = data;
 
 	} else if (qName.equals("entrance")) {
-	    _info.curscene.entrance = str;
+	    _info.curscene.entrance = data;
 
 	} else if (qName.equals("scene")) {
 	    // TODO: load scene from scene repository and set
@@ -79,21 +74,6 @@ public class XMLSceneGroupParser extends DefaultHandler
 	    // warn about any remaining un-bound portals
 	    _info.checkUnboundPortals();
 	}
-
-	// note that we're not within a tag to avoid considering any
-	// characters during this quiescent time
-	_tag = null;
-
-        // and clear out the character data we're gathering
-        _chars = new StringBuffer();
-    }
-
-    public void characters (char ch[], int start, int length)
-    {
-	// bail if we're not within a meaningful tag
-	if (_tag == null) return;
-
-  	_chars.append(ch, start, length);
     }
 
     /**
@@ -107,39 +87,10 @@ public class XMLSceneGroupParser extends DefaultHandler
      */
     public List loadSceneGroup (String fname) throws IOException
     {
-        _fname = fname;
-
-	try {
-            // get the file input stream
-	    FileInputStream fis = new FileInputStream(fname);
-            BufferedInputStream bis = new BufferedInputStream(fis);
-
-            // prepare temporary data storage for parsing
-	    _chars = new StringBuffer();
-	    _info = new SceneGroupInfo();
-
-            // read the XML input stream and construct all scene objects
-	    XMLUtil.parse(this, bis);
-
-            // return the final list of scene objects
-            return _info.getScenes();
-
-        } catch (ParserConfigurationException pce) {
-  	    throw new IOException(pce.toString());
-
-	} catch (SAXException saxe) {
-	    throw new IOException(saxe.toString());
-	}
+        _info = new SceneGroupInfo();
+        parseFile(fname);
+        return _info.getScenes();
     }
-
-    /** The file currently being processed. */
-    protected String _fname;
-
-    /** The XML element tag currently being processed. */
-    protected String _tag;
-
-    /** Temporary storage of scene group values and data. */
-    protected StringBuffer _chars;
 
     /** The scene group info gathered while parsing. */
     protected SceneGroupInfo _info;

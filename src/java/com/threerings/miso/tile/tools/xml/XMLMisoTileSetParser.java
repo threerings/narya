@@ -1,5 +1,5 @@
 //
-// $Id: XMLMisoTileSetParser.java,v 1.3 2001/10/12 00:43:04 shaper Exp $
+// $Id: XMLMisoTileSetParser.java,v 1.4 2001/10/15 23:53:43 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -17,8 +17,8 @@ import com.threerings.miso.scene.util.MisoSceneUtil;
 public class XMLMisoTileSetParser extends XMLTileSetParser
 {
     // documentation inherited
-    public void startElement (String uri, String localName,
-			      String qName, Attributes attributes)
+    public void startElement (
+        String uri, String localName, String qName, Attributes attributes)
     {
 	super.startElement(uri, localName, qName, attributes);
 
@@ -29,12 +29,13 @@ public class XMLMisoTileSetParser extends XMLTileSetParser
     }
 
     // documentation inherited
-    protected void finishElement (String qName, String str)
+    protected void finishElement (
+        String uri, String localName, String qName, String data)
     {
-	super.finishElement(qName, str);
+	super.finishElement(uri, localName, qName, data);
 
 	if (qName.equals("passable")) {
-	    ((MisoTileSetImpl)_tset).passable = StringUtil.parseIntArray(str);
+	    ((MisoTileSetImpl)_tset).passable = StringUtil.parseIntArray(data);
 	}
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: TileSetParser.java,v 1.6 2001/10/12 16:36:58 shaper Exp $
+// $Id: TileSetParser.java,v 1.7 2001/10/15 23:53:43 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -14,9 +14,8 @@ public interface TileSetParser
 {
     /**
      * Read tileset description data from the specified file and
-     * construct {@link TileSet} objects to suit.  Return a list of
-     * all tile set objects constructed, or a zero-length list if no
-     * tileset descriptions were fully parsed.
+     * append {@link TileSet} objects constructed from the data to the
+     * given list.
      */
-    public List loadTileSets (String fname) throws IOException;
+    public void loadTileSets (String fname, List tilesets) throws IOException;
 }
