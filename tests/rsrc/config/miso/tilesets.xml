@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: tilesets.xml,v 1.21 2001/10/15 23:53:43 shaper Exp $ -->
+<!-- $Id: tilesets.xml,v 1.22 2001/10/17 22:10:04 shaper Exp $ -->
 
 <!-- Initial test tileset description data. -->
 
@@ -39,10 +39,51 @@
 
   <tileset tsid="1009" name="Building" layer="Object">
     <imagefile>media/miso/tiles/building.png</imagefile>
-    <rowheight>240</rowheight>
+    <rowheight>296</rowheight>
+    <rowwidth>228</rowwidth>
+    <tilecount>4</tilecount>
+    <offsetpos>1, 7</offsetpos>
+    <gapdist>2, 0</gapdist>
+
+    <objects>
+      <object tid="0" width="4" height="3"/>
+      <object tid="1" width="3" height="4"/>
+      <object tid="2" width="4" height="3"/>
+      <object tid="3" width="3" height="4"/>
+    </objects>
+
+  </tileset>
+
+  <tileset tsid="1010" name="Landscape" layer="Base">
+    <imagefile>media/miso/tiles/landscape.png</imagefile>
+    <rowheight>48</rowheight>
     <rowwidth>64</rowwidth>
-    <tilecount>6</tilecount>
-    <passable>0, 0, 0, 0, 0, 0</passable>
+    <tilecount>5</tilecount>
+    <passable>1, 0, 1, 1, 1</passable>
+  </tileset>
+
+  <tileset tsid="1011" name="Pirate">
+    <imagefile>media/miso/tiles/pirate.png</imagefile>
+    <rowheight>94, 94, 94, 94, 94, 94, 94, 94</rowheight>
+    <rowwidth>94, 94, 94, 94, 94, 94, 94, 94</rowwidth>
+    <tilecount>6, 6, 6, 6, 6, 6, 6, 6</tilecount>
+    <offsetpos>3, 3</offsetpos>
+    <gapdist>6, 6</gapdist>
+  </tileset>
+
+  <tileset tsid="1014" name="Faux Building" layer="Object">
+    <imagefile>media/miso/tiles/faux-building.png</imagefile>
+    <rowheight>265</rowheight>
+    <rowwidth>224</rowwidth>
+    <tilecount>4</tilecount>
+
+    <objects>
+      <object tid="0" width="4" height="3"/>
+      <object tid="1" width="3" height="4"/>
+      <object tid="2" width="4" height="3"/>
+      <object tid="3" width="3" height="4"/>
+    </objects>
+
   </tileset>
 
 </tilesetgroup>
