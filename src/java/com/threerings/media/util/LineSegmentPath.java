@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.23 2002/05/31 03:38:03 mdb Exp $
+// $Id: LineSegmentPath.java,v 1.24 2002/06/12 23:33:03 ray Exp $
 
 package com.threerings.media.util;
 
@@ -30,11 +30,10 @@ public class LineSegmentPath
     implements DirectionCodes, Path
 {
     /**
-     * Constructs a line segment path.
+     * Constructs an empty line segment path.
      */
     public LineSegmentPath ()
     {
-        _nodes = new ArrayList();
     }
 
     /**
@@ -46,11 +45,20 @@ public class LineSegmentPath
      */
     public LineSegmentPath (int x1, int y1, int x2, int y2)
     {
-        this();
         addNode(x1, y1, NORTH);
         Point p1 = new Point(x1, y1), p2 = new Point(x2, y2);
         int dir = DirectionUtil.getDirection(p1, p2);
         addNode(x2, y2, dir);
+    }
+
+    /**
+     * Construct a line segment path between the two nodes with the
+     * specified direction.
+     */
+    public LineSegmentPath (Point p1, Point p2, int dir)
+    {
+        addNode(p1.x, p1.y, NORTH);
+        addNode(p2.x, p2.y, dir);
     }
 
     /**
@@ -63,7 +71,6 @@ public class LineSegmentPath
      */
     public LineSegmentPath (List points)
     {
-        this();
         createPath(points);
     }
 
@@ -324,7 +331,7 @@ public class LineSegmentPath
     }        
 
     /** The nodes that make up the path. */
-    protected ArrayList _nodes;
+    protected ArrayList _nodes = new ArrayList();
 
     /** We use this when moving along this path. */
     protected Iterator _niter;
