@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.36 2003/05/02 15:11:12 mdb Exp $
+// $Id: MediaPanel.java,v 1.37 2003/05/04 23:28:18 mdb Exp $
 
 package com.threerings.media;
 
@@ -226,15 +226,18 @@ public class MediaPanel extends JComponent
                 _perfLabel.setText(perfStatus);
 
                 Graphics2D gfx = (Graphics2D)getGraphics();
-                _perfLabel.layout(gfx);
-                gfx.dispose();
+                if (gfx != null) {
+                    _perfLabel.layout(gfx);
+                    gfx.dispose();
 
-                // make sure the region we dirty contains the old and the new
-                // text (which we ensure by never letting the rect shrink)
-                Dimension psize = _perfLabel.getSize();
-                _perfRect.width = Math.max(_perfRect.width, psize.width);
-                _perfRect.height = Math.max(_perfRect.height, psize.height);
-                dirtyScreenRect(new Rectangle(_perfRect));
+                    // make sure the region we dirty contains the old and
+                    // the new text (which we ensure by never letting the
+                    // rect shrink)
+                    Dimension psize = _perfLabel.getSize();
+                    _perfRect.width = Math.max(_perfRect.width, psize.width);
+                    _perfRect.height = Math.max(_perfRect.height, psize.height);
+                    dirtyScreenRect(new Rectangle(_perfRect));
+                }
             }
         }
 
