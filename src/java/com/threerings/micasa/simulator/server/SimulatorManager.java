@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorManager.java,v 1.10 2002/04/15 16:28:02 shaper Exp $
+// $Id: SimulatorManager.java,v 1.11 2002/07/02 21:14:23 shaper Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -78,7 +78,15 @@ public class SimulatorManager
             _config = config;
             _simClass = simClass;
             _playerCount = playerCount;
-        
+
+            // determine the AI player skill level
+            byte skill;
+            try {
+                skill = Byte.parseByte(System.getProperty("skill"));
+            } catch (NumberFormatException nfe) {
+                skill = DEFAULT_SKILL;
+            }
+
             try {
                 // create the game manager and begin its initialization
                 // process. the game manager will take care of notifying
@@ -98,6 +106,11 @@ public class SimulatorManager
                     names[ii] = "simulant" + ii;
                 }
                 _gmgr.setPlayers(names);
+
+                for (int ii = 1; ii < _playerCount; ii++) {
+                    // mark all simulants as AI players
+                    _gmgr.setAI(ii, skill);
+                }
 
             } catch (Exception e) {
                 Log.warning("Unable to create game manager [e=" + e + "].");
@@ -203,4 +216,7 @@ public class SimulatorManager
     protected ClientManager _clmgr;
     protected RootDObjectManager _omgr;
     protected SimulatorServer _simserv;
+
+    /** The default skill level for AI players. */
+    protected static final byte DEFAULT_SKILL = 50;
 }
