@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaApp.java,v 1.3 2001/10/25 23:21:32 mdb Exp $
+// $Id: MiCasaApp.java,v 1.4 2001/11/26 23:46:47 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -38,6 +38,12 @@ public class MiCasaApp
         _frame.show();
 
         Client client = _client.getContext().getClient();
+
+        String server = System.getProperty("server");
+        if (server != null) {
+            // indicate which server to which we should connect
+            client.setServer(server, Client.DEFAULT_SERVER_PORT);
+        }
 
         // we want to exit when we logged off or failed to log on
         client.addObserver(new ClientAdapter() {
