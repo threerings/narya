@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedObjectTileSet.java,v 1.11 2003/05/13 02:16:21 mdb Exp $
+// $Id: TrimmedObjectTileSet.java,v 1.12 2003/05/27 18:25:04 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -57,6 +57,15 @@ public class TrimmedObjectTileSet extends TileSet
     public int getSpotOrient (int tileIdx)
     {
         return (_bits == null) ? -1 : _bits[tileIdx].sorient;
+    }
+
+    /**
+     * Returns the colorization classes that should be used to recolor
+     * objects in this tileset.
+     */
+    public String[] getColorizations ()
+    {
+        return _zations;
     }
 
     /**
