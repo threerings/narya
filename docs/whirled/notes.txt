@@ -1,0 +1,14 @@
+Whirled Notes -*- outline -*-
+
+* 11/25/2002
+** Scene tagging
+- Create a mechanism whereby scenes can be annotated with tags or somesuch
+  which are available without resolving the scenes.
+
+* 12/20/2002
+** Portal tagging
+- During the scene resolution process, tag portals that connect a scene to
+  its neighbors in a named direction (north, east, south, west) as scene
+  graph defining portals (and different from portals that link a scene to
+  some internal sub-group like the entrance to an inn or a link to the set
+  of rooms upstairs)
