@@ -1,5 +1,5 @@
 //
-// $Id: OccupantManager.java,v 1.7 2001/10/12 00:03:02 mdb Exp $
+// $Id: OccupantManager.java,v 1.8 2001/12/16 08:09:10 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -36,7 +36,7 @@ import com.threerings.crowd.util.CrowdContext;
  * what's in the cache.
  */
 public class OccupantManager
-    implements LocationObserver, OidListListener
+    implements LocationObserver, SetListener
 {
     /**
      * Constructs a new occupant manager with the supplied context.
@@ -101,25 +101,16 @@ public class OccupantManager
     /**
      * Deals with all of the processing when an occupant shows up.
      */
-    public void objectAdded (ObjectAddedEvent event)
+    public void elementAdded (ElementAddedEvent event)
     {
-        // bail if this isn't for the OCCUPANTS field
-        if (!event.getName().equals(PlaceObject.OCCUPANTS)) {
-            return;
-        }
-
-        int bodyOid = event.getOid();
-        Object key = new Integer(bodyOid);
-
-        // get the occupant info from the place object
-        OccupantInfo info = (OccupantInfo)_place.occupantInfo.get(key);
-        if (info == null) {
-            Log.warning("Occupant entered but we have no info for them! " +
-                        "[boid=" + bodyOid + ", place=" + _place + "].");
+        // bail if this isn't for the OCCUPANT_INFO field
+        if (!event.getName().equals(PlaceObject.OCCUPANT_INFO)) {
             return;
         }
 
         // put the info in our cache for use when we get a left event
+        OccupantInfo info = (OccupantInfo)event.getElement();
+        int bodyOid = info.getBodyOid();
         _ocache.put(bodyOid, info);
 
         // now let the occupant observers know what's up
@@ -130,16 +121,38 @@ public class OccupantManager
     }
 
     /**
-     * Deals with all of the processing when an occupant leaves.
+     * Deals with all of the processing when an occupant is updated.
      */
-    public void objectRemoved (ObjectRemovedEvent event)
+    public void elementUpdated (ElementUpdatedEvent event)
     {
-        // bail if this isn't for the OCCUPANTS field
-        if (!event.getName().equals(PlaceObject.OCCUPANTS)) {
+        // bail if this isn't for the OCCUPANT_INFO field
+        if (!event.getName().equals(PlaceObject.OCCUPANT_INFO)) {
             return;
         }
 
-        int bodyOid = event.getOid();
+        // update our cache
+        OccupantInfo info = (OccupantInfo)event.getElement();
+        int bodyOid = info.getBodyOid();
+        _ocache.put(bodyOid, info);
+
+        // now let the occupant observers know what's up
+        for (int i = 0; i < _observers.size(); i++) {
+            OccupantObserver obs = (OccupantObserver)_observers.get(i);
+            obs.occupantUpdated(info);
+        }
+    }
+
+    /**
+     * Deals with all of the processing when an occupant leaves.
+     */
+    public void elementRemoved (ElementRemovedEvent event)
+    {
+        // bail if this isn't for the OCCUPANT_INFO field
+        if (!event.getName().equals(PlaceObject.OCCUPANT_INFO)) {
+            return;
+        }
+
+        int bodyOid = ((Integer)event.getKey()).intValue();
         // see if we have an occupant object for this body
         OccupantInfo info = (OccupantInfo)_ocache.get(bodyOid);
         if (info == null) {
