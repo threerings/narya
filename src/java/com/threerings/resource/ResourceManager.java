@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.14 2002/07/19 20:12:23 shaper Exp $
+// $Id: ResourceManager.java,v 1.15 2002/07/22 23:19:23 shaper Exp $
 
 package com.threerings.resource;
 
@@ -215,8 +215,8 @@ public class ResourceManager
         // create an object to wait on while the download takes place
         final Object lock = new Object();
 
-        // pass the descriptors on to the download manager
-        dlmgr.download(dlist, true, new DownloadObserver() {
+        // create the observer that will notify us when all is finished
+        DownloadObserver obs = new DownloadObserver() {
             public void resolvingDownloads () {
                 // nothing for now
             }
@@ -239,17 +239,19 @@ public class ResourceManager
                     lock.notify();
                 }
             }
-        });
+        };
 
-        try {
-            synchronized (lock) {
+        synchronized (lock) {
+            // pass the descriptors on to the download manager
+            dlmgr.download(dlist, true, obs);
+
+            try {
                 // block until the download has completed
                 lock.wait();
+            } catch (InterruptedException ie) {
+                Log.warning("Thread interrupted while waiting for download " +
+                            "to complete [ie=" + ie + "].");
             }
-
-        } catch (InterruptedException ie) {
-            Log.warning("Thread interrupted while waiting for download " +
-                        "to complete [ie=" + ie + "].");
         }
     }
 
