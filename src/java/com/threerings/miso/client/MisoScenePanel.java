@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.51 2003/10/15 23:20:40 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.52 2003/11/12 23:05:40 ray Exp $
 
 package com.threerings.miso.client;
 
@@ -1403,14 +1403,14 @@ public class MisoScenePanel extends VirtualMediaPanel
     }
 
     /** Returns the fringe tile for the specified tile coordinate. */
-    protected Tile getFringeTile (int tx, int ty)
+    protected BaseTile getFringeTile (int tx, int ty)
     {
         SceneBlock block = getBlock(tx, ty);
         return (block == null) ? null : block.getFringeTile(tx, ty);
     }
 
     /** Computes the fringe tile for the specified coordinate. */
-    protected Tile computeFringeTile (int tx, int ty)
+    protected BaseTile computeFringeTile (int tx, int ty)
     {
         return _ctx.getTileManager().getAutoFringer().getFringeTile(
             _model, tx, ty, _masks);
@@ -1462,11 +1462,6 @@ public class MisoScenePanel extends VirtualMediaPanel
                     tile.paint(_gfx, tbounds.x, tbounds.y);
                     passable = ((BaseTile)tile).isPassable();
 
-                    // highlight impassable tiles
-                    if (_traverseDebug.getValue() && !passable) {
-                        fillTile(_gfx, tx, ty, Color.yellow);
-                    }
-
                 } else {
                     // draw black where there are no tiles
                     Polygon poly = MisoUtil.getTilePolygon(_metrics, tx, ty);
@@ -1476,12 +1471,19 @@ public class MisoScenePanel extends VirtualMediaPanel
 
                 if ((tile = getFringeTile(tx, ty)) != null) {
                     tile.paint(_gfx, tbounds.x, tbounds.y);
+                    passable = passable && ((BaseTile)tile).isPassable();
                 }
 
-                // highlight passable non-traversable tiles
-                if (_traverseDebug.getValue() && passable && 
-                    !canTraverse(null, tx, ty)) {
-                    fillTile(_gfx, tx, ty, Color.green);
+                // highlight impassable tiles
+                if (_traverseDebug.getValue()) {
+                    if (!passable) {
+                        // highlight tiles blocked by base or fringe in yellow
+                        fillTile(_gfx, tx, ty, Color.yellow);
+
+                    } else if (!canTraverse(null, tx, ty)) {
+                        // highlight passable non-traversable tiles in green
+                        fillTile(_gfx, tx, ty, Color.green);
+                    }
                 }
 
             } catch (ArrayIndexOutOfBoundsException e) {

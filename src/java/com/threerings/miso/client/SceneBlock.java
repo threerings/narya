@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.21 2003/10/29 01:42:37 mdb Exp $
+// $Id: SceneBlock.java,v 1.22 2003/11/12 23:05:40 ray Exp $
 
 package com.threerings.miso.client;
 
@@ -46,7 +46,7 @@ public class SceneBlock
         _panel = panel;
         _bounds = new Rectangle(tx, ty, width, height);
         _base = new BaseTile[width*height];
-        _fringe = new Tile[width*height];
+        _fringe = new BaseTile[width*height];
         _covered = new boolean[width*height];
 
         // compute our screen-coordinate footprint polygon
@@ -252,7 +252,7 @@ public class SceneBlock
      * Returns the fringe tile at the specified coordinates or null if
      * there's no tile at said coordinates.
      */
-    public Tile getFringeTile (int tx, int ty)
+    public BaseTile getFringeTile (int tx, int ty)
     {
         return _fringe[index(tx, ty)];
     }
@@ -367,8 +367,20 @@ public class SceneBlock
      */
     public boolean canTraverse (Object traverser, int tx, int ty)
     {
+        if (_covered[index(tx, ty)]) {
+            return false;
+        }
+
         BaseTile base = getBaseTile(tx, ty);
-        return !_covered[index(tx, ty)] && (base != null && base.isPassable());
+        if ((base == null) || !base.isPassable()) {
+            return false;
+        }
+
+        BaseTile fringe = getFringeTile(tx, ty);
+        if (fringe != null) {
+            return fringe.isPassable();
+        }
+        return true;
     }
 
     /**
@@ -551,7 +563,7 @@ public class SceneBlock
     protected BaseTile[] _base;
 
     /** Our fringe tiles. */
-    protected Tile[] _fringe;
+    protected BaseTile[] _fringe;
 
     /** Indicates whether our tiles are covered by an object. */
     protected boolean[] _covered;

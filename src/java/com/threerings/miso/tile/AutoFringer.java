@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.25 2003/05/31 00:56:38 mdb Exp $
+// $Id: AutoFringer.java,v 1.26 2003/11/12 23:05:41 ray Exp $
 
 package com.threerings.miso.tile;
 
@@ -57,14 +57,15 @@ public class AutoFringer
      * Compute and return the fringe tile to be inserted at the specified
      * location.
      */
-    public Tile getFringeTile (MisoSceneModel scene, int col, int row,
-                               HashMap masks)
+    public BaseTile getFringeTile (MisoSceneModel scene, int col, int row,
+                                   HashMap masks)
     {
         // get the tileset id of the base tile we are considering
         int underset = scene.getBaseTileId(col, row) >> 16;
 
         // start with a clean temporary fringer map
         _fringers.clear();
+        boolean passable = true;
 
         // walk through our influence tiles
         for (int y = row - 1, maxy = row + 2; y < maxy; y++) {
@@ -93,6 +94,20 @@ public class AutoFringer
 
                 // now turn on the appropriate fringebits
                 fringer.bits |= FLAGMATRIX[y - row + 1][x - col + 1];
+
+                // and see if this base tile kills passability
+                if (passable) {
+                    if (btid > 0) {
+                        try {
+                            BaseTile bt = (BaseTile) _tmgr.getTile(btid);
+                            passable = bt.isPassable();
+                        } catch (NoSuchTileSetException nstse) {
+                            Log.warning("Autofringer couldn't find a base " +
+                                "set while attempting to figure passability " +
+                                "[error=" + nstse + "].");
+                        }
+                    }
+                }
             }
         }
 
@@ -111,14 +126,17 @@ public class AutoFringer
             }
         }
 
-        return composeFringeTile(frecs, masks, MisoUtil.getTileHash(col, row));
+        BaseTile frTile = new BaseTile();
+        frTile.setPassable(passable);
+        composeFringeTile(frTile, frecs, masks, MisoUtil.getTileHash(col, row));
+        return frTile;
     }
 
     /**
      * Compose a FringeTile out of the various fringe images needed.
      */
-    protected Tile composeFringeTile (
-        FringerRec[] fringers, HashMap masks, int hashValue)
+    protected void composeFringeTile (
+        Tile frTile, FringerRec[] fringers, HashMap masks, int hashValue)
     {
         // sort the array so that higher priority fringers get drawn first
         QuickSort.sort(fringers);
@@ -140,9 +158,7 @@ public class AutoFringer
             }
         }
 
-        Tile tile = new Tile();
-        tile.setImage(new BufferedMirage(ftimg));
-        return tile;
+        frTile.setImage(new BufferedMirage(ftimg));
     }
 
     /**
