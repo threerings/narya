@@ -640,6 +640,10 @@ public class MediaPanel extends JComponent
         // documentation inherited
         public void mouseReleased (MouseEvent me)
         {
+            if (_activeSprite instanceof ArmingSprite) {
+                ((ArmingSprite)_activeSprite).setArmed(false);
+            }
+            
             if ((_activeSprite instanceof ActionSprite) &&
                     _activeSprite.hitTest(me.getX(), me.getY())) {
                 if (_activeSprite instanceof CommandSprite) {
@@ -652,7 +656,7 @@ public class MediaPanel extends JComponent
                         ((ActionSprite) _activeSprite).getActionCommand());
                 }
             }
-
+            
             if (!(_activeSprite instanceof HoverSprite)) {
                 _activeSprite = null;
             }
