@@ -1,5 +1,5 @@
 //
-// $Id: BundleUtil.java,v 1.4 2003/01/13 22:53:04 mdb Exp $
+// $Id: BundleUtil.java,v 1.5 2003/01/14 00:36:14 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -45,8 +45,6 @@ public class BundleUtil
      *
      * @return the unserialized object in question.
      *
-     * @exception FileNotFoundException thrown if no object exists with
-     * the specified path.
      * @exception IOException thrown if an I/O error occurs while reading
      * the object from the bundle.
      */     
@@ -56,7 +54,7 @@ public class BundleUtil
         try {
             InputStream bin = bundle.getResource(path);
             if (bin == null) {
-                throw new FileNotFoundException(path);
+                return null;
             }
             return new ObjectInputStream(bin).readObject();
 

@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.23 2003/01/13 22:53:04 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.24 2003/01/14 00:36:14 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -110,10 +110,9 @@ public class BundledComponentRepository
             // now go back and load up all of the component information
             for (int i = 0; i < rbundles.length; i++) {
                 HashIntMap comps = null;
-                try {
-                    comps = (HashIntMap)BundleUtil.loadObject(
-                        rbundles[i], BundleUtil.COMPONENTS_PATH);
-                } catch (FileNotFoundException fnfe) {
+                comps = (HashIntMap)BundleUtil.loadObject(
+                    rbundles[i], BundleUtil.COMPONENTS_PATH);
+                if (comps == null) {
                     continue;
                 }
 
@@ -294,10 +293,8 @@ public class BundledComponentRepository
             String path = root + action + BundleUtil.TILESET_EXTENSION;
 
             try {
-                TileSet aset = null;
-                try {
-                    aset = (TileSet)BundleUtil.loadObject(_bundle, path);
-                } catch (FileNotFoundException fnfe) {
+                TileSet aset = (TileSet)BundleUtil.loadObject(_bundle, path);
+                if (aset == null) {
                     Log.debug("Falling back to default [path=" + path + "].");
                     // try loading the default tileset
                     path = root + ActionSequence.DEFAULT_SEQUENCE +
