@@ -259,17 +259,21 @@ public class PresentsServer
      */
     public void shutdown ()
     {
+        ObserverList downers = _downers;
+        if (downers == null) {
+            Log.warning("Refusing repeat shutdown request.");
+            return;
+        }
+        _downers = null;
+
         // shut down the connection manager (this will cease all network
         // activity but not actually close the connections)
         if (conmgr.isRunning()) {
             conmgr.shutdown();
-        } else {
-            Log.warning("Refusing repeat shutdown request.");
-            return;
         }
 
         // shut down all shutdown participants
-        _downers.apply(new ObserverList.ObserverOp() {
+        downers.apply(new ObserverList.ObserverOp() {
             public boolean apply (Object observer) {
                 ((Shutdowner)observer).shutdown();
                 return true;
