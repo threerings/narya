@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.24 2003/01/16 21:38:11 ray Exp $
+// $Id: ImageUtil.java,v 1.25 2003/01/17 00:41:49 ray Exp $
 
 package com.threerings.media.image;
 
@@ -21,6 +21,8 @@ import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
+
+import java.awt.geom.Area;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -183,6 +185,41 @@ public class ImageUtil
             g.setClip(oclip);
         }
     }
+
+    // Not fully added because we're not using it anywhere, plus
+    // it's probably a little sketchy to create Area objects with all
+    // this pixely data.
+    // Also, the Area was getting zeroed out when it was translated. Something
+    // to look into someday if anyone wants to use this method.
+//    /**
+//     * Creates a mask that is opaque in the non-transparent areas of the
+//     * source image.
+//     */
+//    public static Area createImageMask (BufferedImage src)
+//    {
+//        Raster srcdata = src.getData(); 
+//        if (srcdata.getNumBands() != 4) {
+//            throw new IllegalArgumentException(
+//                "Can't create a mask of an image with no transparency " +
+//                "[image=" + src + "].");
+//        }
+//
+//        int wid = src.getWidth(), hei = src.getHeight();
+//        Log.info("creating area of (" + wid + ", " + hei + ")");
+//        Area a = new Area(new Rectangle(wid, hei));
+//        Rectangle r = new Rectangle(1, 1);
+//
+//        for (int yy=0; yy < hei; yy++) {
+//            for (int xx=0; xx < wid; xx++) {
+//                if (srcdata.getSample(xx, yy, 0) == 0) {
+//                    r.setLocation(xx, yy);
+//                    a.subtract(new Area(r));
+//                }
+//            }
+//        }
+//
+//        return a;
+//    }
 
     /**
      * Creates and returns a new image consisting of the supplied image
