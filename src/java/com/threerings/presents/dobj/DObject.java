@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.36 2002/02/04 01:47:19 mdb Exp $
+// $Id: DObject.java,v 1.37 2002/02/05 22:27:26 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -446,7 +446,7 @@ public class DObject
     {
         StringBuffer buf = new StringBuffer();
         buf.append("[oid=").append(_oid).append(", ");
-        StringUtil.fieldsToString(this);
+        StringUtil.fieldsToString(buf, this);
         return buf.append("]").toString();
     }
 
