@@ -1,10 +1,9 @@
 //
-// $Id: Streamer.java,v 1.7 2003/06/02 17:24:18 mdb Exp $
+// $Id: Streamer.java,v 1.8 2004/06/03 15:56:25 ray Exp $
 
 package com.threerings.io;
 
 import java.lang.NoSuchMethodException;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -16,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.samskivert.io.NestableIOException;
+import com.samskivert.util.ClassUtil;
 
 import com.threerings.presents.Log;
 
@@ -389,10 +389,8 @@ public class Streamer
         }
 
         // reflect on all the object's fields
-        ArrayList flist = new ArrayList();
-        getFields(target, flist);
-        int fcount = flist.size();
-        _fields = (Field[])flist.toArray(new Field[fcount]);
+        _fields = ClassUtil.getFields(target);
+        int fcount = _fields.length;
 
         // obtain field marshallers for all of our fields
         _marshallers = new FieldMarshaller[fcount];
@@ -412,37 +410,6 @@ public class Streamer
             _writer = target.getMethod(WRITER_METHOD_NAME, WRITER_ARGS);
         } catch (NoSuchMethodException nsme) {
             // nothing to worry about, we just don't have one
-        }
-    }
-
-    /**
-     * Obtains all non-transient, non-static fields of the specified class
-     * and its parent classes.
-     */
-    protected void getFields (Class clazz, ArrayList flist)
-    {
-        // first reflect on our parent's fields if it has such
-        Class pclazz = clazz.getSuperclass();
-        if (pclazz != null && !pclazz.equals(Object.class)) {
-            getFields(pclazz, flist);
-        }
-
-        // then reflect on our own declared fields
-        Field[] fields = clazz.getDeclaredFields();
-
-        // override the default accessibility check for the fields
-        AccessibleObject.setAccessible(fields, true);
-
-        int fcount = fields.length;
-        for (int ii = 0; ii < fcount; ii++) {
-            Field field = fields[ii];
-            int mods = field.getModifiers();
-            // skip static and transient fields
-            if (((mods & Modifier.STATIC) != 0) ||
-                ((mods & Modifier.TRANSIENT) != 0)) {
-                continue;
-            }
-            flist.add(field);
         }
     }
 
