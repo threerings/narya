@@ -1,5 +1,5 @@
 //
-// $Id: MultiFrameAnimation.java,v 1.1 2002/09/17 20:08:21 mdb Exp $
+// $Id: MultiFrameAnimation.java,v 1.2 2002/09/17 21:58:12 ray Exp $
 
 package com.threerings.media.animation;
 
@@ -72,7 +72,10 @@ public class MultiFrameAnimation extends Animation
     public void tick (long tickStamp)
     {
         int fidx = _seeker.tick(tickStamp);
-        if (fidx != _fidx) {
+        if (fidx == -1) {
+            _finished = true;
+
+        } else if (fidx != _fidx) {
             // update our frame index and bounds
             setFrameIndex(fidx);
 
