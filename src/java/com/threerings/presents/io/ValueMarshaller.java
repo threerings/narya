@@ -1,5 +1,5 @@
 //
-// $Id: ValueMarshaller.java,v 1.3 2001/09/17 05:18:21 mdb Exp $
+// $Id: ValueMarshaller.java,v 1.4 2001/10/03 03:38:55 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj.io;
 
@@ -7,6 +7,7 @@ import java.io.*;
 import java.util.HashMap;
 
 import com.samskivert.util.HashIntMap;
+import com.threerings.cocktail.cher.io.Streamable;
 
 /**
  * The value marshaller provides a mechanism for marshalling and
@@ -42,7 +43,14 @@ public class ValueMarshaller
     public static void writeTo (DataOutputStream out, Object value)
         throws IOException
     {
-        Marshaller marsh = (Marshaller)_outmap.get(value.getClass());
+        // all types except streamable have a one to one mapping from
+        // class object to marshaller, but streamables have to be looked
+        // up specially because we are dealing with a interface
+        // implementation of streamable rather than a direct instance
+        Class vclass = (value instanceof Streamable) ?
+            Streamable.class : value.getClass();
+
+        Marshaller marsh = (Marshaller)_outmap.get(vclass);
         if (marsh == null) {
             throw new RuntimeException("Requested to serialize invalid " +
                                        "type [value=" + value + ", type=" +
@@ -482,6 +490,37 @@ public class ValueMarshaller
         }
     }
 
+    protected static class StreamableMarshaller extends Marshaller
+    {
+        public StreamableMarshaller ()
+        {
+            super((byte)15);
+        }
+
+        public void writeValue (DataOutputStream out, Object value)
+            throws IOException
+        {
+            out.writeUTF(value.getClass().getName());
+            ((Streamable)value).writeTo(out);
+        }
+
+        public Object readValue (DataInputStream in)
+            throws IOException
+        {
+            String cname = in.readUTF();
+            try {
+                Streamable value = (Streamable)
+                    Class.forName(cname).newInstance();
+                value.readFrom(in);
+                return value;
+            } catch (Exception e) {
+                throw new IOException("Unable to unmarshall streamable " +
+                                      "[cname=" + cname +
+                                      ", error=" + e + "]");
+            }
+        }
+    }
+
     protected static HashMap _outmap = new HashMap();
     protected static HashIntMap _inmap = new HashIntMap();
 
@@ -499,7 +538,8 @@ public class ValueMarshaller
         (new long[0]).getClass(),
         (new float[0]).getClass(),
         (new double[0]).getClass(),
-        (new String[0]).getClass()
+        (new String[0]).getClass(),
+        Streamable.class
     };
 
     protected static Marshaller[] _marshallers = {
@@ -516,7 +556,8 @@ public class ValueMarshaller
         new LongArrayMarshaller(),
         new FloatArrayMarshaller(),
         new DoubleArrayMarshaller(),
-        new StringArrayMarshaller()
+        new StringArrayMarshaller(),
+        new StreamableMarshaller()
     };
 
     // register our marshallers
