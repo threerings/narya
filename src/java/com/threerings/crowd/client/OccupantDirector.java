@@ -1,5 +1,5 @@
 //
-// $Id: OccupantDirector.java,v 1.2 2002/05/22 21:47:14 shaper Exp $
+// $Id: OccupantDirector.java,v 1.3 2002/10/27 01:25:08 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -168,15 +168,24 @@ public class OccupantDirector
             return;
         }
 
-        // update our cache
         OccupantInfo info = (OccupantInfo)event.getEntry();
         int bodyOid = info.getBodyOid();
+
+        // grab the old info to give observers a chance to figure out what
+        // changed
+        OccupantInfo oinfo = (OccupantInfo)_ocache.get(bodyOid);
+        if (oinfo == null) {
+            Log.warning("Urk! Occupant updated for whom we we have no " +
+                        "prior info record [info=" + info + "].");
+        }
+
+        // update our cache
         _ocache.put(bodyOid, info);
 
         // now let the occupant observers know what's up
         for (int i = 0; i < _observers.size(); i++) {
             OccupantObserver obs = (OccupantObserver)_observers.get(i);
-            obs.occupantUpdated(info);
+            obs.occupantUpdated(oinfo, info);
         }
     }
 

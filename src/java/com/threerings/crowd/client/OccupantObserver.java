@@ -1,5 +1,5 @@
 //
-// $Id: OccupantObserver.java,v 1.3 2002/04/15 14:38:45 shaper Exp $
+// $Id: OccupantObserver.java,v 1.4 2002/10/27 01:25:08 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -23,7 +23,10 @@ public interface OccupantObserver
     public void occupantLeft (OccupantInfo info);
 
     /**
-     * Called an occupant is updated.
+     * Called when an occupant is updated.
+     *
+     * @param oldinfo the occupant info prior to the update.
+     * @param newinfo the newly update info record.
      */
-    public void occupantUpdated (OccupantInfo info);
+    public void occupantUpdated (OccupantInfo oldinfo, OccupantInfo newinfo);
 }
