@@ -1,5 +1,5 @@
 //
-// $Id: GameManagerDelegate.java,v 1.1 2002/02/13 03:21:28 mdb Exp $
+// $Id: GameManagerDelegate.java,v 1.2 2002/04/14 00:26:05 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -38,6 +38,24 @@ public class GameManagerDelegate extends PlaceManagerDelegate
      * Called by the game manager after the game ended.
      */
     public void gameDidEnd ()
+    {
+    }
+
+    /**
+     * Called when the game is about to reset, but before any other
+     * clearing out of game data has taken place.  Derived classes should
+     * override this if they need to perform some pre-reset activities.
+     */
+    public void gameWillReset ()
+    {
+    }
+
+    /**
+     * Called after the game has been reset.  Derived classes can override
+     * this to put whatever wheels they might need into motion now that
+     * the game is reset.
+     */
+    public void gameDidReset ()
     {
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.9 2002/02/13 03:21:28 mdb Exp $
+// $Id: GameController.java,v 1.10 2002/04/14 00:26:05 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -88,6 +88,42 @@ public abstract class GameController extends PlaceController
     }
 
     /**
+     * Returns whether the game is over.
+     */
+    public boolean isGameOver ()
+    {
+        return (_gameOver || _gobj.state == GameObject.GAME_OVER);
+    }
+
+    /**
+     * Sets the client game over override. This is used in situations
+     * where we determine that the game is over before the server has
+     * informed us of such.
+     */
+    public void setGameOver (boolean gameOver)
+    {
+        _gameOver = gameOver;
+    }
+
+    /**
+     * Calls {@link #gameWillReset}, ends the current game (locally, it
+     * does not tell the server to end the game), and waits to receive a
+     * reset notification (which is simply an event setting the game state
+     * to <code>IN_PLAY</code> even though it's already set to
+     * <code>IN_PLAY</code>) from the server which will start up a new
+     * game.  Derived classes should override {@link #gameWillReset} to
+     * perform any game-specific animations.
+     */
+    public void resetGame ()
+    {
+        // let derived classes do their thing
+        gameWillReset();
+
+        // end the game until we receive a new board
+        setGameOver(true);
+    }
+
+    /**
      * Handles basic game controller action events. Derived classes should
      * be sure to call <code>super.handleAction</code> for events they
      * don't specifically handle.
@@ -164,6 +200,21 @@ public abstract class GameController extends PlaceController
         });
     }
 
+    /**
+     * Called to give derived classes a chance to display animations, send
+     * a final packet, or do any other business they care to do when the
+     * game is about to reset.
+     */
+    protected void gameWillReset ()
+    {
+        // let our delegates do their business
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceControllerDelegate delegate) {
+                ((GameControllerDelegate)delegate).gameWillReset();
+            }
+        });
+    }
+
     /** A reference to the active parlor context. */
     protected ParlorContext _ctx;
 
@@ -173,4 +224,9 @@ public abstract class GameController extends PlaceController
     /** A reference to the game object for the game that we're
      * controlling. */
     protected GameObject _gobj;
+
+    /** A local flag overriding the game over state for situations where
+     * the client knows the game is over before the server has
+     * transitioned the game object accordingly. */
+    protected boolean _gameOver;
 }

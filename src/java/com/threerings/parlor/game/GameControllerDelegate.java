@@ -1,5 +1,5 @@
 //
-// $Id: GameControllerDelegate.java,v 1.1 2002/02/13 03:21:28 mdb Exp $
+// $Id: GameControllerDelegate.java,v 1.2 2002/04/14 00:26:05 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -42,6 +42,15 @@ public class GameControllerDelegate extends PlaceControllerDelegate
      * Called when the game was cancelled for some reason.
      */
     public void gameWasCancelled ()
+    {
+    }
+
+    /**
+     * Called to give derived classes a chance to display animations, send
+     * a final packet, or do any other business they care to do when the
+     * game is about to reset.
+     */
+    public void gameWillReset ()
     {
     }
 }

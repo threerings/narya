@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.23 2002/02/20 23:35:42 mdb Exp $
+// $Id: GameManager.java,v 1.24 2002/04/14 00:26:05 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -173,10 +173,8 @@ public class GameManager extends PlaceManager
         // transition the game to started
         _gameobj.setState(GameObject.IN_PLAY);
 
-        // wait until we hear the game state transition on the game object
-        // to invoke our game did start code so that we can be sure that
-        // any events dispatched on the game object prior to or during the
-        // call to startGame() have been dispatched
+        // do post-start processing
+        gameDidStart();
     }
 
     /**
@@ -199,7 +197,7 @@ public class GameManager extends PlaceManager
      * Called after the game start notification was dispatched.  Derived
      * classes can override this to put whatever wheels they might need
      * into motion now that the game is started (if anything other than
-     * issuing the game start notification is necessary).
+     * transitioning the game to <code>IN_PLAY</code> is necessary).
      */
     protected void gameDidStart ()
     {
@@ -246,16 +244,66 @@ public class GameManager extends PlaceManager
         // calculate ratings and all that...
     }
 
+    /**
+     * Called when the game is to be reset to its starting state in
+     * preparation for a new game without actually ending the current
+     * game. It calls {@link #gameWillReset} and {@link #gameDidReset}.
+     * The standard game start processing ({@link #gameWillStart} and
+     * {@link gameDidStart}) will also be called (in between the calls to
+     * will and did reset). Derived classes should override one or both of
+     * the calldown functions (rather than this function) if they need to
+     * do things before or after the game resets.
+     */
+    public void resetGame ()
+    {
+        // let the derived class do its pre-reset stuff
+        gameWillReset();
+
+        // do the standard game start processing
+        gameWillStart();
+        _gameobj.setState(GameObject.IN_PLAY);
+        gameDidStart();
+
+        // let the derived class do its post-reset stuff
+        gameDidReset();
+    }
+
+    /**
+     * Called when the game is about to reset, but before the board has
+     * been re-initialized or any other clearing out of game data has
+     * taken place.  Derived classes should override this if they need to
+     * perform some pre-reset activities.
+     */
+    protected void gameWillReset ()
+    {
+        // let our delegates do their business
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                ((GameManagerDelegate)delegate).gameWillReset();
+            }
+        });
+    }
+
+    /**
+     * Called after the game has been reset.  Derived classes can override
+     * this to put whatever wheels they might need into motion now that
+     * the game is reset.
+     */
+    protected void gameDidReset ()
+    {
+        // let our delegates do their business
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                ((GameManagerDelegate)delegate).gameDidReset();
+            }
+        });
+    }
+
     // documentation inherited
     public void attributeChanged (AttributeChangedEvent event)
     {
         if (event.getName().equals(GameObject.STATE)) {
             switch (event.getIntValue()) {
-            case GameObject.IN_PLAY:
-                // now we do our start of game processing
-                gameDidStart();
-                break;
-
             case GameObject.GAME_OVER:
                 // now we do our end of game processing
                 gameDidEnd();
