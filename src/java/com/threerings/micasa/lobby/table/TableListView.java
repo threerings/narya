@@ -1,5 +1,5 @@
 //
-// $Id: TableListView.java,v 1.2 2001/10/23 23:52:01 mdb Exp $
+// $Id: TableListView.java,v 1.3 2002/02/08 23:55:24 mdb Exp $
 
 package com.threerings.micasa.lobby.table;
 
@@ -59,7 +59,7 @@ public class TableListView
         _ctx = ctx;
 
         // create our table director
-        _tdtr = new TableDirector(ctx, TableLobbyObject.TABLES, this);
+        _tdtr = new TableDirector(ctx, TableLobbyObject.TABLE_SET, this);
 
         // add ourselves as a seatedness observer
         _tdtr.addSeatednessObserver(this);
@@ -132,7 +132,7 @@ public class TableListView
         // iterate over the tables already active in this lobby and put
         // them in their respective lists
         TableLobbyObject tlobj = (TableLobbyObject)place;
-        Iterator iter = tlobj.tables.elements();
+        Iterator iter = tlobj.tableSet.elements();
         while (iter.hasNext()) {
             tableAdded((Table)iter.next());
         }

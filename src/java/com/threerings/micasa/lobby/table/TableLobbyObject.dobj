@@ -1,5 +1,5 @@
 //
-// $Id: TableLobbyObject.dobj,v 1.1 2001/10/23 20:24:10 mdb Exp $
+// $Id: TableLobbyObject.dobj,v 1.2 2002/02/08 23:55:24 mdb Exp $
 
 package com.threerings.micasa.lobby.table;
 
@@ -11,51 +11,30 @@ public class TableLobbyObject
     extends LobbyObject
     implements com.threerings.parlor.data.TableLobbyObject
 {
-    /** The field name of the <code>tables</code> field. */
-    public static final String TABLES = "tables";
-
     /** A set containing all of the tables being managed by this lobby. */
-    public DSet tables = new DSet(Table.class);
+    public DSet tableSet = new DSet(Table.class);
 
     // documentation inherited
     public DSet getTables ()
     {
-        return tables;
+        return tableSet;
     }
 
-    /**
-     * Requests that the <code>tables</code> field be set to the specified
-     * value.
-     */
-    public void setTables (DSet value)
-    {
-        requestAttributeChange(TABLES, value);
-    }
-
-    /**
-     * Requests that the specified element be added to the
-     * <code>tables</code> set.
-     */
+    // documentation inherited from interface
     public void addToTables (Table table)
     {
-        requestElementAdd(TABLES, table);
+        addToTableSet(table);
     }
 
-    /**
-     * Requests that the specified element be updated in the
-     * <code>tables</code> set.
-     */
+    // documentation inherited from interface
     public void updateTables (Table table)
     {
-        requestElementUpdate(TABLES, table);
+        updateTableSet(table);
     }
 
-    /**
-     * Requests that the element matching the supplied key be removed from
-     * the <code>tables</code> set.
-     */
+    // documentation inherited from interface
     public void removeFromTables (Object key)
     {
-        requestElementRemove(TABLES, key);
+        removeFromTableSet(key);
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameObject.dobj,v 1.3 2002/02/04 01:47:20 mdb Exp $
+// $Id: TurnGameObject.dobj,v 1.4 2002/02/08 23:55:25 mdb Exp $
 
 package com.threerings.parlor.turn;
 
@@ -10,18 +10,8 @@ import com.threerings.parlor.game.GameObject;
  */
 public class TurnGameObject extends GameObject
 {
-    /** The field name of the <code>turnHolder</code> field. */
-    public static final String TURN_HOLDER = "turnHolder";
-
     /** The username of the player who is currently taking their turn in
      * this turn-based game or null if no user currently holds the
      * turn. */
     public String turnHolder;
-
-    /** Requests that the <code>turnHolder</code> field be set to the
-     * specified value. */
-    public void setTurnHolder (String turnHolder)
-    {
-        requestAttributeChange(TURN_HOLDER, turnHolder);
-    }
 }

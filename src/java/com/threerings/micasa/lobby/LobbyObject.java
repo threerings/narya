@@ -1,5 +1,5 @@
 //
-// $Id: LobbyObject.dobj,v 1.4 2002/02/08 23:55:24 mdb Exp $
+// $Id: LobbyObject.java,v 1.1 2002/02/08 23:55:24 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
