@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: gendobj,v 1.10 2002/03/18 23:21:25 mdb Exp $
+# $Id: gendobj,v 1.11 2002/03/19 01:10:02 mdb Exp $
 #
 # gendobj is used to generate DObject source file definitons basded on
 # abbreviated declarations. Because DObject fields all have standard
@@ -160,24 +160,6 @@ sub print_dobj_setters
     my $cfield = $field;
     $cfield =~ s/(\w)/\U$1/;
 
-    # we may need to wrap the field for certain types
-    my $dobjval = $field;
-    if ($type eq "boolean") {
-        $dobjval = "new Boolean($field)";
-    } elsif ($type eq "byte") {
-        $dobjval = "new Byte($field)";
-    } elsif ($type eq "short") {
-        $dobjval = "new Short($field)";
-    } elsif ($type eq "int") {
-        $dobjval = "new Integer($field)";
-    } elsif ($type eq "long") {
-        $dobjval = "new Long($field)";
-    } elsif ($type eq "float") {
-        $dobjval = "new Float($field)";
-    } elsif ($type eq "double") {
-        $dobjval = "new Double($field)";
-    }
-
     # some known types have special setters
     if ($type eq "DSet") {
     print OUT <<EOF;
@@ -254,6 +236,7 @@ EOF
 EOF
 
     } else {
+        my $value = wrap($type, $field);
     print OUT <<EOF;
 
     /**
@@ -267,8 +250,57 @@ EOF
     public void set$cfield ($type $field)
     {
         this.$field = $field;
-        requestAttributeChange($fcode, $dobjval);
+        requestAttributeChange($fcode, $value);
     }
 EOF
+
+        # add an element setter if this field is an array
+        if ($type =~ m:\[\]$:) {
+            my $etype = $type;
+            $etype =~ s:\[\]$::g;
+            my $value = wrap($etype, "value");
+            # this is perl; we're allowed to hack
+            my $cfieldat = $cfield . "At";
+            print OUT <<EOF;
+
+    /**
+     * Requests that the <code>index</code>th element of
+     * <code>$field</code> field be set to the specified value. The local
+     * value will be updated immediately and an event will be propagated
+     * through the system to notify all listeners that the attribute did
+     * change. Proxied copies of this object (on clients) will apply the
+     * value change when they received the attribute changed notification.
+     */
+    public void set$cfieldat ($etype value, int index)
+    {
+        this.$field\[index\] = value;
+        requestElementUpdate($fcode, $value, index);
     }
+EOF
+        }
+    }
+}
+
+# we may need to wrap the field for certain types
+sub wrap
+{
+    my ($type, $field) = @_;
+
+    if ($type eq "boolean") {
+        return "new Boolean($field)";
+    } elsif ($type eq "byte") {
+        return "new Byte($field)";
+    } elsif ($type eq "short") {
+        return "new Short($field)";
+    } elsif ($type eq "int") {
+        return "new Integer($field)";
+    } elsif ($type eq "long") {
+        return "new Long($field)";
+    } elsif ($type eq "float") {
+        return "new Float($field)";
+    } elsif ($type eq "double") {
+        return "new Double($field)";
+    }
+
+    return $field;
 }

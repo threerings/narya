@@ -1,10 +1,12 @@
 //
-// $Id: DOMTest.java,v 1.7 2002/02/09 07:50:04 mdb Exp $
+// $Id: DOMTest.java,v 1.8 2002/03/19 01:10:03 mdb Exp $
 
 package com.threerings.presents.server;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
+
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.dobj.*;
@@ -13,7 +15,7 @@ import com.threerings.presents.dobj.*;
  * A simple test case for the dobjmgr.
  */
 public class DOMTest extends TestCase
-    implements Subscriber, AttributeChangeListener
+    implements Subscriber, AttributeChangeListener, ElementUpdateListener
 {
     public DOMTest ()
     {
@@ -26,12 +28,21 @@ public class DOMTest extends TestCase
         object.addListener(this);
 
         TestObject to = (TestObject)object;
+        _test = to;
 
         // test transactions
         to.startTransaction();
         to.setFoo(99);
         to.setBar("hoopie");
         to.commitTransaction();
+
+        // set some elements
+        to.setIntsAt(15, 3);
+        to.setIntsAt(5, 2);
+        to.setIntsAt(1, 0);
+        to.setStringsAt("Hello", 0);
+        to.setStringsAt("Goodbye", 1);
+        to.setStringsAt(null, 1);
 
         // now set some values straight up
         to.setFoo(25);
@@ -54,6 +65,13 @@ public class DOMTest extends TestCase
         if (++_fcount == fields.length) {
             _omgr.shutdown();
         }
+    }
+
+    public void elementUpdated (ElementUpdatedEvent event)
+    {
+//         Log.info("Element updated " + event);
+//         Log.info(StringUtil.toString(_test.ints));
+//         Log.info(StringUtil.toString(_test.strings));
     }
 
     public void runTest ()
@@ -80,6 +98,7 @@ public class DOMTest extends TestCase
     }
 
     protected int _fcount = 0;
+    protected TestObject _test;
 
     // the fields that will change in attribute changed events
     protected Object[] fields = {

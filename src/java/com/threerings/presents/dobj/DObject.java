@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.40 2002/03/18 23:21:26 mdb Exp $
+// $Id: DObject.java,v 1.41 2002/03/19 01:10:02 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -556,6 +556,16 @@ public class DObject
     {
         // dispatch an attribute changed event
         postEvent(new AttributeChangedEvent(_oid, name, value));
+    }
+
+    /**
+     * Called by derived instances when an element updater method was
+     * called.
+     */
+    protected void requestElementUpdate (String name, Object value, int index)
+    {
+        // dispatch an attribute changed event
+        postEvent(new ElementUpdatedEvent(_oid, name, value, index));
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: TestObject.dobj,v 1.7 2002/02/08 23:17:38 mdb Exp $
+// $Id: TestObject.dobj,v 1.8 2002/03/19 01:10:03 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -12,5 +12,7 @@ public class TestObject extends DObject
 {
     public int foo;
     public String bar;
+    public int[] ints = new int[5];
+    public String[] strings = new String[5];
     public OidList list = new OidList();
 }

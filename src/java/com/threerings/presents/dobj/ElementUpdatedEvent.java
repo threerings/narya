@@ -1,0 +1,203 @@
+//
+// $Id: ElementUpdatedEvent.java,v 1.1 2002/03/19 01:10:03 mdb Exp $
+
+package com.threerings.presents.dobj;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+
+import com.threerings.presents.Log;
+import com.threerings.presents.io.ValueMarshaller;
+
+/**
+ * An element updated event is dispatched when an element of an array
+ * field in a distributed object is updated. It can also be constructed to
+ * request the update of an entry and posted to the dobjmgr.
+ *
+ * @see DObjectManager#postEvent
+ */
+public class ElementUpdatedEvent extends TypedEvent
+{
+    /** The typed object code for this event. */
+    public static final short TYPE = TYPE_BASE + 11;
+
+    /**
+     * Constructs a new element updated event on the specified target
+     * object with the supplied attribute name, element and index.
+     *
+     * @param targetOid the object id of the object whose attribute has
+     * changed.
+     * @param name the name of the attribute (data member) for which an
+     * element has changed.
+     * @param value the new value of the element (in the case of primitive
+     * types, the reflection-defined object-alternative is used).
+     * @param index the index in the array of the updated element.
+     */
+    public ElementUpdatedEvent (
+        int targetOid, String name, Object value, int index)
+    {
+        super(targetOid);
+        _name = name;
+        _value = value;
+        _index = index;
+    }
+
+    /**
+     * Constructs a blank instance of this event in preparation for
+     * unserialization from the network.
+     */
+    public ElementUpdatedEvent ()
+    {
+    }
+
+    /**
+     * Returns the name of the attribute that has changed.
+     */
+    public String getName ()
+    {
+        return _name;
+    }
+
+    /**
+     * Returns the new value of the element.
+     */
+    public Object getValue ()
+    {
+        return _value;
+    }
+
+    /**
+     * Returns the index of the element.
+     */
+    public int getIndex ()
+    {
+        return _index;
+    }
+
+    /**
+     * Returns the new value of the element as a short. This will fail if
+     * the element in question is not a short.
+     */
+    public short getShortValue ()
+    {
+        return ((Short)_value).shortValue();
+    }
+
+    /**
+     * Returns the new value of the element as an int. This will fail if
+     * the element in question is not an int.
+     */
+    public int getIntValue ()
+    {
+        return ((Integer)_value).intValue();
+    }
+
+    /**
+     * Returns the new value of the element as a long. This will fail if
+     * the element in question is not a long.
+     */
+    public long getLongValue ()
+    {
+        return ((Long)_value).longValue();
+    }
+
+    /**
+     * Returns the new value of the element as a float. This will fail if
+     * the element in question is not a float.
+     */
+    public float getFloatValue ()
+    {
+        return ((Float)_value).floatValue();
+    }
+
+    /**
+     * Returns the new value of the element as a double. This will fail if
+     * the element in question is not a double.
+     */
+    public double getDoubleValue ()
+    {
+        return ((Double)_value).doubleValue();
+    }
+
+    /**
+     * Applies this element update to the object.
+     */
+    public boolean applyToObject (DObject target)
+        throws ObjectAccessException
+    {
+        try {
+            // fetch the array field from the object
+            Field field = target.getClass().getField(_name);
+            Class ftype = field.getType();
+
+            // sanity check
+            if (!ftype.isArray()) {
+                String msg = "Requested to set element on non-array field.";
+                throw new Exception(msg);
+            }
+
+            // we don't do any magical expansion or any funny business;
+            // the array should be big enough to contain the value being
+            // updated or we'll throw an ArrayIndexOutOfBoundsException
+            Array.set(field.get(target), _index, _value);
+            return true;
+
+        } catch (Exception e) {
+            String msg = "Error updating element [field=" + _name +
+                ", index=" + _index + "]";
+            throw new ObjectAccessException(msg, e);
+        }
+    }
+
+    // documentation inherited
+    public short getType ()
+    {
+        return TYPE;
+    }
+
+    // documentation inherited
+    public void writeTo (DataOutputStream out)
+        throws IOException
+    {
+        super.writeTo(out);
+        out.writeUTF(_name);
+        out.writeInt(_index);
+        ValueMarshaller.writeTo(out, _value);
+    }
+
+    // documentation inherited
+    public void readFrom (DataInputStream in)
+        throws IOException
+    {
+        super.readFrom(in);
+        _name = in.readUTF();
+        _index = in.readInt();
+        _value = ValueMarshaller.readFrom(in);
+    }
+
+    // documentation inherited
+    protected void notifyListener (Object listener)
+    {
+        if (listener instanceof ElementUpdateListener) {
+            ((ElementUpdateListener)listener).elementUpdated(this);
+        }
+    }
+
+    // documentation inherited
+    protected void toString (StringBuffer buf)
+    {
+        buf.append("UPDATE:");
+        super.toString(buf);
+        buf.append(", name=").append(_name);
+        buf.append(", value=").append(_value);
+        buf.append(", index=").append(_index);
+    }
+
+    protected String _name;
+    protected Object _value;
+    protected int _index;
+}
