@@ -1,5 +1,5 @@
 //
-// $Id: ButtonSprite.java,v 1.1 2004/10/29 00:41:50 andrzej Exp $
+// $Id: ButtonSprite.java,v 1.2 2004/11/02 23:49:58 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -27,6 +27,7 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 
 import com.samskivert.swing.Label;
+import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.media.sprite.Sprite;
 
@@ -37,19 +38,29 @@ import com.threerings.parlor.card.Log;
  */
 public class ButtonSprite extends Sprite
 {
+    /** The normal, square button style. */
+    public static final int NORMAL = 0;
+    
+    /** The sausage button style. */
+    public static final int SAUSAGE = 1;
+    
     /**
      * Constructs a button sprite.
      *
      * @param label the label to render on the button
+     * @param style the style of button to render (NORMAL or SAUSAGE)
      * @param backgroundColor the background color of the button
+     * @param alternateColor the alternate (outline) color
      * @param actionCommand the button's command
      * @param commandArgument the button's command argument
      */
-    public ButtonSprite (Label label, Color backgroundColor, 
-        String actionCommand, Object commandArgument)
+    public ButtonSprite (Label label, int style, Color backgroundColor,
+        Color alternateColor, String actionCommand, Object commandArgument)
     {
         _label = label;
+        _style = style;
         _backgroundColor = backgroundColor;
+        _alternateColor = alternateColor;
         _actionCommand = actionCommand;
         _commandArgument = commandArgument;
     }
@@ -69,8 +80,26 @@ public class ButtonSprite extends Sprite
     {
         // size the bounds to fit our label
         Dimension size = _label.getSize();
-        _bounds.width = size.width + PADDING*2;
+        _bounds.width = size.width + PADDING*2 + 
+            (_style == SAUSAGE ? size.height : 0);
         _bounds.height = size.height + PADDING*2;
+    }
+    
+    /**
+     * Sets the style of this button.
+     */
+    public void setStyle (int style)
+    {
+        _style = style;
+        updateBounds();
+    }
+    
+    /**
+     * Returns the style of this button.
+     */
+    public int getStyle ()
+    {
+        return _style;
     }
     
     /**
@@ -171,12 +200,55 @@ public class ButtonSprite extends Sprite
     // documentation inherited
     public void paint (Graphics2D gfx)
     {
-        gfx.setColor(_enabled ? _backgroundColor : _backgroundColor.darker());
-        gfx.fill3DRect(_bounds.x, _bounds.y, _bounds.width, 
-            _bounds.height, !_pressed);
-            
-        _label.render(gfx, _bounds.x + (_pressed ? PADDING : PADDING - 1),
-            _bounds.y + (_pressed ? PADDING : PADDING - 1));
+        Color baseTextColor = _label.getTextColor(),
+            baseAlternateColor = _label.getAlternateColor();
+        
+        if (!_enabled) {
+            _label.setTextColor(baseTextColor.darker());
+            _label.setAlternateColor(baseAlternateColor.darker());
+        }
+        
+        switch (_style) {
+            case NORMAL:
+                gfx.setColor(_enabled ? _backgroundColor : _backgroundColor.darker());
+                gfx.fill3DRect(_bounds.x, _bounds.y, _bounds.width, 
+                    _bounds.height, !_pressed);
+                _label.render(gfx, _bounds.x + (_pressed ? PADDING : PADDING - 1),
+                    _bounds.y + (_pressed ? PADDING : PADDING - 1));
+                break;
+            case SAUSAGE:
+                Object aaState = SwingUtil.activateAntiAliasing(gfx);
+                gfx.setColor(_alternateColor);
+                gfx.fillRoundRect(_bounds.x, _bounds.y, _bounds.width, _bounds.height, 
+                    _bounds.height, _bounds.height);
+                gfx.setColor(_enabled ? _backgroundColor : _backgroundColor.darker());
+                int innerBoundsX = _bounds.x+1, innerBoundsY = _bounds.y+1, 
+                    innerBoundsWidth = _bounds.width-2, innerBoundsHeight = _bounds.height-2;
+                gfx.fillRoundRect(innerBoundsX, innerBoundsY, innerBoundsWidth, innerBoundsHeight,
+                    innerBoundsHeight, innerBoundsHeight);
+                Color brighter = _enabled ? _backgroundColor.brighter() : _backgroundColor,
+                    darker = _enabled ? _backgroundColor.darker() : _backgroundColor.darker().darker();
+                gfx.setColor(_pressed ? darker : brighter);
+                gfx.drawArc(innerBoundsX + innerBoundsWidth - innerBoundsHeight, innerBoundsY,
+                    innerBoundsHeight-1, innerBoundsHeight-1, 270, 180);
+                gfx.setColor(_pressed ? brighter : darker);
+                gfx.drawArc(innerBoundsX, innerBoundsY, innerBoundsHeight-1, innerBoundsHeight-1, 90, 180);
+                gfx.drawLine(innerBoundsX + innerBoundsHeight/2 - 2, innerBoundsY + innerBoundsHeight - 1, 
+                    innerBoundsX + innerBoundsWidth - innerBoundsHeight/2 + 1, 
+                    innerBoundsY + innerBoundsHeight - 1);
+                gfx.setColor(_pressed ? darker : brighter);
+                gfx.drawLine(innerBoundsX + innerBoundsHeight/2 - 2, innerBoundsY, 
+                    innerBoundsX + innerBoundsWidth - innerBoundsHeight/2 + 1, innerBoundsY);
+                SwingUtil.restoreAntiAliasing(gfx, aaState);
+                _label.render(gfx, _bounds.x + _bounds.height/2 + PADDING - (_pressed ? 3 : 2), 
+                    _bounds.y + PADDING + (_pressed ? 1 : 0));
+                break;
+        }
+        
+        if (!_enabled) {
+            _label.setTextColor(baseTextColor);
+            _label.setAlternateColor(baseAlternateColor);
+        }
     }
 
     /** The number of pixels to add between the text and the border. */
@@ -184,6 +256,9 @@ public class ButtonSprite extends Sprite
     
     /** The label associated with this sprite. */
     protected Label _label;
+    
+    /** The button style. */
+    protected int _style;
     
     /** The action command generated by this button. */
     protected String _actionCommand;
@@ -193,6 +268,9 @@ public class ButtonSprite extends Sprite
     
     /** The background color of this sprite. */
     protected Color _backgroundColor;
+    
+    /** The alternate (outline) color of this sprite. */
+    protected Color _alternateColor;
     
     /** Whether or not the button is currently enabled. */
     protected boolean _enabled = true;
