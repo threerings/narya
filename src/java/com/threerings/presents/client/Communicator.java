@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.27 2003/01/21 05:27:48 mdb Exp $
+// $Id: Communicator.java,v 1.28 2003/04/10 22:02:59 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -235,8 +235,12 @@ public class Communicator
         // clear out our reader reference
         _reader = null;
 
-        // let the client know when we finally go away
         if (_writer == null) {
+            // there's no writer during authentication, so we may be
+            // responsible for closing the socket channel
+            closeChannel();
+
+            // let the client know when we finally go away
             _client.communicatorDidExit();
         }
 
@@ -252,26 +256,40 @@ public class Communicator
         _writer = null;
         Log.debug("Writer thread exited.");
 
+        // let the client observers know that we're logged off
+        _client.notifyObservers(Client.CLIENT_DID_LOGOFF, null);
+
         // now that the writer thread has gone away, we can safely close
         // our socket and let the client know that the logoff process has
         // completed
-        try {
-            _channel.close();
-        } catch (IOException ioe) {
-            Log.warning("Error closing failed socket: " + ioe);
-        }
-        _channel = null;
-
-        // clear these out because they are probably large and in charge
-        _oin = null;
-        _oout = null;
-
-        // let the client observers know that we're logged off
-        _client.notifyObservers(Client.CLIENT_DID_LOGOFF, null);
+        closeChannel();
 
         // let the client know when we finally go away
         if (_reader == null) {
             _client.communicatorDidExit();
+        }
+    }
+
+    /**
+     * Closes the socket channel that we have open to the server. Called
+     * by either {@link #readerDidExit} or {@link #writerDidExit}
+     * whichever is called last.
+     */
+    protected void closeChannel ()
+    {
+        if (_channel != null) {
+            Log.debug("Closing socket channel.");
+
+            try {
+                _channel.close();
+            } catch (IOException ioe) {
+                Log.warning("Error closing failed socket: " + ioe);
+            }
+            _channel = null;
+
+            // clear these out because they are probably large and in charge
+            _oin = null;
+            _oout = null;
         }
     }
 
