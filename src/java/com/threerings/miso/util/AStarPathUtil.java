@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.1 2003/04/17 19:21:16 mdb Exp $
+// $Id: AStarPathUtil.java,v 1.2 2003/05/16 00:49:44 mdb Exp $
 
 package com.threerings.miso.util;
 
@@ -37,6 +37,13 @@ public class AStarPathUtil
         public boolean canTraverse (Object traverser, int x, int y);
     }
 
+    /** The standard cost to move between nodes. */
+    public static final int ADJACENT_COST = 10;
+
+    /** The cost to move diagonally. */
+    public static final int DIAGONAL_COST = (int)Math.sqrt(
+        (ADJACENT_COST * ADJACENT_COST) * 2);
+
     /**
      * Return a list of <code>Point</code> objects representing a path
      * from coordinates <code>(ax, by)</code> to <code>(bx, by)</code>,
@@ -67,6 +74,7 @@ public class AStarPathUtil
 
 	// push starting node on the open list
 	info.open.add(s);
+        _considered = 1;
 
 	// while there are more nodes on the open list
 	while (info.open.size() > 0) {
@@ -97,6 +105,15 @@ public class AStarPathUtil
 
 	// no path found
 	return null;
+    }
+
+    /**
+     * Returns the number of nodes considered in computing the most recent
+     * path.
+     */
+    public static int getConsidered ()
+    {
+        return _considered;
     }
 
     /**
@@ -150,6 +167,7 @@ public class AStarPathUtil
 
 	// add it to the open list for further consideration
 	info.open.add(np);
+        _considered++;
     }
 
     /**
@@ -336,10 +354,6 @@ public class AStarPathUtil
         protected static int _nextid = 0;
     }
 
-    /** The standard cost to move between nodes. */
-    public static final int ADJACENT_COST = 10;
-
-    /** The cost to move diagonally. */
-    public static final int DIAGONAL_COST = (int)Math.sqrt(
-        (ADJACENT_COST * ADJACENT_COST) * 2);
+    /** The number of nodes considered in computing our path. */
+    protected static int _considered = 0;
 }
