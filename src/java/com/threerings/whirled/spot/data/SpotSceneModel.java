@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneModel.java,v 1.1 2001/11/13 02:25:35 mdb Exp $
+// $Id: SpotSceneModel.java,v 1.2 2001/11/29 00:16:46 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -125,5 +125,34 @@ public class SpotSceneModel extends SceneModel
             portalIds[i] = in.readInt();
             targetLocIds[i] = in.readInt();
         }
+    }
+
+    /**
+     * Creates and returns a blank scene model.
+     */
+    public static SpotSceneModel blankSpotSceneModel ()
+    {
+        SpotSceneModel model = new SpotSceneModel();
+        populateBlankSpotSceneModel(model);
+        return model;
+    }
+
+    /**
+     * Populates a blank scene model with blank values.
+     */
+    protected static void populateBlankSpotSceneModel (SpotSceneModel model)
+    {
+        // populate our superclass fields
+        populateBlankSceneModel(model);
+
+        // now populate our fields
+        model.locationIds = new int[0];
+        model.locationX = new int[0];
+        model.locationY = new int[0];
+        model.locationOrients = new int[0];
+        model.locationClusters = new int[0];
+        model.defaultEntranceId = -1;
+        model.portalIds = new int[0];
+        model.targetLocIds = new int[0];
     }
 }
