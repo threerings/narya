@@ -1,5 +1,5 @@
 //
-// $Id: FlipFrameManager.java,v 1.1 2003/04/26 17:56:26 mdb Exp $
+// $Id: FlipFrameManager.java,v 1.2 2003/05/01 22:06:52 mdb Exp $
 
 package com.threerings.media;
 
@@ -40,7 +40,8 @@ public class FlipFrameManager extends FrameManager
             // dirty everything if we're not incrementally rendering
             if (!incremental) {
                 Log.info("Doing non-incremental render; contents lost.");
-                _frame.update(gfx);
+                _frame.getRootPane().revalidate();
+                _frame.getRootPane().repaint();
             }
 
             // request to paint our participants and components and bail

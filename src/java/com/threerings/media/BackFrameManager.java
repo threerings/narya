@@ -1,5 +1,5 @@
 //
-// $Id: BackFrameManager.java,v 1.2 2003/04/27 01:30:25 mdb Exp $
+// $Id: BackFrameManager.java,v 1.3 2003/05/01 22:06:52 mdb Exp $
 
 package com.threerings.media;
 
@@ -52,7 +52,8 @@ public class BackFrameManager extends FrameManager
 
             // dirty everything if we're not incrementally rendering
             if (!incremental) {
-                _frame.update(_bgfx);
+                _frame.getRootPane().revalidate();
+                _frame.getRootPane().repaint();
             }
 
             if (!paint(_bgfx)) {
