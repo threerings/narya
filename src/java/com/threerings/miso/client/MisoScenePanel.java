@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.52 2003/11/12 23:05:40 ray Exp $
+// $Id: MisoScenePanel.java,v 1.53 2003/12/13 02:52:00 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -260,8 +260,8 @@ public class MisoScenePanel extends VirtualMediaPanel
 
         // sanity check the number of nodes searched so that we can keep
         // an eye out for bogosity
-        int considered = AStarPathUtil.getConsidered();
-        if (considered > longestPath*5 || duration > 1000L) {
+        if (duration > 500L) {
+            int considered = AStarPathUtil.getConsidered();
             Log.warning("Considered " + considered + " nodes for path from " +
                         StringUtil.toString(src) + " to " +
                         StringUtil.toString(dest) +
