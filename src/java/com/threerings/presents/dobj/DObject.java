@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.42 2002/03/20 03:19:51 mdb Exp $
+// $Id: DObject.java,v 1.43 2002/04/12 00:00:05 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -479,6 +479,19 @@ public class DObject
     }
 
     /**
+     * Posts the specified event either to our dobject manager or to the
+     * compound event for which we are currently transacting.
+     */
+    public void postEvent (TypedEvent event)
+    {
+        if (_tevent != null) {
+            _tevent.postEvent(event);
+        } else {
+            _omgr.postEvent(event);
+        }
+    }
+
+    /**
      * Begins a transaction on this distributed object. In some
      * situations, it is desirable to cause multiple changes to
      * distributed object fields in one unified operation. Starting a
@@ -657,19 +670,6 @@ public class DObject
         } catch (ObjectAccessException oae) {
             Log.warning("Unable to request entryUpdate [name=" + name +
                         ", entry=" + entry + ", error=" + oae + "].");
-        }
-    }
-
-    /**
-     * Posts the specified event either to our dobject manager or to the
-     * compound event for which we are currently transacting.
-     */
-    protected void postEvent (TypedEvent event)
-    {
-        if (_tevent != null) {
-            _tevent.postEvent(event);
-        } else {
-            _omgr.postEvent(event);
         }
     }
 
