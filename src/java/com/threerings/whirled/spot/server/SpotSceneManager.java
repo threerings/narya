@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.46 2003/10/10 19:18:18 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.47 2003/11/24 20:42:22 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -289,9 +289,9 @@ public class SpotSceneManager extends SceneManager
         // otherwise see if they sent us the user's oid
         DObject tobj = CrowdServer.omgr.getObject(targetOid);
         if (!(tobj instanceof BodyObject)) {
-            Log.warning("Can't join cluster, missing target " +
-                        "[creator=" + joiner.who() +
-                        ", targetOid=" + targetOid + "].");
+            Log.info("Can't join cluster, missing target " +
+                     "[creator=" + joiner.who() +
+                     ", targetOid=" + targetOid + "].");
             throw new InvocationException(NO_SUCH_CLUSTER);
         }
 
