@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParser.java,v 1.13 2001/08/16 23:14:20 mdb Exp $
+// $Id: XMLTileSetParser.java,v 1.14 2001/09/27 18:43:08 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -28,6 +28,13 @@ public class XMLTileSetParser extends DefaultHandler
 			      String qName, Attributes attributes)
     {
 	_tag = qName;
+
+	if (_tag.equals("tileset")) {
+	    _info.tsid = getTileSetId(attributes.getValue("tsid"));
+
+	    String str = attributes.getValue("name");
+	    _info.name = (str == null) ? DEF_NAME : str;
+	}
     }
 
     public void endElement (String uri, String localName, String qName)
@@ -36,20 +43,9 @@ public class XMLTileSetParser extends DefaultHandler
         // for the elements we're tracking at this point, so proceed
         // with saving off element values for use when we construct
         // the tileset object.
-	String str = _chars.toString();
+	String str = _chars.toString().trim();
 
-	if (qName.equals("name")) {
-	    _info.name = str.trim();
-
-	} else if (qName.equals("tsid")) {
-	    try {
-		_info.tsid = Integer.parseInt(str);
-	    } catch (NumberFormatException nfe) {
-		Log.warning("Malformed integer tilesetid [str=" + str + "].");
-		_info.tsid = -1;
-	    }
-
-	} else if (qName.equals("imagefile")) {
+	if (qName.equals("imagefile")) {
 	    _info.imgfile = str;
 
 	} else if (qName.equals("rowwidth")) {
@@ -95,7 +91,9 @@ public class XMLTileSetParser extends DefaultHandler
     public void characters (char ch[], int start, int length)
     {
 	// bail if we're not within a meaningful tag
-	if (_tag == null) return;
+	if (_tag == null) {
+	    return;
+	}
 
   	_chars.append(ch, start, length);
     }
@@ -150,6 +148,30 @@ public class XMLTileSetParser extends DefaultHandler
         int vals[] = StringUtil.parseIntArray(str);
         point.setLocation(vals[0], vals[1]);
     }
+
+    /**
+     * Returns the integer tileset id corresponding to the given
+     * string, or <code>DEF_TSID</code> if an error occurred.
+     */
+    protected int getTileSetId (String str)
+    {
+	if (str == null) {
+	    return DEF_TSID;
+	}
+
+	try {
+	    return Integer.parseInt(str);
+	} catch (NumberFormatException nfe) {
+	    Log.warning("Malformed integer tileset id [str=" + str + "].");
+	    return DEF_TSID;
+	}
+    }
+
+    /** Default tileset id. */
+    protected static final int DEF_TSID = -1;
+
+    /** Default tileset name. */
+    protected static final String DEF_NAME = "Untitled";
 
     /** The XML element tag currently being processed. */
     protected String _tag;
