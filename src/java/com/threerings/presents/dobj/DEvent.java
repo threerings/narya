@@ -1,7 +1,13 @@
 //
-// $Id: DEvent.java,v 1.10 2002/03/20 19:06:55 mdb Exp $
+// $Id: DEvent.java,v 1.11 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.dobj;
+
+import java.io.IOException;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.Streamable;
 
 /**
  * A distributed object event is dispatched whenever any modification is
@@ -9,8 +15,24 @@ package com.threerings.presents.dobj;
  * notification purposes, without making any modifications to the object
  * that defines the delivery group (the object's subscribers).
  */
-public abstract class DEvent
+public abstract class DEvent implements Streamable
 {
+    /**
+     * A zero argument constructor for unserialization from yon network.
+     */
+    public DEvent ()
+    {
+    }
+
+    /**
+     * Constructs a new distributed object event that pertains to the
+     * specified distributed object.
+     */
+    public DEvent (int targetOid)
+    {
+        _toid = targetOid;
+    }
+
     /**
      * Returns the oid of the object that is the target of this event.
      */
@@ -58,15 +80,6 @@ public abstract class DEvent
     }
 
     /**
-     * Constructs a new distributed object event that pertains to the
-     * specified distributed object.
-     */
-    protected DEvent (int targetOid)
-    {
-        _toid = targetOid;
-    }
-
-    /**
      * Events with associated listener interfaces should implement this
      * function and notify the supplied listener if it implements their
      * event listening interface. For example, the {@link
@@ -76,6 +89,26 @@ public abstract class DEvent
     protected void notifyListener (Object listener)
     {
         // the default is to do nothing
+    }
+
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
+        throws IOException
+    {
+        out.defaultWriteObject();
+        out.writeInt(_toid);
+    }
+
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
+    {
+        in.defaultReadObject();
+        _toid = in.readInt();
     }
 
     /**
@@ -105,5 +138,5 @@ public abstract class DEvent
     protected int _toid;
 
     /** The oid of the client that generated this event. */
-    protected int _soid = -1;
+    protected transient int _soid = -1;
 }

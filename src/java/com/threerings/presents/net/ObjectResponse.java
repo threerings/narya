@@ -1,20 +1,17 @@
 //
-// $Id: ObjectResponse.java,v 1.11 2001/10/11 04:07:53 mdb Exp $
+// $Id: ObjectResponse.java,v 1.12 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.net;
 
 import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.io.DObjectFactory;
 
 public class ObjectResponse extends DownstreamMessage
 {
-    /** The code for an object repsonse. */
-    public static final short TYPE = TYPE_BASE + 3;
-
     /**
      * Zero argument constructor used when unserializing an instance.
      */
@@ -31,28 +28,29 @@ public class ObjectResponse extends DownstreamMessage
         _dobj = dobj;
     }
 
-    public short getType ()
-    {
-        return TYPE;
-    }
-
     public DObject getObject ()
     {
         return _dobj;
     }
 
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
-        DObjectFactory.writeTo(out, _dobj);
+        super.writeObject(out);
+        out.writeObject(_dobj);
     }
 
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
-        _dobj = (DObject)DObjectFactory.readFrom(in);
+        super.readObject(in);
+        _dobj = (DObject)in.readObject();
     }
 
     public String toString ()

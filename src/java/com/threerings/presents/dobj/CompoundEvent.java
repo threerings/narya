@@ -1,16 +1,15 @@
 //
-// $Id: CompoundEvent.java,v 1.4 2002/03/21 01:58:10 mdb Exp $
+// $Id: CompoundEvent.java,v 1.5 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import com.threerings.presents.io.TypedObjectFactory;
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.util.StreamableArrayList;
 
 /**
  * Used to manage and submit groups of events on a collection of
@@ -18,11 +17,8 @@ import com.threerings.presents.io.TypedObjectFactory;
  *
  * @see DObject#startTransaction
  */
-public class CompoundEvent extends TypedEvent
+public class CompoundEvent extends DEvent
 {
-    /** The typed object code for this event. */
-    public static final short TYPE = TYPE_BASE + 50;
-
     /**
      * Constructs a blank compound event in preparation for
      * unserialization.
@@ -38,6 +34,7 @@ public class CompoundEvent extends TypedEvent
     {
         super(0); // we don't have a single target object oid
         _omgr = omgr;
+        _events = new StreamableArrayList();
     }
 
     /**
@@ -58,7 +55,7 @@ public class CompoundEvent extends TypedEvent
      * part of the entire transaction if it is committed or discarded if
      * the transaction is cancelled.
      */
-    public void postEvent (TypedEvent event)
+    public void postEvent (DEvent event)
     {
         _events.add(event);
     }
@@ -123,34 +120,24 @@ public class CompoundEvent extends TypedEvent
         return false;
     }
 
-    // documentation inherited
-    public short getType ()
-    {
-        return TYPE;
-    }
-
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
-        int ecount = _events.size();
-        out.writeInt(ecount);
-        for (int i = 0; i < ecount; i++) {
-            TypedEvent event = (TypedEvent)_events.get(i);
-            TypedObjectFactory.writeTo(out, event);
-        }
+        super.writeObject(out);
+        out.writeObject(_events);
     }
 
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
-        int ecount = in.readInt();
-        for (int i = 0; i < ecount; i++) {
-            _events.add(TypedObjectFactory.readFrom(in));
-        }
+        super.readObject(in);
+        _events = (StreamableArrayList)in.readObject();
     }
 
     /**
@@ -181,13 +168,13 @@ public class CompoundEvent extends TypedEvent
 
     /** The object manager that we'll post ourselves to when we're
      * committed. */
-    protected DObjectManager _omgr;
-
-    /** A list of the events associated with this compound event. */
-    protected ArrayList _events = new ArrayList();
+    protected transient DObjectManager _omgr;
 
     /** A list of the dobject participants in this transaction. They will
      * be notified when we are committed or cancelled so that they can
      * stop posting their events to us. */
-    protected ArrayList _participants;
+    protected transient ArrayList _participants;
+
+    /** A list of the events associated with this compound event. */
+    protected StreamableArrayList _events;
 }

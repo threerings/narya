@@ -1,17 +1,15 @@
 //
-// $Id: PingRequest.java,v 1.6 2002/05/28 21:56:38 mdb Exp $
+// $Id: PingRequest.java,v 1.7 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.net;
 
 import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 
 public class PingRequest extends UpstreamMessage
 {
-    /** The code for a ping request. */
-    public static final short TYPE = TYPE_BASE + 5;
-
     /**
      * Zero argument constructor used when unserializing an instance.
      */
@@ -38,31 +36,30 @@ public class PingRequest extends UpstreamMessage
         return _unpackStamp;
     }
 
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
+        super.writeObject(out);
 
         // grab a timestamp noting when we were encoded into a raw buffer
         // for delivery over the network
         _packStamp = System.currentTimeMillis();
     }
 
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
+        super.readObject(in);
 
         // grab a timestamp noting when we were decoded from a raw buffer
         // after being received over the network
         _unpackStamp = System.currentTimeMillis();
-    }
-
-    public short getType ()
-    {
-        return TYPE;
     }
 
     public String toString ()

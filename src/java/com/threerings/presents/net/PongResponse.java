@@ -1,19 +1,17 @@
 //
-// $Id: PongResponse.java,v 1.7 2002/05/28 21:56:38 mdb Exp $
+// $Id: PongResponse.java,v 1.8 2002/07/23 05:52:49 mdb Exp $
 
 package com.threerings.presents.net;
 
 import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.presents.Log;
 
 public class PongResponse extends DownstreamMessage
 {
-    /** The code for a pong response. */
-    public static final short TYPE = TYPE_BASE + 5;
-
     /**
      * Zero argument constructor used when unserializing an instance.
      */
@@ -61,11 +59,13 @@ public class PongResponse extends DownstreamMessage
         return _unpackStamp;
     }
 
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
+        super.writeObject(out);
 
         // make a note of the time at which we were packed
         _packStamp = System.currentTimeMillis();
@@ -83,11 +83,13 @@ public class PongResponse extends DownstreamMessage
         out.writeInt(_processDelay);
     }
 
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
+        super.readObject(in);
 
         // grab a timestamp noting when we were decoded from a raw buffer
         // after being received over the network
@@ -96,11 +98,6 @@ public class PongResponse extends DownstreamMessage
         // read in our time stamps
         _packStamp = in.readLong();
         _processDelay = in.readInt();
-    }
-
-    public short getType ()
-    {
-        return TYPE;
     }
 
     public String toString ()

@@ -1,17 +1,18 @@
 //
-// $Id: DSet.java,v 1.16 2002/03/18 23:21:26 mdb Exp $
+// $Id: DSet.java,v 1.17 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 
 import com.samskivert.util.StringUtil;
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.Streamable;
+
 import com.threerings.presents.Log;
-import com.threerings.presents.io.Streamable;
 
 /**
  * The distributed set class provides a means by which an unordered set of
@@ -19,24 +20,17 @@ import com.threerings.presents.io.Streamable;
  * added to and removed from the set, requests for which will generate
  * events much like other distributed object fields.
  *
- * <p> A set can be either homogenous, whereby the type of object to be
- * contained in the set is configured before the set is used and does not
- * change; or heterogenous, whereby a set can contain any type of entry as
- * long as it implements {@link Entry}. Homogenous sets take advantage of
- * their homogeneity by not transfering the classname of each entry as it
- * is sent over the wire.
- *
  * <p> Classes that wish to act as set entries must implement the {@link
  * Entry} interface which extends {@link Streamable} and adds the
  * requirement that the object provide a key which will be used to
  * identify entry equality. Thus an entry is declared to be in a set of
- * the object returned by that entry's <code>geyKey()</code> method is
- * equal (using <code>equal()</code>) to the entry returned by the
- * <code>getKey()</code> method of some other entry in the set.
- * Additionally, in the case of entry removal, only the key for the entry
- * to be removed will be transmitted with the removal event to save
- * network bandwidth. Lastly, the object returned by <code>getKey()</code>
- * must be a valid distributed object type.
+ * the object returned by that entry's {@link Entry#getKey} method is
+ * equal (using {@link Object#equal}) to the entry returned by the {@link
+ * Entry#getKey} method of some other entry in the set. Additionally, in
+ * the case of entry removal, only the key for the entry to be removed
+ * will be transmitted with the removal event to save network
+ * bandwidth. Lastly, the object returned by {@link Entry#getKey} must be
+ * a {@link Streamable} type.
  */
 public class DSet
     implements Streamable, Cloneable
@@ -52,35 +46,6 @@ public class DSet
          * documentation for further information.
          */
         public Object getKey ();
-    }
-
-    /**
-     * Constructs a distributed set that will contain the specified entry
-     * type.
-     */
-    public DSet (Class entryType)
-    {
-        setEntryType(entryType);
-    }
-
-    /**
-     * Creates a distributed set and populates it with values from the
-     * supplied iterator. This should be done before the set is unleashed
-     * into the wild distributed object world because no associated entry
-     * added events will be generated. Additionally, this operation does
-     * not check for duplicates when adding entries, so one should be sure
-     * that the iterator contains only unique entries.
-     *
-     * @param entryType the type of entries that will be stored in this
-     * set. <em>Only</em> entries of this <em>exact</em> type may be
-     * stored in the set.
-     * @param source an iterator from which we will initially populate the
-     * set.
-     */
-    public DSet (Class entryType, Iterator source)
-    {
-        this(source);
-        setEntryType(entryType);
     }
 
     /**
@@ -111,37 +76,10 @@ public class DSet
     }
 
     /**
-     * Constructs a distributed set without specifying the entry type. The
-     * set will assume that it is heterogenous, unless a homogenous class
-     * type is otherwise specified via {@link #setEntryType}.
+     * Constructs an empty distributed set.
      */
     public DSet ()
     {
-    }
-
-    /**
-     * Returns true if this set contains only entries of exactly the same
-     * type, false if not.
-     */
-    public boolean homogenous ()
-    {
-        return _entryType != null;
-    }
-
-    /**
-     * Indicates what type of entries will be stored in this set. This can
-     * be called multiple times before the set is used (in the event that
-     * one wishes to further specialize the contents of a set that has
-     * already been configured to use a particular entry type), but once
-     * the set goes into use, it must not be changed. Also bear in mind
-     * that the class of entries added to the set are not checked at
-     * runtime, and adding entries of invalid class will simply result in
-     * the serialization mechanism failing when an event is dispatched to
-     * broadcast the addition of an entry.
-     */
-    public void setEntryType (Class entryType)
-    {
-        _entryType = entryType;
     }
 
     /**
@@ -342,94 +280,11 @@ public class DSet
     }
 
     /**
-     * Serializes this instance to the supplied output stream.
-     */
-    public void writeTo (DataOutputStream out)
-        throws IOException
-    {
-        if (_entryType == null) {
-            out.writeUTF("");
-        } else {
-            out.writeUTF(_entryType.getName());
-        }
-        out.writeInt(_size);
-        int elength = _entries.length;
-        for (int i = 0; i < elength; i++) {
-            Entry elem = _entries[i];
-            if (elem != null) {
-                if (_entryType == null) {
-                    out.writeUTF(elem.getClass().getName());
-                }
-                elem.writeTo(out);
-            }
-        }
-    }
-
-    /**
-     * Unserializes this instance from the supplied input stream.
-     */
-    public void readFrom (DataInputStream in)
-        throws IOException
-    {
-        // read our entry class and forName() it (if we read an entry
-        // class, we're a homogenous set; otherwise we're heterogenous)
-        String eclass = in.readUTF();
-        try {
-            if (!StringUtil.blank(eclass)) {
-                _entryType = Class.forName(eclass);
-            }
-
-        } catch (Exception e) {
-            String err = "Unable to instantiate entry class [err=" + e + "]";
-            throw new IOException(err);
-        }
-
-        // find out how many entries we'll be reading
-        _size = in.readInt();
-
-        // make sure we can fit _size entries
-        expand(_size);
-
-        for (int i = 0; i < _size; i++) {
-            _entries[i] = readEntry(in);
-        }
-    }
-
-    /**
-     * Reads an entry from the wire and unserializes it. Takes into
-     * account whether or not we're a homogenous set.
-     */
-    public Entry readEntry (DataInputStream in)
-        throws IOException
-    {
-        try {
-            Entry elem = null;
-
-            // instantiate the appropriate entry instance
-            if (_entryType != null) {
-                elem = (Entry)_entryType.newInstance();
-            } else {
-                elem = (Entry)Class.forName(in.readUTF()).newInstance();
-            }
-
-            // unserialize it and return it
-            elem.readFrom(in);
-            return elem;
-
-        } catch (Exception e) {
-            Log.warning("Unable to unserialize set entry " +
-                        "[set=" + this + "].");
-            Log.logStackTrace(e);
-            return null;
-        }
-   }
-
-    /**
      * Generates a shallow copy of this object.
      */
     public Object clone ()
     {
-        DSet nset = new DSet(_entryType);
+        DSet nset = new DSet();
         nset._entries = new Entry[_entries.length];
         System.arraycopy(_entries, 0, nset._entries, 0, _entries.length);
         nset._size = _size;
@@ -437,17 +292,41 @@ public class DSet
     }
 
     /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
+        throws IOException
+    {
+        out.defaultWriteObject();
+        out.writeInt(_size);
+        int ecount = _entries.length;
+        for (int ii = 0; ii < ecount; ii++) {
+            if (_entries[ii] != null) {
+                out.writeObject(_entries[ii]);
+            }
+        }
+    }
+
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
+    {
+        in.defaultReadObject();
+        _size = in.readInt();
+        _entries = new Entry[Math.max(_size, INITIAL_CAPACITY)];
+        for (int ii = 0; ii < _size; ii++) {
+            _entries[ii] = (Entry)in.readObject();
+        }
+    }
+
+    /**
      * Generates a string representation of this set instance.
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer("[");
-        if (_entryType == null) {
-            buf.append("etype=NONE");
-        } else {
-            buf.append("etype=").append(_entryType.getName());
-        }
-        buf.append(", elems=(");
+        StringBuffer buf = new StringBuffer("(");
         String prefix = "";
         for (int i = 0; i < _entries.length; i++) {
             Entry elem = _entries[i];
@@ -457,14 +336,14 @@ public class DSet
                 buf.append(elem);
             }
         }
-        buf.append(")]");
+        buf.append(")");
         return buf.toString();
     }
 
     protected void expand (int index)
     {
         // sanity check
-        if (index < 0) {
+        if (index < 0 || index > Short.MAX_VALUE) {
             Log.warning("Requested to expand to accomodate bogus index! " +
                         "[index=" + index + "].");
             Thread.dumpStack();
@@ -489,9 +368,6 @@ public class DSet
         System.arraycopy(_entries, 0, elems, 0, _entries.length);
         _entries = elems;
     }
-
-    /** The type of entry this set holds. */
-    protected Class _entryType;
 
     /** The entries of the set (in a sparse array). */
     protected Entry[] _entries = new Entry[INITIAL_CAPACITY];

@@ -1,19 +1,15 @@
 //
-// $Id: AuthRequest.java,v 1.7 2001/10/11 04:07:53 mdb Exp $
+// $Id: AuthRequest.java,v 1.8 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.net;
 
 import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
-import com.threerings.presents.io.TypedObjectFactory;
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 
 public class AuthRequest extends UpstreamMessage
 {
-    /** The code for an auth request. */
-    public static final short TYPE = TYPE_BASE + 0;
-
     /**
      * Zero argument constructor used when unserializing an instance.
      */
@@ -30,28 +26,29 @@ public class AuthRequest extends UpstreamMessage
         _creds = creds;
     }
 
-    public short getType ()
-    {
-        return TYPE;
-    }
-
     public Credentials getCredentials ()
     {
         return _creds;
     }
 
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
-        TypedObjectFactory.writeTo(out, _creds);
+        super.writeObject(out);
+        out.writeObject(_creds);
     }
 
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
-        _creds = (Credentials)TypedObjectFactory.readFrom(in);
+        super.readObject(in);
+        _creds = (Credentials)in.readObject();
     }
 
     public String toString ()

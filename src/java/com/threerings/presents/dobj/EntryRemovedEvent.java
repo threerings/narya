@@ -1,13 +1,12 @@
 //
-// $Id: EntryRemovedEvent.java,v 1.8 2002/03/18 23:21:26 mdb Exp $
+// $Id: EntryRemovedEvent.java,v 1.9 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 
-import com.threerings.presents.io.ValueMarshaller;
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 
 /**
  * An entry removed event is dispatched when an entry is removed from a
@@ -17,11 +16,8 @@ import com.threerings.presents.io.ValueMarshaller;
  *
  * @see DObjectManager#postEvent
  */
-public class EntryRemovedEvent extends TypedEvent
+public class EntryRemovedEvent extends DEvent
 {
-    /** The typed object code for this event. */
-    public static final short TYPE = TYPE_BASE + 9;
-
     /**
      * Constructs a new entry removed event on the specified target object
      * with the supplied set attribute name and entry key to remove.
@@ -76,28 +72,26 @@ public class EntryRemovedEvent extends TypedEvent
 
     }
 
-    // documentation inherited
-    public short getType ()
-    {
-        return TYPE;
-    }
-
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
+        super.writeObject(out);
         out.writeUTF(_name);
-        ValueMarshaller.writeTo(out, _key);
+        out.writeObject(_key);
     }
 
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
+        super.readObject(in);
         _name = in.readUTF();
-        _key = ValueMarshaller.readFrom(in);
+        _key = in.readObject();
     }
 
     // documentation inherited

@@ -1,14 +1,13 @@
 //
-// $Id: Credentials.java,v 1.7 2001/10/11 04:07:53 mdb Exp $
+// $Id: Credentials.java,v 1.8 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.net;
 
 import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
-import com.threerings.presents.io.TypedObject;
-import com.threerings.presents.io.TypedObjectFactory;
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.Streamable;
 
 /**
  * Credentials are supplied by the client implementation and sent along to
@@ -24,14 +23,8 @@ import com.threerings.presents.io.TypedObjectFactory;
  * that they can be instantiated prior to reconstruction from a data input
  * stream.
  */
-public abstract class Credentials implements TypedObject
+public abstract class Credentials implements Streamable
 {
-    /**
-     * All credential derived classes should base their typed object code
-     * on this base value.
-     */
-    public static final short TYPE_BASE = 300;
-
     /**
      * Constructs a credentials instance with the specified username.
      */
@@ -54,24 +47,22 @@ public abstract class Credentials implements TypedObject
     }
 
     /**
-     * Derived classes should override this function to write their fields
-     * out to the supplied data output stream. They <em>must</em> be sure
-     * to first call <code>super.writeTo()</code>.
+     * Writes our custom streamable fields.
      */
-    public void writeTo (DataOutputStream out)
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
+        out.defaultWriteObject();
         out.writeUTF(_username);
     }
 
     /**
-     * Derived classes should override this function to read their fields
-     * from the supplied data input stream. They <em>must</em> be sure to
-     * first call <code>super.readFrom()</code>.
+     * Reads our custom streamable fields.
      */
-    public void readFrom (DataInputStream in)
-        throws IOException
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
+        in.defaultReadObject();
         _username = in.readUTF();
     }
 

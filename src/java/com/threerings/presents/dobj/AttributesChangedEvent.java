@@ -1,14 +1,14 @@
 //
-// $Id: AttributesChangedEvent.java,v 1.9 2002/02/01 23:32:37 mdb Exp $
+// $Id: AttributesChangedEvent.java,v 1.10 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+
 import com.samskivert.util.StringUtil;
-import com.threerings.presents.io.ValueMarshaller;
 
 /**
  * An attribute<em>s</em> changed event is dispatched when multiple
@@ -17,11 +17,8 @@ import com.threerings.presents.io.ValueMarshaller;
  *
  * @see DObjectManager#postEvent
  */
-public class AttributesChangedEvent extends TypedEvent
+public class AttributesChangedEvent extends DEvent
 {
-    /** The typed object code for this event. */
-    public static final short TYPE = TYPE_BASE + 2;
-
     /**
      * Constructs a new attribute changed event on the specified target
      * object with the supplied attribute name and value.
@@ -170,32 +167,33 @@ public class AttributesChangedEvent extends TypedEvent
         return true;
     }
 
-    public short getType ()
-    {
-        return TYPE;
-    }
-
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
+        super.writeObject(out);
         out.writeInt(_count);
-        for (int i = 0; i < _count; i++) {
-            out.writeUTF(_names[i]);
-            ValueMarshaller.writeTo(out, _values[i]);
+        for (int ii = 0; ii < _count; ii++) {
+            out.writeUTF(_names[ii]);
+            out.writeObject(_values[ii]);
         }
     }
 
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
+        super.readObject(in);
         _count = in.readInt();
         _names = new String[_count];
         _values = new Object[_count];
-        for (int i = 0; i < _count; i++) {
-            _names[i] = in.readUTF();
-            _values[i] = ValueMarshaller.readFrom(in);
+        for (int ii = 0; ii < _count; ii++) {
+            _names[ii] = in.readUTF();
+            _values[ii] = in.readObject();
         }
     }
 
@@ -203,8 +201,10 @@ public class AttributesChangedEvent extends TypedEvent
     {
         buf.append("CHANGES:");
         super.toString(buf);
-        buf.append(", names=").append(StringUtil.toString(_names));
-        buf.append(", values=").append(StringUtil.toString(_values));
+        buf.append(", names=");
+        StringUtil.toString(buf, _names);
+        buf.append(", values=");
+        StringUtil.toString(buf, _values);
     }
 
     protected int _count;

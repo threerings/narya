@@ -1,28 +1,21 @@
 //
-// $Id: UpstreamMessage.java,v 1.8 2001/10/11 04:07:53 mdb Exp $
+// $Id: UpstreamMessage.java,v 1.9 2002/07/23 05:52:49 mdb Exp $
 
 package com.threerings.presents.net;
 
 import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
-import com.threerings.presents.io.TypedObject;
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.SimpleStreamableObject;
 
 /**
- * The <code>UpstreamMessage</code> class encapsulates a message in the
- * Distributed Object Protocol that flows from the client to the server.
- * Upstream messages include object subscription, event forwarding and
- * session management.
+ * This class encapsulates a message in the distributed object protocol
+ * that flows from the client to the server.  Upstream messages include
+ * object subscription, event forwarding and session management.
  */
-public abstract class UpstreamMessage implements TypedObject
+public abstract class UpstreamMessage extends SimpleStreamableObject
 {
-    /**
-     * All upstream message derived classes should base their typed object
-     * code on this base value.
-     */
-    public static final short TYPE_BASE = 100;
-
     /**
      * This is a unique (within the context of a reasonable period of
      * time) identifier assigned to each upstream message. The message ids
@@ -33,8 +26,8 @@ public abstract class UpstreamMessage implements TypedObject
 
     /**
      * Each upstream message derived class must provide a zero argument
-     * constructor so that the <code>TypedObjectFactory</code> can create
-     * a new instance of said class prior to unserializing it.
+     * constructor so that it can be unserialized when read from the
+     * network.
      */
     public UpstreamMessage ()
     {
@@ -45,25 +38,21 @@ public abstract class UpstreamMessage implements TypedObject
     }
 
     /**
-     * Derived classes should override this function to write their fields
-     * out to the supplied data output stream. They <em>must</em> be sure
-     * to first call <code>super.writeTo()</code>.
+     * Writes our custom streamable fields.
      */
-    public void writeTo (DataOutputStream out)
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        out.writeShort(messageId);
+        out.defaultWriteObject();
     }
 
     /**
-     * Derived classes should override this function to read their fields
-     * from the supplied data input stream. They <em>must</em> be sure to
-     * first call <code>super.readFrom()</code>.
+     * Reads our custom streamable fields.
      */
-    public void readFrom (DataInputStream in)
-        throws IOException
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        messageId = in.readShort();
+        in.defaultReadObject();
     }
 
     public String toString ()

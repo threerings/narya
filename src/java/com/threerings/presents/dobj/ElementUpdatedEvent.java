@@ -1,17 +1,18 @@
 //
-// $Id: ElementUpdatedEvent.java,v 1.1 2002/03/19 01:10:03 mdb Exp $
+// $Id: ElementUpdatedEvent.java,v 1.2 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 
+import com.samskivert.util.StringUtil;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+
 import com.threerings.presents.Log;
-import com.threerings.presents.io.ValueMarshaller;
 
 /**
  * An element updated event is dispatched when an element of an array
@@ -20,11 +21,8 @@ import com.threerings.presents.io.ValueMarshaller;
  *
  * @see DObjectManager#postEvent
  */
-public class ElementUpdatedEvent extends TypedEvent
+public class ElementUpdatedEvent extends DEvent
 {
-    /** The typed object code for this event. */
-    public static final short TYPE = TYPE_BASE + 11;
-
     /**
      * Constructs a new element updated event on the specified target
      * object with the supplied attribute name, element and index.
@@ -153,30 +151,28 @@ public class ElementUpdatedEvent extends TypedEvent
         }
     }
 
-    // documentation inherited
-    public short getType ()
-    {
-        return TYPE;
-    }
-
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
+        super.writeObject(out);
         out.writeUTF(_name);
+        out.writeObject(_value);
         out.writeInt(_index);
-        ValueMarshaller.writeTo(out, _value);
     }
 
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
+        super.readObject(in);
         _name = in.readUTF();
+        _value = in.readObject();
         _index = in.readInt();
-        _value = ValueMarshaller.readFrom(in);
     }
 
     // documentation inherited
@@ -193,7 +189,8 @@ public class ElementUpdatedEvent extends TypedEvent
         buf.append("UPDATE:");
         super.toString(buf);
         buf.append(", name=").append(_name);
-        buf.append(", value=").append(_value);
+        buf.append(", value=");
+        StringUtil.toString(buf, _value);
         buf.append(", index=").append(_index);
     }
 

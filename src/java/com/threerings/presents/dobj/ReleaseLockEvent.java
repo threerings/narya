@@ -1,12 +1,13 @@
 //
-// $Id: ReleaseLockEvent.java,v 1.5 2002/02/01 23:32:37 mdb Exp $
+// $Id: ReleaseLockEvent.java,v 1.6 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 
 /**
  * A release lock event is dispatched at the end of a chain of events to
@@ -19,11 +20,8 @@ import java.lang.reflect.Method;
  *
  * @see DObjectManager#postEvent
  */
-public class ReleaseLockEvent extends TypedEvent
+public class ReleaseLockEvent extends DEvent
 {
-    /** The typed object code for this event. */
-    public static final short TYPE = TYPE_BASE + 6;
-
     /**
      * Constructs a new release lock event for the specified target object
      * with the supplied lock name.
@@ -65,22 +63,23 @@ public class ReleaseLockEvent extends TypedEvent
         return false;
     }
 
-    public short getType ()
-    {
-        return TYPE;
-    }
-
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
+        super.writeObject(out);
         out.writeUTF(_name);
     }
 
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
+        super.readObject(in);
         _name = in.readUTF();
     }
 

@@ -1,12 +1,13 @@
 //
-// $Id: ObjectDestroyedEvent.java,v 1.3 2001/10/23 23:56:12 mdb Exp $
+// $Id: ObjectDestroyedEvent.java,v 1.4 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 
 /**
  * An object destroyed event is dispatched when an object has been removed
@@ -15,11 +16,8 @@ import java.lang.reflect.Method;
  *
  * @see DObjectManager#postEvent
  */
-public class ObjectDestroyedEvent extends TypedEvent
+public class ObjectDestroyedEvent extends DEvent
 {
-    /** The typed object code for this event. */
-    public static final short TYPE = TYPE_BASE + 7;
-
     /**
      * Constructs a new object destroyed event for the specified
      * distributed object.
@@ -46,12 +44,6 @@ public class ObjectDestroyedEvent extends TypedEvent
         // nothing to do in preparation for destruction, the omgr will
         // have to recognize this type of event and do the right thing
         return true;
-    }
-
-    // documentation inherited
-    public short getType ()
-    {
-        return TYPE;
     }
 
     // documentation inherited

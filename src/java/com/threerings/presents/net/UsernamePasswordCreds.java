@@ -1,16 +1,15 @@
 //
-// $Id: UsernamePasswordCreds.java,v 1.6 2001/10/11 04:07:53 mdb Exp $
+// $Id: UsernamePasswordCreds.java,v 1.7 2002/07/23 05:52:49 mdb Exp $
 
 package com.threerings.presents.net;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 
 public class UsernamePasswordCreds extends Credentials
 {
-    public static final short TYPE = TYPE_BASE + 0;
-
     /**
      * Zero argument constructor used when unserializing an instance.
      */
@@ -28,27 +27,28 @@ public class UsernamePasswordCreds extends Credentials
         _password = password;
     }
 
-    public short getType ()
-    {
-        return TYPE;
-    }
-
     public String getPassword ()
     {
         return _password;
     }
 
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
+        super.writeObject(out);
         out.writeUTF(_password);
     }
 
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
+        super.readObject(in);
         _password = in.readUTF();
     }
 

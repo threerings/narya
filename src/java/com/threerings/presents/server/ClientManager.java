@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.20 2002/07/10 01:26:21 mdb Exp $
+// $Id: ClientManager.java,v 1.21 2002/07/23 05:52:49 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -273,6 +273,7 @@ public class ClientManager implements ConnectionObserver
         if (client != null) {
             Log.info("Unmapped failed client [client=" + client +
                      ", conn=" + conn + ", fault=" + fault + "].");
+            Log.logStackTrace(fault);
             // let the client know the connection went away
             client.wasUnmapped();
             // and let the client know things went haywire
@@ -297,6 +298,8 @@ public class ClientManager implements ConnectionObserver
             client.wasUnmapped();
 
         } else {
+            // TODO: possibly remove this log message, can this happen
+            // normally?
             Log.info("Closed unmapped connection? [conn=" + conn + "].");
             Thread.dumpStack();
         }

@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.33 2002/07/10 01:25:11 mdb Exp $
+// $Id: PresentsClient.java,v 1.34 2002/07/23 05:52:49 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -17,7 +17,6 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.EventListener;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
-import com.threerings.presents.dobj.TypedEvent;
 
 import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.BootstrapNotification;
@@ -450,10 +449,7 @@ public class PresentsClient
         // forward the event to the client
         Connection conn = getConnection();
         if (conn != null) {
-            // only typed events will be forwarded to the client, so we
-            // need not worry that a non-typed event would make it here
-            TypedEvent tevent = (TypedEvent)event;
-            conn.postMessage(new EventNotification(tevent));
+            conn.postMessage(new EventNotification(event));
         } else {
             Log.info("Dropped event forward notification " +
                      "[client=" + this + ", event=" + event + "].");

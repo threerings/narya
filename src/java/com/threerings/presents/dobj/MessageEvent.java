@@ -1,15 +1,15 @@
 //
-// $Id: MessageEvent.java,v 1.8 2002/02/01 23:32:37 mdb Exp $
+// $Id: MessageEvent.java,v 1.9 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
 import com.samskivert.util.StringUtil;
-import com.threerings.presents.io.ValueMarshaller;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 
 /**
  * A message event is used to dispatch a message to all subscribers of a
@@ -20,11 +20,8 @@ import com.threerings.presents.io.ValueMarshaller;
  *
  * @see DObjectManager#postEvent
  */
-public class MessageEvent extends TypedEvent
+public class MessageEvent extends DEvent
 {
-    /** The typed object code for this event. */
-    public static final short TYPE = TYPE_BASE + 3;
-
     /**
      * Constructs a new message event on the specified target object with
      * the supplied name and arguments.
@@ -86,41 +83,26 @@ public class MessageEvent extends TypedEvent
         return true;
     }
 
-    // documentation inherited
-    public short getType ()
-    {
-        return TYPE;
-    }
-
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
+        super.writeObject(out);
         out.writeUTF(_name);
-        if (_args != null) {
-            out.writeInt(_args.length);
-            for (int i = 0; i < _args.length; i++) {
-                ValueMarshaller.writeTo(out, _args[i]);
-            }
-        } else {
-            out.writeInt(0);
-        }
+        out.writeObject(_args);
     }
 
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
+        super.readObject(in);
         _name = in.readUTF();
-        int args = in.readInt();
-        if (args > 0) {
-            _args = new Object[args];
-            for (int i = 0; i < args; i++) {
-                _args[i] = ValueMarshaller.readFrom(in);
-            }
-        }
+        _args = (Object[])in.readObject();
     }
 
     // documentation inherited

@@ -1,19 +1,28 @@
 //
-// $Id: Communicator.java,v 1.20 2002/07/12 03:49:02 mdb Exp $
+// $Id: Communicator.java,v 1.21 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.client;
 
-import java.io.*;
-import java.net.Socket;
-import java.net.InetAddress;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InterruptedIOException;
+import java.io.OutputStream;
 
+import java.net.InetAddress;
+import java.net.Socket;
+
+import com.samskivert.io.NestableIOException;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 
+import com.threerings.io.FramedInputStream;
+import com.threerings.io.FramingOutputStream;
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+
 import com.threerings.presents.Log;
 import com.threerings.presents.dobj.DObjectManager;
-import com.threerings.presents.io.*;
-import com.threerings.presents.io.ObjectStreamException;
 import com.threerings.presents.net.*;
 
 /**
@@ -166,6 +175,7 @@ public class Communicator
         }
 
         Log.info("Connection failed: " + ioe);
+        Log.logStackTrace(ioe);
 
         // let the client know that things went south
         _client.notifyObservers(Client.CLIENT_CONNECTION_FAILED, ioe);
@@ -226,6 +236,10 @@ public class Communicator
         }
         _socket = null;
 
+        // clear these out because they are probably large and in charge
+        _oin = null;
+        _oout = null;
+
         // let the client observers know that we're logged off
         _client.notifyObservers(Client.CLIENT_DID_LOGOFF, null);
 
@@ -241,8 +255,12 @@ public class Communicator
     protected void sendMessage (UpstreamMessage msg)
         throws IOException
     {
-        // first we flatten the message so that we can measure it's length
-        TypedObjectFactory.writeTo(_dout, msg);
+//         Log.info("Sending message " + msg + ".");
+
+        // first we write the message so that we can measure it's length
+        _oout.writeObject(msg);
+        _oout.flush();
+
         // then write the framed message to actual output stream
         _fout.writeFrameAndReset(_out);
     }
@@ -261,9 +279,15 @@ public class Communicator
         // hits EOF or if something goes awry)
         while (!_fin.readFrame(_in));
 
-        // then use the typed object factory to read and decode the
-        // proper downstream message instance
-        return (DownstreamMessage)TypedObjectFactory.readFrom(_din);
+        try {
+            DownstreamMessage msg = (DownstreamMessage)_oin.readObject();
+//             Log.info("Received message " + msg + ".");
+            return msg;
+
+        } catch (ClassNotFoundException cnfe) {
+            throw new NestableIOException(
+                "Unable to decode incoming message.", cnfe);
+        }
     }
 
     /**
@@ -328,9 +352,11 @@ public class Communicator
             // our messages are framed (preceded by their length), so we
             // use these helper streams to manage the framing
             _fin = new FramedInputStream();
-            _din = new DataInputStream(_fin);
             _fout = new FramingOutputStream();
-            _dout = new DataOutputStream(_fout);
+
+            // create our object input and output streams
+            _oin = new ObjectInputStream(_fin);
+            _oout = new ObjectOutputStream(_fout);
         }
 
         protected void logon ()
@@ -369,10 +395,6 @@ public class Communicator
 
                 // process the message
                 processMessage(msg);
-
-            } catch (ObjectStreamException ose) {
-                Log.warning("Error decoding message: " + ose);
-                Log.logStackTrace(ose);
 
             } catch (InterruptedIOException iioe) {
                 // somebody set up us the bomb! we've been interrupted
@@ -474,10 +496,6 @@ public class Communicator
     /** This is used to terminate the writer thread. */
     protected static class TerminationMessage extends UpstreamMessage
     {
-        public short getType ()
-        {
-            return -1;
-        }
     }
 
     protected Client _client;
@@ -491,11 +509,11 @@ public class Communicator
 
     /** We use this to frame our upstream messages. */
     protected FramingOutputStream _fout;
-    protected DataOutputStream _dout;
+    protected ObjectOutputStream _oout;
 
     /** We use this to frame our downstream messages. */
     protected FramedInputStream _fin;
-    protected DataInputStream _din;
+    protected ObjectInputStream _oin;
 
     protected ClientDObjectMgr _omgr;
 }

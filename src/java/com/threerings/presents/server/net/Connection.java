@@ -1,16 +1,25 @@
 //
-// $Id: Connection.java,v 1.7 2002/07/10 01:23:45 mdb Exp $
+// $Id: Connection.java,v 1.8 2002/07/23 05:52:49 mdb Exp $
 
 package com.threerings.presents.server.net;
 
-import java.io.*;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import ninja2.core.io_core.nbio.*;
 
+import com.samskivert.io.NestableIOException;
+
+import com.threerings.io.FramedInputStream;
+import com.threerings.io.FramingOutputStream;
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+
 import com.threerings.presents.Log;
-import com.threerings.presents.io.FramedInputStream;
-import com.threerings.presents.io.TypedObjectFactory;
-import com.threerings.presents.net.UpstreamMessage;
 import com.threerings.presents.net.DownstreamMessage;
+import com.threerings.presents.net.UpstreamMessage;
 
 /**
  * The base connection class implements the net event handler interface
@@ -27,6 +36,8 @@ public abstract class Connection implements NetEventHandler
      * @param cmgr The connection manager with which this connection is
      * associated.
      * @param socket The socket from which we'll be reading messages.
+     * @param fout The framing output stream via which we'll write
+     * serialized messages to the client.
      */
     public Connection (ConnectionManager cmgr, NonblockingSocket socket)
         throws IOException
@@ -38,11 +49,9 @@ public abstract class Connection implements NetEventHandler
         // the main event polling loop
         _selitem = new SelectItem(_socket, this, Selectable.READ_READY);
 
-        // create our input streams
+        // get a handle on our socket streams
         _in = _socket.getInputStream();
         _out = _socket.getOutputStream();
-        _fin = new FramedInputStream();
-        _din = new DataInputStream(_fin);
     }
 
     /**
@@ -61,15 +70,6 @@ public abstract class Connection implements NetEventHandler
     public SelectItem getSelectItem ()
     {
         return _selitem;
-    }
-
-    /**
-     * Returns the output stream associated with this connection. This
-     * should only be used by the connection manager.
-     */
-    public OutputStream getOutputStream ()
-    {
-        return _out;
     }
 
     /**
@@ -131,6 +131,63 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
+     * Returns the output stream associated with this connection. This
+     * should only be used by the connection manager.
+     */
+    protected OutputStream getOutputStream ()
+    {
+        return _out;
+    }
+
+    /**
+     * Returns the object input stream associated with this connection.
+     * This should only be used by the connection manager.
+     */
+    protected ObjectInputStream getObjectInputStream ()
+    {
+        return _oin;
+    }
+
+    /**
+     * Instructs this connection to inherit its streams from the supplied
+     * connection object. This is called by the connection manager when
+     * the time comes to pass streams from the authing connection to the
+     * running connection.
+     */
+    protected void inheritStreams (Connection other)
+    {
+        _fin = other._fin;
+        _oin = other._oin;
+        _oout = other._oout;
+    }
+
+    /**
+     * Returns the object output stream associated with this connection
+     * (creating it if necessary). This should only be used by the
+     * connection manager.
+     */
+    protected ObjectOutputStream getObjectOutputStream (
+        FramingOutputStream fout)
+    {
+        // we're lazy about creating our output stream because we may be
+        // inheriting it from our authing connection and we don't want to
+        // unnecessarily create it in that case
+        if (_oout == null) {
+            _oout = new ObjectOutputStream(fout);
+        }
+        return _oout;
+    }
+
+    /**
+     * Sets the object output stream used by this connection. This should
+     * obly be called by the connection manager.
+     */
+    protected void setObjectOutputStream (ObjectOutputStream oout)
+    {
+        _oout = oout;
+    }
+
+    /**
      * Closes the socket associated with this connection. This happens
      * when we receive EOF, are requested to close down or when our
      * connection fails.
@@ -156,16 +213,32 @@ public abstract class Connection implements NetEventHandler
     public void handleEvent (Selectable source, short events)
     {
         try {
+            // we're lazy about creating our input streams because we may
+            // be inheriting them from our authing connection and we don't
+            // want to unnecessarily create them in that case
+            if (_fin == null) {
+                _fin = new FramedInputStream();
+                _oin = new ObjectInputStream(_fin);
+            }
+
             // read the available data and see if we have a whole frame
             if (_fin.readFrame(_in)) {
                 // parse the message and pass it on
-                _handler.handleMessage((UpstreamMessage)
-                                       TypedObjectFactory.readFrom(_din));
+                UpstreamMessage msg = (UpstreamMessage)_oin.readObject();
+//                 Log.info("Read message " + msg + ".");
+                _handler.handleMessage(msg);
             }
 
         } catch (EOFException eofe) {
             // close down the socket gracefully
             close();
+
+        } catch (ClassNotFoundException cnfe) {
+            Log.warning("Error reading message from socket " +
+                        "[socket=" + _socket + ", error=" + cnfe + "].");
+            // deal with the failure
+            handleFailure(new NestableIOException(
+                              "Unable to decode incoming message.", cnfe));
 
         } catch (IOException ioe) {
             Log.warning("Error reading message from socket " +
@@ -191,9 +264,11 @@ public abstract class Connection implements NetEventHandler
     protected SelectItem _selitem;
 
     protected InputStream _in;
-    protected OutputStream _out;
     protected FramedInputStream _fin;
-    protected DataInputStream _din;
+    protected ObjectInputStream _oin;
+
+    protected OutputStream _out;
+    protected ObjectOutputStream _oout;
 
     protected MessageHandler _handler;
 }

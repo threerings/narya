@@ -1,13 +1,12 @@
 //
-// $Id: BootstrapNotification.java,v 1.3 2001/10/11 04:07:53 mdb Exp $
+// $Id: BootstrapNotification.java,v 1.4 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.net;
 
 import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
-import com.threerings.presents.dobj.io.DObjectFactory;
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 
 /**
  * A bootstrap notification is delivered to the client once the server has
@@ -19,9 +18,6 @@ import com.threerings.presents.dobj.io.DObjectFactory;
  */
 public class BootstrapNotification extends DownstreamMessage
 {
-    /** The code for a bootstrap notification. */
-    public static final short TYPE = TYPE_BASE + 1;
-
     /**
      * Zero argument constructor used when unserializing an instance.
      */
@@ -38,28 +34,29 @@ public class BootstrapNotification extends DownstreamMessage
         _data = data;
     }
 
-    public short getType ()
-    {
-        return TYPE;
-    }
-
     public BootstrapData getData ()
     {
         return _data;
     }
 
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
-        DObjectFactory.writeTo(out, _data);
+        super.writeObject(out);
+        out.writeObject(_data);
     }
 
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
-        _data = (BootstrapData)DObjectFactory.readFrom(in);
+        super.readObject(in);
+        _data = (BootstrapData)in.readObject();
     }
 
     public String toString ()

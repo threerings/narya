@@ -1,20 +1,17 @@
 //
-// $Id: EventNotification.java,v 1.10 2001/10/11 04:07:53 mdb Exp $
+// $Id: EventNotification.java,v 1.11 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.net;
 
 import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
-import com.threerings.presents.dobj.TypedEvent;
-import com.threerings.presents.io.TypedObjectFactory;
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+
+import com.threerings.presents.dobj.DEvent;
 
 public class EventNotification extends DownstreamMessage
 {
-    /** The code for an event notification. */
-    public static final short TYPE = TYPE_BASE + 2;
-
     /**
      * Zero argument constructor used when unserializing an instance.
      */
@@ -26,42 +23,41 @@ public class EventNotification extends DownstreamMessage
     /**
      * Constructs an event notification for the supplied event.
      */
-    public EventNotification (TypedEvent event)
+    public EventNotification (DEvent event)
     {
         _event = event;
     }
 
-    public short getType ()
-    {
-        return TYPE;
-    }
-
-    public TypedEvent getEvent ()
+    public DEvent getEvent ()
     {
         return _event;
     }
 
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
-        // write the event out to the stream
-        TypedObjectFactory.writeTo(out, _event);
+        super.writeObject(out);
+        out.writeObject(_event);
     }
 
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
-        // read the event in from the stream
-        _event = (TypedEvent)TypedObjectFactory.readFrom(in);
+        super.readObject(in);
+        _event = (DEvent)in.readObject();
     }
 
     public String toString ()
     {
-        return "[type=EVT, msgid=" + messageId + ", evt=" + _event + "]";
+        return "[type=EVT, evt=" + _event + "]";
     }
 
     /** The event which we are forwarding. */
-    protected TypedEvent _event;
+    protected DEvent _event;
 }

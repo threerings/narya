@@ -1,14 +1,16 @@
 //
-// $Id: EntryAddedEvent.java,v 1.7 2002/03/18 23:21:26 mdb Exp $
+// $Id: EntryAddedEvent.java,v 1.8 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 
+import com.samskivert.util.StringUtil;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+
 import com.threerings.presents.Log;
-import com.threerings.presents.dobj.io.EntryUtil;
 
 /**
  * An entry added event is dispatched when an entry is added to a {@link
@@ -17,11 +19,8 @@ import com.threerings.presents.dobj.io.EntryUtil;
  *
  * @see DObjectManager#postEvent
  */
-public class EntryAddedEvent extends TypedEvent
+public class EntryAddedEvent extends DEvent
 {
-    /** The typed object code for this event. */
-    public static final short TYPE = TYPE_BASE + 8;
-
     /**
      * Constructs a new entry added event on the specified target object
      * with the supplied set attribute name and entry to add.
@@ -31,17 +30,12 @@ public class EntryAddedEvent extends TypedEvent
      * @param name the name of the attribute to which to add the specified
      * entry.
      * @param entry the entry to add to the set attribute.
-     * @param qualified whether or not the entry need be qualified with
-     * its class when serializing (true for heterogenous sets, false for
-     * homogenous sets).
      */
-    public EntryAddedEvent (int targetOid, String name, DSet.Entry entry,
-                              boolean qualified)
+    public EntryAddedEvent (int targetOid, String name, DSet.Entry entry)
     {
         super(targetOid);
         _name = name;
         _entry = entry;
-        _qualified = qualified;
     }
 
     /**
@@ -76,51 +70,30 @@ public class EntryAddedEvent extends TypedEvent
         throws ObjectAccessException
     {
         DSet set = (DSet)target.getAttribute(_name);
-
-        // now that we have access to our target set, we can unflatten our
-        // entry (if need be)
-        if (_entry == null) {
-            try {
-                _entry = EntryUtil.unflatten(set, _bytes);
-            } catch (Exception e) {
-                Log.warning("Error unflattening entry " + this + ".");
-                Log.logStackTrace(e);
-                return false;
-            }
-        }
-
         set.add(_entry);
         return true;
     }
 
-    // documentation inherited
-    public short getType ()
-    {
-        return TYPE;
-    }
-
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
+        super.writeObject(out);
         out.writeUTF(_name);
-        EntryUtil.flatten(out, _entry, _qualified);
+        out.writeObject(_entry);
     }
 
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
+        super.readObject(in);
         _name = in.readUTF();
-
-        // we read in the raw entry data now and decode it later when we
-        // have access to the object and the DSet instance that knows what
-        // type of entry we need to decode
-        int bcount = in.readInt();
-        _bytes = new byte[bcount];
-        in.readFully(_bytes, 0, bcount);
+        _entry = (DSet.Entry)in.readObject();
     }
 
     // documentation inherited
@@ -137,11 +110,10 @@ public class EntryAddedEvent extends TypedEvent
         buf.append("ELADD:");
         super.toString(buf);
         buf.append(", name=").append(_name);
-        buf.append(", entry=").append(_entry);
+        buf.append(", entry=");
+        StringUtil.toString(buf, _entry);
     }
 
     protected String _name;
-    protected byte[] _bytes;
     protected DSet.Entry _entry;
-    protected boolean _qualified;
 }

@@ -1,13 +1,12 @@
 //
-// $Id: AuthResponse.java,v 1.11 2002/03/05 05:39:52 mdb Exp $
+// $Id: AuthResponse.java,v 1.12 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.net;
 
 import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
-import com.threerings.presents.dobj.io.DObjectFactory;
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 
 /**
  * The auth response communicates authentication success or failure as
@@ -18,9 +17,6 @@ import com.threerings.presents.dobj.io.DObjectFactory;
  */
 public class AuthResponse extends DownstreamMessage
 {
-    /** The code for an auth response. */
-    public static final short TYPE = TYPE_BASE + 0;
-
     /**
      * Zero argument constructor used when unserializing an instance.
      */
@@ -42,23 +38,24 @@ public class AuthResponse extends DownstreamMessage
         return _data;
     }
 
-    public short getType ()
-    {
-        return TYPE;
-    }
-
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
-        DObjectFactory.writeTo(out, _data);
+        super.writeObject(out);
+        out.writeObject(_data);
     }
 
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
-        _data = (AuthResponseData)DObjectFactory.readFrom(in);
+        super.readObject(in);
+        _data = (AuthResponseData)in.readObject();
     }
 
     public String toString ()

@@ -1,13 +1,19 @@
 //
-// $Id: DObject.java,v 1.45 2002/07/18 00:41:59 mdb Exp $
+// $Id: DObject.java,v 1.46 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.dobj;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.Streamable;
+
 import com.threerings.presents.Log;
 
 /**
@@ -84,7 +90,7 @@ import com.threerings.presents.Log;
  * byte[], short[], int[], long[], float[], double[], String[]
  * </pre></code>
  */
-public class DObject
+public class DObject implements Streamable
 {
     /**
      * Returns the object id of this object. All objects in the system
@@ -473,8 +479,12 @@ public class DObject
     public String toString ()
     {
         StringBuffer buf = new StringBuffer();
-        buf.append("[oid=").append(_oid).append(", ");
         StringUtil.fieldsToString(buf, this);
+        if (buf.length() > 0) {
+            buf.insert(0, ", ");
+        }
+        buf.insert(0, _oid);
+        buf.insert(0, "[oid=");
         return buf.append("]").toString();
     }
 
@@ -482,7 +492,7 @@ public class DObject
      * Posts the specified event either to our dobject manager or to the
      * compound event for which we are currently transacting.
      */
-    public void postEvent (TypedEvent event)
+    public void postEvent (DEvent event)
     {
         if (_tevent != null) {
             _tevent.postEvent(event);
@@ -593,6 +603,26 @@ public class DObject
     }        
 
     /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
+        throws IOException
+    {
+        out.defaultWriteObject();
+        out.writeInt(_oid);
+    }
+
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
+    {
+        in.defaultReadObject();
+        _oid = in.readInt();
+    }
+
+    /**
      * Removes this object from participation in any transaction in which
      * it might be taking part.
      */
@@ -647,8 +677,7 @@ public class DObject
         try {
             DSet set = (DSet)getAttribute(name);
             // dispatch an entry added event
-            postEvent(new EntryAddedEvent(
-                          _oid, name, entry, !set.homogenous()));
+            postEvent(new EntryAddedEvent(_oid, name, entry));
 
         } catch (ObjectAccessException oae) {
             Log.warning("Unable to request entryAdd [name=" + name +
@@ -673,8 +702,7 @@ public class DObject
         try {
             DSet set = (DSet)getAttribute(name);
             // dispatch an entry updated event
-            postEvent(new EntryUpdatedEvent(
-                          _oid, name, entry, !set.homogenous()));
+            postEvent(new EntryUpdatedEvent(_oid, name, entry));
 
         } catch (ObjectAccessException oae) {
             Log.warning("Unable to request entryUpdate [name=" + name +
@@ -683,7 +711,7 @@ public class DObject
     }
 
     /** Our object id. */
-    protected transient int _oid;
+    protected int _oid;
 
     /** A reference to our object manager. */
     protected transient DObjectManager _omgr;

@@ -1,20 +1,19 @@
 //
-// $Id: ConnectionManager.java,v 1.19 2002/07/10 01:23:45 mdb Exp $
+// $Id: ConnectionManager.java,v 1.20 2002/07/23 05:52:49 mdb Exp $
 
 package com.threerings.presents.server.net;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import ninja2.core.io_core.nbio.*;
 import com.samskivert.util.*;
 
+import com.threerings.io.FramingOutputStream;
+import com.threerings.io.ObjectOutputStream;
+
 import com.threerings.presents.Log;
 import com.threerings.presents.client.Client;
-
-import com.threerings.presents.io.FramingOutputStream;
-import com.threerings.presents.io.TypedObjectFactory;
 
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
@@ -61,9 +60,8 @@ public class ConnectionManager extends LoopingThread
         };
         _selset.add(_litem);
 
-        // we'll use these for sending messages to clients
+        // we'll use this for sending messages to clients
         _framer = new FramingOutputStream();
-        _dout = new DataOutputStream(_framer);
     }
 
     /**
@@ -196,8 +194,14 @@ public class ConnectionManager extends LoopingThread
 
             DownstreamMessage outmsg = (DownstreamMessage)tup.right;
             try {
-                // first flatten the message (and frame it)
-                TypedObjectFactory.writeTo(_dout, outmsg);
+                // write the message via the connection's object output
+                // stream (which is configured to write data to our
+                // framing output stream)
+                ObjectOutputStream oout = conn.getObjectOutputStream(_framer);
+//                 Log.info("Sending " + outmsg + ".");
+                oout.writeObject(outmsg);
+                oout.flush();
+
                 // then write framed message to real output stream
                 _framer.writeFrameAndReset(conn.getOutputStream());
 
@@ -218,6 +222,10 @@ public class ConnectionManager extends LoopingThread
             try {
                 RunningConnection rconn =
                     new RunningConnection(this, conn.getSocket());
+                // we need to keep using the same object input and output
+                // streams from the beginning of the session because they
+                // have contextual state that needs to be preserved
+                rconn.inheritStreams(conn);
                 // wire this connection up to receive network events
                 _selset.add(rconn.getSelectItem());
 
@@ -357,7 +365,6 @@ public class ConnectionManager extends LoopingThread
 
     protected Queue _outq = new Queue();
     protected FramingOutputStream _framer;
-    protected DataOutputStream _dout;
 
     protected Queue _authq = new Queue();
 

@@ -1,11 +1,12 @@
 //
-// $Id: ObjectAddedEvent.java,v 1.6 2001/10/12 00:03:03 mdb Exp $
+// $Id: ObjectAddedEvent.java,v 1.7 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 
 /**
  * An object added event is dispatched when an object is added to an
@@ -15,11 +16,8 @@ import java.io.IOException;
  *
  * @see DObjectManager#postEvent
  */
-public class ObjectAddedEvent extends TypedEvent
+public class ObjectAddedEvent extends DEvent
 {
-    /** The typed object code for this event. */
-    public static final short TYPE = TYPE_BASE + 4;
-
     /**
      * Constructs a new object added event on the specified target object
      * with the supplied oid list attribute name and object id to add.
@@ -73,26 +71,24 @@ public class ObjectAddedEvent extends TypedEvent
         return true;
     }
 
-    // documentation inherited
-    public short getType ()
-    {
-        return TYPE;
-    }
-
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
+        super.writeObject(out);
         out.writeUTF(_name);
         out.writeInt(_oid);
     }
 
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
+        super.readObject(in);
         _name = in.readUTF();
         _oid = in.readInt();
     }

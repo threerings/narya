@@ -1,14 +1,15 @@
 //
-// $Id: AttributeChangedEvent.java,v 1.11 2002/02/01 23:32:37 mdb Exp $
+// $Id: AttributeChangedEvent.java,v 1.12 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
-import com.threerings.presents.io.ValueMarshaller;
+import com.samskivert.util.StringUtil;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 
 /**
  * An attribute changed event is dispatched when a single attribute of a
@@ -17,11 +18,8 @@ import com.threerings.presents.io.ValueMarshaller;
  *
  * @see DObjectManager#postEvent
  */
-public class AttributeChangedEvent extends TypedEvent
+public class AttributeChangedEvent extends DEvent
 {
-    /** The typed object code for this event. */
-    public static final short TYPE = TYPE_BASE + 1;
-
     /**
      * Constructs a new attribute changed event on the specified target
      * object with the supplied attribute name and value.
@@ -121,28 +119,26 @@ public class AttributeChangedEvent extends TypedEvent
         return true;
     }
 
-    // documentation inherited
-    public short getType ()
-    {
-        return TYPE;
-    }
-
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
+        super.writeObject(out);
         out.writeUTF(_name);
-        ValueMarshaller.writeTo(out, _value);
+        out.writeObject(_value);
     }
 
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
+        super.readObject(in);
         _name = in.readUTF();
-        _value = ValueMarshaller.readFrom(in);
+        _value = in.readObject();
     }
 
     // documentation inherited
@@ -159,7 +155,8 @@ public class AttributeChangedEvent extends TypedEvent
         buf.append("CHANGE:");
         super.toString(buf);
         buf.append(", name=").append(_name);
-        buf.append(", value=").append(_value);
+        buf.append(", value=");
+        StringUtil.toString(buf, _value);
     }
 
     protected String _name;

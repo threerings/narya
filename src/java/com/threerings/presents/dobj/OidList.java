@@ -1,11 +1,13 @@
 //
-// $Id: OidList.java,v 1.4 2001/10/11 04:07:52 mdb Exp $
+// $Id: OidList.java,v 1.5 2002/07/23 05:52:48 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.Streamable;
 
 /**
  * An oid list is used to store lists of object ids. The list will not
@@ -13,7 +15,7 @@ import java.io.IOException;
  * expectation that all modifications of instances will take place on the
  * dobjmgr thread.
  */
-public class OidList
+public class OidList implements Streamable
 {
     /**
      * Creates an empty oid list.
@@ -111,6 +113,28 @@ public class OidList
         return _oids[index];
     }
 
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
+        throws IOException
+    {
+        out.defaultWriteObject();
+        out.writeInt(_size);
+        out.writeObject(_oids);
+    }
+
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
+    {
+        in.defaultReadObject();
+        _size = in.readInt();
+        _oids = (int[])in.readObject();
+    }
+
     public String toString ()
     {
         StringBuffer buf = new StringBuffer();
@@ -130,25 +154,6 @@ public class OidList
         int[] oids = new int[_oids.length*2];
         System.arraycopy(_oids, 0, oids, 0, _oids.length);
         _oids = oids;
-    }
-
-    public void writeTo (DataOutputStream out)
-        throws IOException
-    {
-        out.writeInt(_size);
-        for (int i = 0; i < _size; i++) {
-            out.writeInt(_oids[i]);
-        }
-    }
-
-    public void readFrom (DataInputStream in)
-        throws IOException
-    {
-        _size = in.readInt();
-        _oids = new int[Math.max(DEFAULT_SIZE, _size*2)];
-        for (int i = 0; i < _size; i++) {
-            _oids[i] = in.readInt();
-        }
     }
 
     private int[] _oids;
