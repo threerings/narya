@@ -1,5 +1,5 @@
 //
-// $Id: CastUtil.java,v 1.3 2001/11/27 08:06:57 mdb Exp $
+// $Id: CastUtil.java,v 1.4 2002/02/21 06:01:51 mdb Exp $
 
 package com.threerings.cast.util;
 
@@ -28,7 +28,9 @@ public class CastUtil
     {
         // get all available classes
         ArrayList classes = new ArrayList();
-        CollectionUtil.addAll(classes, crepo.enumerateComponentClasses());
+        for (int i = 0; i < CLASSES.length; i++) {
+            classes.add(crepo.getComponentClass(CLASSES[i]));
+        }
 
         // select the components
         int size = classes.size();
@@ -48,4 +50,7 @@ public class CastUtil
 
         return new CharacterDescriptor(components);
     }
+
+    protected static final String[] CLASSES = {
+        "legs", "feet", "hands", "torso", "head", "hair", "hat" };
 }
