@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.16 2001/12/17 03:33:18 mdb Exp $
+// $Id: IsoUtil.java,v 1.17 2001/12/18 08:38:57 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -53,36 +53,32 @@ public class IsoUtil
     public static Polygon getObjectFootprint (
         IsoSceneViewModel model, Polygon root, ObjectTile tile)
     {
-	Rectangle bounds = root.getBounds();
-        int sx = bounds.x - ((tile.getBaseWidth() - 1) * model.tilehwid);
-        int sy = bounds.y - tile.getHeight() + model.tilehei;
-
         Polygon boundsPoly = new Polygon();
-        int rx = sx, ry = sy;
+	Rectangle bounds = root.getBounds();
 
-        // right point
-        rx = sx + tile.getWidth();
-        ry = bounds.y - ((tile.getBaseHeight() - 2) * model.tilehhei);
-        boundsPoly.addPoint(rx, ry);
+        int bwid = tile.getBaseWidth(), bhei = tile.getBaseHeight();
+        int oox = bounds.x + model.tilehwid, ooy = bounds.y + model.tilehei;
+        int rx = oox, ry = ooy;
 
-        // bottom-middle point
-        rx = bounds.x + model.tilehwid;
-        ry = bounds.y + model.tilehei;
+        // bottom-center point
         boundsPoly.addPoint(rx, ry);
 
         // left point
-        rx = sx;
-        ry = bounds.y - ((tile.getBaseWidth() - 2) * model.tilehhei);
+        rx -= bwid * model.tilehwid;
+        ry -= bwid * model.tilehhei;
         boundsPoly.addPoint(rx, ry);
 
-        // top-middle point
-        rx += (tile.getBaseHeight() * model.tilehwid);
-        ry -= (tile.getBaseHeight() * model.tilehhei);
+        // top-center point
+        rx += bhei * model.tilehwid;
+        ry -= bhei * model.tilehhei;
         boundsPoly.addPoint(rx, ry);
 
         // right point
-        rx = sx + tile.getWidth();
-        ry = bounds.y - ((tile.getBaseHeight() - 2) * model.tilehhei);
+        rx += bwid * model.tilehwid;
+        ry += bwid * model.tilehhei;
+        boundsPoly.addPoint(rx, ry);
+
+        // bottom-center point
         boundsPoly.addPoint(rx, ry);
 
         return boundsPoly;
@@ -104,8 +100,18 @@ public class IsoUtil
         IsoSceneViewModel model, Polygon root, ObjectTile tile)
     {
 	Rectangle bounds = root.getBounds();
-        int sx = bounds.x - ((tile.getBaseWidth() - 1) * model.tilehwid);
-        int sy = bounds.y - tile.getHeight() + model.tilehei;
+
+        // if the tile has an origin, use that, otherwise compute the
+        // origin based on the tile footprint
+        int tox = tile.getOriginX(), toy = tile.getOriginY();
+        if (tox == -1 || toy == -1) {
+            tox = tile.getBaseWidth() * model.tilehwid;
+            toy = tile.getHeight();
+        }
+
+        float slope = (float)model.tilehei / (float)model.tilewid;
+        int oox = bounds.x + model.tilehwid, ooy = bounds.y + model.tilehei;
+        int sx = oox - tox, sy =  ooy - toy;
 
         Polygon boundsPoly = new Polygon();
         int rx = sx, ry = sy;
@@ -118,17 +124,16 @@ public class IsoUtil
         boundsPoly.addPoint(rx, ry);
 
         // bottom-right point
-        ry = bounds.y - ((tile.getBaseHeight() - 2) * model.tilehhei);
+        ry = ooy - (int)((rx-oox) * slope);
         boundsPoly.addPoint(rx, ry);
 
         // bottom-middle point
-        rx = bounds.x + model.tilehwid;
-        ry = bounds.y + model.tilehei;
-        boundsPoly.addPoint(rx, ry);
+        boundsPoly.addPoint(bounds.x + model.tilehwid,
+                            bounds.y + model.tilehei);
 
         // bottom-left point
         rx = sx;
-        ry = bounds.y - ((tile.getBaseWidth() - 2) * model.tilehhei);
+        ry = ooy - (int)(tox * slope);
         boundsPoly.addPoint(rx, ry);
 
         // top-left point
