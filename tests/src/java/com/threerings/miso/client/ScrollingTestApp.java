@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.2 2002/02/18 00:43:23 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.3 2002/02/19 04:45:55 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -81,7 +81,6 @@ public class ScrollingTestApp
         try {
             _panel.setScene(new ScrollingScene(ctx));
             _panel.setScrolling(30, -30);
-            _panel.getModel().showCoords = true;
 
         } catch (Exception e) {
             Log.warning("Error creating scene: " + e);
