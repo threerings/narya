@@ -1,5 +1,5 @@
 //
-// $Id: Card.java,v 1.5 2004/10/15 18:20:28 andrzej Exp $
+// $Id: Card.java,v 1.6 2004/10/22 23:19:07 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -43,7 +43,7 @@ public class Card implements CardCodes,
     
     /**
      * Returns the value of the card, either from 2 to 11 or
-     * KING, QUEEN, JACK, ACE, or JOKER.
+     * KING, QUEEN, JACK, ACE, RED_JOKER, or BLACK_JOKER.
      *
      * @return the value of the card
      */
@@ -54,7 +54,7 @@ public class Card implements CardCodes,
     
     /**
      * Returns the suit of the card: HEARTS, DIAMONDS, CLUBS, or
-     * SPADES.  If the card is the joker, the suit is invalid (-1).
+     * SPADES.  If the card is the joker, the suit is undefined.
      *
      * @return the suit of the card
      */
@@ -104,7 +104,9 @@ public class Card implements CardCodes,
      */
     public boolean isJoker ()
     {
-        return getNumber() == JOKER;
+        int number = getNumber();
+        
+        return number == RED_JOKER || number == BLACK_JOKER;
     }
     
     /**
@@ -117,7 +119,7 @@ public class Card implements CardCodes,
     {
         int number = getNumber(), suit = getSuit();
         
-        return number == JOKER || 
+        return number == RED_JOKER || number == BLACK_JOKER ||
                (number >= 2 && number <= ACE &&
                 suit >= HEARTS && suit <= SPADES);
     }
@@ -167,8 +169,11 @@ public class Card implements CardCodes,
     {
         int number = getNumber();
         
-        if (number == JOKER) {
-            return "Jk";
+        if (number == RED_JOKER) {
+            return "RJ";
+        }
+        else if (number == BLACK_JOKER) {
+            return "BJ";
         }
         else {
             StringBuffer sb = new StringBuffer();

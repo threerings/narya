@@ -1,5 +1,5 @@
 //
-// $Id: CardCodes.java,v 1.1 2004/10/13 02:03:26 andrzej Exp $
+// $Id: CardCodes.java,v 1.2 2004/10/22 23:19:07 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -52,8 +52,11 @@ public interface CardCodes extends InvocationCodes
     /** The number of the ace. */
     public static final int ACE = 14;
     
-    /** The number of the joker. */
-    public static final int JOKER = 15;
+    /** The number of the red joker. */
+    public static final int RED_JOKER = 15;
+    
+    /** The number of the black joker. */
+    public static final int BLACK_JOKER = 16;
     
     /** A message that carries a Hand of cards to a player. */
     public static final String TAKE_HAND = "take_hand";

@@ -1,5 +1,5 @@
 //
-// $Id: Deck.java,v 1.4 2004/10/15 18:20:28 andrzej Exp $
+// $Id: Deck.java,v 1.5 2004/10/22 23:19:07 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -79,8 +79,8 @@ public class Deck implements CardCodes,
         }
         
         if (includeJokers) {
-            cards.add(new Card(JOKER, -1));
-            cards.add(new Card(JOKER, -1));
+            cards.add(new Card(RED_JOKER, 0));
+            cards.add(new Card(BLACK_JOKER, 0));
         }
     }
     
