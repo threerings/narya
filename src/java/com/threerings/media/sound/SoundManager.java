@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.61 2003/05/03 00:13:04 ray Exp $
+// $Id: SoundManager.java,v 1.62 2003/05/09 03:24:12 mdb Exp $
 
 package com.threerings.media.sound;
 
@@ -423,8 +423,11 @@ public class SoundManager
                 uafe + "].");
 
         } catch (LineUnavailableException lue) {
-            Log.warning("Line not available to play sound [key=" + key +
-                ", e=" + lue + "].");
+            // this error comes every goddamned time we play a sound on
+            // someone with a misconfigured sound card, so let's just keep
+            // it to ourselves
+            Log.debug("Line not available to play sound [key=" + key +
+                      ", e=" + lue + "].");
         }
     }
 

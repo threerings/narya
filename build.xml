@@ -107,6 +107,8 @@
      executable="make"/>
     <exec dir="src/java/com/threerings/util/signal/i686-Linux" 
      executable="make"/>
+    <exec dir="src/java/com/threerings/util/unsafe/i686-Linux" 
+     executable="make"/>
   </target>
 
   <!-- build the javadoc documentation -->
@@ -183,8 +185,7 @@
   <target name="hierviz" depends="prepare,compile">
     <taskdef name="viztool" classname="com.samskivert.viztool.DriverTask"/>
     <viztool visualizer="com.samskivert.viztool.hierarchy.HierarchyVisualizer"
-      pkgroot="com.threerings"
-      classes="com.threerings.*"
+      pkgroot="com.threerings.miso" classes="com.threerings.miso.*"
       output="hierviz.ps">
       <classpath refid="classpath"/>
     </viztool>
@@ -194,10 +195,10 @@
   <target name="sumgen" depends="prepare,compile">
     <taskdef name="viztool" classname="com.samskivert.viztool.DriverTask"/>
     <viztool visualizer="com.samskivert.viztool.summary.SummaryVisualizer"
-      pkgroot="com.threerings"
-      classes=".*Director$"
+      pkgroot="com.threerings.miso"
+      classes="com.threerings.miso.*Scene.*"
       output="summary.ps">
-      <classpath refid="classpath"/>
+      <classpath refid="base.classpath"/>
     </viztool>
   </target>
 
