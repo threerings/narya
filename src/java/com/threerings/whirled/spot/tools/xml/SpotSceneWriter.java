@@ -1,59 +1,86 @@
 //
-// $Id: SpotSceneWriter.java,v 1.2 2001/11/29 06:38:35 mdb Exp $
+// $Id: SpotSceneWriter.java,v 1.3 2001/12/05 04:45:13 mdb Exp $
 
 package com.threerings.whirled.tools.spot.xml;
 
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.AttributesImpl;
+
 import com.megginson.sax.DataWriter;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.whirled.spot.data.Location;
+import com.threerings.whirled.spot.data.Portal;
+
+import com.threerings.whirled.tools.EditableScene;
+import com.threerings.whirled.tools.spot.EditablePortal;
+import com.threerings.whirled.tools.spot.EditableSpotScene;
 import com.threerings.whirled.tools.xml.SceneWriter;
-import com.threerings.whirled.spot.data.SpotSceneModel;
 
 /**
- * Generates an XML representation of a {@link SpotSceneModel}.
+ * Generates an XML representation of an {@link EditableSpotScene}.
  */
 public class SpotSceneWriter extends SceneWriter
 {
-    /**
-     * Writes the data for the supplied {@link SpotSceneModel} to the XML
-     * writer supplied. The writer will already be configured with the
-     * appropriate indentation level so that this writer can simply output
-     * its elements and allow the calling code to determine where in the
-     * greater scene description file the scene data should live.
-     */
-    public void writeScene (SpotSceneModel model, DataWriter writer)
+    protected void addSceneAttributes (
+        EditableScene scene, AttributesImpl attrs)
+    {
+        super.addSceneAttributes(scene, attrs);
+        EditableSpotScene sscene = (EditableSpotScene)scene;
+        attrs.addAttribute("", "defaultEntranceId", "", "",
+                           Integer.toString(sscene.getDefaultEntranceId()));
+    }
+
+    protected void writeSceneData (EditableScene scene, DataWriter writer)
         throws SAXException
     {
-        writer.startElement("spot");
-        writeSceneData(model, writer);
-        writer.endElement("spot");
+        // we don't want to write our superclass scene data because it
+        // writes out neighbors info which we deal with differently, so we
+        // mean not to call super.writeSceneData()
+
+        EditableSpotScene sscene = (EditableSpotScene)scene;
+
+        // write out the location info
+        Location[] locs = sscene.getLocations();
+        for (int i = 0; i < locs.length; i++) {
+            Location loc = locs[i];
+            // skip portals as we'll get those on the next run
+            if (loc instanceof EditablePortal) {
+                continue;
+            }
+
+            AttributesImpl attrs = new AttributesImpl();
+            addSharedAttrs(attrs, loc);
+            attrs.addAttribute("", "clusterIndex", "", "",
+                               Integer.toString(loc.clusterIndex));
+            writer.emptyElement("", "location", "", attrs);
+        }
+
+        // write out the portal info
+        Portal[] ports = sscene.getPortals();
+        for (int i = 0; i < ports.length; i++) {
+            EditablePortal port = (EditablePortal)ports[i];
+            AttributesImpl attrs = new AttributesImpl();
+            addSharedAttrs(attrs, port);
+            attrs.addAttribute("", "targetSceneName", "", "",
+                               port.targetSceneName);
+            attrs.addAttribute("", "targetPortalName", "", "",
+                               port.targetPortalName);
+            writer.emptyElement("", "location", "", attrs);
+        }
     }
 
     /**
-     * Writes just the scene data which is handy for derived classes which
-     * may wish to add their own scene data to the scene output.
+     * Adds the attributes that are shared between location and portal
+     * elements.
      */
-    protected void writeSceneData (SpotSceneModel model, DataWriter writer)
-        throws SAXException
+    protected void addSharedAttrs (AttributesImpl attrs, Location loc)
     {
-        super.writeSceneData(model, writer);
-
-        writer.dataElement("locationIds",
-                           StringUtil.toString(model.locationIds, "", ""));
-        writer.dataElement("locationX",
-                           StringUtil.toString(model.locationX, "", ""));
-        writer.dataElement("locationY",
-                           StringUtil.toString(model.locationY, "", ""));
-        writer.dataElement("locationOrients",
-                           StringUtil.toString(model.locationOrients, "", ""));
-        writer.dataElement("locationClusters",
-                           StringUtil.toString(model.locationClusters, "", ""));
-        writer.dataElement("defaultEntranceId",
-                           Integer.toString(model.defaultEntranceId));
-        writer.dataElement("portalIds",
-                           StringUtil.toString(model.portalIds, "", ""));
-        writer.dataElement("targetLocIds",
-                           StringUtil.toString(model.targetLocIds, "", ""));
+        attrs.addAttribute("", "locationId", "", "",
+                           Integer.toString(loc.locationId));
+        attrs.addAttribute("", "x", "", "", Integer.toString(loc.x));
+        attrs.addAttribute("", "y", "", "", Integer.toString(loc.y));
+        attrs.addAttribute("", "orientation", "", "",
+                           Integer.toString(loc.orientation));
     }
 }
