@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneUtil.java,v 1.1 2002/06/20 22:14:58 mdb Exp $
+// $Id: SpotSceneUtil.java,v 1.2 2002/06/25 01:41:59 ray Exp $
 
 package com.threerings.whirled.spot.util;
 
@@ -81,6 +81,38 @@ public class SpotSceneUtil
         } else if (preferClusters) {
             // retry without the preference
             return getUnoccupiedLocation(model, occupiedLocs, false);
+
+        } else {
+            return -1; // we didn't find anything.
+        }
+    }
+
+    /**
+     * Return an unoccupied location within the specified cluster.
+     */
+    public static int getUnoccupiedLocation (
+        SpotSceneModel model, DSet occupantInfo, int clusterId)
+    {
+        ArrayIntSet locs = new ArrayIntSet();
+
+        // only add locations with a valid cluster Id
+        for (int ii=0; ii < model.locationIds.length; ii++) {
+            if (model.locationClusters[ii] == clusterId) {
+                locs.add(model.locationIds[ii]);
+            }
+        }
+
+        // remove any occupied locations
+        Iterator iter = occupantInfo.entries();
+        while (iter.hasNext()) {
+            SpotOccupantInfo yoi = (SpotOccupantInfo)iter.next();
+            locs.remove(yoi.locationId);
+        }
+
+        // if there are locations left, pick one at random
+        int size = locs.size();
+        if (size > 0) {
+           return locs.get(RandomUtil.getInt(size));
 
         } else {
             return -1; // we didn't find anything.
