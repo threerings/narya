@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.10 2002/03/08 18:13:14 mdb Exp $
+// $Id: TileUtil.java,v 1.11 2002/03/10 22:31:21 mdb Exp $
 
 package com.threerings.cast.util;
 
@@ -60,8 +60,10 @@ public class TileUtil
                 if (zations != null) {
                     for (int i = 0; i < zations.length; i++) {
                         Colorization cz = zations[i];
-                        simg = ImageUtil.recolorImage(
-                            simg, cz.rootColor, cz.range, cz.offsets);
+                        if (zations[i] != null) {
+                            simg = ImageUtil.recolorImage(
+                                simg, cz.rootColor, cz.range, cz.offsets);
+                        }
                     }
                 }
 
