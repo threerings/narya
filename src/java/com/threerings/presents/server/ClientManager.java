@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.31 2003/03/30 21:27:23 mdb Exp $
+// $Id: ClientManager.java,v 1.32 2003/07/22 02:50:49 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -343,6 +343,22 @@ public class ClientManager
             Log.info("Closed unmapped connection '" + conn + "'. " +
                      "Client probably not yet authenticated.");
         }
+    }
+
+    /**
+     * Returns the number of client sessions (some may be disconnected).
+     */
+    public int getClientCount ()
+    {
+        return _usermap.size();
+    }
+
+    /**
+     * Returns the number of connected clients.
+     */
+    public int getConnectionCount ()
+    {
+        return _conmap.size();
     }
 
     // documentation inherited from interface PresentsServer.Reporter
