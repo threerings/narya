@@ -130,3 +130,22 @@ Presents Notes -*- outline -*-
   because we don't want unnecessary error introduced into our ping and
   pong time stamps by the unreliable granularity of
   System.currentTimeMillis().
+
+* 7/8/2002
+** Improved invocation services
+- Adding remote method call support to distributed objects doesn't allow
+  us to separate interface from implementation; DObject classes are shared
+  on the client and server by definition; whereas we would want an
+  interface that could be known on the client and the interface and
+  implementation known on the server
+
+- Perhaps RMI could somehow be rolled into the DObject system... more
+  likely we'd want to automate the process of instantiating the
+  implementation on the server and the proxy on the client and wouldn't
+  want to use their object registry; we'd also want to do method dispatch
+  on the omgr thread and use our messaging services
+
+* 7/15/2002
+** BEEP!
+- Look into replacing low-level network protocol with BEEP (and rolling
+  our performance enhancements into BEEP's implementation if necessary)
