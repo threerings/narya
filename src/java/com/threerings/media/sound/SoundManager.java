@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.15 2002/11/15 21:38:31 ray Exp $
+// $Id: SoundManager.java,v 1.16 2002/11/16 00:13:47 ray Exp $
 
 package com.threerings.media;
 
@@ -136,11 +136,11 @@ public class SoundManager
                             stopSequence(path);
 
                         } else if (LOCK == command) {
-                            _dataCache.lock(path);
-                            getAudioData(path); // preload
+                            _clipCache.lock(path);
+                            getClipData(path); // preload
 
                         } else if (UNLOCK == command) {
-                            _dataCache.unlock(path);
+                            _clipCache.unlock(path);
 
                         } else if (FLUSH == command) {
                             flushResources(false);
@@ -337,24 +337,18 @@ public class SoundManager
         }
 
         // get the sound data from our LRU cache
-        Object[] stuff = getAudioData(path);
-        if (stuff == null) {
+        ClipInfo info = getClipData(path);
+        if (info == null) {
             return; // borked!
         }
 
         try {
-            DataLine.Info info = (DataLine.Info) stuff[0];
-            AudioInputStream stream = (AudioInputStream) stuff[1];
-
-            Clip clip = (Clip) AudioSystem.getLine(info);
-            clip.open(stream);
+            Clip clip = (Clip) AudioSystem.getLine(info.info);
+            clip.open(info.stream);
 
             SoundRecord rec = new SoundRecord(path, clip);
             rec.start(_clipVol);
             _activeClips.add(rec);
-
-            // and rewind the stream to the beginning for next time
-            stream.reset();
 
         } catch (IOException ioe) {
             Log.warning("Error loading sound file [path=" + path +
@@ -414,8 +408,8 @@ public class SoundManager
         try {
             _sequencer.setSequence(getResource(path));
             _sequencer.start();
-            //updateMusicVolume();
             _midiStack.addFirst(path);
+            updateMusicVolume();
 
         } catch (InvalidMidiDataException imda) {
             Log.warning("Invalid midi data, not playing [path=" + path + "].");
@@ -481,7 +475,7 @@ public class SoundManager
         } else {
             int setting = (int) (_musicVol * 127.0);
             for (int ii=0; ii < _midiChannels.length; ii++) {
-                _midiChannels[ii].controlChange(7, setting);
+                _midiChannels[ii].controlChange(MIDI_VOLUME_CONTROL, setting);
             }
         }
     }
@@ -489,15 +483,13 @@ public class SoundManager
     // documentation inherited from interface MetaEventListener
     public void meta (MetaMessage msg)
     {
-        if (msg.getType() == MIDI_END_OF_TRACK) {
-            // loop that puppy
-//            _sequencer.stop();
-//            _sequencer.setTickPosition(0);
-            _sequencer.start();
-        }
-//
 //        Log.info("meta message: " + msg.getType() + ", msg=" +
 //                    new String(msg.getData()));
+
+        if (msg.getType() == MIDI_END_OF_TRACK) {
+            // loop that puppy
+            playSequence((String) _midiStack.removeFirst());
+        }
     }
 
     /**
@@ -523,20 +515,27 @@ public class SoundManager
     /**
      * Get the audio data for the specified path.
      */
-    protected Object[] getAudioData (String path)
+    protected ClipInfo getClipData (String path)
     {
-        Object[] stuff = (Object[]) _dataCache.get(path);
-        if (stuff != null) {
-            return stuff;
+        ClipInfo info = (ClipInfo) _clipCache.get(path);
+        if (info != null) {
+            // we are re-using an old stream, make sure to rewind it.
+            try {
+                info.stream.reset();
+            } catch (IOException ioe) {
+                Log.warning("Couldn't reset audio stream! " + 
+                    "(this shouldn't happen)");
+            }
+            return info;
         }
 
         try {
             AudioInputStream stream = AudioSystem.getAudioInputStream(
                 getResource(path));
-            DataLine.Info info = new DataLine.Info(
+            DataLine.Info dinfo = new DataLine.Info(
                 Clip.class, stream.getFormat());
-            stuff = new Object[] { info, stream };
-            _dataCache.put(path, stuff);
+            info = new ClipInfo(dinfo, stream);
+            _clipCache.put(path, info);
 
         } catch (UnsupportedAudioFileException uafe) {
             Log.warning("Unsupported sound format [path=" + path + ", e=" +
@@ -547,7 +546,7 @@ public class SoundManager
                 ioe + "].");
         }
 
-        return stuff;
+        return info;
     }
 
     /**
@@ -767,6 +766,24 @@ public class SoundManager
     }
 
     /**
+     * A wee helper class that holds clip information in our cache.
+     */
+    protected static class ClipInfo
+    {
+        /** The information needed to construct a clip from the stream. */
+        public DataLine.Info info;
+
+        /** The data to be used to make the clip. */
+        public AudioInputStream stream;
+
+        public ClipInfo (DataLine.Info info, AudioInputStream stream)
+        {
+            this.info = info;
+            this.stream = stream;
+        }
+    }
+
+    /**
      * Every 3 seconds we look for sounds that haven't been used for 4 and
      * free them up.
      */
@@ -792,7 +809,7 @@ public class SoundManager
     protected float _clipVol = 1f, _musicVol = 1f;
     
     /** The cache of recent audio clips . */
-    protected LockableLRUHashMap _dataCache = new LockableLRUHashMap(10);
+    protected LockableLRUHashMap _clipCache = new LockableLRUHashMap(10);
 
     /** The clips that are currently active. */
     protected ArrayList _activeClips = new ArrayList();
@@ -821,6 +838,9 @@ public class SoundManager
 
     /** This is apparently the midi code for end of track. Wack. */
     protected static final int MIDI_END_OF_TRACK = 47;
+
+    /** The midi control for volume is 7. Ooooooo. */
+    protected static final int MIDI_VOLUME_CONTROL = 7;
 
     /** The queue size at which we start to ignore requests to play sounds. */
     protected static final int MAX_QUEUE_SIZE = 100;
