@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.36 2002/09/16 23:34:25 mdb Exp $
+// $Id: PresentsClient.java,v 1.37 2002/09/18 01:10:27 shaper Exp $
 
 package com.threerings.presents.server;
 
@@ -347,7 +347,7 @@ public class PresentsClient
      *
      * <p><em>Note:</em> This function will be called on the dobjmgr
      * thread which means that object manipulations are OK, but client
-     * instance manipulations must done carefully.
+     * instance manipulations must be done carefully.
      */
     protected void populateBootstrapData (BootstrapData data)
     {
