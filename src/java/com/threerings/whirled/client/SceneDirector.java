@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.2 2001/08/15 02:13:12 mdb Exp $
+// $Id: SceneDirector.java,v 1.3 2001/10/01 22:16:02 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -9,7 +9,7 @@ import com.threerings.cocktail.cher.dobj.DObject;
 import com.threerings.cocktail.cher.dobj.ObjectAccessException;
 import com.threerings.cocktail.cher.util.IntMap;
 
-import com.threerings.cocktail.party.client.LocationManager;
+import com.threerings.cocktail.party.client.LocationDirector;
 import com.threerings.cocktail.party.client.LocationObserver;
 import com.threerings.cocktail.party.data.PlaceObject;
 
@@ -20,24 +20,25 @@ import com.threerings.whirled.data.Scene;
 import com.threerings.whirled.util.WhirledContext;
 
 /**
- * The scene manager is the client's interface to all things scene
+ * The scene director is the client's interface to all things scene
  * related. It interfaces with the scene repository to ensure that scene
  * objects are available when the client enters a particular scene. It
  * handles moving from scene to scene (it extends and replaces the
- * location manager in order to do this).
+ * location director in order to do this).
  *
- * <p> Note that when the scene manager is in use instead of the location
- * manager, scene ids instead of place oids will be supplied to {@link
+ * <p> Note that when the scene director is in use instead of the location
+ * director, scene ids instead of place oids will be supplied to {@link
  * com.threerings.cocktail.party.client.LocationObserver#locationMayChange}
  * and {@link
  * com.threerings.cocktail.party.client.LocationObserver#locationChangeFailed}.
  */
-public class SceneManager extends LocationManager
+public class SceneDirector
+    extends LocationDirector implements SceneCodes
 {
     /**
-     * Creates a new scene manager with the specified context.
+     * Creates a new scene director with the specified context.
      */
-    public SceneManager (WhirledContext ctx, SceneRepository screp)
+    public SceneDirector (WhirledContext ctx, SceneRepository screp)
     {
         super(ctx);
 

@@ -1,22 +1,23 @@
 //
-// $Id: SceneProvider.java,v 1.1 2001/08/11 04:09:50 mdb Exp $
+// $Id: SceneProvider.java,v 1.2 2001/10/01 22:16:02 mdb Exp $
 
 package com.threerings.whirled.server;
 
 import com.threerings.cocktail.cher.server.InvocationProvider;
-import com.threerings.cocktail.cher.util.Codes;
 
 import com.threerings.cocktail.party.data.BodyObject;
 import com.threerings.cocktail.party.data.PlaceObject;
 import com.threerings.cocktail.party.server.LocationProvider;
 
 import com.threerings.whirled.Log;
+import com.threerings.whirled.client.SceneCodes;
 
 /**
  * The scene provider handles the server side of the scene related
  * invocation services (e.g. moving from scene to scene).
  */
-public class SceneProvider extends InvocationProvider
+public class SceneProvider
+    extends InvocationProvider implements SceneCodes
 {
     /**
      * Processes a request from a client to move to a new scene.
@@ -45,8 +46,8 @@ public class SceneProvider extends InvocationProvider
                 Log.warning("Unable to resolve scene [sceneid=" + rsceneId +
                             ", reason=" + reason + "].");
                 // pretend like the scene doesn't exist to the client
-                sendResponse(fsource, finvid, "MoveFailed",
-                             "m.no_such_place");
+                sendResponse(fsource, finvid, MOVE_FAILED_RESPONSE,
+                             NO_SUCH_PLACE);
             }
         };
 
@@ -70,14 +71,15 @@ public class SceneProvider extends InvocationProvider
         String rcode = LocationProvider.moveTo(source, ploid);
 
         // if the move failed, let them know
-        if (!rcode.equals(Codes.SUCCESS)) {
-            sendResponse(source, invid, "MoveFailed", rcode);
+        if (!rcode.equals(SUCCESS)) {
+            sendResponse(source, invid, MOVE_FAILED_RESPONSE, rcode);
             return;
         }
 
         // otherwise check to see if they need a newer version of the
         // scene data
 
-        sendResponse(source, invid, "MoveSucceeded", new Integer(ploid));
+        sendResponse(source, invid, MOVE_SUCCEEDED_RESPONSE,
+                     new Integer(ploid));
     }
 }

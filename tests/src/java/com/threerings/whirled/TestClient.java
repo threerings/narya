@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.2 2001/08/20 22:10:49 mdb Exp $
+// $Id: TestClient.java,v 1.3 2001/10/01 22:16:02 mdb Exp $
 
 package com.threerings.whirled.client.test;
 
@@ -14,7 +14,7 @@ import com.threerings.cocktail.party.Log;
 import com.threerings.cocktail.party.client.*;
 import com.threerings.cocktail.party.data.PlaceObject;
 
-import com.threerings.whirled.client.SceneManager;
+import com.threerings.whirled.client.SceneDirector;
 import com.threerings.whirled.client.persist.SceneRepository;
 import com.threerings.whirled.util.WhirledContext;
 
@@ -31,13 +31,13 @@ public class TestClient
         _client = new Client(creds, this);
         _screp = new DummySceneRepository();
         _occmgr = new OccupantManager(_ctx);
-        _scmgr = new SceneManager(_ctx, _screp);
+        _scdir = new SceneDirector(_ctx, _screp);
 
         // we want to know about logon/logoff
         _client.addObserver(this);
 
         // we want to know about location changes
-        _scmgr.addLocationObserver(this);
+        _scdir.addLocationObserver(this);
 
         // for test purposes, hardcode the server info
         _client.setServer("localhost", 4007);
@@ -66,7 +66,7 @@ public class TestClient
         Log.info("Client did logon [client=" + client + "].");
 
         // request to move to scene 0
-        _ctx.getSceneManager().moveTo(0);
+        _ctx.getSceneDirector().moveTo(0);
     }
 
     public void clientFailedToLogon (Client client, Exception cause)
@@ -102,7 +102,7 @@ public class TestClient
     public void locationDidChange (PlaceObject place)
     {
         Log.info("At new location [plobj=" + place +
-                 ", scene=" + _scmgr.getScene() + "].");
+                 ", scene=" + _scdir.getScene() + "].");
     }
 
     public void locationChangeFailed (int placeId, String reason)
@@ -138,9 +138,9 @@ public class TestClient
             return _client.getDObjectManager();
         }
 
-        public LocationManager getLocationManager ()
+        public LocationDirector getLocationDirector ()
         {
-            return _scmgr;
+            return _scdir;
         }
 
         public OccupantManager getOccupantManager ()
@@ -148,15 +148,15 @@ public class TestClient
             return _occmgr;
         }
 
-        public SceneManager getSceneManager ()
+        public SceneDirector getSceneDirector ()
         {
-            return _scmgr;
+            return _scdir;
         }
     }
 
     protected Config _config;
     protected Client _client;
-    protected SceneManager _scmgr;
+    protected SceneDirector _scdir;
     protected OccupantManager _occmgr;
     protected SceneRepository _screp;
     protected WhirledContext _ctx;

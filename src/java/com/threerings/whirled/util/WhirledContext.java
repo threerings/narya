@@ -1,10 +1,10 @@
 //
-// $Id: WhirledContext.java,v 1.1 2001/08/14 06:51:07 mdb Exp $
+// $Id: WhirledContext.java,v 1.2 2001/10/01 22:16:02 mdb Exp $
 
 package com.threerings.whirled.util;
 
 import com.threerings.cocktail.party.util.PartyContext;
-import com.threerings.whirled.client.SceneManager;
+import com.threerings.whirled.client.SceneDirector;
 
 /**
  * The whirled context provides access to the various managers, etc. that
@@ -13,7 +13,7 @@ import com.threerings.whirled.client.SceneManager;
 public interface WhirledContext extends PartyContext
 {
     /**
-     * Returns a reference to the scene manager.
+     * Returns a reference to the scene director.
      */
-    public SceneManager getSceneManager ();
+    public SceneDirector getSceneDirector ();
 }
