@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaApp.java,v 1.2 2001/10/25 23:03:29 mdb Exp $
+// $Id: MiCasaApp.java,v 1.3 2001/10/25 23:21:32 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -7,6 +7,7 @@ import java.io.IOException;
 import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.presents.client.Client;
+import com.threerings.presents.client.ClientAdapter;
 import com.threerings.presents.net.Credentials;
 import com.threerings.presents.net.UsernamePasswordCreds;
 
@@ -36,14 +37,27 @@ public class MiCasaApp
         SwingUtil.centerWindow(_frame);
         _frame.show();
 
+        Client client = _client.getContext().getClient();
+
+        // we want to exit when we logged off or failed to log on
+        client.addObserver(new ClientAdapter() {
+            public void clientFailedToLogon (Client c, Exception cause) {
+                System.exit(0);
+            }
+            public void clientDidLogoff (Client c) {
+                System.exit(0);
+            }
+        });
+
         // configure the client with some credentials and logon
         String username = System.getProperty("username");
         if (username == null) {
             username =
                 "bob" + ((int)(Math.random() * Integer.MAX_VALUE) % 500);
         }
+
+        // create and set our credentials
         Credentials creds = new UsernamePasswordCreds(username, "test");
-        Client client = _client.getContext().getClient();
         client.setCredentials(creds);
         client.logon();
     }

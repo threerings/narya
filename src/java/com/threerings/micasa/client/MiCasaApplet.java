@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaApplet.java,v 1.1 2001/10/25 23:03:48 mdb Exp $
+// $Id: MiCasaApplet.java,v 1.2 2001/10/25 23:21:32 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -7,7 +7,10 @@ import java.applet.Applet;
 import java.io.IOException;
 import com.samskivert.swing.util.SwingUtil;
 
+import com.threerings.presents.client.Client;
+import com.threerings.presents.client.ClientAdapter;
 import com.threerings.presents.net.UsernamePasswordCreds;
+
 import com.threerings.micasa.Log;
 
 /**
@@ -37,9 +40,19 @@ public class MiCasaApplet extends Applet
                 throw new IOException("Missing authkey parameter.");
             }
 
-            // create our credentials
-            _client.getContext().getClient().setCredentials(
+            Client client = _client.getContext().getClient();
+
+            // create and set our credentials
+            client.setCredentials(
                 new UsernamePasswordCreds(username, authkey));
+
+            // we want to hide the client frame when we logoff
+            client.addObserver(new ClientAdapter() {
+                public void clientDidLogoff (Client c)
+                {
+                    _frame.setVisible(false);
+                }
+            });
 
         } catch (IOException ioe) {
             Log.warning("Unable to create client.");
