@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.42 2004/06/18 17:41:39 mdb Exp $
+// $Id: ResourceManager.java,v 1.43 2004/07/13 16:37:40 mdb Exp $
 
 package com.threerings.resource;
 
@@ -28,7 +28,7 @@ import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 
-import org.apache.commons.io.StreamUtils;
+import org.apache.commons.io.CopyUtils;
 
 import com.samskivert.util.ResultListener;
 import com.samskivert.util.StringUtil;
@@ -299,7 +299,7 @@ public class ResourceManager
         try {
             if (curl != null) {
                 // download the properties file into a buffer
-                StreamUtils.pipe(curl.openStream(), bout);
+                CopyUtils.copy(curl.openStream(), bout);
                 config.load(new ByteArrayInputStream(bout.toByteArray()));
             }
 

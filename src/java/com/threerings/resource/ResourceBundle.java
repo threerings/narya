@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.28 2004/07/03 03:21:05 mdb Exp $
+// $Id: ResourceBundle.java,v 1.29 2004/07/13 16:37:40 mdb Exp $
 
 package com.threerings.resource;
 
@@ -19,7 +19,7 @@ import com.samskivert.io.StreamUtil;
 import com.samskivert.util.FileUtil;
 import com.samskivert.util.StringUtil;
 
-import org.apache.commons.io.StreamUtils;
+import org.apache.commons.io.CopyUtils;
 
 /**
  * A resource bundle provides access to the resources in a jar file.
@@ -148,7 +148,7 @@ public class ResourceBundle
                     fout = new BufferedOutputStream(
                         new FileOutputStream(efile));
                     jin = _jarSource.getInputStream(entry);
-                    StreamUtils.pipe(jin, fout);
+                    CopyUtils.copy(jin, fout);
                 } catch (Exception e) {
                     Log.warning("Failure unpacking " + efile + ": " + e);
                     failure = true;
@@ -280,7 +280,7 @@ public class ResourceBundle
         BufferedOutputStream fout =
             new BufferedOutputStream(new FileOutputStream(tfile));
         InputStream jin = _jarSource.getInputStream(entry);
-        StreamUtils.pipe(jin, fout);
+        CopyUtils.copy(jin, fout);
         jin.close();
         fout.close();
 
