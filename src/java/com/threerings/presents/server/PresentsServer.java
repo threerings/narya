@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.31 2003/03/30 20:40:47 mdb Exp $
+// $Id: PresentsServer.java,v 1.32 2003/03/30 21:27:13 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -209,7 +209,7 @@ public class PresentsServer
      * participants will be shut down, following which the server process
      * will be terminated.
      */
-    public static void shutdown ()
+    public void shutdown ()
     {
         // shut down the connection manager (this will cease all network
         // activity but not actually close the connections)
