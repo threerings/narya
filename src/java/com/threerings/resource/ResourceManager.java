@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.32 2003/08/05 01:33:20 mdb Exp $
+// $Id: ResourceManager.java,v 1.33 2003/08/09 00:31:14 mdb Exp $
 
 package com.threerings.resource;
 
@@ -118,9 +118,23 @@ public class ResourceManager
         public void downloadProgress (int percent, long remaining);
 
         /**
-         * Called following the call to {@link #dowloadProgress} of 100
-         * percent completion to indicate that we have validated and
-         * unpacked our bundles and are fully ready to go.
+         * Called to inform the observer that the bundle patching process
+         * has begun. This follows the download phase, but is optional.
+         */
+        public void patching ();
+
+        /**
+         * Called to inform the observer that the bundle unpacking process
+         * has begun. This follows the download or patching phase.
+         */
+        public void unpacking ();
+
+        /**
+         * Called to indicate that we have validated and unpacked our
+         * bundles and are fully ready to go. A call to {@link
+         * #dowloadProgress} with 100 percent completion is guaranteed to
+         * precede this call and optionally one to {@link #patching} and
+         * {@link #unpacking}.
          */
         public void downloadComplete ();
 
@@ -362,7 +376,7 @@ public class ResourceManager
             public void downloadProgress (int percent, long remaining) {
             }
 
-            public void patchingProgress (int percent) {
+            public void patching () {
             }
 
             public void postDownloadHook () {
@@ -419,7 +433,7 @@ public class ResourceManager
                 // nothing for now
             }
 
-            public void patchingProgress (int percent) {
+            public void patching () {
                 // nothing for now
             }
 
@@ -480,12 +494,12 @@ public class ResourceManager
                 obs.downloadProgress(percent, remaining);
             }
 
-            public void patchingProgress (int percent) {
-                // TODO:
-                // obs.patchingProgress(percent)?
+            public void patching () {
+                obs.patching();
             }
 
             public void postDownloadHook () {
+                obs.unpacking();
                 bundlesDownloaded();
             }
 

@@ -1,5 +1,5 @@
 //
-// $Id: DownloadManager.java,v 1.11 2003/08/08 17:45:00 mdb Exp $
+// $Id: DownloadManager.java,v 1.12 2003/08/09 00:31:14 mdb Exp $
 
 package com.threerings.resource;
 
@@ -61,9 +61,10 @@ public class DownloadManager
         public void downloadProgress (int percent, long remaining);
 
         /**
-         * Called on the download thread during the patching of jar files.
+         * Called on the download thread when the patching of jar files
+         * has begun.
          */
-        public void patchingProgress (int percent);
+        public void patching ();
 
         /**
          * Called after the download and patching has completed on the
@@ -277,7 +278,6 @@ public class DownloadManager
         }
 
         // now go through and do the post-download phase
-        IOException failure = null;
         DownloadDescriptor fdesc = null;
         for (int ii = 0; ii < size; ii++) {
             Downloader loader = (Downloader)fetch.get(ii);
@@ -288,7 +288,6 @@ public class DownloadManager
                 // can, so we don't fail entirely here, just keep track of
                 // the last failure and report that when we're done
                 fdesc = loader.getDescriptor();
-                failure = ioe;
                 Log.warning("Downloader failed in postDownload hook " +
                             "[desc=" + fdesc + "].");
                 Log.logStackTrace(ioe);
@@ -296,8 +295,10 @@ public class DownloadManager
         }
 
         // if we had any failure, go ahead and report it now
-        if (failure != null) {
-            notifyFailed(obs, fdesc, failure);
+        if (fdesc != null) {
+            PatchException pe = new PatchException(
+                "Failed to patch one or more updated bundles.");
+            notifyFailed(obs, fdesc, pe);
 
         } else {
             // make sure to always let the observer know that we've
