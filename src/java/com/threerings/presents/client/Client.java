@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.42 2003/09/25 15:57:38 mdb Exp $
+// $Id: Client.java,v 1.43 2003/09/30 22:18:18 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -297,6 +297,17 @@ public class Client
         // when we calcuated our time delta, we did it such that: C - S =
         // dT, thus to convert server to client time we do: C = S + dT
         return stamp + _serverDelta;
+    }
+
+    /**
+     * Converts a client clock reading to a value comparable to a server
+     * time stamp.
+     */
+    public long toServerTime (long stamp)
+    {
+        // when we calcuated our time delta, we did it such that: C - S =
+        // dT, thus to convert server to client time we do: S = C - dT
+        return stamp - _serverDelta;
     }
 
     /**
