@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.3 2002/06/19 02:34:39 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.4 2002/06/19 07:41:37 mdb Exp $
 
 package com.threerings.media;
 
@@ -168,11 +168,9 @@ public class VirtualMediaPanel extends MediaPanel
     // documentation inherited
     protected void paint (Graphics2D gfx, Rectangle[] dirty)
     {
-        int width = getWidth(), height = getHeight();
-        int dcount = dirty.length;
-
         // if we're scrolling, go ahead and do the business
         if (_dx != 0 || _dy != 0) {
+            int width = getWidth(), height = getHeight();
             int cx = (_dx > 0) ? _dx : 0;
             int cy = (_dy > 0) ? _dy : 0;
 
@@ -190,14 +188,6 @@ public class VirtualMediaPanel extends MediaPanel
             _dx = 0; _dy = 0;
         }
 
-        // clip the dirty regions to the viewport
-        for (int ii = 0; ii < dcount; ii++) {
-            SwingUtilities.computeIntersection(
-                _tx, _ty, width, height, dirty[ii]);
-//             Log.info("Intersected [rect=" + StringUtil.toString(dirty[ii]) +
-//                      ", tx=" + _tx + ", ty=" + _ty + "].");
-        }
-
         // translate into happy space
         gfx.translate(-_tx, -_ty);
 
@@ -206,6 +196,13 @@ public class VirtualMediaPanel extends MediaPanel
 
         // translate back out of happy space
         gfx.translate(_tx, _ty);
+    }
+
+    // documentation inherited
+    protected void constrainToBounds (Rectangle dirty)
+    {
+        SwingUtilities.computeIntersection(
+            _tx, _tx, getWidth(), getHeight(), dirty);
     }
 
     /**

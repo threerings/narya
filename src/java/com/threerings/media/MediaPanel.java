@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.14 2002/06/18 22:25:33 mdb Exp $
+// $Id: MediaPanel.java,v 1.15 2002/06/19 07:41:37 mdb Exp $
 
 package com.threerings.media;
 
@@ -11,6 +11,7 @@ import java.awt.Shape;
 
 import javax.swing.JComponent;
 import javax.swing.RepaintManager;
+import javax.swing.SwingUtilities;
 import javax.swing.event.AncestorEvent;
 
 import com.samskivert.swing.event.AncestorAdapter;
@@ -263,10 +264,16 @@ public class MediaPanel extends JComponent
 
         for (int ii = 0; ii < dcount; ii++) {
             Rectangle clip = dirty[ii];
+
+            // constrain this dirty region to the bounds of the component
+            constrainToBounds(clip);
+
             // ignore rectangles that were reduced to nothingness
             if (clip.width == 0 || clip.height == 0) {
                 continue;
             }
+
+            // clip to this dirty region
             clipToDirtyRegion(gfx, clip);
 
             // paint the behind the scenes stuff
@@ -284,6 +291,19 @@ public class MediaPanel extends JComponent
             // paint anything in front
             paintInFront(gfx, clip);
         }
+    }
+
+    /**
+     * Called by the main rendering code to constrain this dirty rectangle
+     * to the bounds of the media panel. If a derived class is using dirty
+     * rectangles that live in some sort of virtual coordinate system,
+     * they'll want to override this method and constraint the rectangles
+     * properly.
+     */
+    protected void constrainToBounds (Rectangle dirty)
+    {
+        SwingUtilities.computeIntersection(
+            0, 0, getWidth(), getHeight(), dirty);
     }
 
     /**
