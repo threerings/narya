@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.45 2003/04/04 19:36:21 mdb Exp $
+// $Id: TileSet.java,v 1.46 2003/04/05 01:52:58 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -137,7 +137,7 @@ public abstract class TileSet
     public Tile getTile (int tileIndex)
         throws NoSuchTileException
     {
-        return getTile(tileIndex, (Colorization[])null);
+        return getTile(tileIndex, _zations);
     }
 
     /**
