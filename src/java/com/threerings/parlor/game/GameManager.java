@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.58 2003/01/03 02:35:41 shaper Exp $
+// $Id: GameManager.java,v 1.59 2003/01/03 02:47:33 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -899,7 +899,13 @@ public class GameManager extends PlaceManager
         int size = _managers.size();
         for (int ii = 0; ii < size; ii++) {
             GameManager gmgr = (GameManager)_managers.get(ii);
-            gmgr.tick(now);
+            try {
+                gmgr.tick(now);
+            } catch (Exception e) {
+                Log.warning("Game manager choked during tick " +
+                            "[gmgr=" + gmgr + "].");
+                Log.logStackTrace(e);
+            }
         }
     }
 
