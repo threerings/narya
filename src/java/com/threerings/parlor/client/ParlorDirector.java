@@ -1,5 +1,5 @@
 //
-// $Id: ParlorDirector.java,v 1.21 2004/08/27 02:20:12 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -28,6 +28,7 @@ import com.threerings.util.Name;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
+import com.threerings.presents.client.InvocationService;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.data.ParlorCodes;
@@ -117,6 +118,20 @@ public class ParlorDirector extends BasicDirector
         _pservice.invite(_ctx.getClient(), invitee, config, invite);
         // and return the invitation to the caller
         return invite;
+    }
+
+    /**
+     * Requests that the specified single player game be started.
+     *
+     * @param config the configuration of the single player game to be
+     * started.
+     * @param listener a listener to be informed of failure if the game
+     * cannot be started.
+     */
+    public void startSolitaire (
+        GameConfig config, InvocationService.ConfirmListener listener)
+    {
+        _pservice.startSolitaire(_ctx.getClient(), config, listener);
     }
 
     // documentation inherited

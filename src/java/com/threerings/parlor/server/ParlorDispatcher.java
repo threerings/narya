@@ -100,6 +100,13 @@ public class ParlorDispatcher extends InvocationDispatcher
             );
             return;
 
+        case ParlorMarshaller.START_SOLITAIRE:
+            ((ParlorProvider)provider).startSolitaire(
+                source,
+                (GameConfig)args[0], (InvocationService.ConfirmListener)args[1]
+            );
+            return;
+
         default:
             super.dispatchRequest(source, methodId, args);
         }

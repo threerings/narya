@@ -1,5 +1,5 @@
 //
-// $Id: ParlorService.java,v 1.16 2004/08/27 02:20:12 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -151,4 +151,11 @@ public interface ParlorService extends InvocationService
      */
     public void leaveTable (Client client, int lobbyOid, int tableId,
                             InvocationListener listener);
+
+    /**
+     * Requests to start a single player game with the specified game
+     * configuration.
+     */
+    public void startSolitaire (Client client, GameConfig config,
+                                ConfirmListener listener);
 }

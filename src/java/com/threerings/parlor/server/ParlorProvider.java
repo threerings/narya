@@ -23,6 +23,7 @@ package com.threerings.parlor.server;
 
 import com.threerings.util.Name;
 
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.InvocationService.InvocationListener;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationException;
@@ -37,6 +38,7 @@ import com.threerings.parlor.client.ParlorService.InviteListener;
 import com.threerings.parlor.client.ParlorService.TableListener;
 import com.threerings.parlor.data.ParlorCodes;
 import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.GameManager;
 
 /**
  * The parlor provider handles the server side of the various Parlor
@@ -158,6 +160,40 @@ public class ParlorProvider
 
         // there is normally no success response. the client will see
         // themselves removed from the table they just left
+    }
+
+    /**
+     * Handles a {@link ParlorService#startSolitaire} request.
+     */
+    public void startSolitaire (ClientObject caller, GameConfig config,
+                                InvocationService.ConfirmListener listener)
+        throws InvocationException
+    {
+        BodyObject user = (BodyObject)caller;
+
+        Log.debug("Processing start puzzle [caller=" + user.who() +
+                  ", config=" + config + "].");
+
+        try {
+            // just this fellow will be playing
+            config.players = new Name[] { user.username };
+
+            // create the game manager and begin its initialization
+            // process
+            GameManager gmgr = (GameManager)
+                CrowdServer.plreg.createPlace(config, null);
+
+            // the game manager will take care of notifying the player
+            // that the game has been created once it has been started up;
+            // but we let the caller know that we processed their request
+            listener.requestProcessed();
+
+        } catch (InstantiationException ie) {
+            Log.warning("Error instantiating game manager " +
+                        "[for=" + caller.who() + ", config=" + config + "].");
+            Log.logStackTrace(ie);
+            throw new InvocationException(INTERNAL_ERROR);
+        }
     }
 
     /**

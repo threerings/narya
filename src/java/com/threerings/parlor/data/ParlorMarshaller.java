@@ -179,4 +179,17 @@ public class ParlorMarshaller extends InvocationMarshaller
         });
     }
 
+    /** The method id used to dispatch {@link #startSolitaire} requests. */
+    public static final int START_SOLITAIRE = 7;
+
+    // documentation inherited from interface
+    public void startSolitaire (Client arg1, GameConfig arg2, InvocationService.ConfirmListener arg3)
+    {
+        InvocationMarshaller.ConfirmMarshaller listener3 = new InvocationMarshaller.ConfirmMarshaller();
+        listener3.listener = arg3;
+        sendRequest(arg1, START_SOLITAIRE, new Object[] {
+            arg2, listener3
+        });
+    }
+
 }
