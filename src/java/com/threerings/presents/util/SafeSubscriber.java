@@ -1,5 +1,5 @@
 //
-// $Id: SafeSubscriber.java,v 1.4 2003/12/15 17:12:11 mdb Exp $
+// $Id: SafeSubscriber.java,v 1.5 2003/12/17 00:15:08 mdb Exp $
 
 package com.threerings.presents.util;
 
@@ -187,10 +187,10 @@ public class SafeSubscriber
 
         // if we're active, let our subscriber know that the shit hit the fan
         if (_active) {
-            _subscriber.requestFailed(oid, cause);
-            // and deactivate ourselves as we never got our object (and
-            // thus the real subscriber need not call unsubscribe())
+            // deactivate ourselves as we never got our object (and thus
+            // the real subscriber need not call unsubscribe())
             _active = false;
+            _subscriber.requestFailed(oid, cause);
         }
     }
 
