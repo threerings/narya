@@ -1,5 +1,5 @@
 //
-// $Id: GameConfig.java,v 1.13 2002/10/06 00:53:15 mdb Exp $
+// $Id: GameConfig.java,v 1.14 2003/02/12 05:34:53 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -39,15 +39,6 @@ public abstract class GameConfig extends PlaceConfig
      * GameConfigurator}.
      */
     public abstract Class getConfiguratorClass ();
-
-    /**
-     * Returns whether this game is a party game.  The default
-     * implementation returns false.
-     */
-    public boolean isPartyGame ()
-    {
-        return false;
-    }
 
     /**
      * Returns true if this game config object is equal to the supplied

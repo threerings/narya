@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.59 2003/01/03 02:47:33 shaper Exp $
+// $Id: GameManager.java,v 1.60 2003/02/12 05:34:53 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -414,7 +414,7 @@ public class GameManager extends PlaceManager
      */
     protected boolean needsNoShowTimer ()
     {
-        return !_gameconfig.isPartyGame();
+        return !isPartyGame();
     }
 
     // documentation inherited
@@ -474,7 +474,7 @@ public class GameManager extends PlaceManager
     {
         // start up the game if we're not a party game and if we haven't
         // already done so
-        if (!_gameconfig.isPartyGame() &&
+        if (!isPartyGame() &&
             _gameobj.state == GameObject.AWAITING_PLAYERS) {
             startGame();
         }
@@ -773,7 +773,7 @@ public class GameManager extends PlaceManager
             // perfectly normal to receive a player ready notification
             // from a user entering a party game in which they're not yet
             // a participant
-            if (!_gameconfig.isPartyGame()) {
+            if (!isPartyGame()) {
                 Log.warning("Received playerReady() from non-player? " +
                             "[caller=" + caller + "].");
             }
@@ -820,7 +820,7 @@ public class GameManager extends PlaceManager
     public void startPartyGame (ClientObject caller)
     {
         // make sure this is a party game
-        if (!_gameconfig.isPartyGame()) {
+        if (!isPartyGame()) {
             Log.warning("Attempt to player-start a non-party game " +
                         "[game=" + _gameobj.which() +
                         ", caller=" + caller + "].");
@@ -926,6 +926,15 @@ public class GameManager extends PlaceManager
 
         protected int _pidx;
         protected byte _level;
+    }
+
+    /**
+     * Used to determine if this game is a party game.
+     */
+    protected boolean isPartyGame ()
+    {
+        return ((_gameconfig instanceof PartyGameConfig) &&
+                ((PartyGameConfig)_gameconfig).isPartyGame());
     }
 
     /** A reference to our game config. */

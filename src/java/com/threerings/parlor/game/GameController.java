@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.20 2002/09/20 04:53:42 mdb Exp $
+// $Id: GameController.java,v 1.21 2003/02/12 05:34:53 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -234,6 +234,15 @@ public abstract class GameController extends PlaceController
                 ((GameControllerDelegate)delegate).gameWillReset();
             }
         });
+    }
+
+    /**
+     * Used to determine if this game is a party game.
+     */
+    protected boolean isPartyGame ()
+    {
+        return ((_config instanceof PartyGameConfig) &&
+                ((PartyGameConfig)_config).isPartyGame());
     }
 
     /** A reference to the active parlor context. */
