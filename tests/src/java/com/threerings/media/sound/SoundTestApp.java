@@ -1,5 +1,5 @@
 //
-// $Id: SoundTestApp.java,v 1.1 2002/07/24 21:28:10 shaper Exp $
+// $Id: SoundTestApp.java,v 1.2 2002/11/12 22:55:59 shaper Exp $
 
 package com.threerings.media;
 
@@ -25,7 +25,7 @@ public class SoundTestApp
     public void run ()
     {
         for (int ii = 0; ii < _files.length; ii++) {
-            _soundmgr.play(_files[ii]);
+            _soundmgr.play(SoundManager.DEFAULT, _files[ii]);
         }
     }
 
