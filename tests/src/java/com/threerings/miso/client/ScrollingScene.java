@@ -1,9 +1,9 @@
 //
-// $Id: ScrollingScene.java,v 1.8 2002/09/18 20:09:55 mdb Exp $
+// $Id: ScrollingScene.java,v 1.9 2002/10/01 04:44:23 shaper Exp $
 
 package com.threerings.miso.scene;
 
-import java.awt.Point;
+import java.awt.Rectangle;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -18,6 +18,7 @@ import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileSetRepository;
 
+import com.threerings.miso.scene.util.ObjectSet;
 import com.threerings.miso.tile.BaseTile;
 import com.threerings.miso.tile.BaseTileSet;
 import com.threerings.miso.util.MisoContext;
@@ -71,27 +72,9 @@ public class ScrollingScene implements DisplayMisoScene
     }
 
     // documentation inherited from interface
-    public int getObjectCount ()
+    public void getSceneObjects (Rectangle region, ObjectSet set)
     {
-        return 0;
-    }
-
-    // documentation inherited from interface
-    public ObjectTile getObjectTile (int index)
-    {
-        return null;
-    }
-
-    // documentation inherited from interface
-    public Point getObjectCoords (int index)
-    {
-        return null;
-    }
-
-    // documentation inherited from interface
-    public String getObjectAction (int index)
-    {
-        return null;
+        // nothing for now
     }
 
     protected BaseTile[] _tiles;
