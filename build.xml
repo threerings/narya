@@ -30,7 +30,7 @@
       <fileset dir="src/java" includes="**/*.properties"/>
     </copy>
     <copy todir="${deploy.dir}/classes/rsrc">
-      <fileset dir="rsrc" includes="**/*"/>
+      <fileset dir="rsrc" includes="**/*" excludes="**/bundles/**"/>
     </copy>
   </target>
 
@@ -70,11 +70,22 @@
   </target>
 
   <!-- generate a class hierarchy diagram -->
+  <target name="hierviz" depends="prepare,compile">
+    <taskdef name="viztool" classname="com.samskivert.viztool.DriverTask"/>
+    <viztool visualizer="com.samskivert.viztool.hierarchy.HierarchyVisualizer"
+      pkgroot="com.threerings"
+      classes="com.threerings.*"
+      output="hierviz.ps">
+      <classpath refid="classpath"/>
+    </viztool>
+  </target>
+
+  <!-- generate a class hierarchy diagram -->
   <target name="sumgen" depends="prepare,compile">
     <taskdef name="viztool" classname="com.samskivert.viztool.DriverTask"/>
     <viztool visualizer="com.samskivert.viztool.summary.SummaryVisualizer"
       pkgroot="com.threerings"
-      classes="SpotSceneModel|SpotScene$"
+      classes=".*Director$"
       output="summary.ps">
       <classpath refid="classpath"/>
     </viztool>
