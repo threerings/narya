@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.6 2001/10/22 23:55:39 mdb Exp $
+// $Id: SceneRegistry.java,v 1.7 2001/10/24 00:38:54 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -10,6 +10,7 @@ import com.samskivert.util.HashIntMap;
 import com.threerings.presents.util.Invoker;
 
 import com.threerings.crowd.server.CrowdServer;
+import com.threerings.crowd.server.PlaceManager;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.data.Scene;
@@ -217,6 +218,21 @@ public class SceneRegistry
                     Log.logStackTrace(e);
                 }
             }
+        }
+    }
+
+    /**
+     * Called when a place is destroyed. We clean up our extra scene
+     * information here.
+     */
+    protected void placeWasDestroyed (PlaceManager pmgr)
+    {
+        super.placeWasDestroyed(pmgr);
+
+        // if this is a scene manager, remove it from our scene table
+        if (pmgr instanceof SceneManager) {
+            SceneManager scmgr = (SceneManager)pmgr;
+            _scenemgrs.remove(scmgr.getScene().getId());
         }
     }
 
