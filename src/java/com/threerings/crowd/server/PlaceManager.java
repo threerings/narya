@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.19 2001/10/12 19:30:44 mdb Exp $
+// $Id: PlaceManager.java,v 1.20 2001/10/24 00:38:01 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -204,6 +204,21 @@ public class PlaceManager
         if (_plobj.occupantInfo.containsKey(key)) {
             _plobj.removeFromOccupantInfo(key);
         }
+
+        // if that leaves us with zero occupants, maybe do something
+        if (_plobj.occupants.size() == 0) {
+            placeBecameEmpty();
+        }
+    }
+
+    /**
+     * Called when we transition from having bodies in the place to not
+     * having any bodies in the place. Some places may take this as a sign
+     * to pack it in, others may wish to stick around. In any case, they
+     * can override this method to do their thing.
+     */
+    protected void placeBecameEmpty ()
+    {
     }
 
     /**
