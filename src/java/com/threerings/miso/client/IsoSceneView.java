@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.10 2001/07/20 00:35:09 shaper Exp $
+// $Id: IsoSceneView.java,v 1.11 2001/07/20 03:50:35 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -70,17 +70,20 @@ public class IsoSceneView implements SceneView
 	    // determine starting screen x-position
 	    int screenX = DEF_CENTER_X - ((length - 1) * Tile.HALF_WIDTH);
 
-	    for (int j = 0; j < length; j++) {
-		// TODO: draw layers L1+.
+	    for (int jj = 0; jj < length; jj++) {
 
-		// grab the tile we're rendering
-		Tile tile = _scene.tiles[tx][ty][Scene.LAYER_BASE];
+		for (int kk = 0; kk < Scene.NUM_LAYERS; kk++) {
+		    // grab the tile we're rendering
+		    Tile tile = _scene.tiles[tx][ty][kk];
+		    if (tile == null) continue;
 
-		// determine screen y-position accounting for tile image height
-		int ypos = screenY - (tile.height - Tile.HEIGHT);
+		    // determine screen y-position, accounting for
+		    // tile image height
+		    int ypos = screenY - (tile.height - Tile.HEIGHT);
 
-		// draw the tile image at the appropriate screen position
-		gfx.drawImage(tile.img, screenX, ypos, null);
+		    // draw the tile image at the appropriate screen position
+		    gfx.drawImage(tile.img, screenX, ypos, null);
+		}
 
 		// draw tile coordinates in each tile
   		if (_showCoords) paintCoords(gfx, tx, ty, screenX, screenY);
@@ -187,7 +190,7 @@ public class IsoSceneView implements SceneView
 
 	// calculate the x-axis line (from tile origin to end of visible axis)
 	mX = 0.5f;
-	_lineX[0].x = Tile.HALF_WIDTH;
+	_lineX[0].x = DEF_CENTER_X;
 	bX = (int)-(mX * _lineX[0].x);
 	_lineX[0].y = 0;
 	_lineX[1].x = _bounds.width;
