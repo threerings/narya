@@ -114,13 +114,13 @@
     <taskdef name="tilebundle"
       classname="com.threerings.media.tile.bundle.tools.TileSetBundlerTask"/>
     <tilebundle config="${tbundle.dir}/bundler-config.xml"
-      mapfile="${tbundle.dir}/tilesets.map"
-      bundledef="${tbundle.dir}/ground/bundle.xml"
-      target="${tbundle.dir}/ground/bundle.jar"/>
+      mapfile="${tbundle.dir}/tilesets.map">
+      <fileset dir="${tbundle.dir}/ground" includes="**/*.xml"/>
+    </tilebundle>
     <tilebundle config="${tbundle.dir}/bundler-config.xml"
-      mapfile="${tbundle.dir}/tilesets.map"
-      bundledef="${tbundle.dir}/objects/bundle.xml"
-      target="${tbundle.dir}/objects/bundle.jar"/>
+      mapfile="${tbundle.dir}/tilesets.map">
+      <fileset dir="${tbundle.dir}/objects" includes="**/*.xml"/>
+    </tilebundle>
   </target>
 
 </project>
