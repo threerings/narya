@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.36 2003/08/15 18:50:02 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.37 2003/08/16 04:14:56 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -77,9 +77,14 @@ public class PresentsDObjectMgr
     // inherit documentation from the interface
     public void subscribeToObject (int oid, Subscriber target)
     {
-        // queue up an access object event
-        postEvent(new AccessObjectEvent(oid, target,
-                                        AccessObjectEvent.SUBSCRIBE));
+        if (oid <= 0) {
+            target.requestFailed(
+                oid, new ObjectAccessException("Invalid oid " + oid + "."));
+        } else {
+            // queue up an access object event
+            postEvent(new AccessObjectEvent(
+                          oid, target, AccessObjectEvent.SUBSCRIBE));
+        }
     }
 
     // inherit documentation from the interface
@@ -659,6 +664,11 @@ public class PresentsDObjectMgr
             _target = target;
         }
 
+        public boolean isPrivate ()
+        {
+            return true;
+        }
+
         public boolean applyToObject (DObject target)
             throws ObjectAccessException
         {
@@ -729,6 +739,11 @@ public class PresentsDObjectMgr
             _oid = oid;
             _target = target;
             _action = action;
+        }
+
+        public boolean isPrivate ()
+        {
+            return true;
         }
 
         public boolean applyToObject (DObject target)

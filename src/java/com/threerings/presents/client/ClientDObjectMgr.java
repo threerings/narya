@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.24 2003/05/22 17:23:53 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.25 2003/08/16 04:14:56 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -74,7 +74,12 @@ public class ClientDObjectMgr
     // inherit documentation from the interface
     public void subscribeToObject (int oid, Subscriber target)
     {
-        queueAction(oid, target, true);
+        if (oid <= 0) {
+            target.requestFailed(
+                oid, new ObjectAccessException("Invalid oid " + oid + "."));
+        } else {
+            queueAction(oid, target, true);
+        }
     }
 
     // inherit documentation from the interface
