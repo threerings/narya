@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.19 2002/08/14 23:52:15 mdb Exp $
+// $Id: DSet.java,v 1.20 2002/10/06 20:24:53 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -269,11 +269,15 @@ public class DSet
      */
     public Object clone ()
     {
-        DSet nset = new DSet();
-        nset._entries = new Entry[_entries.length];
-        System.arraycopy(_entries, 0, nset._entries, 0, _entries.length);
-        nset._size = _size;
-        return nset;
+        try {
+            DSet nset = (DSet)super.clone();
+            nset._entries = new Entry[_entries.length];
+            System.arraycopy(_entries, 0, nset._entries, 0, _entries.length);
+            nset._size = _size;
+            return nset;
+        } catch (CloneNotSupportedException cnse) {
+            throw new RuntimeException("WTF? " + cnse);
+        }
     }
 
     /**
