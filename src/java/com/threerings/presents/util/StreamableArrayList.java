@@ -1,5 +1,5 @@
 //
-// $Id: StreamableArrayList.java,v 1.2 2001/10/11 04:07:53 mdb Exp $
+// $Id: StreamableArrayList.java,v 1.3 2002/03/20 19:07:15 mdb Exp $
 
 package com.threerings.presents.util;
 
@@ -8,6 +8,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
 import java.util.ArrayList;
+import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.io.Streamable;
 
 /**
@@ -16,8 +17,7 @@ import com.threerings.presents.io.Streamable;
  * streamable array list can be supplied anywhere that a distributed
  * object value can be supplied, but bear in mind that once the list is
  * created, it's elements cannot be changed without rebroadcasting the
- * entire list. It is not like a {@link
- * com.threerings.presents.dobj.DSet} which allows individual
+ * entire list. It is not like a {@link DSet} which allows individual
  * elements to be added or removed.
  */
 public class StreamableArrayList
