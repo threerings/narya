@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.49 2002/10/24 07:01:08 shaper Exp $
+// $Id: GameManager.java,v 1.50 2002/10/24 18:51:41 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -62,8 +62,7 @@ public class GameManager extends PlaceManager
     {
         // determine the first available player index
         int pidx = -1;
-        int size = _gameobj.players.length;
-        for (int ii = 0; ii < size; ii++) {
+        for (int ii = 0; ii < getPlayerSlots(); ii++) {
             if (!_gameobj.isOccupiedPlayer(ii)) {
                 pidx = ii;
                 break;
@@ -95,7 +94,7 @@ public class GameManager extends PlaceManager
     public boolean addPlayerAt (String player, int pidx)
     {
         // make sure the specified player index is valid
-        if (pidx < 0 || pidx >= _gameobj.players.length) {
+        if (pidx < 0 || pidx >= getPlayerSlots()) {
             Log.warning("Attempt to add player at an invalid index " +
                         "[game=" + _gameobj.which() + ", player=" + player +
                         ", pidx=" + pidx + "].");
@@ -227,7 +226,7 @@ public class GameManager extends PlaceManager
     {
         if (_AIs == null) {
             // create and initialize the AI skill level array
-            _AIs = new byte[_gameobj.players.length];
+            _AIs = new byte[getPlayerCount()];
             Arrays.fill(_AIs, (byte)-1);
             // set up a delegate op for AI ticking
             _tickAIOp = new TickAIDelegateOp();
@@ -275,6 +274,14 @@ public class GameManager extends PlaceManager
     public int getPlayerCount ()
     {
         return _playerCount;
+    }
+
+    /**
+     * Returns the number of players allowed in this game.
+     */
+    public int getPlayerSlots ()
+    {
+        return _gameconfig.players.length;
     }
 
     /**
@@ -346,8 +353,7 @@ public class GameManager extends PlaceManager
         _playerCount = _gameobj.getPlayerCount();
 
         // instantiate a player oid array which we'll fill in later
-        int size = _gameobj.players.length;
-        _playerOids = new int[size];
+        _playerOids = new int[getPlayerSlots()];
 
         // create and fill in our game service object
         GameMarshaller service = (GameMarshaller)
@@ -359,7 +365,7 @@ public class GameManager extends PlaceManager
 
         // let the players of this game know that we're ready to roll (if
         // we have a specific set of players)
-        for (int ii = 0; ii < size; ii++) {
+        for (int ii = 0; ii < getPlayerSlots(); ii++) {
             // skip non-existent players
             if (!_gameobj.isOccupiedPlayer(ii)) {
                 continue;
@@ -673,8 +679,7 @@ public class GameManager extends PlaceManager
      */
     protected boolean allPlayersReady ()
     {
-        int pcount = _gameobj.players.length;
-        for (int ii = 0; ii < pcount; ii++) {
+        for (int ii = 0; ii < getPlayerSlots(); ii++) {
             if (_gameobj.isOccupiedPlayer(ii) &&
                 (_playerOids[ii] == 0) &&
                 (_AIs == null || _AIs[ii] == -1)) {
