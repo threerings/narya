@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.21 2002/06/19 00:20:49 mdb Exp $
+// $Id: Tile.java,v 1.22 2002/06/19 08:26:22 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -30,6 +30,13 @@ public class Tile implements Cloneable
     {
         _image = image;
         _bounds = bounds;
+    }
+
+    /**
+     * Called to create our subimage.
+     */
+    protected void createSubImage ()
+    {
         if (_image instanceof BufferedImage) {
             _subimage = ImageUtil.getSubimage(_image, _bounds.x, _bounds.y,
                                               _bounds.width, _bounds.height);
@@ -61,11 +68,7 @@ public class Tile implements Cloneable
      */
     public void paint (Graphics gfx, int x, int y)
     {
-//         Shape oclip = gfx.getClip();
-//         gfx.clipRect(x, y, getWidth(), getHeight());
-//         gfx.drawImage(_image, x - _bounds.x, y - _bounds.y, null);
-//         gfx.setClip(oclip);
-        gfx.drawImage(_subimage, x, y, null);
+        gfx.drawImage(getImage(), x, y, null);
     }
 
     /**
@@ -86,6 +89,9 @@ public class Tile implements Cloneable
      */
     public Image getImage ()
     {
+        if (_subimage == null) {
+            createSubImage();
+        }
         return _subimage;
     }
 
