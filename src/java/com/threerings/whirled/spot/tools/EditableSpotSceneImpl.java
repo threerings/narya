@@ -1,5 +1,5 @@
 //
-// $Id: EditableSpotSceneImpl.java,v 1.4 2001/12/05 03:38:09 mdb Exp $
+// $Id: EditableSpotSceneImpl.java,v 1.5 2001/12/05 03:49:29 mdb Exp $
 
 package com.threerings.whirled.tools.spot;
 
@@ -133,7 +133,7 @@ public class EditableSpotSceneImpl
     // documentation inherited
     public boolean removeNeighbor (String neighborName)
     {
-        String errmsg = "Neighbors can't be remove directly in the " +
+        String errmsg = "Neighbors can't be removed directly in the " +
             "EditableSpotScene because we need to know the associated " +
             "location information to go along with our neighbor connections.";
         throw new RuntimeException(errmsg);
