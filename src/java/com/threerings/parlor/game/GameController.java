@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.11 2002/04/14 02:33:16 mdb Exp $
+// $Id: GameController.java,v 1.12 2002/04/18 16:57:29 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -92,7 +92,7 @@ public abstract class GameController extends PlaceController
      */
     public boolean isGameOver ()
     {
-        return (_gameOver || _gobj.state == GameObject.GAME_OVER);
+        return (_gameOver || _gobj.state != GameObject.IN_PLAY);
     }
 
     /**
