@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.4 2001/07/23 22:59:43 mdb Exp $
+// $Id: LocationDirector.java,v 1.5 2001/08/02 04:59:54 mdb Exp $
 
 package com.threerings.cocktail.party.client;
 
@@ -31,6 +31,24 @@ public class LocationManager
 
         // register ourselves as a client observer
         ctx.getClient().addObserver(this);
+    }
+
+    /**
+     * Adds a location observer to the list. This observer will
+     * subsequently be notified of potential, effected and failed location
+     * changes.
+     */
+    public void addLocationObserver (LocationObserver observer)
+    {
+        _observers.add(observer);
+    }
+
+    /**
+     * Removes a location observer from the list.
+     */
+    public void removeLocationObserver (LocationObserver observer)
+    {
+        _observers.remove(observer);
     }
 
     /**

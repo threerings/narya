@@ -1,5 +1,5 @@
 //
-// $Id: LocationObserver.java,v 1.2 2001/07/23 22:59:43 mdb Exp $
+// $Id: LocationObserver.java,v 1.3 2001/08/02 04:59:54 mdb Exp $
 
 package com.threerings.cocktail.party.client;
 
@@ -22,6 +22,9 @@ public interface LocationObserver
      * Called when someone has requested that we switch to a new location.
      * An observer may choose to veto the location change request for some
      * reason or other.
+     *
+     * @return true if it's OK for the location to change, false if the
+     * change request should be aborted.
      */
     public boolean locationMayChange (int placeId);
 
