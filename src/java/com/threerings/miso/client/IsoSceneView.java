@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.133 2003/02/14 22:10:48 mdb Exp $
+// $Id: IsoSceneView.java,v 1.134 2003/03/10 09:24:04 ray Exp $
 
 package com.threerings.miso.client;
 
@@ -109,7 +109,7 @@ public class IsoSceneView implements SceneView
 
         // obtain a list of the objects in the scene and generate records
         // for each of them that contain precomputed metrics
-        prepareObjectList();
+        refreshObjectList();
 
         // invalidate the entire screen as there's a new scene in town;
         // making sure we're on the AWT thread
@@ -129,12 +129,15 @@ public class IsoSceneView implements SceneView
      * weren't there last time around and adds info for them into the
      * scene.
      */
-    public void grabNewObjects ()
+    public void refreshObjectList ()
     {
+        _objects.clear();
+
         // grab all available objects
         Rectangle rect = new Rectangle(Short.MIN_VALUE, Short.MIN_VALUE,
                                        2*Short.MAX_VALUE, 2*Short.MAX_VALUE);
         _scene.getObjects(rect, _objects);
+        addAdditionalObjects(_objects);
 
         // and fill in the new objects' bounds
         int ocount = _objects.size();
@@ -481,29 +484,6 @@ public class IsoSceneView implements SceneView
     {
         IsoUtil.screenToTile(_model, sprite.getX(), sprite.getY(), _tcoords);
         list.appendDirtySprite(sprite, _tcoords.x, _tcoords.y);
-    }
-
-    /**
-     * Generates and stores bounding polygons for all object tiles in the
-     * scene for later use while rendering.
-     */
-    protected void prepareObjectList ()
-    {
-        // clear out any previously existing object data
-        _objects.clear();
-
-        // grab all available objects
-        Rectangle rect = new Rectangle(Short.MIN_VALUE, Short.MIN_VALUE,
-                                       2*Short.MAX_VALUE, 2*Short.MAX_VALUE);
-        _scene.getObjects(rect, _objects);
-        addAdditionalObjects(_objects);
-
-        // and fill in those objects' bounds
-        int ocount = _objects.size();
-        for (int ii = 0; ii < ocount; ii++) {
-            DisplayObjectInfo scobj = (DisplayObjectInfo)_objects.get(ii);
-            scobj.bounds = IsoUtil.getObjectBounds(_model, scobj);
-        }
     }
 
     /**
