@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.25 2002/03/16 03:15:04 shaper Exp $
+// $Id: CharacterSprite.java,v 1.26 2002/04/15 23:07:14 mdb Exp $
 
 package com.threerings.cast;
 
@@ -116,6 +116,14 @@ public class CharacterSprite extends ImageSprite
     public void setOrientation (int orient)
     {
         super.setOrientation(orient);
+
+        // sanity check
+        if (orient < 0 || orient >= _frames.length) {
+            String errmsg = "Invalid orientation requested " +
+                "[orient=" + orient +
+                ", fcount=" + ((_frames == null) ? -1 : _frames.length) + "]";
+            throw new IllegalArgumentException(errmsg);
+        }
 
         // update the sprite frames to reflect the direction
         if (_frames != null) {
