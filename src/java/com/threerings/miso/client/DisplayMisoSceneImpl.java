@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.3 2001/07/16 00:45:06 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.4 2001/07/16 22:12:01 shaper Exp $
 
 package com.threerings.cocktail.miso.scene;
 
@@ -16,6 +16,8 @@ import java.io.*;
  */
 public class Scene
 {
+    public static final String[] XLATE_LAYERS = { "Base", "Object" };
+
     public Tile tiles[][][];  // the tiles comprising the scene
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.3 2001/07/16 00:45:06 shaper Exp $
+// $Id: IsoSceneView.java,v 1.4 2001/07/16 22:12:01 shaper Exp $
 
 package com.threerings.cocktail.miso.scene;
 
@@ -128,6 +128,10 @@ public class IsoSceneView implements SceneView
 	g2.drawRect(_lineY[0].x - 1, _lineY[0].y - 1, 3, 3);
     }
 
+    /**
+     * Paint the tile coordinates in tile (x, y) whose top-left corner
+     * is at screen coordinates (sx, sy).
+     */
     protected void paintCoords (Graphics2D g2, int x, int y, int sx, int sy)
     {
 	g2.setFont(_font);
@@ -135,7 +139,10 @@ public class IsoSceneView implements SceneView
 	g2.drawString(""+x, sx+Tile.HALF_WIDTH-2, sy+Tile.HALF_HEIGHT-2);
 	g2.drawString(""+y, sx+Tile.HALF_WIDTH-2, sy+Tile.HEIGHT-2);
     }
-    
+
+    /**
+     * Paint a highlight around the tile at screen coordinates (sx, sy).
+     */
     protected void paintHighlightedTile (Graphics2D g2, int sx, int sy)
     {
 	int x = sx;
@@ -163,9 +170,23 @@ public class IsoSceneView implements SceneView
      */
     public void setHighlightedTile (int x, int y)
     {
-	float mX, mY;
+	Point tpos = screenToTile(x, y);
+	if (tpos != null) _htile = tpos;
+//  	Log.info("Highlighting tile [x="+_htile.x+", y="+_htile.y+"].");
+    }
+
+    /**
+     * Returns a new Point object containing the tile coordinates
+     * corresponding to the specified screen-based mouse-position
+     * coordinates.
+     */
+    protected Point screenToTile (int x, int y)
+    {
+	Point tpos = new Point();
+
+        float mX, mY;
 	int bX, bY;
-	
+
 	// calculate the x-axis line (from tile origin to end of visible axis)
 	mX = 0.5f;
 	_lineX[0].x = Tile.HALF_WIDTH;
@@ -188,22 +209,20 @@ public class IsoSceneView implements SceneView
 	int xdist = (int)
 	    MathUtil.distance(_lineX[0].x, _lineX[0].y,
 			      _lineY[1].x, _lineY[1].y);
-	_htile.x = (int)((xdist - Tile.EDGE_LENGTH) / Tile.EDGE_LENGTH);
+	tpos.x = (int)((xdist - Tile.EDGE_LENGTH) / Tile.EDGE_LENGTH);
 
 	// determine distance of mouse pos along the y-axis
 	int ydist = (int)
 	    MathUtil.distance(_lineY[0].x, _lineY[0].y,
 			      _lineY[1].x, _lineY[1].y);
-	_htile.y = (int)(ydist / Tile.EDGE_LENGTH);
+	tpos.y = (int)(ydist / Tile.EDGE_LENGTH);
 
 	//Log.info("[mX="+mX+", bX="+bX+", mY="+mY+", bY="+bY+"]");
 	//Log.info("x-axis=" + MathUtil.lineToString(_lineX[0], _lineX[1]));
 	//Log.info("y-axis=" + MathUtil.lineToString(_lineY[0], _lineY[1]));
-	//Log.info("Highlighting tile [x="+_htile.x+", y="+_htile.y+"].");
-    }
 
-    // TODO: abstract into methods for tile -> screen coords,
-    // screen -> tile coords
+	return tpos;
+    }
 
     public void setScene (Scene scene)
     {
@@ -220,6 +239,12 @@ public class IsoSceneView implements SceneView
 
 	Log.info("Creating offscreen [width=" + width + ", height=" +
 		 height + "].");
+    }
+
+    public void setTile (int x, int y, int lnum, Tile tile)
+    {
+	Point tpos = screenToTile(x, y);
+	_scene.tiles[tpos.x][tpos.y][lnum] = tile;
     }
 
     protected static final int OFF_X = 0;

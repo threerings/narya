@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.3 2001/07/16 18:59:31 shaper Exp $
+// $Id: TileManager.java,v 1.4 2001/07/16 22:12:01 shaper Exp $
 
 package com.threerings.cocktail.miso.tile;
 
@@ -10,17 +10,22 @@ import com.samskivert.util.IntMap;
 import java.awt.*;
 
 /**
- * Provides a simplified interface for retrieving tile objects from
- * various tilesets, by name or identifier, and manages caching of
- * tiles and related resources as appropriate.
+ * Provides a simplified interface for managing multiple tilesets and
+ * tiles.
  */
 public class TileManager
 {
+    /**
+     * Initialize the tile manager with the given TileSetManager object.
+     */
     public TileManager (TileSetManager tsmgr)
     {
 	_tsmgr = tsmgr;
     }
 
+    /**
+     * Return the total number of tiles in the specified tileset.
+     */
     public int getNumTilesInSet (int tsid)
     {
 	TileSet tset = _tsmgr.getTileSet(tsid);
@@ -28,11 +33,18 @@ public class TileManager
 	return tset.getNumTiles();
     }
 
+    /**
+     * Return a String array of all tileset names ordered by ascending
+     * tileset id.
+     */
     public String[] getTileSetNames ()
     {
 	return _tsmgr.getTileSetNames();
     }
 
+    /**
+     * Return the Tile object for the specified tileset and tile id.
+     */
     public Tile getTile (int tsid, int tid)
     {
 	// the fully unique tile id is the conjoined tile set and tile id
@@ -55,7 +67,7 @@ public class TileManager
 
 	_tiles.put(utid, tile);
 
-	Log.info("Loaded tile into cache [tsid="+tsid+", tid="+tid+"].");
+//  	Log.info("Loaded tile into cache [tsid="+tsid+", tid="+tid+"].");
 
 	return tile;
     }

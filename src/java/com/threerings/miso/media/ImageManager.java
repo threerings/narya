@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.3 2001/07/16 00:45:06 shaper Exp $
+// $Id: ImageManager.java,v 1.4 2001/07/16 22:12:01 shaper Exp $
 
 package com.threerings.cocktail.miso.media;
 
@@ -46,7 +46,6 @@ public class ImageManager
 
 	    } else {
 		_imgs.put(fname, img);
-		Log.info("Loaded image into cache successfully.");
 	    }
 
 	} catch (Exception e) {
