@@ -1,5 +1,5 @@
 //
-// $Id: ReleaseLockEvent.java,v 1.2 2001/08/04 00:39:44 mdb Exp $
+// $Id: ReleaseLockEvent.java,v 1.3 2001/08/04 01:05:12 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -63,7 +63,8 @@ public class ReleaseLockEvent extends TypedEvent
     {
         // clear this lock from the target object
         target.clearLock(_name);
-        return true;
+        // no need to notify subscribers about these sorts of events
+        return false;
     }
 
     public short getType ()
