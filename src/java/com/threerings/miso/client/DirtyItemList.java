@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.7 2001/12/16 05:42:16 shaper Exp $
+// $Id: DirtyItemList.java,v 1.8 2001/12/16 06:10:33 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -314,9 +314,9 @@ public class DirtyItemList
             int result = comparePartitioned(Y_AXIS, da, db);
             if (result != 0) {
                 if (DEBUG_COMPARE) {
+                    String items = DirtyItemList.toString(da, db);
                     Log.info("compare: Y-partitioned " +
-                             "[result=" + result +
-                             ", items=" + DirtyItemList.toString(da, db) + "].");
+                             "[result=" + result + ", items=" + items + "].");
                 }
                 return result;
             }
@@ -325,9 +325,9 @@ public class DirtyItemList
             result = comparePartitioned(X_AXIS, da, db);
             if (result != 0) {
                 if (DEBUG_COMPARE) {
+                    String items = DirtyItemList.toString(da, db);
                     Log.info("compare: X-partitioned " +
-                             "[result=" + result +
-                             ", items=" + DirtyItemList.toString(da, db) + "].");
+                             "[result=" + result + ", items=" + items + "].");
                 }
                 return result;
             }
@@ -335,9 +335,9 @@ public class DirtyItemList
             // use normal iso-ordering check
             result = compareNonPartitioned(da, db);
             if (DEBUG_COMPARE) {
+                String items = DirtyItemList.toString(da, db);
                 Log.info("compare: non-partitioned " +
-                         "[result=" + result +
-                         ", items=" + DirtyItemList.toString(da, db) + "].");
+                         "[result=" + result + ", items=" + items + "].");
             }
 
             return result;
@@ -471,7 +471,8 @@ public class DirtyItemList
                     int diff = ahei - bhei;
                     // if they're at the same vertical row of intra-tile
                     // tiles, just use hashCode() for consistency
-                    return (diff != 0) ? diff : (as.hashCode() - bs.hashCode());
+                    return (diff != 0) ? diff :
+                        (as.hashCode() - bs.hashCode());
                 }
             }
 
@@ -496,7 +497,7 @@ public class DirtyItemList
     /** Whether to log debug info when comparing pairs of dirty items. */
     protected static final boolean DEBUG_COMPARE = false;
 
-    /** Whether to log debug info for the overall dirty item sorting algorithm. */
+    /** Whether to log debug info for the main dirty item sorting algorithm. */
     protected static final boolean DEBUG_SORT = false;
 
     /** Constants used to denote axis sorting constraints. */
