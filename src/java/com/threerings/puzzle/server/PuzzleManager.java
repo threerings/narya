@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleManager.java,v 1.15 2004/09/01 21:03:11 ray Exp $
+// $Id: PuzzleManager.java,v 1.16 2004/10/21 02:54:44 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -28,14 +28,12 @@ import com.samskivert.util.IntervalManager;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.OidList;
 import com.threerings.presents.server.util.SafeInterval;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.server.CrowdServer;
-import com.threerings.crowd.server.PlaceManagerDelegate;
 
 import com.threerings.parlor.game.GameManager;
 

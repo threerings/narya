@@ -1,5 +1,5 @@
 //
-// $Id: DropSprite.java,v 1.3 2004/08/27 02:20:29 mdb Exp $
+// $Id: DropSprite.java,v 1.4 2004/10/21 02:54:44 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -31,6 +31,8 @@ import com.threerings.util.DirectionUtil;
 
 import com.threerings.media.image.Mirage;
 import com.threerings.media.sprite.Sprite;
+
+import com.threerings.puzzle.Log;
 
 /**
  * The drop sprite is a sprite that displays one or more pieces falling
@@ -406,15 +408,16 @@ public class DropSprite extends Sprite
             pmop = new PieceMovedOp(this, timestamp, _col, _row);
 	}
 
-        // Log.info("Drop sprite tick [dist=" + _dist + ", pctdone=" + pctdone +
-        // ", row=" + _row + ", col=" + _col + "].");
-
         // constrain the sprite's position to the destination row
         pctdone = Math.min(pctdone, 1.0f);
 
         // calculate the latest sprite position
         int nx = _srcPos.x + (int)((_destPos.x - _srcPos.x) * pctdone);
         int ny = _srcPos.y + (int)((_destPos.y - _srcPos.y) * pctdone);
+
+//         Log.info("Drop sprite tick [dist=" + _dist + ", pctdone=" + pctdone +
+//                  ", row=" + _row + ", col=" + _col +
+//                  ", nx=" + nx + ", ny=" + ny + "].");
 
         // only update the sprite's location if it actually moved
         if (_ox != nx || _oy != ny) {
