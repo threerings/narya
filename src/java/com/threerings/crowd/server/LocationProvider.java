@@ -1,5 +1,5 @@
 //
-// $Id: LocationProvider.java,v 1.17 2002/09/13 00:20:43 mdb Exp $
+// $Id: LocationProvider.java,v 1.18 2002/10/04 01:31:43 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -90,36 +90,41 @@ public class LocationProvider
             return pmgr.getConfig();
         }
 
+        // acquire a lock on the body object to ensure that rapid fire
+        // moveTo requests don't break things
+        if (!source.acquireLock("moveToLock")) {
+            // if we're still locked, a previous moveTo request hasn't
+            // been fully processed
+            throw new InvocationException(MOVE_IN_PROGRESS);
+        }
+
         try {
-            // acquire a lock on the body object to ensure that rapid fire
-            // moveTo requests don't break things
-            if (!source.acquireLock("moveToLock")) {
-                // if we're still locked, a previous moveTo request hasn't
-                // been fully processed
-                throw new InvocationException(MOVE_IN_PROGRESS);
-            }
-
             PlaceObject place = pmgr.getPlaceObject();
+
+            // the doubly nested try catch is to prevent failure if one or
+            // the other of the transactions fails to start
+            place.startTransaction();
             try {
-                place.startTransaction();
                 source.startTransaction();
+                try {
+                    // remove them from any previous location
+                    leaveOccupiedPlace(source);
 
-                // remove them from any previous location
-                leaveOccupiedPlace(source);
+                    // generate a new occupant info record (which will add
+                    // it to the target location)
+                    pmgr.buildOccupantInfo(source);
 
-                // generate a new occupant info record (which will add it
-                // to the target location)
-                pmgr.buildOccupantInfo(source);
+                    // set the body's new location
+                    source.setLocation(place.getOid());
 
-                // set the body's new location
-                source.setLocation(place.getOid());
+                    // add the body oid to the place object's occupant list
+                    place.addToOccupants(bodoid);
 
-                // add the body oid to the place object's occupant list
-                place.addToOccupants(bodoid);
-
+                } finally {
+                    source.commitTransaction();
+                }
             } finally {
                 place.commitTransaction();
-                source.commitTransaction();
             }
 
         } finally {
