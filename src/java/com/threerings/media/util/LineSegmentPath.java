@@ -1,7 +1,7 @@
 //
-// $Id: LineSegmentPath.java,v 1.5 2001/08/09 21:17:06 shaper Exp $
+// $Id: LineSegmentPath.java,v 1.6 2001/08/14 22:54:45 mdb Exp $
 
-package com.threerings.miso.sprite;
+package com.threerings.media.sprite;
 
 import java.util.ArrayList;
 import java.util.Enumeration;

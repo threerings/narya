@@ -1,7 +1,7 @@
 //
-// $Id: AnimationManager.java,v 1.10 2001/08/08 03:19:39 shaper Exp $
+// $Id: AnimationManager.java,v 1.11 2001/08/14 22:54:45 mdb Exp $
 
-package com.threerings.miso.sprite;
+package com.threerings.media.sprite;
 
 import java.awt.Graphics;
 import java.util.ArrayList;
@@ -10,7 +10,8 @@ import javax.swing.SwingUtilities;
 
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
-import com.threerings.miso.Log;
+
+import com.threerings.media.Log;
 import com.threerings.miso.scene.SceneView;
 import com.threerings.miso.util.PerformanceMonitor;
 import com.threerings.miso.util.PerformanceObserver;

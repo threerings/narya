@@ -1,9 +1,9 @@
 //
-// $Id: CharacterSprite.java,v 1.2 2001/08/13 15:00:24 shaper Exp $
+// $Id: CharacterSprite.java,v 1.3 2001/08/14 22:54:45 mdb Exp $
 
-package com.threerings.miso.sprite;
+package com.threerings.media.sprite;
 
-import com.threerings.miso.Log;
+import com.threerings.media.Log;
 import com.threerings.miso.tile.Tile;
 import com.threerings.miso.tile.TileManager;
 

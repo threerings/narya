@@ -1,12 +1,12 @@
 //
-// $Id: SpriteManager.java,v 1.5 2001/08/02 18:59:00 shaper Exp $
+// $Id: SpriteManager.java,v 1.6 2001/08/14 22:54:45 mdb Exp $
 
-package com.threerings.miso.sprite;
+package com.threerings.media.sprite;
 
 import java.awt.*;
 import java.util.ArrayList;
 
-import com.threerings.miso.Log;
+import com.threerings.media.Log;
 
 /**
  * The SpriteManager manages the sprites running about in the game.

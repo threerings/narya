@@ -1,14 +1,15 @@
 //
-// $Id: Sprite.java,v 1.8 2001/08/07 18:29:18 shaper Exp $
+// $Id: Sprite.java,v 1.9 2001/08/14 22:54:45 mdb Exp $
 
-package com.threerings.miso.sprite;
+package com.threerings.media.sprite;
 
 import java.awt.*;
 import java.util.Enumeration;
 
-import com.threerings.miso.Log;
+import com.threerings.media.Log;
+import com.threerings.media.util.MathUtil;
+
 import com.threerings.miso.tile.Tile;
-import com.threerings.miso.util.MathUtil;
 
 /**
  * The Sprite class represents a single moveable object within a
