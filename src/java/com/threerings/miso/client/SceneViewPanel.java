@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.43 2002/06/21 00:04:41 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.44 2002/09/24 07:56:25 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -178,8 +178,8 @@ public class SceneViewPanel extends VirtualMediaPanel
      */
     public Dimension getPreferredSize ()
     {
-	return (_viewmodel == null) ? super.getPreferredSize() :
-            _viewmodel.bounds.getSize();
+	return (_viewmodel == null || isPreferredSizeSet()) ?
+            super.getPreferredSize() : _viewmodel.bounds.getSize();
     }
 
     // documentation inherited
