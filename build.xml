@@ -214,9 +214,22 @@
   <target name="distrib">
      <echo message="You may want to stop and run 'ant savedoc' first."/>
      <echo message="Building ${lib.version} tar.gz distribution..."/>
-     <tar destfile="narya-${lib.version}.tar.gz" compression="gzip"
-          basedir=".." includes="narya/**"
-          excludes="**/CVS, narya/dist/**, narya/code/**, narya/narya-*.*"/>
+     <tar destfile="narya-${lib.version}.tar.gz" compression="gzip">
+       <tarfileset dir=".." mode="0775" dirmode="0775">
+         <include name="narya/bin/**"/>
+         <include name="narya/tests/bin/**"/>
+         <exclude name="**/CVS"/>
+       </tarfileset>
+       <tarfileset dir=".." mode="0664" dirmode="0775">
+         <include name="narya/**"/>
+         <exclude name="**/CVS"/>
+         <exclude name="narya/bin/**"/>
+         <exclude name="narya/tests/bin/**"/>
+         <exclude name="narya/dist/**"/>
+         <exclude name="narya/code/**"/>
+         <exclude name="narya/narya-*.*"/>
+       </tarfileset>
+     </tar>
      <echo message="Building ${lib.version} zip distribution..."/>
      <zip destfile="narya-${lib.version}.zip">
        <fileset dir="..">
