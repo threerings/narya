@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.4 2003/04/19 00:25:13 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.5 2003/04/19 00:56:35 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -1113,7 +1113,6 @@ public class MisoScenePanel extends VirtualMediaPanel
                                 ", ty=" + ty + ", tb.x=" + _tbounds.x +
                                 ", rightx=" + rightx + "].");
                     e.printStackTrace(System.err);
-                    System.exit(-1);
                 }
 
                 // if we're showing coordinates, do that
