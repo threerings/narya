@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.32 2003/03/26 18:18:29 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.33 2003/03/26 22:34:24 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -183,7 +183,10 @@ public class SpotSceneManager extends SceneManager
             throw new InvocationException(INTERNAL_ERROR);
         }
 
-        // TODO: make sure the location isn't too close to another user
+        // let our derived classes decide if this is an OK place to stand
+        if (!validateLocation(source, loc)) {
+            throw new InvocationException(INTERNAL_ERROR);
+        }
 
         // update the user's location information in the scene which will
         // indicate to the client that their avatar should be moved from
@@ -192,6 +195,17 @@ public class SpotSceneManager extends SceneManager
 
         // remove them from any cluster as they've departed
         removeFromCluster(source.getOid());
+    }
+
+    /**
+     * Derived classes can override this method and validate that the
+     * specified body can stand in the requested location. The default
+     * implementation returns <code>true</code> in all circumstances;
+     * stand where ye may!
+     */
+    protected boolean validateLocation (BodyObject source, Location loc)
+    {
+        return true;
     }
 
     /**
