@@ -1,14 +1,15 @@
 //
-// $Id: Cluster.java,v 1.2 2003/02/13 23:01:35 mdb Exp $
+// $Id: Cluster.java,v 1.3 2003/03/25 03:16:11 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
+import com.threerings.io.SimpleStreamableObject;
 import com.threerings.presents.dobj.DSet;
 
 /**
  * Contains information on clusters.
  */
-public class Cluster
+public class Cluster extends SimpleStreamableObject
     implements DSet.Entry
 {
     /** A unique identifier for this cluster (also the distributed object
