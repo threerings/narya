@@ -1,5 +1,5 @@
 //
-// $Id: ExplodeAnimation.java,v 1.8 2002/04/25 16:23:30 mdb Exp $
+// $Id: ExplodeAnimation.java,v 1.9 2002/05/09 04:42:10 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -8,6 +8,8 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Shape;
+
+import com.samskivert.util.StringUtil;
 
 import com.threerings.util.RandomUtil;
 
@@ -22,7 +24,8 @@ public class ExplodeAnimation extends Animation
     /**
      * A class that describes an explosion's attributes.
      */
-    public static class ExplodeInfo {
+    public static class ExplodeInfo
+    {
         /** The bounds within which to animate. */
         public Rectangle bounds;
 
@@ -42,6 +45,12 @@ public class ExplodeAnimation extends Animation
         /** The animation length in milliseconds, or -1 if the animation
          * should continue until all pieces are outside the bounds. */
         public long delay;
+
+        /** Returns a string representation of this instance. */
+        public String toString ()
+        {
+            return StringUtil.fieldsToString(this);
+        }
     }
 
     /**
@@ -184,6 +193,7 @@ public class ExplodeAnimation extends Animation
     // documentation inherited
     public void paint (Graphics2D gfx)
     {
+        Shape oclip = gfx.getClip();
         for (int ii = 0; ii < _chunkcount; ii++) {
             // get the chunk location on-screen
             int x = _cpos[ii] >> 16;
@@ -197,9 +207,6 @@ public class ExplodeAnimation extends Animation
             int xoff = -(xpos * _cwid);
             int yoff = -(ypos * _chei);
 
-            // draw the chunk
-            Shape oclip = gfx.getClip();
-
             // translate the origin to center on the chunk
             int tx = x + _hcwid, ty = y + _hchei;
             gfx.translate(tx, ty);
@@ -211,7 +218,6 @@ public class ExplodeAnimation extends Animation
                 // draw the image chunk
                 gfx.clipRect(-_hcwid, -_hchei, _cwid, _chei);
                 gfx.drawImage(_image, -_hcwid + xoff, -_hchei + yoff, null);
-                gfx.setClip(oclip);
 
             } else {
                 // draw the color chunk
@@ -219,9 +225,10 @@ public class ExplodeAnimation extends Animation
                 gfx.fillRect(-_hcwid, -_hchei, _cwid, _chei);
             }
 
-            // restore the original transform
+            // restore the original transform and clip
             gfx.rotate(-_angle);
             gfx.translate(-tx, -ty);
+            gfx.setClip(oclip);
         }
     }
 
@@ -230,8 +237,14 @@ public class ExplodeAnimation extends Animation
     {
         super.toString(buf);
 
-        buf.append(", sx=").append(_ox);
-        buf.append(", sy=").append(_oy);
+        buf.append(", ox=").append(_ox);
+        buf.append(", oy=").append(_oy);
+        buf.append(", cwid=").append(_cwid);
+        buf.append(", chei=").append(_chei);
+        buf.append(", hcwid=").append(_hcwid);
+        buf.append(", hchei=").append(_hchei);
+        buf.append(", chunkcount=").append(_chunkcount);
+        buf.append(", info=").append(_info);
     }
 
     /** The current chunk rotation. */
