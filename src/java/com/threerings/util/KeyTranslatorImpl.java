@@ -1,5 +1,5 @@
 //
-// $Id: KeyTranslatorImpl.java,v 1.5 2003/01/17 01:33:34 shaper Exp $
+// $Id: KeyTranslatorImpl.java,v 1.6 2003/02/10 18:48:16 ray Exp $
 
 package com.threerings.util;
 
@@ -168,5 +168,5 @@ public class KeyTranslatorImpl implements KeyTranslator
 
     /** The default delay in milliseconds before auto-repeated key presses
      * will begin. */
-    protected static final long DEFAULT_REPEAT_DELAY = 150L;
+    protected static final long DEFAULT_REPEAT_DELAY = 500L;
 }
