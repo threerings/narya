@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.53 2002/11/02 01:20:59 shaper Exp $
+// $Id: GameManager.java,v 1.54 2002/11/05 02:24:42 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -455,7 +455,8 @@ public class GameManager extends PlaceManager
         // complain if we're already started
         if (_gameobj.state == GameObject.IN_PLAY) {
             Log.warning("Requested to start an already in-play game " +
-                        "[game=" + _gameobj + "].");
+                        "[game=" + _gameobj.which() + "].");
+            Thread.dumpStack();
             return false;
         }
 
