@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.55 2001/09/21 02:30:35 mdb Exp $
+// $Id: IsoSceneView.java,v 1.56 2001/09/28 01:31:32 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -314,8 +314,8 @@ public class IsoSceneView implements SceneView
      */
     protected void paintLocations (Graphics2D gfx)
     {
-	Location[] locations = _scene.getLocations();
-	int size = locations.length;
+	List locations = _scene.getLocations();
+	int size = locations.size();
 
 	// create the location triangle
 	Polygon tri = new Polygon();
@@ -326,7 +326,7 @@ public class IsoSceneView implements SceneView
 	for (int ii = 0; ii < size; ii++) {
 
 	    // retrieve the location
-	    Location loc = locations[ii];
+	    Location loc = (Location)locations.get(ii);
 
 	    // get the cluster index this location is in, if any
 	    int clusteridx = MisoSceneUtil.getClusterIndex(_scene, loc);

@@ -1,11 +1,12 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.35 2001/09/21 02:30:35 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.36 2001/09/28 01:31:32 mdb Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.Point;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.samskivert.util.StringUtil;
 
@@ -122,27 +123,21 @@ public class MisoSceneImpl implements EditableMisoScene
     }
 
     // documentation inherited
-    public Location[] getLocations ()
+    public List getLocations ()
     {
-        Location[] locs = new Location[_locations.size()];
-        _locations.toArray(locs);
-        return locs;
+        return _locations;
     }
 
     // documentation inherited
-    public Cluster[] getClusters ()
+    public List getClusters ()
     {
-        Cluster[] clusters = new Cluster[_clusters.size()];
-        _clusters.toArray(clusters);
-        return clusters;
+        return _clusters;
     }
 
     // documentation inherited
-    public Portal[] getPortals ()
+    public List getPortals ()
     {
-        Portal[] portals = new Portal[_portals.size()];
-        _portals.toArray(portals);
-        return portals;
+        return _portals;
     }
 
     // documentation inherited

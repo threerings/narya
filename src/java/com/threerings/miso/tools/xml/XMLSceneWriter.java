@@ -1,11 +1,11 @@
 //
-// $Id: XMLSceneWriter.java,v 1.13 2001/09/21 02:30:35 mdb Exp $
+// $Id: XMLSceneWriter.java,v 1.14 2001/09/28 01:31:32 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
 import java.awt.Point;
 import java.io.*;
-import java.util.ArrayList;
+import java.util.List;
 
 import com.samskivert.util.ListUtil;
 
@@ -87,19 +87,19 @@ public class XMLSceneWriter extends DataWriter
      */
     protected void writeClusters (MisoScene scene) throws SAXException
     {
-	Cluster[] clusters = scene.getClusters();
-	Location[] locs = scene.getLocations();
+	List clusters = scene.getClusters();
+	List locs = scene.getLocations();
 
-	int size = clusters.length;
+	int size = clusters.size();
 	for (int ii = 0; ii < size; ii++) {
-	    Cluster cluster = clusters[ii];
-	    ArrayList clusterlocs = cluster.getLocations();
+	    Cluster cluster = (Cluster)clusters.get(ii);
+	    List clusterlocs = cluster.getLocations();
 
 	    StringBuffer buf = new StringBuffer();
 	    int clustersize = clusterlocs.size();
 	    for (int jj = 0; jj < clustersize; jj++) {
                 Location cloc = (Location)clusterlocs.get(jj);
-		buf.append(ListUtil.indexOfEqual(locs, cloc));
+		buf.append(locs.indexOf(cloc));
 		if (jj < clustersize - 1) {
                     buf.append(",");
                 }
@@ -146,14 +146,14 @@ public class XMLSceneWriter extends DataWriter
      */
     protected String getPortalData (MisoScene scene)
     {
-	Location[] locs = scene.getLocations();
-	Portal[] portals = scene.getPortals();
+	List locs = scene.getLocations();
+	List portals = scene.getPortals();
 
         StringBuffer buf = new StringBuffer();
-	int size = portals.length;
+	int size = portals.size();
         for (int ii = 0; ii < size; ii++) {
-	    Portal portal = portals[ii];
-	    buf.append(ListUtil.indexOfEqual(locs, portal)).append(",");
+	    Portal portal = (Portal)portals.get(ii);
+	    buf.append(locs.indexOf(portal)).append(",");
 	    buf.append(portal.name);
             if (ii < size - 1) {
                 buf.append(",");
@@ -172,12 +172,12 @@ public class XMLSceneWriter extends DataWriter
      */
     protected String getLocationData (MisoScene scene)
     {
-	Location[] locs = scene.getLocations();
+	List locs = scene.getLocations();
 
         StringBuffer buf = new StringBuffer();
-	int size = locs.length;
+	int size = locs.size();
         for (int ii = 0; ii < size; ii++) {
-	    Location loc = locs[ii];
+	    Location loc = (Location)locs.get(ii);
 	    buf.append(loc.x).append(",");
 	    buf.append(loc.y).append(",");
 	    buf.append(loc.orient);

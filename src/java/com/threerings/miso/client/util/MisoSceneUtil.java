@@ -1,7 +1,9 @@
 //
-// $Id: MisoSceneUtil.java,v 1.1 2001/09/21 02:30:35 mdb Exp $
+// $Id: MisoSceneUtil.java,v 1.2 2001/09/28 01:31:32 mdb Exp $
 
 package com.threerings.miso.scene.util;
+
+import java.util.List;
 
 import com.threerings.miso.scene.*;
 
@@ -25,10 +27,10 @@ public class MisoSceneUtil
      */
     public static Location getLocation (MisoScene scene, int x, int y)
     {
-        Location[] locs = scene.getLocations();
-	int size = locs.length;
+        List locs = scene.getLocations();
+	int size = locs.size();
 	for (int ii = 0; ii < size; ii++) {
-	    Location loc = locs[ii];
+	    Location loc = (Location)locs.get(ii);
 	    if (loc.x == x && loc.y == y) {
                 return loc;
             }
@@ -47,10 +49,10 @@ public class MisoSceneUtil
      */
     public static Portal getPortal (MisoScene scene, String name)
     {
-        Portal[] portals = scene.getPortals();
-	int size = portals.length;
+        List portals = scene.getPortals();
+	int size = portals.size();
 	for (int ii = 0; ii < size; ii++) {
-	    Portal portal = portals[ii];
+	    Portal portal = (Portal)portals.get(ii);
 	    if (portal.name.equals(name)) {
                 return portal;
             }

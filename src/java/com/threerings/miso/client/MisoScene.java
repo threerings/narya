@@ -1,7 +1,9 @@
 //
-// $Id: MisoScene.java,v 1.1 2001/09/21 02:30:35 mdb Exp $
+// $Id: MisoScene.java,v 1.2 2001/09/28 01:31:32 mdb Exp $
 
 package com.threerings.miso.scene;
+
+import java.util.List;
 
 import com.threerings.media.tile.Tile;
 import com.threerings.whirled.data.Scene;
@@ -36,19 +38,25 @@ public interface MisoScene extends Scene
     public Tile getDefaultTile ();
 
     /**
-     * Return the locations in this scene.
+     * Return the locations in this scene. The locations list should
+     * contain all locations and portals in the scene. The list returned
+     * by this method should <em>not</em> be modified.
      */
-    public Location[] getLocations ();
+    public List getLocations ();
 
     /**
-     * Return the clusters in this scene.
+     * Return the clusters in this scene. The clusters will reference all
+     * of the locations that are clustered. The list returned by this
+     * method should <em>not</em> be modified.
      */
-    public Cluster[] getClusters ();
+    public List getClusters ();
 
     /**
-     * Return the portals associated with this scene.
+     * Return the portals associated with this scene. Portals should never
+     * be part of a cluster. The list returned by this method should
+     * <em>not</em> be modified.
      */
-    public Portal[] getPortals ();
+    public List getPortals ();
 
     /**
      * Return the portal that is the default entrance to this scene.

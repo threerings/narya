@@ -1,9 +1,9 @@
 //
-// $Id: ClusterUtil.java,v 1.2 2001/09/21 02:30:35 mdb Exp $
+// $Id: ClusterUtil.java,v 1.3 2001/09/28 01:31:32 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;
@@ -22,11 +22,11 @@ public class ClusterUtil
      * @param clusters the cluster list.
      * @param loc the location.
      */
-    public static int getClusterIndex (Cluster[] clusters, Location loc)
+    public static int getClusterIndex (List clusters, Location loc)
     {
-	int size = clusters.length;
+	int size = clusters.size();
 	for (int ii = 0; ii < size; ii++) {
-	    Cluster cluster = clusters[ii];
+	    Cluster cluster = (Cluster)clusters.get(ii);
 	    if (cluster.contains(loc)) {
                 return ii;
             }
@@ -40,7 +40,7 @@ public class ClusterUtil
      * @param clusters the cluster array.
      * @param loc the location.
      */
-    public static void remove (ArrayList clusters, Location loc)
+    public static void remove (List clusters, Location loc)
     {
 	int size = clusters.size();
 	for (int ii = 0; ii < size; ii++) {
@@ -78,8 +78,7 @@ public class ClusterUtil
      * @param clusteridx the cluster index, or -1 to remove the location
      *                   from any cluster.
      */
-    public static void regroup (ArrayList clusters, Location loc,
-				int clusteridx)
+    public static void regroup (List clusters, Location loc, int clusteridx)
     {
 	// just remove the location if clusteridx is -1
 	if (clusteridx == -1) {

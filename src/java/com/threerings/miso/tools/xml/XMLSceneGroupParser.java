@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneGroupParser.java,v 1.4 2001/09/21 02:30:35 mdb Exp $
+// $Id: XMLSceneGroupParser.java,v 1.5 2001/09/28 01:31:32 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -291,12 +291,12 @@ public class XMLSceneGroupParser extends DefaultHandler
 		SceneInfo sinfo = (SceneInfo)sceneinfo.get(ii);
 
 		// get the portals in the scene
-		Portal[] portals = sinfo.scene.getPortals();
+		List portals = sinfo.scene.getPortals();
 
 		// check each portal to make sure it has a valid destination
-		int psize = portals.length;
+		int psize = portals.size();
 		for (int jj = 0; jj < size; jj++) {
-		    Portal portal = portals[jj];
+		    Portal portal = (Portal)portals.get(jj);
 		    if (!portal.hasDestination()) {
 			Log.warning("Unbound portal [scene=" + sinfo.name +
 				    ", portal=" + portal + "].");
