@@ -1,5 +1,5 @@
 //
-// $Id: ViewerFrame.java,v 1.31 2002/02/19 07:42:51 mdb Exp $
+// $Id: ViewerFrame.java,v 1.32 2002/04/06 04:53:05 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -24,7 +24,6 @@ public class ViewerFrame extends JFrame
 
         // set up the frame options
         setTitle("Scene Viewer");
-        setUndecorated(true);
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
