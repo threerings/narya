@@ -1,20 +1,17 @@
 //
-// $Id: ViewerFrame.java,v 1.24 2001/10/24 00:55:08 shaper Exp $
+// $Id: ViewerFrame.java,v 1.25 2001/10/25 16:33:20 shaper Exp $
 
 package com.threerings.miso.viewer;
 
 import javax.swing.JFrame;
 
 import com.threerings.media.sprite.SpriteManager;
-import com.threerings.media.tile.TileManager;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.viewer.util.ViewerContext;
 
 /**
- * The ViewerFrame is the main application window that constructs and
- * contains the application menu bar and panels and responds to menu
- * events.
+ * The viewer frame is the main application window.
  */
 public class ViewerFrame extends JFrame
 {
@@ -22,6 +19,7 @@ public class ViewerFrame extends JFrame
     {
 	super("Scene Viewer");
 
+        setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
@@ -30,15 +28,10 @@ public class ViewerFrame extends JFrame
      */
     public void init (ViewerContext ctx)
     {
-        // get a reference on our various manager objects
+        // create the sprite manager
         SpriteManager spritemgr = new SpriteManager();
-        TileManager tilemgr = ctx.getTileManager();
 
-	// set up the scene view panel with a default scene
-        ViewerSceneViewPanel svpanel =
-	    new ViewerSceneViewPanel(ctx, spritemgr);
-
-	// add the main panel to the frame
-	getContentPane().add(svpanel);
+        // add the main panel to the frame
+	getContentPane().add(new ViewerSceneViewPanel(ctx, spritemgr));
     }
 }
