@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.43 2003/06/05 18:41:36 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.44 2003/06/19 22:03:14 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -955,7 +955,7 @@ public class MisoScenePanel extends VirtualMediaPanel
 
             String tiptext = getTipText(scobj, action);
             if (tiptext != null) {
-                Icon icon = (oah == null) ? null : oah.getTipIcon(action);
+                Icon icon = getTipIcon(scobj, action);
                 SceneObjectTip tip = new SceneObjectTip(tiptext, icon);
                 _tips.put(scobj, tip);
             }
@@ -971,6 +971,16 @@ public class MisoScenePanel extends VirtualMediaPanel
     protected String getTipText (SceneObject scobj, String action)
     {
         return action;
+    }
+
+    /**
+     * Provides an icon for this tooltip, the default looks up an object
+     * action handler for the action and requests the icon from it.
+     */
+    protected Icon getTipIcon (SceneObject scobj, String action)
+    {
+        ObjectActionHandler oah = ObjectActionHandler.lookup(action);
+        return (oah == null) ? null : oah.getTipIcon(action);
     }
 
     /**
