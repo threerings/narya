@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.6 2001/08/10 21:17:07 shaper Exp $
+// $Id: IsoSceneViewModel.java,v 1.7 2001/08/15 01:08:49 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -149,7 +149,7 @@ public class IsoSceneModel
             (tilehwid * tilehwid) + (tilehhei * tilehhei));
 
         // calculate the number of tile rows to render
-        tilerows = (Scene.TILE_WIDTH * Scene.TILE_HEIGHT) - 1;
+        tilerows = (MisoScene.TILE_WIDTH * MisoScene.TILE_HEIGHT) - 1;
 
         // calculate the slope of the x- and y-axis lines
         slopeX = (float)tilehei / (float)tilewid;
@@ -212,7 +212,7 @@ public class IsoSceneModel
 	bX = (int)-(slopeX * origin.x);
 
         // determine the ending point
-	lineX[1].x = lineX[0].x + (tilehwid * Scene.TILE_WIDTH);
+	lineX[1].x = lineX[0].x + (tilehwid * MisoScene.TILE_WIDTH);
 	lineX[1].y = lineX[0].y + (int)((slopeX * lineX[1].x) + bX);
 
 	// calculate tile-based x-axis line for conversion from

@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.5 2001/08/14 23:35:22 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.6 2001/08/15 01:08:49 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -38,7 +38,7 @@ public class SceneViewPanel extends JPanel
     /**
      * Set the scene managed by the panel.
      */
-    public void setScene (Scene scene)
+    public void setScene (MisoScene scene)
     {
 	_view.setScene(scene);
     }

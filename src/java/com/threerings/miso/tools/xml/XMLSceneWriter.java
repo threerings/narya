@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneWriter.java,v 1.8 2001/08/11 00:01:40 shaper Exp $
+// $Id: XMLSceneWriter.java,v 1.9 2001/08/15 01:08:49 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -17,8 +17,8 @@ import com.threerings.miso.scene.*;
 import com.threerings.miso.tile.Tile;
 
 /**
- * The <code>XMLSceneWriter</code> writes a <code>Scene</code> object
- * to an XML file.
+ * The <code>XMLSceneWriter</code> writes a {@link
+ * com.threerings.miso.scene.MisoScene} object to an XML file.
  *
  * <p> The scene id is omitted as the scene id is assigned when the
  * scene template is actually loaded into a server.  Similarly, exit
@@ -39,7 +39,7 @@ public class XMLSceneWriter extends DataWriter
      *
      * @param fname the file to write to.
      */
-    public void saveScene (Scene scene, String fname) throws IOException
+    public void saveScene (MisoScene scene, String fname) throws IOException
     {
         FileOutputStream fos = new FileOutputStream(fname);
         setOutput(new OutputStreamWriter(fos));
@@ -50,7 +50,7 @@ public class XMLSceneWriter extends DataWriter
             startElement("scene");
 
             dataElement("name", scene.getName());
-            dataElement("version", "" + Scene.VERSION);
+            dataElement("version", "" + MisoScene.VERSION);
             dataElement("locations", getLocationData(scene));
 
 	    startElement("clusters");
@@ -60,7 +60,7 @@ public class XMLSceneWriter extends DataWriter
             dataElement("exits", getExitData(scene));
 
             startElement("tiles");
-            for (int lnum = 0; lnum < Scene.NUM_LAYERS; lnum++) {
+            for (int lnum = 0; lnum < MisoScene.NUM_LAYERS; lnum++) {
                 writeLayer(scene, lnum);
             }
             endElement("tiles");
@@ -82,7 +82,7 @@ public class XMLSceneWriter extends DataWriter
      *
      * @param scene the scene object.
      */
-    protected void writeClusters (Scene scene) throws SAXException
+    protected void writeClusters (MisoScene scene) throws SAXException
     {
 	ArrayList clusters = scene.getClusters();
 	ArrayList locs = scene.getLocations();
@@ -115,14 +115,14 @@ public class XMLSceneWriter extends DataWriter
      * @param scene the scene object.
      * @param lnum the layer number.
      */
-    protected void writeLayer (Scene scene, int lnum) throws SAXException
+    protected void writeLayer (MisoScene scene, int lnum) throws SAXException
     {
         AttributesImpl attrs = new AttributesImpl();
         attrs.addAttribute("", "lnum", "", "CDATA", "" + lnum);
 
         startElement("", "layer", "", attrs);
-        for (int yy = 0; yy < Scene.TILE_HEIGHT; yy++) {
-            if (lnum == Scene.LAYER_BASE) {
+        for (int yy = 0; yy < MisoScene.TILE_HEIGHT; yy++) {
+            if (lnum == MisoScene.LAYER_BASE) {
                 writeTileRowData(scene, yy, lnum);
             } else {
                 writeSparseTileRowData(scene, yy, lnum);
@@ -140,7 +140,7 @@ public class XMLSceneWriter extends DataWriter
      *
      * @return the exits in String format.
      */
-    protected String getExitData (Scene scene)
+    protected String getExitData (MisoScene scene)
     {
 	ArrayList locs = scene.getLocations();
 	ArrayList exits = scene.getExits();
@@ -164,7 +164,7 @@ public class XMLSceneWriter extends DataWriter
      *
      * @return the locations in String format.
      */
-    protected String getLocationData (Scene scene)
+    protected String getLocationData (MisoScene scene)
     {
 	ArrayList locs = scene.getLocations();
 
@@ -195,7 +195,7 @@ public class XMLSceneWriter extends DataWriter
      *
      * @return the tile data in String format.
      */
-    protected String getTileData (Scene scene, int rownum, int lnum,
+    protected String getTileData (MisoScene scene, int rownum, int lnum,
                                   int colstart, int len)
     {
         StringBuffer buf = new StringBuffer();
@@ -230,7 +230,7 @@ public class XMLSceneWriter extends DataWriter
      * @param rownum the row in the scene tile array.
      * @param lnum the layer number in the scene tile array.
      */
-    protected void writeTileRowData (Scene scene, int rownum, int lnum)
+    protected void writeTileRowData (MisoScene scene, int rownum, int lnum)
         throws SAXException
     {
         // set up the attributes for this row
@@ -238,7 +238,8 @@ public class XMLSceneWriter extends DataWriter
         attrs.addAttribute("", "rownum", "", "CDATA", "" + rownum);
 
         // output the full row data element
-        String data = getTileData(scene, rownum, lnum, 0, Scene.TILE_WIDTH);
+        String data = getTileData(scene, rownum, lnum, 0,
+                                  MisoScene.TILE_WIDTH);
         dataElement("", "row", "", attrs, data);
     }
 
@@ -260,11 +261,11 @@ public class XMLSceneWriter extends DataWriter
      *
      * @return true if any tiles were found, false if not.
      */
-    protected boolean
-        getSparseColumn (Scene scene, int rownum, int lnum, int info[])
+    protected boolean getSparseColumn (
+        MisoScene scene, int rownum, int lnum, int info[])
     {
         int start = -1, len = 0;
-        for (int xx = info[0]; xx < Scene.TILE_WIDTH; xx++) {
+        for (int xx = info[0]; xx < MisoScene.TILE_WIDTH; xx++) {
             Tile tile = scene.tiles[xx][rownum][lnum];
             if (tile == null) {
                 if (start == -1) continue;
@@ -297,7 +298,7 @@ public class XMLSceneWriter extends DataWriter
      * @param lnum the layer number in the scene tile array.
      */
     protected void
-        writeSparseTileRowData (Scene scene, int rownum, int lnum)
+        writeSparseTileRowData (MisoScene scene, int rownum, int lnum)
         throws SAXException
     {
         // set up the attributes for this row

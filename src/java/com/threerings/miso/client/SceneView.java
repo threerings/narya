@@ -1,5 +1,5 @@
 //
-// $Id: SceneView.java,v 1.10 2001/08/14 23:35:22 mdb Exp $
+// $Id: SceneView.java,v 1.11 2001/08/15 01:08:49 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -28,7 +28,7 @@ public interface SceneView extends AnimatedView
      *
      * @param scene the scene to render in the view.
      */
-    public void setScene (Scene scene);
+    public void setScene (MisoScene scene);
 
     /**
      * Return a Path object detailing a valid path for the given

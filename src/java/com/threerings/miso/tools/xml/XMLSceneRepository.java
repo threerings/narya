@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneRepository.java,v 1.6 2001/08/15 00:10:58 mdb Exp $
+// $Id: XMLSceneRepository.java,v 1.7 2001/08/15 01:08:49 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import com.samskivert.util.Config;
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.Scene;
+import com.threerings.miso.scene.MisoScene;
 import com.threerings.miso.tile.TileManager;
 
 /**
@@ -51,14 +51,14 @@ public class XMLFileSceneRepository
     }
 
     /**
-     * Loads and returns a Scene object for the scene described in the
-     * specified XML file.  The filename should be relative to the
+     * Loads and returns a miso scene object for the scene described in
+     * the specified XML file. The filename should be relative to the
      * scene root directory.
      *
      * @param fname the full pathname to the file.
-     * @return the Scene object.
+     * @return the scene object.
      */
-    public Scene loadScene (String fname) throws IOException
+    public MisoScene loadScene (String fname) throws IOException
     {
 	String path = getScenePath() + fname;
 	Log.info("Loading scene [path=" + path + "].");
@@ -74,7 +74,7 @@ public class XMLFileSceneRepository
      * @param scene the scene to save.
      * @param fname the file to write the scene to.
      */
-    public void saveScene (Scene scene, String fname) throws IOException
+    public void saveScene (MisoScene scene, String fname) throws IOException
     {
 	String path = getScenePath() + fname;
 	Log.info("Saving scene [path=" + path + "].");

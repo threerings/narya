@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.10 2001/08/13 15:00:24 shaper Exp $
+// $Id: XMLSceneParser.java,v 1.11 2001/08/15 01:08:49 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -58,12 +58,12 @@ public class XMLSceneParser extends DefaultHandler
 
 	} else if (qName.equals("version")) {
             int version = getInt(_chars.toString());
-            if (version < 0 || version > Scene.VERSION) {
+            if (version < 0 || version > MisoScene.VERSION) {
                 Log.warning(
                     "Unrecognized scene file format version, will attempt " + 
                     "to continue parsing file but your mileage may vary " +
                     "[fname=" + _fname + ", version=" + version +
-                    ", known_version=" + Scene.VERSION + "].");
+                    ", known_version=" + MisoScene.VERSION + "].");
             }
 
 	} else if (qName.equals("locations")) {
@@ -79,7 +79,7 @@ public class XMLSceneParser extends DefaultHandler
 	    _scExits = toExitList(_scLocations, vals);
 
 	} else if (qName.equals("row")) {
-            if (_scLnum == Scene.LAYER_BASE) {
+            if (_scLnum == MisoScene.LAYER_BASE) {
                 readRowData(_chars.toString());
             } else {
                 readSparseRowData(_chars.toString());
@@ -87,7 +87,7 @@ public class XMLSceneParser extends DefaultHandler
 
         } else if (qName.equals("scene")) {
             // construct the scene object on tag close
-            _scene = new Scene(
+            _scene = new MisoScene(
                 _tilemgr, _scName, _scLocations, _scClusters,
 		_scExits, _scTiles);
 
@@ -122,7 +122,7 @@ public class XMLSceneParser extends DefaultHandler
         int[] vals = StringUtil.parseIntArray(data);
 
         // make sure we have a suitable number of tiles
-        int validLen = Scene.TILE_WIDTH * 2;
+        int validLen = MisoScene.TILE_WIDTH * 2;
         if (vals.length != validLen) {
             Log.warning(
                 "Invalid number of tiles in full row data set, skipping set " +
@@ -270,22 +270,22 @@ public class XMLSceneParser extends DefaultHandler
     {
 	_chars = new StringBuffer();
 	_scene = null;
-	int width = Scene.TILE_WIDTH, height = Scene.TILE_HEIGHT;
-	_scTiles = new Tile[width][height][Scene.NUM_LAYERS];
+	int width = MisoScene.TILE_WIDTH, height = MisoScene.TILE_HEIGHT;
+	_scTiles = new Tile[width][height][MisoScene.NUM_LAYERS];
 	_scLocations = null;
 	_scExits = null;
 	_scClusters = new ArrayList();
     }	
 
     /**
-     * Parse the specified XML file and return a Scene object with the
-     * data contained therein.
+     * Parse the specified XML file and return a miso scene object with
+     * the data contained therein.
      *
      * @param fname the file name.
      *
      * @return the scene object, or null if an error occurred.
      */
-    public Scene loadScene (String fname) throws IOException
+    public MisoScene loadScene (String fname) throws IOException
     {
         _fname = fname;
 
@@ -318,7 +318,7 @@ public class XMLSceneParser extends DefaultHandler
     protected String _tag;
 
     /** The scene object constructed as each scene file is read. */
-    protected Scene _scene;
+    protected MisoScene _scene;
 
     /** The tile manager object for use in constructing scenes. */
     protected TileManager _tilemgr;

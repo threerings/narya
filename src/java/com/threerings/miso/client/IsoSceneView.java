@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.43 2001/08/14 23:35:22 mdb Exp $
+// $Id: IsoSceneView.java,v 1.44 2001/08/15 01:08:49 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -46,7 +46,7 @@ public class IsoSceneView implements EditableSceneView
 	_font = new Font("Arial", Font.PLAIN, 7);
 
         // create the array used to mark dirty tiles
-        _dirty = new boolean[Scene.TILE_WIDTH][Scene.TILE_HEIGHT];
+        _dirty = new boolean[MisoScene.TILE_WIDTH][MisoScene.TILE_HEIGHT];
 
 	// create the list of dirty rectangles
 	_dirtyRects = new ArrayList();
@@ -103,8 +103,8 @@ public class IsoSceneView implements EditableSceneView
 	_dirtyRects.clear();
 
 	_numDirty = 0;
-	for (int xx = 0; xx < Scene.TILE_WIDTH; xx++) {
-	    for (int yy = 0; yy < Scene.TILE_HEIGHT; yy++) {
+	for (int xx = 0; xx < MisoScene.TILE_WIDTH; xx++) {
+	    for (int yy = 0; yy < MisoScene.TILE_HEIGHT; yy++) {
 		_dirty[xx][yy] = false;
 	    }
 	}
@@ -114,8 +114,8 @@ public class IsoSceneView implements EditableSceneView
     {
 	// draw the dirty tiles
 	gfx.setColor(Color.cyan);
-	for (int xx = 0; xx < Scene.TILE_WIDTH; xx++) {
-	    for (int yy = 0; yy < Scene.TILE_HEIGHT; yy++) {
+	for (int xx = 0; xx < MisoScene.TILE_WIDTH; xx++) {
+	    for (int yy = 0; yy < MisoScene.TILE_HEIGHT; yy++) {
 		if (_dirty[xx][yy]) {
 		    gfx.draw(IsoUtil.getTilePolygon(_model, xx, yy));
 		}
@@ -140,8 +140,8 @@ public class IsoSceneView implements EditableSceneView
     {
 	int numDrawn = 0;
 
-	for (int yy = 0; yy < Scene.TILE_HEIGHT; yy++) {
-	    for (int xx = 0; xx < Scene.TILE_WIDTH; xx++) {
+	for (int yy = 0; yy < MisoScene.TILE_HEIGHT; yy++) {
+	    for (int xx = 0; xx < MisoScene.TILE_WIDTH; xx++) {
 
 		// skip this tile if it's not marked dirty
 		if (!_dirty[xx][yy]) continue;
@@ -150,7 +150,7 @@ public class IsoSceneView implements EditableSceneView
 		Polygon poly = IsoUtil.getTilePolygon(_model, xx, yy);
 
 		// draw all layers at this tile position
-		for (int kk = 0; kk < Scene.NUM_LAYERS; kk++) {
+		for (int kk = 0; kk < MisoScene.NUM_LAYERS; kk++) {
 
 		    // get the tile at these coordinates and layer
 		    Tile tile = _scene.tiles[xx][yy][kk];
@@ -192,7 +192,7 @@ public class IsoSceneView implements EditableSceneView
 
 	for (int ii = 0; ii < _model.tilerows; ii++) {
 	    // determine starting tile coordinates
-	    int tx = (ii < Scene.TILE_HEIGHT) ? 0 : mx++;
+	    int tx = (ii < MisoScene.TILE_HEIGHT) ? 0 : mx++;
 	    int ty = my;
 
 	    // determine number of tiles in this row
@@ -203,7 +203,7 @@ public class IsoSceneView implements EditableSceneView
 
 	    for (int jj = 0; jj < length; jj++) {
 
-		for (int kk = 0; kk < Scene.NUM_LAYERS; kk++) {
+		for (int kk = 0; kk < MisoScene.NUM_LAYERS; kk++) {
 		    // grab the tile we're rendering
 		    Tile tile = _scene.tiles[tx][ty][kk];
 		    if (tile == null) continue;
@@ -239,7 +239,9 @@ public class IsoSceneView implements EditableSceneView
 	    screenY += _model.tilehhei;
 
 	    // advance starting y-axis coordinate unless we've hit bottom
-	    if ((++my) > Scene.TILE_HEIGHT - 1) my = Scene.TILE_HEIGHT - 1;
+	    if ((++my) > MisoScene.TILE_HEIGHT - 1) {
+                my = MisoScene.TILE_HEIGHT - 1;
+            }
 	}
     }
 
@@ -510,7 +512,7 @@ public class IsoSceneView implements EditableSceneView
 	}
     }
 
-    public void setScene (Scene scene)
+    public void setScene (MisoScene scene)
     {
 	_scene = scene;
     }
@@ -623,7 +625,7 @@ public class IsoSceneView implements EditableSceneView
     protected IsoSceneModel _model;
 
     /** The scene object to be displayed. */
-    protected Scene _scene;
+    protected MisoScene _scene;
 
     /** The sprite manager. */
     protected SpriteManager _spritemgr;

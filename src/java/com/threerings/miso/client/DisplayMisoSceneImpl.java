@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.27 2001/08/14 21:29:40 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.28 2001/08/15 01:08:49 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -8,18 +8,20 @@ import java.io.*;
 import java.util.ArrayList;
 
 import com.samskivert.util.StringUtil;
+
+import com.threerings.whirled.data.Scene;
+
 import com.threerings.miso.Log;
 import com.threerings.miso.tile.Tile;
 import com.threerings.miso.tile.TileManager;
 import com.threerings.miso.scene.util.ClusterUtil;
 
 /**
- * A Scene object represents the data model corresponding to a single
- * screen for game play.  For instance, one scene might display a
- * portion of a street with several buildings scattered about on the
- * periphery.
+ * A scene object represents the data model corresponding to a single
+ * screen for game play. For instance, one scene might display a portion
+ * of a street with several buildings scattered about on the periphery.
  */
-public class Scene
+public class MisoScene implements Scene
 {
     /** The base layer id. */
     public static final int LAYER_BASE = 0;
@@ -52,15 +54,15 @@ public class Scene
     public Tile tiles[][][];
 
     /**
-     * Construct a new Scene object.  The base layer tiles are
-     * initialized to contain tiles of the specified default tileset
-     * and tile id.
+     * Construct a new miso scene object. The base layer tiles are
+     * initialized to contain tiles of the specified default tileset and
+     * tile id.
      *
      * @param tilemgr the tile manager.
      * @param deftsid the default tileset id.
      * @param deftid the default tile id.
      */
-    public Scene (TileManager tilemgr, int deftsid, int deftid)
+    public MisoScene (TileManager tilemgr, int deftsid, int deftid)
     {
 	_tilemgr = tilemgr;
 
@@ -85,7 +87,7 @@ public class Scene
     }
 
     /**
-     * Construct a new Scene object with the given values.
+     * Construct a new miso scene object with the given values.
      *
      * @param tilemgr the tile manager.
      * @param name the scene name.
@@ -93,9 +95,9 @@ public class Scene
      * @param exits the exits.
      * @param tiles the tiles comprising the scene.
      */
-    public Scene (TileManager tilemgr, String name,
-                  ArrayList locations, ArrayList clusters, ArrayList exits,
-                  Tile tiles[][][])
+    public MisoScene (
+        TileManager tilemgr, String name, ArrayList locations,
+        ArrayList clusters, ArrayList exits, Tile tiles[][][])
     {
         _tilemgr = tilemgr;
         _sid = SID_INVALID;
@@ -212,9 +214,27 @@ public class Scene
     /**
      * Return the scene identifier.
      */
-    public short getId ()
+    public int getId ()
     {
         return _sid;
+    }
+
+    /**
+     * Returns this scene's version number (which is incremented when it
+     * is modified and stored into the scene repository).
+     */
+    public int getVersion ()
+    {
+        // fake it for now
+        return 1;
+    }
+
+    /**
+     * Returns the scene ids of the exits from this scene.
+     */
+    public int[] getExitIds ()
+    {
+        return null;
     }
 
     /**
