@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.11 2002/05/08 21:15:26 shaper Exp $
+// $Id: MessageBundle.java,v 1.12 2002/05/24 20:33:30 mdb Exp $
 
 package com.threerings.util;
 
@@ -53,14 +53,29 @@ public class MessageBundle
      */
     protected String getResourceString (String key)
     {
+        return getResourceString(key, true);
+    }
+
+    /**
+     * Get a String from the resource bundle, or null if there was an
+     * error.
+     *
+     * @param key the resource key.
+     * @param reportMissing whether or not the method should log an error
+     * if the resource didn't exist.
+     */
+    protected String getResourceString (String key, boolean reportMissing)
+    {
         try {
             if (_bundle != null) {
                 return _bundle.getString(key);
             }
 
         } catch (MissingResourceException mre) {
-            Log.warning("Missing translation message " +
-                        "[bundle=" + _path + ", key=" + key + "].");
+            if (reportMissing) {
+                Log.warning("Missing translation message " +
+                            "[bundle=" + _path + ", key=" + key + "].");
+            }
         }
         return null;
     }
