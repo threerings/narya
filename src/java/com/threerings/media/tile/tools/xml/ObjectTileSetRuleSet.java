@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSetRuleSet.java,v 1.4 2002/02/05 20:29:09 mdb Exp $
+// $Id: ObjectTileSetRuleSet.java,v 1.5 2003/01/29 21:31:37 mdb Exp $
 
 package com.threerings.media.tile.tools.xml;
 
@@ -36,6 +36,8 @@ import com.threerings.media.tile.ObjectTileSet;
  *   &lt;objectWidths&gt;4, 3, 4, 3&lt;/objectWidths&gt;
  *   &lt;!-- the heights (in unit tile count) of the objects --&gt;
  *   &lt;objectHeights&gt;3, 4, 3, 4&lt;/objectHeights&gt;
+ *   &lt;!-- the default render priorities for these object tiles --&gt;
+ *   &lt;priorities&gt;0, 0, -1, 0&lt;/priorities&gt;
  * &lt;/tileset&gt;
  * </pre>
  */
@@ -83,6 +85,16 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
                 {
                     int[] yorigins = StringUtil.parseIntArray(bodyText);
                     ((ObjectTileSet)target).setYOrigins(yorigins);
+                }
+            });
+
+        digester.addRule(
+            _prefix + TILESET_PATH + "/priorities",
+            new CallMethodSpecialRule(digester) {
+                public void parseAndSet (String bodyText, Object target)
+                {
+                    int[] prios = StringUtil.parseIntArray(bodyText);
+                    ((ObjectTileSet)target).setPriorities(prios);
                 }
             });
     }

@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSet.java,v 1.10 2003/01/15 09:28:43 mdb Exp $
+// $Id: ObjectTileSet.java,v 1.11 2003/01/29 21:31:37 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -52,6 +52,14 @@ public class ObjectTileSet extends SwissArmyTileSet
         _yorigins = yorigins;
     }
 
+    /**
+     * Sets the default render priorities for our object tiles.
+     */
+    public void setPriorities (int[] priorities)
+    {
+        _priorities = priorities;
+    }
+
     // documentation inherited
     protected void toString (StringBuffer buf)
     {
@@ -60,6 +68,7 @@ public class ObjectTileSet extends SwissArmyTileSet
 	buf.append(", oheights=").append(StringUtil.toString(_oheights));
 	buf.append(", xorigins=").append(StringUtil.toString(_xorigins));
 	buf.append(", yorigins=").append(StringUtil.toString(_yorigins));
+	buf.append(", prios=").append(StringUtil.toString(_priorities));
     }
 
     /**
@@ -75,8 +84,10 @@ public class ObjectTileSet extends SwissArmyTileSet
         if (_xorigins != null) {
             tile.setOrigin(_xorigins[tileIndex], _yorigins[tileIndex]);
         }
+        if (_priorities != null) {
+            tile.setPriority(_priorities[tileIndex]);
+        }
         return tile;
-            
     }
 
     /** The width (in tile units) of our object tiles. */
@@ -90,6 +101,9 @@ public class ObjectTileSet extends SwissArmyTileSet
 
     /** The y offset in pixels to the origin of the tile images. */
     protected int[] _yorigins;
+
+    /** The default render priorities of our objects. */
+    protected int[] _priorities;
 
     /** Increase this value when object's serialized state is impacted by
      * a class change (modification of fields, inheritance). */

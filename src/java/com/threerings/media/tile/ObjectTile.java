@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTile.java,v 1.13 2003/01/13 22:49:46 mdb Exp $
+// $Id: ObjectTile.java,v 1.14 2003/01/29 21:31:37 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -94,6 +94,22 @@ public class ObjectTile extends Tile
         _originY = y;
     }
 
+    /**
+     * Returns this object tile's default render priority.
+     */
+    public int getPriority ()
+    {
+        return _priority;
+    }
+
+    /**
+     * Sets this object tile's default render priority.
+     */
+    protected void setPriority (int priority)
+    {
+        _priority = priority;
+    }
+
     // documentation inherited
     public void toString (StringBuffer buf)
     {
@@ -102,6 +118,7 @@ public class ObjectTile extends Tile
         buf.append(", baseHeight=").append(_baseHeight);
         buf.append(", originX=").append(_originX);
         buf.append(", originY=").append(_originY);
+        buf.append(", priority=").append(_priority);
     }
 
     /** The object footprint width in unit tile units. */
@@ -119,4 +136,7 @@ public class ObjectTile extends Tile
      * origin or MIN_VALUE if the origin should be calculated based on the
      * footprint. */
     protected int _originY = Integer.MIN_VALUE;
+
+    /** This object tile's default render priority. */
+    protected int _priority;
 }
