@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.43 2003/02/14 21:24:13 mdb Exp $
+// $Id: CharacterSprite.java,v 1.44 2003/03/25 20:53:16 mdb Exp $
 
 package com.threerings.cast;
 
@@ -143,6 +143,13 @@ public class CharacterSprite extends ImageSprite
     // documentation inherited
     public void setOrientation (int orient)
     {
+        if (orient < 0 || orient >= FINE_DIRECTION_COUNT) {
+            Log.info("Refusing to set invalid orientation [sprite=" + this +
+                     ", orient=" + orient + "].");
+            Thread.dumpStack();
+            return;
+        }
+
         int oorient = _orient;
         super.setOrientation(orient);
         if (_orient != oorient) {
