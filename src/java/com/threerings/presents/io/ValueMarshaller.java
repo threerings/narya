@@ -1,9 +1,10 @@
 //
-// $Id: ValueMarshaller.java,v 1.6 2001/10/19 18:03:28 mdb Exp $
+// $Id: ValueMarshaller.java,v 1.7 2002/01/23 18:01:19 mdb Exp $
 
 package com.threerings.presents.dobj.io;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.HashMap;
 
 import com.samskivert.util.HashIntMap;
@@ -43,12 +44,15 @@ public class ValueMarshaller
     public static void writeTo (DataOutputStream out, Object value)
         throws IOException
     {
-        // all types except streamable have a one to one mapping from
-        // class object to marshaller, but streamables have to be looked
-        // up specially because we are dealing with a interface
-        // implementation of streamable rather than a direct instance
-        Class vclass = (value instanceof Streamable) ?
-            Streamable.class : value.getClass();
+        // all types except streamable and arrays of streamable have a one
+        // to one mapping from class object to marshaller, but streamables
+        // have to be looked up specially because we are dealing with a
+        // interface implementation of streamable rather than a direct
+        // instance
+        Class vclass = ((value instanceof Streamable) ?
+                        Streamable.class :
+                        ((value instanceof Streamable[]) ?
+                         STREAMARRAY_CLASS : value.getClass()));
 
         Marshaller marsh = (Marshaller)_outmap.get(vclass);
         if (marsh == null) {
@@ -521,8 +525,56 @@ public class ValueMarshaller
         }
     }
 
+    protected static class StreamableArrayMarshaller extends Marshaller
+    {
+        public StreamableArrayMarshaller ()
+        {
+            super((byte)16);
+        }
+
+        public void writeValue (DataOutputStream out, Object value)
+            throws IOException
+        {
+            out.writeUTF(value.getClass().getComponentType().getName());
+            Streamable[] values = (Streamable[])value;
+            int vlength = values.length;
+            out.writeInt(vlength);
+            for (int i = 0; i < vlength; i++) {
+                values[i].writeTo(out);
+            }
+        }
+
+        public Object readValue (DataInputStream in)
+            throws IOException
+        {
+            String cname = in.readUTF();
+            int vlength = in.readInt();
+
+            try {
+                Class vclass = Class.forName(cname);
+                Streamable[] values = (Streamable[])
+                    Array.newInstance(vclass, vlength);
+                for (int i = 0; i < vlength; i++) {
+                    Streamable value = (Streamable)vclass.newInstance();
+                    value.readFrom(in);
+                    values[i] = value;
+                }
+                return values;
+
+            } catch (Exception e) {
+                throw new IOException("Unable to unmarshall streamable " +
+                                      "array [cname=" + cname +
+                                      ", length=" + vlength +
+                                      ", error=" + e + "]");
+            }
+        }
+    }
+
     protected static HashMap _outmap = new HashMap();
     protected static HashIntMap _inmap = new HashIntMap();
+
+    protected static final Class STREAMARRAY_CLASS =
+        (new Streamable[0]).getClass();
 
     protected static Class[] _classes = {
         Byte.class,
@@ -532,6 +584,7 @@ public class ValueMarshaller
         Float.class,
         Double.class,
         String.class,
+        Streamable.class,
         (new byte[0]).getClass(),
         (new short[0]).getClass(),
         (new int[0]).getClass(),
@@ -539,7 +592,7 @@ public class ValueMarshaller
         (new float[0]).getClass(),
         (new double[0]).getClass(),
         (new String[0]).getClass(),
-        Streamable.class
+        STREAMARRAY_CLASS,
     };
 
     protected static Marshaller[] _marshallers = {
@@ -550,6 +603,7 @@ public class ValueMarshaller
         new FloatMarshaller(),
         new DoubleMarshaller(),
         new StringMarshaller(),
+        new StreamableMarshaller(),
         new ByteArrayMarshaller(),
         new ShortArrayMarshaller(),
         new IntegerArrayMarshaller(),
@@ -557,7 +611,7 @@ public class ValueMarshaller
         new FloatArrayMarshaller(),
         new DoubleArrayMarshaller(),
         new StringArrayMarshaller(),
-        new StreamableMarshaller()
+        new StreamableArrayMarshaller(),
     };
 
     // register our marshallers
