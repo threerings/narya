@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.59 2003/04/08 01:46:16 ray Exp $
+// $Id: SoundManager.java,v 1.60 2003/04/08 20:30:44 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -143,9 +143,17 @@ public class SoundManager
 
                         } else if (LOCK == command) {
                             if (!isTesting()) {
-                                getClipData(key); // preload
-                                // copy the cached sound into the lock map
-                                _lockedClips.put(key, _clipCache.get(key));
+                                try {
+                                    getClipData(key); // preload
+                                    // copy the cached sound into the lock map
+                                    _lockedClips.put(key, _clipCache.get(key));
+                                } catch (Exception e) {
+                                    // don't whine about LOCK failures
+                                    // unless we have verbose logging on.
+                                    if (_verbose.getValue()) {
+                                        throw e;
+                                    }
+                                }
                             }
 
                         } else if (UNLOCK == command) {
