@@ -19,10 +19,10 @@
   </mapping>
 
   <!-- the mapping for tiles in the object layer -->
-  <!--
   <mapping>
     <path>bundle/object</path>
-    <ruleset>com.threerings.media.tools.tile.xml.ObjectTileSetRuleSet</ruleset>
+    <ruleset>
+      com.threerings.media.tools.tile.xml.ObjectTileSetRuleSet
+    </ruleset>
   </mapping>
-  -->
 </bundler-config>
