@@ -1,5 +1,5 @@
 //
-// $Id: Streamer.java,v 1.6 2003/04/10 17:47:45 mdb Exp $
+// $Id: Streamer.java,v 1.7 2003/06/02 17:24:18 mdb Exp $
 
 package com.threerings.io;
 
@@ -324,7 +324,15 @@ public class Streamer
                     Log.info(in.hashCode() +
                              ": Reading field '" + field.getName() + "'.");
                 }
-                fm.readField(field, object, in);
+                // gracefully deal with objects that have had new fields
+                // added to their class definition
+                if (in.available() > 0) {
+                    fm.readField(field, object, in);
+                } else {
+                    Log.info("Streamed instance missing field (probably " +
+                             "newly added) [class=" + _target.getName() +
+                             ", field=" + field.getName() + "].");
+                }
             } catch (Exception e) {
                 Log.logStackTrace(e);
                 String errmsg = "Failure reading streamable field " +
