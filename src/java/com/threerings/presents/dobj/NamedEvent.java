@@ -1,5 +1,5 @@
 //
-// $Id: NamedEvent.java,v 1.2 2004/08/27 02:20:20 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -29,10 +29,10 @@ public abstract class NamedEvent extends DEvent
 {
     /**
      * Constructs a new named event for the specified target object with
-     * the supplied lock name.
+     * the supplied attribute name.
      *
      * @param targetOid the object id of the object in question.
-     * @param name the name of the lock to release.
+     * @param name the name associated with this event.
      */
     public NamedEvent (int targetOid, String name)
     {
@@ -49,7 +49,7 @@ public abstract class NamedEvent extends DEvent
     }
 
     /**
-     * Returns the name of the lock to release.
+     * Returns the name of the attribute to which this event pertains.
      */
     public String getName ()
     {
