@@ -179,7 +179,7 @@ public class PlaceObject extends DObject
     public void setOccupantInfo (DSet value)
     {
         requestAttributeChange(OCCUPANT_INFO, value, this.occupantInfo);
-        this.occupantInfo = (DSet)value.clone();
+        this.occupantInfo = (value == null) ? null : (DSet)value.clone();
     }
 
     /**

@@ -265,7 +265,7 @@ public class GameObject extends PlaceObject
         Name[] ovalue = this.players;
         requestAttributeChange(
             PLAYERS, value, ovalue);
-        this.players = (Name[])value.clone();
+        this.players = (value == null) ? null : (Name[])value.clone();
     }
 
     /**
@@ -298,7 +298,7 @@ public class GameObject extends PlaceObject
         boolean[] ovalue = this.winners;
         requestAttributeChange(
             WINNERS, value, ovalue);
-        this.winners = (boolean[])value.clone();
+        this.winners = (value == null) ? null : (boolean[])value.clone();
     }
 
     /**

@@ -125,7 +125,7 @@ public class ClientObject extends DObject
     public void setReceivers (DSet value)
     {
         requestAttributeChange(RECEIVERS, value, this.receivers);
-        this.receivers = (DSet)value.clone();
+        this.receivers = (value == null) ? null : (DSet)value.clone();
     }
     // AUTO-GENERATED: METHODS END
 }

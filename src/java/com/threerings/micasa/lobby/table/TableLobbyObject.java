@@ -105,7 +105,7 @@ public class TableLobbyObject
     public void setTableSet (DSet value)
     {
         requestAttributeChange(TABLE_SET, value, this.tableSet);
-        this.tableSet = (DSet)value.clone();
+        this.tableSet = (value == null) ? null : (DSet)value.clone();
     }
     // AUTO-GENERATED: METHODS END
 }

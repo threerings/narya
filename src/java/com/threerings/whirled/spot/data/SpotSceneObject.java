@@ -88,7 +88,7 @@ public class SpotSceneObject extends SceneObject
     public void setOccupantLocs (DSet value)
     {
         requestAttributeChange(OCCUPANT_LOCS, value, this.occupantLocs);
-        this.occupantLocs = (DSet)value.clone();
+        this.occupantLocs = (value == null) ? null : (DSet)value.clone();
     }
 
     /**
@@ -134,7 +134,7 @@ public class SpotSceneObject extends SceneObject
     public void setClusters (DSet value)
     {
         requestAttributeChange(CLUSTERS, value, this.clusters);
-        this.clusters = (DSet)value.clone();
+        this.clusters = (value == null) ? null : (DSet)value.clone();
     }
     // AUTO-GENERATED: METHODS END
 }
