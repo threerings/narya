@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.51 2003/01/24 21:36:04 mdb Exp $
+// $Id: PresentsClient.java,v 1.52 2003/02/01 04:43:47 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -186,6 +186,7 @@ public class PresentsClient
                 Log.warning("Unable to resolve new client object " +
                             "[oldname=" + _username + ", newname=" + username +
                             ", reason=" + reason + "].");
+                Log.logStackTrace(reason);
 
                 // let our listener know we're hosed
                 if (ucl != null) {
