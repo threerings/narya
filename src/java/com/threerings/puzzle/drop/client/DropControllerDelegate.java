@@ -1,5 +1,5 @@
 //
-// $Id: DropControllerDelegate.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: DropControllerDelegate.java,v 1.2 2003/12/31 01:26:23 ray Exp $
 
 package com.threerings.puzzle.drop.client;
 
@@ -374,7 +374,7 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
         // get the drop block position resulting from the rotation
         int[] info = _dboard.getForgivingRotation(
             rows, cols, _blocksprite.getOrientation(), dir,
-            getRotationType(), pctdone);
+            getRotationType(), pctdone, _blocksprite.canPopup());
         if (info != null) {
 //             Log.info("Found valid rotation " +
 //                      "[orient=" + DirectionUtil.toShortString(info[0]) +
@@ -386,6 +386,10 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
 
             // place the block in its newly rotated location
             _blocksprite.setBoardLocation(info[2], info[1]);
+
+            if (info[3] != 0) {
+                _blocksprite.didPopup();
+            }
 
             // let derived classes do what they will
             blockDidRotate(dir);

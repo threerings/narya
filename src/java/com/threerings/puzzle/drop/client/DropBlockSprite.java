@@ -1,5 +1,5 @@
 //
-// $Id: DropBlockSprite.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: DropBlockSprite.java,v 1.2 2003/12/31 01:26:23 ray Exp $
 
 package com.threerings.puzzle.drop.client;
 
@@ -161,6 +161,22 @@ public class DropBlockSprite extends DropSprite
     }
 
     /**
+     * Can this sprite pop-up a row on a forgiving rotation?
+     */
+    public boolean canPopup ()
+    {
+        return (_popups > 0);
+    }
+
+    /**
+     * Called if we pop up to decrement the remaining popups we have.
+     */
+    public void didPopup ()
+    {
+        _popups--;
+    }
+
+    /**
      * Re-calculates the external piece position and bounds of the drop
      * block.
      */
@@ -222,6 +238,10 @@ public class DropBlockSprite extends DropSprite
             return _col;
         }
     }
+
+    /** How many times this sprite can be popped-up a row in a forgiving
+     * rotation. */
+    protected byte _popups = 2;
 
     /** The drop block bounds in board coordinates. */
     protected Rectangle _dbounds = new Rectangle();

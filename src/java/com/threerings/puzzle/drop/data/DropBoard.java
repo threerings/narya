@@ -1,5 +1,5 @@
 //
-// $Id: DropBoard.java,v 1.2 2003/12/31 00:03:14 ray Exp $
+// $Id: DropBoard.java,v 1.3 2003/12/31 01:26:23 ray Exp $
 
 package com.threerings.puzzle.drop.data;
 
@@ -188,13 +188,16 @@ public abstract class DropBoard extends Board
 
     /**
      * Rotates the given block in the given direction and returns its
-     * final state as <code>(orient, col, row)</code>, where
+     * final state as <code>(orient, col, row, popped)</code>, where
      * <code>orient</code> is the final orientation of the drop block;
      * <code>col</code> and <code>row</code> are the final column and row
      * coordinates, respectively, of the central drop block piece.
+     * <code>popped</code> will be set to 1 if the piece was popped up, 0
+     * otherwise.
      */
     public int[] getForgivingRotation (
-        int[] rows, int[] cols, int orient, int dir, int rtype, float pctdone)
+        int[] rows, int[] cols, int orient, int dir, int rtype, float pctdone,
+        boolean canPopup)
     {
         int px = cols[0], py = rows[0];
         int epx = cols[1], epy = rows[1];
@@ -241,28 +244,26 @@ public abstract class DropBoard extends Board
 //                              ", orient=" + DirectionUtil.toShortString(orient) +
 //                              ", owid=" + ORIENT_WIDTHS[oidx] +
 //                              ", ohei=" + ORIENT_HEIGHTS[oidx] + "].");
-                    return new int[] { orient, px + cx, py };
+                    return new int[] { orient, px + cx, py, 0 };
                 }
             }
 
             // if our piece is facing south and we're using radial
             // rotation then we need to try popping the piece up a row to
             // check for a fit
-            /*
-            if (rtype == RADIAL_ROTATION && orient == SOUTH) {
+            if (canPopup && rtype == RADIAL_ROTATION && orient == SOUTH) {
                 // check if our hypothetical new coordinates are empty
                 if (isBlockEmpty(ox, oy - 1,
                                  ORIENT_WIDTHS[oidx], ORIENT_HEIGHTS[oidx])) {
-//                     Log.info("Popped-up block is empty [ox=" + ox +
-//                              ", oy=" + (oy - 1) + ", oidx=" + oidx +
-//                              ", orient=" + DirectionUtil.toShortString(orient) +
-//                              ", owid=" + ORIENT_WIDTHS[oidx] +
-//                              ", ohei=" + ORIENT_HEIGHTS[oidx] +
-//                              ", bhei=" + _bhei + "].");
-                    return new int[] { orient, px, py - 1 };
+                     Log.info("Popped-up block is empty [ox=" + ox +
+                              ", oy=" + (oy - 1) + ", oidx=" + oidx +
+                              ", orient=" + DirectionUtil.toShortString(orient) +
+                              ", owid=" + ORIENT_WIDTHS[oidx] +
+                              ", ohei=" + ORIENT_HEIGHTS[oidx] +
+                              ", bhei=" + _bhei + "].");
+                    return new int[] { orient, px, py - 1, 1 };
                 }
             }
-            */
         }
 
         // this should never happen since even in the most tightly
