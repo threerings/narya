@@ -1,5 +1,5 @@
 //
-// $Id: Animation.java,v 1.15 2004/11/11 23:51:40 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved

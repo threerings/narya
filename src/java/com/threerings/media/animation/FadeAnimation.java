@@ -27,6 +27,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import com.threerings.media.Log;
+import com.threerings.media.effects.FadeEffect;
 
 /**
  * An animation that displays an image fading from one alpha level to
@@ -38,7 +39,6 @@ public abstract class FadeAnimation extends Animation
     /**
      * Constructs a fade animation.
      *
-     * @param image the image to animate.
      * @param bounds our bounds.
      * @param alpha the starting alpha.
      * @param step the alpha amount to step by each millisecond.
@@ -48,49 +48,30 @@ public abstract class FadeAnimation extends Animation
         Rectangle bounds, float alpha, float step, float target)
     {
         super(bounds);
-
-        // save things off
-        _startAlpha = _alpha = Math.max(alpha, 0.0f);
-        _step = step;
-        _target = Math.min(target, 1.0f);
-
-        // create the initial composite
-        _comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, _alpha);
+        _effect = new FadeEffect(alpha, step, target);
     }
 
     // documentation inherited
     public void tick (long timestamp)
     {
-        // figure out the current alpha
-        long msecs = timestamp - _firstTick;
-        _alpha = _startAlpha + (msecs * _step);
-        if (_alpha < 0.0f) {
-            _alpha = 0.0f;
-        } else if (_alpha > 1.0f) {
-            _alpha = 1.0f;
-        }
-
-        _comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, _alpha);
-
-        // check whether we're done
-        _finished = ((_startAlpha < _target) ? (_alpha >= _target) :
-                     (_alpha <= _target));
-
-        // dirty ourselves
+        _effect.tick(timestamp);
+        _finished = _effect.finished();
         invalidate();
     }
 
     // documentation inherited
     public void paint (Graphics2D gfx)
     {
-        Composite ocomp = gfx.getComposite();
-        if (_comp == null) {
-            Log.warning("Fade anim has null composite [anim=" + this + "].");
-        } else {
-            gfx.setComposite(_comp);
-        }
+        _effect.beforePaint(gfx);
         paintAnimation(gfx);
-        gfx.setComposite(ocomp);
+        _effect.afterPaint(gfx);
+    }
+
+    // documentation inherited
+    protected void willStart (long tickStamp)
+    {
+        super.willStart(tickStamp);
+        _effect.init(tickStamp);
     }
 
     /**
@@ -98,29 +79,6 @@ public abstract class FadeAnimation extends Animation
      */
     protected abstract void paintAnimation (Graphics2D gfx);
 
-    // documentation inherited
-    protected void toString (StringBuffer buf)
-    {
-        super.toString(buf);
-
-        buf.append(", alpha=").append(_alpha);
-        buf.append(", startAlpha=").append(_startAlpha);
-        buf.append(", step=").append(_step);
-        buf.append(", target=").append(_target);
-    }
-
-    /** The composite used to render the image with the current alpha. */
-    protected Composite _comp;
-
-    /** The current alpha of the image. */
-    protected float _alpha;
-
-    /** The target alpha. */
-    protected float _target;
-
-    /** The alpha step per millisecond. */
-    protected float _step;
-
-    /** The starting alpha. */
-    protected float _startAlpha;
+    /** This handles the main work of fading. */
+    protected FadeEffect _effect;
 }
