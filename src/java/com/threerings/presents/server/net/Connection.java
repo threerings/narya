@@ -1,5 +1,5 @@
 //
-// $Id: Connection.java,v 1.18 2004/02/25 14:45:16 mdb Exp $
+// $Id: Connection.java,v 1.19 2004/07/03 09:19:04 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -252,8 +252,13 @@ public abstract class Connection implements NetEventHandler
                               "Unable to decode incoming message.", cnfe));
 
         } catch (IOException ioe) {
-            Log.warning("Error reading message from socket " +
-                        "[channel=" + _channel + ", error=" + ioe + "].");
+            // don't log a warning for the ever-popular "the client
+            // dropped the connection" failure
+            String msg = ioe.getMessage();
+            if (msg == null || msg.indexOf("reset by peer") == -1) {
+                Log.warning("Error reading message from socket " +
+                            "[channel=" + _channel + ", error=" + ioe + "].");
+            }
             // deal with the failure
             handleFailure(ioe);
         }
