@@ -1,5 +1,5 @@
 //
-// $Id: MisoUtil.java,v 1.19 2003/04/18 18:30:57 mdb Exp $
+// $Id: MisoUtil.java,v 1.20 2003/04/18 22:59:04 mdb Exp $
 
 package com.threerings.miso.util;
 
@@ -392,7 +392,7 @@ public class MisoUtil
                                                Point sp1, Point sp2)
     {
         int x = Math.min(sp1.x, sp2.x), y = Math.min(sp1.y, sp2.y);
-        int width = Math.abs(sp1.x-sp2.x), height = Math.abs(sp1.y-sp2.y);
+        int width = Math.abs(sp1.x-sp2.x)+1, height = Math.abs(sp1.y-sp2.y)+1;
         return getFootprintPolygon(metrics, x, y, width, height);
     }
 
