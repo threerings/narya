@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.34 2002/06/19 23:31:57 mdb Exp $
+// $Id: CharacterSprite.java,v 1.35 2002/06/20 21:42:53 mdb Exp $
 
 package com.threerings.cast;
 
@@ -146,13 +146,17 @@ public class CharacterSprite extends ImageSprite
 //     }
 
     // documentation inherited
-    protected void accomodateFrame (int width, int height)
+    protected void accomodateFrame (int frameIdx, int width, int height)
     {
-        super.accomodateFrame(width, height);
+        // this will update our width and height
+        super.accomodateFrame(frameIdx, width, height);
 
-        // we need to update the render offset for this frame
-        _rxoff = -_aframes.getXOrigin(_orient, _frameIdx);
-        _ryoff = -_aframes.getYOrigin(_orient, _frameIdx);
+        // we now need to update the render offset for this frame
+        _oxoff = _aframes.getXOrigin(_orient, frameIdx);
+        _oyoff = _aframes.getYOrigin(_orient, frameIdx);
+
+        // and cause those changes to be reflected in our bounds
+        updateRenderOrigin();
     }
 
     // documentation inherited

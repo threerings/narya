@@ -1,5 +1,5 @@
 //
-// $Id: ImageSprite.java,v 1.8 2002/06/19 23:30:06 mdb Exp $
+// $Id: ImageSprite.java,v 1.9 2002/06/20 21:42:53 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -181,11 +181,8 @@ public class ImageSprite extends Sprite
         Rectangle dirty = new Rectangle(_bounds);
 
         // determine our drawing offsets and rendered rectangle size
-        accomodateFrame(_frames.getWidth(_frameIdx),
+        accomodateFrame(_frameIdx, _frames.getWidth(_frameIdx),
                         _frames.getHeight(_frameIdx));
-
-        // account for any new render offsets
-        updateRenderOrigin();
 
         // add our new bounds
         dirty.add(_bounds);
@@ -197,13 +194,17 @@ public class ImageSprite extends Sprite
     }
 
     /**
-     * Must adjust the bounds to accomodate the new image. Called when a
-     * new image has been set for this image sprite. If a derived class is
-     * going to expand the bounds beyond the bounds of the image frame, it
-     * will need to override this method and adjust bounds accordingly for
-     * the new frame (which can be null).
+     * Must adjust the bounds to accomodate the our new frame. This
+     * includes changing the width and height to reflect the size of the
+     * new frame and also updating the render origin (if necessary) and
+     * calling {@link #updateRenderOrigin} to reflect those changes in the
+     * sprite's bounds.
+     *
+     * @param frameIdx the index of our new frame.
+     * @param width the width of the new frame.
+     * @param height the height of the new frame.
      */
-    protected void accomodateFrame (int width, int height)
+    protected void accomodateFrame (int frameIdx, int width, int height)
     {
         _bounds.width = width;
         _bounds.height = height;

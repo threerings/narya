@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.48 2002/06/19 23:30:06 mdb Exp $
+// $Id: Sprite.java,v 1.49 2002/06/20 21:42:53 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -40,8 +40,8 @@ public abstract class Sprite
      */
     public Sprite (int x, int y)
     {
-        _x = x;
-        _y = y;
+        _ox = x;
+        _oy = y;
     }
 
     /**
@@ -72,7 +72,7 @@ public abstract class Sprite
      */
     public int getX ()
     {
-        return _x;
+        return _ox;
     }
 
     /**
@@ -82,7 +82,7 @@ public abstract class Sprite
      */
     public int getY ()
     {
-        return _y;
+        return _oy;
     }
 
     /**
@@ -165,11 +165,11 @@ public abstract class Sprite
         Rectangle dirty = new Rectangle(_bounds);
 
         // move ourselves
-        _x = x;
-        _y = y;
+        _ox = x;
+        _oy = y;
 
-        // we need to update our draw position which is based on the
-        // size of our current bounds
+        // we need to update our draw position which is based on the size
+        // of our current bounds
         updateRenderOrigin();
 
         // grow the dirty rectangle to incorporate our new bounds and pass
@@ -233,7 +233,7 @@ public abstract class Sprite
      */
     public boolean inside (Shape shape)
     {
-        return shape.contains(_x, _y);
+        return shape.contains(_ox, _oy);
     }
 
     /**
@@ -357,9 +357,9 @@ public abstract class Sprite
      */
     protected void updateRenderOrigin ()
     {
-        // our render origin may differ from our location
-        _bounds.x = _x + _rxoff;
-        _bounds.y = _y + _ryoff;
+        // our bounds origin may differ from the sprite's origin
+        _bounds.x = _ox - _oxoff;
+        _bounds.y = _oy - _oyoff;
     }
 
     /**
@@ -417,22 +417,26 @@ public abstract class Sprite
      */
     protected void toString (StringBuffer buf)
     {
-        buf.append("x=").append(_x);
-        buf.append(", y=").append(_y);
-        buf.append(", rxoff=").append(_rxoff);
-        buf.append(", ryoff=").append(_ryoff);
+        buf.append("ox=").append(_ox);
+        buf.append(", oy=").append(_oy);
+        buf.append(", oxoff=").append(_oxoff);
+        buf.append(", oyoff=").append(_oyoff);
     }
 
     /** The sprite manager. */
     protected SpriteManager _spritemgr;
 
-    /** The location of the sprite in pixel coordinates. */
-    protected int _x, _y;
+    /** The location of the sprite's origin in pixel coordinates. If the
+     * sprite positions itself via a hotspot that is not the upper left
+     * coordinate of the sprite's bounds, the offset to the hotspot should
+     * be maintained in {@link #_oxoff} and {@link #_oyoff}. */
+    protected int _ox, _oy;
 
-    /** The offsets from our location to our rendered origin. Derived
-     * classes may wish to set these values if the sprite's upper left
-     * corner should not be coincident with its location.  */
-    protected int _rxoff, _ryoff;
+    /** The offsets from our upper left coordinate to our origin (or hot
+     * spot). Derived classes will need to update these values if the
+     * sprite's origin is not coincident with the upper left coordinate of
+     * its bounds.  */
+    protected int _oxoff, _oyoff;
 
     /** Our rendered bounds in pixel coordinates. */
     protected Rectangle _bounds = new Rectangle();
