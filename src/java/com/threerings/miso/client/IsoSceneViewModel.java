@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.28 2003/01/31 23:10:45 mdb Exp $
+// $Id: IsoSceneViewModel.java,v 1.29 2003/04/12 02:14:52 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -30,15 +30,12 @@ public class IsoSceneViewModel
     /** Number of fine coordinates on each axis within a tile. */
     public int finegran;
 
-    /** Scene dimensions in tile count. */
-    public int scenewid, scenehei;
-
     /** Size of the view in tile count. */
     public int scenevwid, scenevhei;
 
     /** Whether or not this view can extend beyond the bounds defined by
      * the view width and height. True if it cannot, false if it can. */
-    public boolean bounded = true;
+    public boolean bounded = false;
 
     /** The bounds of the view in screen pixel coordinates. */
     public Rectangle bounds;
@@ -46,20 +43,11 @@ public class IsoSceneViewModel
     /** The position in pixels at which tile (0, 0) is drawn. */ 
     public Point origin;
 
-    /** The total number of tile rows to render the full view. */
-    public int tilerows;
-
     /** The length of a tile edge in pixels. */
     public float tilelen;
 
-    /** The y-intercept of the x-axis line. */
-    public int bX;
-
     /** The slope of the x- and y-axis lines. */
     public float slopeX, slopeY;
-
-    /** The x-axis line. */
-    public Point[] lineX;
 
     /** The length between fine coordinates in pixels. */
     public float finelen;
@@ -78,12 +66,6 @@ public class IsoSceneViewModel
      */
     public IsoSceneViewModel ()
     {
-	// set the scene tile dimensions
-	scenewid = MisoConfig.config.getValue(
-            SCENE_WIDTH_KEY, DEF_SCENE_WIDTH);
-	scenehei = MisoConfig.config.getValue(
-            SCENE_HEIGHT_KEY, DEF_SCENE_HEIGHT);
-
         // and the view dimensions
 	scenevwid = MisoConfig.config.getValue(
             SCENE_VWIDTH_KEY, DEF_SCENE_VWIDTH);
@@ -122,8 +104,6 @@ public class IsoSceneViewModel
                               int svwid, int svhei, int offy)
     {
         // keep track of this stuff
-        this.scenewid = scenewid;
-        this.scenehei = scenehei;
         this.tilewid = tilewid;
         this.tilehei = tilehei;
         this.finegran = finegran;
@@ -137,13 +117,14 @@ public class IsoSceneViewModel
     }
 
     /**
-     * Returns whether the given tile coordinate is a valid coordinate
-     * within the scene.
+     * Returns whether the given tile coordinate is a valid coordinate in
+     * our coordinate system (which allows tile coordinates from 0 to
+     * 2^15-1).
      */
     public boolean isCoordinateValid (int x, int y)
     {
-        return (x >= 0 && x < scenewid &&
-                y >= 0 && y < scenehei);
+        return (x >= 0 && x < Short.MAX_VALUE &&
+                y >= 0 && y < Short.MAX_VALUE);
     }
 
     /**
@@ -174,26 +155,6 @@ public class IsoSceneViewModel
 	// pre-calculate tile-related data
 	precalculateTiles();
 
-	// calculate scene-based x-axis line for conversion from
-	// screen to tile coordinates
-
-        // create the x- and y-axis lines
-	lineX = new Point[2];
-	for (int ii = 0; ii < 2; ii++) {
-	    lineX[ii] = new Point();
-	}
-
-        // determine the starting point
-        lineX[0].setLocation(origin.x, origin.y);
-	bX = (int)-(slopeX * origin.x);
-
-        // determine the ending point
-	lineX[1].x = lineX[0].x + (tilehwid * scenewid);
-	lineX[1].y = lineX[0].y + (int)((slopeX * lineX[1].x) + bX);
-
-	// calculate tile-based x-axis line for conversion from
-	// tile-based pixel to fine coordinates
-
 	// calculate the edge length separating each fine coordinate
 	finelen = tilelen / (float)finegran;
 
@@ -219,9 +180,6 @@ public class IsoSceneViewModel
         // calculate the length of a tile edge in pixels
         tilelen = (float) Math.sqrt(
             (tilehwid * tilehwid) + (tilehhei * tilehhei));
-
-        // calculate the number of tile rows to render
-        tilerows = (scenewid * scenehei) - 1;
 
         // calculate the slope of the x- and y-axis lines
         slopeX = (float)tilehei / (float)tilewid;

@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.26 2003/04/07 23:53:41 mdb Exp $
+// $Id: AStarPathUtil.java,v 1.27 2003/04/12 02:14:52 mdb Exp $
 
 package com.threerings.miso.client.util;
 
@@ -11,7 +11,6 @@ import com.samskivert.util.HashIntMap;
 import com.threerings.media.util.MathUtil;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.client.DisplayMisoScene;
 import com.threerings.miso.tile.BaseTile;
 
 /**
@@ -26,16 +25,28 @@ import com.threerings.miso.tile.BaseTile;
 public class AStarPathUtil
 {
     /**
+     * Provides traversibility information when computing paths.
+     */
+    public static interface TraversalPred
+    {
+        /**
+         * Requests to know if the specified traverser (which was provided
+         * in the call to {@link #getPath}) can traverse the specified
+         * tile coordinate.
+         */
+        public boolean canTraverse (Object traverser, int x, int y);
+    }
+
+    /**
      * Return a list of <code>Point</code> objects representing a path
      * from coordinates <code>(ax, by)</code> to <code>(bx, by)</code>,
      * inclusive, determined by performing an A* search in the given
      * scene's base tile layer. Assumes the starting and destination nodes
      * are traversable by the specified traverser.
      *
-     * @param scene the scene in which a path is to be computed.
-     * @param tilewid the scene width in tiles.
-     * @param tilehei the scene height in tiles.
+     * @param tpred lets us know what tiles are traversible.
      * @param trav the traverser to follow the path.
+     * @param longest the longest allowable path in tile traversals.
      * @param ax the starting x-position in tile coordinates.
      * @param ay the starting y-position in tile coordinates.
      * @param bx the ending x-position in tile coordinates.
@@ -43,14 +54,13 @@ public class AStarPathUtil
      *
      * @return the list of points in the path.
      */
-    public static List getPath (
-	DisplayMisoScene scene, int tilewid, int tilehei, Object trav,
-	int ax, int ay, int bx, int by)
+    public static List getPath (TraversalPred tpred, Object trav,
+                                int longest, int ax, int ay, int bx, int by)
     {
-	AStarInfo info = new AStarInfo(scene, tilewid, tilehei, trav, bx, by);
+	Info info = new Info(tpred, trav, longest, bx, by);
 
 	// set up the starting node
-	AStarNode s = info.getNode(ax, ay);
+	Node s = info.getNode(ax, ay);
 	s.g = 0;
 	s.h = getDistanceEstimate(ax, ay, bx, by);
 	s.f = s.g + s.h;
@@ -62,7 +72,7 @@ public class AStarPathUtil
 	while (info.open.size() > 0) {
 
 	    // pop the best node so far from open
-	    AStarNode n = (AStarNode)info.open.first();
+	    Node n = (Node)info.open.first();
 	    info.open.remove(n);
 
 	    // if node is a goal node
@@ -99,30 +109,24 @@ public class AStarPathUtil
      * @param y the y-coordinate for the destination step.
      */
     protected static void considerStep (
-	AStarInfo info, AStarNode n, int x, int y, int cost)
+        Info info, Node n, int x, int y, int cost)
     {
         // skip node if it's outside the map bounds or otherwise impassable
         if (!info.isStepValid(n.x, n.y, x, y)) {
             return;
         }
 
-        // if it's offscreen, bang up the cost considerably
-        if (!info.isCoordinateValid(x, y)) {
-            cost += OFFSCREEN_COST;
-        }
-
 	// calculate the new cost for this node
 	int newg = n.g + cost;
 
-        // make sure the cost is reasonable (so we don't go crazy computing
-        // offscreen costs)
+        // make sure the cost is reasonable
         if (newg > info.maxcost) {
 //            Log.info("Rejected costly step.");
             return;
         }
 
 	// retrieve the node corresponding to this location
-	AStarNode np = info.getNode(x, y);
+	Node np = info.getNode(x, y);
 
 	// skip if it's already in the open or closed list or if its
 	// actual cost is less than the just-calculated cost
@@ -157,9 +161,9 @@ public class AStarPathUtil
      *
      * @return the list detailing the path.
      */
-    protected static List getNodePath (AStarNode n)
+    protected static List getNodePath (Node n)
     {
-	AStarNode cur = n;
+	Node cur = n;
 	ArrayList path = new ArrayList();
 
 	while (cur != null) {
@@ -187,176 +191,155 @@ public class AStarPathUtil
         return (int) (ADJACENT_COST * Math.sqrt(xsq * xsq + ysq * ysq));
     }
 
+    /**
+     * A holding class to contain the wealth of information referenced
+     * while performing an A* search for a path through a tile array.
+     */
+    protected static class Info
+    {
+        /** Knows whether or not tiles are traversable. */
+        public TraversalPred tpred;
+
+        /** The tile array dimensions. */
+        public int tilewid, tilehei;
+
+        /** The traverser moving along the path. */
+        public Object trav;
+
+        /** The set of open nodes being searched. */
+        public SortedSet open;
+
+        /** The set of closed nodes being searched. */
+        public ArrayList closed;
+
+        /** The destination coordinates in the tile array. */
+        public int destx, desty;
+
+        /** The maximum cost of any path that we'll consider. */
+        public int maxcost;
+
+        public Info (TraversalPred tpred, Object trav,
+                     int longest, int destx, int desty)
+        {
+            // save off references
+            this.tpred = tpred;
+            this.trav = trav;
+            this.destx = destx;
+            this.desty = desty;
+
+            // compute our maximum path cost
+            this.maxcost = longest * ADJACENT_COST;
+
+            // construct the open and closed lists
+            open = new TreeSet();
+            closed = new ArrayList();
+        }
+
+        /**
+         * Returns whether moving from the given source to destination
+         * coordinates is a valid move.
+         */
+        protected boolean isStepValid (int sx, int sy, int dx, int dy)
+        {
+            // not traversable if the destination itself fails test
+            if (!isTraversable(dx, dy)) {
+                return false;
+            }
+
+            // if the step is diagonal, make sure the corners don't impede
+            // our progress
+            if ((Math.abs(dx - sx) == 1) && (Math.abs(dy - sy) == 1)) {
+                return isTraversable(dx, sy) && isTraversable(sx, dy);
+            }
+
+            // non-diagonals are always traversable
+            return true;
+        }
+
+        /**
+         * Returns whether the given coordinate is valid and traversable.
+         */
+        protected boolean isTraversable (int x, int y)
+        {
+            return tpred.canTraverse(trav, x, y);
+        }
+
+        /**
+         * Get or create the node for the specified point.
+         */
+        public Node getNode (int x, int y)
+        {
+            // note: this _could_ break for unusual values of x and y.
+            // perhaps use a IntTuple as a key? Bleah.
+            int key = (x << 16) | (y & 0xffff);
+            Node node = (Node) _nodes.get(key);
+            if (node == null) {
+                node = new Node(x, y);
+                _nodes.put(key, node);
+            }
+            return node;
+        }
+
+        /** The nodes being considered in the path. */
+        protected HashIntMap _nodes = new HashIntMap();
+    }
+
+    /**
+     * A class that represents a single traversable node in the tile array
+     * along with its current A*-specific search information.
+     */
+    protected static class Node implements Comparable
+    {
+        /** The node coordinates. */
+        public int x, y;
+
+        /** The actual cheapest cost of arriving here from the start. */
+        public int g;
+
+        /** The heuristic estimate of the cost to the goal from here. */
+        public int h;
+
+        /** The score assigned to this node. */
+        public int f;
+
+        /** The node from which we reached this node. */
+        public Node parent;
+
+        /** The node's monotonically-increasing unique identifier. */
+        public int id;
+
+        public Node (int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+            id = _nextid++;
+        }
+
+        public int compareTo (Object o)
+        {
+            int bf = ((Node)o).f;
+
+            // since the set contract is fulfilled using the equality results
+            // returned here, and we'd like to allow multiple nodes with
+            // equivalent scores in our set, we explicitly define object
+            // equivalence as the result of object.equals(), else we use the
+            // unique node id since it will return a consistent ordering for
+            // the objects.
+            if (f == bf) {
+                return (this == o) ? 0 : (id - ((Node)o).id);
+            }
+
+            return f - bf;
+        }
+
+        /** The next unique node id. */
+        protected static int _nextid = 0;
+    }
+
     /** The standard cost to move between nodes. */
     public static final int ADJACENT_COST = 10;
 
     /** The cost to move diagonally. */
-    public static final int DIAGONAL_COST = (int) Math.sqrt(
-            (ADJACENT_COST * ADJACENT_COST) * 2);
-
-    /** A big old additional cost incurred for offscreen movement. */
-    public static final int OFFSCREEN_COST = 1000;
-}
-
-/**
- * A holding class to contain the wealth of information referenced
- * while performing an A* search for a path through a tile array.
- */
-class AStarInfo
-{
-    /** The scene whose base tile layer is being traversed. */
-    public DisplayMisoScene scene;
-
-    /** The tile array dimensions. */
-    public int tilewid, tilehei;
-
-    /** The traverser moving along the path. */
-    public Object trav;
-
-    /** The set of open nodes being searched. */
-    public SortedSet open;
-
-    /** The set of closed nodes being searched. */
-    public ArrayList closed;
-
-    /** The destination coordinates in the tile array. */
-    public int destx, desty;
-
-    /** The maximum cost of any path that we'll consider. */
-    public int maxcost;
-
-    public AStarInfo (
-	DisplayMisoScene scene, int tilewid, int tilehei, Object trav,
-	int destx, int desty)
-    {
-	// save off references
-	this.scene = scene;
-	this.tilewid = tilewid;
-	this.tilehei = tilehei;
-	this.trav = trav;
-	this.destx = destx;
-	this.desty = desty;
-
-        // compute the maximum cost as the maximum onscreen path plus
-        // the maximum offscreen cost
-        this.maxcost = ((tilewid + tilehei) * AStarPathUtil.ADJACENT_COST) +
-                       MAX_OFFSCREEN * AStarPathUtil.OFFSCREEN_COST;
-
-	// construct the open and closed lists
-	open = new TreeSet();
-	closed = new ArrayList();
-    }
-
-    /**
-     * Returns whether the given coordinate is valid based on the
-     * dimensions of the map being traversed.
-     */
-    protected boolean isCoordinateValid (int x, int y)
-    {
-	return (x >= 0 && y >= 0 && x < tilewid && y < tilehei &&
-               (scene.getBaseTile(x, y) != null));
-    }
-
-    /**
-     * Returns whether moving from the given source to destination
-     * coordinates is a valid move.
-     */
-    protected boolean isStepValid (int sx, int sy, int dx, int dy)
-    {
-        // not traversable if the destination itself fails test
-	if (!isTraversable(dx, dy)) {
-            return false;
-        }
-
-        // if the step is diagonal, make sure the corners don't impede
-        // our progress
-        if ((Math.abs(dx - sx) == 1) && (Math.abs(dy - sy) == 1)) {
-            return isTraversable(dx, sy) && isTraversable(sx, dy);
-        }
-
-        // non-diagonals are always traversable
-        return true;
-    }
-
-    /**
-     * Returns whether the given coordinate is valid and traversable.
-     */
-    protected boolean isTraversable (int x, int y)
-    {
-        return scene.canTraverse(trav, x, y);
-    }
-
-    /**
-     * Get or create the node for the specified point.
-     */
-    public AStarNode getNode (int x, int y)
-    {
-        // note: this _could_ break for unusual values of x and y.
-        // perhaps use a IntTuple as a key? Bleah.
-        int key = (x << 16) | (y & 0xffff);
-        AStarNode node = (AStarNode) _nodes.get(key);
-        if (node == null) {
-            node = new AStarNode(x, y);
-            _nodes.put(key, node);
-        }
-        return node;
-    }
-
-    /** The nodes being considered in the path. */
-    protected HashIntMap _nodes = new HashIntMap();
-
-    /** The maximum number of offscreen points we'll consider. */
-    protected static final int MAX_OFFSCREEN = 6;
-}
-
-/**
- * A class that represents a single traversable node in the tile array
- * along with its current A*-specific search information.
- */
-class AStarNode implements Comparable
-{
-    /** The node coordinates. */
-    public int x, y;
-
-    /** The actual cheapest cost of arriving here from the start. */
-    public int g;
-
-    /** The heuristic estimate of the cost to the goal from here. */
-    public int h;
-
-    /** The score assigned to this node. */
-    public int f;
-
-    /** The node from which we reached this node. */
-    public AStarNode parent;
-
-    /** The node's monotonically-increasing unique identifier. */
-    public int id;
-
-    public AStarNode (int x, int y)
-    {
-	this.x = x;
-	this.y = y;
-	id = _nextid++;
-    }
-
-    public int compareTo (Object o)
-    {
-	int bf = ((AStarNode)o).f;
-
-	// since the set contract is fulfilled using the equality results
-	// returned here, and we'd like to allow multiple nodes with
-	// equivalent scores in our set, we explicitly define object
-	// equivalence as the result of object.equals(), else we use the
-	// unique node id since it will return a consistent ordering for
-	// the objects.
-  	if (f == bf) {
-	    return (this == o) ? 0 : (id - ((AStarNode)o).id);
-  	}
-
-	return f - bf;
-    }
-
-    /** The next unique node id. */
-    protected static int _nextid = 0;
+    public static final int DIAGONAL_COST = (int)Math.sqrt(
+        (ADJACENT_COST * ADJACENT_COST) * 2);
 }

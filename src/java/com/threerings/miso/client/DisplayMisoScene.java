@@ -1,9 +1,11 @@
 //
-// $Id: DisplayMisoScene.java,v 1.11 2003/04/01 02:17:58 mdb Exp $
+// $Id: DisplayMisoScene.java,v 1.12 2003/04/12 02:14:52 mdb Exp $
 
 package com.threerings.miso.client;
 
 import com.threerings.media.tile.Tile;
+
+import com.threerings.miso.client.util.AStarPathUtil;
 import com.threerings.miso.data.MisoScene;
 import com.threerings.miso.tile.BaseTile;
 
@@ -11,7 +13,8 @@ import com.threerings.miso.tile.BaseTile;
  * Extends the {@link MisoScene} with functionality needed only by
  * entities that plan to display a miso scene.
  */
-public interface DisplayMisoScene extends MisoScene
+public interface DisplayMisoScene
+    extends MisoScene, AStarPathUtil.TraversalPred
 {
     /**
      * This will be called before the scene is displayed to give it a
@@ -32,10 +35,11 @@ public interface DisplayMisoScene extends MisoScene
     /**
      * Returns true if the supplied traverser can traverse the specified
      * tile coordinate. The traverser is whatever object is passed along
-     * to the path finder when a path is being computed. Scene
-     * implementations which support custom traversal based on the type of
-     * the traverser will want to reflect the traverser's class and act
-     * acordingly.
+     * to the path finder when a path is being computed.
+     *
+     * <p> Scene implementations which support custom traversal based on
+     * the type of the traverser will want to reflect the traverser's
+     * class and act acordingly.
      */
     public boolean canTraverse (Object traverser, int x, int y);
 }

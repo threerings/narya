@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.136 2003/04/07 21:43:00 mdb Exp $
+// $Id: IsoSceneView.java,v 1.137 2003/04/12 02:14:52 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -515,10 +515,12 @@ public class IsoSceneView implements SceneView
             _model, sprite.getX(), sprite.getY(), new Point());
         Point dest = IsoUtil.screenToTile(_model, x, y, new Point());
 
+        // TODO: compute this value from the screen size or something
+        int longestPath = 50;
+
         // get a reasonable tile path through the scene
         List points = AStarPathUtil.getPath(
-            _scene, _model.scenewid, _model.scenehei,
-            sprite, src.x, src.y, dest.x, dest.y);
+            _scene, sprite, longestPath, src.x, src.y, dest.x, dest.y);
 
         // construct a path object to guide the sprite on its merry way
         return (points == null) ? null :
