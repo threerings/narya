@@ -1,11 +1,12 @@
 //
-// $Id: FrameRepaintManager.java,v 1.9 2002/06/25 01:43:29 mdb Exp $
+// $Id: FrameRepaintManager.java,v 1.10 2002/07/23 03:52:23 shaper Exp $
 
 package com.threerings.media;
 
 import java.applet.Applet;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -349,7 +350,15 @@ public class FrameRepaintManager extends RepaintManager
                     // some components are ill-behaved and may throw an
                     // exception while painting themselves, and so we
                     // needs must deal with these fellows gracefully
+
+                    // TODO: strangeness is ensuing with text input fields
+                    // that render themselves with the incorrect font
+                    // unless we keep it constant ourselves.  need to
+                    // investigate further and undo this hack.
+                    Font ofont = g.getFont();
                     ocomp.paint(g);
+                    g.setFont(ofont);
+
                 } catch (Exception e) {
                     Log.warning("Exception while painting component " +
                                 "[comp=" + ocomp + ", e=" + e + "].");
