@@ -1,9 +1,10 @@
 //
-// $Id: DSet.java,v 1.27 2003/03/26 00:16:03 ray Exp $
+// $Id: DSet.java,v 1.28 2003/04/05 20:30:44 mdb Exp $
 
 package com.threerings.presents.dobj;
 
 import java.util.Comparator;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 
 import com.samskivert.util.ArrayUtil;
@@ -151,15 +152,23 @@ public class DSet
     {
         return new Iterator() {
             public boolean hasNext () {
+                checkComodification();
                 return (_index < _size);
             }
             public Object next () {
+                checkComodification();
                 return _entries[_index++];
             }
             public void remove () {
                 throw new UnsupportedOperationException();
             }
+            protected void checkComodification () {
+                if (_modCount != _expectedModCount) {
+                    throw new ConcurrentModificationException();
+                }
+            }
             protected int _index = 0;
+            protected int _expectedModCount = _modCount;
         };
     }
 
@@ -228,6 +237,7 @@ public class DSet
         // stuff the entry into the array and note that we're bigger
         _entries[eidx] = elem;
         _size++;
+        _modCount++;
 
         return true;
     }
@@ -266,6 +276,7 @@ public class DSet
             // shift the remaining elements down
             System.arraycopy(_entries, eidx+1, _entries, eidx, _size-eidx-1);
             _entries[--_size] = null;
+            _modCount++;
             return true;
 
         } else {
@@ -292,6 +303,7 @@ public class DSet
         // if we found it, update it
         if (eidx >= 0) {
             _entries[eidx] = elem;
+            _modCount++;
             return true;
         } else {
             return false;
@@ -307,7 +319,7 @@ public class DSet
             DSet nset = (DSet)super.clone();
             nset._entries = new Entry[_entries.length];
             System.arraycopy(_entries, 0, nset._entries, 0, _entries.length);
-            nset._size = _size;
+            nset._modCount = 0;
             return nset;
         } catch (CloneNotSupportedException cnse) {
             throw new RuntimeException("WTF? " + cnse);
@@ -338,6 +350,9 @@ public class DSet
 
     /** The number of entries in this set. */
     protected int _size;
+
+    /** Used to check for concurrent modification. */
+    protected transient int _modCount;
 
     /** The default capacity of a set instance. */
     protected static final int INITIAL_CAPACITY = 2;
