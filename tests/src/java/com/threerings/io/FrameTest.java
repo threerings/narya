@@ -1,7 +1,7 @@
 //
-// $Id: FrameTest.java,v 1.7 2002/04/15 16:34:36 shaper Exp $
+// $Id: FrameTest.java,v 1.8 2002/07/23 05:56:53 mdb Exp $
 
-package com.threerings.presents.io;
+package com.threerings.io;
 
 import java.io.*;
 
