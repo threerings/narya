@@ -96,6 +96,10 @@ public class FringeConfiguration implements Serializable
         {
             return "[fringe_tsid=" + fringe_tsid + ", mask=" + mask + "]";
         }
+
+        /** Increase this value when object's serialized state is impacted
+         * by a class change (modification of fields, inheritance). */
+        private static final long serialVersionUID = 1;
     }
 
     /**
