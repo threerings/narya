@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.10 2001/10/02 02:05:50 mdb Exp $
+// $Id: InvocationDirector.java,v 1.11 2001/10/03 03:42:31 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -38,13 +38,13 @@ public class InvocationDirector
     implements Subscriber
 {
     /**
-     * Constructs a new invocation director with the specified invocation
+     * Initializes the invocation director with the specified invocation
      * manager oid. It will obtain its distributed object manager and
      * client object references from the supplied client instance. The
      * invocation manager oid is the oid of the object on the server to
      * which to deliver invocation requests.
      */
-    public InvocationDirector (Client client, int imoid)
+    public void init (Client client, int imoid)
     {
         _client = client;
         _omgr = client.getDObjectManager();
