@@ -1,5 +1,5 @@
 //
-// $Id: FrameRepaintManager.java,v 1.5 2002/05/03 04:14:20 mdb Exp $
+// $Id: FrameRepaintManager.java,v 1.6 2002/05/04 03:09:46 mdb Exp $
 
 package com.threerings.media;
 
@@ -73,14 +73,21 @@ public class FrameRepaintManager extends RepaintManager
         // if we found no validation root we can abort as this component
         // is not part of any valid widget hierarchy
         if (vroot == null) {
-//             Log.info("Skipping vrootless component: " + comp);
+            if (DEBUG) {
+                Log.info("Skipping vrootless component: " + toString(comp));
+            }
+            
             return;
         }
 
         // make sure that the component is actually in a window or applet
         // that is showing
 	if (getRoot(vroot) == null) {
-//             Log.info("Skipping rootless component: " + comp + "/" + vroot);
+            if (DEBUG) {
+                Log.info("Skipping rootless component " +
+                         "[comp=" + toString(comp) +
+                         ", vroot=" + toString(vroot) + "].");
+            }
 	    return;
 	}
 
@@ -116,6 +123,12 @@ public class FrameRepaintManager extends RepaintManager
         if (getRoot(comp) == null) {
 //             Log.info("Skipping rootless repaint " + comp + ".");
             return;
+        }
+
+        if (DEBUG) {
+            Log.info("Dirtying component [comp=" + toString(comp) +
+                     ", drect=" + StringUtil.toString(
+                         new Rectangle(x, y, width, height)) + "].");
         }
 
         // if we made it this far, we can queue up a dirty region for this
@@ -208,9 +221,9 @@ public class FrameRepaintManager extends RepaintManager
             Entry entry = (Entry)iter.next();
             JComponent comp = (JComponent)entry.getKey();
             Rectangle drect = (Rectangle)entry.getValue();
-            int x = drect.x, y = drect.y;
+            int x = comp.getX() + drect.x, y = comp.getY() + drect.y;
 
-            // climb up the parent heirarchy, looking for the first opaque
+            // climb up the parent hierarchy, looking for the first opaque
             // parent as well as the root component
             for (Component c = comp.getParent(); c != null; c = c.getParent()) {
                 // stop looking for combinable parents for non-visible or
@@ -223,18 +236,24 @@ public class FrameRepaintManager extends RepaintManager
                 // check to see if this parent is dirty
                 Rectangle prect = (Rectangle)_spare.get(c);
                 if (prect != null) {
-//                     Log.info("Found dirty parent " +
-//                              "[comp=" + comp.getClass().getName() +
-//                              ", drect=" + StringUtil.toString(drect) +
-//                              ", pcomp=" + comp.getClass().getName() + 
-//                              ", prect=" + StringUtil.toString(prect) + "].");
-                    // we wanted to avoid modifying drect until we knew
                     // that we were going to merge it with its parent and
                     // blow it away
                     drect.x = x;
                     drect.y = y;
+
+                    if (DEBUG) {
+                        Log.info("Found dirty parent " +
+                                 "[comp=" + toString(comp) +
+                                 ", drect=" + StringUtil.toString(drect) +
+                                 ", pcomp=" + toString(c) + 
+                                 ", prect=" + StringUtil.toString(prect) +
+                                 "].");
+                    }
                     prect.add(drect);
-//                     Log.info("New prect " + StringUtil.toString(prect));
+
+                    if (DEBUG) {
+                        Log.info("New prect " + StringUtil.toString(prect));
+                    }
 
                     // remove the child component and be on our way
                     iter.remove();
@@ -266,7 +285,7 @@ public class FrameRepaintManager extends RepaintManager
             // opaque parent component's bounds if and when we find one
             _cbounds.setBounds(0, 0, comp.getWidth(), comp.getHeight());
 
-            // climb up the parent heirarchy, looking for the first opaque
+            // climb up the parent hierarchy, looking for the first opaque
             // parent as well as the root component
             for (Component c = comp; c != null; c = c.getParent()) {
                 if (!c.isVisible() || c.getPeer() == null) {
@@ -309,20 +328,27 @@ public class FrameRepaintManager extends RepaintManager
             // if this component is rooted in our frame, repaint it into
             // the supplied graphics instance
             if (root == _rootFrame) {
-//                 Log.info("Repainting [comp=" + comp.getClass().getName() +
-//                          StringUtil.toString(_cbounds) +
-//                          ", ocomp=" + ocomp.getClass().getName() +
-//                          ", drect=" + StringUtil.toString(drect) + "].");
+                if (DEBUG) {
+                    Log.info("Repainting [comp=" + toString(comp) +
+                             StringUtil.toString(_cbounds) +
+                             ", ocomp=" + toString(ocomp) +
+                             ", drect=" + StringUtil.toString(drect) + "].");
+                }
+
                 g.setClip(drect);
                 g.translate(_cbounds.x, _cbounds.y);
                 ocomp.paint(g);
                 g.translate(-_cbounds.x, -_cbounds.y);
 
             } else if (root != null) {
-//                 Log.info("Repainting old-school " +
-//                          "[comp=" + comp.getClass().getName() +
-//                          ", ocomp=" + ocomp.getClass().getName() +
-//                          ", bounds=" + StringUtil.toString(_cbounds) + "].");
+                if (DEBUG) {
+                    Log.info("Repainting old-school " +
+                             "[comp=" + toString(comp) +
+                             ", ocomp=" + toString(ocomp) +
+                             ", bounds=" + StringUtil.toString(_cbounds) +
+                             "].");
+                }
+
                 // otherwise, repaint with standard swing double buffers
                 Image obuf = getOffscreenBuffer(
                     ocomp, _cbounds.width, _cbounds.height);
@@ -348,6 +374,15 @@ public class FrameRepaintManager extends RepaintManager
         _spare.clear();
     }
 
+    /**
+     * Used to dump a component when debugging.
+     */
+    protected String toString (Component comp)
+    {
+        return comp.getClass().getName() +
+            StringUtil.toString(comp.getBounds());
+    }
+
     /** The managed frame. */
     protected Frame _rootFrame;
 
@@ -363,4 +398,8 @@ public class FrameRepaintManager extends RepaintManager
 
     /** Used to compute dirty components' bounds. */
     protected Rectangle _cbounds = new Rectangle();
+
+    /** We debug so much that we have to make it easy to enable and
+     * disable debug logging. Yay! */
+    protected static final boolean DEBUG = false;
 }
