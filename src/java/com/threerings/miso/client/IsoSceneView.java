@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.124 2002/10/18 19:44:00 ray Exp $
+// $Id: IsoSceneView.java,v 1.125 2002/11/20 22:16:54 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -519,10 +519,15 @@ public class IsoSceneView implements SceneView
         _spritemgr.getHitSprites(_hitSprites, x, y);
         int hslen = _hitSprites.size();
         for (int i = 0; i < hslen; i++) {
-            MisoCharacterSprite sprite =
-                (MisoCharacterSprite)_hitSprites.get(i);
-            _hitList.appendDirtySprite(
-                sprite, sprite.getTileX(), sprite.getTileY());
+            Sprite sprite = (Sprite)_hitSprites.get(i);
+            if (sprite instanceof MisoCharacterSprite) {
+                MisoCharacterSprite msprite = (MisoCharacterSprite)sprite;
+                _hitList.appendDirtySprite(
+                    msprite, msprite.getTileX(), msprite.getTileY());
+            } else {
+                Log.info("Found non-Miso sprite in view? " +
+                         "[sprite=" + sprite + "].");
+            }
         }
 
         // add the object tiles that contain the point
