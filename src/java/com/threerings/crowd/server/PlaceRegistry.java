@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.28 2004/08/27 02:12:34 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -110,10 +110,11 @@ public class PlaceRegistry
         throws InstantiationException, InvocationException
     {
         PlaceManager pmgr = null;
+        ClassLoader loader = getClassLoader(config);
 
         try {
             // load up the manager class
-            Class pmgrClass = Class.forName(config.getManagerClassName());
+            Class pmgrClass = loader.loadClass(config.getManagerClassName());
             // create a place manager for this place
             pmgr = (PlaceManager)pmgrClass.newInstance();
             // let the pmgr know about us and its configuration
@@ -260,6 +261,22 @@ public class PlaceRegistry
 //                      "[class=" + pmgr.getClass().getName() +
 //                      ", ploid=" + ploid + "].");
         }
+    }
+
+    /**
+     * By overriding this method, it is possible to customize the place
+     * registry to cause it to load the classes associated with a
+     * particular place via a custom class loader. That loader may enforce
+     * restricted privileges or obtain the classes from some special
+     * source.
+     *
+     * @return the class loader to use when instantiating the {@link
+     * PlaceManager} associated with the supplied {@link
+     * PlaceConfig}. This method <em>must not</em> return null.
+     */
+    protected ClassLoader getClassLoader (PlaceConfig config)
+    {
+        return getClass().getClassLoader();
     }
 
     /** The invocation manager with which we operate. */
