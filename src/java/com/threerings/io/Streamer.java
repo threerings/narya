@@ -1,5 +1,5 @@
 //
-// $Id: Streamer.java,v 1.4 2002/12/21 00:44:03 mdb Exp $
+// $Id: Streamer.java,v 1.5 2002/12/23 00:40:39 mdb Exp $
 
 package com.threerings.io;
 
@@ -105,6 +105,7 @@ public class Streamer
                 if (t instanceof InvocationTargetException) {
                     t = ((InvocationTargetException)t).getTargetException();
                 }
+                Log.logStackTrace(t);
                 if (t instanceof IOException) {
                     throw (IOException)t;
                 }
@@ -172,6 +173,7 @@ public class Streamer
 //                          ", field=" + field.getName() + "].");
                 fm.writeField(field, object, out);
             } catch (Exception e) {
+                Log.logStackTrace(e);
                 String errmsg = "Failure writing streamable field " +
                     "[class=" + _target.getName() +
                     ", field=" + field.getName() + "]";
@@ -236,6 +238,7 @@ public class Streamer
                 if (t instanceof InvocationTargetException) {
                     t = ((InvocationTargetException)t).getTargetException();
                 }
+                Log.logStackTrace(t);
                 if (t instanceof IOException) {
                     throw (IOException)t;
                 }
@@ -292,6 +295,7 @@ public class Streamer
             try {
                 fm.readField(field, object, in);
             } catch (Exception e) {
+                Log.logStackTrace(e);
                 String errmsg = "Failure reading streamable field " +
                     "[class=" + _target.getName() +
                     ", field=" + field.getName() + "]";
