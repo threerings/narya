@@ -1,5 +1,5 @@
 //
-// $Id: PlaceObject.java,v 1.3 2002/02/20 23:35:42 mdb Exp $
+// $Id: PlaceObject.java,v 1.4 2002/03/08 01:06:12 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -86,9 +86,9 @@ public class PlaceObject extends DObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    public void setOccupantInfo (DSet value)
+    public void setOccupantInfo (DSet occupantInfo)
     {
         this.occupantInfo = occupantInfo;
-        requestAttributeChange(OCCUPANT_INFO, value);
+        requestAttributeChange(OCCUPANT_INFO, occupantInfo);
     }
 }

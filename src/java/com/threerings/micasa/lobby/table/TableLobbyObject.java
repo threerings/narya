@@ -1,5 +1,5 @@
 //
-// $Id: TableLobbyObject.java,v 1.2 2002/02/20 23:35:42 mdb Exp $
+// $Id: TableLobbyObject.java,v 1.3 2002/03/08 01:06:12 mdb Exp $
 
 package com.threerings.micasa.lobby.table;
 
@@ -81,9 +81,9 @@ public class TableLobbyObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    public void setTableSet (DSet value)
+    public void setTableSet (DSet tableSet)
     {
         this.tableSet = tableSet;
-        requestAttributeChange(TABLE_SET, value);
+        requestAttributeChange(TABLE_SET, tableSet);
     }
 }
