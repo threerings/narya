@@ -1,5 +1,5 @@
 //
-// $Id: ObjectDeathListener.java,v 1.1 2001/10/23 23:56:12 mdb Exp $
+// $Id: ObjectDeathListener.java,v 1.2 2002/02/03 04:38:05 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -9,7 +9,7 @@ package com.threerings.presents.dobj;
  *
  * @see DObject#addListener
  */
-public interface ObjectDeathListener
+public interface ObjectDeathListener extends ChangeListener
 {
     /**
      * Called when this object has been destroyed. This will be called

@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.32 2002/02/02 09:42:36 mdb Exp $
+// $Id: DObject.java,v 1.33 2002/02/03 04:38:05 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -157,7 +157,7 @@ public class DObject
      * @see SetListener
      * @see OidListListener
      */
-    public void addListener (Object listener)
+    public void addListener (ChangeListener listener)
     {
         // only add the listener if they're not already there
         Object[] els = ListUtil.testAndAdd(_listeners, listener);
@@ -172,7 +172,7 @@ public class DObject
      *
      * @param listener the listener to be removed.
      */
-    public void removeListener (Object listener)
+    public void removeListener (ChangeListener listener)
     {
         ListUtil.clear(_listeners, listener);
     }

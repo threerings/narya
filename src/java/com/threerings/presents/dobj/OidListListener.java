@@ -1,5 +1,5 @@
 //
-// $Id: OidListListener.java,v 1.1 2001/10/12 00:03:03 mdb Exp $
+// $Id: OidListListener.java,v 1.2 2002/02/03 04:38:05 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -9,7 +9,7 @@ package com.threerings.presents.dobj;
  *
  * @see DObject#addListener
  */
-public interface OidListListener
+public interface OidListListener extends ChangeListener
 {
     /**
      * Called when an object added event has been dispatched on an

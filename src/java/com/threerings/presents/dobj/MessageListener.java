@@ -1,5 +1,5 @@
 //
-// $Id: MessageListener.java,v 1.1 2001/10/12 00:03:03 mdb Exp $
+// $Id: MessageListener.java,v 1.2 2002/02/03 04:38:05 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -9,7 +9,7 @@ package com.threerings.presents.dobj;
  *
  * @see DObject#addListener
  */
-public interface MessageListener
+public interface MessageListener extends ChangeListener
 {
     /**
      * Called when an message event has been dispatched on an object.
