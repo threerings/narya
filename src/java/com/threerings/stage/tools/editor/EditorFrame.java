@@ -160,8 +160,6 @@ public class EditorFrame extends ManagedJFrame
      */
     public void createMenuBar ()
     {
-        KeyStroke accel = null;
-
         // create the "File" menu
         JMenu menuFile = new JMenu("File");
         createFileMenu(menuFile);
@@ -181,6 +179,7 @@ public class EditorFrame extends ManagedJFrame
         createActionsMenu(menuActions);
 
         // create the "Settings" menu
+        KeyStroke accel = null;
         JMenu menuSettings = new JMenu("Settings");
         menuSettings.setMnemonic(KeyEvent.VK_S);
         accel = KeyStroke.getKeyStroke(
@@ -201,6 +200,7 @@ public class EditorFrame extends ManagedJFrame
 
     protected void createFileMenu (JMenu menuFile)
     {
+        KeyStroke accel = null;
         menuFile.setMnemonic(KeyEvent.VK_F);
         accel = KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK);
         MenuUtil.addMenuItem(menuFile, "New", KeyEvent.VK_N, accel,
@@ -221,6 +221,7 @@ public class EditorFrame extends ManagedJFrame
 
     protected void createActionsMenu (JMenu menuActions)
     {
+        KeyStroke accel = null;
         MenuUtil.addMenuItem(menuActions, "Load (reload) test tiles", this,
             "handleTestTiles");
         menuActions.setMnemonic(KeyEvent.VK_A);
