@@ -1,5 +1,5 @@
 //
-// $Id: SimpleStreamableObject.java,v 1.1 2002/02/02 08:48:03 mdb Exp $
+// $Id: SimpleStreamableObject.java,v 1.2 2002/03/26 22:56:54 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -40,6 +40,17 @@ public class SimpleStreamableObject
      */
     public String toString ()
     {
-        return StringUtil.fieldsToString(this);
+        StringBuffer buf = new StringBuffer("[");
+        toString(buf);
+        return buf.append("]").toString();
+    }
+
+    /**
+     * Derived classes can override this method and add non-public members
+     * to the <code>toString()</code> output.
+     */
+    protected void toString (StringBuffer buf)
+    {
+        StringUtil.fieldsToString(buf, this);
     }
 }
