@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.9 2001/10/12 00:29:34 mdb Exp $
+// $Id: DSet.java,v 1.10 2001/10/12 20:11:00 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -38,7 +38,8 @@ import com.threerings.presents.io.Streamable;
  * removal event to save network bandwidth. Lastly, the object returned by
  * <code>getKey()</code> must be a valid distributed object type.
  */
-public class DSet implements Streamable
+public class DSet
+    implements Streamable, Cloneable
 {
     /**
      * Elements of the set must implement this interface.
@@ -334,6 +335,18 @@ public class DSet implements Streamable
             elem.readFrom(in);
             _elements[i] = elem;
         }
+    }
+
+    /**
+     * Generates a shallow copy of this object.
+     */
+    public Object clone ()
+    {
+        DSet nset = new DSet(_elementType);
+        nset._elements = new Element[_elements.length];
+        System.arraycopy(_elements, 0, nset._elements, 0, _elements.length);
+        nset._size = _size;
+        return nset;
     }
 
     /**
