@@ -1,5 +1,5 @@
 //
-// $Id: BobblePath.java,v 1.6 2004/08/27 02:12:47 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -25,6 +25,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 import com.threerings.util.RandomUtil;
+
+import com.threerings.media.Log;
 
 /**
  * Bobble a Pathable.
