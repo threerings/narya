@@ -1,15 +1,16 @@
 //
-// $Id: Client.java,v 1.45 2003/12/13 02:50:12 mdb Exp $
+// $Id: Client.java,v 1.46 2003/12/13 02:56:29 mdb Exp $
 
 package com.threerings.presents.client;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.samskivert.util.ObserverList;
-import com.samskivert.util.ResultListener;
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
+import com.samskivert.util.ObserverList;
+import com.samskivert.util.ResultListener;
+import com.samskivert.util.RunAnywhere;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
@@ -396,23 +397,12 @@ public class Client
      */
     protected void tick ()
     {
-        long now = System.currentTimeMillis();
-
-        // sanity check to see if we're missing idle ticks for long stretches
-        if (_lastTicked == 0L) {
-            _lastTicked = now;
-        }
-        long delta = now - _lastTicked;
-        if (delta > 10000L) {
-            Log.warning("Long inter-tick interval!? [delta=" + delta + "].");
-        }
-        _lastTicked = now;
-
         // if we're not connected, skip it
         if (_comm == null) {
             return;
         }
 
+        long now = RunAnywhere.currentTimeMillis();
         if (_dcalc != null) {
             // if we're syncing the clock, send another ping
             PingRequest req = new PingRequest();
@@ -703,9 +693,6 @@ public class Client
 
     /** Our tick interval id. */
     protected int _piid = -1;
-
-    /** Check to ensure that we're not missing ticks. */
-    protected long _lastTicked;
 
     /** How often we recompute our time offset from the server. */
     protected static final long CLOCK_SYNC_INTERVAL = 600 * 1000L;
