@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.31 2004/08/27 02:20:34 mdb Exp $
+// $Id: ResourceBundle.java,v 1.32 2004/10/18 21:38:22 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -115,7 +115,7 @@ public class ResourceBundle
             } catch (IOException ioe) {
                 Log.warning("Failure resolving jar file '" + _source +
                             "': " + ioe + ".");
-                wipeBundle();
+                wipeBundle(true);
                 return false;
             }
 
@@ -176,7 +176,7 @@ public class ResourceBundle
                 // if something went awry, delete everything in the hopes
                 // that next time things will work
                 if (failure) {
-                    wipeBundle();
+                    wipeBundle(true);
                     return false;
                 }
             }
@@ -206,7 +206,7 @@ public class ResourceBundle
      * hopes that we can download it afresh and everything will work the
      * next time around.
      */
-    public void wipeBundle ()
+    public void wipeBundle (boolean deleteJar)
     {
         // clear out our cache directory
         if (_cache != null) {
@@ -218,16 +218,16 @@ public class ResourceBundle
             _unpacked.delete();
         }
 
+        // clear out any .jarv file that Getdown might be maintaining so
+        // that we ensure that it is revalidated
+        File vfile = new File(FileUtil.resuffix(_source, ".jar", ".jarv"));
+        vfile.delete();
+
         // close and delete our source jar file
-        if (_source != null) {
+        if (deleteJar && _source != null) {
             closeJar();
             _source.delete();
         }
-
-        // also clear out any .vers file that the downloader might be
-        // maintaining if this is a versioned resource bundle
-        File vfile = new File(FileUtil.resuffix(_source, ".jar", ".vers"));
-        vfile.delete();
     }
 
     /**
