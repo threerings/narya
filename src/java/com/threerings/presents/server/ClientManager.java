@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.39 2004/09/15 18:21:26 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -239,6 +239,15 @@ public class ClientManager
     protected synchronized void mapClientObject (
         Name username, ClientObject clobj)
     {
+        // TEMP until we figure some things out
+        if (clobj.getClass().getName().indexOf("YoUserObject") == -1 &&
+            !username.toString().startsWith("! ")) {
+            String errmsg = "Mapping non-YoUserObject with unmassaged name! " +
+                "[username=" + username + "].";
+            Log.logStackTrace(new Exception(errmsg));
+        }
+        // END TEMP
+
         // stuff the object into the mapping table
         _objmap.put(username, clobj);
 

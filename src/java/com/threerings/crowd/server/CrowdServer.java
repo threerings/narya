@@ -1,5 +1,5 @@
 //
-// $Id: CrowdServer.java,v 1.20 2004/08/27 02:12:34 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -108,7 +108,13 @@ public class CrowdServer extends PresentsServer
      */
     public static BodyObject lookupBody (Name username)
     {
-        return (BodyObject)clmgr.getClientObject(username);
+        BodyObject bobj = (BodyObject)clmgr.getClientObject(username);
+        // TEMP until we figure some things out
+        if (bobj.getClass().getName().indexOf("AuthUserObject") != -1) {
+            return null;
+        }
+        // END TEMP
+        return bobj;
     }
 
     public static void main (String[] args)
