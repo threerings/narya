@@ -1,16 +1,20 @@
 //
-// $Id: ConfigEditorPanel.java,v 1.4 2002/08/14 19:07:48 mdb Exp $
+// $Id: ConfigEditorPanel.java,v 1.5 2002/09/23 01:32:32 mdb Exp $
 
 package com.threerings.admin.client;
 
+import java.awt.Font;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.event.AncestorEvent;
 
+import com.samskivert.swing.VGroupLayout;
 import com.samskivert.swing.event.AncestorAdapter;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.SafeScrollPane;
-
 import com.threerings.presents.util.PresentsContext;
 
 import com.threerings.admin.Log;
@@ -19,7 +23,7 @@ import com.threerings.admin.Log;
  * Fetches a list of the configuration objects in use by the server and
  * displays their fields in a tree widget to be viewed and edited.
  */
-public class ConfigEditorPanel extends JTabbedPane
+public class ConfigEditorPanel extends JPanel
     implements AdminService.ConfigInfoListener
 {
     /**
@@ -30,21 +34,42 @@ public class ConfigEditorPanel extends JTabbedPane
     {
         _ctx = ctx;
 
-        // when we're hidden, we want to clear out our subscriptions
-        addAncestorListener(new AncestorAdapter () {
-            public void ancestorRemoved (AncestorEvent event) {
-                cleanup();
-            }
-        });
+        setLayout(new VGroupLayout(VGroupLayout.STRETCH, VGroupLayout.STRETCH,
+                                   5, VGroupLayout.CENTER));
 
-        // if we have no children, ship off a getConfigInfo request to
-        // find out what config objects are available for editing
-        if (getComponentCount() == 0) {
-            // locate our admin service and use it to make a request
-            AdminService service = (AdminService)
-                _ctx.getClient().requireService(AdminService.class);
-            Log.info("Sending get config info.");
-            service.getConfigInfo(_ctx.getClient(), this);
+        // put a label at the top
+        JLabel header = new JLabel("Configuration Editor");
+        header.setFont(header.getFont().deriveFont(Font.BOLD, 18));
+        add(header, VGroupLayout.FIXED);
+
+        // create our objects tabbed pane
+        add(_oeditors = new JTabbedPane());
+
+        // add a handy label at the bottom
+        add(new JLabel("Fields outline in red have been modified " +
+                       "but not yet committed."), VGroupLayout.FIXED);
+        add(new JLabel("Press return in a modified field to commit " +
+                       "the change."), VGroupLayout.FIXED);
+
+        // ship off a getConfigInfo request to find out what config
+        // objects are available for editing
+        AdminService service = (AdminService)
+            _ctx.getClient().requireService(AdminService.class);
+        service.getConfigInfo(_ctx.getClient(), this);
+    }
+
+    // documentation inherited
+    public void removeNotify ()
+    {
+        super.removeNotify();
+
+        // when we're hidden, we want to clear out our subscriptions
+        int ccount = _oeditors.getComponentCount();
+        for (int ii = 0; ii < ccount; ii++) {
+            SafeScrollPane scrolly = (SafeScrollPane)_oeditors.getComponent(ii);
+            ObjectEditorPanel opanel = (ObjectEditorPanel)
+                scrolly.getViewport().getView();
+            opanel.cleanup();
         }
     }
 
@@ -54,13 +79,12 @@ public class ConfigEditorPanel extends JTabbedPane
      */
     public void gotConfigInfo (String[] keys, int[] oids)
     {
-        Log.info("Got config info: " + StringUtil.toString(keys));
         // create object editor panels for each of the categories
         for (int ii = 0; ii < keys.length; ii++) {
             ObjectEditorPanel panel =
                 new ObjectEditorPanel(_ctx, keys[ii], oids[ii]);
             SafeScrollPane scrolly = new SafeScrollPane(panel);
-            addTab(keys[ii], scrolly);
+            _oeditors.addTab(keys[ii], scrolly);
         }
     }
 
@@ -70,21 +94,9 @@ public class ConfigEditorPanel extends JTabbedPane
         Log.warning("Failed to get config info [reason=" + reason + "].");
     }
 
-    /**
-     * Called when the panel is hidden; this instructs all of our object
-     * editors to clear out their subscriptions.
-     */
-    protected void cleanup ()
-    {
-        int ccount = getComponentCount();
-        for (int ii = 0; ii < ccount; ii++) {
-            SafeScrollPane scrolly = (SafeScrollPane)getComponent(ii);
-            ObjectEditorPanel opanel = (ObjectEditorPanel)
-                scrolly.getViewport().getView();
-            opanel.cleanup();
-        }
-    }
-
     /** Our client context. */
     protected PresentsContext _ctx;
+
+    /** Holds our object editors. */
+    protected JTabbedPane _oeditors;
 }
