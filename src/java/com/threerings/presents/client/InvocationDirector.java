@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.4 2001/07/19 19:18:06 mdb Exp $
+// $Id: InvocationDirector.java,v 1.5 2001/08/03 02:12:12 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -223,7 +223,7 @@ public class InvocationManager
         }
     }
 
-    protected synchronized int nextInvocationId ()
+    public synchronized int nextInvocationId ()
     {
         return _invocationId++;
     }
