@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.53 2003/03/24 19:35:18 ray Exp $
+// $Id: SoundManager.java,v 1.54 2003/04/04 22:34:59 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -327,8 +327,8 @@ public class SoundManager
         }
 
         if (_player != null && (_clipVol != 0f) && isEnabled(type)) {
+            SoundKey skey = new SoundKey(pkgPath, key);
             synchronized (_queue) {
-                SoundKey skey = new SoundKey(pkgPath, key);
                 if (_queue.size() < MAX_QUEUE_SIZE) {
                     /*
                     if (_verbose.getValue()) {
@@ -388,6 +388,9 @@ public class SoundManager
      */
     protected void playSound (SoundKey key)
     {
+        if (key.isExpired()) {
+            return;
+        }
         try {
             // get the sound data from our LRU cache
             byte[] data = getClipData(key);
@@ -763,7 +766,9 @@ public class SoundManager
             } catch (FileNotFoundException fnfe2) {
                 Log.warning("Could not locate sound data [bundle=" + bundle +
                     ", path=" + path + "].");
-                if (_defaultClipPath != null) {
+                // only play the default sound if we have verbose sound
+                // debuggin turned on.
+                if (_verbose.getValue() && _defaultClipPath != null) {
                     try {
                         clipin = _rmgr.getResource(
                             _defaultClipBundle, _defaultClipPath);
@@ -1082,10 +1087,22 @@ public class SoundManager
 
         public String key;
 
+        public long stamp;
+
         public SoundKey (String pkgPath, String key)
         {
             this.pkgPath = pkgPath;
             this.key = key;
+
+            stamp = System.currentTimeMillis();
+        }
+
+        /**
+         * Has this sound key expired.
+         */
+        public boolean isExpired ()
+        {
+            return (stamp + MAX_SOUND_DELAY < System.currentTimeMillis());
         }
 
         // documentation inherited
@@ -1204,4 +1221,8 @@ public class SoundManager
 
     /** Used to disable sound entirely. */
     protected static final boolean SOUND_ENABLED = true;
+
+    /** The maximum time after which we throw away a sound rather
+     * than play it. */
+    protected static final long MAX_SOUND_DELAY = 400L;
 }
