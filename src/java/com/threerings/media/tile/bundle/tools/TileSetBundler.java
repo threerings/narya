@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundler.java,v 1.5 2002/04/01 16:49:26 mdb Exp $
+// $Id: TileSetBundler.java,v 1.6 2002/04/03 22:20:50 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -131,7 +131,8 @@ public class TileSetBundler
         try {
             digester.parse(fin);
         } catch (SAXException saxe) {
-            String errmsg = "Failure parsing bundler config file.";
+            String errmsg = "Failure parsing bundler config file " +
+                "[file=" + configFile.getPath() + "]";
             throw new NestableIOException(errmsg, saxe);
         }
         fin.close();
@@ -214,7 +215,8 @@ public class TileSetBundler
         try {
             _digester.parse(fin);
         } catch (SAXException saxe) {
-            String errmsg = "Failure parsing bundle description file.";
+            String errmsg = "Failure parsing bundle description file " +
+                "[path=" + bundleDesc.getPath() + "]";
             throw new NestableIOException(errmsg, saxe);
         } finally {
             fin.close();
