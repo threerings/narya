@@ -1,5 +1,5 @@
 //
-// $Id: OccupantManager.java,v 1.1 2001/08/20 20:54:56 mdb Exp $
+// $Id: OccupantManager.java,v 1.2 2001/08/20 21:52:43 mdb Exp $
 
 package com.threerings.cocktail.party.client;
 
@@ -161,7 +161,7 @@ public class OccupantManager
         // let the occupant observers know what's up
         for (int i = 0; i < _observers.size(); i++) {
             OccupantObserver obs = (OccupantObserver)_observers.get(i);
-            obs.occupantEntered(info);
+            obs.occupantLeft(info);
         }
     }
 
