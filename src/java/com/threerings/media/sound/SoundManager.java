@@ -260,8 +260,7 @@ public class SoundManager
         boolean queued = enqueue(skey, true);
         if (queued) {
             if (_verbose.getValue()) {
-                Log.info("Sound request [key=" + skey.key +
-                    ", age=" + skey.getAge() + "].");
+                Log.info("Sound request [key=" + skey.key + "].");
             }
 
         } else /* if (_verbose.getValue()) */ {
@@ -300,9 +299,6 @@ public class SoundManager
             };
             spooler.setDaemon(true);
             spooler.start();
-            if (_verbose.getValue()) {
-                Log.info("Started new player thread.");
-            }
         }
 
         return queued;
@@ -319,18 +315,13 @@ public class SoundManager
                 synchronized (_queue) {
                     _freeSpoolers++;
                     key = (SoundKey) _queue.get(MAX_WAIT_TIME);
-                    if (_verbose.getValue()) {
-                        Log.info("Spooler got key " +
-                            "[spooler=" + Thread.currentThread().hashCode() +
-                            ", key=" + key + "].");
-                    }
                     _freeSpoolers--;
 
                     if (key == null || key.cmd == DIE) {
                         _spoolerCount--;
                         // if dieing and there are others to kill, do so
                         if (key != null && _spoolerCount > 0) {
-                            _queue.append(key);
+                            _queue.appendLoud(key);
                         }
                         return;
                     }
@@ -504,18 +495,12 @@ public class SoundManager
             }
 
             data = (byte[][]) _clipCache.get(key);
-            if (verbose && data != null) {
-                Log.info("Clip loaded from cache [key=" + key.key + "].");
-            }
 
             // see if it's in the locked cache (we first look in the regular
             // clip cache so that locked clips that are still cached continue
             // to be moved to the head of the LRU queue)
             if (data == null) {
                 data = (byte[][]) _lockedClips.get(key);
-                if (verbose && data != null) {
-                    Log.info("Clip loaded from lock [key=" + key.key + "].");
-                }
             }
 
             if (data == null) {
@@ -538,10 +523,6 @@ public class SoundManager
                     String bundle = c.getValue("bundle", (String)null);
                     for (int ii=0; ii < names.length; ii++) {
                         data[ii] = loadClipData(bundle, names[ii]);
-                    }
-                    if (verbose) {
-                        Log.info("Clip loaded from rsrcmgr [key=" + key.key +
-                            "].");
                     }
                 }
 
@@ -759,12 +740,6 @@ public class SoundManager
         public boolean isExpired ()
         {
             return (stamp + MAX_SOUND_DELAY < System.currentTimeMillis());
-        }
-
-        // for debugging
-        public long getAge ()
-        {
-            return System.currentTimeMillis() - stamp;
         }
 
         // documentation inherited
