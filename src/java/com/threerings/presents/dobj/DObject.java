@@ -1,8 +1,9 @@
 //
-// $Id: DObject.java,v 1.62 2003/04/10 17:48:42 mdb Exp $
+// $Id: DObject.java,v 1.63 2003/04/30 22:32:04 mdb Exp $
 
 package com.threerings.presents.dobj;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
@@ -723,8 +724,15 @@ public class DObject implements Streamable
      */
     protected void requestAttributeChange (String name, Object value)
     {
-        // dispatch an attribute changed event
-        postEvent(new AttributeChangedEvent(_oid, name, value));
+        try {
+            // dispatch an attribute changed event
+            postEvent(new AttributeChangedEvent(
+                          _oid, name, value, getAttribute(name)));
+
+        } catch (ObjectAccessException oae) {
+            Log.warning("Unable to request attributeChange [name=" + name +
+                        ", value=" + value + ", error=" + oae + "].");
+        }
     }
 
     /**
@@ -733,8 +741,17 @@ public class DObject implements Streamable
      */
     protected void requestElementUpdate (String name, Object value, int index)
     {
-        // dispatch an attribute changed event
-        postEvent(new ElementUpdatedEvent(_oid, name, value, index));
+        try {
+            // dispatch an attribute changed event
+            Object oldValue = Array.get(getAttribute(name), index);
+            postEvent(new ElementUpdatedEvent(
+                          _oid, name, value, oldValue, index));
+
+        } catch (ObjectAccessException oae) {
+            Log.warning("Unable to request elementUpdate [name=" + name +
+                        ", value=" + value + ", index=" + index +
+                        ", error=" + oae + "].");
+        }
     }
 
     /**
@@ -766,8 +783,6 @@ public class DObject implements Streamable
             // immediately
             boolean alreadyApplied = false;
             if (_omgr != null && _omgr.isManager(this)) {
-//                 Log.info("Immediately adding [name=" + name +
-//                          ", entry=" + entry + "].");
                 set.add(entry);
                 alreadyApplied = true;
             }
@@ -791,8 +806,6 @@ public class DObject implements Streamable
             // immediately
             DSet.Entry oldEntry = null;
             if (_omgr != null && _omgr.isManager(this)) {
-//                 Log.info("Immediately removing [name=" + name +
-//                          ", key=" + key + "].");
                 oldEntry = set.get(key);
                 set.removeKey(key);
             }
@@ -816,8 +829,6 @@ public class DObject implements Streamable
             // immediately
             DSet.Entry oldEntry = null;
             if (_omgr != null && _omgr.isManager(this)) {
-//                 Log.info("Immediately updating [name=" + name +
-//                          ", entry=" + entry + "].");
                 oldEntry = set.get(entry.getKey());
                 set.update(entry);
             }

@@ -1,5 +1,5 @@
 //
-// $Id: ElementUpdatedEvent.java,v 1.4 2002/12/20 23:29:04 mdb Exp $
+// $Id: ElementUpdatedEvent.java,v 1.5 2003/04/30 22:32:04 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -29,13 +29,17 @@ public class ElementUpdatedEvent extends NamedEvent
      * element has changed.
      * @param value the new value of the element (in the case of primitive
      * types, the reflection-defined object-alternative is used).
+     * @param oldValue the previous value of the element (in the case of
+     * primitive types, the reflection-defined object-alternative is
+     * used).
      * @param index the index in the array of the updated element.
      */
     public ElementUpdatedEvent (
-        int targetOid, String name, Object value, int index)
+        int targetOid, String name, Object value, Object oldValue, int index)
     {
         super(targetOid, name);
         _value = value;
+        _oldValue = oldValue;
         _index = index;
     }
 
@@ -135,7 +139,9 @@ public class ElementUpdatedEvent extends NamedEvent
             }
 
             // grab the previous value to provide to interested parties
-            _oldValue = Array.get(field.get(target), _index);
+            if (_oldValue != UNSET_OLD_VALUE) {
+                _oldValue = Array.get(field.get(target), _index);
+            }
 
             // we don't do any magical expansion or any funny business;
             // the array should be big enough to contain the value being

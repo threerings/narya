@@ -1,5 +1,5 @@
 //
-// $Id: EntryUpdatedEvent.java,v 1.10 2003/03/10 18:29:54 mdb Exp $
+// $Id: EntryUpdatedEvent.java,v 1.11 2003/04/30 22:32:04 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -25,15 +25,7 @@ public class EntryUpdatedEvent extends NamedEvent
      * @param name the name of the attribute in which to update the
      * specified entry.
      * @param entry the entry to update.
-     */
-    public EntryUpdatedEvent (int targetOid, String name, DSet.Entry entry)
-    {
-        this(targetOid, name, entry, null);
-    }
-
-    /**
-     * Used when the distributed object already updated the entry before
-     * generating the event.
+     * @param oldEntry the previous value of the entry.
      */
     public EntryUpdatedEvent (int targetOid, String name, DSet.Entry entry,
                               DSet.Entry oldEntry)
@@ -77,7 +69,9 @@ public class EntryUpdatedEvent extends NamedEvent
             DSet set = (DSet)target.getAttribute(_name);
 
             // fetch the previous value for interested callers
-            _oldEntry = set.get(_entry.getKey());
+            if (_oldEntry != UNSET_OLD_ENTRY) {
+                _oldEntry = set.get(_entry.getKey());
+            }
 
             // update the entry
             if (!set.update(_entry)) {
@@ -108,5 +102,5 @@ public class EntryUpdatedEvent extends NamedEvent
     }
 
     protected DSet.Entry _entry;
-    protected transient DSet.Entry _oldEntry;
+    protected transient DSet.Entry _oldEntry = UNSET_OLD_ENTRY;
 }

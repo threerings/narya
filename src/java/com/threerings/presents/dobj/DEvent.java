@@ -1,5 +1,5 @@
 //
-// $Id: DEvent.java,v 1.12 2002/12/20 23:41:26 mdb Exp $
+// $Id: DEvent.java,v 1.13 2003/04/30 22:32:04 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -115,4 +115,16 @@ public abstract class DEvent implements Streamable
 
     /** The oid of the client that generated this event. */
     protected transient int _soid = -1;
+
+    /** Used to differentiate between null meaning we haven't initialized
+     * our old value and null being the actual old value. */
+    protected static final Object UNSET_OLD_VALUE = new Object();
+
+    /** Used to differentiate between null meaning we haven't initialized
+     * our old entry and null being the actual old entry. */
+    protected static final DSet.Entry UNSET_OLD_ENTRY = new DSet.Entry() {
+        public Comparable getKey () {
+            return null;
+        }
+    };
 }

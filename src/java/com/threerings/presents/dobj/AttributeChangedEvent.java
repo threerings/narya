@@ -1,5 +1,5 @@
 //
-// $Id: AttributeChangedEvent.java,v 1.14 2002/12/20 23:29:04 mdb Exp $
+// $Id: AttributeChangedEvent.java,v 1.15 2003/04/30 22:32:04 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -26,10 +26,12 @@ public class AttributeChangedEvent extends NamedEvent
      * primitive types, the reflection-defined object-alternative is
      * used).
      */
-    public AttributeChangedEvent (int targetOid, String name, Object value)
+    public AttributeChangedEvent (int targetOid, String name,
+                                  Object value, Object oldValue)
     {
         super(targetOid, name);
         _value = value;
+        _oldValue = oldValue;
     }
 
     /**
@@ -108,8 +110,10 @@ public class AttributeChangedEvent extends NamedEvent
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
-        // grab the previous value
-        _oldValue = target.getAttribute(_name);
+        // grab the previous value (if we're on the client)
+        if (_oldValue == UNSET_OLD_VALUE) {
+            _oldValue = target.getAttribute(_name);
+        }
         // pass the new value on to the object
         target.setAttribute(_name, _value);
         return true;
@@ -133,5 +137,5 @@ public class AttributeChangedEvent extends NamedEvent
     }
 
     protected Object _value;
-    protected transient Object _oldValue;
+    protected transient Object _oldValue = UNSET_OLD_VALUE;
 }
