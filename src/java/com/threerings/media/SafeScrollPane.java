@@ -1,5 +1,5 @@
 //
-// $Id: SafeScrollPane.java,v 1.3 2002/07/09 21:13:20 ray Exp $
+// $Id: SafeScrollPane.java,v 1.4 2002/10/06 20:57:36 mdb Exp $
 
 package com.threerings.media;
 
@@ -13,6 +13,10 @@ import javax.swing.JViewport;
  */
 public class SafeScrollPane extends JScrollPane
 {
+    public SafeScrollPane ()
+    {
+    }
+
     public SafeScrollPane (Component view)
     {
         super(view);
