@@ -1,5 +1,5 @@
 //
-// $Id: ImageSprite.java,v 1.4 2002/04/23 01:16:28 mdb Exp $
+// $Id: ImageSprite.java,v 1.5 2002/05/04 19:35:31 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -95,25 +95,11 @@ public class ImageSprite extends Sprite
         // first check to see that we're in the sprite's bounds and that
         // we've got a frame image (if we've got no image, there's nothing
         // to be hit)
-        if (!super.hitTest(x, y) || _frame == null) {
+        if (!super.hitTest(x, y) || _frames == null) {
             return false;
         }
 
-        if (_frame instanceof BufferedImage) {
-            BufferedImage bimage = (BufferedImage)_frame;
-            int argb = bimage.getRGB(x - _bounds.x, y - _bounds.y);
-            int alpha = argb >> 24;
-            // Log.info("Checking [x=" + x + ", y=" + y +
-            // ", bounds=" + _bounds + ", " + alpha);
-
-            // it's only a hit if the pixel is non-transparent
-            return (argb >> 24) != 0;
-
-        } else {
-            Log.warning("Can't check for transparent pixel " +
-                        "[image=" + _frame + "].");
-            return true;
-        }
+        return _frames.hitTest(_frameIdx, x - _bounds.x, y - _bounds.y);
     }
 
     /**
@@ -164,10 +150,10 @@ public class ImageSprite extends Sprite
 
         _frames = frames;
         _frameIdx %= _frames.getFrameCount();
-        _frame = _frames.getFrame(_frameIdx);
 
         // determine our drawing offsets and rendered rectangle size
-        accomodateFrame(_frame);
+        accomodateFrame(_frames.getWidth(_frameIdx),
+                        _frames.getHeight(_frameIdx));
 
         // add our new bounds
         dirty.add(_bounds);
@@ -188,23 +174,17 @@ public class ImageSprite extends Sprite
      * will need to override this method and adjust bounds accordingly for
      * the new frame (which can be null).
      */
-    protected void accomodateFrame (Image frame)
+    protected void accomodateFrame (int width, int height)
     {
-        if (frame == null) {
-            _bounds.width = 0;
-            _bounds.height = 0;
-
-        } else {
-            _bounds.width = frame.getWidth(null);
-            _bounds.height = frame.getHeight(null);
-        }
+        _bounds.width = width;
+        _bounds.height = height;
     }
 
     // documentation inherited
     public void paint (Graphics2D gfx)
     {
-        if (_frame != null) {
-            gfx.drawImage(_frame, _bounds.x, _bounds.y, null);
+        if (_frames != null) {
+            _frames.paintFrame(gfx, _frameIdx, _bounds.x, _bounds.y);
         } else {
             super.paint(gfx);
         }
@@ -248,7 +228,6 @@ public class ImageSprite extends Sprite
         // only update the sprite if our frame index changed
         if (nfidx != _frameIdx) {
             _frameIdx = nfidx;
-            _frame = _frames.getFrame(_frameIdx);
             // dirty our rectangle since we've altered our display image
             invalidate();
         }
@@ -263,9 +242,6 @@ public class ImageSprite extends Sprite
 
     /** The images used to render the sprite. */
     protected MultiFrameImage _frames;
-
-    /** The current frame being rendered. */
-    protected Image _frame;
 
     /** The current frame index to render. */
     protected int _frameIdx;
