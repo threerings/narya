@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeSceneImpl.java,v 1.2 2002/06/20 22:10:56 mdb Exp $
+// $Id: RuntimeSceneImpl.java,v 1.3 2003/02/04 17:25:09 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -38,6 +38,12 @@ public class RuntimeSceneImpl implements RuntimeScene
     public int getVersion ()
     {
         return _model.version;
+    }
+
+    // documentation inherited from interface
+    public void setVersion (int version)
+    {
+        _model.version = version;
     }
 
     // documentation inherited
