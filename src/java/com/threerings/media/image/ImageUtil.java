@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.20 2003/01/08 04:09:02 mdb Exp $
+// $Id: ImageUtil.java,v 1.21 2003/01/08 04:28:13 ray Exp $
 
 package com.threerings.media.image;
 
@@ -447,6 +447,43 @@ public class ImageUtil
             }
             return target;
         }
+    }
+
+    /**
+     * Create a new image using the supplied shape as a mask from which to
+     * cut out pixels from the supplied image. Pixels inside the shape
+     * will be added to the final image, pixels outside the shape will be
+     * clear.
+     */
+    public static BufferedImage composeMaskedImage (
+        Shape mask, BufferedImage base)
+    {
+        int wid = base.getWidth();
+        int hei = base.getHeight();
+
+        // alternate method for composition:
+        // 1. create WriteableRaster with base data
+        // 2. test each pixel with mask.contains() and set the alpha
+        //    channel to fully-alpha if false
+        // 3. create buffered image from raster
+        // (I didn't use this method because it depends on the colormodel
+        //  of the source image, and was booching when the souce image was
+        //  a cut-up from a tileset, and it seems like it would take
+        //  longer than the method we are using.
+        //  But it's something to consider)
+
+        // composite them by rendering them with an alpha rule
+        BufferedImage target = createImage(wid, hei);
+        Graphics2D g2 = target.createGraphics();
+        try {
+            g2.setColor(Color.BLACK); // whatever, really
+            g2.fill(mask);
+            g2.setComposite(AlphaComposite.SrcIn);
+            g2.drawImage(base, 0, 0, null);
+        } finally {
+            g2.dispose();
+        }
+        return target;
     }
 
     /**
