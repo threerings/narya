@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorFrame.java,v 1.2 2002/01/16 02:59:08 mdb Exp $
+// $Id: SimulatorFrame.java,v 1.3 2002/10/27 02:05:26 shaper Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -27,7 +27,7 @@ public interface SimulatorFrame extends ControllerProvider
 
     /**
      * Sets the controller for the outermost scope. This controller will
-     * handle all actions that aren't handled by controllers of tigher
+     * handle all actions that aren't handled by controllers of higher
      * scope.
      */
     public void setController (Controller controller);
