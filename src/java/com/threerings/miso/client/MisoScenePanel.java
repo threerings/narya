@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.32 2003/05/20 23:57:48 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.33 2003/05/20 23:58:27 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -710,7 +710,8 @@ public class MisoScenePanel extends VirtualMediaPanel
         // recompute our visible object set
         recomputeVisible();
 
-        Log.info("Rethunk " + _pendingBlocks + "/" + _visiBlocks.size() + ".");
+        Log.debug("Rethunk [pending=" + _pendingBlocks +
+                  ", visible=" + _visiBlocks.size() + "].");
         return _pendingBlocks;
     }
 
