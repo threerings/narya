@@ -1,4 +1,4 @@
-Cher Mk3 Notes -*- outline -*-
+Cher Notes -*- outline -*-
 
 * TODO
 Pass cause back to client somehow via FailureResponse in Client.requestFailed

@@ -1,4 +1,4 @@
-Cocktail Mk3 -*- outline -*-
+Cocktail -*- outline -*-
 
 * What is it?
 Cocktail is a platform on which multiplayer networked games may be
