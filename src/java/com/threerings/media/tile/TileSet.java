@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.54 2003/05/31 00:56:38 mdb Exp $
+// $Id: TileSet.java,v 1.55 2003/06/04 22:00:59 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -191,13 +191,15 @@ public abstract class TileSet
      */
     public Tile getTile (int tileIndex, Colorization[] zations)
     {
-        Tile.Key key = new Tile.Key(this, tileIndex, zations);
         Tile tile = null;
 
         // first look in the active set; if it's in use by anyone or in
         // the cache, it will be in the active set
         synchronized (_atiles) {
-            WeakReference wref = (WeakReference)_atiles.get(key);
+            _key.tileSet = this;
+            _key.tileIndex = tileIndex;
+            _key.zations = zations;
+            WeakReference wref = (WeakReference)_atiles.get(_key);
             if (wref != null) {
                 tile = (Tile)wref.get();
             }
@@ -206,10 +208,10 @@ public abstract class TileSet
         // if it's not in the active set, it's not in memory; so load it
         if (tile == null) {
             tile = createTile();
-            tile.key = key;
+            tile.key = new Tile.Key(this, tileIndex, zations);
             initTile(tile, tileIndex, zations);
             synchronized (_atiles) {
-                _atiles.put(key, new WeakReference(tile));
+                _atiles.put(tile.key, new WeakReference(tile));
             }
         }
 
@@ -416,6 +418,10 @@ public abstract class TileSet
 
     /** A map containing weak references to all "active" tiles. */
     protected static HashMap _atiles = new HashMap();
+
+    /** A key used to look things up in the cache without creating
+     * craploads of keys unduly. */
+    protected static Tile.Key _key = new Tile.Key(null, 0, null);
 
     /** Throttle our cache status logging to once every 30 seconds. */
     protected static Throttle _cacheStatThrottle = new Throttle(1, 30000L);
