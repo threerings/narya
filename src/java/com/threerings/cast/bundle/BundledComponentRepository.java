@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.20 2002/12/07 02:04:31 shaper Exp $
+// $Id: BundledComponentRepository.java,v 1.21 2003/01/07 07:55:58 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -258,13 +258,21 @@ public class BundledComponentRepository
             throws IOException
         {
             // obtain the image data from our resource bundle
-            InputStream imgin = _bundle.getResource(path);
-            if (imgin == null) {
-                String errmsg = "No such image in resource bundle " +
-                    "[bundle=" + _bundle + ", path=" + path + "].";
-                throw new FileNotFoundException(errmsg);
+            InputStream imgin = null;
+            try {
+                imgin = _bundle.getResource(path);
+                if (imgin == null) {
+                    String errmsg = "No such image in resource bundle " +
+                        "[bundle=" + _bundle + ", path=" + path + "].";
+                    throw new FileNotFoundException(errmsg);
+                }
+                return _imgr.loadImage(imgin);
+
+            } finally {
+                if (imgin != null) {
+                    imgin.close();
+                }
             }
-            return _imgr.loadImage(imgin);
         }
 
         // documentation inherited
