@@ -1,12 +1,14 @@
 //
-// $Id: BundleUtil.java,v 1.2 2002/06/19 08:33:14 mdb Exp $
+// $Id: BundleUtil.java,v 1.3 2002/09/17 21:05:35 mdb Exp $
 
 package com.threerings.cast.bundle;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 
+import com.threerings.cast.Log;
 import com.threerings.resource.ResourceBundle;
 
 /**
@@ -49,10 +51,19 @@ public class BundleUtil
     public static Object loadObject (ResourceBundle bundle, String path)
         throws IOException, ClassNotFoundException
     {
-        InputStream bin = bundle.getResource(path);
-        if (bin == null) {
+        try {
+            InputStream bin = bundle.getResource(path);
+            if (bin == null) {
+                return null;
+            }
+            return new ObjectInputStream(bin).readObject();
+
+        } catch (InvalidClassException ice) {
+            Log.warning("Aiya! Serialized object is hosed " +
+                        "[bundle=" + bundle.getSource().getPath() +
+                        ", element=" + path +
+                        ", error=" + ice.getMessage() + "].");
             return null;
         }
-        return new ObjectInputStream(bin).readObject();
     }
 }
