@@ -23,3 +23,6 @@ shared library directory specified in the build.xml file
 Once the jar files are in place (regardless of what they are named), the
 build system will automatically include them in the compile-time
 classpath.
+
+--
+$Id: README,v 1.2 2001/06/05 20:45:54 mdb Exp $
