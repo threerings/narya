@@ -1,5 +1,5 @@
 //
-// $Id: ParlorProvider.java,v 1.1 2001/10/01 02:56:35 mdb Exp $
+// $Id: ParlorProvider.java,v 1.2 2001/10/01 05:07:13 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -35,6 +35,24 @@ public class ParlorProvider extends InvocationProvider
      */
     public void handleInviteRequest (
         BodyObject source, int invid, String invitee, GameConfig config)
+    {
+    }
+
+    /**
+     * Processes a request from the client to respond to an outstanding
+     * invitation by accepting, refusing, or countering it.
+     */
+    public void handleRepsondInviteRequest (
+        BodyObject source, int invid, int inviteId, int code, Object arg)
+    {
+    }
+
+    /**
+     * Processes a request from the client to cancel an outstanding
+     * invitation.
+     */
+    public void handleCancelInviteRequest (
+        BodyObject source, int invid, int inviteId)
     {
     }
 
