@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.25 2003/01/17 00:41:49 ray Exp $
+// $Id: ImageUtil.java,v 1.26 2003/01/17 02:27:02 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -27,6 +27,7 @@ import java.awt.geom.Area;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.Log;
@@ -530,24 +531,35 @@ public class ImageUtil
      * Returns the estimated memory usage in bytes for the specified
      * image.
      */
-    public static long getEstimatedMemoryUsage (Image image)
+    public static long getEstimatedMemoryUsage (BufferedImage image)
     {
-        int area = image.getWidth(null) * image.getHeight(null);
-        // TODO: we assume an int per pixel for now, but should really
-        // study the sample model if it's a buffered image to do more
-        // intelligent estimation.
-        return (area * 4);
+        return getEstimatedMemoryUsage(image.getRaster());
     }
 
     /**
-     * Returns the estimated memory usage in bytes for all images in the
-     * supplied iterator.
+     * Returns the estimated memory usage in bytes for the specified
+     * raster.
+     */
+    public static long getEstimatedMemoryUsage (Raster raster)
+    {
+        // we assume that the data buffer stores each element in a
+        // byte-rounded memory element; maybe the buffer is smarter about
+        // things than this, but we're better to err on the safe side
+        DataBuffer db = raster.getDataBuffer();
+        int bpe = (int)Math.ceil(
+            DataBuffer.getDataTypeSize(db.getDataType()) / 8f);
+        return bpe * db.getSize();
+    }
+
+    /**
+     * Returns the estimated memory usage in bytes for all buffered images
+     * in the supplied iterator.
      */
     public static long getEstimatedMemoryUsage (Iterator iter)
     {
         long size = 0;
         while (iter.hasNext()) {
-            Image image = (Image)iter.next();
+            BufferedImage image = (BufferedImage)iter.next();
             size += getEstimatedMemoryUsage(image);
         }
         return size;
