@@ -1,5 +1,5 @@
 //
-// $Id: SessionObserver.java,v 1.1 2002/03/11 19:51:25 mdb Exp $
+// $Id: SessionObserver.java,v 1.2 2002/09/20 00:54:39 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -23,6 +23,14 @@ public interface SessionObserver
      * time this method is called.
      */
     public void clientDidLogon (Client client);
+
+    /**
+     * For systems that allow switching screen names after logon, this
+     * method is called whenever a screen name change takes place to
+     * report that the client object has been replaced to potential
+     * client-side subscribers.
+     */
+    public void clientObjectDidChange (Client client);
 
     /**
      * Called after the client has been logged off of the server and has

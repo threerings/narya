@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.29 2002/09/19 23:36:59 mdb Exp $
+// $Id: Client.java,v 1.30 2002/09/20 00:54:39 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -502,8 +502,8 @@ public class Client
                 break;
 
             case CLIENT_OBJECT_CHANGED:
-                if (obs instanceof ClientObserver) {
-                    ((ClientObserver)obs).clientObjectDidChange(Client.this);
+                if (obs instanceof SessionObserver) {
+                    ((SessionObserver)obs).clientObjectDidChange(Client.this);
                 }
                 break;
 

@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.15 2002/07/12 17:01:28 mdb Exp $
+// $Id: ClientController.java,v 1.16 2002/09/20 00:54:39 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -96,6 +96,13 @@ public class ClientController extends Controller
         if (moveOid > 0) {
             _ctx.getLocationDirector().moveTo(moveOid);
         }
+    }
+
+    // documentation inherited
+    public void clientObjectDidChange (Client client)
+    {
+        // regrab our body object
+        _body = (BodyObject)client.getClientObject();
     }
 
     // documentation inherited

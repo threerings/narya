@@ -1,5 +1,5 @@
 //
-// $Id: BasicDirector.java,v 1.1 2002/08/14 19:07:54 mdb Exp $
+// $Id: BasicDirector.java,v 1.2 2002/09/20 00:54:39 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -36,6 +36,11 @@ public class BasicDirector
     public void clientDidLogon (Client client)
     {
         fetchServices(client);
+    }
+
+    // documentation inherited from interface
+    public void clientObjectDidChange (Client client)
+    {
     }
 
     // documentation inherited from interface

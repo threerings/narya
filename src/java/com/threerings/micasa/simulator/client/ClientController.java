@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.7 2002/08/14 19:07:50 mdb Exp $
+// $Id: ClientController.java,v 1.8 2002/09/20 00:54:39 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -88,6 +88,13 @@ public class ClientController extends Controller
                         "[class=" + _info.gameConfigClass +
                         ", error=" + e + "].");
         }
+    }
+
+    // documentation inherited
+    public void clientObjectDidChange (Client client)
+    {
+        // regrab our body object
+        _body = (BodyObject)client.getClientObject();
     }
 
     // documentation inherited
