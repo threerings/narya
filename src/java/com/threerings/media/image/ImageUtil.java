@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.16 2002/06/19 08:24:22 mdb Exp $
+// $Id: ImageUtil.java,v 1.17 2002/06/20 17:54:26 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -95,7 +95,7 @@ public class ImageUtil
     public static BufferedImage createImage (
         int width, int height, int transparency)
     {
-        return _gc.createCompatibleImage(width, height, transparency);
+        return getDefGC().createCompatibleImage(width, height, transparency);
     }
 
     /**
@@ -374,13 +374,21 @@ public class ImageUtil
         tbounds.height = lastrow - firstrow + 1;
     }
 
+    /**
+     * Obtains the default graphics configuration for this VM.
+     */
+    protected static GraphicsConfiguration getDefGC ()
+    {
+        if (_gc == null) {
+            // obtain information on our graphics environment
+            GraphicsEnvironment env =
+                GraphicsEnvironment.getLocalGraphicsEnvironment();
+            GraphicsDevice gd = env.getDefaultScreenDevice();
+            _gc = gd.getDefaultConfiguration();
+        }
+        return _gc;
+    }
+
     /** The graphics configuration for the default screen device. */
     protected static GraphicsConfiguration _gc;
-    static {
-        // obtain information on our graphics environment
-        GraphicsEnvironment env =
-            GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice gd = env.getDefaultScreenDevice();
-        _gc = gd.getDefaultConfiguration();
-    };
 }
