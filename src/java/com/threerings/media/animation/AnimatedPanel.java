@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.4 2002/01/23 17:10:41 shaper Exp $
+// $Id: AnimatedPanel.java,v 1.5 2002/02/13 18:48:56 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -16,15 +16,20 @@ import java.awt.image.BufferStrategy;
 import java.util.List;
 
 import com.threerings.media.Log;
+import com.threerings.media.sprite.SpriteManager;
 
 /**
  * The animated panel provides a useful extensible implementation of a
  * {@link Canvas} that implements the {@link AnimatedView} interface. It
- * takes care of automatically creating an animation manager to manage the
- * animations that take place within this panel. Derived classes should
- * provide said animation manager with a reference to the sprite manager
- * in use by the application, if needed (via {@link
- * AnimationManager#setSpriteManager}).
+ * takes care of automatically creating an animation manager and a sprite
+ * manager to manage the animations that take place within this panel. If
+ * a sprite manager is not needed, {@link #needsSpriteManager} can be
+ * overridden to prevent it from being created.
+ *
+ * <p> Users of the animated panel must be sure to call {@link #stop} when
+ * their panel is no longer being displayed and {@link #start} to start it
+ * back up again when it is once again being displayed. These methods
+ * deactivate and reactivate the underlying animation manager.
  *
  * <p> Sub-classes should override {@link #render} to draw their
  * panel-specific contents, and may choose to override {@link
@@ -43,6 +48,37 @@ public class AnimatedPanel extends Canvas implements AnimatedView
 
         // create our animation manager
         _animmgr = new AnimationManager(this);
+
+        // create a sprite manager if we haven't been requested not to
+        if (needsSpriteManager()) {
+            _animmgr.setSpriteManager(new SpriteManager());
+        }
+    }
+
+    /**
+     * Derived classes can override this method to prevent the automatic
+     * creation of a sprite manager to work with the animation manager
+     * that is managing this panel.
+     */
+    protected boolean needsSpriteManager ()
+    {
+        return true;
+    }        
+
+    /**
+     * Starts up the animation manager associated with this panel.
+     */
+    public void start ()
+    {
+        _animmgr.start();
+    }
+
+    /**
+     * Shuts down the animation manager associated with this panel.
+     */
+    public void stop ()
+    {
+        _animmgr.stop();
     }
 
     // documentation inherited
