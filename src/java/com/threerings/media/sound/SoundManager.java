@@ -708,7 +708,8 @@ public class SoundManager
             String propPath = key.pkgPath + Sounds.PROP_NAME;
             Properties props = new Properties();
             try {
-                props.load(_rmgr.getResource(propPath + ".properties"));
+                props.load(_rmgr.getClassLoader().getResourceAsStream(
+                               propPath + ".properties"));
             } catch (IOException ioe) {
                 Log.warning("Failed to load sound properties " +
                             "[path=" + propPath + ", error=" + ioe + "].");
