@@ -89,12 +89,16 @@
     <delete dir="${deploy.dir}"/>
   </target>
 
-  <!-- build the java class files and native libraries -->
+  <!-- build the java class files -->
   <target name="compile" depends="prepare">
     <javac srcdir="src/java" destdir="${classes.dir}"
            debug="on" optimize="{$build.optimize}" deprecation="on">
       <classpath refid="classpath"/>
     </javac>
+  </target>
+
+  <!-- build the native libraries -->
+  <target name="ncompile" depends="prepare">
     <exec dir="src/java/com/threerings/util/keybd/i686-Linux" 
      executable="make"/>
   </target>
@@ -123,10 +127,10 @@
   </target>
 
   <!-- a target for rebuilding everything -->
-  <target name="all" depends="clean,prepare,compile,javadoc,dist"/>
+  <target name="all" depends="clean,prepare,compile,ncompile,javadoc,dist"/>
 
   <!-- builds our distribution files (war and jar) -->
-  <target name="dist" depends="prepare,compile">
+  <target name="dist" depends="prepare,compile,ncompile">
     <!-- build our various jar files -->
     <jar destfile="${deploy.dir}/${app.name}-base.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/io/**"/>
