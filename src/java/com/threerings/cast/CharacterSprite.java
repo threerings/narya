@@ -1,9 +1,12 @@
 //
-// $Id: CharacterSprite.java,v 1.36 2002/07/24 22:19:50 mdb Exp $
+// $Id: CharacterSprite.java,v 1.37 2002/11/19 00:23:46 mdb Exp $
 
 package com.threerings.cast;
 
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
+import javax.swing.SwingUtilities;
 
 import com.threerings.media.sprite.ImageSprite;
 import com.threerings.media.util.Path;
@@ -146,6 +149,55 @@ public class CharacterSprite extends ImageSprite
 //     }
 
     // documentation inherited
+    public boolean hitTest (int x, int y)
+    {
+        // the irect adjustments are to account for our decorations
+        return (_frames != null && _ibounds.contains(x, y) &&
+                _frames.hitTest(_frameIdx, x - _ibounds.x, y - _ibounds.y));
+    }
+
+    // documentation inherited
+    public void paint (Graphics2D gfx)
+    {
+        if (_frames != null) {
+            decorateBehind(gfx);
+            // paint the image using _ibounds rather than _bounds which
+            // has been modified to include the bounds of our decorations
+            _frames.paintFrame(gfx, _frameIdx, _ibounds.x, _ibounds.y);
+            decorateInFront(gfx);
+
+        } else {
+            super.paint(gfx);
+        }
+    }
+
+    /**
+     * Called to paint any decorations that should appear behind the
+     * character sprite image.
+     */
+    protected void decorateBehind (Graphics2D gfx)
+    {
+    }
+
+    /**
+     * Called to paint any decorations that should appear in front of the
+     * character sprite image.
+     */
+    protected void decorateInFront (Graphics2D gfx)
+    {
+    }
+
+    // documentation inherited
+    protected void updateRenderOrigin ()
+    {
+        super.updateRenderOrigin();
+
+        // adjust our image bounds to reflect the new location
+        _ibounds.x = _bounds.x + _ioff.x;
+        _ibounds.y = _bounds.y + _ioff.y;
+    }
+
+    // documentation inherited
     protected void accomodateFrame (int frameIdx, int width, int height)
     {
         // this will update our width and height
@@ -157,6 +209,35 @@ public class CharacterSprite extends ImageSprite
 
         // and cause those changes to be reflected in our bounds
         updateRenderOrigin();
+
+        // start out with our bounds the same as our image bounds
+        _ibounds.setBounds(_bounds);
+
+        // now we can call down and incorporate the dimensions of any
+        // decorations that will be rendered along with our image
+        unionDecorationBounds(_bounds);
+
+        // compute our new render origin
+        _oxoff = _ox - _bounds.x;
+        _oyoff = _oy - _bounds.y;
+
+        // track the offset from our expanded bounds to our image bounds
+        _ioff.x = _ibounds.x - _bounds.x;
+        _ioff.y = _ibounds.y - _bounds.y;
+    }
+
+    /**
+     * Called by {@link #accomodateFrame} to give derived classes an
+     * opportunity to incorporate the bounds of any decorations that will
+     * be drawn along with this sprite. The {@link #_ibounds} rectangle
+     * will contain the bounds of the image that comprises the undecorated
+     * sprite. From that the position and size of decorations can be
+     * computed and unioned with the supplied bounds rectangle (most
+     * likely by using {@link SwingUtilities#computeUnion} which applies
+     * the union in place rather than creating a new rectangle).
+     */
+    protected void unionDecorationBounds (Rectangle bounds)
+    {
     }
 
     // documentation inherited
@@ -220,4 +301,11 @@ public class CharacterSprite extends ImageSprite
     /** The animation frames for the active action sequence in each
      * orientation. */
     protected ActionFrames _aframes;
+
+    /** The offset from the upper-left of the total sprite bounds to the
+     * upper-left of the image within those bounds. */
+    protected Point _ioff = new Point();
+
+    /** The bounds of the current sprite image. */
+    protected Rectangle _ibounds = new Rectangle();
 }
