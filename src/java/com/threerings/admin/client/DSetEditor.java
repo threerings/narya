@@ -1,5 +1,5 @@
 //
-// $Id: DSetEditor.java,v 1.2 2004/06/03 18:15:03 ray Exp $
+// $Id: DSetEditor.java,v 1.3 2004/06/03 19:11:18 ray Exp $
 
 package com.threerings.admin.client;
 
@@ -158,6 +158,15 @@ public class DSetEditor extends JPanel
     public JTable getTable ()
     {
         return _table;
+    }
+
+    /**
+     * Get the currently selected entry.
+     */
+    public DSet.Entry getSelectedEntry ()
+    {
+        int row = _table.getSelectedRow();
+        return (row == -1) ? null : _model.getEntry(row);
     }
 
     // documentation inherited
