@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: ant,v 1.2 2002/04/14 01:32:21 mdb Exp $
+# $Id: ant,v 1.3 2002/05/08 23:04:07 shaper Exp $
 #
 # Invokes our desired version of ant with all of our jar files in the
 # classpath.
@@ -39,7 +39,7 @@ SYSTEMCP=`echo $JAVA_LIBS/*.jar | tr ' ' ':'`
 PROJECTCP=`echo $BINDIR/../lib/*.jar | tr ' ' ':'`
 
 # also the project jar file
-PROJECTJAR=`echo $BINDIR/../dist/*.jar`
+PROJECTJAR=`echo $BINDIR/../dist/*.jar | tr ' ' ':'`
 
 if [ "$CLASSPATH" ] ; then
     CLASSPATH="$PROJECTJAR:$PROJECTCP:$SYSTEMCP:$CLASSPATH"
