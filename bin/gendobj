@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: gendobj,v 1.13 2002/06/06 07:18:10 mdb Exp $
+# $Id: gendobj,v 1.14 2002/08/09 03:35:47 mdb Exp $
 #
 # gendobj is used to generate DObject source file definitons basded on
 # abbreviated declarations. Because DObject fields all have standard
@@ -31,6 +31,14 @@ while ($source = shift) {
         next;
     }
 
+    # if the destination file is newer than the source file, do nothing
+    my $dmtime = (stat($dest))[9];
+    my $smtime = (stat($source))[9];
+    if (!$force && (defined $dmtime) && ($dmtime > $smtime)) {
+        warn "Skipping $source as source is newer.\n" if ($verbose);
+        next;
+    }
+
     # if the destination file already exists, slurp the existing CVS Id
     # information out of it so that we can slip that into the new one
     my $idstr;
@@ -41,14 +49,6 @@ while ($source = shift) {
             }
         }
         close(IN);
-    }
-
-    # if the destination file is newer than the source file, do nothing
-    my $dmtime = (stat($dest))[9];
-    my $smtime = (stat($source))[9];
-    if (!$force && (defined $dmtime) && ($dmtime > $smtime)) {
-        warn "Skipping $source as source is newer.\n" if ($verbose);
-        next;
     }
 
     if (!open(IN, "$source")) {
