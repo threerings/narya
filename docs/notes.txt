@@ -2,3 +2,6 @@ Narya Notes -*- mode: outline -*-
 
 * Media framework
 Make sure the animation and sprite stuff is general purpose.
+
+* General
+Remove dependencies of nodemap on miso.
