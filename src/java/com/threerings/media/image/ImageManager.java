@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.27 2002/11/20 03:06:06 mdb Exp $
+// $Id: ImageManager.java,v 1.28 2002/12/07 00:58:00 shaper Exp $
 
 package com.threerings.media;
 
@@ -13,7 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.imageio.ImageReader;
 
@@ -21,6 +21,8 @@ import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 
 import com.samskivert.io.NestableIOException;
+import com.samskivert.util.LRUHashMap;
+import com.samskivert.util.Throttle;
 
 import com.threerings.media.Log;
 import com.threerings.media.util.ImageUtil;
@@ -65,6 +67,14 @@ public class ImageManager
             throw new IllegalArgumentException(errmsg);
         }
 
+        // periodically report our image cache performance
+        if (!_cacheStatThrottle.throttleOp()) {
+            int size = getCachedImageSize() / 1024;
+            int[] eff = _imgs.getTrackedEffectiveness();
+            Log.debug("ImageManager LRU [size=" + size + "k pixels" +
+                      ", hits=" + eff[0] + ", misses=" + eff[1] + "].");
+        }
+
         String key = rset + ":" + path;
 	Image img = (Image)_imgs.get(key);
 	if (img != null) {
@@ -96,7 +106,7 @@ public class ImageManager
                         ", path=" + path + ", error=" + ioe + "].");
         }
 
-	// Log.info("Loading image into cache [path=" + path + "].");
+        // Log.info("Loading image into cache [path=" + path + "].");
         if (img != null) {
             _imgs.put(key, img);
         } else {
@@ -128,7 +138,7 @@ public class ImageManager
                         ", error=" + ioe + "].");
         }
 
-	// Log.info("Loading image into cache [path=" + path + "].");
+        // Log.info("Loading image into cache [path=" + path + "].");
         if (img != null) {
             _imgs.put(path, img);
         } else {
@@ -241,6 +251,21 @@ public class ImageManager
         return dest;
     }
 
+    /**
+     * Returns the estimated size of the cached images as the total area
+     * in pixels occupied by all images.
+     */
+    protected int getCachedImageSize ()
+    {
+        Iterator iter = _imgs.values().iterator();
+        int size = 0;
+        while (iter.hasNext()) {
+            Image image = (Image)iter.next();
+            size += (image.getWidth(null) * image.getHeight(null));
+        }
+        return size;
+    }
+
     /** A reference to the resource manager via which we load image data
      * by default. */
     protected ResourceManager _rmgr;
@@ -250,11 +275,17 @@ public class ImageManager
     protected ImageLoader _loader;
 
     /** A cache of loaded images. */
-    protected HashMap _imgs = new HashMap();
+    protected LRUHashMap _imgs = new LRUHashMap(IMAGE_CACHE_SIZE);
+
+    /** Throttle our cache status logging to once every 30 seconds. */
+    protected Throttle _cacheStatThrottle = new Throttle(1, 30000L);
 
     /** The classname of the ImageIO-based image loader which we attempt
      * to use but fallback from if we're not running a JVM that has
      * ImageIO support. */
     protected static final String IMAGEIO_LOADER =
         "com.threerings.media.ImageIOLoader";
+
+    /** The maximum number of images that may be cached at any one time. */
+    protected static final int IMAGE_CACHE_SIZE = 30;
 }
