@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.29 2003/05/27 07:52:45 mdb Exp $
+// $Id: ResourceManager.java,v 1.30 2003/05/29 16:35:59 mdb Exp $
 
 package com.threerings.resource;
 
@@ -716,5 +716,5 @@ public class ResourceManager
     protected static final String DEFAULT_RESOURCE_SET = "default";
 
     /** The name of our resource bundle cache directory. */
-    protected static final String CACHE_PATH = ".naryarsrc";
+    protected static final String CACHE_PATH = ".narya";
 }
