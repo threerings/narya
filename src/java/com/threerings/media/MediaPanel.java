@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.45 2004/09/18 23:50:20 mdb Exp $
+// $Id: MediaPanel.java,v 1.46 2004/10/29 17:10:46 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -41,6 +41,8 @@ import com.samskivert.swing.event.AncestorAdapter;
 import com.samskivert.util.IntListUtil;
 import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
+
+import com.threerings.media.timer.MediaTimer;
 
 import com.threerings.media.animation.Animation;
 import com.threerings.media.animation.AnimationManager;
@@ -544,8 +546,13 @@ public class MediaPanel extends JComponent
      */
     protected void paintBits (Graphics2D gfx, int layer, Rectangle dirty)
     {
-        _animmgr.paint(gfx, layer, dirty);
-        _spritemgr.paint(gfx, layer, dirty);
+        if (layer == FRONT) {
+            _spritemgr.paint(gfx, layer, dirty);
+            _animmgr.paint(gfx, layer, dirty);
+        } else {
+            _animmgr.paint(gfx, layer, dirty);
+            _spritemgr.paint(gfx, layer, dirty);
+        }
     }
 
     /** The frame manager with whom we register. */
