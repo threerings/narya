@@ -1,5 +1,5 @@
 //
-// $Id: ExplodeAnimation.java,v 1.11 2002/08/15 20:53:50 shaper Exp $
+// $Id: ExplodeAnimation.java,v 1.12 2002/08/19 21:08:51 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -186,7 +186,8 @@ public class ExplodeAnimation extends Animation
             _cypos[ii] = _oy + (ypos * _chei) + ytrav;
 
             // note whether this chunk is still within our bounds
-            if (_bounds.contains(_cxpos[ii], _cypos[ii])) {
+            _wrect.setBounds(_cxpos[ii], _cypos[ii], _cwid, _chei);
+            if (_bounds.intersects(_wrect)) {
                 inside++;
             }
         }
@@ -313,4 +314,7 @@ public class ExplodeAnimation extends Animation
 
     /** The percent alpha with which to render the chunks. */
     protected float _alpha;
+
+    /** A reusable working rectangle. */
+    protected Rectangle _wrect = new Rectangle();
 }
