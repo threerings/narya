@@ -1,12 +1,12 @@
 //
-// $Id: KeyboardManager.java,v 1.14 2002/11/08 08:17:35 ray Exp $
+// $Id: KeyboardManager.java,v 1.15 2003/01/12 00:26:39 shaper Exp $
 
 package com.threerings.util;
 
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Window;
-import java.awt.event.KeyAdapter;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
@@ -23,6 +23,8 @@ import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
 import com.samskivert.util.ObserverList;
+
+import com.threerings.util.keybd.Keyboard;
 
 /**
  * The keyboard manager observes keyboard actions on a particular
@@ -130,14 +132,23 @@ public class KeyboardManager
         }
 
         if (!enabled) {
-            // clear out any previous management we were engaged in
+            if (Keyboard.isAvailable()) {
+                // restore the original key auto-repeat settings
+                Keyboard.setKeyRepeat(_nativeRepeat);
+            }
+
+            // clear out all of our key states
             releaseAllKeys();
             _keys.clear();
+
+            // cease listening to all of our business
             if (_window != null) {
                 _window.removeWindowFocusListener(this);
                 _window = null;
             }
             _target.removeAncestorListener(this);
+
+            // note that we no longer have the focus
             _focus = false;
 
         } else {
@@ -157,6 +168,15 @@ public class KeyboardManager
 
             // assume the keyboard focus since we were just enabled
             _focus = true;
+
+            if (Keyboard.isAvailable()) {
+                // note whether key auto-repeating was enabled
+                _nativeRepeat = Keyboard.isKeyRepeatEnabled();
+
+                // disable native key auto-repeating so that we can
+                // definitively ascertain key pressed/released events
+                Keyboard.setKeyRepeat(false);
+            }
         }
 
         // save off our new enabled state
@@ -201,6 +221,12 @@ public class KeyboardManager
      */
     protected void gainedFocus ()
     {
+        if (Keyboard.isAvailable()) {
+            // disable key auto-repeating
+            Keyboard.setKeyRepeat(false);
+        }
+
+        // note that we've regained the focus
         _focus = true;
     }
 
@@ -210,7 +236,14 @@ public class KeyboardManager
      */
     protected void lostFocus ()
     {
+        if (Keyboard.isAvailable()) {
+            // restore key auto-repeating
+            Keyboard.setKeyRepeat(_nativeRepeat);
+        }
+
+        // clear out all of our keyboard state
         releaseAllKeys();
+        // note that we no longer have the focus
         _focus = false;
     }
 
@@ -381,19 +414,19 @@ public class KeyboardManager
             _lastPress = time;
             _lastRelease = time;
 
-//             if (_iid == -1) {
-//                 // register an interval to post the command associated
-//                 // with the key press until the key is decidedly released
-//                 _iid = IntervalManager.register(this, _pressDelay, null, true);
-//                 if (DEBUG_EVENTS) {
-//                     Log.info("Pressing key [key=" + _keyText + "].");
-//                 }
+            if (_iid == -1) {
+                // register an interval to post the command associated
+                // with the key press until the key is decidedly released
+                _iid = IntervalManager.register(this, _pressDelay, null, true);
+                if (DEBUG_EVENTS) {
+                    Log.info("Pressing key [key=" + _keyText + "].");
+                }
 
                 if (_pressCommand != null) {
                     // post the initial key press command
                     postPress(time);
                 }
-//             }
+            }
         }
 
         /**
@@ -402,33 +435,33 @@ public class KeyboardManager
         public synchronized void setReleaseTime (long time)
         {
             release(time);
-//             _lastRelease = time;
+            _lastRelease = time;
 
-//             // handle key release events received so quickly after the key
-//             // press event that the press/release times are exactly equal
-//             // and, in intervalExpired(), we would therefore be unable to
-//             // distinguish between the key being initially pressed and the
-//             // actual true key release that's taken place.
+            // handle key release events received so quickly after the key
+            // press event that the press/release times are exactly equal
+            // and, in intervalExpired(), we would therefore be unable to
+            // distinguish between the key being initially pressed and the
+            // actual true key release that's taken place.
 
-//             // the only case I can think of that might result in this
-//             // happening is if the event manager class queues up a key
-//             // press and release event succession while other code is
-//             // executing, and when it comes time for it to dispatch the
-//             // events in its queue it manages to dispatch both of them to
-//             // us really-lickety-split.  one would still think at least a
-//             // few milliseconds should pass between the press and release,
-//             // but in any case, we arguably ought to be watching for and
-//             // handling this case for posterity even though it would seem
-//             // unlikely or impossible, and so, now we do, which is a good
-//             // thing since it appears this does in fact happen, and not so
-//             // infrequently.
-//             if (_lastPress == _lastRelease) {
-//                 if (DEBUG_EVENTS) {
-//                     Log.warning("Insta-releasing key due to equal key " +
-//                                 "press/release times [key=" + _keyText + "].");
-//                 }
-//                 release(time);
-//             }
+            // the only case I can think of that might result in this
+            // happening is if the event manager class queues up a key
+            // press and release event succession while other code is
+            // executing, and when it comes time for it to dispatch the
+            // events in its queue it manages to dispatch both of them to
+            // us really-lickety-split.  one would still think at least a
+            // few milliseconds should pass between the press and release,
+            // but in any case, we arguably ought to be watching for and
+            // handling this case for posterity even though it would seem
+            // unlikely or impossible, and so, now we do, which is a good
+            // thing since it appears this does in fact happen, and not so
+            // infrequently.
+            if (_lastPress == _lastRelease) {
+                if (DEBUG_EVENTS) {
+                    Log.warning("Insta-releasing key due to equal key " +
+                                "press/release times [key=" + _keyText + "].");
+                }
+                release(time);
+            }
         }
 
         /**
@@ -438,9 +471,9 @@ public class KeyboardManager
         public synchronized void release (long timestamp)
         {
             // bail if we're not currently pressed
-//             if (_iid == -1) {
-//                 return;
-//             }
+            if (_iid == -1) {
+                return;
+            }
 
             if (DEBUG_EVENTS) {
                 Log.info("Releasing key [key=" + _keyText + "].");
@@ -484,21 +517,21 @@ public class KeyboardManager
                 // we're certain the key is now up, or (c) repeat the key
                 // command if we're certain the key is still down
                 if (_lastRelease != _lastPress) {
-                    if (deltaRelease < _repeatDelay) {
-                        // register a one-shot sub-interval to
-                        // definitively check whether the key was released
-                        long delay = _repeatDelay - deltaRelease;
-                        _siid = IntervalManager.register(
-                            this, delay, new Long(_lastPress), false);
-                        if (KeyboardManager.DEBUG_INTERVAL) {
-                            Log.info("Registered sub-interval " +
-                                     "[id=" + _siid + "].");
-                        }
+//                     if (deltaRelease < _repeatDelay) {
+//                         // register a one-shot sub-interval to
+//                         // definitively check whether the key was released
+//                         long delay = _repeatDelay - deltaRelease;
+//                         _siid = IntervalManager.register(
+//                             this, delay, new Long(_lastPress), false);
+//                         if (KeyboardManager.DEBUG_INTERVAL) {
+//                             Log.info("Registered sub-interval " +
+//                                      "[id=" + _siid + "].");
+//                         }
 
-                    } else {
+//                     } else {
                         // we know the key was released, so cease repeating
                         release(now);
-                    }
+//                     }
 
                 } else if (_pressCommand != null) {
                     // post the key press command again
@@ -663,4 +696,8 @@ public class KeyboardManager
 
     /** The operation used to notify observers of actual key events. */
     protected KeyObserverOp _keyOp = new KeyObserverOp();
+
+    /** Whether native key auto-repeating was enabled when the keyboard
+     * manager was last enabled. */
+    protected boolean _nativeRepeat;
 }
