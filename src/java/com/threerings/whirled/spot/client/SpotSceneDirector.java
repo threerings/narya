@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.36 2004/08/27 02:20:44 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.37 2004/11/11 02:10:56 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -334,12 +334,14 @@ public class SpotSceneDirector extends BasicDirector
     {
         super.clientDidLogon(client);
 
-        // listen to the client object
-        client.getClientObject().addListener(this);
-        _self = (ClusteredBodyObject)client.getClientObject();
+        if (client instanceof ClusteredBodyObject) {
+            // listen to the client object
+            client.getClientObject().addListener(this);
+            _self = (ClusteredBodyObject)client.getClientObject();
 
-        // we may need to subscribe to a cluster due to session resumption
-        maybeUpdateCluster();
+            // we may need to subscribe to a cluster due to session resumption
+            maybeUpdateCluster();
+        }
     }
 
     // documentation inherited
