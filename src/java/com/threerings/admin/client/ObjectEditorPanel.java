@@ -1,5 +1,5 @@
 //
-// $Id: ObjectEditorPanel.java,v 1.4 2004/03/06 12:00:39 mdb Exp $
+// $Id: ObjectEditorPanel.java,v 1.5 2004/03/06 14:55:50 mdb Exp $
 
 package com.threerings.admin.client;
 
@@ -8,17 +8,16 @@ import java.lang.reflect.Modifier;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.event.AncestorEvent;
 
 import com.samskivert.swing.ScrollablePanel;
 import com.samskivert.swing.VGroupLayout;
-import com.samskivert.swing.event.AncestorAdapter;
 import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.util.PresentsContext;
+import com.threerings.presents.util.SafeSubscriber;
 
 import com.threerings.admin.Log;
 import com.threerings.admin.data.ConfigObject;
@@ -49,18 +48,11 @@ public class ObjectEditorPanel extends ScrollablePanel
         // keep this business around
         _ctx = ctx;
         _key = key;
-        _oid = oid;
 
-        // when we're hidden, we want to clear out our subscriptions
-        addAncestorListener(new AncestorAdapter () {
-            public void ancestorAdded (AncestorEvent event) {
-                // subscribe to our object the first time we're shown
-                if (_object == null) {
-                    _ctx.getDObjectManager().subscribeToObject(
-                        _oid, ObjectEditorPanel.this);
-                }
-            }
-        });
+        // we'll use this to safely subscribe to and unsubscribe from the
+        // config object
+        _safesub = new SafeSubscriber(oid, this);
+        _safesub.subscribe(_ctx.getDObjectManager());
     }
 
     // documentation inherited from interface
@@ -75,10 +67,9 @@ public class ObjectEditorPanel extends ScrollablePanel
      */
     public void cleanup ()
     {
-        if (_object != null) {
-            _ctx.getDObjectManager().unsubscribeFromObject(_oid, this);
-            _object = null;
-        }
+        // clear out our subscription
+        _safesub.unsubscribe(_ctx.getDObjectManager());
+        _object = null;
 
         // clear out our field editors
         removeAll();
@@ -116,6 +107,6 @@ public class ObjectEditorPanel extends ScrollablePanel
 
     protected PresentsContext _ctx;
     protected String _key;
-    protected int _oid;
+    protected SafeSubscriber _safesub;
     protected ConfigObject _object;
 }
