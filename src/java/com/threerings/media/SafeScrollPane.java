@@ -1,5 +1,5 @@
 //
-// $Id: SafeScrollPane.java,v 1.5 2002/11/05 05:51:18 mdb Exp $
+// $Id: SafeScrollPane.java,v 1.6 2002/11/05 21:03:31 mdb Exp $
 
 package com.threerings.media;
 
@@ -35,7 +35,6 @@ public class SafeScrollPane extends JScrollPane
                 // it here
                 Component c = getView();
                 if (c instanceof JComponent) {
-                    System.out.println("Revalidating " + c);
                     ((JComponent)c).revalidate();
                 }
             }
