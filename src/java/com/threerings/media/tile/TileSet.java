@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.56 2003/06/05 17:32:03 mdb Exp $
+// $Id: TileSet.java,v 1.57 2003/06/06 00:20:41 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -365,8 +365,6 @@ public abstract class TileSet
             _cacheStatThrottle.throttleOp()) {
             return;
         }
-
-        System.gc();
 
         // compute our estimated memory usage
         long amem = 0;
