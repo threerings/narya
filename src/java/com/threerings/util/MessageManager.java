@@ -1,5 +1,5 @@
 //
-// $Id: MessageManager.java,v 1.4 2002/05/01 02:47:18 mdb Exp $
+// $Id: MessageManager.java,v 1.5 2002/11/01 00:01:37 mdb Exp $
 
 package com.threerings.util;
 
@@ -24,6 +24,12 @@ import com.samskivert.util.StringUtil;
  */
 public class MessageManager
 {
+    /** The name of the global resource bundle (which other bundles revert
+     * to if they can't locate a message within themselves). It must be
+     * named <code>global.properties</code> and live at the top of the
+     * bundle hierarchy. */
+    public static final String GLOBAL_BUNDLE = "global";
+
     /**
      * Constructs a message manager with the supplied resource prefix and
      * the default locale. The prefix will be prepended to the path of all
@@ -51,6 +57,9 @@ public class MessageManager
         if (!_prefix.endsWith(".")) {
             _prefix += ".";
         }
+
+        // load up the global bundle
+        _global = getBundle(GLOBAL_BUNDLE);
     }
 
     /**
@@ -121,7 +130,7 @@ public class MessageManager
         // initialize our message bundle, cache it and return it (if we
         // couldn't resolve the bundle, the message bundle will cope with
         // it's null resource bundle)
-        bundle.init(path, rbundle);
+        bundle.init(path, rbundle, _global);
         _cache.put(path, bundle);
         return bundle;
     }
@@ -134,6 +143,10 @@ public class MessageManager
 
     /** A cache of instantiated message bundles. */
     protected HashMap _cache = new HashMap();
+
+    /** Our top-level message bundle, from which others obtain messages if
+     * they can't find them within themselves. */
+    protected MessageBundle _global;
 
     /** A key that can contain the classname of a custom message bundle
      * class to be used to handle messages for a particular bundle. */

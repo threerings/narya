@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.13 2002/08/16 19:31:39 mdb Exp $
+// $Id: MessageBundle.java,v 1.14 2002/11/01 00:01:37 mdb Exp $
 
 package com.threerings.util;
 
@@ -23,10 +23,11 @@ public class MessageBundle
      * from the supplied resource bundle. The path is provided purely for
      * reporting purposes.
      */
-    public void init (String path, ResourceBundle bundle)
+    public void init (String path, ResourceBundle bundle, MessageBundle parent)
     {
         _path = path;
         _bundle = bundle;
+        _parent = parent;
     }
 
     /**
@@ -72,6 +73,15 @@ public class MessageBundle
             }
 
         } catch (MissingResourceException mre) {
+            // if we have a parent, try getting the string from them
+            if (_parent != null) {
+                String value = _parent.getResourceString(key, false);
+                if (value != null) {
+                    return value;
+                }
+                // if we didn't find it in our parent, we want to fall
+                // through and report missing appropriately
+            }
             if (reportMissing) {
                 Log.warning("Missing translation message " +
                             "[bundle=" + _path + ", key=" + key + "].");
@@ -324,6 +334,9 @@ public class MessageBundle
 
     /** The resource bundle from which we obtain our messages. */
     protected ResourceBundle _bundle;
+
+    /** Our parent bundle if we're not the global bundle. */
+    protected MessageBundle _parent;
 
     /** Text prefixed by this character will be considered tainted when
      * doing recursive translations and won't be translated. */
