@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.18 2002/04/16 17:00:33 mdb Exp $
+// $Id: LineSegmentPath.java,v 1.19 2002/04/16 18:24:43 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -237,7 +237,9 @@ public class LineSegmentPath
         _dest = getNextNode();
 
         // adjust the sprite's orientation
-        sprite.setOrientation(_dest.dir);
+        if (_dest.dir != NONE) {
+            sprite.setOrientation(_dest.dir);
+        }
 
         // make a note of when we started traversing this node
         _nodestamp = startstamp;
