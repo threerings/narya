@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.22 2002/03/16 03:15:06 shaper Exp $
+// $Id: IsoUtil.java,v 1.23 2002/03/26 20:17:51 ray Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -444,6 +444,30 @@ public class IsoUtil
         poly.addPoint(spos.x, spos.y + model.tilehhei);
 
         return poly;
+    }
+
+    /**
+     * @return the hash key, give x and y
+     */
+    public static final int coordsToKey (int x, int y)
+    {
+	return ((y << 16) & (0xFFFF0000)) | (x & 0xFFFF);
+    }
+
+    /**
+     * @return the x coordinate from the hash key
+     */
+    public static final int xCoordFromKey (int key)
+    {
+	return (key & 0xFFFF);
+    }
+
+    /**
+     * @return the y coordinate from the hash key
+     */
+    public static final int yCoordFromKey (int key)
+    {
+	return ((key >> 16) & 0xFFFF);
     }
 
     /** Multiplication factor to embed tile coords in full coords. */

@@ -1,7 +1,9 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.9 2002/02/06 17:13:06 mdb Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.10 2002/03/26 20:17:51 ray Exp $
 
 package com.threerings.miso.scene.tools;
+
+import com.samskivert.util.HashIntMap;
 
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
@@ -13,6 +15,9 @@ import com.threerings.miso.tile.BaseTile;
 
 import com.threerings.miso.scene.DisplayMisoSceneImpl;
 import com.threerings.miso.scene.MisoSceneModel;
+import com.threerings.miso.scene.util.IsoUtil;
+
+import java.util.Iterator;
 
 /**
  * The default implementation of the {@link EditableMisoScene} interface.
@@ -103,7 +108,7 @@ public class EditableMisoSceneImpl
         // object tile
         setObjectTileFootprint(tile, x, y, true);
         // stick this value into our non-sparse object layer
-        _objectTileIds[_model.width*y + x] = fqTileId;
+	_objectTileIds.put(IsoUtil.coordsToKey(x, y), new Integer(fqTileId));
     }
 
     // documentation inherited from interface
@@ -137,10 +142,10 @@ public class EditableMisoSceneImpl
             // object tile's footprint
             setObjectTileFootprint(tile, x, y, false);
             // clear out the tile itself
-            _object.setTile(x, y, null);
+            _object.clearTile(x, y);
         }
         // clear it out in our non-sparse array
-        _objectTileIds[_model.width*y + x] = 0;
+	_objectTileIds.remove(IsoUtil.coordsToKey(x, y));
         // clear out any action for this tile as well
         _actions.remove(objectKey(x, y));
     }
@@ -156,32 +161,24 @@ public class EditableMisoSceneImpl
     {
         // we need to flush the object layer to the model prior to
         // returning it
-        int otileCount = 0;
+        int otileCount = _objectTileIds.size();
         int cols = _object.getWidth();
         int rows = _object.getHeight();
-
-        // first count how many object tiles we have
-        for (int i = 0; i < _objectTileIds.length; i++) {
-            if (_objectTileIds[i] != 0) {
-                otileCount++;
-            }
-        }
 
         // now create and populate the new tileid and actions arrays
         int[] otids = new int[otileCount*3];
         String[] actions = new String[otileCount];
         int otidx = 0, actidx = 0;
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                int tsid = _objectTileIds[_model.width*r + c];
-                if (tsid == 0) {
-                    continue;
-                }
-                otids[otidx++] = c;
-                otids[otidx++] = r;
-                otids[otidx++] = tsid;
-                actions[actidx++] = (String)_actions.get(objectKey(c, r));
-            }
+
+	Iterator keys = _objectTileIds.keys();
+	while (keys.hasNext()) {
+	    int key = ((Integer) keys.next()).intValue();
+	    int c = IsoUtil.xCoordFromKey(key);
+ 	    int r = IsoUtil.yCoordFromKey(key);
+	    otids[otidx++] = c;
+	    otids[otidx++] = r;
+	    otids[otidx++] = ((Integer) _objectTileIds.get(key)).intValue();
+	    actions[actidx++] = (String)_actions.get(objectKey(c, r));
         }
 
         // stuff the new arrays into the model
@@ -199,7 +196,7 @@ public class EditableMisoSceneImpl
     protected void unpackObjectLayer ()
     {
         // we need this to track object layer mods
-        _objectTileIds = new int[_model.baseTileIds.length];
+	_objectTileIds = new HashIntMap();
 
         // populate our non-spare array
         int[] otids = _model.objectTileIds;
@@ -207,13 +204,13 @@ public class EditableMisoSceneImpl
             int x = otids[i];
             int y = otids[i+1];
             int fqTileId = otids[i+2];
-            _objectTileIds[_model.width*y + x] = fqTileId;
+	    _objectTileIds.put(IsoUtil.coordsToKey(x, y),
+			       new Integer(fqTileId));
         }
     }
 
-    /** A non-sparse array where we can keep track of the object tile
-     * ids. */
-    protected int[] _objectTileIds;
+    /** where we keep track of object tile ids. */
+    protected HashIntMap _objectTileIds;
 
     /** The default tile with which to fill the base layer. */
     protected BaseTile _defaultBaseTile;

@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.51 2002/02/17 08:01:15 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.52 2002/03/26 20:17:51 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -74,7 +74,7 @@ public class DisplayMisoSceneImpl
         // create the individual tile layer objects
         _base = new BaseTileLayer(new BaseTile[swid*shei], swid, shei);
         _fringe = new TileLayer(new Tile[swid*shei], swid, shei);
-        _object = new ObjectTileLayer(new ObjectTile[swid*shei], swid, shei);
+        _object = new ObjectTileLayer(swid, shei);
 
         // create a mapping for the action strings and populate it
         _actions = new HashIntMap();
@@ -227,7 +227,11 @@ public class DisplayMisoSceneImpl
         int endy = Math.max(0, (y - otile.getBaseHeight() + 1));
 
         for (int xx = x; xx >= endx; xx--) {
+	    if ((xx < 0) || (xx >= _model.width)) continue;
+
             for (int yy = y; yy >= endy; yy--) {
+		if ((yy < 0) || (yy >= _model.height)) continue;
+
                 BaseTile tile = _base.getTile(xx, yy);
                 if (tile != null) {
                     tile.setCovered(covered);

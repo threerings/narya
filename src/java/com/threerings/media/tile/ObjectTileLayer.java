@@ -1,7 +1,11 @@
 //
-// $Id: ObjectTileLayer.java,v 1.1 2001/11/18 04:09:21 mdb Exp $
+// $Id: ObjectTileLayer.java,v 1.2 2002/03/26 20:17:51 ray Exp $
 
 package com.threerings.media.tile;
+
+import com.samskivert.util.HashIntMap;
+
+import com.threerings.miso.scene.util.IsoUtil;
 
 /**
  * The object tile layer class is a convenience class provided to simplify
@@ -24,15 +28,8 @@ public final class ObjectTileLayer
      * @exception IllegalArgumentException thrown if the size of the tiles
      * array does not match the specified width and height.
      */
-    public ObjectTileLayer (ObjectTile[] tiles, int width, int height)
+    public ObjectTileLayer (int width, int height)
     {
-        // sanity check
-        if (tiles.length != width*height) {
-            String errmsg = "tiles.length != width*height";
-            throw new IllegalArgumentException(errmsg);
-        }
-
-        _tiles = tiles;
         _width = width;
         _height = height;
     }
@@ -60,7 +57,7 @@ public final class ObjectTileLayer
      */
     public ObjectTile getTile (int column, int row)
     {
-        return _tiles[row*_width+column];
+	return (ObjectTile) _tiles.get(IsoUtil.coordsToKey(column, row));
     }
 
     /**
@@ -70,11 +67,19 @@ public final class ObjectTileLayer
      */
     public void setTile (int column, int row, ObjectTile tile)
     {
-        _tiles[row*_width+column] = tile;
+	_tiles.put(IsoUtil.coordsToKey(column, row), tile);
     }
 
-    /** Our tiles array. */
-    private ObjectTile[] _tiles;
+    /**
+     * Removes the tile at the specified row and column
+     */
+    public void clearTile (int column, int row)
+    {
+	_tiles.remove(IsoUtil.coordsToKey(column, row));
+    }
+
+    /** Our tiles. */
+    private HashIntMap _tiles = new HashIntMap();
 
     /** The number of tiles in a row. */
     private int _width;

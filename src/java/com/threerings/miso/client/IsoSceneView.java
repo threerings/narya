@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.102 2002/03/16 03:15:05 shaper Exp $
+// $Id: IsoSceneView.java,v 1.103 2002/03/26 20:17:51 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.HashIntMap;
 
 import com.threerings.media.animation.AnimationManager;
 import com.threerings.media.sprite.Path;
@@ -77,7 +78,7 @@ public class IsoSceneView implements SceneView
 
         // create our polygon arrays, these will be populated with the
         // tile polygons as they are requested
-        _polys = new Polygon[model.scenewid][model.scenehei];
+        _polys = new HashIntMap();
 
         // create the array used to mark dirty tiles
         _dirty = new boolean[model.scenewid][model.tilehei];
@@ -502,9 +503,12 @@ public class IsoSceneView implements SceneView
      */
     protected Polygon getTilePoly (int x, int y)
     {
-        Polygon poly = _polys[x][y];
+	int key = IsoUtil.coordsToKey(x, y);
+	
+	Polygon poly = (Polygon) _polys.get(key);
         if (poly == null) {
-            poly = _polys[x][y] = IsoUtil.getTilePolygon(_model, x, y);
+	    poly = IsoUtil.getTilePolygon(_model, x, y);
+	    _polys.put(key, poly);
         }
         return poly;
     }
@@ -933,7 +937,7 @@ public class IsoSceneView implements SceneView
     protected DisplayMisoScene _scene;
 
     /** Polygon outlines for all of our base tiles. */
-    protected Polygon _polys[][];
+    protected HashIntMap _polys;
 
     /** Metric information for all of the object tiles. */
     protected ArrayList _objects = new ArrayList();
