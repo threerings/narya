@@ -1,5 +1,5 @@
           //
-// $Id: KeyboardManager.java,v 1.2 2001/12/12 18:09:20 shaper Exp $
+// $Id: KeyboardManager.java,v 1.3 2001/12/14 01:14:50 shaper Exp $
 
 package com.threerings.yohoho.puzzle.util;
 
@@ -228,12 +228,8 @@ public class KeyboardManager implements KeyListener
         public synchronized void intervalExpired (int id, Object arg)
         {
             long now = System.currentTimeMillis();
+            long deltaPress = now - _lastPress;
             long deltaRelease = now - _lastRelease;
-
-            Log.info("intervalExpired [id=" + id +
-                     ", key=" + _keyText +
-                     ", deltaPress=" + (now - _lastPress) +
-                     ", deltaRelease=" + deltaRelease + "].");
 
             if (id == _iid) {
                 // handle a normal interval where we either (a) create a
@@ -241,6 +237,11 @@ public class KeyboardManager implements KeyListener
                 // whether the key is still down, (b) cease repeating if
                 // we're certain the key is now up, or (c) repeat the key
                 // command if we're certain the key is still down
+
+                Log.info("normal interval [key=" + _keyText +
+                         ", deltaPress=" + deltaPress +
+                         ", deltaRelease=" + deltaRelease + "].");
+
                 if (_lastRelease != _lastPress) {
                     if (deltaRelease < _repeatDelay) {
                         // register a one-shot sub-interval to
@@ -249,8 +250,8 @@ public class KeyboardManager implements KeyListener
                                  "release.");
                         long delay = _repeatDelay - deltaRelease;
                         _siid = IntervalManager.register(
-                            this, delay, null, false);
-                             
+                            this, delay, new Long(_lastPress), false);
+
                     } else {
                         // we know the key was released, so cease repeating
                         release();
@@ -258,13 +259,30 @@ public class KeyboardManager implements KeyListener
 
                 } else if (_pressCommand != null) {
                     // post the key press command again
-                    Log.info("Repeating command [cmd=" + _pressCommand + "].");
+                    // Log.info("Repeating command [cmd=" + _pressCommand + "].");
                     Controller.postAction(_target, _pressCommand);
                 }
 
             } else if (id == _siid) {
+                // handle the sub-interval that checks whether the key has
+                // really been released since the normal interval expired
+                // at an inopportune time for a definitive check
+
+                Log.info("sub-interval [key=" + _keyText +
+                         ", deltaPress=" + deltaPress +
+                         ", deltaRelease=" + deltaRelease + "].");
+
                 // clear out the non-recurring sub-interval identifier
                 _siid = -1;
+
+                // make sure the key hasn't been pressed again since the
+                // sub-interval was registered
+                if (_lastPress != ((Long)arg).longValue()) {
+                    Log.warning("Key pressed since sub-interval was " +
+                                "registered, aborting release check " +
+                                "[key=" + _keyText + "].");
+                    return;
+                }
 
                 // provide the last word on whether the key was released
                 if ((_lastRelease != _lastPress) &&
@@ -273,7 +291,7 @@ public class KeyboardManager implements KeyListener
 
                 } else if (_pressCommand != null) {
                     // post the key command again
-                    Log.info("Repeating command [cmd=" + _pressCommand + "].");
+                    // Log.info("Repeating command [cmd=" + _pressCommand + "].");
                     Controller.postAction(_target, _pressCommand);
                 }
             }
@@ -319,7 +337,7 @@ public class KeyboardManager implements KeyListener
     protected static final long DEFAULT_REPEAT_DELAY = 50L;
 
     /** The default key press delay. */
-    protected static final long DEFAULT_PRESS_DELAY = 200L;
+    protected static final long DEFAULT_PRESS_DELAY = 150L;
 
     /** The expected approximate milliseconds between each key
      * release/press event while the key is being auto-repeated. */
