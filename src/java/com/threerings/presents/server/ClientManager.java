@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.25 2002/10/31 21:04:19 mdb Exp $
+// $Id: ClientManager.java,v 1.26 2002/11/05 02:17:56 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -30,7 +30,8 @@ import com.threerings.presents.server.util.SafeInterval;
  * going away) and from the dobjmgr thread (when clients are given the
  * boot for application-defined reasons).
  */
-public class ClientManager implements ConnectionObserver
+public class ClientManager
+    implements ConnectionObserver, PresentsServer.Reporter
 {
     /**
      * Constructs a client manager that will interact with the supplied
@@ -49,6 +50,8 @@ public class ClientManager implements ConnectionObserver
             }
         }, CLIENT_FLUSH_INTERVAL, null, true);
 
+        // register as a "state of server" reporter
+        PresentsServer.registerReporter(this);
     }
 
     /**
@@ -323,6 +326,17 @@ public class ClientManager implements ConnectionObserver
             Log.info("Closed unmapped connection '" + conn + "'. " +
                      "Client probably not yet authenticated.");
         }
+    }
+
+    // documentation inherited from interface PresentsServer.Reporter
+    public void appendReport (StringBuffer report, long now, long sinceLast)
+    {
+        report.append("* presents.ClientManager:\n");
+        report.append("- Sessions: ");
+        report.append(_usermap.size()).append(" total, ");
+        report.append(_conmap.size()).append(" connected, ");
+        report.append(_penders.size()).append(" pending\n");
+        report.append("- Mapped users: ").append(_objmap.size()).append("\n");
     }
 
     /**

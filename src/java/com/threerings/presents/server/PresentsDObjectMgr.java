@@ -1,14 +1,16 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.25 2002/07/17 01:54:33 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.26 2002/11/05 02:17:56 mdb Exp $
 
 package com.threerings.presents.server;
 
 import java.lang.reflect.*;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Queue;
+import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.Log;
@@ -27,7 +29,8 @@ import com.threerings.presents.dobj.*;
  * application main thread which won't return until the manager has been
  * requested to shut down.
  */
-public class PresentsDObjectMgr implements RootDObjectManager
+public class PresentsDObjectMgr
+    implements RootDObjectManager, PresentsServer.Reporter
 {
     /**
      * Creates the dobjmgr and prepares it for operation.
@@ -40,6 +43,9 @@ public class PresentsDObjectMgr implements RootDObjectManager
         dummy.setOid(0);
         dummy.setManager(this);
         _objects.put(0, new DObject());
+
+        // register ourselves as a state of server reporter
+        PresentsServer.registerReporter(this);
     }
 
     /**
@@ -174,8 +180,8 @@ public class PresentsDObjectMgr implements RootDObjectManager
         // look up the target object
         DObject target = (DObject)_objects.get(event.getTargetOid());
         if (target == null) {
-            Log.warning("Event target no longer exists " +
-                        "[event=" + event + "].");
+            Log.debug("Event target no longer exists " +
+                      "[event=" + event + "].");
             return;
         }
 
@@ -215,6 +221,9 @@ public class PresentsDObjectMgr implements RootDObjectManager
                         ", target=" + target + "].");
             Log.logStackTrace(e);
         }
+
+        // track the number of events dispatched
+        ++_eventCount;
     }
 
     /**
@@ -462,6 +471,45 @@ public class PresentsDObjectMgr implements RootDObjectManager
         return _nextOid;
     }
 
+    // documentation inherited from interface PresentsServer.Reporter
+    public void appendReport (StringBuffer report, long now, long sinceLast)
+    {
+        report.append("* presents.PresentsDObjectMgr:\n");
+
+        long processed = (_eventCount - _lastEventCount);
+        report.append("- Events since last report: ").append(processed);
+        report.append("\n");
+        _lastEventCount = _eventCount;
+
+        // summarize the objects in our dobject table
+        HashMap ccount = new HashMap();
+        SortableArrayList clist = new SortableArrayList();
+        Iterator iter = _objects.values().iterator();
+        while (iter.hasNext()) {
+            DObject obj = (DObject)iter.next();
+            String clazz = obj.getClass().getName();
+            int[] count = (int[])ccount.get(clazz);
+            if (count == null) {
+                count = new int[] { 0 };
+                ccount.put(clazz, count);
+                clist.add(clazz);
+            }
+            count[0]++;
+        }
+
+        // sort our list of dobject types
+        clist.sort();
+
+        report.append("- DObject count: ").append(_objects.size());
+        report.append("\n");
+        for (int ii = 0; ii < clist.size(); ii++) {
+            String clazz = (String)clist.get(ii);
+            int count = ((int[])ccount.get(clazz))[0];
+            report.append("  ").append(clazz).append(": ").append(count);
+            report.append("\n");
+        }
+    }
+
     /**
      * Calls {@link Subscriber#objectAvailable} and catches and logs any
      * exception thrown by the subscriber during the call.
@@ -696,12 +744,28 @@ public class PresentsDObjectMgr implements RootDObjectManager
     /** Used to assign a unique oid to each distributed object. */
     protected int _nextOid = 0;
 
+    /** Used to track the number of events dispatched over time. */
+    protected long _eventCount = 0;
+
+    /** Used to track the number of events dispatched over of time. */
+    protected long _lastEventCount = 0;
+
+    /** The last time at which we generated a report. */
+    protected long _lastReportStamp;
+
     /** Used to track oid list references of distributed objects. */
     protected HashIntMap _refs = new HashIntMap();
 
     /** The default access controller to use when creating distributed
      * objects. */
     protected AccessController _defaultController;
+
+    /** Check whether we should generate a report every 100 events. */
+    protected static final long REPORT_CHECK_PERIOD = 100;
+
+    /** Generate a report no more frequently than once per five
+     * minutes. */
+    protected static final long REPORT_PERIOD = 5 * 60 * 1000L;
 
     /** The default size of an oid list refs vector. */
     protected static final int DEFREFVEC_SIZE = 4;

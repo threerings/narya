@@ -1,5 +1,5 @@
 //
-// $Id: Connection.java,v 1.10 2002/10/29 23:51:26 mdb Exp $
+// $Id: Connection.java,v 1.11 2002/11/05 02:17:56 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -213,11 +213,12 @@ public abstract class Connection implements NetEventHandler
     /**
      * Called when our client socket has data available for reading.
      */
-    public void handleEvent (long when, Selectable source, short events)
+    public int handleEvent (long when, Selectable source, short events)
     {
         // make a note that we received an event as of this time
         _lastEvent = when;
 
+        int bytesIn = 0;
         try {
             // we're lazy about creating our input streams because we may
             // be inheriting them from our authing connection and we don't
@@ -229,6 +230,10 @@ public abstract class Connection implements NetEventHandler
 
             // read the available data and see if we have a whole frame
             if (_fin.readFrame(_in)) {
+                // make a note of how many bytes are in this frame
+                // (including the frame length bytes which aren't reported
+                // in available())
+                bytesIn = _fin.available() + 4;
                 // parse the message and pass it on
                 UpstreamMessage msg = (UpstreamMessage)_oin.readObject();
 //                 Log.info("Read message " + msg + ".");
@@ -252,6 +257,8 @@ public abstract class Connection implements NetEventHandler
             // deal with the failure
             handleFailure(ioe);
         }
+
+        return bytesIn;
     }
 
     // documentation inherited from interface

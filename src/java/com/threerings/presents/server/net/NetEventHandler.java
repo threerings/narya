@@ -1,5 +1,5 @@
 //
-// $Id: NetEventHandler.java,v 1.4 2002/10/29 23:51:26 mdb Exp $
+// $Id: NetEventHandler.java,v 1.5 2002/11/05 02:17:56 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -22,8 +22,11 @@ public interface NetEventHandler
      * Called when a network event has occurred on the supplied source.
      * The <code>events</code> parameter indicates which event or events
      * have occurred.
+     *
+     * @return the number of bytes read from the network as a result of
+     * handling this event.
      */
-    public void handleEvent (long when, Selectable source, short events);
+    public int handleEvent (long when, Selectable source, short events);
 
     /**
      * Called to ensure that this selectable has not been idle for longer

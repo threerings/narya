@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.23 2002/10/29 23:51:26 mdb Exp $
+// $Id: ConnectionManager.java,v 1.24 2002/11/05 02:17:56 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -31,6 +31,7 @@ import com.threerings.presents.server.PresentsServer;
  * mechanism rather than via threads.
  */
 public class ConnectionManager extends LoopingThread
+    implements PresentsServer.Reporter
 {
     /**
      * Constructs and initialized a connection manager (binding the socket
@@ -41,6 +42,9 @@ public class ConnectionManager extends LoopingThread
     {
         _port = port;
         _selset = new SelectSet();
+
+        // register as a "state of server" reporter
+        PresentsServer.registerReporter(this);
 
         try {
             // create our listening socket and add it to the select set
@@ -54,9 +58,11 @@ public class ConnectionManager extends LoopingThread
         _litem = new SelectItem(_listener, Selectable.ACCEPT_READY);
         // when an ACCEPT_READY event happens, we do this:
         _litem.obj = new NetEventHandler() {
-            public void handleEvent (
-                long when, Selectable item, short events) {
+            public int handleEvent (long when, Selectable item, short events) {
                 acceptConnection();
+                // there's no easy way to measure bytes read when
+                // accepting a connection, so we claim nothing
+                return 0;
             }
             public void checkIdle (long now) {
                 // we're never idle
@@ -129,6 +135,32 @@ public class ConnectionManager extends LoopingThread
     {
         // slap this sucker onto the authenticated connections queue
         _authq.append(conn);
+    }
+
+    // documentation inherited from interface PresentsServer.Reporter
+    public void appendReport (StringBuffer report, long now, long sinceLast)
+    {
+        long bytesIn, bytesOut, msgsIn, msgsOut;
+        synchronized (this) {
+            bytesIn = _bytesIn; _bytesIn = 0L;
+            bytesOut = _bytesOut; _bytesOut = 0L;
+            msgsIn = _msgsIn; _msgsIn = 0;
+            msgsOut = _msgsOut; _msgsOut = 0;
+        }
+
+        report.append("* presents.net.ConnectionManager:\n");
+        report.append("- Network input: ");
+        report.append(bytesIn).append(" bytes, ");
+        report.append(msgsIn).append(" msgs, ");
+        long avgIn = (msgsIn == 0) ? 0 : (bytesIn/msgsIn);
+        report.append(avgIn).append(" avg size, ");
+        report.append(bytesIn*1000/sinceLast).append(" bps\n");
+        report.append("- Network output: ");
+        report.append(bytesOut).append(" bytes, ");
+        report.append(msgsOut).append(" msgs, ");
+        long avgOut = (msgsOut == 0) ? 0 : (bytesOut/msgsOut);
+        report.append(avgOut).append(" avg size, ");
+        report.append(bytesOut*1000/sinceLast).append(" bps\n");
     }
 
     /**
@@ -217,7 +249,11 @@ public class ConnectionManager extends LoopingThread
                 oout.flush();
 
                 // then write framed message to real output stream
-                _framer.writeFrameAndReset(conn.getOutputStream());
+                int out = _framer.writeFrameAndReset(conn.getOutputStream());
+                synchronized (this) {
+                    _bytesOut += out;
+                    _msgsOut++;
+                }
 
             } catch (IOException ioe) {
                 // instruct the connection to deal with its failure
@@ -266,8 +302,17 @@ public class ConnectionManager extends LoopingThread
             try {
                 SelectItem item = active[i];
                 NetEventHandler handler = (NetEventHandler)item.obj;
-                handler.handleEvent(
+                int got = handler.handleEvent(
                     iterStamp, item.getSelectable(), item.revents);
+                if (got != 0) {
+                    synchronized (this) {
+                        _bytesIn += got;
+                        // we know that the handlers only report having
+                        // read bytes when they have a whole message, so
+                        // we can count thusly
+                        _msgsIn++;
+                    }
+                }
 
             } catch (Exception e) {
                 Log.warning("Error processing network data.");
@@ -377,13 +422,18 @@ public class ConnectionManager extends LoopingThread
     protected SelectItem _litem;
 
     protected Queue _deathq = new Queue();
+    protected Queue _authq = new Queue();
 
     protected Queue _outq = new Queue();
     protected FramingOutputStream _framer;
 
-    protected Queue _authq = new Queue();
-
     protected ArrayList _observers = new ArrayList();
+
+    /** Bytes in and out in the last reporting period. */
+    protected long _bytesIn, _bytesOut;
+
+    /** Messages read and written in the last reporting period. */
+    protected int _msgsIn, _msgsOut;
 
     /**
      * How long we wait for network events before checking our running
