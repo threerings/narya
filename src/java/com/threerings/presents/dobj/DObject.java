@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.14 2001/07/21 01:06:48 mdb Exp $
+// $Id: DObject.java,v 1.15 2001/07/23 21:11:48 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -265,8 +265,29 @@ public class DObject
     protected void requestAttributeChange (String name, Object value)
     {
         // generate an attribute changed event
-        AttributeChangedEvent event = new AttributeChangedEvent(
-            _oid, name, value);
+        DEvent event = new AttributeChangedEvent(_oid, name, value);
+        // and dispatch it to our dobjmgr
+        _mgr.postEvent(event);
+    }
+
+    /**
+     * Calls by derived instances when an oid adder method was called.
+     */
+    protected void requestOidAdd (String name, int oid)
+    {
+        // generate an object added event
+        DEvent event = new ObjectAddedEvent(_oid, name, oid);
+        // and dispatch it to our dobjmgr
+        _mgr.postEvent(event);
+    }
+
+    /**
+     * Calls by derived instances when an oid remover method was called.
+     */
+    protected void requestOidRemove (String name, int oid)
+    {
+        // generate an object removed event
+        DEvent event = new ObjectRemovedEvent(_oid, name, oid);
         // and dispatch it to our dobjmgr
         _mgr.postEvent(event);
     }
