@@ -1,5 +1,5 @@
 //
-// $Id: JNLPDownloader.java,v 1.7 2003/08/20 03:52:36 mdb Exp $
+// $Id: JNLPDownloader.java,v 1.8 2003/08/20 03:53:35 mdb Exp $
 
 package com.threerings.resource;
 
@@ -41,7 +41,7 @@ public class JNLPDownloader extends Downloader
 
         // determine which version we already have, if any
         _vfile = new File(FileUtil.resuffix(_desc.destFile, ".jar", ".vers"));
-        if (_vfile.exists()) {
+        if (_vfile.exists() && _desc.destFile.exists()) {
             try {
                 BufferedReader vin = new BufferedReader(new FileReader(_vfile));
                 _cvers = vin.readLine();
