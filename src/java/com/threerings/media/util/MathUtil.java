@@ -1,5 +1,5 @@
 //
-// $Id: MathUtil.java,v 1.12 2004/11/04 04:52:31 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -38,6 +38,14 @@ public class MathUtil
     public static int bound (int low, int value, int high)
     {
         return Math.min(high, Math.max(low, value));
+    }
+
+    /**
+     * Return the squared distance between the given points.
+     */
+    public static int distanceSq (int x0, int y0, int x1, int y1)
+    {
+	return ((x1 - x0) * (x1 - x0)) + ((y1 - y0) * (y1 - y0));
     }
 
     /**
