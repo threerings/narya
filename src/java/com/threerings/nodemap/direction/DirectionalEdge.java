@@ -1,10 +1,11 @@
 //
-// $Id: DirectionalEdge.java,v 1.4 2001/12/17 03:34:04 mdb Exp $
+// $Id: DirectionalEdge.java,v 1.5 2002/06/15 02:13:11 shaper Exp $
 
 package com.threerings.nodemap.direction;
 
-import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Graphics;
+import java.awt.Stroke;
 
 import com.threerings.util.DirectionCodes;
 
@@ -35,14 +36,17 @@ public class DirectionalEdge extends Edge
 	this.dir = dir;
     }
 
-    /**
-     * Render the edge to the given graphics context.
-     *
-     * @param g the graphics context.
-     */
+    // documentation inherited
     public void paint (Graphics g)
     {
-	g.setColor(Color.black);
+        Graphics2D gfx = (Graphics2D)g;
+        Stroke ostroke = gfx.getStroke();
+        if (_stroke != null) {
+            gfx.setStroke(_stroke);
+        }
+        if (_color != null) {
+            gfx.setColor(_color);
+        }
 
 	int sx = src.getX(), sy = src.getY();
 	int dx = dst.getX(), dy = dst.getY();
@@ -53,9 +57,11 @@ public class DirectionalEdge extends Edge
 	int cdx = dx + (dst.getWidth() / 2);
 	int cdy = dy + (dst.getHeight() / 2);
 
-	g.drawLine(csx, csy, cdx, cdy);
+	gfx.drawLine(csx, csy, cdx, cdy);
+        gfx.setStroke(ostroke);
     }
 
+    // documentation inherited
     public void toString (StringBuffer buf)
     {
 	super.toString(buf);

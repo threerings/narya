@@ -1,9 +1,11 @@
 //
-// $Id: Edge.java,v 1.2 2002/06/15 01:59:12 shaper Exp $
+// $Id: Edge.java,v 1.3 2002/06/15 02:13:11 shaper Exp $
 
 package com.threerings.nodemap;
 
+import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Stroke;
 
 /**
  * The edge class represents an edge connecting two nodes.
@@ -36,6 +38,24 @@ public abstract class Edge
     public abstract void paint (Graphics g);
 
     /**
+     * Sets the color used to render the edge, or <code>null</code> (the
+     * default) to use the current graphics context color.
+     */
+    public void setColor (Color color)
+    {
+        _color = color;
+    }
+
+    /**
+     * Sets the stroke used to render the edge, or <code>null</code> (the
+     * default) to use the current graphics context stroke.
+     */
+    public void setStroke (Stroke stroke)
+    {
+        _stroke = stroke;
+    }
+
+    /**
      * Return a string representation of this edge.
      */
     public String toString ()
@@ -55,4 +75,10 @@ public abstract class Edge
 	buf.append("src=").append(src);
 	buf.append(", dst=").append(dst);
     }
+
+    /** The edge color. */
+    protected Color _color;
+
+    /** The edge stroke. */
+    protected Stroke _stroke;
 }
