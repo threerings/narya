@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.54 2003/11/24 17:52:15 mdb Exp $
+// $Id: ChatDirector.java,v 1.55 2003/11/24 17:53:11 mdb Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -383,7 +383,7 @@ public class ChatDirector extends BasicDirector
                 if (idletime > 0L) {
                     // adjust by the time it took them to become idle
                     idletime += _ctx.getConfig().getValue(
-                        "narya.chat.idle_time", DEFAULT_IDLE_TIME);
+                        IDLE_TIME_KEY, DEFAULT_IDLE_TIME);
                     String msg = MessageBundle.compose(
                         "m.recipient_idle", MessageBundle.taint(target),
                         TimeUtil.getTimeOrderString(idletime, TimeUtil.MINUTE));

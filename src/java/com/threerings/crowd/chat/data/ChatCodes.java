@@ -1,5 +1,5 @@
 //
-// $Id: ChatCodes.java,v 1.17 2003/11/24 17:52:15 mdb Exp $
+// $Id: ChatCodes.java,v 1.18 2003/11/24 17:53:11 mdb Exp $
 
 package com.threerings.crowd.chat.data;
 
@@ -12,6 +12,9 @@ public interface ChatCodes extends InvocationCodes
 {
     /** The message identifier for a chat notification message. */
     public static final String CHAT_NOTIFICATION = "chat";
+
+    /** The configuration key for idle time. */
+    public static final String IDLE_TIME_KEY = "narya.chat.idle_time";
 
     /** The default time after which a player is assumed idle. */
     public static final long DEFAULT_IDLE_TIME = 3 * 60 * 1000L;
