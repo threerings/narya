@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.23 2004/01/25 13:23:09 mdb Exp $
+// $Id: MessageBundle.java,v 1.24 2004/02/05 17:39:03 mdb Exp $
 
 package com.threerings.util;
 
@@ -50,6 +50,15 @@ public class MessageBundle
 
         String msg = getResourceString(key);
         return (msg != null) ? msg : key;
+    }
+
+    /**
+     * Returns true if we have a translation mapping for the supplied key,
+     * false if not.
+     */
+    public boolean exists (String key)
+    {
+        return getResourceString(key, false) != null;
     }
 
     /**
