@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.127 2002/12/05 23:06:30 mdb Exp $
+// $Id: IsoSceneView.java,v 1.128 2003/01/13 22:53:56 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -455,7 +455,7 @@ public class IsoSceneView implements SceneView
     }
 
     // documentation inherited
-    public Path getPath (MisoCharacterSprite sprite, int x, int y)
+    public Path getPath (Sprite sprite, int x, int y)
     {
         // make sure we have a scene
         if (_scene == null) {

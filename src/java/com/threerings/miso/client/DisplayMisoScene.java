@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoScene.java,v 1.7 2002/09/23 21:54:50 mdb Exp $
+// $Id: DisplayMisoScene.java,v 1.8 2003/01/13 22:53:56 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -34,4 +34,14 @@ public interface DisplayMisoScene
      * origin falls in the requested region.
      */
     public void getSceneObjects (Rectangle region, ObjectSet set);
+
+    /**
+     * Returns true if the supplied traverser can traverse the specified
+     * tile coordinate. The traverser is whatever object is passed along
+     * to the path finder when a path is being computed. Scene
+     * implementations which support custom traversal based on the type of
+     * the traverser will want to reflect the traverser's class and act
+     * acordingly.
+     */
+    public boolean canTraverse (Object traverser, int x, int y);
 }

@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.63 2002/12/11 23:05:07 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.64 2003/01/13 22:53:56 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -14,7 +14,6 @@ import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
-import com.threerings.media.tile.TileException;
 import com.threerings.media.tile.TileLayer;
 
 import com.threerings.miso.Log;
@@ -73,6 +72,7 @@ public class DisplayMisoSceneImpl
         // create the individual tile layer objects
         _base = new BaseTileLayer(new BaseTile[swid*shei], swid, shei);
         _fringe = new TileLayer(new Tile[swid*shei], swid, shei);
+        _covered = new boolean[swid*shei];
     }
 
     /**
@@ -142,7 +142,7 @@ public class DisplayMisoSceneImpl
             int tsid = (fqTid >> 16) & 0xFFFF, tid = (fqTid & 0xFFFF);
             try {
                 expandObject(col, row, tsid, tid, fqTid, ii/3);
-            } catch (TileException te) {
+            } catch (NoSuchTileSetException te) {
                 Log.warning("Scene contains non-existent object tile " +
                             "[tsid=" + tsid + ", tid=" + tid +
                             ", col=" + col + ", row=" + row + "].");
@@ -213,6 +213,14 @@ public class DisplayMisoSceneImpl
         }
     }
 
+    // documentation inherited from interface
+    public boolean canTraverse (Object trav, int x, int y)
+    {
+        BaseTile tile = getBaseTile(x, y);
+        return (((tile == null) || tile.isPassable()) &&
+                !_covered[y*_model.width+x]);
+    }
+
     /**
      * Return a string representation of this Miso scene object.
      */
@@ -276,10 +284,7 @@ public class DisplayMisoSceneImpl
                     continue;
                 }
 
-                BaseTile tile = _base.getTile(xx, yy);
-                if (tile != null) {
-                    tile.setCovered(covered);
-                }
+                _covered[yy*_model.width+xx] = true;
             }
         }
 
@@ -298,6 +303,9 @@ public class DisplayMisoSceneImpl
 
     /** The fringe layer of tiles. */
     protected TileLayer _fringe;
+
+    /** Information on which tiles are covered by object tiles. */
+    protected boolean[] _covered;
 
     /** The scene object records. */
     protected ArrayList _objects = new ArrayList();

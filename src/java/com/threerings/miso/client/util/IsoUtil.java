@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.41 2002/12/05 23:06:30 mdb Exp $
+// $Id: IsoUtil.java,v 1.42 2003/01/13 22:53:56 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -17,7 +17,6 @@ import com.threerings.util.DirectionUtil;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.IsoSceneViewModel;
-import com.threerings.miso.scene.MisoCharacterSprite;
 import com.threerings.miso.scene.SceneObject;
 
 /**

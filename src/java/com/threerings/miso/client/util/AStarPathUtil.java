@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.20 2002/09/13 00:51:19 ray Exp $
+// $Id: AStarPathUtil.java,v 1.21 2003/01/13 22:53:56 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -12,7 +12,6 @@ import com.threerings.media.util.MathUtil;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.DisplayMisoScene;
-import com.threerings.miso.scene.Traverser;
 import com.threerings.miso.tile.BaseTile;
 
 /**
@@ -45,7 +44,7 @@ public class AStarPathUtil
      * @return the list of points in the path.
      */
     public static List getPath (
-	DisplayMisoScene scene, int tilewid, int tilehei, Traverser trav,
+	DisplayMisoScene scene, int tilewid, int tilehei, Object trav,
 	int ax, int ay, int bx, int by)
     {
 	AStarInfo info = new AStarInfo(scene, tilewid, tilehei, trav, bx, by);
@@ -212,7 +211,7 @@ class AStarInfo
     public int tilewid, tilehei;
 
     /** The traverser moving along the path. */
-    public Traverser trav;
+    public Object trav;
 
     /** The set of open nodes being searched. */
     public SortedSet open;
@@ -227,7 +226,7 @@ class AStarInfo
     public int maxcost;
 
     public AStarInfo (
-	DisplayMisoScene scene, int tilewid, int tilehei, Traverser trav,
+	DisplayMisoScene scene, int tilewid, int tilehei, Object trav,
 	int destx, int desty)
     {
 	// save off references
@@ -284,11 +283,7 @@ class AStarInfo
      */
     protected boolean isTraversable (int x, int y)
     {
-        if (isCoordinateValid(x, y)) {
-            BaseTile tile = scene.getBaseTile(x, y);
-            return (tile == null) || trav.canTraverse(tile);
-        }
-        return true;
+        return isCoordinateValid(x, y) && scene.canTraverse(trav, x, y);
     }
 
     /**

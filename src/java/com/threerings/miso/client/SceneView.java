@@ -1,5 +1,5 @@
 //
-// $Id: SceneView.java,v 1.31 2002/09/24 05:33:05 mdb Exp $
+// $Id: SceneView.java,v 1.32 2003/01/13 22:53:56 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -9,6 +9,7 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
+import com.threerings.media.sprite.Sprite;
 import com.threerings.media.util.Path;
 
 /**
@@ -50,7 +51,7 @@ public interface SceneView
      *
      * @return the sprite's path, or null if no valid path exists.
      */
-    public Path getPath (MisoCharacterSprite sprite, int x, int y);
+    public Path getPath (Sprite sprite, int x, int y);
 
     /**
      * Returns screen coordinates given the specified full coordinates.
@@ -79,8 +80,8 @@ public interface SceneView
     /**
      * Returns information about the object over which the mouse is
      * currently hovering (either a {@link SceneObject} or a {@link
-     * MisoCharacterSprite}), or null if the mouse is not hovering over
-     * anything of interest.
+     * Sprite}), or null if the mouse is not hovering over anything of
+     * interest.
      */
     public Object getHoverObject ();
 }

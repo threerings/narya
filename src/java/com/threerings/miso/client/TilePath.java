@@ -1,5 +1,5 @@
 //
-// $Id: TilePath.java,v 1.11 2002/12/05 23:06:30 mdb Exp $
+// $Id: TilePath.java,v 1.12 2003/01/13 22:53:56 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.threerings.util.DirectionCodes;
 
+import com.threerings.media.sprite.Sprite;
 import com.threerings.media.util.LineSegmentPath;
 import com.threerings.media.util.PathNode;
 import com.threerings.media.util.Pathable;
@@ -35,9 +36,8 @@ public class TilePath extends LineSegmentPath
      * @param desty the destination y-position in screen pixel
      * coordinates.
      */
-    public TilePath (
-        IsoSceneViewModel model, MisoCharacterSprite sprite, List tiles,
-        int destx, int desty)
+    public TilePath (IsoSceneViewModel model, Sprite sprite,
+                     List tiles, int destx, int desty)
     {
         _model = model;
 
@@ -51,7 +51,7 @@ public class TilePath extends LineSegmentPath
         boolean moved = super.tick(pable, timestamp);
 
         if (moved) {
-            MisoCharacterSprite mcs = (MisoCharacterSprite)pable;
+            Sprite mcs = (Sprite)pable;
             int sx = mcs.getX(), sy = mcs.getY();
             Point pos = new Point();
 
@@ -94,8 +94,7 @@ public class TilePath extends LineSegmentPath
      * from its starting position to the given destination coordinates
      * following the given list of tile coordinates.
      */
-    protected void createPath (
-        MisoCharacterSprite sprite, List tiles, int destx, int desty)
+    protected void createPath (Sprite sprite, List tiles, int destx, int desty)
     {
 	// constrain destination pixels to fine coordinates
 	Point fpos = new Point();
