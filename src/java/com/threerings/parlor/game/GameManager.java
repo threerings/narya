@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.25 2002/04/15 16:28:02 shaper Exp $
+// $Id: GameManager.java,v 1.26 2002/04/15 18:05:30 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -249,7 +249,7 @@ public class GameManager extends PlaceManager
      * preparation for a new game without actually ending the current
      * game. It calls {@link #gameWillReset} and {@link #gameDidReset}.
      * The standard game start processing ({@link #gameWillStart} and
-     * {@link gameDidStart}) will also be called (in between the calls to
+     * {@link #gameDidStart}) will also be called (in between the calls to
      * will and did reset). Derived classes should override one or both of
      * the calldown functions (rather than this function) if they need to
      * do things before or after the game resets.
