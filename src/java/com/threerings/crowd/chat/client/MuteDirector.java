@@ -1,5 +1,5 @@
 //
-// $Id: MuteDirector.java,v 1.3 2002/10/25 20:32:41 ray Exp $
+// $Id: MuteDirector.java,v 1.4 2002/10/28 00:22:38 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -8,12 +8,15 @@ import java.util.HashSet;
 
 import com.threerings.crowd.util.CrowdContext;
 
+import com.threerings.presents.client.BasicDirector;
+import com.threerings.presents.client.Client;
+
 /**
  * Manages the mutelist.
  *
  * TODO: This class right now is pretty much just a placeholder.
  */
-public class MuteDirector
+public class MuteDirector extends BasicDirector
     implements ChatValidator
 {
     /**
@@ -33,7 +36,7 @@ public class MuteDirector
      */
     public MuteDirector (CrowdContext ctx)
     {
-        // nothing to initialize right now
+        super(ctx);
     }
 
     /**
@@ -109,6 +112,15 @@ public class MuteDirector
         for (int ii=0, nn=_observers.size(); ii < nn; ii++) {
             ((MuteObserver) _observers.get(ii)).muteChanged(username, muted);
         }
+    }
+
+    // documentation inherited
+    public void clientDidLogoff (Client client)
+    {
+        super.clientDidLogoff(client);
+
+        // clear the mutelist, don't notify..
+        _mutelist.clear();
     }
 
     /** The chat director that we're working hard for. */

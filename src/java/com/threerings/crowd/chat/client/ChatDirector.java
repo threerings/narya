@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.34 2002/10/27 22:34:11 ray Exp $
+// $Id: ChatDirector.java,v 1.35 2002/10/28 00:22:38 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -145,11 +145,18 @@ public class ChatDirector extends BasicDirector
                 _chatters.removeLast();
             }
 
-            for (Iterator iter = _chatterObservers.iterator();
-                 iter.hasNext(); ) {
-                ChatterObserver co = (ChatterObserver) iter.next();
-                co.chattersUpdated(_chatters.listIterator());
-            }
+            notifyChatterObservers();
+        }
+    }
+
+    /**
+     * Notify ChatterObservers that the list of chatters has changed.
+     */
+    protected void notifyChatterObservers ()
+    {
+        for (int ii=0, nn=_chatterObservers.size(); ii < nn; ii++) {
+            ChatterObserver co = (ChatterObserver) _chatterObservers.get(ii);
+            co.chattersUpdated(_chatters.listIterator());
         }
     }
 
@@ -528,6 +535,16 @@ public class ChatDirector extends BasicDirector
         super.clientDidLogoff(client);
 
         clearDisplays(true);
+
+        // clear out the list of people we've chatted with
+        _chatters.clear();
+        notifyChatterObservers();
+
+        // clear the _place
+        locationDidChange(null);
+
+        // clear our service
+        _cservice = null; 
     }
 
     /** Our active chat context. */
