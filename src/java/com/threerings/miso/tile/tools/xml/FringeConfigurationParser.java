@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfigurationParser.java,v 1.3 2002/04/05 01:35:11 ray Exp $
+// $Id: FringeConfigurationParser.java,v 1.4 2002/04/05 01:45:53 ray Exp $
 
 package com.threerings.miso.scene.tools.xml;
 
@@ -74,14 +74,13 @@ public class FringeConfigurationParser extends CompiledConfigParser
             new ValidatedSetNextRule(digest, "addFringeRecord",
                 new ValidatedSetNextRule.Validator () {
                     public boolean isValid (Object target) {
-                        FringeRecord frec = (FringeRecord) target;
-                        if ((frec.base_tsid == 0) ||
-                            (frec.priority <= 0)) {
+                        if (((FringeRecord) target).isValid()) {
+                            return true;
+                        } else {
                             Log.warning("A FringeRecord was not added " +
                                 "because it was improperly specified.");
                             return false;
                         }
-                        return true;
                     }
                 }) {
 
@@ -123,13 +122,13 @@ public class FringeConfigurationParser extends CompiledConfigParser
         digest.addRule(prefix, new ValidatedSetNextRule(digest, "addTileset",
             new ValidatedSetNextRule.Validator() {
                 public boolean isValid (Object target) {
-                    FringeTileSetRecord ftsr = (FringeTileSetRecord) target;
-                    if (ftsr.fringe_tsid == 0) {
+                    if (((FringeTileSetRecord) target).isValid()) {
+                        return true;
+                    } else {
                         Log.warning("A FringeTileSetRecord was not added " +
                             "because it was improperly specified.");
                         return false;
                     }
-                    return true;
                 }
             }) {
                 

@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfiguration.java,v 1.4 2002/04/05 01:35:11 ray Exp $
+// $Id: FringeConfiguration.java,v 1.5 2002/04/05 01:45:53 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -36,6 +36,12 @@ public class FringeConfiguration implements Serializable
         {
             tilesets.add(record);
         }
+
+        /** Did everything parse well? */
+        public boolean isValid ()
+        {
+            return ((base_tsid != 0) && (priority > 0));
+        }
      }
 
     /**
@@ -48,6 +54,12 @@ public class FringeConfiguration implements Serializable
 
         /** Is this a mask? */
         public boolean mask;
+
+        /** Did everything parse well? */
+        public boolean isValid ()
+        {
+            return (fringe_tsid != 0);
+        }
     }
 
     /**
