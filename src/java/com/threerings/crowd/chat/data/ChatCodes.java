@@ -34,6 +34,10 @@ public interface ChatCodes extends InvocationCodes
     /** The message identifier for a chat notification message. */
     public static final String CHAT_NOTIFICATION = "chat";
 
+    /** The access control identifier for broadcast chat privileges. See
+     * {@link BodyObject#checkAccess}. */
+    public static final String BROADCAST_ACCESS = "crowd.chat.broadcast";
+
     /** The configuration key for idle time. */
     public static final String IDLE_TIME_KEY = "narya.chat.idle_time";
 

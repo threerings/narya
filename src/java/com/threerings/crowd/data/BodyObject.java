@@ -75,6 +75,17 @@ public class BodyObject extends ClientObject
      */
     public String awayMessage;
 
+    /**
+     * Checks whether or not this user has access to the specified
+     * feature. Currently used by the chat system to regulate access to
+     * chat broadcasts but also forms the basis of an extensible
+     * fine-grained permissions system.
+     */
+    public boolean checkAccess (String feature, Object context)
+    {
+        return false;
+    }
+
     // documentation inherited
     public void applyToListeners (ListenerOp op)
     {

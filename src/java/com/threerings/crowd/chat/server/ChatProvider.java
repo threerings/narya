@@ -40,7 +40,6 @@ import com.threerings.presents.server.InvocationProvider;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
-import com.threerings.crowd.server.AccessControl;
 import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.crowd.chat.client.ChatService.TellListener;
@@ -55,9 +54,6 @@ import com.threerings.crowd.chat.data.UserMessage;
 public class ChatProvider
     implements ChatCodes, InvocationProvider
 {
-    /** The access control identifier for broadcast chat privileges. */
-    public static final String BROADCAST_TOKEN = "crowd.chat.broadcast";
-
     /** Interface to allow an auto response to a tell message. */
     public static interface TellAutoResponder
     {
@@ -170,8 +166,8 @@ public class ChatProvider
         BodyObject body = (BodyObject)caller;
 
         // make sure the requesting user has broadcast privileges
-        if (!CrowdServer.actrl.checkAccess(body, BROADCAST_TOKEN)) {
-            throw new InvocationException(AccessControl.LACK_ACCESS);
+        if (!body.checkAccess(BROADCAST_ACCESS, null)) {
+            throw new InvocationException(ACCESS_DENIED);
         }
 
         broadcast(body.username, null, message, false);

@@ -42,12 +42,6 @@ public class CrowdServer extends PresentsServer
     /** The place registry. */
     public static PlaceRegistry plreg;
 
-    /** An object that is used to ratify access control on an action by
-     * action basis. Systems will want to override {@link
-     * #createAccessControl} to provide an implementation that will
-     * enforce their access control requirements. */
-    public static AccessControl actrl;
-
     /**
      * Initializes all of the server services and prepares for operation.
      */
@@ -66,9 +60,6 @@ public class CrowdServer extends PresentsServer
         // create our place registry
         plreg = createPlaceRegistry(invmgr, omgr);
 
-        // create our access control implementation
-        actrl = createAccessControl();
-
         // initialize the body services
         BodyProvider.init(invmgr);
 
@@ -85,20 +76,6 @@ public class CrowdServer extends PresentsServer
         InvocationManager invmgr, RootDObjectManager omgr)
     {
         return new PlaceRegistry(invmgr, omgr);
-    }
-
-    /**
-     * Creates the {@link AccessControl} instance used to limit access to
-     * system features. The default implementation refuses access to
-     * everything.
-     */
-    protected AccessControl createAccessControl ()
-    {
-        return new AccessControl() {
-            public boolean checkAccess (BodyObject user, String feature) {
-                return false;
-            }
-        };
     }
 
     /**
