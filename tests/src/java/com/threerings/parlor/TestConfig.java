@@ -1,5 +1,5 @@
 //
-// $Id: TestConfig.java,v 1.4 2002/07/23 05:55:40 mdb Exp $
+// $Id: TestConfig.java,v 1.5 2002/07/30 20:32:39 shaper Exp $
 
 package com.threerings.parlor;
 
@@ -9,6 +9,11 @@ public class TestConfig extends GameConfig
 {
     /** The foozle parameter. */
     public int foozle;
+
+    public Class getConfiguratorClass ()
+    {
+        return null;
+    }
 
     public Class getControllerClass ()
     {
