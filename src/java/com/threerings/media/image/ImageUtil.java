@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.31 2003/05/07 01:48:27 ray Exp $
+// $Id: ImageUtil.java,v 1.32 2003/05/07 19:14:38 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -7,7 +7,6 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -165,25 +164,25 @@ public class ImageUtil
      * image.
      */
     public static void tileImage (
-        Graphics g, Image image, int x, int y, int width, int height)
+        Graphics2D gfx, Mirage image, int x, int y, int width, int height)
     {
-        int iwidth = image.getWidth(null), iheight = image.getHeight(null);
+        int iwidth = image.getWidth(), iheight = image.getHeight();
         int xnum = width / iwidth, xplus = width % iwidth;
         int ynum = height / iheight, yplus = height % iheight;
-        Shape oclip = g.getClip();
+        Shape oclip = gfx.getClip();
 
         for (int ii=0; ii < ynum; ii++) {
             // draw the full copies of the image across
             int xx = x;
             for (int jj=0; jj < xnum; jj++) {
-                g.drawImage(image, xx, y, null);
+                image.paint(gfx, xx, y);
                 xx += iwidth;
             }
 
             if (xplus > 0) {
-                g.clipRect(xx, y, xplus, iheight);
-                g.drawImage(image, xx, y, null);
-                g.setClip(oclip);
+                gfx.clipRect(xx, y, xplus, iheight);
+                image.paint(gfx, xx, y);
+                gfx.setClip(oclip);
             }
 
             y += iheight;
@@ -192,16 +191,16 @@ public class ImageUtil
         if (yplus > 0) {
             int xx = x;
             for (int jj=0; jj < xnum; jj++) {
-                g.clipRect(xx, y, iwidth, yplus);
-                g.drawImage(image, xx, y, null);
-                g.setClip(oclip);
+                gfx.clipRect(xx, y, iwidth, yplus);
+                image.paint(gfx, xx, y);
+                gfx.setClip(oclip);
                 xx += iwidth;
             }
 
             if (xplus > 0) {
-                g.clipRect(xx, y, xplus, yplus);
-                g.drawImage(image, xx, y, null);
-                g.setClip(oclip);
+                gfx.clipRect(xx, y, xplus, yplus);
+                image.paint(gfx, xx, y);
+                gfx.setClip(oclip);
             }
         }
     }
@@ -211,10 +210,10 @@ public class ImageUtil
      * graphics context such that the requested width is filled with the
      * image.
      */
-    public static void tileImageAcross (Graphics g, Image image,
+    public static void tileImageAcross (Graphics2D gfx, Mirage image,
                                         int x, int y, int width)
     {
-        tileImage(g, image, x, y, width, image.getHeight(null));
+        tileImage(gfx, image, x, y, width, image.getHeight());
     }
 
     /**
@@ -222,10 +221,10 @@ public class ImageUtil
      * graphics context such that the requested height is filled with the
      * image.
      */
-    public static void tileImageDown (Graphics g, Image image,
+    public static void tileImageDown (Graphics2D gfx, Mirage image,
                                       int x, int y, int height)
     {
-        tileImage(g, image, x, y, image.getWidth(null), height);
+        tileImage(gfx, image, x, y, image.getWidth(), height);
     }
 
     // Not fully added because we're not using it anywhere, plus
