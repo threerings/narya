@@ -1,5 +1,5 @@
 //
-// $Id: Invoker.java,v 1.3 2001/10/11 04:07:53 mdb Exp $
+// $Id: Invoker.java,v 1.4 2002/03/05 03:17:46 mdb Exp $
 
 package com.threerings.presents.util;
 
@@ -7,6 +7,7 @@ import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 
 import com.threerings.presents.Log;
+import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.PresentsServer;
 
 /**
@@ -81,6 +82,15 @@ public class Invoker extends LoopingThread
     }
 
     /**
+     * Creates an invoker that will post results to the supplied
+     * distributed object manager.
+     */
+    public Invoker (PresentsDObjectMgr omgr)
+    {
+        _omgr = omgr;
+    }
+
+    /**
      * Posts a unit to this invoker for subsequent invocation on the
      * invoker's thread.
      */
@@ -125,4 +135,7 @@ public class Invoker extends LoopingThread
 
     /** The invoker's queue of units to be executed. */
     protected Queue _queue = new Queue();
+
+    /** The object manager with which we're working. */
+    protected PresentsDObjectMgr _omgr;
 }
