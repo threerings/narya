@@ -1,5 +1,5 @@
 //
-// $Id: XMLComponentRepository.java,v 1.3 2001/11/01 01:40:42 shaper Exp $
+// $Id: XMLComponentRepository.java,v 1.4 2001/11/02 02:52:16 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -20,16 +20,16 @@ import com.threerings.miso.Log;
 import com.threerings.miso.util.MisoUtil;
 
 /**
- * The xml file component repository provides access to character
+ * The xml component repository provides access to character
  * components obtained from component descriptions stored in an XML
  * file.
  */
-public class XMLFileComponentRepository implements ComponentRepository
+public class XMLComponentRepository implements ComponentRepository
 {
     /**
-     * Constructs an xml file component repository.
+     * Constructs an xml component repository.
      */
-    public XMLFileComponentRepository (Config config, ImageManager imgmgr)
+    public XMLComponentRepository (Config config, ImageManager imgmgr)
     {
         // load component types and components
         String file = config.getValue(COMPONENTS_KEY, DEFAULT_COMPONENTS);

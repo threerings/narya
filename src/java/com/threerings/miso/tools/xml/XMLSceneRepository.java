@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneRepository.java,v 1.12 2001/09/21 02:30:35 mdb Exp $
+// $Id: XMLSceneRepository.java,v 1.13 2001/11/02 02:52:16 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -16,16 +16,15 @@ import com.threerings.miso.scene.EditableMisoScene;
 import com.threerings.miso.util.MisoUtil;
 
 /**
- * The <code>XMLFileSceneRepository</code> provides a mechanism for
- * reading scenes from and writing scenes to XML files.  These files will
- * comprise the template scene files from which actual runtime game scenes
- * will be constructed.
+ * The xml scene repository provides a mechanism for reading scenes
+ * from and writing scenes to XML files.  These files are template
+ * scene files from which actual runtime game scenes will be
+ * constructed.
  */
-public class XMLFileSceneRepository
+public class XMLSceneRepository
 {
     /**
-     * Initialize the XMLFileSceneRepository with the given config and
-     * tile manager objects.
+     * Initializes the xml scene repository.
      *
      * @param config the config object.
      * @param tilemgr the tile manager object.
@@ -49,7 +48,7 @@ public class XMLFileSceneRepository
     }
 
     /**
-     * Return the path to the scene root directory.
+     * Returns the path to the scene root directory.
      */
     public String getScenePath ()
     {

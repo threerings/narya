@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.26 2001/11/01 01:40:43 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.27 2001/11/02 02:52:16 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -24,7 +24,7 @@ import com.threerings.media.util.PerformanceObserver;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;
-import com.threerings.miso.scene.xml.XMLFileSceneRepository;
+import com.threerings.miso.scene.xml.XMLSceneRepository;
 import com.threerings.miso.scene.util.IsoUtil;
 import com.threerings.miso.util.*;
 import com.threerings.miso.viewer.util.ViewerContext;
@@ -113,7 +113,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     {
 	ViewerModel model = _ctx.getViewerModel();
         try {
-	    XMLFileSceneRepository screpo = _ctx.getSceneRepository();
+	    XMLSceneRepository screpo = _ctx.getSceneRepository();
             _view.setScene(screpo.loadScene(model.scenefile));
 
         } catch (IOException ioe) {

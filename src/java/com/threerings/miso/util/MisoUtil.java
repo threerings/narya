@@ -1,5 +1,5 @@
 //
-// $Id: MisoUtil.java,v 1.12 2001/11/01 01:40:42 shaper Exp $
+// $Id: MisoUtil.java,v 1.13 2001/11/02 02:52:16 shaper Exp $
 
 package com.threerings.miso.util;
 
@@ -19,8 +19,8 @@ import com.threerings.media.tile.*;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;
-import com.threerings.miso.scene.xml.XMLFileComponentRepository;
-import com.threerings.miso.scene.xml.XMLFileSceneRepository;
+import com.threerings.miso.scene.xml.XMLComponentRepository;
+import com.threerings.miso.scene.xml.XMLSceneRepository;
 import com.threerings.miso.tile.*;
 
 /**
@@ -90,15 +90,15 @@ public class MisoUtil
     public static CharacterManager createCharacterManager (
         Config config, ImageManager imgmgr)
     {
-        XMLFileComponentRepository crepo =
-            new XMLFileComponentRepository(config, imgmgr);
+        XMLComponentRepository crepo =
+            new XMLComponentRepository(config, imgmgr);
         CharacterManager charmgr = new CharacterManager(crepo);
         charmgr.setCharacterClass(MisoCharacterSprite.class);
         return charmgr;
     }
 
     /**
-     * Creates an <code>XMLFileSceneRepository</code> object, reading
+     * Creates an <code>XMLSceneRepository</code> object, reading
      * the name of the class to instantiate from the config object.
      *
      * @param config the <code>Config</code> object.
@@ -106,11 +106,11 @@ public class MisoUtil
      * @return the new scene repository object or null if an error
      * occurred.
      */
-    public static XMLFileSceneRepository createSceneRepository (
+    public static XMLSceneRepository createSceneRepository (
         Config config, TileManager tilemgr)
     {
 	try {
-            XMLFileSceneRepository scenerepo = (XMLFileSceneRepository)
+            XMLSceneRepository scenerepo = (XMLSceneRepository)
                 config.instantiateValue(SCENEREPO_KEY, DEF_SCENEREPO);
             scenerepo.init(config, tilemgr);
             return scenerepo;
@@ -190,11 +190,11 @@ public class MisoUtil
 
     /** The default scene repository class name. */
     protected static final String DEF_SCENEREPO =
-        XMLFileSceneRepository.class.getName();
+        XMLSceneRepository.class.getName();
 
     /** The default tile set repository class name. */
     protected static final String DEF_TILESETREPO =
-        XMLFileTileSetRepository.class.getName();
+        XMLTileSetRepository.class.getName();
 
     /** The config key for the scene repository class. */
     protected static final String SCENEREPO_KEY = CONFIG_KEY + ".scenerepo";

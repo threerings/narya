@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetRepository.java,v 1.1 2001/11/01 01:40:42 shaper Exp $
+// $Id: XMLTileSetRepository.java,v 1.2 2001/11/02 02:52:16 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -19,7 +19,7 @@ import com.threerings.miso.util.MisoUtil;
  * Extends general tile set repository functionality to read tile set
  * descriptions from an XML file.
  */
-public class XMLFileTileSetRepository implements TileSetRepository
+public class XMLTileSetRepository implements TileSetRepository
 {
     // documentation inherited
     public void init (Config config, ImageManager imgmgr)

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.11 2001/11/01 01:40:43 shaper Exp $
+// $Id: ViewerApp.java,v 1.12 2001/11/02 02:52:16 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -13,7 +13,7 @@ import com.threerings.media.ImageManager;
 import com.threerings.media.tile.TileManager;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.xml.XMLFileSceneRepository;
+import com.threerings.miso.scene.xml.XMLSceneRepository;
 import com.threerings.miso.util.MisoUtil;
 import com.threerings.miso.viewer.util.ViewerContext;
 
@@ -74,7 +74,7 @@ public class ViewerApp
 	    return _tilemgr;
 	}
 
-        public XMLFileSceneRepository getSceneRepository ()
+        public XMLSceneRepository getSceneRepository ()
         {
             return _screpo;
         }
@@ -111,7 +111,7 @@ public class ViewerApp
     protected Config _config;
 
     /** The scene repository. */
-    protected XMLFileSceneRepository _screpo;
+    protected XMLSceneRepository _screpo;
 
     /** The tile manager object. */
     protected TileManager _tilemgr;
