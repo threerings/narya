@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParser.java,v 1.3 2001/11/21 02:42:15 mdb Exp $
+// $Id: XMLTileSetParser.java,v 1.4 2001/11/27 22:06:39 mdb Exp $
 
 package com.threerings.media.tools.tile.xml;
 
@@ -110,10 +110,4 @@ public class XMLTileSetParser
 
     /** Our XML digester. */
     protected Digester _digester;
-
-    /** Default tileset name. */
-    protected static final String DEF_NAME = "Untitled";
-
-    /** String constant denoting an object tile set. */
-    protected static final String LAYER_OBJECT = "object";
 }
