@@ -1,5 +1,5 @@
 //
-// $Id: BasicDirector.java,v 1.2 2002/09/20 00:54:39 mdb Exp $
+// $Id: BasicDirector.java,v 1.3 2003/12/11 21:36:12 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -29,6 +29,7 @@ public class BasicDirector
         // if we're already logged on, fire off a call to fetch services
         if (client.isLoggedOn()) {
             fetchServices(client);
+            clientObjectUpdated(client);
         }
     }
 
@@ -36,15 +37,26 @@ public class BasicDirector
     public void clientDidLogon (Client client)
     {
         fetchServices(client);
+        clientObjectUpdated(client);
     }
 
     // documentation inherited from interface
     public void clientObjectDidChange (Client client)
     {
+        clientObjectUpdated(client);
     }
 
     // documentation inherited from interface
     public void clientDidLogoff (Client client)
+    {
+    }
+
+    /**
+     * Called in three circumstances: when a director is created and we've
+     * already logged on; when we first log on and when the client object
+     * changes after we've already logged on.
+     */
+    protected void clientObjectUpdated (Client client)
     {
     }
 
