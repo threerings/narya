@@ -1,5 +1,5 @@
 //
-// $Id: CompoundEvent.java,v 1.1 2002/02/09 07:50:37 mdb Exp $
+// $Id: CompoundEvent.java,v 1.2 2002/02/21 00:59:29 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -74,8 +74,11 @@ public class CompoundEvent extends TypedEvent
         // first clear our participants
         clearParticipants();
 
-        // then post this event onto the queue
-        _omgr.postEvent(this);
+        // then post this event onto the queue (but only if we actually
+        // accumulated some events)
+        if (_events.size() > 0) {
+            _omgr.postEvent(this);
+        }
     }
 
     /**
