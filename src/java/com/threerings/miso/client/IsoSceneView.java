@@ -1,10 +1,12 @@
 //
-// $Id: IsoSceneView.java,v 1.128 2003/01/13 22:53:56 mdb Exp $
+// $Id: IsoSceneView.java,v 1.129 2003/01/15 04:25:45 shaper Exp $
 
 package com.threerings.miso.scene;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -19,8 +21,9 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.samskivert.util.StringUtil;
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.RuntimeAdjust;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.media.RegionManager;
 
@@ -32,10 +35,12 @@ import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
 
 import com.threerings.miso.Log;
+import com.threerings.miso.MisoPrefs;
 import com.threerings.miso.scene.DirtyItemList.DirtyItem;
 import com.threerings.miso.scene.util.AStarPathUtil;
 import com.threerings.miso.scene.util.IsoUtil;
 import com.threerings.miso.scene.util.ObjectSet;
+import com.threerings.miso.tile.BaseTile;
 
 /**
  * The iso scene view provides an isometric view of a particular scene. It
@@ -304,11 +309,26 @@ public class IsoSceneView implements SceneView
                 // draw the base and fringe tile images
                 try {
                     Tile tile;
+                    boolean passable = true;
+
                     if ((tile = _scene.getBaseTile(tx, ty)) != null) {
                         tile.paint(gfx, _tbounds.x, _tbounds.y);
+                        passable = ((BaseTile)tile).isPassable();
+
+                        // highlight impassable tiles
+                        if (_isoRenderDebug.getValue() && !passable) {
+                            fillTile(gfx, tx, ty, Color.yellow);
+                        }
                     }
+
                     if ((tile = _scene.getFringeTile(tx, ty)) != null) {
                         tile.paint(gfx, _tbounds.x, _tbounds.y);
+                    }
+
+                    // highlight passable non-traversable tiles
+                    if (_isoRenderDebug.getValue() && passable && 
+                        !_scene.canTraverse(null, tx, ty)) {
+                        fillTile(gfx, tx, ty, Color.green);
                     }
 
                 } catch (ArrayIndexOutOfBoundsException e) {
@@ -348,6 +368,21 @@ public class IsoSceneView implements SceneView
             // obtain the screen coordinates of the next starting tile
             IsoUtil.tileToScreen(_model, tpos.x, tpos.y, spos);
         }
+    }
+
+    /**
+     * Fills the specified tile with the given color at 50% alpha.
+     * Intended for debug-only tile highlighting purposes.
+     */
+    protected void fillTile (
+        Graphics2D gfx, int tx, int ty, Color color)
+    {
+        Composite ocomp = gfx.getComposite();
+        gfx.setComposite(ALPHA_FILL_TILE);
+        Polygon poly = IsoUtil.getTilePolygon(_model, tx, ty);
+        gfx.setColor(color);
+        gfx.fill(poly);
+        gfx.setComposite(ocomp);
     }
 
     /**
@@ -704,6 +739,16 @@ public class IsoSceneView implements SceneView
     /** The stroke object used to draw highlighted tiles and coordinates. */
     protected BasicStroke _hstroke = new BasicStroke(2);
 
+    /** A debug hook that toggles debug rendering in the iso scene view. */
+    protected static RuntimeAdjust.BooleanAdjust _isoRenderDebug =
+        new RuntimeAdjust.BooleanAdjust(
+            "Toggles debug rendering in the iso scene view.",
+            "narya.miso.iso_debug_render", MisoPrefs.config, false);
+
     /** The stroke used to draw dirty rectangles. */
     protected static final Stroke DIRTY_RECT_STROKE = new BasicStroke(2);
+
+    /** The alpha used to fill tiles for debugging purposes. */
+    protected static final Composite ALPHA_FILL_TILE =
+        AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
 }
