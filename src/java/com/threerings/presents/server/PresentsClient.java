@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.65 2004/03/06 11:29:19 mdb Exp $
+// $Id: PresentsClient.java,v 1.66 2004/07/03 09:30:03 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -667,8 +667,9 @@ public class PresentsClient
         // session, subsequently _throttle is null and we just drop any
         // messages that come in until we've fully shutdown
         if (_throttle == null) {
-            Log.info("Dropping message from force-quit client [conn=" + _conn +
-                     ", msg=" + message + "].");
+//             Log.info("Dropping message from force-quit client " +
+//                      "[conn=" + _conn +
+//                      ", msg=" + message + "].");
             return;
         } else if (_throttle.throttleOp(message.received)) {
             Log.warning("Client sent more than 100 messages in 10 seconds, " +
@@ -730,13 +731,19 @@ public class PresentsClient
             return true;
         }
 
-        Log.info("Dropped message [client=" + this +
-                 ", type=" + msg.getClass().getName() + "].");
+        // don't log dropped messages unless we're dropping a lot of them
+        // (meaning something is still queueing messages up for this dead
+        // client even though it shouldn't be)
+        if (++_messagesDropped % 50 == 0) {
+            Log.warning("Dropping many messages? [client=" + this +
+                        ", count=" + _messagesDropped + "].");
+        }
 
         // make darned sure we don't have any remaining subscriptions
         if (_subscrips.size() > 0) {
-            Log.warning("Clearing stale subscriptions [client=" + this + "].");
-            clearSubscrips(true);
+//             Log.warning("Clearing stale subscriptions [client=" + this +
+//                         ", subscrips=" + _subscrips.size() + "].");
+            clearSubscrips(_messagesDropped > 10);
         }
         return false;
     }
@@ -885,6 +892,7 @@ public class PresentsClient
     // keep these for kicks and giggles
     protected int _messagesIn;
     protected int _messagesOut;
+    protected int _messagesDropped;
 
     /** The amount of time after disconnection a user is allowed before
      * their session is forcibly ended. */
