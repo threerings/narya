@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: components.xml,v 1.2 2001/11/02 02:51:11 shaper Exp $ -->
+<!-- $Id: components.xml,v 1.3 2001/11/08 02:15:59 shaper Exp $ -->
 
 <!-- Initial test character component description data. -->
 
@@ -29,6 +29,7 @@
   <components>
     <component cid="7" fileid="hat_tri" asids="0, 1" clid="0"/>
     <component cid="13" fileid="torso_red" asids="0, 1" clid="1"/>
+    <component cid="14" fileid="torso" asids="0, 1" clid="1"/>
   </components>
 
 </charactercomponents>
