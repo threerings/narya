@@ -1,20 +1,5 @@
 Whirled Design -*- mode: outline -*-
 
-* Notes
-Scene manager registers a timer when it becomes empty and flushes itself
-from memory after timeout period.
-
-Client should avoid unsubscribing from scene objects straight away so that
-it can avoid resubscribing if they bounce back and forth between scenes.
-
-We'll want the scenes to adhere to some sort of hierarchy so that we can
-associate properties files with classes of scenes which will be used to
-configure the scene managers when they are initialized.
-
-Add code to deal with receiving updated scenes from the server.
-
-Add code to flush scenes from the client scene manager cache.
-
 * Overview
 Whirled builds on top of the Cocktail platform and provides a framework
 for building a virtual world made up of a node network of individual
@@ -43,3 +28,21 @@ system at the time the client is delivered, and subsequent snapshots can
 be provided periodically to bring all clients into sync with the runtime
 scene database, from which they can then continue to mirror updates as
 needed.
+
+* Notes
+Scene provider needs to do the right thing when a client requests an out
+of date scene. Presently it doesn't handle sending the client the updated
+scene data.
+
+Scene manager registers a timer when it becomes empty and flushes itself
+from memory after timeout period.
+
+Client should avoid unsubscribing from scene objects straight away so that
+it can avoid resubscribing if they bounce back and forth between scenes.
+
+We'll want the scenes to adhere to some sort of hierarchy so that we can
+associate properties files with classes of scenes which will be used to
+configure the scene managers when they are initialized.
+
+Add code to flush scenes from the client scene manager cache.
+
