@@ -1,5 +1,5 @@
 //
-// $Id: UniformTileSet.java,v 1.3 2001/11/18 04:09:21 mdb Exp $
+// $Id: UniformTileSet.java,v 1.4 2001/11/29 21:57:31 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -42,11 +42,27 @@ public class UniformTileSet extends TileSet
     }
 
     /**
+     * Returns the width of the tiles in this tileset.
+     */
+    public int getWidth ()
+    {
+        return _width;
+    }
+
+    /**
      * Specifies the height of the tiles in this tileset.
      */
     public void setHeight (int height)
     {
         _height = height;
+    }
+
+    /**
+     * Returns the height of the tiles in this tileset.
+     */
+    public int getHeight ()
+    {
+        return _height;
     }
 
     // documentation inherited

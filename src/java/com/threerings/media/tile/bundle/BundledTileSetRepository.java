@@ -1,12 +1,9 @@
 //
-// $Id: BundledTileSetRepository.java,v 1.3 2001/11/29 00:12:42 mdb Exp $
+// $Id: BundledTileSetRepository.java,v 1.4 2001/11/29 21:57:31 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -31,10 +28,6 @@ import com.threerings.media.tile.TileSetRepository;
 public class BundledTileSetRepository
     implements TileSetRepository
 {
-    /** The path to the metadata resource that we will attempt to load
-     * from our resource set. */
-    public static final String METADATA_PATH = "tsbundles.dat";
-
     /**
      * Constructs a repository which will obtain its resource set from the
      * supplied resource manager.
@@ -64,17 +57,9 @@ public class BundledTileSetRepository
         ArrayList tbundles = new ArrayList();;
         for (int i = 0; i < rbundles.length; i++) {
             try {
-                // unserialize the tileset bundles array
-                InputStream tbin = rbundles[i].getResource(METADATA_PATH);
-                ObjectInputStream oin = new ObjectInputStream(
-                    new BufferedInputStream(tbin));
-                TileSetBundle tsb = (TileSetBundle)oin.readObject();
-                // initialize the bundle and add it to the list
-                tsb.init(rbundles[i]);
-                tbundles.add(tsb);
-
+                tbundles.add(BundleUtil.extractBundle(rbundles[i]));
             } catch (Exception e) {
-                Log.warning("Unable to load tileset bundles from resource " +
+                Log.warning("Unable to load tileset bundle from resource " +
                             "bundle [rbundle=" + rbundles[i] +
                             ", error=" + e + "].");
                 Log.logStackTrace(e);

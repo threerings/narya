@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSet.java,v 1.2 2001/11/18 04:09:21 mdb Exp $
+// $Id: ObjectTileSet.java,v 1.3 2001/11/29 21:57:31 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -38,6 +38,26 @@ public class ObjectTileSet extends SwissArmyTileSet
         // now fill in the appropriate slot
         _owidths[tileIndex] = objWidth;
         _oheights[tileIndex] = objHeight;
+    }
+
+    /**
+     * Sets the widths (in unit tile count) of the objects in this
+     * tileset. This must be accompanied by a call to {@link
+     * #setObjectHeights}.
+     */
+    public void setObjectWidths (int[] objectWidths)
+    {
+        _owidths = objectWidths;
+    }
+
+    /**
+     * Sets the heights (in unit tile count) of the objects in this
+     * tileset. This must be accompanied by a call to {@link
+     * #setObjectWidths}.
+     */
+    public void setObjectHeights (int[] objectHeights)
+    {
+        _oheights = objectHeights;
     }
 
     /**

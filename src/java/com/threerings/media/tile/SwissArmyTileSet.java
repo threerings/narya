@@ -1,5 +1,5 @@
 //
-// $Id: SwissArmyTileSet.java,v 1.3 2001/11/27 08:41:01 mdb Exp $
+// $Id: SwissArmyTileSet.java,v 1.4 2001/11/29 21:57:31 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -44,6 +44,14 @@ public class SwissArmyTileSet extends TileSet
     }
 
     /**
+     * Returns the tile count settings.
+     */
+    public int[] getTileCounts ()
+    {
+        return _tileCounts;
+    }
+
+    /**
      * Computes our total tile count from the individual counts for each
      * row.
      */
@@ -66,12 +74,28 @@ public class SwissArmyTileSet extends TileSet
     }
 
     /**
+     * Returns the width settings.
+     */
+    public int[] getWidths ()
+    {
+        return _widths;
+    }
+
+    /**
      * Sets the tile heights for each row. Each row can have tiles of a
      * different height.
      */
     public void setHeights (int[] heights)
     {
         _heights = heights;
+    }
+
+    /**
+     * Returns the height settings.
+     */
+    public int[] getHeights ()
+    {
+        return _heights;
     }
 
     /**
