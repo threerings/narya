@@ -1,9 +1,7 @@
 //
-// $Id: FrameSequencer.java,v 1.2 2002/09/17 21:58:25 ray Exp $
+// $Id: FrameSequencer.java,v 1.3 2002/09/20 21:35:32 ray Exp $
 
 package com.threerings.media.util;
-
-import com.threerings.media.util.MultiFrameImage;
 
 /**
  * Used to control animation timing when displaying a {@link
