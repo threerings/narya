@@ -1,5 +1,5 @@
 //
-// $Id: TestApp.java,v 1.7 2001/11/27 08:41:49 mdb Exp $
+// $Id: TestApp.java,v 1.8 2001/11/29 22:01:59 mdb Exp $
 
 package com.threerings.cast.builder;
 
@@ -29,7 +29,8 @@ public class TestApp
         SwingUtil.centerWindow(_frame);
 
         // create the handles on our various services
-        _config = MisoUtil.createConfig();
+        _config = new Config();
+        MisoUtil.bindProperties(_config);
 
         ResourceManager rmgr = new ResourceManager(null, "rsrc");
         ComponentRepository crepo =
