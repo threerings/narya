@@ -1,5 +1,5 @@
 //
-// $Id: MisoContext.java,v 1.1 2001/07/20 23:42:20 shaper Exp $
+// $Id: MisoContext.java,v 1.2 2001/07/21 01:51:10 shaper Exp $
 
 package com.threerings.miso.util;
 
@@ -10,12 +10,14 @@ import com.threerings.miso.scene.SceneManager;
 public interface MisoContext extends Context
 {
     /**
-     * Return a reference to the TileManager.
+     * Return a reference to the TileManager.  This reference is valid
+     * for the lifetime of the application.
      */
     public TileManager getTileManager ();
 
     /**
-     * Return a reference to the SceneManager.
+     * Return a reference to the SceneManager.  This reference is
+     * valid for the lifetime of the application.
      */
     public SceneManager getSceneManager ();
 }

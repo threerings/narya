@@ -1,5 +1,5 @@
 //
-// $Id: EditableTileSetManager.java,v 1.5 2001/07/18 22:45:35 shaper Exp $
+// $Id: EditableTileSetManager.java,v 1.6 2001/07/21 01:51:10 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -18,11 +18,6 @@ import java.util.ArrayList;
  */
 public class EditableTileSetManager extends TileSetManagerImpl
 {
-    public EditableTileSetManager (ImageManager imgr)
-    {
-	super(imgr);
-    }
-
     public void loadTileSets (InputStream tis) throws IOException
     {
 	// read all tileset descriptions from the XML input stream

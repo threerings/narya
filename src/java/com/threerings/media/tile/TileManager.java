@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.8 2001/07/20 02:23:34 shaper Exp $
+// $Id: TileManager.java,v 1.9 2001/07/21 01:51:10 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -55,6 +55,14 @@ public class TileManager
 //  	Log.info("Loaded tile into cache [tsid="+tsid+", tid="+tid+"].");
 
 	return tile;
+    }
+
+    /**
+     * Return the TileSetManager that the TileManager is using.
+     */
+    public TileSetManager getTileSetManager ()
+    {
+	return _tsmgr;
     }
 
     /**
