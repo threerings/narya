@@ -1,19 +1,19 @@
 //
-// $Id: XMLTileSetParser.java,v 1.2 2001/07/18 21:45:42 shaper Exp $
+// $Id: XMLTileSetParser.java,v 1.3 2001/07/20 08:08:59 shaper Exp $
 
 package com.threerings.miso.tile;
 
 import com.threerings.miso.Log;
+import com.threerings.miso.util.XMLUtil;
 
 import com.samskivert.util.StringUtil;
 
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.*;
-import javax.xml.parsers.*;
 import java.util.ArrayList;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Parse an XML tileset description file and construct tileset objects
@@ -78,12 +78,7 @@ public class XMLTileSetParser extends DefaultHandler
     public void loadTileSets (InputStream tis) throws IOException
     {
     	try {
-	    XMLReader xr = _pfactory.newSAXParser().getXMLReader();
-
-	    xr.setContentHandler(this);
-	    xr.setErrorHandler(this);
-
-	    xr.parse(new InputSource(tis));
+	    XMLUtil.parse(this, tis);
 
 	} catch (ParserConfigurationException pce) {
   	    throw new IOException(pce.toString());
@@ -107,12 +102,4 @@ public class XMLTileSetParser extends DefaultHandler
     protected int    _tsTsid;
     protected String _tsImgFile;
     protected int[]  _tsRowHeight, _tsTileCount;
-
-    // the slithy tove from whence came the XMLReader object
-    protected static SAXParserFactory _pfactory;
-
-    static {
-	_pfactory = SAXParserFactory.newInstance();
-	_pfactory.setValidating(false);
-    }
 }

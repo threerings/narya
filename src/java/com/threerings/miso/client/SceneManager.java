@@ -1,7 +1,10 @@
 //
-// $Id: SceneManager.java,v 1.3 2001/07/18 21:45:42 shaper Exp $
+// $Id: SceneManager.java,v 1.4 2001/07/20 08:08:59 shaper Exp $
 
 package com.threerings.miso.scene;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Manages the various scenes that are displayed during the game and
@@ -19,4 +22,16 @@ public interface SceneManager
      * layer id.
      */
     public String[] getLayerNames ();
+
+    /**
+     * Load all scene objects described in the specified file into the
+     * set of available scenes.
+     */
+    public void loadScenes (String fname);
+
+    /**
+     * Load all scene objects described in the specified input stream
+     * into the set of available scenes.
+     */
+    public void loadScenes (InputStream in) throws IOException;
 }
