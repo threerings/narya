@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.47 2003/03/12 00:28:05 ray Exp $
+// $Id: SoundManager.java,v 1.48 2003/03/13 18:35:03 mdb Exp $
 
 package com.threerings.media.sound;
 
@@ -318,15 +318,16 @@ public class SoundManager
 
         if (_player != null && (_clipVol != 0f) && isEnabled(type)) {
             synchronized (_queue) {
+                SoundKey skey = new SoundKey(pkgPath, key);
                 if (_queue.size() < MAX_QUEUE_SIZE) {
-                    Log.debug("play requested [key=" + key + "].");
+                    Log.debug("play requested [key=" + skey + "].");
                     _queue.append(PLAY);
-                    _queue.append(new SoundKey(pkgPath, key));
+                    _queue.append(skey);
 
                 } else {
                     Log.warning("SoundManager not playing sound because " +
-                        "too many sounds in queue [pkgPath=" + pkgPath +
-                        ", key=" + key + ", type=" + type + "].");
+                                "too many sounds in queue [key=" + skey +
+                                ", type=" + type + ", queue=" + _queue + "].");
                 }
             }
         }
