@@ -1,5 +1,5 @@
 //
-// $Id: Invoker.java,v 1.13 2003/12/04 18:41:59 mdb Exp $
+// $Id: Invoker.java,v 1.14 2003/12/04 18:42:40 mdb Exp $
 
 package com.threerings.presents.util;
 
@@ -241,7 +241,7 @@ public class Invoker extends LoopingThread
         protected boolean checkLoops ()
         {
             if (_loopCount > MAX_LOOPS) {
-                Log.warning("Shutdown Unit looped on one thread 1000 times " +
+                Log.warning("Shutdown Unit looped on one thread 10000 times " +
                     "without finishing, shutting down harshly.");
                 doShutdown();
                 return true;
@@ -276,7 +276,7 @@ public class Invoker extends LoopingThread
         protected static final int MAX_PASSES = 50;
 
         /** The maximum number of loops we allow before just ending things. */
-        protected static final int MAX_LOOPS = 1000;
+        protected static final int MAX_LOOPS = 10000;
     }
 
     /** The invoker's queue of units to be executed. */
