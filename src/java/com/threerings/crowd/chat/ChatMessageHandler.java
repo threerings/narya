@@ -1,5 +1,5 @@
 //
-// $Id: ChatMessageHandler.java,v 1.2 2001/10/11 04:07:51 mdb Exp $
+// $Id: ChatMessageHandler.java,v 1.3 2001/10/12 19:30:44 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -17,7 +17,8 @@ import com.threerings.crowd.server.PlaceManager;
  */
 public class ChatMessageHandler implements PlaceManager.MessageHandler
 {
-    public void handleEvent (MessageEvent event, PlaceObject target)
+    /** Handles {@link ChatCodes#SPEAK_REQUEST} messages. */
+    public void handleEvent (MessageEvent event)
     {
         // presently we do no ratification of chat messages, so we just
         // generate a chat notification with the message and name of the
@@ -38,7 +39,7 @@ public class ChatMessageHandler implements PlaceManager.MessageHandler
         // and generate a chat notification
         Object[] outargs = new Object[] { source.username, message };
         MessageEvent nevt = new MessageEvent(
-            target.getOid(), ChatService.SPEAK_NOTIFICATION, outargs);
+            event.getTargetOid(), ChatService.SPEAK_NOTIFICATION, outargs);
         CrowdServer.omgr.postEvent(nevt);
     }
 }

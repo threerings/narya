@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.9 2001/10/12 00:03:03 mdb Exp $
+// $Id: GameManager.java,v 1.10 2001/10/12 19:30:44 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -164,7 +164,7 @@ public class GameManager
     /** Handles player ready notifications. */
     protected class PlayerReadyHandler implements MessageHandler
     {
-        public void handleEvent (MessageEvent event, PlaceObject target)
+        public void handleEvent (MessageEvent event)
         {
             int cloid = event.getSourceOid();
             BodyObject body = (BodyObject)

@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.18 2001/10/12 00:03:02 mdb Exp $
+// $Id: PlaceManager.java,v 1.19 2001/10/12 19:30:44 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -235,7 +235,7 @@ public class PlaceManager
             handler = (MessageHandler)_msghandlers.get(event.getName());
         }
         if (handler != null) {
-            handler.handleEvent(event, _plobj);
+            handler.handleEvent(event);
         }
     }
 
@@ -305,10 +305,8 @@ public class PlaceManager
          * Invokes this message handler on the supplied event.
          *
          * @param event the message event received.
-         * @param target the place object on which the message event was
-         * received.
          */
-        public void handleEvent (MessageEvent event, PlaceObject target);
+        public void handleEvent (MessageEvent event);
     }
 
     /** A reference to the place object that we manage. */
