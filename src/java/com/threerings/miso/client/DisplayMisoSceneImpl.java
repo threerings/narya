@@ -1,10 +1,11 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.18 2001/08/09 05:44:07 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.19 2001/08/09 21:17:06 shaper Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.Point;
 import java.io.*;
+import java.util.ArrayList;
 
 import com.samskivert.util.StringUtil;
 import com.threerings.miso.tile.Tile;
@@ -63,8 +64,8 @@ public class Scene
 
 	_sid = SID_INVALID;
 	_name = DEF_SCENE_NAME;
-        _hotspots = new Point[0];
-        _exits = new ExitPoint[0];
+        _locations = new ArrayList();
+        _exits = new ArrayList();
 
 	tiles = new Tile[TILE_WIDTH][TILE_HEIGHT][NUM_LAYERS];
 	_deftile = _tilemgr.getTile(deftsid, deftid);
@@ -80,23 +81,22 @@ public class Scene
     }
 
     /**
-     * Construct a new Scene object with the given values, specifying
-     * the tile manager from which the scene obtains tiles.
+     * Construct a new Scene object with the given values.
      *
      * @param tilemgr the tile manager.
      * @param name the scene name.
-     * @param hotspots the hotspot points.
-     * @param exits the exit points.
+     * @param locations the locations.
+     * @param exits the exits.
      * @param tiles the tiles comprising the scene.
      */
     public Scene (TileManager tilemgr, String name,
-                  Point hotspots[], ExitPoint exits[],
+                  ArrayList locations, ArrayList exits,
                   Tile tiles[][][])
     {
         _tilemgr = tilemgr;
         _sid = SID_INVALID;
         _name = name;
-        _hotspots = hotspots;
+        _locations = locations;
         _exits = exits;
         this.tiles = tiles;
     }
@@ -118,17 +118,17 @@ public class Scene
     }
 
     /**
-     * Return the scene hot spots array.
+     * Return the scene locations list.
      */
-    public Point[] getHotSpots ()
+    public ArrayList getLocations ()
     {
-        return _hotspots;
+        return _locations;
     }
 
     /**
-     * Return the scene exits array.
+     * Return the scene exits list.
      */
-    public ExitPoint[] getExitPoints ()
+    public ArrayList getExits ()
     {
         return _exits;
     }
@@ -168,7 +168,7 @@ public class Scene
         StringBuffer buf = new StringBuffer();
         buf.append("[name=").append(_name);
         buf.append(", sid=").append(_sid);
-        buf.append(", hotspots=").append(StringUtil.toString(_hotspots));
+        buf.append(", locations=").append(StringUtil.toString(_locations));
         buf.append(", exits=").append(StringUtil.toString(_exits));
         return buf.append("]").toString();
     }
@@ -182,11 +182,11 @@ public class Scene
     /** The unique scene id. */
     protected short _sid;
 
-    /** The hot-spot zone points. */
-    protected Point _hotspots[];
+    /** The locations within the scene. */
+    protected ArrayList _locations;
 
     /** The exit points to different scenes. */
-    protected ExitPoint _exits[];
+    protected ArrayList _exits;
 
     /** The default tile for the base layer in the scene. */
     protected Tile _deftile;

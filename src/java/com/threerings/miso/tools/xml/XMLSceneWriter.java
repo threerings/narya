@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneWriter.java,v 1.3 2001/07/24 20:12:18 shaper Exp $
+// $Id: XMLSceneWriter.java,v 1.4 2001/08/09 21:17:06 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -13,12 +13,12 @@ import org.xml.sax.helpers.AttributesImpl;
 import com.megginson.sax.DataWriter;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.ExitPoint;
-import com.threerings.miso.scene.Scene;
+import com.threerings.miso.scene.*;
 import com.threerings.miso.tile.Tile;
 
 /**
- * The XMLSceneWriter writes a Scene object to an XML file.
+ * The <code>XMLSceneWriter</code> writes a <code>Scene</code> object
+ * to an XML file.
  *
  * <p> The scene id is omitted as the scene id is assigned when the
  * scene template is actually loaded into a server.  Similarly, exit
@@ -51,7 +51,7 @@ public class XMLSceneWriter extends DataWriter
 
             dataElement("name", scene.getName());
             dataElement("version", "" + Scene.VERSION);
-            dataElement("hotspots", getHotSpotData(scene));
+            dataElement("locations", getLocationData(scene));
             dataElement("exits", getExitData(scene));
 
             startElement("tiles");
@@ -97,47 +97,51 @@ public class XMLSceneWriter extends DataWriter
     }
 
     /**
-     * Return a string representation of the exit points in the
-     * scene.  Each exit point is specified by a comma-delimited
-     * triplet of (x, y, scene name) values.
+     * Return a string representation of the exits in the scene.  Each
+     * exit is specified by a comma-delimited tuple of (location
+     * index, scene name) values.
      *
      * @param scene the scene object.
      *
-     * @return the exit points in String format.
+     * @return the exits in String format.
      */
     protected String getExitData (Scene scene)
     {
-        ExitPoint[] exits = scene.getExitPoints();
+	ArrayList locs = scene.getLocations();
+	ArrayList exits = scene.getExits();
 
-        Object exitinfo[] = new Object[exits.length * 3];
         StringBuffer buf = new StringBuffer();
-        for (int ii = 0; ii < exits.length; ii++) {
-            int idx = ii * 3;
-            buf.append(exits[ii].x).append(",");
-            buf.append(exits[ii].y).append(",");
-            buf.append(exits[ii].name);
-            if (ii < exits.length - 1) buf.append(",");
+	int size = exits.size();
+        for (int ii = 0; ii < size; ii++) {
+	    Exit exit = (Exit)exits.get(ii);
+	    buf.append(locs.indexOf(exit.loc)).append(",");
+	    buf.append(exit.name);
+            if (ii < size - 1) buf.append(",");
         }
 
         return buf.toString();
     }
 
     /**
-     * Return a string representation of the hotspot points in the
-     * scene.  Each hotspot point is specified by a comma-delimited
-     * tuple of (x, y) values.
+     * Return a string representation of the locations in the scene.
+     * Each location is specified by a comma-delimited quartet of
+     * (spot id, x, y, orientation) values.
      *
-     * @return the hotspot points in String format.
+     * @return the locations in String format.
      */
-    protected String getHotSpotData (Scene scene)
+    protected String getLocationData (Scene scene)
     {
-        StringBuffer buf = new StringBuffer();
+	ArrayList locs = scene.getLocations();
 
-        Point[] hotspots = scene.getHotSpots();
-        for (int ii = 0; ii < hotspots.length; ii++) {
-            buf.append(hotspots[ii].x).append(",");
-            buf.append(hotspots[ii].y);
-            if (ii < hotspots.length - 1) buf.append(",");
+        StringBuffer buf = new StringBuffer();
+	int size = locs.size();
+        for (int ii = 0; ii < size; ii++) {
+	    Location loc = (Location)locs.get(ii);
+	    buf.append(loc.spotid).append(",");
+	    buf.append(loc.x).append(",");
+	    buf.append(loc.y).append(",");
+	    buf.append(loc.orient);
+            if (ii < size - 1) buf.append(",");
         }
 
         return buf.toString();

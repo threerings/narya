@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.5 2001/08/02 01:19:47 shaper Exp $
+// $Id: XMLSceneParser.java,v 1.6 2001/08/09 21:17:06 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -66,13 +66,13 @@ public class XMLSceneParser extends DefaultHandler
                     ", known_version=" + Scene.VERSION + "].");
             }
 
-	} else if (qName.equals("hotspots")) {
+	} else if (qName.equals("locations")) {
             int vals[] = StringUtil.parseIntArray(_chars.toString());
-            _scHotspots = toPointArray(vals);
+            _scLocations = toLocationsList(vals);
 
 	} else if (qName.equals("exits")) {
             String vals[] = StringUtil.parseStringArray(_chars.toString());
-	    _scExits = toExitPointArray(vals);
+	    _scExits = toExitList(_scLocations, vals);
 
 	} else if (qName.equals("row")) {
             if (_scLnum == Scene.LAYER_BASE) {
@@ -84,7 +84,7 @@ public class XMLSceneParser extends DefaultHandler
         } else if (qName.equals("scene")) {
             // construct the scene object on tag close
             _scene = new Scene(
-                _tilemgr, _scName, _scHotspots, _scExits, _scTiles);
+                _tilemgr, _scName, _scLocations, _scExits, _scTiles);
 
             Log.info("Constructed parsed scene [scene=" + _scene + "].");
 	}
@@ -164,33 +164,37 @@ public class XMLSceneParser extends DefaultHandler
     }
 
     /**
-     * Given an array of integer values, return a Point array
-     * constructed from each successive tuple of values as (x, y) in
-     * the array.
+     * Given an array of integer values, return a list of the
+     * <code>Location</code> objects represented therein, constructed
+     * from each successive quartet of values as (spotid, x, y,
+     * orientation) in the integer array.
      *
      * @param vals the integer values.
      *
-     * @return the point array, or null if an error occurred.
+     * @return the location list, or null if an error occurred.
      */
-    protected Point[] toPointArray (int[] vals)
+    protected ArrayList toLocationsList (int[] vals)
     {
-        // make sure we have an even number of points
-        if ((vals.length % 2) == 1) return null;
+        // make sure we have a seemingly-appropriate number of points
+        if ((vals.length % 4) != 0) return null;
 
-        // pull the point coordinates out of the int array
-        Point[] points = new Point[vals.length / 2];
-        for (int ii = 0; ii < vals.length; ii += 2) {
-            int idx = ii / 2;
-            points[idx] = new Point(vals[ii], vals[ii + 1]);
+	// read in all of the locations and add to the list
+	ArrayList list = new ArrayList();
+        for (int ii = 0; ii < vals.length; ii += 4) {
+	    Location loc = new Location(
+		vals[ii], vals[ii+1], vals[ii+2], vals[ii+3]);
+	    list.add(loc);
         }
 
-        return points;
+        return list;
     }
 
     /**
-     * Given an array of String values, return an ExitPoint array
-     * constructed from each successive triplet of values as (x, y,
-     * scene name) in the array.
+     * Given an array of string values, return a list of
+     * <code>Exit</code> objects constructed from each successive
+     * triplet of values as (locidx, scene name) in the array.  The
+     * list of <code>Location</code> objects must have already been
+     * fully read previously.
      *
      * <p> This is something of a hack since we perhaps ought to parse
      * the original String into its constituent components ourselves,
@@ -198,29 +202,25 @@ public class XMLSceneParser extends DefaultHandler
      * <code>StringUtil.toString()</code> method to take care of
      * tokenizing things for us, so, there you have it.
      *
+     * @param ArrayList the location list.
      * @param vals the String values.
      *
-     * @return the ExitPoint array, or null if an error occurred.
+     * @return the exit list, or null if an error occurred.
      */
-    protected ExitPoint[] toExitPointArray (String[] vals)
+    protected ArrayList toExitList (ArrayList locs, String[] vals)
     {
         // make sure we have an appropriate number of values
-        if ((vals.length % 3) != 0) return null;
+        if ((vals.length % 2) != 0) return null;
 
-        // pull the point values out of the string array
-        ExitPoint[] exits = new ExitPoint[vals.length / 3];
-        for (int ii = 0; ii < vals.length; ii += 3) {
-            int idx = ii / 3;
-            exits[idx] = new ExitPoint();
-            exits[idx].x = (byte)getInt(vals[ii]);
-            exits[idx].y = (byte)getInt(vals[ii + 1]);
-            exits[idx].name = vals[ii + 2];
+	// read in all of the exits and add to the list
+	ArrayList list = new ArrayList();
+	for (int ii = 0; ii < vals.length; ii += 2) {
+	    Exit exit = new Exit(
+		(Location)locs.get(getInt(vals[ii])), vals[ii+1]);
+	    list.add(exit);
+	}
 
-            // scene id is only valid at runtime
-            exits[idx].sid = Scene.SID_INVALID;
-        }
-
-        return exits;
+        return list;
     }
 
     /**
@@ -236,6 +236,16 @@ public class XMLSceneParser extends DefaultHandler
             return -1;
         }
     }
+
+    protected void init ()
+    {
+	_chars = new StringBuffer();
+	_scene = null;
+	int width = Scene.TILE_WIDTH, height = Scene.TILE_HEIGHT;
+	_scTiles = new Tile[width][height][Scene.NUM_LAYERS];
+	_scLocations = null;
+	_scExits = null;
+    }	
 
     /**
      * Parse the specified XML file and return a Scene object with the
@@ -255,10 +265,7 @@ public class XMLSceneParser extends DefaultHandler
             BufferedInputStream bis = new BufferedInputStream(fis);
 
             // prepare temporary data storage for parsing
-            _chars = new StringBuffer();
-            _scene = null;
-            int width = Scene.TILE_WIDTH, height = Scene.TILE_HEIGHT;
-            _scTiles = new Tile[width][height][Scene.NUM_LAYERS];
+	    init();
 
             // read the XML input stream and construct the scene object
 	    XMLUtil.parse(this, bis);
@@ -289,8 +296,8 @@ public class XMLSceneParser extends DefaultHandler
     // temporary storage of scene object values and data
     protected StringBuffer _chars;
     protected String _scName;
-    protected Point[] _scHotspots;
-    protected ExitPoint[] _scExits;
+    protected ArrayList _scLocations;
+    protected ArrayList _scExits;
     protected Tile[][][] _scTiles;
     protected int _scLnum, _scRownum, _scColstart;
 }

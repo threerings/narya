@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.34 2001/08/09 17:04:56 shaper Exp $
+// $Id: IsoSceneView.java,v 1.35 2001/08/09 21:17:06 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -320,6 +320,11 @@ public class IsoSceneView implements EditableSceneView
 	}
 
 	IsoUtil.screenToFull(_model, x, y, _hfull);
+    }
+
+    public void getFullCoordinates (int sx, int sy, Point fpos)
+    {
+	IsoUtil.screenToFull(_model, sx, sy, fpos);
     }
 
     /**
