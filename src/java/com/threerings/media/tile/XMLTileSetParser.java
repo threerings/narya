@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParser.java,v 1.11 2001/08/13 19:54:39 shaper Exp $
+// $Id: XMLTileSetParser.java,v 1.12 2001/08/16 20:14:06 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -39,45 +39,50 @@ public class XMLTileSetParser extends DefaultHandler
 	String str = _chars.toString();
 
 	if (qName.equals("name")) {
-	    _tsName = str.trim();
+	    _info.name = str.trim();
 
 	} else if (qName.equals("tsid")) {
 	    try {
-		_tsTsid = Integer.parseInt(str);
+		_info.tsid = Integer.parseInt(str);
 	    } catch (NumberFormatException nfe) {
 		Log.warning("Malformed integer tilesetid [str=" + str + "].");
-		_tsTsid = -1;
+		_info.tsid = -1;
 	    }
 
 	} else if (qName.equals("imagefile")) {
-	    _tsImgFile = str;
+	    _info.imgfile = str;
 
 	} else if (qName.equals("rowwidth")) {
-	    _tsRowWidth = StringUtil.parseIntArray(str);
+	    _info.rowwidth = StringUtil.parseIntArray(str);
 
 	} else if (qName.equals("rowheight")) {
-	    _tsRowHeight = StringUtil.parseIntArray(str);
+	    _info.rowheight = StringUtil.parseIntArray(str);
 
 	} else if (qName.equals("tilecount")) {
-	    _tsTileCount = StringUtil.parseIntArray(str);
+	    _info.tilecount = StringUtil.parseIntArray(str);
 
 	    // calculate the total number of tiles in the tileset
-	    for (int ii = 0; ii < _tsTileCount.length; ii++) {
-		_tsNumTiles += _tsTileCount[ii];
+	    for (int ii = 0; ii < _info.tilecount.length; ii++) {
+		_info.numtiles += _info.tilecount[ii];
 	    }
 
 	} else if (qName.equals("passable")) {
-	    _tsPassable = StringUtil.parseIntArray(str);
+	    _info.passable = StringUtil.parseIntArray(str);
 
 	} else if (qName.equals("offsetpos")) {
-            getPoint(str, _tsOffsetPos);
+            getPoint(str, _info.offsetpos);
 
         } else if (qName.equals("gapdist")) {
-            getPoint(str, _tsGapDist);
+            getPoint(str, _info.gapdist);
 
         } else if (qName.equals("tileset")) {
-	    constructTileSet();
-        }
+	    // construct the tileset on tag close and add it to the
+	    // list of tilesets constructed thus far
+	    _tilesets.add(_info.constructTileSet());
+
+	    // prepare to read another tileset object
+	    init();
+	}
 
 	// note that we're not within a tag to avoid considering any
 	// characters during this quiescent time
@@ -85,28 +90,6 @@ public class XMLTileSetParser extends DefaultHandler
 
         // and clear out the character data we're gathering
         _chars = new StringBuffer();
-    }
-
-    protected void constructTileSet ()
-    {
-	// if passability is unspecified, default to all passable
-	if (_tsPassable == null) {
-	    _tsPassable = new int[_tsNumTiles];
-	    for (int ii = 0; ii < _tsNumTiles; ii++) {
-		_tsPassable[ii] = 1;
-	    }
-	}
-
-	// construct the tileset object on tag close
-	TileSet tset = new TileSet(
-	    _tsName, _tsTsid, _tsImgFile,
-	    _tsRowWidth, _tsRowHeight, _tsTileCount, _tsPassable,
-	    _tsOffsetPos, _tsGapDist);
-
-	_tilesets.add(tset);
-
-	// prepare to read another tileset object
-	init();
     }
 
     public void characters (char ch[], int start, int length)
@@ -123,8 +106,10 @@ public class XMLTileSetParser extends DefaultHandler
 	    InputStream tis = ConfigUtil.getStream(fname);
 	    if (tis == null) {
 		Log.warning("Couldn't find file [fname=" + fname + "].");
-		return _tilesets;
+		return null;
 	    }
+
+	    _tilesets = new ArrayList();
 
             // prepare to read a new tileset
             init();
@@ -148,11 +133,8 @@ public class XMLTileSetParser extends DefaultHandler
      */
     protected void init ()
     {
-        _tsOffsetPos = new Point();
-        _tsGapDist = new Point();
-	_tsPassable = null;
-	_tsNumTiles = 0;
 	_chars = new StringBuffer();
+	_info = new TileSetInfo();
     }
 
     /**
@@ -175,12 +157,67 @@ public class XMLTileSetParser extends DefaultHandler
     /** The tilesets constructed thus far. */
     protected ArrayList _tilesets = new ArrayList();
 
-    /** Temporary storage of tileset object values. */
+    /** Temporary storage of character data while parsing. */
     protected StringBuffer _chars;
-    protected String _tsName;
-    protected int    _tsTsid;
-    protected String _tsImgFile;
-    protected int[]  _tsRowWidth, _tsRowHeight, _tsTileCount, _tsPassable;
-    protected int    _tsNumTiles;
-    protected Point  _tsOffsetPos, _tsGapDist;
+
+    /** Temporary storage of tileset info while parsing. */
+    protected TileSetInfo _info;
+
+    /**
+     * A class to hold temporary information on a tileset.
+     */
+    class TileSetInfo
+    {
+	/** The tileset name. */
+	public String name;
+
+	/** The tileset id. */
+	public int tsid;
+
+	/** The tileset full image file path. */
+	public String imgfile;
+
+	/** The width of the tiles in each row. */
+	public int[] rowwidth;
+
+	/** The height of the tiles in each row. */
+	public int[] rowheight;
+
+	/** The number of tiles in each row. */
+	public int[] tilecount;
+
+	/** The passability of each tile. */
+	public int[] passable;
+
+	/** The number of tiles in the tileset. */
+	public int numtiles;
+
+	/** The offset position at which tiles begin in the tile image. */
+	public Point offsetpos;
+
+	/** The gap distance between each tile in the tile image. */
+	public Point gapdist;
+
+	public TileSetInfo ()
+	{
+	    offsetpos = new Point();
+	    gapdist = new Point();
+	}	    
+
+	public TileSet constructTileSet ()
+	{
+	    // if passability is unspecified, default to all passable
+	    if (passable == null) {
+		passable = new int[numtiles];
+		for (int ii = 0; ii < numtiles; ii++) {
+		    passable[ii] = 1;
+		}
+	    }
+
+	    // construct a tileset object using all gathered data
+	    return new TileSet(
+		name, tsid, imgfile, rowwidth, rowheight, tilecount,
+		passable, offsetpos, gapdist);
+	}
+    }
 }
