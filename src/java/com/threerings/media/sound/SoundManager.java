@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.33 2002/11/27 00:12:14 ray Exp $
+// $Id: SoundManager.java,v 1.34 2002/11/27 21:41:53 ray Exp $
 
 package com.threerings.media;
 
@@ -510,7 +510,9 @@ public class SoundManager
             // if we're currently playing this song..
             if (key.equals(current)) {
                 // stop it
-                _musicPlayer.stop();
+                if (_musicPlayer != null) {
+                    _musicPlayer.stop();
+                }
 
                 // remove it from the stack
                 _musicStack.removeFirst();
