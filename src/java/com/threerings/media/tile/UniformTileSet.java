@@ -1,5 +1,5 @@
 //
-// $Id: UniformTileSet.java,v 1.8 2002/05/06 18:08:32 mdb Exp $
+// $Id: UniformTileSet.java,v 1.9 2002/06/19 08:27:35 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -74,7 +74,7 @@ public class UniformTileSet extends TileSet
      */
     public Image getTileImage (int tileIndex)
     {
-        Image tsimg = getTilesetImage();
+        Image tsimg = getTileSetImage();
         if (tsimg == null) {
             return null;
         }
