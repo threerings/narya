@@ -1,5 +1,5 @@
 //
-// $Id: SimpleCachingImageProvider.java,v 1.1 2003/01/13 22:49:46 mdb Exp $
+// $Id: SimpleCachingImageProvider.java,v 1.2 2003/01/14 00:23:19 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -10,6 +10,7 @@ import java.io.IOException;
 import com.samskivert.util.LRUHashMap;
 
 import com.threerings.media.Log;
+import com.threerings.media.image.BufferedMirage;
 import com.threerings.media.image.Colorization;
 import com.threerings.media.image.Mirage;
 
@@ -40,9 +41,11 @@ public abstract class SimpleCachingImageProvider implements ImageProvider
     public Mirage getTileImage (String path, Rectangle bounds,
                                 Colorization[] zations)
     {
-        // since we're just doing batch processing, we don't prepare
-        // images for the screen
-        throw new UnsupportedOperationException();
+        // mostly fake it
+        BufferedImage tsimg = getTileSetImage(path, zations);
+        tsimg = tsimg.getSubimage(bounds.x, bounds.y,
+                                  bounds.width, bounds.height);
+        return new BufferedMirage(tsimg);
     }
 
     /**
