@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.132 2003/02/12 05:46:05 mdb Exp $
+// $Id: IsoSceneView.java,v 1.133 2003/02/14 22:10:48 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -377,6 +377,9 @@ public class IsoSceneView implements SceneView
                     str = String.valueOf(ty);
                     xpos = sx + thw - (fm.stringWidth(str) / 2);
                     gfx.drawString(str, xpos, sy + thh + fhei);
+
+                    // draw the tile polygon as well
+                    gfx.draw(IsoUtil.getTilePolygon(_model, tx, ty));
                 }
 
                 // move one tile to the right
