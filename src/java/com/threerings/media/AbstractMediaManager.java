@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMediaManager.java,v 1.7 2003/01/18 22:25:30 mdb Exp $
+// $Id: AbstractMediaManager.java,v 1.8 2003/04/15 21:27:22 mdb Exp $
 
 package com.threerings.media;
 
@@ -50,6 +50,9 @@ public abstract class AbstractMediaManager
      */
     public void renderMedia (Graphics2D gfx, int layer, Shape clip)
     {
+        // now that we're rendering, we can safely clear this; see tick()
+        _tickStamp = 0;
+
         for (int ii = 0, nn = _media.size(); ii < nn; ii++) {
             AbstractMedia media = (AbstractMedia)_media.get(ii);
             int order = media.getRenderOrder();
@@ -78,7 +81,9 @@ public abstract class AbstractMediaManager
         _tickStamp = tickStamp;
         tickAllMedia(tickStamp);
         dispatchNotifications();
-        _tickStamp = 0;
+        // we clear our tick stamp when we've been painted, this lets us
+        // handle situations when yet more media is slipped in between our
+        // being ticked and our being painted
     }
 
     /**
@@ -139,11 +144,23 @@ public abstract class AbstractMediaManager
         media.init(this);
         int ipos = _media.insertSorted(media, RENDER_ORDER);
 
-        // if we're ticking, we need to adjust _tickpos and also tick this
-        // media if it was inserted behind our current tick position
-        if (ipos <= _tickpos) {
-            _tickpos++;
-            media.tick(_tickStamp);
+        // if we've started our tick but have not yet painted our media,
+        // we need to take care that this newly added media will be ticked
+        // before our upcoming render
+        if (_tickStamp > 0L) {
+            if (_tickpos == -1) {
+                // if we're done with our own call to tick(), we
+                // definitely need to tick this new media
+                media.tick(_tickStamp);
+            } else if (ipos <= _tickpos) {
+                // otherwise, we're in the middle of our call to tick()
+                // and we only need to tick this guy if he's being
+                // inserted before our current tick position (if he's
+                // inserted after our current position, we'll get to him
+                // as part of this tick iteration)
+                _tickpos++;
+                media.tick(_tickStamp);
+            }
         }
 
         return true;
