@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.26 2002/11/18 18:56:52 mdb Exp $
+// $Id: ConnectionManager.java,v 1.27 2002/12/07 22:33:04 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -247,58 +247,41 @@ public class ConnectionManager extends LoopingThread
             }
         }
 
+        // attempt to send any messages waiting on the overflow queues
+        if (_oflowqs.size() > 0) {
+            Iterator oqiter = _oflowqs.values().iterator();
+            while (oqiter.hasNext()) {
+                OverflowQueue oq = (OverflowQueue)oqiter.next();
+                try {
+                    // try writing the messages in this overflow queue
+                    if (oq.writeOverflowMessages(iterStamp)) {
+                        // if they were all written, we can remove it
+                        oqiter.remove();
+                        Log.info("Flushed overflow queue for " + oq.conn + ".");
+                    }
+
+                } catch (IOException ioe) {
+                    oq.conn.handleFailure(ioe);
+                }
+            }
+        }
+
         // send any messages that are waiting on the outgoing queue
         Tuple tup;
         while ((tup = (Tuple)_outq.getNonBlocking()) != null) {
             Connection conn = (Connection)tup.left;
 
-            // if the connection to which this message is destined is
-            // closed, drop the message and move along quietly; this is
-            // perfectly legal, a user can logoff whenever they like, even
-            // if we still have things to tell them; such is life in a
-            // fully asynchronous distributed system
-            if (conn.isClosed()) {
+            // if an overflow queue exists for this client, go ahead and
+            // slap the message on there because we can't send it until
+            // all other messages in their queue have gone out
+            OverflowQueue oqueue = (OverflowQueue)_oflowqs.get(conn);
+            if (oqueue != null) {
+                oqueue.add(tup.right);
                 continue;
             }
 
-            DownstreamMessage outmsg = (DownstreamMessage)tup.right;
-            try {
-                // write the message via the connection's object output
-                // stream (which is configured to write data to our
-                // framing output stream)
-                ObjectOutputStream oout = conn.getObjectOutputStream(_framer);
-//                 Log.info("Sending " + outmsg + ".");
-                oout.writeObject(outmsg);
-                oout.flush();
-
-                // then write framed message to real output stream
-                try {
-                    ByteBuffer buffer = _framer.frameAndReturnBuffer();
-                    int wrote = conn.getChannel().write(buffer);
-                    if (wrote != buffer.limit()) {
-                        Log.warning("Aiya! Failed to write complete message " +
-                                    "[conn=" + conn + ", wrote=" + wrote +
-                                    ", needed=" + buffer.limit() + "].");
-                        // TODO: give them the boot
-//                     } else {
-//                         Log.info("Sent [msg=" + outmsg +
-//                                  ", size=" + wrote + "].");
-                    }
-
-                    int out = buffer.limit();
-                    synchronized (this) {
-                        _bytesOut += wrote;
-                        _msgsOut++;
-                    }
-
-                } finally {
-                    _framer.resetFrame();
-                }
-
-            } catch (IOException ioe) {
-                // instruct the connection to deal with its failure
-                conn.handleFailure(ioe);
-            }
+            // otherwise write the message out to the client directly
+            writeMessage(conn, (DownstreamMessage)tup.right, _oflowHandler);
         }
 
         // check for connections that have completed authentication
@@ -388,6 +371,74 @@ public class ConnectionManager extends LoopingThread
             }
         }
         ready.clear();
+    }
+
+    /**
+     * Writes a message out to a connection, passing the buck to the
+     * partial write handler if the entire message could not be written.
+     *
+     * @return true if the message was fully written, false if it was
+     * partially written (in which case the partial message handler will
+     * have been invoked).
+     */
+    protected boolean writeMessage (
+        Connection conn, DownstreamMessage outmsg, PartialWriteHandler pwh)
+    {
+        // if the connection to which this message is destined is closed,
+        // drop the message and move along quietly; this is perfectly
+        // legal, a user can logoff whenever they like, even if we still
+        // have things to tell them; such is life in a fully asynchronous
+        // distributed system
+        if (conn.isClosed()) {
+            return true;
+        }
+            
+        boolean fully = true;
+        try {
+            // write the message via the connection's object output stream
+            // (which we configure to write data to our framing output
+            // stream)
+            ObjectOutputStream oout = conn.getObjectOutputStream(_framer);
+//             Log.info("Sending " + outmsg + ".");
+            oout.writeObject(outmsg);
+            oout.flush();
+
+            try {
+                // then write the framed message to the socket
+                ByteBuffer buffer = _framer.frameAndReturnBuffer();
+                int wrote = conn.getChannel().write(buffer);
+                noteWrite(1, wrote);
+
+                if (buffer.remaining() > 0) {
+                    fully = false;
+                    Log.info("Partial write [conn=" + conn +
+                             ", msg=" + outmsg + ", wrote=" + wrote +
+                             ", size=" + buffer.limit() + "].");
+                    pwh.handlePartialWrite(conn, buffer);
+
+                } else if (wrote > 10000) {
+                    Log.info("Big write [conn=" + conn + ", msg=" + outmsg +
+                             ", wrote=" + wrote + "].");
+                }
+
+            } finally {
+                _framer.resetFrame();
+            }
+
+        } catch (IOException ioe) {
+            // instruct the connection to deal with its failure
+            conn.handleFailure(ioe);
+        }
+
+        return fully;
+    }
+
+    /** Called by {@link #writeMessage} and friends when they write data
+     * over the network. */
+    protected final synchronized void noteWrite (int msgs, int bytes)
+    {
+        _msgsOut += msgs;
+        _bytesOut += bytes;
     }
 
     // documentation inherited
@@ -481,6 +532,7 @@ public class ConnectionManager extends LoopingThread
         // remove this connection from our mapping (it is automatically
         // removed from the Selector when the socket is closed)
         _handlers.remove(conn.getSelectionKey());
+        _oflowqs.remove(conn);
 
         // let our observers know what's up
         notifyObservers(CONNECTION_FAILED, conn, ioe, null);
@@ -494,9 +546,101 @@ public class ConnectionManager extends LoopingThread
         // remove this connection from our mapping (it is automatically
         // removed from the Selector when the socket is closed)
         _handlers.remove(conn.getSelectionKey());
+        _oflowqs.remove(conn);
 
         // let our observers know what's up
         notifyObservers(CONNECTION_CLOSED, conn, null, null);
+    }
+
+    /** Used to handle partial writes in {@link #writeMessage}. */
+    protected static interface PartialWriteHandler
+    {
+        public void handlePartialWrite (Connection conn, ByteBuffer buffer);
+    }
+
+    /**
+     * Used to handle messages for a client whose network buffer has
+     * filled up because their outgoing network buffer has filled up. This
+     * can happen if the client receives many messages in rapid succession
+     * or if they receive very large messages or if they become
+     * unresponsive and stop acknowledging network packets sent by the
+     * server. We want to accomodate the first to circumstances and
+     * recognize the third as quickly as possible so that we can
+     * disconnect the client and propagate that information up to the
+     * higher levels so that further messages are not queued up for the
+     * unresponsive client.
+     */
+    protected class OverflowQueue extends ArrayList
+        implements PartialWriteHandler
+    {
+        /** The connection for which we're managing overflow. */
+        public Connection conn;
+
+        /**
+         * Creates a new overflow queue for the supplied connection and
+         * with the supplied initial partial message.
+         */
+        public OverflowQueue (Connection conn, ByteBuffer message)
+        {
+            this.conn = conn;
+            // set up our initial _partial buffer
+            handlePartialWrite(conn, message);
+        }
+
+        /**
+         * Called each time through the {@link ConnectionManager#iterate}
+         * loop, this attempts to send any remaining partial message and
+         * all subsequent messages in the overflow queue.
+         *
+         * @return true if all messages in this queue were successfully
+         * sent, false if there remains data to be sent on the next loop.
+         *
+         * @throws IOException if an error occurs writing data to the
+         * connection or if we have been unable to write any data to the
+         * connection for ten seconds.
+         */
+        public boolean writeOverflowMessages (long iterStamp)
+            throws IOException
+        {
+            // write any partial message if we have one
+            if (_partial != null) {
+                // write all we can of our partial buffer
+                int wrote = conn.getChannel().write(_partial);
+                noteWrite(0, wrote);
+
+                if (_partial.remaining() == 0) {
+                    _partial = null;
+                } else {
+                    Log.info("Still going [conn=" + conn + ", wrote=" + wrote +
+                             ", remain=" + _partial.remaining() + "].");
+                    return false;
+                }
+            }
+
+            while (size() > 0) {
+                DownstreamMessage outmsg = (DownstreamMessage)remove(0);
+                // if any of these messages are partially written, we have
+                // to stop and wait for the next tick
+                if (!writeMessage(conn, outmsg, this)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // documentation inherited
+        public void handlePartialWrite (Connection conn, ByteBuffer buffer)
+        {
+            // set up our _partial buffer
+            _partial = ByteBuffer.allocate(buffer.remaining());
+            _partial.put(buffer);
+            _partial.flip();
+        }
+
+        /** The remains of a message that was only partially written on
+         * its first attempt. */
+        protected ByteBuffer _partial;
     }
 
     protected int _port;
@@ -513,6 +657,8 @@ public class ConnectionManager extends LoopingThread
     protected Queue _outq = new Queue();
     protected FramingOutputStream _framer;
 
+    protected HashMap _oflowqs = new HashMap();
+
     protected ArrayList _observers = new ArrayList();
 
     /** Bytes in and out in the last reporting period. */
@@ -520,6 +666,15 @@ public class ConnectionManager extends LoopingThread
 
     /** Messages read and written in the last reporting period. */
     protected int _msgsIn, _msgsOut;
+
+    /** Used to create an overflow queue on the first partial write. */
+    protected PartialWriteHandler _oflowHandler = new PartialWriteHandler() {
+        public void handlePartialWrite (Connection conn, ByteBuffer msgbuf) {
+            // if we couldn't write all the data for this message, we'll
+            // need to establish an overflow queue
+            _oflowqs.put(conn, new OverflowQueue(conn, msgbuf));
+        }
+    };
 
     /**
      * How long we wait for network events before checking our running
