@@ -1,5 +1,5 @@
 //
-// $Id: Invoker.java,v 1.14 2003/12/04 18:42:40 mdb Exp $
+// $Id: Invoker.java,v 1.15 2004/06/13 08:03:45 mdb Exp $
 
 package com.threerings.presents.util;
 
@@ -46,6 +46,16 @@ public class Invoker extends LoopingThread
      */
     public static abstract class Unit implements Runnable
     {
+        /** The default constructor. */
+        public Unit () {}
+
+        /** Creates an invoker unit which will report the supplied name in
+         * {@link #toString}. */
+        public Unit (String name)
+        {
+            _name = name;
+        }
+
         /**
          * This method is called on the invoker thread and should be used
          * to perform the primary function of the unit. It can return true
@@ -86,6 +96,14 @@ public class Invoker extends LoopingThread
         {
             handleResult();
         }
+
+        /** Returns the name of this invoker. */
+        public String toString ()
+        {
+            return _name;
+        }
+
+        protected String _name = "Unknown";
     }
 
     /**
