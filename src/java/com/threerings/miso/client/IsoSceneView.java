@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.2 2001/07/14 00:21:23 shaper Exp $
+// $Id: IsoSceneView.java,v 1.3 2001/07/16 00:45:06 shaper Exp $
 
 package com.threerings.cocktail.miso.scene;
 
@@ -7,6 +7,7 @@ import com.threerings.cocktail.miso.Log;
 import com.threerings.cocktail.miso.media.ImageManager;
 import com.threerings.cocktail.miso.tile.Tile;
 import com.threerings.cocktail.miso.tile.TileManager;
+import com.threerings.cocktail.miso.util.MathUtil;
 
 import java.awt.*;
 import java.awt.image.*;
@@ -25,15 +26,26 @@ public class IsoSceneView implements SceneView
 	_viewY = 0;
 
 	_bounds = new Rectangle(0, 0, DEF_BOUNDS_WIDTH, DEF_BOUNDS_HEIGHT);
+
+	_htile = new Point();
+	_htile.x = _htile.y = -1;
+
+	_hcolor = Color.green;
+	_hstroke = new BasicStroke(3);
+
+	_font = new Font("Arial", Font.PLAIN, 7);
+
+	_lineX = new Point[2];
+	_lineY = new Point[2];
+	for (int ii = 0; ii < 2; ii++) {
+	    _lineX[ii] = new Point();
+	    _lineY[ii] = new Point();
+	}
     }
 
     public void paint (Graphics g)
     {
 	Graphics2D g2 = (Graphics2D)g;
-
-//	Image img = ImageManager.getImage("/home/shaper/workspace/cocktail/rsrc/media/miso/tiles-base.png");
-//	_scene.tiles[10][10][0].img =
-//	    ImageManager.getImageCropped(img, 32, 0, 32, 16);
 
 	_offGraphics.setColor(Color.red);
 	_offGraphics.fillRect(0, 0, _bounds.width, _bounds.height);
@@ -78,10 +90,14 @@ public class IsoSceneView implements SceneView
 		Tile tile = _scene.tiles[tx][ty][Scene.LAYER_BASE];
 
 		g2.drawImage(tile.img, screenX, screenY, null);
-		//Log.info("Drawing tile [tx=" + tx + ", ty=" + ty +
-		//     ", sx=" + screenX + ", sy=" + screenY +
-		//     ", img=" + tile.img + "].");
-		
+
+		//paintCoords(g2, tx, ty, screenX, screenY);
+
+		// draw an outline around the highlighted tile
+		if (tx == _htile.x && ty == _htile.y) {
+		    paintHighlightedTile(g2, screenX, screenY);
+		}
+
 		screenX += Tile.WIDTH;
 
 		if ((tx += 1) > Scene.TILE_WIDTH - 1) tx = 0;
@@ -96,7 +112,98 @@ public class IsoSceneView implements SceneView
 		if ((my += 1) > Scene.TILE_HEIGHT - 1) my = 0;
 	    }
 	}
+
+	// draw the baseline x-axis line
+	g2.setColor(Color.red);
+	g2.drawLine(_lineX[0].x, _lineX[0].y, _lineX[1].x, _lineX[1].y);
+
+	// draw line from last mouse pos to baseline
+	g2.setColor(Color.yellow);
+	g2.drawLine(_lineY[0].x, _lineY[0].y, _lineY[1].x, _lineY[1].y);
+
+	// draw the most recent mouse cursor position
+	g2.setColor(Color.green);
+	g2.fillRect(_lineY[0].x, _lineY[0].y, 2, 2);
+	g2.setColor(Color.red);
+	g2.drawRect(_lineY[0].x - 1, _lineY[0].y - 1, 3, 3);
     }
+
+    protected void paintCoords (Graphics2D g2, int x, int y, int sx, int sy)
+    {
+	g2.setFont(_font);
+	g2.setColor(Color.white);
+	g2.drawString(""+x, sx+Tile.HALF_WIDTH-2, sy+Tile.HALF_HEIGHT-2);
+	g2.drawString(""+y, sx+Tile.HALF_WIDTH-2, sy+Tile.HEIGHT-2);
+    }
+    
+    protected void paintHighlightedTile (Graphics2D g2, int sx, int sy)
+    {
+	int x = sx;
+	int y = sy;
+
+	Stroke ostroke = g2.getStroke();
+	g2.setStroke(_hstroke);
+	g2.setColor(_hcolor);
+
+	g2.drawLine(x, y + Tile.HALF_HEIGHT,
+		    x + Tile.HALF_WIDTH, y);
+	g2.drawLine(x + Tile.HALF_WIDTH, y,
+		    x + Tile.WIDTH, y + Tile.HALF_HEIGHT);
+	g2.drawLine(x + Tile.WIDTH, y + Tile.HALF_HEIGHT,
+		    x + Tile.HALF_WIDTH, y + Tile.HEIGHT);
+	g2.drawLine(x + Tile.HALF_WIDTH, y + Tile.HEIGHT,
+		    x, y + Tile.HALF_HEIGHT);
+
+	g2.setStroke(ostroke);
+    }
+
+    /**
+     * Highlight the tile at the specified pixel coordinates the next
+     * time the scene is re-rendered.
+     */
+    public void setHighlightedTile (int x, int y)
+    {
+	float mX, mY;
+	int bX, bY;
+	
+	// calculate the x-axis line (from tile origin to end of visible axis)
+	mX = 0.5f;
+	_lineX[0].x = Tile.HALF_WIDTH;
+	bX = (int)-(mX * _lineX[0].x);
+	_lineX[0].y = 0;
+	_lineX[1].x = _bounds.width;
+	_lineX[1].y = (int)((mX * _lineX[1].x) + bX);
+
+	// calculate line parallel to the y-axis (from mouse pos to x-axis)
+	_lineY[0].x = x;
+	_lineY[0].y = y;
+	mY = -0.5f;
+	bY = (int)(_lineY[0].y - (mY * _lineY[0].x));
+
+	// determine intersection of x- and y-axis lines
+	_lineY[1].x = (int)((bY - bX) / (mX - mY));
+	_lineY[1].y = (int)((mY * _lineY[1].x) + bY);
+
+	// determine distance of mouse pos along the x axis
+	int xdist = (int)
+	    MathUtil.distance(_lineX[0].x, _lineX[0].y,
+			      _lineY[1].x, _lineY[1].y);
+	_htile.x = (int)((xdist - Tile.EDGE_LENGTH) / Tile.EDGE_LENGTH);
+
+	// determine distance of mouse pos along the y-axis
+	int ydist = (int)
+	    MathUtil.distance(_lineY[0].x, _lineY[0].y,
+			      _lineY[1].x, _lineY[1].y);
+	_htile.y = (int)(ydist / Tile.EDGE_LENGTH);
+
+	//Log.info("[mX="+mX+", bX="+bX+", mY="+mY+", bY="+bY+"]");
+	//Log.info("x-axis=" + MathUtil.lineToString(_lineX[0], _lineX[1]));
+	//Log.info("y-axis=" + MathUtil.lineToString(_lineY[0], _lineY[1]));
+	//Log.info("Highlighting tile [x="+_htile.x+", y="+_htile.y+"].");
+    }
+
+    // TODO: abstract into methods for tile -> screen coords,
+    // screen -> tile coords
 
     public void setScene (Scene scene)
     {
@@ -115,17 +222,26 @@ public class IsoSceneView implements SceneView
 		 height + "].");
     }
 
-    protected static final int OFF_X = -Tile.WIDTH;
+    protected static final int OFF_X = 0;
     protected static final int OFF_Y = 0;
 
     protected static final int DEF_BOUNDS_WIDTH = 600;
     protected static final int DEF_BOUNDS_HEIGHT = 600;
+
+    protected Point _lineX[], _lineY[];
 
     protected BufferedImage _offImg;
     protected Graphics2D _offGraphics;
 
     protected Rectangle _bounds;
     protected int _viewX, _viewY;
+
+    protected Point _htile;
+    protected Color _hcolor;
+    protected Stroke _hstroke;
+
+    protected Font _font;
+
     protected Scene _scene;
     protected Component _target;
     protected TileManager _tmgr;

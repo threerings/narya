@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.2 2001/07/14 00:21:24 shaper Exp $
+// $Id: Tile.java,v 1.3 2001/07/16 00:45:07 shaper Exp $
 
 package com.threerings.cocktail.miso.tile;
 
@@ -23,6 +23,9 @@ public class Tile
     // tile-dimension-related calculations
     public static final int HALF_HEIGHT = HEIGHT / 2;
     public static final int HALF_WIDTH = WIDTH / 2;
+
+    public static final float EDGE_LENGTH = (float)
+        Math.sqrt((HALF_WIDTH * HALF_WIDTH) + (HALF_HEIGHT * HALF_HEIGHT));
 
     /**
      * Construct a new tile with the specified identifiers.  Intended

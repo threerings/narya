@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.2 2001/07/14 00:21:24 shaper Exp $
+// $Id: TileSet.java,v 1.3 2001/07/16 00:45:07 shaper Exp $
 
 package com.threerings.cocktail.miso.tile;
 
@@ -55,11 +55,9 @@ public class TileSet
 	// load the full tile image if we don't already have it
 	if (_imgTiles == null) {
 	    Log.info("Getting full tileset image [file=" + _file + "].");
-	    if (_imgTiles == null) {
-		if ((_imgTiles = ImageManager.getImage(_file)) == null) {
-		    Log.warning("Failed to retrieve full tileset image.");
-		    return null;
-		}
+	    if ((_imgTiles = ImageManager.getImage(_file)) == null) {
+		Log.warning("Failed to retrieve full tileset image.");
+		return null;
 	    }
 	}
 	

@@ -1,5 +1,5 @@
 //
-// $Id: SceneView.java,v 1.1 2001/07/12 22:38:03 shaper Exp $
+// $Id: SceneView.java,v 1.2 2001/07/16 00:45:06 shaper Exp $
 
 package com.threerings.cocktail.miso.scene;
 
@@ -17,6 +17,11 @@ public interface SceneView
      * Render the scene to the given graphics context.
      */
     public void paint (Graphics g);
+
+    /**
+     * Set a tile to be highlighted when the scene is rendered.
+     */
+    public void setHighlightedTile (int x, int y);
 
     /**
      * Set the scene that we're rendering.

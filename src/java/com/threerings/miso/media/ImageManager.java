@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.2 2001/07/14 00:02:10 shaper Exp $
+// $Id: ImageManager.java,v 1.3 2001/07/16 00:45:06 shaper Exp $
 
 package com.threerings.cocktail.miso.media;
 
@@ -26,7 +26,7 @@ public class ImageManager
 	    return null;
 	}
 
-	Image img = (Image) _imgs.get(fname);
+	Image img = (Image)_imgs.get(fname);
 	if (img != null) {
 	    Log.info("Retrieved image from cache [fname=" + fname + "].");
 	    return img;
@@ -60,7 +60,7 @@ public class ImageManager
 						 int width, int height)
     {
 	BufferedImage img =
-	    new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+	    new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
 	Graphics2D g2 = img.createGraphics();
 	g2.drawImage(fullImg, -x, -y, null);

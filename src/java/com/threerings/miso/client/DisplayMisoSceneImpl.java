@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.2 2001/07/14 00:21:23 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.3 2001/07/16 00:45:06 shaper Exp $
 
 package com.threerings.cocktail.miso.scene;
 
@@ -204,8 +204,8 @@ public class Scene
     protected static final short VERSION = 1;
 
     // scene width/height in tiles
-    protected static final int TILE_WIDTH = 20;
-    protected static final int TILE_HEIGHT = 40;
+    protected static final int TILE_WIDTH = 50;
+    protected static final int TILE_HEIGHT = 70;
 
     // layer identifiers and total number of layers
     protected static final int LAYER_BASE = 0;
