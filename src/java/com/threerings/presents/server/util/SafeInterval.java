@@ -1,5 +1,5 @@
 //
-// $Id: SafeInterval.java,v 1.4 2004/08/27 02:20:25 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -64,9 +64,13 @@ public abstract class SafeInterval
     /** Handles the proper scheduling and queueing. */
     public void intervalExpired (int id, Object arg)
     {
+        _iid = id;
         _omgr.postUnit(this);
     }
 
     /** The dobjmgr on which we queue ourselves when we expire. */
     protected PresentsDObjectMgr _omgr;
+    
+    /** Configured with our current interval id when we are triggered. */
+    protected int _iid;
 }
