@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.15 2003/04/17 19:21:16 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.16 2003/04/22 18:12:40 mdb Exp $
 
 package com.threerings.media;
 
@@ -226,14 +226,19 @@ public class VirtualMediaPanel extends MediaPanel
             _vbounds.x = _nx; _vbounds.y = _ny;
 
             // let derived classes react if they so desire
-            viewLocationDidChange(_vbounds.x, _vbounds.y);
+            viewLocationDidChange(_dx, _dy);
         }
     }
 
     /**
-     * Called during our tick when we have adjusted the view location.
+     * Called during our tick when we have adjusted the view location. The
+     * {@link _vbounds} will already have been updated to reflect our new
+     * view coordinates.
+     *
+     * @param dx the delta scrolled in the x direction (in pixels).
+     * @param dy the delta scrolled in the y direction (in pixels).
      */
-    protected void viewLocationDidChange (int nx, int ny)
+    protected void viewLocationDidChange (int dx, int dy)
     {
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.11 2003/04/21 17:56:55 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.12 2003/04/22 18:12:40 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -519,11 +519,13 @@ public class MisoScenePanel extends VirtualMediaPanel
     }
 
     // documentation inherited
-    protected void viewLocationDidChange (int nx, int ny)
+    protected void viewLocationDidChange (int dx, int dy)
     {
+        super.viewLocationDidChange(dx, dy);
+
         // compute the tile coordinates of our upper left screen
         // coordinate and request a rethink if they've changed
-        MisoUtil.screenToTile(_metrics, nx, ny, _tcoords);
+        MisoUtil.screenToTile(_metrics, _vbounds.x, _vbounds.y, _tcoords);
         if (!_tcoords.equals(_ulpos)) {
             _ulpos.setLocation(_tcoords);
             rethink();
