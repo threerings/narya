@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.4 2002/06/19 07:41:37 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.5 2002/06/20 00:58:36 mdb Exp $
 
 package com.threerings.media;
 
@@ -161,7 +161,8 @@ public class VirtualMediaPanel extends MediaPanel
             _tx = _nx; _ty = _ny;
 
 //             Log.info("Scrolling into place " +
-//                      "[dx=" + _dx + ", dy=" + _dy + "].");
+//                      "[dx=" + _dx + ", dy=" + _dy +
+//                      ", tx=" + _tx + ", ty=" + _ty + "].");
         }
     }
 
@@ -202,7 +203,7 @@ public class VirtualMediaPanel extends MediaPanel
     protected void constrainToBounds (Rectangle dirty)
     {
         SwingUtilities.computeIntersection(
-            _tx, _tx, getWidth(), getHeight(), dirty);
+            _tx, _ty, getWidth(), getHeight(), dirty);
     }
 
     /**
