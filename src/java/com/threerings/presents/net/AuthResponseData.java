@@ -21,7 +21,7 @@
 
 package com.threerings.presents.net;
 
-import com.threerings.io.SimpleStreamableObject;
+import com.threerings.presents.dobj.DObject;
 
 /**
  * An <code>AuthResponseData</code> object is communicated back to the
@@ -29,7 +29,7 @@ import com.threerings.io.SimpleStreamableObject;
  * of authentication success or failure along with bootstrap information
  * for the client.
  */
-public class AuthResponseData extends SimpleStreamableObject
+public class AuthResponseData extends DObject
 {
     /** The constant used to indicate a successful authentication. */
     public static final String SUCCESS = "success";
