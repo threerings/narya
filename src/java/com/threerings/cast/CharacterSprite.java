@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.40 2003/01/13 23:54:19 mdb Exp $
+// $Id: CharacterSprite.java,v 1.41 2003/01/18 03:13:08 mdb Exp $
 
 package com.threerings.cast;
 
@@ -47,18 +47,14 @@ public class CharacterSprite extends ImageSprite
 
     /**
      * Reconfigures this sprite to use the specified character descriptor.
-     *
-     * @param lazy if true, wait to recomposite our action sequence until
-     * our next tick, otherwise we recomposite immediately.
      */
-    public void setCharacterDescriptor (CharacterDescriptor descrip,
-                                        boolean lazy)
+    public void setCharacterDescriptor (CharacterDescriptor descrip)
     {
         // keep the new descriptor
         _descrip = descrip;
 
         // reset our action which will reload our frames
-        setActionSequence(_action, lazy);
+        setActionSequence(_action);
     }
 
     /**
@@ -102,14 +98,16 @@ public class CharacterSprite extends ImageSprite
     /**
      * Sets the action sequence used when rendering the character, from
      * the set of available sequences.
-     *
-     * @param lazy if true, wait to recomposite our action sequence until
-     * our next tick, otherwise we recomposite immediately.
      */
-    public void setActionSequence (String action, boolean lazy)
+    public void setActionSequence (String action)
     {
+        // no need to noop
+        if (action.equals(_action)) {
+            return;
+        }
+
         // keep track of our current action in case someone swaps out our
-        // character description
+        // character descriptor
         _action = action;
 
         // get a reference to the action sequence so that we can obtain
@@ -124,11 +122,8 @@ public class CharacterSprite extends ImageSprite
             // obtain our animation frames for this action sequence
             _aframes = _charmgr.getActionFrames(_descrip, action);
 
-            // grab our frames, or not
+            // clear out our frames so that we recomposite on next tick
             _frames = null;
-            if (!lazy) {
-                compositeActionFrames();
-            }
 
             // update the sprite render attributes
             setFrameRate(actseq.framesPerSecond);
@@ -142,21 +137,10 @@ public class CharacterSprite extends ImageSprite
     // documentation inherited
     public void setOrientation (int orient)
     {
-        setOrientation(orient, false);
-    }
-
-    /**
-     * Sets our orientation without recompositing our action sequence.
-     *
-     * @param lazy if true, wait to recomposite our action sequence until
-     * our next tick, otherwise we recomposite immediately.
-     */
-    public void setOrientation (int orient, boolean lazy)
-    {
+        int oorient = _orient;
         super.setOrientation(orient);
-        _frames = null;
-        if (!lazy) {
-            compositeActionFrames();
+        if (_orient != oorient) {
+            _frames = null;
         }
     }
 
@@ -171,18 +155,36 @@ public class CharacterSprite extends ImageSprite
     // documentation inherited
     public void tick (long tickStamp)
     {
-        super.tick(tickStamp);
-
-        // attempt to composite our action frames if necessary
+        // composite our action frames if something since the last call to
+        // tick caused them to become invalid
         compositeActionFrames();
+        super.tick(tickStamp);
+        // composite our action frames if something during tick() caused
+        // them to become invalid
+        compositeActionFrames();
+    }
+
+    // documentation inherited
+    protected boolean tickPath (long tickStamp)
+    {
+        boolean moved = super.tickPath(tickStamp);
+        // composite our action frames if our path caused them to become
+        // invalid
+        compositeActionFrames();
+        return moved;
+    }
+
+    /** Called to recomposite our action frames if needed. */
+    protected final void compositeActionFrames ()
+    {
+        if (_frames == null) {
+            setFrames(_aframes.getFrames(_orient));
+        }
     }
 
     // documentation inherited
     public void paint (Graphics2D gfx)
     {
-        // attempt to composite our action frames if necessary
-        compositeActionFrames();
-
         if (_frames != null) {
             decorateBehind(gfx);
             // paint the image using _ibounds rather than _bounds which
@@ -192,18 +194,6 @@ public class CharacterSprite extends ImageSprite
 
         } else {
             super.paint(gfx);
-        }
-    }
-
-    /**
-     * Obtains our composited action frames and configures the sprite with
-     * their frames. This is called lazily after we have been instructed
-     * to use a new action.
-     */
-    protected final void compositeActionFrames ()
-    {
-        if (_frames == null) {
-            setFrames(_aframes.getFrames(_orient));
         }
     }
 
@@ -289,7 +279,7 @@ public class CharacterSprite extends ImageSprite
         super.pathBeginning();
 
         // enable walking animation
-        setActionSequence(getFollowingPathAction(), false);
+        setActionSequence(getFollowingPathAction());
         setAnimationMode(TIME_BASED);
     }
 
@@ -313,7 +303,7 @@ public class CharacterSprite extends ImageSprite
             // come to a halt looking settled and at peace
             String rest = getRestingAction();
             if (rest != null) {
-                setActionSequence(rest, false);
+                setActionSequence(rest);
             }
         }
     }
