@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.47 2003/11/24 20:42:22 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.48 2003/12/09 20:57:14 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -483,7 +483,9 @@ public class SpotSceneManager extends SceneManager
                 return;
             }
 
-            body.startTransaction();
+            if (body.isActive()) {
+                body.startTransaction();
+            }
             try {
                 _ssobj.startTransaction();
                 try {
@@ -499,7 +501,9 @@ public class SpotSceneManager extends SceneManager
                     _ssobj.commitTransaction();
                 }
             } finally {
-                body.commitTransaction();
+                if (body.isActive()) {
+                    body.commitTransaction();
+                }
             }
 
 //             Log.debug("Removed " + bodyOid + " from "+ this + ".");
