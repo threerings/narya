@@ -1,5 +1,5 @@
 //
-// $Id: SwissArmyTileSet.java,v 1.9 2003/01/13 22:49:46 mdb Exp $
+// $Id: SwissArmyTileSet.java,v 1.10 2003/01/15 09:11:37 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -184,4 +184,8 @@ public class SwissArmyTileSet extends TileSet
     /** The distance (x, y) in pixels between each tile in each row
      * horizontally, and between each row of tiles vertically.  */
     protected Dimension _gapSize = new Dimension();
+
+    /** Increase this value when object's serialized state is impacted by
+     * a class change (modification of fields, inheritance). */
+    private static final long serialVersionUID = 1;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: BaseTileSet.java,v 1.11 2003/01/13 22:55:12 mdb Exp $
+// $Id: BaseTileSet.java,v 1.12 2003/01/15 09:11:37 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -49,4 +49,8 @@ public class BaseTileSet extends SwissArmyTileSet
 
     /** Whether each tile is passable. */
     protected boolean[] _passable;
+
+    /** Increase this value when object's serialized state is impacted by
+     * a class change (modification of fields, inheritance). */
+    private static final long serialVersionUID = 1;
 }
