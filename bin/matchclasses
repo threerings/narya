@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: matchclasses,v 1.4 2003/07/24 22:12:52 mdb Exp $
+# $Id: matchclasses,v 1.5 2003/07/24 23:19:26 mdb Exp $
 #
 # A script which inspects a hierarchy of classes and generates lists of
 # classes that match specified criterion. The criterion are that a class
@@ -53,7 +53,7 @@ foreach $jar (@ARGV) {
             # wants them all as Parent$Inner, so we keep a mapping which
             # we use to report the $ version when generating our output
             my $orig = $_;
-            if ($_ =~ s:\$([^0-9]):.$1:g) {
+            if ($_ =~ s:\$:.:g) {
                 $orig{$_} = $orig;
             }
 
@@ -109,29 +109,21 @@ while (@gclasses) {
         # interfaces are now at the end of the line
         my @ifaces;
         if ($goods =~ s: implements (.*)$::g) {
-            my $idefs = $1;
-            $idefs =~ s:\s+$::g;
-            $idefs =~ s:\. :\$:g;
-            $idefs =~ s: ::g;
-            $idefs =~ s:\$([^0-9]):.$1:g;
+            my $idefs = clean_class($1);
             @ifaces = split(/,/, $idefs);
         }
 
         # now the parent class or parent interfaces are at the end
         my @parents;
         if ($goods =~ s: extends (.*)$::g) {
-            my $pdefs = $1;
-            $pdefs =~ s:\s+$::g;
-            $pdefs =~ s:\. :\$:g;
-            $pdefs =~ s: ::g;
-            $pdefs =~ s:\$([^0-9]):.$1:g;
+            my $pdefs = clean_class($1);
             @parents = split(/,/, $pdefs);
         }
 
         # last is the class name
         my $class;
         if ($goods =~ s: class ([A-Za-z0-9.\$]+)::g) {
-            $class = $1;
+            $class = clean_class($1);
             $class =~ s: ::g;
         } elsif ($goods =~ s: interface ([A-Za-z0-9.\$]+)::g) {
             $class = $1;
@@ -192,6 +184,16 @@ foreach $class (sort keys %matches) {
 sub min {
     my ($a, $b) = @_;
     return ($a < $b) ? $a : $b;
+}
+
+# Cleans up class n ames as reported by javap
+sub clean_class {
+    my ($class) = @_;
+    $class =~ s:\s+$::g;
+    $class =~ s:\. :\$:g;
+    $class =~ s: ::g;
+    $class =~ s:\$:.:g;
+    return $class;
 }
 
 # Reports whether or not the specified class is an instanceof the
