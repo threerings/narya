@@ -1,5 +1,5 @@
 //
-// $Id: ChatMessageHandler.java,v 1.3 2001/10/12 19:30:44 mdb Exp $
+// $Id: ChatMessageHandler.java,v 1.4 2001/10/18 20:51:59 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -37,9 +37,7 @@ public class ChatMessageHandler implements PlaceManager.MessageHandler
         String message = (String)inargs[1];
 
         // and generate a chat notification
-        Object[] outargs = new Object[] { source.username, message };
-        MessageEvent nevt = new MessageEvent(
-            event.getTargetOid(), ChatService.SPEAK_NOTIFICATION, outargs);
-        CrowdServer.omgr.postEvent(nevt);
+        ChatProvider.sendChatMessage(
+            event.getTargetOid(), source.username, message);
     }
 }

@@ -1,9 +1,11 @@
 //
-// $Id: ChatProvider.java,v 1.5 2001/10/11 04:07:51 mdb Exp $
+// $Id: ChatProvider.java,v 1.6 2001/10/18 20:51:59 mdb Exp $
 
 package com.threerings.crowd.chat;
 
+import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.server.InvocationProvider;
+
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.server.CrowdServer;
 
@@ -34,5 +36,23 @@ public class ChatProvider
             tobj.getOid(), MODULE_NAME, TELL_NOTIFICATION, args);
 
         sendResponse(source, invid, TELL_SUCCEEDED_RESPONSE);
+    }
+
+    /**
+     * Sends a chat notification to the specified place object originating
+     * with the specified speaker and with the supplied message content.
+     *
+     * @param placeOid the place to which to deliver the chat message.
+     * @param speaker the username of the user that generated the message
+     * (or some special speaker name for server messages).
+     * @param message the text of the chat message.
+     */
+    public static void sendChatMessage (
+        int placeOid, String speaker, String message)
+    {
+        Object[] outargs = new Object[] { speaker, message };
+        MessageEvent nevt = new MessageEvent(
+            placeOid, ChatService.SPEAK_NOTIFICATION, outargs);
+        CrowdServer.omgr.postEvent(nevt);
     }
 }
