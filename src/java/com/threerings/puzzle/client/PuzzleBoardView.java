@@ -33,6 +33,7 @@ import javax.swing.UIManager;
 
 import com.samskivert.swing.Label;
 import com.samskivert.swing.util.SwingUtil;
+import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.VirtualMediaPanel;
@@ -514,8 +515,14 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
         _fonts = new Font[FONT_SIZES.length];
         for (int ii = 0; ii < _fonts.length; ii++) {
             double scale = FONT_SIZES[ii]/FONT_SIZES[0];
-            _fonts[ii] = ofont.deriveFont(
-                AffineTransform.getScaleInstance(scale * 1.1d, scale));
+            // MacOS X Java currently doesn't dig scaling fonts with
+            // affine transformations
+            if (RunAnywhere.isMacOS()) {
+                _fonts[ii] = ofont.deriveFont((float)FONT_SIZES[ii]);
+            } else {
+                _fonts[ii] = ofont.deriveFont(
+                    AffineTransform.getScaleInstance(scale * 1.1d, scale));
+            }
         }
     }
 }
