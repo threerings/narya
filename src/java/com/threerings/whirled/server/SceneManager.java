@@ -1,5 +1,5 @@
 //
-// $Id: SceneManager.java,v 1.10 2002/06/20 22:12:23 mdb Exp $
+// $Id: SceneManager.java,v 1.11 2003/02/05 00:23:52 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -86,7 +86,7 @@ public class SceneManager extends PlaceManager
     }
 
     // documentation inherited
-    protected String where ()
+    public String where ()
     {
         return _scene.getName() + " (" + super.where() + ")";
     }

@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.41 2002/11/01 21:32:23 shaper Exp $
+// $Id: PlaceManager.java,v 1.42 2003/02/05 00:23:33 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -336,7 +336,7 @@ public class PlaceManager
      * managers can override this and augment the default value (which is
      * simply the place object id) with useful identifying information.
      */
-    protected String where ()
+    public String where ()
     {
         return String.valueOf(_plobj.getOid());
     }
