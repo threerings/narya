@@ -1,8 +1,9 @@
 //
-// $Id: RuntimeSpotSceneImpl.java,v 1.6 2003/02/04 03:12:07 mdb Exp $
+// $Id: RuntimeSpotSceneImpl.java,v 1.7 2003/02/06 18:58:30 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
+import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.IntListUtil;
 
 import com.threerings.crowd.data.PlaceConfig;
@@ -100,13 +101,13 @@ public class RuntimeSpotSceneImpl extends RuntimeSceneImpl
             IntListUtil.getMaxValue(_model.locationIds), 0) + 1;
 
         // expand the necessary arrays
-        _model.locationIds = IntListUtil.append(_model.locationIds, nlocid);
-        _model.locationX = IntListUtil.append(_model.locationX, locX);
-        _model.locationY = IntListUtil.append(_model.locationY, locY);
+        _model.locationIds = ArrayUtil.append(_model.locationIds, nlocid);
+        _model.locationX = ArrayUtil.append(_model.locationX, locX);
+        _model.locationY = ArrayUtil.append(_model.locationY, locY);
         _model.locationOrients =
-            IntListUtil.append(_model.locationOrients, orient);
+            ArrayUtil.append(_model.locationOrients, orient);
         _model.locationClusters =
-            IntListUtil.append(_model.locationOrients, cluster);
+            ArrayUtil.append(_model.locationOrients, cluster);
 
         return nlocid;
     }
@@ -120,10 +121,10 @@ public class RuntimeSpotSceneImpl extends RuntimeSceneImpl
 
         // expand the necessary portal arrays
         _model.neighborIds =
-            IntListUtil.append(_model.neighborIds, targetSceneId);
-        _model.portalIds = IntListUtil.append(_model.portalIds, nlocid);
+            ArrayUtil.append(_model.neighborIds, targetSceneId);
+        _model.portalIds = ArrayUtil.append(_model.portalIds, nlocid);
         _model.targetLocIds =
-            IntListUtil.append(_model.targetLocIds, targetLocId);
+            ArrayUtil.append(_model.targetLocIds, targetLocId);
 
         return nlocid;
     }
