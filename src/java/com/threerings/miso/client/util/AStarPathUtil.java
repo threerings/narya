@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.25 2003/01/31 23:10:45 mdb Exp $
+// $Id: AStarPathUtil.java,v 1.26 2003/04/07 23:53:41 mdb Exp $
 
 package com.threerings.miso.client.util;
 
@@ -283,11 +283,7 @@ class AStarInfo
      */
     protected boolean isTraversable (int x, int y)
     {
-        // off-screen coordinates are always traversable so that we can
-        // meander off the edge of the scene; note, however, that their
-        // cost is prohibitively high such that normal on-screen paths
-        // won't make use of off-screen tiles. oh, the hackery.
-        return !isCoordinateValid(x, y) || scene.canTraverse(trav, x, y);
+        return scene.canTraverse(trav, x, y);
     }
 
     /**
