@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMediaManager.java,v 1.4 2002/12/15 23:12:37 shaper Exp $
+// $Id: AbstractMediaManager.java,v 1.5 2003/01/18 03:14:29 mdb Exp $
 
 package com.threerings.media;
 
@@ -8,8 +8,10 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 
+import com.samskivert.util.ListUtil;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.StringUtil;
@@ -48,8 +50,12 @@ public abstract class AbstractMediaManager
      */
     public void renderMedia (Graphics2D gfx, int layer, Shape clip)
     {
-        for (int ii=0, nn=_media.size(); ii < nn; ii++) {
-            AbstractMedia media = (AbstractMedia) _media.get(ii);
+        for (int ii = 0, nn = _tickvec.length; ii < nn; ii++) {
+            AbstractMedia media = _tickvec[ii];
+            if (_tickvec[ii] == null) {
+                continue;
+            }
+
             int order = media.getRenderOrder();
             try {
                 if (((layer == ALL) ||
@@ -100,10 +106,18 @@ public abstract class AbstractMediaManager
      */
     protected void tickAllMedia (long tickStamp)
     {
-        // we tick media in reverse order, because some may remove
-        // themselves on the tick
-        for (int ii=_media.size() - 1; ii >= 0; ii--) {
-            ((AbstractMedia) _media.get(ii)).tick(tickStamp);
+        // we copy our media into an array to prevent additions and
+        // removals during tick from breaking things
+        _tickvec = (AbstractMedia[])_media.toArray(_tickvec);
+
+        // clear out any leftover media
+        int mcount = _media.size();
+        if (mcount < _tickvec.length) {
+            Arrays.fill(_tickvec, mcount, _tickvec.length, null);
+        }
+
+        for (int ii = 0; ii < mcount; ii++) {
+            _tickvec[ii].tick(tickStamp);
         }
     }
 
@@ -121,11 +135,6 @@ public abstract class AbstractMediaManager
 
         _media.insertSorted(media, RENDER_ORDER);
         media.init(this);
-        if (_tickStamp > 0) {
-            // if we're in the middle of ticking, tick the inserted media
-            // so that we can paint it when the time comes
-            media.tick(_tickStamp);
-        }
         return true;
     }
 
@@ -138,6 +147,11 @@ public abstract class AbstractMediaManager
         if (_media.remove(media)) {
             media.invalidate();
             media.shutdown();
+            if (_tickStamp > 0) {
+                // if we're in the middle of ticking, clear the removed
+                // media so that we don't paint it when the time comes
+                ListUtil.clear(_tickvec, media);
+            }
             return true;
         }
         Log.warning("Attempt to remove media that wasn't inserted " +
@@ -196,6 +210,10 @@ public abstract class AbstractMediaManager
     /** The tick stamp if the manager is in the midst of a call to {@link
      * #tick}, else <code>0</code>. */
     protected long _tickStamp;
+
+    /** An array used to dispatch ticks and paint without worrying that
+     * additions and removals mess us up during the process. */
+    protected AbstractMedia[] _tickvec = new AbstractMedia[0];
 
     /** Used to sort media by render order. */
     protected static final Comparator RENDER_ORDER = new Comparator() {
