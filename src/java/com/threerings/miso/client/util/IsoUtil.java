@@ -1,9 +1,11 @@
 //
-// $Id: IsoUtil.java,v 1.21 2002/02/19 04:02:50 mdb Exp $
+// $Id: IsoUtil.java,v 1.22 2002/03/16 03:15:06 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
-import java.awt.*;
+import java.awt.Point;
+import java.awt.Polygon;
+import java.awt.Rectangle;
 
 import com.samskivert.swing.SmartPolygon;
 
@@ -11,14 +13,18 @@ import com.threerings.media.sprite.Sprite;
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.util.MathUtil;
 
+import com.threerings.util.DirectionCodes;
+
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.*;
+import com.threerings.miso.scene.IsoSceneViewModel;
+import com.threerings.miso.scene.MisoCharacterSprite;
 
 /**
  * The <code>IsoUtil</code> class is a holding place for miscellaneous
  * isometric-display-related utility routines.
  */
 public class IsoUtil
+    implements DirectionCodes
 {
     /**
      * Sets the given character sprite's tile and fine coordinate
@@ -190,7 +196,7 @@ public class IsoUtil
 
 	// compare tile coordinates to determine direction
 	int dir = getIsoDirection(tax, tay, tbx, tby);
-	if (dir != Sprite.NONE) return dir;
+	if (dir != DirectionCodes.NONE) return dir;
 
 	// destination point is in the same tile as the
 	// origination point, so consider fine coordinates
@@ -206,7 +212,7 @@ public class IsoUtil
 	dir = getIsoDirection(fax, fay, fbx, fby);
 
 	// arbitrarily return southwest if fine coords were also equivalent
-	return (dir == -1) ? Sprite.SOUTHWEST : dir;
+	return (dir == -1) ? SOUTHWEST : dir;
     }
 
     /**
@@ -222,28 +228,28 @@ public class IsoUtil
      * @param by the y-position of point B.
      *
      * @return the direction specified as one of the <code>Sprite</code>
-     *         class's direction constants, or <code>Sprite.NONE</code> 
-     *         if point B is equivalent to point A.
+     * class's direction constants, or <code>DirectionCodes.NONE</code> if
+     * point B is equivalent to point A.
      */
     public static int getIsoDirection (int ax, int ay, int bx, int by)
     {
 	if (bx > ax) {
 	    if (by == ay) {
-                return Sprite.SOUTH;
+                return SOUTH;
             }
-	    return (by < ay) ? Sprite.SOUTHEAST : Sprite.SOUTHWEST;
+	    return (by < ay) ? SOUTHEAST : SOUTHWEST;
 
 	} else if (bx == ax) {
 	    if (by == ay) {
-                return Sprite.NONE;
+                return DirectionCodes.NONE;
             }
-	    return (by < ay) ? Sprite.EAST : Sprite.WEST;
+	    return (by < ay) ? EAST : WEST;
 
 	} else {  // bx < ax
 	    if (by == ay) {
-                return Sprite.NORTH;
+                return NORTH;
             }
-	    return (by < ay) ? Sprite.NORTHEAST : Sprite.NORTHWEST;
+	    return (by < ay) ? NORTHEAST : NORTHWEST;
 	}
     }
 

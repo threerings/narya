@@ -1,5 +1,5 @@
 //
-// $Id: TilePath.java,v 1.3 2001/12/17 03:33:18 mdb Exp $
+// $Id: TilePath.java,v 1.4 2002/03/16 03:15:05 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -7,6 +7,8 @@ import java.awt.*;
 import java.util.List;
 
 import com.threerings.media.sprite.*;
+
+import com.threerings.util.DirectionCodes;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.util.IsoUtil;
@@ -18,6 +20,7 @@ import com.threerings.miso.scene.util.IsoUtil;
  * tile coordinates are updated as the path is traversed.
  */
 public class TilePath extends LineSegmentPath
+    implements DirectionCodes
 {
     /**
      * Constructs a tile path.
@@ -108,7 +111,7 @@ public class TilePath extends LineSegmentPath
         // add the starting path node
         int stx = sprite.getTileX(), sty = sprite.getTileY();
         int sx = sprite.getX(), sy = sprite.getY();
-        addNode(stx, sty, sx, sy, Sprite.NORTH);
+        addNode(stx, sty, sx, sy, NORTH);
 
 	// TODO: make more visually appealing path segments from start
 	// to second tile, and penultimate to ultimate tile.

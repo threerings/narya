@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.15 2002/03/08 07:50:32 mdb Exp $
+// $Id: CharacterManager.java,v 1.16 2002/03/16 03:15:04 shaper Exp $
 
 package com.threerings.cast;
 
@@ -10,7 +10,8 @@ import java.util.HashMap;
 import com.samskivert.util.Tuple;
 
 import com.threerings.media.sprite.MultiFrameImage;
-import com.threerings.media.sprite.Sprite;
+
+import com.threerings.util.DirectionCodes;
 
 import com.threerings.cast.Log;
 import com.threerings.cast.util.TileUtil;
@@ -21,6 +22,7 @@ import com.threerings.cast.util.TileUtil;
  * compositing and caching of composited character animations.
  */
 public class CharacterManager
+    implements DirectionCodes
 {
     /**
      * Constructs the character manager.
@@ -176,7 +178,7 @@ public class CharacterManager
         CharacterDescriptor descrip, String action)
         throws NoSuchComponentException
     {
-        MultiFrameImage[] frames = new MultiFrameImage[Sprite.DIRECTION_COUNT];
+        MultiFrameImage[] frames = new MultiFrameImage[DIRECTION_COUNT];
 
         int[] cids = descrip.getComponentIds();
         int ccount = cids.length;

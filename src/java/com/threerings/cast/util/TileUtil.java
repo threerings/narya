@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.11 2002/03/10 22:31:21 mdb Exp $
+// $Id: TileUtil.java,v 1.12 2002/03/16 03:15:05 shaper Exp $
 
 package com.threerings.cast.util;
 
@@ -8,8 +8,9 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 import com.threerings.media.sprite.MultiFrameImage;
-import com.threerings.media.sprite.Sprite;
 import com.threerings.media.util.ImageUtil;
+
+import com.threerings.util.DirectionCodes;
 
 import com.threerings.cast.Log;
 import com.threerings.cast.Colorization;
@@ -18,6 +19,7 @@ import com.threerings.cast.Colorization;
  * Miscellaneous tile-related utility functions.
  */ 
 public class TileUtil
+    implements DirectionCodes
 {
     /**
      * Renders each of the given <code>src</code> component frames into
@@ -33,7 +35,7 @@ public class TileUtil
         MultiFrameImage[] dest, MultiFrameImage[] src,
         Colorization[] zations)
     {
-        for (int orient = 0; orient < Sprite.DIRECTION_COUNT; orient++) {
+        for (int orient = 0; orient < DIRECTION_COUNT; orient++) {
             MultiFrameImage sframes = src[orient];
             MultiFrameImage dframes = dest[orient];
 

@@ -1,5 +1,5 @@
 //
-// $Id: SpritePanel.java,v 1.11 2002/03/08 07:50:32 mdb Exp $
+// $Id: SpritePanel.java,v 1.12 2002/03/16 03:15:04 shaper Exp $
 
 package com.threerings.cast.builder;
 
@@ -9,10 +9,13 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
+import java.util.List;
+
 import com.threerings.media.animation.AnimatedPanel;
 import com.threerings.media.animation.AnimationManager;
-import com.threerings.media.sprite.Sprite;
 import com.threerings.media.sprite.SpriteManager;
+
+import com.threerings.util.DirectionCodes;
 
 import com.threerings.cast.Log;
 import com.threerings.cast.CharacterDescriptor;
@@ -24,9 +27,8 @@ import com.threerings.cast.StandardActions;
  * The sprite panel displays a character sprite centered in the panel
  * suitable for user perusal.
  */
-public class SpritePanel
-    extends AnimatedPanel
-    implements BuilderModelListener
+public class SpritePanel extends AnimatedPanel
+    implements DirectionCodes, BuilderModelListener
 {
     /**
      * Constructs the sprite panel.
@@ -47,10 +49,8 @@ public class SpritePanel
     }
 
     // documentation inherited
-    protected void render (Graphics g)
+    protected void render (Graphics2D gfx, List invalidRects)
     {
-        Graphics2D gfx = (Graphics2D)g;
-
         // clear the background
         gfx.setColor(Color.lightGray);
         Dimension d = getSize();
@@ -63,7 +63,7 @@ public class SpritePanel
 
         if (_sprite != null) {
             // render the sprite
-            _sprite.paint((Graphics2D)g);
+            _sprite.paint(gfx);
         }
     }
 
@@ -100,7 +100,7 @@ public class SpritePanel
     protected void setSprite (CharacterSprite sprite)
     {
         sprite.setActionSequence(StandardActions.STANDING);
-        sprite.setOrientation(Sprite.WEST);
+        sprite.setOrientation(WEST);
         _sprite = sprite;
         centerSprite();
         repaint();

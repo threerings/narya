@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.26 2002/02/28 23:25:15 mdb Exp $
+// $Id: SpriteManager.java,v 1.27 2002/03/16 03:15:05 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -25,6 +25,15 @@ import com.threerings.media.Log;
  */
 public class SpriteManager
 {
+    /** Constant for the front layer of sprites. */
+    public static final int FRONT = 0;
+
+    /** Constant for the back layer of sprites. */
+    public static final int BACK = 1;
+
+    /** Constant for all layers of sprites. */
+    public static final int ALL = 2;
+
     /**
      * Construct and initialize the SpriteManager object.
      */
@@ -129,8 +138,8 @@ public class SpriteManager
      */
     public void addSprite (Sprite sprite)
     {
-        // let the sprite know about us
-        sprite.setSpriteManager(this);
+        // initialize the sprite
+        sprite.init(this);
         // add the sprite to our list
         _sprites.add(sprite);
         // and invalidate the sprite's original position
@@ -150,17 +159,21 @@ public class SpriteManager
         // remove the sprite from our list
         _sprites.remove(sprite);
         // clear out our manager reference
-        sprite.setSpriteManager(null);
+        sprite.shutdown();
     }
 
     /**
-     * Render the sprites residing within the given shape to the given
-     * graphics context.
+     * Render the sprites residing within the given shape and layer to the
+     * given graphics context.
      *
      * @param gfx the graphics context.
      * @param bounds the bounding shape.
+     * @param layer the layer to render; one of {@link #FRONT}, {@link
+     * #BACK}, or {@link #ALL}.  The front layer contains all sprites with
+     * a positive render order; the back layer contains all sprites with a
+     * negative render order; all, both.
      */
-    public void renderSprites (Graphics2D gfx, Shape bounds)
+    public void renderSprites (Graphics2D gfx, Shape bounds, int layer)
     {
         // TODO: optimize to store sprites based on quadrants they're
         // in (or somesuch), and sorted, so that we can more quickly
@@ -169,7 +182,11 @@ public class SpriteManager
         int size = _sprites.size();
         for (int ii = 0; ii < size; ii++) {
             Sprite sprite = (Sprite)_sprites.get(ii);
-            if (sprite.intersects(bounds)) {
+            int order = sprite.getRenderOrder();
+            if (((layer == ALL) ||
+                 (layer == FRONT && order >= 0) ||
+                 (layer == BACK && order < 0)) &&
+                sprite.intersects(bounds)) {
                 sprite.paint(gfx);
             }
         }

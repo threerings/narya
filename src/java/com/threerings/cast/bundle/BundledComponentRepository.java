@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.8 2002/03/08 09:35:14 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.9 2002/03/16 03:15:04 shaper Exp $
 
 package com.threerings.cast.bundle;
 
@@ -27,11 +27,12 @@ import com.threerings.resource.ResourceManager;
 import com.threerings.media.ImageManager;
 
 import com.threerings.media.sprite.MultiFrameImage;
-import com.threerings.media.sprite.Sprite;
 
 import com.threerings.media.tile.ImageProvider;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.NoSuchTileException;
+
+import com.threerings.util.DirectionCodes;
 
 import com.threerings.cast.CharacterComponent;
 import com.threerings.cast.ComponentClass;
@@ -47,7 +48,7 @@ import com.threerings.cast.NoSuchComponentException;
  * @see ResourceManager
  */
 public class BundledComponentRepository
-    implements ComponentRepository
+    implements DirectionCodes, ComponentRepository
 {
     /**
      * Constructs a repository which will obtain its resource set from the
@@ -271,8 +272,7 @@ public class BundledComponentRepository
                 fset.setImageProvider(this);
 
                 // and create the necessary multiframe image instances
-                MultiFrameImage[] frames =
-                    new MultiFrameImage[Sprite.DIRECTION_COUNT];
+                MultiFrameImage[] frames = new MultiFrameImage[DIRECTION_COUNT];
                 for (int i = 0; i < frames.length; i++) {
                     frames[i] = new TileSetFrameImage(fset, i);
                 }
@@ -310,7 +310,7 @@ public class BundledComponentRepository
         // documentation inherited
         public int getFrameCount ()
         {
-            return _set.getTileCount() / Sprite.DIRECTION_COUNT;
+            return _set.getTileCount() / DIRECTION_COUNT;
         }
 
         // documentation inherited

@@ -1,18 +1,18 @@
 //
-// $Id: CharacterSprite.java,v 1.24 2002/03/15 01:10:25 mdb Exp $
+// $Id: CharacterSprite.java,v 1.25 2002/03/16 03:15:04 shaper Exp $
 
 package com.threerings.cast;
 
 import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.sprite.Path;
-import com.threerings.media.sprite.Sprite;
+import com.threerings.media.sprite.ImageSprite;
 
 /**
  * A character sprite is a sprite that animates itself while walking
  * about in a scene.
  */
-public class CharacterSprite
-    extends Sprite implements StandardActions
+public class CharacterSprite extends ImageSprite
+    implements StandardActions
 {
     /**
      * Initializes this character sprite with the specified character

@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.101 2002/02/19 19:57:46 mdb Exp $
+// $Id: IsoSceneView.java,v 1.102 2002/03/16 03:15:05 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -188,7 +188,7 @@ public class IsoSceneView implements SceneView
         // drawDirtyRegions(gfx);
 
         // render any animations
-        _animmgr.renderAnimations(gfx);
+        _animmgr.renderAnimations(gfx, AnimationManager.ALL);
 
         // clear out the dirty tiles and rectangles
         clearDirtyRegions();

@@ -1,70 +1,70 @@
 //
-// $Id: Sprite.java,v 1.38 2002/03/04 22:47:06 mdb Exp $
+// $Id: Sprite.java,v 1.39 2002/03/16 03:15:05 shaper Exp $
 
 package com.threerings.media.sprite;
 
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.image.BufferedImage;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.threerings.media.Log;
 import com.threerings.util.DirectionCodes;
+
+import com.threerings.media.Log;
 
 /**
  * The sprite class represents a single moveable object in an animated
- * view.  A sprite has a position within the view, and a set of images
- * used to render it (perhaps multiple frames for animation).
+ * view.  A sprite has a position and orientation within the view, and can
+ * be moved along a path.
  */
-public class Sprite implements DirectionCodes
+public abstract class Sprite
+    implements DirectionCodes
 {
-    /** Default frame rate. */
-    public static final int DEFAULT_FRAME_RATE = 15;
-
-    /** Animation mode indicating no animation. */
-    public static final int NO_ANIMATION = 0;
-
-    /** Animation mode indicating movement cued animation. */
-    public static final int MOVEMENT_CUED = 1;
-
-    /** Animation mode indicating time based animation. */
-    public static final int TIME_BASED = 2;
-
     /**
-     * Constructs a sprite without any associated frames and with a
-     * default initial location of <code>(0, 0)</code>.  The sprite should
-     * be populated with a set of frames used to display it via a
-     * subsequent call to {@link #setFrames}, and its location can be
-     * updated with {@link #setLocation}.
+     * Constructs a sprite with a default initial location of <code>(0,
+     * 0)</code>.
      */
     public Sprite ()
     {
-        init(0, 0, null);
+        this(0, 0);
     }
 
     /**
-     * Constructs a sprite without any associated frames. The sprite
-     * should be populated with a set of frames used to display it via a
-     * subsequent call to {@link #setFrames}.
+     * Constructs a sprite initially positioned at the specified location.
      *
      * @param x the sprite x-position in pixels.
      * @param y the sprite y-position in pixels.
      */
     public Sprite (int x, int y)
     {
-        init(x, y, null);
+        _x = x;
+        _y = y;
     }
 
     /**
-     * Constructs a sprite.
+     * Called by the sprite manager to initialize the sprite when a sprite
+     * is added to said manager for management.
      *
-     * @param x the sprite x-position in pixels.
-     * @param y the sprite y-position in pixels.
-     * @param frames the multi-frame image used to display the sprite.
+     * @param spritemgr the sprite manager.
      */
-    public Sprite (int x, int y, MultiFrameImage frames)
+    protected void init (SpriteManager spritemgr)
     {
-        init(x, y, frames);
+        _spritemgr = spritemgr;
+
+        updateRenderOrigin();
+    }
+
+    /**
+     * Called by the sprite manager after the sprite is removed from
+     * service.  Derived classes may override this method but should be
+     * sure to call <code>super.shutdown()</code>.
+     */
+    protected void shutdown ()
+    {
+        _spritemgr = null;
     }
 
     /**
@@ -108,6 +108,50 @@ public class Sprite implements DirectionCodes
     }
 
     /**
+     * Sprites have an orientation in one of the eight cardinal
+     * directions: <code>NORTH</code>, <code>NORTHEAST</code>, etc.
+     * Derived classes can choose to override this member function and
+     * select a different set of images based on their orientation, or
+     * they can ignore the orientation information.
+     *
+     * @see DirectionCodes
+     */
+    public void setOrientation (int orient)
+    {
+        _orient = orient;
+    }
+
+    /**
+     * Returns the sprite's orientation as one of the eight cardinal
+     * directions: <code>NORTH</code>, <code>NORTHEAST</code>, etc.
+     *
+     * @see DirectionCodes
+     */
+    public int getOrientation ()
+    {
+	return _orient;
+    }
+
+    /**
+     * Returns the render order of this sprite.
+     */
+    public int getRenderOrder ()
+    {
+        return _renderOrder;
+    }
+
+    /**
+     * Sets the render order associated with this animation.  Sprites can
+     * be rendered in two layers; those with negative render order and
+     * those with positive render order.  Someday sprites will be rendered
+     * in each layer according to render order.
+     */
+    public void setRenderOrder (int value)
+    {
+        _renderOrder = value;
+    }
+
+    /**
      * Moves the sprite to the specified location.
      *
      * @param x the x-position in pixels.
@@ -123,7 +167,7 @@ public class Sprite implements DirectionCodes
         _y = y;
 
         // we need to update our draw position which is based on the
-        // size of our current frame
+        // size of our current bounds
         updateRenderOrigin();
 
         if (dirty.intersects(_bounds)) {
@@ -141,68 +185,13 @@ public class Sprite implements DirectionCodes
     }
 
     /**
-     * Sprites have an orientation in one of the eight cardinal
-     * directions: <code>NORTH</code>, <code>NORTHEAST</code>, etc. Sprite
-     * derived classes can choose to override this member function and
-     * select a different set of images based on their orientation, or
-     * they can ignore the orientation information.
-     */
-    public void setOrientation (int orient)
-    {
-        _orient = orient;
-    }
-
-    /**
-     * Returns the sprite's orientation as one of the eight cardinal
-     * directions: <code>NORTH</code>, <code>NORTHEAST</code>, etc.
-     */
-    public int getOrientation ()
-    {
-	return _orient;
-    }
-
-    /**
-     * Initialize the sprite object with its variegated parameters.
-     */
-    protected void init (int x, int y, MultiFrameImage frames)
-    {
-        _x = x;
-        _y = y;
-
-        updateRenderOrigin();
-
-	// initialize frame animation member data
-        _frameIdx = 0;
-        _animMode = NO_ANIMATION;
-        _frameDelay = 1000L/DEFAULT_FRAME_RATE;
-
-        setFrames(frames);
-        invalidate();
-    }        
-
-    /**
-     * Called by the sprite manager when a sprite is added to said manager
-     * for management.
-     *
-     * @param mgr the sprite manager.
-     */
-    protected void setSpriteManager (SpriteManager mgr)
-    {
-        _spritemgr = mgr;
-    }
-
-    /**
      * Paint the sprite to the specified graphics context.
      *
      * @param gfx the graphics context.
      */
     public void paint (Graphics2D gfx)
     {
-        if (_frame != null) {
-            gfx.drawImage(_frame, _bounds.x, _bounds.y, null);
-        } else {
-            gfx.draw(_bounds);
-        }
+        gfx.draw(_bounds);
     }
 
     /**
@@ -228,31 +217,11 @@ public class Sprite implements DirectionCodes
 
     /**
      * Returns true if the sprite's bounds contain the specified point,
-     * and if there is a non-transparent pixel in the sprite's image at
-     * the specified point, false if not.
+     * false if not.
      */
     public boolean hitTest (int x, int y)
     {
-        // first check to see that we're in the sprite's bounds and that
-        // we've got a frame image (if we've got no image, there's nothing
-        // to be hit)
-        if (!_bounds.contains(x, y) || _frame == null) {
-            return false;
-        }
-
-        if (_frame instanceof BufferedImage) {
-            BufferedImage bimage = (BufferedImage)_frame;
-            int argb = bimage.getRGB(x - _bounds.x, y - _bounds.y);
-            int alpha = argb >> 24;
-            // Log.info("Checking [x=" + x + ", y=" + y + ", bounds=" + _bounds + ", " + alpha);
-            // it's only a hit if the pixel is non-transparent
-            return (argb >> 24) != 0;
-
-        } else {
-            Log.warning("Can't check for transparent pixel " +
-                        "[image=" + _frame + "].");
-            return true;
-        }
+        return _bounds.contains(x, y);
     }
 
     /**
@@ -271,74 +240,6 @@ public class Sprite implements DirectionCodes
     public boolean intersects (Shape shape)
     {
         return shape.intersects(_bounds);
-    }
-
-    /**
-     * Sets the animation mode for this sprite. The available modes are:
-     *
-     * <ul>
-     * <li><code>TIME_BASED</code>: cues the animation based on a target
-     * frame rate (specified via {@link #setFrameRate}).
-     * <li><code>MOVEMENT_CUED</code>: ticks the animation to the next
-     * frame every time the sprite is moved along its path.
-     * <li><code>NO_ANIMATION</code>: disables animation.
-     * </ul>
-     *
-     * @param mode the desired animation mode.
-     */
-    public void setAnimationMode (int mode)
-    {
-        _animMode = mode;
-    }
-
-    /**
-     * Sets the number of frames per second desired for the sprite
-     * animation. This is only used when the animation mode is
-     * <code>TIME_BASED</code>.
-     *
-     * @param fps the desired frames per second.
-     */
-    public void setFrameRate (int fps)
-    {
-        _frameDelay = 1000L/fps;
-    }
-
-    /**
-     * Set the image array used to render the sprite.
-     *
-     * @param frames the sprite images.
-     */
-    public void setFrames (MultiFrameImage frames)
-    {
-        if (frames == null) {
-            // Log.warning("Someone set up us the null frames! " +
-            // "[sprite=" + this + "].");
-            return;
-        }
-
-        // start with our old bounds
-        Rectangle dirty = new Rectangle(_bounds);
-
-        _frames = frames;
-        _frameIdx %= _frames.getFrameCount();
-        _frame = _frames.getFrame(_frameIdx);
-
-        // determine our drawing offsets and rendered rectangle size
-        if (_frame == null) {
-            _bounds.width = 0;
-            _bounds.height = 0;
-
-        } else {
-            _bounds.width = _frame.getWidth(null);
-            _bounds.height = _frame.getHeight(null);
-        }
-
-        // add our new bounds
-        dirty.add(_bounds);
-
-        updateRenderOffset();
-        updateRenderOrigin();
-        invalidate(dirty);
     }
 
     /**
@@ -396,7 +297,6 @@ public class Sprite implements DirectionCodes
 	_path = null;
         // inform observers that we've finished our path
         notifyObservers(new PathCompletedEvent(this, oldpath));
-
     }
 
     /**
@@ -416,10 +316,6 @@ public class Sprite implements DirectionCodes
      */
     protected void invalidate (Rectangle r)
     {
-        if (_frame == null) {
-            return;
-        }
-
         if (_spritemgr != null) {
             _spritemgr.addDirtyRect((r != null) ? r : new Rectangle(_bounds));
 
@@ -439,44 +335,9 @@ public class Sprite implements DirectionCodes
      */
     public void tick (long timestamp)
     {
-        // if we have no frames, we're hosulated (to use a Greenwell term)
-        if (_frames == null) {
-            return;
-        }
-
-        int fcount = _frames.getFrameCount();
-        boolean moved = false;
-
-        // move the sprite along toward its destination, if any 
+        // if we've a path, move the sprite along toward its destination
         if (_path != null) {
-            moved = _path.updatePosition(this, timestamp);
-        }
-
-        // increment the display image if performing image animation
-        int nfidx = _frameIdx;
-        switch (_animMode) {
-        case NO_ANIMATION:
-            // nothing doing
-            break;
-
-        case TIME_BASED:
-            nfidx = (int)((timestamp/_frameDelay) % fcount);
-            break;
-
-        case MOVEMENT_CUED:
-            // update the frame if the sprite moved
-            if (moved) {
-                nfidx = (_frameIdx + 1) % fcount;
-            }
-            break;
-        }
-
-        // only update the sprite if our frame index changed
-        if (nfidx != _frameIdx) {
-            _frameIdx = nfidx;
-            _frame = _frames.getFrame(_frameIdx);
-            // dirty our rectangle since we've altered our display image
-            invalidate();
+            _path.updatePosition(this, timestamp);
         }
     }
 
@@ -544,8 +405,7 @@ public class Sprite implements DirectionCodes
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer();
-        buf.append("[");
+        StringBuffer buf = new StringBuffer("[");
 	toString(buf);
         return buf.append("]").toString();
     }
@@ -559,20 +419,7 @@ public class Sprite implements DirectionCodes
     {
         buf.append("x=").append(_x);
         buf.append(", y=").append(_y);
-        buf.append(", fidx=").append(_frameIdx);
     }
-
-    /** The images used to render the sprite. */
-    protected MultiFrameImage _frames;
-
-    /** The current frame being rendered. */
-    protected Image _frame;
-
-    /** The current frame index to render. */
-    protected int _frameIdx;
-
-    /** The orientation of this sprite. */
-    protected int _orient = NONE;
 
     /** The location of the sprite in pixel coordinates. */
     protected int _x, _y;
@@ -583,14 +430,14 @@ public class Sprite implements DirectionCodes
     /** Our rendered bounds in pixel coordinates. */
     protected Rectangle _bounds = new Rectangle();
 
-    /** What type of animation is desired for this sprite. */
-    protected int _animMode;
-
-    /** For how many milliseconds to display an animation frame. */
-    protected long _frameDelay;
+    /** The orientation of this sprite. */
+    protected int _orient = NONE;
 
     /** When moving, the path the sprite is traversing. */
     protected Path _path;
+
+    /** The render order of this sprite. */
+    protected int _renderOrder;
 
     /** The sprite observers observing this sprite. */
     protected ArrayList _observers;
