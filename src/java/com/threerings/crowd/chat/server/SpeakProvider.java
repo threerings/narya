@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.20 2004/03/06 11:29:18 mdb Exp $
+// $Id: SpeakProvider.java,v 1.21 2004/05/25 21:58:14 ray Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -280,7 +280,7 @@ public class SpeakProvider
      */
     public static ArrayList getChatHistory (Name username)
     {
-        HistoryList history = getHistoryList(username);
+        ArrayList history = getHistoryList(username);
         pruneHistory(System.currentTimeMillis(), history);
         return history;
     }
@@ -307,7 +307,7 @@ public class SpeakProvider
         }
 
         // add the message to this user's chat history
-        HistoryList history = getHistoryList(username);
+        ArrayList history = getHistoryList(username);
         history.add(msg);
 
         // if the history is big enough, potentially prune it (we always
@@ -326,11 +326,11 @@ public class SpeakProvider
     /**
      * Returns this user's chat history, creating one if necessary.
      */
-    protected static HistoryList getHistoryList (Name username)
+    protected static ArrayList getHistoryList (Name username)
     {
-        HistoryList history = (HistoryList)_histories.get(username);
+        ArrayList history = (ArrayList)_histories.get(username);
         if (history == null) {
-            _histories.put(username, history = new HistoryList());
+            _histories.put(username, history = new ArrayList());
         }
         return history;
     }
@@ -338,7 +338,7 @@ public class SpeakProvider
     /**
      * Prunes all messages from this history which are expired.
      */
-    protected static void pruneHistory (long now, HistoryList history)
+    protected static void pruneHistory (long now, ArrayList history)
     {
         int prunepos = 0;
         for (int ll = history.size(); prunepos < ll; prunepos++) {
@@ -347,7 +347,7 @@ public class SpeakProvider
                 break; // stop when we get to the first valid message
             }
         }
-        history.remove(0, prunepos);
+        history.subList(0, prunepos).clear();
     }
 
     /** Used to note the recipients of a chat message. */
@@ -364,15 +364,6 @@ public class SpeakProvider
 
         public void apply (Name username) {
             noteMessage(username, message);
-        }
-    }
-
-    /** Extends {@link ArrayList} for the sole purpose of exposing {@link
-     * ArrayList#removeRange}. Yay! */
-    protected static class HistoryList extends ArrayList
-    {
-        public void remove (int fromIndex, int toIndex) {
-            removeRange(fromIndex, toIndex);
         }
     }
 
