@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.42 2004/04/06 03:53:26 mdb Exp $
+// $Id: MediaPanel.java,v 1.43 2004/08/24 22:37:47 mdb Exp $
 
 package com.threerings.media;
 
@@ -366,7 +366,12 @@ public class MediaPanel extends JComponent
         // method that can be more easily overridden
         Rectangle[] dirty = _remgr.getDirtyRegions();
         _dirty[_tick] = dirty.length;
-        paint(gfx, dirty);
+        try {
+            paint(gfx, dirty);
+        } catch (Throwable t) {
+            Log.warning(this + " choked in paint(" + dirty + ").");
+            Log.logStackTrace(t);
+        }
 
         // render our performance debugging if it's enabled
         if (_perfRect != null && _perfDebug.getValue()) {
