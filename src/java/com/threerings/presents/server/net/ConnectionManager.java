@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.5 2001/06/11 17:44:04 mdb Exp $
+// $Id: ConnectionManager.java,v 1.6 2001/07/19 18:06:57 mdb Exp $
 
 package com.threerings.cocktail.cher.server.net;
 
@@ -315,7 +315,10 @@ public class ConnectionManager extends LoopingThread
      * How long we wait for network events before checking our running
      * flag to see if we should still be running.
      */
-    protected static final int SELECT_LOOP_TIME = 30 * 1000;
+    // protected static final int SELECT_LOOP_TIME = 30 * 1000;
+
+    // while we're testing, use a short loop time
+    protected static final int SELECT_LOOP_TIME = 1000;
 
     // codes for notifyObservers()
     protected static final int CONNECTION_ESTABLISHED = 0;
