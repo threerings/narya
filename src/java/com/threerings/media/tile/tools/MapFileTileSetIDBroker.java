@@ -1,5 +1,5 @@
 //
-// $Id: MapFileTileSetIDBroker.java,v 1.4 2002/04/03 22:42:22 mdb Exp $
+// $Id: MapFileTileSetIDBroker.java,v 1.5 2002/06/04 02:50:02 mdb Exp $
 
 package com.threerings.media.tile.tools;
 
@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 import com.samskivert.io.PersistenceException;
 
@@ -92,6 +93,35 @@ public class MapFileTileSetIDBroker implements TileSetIDBroker
             String errmsg = "Failure writing map file.";
             throw new PersistenceException(errmsg, ioe);
         }
+    }
+
+    /**
+     * Copies the ID from the old tileset to the new tileset which is
+     * useful when a tileset is renamed. This is called by the {@link
+     * RenameTileSet} utility.
+     */
+    protected boolean renameTileSet (String oldName, String newName)
+    {
+        Integer tsid = (Integer)_map.get(oldName);
+        if (tsid != null) {
+            _map.put(newName, tsid);
+            // fudge our stored tileset ID so that we flush ourselves when
+            // the rename tool requests that we commit the changes
+            _storedTileSetID--;
+            return true;
+
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Used by {@link DumpTileSetMap} to enumerate our tileset ID
+     * mappings.
+     */
+    protected Iterator enumerateMappings ()
+    {
+        return _map.keySet().iterator();
     }
 
     /** Our persistent map file. */
