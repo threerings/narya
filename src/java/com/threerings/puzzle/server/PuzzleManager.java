@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleManager.java,v 1.5 2003/11/26 23:16:43 mdb Exp $
+// $Id: PuzzleManager.java,v 1.6 2004/01/30 23:03:22 ray Exp $
 
 package com.threerings.puzzle.server;
 
@@ -420,7 +420,7 @@ public abstract class PuzzleManager extends GameManager
 
         // report the winners and losers if appropriate
         int winnerCount = _puzobj.getWinnerCount();
-        boolean draw = (winnerCount == getPlayerCount());
+        boolean draw = (winnerCount == _puzobj.getPlayerCount());
         if (shouldConcludeGame() && winnerCount > 0 && !draw) {
             reportWinnersAndLosers();
         }
