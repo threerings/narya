@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.2 2002/01/16 02:59:08 mdb Exp $
+// $Id: ClientController.java,v 1.3 2002/02/05 22:57:44 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -65,23 +65,24 @@ public class ClientController
         // keep the body object around for stuff
         _body = (BodyObject)client.getClientObject();
 
-        // create the game config object
         GameConfig config = null;
         try {
+            // create the game config object
             config = (GameConfig)
                 Class.forName(_info.gameConfigClass).newInstance();
+
+            // send the game creation request
+            SimulatorDirector.createGame(
+                client, config, _info.simClass, _info.playerCount);
+
+            // our work here is done, as the location manager will move us
+            // into the game room straightaway
+
         } catch (Exception e) {
             Log.warning("Failed to instantiate game config " +
-                        "[class=" + _info.gameConfigClass + "].");
-            return;
+                        "[class=" + _info.gameConfigClass +
+                        ", error=" + e + "].");
         }
-
-        // send the game creation request
-        SimulatorDirector.createGame(
-            client, config, _info.simClass, _info.playerCount);
-
-        // our work here is done, as the location manager will move us
-        // into the game room straightaway
     }
 
     // documentation inherited
