@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTile.java,v 1.16 2003/02/12 05:33:18 mdb Exp $
+// $Id: ObjectTile.java,v 1.17 2003/05/31 00:56:38 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -8,7 +8,6 @@ import java.awt.Point;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.media.image.Mirage;
 import com.threerings.util.DirectionUtil;
 
 /**
@@ -28,15 +27,6 @@ import com.threerings.util.DirectionUtil;
  */
 public class ObjectTile extends Tile
 {
-    /**
-     * Constructs a new object tile with the specified image. The base
-     * width and height should be set before using this tile.
-     */
-    public ObjectTile (Mirage image)
-    {
-        super(image);
-    }
-
     /**
      * Returns the object footprint width in tile units.
      */

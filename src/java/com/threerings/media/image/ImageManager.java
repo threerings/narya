@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.55 2003/05/02 23:09:28 mdb Exp $
+// $Id: ImageManager.java,v 1.56 2003/05/31 00:56:38 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -108,19 +108,6 @@ public class ImageManager
             _gc = context.getGraphicsConfiguration();
         } else {
             _gc = ImageUtil.getDefGC();
-        }
-    }
-
-    /**
-     * Used to disable the flushing of cached images temporarily. If one
-     * wishes to avoid garbage collection for a short period of time, they
-     * may disable image flushing during that period. A call to {@link
-     * System#gc} is probably a good idea once flushing is reenabled.
-     */
-    public void setCanFlushCache (boolean enabled)
-    {
-        synchronized (_ccache) {
-            _ccache.setCanFlush(enabled);
         }
     }
 

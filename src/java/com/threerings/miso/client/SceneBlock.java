@@ -1,11 +1,13 @@
 //
-// $Id: SceneBlock.java,v 1.18 2003/05/29 01:59:17 ray Exp $
+// $Id: SceneBlock.java,v 1.19 2003/05/31 00:56:38 mdb Exp $
 
 package com.threerings.miso.client;
 
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.HashIntMap;
@@ -14,6 +16,7 @@ import com.samskivert.util.StringUtil;
 import com.threerings.geom.GeomUtil;
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
+import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.TileSet;
@@ -333,6 +336,64 @@ public class SceneBlock
     {
         BaseTile base = getBaseTile(tx, ty);
         return !_covered[index(tx, ty)] && (base != null && base.isPassable());
+    }
+
+    /**
+     * Computes the memory usage of the base and object tiles in this
+     * scene block; registering counted tiles in the hash map so that
+     * other blocks can be sure not to double count them. Base tile usage
+     * is placed into the zeroth array element, fringe tile usage into the
+     * first and object tile usage into the second.
+     */
+    public void computeMemoryUsage (
+        HashMap bases, HashSet fringes, HashMap objects, long[] usage)
+    {
+        // account for our base tiles
+        MisoSceneModel model = _panel.getSceneModel();
+        for (int yy = 0; yy < _bounds.height; yy++) {
+            for (int xx = 0; xx < _bounds.width; xx++) {
+                int x = _bounds.x + xx, y = _bounds.y + yy;
+                int tidx = index(x, y);
+                BaseTile base = _base[tidx];
+                if (base == null) {
+                    continue;
+                }
+
+                BaseTile sbase = (BaseTile)bases.get(base.key);
+                if (sbase == null) {
+                    bases.put(base.key, base);
+                    usage[0] += base.getEstimatedMemoryUsage();
+                } else if (base != _base[tidx]) {
+                    Log.warning("Multiple instances of same base tile " +
+                                "[base=" + base +
+                                ", x=" + xx + ", y=" + yy + "].");
+                    usage[0] += base.getEstimatedMemoryUsage();
+                }
+
+                // now account for the fringe
+                if (_fringe[tidx] == null) {
+                    continue;
+                } else if (!fringes.contains(_fringe[tidx])) {
+                    fringes.add(_fringe[tidx]);
+                    usage[1] += _fringe[tidx].getEstimatedMemoryUsage();
+                }
+            }
+        }
+
+        // now get the object tiles
+        int ocount = (_objects == null) ? 0 : _objects.length;
+        for (int ii = 0; ii < ocount; ii++) {
+            SceneObject scobj = _objects[ii];
+            ObjectTile tile = (ObjectTile)objects.get(scobj.tile.key);
+            if (tile == null) {
+                objects.put(scobj.tile.key, scobj.tile);
+                usage[2] += scobj.tile.getEstimatedMemoryUsage();
+            } else if (tile != scobj.tile) {
+                Log.warning("Multiple instances of same object tile: " +
+                            scobj.info + ".");
+                usage[2] += scobj.tile.getEstimatedMemoryUsage();
+            }
+        }
     }
 
     /**

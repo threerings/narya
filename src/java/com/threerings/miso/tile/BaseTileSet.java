@@ -1,11 +1,11 @@
 //
-// $Id: BaseTileSet.java,v 1.12 2003/01/15 09:11:37 mdb Exp $
+// $Id: BaseTileSet.java,v 1.13 2003/05/31 00:56:38 mdb Exp $
 
 package com.threerings.miso.tile;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.media.image.Mirage;
+import com.threerings.media.image.Colorization;
 import com.threerings.media.tile.SwissArmyTileSet;
 import com.threerings.media.tile.Tile;
 
@@ -35,9 +35,16 @@ public class BaseTileSet extends SwissArmyTileSet
     }
 
     // documentation inherited
-    protected Tile createTile (int tileIndex, Mirage tileImage)
+    protected Tile createTile ()
     {
-        return new BaseTile(tileImage, _passable[tileIndex]);
+        return new BaseTile();
+    }
+
+    // documentation inherited
+    protected void initTile (Tile tile, int tileIndex, Colorization[] zations)
+    {
+        super.initTile(tile, tileIndex, zations);
+        ((BaseTile)tile).setPassable(_passable[tileIndex]);
     }
 
     // documentation inherited

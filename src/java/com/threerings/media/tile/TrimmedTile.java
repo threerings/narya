@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedTile.java,v 1.5 2003/01/13 22:49:46 mdb Exp $
+// $Id: TrimmedTile.java,v 1.6 2003/05/31 00:56:38 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -7,8 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import com.samskivert.util.StringUtil;
-
-import com.threerings.media.image.Mirage;
 
 /**
  * Behaves just like a regular tile, but contains a "trimmed" image which
@@ -19,18 +17,14 @@ import com.threerings.media.image.Mirage;
 public class TrimmedTile extends Tile
 {
     /**
-     * Creates a trimmed tile using the supplied tileset image with the
-     * specified bounds and coordinates.
+     * Sets the trimmed bounds of this tile.
      *
-     * @param tilesetSource the tileset image that contains our trimmed
-     * tile image.
      * @param tbounds contains the width and height of the
      * <em>untrimmed</em> tile, but the x and y offset of the
      * <em>trimmed</em> tile image in the original untrimmed tile image.
      */
-    public TrimmedTile (Mirage image, Rectangle tbounds)
+    public void setTrimmedBounds (Rectangle tbounds)
     {
-        super(image);
         _tbounds = tbounds;
     }
 

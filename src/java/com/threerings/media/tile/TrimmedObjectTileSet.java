@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedObjectTileSet.java,v 1.12 2003/05/27 18:25:04 mdb Exp $
+// $Id: TrimmedObjectTileSet.java,v 1.13 2003/05/31 00:56:38 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -104,19 +104,26 @@ public class TrimmedObjectTileSet extends TileSet
     }
 
     // documentation inherited
-    protected Tile createTile (int tileIndex, Mirage tileImage)
+    protected Tile createTile ()
     {
-        ObjectTile tile = new ObjectTile(tileImage);
-        tile.setBase(_ometrics[tileIndex].width, _ometrics[tileIndex].height);
-        tile.setOrigin(_ometrics[tileIndex].x, _ometrics[tileIndex].y);
+        return new ObjectTile();
+    }
+
+    // documentation inherited
+    protected void initTile (Tile tile, int tileIndex, Colorization[] zations)
+    {
+        super.initTile(tile, tileIndex, zations);
+
+        ObjectTile otile = (ObjectTile)tile;
+        otile.setBase(_ometrics[tileIndex].width, _ometrics[tileIndex].height);
+        otile.setOrigin(_ometrics[tileIndex].x, _ometrics[tileIndex].y);
         if (_bits != null) {
             Bits bits = _bits[tileIndex];
-            tile.setPriority(bits.priority);
+            otile.setPriority(bits.priority);
             if (bits.sorient != -1) {
-                tile.setSpot(bits.xspot, bits.yspot, bits.sorient);
+                otile.setSpot(bits.xspot, bits.yspot, bits.sorient);
             }
         }
-        return tile;
     }
 
     // documentation inherited

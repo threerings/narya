@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.53 2003/05/17 18:39:26 mdb Exp $
+// $Id: TileSet.java,v 1.54 2003/05/31 00:56:38 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -8,11 +8,11 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
 
-import java.util.Arrays;
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Throttle;
@@ -191,21 +191,25 @@ public abstract class TileSet
      */
     public Tile getTile (int tileIndex, Colorization[] zations)
     {
-        TileKey key = new TileKey(this, tileIndex, zations);
+        Tile.Key key = new Tile.Key(this, tileIndex, zations);
         Tile tile = null;
-        synchronized (_tiles) {
-            tile = (Tile)_tiles.get(key);
+
+        // first look in the active set; if it's in use by anyone or in
+        // the cache, it will be in the active set
+        synchronized (_atiles) {
+            WeakReference wref = (WeakReference)_atiles.get(key);
+            if (wref != null) {
+                tile = (Tile)wref.get();
+            }
         }
+
+        // if it's not in the active set, it's not in memory; so load it
         if (tile == null) {
-            tile = createTile(tileIndex, getTileMirage(tileIndex, zations));
-            initTile(tile);
-            synchronized (_tiles) {
-                _tiles.put(key, tile);
-                if (_keySet != null) {
-                    _keySet.add(key);
-                } else {
-                    Log.warning("What in the fuck is going on?");
-                }
+            tile = createTile();
+            tile.key = key;
+            initTile(tile, tileIndex, zations);
+            synchronized (_atiles) {
+                _atiles.put(key, new WeakReference(tile));
             }
         }
 
@@ -314,16 +318,14 @@ public abstract class TileSet
     protected abstract Rectangle computeTileBounds (int tileIndex);
 
     /**
-     * Creates a tile for the specified tile index.
+     * Creates a blank tile of the appropriate type for this tileset.
      *
-     * @param tileIndex the index of the tile to be created.
-     * @param image the tile image in the form of a {@link Mirage}.
-     *
-     * @return a configured tile.
+     * @return a blank tile ready to be populated with its image and
+     * metadata.
      */
-    protected Tile createTile (int tileIndex, Mirage image)
+    protected Tile createTile ()
     {
-        return new Tile(image);
+        return new Tile();
     }
 
     /**
@@ -332,10 +334,13 @@ public abstract class TileSet
      * call <code>super.initTile()</code>.
      *
      * @param tile the tile to initialize.
+     * @param tileIndex the index of the tile.
+     * @param zations the colorizations to be used when generating the
+     * tile image.
      */
-    protected void initTile (Tile tile)
+    protected void initTile (Tile tile, int tileIndex, Colorization[] zations)
     {
-	// nothing for now
+        tile.setImage(getTileMirage(tileIndex, zations));
     }
 
     /**
@@ -349,21 +354,6 @@ public abstract class TileSet
     }
 
     /**
-     * Used to disable the flushing of cached tiles temporarily. If one
-     * wishes to avoid garbage collection for a short period of time, they
-     * may disable tile flushing during that period. A call to {@link
-     * System#gc} is probably a good idea once flushing is reenabled.
-     */
-    public static void setCanFlushCache (boolean enabled)
-    {
-        if (_tiles != null) {
-            synchronized (_tiles) {
-                _tiles.setCanFlush(enabled);
-            }
-        }
-    }
-
-    /**
      * Reports statistics detailing the image manager cache performance
      * and the current size of the cached images.
      */
@@ -374,20 +364,26 @@ public abstract class TileSet
             return;
         }
 
-        // compute our estimated memory usage
-        long size = 0;
+        System.gc();
 
-        int[] eff = null;
-        synchronized (_tiles) {
-            Iterator iter = _tiles.values().iterator();
+        // compute our estimated memory usage
+        long amem = 0;
+        int asize = 0;
+        synchronized (_atiles) {
+            // first total up the active tiles
+            Iterator iter = _atiles.values().iterator();
             while (iter.hasNext()) {
-                size += ((Tile)iter.next()).getEstimatedMemoryUsage();
+                WeakReference wref = (WeakReference)iter.next();
+                Tile tile = (Tile)wref.get();
+                if (tile != null) {
+                    asize++;
+                    amem += tile.getEstimatedMemoryUsage();
+                }
             }
-            eff = _tiles.getTrackedEffectiveness();
         }
-        Log.info("TileSet LRU [mem=" + (size / 1024) + "k" +
-                 ", size=" + _tiles.size() +  ", hits=" + eff[0] +
-                 ", misses=" + eff[1] + ", totalKeys=" + _keySet.size() + "].");
+        Log.info("Tile caches [amem=" + (amem / 1024) + "k" +
+                 ", tmem=" + (Tile._totalTileMemory / 1024) + "k" +
+                 ", seen=" + _atiles.size() + ", asize=" + asize + "].");
     }
 
     /**
@@ -400,49 +396,6 @@ public abstract class TileSet
         buf.append("name=").append(_name);
 	buf.append(", path=").append(_imagePath);
 	buf.append(", tileCount=").append(getTileCount());
-    }
-
-    /** Used when caching tiles. */
-    protected static class TileKey
-    {
-        /**
-         * Creates a new tile key.
-         */
-        public TileKey (TileSet tileSet, int tileIndex, Colorization[] zations)
-        {
-            _tset = tileSet;
-            _tidx = tileIndex;
-            _zations = zations;
-        }
-
-        // documentation inherited
-        public boolean equals (Object other)
-        {
-            if (other instanceof TileKey) {
-                TileKey okey = (TileKey)other;
-                return (_tset == okey._tset && _tidx == okey._tidx &&
-                        Arrays.equals(_zations, okey._zations));
-            } else {
-                return false;
-            }
-        }
-
-        // documentation inherited
-        public int hashCode ()
-        {
-            int code = _tset.hashCode() ^ _tidx;
-            int zcount = (_zations == null) ? 0 : _zations.length;
-            for (int ii = 0; ii < zcount; ii++) {
-                if (_zations[ii] != null) {
-                    code ^= _zations[ii].hashCode();
-                }
-            }
-            return code;
-        }
-
-        protected TileSet _tset;
-        protected int _tidx;
-        protected Colorization[] _zations;
     }
 
     /** The path to the file containing the tile images. */
@@ -461,31 +414,9 @@ public abstract class TileSet
      * a class change (modification of fields, inheritance). */
     private static final long serialVersionUID = 1;
 
-    /** A weak cache of our tiles. */
-    protected static LRUHashMap _tiles;
-
-    /** The set of all keys we've ever seen. */
-    protected static HashSet _keySet = new HashSet();
+    /** A map containing weak references to all "active" tiles. */
+    protected static HashMap _atiles = new HashMap();
 
     /** Throttle our cache status logging to once every 30 seconds. */
     protected static Throttle _cacheStatThrottle = new Throttle(1, 30000L);
-
-    /** Register our tile cache size with the runtime adjustments
-     * framework. */
-    protected static RuntimeAdjust.IntAdjust _cacheSize =
-        new RuntimeAdjust.IntAdjust(
-            "Size (in kb of memory used) of the tile LRU cache " +
-            "[requires restart]", "narya.media.tile.cache_size",
-            MediaPrefs.config, 2048);
-
-    static {
-        int tcsize = _cacheSize.getValue();
-        Log.debug("Creating tile cache [size=" + tcsize + "k].");
-        _tiles = new LRUHashMap(tcsize*1024, new LRUHashMap.ItemSizer() {
-            public int computeSize (Object value) {
-                return (int)((Tile)value).getEstimatedMemoryUsage();
-            }
-        });
-        _tiles.setTracking(true);
-    }
 }

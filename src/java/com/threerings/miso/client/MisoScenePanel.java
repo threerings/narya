@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.40 2003/05/29 01:04:58 ray Exp $
+// $Id: MisoScenePanel.java,v 1.41 2003/05/31 00:56:38 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -278,6 +278,27 @@ public class MisoScenePanel extends VirtualMediaPanel
         if (_activeMenu != null) {
             _activeMenu.deactivate();
         }
+    }
+
+    /**
+     * Reports the memory usage of the resolved tiles in the current scene
+     * block.
+     */
+    public void reportMemoryUsage ()
+    {
+        HashMap base = new HashMap();
+        HashSet fringe = new HashSet();
+        HashMap object = new HashMap();
+        long[] usage = new long[3];
+        for (Iterator iter = _blocks.values().iterator(); iter.hasNext(); ) {
+            SceneBlock block = (SceneBlock)iter.next();
+            block.computeMemoryUsage(base, fringe, object, usage);
+        }
+        Log.info("Scene tile memory usage [base=" + base.size() +
+                 "->" + (usage[0] / 1024) + "k" +
+                 ", fringe=" + fringe.size() + "->" + (usage[1] / 1024) + "k" +
+                 ", fmasks=" + _masks.size() + ", obj=" + object.size() +
+                 "->" + (usage[2] / 1024) + "k" + "].");
     }
 
     // documentation inherited
@@ -803,6 +824,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         if (_pendingBlocks == 0) {
             Log.info("Finished resolving pending blocks " +
                      "[view=" + StringUtil.toString(_vbounds) + "].");
+            reportMemoryUsage();
         }
 
         // once all the visible pending blocks have completed their

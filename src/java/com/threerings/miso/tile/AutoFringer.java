@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.24 2003/05/29 01:58:06 ray Exp $
+// $Id: AutoFringer.java,v 1.25 2003/05/31 00:56:38 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -140,7 +140,9 @@ public class AutoFringer
             }
         }
 
-        return new Tile(new BufferedMirage(ftimg));
+        Tile tile = new Tile();
+        tile.setImage(new BufferedMirage(ftimg));
+        return tile;
     }
 
     /**

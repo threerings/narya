@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedTileSet.java,v 1.6 2003/01/13 22:49:46 mdb Exp $
+// $Id: TrimmedTileSet.java,v 1.7 2003/05/31 00:56:38 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -8,7 +8,7 @@ import java.awt.Rectangle;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import com.threerings.media.image.Mirage;
+import com.threerings.media.image.Colorization;
 import com.threerings.media.tile.util.TileSetTrimmer;
 
 /**
@@ -30,9 +30,16 @@ public class TrimmedTileSet extends TileSet
     }
 
     // documentation inherited
-    protected Tile createTile (int tileIndex, Mirage image)
+    protected Tile createTile ()
     {
-        return new TrimmedTile(image, _tbounds[tileIndex]);
+        return new TrimmedTile();
+    }
+
+    // documentation inherited
+    protected void initTile (Tile tile, int tileIndex, Colorization[] zations)
+    {
+        super.initTile(tile, tileIndex, zations);
+        ((TrimmedTile)tile).setTrimmedBounds(_tbounds[tileIndex]);
     }
 
     /**

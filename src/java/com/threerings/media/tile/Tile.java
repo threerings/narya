@@ -1,26 +1,71 @@
 //
-// $Id: Tile.java,v 1.27 2003/01/17 02:30:50 mdb Exp $
+// $Id: Tile.java,v 1.28 2003/05/31 00:56:38 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Graphics2D;
+import java.util.Arrays;
 
+import com.threerings.media.image.Colorization;
 import com.threerings.media.image.Mirage;
 
 /**
  * A tile represents a single square in a single layer in a scene.
  */
-public class Tile implements Cloneable
+public class Tile // implements Cloneable
 {
-    /**
-     * Constructs a tile with the specified image.
-     *
-     * @param image our tile image in mirage form (which is optimized for
-     * screen rendering).
-     */
-    public Tile (Mirage image)
+    /** Used when caching tiles. */
+    public static class Key
     {
+        public TileSet tileSet;
+        public int tileIndex;
+        public Colorization[] zations;
+
+        public Key (TileSet tileSet, int tileIndex, Colorization[] zations) {
+            this.tileSet = tileSet;
+            this.tileIndex = tileIndex;
+            this.zations = zations;
+        }
+
+        public boolean equals (Object other) {
+            if (other instanceof Key) {
+                Key okey = (Key)other;
+                return (tileSet == okey.tileSet &&
+                        tileIndex == okey.tileIndex &&
+                        Arrays.equals(zations, okey.zations));
+            } else {
+                return false;
+            }
+        }
+
+        public int hashCode () {
+            int code = (tileSet == null) ? tileIndex :
+                (tileSet.hashCode() ^ tileIndex);
+            int zcount = (zations == null) ? 0 : zations.length;
+            for (int ii = 0; ii < zcount; ii++) {
+                if (zations[ii] != null) {
+                    code ^= zations[ii].hashCode();
+                }
+            }
+            return code;
+        }
+    }
+
+    /** The key associated with this tile. */
+    public Key key;
+
+    /**
+     * Configures this tile with its tile image.
+     */
+    public void setImage (Mirage image)
+    {
+        if (_mirage != null) {
+            _totalTileMemory -= _mirage.getEstimatedMemoryUsage();
+        }
         _mirage = image;
+        if (_mirage != null) {
+            _totalTileMemory += _mirage.getEstimatedMemoryUsage();
+        }
     }
 
     /**
@@ -65,18 +110,18 @@ public class Tile implements Cloneable
         return _mirage.hitTest(x, y);
     }
 
-    /**
-     * Creates a shallow copy of this tile object.
-     */
-    public Object clone ()
-    {
-        try {
-            return (Tile)super.clone();
-        } catch (CloneNotSupportedException cnse) {
-            String errmsg = "All is wrong with the universe: " + cnse;
-            throw new RuntimeException(errmsg);
-        }
-    }
+//     /**
+//      * Creates a shallow copy of this tile object.
+//      */
+//     public Object clone ()
+//     {
+//         try {
+//             return (Tile)super.clone();
+//         } catch (CloneNotSupportedException cnse) {
+//             String errmsg = "All is wrong with the universe: " + cnse;
+//             throw new RuntimeException(errmsg);
+//         }
+//     }
 
     /**
      * Return a string representation of this tile.
@@ -99,6 +144,17 @@ public class Tile implements Cloneable
         buf.append(_mirage.getHeight());
     }
 
+    /** Decrement total tile memory by our value. */
+    protected void finalize ()
+    {
+        if (_mirage != null) {
+            _totalTileMemory -= _mirage.getEstimatedMemoryUsage();
+        }
+    }
+
     /** Our tileset image. */
     protected Mirage _mirage;
+
+    /** Used to track total (estimated) memory in use by tiles. */
+    protected static long _totalTileMemory = 0L;
 }

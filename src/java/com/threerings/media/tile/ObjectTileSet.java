@@ -1,11 +1,10 @@
 //
-// $Id: ObjectTileSet.java,v 1.16 2003/05/13 02:16:21 mdb Exp $
+// $Id: ObjectTileSet.java,v 1.17 2003/05/31 00:56:38 mdb Exp $
 
 package com.threerings.media.tile;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.media.image.Mirage;
 import com.threerings.media.image.Colorization;
 
 /**
@@ -159,27 +158,31 @@ public class ObjectTileSet extends SwissArmyTileSet
         return zations;
     }
 
-    /**
-     * Creates instances of {@link ObjectTile}, which can span more than a
-     * single tile's space in a display.
-     */
-    protected Tile createTile (int tileIndex, Mirage image)
+    // documentation inherited
+    protected Tile createTile ()
     {
-        ObjectTile tile = new ObjectTile(image);
+        return new ObjectTile();
+    }
+
+    // documentation inherited
+    protected void initTile (Tile tile, int tileIndex, Colorization[] zations)
+    {
+        super.initTile(tile, tileIndex, zations);
+
+        ObjectTile otile = (ObjectTile)tile;
         if (_owidths != null) {
-            tile.setBase(_owidths[tileIndex], _oheights[tileIndex]);
+            otile.setBase(_owidths[tileIndex], _oheights[tileIndex]);
         }
         if (_xorigins != null) {
-            tile.setOrigin(_xorigins[tileIndex], _yorigins[tileIndex]);
+            otile.setOrigin(_xorigins[tileIndex], _yorigins[tileIndex]);
         }
         if (_priorities != null) {
-            tile.setPriority(_priorities[tileIndex]);
+            otile.setPriority(_priorities[tileIndex]);
         }
         if (_xspots != null) {
-            tile.setSpot(_xspots[tileIndex], _yspots[tileIndex],
-                         _sorients[tileIndex]);
+            otile.setSpot(_xspots[tileIndex], _yspots[tileIndex],
+                          _sorients[tileIndex]);
         }
-        return tile;
     }
 
     /** The width (in tile units) of our object tiles. */

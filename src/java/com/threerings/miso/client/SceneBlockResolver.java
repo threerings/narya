@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlockResolver.java,v 1.8 2003/05/23 19:35:11 mdb Exp $
+// $Id: SceneBlockResolver.java,v 1.9 2003/05/31 00:56:38 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -93,10 +93,10 @@ public class SceneBlockResolver extends LoopingThread
                     // let the block's panel know that it is resolved
                     block.wasResolved();
                     // report statistics
-                    if (report) {
-                        Log.info("Resolution histogram " +
-                                 _histo.summarize() + ".");
-                    }
+//                     if (report) {
+//                         Log.info("Resolution histogram " +
+//                                  _histo.summarize() + ".");
+//                     }
                 }
             });
 
