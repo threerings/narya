@@ -1,14 +1,15 @@
 //
-// $Id: SoundManager.java,v 1.39 2002/12/09 04:42:54 shaper Exp $
+// $Id: SoundManager.java,v 1.40 2002/12/10 21:36:33 mdb Exp $
 
 package com.threerings.media;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.Timer;
 
 import org.apache.commons.io.StreamUtils;
+import org.apache.commons.lang.Constant;
 
 import com.samskivert.util.Config;
 import com.samskivert.util.LockableLRUHashMap;
@@ -142,7 +144,13 @@ public class SoundManager
                         } else if (DIE == command) {
                             LineSpooler.shutdown();
                             shutdownMusic();
+
+                        } else {
+                            Log.warning("Got unknown command [cmd=" + command +
+                                        ", key=" + key +
+                                        ", info=" + musicInfo + "].");
                         }
+
                     } catch (Exception e) {
                         Log.warning("Captured exception in SoundManager loop.");
                         Log.logStackTrace(e);
@@ -152,7 +160,6 @@ public class SoundManager
             }
         };
 
-        _player.setDaemon(true);
         _player.start();
     }
 
@@ -648,8 +655,14 @@ public class SoundManager
                 data = new byte[names.length][];
                 String bundle = c.getValue("bundle", (String)null);
                 for (int ii=0; ii < names.length; ii++) {
-                    data[ii] = StreamUtils.streamAsBytes(
-                        _rmgr.getResource(bundle, names[ii]), BUFFER_SIZE);
+                    InputStream clipin = null;
+                    try {
+                        _rmgr.getResource(bundle, names[ii]);
+                    } catch (FileNotFoundException fnfe) {
+                        // try from the classpath
+                        clipin = _rmgr.getResource(names[ii]);
+                    }
+                    data[ii] = StreamUtils.streamAsBytes(clipin, BUFFER_SIZE);
                 }
             }
 
@@ -1057,13 +1070,13 @@ public class SoundManager
     protected HashMap _configs = new HashMap();
 
     /** Signals to the queue to do different things. */
-    protected Object PLAY = new Object();
-    protected Object PLAYMUSIC = new Object();
-    protected Object STOPMUSIC = new Object();
-    protected Object UPDATE_MUSIC_VOL = new Object();
-    protected Object LOCK = new Object();
-    protected Object UNLOCK = new Object();
-    protected Object DIE = new Object();
+    protected Constant PLAY = new Constant("PLAY");
+    protected Constant PLAYMUSIC = new Constant("PLAYMUSIC");
+    protected Constant STOPMUSIC = new Constant("STOPMUSIC");
+    protected Constant UPDATE_MUSIC_VOL = new Constant("UPDATE_MUSIC_VOL");
+    protected Constant LOCK = new Constant("LOCK");
+    protected Constant UNLOCK = new Constant("UNLOCK");
+    protected Constant DIE = new Constant("DIE");
 
     /** Music action constants. */
     protected static final int NONE = 0;
