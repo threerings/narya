@@ -1,5 +1,5 @@
 //
-// $Id: ForwardEventRequest.java,v 1.3 2001/05/30 23:59:16 mdb Exp $
+// $Id: ForwardEventRequest.java,v 1.4 2001/06/02 01:31:43 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.threerings.cocktail.cher.dobj.Event;
+import com.threerings.cocktail.cher.dobj.DEvent;
 
 public class ForwardEventNotification extends UpstreamMessage
 {
@@ -25,7 +25,7 @@ public class ForwardEventNotification extends UpstreamMessage
     /**
      * Constructs a forward event notification for the supplied event.
      */
-    public ForwardEventNotification (Event event)
+    public ForwardEventNotification (DEvent event)
     {
         _event = event;
     }
@@ -50,5 +50,5 @@ public class ForwardEventNotification extends UpstreamMessage
     }
 
     /** The event which we are forwarding. */
-    protected Event _event;
+    protected DEvent _event;
 }
