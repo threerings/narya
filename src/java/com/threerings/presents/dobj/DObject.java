@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.63 2003/04/30 22:32:04 mdb Exp $
+// $Id: DObject.java,v 1.64 2003/05/22 17:23:53 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -151,9 +151,18 @@ public class DObject implements Streamable
             // that we're still active otherwise there's no need to notify
             // our objmgr because we don't have one
             if (--_scount == 0 && _omgr != null) {
-                _omgr.removedLastSubscriber(this);
+                _omgr.removedLastSubscriber(this, _deathWish);
             }
         }
+    }
+
+    /**
+     * Instructs this object to request to have a fork stuck in it when
+     * its last subscriber is removed.
+     */
+    public void setDestroyOnLastSubscriberRemoved (boolean deathWish)
+    {
+        _deathWish = deathWish;
     }
 
     /**
@@ -872,4 +881,8 @@ public class DObject implements Streamable
 
     /** Whether or not our nested transaction has been cancelled. */
     protected transient boolean _tcancelled;
+
+    /** Indicates whether we want to be destroyed when our last subscriber
+     * is removed. */
+    protected transient boolean _deathWish = false;
 }

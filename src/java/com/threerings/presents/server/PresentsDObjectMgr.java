@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.31 2003/04/10 17:48:42 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.32 2003/05/22 17:23:53 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -105,9 +105,12 @@ public class PresentsDObjectMgr
     }
 
     // inherit documentation from the interface
-    public void removedLastSubscriber (DObject obj)
+    public void removedLastSubscriber (DObject obj, boolean deathWish)
     {
-        // nothing to do here, our objects live forever!
+        // destroy the object if it so desires
+        if (deathWish) {
+            destroyObject(obj.getOid());
+        }
     }
 
     /**

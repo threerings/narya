@@ -1,5 +1,5 @@
 //
-// $Id: DObjectManager.java,v 1.11 2003/03/10 18:29:54 mdb Exp $
+// $Id: DObjectManager.java,v 1.12 2003/05/22 17:23:53 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -95,5 +95,5 @@ public interface DObjectManager
      * then choose to flush this object from the system or unregister from
      * some upstream manager whose object it was proxying, for example.
      */
-    public void removedLastSubscriber (DObject obj);
+    public void removedLastSubscriber (DObject obj, boolean deathWish);
 }

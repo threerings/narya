@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.23 2003/04/10 17:48:42 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.24 2003/05/22 17:23:53 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -106,7 +106,7 @@ public class ClientDObjectMgr
     }
 
     // inherit documentation from the interface
-    public void removedLastSubscriber (DObject obj)
+    public void removedLastSubscriber (DObject obj, boolean deathWish)
     {
         // if this object has a registered flush delay, don't can it just
         // yet, just slip it onto the flush queue
