@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.18 2002/10/08 21:03:37 ray Exp $
+// $Id: MediaPanel.java,v 1.19 2002/10/09 06:33:00 mdb Exp $
 
 package com.threerings.media;
 
@@ -232,7 +232,13 @@ public class MediaPanel extends JComponent
             } else {
                 dirtyScreenRect(clip.getBounds());
             }
-            return;
+
+            // we used to bail out here and not render until our next
+            // tick, but it turns out that we need to render here because
+            // Swing may have repainted our parent over us and expect that
+            // we're going to paint ourselves on top of whatever it just
+            // painted, so we go ahead and paint now to avoid flashing
+            // return;
 
         } else {
             _tickPaintPending = false;
