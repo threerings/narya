@@ -1,7 +1,9 @@
 //
-// $Id: Sounds.java,v 1.1 2002/11/22 21:54:49 mdb Exp $
+// $Id: Sounds.java,v 1.2 2002/11/26 02:39:40 ray Exp $
 
 package com.threerings.media;
+
+import java.io.File;
 
 /**
  * A base class for sound repository classes. These would extend this
@@ -14,18 +16,19 @@ public class Sounds
     public static final String PROP_NAME = "sounds";
 
     /**
+     * Return the package path prefix of the supplied class.
+     *
      * Generates the key for the sound repository configuration file in
      * the package associated with the class. For example, if a the class
      * <code>com.threerings.happy.fun.GameSounds</code> were supplied to
      * this method, it would return
-     * <code>com.threerings.happy.fun.sounds</code> which would reference
+     * <code>com/threerings/happy/fun/sounds/</code> which would reference
      * a <code>sounds.properties</code> file in the
      * <code>com.threerings.happy.fun</code> package.
      */
-    protected static String makeKey (Class clazz)
+    protected static String getPackagePath (Class clazz)
     {
-        String cname = clazz.getName();
-        int didx = cname.lastIndexOf(".");
-        return (didx != -1) ? cname.substring(0, didx) : "";
+        return clazz.getPackage().getName().replace('.', File.separatorChar) +
+            File.separator;
     }
 }

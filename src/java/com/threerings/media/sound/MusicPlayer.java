@@ -1,9 +1,9 @@
 //
-// $Id: MusicPlayer.java,v 1.2 2002/11/22 19:21:12 ray Exp $
+// $Id: MusicPlayer.java,v 1.3 2002/11/26 02:39:40 ray Exp $
 
 package com.threerings.media;
 
-import com.threerings.resource.ResourceManager;
+import java.io.InputStream;
 
 /**
  * Abstract music player.
@@ -25,11 +25,9 @@ public abstract class MusicPlayer
     /**
      * Initialize the music player.
      */
-    public final void init (
-        ResourceManager rmgr, MusicEventListener musicListener)
+    public final void init (MusicEventListener musicListener)
         throws Exception
     {
-        _rmgr = rmgr;
         _musicListener = musicListener;
 
         init();
@@ -51,9 +49,9 @@ public abstract class MusicPlayer
     }
 
     /**
-     * Start playing the specified song.
+     * Start playing song data from the specified stream.
      */
-    public abstract void start (String set, String path)
+    public abstract void start (InputStream stream)
         throws Exception;
 
     /**
@@ -67,9 +65,6 @@ public abstract class MusicPlayer
      * @param volume 0f - 1f, inclusive.
      */
     public abstract void setVolume (float volume);
-
-    /** The place we load data from. */
-    protected ResourceManager _rmgr;
 
     /** Tell this guy about it when a song stops. */
     protected MusicEventListener _musicListener;

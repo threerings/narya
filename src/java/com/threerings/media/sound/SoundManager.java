@@ -1,11 +1,14 @@
 //
-// $Id: SoundManager.java,v 1.28 2002/11/25 20:02:31 ray Exp $
+// $Id: SoundManager.java,v 1.29 2002/11/26 02:39:40 ray Exp $
 
 package com.threerings.media;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +43,7 @@ import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.Queue;
 
 import com.threerings.resource.ResourceManager;
+import com.threerings.util.RandomUtil;
 
 import com.threerings.media.Log;
 
@@ -195,6 +199,14 @@ public class SoundManager
     }
 
     /**
+     * Set the test sound clip directory.
+     */
+    public void setTestDir (String testy)
+    {
+        _testDir = testy;
+    }
+
+    /**
      * Sets the volume for all sound clips.
      *
      * @param val a volume parameter between 0f and 1f, inclusive.
@@ -244,22 +256,22 @@ public class SoundManager
      * Optionally lock the sound data prior to playing, to guarantee
      * that it will be quickly available for playing.
      */
-    public void lock (String set, String path)
+    public void lock (String pkgPath, String key)
     {
         synchronized (_queue) {
             _queue.append(LOCK);
-            _queue.append(new SoundKey(set, path));
+            _queue.append(new SoundKey(pkgPath, key));
         }
     }
 
     /**
      * Unlock the specified sound so that its resources can be freed.
      */
-    public void unlock (String set, String path)
+    public void unlock (String pkgPath, String key)
     {
         synchronized (_queue) {
             _queue.append(UNLOCK);
-            _queue.append(new SoundKey(set, path));
+            _queue.append(new SoundKey(pkgPath, key));
         }
     }
 
@@ -267,7 +279,7 @@ public class SoundManager
      * Play the specified sound of as the specified type of sound.
      * Note that a sound need not be locked prior to playing.
      */
-    public void play (SoundType type, String set, String path)
+    public void play (SoundType type, String pkgPath, String key)
     {
         if (type == null) {
             // let the lazy kids play too
@@ -278,12 +290,12 @@ public class SoundManager
             synchronized (_queue) {
                 if (_queue.size() < MAX_QUEUE_SIZE) {
                     _queue.append(PLAY);
-                    _queue.append(new SoundKey(set, path));
+                    _queue.append(new SoundKey(pkgPath, key));
 
                 } else {
                     Log.warning("SoundManager not playing sound because " +
-                        "too many sounds in queue [path=" + path +
-                        ", type=" + type + "].");
+                        "too many sounds in queue [pkgPath=" + pkgPath +
+                        ", key=" + key + ", type=" + type + "].");
                 }
             }
         }
@@ -292,19 +304,19 @@ public class SoundManager
     /**
      * Start playing the specified music repeatedly.
      */
-    public void pushMusic (String set, String path)
+    public void pushMusic (String pkgPath, String key)
     {
-        pushMusic(set, path, -1);
+        pushMusic(pkgPath, key, -1);
     }
 
     /**
      * Start playing music for the specified number of loops.
      */
-    public void pushMusic (String set, String path, int numloops)
+    public void pushMusic (String pkgPath, String key, int numloops)
     {
         synchronized (_queue) {
             _queue.append(PLAYMUSIC);
-            _queue.append(new MusicInfo(set, path, numloops));
+            _queue.append(new MusicInfo(pkgPath, key, numloops));
         }
     }
 
@@ -312,11 +324,11 @@ public class SoundManager
      * Remove the specified music from the playlist. If it is currently
      * playing, it will be stopped and the previous song will be started.
      */
-    public void removeMusic (String set, String path)
+    public void removeMusic (String pkgPath, String key)
     {
         synchronized (_queue) {
             _queue.append(STOPMUSIC);
-            _queue.append(new SoundKey(set, path));
+            _queue.append(new SoundKey(pkgPath, key));
         }
     }
 
@@ -388,7 +400,18 @@ public class SoundManager
         }
 
         MusicInfo info = (MusicInfo) _musicStack.getFirst();
-        Class playerClass = getMusicPlayerClass(info.path);
+
+        Config c = getConfig(info);
+        String[] names = c.getValue(info.key, (String[])null);
+        if (names == null) {
+            Log.warning("No such music [key=" + info + "].");
+            _musicStack.removeFirst();
+            playTopMusic();
+            return;
+        }
+        String music = names[RandomUtil.getInt(names.length)];
+
+        Class playerClass = getMusicPlayerClass(music);
 
         // shutdown the old player if we're switching music types
         if (! playerClass.isInstance(_musicPlayer)) {
@@ -399,7 +422,7 @@ public class SoundManager
             // set up the new player
             try {
                 _musicPlayer = (MusicPlayer) playerClass.newInstance();
-                _musicPlayer.init(_rmgr, this);
+                _musicPlayer.init(this);
 
             } catch (Exception e) {
                 Log.warning("Unable to instantiate music player [class=" +
@@ -416,11 +439,13 @@ public class SoundManager
         }
 
         // play!
+        String bundle = c.getValue("bundle", (String)null);
         try {
-            _musicPlayer.start(info.set, info.path);
+            // TODO: buffer for the music player?
+            _musicPlayer.start(_rmgr.getResource(bundle, music));
         } catch (Exception e) {
             Log.warning("Error playing music, skipping [e=" + e +
-                ", set=" + info.set + ", path=" + info.path + "].");
+                ", bundle=" + bundle + ", music=" + music + "].");
             _musicStack.removeFirst();
             playTopMusic();
             return;
@@ -556,14 +581,77 @@ public class SoundManager
     protected byte[] getClipData (SoundKey key)
         throws IOException, UnsupportedAudioFileException
     {
-        byte[] data = (byte[]) _clipCache.get(key);
+        byte[][] data = (byte[][]) _clipCache.get(key);
         if (data == null) {
-            data = StreamUtils.streamAsBytes(
-                _rmgr.getResource(key.set, key.path), BUFFER_SIZE);
-            _clipCache.put(key, data);
+
+            // if there is a test sound, JUST use the test sound.
+            InputStream stream = getTestClip(key);
+            if (stream != null) {
+                data = new byte[1][];
+                data[0] = StreamUtils.streamAsBytes(stream, BUFFER_SIZE);
+
+            } else { 
+                // otherwise, randomize between all available sounds
+                Config c = getConfig(key);
+                String[] names = c.getValue(key.key, (String[])null);
+                if (names == null) {
+                    Log.warning("No such sound [key=" + key + "].");
+                    return null;
+                }
+
+                data = new byte[names.length][];
+                String bundle = c.getValue("bundle", (String)null);
+                for (int ii=0; ii < names.length; ii++) {
+                    data[ii] = StreamUtils.streamAsBytes(
+                        _rmgr.getResource(bundle, names[ii]), BUFFER_SIZE);
+                }
+            }
+
+            // TODO: be more sophisticated and allow locked sounds (as long
+            // as they're locked) to be put in the cache
+            // for now- nothing is cached when we're testing
+            if (_testDir == null) {
+                _clipCache.put(key, data);
+            }
         }
 
-        return data;
+        return data[RandomUtil.getInt(data.length)];
+    }
+
+    protected InputStream getTestClip (SoundKey key)
+    {
+        if (_testDir == null) {
+            return null;
+        }
+
+        final String namePrefix = key.key + ".";
+        File f = new File(_testDir);
+        File[] list = f.listFiles(new FilenameFilter() {
+            public boolean accept (File f, String name)
+            {
+                return name.startsWith(namePrefix);
+            }
+        });
+        if (list != null) {
+            try {
+                return new FileInputStream(list[0]);
+            } catch (Exception e) {
+                Log.warning("Error reading test sound [e=" + e + ", file=" +
+                    list[0] + "].");
+            }
+        }
+        return null;
+    }
+
+    protected Config getConfig (SoundKey key)
+    {
+        Config c = (Config) _configs.get(key.pkgPath);
+        if (c == null) {
+            String propPath = key.pkgPath + Sounds.PROP_NAME;
+            c = new Config(propPath);
+            _configs.put(key.pkgPath, c);
+        }
+        return c;
     }
 
 //    /**
@@ -832,26 +920,26 @@ public class SoundManager
      */
     protected static class SoundKey
     {
-        public String path;
+        public String pkgPath;
 
-        public String set;
+        public String key;
 
-        public SoundKey (String set, String path)
+        public SoundKey (String pkgPath, String key)
         {
-            this.set = set;
-            this.path = path;
+            this.pkgPath = pkgPath;
+            this.key = key;
         }
 
         // documentation inherited
         public String toString ()
         {
-            return "SoundKey{set=" + set + ", path=" + path + "}";
+            return "SoundKey{pkgPath=" + pkgPath + ", key=" + key + "}";
         }
 
         // documentation inherited
         public int hashCode ()
         {
-            return path.hashCode() ^ set.hashCode();
+            return pkgPath.hashCode() ^ key.hashCode();
         }
 
         // documentation inherited
@@ -859,8 +947,8 @@ public class SoundManager
         {
             if (o instanceof SoundKey) {
                 SoundKey that = (SoundKey) o;
-                return this.path.equals(that.path) &&
-                       this.set.equals(that.set);
+                return this.pkgPath.equals(that.pkgPath) &&
+                       this.key.equals(that.key);
             }
             return false;
         }
@@ -874,12 +962,16 @@ public class SoundManager
         /** How many times to loop, or -1 for forever. */
         public int loops;
 
+        // TODO rename
         public MusicInfo (String set, String path, int loops)
         {
             super(set, path);
             this.loops = loops;
         }
     }
+
+    /** Directory from which we load test sounds. */
+    protected String _testDir;
 
     /** The resource manager from which we obtain audio files. */
     protected ResourceManager _rmgr;
@@ -910,6 +1002,9 @@ public class SoundManager
 
     /** A set of soundTypes for which sound is enabled. */
     protected HashSet _disabledTypes = new HashSet();
+
+    /** A cache of config objects we've created. */
+    protected HashMap _configs = new HashMap();
 
     /** Signals to the queue to do different things. */
     protected Object PLAY = new Object();

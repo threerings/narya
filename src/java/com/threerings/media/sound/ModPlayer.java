@@ -1,9 +1,10 @@
 //
-// $Id: ModPlayer.java,v 1.4 2002/11/22 19:21:12 ray Exp $
+// $Id: ModPlayer.java,v 1.5 2002/11/26 02:39:40 ray Exp $
 
 package com.threerings.media;
 
 import java.io.DataInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 
 import micromod.MicroMod;
@@ -37,11 +38,10 @@ public class ModPlayer extends MusicPlayer
     }
 
     // documentation inherited
-    public void start (String set, String path)
+    public void start (InputStream stream)
         throws Exception
     {
-        Module module = ModuleLoader.read(
-            new DataInputStream(_rmgr.getResource(set, path)));
+        Module module = ModuleLoader.read(new DataInputStream(stream));
 
         final MicroMod mod = new MicroMod(
             module, _device, new LinearResampler());

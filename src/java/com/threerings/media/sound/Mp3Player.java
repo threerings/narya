@@ -1,5 +1,5 @@
 //
-// $Id: Mp3Player.java,v 1.2 2002/11/22 19:21:12 ray Exp $
+// $Id: Mp3Player.java,v 1.3 2002/11/26 02:39:40 ray Exp $
 
 package com.threerings.media;
 
@@ -33,6 +33,9 @@ public class Mp3Player extends MusicPlayer
     // documentation inherited
     public void init ()
     {
+        // TODO: some stuff needs to move here, like setting up the line
+        // but we don't yet know the audio format, so I need to figure that
+        // out (the format might always be known..).
     }
 
     // documentation inherited
@@ -41,7 +44,7 @@ public class Mp3Player extends MusicPlayer
     }
 
     // documentation inherited
-    public void start (final String set, final String path)
+    public void start (final InputStream stream)
         throws Exception
     {
         // TODO: some stuff needs to come out of here and into init/shutdown
@@ -51,14 +54,9 @@ public class Mp3Player extends MusicPlayer
                 AudioInputStream inStream = null;
                 try {
                     inStream = AudioSystem.getAudioInputStream(
-//                       new ByteArrayInputStream(StreamUtils.streamAsBytes(
-//                               _rmgr.getResource(path), 8192)));
-                        // TODO: use the fucking resource sets
-                        new BufferedInputStream(
-                            _rmgr.getResource(set, path), 4096));
+                        new BufferedInputStream(stream, BUFFER_SIZE));
                 } catch (Exception e) {
-                    Log.warning("MP3 fuckola [path=" + path +
-                        ", e=" + e + "].");
+                    Log.warning("MP3 fuckola. [e=" + e + "].");
                     return;
                 }
 
@@ -70,19 +68,18 @@ public class Mp3Player extends MusicPlayer
                     targetEnc, inStream);
                 AudioFormat format = inStream.getFormat();
 
-                SourceDataLine line = null;
                 DataLine.Info info = new DataLine.Info(
                     SourceDataLine.class, format);
 
                 try {
-                    line = (SourceDataLine) AudioSystem.getLine(info);
-                    line.open(format);
+                    _line = (SourceDataLine) AudioSystem.getLine(info);
+                    _line.open(format);
                 } catch (LineUnavailableException lue) {
                     Log.warning("MP3 line unavailable: " + lue);
                     return;
                 }
 
-                line.start();
+                _line.start();
 
                 byte[] data = new byte[BUFFER_SIZE];
                 int count = 0;
@@ -94,15 +91,15 @@ public class Mp3Player extends MusicPlayer
                         break;
                     }
                     if (count >= 0) {
-                        line.write(data, 0, count);
+                        _line.write(data, 0, count);
                     }
                     if (_player != Thread.currentThread()) {
                         return;
                     }
                 }
 
-                line.drain();
-                line.close();
+                _line.drain();
+                _line.close();
                 _musicListener.musicStopped();
             }
         };
@@ -121,11 +118,17 @@ public class Mp3Player extends MusicPlayer
     // documentation inherited
     public void setVolume (float volume)
     {
-        // TODO
+        // TODO : line won't be null when we initialize it in the right place
+        if (_line != null) {
+            SoundManager.adjustVolume(_line, volume);
+        }
     }
 
     /** The thread that transfers data to the line. */
     protected Thread _player;
+
+    /** The line that we play through. */
+    protected SourceDataLine _line;
 
     /** The size of our buffer. */
     protected static final int BUFFER_SIZE = 8192;

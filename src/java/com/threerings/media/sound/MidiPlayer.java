@@ -1,9 +1,10 @@
 //
-// $Id: MidiPlayer.java,v 1.2 2002/11/22 19:21:12 ray Exp $
+// $Id: MidiPlayer.java,v 1.3 2002/11/26 02:39:40 ray Exp $
 
 package com.threerings.media;
 
 import java.io.BufferedInputStream;
+import java.io.InputStream;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaEventListener;
@@ -42,11 +43,10 @@ public class MidiPlayer extends MusicPlayer
     }
 
     // documentation inherited
-    public void start (String set, String path)
+    public void start (InputStream stream)
         throws Exception
     {
-        _sequencer.setSequence(
-            new BufferedInputStream(_rmgr.getResource(set, path)));
+        _sequencer.setSequence(new BufferedInputStream(stream));
         _sequencer.start();
         _sequencer.addMetaEventListener(this);
     }
