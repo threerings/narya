@@ -1,11 +1,12 @@
 //
-// $Id: Client.java,v 1.26 2002/05/28 22:54:43 mdb Exp $
+// $Id: Client.java,v 1.27 2002/06/04 16:34:24 mdb Exp $
 
 package com.threerings.presents.client;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.samskivert.util.ObserverList;
 import com.samskivert.util.ResultListener;
 
 import com.threerings.presents.Log;
@@ -321,48 +322,42 @@ public class Client
 
     boolean notifyObservers (int code, Exception cause)
     {
-        boolean rejected = false;
-        synchronized (_observers) {
-            for (int i = 0; i < _observers.size(); i++) {
-                SessionObserver obs = (SessionObserver)_observers.get(i);
-                switch (code) {
-                case CLIENT_DID_LOGON:
-                    obs.clientDidLogon(this);
-                    break;
-                case CLIENT_FAILED_TO_LOGON:
-                    if (obs instanceof ClientObserver) {
-                        ((ClientObserver)obs).clientFailedToLogon(this, cause);
-                    }
-                    break;
-                case CLIENT_CONNECTION_FAILED:
-                    if (obs instanceof ClientObserver) {
-                        ((ClientObserver)obs).clientConnectionFailed(
-                            this, cause);
-                    }
-                    break;
-                case CLIENT_WILL_LOGOFF:
-                    if (obs instanceof ClientObserver) {
-                        if (!((ClientObserver)obs).clientWillLogoff(this)) {
-                            rejected = true;
-                        }
-                    }
-                    break;
-                case CLIENT_DID_LOGOFF:
-                    obs.clientDidLogoff(this);
-                    break;
-                default:
-                    throw new RuntimeException("Invalid code supplied to " +
-                                               "notifyObservers: " + code);
+        final Notifier noty = new Notifier(code, cause);
+        Runnable unit = new Runnable() {
+            public void run () {
+                synchronized (_observers) {
+                    _observers.apply(noty);
                 }
             }
+        };
+
+        // we need to run immediately if this is WILL_LOGOFF
+        if (code == CLIENT_WILL_LOGOFF) {
+            unit.run();
+            return noty.getRejected();
+
+        } else {
+            // otherwise we can queue this notification up with our
+            // invoker and ensure that it's run on the proper thread
+            _invoker.invokeLater(unit);
+            return false;
         }
-        return rejected;
     }
 
     synchronized void communicatorDidExit ()
     {
-        // clear out our communicator reference
-        _comm = null;
+        // we know that prior to the call to this method, the observers
+        // were notified with CLIENT_DID_LOGOFF; that may not have been
+        // invoked yet, so we don't want to clear out our communicator
+        // reference immediately; instead we queue up an invoker unit to
+        // do so to ensure that it won't happen until CLIENT_DID_LOGOFF
+        // was dispatched
+        _invoker.invokeLater(new Runnable() {
+            public void run () {
+                // clear out our communicator reference
+                _comm = null;
+            }
+        });
     }
 
     /**
@@ -411,6 +406,71 @@ public class Client
         }
     }
 
+    /**
+     * Used to notify client observers of events.
+     */
+    protected class Notifier
+        implements ObserverList.ObserverOp
+    {
+        public Notifier (int code, Exception cause)
+        {
+            _code = code;
+            _cause = cause;
+            _rejected = false;
+        }
+
+        public boolean getRejected ()
+        {
+            return _rejected;
+        }
+
+        public boolean apply (Object observer)
+        {
+            SessionObserver obs = (SessionObserver)observer;
+            switch (_code) {
+            case CLIENT_DID_LOGON:
+                obs.clientDidLogon(Client.this);
+                break;
+
+            case CLIENT_FAILED_TO_LOGON:
+                if (obs instanceof ClientObserver) {
+                    ((ClientObserver)obs).clientFailedToLogon(
+                        Client.this, _cause);
+                }
+                break;
+
+            case CLIENT_CONNECTION_FAILED:
+                if (obs instanceof ClientObserver) {
+                    ((ClientObserver)obs).clientConnectionFailed(
+                        Client.this, _cause);
+                }
+                break;
+
+            case CLIENT_WILL_LOGOFF:
+                if (obs instanceof ClientObserver) {
+                    if (!((ClientObserver)obs).clientWillLogoff(Client.this)) {
+                        _rejected = true;
+                    }
+                }
+                break;
+
+            case CLIENT_DID_LOGOFF:
+                obs.clientDidLogoff(Client.this);
+                break;
+
+            default:
+                throw new RuntimeException("Invalid code supplied to " +
+                                           "notifyObservers: " + _code);
+            }
+
+            return true;
+        }
+
+        protected int _code;
+        protected Exception _cause;
+        protected boolean _rejected;
+    }
+
     /** The credentials we used to authenticate with the server. */
     protected Credentials _creds;
 
@@ -431,7 +491,8 @@ public class Client
     protected int _port;
 
     /** Our list of client observers. */
-    protected List _observers = new ArrayList();
+    protected ObserverList _observers =
+        new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
 
     /** The entity that manages our network communications. */
     protected Communicator _comm;
