@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.46 2003/04/05 01:52:58 mdb Exp $
+// $Id: TileSet.java,v 1.47 2003/04/25 18:21:49 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -184,23 +184,17 @@ public abstract class TileSet
      */
     public Tile getTile (int tileIndex, Colorization[] zations)
     {
-        // create our tile cache if necessary
-        if (_tiles == null) {
-            int tcsize = _cacheSize.getValue();
-            Log.debug("Creating tile cache [size=" + tcsize + "k].");
-            _tiles = new LRUHashMap(tcsize*1024, new LRUHashMap.ItemSizer() {
-                public int computeSize (Object value) {
-                    return (int)((Tile)value).getEstimatedMemoryUsage();
-                }
-            });
-        }
-
         TileKey key = new TileKey(this, tileIndex, zations);
-        Tile tile = (Tile)_tiles.get(key);
+        Tile tile = null;
+        synchronized (_tiles) {
+            tile = (Tile)_tiles.get(key);
+        }
         if (tile == null) {
             tile = createTile(tileIndex, getTileMirage(tileIndex, zations));
             initTile(tile);
-            _tiles.put(key, tile);
+            synchronized (_tiles) {
+                _tiles.put(key, tile);
+            }
         }
 
         return tile;
@@ -413,4 +407,14 @@ public abstract class TileSet
             "Size (in kb of memory used) of the tile LRU cache " +
             "[requires restart]", "narya.media.tile.cache_size",
             MediaPrefs.config, 1024);
+
+    static {
+        int tcsize = _cacheSize.getValue();
+        Log.debug("Creating tile cache [size=" + tcsize + "k].");
+        _tiles = new LRUHashMap(tcsize*1024, new LRUHashMap.ItemSizer() {
+            public int computeSize (Object value) {
+                return (int)((Tile)value).getEstimatedMemoryUsage();
+            }
+        });
+    }
 }
