@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.35 2004/08/27 02:12:38 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -290,8 +290,20 @@ public class ImageUtil
         int wid = src.getWidth(), hei = src.getHeight();
         BufferedImage dest = imgr.createImage(
             wid, hei, Transparency.TRANSLUCENT);
+        return createTracedImage(
+            src, dest, tcolor, thickness, startAlpha, endAlpha);
+    }
 
+    /**
+     * Creates and returns a new image consisting of the supplied image
+     * traced with the given color, thickness and alpha transparency.
+     */
+    public static BufferedImage createTracedImage (
+        BufferedImage src, BufferedImage dest, Color tcolor, int thickness,
+        float startAlpha, float endAlpha)
+    {
         // prepare various bits of working data
+        int wid = src.getWidth(), hei = src.getHeight();
         int spixel = (tcolor.getRGB() & RGB_MASK);
         int salpha = (int)(startAlpha * 255);
         int tpixel = (spixel | (salpha << 24));
