@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfiguration.java,v 1.17 2004/08/27 02:20:07 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -68,6 +68,10 @@ public class FringeConfiguration implements Serializable
             return "[base_tsid=" + base_tsid + ", priority=" + priority +
                 ", tilesets=" + StringUtil.toString(tilesets) + "]";
         }
+
+        /** Increase this value when object's serialized state is impacted
+         * by a class change (modification of fields, inheritance). */
+        private static final long serialVersionUID = 1;
     }
 
     /**
