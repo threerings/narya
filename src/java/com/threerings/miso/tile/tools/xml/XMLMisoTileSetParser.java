@@ -1,5 +1,5 @@
 //
-// $Id: XMLMisoTileSetParser.java,v 1.2 2001/10/11 00:41:27 shaper Exp $
+// $Id: XMLMisoTileSetParser.java,v 1.3 2001/10/12 00:43:04 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -24,7 +24,7 @@ public class XMLMisoTileSetParser extends XMLTileSetParser
 
 	if (qName.equals("tileset")) {
 	    String val = attributes.getValue("layer");
-	    ((MisoTileSet)_tset).layer = MisoSceneUtil.getLayerIndex(val);
+	    ((MisoTileSetImpl)_tset).layer = MisoSceneUtil.getLayerIndex(val);
 	}
     }
 
@@ -34,13 +34,13 @@ public class XMLMisoTileSetParser extends XMLTileSetParser
 	super.finishElement(qName, str);
 
 	if (qName.equals("passable")) {
-	    ((MisoTileSet)_tset).passable = StringUtil.parseIntArray(str);
+	    ((MisoTileSetImpl)_tset).passable = StringUtil.parseIntArray(str);
 	}
     }
 
     // documentation inherited
     protected TileSetImpl createTileSet ()
     {
-	return new MisoTileSet();
+	return new MisoTileSetImpl();
     }
 }
