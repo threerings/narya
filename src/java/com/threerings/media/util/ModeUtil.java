@@ -1,5 +1,5 @@
 //
-// $Id: ModeUtil.java,v 1.1 2002/04/19 00:38:44 mdb Exp $
+// $Id: ModeUtil.java,v 1.2 2002/04/28 01:30:10 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -44,13 +44,13 @@ public class ModeUtil
                     return 1;
                 }
 
-                // otherwise prefer higher bitrates
+                // otherwise prefer higher depths
                 if (bd1 != bd2) {
-                    return bd1 - bd2;
+                    return bd2 - bd1;
                 }
 
                 // for same bitrates, prefer higher refresh rates
-                return rr1 - rr2;
+                return rr2 - rr1;
             }
 
             public boolean equals (Object obj) {
