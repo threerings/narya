@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.10 2002/11/13 07:12:40 ray Exp $
+// $Id: SoundManager.java,v 1.11 2002/11/15 01:49:47 ray Exp $
 
 package com.threerings.media;
 
@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,7 +35,7 @@ import javax.swing.Timer;
 
 import org.apache.commons.io.StreamUtils;
 
-import com.samskivert.util.LRUHashMap;
+import com.samskivert.util.LockableLRUHashMap;
 import com.samskivert.util.Queue;
 
 import com.threerings.resource.ResourceManager;
@@ -91,43 +92,56 @@ public class SoundManager
         // save things off
         _rmgr = rmgr;
 
-//        // obtain the mixer
-//        _mixer = AudioSystem.getMixer(null);
-//        if (_mixer == null) {
-//            Log.warning("Can't get default mixer, aborting audio " +
-//                        "initialization.");
-//            return;
-//        }
-//
         // create a thread to plays sounds and load sound
         // data from the resource manager
         _player = new Thread() {
             public void run () {
+                Object command = null;
+                SoundType type = null;
+                String path = null;
+
                 while (amRunning()) {
                     try {
-//                        Log.info("Waiting for clip");
 
-                        // wait until there is an item to get from the queue
-                        Object o = _queue.get();
+                        // Get the next command and arguments
+                        synchronized (_queue) {
+                            command = _queue.get();
 
-                        // play sounds
-                        if (o instanceof SoundKey) {
-                            playSound((SoundKey) o);
+                            if (PLAY == command) {
+                                type = (SoundType) _queue.get();
+                                path = (String) _queue.get();
 
-                        // see if we got the flush rsrcs signal
-                        } else if (o == FLUSH) {
+                            } else if (LOCK == command) {
+                                path = (String) _queue.get();
+
+                            } else if (UNLOCK == command) {
+                                path = (String) _queue.get();
+                            }
+                        }
+
+                        // execute the command outside of the queue synch
+                        if (PLAY == command) {
+                            playSound(type, path);
+
+                        } else if (LOCK == command) {
+                            _dataCache.lock(path);
+                            getAudioData(path); // preload
+
+                        } else if (UNLOCK == command) {
+                            _dataCache.unlock(path);
+
+                        } else if (FLUSH == command) {
                             flushResources(false);
-                            // and re-start the resource freer timer to do
-                            // it again in 3 seconds
+                            // and re-start the resource freer timer
+                            // to do it again in 3 seconds
                             _resourceFreer.restart();
 
-                        // see if we got the die signal
-                        } else if (o == DIE) {
+                        } else if (DIE == command) {
                             _resourceFreer.stop();
                             flushResources(true);
                         }
                     } catch (Exception e) {
-                        Log.warning("Captured exception playing sound.");
+                        Log.warning("Captured exception in SoundManager loop.");
                         Log.logStackTrace(e);
                     }
                 }
@@ -187,8 +201,31 @@ public class SoundManager
     }
 
     /**
-     * Queues up the sound file with the given pathname to be played when
-     * the sound manager deems the time appropriate.
+     * Optionally lock the sound data prior to playing, to guarantee
+     * that it will be quickly available for playing.
+     */
+    public void lock (String path)
+    {
+        synchronized (_queue) {
+            _queue.append(LOCK);
+            _queue.append(path);
+        }
+    }
+
+    /**
+     * Unlock the specified sound so that its resources can be freed.
+     */
+    public void unlock (String path)
+    {
+        synchronized (_queue) {
+            _queue.append(UNLOCK);
+            _queue.append(path);
+        }
+    }
+
+    /**
+     * Play the specified sound of as the specified type of sound.
+     * Note that a sound need not be locked prior to playing.
      */
     public void play (SoundType type, String path)
     {
@@ -198,11 +235,12 @@ public class SoundManager
         }
 
         if (_player != null && (0f != getVolume(type))) {
-//            Log.info("Queueing sound [path=" + path + "].");
             synchronized (_queue) {
-                if (_queue.size() < MAX_SOUNDS_ENQUEUED) {
-                    SoundKey key = new SoundKey(path, type);
-                    _queue.append(key);
+                if (_queue.size() < MAX_QUEUE_SIZE) {
+                    _queue.append(PLAY);
+                    _queue.append(type);
+                    _queue.append(path);
+
                 } else {
                     Log.warning("SoundManager not playing sound because " +
                         "too many sounds in queue [path=" + path +
@@ -213,25 +251,22 @@ public class SoundManager
     }
 
     /**
-     * Plays the sound file with the given pathname.
+     * On the SoundManager thread,
+     * plays the sound file with the given pathname.
      */
-    protected void playSound (SoundKey key)
+    protected void playSound (SoundType type, String path)
     {
-//        Log.info("Playing sound [path=" + path + "].");
-
-        // see if we're playing the same sound that was just played.
-        SoundRecord rec = (SoundRecord) _active.get(key);
-        if (rec != null) {
-            rec.restart();
+        // see if we can restart a previously used sound that's still
+        // hanging out.
+        if (restartSound(type, path)) {
             return;
         }
 
         // get the sound data from our LRU cache
-        byte[] data = getAudioData(key.path);
+        byte[] data = getAudioData(path);
         if (data == null) {
             return; // borked!
         }
-//        Log.info("got data [length=" + data.length + "].");
 
         try {
             AudioInputStream stream = AudioSystem.getAudioInputStream(
@@ -242,23 +277,41 @@ public class SoundManager
             Clip clip = (Clip) AudioSystem.getLine(info);
             clip.open(stream);
 
-            rec = new SoundRecord(key, clip);
-            rec.start();
-            _active.put(key, rec);
-//            Log.info("clip played [path=" + path + "]");
+            SoundRecord rec = new SoundRecord(path, clip);
+            rec.start(type);
+            _active.add(rec);
 
         } catch (IOException ioe) {
-            Log.warning("Error loading sound file [path=" + key.path +
+            Log.warning("Error loading sound file [path=" + path +
                 ", e=" + ioe + "].");
 
         } catch (UnsupportedAudioFileException uafe) {
-            Log.warning("Unsupported sound format [path=" + key.path + ", e=" +
+            Log.warning("Unsupported sound format [path=" + path + ", e=" +
                 uafe + "].");
 
         } catch (LineUnavailableException lue) {
-            Log.warning("Line not available to play sound [path=" + key.path +
+            Log.warning("Line not available to play sound [path=" + path +
                 ", e=" + lue + "].");
         }
+    }
+
+    /**
+     * Attempt to reuse a clip that's already been loaded.
+     */
+    protected boolean restartSound (SoundType type, String path)
+    {
+        long now = System.currentTimeMillis();
+
+        // we just go through all the sounds. There'll be 32 max, so fuckit.
+        for (int ii=0, nn=_active.size(); ii < nn; ii++) {
+            SoundRecord rec = (SoundRecord) _active.get(ii);
+            if (rec.path.equals(path) && rec.isStoppedSince(now)) {
+                rec.restart(type);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -272,7 +325,7 @@ public class SoundManager
     {
         long then = System.currentTimeMillis() - EXPIRE_TIME;
 
-        for (Iterator iter=_active.values().iterator(); iter.hasNext(); ) {
+        for (Iterator iter=_active.iterator(); iter.hasNext(); ) {
             SoundRecord rec = (SoundRecord) iter.next();
             if (force || rec.isStoppedSince(then)) {
                 iter.remove();
@@ -305,36 +358,6 @@ public class SoundManager
     }
 
     /**
-     * A key for looking up a SoundRecord.
-     */
-    protected static class SoundKey
-    {
-        public String path;
-        public SoundType type;
-
-        public SoundKey (String path, SoundType type)
-        {
-            this.path = path;
-            this.type = type;
-        }
-
-        public int hashCode ()
-        {
-            return path.hashCode() ^ type.hashCode();
-        }
-
-        public boolean equals (Object other)
-        {
-            if (other instanceof SoundKey) {
-                SoundKey that = (SoundKey) other;
-                return this.path.equals(that.path) &&
-                       this.type.equals(that.type);
-            }
-            return false;
-        }
-    }
-
-    /**
      * A record to help us manage the use of sound resources.
      * We don't free the resources associated with a clip immediately, because
      * it may be played again shortly.
@@ -342,13 +365,14 @@ public class SoundManager
     protected class SoundRecord
         implements LineListener
     {
+        public String path;
 
         /**
          * Construct a SoundRecord.
          */
-        public SoundRecord (SoundKey key, Clip clip)
+        public SoundRecord (String path, Clip clip)
         {
-            _key = key;
+            this.path = path;
             _clip = clip;
 
             // The mess:
@@ -386,9 +410,9 @@ public class SoundManager
         /**
          * Start playing the sound.
          */
-        public void start ()
+        public void start (SoundType type)
         {
-            adjustVolume(_clip, _key.type);
+            adjustVolume(_clip, type);
             _clip.start();
             didStart();
         }
@@ -396,7 +420,7 @@ public class SoundManager
         /**
          * Restart the sound from the beginning.
          */
-        public void restart ()
+        public void restart (SoundType type)
         {
 // this seems to be unneeded
 //            if (_clip.isRunning()) {
@@ -404,7 +428,7 @@ public class SoundManager
 //                _clip.stop();
 //            }
             _clip.setFramePosition(0);
-            start();
+            start(type);
         }
 
         /**
@@ -493,9 +517,6 @@ public class SoundManager
 
         /** The clip we're wrapping. */
         protected Clip _clip;
-
-        /** Other information associated with this clip. */
-        protected SoundKey _key;
     }
 
     /**
@@ -576,9 +597,6 @@ public class SoundManager
     /** The resource manager from which we obtain audio files. */
     protected ResourceManager _rmgr;
 
-//    /** The default mixer. */
-//    protected Mixer _mixer;
-//
     /** The thread that plays sounds. */
     protected Thread _player;
 
@@ -586,19 +604,26 @@ public class SoundManager
     protected Queue _queue = new Queue();
     
     /** The cache of recent audio clips . */
-    protected LRUHashMap _dataCache = new LRUHashMap(10);
+    protected LockableLRUHashMap _dataCache = new LockableLRUHashMap(10);
 
     /** The clips that are currently active. */
-    protected HashMap _active = new HashMap();
+    protected ArrayList _active = new ArrayList();
 
     /** A set of soundTypes for which sound is enabled. */
     protected HashMap _volumes = new HashMap();
 
     /** Signals to the queue to do different things. */
-    protected Object FLUSH = new Object(), DIE = new Object();
+    protected Object PLAY = new Object();
+    protected Object LOCK = new Object();
+    protected Object UNLOCK = new Object();
+    protected Object FLUSH = new Object();
+    protected Object DIE = new Object();
 
-    /** The maximum number of sounds we'll allow to be enqueued. */
-    protected static final int MAX_SOUNDS_ENQUEUED = 25;
+    /** Default volume float object if no others found for a sound type. */
+    protected static final Float DEFAULT_VOLUME = new Float(1f);
+
+    /** The queue size at which we start to ignore requests to play sounds. */
+    protected static final int MAX_QUEUE_SIZE = 100;
 
     /** The buffer size in bytes used when reading audio file data. */
     protected static final int BUFFER_SIZE = 2048;
