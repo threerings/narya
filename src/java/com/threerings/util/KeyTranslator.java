@@ -1,5 +1,5 @@
 //
-// $Id: KeyTranslator.java,v 1.4 2003/01/14 00:53:38 shaper Exp $
+// $Id: KeyTranslator.java,v 1.5 2003/01/17 01:33:34 shaper Exp $
 
 package com.threerings.util;
 
@@ -36,9 +36,16 @@ public interface KeyTranslator
 
     /**
      * Returns the number of times each second that key presses are to be
-     * automatically repeated while the key is held down.
+     * automatically repeated while the key is held down, or
+     * <code>0</code> to disable auto-repeat for the key.
      */
     public int getRepeatRate (int keyCode);
+
+    /**
+     * Returns the delay in milliseconds before generating auto-repeated
+     * key press events for the specified key.
+     */
+    public long getRepeatDelay (int keyCode);
 
     /**
      * Returns an iterator that iterates over the available press

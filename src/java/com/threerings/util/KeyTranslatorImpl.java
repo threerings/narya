@@ -1,5 +1,5 @@
 //
-// $Id: KeyTranslatorImpl.java,v 1.4 2003/01/14 00:53:38 shaper Exp $
+// $Id: KeyTranslatorImpl.java,v 1.5 2003/01/17 01:33:34 shaper Exp $
 
 package com.threerings.util;
 
@@ -9,7 +9,7 @@ import java.util.Iterator;
 import com.samskivert.util.HashIntMap;
 
 /**
- * A simple implementation of the {@link KeyTranslator} interface that
+ * A basic implementation of the {@link KeyTranslator} interface that
  * provides facilities for mapping key codes to action command strings for
  * use by the {@link KeyboardManager}.
  */
@@ -31,14 +31,33 @@ public class KeyTranslatorImpl implements KeyTranslator
      * registered.
      *
      * @param rate the number of times each second that the key press
-     * should be repeated while the key is down; passing <code>0</code>
-     * will result in no repeating.
+     * should be repeated while the key is down, or <code>0</code> to
+     * disable auto-repeat for the key.
      */
     public void addPressCommand (int keyCode, String command, int rate)
+    {
+        addPressCommand(keyCode, command, rate, DEFAULT_REPEAT_DELAY);
+    }
+
+    /**
+     * Adds a mapping from a key press to an action command string that
+     * will auto-repeat at the specified repeat rate after the specified
+     * auto-repeat delay has expired.  Overwrites any existing mapping for
+     * the specified key code that may have already been registered.
+     *
+     * @param rate the number of times each second that the key press
+     * should be repeated while the key is down; passing <code>0</code>
+     * will result in no repeating.
+     * @param repeatDelay the delay in milliseconds before auto-repeating
+     * key press events will be generated for the key.
+     */
+    public void addPressCommand (
+        int keyCode, String command, int rate, long repeatDelay)
     {
         KeyRecord krec = getKeyRecord(keyCode);
         krec.pressCommand = command;
         krec.repeatRate = rate;
+        krec.repeatDelay = repeatDelay;
     }
 
     /**
@@ -90,7 +109,14 @@ public class KeyTranslatorImpl implements KeyTranslator
     public int getRepeatRate (int keyCode)
     {
         KeyRecord krec = (KeyRecord)_keys.get(keyCode);
-        return (krec == null) ? 0 : krec.repeatRate;
+        return (krec == null) ? DEFAULT_REPEAT_RATE : krec.repeatRate;
+    }
+
+    // documentation inherited
+    public long getRepeatDelay (int keyCode)
+    {
+        KeyRecord krec = (KeyRecord)_keys.get(keyCode);
+        return (krec == null) ? DEFAULT_REPEAT_DELAY : krec.repeatDelay;
     }
 
     // documentation inherited
@@ -128,11 +154,19 @@ public class KeyTranslatorImpl implements KeyTranslator
         /** The rate in presses per second at which the key is to be
          * auto-repeated. */
         public int repeatRate;
+
+        /** The delay in milliseconds that must expire with the key still
+         * pressed before auto-repeated key presses will begin. */
+        public long repeatDelay;
     }
 
     /** The keys for which commands are registered. */
     protected HashIntMap _keys = new HashIntMap();
 
     /** The default key press repeat rate. */
-    protected static final int DEFAULT_REPEAT_RATE = 3;
+    protected static final int DEFAULT_REPEAT_RATE = 5;
+
+    /** The default delay in milliseconds before auto-repeated key presses
+     * will begin. */
+    protected static final long DEFAULT_REPEAT_DELAY = 150L;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: KeyboardManager.java,v 1.17 2003/01/16 21:18:02 shaper Exp $
+// $Id: KeyboardManager.java,v 1.18 2003/01/17 01:33:34 shaper Exp $
 
 package com.threerings.util;
 
@@ -397,6 +397,7 @@ public class KeyboardManager
             _releaseCommand = _xlate.getReleaseCommand(_keyCode);
             int rate = _xlate.getRepeatRate(_keyCode);
             _pressDelay = (rate == 0) ? 0 : (1000L / rate);
+            _repeatDelay = _xlate.getRepeatDelay(_keyCode);
         }
 
         /**
@@ -412,8 +413,15 @@ public class KeyboardManager
             if (_iid == -1 && _pressDelay > 0) {
                 // register an interval to post the key press command
                 // until the key is decidedly released
-                _iid = IntervalManager.register(
-                    this, _pressDelay, null, true);
+                if (_repeatDelay > 0) {
+                    _iid = IntervalManager.register(
+                        this, _repeatDelay, this, false);
+
+                } else {
+                    _iid = IntervalManager.register(
+                        this, _pressDelay, null, true);
+                }
+
                 if (DEBUG_EVENTS) {
                     Log.info("Pressing key [key=" + _keyText + "].");
                 }
@@ -533,6 +541,16 @@ public class KeyboardManager
                 } else if (_lastPress != 0 && _pressCommand != null) {
                     // post the key press command again
                     postPress(now);
+
+                    if (arg == this) {
+                        // this key had a specific repeat delay interval
+                        // that may differ from the once-started repeat
+                        // rate, and so we need to re-register the
+                        // interval to make use of the proper time and to
+                        // continue repeating henceforth
+                        _iid = IntervalManager.register(
+                            this, _pressDelay, null, true);
+                    }
                 }
 
             } else if (id == _siid) {
@@ -621,6 +639,9 @@ public class KeyboardManager
 
         /** The milliseconds to sleep between sending repeat key commands. */
         protected long _pressDelay;
+
+        /** The delay in milliseconds before auto-repeating the key press. */
+        protected long _repeatDelay;
     }
 
     /** An observer operation to notify observers of a key event. */
