@@ -1,5 +1,5 @@
 //
-// $Id: OccupantDirector.java,v 1.1 2002/04/15 14:38:45 shaper Exp $
+// $Id: OccupantDirector.java,v 1.2 2002/05/22 21:47:14 shaper Exp $
 
 package com.threerings.crowd.client;
 
@@ -118,13 +118,15 @@ public class OccupantDirector
 
         // listen to the new one
         _place = place;
-        _place.addListener(this);
+        if (_place != null) {
+            _place.addListener(this);
 
-        // cache the occupant info for the occupants in this room
-        Iterator iter = _place.occupantInfo.entries();
-        while (iter.hasNext()) {
-            OccupantInfo info = (OccupantInfo)iter.next();
-            _ocache.put(info.getBodyOid(), info);
+            // cache the occupant info for the occupants in this room
+            Iterator iter = _place.occupantInfo.entries();
+            while (iter.hasNext()) {
+                OccupantInfo info = (OccupantInfo)iter.next();
+                _ocache.put(info.getBodyOid(), info);
+            }
         }
     }
 

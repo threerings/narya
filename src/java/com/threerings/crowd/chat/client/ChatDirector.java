@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.20 2002/04/30 17:27:30 mdb Exp $
+// $Id: ChatDirector.java,v 1.21 2002/05/22 21:44:54 shaper Exp $
 
 package com.threerings.crowd.chat;
 
@@ -186,7 +186,9 @@ public class ChatDirector
 
         // listen to the new object
         _place = place;
-        _place.addListener(this);
+        if (_place != null) {
+            _place.addListener(this);
+        }
     }
 
     // documentation inherited
