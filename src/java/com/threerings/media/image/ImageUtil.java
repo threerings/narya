@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.23 2003/01/14 02:50:34 mdb Exp $
+// $Id: ImageUtil.java,v 1.24 2003/01/16 21:38:11 ray Exp $
 
 package com.threerings.media.image;
 
@@ -210,7 +210,7 @@ public class ImageUtil
         }
 
         // create the destination image
-        int wid = src.getWidth(null), hei = src.getHeight(null);
+        int wid = src.getWidth(), hei = src.getHeight();
         BufferedImage dest = imgr.createImage(
             wid, hei, Transparency.TRANSLUCENT);
 
@@ -342,8 +342,8 @@ public class ImageUtil
     public static BufferedImage composeMaskedImage (
         ImageManager imgr, BufferedImage mask, BufferedImage base)
     {
-        int wid = base.getWidth(null);
-        int hei = base.getHeight(null);
+        int wid = base.getWidth();
+        int hei = base.getHeight();
 
         Raster maskdata = mask.getData();
         Raster basedata = base.getData();
