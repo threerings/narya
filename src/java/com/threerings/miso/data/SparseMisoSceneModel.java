@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneModel.java,v 1.2 2003/04/19 23:47:24 mdb Exp $
+// $Id: SparseMisoSceneModel.java,v 1.3 2003/04/20 00:05:14 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.samskivert.util.ArrayUtil;
-import com.samskivert.util.HashIntMap;
 import com.samskivert.util.IntListUtil;
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
@@ -16,6 +15,7 @@ import com.samskivert.util.StringUtil;
 import com.threerings.io.SimpleStreamableObject;
 
 import com.threerings.media.util.MathUtil;
+import com.threerings.util.StreamableHashIntMap;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.util.ObjectSet;
@@ -335,7 +335,7 @@ public class SparseMisoSceneModel extends MisoSceneModel
     public Object clone ()
     {
         SparseMisoSceneModel model = (SparseMisoSceneModel)super.clone();
-        model._sections = new HashIntMap();
+        model._sections = new StreamableHashIntMap();
         for (Iterator iter = getSections(); iter.hasNext(); ) {
             Section sect = (Section)iter.next();
             model.setSection((Section)sect.clone());
@@ -344,5 +344,5 @@ public class SparseMisoSceneModel extends MisoSceneModel
     }
 
     /** Contains our sections in row major order. */
-    protected HashIntMap _sections = new HashIntMap();
+    protected StreamableHashIntMap _sections = new StreamableHashIntMap();
 }
