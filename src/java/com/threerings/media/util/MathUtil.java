@@ -1,5 +1,5 @@
 //
-// $Id: MathUtil.java,v 1.11 2004/08/27 02:12:47 mdb Exp $
+// $Id: MathUtil.java,v 1.12 2004/11/04 04:52:31 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -108,5 +108,32 @@ public class MathUtil
     public static int floorDiv (int dividend, int divisor)
     {
         return ((dividend >= 0) ? dividend : (dividend - divisor + 1))/divisor;
+    }
+
+    /**
+     * Computes the standard deviation of the supplied values.
+     *
+     * @return an array of three values: the mean, variance and standard
+     * deviation, in that order.
+     */
+    public static float[] stddev (int[] values, int start, int length)
+    {
+        // first we need the mean
+        float mean = 0f;
+        for (int ii = start, end = start + length; ii < end; ii++) {
+            mean += values[ii];
+        }
+        mean /= length;
+
+        // next we compute the variance
+        float variance = 0f;
+        for (int ii = start, end = start + length; ii < end; ii++) {
+            float value = values[ii] - mean;
+            variance += value * value;
+        }
+        variance /= (length - 1);
+
+        // the standard deviation is the square root of the variance
+        return new float[] { mean, variance, (float)Math.sqrt(variance) };
     }
 }
