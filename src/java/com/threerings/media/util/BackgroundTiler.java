@@ -1,11 +1,13 @@
 //
-// $Id: BackgroundTiler.java,v 1.1 2002/05/07 03:11:17 mdb Exp $
+// $Id: BackgroundTiler.java,v 1.2 2002/05/07 03:23:46 mdb Exp $
 
 package com.threerings.media.util;
 
 import java.awt.Graphics;
 import java.awt.Shape;
 import java.awt.image.BufferedImage;
+
+import com.threerings.media.Log;
 
 /**
  * Used to tile a background image into regions of various sizes. The
@@ -20,6 +22,12 @@ public class BackgroundTiler
      */
     public BackgroundTiler (BufferedImage src)
     {
+        // make sure we were given the goods
+        if (src == null) {
+            Log.info("Backgrounder given null source image. Coping.");
+            return;
+        }
+
         // compute some values
         _width = src.getWidth(null);
         _w3 = _width/3;
@@ -29,12 +37,14 @@ public class BackgroundTiler
         _ch3 = _height-2*_h3;
 
         // create our sub-divided images
+        _tiles = new BufferedImage[9];
         int[] sy = { 0, _h3, _h3+_ch3 };
         int[] thei = { _h3, _ch3, _h3 };
         for (int i = 0; i < 3; i++) {
             _tiles[3*i] = src.getSubimage(0, sy[i], _w3, thei[i]);
             _tiles[3*i+1] = src.getSubimage(_w3, sy[i], _cw3, thei[i]);
-            _tiles[3*i+2] = src.getSubimage(_width-_w3, sy[i], _w3, thei[i]);
+            _tiles[3*i+2] =
+                src.getSubimage(_width-_w3, sy[i], _w3, thei[i]);
         }
     }
 
@@ -44,6 +54,12 @@ public class BackgroundTiler
      */
     public void paint (Graphics g, int x, int y, int width, int height)
     {
+        // bail out now if we were passed a bogus source image at
+        // construct time
+        if (_tiles == null) {
+            return;
+        }
+
         int rwid = width-2*_w3, rhei = height-2*_h3, cy = y;
         Shape oclip = g.getClip();
 
@@ -132,7 +148,7 @@ public class BackgroundTiler
     }
 
     /** Our nine sub-divided images. */
-    protected BufferedImage[] _tiles = new BufferedImage[9];
+    protected BufferedImage[] _tiles;
 
     /** The width/height of our source image. */
     protected int _width, _height;
