@@ -1,9 +1,10 @@
 //
-// $Id: ConnectionManager.java,v 1.20 2002/07/23 05:52:49 mdb Exp $
+// $Id: ConnectionManager.java,v 1.21 2002/07/25 20:23:25 mdb Exp $
 
 package com.threerings.presents.server.net;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.util.ArrayList;
 
 import ninja2.core.io_core.nbio.*;
@@ -49,8 +50,15 @@ public class ConnectionManager extends LoopingThread
         // we use this to wait for activity on our sockets
         _selset = new SelectSet();
 
-        // create our listening socket and add it to the select set
-        _listener = new NonblockingServerSocket(_port);
+        try {
+            // create our listening socket and add it to the select set
+            _listener = new NonblockingServerSocket(_port);
+        } catch (SocketException se) {
+            Log.warning("Failure creating listen socket " +
+                        "[port=" + _port + "].");
+            throw se;
+        }
+
         _litem = new SelectItem(_listener, Selectable.ACCEPT_READY);
         // when an ACCEPT_READY event happens, we do this:
         _litem.obj = new NetEventHandler() {
