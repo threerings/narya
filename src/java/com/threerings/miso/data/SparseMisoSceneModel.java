@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneModel.java,v 1.17 2004/10/23 17:36:32 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -118,10 +118,15 @@ public class SparseMisoSceneModel extends MisoSceneModel
         public boolean addObject (ObjectInfo info) {
             // sanity check: see if there is already an object of this
             // type at these coordinates
-            if (ListUtil.indexOf(objectInfo, info) != -1 ||
-                indexOfUn(info) != -1) {
-                Log.warning("Refusing to add duplicate interesting " +
-                            "object " + info + ".");
+            int dupidx;
+            if ((dupidx = ListUtil.indexOf(objectInfo, info)) != -1) {
+                Log.warning("Refusing to add duplicate object [ninfo=" + info +
+                        ", oinfo=" + objectInfo[dupidx] + "].");
+                return false;
+            }
+            if ((dupidx = indexOfUn(info)) != -1) {
+                Log.warning("Refusing to add duplicate object " +
+                        "[info=" + info + "].");
                 return false;
             }
 
