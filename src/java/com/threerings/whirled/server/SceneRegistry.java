@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.5 2001/10/11 04:07:54 mdb Exp $
+// $Id: SceneRegistry.java,v 1.6 2001/10/22 23:55:39 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -161,7 +161,7 @@ public class SceneRegistry
 
         try {
             SceneManager scmgr = (SceneManager)
-                CrowdServer.plreg.createPlace(scene.getPlaceConfig());
+                CrowdServer.plreg.createPlace(scene.getPlaceConfig(), null);
 
             // configure the scene manager with references to useful
             // stuff; we'll somehow need to convey configuration
