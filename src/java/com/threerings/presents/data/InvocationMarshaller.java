@@ -1,5 +1,5 @@
 //
-// $Id: InvocationMarshaller.java,v 1.4 2002/12/20 23:41:26 mdb Exp $
+// $Id: InvocationMarshaller.java,v 1.5 2003/03/04 01:35:33 mdb Exp $
 
 package com.threerings.presents.data;
 
@@ -82,6 +82,71 @@ public class InvocationMarshaller
         {
             return "[callerOid=" + callerOid + ", reqId=" + requestId +
                 ", type=" + getClass().getName() + "]";
+        }
+    }
+
+    /**
+     * Defines a marshaller for the standard {@link ConfirmListener}.
+     */
+    public static class ConfirmMarshaller extends ListenerMarshaller
+        implements ConfirmListener
+    {
+        /** The method id used to dispatch {@link #requestProcessed}
+         * responses. */
+        public static final int REQUEST_PROCESSED = 1;
+
+        // documentation inherited from interface
+        public void requestProcessed ()
+        {
+            omgr.postEvent(new InvocationResponseEvent(
+                               callerOid, requestId, REQUEST_PROCESSED,
+                               null));
+        }
+
+        // documentation inherited
+        public void dispatchResponse (int methodId, Object[] args)
+        {
+            switch (methodId) {
+            case REQUEST_PROCESSED:
+                ((ConfirmListener)listener).requestProcessed();
+                return;
+
+            default:
+                super.dispatchResponse(methodId, args);
+            }
+        }
+    }
+
+    /**
+     * Defines a marshaller for the standard {@link ResultListener}.
+     */
+    public static class ResultMarshaller extends ListenerMarshaller
+        implements ResultListener
+    {
+        /** The method id used to dispatch {@link #requestProcessed}
+         * responses. */
+        public static final int REQUEST_PROCESSED = 1;
+
+        // documentation inherited from interface
+        public void requestProcessed (Object result)
+        {
+            omgr.postEvent(new InvocationResponseEvent(
+                               callerOid, requestId, REQUEST_PROCESSED,
+                               new Object[] { result }));
+        }
+
+        // documentation inherited
+        public void dispatchResponse (int methodId, Object[] args)
+        {
+            switch (methodId) {
+            case REQUEST_PROCESSED:
+                ((ResultListener)listener).requestProcessed(
+                    args[0]);
+                return;
+
+            default:
+                super.dispatchResponse(methodId, args);
+            }
         }
     }
 
