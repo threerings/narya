@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.30 2002/09/17 20:38:42 mdb Exp $
+// $Id: TileSet.java,v 1.31 2002/09/17 21:17:15 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -71,8 +71,9 @@ public abstract class TileSet
     {
         _imagePath = imagePath;
 
-        // clear out any reference to a loaded image
+        // clear out any reference to a loaded image and cached tiles
         _tilesetImg = null;
+        _tiles = null;
     }
 
     /**
@@ -125,6 +126,16 @@ public abstract class TileSet
             ImageUtil.recolorImage((BufferedImage)timg, zations);
 
         return tset;
+    }
+
+    // documentation inherited
+    public Object clone ()
+        throws CloneNotSupportedException
+    {
+        TileSet dup = (TileSet)clone();
+        // clear out the tileset cache
+        dup._tiles = null;
+        return dup;
     }
 
     /**
@@ -296,7 +307,7 @@ public abstract class TileSet
 
     /** A sparse array containing the tiles that have been requested from
      * this tileset. */
-    protected Tile[] _tiles;
+    protected transient Tile[] _tiles;
 
     /** The entity from which we obtain our tile image. */
     protected transient ImageProvider _improv;
