@@ -194,6 +194,7 @@
     </jar>
     <jar destfile="${deploy.dir}/${app.name}-stage.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/stage/**"/>
+      <fileset dir="${classes.dir}" includes="rsrc/media/stage/**"/>
     </jar>
   </target>
 
