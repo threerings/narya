@@ -1,7 +1,7 @@
 //
-// $Id: ScrollingTestApp.java,v 1.18 2003/01/13 22:57:45 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.19 2003/01/31 23:11:07 mdb Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.miso.client;
 
 import java.awt.DisplayMode;
 import java.awt.GraphicsConfiguration;

@@ -1,7 +1,7 @@
 //
-// $Id: ScrollingFrame.java,v 1.3 2002/04/23 01:19:04 mdb Exp $
+// $Id: ScrollingFrame.java,v 1.4 2003/01/31 23:11:07 mdb Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.miso.client;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

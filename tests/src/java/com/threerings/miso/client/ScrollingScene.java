@@ -1,7 +1,7 @@
 //
-// $Id: ScrollingScene.java,v 1.10 2003/01/13 22:57:45 mdb Exp $
+// $Id: ScrollingScene.java,v 1.11 2003/01/31 23:11:07 mdb Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.miso.client;
 
 import java.awt.Rectangle;
 
@@ -18,7 +18,7 @@ import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileSetRepository;
 
-import com.threerings.miso.scene.util.ObjectSet;
+import com.threerings.miso.client.util.ObjectSet;
 import com.threerings.miso.tile.BaseTile;
 import com.threerings.miso.tile.BaseTileSet;
 import com.threerings.miso.util.MisoContext;

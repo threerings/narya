@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.54 2003/01/13 23:56:28 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.55 2003/01/31 23:11:07 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -28,11 +28,11 @@ import com.threerings.media.util.PerformanceMonitor;
 import com.threerings.media.util.PerformanceObserver;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.DisplayMisoScene;
-import com.threerings.miso.scene.IsoSceneView;
-import com.threerings.miso.scene.IsoSceneViewModel;
-import com.threerings.miso.scene.SceneViewPanel;
-import com.threerings.miso.scene.util.IsoUtil;
+import com.threerings.miso.client.DisplayMisoScene;
+import com.threerings.miso.client.IsoSceneView;
+import com.threerings.miso.client.IsoSceneViewModel;
+import com.threerings.miso.client.SceneViewPanel;
+import com.threerings.miso.client.util.IsoUtil;
 import com.threerings.miso.util.MisoContext;
 
 public class ViewerSceneViewPanel extends SceneViewPanel
