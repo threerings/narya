@@ -1,0 +1,51 @@
+% sort out scaling and translating
+36 36 translate
+/sf 540 640 div def
+sf sf scale
+
+% width/height ratio
+/whr 10 7.5 div def
+
+% center things vertically
+0 whr 640 mul 576 sub 2 div translate
+
+% translate off to the left one tile and clip
+64 neg 0 translate
+64 0 640 576 rectclip
+
+% draw the up moving diagnals
+/sx 0 def
+/sy 288 def
+/ex 384 def
+/ey 576 def
+
+1 1 13 {
+  sx sy moveto
+  ex ey lineto
+  stroke
+  /sx sx 32 add def
+  /ex ex 32 add def
+  /sy sy 24 sub def
+  /ey ey 24 sub def
+} for
+
+% draw the down moving diagnals
+/sx 0 def
+/sy 288 def
+/ex 384 def
+/ey 0 def
+
+1 1 13 {
+  sx sy moveto
+  ex ey lineto
+  stroke
+  /sx sx 32 add def
+  /ex ex 32 add def
+  /sy sy 24 add def
+  /ey ey 24 add def
+} for
+
+% box the whole thing in
+64 0 640 576 rectstroke
+
+showpage
