@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaClient.java,v 1.3 2001/10/11 04:13:33 mdb Exp $
+// $Id: MiCasaClient.java,v 1.4 2001/10/17 23:29:18 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -51,7 +51,7 @@ public class MiCasaClient
         _pardtr = new ParlorDirector(_ctx);
 
         // for test purposes, hardcode the server info
-        _client.setServer("localhost", 4007);
+        _client.setServer("bering", 4007);
 
         // keep this for later
         _frame = frame;
