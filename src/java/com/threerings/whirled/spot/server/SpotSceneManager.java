@@ -1,10 +1,11 @@
 //
-// $Id: SpotSceneManager.java,v 1.9 2002/06/19 23:22:51 ray Exp $
+// $Id: SpotSceneManager.java,v 1.10 2002/06/20 22:14:58 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
 import com.samskivert.util.IntIntMap;
 import com.samskivert.util.IntListUtil;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.Subscriber;
@@ -20,6 +21,7 @@ import com.threerings.whirled.spot.Log;
 import com.threerings.whirled.spot.data.SpotCodes;
 import com.threerings.whirled.spot.data.SpotOccupantInfo;
 import com.threerings.whirled.spot.data.SpotSceneModel;
+import com.threerings.whirled.spot.util.SpotSceneUtil;
 
 /**
  * Handles the movement of bodies between locations in the scene and
@@ -49,6 +51,17 @@ public class SpotSceneManager extends SceneManager
         _entering.remove(bodyOid);
     }
 
+    /**
+     * Returns the locationId of an unoccupied location in this scene
+     * (portals are not included when selecting). If no locations are
+     * unoccupied, this method returns -1.
+     */
+    public int getUnoccupiedLocation (boolean preferClusters)
+    {
+        return SpotSceneUtil.getUnoccupiedLocation(
+            _sscene.getModel(), _locationOccs, preferClusters);
+    }
+
     // documentation inherited
     protected void gotSceneData ()
     {
@@ -68,8 +81,8 @@ public class SpotSceneManager extends SceneManager
 
             public void requestFailed (int oid, ObjectAccessException cause) {
                 Log.warning("Failed to create cluster object " +
-                            "[cluster=" + _index + ", oid=" + oid +
-                            ", cause=" + cause + "].");
+                            "[where=" + where() + ", cluster=" + _index +
+                            ", oid=" + oid + ", cause=" + cause + "].");
                 // skip to the next cluster in case others didn't fail
                 _index++;
             }
@@ -134,8 +147,13 @@ public class SpotSceneManager extends SceneManager
         int locidx = _sscene.getLocationIndex(locationId);
         if (locidx == -1 || _locationOccs[locidx] != 0) {
             Log.info("Ignoring request to change to occupied or " +
-                     "non-existent location [user=" + source.username +
-                     ", locId=" + locationId + ", locidx=" + locidx + "].");
+                     "non-existent location [where=" + where() +
+                     ", user=" + source.username +
+                     ", locId=" + locationId + ", locidx=" + locidx +
+                     ", lococcs=" + StringUtil.toString(_locationOccs) +
+                     ", occinfo=" + StringUtil.listToString(
+                         _plobj.occupantInfo.entries(),
+                         SpotOccupantInfo.OIDS_AND_LOCS) + "].");
             throw new ServiceFailedException(LOCATION_OCCUPIED);
         }
 
@@ -145,7 +163,8 @@ public class SpotSceneManager extends SceneManager
             _plobj.occupantInfo.get(new Integer(bodyOid));
         if (soi == null) {
             Log.warning("Aiya! Can't update non-existent occupant info " +
-                        "with new location [body=" + source + "].");
+                        "with new location [where=" + where() +
+                        ", body=" + source + "].");
             throw new ServiceFailedException(INTERNAL_ERROR);
         }
 
@@ -155,7 +174,7 @@ public class SpotSceneManager extends SceneManager
             if (oldlocidx == -1) {
                 Log.warning("Changing location for body that was " +
                             "previously in an invalid location " +
-                            "[info=" + soi + "].");
+                            "[where=" + where() + ", info=" + soi + "].");
             } else {
                 _locationOccs[oldlocidx] = 0;
             }
@@ -164,7 +183,15 @@ public class SpotSceneManager extends SceneManager
         // stick our new friend into that location, if it's not a portal
         if (!_isPortal[locidx]) {
             _locationOccs[locidx] = bodyOid;
+            Log.info("Putting user in location [where=" + where() +
+                     ", boid=" + source.getOid() +
+                     ", locId=" + locationId + "].");
+        } else {
+            Log.info("Putting user on portal [where=" + where() +
+                     ", boid=" + source.getOid() +
+                     ", locId=" + locationId + "].");
         }
+
         // update a clone of their occupant info, we need to clone because
         // the original could still be in the queue as part of another
         // event going out to the clients.
@@ -190,7 +217,8 @@ public class SpotSceneManager extends SceneManager
         int locidx = _sscene.getLocationIndex(locationId);
         if (locidx == -1 || _locationOccs[locidx] != sourceOid) {
             Log.warning("User not in specified location for CCREQ " +
-                        "[body=" + source + ", locId=" + locationId +
+                        "[where=" + where() + ", body=" + source +
+                        ", locId=" + locationId + ", locidx=" + locidx +
                         ", message=" + message + "].");
             return;
         }
@@ -199,7 +227,8 @@ public class SpotSceneManager extends SceneManager
         int clusterIndex = _sscene.getClusterIndex(locidx);
         if (clusterIndex == -1) {
             Log.warning("User in clusterless location sent CCREQ " +
-                        "[body=" + source + ", locId=" + locationId +
+                        "[where=" + where() + ", body=" + source +
+                        ", locId=" + locationId +
                         ", message=" + message + "].");
             return;
         }
@@ -211,8 +240,8 @@ public class SpotSceneManager extends SceneManager
 
         } else {
             Log.warning("Have no cluster object for CCREQ " +
-                        "[cidx=" + clusterIndex + ", chatter=" + source +
-                        ", message=" + message + "].");
+                        "[where=" + where() + ", cidx=" + clusterIndex +
+                        ", chatter=" + source + ", message=" + message + "].");
         }
     }
 
