@@ -1,5 +1,5 @@
 //
-// $Id: ZoneRegistry.java,v 1.4 2001/12/17 00:56:19 mdb Exp $
+// $Id: ZoneRegistry.java,v 1.5 2002/01/29 02:05:49 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -10,7 +10,7 @@ import com.threerings.presents.server.InvocationManager;
 import com.threerings.whirled.server.SceneRegistry;
 
 import com.threerings.whirled.zone.Log;
-import com.threerings.whirled.zone.server.util.ZoneUtil;
+import com.threerings.whirled.zone.util.ZoneUtil;
 
 /**
  * The zone registry takes care of mapping zone requests to the

@@ -1,7 +1,7 @@
 //
-// $Id: ZoneUtil.java,v 1.1 2001/12/13 05:46:11 mdb Exp $
+// $Id: ZoneUtil.java,v 1.2 2002/01/29 02:05:49 mdb Exp $
 
-package com.threerings.whirled.zone.server.util;
+package com.threerings.whirled.zone.util;
 
 /**
  * Server-specific, zone-related utility functions.
