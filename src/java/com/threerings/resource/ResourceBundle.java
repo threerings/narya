@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.17 2003/06/18 16:54:17 mdb Exp $
+// $Id: ResourceBundle.java,v 1.18 2003/06/19 01:12:59 ray Exp $
 
 package com.threerings.resource;
 
@@ -67,6 +67,16 @@ public class ResourceBundle
     public File getSource ()
     {
         return _source;
+    }
+
+    /**
+     * @return true if the bundle is fully downloaded and successfully
+     * unpacked.
+     */
+    public boolean isUnpacked ()
+    {
+        return (_source.exists() && (_unpacked != null) &&
+            (_unpacked.lastModified() == _source.lastModified()));
     }
 
     /**
