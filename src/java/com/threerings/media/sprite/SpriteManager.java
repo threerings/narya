@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.17 2002/01/11 16:17:33 shaper Exp $
+// $Id: SpriteManager.java,v 1.18 2002/01/22 18:58:52 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -21,7 +21,7 @@ import com.samskivert.util.Tuple;
 import com.threerings.media.Log;
 
 /**
- * The SpriteManager manages the sprites running about in the game.
+ * The sprite manager manages the sprites running about in the game.
  */
 public class SpriteManager
 {
@@ -136,9 +136,9 @@ public class SpriteManager
     }
 
     /**
-     * Called periodically by the tick tasks put on the AWT event
-     * queue by the {@link AnimationManager}.  Handles moving about of
-     * sprites and reporting of sprite collisions.
+     * Called periodically by the tick tasks put on the AWT event queue by
+     * the {@link com.threerings.media.animation.AnimationManager}.
+     * Handles moving about of sprites and reporting of sprite collisions.
      */
     public void tick (long timestamp, List rects)
     {

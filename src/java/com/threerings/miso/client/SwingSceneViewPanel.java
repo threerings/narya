@@ -1,5 +1,5 @@
 //
-// $Id: SwingSceneViewPanel.java,v 1.2 2002/01/11 16:17:34 shaper Exp $
+// $Id: SwingSceneViewPanel.java,v 1.3 2002/01/22 18:58:52 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -27,10 +27,11 @@ import com.threerings.miso.util.MisoUtil;
  *
  * <p> This class is nearly identical to {@link SceneViewPanel} excepting
  * that it extends {@link JComponent} rather than {@link
- * com.threerings.media.sprite.AnimatedPanel}, which allows it to be used
- * in applications like the scene editor that may need to have menus and
- * tooltips displayed properly when overlapping the scene view, and that
- * do not depend on use of the animation manager to refresh the display.
+ * com.threerings.media.animation.AnimatedPanel}, which allows it to be
+ * used in applications like the scene editor that may need to have menus
+ * and tooltips displayed properly when overlapping the scene view, and
+ * that do not depend on use of the animation manager to refresh the
+ * display.
  */
 public class SwingSceneViewPanel extends JComponent
     implements AnimatedView, IsoSceneViewModelListener

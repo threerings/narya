@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.34 2002/01/07 23:51:52 shaper Exp $
+// $Id: Sprite.java,v 1.35 2002/01/22 18:58:52 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -372,7 +372,7 @@ public class Sprite implements DirectionCodes
      * Passing <code>null</code> will simply invalidate the sprite's
      * entire rendered bounds.  Note that the given rectangle may be
      * destructively modified at some later time, e.g., by {@link
-     * SpriteManager#getDirtyRects}.
+     * com.threerings.media.animation.AnimationManager#mergeDirtyRects}.
      */
     protected void invalidate (Rectangle r)
     {
