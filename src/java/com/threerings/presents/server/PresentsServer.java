@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.32 2003/03/30 21:27:13 mdb Exp $
+// $Id: PresentsServer.java,v 1.33 2003/03/31 02:10:37 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -9,6 +9,8 @@ import com.samskivert.util.IntervalManager;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.SystemInfo;
+
+import com.threerings.util.signal.SignalManager;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.client.Client;
@@ -28,6 +30,7 @@ import com.threerings.presents.util.Invoker;
  * initialized.
  */
 public class PresentsServer
+    implements SignalManager.SignalHandler
 {
     /** Used to generate "state of the server" reports. See {@link
      * #registerReporter}. */
@@ -87,6 +90,9 @@ public class PresentsServer
                  ", jvm=" + si.jvmToString() +
                  ", mem=" + si.memoryToString() + "].");
 
+        // register a ctrl-c handler
+        SignalManager.registerSignalHandler(SignalManager.SIGINT, this);
+
         // create our distributed object manager
         omgr = new PresentsDObjectMgr();
 
@@ -140,6 +146,18 @@ public class PresentsServer
         });
         // invoke the dobjmgr event loop
         omgr.run();
+    }
+
+    // documentation inherited from interface
+    public boolean signalReceived (int signo)
+    {
+        // this is called when we receive a ctrl-c
+        omgr.postUnit(new Runnable() {
+            public void run () {
+                shutdown();
+            }
+        });
+        return true;
     }
 
     /**
