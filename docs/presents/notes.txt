@@ -12,6 +12,8 @@ clientWillLogff becomes clientMayLogoff?
 
 Look into nbio waking up all sockets when any data comes in.
 
+Wire up Client.sessionDidTerminate; do session termination in general.
+
 * Server-side event concentrator
 The client objects will not subscribe directly, but will subscribe through
 the concentrator so that, at least, it can create a single

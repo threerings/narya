@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.8 2001/08/03 02:25:49 mdb Exp $
+// $Id: ClientManager.java,v 1.9 2001/08/04 01:54:34 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -109,7 +109,7 @@ public class ClientManager implements ConnectionObserver
             // create a new client and stick'em in the table
             try {
                 client = (CherClient)_clientClass.newInstance();
-                client.init(this, username, conn);
+                client.startSession(this, username, conn);
                 _usermap.put(username, client);
             } catch (Exception e) {
                 Log.warning("Failed to instantiate client instance to " +

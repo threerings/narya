@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.13 2001/08/03 02:25:49 mdb Exp $
+// $Id: PresentsClient.java,v 1.14 2001/08/04 01:54:34 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -29,10 +29,27 @@ import com.threerings.cocktail.cher.server.net.*;
 public class CherClient implements Subscriber, MessageHandler
 {
     /**
-     * Initializes this client instance with the specified username and
-     * connection instance.
+     * Returns the username with which this client instance is associated.
      */
-    public void init (ClientManager cmgr, String username, Connection conn)
+    public String getUsername ()
+    {
+        return _username;
+    }
+
+    /**
+     * Returns the client object that is associated with this client.
+     */
+    public ClientObject getClientObject ()
+    {
+        return _clobj;
+    }
+
+    /**
+     * Initializes this client instance with the specified username and
+     * connection instance and begins a client session.
+     */
+    protected void startSession (
+        ClientManager cmgr, String username, Connection conn)
     {
         _cmgr = cmgr;
         _username = username;
@@ -44,7 +61,7 @@ public class CherClient implements Subscriber, MessageHandler
         {
             public void objectAvailable (DObject object)
             {
-                _clobj = (ClientObject)object;
+                setClientObject((ClientObject)object);
                 sessionWillStart();
                 sendBootstrap();
             }
@@ -66,19 +83,13 @@ public class CherClient implements Subscriber, MessageHandler
     }
 
     /**
-     * Returns the username with which this client instance is associated.
+     * Called when we receive our client object from the dobjmgr. We go
+     * through this synchronized method to ensure that the client object
+     * is visible to the conmgr.
      */
-    public String getUsername ()
+    protected synchronized void setClientObject (ClientObject clobj)
     {
-        return _username;
-    }
-
-    /**
-     * Returns the client object that is associated with this client.
-     */
-    public ClientObject getClientObject ()
-    {
-        return _clobj;
+        _clobj = clobj;
     }
 
     /**
@@ -86,7 +97,7 @@ public class CherClient implements Subscriber, MessageHandler
      * authenticates as this already established client. This must only be
      * called from the congmr thread.
      */
-    public void resumeSession (Connection conn)
+    protected void resumeSession (Connection conn)
     {
         Connection oldconn = getConnection();
 
@@ -103,6 +114,18 @@ public class CherClient implements Subscriber, MessageHandler
         // start using the new connection
         setConnection(conn);
 
+        // we need to queue up an event so that we can finalize the
+        // resumption of the session on the dobjmgr thread
+        CherServer.omgr.postEvent(new ResumeSessionEvent(_clobj.getOid()));
+    }
+
+    /**
+     * This is called from the dobjmgr thread to complete the session
+     * resumption. We call some call backs and send the bootstrap info to
+     * the client.
+     */
+    protected void finishResumeSession ()
+    {
         // let derived classes do any session resuming
         sessionWillResume();
 
@@ -118,8 +141,12 @@ public class CherClient implements Subscriber, MessageHandler
      * has been created at this point and after this method is executed,
      * the bootstrap information will be sent to the client which will
      * trigger the start of the session. Derived classes that override
-     * this function should be sure to call
-     * <code>super.sessionWillStart()</code>.
+     * this method should be sure to call
+     * <code>super.sessionWillStart</code>.
+     *
+     * <p><em>Note:</em> This function will be called on the dobjmgr
+     * thread which means that object manipulations are OK, but client
+     * instance manipulations must done carefully.
      */
     protected void sessionWillStart ()
     {
@@ -130,10 +157,27 @@ public class CherClient implements Subscriber, MessageHandler
      * and reconnected). After this method is executed, the bootstrap
      * information will be sent to the client which will trigger the
      * resumption of the session. Derived classes that override this
-     * function should be sure to call
-     * <code>super.sessionWillResume()</code>.
+     * method should be sure to call <code>super.sessionWillResume</code>.
+     *
+     * <p><em>Note:</em> This function will be called on the dobjmgr
+     * thread which means that object manipulations are OK, but client
+     * instance manipulations must done carefully.
      */
     protected void sessionWillResume ()
+    {
+    }
+
+    /**
+     * Called when the client session ends (either because the client
+     * logged off or because the server forcibly terminated the session).
+     * Derived classes that override this method should be sure to call
+     * <code>super.sessionDidTerminate</code>.
+     *
+     * <p><em>Note:</em> This function will be called on the dobjmgr
+     * thread which means that object manipulations are OK, but client
+     * instance manipulations must done carefully.
+     */
+    protected void sessionDidTerminate ()
     {
     }
 
@@ -167,8 +211,12 @@ public class CherClient implements Subscriber, MessageHandler
     /**
      * Derived client classes can override this member to populate the
      * bootstrap data with additional information. They should be sure to
-     * call <code>super.populateBootstrapData()</code> before doing their
+     * call <code>super.populateBootstrapData</code> before doing their
      * own populating, however.
+     *
+     * <p><em>Note:</em> This function will be called on the dobjmgr
+     * thread which means that object manipulations are OK, but client
+     * instance manipulations must done carefully.
      */
     protected void populateBootstrapData (BootstrapData data)
     {
@@ -184,12 +232,17 @@ public class CherClient implements Subscriber, MessageHandler
      * fails. This is invoked on the conmgr thread, and should behave
      * accordingly.
      */
-    public void connectionFailed (IOException fault)
+    protected void connectionFailed (IOException fault)
     {
         // clear out our connection reference
         setConnection(null);
     }
 
+    /**
+     * Sets our connection reference in a thread safe way. Also
+     * establishes the back reference to us as the connection's message
+     * handler.
+     */
     protected synchronized void setConnection (Connection conn)
     {
         // keep a handle to the new connection
@@ -260,17 +313,24 @@ public class CherClient implements Subscriber, MessageHandler
     // documentation inherited from interface
     public boolean handleEvent (DEvent event, DObject target)
     {
-        // forward the event to the client
-        Connection conn = getConnection();
-        if (conn != null) {
-            // only typed events will be forwarded to the client, so we
-            // need not worry that a non-typed event would make it here
-            TypedEvent tevent = (TypedEvent)event;
-            conn.postMessage(new EventNotification(tevent));
+        if (event instanceof ResumeSessionEvent) {
+            finishResumeSession();
+
         } else {
-            Log.info("Dropped event forward notification " +
-                     "[client=" + this + ", event=" + event + "].");
+            // forward the event to the client
+            Connection conn = getConnection();
+            if (conn != null) {
+                // only typed events will be forwarded to the client, so
+                // we need not worry that a non-typed event would make it
+                // here
+                TypedEvent tevent = (TypedEvent)event;
+                conn.postMessage(new EventNotification(tevent));
+            } else {
+                Log.info("Dropped event forward notification " +
+                         "[client=" + this + ", event=" + event + "].");
+            }
         }
+
         return true;
     }
 
@@ -383,6 +443,24 @@ public class CherClient implements Subscriber, MessageHandler
             }
             // then let the client manager know what's up
             client._cmgr.clientDidEndSession(client);
+        }
+    }
+
+    /**
+     * Used to inject ourselves onto the dobjmgr thread.
+     */
+    protected static class ResumeSessionEvent extends DEvent
+    {
+        public ResumeSessionEvent (int oid)
+        {
+            super(oid);
+        }
+
+        public boolean applyToObject (DObject target)
+            throws ObjectAccessException
+        {
+            // nothing to do here and don't tell our subscribers
+            return false;
         }
     }
 
