@@ -1,5 +1,5 @@
 //
-// $Id: CharacterDescriptor.java,v 1.8 2002/06/18 04:55:44 shaper Exp $
+// $Id: CharacterDescriptor.java,v 1.9 2002/10/07 23:58:29 mdb Exp $
 
 package com.threerings.cast;
 
@@ -47,6 +47,14 @@ public class CharacterDescriptor
     public Colorization[][] getColorizations ()
     {
         return _zations;
+    }
+
+    /**
+     * Updates the colorizations to be used by this character descriptor.
+     */
+    public void setColorizations (Colorization[][] zations)
+    {
+        _zations = zations;
     }
 
     /**
