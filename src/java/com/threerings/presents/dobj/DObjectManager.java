@@ -1,5 +1,5 @@
 //
-// $Id: DObjectManager.java,v 1.10 2001/10/24 00:36:40 mdb Exp $
+// $Id: DObjectManager.java,v 1.11 2003/03/10 18:29:54 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -14,6 +14,13 @@ package com.threerings.presents.dobj;
  */
 public interface DObjectManager
 {
+    /**
+     * Returns true if this distributed object manager is the
+     * authoritative manager for the specified distributed object, or fals
+     * if we are only providing a proxy to the object.
+     */
+    public boolean isManager (DObject object);
+
     /**
      * Creates a distributed object instance of the supplied class and
      * notifies the specified subscriber when it becomes available. This

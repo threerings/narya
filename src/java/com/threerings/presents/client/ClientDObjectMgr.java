@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.20 2003/01/22 02:02:04 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.21 2003/03/10 18:29:54 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -45,6 +45,13 @@ public class ClientDObjectMgr
         // distributed object table
         DebugChords.registerHook(
             DUMP_OTABLE_MODMASK, DUMP_OTABLE_KEYCODE, DUMP_OTABLE_HOOK);
+    }
+
+    // documentation inherited from interface
+    public boolean isManager (DObject object)
+    {
+        // we are never authoritative in the present implementation
+        return false;
     }
 
     // inherit documentation from the interface

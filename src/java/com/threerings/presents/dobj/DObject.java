@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.59 2003/02/26 17:54:56 mdb Exp $
+// $Id: DObject.java,v 1.60 2003/03/10 18:29:54 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -775,8 +775,17 @@ public class DObject implements Streamable
     {
         try {
             DSet set = (DSet)getAttribute(name);
+            // if we're on the authoritative server, we update the set
+            // immediately
+            boolean alreadyApplied = false;
+            if (_omgr.isManager(this)) {
+//                 Log.info("Immediately adding [name=" + name +
+//                          ", entry=" + entry + "].");
+                set.add(entry);
+                alreadyApplied = true;
+            }
             // dispatch an entry added event
-            postEvent(new EntryAddedEvent(_oid, name, entry));
+            postEvent(new EntryAddedEvent(_oid, name, entry, alreadyApplied));
 
         } catch (ObjectAccessException oae) {
             Log.warning("Unable to request entryAdd [name=" + name +
@@ -789,8 +798,24 @@ public class DObject implements Streamable
      */
     protected void requestEntryRemove (String name, Comparable key)
     {
-        // dispatch an entry removed event
-        postEvent(new EntryRemovedEvent(_oid, name, key));
+        try {
+            DSet set = (DSet)getAttribute(name);
+            // if we're on the authoritative server, we update the set
+            // immediately
+            DSet.Entry oldEntry = null;
+            if (_omgr.isManager(this)) {
+//                 Log.info("Immediately removing [name=" + name +
+//                          ", key=" + key + "].");
+                oldEntry = set.get(key);
+                set.removeKey(key);
+            }
+            // dispatch an entry removed event
+            postEvent(new EntryRemovedEvent(_oid, name, key, oldEntry));
+
+        } catch (ObjectAccessException oae) {
+            Log.warning("Unable to request entryRemove [name=" + name +
+                        ", key=" + key + ", error=" + oae + "].");
+        }
     }
 
     /**
@@ -800,8 +825,17 @@ public class DObject implements Streamable
     {
         try {
             DSet set = (DSet)getAttribute(name);
+            // if we're on the authoritative server, we update the set
+            // immediately
+            DSet.Entry oldEntry = null;
+            if (_omgr.isManager(this)) {
+//                 Log.info("Immediately updating [name=" + name +
+//                          ", entry=" + entry + "].");
+                oldEntry = set.get(entry.getKey());
+                set.update(entry);
+            }
             // dispatch an entry updated event
-            postEvent(new EntryUpdatedEvent(_oid, name, entry));
+            postEvent(new EntryUpdatedEvent(_oid, name, entry, oldEntry));
 
         } catch (ObjectAccessException oae) {
             Log.warning("Unable to request entryUpdate [name=" + name +

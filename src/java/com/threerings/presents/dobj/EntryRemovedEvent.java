@@ -1,5 +1,5 @@
 //
-// $Id: EntryRemovedEvent.java,v 1.13 2003/02/26 21:41:47 mdb Exp $
+// $Id: EntryRemovedEvent.java,v 1.14 2003/03/10 18:29:54 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -25,8 +25,19 @@ public class EntryRemovedEvent extends NamedEvent
      */
     public EntryRemovedEvent (int targetOid, String name, Comparable key)
     {
+        this(targetOid, name, key, null);
+    }
+
+    /**
+     * Used when the distributed object already removed the entry before
+     * generating the event.
+     */
+    public EntryRemovedEvent (int targetOid, String name, Comparable key,
+                              DSet.Entry oldEntry)
+    {
         super(targetOid, name);
         _key = key;
+        _oldEntry = oldEntry;
     }
 
     /**
@@ -59,11 +70,13 @@ public class EntryRemovedEvent extends NamedEvent
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
-        DSet set = (DSet)target.getAttribute(_name);
-        // fetch the previous value for interested callers
-        _oldEntry = set.get(_key);
-        // remove it from the set
-        set.removeKey(_key);
+        if (_oldEntry == null) {
+            DSet set = (DSet)target.getAttribute(_name);
+            // fetch the previous value for interested callers
+            _oldEntry = set.get(_key);
+            // remove it from the set
+            set.removeKey(_key);
+        }
         return true;
     }
 

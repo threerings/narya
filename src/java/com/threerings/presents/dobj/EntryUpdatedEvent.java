@@ -1,5 +1,5 @@
 //
-// $Id: EntryUpdatedEvent.java,v 1.9 2002/12/20 23:29:04 mdb Exp $
+// $Id: EntryUpdatedEvent.java,v 1.10 2003/03/10 18:29:54 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -28,8 +28,19 @@ public class EntryUpdatedEvent extends NamedEvent
      */
     public EntryUpdatedEvent (int targetOid, String name, DSet.Entry entry)
     {
+        this(targetOid, name, entry, null);
+    }
+
+    /**
+     * Used when the distributed object already updated the entry before
+     * generating the event.
+     */
+    public EntryUpdatedEvent (int targetOid, String name, DSet.Entry entry,
+                              DSet.Entry oldEntry)
+    {
         super(targetOid, name);
         _entry = entry;
+        _oldEntry = oldEntry;
     }
 
     /**
@@ -62,19 +73,20 @@ public class EntryUpdatedEvent extends NamedEvent
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
-        DSet set = (DSet)target.getAttribute(_name);
+        if (_oldEntry == null) {
+            DSet set = (DSet)target.getAttribute(_name);
 
-        // fetch the previous value for interested callers
-        _oldEntry = set.get(_entry.getKey());
+            // fetch the previous value for interested callers
+            _oldEntry = set.get(_entry.getKey());
 
-        // update the entry
-        if (!set.update(_entry)) {
-            // complain if we didn't update anything
-            Log.warning("No matching entry to update [entry=" + this +
-                        ", set=" + set + "].");
-            return false;
+            // update the entry
+            if (!set.update(_entry)) {
+                // complain if we didn't update anything
+                Log.warning("No matching entry to update [entry=" + this +
+                            ", set=" + set + "].");
+                return false;
+            }
         }
-
         return true;
     }
 

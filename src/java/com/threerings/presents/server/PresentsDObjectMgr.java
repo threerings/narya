@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.28 2003/01/27 22:56:29 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.29 2003/03/10 18:29:54 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -58,6 +58,13 @@ public class PresentsDObjectMgr
     public void setDefaultAccessController (AccessController controller)
     {
         _defaultController = controller;
+    }
+
+    // documentation inherited from interface
+    public boolean isManager (DObject object)
+    {
+        // we are always authoritative in the present implementation
+        return true;
     }
 
     // inherit documentation from the interface

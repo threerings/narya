@@ -1,5 +1,5 @@
 //
-// $Id: EntryAddedEvent.java,v 1.9 2002/12/20 23:29:04 mdb Exp $
+// $Id: EntryAddedEvent.java,v 1.10 2003/03/10 18:29:54 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -28,8 +28,19 @@ public class EntryAddedEvent extends NamedEvent
      */
     public EntryAddedEvent (int targetOid, String name, DSet.Entry entry)
     {
+        this(targetOid, name, entry, false);
+    }
+
+    /**
+     * Used when the distributed object already added the entry before
+     * generating the event.
+     */
+    public EntryAddedEvent (int targetOid, String name, DSet.Entry entry,
+                            boolean alreadyApplied)
+    {
         super(targetOid, name);
         _entry = entry;
+        _alreadyApplied = alreadyApplied;
     }
 
     /**
@@ -54,8 +65,10 @@ public class EntryAddedEvent extends NamedEvent
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
-        DSet set = (DSet)target.getAttribute(_name);
-        set.add(_entry);
+        if (!_alreadyApplied) {
+            DSet set = (DSet)target.getAttribute(_name);
+            set.add(_entry);
+        }
         return true;
     }
 
@@ -77,4 +90,9 @@ public class EntryAddedEvent extends NamedEvent
     }
 
     protected DSet.Entry _entry;
+
+    /** Used when this event is generated on the authoritative server
+     * where object changes are made immediately. This lets us know not to
+     * apply ourselves when we're actually dispatched. */
+    protected transient boolean _alreadyApplied;
 }
