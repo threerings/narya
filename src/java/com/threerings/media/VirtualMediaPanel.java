@@ -21,10 +21,11 @@
 
 package com.threerings.media;
 
-import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 
 import javax.swing.SwingUtilities;
@@ -161,6 +162,17 @@ public class VirtualMediaPanel extends MediaPanel
     {
         event.translatePoint(_vbounds.x, _vbounds.y);
         super.processMouseMotionEvent(event);
+    }
+
+    /**
+     * We overload this to translate mouse events into the proper
+     * coordinates before they are dispatched to any of the mouse
+     * listeners.
+     */
+    protected void processMouseWheelEvent (MouseWheelEvent event)
+    {
+        event.translatePoint(_vbounds.x, _vbounds.y);
+        super.processMouseWheelEvent(event);
     }
 
     // documentation inherited
