@@ -1,0 +1,74 @@
+//
+// $Id: PuzzleObject.dobj,v 1.1 2003/11/26 01:42:34 mdb Exp $
+
+package com.threerings.puzzle.data;
+
+import com.threerings.parlor.game.GameObject;
+
+/**
+ * Extends the basic {@link GameObject} to add individual player
+ * status. Puzzle games typically contain numerous players that may be
+ * knocked out of the game while the overall game continues on, thereby
+ * necessitating this second level of game status.
+ */
+public class PuzzleObject extends GameObject
+    implements PuzzleCodes
+{
+    /** The player status constant for a player whose game is in play. */
+    public static final int PLAYER_IN_PLAY = 0;
+
+    /** The player status constant for a player whose has been knocked out
+     * of the game. */
+    public static final int PLAYER_KNOCKED_OUT = 1;
+
+    /** Provides general puzzle game invocation services. */
+    public PuzzleGameMarshaller puzzleGameService;
+
+    /** The puzzle difficulty level. */
+    public int difficulty = DEFAULT_DIFFICULTY;
+
+    /**  The status of each of the players in the game. The status value
+     * is one of {@link #PLAYER_KNOCKED_OUT} or {@link
+     * #PLAYER_IN_PLAY}. */
+    public int[] playerStatus;
+
+    /** Summaries of the boards of all players in this puzzle (may be null
+     * if the puzzle doesn't support individual player boards). */
+    public BoardSummary[] summaries;
+
+    /** The seed used to germinate the boards. */
+    public long seed;
+
+    // documentation inherited
+    public boolean shouldBroadcast ()
+    {
+        // we do not broadcast to puzzles because the users will get it
+        // on their scene objects
+        return false;
+    }
+
+    /**
+     * Returns the number of active players in the game.
+     */
+    public int getActivePlayerCount ()
+    {
+        int count = 0;
+        int size = players.length;
+        for (int ii = 0; ii < size; ii++) {
+            if (isActivePlayer(ii)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Returns whether the given player is still an active player, e.g.,
+     * their game has not ended.
+     */
+    public boolean isActivePlayer (int pidx)
+    {
+        return (isOccupiedPlayer(pidx) &&
+                playerStatus != null && playerStatus[pidx] == PLAYER_IN_PLAY);
+    }
+}
