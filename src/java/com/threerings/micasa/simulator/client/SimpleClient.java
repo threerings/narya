@@ -1,5 +1,5 @@
 //
-// $Id: SimpleClient.java,v 1.4 2002/04/15 14:38:45 shaper Exp $
+// $Id: SimpleClient.java,v 1.5 2002/07/12 03:49:37 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -10,6 +10,8 @@ import java.io.IOException;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+
+import com.threerings.util.MessageManager;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.DObjectManager;
@@ -22,7 +24,9 @@ import com.threerings.parlor.client.ParlorDirector;
 import com.threerings.parlor.util.ParlorContext;
 
 import com.threerings.micasa.Log;
+import com.threerings.micasa.client.MiCasaFrame;
 import com.threerings.micasa.simulator.data.SimulatorInfo;
+import com.threerings.micasa.util.MiCasaContext;
 
 public class SimpleClient
     implements Client.Invoker, SimulatorClient
@@ -31,12 +35,13 @@ public class SimpleClient
         throws IOException
     {
         // create our context
-        _ctx = new ParlorContextImpl();
+        _ctx = new MiCasaContextImpl();
 
         // create the handles on our various services
         _client = new Client(null, this);
 
         // create our managers and directors
+        _msgmgr = new MessageManager("rsrc");
         _locdir = new LocationDirector(_ctx);
         _occdir = new OccupantDirector(_ctx);
         _pardtr = new ParlorDirector(_ctx);
@@ -78,7 +83,7 @@ public class SimpleClient
      * The context implementation. This provides access to all of the
      * objects and services that are needed by the operating client.
      */
-    protected class ParlorContextImpl implements ParlorContext
+    protected class MiCasaContextImpl implements MiCasaContext
     {
         public Client getClient ()
         {
@@ -110,10 +115,21 @@ public class SimpleClient
             // stick the place view into our frame
             _frame.setPanel((JPanel)view);
         }
+
+        public MiCasaFrame getFrame ()
+        {
+            return (MiCasaFrame)_frame;
+        }
+
+        public MessageManager getMessageManager ()
+        {
+            return _msgmgr;
+        }
     }
 
-    protected ParlorContext _ctx;
+    protected MiCasaContext _ctx;
     protected SimulatorFrame _frame;
+    protected MessageManager _msgmgr;
 
     protected Client _client;
     protected LocationDirector _locdir;

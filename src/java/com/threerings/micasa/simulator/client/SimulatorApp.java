@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorApp.java,v 1.8 2002/06/10 19:16:41 shaper Exp $
+// $Id: SimulatorApp.java,v 1.9 2002/07/12 03:49:37 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -88,7 +88,8 @@ public class SimulatorApp
     {
         // configure and display the main frame
         JFrame frame = _frame.getFrame();
-        frame.pack();
+        // position everything and show the frame
+        _frame.setSize(800, 600);
         SwingUtil.centerWindow(frame);
         frame.show();
 
