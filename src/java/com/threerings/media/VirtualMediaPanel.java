@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.7 2002/07/02 23:15:53 shaper Exp $
+// $Id: VirtualMediaPanel.java,v 1.8 2002/08/08 20:16:07 shaper Exp $
 
 package com.threerings.media;
 
@@ -9,6 +9,8 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 
 import javax.swing.SwingUtilities;
@@ -35,6 +37,19 @@ public class VirtualMediaPanel extends MediaPanel
     public VirtualMediaPanel (FrameManager framemgr)
     {
         super(framemgr);
+
+        // keep an eye on any movement or resizing of the panel so that we
+        // can track our absolute screen coordinates to work around the
+        // Windows copyArea() bug
+        addComponentListener(new ComponentAdapter() {
+            public void componentMoved (ComponentEvent e) {
+                findRootBounds();
+            }
+
+            public void componentResized (ComponentEvent e) {
+                findRootBounds();
+            }
+        });
     }
 
     /**
@@ -140,6 +155,18 @@ public class VirtualMediaPanel extends MediaPanel
 
         // we need to obtain our absolute screen coordinates to work
         // around the Windows copyArea() bug
+        findRootBounds();
+    }
+
+    /**
+     * Determines the absolute screen coordinates at which this panel is
+     * located and stores them for reference later when rendering.  This
+     * is necessary in order to work around the Windows
+     * <code>copyArea()</code> bug.
+     */
+    protected void findRootBounds ()
+    {
+        _abounds.setLocation(0, 0);
         FrameManager.getRoot(this, _abounds);
     }
 
