@@ -1,5 +1,5 @@
 //
-// $Id: TypedObjectFactory.java,v 1.5 2001/06/11 17:44:04 mdb Exp $
+// $Id: TypedObjectFactory.java,v 1.6 2001/06/13 05:16:25 mdb Exp $
 
 package com.threerings.cocktail.cher.io;
 
@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.util.HashMap;
+
+import com.threerings.cocktail.cher.Log;
 
 /**
  * The encodable factory is used to unserialize encodable object instances
@@ -84,8 +86,12 @@ public class TypedObjectFactory
         try {
             return (TypedObject)clazz.newInstance();
         } catch (Throwable t) {
+            Log.warning("Typed object error: " + t);
+            Log.logStackTrace(t);
+
             String errmsg = "Unable to instantiate typed object " +
-                "[class=" + clazz.getName() + ", error=" + t + "].";
+                "[class=" + clazz.getName() +
+                ", error=" + t.getMessage() + "].";
             throw new ObjectStreamException(errmsg);
         }
     }
