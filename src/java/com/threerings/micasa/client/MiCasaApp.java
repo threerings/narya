@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaApp.java,v 1.8 2002/07/12 17:01:28 mdb Exp $
+// $Id: MiCasaApp.java,v 1.9 2002/07/16 05:44:29 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -52,11 +52,23 @@ public class MiCasaApp
 
         Client client = _client.getContext().getClient();
 
+        // read our server and port settings
         String server = System.getProperty("server");
-        if (server != null) {
-            // indicate which server to which we should connect
-            client.setServer(server, Client.DEFAULT_SERVER_PORT);
+        if (server == null) {
+            server = "localhost";
         }
+        int port = Client.DEFAULT_SERVER_PORT;
+        String portstr = System.getProperty("port");
+        if (portstr != null) {
+            try {
+                port = Integer.parseInt(portstr);
+            } catch (NumberFormatException nfe) {
+                Log.warning("Invalid port specification '" + portstr + "'.");
+            }
+        }
+
+        // pass them on to the client
+        client.setServer(server, port);
 
         // configure the client with some credentials and logon
         String username = System.getProperty("username");
