@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.25 2002/12/04 03:01:12 shaper Exp $
+// $Id: MediaPanel.java,v 1.26 2002/12/08 02:49:53 mdb Exp $
 
 package com.threerings.media;
 
@@ -14,7 +14,10 @@ import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
 import javax.swing.event.AncestorEvent;
 
+import java.util.Arrays;
+
 import com.samskivert.swing.event.AncestorAdapter;
+import com.samskivert.util.IntListUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.animation.Animation;
@@ -46,7 +49,8 @@ import com.threerings.media.sprite.SpriteManager;
  * paused while the animated panel is hidden.
  */
 public class MediaPanel extends JComponent
-    implements FrameParticipant, MediaConstants
+    implements FrameParticipant, MediaConstants,
+               FrameManager.PerformanceProvider
 {
     /**
      * Constructs a media panel.
@@ -124,6 +128,12 @@ public class MediaPanel extends JComponent
     public long getTimeStamp ()
     {
         return _framemgr.getTimeStamp();
+    }
+
+    // documentation inherited from interface
+    public void getPerformanceStatus (StringBuffer buf)
+    {
+        buf.append("MP:").append(_dirtyPerTick);
     }
 
     /**
@@ -253,6 +263,14 @@ public class MediaPanel extends JComponent
             _tickPaintPending = false;
         }
 
+        // compute our average dirty regions per tick
+        if (_tick++ == 99) {
+            _tick = 0;
+            int dirty = IntListUtil.total(_dirty);
+            Arrays.fill(_dirty, 0);
+            _dirtyPerTick = (float)dirty/100;
+        }
+
         // if we have no invalid rects, there's no need to repaint
         if (!_remgr.haveDirtyRegions()) {
             return;
@@ -260,7 +278,9 @@ public class MediaPanel extends JComponent
 
         // get our dirty rectangles and delegate the main painting to a
         // method that can be more easily overridden
-        paint(gfx, _remgr.getDirtyRegions());
+        Rectangle[] dirty = _remgr.getDirtyRegions();
+        _dirty[_tick] = dirty.length;
+        paint(gfx, dirty);
     }
 
     /**
@@ -416,4 +436,13 @@ public class MediaPanel extends JComponent
 
     /** Used to track the clock time at which we were paused. */
     protected long _pauseTime;
+
+    /** Used to keep metrics. */
+    protected int[] _dirty = new int[200];
+
+    /** Used to keep metrics. */
+    protected int _tick;
+
+    /** Used to keep metrics. */
+    protected float _dirtyPerTick;
 }
