@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.68 2004/09/15 18:21:26 mdb Exp $
+// $Id: PresentsClient.java,v 1.69 2004/10/27 01:27:44 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -321,11 +321,10 @@ public class PresentsClient
      */
     protected void resumeSession (Connection conn)
     {
-        Connection oldconn = getConnection();
-
         // check to see if we've already got a connection object, in which
         // case it's probably stale
-        if (oldconn != null) {
+        Connection oldconn = getConnection();
+        if (oldconn != null && !oldconn.isClosed()) {
             Log.info("Closing stale connection [old=" + oldconn +
                      ", new=" + conn + "].");
             // close the old connection (which results in everything being
