@@ -5,8 +5,7 @@
 
   <!-- configuration parameters -->
   <property name="app.name"       value="narya"/>
-  <property name="deploy.dir"    value="dist"/>
-  <property name="dist.home"      value="${deploy.dir}"/>
+  <property name="deploy.dir"     value="dist"/>
   <property name="dist.jar"       value="${app.name}.jar"/>
   <property name="javadoc.home"   value="${deploy.dir}/docs"/>
   <property name="build.compiler" value="jikes"/>
@@ -76,7 +75,7 @@
 
   <!-- builds our distribution files (war and jar) -->
   <target name="dist" depends="prepare,compile">
-    <jar destfile="${dist.home}/${dist.jar}"
+    <jar destfile="${deploy.dir}/${dist.jar}"
          basedir="${deploy.dir}/classes"/>
   </target>
 
