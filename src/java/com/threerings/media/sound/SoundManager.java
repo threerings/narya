@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.5 2002/08/02 01:45:19 shaper Exp $
+// $Id: SoundManager.java,v 1.6 2002/09/30 06:13:36 shaper Exp $
 
 package com.threerings.media;
 
@@ -92,12 +92,20 @@ public class SoundManager
     }
 
     /**
+     * Sets whether sound is enabled.
+     */
+    public void setEnabled (boolean enabled)
+    {
+        _enabled = enabled;
+    }
+
+    /**
      * Queues up the sound file with the given pathname to be played when
      * the sound manager deems the time appropriate.
      */
     public void play (String path)
     {
-        if (_player != null) {
+        if (_player != null && _enabled) {
             // Log.debug("Queueing sound [path=" + path + "].");
             _clips.append(path);
         }
@@ -109,6 +117,10 @@ public class SoundManager
     protected void playSound (String path)
     {
         // Log.debug("Playing sound [path=" + path + "].");
+
+        if (!_enabled) {
+            return;
+        }
 
         try {
             // get the audio input stream
@@ -263,6 +275,9 @@ public class SoundManager
 
     /** The cached audio file data. */
     protected HashMap _data = new HashMap();
+
+    /** Whether sound is enabled. */
+    protected boolean _enabled = true;
 
     /** The buffer size in bytes used when reading audio file data. */
     protected static final int BUFFER_SIZE = 2048;
