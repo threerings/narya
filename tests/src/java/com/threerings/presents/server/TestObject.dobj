@@ -1,0 +1,44 @@
+//
+// $Id: TestObject.dobj,v 1.1 2001/06/09 23:39:42 mdb Exp $
+
+package com.threerings.cocktail.cher.server.test;
+
+import com.threerings.cocktail.cher.dobj.*;
+
+/**
+ * I use this to test until I get the actual DObject generation script
+ * working.
+ */
+public class TestObject extends DObject
+{
+    public static final String FOO = "foo";
+
+    public int foo;
+
+    public static final String BAR = "bar";
+
+    public String bar;
+
+    public void setFoo (int foo)
+    {
+        // generate an attribute changed event
+        AttributeChangedEvent event = new AttributeChangedEvent(
+            _oid, FOO, new Integer(foo));
+        // and dispatch it to our dobjmgr
+        _mgr.postEvent(event);
+    }
+
+    public void setBar (String bar)
+    {
+        // generate an attribute changed event
+        AttributeChangedEvent event = new AttributeChangedEvent(
+            _oid, BAR, bar);
+        // and dispatch it to our dobjmgr
+        _mgr.postEvent(event);
+    }
+
+    public String toString ()
+    {
+        return "[foo=" + foo + ", bar=" + bar + "]";
+    }
+}
