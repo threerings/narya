@@ -1,5 +1,5 @@
 //
-// $Id: BootstrapData.java,v 1.8 2004/08/27 02:20:22 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,7 +21,7 @@
 
 package com.threerings.presents.net;
 
-import com.threerings.presents.dobj.DObject;
+import com.threerings.io.SimpleStreamableObject;
 import com.threerings.util.StreamableArrayList;
 
 /**
@@ -30,7 +30,7 @@ import com.threerings.util.StreamableArrayList;
  * prepared to deal with the client. It contains information the client
  * will need to interact with the server.
  */
-public class BootstrapData extends DObject
+public class BootstrapData extends SimpleStreamableObject
 {
     /** The oid of this client's associated distributed object. */
     public int clientOid;

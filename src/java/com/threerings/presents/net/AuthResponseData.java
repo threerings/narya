@@ -1,5 +1,5 @@
 //
-// $Id: AuthResponseData.java,v 1.11 2004/08/27 02:20:21 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,7 +21,7 @@
 
 package com.threerings.presents.net;
 
-import com.threerings.presents.dobj.DObject;
+import com.threerings.io.SimpleStreamableObject;
 
 /**
  * An <code>AuthResponseData</code> object is communicated back to the
@@ -29,7 +29,7 @@ import com.threerings.presents.dobj.DObject;
  * of authentication success or failure along with bootstrap information
  * for the client.
  */
-public class AuthResponseData extends DObject
+public class AuthResponseData extends SimpleStreamableObject
 {
     /** The constant used to indicate a successful authentication. */
     public static final String SUCCESS = "success";
