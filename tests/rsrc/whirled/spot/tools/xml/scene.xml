@@ -2,11 +2,8 @@
 
 <!-- test spot scene parser -->
 <scene name="Test Scene" version="42" defaultEntranceId="3">
-  <location locationId="0" x="12" y="15" orientation="0" clusterIndex="0"/>
-  <location locationId="1" x="16" y="25" orientation="0" clusterIndex="1"/>
-  <location locationId="2" x="9" y="1" orientation="3" clusterIndex="1"/>
-  <portal locationId="3" x="1" y="25" orientation="3" name="East portal"
+  <portal portalId="1" x="1" y="25" orient="3" name="East portal"
     targetSceneName="East scene" targetPortalName="West portal"/>
-  <portal locationId="4" x="25" y="1" orientation="5" name="North portal"
+  <portal portalId="2" x="25" y="1" orient="5" name="North portal"
     targetSceneName="North scene" targetPortalName="South portal"/>
 </scene>
