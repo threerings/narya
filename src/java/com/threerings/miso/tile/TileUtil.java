@@ -1,12 +1,12 @@
 //
-// $Id: TileUtil.java,v 1.4 2001/09/05 00:44:37 shaper Exp $
+// $Id: TileUtil.java,v 1.5 2001/09/13 19:10:26 mdb Exp $
 
 package com.threerings.miso.tile;
 
 import java.awt.Image;
 
 import com.threerings.media.sprite.MultiFrameImage;
-import com.threerings.media.sprite.Path;
+import com.threerings.media.sprite.Sprite;
 import com.threerings.media.tile.*;
 
 import com.threerings.miso.scene.AmbulatorySprite;
@@ -20,7 +20,7 @@ public class TileUtil
      * Returns an array of multi-frame images corresponding to the
      * frames of animation used to render the ambulatory sprite in
      * each of the directions it may face.  The tileset id referenced
-     * must contain <code>Path.NUM_DIRECTIONS</code> rows of tiles,
+     * must contain <code>Sprite.NUM_DIRECTIONS</code> rows of tiles,
      * with each row containing <code>NUM_DIR_FRAMES</code> tiles.
      *
      * @param tilemgr the tile manager to retrieve tiles from.
@@ -31,9 +31,9 @@ public class TileUtil
     public static MultiFrameImage[] getAmbulatorySpriteFrames (
         TileManager tilemgr, int tsid)
     {
-        MultiFrameImage[] anims = new MultiFrameImage[Path.NUM_DIRECTIONS];
+        MultiFrameImage[] anims = new MultiFrameImage[Sprite.NUM_DIRECTIONS];
 
-        for (int ii = 0; ii < Path.NUM_DIRECTIONS; ii++) {
+        for (int ii = 0; ii < Sprite.NUM_DIRECTIONS; ii++) {
             Tile[] tiles = new Tile[NUM_DIR_FRAMES];
             for (int jj = 0; jj < NUM_DIR_FRAMES; jj++) {
                 int idx = (ii * NUM_DIR_FRAMES) + jj;

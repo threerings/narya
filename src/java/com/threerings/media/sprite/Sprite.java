@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.19 2001/09/07 23:01:53 shaper Exp $
+// $Id: Sprite.java,v 1.20 2001/09/13 19:10:26 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.threerings.media.Log;
-import com.threerings.media.util.MathUtil;
 
 /**
  * The sprite class represents a single moveable object in an animated
@@ -17,6 +16,38 @@ import com.threerings.media.util.MathUtil;
  */
 public class Sprite
 {
+    /** The number of distinct directions. */
+    public static final int NUM_DIRECTIONS = 8;
+
+    /** Direction constants. */
+    public static final int DIR_NONE = -1;
+    public static final int DIR_SOUTHWEST = 0;
+    public static final int DIR_WEST = 1;
+    public static final int DIR_NORTHWEST = 2;
+    public static final int DIR_NORTH = 3;
+    public static final int DIR_NORTHEAST = 4;
+    public static final int DIR_EAST = 5;
+    public static final int DIR_SOUTHEAST = 6;
+    public static final int DIR_SOUTH = 7;
+
+    /** String translations for the direction constants. */
+    public static String[] XLATE_DIRS = {
+	"Southwest", "West", "Northwest", "North", "Northeast",
+	"East", "Southeast", "South"
+    };
+
+    /** Default frame rate. */
+    public static final int DEFAULT_FRAME_RATE = 15;
+
+    /** Animation mode indicating no animation. */
+    public static final int NO_ANIMATION = 0;
+
+    /** Animation mode indicating movement cued animation. */
+    public static final int MOVEMENT_CUED = 1;
+
+    /** Animation mode indicating time based animation. */
+    public static final int TIME_BASED = 2;
+
     /**
      * Construct a sprite object.
      *
@@ -83,15 +114,6 @@ public class Sprite
     }
 
     /**
-     * Return whether the sprite is currently moving (following an
-     * assigned path.)
-     */
-    public boolean isMoving ()
-    {
-	return (_dest != null);
-    }
-
-    /**
      * Moves the sprite to the specified location. The location specified
      * will be used as the center of the bottom edge of the sprite.
      *
@@ -113,6 +135,18 @@ public class Sprite
     }
 
     /**
+     * Sprites have an orientation in one of the eight cardinal
+     * directions: <code>DIR_NORTH</code>, <code>DIR_NORTHEAST</code>,
+     * etc. Sprite derived classes can choose to override this member
+     * function and select a different set of images based on their
+     * orientation, or they can ignore the orientation information.
+     */
+    public void setOrientation (int orient)
+    {
+        _orient = orient;
+    }
+
+    /**
      * Initialize the sprite object with its variegated parameters.
      */
     protected void init (int x, int y, MultiFrameImage frames)
@@ -122,15 +156,10 @@ public class Sprite
 
         updateRenderOrigin();
 
-	// set default velocity and units
-	_vel = new Point(1, 1);
-	_velUnit = new Point(1, 1);
-	updateVelocity();
-
 	// initialize frame animation member data
         _frameIdx = 0;
-        _animDelay = ANIM_NONE;
-        _numTicks = 0;
+        _animMode = NO_ANIMATION;
+        _frameDelay = 1000L/DEFAULT_FRAME_RATE;
 
         setFrames(frames);
         invalidate();
@@ -164,17 +193,9 @@ public class Sprite
      */
     public void paintPath (Graphics2D gfx)
     {
-	if (_fullpath == null) return;
-
-	gfx.setColor(Color.red);
-	Point prev = null;
-	int size = _fullpath.size();
-	for (int ii = 0; ii < size; ii++) {
-	    PathNode n = (PathNode)_fullpath.getNode(ii);
-	    if (prev == null) prev = n.loc;
-	    gfx.drawLine(prev.x, prev.y, n.loc.x, n.loc.y);
-	    prev = n.loc;
-	}
+	if (_path != null) {
+            _path.paint(gfx);
+        }
     }
 
     /**
@@ -204,14 +225,33 @@ public class Sprite
     }
 
     /**
-     * Set the number of ticks to wait before switching to the next image
-     * in the array of images used to display the sprite.
+     * Sets the animation mode for this sprite. The available modes are:
      *
-     * @param ticks the number of ticks.
+     * <ul>
+     * <li><code>TIME_BASED</code>: cues the animation based on a target
+     * frame rate (specified via {@link #setFrameRate}).
+     * <li><code>MOVEMENT_CUED</code>: ticks the animation to the next
+     * frame every time the sprite is moved along its path.
+     * <li><code>NO_ANIMATION</code>: disables animation.
+     * </ul>
+     *
+     * @param mode the desired animation mode.
      */
-    public void setAnimationDelay (int ticks)
+    public void setAnimationMode (int mode)
     {
-        _animDelay = ticks;
+        _animMode = mode;
+    }
+
+    /**
+     * Sets the number of frames per second desired for the sprite
+     * animation. This is only used when the animation mode is
+     * <code>TIME_BASED</code>.
+     *
+     * @param fps the desired frames per second.
+     */
+    public void setFrameRate (int fps)
+    {
+        _frameDelay = 1000L/fps;
     }
 
     /**
@@ -228,6 +268,7 @@ public class Sprite
         }
 
         _frames = frames;
+        _frameIdx %= _frames.getFrameCount();
         _frame = _frames.getFrame(_frameIdx);
 
         // determine our drawing offsets and rendered rectangle size
@@ -249,53 +290,6 @@ public class Sprite
     }
 
     /**
-     * Set the sprite's velocity when following a path.
-     *
-     * @param vx the x-axis velocity.
-     * @param vy the y-axis velocity.
-     */
-    public void setVelocity (int vx, int vy)
-    {
-	_vel.setLocation(vx, vy);
-	updateVelocity();
-    }
-
-    /**
-     * Set the units upon which the sprite's velocity is based.
-     *
-     * @param ux the x-axis units.
-     * @param uy the y-axis units.
-     */
-    public void setVelocityUnits (int ux, int uy)
-    {
-	_velUnit.setLocation(ux, uy);
-	updateVelocity();
-    }
-
-    /**
-     * Update the distance the sprite moves each tick, based on the
-     * sprite velocity and the velocity units.
-     */
-    protected void updateVelocity ()
-    {
-	_fracx = (_vel.x / (float)_velUnit.x);
-	_fracy = (_vel.y / (float)_velUnit.y);
-    }
-
-    /**
-     * Stop the sprite from any movement along a path it may be
-     * engaged in.
-     */
-    public void stop ()
-    {
-	// TODO: make sure we come to a stop on a full coordinate,
-	// even in the case where we aborted a path mid-traversal.
-	_dest = null;
-	_path = null;
-	_fullpath = null;
-    }
-
-    /**
      * Set the sprite's active path and start moving it along its
      * merry way.  If the sprite is already moving along a previous
      * path the old path will be lost and the new path will begin to
@@ -305,64 +299,34 @@ public class Sprite
      */
     public void move (Path path)
     {
-        // make sure following the path is a sensible thing to do
-        if (path == null || path.size() < 2) {
-	    // halt any previously existing movement since, regardless
-	    // of its reasonableness, we've been asked to follow a new
-	    // path
-	    stop();
-	    return;
-	}
+        // save our path
+        _path = path;
 
-        // save an enumeration of the path nodes
-        _path = path.elements();
-
-	// and the full path for potential rendering
-	_fullpath = path;
-
-	// skip the first node since it's our starting position.
-        // perhaps someday we'll do something with this.
-        _path.next();
-
-        // start our meandering
-        moveAlongPath();
+        // and initialize it
+        _path.init(this, System.currentTimeMillis());
     }
 
     /**
-     * Start the sprite moving toward the next node in its path.
+     * Cancels any path that the sprite may currently be moving along.
      */
-    protected void moveAlongPath ()
+    public void cancelMove ()
     {
-        if (!_path.hasNext()) {
-	    // inform observers that we've finished our path
-	    notifyObservers(SpriteEvent.FINISHED_PATH, _path);
-	    // clear out our path and bail
-	    stop();
-            return;
-        }
+	// TODO: make sure we come to a stop on a full coordinate,
+	// even in the case where we aborted a path mid-traversal.
 
-	if (_dest != null) {
-	    // inform observers that we've finished a path node
-	    notifyObservers(SpriteEvent.FINISHED_PATH_NODE, _dest);
-	}
+        _path = null;
+    }
 
-        // grab the next node in our path
-        _dest = (PathNode)_path.next();
+    /**
+     * Called by the active path when it has completed.
+     */
+    protected void pathCompleted ()
+    {
+        // inform observers that we've finished our path
+        notifyObservers(SpriteEvent.FINISHED_PATH, _path);
 
-	// if we're already here, move on to the next node
-	if (_x == _dest.loc.x && _y == _dest.loc.y) {
-	    moveAlongPath();
-	    return;
-	}
-
-        // determine the horizontal/vertical move increments
-        float dist = MathUtil.distance(_x, _y, _dest.loc.x, _dest.loc.y);
-        _incx = (float)(_dest.loc.x - _x) / (dist / _fracx);
-        _incy = (float)(_dest.loc.y - _y) / (dist / _fracy);
-
-        // init position data used to track fractional pixels
-        _movex = _x;
-        _movey = _y;
+        // we no longer want to keep a reference to this path
+	_path = null;
     }
 
     /**
@@ -379,7 +343,9 @@ public class Sprite
      */
     public void invalidate ()
     {
-        if (_frame == null) return;
+        if (_frame == null) {
+            return;
+        }
 
         if (_spritemgr != null) {
             _spritemgr.addDirtyRect(getRenderedBounds());
@@ -391,59 +357,49 @@ public class Sprite
     }
 
     /**
-     * This method is called periodically by the SpriteManager to give
-     * the sprite a chance to update its state. 
+     * This method is called periodically by the sprite manager to give
+     * the sprite a chance to update its state. The sprite manager will
+     * attempt to call this with the desired refresh rate, but will drop
+     * calls to tick if it can't keep up. Thus, a sprite should rely on
+     * the timestamp information to compute elapsed progress if it wishes
+     * to handle heavy loads gracefully.
      */
-    public void tick ()
+    public void tick (long timestamp)
     {
-        // increment the display image if performing image animation
-        if (_animDelay != ANIM_NONE && (_numTicks++ == _animDelay)) {
-            _numTicks = 0;
-            _frameIdx = (_frameIdx + 1) % _frames.getFrameCount();
-            _frame = _frames.getFrame(_frameIdx);
+        int fcount = _frames.getFrameCount();
+        int nfidx = _frameIdx;
+        boolean moved = false;
 
+        // move the sprite along toward its destination, if any 
+        if (_path != null) {
+            moved = _path.updatePosition(this, timestamp);
+        }
+
+        // increment the display image if performing image animation
+        switch (_animMode) {
+        case NO_ANIMATION:
+            // nothing doing
+            break;
+
+        case TIME_BASED:
+            _frameIdx = (int)((timestamp/_frameDelay) % fcount);
+            break;
+
+        case MOVEMENT_CUED:
+            // update the frame if the sprite moved
+            if (moved) {
+                nfidx = (_frameIdx + 1) % fcount;
+            }
+            break;
+        }
+
+        // only update the sprite if our frame index changed
+        if (nfidx != _frameIdx) {
+            _frameIdx = nfidx;
+            _frame = _frames.getFrame(_frameIdx);
             // dirty our rectangle since we've altered our display image
             invalidate();
         }
-
-        // move the sprite along toward its destination, if any 
-        if (_dest != null) {
-            handleMove();
-        }
-    }
-
-    /**
-     * Actually move the sprite's position toward its destination one
-     * display increment.
-     */
-    protected void handleMove ()
-    {
-	// dirty our rectangle since we're going to move
-	invalidate();
-
-        // move the sprite incrementally toward its goal
-        _x = (int)(_movex += _incx);
-        _y = (int)(_movey += _incy);
-
-        // stop moving once we've reached our destination
-        if (_incx > 0 && _x > _dest.loc.x ||
-            _incx < 0 && _x < _dest.loc.x ||
-            _incy > 0 && _y > _dest.loc.y ||
-            _incy < 0 && _y < _dest.loc.y) {
-
-            // make sure we stop exactly where desired
-            _x = _dest.loc.x;
-            _y = _dest.loc.y;
-
-            // move further along the path if necessary
-            moveAlongPath();
-        }
-
-	// update the draw coordinates to reflect our new position
-        updateRenderOrigin();
-
-	// dirty our rectangle in the new position
-	invalidate();
     }
 
     /**
@@ -490,7 +446,9 @@ public class Sprite
      */
     protected void notifyObservers (int eventCode, Object arg)
     {
-	if (_observers == null) return;
+	if (_observers == null) {
+            return;
+        }
 
 	SpriteEvent evt = new SpriteEvent(this, eventCode, arg);
 	_spritemgr.notifySpriteObservers(_observers, evt);
@@ -508,9 +466,6 @@ public class Sprite
         return buf.append("]").toString();
     }
 
-    /** Value used to denote that no image animation is desired. */
-    protected static final int ANIM_NONE = -1;
-
     /** The images used to render the sprite. */
     protected MultiFrameImage _frames;
 
@@ -519,6 +474,9 @@ public class Sprite
 
     /** The current frame index to render. */
     protected int _frameIdx;
+
+    /** The orientation of this sprite. */
+    protected int _orient = DIR_NONE;
 
     /** The location of the sprite in pixel coordinates. */
     protected int _x, _y;
@@ -529,35 +487,14 @@ public class Sprite
     /** Our rendered bounds in pixel coordinates. */
     protected Rectangle _rbounds = new Rectangle();
 
-    /** The PathNode objects describing the path the sprite is following. */
-    protected Iterator _path;
+    /** What type of animation is desired for this sprite. */
+    protected int _animMode;
 
-    /** When moving, the sprite's destination path node. */
-    protected PathNode _dest;
+    /** For how many milliseconds to display an animation frame. */
+    protected long _frameDelay;
 
-    /** When moving, the sprite position including fractional pixels. */ 
-    protected float _movex, _movey;
-
-    /** When moving, the distance to move on each axis per tick. */
-    protected float _incx, _incy;
-
-    /** The distance to move on the straight path line per tick. */
-    protected float _fracx, _fracy;
-
-    /** The number of ticks to wait before rendering with the next image. */
-    protected int _animDelay;
-
-    /** The number of ticks since the last image animation. */
-    protected int _numTicks;
-
-    /** When moving, the full path the sprite is traversing. */
-    protected Path _fullpath;
-
-    /** The sprite velocity when moving. */
-    protected Point _vel;
-
-    /** The sprite velocity units. */
-    protected Point _velUnit;
+    /** When moving, the path the sprite is traversing. */
+    protected Path _path;
 
     /** The sprite observers observing this sprite. */
     protected ArrayList _observers;

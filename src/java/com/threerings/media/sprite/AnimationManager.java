@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.15 2001/08/23 00:23:58 shaper Exp $
+// $Id: AnimationManager.java,v 1.16 2001/09/13 19:10:26 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -110,8 +110,11 @@ public class AnimationManager
      */
     protected void tick ()
     {
+        // every tick should have a timestamp associated with it
+        long now = System.currentTimeMillis();
+
         // call tick on all sprites
-        _spritemgr.tick();
+        _spritemgr.tick(now);
 
         // invalidate screen-rects dirtied by sprites
         DirtyRectList rects = _spritemgr.getDirtyRects();

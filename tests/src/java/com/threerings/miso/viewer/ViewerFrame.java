@@ -1,5 +1,5 @@
 //
-// $Id: ViewerFrame.java,v 1.17 2001/09/05 00:45:27 shaper Exp $
+// $Id: ViewerFrame.java,v 1.18 2001/09/13 19:10:26 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -46,7 +46,6 @@ class ViewerFrame extends JFrame implements WindowListener
         MultiFrameImage[] anims =
             TileUtil.getAmbulatorySpriteFrames(tilemgr, TSID_CHAR);
         AmbulatorySprite sprite = new AmbulatorySprite(300, 300, anims);
-	sprite.setVelocity(6, 6);
         spritemgr.addSprite(sprite);
 
 	// create a top-level panel to manage everything

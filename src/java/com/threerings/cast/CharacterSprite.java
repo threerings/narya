@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.8 2001/08/21 19:40:30 mdb Exp $
+// $Id: CharacterSprite.java,v 1.9 2001/09/13 19:10:26 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -18,7 +18,7 @@ public class AmbulatorySprite extends Sprite implements Traverser
     /**
      * Construct an <code>AmbulatorySprite</code>, with a multi-frame
      * image associated with each of the eight compass directions. The
-     * array should be in the order defined by the <code>Path</code>
+     * array should be in the order defined by the <code>Sprite</code>
      * direction constants (SW, W, NW, N, NE, E, SE, S).
      *
      * @param x the sprite x-position in pixels.
@@ -30,43 +30,22 @@ public class AmbulatorySprite extends Sprite implements Traverser
     {
         super(x, y);
 
+        // keep track of these
         _anims = anims;
-        _dir = Path.DIR_SOUTH;
 
-        setFrames(_anims[Path.DIR_NORTH]);
+        // give ourselves an initial orientation
+        setOrientation(DIR_NORTH);
+
+        // we only animate when we're moving
+        setAnimationMode(MOVEMENT_CUED);
     }
 
-    /**
-     * Alter the sprite's direction to reflect the direction the
-     * destination point lies in before calling the superclass's
-     * <code>setDestination</code> method.
-     *
-     * @param x the destination x-position.
-     * @param y the destination y-position.
-     */
-    protected void moveAlongPath ()
+    public void setOrientation (int orient)
     {
-        // select the new path node
-        super.moveAlongPath();
-
-        // bail if we're at the end of the path
-        if (_dest == null) {
-            return;
-        }
+        super.setOrientation(orient);
 
         // update the sprite frames to reflect the direction
-        setFrames(_anims[_dir = _dest.dir]);
-
-        // start tile animation to show movement
-        setAnimationDelay(0);
-    }
-
-    public void stop ()
-    {
-	super.stop();
-
-	// stop any walking animation
-	setAnimationDelay(ANIM_NONE);
+        setFrames(_anims[_orient]);
     }
 
     public boolean canTraverse (Tile tile)
@@ -77,7 +56,4 @@ public class AmbulatorySprite extends Sprite implements Traverser
 
     /** The animation frames for the sprite facing each direction. */
     protected MultiFrameImage[] _anims;
-
-    /** The direction the sprite is currently facing. */
-    protected int _dir;
 }

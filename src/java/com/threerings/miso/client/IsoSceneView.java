@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.53 2001/08/29 19:50:46 shaper Exp $
+// $Id: IsoSceneView.java,v 1.54 2001/09/13 19:10:26 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -618,7 +618,8 @@ public class IsoSceneView implements EditableSceneView
 	// to second tile, and penultimate to ultimate tile.
 
 	// construct path with starting screen position
-        Path path = new Path(sprite.getX(), sprite.getY());
+        LineSegmentPath path =
+            new LineSegmentPath(sprite.getX(), sprite.getY());
 
 	// add all nodes on the calculated path
 	Point nspos = new Point();

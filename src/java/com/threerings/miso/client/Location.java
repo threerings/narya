@@ -1,9 +1,9 @@
 //
-// $Id: Location.java,v 1.5 2001/08/14 23:35:22 mdb Exp $
+// $Id: Location.java,v 1.6 2001/09/13 19:10:26 mdb Exp $
 
 package com.threerings.miso.scene;
 
-import com.threerings.media.sprite.Path;
+import com.threerings.media.sprite.Sprite;
 
 /**
  * The <code>Location</code> class represents a unique well-defined
@@ -45,7 +45,7 @@ public class Location
     {
 	this.x = x;
 	this.y = y;
-	this.orient = Path.DIR_SOUTHWEST;
+	this.orient = Sprite.DIR_SOUTHWEST;
     }
 
     /**

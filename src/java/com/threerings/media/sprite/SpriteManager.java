@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.12 2001/09/07 23:01:53 shaper Exp $
+// $Id: SpriteManager.java,v 1.13 2001/09/13 19:10:26 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -154,10 +154,10 @@ public class SpriteManager
      * queue by the {@link AnimationManager}.  Handles moving about of
      * sprites and reporting of sprite collisions.
      */
-    public void tick ()
+    public void tick (long timestamp)
     {
 	// tick all sprites
-	tickSprites();
+	tickSprites(timestamp);
 
 	// re-sort the sprite list to account for potential new positions
 	sortSprites();
@@ -179,12 +179,12 @@ public class SpriteManager
      * chance to move themselves about, change their display image,
      * and so forth.
      */
-    protected void tickSprites ()
+    protected void tickSprites (long timestamp)
     {
         int size = _sprites.size();
 	for (int ii = 0; ii < size; ii++) {
             Sprite sprite = (Sprite)_sprites.get(ii);
-	    sprite.tick();
+	    sprite.tick(timestamp);
         }
     }
 

@@ -1,12 +1,12 @@
 //
-// $Id: IsoUtil.java,v 1.5 2001/08/15 22:16:43 shaper Exp $
+// $Id: IsoUtil.java,v 1.6 2001/09/13 19:10:26 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
 import java.awt.Point;
 import java.awt.Polygon;
 
-import com.threerings.media.sprite.Path;
+import com.threerings.media.sprite.Sprite;
 import com.threerings.media.util.MathUtil;
 
 import com.threerings.miso.Log;
@@ -28,7 +28,7 @@ public class IsoUtil
      * @param bx the x-position of point B.
      * @param by the y-position of point B.
      *
-     * @return the direction specified as one of the <code>Path</code>
+     * @return the direction specified as one of the <code>Sprite</code>
      *         class's direction constants.
      */
     public static int getDirection (
@@ -50,7 +50,7 @@ public class IsoUtil
 
 	// compare tile coordinates to determine direction
 	int dir = getIsoDirection(tax, tay, tbx, tby);
-	if (dir != Path.DIR_NONE) return dir;
+	if (dir != Sprite.DIR_NONE) return dir;
 
 	// destination point is in the same tile as the
 	// origination point, so consider fine coordinates
@@ -66,7 +66,7 @@ public class IsoUtil
 	dir = getIsoDirection(fax, fay, fbx, fby);
 
 	// arbitrarily return southwest if fine coords were also equivalent
-	return (dir == -1) ? Path.DIR_SOUTHWEST : dir;
+	return (dir == -1) ? Sprite.DIR_SOUTHWEST : dir;
     }
 
     /**
@@ -81,23 +81,23 @@ public class IsoUtil
      * @param bx the x-position of point B.
      * @param by the y-position of point B.
      *
-     * @return the direction specified as one of the <code>Path</code>
-     *         class's direction constants, or <code>Path.DIR_NONE</code> 
+     * @return the direction specified as one of the <code>Sprite</code>
+     *         class's direction constants, or <code>Sprite.DIR_NONE</code> 
      *         if point B is equivalent to point A.
      */
     public static int getIsoDirection (int ax, int ay, int bx, int by)
     {
 	if (bx > ax) {
-	    if (by == ay) return Path.DIR_SOUTH;
-	    return (by < ay) ? Path.DIR_SOUTHEAST : Path.DIR_SOUTHWEST;
+	    if (by == ay) return Sprite.DIR_SOUTH;
+	    return (by < ay) ? Sprite.DIR_SOUTHEAST : Sprite.DIR_SOUTHWEST;
 
 	} else if (bx == ax) {
-	    if (by == ay) return Path.DIR_NONE;
-	    return (by < ay) ? Path.DIR_EAST : Path.DIR_WEST;
+	    if (by == ay) return Sprite.DIR_NONE;
+	    return (by < ay) ? Sprite.DIR_EAST : Sprite.DIR_WEST;
 
 	} else {  // bx < ax
-	    if (by == ay) return Path.DIR_NORTH;
-	    return (by < ay) ? Path.DIR_NORTHEAST : Path.DIR_NORTHWEST;
+	    if (by == ay) return Sprite.DIR_NORTH;
+	    return (by < ay) ? Sprite.DIR_NORTHEAST : Sprite.DIR_NORTHWEST;
 	}
     }
 
