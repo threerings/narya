@@ -1,5 +1,5 @@
 //
-// $Id: LobbyConfig.java,v 1.4 2001/10/11 21:08:21 mdb Exp $
+// $Id: LobbyConfig.java,v 1.5 2001/10/23 20:24:10 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -7,12 +7,15 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+
 import java.util.Properties;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.crowd.data.PlaceConfig;
-
 import com.threerings.parlor.game.GameConfig;
+import com.threerings.micasa.util.MiCasaContext;
 
 public class LobbyConfig extends PlaceConfig
 {
@@ -26,6 +29,15 @@ public class LobbyConfig extends PlaceConfig
     public String getManagerClassName ()
     {
         return "com.threerings.micasa.lobby.LobbyManager";
+    }
+
+    /**
+     * Derived classes override this function and create the appropriate
+     * matchmaking user interface component.
+     */
+    public JComponent createMatchMakingView (MiCasaContext ctx)
+    {
+        return new JLabel("Match-making view goes here.");
     }
 
     /**

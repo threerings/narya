@@ -1,5 +1,5 @@
 //
-// $Id: LobbyPanel.java,v 1.6 2001/10/11 04:13:33 mdb Exp $
+// $Id: LobbyPanel.java,v 1.7 2001/10/23 20:24:10 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -24,7 +24,7 @@ public class LobbyPanel
      * Constructs a new lobby panel and the associated user interface
      * elements.
      */
-    public LobbyPanel (MiCasaContext ctx)
+    public LobbyPanel (MiCasaContext ctx, LobbyConfig config)
     {
         // we want a five pixel border around everything
     	setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -42,7 +42,7 @@ public class LobbyPanel
         _main = new JPanel(gl);
 
         // create our match-making view
-        _main.add(createMatchMakingView(ctx));
+        _main.add(config.createMatchMakingView(ctx));
 
         // create a chat box and stick that in as well
         _main.add(new ChatPanel(ctx));
@@ -55,16 +55,16 @@ public class LobbyPanel
         gl.setOffAxisPolicy(GroupLayout.STRETCH);
         JPanel sidePanel = new JPanel(gl);
 
-        // the sidebar contains a lobby selector...
+        // the sidebar contains a lobby info display...
+
+        // ...a lobby selector...
         JLabel label = new JLabel("Select a lobby...");
         sidePanel.add(label, GroupLayout.FIXED);
         LobbySelector selector = new LobbySelector(ctx);
         sidePanel.add(selector);
 
-        // ...a lobby info display...
-
         // and an occupants list
-        label = new JLabel("Occupants");
+        label = new JLabel("People in lobby");
         sidePanel.add(label, GroupLayout.FIXED);
         _occupants = new OccupantList(ctx);
         sidePanel.add(_occupants);
@@ -76,15 +76,6 @@ public class LobbyPanel
 
         // add our sidebar panel into the mix
         add(sidePanel, GroupLayout.FIXED);
-    }
-
-    /**
-     * Derived classes override this function and create the appropriate
-     * matchmaking user interface component.
-     */
-    protected JComponent createMatchMakingView (MiCasaContext ctx)
-    {
-        return new JLabel("Match-making view goes here.");
     }
 
     // documentation inherited

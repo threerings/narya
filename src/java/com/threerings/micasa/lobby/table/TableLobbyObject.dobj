@@ -1,0 +1,61 @@
+//
+// $Id: TableLobbyObject.dobj,v 1.1 2001/10/23 20:24:10 mdb Exp $
+
+package com.threerings.micasa.lobby.table;
+
+import com.threerings.presents.dobj.DSet;
+import com.threerings.parlor.data.Table;
+import com.threerings.micasa.lobby.LobbyObject;
+
+public class TableLobbyObject
+    extends LobbyObject
+    implements com.threerings.parlor.data.TableLobbyObject
+{
+    /** The field name of the <code>tables</code> field. */
+    public static final String TABLES = "tables";
+
+    /** A set containing all of the tables being managed by this lobby. */
+    public DSet tables = new DSet(Table.class);
+
+    // documentation inherited
+    public DSet getTables ()
+    {
+        return tables;
+    }
+
+    /**
+     * Requests that the <code>tables</code> field be set to the specified
+     * value.
+     */
+    public void setTables (DSet value)
+    {
+        requestAttributeChange(TABLES, value);
+    }
+
+    /**
+     * Requests that the specified element be added to the
+     * <code>tables</code> set.
+     */
+    public void addToTables (Table table)
+    {
+        requestElementAdd(TABLES, table);
+    }
+
+    /**
+     * Requests that the specified element be updated in the
+     * <code>tables</code> set.
+     */
+    public void updateTables (Table table)
+    {
+        requestElementUpdate(TABLES, table);
+    }
+
+    /**
+     * Requests that the element matching the supplied key be removed from
+     * the <code>tables</code> set.
+     */
+    public void removeFromTables (Object key)
+    {
+        requestElementRemove(TABLES, key);
+    }
+}

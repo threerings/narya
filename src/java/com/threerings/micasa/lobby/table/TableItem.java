@@ -1,0 +1,211 @@
+//
+// $Id: TableItem.java,v 1.1 2001/10/23 20:24:10 mdb Exp $
+
+package com.threerings.micasa.lobby.table;
+
+import java.awt.Color;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import com.samskivert.util.StringUtil;
+
+import com.threerings.crowd.data.BodyObject;
+
+import com.threerings.parlor.client.TableManager;
+import com.threerings.parlor.client.SeatednessObserver;
+import com.threerings.parlor.data.Table;
+import com.threerings.parlor.data.TableConfig;
+
+import com.threerings.micasa.Log;
+import com.threerings.micasa.util.MiCasaContext;
+
+/**
+ * A table item displays the user interface for a single table (whether it
+ * be in-play or still being matchmade).
+ */
+public class TableItem
+    extends JPanel
+    implements ActionListener, SeatednessObserver
+{
+    /** A reference to the table we are displaying. */
+    public Table table;
+
+    /**
+     * Creates a new table item to display and interact with the supplied
+     * table.
+     */
+    public TableItem (MiCasaContext ctx, TableManager tmgr, Table table)
+    {
+        // keep track of these
+        _tmgr = tmgr;
+
+        // add ourselves as a seatedness observer
+        _tmgr.addSeatednessObserver(this);
+
+        // figure out who we are
+        _self = ((BodyObject)ctx.getClient().getClientObject()).username;
+
+        // grab the table config reference
+        _tconfig = (TableConfig)table.config;
+
+        // now create our user interface
+    	setBorder(BorderFactory.createLineBorder(Color.black));
+        setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        // create a label for the table
+        JLabel tlabel = new JLabel("Table " + table.tableId);
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.insets = new Insets(2, 0, 0, 0);
+        add(tlabel, gbc);
+
+        // we have one button for every "seat" at the table
+        int bcount = _tconfig.getDesiredPlayers();
+        if (bcount == -1) {
+            bcount = _tconfig.getMaximumPlayers();
+        }
+
+        // create blank buttons for now and then we'll update everything
+        // with the current state when we're done
+        gbc.weightx = 1.0;
+        gbc.insets = new Insets(2, 0, 2, 0);
+        _seats = new JButton[bcount];
+        for (int i = 0; i < bcount; i++) {
+            // create the button
+            _seats[i] = new JButton(JOIN_LABEL);
+            _seats[i].addActionListener(this);
+
+            // if we're on the left
+            if (i % 2 == 0) {
+                // if we're the last seat, then we've got an odd number
+                // and need to center this final seat
+                if (i == bcount-1) {
+                    gbc.gridwidth = GridBagConstraints.REMAINDER;
+                } else {
+                    gbc.gridwidth = 1;
+                }
+
+            } else {
+                gbc.gridwidth = GridBagConstraints.REMAINDER;
+            }
+
+            // adjust the insets of our last element
+            if (i == bcount-1) {
+                gbc.insets = new Insets(2, 0, 4, 0);
+            }
+
+            // and add the button with the configured constraints
+            add(_seats[i], gbc);
+        }
+
+        // and update ourselves based on the contents of the occupants
+        // list
+        tableUpdated(table);
+    }
+
+    /**
+     * Called when our table has been updated and we need to update the UI
+     * to reflect the new information.
+     */
+    public void tableUpdated (Table table)
+    {
+        // grab this new table reference
+        this.table = table;
+
+        // first look to see if we're already sitting at a table
+        boolean isSeated = _tmgr.isSeated();
+
+        // now enable and label the buttons accordingly
+        int slength = _seats.length;
+        for (int i = 0; i < slength; i++) {
+            if (StringUtil.blank(table.occupants[i])) {
+                _seats[i].setText(JOIN_LABEL);
+                _seats[i].setEnabled(!isSeated);
+                _seats[i].setActionCommand("join");
+
+            } else if (table.occupants[i].equals(_self) &&
+                       !table.inPlay()) {
+                _seats[i].setText(LEAVE_LABEL);
+                _seats[i].setEnabled(true);
+                _seats[i].setActionCommand("leave");
+
+            } else {
+                _seats[i].setText(table.occupants[i]);
+                _seats[i].setEnabled(false);
+            }
+        }
+    }
+
+    /**
+     * Called by the table list view prior to removing us. Here we clean
+     * up.
+     */
+    public void tableRemoved ()
+    {
+        // no more observy
+        _tmgr.removeSeatednessObserver(this);
+    }
+
+    // documentation inherited
+    public void actionPerformed (ActionEvent event)
+    {
+        if (event.getActionCommand().equals("join")) {
+            // figure out what position this button is in
+            int position = -1;
+            for (int i = 0; i < _seats.length; i++) {
+                if (_seats[i] == event.getSource()) {
+                    position = i;
+                    break;
+                }
+            }
+
+            // sanity check
+            if (position == -1) {
+                Log.warning("Unable to figure out what position a <join> " +
+                            "click came from [event=" + event + "].");
+            } else {
+                // otherwise, request to join the table at this position
+                _tmgr.joinTable(table.getTableId(), position);
+            }
+
+        } else {
+            // if we're not joining, we're leaving
+            _tmgr.leaveTable(table.getTableId());
+        }
+    }
+
+    // documentation inherited
+    public void seatednessDidChange (boolean isSeated)
+    {
+        // just update ourselves
+        tableUpdated(table);
+    }
+
+    /** Our username. */
+    protected String _self;
+
+    /** A reference to our table manager. */
+    protected TableManager _tmgr;
+
+    /** A casted reference to our table config object. */
+    protected TableConfig _tconfig;
+
+    /** We have a button for each "seat" at the table. */
+    protected JButton[] _seats;
+
+    /** The text shown for seats at which the user can join. */
+    protected static final String JOIN_LABEL = "<join>";
+
+    /** The text shown for the seat in which this user occupies and which
+     * lets her/him know that they can leave that seat by clicking. */
+    protected static final String LEAVE_LABEL = "<leave>";
+}

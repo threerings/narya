@@ -1,5 +1,5 @@
 //
-// $Id: LobbyController.java,v 1.6 2001/10/11 21:08:21 mdb Exp $
+// $Id: LobbyController.java,v 1.7 2001/10/23 20:24:10 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -33,7 +33,7 @@ public class LobbyController
 
     protected PlaceView createPlaceView ()
     {
-        return new LobbyPanel(_ctx);
+        return new LobbyPanel(_ctx, _config);
     }
 
     // documentation inherited
