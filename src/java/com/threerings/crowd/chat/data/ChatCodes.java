@@ -1,5 +1,5 @@
 //
-// $Id: ChatCodes.java,v 1.16 2003/06/03 21:41:33 ray Exp $
+// $Id: ChatCodes.java,v 1.17 2003/11/24 17:52:15 mdb Exp $
 
 package com.threerings.crowd.chat.data;
 
@@ -12,6 +12,9 @@ public interface ChatCodes extends InvocationCodes
 {
     /** The message identifier for a chat notification message. */
     public static final String CHAT_NOTIFICATION = "chat";
+
+    /** The default time after which a player is assumed idle. */
+    public static final long DEFAULT_IDLE_TIME = 3 * 60 * 1000L;
 
     /** The chat localtype code for chat messages delivered on the place
      * object currently occupied by the client. This is the only type of
