@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.7 2001/07/19 05:56:20 mdb Exp $
+// $Id: Client.java,v 1.8 2001/07/19 07:09:16 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.threerings.cocktail.cher.Log;
 import com.threerings.cocktail.cher.dobj.DObjectManager;
+import com.threerings.cocktail.cher.net.BootstrapData;
 import com.threerings.cocktail.cher.net.Credentials;
 
 /**
@@ -142,28 +143,21 @@ public class Client
     }
 
     /**
-     * Every client has an associated <code>ClientObject</code> instance.
-     *
-     * @return the oid of the client object or -1 if we are not currently
-     * connected to the server.
+     * Returns the oid of the client object associated with this session.
+     * It is only valid for the duration of the session.
      */
     public int getClientOid ()
     {
-        return (_comm != null) ? _comm.getClientOid() : -1;
+        return _cloid;
     }
 
     /**
      * Returns the invocation manager associated with this session. This
-     * reference is only valid for the duration of the session and a new
-     * reference must be obtained if the client disconnects and reconnects
-     * to the server.
-     *
-     * @return the invocation manager in effect or null if we have no
-     * established connection to the server.
+     * reference is only valid for the duration of the session.
      */
     public InvocationManager getInvocationManager ()
     {
-        return (_comm != null) ? _comm.getInvocationManager() : null;
+        return _invmgr;
     }
 
     /**
@@ -249,6 +243,18 @@ public class Client
         _comm = null;
     }
 
+    /**
+     * Called by the omgr when a bootstrap notification arrives.
+     */
+    void gotBootstrap (BootstrapData data)
+    {
+        // extract bootstrap information
+        _cloid = data.clientOid;
+
+        // create our invocation manager
+        _invmgr = new InvocationManager(this, data.invOid);
+    }
+
     protected Credentials _creds;
     protected Invoker _invoker;
 
@@ -260,6 +266,9 @@ public class Client
 
     /** The entity that manages our network communications. */
     protected Communicator _comm;
+
+    protected int _cloid;
+    protected InvocationManager _invmgr;
 
     // client observer codes
     static final int CLIENT_DID_LOGON = 0;

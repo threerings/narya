@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.8 2001/07/19 05:56:20 mdb Exp $
+// $Id: Communicator.java,v 1.9 2001/07/19 07:09:16 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -59,24 +59,6 @@ public class Communicator
     public DObjectManager getDObjectManager ()
     {
         return _omgr;
-    }
-
-    /**
-     * Returns the oid of the client object associated with this session.
-     * It is only valid for the duration of the session.
-     */
-    public int getClientOid ()
-    {
-        return _cloid;
-    }
-
-    /**
-     * Returns the invocation manager associated with this session. This
-     * reference is only valid for the duration of the session.
-     */
-    public InvocationManager getInvocationManager ()
-    {
-        return _invmgr;
     }
 
     /**
@@ -171,14 +153,8 @@ public class Communicator
     {
         Log.info("Logon succeeded: " + data);
 
-        // extract bootstrap information
-        _cloid = data.clientOid;
-
         // create our distributed object manager
         _omgr = new ClientDObjectMgr(this, _client);
-
-        // create our invocation manager
-        _invmgr = new InvocationManager(_client, data.invOid);
 
         // create a new writer thread and start it up
         if (_writer != null) {
@@ -502,6 +478,4 @@ public class Communicator
     protected DataInputStream _din;
 
     protected ClientDObjectMgr _omgr;
-    protected int _cloid;
-    protected InvocationManager _invmgr;
 }

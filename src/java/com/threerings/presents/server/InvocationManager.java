@@ -1,10 +1,15 @@
 //
-// $Id: InvocationManager.java,v 1.1 2001/07/19 05:56:20 mdb Exp $
+// $Id: InvocationManager.java,v 1.2 2001/07/19 07:09:16 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
+
 import com.threerings.cocktail.cher.Log;
 import com.threerings.cocktail.cher.dobj.*;
+import com.threerings.cocktail.cher.data.*;
+import com.threerings.cocktail.cher.util.ClassUtil;
 
 /**
  * The invocation services provide client to server invocations (service
@@ -22,7 +27,7 @@ import com.threerings.cocktail.cher.dobj.*;
  *
  * <p> The server invocation manager listens for invocation requests from
  * the client and passes them on to the invocation provider registered for
- * the requested invocation type. It also provides a mechanism by which
+ * the requested invocation module. It also provides a mechanism by which
  * responses and asynchronous notification invocations can be delivered to
  * the client.
  */
@@ -40,6 +45,15 @@ public class InvocationManager
     public int getOid ()
     {
         return _invoid;
+    }
+
+    /**
+     * Registers the supplied invocation provider instance as the handler
+     * for all invocation requests for the specified module.
+     */
+    public void registerProvider (String module, Object provider)
+    {
+        _providers.put(module, provider);
     }
 
     public void objectAvailable (DObject object)
@@ -66,12 +80,54 @@ public class InvocationManager
             return true;
         }
 
-        MessageEvent mevt = (MessageEvent)event;
         // make sure the name is proper just for sanities sake
+        MessageEvent mevt = (MessageEvent)event;
+        if (!mevt.getName().equals(InvocationObject.MESSAGE_NAME)) {
+            return true;
+        }
+
+        // we've got an invocation request, so we process it
+        Object[] args = mevt.getArgs();
+        String module = (String)args[0];
+        String procedure = (String)args[1];
+        int invid = ((Integer)args[2]).intValue();
+
+        // locate a provider for this module
+        Object provider = _providers.get(module);
+        if (provider == null) {
+            Log.warning("No provider registered for invocation request " +
+                        "[evt=" + mevt + "].");
+            return true;
+        }
+
+        // prune the method arguments from the full message arguments
+        Object[] margs = new Object[args.length-3];
+        System.arraycopy(args, 3, margs, 0, margs.length);
+
+        // look up the method that will handle this procedure
+        String mname = "handle" + procedure + "Request";
+        Method procmeth = ClassUtil.getMethod(mname, provider, _methcache);
+        if (procmeth == null) {
+            Log.warning("Unable to resolve provider procedure " +
+                        "[provider=" + provider.getClass().getName() +
+                        ", method=" + mname + "].");
+            return true;
+        }
+
+        // and invoke it
+        try {
+            procmeth.invoke(provider, margs);
+        } catch (Exception e) {
+            Log.warning("Error invoking invocation procedure " +
+                        "[provider=" + provider + ", method=" + procmeth +
+                        ", error=" + e + "].");
+        }
 
         return true;
     }
 
     protected DObjectManager _omgr;
     protected int _invoid;
+    protected HashMap _providers = new HashMap();
+    protected HashMap _methcache = new HashMap();
 }

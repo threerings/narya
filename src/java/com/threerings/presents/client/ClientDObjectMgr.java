@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.3 2001/06/13 05:17:54 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.4 2001/07/19 07:09:16 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -109,7 +109,11 @@ public class ClientDObjectMgr
         Object obj;
         while ((obj = _actions.getNonBlocking()) != null) {
             // do the proper thing depending on the object
-            if (obj instanceof EventNotification) {
+            if (obj instanceof BootstrapNotification) {
+                BootstrapData data = ((BootstrapNotification)obj).getData();
+                _client.gotBootstrap(data);
+
+            } else if (obj instanceof EventNotification) {
                 DEvent evt = ((EventNotification)obj).getEvent();
                 dispatchEvent(evt);
 

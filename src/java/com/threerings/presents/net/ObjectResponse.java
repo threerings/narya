@@ -1,5 +1,5 @@
 //
-// $Id: ObjectResponse.java,v 1.8 2001/06/11 17:42:20 mdb Exp $
+// $Id: ObjectResponse.java,v 1.9 2001/07/19 07:09:16 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -13,7 +13,7 @@ import com.threerings.cocktail.cher.dobj.io.DObjectFactory;
 public class ObjectResponse extends DownstreamMessage
 {
     /** The code for an object repsonse. */
-    public static final short TYPE = TYPE_BASE + 2;
+    public static final short TYPE = TYPE_BASE + 3;
 
     /**
      * Zero argument constructor used when unserializing an instance.

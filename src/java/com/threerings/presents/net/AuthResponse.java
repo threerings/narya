@@ -1,5 +1,5 @@
 //
-// $Id: AuthResponse.java,v 1.6 2001/06/11 17:42:20 mdb Exp $
+// $Id: AuthResponse.java,v 1.7 2001/07/19 07:09:16 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -30,7 +30,7 @@ public class AuthResponse extends DownstreamMessage
     }
 
     /**
-     * Constructs a auth response with the supplied credentials.
+     * Constructs a auth response with the supplied response data.
      */
     public AuthResponse (AuthResponseData data)
     {

@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.4 2001/06/11 17:44:04 mdb Exp $
+// $Id: PresentsClient.java,v 1.5 2001/07/19 07:09:16 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import com.threerings.cocktail.cher.Log;
+import com.threerings.cocktail.cher.data.ClientObject;
 import com.threerings.cocktail.cher.dobj.*;
 import com.threerings.cocktail.cher.net.*;
 import com.threerings.cocktail.cher.server.net.*;
@@ -36,6 +37,30 @@ public class Client implements Subscriber, MessageHandler
         _cmgr = cmgr;
         _username = username;
         setConnection(conn);
+
+        // create our client object and bootstrap the client once we've
+        // got it
+        Subscriber sub = new Subscriber ()
+        {
+            public void objectAvailable (DObject object)
+            {
+                setClientObject((ClientObject)object);
+                sendBootstrap();
+            }
+
+            public void requestFailed (int oid, ObjectAccessException cause)
+            {
+                Log.warning("Unable to create client object " +
+                            "[client=" + Client.this +
+                            ", error=" + cause + "].");
+            }
+
+            public boolean handleEvent (DEvent event, DObject target)
+            {
+                return false;
+            }
+        };
+        CherServer.omgr.createObject(ClientObject.class, this, false);
     }
 
     /**
@@ -68,7 +93,57 @@ public class Client implements Subscriber, MessageHandler
         // start using the new connection
         setConnection(conn);
 
+        // send off a bootstrap notification immediately because we've
+        // already got our client object
+        sendBootstrap();
+
         Log.info("Session resumed [client=" + this + "].");
+    }
+
+    protected void setClientObject (ClientObject clobj)
+    {
+        // keep track of this for later
+        _clobj = clobj;
+    }
+
+    /**
+     * This is called once we have a handle on the client distributed
+     * object. It sends a bootstrap notification to the client with all
+     * the information it will need to interact with the server.
+     */
+    protected void sendBootstrap ()
+    {
+        // create and populate our bootstrap data
+        BootstrapData data = createBootstrapData();
+        populateBootstrapData(data);
+
+        // create a send bootstrap notification
+        _conn.postMessage(new BootstrapNotification(data));
+    }
+
+    /**
+     * Derived client classes can override this member to create derived
+     * bootstrap data classes that contain extra bootstrap information, if
+     * desired.
+     */
+    protected BootstrapData createBootstrapData ()
+    {
+        return new BootstrapData();
+    }
+
+    /**
+     * Derived client classes can override this member to populate the
+     * bootstrap data with additional information. They should be sure to
+     * call <code>super.populateBootstrapData()</code> before doing their
+     * own populating, however.
+     */
+    protected void populateBootstrapData (BootstrapData data)
+    {
+        // give them the client object id
+        data.clientOid = _clobj.getOid();
+
+        // give them the invocation oid
+        data.invOid = CherServer.invmgr.getOid();
     }
 
     /**
@@ -269,6 +344,7 @@ public class Client implements Subscriber, MessageHandler
     protected ClientManager _cmgr;
     protected String _username;
     protected Connection _conn;
+    protected ClientObject _clobj;
 
     protected static HashMap _disps = new HashMap();
 

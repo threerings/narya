@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.5 2001/06/09 23:39:04 mdb Exp $
+// $Id: PresentsServer.java,v 1.6 2001/07/19 07:09:16 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -28,6 +28,9 @@ public class CherServer
     /** The distributed object manager. */
     public static DObjectManager omgr;
 
+    /** The invocation manager. */
+    public static InvocationManager invmgr;
+
     /**
      * Initializes all of the server services and prepares for operation.
      */
@@ -42,6 +45,8 @@ public class CherServer
             clmgr = new ClientManager(conmgr);
             // create our distributed object manager
             omgr = new CherDObjectMgr();
+            // create our invocation manager
+            invmgr = new InvocationManager(omgr);
 
             // create an object for testing
             omgr.createObject(TestObject.class, null, false);
