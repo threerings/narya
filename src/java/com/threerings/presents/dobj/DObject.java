@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.44 2002/05/31 20:47:55 mdb Exp $
+// $Id: DObject.java,v 1.45 2002/07/18 00:41:59 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -683,28 +683,28 @@ public class DObject
     }
 
     /** Our object id. */
-    protected int _oid;
+    protected transient int _oid;
 
     /** A reference to our object manager. */
-    protected DObjectManager _omgr;
+    protected transient DObjectManager _omgr;
 
     /** The entity that tells us if an event or subscription request
      * should be allowed. */
-    protected AccessController _controller;
+    protected transient AccessController _controller;
 
     /** A list of outstanding locks. */
-    protected Object[] _locks;
+    protected transient Object[] _locks;
 
     /** Our subscribers list. */
-    protected Object[] _subs;
+    protected transient Object[] _subs;
 
     /** Our event listeners list. */
-    protected Object[] _listeners;
+    protected transient Object[] _listeners;
 
     /** Our subscriber count. */
-    protected int _scount;
+    protected transient int _scount;
 
     /** The compound event associated with our transaction, if we're
      * currently in a transaction. */
-    protected CompoundEvent _tevent;
+    protected transient CompoundEvent _tevent;
 }
