@@ -1,10 +1,12 @@
 //
-// $Id: GeomUtil.java,v 1.4 2003/04/28 20:27:52 mdb Exp $
+// $Id: GeomUtil.java,v 1.5 2003/05/12 05:22:34 ray Exp $
 
 package com.threerings.geom;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 
 import com.samskivert.util.StringUtil;
 
@@ -89,6 +91,57 @@ public class GeomUtil
         n.x = p1.x + Math.round(Ax * u);
         n.y = p1.y + Math.round(Ay * u);
         return n;
+    }
+
+    /**
+     * Calculate the intersection of two lines. Either line may be
+     * considered as a line segment, and the intersecting point
+     * is only considered valid if it lies upon the segment.
+     * Note that Point extends Point2D.
+     *
+     * @param p1,&nbsp;p2 the coordinates of the first line.
+     * @param seg1 if the first line should be considered a segment.
+     * @param p3,&nbsp;p4 the coordinates of the second line.
+     * @param seg2 if the second line should be considered a segment.
+     * @param result the point that will be filled in with the intersecting
+     * point.
+     *
+     * @return true if result was filled in, or false if the lines
+     * are parallel or the point of intersection lies outside of a
+     * segment.
+     */
+    public static boolean lineIntersection (
+        Point2D p1, Point2D p2, boolean seg1,
+        Point2D p3, Point2D p4, boolean seg2, Point2D result)
+    {
+        // see http://astronomy.swin.edu.au/~pbourke/geometry/lineline2d/
+        double y43 = p4.getY() - p3.getY();
+        double x21 = p2.getX() - p1.getX();
+        double x43 = p4.getX() - p3.getX();
+        double y21 = p2.getY() - p1.getY();
+        double denom = y43 * x21 - x43 * y21;
+        if (denom == 0) {
+            return false;
+        }
+
+        double y13 = p1.getY() - p3.getY();
+        double x13 = p1.getX() - p3.getX();
+        double ua = (x43 * y13 - y43 * x13) / denom;
+        if (seg1 && ((ua < 0) || (ua > 1))) {
+            return false;
+        }
+
+        if (seg2) {
+            double ub = (x21 * y13 - y21 * x13) / denom;
+            if ((ub < 0) || (ub > 1)) {
+                return false;
+            }
+        }
+
+        double x = p1.getX() + ua * x21;
+        double y = p1.getY() + ua * y21;
+        result.setLocation(x, y);
+        return true;
     }
 
     /**
