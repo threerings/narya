@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSet.java,v 1.4 2001/11/29 22:10:42 mdb Exp $
+// $Id: ObjectTileSet.java,v 1.5 2001/11/29 23:07:12 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -81,7 +81,7 @@ public class ObjectTileSet extends SwissArmyTileSet
         // retrieve object dimensions if known
         if (_owidths != null) {
             wid = _owidths[tileIndex];
-            wid = _oheights[tileIndex];
+            hei = _oheights[tileIndex];
         }
 
         return new ObjectTile(image, wid, hei);
