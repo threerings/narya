@@ -13,6 +13,25 @@ client/server application framework. Cher provides services that can be
 integrated into your distributed application to share information between
 a set of clients and entities operating on the server.
 
+* Authentication and bootstrapping
+The client initially transmits an authentication request to the server and
+receives an authentication response in return. If successfully
+authenticated, the client will then start up the distributed object
+machinery, but will remain in a less functional state until the server
+delivers the bootstrap notification.
+
+The bootstrap notification contains the client's distributed object oid as
+well as the invocation services oid. With this information the client can
+complete initialization and attain a fully operational state.
+
+The motivation for splitting up the authentication response and the
+bootstrap notification is because the authentication process completes
+separately from the server's client management initialization. The
+authentication machinery replies to the client and sets the client
+management machinery in motion. When that completes (and a client object
+has been created for the client), the bootstrap notification is sent off
+and normal operation ensues.
+
 * Invocation services
 To facilitate the client invoking code on the server (in a
 request/response arrangement) and the server invoking code on the client
