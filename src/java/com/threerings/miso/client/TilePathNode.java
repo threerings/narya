@@ -1,9 +1,9 @@
 //
-// $Id: TilePathNode.java,v 1.1 2001/10/24 00:55:08 shaper Exp $
+// $Id: TilePathNode.java,v 1.2 2002/05/31 03:38:03 mdb Exp $
 
 package com.threerings.miso.scene;
 
-import com.threerings.media.sprite.PathNode;
+import com.threerings.media.util.PathNode;
 
 /**
  * The tile path nodes extends the path node class to allow

@@ -1,7 +1,7 @@
 //
-// $Id: PathNode.java,v 1.6 2001/10/24 00:55:08 shaper Exp $
+// $Id: PathNode.java,v 1.7 2002/05/31 03:38:03 mdb Exp $
 
-package com.threerings.media.sprite;
+package com.threerings.media.util;
 
 import java.awt.Point;
 

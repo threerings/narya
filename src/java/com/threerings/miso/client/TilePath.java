@@ -1,23 +1,25 @@
 //
-// $Id: TilePath.java,v 1.4 2002/03/16 03:15:05 shaper Exp $
+// $Id: TilePath.java,v 1.5 2002/05/31 03:38:03 mdb Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.*;
 import java.util.List;
 
-import com.threerings.media.sprite.*;
-
 import com.threerings.util.DirectionCodes;
+
+import com.threerings.media.util.LineSegmentPath;
+import com.threerings.media.util.PathNode;
+import com.threerings.media.util.Pathable;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.util.IsoUtil;
 
 /**
- * The tile path represents a path of tiles through a scene.  The path
- * is traversed by treating each pair of connected tiles as a line
- * segment.  Only ambulatory sprites can follow a tile path, and their
- * tile coordinates are updated as the path is traversed.
+ * The tile path represents a path of tiles through a scene.  The path is
+ * traversed by treating each pair of connected tiles as a line segment.
+ * Only ambulatory sprites can follow a tile path, and their tile
+ * coordinates are updated as the path is traversed.
  */
 public class TilePath extends LineSegmentPath
     implements DirectionCodes
@@ -44,13 +46,13 @@ public class TilePath extends LineSegmentPath
     }
 
     // documentation inherited
-    public boolean updatePosition (Sprite sprite, long timestamp)
+    public boolean tick (Pathable pable, long timestamp)
     {
-        boolean moved = super.updatePosition(sprite, timestamp);
+        boolean moved = super.tick(pable, timestamp);
 
         if (moved) {
-            MisoCharacterSprite mcs = (MisoCharacterSprite)sprite;
-            int sx = sprite.getX(), sy = sprite.getY();
+            MisoCharacterSprite mcs = (MisoCharacterSprite)pable;
+            int sx = mcs.getX(), sy = mcs.getY();
             Point pos = new Point();
 
             // check whether we've arrived at the destination tile

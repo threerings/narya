@@ -1,7 +1,9 @@
 //
-// $Id: PathCompletedEvent.java,v 1.1 2001/09/13 19:36:20 mdb Exp $
+// $Id: PathCompletedEvent.java,v 1.2 2002/05/31 03:38:03 mdb Exp $
 
 package com.threerings.media.sprite;
+
+import com.threerings.media.util.Path;
 
 /**
  * A path completed event is dispatched when a sprite completes a path

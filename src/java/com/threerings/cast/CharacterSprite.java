@@ -1,10 +1,10 @@
 //
-// $Id: CharacterSprite.java,v 1.31 2002/05/29 23:27:14 mdb Exp $
+// $Id: CharacterSprite.java,v 1.32 2002/05/31 03:38:02 mdb Exp $
 
 package com.threerings.cast;
 
-import com.threerings.media.sprite.Path;
 import com.threerings.media.sprite.ImageSprite;
+import com.threerings.media.util.Path;
 
 /**
  * A character sprite is a sprite that animates itself while walking

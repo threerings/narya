@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.44 2002/05/29 23:27:14 mdb Exp $
+// $Id: Sprite.java,v 1.45 2002/05/31 03:38:03 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import com.threerings.util.DirectionCodes;
 
 import com.threerings.media.Log;
+import com.threerings.media.util.Path;
+import com.threerings.media.util.Pathable;
 
 /**
  * The sprite class represents a single moveable object in an animated
@@ -19,7 +21,7 @@ import com.threerings.media.Log;
  * be moved along a path.
  */
 public abstract class Sprite
-    implements DirectionCodes
+    implements DirectionCodes, Pathable
 {
     /**
      * Constructs a sprite with a default initial location of <code>(0,
@@ -332,7 +334,7 @@ public abstract class Sprite
     {
         // if we've a path, move the sprite along toward its destination
         if (_path != null) {
-            _path.updatePosition(this, tickStamp);
+            _path.tick(this, tickStamp);
         }
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: ImageSprite.java,v 1.5 2002/05/04 19:35:31 mdb Exp $
+// $Id: ImageSprite.java,v 1.6 2002/05/31 03:38:03 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -145,6 +145,12 @@ public class ImageSprite extends Sprite
             return;
         }
 
+        // if these are the same frames we already had, no need to do a
+        // bunch of pointless business
+        if (frames == _frames) {
+            return;
+        }
+
         // start with our old bounds
         Rectangle dirty = new Rectangle(_bounds);
 
@@ -203,7 +209,7 @@ public class ImageSprite extends Sprite
 
         // move the sprite along toward its destination, if any 
         if (_path != null) {
-            moved = _path.updatePosition(this, timestamp);
+            moved = _path.tick(this, timestamp);
         }
 
         // increment the display image if performing image animation

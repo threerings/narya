@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.109 2002/05/30 22:21:51 ray Exp $
+// $Id: IsoSceneView.java,v 1.110 2002/05/31 03:38:03 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -26,8 +26,8 @@ import com.samskivert.util.HashIntMap;
 
 import com.threerings.media.RegionManager;
 
-import com.threerings.media.sprite.Path;
 import com.threerings.media.sprite.SpriteManager;
+import com.threerings.media.util.Path;
 
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;

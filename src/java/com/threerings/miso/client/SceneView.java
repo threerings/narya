@@ -1,5 +1,5 @@
 //
-// $Id: SceneView.java,v 1.27 2002/04/23 01:18:17 mdb Exp $
+// $Id: SceneView.java,v 1.28 2002/05/31 03:38:03 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -8,7 +8,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
-import com.threerings.media.sprite.Path;
+import com.threerings.media.util.Path;
 
 /**
  * The scene view interface provides an interface to be implemented by

@@ -1,56 +1,55 @@
 //
-// $Id: Path.java,v 1.6 2002/05/17 21:12:48 mdb Exp $
+// $Id: Path.java,v 1.7 2002/05/31 03:38:03 mdb Exp $
 
-package com.threerings.media.sprite;
+package com.threerings.media.util;
 
 import java.awt.Graphics2D;
 
 /**
- * A path is used to cause a sprite to follow a particular path along the
- * screen. The sprite will call into the path every time it is ticked by
- * the animation manager and the path is responsible for updating the
- * position of the sprite based on the time that has elapsed since the
- * sprite started down the path. The animation manager attempts to tick
- * once per frame at the desired frame rate, but may tick less often if
- * CPU resources are limited, thus paths should not rely on tick counts
- * but instead use elapsed time to determine progress.
+ * A path is used to cause a {@link Pathable} to follow a particular path
+ * along the screen. The {@link Pathable} is responsible for calling
+ * {@link #tick} on the path with reasonable frequency (generally as a
+ * part of the frame tick. The path is responsible for updating the
+ * position of the {@link Pathable} based on the time that has elapsed
+ * since the {@link Pathable} started down the path.
  *
- * <p> The path should call back to the sprite (via {@link
- * Sprite#pathCompleted}) to let it know when the path has been completed.
+ * <p> The path should call the appropriate callbacks on the {@link
+ * Pathable} when appropriate (e.g. {@link Pathable#pathBeginning}, {@link
+ * Pathable#pathCompleted}).
  */
 public interface Path
 {
     /**
      * Called once to let the path prepare itself for the process of
-     * animating the supplied sprite.
+     * animating the supplied pathable.
      */
-    public void init (Sprite sprite, long tickStamp);
+    public void init (Pathable pable, long tickStamp);
 
     /**
      * Called to request that this path update the position of the
-     * specified sprite based on the supplied timestamp information. A
+     * specified pathable based on the supplied timestamp information. A
      * path should record its initial timestamp and determine the progress
-     * of the sprite along the path based on the time elapsed since the
-     * sprite began down the path.
+     * of the pathable along the path based on the time elapsed since the
+     * pathable began down the path.
      *
-     * @param sprite the sprite whose position should be updated.
+     * @param pable the pathable whose position should be updated.
      * @param tickStamp the timestamp associated with this frame.
      *
-     * @return true if the sprite's position was updated, false if the
-     * path determined that the sprite should not move at this time.
+     * @return true if the pathable's position was updated, false if the
+     * path determined that the pathable should not move at this time.
      */
-    public boolean updatePosition (Sprite sprite, long tickStamp);
+    public boolean tick (Pathable pable, long tickStamp);
 
     /**
-     * This is called if the sprite manager is paused for some length of
-     * time and then unpaused. Paths should adjust any time stamps they
-     * are maintaining internally by the delta so that time maintains the
+     * This is called if the pathable is paused for some length of time
+     * and then unpaused. Paths should adjust any time stamps they are
+     * maintaining internally by the delta so that time maintains the
      * illusion of flowing smoothly forward.
      */
     public void fastForward (long timeDelta);
 
     /**
-     * Called when the view that contains the sprite following this path
+     * Called when the view that contains the pathable following this path
      * is scrolling by the specified amount. Gives the path an opportunity
      * to adjust its internal coordinates by the scrolled amount.
      */

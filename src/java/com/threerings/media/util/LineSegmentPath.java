@@ -1,7 +1,7 @@
 //
-// $Id: LineSegmentPath.java,v 1.22 2002/05/17 21:13:26 mdb Exp $
+// $Id: LineSegmentPath.java,v 1.23 2002/05/31 03:38:03 mdb Exp $
 
-package com.threerings.media.sprite;
+package com.threerings.media.util;
 
 import java.awt.Color;
 import java.awt.Point;
@@ -20,11 +20,11 @@ import com.threerings.media.Log;
 import com.threerings.media.util.MathUtil;
 
 /**
- * The line segment path is used to cause a sprite to follow a path
- * that is made up of a sequence of line segments. There must be at
- * least two nodes in any worthwhile path. The direction of the first
- * node in the path is meaningless since the sprite begins at that
- * node and will therefore never be heading towards it.
+ * The line segment path is used to cause a pathable to follow a path that
+ * is made up of a sequence of line segments. There must be at least two
+ * nodes in any worthwhile path. The direction of the first node in the
+ * path is meaningless since the pathable begins at that node and will
+ * therefore never be heading towards it.
  */
 public class LineSegmentPath
     implements DirectionCodes, Path
@@ -102,14 +102,14 @@ public class LineSegmentPath
     }
 
     /**
-     * Sets the velocity of this sprite in pixels per millisecond. The
+     * Sets the velocity of this pathable in pixels per millisecond. The
      * velocity is measured as pixels traversed along the path that the
-     * sprite is traveling rather than in the x or y directions
-     * individually.  Note that the sprite velocity should not be changed
-     * while a path is being traversed; doing so may result in the sprite
-     * position changing unexpectedly.
+     * pathable is traveling rather than in the x or y directions
+     * individually.  Note that the pathable velocity should not be
+     * changed while a path is being traversed; doing so may result in the
+     * pathable position changing unexpectedly.
      *
-     * @param velocity the sprite velocity in pixels per millisecond.
+     * @param velocity the pathable velocity in pixels per millisecond.
      */
     public void setVelocity (float velocity)
     {
@@ -117,10 +117,10 @@ public class LineSegmentPath
     }
 
     /**
-     * Computes the velocity at which the sprite will need to travel along
-     * this path such that it will arrive at the destination in
+     * Computes the velocity at which the pathable will need to travel
+     * along this path such that it will arrive at the destination in
      * approximately the specified number of milliseconds. Efforts are
-     * taken to get the sprite there as close to the desired time as
+     * taken to get the pathable there as close to the desired time as
      * possible, but framerate variation may prevent it from arriving
      * exactly on time.
      */
@@ -162,22 +162,22 @@ public class LineSegmentPath
     }
 
     // documentation inherited
-    public void init (Sprite sprite, long timestamp)
+    public void init (Pathable pable, long timestamp)
     {
-        // give the sprite a chance to perform any starting antics
-        sprite.pathBeginning();
+        // give the pathable a chance to perform any starting antics
+        pable.pathBeginning();
 
-        // if we have only one node then let the sprite know that we're
+        // if we have only one node then let the pathable know that we're
         // done straight away
         if (size() < 2) {
-            // move the sprite to the location specified by the first node
-            // (assuming we have a first node)
+            // move the pathable to the location specified by the first
+            // node (assuming we have a first node)
             if (size() == 1) {
                 PathNode node = (PathNode)_nodes.get(0);
-                sprite.setLocation(node.loc.x, node.loc.y);
+                pable.setLocation(node.loc.x, node.loc.y);
             }
-            // and let the sprite know that we're done
-	    sprite.pathCompleted();
+            // and let the pathable know that we're done
+	    pable.pathCompleted();
 	    return;
 	}
 
@@ -188,11 +188,11 @@ public class LineSegmentPath
         _dest = getNextNode();
 
         // begin traversing the path
-        headToNextNode(sprite, timestamp, timestamp);
+        headToNextNode(pable, timestamp, timestamp);
     }
 
     // documentation inherited
-    public boolean updatePosition (Sprite sprite, long timestamp)
+    public boolean tick (Pathable pable, long timestamp)
     {
         // figure out how far along this segment we should be
         long msecs = timestamp - _nodestamp;
@@ -204,22 +204,22 @@ public class LineSegmentPath
         // end of this node, then move to the next one
         if (pctdone >= 1.0) {
             long used = (long)(_seglength / _vel);
-            return headToNextNode(sprite, _nodestamp + used, timestamp);
+            return headToNextNode(pable, _nodestamp + used, timestamp);
         }
 
-        // otherwise we position the sprite along the path
-        int ox = sprite.getX();
-        int oy = sprite.getY();
+        // otherwise we position the pathable along the path
+        int ox = pable.getX();
+        int oy = pable.getY();
         int nx = _src.loc.x + (int)((_dest.loc.x - _src.loc.x) * pctdone);
         int ny = _src.loc.y + (int)((_dest.loc.y - _src.loc.y) * pctdone);
 
-//         Log.info("Moving sprite [msecs=" + msecs + ", pctdone=" + pctdone +
+//         Log.info("Moving pathable [msecs=" + msecs + ", pctdone=" + pctdone +
 //                  ", travpix=" + travpix + ", seglength=" + _seglength +
 //                  ", dx=" + (nx-ox) + ", dy=" + (ny-oy) + "].");
 
-        // only update the sprite's location if it actually moved
+        // only update the pathable's location if it actually moved
         if (ox != nx || oy != ny) {
-            sprite.setLocation(nx, ny);
+            pable.setLocation(nx, ny);
             return true;
         }        
 
@@ -233,18 +233,18 @@ public class LineSegmentPath
     }
 
     /**
-     * Place the sprite moving along the path at the end of the
-     * previous path node, face it appropriately for the next node,
-     * and start it on its way.  Returns whether the sprite position
-     * moved.
+     * Place the pathable moving along the path at the end of the previous
+     * path node, face it appropriately for the next node, and start it on
+     * its way.  Returns whether the pathable position moved.
      */
-    protected boolean headToNextNode (Sprite sprite, long startstamp, long now)
+    protected boolean headToNextNode (
+        Pathable pable, long startstamp, long now)
     {
         // check to see if we've completed our path
         if (!_niter.hasNext()) {
-            // move the sprite to the location of our last destination
-            sprite.setLocation(_dest.loc.x, _dest.loc.y);
-            sprite.pathCompleted();
+            // move the pathable to the location of our last destination
+            pable.setLocation(_dest.loc.x, _dest.loc.y);
+            pable.pathCompleted();
             return true;
         }
 
@@ -254,9 +254,9 @@ public class LineSegmentPath
         // pop the next node off the path
         _dest = getNextNode();
 
-        // adjust the sprite's orientation
+        // adjust the pathable's orientation
         if (_dest.dir != NONE) {
-            sprite.setOrientation(_dest.dir);
+            pable.setOrientation(_dest.dir);
         }
 
         // make a note of when we started traversing this node
@@ -269,11 +269,11 @@ public class LineSegmentPath
         // if we're already there (the segment length is zero), we skip to
         // the next segment
         if (_seglength == 0) {
-            return headToNextNode(sprite, startstamp, now);
+            return headToNextNode(pable, startstamp, now);
         }
 
-        // now update the sprite's position based on our progress thus far
-        return updatePosition(sprite, now);
+        // now update the pathable's position based on our progress thus far
+        return tick(pable, now);
     }
 
     // documentation inherited
@@ -298,7 +298,7 @@ public class LineSegmentPath
     }
 
     /**
-     * Populate the path with the path nodes that lead the sprite from
+     * Populate the path with the path nodes that lead the pathable from
      * its starting position to the given destination coordinates
      * following the given list of screen coordinates.
      */
@@ -329,10 +329,10 @@ public class LineSegmentPath
     /** We use this when moving along this path. */
     protected Iterator _niter;
 
-    /** When moving, the sprite's source path node. */
+    /** When moving, the pathable's source path node. */
     protected PathNode _src;
 
-    /** When moving, the sprite's destination path node. */
+    /** When moving, the pathable's destination path node. */
     protected PathNode _dest;
 
     /** The time at which we started traversing the current node. */
@@ -344,7 +344,7 @@ public class LineSegmentPath
     /** The path velocity in pixels per millisecond. */
     protected float _vel = DEFAULT_VELOCITY;
 
-    /** When moving, the sprite position including fractional pixels. */ 
+    /** When moving, the pathable position including fractional pixels. */ 
     protected float _movex, _movey;
 
     /** When moving, the distance to move on each axis per tick. */
@@ -353,6 +353,6 @@ public class LineSegmentPath
     /** The distance to move on the straight path line per tick. */
     protected float _fracx, _fracy;
 
-    /** Default sprite velocity. */
+    /** Default pathable velocity. */
     protected static final float DEFAULT_VELOCITY = 200f/1000f;
 }

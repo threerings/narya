@@ -1,7 +1,7 @@
 //
-// $Id: LinePath.java,v 1.1 2002/05/17 21:14:06 mdb Exp $
+// $Id: LinePath.java,v 1.2 2002/05/31 03:38:03 mdb Exp $
 
-package com.threerings.media.sprite;
+package com.threerings.media.util;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -14,7 +14,7 @@ import com.threerings.media.Log;
 import com.threerings.media.util.MathUtil;
 
 /**
- * The line path is used to cause a sprite to go from point A to point B
+ * The line path is used to cause a pathable to go from point A to point B
  * in a certain number of milliseconds.
  */
 public class LinePath implements Path
@@ -56,29 +56,29 @@ public class LinePath implements Path
     }
 
     // documentation inherited
-    public void init (Sprite sprite, long timestamp)
+    public void init (Pathable pable, long timestamp)
     {
-        // give the sprite a chance to perform any starting antics
-        sprite.pathBeginning();
+        // give the pable a chance to perform any starting antics
+        pable.pathBeginning();
 
         // make a note of the time at which we expect to arrive
         _arrivalTime = timestamp + _duration;
 
-        // pretend like we just moved the sprite
+        // pretend like we just moved the pathable
         _lastMove = timestamp;
 
         // update our position to the start of the path
-        updatePosition(sprite, timestamp);
+        tick(pable, timestamp);
     }
 
     // documentation inherited
-    public boolean updatePosition (Sprite sprite, long timestamp)
+    public boolean tick (Pathable pable, long timestamp)
     {
         // if we've blown past our arrival time, we need to get our bootay
         // to the prearranged spot and get the hell out
         if (timestamp >= _arrivalTime) {
-            sprite.setLocation(_dest.x, _dest.y);
-            sprite.pathCompleted();
+            pable.setLocation(_dest.x, _dest.y);
+            pable.pathCompleted();
             return true;
         }
 
@@ -87,22 +87,22 @@ public class LinePath implements Path
         // the number of milliseconds until we're expected to finish
         float rt = (float)(_arrivalTime - _lastMove);
         // how many pixels we have left to go
-        int leftx = _dest.x - sprite.getX(), lefty = _dest.y - sprite.getY();
+        int leftx = _dest.x - pable.getX(), lefty = _dest.y - pable.getY();
 
-        // we want to move the sprite by the remaining distance multiplied
-        // by the move delta divided by the remaining time
+        // we want to move the pathable by the remaining distance
+        // multiplied by the move delta divided by the remaining time
         int dx = Math.round((float)(leftx * dt) / rt);
         int dy = Math.round((float)(lefty * dt) / rt);
 
-//         Log.info("Updated sprite [duration=" + _duration +
+//         Log.info("Updated pathable [duration=" + _duration +
 //                  ", dist=" + _distance + ", dt=" + dt + ", rt=" + rt +
 //                  ", leftx=" + leftx + ", lefty=" + lefty +
 //                  ", dx=" + dx + ", dy=" + dy + "].");
 
-        // only update the sprite's location if it actually moved
+        // only update the pathable's location if it actually moved
         if (dx != 0 || dy != 0) {
             _lastMove = timestamp;
-            sprite.setLocation(sprite.getX() + dx, sprite.getY() + dy);
+            pable.setLocation(pable.getX() + dx, pable.getY() + dy);
             return true;
         }
 
@@ -143,6 +143,6 @@ public class LinePath implements Path
     /** The time at which we expect to complete our path. */
     protected long _arrivalTime;
 
-    /** The time at which we last actually moved the sprite. */
+    /** The time at which we last actually moved the pathable. */
     protected long _lastMove;
 }
