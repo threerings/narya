@@ -1,14 +1,14 @@
 //
-// $Id: LobbyManager.java,v 1.3 2001/10/09 17:47:33 mdb Exp $
+// $Id: LobbyManager.java,v 1.4 2001/10/11 04:13:33 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
 import java.util.Properties;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.cocktail.party.chat.ChatService;
-import com.threerings.cocktail.party.chat.ChatMessageHandler;
-import com.threerings.cocktail.party.server.PlaceManager;
+import com.threerings.crowd.chat.ChatService;
+import com.threerings.crowd.chat.ChatMessageHandler;
+import com.threerings.crowd.server.PlaceManager;
 import com.threerings.micasa.Log;
 
 /**

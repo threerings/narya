@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaServer.java,v 1.3 2001/10/09 18:20:08 mdb Exp $
+// $Id: MiCasaServer.java,v 1.4 2001/10/11 04:13:33 mdb Exp $
 
 package com.threerings.micasa.server;
 
@@ -7,7 +7,7 @@ import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.StaticConnectionProvider;
 import com.samskivert.util.Config;
 
-import com.threerings.cocktail.party.server.PartyServer;
+import com.threerings.crowd.server.CrowdServer;
 import com.threerings.parlor.server.ParlorManager;
 
 import com.threerings.micasa.Log;
@@ -17,7 +17,7 @@ import com.threerings.micasa.lobby.LobbyRegistry;
  * This class is the main entry point and general organizer of everything
  * that goes on in the MiCasa game server process.
  */
-public class MiCasaServer extends PartyServer
+public class MiCasaServer extends CrowdServer
 {
     /** The namespace used for server config properties. */
     public static final String CONFIG_KEY = "micasa";
@@ -37,7 +37,7 @@ public class MiCasaServer extends PartyServer
     public void init ()
         throws Exception
     {
-        // do the cher server initialization
+        // do the base server initialization
         super.init();
 
         // configure the client manager to use our client class

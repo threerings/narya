@@ -1,13 +1,13 @@
 //
-// $Id: LobbyController.java,v 1.4 2001/10/09 20:22:51 mdb Exp $
+// $Id: LobbyController.java,v 1.5 2001/10/11 04:13:33 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
-import com.threerings.cocktail.party.data.PlaceConfig;
-import com.threerings.cocktail.party.data.PlaceObject;
-import com.threerings.cocktail.party.client.PlaceController;
-import com.threerings.cocktail.party.client.PlaceView;
-import com.threerings.cocktail.party.util.PartyContext;
+import com.threerings.crowd.data.PlaceConfig;
+import com.threerings.crowd.data.PlaceObject;
+import com.threerings.crowd.client.PlaceController;
+import com.threerings.crowd.client.PlaceView;
+import com.threerings.crowd.util.CrowdContext;
 
 import com.threerings.parlor.client.*;
 import com.threerings.parlor.data.GameConfig;
@@ -19,7 +19,7 @@ public class LobbyController
     extends PlaceController
     implements InvitationHandler, InvitationResponseObserver
 {
-    public void init (PartyContext ctx, PlaceConfig config)
+    public void init (CrowdContext ctx, PlaceConfig config)
     {
         // cast our context reference
         _ctx = (MiCasaContext)ctx;

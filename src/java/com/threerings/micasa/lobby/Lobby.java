@@ -1,5 +1,5 @@
 //
-// $Id: Lobby.java,v 1.1 2001/10/04 23:41:44 mdb Exp $
+// $Id: Lobby.java,v 1.2 2001/10/11 04:13:33 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.threerings.cocktail.cher.io.Streamable;
+import com.threerings.presents.io.Streamable;
 
 /**
  * A simple class for keeping track of information for each lobby in

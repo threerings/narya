@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaClient.java,v 1.2 2001/10/09 17:47:33 mdb Exp $
+// $Id: MiCasaClient.java,v 1.3 2001/10/11 04:13:33 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -10,13 +10,13 @@ import javax.swing.SwingUtilities;
 
 import com.samskivert.util.Config;
 
-import com.threerings.cocktail.cher.client.*;
-import com.threerings.cocktail.cher.dobj.DObjectManager;
-import com.threerings.cocktail.cher.net.*;
+import com.threerings.presents.client.*;
+import com.threerings.presents.dobj.DObjectManager;
+import com.threerings.presents.net.*;
 
-import com.threerings.cocktail.party.client.LocationDirector;
-import com.threerings.cocktail.party.client.OccupantManager;
-import com.threerings.cocktail.party.client.PlaceView;
+import com.threerings.crowd.client.LocationDirector;
+import com.threerings.crowd.client.OccupantManager;
+import com.threerings.crowd.client.PlaceView;
 
 import com.threerings.parlor.client.ParlorDirector;
 

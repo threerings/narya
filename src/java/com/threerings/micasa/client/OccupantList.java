@@ -1,15 +1,15 @@
 //
-// $Id: OccupantList.java,v 1.2 2001/10/09 00:48:34 mdb Exp $
+// $Id: OccupantList.java,v 1.3 2001/10/11 04:13:33 mdb Exp $
 
 package com.threerings.micasa.client;
 
 import java.util.Iterator;
 import javax.swing.*;
 
-import com.threerings.cocktail.party.client.OccupantObserver;
-import com.threerings.cocktail.party.client.PlaceView;
-import com.threerings.cocktail.party.data.OccupantInfo;
-import com.threerings.cocktail.party.data.PlaceObject;
+import com.threerings.crowd.client.OccupantObserver;
+import com.threerings.crowd.client.PlaceView;
+import com.threerings.crowd.data.OccupantInfo;
+import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.micasa.util.MiCasaContext;
 

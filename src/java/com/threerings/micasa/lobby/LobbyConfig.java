@@ -1,5 +1,5 @@
 //
-// $Id: LobbyConfig.java,v 1.2 2001/10/09 20:22:51 mdb Exp $
+// $Id: LobbyConfig.java,v 1.3 2001/10/11 04:13:33 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -10,7 +10,7 @@ import java.io.DataOutputStream;
 import java.util.Properties;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.cocktail.party.data.PlaceConfig;
+import com.threerings.crowd.data.PlaceConfig;
 
 import com.threerings.parlor.data.GameConfig;
 

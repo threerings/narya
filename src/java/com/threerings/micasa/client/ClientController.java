@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.6 2001/10/09 19:23:26 mdb Exp $
+// $Id: ClientController.java,v 1.7 2001/10/11 04:13:33 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -7,13 +7,13 @@ import java.awt.event.ActionEvent;
 import com.samskivert.swing.Controller;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.cocktail.cher.dobj.*;
-import com.threerings.cocktail.cher.client.*;
-import com.threerings.cocktail.cher.net.Credentials;
-import com.threerings.cocktail.cher.net.UsernamePasswordCreds;
+import com.threerings.presents.dobj.*;
+import com.threerings.presents.client.*;
+import com.threerings.presents.net.Credentials;
+import com.threerings.presents.net.UsernamePasswordCreds;
 
-import com.threerings.cocktail.party.client.*;
-import com.threerings.cocktail.party.data.*;
+import com.threerings.crowd.client.*;
+import com.threerings.crowd.data.*;
 
 import com.threerings.micasa.Log;
 import com.threerings.micasa.data.MiCasaBootstrapData;

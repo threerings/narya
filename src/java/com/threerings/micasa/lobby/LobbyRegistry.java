@@ -1,13 +1,13 @@
 //
-// $Id: LobbyRegistry.java,v 1.5 2001/10/09 20:22:51 mdb Exp $
+// $Id: LobbyRegistry.java,v 1.6 2001/10/11 04:13:33 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
 import java.util.*;
 import com.samskivert.util.*;
 
-import com.threerings.cocktail.cher.server.InvocationManager;
-import com.threerings.cocktail.party.data.BodyObject;
+import com.threerings.presents.server.InvocationManager;
+import com.threerings.crowd.data.BodyObject;
 
 import com.threerings.micasa.Log;
 import com.threerings.micasa.server.MiCasaServer;

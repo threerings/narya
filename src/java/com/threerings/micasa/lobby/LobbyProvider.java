@@ -1,11 +1,11 @@
 //
-// $Id: LobbyProvider.java,v 1.2 2001/10/04 23:41:44 mdb Exp $
+// $Id: LobbyProvider.java,v 1.3 2001/10/11 04:13:33 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
-import com.threerings.cocktail.cher.server.InvocationProvider;
-import com.threerings.cocktail.cher.util.StreamableArrayList;
-import com.threerings.cocktail.party.data.BodyObject;
+import com.threerings.presents.server.InvocationProvider;
+import com.threerings.presents.util.StreamableArrayList;
+import com.threerings.crowd.data.BodyObject;
 
 /**
  * Handles server side of lobby-related invocation services.

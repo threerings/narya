@@ -1,5 +1,5 @@
 //
-// $Id: LogonPanel.java,v 1.1 2001/10/03 23:24:09 mdb Exp $
+// $Id: LogonPanel.java,v 1.2 2001/10/11 04:13:33 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -11,8 +11,8 @@ import javax.swing.*;
 
 import com.samskivert.swing.*;
 
-import com.threerings.cocktail.cher.client.Client;
-import com.threerings.cocktail.cher.net.*;
+import com.threerings.presents.client.Client;
+import com.threerings.presents.net.*;
 
 import com.threerings.micasa.util.MiCasaContext;
 

@@ -1,18 +1,18 @@
 //
-// $Id: MiCasaClient.java,v 1.2 2001/10/09 19:23:50 mdb Exp $
+// $Id: MiCasaClient.java,v 1.3 2001/10/11 04:13:33 mdb Exp $
 
 package com.threerings.micasa.server;
 
-import com.threerings.cocktail.cher.net.BootstrapData;
-import com.threerings.cocktail.party.server.PartyClient;
+import com.threerings.presents.net.BootstrapData;
+import com.threerings.crowd.server.CrowdClient;
 
 import com.threerings.micasa.data.MiCasaBootstrapData;
 
 /**
- * Extends the cher client and provides bootstrap data specific to the
+ * Extends the Crowd client and provides bootstrap data specific to the
  * MiCasa services.
  */
-public class MiCasaClient extends PartyClient
+public class MiCasaClient extends CrowdClient
 {
     // documentation inherited
     protected BootstrapData createBootstrapData ()

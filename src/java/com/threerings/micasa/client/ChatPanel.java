@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.3 2001/10/09 19:23:26 mdb Exp $
+// $Id: ChatPanel.java,v 1.4 2001/10/11 04:13:33 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -11,11 +11,11 @@ import javax.swing.text.*;
 import java.util.StringTokenizer;
 
 import com.samskivert.swing.*;
-import com.threerings.cocktail.party.chat.*;
-import com.threerings.cocktail.party.client.*;
-import com.threerings.cocktail.party.data.OccupantInfo;
-import com.threerings.cocktail.party.data.PlaceObject;
-import com.threerings.cocktail.party.util.PartyContext;
+import com.threerings.crowd.chat.*;
+import com.threerings.crowd.client.*;
+import com.threerings.crowd.data.OccupantInfo;
+import com.threerings.crowd.data.PlaceObject;
+import com.threerings.crowd.util.CrowdContext;
 
 import com.threerings.micasa.Log;
 
@@ -23,7 +23,7 @@ public class ChatPanel
     extends JPanel
     implements ActionListener, ChatDisplay, OccupantObserver, PlaceView
 {
-    public ChatPanel (PartyContext ctx)
+    public ChatPanel (CrowdContext ctx)
     {
         // keep this around for later
         _ctx = ctx;
@@ -228,7 +228,7 @@ public class ChatPanel
         // nothing doing
     }
 
-    protected PartyContext _ctx;
+    protected CrowdContext _ctx;
     protected ChatDirector _chatdtr;
 
     protected JComboBox _roombox;

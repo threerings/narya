@@ -1,13 +1,13 @@
 //
-// $Id: LobbyPanel.java,v 1.5 2001/10/09 19:49:59 mdb Exp $
+// $Id: LobbyPanel.java,v 1.6 2001/10/11 04:13:33 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
 import javax.swing.*;
 import com.samskivert.swing.*;
 
-import com.threerings.cocktail.party.client.PlaceView;
-import com.threerings.cocktail.party.data.PlaceObject;
+import com.threerings.crowd.client.PlaceView;
+import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.micasa.client.*;
 import com.threerings.micasa.util.MiCasaContext;
