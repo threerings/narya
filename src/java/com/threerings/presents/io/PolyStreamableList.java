@@ -1,5 +1,5 @@
 //
-// $Id: HeterogenousStreamableList.java,v 1.1 2002/02/11 22:43:18 shaper Exp $
+// $Id: PolyStreamableList.java,v 1.1 2002/02/12 01:54:51 shaper Exp $
 
 package com.threerings.presents.io;
 
@@ -8,33 +8,34 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import com.samskivert.util.HashIntMap;
+import com.samskivert.util.ListUtil;
+
+import com.threerings.presents.Log;
 
 /**
- * A heterogenous streamable list is a wrapper around an {@link ArrayList}
- * that knows how to efficiently stream {@link Streamable} objects of
+ * A poly streamable list is a wrapper around an {@link ArrayList} that
+ * knows how to efficiently stream {@link Streamable} objects of
  * potentially heterogenous classes.  Accordingly, all objects inserted
  * into the list must implement the {@link Streamable} interface.  The
  * list ordering is properly maintained when sending data over the wire.
  */
-public class HeterogenousStreamableList extends ArrayList
+public class PolyStreamableList extends ArrayList
     implements Streamable
 {
     // documentation inherited from interface
     public void writeTo (DataOutputStream out)
         throws IOException
     {
-        // create a table to map class names to class ids
-        HashMap cnames = new HashMap();
+        // create a list used to map class names to class ids
+        Object[] cnames = new String[DEFAULT_SIZE];
 
         // write out the size of the list
         int size = size();
         out.writeInt(size);
 
         // write out each of the list elements
-        int classId = 0;
+        int nextIdx = 0;
         for (int ii = 0; ii < size; ii++) {
             // get the next streamable to write out
             Object value = get(ii);
@@ -47,17 +48,19 @@ public class HeterogenousStreamableList extends ArrayList
 
             // look up the class id
             String cname = s.getClass().getName();
-            Integer cid = (Integer)cnames.get(cname);
-            if (cid == null) {
+            int cidx = ListUtil.indexOfEqual(cnames, cname);
+            if (cidx == -1) {
                 // store this class name to class id mapping
-                cid = new Integer(classId++);
-                cnames.put(cname, cid);
-                out.writeInt(cid.intValue());
+                cidx = nextIdx++;
+                cnames = ListUtil.add(cnames, cidx, cname);
+
+                // write out the class id and class name
+                out.writeInt(cidx);
                 out.writeUTF(cname);
 
             } else {
                 // we need only write out the class id
-                out.writeInt(cid.intValue());
+                out.writeInt(cidx);
             }
 
             // write out the object itself
@@ -69,8 +72,8 @@ public class HeterogenousStreamableList extends ArrayList
     public void readFrom (DataInputStream in)
         throws IOException
     {
-        // create a table to map class ids to class names
-        HashIntMap cids = new HashIntMap();
+        // create a list used to map class ids to class names
+        Object[] cnames = new String[DEFAULT_SIZE];
 
         // read in the size of the list
         int size = in.readInt();
@@ -78,14 +81,15 @@ public class HeterogenousStreamableList extends ArrayList
         // read in each of the list elements
         for (int ii = 0; ii < size; ii++) {
             // read the class id number
-            int cid = in.readInt();
+            int cidx = in.readInt();
 
             // look up the class name
-            String cname = (String)cids.get(cid);
+            String cname = (cidx > cnames.length - 1) ? null :
+                (String)cnames[cidx];
             if (cname == null) {
                 // store this class id to class name mapping
                 cname = in.readUTF();
-                cids.put(cid, cname);
+                cnames = ListUtil.add(cnames, cidx, cname);
             }
 
             try {
@@ -121,4 +125,8 @@ public class HeterogenousStreamableList extends ArrayList
             }
         }
     }
+
+    /** The default size of the class name lists used when serializing or
+     * unserializing the list. */
+    protected static final int DEFAULT_SIZE = 8;
 }
