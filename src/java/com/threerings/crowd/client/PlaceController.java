@@ -1,5 +1,5 @@
 //
-// $Id: PlaceController.java,v 1.14 2004/08/27 02:12:33 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -72,7 +72,7 @@ public abstract class PlaceController extends Controller
 
     /**
      * Derived classes can override this and perform any
-     * initialization-time processing they might need. They should of
+     * post-initialization processing they might need. They should of
      * course be sure to call <code>super.didInit()</code>.
      */
     protected void didInit ()
