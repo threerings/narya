@@ -1,5 +1,5 @@
 //
-// $Id: ParlorDirector.java,v 1.6 2001/10/02 21:52:33 mdb Exp $
+// $Id: ParlorDirector.java,v 1.7 2001/10/03 03:43:14 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -35,6 +35,11 @@ public class ParlorDirector
     public ParlorDirector (ParlorContext ctx)
     {
         _ctx = ctx;
+
+        // register ourselves with the invocation director as handling
+        // parlor notifications
+        _ctx.getClient().getInvocationDirector().
+            registerReceiver(MODULE_NAME, this);
     }
 
     /**
@@ -190,6 +195,9 @@ public class ParlorDirector
      */
     public void handleGameReadyNotification (int gameOid, GameConfig config)
     {
+        Log.info("Handling game ready [goid=" + gameOid +
+                 ", config=" + config + "].");
+
         try {
             // create the game controller for this game
             GameController ctrl = (GameController)
@@ -359,7 +367,27 @@ public class ParlorDirector
      */
     public void handleInviteFailed (int invid, String reason)
     {
-        // TBD
+        Log.info("Handling invite failed [invid=" + invid +
+                 ", reason=" + reason + "].");
+
+        // remove the invitation record from the submitted table and let
+        // the observer know that we're hosed
+        Invitation invite = (Invitation)_submittedInvites.remove(invid);
+        if (invite == null) {
+            Log.warning("Received failed notification for non-existent " +
+                        "invitation request!? [invid=" + invid +
+                        ", reason=" + reason + "].");
+            return;
+        }
+
+        // let the observer know what's up
+        try {
+            invite.observer.invitationRefused(invite.inviteId, reason);
+        } catch (Exception e) {
+            Log.warning("Invite observer choked on refusal notification " +
+                        "[invite=" + invite + ", reason=" + reason + "].");
+            Log.logStackTrace(e);
+        }
     }
 
     /**
