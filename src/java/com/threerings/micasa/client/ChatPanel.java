@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.20 2002/10/27 01:25:18 mdb Exp $
+// $Id: ChatPanel.java,v 1.21 2002/10/27 22:34:43 ray Exp $
 
 package com.threerings.micasa.client;
 
@@ -221,8 +221,9 @@ public class ChatPanel
     }
 
     // documentation inherited from interface ChatDisplay
-    public void clear ()
+    public void clear (boolean force)
     {
+        // we go ahead and always clear..
         _text.setText("");
     }
 
