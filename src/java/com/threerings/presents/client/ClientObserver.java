@@ -1,17 +1,12 @@
 //
-// $Id: ClientObserver.java,v 1.3 2001/10/11 04:07:52 mdb Exp $
+// $Id: ClientObserver.java,v 1.4 2002/03/11 19:51:25 mdb Exp $
 
 package com.threerings.presents.client;
 
 /**
- * A client observer is registered with the client instance to be notified
- * when state changes happen within the client. Specifically, logon
- * sucess/failure and logoff.
- *
- * <p> These callbacks happen on the client thread and should therefore
- * not be used to perform any complex action or do much more than relay
- * the signal to some other thread (like the AWT thread) to act more fully
- * on the notice.
+ * A client observer is a more detailed version of the {@link
+ * SessionObserver} for entities that are interested in more detail about
+ * the logon/logoff process.
  *
  * <p> In the normal course of affairs, <code>clientDidLogon</code> will
  * be called after the client successfully logs on to the server and
@@ -33,16 +28,14 @@ package com.threerings.presents.client;
  * observers know that we lost our connection to the
  * server. <code>clientDidLogoff</code> will be called immediately
  * afterwards as a normal logoff procedure is effected.
+ *
+ * <p> These callbacks happen on the client thread and should therefore
+ * not be used to perform any complex action or do much more than relay
+ * the signal to some other thread (like the AWT thread) to act more fully
+ * on the notice.
  */
-public interface ClientObserver
+public interface ClientObserver extends SessionObserver
 {
-    /**
-     * Called after the client successfully connected to and authenticated
-     * with the server. The entire object system is up and running by the
-     * time this method is called.
-     */
-    public void clientDidLogon (Client client);
-
     /**
      * Called if anything fails during the logon attempt. This could be a
      * network failure, authentication failure or otherwise. The exception
@@ -63,10 +56,4 @@ public interface ClientObserver
      * request.
      */
     public boolean clientWillLogoff (Client client);
-
-    /**
-     * Called after the client has been logged off of the server and has
-     * disconnected.
-     */
-    public void clientDidLogoff (Client client);
 }

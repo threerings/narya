@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.4 2002/02/09 20:47:11 mdb Exp $
+// $Id: ClientController.java,v 1.5 2002/03/11 19:51:24 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -22,9 +22,8 @@ import com.threerings.micasa.simulator.data.SimulatorInfo;
 /**
  * Responsible for top-level control of the client user interface.
  */
-public class ClientController
-    extends Controller
-    implements ClientObserver
+public class ClientController extends Controller
+    implements SessionObserver
 {
     /**
      * Creates a new client controller. The controller will set everything
@@ -83,27 +82,6 @@ public class ClientController
                         "[class=" + _info.gameConfigClass +
                         ", error=" + e + "].");
         }
-    }
-
-    // documentation inherited
-    public void clientFailedToLogon (Client client, Exception cause)
-    {
-        Log.info("Client failed to logon [client=" + client +
-                 ", cause=" + cause + "].");
-    }
-
-    // documentation inherited
-    public void clientConnectionFailed (Client client, Exception cause)
-    {
-        Log.info("Client connection failed [client=" + client +
-                 ", cause=" + cause + "].");
-    }
-
-    // documentation inherited
-    public boolean clientWillLogoff (Client client)
-    {
-        Log.info("Client will logoff [client=" + client + "].");
-        return true;
     }
 
     // documentation inherited

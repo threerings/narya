@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.17 2002/02/09 20:47:11 mdb Exp $
+// $Id: LocationDirector.java,v 1.18 2002/03/11 19:51:24 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -21,7 +21,7 @@ import com.threerings.crowd.util.CrowdContext;
  * before actually issuing the request.
  */
 public class LocationDirector
-    implements ClientObserver, Subscriber
+    implements SessionObserver, Subscriber
 {
     /**
      * Used to recover from a moveTo request that was accepted but
@@ -249,26 +249,11 @@ public class LocationDirector
         // we'll want to be going there straight away
     }
 
-    public void clientFailedToLogon (Client client, Exception cause)
-    {
-        // we're fair weather observers. we do nothing until logon
-        // succeeds
-    }
-
-    public void clientConnectionFailed (Client client, Exception cause)
-    {
-        // nothing doing
-    }
-
-    public boolean clientWillLogoff (Client client)
-    {
-        // we have no objections
-        return true;
-    }
-
     public void clientDidLogoff (Client client)
     {
-        // nothing doing
+        // clear our our references
+        _plobj = null;
+        _placeId = -1;
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.20 2002/02/09 20:45:23 mdb Exp $
+// $Id: Client.java,v 1.21 2002/03/11 19:51:25 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -68,8 +68,9 @@ public class Client
      * observer.
      *
      * @see ClientObserver
+     * @see SessionObserver
      */
-    public void addClientObserver (ClientObserver observer)
+    public void addClientObserver (SessionObserver observer)
     {
         synchronized (_observers) {
             // disallow multiple instances of the same observer
@@ -84,7 +85,7 @@ public class Client
      * the observer will no longer receive notifications of state changes
      * within the client.
      */
-    public void removeClientObserver (ClientObserver observer)
+    public void removeClientObserver (SessionObserver observer)
     {
         synchronized (_observers) {
             _observers.remove(observer);
@@ -265,20 +266,27 @@ public class Client
         boolean rejected = false;
         synchronized (_observers) {
             for (int i = 0; i < _observers.size(); i++) {
-                ClientObserver obs = (ClientObserver)_observers.get(i);
+                SessionObserver obs = (SessionObserver)_observers.get(i);
                 switch (code) {
                 case CLIENT_DID_LOGON:
                     obs.clientDidLogon(this);
                     break;
                 case CLIENT_FAILED_TO_LOGON:
-                    obs.clientFailedToLogon(this, cause);
+                    if (obs instanceof ClientObserver) {
+                        ((ClientObserver)obs).clientFailedToLogon(this, cause);
+                    }
                     break;
                 case CLIENT_CONNECTION_FAILED:
-                    obs.clientConnectionFailed(this, cause);
+                    if (obs instanceof ClientObserver) {
+                        ((ClientObserver)obs).clientConnectionFailed(
+                            this, cause);
+                    }
                     break;
                 case CLIENT_WILL_LOGOFF:
-                    if (!obs.clientWillLogoff(this)) {
-                        rejected = true;
+                    if (obs instanceof ClientObserver) {
+                        if (!((ClientObserver)obs).clientWillLogoff(this)) {
+                            rejected = true;
+                        }
                     }
                     break;
                 case CLIENT_DID_LOGOFF:
