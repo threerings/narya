@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.26 2003/04/28 20:53:58 mdb Exp $
+// $Id: DirtyItemList.java,v 1.27 2003/04/28 22:21:20 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -614,7 +614,7 @@ public class DirtyItemList
             // see narya/docs/miso/render_sort_diagram.png for more info
             if (db.lx <= da.ox && db.ry <= da.oy) {
                 return 1;
-            } else if (db.lx >= da.lx && db.ry >= da.ry) {
+            } else if (db.ox >= da.lx && db.oy >= da.ry) {
                 return -1;
             } else {
                 return da.oy - db.oy;
