@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.68 2004/11/12 02:16:04 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -109,7 +109,7 @@ public abstract class Sprite extends AbstractMedia
      */
     public int getWidth ()
     {
-	return _bounds.width;
+        return _bounds.width;
     }
 
     /**
@@ -117,7 +117,7 @@ public abstract class Sprite extends AbstractMedia
      */
     public int getHeight ()
     {
-	return _bounds.height;
+        return _bounds.height;
     }
 
     /**
@@ -142,7 +142,7 @@ public abstract class Sprite extends AbstractMedia
      */
     public int getOrientation ()
     {
-	return _orient;
+        return _orient;
     }
 
     // documentation inherited
@@ -187,7 +187,7 @@ public abstract class Sprite extends AbstractMedia
      */
     public void paintPath (Graphics2D gfx)
     {
-	if (_path != null) {
+        if (_path != null) {
             _path.paint(gfx);
         }
     }
@@ -294,7 +294,7 @@ public abstract class Sprite extends AbstractMedia
     public void pathCompleted (long timestamp)
     {
         Path oldpath = _path;
-	_path = null;
+        _path = null;
         oldpath.wasRemoved(this);
         if (_observers != null) {
             _observers.apply(new CompletedOp(this, oldpath, timestamp));
