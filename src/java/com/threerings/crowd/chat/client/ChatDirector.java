@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.26 2002/07/22 22:26:26 ray Exp $
+// $Id: ChatDirector.java,v 1.27 2002/07/22 22:54:03 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -351,18 +351,19 @@ public class ChatDirector
         }
 
         String bundle = null;
-        String message, mode;
+        String message;
+        byte mode;
 
         // determine whether this speak message originated from another
         // client or from a server entity
         if (args.length == 3) {
             message = (String)args[1];
-            mode = (String) args[2];
+            mode = ((Byte) args[2]).byteValue();
 
         } else {
             bundle = (String)args[1];
             message = (String)args[2];
-            mode = (String) args[3];
+            mode = ((Byte) args[3]).byteValue();
         }
 
         // pass this on to our chat displays

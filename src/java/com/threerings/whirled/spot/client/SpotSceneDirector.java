@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.15 2002/07/22 22:26:26 ray Exp $
+// $Id: SpotSceneDirector.java,v 1.16 2002/07/22 22:54:04 ray Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -217,7 +217,7 @@ public class SpotSceneDirector
      * @return true if a cluster speak message was delivered, false if we
      * are not in a valid cluster and refused to deliver the request.
      */
-    public boolean requestClusterSpeak (String message, String mode)
+    public boolean requestClusterSpeak (String message, byte mode)
     {
         // make sure we're currently in a scene
         DisplaySpotScene scene = (DisplaySpotScene)_scdir.getScene();

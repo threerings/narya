@@ -1,5 +1,5 @@
 //
-// $Id: ChatDisplay.java,v 1.11 2002/07/22 22:26:26 ray Exp $
+// $Id: ChatDisplay.java,v 1.12 2002/07/22 22:54:03 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -33,7 +33,7 @@ public interface ChatDisplay
      */
     public void displaySpeakMessage (
         String type, String speaker, String bundle, String message,
-        String mode);
+        byte mode);
 
     /**
      * Called to display a tell message. A tell message is one that is

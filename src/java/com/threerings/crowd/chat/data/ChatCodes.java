@@ -1,5 +1,5 @@
 //
-// $Id: ChatCodes.java,v 1.8 2002/07/22 22:26:26 ray Exp $
+// $Id: ChatCodes.java,v 1.9 2002/07/22 22:54:03 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -46,15 +46,15 @@ public interface ChatCodes extends InvocationCodes
     public static final String TELL_NOTIFICATION = "Tell";
 
     /** The default mode used by speak requests. */
-    public static final String DEFAULT_MODE = "default";
+    public static final byte DEFAULT_MODE = 0;
 
     /** The think mode to indicate that the user is thinking
      * what they're saying, or is it that they're saying what they're
      * thinking? */
-    public static final String THINK_MODE = "think";
+    public static final byte THINK_MODE = 1;
 
     /** The mode to indicate that a speak is actually an emote. */
-    public static final String EMOTE_MODE = "emote";
+    public static final byte EMOTE_MODE = 2;
 
     /** An error code delivered when the user targeted for a tell
      * notification is not online. */

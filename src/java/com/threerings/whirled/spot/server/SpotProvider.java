@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.11 2002/07/22 22:26:26 ray Exp $
+// $Id: SpotProvider.java,v 1.12 2002/07/22 22:54:04 ray Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -195,7 +195,7 @@ public class SpotProvider extends InvocationProvider
      */
     public void handleClusterSpeakRequest (
         BodyObject source, int invid, int sceneId, int locId, String message,
-        String mode)
+        byte mode)
     {
         sendClusterChatMessage(sceneId, locId, source.getOid(),
                                source.username, null, message, mode);
@@ -222,7 +222,7 @@ public class SpotProvider extends InvocationProvider
      */
     public static void sendClusterChatMessage (
         int sceneId, int locId, int speakerOid, String speaker,
-        String bundle, String message, String mode)
+        String bundle, String message, byte mode)
     {
         // look up the scene manager for the specified scene
         SpotSceneManager smgr = (SpotSceneManager)

@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.16 2002/07/22 22:26:26 ray Exp $
+// $Id: ChatPanel.java,v 1.17 2002/07/22 22:54:04 ray Exp $
 
 package com.threerings.micasa.client;
 
@@ -226,7 +226,7 @@ public class ChatPanel
 
     // documentation inherited
     public void displaySpeakMessage (
-        String type, String speaker, String bundle, String message, String mode)
+        String type, String speaker, String bundle, String message, byte mode)
     {
         // wrap the speaker in brackets
         speaker = "<" + speaker + "> ";

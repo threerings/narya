@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.14 2002/07/22 22:26:26 ray Exp $
+// $Id: SpotSceneManager.java,v 1.15 2002/07/22 22:54:04 ray Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -218,7 +218,7 @@ public class SpotSceneManager extends SceneManager
      */
     protected void handleClusterSpeakRequest (
         int sourceOid, String source, int locationId,
-        String bundle, String message, String mode)
+        String bundle, String message, byte mode)
     {
         // make sure this user occupies the specified location
         int locidx = _sscene.getLocationIndex(locationId);

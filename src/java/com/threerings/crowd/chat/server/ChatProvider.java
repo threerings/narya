@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.11 2002/07/22 22:26:26 ray Exp $
+// $Id: ChatProvider.java,v 1.12 2002/07/22 22:54:03 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -106,13 +106,13 @@ public class ChatProvider
      */
     public static void sendChatMessage (
         int placeOid, String speaker, String bundle, String message,
-        String mode)
+        byte mode)
     {
         Object[] outargs = null;
         if (bundle == null) {
-            outargs = new Object[] { speaker, message, mode };
+            outargs = new Object[] { speaker, message, new Byte(mode) };
         } else {
-            outargs = new Object[] { speaker, bundle, message, mode };
+            outargs = new Object[] { speaker, bundle, message, new Byte(mode) };
         }
         MessageEvent nevt = new MessageEvent(
             placeOid, ChatService.SPEAK_NOTIFICATION, outargs);

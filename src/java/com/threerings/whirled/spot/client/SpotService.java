@@ -1,5 +1,5 @@
 //
-// $Id: SpotService.java,v 1.9 2002/07/22 22:26:26 ray Exp $
+// $Id: SpotService.java,v 1.10 2002/07/22 22:54:04 ray Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -56,11 +56,12 @@ public class SpotService implements SpotCodes
      */
     public static void clusterSpeak (
         Client client, int sceneId, int locationId, String message,
-        String mode, SpotSceneDirector rsptarget)
+        byte mode, SpotSceneDirector rsptarget)
     {
         InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] {
-            new Integer(sceneId), new Integer(locationId), message, mode };
+            new Integer(sceneId), new Integer(locationId), message,
+            new Byte(mode) };
         invdir.invoke(MODULE_NAME, CLUSTER_SPEAK_REQUEST, args, rsptarget);
         Log.debug("Sent clusterSpeak request [sceneId=" + sceneId +
                   ", locId=" + locationId + ", message=" + message + "].");
