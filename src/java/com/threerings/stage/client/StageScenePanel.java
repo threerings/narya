@@ -568,8 +568,9 @@ public class StageScenePanel extends MisoScenePanel
      */
     protected UniformTileSet loadPortalTileSet ()
     {
-        // TODO: load some sort of portal tileset
-        return null;
+        return _ctx.getTileManager().loadTileSet(
+            "media/stage/portal_arrows.png",
+            PORTAL_ICON_WIDTH, PORTAL_ICON_HEIGHT);
     }
 
     /** Used to render portals as objects in a scene. */
