@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.8 2002/05/22 01:56:25 shaper Exp $
+// $Id: MediaPanel.java,v 1.9 2002/05/31 07:33:52 mdb Exp $
 
 package com.threerings.media;
 
@@ -7,6 +7,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
@@ -23,6 +24,9 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.media.FrameManager;
 import com.threerings.media.Log;
+
+import com.threerings.media.util.Path;
+import com.threerings.media.util.Pathable;
 
 import com.threerings.media.animation.Animation;
 import com.threerings.media.animation.AnimationManager;
@@ -117,6 +121,94 @@ public class MediaPanel extends JComponent
     }
 
     /**
+     * Instructs the view to allow the supplied path to "scroll" it such
+     * that the center point of the view follows the supplied path. The
+     * supplied origin coordinates will be used to report our initial
+     * coordinates to the path and will be updated as the path "moves" us
+     * around.
+     */
+    public void setPath (Path path, Point origin)
+    {
+        _path = path;
+        _porigin = origin;
+        _pathable = new Pathable() {
+            // documentation inherited from interface
+            public int getX () {
+                return _porigin.x;
+            }
+
+            // documentation inherited from interface
+            public int getY () {
+                return _porigin.y;
+            }
+
+            // documentation inherited from interface
+            public void setLocation (int x, int y) {
+                // make a note of the scrolling that we'll need to do to
+                // actually follow this path
+                _dx = x - _porigin.x;
+                _dy = y - _porigin.y;
+
+                // and update our origin
+                _porigin.x = x;
+                _porigin.y = y;
+            }
+
+            // documentation inherited from interface
+            public void setOrientation (int orient) {
+                MediaPanel.this.setOrientation(orient);
+            }
+
+            // documentation inherited from interface
+            public void pathBeginning () {
+                MediaPanel.this.pathBeginning();
+            }
+
+            // documentation inherited from interface
+            public void pathCompleted () {
+                MediaPanel.this.pathCompleted();
+            }
+
+            protected Point _offset;
+        };
+        _path.init(_pathable, System.currentTimeMillis());
+    }
+
+    /**
+     * If this media panel is following a path and that path attempts to
+     * set the orientation of the pathable it is controlling, this method
+     * will be called. Derived classes can override the method and effect
+     * whatever display of the panel's orientation they might desire.
+     */
+    protected void setOrientation (int orient)
+    {
+    }
+
+    /**
+     * When the media panel is made to follow a path, this method is
+     * called when the path begins.
+     */
+    protected void pathBeginning ()
+    {
+    }
+
+    /**
+     * When the media panel is made to follow a path, this method is
+     * called when the path ends. {@link #viewFinishedScrolling} will
+     * still be called (and is in fact called by this method).
+     */
+    protected void pathCompleted ()
+    {
+        // we're all done; clear out our business
+        _path = null;
+        _pathable = null;
+        _porigin = null;
+
+        // call our standard callback
+        viewFinishedScrolling();
+    }
+
+    /**
      * Pauses the sprites and animations that are currently active on this
      * media panel. Also stops listening to the frame tick while paused.
      */
@@ -140,6 +232,11 @@ public class MediaPanel extends JComponent
             long delta = System.currentTimeMillis() - _pauseTime;
             _animmgr.fastForward(delta);
             _spritemgr.fastForward(delta);
+
+            // fast forward our path as well (if we have one)
+            if (_path != null) {
+                _path.fastForward(delta);
+            }
 
             // clear out our pause time
             _pauseTime = 0;
@@ -259,11 +356,10 @@ public class MediaPanel extends JComponent
         }
 
         int width = getWidth(), height = getHeight();
+        _dx = 0; _dy = 0;
 
         // if scrolling is enabled, determine the scrolling delta to be
         // used and do the business
-        _dx = 0;
-        _dy = 0;
         if (_ttime != 0) {
             // if we've blown past our allotted time, we want to scroll
             // the rest of the way
@@ -290,44 +386,54 @@ public class MediaPanel extends JComponent
 //                          ", lefty=" + (_scrolly-_dy) + "].");
             }
 
-            // and add invalid rectangles for the exposed areas
-            if (_dx > 0) {
-                _remgr.invalidateRegion(width - _dx + _tx, _ty, _dx, height);
-            } else if (_dx < 0) {
-                _remgr.invalidateRegion(_tx, _ty, -_dx, height);
+            // otherwise, if we're following a path, give that a chance to
+            // scroll us along
+        } else if (_path != null) {
+            // this will update our _dx and _dy if the path wishes us to
+            // scroll
+            _path.tick(_pathable, tickStamp);
+        }
+
+
+        // and add invalid rectangles for the exposed areas
+        if (_dx > 0) {
+            _remgr.invalidateRegion(width - _dx + _tx, _ty, _dx, height);
+        } else if (_dx < 0) {
+            _remgr.invalidateRegion(_tx, _ty, -_dx, height);
+        }
+        if (_dy > 0) {
+            _remgr.invalidateRegion(_tx, height - _dy + _ty, width, _dy);
+        } else if (_dy < 0) {
+            _remgr.invalidateRegion(_tx, _ty, width, -_dy);
+        }
+
+        // make sure we're really scrolling before telling people about it
+        if (_dx != 0 || _dy != 0) {
+            // if we are working with a sprite manager, let it know
+            // that we're about to scroll out from under its sprites
+            // and allow it to provide us with more dirty rects
+            if (_spritemgr != null) {
+                _spritemgr.viewWillScroll(_dx, _dy);
             }
-            if (_dy > 0) {
-                _remgr.invalidateRegion(_tx, height - _dy + _ty, width, _dy);
-            } else if (_dy < 0) {
-                _remgr.invalidateRegion(_tx, _ty, width, -_dy);
-            }
 
-            // make sure we're actually scrolling before telling people
-            // about it
-            if (_dx != 0 || _dy != 0) {
-                // if we are working with a sprite manager, let it know
-                // that we're about to scroll out from under its sprites
-                // and allow it to provide us with more dirty rects
-                if (_spritemgr != null) {
-                    _spritemgr.viewWillScroll(_dx, _dy);
-                }
+            // let our derived classes do whatever they need to do to
+            // prepare to be scrolled
+            viewWillScroll(_dx, _dy, tickStamp);
 
-                // let our derived classes do whatever they need to do to
-                // prepare to be scrolled
-                viewWillScroll(_dx, _dy, tickStamp);
+            // keep track of the last time we scrolled
+            _last = tickStamp;
 
-                // keep track of the last time we scrolled
-                _last = tickStamp;
+            // subtract our scrolled deltas from the distance remaining
+            _scrollx -= _dx;
+            _scrolly -= _dy;
 
-                // subtract our scrolled deltas from the distance remaining
-                _scrollx -= _dx;
-                _scrolly -= _dy;
-
-                // if we've reached our desired position, finish the job
-                if (_scrollx == 0 && _scrolly == 0) {
-                    _ttime = 0;
-                    viewFinishedScrolling();
-                }
+            // if we've reached our desired position, finish the job; if
+            // we're being scrolled by a path, the path will let us know
+            // when we're done (via pathCompleted()) and that will trigger
+            // a call to viewFinishedScrolling()
+            if (_ttime != 0 && _scrollx == 0 && _scrolly == 0) {
+                _ttime = 0;
+                viewFinishedScrolling();
             }
         }
 
@@ -420,6 +526,15 @@ public class MediaPanel extends JComponent
 
         // paint anything in front
         paintInFront(gfx, dirty);
+
+//         if (_path != null) {
+//             Dimension vsize = getViewSize();
+//             int ox = _porigin.x - vsize.width/2;
+//             int oy = _porigin.y - vsize.height/2;
+//             gfx.translate(-ox, -oy);
+//             _path.paint(gfx);
+//             gfx.translate(ox, oy);
+//         }
 
         // translate back out of happy space
         gfx.translate(_tx, _ty);
@@ -551,6 +666,15 @@ public class MediaPanel extends JComponent
 
     /** The last time we were scrolled. */
     protected long _last;
+
+    /** The path we're following. */
+    protected Path _path;
+
+    /** The pathable we use to follow the path. */
+    protected Pathable _pathable;
+
+    /** The origin of the view as represented to the path. */
+    protected Point _porigin;
 
     /** Used to correlate tick()s with paint()s. */
     protected boolean _tickPaintPending = false;
