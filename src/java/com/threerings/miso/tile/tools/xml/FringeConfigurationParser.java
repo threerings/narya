@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfigurationParser.java,v 1.6 2002/04/06 01:38:32 mdb Exp $
+// $Id: FringeConfigurationParser.java,v 1.7 2002/04/08 19:40:04 ray Exp $
 
 package com.threerings.miso.tile.tools.xml;
 
@@ -10,6 +10,7 @@ import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 
 import com.samskivert.util.StringUtil;
+import com.samskivert.xml.SetPropertyFieldsRule;
 import com.samskivert.xml.ValidatedSetNextRule;
 
 import com.threerings.tools.xml.CompiledConfigParser;
@@ -43,26 +44,7 @@ public class FringeConfigurationParser extends CompiledConfigParser
     {
         // configure top-level constraints
         String prefix = "fringe";
-        digest.addRule(prefix, new Rule(digest) {
-            // parse the bits
-            public void begin (Attributes attrs)
-            throws Exception
-            {
-                FringeConfiguration fc = (FringeConfiguration) digester.peek();
-
-                for (int ii=0; ii < attrs.getLength(); ii++) {
-                    String name = attrs.getLocalName(ii);
-                    if (StringUtil.blank(name)) {
-                        name = attrs.getQName(ii);
-                    }
-                    String value = attrs.getValue(ii);
-
-                    if ("tiles".equals(name)) {
-                        fc.setTiles(StringUtil.parseIntArray(value));
-                    }
-                }
-            }
-        });
+        digest.addRule(prefix, new SetPropertyFieldsRule(digest));
 
         // create and configure fringe config instances
         prefix += "/base";
