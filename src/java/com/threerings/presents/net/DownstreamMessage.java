@@ -1,5 +1,5 @@
 //
-// $Id: DownstreamMessage.java,v 1.5 2001/05/30 23:58:31 mdb Exp $
+// $Id: DownstreamMessage.java,v 1.6 2001/06/11 17:20:36 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -8,7 +8,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
 import com.threerings.cocktail.cher.io.TypedObject;
-import com.threerings.cocktail.cher.io.TypedObjectFactory;
 
 /**
  * The <code>DownstreamMessage</code> class encapsulates a message in the
