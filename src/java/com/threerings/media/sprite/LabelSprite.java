@@ -1,5 +1,5 @@
 //
-// $Id: LabelSprite.java,v 1.1 2002/03/16 03:15:05 shaper Exp $
+// $Id: LabelSprite.java,v 1.2 2002/06/20 09:01:28 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -35,6 +35,14 @@ public class LabelSprite extends Sprite
         super(x, y);
 
         _label = label;
+    }
+
+    /**
+     * Returns the label displayed by this sprite.
+     */
+    public Label getLabel ()
+    {
+        return _label;
     }
 
     // documentation inherited
