@@ -1,14 +1,19 @@
 //
-// $Id: ClassRuleSet.java,v 1.1 2001/11/27 08:09:35 mdb Exp $
+// $Id: ClassRuleSet.java,v 1.2 2002/12/16 03:08:39 mdb Exp $
 
 package com.threerings.cast.tools.xml;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.RuleSetBase;
 
+import com.samskivert.util.ArrayIntSet;
+import com.samskivert.util.StringUtil;
 import com.samskivert.xml.SetPropertyFieldsRule;
+import com.samskivert.xml.SetPropertyFieldsRule.FieldParser;
 
+import com.threerings.cast.ComponentClass.PriorityOverride;
 import com.threerings.cast.ComponentClass;
+import com.threerings.util.DirectionUtil;
 
 /**
  * The class rule set is used to parse the attributes of a component class
@@ -53,6 +58,25 @@ public class ClassRuleSet extends RuleSetBase
         // grab the attributes from the <class> tag
         digester.addRule(_prefix + CLASS_PATH,
                          new SetPropertyFieldsRule(digester));
+
+        // parse render priority overrides
+        String opath = _prefix + CLASS_PATH + "/override";
+        digester.addObjectCreate(opath, PriorityOverride.class.getName());
+        SetPropertyFieldsRule rule = new SetPropertyFieldsRule(digester);
+        rule.addFieldParser("orients", new FieldParser() {
+            public Object parse (String text) {
+                String[] orients = StringUtil.parseStringArray(text);
+                ArrayIntSet oset = new ArrayIntSet();
+                for (int ii = 0; ii < orients.length; ii++) {
+                    oset.add(DirectionUtil.fromShortString(orients[ii]));
+                }
+                return oset;
+            }
+        });
+        digester.addRule(opath, rule);
+
+        digester.addSetNext(opath, "addPriorityOverride",
+                            PriorityOverride.class.getName());
     }
 
     /** The prefix at which me match our component classes. */

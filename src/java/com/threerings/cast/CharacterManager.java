@@ -1,21 +1,21 @@
 //
-// $Id: CharacterManager.java,v 1.26 2002/12/07 02:04:31 shaper Exp $
+// $Id: CharacterManager.java,v 1.27 2002/12/16 03:08:39 mdb Exp $
 
 package com.threerings.cast;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.HashMap;
 
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.Throttle;
 import com.samskivert.util.Tuple;
 
 import com.threerings.media.util.Colorization;
 import com.threerings.util.DirectionCodes;
 
+import com.threerings.cast.CompositedActionFrames.ComponentFrames;
 import com.threerings.cast.Log;
-import com.samskivert.util.Throttle;
 
 /**
  * The character manager provides facilities for constructing sprites that
@@ -229,52 +229,19 @@ public class CharacterManager
         Log.debug("Compositing action [action=" + action +
                   ", descrip=" + descrip + "].");
 
-        // obtain the necessary components
-        ColorizedComponent[] components = new ColorizedComponent[ccount];
-        for (int i = 0; i < ccount; i++) {
-            ColorizedComponent cc = new ColorizedComponent();
-            cc.component = _crepo.getComponent(cids[i]);
-            if (zations != null) {
-                cc.zations = zations[i];
-            }
-            components[i] = cc;
-        }
-
-        // sort them into the proper rendering order
-        Arrays.sort(components);
-
         // create colorized versions of all of the source action frames
-        ActionFrames[] sources = new ActionFrames[ccount];
+        ComponentFrames[] sources = new ComponentFrames[ccount];
         for (int ii = 0; ii < ccount; ii++) {
-            ActionFrames source = components[ii].component.getFrames(action);
-            if (zations != null) {
-                sources[ii] = source.cloneColorized(components[ii].zations);
-            } else {
-                sources[ii] = source;
-            }
+            sources[ii] = new ComponentFrames();
+            sources[ii].ccomp = _crepo.getComponent(cids[ii]);
+            ActionFrames source = sources[ii].ccomp.getFrames(action);
+            sources[ii].frames = (zations == null || zations[ii] == null) ?
+                source : source.cloneColorized(zations[ii]);
         }
 
         // use those to create an entity that will lazily composite things
         // together as they are needed
-        return new CompositedActionFrames(sources);
-    }
-
-    /** Used when compositing component frame images. */
-    protected static final class ColorizedComponent implements Comparable
-    {
-        /** The component to be colorized. */
-        public CharacterComponent component;
-
-        /** The colorizations to apply. */
-        public Colorization[] zations;
-
-        /** Sorts by render order. */
-        public int compareTo (Object o)
-        {
-            ColorizedComponent co = (ColorizedComponent)o;
-            return (component.componentClass.renderPriority -
-                    co.component.componentClass.renderPriority);
-        }
+        return new CompositedActionFrames(action, sources);
     }
 
     /** The component repository. */

@@ -1,11 +1,13 @@
 //
-// $Id: CompositedActionFrames.java,v 1.9 2002/12/07 02:04:31 shaper Exp $
+// $Id: CompositedActionFrames.java,v 1.10 2002/12/16 03:08:39 mdb Exp $
 
 package com.threerings.cast;
 
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import com.samskivert.util.StringUtil;
 
@@ -13,6 +15,7 @@ import com.threerings.media.util.Colorization;
 import com.threerings.media.util.ImageUtil;
 import com.threerings.media.util.MultiFrameImage;
 
+import com.threerings.cast.CharacterComponent;
 import com.threerings.util.DirectionCodes;
 
 /**
@@ -20,14 +23,27 @@ import com.threerings.util.DirectionCodes;
  * to lazily create composited character frames when they are requested.
  */
 public class CompositedActionFrames
-    implements ActionFrames, DirectionCodes
+    implements ActionFrames, DirectionCodes, Comparator
 {
+    /** Used to associate a {@link CharacterComponent} with its {@link
+     * ActionFrames} for a particular action. */
+    public static class ComponentFrames
+    {
+        public CharacterComponent ccomp;
+
+        public ActionFrames frames;
+
+        public String toString () {
+            return ccomp + ":" + frames;
+        }
+    }
+
     /**
      * Constructs a set of composited action frames with the supplied
      * source frames and colorization configuration. The actual component
      * frame images will not be composited until they are requested.
      */
-    public CompositedActionFrames (ActionFrames[] sources)
+    public CompositedActionFrames (String action, ComponentFrames[] sources)
     {
         // sanity check
         if (sources == null || sources.length == 0) {
@@ -36,12 +52,13 @@ public class CompositedActionFrames
             throw new RuntimeException(errmsg);
         }
         _sources = sources;
+        _action = action;
 
         // the sources must all have the same orientation count, and each
         // orientation must also have the same frame count, so we just use
         // the counts from the first source and orientation
-        _orientCount = _sources[0].getOrientationCount();
-        _frameCount = _sources[0].getFrames(NORTH).getFrameCount();
+        _orientCount = _sources[0].frames.getOrientationCount();
+        _frameCount = _sources[0].frames.getFrames(NORTH).getFrameCount();
         _images = new Image[_orientCount][_frameCount];
         _bounds = new Rectangle[_orientCount][_frameCount];
     }
@@ -129,6 +146,14 @@ public class CompositedActionFrames
         return size;
     }
 
+    // documentation inherited from interface
+    public int compare (Object o1, Object o2)
+    {
+        ComponentFrames cf1 = (ComponentFrames)o1, cf2 = (ComponentFrames)o2;
+        return (cf1.ccomp.componentClass.getRenderPriority(_action, _sorient) -
+                cf2.ccomp.componentClass.getRenderPriority(_action, _sorient));
+    }
+
     // documentation inherited
     protected Image getFrame (int orient, int index)
     {
@@ -163,12 +188,17 @@ public class CompositedActionFrames
 //         // DEBUG
 //         int width = 0, height = 0;
 
+        // sort the sources appropriately for this orientation
+        _sorient = orient;
+        Arrays.sort(_sources, this);
+
         // first we need to determine the bounds of the rectangle that
         // will enclose all of our various components
         Rectangle tbounds = new Rectangle();
         Rectangle bounds = _bounds[orient][index] = new Rectangle(0, 0, 0, 0);
         for (int ii = 0; ii < scount; ii++) {
-            TrimmedMultiFrameImage source = _sources[ii].getFrames(orient);
+            TrimmedMultiFrameImage source =
+                _sources[ii].frames.getFrames(orient);
             source.getTrimmedBounds(index, tbounds);
             // the first one defines our initial bounds
             if (bounds.width == 0 && bounds.height == 0) {
@@ -190,7 +220,8 @@ public class CompositedActionFrames
 
         // now render each of the components into a composited frame
         for (int ii = 0; ii < scount; ii++) {
-            TrimmedMultiFrameImage source = _sources[ii].getFrames(orient);
+            TrimmedMultiFrameImage source =
+                _sources[ii].frames.getFrames(orient);
             source.getTrimmedBounds(index, tbounds);
 
             // render this frame for this particular action for this
@@ -208,8 +239,8 @@ public class CompositedActionFrames
 //                  ", width=" + width + ", height=" + height + "].");
 
         // keep track of our new origin
-        bounds.x = (_sources[0].getXOrigin(orient, index) - bounds.x);
-        bounds.y = (_sources[0].getYOrigin(orient, index) - bounds.y);
+        bounds.x = (_sources[0].frames.getXOrigin(orient, index) - bounds.x);
+        bounds.y = (_sources[0].frames.getYOrigin(orient, index) - bounds.y);
 
 //         Log.info("New origin [x=" + bounds.x + ", y=" + bounds.y + "].");
 
@@ -220,14 +251,20 @@ public class CompositedActionFrames
         return dest;
     }
 
+    /** The action for which we're compositing frames. */
+    protected String _action;
+
+    /** The orientation for which we're currently sorting. */
+    protected int _sorient;
+
     /** The number of orientations. */
     protected int _orientCount;
 
     /** The number of frames in each orientation. */
     protected int _frameCount;
 
-    /** Our source action frames. */
-    protected ActionFrames[] _sources;
+    /** Our source components and action frames. */
+    protected ComponentFrames[] _sources;
 
     /** The frame images. */
     protected Image[][] _images;

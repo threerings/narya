@@ -1,24 +1,35 @@
 //
-// $Id: ComponentClass.java,v 1.6 2002/11/20 02:21:10 mdb Exp $
+// $Id: ComponentClass.java,v 1.7 2002/12/16 03:08:39 mdb Exp $
 
 package com.threerings.cast;
 
 import java.io.Serializable;
-import java.util.Comparator;
 
 import com.samskivert.util.ArrayIntSet;
+import com.samskivert.util.SortableArrayList;
+
+import com.threerings.util.DirectionUtil;
 
 /**
  * Denotes a class of components to which {@link CharacterComponent}
  * objects belong. Examples include "Hat", "Head", and "Feet". A component
  * class dictates a component's rendering priority so that components can
  * be rendered in an order that causes them to overlap properly.
+ *
+ * <p> Components support render priority overrides for particular
+ * actions, orientations or combinations of actions and orientations. The
+ * system is currently structured with the expectation that the overrides
+ * will be relatively few (less than fifteen, say) for any given component
+ * class. A system that relied on many overrides for its components would
+ * want to implement a more scalable algorithm for determining which, if
+ * any, override matches a particular action and orientation combination.
  */
 public class ComponentClass implements Serializable
 {
     /** Used to effect custom render orders for particular actions,
      * orientations, etc. */
     public static class PriorityOverride
+        implements Comparable, Serializable
     {
         /** The overridden render priority value. */
         public int renderPriority;
@@ -29,17 +40,73 @@ public class ComponentClass implements Serializable
         /** The orientations, if any, for which this override is
          * appropriate. */
         public ArrayIntSet orients;
-    }
 
-    /** The comparator used to sort component class objects in render
-     * priority order. */
-    public static final Comparator RENDER_COMP = new RenderComparator();
+        /**
+         * Determines whether this priority override matches the specified
+         * action and orientation combination.
+         */
+        public boolean matches (String action, int orient)
+        {
+            return (((orients == null) || orients.contains(orient)) &&
+                    ((this.action == null) || this.action.equals(action)));
+        }
+
+        // documentation inherited from interface
+        public int compareTo (Object other)
+        {
+            // overrides with both an action and an orientation should
+            // come first in the list
+            PriorityOverride po = (PriorityOverride)other;
+            int pri = priority(), opri = po.priority();
+            if (pri == opri) {
+                return hashCode() - po.hashCode();
+            } else {
+                return pri - opri;
+            }
+        }
+
+        protected int priority ()
+        {
+            int priority = 0;
+            if (action != null) {
+                priority++;
+            }
+            if (orients != null) {
+                priority++;
+            }
+            return priority;
+        }
+
+        /** Generates a string representation of this instance. */
+        public String toString ()
+        {
+            return "[pri=" + renderPriority + ", action=" + action +
+                ", orients=" + orients + "]";
+        }
+    }
 
     /** The component class name. */
     public String name;
 
-    /** The render priority. */
+    /** The default render priority. */
     public int renderPriority;
+
+    /**
+     * Creates a component class with the specified name and default
+     * render priority.
+     */
+    public ComponentClass (String name, int defaultRenderPriority)
+    {
+        this.name = name;
+        this.renderPriority = defaultRenderPriority;
+    }
+
+    /**
+     * Creates an uninitialized instance suitable for unserialization.
+     */
+    public ComponentClass ()
+    {
+    }
 
     /**
      * Returns the render priority appropriate for the specified action
@@ -47,7 +114,32 @@ public class ComponentClass implements Serializable
      */
     public int getRenderPriority (String action, int orientation)
     {
-        return -1;
+        // because we expect there to be relatively few priority
+        // overrides, we simply search linearly through the list for the
+        // closest match
+        int ocount = (_overrides != null) ? _overrides.size() : 0;
+        for (int ii = 0; ii < ocount; ii++) {
+            PriorityOverride over = (PriorityOverride)_overrides.get(ii);
+            // based on the way the overrides are sorted, the first match
+            // is the most specific and the one we want
+            if (over.matches(action, orientation)) {
+                return over.renderPriority;
+            }
+        }
+
+        return renderPriority;
+    }
+
+    /**
+     * Adds the supplied render priority override record to this component
+     * class.
+     */
+    public void addPriorityOverride (PriorityOverride override)
+    {
+        if (_overrides == null) {
+            _overrides = new SortableArrayList();
+        }
+        _overrides.insertSorted(override);
     }
 
     /**
@@ -78,29 +170,10 @@ public class ComponentClass implements Serializable
         return "[name=" + name + ", renderPriority=" + renderPriority + "]";
     }
 
-    /**
-     * The comparator used to sort {@link CharacterComponent} instances in
-     * render priority order so that compositing components into a single
-     * character image can be done in the proper order.
-     */
-    protected static class RenderComparator implements Comparator
-    {
-        // documentation inherited
-        public int compare (Object a, Object b)
-        {
-            if (!(a instanceof CharacterComponent) ||
-                !(b instanceof CharacterComponent)) {
-                return -1;
-            }
-
-            CharacterComponent ca = (CharacterComponent)a;
-            CharacterComponent cb = (CharacterComponent)b;
-            return (ca.componentClass.renderPriority -
-                    cb.componentClass.renderPriority);
-        }
-    }
+    /** A list of render priority overrides. */
+    protected SortableArrayList _overrides;
 
     /** Increase this value when object's serialized state is impacted by
      * a class change (modification of fields, inheritance). */
-    private static final long serialVersionUID = 1;
+    private static final long serialVersionUID = 2;
 }
