@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorManager.java,v 1.5 2002/02/05 20:27:07 mdb Exp $
+// $Id: SimulatorManager.java,v 1.6 2002/02/05 22:12:42 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -49,7 +49,7 @@ public class SimulatorManager
      */
     public void init (Config config, InvocationManager invmgr,
                       PlaceRegistry plreg, ClientManager clmgr,
-                      RootDObjectManager omgr)
+                      RootDObjectManager omgr, SimulatorServer simserv)
     {
         // register our simulator provider
         SimulatorProvider sprov = new SimulatorProvider(this);
@@ -59,6 +59,7 @@ public class SimulatorManager
         _plreg = plreg;
         _clmgr = clmgr;
         _omgr = omgr;
+        _simserv = simserv;
     }
 
     /**
@@ -125,7 +126,7 @@ public class SimulatorManager
                     bobj.username = "simulant" + (_sims.size() + 1);
 
                     // map the simulant into the server body set
-                    SimulatorServer.mapBody(bobj.username, bobj);
+                    _simserv.fakeBodyMapping(bobj.username, bobj);
 
                     // hold onto it for later game creation
                     _sims.add(bobj);
@@ -171,7 +172,7 @@ public class SimulatorManager
 
                 // give the simulant its body
                 BodyObject bobj = (BodyObject)_sims.get(ii - 1);
-                sim.init(bobj, _config);
+                sim.init(bobj, _config, _omgr);
 
                 // give the simulant a chance to engage in place antics
                 sim.willEnterPlace(_gobj);
@@ -214,4 +215,5 @@ public class SimulatorManager
     protected PlaceRegistry _plreg;
     protected ClientManager _clmgr;
     protected RootDObjectManager _omgr;
+    protected SimulatorServer _simserv;
 }

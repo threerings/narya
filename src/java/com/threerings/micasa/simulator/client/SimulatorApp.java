@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorApp.java,v 1.2 2002/01/16 02:59:08 mdb Exp $
+// $Id: SimulatorApp.java,v 1.3 2002/02/05 22:12:42 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -15,6 +15,7 @@ import com.threerings.presents.net.UsernamePasswordCreds;
 
 import com.threerings.micasa.Log;
 import com.threerings.micasa.simulator.data.SimulatorInfo;
+import com.threerings.micasa.simulator.server.SimpleServer;
 import com.threerings.micasa.simulator.server.SimulatorServer;
 
 /**
@@ -26,7 +27,7 @@ public class SimulatorApp
     public void init (String[] args) throws Exception
     {
         // create the server
-        SimulatorServer server = new SimulatorServer();
+        SimulatorServer server = createSimulatorServer();
         server.init();
         _serverThread = new ServerThread(server);
 
@@ -47,6 +48,11 @@ public class SimulatorApp
         Controller ctrl = new ClientController(
             _client.getContext(), _frame, siminfo);
         _frame.setController(ctrl);
+    }
+
+    protected SimulatorServer createSimulatorServer ()
+    {
+        return new SimpleServer();
     }
 
     protected SimulatorFrame createSimulatorFrame ()

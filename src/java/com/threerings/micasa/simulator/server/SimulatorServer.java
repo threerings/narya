@@ -1,61 +1,34 @@
 //
-// $Id: SimulatorServer.java,v 1.4 2002/02/05 20:27:07 mdb Exp $
+// $Id: SimulatorServer.java,v 1.5 2002/02/05 22:12:42 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
 import com.threerings.crowd.data.BodyObject;
-import com.threerings.crowd.server.CrowdServer;
-
-import com.threerings.micasa.Log;
 
 /**
- * This class is the main entry point and general organizer of everything
- * that goes on in the Simulator game server process.
+ * The simulator manager needs a mechanism for faking body object
+ * registrations, which is provided by implementations of this interface.
  */
-public class SimulatorServer extends CrowdServer
+public interface SimulatorServer
 {
-    /** The simulator manager in operation on this server. */
-    public static SimulatorManager simmgr = new SimulatorManager();
+    /**
+     * Called to initialize this server instance.
+     *
+     * @exception Exception thrown if anything goes wrong initializing the
+     * server.
+     */
+    public void init () throws Exception;
 
     /**
-     * Initializes all of the server services and prepares for operation.
+     * Called to perform the main body of server processing. This is
+     * called from the server thread and should do the simulator server's
+     * primary business.
      */
-    public void init ()
-        throws Exception
-    {
-        // do the base server initialization
-        super.init();
-
-        // initialize the manager
-        simmgr.init(config, invmgr, plreg, clmgr, omgr);
-
-        Log.info("Simulator server initialized.");
-    }
+    public void run ();
 
     /**
      * Called by the simulator manager to map a username to a particular
      * body object. This should only be called from the dobjmgr thread.
-     *
-     * <p> This is copied from {@link CrowdServer#mapBody} as that
-     * implementation is protected and cannot be referenced by classes in
-     * the simulator package, but we know what we're doing and so we
-     * knowingly expose this functionality to other classes in our
-     * package.
      */
-    protected static void mapBody (String username, BodyObject bodobj)
-    {
-        _bodymap.put(username, bodobj);
-    }
-
-    public static void main (String[] args)
-    {
-        SimulatorServer server = new SimulatorServer();
-        try {
-            server.init();
-            server.run();
-        } catch (Exception e) {
-            Log.warning("Unable to initialize server.");
-            Log.logStackTrace(e);
-        }
-    }
+    public void fakeBodyMapping (String username, BodyObject bodobj);
 }
