@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.8 2001/10/02 02:07:50 mdb Exp $
+// $Id: ChatDirector.java,v 1.9 2001/10/11 03:10:55 mdb Exp $
 
 package com.threerings.cocktail.party.chat;
 
@@ -88,7 +88,7 @@ public class ChatDirector
             _ctx.getClient().getInvocationDirector().nextInvocationId();
         Object[] args = new Object[] { new Integer(reqid), message };
         MessageEvent mevt = new MessageEvent(
-            _place.getOid(), ChatService.SPEAK_REQUEST, args);
+            _place.getOid(), SPEAK_REQUEST, args);
         _ctx.getDObjectManager().postEvent(mevt);
         return reqid;
     }
