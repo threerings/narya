@@ -1,5 +1,5 @@
 //
-// $Id: RandomUtil.java,v 1.9 2003/06/04 00:03:58 mdb Exp $
+// $Id: RandomUtil.java,v 1.10 2003/10/22 20:26:32 mdb Exp $
 
 package com.threerings.util;
 
@@ -35,6 +35,10 @@ public class RandomUtil
      */
     public static int getInt (int high, int low)
     {
+        if (high - low - 1 <= 0) {
+            throw new IllegalArgumentException(
+                "Invalid range [high=" + high + ", low=" + low + "]");
+        }
         return low + 1 + rand.nextInt(high - low - 1);
     }
 
