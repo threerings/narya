@@ -53,9 +53,18 @@ public abstract class GameConfig extends PlaceConfig implements Cloneable
     public boolean rated = true;
 
     /**
-     * Returns the game rating type.
+     * Returns the message bundle identifier for the bundle that should be
+     * used to translate the translatable strings used to describe the
+     * game config parameters.
      */
-    public abstract byte getRatingTypeId ();
+    public abstract String getBundleName ();
+
+    /**
+     * Creates a configurator that can be used to create a user interface
+     * for configuring this instance prior to starting the game. If no
+     * configuration is necessary, this method should return null.
+     */
+    public abstract GameConfigurator createConfigurator ();
 
     /**
      * Returns a translatable label describing this game.
@@ -69,18 +78,12 @@ public abstract class GameConfig extends PlaceConfig implements Cloneable
     }
 
     /**
-     * Returns the message bundle identifier for the bundle that should be
-     * used to translate the translatable strings used to describe the
-     * game config parameters.
+     * Returns the game rating type, if the system uses such things.
      */
-    public abstract String getBundleName ();
-
-    /**
-     * Creates a configurator that can be used to create a user interface
-     * for configuring this instance prior to starting the game. If no
-     * configuration is necessary, this method should return null.
-     */
-    public abstract GameConfigurator createConfigurator ();
+    public byte getRatingTypeId ()
+    {
+        return (byte)-1;
+    }
 
     /**
      * Returns an array of strings that describe the configuration of this
