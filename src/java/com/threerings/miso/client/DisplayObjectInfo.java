@@ -1,5 +1,5 @@
 //
-// $Id: DisplayObjectInfo.java,v 1.6 2003/01/31 23:10:45 mdb Exp $
+// $Id: DisplayObjectInfo.java,v 1.7 2003/02/04 03:33:09 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -44,13 +44,25 @@ public class DisplayObjectInfo extends ObjectInfo
     public void setObjectTile (ObjectTile tile)
     {
         this.tile = tile;
+    }
 
-        // if we don't already have an overridden render priority; use the
-        // one from our object tile (assuming we have one)
-        if (priority == 0 && tile != null) {
-            priority = (byte)Math.max(
-                Byte.MIN_VALUE, Math.min(Byte.MAX_VALUE, tile.getPriority()));
-        }
+    /**
+     * Returns the render priority of this object tile.
+     */
+    public int getPriority ()
+    {
+        // if we have no specified priority return our object tile's
+        // default priority
+        return (priority == 0 && tile != null) ? tile.getPriority() : priority;
+    }
+
+    /**
+     * Overrides the render priority of this object.
+     */
+    public void setPriority (byte priority)
+    {
+        this.priority = (byte)Math.max(
+            Byte.MIN_VALUE, Math.min(Byte.MAX_VALUE, priority));
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.18 2003/01/31 23:10:45 mdb Exp $
+// $Id: DirtyItemList.java,v 1.19 2003/02/04 03:33:09 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -539,7 +539,7 @@ public class DirtyItemList
                 DisplayObjectInfo soa = (DisplayObjectInfo)da.obj;
                 DisplayObjectInfo sob = (DisplayObjectInfo)db.obj;
                 if (IsoUtil.objectFootprintsOverlap(soa, sob)) {
-                    return (soa.priority - sob.priority);
+                    return (soa.getPriority() - sob.getPriority());
                 }
             }
 

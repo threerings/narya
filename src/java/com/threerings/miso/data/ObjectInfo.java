@@ -1,5 +1,5 @@
 //
-// $Id: ObjectInfo.java,v 1.1 2003/01/31 23:10:45 mdb Exp $
+// $Id: ObjectInfo.java,v 1.2 2003/02/04 03:33:09 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -17,7 +17,8 @@ public class ObjectInfo extends SimpleStreamableObject
     /** The x and y tile coordinates of the object. */
     public int x, y;
 
-    /** The object's render priority. */
+    /** Don't access this directly unless you are serializing this
+     * instance. Use {@link #getPriority} instead. */
     public byte priority = 0;
 
     /** The action associated with this object or null if it has no
@@ -65,6 +66,14 @@ public class ObjectInfo extends SimpleStreamableObject
      */
     public ObjectInfo ()
     {
+    }
+
+    /**
+     * Returns the render priority of this object tile.
+     */
+    public int getPriority ()
+    {
+        return priority;
     }
 
     /**
