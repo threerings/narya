@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.35 2003/04/30 20:48:38 mdb Exp $
+// $Id: MediaPanel.java,v 1.36 2003/05/02 15:11:12 mdb Exp $
 
 package com.threerings.media;
 
@@ -217,7 +217,8 @@ public class MediaPanel extends JComponent
             perf.append(_framemgr.getPerfTries());
             perf.append(" PM:");
             StringUtil.toString(perf, _framemgr.getPerfMetrics());
-            perf.append(" MP:").append(_dirtyPerTick).append("]");
+//             perf.append(" MP:").append(_dirtyPerTick);
+            perf.append("]");
 
             String perfStatus = perf.toString();
             if (!_perfStatus.equals(perfStatus)) {
@@ -519,11 +520,18 @@ public class MediaPanel extends JComponent
     // used to render performance metrics
     protected String _perfStatus = "";
     protected Label _perfLabel;
-    protected Rectangle _perfRect;
+    protected static Rectangle _perfRect;
 
     /** A debug hook that toggles FPS rendering. */
     protected static RuntimeAdjust.BooleanAdjust _perfDebug =
         new RuntimeAdjust.BooleanAdjust(
             "Toggles frames per second and dirty regions per tick rendering.",
-            "narya.media.fps_display", MediaPrefs.config, false);
+            "narya.media.fps_display", MediaPrefs.config, false) {
+            protected void adjusted (boolean newValue) {
+                // clear out some things if we're turned off
+                if (!newValue) {
+                    _perfRect = null;
+                }
+            }
+        };
 }
