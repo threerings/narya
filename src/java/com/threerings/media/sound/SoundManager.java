@@ -320,7 +320,9 @@ public class SoundManager
                     _freeSpoolers++;
                     key = (SoundKey) _queue.get(MAX_WAIT_TIME);
                     if (_verbose.getValue()) {
-                        Log.info("Spooler got key [" + key + "].");
+                        Log.info("Spooler got key " +
+                            "[spooler=" + Thread.currentThread().hashCode() +
+                            ", key=" + key + "].");
                     }
                     _freeSpoolers--;
 
