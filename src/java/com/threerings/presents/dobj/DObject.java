@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.18 2001/08/03 02:11:40 mdb Exp $
+// $Id: DObject.java,v 1.19 2001/08/04 00:39:44 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -126,6 +126,110 @@ public class DObject
             if (_subscribers.size() == 0) {
                 _mgr.removedLastSubscriber(this);
             }
+        }
+    }
+
+    /**
+     * At times, an entity on the server may need to ensure that events it
+     * has queued up have made it through the event queue and are applied
+     * to their respective objects before a service may safely be
+     * undertaken again. To make this possible, it can acquire a lock on a
+     * distributed object, generate the events in question and then
+     * release the lock (via a call to <code>releaseLock</code>) which
+     * will queue up a final event, the processing of which will release
+     * the lock. Thus the lock will not be released until all of the
+     * previously generated events have been processed.  If the service is
+     * invoked again before that lock is released, the associated call to
+     * <code>acquireLock</code> will fail and the code can respond
+     * accordingly. An object may have any number of outstanding locks as
+     * long as they each have a unique name.
+     *
+     * @param name the name of the lock to acquire.
+     *
+     * @return true if the lock was acquired, false if the lock was not
+     * acquired because it has not yet been released from a previous
+     * acquisition.
+     *
+     * @see #releaseLock
+     */
+    public boolean acquireLock (String name)
+    {
+        // create our lock array if we haven't already. we do all this
+        // jockeying rather than just use something like an ArrayList to
+        // be memory efficient because there may be very many distributed
+        // objects
+        if (_locks == null) {
+            _locks = new String[2];
+        }
+
+        // scan the lock array to see if this lock is already acquired
+        int slot = -1;
+        for (int i = 0; i < _locks.length; i++) {
+            if (_locks[i] == null) {
+                // keep track of this for later
+                slot = i;
+            } else if (name.equals(_locks[i])) {
+                return false;
+            }
+        }
+
+        // if we didnt' find a blank slot in our previous scan, we'll have
+        // to expand the locks array
+        if (slot == -1) {
+            String[] locks = new String[_locks.length*2];
+            System.arraycopy(_locks, 0, locks, 0, _locks.length);
+            slot = _locks.length;
+        }
+
+        // place our lock in the array and let the user know that they
+        // acquired the lock
+        _locks[slot] = name;
+        return true;
+    }
+
+    /**
+     * Queues up an event that when processed will release the lock of the
+     * specified name.
+     *
+     * @see #acquireLock
+     */
+    public void releaseLock (String name)
+    {
+        // queue up a release lock event
+        ReleaseLockEvent event = new ReleaseLockEvent(_oid, name);
+        _mgr.postEvent(event);
+    }
+
+    /**
+     * Don't call this function! It is called by a remove lock event when
+     * that event is processed and shouldn't be called at any other time.
+     * If you mean to release a lock that was acquired with
+     * <code>acquireLock</code> you should be using
+     * <code>releaseLock</code>.
+     *
+     * @see #acquireLock
+     * @see #releaseLock
+     */
+    protected void clearLock (String name)
+    {
+        // track the lock index for reporting purposes
+        int lockidx = -1;
+
+        // scan through and clear the lock in question
+        if (_locks != null) {
+            for (int i = 0; i < _locks.length; i++) {
+                if (name.equals(_locks[i])) {
+                    _locks[i] = null;
+                    lockidx = i;
+                    break;
+                }
+            }
+        }
+
+        // complain if we didn't find the lock
+        if (lockidx == -1) {
+            Log.info("Unable to clear non-existent lock [lock=" + name +
+                     ", dobj=" + this + "].");
         }
     }
 
@@ -304,4 +408,5 @@ public class DObject
     protected int _oid;
     protected DObjectManager _mgr;
     protected ArrayList _subscribers = new ArrayList();
+    protected String[] _locks;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ReleaseLockEvent.java,v 1.1 2001/08/04 00:32:11 mdb Exp $
+// $Id: ReleaseLockEvent.java,v 1.2 2001/08/04 00:39:44 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -11,10 +11,13 @@ import java.lang.reflect.Method;
 import com.threerings.cocktail.cher.dobj.io.ValueMarshaller;
 
 /**
- * A release lock event is dispatched at the end of a chain of attribute
- * change events to release a lock that is intended to prevent some
- * application defined activity from happening on the distributed object
- * until those events have been processed.
+ * A release lock event is dispatched at the end of a chain of events to
+ * release a lock that is intended to prevent some application defined
+ * activity from happening until those events have been processed. This is
+ * an entirely cooperative locking system, meaning that the application
+ * will have to explicitly attempt acquisition of the lock to find out if
+ * the lock has yet been released. These locks don't actually prevent any
+ * of the distributed object machinery from functioning.
  *
  * @see DObjectManager#postEvent
  */
@@ -53,13 +56,13 @@ public class ReleaseLockEvent extends TypedEvent
     }
 
     /**
-     * Applies this attribute change to the object.
+     * Applies this lock release to the object.
      */
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
-        // pass the new value on to the object
-        target.setAttribute(_name, _value);
+        // clear this lock from the target object
+        target.clearLock(_name);
         return true;
     }
 
@@ -90,5 +93,4 @@ public class ReleaseLockEvent extends TypedEvent
     }
 
     protected String _name;
-    protected Object _value;
 }
