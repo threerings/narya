@@ -1,5 +1,5 @@
 //
-// $Id: InvocationProvider.java,v 1.1 2001/07/19 18:08:20 mdb Exp $
+// $Id: InvocationProvider.java,v 1.2 2001/07/19 19:18:07 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -12,9 +12,27 @@ package com.threerings.cocktail.cher.server;
  * procedure identified by the name <code>Tell</code> would result in the
  * invocation of a method named <code>handleTellRequest</code>. The
  * arguments to that method would be defined by the arguments that
- * accompanied the <code>Tell</code> invocation request. If the arguments
- * do not match, a reflection error will happen when trying to invoke the
- * method and the whole request will fail.
+ * accompanied the <code>Tell</code> invocation request along with the
+ * client object of the client that made the request. Specifically:
+ *
+ * <pre>
+ *     // client makes request
+ *     Object[] args = new Object[] { "one", new Integer(2) };
+ *     invmgr.invoke(MODULE, "Test", args, rsptarget);
+ *
+ *     // provider registered for MODULE should look like:
+ *     public class TestProvider extends InvocationProvider
+ *     {
+ *         public Object[] handleTestRequest (ClientObject source,
+ *                                            String one, int two)
+ *         {
+ *             // ...
+ *         }
+ *     }
+ * </pre>
+ *
+ * If the arguments do not match, a reflection error will happen when
+ * trying to invoke the method and the whole request will fail.
  *
  * <p> Invocation procedures must also package up their response in a
  * particular way which is through the use of the

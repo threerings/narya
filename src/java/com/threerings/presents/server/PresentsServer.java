@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.7 2001/07/19 07:48:25 mdb Exp $
+// $Id: PresentsServer.java,v 1.8 2001/07/19 19:18:07 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -28,7 +28,7 @@ public class CherServer
     public static ClientManager clmgr;
 
     /** The distributed object manager. */
-    public static DObjectManager omgr;
+    public static CherDObjectMgr omgr;
 
     /** The invocation manager. */
     public static InvocationManager invmgr;

@@ -1,5 +1,5 @@
 //
-// $Id: InvocationManager.java,v 1.4 2001/07/19 18:08:20 mdb Exp $
+// $Id: InvocationManager.java,v 1.5 2001/07/19 19:18:07 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -56,6 +56,39 @@ public class InvocationManager
         _providers.put(module, provider);
     }
 
+    /**
+     * Delivers an invocation notification to the specified client. The
+     * <code>module</code> argument selects which
+     * <code>InvocationReceiver</code> will be invoked and the
+     * <code>procedure</code> argument indicates which method will be
+     * invoked on that receiver.
+     *
+     * <p> The method is constructed as follows: a procedure name of
+     * <code>Tell</code> will result in a method call to
+     * <code>handleTellNotification</code>. The arguments provided with
+     * the notification define the necessary signature of that method,
+     * according to the argument conversion rules defined by the
+     * reflection services (<code>Integer</code> is converted to
+     * <code>int</code>, etc.).
+     */
+    public void sendNotification (
+        int cloid, String module, String procedure, Object[] args)
+    {
+        // package up the arguments
+        int alength = (args != null) ? args.length : 0;
+        Object[] nargs = new Object[alength + 2];
+        nargs[0] = module;
+        nargs[1] = procedure;
+        if (args != null) {
+            System.arraycopy(args, 0, nargs, 2, alength);
+        }
+
+        // construct a message event and deliver it
+        MessageEvent nevt = new MessageEvent(
+            cloid, InvocationObject.NOTIFICATION_NAME, nargs);
+        CherServer.omgr.postEvent(nevt);
+    }
+
     public void objectAvailable (DObject object)
     {
         // this must be our invocation object
@@ -82,7 +115,7 @@ public class InvocationManager
 
         // make sure the name is proper just for sanity's sake
         MessageEvent mevt = (MessageEvent)event;
-        if (!mevt.getName().equals(InvocationObject.MESSAGE_NAME)) {
+        if (!mevt.getName().equals(InvocationObject.REQUEST_NAME)) {
             return true;
         }
 
@@ -102,8 +135,17 @@ public class InvocationManager
         }
 
         // prune the method arguments from the full message arguments
-        Object[] margs = new Object[args.length-3];
-        System.arraycopy(args, 3, margs, 0, margs.length);
+        Object[] margs = new Object[args.length-2];
+        int cloid = mevt.getSourceOid();
+        margs[0] = CherServer.omgr.getObject(cloid);
+        // make sure the client is still around
+        if (margs[0] == null) {
+            Log.warning("Client no longer around for invocation provider " +
+                        "request [module=" + module +
+                        ", proc=" + procedure + ", cloid=" + cloid + "].");
+            return true;
+        }
+        System.arraycopy(args, 3, margs, 1, args.length-3);
 
         // look up the method that will handle this procedure
         String mname = "handle" + procedure + "Request";
@@ -131,7 +173,7 @@ public class InvocationManager
             rargs[1] = invid;
             // and create a message event for delivery to the client
             MessageEvent revt = new MessageEvent(
-                mevt.getSourceOid(), InvocationObject.MESSAGE_NAME, rargs);
+                mevt.getSourceOid(), InvocationObject.RESPONSE_NAME, rargs);
             // and ship it off
             CherServer.omgr.postEvent(revt);
         }

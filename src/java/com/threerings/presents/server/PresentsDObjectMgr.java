@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.6 2001/06/13 05:17:55 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.7 2001/07/19 19:18:07 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -72,6 +72,20 @@ public class CherDObjectMgr implements DObjectManager
     public void removedLastSubscriber (DObject obj)
     {
         // nothing to do here, our objects live forever!
+    }
+
+    /**
+     * Returns the object in the object table with the specified oid or
+     * null if no object has that oid. Be sure only to call this function
+     * from the dobjmgr thread and not to do anything funny with the
+     * object. If subscription is desired, use
+     * <code>subscribeToObject()</code>.
+     *
+     * @see #subscribeToObject
+     */
+    public DObject getObject (int oid)
+    {
+        return (DObject)_objects.get(oid);
     }
 
     /**

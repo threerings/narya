@@ -1,5 +1,5 @@
 //
-// $Id: InvocationObject.java,v 1.1 2001/07/19 05:56:20 mdb Exp $
+// $Id: InvocationObject.java,v 1.2 2001/07/19 19:18:06 mdb Exp $
 
 package com.threerings.cocktail.cher.data;
 
@@ -14,8 +14,20 @@ import com.threerings.cocktail.cher.dobj.DObject;
 public class InvocationObject extends DObject
 {
     /**
-     * This constant is used to identify messages on both ends of the
-     * invocation services.
+     * This constant is used to identify invocation requests sent to the
+     * server.
      */
-    public static final String MESSAGE_NAME = "invoke";
+    public static final String REQUEST_NAME = "invreq";
+
+    /**
+     * This constant is used to identify invocation responses sent to the
+     * client.
+     */
+    public static final String RESPONSE_NAME = "invrsp";
+
+    /**
+     * This constant is used to identify invocation notifications sent to
+     * the client.
+     */
+    public static final String NOTIFICATION_NAME = "invnot";
 }

@@ -1,10 +1,12 @@
 //
-// $Id: InvocationDirector.java,v 1.3 2001/07/19 18:08:20 mdb Exp $
+// $Id: InvocationDirector.java,v 1.4 2001/07/19 19:18:06 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+
+import com.samskivert.util.StringUtil;
 
 import com.threerings.cocktail.cher.Log;
 import com.threerings.cocktail.cher.data.*;
@@ -84,7 +86,7 @@ public class InvocationManager
 
         // create a message event on the invocation manager object
         MessageEvent event = new MessageEvent(
-            _imoid, InvocationObject.MESSAGE_NAME, iargs);
+            _imoid, InvocationObject.REQUEST_NAME, iargs);
 
         // if we have a response target, register that for later receipt
         // of the response
@@ -94,6 +96,15 @@ public class InvocationManager
 
         // and finally ship off the invocation message
         _omgr.postEvent(event);
+    }
+
+    /**
+     * Registers the supplied invocation receiver instance as the handler
+     * for all invocation notifications for the specified module.
+     */
+    public void registerReceiver (String module, InvocationReceiver receiver)
+    {
+        _receivers.put(module, receiver);
     }
 
     public void objectAvailable (DObject object)
@@ -123,21 +134,29 @@ public class InvocationManager
 
         // and only those of proper name
         MessageEvent mevt = (MessageEvent)event;
-        if (!mevt.getName().equals(InvocationObject.MESSAGE_NAME)) {
-            return true;
+        String name = mevt.getName();
+        if (name.equals(InvocationObject.RESPONSE_NAME)) {
+            handleInvocationResponse(mevt.getArgs());
+        } else if (name.equals(InvocationObject.NOTIFICATION_NAME)) {
+            handleInvocationNotification(mevt.getArgs());
         }
 
-        // we've got an invocation response, so we extract the args and
-        // process it
-        Object[] args = mevt.getArgs();
+        return true;
+    }
+
+    /**
+     * Processes an invocation response message.
+     */
+    protected void handleInvocationResponse (Object[] args)
+    {
         String name = (String)args[0];
         int invid = ((Integer)args[1]).intValue();
 
         Object rsptarg = _targets.get(invid);
         if (rsptarg == null) {
             Log.warning("No target for invocation response " +
-                        "[rsp=" + mevt + "].");
-            return true;
+                        "[args=" + StringUtil.toString(args) + "].");
+            return;
         }
 
         // prune the method arguments from the full message arguments
@@ -151,7 +170,7 @@ public class InvocationManager
             Log.warning("Unable to resolve response method " +
                         "[target=" + rsptarg.getClass().getName() +
                         ", method=" + mname + "].");
-            return true;
+            return;
         }
 
         // and invoke it
@@ -162,8 +181,46 @@ public class InvocationManager
                         "[target=" + rsptarg + ", method=" + rspmeth +
                         ", error=" + e + "].");
         }
+    }
 
-        return true;
+    /**
+     * Processes an invocation notification message.
+     */
+    protected void handleInvocationNotification (Object[] args)
+    {
+        String module = (String)args[0];
+        String proc = (String)args[1];
+
+        InvocationReceiver receiver =
+            (InvocationReceiver)_receivers.get(module);
+        if (receiver == null) {
+            Log.warning("No receiver registered for notification " +
+                        "[args=" + StringUtil.toString(args) + "].");
+            return;
+        }
+
+        // prune the method arguments from the full message arguments
+        Object[] nargs = new Object[args.length-2];
+        System.arraycopy(args, 2, nargs, 0, nargs.length);
+
+        // and invoke the receiver method
+        String mname = "handle" + proc + "Notification";
+        Method rspmeth = ClassUtil.getMethod(mname, receiver, _methcache);
+        if (rspmeth == null) {
+            Log.warning("Unable to resolve receiver method " +
+                        "[target=" + receiver.getClass().getName() +
+                        ", method=" + mname + "].");
+            return;
+        }
+
+        // and invoke it
+        try {
+            rspmeth.invoke(receiver, nargs);
+        } catch (Exception e) {
+            Log.warning("Error invoking receiver method " +
+                        "[receiver=" + receiver + ", method=" + rspmeth +
+                        ", error=" + e + "].");
+        }
     }
 
     protected synchronized int nextInvocationId ()
@@ -189,5 +246,6 @@ public class InvocationManager
 
     protected int _invocationId;
     protected IntMap _targets = new IntMap();
+    protected HashMap _receivers = new HashMap();
     protected HashMap _methcache = new HashMap();
 }
