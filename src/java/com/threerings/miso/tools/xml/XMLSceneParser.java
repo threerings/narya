@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.6 2001/08/09 21:17:06 shaper Exp $
+// $Id: XMLSceneParser.java,v 1.7 2001/08/10 00:47:34 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -70,6 +70,10 @@ public class XMLSceneParser extends DefaultHandler
             int vals[] = StringUtil.parseIntArray(_chars.toString());
             _scLocations = toLocationsList(vals);
 
+	} else if (qName.equals("spot")) {
+	    int vals[] = StringUtil.parseIntArray(_chars.toString());
+	    _scSpots.add(toSpot(_scLocations, vals));
+
 	} else if (qName.equals("exits")) {
             String vals[] = StringUtil.parseStringArray(_chars.toString());
 	    _scExits = toExitList(_scLocations, vals);
@@ -84,7 +88,7 @@ public class XMLSceneParser extends DefaultHandler
         } else if (qName.equals("scene")) {
             // construct the scene object on tag close
             _scene = new Scene(
-                _tilemgr, _scName, _scLocations, _scExits, _scTiles);
+                _tilemgr, _scName, _scLocations, _scSpots, _scExits, _scTiles);
 
             Log.info("Constructed parsed scene [scene=" + _scene + "].");
 	}
@@ -164,10 +168,29 @@ public class XMLSceneParser extends DefaultHandler
     }
 
     /**
+     * Given an array of integer values, return a <code>Spot</code>
+     * object containing the location objects identified by location
+     * index number in the integer array.
+     *
+     * @param locs the locations list.
+     * @param vals the integer values.
+     *
+     * @return the spot object.
+     */
+    protected Spot toSpot (ArrayList locs, int[] vals)
+    {
+	Spot spot = new Spot();
+	for (int ii = 0; ii < vals.length; ii++) {
+	    spot.add((Location)locs.get(vals[ii]));
+	}
+	return spot;
+    }
+
+    /**
      * Given an array of integer values, return a list of the
      * <code>Location</code> objects represented therein, constructed
-     * from each successive quartet of values as (spotid, x, y,
-     * orientation) in the integer array.
+     * from each successive triplet of values as (x, y, orientation)
+     * in the integer array.
      *
      * @param vals the integer values.
      *
@@ -176,13 +199,13 @@ public class XMLSceneParser extends DefaultHandler
     protected ArrayList toLocationsList (int[] vals)
     {
         // make sure we have a seemingly-appropriate number of points
-        if ((vals.length % 4) != 0) return null;
+        if ((vals.length % 3) != 0) return null;
 
 	// read in all of the locations and add to the list
 	ArrayList list = new ArrayList();
-        for (int ii = 0; ii < vals.length; ii += 4) {
+        for (int ii = 0; ii < vals.length; ii += 3) {
 	    Location loc = new Location(
-		vals[ii], vals[ii+1], vals[ii+2], vals[ii+3]);
+		vals[ii], vals[ii+1], vals[ii+2]);
 	    list.add(loc);
         }
 
@@ -245,6 +268,7 @@ public class XMLSceneParser extends DefaultHandler
 	_scTiles = new Tile[width][height][Scene.NUM_LAYERS];
 	_scLocations = null;
 	_scExits = null;
+	_scSpots = new ArrayList();
     }	
 
     /**
@@ -296,8 +320,7 @@ public class XMLSceneParser extends DefaultHandler
     // temporary storage of scene object values and data
     protected StringBuffer _chars;
     protected String _scName;
-    protected ArrayList _scLocations;
-    protected ArrayList _scExits;
+    protected ArrayList _scLocations, _scExits, _scSpots;
     protected Tile[][][] _scTiles;
     protected int _scLnum, _scRownum, _scColstart;
 }

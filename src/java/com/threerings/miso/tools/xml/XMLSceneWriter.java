@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneWriter.java,v 1.4 2001/08/09 21:17:06 shaper Exp $
+// $Id: XMLSceneWriter.java,v 1.5 2001/08/10 00:47:34 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -52,6 +52,11 @@ public class XMLSceneWriter extends DataWriter
             dataElement("name", scene.getName());
             dataElement("version", "" + Scene.VERSION);
             dataElement("locations", getLocationData(scene));
+
+	    startElement("spots");
+	    writeSpots(scene);
+	    endElement("spots");
+
             dataElement("exits", getExitData(scene));
 
             startElement("tiles");
@@ -68,6 +73,36 @@ public class XMLSceneWriter extends DataWriter
                         "[scene=" + scene + ", fname=" + fname +
                         ", saxe=" + saxe + "].");
         }
+    }
+
+    /**
+     * Output XML detailing the spot objects.  Spots are described by
+     * a list of location object indexes that are contained within the
+     * spot.
+     *
+     * @param scene the scene object.
+     */
+    protected void writeSpots (Scene scene) throws SAXException
+    {
+	ArrayList spots = scene.getSpotGroup().getSpots();
+	ArrayList locs = scene.getLocations();
+
+	int size = spots.size();
+	for (int ii = 0; ii < size; ii++) {
+
+	    StringBuffer buf = new StringBuffer();
+
+	    Spot spot = (Spot)spots.get(ii);
+	    ArrayList spotlocs = spot.getLocations();
+
+	    int spotsize = spotlocs.size();
+	    for (int jj = 0; jj < spotsize; jj++) {
+		buf.append(locs.indexOf(spotlocs.get(jj))).append(",");
+		if (jj < spotsize - 1) buf.append(",");
+	    }
+
+	    dataElement("spot", buf.toString());
+	}
     }
 
     /**
@@ -137,7 +172,6 @@ public class XMLSceneWriter extends DataWriter
 	int size = locs.size();
         for (int ii = 0; ii < size; ii++) {
 	    Location loc = (Location)locs.get(ii);
-	    buf.append(loc.spotid).append(",");
 	    buf.append(loc.x).append(",");
 	    buf.append(loc.y).append(",");
 	    buf.append(loc.orient);

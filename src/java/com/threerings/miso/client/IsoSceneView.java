@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.35 2001/08/09 21:17:06 shaper Exp $
+// $Id: IsoSceneView.java,v 1.36 2001/08/10 00:47:34 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -499,6 +499,16 @@ public class IsoSceneView implements EditableSceneView
         path.addNode(spos.x, spos.y, dir);
 
         return path;
+    }
+
+    public void updateLocation (int x, int y, int orient, int spotidx)
+    {
+	_scene.updateLocation(x, y, orient, spotidx);
+    }
+
+    public int getNumSpots ()
+    {
+	return (_scene == null) ? 0 : _scene.getNumSpots();
     }
 
     /** The color to draw the highlighted tile. */

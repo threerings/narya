@@ -1,5 +1,5 @@
 //
-// $Id: Location.java,v 1.1 2001/08/09 21:17:06 shaper Exp $
+// $Id: Location.java,v 1.2 2001/08/10 00:47:34 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -13,9 +13,6 @@ package com.threerings.miso.scene;
  */
 public class Location
 {
-    /** The spot index in the scene containing this location. */
-    public int spotid;
-
     /** The location position in full coordinates. */
     public int x, y;
 
@@ -25,14 +22,12 @@ public class Location
     /**
      * Construct a <code>Location</code> object.
      *
-     * @param spotid the spot id.
      * @param x the x-position full coordinate.
      * @param y the y-position full coordinate.
      * @param orient the location orientation.
      */
-    public Location (int spotid, int x, int y, int orient)
+    public Location (int x, int y, int orient)
     {
-	this.spotid = spotid;
 	this.x = x;
 	this.y = y;
 	this.orient = orient;
@@ -44,8 +39,7 @@ public class Location
     public String toString ()
     {
         StringBuffer buf = new StringBuffer();
-        buf.append("[spotid=").append(spotid);
-	buf.append(", x=").append(x);
+        buf.append("[x=").append(x);
 	buf.append(", y=").append(y);
         buf.append(", orient=").append(orient);
         return buf.append("]").toString();

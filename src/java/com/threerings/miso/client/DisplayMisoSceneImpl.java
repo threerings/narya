@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.19 2001/08/09 21:17:06 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.20 2001/08/10 00:47:34 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -8,6 +8,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 import com.samskivert.util.StringUtil;
+import com.threerings.miso.Log;
 import com.threerings.miso.tile.Tile;
 import com.threerings.miso.tile.TileManager;
 
@@ -22,7 +23,7 @@ public class Scene
     /** The base layer id. */
     public static final int LAYER_BASE = 0;
 
-    /** The object layer id. */
+    /** The fringe layer id. */
     public static final int LAYER_FRINGE = 1;
 
     /** The object layer id. */
@@ -65,9 +66,10 @@ public class Scene
 	_sid = SID_INVALID;
 	_name = DEF_SCENE_NAME;
         _locations = new ArrayList();
+	_spots = new SpotGroup();
         _exits = new ArrayList();
 
-	tiles = new Tile[TILE_WIDTH][TILE_HEIGHT][NUM_LAYERS];
+	    tiles = new Tile[TILE_WIDTH][TILE_HEIGHT][NUM_LAYERS];
 	_deftile = _tilemgr.getTile(deftsid, deftid);
 	for (int xx = 0; xx < TILE_WIDTH; xx++) {
 	    for (int yy = 0; yy < TILE_HEIGHT; yy++) {
@@ -90,16 +92,46 @@ public class Scene
      * @param tiles the tiles comprising the scene.
      */
     public Scene (TileManager tilemgr, String name,
-                  ArrayList locations, ArrayList exits,
+                  ArrayList locations, ArrayList spots, ArrayList exits,
                   Tile tiles[][][])
     {
         _tilemgr = tilemgr;
         _sid = SID_INVALID;
         _name = name;
         _locations = locations;
+	_spots = new SpotGroup(spots);
         _exits = exits;
         this.tiles = tiles;
     }
+
+    public void updateLocation (int x, int y, int orient, int spotidx)
+    {
+	Log.info("updateLocation [x=" + x + ", y=" + y +
+		 ", orient=" + orient + ", spotidx=" + spotidx + "].");
+
+	// look the location up in our existing location list
+	int size = _locations.size();
+	Location loc = null;
+	for (int ii = 0; ii < size; ii++) {
+	    Location tloc = (Location)_locations.get(ii);
+
+	    if (tloc.x == x && tloc.y == y) {
+		// if we found it, update the location information
+		tloc.x = x;
+		tloc.y = y;
+		tloc.orient = orient;
+
+		// and update the spot contents
+		_spots.respot(tloc, spotidx);
+
+		return;
+	    }
+	}
+
+	// else we didn't find a location object, so create one
+	_locations.add(loc = new Location(x, y, orient));
+	_spots.respot(loc, spotidx);
+}
 
     /**
      * Return the scene name.
@@ -126,11 +158,24 @@ public class Scene
     }
 
     /**
+     * Return the spot group.
+     */
+    public SpotGroup getSpotGroup ()
+    {
+	return _spots;
+    }
+
+    /**
      * Return the scene exits list.
      */
     public ArrayList getExits ()
     {
         return _exits;
+    }
+
+    public int getNumSpots ()
+    {
+	return _spots.size();
     }
 
     /**
@@ -170,6 +215,7 @@ public class Scene
         buf.append(", sid=").append(_sid);
         buf.append(", locations=").append(StringUtil.toString(_locations));
         buf.append(", exits=").append(StringUtil.toString(_exits));
+        buf.append(", spots=").append(StringUtil.toString(_spots));
         return buf.append("]").toString();
     }
 
@@ -185,8 +231,11 @@ public class Scene
     /** The locations within the scene. */
     protected ArrayList _locations;
 
-    /** The exit points to different scenes. */
+    /** The exits to different scenes. */
     protected ArrayList _exits;
+
+    /** The spots within the scene. */
+    protected SpotGroup _spots;
 
     /** The default tile for the base layer in the scene. */
     protected Tile _deftile;
