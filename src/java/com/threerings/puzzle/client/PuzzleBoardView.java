@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleBoardView.java,v 1.3 2003/11/26 02:11:34 mdb Exp $
+// $Id: PuzzleBoardView.java,v 1.4 2003/11/26 23:06:05 mdb Exp $
 
 package com.threerings.puzzle.client;
 
@@ -358,7 +358,15 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
                      getActionCount() + ":" + isShowing());
         }
         if (getActionCount() == 0) {
-            _pctrl.boardActionCleared();
+            // we're probably in the middle of a tick() in an
+            // animationDidFinish() call and we want everyone to finish
+            // processing their business before we go clearing the action,
+            // so we queue this up to be run after the tick is complete
+            _ctx.getClient().getInvoker().invokeLater(new Runnable() {
+                public void run () {
+                    _pctrl.boardActionCleared();
+                }
+            });
         }
     }
 
