@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaFrame.java,v 1.2 2001/10/09 17:47:33 mdb Exp $
+// $Id: MiCasaFrame.java,v 1.3 2001/10/09 18:20:08 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -10,19 +10,17 @@ import com.samskivert.swing.Controller;
 import com.samskivert.swing.ControllerProvider;
 
 /**
- * The micasa frame contains the user interface for the MiCasa client
- * application. It divides the screen into space for the primary panel and
- * the side-bar controls and allows user interface elements to be placed
- * in either region.
+ * Contains the user interface for the MiCasa client application.
  */
 public class MiCasaFrame
     extends JFrame implements ControllerProvider
 {
+    /**
+     * Constructs the top-level MiCasa client frame.
+     */
     public MiCasaFrame ()
     {
         super("MiCasa Client");
-        // for now, quit if we're closed
-        // setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
     /**
@@ -36,24 +34,6 @@ public class MiCasaFrame
 	getContentPane().add(panel, BorderLayout.CENTER);
         // swing doesn't properly repaint after adding/removing children
         validate();
-    }
-
-    /**
-     * Sets the match-making panel to be used when the lobby panel is
-     * being displayed.
-     */
-    public void setMatchMakingPanel (JPanel panel)
-    {
-        _lopanel.setPrimary(panel);
-    }
-
-    /**
-     * Provides a reference to the lobby panel that will be used to
-     * provide our lobby interfaces.
-     */
-    protected void setLobbyPanel (LobbyPanel panel)
-    {
-        _lopanel = panel;
     }
 
     /**
@@ -73,6 +53,4 @@ public class MiCasaFrame
     }
 
     protected Controller _controller;
-
-    protected LobbyPanel _lopanel;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaServer.java,v 1.2 2001/10/04 23:41:44 mdb Exp $
+// $Id: MiCasaServer.java,v 1.3 2001/10/09 18:20:08 mdb Exp $
 
 package com.threerings.micasa.server;
 
@@ -39,6 +39,9 @@ public class MiCasaServer extends PartyServer
     {
         // do the cher server initialization
         super.init();
+
+        // configure the client manager to use our client class
+        clmgr.setClientClass(MiCasaClient.class);
 
         // bind the whirled server config into the namespace
         config.bindProperties(CONFIG_KEY, CONFIG_PATH, true);

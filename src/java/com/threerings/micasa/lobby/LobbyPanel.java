@@ -1,19 +1,24 @@
 //
-// $Id: LobbyPanel.java,v 1.2 2001/10/04 23:41:44 mdb Exp $
+// $Id: LobbyPanel.java,v 1.3 2001/10/09 18:20:08 mdb Exp $
 
-package com.threerings.micasa.client;
+package com.threerings.micasa.lobby;
 
 import javax.swing.*;
 import com.samskivert.swing.*;
+
+import com.threerings.cocktail.party.client.PlaceView;
+import com.threerings.cocktail.party.data.PlaceObject;
+
+import com.threerings.micasa.client.*;
 import com.threerings.micasa.util.MiCasaContext;
 
 /**
- * The lobby panel is used to display the interface for the lobbies. It
- * contains a lobby selection mechanism, a chat interface and a user
- * interface for whatever matchmaking mechanism is appropriate for a
- * particular lobby.
+ * Used to display the interface for the lobbies. It contains a lobby
+ * selection mechanism, a chat interface and a user interface for whatever
+ * match-making mechanism is appropriate for this particular lobby.
  */
-public class LobbyPanel extends JPanel
+public class LobbyPanel
+    extends JPanel implements PlaceView
 {
     /**
      * Constructs a new lobby panel and the associated user interface
@@ -31,56 +36,64 @@ public class LobbyPanel extends JPanel
         gl.setJustification(GroupLayout.RIGHT);
         setLayout(gl);
 
+        // create our main panel
+        gl = new VGroupLayout(GroupLayout.STRETCH);
+        gl.setOffAxisPolicy(GroupLayout.STRETCH);
+        _main = new JPanel(gl);
+
+        // create our match-making view
+        _main.add(createMatchMakingView(ctx));
+
+        // create a chat box and stick that in as well
+        JLabel label = new JLabel("Chat with other people in this lobby...");
+        _main.add(label, GroupLayout.FIXED);
+        _main.add(new ChatPanel(ctx));
+
         // create our sidebar panel
         gl = new VGroupLayout(GroupLayout.STRETCH);
         gl.setOffAxisPolicy(GroupLayout.STRETCH);
-        _sidePanel = new JPanel(gl);
+        JPanel sidePanel = new JPanel(gl);
 
         // the sidebar contains a lobby selector...
-        JLabel label = new JLabel("Select a lobby...");
-        _sidePanel.add(label, GroupLayout.FIXED);
+        label = new JLabel("Select a lobby...");
+        sidePanel.add(label, GroupLayout.FIXED);
         LobbySelector selector = new LobbySelector(ctx);
-        _sidePanel.add(selector);
+        sidePanel.add(selector);
 
         // ...a lobby info display...
 
         // and an occupants list
         label = new JLabel("Occupants");
-        _sidePanel.add(label, GroupLayout.FIXED);
-        OccupantList occupants = new OccupantList(ctx);
-        _sidePanel.add(occupants);
+        sidePanel.add(label, GroupLayout.FIXED);
+        _occupants = new OccupantList(ctx);
+        sidePanel.add(_occupants);
 
         // add our sidebar panel into the mix
-        add(_sidePanel, GroupLayout.FIXED);
+        add(sidePanel, GroupLayout.FIXED);
     }
 
     /**
-     * Sets the primary view. This is the large view that displays the
-     * primary activity going on in the client (the iso view when they're
-     * walking around, the puzzle view when they're puzzling, etc.).
+     * Derived classes override this function and create the appropriate
+     * matchmaking user interface component.
      */
-    public void setPrimary (JPanel view)
+    protected JComponent createMatchMakingView (MiCasaContext ctx)
     {
-        // ignore requests to set the same view. it's simplest to deal
-        // with this here
-        if (view == _primView) {
-            return;
-        }
-
-        // remove the previous primary view
-        if (_primView != null) {
-            remove(_primView);
-        }
-
-        // add the new view
-        _primView = view;
-        add(_primView, 0);
-        validate();
+        return new JLabel("Match-making view goes here.");
     }
 
-    /** The sidebar panel. */
-    protected JPanel _sidePanel;
+    // documentation inherited
+    public void willEnterPlace (PlaceObject plobj)
+    {
+    }
 
-    /** The primary view. */
-    protected JPanel _primView;
+    // documentation inherited
+    public void didLeavePlace (PlaceObject plobj)
+    {
+    }
+
+    /** Contains the match-making view and the chatbox. */
+    protected JPanel _main;
+
+    /** Our occupant list display. */
+    protected OccupantList _occupants;
 }

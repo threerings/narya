@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.4 2001/10/09 17:47:33 mdb Exp $
+// $Id: ClientController.java,v 1.5 2001/10/09 18:20:08 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -15,21 +15,16 @@ import com.threerings.cocktail.cher.net.UsernamePasswordCreds;
 import com.threerings.cocktail.party.client.*;
 import com.threerings.cocktail.party.data.*;
 
-import com.threerings.media.sprite.SpriteManager;
-
 import com.threerings.micasa.Log;
+import com.threerings.micasa.data.MiCasaBootstrapData;
 import com.threerings.micasa.util.MiCasaContext;
 
 /**
- * The client controller is responsible for top-level control of the
- * client user interface. It deals with locating and displaying the proper
- * panels and controllers for particular user interface modes (walking
- * around the world, puzzling, etc.) and it manages the side-bar controls
- * as well.
+ * Responsible for top-level control of the client user interface.
  */
 public class ClientController
     extends Controller
-    implements ClientObserver, LocationObserver, OccupantObserver, Subscriber
+    implements ClientObserver
 {
     /**
      * Creates a new client controller. The controller will set everything
@@ -44,18 +39,9 @@ public class ClientController
         // we want to know about logon/logoff
         _ctx.getClient().addObserver(this);
 
-        // we want to know about location changes
-        _ctx.getLocationDirector().addLocationObserver(this);
-
-        // we also want to know about occupant changes
-        _ctx.getOccupantManager().addOccupantObserver(this);
-
         // create the logon panel and display it
         _logonPanel = new LogonPanel(_ctx);
 //          _frame.setPanel(_logonPanel);
-
-        // create a sprite manager
-        _spritemgr = new SpriteManager();
 
         // configure the client with some credentials and logon
         String username = "bob" +
@@ -80,6 +66,11 @@ public class ClientController
 
         // keep the body object around for stuff
         _body = (BodyObject)client.getClientObject();
+
+        // head to the default lobby to start things off
+        MiCasaBootstrapData data = (MiCasaBootstrapData)
+            client.getBootstrapData();
+        _ctx.getLocationDirector().moveTo(data.defLobbyOid);
     }
 
     // documentation inherited
@@ -111,76 +102,10 @@ public class ClientController
         System.exit(0);
     }
 
-    // documentation inherited
-    public boolean locationMayChange (int placeId)
-    {
-        return true;
-    }
-
-    // documentation inherited
-    public void locationDidChange (PlaceObject place)
-    {
-        Log.info("Moved to new location [place=" + place + "].");
-
-        // clean up after the old place
-        if (_place != null) {
-            // dispatch didLeavePlace to our views
-            PlaceViewUtil.dispatchDidLeavePlace(_frame, _place);
-            _place.removeSubscriber(this);
-        }
-
-        _place = place;
-
-        // and enter the new place with bells on
-        if (_place != null) {
-            _place.addSubscriber(this);
-            // dispatch willEnterPlace to our views
-            PlaceViewUtil.dispatchWillEnterPlace(_frame, _place);
-        }
-    }
-
-    // documentation inherited
-    public void locationChangeFailed (int placeId, String reason)
-    {
-        Log.info("Location change failed [plid=" + placeId +
-                 ", reason=" + reason + "].");
-    }
-
-    public void occupantEntered (OccupantInfo info)
-    {
-        Log.info("New occupant " + info + ".");
-    }
-
-    public void occupantLeft (OccupantInfo info)
-    {
-    }
-
-    public void occupantUpdated (OccupantInfo info)
-    {
-    }
-
-    public void objectAvailable (DObject object)
-    {
-        // don't care
-    }
-
-    public void requestFailed (int oid, ObjectAccessException cause)
-    {
-        // don't care
-    }
-
-    public boolean handleEvent (DEvent event, DObject target)
-    {
-        return true;
-    }
-
     protected MiCasaContext _ctx;
     protected MiCasaFrame _frame;
     protected BodyObject _body;
     protected PlaceObject _place;
-
-    // managers
-    protected SpriteManager _spritemgr;
 
     // our panels
     protected LogonPanel _logonPanel;

@@ -1,7 +1,7 @@
 //
-// $Id: LobbySelector.java,v 1.1 2001/10/04 23:41:44 mdb Exp $
+// $Id: LobbySelector.java,v 1.2 2001/10/09 18:20:08 mdb Exp $
 
-package com.threerings.micasa.client;
+package com.threerings.micasa.lobby;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
