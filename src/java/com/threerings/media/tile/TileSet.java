@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.47 2003/04/25 18:21:49 mdb Exp $
+// $Id: TileSet.java,v 1.48 2003/04/27 07:33:15 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -324,6 +324,19 @@ public abstract class TileSet
 	StringBuffer buf = new StringBuffer("[");
         toString(buf);
 	return buf.append("]").toString();
+    }
+
+    /**
+     * Used to disable the flushing of cached tiles temporarily. If one
+     * wishes to avoid garbage collection for a short period of time, they
+     * may disable tile flushing during that period. A call to {@link
+     * System#gc} is probably a good idea once flushing is reenabled.
+     */
+    public static void setCanFlushCache (boolean enabled)
+    {
+        if (_tiles != null) {
+            _tiles.setCanFlush(enabled);
+        }
     }
 
     /**
