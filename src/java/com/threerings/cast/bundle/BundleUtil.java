@@ -1,5 +1,5 @@
 //
-// $Id: BundleUtil.java,v 1.1 2001/11/27 08:09:35 mdb Exp $
+// $Id: BundleUtil.java,v 1.2 2002/06/19 08:33:14 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -32,6 +32,9 @@ public class BundleUtil
 
     /** The file extension of our action tile images. */
     public static final String IMAGE_EXTENSION = ".png";
+
+    /** The serialized tileset extension for our action tilesets. */
+    public static final String TILESET_EXTENSION = ".dat";
 
     /**
      * Attempts to load an object from the supplied resource bundle with

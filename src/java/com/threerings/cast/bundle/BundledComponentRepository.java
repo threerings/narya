@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.12 2002/05/15 23:54:05 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.13 2002/06/19 08:33:14 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -258,30 +258,19 @@ public class BundledComponentRepository
         public ActionFrames getFrames (
             CharacterComponent component, String action)
         {
-            // get the tileset for this action
-            TileSet aset = (TileSet)_actionSets.get(action);
-            if (aset == null) {
-                Log.warning("Can't provide animation frames for undefined " +
-                            "action [action=" + action +
-                            ", component=" + component + "].");
-                return null;
-            }
-
-            // construct the appropriate image path for the component
+            // load up the tileset for this action
             String path = component.componentClass.name + "/" +
                 component.name + "/" + action +
-                BundleUtil.IMAGE_EXTENSION;
-
-            // clone the tileset with this new image path
+                BundleUtil.TILESET_EXTENSION;
             try {
-                TileSet fset = aset.clone(path);
-                fset.setImageProvider(this);
-                return new TileSetFrameImage(fset);
+                TileSet aset = (TileSet)BundleUtil.loadObject(_bundle, path);
+                aset.setImageProvider(this);
+                return new TileSetFrameImage(aset);
 
-            } catch (CloneNotSupportedException cnse) {
-                Log.warning("Unable to clone tileset [action=" + action +
-                            ", component=" + component +
-                            ", set=" + aset + "].");
+            } catch (Exception e) {
+                Log.warning("Error loading tileset for action " +
+                            "[action=" + action + ", component=" + component +
+                            ", error=" + e + "].");
                 return null;
             }
         }
