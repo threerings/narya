@@ -1,9 +1,8 @@
 //
-// $Id: HTTPDownloader.java,v 1.2 2003/08/18 21:50:03 mdb Exp $
+// $Id: HTTPDownloader.java,v 1.3 2004/02/25 14:52:16 mdb Exp $
 
 package com.threerings.resource;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
