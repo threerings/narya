@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.29 2002/04/06 02:03:54 mdb Exp $
+// $Id: ViewerApp.java,v 1.30 2002/04/23 01:19:04 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -12,6 +12,7 @@ import java.io.IOException;
 import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.resource.ResourceManager;
+import com.threerings.media.FrameManager;
 import com.threerings.media.ImageManager;
 
 import com.threerings.media.tile.bundle.BundledTileSetRepository;
@@ -64,6 +65,7 @@ public class ViewerApp
 
         // create the window
 	_frame = new ViewerFrame(gc);
+        _framemgr = new FrameManager(_frame);
 
         // we don't need to configure anything
         ResourceManager rmgr = new ResourceManager(
@@ -83,7 +85,7 @@ public class ViewerApp
         charmgr.setCharacterClass(MisoCharacterSprite.class);
 
         // create our scene view panel
-        _panel = new ViewerSceneViewPanel(ctx, charmgr, crepo);
+        _panel = new ViewerSceneViewPanel(ctx, _framemgr, charmgr, crepo);
         _frame.setPanel(_panel);
 
         // load up the scene specified by the user
@@ -136,6 +138,7 @@ public class ViewerApp
     {
         // show the window
         _frame.show();
+        _framemgr.start();
     }
 
     /**
@@ -154,6 +157,9 @@ public class ViewerApp
 
     /** The tile manager object. */
     protected MisoTileManager _tilemgr;
+
+    /** The frame manager. */
+    protected FrameManager _framemgr;
 
     /** The main application window. */
     protected ViewerFrame _frame;

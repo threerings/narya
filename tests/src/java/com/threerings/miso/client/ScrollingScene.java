@@ -1,14 +1,19 @@
 //
-// $Id: ScrollingScene.java,v 1.4 2002/04/15 17:47:05 mdb Exp $
+// $Id: ScrollingScene.java,v 1.5 2002/04/23 01:19:04 mdb Exp $
 
 package com.threerings.miso.scene;
 
+import java.util.Iterator;
 import java.util.Random;
+
+import com.samskivert.io.PersistenceException;
 
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
+import com.threerings.media.tile.TileSet;
+import com.threerings.media.tile.TileSetRepository;
 
 import com.threerings.miso.tile.BaseTile;
 import com.threerings.miso.util.MisoContext;
@@ -19,14 +24,30 @@ import com.threerings.miso.util.MisoContext;
 public class ScrollingScene implements DisplayMisoScene
 {
     public ScrollingScene (MisoContext ctx)
-        throws NoSuchTileSetException, NoSuchTileException
+        throws NoSuchTileSetException, NoSuchTileException, PersistenceException
     {
+        // locate the water tileset
+        TileSetRepository tsrepo = ctx.getTileManager().getTileSetRepository();
+        Iterator iter = tsrepo.enumerateTileSets();
+        TileSet wtset = null;
+        while (iter.hasNext()) {
+            TileSet tset = (TileSet)iter.next();
+            // yay for built-in regex support!
+            if (tset.getName().matches(".*[Ww]ater.*")) {
+                wtset = tset;
+                break;
+            }
+        }
+
+        if (wtset == null) {
+            throw new RuntimeException("Unable to locate water tileset.");
+        }
+
         // grab our four repeating tiles
-        _tiles[0] = (BaseTile)ctx.getTileManager().getTile(5, 0);
-        _tiles[1] = (BaseTile)ctx.getTileManager().getTile(5, 1);
-        _tiles[2] = (BaseTile)ctx.getTileManager().getTile(5, 2);
-        _tiles[3] = (BaseTile)ctx.getTileManager().getTile(5, 3);
-        _tiles[4] = (BaseTile)ctx.getTileManager().getTile(5, 4);
+        _tiles = new BaseTile[wtset.getTileCount()];
+        for (int ii = 0; ii < wtset.getTileCount(); ii++) {
+            _tiles[ii] = (BaseTile)wtset.getTile(ii);
+        }
     }
 
     // documentation inherited from interface
@@ -34,7 +55,7 @@ public class ScrollingScene implements DisplayMisoScene
     {
         long seed = ((x^y) ^ multiplier) & mask;
         long hash = (seed * multiplier + addend) & mask;
-        int tidx = (int)((hash >> 10) % 5);
+        int tidx = (int)((hash >> 10) % _tiles.length);
         return _tiles[tidx];
     }
 
@@ -56,10 +77,12 @@ public class ScrollingScene implements DisplayMisoScene
         return null;
     }
 
-    protected BaseTile[] _tiles = new BaseTile[5];
+    protected BaseTile[] _tiles;
     protected Random _rand = new Random();
 
     protected final static long multiplier = 0x5DEECE66DL;
     protected final static long addend = 0xBL;
     protected final static long mask = (1L << 48) - 1;
+
+    protected static final int WATER_TILESET_ID = 8;
 }

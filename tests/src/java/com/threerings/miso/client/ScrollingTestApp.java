@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.10 2002/04/15 17:47:05 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.11 2002/04/23 01:19:04 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -16,6 +16,7 @@ import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.Config;
 
 import com.threerings.resource.ResourceManager;
+import com.threerings.media.FrameManager;
 import com.threerings.media.ImageManager;
 
 import com.threerings.media.sprite.Sprite;
@@ -67,6 +68,9 @@ public class ScrollingTestApp
         // create the window
 	_frame = new ScrollingFrame(gc);
 
+        // set up our frame manager
+        _framemgr = new FrameManager(_frame);
+
         // we don't need to configure anything
         ResourceManager rmgr = new ResourceManager(
             "rsrc", null, "config/resource/manager.properties");
@@ -88,12 +92,7 @@ public class ScrollingTestApp
         charmgr.setCharacterClass(MisoCharacterSprite.class);
 
         // create our scene view panel
-        _panel = new SceneViewPanel(new IsoSceneViewModel()) {
-            public void start () {
-                super.start();
-                // kick things off
-                viewFinishedScrolling();
-            }
+        _panel = new SceneViewPanel(_framemgr, new IsoSceneViewModel()) {
             protected void viewFinishedScrolling () {
                 // keep scrolling for a spell
                 if (++_sidx < DX.length) {
@@ -104,6 +103,7 @@ public class ScrollingTestApp
             protected final int[] DX = { 0, 1000, -1000, 1000, 2000 };
             protected final int[] DY = { 1000, 0, 1000, -1000, 1000 };
         };
+        _panel.setScrolling(0, 1000, 10000l);
         _frame.setPanel(_panel);
 
         // create our "ship" sprite
@@ -131,7 +131,6 @@ public class ScrollingTestApp
         // set the scene to our scrolling scene
         try {
             _panel.setScene(new ScrollingScene(ctx));
-            _panel.start();
 
         } catch (Exception e) {
             Log.warning("Error creating scene: " + e);
@@ -147,7 +146,8 @@ public class ScrollingTestApp
 
         } else {
             Log.warning("Full-screen exclusive mode not available.");
-            _frame.pack();
+            // _frame.pack();
+            _frame.setSize(200, 300);
             SwingUtil.centerWindow(_frame);
         }
     }
@@ -171,6 +171,7 @@ public class ScrollingTestApp
     {
         // show the window
         _frame.show();
+        _framemgr.start();
     }
 
     /**
@@ -189,6 +190,9 @@ public class ScrollingTestApp
 
     /** The tile manager object. */
     protected MisoTileManager _tilemgr;
+
+    /** The frame manager. */
+    protected FrameManager _framemgr;
 
     /** The main application window. */
     protected ScrollingFrame _frame;

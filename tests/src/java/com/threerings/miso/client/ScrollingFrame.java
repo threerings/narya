@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingFrame.java,v 1.2 2002/02/19 07:21:33 mdb Exp $
+// $Id: ScrollingFrame.java,v 1.3 2002/04/23 01:19:04 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -8,7 +8,13 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.GraphicsConfiguration;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import com.samskivert.swing.VGroupLayout;
+
+import com.threerings.media.SafeScrollPane;
 
 /**
  * The main application window.
@@ -32,6 +38,19 @@ public class ScrollingFrame extends JFrame
         // set the frame and content panel background to black
         setBackground(Color.black);
         getContentPane().setBackground(Color.black);
+
+        // create some interface elements to go with our scrolling panel
+        VGroupLayout vgl = new VGroupLayout(VGroupLayout.STRETCH);
+        vgl.setOffAxisPolicy(VGroupLayout.STRETCH);
+        getContentPane().setLayout(vgl);
+
+        vgl = new VGroupLayout(VGroupLayout.NONE);
+        vgl.setOffAxisPolicy(VGroupLayout.STRETCH);
+        JPanel stuff = new JPanel(vgl);
+        for (int i = 0; i < 10; i++) {
+            stuff.add(new JButton("Button " + i));
+        }
+        getContentPane().add(new SafeScrollPane(stuff));
     }
 
     /**
@@ -46,7 +65,7 @@ public class ScrollingFrame extends JFrame
 
         // now add the new one
         _panel = panel;
-	getContentPane().add(_panel, BorderLayout.CENTER);
+	getContentPane().add(_panel, 0);
     }
 
     protected Component _panel;

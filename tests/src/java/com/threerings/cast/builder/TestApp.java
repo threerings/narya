@@ -1,5 +1,5 @@
 //
-// $Id: TestApp.java,v 1.12 2002/03/28 22:32:33 mdb Exp $
+// $Id: TestApp.java,v 1.13 2002/04/23 01:19:04 mdb Exp $
 
 package com.threerings.cast.builder;
 
@@ -8,8 +8,9 @@ import javax.swing.JFrame;
 
 import com.samskivert.swing.util.SwingUtil;
 
-import com.threerings.resource.ResourceManager;
+import com.threerings.media.FrameManager;
 import com.threerings.media.ImageManager;
+import com.threerings.resource.ResourceManager;
 
 import com.threerings.cast.Log;
 import com.threerings.cast.CharacterManager;
@@ -27,6 +28,8 @@ public class TestApp
         _frame.setSize(800, 600);
         SwingUtil.centerWindow(_frame);
 
+        FrameManager framemgr = new FrameManager(_frame);
+
         ResourceManager rmgr = new ResourceManager(
             "rsrc", null, "config/resource/manager.properties");
         ImageManager imgr = new ImageManager(rmgr, _frame);
@@ -37,7 +40,7 @@ public class TestApp
         charmgr.setCharacterClass(MisoCharacterSprite.class);
 
         // initialize the frame
-        ((TestFrame)_frame).init(charmgr, crepo);
+        ((TestFrame)_frame).init(framemgr, charmgr, crepo);
     }
 
     public void run ()

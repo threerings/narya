@@ -1,23 +1,22 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.47 2002/04/15 18:18:20 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.48 2002/04/23 01:19:04 mdb Exp $
 
 package com.threerings.miso.viewer;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import java.util.List;
-
 import com.threerings.util.RandomUtil;
+import com.threerings.media.FrameManager;
 
 import com.threerings.cast.CharacterDescriptor;
 import com.threerings.cast.CharacterManager;
 import com.threerings.cast.ComponentRepository;
 import com.threerings.cast.util.CastUtil;
 
-import com.threerings.media.animation.AnimationManager;
 import com.threerings.media.sprite.LineSegmentPath;
 import com.threerings.media.sprite.PathCompletedEvent;
 import com.threerings.media.sprite.SpriteEvent;
@@ -42,10 +41,11 @@ public class ViewerSceneViewPanel extends SceneViewPanel
      * Construct the panel and initialize it with a context.
      */
     public ViewerSceneViewPanel (MisoContext ctx,
+                                 FrameManager framemgr,
                                  CharacterManager charmgr,
                                  ComponentRepository crepo)
     {
-	super(new IsoSceneViewModel());
+	super(framemgr, new IsoSceneViewModel());
 
         // create the character descriptors
         _descUser = CastUtil.getRandomDescriptor("female", crepo);
@@ -123,9 +123,9 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     }
 
     // documentation inherited
-    public void render (Graphics2D g, List invalidRects)
+    public void paintBetween (Graphics2D g, Rectangle[] dirty)
     {
-	super.render(g, invalidRects);
+	super.paintBetween(g, dirty);
 	PerformanceMonitor.tick(this, "paint");
     }
 
