@@ -1,5 +1,5 @@
 //
-// $Id: MisoUtil.java,v 1.18 2003/04/17 19:21:16 mdb Exp $
+// $Id: MisoUtil.java,v 1.19 2003/04/18 18:30:57 mdb Exp $
 
 package com.threerings.miso.util;
 
@@ -426,8 +426,8 @@ public class MisoUtil
         ry -= width * metrics.tilehhei;
         footprint.addPoint(rx, ry);
         // end with top-center point
-        rx -= height * metrics.tilehwid;
-        ry += height * metrics.tilehhei;
+        rx += height * metrics.tilehwid;
+        ry -= height * metrics.tilehhei;
         footprint.addPoint(rx, ry);
 
         return footprint;
