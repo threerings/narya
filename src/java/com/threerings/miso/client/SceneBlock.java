@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.17 2003/05/29 01:58:06 ray Exp $
+// $Id: SceneBlock.java,v 1.18 2003/05/29 01:59:17 ray Exp $
 
 package com.threerings.miso.client;
 
@@ -474,9 +474,4 @@ public class SceneBlock
     // used to link up to our neighbors
     protected static final int[] DX = { -1, -1,  0,  1, 1, 1, 0, -1 };
     protected static final int[] DY = {  0, -1, -1, -1, 0, 1, 1,  1 };
-
-    // for mapping tile coordinates to a pseudo-random tile
-    protected final static long multiplier = 0x5DEECE66DL;
-    protected final static long addend = 0xBL;
-    protected final static long mask = (1L << 48) - 1;
 }
