@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.10 2002/04/25 16:23:30 mdb Exp $
+// $Id: AnimationManager.java,v 1.11 2002/08/15 20:53:24 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -136,8 +136,14 @@ public class AnimationManager
             if (((layer == ALL) ||
                  (layer == FRONT && order >= 0) ||
                  (layer == BACK && order < 0)) &&
-                clip.intersects(anim.getBounds())) {
-                anim.paint(gfx);
+                try {
+                    clip.intersects(anim.getBounds())) {
+                    anim.paint(gfx);
+                } catch (Exception e) {
+                    Log.warning("Failed to render animation " +
+                                "[anim=" + anim + ", e=" + e + "].");
+                    Log.logStackTrace(e);
+                }
             }
         }
     }
