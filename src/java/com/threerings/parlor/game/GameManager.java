@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.41 2002/09/18 04:01:29 shaper Exp $
+// $Id: GameManager.java,v 1.42 2002/09/20 02:30:11 ray Exp $
 
 package com.threerings.parlor.game;
 
@@ -409,6 +409,9 @@ public class GameManager extends PlaceManager
      */
     protected void gameWillStart ()
     {
+        // increment the round identifier
+        _gameobj.setRoundId(_gameobj.roundId + 1);
+
         // let our delegates do their business
         applyToDelegates(new DelegateOp() {
             public void apply (PlaceManagerDelegate delegate) {
@@ -530,9 +533,6 @@ public class GameManager extends PlaceManager
     {
         // let the derived class do its pre-reset stuff
         gameWillReset();
-
-        // increment the round identifier
-        _gameobj.setRoundId(_gameobj.roundId + 1);
 
         // do the standard game start processing
         gameWillStart();
