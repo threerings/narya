@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.15 2001/07/25 17:38:15 shaper Exp $
+// $Id: IsoSceneView.java,v 1.16 2001/07/27 17:54:08 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -17,6 +17,12 @@ import java.awt.image.*;
  */
 public class IsoSceneView implements EditableSceneView
 {
+    /**
+     * Construct an IsoSceneView object and initialize it with the
+     * given tile manager.
+     *
+     * @param tmgr the tile manager.
+     */
     public IsoSceneView (TileManager tmgr)
     {
 	_tmgr = tmgr;
@@ -25,9 +31,6 @@ public class IsoSceneView implements EditableSceneView
 
 	_htile = new Point();
 	_htile.x = _htile.y = -1;
-
-	_hcolor = Color.green;
-	_hstroke = new BasicStroke(3);
 
 	_font = new Font("Arial", Font.PLAIN, 7);
 
@@ -38,9 +41,18 @@ public class IsoSceneView implements EditableSceneView
 	    _lineY[ii] = new Point();
 	}
 
+        // pre-calculate the unchanging X-axis line
+        calculateXAxis();
+
 	_showCoords = false;
     }
 
+    /**
+     * Paint the scene view and any highlighted tiles to the given
+     * graphics context.
+     *
+     * @param g the graphics context.
+     */
     public void paint (Graphics g)
     {
 	Graphics2D gfx = (Graphics2D)g;
@@ -53,10 +65,21 @@ public class IsoSceneView implements EditableSceneView
 	// draw the full scene into the offscreen image buffer
 	renderScene(gfx);
 
+        // draw an outline around the highlighted tile
+        paintHighlightedTile(gfx, _htile.x, _htile.y);
+
+        // draw lines illustrating tracking of the mouse position
+	paintMouseLines(gfx);
+
 	// restore the original clipping region
 	gfx.setClip(oldclip);
     }
 
+    /**
+     * Render the scene to the given graphics context.
+     *
+     * @param gfx the graphics context.
+     */
     protected void renderScene (Graphics2D gfx)
     {
 	int mx = 1;
@@ -93,11 +116,6 @@ public class IsoSceneView implements EditableSceneView
 		// draw tile coordinates in each tile
   		if (_showCoords) paintCoords(gfx, tx, ty, screenX, screenY);
 
-		// draw an outline around the highlighted tile
-		if (tx == _htile.x && ty == _htile.y) {
-		    paintHighlightedTile(gfx, screenX, screenY);
-		}
-
 		// each tile is one tile-width to the right of the previous
 		screenX += Tile.WIDTH;
 
@@ -113,10 +131,14 @@ public class IsoSceneView implements EditableSceneView
 	    // advance starting y-axis coordinate unless we've hit bottom
 	    if ((++my) > Scene.TILE_HEIGHT - 1) my = Scene.TILE_HEIGHT - 1;
 	}
-
-//	paintMouseLines(gfx);
     }
 
+    /**
+     * Paint lines showing the most recently calculated x- and y-axis
+     * mouse position tracking lines, and the mouse position itself.
+     *
+     * @param gfx the graphics context.
+     */
     protected void paintMouseLines (Graphics2D gfx)
     {
 	// draw the baseline x-axis line
@@ -135,8 +157,14 @@ public class IsoSceneView implements EditableSceneView
     }
 
     /**
-     * Paint the tile coordinates in tile (x, y) whose top-left corner
-     * is at screen coordinates (sx, sy).
+     * Paint the tile coordinate numbers in tile (x, y) whose top-left
+     * corner is at screen pixel coordinates (sx, sy).
+     *
+     * @param gfx the graphics context.
+     * @param x the tile x-position coordinate.
+     * @param y the tile y-position coordinate.
+     * @param sx the screen x-position pixel coordinate.
+     * @param sy the screen y-position pixel coordinate.
      */
     protected void paintCoords (Graphics2D gfx, int x, int y, int sx, int sy)
     {
@@ -147,88 +175,110 @@ public class IsoSceneView implements EditableSceneView
     }
 
     /**
-     * Paint a highlight around the tile at screen coordinates (sx, sy).
+     * Paint a highlight around the tile at screen pixel coordinates
+     * (sx, sy).
+     *
+     * @param gfx the graphics context.
+     * @param x the tile x-position coordinate.
+     * @param y the tile y-position coordinate.
      */
-    protected void paintHighlightedTile (Graphics2D gfx, int sx, int sy)
+    protected void paintHighlightedTile (Graphics2D gfx, int x, int y)
     {
-	int x = sx;
-	int y = sy;
+        Point spos = new Point();
+        tileToScreen(x, y, spos);
 
+        // set the desired stroke and color
 	Stroke ostroke = gfx.getStroke();
-	gfx.setStroke(_hstroke);
+	gfx.setStroke(HLT_STROKE);
+	gfx.setColor(HLT_COLOR);
 
-	gfx.setColor(_hcolor);
+        // draw the tile outline
+	gfx.drawLine(spos.x, spos.y + Tile.HALF_HEIGHT,
+		     spos.x + Tile.HALF_WIDTH, spos.y);
+	gfx.drawLine(spos.x + Tile.HALF_WIDTH, spos.y,
+		     spos.x + Tile.WIDTH, spos.y + Tile.HALF_HEIGHT);
+	gfx.drawLine(spos.x + Tile.WIDTH, spos.y + Tile.HALF_HEIGHT,
+		     spos.x + Tile.HALF_WIDTH, spos.y + Tile.HEIGHT);
+	gfx.drawLine(spos.x + Tile.HALF_WIDTH, spos.y + Tile.HEIGHT,
+		     spos.x, spos.y + Tile.HALF_HEIGHT);
 
-	gfx.drawLine(x, y + Tile.HALF_HEIGHT,
-		     x + Tile.HALF_WIDTH, y);
-	gfx.drawLine(x + Tile.HALF_WIDTH, y,
-		     x + Tile.WIDTH, y + Tile.HALF_HEIGHT);
-	gfx.drawLine(x + Tile.WIDTH, y + Tile.HALF_HEIGHT,
-		     x + Tile.HALF_WIDTH, y + Tile.HEIGHT);
-	gfx.drawLine(x + Tile.HALF_WIDTH, y + Tile.HEIGHT,
-		     x, y + Tile.HALF_HEIGHT);
-
+        // restore the original stroke
 	gfx.setStroke(ostroke);
     }
 
     /**
      * Highlight the tile at the specified pixel coordinates the next
      * time the scene is re-rendered.
+     *
+     * @param sx the screen x-position pixel coordinate.
+     * @param sy the screen y-position pixel coordinate.
      */
-    public void setHighlightedTile (int x, int y)
+    public void setHighlightedTile (int sx, int sy)
     {
-	Point tpos = screenToTile(x, y);
-	if (tpos != null) _htile = tpos;
-//  	Log.info("Highlighting tile [x="+_htile.x+", y="+_htile.y+"].");
+        screenToTile(sx, sy, _htile);
     }
 
     /**
-     * Returns a new Point object containing the tile coordinates
-     * corresponding to the specified screen-based mouse-position
+     * Pre-calculate the x-axis line (from tile origin to right end of
+     * x-axis) for later use in converting tile and screen
      * coordinates.
      */
-    protected Point screenToTile (int x, int y)
+    protected void calculateXAxis ()
     {
-	Point tpos = new Point();
-
-        float mX, mY;
-	int bX, bY;
-
-	// calculate the x-axis line (from tile origin to right end of x-axis)
-	mX = 0.5f;
+        // determine the starting point
 	_lineX[0].x = DEF_CENTER_X;
-	bX = (int)-(mX * _lineX[0].x);
+	_bX = (int)-(SLOPE_X * _lineX[0].x);
 	_lineX[0].y = DEF_CENTER_Y;
-	_lineX[1].x = _lineX[0].x + (Tile.HALF_WIDTH * Scene.TILE_WIDTH);
-	_lineX[1].y = _lineX[0].y + (int)((mX * _lineX[1].x) + bX);
 
+        // determine the ending point
+	_lineX[1].x = _lineX[0].x + (Tile.HALF_WIDTH * Scene.TILE_WIDTH);
+	_lineX[1].y = _lineX[0].y + (int)((SLOPE_X * _lineX[1].x) + _bX);
+    }
+
+    /**
+     * Convert the given screen-based pixel coordinates to their
+     * corresponding tile-based coordinates.  Converted coordinates
+     * are placed in the given point object.
+     *
+     * @param sx the screen x-position pixel coordinate.
+     * @param sy the screen y-position pixel coordinate.
+     * @param tpos the point object to place coordinates in.
+     */
+    protected void screenToTile (int sx, int sy, Point tpos)
+    {
 	// calculate line parallel to the y-axis (from mouse pos to x-axis)
-	_lineY[0].x = x;
-	_lineY[0].y = y;
-	mY = -0.5f;
-	bY = (int)(_lineY[0].y - (mY * _lineY[0].x));
+	_lineY[0].x = sx;
+	_lineY[0].y = sy;
+	int bY = (int)(sy - (SLOPE_Y * sx));
 
 	// determine intersection of x- and y-axis lines
-	_lineY[1].x = (int)((bY - (bX + DEF_CENTER_Y)) / (mX - mY));
-	_lineY[1].y = (int)((mY * _lineY[1].x) + bY);
+	_lineY[1].x = (int)((bY - (_bX + DEF_CENTER_Y)) / (SLOPE_X - SLOPE_Y));
+	_lineY[1].y = (int)((SLOPE_Y * _lineY[1].x) + bY);
 
 	// determine distance of mouse pos along the x axis
-	int xdist = (int)
-	    MathUtil.distance(_lineX[0].x, _lineX[0].y,
-			      _lineY[1].x, _lineY[1].y);
+	int xdist = (int) MathUtil.distance(
+            _lineX[0].x, _lineX[0].y, _lineY[1].x, _lineY[1].y);
 	tpos.x = (int)(xdist / TILE_EDGE_LENGTH);
 
 	// determine distance of mouse pos along the y-axis
-	int ydist = (int)
-	    MathUtil.distance(_lineY[0].x, _lineY[0].y,
-			      _lineY[1].x, _lineY[1].y);
+	int ydist = (int) MathUtil.distance(
+            _lineY[0].x, _lineY[0].y, _lineY[1].x, _lineY[1].y);
 	tpos.y = (int)(ydist / TILE_EDGE_LENGTH);
+    }
 
-//  	Log.info("[mX="+mX+", bX="+bX+", mY="+mY+", bY="+bY+"]");
-//  	Log.info("x-axis=" + MathUtil.lineToString(_lineX[0], _lineX[1]));
-//  	Log.info("y-axis=" + MathUtil.lineToString(_lineY[0], _lineY[1]));
-
-	return tpos;
+    /**
+     * Convert the given tile-based coordinates to their corresponding
+     * screen-based pixel coordinates.  Converted coordinates are
+     * placed in the given point object.
+     *
+     * @param x the tile x-position coordinate.
+     * @param y the tile y-position coordinate.
+     * @param spos the point object to place coordinates in.
+     */
+    protected void tileToScreen (int x, int y, Point spos)
+    {
+        spos.x = _lineX[0].x + ((x - y - 1) * Tile.HALF_WIDTH);
+        spos.y = _lineX[0].y + ((x + y) * Tile.HALF_HEIGHT);
     }
 
     public void setScene (Scene scene)
@@ -243,7 +293,8 @@ public class IsoSceneView implements EditableSceneView
 
     public void setTile (int x, int y, int lnum, Tile tile)
     {
-	Point tpos = screenToTile(x, y);
+	Point tpos = new Point();
+        screenToTile(x, y, tpos);
 	_scene.tiles[tpos.x][tpos.y][lnum] = tile;
     }
 
@@ -263,23 +314,44 @@ public class IsoSceneView implements EditableSceneView
     /** The starting y-position to render the view. */
     protected static final int DEF_CENTER_Y = -(9 * Tile.HEIGHT);
 
-    /** The length of a tile edge as rendered from an isometric perspective. */
-    public static final float TILE_EDGE_LENGTH = (float)
+    /** The length of a tile edge in pixels from an isometric perspective. */
+    protected static final float TILE_EDGE_LENGTH = (float)
         Math.sqrt((Tile.HALF_WIDTH * Tile.HALF_WIDTH) +
-		  (Tile.HALF_HEIGHT * Tile.HALF_HEIGHT));
+                  (Tile.HALF_HEIGHT * Tile.HALF_HEIGHT));
 
+    /** The color to draw the highlighted tile. */
+    protected static final Color HLT_COLOR = Color.green;
+
+    /** The stroke object used to draw the highlighted tile. */
+    protected static final Stroke HLT_STROKE = new BasicStroke(3);
+
+    /** The slope of the x-axis line. */
+    protected float SLOPE_X = 0.5f;
+
+    /** The slope of the y-axis line. */
+    protected float SLOPE_Y = -0.5f;
+
+    /** The y-intercept of the x-axis line. */
+    protected int _bX;
+
+    /** The last calculated x- and y-axis mouse position tracking lines. */
     protected Point _lineX[], _lineY[];
 
+    /** The bounds rectangle for the view. */
     protected Rectangle _bounds;
 
+    /** The currently highlighted tile. */
     protected Point _htile;
-    protected Color _hcolor;
-    protected Stroke _hstroke;
 
+    /** The font to draw tile coordinates. */
     protected Font _font;
 
+    /** Whether tile coordinates should be drawn. */
     protected boolean _showCoords;
 
+    /** The scene object to be displayed. */
     protected Scene _scene;
+
+    /** The tile manager. */
     protected TileManager _tmgr;
 }
