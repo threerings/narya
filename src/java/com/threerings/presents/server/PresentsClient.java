@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.5 2001/07/19 07:09:16 mdb Exp $
+// $Id: PresentsClient.java,v 1.6 2001/07/19 07:17:46 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -44,7 +44,7 @@ public class Client implements Subscriber, MessageHandler
         {
             public void objectAvailable (DObject object)
             {
-                setClientObject((ClientObject)object);
+                _clobj = (ClientObject)object;
                 sendBootstrap();
             }
 
@@ -60,7 +60,7 @@ public class Client implements Subscriber, MessageHandler
                 return false;
             }
         };
-        CherServer.omgr.createObject(ClientObject.class, this, false);
+        CherServer.omgr.createObject(ClientObject.class, sub, false);
     }
 
     /**
@@ -98,12 +98,6 @@ public class Client implements Subscriber, MessageHandler
         sendBootstrap();
 
         Log.info("Session resumed [client=" + this + "].");
-    }
-
-    protected void setClientObject (ClientObject clobj)
-    {
-        // keep track of this for later
-        _clobj = clobj;
     }
 
     /**
