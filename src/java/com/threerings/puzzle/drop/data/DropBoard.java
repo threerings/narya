@@ -1,5 +1,5 @@
 //
-// $Id: DropBoard.java,v 1.10 2004/10/28 17:59:11 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -306,15 +306,15 @@ public class DropBoard extends Board
             // try each of three coercions: nothing, one left, one right
             for (int c = 0; c < COERCE_DX.length; c++) {
                 int cx = COERCE_DX[c];
-
                 // check if our hypothetical new coordinates are empty
                 if (isBlockEmpty(ox + cx, oy,
                                  ORIENT_WIDTHS[oidx], ORIENT_HEIGHTS[oidx])) {
-//                     Log.info("Block is empty [ox=" + ox + ", cx=" + cx +
-//                              ", oy=" + oy + ", oidx=" + oidx +
-//                              ", orient=" + DirectionUtil.toShortString(orient) +
-//                              ", owid=" + ORIENT_WIDTHS[oidx] +
-//                              ", ohei=" + ORIENT_HEIGHTS[oidx] + "].");
+//                     Log.info(
+//                         "Block is empty [ox=" + ox + ", cx=" + cx +
+//                         ", oy=" + oy + ", oidx=" + oidx +
+//                         ", orient=" + DirectionUtil.toShortString(orient) +
+//                         ", owid=" + ORIENT_WIDTHS[oidx] +
+//                         ", ohei=" + ORIENT_HEIGHTS[oidx] + "].");
                     return new int[] { orient, px + cx, py, 0 };
                 }
             }
@@ -326,12 +326,13 @@ public class DropBoard extends Board
                 // check if our hypothetical new coordinates are empty
                 if (isBlockEmpty(ox, oy - 1,
                                  ORIENT_WIDTHS[oidx], ORIENT_HEIGHTS[oidx])) {
-                     Log.info("Popped-up block is empty [ox=" + ox +
-                              ", oy=" + (oy - 1) + ", oidx=" + oidx +
-                              ", orient=" + DirectionUtil.toShortString(orient) +
-                              ", owid=" + ORIENT_WIDTHS[oidx] +
-                              ", ohei=" + ORIENT_HEIGHTS[oidx] +
-                              ", bhei=" + _bhei + "].");
+//                     Log.info(
+//                         "Popped-up block is empty [ox=" + ox +
+//                         ", oy=" + (oy - 1) + ", oidx=" + oidx +
+//                         ", orient=" + DirectionUtil.toShortString(orient) +
+//                         ", owid=" + ORIENT_WIDTHS[oidx] +
+//                         ", ohei=" + ORIENT_HEIGHTS[oidx] +
+//                         ", bhei=" + _bhei + "].");
                     return new int[] { orient, px, py - 1, 1 };
                 }
             }
