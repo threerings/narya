@@ -1,5 +1,5 @@
 //
-// $Id: SpriteIcon.java,v 1.4 2002/11/05 03:40:06 mdb Exp $
+// $Id: SpriteIcon.java,v 1.5 2003/01/18 03:13:32 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -43,6 +43,8 @@ public class SpriteIcon implements Icon
     public SpriteIcon (Sprite sprite, int padding)
     {
         _sprite = sprite;
+        // the sprite should be ticked once so that we can safely paint it
+        _sprite.tick(System.currentTimeMillis());
         _padding = padding;
     }
 
