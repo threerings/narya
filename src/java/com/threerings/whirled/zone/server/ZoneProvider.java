@@ -1,5 +1,5 @@
 //
-// $Id: ZoneProvider.java,v 1.10 2002/08/14 19:07:58 mdb Exp $
+// $Id: ZoneProvider.java,v 1.11 2002/09/20 00:54:06 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -13,8 +13,9 @@ import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.LocationProvider;
 
 import com.threerings.whirled.data.SceneModel;
-import com.threerings.whirled.server.SceneRegistry;
+import com.threerings.whirled.data.ScenedBodyObject;
 import com.threerings.whirled.server.SceneManager;
+import com.threerings.whirled.server.SceneRegistry;
 
 import com.threerings.whirled.zone.Log;
 import com.threerings.whirled.zone.client.ZoneService.ZoneMoveListener;
@@ -150,8 +151,14 @@ public class ZoneProvider
             PlaceConfig config = _locprov.moveTo(source, ploid);
 
             // now that we've finally moved, we can update the user object
-            // with the new zone id
-            ((ZonedBodyObject)source).setZoneId(summary.zoneId);
+            // with the new scene and zone ids
+            try {
+                source.startTransaction();
+                ((ScenedBodyObject)source).setSceneId(scmgr.getScene().getId());
+                ((ZonedBodyObject)source).setZoneId(summary.zoneId);
+            } finally {
+                source.commitTransaction();
+            }
 
             // check to see if they need a newer version of the scene data
             SceneModel model = scmgr.getSceneModel();

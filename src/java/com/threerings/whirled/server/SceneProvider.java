@@ -1,5 +1,5 @@
 //
-// $Id: SceneProvider.java,v 1.11 2002/08/14 19:07:57 mdb Exp $
+// $Id: SceneProvider.java,v 1.12 2002/09/20 00:54:06 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -16,6 +16,7 @@ import com.threerings.whirled.Log;
 import com.threerings.whirled.client.SceneService.SceneMoveListener;
 import com.threerings.whirled.data.SceneCodes;
 import com.threerings.whirled.data.SceneModel;
+import com.threerings.whirled.data.ScenedBodyObject;
 
 /**
  * The scene provider handles the server side of the scene related
@@ -82,6 +83,10 @@ public class SceneProvider
         try {
             // try doing the actual move
             PlaceConfig config = _locprov.moveTo(source, ploid);
+
+            // now that we've finally moved, we can update the user object
+            // with the new scene id
+            ((ScenedBodyObject)source).setSceneId(scmgr.getScene().getId());
 
             // check to see if they need a newer version of the scene data
             SceneModel model = scmgr.getSceneModel();
