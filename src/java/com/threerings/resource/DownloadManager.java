@@ -1,5 +1,5 @@
 //
-// $Id: DownloadManager.java,v 1.2 2002/07/19 22:19:34 shaper Exp $
+// $Id: DownloadManager.java,v 1.3 2002/07/22 20:45:22 shaper Exp $
 
 package com.threerings.resource;
 
@@ -218,7 +218,8 @@ public class DownloadManager
                 desc.destLastModified = desc.destFile.lastModified();
                 if ((!desc.destFile.exists()) ||
                     (desc.destFileSize != desc.fileSize) ||
-                    (desc.destLastModified != desc.lastModified)) {
+                    (desc.destLastModified < (desc.lastModified - DELTA)) ||
+                    (desc.destLastModified > (desc.lastModified + DELTA))) {
                     // increment the total file size to be fetched
                     totalSize += desc.fileSize;
                     // add the file to the list of files to be fetched
@@ -294,9 +295,9 @@ public class DownloadManager
             int pctdone = (int)((currentSize / (float)totalSize) * 100f);
             complete = (pctdone >= 100);
             // if we've finished downloading everything, hold off on
-            // notifying the observer until the streams are closed to
-            // ensure that any action the observer may take with respect
-            // to the downloaded files can be safely undertaken
+            // notifying the observer until we're done working with the
+            // file to ensure that any action the observer may take with
+            // respect to the downloaded files can be safely undertaken
             if (!complete) {
                 obs.downloadProgress(pctdone);
             }
@@ -306,15 +307,19 @@ public class DownloadManager
         in.close();
         out.close();
 
-        if (complete) {
-            // let the observer know we're finished now that it's safe
-            obs.downloadProgress(100);
-        }
-
         // if we have a last modified time, we want to adjust our cache
         // file accordingly
         if (desc.lastModified != 0) {
-            desc.destFile.setLastModified(desc.lastModified);
+            if (!desc.destFile.setLastModified(desc.lastModified)) {
+                Log.warning("Failed to set last-modified date " +
+                            "[file=" + desc.destFile + "].");
+            }
+        }
+
+        if (complete) {
+            // let the observer know we're finished now that we've
+            // finished all of our work with the file
+            obs.downloadProgress(100);
         }
 
         return complete;
@@ -346,4 +351,9 @@ public class DownloadManager
 
     /** The data buffer size for reading file data. */
     protected static final int BUFFER_SIZE = 2048;
+
+    /** The last-modified difference in milliseconds allowed between the
+     * source and destination file without considering the destination
+     * file to be out of date. */
+    protected static final long DELTA = 5000L;
 }
