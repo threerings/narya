@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.6 2002/05/07 00:53:56 mdb Exp $
+// $Id: MediaPanel.java,v 1.7 2002/05/17 21:11:34 mdb Exp $
 
 package com.threerings.media;
 
@@ -285,7 +285,9 @@ public class MediaPanel extends JComponent
                 _dy = Math.round((float)(_scrolly * dt) / rt);
 
 //                 Log.info("Scrolling delta [dt=" + dt + ", rt=" + rt +
-//                          ", dx=" + _dx + ", dy=" + _dy + "].");
+//                          ", dx=" + _dx + ", dy=" + _dy +
+//                          ", leftx=" + (_scrollx-_dx) +
+//                          ", lefty=" + (_scrolly-_dy) + "].");
             }
 
             // and add invalid rectangles for the exposed areas
