@@ -1,5 +1,5 @@
 //
-// $Id: MisoUtil.java,v 1.6 2001/08/15 00:00:51 mdb Exp $
+// $Id: MisoUtil.java,v 1.7 2001/08/15 02:13:51 mdb Exp $
 
 package com.threerings.miso.util;
 
@@ -82,17 +82,7 @@ public class MisoUtil
      */
     protected static ResourceManager createResourceManager ()
     {
-	String root = System.getProperty("root", "");
-	String localroot = "file:" + root + "/rsrc";
-
-	try {
-	    return new ResourceManager(new URL(localroot));
-
-	} catch (MalformedURLException mue) {
-	    Log.warning("Malformed resource manager URL [url=" + localroot +
-			", mue=" + mue + "].");
-	    return null;
-	}
+        return new ResourceManager("rsrc");
     }	
 
     /**
