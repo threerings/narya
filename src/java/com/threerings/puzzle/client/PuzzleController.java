@@ -939,13 +939,14 @@ public abstract class PuzzleController extends GameController
         public void keyReleased (KeyEvent e)
         {
             int keycode = e.getKeyCode();
-            if (keycode == KeyEvent.VK_ESCAPE) {
-                // toggle pausyness, my pussycat
+            // toggle chatting (pause)
+            if (keycode == KeyEvent.VK_ESCAPE || keycode == KeyEvent.VK_PAUSE) {
                 setChatting(!isChatting());
-            } else if (keycode == KeyEvent.VK_P && !isChatting() &&
-                !_panel._xlate.hasCommand(KeyEvent.VK_P)) {
 
-                // if they hit the P key while puzzling, pause
+            // pressing P also to pause (but not unpause),
+            // and only if it has not been reassigned
+            } else if (keycode == KeyEvent.VK_P && !isChatting() &&
+                    !_panel._xlate.hasCommand(KeyEvent.VK_P)) {
                 setChatting(true);
             }
         }
