@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.41 2003/01/18 03:13:08 mdb Exp $
+// $Id: CharacterSprite.java,v 1.42 2003/01/20 20:28:51 mdb Exp $
 
 package com.threerings.cast;
 
@@ -53,8 +53,8 @@ public class CharacterSprite extends ImageSprite
         // keep the new descriptor
         _descrip = descrip;
 
-        // reset our action which will reload our frames
-        setActionSequence(_action);
+        // update our action frames
+        updateActionFrames();
     }
 
     /**
@@ -105,22 +105,28 @@ public class CharacterSprite extends ImageSprite
         if (action.equals(_action)) {
             return;
         }
-
-        // keep track of our current action in case someone swaps out our
-        // character descriptor
         _action = action;
+        updateActionFrames();
+    }
 
+    /**
+     * Rebuilds our action frames given our current character descriptor
+     * and action sequence. This is called when either of those two things
+     * changes.
+     */
+    protected void updateActionFrames ()
+    {
         // get a reference to the action sequence so that we can obtain
         // our animation frames and configure our frames per second
-        ActionSequence actseq = _charmgr.getActionSequence(action);
+        ActionSequence actseq = _charmgr.getActionSequence(_action);
         if (actseq == null) {
-            String errmsg = "No such action '" + action + "'.";
+            String errmsg = "No such action '" + _action + "'.";
             throw new IllegalArgumentException(errmsg);
         }
 
         try {
             // obtain our animation frames for this action sequence
-            _aframes = _charmgr.getActionFrames(_descrip, action);
+            _aframes = _charmgr.getActionFrames(_descrip, _action);
 
             // clear out our frames so that we recomposite on next tick
             _frames = null;
@@ -279,8 +285,8 @@ public class CharacterSprite extends ImageSprite
         super.pathBeginning();
 
         // enable walking animation
-        setActionSequence(getFollowingPathAction());
         setAnimationMode(TIME_BASED);
+        setActionSequence(getFollowingPathAction());
     }
 
     // documentation inherited
