@@ -1,5 +1,5 @@
 //
-// $Id: EntryAddedEvent.java,v 1.5 2001/10/12 00:03:03 mdb Exp $
+// $Id: EntryAddedEvent.java,v 1.6 2002/02/04 00:50:11 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -32,12 +32,17 @@ public class ElementAddedEvent extends TypedEvent
      * @param name the name of the attribute to which to add the specified
      * element.
      * @param elem the element to add to the set attribute.
+     * @param qualified whether or not the element need be qualified with
+     * its class when serializing (true for heterogenous sets, false for
+     * homogenous sets).
      */
-    public ElementAddedEvent (int targetOid, String name, DSet.Element elem)
+    public ElementAddedEvent (int targetOid, String name, DSet.Element elem,
+                              boolean qualified)
     {
         super(targetOid);
         _name = name;
         _elem = elem;
+        _qualified = qualified;
     }
 
     /**
@@ -101,7 +106,7 @@ public class ElementAddedEvent extends TypedEvent
     {
         super.writeTo(out);
         out.writeUTF(_name);
-        ElementUtil.flatten(out, _elem);
+        ElementUtil.flatten(out, _elem, _qualified);
     }
 
     // documentation inherited
@@ -139,4 +144,5 @@ public class ElementAddedEvent extends TypedEvent
     protected String _name;
     protected byte[] _bytes;
     protected DSet.Element _elem;
+    protected boolean _qualified;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.33 2002/02/03 04:38:05 mdb Exp $
+// $Id: DObject.java,v 1.34 2002/02/04 00:50:11 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -501,10 +501,18 @@ public class DObject
      */
     protected void requestElementAdd (String name, DSet.Element elem)
     {
-        // generate an element added event
-        DEvent event = new ElementAddedEvent(_oid, name, elem);
-        // and dispatch it to our dobjmgr
-        _mgr.postEvent(event);
+        try {
+            DSet set = (DSet)getAttribute(name);
+            // generate an element added event
+            DEvent event = new ElementAddedEvent(
+                _oid, name, elem, !set.homogenous());
+            // and dispatch it to our dobjmgr
+            _mgr.postEvent(event);
+
+        } catch (ObjectAccessException oae) {
+            Log.warning("Unable to request elementAdd [name=" + name +
+                        ", elem=" + elem + ", error=" + oae + "].");
+        }
     }
 
     /**
@@ -523,10 +531,18 @@ public class DObject
      */
     protected void requestElementUpdate (String name, DSet.Element elem)
     {
-        // generate an element updated event
-        DEvent event = new ElementUpdatedEvent(_oid, name, elem);
-        // and dispatch it to our dobjmgr
-        _mgr.postEvent(event);
+        try {
+            DSet set = (DSet)getAttribute(name);
+            // generate an element updated event
+            DEvent event = new ElementUpdatedEvent(
+                _oid, name, elem, !set.homogenous());
+            // and dispatch it to our dobjmgr
+            _mgr.postEvent(event);
+
+        } catch (ObjectAccessException oae) {
+            Log.warning("Unable to request elementAdd [name=" + name +
+                        ", elem=" + elem + ", error=" + oae + "].");
+        }
     }
 
     /** Our object id. */

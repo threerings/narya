@@ -1,5 +1,5 @@
 //
-// $Id: EntryUpdatedEvent.java,v 1.3 2001/10/12 00:03:03 mdb Exp $
+// $Id: EntryUpdatedEvent.java,v 1.4 2002/02/04 00:50:11 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -32,12 +32,17 @@ public class ElementUpdatedEvent extends TypedEvent
      * @param name the name of the attribute in which to update the
      * specified element.
      * @param elem the element to update.
+     * @param qualified whether or not the element need be qualified with
+     * its class when serializing (true for heterogenous sets, false for
+     * homogenous sets).
      */
-    public ElementUpdatedEvent (int targetOid, String name, DSet.Element elem)
+    public ElementUpdatedEvent (int targetOid, String name, DSet.Element elem,
+                              boolean qualified)
     {
         super(targetOid);
         _name = name;
         _elem = elem;
+        _qualified = qualified;
     }
 
     /**
@@ -107,7 +112,7 @@ public class ElementUpdatedEvent extends TypedEvent
     {
         super.writeTo(out);
         out.writeUTF(_name);
-        ElementUtil.flatten(out, _elem);
+        ElementUtil.flatten(out, _elem, _qualified);
     }
 
     // documentation inherited
@@ -145,4 +150,5 @@ public class ElementUpdatedEvent extends TypedEvent
     protected String _name;
     protected byte[] _bytes;
     protected DSet.Element _elem;
+    protected boolean _qualified;
 }

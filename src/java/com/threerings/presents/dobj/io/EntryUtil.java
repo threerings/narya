@@ -1,10 +1,11 @@
 //
-// $Id: EntryUtil.java,v 1.3 2001/10/11 04:07:52 mdb Exp $
+// $Id: EntryUtil.java,v 1.4 2002/02/04 00:50:12 mdb Exp $
 
 package com.threerings.presents.dobj.io;
 
 import java.io.*;
 
+import com.threerings.presents.Log;
 import com.threerings.presents.dobj.DSet;
 
 /**
@@ -25,9 +26,13 @@ public class ElementUtil
      * context; uncontested syncs are pretty fast.
      */
     public static synchronized void flatten (
-        DataOutputStream out, DSet.Element elem)
+        DataOutputStream out, DSet.Element elem, boolean qualified)
         throws IOException
     {
+        // write the element classname out if requested
+        if (qualified) {
+            _dout.writeUTF(elem.getClass().getName());
+        }
         elem.writeTo(_dout);
         _dout.flush();
         out.writeInt(_bout.size());
@@ -44,9 +49,7 @@ public class ElementUtil
         throws IOException
     {
         _bin.setBytes(data);
-        DSet.Element elem = set.newElement();
-        elem.readFrom(_din);
-        return elem;
+        return set.readElement(_din);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.11 2001/10/16 16:43:20 mdb Exp $
+// $Id: DSet.java,v 1.12 2002/02/04 00:50:11 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -7,6 +7,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
+
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.io.Streamable;
@@ -17,14 +19,12 @@ import com.threerings.presents.io.Streamable;
  * be added to and removed from the set, requests for which will generate
  * events much like other distributed object fields.
  *
- * <p> The sets must contain a homogenous set of objects (all of exactly
- * the same type) and the master copy of the set (the one in the master
- * copy of the distributed object, ie. the server copy), must be
- * configured with the class object of the type of object that this set
- * will contain. This allows the set to distributed updates without
- * communicating the class of the object contained therein. That need only
- * be communicated once when the entire containing distributed object is
- * sent over the wire.
+ * <p> A set can be either homogenous, whereby the type of object to be
+ * contained in the set is configured before the set is used and does not
+ * change; or heterogenous, whereby a set can contain any type of element
+ * as long as it implements {@link Element}. Homogenous sets take
+ * advantage of their homogeneity by not transfering the classname of each
+ * element as it is sent over the wire.
  *
  * <p> Classes that wish to act as set elements must implement the {@link
  * com.threerings.presents.dobj.DSet.Element} interface which extends
@@ -65,12 +65,21 @@ public class DSet
 
     /**
      * Constructs a distributed set without specifying the element
-     * type. This is valid if the distributed set will soon be
-     * unserialized or if one plans to set the element type by hand before
-     * using the set.
+     * type. The set will assume that it is heterogenous, unless a
+     * homogenous class type is otherwise specified via {@link
+     * #setElementType}.
      */
     public DSet ()
     {
+    }
+
+    /**
+     * Returns true if this set contains only elements of exactly the same
+     * type, false if not.
+     */
+    public boolean homogenous ()
+    {
+        return _elementType != null;
     }
 
     /**
@@ -87,22 +96,6 @@ public class DSet
     public void setElementType (Class elementType)
     {
         _elementType = elementType;
-    }
-
-    /**
-     * Instantiates a blank element of the type managed by this set. This
-     * is used during the process of unserializing elements from the
-     * network.
-     */
-    public DSet.Element newElement ()
-    {
-        try {
-            return (Element)_elementType.newInstance();
-        } catch (Exception e) {
-            Log.warning("Unable to instantiate element! We're hosed! " +
-                        "[eclass=" + _elementType + "].");
-            return null;
-        }
     }
 
     /**
@@ -308,7 +301,11 @@ public class DSet
     public void writeTo (DataOutputStream out)
         throws IOException
     {
-        out.writeUTF(_elementType.getName());
+        if (_elementType == null) {
+            out.writeUTF("");
+        } else {
+            out.writeUTF(_elementType.getName());
+        }
         out.writeInt(_size);
         int elength = _elements.length;
         for (int i = 0; i < elength; i++) {
@@ -325,10 +322,14 @@ public class DSet
     public void readFrom (DataInputStream in)
         throws IOException
     {
-        // read our element class and forName() it
+        // read our element class and forName() it (if we read an element
+        // class, we're a homogenous set; otherwise we're heterogenous)
         String eclass = in.readUTF();
         try {
-            _elementType = Class.forName(eclass);
+            if (!StringUtil.blank(eclass)) {
+                _elementType = Class.forName(eclass);
+            }
+
         } catch (Exception e) {
             String err = "Unable to instantiate element class [err=" + e + "]";
             throw new IOException(err);
@@ -341,11 +342,38 @@ public class DSet
         expand(_size);
 
         for (int i = 0; i < _size; i++) {
-            Element elem = newElement();
-            elem.readFrom(in);
-            _elements[i] = elem;
+            _elements[i] = readElement(in);
         }
     }
+
+    /**
+     * Reads an element from the wire and unserializes it. Takes into
+     * account whether or not we're a homogenous set.
+     */
+    public Element readElement (DataInputStream in)
+        throws IOException
+    {
+        try {
+            Element elem = null;
+
+            // instantiate the appropriate element instance
+            if (_elementType != null) {
+                elem = (Element)_elementType.newInstance();
+            } else {
+                elem = (Element)Class.forName(in.readUTF()).newInstance();
+            }
+
+            // unserialize it and return it
+            elem.readFrom(in);
+            return elem;
+
+        } catch (Exception e) {
+            Log.warning("Unable to unserialize set element " +
+                        "[set=" + this + "].");
+            Log.logStackTrace(e);
+            return null;
+        }
+   }
 
     /**
      * Generates a shallow copy of this object.
