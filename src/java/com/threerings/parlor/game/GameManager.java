@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.61 2003/04/11 21:22:30 mdb Exp $
+// $Id: GameManager.java,v 1.62 2003/04/11 21:29:21 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -262,7 +262,7 @@ public class GameManager extends PlaceManager
      */
     public String getPlayerName (int index)
     {
-        return _gameobj.players[index];
+        return (_gameobj == null) ? "" : _gameobj.players[index];
     }
 
     /**
@@ -271,7 +271,7 @@ public class GameManager extends PlaceManager
      */
     public int getPlayerIndex (String username)
     {
-        return _gameobj.getPlayerIndex(username);
+        return (_gameobj == null) ? -1 : _gameobj.getPlayerIndex(username);
     }
 
     /**
