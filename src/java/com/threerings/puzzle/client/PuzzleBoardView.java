@@ -68,9 +68,9 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
      */
     public void init (PuzzleConfig config)
     {
-	// save off our bounds
+        // save off our bounds
         Dimension bounds = getPreferredSize();
-	_bounds = new Rectangle(0, 0, bounds.width, bounds.height);
+        _bounds = new Rectangle(0, 0, bounds.width, bounds.height);
     }
 
     /**
@@ -129,7 +129,7 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
      */
     public void addActionAnimation (Animation anim)
     {
-	super.addAnimation(anim);
+        super.addAnimation(anim);
 
         // remember the animation's existence
         _actionAnims.add(anim);
@@ -172,7 +172,7 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
      */
     public void addActionSprite (Sprite sprite)
     {
-	// add the piece to the sprite manager
+        // add the piece to the sprite manager
         addSprite(sprite);
 
         // note that this piece is interesting
@@ -192,9 +192,23 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
         }
 
         // we just always check to see if it was action-y
-	if (_actionSprites.remove(sprite)) {
+        if (_actionSprites.remove(sprite)) {
             maybeFireCleared();
         }
+    }
+
+    // documentation inherited
+    public void clearSprites ()
+    {
+        super.clearSprites();
+        _actionSprites.clear();
+    }
+
+    // documentation inherited
+    public void clearAnimations ()
+    {
+        super.clearAnimations();
+        _actionAnims.clear();
     }
 
     /**
@@ -359,14 +373,14 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
     protected void renderBackground (Graphics2D gfx, Rectangle dirty)
     {
         gfx.setColor(getBackground());
-  	gfx.fill(dirty);
+          gfx.fill(dirty);
     }
 
     // documentation inherited
     public void paintBetween (Graphics2D gfx, Rectangle dirty)
     {
         super.paintBetween(gfx, dirty);
-// 	PerformanceMonitor.tick(this, "paint");
+//         PerformanceMonitor.tick(this, "paint");
         renderBoard(gfx, dirty);
     }
 
