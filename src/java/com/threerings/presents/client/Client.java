@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.11 2001/07/25 00:51:05 mdb Exp $
+// $Id: Client.java,v 1.12 2001/08/21 00:58:10 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.threerings.cocktail.cher.Log;
+import com.threerings.cocktail.cher.data.ClientObject;
 import com.threerings.cocktail.cher.dobj.DObjectManager;
 import com.threerings.cocktail.cher.net.BootstrapData;
 import com.threerings.cocktail.cher.net.Credentials;
@@ -165,6 +166,15 @@ public class Client
     public int getClientOid ()
     {
         return _cloid;
+    }
+
+    /**
+     * Returns a reference to the client object associated with this
+     * session. It is only valid for the duration of the session.
+     */
+    public ClientObject getClientObject ()
+    {
+        return _invmgr.getClientObject();
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.7 2001/08/14 06:47:15 mdb Exp $
+// $Id: InvocationDirector.java,v 1.8 2001/08/21 00:58:10 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -248,6 +248,15 @@ public class InvocationManager
     public synchronized int nextInvocationId ()
     {
         return _invocationId++;
+    }
+
+    /**
+     * Access to the client object so that the client instance doesn't
+     * have to subscribe to it just to make it available.
+     */
+    protected ClientObject getClientObject ()
+    {
+        return _clobj;
     }
 
     protected static class Response
