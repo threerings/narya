@@ -1,5 +1,5 @@
 //
-// $Id: Subscriber.java,v 1.1 2001/06/01 05:01:52 mdb Exp $
+// $Id: Subscriber.java,v 1.2 2001/06/01 05:17:16 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -27,14 +27,14 @@ public interface Subscriber
     public void objectAvailable (DObject object);
 
     /**
-     * Called when a subscription request has failed. The nature of the
-     * failure will be communicated via the supplied
+     * Called when a subscription or fetch request has failed. The nature
+     * of the failure will be communicated via the supplied
      * <code>ObjectAccessException</code>.
      *
      * @see DObjectManager.subscribeToObject
      * @see DObjectManager.fetchObject
      */
-    public void subscriptionFailed (ObjectAccessException cause);
+    public void requestFailed (ObjectAccessException cause);
 
     /**
      * Called when an event has been dispatched on an object. The event
@@ -44,8 +44,14 @@ public interface Subscriber
      * fetching an attribute upon receiving an attribute changed event
      * will provide the new value for the attribute.
      *
+     * <p> A subscriber should return true from <code>handleEvent</code>
+     * unless they wish their subscription to be terminated.
+     *
      * @param event The event dispatched on the object.
      * @param target The object on which the event was dispatched.
+     *
+     * @return true if the subscriber wishes to remain subscribed to the
+     * target object, false if they do not.
      */
-    public void handleEvent (DEvent event, DObject target);
+    public boolean handleEvent (DEvent event, DObject target);
 }

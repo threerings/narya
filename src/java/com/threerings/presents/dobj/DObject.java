@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.5 2001/06/01 05:01:52 mdb Exp $
+// $Id: DObject.java,v 1.6 2001/06/01 05:17:16 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -79,9 +79,10 @@ public class DObject
      *
      * @see DObjectManager.createObject
      */
-    public DObject (int oid)
+    public DObject (int oid, DObjectManager manager)
     {
         _oid = oid;
+        _mgr = manager;
         _subscribers = new ArrayList();
     }
 
@@ -126,5 +127,6 @@ public class DObject
     }
 
     protected int _oid;
+    protected DObjectManager _mgr;
     protected ArrayList _subscribers;
 }
