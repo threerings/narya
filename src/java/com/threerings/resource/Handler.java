@@ -1,5 +1,5 @@
 //
-// $Id: Handler.java,v 1.2 2003/04/24 07:26:45 ray Exp $
+// $Id: Handler.java,v 1.3 2003/05/06 18:48:18 ray Exp $
 
 package com.threerings.resource;
 
@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.net.URLStreamHandlerFactory;
 
 /**
  * This class is not used directly, except by a registering ResourceManager
@@ -26,12 +27,38 @@ public class Handler extends URLStreamHandler
     {
         _rmgr = rmgr;
 
+        // There are two ways to do this.
+        // Method 1, which is the only one that seems to work under
+        // Java Web Start, is to register a factory. This is kind of
+        // scary because there can only be one factory.
+        URL.setURLStreamHandlerFactory(new URLStreamHandlerFactory() {
+            public URLStreamHandler createURLStreamHandler (String protocol)
+            {
+                if (protocol.equalsIgnoreCase("resource")) {
+                    return new Handler();
+                }
+                return null;
+            }
+        });
+
+
+        // Method 2 seems like a better idea but doesn't work under
+        // Java Web Start. We add on a property that registers this
+        // very class as the handler for the resource property.
+        // It would be instantiated with Class.forName().
+        // (And I did check, it's not dasho that is preventing this
+        // from working under JWS, it's something else.)
+        /*
+        // dug up from java.net.URL
+        String HANDLER_PROP = "java.protocol.handler.pkgs";
+
         String prop = System.getProperty(HANDLER_PROP, "");
         if (!"".equals(prop)) {
             prop += "|";
         }
         prop += "com.threerings";
         System.setProperty(HANDLER_PROP, prop);
+        */
     }
 
     // documentation inherited
@@ -73,7 +100,4 @@ public class Handler extends URLStreamHandler
 
     /** Our singleton resource manager. */
     protected static ResourceManager _rmgr;
-
-    /** Dug up from java.net.URL */
-    protected static final String HANDLER_PROP = "java.protocol.handler.pkgs";
 }
