@@ -1,5 +1,5 @@
 //
-// $Id: ImageSprite.java,v 1.10 2002/07/08 21:15:35 mdb Exp $
+// $Id: ImageSprite.java,v 1.11 2002/09/17 02:34:05 ray Exp $
 
 package com.threerings.media.sprite;
 
@@ -37,6 +37,11 @@ public class ImageSprite extends Sprite
 
     /** Animation mode indicating time based animation. */
     public static final int TIME_BASED = 2;
+
+    /** Animation mode indicating sequential progressive animation.
+     * Frame 0 is guaranteed to be shown first for the full duration, and
+     * so on. */
+    public static final int TIME_SEQUENTIAL = 3;
 
     /**
      * Constructs an image sprite without any associated frames and with
@@ -221,7 +226,7 @@ public class ImageSprite extends Sprite
         if (_frames == null) {
             return;
         }
-
+        
         int fcount = _frames.getFrameCount();
         boolean moved = false;
 
@@ -239,6 +244,13 @@ public class ImageSprite extends Sprite
 
         case TIME_BASED:
             nfidx = (int)((timestamp/_frameDelay) % fcount);
+            break;
+
+        case TIME_SEQUENTIAL:
+            if (_firstStamp == 0L) {
+                _firstStamp = timestamp;
+            }
+            nfidx = (int) (((timestamp - _firstStamp) / _frameDelay) % fcount);
             break;
 
         case MOVEMENT_CUED:
@@ -272,6 +284,9 @@ public class ImageSprite extends Sprite
 
     /** For how many milliseconds to display an animation frame. */
     protected long _frameDelay;
+
+    /** The first timestamp seen (in TIME_SEQUENTIAL mode). */
+    protected long _firstStamp = 0L;
 
 //     /** DEBUG: The alpha level used when rendering our bounds. */
 //     protected static final Composite ALPHA_BOUNDS =
