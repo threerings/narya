@@ -1,10 +1,11 @@
 //
-// $Id: MuteDirector.java,v 1.4 2002/10/28 00:22:38 ray Exp $
+// $Id: MuteDirector.java,v 1.5 2002/12/12 23:54:27 shaper Exp $
 
 package com.threerings.crowd.chat;
 
-import java.util.ArrayList;
 import java.util.HashSet;
+
+import com.samskivert.util.ObserverList;
 
 import com.threerings.crowd.util.CrowdContext;
 
@@ -56,9 +57,7 @@ public class MuteDirector extends BasicDirector
      */
     public void addMuteObserver (MuteObserver obs)
     {
-        if (!_observers.contains(obs)) {
-            _observers.add(obs);
-        }
+        _observers.add(obs);
     }
 
     /**
@@ -107,11 +106,14 @@ public class MuteDirector extends BasicDirector
     /**
      * Notify our observers of a change in the mutelist.
      */
-    protected void notifyObservers (String username, boolean muted)
+    protected void notifyObservers (final String username, final boolean muted)
     {
-        for (int ii=0, nn=_observers.size(); ii < nn; ii++) {
-            ((MuteObserver) _observers.get(ii)).muteChanged(username, muted);
-        }
+        _observers.apply(new ObserverList.ObserverOp() {
+            public boolean apply (Object observer) {
+                ((MuteObserver)observer).muteChanged(username, muted);
+                return true;
+            }
+        });
     }
 
     // documentation inherited
@@ -130,5 +132,6 @@ public class MuteDirector extends BasicDirector
     protected HashSet _mutelist = new HashSet();
 
     /** List of mutelist observers. */
-    protected ArrayList _observers = new ArrayList();
+    protected ObserverList _observers =
+        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
 }

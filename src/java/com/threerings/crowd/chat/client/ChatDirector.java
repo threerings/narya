@@ -1,16 +1,19 @@
 //
-// $Id: ChatDirector.java,v 1.40 2002/11/13 01:29:41 ray Exp $
+// $Id: ChatDirector.java,v 1.41 2002/12/12 23:54:27 shaper Exp $
 
 package com.threerings.crowd.chat;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.ObserverList;
 
-import com.threerings.presents.client.*;
-import com.threerings.presents.dobj.*;
+import com.threerings.presents.client.BasicDirector;
+import com.threerings.presents.client.Client;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.MessageEvent;
+import com.threerings.presents.dobj.MessageListener;
 
 import com.threerings.util.MessageBundle;
 import com.threerings.util.MessageManager;
@@ -30,8 +33,8 @@ public class ChatDirector extends BasicDirector
     implements ChatCodes, LocationObserver, MessageListener, ChatReceiver
 {
     /**
-     * An interface that can receive information about the {@link
-     * #MAX_CHATTERS} most recent users that we've been chatting with.
+     * An interface to receive information about the {@link #MAX_CHATTERS}
+     * most recent users that we've been chatting with.
      */
     public static interface ChatterObserver
     {
@@ -42,12 +45,13 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * A validator for adding usernames to the chatter list.
+     * An interface for those who would like to validate whether usernames
+     * may be added to the chatter list.
      */
     public static interface ChatterValidator
     {
         /**
-         * Returns true if the username can be added to the chatters list.
+         * Returns whether the username may be added to the chatters list.
          */
         public boolean isChatterValid (String username);
     }
@@ -71,9 +75,6 @@ public class ChatDirector extends BasicDirector
         _ctx.getClient().getInvocationDirector().registerReceiver(
             new ChatDecoder(this));
 
-        // watch the session, clear displays when the user logs off.
-        _ctx.getClient().addClientObserver(this);
-
         // register ourselves as a location observer
         _ctx.getLocationDirector().addLocationObserver(this);
     }
@@ -96,11 +97,6 @@ public class ChatDirector extends BasicDirector
      */
     public void addChatDisplay (ChatDisplay display)
     {
-        if (_displays.contains(display)) {
-            Log.warning("Tried to add ChatDisplay more than once!");
-            Log.logStackTrace(new Exception());
-            return;
-        }
         _displays.add(display);
     }
 
@@ -182,14 +178,18 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Notify ChatterObservers that the list of chatters has changed.
+     * Notifies all registered {@link ChatterObserver}s that the list of
+     * chatters has changed.
      */
     protected void notifyChatterObservers ()
     {
-        for (int ii=0, nn=_chatterObservers.size(); ii < nn; ii++) {
-            ChatterObserver co = (ChatterObserver) _chatterObservers.get(ii);
-            co.chattersUpdated(_chatters.listIterator());
-        }
+        _chatterObservers.apply(new ObserverList.ObserverOp() {
+            public boolean apply (Object observer) {
+                ((ChatterObserver)observer).chattersUpdated(
+                    _chatters.listIterator());
+                return true;
+            }
+        });
     }
 
     /**
@@ -197,9 +197,12 @@ public class ChatDirector extends BasicDirector
      */
     public void clearDisplays ()
     {
-        for (int ii=0, nn=_displays.size(); ii < nn; ii++) {
-            ((ChatDisplay) _displays.get(ii)).clear();
-        }
+        _displays.apply(new ObserverList.ObserverOp() {
+            public boolean apply (Object observer) {
+                ((ChatDisplay)observer).clear();
+                return true;
+            }
+        });
     }
 
     /**
@@ -301,10 +304,10 @@ public class ChatDirector extends BasicDirector
         SpeakService speakService, String message, byte mode)
     {
         // make sure they can say what they want to say
-        for (Iterator iter = _validators.iterator(); iter.hasNext(); ) {
-            if (!((ChatValidator) iter.next()).validateSpeak(message)) {
-                return;
-            }
+        _validateMessageOp.setMessage(message);
+        _validators.apply(_validateMessageOp);
+        if (!_validateMessageOp.isValid()) {
+            return;
         }
 
         // dispatch a speak request using the supplied speak service
@@ -339,11 +342,10 @@ public class ChatDirector extends BasicDirector
     public void requestTell (final String target, final String message)
     {
         // make sure they can say what they want to say
-        for (Iterator iter = _validators.iterator(); iter.hasNext(); ) {
-            if (!((ChatValidator) iter.next()).validateTell(
-                    target, message)) {
-                return;
-            }
+        _validateMessageOp.setMessage(target, message);
+        _validators.apply(_validateMessageOp);
+        if (!_validateMessageOp.isValid()) {
+            return;
         }
 
         // create a listener that will report success or failure
@@ -537,11 +539,10 @@ public class ChatDirector extends BasicDirector
     /**
      * Dispatches the provided message to our chat displays.
      */
-    protected void dispatchMessage (ChatMessage msg)
+    protected void dispatchMessage (ChatMessage message)
     {
-        for (Iterator iter = _displays.iterator(); iter.hasNext(); ) {
-            ((ChatDisplay) iter.next()).displayMessage(msg);
-        }
+        _displayMessageOp.setMessage(message);
+        _displays.apply(_displayMessageOp);
     }
 
     /**
@@ -596,6 +597,61 @@ public class ChatDirector extends BasicDirector
         _cservice = null; 
     }
 
+    /**
+     * An operation that checks with all chat validators to determine
+     * whether chat messages are valid for display.
+     */
+    protected static class ValidateMessageOp implements ObserverList.ObserverOp
+    {
+        public boolean isValid ()
+        {
+            return _valid;
+        }
+
+        public void setMessage (String message)
+        {
+            setMessage(null, message);
+        }
+
+        public void setMessage (String target, String message)
+        {
+            _target = target;
+            _message = message;
+            _valid = true;
+        }
+
+        public boolean apply (Object observer)
+        {
+            if (_target == null) {
+                _valid = ((ChatValidator)observer).validateSpeak(_message);
+            } else {
+                _valid = ((ChatValidator)observer).validateTell(
+                    _target, _message);
+            }
+            return _valid;
+        }
+
+        protected String _target;
+        protected String _message;
+        protected boolean _valid;
+    }
+
+    protected static class DisplayMessageOp implements ObserverList.ObserverOp
+    {
+        public void setMessage (ChatMessage message)
+        {
+            _message = message;
+        }
+
+        public boolean apply (Object observer)
+        {
+            ((ChatDisplay)observer).displayMessage(_message);
+            return true;
+        }
+
+        protected ChatMessage _message;
+    }
+
     /** Our active chat context. */
     protected CrowdContext _ctx;
 
@@ -612,10 +668,12 @@ public class ChatDirector extends BasicDirector
     protected PlaceObject _place;
 
     /** A list of registered chat displays. */
-    protected ArrayList _displays = new ArrayList();
+    protected ObserverList _displays =
+        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
 
     /** A list of registered chat validators. */
-    protected ArrayList _validators = new ArrayList();
+    protected ObserverList _validators =
+        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
 
     /** A mapping from auxiliary chat objects to the types under which
      * they are registered. */
@@ -631,10 +689,17 @@ public class ChatDirector extends BasicDirector
     protected LinkedList _chatters = new LinkedList();
 
     /** Observers that are watching our chatters list. */
-    protected ArrayList _chatterObservers = new ArrayList();
+    protected ObserverList _chatterObservers =
+        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
 
     /** Used by {@link #nextRequestId}. */
     protected int _requestId;
+
+    /** Operation used to validate chat messages for display. */
+    protected ValidateMessageOp _validateMessageOp = new ValidateMessageOp();
+
+    /** Operation used to display chat messages. */
+    protected DisplayMessageOp _displayMessageOp = new DisplayMessageOp();
 
     /** The maximum number of chatter usernames to track. */
     protected static final int MAX_CHATTERS = 6;
