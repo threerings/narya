@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.56 2003/05/31 00:56:38 mdb Exp $
+// $Id: ImageManager.java,v 1.57 2003/06/23 17:59:04 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -119,7 +119,12 @@ public class ImageManager
     {
         // DEBUG: override transparency for the moment on all images
         transparency = Transparency.TRANSLUCENT;
-        return _gc.createCompatibleImage(width, height, transparency);
+	if (_gc != null) {
+            return _gc.createCompatibleImage(width, height, transparency);
+        } else {
+            // if we're running in headless mode, do everything in 24-bit
+            return new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        }
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.32 2003/05/07 19:14:38 mdb Exp $
+// $Id: ImageUtil.java,v 1.33 2003/06/23 17:59:04 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -10,6 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -576,16 +577,21 @@ public class ImageUtil
     }
 
     /**
-     * Obtains the default graphics configuration for this VM.
+     * Obtains the default graphics configuration for this VM. If the JVM
+     * is in headless mode, this method will return null.
      */
     protected static GraphicsConfiguration getDefGC ()
     {
         if (_gc == null) {
             // obtain information on our graphics environment
-            GraphicsEnvironment env =
-                GraphicsEnvironment.getLocalGraphicsEnvironment();
-            GraphicsDevice gd = env.getDefaultScreenDevice();
-            _gc = gd.getDefaultConfiguration();
+            try {
+                GraphicsEnvironment env =
+                    GraphicsEnvironment.getLocalGraphicsEnvironment();
+                GraphicsDevice gd = env.getDefaultScreenDevice();
+                _gc = gd.getDefaultConfiguration();
+            } catch (HeadlessException e) {
+                // no problem, just return null
+            }
         }
         return _gc;
     }
