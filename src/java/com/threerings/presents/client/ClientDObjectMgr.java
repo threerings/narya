@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.9 2001/10/16 16:41:14 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.10 2001/10/24 00:36:40 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -36,8 +36,7 @@ public class ClientDObjectMgr
     }
 
     // inherit documentation from the interface
-    public void createObject (Class dclass, Subscriber target,
-                              boolean subscribe)
+    public void createObject (Class dclass, Subscriber target)
     {
         // not presently supported
         throw new RuntimeException("createObject() not supported");

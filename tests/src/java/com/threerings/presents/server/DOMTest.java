@@ -1,5 +1,5 @@
 //
-// $Id: DOMTest.java,v 1.3 2001/10/12 00:03:03 mdb Exp $
+// $Id: DOMTest.java,v 1.4 2001/10/24 00:36:40 mdb Exp $
 
 package com.threerings.presents.server.test;
 
@@ -48,10 +48,10 @@ public class DOMTest implements Subscriber, AttributeChangeListener
         DOMTest sub = new DOMTest();
 
         // request that a new TestObject be created
-        omgr.createObject(TestObject.class, sub, true);
+        omgr.createObject(TestObject.class, sub);
 
         // or for fun you can try this bogus create request
-        // omgr.createObject(Integer.class, sub, true);
+        // omgr.createObject(Integer.class, sub);
 
         // and run the object manager
         omgr.run();

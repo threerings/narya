@@ -1,5 +1,5 @@
 //
-// $Id: DObjectManager.java,v 1.9 2001/10/11 04:07:52 mdb Exp $
+// $Id: DObjectManager.java,v 1.10 2001/10/24 00:36:40 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -27,12 +27,8 @@ public interface DObjectManager
      * @param target The subscriber to be notified when the object is
      * created and available, or if there was a problem creating the
      * object.
-     * @param subscribe If true, the subscriber will be subscribed to the
-     * object after creation; if false, it will merely be notified of it's
-     * availability but not added as a subscriber.
      */
-    public void createObject (Class dclass, Subscriber target,
-                              boolean subscribe);
+    public void createObject (Class dclass, Subscriber target);
 
     /**
      * Requests that the specified subscriber be subscribed to the object

@@ -1,5 +1,5 @@
 //
-// $Id: TestServer.java,v 1.5 2001/10/12 00:03:03 mdb Exp $
+// $Id: TestServer.java,v 1.6 2001/10/24 00:36:40 mdb Exp $
 
 package com.threerings.presents.server.test;
 
@@ -39,7 +39,7 @@ public class TestServer extends PresentsServer
                             "[error=" + cause + "].");
             }
         };
-        omgr.createObject(TestObject.class, sub, false);
+        omgr.createObject(TestObject.class, sub);
     }
 
     public static void main (String[] args)

@@ -1,5 +1,5 @@
 //
-// $Id: RefTest.java,v 1.3 2001/10/12 00:03:03 mdb Exp $
+// $Id: RefTest.java,v 1.4 2001/10/24 00:36:40 mdb Exp $
 
 package com.threerings.presents.server.test;
 
@@ -16,8 +16,8 @@ public class RefTest
     public void run ()
     {
         // create two test objects
-        PresentsServer.omgr.createObject(TestObject.class, this, true);
-        PresentsServer.omgr.createObject(TestObject.class, this, true);
+        PresentsServer.omgr.createObject(TestObject.class, this);
+        PresentsServer.omgr.createObject(TestObject.class, this);
     }
 
     public void objectAvailable (DObject object)

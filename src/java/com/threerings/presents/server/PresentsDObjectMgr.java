@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.18 2001/10/12 00:03:03 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.19 2001/10/24 00:36:40 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -41,11 +41,10 @@ public class PresentsDObjectMgr implements DObjectManager
     }
 
     // inherit documentation from the interface
-    public void createObject (Class dclass, Subscriber target,
-                              boolean subscribe)
+    public void createObject (Class dclass, Subscriber target)
     {
         // queue up a create object event
-        postEvent(new CreateObjectEvent(dclass, target, subscribe));
+        postEvent(new CreateObjectEvent(dclass, target));
     }
 
     // inherit documentation from the interface
@@ -453,13 +452,11 @@ public class PresentsDObjectMgr implements DObjectManager
      */
     protected class CreateObjectEvent extends DEvent
     {
-        public CreateObjectEvent (Class clazz, Subscriber target,
-                                  boolean subscribe)
+        public CreateObjectEvent (Class clazz, Subscriber target)
         {
             super(0); // target the fake object
             _class = clazz;
             _target = target;
-            _subscribe = subscribe;
         }
 
         public boolean applyToObject (DObject target)
@@ -482,10 +479,7 @@ public class PresentsDObjectMgr implements DObjectManager
 
                 if (_target != null) {
                     // add the subscriber to this object's subscriber list
-                    // if they requested it
-                    if (_subscribe) {
-                        obj.addSubscriber(_target);
-                    }
+                    obj.addSubscriber(_target);
 
                     // let the target subscriber know that their object is
                     // available
@@ -513,7 +507,6 @@ public class PresentsDObjectMgr implements DObjectManager
 
         protected Class _class;
         protected Subscriber _target;
-        protected boolean _subscribe;
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.23 2001/10/18 18:41:29 mdb Exp $
+// $Id: PresentsClient.java,v 1.24 2001/10/24 00:36:40 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -78,7 +78,7 @@ public class PresentsClient
             }
         };
         Class clobjClass = _cmgr.getClientObjectClass();
-        PresentsServer.omgr.createObject(clobjClass, sub, false);
+        PresentsServer.omgr.createObject(clobjClass, sub);
     }
 
     /**

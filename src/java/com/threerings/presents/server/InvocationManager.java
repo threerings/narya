@@ -1,5 +1,5 @@
 //
-// $Id: InvocationManager.java,v 1.9 2001/10/12 00:03:03 mdb Exp $
+// $Id: InvocationManager.java,v 1.10 2001/10/24 00:36:40 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -39,7 +39,7 @@ public class InvocationManager
         _omgr = omgr;
 
         // create the object on which we'll listen for invocation requests
-        omgr.createObject(DObject.class, this, true);
+        omgr.createObject(DObject.class, this);
     }
 
     public int getOid ()
