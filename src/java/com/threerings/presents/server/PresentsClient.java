@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.38 2002/09/19 23:36:59 mdb Exp $
+// $Id: PresentsClient.java,v 1.39 2002/09/20 20:42:37 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -124,6 +124,9 @@ public class PresentsClient
                     ucl.changeReported(clobj);
                 }
 
+                // call down to any derived classes
+                clientObjectWillChange(_clobj, clobj);
+
                 // release our old client object
                 _cmgr.releaseClientObject(_username);
 
@@ -137,6 +140,9 @@ public class PresentsClient
 
                 // lock our new client object
                 _cmgr.lockClientObject(_username);
+
+                // call down to any derived classes
+                clientObjectDidChange(_clobj);
 
                 // let our listener know we're groovy
                 if (ucl != null) {
@@ -158,6 +164,25 @@ public class PresentsClient
 
         // resolve the new client object
         _cmgr.resolveClientObject(username, clr);
+    }
+
+    /**
+     * Called when {@link #setUsername} has been called and the new client
+     * object is about to be applied to this client. The old client object
+     * will not yet have been destroyed, so any final events can be sent
+     * along prior to the new object being put into effect.
+     */
+    protected void clientObjectWillChange (
+        ClientObject oldClobj, ClientObject newClobj)
+    {
+    }
+
+    /**
+     * Called after the new client object has been committed to this
+     * client due to a call to {@link #setUsername}.
+     */
+    protected void clientObjectDidChange (ClientObject newClobj)
+    {
     }
 
     /**
