@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.24 2002/12/07 00:49:36 mdb Exp $
+// $Id: CharacterManager.java,v 1.25 2002/12/07 01:10:25 shaper Exp $
 
 package com.threerings.cast;
 
@@ -185,8 +185,9 @@ public class CharacterManager
         // periodically report our action cache performance
         if (!_cacheStatThrottle.throttleOp()) {
             int[] eff = _frames.getTrackedEffectiveness();
-            Log.debug("CharacterManager LRU [hits=" + eff[0] +
-                      ", misses=" + eff[1] + "].");
+            Log.debug("CharacterManager LRU " +
+                      "[hits=" + eff[0] + ", misses=" + eff[1] +
+                      ", size=" + _frames.size() + "].");
         }
 
         return frames;

@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.29 2002/12/07 01:00:58 shaper Exp $
+// $Id: ImageManager.java,v 1.30 2002/12/07 01:10:25 shaper Exp $
 
 package com.threerings.media;
 
@@ -157,8 +157,9 @@ public class ImageManager
         if (!_cacheStatThrottle.throttleOp()) {
             int size = getCachedImageSize() / 1024;
             int[] eff = _imgs.getTrackedEffectiveness();
-            Log.debug("ImageManager LRU [size=" + size + "k pixels" +
-                      ", hits=" + eff[0] + ", misses=" + eff[1] + "].");
+            Log.debug("ImageManager LRU [area=" + size + "k pixels" +
+                      ", size=" + _imgs.size() +  ", hits=" + eff[0] +
+                      ", misses=" + eff[1] + "].");
         }
     }
 
