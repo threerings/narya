@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.11 2003/04/27 03:27:21 mdb Exp $
+// $Id: ResourceBundle.java,v 1.12 2003/04/28 18:21:47 mdb Exp $
 
 package com.threerings.resource;
 
@@ -232,10 +232,11 @@ public class ResourceBundle
             Log.info("No system defined temp directory. Faking it.");
             tmpdir = System.getProperty("user.dir");
         }
-        _tmpdir = new File(tmpdir, ".narcache");
+        long rando = (long)(Math.random() * Long.MAX_VALUE);
+        _tmpdir = new File(tmpdir, ".narcache" + File.separator + rando);
         if (!_tmpdir.exists()) {
             Log.info("Creating narya temp cache directory '" + _tmpdir + "'.");
-            _tmpdir.mkdir();
+            _tmpdir.mkdirs();
         }
     }
 }
