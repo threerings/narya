@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSet.java,v 1.11 2003/01/29 21:31:37 mdb Exp $
+// $Id: ObjectTileSet.java,v 1.12 2003/01/29 21:53:51 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -60,6 +60,24 @@ public class ObjectTileSet extends SwissArmyTileSet
         _priorities = priorities;
     }
 
+    /**
+     * Provides a set of colorization classes that apply to objects in
+     * this tileset.
+     */
+    public void setColorizations (String[] zations)
+    {
+        _zations = zations;
+    }
+
+    /**
+     * Returns the colorization classes that should be used to recolor
+     * objects in this tileset.
+     */
+    public String[] getColorizations ()
+    {
+        return _zations;
+    }
+
     // documentation inherited
     protected void toString (StringBuffer buf)
     {
@@ -69,6 +87,7 @@ public class ObjectTileSet extends SwissArmyTileSet
 	buf.append(", xorigins=").append(StringUtil.toString(_xorigins));
 	buf.append(", yorigins=").append(StringUtil.toString(_yorigins));
 	buf.append(", prios=").append(StringUtil.toString(_priorities));
+	buf.append(", zations=").append(StringUtil.toString(_zations));
     }
 
     /**
@@ -104,6 +123,9 @@ public class ObjectTileSet extends SwissArmyTileSet
 
     /** The default render priorities of our objects. */
     protected int[] _priorities;
+
+    /** Colorization classes that apply to our objects. */
+    protected String[] _zations;
 
     /** Increase this value when object's serialized state is impacted by
      * a class change (modification of fields, inheritance). */

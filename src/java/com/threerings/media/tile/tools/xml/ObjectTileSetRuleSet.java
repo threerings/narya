@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSetRuleSet.java,v 1.5 2003/01/29 21:31:37 mdb Exp $
+// $Id: ObjectTileSetRuleSet.java,v 1.6 2003/01/29 21:53:51 mdb Exp $
 
 package com.threerings.media.tile.tools.xml;
 
@@ -95,6 +95,16 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
                 {
                     int[] prios = StringUtil.parseIntArray(bodyText);
                     ((ObjectTileSet)target).setPriorities(prios);
+                }
+            });
+
+        digester.addRule(
+            _prefix + TILESET_PATH + "/zations",
+            new CallMethodSpecialRule(digester) {
+                public void parseAndSet (String bodyText, Object target)
+                {
+                    String[] zations = StringUtil.parseStringArray(bodyText);
+                    ((ObjectTileSet)target).setColorizations(zations);
                 }
             });
     }
