@@ -108,11 +108,12 @@
 
   <!-- build the native libraries -->
   <target name="ncompile" depends="prepare">
-    <exec dir="src/java/com/threerings/util/keybd/${os.name}" 
-     executable="make"><arg line="install"/></exec>
+    <echo message="Doing native compilation on ${os.name}..."/>
     <exec dir="src/java/com/threerings/util/signal/${os.name}" 
      executable="make"><arg line="install"/></exec>
-    <exec dir="src/java/com/threerings/util/unsafe/${os.name}" 
+    <exec os="Linux" dir="src/java/com/threerings/util/keybd/Linux" 
+     executable="make"><arg line="install"/></exec>
+    <exec os="Linux" dir="src/java/com/threerings/util/unsafe/Linux" 
      executable="make"><arg line="install"/></exec>
   </target>
 
