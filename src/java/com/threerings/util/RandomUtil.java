@@ -1,11 +1,12 @@
 //
-// $Id: RandomUtil.java,v 1.8 2003/05/16 02:21:37 ray Exp $
+// $Id: RandomUtil.java,v 1.9 2003/06/04 00:03:58 mdb Exp $
 
 package com.threerings.util;
 
-import com.samskivert.util.IntListUtil;
-
+import java.util.Iterator;
 import java.util.Random;
+
+import com.samskivert.util.IntListUtil;
 
 /**
  * Provides miscellaneous utility routines to simplify obtaining
@@ -79,5 +80,96 @@ public class RandomUtil
         // Impossible!
         Log.logStackTrace(new Throwable());
         return 0;
+    }
+
+    /**
+     * Picks a random object from the supplied array of values. Even
+     * weight is given to all elements of the array.
+     *
+     * @return a randomly selected item or null if the array is null or of
+     * length zero.
+     */
+    public static Object pickRandom (Object[] values)
+    {
+        return (values == null || values.length == 0) ? null :
+            values[getInt(values.length)];
+    }
+
+    /**
+     * Picks a random object from the supplied array of values, not
+     * including the specified skip object as a possible selection
+     * (equality with the skipped object is referential rather than via
+     * {@link Object#equals}). The element to be skipped must exist in the
+     * array exactly once. Even weight is given to all elements of the
+     * array except the skipped element.
+     *
+     * @return a randomly selected item or null if the array is null, of
+     * length zero or contains only the skip item.
+     */
+    public static Object pickRandom (Object[] values, Object skip)
+    {
+        if (values == null || values.length < 2) {
+            return null;
+        }
+        int index = getInt(values.length-1);
+        for (int ii = 0; ii <= index; ii++) {
+            if (values[ii] == skip) {
+                index++;
+            }
+        }
+        return (index >= values.length) ? null : values[index];
+    }
+
+    /**
+     * Picks a random object from the supplied iterator (which must
+     * iterate over exactly <code>count</code> objects.
+     *
+     * @return a randomly selected item.
+     *
+     * @exception NoSuchElementException thrown if the iterator provides
+     * fewer than <code>count</code> elements.
+     */
+    public static Object pickRandom (Iterator iter, int count)
+    {
+        if (count < 1) {
+            throw new IllegalArgumentException(
+                "Must have at least one element [count=" + count + "]");
+        }
+
+        Object value = iter.next();
+        for (int ii = 0, ll = getInt(count); ii < ll; ii++) {
+            value = iter.next();
+        }
+        return value;
+    }
+
+    /**
+     * Picks a random object from the supplied iterator (which must
+     * iterate over exactly <code>count</code> objects. The specified skip
+     * object will be skipped when selecting a random value. The skipped
+     * object must exist exactly once in the set of objects returned by
+     * the iterator.
+     *
+     * @return a randomly selected item.
+     *
+     * @exception NoSuchElementException thrown if the iterator provides
+     * fewer than <code>count</code> elements.
+     */
+    public static Object pickRandom (Iterator iter, int count, Object skip)
+    {
+        if (count < 2) {
+            throw new IllegalArgumentException(
+                "Must have at least two elements [count=" + count + "]");
+        }
+
+        int index = getInt(count-1);
+        Object value = null;
+        do {
+            value = iter.next();
+            if (value == skip) {
+                value = iter.next();
+            }
+        } while (index-- > 0);
+        return value;
     }
 }
