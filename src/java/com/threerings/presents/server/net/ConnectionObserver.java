@@ -1,10 +1,11 @@
 //
-// $Id: ConnectionObserver.java,v 1.5 2001/10/11 04:07:53 mdb Exp $
+// $Id: ConnectionObserver.java,v 1.6 2001/12/03 20:14:51 mdb Exp $
 
 package com.threerings.presents.server.net;
 
 import java.io.IOException;
-import com.threerings.presents.net.Credentials;
+import com.threerings.presents.net.AuthRequest;
+import com.threerings.presents.net.AuthResponse;
 
 /**
  * A connection observer can be registered with the connection manager to
@@ -24,10 +25,11 @@ public interface ConnectionObserver
      * the connection observer.
      *
      * @param conn The newly established connection.
-     * @param creds The credentials with which this connection
-     * (successfully) authenticated.
+     * @param req The auth request provided by the client.
+     * @param rsp The auth response provided to the client.
      */
-    public void connectionEstablished (Connection conn, Credentials creds);
+    public void connectionEstablished (
+        Connection conn, AuthRequest req, AuthResponse rsp);
 
     /**
      * Called if a connection fails for any reason. If a connection fails,

@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.11 2001/10/11 04:07:53 mdb Exp $
+// $Id: ClientManager.java,v 1.12 2001/12/03 20:14:51 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -8,6 +8,8 @@ import java.util.HashMap;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.net.AuthRequest;
+import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.Credentials;
 import com.threerings.presents.server.net.*;
 
@@ -83,16 +85,11 @@ public class ClientManager implements ConnectionObserver
         return _clobjClass;
     }
 
-    /**
-     * Called when a new connection is established with the connection
-     * manager. Only fully authenticated connections will be passed on to
-     * the connection observer.
-     *
-     * @param conn The newly established connection.
-     */
-    public synchronized
-        void connectionEstablished (Connection conn, Credentials creds)
+    // documentation inherited
+    public synchronized void connectionEstablished (
+        Connection conn, AuthRequest req, AuthResponse rsp)
     {
+        Credentials creds = req.getCredentials();
         String username = creds.getUsername();
 
         // see if there's a client already registered with this username
@@ -101,7 +98,7 @@ public class ClientManager implements ConnectionObserver
         if (client != null) {
             Log.info("Session resumed [username=" + username +
                      ", conn=" + conn + "].");
-            client.resumeSession(conn);
+            client.resumeSession(conn, rsp.getData());
 
         } else {
             Log.info("Session initiated [username=" + username +
@@ -109,7 +106,7 @@ public class ClientManager implements ConnectionObserver
             // create a new client and stick'em in the table
             try {
                 client = (PresentsClient)_clientClass.newInstance();
-                client.startSession(this, username, conn);
+                client.startSession(this, username, conn, rsp.getData());
                 _usermap.put(username, client);
             } catch (Exception e) {
                 Log.warning("Failed to instantiate client instance to " +
@@ -123,15 +120,7 @@ public class ClientManager implements ConnectionObserver
         _conmap.put(conn, client);
     }
 
-    /**
-     * Called if a connection fails for any reason. If a connection fails,
-     * <code>connectionClosed</code> will not be called. This call to
-     * <code>connectionFailed</code> is the last the observers will hear
-     * about it.
-     *
-     * @param conn The connection in that failed.
-     * @param fault The exception associated with the failure.
-     */
+    // documentation inherited
     public synchronized
         void connectionFailed (Connection conn, IOException fault)
     {
@@ -151,11 +140,7 @@ public class ClientManager implements ConnectionObserver
         }
     }
 
-    /**
-     * Called when a connection has been closed in an orderly manner.
-     *
-     * @param conn The recently closed connection.
-     */
+    // documentation inherited
     public synchronized void connectionClosed (Connection conn)
     {
         // remove the client from the connection map

@@ -1,9 +1,11 @@
 //
-// $Id: CrowdClient.java,v 1.3 2001/10/11 04:07:51 mdb Exp $
+// $Id: CrowdClient.java,v 1.4 2001/12/03 20:14:51 mdb Exp $
 
 package com.threerings.crowd.server;
 
+import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.server.PresentsClient;
+
 import com.threerings.crowd.data.BodyObject;
 
 /**
@@ -12,9 +14,9 @@ import com.threerings.crowd.data.BodyObject;
  */
 public class CrowdClient extends PresentsClient
 {
-    protected void sessionWillStart ()
+    protected void sessionWillStart (AuthResponseData rdata)
     {
-        super.sessionWillStart();
+        super.sessionWillStart(rdata);
 
         // cast our client object to a body object
         _bodobj = (BodyObject)_clobj;
@@ -26,9 +28,9 @@ public class CrowdClient extends PresentsClient
         CrowdServer.mapBody(_username, _bodobj);
     }
 
-    protected void sessionWillResume ()
+    protected void sessionWillResume (AuthResponseData rdata)
     {
-        super.sessionWillResume();
+        super.sessionWillResume(rdata);
 
         // nothing to do here presently
     }

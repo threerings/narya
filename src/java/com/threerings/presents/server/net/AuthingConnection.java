@@ -1,5 +1,5 @@
 //
-// $Id: AuthingConnection.java,v 1.4 2001/10/11 04:07:53 mdb Exp $
+// $Id: AuthingConnection.java,v 1.5 2001/12/03 20:14:51 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -7,8 +7,9 @@ import java.io.IOException;
 import ninja2.core.io_core.nbio.NonblockingSocket;
 
 import com.threerings.presents.Log;
-import com.threerings.presents.net.UpstreamMessage;
 import com.threerings.presents.net.AuthRequest;
+import com.threerings.presents.net.AuthResponse;
+import com.threerings.presents.net.UpstreamMessage;
 
 /**
  * The authing connection manages the client connection until
@@ -58,14 +59,30 @@ public class AuthingConnection
         return _authreq;
     }
 
+    /**
+     * Returns the auth response delivered to the client (only valid after
+     * the auth request has been processed.
+     */
+    public AuthResponse getAuthResponse ()
+    {
+        return _authrsp;
+    }
+
+    /**
+     * Stores a reference to the auth response delivered to this
+     * connection. This is called by the auth manager after delivering the
+     * auth response to the client.
+     */
+    public void setAuthResponse (AuthResponse authrsp)
+    {
+        _authrsp = authrsp;
+    }
+
     public String toString ()
     {
         return "[mode=AUTHING, addr=" + _socket.getInetAddress() + "]";
     }
 
-    protected int _state = AWAITING_AUTH_REQUEST;
     protected AuthRequest _authreq;
-
-    protected static final int AWAITING_AUTH_REQUEST = 0;
-    protected static final int PROCESSING_AUTH_REQUEST = 1;
+    protected AuthResponse _authrsp;
 }

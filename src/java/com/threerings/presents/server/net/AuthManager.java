@@ -1,5 +1,5 @@
 //
-// $Id: AuthManager.java,v 1.5 2001/10/11 04:07:53 mdb Exp $
+// $Id: AuthManager.java,v 1.6 2001/12/03 20:14:51 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -72,8 +72,13 @@ public class AuthManager extends LoopingThread
             // now ship the response back
             aconn.postMessage(rsp);
 
+            // stuff a reference to the auth response into the connection
+            // so that we have access to it later in the authentication
+            // process
+            aconn.setAuthResponse(rsp);
+
             // if the authentication request was granted, let the
-            // connection manager know that we just authed a connection
+            // connection manager know that we just authed
             _conmgr.connectionDidAuthenticate(aconn);
 
         } catch (Exception e) {

@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.13 2001/10/25 23:37:13 mdb Exp $
+// $Id: ConnectionManager.java,v 1.14 2001/12/03 20:14:51 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -14,7 +14,8 @@ import com.threerings.presents.Log;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.io.FramingOutputStream;
 import com.threerings.presents.io.TypedObjectFactory;
-import com.threerings.presents.net.Credentials;
+import com.threerings.presents.net.AuthRequest;
+import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.server.PresentsServer;
 
@@ -104,7 +105,8 @@ public class ConnectionManager extends LoopingThread
      * Notifies the connection observers of a connection event. Used
      * internally.
      */
-    protected void notifyObservers (int code, Connection conn, Object arg)
+    protected void notifyObservers (
+        int code, Connection conn, Object arg1, Object arg2)
     {
         synchronized (_observers) {
             for (int i = 0; i < _observers.size(); i++) {
@@ -112,10 +114,11 @@ public class ConnectionManager extends LoopingThread
                     (ConnectionObserver)_observers.get(i);
                 switch (code) {
                 case CONNECTION_ESTABLISHED:
-                    obs.connectionEstablished(conn, (Credentials)arg);
+                    obs.connectionEstablished(conn, (AuthRequest)arg1,
+                                              (AuthResponse)arg2);
                     break;
                 case CONNECTION_FAILED:
-                    obs.connectionFailed(conn, (IOException)arg);
+                    obs.connectionFailed(conn, (IOException)arg1);
                     break;
                 case CONNECTION_CLOSED:
                     obs.connectionClosed(conn);
@@ -171,7 +174,7 @@ public class ConnectionManager extends LoopingThread
 
                 // and let our observers know about our new connection
                 notifyObservers(CONNECTION_ESTABLISHED, rconn,
-                                conn.getAuthRequest().getCredentials());
+                                conn.getAuthRequest(), conn.getAuthResponse());
 
             } catch (IOException ioe) {
                 Log.warning("Failure upgrading authing connection to " +
@@ -279,7 +282,7 @@ public class ConnectionManager extends LoopingThread
         _selset.remove(conn.getSelectItem());
 
         // let our observers know what's up
-        notifyObservers(CONNECTION_FAILED, conn, ioe);
+        notifyObservers(CONNECTION_FAILED, conn, ioe, null);
     }
 
     /**
@@ -293,7 +296,7 @@ public class ConnectionManager extends LoopingThread
         _selset.remove(conn.getSelectItem());
 
         // let our observers know what's up
-        notifyObservers(CONNECTION_CLOSED, conn, null);
+        notifyObservers(CONNECTION_CLOSED, conn, null, null);
     }
 
     /**

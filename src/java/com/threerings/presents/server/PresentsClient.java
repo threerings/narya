@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.24 2001/10/24 00:36:40 mdb Exp $
+// $Id: PresentsClient.java,v 1.25 2001/12/03 20:14:51 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -53,7 +53,8 @@ public class PresentsClient
      * connection instance and begins a client session.
      */
     protected void startSession (
-        ClientManager cmgr, String username, Connection conn)
+        ClientManager cmgr, String username, Connection conn,
+        final AuthResponseData rdata)
     {
         _cmgr = cmgr;
         _username = username;
@@ -66,7 +67,7 @@ public class PresentsClient
             public void objectAvailable (DObject object)
             {
                 setClientObject((ClientObject)object);
-                sessionWillStart();
+                sessionWillStart(rdata);
                 sendBootstrap();
             }
 
@@ -96,7 +97,8 @@ public class PresentsClient
      * authenticates as this already established client. This must only be
      * called from the congmr thread.
      */
-    protected void resumeSession (Connection conn)
+    protected void resumeSession (
+        Connection conn, final AuthResponseData rdata)
     {
         Connection oldconn = getConnection();
 
@@ -122,7 +124,7 @@ public class PresentsClient
             {
                 // now that we're on the dobjmgr thread we can resume our
                 // session resumption
-                finishResumeSession();
+                finishResumeSession(rdata);
                 return false;
             }
         };
@@ -134,10 +136,10 @@ public class PresentsClient
      * resumption. We call some call backs and send the bootstrap info to
      * the client.
      */
-    protected void finishResumeSession ()
+    protected void finishResumeSession (AuthResponseData rdata)
     {
         // let derived classes do any session resuming
-        sessionWillResume();
+        sessionWillResume(rdata);
 
         // send off a bootstrap notification immediately because we've
         // already got our client object
@@ -237,8 +239,11 @@ public class PresentsClient
      * <p><em>Note:</em> This function will be called on the dobjmgr
      * thread which means that object manipulations are OK, but client
      * instance manipulations must done carefully.
+     *
+     * @param rdata the data object delivered to the client during the
+     * authentication phase.
      */
-    protected void sessionWillStart ()
+    protected void sessionWillStart (AuthResponseData rdata)
     {
     }
 
@@ -252,8 +257,11 @@ public class PresentsClient
      * <p><em>Note:</em> This function will be called on the dobjmgr
      * thread which means that object manipulations are OK, but client
      * instance manipulations must done carefully.
+     *
+     * @param rdata the data object delivered to the client during the
+     * authentication phase.
      */
-    protected void sessionWillResume ()
+    protected void sessionWillResume (AuthResponseData rdata)
     {
     }
 
