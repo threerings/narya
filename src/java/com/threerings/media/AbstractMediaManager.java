@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMediaManager.java,v 1.10 2003/04/30 20:48:38 mdb Exp $
+// $Id: AbstractMediaManager.java,v 1.11 2003/11/22 19:57:03 mdb Exp $
 
 package com.threerings.media;
 
@@ -145,6 +145,7 @@ public abstract class AbstractMediaManager
         if (_media.contains(media)) {
             Log.warning("Attempt to insert media more than once " +
                         "[media=" + media + "].");
+            Thread.dumpStack();
             return false;
         }
 
