@@ -69,8 +69,8 @@ foreach $dir (@dirs) {
 # finally add the standard classes
 $classpath = "$classpath:$jlib";
 
-# specify our application root (the resource manager needs this)
-my $rootarg = "-Dapplication.root=$root";
+# specify our resource root (the resource manager needs this)
+my $rootarg = "-Dresource_url=file:$realroot/rsrc";
 
 my $pid_file = undef;
 my $i = 0;
