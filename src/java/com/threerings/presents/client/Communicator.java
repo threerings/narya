@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.14 2001/10/01 22:14:54 mdb Exp $
+// $Id: Communicator.java,v 1.15 2001/10/03 03:39:39 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -390,6 +390,12 @@ public class Communicator
             }
         }
 
+        protected void handleIterateFailure (Exception e)
+        {
+            Log.warning("Uncaught exception it reader thread.");
+            Log.logStackTrace(e);
+        }
+
         protected void didShutdown ()
         {
             // let the communicator know when we finally go away
@@ -435,6 +441,12 @@ public class Communicator
                 // and bail
                 shutdown();
             }
+        }
+
+        protected void handleIterateFailure (Exception e)
+        {
+            Log.warning("Uncaught exception it writer thread.");
+            Log.logStackTrace(e);
         }
 
         protected void didShutdown ()
