@@ -1,9 +1,7 @@
 //
-// $Id: EditableMisoScene.java,v 1.1 2001/09/21 02:30:35 mdb Exp $
+// $Id: EditableMisoScene.java,v 1.2 2001/10/05 23:58:36 mdb Exp $
 
 package com.threerings.miso.scene;
-
-import com.threerings.whirled.data.EditableScene;
 
 /**
  * The editable Miso scene interface provides the means for modifying a
@@ -13,8 +11,18 @@ import com.threerings.whirled.data.EditableScene;
  * fact it should only be done under special circumstances.
  */
 public interface EditableMisoScene
-    extends EditableScene, MisoScene
+    extends MisoScene
 {
+    /**
+     * Updates the scene's unique identifier.
+     */
+    public void setId (int sceneId);
+
+    /**
+     * Updates the scene's name.
+     */
+    public void setName (String name);
+
     /**
      * Set the default entrance portal for this scene.
      *
