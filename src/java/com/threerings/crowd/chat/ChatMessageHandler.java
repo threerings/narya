@@ -1,5 +1,5 @@
 //
-// $Id: ChatMessageHandler.java,v 1.5 2001/12/14 00:11:17 mdb Exp $
+// $Id: ChatMessageHandler.java,v 1.6 2002/04/30 17:27:30 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -40,6 +40,6 @@ public class ChatMessageHandler implements PlaceManager.MessageHandler
 
         // and generate a chat notification
         ChatProvider.sendChatMessage(
-            event.getTargetOid(), source.username, message);
+            event.getTargetOid(), source.username, null, message);
     }
 }

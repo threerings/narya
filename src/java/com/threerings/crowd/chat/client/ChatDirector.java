@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.19 2002/02/26 20:52:45 mdb Exp $
+// $Id: ChatDirector.java,v 1.20 2002/04/30 17:27:30 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -215,7 +215,24 @@ public class ChatDirector
         // pass this on to our chat displays
         for (int i = 0; i < _displays.size(); i++) {
             ChatDisplay display = (ChatDisplay)_displays.get(i);
-            display.displayTellMessage(source, message);
+            display.displayTellMessage(source, null, message);
+        }
+    }
+
+    /**
+     * Called by the invocation director when an entity on the server has
+     * requested that we deliver a tell notification to this
+     * client. Because the server generated the notification, displays
+     * will want to translate the message itself using the supplied bundle
+     * identifier.
+     */
+    public void handleTellNotification (
+        String source, String bundle, String message)
+    {
+        // pass this on to our chat displays
+        for (int i = 0; i < _displays.size(); i++) {
+            ChatDisplay display = (ChatDisplay)_displays.get(i);
+            display.displayTellMessage(source, bundle, message);
         }
     }
 
@@ -260,12 +277,22 @@ public class ChatDirector
     protected void handleSpeakMessage (String type, Object[] args)
     {
         String speaker = (String)args[0];
-        String message = (String)args[1];
+        String bundle = null;
+        String message = null;
+
+        // determine whether this speak message originated from another
+        // client or from a server entity
+        if (args.length == 2) {
+            message = (String)args[1];
+        } else {
+            bundle = (String)args[1];
+            message = (String)args[2];
+        }
 
         // pass this on to our chat displays
         for (int i = 0; i < _displays.size(); i++) {
             ChatDisplay display = (ChatDisplay)_displays.get(i);
-            display.displaySpeakMessage(type, speaker, message);
+            display.displaySpeakMessage(type, speaker, bundle, message);
         }
     }
 

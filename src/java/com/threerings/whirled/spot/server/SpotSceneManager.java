@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.5 2002/04/15 16:28:03 shaper Exp $
+// $Id: SpotSceneManager.java,v 1.6 2002/04/30 17:27:30 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -169,11 +169,12 @@ public class SpotSceneManager extends SceneManager
      * request.
      */
     protected void handleClusterSpeakRequest (
-        BodyObject source, int locationId, String message)
+        int sourceOid, String source, int locationId,
+        String bundle, String message)
     {
         // make sure this user occupies the specified location
         int locidx = _sscene.getLocationIndex(locationId);
-        if (locidx == -1 || _locationOccs[locidx] != source.getOid()) {
+        if (locidx == -1 || _locationOccs[locidx] != sourceOid) {
             Log.warning("User not in specified location for CCREQ " +
                         "[body=" + source + ", locId=" + locationId +
                         ", message=" + message + "].");
@@ -192,12 +193,11 @@ public class SpotSceneManager extends SceneManager
         // all is well, generate a chat notification
         int clusterOid = _clusterOids[clusterIndex];
         if (clusterOid > 0) {
-            ChatProvider.sendChatMessage(clusterOid, source.username, message);
+            ChatProvider.sendChatMessage(clusterOid, source, bundle, message);
 
         } else {
             Log.warning("Have no cluster object for CCREQ " +
-                        "[cidx=" + clusterIndex +
-                        ", chatter=" + source.username +
+                        "[cidx=" + clusterIndex + ", chatter=" + source +
                         ", message=" + message + "].");
         }
     }

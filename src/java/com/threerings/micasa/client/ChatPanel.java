@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.13 2002/04/15 14:38:45 shaper Exp $
+// $Id: ChatPanel.java,v 1.14 2002/04/30 17:27:30 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -226,10 +226,14 @@ public class ChatPanel
 
     // documentation inherited
     public void displaySpeakMessage (
-        String type, String speaker, String message)
+        String type, String speaker, String bundle, String message)
     {
         // wrap the speaker in brackets
         speaker = "<" + speaker + "> ";
+
+        // translate the message if necessary
+        message = xlate(bundle, message);
+
         // stick a newline on the message
         message = message + "\n";
 
@@ -247,14 +251,7 @@ public class ChatPanel
         String type, String bundle, String message)
     {
         // translate the message
-        MessageBundle msgb = _ctx.getMessageManager().getBundle(bundle);
-        if (msgb == null) {
-            Log.warning("No message bundle available to translate message " +
-                        "[type=" + type + ", bundle=" + bundle +
-                        ", message=" + message + "].");
-        } else {
-            message = msgb.xlate(message);
-        }
+        message = xlate(bundle, message);
 
         // stick a newline on the message
         message = message + "\n";
@@ -265,6 +262,25 @@ public class ChatPanel
         } catch (BadLocationException ble) {
             Log.warning("Unable to insert text!? [error=" + ble + "].");
         }
+    }
+
+    /**
+     * Translates the supplied message using the supplied bundle
+     * identifier iff the bundle identifier is not null. Otherwise it
+     * returns the original message.
+     */
+    protected String xlate (String bundle, String message)
+    {
+        if (bundle != null) {
+            MessageBundle msgb = _ctx.getMessageManager().getBundle(bundle);
+            if (msgb == null) {
+                Log.warning("No message bundle available to translate " +
+                            "[bundle=" + bundle + ", msg=" + message + "].");
+            } else {
+                message = msgb.xlate(message);
+            }
+        }
+        return message;
     }
 
     protected void displayError (String message)
@@ -281,10 +297,15 @@ public class ChatPanel
     }
 
     // documentation inherited
-    public void displayTellMessage (String speaker, String message)
+    public void displayTellMessage (
+        String speaker, String bundle, String message)
     {
         // wrap the speaker in brackets
         speaker = "[" + speaker + " whispers] ";
+
+        // translate the message if necessary
+        message = xlate(bundle, message);
+
         // stick a newline on the message
         message = message + "\n";
 

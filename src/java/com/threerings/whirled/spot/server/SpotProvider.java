@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.6 2002/04/15 16:28:03 shaper Exp $
+// $Id: SpotProvider.java,v 1.7 2002/04/30 17:27:30 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -216,20 +216,48 @@ public class SpotProvider extends InvocationProvider
     public void handleClusterSpeakRequest (
         BodyObject source, int invid, int sceneId, int locId, String message)
     {
+        sendClusterChatMessage(sceneId, locId, source.getOid(),
+                               source.username, null, message);
+    }
+
+    /**
+     * Sends a cluster chat notification to the specified location in the
+     * specified place object originating with the specified speaker (the
+     * speaker can be a server entity that wishes to fake a "speak"
+     * message, in which case the bundle argument should be non-null and
+     * should contain the id of the bundle to be used to translate the
+     * message text) and with the supplied message content.
+     *
+     * @param sceneId the scene id in which to deliver the chat message.
+     * @param locId the location whose cluster will be spoken to.
+     * @param speakerOid the body object id of the speaker (used to verify
+     * that they are in the cluster in question).
+     * @param speaker the username of the user that generated the message
+     * (or some special speaker name for server messages).
+     * @param bundle the bundle identifier that will be used by the client
+     * to translate the message text (or null if the message originated
+     * from a real live human who wrote it in their native tongue).
+     * @param message the text of the chat message.
+     */
+    public static void sendClusterChatMessage (
+        int sceneId, int locId, int speakerOid, String speaker,
+        String bundle, String message)
+    {
         // look up the scene manager for the specified scene
         SpotSceneManager smgr = (SpotSceneManager)
             _screg.getSceneManager(sceneId);
         if (smgr == null) {
             Log.warning("User requested cluster chat in " +
-                        "non-existent scene [user=" + source.username +
+                        "non-existent scene [user=" + speaker +
                         ", sceneId=" + sceneId + ", locId=" + locId +
                         ", message=" + message + "].");
 
         } else {
             // pass this request on to the spot scene manager as it will
-            // need to check that the location exists and that the
-            // requester occupies it and so on
-            smgr.handleClusterSpeakRequest(source, locId, message);
+            // need to check that the location exists and that the speaker
+            // occupies it and so on
+            smgr.handleClusterSpeakRequest(
+                speakerOid, speaker, locId, bundle, message);
         }
     }
 

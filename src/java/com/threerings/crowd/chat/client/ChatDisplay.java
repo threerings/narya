@@ -1,5 +1,5 @@
 //
-// $Id: ChatDisplay.java,v 1.8 2002/02/26 05:47:40 mdb Exp $
+// $Id: ChatDisplay.java,v 1.9 2002/04/30 17:27:30 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -22,10 +22,14 @@ public interface ChatDisplay
      * auxiliary chat object, the type code provided when that auxiliary
      * object was registered.
      * @param speaker the username of the speaker.
+     * @param bundle for speak messages that originated with a server
+     * entity rather than another client, this will be non-null and will
+     * contain a bundle identifier that should be used to translate the
+     * message text.
      * @param message the text of the message.
      */
     public void displaySpeakMessage (
-        String type, String speaker, String message);
+        String type, String speaker, String bundle, String message);
 
     /**
      * Called to display a tell message. A tell message is one that is
@@ -33,9 +37,14 @@ public interface ChatDisplay
      * location in the system.
      *
      * @param speaker the username of the speaker.
+     * @param bundle for tell messages that originated with a server
+     * entity rather than another client, this will be non-null and will
+     * contain a bundle identifier that should be used to translate the
+     * message text.
      * @param message the text of the message.
      */
-    public void displayTellMessage (String speaker, String message);
+    public void displayTellMessage (
+        String speaker, String bundle, String message);
 
     /**
      * Called to display a system message. A system message is one that is
