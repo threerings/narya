@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.56 2003/04/05 19:00:28 mdb Exp $
+// $Id: SoundManager.java,v 1.57 2003/04/05 20:48:04 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -338,7 +338,7 @@ public class SoundManager
                     _queue.append(PLAY);
                     _queue.append(skey);
 
-                } else {
+                } else if (_verbose.getValue()) {
                     Log.warning("SoundManager not playing sound because " +
                                 "too many sounds in queue [key=" + skey +
                                 ", type=" + type + ", queue=" + _queue + "].");
