@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.7 2001/07/18 21:45:42 shaper Exp $
+// $Id: TileSet.java,v 1.8 2001/07/18 22:45:35 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -62,11 +62,11 @@ public class TileSet
      * Return the image corresponding to the specified tile id within
      * this tile set.
      */
-    public BufferedImage getTileImage (int tid)
+    public Image getTileImage (ImageManager imgr, int tid)
     {
 	// load the full tile image if we don't already have it
 	if (_imgTiles == null) {
-	    if ((_imgTiles = ImageManager.getImage(_imgFile)) == null) {
+	    if ((_imgTiles = imgr.getImage(_imgFile)) == null) {
 		Log.warning("Failed to retrieve full tileset image " +
 			    "[file=" + _imgFile + "].");
 		return null;
@@ -89,8 +89,8 @@ public class TileSet
 //    		 ", ty=" + ty + "].");
 
 	// crop the tile-sized image chunk from the full image
-	return ImageManager.getImageCropped(_imgTiles, tx, ty,
-					    Tile.WIDTH, _rowHeight[ridx]);
+	return imgr.getImageCropped(_imgTiles, tx, ty,
+				    Tile.WIDTH, _rowHeight[ridx]);
     }
 
     /**

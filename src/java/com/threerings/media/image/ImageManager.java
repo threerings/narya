@@ -1,12 +1,14 @@
 //
-// $Id: ImageManager.java,v 1.1 2001/07/18 21:45:42 shaper Exp $
+// $Id: ImageManager.java,v 1.2 2001/07/18 22:45:34 shaper Exp $
 
 package com.threerings.media;
 
-import com.threerings.cocktail.miso.Log;
+import com.threerings.miso.Log;
+import com.threerings.resource.ResourceManager;
 
 import java.awt.*;
 import java.awt.image.*;
+import java.io.IOException;
 import java.util.Hashtable;
 
 /**
@@ -20,14 +22,16 @@ import java.util.Hashtable;
  */
 public class ImageManager
 {
-    public static Toolkit tk = Toolkit.getDefaultToolkit();
+    public Toolkit tk = Toolkit.getDefaultToolkit();
 
     /**
-     * Initialize the ImageManager with a root component to which
-     * images will later be rendered.
+     * Construct an ImageManager object with the ResourceManager from
+     * which it will obtain its data, and a root component to which
+     * images will be rendered.
      */
-    public static void init (Component root)
+    public ImageManager (ResourceManager rmgr, Component root)
     {
+	_rmgr = rmgr;
 	_root = root;
 	tk = root.getToolkit();
     }
@@ -36,18 +40,12 @@ public class ImageManager
      * Load the image from the specified filename and cache it for
      * faster retrieval henceforth.
      */
-    public static Image getImage (String fname)
+    public Image getImage (String fname)
     {
 	if (_root == null) {
 	    Log.warning("Attempt to get image without valid root component.");
 	    return null;
 	}
-
-	// TODO: fix this to properly find the file within the
-	// classpath.  getResourceAsStream() returns an InputStream,
-	// but java.awt.Toolkit.createImage() can only take one of a
-	// byte[], String, URL, or ImageProducer.
-	fname = "/home/shaper/workspace/cocktail/" + fname;
 
 	Image img = (Image)_imgs.get(fname);
 	if (img != null) {
@@ -57,11 +55,12 @@ public class ImageManager
 
 	Log.info("Loading image into cache [fname=" + fname + "].");
 
-	img = tk.createImage(fname);
-	MediaTracker tracker = new MediaTracker(_root);
-	tracker.addImage(img, 0);
-
 	try {
+	    byte[] data = _rmgr.getResourceAsBytes(fname);
+	    img = tk.createImage(data);
+	    MediaTracker tracker = new MediaTracker(_root);
+	    tracker.addImage(img, 0);
+
 	    tracker.waitForID(0);
 	    if (tracker.isErrorAny()) {
 		Log.warning("Error loading image [fname=" + fname + "].");
@@ -71,8 +70,11 @@ public class ImageManager
 		_imgs.put(fname, img);
 	    }
 
-	} catch (Exception e) {
-	    e.printStackTrace();
+	} catch (IOException ioe) {
+	    Log.warning("Exception loading image [ioe=" + ioe + "].");
+
+	} catch (InterruptedException ie) {
+	    Log.warning("Interrupted loading image [ie=" + ie + "].");
 	}
 
 	return img;
@@ -82,8 +84,8 @@ public class ImageManager
      * Creates a new image representing the specified rectangular
      * section cropped from the specified full image object.
      */
-    public static BufferedImage getImageCropped (Image fullImg, int x, int y,
-						 int width, int height)
+    public Image getImageCropped (Image fullImg, int x, int y,
+				  int width, int height)
     {
 	BufferedImage img =
 	    new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -94,6 +96,7 @@ public class ImageManager
 	return img;
     }
 
-    protected static Component _root;
-    protected static Hashtable _imgs = new Hashtable();
+    protected ResourceManager _rmgr;
+    protected Component _root;
+    protected Hashtable _imgs = new Hashtable();
 }

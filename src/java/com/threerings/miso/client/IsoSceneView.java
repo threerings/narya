@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.6 2001/07/18 21:45:42 shaper Exp $
+// $Id: IsoSceneView.java,v 1.7 2001/07/18 22:45:35 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -7,7 +7,6 @@ import com.threerings.miso.Log;
 import com.threerings.miso.tile.Tile;
 import com.threerings.miso.tile.TileManager;
 import com.threerings.miso.util.MathUtil;
-import com.threerings.media.ImageManager;
 
 import java.awt.*;
 import java.awt.image.*;
@@ -89,7 +88,7 @@ public class IsoSceneView implements SceneView
 		// TODO: draw layers L1+.
 		Tile tile = _scene.tiles[tx][ty][Scene.LAYER_BASE];
 
-		int ypos = screenY - (tile.img.getHeight() - Tile.HEIGHT);
+		int ypos = screenY - (tile.height - Tile.HEIGHT);
 		g2.drawImage(tile.img, screenX, ypos, null);
 
 		//paintCoords(g2, tx, ty, screenX, screenY);

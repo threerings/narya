@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.6 2001/07/18 21:45:42 shaper Exp $
+// $Id: TileManager.java,v 1.7 2001/07/18 22:45:35 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -9,6 +9,7 @@ import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.IntMap;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 
@@ -60,19 +61,12 @@ public class TileManager
 	    return tile;
 	}
 
-	// retrieve the tileset containing the tile
-	TileSet tset = _tsmgr.getTileSet(tsid);
-	if (tset == null) {
-	    Log.warning("Can't create tile due to unknown tileset " +
-			"[tsid=" + tsid + ", tid=" + tid + "].");
-	    return null;
-	}
-
 	// retrieve the tile image from the tileset
 	tile = new Tile(tsid, tid);
-	if ((tile.img = tset.getTileImage(tid)) == null) {
+	if ((tile.img = _tsmgr.getTileImage(tsid, tid)) == null) {
 	    Log.warning("Null tile image [tsid="+tsid+", tid="+tid+"].");
 	}
+	tile.height = (short)((BufferedImage)tile.img).getHeight();
 
 	_tiles.put(utid, tile);
 
