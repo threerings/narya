@@ -1,15 +1,16 @@
 //
-// $Id: ChatDirector.java,v 1.5 2001/08/04 03:13:26 mdb Exp $
+// $Id: ChatDirector.java,v 1.6 2001/08/22 00:08:39 mdb Exp $
 
 package com.threerings.cocktail.party.chat;
 
 import java.util.ArrayList;
+
+import com.threerings.cocktail.cher.client.*;
 import com.threerings.cocktail.cher.dobj.*;
 import com.threerings.cocktail.cher.util.Codes;
 
 import com.threerings.cocktail.party.Log;
 import com.threerings.cocktail.party.client.LocationObserver;
-import com.threerings.cocktail.cher.client.InvocationReceiver;
 import com.threerings.cocktail.party.data.PlaceObject;
 import com.threerings.cocktail.party.util.PartyContext;
 
@@ -32,9 +33,15 @@ public class ChatManager
         // keep the context around
         _ctx = ctx;
 
-        // register ourselves as the chat receiver
-        _ctx.getClient().getInvocationManager().registerReceiver(
-            ChatService.MODULE, this);
+        // register a client observer that will register us as the chat
+        // receiver when we log on
+        _ctx.getClient().addObserver(new ClientAdapter() {
+            public void clientDidLogon (Client client)
+            {
+                client.getInvocationManager().registerReceiver(
+                    ChatService.MODULE, ChatManager.this);
+            }
+        });
 
         // register ourselves as a location observer
         _ctx.getLocationManager().addLocationObserver(this);
