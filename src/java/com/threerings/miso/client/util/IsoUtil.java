@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.19 2002/02/06 23:35:47 mdb Exp $
+// $Id: IsoUtil.java,v 1.20 2002/02/06 23:38:45 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -150,10 +150,10 @@ public class IsoUtil
         ObjectTile tile1, int x1, int y1,
         ObjectTile tile2, int x2, int y2)
     {
-        return !(x2 > x1 - tile1.getBaseWidth() &&
-                 x1 > x2 - tile2.getBaseWidth() &&
-                 y2 > y1 - tile1.getBaseHeight() &&
-                 y1 > y2 - tile2.getBaseHeight());
+        return (x2 > x1 - tile1.getBaseWidth() &&
+                x1 > x2 - tile2.getBaseWidth() &&
+                y2 > y1 - tile1.getBaseHeight() &&
+                y1 > y2 - tile2.getBaseHeight());
     }
 
     /**
