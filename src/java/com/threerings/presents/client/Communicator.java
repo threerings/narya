@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.22 2002/10/29 23:51:26 mdb Exp $
+// $Id: Communicator.java,v 1.23 2002/10/30 18:46:33 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -91,7 +91,6 @@ public class Communicator
         _piid = IntervalManager.register(new Interval() {
             public void intervalExpired (int id, Object arg) {
                 if (checkNeedsPing()) {
-                    Log.info("Upstream idle, sending ping.");
                     postMessage(new PingRequest());
                 }
             }
