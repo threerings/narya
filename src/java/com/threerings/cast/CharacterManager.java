@@ -1,13 +1,13 @@
 //
-// $Id: CharacterManager.java,v 1.30 2003/01/13 22:53:04 mdb Exp $
+// $Id: CharacterManager.java,v 1.31 2003/01/15 02:36:59 mdb Exp $
 
 package com.threerings.cast;
 
 import java.util.Iterator;
 import java.util.HashMap;
 
-import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.LRUHashMap;
+import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Throttle;
 import com.samskivert.util.Tuple;
@@ -44,8 +44,7 @@ public class CharacterManager
         }
 
         // create our in-memory action cache
-        int acsize = ConfigUtil.getSystemProperty(
-            "narya.cast.action_cache_size", DEFAULT_ACTION_CACHE_SIZE);
+        int acsize = _cacheSize.getValue();
         Log.debug("Creating action cache [size=" + acsize + "].");
         _frames = new LRUHashMap(acsize);
         _frames.setTracking(true); // TODO
@@ -278,7 +277,11 @@ public class CharacterManager
     /** Throttle our cache status logging to once every 30 seconds. */
     protected Throttle _cacheStatThrottle = new Throttle(1, 30000L);
 
-    /** The number of actions to cache before we start clearing them
-     * out. */
-    protected static final int DEFAULT_ACTION_CACHE_SIZE = 30;
+    /** Register our image cache size with the runtime adjustments
+     * framework. */
+    protected static RuntimeAdjust.IntAdjust _cacheSize =
+        new RuntimeAdjust.IntAdjust(
+            "Size (in actions) of the character manager LRU action " +
+            "cache [requires reboot]", "narya.cast.action_cache_size",
+            CastPrefs.config, 30);
 }
