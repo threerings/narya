@@ -9,6 +9,7 @@
   <property name="app.name"       value="narya"/>
   <property name="deploy.dir"     value="dist"/>
   <property name="savedoc.dir"    value="docs"/>
+  <property name="lib.version"    value="1.0"/>
 
   <!-- derived properties -->  
   <property name="javadoc.home"   value="${deploy.dir}/docs"/>
@@ -207,6 +208,21 @@
       output="summary.ps">
       <classpath refid="base.classpath"/>
     </viztool>
+  </target>
+
+  <!-- creates a tarball for source distribution -->
+  <target name="distrib">
+     <echo message="Building ${lib.version} distribution..."/>
+     <echo message="You may want to stop and run 'ant savedoc' first."/>
+     <jar destfile="narya-${lib.version}.jar">
+       <fileset dir="..">
+         <exclude name="**/CVS"/>
+         <include name="narya/**"/>
+         <exclude name="narya/dist/**"/>
+         <exclude name="narya/code/**"/>
+         <exclude name="narya/*.jar"/>
+       </fileset>
+     </jar>
   </target>
 
 </project>

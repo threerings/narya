@@ -1,24 +1,18 @@
 Required external libraries
 ---------------------------
 
-The Narya code requires the following external Java libraries (JAR
-files) to be placed (or symlinked) here in the lib/ directory or in the
-shared library directory specified in the build.xml file
-(${java.libraries}).
+The Narya code requires the following external Java libraries (JAR files)
+to be placed (or symlinked) here in the lib/ directory or in the shared
+library directory specified in the build.xml file (java.libraries).
 
-* The samskivert package:
-  (check out from CVS: projects/samskivert)
+* The samskivert library:
+  http://samskivert.com/code/samskivert/
 
 * MM MySQL driver:
   http://mmmysql.sourceforge.net/
 
-* Matt Welsh's Non-blocking IO library:
-  http://www.cs.berkeley.edu/~mdw/proj/java-nbio/
-
-  (The native code shared library should be built and placed into
-  lib/i686-Linux where it will be automatically added to LD_LIBRARY_PATH
-  by the runjava script. Alternatively you can put it into your
-  LD_LIBRARY_PATH by hand.)
+* Various Apache Commons libraries:
+  http://jakarta.apache.org/commons/
 
 * The Java API for XML Processing (JAXP) 1.1 Reference Implementation:
   http://java.sun.com/xml/download.html
@@ -34,4 +28,4 @@ build system will automatically include them in the compile-time
 classpath.
 
 --
-$Id: README,v 1.5 2001/10/11 04:07:50 mdb Exp $
+$Id: README,v 1.6 2004/08/27 02:41:39 mdb Exp $
