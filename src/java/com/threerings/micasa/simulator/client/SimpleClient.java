@@ -1,5 +1,5 @@
 //
-// $Id: SimpleClient.java,v 1.9 2003/11/24 17:51:56 mdb Exp $
+// $Id: SimpleClient.java,v 1.10 2003/12/10 03:31:41 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -36,13 +36,13 @@ public class SimpleClient
         throws IOException
     {
         // create our context
-        _ctx = new MiCasaContextImpl();
+        _ctx = createContext();
 
         // create the handles on our various services
         _client = new Client(null, this);
 
         // create our managers and directors
-        _msgmgr = new MessageManager("rsrc");
+        _msgmgr = new MessageManager(getMessageManagerPrefix());
         _locdir = new LocationDirector(_ctx);
         _occdir = new OccupantDirector(_ctx);
         _pardtr = new ParlorDirector(_ctx);
@@ -59,6 +59,23 @@ public class SimpleClient
                 }
             }
         });
+    }
+
+    /**
+     * Creates our context reference.
+     */
+    protected MiCasaContext createContext ()
+    {
+        return new MiCasaContextImpl();
+    }
+
+    /**
+     * Returns the prefix used by the message manager when looking for
+     * translation properties files.
+     */
+    protected String getMessageManagerPrefix ()
+    {
+        return "rsrc";
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorApp.java,v 1.13 2002/11/12 19:54:05 shaper Exp $
+// $Id: SimulatorApp.java,v 1.14 2003/12/10 03:31:41 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -7,6 +7,8 @@ import javax.swing.JFrame;
 
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.util.SwingUtil;
+import com.samskivert.util.Interval;
+import com.samskivert.util.IntervalManager;
 import com.samskivert.util.ResultListener;
 
 import com.threerings.presents.client.Client;
@@ -139,7 +141,18 @@ public class SimulatorApp
         // create and set our credentials
         Credentials creds = new UsernamePasswordCreds(username, password);
         client.setCredentials(creds);
-        client.logon();
+
+        // this is a bit of a hack, but we need to give the server long
+        // enough to fully initialize and start listening on its socket
+        // before we try to logon; there's no good way for this otherwise
+        // wholly independent thread to wait for the server to be ready as
+        // in normal circumstances they are entirely different processes;
+        // so we just wait half a second which does the job
+        IntervalManager.register(new Interval() {
+            public void intervalExpired (int id, Object arg) {
+                _client.getParlorContext().getClient().logon();
+            }
+        }, 500L, null, false);
     }
 
     public static void main (String[] args)
