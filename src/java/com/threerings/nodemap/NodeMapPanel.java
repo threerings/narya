@@ -1,5 +1,5 @@
 //
-// $Id: NodeMapPanel.java,v 1.2 2001/08/23 00:22:30 shaper Exp $
+// $Id: NodeMapPanel.java,v 1.3 2001/08/28 23:50:45 shaper Exp $
 
 package com.threerings.nodemap;
 
@@ -9,6 +9,7 @@ import javax.swing.*;
 
 import com.samskivert.swing.ToolTipManager;
 import com.samskivert.swing.ToolTipObserver;
+import com.samskivert.swing.ToolTipProvider;
 
 /**
  * The node map panel handles display of a node map and passes Swing
@@ -40,15 +41,15 @@ public class NodeMapPanel extends JPanel
 	return _map.getSize();
     }
 
-    public void showToolTip (Object target)
+    public void showToolTip (ToolTipProvider tipper, int x, int y)
     {
-	_map.setToolTipNode((Node)target);
+	_map.setToolTipProvider(tipper, x, y);
 	repaint();
     }
 
     public void hideToolTip ()
     {
-	showToolTip(null);
+	showToolTip(null, -1, -1);
     }
 
     public JComponent getComponent ()
@@ -63,10 +64,14 @@ public class NodeMapPanel extends JPanel
 	_map.handleMouseClicked(e.getX(), e.getY());
     }
 
+    public void mouseExited (MouseEvent e)
+    {
+	_map.handleMouseExited();
+    }
+
     public void mousePressed (MouseEvent e) { }
     public void mouseReleased (MouseEvent e) { }
     public void mouseEntered (MouseEvent e) { }
-    public void mouseExited (MouseEvent e) { }
 
     /** MouseMotionListener interface methods */
 

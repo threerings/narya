@@ -1,5 +1,5 @@
 //
-// $Id: NodeMap.java,v 1.3 2001/08/23 23:44:12 shaper Exp $
+// $Id: NodeMap.java,v 1.4 2001/08/28 23:50:45 shaper Exp $
 
 package com.threerings.nodemap;
 
@@ -8,6 +8,8 @@ import java.util.*;
 import javax.swing.JComponent;
 
 import com.samskivert.swing.ToolTipManager;
+import com.samskivert.swing.ToolTipProvider;
+import com.samskivert.swing.util.ToolTipUtil;
 
 /**
  * The node map class represents a directed graph of nodes comprised
@@ -106,8 +108,13 @@ public class NodeMap
 	}
 
 	// draw the tool tip, if any
-	if (_tip != null) {
-	    _tip.paintToolTip(g);
+	if (_tipper != null) {
+	    // determine proper tool tip placement
+	    Point pos = ToolTipUtil.getTipPosition(
+		_tipx, _tipy, _tipper.getToolTipSize(g), getBounds());
+
+	    // paint away
+	    _tipper.paintToolTip(g, pos.x, pos.y);
 	}
 
 	// restore original origin
@@ -183,6 +190,15 @@ public class NodeMap
     }
 
     /**
+     * Return the bounding rectangle of the node map.
+     */
+    public Rectangle getBounds ()
+    {
+	Dimension size = getSize();
+	return new Rectangle(_minx, _miny, size.width, size.height);
+    }
+
+    /**
      * Handle mouse-moved events passed on by the containing panel.
      * Inform any affected nodes of mouse-entered and mouse-exited
      * events.
@@ -194,14 +210,14 @@ public class NodeMap
     {
 	Node enternode = null;
 
-	// tell the tip manager that the mouse moved
-	if (_tipmgr != null) {
-	    _tipmgr.handleMouseMoved();
-	}
-
 	// translate coordinates to node map origin
 	x += _minx;
 	y += _miny;
+
+	// tell the tip manager that the mouse moved
+	if (_tipmgr != null) {
+	    _tipmgr.handleMouseMoved(x, y);
+	}
 
 	// check whether we've entered a node
 	int size = _nodes.size();
@@ -225,7 +241,7 @@ public class NodeMap
 	    _lastnode.handleMouseExited();
 
 	    if (_tipmgr != null) {
-		_tipmgr.handleMouseExited(_lastnode);
+		_tipmgr.handleMouseExited();
 	    }
 	}
 
@@ -234,7 +250,7 @@ public class NodeMap
 	    enternode.handleMouseEntered();
 
 	    if (_tipmgr != null) {
-		_tipmgr.handleMouseEntered(enternode);
+		_tipmgr.handleMouseEntered(enternode, x, y);
 	    }
 	}
 
@@ -278,14 +294,28 @@ public class NodeMap
     }
 
     /**
-     * Set the node whose tool tip should be displayed when the node
-     * map is rendered.
-     *
-     * @param node the tool tip node.
+     * Handle mouse-exited events passed on by the containing panel.
+     * Inform the tool tip manager that we've exited any node we may
+     * have been within.
      */
-    public void setToolTipNode (Node node)
+    public void handleMouseExited ()
     {
-	_tip = node;
+	handleMouseMoved(-1, -1);
+    }
+
+    /**
+     * Set the tool tip provider for display when the node map is
+     * rendered.
+     *
+     * @param tipper the tool tip provider
+     * @param x the last mouse x-position.
+     * @param y the last mouse y-position.
+     */
+    public void setToolTipProvider (ToolTipProvider tipper, int x, int y)
+    {
+	_tipper = tipper;
+	_tipx = x;
+	_tipy = y;
     }
 
     /**
@@ -299,8 +329,11 @@ public class NodeMap
 	_tipmgr = tipmgr;
     }
 
-    /** The node whose tool tip is currently displayed. */
-    protected Node _tip;
+    /** The current tool tip provider. */
+    protected ToolTipProvider _tipper;
+
+    /** The mouse position for calculating tool tip display position. */
+    protected int _tipx, _tipy;
 
     /** The tool tip manager. */
     protected ToolTipManager _tipmgr;

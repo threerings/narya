@@ -1,11 +1,12 @@
 //
-// $Id: Node.java,v 1.4 2001/08/27 21:38:41 shaper Exp $
+// $Id: Node.java,v 1.5 2001/08/28 23:50:45 shaper Exp $
 
 package com.threerings.nodemap;
 
 import java.awt.*;
 import java.util.*;
 
+import com.samskivert.swing.ToolTipProvider;
 import com.samskivert.swing.util.SwingUtil;
 
 /**
@@ -13,7 +14,7 @@ import com.samskivert.swing.util.SwingUtil;
  *
  * @see NodeMap
  */
-public abstract class Node
+public abstract class Node implements ToolTipProvider
 {
     /**
      * Construct a node with the given attributes.
@@ -144,26 +145,32 @@ public abstract class Node
      * name.
      *
      * @param g the graphics context.
+     * @param x the x-position at which the tip should be drawn.
+     * @param y the y-position at which the tip should be drawn.
      */
-    public void paintToolTip (Graphics g)
+    public void paintToolTip (Graphics g, int x, int y)
     {
-	// calculate tool tip position and dimensions
+	Dimension d = getToolTipSize(g);
+
+	// draw the yellow box
+	g.setColor(Color.yellow);
+	g.fillRect(x, y, d.width, d.height);
+	g.setColor(Color.black);
+	g.drawRect(x, y, d.width, d.height);
+
+	// draw the node name
+	SwingUtil.drawStringCentered(g, _name, x, y, d.width, d.height);
+    }
+
+    public Dimension getToolTipSize (Graphics g)
+    {
+	// calculate tool tip dimensions
 	FontMetrics fm = g.getFontMetrics(g.getFont());
 
 	int wid = fm.stringWidth(_name) + 10;
 	int hei = fm.getAscent() + 4;
 
-	int xpos = _x + ((_width - wid) / 2);
-	int ypos = _y + ((_height - hei) / 2);
-
-	// draw the yellow box
-	g.setColor(Color.yellow);
-	g.fillRect(xpos, ypos, wid, hei);
-	g.setColor(Color.black);
-	g.drawRect(xpos, ypos, wid, hei);
-
-	// draw the node name
-	SwingUtil.drawStringCentered(g, _name, xpos, ypos, wid, hei);
+	return new Dimension(wid, hei);
     }
 
     /**
