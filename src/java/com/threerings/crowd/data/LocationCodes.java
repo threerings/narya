@@ -1,9 +1,10 @@
 //
-// $Id: LocationCodes.java,v 1.1 2002/04/15 16:28:01 shaper Exp $
+// $Id: LocationCodes.java,v 1.2 2002/04/15 18:06:19 mdb Exp $
 
 package com.threerings.crowd.data;
 
 import com.threerings.presents.data.InvocationCodes;
+import com.threerings.crowd.client.LocationDirector;
 
 /**
  * Contains codes used by the location invocation services.

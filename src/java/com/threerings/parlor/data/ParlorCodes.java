@@ -1,9 +1,12 @@
 //
-// $Id: ParlorCodes.java,v 1.1 2002/04/15 16:28:02 shaper Exp $
+// $Id: ParlorCodes.java,v 1.2 2002/04/15 18:06:20 mdb Exp $
 
 package com.threerings.parlor.data;
 
 import com.threerings.presents.data.InvocationCodes;
+
+import com.threerings.parlor.client.ParlorDirector;
+import com.threerings.parlor.client.TableDirector;
 
 /**
  * Contains codes used by the parlor invocation services.
