@@ -1,9 +1,10 @@
 //
-// $Id: MiCasaFrame.java,v 1.4 2001/12/20 01:10:51 shaper Exp $
+// $Id: MiCasaFrame.java,v 1.5 2002/07/12 03:48:45 mdb Exp $
 
 package com.threerings.micasa.client;
 
 import java.awt.BorderLayout;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -21,7 +22,16 @@ public class MiCasaFrame
      */
     public MiCasaFrame ()
     {
-        super("MiCasa Client");
+        this("MiCasa Client");
+    }
+
+    /**
+     * Constructs the top-level MiCasa client frame with the specified
+     * window title.
+     */
+    public MiCasaFrame (String title)
+    {
+        super(title);
     }
 
     /**
