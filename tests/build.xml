@@ -23,7 +23,6 @@
   <path id="classpath">
     <pathelement location="${classes.dir}"/>
     <pathelement location="${narya.classes.dir}"/>
-    <fileset dir="../lib" includes="**/*.jar"/>
     <fileset dir="${java.libraries}" includes="**/*.jar"/>
   </path>
 
