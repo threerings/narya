@@ -176,7 +176,7 @@ public class Table
         }
 
         // make sure the requested position is a valid one
-        if (position >= maxpos) {
+        if (position >= maxpos || position < 0) {
             return INVALID_TABLE_POSITION;
         }
 
