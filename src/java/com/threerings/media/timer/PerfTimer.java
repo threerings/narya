@@ -1,5 +1,5 @@
 //
-// $Id: PerfTimer.java,v 1.2 2004/08/27 02:12:46 mdb Exp $
+// $Id: PerfTimer.java,v 1.3 2004/10/15 22:22:37 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -33,28 +33,29 @@ public class PerfTimer implements MediaTimer
     public PerfTimer ()
     {
         _timer = Perf.getPerf();
-        _frequency = _timer.highResFrequency();
-        _startStamp = _timer.highResCounter() * 1000 / _frequency;
-        Log.info("Using high performance timer [freq=" + _frequency +
-                 ", start=" + _startStamp + "].");
+        _mfrequency = _timer.highResFrequency() / 1000;
+        _ufrequency = _timer.highResFrequency() / 1000000;
+        _startStamp = _timer.highResCounter();
+        Log.info("Using high performance timer [mfreq=" + _mfrequency +
+                 ", ufreq=" + _ufrequency + ", start=" + _startStamp + "].");
     }
 
     // documentation inherited from interface
     public void reset ()
     {
-        _startStamp = _timer.highResCounter() * 1000 / _frequency;
+        _startStamp = _timer.highResCounter();
     }
 
     // documentation inherited from interface
     public long getElapsedMillis ()
     {
-        return _timer.highResCounter() * 1000 / _frequency;
+        return (_timer.highResCounter() - _startStamp) / _mfrequency;
     }
 
     // documentation inherited from interface
     public long getElapsedMicros ()
     {
-        return _timer.highResCounter() * 100 / _frequency;
+        return (_timer.highResCounter() - _startStamp) / _ufrequency;
     }
 
     /** A performance timer object. */
@@ -63,6 +64,6 @@ public class PerfTimer implements MediaTimer
     /** The time at which this timer was last reset. */
     protected long _startStamp;
 
-    /** The timer frequency. */
-    protected long _frequency;
+    /** The timer frequencies. */
+    protected long _mfrequency, _ufrequency;
 }
