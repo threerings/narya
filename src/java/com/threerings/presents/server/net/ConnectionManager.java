@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.9 2001/08/08 23:56:20 mdb Exp $
+// $Id: ConnectionManager.java,v 1.10 2001/10/09 18:27:25 mdb Exp $
 
 package com.threerings.cocktail.cher.server.net;
 
@@ -127,6 +127,7 @@ public class ConnectionManager extends LoopingThread
         }
     }
 
+    // documentation inherited
     protected void willStart ()
     {
         Log.info("Connection Manager listening [port=" + _port + "].");
@@ -199,6 +200,15 @@ public class ConnectionManager extends LoopingThread
         }
     }
 
+    // documentation inherited
+    protected void handleIterateFailure (Exception e)
+    {
+        // log the exception
+        Log.warning("ConnectionManager.iterate() uncaught exception.");
+        Log.logStackTrace(e);
+    }
+
+    // documentation inherited
     protected void didShutdown ()
     {
         Log.info("Connection Manager thread exited.");
