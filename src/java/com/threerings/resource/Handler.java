@@ -1,5 +1,5 @@
 //
-// $Id: Handler.java,v 1.7 2004/08/27 02:20:34 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -30,6 +30,7 @@ import java.net.URLConnection;
 import java.net.URLStreamHandler;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 
 import com.samskivert.net.AttachableURLFactory;
 import com.samskivert.io.ByteArrayOutInputStream;
@@ -41,7 +42,8 @@ import com.samskivert.util.StringUtil;
 /**
  * This class is not used directly, except by a registering ResourceManager
  * so that we can load data from the resource manager using URLs of the form
- * <code>resource://&lt;resourceSet&gt;/&lt;path&gt;</code>.
+ * <code>resource://&lt;resourceSet&gt;/&lt;path&gt;</code>. ResourceSet may
+ * be the empty string to load from the default resource sets.
  */
 public class Handler extends URLStreamHandler
 {
@@ -82,6 +84,8 @@ public class Handler extends URLStreamHandler
                     String query = url.getQuery();
                     if (!StringUtil.blank(query)) {
                         _stream = getStream(bundle, path, query);
+                    } else if (StringUtil.blank(bundle)) {
+                        _stream = _rmgr.getResource(path);
                     } else {
                         _stream = _rmgr.getResource(bundle, path);
                     }
@@ -147,7 +151,10 @@ public class Handler extends URLStreamHandler
 
         // locate the tile image, then write that subimage back out in PNG
         // format into memory and return an input stream for that
-        BufferedImage src = ImageIO.read(_rmgr.getImageResource(bundle, path));
+        ImageInputStream stream =
+            StringUtil.blank(bundle) ? _rmgr.getImageResource(path)
+                                     : _rmgr.getImageResource(bundle, path);
+        BufferedImage src = ImageIO.read(stream);
         Rectangle trect = GeomUtil.getTile(
             src.getWidth(), src.getHeight(), width, height, tidx);
         BufferedImage tile = src.getSubimage(
