@@ -72,7 +72,7 @@ foreach $dir (@dirs) {
 $classpath = "$classpath:$jlib";
 
 # specify our server root (this is for server code)
-my $rootarg = "-Dapplication.root=$realroot";
+my $rootarg = "-Dapplication.root=$realroot -Dtest_dir=$realroot";
 
 my $pid_file = undef;
 my $i = 0;
