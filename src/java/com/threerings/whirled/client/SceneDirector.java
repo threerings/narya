@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.22 2002/11/03 01:15:36 mdb Exp $
+// $Id: SceneDirector.java,v 1.23 2002/12/09 04:44:33 shaper Exp $
 
 package com.threerings.whirled.client;
 
@@ -72,7 +72,7 @@ public class SceneDirector extends BasicDirector
     }
 
     /**
-     * Returns the dispaly scene object associated with the scene we
+     * Returns the display scene object associated with the scene we
      * currently occupy or null if we currently occupy no scene.
      */
     public DisplayScene getScene ()
