@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.46 2001/08/15 03:13:06 shaper Exp $
+// $Id: IsoSceneView.java,v 1.47 2001/08/15 22:06:21 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -87,6 +87,11 @@ public class IsoSceneView implements EditableSceneView
 	    clearDirtyRegions();
 	}
 
+	// draw sprite paths
+	if (_model.showPaths) {
+	    _spritemgr.renderSpritePaths(gfx);
+	}
+
 	// draw marks at each location
 	if (_model.showLocs) {
 	    paintLocations(gfx);
@@ -170,7 +175,8 @@ public class IsoSceneView implements EditableSceneView
 
 		// paint the tile coordinate if desired
   		if (_model.showCoords) {
-                    paintCoords(gfx, xx, yy, poly.xpoints[0], poly.ypoints[0]);
+                    paintCoords(gfx, xx, yy, poly.xpoints[0],
+				poly.ypoints[0] - _model.tilehhei);
                 }
 
 		// bail early if we know we've drawn all dirty tiles
@@ -567,6 +573,9 @@ public class IsoSceneView implements EditableSceneView
 	    return null;
 	}
 
+	// TODO: make more visually appealing path segments from start
+	// to second tile, and penultimate to ultimate tile.
+
 	// construct path with starting screen position
         Path path = new Path(sprite.x, sprite.y);
 
@@ -588,9 +597,6 @@ public class IsoSceneView implements EditableSceneView
 	    // of each tile in the path for now
 	    path.addNode(nspos.x + _model.tilehwid,
 			 nspos.y + _model.tilehhei, dir);
-
-//    	    Log.info("Adding node [tx=" + n.x + ", ty=" + n.y +
-//    		     ", dir=" + dir + "].");
 
 	    prev = n;
 	}

@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.10 2001/08/14 23:35:22 mdb Exp $
+// $Id: Sprite.java,v 1.11 2001/08/15 22:06:21 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -80,7 +80,26 @@ public class Sprite
     public void paint (Graphics2D gfx)
     {
         gfx.drawImage(_frame, _drawx, _drawy, null);
-//          Log.info("Sprite painting image [sprite=" + this + "].");
+    }
+
+    /**
+     * Paint the sprite's path, if any, to the specified graphics context.
+     *
+     * @param gfx the graphics context.
+     */
+    public void paintPath (Graphics2D gfx)
+    {
+	if (_fullpath == null) return;
+
+	gfx.setColor(Color.red);
+	Point prev = null;
+	int size = _fullpath.size();
+	for (int ii = 0; ii < size; ii++) {
+	    PathNode n = (PathNode)_fullpath.getNode(ii);
+	    if (prev == null) prev = n.loc;
+	    gfx.drawLine(prev.x, prev.y, n.loc.x, n.loc.y);
+	    prev = n.loc;
+	}
     }
 
     /**
@@ -123,6 +142,19 @@ public class Sprite
     }
 
     /**
+     * Stop the sprite from any movement along a path it may be
+     * engaged in.
+     */
+    public void stop ()
+    {
+	// TODO: make sure we come to a stop on a full coordinate,
+	// even in the case where we aborted a path walk mid-traversal.
+	_dest = null;
+	_path = null;
+	_fullpath = null;
+    }
+
+    /**
      * Set the sprite's active path and start moving it along its
      * merry way.  If the sprite is already moving along a previous
      * path the old path will be lost and the new path will begin to
@@ -133,12 +165,20 @@ public class Sprite
     public void move (Path path)
     {
         // make sure following the path is a sensible thing to do
-        if (path == null || path.size() < 2) return;
+        if (path == null || path.size() < 2) {
+	    // halt movement if we're walking since, regardless of its
+	    // reasonableness, we've been asked to follow a new path
+	    stop();
+	    return;
+	}
 
         // save an enumeration of the path nodes
         _path = path.elements();
 
-        // skip the first node since it's our starting position.
+	// and the full path for potential rendering
+	_fullpath = path;
+
+	// skip the first node since it's our starting position.
         // perhaps someday we'll do something with this.
         _path.nextElement();
 
@@ -156,7 +196,7 @@ public class Sprite
 
         // if no more nodes remain, clear out our path and bail
         if (_dest == null) {
-            _path = null;
+	    stop();
             return;
         }
 
@@ -187,11 +227,6 @@ public class Sprite
 
         Rectangle dirty = new Rectangle(
             _drawx, _drawy, _frame.getWidth(null), _frame.getHeight(null));
-
-//  	Log.info("Sprite invalidate [x=" + x + ", y=" + y +
-//  		 ", dx=" + dirty.x + ", dy=" + dirty.y +
-//  		 ", dwidth=" + dirty.width +
-//  		 ", dheight=" + dirty.height + "].");
 
         _spritemgr.addDirtyRect(dirty);
     }
@@ -310,6 +345,9 @@ public class Sprite
 
     /** The number of ticks since the last image animation. */
     protected int _numTicks;
+
+    /** When moving, the full path the sprite is traversing. */
+    protected Path _fullpath;
 
     /** The sprite manager. */
     protected SpriteManager _spritemgr;

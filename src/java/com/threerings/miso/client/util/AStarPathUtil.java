@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.1 2001/08/15 02:30:27 shaper Exp $
+// $Id: AStarPathUtil.java,v 1.2 2001/08/15 22:06:21 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -109,21 +109,26 @@ public class AStarPathUtil
 
 	// skip node if it's impassable
 	// TODO: fix hard-coded consideration of only the base layer
-	if (!info.trav.canTraverse(info.tiles[x][y][0])) return;
+	if (!info.trav.canTraverse(info.tiles[x][y][0])) {
+	    return;
+	}
 
 	// calculate the new cost for this node
-	int newg = n.g + 1; // getCost() is always 1?
+	int newg = n.g + 1; // cost to go node-to-node is always 1 for now
 
 	// retrieve the node corresponding to this location
 	AStarNode np = getNode(info, x, y);
 
 	// skip if it's already in the open or closed list or if its
 	// actual cost is less than the just-calculated cost
-	// TODO: shouldn't <= below be >=?
 	if ((info.open.contains(np) || info.closed.contains(np)) &&
 	    np.g <= newg) {
 	    return;
 	}
+
+	// remove the node from the open list since we're about to
+	// modify its score which determines its placement in the list
+	info.open.remove(np);
 
 	// update the node's information
 	np.parent = n;
@@ -134,7 +139,7 @@ public class AStarPathUtil
 	// remove it from the closed list if it's present
 	info.closed.remove(np);
 
-	// add it to the open list in case it's not already there
+	// add it to the open list for further consideration
 	info.open.add(np);
     }
 
@@ -181,7 +186,7 @@ public class AStarPathUtil
      */
     protected static int getDistanceEstimate (int ax, int ay, int bx, int by)
     {
-	return (int)MathUtil.distance(ax, ay, bx, by);
+	return Math.max(Math.abs(bx - ax), Math.abs(by - ay));
     }
 }
 
@@ -264,14 +269,16 @@ class AStarNode implements Comparable
     {
 	int bf = ((AStarNode)o).f;
 
-	if (f == bf){
-	    return 0;
-	}
+	// since the set contract is fulfilled using the equality
+	// results returned here, and we'd like to allow multiple
+	// nodes with equivalent scores in our set, we explicitly
+	// define object equivalence as the result of object.equals(),
+	// else we use the object hashcode since it will return a
+	// consistent, though arbitrary, ordering for the objects.
+  	if (f == bf) {
+	    return (this == o) ? 0 : (hashCode() - o.hashCode());
+  	}
 
-	if (f < bf)  {
-	    return -1;
-	}
-
-	return 1;
+	return f - bf;
     }
 }

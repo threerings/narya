@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.6 2001/08/14 22:54:45 mdb Exp $
+// $Id: SpriteManager.java,v 1.7 2001/08/15 22:06:21 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -62,19 +62,6 @@ public class SpriteManager
     }
 
     /**
-     * Start a sprite moving along a particular path.  The sprite will
-     * continue to be moved along the path until the final destination
-     * is reached, or until the sprite is brought to a halt by some
-     * has-yet-to-be-determined means.
-     *
-     * @param sprite the sprite to move.
-     * @param path the path to move the sprite along.
-     */
-    public void moveSprite (Sprite sprite, Path path)
-    {
-    }
-
-    /**
      * Render the sprites residing within the given polygon to the
      * given graphics context.
      *
@@ -93,6 +80,20 @@ public class SpriteManager
             if (sprite.inside(bounds)) {
                 sprite.paint(gfx);
             }
+        }
+    }
+
+    /**
+     * Render the sprite paths to the given graphics context.
+     *
+     * @param gfx the graphics context.
+     */
+    public void renderSpritePaths (Graphics2D gfx)
+    {
+        int size = _sprites.size();
+        for (int ii = 0; ii < size; ii++) {
+            Sprite sprite = (Sprite)_sprites.get(ii);
+	    sprite.paintPath(gfx);
         }
     }
 

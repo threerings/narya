@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.5 2001/08/15 02:30:27 shaper Exp $
+// $Id: CharacterSprite.java,v 1.6 2001/08/15 22:06:21 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -52,8 +52,6 @@ public class AmbulatorySprite extends Sprite implements Traverser
 
         // bail if we're at the end of the path
         if (_dest == null) {
-            // stop any walking animation
-            setAnimationDelay(ANIM_NONE);
             return;
         }
 
@@ -62,6 +60,14 @@ public class AmbulatorySprite extends Sprite implements Traverser
 
         // start tile animation to show movement
         setAnimationDelay(0);
+    }
+
+    public void stop ()
+    {
+	super.stop();
+
+	// stop any walking animation
+	setAnimationDelay(ANIM_NONE);
     }
 
     public boolean canTraverse (Tile tile)

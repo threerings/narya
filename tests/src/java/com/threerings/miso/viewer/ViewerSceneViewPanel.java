@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.10 2001/08/15 02:30:28 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.11 2001/08/15 22:06:21 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -40,6 +40,9 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 
         // load up the initial scene
         prepareStartingScene();
+
+	_smodel.setShowCoordinates(true);
+	_smodel.setShowSpritePaths(true);
 
 	PerformanceMonitor.register(this, "paint", 1000);
     }
@@ -92,9 +95,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 
         // get the path from here to there
         Path path = _view.getPath(_sprite, x, y);
-        if (path != null) {
-            _sprite.move(path);
-        }
+	_sprite.move(path);
 
         // hackily highlight the tile that was clicked on for happy testing
         ((EditableSceneView)_view).setHighlightedFull(x, y);

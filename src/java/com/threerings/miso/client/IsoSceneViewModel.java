@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.7 2001/08/15 01:08:49 mdb Exp $
+// $Id: IsoSceneViewModel.java,v 1.8 2001/08/15 22:06:21 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -65,6 +65,9 @@ public class IsoSceneModel
     /** Whether locations in the scene should be drawn. */
     public boolean showLocs;
 
+    /** Whether sprite paths should be drawn. */
+    public boolean showPaths;
+
     /**
      * Construct an IsoSceneModel with reasonable default values.
      */
@@ -124,6 +127,16 @@ public class IsoSceneModel
     public void setShowCoordinates (boolean show)
     {
 	showCoords = show;
+    }
+
+    /**
+     * Set whether sprite paths should be drawn.
+     *
+     * @param show whether to show paths.
+     */
+    public void setShowSpritePaths (boolean show)
+    {
+	showPaths = show;
     }
 
     /**
