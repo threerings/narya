@@ -1,5 +1,5 @@
 //
-// $Id: PlaceView.java,v 1.1 2001/10/04 20:02:49 mdb Exp $
+// $Id: PlaceView.java,v 1.2 2001/10/04 22:47:48 mdb Exp $
 
 package com.threerings.cocktail.party.util;
 
@@ -26,7 +26,7 @@ import com.threerings.cocktail.party.data.PlaceObject;
  * PlaceViewUtil#dispatchDidLeavePlace}. These functions traverse the UI
  * hierarchy (starting with the element provided which would generally be
  * the top-level UI element, and dispatch calls to {@link #willEnterPlace}
- * and {@link #willLeavePlace} respectively on any UI element they find
+ * and {@link #didLeavePlace} respectively on any UI element they find
  * that implements <code>PlaceView</code>.
  *
  * <p> By doing this, the client code can simply create place-sensitive

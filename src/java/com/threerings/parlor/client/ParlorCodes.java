@@ -1,5 +1,5 @@
 //
-// $Id: ParlorCodes.java,v 1.3 2001/10/02 21:52:33 mdb Exp $
+// $Id: ParlorCodes.java,v 1.4 2001/10/04 22:47:49 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -15,7 +15,7 @@ public interface ParlorCodes extends InvocationCodes
 
     /** The message identifier for a game ready notification. This is
      * mapped by the invocation services to a call to {@link
-     * ParlorDirector#handleGameReady}. */
+     * ParlorDirector#handleGameReadyNotification}. */
     public static final String GAME_READY_NOTIFICATION = "GameReady";
 
     /** The message identifier for an invitation creation request or
