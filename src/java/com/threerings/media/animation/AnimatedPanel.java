@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.5 2002/02/13 18:48:56 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.6 2002/02/17 07:13:59 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -122,10 +122,9 @@ public class AnimatedPanel extends Canvas implements AnimatedView
     // documentation inherited
     public void paintImmediately ()
     {
+        // no use in painting if we're not showing or if we've not yet
+        // been validated
         if (!isValid() || !isShowing()) {
-            Log.warning("Attempt to paint unprepared panel " +
-                        "[valid=" + isValid() +
-                        ", showing=" + isShowing() + "].");
             return;
         }
 
