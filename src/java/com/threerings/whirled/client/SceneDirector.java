@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.1 2001/08/14 06:51:07 mdb Exp $
+// $Id: SceneDirector.java,v 1.2 2001/08/15 02:13:12 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -120,6 +120,12 @@ public class SceneManager extends LocationManager
 
         // and load the new scene
         _scene = loadScene(_sceneId);
+
+        // complain if we didn't find a scene
+        if (_scene == null) {
+            Log.warning("Aiya! Unable to load scene [sid=" + _sceneId +
+                        ", plid=" + placeId + "].");
+        }
     }
 
     /**
