@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.53 2003/12/13 02:52:00 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.54 2004/01/07 22:03:08 ray Exp $
 
 package com.threerings.miso.client;
 
@@ -1005,7 +1005,8 @@ public class MisoScenePanel extends VirtualMediaPanel
      */
     protected String getTipText (SceneObject scobj, String action)
     {
-        return action;
+        ObjectActionHandler oah = ObjectActionHandler.lookup(action);
+        return (oah == null) ? action : oah.getTipText(action);
     }
 
     /**

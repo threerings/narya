@@ -1,5 +1,5 @@
 //
-// $Id: ObjectActionHandler.java,v 1.1 2003/04/17 19:21:16 mdb Exp $
+// $Id: ObjectActionHandler.java,v 1.2 2004/01/07 22:03:08 ray Exp $
 
 package com.threerings.miso.client;
 
@@ -28,6 +28,14 @@ public class ObjectActionHandler
     public boolean actionAllowed (String action)
     {
         return true;
+    }
+
+    /**
+     * Get the human readable object tip for the specified action.
+     */
+    public String getTipText (String action)
+    {
+        return action;
     }
 
     /**
