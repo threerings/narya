@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.21 2002/11/04 23:02:10 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.22 2003/01/18 22:52:38 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -246,18 +246,22 @@ public class SpotSceneManager extends SceneManager
         int sourceOid, String source, int locationId,
         String bundle, String message, byte mode)
     {
+        int locIdx = _sscene.getLocationIndex(locationId);
+
         // make sure this user occupies the specified location
-        int locidx = _sscene.getLocationIndex(locationId);
-        if (locidx == -1 || _locationOccs[locidx] != sourceOid) {
+        int locOccId = (locIdx == -1) ? -1 : _locationOccs[locIdx];
+        if (locOccId != sourceOid) {
             Log.warning("User not in specified location for CCREQ " +
                         "[where=" + where() + ", chatter=" + source +
                         " (" + sourceOid + "), locId=" + locationId +
-                        ", locidx=" + locidx + ", message=" + message + "].");
+                        ", locIdx=" + locIdx +
+                        ", locOccs=" + StringUtil.toString(_locationOccs) +
+                        ", message=" + message + "].");
             return;
         }
 
         // make sure there's a cluster associated with this location
-        int clusterIndex = _sscene.getClusterIndex(locidx);
+        int clusterIndex = _sscene.getClusterIndex(locIdx);
         if (clusterIndex == -1) {
             Log.warning("User in clusterless location sent CCREQ " +
                         "[where=" + where() + ", chatter=" + source +
@@ -266,17 +270,17 @@ public class SpotSceneManager extends SceneManager
             return;
         }
 
-        // all is well, generate a chat notification
         DObject clusterObj = _clusterObjs[clusterIndex];
-        if (clusterObj != null) {
-            SpeakProvider.sendSpeak(clusterObj, source, bundle, message, mode);
-
-        } else {
+        if (clusterObj == null) {
             Log.warning("Have no cluster object for CCREQ " +
                         "[where=" + where() + ", cidx=" + clusterIndex +
                         ", chatter=" + source + " (" + sourceOid +
                         "), message=" + message + "].");
+            return;
         }
+
+        // all is well, generate a chat notification
+        SpeakProvider.sendSpeak(clusterObj, source, bundle, message, mode);
     }
 
     /**
