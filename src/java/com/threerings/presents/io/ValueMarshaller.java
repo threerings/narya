@@ -1,5 +1,5 @@
 //
-// $Id: ValueMarshaller.java,v 1.9 2002/02/05 09:35:59 shaper Exp $
+// $Id: ValueMarshaller.java,v 1.10 2002/02/19 03:05:56 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -44,6 +44,13 @@ public class ValueMarshaller
     public static void writeTo (DataOutputStream out, Object value)
         throws IOException
     {
+        // if the value is null, we use a special marshaller code to
+        // indicate such
+        if (value == null) {
+            out.writeByte(0);
+            return;
+        }
+
         // all types except streamable and arrays of streamable have a one
         // to one mapping from class object to marshaller, but streamables
         // have to be looked up specially because we are dealing with a
@@ -76,6 +83,14 @@ public class ValueMarshaller
         throws IOException
     {
         byte code = in.readByte();
+
+        // if the value was null, the code will be zero, otherwise it will
+        // reference a valid value marshaller registration
+        if (code == 0) {
+            return null;
+        }
+
+        // look up the marshaller and read in the value
         Marshaller marsh = (Marshaller)_inmap.get((int)code);
         if (marsh == null) {
             throw new RuntimeException("Requested to unserialize invalid " +
