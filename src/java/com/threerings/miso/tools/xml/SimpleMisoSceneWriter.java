@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneWriter.java,v 1.9 2003/01/31 23:10:46 mdb Exp $
+// $Id: SimpleMisoSceneWriter.java,v 1.1 2003/02/12 07:21:50 mdb Exp $
 
 package com.threerings.miso.tools.xml;
 
@@ -8,35 +8,36 @@ import org.xml.sax.helpers.AttributesImpl;
 
 import com.megginson.sax.DataWriter;
 import com.samskivert.util.StringUtil;
+import com.threerings.tools.xml.NestableWriter;
 
-import com.threerings.miso.data.MisoSceneModel;
 import com.threerings.miso.data.ObjectInfo;
+import com.threerings.miso.data.SimpleMisoSceneModel;
 
 /**
- * Generates an XML representation of a {@link MisoSceneModel}.
+ * Generates an XML representation of a {@link SimpleMisoSceneModel}.
  */
-public class MisoSceneWriter
+public class SimpleMisoSceneWriter implements NestableWriter
 {
-    /**
-     * Writes the data for the supplied {@link MisoSceneModel} to the XML
-     * writer supplied. The writer will already be configured with the
-     * appropriate indentation level so that this writer can simply output
-     * its elements and allow the calling code to determine where in the
-     * greater scene description file the miso data should live.
-     */
-    public void writeScene (MisoSceneModel model, DataWriter writer)
+    /** The element used to enclose scene models written with this
+     * writer. */
+    public static final String OUTER_ELEMENT = "miso";
+
+    // documentation inherited from interface
+    public void write (Object object, DataWriter writer)
         throws SAXException
     {
-        writer.startElement("miso");
+        SimpleMisoSceneModel model = (SimpleMisoSceneModel)object;
+        writer.startElement(OUTER_ELEMENT);
         writeSceneData(model, writer);
-        writer.endElement("miso");
+        writer.endElement(OUTER_ELEMENT);
     }
 
     /**
      * Writes just the scene data which is handy for derived classes which
      * may wish to add their own scene data to the scene output.
      */
-    protected void writeSceneData (MisoSceneModel model, DataWriter writer)
+    protected void writeSceneData (SimpleMisoSceneModel model,
+                                   DataWriter writer)
         throws SAXException
     {
         writer.dataElement("width", Integer.toString(model.width));
