@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.30 2003/04/27 07:53:31 mdb Exp $
+// $Id: ConnectionManager.java,v 1.31 2003/05/10 01:05:33 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -255,7 +255,8 @@ public class ConnectionManager extends LoopingThread
                     if (oq.writeOverflowMessages(iterStamp)) {
                         // if they were all written, we can remove it
                         oqiter.remove();
-                        Log.info("Flushed overflow queue for " + oq.conn + ".");
+//                         Log.info("Flushed overflow queue for " +
+//                                  oq.conn + ".");
                     }
 
                 } catch (IOException ioe) {
@@ -611,8 +612,9 @@ public class ConnectionManager extends LoopingThread
                 if (_partial.remaining() == 0) {
                     _partial = null;
                 } else {
-                    Log.info("Still going [conn=" + conn + ", wrote=" + wrote +
-                             ", remain=" + _partial.remaining() + "].");
+//                     Log.info("Still going [conn=" + conn +
+//                              ", wrote=" + wrote +
+//                              ", remain=" + _partial.remaining() + "].");
                     return false;
                 }
             }
