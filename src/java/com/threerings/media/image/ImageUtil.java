@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.29 2003/01/24 22:54:08 mdb Exp $
+// $Id: ImageUtil.java,v 1.30 2003/04/09 22:02:20 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -523,7 +523,11 @@ public class ImageUtil
      */
     public static long getEstimatedMemoryUsage (BufferedImage image)
     {
-        return getEstimatedMemoryUsage(image.getRaster());
+        if (image != null) {
+            return getEstimatedMemoryUsage(image.getRaster());
+        } else {
+            return 0;
+        }
     }
 
     /**
