@@ -1,5 +1,5 @@
 //
-// $Id: EditableSpotScene.java,v 1.4 2001/12/05 03:38:09 mdb Exp $
+// $Id: EditableSpotScene.java,v 1.5 2001/12/05 09:20:10 mdb Exp $
 
 package com.threerings.whirled.tools.spot;
 
@@ -26,6 +26,13 @@ public interface EditableSpotScene
      * Sets the location id of the default entrance to this scene.
      */
     public void setDefaultEntranceId (int defaultEntranceId);
+
+    /**
+     * Returns the next valid location id for this scene. Newly created
+     * portals or locations should be assigned a new location id via this
+     * method.
+     */
+    public int getNextLocationId ();
 
     /**
      * Adds a location to this scene.

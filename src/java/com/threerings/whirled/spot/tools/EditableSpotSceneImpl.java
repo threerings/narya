@@ -1,9 +1,10 @@
 //
-// $Id: EditableSpotSceneImpl.java,v 1.7 2001/12/05 08:45:06 mdb Exp $
+// $Id: EditableSpotSceneImpl.java,v 1.8 2001/12/05 09:20:10 mdb Exp $
 
 package com.threerings.whirled.tools.spot;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.threerings.crowd.data.PlaceConfig;
@@ -80,6 +81,13 @@ public class EditableSpotSceneImpl extends EditableSceneImpl
             port.targetPortalName = _emodel.targetPortalNames[i];
             portals.set(i, port);
         }
+
+        // determine the highest location id in use by this scene
+        Iterator iter = _delegate.getLocations().iterator();
+        while (iter.hasNext()) {
+            _nextLocationId = Math.max(_nextLocationId,
+                                       ((Location)iter.next()).locationId);
+        }
     }
 
     /**
@@ -121,6 +129,12 @@ public class EditableSpotSceneImpl extends EditableSceneImpl
     public void setDefaultEntranceId (int defaultEntranceId)
     {
         _model.defaultEntranceId = defaultEntranceId;
+    }
+
+    // documentation inherited
+    public int getNextLocationId ()
+    {
+        return ++_nextLocationId;
     }
 
     // documentation inherited
@@ -219,4 +233,7 @@ public class EditableSpotSceneImpl extends EditableSceneImpl
 
     /** Our display spot scene delegate. */
     protected DisplaySpotSceneImpl _delegate;
+
+    /** A location id counter used for assigning ids to new locations. */
+    protected int _nextLocationId;
 }
