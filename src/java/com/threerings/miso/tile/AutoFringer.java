@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.26 2003/11/12 23:05:41 ray Exp $
+// $Id: AutoFringer.java,v 1.27 2003/11/12 23:13:45 ray Exp $
 
 package com.threerings.miso.tile;
 
@@ -95,17 +95,17 @@ public class AutoFringer
                 // now turn on the appropriate fringebits
                 fringer.bits |= FLAGMATRIX[y - row + 1][x - col + 1];
 
-                // and see if this base tile kills passability
-                if (passable) {
-                    if (btid > 0) {
-                        try {
-                            BaseTile bt = (BaseTile) _tmgr.getTile(btid);
-                            passable = bt.isPassable();
-                        } catch (NoSuchTileSetException nstse) {
-                            Log.warning("Autofringer couldn't find a base " +
-                                "set while attempting to figure passability " +
-                                "[error=" + nstse + "].");
-                        }
+                // See if a tile that fringes on us kills our passability,
+                // but don't count the default base tile against us, as
+                // we allow users to splash in the water.
+                if (passable && (btid > 0)) {
+                    try {
+                        BaseTile bt = (BaseTile) _tmgr.getTile(btid);
+                        passable = bt.isPassable();
+                    } catch (NoSuchTileSetException nstse) {
+                        Log.warning("Autofringer couldn't find a base " +
+                            "set while attempting to figure passability " +
+                            "[error=" + nstse + "].");
                     }
                 }
             }

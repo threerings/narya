@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.22 2003/11/12 23:05:40 ray Exp $
+// $Id: SceneBlock.java,v 1.23 2003/11/12 23:13:45 ray Exp $
 
 package com.threerings.miso.client;
 
@@ -371,16 +371,15 @@ public class SceneBlock
             return false;
         }
 
+        // null base or impassable base kills traversal
         BaseTile base = getBaseTile(tx, ty);
         if ((base == null) || !base.isPassable()) {
             return false;
         }
 
+        // fringe can only kill traversal if it is present
         BaseTile fringe = getFringeTile(tx, ty);
-        if (fringe != null) {
-            return fringe.isPassable();
-        }
-        return true;
+        return (fringe == null) || fringe.isPassable();
     }
 
     /**
