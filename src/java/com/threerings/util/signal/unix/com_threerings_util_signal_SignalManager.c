@@ -1,5 +1,5 @@
 /**
- * $Id: com_threerings_util_signal_SignalManager.c,v 1.1 2003/03/31 02:10:04 mdb Exp $
+ * $Id$
  */
 
 #include <signal.h>

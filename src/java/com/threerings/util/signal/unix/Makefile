@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.2 2004/10/20 03:30:20 mdb Exp $
+# $Id$
 
 #
 # Executable definitions
@@ -14,14 +14,18 @@ MKDIR=mkdir
 
 ROOT=../../../../../../..
 LIBRARIES_PATH=
-INSTALL_PATH=${ROOT}/dist/lib/i686-Linux
+ARCH!=uname -p
+OS!=uname -s
+OSINCDIR!=uname -s | tr 'A-Z' 'a-z'
+OSDIR=${ARCH}-${OS}
+INSTALL_PATH=${ROOT}/dist/lib/${OSDIR}
 
 #
 # Parameter and file definitions
 
-INCLUDES=-I.. -I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux
+INCLUDES=-I.. -I${JAVA_HOME}/include -I${JAVA_HOME}/include/${OSINCDIR}
 LIBRARIES=
-TARGET=libsignal.so
+TARGET=${OSDIR}/libsignal.so
 
 #
 # Target definitions
@@ -33,7 +37,8 @@ install: ${TARGET}
 	cp ${TARGET} ${INSTALL_PATH}
 
 ${TARGET}: com_threerings_util_signal_SignalManager.c
-	@echo Compiling SignalManager.c
+	@echo "Compiling SignalManager.c
+	@mkdir -p ${OSDIR}
 	@${CC} ${INCLUDES} -c com_threerings_util_signal_SignalManager.c \
 	    -o com_threerings_util_signal_SignalManager.o
 	@echo Creating libsignal.so
