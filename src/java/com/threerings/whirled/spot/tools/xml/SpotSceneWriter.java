@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneWriter.java,v 1.4 2001/12/05 08:45:06 mdb Exp $
+// $Id: SpotSceneWriter.java,v 1.5 2001/12/07 05:11:25 mdb Exp $
 
 package com.threerings.whirled.tools.spot.xml;
 
@@ -14,6 +14,7 @@ import com.samskivert.util.StringUtil;
 import com.threerings.whirled.spot.data.Location;
 import com.threerings.whirled.spot.data.Portal;
 
+import com.threerings.whirled.Log;
 import com.threerings.whirled.tools.EditableScene;
 import com.threerings.whirled.tools.spot.EditablePortal;
 import com.threerings.whirled.tools.spot.EditableSpotScene;
@@ -64,11 +65,15 @@ public class SpotSceneWriter extends SceneWriter
             EditablePortal port = (EditablePortal)iter.next();
             AttributesImpl attrs = new AttributesImpl();
             addSharedAttrs(attrs, port);
-            attrs.addAttribute("", "targetSceneName", "", "",
-                               port.targetSceneName);
-            attrs.addAttribute("", "targetPortalName", "", "",
-                               port.targetPortalName);
-            writer.emptyElement("", "location", "", attrs);
+            if (port.targetSceneName != null) {
+                attrs.addAttribute("", "targetSceneName", "", "",
+                                   port.targetSceneName);
+            }
+            if (port.targetPortalName != null) {
+                attrs.addAttribute("", "targetPortalName", "", "",
+                                   port.targetPortalName);
+            }
+            writer.emptyElement("", "portal", "", attrs);
         }
     }
 
