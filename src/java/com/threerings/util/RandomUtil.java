@@ -1,5 +1,5 @@
 //
-// $Id: RandomUtil.java,v 1.11 2004/08/27 02:20:36 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,7 +22,9 @@
 package com.threerings.util;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
+import java.util.RandomAccess;
 
 import com.samskivert.util.IntListUtil;
 
@@ -140,6 +142,52 @@ public class RandomUtil
             }
         }
         return (index >= values.length) ? null : values[index];
+    }
+
+    /**
+     * Picks a random object from the supplied List
+     *
+     * @return a randomly selected item.
+     */
+    public static Object pickRandom (List values)
+    {
+        int size = values.size();
+        if (!(values instanceof RandomAccess)) {
+            return pickRandom(values.iterator(), size);
+        }
+
+        if (size == 0) {
+            throw new IllegalArgumentException(
+                "Must have at least one element [size=" + size + "]");
+        }
+        return values.get(getInt(size));
+    }
+
+    /**
+     * Picks a random object from the supplied List. The specified skip
+     * object will be skipped when selecting a random value. The skipped
+     * object must exist exactly once in the List.
+     *
+     * @return a randomly selected item.
+     */
+    public static Object pickRandom (List values, Object skip)
+    {
+        int size = values.size();
+        if (!(values instanceof RandomAccess)) {
+            return pickRandom(values.iterator(), size, skip);
+        }
+
+        if (size < 2) {
+            throw new IllegalArgumentException(
+                "Must have at least one element [size=" + size + "]");
+        }
+
+        int pick = getInt(size - 1);
+        Object val = values.get(pick);
+        if (val == skip) {
+            val = values.get(pick + 1);
+        }
+        return val;
     }
 
     /**
