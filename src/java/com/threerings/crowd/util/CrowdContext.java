@@ -1,5 +1,5 @@
 //
-// $Id: CrowdContext.java,v 1.7 2002/04/15 14:38:45 shaper Exp $
+// $Id: CrowdContext.java,v 1.8 2002/11/08 09:31:59 mdb Exp $
 
 package com.threerings.crowd.util;
 
@@ -40,4 +40,11 @@ public interface CrowdContext extends PresentsContext
      * fully entered the place and are ready for user interaction.
      */
     public void setPlaceView (PlaceView view);
+
+    /**
+     * When the client leaves a place, the place controller will remove
+     * any place view it set previously via {@link #setPlaceView} with a
+     * call to this method.
+     */
+    public void clearPlaceView (PlaceView view);
 }

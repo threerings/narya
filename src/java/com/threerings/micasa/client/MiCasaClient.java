@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaClient.java,v 1.15 2002/08/14 19:07:49 mdb Exp $
+// $Id: MiCasaClient.java,v 1.16 2002/11/08 09:31:59 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -159,6 +159,11 @@ public class MiCasaClient
         {
             // stick the place view into our frame
             _frame.setPanel((JPanel)view);
+        }
+
+        public void clearPlaceView (PlaceView view)
+        {
+            // we'll just let the next place view replace our old one
         }
 
         public MiCasaFrame getFrame ()

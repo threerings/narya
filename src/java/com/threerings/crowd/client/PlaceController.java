@@ -1,5 +1,5 @@
 //
-// $Id: PlaceController.java,v 1.9 2002/05/13 23:03:24 mdb Exp $
+// $Id: PlaceController.java,v 1.10 2002/11/08 09:31:59 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -114,17 +114,21 @@ public abstract class PlaceController extends Controller
      */
     public void didLeavePlace (final PlaceObject plobj)
     {
-        // let the UI hierarchy know that we're outta here
-        if (_view != null ) {
-            PlaceViewUtil.dispatchDidLeavePlace(_view, plobj);
-        }
-
         // let our delegates know what's up 
         applyToDelegates(new DelegateOp() {
             public void apply (PlaceControllerDelegate delegate) {
                 delegate.didLeavePlace(plobj);
             }
         });
+
+        // let the UI hierarchy know that we're outta here
+        if (_view != null ) {
+            PlaceViewUtil.dispatchDidLeavePlace(_view, plobj);
+            _ctx.clearPlaceView(_view);
+            _view = null;
+        }
+
+        _plobj = null;
     }
 
     /**
