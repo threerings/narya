@@ -1,5 +1,5 @@
 //
-// $Id: UniformTileSet.java,v 1.12 2003/01/18 03:53:31 mdb Exp $
+// $Id: UniformTileSet.java,v 1.13 2003/05/02 23:32:56 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -65,7 +65,7 @@ public class UniformTileSet extends TileSet
     // documentation inherited
     protected Rectangle computeTileBounds (int tileIndex)
     {
-        BufferedImage tsimg = getTileSetImage();
+        BufferedImage tsimg = getRawTileSetImage();
 
         // figure out from whence to crop the tile
         int tilesPerRow = tsimg.getWidth() / _width;
