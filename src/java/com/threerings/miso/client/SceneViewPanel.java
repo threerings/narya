@@ -1,10 +1,10 @@
 //
-// $Id: SceneViewPanel.java,v 1.24 2002/01/19 07:04:46 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.25 2002/01/23 17:10:41 shaper Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.Dimension;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import java.util.List;
@@ -80,9 +80,9 @@ public class SceneViewPanel extends AnimatedPanel
     }
 
     // documentation inherited
-    protected void render (Graphics g)
+    protected void render (Graphics2D gfx)
     {
-        _view.paint(g);
+        _view.paint(gfx);
     }
 
     // documentation inherited

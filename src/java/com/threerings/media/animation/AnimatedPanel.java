@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.3 2002/01/19 07:09:55 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.4 2002/01/23 17:10:41 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -7,6 +7,7 @@ import java.awt.AWTException;
 import java.awt.BufferCapabilities;
 import java.awt.Canvas;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.ImageCapabilities;
 import java.awt.Rectangle;
 
@@ -65,7 +66,7 @@ public class AnimatedPanel extends Canvas implements AnimatedView
      * should override this method to paint their panel-specific
      * contents.
      */
-    protected void render (Graphics g)
+    protected void render (Graphics2D gfx)
     {
         // nothing for now
     }
@@ -103,7 +104,7 @@ public class AnimatedPanel extends Canvas implements AnimatedView
         Graphics g = null;
         try {
             g = _strategy.getDrawGraphics();
-            render(g);
+            render((Graphics2D)g);
         } finally {
             if (g != null) {
                 g.dispose();
