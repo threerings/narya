@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.23 2001/10/26 01:17:22 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.24 2001/10/27 01:35:21 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -132,8 +132,17 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     public void mousePressed (MouseEvent e)
     {
         int x = e.getX(), y = e.getY();
-        Log.info("mousePressed [x=" + x + ", y=" + y + "].");
-        createPath(_sprite, x, y);
+        switch (e.getModifiers()) {
+        case MouseEvent.BUTTON1_MASK:
+            createPath(_sprite, x, y);
+            break;
+
+        case MouseEvent.BUTTON2_MASK:
+            for (int ii = 0; ii < NUM_DECOYS; ii++) {
+                createPath(_decoys[ii], x, y);
+            }
+            break;
+        }
     }
 
     /**
