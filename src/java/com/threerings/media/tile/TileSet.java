@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.8 2001/07/18 22:45:35 shaper Exp $
+// $Id: TileSet.java,v 1.9 2001/07/20 08:17:10 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -15,20 +15,22 @@ import java.awt.image.*;
  * provides a clean interface for the TileManager to retrieve
  * individual tile images from a particular tile in the tileset.
  *
- * The width of each tile in every tileset is a constant Tile.WIDTH in
- * pixels.  The tile count in each row can vary.  The height of the
- * tiles in each row can also vary.  This information is obtained from
- * the config object.
+ * <p> The width of each tile in every tileset is a constant
+ * Tile.WIDTH in pixels.  The tile count in each row can vary.  The
+ * height of the tiles in each row can also vary.  This information is
+ * obtained from the config object.
  *
- * Tiles are retrieved from the tile set by the TileManager, and are
- * referenced by their tile id (essentially the tile number, assuming
- * the tile at the top-left of the image is tile id 0 and tiles are
- * numbered left to right, top to bottom, in ascending order.
- *
- * @see com.threerings.miso.TileManager
+ * <p> Tiles are retrieved from the tile set by the TileManager, and
+ * are referenced by their tile id (essentially the tile number,
+ * assuming the tile at the top-left of the image is tile id 0 and
+ * tiles are numbered left to right, top to bottom, in ascending
+ * order.
  */
 public class TileSet
 {
+    /**
+     * Construct a new TileSet object with the given parameters.
+     */
     public TileSet (String name, int tsid, String imgFile,
 		    int[] rowHeight, int[] tileCount)
     {
@@ -43,16 +45,25 @@ public class TileSet
 	    _numTiles += _tileCount[ii];
     }
 
+    /**
+     * Return the tileset identifier.
+     */
     public int getId ()
     {
 	return _tsid;
     }
 
+    /**
+     * Return the tileset name.
+     */
     public String getName ()
     {
 	return _name;
     }
 
+    /**
+     * Return the number of tiles in the tileset.
+     */
     public int getNumTiles ()
     {
 	return _numTiles;

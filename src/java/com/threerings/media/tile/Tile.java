@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.5 2001/07/18 22:45:35 shaper Exp $
+// $Id: Tile.java,v 1.6 2001/07/20 08:17:10 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -24,21 +24,6 @@ public class Tile
     public static final int HALF_HEIGHT = HEIGHT / 2;
     public static final int HALF_WIDTH = WIDTH / 2;
 
-    public static final float EDGE_LENGTH = (float)
-        Math.sqrt((HALF_WIDTH * HALF_WIDTH) + (HALF_HEIGHT * HALF_HEIGHT));
-
-    /**
-     * Construct a new tile with the specified identifiers.  Intended
-     * only for use by the TileManager.  Do not use this method.
-     *
-     * @see com.threerings.miso.TileManager#getTile
-     */
-    public Tile (short tsid, short tid)
-    {
-	this.tsid = tsid;
-	this.tid = tid;
-    }
-
     /**
      * Construct a new tile with the specified identifiers.  Intended
      * only for use by the TileManager.  Do not use this method.
@@ -51,6 +36,9 @@ public class Tile
 	this.tid = (short) tid;
     }
 
+    /**
+     * Return a string representation of the tile information.
+     */
     public String toString ()
     {
 	StringBuffer buf = new StringBuffer();

@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.12 2001/07/20 07:09:56 shaper Exp $
+// $Id: IsoSceneView.java,v 1.13 2001/07/20 08:17:10 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -215,13 +215,13 @@ public class IsoSceneView implements SceneView
 	int xdist = (int)
 	    MathUtil.distance(_lineX[0].x, _lineX[0].y,
 			      _lineY[1].x, _lineY[1].y);
-	tpos.x = (int)(xdist / Tile.EDGE_LENGTH);
+	tpos.x = (int)(xdist / TILE_EDGE_LENGTH);
 
 	// determine distance of mouse pos along the y-axis
 	int ydist = (int)
 	    MathUtil.distance(_lineY[0].x, _lineY[0].y,
 			      _lineY[1].x, _lineY[1].y);
-	tpos.y = (int)(ydist / Tile.EDGE_LENGTH);
+	tpos.y = (int)(ydist / TILE_EDGE_LENGTH);
 
 //  	Log.info("[mX="+mX+", bX="+bX+", mY="+mY+", bY="+bY+"]");
 //  	Log.info("x-axis=" + MathUtil.lineToString(_lineX[0], _lineX[1]));
@@ -257,6 +257,11 @@ public class IsoSceneView implements SceneView
     // starting x/y-positions to render the view
     protected static final int DEF_CENTER_X = DEF_BOUNDS_WIDTH / 2;
     protected static final int DEF_CENTER_Y = -(9 * Tile.HEIGHT);
+
+    // length of a tile edge as rendered from an isometric perspective
+    public static final float TILE_EDGE_LENGTH = (float)
+        Math.sqrt((Tile.HALF_WIDTH * Tile.HALF_WIDTH) +
+		  (Tile.HALF_HEIGHT * Tile.HALF_HEIGHT));
 
     protected Point _lineX[], _lineY[];
 
