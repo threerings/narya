@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.8 2001/09/05 00:45:27 shaper Exp $
+// $Id: ViewerApp.java,v 1.9 2001/10/17 22:16:04 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -108,6 +108,7 @@ public class ViewerApp
      */
     public void run ()
     {
+        _frame.pack();
         _frame.show();
     }
 
