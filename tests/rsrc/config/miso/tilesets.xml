@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: tilesets.xml,v 1.6 2001/08/02 05:05:44 shaper Exp $ -->
+<!-- $Id: tilesets.xml,v 1.7 2001/08/09 04:33:11 shaper Exp $ -->
 
 <!-- Initial test tileset description data. -->
 
@@ -9,7 +9,7 @@
   <tileset>
     <name>Ground</name>
     <tsid>1000</tsid>
-    <imagefile>media/miso/tiles-base.png</imagefile>
+    <imagefile>media/miso/tiles/base.png</imagefile>
     <rowheight>16, 16</rowheight>
     <rowwidth>32, 32</rowwidth>
     <tilecount>10, 10</tilecount>
@@ -18,7 +18,7 @@
   <tileset>
     <name>Wall</name>
     <tsid>1001</tsid>
-    <imagefile>media/miso/tiles-wall.png</imagefile>
+    <imagefile>media/miso/tiles/wall.png</imagefile>
     <rowheight>45, 45</rowheight>
     <rowwidth>32, 32</rowwidth>
     <tilecount>3, 3</tilecount>
@@ -27,7 +27,7 @@
   <tileset>
     <name>Icons</name>
     <tsid>1002</tsid>
-    <imagefile>media/miso/tiles-icons.png</imagefile>
+    <imagefile>media/miso/tiles/icons.png</imagefile>
     <rowheight>20, 49</rowheight>
     <rowwidth>32, 32</rowwidth>
     <tilecount>9, 2</tilecount>
@@ -36,7 +36,7 @@
   <tileset>
     <name>Character</name>
     <tsid>1003</tsid>
-    <imagefile>media/miso/tiles-character.png</imagefile>
+    <imagefile>media/miso/tiles/character.png</imagefile>
     <rowheight>94, 94, 94, 94, 94, 94, 94, 94</rowheight>
     <rowwidth>94, 94, 94, 94, 94, 94, 94, 94</rowwidth>
     <tilecount>8, 8, 8, 8, 8, 8, 8, 8</tilecount>
@@ -47,7 +47,7 @@
   <tileset>
     <name>Sample</name>
     <tsid>1004</tsid>
-    <imagefile>media/miso/tiles-sample.png</imagefile>
+    <imagefile>media/miso/tiles/sample.png</imagefile>
     <rowheight>48</rowheight>
     <rowwidth>64</rowwidth>
     <tilecount>14</tilecount>
