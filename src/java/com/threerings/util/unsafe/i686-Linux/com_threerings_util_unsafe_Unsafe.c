@@ -1,5 +1,5 @@
 /*
- * $Id: com_threerings_util_unsafe_Unsafe.c,v 1.1 2003/05/08 21:25:20 mdb Exp $
+ * $Id: com_threerings_util_unsafe_Unsafe.c,v 1.2 2003/05/09 18:40:07 mdb Exp $
  */
 
 #include <stdio.h>
@@ -31,14 +31,12 @@ static int select_sleep (int millisecs)
 JNIEXPORT void JNICALL
 Java_com_threerings_util_unsafe_Unsafe_enableGC (JNIEnv* env, jclass clazz)
 {
-    fprintf(stderr, "Reenabling GC.\n");
     jvmpi->EnableGC();
 }
 
 JNIEXPORT void JNICALL
 Java_com_threerings_util_unsafe_Unsafe_disableGC (JNIEnv* env, jclass clazz)
 {
-    fprintf(stderr, "Disabling GC.\n");
     jvmpi->DisableGC();
 }
 
