@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.37 2002/03/28 22:32:32 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.38 2002/04/15 23:10:40 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -109,6 +109,14 @@ public class SceneViewPanel extends AnimatedPanel
 
         // and add it to the sprite manager
         _spritemgr.addSprite(sprite);
+    }
+
+    /**
+     * Removes the supplied sprite from the screen.
+     */
+    public void removeSprite (MisoCharacterSprite sprite)
+    {
+        _spritemgr.removeSprite(sprite);
     }
 
     /**
