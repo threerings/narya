@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.35 2003/01/13 22:49:46 mdb Exp $
+// $Id: ImageManager.java,v 1.36 2003/01/13 23:55:05 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -276,8 +276,20 @@ public class ImageManager
             try {
                 imgin.close();
             } catch (IOException ioe) {
-                Log.warning("Failure closing image input '" + key + "'.");
-                Log.logStackTrace(ioe);
+                // jesus fucking hoppalong cassidy christ on a polyester
+                // pogo stick! those fuckers at sun have
+                // ImageInputStreamImpl.close() throwing a fucking
+                // IOException if it's already closed; there's no way to
+                // find out if it's already closed or not, so we have to
+                // check for their bullshit exception; as if we should
+                // just "trust" ImageIO.read() to close the fucking input
+                // stream when it's done, especially after the goddamned
+                // fiasco with PNGImageReader not closing it's fucking
+                // inflaters; for the love of humanity
+                if (!"closed".equals(ioe.getMessage())) {
+                    Log.warning("Failure closing image input '" + key + "'.");
+                    Log.logStackTrace(ioe);
+                }
             }
         }
 
