@@ -16,6 +16,11 @@ longer be susbcribed to; like scenes they've departed from).
 
 Sort out support for server-side modifiable only fields to DObject.
 
+Create a CompoundEvent that allows packaging up of multiple events to be
+dispatched in unison. Build dobj source generator and have it add versions
+of all update methods that take a compound event to which to append the
+event rather than dispatching them directly.
+
 * Server-side event concentrator
 The client objects will not subscribe directly, but will subscribe through
 the concentrator so that, at least, it can create a single
