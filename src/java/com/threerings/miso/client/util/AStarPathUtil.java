@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.16 2002/06/12 17:48:11 ray Exp $
+// $Id: AStarPathUtil.java,v 1.17 2002/06/12 21:51:19 ray Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -175,17 +175,8 @@ public class AStarPathUtil
 
         // if the step is diagonal, make sure the corners don't impede
         // our progress
-        if (dx == sx - 1 && dy == sy - 1) {
-            return isTraversable(info, sx - 1, sy, sx, sy - 1);
-
-        } else if (dx == sx + 1 && dy == sy - 1) {
-            return isTraversable(info, sx, sy - 1, sx + 1, sy);
-
-        } else if (dx == sx - 1 && dy == sy + 1) {
-            return isTraversable(info, sx - 1, sy, sx, sy + 1);
-
-        } else if (dx == sx + 1 && dy == sy + 1) {
-            return isTraversable(info, sx + 1, sy, sx, sy + 1);
+        if ((Math.abs(dx - sx) == 1) && (Math.abs(dy - sy) == 1)) {
+            return isTraversable(info, dx, sy, sx, dy);
         }
 
         // non-diagonals are always traversable
