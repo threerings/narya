@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.7 2001/08/29 18:41:46 shaper Exp $
+// $Id: ViewerApp.java,v 1.8 2001/09/05 00:45:27 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -24,7 +24,7 @@ public class ViewerApp
     /**
      * Construct and initialize the ViewerApp object.
      */
-    public ViewerApp ()
+    public ViewerApp (String[] args)
     {
         // create and size the main application frame
 	_frame = new ViewerFrame();
@@ -33,8 +33,11 @@ public class ViewerApp
 
 	// create the handles on our various services
 	_config = createConfig();
+	_model = createModel(_config, args);
 	_tilemgr = MisoUtil.createTileManager(_config, _frame);
 	_screpo = MisoUtil.createSceneRepository(_config, _tilemgr);
+
+	// create the context object
 	_ctx = new ViewerContextImpl();
 
     	// initialize the frame with the now-prepared context
@@ -63,6 +66,15 @@ public class ViewerApp
 	return config;
     }
 
+    protected ViewerModel createModel (Config config, String args[])
+    {
+	ViewerModel model = new ViewerModel(config);
+	if (args.length >= 1) {
+	    model.scenefile = args[0];
+	}
+	return model;
+    }
+
     /**
      * The implementation of the ViewerContext interface that provides
      * handles to the config and manager objects that offer commonly used
@@ -84,6 +96,11 @@ public class ViewerApp
         {
             return _screpo;
         }
+
+	public ViewerModel getViewerModel ()
+	{
+	    return _model;
+	}
     }
 
     /**
@@ -99,7 +116,7 @@ public class ViewerApp
      */
     public static void main (String[] args)
     {
-	ViewerApp app = new ViewerApp();
+	ViewerApp app = new ViewerApp(args);
         app.run();
     }
 
@@ -115,6 +132,9 @@ public class ViewerApp
 
     /** The tile manager object. */
     protected TileManager _tilemgr;
+
+    /** The viewer data model. */
+    protected ViewerModel _model;
 
     /** The context object. */
     protected ViewerContext _ctx;

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.14 2001/08/29 18:41:46 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.15 2001/09/05 00:45:27 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -49,17 +49,13 @@ public class ViewerSceneViewPanel extends SceneViewPanel
      */
     protected void prepareStartingScene ()
     {
-        XMLFileSceneRepository screpo = _ctx.getSceneRepository();
-
-        // get the starting scene filename
-        Config config = _ctx.getConfig();
-        String fname = config.getValue(SCENE_KEY, DEF_SCENE);
-
+	ViewerModel model = _ctx.getViewerModel();
         try {
-            // load and set up the scene
-            _view.setScene(screpo.loadScene(fname));
+	    XMLFileSceneRepository screpo = _ctx.getSceneRepository();
+            _view.setScene(screpo.loadScene(model.scenefile));
+
         } catch (IOException ioe) {
-            Log.warning("Exception loading scene [fname=" + fname +
+            Log.warning("Exception loading scene [fname=" + model.scenefile +
                         ", ioe=" + ioe + "].");
         }
     }
@@ -99,13 +95,6 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 
     public void mouseMoved (MouseEvent e) { }
     public void mouseDragged (MouseEvent e) { }
-
-    /** The config key to obtain the default scene filename. */
-    protected static final String SCENE_KEY =
-	ViewerModel.CONFIG_KEY + ".default_scene";
-
-    /** The default scene to load and display. */
-    protected static final String DEF_SCENE = "rsrc/scenes/default.xml";
 
     /** The animation manager. */
     AnimationManager _animmgr;
