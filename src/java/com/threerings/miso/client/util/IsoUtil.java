@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.40 2002/10/16 20:39:46 ray Exp $
+// $Id: IsoUtil.java,v 1.41 2002/12/05 23:06:30 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -27,25 +27,6 @@ import com.threerings.miso.scene.SceneObject;
 public class IsoUtil
     implements DirectionCodes
 {
-    /**
-     * Sets the given character sprite's tile and fine coordinate
-     * locations within the scene based on the sprite's current screen
-     * pixel coordinates.  This method should be called whenever a
-     * {@link MisoCharacterSprite} is first created, but after its
-     * location has been set via {@link Sprite#setLocation}.
-     */
-    public static void setSpriteSceneLocation (
-        IsoSceneViewModel model, MisoCharacterSprite sprite)
-    {
-        // get the sprite's position in full coordinates
-        Point fpos = new Point();
-        screenToFull(model, sprite.getX(), sprite.getY(), fpos);
-
-        // set the sprite's tile and fine coordinates
-        sprite.setTileLocation(
-            IsoUtil.fullToTile(fpos.x), IsoUtil.fullToTile(fpos.y));
-    }
-
     /**
      * Returns a polygon bounding all footprint tiles of the given
      * object tile.

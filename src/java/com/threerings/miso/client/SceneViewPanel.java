@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.46 2002/11/03 01:15:06 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.47 2002/12/05 23:06:30 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -110,21 +110,6 @@ public class SceneViewPanel extends VirtualMediaPanel
     public SceneView getSceneView ()
     {
 	return _view;
-    }
-
-    /**
-     * Adds the supplied sprite to the scene, setting up its scene
-     * coordinates if it is a {@link MisoCharacterSprite}.
-     */
-    public void addSprite (Sprite sprite)
-    {
-        if (sprite instanceof MisoCharacterSprite) {
-            // set up the sprite's tile coordinates
-            IsoUtil.setSpriteSceneLocation(
-                _viewmodel, (MisoCharacterSprite)sprite);
-        }
-
-        super.addSprite(sprite);
     }
 
     // documentation inherited

@@ -1,5 +1,5 @@
 //
-// $Id: TilePath.java,v 1.10 2002/07/08 21:41:30 mdb Exp $
+// $Id: TilePath.java,v 1.11 2002/12/05 23:06:30 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -65,7 +65,6 @@ public class TilePath extends LineSegmentPath
                 // we've arrived
                 int dtx = _dest.getTileX(), dty = _dest.getTileY();
                 if (pos.x == dtx && pos.y == dty) {
-                    mcs.setTileLocation(dtx, dty);
                     // Log.info("Sprite arrived [dtx=" + dtx +
                     // ", dty=" + dty + "].");
                     _arrived = true;
@@ -103,15 +102,16 @@ public class TilePath extends LineSegmentPath
 	IsoUtil.screenToFull(_model, destx, desty, fpos);
 
         // add the starting path node
-        int stx = sprite.getTileX(), sty = sprite.getTileY();
+        Point ipos = new Point();
         int sx = sprite.getX(), sy = sprite.getY();
-        addNode(stx, sty, sx, sy, NORTH);
+        IsoUtil.screenToTile(_model, sx, sy, ipos);
+        addNode(ipos.x, ipos.y, sx, sy, NORTH);
 
 	// TODO: make more visually appealing path segments from start
 	// to second tile, and penultimate to ultimate tile.
 
         // add all remaining path nodes excepting the last one
-        Point prev = new Point(stx, sty);
+        Point prev = new Point(ipos.x, ipos.y);
         Point spos = new Point();
         int size = tiles.size();
         for (int ii = 1; ii < size - 1; ii++) {
@@ -142,7 +142,7 @@ public class TilePath extends LineSegmentPath
 
         // get the facing direction for the final node
         int dir;
-        if (prev.x == stx && prev.y == sty) {
+        if (prev.x == ipos.x && prev.y == ipos.y) {
             // if destination is within starting tile, direction is
             // determined by studying the fine coordinates
             dir = IsoUtil.getDirection(_model, sx, sy, spos.x, spos.y);

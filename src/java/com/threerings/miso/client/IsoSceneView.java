@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.126 2002/11/28 03:42:17 mdb Exp $
+// $Id: IsoSceneView.java,v 1.127 2002/12/05 23:06:30 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -381,27 +381,7 @@ public class IsoSceneView implements SceneView
             if (!bounds.intersects(clip)) {
                 continue;
             }
-
-            // if this is a miso character sprite, we can use its cached
-            // tile coordinates
-            int tx, ty;
-            if (sprite instanceof IsoSprite) {
-                IsoSprite iso = (IsoSprite)sprite;
-                tx = iso.getTileX();
-                ty = iso.getTileY();
-
-            } else {
-                // otherwise we have to compute them from the screen
-                // coordinates of the sprite
-                IsoUtil.screenToTile(
-                    _model, sprite.getX(), sprite.getY(), _tcoords);
-                tx = _tcoords.x;
-                ty = _tcoords.y;
-            }
-
-            // finally add the sprite and its tile coordinates to the list
-            // of dirty items
-            _dirtyItems.appendDirtySprite(sprite, tx, ty);
+            appendDirtySprite(_dirtyItems, sprite);
             // Log.info("Dirtied item: " + sprite);
         }
 
@@ -419,9 +399,7 @@ public class IsoSceneView implements SceneView
                 foot = IsoUtil.getObjectFootprint(_model, scobj);
             }
 
-            // add the object to the dirty items list
             _dirtyItems.appendDirtyObject(scobj, foot);
-
             // Log.info("Dirtied item: Object(" +
             // scobj.x + ", " + scobj.y + ")");
         }
@@ -432,6 +410,16 @@ public class IsoSceneView implements SceneView
         // paint them and be done
         _dirtyItems.sort();
         _dirtyItems.paintAndClear(gfx);
+    }
+
+    /**
+     * Computes the tile coordinates of the supplied sprite and appends it
+     * to the supplied dirty item list.
+     */
+    protected void appendDirtySprite (DirtyItemList list, Sprite sprite)
+    {
+        IsoUtil.screenToTile(_model, sprite.getX(), sprite.getY(), _tcoords);
+        list.appendDirtySprite(sprite, _tcoords.x, _tcoords.y);
     }
 
     /**
@@ -475,12 +463,14 @@ public class IsoSceneView implements SceneView
         }
 
         // get the destination tile coordinates
+        Point src = IsoUtil.screenToTile(
+            _model, sprite.getX(), sprite.getY(), new Point());
         Point dest = IsoUtil.screenToTile(_model, x, y, new Point());
 
         // get a reasonable tile path through the scene
         List points = AStarPathUtil.getPath(
             _scene, _model.scenewid, _model.scenehei,
-            sprite, sprite.getTileX(), sprite.getTileY(), dest.x, dest.y);
+            sprite, src.x, src.y, dest.x, dest.y);
 
         // construct a path object to guide the sprite on its merry way
         return (points == null) ? null :
@@ -520,14 +510,7 @@ public class IsoSceneView implements SceneView
         int hslen = _hitSprites.size();
         for (int i = 0; i < hslen; i++) {
             Sprite sprite = (Sprite)_hitSprites.get(i);
-            if (sprite instanceof MisoCharacterSprite) {
-                MisoCharacterSprite msprite = (MisoCharacterSprite)sprite;
-                _hitList.appendDirtySprite(
-                    msprite, msprite.getTileX(), msprite.getTileY());
-            } else {
-                Log.info("Found non-Miso sprite in view? " +
-                         "[sprite=" + sprite + "].");
-            }
+            appendDirtySprite(_hitList, sprite);
         }
 
         // add the object tiles that contain the point

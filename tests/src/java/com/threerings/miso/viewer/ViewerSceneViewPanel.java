@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.51 2002/06/25 01:21:17 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.52 2002/12/05 23:06:30 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -95,7 +95,6 @@ public class ViewerSceneViewPanel extends SceneViewPanel
             // start 'em out standing
             s.setActionSequence(MisoCharacterSprite.STANDING);
             s.setLocation(300, 300);
-            IsoUtil.setSpriteSceneLocation(_viewmodel, s);
             s.addSpriteObserver(this);
             spritemgr.addSprite(s);
         }
