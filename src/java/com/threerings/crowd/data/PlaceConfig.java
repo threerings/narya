@@ -1,7 +1,9 @@
 //
-// $Id: PlaceConfig.java,v 1.4 2002/07/23 05:54:52 mdb Exp $
+// $Id: PlaceConfig.java,v 1.5 2003/02/11 06:00:51 mdb Exp $
 
 package com.threerings.crowd.data;
+
+import com.samskivert.util.StringUtil;
 
 import com.threerings.io.SimpleStreamableObject;
 import com.threerings.crowd.client.PlaceController;
@@ -39,4 +41,12 @@ public abstract class PlaceConfig extends SimpleStreamableObject
      * knowing that it is never used.
      */
     public abstract String getManagerClassName ();
+
+    // documentation inherited
+    protected void toString (StringBuffer buf)
+    {
+        buf.append("type=").append(StringUtil.shortClassName(this));
+        buf.append(", ");
+        super.toString(buf);
+    }
 }
