@@ -1,15 +1,9 @@
 //
-// $Id: InvocationNotificationEvent.java,v 1.1 2002/08/14 19:07:55 mdb Exp $
+// $Id: InvocationNotificationEvent.java,v 1.2 2002/12/20 23:29:04 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.IOException;
-
 import com.samskivert.util.StringUtil;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
-import com.threerings.io.Streamable;
 
 /**
  * Used to dispatch an invocation notification from the server to a
@@ -81,30 +75,6 @@ public class InvocationNotificationEvent extends DEvent
     {
         // nothing to do here
         return true;
-    }
-
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeShort(_receiverId);
-        out.writeByte(_methodId);
-        out.writeObject(_args);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(in);
-        _receiverId = in.readShort();
-        _methodId = in.readByte();
-        _args = (Object[])in.readObject();
     }
 
     // documentation inherited

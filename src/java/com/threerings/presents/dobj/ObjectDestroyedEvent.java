@@ -1,13 +1,7 @@
 //
-// $Id: ObjectDestroyedEvent.java,v 1.4 2002/07/23 05:52:48 mdb Exp $
+// $Id: ObjectDestroyedEvent.java,v 1.5 2002/12/20 23:29:04 mdb Exp $
 
 package com.threerings.presents.dobj;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 
 /**
  * An object destroyed event is dispatched when an object has been removed

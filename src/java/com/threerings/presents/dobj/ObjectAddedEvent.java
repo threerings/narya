@@ -1,12 +1,7 @@
 //
-// $Id: ObjectAddedEvent.java,v 1.7 2002/07/23 05:52:48 mdb Exp $
+// $Id: ObjectAddedEvent.java,v 1.8 2002/12/20 23:29:04 mdb Exp $
 
 package com.threerings.presents.dobj;
-
-import java.io.IOException;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 
 /**
  * An object added event is dispatched when an object is added to an
@@ -16,7 +11,7 @@ import com.threerings.io.ObjectOutputStream;
  *
  * @see DObjectManager#postEvent
  */
-public class ObjectAddedEvent extends DEvent
+public class ObjectAddedEvent extends NamedEvent
 {
     /**
      * Constructs a new object added event on the specified target object
@@ -30,8 +25,7 @@ public class ObjectAddedEvent extends DEvent
      */
     public ObjectAddedEvent (int targetOid, String name, int oid)
     {
-        super(targetOid);
-        _name = name;
+        super(targetOid, name);
         _oid = oid;
     }
 
@@ -41,15 +35,6 @@ public class ObjectAddedEvent extends DEvent
      */
     public ObjectAddedEvent ()
     {
-    }
-
-    /**
-     * Returns the name of the oid list attribute to which an oid has been
-     * added.
-     */
-    public String getName ()
-    {
-        return _name;
     }
 
     /**
@@ -71,28 +56,6 @@ public class ObjectAddedEvent extends DEvent
         return true;
     }
 
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeUTF(_name);
-        out.writeInt(_oid);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(in);
-        _name = in.readUTF();
-        _oid = in.readInt();
-    }
-
     // documentation inherited
     protected void notifyListener (Object listener)
     {
@@ -106,10 +69,8 @@ public class ObjectAddedEvent extends DEvent
     {
         buf.append("OBJADD:");
         super.toString(buf);
-        buf.append(", name=").append(_name);
         buf.append(", oid=").append(_oid);
     }
 
-    protected String _name;
     protected int _oid;
 }

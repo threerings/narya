@@ -1,13 +1,7 @@
 //
-// $Id: ReleaseLockEvent.java,v 1.6 2002/07/23 05:52:48 mdb Exp $
+// $Id: ReleaseLockEvent.java,v 1.7 2002/12/20 23:29:04 mdb Exp $
 
 package com.threerings.presents.dobj;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 
 /**
  * A release lock event is dispatched at the end of a chain of events to
@@ -20,7 +14,7 @@ import com.threerings.io.ObjectOutputStream;
  *
  * @see DObjectManager#postEvent
  */
-public class ReleaseLockEvent extends DEvent
+public class ReleaseLockEvent extends NamedEvent
 {
     /**
      * Constructs a new release lock event for the specified target object
@@ -31,8 +25,7 @@ public class ReleaseLockEvent extends DEvent
      */
     public ReleaseLockEvent (int targetOid, String name)
     {
-        super(targetOid);
-        _name = name;
+        super(targetOid, name);
     }
 
     /**
@@ -41,14 +34,6 @@ public class ReleaseLockEvent extends DEvent
      */
     public ReleaseLockEvent ()
     {
-    }
-
-    /**
-     * Returns the name of the lock to release.
-     */
-    public String getName ()
-    {
-        return _name;
     }
 
     /**
@@ -63,32 +48,9 @@ public class ReleaseLockEvent extends DEvent
         return false;
     }
 
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeUTF(_name);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(in);
-        _name = in.readUTF();
-    }
-
     protected void toString (StringBuffer buf)
     {
         buf.append("UNLOCK:");
         super.toString(buf);
-        buf.append(", name=").append(_name);
     }
-
-    protected String _name;
 }

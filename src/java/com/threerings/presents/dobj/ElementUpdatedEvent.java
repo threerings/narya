@@ -1,16 +1,12 @@
 //
-// $Id: ElementUpdatedEvent.java,v 1.3 2002/10/27 01:33:43 mdb Exp $
+// $Id: ElementUpdatedEvent.java,v 1.4 2002/12/20 23:29:04 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 
 import com.samskivert.util.StringUtil;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.presents.Log;
 
@@ -21,7 +17,7 @@ import com.threerings.presents.Log;
  *
  * @see DObjectManager#postEvent
  */
-public class ElementUpdatedEvent extends DEvent
+public class ElementUpdatedEvent extends NamedEvent
 {
     /**
      * Constructs a new element updated event on the specified target
@@ -38,8 +34,7 @@ public class ElementUpdatedEvent extends DEvent
     public ElementUpdatedEvent (
         int targetOid, String name, Object value, int index)
     {
-        super(targetOid);
-        _name = name;
+        super(targetOid, name);
         _value = value;
         _index = index;
     }
@@ -50,14 +45,6 @@ public class ElementUpdatedEvent extends DEvent
      */
     public ElementUpdatedEvent ()
     {
-    }
-
-    /**
-     * Returns the name of the attribute that has changed.
-     */
-    public String getName ()
-    {
-        return _name;
     }
 
     /**
@@ -163,30 +150,6 @@ public class ElementUpdatedEvent extends DEvent
         }
     }
 
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeUTF(_name);
-        out.writeObject(_value);
-        out.writeInt(_index);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(in);
-        _name = in.readUTF();
-        _value = in.readObject();
-        _index = in.readInt();
-    }
-
     // documentation inherited
     protected void notifyListener (Object listener)
     {
@@ -200,13 +163,11 @@ public class ElementUpdatedEvent extends DEvent
     {
         buf.append("UPDATE:");
         super.toString(buf);
-        buf.append(", name=").append(_name);
         buf.append(", value=");
         StringUtil.toString(buf, _value);
         buf.append(", index=").append(_index);
     }
 
-    protected String _name;
     protected Object _value;
     protected int _index;
     protected transient Object _oldValue;

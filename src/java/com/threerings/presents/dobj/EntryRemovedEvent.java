@@ -1,12 +1,7 @@
 //
-// $Id: EntryRemovedEvent.java,v 1.10 2002/11/12 20:37:52 mdb Exp $
+// $Id: EntryRemovedEvent.java,v 1.11 2002/12/20 23:29:04 mdb Exp $
 
 package com.threerings.presents.dobj;
-
-import java.io.IOException;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 
 /**
  * An entry removed event is dispatched when an entry is removed from a
@@ -16,7 +11,7 @@ import com.threerings.io.ObjectOutputStream;
  *
  * @see DObjectManager#postEvent
  */
-public class EntryRemovedEvent extends DEvent
+public class EntryRemovedEvent extends NamedEvent
 {
     /**
      * Constructs a new entry removed event on the specified target object
@@ -30,8 +25,7 @@ public class EntryRemovedEvent extends DEvent
      */
     public EntryRemovedEvent (int targetOid, String name, Object key)
     {
-        super(targetOid);
-        _name = name;
+        super(targetOid, name);
         _key = key;
     }
 
@@ -41,15 +35,6 @@ public class EntryRemovedEvent extends DEvent
      */
     public EntryRemovedEvent ()
     {
-    }
-
-    /**
-     * Returns the name of the oid list attribute from which an oid has
-     * been removed.
-     */
-    public String getName ()
-    {
-        return _name;
     }
 
     /**
@@ -82,28 +67,6 @@ public class EntryRemovedEvent extends DEvent
         return true;
     }
 
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeUTF(_name);
-        out.writeObject(_key);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(in);
-        _name = in.readUTF();
-        _key = in.readObject();
-    }
-
     // documentation inherited
     protected void notifyListener (Object listener)
     {
@@ -117,11 +80,9 @@ public class EntryRemovedEvent extends DEvent
     {
         buf.append("ELREM:");
         super.toString(buf);
-        buf.append(", name=").append(_name);
         buf.append(", key=").append(_key);
     }
 
-    protected String _name;
     protected Object _key;
     protected transient DSet.Entry _oldEntry;
 }

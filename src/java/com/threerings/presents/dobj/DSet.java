@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.23 2002/12/13 02:07:27 mdb Exp $
+// $Id: DSet.java,v 1.24 2002/12/20 23:29:04 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -304,7 +304,7 @@ public class DSet
         throws IOException
     {
         out.defaultWriteObject();
-        out.writeInt(_size);
+
         int ecount = _entries.length;
         for (int ii = 0; ii < ecount; ii++) {
             if (_entries[ii] != null) {
@@ -320,7 +320,7 @@ public class DSet
         throws IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        _size = in.readInt();
+
         _entries = new Entry[Math.max(_size, INITIAL_CAPACITY)];
         for (int ii = 0; ii < _size; ii++) {
             _entries[ii] = (Entry)in.readObject();
@@ -347,7 +347,7 @@ public class DSet
     }
 
     /** The entries of the set (in a sparse array). */
-    protected Entry[] _entries = new Entry[INITIAL_CAPACITY];
+    protected transient Entry[] _entries = new Entry[INITIAL_CAPACITY];
 
     /** The number of entries in this set. */
     protected int _size;

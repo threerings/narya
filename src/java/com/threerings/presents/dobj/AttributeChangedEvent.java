@@ -1,15 +1,9 @@
 //
-// $Id: AttributeChangedEvent.java,v 1.13 2002/10/27 01:33:43 mdb Exp $
+// $Id: AttributeChangedEvent.java,v 1.14 2002/12/20 23:29:04 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-
 import com.samskivert.util.StringUtil;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 
 /**
  * An attribute changed event is dispatched when a single attribute of a
@@ -18,7 +12,7 @@ import com.threerings.io.ObjectOutputStream;
  *
  * @see DObjectManager#postEvent
  */
-public class AttributeChangedEvent extends DEvent
+public class AttributeChangedEvent extends NamedEvent
 {
     /**
      * Constructs a new attribute changed event on the specified target
@@ -34,8 +28,7 @@ public class AttributeChangedEvent extends DEvent
      */
     public AttributeChangedEvent (int targetOid, String name, Object value)
     {
-        super(targetOid);
-        _name = name;
+        super(targetOid, name);
         _value = value;
     }
 
@@ -45,14 +38,6 @@ public class AttributeChangedEvent extends DEvent
      */
     public AttributeChangedEvent ()
     {
-    }
-
-    /**
-     * Returns the name of the attribute that has changed.
-     */
-    public String getName ()
-    {
-        return _name;
     }
 
     /**
@@ -130,28 +115,6 @@ public class AttributeChangedEvent extends DEvent
         return true;
     }
 
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeUTF(_name);
-        out.writeObject(_value);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(in);
-        _name = in.readUTF();
-        _value = in.readObject();
-    }
-
     // documentation inherited
     protected void notifyListener (Object listener)
     {
@@ -165,12 +128,10 @@ public class AttributeChangedEvent extends DEvent
     {
         buf.append("CHANGE:");
         super.toString(buf);
-        buf.append(", name=").append(_name);
         buf.append(", value=");
         StringUtil.toString(buf, _value);
     }
 
-    protected String _name;
     protected Object _value;
     protected transient Object _oldValue;
 }

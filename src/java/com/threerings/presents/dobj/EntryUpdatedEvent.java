@@ -1,14 +1,9 @@
 //
-// $Id: EntryUpdatedEvent.java,v 1.8 2002/10/27 01:33:43 mdb Exp $
+// $Id: EntryUpdatedEvent.java,v 1.9 2002/12/20 23:29:04 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.IOException;
-
 import com.samskivert.util.StringUtil;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.presents.Log;
 
@@ -19,7 +14,7 @@ import com.threerings.presents.Log;
  *
  * @see DObjectManager#postEvent
  */
-public class EntryUpdatedEvent extends DEvent
+public class EntryUpdatedEvent extends NamedEvent
 {
     /**
      * Constructs a new entry updated event on the specified target object
@@ -33,8 +28,7 @@ public class EntryUpdatedEvent extends DEvent
      */
     public EntryUpdatedEvent (int targetOid, String name, DSet.Entry entry)
     {
-        super(targetOid);
-        _name = name;
+        super(targetOid, name);
         _entry = entry;
     }
 
@@ -44,15 +38,6 @@ public class EntryUpdatedEvent extends DEvent
      */
     public EntryUpdatedEvent ()
     {
-    }
-
-    /**
-     * Returns the name of the set attribute for which an entry has been
-     * updated.
-     */
-    public String getName ()
-    {
-        return _name;
     }
 
     /**
@@ -93,28 +78,6 @@ public class EntryUpdatedEvent extends DEvent
         return true;
     }
 
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeUTF(_name);
-        out.writeObject(_entry);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(in);
-        _name = in.readUTF();
-        _entry = (DSet.Entry)in.readObject();
-    }
-
     // documentation inherited
     protected void notifyListener (Object listener)
     {
@@ -128,12 +91,10 @@ public class EntryUpdatedEvent extends DEvent
     {
         buf.append("ELUPD:");
         super.toString(buf);
-        buf.append(", name=").append(_name);
         buf.append(", entry=");
         StringUtil.toString(buf, _entry);
     }
 
-    protected String _name;
     protected DSet.Entry _entry;
     protected transient DSet.Entry _oldEntry;
 }

@@ -1,9 +1,8 @@
 //
-// $Id: CompoundEvent.java,v 1.6 2002/10/04 01:32:15 mdb Exp $
+// $Id: CompoundEvent.java,v 1.7 2002/12/20 23:29:04 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -125,26 +124,6 @@ public class CompoundEvent extends DEvent
         throws ObjectAccessException
     {
         return false;
-    }
-
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeObject(_events);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(in);
-        _events = (StreamableArrayList)in.readObject();
     }
 
     /**

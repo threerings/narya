@@ -1,15 +1,9 @@
 //
-// $Id: MessageEvent.java,v 1.9 2002/07/23 05:52:48 mdb Exp $
+// $Id: MessageEvent.java,v 1.10 2002/12/20 23:29:04 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-
 import com.samskivert.util.StringUtil;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 
 /**
  * A message event is used to dispatch a message to all subscribers of a
@@ -20,7 +14,7 @@ import com.threerings.io.ObjectOutputStream;
  *
  * @see DObjectManager#postEvent
  */
-public class MessageEvent extends DEvent
+public class MessageEvent extends NamedEvent
 {
     /**
      * Constructs a new message event on the specified target object with
@@ -34,8 +28,7 @@ public class MessageEvent extends DEvent
      */
     public MessageEvent (int targetOid, String name, Object[] args)
     {
-        super(targetOid);
-        _name = name;
+        super(targetOid, name);
         _args = args;
     }
 
@@ -45,14 +38,6 @@ public class MessageEvent extends DEvent
      */
     public MessageEvent ()
     {
-    }
-
-    /**
-     * Returns the name of the message.
-     */
-    public String getName ()
-    {
-        return _name;
     }
 
     /**
@@ -83,28 +68,6 @@ public class MessageEvent extends DEvent
         return true;
     }
 
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeUTF(_name);
-        out.writeObject(_args);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(in);
-        _name = in.readUTF();
-        _args = (Object[])in.readObject();
-    }
-
     // documentation inherited
     protected void notifyListener (Object listener)
     {
@@ -118,10 +81,8 @@ public class MessageEvent extends DEvent
     {
         buf.append("MSG:");
         super.toString(buf);
-        buf.append(", name=").append(_name);
         buf.append(", args=").append(StringUtil.toString(_args));
     }
 
-    protected String _name;
     protected Object[] _args;
 }

@@ -1,12 +1,7 @@
 //
-// $Id: AttributesChangedEvent.java,v 1.10 2002/07/23 05:52:48 mdb Exp $
+// $Id: AttributesChangedEvent.java,v 1.11 2002/12/20 23:29:04 mdb Exp $
 
 package com.threerings.presents.dobj;
-
-import java.io.IOException;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 
 import com.samskivert.util.StringUtil;
 
@@ -165,36 +160,6 @@ public class AttributesChangedEvent extends DEvent
             target.setAttribute(_names[i], _values[i]);
         }
         return true;
-    }
-
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeInt(_count);
-        for (int ii = 0; ii < _count; ii++) {
-            out.writeUTF(_names[ii]);
-            out.writeObject(_values[ii]);
-        }
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(in);
-        _count = in.readInt();
-        _names = new String[_count];
-        _values = new Object[_count];
-        for (int ii = 0; ii < _count; ii++) {
-            _names[ii] = in.readUTF();
-            _values[ii] = in.readObject();
-        }
     }
 
     protected void toString (StringBuffer buf)
