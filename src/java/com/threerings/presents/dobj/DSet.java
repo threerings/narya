@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.1 2001/08/16 03:31:09 mdb Exp $
+// $Id: DSet.java,v 1.2 2001/08/16 03:45:43 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -216,6 +216,33 @@ public class DSet
                 return true;
             }
         }
+        return false;
+    }
+
+    /**
+     * Updates the specified element by locating an element whose key
+     * matches the key of the supplied element and overwriting it. This
+     * should not be called directly, instead the associated
+     * <code>update{Set}()</code> method should be called on the
+     * distributed object that contains the set in question.
+     *
+     * @return true if the element was updated, false if it was not
+     * already in the set (in which case nothing is updated).
+     */
+    protected boolean update (Element elem)
+    {
+        Object key = elem.getKey();
+
+        // scan the array looking for a matching element
+        int elength = _elements.length;
+        for (int i = 0; i < elength; i++) {
+            Element el = _elements[i];
+            if (el != null && el.getKey().equals(key)) {
+                _elements[i] = elem;
+                return true;
+            }
+        }
+
         return false;
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.24 2001/08/16 03:31:08 mdb Exp $
+// $Id: DObject.java,v 1.25 2001/08/16 03:45:43 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -430,6 +430,17 @@ public class DObject
     {
         // generate an element removed event
         DEvent event = new ElementRemovedEvent(_oid, name, key);
+        // and dispatch it to our dobjmgr
+        _mgr.postEvent(event);
+    }
+
+    /**
+     * Calls by derived instances when a set updater method was called.
+     */
+    protected void requestElementUpdate (String name, DSet.Element elem)
+    {
+        // generate an element updated event
+        DEvent event = new ElementUpdatedEvent(_oid, name, elem);
         // and dispatch it to our dobjmgr
         _mgr.postEvent(event);
     }

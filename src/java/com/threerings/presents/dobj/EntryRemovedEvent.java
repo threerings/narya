@@ -1,11 +1,11 @@
 //
-// $Id: EntryRemovedEvent.java,v 1.2 2001/08/16 03:33:11 mdb Exp $
+// $Id: EntryRemovedEvent.java,v 1.3 2001/08/16 03:45:43 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
-import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 
 import com.threerings.cocktail.cher.dobj.io.ValueMarshaller;
 

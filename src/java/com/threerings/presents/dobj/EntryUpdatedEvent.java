@@ -1,5 +1,5 @@
 //
-// $Id: EntryAddedEvent.java,v 1.3 2001/08/16 03:45:43 mdb Exp $
+// $Id: EntryUpdatedEvent.java,v 1.1 2001/08/16 03:45:43 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -11,29 +11,29 @@ import com.threerings.cocktail.cher.Log;
 import com.threerings.cocktail.cher.dobj.io.ElementUtil;
 
 /**
- * An element added event is dispatched when an element is added to a
- * <code>DSet</code> attribute of a distributed element. It can also be
- * constructed to request the addition of an element to a set and posted
- * to the dobjmgr.
+ * An element updated event is dispatched when an element of a
+ * <code>DSet</code> is updated. It can also be constructed to request the
+ * update of an element and posted to the dobjmgr.
  *
  * @see DObjectManager#postEvent
  */
-public class ElementAddedEvent extends TypedEvent
+public class ElementUpdatedEvent extends TypedEvent
 {
     /** The typed object code for this event. */
-    public static final short TYPE = TYPE_BASE + 8;
+    public static final short TYPE = TYPE_BASE + 10;
 
     /**
-     * Constructs a new element added event on the specified target object
-     * with the supplied set attribute name and element to add.
+     * Constructs a new element updated event on the specified target
+     * object for the specified set name and with the supplied updated
+     * element.
      *
      * @param targetOid the object id of the object to whose set we will
      * add an element.
-     * @param name the name of the attribute to which to add the specified
-     * element.
-     * @param elem the element to add to the set attribute.
+     * @param name the name of the attribute in which to update the
+     * specified element.
+     * @param elem the element to update.
      */
-    public ElementAddedEvent (int targetOid, String name, DSet.Element elem)
+    public ElementUpdatedEvent (int targetOid, String name, DSet.Element elem)
     {
         super(targetOid);
         _name = name;
@@ -44,13 +44,13 @@ public class ElementAddedEvent extends TypedEvent
      * Constructs a blank instance of this event in preparation for
      * unserialization from the network.
      */
-    public ElementAddedEvent ()
+    public ElementUpdatedEvent ()
     {
     }
 
     /**
-     * Returns the name of the set attribute to which an element has been
-     * added.
+     * Returns the name of the set attribute for which an element has been
+     * updated.
      */
     public String getName ()
     {
@@ -58,7 +58,7 @@ public class ElementAddedEvent extends TypedEvent
     }
 
     /**
-     * Returns the element that has been added.
+     * Returns the element that has been updated.
      */
     public DSet.Element getElement ()
     {
@@ -85,7 +85,13 @@ public class ElementAddedEvent extends TypedEvent
             }
         }
 
-        set.add(_elem);
+        // update the element
+        if (!set.update(_elem)) {
+            // complain if we didn't update anything
+            Log.warning("No matching element to update " + this + ".");
+            return false;
+        }
+
         return true;
     }
 
@@ -118,7 +124,7 @@ public class ElementAddedEvent extends TypedEvent
 
     protected void toString (StringBuffer buf)
     {
-        buf.append("ELADD:");
+        buf.append("ELUPD:");
         super.toString(buf);
         buf.append(", name=").append(_name);
         buf.append(", elem=").append(_elem);
