@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.65 2003/07/28 05:32:04 ray Exp $
+// $Id: SoundManager.java,v 1.66 2003/10/16 01:01:51 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -37,6 +37,8 @@ import org.apache.commons.io.StreamUtils;
 import org.apache.commons.lang.Constant;
 
 import com.samskivert.util.Config;
+import com.samskivert.util.Interval;
+import com.samskivert.util.IntervalManager;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.Queue;
 import com.samskivert.util.RuntimeAdjust;
@@ -341,10 +343,19 @@ public class SoundManager
     }
 
     /**
-     * Play the specified sound of as the specified type of sound.
+     * Play the specified sound of as the specified type of sound, immediately.
      * Note that a sound need not be locked prior to playing.
      */
     public void play (SoundType type, String pkgPath, String key)
+    {
+        play(type, pkgPath, key, 0);
+    }
+
+    /**
+     * Play the specified sound after the specified delay.
+     * @param delay the delay in milliseconds.
+     */
+    public void play (SoundType type, String pkgPath, String key, int delay)
     {
         if (!SOUND_ENABLED) return;
 
@@ -354,22 +365,34 @@ public class SoundManager
         }
 
         if (_player != null && (_clipVol != 0f) && isEnabled(type)) {
-            SoundKey skey = new SoundKey(pkgPath, key);
-            synchronized (_queue) {
-                if (_queue.size() < MAX_QUEUE_SIZE) {
-                    /*
-                    if (_verbose.getValue()) {
-                        Log.info("Sound request [key=" + skey + "].");
-                    }
-                    */
-                    _queue.append(PLAY);
-                    _queue.append(skey);
+            SoundKey skey = new SoundKey(pkgPath, key, delay);
+            if (delay > 0) {
+                IntervalManager.register(_playLater, delay, skey, false);
+            } else {
+                addToPlayQueue(skey);
+            }
+        }
+    }
 
-                } else if (_verbose.getValue()) {
-                    Log.warning("SoundManager not playing sound because " +
-                                "too many sounds in queue [key=" + skey +
-                                ", type=" + type + ", queue=" + _queue + "].");
+    /**
+     * Add the sound clip key to the queue to be played.
+     */
+    protected void addToPlayQueue (SoundKey skey)
+    {
+        synchronized (_queue) {
+            if (_queue.size() < MAX_QUEUE_SIZE) {
+                /*
+                if (_verbose.getValue()) {
+                    Log.info("Sound request [key=" + skey + "].");
                 }
+                */
+                _queue.append(PLAY);
+                _queue.append(skey);
+
+            } else if (_verbose.getValue()) {
+                Log.warning("SoundManager not playing sound because " +
+                            "too many sounds in queue [key=" + skey +
+                            ", queue=" + _queue + "].");
             }
         }
     }
@@ -1118,12 +1141,23 @@ public class SoundManager
 
         public long stamp;
 
+        /**
+         * Quicky constructor for music keys and lock operations.
+         */
         public SoundKey (String pkgPath, String key)
         {
             this.pkgPath = pkgPath;
             this.key = key;
+        }
 
-            stamp = System.currentTimeMillis();
+        /**
+         * Constructor for a sound effect soundkey.
+         */
+        public SoundKey (String pkgPath, String key, int delay)
+        {
+            this(pkgPath, key);
+
+            stamp = System.currentTimeMillis() + delay;
         }
 
         /**
@@ -1185,6 +1219,13 @@ public class SoundManager
 
     /** The queue of sound clips to be played. */
     protected Queue _queue = new Queue();
+
+    /** An interval that plays sounds later. */
+    protected Interval _playLater = new Interval() {
+        public void intervalExpired (int id, Object rock) {
+            addToPlayQueue((SoundKey) rock);
+        }
+    };
 
     /** Volume levels for both sound clips and music. */
     protected float _clipVol = 1f, _musicVol = 1f;
