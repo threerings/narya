@@ -1,5 +1,5 @@
 //
-// $Id: ParlorManager.java,v 1.10 2001/10/17 02:49:17 mdb Exp $
+// $Id: ParlorManager.java,v 1.11 2001/10/19 02:04:29 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -14,6 +14,8 @@ import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.client.ParlorCodes;
+import com.threerings.parlor.data.TableConfig;
+import com.threerings.parlor.data.TableLobbyObject;
 import com.threerings.parlor.game.GameConfig;
 import com.threerings.parlor.game.GameManager;
 
@@ -189,6 +191,58 @@ public class ParlorManager
                         ", error=" + e + "].");
             Log.logStackTrace(e);
         }
+    }
+
+    /**
+     * Requests that a new table be created to matchmake the game
+     * described by the supplied game config instance. The config instance
+     * provided must implement the {@link TableConfig} interface so that
+     * the parlor services can determine how to configure the table that
+     * will be created.
+     *
+     * @param creator the body object that will own the new table.
+     * @param placeOid the place object id of the place (lobby) in which
+     * this table should be created. The place object specified must
+     * implement the {@link TableLobbyObject} interface.
+     * @param config the configuration of the game to be created.
+     *
+     * @return the id of the newly created table.
+     *
+     * @exception ServiceFailedException thrown if the table creation was
+     * not able processed for some reason. The explanation will be
+     * provided in the message data of the exception.
+     */
+    public int createTable (BodyObject creator, int placeOid,
+                            GameConfig config)
+        throws ServiceFailedException
+    {
+        return -1;
+    }
+
+    /**
+     * Requests that the specified user be added to the specified table at
+     * the specified position. If the user successfully joins the table,
+     * the function will return normally. If they are not able to join for
+     * some reason (the slot is already full, etc.), a {@link
+     * ServiceFailedException} will be thrown with a message code that
+     * describes the reason for failure. If the user does successfully
+     * join, they will be added to the table entry in the tables set in
+     * the place object that is hosting the table.
+     *
+     * @param joiner the body object of the user that wishes to join the
+     * table.
+     * @param tableId the id of the table to be joined.
+     * @param position the position at which to join the table.
+     *
+     * @return the id of the newly created table.
+     *
+     * @exception ServiceFailedException thrown if the table creation was
+     * not able processed for some reason. The explanation will be
+     * provided in the message data of the exception.
+     */
+    public void joinTable (BodyObject joiner, int tableId, int position)
+        throws ServiceFailedException
+    {
     }
 
     /**

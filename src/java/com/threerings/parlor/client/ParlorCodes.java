@@ -1,5 +1,5 @@
 //
-// $Id: ParlorCodes.java,v 1.5 2001/10/11 04:07:51 mdb Exp $
+// $Id: ParlorCodes.java,v 1.6 2001/10/19 02:04:29 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -58,4 +58,30 @@ public interface ParlorCodes extends InvocationCodes
      * the invited user was not online at the time the invitation was
      * received. */
     public static final String INVITEE_NOT_ONLINE = "m.invitee_not_online";
+
+    /** The message identifier for a create table request. */
+    public static final String CREATE_TABLE_REQUEST = "CreateTable";
+
+    /** The response identifier for a table created response. This is
+     * mapped by the invocation services to a call to {@link
+     * ParlorDirector#handleTableCreated}. */
+    public static final String TABLE_CREATED_RESPONSE = "TableCreated";
+
+    /** The response identifier for a create failed response. This is
+     * mapped by the invocation services to a call to {@link
+     * ParlorDirector#handleCreateFailed}. */
+    public static final String CREATE_FAILED_RESPONSE = "CreateFailed";
+
+    /** The message identifier for a join table request. */
+    public static final String JOIN_TABLE_REQUEST = "JoinTable";
+
+    /** The response identifier for a table joined response. This is
+     * mapped by the invocation services to a call to {@link
+     * ParlorDirector#handleTableJoined}. */
+    public static final String TABLE_JOINED_RESPONSE = "TableJoined";
+
+    /** The response identifier for a join failed response. This is mapped
+     * by the invocation services to a call to {@link
+     * ParlorDirector#handleJoinFailed}. */
+    public static final String JOIN_FAILED_RESPONSE = "JoinFailed";
 }

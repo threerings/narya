@@ -1,5 +1,5 @@
 //
-// $Id: ParlorProvider.java,v 1.7 2001/10/11 21:08:22 mdb Exp $
+// $Id: ParlorProvider.java,v 1.8 2001/10/19 02:04:29 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -87,6 +87,58 @@ public class ParlorProvider
     {
         // pass this on to the parlor manager
         _pmgr.cancelInvite(source, inviteId);
+    }
+
+    /**
+     * Processes a request from the client to create a new table.
+     */
+    public void handleCreateTableRequest (
+        BodyObject source, int invid, int placeOid, GameConfig config)
+    {
+        Log.info("Handling create table request [source=" + source +
+                 ", invid=" + invid + ", placeOid=" + placeOid +
+                 ", config=" + config + "].");
+
+        String rsp = null;
+
+        try {
+            // pass the creation request on to the table manager
+            int tableId = _pmgr.createTable(source, placeOid, config);
+            sendResponse(source, invid, TABLE_CREATED_RESPONSE,
+                         new Integer(tableId));
+
+        } catch (ServiceFailedException sfe) {
+            // the exception message is the code indicating the reason for
+            // the creation rejection
+            sendResponse(source, invid, CREATE_FAILED_RESPONSE,
+                         sfe.getMessage());
+        }
+    }
+
+    /**
+     * Processes a request from the client to join an existing table.
+     */
+    public void handleJoinTableRequest (
+        BodyObject source, int invid, int tableId, int position)
+    {
+        Log.info("Handling join table request [source=" + source +
+                 ", invid=" + invid + ", tableId=" + tableId +
+                 ", position=" + position + "].");
+
+        String rsp = null;
+
+        try {
+            // pass the creation request on to the table manager
+            _pmgr.joinTable(source, tableId, position);
+            // there is normally no response. the client will see
+            // themselves show up in the table that they joined
+
+        } catch (ServiceFailedException sfe) {
+            // the exception message is the code indicating the reason for
+            // the creation rejection
+            sendResponse(source, invid, JOIN_FAILED_RESPONSE,
+                         sfe.getMessage());
+        }
     }
 
     /** A reference to the parlor manager we're working with. */
