@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.14 2002/06/25 01:43:29 mdb Exp $
+// $Id: FrameManager.java,v 1.15 2002/08/20 19:01:08 mdb Exp $
 
 package com.threerings.media;
 
@@ -445,7 +445,7 @@ public class FrameManager
     public static Component getRoot (Component comp, Rectangle rect)
     {
 	for (Component c = comp; c != null; c = c.getParent()) {
-	    if (!c.isVisible() || c.getPeer() == null) {
+	    if (!c.isVisible() || !c.isDisplayable()) {
 		return null;
 	    }
             if (c instanceof Window || c instanceof Applet) {

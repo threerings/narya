@@ -1,5 +1,5 @@
 //
-// $Id: FrameRepaintManager.java,v 1.10 2002/07/23 03:52:23 shaper Exp $
+// $Id: FrameRepaintManager.java,v 1.11 2002/08/20 19:01:08 mdb Exp $
 
 package com.threerings.media;
 
@@ -56,7 +56,7 @@ public class FrameRepaintManager extends RepaintManager
             // if the component is not part of an active widget hierarcy,
             // we can stop now; if the component is a cell render pane,
             // we're apparently supposed to ignore it as wel
-            if (c.getPeer() == null || c instanceof CellRendererPane) {
+            if (!c.isDisplayable() || c instanceof CellRendererPane) {
                 return;
             }
 
@@ -146,7 +146,7 @@ public class FrameRepaintManager extends RepaintManager
     protected Component getRoot (Component comp)
     {
 	for (Component c = comp; c != null; c = c.getParent()) {
-	    if (!c.isVisible() || c.getPeer() == null) {
+	    if (!c.isVisible() || !c.isDisplayable()) {
 		return null;
 	    }
             if (c instanceof Window || c instanceof Applet) {
@@ -230,7 +230,7 @@ public class FrameRepaintManager extends RepaintManager
             for (Component c = comp.getParent(); c != null; c = c.getParent()) {
                 // stop looking for combinable parents for non-visible or
                 // non-JComponents
-                if (!c.isVisible() || c.getPeer() == null ||
+                if (!c.isVisible() || !c.isDisplayable() ||
                     !(c instanceof JComponent)) {
                     break;
                 }
@@ -290,7 +290,7 @@ public class FrameRepaintManager extends RepaintManager
             // climb up the parent hierarchy, looking for the first opaque
             // parent as well as the root component
             for (Component c = comp; c != null; c = c.getParent()) {
-                if (!c.isVisible() || c.getPeer() == null) {
+                if (!c.isVisible() || !c.isDisplayable()) {
                     break;
                 }
 
