@@ -1,5 +1,5 @@
 //
-// $Id: PlaceObject.java,v 1.14 2003/06/25 17:17:41 ray Exp $
+// $Id: PlaceObject.java,v 1.15 2003/07/11 00:47:33 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -9,9 +9,16 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.OidList;
 
+import com.threerings.crowd.Log;
 import com.threerings.crowd.chat.data.SpeakMarshaller;
 import com.threerings.crowd.chat.data.SpeakObject;
 
+/**
+ * A distributed object that contains information on a place that is
+ * occupied by bodies. This place might be a chat room, a game room, an
+ * island in a massively multiplayer piratical universe, anything that has
+ * occupants that might want to chat with one another.
+ */
 public class PlaceObject extends DObject
     implements SpeakObject
 {
@@ -63,12 +70,17 @@ public class PlaceObject extends DObject
      */
     public OccupantInfo getOccupantInfo (String username)
     {
-        Iterator iter = occupantInfo.entries();
-        while (iter.hasNext()) {
-            OccupantInfo info = (OccupantInfo)iter.next();
-            if (info.username.equals(username)) {
-                return info;
+        try {
+            Iterator iter = occupantInfo.entries();
+            while (iter.hasNext()) {
+                OccupantInfo info = (OccupantInfo)iter.next();
+                if (info.username.equals(username)) {
+                    return info;
+                }
             }
+        } catch (Throwable t) {
+            Log.warning("PlaceObject.getOccupantInfo choked.");
+            Log.logStackTrace(t);
         }
         return null;
     }
