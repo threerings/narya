@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.1 2003/05/08 21:25:20 mdb Exp $
+# $Id: Makefile,v 1.2 2004/10/20 03:27:22 mdb Exp $
 
 #
 # Executable definitions
@@ -22,22 +22,24 @@ INSTALL_PATH=${ROOT}/dist/lib/i686-Linux
 INCLUDES=-I.. -I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux
 LIBRARIES=-lX11
 TARGET=libunsafe.so
-INSTALL_TARGET=${INSTALL_PATH}/${TARGET}
 
 #
 # Target definitions
 
-all: ${INSTALL_TARGET}
+all: ${TARGET}
 
-${INSTALL_TARGET}: com_threerings_util_unsafe_Unsafe.c
+install: ${TARGET}
+	@${MKDIR} -p ${INSTALL_PATH}
+	cp ${TARGET} ${INSTALL_PATH}
+
+${TARGET}: com_threerings_util_unsafe_Unsafe.c
 	@echo Compiling Unsafe.c
 	@${CC} ${INCLUDES} -c com_threerings_util_unsafe_Unsafe.c \
 	    -o com_threerings_util_unsafe_Unsafe.o
 	@echo Creating ${TARGET}
-	@${MKDIR} -p ${INSTALL_PATH}
-	@${CC} -o ${INSTALL_TARGET} com_threerings_util_unsafe_Unsafe.o \
+	@${CC} -o ${TARGET} com_threerings_util_unsafe_Unsafe.o \
 	    ${LIBRARIES} ${LIBRARIES_PATH} -shared
 
 clean:
 	-${RM} *.o
-	-${RM} ${INSTALL_TARGET}
+	-${RM} ${TARGET}
