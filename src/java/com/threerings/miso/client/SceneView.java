@@ -1,5 +1,5 @@
 //
-// $Id: SceneView.java,v 1.17 2001/10/22 18:21:41 shaper Exp $
+// $Id: SceneView.java,v 1.18 2001/10/26 01:17:21 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -49,5 +49,5 @@ public interface SceneView
      *
      * @return the sprite's path, or null if no valid path exists.
      */
-    public Path getPath (AmbulatorySprite sprite, int x, int y);
+    public Path getPath (MisoCharacterSprite sprite, int x, int y);
 }

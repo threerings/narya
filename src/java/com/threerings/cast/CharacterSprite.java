@@ -1,44 +1,38 @@
 //
-// $Id: CharacterSprite.java,v 1.15 2001/10/25 18:06:17 shaper Exp $
+// $Id: CharacterSprite.java,v 1.16 2001/10/26 01:17:21 shaper Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.cast;
 
 import java.awt.Point;
 
 import com.threerings.media.sprite.*;
 
-import com.threerings.miso.Log;
-import com.threerings.miso.tile.MisoTile;
-import com.threerings.miso.scene.util.IsoUtil;
+import com.threerings.cast.Log;
+import com.threerings.cast.CharacterComponent.ComponentFrames;
 
 /**
- * An ambulatory sprite is a sprite that animates itself while walking
+ * A character sprite is a sprite that animates itself while walking
  * about in a scene.
  */
-public class AmbulatorySprite extends Sprite implements Traverser
+public class CharacterSprite extends Sprite
 {
     /**
-     * Construct an <code>AmbulatorySprite</code>, with a multi-frame
-     * image associated with each of the eight compass directions. The
-     * array should be in the order defined by the <code>Sprite</code>
-     * direction constants (SW, W, NW, N, NE, E, SE, S).
-     *
-     * @param x the sprite x-position in pixels.
-     * @param y the sprite y-position in pixels.
-     * @param images the images used to display the sprite when
-     * standing or walking about.
+     * Constructs a character sprite.
      */
-    public AmbulatorySprite (
-        IsoSceneViewModel model, int x, int y, CharacterImages images)
+    public CharacterSprite ()
     {
-        super(x, y);
+        // assign an arbitrary starting orientation
+        _orient = DIR_NORTH;
+    }
 
-        // keep track of these
-        _model = model;
-        _images = images;
-
-        // give ourselves an initial orientation
-        setOrientation(DIR_NORTH);
+    /**
+     * Sets the walking and standing frames of animation used to
+     * display this character.
+     */
+    public void setFrames (ComponentFrames frames)
+    {
+        _anims = frames;
+        setFrames(_anims.walk[_orient]);
     }
 
     // documentation inherited
@@ -48,9 +42,9 @@ public class AmbulatorySprite extends Sprite implements Traverser
 
         // update the sprite frames to reflect the direction
         if (_path == null) {
-            setFrames(_images.standing[_orient]);
+            setFrames(_anims.stand[_orient]);
         } else {
-            setFrames(_images.walking[_orient]);
+            setFrames(_anims.walk[_orient]);
         }
     }
 
@@ -110,137 +104,15 @@ public class AmbulatorySprite extends Sprite implements Traverser
     protected void halt ()
     {
         // come to a halt looking settled and at peace
-        setFrames(_images.standing[_orient]);
+        setFrames(_anims.stand[_orient]);
 
         // disable walking animation
         setAnimationMode(NO_ANIMATION);
     }
 
-    // documentation inherited
-    public boolean canTraverse (MisoTile tile)
-    {
-	// by default, passability is solely the province of the tile
-	return tile.passable;
-    }
-
-    /**
-     * Returns the sprite's location on the x-axis in tile coordinates.
-     */
-    public int getTileX ()
-    {
-        return _tilex;
-    }
-
-    /**
-     * Returns the sprite's location on the y-axis in tile coordinates.
-     */
-    public int getTileY ()
-    {
-        return _tiley;
-    }
-
-    /**
-     * Returns the sprite's location on the x-axis within its current
-     * tile in fine coordinates.
-     */
-    public int getFineX ()
-    {
-        return _finex;
-    }
-
-    /**
-     * Returns the sprite's location on the y-axis within its current
-     * tile in fine coordinates.
-     */
-    public int getFineY ()
-    {
-        return _finey;
-    }
-
-    // documentation inherited
-    public void setLocation (int x, int y)
-    {
-        super.setLocation(x, y);
-
-        if (_path == null) {
-            // we only calculate the sprite's tile and fine
-            // coordinates if we have no path, since paths that move
-            // us about are responsible for keeping our scene
-            // coordinates up to date since only they can know where
-            // we really are while in transition from one place to
-            // another.
-
-            // get the sprite's position in full coordinates
-            Point fpos = new Point();
-            IsoUtil.screenToFull(_model, _x, _y, fpos);
-
-            // save off the sprite's tile and fine coordinates
-            _tilex = IsoUtil.fullToTile(fpos.x);
-            _tiley = IsoUtil.fullToTile(fpos.y);
-            _finex = IsoUtil.fullToFine(fpos.x);
-            _finey = IsoUtil.fullToFine(fpos.y);
-        }
-    }
-
-    /**
-     * Sets the sprite's location in tile coordinates; the sprite is
-     * not actually moved in any way.  This method is only intended
-     * for use in updating the sprite's stored position which is made
-     * accessible to others that may care to review it.
-     */
-    public void setTileLocation (int x, int y)
-    {
-        _tilex = x;
-        _tiley = y;
-    }
-
-    /**
-     * Sets the sprite's location in fine coordinates; the sprite is
-     * not actually moved in any way.  This method is only intended
-     * for use in updating the sprite's stored position which is made
-     * accessible to others that may care to review it.
-     */
-    public void setFineLocation (int x, int y)
-    {
-        _finex = x;
-        _finey = y;
-    }
-
-    // documentation inherited
-    protected void toString (StringBuffer buf)
-    {
-        super.toString(buf);
-        buf.append(", tilex=").append(_tilex);
-        buf.append(", tiley=").append(_tiley);
-        buf.append(", finex=").append(_finex);
-        buf.append(", finey=").append(_finey);
-    }
-
-    /**
-     * A class to hold the images that are used to display the sprite
-     * while walking about.
-     */
-    public static class CharacterImages
-    {
-        /** The images of the sprite standing at rest in each orientation. */
-        public MultiFrameImage standing[];
-
-        /** The images of the sprite walking in each orientation. */
-        public MultiFrameImage walking[];
-    }
-
-    /** The animation frames for the sprite facing each direction. */
-    protected CharacterImages _images;
-
-    /** The iso scene view model. */
-    protected IsoSceneViewModel _model;
+    /** The standing and walking animations for the sprite. */
+    protected ComponentFrames _anims;
 
     /** The origin of the sprite. */
     protected int _xorigin, _yorigin;
-
-    /** The sprite location in tile coordinates. */
-    protected int _tilex, _tiley;
-
-    /** The sprite location in fine coordinates. */
-    protected int _finex, _finey;
 }

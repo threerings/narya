@@ -1,16 +1,16 @@
 //
-// $Id: Log.java,v 1.3 2001/10/26 01:17:21 shaper Exp $
+// $Id: Log.java,v 1.1 2001/10/26 01:17:21 shaper Exp $
 
-package com.threerings.miso;
+package com.threerings.cast;
 
 /**
  * A placeholder class that contains a reference to the log object used by
- * the miso package.
+ * the cast package.
  */
 public class Log
 {
     public static com.samskivert.util.Log log =
-	new com.samskivert.util.Log("miso");
+	new com.samskivert.util.Log("cast");
 
     /** Convenience function. */
     public static void debug (String message)

@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.69 2001/10/25 16:36:42 shaper Exp $
+// $Id: IsoSceneView.java,v 1.70 2001/10/26 01:17:21 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -543,7 +543,8 @@ public class IsoSceneView implements SceneView
 
         int size = _dirtySprites.size();
         for (int ii = 0; ii < size; ii++) {
-            AmbulatorySprite sprite = (AmbulatorySprite)_dirtySprites.get(ii);
+            MisoCharacterSprite sprite =
+                (MisoCharacterSprite)_dirtySprites.get(ii);
 
             // get the dirty portion of the sprite
             Rectangle drect = sprite.getBounds().intersection(r);
@@ -576,7 +577,7 @@ public class IsoSceneView implements SceneView
     }
 
     // documentation inherited
-    public Path getPath (AmbulatorySprite sprite, int x, int y)
+    public Path getPath (MisoCharacterSprite sprite, int x, int y)
     {
         // make sure the destination point is within our bounds
         if (!_model.bounds.contains(x, y)) {

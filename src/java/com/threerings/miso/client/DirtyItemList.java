@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.3 2001/10/25 16:35:45 shaper Exp $
+// $Id: DirtyItemList.java,v 1.4 2001/10/26 01:17:21 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -22,7 +22,7 @@ public class DirtyItemList extends ArrayList
      * item list.
      */
     public void appendDirtySprite (
-        Sprite sprite, int x, int y, Rectangle dirtyRect)
+        MisoCharacterSprite sprite, int x, int y, Rectangle dirtyRect)
     {
         add(new DirtyItem(sprite, null, x, y, dirtyRect));
     }
@@ -164,13 +164,13 @@ public class DirtyItemList extends ArrayList
 
             if (da.ox == db.ox &&
                 da.oy == db.oy &&
-                (da.obj instanceof AmbulatorySprite) &&
-                (db.obj instanceof AmbulatorySprite)) {
+                (da.obj instanceof MisoCharacterSprite) &&
+                (db.obj instanceof MisoCharacterSprite)) {
                 // we're comparing two sprites co-existing on the same
                 // tile, so study their fine coordinates to determine
                 // rendering order
-                AmbulatorySprite as = (AmbulatorySprite)da.obj;
-                AmbulatorySprite bs = (AmbulatorySprite)db.obj;
+                MisoCharacterSprite as = (MisoCharacterSprite)da.obj;
+                MisoCharacterSprite bs = (MisoCharacterSprite)db.obj;
 
                 int ahei = as.getFineX() + as.getFineY();
                 int bhei = bs.getFineX() + bs.getFineY();

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.22 2001/10/25 22:08:29 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.23 2001/10/26 01:17:22 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -10,7 +10,10 @@ import javax.swing.JPanel;
 
 import com.samskivert.util.Config;
 
+import com.threerings.cast.*;
+
 import com.threerings.media.sprite.*;
+import com.threerings.media.tile.TileManager;
 import com.threerings.media.util.RandomUtil;
 import com.threerings.media.util.PerformanceMonitor;
 import com.threerings.media.util.PerformanceObserver;
@@ -18,6 +21,7 @@ import com.threerings.media.util.PerformanceObserver;
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;
 import com.threerings.miso.scene.xml.XMLFileSceneRepository;
+import com.threerings.miso.scene.util.IsoUtil;
 import com.threerings.miso.util.*;
 import com.threerings.miso.viewer.util.ViewerContext;
 
@@ -40,8 +44,8 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         prepareStartingScene();
 
         // construct the character manager from which we obtain sprites
-        CharacterManager charmgr = new CharacterManager(
-            ctx.getConfig(), ctx.getTileManager(), _scenemodel);
+        CharacterManager charmgr = MisoUtil.createCharacterManager(
+            ctx.getConfig(), ctx.getTileManager());
 
         // create the manipulable sprite
         _sprite = createSprite(spritemgr, charmgr, TSID_CHAR_USER);
@@ -62,12 +66,16 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     /**
      * Creates a new sprite.
      */
-    protected AmbulatorySprite createSprite (
+    protected MisoCharacterSprite createSprite (
         SpriteManager spritemgr, CharacterManager charmgr, int tsid)
     {
-        AmbulatorySprite s = charmgr.getCharacter(tsid);
+        int dummy[] = { tsid };
+        CharacterDescriptor desc = new CharacterDescriptor(dummy);
+        MisoCharacterSprite s =
+            (MisoCharacterSprite)charmgr.getCharacter(desc);
         if (s != null) {
             s.setLocation(300, 300);
+            IsoUtil.setSpriteSceneLocation(_scenemodel, s);
             s.addSpriteObserver(this);
             spritemgr.addSprite(s);
         }
@@ -81,7 +89,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     protected void createDecoys (
         SpriteManager spritemgr, CharacterManager charmgr)
     {
-        _decoys = new AmbulatorySprite[NUM_DECOYS];
+        _decoys = new MisoCharacterSprite[NUM_DECOYS];
         for (int ii = 0; ii < NUM_DECOYS; ii++) {
             _decoys[ii] = createSprite(spritemgr, charmgr, TSID_CHAR);
             if (_decoys[ii] != null) {
@@ -133,7 +141,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
      * screen coordinates.  Returns whether a path was successfully
      * assigned.
      */
-    protected boolean createPath (AmbulatorySprite s, int x, int y)
+    protected boolean createPath (MisoCharacterSprite s, int x, int y)
     {
         // get the path from here to there
         Path path = _view.getPath(s, x, y);
@@ -151,7 +159,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     /**
      * Assigns a new random path to the given sprite.
      */
-    protected void createRandomPath (AmbulatorySprite s)
+    protected void createRandomPath (MisoCharacterSprite s)
     {
         Dimension d = _scenemodel.bounds.getSize();
 
@@ -166,7 +174,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     public void handleEvent (SpriteEvent event)
     {
         if (event instanceof PathCompletedEvent) {
-            AmbulatorySprite s = (AmbulatorySprite)event.getSprite();
+            MisoCharacterSprite s = (MisoCharacterSprite)event.getSprite();
 
             if (s != _sprite) {
                 // move the sprite to a new random location
@@ -188,10 +196,10 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     protected AnimationManager _animmgr;
 
     /** The sprite we're manipulating within the view. */
-    protected AmbulatorySprite _sprite;
+    protected MisoCharacterSprite _sprite;
 
     /** The test sprites that meander about aimlessly. */
-    protected AmbulatorySprite _decoys[];
+    protected MisoCharacterSprite _decoys[];
 
     /** The context object. */
     protected ViewerContext _ctx;

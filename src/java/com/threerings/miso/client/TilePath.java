@@ -1,5 +1,5 @@
 //
-// $Id: TilePath.java,v 1.1 2001/10/24 00:55:08 shaper Exp $
+// $Id: TilePath.java,v 1.2 2001/10/26 01:17:21 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -31,7 +31,7 @@ public class TilePath extends LineSegmentPath
      * coordinates.
      */
     public TilePath (
-        IsoSceneViewModel model, AmbulatorySprite sprite, List tiles,
+        IsoSceneViewModel model, MisoCharacterSprite sprite, List tiles,
         int destx, int desty)
     {
         _model = model;
@@ -46,7 +46,7 @@ public class TilePath extends LineSegmentPath
         boolean moved = super.updatePosition(sprite, timestamp);
 
         if (moved) {
-            AmbulatorySprite as = (AmbulatorySprite)sprite;
+            MisoCharacterSprite mcs = (MisoCharacterSprite)sprite;
             int sx = sprite.getX(), sy = sprite.getY();
             Point pos = new Point();
 
@@ -60,7 +60,7 @@ public class TilePath extends LineSegmentPath
                 // we've arrived
                 int dtx = _dest.getTileX(), dty = _dest.getTileY();
                 if (pos.x == dtx && pos.y == dty) {
-                    as.setTileLocation(dtx, dty);
+                    mcs.setTileLocation(dtx, dty);
                     // Log.info("Sprite arrived [dtx=" + dtx +
                     // ", dty=" + dty + "].");
                     _arrived = true;
@@ -68,14 +68,14 @@ public class TilePath extends LineSegmentPath
             }
 
             // get the sprite's latest fine coordinates
-            IsoUtil.tileToScreen(_model, as.getTileX(), as.getTileY(), pos);
+            IsoUtil.tileToScreen(_model, mcs.getTileX(), mcs.getTileY(), pos);
             Point fpos = new Point();
             IsoUtil.pixelToFine(_model, sx - pos.x, sy - pos.y, fpos);
 
             // inform the sprite
-            as.setFineLocation(fpos.x, fpos.y);
+            mcs.setFineLocation(fpos.x, fpos.y);
 
-            // Log.info("Sprite moved [s=" + as + "].");
+            // Log.info("Sprite moved [s=" + mcs + "].");
         }
 
         return moved;
@@ -99,7 +99,7 @@ public class TilePath extends LineSegmentPath
      * following the given list of tile coordinates.
      */
     protected void createPath (
-        AmbulatorySprite sprite, List tiles, int destx, int desty)
+        MisoCharacterSprite sprite, List tiles, int destx, int desty)
     {
 	// constrain destination pixels to fine coordinates
 	Point fpos = new Point();

@@ -1,0 +1,19 @@
+<?xml version="1.0" standalone="yes"?>
+
+<!-- $Id: components.xml,v 1.1 2001/10/26 01:17:21 shaper Exp $ -->
+
+<!-- Initial test character component description data. -->
+
+<charactercomponents>
+
+  <componenttypes>
+    <type ctid="1" frames="5" fps="5" origin="47, 80"/>
+    <type ctid="2" frames="6" fps="5" origin="47, 80"/>
+  </componenttypes>
+
+  <components>
+    <component cid="1011" ctid="1"/>
+    <component cid="1012" ctid="2"/>
+  </components>
+
+</charactercomponents>

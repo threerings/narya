@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.29 2001/10/25 03:01:13 shaper Exp $
+// $Id: Sprite.java,v 1.30 2001/10/26 01:17:21 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -49,7 +49,32 @@ public class Sprite
     public static final int TIME_BASED = 2;
 
     /**
-     * Construct a sprite object.
+     * Constructs a sprite without any associated frames and with a
+     * default initial location of <code>(0, 0)</code>.  The sprite
+     * should be populated with a set of frames used to display it via
+     * a subsequent call to {@link #setFrames}, and its location
+     * can be updated with {@link #setLocation}.
+     */
+    public Sprite ()
+    {
+        init(0, 0, null);
+    }
+
+    /**
+     * Constructs a sprite without any associated frames. The sprite
+     * should be populated with a set of frames used to display it via
+     * a subsequent call to {@link #setFrames}.
+     *
+     * @param x the sprite x-position in pixels.
+     * @param y the sprite y-position in pixels.
+     */
+    public Sprite (int x, int y)
+    {
+        init(x, y, null);
+    }
+
+    /**
+     * Constructs a sprite.
      *
      * @param x the sprite x-position in pixels.
      * @param y the sprite y-position in pixels.
@@ -58,19 +83,6 @@ public class Sprite
     public Sprite (int x, int y, MultiFrameImage frames)
     {
         init(x, y, frames);
-    }
-
-    /**
-     * Construct a sprite object without any associated frames. The sprite
-     * should be populated with a set of frames used to display it via a
-     * subsequent call to {@link #setFrames}.
-     *
-     * @param x the sprite x-position in pixels.
-     * @param y the sprite y-position in pixels.
-     */
-    public Sprite (int x, int y)
-    {
-        init(x, y, null);
     }
 
     /**

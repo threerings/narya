@@ -1,22 +1,15 @@
 //
-// $Id: CharacterManager.java,v 1.4 2001/10/25 18:06:17 shaper Exp $
+// $Id: CharacterManager.java,v 1.5 2001/10/26 01:17:21 shaper Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.cast;
 
 import java.awt.Point;
 import java.io.IOException;
 
-import com.samskivert.util.Config;
-import com.samskivert.util.HashIntMap;
-
-import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.tile.TileManager;
 
-import com.threerings.miso.Log;
-import com.threerings.miso.scene.AmbulatorySprite.CharacterImages;
-import com.threerings.miso.scene.xml.XMLCharacterParser;
-import com.threerings.miso.tile.TileUtil;
-import com.threerings.miso.util.MisoUtil;
+import com.threerings.cast.Log;
+import com.threerings.cast.TileUtil;
 
 /**
  * The character manager provides facilities for constructing sprites
@@ -25,82 +18,93 @@ import com.threerings.miso.util.MisoUtil;
 public class CharacterManager
 {
     /**
-     * Construct the character manager.
+     * Constructs the character manager.
      */
-    public CharacterManager (
-        Config config, TileManager tilemgr, IsoSceneViewModel model)
+    public CharacterManager (TileManager tilemgr, ComponentRepository repo)
     {
+        // save off our objects
         _tilemgr = tilemgr;
-        _model = model;
-
-        // load character data descriptions
-        String file = config.getValue(CHARFILE_KEY, DEFAULT_CHARFILE);
-        try {
-            new XMLCharacterParser().loadCharacters(file, _characters);
-        } catch (IOException ioe) {
-            Log.warning("Exception loading character descriptions " +
-                        "[ioe=" + ioe + "].");
-        }
+        _repo = repo;
     }
 
     /**
-     * Returns a sprite representing the character described by the
-     * given tile set id.
+     * Returns a {@link CharacterSprite} representing the character
+     * described by the given {@link CharacterDescriptor}, or
+     * <code>null</code> if an error occurs.
      *
-     * @param the character tile set id.
+     * @param desc the character descriptor.
      */
-    public AmbulatorySprite getCharacter (int tsid)
+    public CharacterSprite getCharacter (CharacterDescriptor desc)
     {
-        CharacterInfo info = (CharacterInfo)_characters.get(tsid);
-        if (info == null) {
-            // no such character
-            Log.warning("Unknown character requested [tsid=" + tsid + "].");
+        // get the list of component ids
+        int components[] = desc.getComponents();
+
+        // TODO: here is where we'd iterate through all components
+        // building up the full composite image of the sprite in each
+        // orientation, standing and walking.  we punt for now, but
+        // we'll revisit this soon enough.
+        if (components.length == 0 || components.length > 1) {
+            Log.warning("Invalid number of components " +
+                        " [size=" + components.length + "].");
             return null;
         }
 
-	CharacterImages imgs = TileUtil.getCharacterImages(
-            _tilemgr, tsid, info.frameCount);
+        CharacterComponent comp;
+        try {
+            // as noted above, no compositing for now.  note that when
+            // we do composite, we probably will want to make sure all
+            // components share a compatible component type.
+            comp = _repo.getComponent(components[0]);
+        } catch (Exception e) {
+            Log.warning("Exception retrieving character component " +
+                        "[e=" + e + "].");
+            return null;
+        }
 
-        AmbulatorySprite sprite = new AmbulatorySprite(_model, 0, 0, imgs);
-        sprite.setFrameRate(info.fps);
-        sprite.setOrigin(info.origin.x, info.origin.y);
+        // instantiate the character sprite
+        CharacterSprite sprite;
+        try {
+            sprite = (CharacterSprite)_charClass.newInstance();
+        } catch (Exception e) {
+            Log.warning("Failed to instantiate character sprite " +
+                        "[e=" + e + "].");
+            Log.logStackTrace(e);
+            return null;
+        }
+
+        // populate the character sprite with its attributes
+        ComponentType ctype = comp.getType();
+        sprite.setFrames(comp.getFrames());
+        sprite.setFrameRate(ctype.fps);
+        sprite.setOrigin(ctype.origin.x, ctype.origin.y);
 
         return sprite;
     }
 
-    /** The config key for the character description file. */
-    protected static final String CHARFILE_KEY =
-        MisoUtil.CONFIG_KEY + ".characters";
+    /**
+     * Instructs the character manager to construct instances of this
+     * derived class of <code>CharacterSprite</code>.
+     */
+    public void setCharacterClass (Class charClass)
+    {
+        // sanity check
+        if (!CharacterSprite.class.isAssignableFrom(charClass)) {
+            Log.warning("Requested to use character class that does not " + 
+                        "derive from CharacterSprite " +
+                        "[class=" + charClass.getName() + "].");
+            return;
+        }
 
-    /** The default character description file. */
-    protected static final String DEFAULT_CHARFILE =
-        "rsrc/config/miso/characters.xml";
-
-    /** The hashtable of character info objects. */
-    protected HashIntMap _characters = new HashIntMap();
+        // make a note of it
+        _charClass = charClass;
+    }
 
     /** The tile manager. */
     protected TileManager _tilemgr;
 
-    /** The iso scene view model. */
-    protected IsoSceneViewModel _model;
+    /** The component repository. */
+    protected ComponentRepository _repo;
 
-    /**
-     * A class that contains character description information for a
-     * single character for use when constructing the character's
-     * sprite.
-     */
-    public static class CharacterInfo
-    {
-        public int tsid;
-        public int frameCount;
-        public int fps;
-        public Point origin = new Point();
-
-        public String toString ()
-        {
-            return "[tsid=" + tsid + ", frameCount=" + frameCount +
-                ", fps=" + fps + ", origin=" + origin + "]";
-        }
-    }
+    /** The character class to be created. */
+    protected Class _charClass = CharacterSprite.class;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: MisoUtil.java,v 1.9 2001/08/29 18:41:46 shaper Exp $
+// $Id: MisoUtil.java,v 1.10 2001/10/26 01:17:22 shaper Exp $
 
 package com.threerings.miso.util;
 
@@ -9,18 +9,24 @@ import java.net.URL;
 import java.net.MalformedURLException;
 
 import com.samskivert.util.*;
+
+import com.threerings.cast.CharacterManager;
+
 import com.threerings.resource.ResourceManager;
+
 import com.threerings.media.ImageManager;
 import com.threerings.media.tile.*;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;
+import com.threerings.miso.scene.xml.XMLFileComponentRepository;
 import com.threerings.miso.scene.xml.XMLFileSceneRepository;
 import com.threerings.miso.tile.*;
 
 /**
- * MisoUtil provides miscellaneous routines for applications or other
- * layers that intend to make use of Miso services.
+ * The miso util class provides miscellaneous routines for
+ * applications or other layers that intend to make use of Miso
+ * services.
  */
 public class MisoUtil
 {
@@ -28,7 +34,7 @@ public class MisoUtil
     public static final String CONFIG_KEY = "miso";
 
     /**
-     * Populate the config object with miso configuration values.
+     * Populates the config object with miso configuration values.
      *
      * @param config the <code>Config</code> object to populate.
      */
@@ -38,8 +44,27 @@ public class MisoUtil
     }
 
     /**
-     * Create an <code>XMLFileSceneRepository</code> object, reading the
-     * name of the class to instantiate from the config object.
+     * Creates a <code>CharacterManager</code> object.
+     *
+     * @param config the <code>Config</code> object.
+     * @param tilemgr the tile manager.
+     *
+     * @return the new character manager object or null if an error
+     * occurred.
+     */
+    public static CharacterManager createCharacterManager (
+        Config config, TileManager tilemgr)
+    {
+        XMLFileComponentRepository crepo =
+            new XMLFileComponentRepository(config, tilemgr); 
+        CharacterManager charmgr = new CharacterManager(tilemgr, crepo);
+        charmgr.setCharacterClass(MisoCharacterSprite.class);
+        return charmgr;
+    }
+
+    /**
+     * Creates an <code>XMLFileSceneRepository</code> object, reading
+     * the name of the class to instantiate from the config object.
      *
      * @param config the <code>Config</code> object.
      *
@@ -63,7 +88,7 @@ public class MisoUtil
     }
 
     /**
-     * Create a <code>TileManager</code> object.
+     * Creates a <code>TileManager</code> object.
      *
      * @param config the <code>Config</code> object.
      * @param frame the root frame to which images will be rendered.
@@ -80,7 +105,7 @@ public class MisoUtil
     }
 
     /**
-     * Create a <code>ResourceManager</code> object.
+     * Creates a <code>ResourceManager</code> object.
      *
      * @return the new resource manager object or null if an error occurred.
      */
@@ -90,7 +115,7 @@ public class MisoUtil
     }	
 
     /**
-     * Create a <code>TileSetManager</code> object, reading the class
+     * Creates a <code>TileSetManager</code> object, reading the class
      * name to instantiate from the config object.
      *
      * @param config the <code>Config</code> object.

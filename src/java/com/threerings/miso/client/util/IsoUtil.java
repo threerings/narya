@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.13 2001/10/24 00:55:08 shaper Exp $
+// $Id: IsoUtil.java,v 1.14 2001/10/26 01:17:21 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -18,6 +18,27 @@ import com.threerings.miso.scene.*;
  */
 public class IsoUtil
 {
+    /**
+     * Sets the given character sprite's tile and fine coordinate
+     * locations within the scene based on the sprite's current screen
+     * pixel coordinates.  This method should be called whenever a
+     * {@link MisoCharacterSprite} is first created, but after its
+     * location has been set via {@link Sprite#setLocation}.
+     */
+    public static void setSpriteSceneLocation (
+        IsoSceneViewModel model, MisoCharacterSprite sprite)
+    {
+        // get the sprite's position in full coordinates
+        Point fpos = new Point();
+        screenToFull(model, sprite.getX(), sprite.getY(), fpos);
+
+        // set the sprite's tile and fine coordinates
+        sprite.setTileLocation(
+            IsoUtil.fullToTile(fpos.x), IsoUtil.fullToTile(fpos.y));
+        sprite.setFineLocation(
+            IsoUtil.fullToFine(fpos.x), IsoUtil.fullToFine(fpos.y));
+    }
+
     /**
      * Returns a polygon bounding all footprint tiles of the given
      * object tile.
