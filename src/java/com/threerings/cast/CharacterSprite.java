@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.26 2002/04/15 23:07:14 mdb Exp $
+// $Id: CharacterSprite.java,v 1.27 2002/04/17 15:53:49 mdb Exp $
 
 package com.threerings.cast;
 
@@ -27,6 +27,18 @@ public class CharacterSprite extends ImageSprite
 
         // assign an arbitrary starting orientation
         _orient = NORTH;
+
+        // pass the buck to derived classes
+        didInit();
+    }
+
+    /**
+     * Called after this sprite has been initialized with its character
+     * descriptor and character manager. Derived classes can do post-init
+     * business here.
+     */
+    protected void didInit ()
+    {
     }
 
     /**
