@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.19 2001/11/29 20:33:44 mdb Exp $
+// $Id: CharacterSprite.java,v 1.20 2001/12/17 03:33:40 mdb Exp $
 
 package com.threerings.cast;
 
@@ -26,7 +26,7 @@ public class CharacterSprite
         _charmgr = charmgr;
 
         // assign an arbitrary starting orientation
-        _orient = DIR_NORTH;
+        _orient = NORTH;
     }
 
     /**

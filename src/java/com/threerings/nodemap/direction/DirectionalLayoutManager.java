@@ -1,19 +1,25 @@
 //
-// $Id: DirectionalLayoutManager.java,v 1.3 2001/09/28 00:46:54 shaper Exp $
+// $Id: DirectionalLayoutManager.java,v 1.4 2001/12/17 03:34:04 mdb Exp $
 
 package com.threerings.nodemap.direction;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
-import com.threerings.nodemap.*;
+import com.threerings.util.DirectionCodes;
+
+import com.threerings.nodemap.Node;
+import com.threerings.nodemap.LayoutManager;
 
 /**
- * The directional layout manager lays nodes out according to the
- * eight cardinal directions as specified in the {@link Directions}
- * class.  The nodes must be fully connected in both directions with
- * {@link DirectionalEdge} edges.
+ * The directional layout manager lays nodes out according to the eight
+ * cardinal directions as specified in the {@link DirectionCodes} class.
+ * The nodes must be fully connected in both directions with {@link
+ * DirectionalEdge} edges.
  */
-public class DirectionalLayoutManager implements LayoutManager
+public class DirectionalLayoutManager
+    implements LayoutManager, DirectionCodes
 {
     /**
      * Construct a directional layout manager that lays out nodes
@@ -57,39 +63,39 @@ public class DirectionalLayoutManager implements LayoutManager
 
 	    // shift the node in the appropriate direction
 	    switch (e.dir) {
-	    case Directions.NORTH:
+	    case NORTH:
 		tx -= (_edgelen + wid);
 		ty -= (_edgelen + hei);
 		break;
 
-	    case Directions.NORTHEAST:
+	    case NORTHEAST:
 		ty -= (_edgelen + hei);
 		break;
 
-	    case Directions.EAST:
+	    case EAST:
 		tx += (_edgelen + wid);
 		ty -= (_edgelen + hei);
 		break;
 
-	    case Directions.SOUTHEAST:
+	    case SOUTHEAST:
 		tx += (_edgelen + wid);
 		break;
 
-	    case Directions.SOUTH:
+	    case SOUTH:
 		tx += (_edgelen + wid);
 		ty += (_edgelen + hei);
 		break;
 
-	    case Directions.SOUTHWEST:
+	    case SOUTHWEST:
 		ty += (_edgelen + hei);
 		break;
 
-	    case Directions.WEST:
+	    case WEST:
 		tx -= (_edgelen + wid);
 		ty += (_edgelen + hei);
 		break;
 
-	    case Directions.NORTHWEST:
+	    case NORTHWEST:
 		tx -= (_edgelen + wid);
 		break;
 	    }

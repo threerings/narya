@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.13 2001/12/16 08:05:46 mdb Exp $
+// $Id: LineSegmentPath.java,v 1.14 2001/12/17 03:32:52 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -208,7 +208,7 @@ public class LineSegmentPath implements Path
         for (int ii = 0; ii < size; ii++) {
             Point p = (Point)points.get(ii);
 
-            int dir = (ii == 0) ? Sprite.DIR_NORTH : getDirection(last, p);
+            int dir = (ii == 0) ? Sprite.NORTH : getDirection(last, p);
             addNode(p.x, p.y, dir);
             last = p;
         }
@@ -243,24 +243,24 @@ public class LineSegmentPath implements Path
     protected int getDirection (Point a, Point b)
     {
         if (a.x == b.x && a.y > b.y) {
-            return Sprite.DIR_NORTH;
+            return Sprite.NORTH;
         } else if (a.x < b.x && a.y > b.y) {
-            return Sprite.DIR_NORTHEAST;
+            return Sprite.NORTHEAST;
         } else if (a.x > b.x && a.y == b.y) {
-            return Sprite.DIR_EAST;
+            return Sprite.EAST;
         } else if (a.x > b.x && a.y < b.y) {
-            return Sprite.DIR_SOUTHEAST;
+            return Sprite.SOUTHEAST;
         } else if (a.x == b.x && a.y < b.y) {
-            return Sprite.DIR_SOUTH;
+            return Sprite.SOUTH;
         } else if (a.x > b.x && a.y < b.y) {
-            return Sprite.DIR_SOUTHWEST;
+            return Sprite.SOUTHWEST;
         } else if (a.x > b.x && a.y == b.y) {
-            return Sprite.DIR_WEST;
+            return Sprite.WEST;
         } else if (a.x > b.x && a.y > b.y) {
-            return Sprite.DIR_NORTHWEST;
+            return Sprite.NORTHWEST;
         }
 
-        return Sprite.DIR_NONE;
+        return Sprite.NONE;
     }
 
     /** The nodes that make up the path. */

@@ -1,21 +1,25 @@
 //
-// $Id: DirectionalEdge.java,v 1.3 2001/08/24 22:13:10 shaper Exp $
+// $Id: DirectionalEdge.java,v 1.4 2001/12/17 03:34:04 mdb Exp $
 
 package com.threerings.nodemap.direction;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
 
-import com.threerings.nodemap.*;
+import com.threerings.util.DirectionCodes;
+
+import com.threerings.nodemap.Edge;
+import com.threerings.nodemap.Node;
 
 /**
- * A directional edge extends the {@link Edge} object to allow
- * associating a direction with the edge and rendering the edge to the
- * screen.  The edge direction must be one of the directional
- * constants detailed in the {@link Directions} object.
+ * A directional edge extends the {@link Edge} object to allow associating
+ * a direction with the edge and rendering the edge to the screen.  The
+ * edge direction must be one of the directional constants detailed in the
+ * {@link DirectionCodes} class.
  */
 public class DirectionalEdge extends Edge
 {
-    /** The edge direction as a {@link Directions} constant. */
+    /** The edge direction as a {@link DirectionCodes} constant. */
     public int dir;
 
     /**

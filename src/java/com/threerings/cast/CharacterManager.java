@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.10 2001/11/27 08:09:34 mdb Exp $
+// $Id: CharacterManager.java,v 1.11 2001/12/17 03:33:40 mdb Exp $
 
 package com.threerings.cast;
 
@@ -130,7 +130,7 @@ public class CharacterManager
         CharacterDescriptor descrip, String action)
         throws NoSuchComponentException
     {
-        MultiFrameImage[] frames = new MultiFrameImage[Sprite.NUM_DIRECTIONS];
+        MultiFrameImage[] frames = new MultiFrameImage[Sprite.DIRECTION_COUNT];
 
         // obtain the necessary components
         int[] cids = descrip.getComponentIds();

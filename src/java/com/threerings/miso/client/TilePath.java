@@ -1,5 +1,5 @@
 //
-// $Id: TilePath.java,v 1.2 2001/10/26 01:17:21 shaper Exp $
+// $Id: TilePath.java,v 1.3 2001/12/17 03:33:18 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -108,7 +108,7 @@ public class TilePath extends LineSegmentPath
         // add the starting path node
         int stx = sprite.getTileX(), sty = sprite.getTileY();
         int sx = sprite.getX(), sy = sprite.getY();
-        addNode(stx, sty, sx, sy, Sprite.DIR_NORTH);
+        addNode(stx, sty, sx, sy, Sprite.NORTH);
 
 	// TODO: make more visually appealing path segments from start
 	// to second tile, and penultimate to ultimate tile.

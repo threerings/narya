@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.5 2001/11/27 08:39:43 mdb Exp $
+// $Id: TileUtil.java,v 1.6 2001/12/17 03:33:41 mdb Exp $
 
 package com.threerings.cast.util;
 
@@ -29,7 +29,7 @@ public class TileUtil
     public static void compositeFrames (
         MultiFrameImage[] dest, MultiFrameImage[] src)
     {
-        for (int orient = 0; orient < Sprite.NUM_DIRECTIONS; orient++) {
+        for (int orient = 0; orient < Sprite.DIRECTION_COUNT; orient++) {
             MultiFrameImage sframes = src[orient];
             MultiFrameImage dframes = dest[orient];
 
@@ -55,69 +55,6 @@ public class TileUtil
             }
         }
     }
-
-//     /**
-//      * Returns a two-dimensional array of multi frame images containing
-//      * the frames of animation used to render the sprite while standing or
-//      * walking in each of the directions it may face.
-//      */
-//     public static MultiFrameImage[][] getComponentFrames (
-//         String imagedir, CharacterComponent c)
-//     {
-//         ActionSequence seqs[] = c.getActionSequences();
-//         MultiFrameImage frames[][] =
-//             new MultiFrameImage[seqs.length][Sprite.NUM_DIRECTIONS];
-
-// 	try {
-//             for (int ii = 0; ii < seqs.length; ii++) {
-//                 ActionSequence as = seqs[ii];
-
-//                 // get the tile set containing the component tiles for
-//                 // this action sequence
-//                 String file = getImageFile(imagedir, as, c);
-//                 TileSet tset = null;
-
-//                 try {
-//                     tset = as.tileset.clone(file);
-//                 } catch (CloneNotSupportedException e) {
-//                     Log.warning("Failed to clone tile set " +
-//                                 "[tset=" + as.tileset + "].");
-//                     return null;
-//                 }
-
-//                 // get the number of frames of animation
-//                 int frameCount = tset.getTileCount() / Sprite.NUM_DIRECTIONS;
-
-//                 for (int dir = 0; dir < Sprite.NUM_DIRECTIONS; dir++) {
-//                     // retrieve all images for the sequence and direction
-//                     Image imgs[] = new Image[frameCount];
-//                     for (int jj = 0; jj < frameCount; jj++) {
-//                         int idx = (dir * frameCount) + jj;
-//                         imgs[jj] = tset.getTileImage(idx);
-//                     }
-
-//                     // create the multi frame image
-//                     frames[ii][dir] = new MultiFrameImageImpl(imgs);
-//                 }
-// 	    }
-
-// 	} catch (TileException te) {
-// 	    Log.warning("Exception retrieving character images " +
-// 			"[te=" + te + "].");
-//             return null;
-// 	}
-
-//         return frames;
-//     }
-
-//     /**
-//      * Returns the file path for the given action sequence and component. 
-//      */
-//     protected static String getImageFile (
-//         String imagedir, ActionSequence as, CharacterComponent c)
-//     {
-//         return imagedir + as.fileid + "_" + c.getFileId() + IMAGE_SUFFIX;
-//     }
 
     /**
      * An implementation of the {@link MultiFrameImage} interface that

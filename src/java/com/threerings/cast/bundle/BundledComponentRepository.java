@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.4 2001/12/07 01:33:29 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.5 2001/12/17 03:33:41 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -233,7 +233,7 @@ public class BundledComponentRepository
 
                 // and create the necessary multiframe image instances
                 MultiFrameImage[] frames =
-                    new MultiFrameImage[Sprite.NUM_DIRECTIONS];
+                    new MultiFrameImage[Sprite.DIRECTION_COUNT];
                 for (int i = 0; i < frames.length; i++) {
                     frames[i] = new TileSetFrameImage(fset, i);
                 }
@@ -271,7 +271,7 @@ public class BundledComponentRepository
         // documentation inherited
         public int getFrameCount ()
         {
-            return _set.getTileCount() / Sprite.NUM_DIRECTIONS;
+            return _set.getTileCount() / Sprite.DIRECTION_COUNT;
         }
 
         // documentation inherited

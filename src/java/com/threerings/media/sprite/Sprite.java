@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.31 2001/11/02 01:09:08 shaper Exp $
+// $Id: Sprite.java,v 1.32 2001/12/17 03:32:52 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -8,34 +8,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.threerings.media.Log;
+import com.threerings.util.DirectionCodes;
 
 /**
  * The sprite class represents a single moveable object in an animated
  * view.  A sprite has a position within the view, and a set of images
  * used to render it (perhaps multiple frames for animation).
  */
-public class Sprite
+public class Sprite implements DirectionCodes
 {
-    /** The number of distinct directions. */
-    public static final int NUM_DIRECTIONS = 8;
-
-    /** Direction constants. */
-    public static final int DIR_NONE = -1;
-    public static final int DIR_SOUTHWEST = 0;
-    public static final int DIR_WEST = 1;
-    public static final int DIR_NORTHWEST = 2;
-    public static final int DIR_NORTH = 3;
-    public static final int DIR_NORTHEAST = 4;
-    public static final int DIR_EAST = 5;
-    public static final int DIR_SOUTHEAST = 6;
-    public static final int DIR_SOUTH = 7;
-
-    /** String translations for the direction constants. */
-    public static String[] XLATE_DIRS = {
-	"Southwest", "West", "Northwest", "North", "Northeast",
-	"East", "Southeast", "South"
-    };
-
     /** Default frame rate. */
     public static final int DEFAULT_FRAME_RATE = 15;
 
@@ -160,10 +141,10 @@ public class Sprite
 
     /**
      * Sprites have an orientation in one of the eight cardinal
-     * directions: <code>DIR_NORTH</code>, <code>DIR_NORTHEAST</code>,
-     * etc. Sprite derived classes can choose to override this member
-     * function and select a different set of images based on their
-     * orientation, or they can ignore the orientation information.
+     * directions: <code>NORTH</code>, <code>NORTHEAST</code>, etc. Sprite
+     * derived classes can choose to override this member function and
+     * select a different set of images based on their orientation, or
+     * they can ignore the orientation information.
      */
     public void setOrientation (int orient)
     {
@@ -172,8 +153,7 @@ public class Sprite
 
     /**
      * Returns the sprite's orientation as one of the eight cardinal
-     * directions: <code>DIR_NORTH</code>, <code>DIR_NORTHEAST</code>,
-     * etc.
+     * directions: <code>NORTH</code>, <code>NORTHEAST</code>, etc.
      */
     public int getOrientation ()
     {
@@ -530,7 +510,7 @@ public class Sprite
     protected int _frameIdx;
 
     /** The orientation of this sprite. */
-    protected int _orient = DIR_NONE;
+    protected int _orient = NONE;
 
     /** The location of the sprite in pixel coordinates. */
     protected int _x, _y;
