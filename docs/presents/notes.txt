@@ -1,5 +1,8 @@
 Cher Mk3 Notes -*- outline -*-
 
+* TODO
+Pass cause back to client somehow via FailureResponse in Client.requestFailed
+
 * Server-side event concentrator
 The client objects will not subscribe directly, but will subscribe through
 the concentrator so that, at least, it can create a single
@@ -51,7 +54,8 @@ has to be registered in a single place, since it pretty much does anyway.
   themselves can extend Runnable and be popped right into
   SwingUtil.invokeLater().
 
-* Client perform all network ops on own thread, will call back to main
+* Client network mgmt
+  Client perform all network ops on own thread, will call back to main
   code through Observer interface to notify of state changes in the
   authentication process/connectedness:
 
@@ -66,13 +70,13 @@ has to be registered in a single place, since it pretty much does anyway.
   }
 
 * Three Rings Client flowlist:
-
   Instantiate client
   Obtain auth info
   Obtain room info
   Authenticate
 
-* Distributed objects are defined like a class with a set of public data
+* DObject class generation
+  Distributed objects are defined like a class with a set of public data
   members which is then converted into an actual class with get/set
   methods for each member.
 
@@ -95,19 +99,10 @@ has to be registered in a single place, since it pretty much does anyway.
        public String getDescription ();
   }
 
-* Classes:
-
-  DObjectManager
-  DObject
-  DEvent
-  DTransaction
-  Subscriber
-
 * Events:
-
   ATTRIBUTE_CHANGED
   ATTRIBUTES_CHANGED
-  ATTRIBUTES_CHANGED_SPLIT
+  ATTRIBUTES_CHANGED_SPLIT?
   ELEMENT_CHANGED
   OBJECT_DESTROYED
 
@@ -116,3 +111,5 @@ has to be registered in a single place, since it pretty much does anyway.
 
   OID_ADDED
   OID_REMOVED
+
+  NOTIFICATION
