@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.60 2003/10/10 23:23:41 mdb Exp $
+// $Id: PresentsClient.java,v 1.61 2003/10/25 00:01:04 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -692,7 +692,8 @@ public class PresentsClient
             return true;
         }
 
-        Log.info("Dropped message [client=" + this + ", msg=" + msg + "].");
+        Log.info("Dropped message [client=" + this +
+                 ", type=" + msg.getClass().getName() + "].");
 
         // make darned sure we don't have any remaining subscriptions
         if (_subscrips.size() > 0) {
