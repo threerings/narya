@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.7 2001/08/03 02:12:52 mdb Exp $
+// $Id: ConnectionManager.java,v 1.8 2001/08/07 20:38:58 mdb Exp $
 
 package com.threerings.cocktail.cher.server.net;
 
@@ -216,7 +216,7 @@ public class ConnectionManager extends LoopingThread
             if (socket == null) {
                 // in theory this shouldn't happen because we got an
                 // ACCEPT_READY event, but better safe than sorry
-                Log.info("Psych! Got ACCEPT_READY, but no connection.");
+                // Log.info("Psych! Got ACCEPT_READY, but no connection.");
                 return;
             }
 

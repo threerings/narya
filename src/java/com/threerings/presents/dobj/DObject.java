@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.19 2001/08/04 00:39:44 mdb Exp $
+// $Id: DObject.java,v 1.20 2001/08/07 20:38:58 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -231,6 +231,16 @@ public class DObject
             Log.info("Unable to clear non-existent lock [lock=" + name +
                      ", dobj=" + this + "].");
         }
+    }
+
+    /**
+     * Requests that this distributed object be destroyed. It does so by
+     * queueing up an object destroyed event which the server will
+     * validate and process.
+     */
+    public void destroy ()
+    {
+        _mgr.postEvent(new ObjectDestroyedEvent(_oid));
     }
 
     /**

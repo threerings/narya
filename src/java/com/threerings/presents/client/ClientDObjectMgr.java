@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.4 2001/07/19 07:09:16 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.5 2001/08/07 20:38:58 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -73,6 +73,13 @@ public class ClientDObjectMgr
 
         // send a forward event request to the server
         _comm.postMessage(new ForwardEventRequest(tevent));
+    }
+
+    // inherit documentation from the interface
+    public void destroyObject (int oid)
+    {
+        // forward an object destroyed event to the server
+        postEvent(new ObjectDestroyedEvent(oid));
     }
 
     // inherit documentation from the interface
@@ -154,8 +161,29 @@ public class ClientDObjectMgr
             return;
         }
 
-        // have the object pass this event on to its subscribers
-        target.notifySubscribers(event);
+        try {
+            // apply the event to the object
+            boolean notify = event.applyToObject(target);
+
+            // if this is an object destroyed event, we need to remove the
+            // object from our object table
+            if (event instanceof ObjectDestroyedEvent) {
+                Log.info("Uncaching destroyed object " +
+                         "[oid=" + target.getOid() + "].");
+                _ocache.remove(target.getOid());
+            }
+
+            // have the object pass this event on to its subscribers if
+            // desired
+            if (notify) {
+                target.notifySubscribers(event);
+            }
+
+        } catch (Exception e) {
+            Log.warning("Failure processing event [event=" + event +
+                        ", target=" + target + "].");
+            Log.logStackTrace(e);
+        }
     }
 
     /**
@@ -193,7 +221,19 @@ public class ClientDObjectMgr
      */
     protected void notifyFailure (int oid)
     {
-        Log.info("Get failed: " + oid);
+        // let the penders know that the object is not available
+        PendingRequest req = (PendingRequest)_penders.remove(oid);
+        if (req == null) {
+            Log.warning("Failed to get object, but no one cares?! " +
+                        "[oid=" + oid + "].");
+            return;
+        }
+
+        for (int i = 0; i < req.targets.size(); i++) {
+            Subscriber target = (Subscriber)req.targets.get(i);
+            // and let them know that the object is in
+            target.requestFailed(oid, null);
+        }
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: DObjectFactory.java,v 1.6 2001/08/03 02:11:40 mdb Exp $
+// $Id: DObjectFactory.java,v 1.7 2001/08/07 20:38:58 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj.io;
 
@@ -49,7 +49,7 @@ public class DObjectFactory
             Class clazz = Class.forName(in.readUTF());
             DObject dobj = (DObject)clazz.newInstance();
             dobj.setOid(in.readInt()); // read and set the oid
-            Log.info("Unmarshalling object: " + dobj);
+            // Log.info("Unmarshalling object: " + dobj);
 
             // look up the marshaller for that class
             Marshaller marsh = getMarshaller(clazz);

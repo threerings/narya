@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.7 2001/07/19 19:18:06 mdb Exp $
+// $Id: TestClient.java,v 1.8 2001/08/07 20:38:58 mdb Exp $
 
 package com.threerings.cocktail.cher.client.test;
 
@@ -18,6 +18,11 @@ import com.threerings.cocktail.cher.server.test.TestObject;
 public class TestClient
     implements Client.Invoker, ClientObserver, Subscriber
 {
+    public void setClient (Client client)
+    {
+        _client = client;
+    }
+
     public void invokeLater (Runnable run)
     {
         // queue it on up
@@ -36,13 +41,11 @@ public class TestClient
     public void clientDidLogon (Client client)
     {
         Log.info("Client did logon [client=" + client + "].");
-        // try subscribing to a test object
-        client.getDObjectManager().subscribeToObject(2, this);
         // register our test notification receiver
         client.getInvocationManager().registerReceiver(TestService.MODULE,
                                                        new TestReceiver());
-        // issue a test invocation request
-        TestService.test(client, "foo", 1, this);
+        // get the test object id
+        TestService.getTestOid(client, this);
     }
 
     public void clientFailedToLogon (Client client, Exception cause)
@@ -79,20 +82,32 @@ public class TestClient
     {
         Log.info("Object unavailable [oid=" + oid +
                  ", reason=" + cause + "].");
+        // nothing to do, so might as well logoff
+        _client.logoff(true);
     }
 
     public boolean handleEvent (DEvent event, DObject target)
     {
         Log.info("Got event [event=" + event + ", target=" + target + "].");
-        // dispatch a second event
-        ((TestObject)target).setBar("rofl!");
-        // unsubscribe to the object to make sure we don't get the event
-        return false;
+        if (event instanceof AttributeChangedEvent) {
+            // request to destroy the object
+            target.destroy();
+        } else {
+            // request that we log off
+            _client.logoff(true);
+        }
+        return true;
     }
 
-    public void handleTestSucceeded (String one, int two)
+    public void handleTestSucceeded (int invid, String one, int two)
     {
         Log.info("Got test response [one=" + one + ", two=" + two + "].");
+    }
+
+    public void handleGotTestOid (int invid, int oid)
+    {
+        // subscribe to the test object
+        _client.getDObjectManager().subscribeToObject(oid, this);
     }
 
     public static void main (String[] args)
@@ -101,6 +116,7 @@ public class TestClient
         UsernamePasswordCreds creds =
             new UsernamePasswordCreds("test", "test");
         Client client = new Client(creds, tclient);
+        tclient.setClient(client);
         client.addObserver(tclient);
         client.setServer("localhost", 4007);
         client.logon();
@@ -109,4 +125,5 @@ public class TestClient
     }
 
     protected Queue _queue = new Queue();
+    protected Client _client;
 }

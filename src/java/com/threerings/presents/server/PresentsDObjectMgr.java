@@ -1,7 +1,10 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.9 2001/07/23 21:12:55 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.10 2001/08/07 20:38:58 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
 
 import com.samskivert.util.Queue;
 
@@ -59,6 +62,13 @@ public class CherDObjectMgr implements DObjectManager
         // queue up an access object event
         postEvent(new AccessObjectEvent(oid, target,
                                         AccessObjectEvent.UNSUBSCRIBE));
+    }
+
+    // inherit documentation from the interface
+    public void destroyObject (int oid)
+    {
+        // queue up an object destroyed event
+        postEvent(new ObjectDestroyedEvent(oid));
     }
 
     // inherit documentation from the interface
@@ -121,7 +131,10 @@ public class CherDObjectMgr implements DObjectManager
 
                 // do any internal management necessary based on this
                 // event
-                // **TBD**
+                Method helper = (Method)_helpers.get(event.getClass());
+                if (helper != null) {
+                    helper.invoke(this, new Object[] { event, target });
+                }
 
                 // if the event returns false from applyToObject, this
                 // means it's a silent event and we shouldn't notify the
@@ -153,6 +166,17 @@ public class CherDObjectMgr implements DObjectManager
         _evqueue.append(new ShutdownEvent());
     }
 
+    /**
+     * Called as a helper for <code>ObjectDestroyedEvent</code> events. It
+     * removes the object from the object table.
+     */
+    public void objectDestroyed (DEvent event, DObject target)
+    {
+        Log.info("Removing destroyed object from table " +
+                 "[oid=" + target.getOid() + "].");
+        _objects.remove(target.getOid());
+    }
+
     protected synchronized boolean isRunning ()
     {
         return _running;
@@ -169,11 +193,6 @@ public class CherDObjectMgr implements DObjectManager
 
         return _nextOid;
     }
-
-    protected boolean _running = true;
-    protected Queue _evqueue = new Queue();
-    protected IntMap _objects = new IntMap();
-    protected int _nextOid = 0;
 
     /**
      * Used to create a distributed object and register it with the
@@ -318,4 +337,35 @@ public class CherDObjectMgr implements DObjectManager
             return false;
         }
     }
+
+    /**
+     * Registers our event helper methods.
+     */
+    protected static void registerEventHelpers ()
+    {
+        Class[] ptypes = new Class[] { DEvent.class, DObject.class };
+        Class omgrcl = CherDObjectMgr.class;
+        Method method;
+
+        try {
+            method = omgrcl.getMethod("objectDestroyed", ptypes);
+            _helpers.put(ObjectDestroyedEvent.class, method);
+
+        } catch (Exception e) {
+            Log.warning("Unable to register event helpers " +
+                        "[error=" + e + "].");
+        }
+    }
+
+    protected boolean _running = true;
+    protected Queue _evqueue = new Queue();
+    protected IntMap _objects = new IntMap();
+    protected int _nextOid = 0;
+
+    /**
+     * This table maps event classes to helper methods that perform some
+     * additional processing for particular events.
+     */
+    protected static HashMap _helpers = new HashMap();
+    static { registerEventHelpers(); }
 }

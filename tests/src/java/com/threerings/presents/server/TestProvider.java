@@ -1,5 +1,5 @@
 //
-// $Id: TestProvider.java,v 1.4 2001/07/19 19:18:07 mdb Exp $
+// $Id: TestProvider.java,v 1.5 2001/08/07 20:38:58 mdb Exp $
 
 package com.threerings.cocktail.cher.server.test;
 
@@ -26,5 +26,11 @@ public class TestProvider extends InvocationProvider
 
         // and issue a response to this invocation request
         return createResponse("TestSucceeded", one, new Integer(two));
+    }
+
+    public Object[] handleGetTestOidRequest (ClientObject source)
+    {
+        int oid = TestServer.testobj.getOid();
+        return createResponse("GotTestOid", new Integer(oid));
     }
 }

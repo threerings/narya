@@ -1,5 +1,5 @@
 //
-// $Id: TestService.java,v 1.1 2001/07/19 07:48:25 mdb Exp $
+// $Id: TestService.java,v 1.2 2001/08/07 20:38:58 mdb Exp $
 
 package com.threerings.cocktail.cher.client.test;
 
@@ -21,5 +21,12 @@ public class TestService
         Object[] args = new Object[] { one, new Integer(two) };
         invmgr.invoke(MODULE, "Test", args, rsptarget);
         Log.info("Sent test request [one=" + one + ", two=" + two + "].");
+    }
+
+    public static void getTestOid (Client client, Object rsptarget)
+    {
+        InvocationManager invmgr = client.getInvocationManager();
+        Object[] args = new Object[0];
+        invmgr.invoke(MODULE, "GetTestOid", args, rsptarget);
     }
 }

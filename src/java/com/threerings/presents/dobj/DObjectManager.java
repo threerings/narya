@@ -1,5 +1,5 @@
 //
-// $Id: DObjectManager.java,v 1.7 2001/08/02 04:49:08 mdb Exp $
+// $Id: DObjectManager.java,v 1.8 2001/08/07 20:38:58 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -58,6 +58,15 @@ public interface DObjectManager
      * @param target The subscriber to be unsubscribed.
      */
     public void unsubscribeFromObject (int oid, Subscriber target);
+
+    /**
+     * Requests that the specified object be destroyed. Once destroyed an
+     * object is removed from the runtime system and may no longer have
+     * events dispatched on it.
+     *
+     * @param oid The object id of the distributed object to be destroyed.
+     */
+    public void destroyObject (int oid);
 
     /**
      * Posts a distributed object event into the system. Instead of

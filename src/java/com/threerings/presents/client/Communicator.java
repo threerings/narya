@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.12 2001/08/03 02:11:20 mdb Exp $
+// $Id: Communicator.java,v 1.13 2001/08/07 20:38:58 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -91,6 +91,9 @@ public class Communicator
             return;
         }
 
+        // post a logoff message
+        postMessage(new LogoffRequest());
+
         // let our reader and writer know that it's time to go
         if (_reader != null) {
             // if logoff() is being called by the client as part of a
@@ -110,28 +113,12 @@ public class Communicator
         if (_writer != null) {
             // shutting down the writer thread is simpler because we can
             // post a termination message on the queue and be sure that it
-            // will receive it. we do run the risk that it is in the
-            // middle of trying to send a message when we close the
-            // socket, but in theory the send will fail, it will complain
-            // and then it will cleanly exit. if we were uber paranoid
-            // about JVMs misbehaving on simultaneous close()/write(), we
-            // could wait here for the writer thread to exit, but that
-            // makes me even more nervous because I know that some JVMs
-            // don't handle Thread.join() properly (hopefully no one is
-            // still using those JVMs but one can never be sure)
+            // will receive it. when the writer thread has delivered our
+            // logoff request and exited, we will complete the logoff
+            // process by closing our socket and invoking the
+            // clientDidLogoff callback
             _writer.shutdown();
         }
-
-        // close down our socket
-        try {
-            _socket.close();
-        } catch (IOException cle) {
-            Log.warning("Error closing failed socket: " + cle);
-        }
-        _socket = null;
-
-        // let the client observers know that we're logged off
-        _client.notifyObservers(Client.CLIENT_DID_LOGOFF, null);
     }
 
     /**
@@ -226,8 +213,20 @@ public class Communicator
     {
         // clear out our writer reference
         _writer = null;
-
         Log.info("Writer thread exited.");
+
+        // now that the writer thread has gone away, we can safely close
+        // our socket and let the client know that the logoff process has
+        // completed
+        try {
+            _socket.close();
+        } catch (IOException cle) {
+            Log.warning("Error closing failed socket: " + cle);
+        }
+        _socket = null;
+
+        // let the client observers know that we're logged off
+        _client.notifyObservers(Client.CLIENT_DID_LOGOFF, null);
     }
 
     /**
