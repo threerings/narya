@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.6 2002/04/06 22:07:41 ray Exp $
+// $Id: AutoFringer.java,v 1.7 2002/04/08 18:41:58 ray Exp $
 
 package com.threerings.miso.tile;
 
@@ -265,7 +265,7 @@ public class AutoFringer
      * A record for holding information about a particular fringe as we're
      * computing what it will look like.
      */
-    static private class FringerRec implements Comparable
+    static protected class FringerRec implements Comparable
     {
         int baseset;
         int priority;
@@ -286,36 +286,36 @@ public class AutoFringer
     // fringe bits
     // see docs/miso/fringebits.png
     //
-    private static final int NORTH     = 1 << 0;
-    private static final int NORTHEAST = 1 << 1;
-    private static final int EAST      = 1 << 2;
-    private static final int SOUTHEAST = 1 << 3;
-    private static final int SOUTH     = 1 << 4;
-    private static final int SOUTHWEST = 1 << 5;
-    private static final int WEST      = 1 << 6;
-    private static final int NORTHWEST = 1 << 7;
+    protected static final int NORTH     = 1 << 0;
+    protected static final int NORTHEAST = 1 << 1;
+    protected static final int EAST      = 1 << 2;
+    protected static final int SOUTHEAST = 1 << 3;
+    protected static final int SOUTH     = 1 << 4;
+    protected static final int SOUTHWEST = 1 << 5;
+    protected static final int WEST      = 1 << 6;
+    protected static final int NORTHWEST = 1 << 7;
 
-    private static final int NUM_FRINGEBITS = 8;
+    protected static final int NUM_FRINGEBITS = 8;
 
     // A matrix mapping adjacent tiles to which fringe bits 
     // they affect.
     // (x and y are offset by +1, since we can't have -1 as an array index)
     // again, see docs/miso/fringebits.png
     //
-    private static final int[][] FLAGMATRIX = {
+    protected static final int[][] FLAGMATRIX = {
         { NORTHEAST, (NORTHEAST | EAST | SOUTHEAST), SOUTHEAST },
         { (NORTHWEST | NORTH | NORTHEAST), 0, (SOUTHEAST | SOUTH | SOUTHWEST) },
         { NORTHWEST, (NORTHWEST | WEST | SOUTHWEST), SOUTHWEST }
     };
 
     /** Our tile manager. */
-    protected static TileManager _tmgr;
+    protected TileManager _tmgr;
 
     /** Our fringe configuration. */
-    protected static FringeConfiguration _fringeconf;
+    protected FringeConfiguration _fringeconf;
 
     /** Our random # generator. */
     // this may change.. or we may seed it before we do any scene
     // with a number deterministicly generated from that scene
-    protected static Random rando = new Random();
+    protected Random rando = new Random();
 }
