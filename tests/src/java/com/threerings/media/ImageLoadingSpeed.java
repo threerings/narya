@@ -1,11 +1,13 @@
 //
-// $Id: ImageLoadingSpeed.java,v 1.1 2002/12/23 20:32:28 mdb Exp $
+// $Id: ImageLoadingSpeed.java,v 1.2 2003/01/13 22:57:45 mdb Exp $
 
 package com.threerings.media;
 
 import java.awt.Image;
 import java.io.*;
+
 import com.threerings.resource.ResourceManager;
+import com.threerings.media.image.ImageManager;
 
 /**
  * Tests our image loading speed.
@@ -36,17 +38,30 @@ public class ImageLoadingSpeed
 //             System.exit(-1);
 //         }
 
-        for (int iter = 0; iter < IMAGE_LOAD_ITERS; iter++) {
+        int iter = 0;
+        while (true) {
+//         for (int iter = 0; iter < IMAGE_LOAD_ITERS; iter++) {
             String path = args[iter%args.length];
             if (path.startsWith("rsrc/")) {
                 path = path.substring(5);
             }
             Image image = null;
-            try {
-                image = imgr.loadImage(path);
-            } catch (IOException ioe) {
-                ioe.printStackTrace(System.err);
-                System.exit(-1);
+//             image = imgr.getImage(path);
+            image = imgr.getImage("components", path);
+
+            if (++iter == 100) {
+                long now = System.currentTimeMillis();
+                long elapsed = now - start;
+                System.err.println("Loaded " + args.length +
+                                   " images a total of " + iter +
+                                   " times in " + elapsed + "ms.");
+                System.err.println("An average of " + (elapsed/iter) +
+                                   "ms per image.");
+                start = now;
+                iter = 0;
+
+                System.gc();
+                try { Thread.sleep(5000); } catch (Throwable t) {}
             }
         }
 
@@ -66,12 +81,12 @@ public class ImageLoadingSpeed
 //             System.exit(-1);
 //         }
         
-        long elapsed = System.currentTimeMillis() - start;
+//         long elapsed = System.currentTimeMillis() - start;
 
-        System.err.println("Loaded " + args.length + " images a total of " +
-                           IMAGE_LOAD_ITERS + " times in " + elapsed + "ms.");
-        System.err.println("An average of " + (elapsed/IMAGE_LOAD_ITERS) +
-                           "ms per image.");
+//         System.err.println("Loaded " + args.length + " images a total of " +
+//                            IMAGE_LOAD_ITERS + " times in " + elapsed + "ms.");
+//         System.err.println("An average of " + (elapsed/IMAGE_LOAD_ITERS) +
+//                            "ms per image.");
     }
 
     protected static final int IMAGE_LOAD_ITERS = 100;

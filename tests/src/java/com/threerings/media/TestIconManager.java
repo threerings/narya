@@ -1,5 +1,5 @@
 //
-// $Id: TestIconManager.java,v 1.2 2002/07/19 20:13:29 shaper Exp $
+// $Id: TestIconManager.java,v 1.3 2003/01/13 22:57:45 mdb Exp $
 
 package com.threerings.media;
 
@@ -9,8 +9,9 @@ import javax.swing.*;
 import com.samskivert.swing.HGroupLayout;
 import com.samskivert.swing.util.SwingUtil;
 
-import com.threerings.resource.ResourceManager;
+import com.threerings.media.image.ImageManager;
 import com.threerings.media.tile.TileManager;
+import com.threerings.resource.ResourceManager;
 
 /**
  * Does something extraordinary.

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.34 2002/07/19 20:13:30 shaper Exp $
+// $Id: ViewerApp.java,v 1.35 2003/01/13 22:57:46 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -12,9 +12,9 @@ import java.io.IOException;
 import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.resource.ResourceManager;
-import com.threerings.media.FrameManager;
-import com.threerings.media.ImageManager;
 
+import com.threerings.media.FrameManager;
+import com.threerings.media.image.ImageManager;
 import com.threerings.media.tile.bundle.BundledTileSetRepository;
 
 import com.threerings.cast.CharacterManager;
@@ -22,7 +22,6 @@ import com.threerings.cast.bundle.BundledComponentRepository;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.DisplayMisoSceneImpl;
-import com.threerings.miso.scene.MisoCharacterSprite;
 import com.threerings.miso.scene.MisoSceneModel;
 import com.threerings.miso.scene.tools.xml.MisoSceneParser;
 import com.threerings.miso.tile.MisoTileManager;
@@ -81,8 +80,7 @@ public class ViewerApp
         // create the various managers
         BundledComponentRepository crepo =
             new BundledComponentRepository(rmgr, imgr, "components");
-        CharacterManager charmgr = new CharacterManager(crepo);
-        charmgr.setCharacterClass(MisoCharacterSprite.class);
+        CharacterManager charmgr = new CharacterManager(imgr, crepo);
 
         // create our scene view panel
         _panel = new ViewerSceneViewPanel(ctx, _framemgr, charmgr, crepo);

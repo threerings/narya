@@ -1,11 +1,12 @@
 //
-// $Id: BundledTileSetRepositoryTest.java,v 1.7 2002/07/19 20:13:30 shaper Exp $
+// $Id: BundledTileSetRepositoryTest.java,v 1.8 2003/01/13 22:57:45 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
 import java.util.Iterator;
+
+import com.threerings.media.image.ImageManager;
 import com.threerings.resource.ResourceManager;
-import com.threerings.media.ImageManager;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -22,9 +23,8 @@ public class BundledTileSetRepositoryTest extends TestCase
         try {
             ResourceManager rmgr = new ResourceManager("rsrc");
             rmgr.initBundles(null, "config/resource/manager.properties", null);
-            ImageManager imgr = new ImageManager(rmgr, null);
-            BundledTileSetRepository repo =
-                new BundledTileSetRepository(rmgr, imgr, "tilesets");
+            BundledTileSetRepository repo = new BundledTileSetRepository(
+                rmgr, new ImageManager(rmgr, null), "tilesets");
             Iterator sets = repo.enumerateTileSets();
             while (sets.hasNext()) {
                 sets.next();

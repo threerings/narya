@@ -1,5 +1,5 @@
 //
-// $Id: TestApp.java,v 1.15 2002/07/19 20:13:29 shaper Exp $
+// $Id: TestApp.java,v 1.16 2003/01/13 22:57:45 mdb Exp $
 
 package com.threerings.cast.builder;
 
@@ -8,15 +8,13 @@ import javax.swing.JFrame;
 
 import com.samskivert.swing.util.SwingUtil;
 
-import com.threerings.media.ImageManager;
+import com.threerings.media.image.ImageManager;
 import com.threerings.resource.ResourceManager;
 
 import com.threerings.cast.Log;
 import com.threerings.cast.CharacterManager;
 import com.threerings.cast.ComponentRepository;
 import com.threerings.cast.bundle.BundledComponentRepository;
-
-import com.threerings.miso.scene.MisoCharacterSprite;
 
 public class TestApp
 {
@@ -33,8 +31,7 @@ public class TestApp
 
         ComponentRepository crepo =
             new BundledComponentRepository(rmgr, imgr, "components");
-        CharacterManager charmgr = new CharacterManager(crepo);
-        charmgr.setCharacterClass(MisoCharacterSprite.class);
+        CharacterManager charmgr = new CharacterManager(imgr, crepo);
 
         // initialize the frame
         ((TestFrame)_frame).init(charmgr, crepo);

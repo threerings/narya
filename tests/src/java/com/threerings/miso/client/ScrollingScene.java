@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingScene.java,v 1.9 2002/10/01 04:44:23 shaper Exp $
+// $Id: ScrollingScene.java,v 1.10 2003/01/13 22:57:45 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -75,6 +75,12 @@ public class ScrollingScene implements DisplayMisoScene
     public void getSceneObjects (Rectangle region, ObjectSet set)
     {
         // nothing for now
+    }
+
+    // documentation inherited from interface
+    public boolean canTraverse (Object trav, int x, int y)
+    {
+        return true;
     }
 
     protected BaseTile[] _tiles;

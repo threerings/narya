@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.52 2002/12/05 23:06:30 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.53 2003/01/13 22:57:46 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -14,6 +14,7 @@ import com.threerings.media.FrameManager;
 
 import com.threerings.cast.CharacterDescriptor;
 import com.threerings.cast.CharacterManager;
+import com.threerings.cast.CharacterSprite;
 import com.threerings.cast.ComponentRepository;
 import com.threerings.cast.util.CastUtil;
 
@@ -30,7 +31,6 @@ import com.threerings.miso.Log;
 import com.threerings.miso.scene.DisplayMisoScene;
 import com.threerings.miso.scene.IsoSceneView;
 import com.threerings.miso.scene.IsoSceneViewModel;
-import com.threerings.miso.scene.MisoCharacterSprite;
 import com.threerings.miso.scene.SceneViewPanel;
 import com.threerings.miso.scene.util.IsoUtil;
 import com.threerings.miso.util.MisoContext;
@@ -85,15 +85,14 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     /**
      * Creates a new sprite.
      */
-    protected MisoCharacterSprite createSprite (
+    protected CharacterSprite createSprite (
         SpriteManager spritemgr, CharacterManager charmgr,
         CharacterDescriptor desc)
     {
-        MisoCharacterSprite s =
-            (MisoCharacterSprite)charmgr.getCharacter(desc);
+        CharacterSprite s = charmgr.getCharacter(desc);
         if (s != null) {
             // start 'em out standing
-            s.setActionSequence(MisoCharacterSprite.STANDING);
+            s.setActionSequence(CharacterSprite.STANDING, false);
             s.setLocation(300, 300);
             s.addSpriteObserver(this);
             spritemgr.addSprite(s);
@@ -108,7 +107,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     protected void createDecoys (
         SpriteManager spritemgr, CharacterManager charmgr)
     {
-        _decoys = new MisoCharacterSprite[NUM_DECOYS];
+        _decoys = new CharacterSprite[NUM_DECOYS];
         for (int ii = 0; ii < NUM_DECOYS; ii++) {
             _decoys[ii] = createSprite(spritemgr, charmgr, _descDecoy);
         }
@@ -162,7 +161,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
      * screen coordinates.  Returns whether a path was successfully
      * assigned.
      */
-    protected boolean createPath (MisoCharacterSprite s, int x, int y)
+    protected boolean createPath (CharacterSprite s, int x, int y)
     {
         // get the path from here to there
         LineSegmentPath path = (LineSegmentPath)_view.getPath(s, x, y);
@@ -174,13 +173,14 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         // start the sprite moving along the path
 	path.setVelocity(100f/1000f);
 	s.move(path);
+        System.out.println("moving " + s + " on " + path);
         return true;
     }
 
     /**
      * Assigns a new random path to the given sprite.
      */
-    protected void createRandomPath (MisoCharacterSprite s)
+    protected void createRandomPath (CharacterSprite s)
     {
         Dimension d = _viewmodel.bounds.getSize();
 
@@ -195,7 +195,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     public void handleEvent (SpriteEvent event)
     {
         if (event instanceof PathCompletedEvent) {
-            MisoCharacterSprite s = (MisoCharacterSprite)event.getSprite();
+            CharacterSprite s = (CharacterSprite)event.getSprite();
 
             if (s != _sprite) {
                 // move the sprite to a new random location
@@ -205,7 +205,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     }
 
     /** The number of decoy characters milling about. */
-    protected static final int NUM_DECOYS = 10;
+    protected static final int NUM_DECOYS = 0;
 
     /** The character descriptor for the user character. */
     protected CharacterDescriptor _descUser;
@@ -214,8 +214,8 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     protected CharacterDescriptor _descDecoy;
 
     /** The sprite we're manipulating within the view. */
-    protected MisoCharacterSprite _sprite;
+    protected CharacterSprite _sprite;
 
     /** The test sprites that meander about aimlessly. */
-    protected MisoCharacterSprite _decoys[];
+    protected CharacterSprite _decoys[];
 }

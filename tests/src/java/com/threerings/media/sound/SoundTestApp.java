@@ -1,7 +1,7 @@
 //
-// $Id: SoundTestApp.java,v 1.3 2002/12/10 21:36:53 mdb Exp $
+// $Id: SoundTestApp.java,v 1.4 2003/01/13 22:57:45 mdb Exp $
 
-package com.threerings.media;
+package com.threerings.media.sound;
 
 import com.samskivert.util.StringUtil;
 import com.threerings.resource.ResourceManager;
@@ -27,7 +27,7 @@ public class SoundTestApp
         for (int ii = 0; ii < _keys.length; ii++) {
             System.out.println("Playing " + _keys[ii] + ".");
             _soundmgr.play(SoundManager.DEFAULT,
-                           "com/threerings/media/", _keys[ii]);
+                           "com/threerings/media/sound/", _keys[ii]);
         }
         _soundmgr.shutdown();
 

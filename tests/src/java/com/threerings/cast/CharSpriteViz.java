@@ -1,5 +1,5 @@
 //
-// $Id: CharSpriteViz.java,v 1.2 2002/07/19 20:13:29 shaper Exp $
+// $Id: CharSpriteViz.java,v 1.3 2003/01/13 22:57:45 mdb Exp $
 
 package com.threerings.cast;
 
@@ -16,7 +16,7 @@ import javax.swing.JPanel;
 
 import com.samskivert.swing.util.SwingUtil;
 
-import com.threerings.media.ImageManager;
+import com.threerings.media.image.ImageManager;
 import com.threerings.resource.ResourceManager;
 import com.threerings.util.DirectionCodes;
 import com.threerings.util.DirectionUtil;
@@ -40,7 +40,7 @@ public class CharSpriteViz extends JPanel
         // put the sprite in the appropriate action mode
         _sprite.setRestingAction(action);
         _sprite.setFollowingPathAction(action);
-        _sprite.setActionSequence(action);
+        _sprite.setActionSequence(action, false);
 
         addMouseMotionListener(this);
     }
@@ -107,7 +107,7 @@ public class CharSpriteViz extends JPanel
             ImageManager imgr = new ImageManager(rmgr, frame);
             ComponentRepository crepo =
                 new BundledComponentRepository(rmgr, imgr, "components");
-            CharacterManager charmgr = new CharacterManager(crepo);
+            CharacterManager charmgr = new CharacterManager(imgr, crepo);
             CharacterComponent ccomp = crepo.getComponent(args[0], args[1]);
 
             frame.getContentPane().add(

@@ -1,13 +1,14 @@
 //
-// $Id: BundledComponentRepositoryTest.java,v 1.7 2002/07/19 20:13:29 shaper Exp $
+// $Id: BundledComponentRepositoryTest.java,v 1.8 2003/01/13 22:57:45 mdb Exp $
 
 package com.threerings.cast.bundle;
 
 import java.util.Iterator;
 import com.samskivert.util.StringUtil;
-import com.threerings.resource.ResourceManager;
-import com.threerings.media.ImageManager;
+
 import com.threerings.cast.ComponentClass;
+import com.threerings.media.image.ImageManager;
+import com.threerings.resource.ResourceManager;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

@@ -1,5 +1,5 @@
 //
-// $Id: TraceViz.java,v 1.1 2002/11/15 09:29:40 shaper Exp $
+// $Id: TraceViz.java,v 1.2 2003/01/13 22:57:45 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -22,6 +22,7 @@ import com.samskivert.swing.VGroupLayout;
 import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.media.Log;
+import com.threerings.media.image.ImageUtil;
 
 /**
  * Simple application for testing image trace functionality.

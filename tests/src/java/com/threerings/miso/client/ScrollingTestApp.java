@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.17 2002/09/17 19:11:13 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.18 2003/01/13 22:57:45 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -19,7 +19,7 @@ import com.samskivert.util.Config;
 import com.threerings.resource.ResourceManager;
 
 import com.threerings.media.FrameManager;
-import com.threerings.media.ImageManager;
+import com.threerings.media.image.ImageManager;
 import com.threerings.media.util.LinePath;
 import com.threerings.media.util.MultiFrameImage;
 import com.threerings.media.util.MultiFrameImageImpl;
@@ -34,6 +34,7 @@ import com.threerings.media.tile.bundle.BundledTileSetRepository;
 import com.threerings.cast.CharacterComponent;
 import com.threerings.cast.CharacterDescriptor;
 import com.threerings.cast.CharacterManager;
+import com.threerings.cast.CharacterSprite;
 import com.threerings.cast.NoSuchComponentException;
 import com.threerings.cast.bundle.BundledComponentRepository;
 
@@ -94,8 +95,7 @@ public class ScrollingTestApp
         // create the various managers
         BundledComponentRepository crepo =
             new BundledComponentRepository(rmgr, imgr, "components");
-        CharacterManager charmgr = new CharacterManager(crepo);
-        charmgr.setCharacterClass(MisoCharacterSprite.class);
+        CharacterManager charmgr = new CharacterManager(imgr, crepo);
 
         // create our scene view panel
         _panel = new SceneViewPanel(_framemgr, new IsoSceneViewModel());
@@ -109,11 +109,11 @@ public class ScrollingTestApp
                 new int[] { ccomp.componentId }, null);
 
             // now create the actual sprite and stick 'em in the scene
-            _ship = (MisoCharacterSprite)charmgr.getCharacter(desc);
+            _ship = charmgr.getCharacter(desc);
             if (_ship != null) {
                 _ship.setFollowingPathAction("sailing");
                 _ship.setRestingAction("sailing");
-                _ship.setActionSequence("sailing");
+                _ship.setActionSequence("sailing", true);
                 _ship.setLocation(_panel.getModel().bounds.width/2,
                                   _panel.getModel().bounds.height/2);
                 _panel.addSprite(_ship);
@@ -219,5 +219,5 @@ public class ScrollingTestApp
     protected SceneViewPanel _panel;
 
     /** The ship in the center of our screen. */
-    protected MisoCharacterSprite _ship;
+    protected CharacterSprite _ship;
 }
