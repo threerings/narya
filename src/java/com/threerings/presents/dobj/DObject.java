@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.28 2001/10/12 00:03:03 mdb Exp $
+// $Id: DObject.java,v 1.29 2001/10/12 00:05:31 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -139,6 +139,16 @@ public class DObject
      * Adds an event listener to this object. The listener will be
      * notified when any events are dispatched on this object that match
      * their particular listener interface.
+     *
+     * <p> Note that the entity adding itself as a listener should have
+     * obtained the object reference by subscribing to it or should be
+     * acting on behalf of some other entity that subscribed to the
+     * object, <em>and</em> that it must be sure to remove itself from the
+     * listener list (via {@link #removeListener}) when it is done because
+     * unsubscribing from the object (done by whatever entity subscribed
+     * in the first place) is not guaranteed to result in the listeners
+     * added through that subscription being automatically removed (in
+     * most cases, they definitely will not be removed).
      *
      * @param listener the listener to be added.
      *
