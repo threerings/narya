@@ -1,5 +1,5 @@
 //
-// $Id: CompoundEvent.java,v 1.3 2002/03/20 03:29:21 mdb Exp $
+// $Id: CompoundEvent.java,v 1.4 2002/03/21 01:58:10 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -22,6 +22,14 @@ public class CompoundEvent extends TypedEvent
 {
     /** The typed object code for this event. */
     public static final short TYPE = TYPE_BASE + 50;
+
+    /**
+     * Constructs a blank compound event in preparation for
+     * unserialization.
+     */
+    public CompoundEvent ()
+    {
+    }
 
     /**
      * Constructs a compound event and prepares it for operation.
@@ -127,6 +135,7 @@ public class CompoundEvent extends TypedEvent
     {
         super.writeTo(out);
         int ecount = _events.size();
+        out.writeInt(ecount);
         for (int i = 0; i < ecount; i++) {
             TypedEvent event = (TypedEvent)_events.get(i);
             TypedObjectFactory.writeTo(out, event);
