@@ -1,5 +1,5 @@
 //
-// $Id: AnimationEvent.java,v 1.1 2002/01/11 16:17:33 shaper Exp $
+// $Id: AnimationEvent.java,v 1.2 2002/11/05 20:51:13 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -13,10 +13,12 @@ public class AnimationEvent
      * Create an animation event.
      *
      * @param animation the involved animation.
+     * @param when the time at which this event took place.
      */
-    public AnimationEvent (Animation anim)
+    public AnimationEvent (Animation anim, long when)
     {
 	_anim = anim;
+        _when = when;
     }
 
     /**
@@ -27,6 +29,17 @@ public class AnimationEvent
 	return _anim;
     }
 
+    /**
+     * Returns the time associated with this event.
+     */
+    public long getWhen ()
+    {
+        return _when;
+    }
+
     /** The animation associated with this event. */
     protected Animation _anim;
+
+    /** The time associated with this event. */
+    protected long _when;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: AnimationCompletedEvent.java,v 1.1 2002/01/11 16:17:33 shaper Exp $
+// $Id: AnimationCompletedEvent.java,v 1.2 2002/11/05 20:51:13 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -9,8 +9,8 @@ package com.threerings.media.animation;
  */
 public class AnimationCompletedEvent extends AnimationEvent
 {
-    public AnimationCompletedEvent (Animation anim)
+    public AnimationCompletedEvent (Animation anim, long when)
     {
-        super(anim);
+        super(anim, when);
     }
 }

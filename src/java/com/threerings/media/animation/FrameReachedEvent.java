@@ -1,5 +1,5 @@
 //
-// $Id: FrameReachedEvent.java,v 1.1 2002/09/20 21:35:11 ray Exp $
+// $Id: FrameReachedEvent.java,v 1.2 2002/11/05 20:51:13 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -11,9 +11,10 @@ public class FrameReachedEvent extends AnimationEvent
     /**
      * Construct a FrameReachedEvent.
      */
-    public FrameReachedEvent (Animation anim, int frameIdx, int frameSeq)
+    public FrameReachedEvent (Animation anim, long when,
+                              int frameIdx, int frameSeq)
     {
-        super(anim);
+        super(anim, when);
         _frameIdx = frameIdx;
         _frameSeq = frameSeq;
     }
