@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.75 2004/07/07 03:10:24 mdb Exp $
+// $Id: DObject.java,v 1.76 2004/07/07 04:08:41 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -692,7 +692,7 @@ public class DObject implements Streamable
     public void startTransaction ()
     {
         // sanity check
-        if (isActive()) {
+        if (!isActive()) {
             String errmsg = "Refusing to start transaction on inactive " +
                 "object [dobj=" + this + "]";
             throw new IllegalArgumentException(errmsg);
