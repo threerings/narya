@@ -1,5 +1,5 @@
 //
-// $Id: DirectionUtil.java,v 1.2 2001/12/17 03:43:54 mdb Exp $
+// $Id: DirectionUtil.java,v 1.3 2001/12/17 03:51:35 mdb Exp $
 
 package com.threerings.util;
 
@@ -41,14 +41,14 @@ public class DirectionUtil implements DirectionCodes
      */
     public static String toString (int[] directions)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuffer buf = new StringBuffer("{");
         for (int i = 0; i < directions.length; i++) {
             if (i > 0) {
                 buf.append(", ");
             }
             buf.append(toShortString(directions[i]));
         }
-        return buf.toString();
+        return buf.append("}").toString();
     }
 
     /** Direction constant string names. */
