@@ -1,7 +1,7 @@
 //
-// $Id: TypedObject.java,v 1.2 2001/05/23 04:03:40 mdb Exp $
+// $Id: TypedObject.java,v 1.3 2001/05/30 23:58:31 mdb Exp $
 
-package com.samskivert.cocktail.cher.io;
+package com.threerings.cocktail.cher.io;
 
 import java.io.IOException;
 import java.io.DataInputStream;

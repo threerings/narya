@@ -1,16 +1,16 @@
 //
-// $Id: DObjectFactory.java,v 1.2 2001/05/30 00:16:00 mdb Exp $
+// $Id: DObjectFactory.java,v 1.3 2001/05/30 23:58:31 mdb Exp $
 
-package com.samskivert.cocktail.cher.dobj.net;
+package com.threerings.cocktail.cher.dobj.net;
 
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.util.HashMap;
 
-import com.samskivert.cocktail.cher.Log;
-import com.samskivert.cocktail.cher.dobj.DObject;
-import com.samskivert.cocktail.cher.io.ObjectStreamException;
+import com.threerings.cocktail.cher.Log;
+import com.threerings.cocktail.cher.dobj.DObject;
+import com.threerings.cocktail.cher.io.ObjectStreamException;
 
 /**
  * The distributed object factory is responsible for marshalling and

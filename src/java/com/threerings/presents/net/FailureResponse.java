@@ -1,7 +1,7 @@
 //
-// $Id: FailureResponse.java,v 1.1 2001/05/22 21:51:29 mdb Exp $
+// $Id: FailureResponse.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
 
-package com.samskivert.cocktail.cher.net;
+package com.threerings.cocktail.cher.net;
 
 import java.io.IOException;
 import java.io.DataInputStream;

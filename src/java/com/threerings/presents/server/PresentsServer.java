@@ -1,11 +1,11 @@
 //
-// $Id: PresentsServer.java,v 1.1 2001/05/29 03:27:59 mdb Exp $
+// $Id: PresentsServer.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
 
-package com.samskivert.cocktail.cher.server;
+package com.threerings.cocktail.cher.server;
 
-import com.samskivert.cocktail.cher.Log;
-import com.samskivert.cocktail.cher.server.net.AuthManager;
-import com.samskivert.cocktail.cher.server.net.ConnectionManager;
+import com.threerings.cocktail.cher.Log;
+import com.threerings.cocktail.cher.server.net.AuthManager;
+import com.threerings.cocktail.cher.server.net.ConnectionManager;
 
 /**
  * The cher server provides a central point of access to the various

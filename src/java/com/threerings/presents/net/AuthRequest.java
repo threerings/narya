@@ -1,13 +1,13 @@
 //
-// $Id: AuthRequest.java,v 1.3 2001/05/23 04:03:40 mdb Exp $
+// $Id: AuthRequest.java,v 1.4 2001/05/30 23:58:31 mdb Exp $
 
-package com.samskivert.cocktail.cher.net;
+package com.threerings.cocktail.cher.net;
 
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.samskivert.cocktail.cher.io.TypedObjectFactory;
+import com.threerings.cocktail.cher.io.TypedObjectFactory;
 
 public class AuthRequest extends UpstreamMessage
 {

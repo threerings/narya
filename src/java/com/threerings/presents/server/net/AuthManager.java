@@ -1,14 +1,14 @@
 //
-// $Id: AuthManager.java,v 1.1 2001/05/29 03:27:59 mdb Exp $
+// $Id: AuthManager.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
 
-package com.samskivert.cocktail.cher.server.net;
+package com.threerings.cocktail.cher.server.net;
 
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 
-import com.samskivert.cocktail.cher.Log;
-import com.samskivert.cocktail.cher.net.AuthRequest;
-import com.samskivert.cocktail.cher.net.AuthResponse;
+import com.threerings.cocktail.cher.Log;
+import com.threerings.cocktail.cher.net.AuthRequest;
+import com.threerings.cocktail.cher.net.AuthResponse;
 
 /**
  * The authentication manager takes care of the authentication process.

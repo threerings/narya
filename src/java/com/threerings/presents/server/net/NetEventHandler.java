@@ -1,7 +1,7 @@
 //
-// $Id: NetEventHandler.java,v 1.1 2001/05/29 03:27:59 mdb Exp $
+// $Id: NetEventHandler.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
 
-package com.samskivert.cocktail.cher.server.net;
+package com.threerings.cocktail.cher.server.net;
 
 import ninja2.core.io_core.nbio.Selectable;
 

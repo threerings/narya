@@ -1,7 +1,7 @@
 //
-// $Id: ConnectionManager.java,v 1.1 2001/05/29 03:27:59 mdb Exp $
+// $Id: ConnectionManager.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
 
-package com.samskivert.cocktail.cher.server.net;
+package com.threerings.cocktail.cher.server.net;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -11,11 +11,11 @@ import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Tuple;
 import com.samskivert.util.Queue;
 
-import com.samskivert.cocktail.cher.Log;
-import com.samskivert.cocktail.cher.io.FramingOutputStream;
-import com.samskivert.cocktail.cher.io.TypedObjectFactory;
-import com.samskivert.cocktail.cher.net.DownstreamMessage;
-import com.samskivert.cocktail.cher.net.Registry;
+import com.threerings.cocktail.cher.Log;
+import com.threerings.cocktail.cher.io.FramingOutputStream;
+import com.threerings.cocktail.cher.io.TypedObjectFactory;
+import com.threerings.cocktail.cher.net.DownstreamMessage;
+import com.threerings.cocktail.cher.net.Registry;
 
 /**
  * The connection manager manages the socket on which connections are

@@ -1,7 +1,7 @@
 //
-// $Id: Log.java,v 1.2 2001/05/29 03:27:59 mdb Exp $
+// $Id: Log.java,v 1.3 2001/05/30 23:58:31 mdb Exp $
 
-package com.samskivert.cocktail.cher;
+package com.threerings.cocktail.cher;
 
 /**
  * A placeholder class that contains a reference to the log object used by

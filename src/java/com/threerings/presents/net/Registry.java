@@ -1,11 +1,11 @@
 //
-// $Id: Registry.java,v 1.1 2001/05/29 03:27:59 mdb Exp $
+// $Id: Registry.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
 
-package com.samskivert.cocktail.cher.net;
+package com.threerings.cocktail.cher.net;
 
-import com.samskivert.cocktail.cher.dobj.DObject;
-import com.samskivert.cocktail.cher.io.TypedObject;
-import com.samskivert.cocktail.cher.io.TypedObjectFactory;
+import com.threerings.cocktail.cher.dobj.DObject;
+import com.threerings.cocktail.cher.io.TypedObject;
+import com.threerings.cocktail.cher.io.TypedObjectFactory;
 
 /**
  * The registry provides a single place where all typed objects that are

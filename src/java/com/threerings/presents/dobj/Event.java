@@ -1,7 +1,7 @@
 //
-// $Id: Event.java,v 1.1 2001/05/22 06:07:59 mdb Exp $
+// $Id: Event.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
 
-package com.samskivert.cocktail.cher.dobj;
+package com.threerings.cocktail.cher.dobj;
 
 import java.io.IOException;
 import java.io.DataInputStream;

@@ -1,10 +1,10 @@
 //
-// $Id: TestClient.java,v 1.1 2001/05/29 03:27:59 mdb Exp $
+// $Id: TestClient.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
 
-package com.samskivert.cocktail.cher.client.test;
+package com.threerings.cocktail.cher.client.test;
 
-import com.samskivert.cocktail.cher.net.*;
-import com.samskivert.cocktail.cher.client.*;
+import com.threerings.cocktail.cher.net.*;
+import com.threerings.cocktail.cher.client.*;
 
 /**
  * A standalone test client.

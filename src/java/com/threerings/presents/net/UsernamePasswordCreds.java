@@ -1,7 +1,7 @@
 //
-// $Id: UsernamePasswordCreds.java,v 1.3 2001/05/23 04:03:40 mdb Exp $
+// $Id: UsernamePasswordCreds.java,v 1.4 2001/05/30 23:58:31 mdb Exp $
 
-package com.samskivert.cocktail.cher.net;
+package com.threerings.cocktail.cher.net;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

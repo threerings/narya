@@ -1,7 +1,7 @@
 //
-// $Id: ObjectStreamException.java,v 1.2 2001/05/22 21:51:29 mdb Exp $
+// $Id: ObjectStreamException.java,v 1.3 2001/05/30 23:58:31 mdb Exp $
 
-package com.samskivert.cocktail.cher.io;
+package com.threerings.cocktail.cher.io;
 
 import java.io.IOException;
 
