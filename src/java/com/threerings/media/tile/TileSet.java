@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.57 2003/06/06 00:20:41 mdb Exp $
+// $Id: TileSet.java,v 1.58 2003/07/28 04:06:14 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -421,6 +421,6 @@ public abstract class TileSet
      * craploads of keys unduly. */
     protected static Tile.Key _key = new Tile.Key(null, 0, null);
 
-    /** Throttle our cache status logging to once every 30 seconds. */
-    protected static Throttle _cacheStatThrottle = new Throttle(1, 30000L);
+    /** Throttle our cache status logging to once every 300 seconds. */
+    protected static Throttle _cacheStatThrottle = new Throttle(1, 300000L);
 }

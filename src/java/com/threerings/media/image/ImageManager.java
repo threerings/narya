@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.57 2003/06/23 17:59:04 mdb Exp $
+// $Id: ImageManager.java,v 1.58 2003/07/28 04:06:14 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -123,7 +123,8 @@ public class ImageManager
             return _gc.createCompatibleImage(width, height, transparency);
         } else {
             // if we're running in headless mode, do everything in 24-bit
-            return new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            return new BufferedImage(
+                width, height, BufferedImage.TYPE_INT_ARGB);
         }
     }
 
@@ -556,8 +557,8 @@ public class ImageManager
     /** The set of all keys we've ever seen. */
     protected HashSet _keySet = new HashSet();
 
-    /** Throttle our cache status logging to once every 30 seconds. */
-    protected Throttle _cacheStatThrottle = new Throttle(1, 30000L);
+    /** Throttle our cache status logging to once every 300 seconds. */
+    protected Throttle _cacheStatThrottle = new Throttle(1, 300000L);
 
     /** The graphics configuration for the default screen device. */
     protected GraphicsConfiguration _gc;
@@ -582,7 +583,7 @@ public class ImageManager
         new RuntimeAdjust.IntAdjust(
             "Size (in kb of memory used) of the image manager LRU cache " +
             "[requires restart]", "narya.media.image.cache_size",
-            MediaPrefs.config, 1024);
+            MediaPrefs.config, 2048);
 
     /** Controls whether or not we prepare images or use raw versions. */
     protected static RuntimeAdjust.BooleanAdjust _prepareImages =
