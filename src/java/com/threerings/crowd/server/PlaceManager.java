@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.6 2001/08/03 02:14:41 mdb Exp $
+// $Id: PlaceManager.java,v 1.7 2001/08/04 01:13:36 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import com.threerings.cocktail.cher.dobj.*;
+
+import com.threerings.cocktail.party.Log;
 import com.threerings.cocktail.party.data.PlaceObject;
 
 /**
@@ -77,6 +79,24 @@ public class PlaceManager implements Subscriber
     }
 
     /**
+     * Called when a body object enters this place.
+     */
+    protected void bodyEntered (int bodyOid)
+    {
+        Log.info("Body entered [ploid=" + _plobj.getOid() +
+                 ", oid=" + bodyOid + "].");
+    }
+
+    /**
+     * Called when a body object leaves this place.
+     */
+    protected void bodyLeft (int bodyOid)
+    {
+        Log.info("Body left [ploid=" + _plobj.getOid() +
+                 ", oid=" + bodyOid + "].");
+    }
+
+    /**
      * Registers a particular message handler instance to be used when
      * processing message events with the specified name.
      *
@@ -124,6 +144,18 @@ public class PlaceManager implements Subscriber
                 _msghandlers.get(mevt.getName());
             if (handler != null) {
                 handler.handleEvent(mevt, (PlaceObject)target);
+            }
+
+        } else if (event instanceof ObjectAddedEvent) {
+            ObjectAddedEvent oae = (ObjectAddedEvent)event;
+            if (oae.getName().equals(PlaceObject.OCCUPANTS)) {
+                bodyEntered(oae.getOid());
+            }
+
+        } else if (event instanceof ObjectRemovedEvent) {
+            ObjectRemovedEvent ore = (ObjectRemovedEvent)event;
+            if (ore.getName().equals(PlaceObject.OCCUPANTS)) {
+                bodyLeft(ore.getOid());
             }
         }
 

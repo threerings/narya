@@ -1,5 +1,5 @@
 //
-// $Id: BodyObject.dobj,v 1.2 2001/08/03 02:14:41 mdb Exp $
+// $Id: BodyObject.dobj,v 1.3 2001/08/04 01:13:36 mdb Exp $
 
 package com.threerings.cocktail.party.data;
 
@@ -10,13 +10,27 @@ public class BodyObject extends ClientObject
     /** The field name of the <code>username</code> field. */
     public static final String USERNAME = "username";
 
+    /** The field name of the <code>location</code> field. */
+    public static final String LOCATION = "location";
+
     /**
      * The username associated with this body object.
      */
     public String username;
 
+    /**
+     * The oid of the place currently occupied by this body or -1 if they
+     * currently occupy no place.
+     */
+    public int location = -1;
+
     public void setUsername (String username)
     {
         requestAttributeChange(USERNAME, username);
+    }
+
+    public void setLocation (int location)
+    {
+        requestAttributeChange(LOCATION, new Integer(location));
     }
 }
