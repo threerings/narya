@@ -1,5 +1,5 @@
 //
-// $Id: TestProvider.java,v 1.6 2001/08/11 00:05:58 mdb Exp $
+// $Id: TestProvider.java,v 1.7 2001/08/11 00:12:11 mdb Exp $
 
 package com.threerings.cocktail.cher.server.test;
 
@@ -30,6 +30,8 @@ public class TestProvider extends InvocationProvider
 
     public void handleGetTestOidRequest (ClientObject source, int invid)
     {
+        Log.info("Handling get test oid [src=" + source.getOid() +
+                 ", invid=" + invid + "].");
         int oid = TestServer.testobj.getOid();
         sendResponse(source, invid, "GotTestOid", new Integer(oid));
     }

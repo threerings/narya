@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.17 2001/08/07 21:25:13 mdb Exp $
+// $Id: PresentsClient.java,v 1.18 2001/08/11 00:12:11 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -216,8 +216,8 @@ public class CherClient implements Subscriber, MessageHandler
         Enumeration enum = _subscrips.elements();
         while (enum.hasMoreElements()) {
             DObject object = (DObject)enum.nextElement();
-            // Log.info("Clearing subscription [client=" + this +
-            // ", obj=" + object + "].");
+//              Log.info("Clearing subscription [client=" + this +
+//                       ", obj=" + object + "].");
             object.removeSubscriber(this);
         }
     }
@@ -479,8 +479,8 @@ public class CherClient implements Subscriber, MessageHandler
         public void dispatch (CherClient client, UpstreamMessage msg)
         {
             SubscribeRequest req = (SubscribeRequest)msg;
-            // Log.info("Subscribing [client=" + client +
-            // ", oid=" + req.getOid() + "].");
+//              Log.info("Subscribing [client=" + client +
+//                       ", oid=" + req.getOid() + "].");
 
             // forward the subscribe request to the omgr for processing
             CherServer.omgr.subscribeToObject(req.getOid(), client);
@@ -495,8 +495,8 @@ public class CherClient implements Subscriber, MessageHandler
         public void dispatch (CherClient client, UpstreamMessage msg)
         {
             UnsubscribeRequest req = (UnsubscribeRequest)msg;
-            // Log.info("Unsubscribing [client=" + client +
-            // ", oid=" + req.getOid() + "].");
+//              Log.info("Unsubscribing [client=" + client +
+//                       ", oid=" + req.getOid() + "].");
 
             // forward the unsubscribe request to the omgr for processing
             CherServer.omgr.unsubscribeFromObject(req.getOid(), client);
@@ -518,8 +518,8 @@ public class CherClient implements Subscriber, MessageHandler
             // fill in the proper source oid
             fevt.setSourceOid(client.getClientObject().getOid());
 
-            // Log.info("Forwarding event [client=" + client +
-            // ", event=" + fevt + "].");
+//              Log.info("Forwarding event [client=" + client +
+//                       ", event=" + fevt + "].");
 
             // forward the event to the omgr for processing
             CherServer.omgr.postEvent(fevt);
