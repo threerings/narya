@@ -1,12 +1,12 @@
 //
-// $Id: VolatileMirage.java,v 1.1 2003/01/13 22:49:46 mdb Exp $
+// $Id: VolatileMirage.java,v 1.2 2003/01/14 00:59:55 mdb Exp $
 
 package com.threerings.media.image;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Rectangle;
-import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 
@@ -49,12 +49,20 @@ public abstract class VolatileMirage implements Mirage
 //                 break;
 //             }
 
-            // now we can render it
-            gfx.drawImage(_image, x, y, null);
+//             // now we can render it
+//             gfx.drawImage(_image, x, y, null);
 //             renders++;
 
 //             // don't try forever
 //         } while (_image.contentsLost() && (renders < 10));
+
+        if (IMAGE_DEBUG) {
+            gfx.setColor(new Color(_image.getRGB(_bounds.width/2,
+                                                 _bounds.height/2)));
+            gfx.fillRect(x, y, _bounds.width, _bounds.height);
+        } else {
+            gfx.drawImage(_image, x, y, null);
+        }
 
         // TODO: note number of attempted renders for performance
     }
@@ -101,11 +109,17 @@ public abstract class VolatileMirage implements Mirage
 //         _image = gc.createCompatibleVolatileImage(
 //             _bounds.width, _bounds.height);
         _image = gc.createCompatibleImage(
-            _bounds.width, _bounds.height, Transparency.BITMASK);
+            _bounds.width, _bounds.height, getTransparency());
 
         // render our source image into the volatile image
         refreshVolatileImage();
     }
+
+    /**
+     * Returns the transparency that should be used when creating our
+     * volatile image.
+     */
+    protected abstract int getTransparency ();
 
     /**
      * Rerenders our volatile image from the its source image data.
@@ -141,4 +155,7 @@ public abstract class VolatileMirage implements Mirage
      * any time. */
 //     protected VolatileImage _image;
     protected BufferedImage _image;
+
+    /** Turns off image rendering for testing. */
+    protected static final boolean IMAGE_DEBUG = false;
 }
