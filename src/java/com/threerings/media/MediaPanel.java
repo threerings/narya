@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.1 2002/04/23 01:16:27 mdb Exp $
+// $Id: MediaPanel.java,v 1.2 2002/04/23 03:10:39 mdb Exp $
 
 package com.threerings.media;
 
@@ -306,8 +306,8 @@ public class MediaPanel extends JComponent
         // rectangle and mark it as dirty
         if (!_tickPaintPending) {
             Shape clip = g.getClip();
-            _remgr.invalidateRegion((clip == null) ?
-                                    getBounds() : clip.getBounds());
+            Rectangle dirty = (clip == null) ? getBounds() : clip.getBounds();
+            _remgr.invalidateRegion(dirty);
 
         } else {
             _tickPaintPending = false;
@@ -405,7 +405,7 @@ public class MediaPanel extends JComponent
     protected void paintBits (Graphics2D gfx, int layer, Rectangle clip)
     {
         Shape oclip = gfx.getClip();
-        gfx.setClip(clip);
+        gfx.clipRect(clip.x, clip.y, clip.width, clip.height);
         _animmgr.renderAnimations(gfx, layer, clip);
         _spritemgr.renderSprites(gfx, layer, clip);
         gfx.setClip(oclip);
