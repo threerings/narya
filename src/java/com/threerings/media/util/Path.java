@@ -1,5 +1,5 @@
 //
-// $Id: Path.java,v 1.9 2002/12/02 20:11:24 mdb Exp $
+// $Id: Path.java,v 1.10 2003/01/17 22:57:08 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -53,4 +53,12 @@ public interface Path
      * Paint this path on the screen (used for debugging purposes only).
      */
     public void paint (Graphics2D gfx);
+
+    /**
+     * When a path is removed from a pathable, whether that is because the
+     * path was completed or because it was replaced by another path, this
+     * method will be called to let the path know that it is no longer
+     * associated with this pathable.
+     */
+    public void wasRemoved (Pathable pable);
 }

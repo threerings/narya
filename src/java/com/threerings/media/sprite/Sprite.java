@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.59 2003/01/17 03:50:10 mdb Exp $
+// $Id: Sprite.java,v 1.60 2003/01/17 22:57:08 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -215,6 +215,11 @@ public abstract class Sprite extends AbstractMedia
      */
     public void move (Path path)
     {
+        // if there's a previous path, let it know that it's going away
+        if (_path != null) {
+            _path.wasRemoved(this);
+        }
+
         // save off this path
         _path = path;
 
@@ -230,7 +235,10 @@ public abstract class Sprite extends AbstractMedia
 	// TODO: make sure we come to a stop on a full coordinate,
 	// even in the case where we aborted a path mid-traversal.
 
-        _path = null;
+        if (_path != null) {
+            _path.wasRemoved(this);
+            _path = null;
+        }
     }
 
     /**
@@ -257,6 +265,8 @@ public abstract class Sprite extends AbstractMedia
     {
         // keep a reference to the path just completed
         Path oldpath = _path;
+        // let the path know that it's audi
+        _path.wasRemoved(this);
         // clear out the path we've now finished
 	_path = null;
         // inform observers that we've finished our path

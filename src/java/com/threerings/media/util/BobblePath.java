@@ -1,5 +1,5 @@
 //
-// $Id: BobblePath.java,v 1.2 2003/01/14 22:37:38 ray Exp $
+// $Id: BobblePath.java,v 1.3 2003/01/17 22:57:08 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -129,6 +129,12 @@ public class BobblePath implements Path
         // for debugging, show the bobble bounds
         gfx.setColor(Color.RED);
         gfx.drawRect(_sx - _dx, _sy - _dy, _dx * 2, _dy * 2);
+    }
+
+    // documentation inherited from interface
+    public void wasRemoved (Pathable pable)
+    {
+        // nothing doing
     }
 
     /**

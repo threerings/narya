@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.26 2002/12/04 02:45:09 shaper Exp $
+// $Id: LineSegmentPath.java,v 1.27 2003/01/17 22:57:08 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -225,6 +225,12 @@ public class LineSegmentPath
     public void fastForward (long timeDelta)
     {
         _nodestamp += timeDelta;
+    }
+
+    // documentation inherited from interface
+    public void wasRemoved (Pathable pable)
+    {
+        // nothing doing
     }
 
     /**

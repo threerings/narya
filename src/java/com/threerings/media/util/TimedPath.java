@@ -1,5 +1,5 @@
 //
-// $Id: TimedPath.java,v 1.2 2002/12/02 20:11:24 mdb Exp $
+// $Id: TimedPath.java,v 1.3 2003/01/17 22:57:08 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -42,6 +42,12 @@ public abstract class TimedPath implements Path
     public void fastForward (long timeDelta)
     {
         _startStamp += timeDelta;
+    }
+
+    // documentation inherited from interface
+    public void wasRemoved (Pathable pable)
+    {
+        // nothing doing
     }
 
     /**
