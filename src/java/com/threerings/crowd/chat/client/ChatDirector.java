@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.46 2003/06/04 02:50:18 ray Exp $
+// $Id: ChatDirector.java,v 1.47 2003/06/26 19:57:24 mdb Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -337,9 +337,9 @@ public class ChatDirector extends BasicDirector
         _cservice.broadcast(
             _ctx.getClient(), message, new ChatService.InvocationListener() {
                 public void requestFailed (String reason) {
-                    displayFeedback(
-                        _bundle, MessageBundle.compose(
-                            "m.broadcast_failed", reason));
+                    reason = MessageBundle.compose(
+                        "m.broadcast_failed", reason);
+                    displayFeedback(_bundle, reason);
                 }
             });
     }
@@ -371,14 +371,15 @@ public class ChatDirector extends BasicDirector
         ChatService.TellListener listener = new ChatService.TellListener() {
             public void tellSucceeded () {
                 success(xlate(_bundle, MessageBundle.tcompose(
-                    "m.told_format", target, message)));
+                                  "m.told_format", target, message)));
             }
 
             public void tellSucceededIdle (long idletime) {
-                success(xlate(_bundle, MessageBundle.compose(
+                String msg = MessageBundle.compose(
                     "m.told_idle_format", MessageBundle.taint(target),
                     MessageBundle.taint(message),
-                    TimeUtil.getTimeOrderString(idletime, TimeUtil.MINUTE))));
+                    TimeUtil.getTimeOrderString(idletime, TimeUtil.MINUTE));
+                success(xlate(_bundle, msg));
             }
 
             protected void success (String feedback) {
