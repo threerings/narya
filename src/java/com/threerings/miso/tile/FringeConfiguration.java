@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfiguration.java,v 1.12 2002/08/19 22:28:05 mdb Exp $
+// $Id: FringeConfiguration.java,v 1.13 2002/08/19 22:58:15 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -132,5 +132,5 @@ public class FringeConfiguration implements Serializable
 
     /** Increase this value when object's serialized state is impacted by
      * a class change (modification of fields, inheritance). */
-    private long serialVersionUID = 1;
+    private static final long serialVersionUID = 1;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundle.java,v 1.8 2002/08/19 22:28:05 mdb Exp $
+// $Id: TileSetBundle.java,v 1.9 2002/08/19 22:58:15 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -123,5 +123,5 @@ public class TileSetBundle extends HashIntMap
 
     /** Increase this value when object's serialized state is impacted by
      * a class change (modification of fields, inheritance). */
-    private long serialVersionUID = 1;
+    private static final long serialVersionUID = 1;
  }

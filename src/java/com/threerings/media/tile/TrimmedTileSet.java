@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedTileSet.java,v 1.4 2002/08/19 22:28:05 mdb Exp $
+// $Id: TrimmedTileSet.java,v 1.5 2002/08/19 22:58:15 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -97,5 +97,5 @@ public class TrimmedTileSet extends TileSet
 
     /** Increase this value when object's serialized state is impacted by
      * a class change (modification of fields, inheritance). */
-    private long serialVersionUID = 1;
+    private static final long serialVersionUID = 1;
 }
