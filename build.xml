@@ -13,6 +13,13 @@
   <property name="build.optimize" value="off"/>
   <property name="java.libraries" value="/usr/share/java"/>
 
+  <!-- declare our classpath -->
+  <path id="classpath">
+    <pathelement location="${deploy.dir}/classes"/>
+    <fileset dir="lib" includes="**/*.jar"/>
+    <fileset dir="${java.libraries}" includes="**/*.jar"/>
+  </path>
+
   <!-- prepares the application directories -->
   <target name="prepare">
     <mkdir dir="${deploy.dir}"/>
@@ -36,11 +43,7 @@
   <target name="compile" depends="prepare">
     <javac srcdir="src/java" destdir="${deploy.dir}/classes"
            debug="on" optimize="{$build.optimize}" deprecation="off">
-      <classpath>
-        <fileset dir="${java.libraries}" includes="**/*.jar"/>
-        <fileset dir="lib" includes="**/*.jar"/>
-        <pathelement location="${deploy.dir}/classes"/>
-      </classpath>
+      <classpath refid="classpath"/>
     </javac>
   </target>
 
@@ -50,11 +53,7 @@
              packagenames="com.threerings.*"
              destdir="${javadoc.home}"
              additionalparam="-breakiterator">
-      <classpath>
-        <fileset dir="${java.libraries}" includes="**/*.jar"/>
-        <fileset dir="lib" includes="**/*.jar"/>
-        <pathelement location="${deploy.dir}/classes"/>
-      </classpath>
+      <classpath refid="classpath"/>
     </javadoc>
     <copy todir="${javadoc.home}">
       <fileset dir="src/java" includes="**/*.png"/>
@@ -68,6 +67,17 @@
   <target name="dist" depends="prepare,compile">
     <jar file="${dist.home}/${dist.jar}"
          basedir="${deploy.dir}/classes"/>
+  </target>
+
+  <!-- generate a class hierarchy diagram -->
+  <target name="sumgen" depends="prepare,compile">
+    <taskdef name="viztool" classname="com.samskivert.viztool.DriverTask"/>
+    <viztool visualizer="com.samskivert.viztool.summary.SummaryVisualizer"
+      pkgroot="com.threerings"
+      classes="SpotSceneModel|SpotScene$"
+      output="summary.ps">
+      <classpath refid="classpath"/>
+    </viztool>
   </target>
 
 </project>
