@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.17 2001/09/05 00:40:33 shaper Exp $
+// $Id: Sprite.java,v 1.18 2001/09/05 21:51:43 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -122,8 +122,10 @@ public class Sprite
 
         updateRenderOrigin();
 
-	// set default velocity
+	// set default velocity and units
 	_vel = new Point(1, 1);
+	_velUnit = new Point(1, 1);
+	updateVelocity();
 
 	// initialize frame animation member data
         _frameIdx = 0;
@@ -255,6 +257,29 @@ public class Sprite
     public void setVelocity (int vx, int vy)
     {
 	_vel.setLocation(vx, vy);
+	updateVelocity();
+    }
+
+    /**
+     * Set the units upon which the sprite's velocity is based.
+     *
+     * @param ux the x-axis units.
+     * @param uy the y-axis units.
+     */
+    public void setVelocityUnits (int ux, int uy)
+    {
+	_velUnit.setLocation(ux, uy);
+	updateVelocity();
+    }
+
+    /**
+     * Update the distance the sprite moves each tick, based on the
+     * sprite velocity and the velocity units.
+     */
+    protected void updateVelocity ()
+    {
+	_fracx = (_vel.x / (float)_velUnit.x);
+	_fracy = (_vel.y / (float)_velUnit.y);
     }
 
     /**
@@ -332,8 +357,8 @@ public class Sprite
 
         // determine the horizontal/vertical move increments
         float dist = MathUtil.distance(_x, _y, _dest.loc.x, _dest.loc.y);
-        _incx = (float)(_dest.loc.x - _x) / (dist / _vel.x);
-        _incy = (float)(_dest.loc.y - _y) / (dist / _vel.y);
+        _incx = (float)(_dest.loc.x - _x) / (dist / _fracx);
+        _incy = (float)(_dest.loc.y - _y) / (dist / _fracy);
 
         // init position data used to track fractional pixels
         _movex = _x;
@@ -516,8 +541,11 @@ public class Sprite
     /** When moving, the sprite position including fractional pixels. */ 
     protected float _movex, _movey;
 
-    /** When moving, the distance to move per tick in fractional pixels. */
+    /** When moving, the distance to move on each axis per tick. */
     protected float _incx, _incy;
+
+    /** The distance to move on the straight path line per tick. */
+    protected float _fracx, _fracy;
 
     /** The number of ticks to wait before rendering with the next image. */
     protected int _animDelay;
@@ -530,6 +558,9 @@ public class Sprite
 
     /** The sprite velocity when moving. */
     protected Point _vel;
+
+    /** The sprite velocity units. */
+    protected Point _velUnit;
 
     /** The sprite observers observing this sprite. */
     protected ArrayList _observers;
