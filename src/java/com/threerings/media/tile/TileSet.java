@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.50 2003/05/02 23:32:10 mdb Exp $
+// $Id: TileSet.java,v 1.51 2003/05/12 02:03:53 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -428,7 +428,7 @@ public abstract class TileSet
         new RuntimeAdjust.IntAdjust(
             "Size (in kb of memory used) of the tile LRU cache " +
             "[requires restart]", "narya.media.tile.cache_size",
-            MediaPrefs.config, 1024);
+            MediaPrefs.config, 2048);
 
     static {
         int tcsize = _cacheSize.getValue();
