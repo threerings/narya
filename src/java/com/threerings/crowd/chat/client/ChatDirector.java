@@ -1,10 +1,11 @@
 //
-// $Id: ChatDirector.java,v 1.29 2002/07/27 01:10:59 ray Exp $
+// $Id: ChatDirector.java,v 1.30 2002/07/27 01:34:47 ray Exp $
 
 package com.threerings.crowd.chat;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Tuple;
@@ -38,7 +39,7 @@ public class ChatDirector
         /**
          * The list of chatters has been changed.
          */
-        public void chattersUpdated (String[] chatternames);
+        public void chattersUpdated (Iterator chatternames);
     }
 
     /**
@@ -115,8 +116,7 @@ public class ChatDirector
     public void addChatterObserver (ChatterObserver co)
     {
         _chatterObservers.add(co);
-        co.chattersUpdated(
-            (String[]) _chatters.toArray(new String[_chatters.size()]));
+        co.chattersUpdated(_chatters.listIterator());
     }
 
     /**
@@ -132,17 +132,18 @@ public class ChatDirector
      */
     protected void addChatter (String name)
     {
-        if (!_chatters.contains(name)) {
-            _chatters.add(name);
+        boolean wasthere = _chatters.remove(name);
+        _chatters.addFirst(name);
+
+        if (!wasthere) {
             if (_chatters.size() > MAX_CHATTERS) {
-                _chatters.remove(0);
+                _chatters.removeLast();
             }
 
-            String[] list = (String[])
-                _chatters.toArray(new String[_chatters.size()]);
             for (Iterator iter = _chatterObservers.iterator();
                 iter.hasNext(); ) {
-                ((ChatterObserver) iter.next()).chattersUpdated(list);
+                ChatterObserver co = (ChatterObserver) iter.next();
+                co.chattersUpdated(_chatters.listIterator());
             }
         }
     }
@@ -526,7 +527,7 @@ public class ChatDirector
     protected HashIntMap _tells = new HashIntMap();
 
     /** Usernames of users we've recently chatted with. */
-    protected ArrayList _chatters = new ArrayList();
+    protected LinkedList _chatters = new LinkedList();
 
     /** Observers that are watching our chatters list. */
     protected ArrayList _chatterObservers = new ArrayList();
