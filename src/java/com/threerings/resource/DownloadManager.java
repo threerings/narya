@@ -1,5 +1,5 @@
 //
-// $Id: DownloadManager.java,v 1.1 2002/07/19 20:12:23 shaper Exp $
+// $Id: DownloadManager.java,v 1.2 2002/07/19 22:19:34 shaper Exp $
 
 package com.threerings.resource;
 
@@ -293,12 +293,23 @@ public class DownloadManager
             currentSize += read;
             int pctdone = (int)((currentSize / (float)totalSize) * 100f);
             complete = (pctdone >= 100);
-            obs.downloadProgress(pctdone);
+            // if we've finished downloading everything, hold off on
+            // notifying the observer until the streams are closed to
+            // ensure that any action the observer may take with respect
+            // to the downloaded files can be safely undertaken
+            if (!complete) {
+                obs.downloadProgress(pctdone);
+            }
         }
 
         // close the streams
         in.close();
         out.close();
+
+        if (complete) {
+            // let the observer know we're finished now that it's safe
+            obs.downloadProgress(100);
+        }
 
         // if we have a last modified time, we want to adjust our cache
         // file accordingly
