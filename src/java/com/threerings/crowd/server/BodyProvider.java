@@ -1,5 +1,5 @@
 //
-// $Id: BodyProvider.java,v 1.2 2002/11/01 21:33:21 shaper Exp $
+// $Id: BodyProvider.java,v 1.3 2002/11/06 04:12:39 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -62,12 +62,10 @@ public class BodyProvider
     {
         // no need to NOOP
         if (body.status == status) {
-            return;
+            // update the status in their body object
+            body.setStatus(status);
+            body.statusTime = System.currentTimeMillis();
         }
-
-        // update the status in their body object
-        body.setStatus(status);
-        body.statusTime = System.currentTimeMillis();
 
         // get the place manager for the specified location
         PlaceManager pmgr = CrowdServer.plreg.getPlaceManager(locationId);
@@ -85,7 +83,7 @@ public class BodyProvider
         // update the occupant info with the new connection status
         OccupantInfo info = (OccupantInfo)
             plobj.occupantInfo.get(new Integer(body.getOid()));
-        if (info != null) {
+        if (info != null && info.status != status) {
             info.status = status;
             pmgr.updateOccupantInfo(info);
         }
