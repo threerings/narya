@@ -1,11 +1,10 @@
 //
-// $Id: StreamableHashIntMap.java,v 1.2 2003/05/27 23:00:22 ray Exp $
+// $Id: StreamableHashIntMap.java,v 1.3 2003/10/24 22:15:23 ray Exp $
 
 package com.threerings.util;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Map;
 
 import com.samskivert.util.HashIntMap;
 
@@ -49,8 +48,8 @@ public class StreamableHashIntMap extends HashIntMap
         int ecount = size();
         out.writeInt(ecount);
         for (Iterator iter = entrySet().iterator(); iter.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) iter.next();
-            out.writeInt(((Integer) entry.getKey()).intValue());
+            HashIntMap.Entry entry = (HashIntMap.Entry) iter.next();
+            out.writeInt(entry.getIntKey());
             out.writeObject(entry.getValue());
         }
     }
