@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneModel.java,v 1.6 2001/12/12 02:47:17 mdb Exp $
+// $Id: SpotSceneModel.java,v 1.7 2002/05/02 19:34:51 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -37,9 +37,9 @@ public class SpotSceneModel extends SceneModel
      * (including portals). */
     public int[] locationOrients;
 
-    /** The cluster index of each location in this scene, which can be -1
+    /** The cluster index of each location in this scene, which can be 0
      * to indicate that the location is not a member of any cluster
-     * (including portals, which should always be -1). */
+     * (including portals, which should always be 0). */
     public int[] locationClusters;
 
     /** The location id of the default entrance to this scene. If a body
