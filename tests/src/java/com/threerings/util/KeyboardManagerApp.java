@@ -1,5 +1,5 @@
 //
-// $Id: KeyboardManagerApp.java,v 1.3 2002/01/22 18:11:33 shaper Exp $
+// $Id: KeyboardManagerApp.java,v 1.4 2002/11/12 22:55:32 shaper Exp $
 
 package com.threerings.util;
 
@@ -54,7 +54,9 @@ public class KeyboardManagerApp
             xlate.addPressCommand(KeyEvent.VK_SPACE, TestController.DROP);
 
             // create the keyboard manager
-            KeyboardManager keymgr = new KeyboardManager(top, xlate);
+            KeyboardManager keymgr = new KeyboardManager();
+            keymgr.setTarget(top, xlate);
+            keymgr.setEnabled(true);
 
             getContentPane().add(top);
         }
