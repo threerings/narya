@@ -87,8 +87,7 @@ public class GameManager extends PlaceManager
         }
 
         // configure our AIs
-        int aicount = (_gameconfig.ais == null) ? 0 : _gameconfig.ais.length;
-        for (int ii = 0; ii < aicount; ii++) {
+        for (int ii = 0; ii < _gameconfig.ais.length; ii++) {
             if (_gameconfig.ais[ii] != null) {
                 setAI(ii, _gameconfig.ais[ii]);
             }
@@ -446,8 +445,8 @@ public class GameManager extends PlaceManager
         // let the players of this game know that we're ready to roll (if
         // we have a specific set of players)
         for (int ii = 0; ii < getPlayerSlots(); ii++) {
-            // skip non-existent players
-            if (!_gameobj.isOccupiedPlayer(ii)) {
+            // skip non-existent players and AIs
+            if (!_gameobj.isOccupiedPlayer(ii) || isAI(ii)) {
                 continue;
             }
 

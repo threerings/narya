@@ -56,7 +56,7 @@ public abstract class GameConfig extends PlaceConfig implements Cloneable
      * players should be null and slots with AIs should contain
      * configuration for those AIs. A null array indicates no use of AIs
      * at all. */
-    public GameAI[] ais;
+    public GameAI[] ais = new GameAI[0];
 
     /**
      * Returns the message bundle identifier for the bundle that should be

@@ -89,6 +89,13 @@ public class Table
         // make room for the maximum number of players
         occupants = new Name[_tconfig.getMaximumPlayers()];
         bodyOids = new int[occupants.length];
+
+        // fill in information on the AIs
+        int acount = (config.ais == null) ? 0 : config.ais.length;
+        for (int ii = 0; ii < acount; ii++) {
+            // TODO: handle this naming business better
+            occupants[ii] = new Name("AI " + (ii+1));
+        }
     }
 
     /**
@@ -265,8 +272,8 @@ public class Table
      */
     public boolean isEmpty ()
     {
-        for (int i = 0; i < occupants.length; i++) {
-            if (occupants[i] != null) {
+        for (int i = 0; i < bodyOids.length; i++) {
+            if (bodyOids[i] != 0) {
                 return false;
             }
         }

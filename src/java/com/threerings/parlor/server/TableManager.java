@@ -116,9 +116,10 @@ public class TableManager
         // create a brand spanking new table
         Table table = new Table(_plobj.getOid(), config);
 
-        // stick the creator into position zero
+        // stick the creator into the first non-AI position
+        int cpos = (config.ais == null) ? 0 : config.ais.length;
         String error =
-            table.setOccupant(0, creator.username, creator.getOid());
+            table.setOccupant(cpos, creator.username, creator.getOid());
         if (error != null) {
             Log.warning("Unable to add creator to position zero of " +
                         "table!? [table=" + table + ", creator=" + creator +
@@ -275,9 +276,9 @@ public class TableManager
         };
         try {
             CrowdServer.plreg.createPlace(table.config, obs);
-        } catch (InstantiationException ie) {
+        } catch (Throwable t) {
             Log.warning("Failed to create manager for game " +
-                        "[config=" + table.config + "]: " + ie);
+                        "[config=" + table.config + "]: " + t);
             throw new InvocationException(INTERNAL_ERROR);
         }
     }
