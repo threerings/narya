@@ -1,5 +1,5 @@
 //
-// $Id: Card.java,v 1.7 2004/11/01 22:10:21 andrzej Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -108,8 +108,8 @@ public class Card implements DSet.Entry, Comparable, CardCodes
     }
     
     /**
-     * Checks whether or not this card is valid.  The no-arg public constructor
-     * for deserialization creates an invalid card.
+     * Checks whether or not this card is valid.  The no-arg public
+     * constructor for deserialization creates an invalid card.
      *
      * @return true if this card is valid, false if not
      */

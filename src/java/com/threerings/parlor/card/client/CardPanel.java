@@ -1,5 +1,5 @@
 //
-// $Id: CardPanel.java,v 1.8 2004/11/04 02:03:47 andrzej Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -55,7 +55,8 @@ public abstract class CardPanel extends VirtualMediaPanel
                                 implements CardCodes
 {
     /** Calls CardSpriteObserver.cardSpriteClicked. */ 
-    protected static class CardSpriteClickedOp implements ObserverList.ObserverOp
+    protected static class CardSpriteClickedOp implements
+        ObserverList.ObserverOp
     {
         public CardSpriteClickedOp (CardSprite sprite, MouseEvent me)
         {
@@ -65,7 +66,8 @@ public abstract class CardPanel extends VirtualMediaPanel
         
         public boolean apply (Object observer)
         {
-            ((CardSpriteObserver)observer).cardSpriteClicked(_sprite, _me);
+            ((CardSpriteObserver)observer).cardSpriteClicked(_sprite,
+                _me);
             return true;
         }
         
@@ -74,7 +76,8 @@ public abstract class CardPanel extends VirtualMediaPanel
     }
     
     /** Calls CardSpriteObserver.cardSpriteEntered. */ 
-    protected static class CardSpriteEnteredOp implements ObserverList.ObserverOp
+    protected static class CardSpriteEnteredOp implements
+        ObserverList.ObserverOp
     {
         public CardSpriteEnteredOp (CardSprite sprite, MouseEvent me)
         {
@@ -93,7 +96,8 @@ public abstract class CardPanel extends VirtualMediaPanel
     }
     
     /** Calls CardSpriteObserver.cardSpriteExited. */ 
-    protected static class CardSpriteExitedOp implements ObserverList.ObserverOp
+    protected static class CardSpriteExitedOp implements
+        ObserverList.ObserverOp
     {
         public CardSpriteExitedOp (CardSprite sprite, MouseEvent me)
         {
@@ -112,7 +116,8 @@ public abstract class CardPanel extends VirtualMediaPanel
     }
     
     /** Calls CardSpriteObserver.cardSpriteDragged. */
-    protected static class CardSpriteDraggedOp implements ObserverList.ObserverOp
+    protected static class CardSpriteDraggedOp implements
+        ObserverList.ObserverOp
     {
         public CardSpriteDraggedOp (CardSprite sprite, MouseEvent me)
         {
@@ -128,25 +133,6 @@ public abstract class CardPanel extends VirtualMediaPanel
         
         protected CardSprite _sprite;
         protected MouseEvent _me;
-    }
-    
-    /** Calls ButtonSpriteObserver.buttonSpriteClicked. */
-    protected static class ButtonSpriteClickedOp implements ObserverList.ObserverOp
-    {
-        public ButtonSpriteClickedOp (ButtonSprite sprite, CommandEvent ce)
-        {
-            _sprite = sprite;
-            _ce = ce;
-        }
-        
-        public boolean apply (Object observer)
-        {
-            ((ButtonSpriteObserver)observer).buttonSpriteClicked(_sprite, _ce);
-            return true;
-        }
-        
-        protected ButtonSprite _sprite;
-        protected CommandEvent _ce;
     }
     
     /**
@@ -177,17 +163,17 @@ public abstract class CardPanel extends VirtualMediaPanel
             public void mouseReleased (MouseEvent me) {
                 if (_activeSprite != null && !isManaged(_activeSprite)) {
                     _activeSprite = null;
-                } else if (_activeSprite instanceof CardSprite && _hasBeenDragged) {
+                } else if (_activeSprite instanceof CardSprite &&
+                    _hasBeenDragged) {
                     _activeSprite.queueNotification(
                         new CardSpriteDraggedOp((CardSprite)_activeSprite, me)
                     );
                 } else if (_activeSprite instanceof ButtonSprite) {
                     ButtonSprite bs = (ButtonSprite)_activeSprite;
                     if (bs.isPressed()) {
-                        CommandEvent ce = new CommandEvent(CardPanel.this, bs.getActionCommand(),
-                            bs.getCommandArgument(), me.getWhen(), me.getModifiers());
-                        bs.queueNotification(
-                            new ButtonSpriteClickedOp(bs, ce));
+                        CommandEvent ce = new CommandEvent(CardPanel.this,
+                            bs.getActionCommand(), bs.getCommandArgument(),
+                            me.getWhen(), me.getModifiers());
                         Controller.postAction(ce);
                         bs.setPressed(false);
                     }
@@ -236,7 +222,8 @@ public abstract class CardPanel extends VirtualMediaPanel
                     if (_activeSprite instanceof CardSprite && 
                         isManaged(_activeSprite)) {
                         _activeSprite.queueNotification(
-                            new CardSpriteExitedOp((CardSprite)_activeSprite, me)
+                            new CardSpriteExitedOp((CardSprite)_activeSprite,
+                                me)
                         );
                     } else if (_activeSprite instanceof ButtonSprite && 
                         isManaged(_activeSprite)) {
@@ -244,7 +231,8 @@ public abstract class CardPanel extends VirtualMediaPanel
                     }
                     if (newActiveSprite instanceof CardSprite) {
                         newActiveSprite.queueNotification(
-                            new CardSpriteEnteredOp((CardSprite)newActiveSprite, me)
+                            new CardSpriteEnteredOp(
+                                (CardSprite)newActiveSprite, me)
                         );
                     }
                     _activeSprite = newActiveSprite;

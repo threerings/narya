@@ -1,5 +1,5 @@
 //
-// $Id: Deck.java,v 1.6 2004/11/01 22:10:21 andrzej Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -107,9 +107,9 @@ public class Deck implements CardCodes,
         else {
             Hand hand = new Hand();
         
+            int cardsLeft = cards.size();
             for (int i=0;i<size;i++) {
-                hand.cards.add(cards.get(cards.size()-1));
-                cards.remove(cards.size()-1);
+                hand.cards.add(cards.remove(--cardsLeft));
             }
             
             return hand;

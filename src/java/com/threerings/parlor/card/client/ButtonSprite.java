@@ -1,5 +1,5 @@
 //
-// $Id: ButtonSprite.java,v 1.4 2004/11/09 03:24:50 andrzej Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -276,52 +276,72 @@ public class ButtonSprite extends Sprite
         
         switch (_style) {
             case NORMAL:
-                gfx.setColor(_enabled ? _backgroundColor : _backgroundColor.darker());
+                gfx.setColor(_enabled ? _backgroundColor :
+                    _backgroundColor.darker());
                 gfx.fill3DRect(_bounds.x, _bounds.y, _bounds.width, 
                     _bounds.height, !_pressed);
-                _label.render(gfx, _bounds.x + (_pressed ? PADDING : PADDING - 1),
-                    _bounds.y + (_pressed ? PADDING : PADDING - 1));
+                _label.render(gfx, _bounds.x + (_pressed ? PADDING :
+                    PADDING - 1), _bounds.y + (_pressed ? PADDING :
+                    PADDING - 1));
                 break;
             case ROUNDED:
                 Object aaState = SwingUtil.activateAntiAliasing(gfx);
                 // draw outline
                 gfx.setColor(_alternateColor);
-                gfx.fillRoundRect(_bounds.x, _bounds.y, _bounds.width, _bounds.height, 
-                    _arcWidth, _arcHeight);
+                gfx.fillRoundRect(_bounds.x, _bounds.y, _bounds.width,
+                    _bounds.height, _arcWidth, _arcHeight);
                 // draw foreground
-                gfx.setColor(_enabled ? _backgroundColor : _backgroundColor.darker());
+                gfx.setColor(_enabled ? _backgroundColor :
+                    _backgroundColor.darker());
                 int innerBoundsX = _bounds.x+1, innerBoundsY = _bounds.y+1, 
-                    innerBoundsWidth = _bounds.width-2, innerBoundsHeight = _bounds.height-2,
-                    innerBoundsArcWidth = _arcWidth-2, innerBoundsArcHeight = _arcHeight-2;
-                gfx.fillRoundRect(innerBoundsX, innerBoundsY, innerBoundsWidth, innerBoundsHeight,
+                    innerBoundsWidth = _bounds.width-2,
+                    innerBoundsHeight = _bounds.height-2,
+                    innerBoundsArcWidth = _arcWidth-2,
+                    innerBoundsArcHeight = _arcHeight-2;
+                gfx.fillRoundRect(innerBoundsX, innerBoundsY,
+                    innerBoundsWidth, innerBoundsHeight,
                     innerBoundsArcWidth, innerBoundsArcHeight);
-                Color brighter = _enabled ? _backgroundColor.brighter() : _backgroundColor,
-                    darker = _enabled ? _backgroundColor.darker() : _backgroundColor.darker().darker();
+                Color brighter = _enabled ? _backgroundColor.brighter() :
+                    _backgroundColor, darker = _enabled ?
+                        _backgroundColor.darker() :
+                        _backgroundColor.darker().darker();
                 // draw the upper left/lower right corners (always dark)
                 gfx.setColor(darker);
-                gfx.drawArc(innerBoundsX, innerBoundsY, innerBoundsArcWidth, innerBoundsArcHeight, 90, 90);
-                gfx.drawArc(innerBoundsX + innerBoundsWidth - innerBoundsArcWidth - 1,
-                    innerBoundsY + innerBoundsHeight - innerBoundsArcHeight - 1,
+                gfx.drawArc(innerBoundsX, innerBoundsY, innerBoundsArcWidth,
+                    innerBoundsArcHeight, 90, 90);
+                gfx.drawArc(innerBoundsX + innerBoundsWidth -
+                    innerBoundsArcWidth - 1,
+                    innerBoundsY + innerBoundsHeight -
+                    innerBoundsArcHeight - 1,
                     innerBoundsArcWidth, innerBoundsArcHeight, 270, 90);
                 // draw the upper right (dark when pressed)
                 gfx.setColor(_pressed ? darker : brighter);
-                gfx.drawLine(innerBoundsX + innerBoundsArcWidth/2, innerBoundsY, 
-                    innerBoundsX + innerBoundsWidth - innerBoundsArcWidth/2, innerBoundsY);
-                gfx.drawArc(innerBoundsX + innerBoundsWidth - innerBoundsArcWidth - 1, innerBoundsY,
+                gfx.drawLine(innerBoundsX + innerBoundsArcWidth/2,
+                    innerBoundsY, innerBoundsX + innerBoundsWidth -
+                    innerBoundsArcWidth/2, innerBoundsY);
+                gfx.drawArc(innerBoundsX + innerBoundsWidth -
+                    innerBoundsArcWidth - 1, innerBoundsY,
                     innerBoundsArcWidth, innerBoundsArcHeight, 0, 90);
-                gfx.drawLine(innerBoundsX + innerBoundsWidth - 1, innerBoundsY + innerBoundsArcHeight/2,
-                    innerBoundsX + innerBoundsWidth - 1, innerBoundsY + innerBoundsHeight - innerBoundsArcHeight/2);
+                gfx.drawLine(innerBoundsX + innerBoundsWidth - 1,
+                    innerBoundsY + innerBoundsArcHeight/2,
+                    innerBoundsX + innerBoundsWidth - 1, innerBoundsY + 
+                    innerBoundsHeight - innerBoundsArcHeight/2);
                 // draw the lower left (light when pressed)
                 gfx.setColor(_pressed ? brighter : darker);
-                gfx.drawLine(innerBoundsX, innerBoundsY + innerBoundsArcHeight/2, innerBoundsX,
-                    innerBoundsY + innerBoundsHeight - innerBoundsArcHeight/2);
-                gfx.drawArc(innerBoundsX, innerBoundsY + innerBoundsHeight - innerBoundsArcHeight - 1,
+                gfx.drawLine(innerBoundsX, innerBoundsY +
+                    innerBoundsArcHeight/2, innerBoundsX,
+                    innerBoundsY + innerBoundsHeight - 
+                    innerBoundsArcHeight/2);
+                gfx.drawArc(innerBoundsX, innerBoundsY + innerBoundsHeight -
+                    innerBoundsArcHeight - 1,
                     innerBoundsArcWidth, innerBoundsArcHeight, 180, 90);
-                gfx.drawLine(innerBoundsX + innerBoundsArcWidth/2, innerBoundsY + innerBoundsHeight - 1, 
+                gfx.drawLine(innerBoundsX + innerBoundsArcWidth/2,
+                    innerBoundsY + innerBoundsHeight - 1, 
                     innerBoundsX + innerBoundsWidth - innerBoundsArcWidth/2, 
                     innerBoundsY + innerBoundsHeight - 1);
                 SwingUtil.restoreAntiAliasing(gfx, aaState);
-                _label.render(gfx, _bounds.x + PADDING + _arcWidth/2 - (_pressed ? 2 : 1), 
+                _label.render(gfx, _bounds.x + PADDING + _arcWidth/2 - 
+                    (_pressed ? 2 : 1), 
                     _bounds.y + PADDING + (_pressed ? 1 : 0));
                 break;
         }

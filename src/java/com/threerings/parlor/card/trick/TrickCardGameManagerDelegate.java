@@ -1,5 +1,5 @@
 //
-// $Id: TrickCardGameManagerDelegate.java,v 1.4 2004/10/15 18:20:28 andrzej Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -48,7 +48,8 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     // Documentation inherited.
     public void setFirstTurnHolder ()
     {
-        if (_trickCardGame.getPlayingHand() && _trickCardGame.getPlayingTrick()) {
+        if (_trickCardGame.getPlayingHand() &&
+            _trickCardGame.getPlayingTrick()) {
             super.setFirstTurnHolder();
         }
         else {
@@ -59,7 +60,8 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     // Documentation inherited.
     public void setNextTurnHolder ()
     {
-        if (_trickCardGame.getPlayingHand() && _trickCardGame.getPlayingTrick()) {
+        if (_trickCardGame.getPlayingHand() &&
+            _trickCardGame.getPlayingTrick()) {
             super.setNextTurnHolder();
         }
         else {

@@ -1,5 +1,5 @@
 //
-// $Id: TrickCardGameControllerDelegate.java,v 1.4 2004/10/15 18:20:28 andrzej Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -29,14 +29,16 @@ import com.threerings.presents.dobj.AttributeChangedEvent;
  * A card game controller delegate for trick-based card games, such as
  * Spades and Hearts.
  */
-public class TrickCardGameControllerDelegate extends TurnGameControllerDelegate
+public class TrickCardGameControllerDelegate
+    extends TurnGameControllerDelegate
 {
     /**
      * Constructor.
      *
      * @param controller the game controller
      */
-    public TrickCardGameControllerDelegate (TrickCardGameController controller)
+    public TrickCardGameControllerDelegate (TrickCardGameController
+        controller)
     {
         super(controller);
         

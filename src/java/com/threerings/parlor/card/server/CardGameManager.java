@@ -1,5 +1,5 @@
 //
-// $Id: CardGameManager.java,v 1.5 2004/10/15 18:20:28 andrzej Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -32,8 +32,8 @@ import com.threerings.parlor.game.GameManager;
 import com.threerings.presents.dobj.MessageEvent;
 
 /**
- * A manager class for card games.  Handles common functions like dealing hands
- * of cards to all players.
+ * A manager class for card games.  Handles common functions like dealing
+ * hands of cards to all players.
  */
 public class CardGameManager extends GameManager
                              implements CardCodes
