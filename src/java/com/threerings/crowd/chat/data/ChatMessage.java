@@ -1,5 +1,5 @@
 //
-// $Id: ChatMessage.java,v 1.2 2003/01/21 01:08:10 mdb Exp $
+// $Id: ChatMessage.java,v 1.3 2003/03/30 02:52:53 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -35,7 +35,7 @@ public abstract class ChatMessage
      */
     public String toString ()
     {
-        return StringUtil.shortClassName(this) + "[msg=" + message +
-            ", type=" + localtype + ", stamp=" + timestamp + "]";
+        return StringUtil.shortClassName(this) +
+            StringUtil.fieldsToString(this);
     }
 }
