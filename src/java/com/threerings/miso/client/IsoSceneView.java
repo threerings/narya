@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.61 2001/10/17 22:21:22 shaper Exp $
+// $Id: IsoSceneView.java,v 1.62 2001/10/17 23:39:06 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -532,9 +532,13 @@ public class IsoSceneView implements SceneView
 	_numDirty++;
 	_dirty[x][y] = true;
 
-        // and add the dirty rectangles of any sprites that we've just
+        // add the dirty rectangles of any sprites that we've just
         // inadvertently touched by dirtying this tile
         invalidateIntersectingSprites(rects, _polys[x][y]);
+
+        // similarly, add any objects that we've just touched to the
+        // dirty item list
+        invalidateIntersectingObjects(rects, _polys[x][y]);
     }
 
     /**
@@ -580,11 +584,11 @@ public class IsoSceneView implements SceneView
 
     /**
      * Adds dirty rectangles to the dirty rectangle list for any
-     * sprites in the scene whose bounds overlap with the given
-     * polygon.
+     * sprites in the scene whose bounding rectangle overlaps with the
+     * given shape.
      */
     protected void invalidateIntersectingSprites (
-        DirtyRectList rects, Polygon bounds)
+        DirtyRectList rects, Shape bounds)
     {
         _dirtySprites.clear();
         _spritemgr.getIntersectingSprites(_dirtySprites, bounds);
@@ -593,7 +597,30 @@ public class IsoSceneView implements SceneView
         for (int ii = 0; ii < size; ii++) {
             Sprite sprite = (Sprite)_dirtySprites.get(ii);
             if (rects.appendDirtyRect(sprite.getRenderedBounds())) {
-                Log.info("Expanded for: " + sprite);
+                // Log.info("Expanded for: " + sprite);
+            }
+        }
+    }
+
+    /**
+     * Adds dirty rectangles to the dirty rectangle list for any
+     * objects in the scene whose bounding rectangle overlaps with the
+     * given shape's bounding rectangle.
+     */
+    protected void invalidateIntersectingObjects (
+        DirtyRectList rects, Shape bounds)
+    {
+        ObjectTile tiles[][] = _scene.getObjectLayer();
+        Iterator iter = _objpolys.keys();
+        while (iter.hasNext()) {
+            // get the object's coordinates and bounding polygon
+            int coord = ((Integer)iter.next()).intValue();
+            Polygon poly = (Polygon)_objpolys.get(coord);
+
+            if (poly.intersects(bounds.getBounds())) {
+                if (rects.appendDirtyRect(poly.getBounds())) {
+                    // Log.info("Expanded for: " + poly.getBounds());
+                }
             }
         }
     }
