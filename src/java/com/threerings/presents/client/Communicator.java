@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.18 2002/05/15 23:54:34 mdb Exp $
+// $Id: Communicator.java,v 1.19 2002/05/27 01:37:07 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -200,7 +200,9 @@ public class Communicator
         _reader = null;
 
         // let the client know when we finally go away
-        _client.communicatorDidExit();
+        if (_writer == null) {
+            _client.communicatorDidExit();
+        }
 
         Log.debug("Reader thread exited.");
     }
@@ -226,6 +228,11 @@ public class Communicator
 
         // let the client observers know that we're logged off
         _client.notifyObservers(Client.CLIENT_DID_LOGOFF, null);
+
+        // let the client know when we finally go away
+        if (_reader == null) {
+            _client.communicatorDidExit();
+        }
     }
 
     /**
