@@ -114,34 +114,8 @@ public class ParlorMarshaller extends InvocationMarshaller
         });
     }
 
-    /** The method id used to dispatch {@link #invite} requests. */
-    public static final int INVITE = 2;
-
-    // documentation inherited from interface
-    public void invite (Client arg1, Name arg2, GameConfig arg3, ParlorService.InviteListener arg4)
-    {
-        ParlorMarshaller.InviteMarshaller listener4 = new ParlorMarshaller.InviteMarshaller();
-        listener4.listener = arg4;
-        sendRequest(arg1, INVITE, new Object[] {
-            arg2, arg3, listener4
-        });
-    }
-
-    /** The method id used to dispatch {@link #respond} requests. */
-    public static final int RESPOND = 3;
-
-    // documentation inherited from interface
-    public void respond (Client arg1, int arg2, int arg3, Object arg4, InvocationService.InvocationListener arg5)
-    {
-        ListenerMarshaller listener5 = new ListenerMarshaller();
-        listener5.listener = arg5;
-        sendRequest(arg1, RESPOND, new Object[] {
-            new Integer(arg2), new Integer(arg3), arg4, listener5
-        });
-    }
-
     /** The method id used to dispatch {@link #createTable} requests. */
-    public static final int CREATE_TABLE = 4;
+    public static final int CREATE_TABLE = 2;
 
     // documentation inherited from interface
     public void createTable (Client arg1, int arg2, GameConfig arg3, ParlorService.TableListener arg4)
@@ -153,8 +127,21 @@ public class ParlorMarshaller extends InvocationMarshaller
         });
     }
 
+    /** The method id used to dispatch {@link #invite} requests. */
+    public static final int INVITE = 3;
+
+    // documentation inherited from interface
+    public void invite (Client arg1, Name arg2, GameConfig arg3, ParlorService.InviteListener arg4)
+    {
+        ParlorMarshaller.InviteMarshaller listener4 = new ParlorMarshaller.InviteMarshaller();
+        listener4.listener = arg4;
+        sendRequest(arg1, INVITE, new Object[] {
+            arg2, arg3, listener4
+        });
+    }
+
     /** The method id used to dispatch {@link #joinTable} requests. */
-    public static final int JOIN_TABLE = 5;
+    public static final int JOIN_TABLE = 4;
 
     // documentation inherited from interface
     public void joinTable (Client arg1, int arg2, int arg3, int arg4, InvocationService.InvocationListener arg5)
@@ -167,7 +154,7 @@ public class ParlorMarshaller extends InvocationMarshaller
     }
 
     /** The method id used to dispatch {@link #leaveTable} requests. */
-    public static final int LEAVE_TABLE = 6;
+    public static final int LEAVE_TABLE = 5;
 
     // documentation inherited from interface
     public void leaveTable (Client arg1, int arg2, int arg3, InvocationService.InvocationListener arg4)
@@ -176,6 +163,19 @@ public class ParlorMarshaller extends InvocationMarshaller
         listener4.listener = arg4;
         sendRequest(arg1, LEAVE_TABLE, new Object[] {
             new Integer(arg2), new Integer(arg3), listener4
+        });
+    }
+
+    /** The method id used to dispatch {@link #respond} requests. */
+    public static final int RESPOND = 6;
+
+    // documentation inherited from interface
+    public void respond (Client arg1, int arg2, int arg3, Object arg4, InvocationService.InvocationListener arg5)
+    {
+        ListenerMarshaller listener5 = new ListenerMarshaller();
+        listener5.listener = arg5;
+        sendRequest(arg1, RESPOND, new Object[] {
+            new Integer(arg2), new Integer(arg3), arg4, listener5
         });
     }
 

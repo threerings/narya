@@ -69,16 +69,14 @@ public class ChatMarshaller extends InvocationMarshaller
         }
     }
 
-    /** The method id used to dispatch {@link #tell} requests. */
-    public static final int TELL = 1;
+    /** The method id used to dispatch {@link #away} requests. */
+    public static final int AWAY = 1;
 
     // documentation inherited from interface
-    public void tell (Client arg1, Name arg2, String arg3, ChatService.TellListener arg4)
+    public void away (Client arg1, String arg2)
     {
-        ChatMarshaller.TellMarshaller listener4 = new ChatMarshaller.TellMarshaller();
-        listener4.listener = arg4;
-        sendRequest(arg1, TELL, new Object[] {
-            arg2, arg3, listener4
+        sendRequest(arg1, AWAY, new Object[] {
+            arg2
         });
     }
 
@@ -95,14 +93,16 @@ public class ChatMarshaller extends InvocationMarshaller
         });
     }
 
-    /** The method id used to dispatch {@link #away} requests. */
-    public static final int AWAY = 3;
+    /** The method id used to dispatch {@link #tell} requests. */
+    public static final int TELL = 3;
 
     // documentation inherited from interface
-    public void away (Client arg1, String arg2)
+    public void tell (Client arg1, Name arg2, String arg3, ChatService.TellListener arg4)
     {
-        sendRequest(arg1, AWAY, new Object[] {
-            arg2
+        ChatMarshaller.TellMarshaller listener4 = new ChatMarshaller.TellMarshaller();
+        listener4.listener = arg4;
+        sendRequest(arg1, TELL, new Object[] {
+            arg2, arg3, listener4
         });
     }
 

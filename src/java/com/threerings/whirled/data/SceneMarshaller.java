@@ -55,27 +55,27 @@ public class SceneMarshaller extends InvocationMarshaller
                                new Object[] { new Integer(arg1), arg2 }));
         }
 
-        /** The method id used to dispatch {@link #moveSucceededWithUpdates}
-         * responses. */
-        public static final int MOVE_SUCCEEDED_WITH_UPDATES = 2;
-
-        // documentation inherited from interface
-        public void moveSucceededWithUpdates (int arg1, PlaceConfig arg2, SceneUpdate[] arg3)
-        {
-            omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, MOVE_SUCCEEDED_WITH_UPDATES,
-                               new Object[] { new Integer(arg1), arg2, arg3 }));
-        }
-
         /** The method id used to dispatch {@link #moveSucceededWithScene}
          * responses. */
-        public static final int MOVE_SUCCEEDED_WITH_SCENE = 3;
+        public static final int MOVE_SUCCEEDED_WITH_SCENE = 2;
 
         // documentation inherited from interface
         public void moveSucceededWithScene (int arg1, PlaceConfig arg2, SceneModel arg3)
         {
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, MOVE_SUCCEEDED_WITH_SCENE,
+                               new Object[] { new Integer(arg1), arg2, arg3 }));
+        }
+
+        /** The method id used to dispatch {@link #moveSucceededWithUpdates}
+         * responses. */
+        public static final int MOVE_SUCCEEDED_WITH_UPDATES = 3;
+
+        // documentation inherited from interface
+        public void moveSucceededWithUpdates (int arg1, PlaceConfig arg2, SceneUpdate[] arg3)
+        {
+            omgr.postEvent(new InvocationResponseEvent(
+                               callerOid, requestId, MOVE_SUCCEEDED_WITH_UPDATES,
                                new Object[] { new Integer(arg1), arg2, arg3 }));
         }
 
@@ -88,14 +88,14 @@ public class SceneMarshaller extends InvocationMarshaller
                     ((Integer)args[0]).intValue(), (PlaceConfig)args[1]);
                 return;
 
-            case MOVE_SUCCEEDED_WITH_UPDATES:
-                ((SceneMoveListener)listener).moveSucceededWithUpdates(
-                    ((Integer)args[0]).intValue(), (PlaceConfig)args[1], (SceneUpdate[])args[2]);
-                return;
-
             case MOVE_SUCCEEDED_WITH_SCENE:
                 ((SceneMoveListener)listener).moveSucceededWithScene(
                     ((Integer)args[0]).intValue(), (PlaceConfig)args[1], (SceneModel)args[2]);
+                return;
+
+            case MOVE_SUCCEEDED_WITH_UPDATES:
+                ((SceneMoveListener)listener).moveSucceededWithUpdates(
+                    ((Integer)args[0]).intValue(), (PlaceConfig)args[1], (SceneUpdate[])args[2]);
                 return;
 
             default:

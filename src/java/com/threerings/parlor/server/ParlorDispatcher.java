@@ -65,24 +65,17 @@ public class ParlorDispatcher extends InvocationDispatcher
             );
             return;
 
-        case ParlorMarshaller.INVITE:
-            ((ParlorProvider)provider).invite(
-                source,
-                (Name)args[0], (GameConfig)args[1], (ParlorService.InviteListener)args[2]
-            );
-            return;
-
-        case ParlorMarshaller.RESPOND:
-            ((ParlorProvider)provider).respond(
-                source,
-                ((Integer)args[0]).intValue(), ((Integer)args[1]).intValue(), (Object)args[2], (InvocationService.InvocationListener)args[3]
-            );
-            return;
-
         case ParlorMarshaller.CREATE_TABLE:
             ((ParlorProvider)provider).createTable(
                 source,
                 ((Integer)args[0]).intValue(), (GameConfig)args[1], (ParlorService.TableListener)args[2]
+            );
+            return;
+
+        case ParlorMarshaller.INVITE:
+            ((ParlorProvider)provider).invite(
+                source,
+                (Name)args[0], (GameConfig)args[1], (ParlorService.InviteListener)args[2]
             );
             return;
 
@@ -97,6 +90,13 @@ public class ParlorDispatcher extends InvocationDispatcher
             ((ParlorProvider)provider).leaveTable(
                 source,
                 ((Integer)args[0]).intValue(), ((Integer)args[1]).intValue(), (InvocationService.InvocationListener)args[2]
+            );
+            return;
+
+        case ParlorMarshaller.RESPOND:
+            ((ParlorProvider)provider).respond(
+                source,
+                ((Integer)args[0]).intValue(), ((Integer)args[1]).intValue(), (Object)args[2], (InvocationService.InvocationListener)args[3]
             );
             return;
 

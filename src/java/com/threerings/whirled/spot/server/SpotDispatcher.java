@@ -59,17 +59,17 @@ public class SpotDispatcher extends InvocationDispatcher
         throws InvocationException
     {
         switch (methodId) {
-        case SpotMarshaller.TRAVERSE_PORTAL:
-            ((SpotProvider)provider).traversePortal(
-                source,
-                ((Integer)args[0]).intValue(), ((Integer)args[1]).intValue(), (SceneService.SceneMoveListener)args[2]
-            );
-            return;
-
         case SpotMarshaller.CHANGE_LOCATION:
             ((SpotProvider)provider).changeLocation(
                 source,
                 ((Integer)args[0]).intValue(), (Location)args[1], (InvocationService.ConfirmListener)args[2]
+            );
+            return;
+
+        case SpotMarshaller.CLUSTER_SPEAK:
+            ((SpotProvider)provider).clusterSpeak(
+                source,
+                (String)args[0], ((Byte)args[1]).byteValue()
             );
             return;
 
@@ -80,10 +80,10 @@ public class SpotDispatcher extends InvocationDispatcher
             );
             return;
 
-        case SpotMarshaller.CLUSTER_SPEAK:
-            ((SpotProvider)provider).clusterSpeak(
+        case SpotMarshaller.TRAVERSE_PORTAL:
+            ((SpotProvider)provider).traversePortal(
                 source,
-                (String)args[0], ((Byte)args[1]).byteValue()
+                ((Integer)args[0]).intValue(), ((Integer)args[1]).intValue(), (SceneService.SceneMoveListener)args[2]
             );
             return;
 

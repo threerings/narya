@@ -57,10 +57,10 @@ public class ChatDispatcher extends InvocationDispatcher
         throws InvocationException
     {
         switch (methodId) {
-        case ChatMarshaller.TELL:
-            ((ChatProvider)provider).tell(
+        case ChatMarshaller.AWAY:
+            ((ChatProvider)provider).away(
                 source,
-                (Name)args[0], (String)args[1], (ChatService.TellListener)args[2]
+                (String)args[0]
             );
             return;
 
@@ -71,10 +71,10 @@ public class ChatDispatcher extends InvocationDispatcher
             );
             return;
 
-        case ChatMarshaller.AWAY:
-            ((ChatProvider)provider).away(
+        case ChatMarshaller.TELL:
+            ((ChatProvider)provider).tell(
                 source,
-                (String)args[0]
+                (Name)args[0], (String)args[1], (ChatService.TellListener)args[2]
             );
             return;
 

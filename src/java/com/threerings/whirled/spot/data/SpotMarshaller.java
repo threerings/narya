@@ -40,21 +40,8 @@ import com.threerings.whirled.spot.data.Location;
 public class SpotMarshaller extends InvocationMarshaller
     implements SpotService
 {
-    /** The method id used to dispatch {@link #traversePortal} requests. */
-    public static final int TRAVERSE_PORTAL = 1;
-
-    // documentation inherited from interface
-    public void traversePortal (Client arg1, int arg2, int arg3, SceneService.SceneMoveListener arg4)
-    {
-        SceneMarshaller.SceneMoveMarshaller listener4 = new SceneMarshaller.SceneMoveMarshaller();
-        listener4.listener = arg4;
-        sendRequest(arg1, TRAVERSE_PORTAL, new Object[] {
-            new Integer(arg2), new Integer(arg3), listener4
-        });
-    }
-
     /** The method id used to dispatch {@link #changeLocation} requests. */
-    public static final int CHANGE_LOCATION = 2;
+    public static final int CHANGE_LOCATION = 1;
 
     // documentation inherited from interface
     public void changeLocation (Client arg1, int arg2, Location arg3, InvocationService.ConfirmListener arg4)
@@ -63,6 +50,17 @@ public class SpotMarshaller extends InvocationMarshaller
         listener4.listener = arg4;
         sendRequest(arg1, CHANGE_LOCATION, new Object[] {
             new Integer(arg2), arg3, listener4
+        });
+    }
+
+    /** The method id used to dispatch {@link #clusterSpeak} requests. */
+    public static final int CLUSTER_SPEAK = 2;
+
+    // documentation inherited from interface
+    public void clusterSpeak (Client arg1, String arg2, byte arg3)
+    {
+        sendRequest(arg1, CLUSTER_SPEAK, new Object[] {
+            arg2, new Byte(arg3)
         });
     }
 
@@ -79,14 +77,16 @@ public class SpotMarshaller extends InvocationMarshaller
         });
     }
 
-    /** The method id used to dispatch {@link #clusterSpeak} requests. */
-    public static final int CLUSTER_SPEAK = 4;
+    /** The method id used to dispatch {@link #traversePortal} requests. */
+    public static final int TRAVERSE_PORTAL = 4;
 
     // documentation inherited from interface
-    public void clusterSpeak (Client arg1, String arg2, byte arg3)
+    public void traversePortal (Client arg1, int arg2, int arg3, SceneService.SceneMoveListener arg4)
     {
-        sendRequest(arg1, CLUSTER_SPEAK, new Object[] {
-            arg2, new Byte(arg3)
+        SceneMarshaller.SceneMoveMarshaller listener4 = new SceneMarshaller.SceneMoveMarshaller();
+        listener4.listener = arg4;
+        sendRequest(arg1, TRAVERSE_PORTAL, new Object[] {
+            new Integer(arg2), new Integer(arg3), listener4
         });
     }
 
