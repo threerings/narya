@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleCodes.java,v 1.5 2004/10/21 19:49:22 eric Exp $
+// $Id: PuzzleCodes.java,v 1.6 2004/10/28 19:20:27 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,7 +22,6 @@
 package com.threerings.puzzle.data;
 
 import com.threerings.presents.data.InvocationCodes;
-import com.threerings.util.MessageBundle;
 
 /**
  * Constants relating to the puzzle services.
@@ -45,10 +44,6 @@ public interface PuzzleCodes extends InvocationCodes
     /** The name of the message event to a placeObject that reports
      * the winners and losers of a game. */
     public static final String WINNERS_AND_LOSERS = "winnersAndLosers";
-
-    /** Enable this flag to have the client send a copy of its board state
-     * with every event to the server for checking. */
-    public static final boolean SYNC_BOARD_STATE = false;
 
     /** Whether to enable debug logging and assertions for puzzles. Note
      * that enabling this may result in the server or client exiting

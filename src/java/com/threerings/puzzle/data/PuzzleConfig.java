@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleConfig.java,v 1.4 2004/10/22 18:11:09 andrzej Exp $
+// $Id: PuzzleConfig.java,v 1.5 2004/10/28 19:20:27 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -41,16 +41,6 @@ public abstract class PuzzleConfig extends GameConfig
     {
     }
 
-    /**
-     * If this method returns true, a copy of the client board will be
-     * sent with every puzzle event so that the server can compare them
-     * step-by-step to debug out of sync problems.
-     */
-    public boolean syncBoardState ()
-    {
-        return PuzzleCodes.SYNC_BOARD_STATE;
-    }
-    
     /**
      * Returns the message bundle identifier for the bundle that should be
      * used to translate the translatable strings used to describe the
