@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.34 2003/03/27 00:10:08 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.35 2003/03/27 16:04:26 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -185,7 +185,7 @@ public class SpotSceneManager extends SceneManager
 
         // let our derived classes decide if this is an OK place to stand
         if (!validateLocation(source, loc)) {
-            throw new InvocationException(INTERNAL_ERROR);
+            throw new InvocationException(INVALID_LOCATION);
         }
 
         // update the user's location information in the scene which will
