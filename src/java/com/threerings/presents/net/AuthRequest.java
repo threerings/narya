@@ -1,5 +1,5 @@
 //
-// $Id: AuthRequest.java,v 1.8 2002/07/23 05:52:48 mdb Exp $
+// $Id: AuthRequest.java,v 1.9 2002/10/31 18:44:34 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -19,16 +19,30 @@ public class AuthRequest extends UpstreamMessage
     }
 
     /**
-     * Constructs a auth request with the supplied credentials.
+     * Constructs a auth request with the supplied credentials and client
+     * version information.
      */
-    public AuthRequest (Credentials creds)
+    public AuthRequest (Credentials creds, String version)
     {
         _creds = creds;
+        _version = version;
     }
 
+    /**
+     * Returns a reference to the credentials provided with this request.
+     */
     public Credentials getCredentials ()
     {
         return _creds;
+    }
+
+    /**
+     * Returns a reference to the version information provided with this
+     * request.
+     */
+    public String getVersion ()
+    {
+        return _version;
     }
 
     /**
@@ -39,6 +53,7 @@ public class AuthRequest extends UpstreamMessage
     {
         super.writeObject(out);
         out.writeObject(_creds);
+        out.writeUTF(_version);
     }
 
     /**
@@ -49,15 +64,21 @@ public class AuthRequest extends UpstreamMessage
     {
         super.readObject(in);
         _creds = (Credentials)in.readObject();
-    }
-
-    public String toString ()
-    {
-        return "[type=AREQ, msgid=" + messageId + ", creds=" + _creds + "]";
+        _version = in.readUTF();
     }
 
     /**
-     * The credentials associated with this auth request.
+     * Generates a string representation of this instance.
      */
+    public String toString ()
+    {
+        return "[type=AREQ, msgid=" + messageId + ", creds=" + _creds +
+            ", version=" + _version + "]";
+    }
+
+    /** The credentials associated with this auth request. */
     protected Credentials _creds;
+
+    /** The version information associated with the client code. */
+    protected String _version;
 }

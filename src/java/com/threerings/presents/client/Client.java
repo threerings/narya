@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.33 2002/10/29 23:51:26 mdb Exp $
+// $Id: Client.java,v 1.34 2002/10/31 18:44:34 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -153,6 +153,24 @@ public class Client
     public void setCredentials (Credentials creds)
     {
         _creds = creds;
+    }
+
+    /**
+     * Returns the version string configured for this client.
+     */
+    public String getVersion ()
+    {
+        return _version;
+    }
+
+    /**
+     * Sets the version string reported to the server during
+     * authentication. Some server implementations may wish to refuse
+     * connections by old or invalid client versions.
+     */
+    public void setVersion (String version)
+    {
+        _version = version;
     }
 
     /**
@@ -544,6 +562,9 @@ public class Client
 
     /** The credentials we used to authenticate with the server. */
     protected Credentials _creds;
+
+    /** The version string reported to the server at auth time. */
+    protected String _version = "";
 
     /** An entity that gives us the ability to process events on the main
      * client thread (which is also the AWT thread). */

@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.23 2002/10/30 18:46:33 mdb Exp $
+// $Id: Communicator.java,v 1.24 2002/10/31 18:44:34 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -401,7 +401,8 @@ public class Communicator
             throws IOException, LogonException
         {
             // construct an auth request and send it
-            AuthRequest req = new AuthRequest(_client.getCredentials());
+            AuthRequest req = new AuthRequest(_client.getCredentials(),
+                                              _client.getVersion());
             sendMessage(req);
 
             // now wait for the auth response
