@@ -1,5 +1,5 @@
 //
-// $Id: ParlorManager.java,v 1.15 2001/10/23 23:47:02 mdb Exp $
+// $Id: ParlorManager.java,v 1.16 2002/02/20 02:10:02 shaper Exp $
 
 package com.threerings.parlor.server;
 
@@ -208,7 +208,7 @@ public class ParlorManager
      */
     protected static class Invitation
     {
-        /** The unique identifier for this inviation. */
+        /** The unique identifier for this invitation. */
         public int inviteId = _nextInviteId++;
 
         /** The person proposing the invitation. */
