@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.30 2001/10/12 00:29:06 mdb Exp $
+// $Id: DObject.java,v 1.31 2001/10/12 20:12:48 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -345,6 +345,35 @@ public class DObject
         throws ObjectAccessException
     {
         try {
+            // for values that contain other values (arrays and DSets), we
+            // need to clone them before putting them in the object
+            // because otherwise a subsequent event might come along and
+            // modify these values before the networking thread has had a
+            // chance to propagate this event to the clients
+
+            // i wish i could just call value.clone() but Object declares
+            // clone() to be inaccessible, so we must cast the values to
+            // their actual types to gain access to the widened clone()
+            // methods
+            if (value instanceof DSet) {
+                value = ((DSet)value).clone();
+            } else if (value instanceof int[]) {
+                value = ((int[])value).clone();
+            } else if (value instanceof String[]) {
+                value = ((String[])value).clone();
+            } else if (value instanceof byte[]) {
+                value = ((byte[])value).clone();
+            } else if (value instanceof long[]) {
+                value = ((long[])value).clone();
+            } else if (value instanceof float[]) {
+                value = ((float[])value).clone();
+            } else if (value instanceof short[]) {
+                value = ((short[])value).clone();
+            } else if (value instanceof double[]) {
+                value = ((double[])value).clone();
+            }
+
+            // now actually set the value
             getClass().getField(name).set(this, value);
 
         } catch (Exception e) {
