@@ -1,5 +1,5 @@
 //
-// $Id: RandomUtil.java,v 1.3 2002/01/15 18:05:01 shaper Exp $
+// $Id: RandomUtil.java,v 1.4 2002/04/15 17:13:38 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -12,27 +12,28 @@ import java.util.Random;
  */
 public class RandomUtil
 {
+    /** The random number generator used by the methods in this class. */
+    public static final Random rand = new Random();
+
     /**
      * Returns a pseudorandom, uniformly distributed <code>int</code>
-     * value between 0 (inclusive) and the specified value
-     * (exclusive).
+     * value between 0 (inclusive) and the specified value (exclusive).
      *
      * @param high the high value limiting the random number sought.
      */
     public static int getInt (int high)
     {
-	return _rnd.nextInt(high);
+	return rand.nextInt(high);
     }
 
     /**
      * Returns a pseudorandom, uniformly distributed float value between
-     * 0.0 (inclusive) and the specified value (inclusive).
+     * 0.0 (inclusive) and the specified value (exclusive).
+     *
+     * @param high the high value limiting the random number sought.
      */
     public static float getFloat (float high)
     {
-        return _rnd.nextFloat() * high;
+        return rand.nextFloat() * high;
     }
-
-    /** The random object from which we choose random numbers. */
-    protected static Random _rnd = new Random();
 }
