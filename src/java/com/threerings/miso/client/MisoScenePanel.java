@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.1 2003/04/17 19:21:16 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.2 2003/04/18 18:32:24 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -64,23 +64,6 @@ public class MisoScenePanel extends VirtualMediaPanel
     implements MouseListener, MouseMotionListener, AStarPathUtil.TraversalPred,
                RadialMenu.Host
 {
-    /** Instructs the scene view never to draw highlights around object
-     * tiles. */
-    public static final int HIGHLIGHT_NEVER = 0;
-
-    /** Instructs the scene view to highlight only object tiles that have
-     * a non-empty action string. */
-    public static final int HIGHLIGHT_WITH_ACTION = 1;
-
-    /** Instructs the scene view to highlight every object tile,
-     * regardless of whether it has a valid action string. */
-    public static final int HIGHLIGHT_ALWAYS = 2;
-
-    /** Instructs the scene view to highlight whatever tile the mouse is
-     * over, regardless of whether or not it is an object tile. This is
-     * generally only useful in an editor rather than a game. */
-    public static final int HIGHLIGHT_ALL = 3;
-
     /** Show flag that indicates we should show all tips. */
     public static final int SHOW_TIPS = (1 << 0);
 
@@ -104,20 +87,6 @@ public class MisoScenePanel extends VirtualMediaPanel
 
         // handy rectangle
         _tbounds = new Rectangle(0, 0, _metrics.tilewid, _metrics.tilehei);
-    }
-
-    /**
-     * Configures the scene view to highlight object tiles either never
-     * ({@link #HIGHLIGHT_NEVER}), only when an object tile has an
-     * associated action string ({@link #HIGHLIGHT_WITH_ACTION}), or
-     * always ({@link #HIGHLIGHT_ALWAYS}). It is also possible to
-     * configure the view to highlight whatever tile is under the cursor,
-     * even if it's not an object tile which is done in the {@link
-     * #HIGHLIGHT_ALL} mode.
-     */
-    public void setHighlightMode (int hmode)
-    {
-        _hmode = hmode;
     }
 
     /**
@@ -271,23 +240,6 @@ public class MisoScenePanel extends VirtualMediaPanel
         }
     }
 
-//     // documentation inherited from interface
-//     public void setBaseTile (int fqTileId, int x, int y)
-//     {
-//         _model.setBaseTile(x, y, fqTileId);
-//         populateBaseTile(fqTileId, x, y);
-
-//         // setting a base tile has the side-effect of clearing out the
-//         // surrounding fringe tiles.
-//         for (int xx=Math.max(x - 1, 0),
-//                  xn=Math.min(x + 1, _model.width - 1); xx <= xn; xx++) {
-//             for (int yy=Math.max(y - 1, 0),
-//                      yn=Math.min(y + 1, _model.height - 1); yy <= yn; yy++) {
-//                 _fringe[yy * _model.width + xx] = null;
-//             }
-//         }
-//     }
-
     // documentation inherited from interface
     public void mouseClicked (MouseEvent e)
     {
@@ -430,14 +382,9 @@ public class MisoScenePanel extends VirtualMediaPanel
     public void mouseMoved (MouseEvent e)
     {
         int x = e.getX(), y = e.getY();
-        boolean repaint = false;
 
         // update the mouse's tile coordinates
-        boolean newtile = updateTileCoords(x, y, _hcoords);
-        // if we're highlighting base tiles, we may need to repaint
-        if (_hmode == HIGHLIGHT_ALL) {
-            repaint = (newtile || repaint);
-        }
+        updateTileCoords(x, y, _hcoords);
 
         // stop now if we're not responsive
         if (!isResponsive()) {
@@ -471,6 +418,10 @@ public class MisoScenePanel extends VirtualMediaPanel
                 DirtyItem item = (DirtyItem)_hitList.get(icount-1);
                 hobject = item.obj;
             }
+
+            // clear out the hitlists
+            _hitList.clear();
+            _hitSprites.clear();
         }
 
         // if the user isn't hovering over a sprite or object with an
@@ -479,15 +430,7 @@ public class MisoScenePanel extends VirtualMediaPanel
             hobject = computeUnderHover(x, y);
         }
 
-        repaint |= changeHoverObject(hobject);
-
-        // clear out the hitlists
-        _hitList.clear();
-        _hitSprites.clear();
-
-        if (repaint) {
-            repaint();
-        }
+        changeHoverObject(hobject);
     }
 
     /**
@@ -555,9 +498,9 @@ public class MisoScenePanel extends VirtualMediaPanel
             repaint();
         }
 
-        Log.info("View: " + StringUtil.toString(_vbounds) +
-                 ", vsize: " + StringUtil.toString(_metrics.bounds) +
-                 ", nx: " + _nx + ", ny: " + _ny + ".");
+//         Log.info("View: " + StringUtil.toString(_vbounds) +
+//                  ", vsize: " + StringUtil.toString(_metrics.bounds) +
+//                  ", nx: " + _nx + ", ny: " + _ny + ".");
     }
 
     /**
@@ -578,7 +521,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         // if we change size, force a rethink
         if (width != _rsize.width || height != _rsize.height) {
             _rsize.setSize(width, height);
-            Log.info("Size change rethink");
+//             Log.info("Size change rethink");
             rethink();
         }
     }
@@ -607,10 +550,10 @@ public class MisoScenePanel extends VirtualMediaPanel
         // coordinate and request a rethink if they've changed
         MisoUtil.screenToTile(_metrics, nx, ny, _tcoords);
         if (!_tcoords.equals(_ulpos)) {
-            Log.info("Rethinking +" + nx + "+" + ny + " -> " +
-                     StringUtil.toString(_vbounds) + "/" +
-                     StringUtil.toString(_tcoords) + "/" +
-                     StringUtil.toString(_ulpos));
+//             Log.info("Rethinking +" + nx + "+" + ny + " -> " +
+//                      StringUtil.toString(_vbounds) + "/" +
+//                      StringUtil.toString(_tcoords) + "/" +
+//                      StringUtil.toString(_ulpos));
             _ulpos.setLocation(_tcoords);
             rethink();
         }
@@ -665,7 +608,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         for (Iterator iter = _blocks.values().iterator(); iter.hasNext(); ) {
             SceneBlock block = (SceneBlock)iter.next();
             if (!block.getFootprint().intersects(_ibounds)) {
-                Log.info("Flushing block " + block + ".");
+//                 Log.info("Flushing block " + block + ".");
                 iter.remove();
             }
         }
@@ -678,9 +621,9 @@ public class MisoScenePanel extends VirtualMediaPanel
             return;
         }
 
-        Log.info("View: " + StringUtil.toString(_vbounds) +
-                 ", vsize: " + StringUtil.toString(_metrics.bounds) +
-                 ", ibounds: " + StringUtil.toString(_ibounds) + ".");
+//         Log.info("View: " + StringUtil.toString(_vbounds) +
+//                  ", vsize: " + StringUtil.toString(_metrics.bounds) +
+//                  ", ibounds: " + StringUtil.toString(_ibounds) + ".");
 
         // compute the set of blocks that are influential and queue up any
         // that aren't already resolved to become so
@@ -703,8 +646,8 @@ public class MisoScenePanel extends VirtualMediaPanel
         itb.height = (tpos.y-itb.y);
         maxy = Math.max(0, tpos.y / _metrics.blockhei);
 
-        Log.info("Resolving blocks from " + minx + "," + miny + " to " +
-                 maxx + "," + maxy + " (" + StringUtil.toString(itb) + ").");
+//         Log.info("Resolving blocks from " + minx + "," + miny + " to " +
+//                  maxx + "," + maxy + " (" + StringUtil.toString(itb) + ").");
         for (int yy = miny; yy <= maxy; yy++) {
             for (int xx = minx; xx <= maxx; xx++) {
                 int bkey = (xx << 16) | yy;
@@ -713,7 +656,7 @@ public class MisoScenePanel extends VirtualMediaPanel
                         this, xx*_metrics.blockwid, yy*_metrics.blockhei,
                         _metrics.blockwid, _metrics.blockhei);
                     _blocks.put(bkey, block);
-                    Log.info("Created new block " + block + ".");
+//                     Log.info("Created new block " + block + ".");
                 }
             }
         }
@@ -741,7 +684,9 @@ public class MisoScenePanel extends VirtualMediaPanel
         // recompute our object tips
         computeTips();
 
-        Log.info("Computed " + _vizobjs.size() + " visible objects.");
+//         Log.info("Computed " + _vizobjs.size() + " visible objects.");
+
+        // TODO: see about not having to repaint here
         repaint();
     }
 
@@ -820,33 +765,14 @@ public class MisoScenePanel extends VirtualMediaPanel
      *
      * @return true if we need to repaint the entire scene. Bah!
      */
-    protected boolean changeHoverObject (Object newHover)
+    protected void changeHoverObject (Object newHover)
     {
         if (newHover == _hobject) {
-            return false; // no change, no repaint
+            return;
         }
-
-        // unhover the old
-        if (_hobject instanceof SceneObject) {
-            SceneObject oldhov = (SceneObject)_hobject;
-            if (oldhov.setHovered(false)) {
-                _remgr.invalidateRegion(oldhov.bounds);
-            }
-        }
-
-        hoverObjectChanged(_hobject, newHover);
-        // set the new 
+        Object oldHover = _hobject;
         _hobject = newHover;
-
-        // hover the new
-        if (_hobject instanceof SceneObject) {
-            SceneObject newhov = (SceneObject)_hobject;
-            if (newhov.setHovered(true)) {
-                _remgr.invalidateRegion(newhov.bounds);
-            }
-        }
-
-        return (_hmode != HIGHLIGHT_NEVER);
+        hoverObjectChanged(oldHover, newHover);
     }
 
     /**
@@ -855,6 +781,20 @@ public class MisoScenePanel extends VirtualMediaPanel
      */
     protected void hoverObjectChanged (Object oldHover, Object newHover)
     {
+        // deal with objects that care about being hovered over
+        if (oldHover instanceof SceneObject) {
+            SceneObject oldhov = (SceneObject)oldHover;
+            if (oldhov.setHovered(false)) {
+                _remgr.invalidateRegion(oldhov.bounds);
+            }
+        }
+        if (newHover instanceof SceneObject) {
+            SceneObject newhov = (SceneObject)newHover;
+            if (newhov.setHovered(true)) {
+                _remgr.invalidateRegion(newhov.bounds);
+            }
+        }
+
         // dirty the tips associated with the hover objects
         dirtyTip((SceneObjectTip)_tips.get(oldHover));
         dirtyTip((SceneObjectTip)_tips.get(newHover));
@@ -902,12 +842,9 @@ public class MisoScenePanel extends VirtualMediaPanel
     protected boolean updateTileCoords (int sx, int sy, Point tpos)
     {
         Point npos = MisoUtil.screenToTile(_metrics, sx, sy, new Point());
-
-        // make sure the new coordinate is both valid and different
-        if (_metrics.isCoordinateValid(npos.x, npos.y) && !tpos.equals(npos)) {
+        if (!tpos.equals(npos) && _metrics.isCoordinateValid(npos.x, npos.y)) {
             tpos.setLocation(npos.x, npos.y);
             return true;
-
         } else {
             return false;
         }
@@ -919,8 +856,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         super.paintInFront(gfx, dirty);
 
         // paint any active menu (this should in theory check to see if
-        // the active menu intersects one or more of the dirty rects and
-        // render clipped through those)
+        // the active menu intersects one or more of the dirty rects)
         if (_activeMenu != null) {
             _activeMenu.render(gfx);
         }
@@ -943,53 +879,65 @@ public class MisoScenePanel extends VirtualMediaPanel
             _spritemgr.renderSpritePaths(gfx);
         }
 
-        // paint our highlighted tile (if any)
-        paintHighlights(gfx, dirty);
-
         // paint any extra goodies
         paintExtras(gfx, dirty);
     }
 
     /**
-     * Paints the highlighted tile.
-     *
-     * @param gfx the graphics context.
+     * We don't want sprites rendered using the standard mechanism because
+     * we intersperse them with objects in our scene and need to manage
+     * their z-order.
      */
-    protected void paintHighlights (Graphics2D gfx, Rectangle clip)
+    protected void paintBits (Graphics2D gfx, int layer, Rectangle dirty)
     {
-        // if we're not highlighting anything, bail now
-        if (_hmode == HIGHLIGHT_NEVER) {
-            return;
-        }
+        _animmgr.renderMedia(gfx, layer, dirty);
+    }
 
-        Polygon hpoly = null;
+    /**
+     * A function where derived classes can paint things after the base
+     * tiles have been rendered but before anything else has been rendered
+     * (so that whatever is painted appears to be on the ground).
+     */
+    protected void paintBaseDecorations (Graphics2D gfx, Rectangle clip)
+    {
+        // nothing for now
+    }
 
-        // if we have a hover object, do some business
-        if (_hobject != null && _hobject instanceof SceneObject) {
-            SceneObject scobj = (SceneObject)_hobject;
-            if (scobj.info.action != null || _hmode == HIGHLIGHT_ALWAYS) {
-                hpoly = scobj.getObjectFootprint();
+    /**
+     * Renders the dirty sprites and objects in the scene to the given
+     * graphics context.
+     */
+    protected void paintDirtyItems (Graphics2D gfx, Rectangle clip)
+    {
+        // add any sprites impacted by the dirty rectangle
+        _dirtySprites.clear();
+        _spritemgr.getIntersectingSprites(_dirtySprites, clip);
+        int size = _dirtySprites.size();
+        for (int ii = 0; ii < size; ii++) {
+            Sprite sprite = (Sprite)_dirtySprites.get(ii);
+            Rectangle bounds = sprite.getBounds();
+            if (!bounds.intersects(clip)) {
+                continue;
             }
+            appendDirtySprite(_dirtyItems, sprite);
+//             Log.info("Dirtied item: " + sprite);
         }
 
-        // if we had no valid hover object, but we're in HIGHLIGHT_ALWAYS,
-        // go for the tile outline
-        if (hpoly == null && _hmode == HIGHLIGHT_ALWAYS) {
-            hpoly = MisoUtil.getTilePolygon(_metrics, _hcoords.x, _hcoords.y);
+        // add any objects impacted by the dirty rectangle
+        for (int ii = 0, ll = _vizobjs.size(); ii < ll; ii++) {
+            SceneObject scobj = (SceneObject)_vizobjs.get(ii);
+            if (!scobj.bounds.intersects(clip)) {
+                continue;
+            }
+            _dirtyItems.appendDirtyObject(scobj);
+//             Log.info("Dirtied item: " + scobj);
         }
 
-        if (hpoly != null) {
-            // set the desired stroke and color
-            Stroke ostroke = gfx.getStroke();
-            gfx.setStroke(HIGHLIGHT_STROKE);
-            gfx.setColor(Color.green);
+//         Log.info("paintDirtyItems [items=" + _dirtyItems.size() + "].");
 
-            // draw the outline
-            gfx.draw(hpoly);
-
-            // restore the original stroke
-            gfx.setStroke(ostroke);
-        }
+        // sort the dirty items so that we can paint them back-to-front
+        _dirtyItems.sort();
+        _dirtyItems.paintAndClear(gfx);
     }
 
     /**
@@ -1009,7 +957,16 @@ public class MisoScenePanel extends VirtualMediaPanel
     protected void paintTips (Graphics2D gfx, Rectangle clip)
     {
         // make sure the tips are ready
-        maybeLayoutTips(gfx);
+        if (!_tipsLaidOut) {
+            ArrayList boxlist = new ArrayList();
+            for (Iterator iter = _tips.keySet().iterator(); iter.hasNext(); ) {
+                SceneObject scobj = (SceneObject)iter.next();
+                SceneObjectTip tip = (SceneObjectTip)_tips.get(scobj);
+                tip.layout(gfx, scobj.bounds, _vbounds, boxlist);
+                boxlist.add(tip.bounds);
+            }
+            _tipsLaidOut = true;
+        }
 
         if (checkShowFlag(SHOW_TIPS)) {
             // show all the tips
@@ -1023,23 +980,6 @@ public class MisoScenePanel extends VirtualMediaPanel
             if (tip != null) {
                 paintTip(gfx, clip, tip);
             }
-        }
-    }
-
-    /**
-     * Called to layout the tips if they haven't already been.
-     */
-    protected void maybeLayoutTips (Graphics2D gfx)
-    {
-        if (!_tipsLaidOut) {
-            ArrayList boxlist = new ArrayList();
-            for (Iterator iter = _tips.keySet().iterator(); iter.hasNext(); ) {
-                SceneObject scobj = (SceneObject)iter.next();
-                SceneObjectTip tip = (SceneObjectTip)_tips.get(scobj);
-                tip.layout(gfx, scobj.bounds, _vbounds, boxlist);
-                boxlist.add(tip.bounds);
-            }
-            _tipsLaidOut = true;
         }
     }
 
@@ -1220,63 +1160,6 @@ public class MisoScenePanel extends VirtualMediaPanel
         gfx.setComposite(ocomp);
     }
 
-    /**
-     * A function where derived classes can paint things after the base
-     * tiles have been rendered but before anything else has been rendered
-     * (so that whatever is painted appears to be on the ground).
-     */
-    protected void paintBaseDecorations (Graphics2D gfx, Rectangle clip)
-    {
-        // nothing for now
-    }
-
-    /**
-     * Renders the dirty sprites and objects in the scene to the given
-     * graphics context.
-     */
-    protected void paintDirtyItems (Graphics2D gfx, Rectangle clip)
-    {
-        // add any sprites impacted by the dirty rectangle
-        _dirtySprites.clear();
-        _spritemgr.getIntersectingSprites(_dirtySprites, clip);
-        int size = _dirtySprites.size();
-        for (int ii = 0; ii < size; ii++) {
-            Sprite sprite = (Sprite)_dirtySprites.get(ii);
-            Rectangle bounds = sprite.getBounds();
-            if (!bounds.intersects(clip)) {
-                continue;
-            }
-            appendDirtySprite(_dirtyItems, sprite);
-//             Log.info("Dirtied item: " + sprite);
-        }
-
-        // add any objects impacted by the dirty rectangle
-        for (int ii = 0, ll = _vizobjs.size(); ii < ll; ii++) {
-            SceneObject scobj = (SceneObject)_vizobjs.get(ii);
-            if (!scobj.bounds.intersects(clip)) {
-                continue;
-            }
-            _dirtyItems.appendDirtyObject(scobj);
-//             Log.info("Dirtied item: " + scobj);
-        }
-
-//         Log.info("paintDirtyItems [items=" + _dirtyItems.size() + "].");
-
-        // sort the dirty items so that we can paint them back-to-front
-        _dirtyItems.sort();
-        _dirtyItems.paintAndClear(gfx);
-    }
-
-    /**
-     * We don't want sprites rendered using the standard mechanism because
-     * we intersperse them with objects in our scene and need to manage
-     * their z-order.
-     */
-    protected void paintBits (Graphics2D gfx, int layer, Rectangle dirty)
-    {
-        _animmgr.renderMedia(gfx, layer, dirty);
-    }
-
     /** Returns the base tile for the specified tile coordinate. */
     protected BaseTile getBaseTile (int tx, int ty)
     {
@@ -1361,9 +1244,6 @@ public class MisoScenePanel extends VirtualMediaPanel
      * mouse is hovering. */
     protected DirtyItemList _hitList = new DirtyItemList();
 
-    /** The highlight mode. */
-    protected int _hmode = HIGHLIGHT_NEVER;
-
     /** Info on the object that the mouse is currently hovering over. */
     protected Object _hobject;
 
@@ -1407,9 +1287,6 @@ public class MisoScenePanel extends VirtualMediaPanel
         new RuntimeAdjust.BooleanAdjust(
             "Toggles debug rendering of sprite paths in the iso scene view.",
             "narya.miso.iso_paths_debug_render", MisoPrefs.config, false);
-
-    /** The stroke object used to draw highlighted tiles and coordinates. */
-    protected static final Stroke HIGHLIGHT_STROKE = new BasicStroke(2);
 
     /** The stroke used to draw dirty rectangles. */
     protected static final Stroke DIRTY_RECT_STROKE = new BasicStroke(2);
