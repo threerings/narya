@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.13 2002/02/24 02:20:43 mdb Exp $
+// $Id: ImageManager.java,v 1.14 2002/02/24 19:26:26 mdb Exp $
 
 package com.threerings.media;
 
@@ -68,6 +68,18 @@ public class ImageManager
         img = createImage(_rmgr.getResource(path));
         _imgs.put(path, img);
         return img;
+    }
+
+    /**
+     * Loads the image via the resource manager using the specified
+     * path. Does no caching and does not convert the image for optimized
+     * display on the target graphics configuration. Instead the original
+     * image as returned by the image loader is returned.
+     */
+    public Image loadImage (String path)
+        throws IOException
+    {
+        return _loader.loadImage(_rmgr.getResource(path));
     }
 
     /**
