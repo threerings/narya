@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.21 2003/04/28 21:10:19 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.22 2003/04/28 21:46:33 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -530,12 +530,8 @@ public class MisoScenePanel extends VirtualMediaPanel
             setViewLocation(_nx+dx, _ny+dy);
             _rsize.setSize(width, height);
 
-            // ...and force a rethink
-            if (rethink() > 0) {
-                // make a note that we should not repaint until we get all
-                // of our blocks
-                _delayRepaint = true;
-            }
+            // ...and force a rethink on the next tick
+            _ulpos = null;
         }
     }
 
@@ -547,9 +543,19 @@ public class MisoScenePanel extends VirtualMediaPanel
         // compute the tile coordinates of our upper left screen
         // coordinate and request a rethink if they've changed
         MisoUtil.screenToTile(_metrics, _vbounds.x, _vbounds.y, _tcoords);
-        if (!_tcoords.equals(_ulpos)) {
+        if (_ulpos == null || !_tcoords.equals(_ulpos)) {
+            // if this is a forced rethink (_ulpos is null), we might
+            // delay paint as a result of it, but only if we queue up
+            // blocks for resolution in our rethink
+            boolean mightDelayPaint = false;
+            if (_ulpos == null) {
+                _ulpos = new Point();
+                mightDelayPaint = true;
+            }
             _ulpos.setLocation(_tcoords);
-            rethink();
+            if (rethink() > 0) {
+                _delayRepaint = mightDelayPaint;
+            }
         }
     }
 
@@ -1344,7 +1350,7 @@ public class MisoScenePanel extends VirtualMediaPanel
     protected Dimension _rsize = new Dimension();
 
     /** Contains the tile coords of our upper-left view coord. */
-    protected Point _ulpos = new Point();
+    protected Point _ulpos;
 
     /** Contains the bounds of our "area of influence" in screen coords. */
     protected Rectangle _ibounds = new Rectangle();
