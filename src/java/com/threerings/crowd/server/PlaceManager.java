@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.33 2002/09/13 00:20:43 mdb Exp $
+// $Id: PlaceManager.java,v 1.34 2002/09/13 05:08:00 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -269,8 +269,8 @@ public class PlaceManager
             // insert the occupant info into our canonical table
             _occInfo.put(info.getBodyOid(), info);
 
-            // and insert it into the place object
-            _plobj.addToOccupantInfo(info);
+            // clone the canonical copy and insert it into the DSet
+            _plobj.updateOccupantInfo((OccupantInfo)info.clone());
 
             return info;
 
