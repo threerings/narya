@@ -1,5 +1,5 @@
 //
-// $Id: OccupantInfo.java,v 1.3 2001/10/11 04:07:51 mdb Exp $
+// $Id: OccupantInfo.java,v 1.4 2001/12/14 00:11:17 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -64,11 +64,9 @@ public class OccupantInfo implements DSet.Element
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer();
-        buf.append("[");
+        StringBuffer buf = new StringBuffer("[");
         toString(buf);
-        buf.append("]");
-        return buf.toString();
+        return buf.append("]").toString();
     }
 
     /**

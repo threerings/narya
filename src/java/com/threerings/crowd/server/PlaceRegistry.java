@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.17 2001/12/04 01:02:59 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.18 2001/12/14 00:11:17 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -89,7 +89,7 @@ public class PlaceRegistry
             // create a place manager for this place
             PlaceManager pmgr = (PlaceManager)pmgrClass.newInstance();
             // let the pmgr know about us and its configuration
-            pmgr.init(this, config);
+            pmgr.init(this, config, _omgr);
 
             // stick the manager on the creation queue because we know
             // we'll get our calls to objectAvailable()/requestFailed() in

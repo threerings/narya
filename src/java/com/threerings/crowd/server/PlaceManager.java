@@ -1,11 +1,12 @@
 //
-// $Id: PlaceManager.java,v 1.24 2001/11/18 04:27:56 mdb Exp $
+// $Id: PlaceManager.java,v 1.25 2001/12/14 00:11:17 mdb Exp $
 
 package com.threerings.crowd.server;
 
 import java.util.HashMap;
 import java.util.Properties;
 
+import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.MessageListener;
 import com.threerings.presents.dobj.ObjectAddedEvent;
@@ -50,8 +51,10 @@ public class PlaceManager
          * Invokes this message handler on the supplied event.
          *
          * @param event the message event received.
+         * @param pmgr the place manager for which the message is being
+         * handled.
          */
-        public void handleEvent (MessageEvent event);
+        public void handleEvent (MessageEvent event, PlaceManager pmgr);
     }
 
     /**
@@ -91,10 +94,12 @@ public class PlaceManager
     /**
      * Called by the place registry after creating this place manager.
      */
-    public void init (PlaceRegistry registry, PlaceConfig config)
+    public void init (
+        PlaceRegistry registry, PlaceConfig config, DObjectManager omgr)
     {
         _registry = registry;
         _config = config;
+        _omgr = omgr;
 
         // let derived classes do initialization stuff
         didInit();
@@ -279,7 +284,7 @@ public class PlaceManager
             handler = (MessageHandler)_msghandlers.get(event.getName());
         }
         if (handler != null) {
-            handler.handleEvent(event);
+            handler.handleEvent(event, this);
         }
     }
 
@@ -350,6 +355,9 @@ public class PlaceManager
         buf.append("place=").append(_plobj);
         buf.append(", config=").append(_config);
     }
+
+    /** A distributed object manager for doing dobj stuff. */
+    protected DObjectManager _omgr;
 
     /** A reference to the place object that we manage. */
     protected PlaceObject _plobj;
