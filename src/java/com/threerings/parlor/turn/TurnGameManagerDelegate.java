@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameManagerDelegate.java,v 1.1 2002/02/12 06:57:30 mdb Exp $
+// $Id: TurnGameManagerDelegate.java,v 1.2 2002/02/12 07:01:54 mdb Exp $
 
 package com.threerings.parlor.turn;
 
@@ -19,7 +19,11 @@ import com.threerings.parlor.util.MathUtil;
  * endTurn()
  * </pre>
  *
- * They must also implement the {@link TurnGameManager} interface.
+ * They must also implement the {@link TurnGameManager} interface. If the
+ * game requires specialized behavior from its delegate, it can extend the
+ * delegate and override the many methods that have been provided for just
+ * such a purpose (e.g. {@link #setFirstTurnHolder}, {@link
+ * #setNextTurnHolder}).
  */
 public class TurnGameManagerDelegate
 {
@@ -108,10 +112,10 @@ public class TurnGameManagerDelegate
      * turn, the game manager should arrange for {@link
      * #setNextTurnHolder} to set the {@link #_turnIdx} field to -1 which
      * will cause us not to start the next turn. It can then call {@link
-     * #endGame} if the game is over or do whatever else it needs to do
-     * outside the context of the turn flow.  To start things back up
-     * again it would set {@link #_turnIdx} to the next turn holder and
-     * call {@link #startTurn} itself.
+     * GameManager#endGame} if the game is over or do whatever else it
+     * needs to do outside the context of the turn flow.  To start things
+     * back up again it would set {@link #_turnIdx} to the next turn
+     * holder and call {@link #startTurn} itself.
      */
     public void endTurn ()
     {

@@ -1,7 +1,9 @@
 //
-// $Id: TurnGameObject.java,v 1.2 2002/02/12 06:57:30 mdb Exp $
+// $Id: TurnGameObject.java,v 1.3 2002/02/12 07:01:54 mdb Exp $
 
 package com.threerings.parlor.turn;
+
+import com.threerings.parlor.game.GameObject;
 
 /**
  * Games that wish to support turn-based play must implement this
