@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaApp.java,v 1.10 2002/07/23 03:17:50 mdb Exp $
+// $Id: MiCasaApp.java,v 1.11 2004/01/24 05:58:16 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -26,7 +26,7 @@ public class MiCasaApp
         _frame = new MiCasaFrame();
 
         // create our client instance
-        String cclass = System.getProperty("client");
+        String cclass = getProperty("client");
         if (cclass == null) {
             cclass = MiCasaClient.class.getName();
         }
@@ -53,12 +53,12 @@ public class MiCasaApp
         Client client = _client.getContext().getClient();
 
         // read our server and port settings
-        String server = System.getProperty("server");
+        String server = getProperty("server");
         if (server == null) {
             server = "localhost";
         }
         int port = Client.DEFAULT_SERVER_PORT;
-        String portstr = System.getProperty("port");
+        String portstr = getProperty("port");
         if (portstr != null) {
             try {
                 port = Integer.parseInt(portstr);
@@ -71,13 +71,27 @@ public class MiCasaApp
         client.setServer(server, port);
 
         // configure the client with some credentials and logon
-        String username = System.getProperty("username");
-        String password = System.getProperty("password");
+        String username = getProperty("username");
+        String password = getProperty("password");
         if (username != null && password != null) {
             // create and set our credentials
             Credentials creds = new UsernamePasswordCreds(username, password);
             client.setCredentials(creds);
             client.logon();
+        }
+    }
+
+    /**
+     * Attempts to get a property but doesn't freak out if we fail
+     * security check.
+     */
+    protected String getProperty (String key)
+    {
+        try {
+            return System.getProperty(key);
+        } catch (Throwable t) {
+            Log.info("Can't fetch '" + key + "' system property.");
+            return null;
         }
     }
 
