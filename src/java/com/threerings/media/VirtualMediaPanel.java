@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.17 2003/05/02 15:11:51 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.18 2003/05/02 23:49:57 mdb Exp $
 
 package com.threerings.media;
 
@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.SwingUtilities;
 
+import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.util.Path;
@@ -313,11 +314,17 @@ public class VirtualMediaPanel extends MediaPanel
             // graphics context results in boochness; so we have to
             // untranslate the graphics context, do our copyArea() and
             // then translate it back
-            gfx.translate(-_abounds.x, -_abounds.y);
-            gfx.copyArea(_abounds.x + cx, _abounds.y + cy,
-                         width - Math.abs(_dx),
-                         height - Math.abs(_dy), -_dx, -_dy);
-            gfx.translate(_abounds.x, _abounds.y);
+            if (RunAnywhere.isWindows()) {
+                gfx.translate(-_abounds.x, -_abounds.y);
+                gfx.copyArea(_abounds.x + cx, _abounds.y + cy,
+                             width - Math.abs(_dx),
+                             height - Math.abs(_dy), -_dx, -_dy);
+                gfx.translate(_abounds.x, _abounds.y);
+            } else {
+                gfx.copyArea(cx, cy,
+                             width - Math.abs(_dx),
+                             height - Math.abs(_dy), -_dx, -_dy);
+            }
 
             // and clear out our scroll deltas
             _dx = 0; _dy = 0;
