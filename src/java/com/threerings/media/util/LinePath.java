@@ -1,5 +1,5 @@
 //
-// $Id: LinePath.java,v 1.11 2002/12/04 02:45:09 shaper Exp $
+// $Id: LinePath.java,v 1.12 2003/05/16 02:22:19 ray Exp $
 
 package com.threerings.media.util;
 
@@ -36,6 +36,27 @@ public class LinePath extends TimedPath
         super(duration);
         _source = source;
         _dest = dest;
+    }
+
+    /**
+     * Constructs a line path that moves a pathable from
+     * whatever its location is at init time to the dest point over
+     * the specified number of milliseconds.
+     */
+    public LinePath (Point dest, long duration)
+    {
+        this(null, dest, duration);
+    }
+
+    // documentation inherited
+    public void init (Pathable pable, long timestamp)
+    {
+        super.init(pable, timestamp);
+
+        // fill in the source if necessary.
+        if (_source == null) {
+            _source = new Point(pable.getX(), pable.getY());
+        }
     }
 
     // documentation inherited
