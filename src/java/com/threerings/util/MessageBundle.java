@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.25 2004/03/06 11:29:19 mdb Exp $
+// $Id: MessageBundle.java,v 1.26 2004/08/23 22:53:39 mdb Exp $
 
 package com.threerings.util;
 
@@ -107,8 +107,66 @@ public class MessageBundle
     }
 
     /**
-     * Obtains the translation for the specified message key accounting
-     * for plurality in the following manner. Assuming a message key of
+     * Obtains the translation for the specified message key. The
+     * specified argument is substituted into the translated string.
+     *
+     * <p> See {@link #get(String,Object[])} for notes on handling
+     * plurals.
+     *
+     * <p> See {@link MessageFormat} for more information on how the
+     * substitution is performed. If a translation message does not exist
+     * for the specified key, an error is logged and the key itself (plus
+     * the argument) is returned so that the caller need not worry about
+     * handling a null response.
+     */
+    public String get (String key, Object arg1)
+    {
+        return get(key, new Object[] { arg1 });
+    }
+
+    /**
+     * Obtains the translation for the specified message key. The
+     * specified arguments are substituted into the translated string.
+     *
+     * <p> See {@link #get(String,Object[])} for notes on handling
+     * plurals.
+     *
+     * <p> See {@link MessageFormat} for more information on how the
+     * substitution is performed. If a translation message does not exist
+     * for the specified key, an error is logged and the key itself (plus
+     * the arguments) is returned so that the caller need not worry about
+     * handling a null response.
+     */
+    public String get (String key, Object arg1, Object arg2)
+    {
+        return get(key, new Object[] { arg1, arg2 });
+    }
+
+    /**
+     * Obtains the translation for the specified message key. The
+     * specified arguments are substituted into the translated string.
+     *
+     * <p> See {@link #get(String,Object[])} for notes on handling
+     * plurals.
+     *
+     * <p> See {@link MessageFormat} for more information on how the
+     * substitution is performed. If a translation message does not exist
+     * for the specified key, an error is logged and the key itself (plus
+     * the arguments) is returned so that the caller need not worry about
+     * handling a null response.
+     */
+    public String get (String key, Object arg1, Object arg2, Object arg3)
+    {
+        return get(key, new Object[] { arg1, arg2, arg3 });
+    }
+
+    /**
+     * Obtains the translation for the specified message key. The
+     * specified arguments are substituted into the translated string.
+     *
+     * <p> If the first argument in the array is an {@link Integer}
+     * object, a translation will be selected accounting for plurality in
+     * the following manner. Assume a message key of
      * <code>m.widgets</code>, the following translations should be
      * defined:
      * <pre>
@@ -126,71 +184,6 @@ public class MessageBundle
      *
      * to obtain proper insertion of commas and dots as appropriate for
      * the locale.
-     */
-    public String get (String key, int value)
-    {
-        // we could use ChoiceFormat for this, but there's no indication
-        // that it does anything more useful than what we're doing here
-        // when it comes to handling plurals
-        String format;
-        switch (value) {
-        case 0: format = getResourceString(key + ".0"); break;
-        case 1: format = getResourceString(key + ".1"); break;
-        default: format = getResourceString(key + ".n"); break;
-        }
-        Object[] args = new Object[] { new Integer(value) };
-        return (format == null) ? (key + StringUtil.toString(args)) :
-            MessageFormat.format(MessageUtil.escape(format), args);
-    }
-
-    /**
-     * Obtains the translation for the specified message key. The
-     * specified argument is substituted into the translated string.
-     *
-     * <p> See {@link MessageFormat} for more information on how the
-     * substitution is performed. If a translation message does not exist
-     * for the specified key, an error is logged and the key itself (plus
-     * the argument) is returned so that the caller need not worry about
-     * handling a null response.
-     */
-    public String get (String key, Object arg1)
-    {
-        return get(key, new Object[] { arg1 });
-    }
-
-    /**
-     * Obtains the translation for the specified message key. The
-     * specified arguments are substituted into the translated string.
-     *
-     * <p> See {@link MessageFormat} for more information on how the
-     * substitution is performed. If a translation message does not exist
-     * for the specified key, an error is logged and the key itself (plus
-     * the arguments) is returned so that the caller need not worry about
-     * handling a null response.
-     */
-    public String get (String key, Object arg1, Object arg2)
-    {
-        return get(key, new Object[] { arg1, arg2 });
-    }
-
-    /**
-     * Obtains the translation for the specified message key. The
-     * specified arguments are substituted into the translated string.
-     *
-     * <p> See {@link MessageFormat} for more information on how the
-     * substitution is performed. If a translation message does not exist
-     * for the specified key, an error is logged and the key itself (plus
-     * the arguments) is returned so that the caller need not worry about
-     * handling a null response.
-     */
-    public String get (String key, Object arg1, Object arg2, Object arg3)
-    {
-        return get(key, new Object[] { arg1, arg2, arg3 });
-    }
-
-    /**
-     * Obtains the translation for the specified message key. The
-     * specified arguments are substituted into the translated string.
      *
      * <p> See {@link MessageFormat} for more information on how the
      * substitution is performed. If a translation message does not exist
@@ -207,10 +200,51 @@ public class MessageBundle
             return qbundle.get(getUnqualifiedKey(key), args);
         }
 
-        String msg = getResourceString(key);
+        // look up our message string, selecting the proper plurality
+        // string if our first argument is an Integer
+        String msg = getResourceString(key + getSuffix(args), false);
+
+        // if the base key is not found, look to see if we should try to
+        // convert our first argument to an Integer and try again
+        if (msg == null) {
+            if (getResourceString(key + ".n", false) != null) {
+                try {
+                    args[0] = new Integer(args[0].toString());
+                    msg = getResourceString(key + getSuffix(args));
+                } catch (Exception e) {
+                    Log.warning("Failure doing automatic plural handling " +
+                                "[bundle=" + _path + ", key=" + key +
+                                ", args=" + StringUtil.toString(args) + "].");
+                }
+
+            } else {
+                Log.warning("Missing translation message " +
+                            "[bundle=" + _path + ", key=" + key + "].");
+                Thread.dumpStack();
+            }
+        }
+
         return (msg != null) ?
             MessageFormat.format(MessageUtil.escape(msg), args)
             : (key + StringUtil.toString(args));
+    }
+
+    /**
+     * A helper function for {@link #get(String,Object[])} that allows us
+     * to automatically perform plurality processing if our first argument
+     * is an {@link Integer}.
+     */
+    protected String getSuffix (Object[] args)
+    {
+        String suffix = "";
+        if (args[0] instanceof Integer) {
+            switch (((Integer)args[0]).intValue()) {
+            case 0: suffix = ".0"; break;
+            case 1: suffix = ".1"; break;
+            default: suffix = ".n"; break;
+            }
+        }
+        return suffix;
     }
 
     /**
