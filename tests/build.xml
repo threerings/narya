@@ -14,7 +14,7 @@
   <property name="src.dir"    value="src/java"/>
   <property name="deploy.dir" value="dist"/>
 
-  <property name="cbundle.dir" value="rsrc/bundles/components/pirate"/>
+  <property name="cbundle.dir" value="rsrc/bundles/components"/>
   <property name="tbundle.dir" value="rsrc/bundles/tiles"/>
 
   <!-- declare our classpath -->
@@ -75,19 +75,28 @@
 
   <!-- test the component metadata bundling process -->
   <target name="cbundles" description="Build component bundles.">
-    <!-- first build the metadata bundle -->
+    <!-- define our tasks -->
     <taskdef name="metabundle"
       classname="com.threerings.cast.bundle.tools.MetadataBundlerTask"/>
-    <metabundle actiondef="${cbundle.dir}/actions.xml"
-      classdef="${cbundle.dir}/classes.xml"
-      target="${cbundle.dir}/metadata.jar"/>
-
-    <!-- then a component bundle -->
     <taskdef name="cbundle"
       classname="com.threerings.cast.bundle.tools.ComponentBundlerTask"/>
-    <cbundle target="${cbundle.dir}/components.jar"
-      mapfile="${cbundle.dir}/components.map">
-      <fileset dir="${cbundle.dir}" includes="**/*.png"/>
+
+    <!-- build the pirate metadata and component bundles -->
+    <metabundle actiondef="${cbundle.dir}/pirate/actions.xml"
+      classdef="${cbundle.dir}/pirate/classes.xml"
+      target="${cbundle.dir}/pirate/metadata.jar"/>
+    <cbundle target="${cbundle.dir}/pirate/components.jar"
+      mapfile="${cbundle.dir}/pirate/components.map">
+      <fileset dir="${cbundle.dir}/pirate" includes="**/*.png"/>
+    </cbundle>
+
+    <!-- build the ship metadata and component bundles -->
+    <metabundle actiondef="${cbundle.dir}/ship/actions.xml"
+      classdef="${cbundle.dir}/ship/classes.xml"
+      target="${cbundle.dir}/ship/metadata.jar"/>
+    <cbundle target="${cbundle.dir}/ship/components.jar"
+      mapfile="${cbundle.dir}/ship/components.map">
+      <fileset dir="${cbundle.dir}/ship" includes="**/*.png"/>
     </cbundle>
   </target>
 
