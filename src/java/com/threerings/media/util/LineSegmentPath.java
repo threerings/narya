@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.27 2003/01/17 22:57:08 mdb Exp $
+// $Id: LineSegmentPath.java,v 1.28 2003/02/12 05:27:57 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -72,6 +72,16 @@ public class LineSegmentPath
     public LineSegmentPath (List points)
     {
         createPath(points);
+    }
+
+    /**
+     * Returns the orientation the sprite will face at the end of the
+     * path.
+     */
+    public int getFinalOrientation ()
+    {
+        return (_nodes.size() == 0) ? NORTH :
+            ((PathNode)_nodes.get(_nodes.size()-1)).dir;
     }
 
     /**
