@@ -1,5 +1,5 @@
 //
-// $Id: Invoker.java,v 1.8 2003/08/08 03:11:55 ray Exp $
+// $Id: Invoker.java,v 1.9 2003/08/08 03:23:43 ray Exp $
 
 package com.threerings.presents.util;
 
@@ -184,15 +184,18 @@ public class Invoker extends LoopingThread
         // run on the invoker thread
         public boolean invoke ()
         {
+            if (checkLoops()) {
+                return false;
+
             // if the invoker queue is not empty, we put ourselves back on it
-            if (_queue.hasElements()) {
-                System.err.println("invoker not empty");
+            } else if (_queue.hasElements()) {
+                _loopCount++;
                 postUnit(this);
                 return false;
 
             } else {
                 // the invoker is empty, let's go over to the omgr
-                System.err.println("invoker empty, passing");
+                _loopCount = 0;
                 _passCount++;
                 return true;
             }
@@ -201,31 +204,74 @@ public class Invoker extends LoopingThread
         // run on the dobj thread
         public void handleResult ()
         {
+            if (checkLoops()) {
+                return;
+
             // if the queue isn't empty, re-post
-            if (!_omgr.queueIsEmpty()) {
+            } else if (!_omgr.queueIsEmpty()) {
+                _loopCount++;
                 _omgr.postUnit(this);
 
-            // if both queues are empty, or we've passed 50 times, end it all
-            } else if (!_queue.hasElements() || (_passCount >= 50)) {
-                // shut it down!
-                _omgr.harshShutdown(); // end the dobj thread
-                // and since we're ending the invoker from the dobjmgr
-                // we need to post one last event to the invoker
-                postUnit(new Unit() {
-                    public boolean invoke () {
-                        _running = false; // end this thread
-                        return false;
-                    }
-                });
-
-            // otherwise, we need to pass back to the invoker
-            } else {
+            // if the invoker still has stuff and we're still under the pass
+            // limit, go ahead and pass it back to the invoker
+            } else if (_queue.hasElements() && (_passCount < MAX_PASSES)) {
+                // pass the buck back to the invoker
+                _loopCount = 0;
                 postUnit(this);
+
+            } else {
+                // otherwise end it, and complain if we're ending it
+                // because of passes
+                if (_passCount >= MAX_PASSES) {
+                    Log.warning("Shutdown Unit passed 50 times without " +
+                        "finishing, shutting down harshly.");
+                }
+                doShutdown();
             }
+        }
+
+        /**
+         * Check to make sure we haven't looped too many times.
+         */
+        protected boolean checkLoops ()
+        {
+            if (_loopCount > MAX_LOOPS) {
+                Log.warning("Shutdown Unit looped on one thread 100 times " +
+                    "without finishing, shutting down harshly.");
+                doShutdown();
+                return true;
+            }
+
+            return false;
+        }
+
+        /**
+         * Do the actual shutdown.
+         */
+        protected void doShutdown ()
+        {
+            _omgr.harshShutdown(); // end the dobj thread
+
+            // end the invoker thread
+            postUnit(new Unit() {
+                public boolean invoke () {
+                    _running = false;
+                    return false;
+                }
+            });
         }
 
         /** The number of times we've been passed to the object manager. */
         protected int _passCount = 0;
+
+        /** How many times we've looped on the thread we're currently on. */
+        protected int _loopCount = 0;
+
+        /** The maximum number of passes we allow before just ending things. */
+        protected static final int MAX_PASSES = 50;
+
+        /** The maximum number of loops we allow before just ending things. */
+        protected static final int MAX_LOOPS = 100;
     }
 
     /** The invoker's queue of units to be executed. */
