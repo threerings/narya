@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.34 2001/11/29 20:31:22 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.35 2001/11/29 23:36:31 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -66,6 +66,9 @@ public class ViewerSceneViewPanel extends SceneViewPanel
                 ViewerSceneViewPanel.this.mousePressed(e);
             }
         });
+
+        // show coordinates
+        _viewmodel.showCoords = true;
 
 	PerformanceMonitor.register(this, "paint", 1000);
     }
