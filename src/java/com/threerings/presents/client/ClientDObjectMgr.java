@@ -1,11 +1,15 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.14 2002/05/28 21:56:38 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.15 2002/07/17 01:54:16 mdb Exp $
 
 package com.threerings.presents.client;
 
+import java.awt.event.KeyEvent;
+
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import com.samskivert.util.DebugChords;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Queue;
 import com.samskivert.util.StringUtil;
@@ -36,6 +40,11 @@ public class ClientDObjectMgr
     {
         _comm = comm;
         _client = client;
+
+        // register a debug hook for dumping all objects in the
+        // distributed object table
+        DebugChords.registerHook(
+            DUMP_OTABLE_MODMASK, DUMP_OTABLE_KEYCODE, DUMP_OTABLE_HOOK);
     }
 
     // inherit documentation from the interface
@@ -340,8 +349,14 @@ public class ClientDObjectMgr
         }
     }
 
+    /** A reference to the communicator that sends and receives messages
+     * for this client. */
     protected Communicator _comm;
+
+    /** A reference to our client instance. */
     protected Client _client;
+
+    /** Our primary dispatch queue. */
     protected Queue _actions = new Queue();
 
     /**
@@ -352,4 +367,24 @@ public class ClientDObjectMgr
 
     /** This table contains pending subscriptions. */
     protected HashIntMap _penders = new HashIntMap();
+
+    /** A debug hook that allows the dumping of all objects in the object
+     * table out to the log. */
+    protected DebugChords.Hook DUMP_OTABLE_HOOK = new DebugChords.Hook() {
+        public void invoke () {
+            Log.info("Dumping " + _ocache.size() + " objects:");
+            Iterator iter = _ocache.values().iterator();
+            while (iter.hasNext()) {
+                DObject obj = (DObject)iter.next();
+                Log.info(obj.getClass().getName() + " " + obj);
+            }
+        }
+    };
+
+    /** The modifiers for our dump table debug hook (Ctrl+Alt). */
+    protected static int DUMP_OTABLE_MODMASK =
+        KeyEvent.ALT_DOWN_MASK|KeyEvent.SHIFT_DOWN_MASK;
+
+    /** The key code for our dump table debug hook (o). */
+    protected static int DUMP_OTABLE_KEYCODE = KeyEvent.VK_O;
 }
