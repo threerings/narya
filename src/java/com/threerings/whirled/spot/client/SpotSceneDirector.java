@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.12 2002/06/12 07:03:23 ray Exp $
+// $Id: SpotSceneDirector.java,v 1.13 2002/06/14 01:27:53 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -88,15 +88,18 @@ public class SpotSceneDirector
      * supplied portal id. A request will be made and when the response is
      * received, the location observers will be notified of success or
      * failure.
+     *
+     * @return true if the request was issued, false if it was rejected by
+     * a location observer or because we have another request outstanding.
      */
-    public void traversePortal (int portalId)
+    public boolean traversePortal (int portalId)
     {
         // look up the destination scene and location
         DisplaySpotScene scene = (DisplaySpotScene)_scdir.getScene();
         if (scene == null) {
             Log.warning("Requested to traverse portal when we have " +
                         "no scene [portalId=" + portalId + "].");
-            return;
+            return false;
         }
 
         // find the portal they're talking about
@@ -120,7 +123,7 @@ public class SpotSceneDirector
 
         // prepare to move to this scene (sets up pending data)
         if (!_scdir.prepareMoveTo(targetSceneId)) {
-            return;
+            return false;
         }
 
         // check the version of our cached copy of the scene to which
@@ -135,6 +138,7 @@ public class SpotSceneDirector
         // issue a traversePortal request
         SpotService.traversePortal(
             _ctx.getClient(), scene.getId(), portalId, sceneVer, _scdir);
+        return true;
     }
 
     /**
