@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.2 2002/01/19 07:04:28 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.3 2002/01/19 07:09:55 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -50,6 +50,14 @@ public class AnimatedPanel extends Canvas implements AnimatedView
         // we don't paint directly any more, we pass the dirty rect to the
         // animation manager to queue up along with our next repaint
         _animmgr.addDirtyRect(g.getClipBounds());
+    }
+
+    // documentation inherited
+    public void update (Graphics g)
+    {
+        // the normal Canvas.update() fills itself with its background
+        // color before calling paint() which we definitely don't want
+        paint(g);
     }
 
     /**
