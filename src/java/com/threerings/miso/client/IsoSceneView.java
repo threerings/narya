@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.77 2001/12/14 23:31:04 shaper Exp $
+// $Id: IsoSceneView.java,v 1.78 2001/12/15 04:20:55 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -404,22 +404,26 @@ public class IsoSceneView implements SceneView
         int size = rects.size();
         for (int ii = 0; ii < size; ii++) {
             Rectangle r = (Rectangle)rects.get(ii);
-
-	    // dirty the tiles impacted by this rectangle
-	    Rectangle tileBounds = invalidateScreenRect(r);
-
-            // dirty any sprites or objects impacted by this rectangle
-            invalidateItems(tileBounds);
-
-	    // save the rectangle for potential display later
-	    _dirtyRects.add(r);
+            invalidateRect(r);
         }
     }
 
+    // documentation inherited
+    public void invalidateRect (Rectangle rect)
+    {
+        // dirty the tiles impacted by this rectangle
+        Rectangle tileBounds = invalidateScreenRect(rect);
+
+        // dirty any sprites or objects impacted by this rectangle
+        invalidateItems(tileBounds);
+
+        // save the rectangle for potential display later
+        _dirtyRects.add(rect);
+    }
+
     /**
-     * Invalidates the given rectangle in screen pixel coordinates in
-     * the view.  Returns a rectangle that bounds all tiles that were
-     * dirtied.
+     * Invalidates the given rectangle in screen pixel coordinates in the
+     * view. Returns a rectangle that bounds all tiles that were dirtied.
      *
      * @param rect the dirty rectangle.
      */
@@ -609,6 +613,14 @@ public class IsoSceneView implements SceneView
 	// construct a path object to guide the sprite on its merry way
         return (points == null) ? null :
             new TilePath(_model, sprite, points, x, y);
+    }
+
+    // documentation inherited
+    public Point getScreenCoords (int x, int y)
+    {
+	Point coords = new Point();
+	IsoUtil.fullToScreen(_model, x, y, coords);
+        return coords;
     }
 
     /** The stroke used to draw dirty rectangles. */

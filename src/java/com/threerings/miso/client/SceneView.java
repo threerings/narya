@@ -1,9 +1,10 @@
 //
-// $Id: SceneView.java,v 1.19 2001/11/18 04:09:22 mdb Exp $
+// $Id: SceneView.java,v 1.20 2001/12/15 04:20:55 mdb Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.Graphics;
+import java.awt.Point;
 import java.util.List;
 
 import com.threerings.media.sprite.DirtyRectList;
@@ -17,8 +18,8 @@ import com.threerings.media.sprite.Path;
 public interface SceneView
 {
     /**
-     * Invalidates a list of rectangles in screen pixel coordinates in
-     * the scene view for later repainting.
+     * Invalidate a list of rectangles in screen pixel coordinates in the
+     * scene view for later repainting.
      *
      * @param rects the list of {@link java.awt.Rectangle} objects.
      */
@@ -50,4 +51,9 @@ public interface SceneView
      * @return the sprite's path, or null if no valid path exists.
      */
     public Path getPath (MisoCharacterSprite sprite, int x, int y);
+
+    /**
+     * Returns screen coordinates given the specified full coordinates.
+     */
+    public Point getScreenCoords (int x, int y);
 }
