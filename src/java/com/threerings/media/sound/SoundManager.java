@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.7 2002/11/02 00:26:55 ray Exp $
+// $Id: SoundManager.java,v 1.8 2002/11/02 01:49:20 ray Exp $
 
 package com.threerings.media;
 
@@ -288,7 +288,36 @@ public class SoundManager
         {
             _clip = clip;
 
-            _clip.addLineListener(this);
+            // The mess:
+            // If we restart a sample, we get two stop events, one immediately
+            // and one later on.
+            // We can't just ignore the first in that case, because once
+            // a sample is restarted it seems to not return true
+            // for isRunning() (maybe because it's already been reset?)
+            // but will continue to generate stop events each time it
+            // is started.
+            //
+            // So- we can't depend on capturing stop events to know
+            // when a sound is done playing. Instead we just add the length
+            // of the sound to the current time. We fall back on the
+            // LineListener method if the clip length is unavailable.
+            //
+            // The good news is that just adding the length is in many
+            // ways a better system. I don't feel confident in doing
+            // that right now because I don't know if any sounds
+            // will ever return NOT_SPECIFIED.
+
+            long length = _clip.getMicrosecondLength();
+            if (length == AudioSystem.NOT_SPECIFIED) {
+                Log.info("Length of AudioClip not specified, falling back " +
+                        "to listening for stop events.");
+                _clip.addLineListener(this);
+                _length = AudioSystem.NOT_SPECIFIED;
+
+            } else {
+                // convert microseconds to milliseconds, round up.
+                _length = (length / 1000L) + 1;
+            }
         }
 
         /**
@@ -305,12 +334,13 @@ public class SoundManager
          */
         public void restart ()
         {
-            if (_clip.isRunning()) {
-                _clip.stop();
-            }
+// this seems to be unneeded
+//            if (_clip.isRunning()) {
+//                Log.info("Restarted a sound and sent it a stop..");
+//                _clip.stop();
+//            }
             _clip.setFramePosition(0);
-            _clip.start();
-            didStart();
+            start();
         }
 
         /**
@@ -328,11 +358,16 @@ public class SoundManager
          */
         public void close ()
         {
-            _clip.removeLineListener(this);
+            if (areListening()) {
+                _clip.removeLineListener(this);
+            }
             if (_clip.isRunning()) {
                 _clip.stop();
             }
             _clip.close();
+
+            // make sure nobody uses this SoundRecord again
+            _clip = null;
         }
 
         /**
@@ -340,7 +375,14 @@ public class SoundManager
          */
         protected void didStart ()
         {
-            _stamp = Long.MAX_VALUE;
+            if (areListening()) {
+                // clear out the stamp so that we can't possibly be reaped
+                // and since we're listening, we'll eventually call didStop()
+                _stamp = Long.MAX_VALUE;
+
+            } else {
+                _stamp = System.currentTimeMillis() + _length;
+            }
         }
 
         /**
@@ -348,6 +390,7 @@ public class SoundManager
          */
         protected void didStop ()
         {
+            // no matter what, when we stop, we stop
             _stamp = System.currentTimeMillis();
         }
 
@@ -362,13 +405,27 @@ public class SoundManager
         // documentation inherited from interface LineListener
         public void update (LineEvent event)
         {
+            // this only gets run if we actually need to listen for the
+            // stop events.
             if (event.getType() == LineEvent.Type.STOP) {
                 didStop();
             }
         }
 
+        /**
+         * Are we registered as a LineListener on our clip?
+         */
+        private final boolean areListening ()
+        {
+            return _length == AudioSystem.NOT_SPECIFIED;
+        }
+
         /** The timestamp of the moment this clip last stopped playing. */
         protected long _stamp;
+
+        /** The length of the clip, in milliseconds, or
+         * AudioSystem.NOT_SPECIFIED if unknown. */
+        protected long _length;
 
         /** The clip we're wrapping. */
         protected Clip _clip;
