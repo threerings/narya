@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.9 2001/06/09 23:39:04 mdb Exp $
+// $Id: DObject.java,v 1.10 2001/06/12 02:57:30 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -70,6 +70,15 @@ import java.util.ArrayList;
  *
  * These method calls on the actual distributed object will result in the
  * proper attribute change events being generated and dispatched.
+ *
+ * <p> Note that distributed object fields can only be of a limited set of
+ * supported types. These types are:
+ *
+ * <code><pre>
+ * byte, short, int, long, float, double
+ * Byte, Short, Integer, Long, Float, Double, String
+ * byte[], short[], int[], long[], float[], double[], String[]
+ * </pre></code>
  */
 public class DObject
 {

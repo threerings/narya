@@ -1,11 +1,13 @@
 //
-// $Id: AttributesChangedEvent.java,v 1.3 2001/06/11 17:44:04 mdb Exp $
+// $Id: AttributesChangedEvent.java,v 1.4 2001/06/12 02:57:30 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+
+import com.threerings.cocktail.cher.dobj.io.ValueMarshaller;
 
 /**
  * An attribute<em>s</em> changed event is dispatched when multiple
@@ -171,7 +173,7 @@ public class AttributesChangedEvent extends TypedEvent
         out.writeInt(_count);
         for (int i = 0; i < _count; i++) {
             out.writeUTF(_names[i]);
-            // out.write...(_values[i]);
+            ValueMarshaller.writeTo(out, _values[i]);
         }
     }
 
@@ -184,7 +186,7 @@ public class AttributesChangedEvent extends TypedEvent
         _values = new Object[_count];
         for (int i = 0; i < _count; i++) {
             _names[i] = in.readUTF();
-            // _values[i] = ...
+            _values[i] = ValueMarshaller.readFrom(in);
         }
     }
 

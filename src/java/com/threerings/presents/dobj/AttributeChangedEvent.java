@@ -1,5 +1,5 @@
 //
-// $Id: AttributeChangedEvent.java,v 1.4 2001/06/11 17:44:04 mdb Exp $
+// $Id: AttributeChangedEvent.java,v 1.5 2001/06/12 02:57:30 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -8,7 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
-import com.threerings.cocktail.cher.Log;
+import com.threerings.cocktail.cher.dobj.io.ValueMarshaller;
 
 /**
  * An attribute changed event is dispatched when a single attribute of a
@@ -123,7 +123,7 @@ public class AttributeChangedEvent extends TypedEvent
     {
         super.writeTo(out);
         out.writeUTF(_name);
-        // out.write...(_value);
+        ValueMarshaller.writeTo(out, _value);
     }
 
     public void readFrom (DataInputStream in)
@@ -131,7 +131,7 @@ public class AttributeChangedEvent extends TypedEvent
     {
         super.readFrom(in);
         _name = in.readUTF();
-        // _value = in.read...
+        _value = ValueMarshaller.readFrom(in);
     }
 
     public String toString ()
