@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.4 2001/08/02 01:21:03 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.5 2001/08/02 01:48:08 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -132,6 +132,16 @@ public class PlaceRegistry implements Subscriber
                 return (plmgr == null) ? null : plmgr.getPlaceObject();
             }
         };
+    }
+
+    /**
+     * Returns an enumeration of all of the registered place managers.
+     * This should only be accessed on the dobjmgr thread and shouldn't be
+     * kept around across event dispatches.
+     */
+    public Enumeration getPlaceManagers ()
+    {
+        return _pmgrs.elements();
     }
 
     /**
