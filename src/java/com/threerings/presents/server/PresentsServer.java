@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.21 2002/05/28 22:25:44 mdb Exp $
+// $Id: PresentsServer.java,v 1.22 2002/05/28 23:14:06 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -62,6 +62,9 @@ public class PresentsServer
 
         // create our invocation manager
         invmgr = new InvocationManager(omgr);
+
+        // initialize the time base services
+        TimeBaseProvider.init(invmgr, omgr);
 
         // register our invocation service providers
         registerProviders(PresentsConfig.getProviders());
