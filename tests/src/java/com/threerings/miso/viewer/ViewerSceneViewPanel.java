@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.18 2001/10/11 00:41:27 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.19 2001/10/22 18:15:57 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -18,7 +18,7 @@ import com.threerings.miso.util.*;
 import com.threerings.miso.viewer.util.ViewerContext;
 
 public class ViewerSceneViewPanel extends SceneViewPanel
-    implements MouseListener, MouseMotionListener, PerformanceObserver
+    implements PerformanceObserver
 {
     /**
      * Construct the panel and initialize it with a context.
@@ -35,8 +35,11 @@ public class ViewerSceneViewPanel extends SceneViewPanel
   	_animmgr = new AnimationManager(spritemgr, this);
 
         // listen to the desired events
-	addMouseListener(this);
-	addMouseMotionListener(this);
+	addMouseListener(new MouseAdapter() {
+            public void mousePressed (MouseEvent e) {
+                ViewerSceneViewPanel.this.mousePressed(e);
+            }
+        });
 
         // load up the initial scene
         prepareStartingScene();
@@ -88,16 +91,6 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 	((LineSegmentPath)path).setVelocity(100f/1000f);
 	_sprite.move(path);
     }
-
-    public void mouseClicked (MouseEvent e) { }
-    public void mouseEntered (MouseEvent e) { }
-    public void mouseExited (MouseEvent e) { }
-    public void mouseReleased (MouseEvent e) { }
-
-    /** MouseMotionListener interface methods */
-
-    public void mouseMoved (MouseEvent e) { }
-    public void mouseDragged (MouseEvent e) { }
 
     /** The animation manager. */
     AnimationManager _animmgr;
