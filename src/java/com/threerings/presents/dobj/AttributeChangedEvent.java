@@ -1,7 +1,10 @@
 //
-// $Id: AttributeChangedEvent.java,v 1.1 2001/06/01 07:12:13 mdb Exp $
+// $Id: AttributeChangedEvent.java,v 1.2 2001/06/01 19:56:13 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
+
+import java.lang.reflect.Method;
+import com.threerings.cocktail.cher.Log;
 
 /**
  * An attribute changed event is dispatched when a single attribute of a
@@ -90,6 +93,24 @@ public class AttributeChangedEvent extends DEvent
     public double getDoubleValue ()
     {
         return ((Double)_value).doubleValue();
+    }
+
+    /**
+     * Applies this attribute change to the object.
+     */
+    public boolean applyToObject (DObject target)
+        throws ObjectAccessException
+    {
+        // look up the setter for this object
+        Method setter = DEventUtil.getSetter(target.getClass(), _name);
+
+        try {
+            setter.invoke(target, new Object[] { _value });
+        } catch (Exception e) {
+            throw new ObjectAccessException("Reflection error: " + e);
+        }
+
+        return true;
     }
 
     protected String _name;

@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.6 2001/06/01 05:17:16 mdb Exp $
+// $Id: DObject.java,v 1.7 2001/06/01 19:56:13 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -73,17 +73,17 @@ import java.util.ArrayList;
 public class DObject
 {
     /**
-     * Constructs a new distributed object with the supplied object id.
-     * This should not be called directly, rather objects should be
-     * created via the distributed object manager.
+     * Initializes this distributed object with the supplied object id and
+     * distributed object manager. This is called by the distributed
+     * object manager when an object is created and registered with the
+     * system. Don't call this function yourself.
      *
      * @see DObjectManager.createObject
      */
-    public DObject (int oid, DObjectManager manager)
+    public void init (int oid, DObjectManager mgr)
     {
         _oid = oid;
-        _mgr = manager;
-        _subscribers = new ArrayList();
+        _mgr = mgr;
     }
 
     /**
@@ -106,10 +106,10 @@ public class DObject
      * <p> If the specified subscriber is already subscribed to this
      * object, they will not be added to the list a second time.
      */
-    public void addSubscriber (Subscriber subscriber)
+    public void addSubscriber (Subscriber sub)
     {
-        if (!_subscribers.contains(subscriber)) {
-            _subscribers.add(subscriber);
+        if (!_subscribers.contains(sub)) {
+            _subscribers.add(sub);
         }
     }
 
@@ -121,12 +121,66 @@ public class DObject
      * subscriber is not currently on the list of subscribers for this
      * object, nothing happens.
      */
-    public void removeSubscriber (Subscriber subscriber)
+    public void removeSubscriber (Subscriber sub)
     {
-        _subscribers.remove(subscriber);
+        _subscribers.remove(sub);
+    }
+
+    /**
+     * Checks to ensure that the specified subscriber has access to this
+     * object. This will be called before satisfying any fetch or
+     * subscription request. By default objects are accessible to all
+     * subscriber, but certain objects may wish to implement more fine
+     * grained access control.
+     *
+     * @param sub the subscriber that will fetch or subscribe to this
+     * object.
+     *
+     * @return true if the subscriber has access to the object, false if
+     * they do not.
+     */
+    public boolean checkPermissions (Subscriber sub)
+    {
+        return true;
+    }
+
+    /**
+     * Checks to ensure that this event which is about to be processed,
+     * has the appropriate permissions. By default objects accept all
+     * manner of events, but certain objects may wish to implement more
+     * fine grained access control.
+     *
+     * @param event the event that will be dispatched, object permitting.
+     *
+     * @return true if the event is valid and should be dispatched, false
+     * if the event fails the permissions check and should be aborted.
+     */
+    public boolean checkPermissions (DEvent event)
+    {
+        return true;
+    }
+
+    /**
+     * Called by the distributed object manager after it has applied an
+     * event to this object. This dispatches an event notification to all
+     * of the subscribers of this object.
+     *
+     * @param event the event that was just applied.
+     */
+    public void notifySubscribers (DEvent event)
+    {
+        for (int i = 0; i < _subscribers.size(); i++) {
+            Subscriber sub = (Subscriber)_subscribers.get(i);
+            // notify the subscriber
+            if (!sub.handleEvent(event, this)) {
+                // if they return false, we need to remove them from the
+                // subscriber list
+                _subscribers.remove(i--);
+            }
+        }
     }
 
     protected int _oid;
     protected DObjectManager _mgr;
-    protected ArrayList _subscribers;
+    protected ArrayList _subscribers = new ArrayList();
 }

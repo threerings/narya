@@ -1,5 +1,5 @@
 //
-// $Id: DEvent.java,v 1.2 2001/06/01 07:12:13 mdb Exp $
+// $Id: DEvent.java,v 1.3 2001/06/01 19:56:13 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -9,7 +9,7 @@ package com.threerings.cocktail.cher.dobj;
  * notification purposes, without making any modifications to the object
  * that defines the delivery group (the object's subscribers).
  */
-public class DEvent
+public abstract class DEvent
 {
     /**
      * Returns the oid of the object that is the target of this event.
@@ -18,6 +18,22 @@ public class DEvent
     {
         return _toid;
     }
+
+    /**
+     * Applies the attribute modifications represented by this event to
+     * the specified target object. This is called by the distributed
+     * object manager in the course of dispatching events and should not
+     * be called directly.
+     *
+     * @exception ObjectAccessException thrown if there is any problem
+     * applying the event to the object (invalid attribute, etc.).
+     *
+     * @return true if the object manager should go on to notify the
+     * object's subscribers of this event, false if the event should be
+     * treated silently and the subscribers should not be notified.
+     */
+    public abstract boolean applyToObject (DObject target)
+        throws ObjectAccessException;
 
     /**
      * Constructs a new distributed object event that pertains to the
