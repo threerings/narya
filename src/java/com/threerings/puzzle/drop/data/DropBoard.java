@@ -1,5 +1,5 @@
 //
-// $Id: DropBoard.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: DropBoard.java,v 1.2 2003/12/31 00:03:14 ray Exp $
 
 package com.threerings.puzzle.drop.data;
 
@@ -248,6 +248,7 @@ public abstract class DropBoard extends Board
             // if our piece is facing south and we're using radial
             // rotation then we need to try popping the piece up a row to
             // check for a fit
+            /*
             if (rtype == RADIAL_ROTATION && orient == SOUTH) {
                 // check if our hypothetical new coordinates are empty
                 if (isBlockEmpty(ox, oy - 1,
@@ -261,6 +262,7 @@ public abstract class DropBoard extends Board
                     return new int[] { orient, px, py - 1 };
                 }
             }
+            */
         }
 
         // this should never happen since even in the most tightly
