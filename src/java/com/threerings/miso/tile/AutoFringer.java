@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.22 2003/05/02 23:33:30 mdb Exp $
+// $Id: AutoFringer.java,v 1.23 2003/05/29 01:04:58 ray Exp $
 
 package com.threerings.miso.tile;
 
@@ -57,7 +57,7 @@ public class AutoFringer
      * location.
      */
     public Tile getFringeTile (MisoSceneModel scene, int col, int row,
-                               HashMap masks, Random rando)
+                               HashMap masks)
     {
         // get the tileset id of the base tile we are considering
         int underset = scene.getBaseTileId(col, row) >> 16;
@@ -110,14 +110,23 @@ public class AutoFringer
             }
         }
 
-        return composeFringeTile(frecs, masks, rando);
+        return composeFringeTile(frecs, masks, generateHashValue(col, row));
+    }
+
+    /**
+     * Create a hash value for picking which fringe to use for a particular
+     * tile.
+     */
+    protected int generateHashValue (int col, int row)
+    {
+        return col ^ row;
     }
 
     /**
      * Compose a FringeTile out of the various fringe images needed.
      */
     protected Tile composeFringeTile (
-        FringerRec[] fringers, HashMap masks, Random rando)
+        FringerRec[] fringers, HashMap masks, int hashValue)
     {
         // sort the array so that higher priority fringers get drawn first
         QuickSort.sort(fringers);
@@ -128,7 +137,7 @@ public class AutoFringer
             for (int jj = 0; jj < indexes.length; jj++) {
                 try {
                     ftimg = getTileImage(ftimg, fringers[ii].baseset,
-                                         indexes[jj], masks, rando);
+                                         indexes[jj], masks, hashValue);
                 } catch (NoSuchTileException nste) {
                     Log.warning("Autofringer couldn't find a needed tile " +
                                 "[error=" + nste + "].");
@@ -147,11 +156,11 @@ public class AutoFringer
      */
     protected BufferedImage getTileImage (
         BufferedImage ftimg, int baseset, int index,
-        HashMap masks, Random rando)
+        HashMap masks, int hashValue)
         throws NoSuchTileException, NoSuchTileSetException
     {
         FringeConfiguration.FringeTileSetRecord tsr =
-            _fringeconf.getRandomFringe(baseset, rando);
+            _fringeconf.getFringe(baseset, hashValue);
         int fringeset = tsr.fringe_tsid;
         TileSet fset = _tmgr.getTileSet(fringeset);
 

@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.39 2003/05/28 18:15:26 ray Exp $
+// $Id: MisoScenePanel.java,v 1.40 2003/05/29 01:04:58 ray Exp $
 
 package com.threerings.miso.client;
 
@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.RadialMenu;
@@ -1335,7 +1334,7 @@ public class MisoScenePanel extends VirtualMediaPanel
     protected Tile computeFringeTile (int tx, int ty)
     {
         return _ctx.getTileManager().getAutoFringer().getFringeTile(
-            _model, tx, ty, _masks, _rando);
+            _model, tx, ty, _masks);
     }
 
     /**
@@ -1511,9 +1510,6 @@ public class MisoScenePanel extends VirtualMediaPanel
 
     /** For computing fringe tiles. */
     protected HashMap _masks = new HashMap();
-
-    /** For computing fringe tiles. */
-    protected Random _rando = new Random();
 
     /** The dirty sprites and objects that need to be re-painted. */
     protected DirtyItemList _dirtyItems = new DirtyItemList();
