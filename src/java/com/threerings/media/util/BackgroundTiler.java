@@ -1,5 +1,5 @@
 //
-// $Id: BackgroundTiler.java,v 1.3 2002/09/25 21:49:53 shaper Exp $
+// $Id: BackgroundTiler.java,v 1.4 2002/10/22 02:02:40 shaper Exp $
 
 package com.threerings.media.util;
 
@@ -35,6 +35,13 @@ public class BackgroundTiler
         _height = src.getHeight(null);
         _h3 = _height/3;
         _ch3 = _height-2*_h3;
+
+        // make sure the image suits our minimum useful dimensions
+        if (_w3 <= 0 || _cw3 <= 0 || _h3 <= 0 || _ch3 <= 0) {
+            Log.warning("Backgrounder given source image of insufficient " +
+                        "size for tiling [src=" + src + "].");
+            return;
+        }
 
         // create our sub-divided images
         _tiles = new BufferedImage[9];
