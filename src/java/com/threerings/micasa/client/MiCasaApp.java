@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaApp.java,v 1.9 2002/07/16 05:44:29 mdb Exp $
+// $Id: MiCasaApp.java,v 1.10 2002/07/23 03:17:50 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -72,9 +72,10 @@ public class MiCasaApp
 
         // configure the client with some credentials and logon
         String username = System.getProperty("username");
-        if (username != null) {
+        String password = System.getProperty("password");
+        if (username != null && password != null) {
             // create and set our credentials
-            Credentials creds = new UsernamePasswordCreds(username, "test");
+            Credentials creds = new UsernamePasswordCreds(username, password);
             client.setCredentials(creds);
             client.logon();
         }
