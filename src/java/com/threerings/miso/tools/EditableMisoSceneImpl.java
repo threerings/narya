@@ -1,10 +1,11 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.15 2002/04/09 01:58:37 ray Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.16 2002/04/09 18:06:37 ray Exp $
 
 package com.threerings.miso.scene.tools;
 
 import java.awt.Rectangle;
 import java.util.Iterator;
+import java.util.Random;
 
 import com.samskivert.util.HashIntMap;
 
@@ -12,11 +13,13 @@ import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
+import com.threerings.media.tile.TileUtil;
 
 import com.threerings.miso.Log;
 
 import com.threerings.miso.tile.AutoFringer;
 import com.threerings.miso.tile.BaseTile;
+import com.threerings.miso.tile.BaseTileSet;
 import com.threerings.miso.tile.MisoTileManager;
 
 import com.threerings.miso.scene.DisplayMisoSceneImpl;
@@ -70,35 +73,49 @@ public class EditableMisoSceneImpl
     }
 
     // documentation inherited
-    public BaseTile getDefaultBaseTile ()
+    public BaseTileSet getDefaultBaseTileSet ()
     {
-        return _defaultBaseTile;
+        return _defaultBaseTileSet;
     }
 
     // documentation inherited
-    public void setDefaultBaseTile (BaseTile defaultBaseTile, int fqTileId)
+    public void setDefaultBaseTileSet (BaseTileSet defaultBaseTileSet,
+                                       int setId)
     {
-        _defaultBaseTile = defaultBaseTile;
-        _defaultBaseTileId = fqTileId;
+        _defaultBaseTileSet = defaultBaseTileSet;
+        _defaultBaseTileSetId = setId;
     }
 
     // documentation inherited
-    public void setBaseTiles (Rectangle r, BaseTile tile, int fqTileId)
+    public void setBaseTiles (Rectangle r, BaseTileSet set, int setId)
     {
+        int setcount = set.getTileCount();
+
         for (int x = r.x; x < r.x + r.width; x++) {
             for (int y = r.y; y < r.y + r.height; y++) {
-                _base.setTile(x, y, tile);
-                _model.baseTileIds[_model.width*y + x] = fqTileId;
+                try {
+                    int index = _rando.nextInt(setcount);
+                    _base.setTile(x, y, (BaseTile) set.getTile(index));
+                    _model.baseTileIds[_model.width*y + x] =
+                        TileUtil.getFQTileId(setId, index);
+
+                } catch (NoSuchTileException nste) {
+                    // not going to happen
+                    Log.warning("A tileset is lying to me [error=" + nste +
+                                "].");
+                }
             }
         }
 
-        _fringer.fringe(_model, _fringe, r);
+        _fringer.fringe(_model, _fringe, r, _rando);
     }
 
     // documentation inherited
     public void setBaseTile (int x, int y, BaseTile tile, int fqTileId)
     {
-        setBaseTiles(new Rectangle(x, y, 1, 1), tile, fqTileId);
+        _base.setTile(x, y, tile);
+        _model.baseTileIds[_model.width*y + x] = fqTileId;
+        _fringer.fringe(_model, _fringe, new Rectangle(x, y, 1, 1), _rando);
     }
 
     // documentation inherited
@@ -136,8 +153,9 @@ public class EditableMisoSceneImpl
     // documentation inherited
     public void clearBaseTile (int x, int y)
     {
-        // implemented as a set of the default tile
-        setBaseTile(x, y, _defaultBaseTile, _defaultBaseTileId);
+        // implemented as a set of one of the random base tiles
+        setBaseTiles(new Rectangle(x, y, 1, 1),
+                     _defaultBaseTileSet, _defaultBaseTileSetId);
     }
 
     // documentation inherited
@@ -227,12 +245,15 @@ public class EditableMisoSceneImpl
     /** where we keep track of object tile ids. */
     protected HashIntMap _objectTileIds;
 
-    /** The default tile with which to fill the base layer. */
-    protected BaseTile _defaultBaseTile;
+    /** The default tileset with which to fill the base layer. */
+    protected BaseTileSet _defaultBaseTileSet;
 
-    /** The fully qualified tile id of the default base tile. */
-    protected int _defaultBaseTileId;
+    /** The tileset id of the default base tileset. */
+    protected int _defaultBaseTileSetId;
 
     /** The autofringer. */
     protected AutoFringer _fringer;
+
+    /** A random number generator for filling random base tiles and fringes. */
+    protected Random _rando = new Random();
 }

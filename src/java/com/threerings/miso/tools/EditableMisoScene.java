@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoScene.java,v 1.13 2002/04/06 02:08:21 ray Exp $
+// $Id: EditableMisoScene.java,v 1.14 2002/04/09 18:06:37 ray Exp $
 
 package com.threerings.miso.scene.tools;
 
@@ -9,6 +9,7 @@ import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
 
 import com.threerings.miso.tile.BaseTile;
+import com.threerings.miso.tile.BaseTileSet;
 import com.threerings.miso.scene.DisplayMisoScene;
 import com.threerings.miso.scene.MisoSceneModel;
 
@@ -27,7 +28,7 @@ public interface EditableMisoScene
     /**
      * Returns the default base tile.
      */
-    public BaseTile getDefaultBaseTile ();
+    public BaseTileSet getDefaultBaseTileSet ();
 
     /**
      * Sets the default base tile.
@@ -37,7 +38,8 @@ public interface EditableMisoScene
      * com.threerings.media.tile.TileUtil#getFQTileId}) of the new default
      * base tile.
      */
-    public void setDefaultBaseTile (BaseTile defaultBaseTile, int fqTileId);
+    public void setDefaultBaseTileSet (BaseTileSet defaultBaseTileSet,
+                                       int setId);
 
     /**
      * Updates the tile at the specified location in the base layer.
@@ -52,9 +54,10 @@ public interface EditableMisoScene
     public void setBaseTile (int x, int y, BaseTile tile, int fqTileId);
 
     /**
-     * Fill a rectangular area with the specified base tile.
+     * Fill a rectangular area with random tiles from
+     * the specified base tileset.
      */
-    public void setBaseTiles (Rectangle r, BaseTile tile, int fqTileId);
+    public void setBaseTiles (Rectangle r, BaseTileSet set, int setId);
 
     /**
      * Updates the tile at the specified location in the fringe layer.
