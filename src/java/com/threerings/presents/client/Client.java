@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.37 2003/03/11 04:43:14 mdb Exp $
+// $Id: Client.java,v 1.38 2003/05/20 19:07:52 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -498,6 +498,7 @@ public class Client
             _dcalc = null;
             // let the client continue with its initialization
             clockDeltaEstablished();
+            Log.info("Time offset from server: " + _serverDelta + "ms.");
 
         } else {
             // ...or we'll either be sending another ping
