@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.32 2002/11/26 21:14:11 ray Exp $
+// $Id: SoundManager.java,v 1.33 2002/11/27 00:12:14 ray Exp $
 
 package com.threerings.media;
 
@@ -873,7 +873,13 @@ public class SoundManager
             // going into an infinite loop. Checking to see if the line
             // isActive (engaging in I/O) before calling drain seems
             // to have stopped the problem from happening.
-            if (_line.isActive()) {
+            //
+            // TODO: look at this some more.
+            // For now I'm turning draining back on, because I've seen
+            // instances of longer sounds reporting that they're not active
+            // while they're still playing, and so the next sound
+            // is significantly delayed. That sucks.
+            //if (_line.isActive()) {
 //                Log.info("Waiting for drain (" + hashCode() + ", active=" +
 //                    _line.isActive() + ", running=" + _line.isRunning()+
 //                    ") : " + incDrainers());
@@ -882,7 +888,7 @@ public class SoundManager
                 _line.drain();
 
 //                Log.info("drained: (" + hashCode() + ") :" + decDrainers());
-            }
+            //}
 
             // clear it out so that we can wait for more.
             _stream = null;
@@ -1032,5 +1038,5 @@ public class SoundManager
     protected static final int MAX_QUEUE_SIZE = 25;
 
     /** The buffer size in bytes used when reading audio file data. */
-    protected static final int BUFFER_SIZE = 8192;
+    protected static final int BUFFER_SIZE = 1024 * 24;
 }
