@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.35 2002/02/04 00:51:15 mdb Exp $
+// $Id: DObject.java,v 1.36 2002/02/04 01:47:19 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import com.samskivert.util.ListUtil;
+import com.samskivert.util.StringUtil;
 import com.threerings.presents.Log;
 
 /**
@@ -444,22 +445,9 @@ public class DObject
     public String toString ()
     {
         StringBuffer buf = new StringBuffer();
-        buf.append("[");
-        toString(buf);
-        buf.append("]");
-        return buf.toString();
-    }
-
-    /**
-     * An extensible mechanism for generating a string representation of
-     * this object. Derived classes should override this method, calling
-     * super and then appending their own data to the supplied string
-     * buffer. The regular {@link #toString} function will call this
-     * derived function to generate its string.
-     */
-    protected void toString (StringBuffer buf)
-    {
-        buf.append("oid=").append(_oid);
+        buf.append("[oid=").append(_oid).append(", ");
+        StringUtil.fieldsToString(this);
+        return buf.append("]").toString();
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: BodyObject.dobj,v 1.6 2002/02/03 03:09:06 mdb Exp $
+// $Id: BodyObject.dobj,v 1.7 2002/02/04 01:47:20 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -44,12 +44,5 @@ public class BodyObject extends ClientObject
     {
         this.location = location;
         requestAttributeChange(LOCATION, new Integer(location));
-    }
-
-    protected void toString (StringBuffer buf)
-    {
-        super.toString(buf);
-        buf.append(", username=").append(username);
-        buf.append(", location=").append(location);
     }
 }

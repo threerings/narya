@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.dobj,v 1.5 2001/10/17 02:48:57 mdb Exp $
+// $Id: GameObject.dobj,v 1.6 2002/02/04 01:47:20 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -69,14 +69,5 @@ public class GameObject extends PlaceObject
     public void setPlayers (String[] value)
     {
         requestAttributeChange(PLAYERS, value);
-    }
-
-    // documentation inherited
-    protected void toString (StringBuffer buf)
-    {
-        super.toString(buf);
-        buf.append(", state=").append(state);
-        buf.append(", isRated=").append(isRated);
-        buf.append(", players=").append(StringUtil.toString(players));
     }
 }

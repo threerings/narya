@@ -1,5 +1,5 @@
 //
-// $Id: BootstrapData.java,v 1.3 2001/10/11 04:07:53 mdb Exp $
+// $Id: BootstrapData.java,v 1.4 2002/02/04 01:47:20 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -18,12 +18,4 @@ public class BootstrapData extends DObject
 
     /** The oid to which to send invocation requests. */
     public int invOid;
-
-    // documentation inherited
-    public void toString (StringBuffer buf)
-    {
-        super.toString(buf);
-        buf.append(", clientOid=").append(clientOid);
-        buf.append(", invOid=").append(invOid);
-    }
 }

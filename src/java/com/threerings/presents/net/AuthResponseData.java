@@ -1,5 +1,5 @@
 //
-// $Id: AuthResponseData.java,v 1.9 2001/10/11 04:07:53 mdb Exp $
+// $Id: AuthResponseData.java,v 1.10 2002/02/04 01:47:20 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -21,11 +21,4 @@ public class AuthResponseData extends DObject
      * why the authentication failed.
      */
     public String code;
-
-    // documentation inherited
-    protected void toString (StringBuffer buf)
-    {
-        super.toString(buf);
-        buf.append(", code=").append(code);
-    }
 }

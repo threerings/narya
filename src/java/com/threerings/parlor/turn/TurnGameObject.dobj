@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameObject.dobj,v 1.2 2001/10/17 02:49:37 mdb Exp $
+// $Id: TurnGameObject.dobj,v 1.3 2002/02/04 01:47:20 mdb Exp $
 
 package com.threerings.parlor.turn;
 
@@ -23,12 +23,5 @@ public class TurnGameObject extends GameObject
     public void setTurnHolder (String turnHolder)
     {
         requestAttributeChange(TURN_HOLDER, turnHolder);
-    }
-
-    // documentation inherited
-    protected void toString (StringBuffer buf)
-    {
-        super.toString(buf);
-        buf.append(", turnHolder=").append(turnHolder);
     }
 }
