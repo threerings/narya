@@ -1,14 +1,18 @@
 //
-// $Id: InvocationManager.java,v 1.10 2001/10/24 00:36:40 mdb Exp $
+// $Id: InvocationManager.java,v 1.11 2002/04/17 18:20:04 mdb Exp $
 
 package com.threerings.presents.server;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
+import com.samskivert.util.StringUtil;
+
 import com.threerings.presents.Log;
 import com.threerings.presents.dobj.*;
-import com.threerings.presents.data.*;
+import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.InvocationObject;
 import com.threerings.presents.util.ClassUtil;
 
 /**
@@ -132,14 +136,16 @@ public class InvocationManager
         // prune the method arguments from the full message arguments
         Object[] margs = new Object[args.length-1];
         int cloid = event.getSourceOid();
-        margs[0] = PresentsServer.omgr.getObject(cloid);
+        ClientObject source = (ClientObject)
+            PresentsServer.omgr.getObject(cloid);
         // make sure the client is still around
-        if (margs[0] == null) {
+        if (source == null) {
             Log.warning("Client no longer around for invocation provider " +
                         "request [module=" + module +
                         ", proc=" + procedure + ", cloid=" + cloid + "].");
             return;
         }
+        margs[0] = source;
         System.arraycopy(args, 2, margs, 1, args.length-2);
 
         // look up the method that will handle this procedure
@@ -155,6 +161,23 @@ public class InvocationManager
         // and invoke it
         try {
             procmeth.invoke(provider, margs);
+
+        } catch (InvocationTargetException ite) {
+            Throwable te = ite.getTargetException();
+            if (te instanceof ServiceFailedException) {
+                // automatically generate a <foo>Failed response
+                provider.sendResponse(source, invid.intValue(),
+                                      procedure + FAILED_SUFFIX,
+                                      te.getMessage());
+
+            } else {
+                Log.warning("Invocation procedure failed " +
+                            "[provider=" + provider +
+                            ", method=" + procmeth +
+                            ", args=" + StringUtil.toString(margs) + "].");
+                Log.logStackTrace(te);
+            }
+
         } catch (Exception e) {
             Log.warning("Error invoking invocation procedure " +
                         "[provider=" + provider +
@@ -167,4 +190,8 @@ public class InvocationManager
     protected int _invoid;
     protected HashMap _providers = new HashMap();
     protected HashMap _methcache = new HashMap();
+
+    /** The text that is appended to the procedure name when automatically
+     * generating a failure response. */
+    protected static final String FAILED_SUFFIX = "Failed";
 }

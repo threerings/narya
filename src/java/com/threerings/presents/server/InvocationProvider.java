@@ -1,5 +1,5 @@
 //
-// $Id: InvocationProvider.java,v 1.6 2001/10/11 04:07:53 mdb Exp $
+// $Id: InvocationProvider.java,v 1.7 2002/04/17 18:20:04 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -53,6 +53,23 @@ import com.threerings.presents.dobj.MessageEvent;
  * the reflection rules for automatic conversion of primitive types
  * (supply an <code>Integer</code> object for <code>int</code> params,
  * etc.).
+ *
+ * <p> Note that if an invocation service method throws a {@link
+ * ServiceFailedException}, the invocation manager will automatically
+ * issue a response to the client with the string <code>Failed</code>
+ * appended to the request method. For example, if the client issues a
+ * request for <code>Foo</code> which results in a call to
+ * <code>handleFooRequest</code>, which throws a service failed exception,
+ * the server will automatically issue a failure response named
+ * <code>FooFailed</code> with the single argument being the
+ * <code>reason</code> string provided to the constructor of the service
+ * failed exception. The caller would then implement:
+ *
+ * <pre>
+ * public void handleFooFailed (int invid, String reason)
+ * </pre>
+ *
+ * to handle the failure.
  */
 public class InvocationProvider
 {
