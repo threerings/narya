@@ -96,6 +96,14 @@ public class GameObject extends PlaceObject
     /** The player index of the creating player if this is a party game. */
     public int creator;
 
+    // documentation inherited
+    public boolean shouldBroadcast ()
+    {
+        // we do not broadcast to games because the users will get it
+        // on their scene objects
+        return false;
+    }
+    
     /**
      * Returns the number of players in the game.
      */

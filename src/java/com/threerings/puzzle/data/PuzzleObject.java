@@ -72,14 +72,6 @@ public class PuzzleObject extends GameObject
     /** The seed used to germinate the boards. */
     public long seed;
 
-    // documentation inherited
-    public boolean shouldBroadcast ()
-    {
-        // we do not broadcast to puzzles because the users will get it
-        // on their scene objects
-        return false;
-    }
-
     /**
      * Returns the number of active players in the game.
      */
