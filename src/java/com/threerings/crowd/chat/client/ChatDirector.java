@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.28 2002/07/26 20:35:01 ray Exp $
+// $Id: ChatDirector.java,v 1.29 2002/07/27 01:10:59 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -29,6 +29,18 @@ public class ChatDirector
     implements LocationObserver, MessageListener, InvocationReceiver,
                ChatCodes
 {
+    /**
+     * An interface that can receive information about the 6 most recent
+     * users that we've been chatting with.
+     */
+    public static interface ChatterObserver
+    {
+        /**
+         * The list of chatters has been changed.
+         */
+        public void chattersUpdated (String[] chatternames);
+    }
+
     /**
      * Creates a chat director and initializes it with the supplied
      * context. The chat director will register itself as a location
@@ -94,6 +106,45 @@ public class ChatDirector
     public void removeChatValidator (ChatValidator validator)
     {
         _validators.remove(validator);
+    }
+
+    /**
+     * Add an Observer that is watching the Chatters list, and update
+     * it immediately.
+     */
+    public void addChatterObserver (ChatterObserver co)
+    {
+        _chatterObservers.add(co);
+        co.chattersUpdated(
+            (String[]) _chatters.toArray(new String[_chatters.size()]));
+    }
+
+    /**
+     * Remove a Chatters list observer.
+     */
+    public void removeChatterObserver (ChatterObserver co)
+    {
+        _chatterObservers.remove(co);
+    }
+
+    /**
+     * Add a chatter to our list of recent chatters.
+     */
+    protected void addChatter (String name)
+    {
+        if (!_chatters.contains(name)) {
+            _chatters.add(name);
+            if (_chatters.size() > MAX_CHATTERS) {
+                _chatters.remove(0);
+            }
+
+            String[] list = (String[])
+                _chatters.toArray(new String[_chatters.size()]);
+            for (Iterator iter = _chatterObservers.iterator();
+                iter.hasNext(); ) {
+                ((ChatterObserver) iter.next()).chattersUpdated(list);
+            }
+        }
     }
 
     /**
@@ -289,6 +340,7 @@ public class ChatDirector
 
         dispatchMessage(new UserMessage(message, ChatCodes.TELL_CHAT_TYPE,
             source, ChatCodes.DEFAULT_MODE));
+        addChatter(source);
     }
 
     /**
@@ -323,6 +375,7 @@ public class ChatDirector
         String target = (String)tup.left, message = (String)tup.right;
         displayFeedbackMessage(_bundle,
             MessageBundle.tcompose("m.told_format", target, message));
+        addChatter(target);
     }
 
     /**
@@ -471,4 +524,13 @@ public class ChatDirector
     /** A cache of the target and message text associated with outstanding
      * tell chat requests. */
     protected HashIntMap _tells = new HashIntMap();
+
+    /** Usernames of users we've recently chatted with. */
+    protected ArrayList _chatters = new ArrayList();
+
+    /** Observers that are watching our chatters list. */
+    protected ArrayList _chatterObservers = new ArrayList();
+
+    /** The maximum number of chatter usernames to track. */
+    protected static final int MAX_CHATTERS = 6;
 }
