@@ -1,5 +1,5 @@
 //
-// $Id: JNLPDownloader.java,v 1.4 2003/08/08 03:40:46 mdb Exp $
+// $Id: JNLPDownloader.java,v 1.5 2003/08/08 23:45:39 mdb Exp $
 
 package com.threerings.resource;
 
@@ -7,7 +7,6 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -44,15 +43,6 @@ public class JNLPDownloader extends Downloader
         try {
             BufferedReader vin = new BufferedReader(new FileReader(_vfile));
             _cvers = vin.readLine();
-
-        } catch (FileNotFoundException fnfe) {
-            // TEMP: assume version 0.22 which is the last version
-            // published prior to our moving to versioned diffs
-            if (_desc.destFile.exists()) {
-                // Log.info("Assuming v0.22 for " + _vfile + ".");
-                _cvers = "0.22";
-            }
-
         } catch (IOException ioe) {
             Log.warning("Error reading version file [path=" + _vfile +
                         ", error=" + ioe + "].");
@@ -127,7 +117,7 @@ public class JNLPDownloader extends Downloader
     {
         if (_patchFile != null) {
             // move the old jar out of the way
-            File oldDest = new File(_desc.destFile.getPath() + ".old");
+            File oldDest = new File(mungePath(_desc.destFile, ".old"));
             if (!_desc.destFile.renameTo(oldDest)) {
                 Log.warning("Unable to move " + _desc.destFile + " to " +
                             oldDest + ". Cleaning up and failing.");
