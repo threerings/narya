@@ -1,5 +1,5 @@
 //
-// $Id: Table.java,v 1.12 2002/12/20 23:41:26 mdb Exp $
+// $Id: Table.java,v 1.13 2003/03/23 02:20:49 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -264,7 +264,7 @@ public class Table
     }
 
     /** A casted reference of our game config object. */
-    protected TableConfig _tconfig;
+    protected transient TableConfig _tconfig;
 
     /** A counter for assigning table ids. */
     protected static int _tableIdCounter = 0;
