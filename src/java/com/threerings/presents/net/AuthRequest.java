@@ -1,5 +1,5 @@
 //
-// $Id: AuthRequest.java,v 1.1 2001/05/22 06:07:59 mdb Exp $
+// $Id: AuthRequest.java,v 1.2 2001/05/22 21:51:29 mdb Exp $
 
 package com.samskivert.cocktail.cher.net;
 
@@ -9,23 +9,23 @@ import java.io.DataOutputStream;
 
 import com.samskivert.cocktail.cher.io.TypedObjectFactory;
 
-public class AuthenticationRequest extends UpstreamMessage
+public class AuthRequest extends UpstreamMessage
 {
-    /** The code for an object subscription request. */
+    /** The code for an auth request. */
     public static final short TYPE = TYPE_BASE + 0;
 
     /**
      * Zero argument constructor used when unserializing an instance.
      */
-    public AuthenticationRequest ()
+    public AuthRequest ()
     {
         super();
     }
 
     /**
-     * Constructs a authentication request with the supplied credentials.
+     * Constructs a auth request with the supplied credentials.
      */
-    public AuthenticationRequest (Credentials creds)
+    public AuthRequest (Credentials creds)
     {
         _creds = creds;
     }
@@ -50,8 +50,7 @@ public class AuthenticationRequest extends UpstreamMessage
     }
 
     /**
-     * The object id of the distributed object to which we are
-     * subscribing.
+     * The credentials associated with this auth request.
      */
     protected Credentials _creds;
 }

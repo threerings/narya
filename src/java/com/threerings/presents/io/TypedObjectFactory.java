@@ -1,5 +1,5 @@
 //
-// $Id: TypedObjectFactory.java,v 1.1 2001/05/22 06:07:59 mdb Exp $
+// $Id: TypedObjectFactory.java,v 1.2 2001/05/22 21:51:29 mdb Exp $
 
 package com.samskivert.cocktail.cher.io;
 
@@ -37,6 +37,28 @@ public class TypedObjectFactory
         return msg;
     }
 
+    /**
+     * Registers the supplied class with the specified type code. If a
+     * class is already registered with that type code a runtime exception
+     * will be thrown so that the proper freaking out can occur.
+     */
+    public static void registerClass (short type, Class clazz)
+    {
+        Short key = new Short(type);
+
+        // make sure no funny business is afoot
+        if (_classes.containsKey(key)) {
+            Class incumbent = (Class)_classes.get(key);
+            String errmsg = "Cannot register " + clazz.getName() +
+                " as type " + type + " because " + incumbent.getName() +
+                " is already registered with that type.";
+            throw new RuntimeException(errmsg);
+        }
+
+        // set up the mapping
+        _classes.put(key, clazz);
+    }
+
     protected static TypedObject newObjectByType (short type)
         throws ObjectStreamException
     {
@@ -53,23 +75,6 @@ public class TypedObjectFactory
                 "[class=" + clazz.getName() + ", error=" + t + "].";
             throw new ObjectStreamException(errmsg);
         }
-    }
-
-    protected static void registerClass (short type, Class clazz)
-    {
-        Short key = new Short(type);
-
-        // make sure no funny business is afoot
-        if (_classes.containsKey(key)) {
-            Class incumbent = (Class)_classes.get(key);
-            String errmsg = "Cannot register " + clazz.getName() +
-                " as type " + type + " because " + incumbent.getName() +
-                " is already registered with that type.";
-            throw new RuntimeException(errmsg);
-        }
-
-        // set up the mapping
-        _classes.put(key, clazz);
     }
 
     /** Our type to class mapping table. */

@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.1 2001/05/22 06:07:59 mdb Exp $
+// $Id: Communicator.java,v 1.2 2001/05/22 21:51:29 mdb Exp $
 
 package com.samskivert.cocktail.cher.client;
 
@@ -8,7 +8,9 @@ import java.net.Socket;
 import java.net.InetAddress;
 
 import com.samskivert.util.Queue;
+
 import com.samskivert.cocktail.cher.Log;
+import com.samskivert.cocktail.cher.io.FramingOutputStream;
 import com.samskivert.cocktail.cher.net.*;
 
 /**
@@ -100,6 +102,38 @@ class Communicator
         _client.communicatorDidExit();
     }
 
+    /**
+     * Writes the supplied message to the socket.
+     */
+    protected void sendMessage (UpstreamMessage msg)
+        throws IOException
+    {
+        // first we flatten the message so that we can measure it's length
+        msg.writeTo(_dout);
+        // then write the framed message to actual output stream
+        _fout.writeFrameAndReset(_out);
+    }
+
+    /**
+     * Reads a new message from the socket (blocking until a message has
+     * arrived).
+     */
+    protected DownstreamMessage receiveMessage ()
+        throws IOException
+    {
+        // read the frame size which comes first
+        int count = _din.readInt();
+
+        // now read 
+        return null;
+    }
+
+    /**
+     * The reader encapsulates the authentication and message reading
+     * process. It calls back to the <code>Communicator</code> class to do
+     * things, but the general flow of the reader thread is encapsulated
+     * in this class.
+     */
     protected class Reader extends Thread
     {
         public void run ()
@@ -145,11 +179,24 @@ class Communicator
 
             // establish a socket connection to said server
             _socket = new Socket(host, _client.getPort());
+
+            // create our input and output streams
+            InputStream in = _socket.getInputStream();
+            _din = new DataInputStream(new BufferedInputStream(in));
+            _out = _socket.getOutputStream();
+
+            // we frame our messages here and then write them directly to
+            // the real output stream
+            _fout = new FramingOutputStream();
+            _dout = new DataOutputStream(_fout);
         }
 
         protected void logon ()
-            throws LogonException
+            throws IOException, LogonException
         {
+            // construct an auth request and send it
+            AuthRequest req = new AuthRequest(_client.getCredentials());
+            sendMessage(req);
         }
 
         protected void listen ()
@@ -157,6 +204,11 @@ class Communicator
         }
     }
 
+    /**
+     * The writer encapsulates the message writing process. It calls back
+     * to the <code>Communicator</code> class to do things, but the
+     * general flow of the writer thread is encapsulated in this class.
+     */
     protected class Writer extends Thread
     {
         public void run ()
@@ -170,6 +222,10 @@ class Communicator
 
     protected Socket _socket;
     protected DataInputStream _din;
-    protected DataInputStream _dout;
+    protected OutputStream _out;
     protected Queue _msgq = new Queue();
+
+    /** We use this to frame our upstream messages. */
+    protected FramingOutputStream _fout;
+    protected DataOutputStream _dout;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: UpstreamMessage.java,v 1.1 2001/05/22 06:08:00 mdb Exp $
+// $Id: UpstreamMessage.java,v 1.2 2001/05/22 21:51:29 mdb Exp $
 
 package com.samskivert.cocktail.cher.net;
 
@@ -87,8 +87,8 @@ public abstract class UpstreamMessage extends TypedObject
 
     // register our upstream message classes
     static {
-        TypedObjectFactory.registerClass(AuthenticationRequest.TYPE,
-                                         AuthenticationRequest.class);
+        TypedObjectFactory.registerClass(AuthRequest.TYPE,
+                                         AuthRequest.class);
         TypedObjectFactory.registerClass(SubscribeRequest.TYPE,
                                          SubscribeRequest.class);
         TypedObjectFactory.registerClass(FetchRequest.TYPE,

@@ -1,5 +1,5 @@
 //
-// $Id: UsernamePasswordCreds.java,v 1.1 2001/05/22 06:08:00 mdb Exp $
+// $Id: UsernamePasswordCreds.java,v 1.2 2001/05/22 21:51:29 mdb Exp $
 
 package com.samskivert.cocktail.cher.net;
 
@@ -7,7 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class UsernamePasswordCreds
+public class UsernamePasswordCreds extends Credentials
 {
     public static final short TYPE = TYPE_BASE + 0;
 

@@ -1,5 +1,5 @@
 //
-// $Id: DownstreamMessage.java,v 1.1 2001/05/22 06:07:59 mdb Exp $
+// $Id: DownstreamMessage.java,v 1.2 2001/05/22 21:51:29 mdb Exp $
 
 package com.samskivert.cocktail.cher.net;
 
@@ -12,7 +12,7 @@ import com.samskivert.cocktail.cher.io.TypedObjectFactory;
  * client. Downstream messages include object subscription, event
  * forwarding and session management.
  */
-public class DownstreamMessage
+public abstract class DownstreamMessage extends TypedObject
 {
     /**
      * All downstream message derived classes should base their typed
@@ -43,30 +43,15 @@ public class DownstreamMessage
 
     // register our downstream message classes
     static {
-        TypedObjectFactory.registerClass(AuthenticationRequest.TYPE,
-                                         AuthenticationRequest.class);
-        TypedObjectFactory.registerClass(SubscribeRequest.TYPE,
-                                         SubscribeRequest.class);
-        TypedObjectFactory.registerClass(FetchRequest.TYPE,
-                                         FetchRequest.class);
-        TypedObjectFactory.registerClass(UnsubscribeNotification.TYPE,
-                                         UnsubscribeNotification.class);
-        TypedObjectFactory.registerClass(ForwardEventNotification.TYPE,
-                                         ForwardEventNotification.class);
-        TypedObjectFactory.registerClass(PingNotification.TYPE,
-                                         PingNotification.class);
-        TypedObjectFactory.registerClass(LogoffNotification.TYPE,
-                                         LogoffNotification.class);
+        TypedObjectFactory.registerClass(AuthResponse.TYPE,
+                                         AuthResponse.class);
+        TypedObjectFactory.registerClass(EventNotification.TYPE,
+                                         EventNotification.class);
+        TypedObjectFactory.registerClass(ObjectResponse.TYPE,
+                                         ObjectResponse.class);
+        TypedObjectFactory.registerClass(FailureResponse.TYPE,
+                                         FailureResponse.class);
+        TypedObjectFactory.registerClass(PongNotification.TYPE,
+                                         PongNotification.class);
     }
-
-    /** The code for an event notification. */
-    public static final byte EVENT = 0x00;
-    /** The code for a fetch/subscribe object response. */
-    public static final byte OBJECT = 0x01;
-    /** The code for a request failure. */
-    public static final byte FAILURE = 0x02;
-    /** The code for a pong response. */
-    public static final byte PONG = 0x03;
-    /** The code for an end of transmission notification. */
-    public static final byte EOT = 0x04;
 }
