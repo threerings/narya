@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.18 2001/11/27 08:09:35 mdb Exp $
+// $Id: CharacterSprite.java,v 1.19 2001/11/29 20:33:44 mdb Exp $
 
 package com.threerings.cast;
 
@@ -106,6 +106,7 @@ public class CharacterSprite
         super.pathBeginning();
 
         // enable walking animation
+        setActionSequence(WALKING);
         setAnimationMode(TIME_BASED);
     }
 
