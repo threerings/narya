@@ -1,5 +1,5 @@
 //
-// $Id: BundleUtil.java,v 1.9 2004/08/27 02:12:27 mdb Exp $
+// $Id: BundleUtil.java,v 1.10 2004/10/18 21:39:18 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -99,7 +99,7 @@ public class BundleUtil
             if (wipeBundleOnFailure) {
                 StreamUtil.close(bin);
                 bin = null;
-                bundle.wipeBundle();
+                bundle.wipeBundle(false);
             }
             throw ioe;
 

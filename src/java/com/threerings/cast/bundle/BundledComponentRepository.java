@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.34 2004/08/27 02:12:27 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.35 2004/10/18 21:39:18 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -154,6 +154,18 @@ public class BundledComponentRepository
         if (_classes == null) {
             _classes = new HashMap();
         }
+    }
+
+    /**
+     * Configures the bundled component repository to wipe any bundles
+     * that report certain kinds of failure. In the event that an unpacked
+     * bundle becomes corrupt, this is useful in that it will force the
+     * bundle to be unpacked on the next application invocation,
+     * potentially remedying the problem of a corrupt unpacking.
+     */
+    public void setWipeOnFailure (boolean wipeOnFailure)
+    {
+        _wipeOnFailure = true;
     }
 
     // documentation inherited
@@ -332,6 +344,9 @@ public class BundledComponentRepository
                 if (aset == null) {
                     Log.warning("Unable to locate tileset for action '" +
                                 action + "' " + component + ".");
+                    if (_wipeOnFailure) {
+                        _bundle.wipeBundle(false);
+                    }
                     return null;
                 }
 
@@ -504,4 +519,7 @@ public class BundledComponentRepository
 
     /** The component table. */
     protected HashIntMap _components = new HashIntMap();
+
+    /** Whether or not we wipe our bundles on any failure. */
+    protected boolean _wipeOnFailure;
 }
