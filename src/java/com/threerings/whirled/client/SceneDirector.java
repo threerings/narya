@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.15 2002/05/26 02:35:02 mdb Exp $
+// $Id: SceneDirector.java,v 1.16 2002/06/14 00:57:49 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -129,15 +129,20 @@ public class SceneDirector
 
         // complain if we're over-writing a pending request
         if (_pendingSceneId != -1) {
-            Log.warning("We appear to have a moveTo request outstanding " +
-                        "[psid=" + _pendingSceneId +
-                        ", nsid=" + sceneId + "].");
-            // but we're going to fall through and do it anyway because
-            // refusing to switch scenes at this point will inevitably
-            // result in some strange bug causing a move request to be
-            // dropped by the server and the client that did it to be
-            // totally hosed because they can no longer move to new scenes
-            // because they still have an outstanding request
+            // if the pending request has been outstanding more than a
+            // minute, go ahead and let this new one through in an attempt
+            // to recover from dropped moveTo requests
+            if (_locdir.checkRepeatMove()) {
+                Log.warning("Refusing moveTo; We have a request outstanding " +
+                            "[psid=" + _pendingSceneId +
+                            ", nsid=" + sceneId + "].");
+                return false;
+
+            } else {
+                Log.warning("Overriding stale moveTo request " +
+                            "[psid=" + _pendingSceneId +
+                            ", nsid=" + sceneId + "].");
+            }
         }
 
         // load up the pending scene so that we can communicate it's most

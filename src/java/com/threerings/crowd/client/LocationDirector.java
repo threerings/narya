@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.20 2002/05/26 02:24:46 mdb Exp $
+// $Id: LocationDirector.java,v 1.21 2002/06/14 00:57:48 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -107,15 +107,20 @@ public class LocationDirector
 
         // complain if we're over-writing a pending request
         if (_pendingPlaceId != -1) {
-            Log.warning("We appear to have a moveTo request outstanding " +
-                        "[ppid=" + _pendingPlaceId +
-                        ", npid=" + placeId + "].");
-            // but we're going to fall through and do it anyway because
-            // refusing to switch rooms at this point will inevitably
-            // result in some strange bug causing a move request to be
-            // dropped by the server and the client that did it to be
-            // totally hosed because they can no longer move to new
-            // locations because they still have an outstanding request
+            // if the pending request has been outstanding more than a
+            // minute, go ahead and let this new one through in an attempt
+            // to recover from dropped moveTo requests
+            if (checkRepeatMove()) {
+                Log.warning("Refusing moveTo; We have a request outstanding " +
+                            "[ppid=" + _pendingPlaceId +
+                            ", npid=" + placeId + "].");
+                return;
+
+            } else {
+                Log.warning("Overriding stale moveTo request " +
+                            "[ppid=" + _pendingPlaceId +
+                            ", npid=" + placeId + "].");
+            }
         }
 
         // make a note of our pending place id
@@ -183,6 +188,9 @@ public class LocationDirector
         // keep track of our previous place id
         _previousPlaceId = _placeId;
 
+        // clear out our last request time
+        _lastRequestTime = 0;
+
         // do some cleaning up in case we were previously in a place
         didLeavePlace();
 
@@ -248,8 +256,27 @@ public class LocationDirector
      */
     public void failedToMoveTo (int placeId, String reason)
     {
+        // clear out our last request time
+        _lastRequestTime = 0;
+
         // let our observers know what's up
         notifyFailure(placeId, reason);
+    }
+
+    /**
+     * Called to test and set a time stamp that we use to determine if a
+     * pending moveTo request is stale.
+     */
+    public boolean checkRepeatMove ()
+    {
+        long now = System.currentTimeMillis();
+        if (now - _lastRequestTime < STALE_REQUEST_DURATION) {
+            return true;
+
+        } else {
+            _lastRequestTime = now;
+            return false;
+        }
     }
 
     // documentation inherited from interface
@@ -456,6 +483,9 @@ public class LocationDirector
     /** The oid of the place we previously occupied. */
     protected int _previousPlaceId = -1;
 
+    /** The last time we requested a move to. */
+    protected long _lastRequestTime;
+
     /** The entity that deals when we fail to subscribe to a place
      * object. */
     protected FailureHandler _failureHandler;
@@ -467,4 +497,8 @@ public class LocationDirector
             return true;
         }
     };
+
+    /** We require that a moveTo request be outstanding for one minute
+     * before it is declared to be stale. */
+    protected static final long STALE_REQUEST_DURATION = 60L * 1000L;
 }
