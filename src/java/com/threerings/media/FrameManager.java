@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.3 2002/04/27 02:33:14 mdb Exp $
+// $Id: FrameManager.java,v 1.4 2002/04/27 18:59:27 mdb Exp $
 
 package com.threerings.media;
 
@@ -429,8 +429,20 @@ public class FrameManager
      */
     protected void createBackBuffer (GraphicsConfiguration gc)
     {
-        _backimg = gc.createCompatibleVolatileImage(
-            _frame.getWidth(), _frame.getHeight());
+        // create the offscreen buffer
+        int width = _frame.getWidth(), height = _frame.getHeight();
+        _backimg = gc.createCompatibleVolatileImage(width, height);
+
+        // fill the back buffer with white
+        Graphics g = null;
+        try {
+            g = _backimg.getGraphics();
+            g.fillRect(0, 0, width, height);
+        } finally {
+            if (g != null) {
+                g.dispose();
+            }
+        }
     }
 
     /**
