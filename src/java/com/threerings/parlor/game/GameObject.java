@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.java,v 1.10 2002/10/15 23:07:23 shaper Exp $
+// $Id: GameObject.java,v 1.11 2002/10/16 00:19:23 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -73,7 +73,7 @@ public class GameObject extends PlaceObject
     /**
      * Returns the number of players in the game.
      */
-    protected int getPlayerCount ()
+    public int getPlayerCount ()
     {
         int count = 0;
         int size = players.length;
