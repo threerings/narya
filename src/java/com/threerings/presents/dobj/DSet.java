@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.5 2001/08/21 00:58:26 mdb Exp $
+// $Id: DSet.java,v 1.6 2001/08/21 19:35:56 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -178,8 +178,8 @@ public class DSet
 
             protected void scanToNext ()
             {
-                while (_index < _elements.length) {
-                    if (_elements[++_index] != null) {
+                for (_index++; _index < _elements.length; _index++) {
+                    if (_elements[_index] != null) {
                         return;
                     }
                 }
