@@ -1,5 +1,5 @@
 //
-// $Id: AIGameTicker.java,v 1.3 2002/06/10 21:37:13 ray Exp $
+// $Id: AIGameTicker.java,v 1.4 2003/06/21 15:32:29 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -17,6 +17,9 @@ import com.threerings.crowd.server.CrowdServer;
  */
 public class AIGameTicker extends SafeInterval
 {
+    /** The frequency with which we dispatch AI game ticks. */
+    public static final long TICK_FREQUENCY = 3333L; // every 3 1/3 seconds
+
     /**
      * Register the specified GameManager to receive AI ticks.
      */
@@ -92,7 +95,4 @@ public class AIGameTicker extends SafeInterval
 
     /** Our single ticker for all AI games. */
     protected static AIGameTicker _ticker;
-
-    /** The frequency with which we dispatch AI game ticks. */
-    protected static final long TICK_FREQUENCY = 3333L; // every 3 1/3 seconds
 }
