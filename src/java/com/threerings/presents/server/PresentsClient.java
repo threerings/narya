@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.32 2002/05/31 07:33:33 mdb Exp $
+// $Id: PresentsClient.java,v 1.33 2002/07/10 01:25:11 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -571,26 +571,22 @@ public class PresentsClient
     /**
      * Processes logoff requests.
      */
-    protected static class LogoffDispatcher
-        implements MessageDispatcher, Runnable
+    protected static class LogoffDispatcher implements MessageDispatcher
     {
-        public void dispatch (PresentsClient client, UpstreamMessage msg)
+        public void dispatch (final PresentsClient client, UpstreamMessage msg)
         {
             Log.info("Client requested logoff " +
                      "[client=" + client + "].");
-            _client = client;
-            // queue ourselves up to be run on the object manager thread
-            // where we can safely end the session
-            PresentsServer.omgr.postUnit(this);
-        }
 
-        public void run ()
-        {
-            // end the session in a civilized manner
-            _client.endSession();
+            // queue up a runnable on the object manager thread where we
+            // can safely end the session
+            PresentsServer.omgr.postUnit(new Runnable() {
+                public void run () {
+                    // end the session in a civilized manner
+                    client.endSession();
+                }
+            });
         }
-
-        protected PresentsClient _client;
     }
 
     protected ClientManager _cmgr;
