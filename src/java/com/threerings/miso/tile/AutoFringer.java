@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.7 2002/04/08 18:41:58 ray Exp $
+// $Id: AutoFringer.java,v 1.8 2002/04/08 19:41:52 ray Exp $
 
 package com.threerings.miso.tile;
 
@@ -211,7 +211,7 @@ public class AutoFringer
      */
     protected int[] getFringeIndexes (int bits)
     {
-        int index = _fringeconf.getTileIndexFromFringeBits(bits);
+        int index = BITS_TO_INDEX[bits];
         if (index != -1) {
             int[] ret = new int[1];
             ret[0] = index;
@@ -240,7 +240,7 @@ public class AutoFringer
             if (((1 << ii) & bits) != 0) {
                 weebits |= (1 << ii);
             } else if (weebits != 0) {
-                index = _fringeconf.getTileIndexFromFringeBits(weebits);
+                index = BITS_TO_INDEX[weebits];
                 if (index != -1) {
                     indexes.add(new Integer(index));
                 }
@@ -248,7 +248,7 @@ public class AutoFringer
             }
         }
         if (weebits != 0) {
-            index = _fringeconf.getTileIndexFromFringeBits(weebits);
+            index = BITS_TO_INDEX[weebits];
             if (index != -1) {
                 indexes.add(new Integer(index));
             }
@@ -307,6 +307,56 @@ public class AutoFringer
         { (NORTHWEST | NORTH | NORTHEAST), 0, (SOUTHEAST | SOUTH | SOUTHWEST) },
         { NORTHWEST, (NORTHWEST | WEST | SOUTHWEST), SOUTHWEST }
     };
+
+    /**
+     * The fringe tiles we use. These are the 17 possible tiles made
+     * up of continuous fringebits sections.
+     * Huh? see docs/miso/fringebits.png
+     */
+    protected static final int[] FRINGETILES = {
+        SOUTHEAST,
+        SOUTHWEST | SOUTH | SOUTHEAST,
+        SOUTHWEST,
+        NORTHEAST | EAST | SOUTHEAST,
+        NORTHWEST | WEST | SOUTHWEST,
+        NORTHEAST,
+        NORTHWEST | NORTH | NORTHEAST,
+        NORTHWEST,
+
+        SOUTHWEST | WEST | NORTHWEST | NORTH | NORTHEAST,
+        NORTHWEST | NORTH | NORTHEAST | EAST | SOUTHEAST,
+        NORTHWEST | WEST | SOUTHWEST | SOUTH | SOUTHEAST,
+        SOUTHWEST | SOUTH | SOUTHEAST | EAST | NORTHEAST,
+
+        NORTHEAST | NORTH | NORTHWEST | WEST | SOUTHWEST | SOUTH | SOUTHEAST,
+        SOUTHEAST | EAST | NORTHEAST | NORTH | NORTHWEST | WEST | SOUTHWEST,
+        SOUTHWEST | SOUTH | SOUTHEAST | EAST | NORTHEAST | NORTH | NORTHWEST,
+        NORTHWEST | WEST | SOUTHWEST | SOUTH | SOUTHEAST | EAST | NORTHEAST,
+
+        // all the directions!
+        NORTH | NORTHEAST | EAST | SOUTHEAST |
+                SOUTH | SOUTHWEST | WEST | NORTHWEST
+    };
+
+    // A reverse map of the above array, for quickly looking up which tile
+    // we want.
+    protected static final int[] BITS_TO_INDEX;
+
+    // Construct the BITS_TO_INDEX array.
+    static {
+        int num = (1 << NUM_FRINGEBITS);
+        BITS_TO_INDEX = new int[num];
+
+        // first clear everything to -1 (meaning there is no tile defined)
+        for (int ii=0; ii < num; ii++) {
+            BITS_TO_INDEX[ii] = -1;
+        }
+
+        // then fill in with the defined tiles.
+        for (int ii=0; ii < FRINGETILES.length; ii++) {
+            BITS_TO_INDEX[FRINGETILES[ii]] = ii;
+        }
+    }
 
     /** Our tile manager. */
     protected TileManager _tmgr;

@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfiguration.java,v 1.8 2002/04/06 20:50:30 ray Exp $
+// $Id: FringeConfiguration.java,v 1.9 2002/04/08 19:41:52 ray Exp $
 
 package com.threerings.miso.tile;
 
@@ -73,25 +73,6 @@ public class FringeConfiguration implements Serializable
     }
 
     /**
-     * During parsing we get an int[] representing the fringes we have
-     * defined.
-     */
-    public void setTiles (int[] tiles)
-    {
-        // create an array of all possible tiles and set them all to invalid
-        _bits = new int[256];
-        for (int ii=0; ii < 256; ii++) {
-            _bits[ii] = -1;
-        }
-
-        // fill in the fringebit configurations we have tiles for with the
-        // index of the tiles
-        for (int ii=0; ii < tiles.length; ii++) {
-            _bits[tiles[ii]] = ii;
-        }
-    }
-
-    /**
      * If the first base tileset fringes upon the second, return the
      * fringe priority of the first base tileset, otherwise return -1.
      */
@@ -119,16 +100,6 @@ public class FringeConfiguration implements Serializable
     }
 
     /**
-     * Return the tile index of any fringing tileset that should be used
-     * if the following fringebits are turned on.
-     * @return -1 if not defined
-     */
-    public int getTileIndexFromFringeBits (int bits)
-    {
-        return _bits[bits];
-    }
-
-    /**
      * Get a random FringeTileSetRecord from amongst the ones
      * listed for the specified base tileset.
      */
@@ -142,7 +113,4 @@ public class FringeConfiguration implements Serializable
 
     /** The mapping from base tileset id to fringerecord. */
     protected HashIntMap _frecs = new HashIntMap();
-
-    /** An array that matches fringebits to fringe tile indexes. */
-    protected int[] _bits;
 }
