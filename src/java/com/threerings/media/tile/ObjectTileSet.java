@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSet.java,v 1.13 2003/02/04 02:59:47 mdb Exp $
+// $Id: ObjectTileSet.java,v 1.14 2003/02/06 06:23:05 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -160,6 +160,10 @@ public class ObjectTileSet extends SwissArmyTileSet
         }
         if (_priorities != null) {
             tile.setPriority(_priorities[tileIndex]);
+        }
+        if (_xspots != null) {
+            tile.setSpot(_xspots[tileIndex], _yspots[tileIndex],
+                         _sorients[tileIndex]);
         }
         return tile;
     }

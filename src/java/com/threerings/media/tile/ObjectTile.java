@@ -1,9 +1,15 @@
 //
-// $Id: ObjectTile.java,v 1.14 2003/01/29 21:31:37 mdb Exp $
+// $Id: ObjectTile.java,v 1.15 2003/02/06 06:23:05 mdb Exp $
 
 package com.threerings.media.tile;
 
+import java.awt.Dimension;
+import java.awt.Point;
+
+import com.samskivert.util.StringUtil;
+
 import com.threerings.media.image.Mirage;
+import com.threerings.util.DirectionUtil;
 
 /**
  * An object tile extends the base tile to provide support for objects
@@ -36,7 +42,7 @@ public class ObjectTile extends Tile
      */
     public int getBaseWidth ()
     {
-        return _baseWidth;
+        return _base.width;
     }
 
     /**
@@ -44,7 +50,7 @@ public class ObjectTile extends Tile
      */
     public int getBaseHeight ()
     {
-        return _baseHeight;
+        return _base.height;
     }
 
     /**
@@ -52,8 +58,8 @@ public class ObjectTile extends Tile
      */
     protected void setBase (int width, int height)
     {
-        _baseWidth = width;
-        _baseHeight = height;
+        _base.width = width;
+        _base.height = height;
     }
 
     /**
@@ -65,7 +71,7 @@ public class ObjectTile extends Tile
      */
     public int getOriginX ()
     {
-        return _originX;
+        return _origin.x;
     }
 
     /**
@@ -77,7 +83,7 @@ public class ObjectTile extends Tile
      */
     public int getOriginY ()
     {
-        return _originY;
+        return _origin.y;
     }
 
     /**
@@ -90,8 +96,8 @@ public class ObjectTile extends Tile
      */
     protected void setOrigin (int x, int y)
     {
-        _originX = x;
-        _originY = y;
+        _origin.x = x;
+        _origin.y = y;
     }
 
     /**
@@ -110,33 +116,67 @@ public class ObjectTile extends Tile
         _priority = priority;
     }
 
+    /**
+     * Configures the "spot" associated with this object.
+     */
+    public void setSpot (int x, int y, byte orient)
+    {
+        _spot = new Point(x, y);
+        _sorient = orient;
+    }
+
+    /**
+     * Returns the x-coordinate of the "spot" associated with this object.
+     */
+    public int getSpotX ()
+    {
+        return (_spot == null) ? 0 : _spot.x;
+    }
+
+    /**
+     * Returns the x-coordinate of the "spot" associated with this object.
+     */
+    public int getSpotY ()
+    {
+        return (_spot == null) ? 0 : _spot.y;
+    }
+
+    /**
+     * Returns the orientation of the "spot" associated with this object.
+     */
+    public int getSpotOrient ()
+    {
+        return _sorient;
+    }
+
     // documentation inherited
     public void toString (StringBuffer buf)
     {
         super.toString(buf);
-        buf.append(", baseWidth=").append(_baseWidth);
-        buf.append(", baseHeight=").append(_baseHeight);
-        buf.append(", originX=").append(_originX);
-        buf.append(", originY=").append(_originY);
+        buf.append(", base=").append(StringUtil.toString(_base));
+        buf.append(", origin=").append(StringUtil.toString(_origin));
         buf.append(", priority=").append(_priority);
+        if (_spot != null) {
+            buf.append(", spot=").append(StringUtil.toString(_spot));
+            buf.append(", sorient=");
+            buf.append(DirectionUtil.toShortString(_sorient));
+        }
     }
 
     /** The object footprint width in unit tile units. */
-    protected int _baseWidth = 1;
+    protected Dimension _base = new Dimension(1, 1);
 
-    /** The object footprint height in unit tile units. */
-    protected int _baseHeight = 1;
-
-    /** The x offset from the origin of the tile image to the object's
+    /** The offset from the origin of the tile image to the object's
      * origin or MIN_VALUE if the origin should be calculated based on the
      * footprint. */
-    protected int _originX = Integer.MIN_VALUE;
-
-    /** The y offset from the origin of the tile image to the object's
-     * origin or MIN_VALUE if the origin should be calculated based on the
-     * footprint. */
-    protected int _originY = Integer.MIN_VALUE;
+    protected Point _origin = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
 
     /** This object tile's default render priority. */
     protected int _priority;
+
+    /** The coordinates of the "spot" associated with this object. */
+    protected Point _spot;
+
+    /** The orientation of the "spot" associated with this object. */
+    protected byte _sorient;
 }
