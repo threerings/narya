@@ -1,5 +1,5 @@
 //
-// $Id: FrameRepaintManager.java,v 1.14 2002/11/05 05:49:31 mdb Exp $
+// $Id: FrameRepaintManager.java,v 1.15 2002/11/05 18:52:11 ray Exp $
 
 package com.threerings.media;
 
@@ -219,8 +219,13 @@ public class FrameRepaintManager extends RepaintManager
      */
     public void paintComponents (Graphics g, FrameManager fmgr)
     {
-        // swap out our hashmap
         synchronized (this) {
+            // exit now if there are no dirty rectangles to paint
+            if (_dirty.isEmpty()) {
+                return;
+            }
+
+            // otherwise, swap our hashmaps
             HashMap tmap = _spare;
             _spare = _dirty;
             _dirty = tmap;
