@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.9 2001/10/17 22:21:22 shaper Exp $
+// $Id: IsoUtil.java,v 1.10 2001/10/18 20:24:05 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -451,14 +451,10 @@ public class IsoUtil
                 bx -= (((ObjectTile)db.obj).baseWidth - 1);
             }
 
-            // Log.info("getOverlap [ax=" + ax + ", ay=" + ay +
-            // ", bx=" + bx + ", by=" + by + "].");
-
-            if (ax > bx && ay < by) {
+            if (ax < bx && ay > by) {
                 // we most certainly don't overlap
                 return 0;
             }
-
 
             // calculate inequality constant for db's leftmost corner
             int k = (bx + by);
