@@ -76,6 +76,19 @@ public abstract class GameConfig extends PlaceConfig implements Cloneable
     public abstract Class getConfiguratorClass ();
 
     /**
+     * Returns an array of strings that describe the configuration of this
+     * game. This should eventually be rolled into a more general
+     * purpose mechanism for generating descriptions of game
+     * configurations as well as editors for game configurations (which
+     * already exists in rudimentary form).  Default implementation returns
+     * an empty array.
+     */
+    public String[] getDescription ()
+    {
+        return new String[0];
+    }
+    
+    /**
      * Returns true if this game config object is equal to the supplied
      * object (meaning it is also a game config object and its
      * configuration settings are the same as ours).

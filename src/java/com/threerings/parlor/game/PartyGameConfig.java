@@ -1,5 +1,5 @@
 //
-// $Id: PartyGameConfig.java,v 1.2 2004/08/27 02:20:14 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -38,13 +38,4 @@ public interface PartyGameConfig extends TableConfig
      * Configures this game config as a party game or not.
      */
     public void setPartyGame (boolean isPartyGame);
-
-    /**
-     * Returns an array of strings that describe the configuration of this
-     * party game. This should eventually be rolled into a more general
-     * purpose mechanism for generating descriptions of game
-     * configurations as well as editors for game configurations (which
-     * already exists in rudimentary form).
-     */
-    public String[] getPartyDescription ();
 }
