@@ -1,5 +1,5 @@
 //
-// $Id: ZoneProvider.java,v 1.11 2002/09/20 00:54:06 mdb Exp $
+// $Id: ZoneProvider.java,v 1.12 2002/10/04 01:33:10 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -152,8 +152,8 @@ public class ZoneProvider
 
             // now that we've finally moved, we can update the user object
             // with the new scene and zone ids
+            source.startTransaction();
             try {
-                source.startTransaction();
                 ((ScenedBodyObject)source).setSceneId(scmgr.getScene().getId());
                 ((ZonedBodyObject)source).setZoneId(summary.zoneId);
             } finally {
