@@ -12,10 +12,8 @@
       com.threerings.media.tools.tile.xml.SwissArmyTileSetRuleSet
     </ruleset>
   </mapping>
-  <!--
   <mapping>
     <path>bundle/object</path>
     <ruleset>com.threerings.media.tools.tile.xml.ObjectTileSetRuleSet</ruleset>
   </mapping>
-  -->
 </bundler-config>
