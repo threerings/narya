@@ -1,10 +1,12 @@
 //
-// $Id: AStarPathUtil.java,v 1.18 2002/06/12 23:30:40 ray Exp $
+// $Id: AStarPathUtil.java,v 1.19 2002/06/22 00:49:15 ray Exp $
 
 package com.threerings.miso.scene.util;
 
 import java.awt.Point;
 import java.util.*;
+
+import com.samskivert.util.HashIntMap;
 
 import com.threerings.media.util.MathUtil;
 
@@ -49,7 +51,7 @@ public class AStarPathUtil
 	AStarInfo info = new AStarInfo(scene, tilewid, tilehei, trav, bx, by);
 
 	// set up the starting node
-	AStarNode s = getNode(info, ax, ay);
+	AStarNode s = info.getNode(ax, ay);
 	s.g = 0;
 	s.h = getDistanceEstimate(ax, ay, bx, by);
 	s.f = s.g + s.h;
@@ -71,14 +73,14 @@ public class AStarPathUtil
 	    }
 
 	    // consider each successor of the node
-	    considerStep(info, n, n.x - 1, n.y - 1, 14);
-	    considerStep(info, n, n.x, n.y - 1, 10);
-	    considerStep(info, n, n.x + 1, n.y - 1, 14);
-	    considerStep(info, n, n.x - 1, n.y, 10);
-	    considerStep(info, n, n.x + 1, n.y, 10);
-	    considerStep(info, n, n.x - 1, n.y + 1, 14);
-	    considerStep(info, n, n.x, n.y + 1, 10);
-	    considerStep(info, n, n.x + 1, n.y + 1, 14);
+	    considerStep(info, n, n.x - 1, n.y - 1, DIAGONAL_COST);
+	    considerStep(info, n, n.x, n.y - 1, ADJACENT_COST);
+	    considerStep(info, n, n.x + 1, n.y - 1, DIAGONAL_COST);
+	    considerStep(info, n, n.x - 1, n.y, ADJACENT_COST);
+	    considerStep(info, n, n.x + 1, n.y, ADJACENT_COST);
+	    considerStep(info, n, n.x - 1, n.y + 1, DIAGONAL_COST);
+	    considerStep(info, n, n.x, n.y + 1, ADJACENT_COST);
+	    considerStep(info, n, n.x + 1, n.y + 1, DIAGONAL_COST);
 
 	    // push the node on the closed list
 	    info.closed.add(n);
@@ -101,15 +103,27 @@ public class AStarPathUtil
 	AStarInfo info, AStarNode n, int x, int y, int cost)
     {
         // skip node if it's outside the map bounds or otherwise impassable
-        if (!isStepValid(info, n.x, n.y, x, y)) {
+        if (!info.isStepValid(n.x, n.y, x, y)) {
             return;
+        }
+
+        // if it's offscreen, bang up the cost considerably
+        if (!info.isCoordinateValid(x, y)) {
+            cost += OFFSCREEN_COST;
         }
 
 	// calculate the new cost for this node
 	int newg = n.g + cost;
 
+        // make sure the cost is reasonable (so we don't go crazy computing
+        // offscreen costs)
+        if (newg > info.maxcost) {
+//            Log.info("Rejected costly step.");
+            return;
+        }
+
 	// retrieve the node corresponding to this location
-	AStarNode np = getNode(info, x, y);
+	AStarNode np = info.getNode(x, y);
 
 	// skip if it's already in the open or closed list or if its
 	// actual cost is less than the just-calculated cost
@@ -162,71 +176,6 @@ public class AStarPathUtil
     }
 
     /**
-     * Returns whether moving from the given source to destination
-     * coordinates is a valid move.
-     */
-    protected static boolean isStepValid (
-        AStarInfo info, int sx, int sy, int dx, int dy)
-    {
-        // not traversable if the destination itself fails test
-	if (!isTraversable(info, dx, dy)) {
-            return false;
-        }
-
-        // if the step is diagonal, make sure the corners don't impede
-        // our progress
-        if ((Math.abs(dx - sx) == 1) && (Math.abs(dy - sy) == 1)) {
-            return isTraversable(info, dx, sy, sx, dy);
-        }
-
-        // non-diagonals are always traversable
-        return true;
-    }
-
-    /**
-     * Returns whether the given coordinate is valid and traversable.
-     */
-    protected static boolean isTraversable (AStarInfo info, int x, int y)
-    {
-        if (isCoordinateValid(info, x, y)) {
-            BaseTile tile = info.scene.getBaseTile(x, y);
-            return (tile != null) && info.trav.canTraverse(tile);
-        }
-        return false;
-    }
-
-    /**
-     * Returns whether both of the given coordinates are valid and
-     * traversable.
-     */
-    protected static boolean isTraversable (
-        AStarInfo info, int x1, int y1, int x2, int y2)
-    {
-        return (isTraversable(info, x1, y1) &&
-                isTraversable(info, x2, y2));
-    }
-
-    /**
-     * Returns whether the given coordinate is valid based on the
-     * dimensions of the map being traversed.
-     */
-    protected static boolean isCoordinateValid (AStarInfo info, int x, int y)
-    {
-	return (x >= 0 && y >= 0 && x < info.tilewid && y < info.tilehei);
-    }
-
-    /**
-     * Return the <code>AStarNode</code> object corresponding to the
-     * specified tile coordinate.  Creates the node and saves it in
-     * the node array if this is its first reference.
-     */
-    protected static AStarNode getNode (AStarInfo info, int x, int y)
-    {
-	AStarNode n = info.nodes[x][y];
-	return (n == null) ? (info.nodes[x][y] = new AStarNode(x, y)) : n;
-    }
-
-    /**
      * Return a heuristic estimate of the cost to get from <code>(ax,
      * ay)</code> to <code>(bx, by)</code>.
      */
@@ -234,10 +183,20 @@ public class AStarPathUtil
     {
         // we're doing all of our cost calculations based on geometric
         // distance times ten
-        int xsq = 10 * (bx - ax); xsq = xsq * xsq;
-        int ysq = 10 * (by - ay); ysq = ysq * ysq;
-        return (int)Math.sqrt(xsq + ysq);
+        int xsq = bx - ax;
+        int ysq = by - ay;
+        return (int) (ADJACENT_COST * Math.sqrt(xsq * xsq + ysq * ysq));
     }
+
+    /** The standard cost to move between nodes. */
+    public static final int ADJACENT_COST = 10;
+
+    /** The cost to move diagonally. */
+    public static final int DIAGONAL_COST = (int) Math.sqrt(
+            (ADJACENT_COST * ADJACENT_COST) * 2);
+
+    /** A big old additional cost incurred for offscreen movement. */
+    public static final int OFFSCREEN_COST = 1000;
 }
 
 /**
@@ -255,9 +214,6 @@ class AStarInfo
     /** The traverser moving along the path. */
     public Traverser trav;
 
-    /** The array of A*-specific node info to match the tile array. */
-    public AStarNode nodes[][];
-
     /** The set of open nodes being searched. */
     public SortedSet open;
 
@@ -266,6 +222,9 @@ class AStarInfo
 
     /** The destination coordinates in the tile array. */
     public int destx, desty;
+
+    /** The maximum cost of any path that we'll consider. */
+    public int maxcost;
 
     public AStarInfo (
 	DisplayMisoScene scene, int tilewid, int tilehei, Traverser trav,
@@ -279,13 +238,79 @@ class AStarInfo
 	this.destx = destx;
 	this.desty = desty;
 
-	// construct the node array
-	nodes = new AStarNode[tilewid][tilehei];
+        // compute the maximum cost as the maximum onscreen path plus
+        // the maximum offscreen cost
+        this.maxcost = ((tilewid + tilehei) * AStarPathUtil.ADJACENT_COST) +
+                       MAX_OFFSCREEN * AStarPathUtil.OFFSCREEN_COST;
 
 	// construct the open and closed lists
 	open = new TreeSet();
 	closed = new ArrayList();
     }
+
+    /**
+     * Returns whether the given coordinate is valid based on the
+     * dimensions of the map being traversed.
+     */
+    protected boolean isCoordinateValid (int x, int y)
+    {
+	return (x >= 0 && y >= 0 && x < tilewid && y < tilehei);
+    }
+
+    /**
+     * Returns whether moving from the given source to destination
+     * coordinates is a valid move.
+     */
+    protected boolean isStepValid (int sx, int sy, int dx, int dy)
+    {
+        // not traversable if the destination itself fails test
+	if (!isTraversable(dx, dy)) {
+            return false;
+        }
+
+        // if the step is diagonal, make sure the corners don't impede
+        // our progress
+        if ((Math.abs(dx - sx) == 1) && (Math.abs(dy - sy) == 1)) {
+            return isTraversable(dx, sy) && isTraversable(sx, dy);
+        }
+
+        // non-diagonals are always traversable
+        return true;
+    }
+
+    /**
+     * Returns whether the given coordinate is valid and traversable.
+     */
+    protected boolean isTraversable (int x, int y)
+    {
+        if (isCoordinateValid(x, y)) {
+            BaseTile tile = scene.getBaseTile(x, y);
+            return (tile == null) || trav.canTraverse(tile);
+        }
+        return true;
+    }
+
+    /**
+     * Get or create the node for the specified point.
+     */
+    public AStarNode getNode (int x, int y)
+    {
+        // note: this _could_ break for unusual values of x and y.
+        // perhaps use a IntTuple as a key? Bleah.
+        int key = (x << 16) | (y & 0xffff);
+        AStarNode node = (AStarNode) _nodes.get(key);
+        if (node == null) {
+            node = new AStarNode(x, y);
+            _nodes.put(key, node);
+        }
+        return node;
+    }
+
+    /** The nodes being considered in the path. */
+    protected HashIntMap _nodes = new HashIntMap();
+
+    /** The maximum number of offscreen points we'll consider. */
+    protected static final int MAX_OFFSCREEN = 6;
 }
 
 /**
