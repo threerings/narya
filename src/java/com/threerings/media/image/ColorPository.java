@@ -1,5 +1,5 @@
 //
-// $Id: ColorPository.java,v 1.6 2004/08/27 02:12:38 mdb Exp $
+// $Id: ColorPository.java,v 1.7 2004/08/30 22:07:33 ray Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -67,6 +67,10 @@ public class ColorPository implements Serializable
          * {@link ColorRecord#starter}. */
         public boolean starter;
 
+        /** The default colorId to use for recoloration in this class, or
+         * 0 if there is no default defined. */
+        public int defaultId;
+
         /** A table of target colors included in this class. */
         public HashIntMap colors = new HashIntMap();
 
@@ -110,6 +114,15 @@ public class ColorPository implements Serializable
 
             // return a random entry from the array
             return _starters[RandomUtil.getInt(_starters.length)];
+        }
+
+        /**
+         * Get the default ColorRecord defined for this color class, or
+         * null if none.
+         */
+        public ColorRecord getDefault ()
+        {
+            return (ColorRecord) colors.get(defaultId);
         }
 
         /**
