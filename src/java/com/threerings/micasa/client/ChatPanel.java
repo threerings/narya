@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.6 2001/10/18 23:10:32 mdb Exp $
+// $Id: ChatPanel.java,v 1.7 2001/10/18 23:55:37 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -191,6 +191,19 @@ public class ChatPanel
         try {
             doc.insertString(doc.getLength(), speaker, _nameStyle);
             doc.insertString(doc.getLength(), message, _msgStyle);
+        } catch (BadLocationException ble) {
+            Log.warning("Unable to insert text!? [error=" + ble + "].");
+        }
+    }
+
+    public void displaySystemMessage (String message)
+    {
+        // stick a newline on the message
+        message = message + "\n";
+
+        Document doc = _text.getDocument();
+        try {
+            doc.insertString(doc.getLength(), message, _errStyle);
         } catch (BadLocationException ble) {
             Log.warning("Unable to insert text!? [error=" + ble + "].");
         }
