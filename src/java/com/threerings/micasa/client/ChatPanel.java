@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.1 2001/10/03 23:24:09 mdb Exp $
+// $Id: ChatPanel.java,v 1.2 2001/10/09 17:47:33 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -21,7 +21,7 @@ import com.threerings.micasa.Log;
 
 public class ChatPanel
     extends JPanel
-    implements ActionListener, LocationObserver, ChatDisplay, OccupantObserver
+    implements ActionListener, ChatDisplay, OccupantObserver, PlaceView
 {
     public ChatPanel (PartyContext ctx)
     {
@@ -32,8 +32,7 @@ public class ChatPanel
         _chatdtr = new ChatDirector(_ctx);
         _chatdtr.addChatDisplay(this);
 
-        // register as a location observer
-        _ctx.getLocationDirector().addLocationObserver(this);
+        // register as an occupant observer
         _ctx.getOccupantManager().addOccupantObserver(this);
 
         GroupLayout gl = new VGroupLayout(GroupLayout.STRETCH);
@@ -113,29 +112,6 @@ public class ChatPanel
 	} else {
 	    System.out.println("Unknown action event: " + cmd);
 	}
-    }
-
-    public boolean locationMayChange (int placeId)
-    {
-        // we're always amenable to change
-        return true;
-    }
-
-    public void locationDidChange (PlaceObject place)
-    {
-        Log.info("We be here: " + place);
-
-        // enable our chat input elements since we're now somewhere that
-        // we can chat
-        _entry.setEnabled(true);
-        _send.setEnabled(true);
-        _entry.requestFocus();
-    }
-
-    public void locationChangeFailed (int placeId, String reason)
-    {
-        Log.warning("Unable to change to location [plid=" + placeId +
-                    ", reason=" + reason + "].");
     }
 
     public void occupantEntered (OccupantInfo info)
@@ -250,6 +226,22 @@ public class ChatPanel
         if (!status.equals(ChatCodes.SUCCESS)) {
             displayError(status);
         }
+    }
+
+    public void willEnterPlace (PlaceObject place)
+    {
+        Log.info("We be here: " + place);
+
+        // enable our chat input elements since we're now somewhere that
+        // we can chat
+        _entry.setEnabled(true);
+        _send.setEnabled(true);
+        _entry.requestFocus();
+    }
+
+    public void didLeavePlace (PlaceObject place)
+    {
+        // nothing doing
     }
 
     protected PartyContext _ctx;

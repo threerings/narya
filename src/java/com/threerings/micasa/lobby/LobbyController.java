@@ -1,5 +1,5 @@
 //
-// $Id: LobbyController.java,v 1.1 2001/10/09 00:48:34 mdb Exp $
+// $Id: LobbyController.java,v 1.2 2001/10/09 17:47:33 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -9,6 +9,8 @@ import com.threerings.cocktail.party.client.PlaceView;
 import com.threerings.cocktail.party.util.PartyContext;
 
 import com.threerings.micasa.Log;
+import com.threerings.micasa.client.ChatPanel;
+import com.threerings.micasa.util.MiCasaContext;
 
 public class LobbyController extends PlaceController
 {

@@ -1,11 +1,13 @@
 //
-// $Id: LobbyManager.java,v 1.2 2001/10/04 23:41:44 mdb Exp $
+// $Id: LobbyManager.java,v 1.3 2001/10/09 17:47:33 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
 import java.util.Properties;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.cocktail.party.chat.ChatService;
+import com.threerings.cocktail.party.chat.ChatMessageHandler;
 import com.threerings.cocktail.party.server.PlaceManager;
 import com.threerings.micasa.Log;
 
@@ -59,6 +61,11 @@ public class LobbyManager extends PlaceManager
 
         // let the lobby registry know that we're up and running
         _lobreg.lobbyReady(_plobj.getOid(), _gameIdent, _name);
+
+        // register a chat message handler because we want to support
+        // chatting
+        MessageHandler handler = new ChatMessageHandler();
+        registerMessageHandler(ChatService.SPEAK_REQUEST, handler);
     }
 
     /** The universal game identifier for the game matchmade by this

@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaFrame.java,v 1.1 2001/10/03 23:24:09 mdb Exp $
+// $Id: MiCasaFrame.java,v 1.2 2001/10/09 17:47:33 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -25,6 +25,9 @@ public class MiCasaFrame
         // setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
+    /**
+     * Sets the panel that makes up the entire client display.
+     */
     public void setPanel (JPanel panel)
     {
         // remove the old panel
@@ -33,6 +36,24 @@ public class MiCasaFrame
 	getContentPane().add(panel, BorderLayout.CENTER);
         // swing doesn't properly repaint after adding/removing children
         validate();
+    }
+
+    /**
+     * Sets the match-making panel to be used when the lobby panel is
+     * being displayed.
+     */
+    public void setMatchMakingPanel (JPanel panel)
+    {
+        _lopanel.setPrimary(panel);
+    }
+
+    /**
+     * Provides a reference to the lobby panel that will be used to
+     * provide our lobby interfaces.
+     */
+    protected void setLobbyPanel (LobbyPanel panel)
+    {
+        _lopanel = panel;
     }
 
     /**
@@ -52,4 +73,6 @@ public class MiCasaFrame
     }
 
     protected Controller _controller;
+
+    protected LobbyPanel _lopanel;
 }

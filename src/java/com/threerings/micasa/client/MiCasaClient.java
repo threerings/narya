@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaClient.java,v 1.1 2001/10/03 23:24:09 mdb Exp $
+// $Id: MiCasaClient.java,v 1.2 2001/10/09 17:47:33 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -16,6 +16,7 @@ import com.threerings.cocktail.cher.net.*;
 
 import com.threerings.cocktail.party.client.LocationDirector;
 import com.threerings.cocktail.party.client.OccupantManager;
+import com.threerings.cocktail.party.client.PlaceView;
 
 import com.threerings.parlor.client.ParlorDirector;
 
@@ -37,16 +38,6 @@ public class MiCasaClient
     public MiCasaClient (MiCasaFrame frame)
         throws IOException
     {
-        // keep this for later
-        _frame = frame;
-
-        // log off when they close the window
-        _frame.addWindowListener(new WindowAdapter() {
-            public void windowClosing (WindowEvent evt) {
-                _client.logoff(true);
-            }
-        });
-
         // create our context
         _ctx = new MiCasaContextImpl();
 
@@ -60,7 +51,17 @@ public class MiCasaClient
         _pardtr = new ParlorDirector(_ctx);
 
         // for test purposes, hardcode the server info
-        _client.setServer("bering", 4007);
+        _client.setServer("localhost", 4007);
+
+        // keep this for later
+        _frame = frame;
+
+        // log off when they close the window
+        _frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing (WindowEvent evt) {
+                _client.logoff(true);
+            }
+        });
 
         // create our client controller and stick it in the frame
         _frame.setController(new ClientController(_ctx, _frame));
@@ -116,6 +117,17 @@ public class MiCasaClient
         public ParlorDirector getParlorDirector ()
         {
             return _pardtr;
+        }
+
+        public void setPlaceView (PlaceView view)
+        {
+            // stick the place view into our frame
+            _frame.setPanel((JPanel)view);
+        }
+
+        public MiCasaFrame getFrame ()
+        {
+            return _frame;
         }
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.3 2001/10/09 00:48:34 mdb Exp $
+// $Id: ClientController.java,v 1.4 2001/10/09 17:47:33 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -18,7 +18,6 @@ import com.threerings.cocktail.party.data.*;
 import com.threerings.media.sprite.SpriteManager;
 
 import com.threerings.micasa.Log;
-import com.threerings.micasa.lobby.LobbyService;
 import com.threerings.micasa.util.MiCasaContext;
 
 /**
@@ -51,9 +50,6 @@ public class ClientController
         // we also want to know about occupant changes
         _ctx.getOccupantManager().addOccupantObserver(this);
 
-        // create our lobby panel which we'll use once we're logged on
-        _lobbyPanel = new LobbyPanel(ctx);
-
         // create the logon panel and display it
         _logonPanel = new LogonPanel(_ctx);
 //          _frame.setPanel(_logonPanel);
@@ -84,10 +80,6 @@ public class ClientController
 
         // keep the body object around for stuff
         _body = (BodyObject)client.getClientObject();
-
-        // we're logged on, so we lose the login panel and move to our
-        // primary display
-        _frame.setPanel(_lobbyPanel);
     }
 
     // documentation inherited
@@ -192,5 +184,4 @@ public class ClientController
 
     // our panels
     protected LogonPanel _logonPanel;
-    protected LobbyPanel _lobbyPanel;
 }
