@@ -148,6 +148,7 @@ public class SoundManager
      */
     public void shutdown ()
     {
+        // TODO: we need to stop any looping sounds
         synchronized (_queue) {
             _queue.clear();
             if (_spoolerCount > 0) {
@@ -156,6 +157,7 @@ public class SoundManager
         }
         synchronized (_clipCache) {
             _lockedClips.clear();
+            _configs.clear();
         }
     }
 
@@ -906,7 +908,7 @@ public class SoundManager
     protected HashSet _disabledTypes = new HashSet();
 
     /** A cache of config objects we've created. */
-    protected HashMap _configs = new HashMap();
+    protected LRUHashMap _configs = new LRUHashMap(5);
 
     /** Soundkey command constants. */
     protected static final byte PLAY = 0;
