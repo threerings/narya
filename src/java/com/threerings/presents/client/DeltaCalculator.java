@@ -1,5 +1,5 @@
 //
-// $Id: DeltaCalculator.java,v 1.7 2004/10/18 21:40:24 mdb Exp $
+// $Id: DeltaCalculator.java,v 1.8 2004/10/22 01:19:55 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -61,6 +61,11 @@ public class DeltaCalculator
      */
     public boolean gotPong (PongResponse pong)
     {
+        // don't freak out if they keep calling gotPong() after we're done
+        if (_iter >= _deltas.length) {
+            return true;
+        }
+
         // make a note of when the ping message was sent and when the pong
         // response was received (both in client time)
         long send = _ping.getPackStamp(), recv = pong.getUnpackStamp();
