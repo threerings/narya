@@ -50,7 +50,7 @@ public class LobbyController extends PlaceController
         _ctx.getParlorDirector().setInvitationHandler(this);
     }
 
-    protected PlaceView createPlaceView ()
+    protected PlaceView createPlaceView (CrowdContext ctx)
     {
         return new LobbyPanel(_ctx, _config);
     }

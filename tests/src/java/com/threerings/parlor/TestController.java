@@ -22,11 +22,12 @@
 package com.threerings.parlor;
 
 import com.threerings.crowd.client.PlaceView;
+import com.threerings.crowd.util.CrowdContext;
 import com.threerings.parlor.game.client.GameController;
 
 public class TestController extends GameController
 {
-    public PlaceView createPlaceView ()
+    public PlaceView createPlaceView (CrowdContext ctx)
     {
         // nothing doing
         return null;

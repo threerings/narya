@@ -4,6 +4,7 @@
 package com.threerings.stage.client;
 
 import com.threerings.crowd.client.PlaceView;
+import com.threerings.crowd.util.CrowdContext;
 
 import com.threerings.whirled.data.SceneUpdate;
 import com.threerings.whirled.spot.client.SpotSceneController;
@@ -17,9 +18,9 @@ import com.threerings.stage.util.StageContext;
 public class StageSceneController extends SpotSceneController
 {
     // documentation inherited
-    protected PlaceView createPlaceView ()
+    protected PlaceView createPlaceView (CrowdContext ctx)
     {
-        return new StageScenePanel((StageContext)_ctx, this);
+        return new StageScenePanel((StageContext)ctx, this);
     }
 
     // documentation inherited

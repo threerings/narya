@@ -57,7 +57,7 @@ public abstract class PlaceController extends Controller
         _config = config;
 
         // create our user interface
-        _view = createPlaceView();
+        _view = createPlaceView(_ctx);
 
         // initialize our delegates
         applyToDelegates(new DelegateOp() {
@@ -101,8 +101,25 @@ public abstract class PlaceController extends Controller
      * Creates the user interface that will be used to display this place.
      * The view instance returned will later be configured with the place
      * object, once it becomes available.
+     *
+     * @param ctx a reference to the {@link CrowdContext} associated with
+     * this controller.
      */
-    protected abstract PlaceView createPlaceView ();
+    protected PlaceView createPlaceView (CrowdContext ctx)
+    {
+        return createPlaceView();
+    }
+
+    /**
+     * Obsolete but retained for runtime compatibility with the old and
+     * busted.
+     *
+     * @deprecated Use {@link #createPlaceView(CrowdContext)}.
+     */
+    protected PlaceView createPlaceView ()
+    {
+        return null;
+    }
 
     /**
      * This is called by the location director once the place object has

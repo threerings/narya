@@ -1,5 +1,5 @@
 //
-// $Id: TestController.java,v 1.4 2004/08/27 02:21:05 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,10 +22,11 @@
 package com.threerings.whirled;
 
 import com.threerings.crowd.client.*;
+import com.threerings.crowd.util.CrowdContext;
 
 public class TestController extends PlaceController
 {
-    protected PlaceView createPlaceView ()
+    protected PlaceView createPlaceView (CrowdContext ctx)
     {
         // nothing doing
         return null;
