@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMediaManager.java,v 1.5 2003/01/18 03:14:29 mdb Exp $
+// $Id: AbstractMediaManager.java,v 1.6 2003/01/18 20:14:03 mdb Exp $
 
 package com.threerings.media;
 
@@ -50,12 +50,8 @@ public abstract class AbstractMediaManager
      */
     public void renderMedia (Graphics2D gfx, int layer, Shape clip)
     {
-        for (int ii = 0, nn = _tickvec.length; ii < nn; ii++) {
-            AbstractMedia media = _tickvec[ii];
-            if (_tickvec[ii] == null) {
-                continue;
-            }
-
+        for (int ii = 0, nn = _media.size(); ii < nn; ii++) {
+            AbstractMedia media = (AbstractMedia)_media.get(ii);
             int order = media.getRenderOrder();
             try {
                 if (((layer == ALL) ||
@@ -94,6 +90,11 @@ public abstract class AbstractMediaManager
      */
     public void fastForward (long timeDelta)
     {
+        if (_tickStamp > 0) {
+            Log.warning("Egads! Asked to fastForward() during a tick.");
+            Thread.dumpStack();
+        }
+
         for (int ii=0, nn=_media.size(); ii < nn; ii++) {
             ((AbstractMedia) _media.get(ii)).fastForward(timeDelta);
         }
@@ -106,19 +107,12 @@ public abstract class AbstractMediaManager
      */
     protected void tickAllMedia (long tickStamp)
     {
-        // we copy our media into an array to prevent additions and
-        // removals during tick from breaking things
-        _tickvec = (AbstractMedia[])_media.toArray(_tickvec);
-
-        // clear out any leftover media
-        int mcount = _media.size();
-        if (mcount < _tickvec.length) {
-            Arrays.fill(_tickvec, mcount, _tickvec.length, null);
+        // we use _tickpos so that it can be adjusted if media is added or
+        // removed during the tick dispatch
+        for (_tickpos = 0; _tickpos < _media.size(); _tickpos++) {
+            ((AbstractMedia) _media.get(_tickpos)).tick(tickStamp);
         }
-
-        for (int ii = 0; ii < mcount; ii++) {
-            _tickvec[ii].tick(tickStamp);
-        }
+        _tickpos = -1;
     }
 
     /**
@@ -133,8 +127,16 @@ public abstract class AbstractMediaManager
             return false;
         }
 
-        _media.insertSorted(media, RENDER_ORDER);
         media.init(this);
+        int ipos = _media.insertSorted(media, RENDER_ORDER);
+
+        // if we're ticking, we need to adjust _tickpos and also tick this
+        // media if it was inserted behind our current tick position
+        if (ipos <= _tickpos) {
+            _tickpos++;
+            media.tick(_tickStamp);
+        }
+
         return true;
     }
 
@@ -144,13 +146,15 @@ public abstract class AbstractMediaManager
      */
     protected boolean removeMedia (AbstractMedia media)
     {
-        if (_media.remove(media)) {
+        int mpos = _media.indexOf(media);
+        if (mpos != -1) {
+            _media.remove(mpos);
             media.invalidate();
             media.shutdown();
-            if (_tickStamp > 0) {
-                // if we're in the middle of ticking, clear the removed
-                // media so that we don't paint it when the time comes
-                ListUtil.clear(_tickvec, media);
+            // if we're in the middle of ticking, we need to adjust the
+            // _tickpos if necessary
+            if (mpos <= _tickpos) {
+                _tickpos--;
             }
             return true;
         }
@@ -166,6 +170,11 @@ public abstract class AbstractMediaManager
      */
     protected void clearMedia ()
     {
+        if (_tickStamp > 0) {
+            Log.warning("Egads! Requested to clearMedia() during a tick.");
+            Thread.dumpStack();
+        }
+
         for (int ii=_media.size() - 1; ii >= 0; ii--) {
             AbstractMedia media = (AbstractMedia) _media.remove(ii);
             media.shutdown();
@@ -207,13 +216,13 @@ public abstract class AbstractMediaManager
     /** Our render-order sorted list of media. */
     protected SortableArrayList _media = new SortableArrayList();
 
+    /** The position in our media list that we're ticking in the middle of
+     * a call to {@link #tick} otherwise -1. */
+    protected int _tickpos = -1;
+
     /** The tick stamp if the manager is in the midst of a call to {@link
      * #tick}, else <code>0</code>. */
     protected long _tickStamp;
-
-    /** An array used to dispatch ticks and paint without worrying that
-     * additions and removals mess us up during the process. */
-    protected AbstractMedia[] _tickvec = new AbstractMedia[0];
 
     /** Used to sort media by render order. */
     protected static final Comparator RENDER_ORDER = new Comparator() {
