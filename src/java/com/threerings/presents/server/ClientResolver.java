@@ -1,5 +1,5 @@
 //
-// $Id: ClientResolver.java,v 1.4 2004/03/06 11:29:19 mdb Exp $
+// $Id: ClientResolver.java,v 1.5 2004/06/13 08:51:57 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -116,6 +116,12 @@ public class ClientResolver extends Invoker.Unit
                 }
             }
         }
+    }
+
+    // documentation inherited
+    public String toString ()
+    {
+        return "ClientResolver:" + _username;
     }
 
     /**
