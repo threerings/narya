@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedTile.java,v 1.2 2002/06/19 08:28:25 mdb Exp $
+// $Id: TrimmedTile.java,v 1.3 2002/06/19 23:28:14 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -47,6 +47,16 @@ public class TrimmedTile extends Tile
             createSubImage();
         }
         gfx.drawImage(_subimage, x + _tbounds.x, y + _tbounds.y, null);
+    }
+
+    /**
+     * Returns the bounds of the trimmed image within the coordinate
+     * system defined by the complete virtual tile. The returned rectangle
+     * should <em>not</em> be modified.
+     */
+    public Rectangle getTrimmedBounds ()
+    {
+        return _tbounds;
     }
 
     // documentation inherited
