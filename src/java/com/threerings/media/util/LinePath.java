@@ -1,5 +1,5 @@
 //
-// $Id: LinePath.java,v 1.3 2002/05/31 20:47:32 mdb Exp $
+// $Id: LinePath.java,v 1.4 2002/05/31 22:14:44 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -105,7 +105,9 @@ public class LinePath implements Path
         }
 
 //         Log.info("Updated pathable [duration=" + _duration +
-//                  ", dist=" + _distance + ", dt=" + dt + ", rt=" + rt +
+//                  ", dist=" + _distance +
+//                  ", dtX=" + dtX + ", rtX=" + rtX +
+//                  ", dtY=" + dtY + ", rtY=" + rtY +
 //                  ", leftx=" + leftx + ", lefty=" + lefty +
 //                  ", dx=" + dx + ", dy=" + dy + "].");
 
