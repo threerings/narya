@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.55 2002/11/26 09:12:10 mdb Exp $
+// $Id: GameManager.java,v 1.56 2002/11/29 20:56:06 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -384,14 +384,24 @@ public class GameManager extends PlaceManager
             ParlorSender.gameIsReady(bobj, _gameobj.getOid());
         }
 
-        // start up a no-show timer unless this is a party game
-        if (!_gameconfig.isPartyGame()) {
+        // start up a no-show timer if needed
+        if (needsNoShowTimer()) {
             IntervalManager.register(new SafeInterval(CrowdServer.omgr) {
                 public void run () {
                     checkForNoShows();
                 }
             }, NOSHOW_DELAY, null, false);
         }
+    }
+
+    /**
+     * Returns true if this game requires a no-show timer. The default
+     * implementation returns true for non-party games and false for party
+     * games. Derived classes may wish to change or augment this behavior.
+     */
+    protected boolean needsNoShowTimer ()
+    {
+        return !_gameconfig.isPartyGame();
     }
 
     // documentation inherited
@@ -468,7 +478,13 @@ public class GameManager extends PlaceManager
             placeBecameEmpty();
 
         } else {
-            handlePartialNoShow();
+            // do the right thing if we have any no-show players
+            for (int ii = 0; ii < getPlayerSlots(); ii++) {
+                if (!playerIsReady(ii)) {
+                    handlePartialNoShow();
+                    return;
+                }
+            }
         }
     }
 
@@ -756,13 +772,24 @@ public class GameManager extends PlaceManager
     protected boolean allPlayersReady ()
     {
         for (int ii = 0; ii < getPlayerSlots(); ii++) {
-            if (_gameobj.isOccupiedPlayer(ii) &&
-                (_playerOids[ii] == 0) &&
-                (_AIs == null || _AIs[ii] == -1)) {
+            if (!playerIsReady(ii)) {
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * Returns true if the player at the specified slot is ready (or if
+     * there is meant to be no player in that slot), false if there is
+     * meant to be a player in the specified slot and they have not yet
+     * reported that they are ready.
+     */
+    protected boolean playerIsReady (int pidx)
+    {
+        return (!_gameobj.isOccupiedPlayer(pidx) ||  // unoccupied slot
+                _playerOids[pidx] != 0 ||            // player is ready
+                (_AIs != null && _AIs[pidx] != -1)); // player is AI
     }
 
     // documentation inherited from interface
