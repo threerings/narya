@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.21 2001/11/21 02:42:15 mdb Exp $
+// $Id: TileSet.java,v 1.22 2001/11/27 08:40:34 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -153,7 +153,6 @@ public abstract class TileSet
     // used to ensure TileSet derivations adhere to the extractTileImage()
     // policy of not returning null
     private Image checkedGet (int tileIndex)
-        throws NoSuchTileException
     {
         Image image = extractTileImage(tileIndex);
 	if (image == null) {
