@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionObserver.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
+// $Id: ConnectionObserver.java,v 1.3 2001/06/01 22:12:03 mdb Exp $
 
 package com.threerings.cocktail.cher.server.net;
 
@@ -19,7 +19,8 @@ public interface ConnectionObserver
 {
     /**
      * Called when a new connection is established with the connection
-     * manager.
+     * manager. Only fully authenticated connections will be passed on to
+     * the connection observer.
      *
      * @param conn The newly established connection.
      */
@@ -28,7 +29,7 @@ public interface ConnectionObserver
     /**
      * Called if a connection fails for any reason. If a connection fails,
      * <code>connectionClosed</code> will not be called. This call to
-     * <code>connectionFailued</code> is the last the observers will hear
+     * <code>connectionFailed</code> is the last the observers will hear
      * about it.
      *
      * @param conn The connection in that failed.

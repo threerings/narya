@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.3 2001/06/01 20:35:39 mdb Exp $
+// $Id: PresentsServer.java,v 1.4 2001/06/01 22:12:03 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -18,7 +18,10 @@ public class CherServer
     public static AuthManager authmgr;
 
     /** The manager of network connections. */
-    public static ConnectionManager cmgr;
+    public static ConnectionManager conmgr;
+
+    /** The manager of clients. */
+    public static ClientManager clmgr;
 
     /** The distributed object manager. */
     public static DObjectManager omgr;
@@ -32,7 +35,9 @@ public class CherServer
             // create our authentication manager
             authmgr = new AuthManager(new DummyAuthenticator());
             // create our connection manager
-            cmgr = new ConnectionManager(authmgr);
+            conmgr = new ConnectionManager(authmgr);
+            // create our client manager
+            clmgr = new ClientManager(conmgr);
             // create our distributed object manager
             omgr = new CherDObjectMgr();
 
@@ -51,7 +56,7 @@ public class CherServer
         // start up the auth manager
         authmgr.start();
         // start up the connection manager
-        cmgr.start();
+        conmgr.start();
         // invoke the dobjmgr event loop
         ((CherDObjectMgr)omgr).run();
     }

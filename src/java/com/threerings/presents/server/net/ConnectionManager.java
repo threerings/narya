@@ -1,10 +1,11 @@
 //
-// $Id: ConnectionManager.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
+// $Id: ConnectionManager.java,v 1.3 2001/06/01 22:12:03 mdb Exp $
 
 package com.threerings.cocktail.cher.server.net;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import ninja2.core.io_core.nbio.*;
 
 import com.samskivert.util.LoopingThread;
@@ -40,6 +41,8 @@ public class ConnectionManager extends LoopingThread
 
         // keep a handle on our authentication manager
         _authmgr = authmgr;
+        // complete the introductions
+        _authmgr.setConnectionManager(this);
 
         // we use this to wait for activity on our sockets
         _selset = new SelectSet();
@@ -69,6 +72,61 @@ public class ConnectionManager extends LoopingThread
         return _authmgr;
     }
 
+    /**
+     * Adds the specified connection observer to the observers list.
+     * Connection observers will be notified of connection-related
+     * events. An observer will not be added to the list twice.
+     *
+     * @see ConnectionObserver
+     */
+    public void addConnectionObserver (ConnectionObserver observer)
+    {
+        synchronized (_observers) {
+            if (!_observers.contains(observer)) {
+                _observers.add(observer);
+            }
+        }
+    }
+
+    /**
+     * Removes the specified connection observer from the observers list.
+     */
+    public void removeConnectionObserver (ConnectionObserver observer)
+    {
+        synchronized (_observers) {
+            _observers.remove(observer);
+        }
+    }
+
+    /**
+     * Notifies the connection observers of a connection event. Used
+     * internally.
+     */
+    protected void notifyObservers (int code, Connection conn,
+                                    IOException cause)
+    {
+        synchronized (_observers) {
+            for (int i = 0; i < _observers.size(); i++) {
+                ConnectionObserver obs =
+                    (ConnectionObserver)_observers.get(i);
+                switch (code) {
+                case CONNECTION_ESTABLISHED:
+                    obs.connectionEstablished(conn);
+                    break;
+                case CONNECTION_FAILED:
+                    obs.connectionFailed(conn, cause);
+                    break;
+                case CONNECTION_CLOSED:
+                    obs.connectionClosed(conn);
+                    break;
+                default:
+                    throw new RuntimeException("Invalid code supplied to " +
+                                               "notifyObservers: " + code);
+                }
+            }
+        }
+    }
+
     protected void willStart ()
     {
         Log.info("Connection Manager thread running.");
@@ -92,6 +150,30 @@ public class ConnectionManager extends LoopingThread
 
             } catch (IOException ioe) {
                 connectionFailed(conn, ioe);
+            }
+        }
+
+        // check for connections that have completed authentication
+        Connection conn;
+        while ((conn = (Connection)_authq.getNonBlocking()) != null) {
+            // remove the old connection from the select set
+            _selset.remove(conn.getSelectItem());
+
+            // construct a new running connection to handle this
+            // connections network traffic from here on out
+            try {
+                RunningConnection rconn =
+                    new RunningConnection(this, conn.getSocket());
+                // wire this connection up to receive network events
+                _selset.add(rconn.getSelectItem());
+
+                // and let our observers know about our new connection
+                notifyObservers(CONNECTION_ESTABLISHED, rconn, null);
+
+            } catch (IOException ioe) {
+                Log.warning("Failure upgrading authing connection to " +
+                            "running connection.");
+                Log.logStackTrace(ioe);
             }
         }
 
@@ -185,6 +267,7 @@ public class ConnectionManager extends LoopingThread
         _selset.remove(conn.getSelectItem());
 
         // let our observers know what's up
+        notifyObservers(CONNECTION_FAILED, conn, ioe);
     }
 
     /**
@@ -198,6 +281,17 @@ public class ConnectionManager extends LoopingThread
         _selset.remove(conn.getSelectItem());
 
         // let our observers know what's up
+        notifyObservers(CONNECTION_CLOSED, conn, null);
+    }
+
+    /**
+     * Called by the auth manager to indicate that a connection was
+     * successfully authenticated.
+     */
+    void connectionDidAuthenticate (Connection conn)
+    {
+        // slap this sucker onto the authenticated connections queue
+        _authq.append(conn);
     }
 
     protected AuthManager _authmgr;
@@ -210,6 +304,10 @@ public class ConnectionManager extends LoopingThread
     protected FramingOutputStream _framer;
     protected DataOutputStream _dout;
 
+    protected Queue _authq = new Queue();
+
+    protected ArrayList _observers = new ArrayList();
+
     /** The default port on which we listen for connections. */
     protected static final int DEFAULT_CM_PORT = 4007;
 
@@ -218,6 +316,11 @@ public class ConnectionManager extends LoopingThread
      * flag to see if we should still be running.
      */
     protected static final int SELECT_LOOP_TIME = 30 * 1000;
+
+    // codes for notifyObservers()
+    protected static final int CONNECTION_ESTABLISHED = 0;
+    protected static final int CONNECTION_FAILED = 1;
+    protected static final int CONNECTION_CLOSED = 2;
 
     // register our shared objects
     static {

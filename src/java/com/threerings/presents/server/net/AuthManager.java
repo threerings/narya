@@ -1,5 +1,5 @@
 //
-// $Id: AuthManager.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
+// $Id: AuthManager.java,v 1.3 2001/06/01 22:12:03 mdb Exp $
 
 package com.threerings.cocktail.cher.server.net;
 
@@ -40,6 +40,16 @@ public class AuthManager extends LoopingThread
     }
 
     /**
+     * The connection manager introduces itself to the auth manager so
+     * that the auth manager can let it know when it has authorized
+     * connections.
+     */
+    public void setConnectionManager (ConnectionManager conmgr)
+    {
+        _conmgr = conmgr;
+    }
+
+    /**
      * Process auth requests.
      */
     protected void iterate ()
@@ -54,6 +64,10 @@ public class AuthManager extends LoopingThread
             // now ship the response back
             aconn.postMessage(rsp);
 
+            // if the authentication request was granted, let the
+            // connection manager know that we just authed a connection
+            _conmgr.connectionDidAuthenticate(aconn);
+
         } catch (Exception e) {
             Log.warning("Failure processing authreq [conn=" + aconn + "].");
             Log.logStackTrace(e);
@@ -61,5 +75,6 @@ public class AuthManager extends LoopingThread
     }
 
     protected Authenticator _author;
+    protected ConnectionManager _conmgr;
     protected Queue _authq = new Queue();
 }
