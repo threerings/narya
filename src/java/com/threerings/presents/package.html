@@ -136,7 +136,11 @@
     note are that setter methods for the two attributes were generated and
     constants were defined that will be used to identify which attribute
     changed if we choose to inspect an event notifying us of such a
-    change.
+    change. Note also that additional methods may be added to a
+    distributed object class as long as nothing is modified in the
+    <code>AUTO-GENERATED</code> section. As new fields are added and the
+    post-processing tool re-run, everything outside the auto-generated
+    section will be preserved.
 
     <p> One may also notice that attribute change requests result in the
     new value of the attribute being immediately written to the local copy
