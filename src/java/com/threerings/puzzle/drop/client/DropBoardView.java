@@ -1,5 +1,5 @@
 //
-// $Id: DropBoardView.java,v 1.5 2004/08/29 06:50:47 mdb Exp $
+// $Id: DropBoardView.java,v 1.6 2004/09/15 18:48:09 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -194,9 +194,11 @@ public abstract class DropBoardView extends PuzzleBoardView
             Thread.dumpStack();
             return;
         }
-        Sprite sprite = createPieceSprite(piece);
-        addSprite(sprite);
-        movePiece(sprite, sx, sy, tx, ty, duration);
+        Sprite sprite = createPieceSprite(piece, sx, sy);
+        if (sprite != null) {
+            addSprite(sprite);
+            movePiece(sprite, sx, sy, tx, ty, duration);
+        }
     }
 
     /**
@@ -333,7 +335,8 @@ public abstract class DropBoardView extends PuzzleBoardView
         _pieces = new Sprite[width * height];
         for (int yy = 0; yy < height; yy++) {
             for (int xx = 0; xx < width; xx++) {
-                Sprite piece = createPieceSprite(_dboard.getPiece(xx, yy));
+                Sprite piece = createPieceSprite(
+                    _dboard.getPiece(xx, yy), xx, yy);
                 if (piece != null) {
                     int ppos = yy * width + xx;
                     getPiecePosition(xx, yy, spos);
@@ -488,12 +491,13 @@ public abstract class DropBoardView extends PuzzleBoardView
      * Creates the sprite that is used to display the specified piece. If
      * the piece represents no piece, this method should return null.
      */
-    protected Sprite createPieceSprite (int piece)
+    protected Sprite createPieceSprite (int piece, int px, int py)
     {
         if (piece == PIECE_NONE) {
             return null;
         }
-        ImageSprite sprite = new ImageSprite(getPieceImage(piece));
+        ImageSprite sprite = new ImageSprite(
+            getPieceImage(piece, px, py, NORTH));
         sprite.setRenderOrder(-1);
         return sprite;
     }
