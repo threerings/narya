@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.36 2003/03/27 16:45:30 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.37 2003/03/27 17:13:38 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -266,8 +266,8 @@ public class SpotSceneManager extends SceneManager
 
         // otherwise we create a new cluster and add our charter members!
         clrec = new ClusterRecord();
-        clrec.addBody(joiner);
         clrec.addBody(friend);
+        clrec.addBody(joiner);
     }
 
     /**
