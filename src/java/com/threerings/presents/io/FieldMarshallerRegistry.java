@@ -1,5 +1,5 @@
 //
-// $Id: FieldMarshallerRegistry.java,v 1.7 2001/10/12 19:28:43 mdb Exp $
+// $Id: FieldMarshallerRegistry.java,v 1.8 2001/10/12 20:11:53 mdb Exp $
 
 package com.threerings.presents.dobj.io;
 
@@ -32,7 +32,7 @@ public class FieldMarshallerRegistry
         // case we stick the streamable marshaller into the registry for
         // this class
         if (marsh == null) {
-            if (clazz.isAssignableFrom(Streamable.class)) {
+            if (Streamable.class.isAssignableFrom(clazz)) {
                 marsh = _streamableMarsh;
                 _registry.put(clazz, marsh);
             }
