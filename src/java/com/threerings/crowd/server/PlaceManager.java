@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.17 2001/10/11 04:07:51 mdb Exp $
+// $Id: PlaceManager.java,v 1.18 2001/10/12 00:03:02 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -28,9 +28,10 @@ import com.threerings.crowd.data.*;
  * <p> A derived class is expected to handle initialization, cleanup and
  * operational functionality via the calldown functions {@link
  * #didStartup}, {@link #willShutdown}, and {@link #didShutdown} as well
- * as through additions to {@link #handleEvent}.
+ * as through event listeners.
  */
-public class PlaceManager implements Subscriber
+public class PlaceManager
+    implements MessageListener, OidListListener
 {
     /**
      * Returns a reference to our place configuration object.
@@ -101,11 +102,8 @@ public class PlaceManager implements Subscriber
         // configure the occupant info set
         plobj.occupantInfo.setElementType(getOccupantInfoClass());
 
-        // we'll want to be included among the place object's subscribers;
-        // we know that we can call addSubscriber() directly because the
-        // place manager is doing all of our initialization on the dobjmgr
-        // thread
-        plobj.addSubscriber(this);
+        // we'll need to hear about place object events
+        plobj.addListener(this);
 
         // let our derived classes do their thang
         didStartup();
@@ -225,47 +223,48 @@ public class PlaceManager implements Subscriber
         _msghandlers.put(name, handler);
     }
 
-    // nothing doing
-    public void objectAvailable (DObject object)
+    /**
+     * Dispatches message events to registered message handlers. Derived
+     * classes should probably register message handlers rather than
+     * override this method directly.
+     */
+    public void messageReceived (MessageEvent event)
     {
-    }
-
-    // nothing doing
-    public void requestFailed (int oid, ObjectAccessException cause)
-    {
+        MessageHandler handler = null;
+        if (_msghandlers != null) {
+            handler = (MessageHandler)_msghandlers.get(event.getName());
+        }
+        if (handler != null) {
+            handler.handleEvent(event, _plobj);
+        }
     }
 
     /**
-     * Derived classes can override this to handle events, but they must
-     * be sure to pass unknown events up to their super class.
+     * Handles occupant arrival into the place. Derived classes may need
+     * to override this method to handle other oid lists in their derived
+     * place objects. They should be sure to call
+     * <code>super.objectAdded</code> if the event is one they don't
+     * explicitly handle.
      */
-    public boolean handleEvent (DEvent event, DObject target)
+    public void objectAdded (ObjectAddedEvent event)
     {
-        // if this is a message event, see if we have a handler for it
-        if (event instanceof MessageEvent) {
-            MessageEvent mevt = (MessageEvent)event;
-            MessageHandler handler = null;
-            if (_msghandlers != null) {
-                handler = (MessageHandler)_msghandlers.get(mevt.getName());
-            }
-            if (handler != null) {
-                handler.handleEvent(mevt, (PlaceObject)target);
-            }
-
-        } else if (event instanceof ObjectAddedEvent) {
-            ObjectAddedEvent oae = (ObjectAddedEvent)event;
-            if (oae.getName().equals(PlaceObject.OCCUPANTS)) {
-                bodyEntered(oae.getOid());
-            }
-
-        } else if (event instanceof ObjectRemovedEvent) {
-            ObjectRemovedEvent ore = (ObjectRemovedEvent)event;
-            if (ore.getName().equals(PlaceObject.OCCUPANTS)) {
-                bodyLeft(ore.getOid());
-            }
+        if (event.getName().equals(PlaceObject.OCCUPANTS)) {
+            bodyEntered(event.getOid());
         }
+    }
 
-        return true;
+    /**
+     * Handles occupant departure from the place. Derived classes may need
+     * to override this method to handle other oid lists in their derived
+     * place objects. They should be sure to call
+     * <code>super.objectRemoved</code> if the event is one they don't
+     * explicitly handle.
+     */
+    public void objectRemoved (ObjectRemovedEvent event)
+    {
+        if (event.getName().equals(PlaceObject.OCCUPANTS)) {
+            bodyLeft(event.getOid());
+        }
     }
 
     /**

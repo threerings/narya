@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.11 2001/10/11 04:07:51 mdb Exp $
+// $Id: LocationDirector.java,v 1.12 2001/10/12 00:03:02 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -201,11 +201,6 @@ public class LocationDirector
                             "object; all has gone horribly wrong" +
                             "[cause=" + cause + "].");
             }
-
-            public boolean handleEvent (DEvent event, DObject target)
-            {
-                return false;
-            }
         };
         int cloid = client.getClientOid();
         client.getDObjectManager().subscribeToObject(cloid, sub);
@@ -324,12 +319,6 @@ public class LocationDirector
         if (_previousPlaceId != -1 && _previousPlaceId != placeId) {
             moveTo(_previousPlaceId);
         }
-    }
-
-    public boolean handleEvent (DEvent event, DObject target)
-    {
-        // nothing to do here, but remain subscribed
-        return true;
     }
 
     protected void notifyFailure (int placeId, String reason)

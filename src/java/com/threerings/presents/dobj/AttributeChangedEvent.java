@@ -1,5 +1,5 @@
 //
-// $Id: AttributeChangedEvent.java,v 1.9 2001/10/11 04:07:52 mdb Exp $
+// $Id: AttributeChangedEvent.java,v 1.10 2001/10/12 00:03:03 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -121,11 +121,13 @@ public class AttributeChangedEvent extends TypedEvent
         return true;
     }
 
+    // documentation inherited
     public short getType ()
     {
         return TYPE;
     }
 
+    // documentation inherited
     public void writeTo (DataOutputStream out)
         throws IOException
     {
@@ -134,6 +136,7 @@ public class AttributeChangedEvent extends TypedEvent
         ValueMarshaller.writeTo(out, _value);
     }
 
+    // documentation inherited
     public void readFrom (DataInputStream in)
         throws IOException
     {
@@ -142,6 +145,15 @@ public class AttributeChangedEvent extends TypedEvent
         _value = ValueMarshaller.readFrom(in);
     }
 
+    // documentation inherited
+    protected void notifyListener (Object listener)
+    {
+        if (listener instanceof AttributeChangeListener) {
+            ((AttributeChangeListener)listener).attributeChanged(this);
+        }
+    }
+
+    // documentation inherited
     protected void toString (StringBuffer buf)
     {
         buf.append("CHANGE:");

@@ -1,5 +1,5 @@
 //
-// $Id: EntryRemovedEvent.java,v 1.5 2001/10/11 04:07:52 mdb Exp $
+// $Id: EntryRemovedEvent.java,v 1.6 2001/10/12 00:03:03 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -77,11 +77,13 @@ public class ElementRemovedEvent extends TypedEvent
 
     }
 
+    // documentation inherited
     public short getType ()
     {
         return TYPE;
     }
 
+    // documentation inherited
     public void writeTo (DataOutputStream out)
         throws IOException
     {
@@ -90,6 +92,7 @@ public class ElementRemovedEvent extends TypedEvent
         ValueMarshaller.writeTo(out, _key);
     }
 
+    // documentation inherited
     public void readFrom (DataInputStream in)
         throws IOException
     {
@@ -98,6 +101,15 @@ public class ElementRemovedEvent extends TypedEvent
         _key = ValueMarshaller.readFrom(in);
     }
 
+    // documentation inherited
+    protected void notifyListener (Object listener)
+    {
+        if (listener instanceof SetListener) {
+            ((SetListener)listener).elementRemoved(this);
+        }
+    }
+
+    // documentation inherited
     protected void toString (StringBuffer buf)
     {
         buf.append("ELREM:");

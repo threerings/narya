@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.7 2001/10/11 04:07:52 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.8 2001/10/12 00:03:03 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -173,10 +173,9 @@ public class ClientDObjectMgr
                 _ocache.remove(target.getOid());
             }
 
-            // have the object pass this event on to its subscribers if
-            // desired
+            // have the object pass this event on to its listeners
             if (notify) {
-                target.notifySubscribers(event);
+                target.notifyListeners(event);
             }
 
         } catch (Exception e) {

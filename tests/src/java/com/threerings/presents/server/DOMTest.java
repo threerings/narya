@@ -1,5 +1,5 @@
 //
-// $Id: DOMTest.java,v 1.2 2001/10/11 04:07:53 mdb Exp $
+// $Id: DOMTest.java,v 1.3 2001/10/12 00:03:03 mdb Exp $
 
 package com.threerings.presents.server.test;
 
@@ -10,10 +10,13 @@ import com.threerings.presents.server.*;
 /**
  * A simple test case for the dobjmgr.
  */
-public class DOMTest implements Subscriber
+public class DOMTest implements Subscriber, AttributeChangeListener
 {
     public void objectAvailable (DObject object)
     {
+        // add ourselves as a listener
+        object.addListener(this);
+
         Log.info("Object available: " + object);
         // set some values
         TestObject to = (TestObject)object;
@@ -27,17 +30,14 @@ public class DOMTest implements Subscriber
         omgr.shutdown();
     }
 
-    public boolean handleEvent (DEvent event, DObject target)
+    public void attributeChanged (AttributeChangedEvent event)
     {
-        Log.info("Got event [event=" + event + ", target=" + target + "].");
+        Log.info("Got event [event=" + event + "].");
 
         // if this is the second event, request a shutdown
-        AttributeChangedEvent ace = (AttributeChangedEvent)event;
-        if (ace.getName().equals(TestObject.BAR)) {
+        if (event.getName().equals(TestObject.BAR)) {
             omgr.shutdown();
         }
-
-        return true;
     }
 
     public static PresentsDObjectMgr omgr = new PresentsDObjectMgr();

@@ -1,5 +1,5 @@
 //
-// $Id: DestroyedRefTest.java,v 1.2 2001/10/11 04:07:53 mdb Exp $
+// $Id: DestroyedRefTest.java,v 1.3 2001/10/12 00:03:03 mdb Exp $
 
 package com.threerings.presents.server.test;
 
@@ -12,7 +12,7 @@ import com.threerings.presents.server.PresentsServer;
  * an oid list.
  */
 public class DestroyedRefTest
-    implements Runnable, Subscriber
+    implements Runnable, Subscriber, EventListener
 {
     public void run ()
     {
@@ -23,6 +23,9 @@ public class DestroyedRefTest
 
     public void objectAvailable (DObject object)
     {
+        // add ourselves as an event listener
+        object.addListener(this);
+
         // keep references to our test objects
         if (_objone == null) {
             _objone = (TestObject)object;
@@ -51,14 +54,16 @@ public class DestroyedRefTest
         Log.warning("Ack. Unable to create object [cause=" + cause + "].");
     }
 
-    public boolean handleEvent (DEvent event, DObject target)
+    public void eventReceived (DEvent event)
     {
+        int toid = event.getTargetOid();
+
         // when we get the attribute change, we can exit
         if (event instanceof ObjectDestroyedEvent) {
             Log.info("The upcoming object added event should be rejected.");
 
         } else if (event instanceof ObjectAddedEvent &&
-                   target == _objtwo) {
+                   toid == _objtwo.getOid()) {
             Log.info("list should contain only one oid: " + _objtwo.list);
 
         } else if (event instanceof AttributeChangedEvent) {
@@ -68,8 +73,6 @@ public class DestroyedRefTest
         } else {
             Log.info("Got unexpected event: " + event);
         }
-
-        return true;
     }
 
     protected TestObject _objone;

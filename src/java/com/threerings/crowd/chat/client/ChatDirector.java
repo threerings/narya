@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.10 2001/10/11 04:07:51 mdb Exp $
+// $Id: ChatDirector.java,v 1.11 2001/10/12 00:03:02 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -19,7 +19,8 @@ import com.threerings.crowd.util.CrowdContext;
  * messaging.
  */
 public class ChatDirector
-    implements LocationObserver, Subscriber, InvocationReceiver, ChatCodes
+    implements LocationObserver, MessageListener, InvocationReceiver,
+               ChatCodes
 {
     /**
      * Creates a chat director and initializes it with the supplied
@@ -110,54 +111,39 @@ public class ChatDirector
         return ChatService.tell(_ctx.getClient(), target, message, this);
     }
 
+    // documentation inherited
     public boolean locationMayChange (int placeId)
     {
         // we accept all location change requests
         return true;
     }
 
+    // documentation inherited
     public void locationDidChange (PlaceObject place)
     {
         if (_place != null) {
-            // unsubscribe from our old object
-            _place.removeSubscriber(this);
+            // unlisten to our old object
+            _place.removeListener(this);
         }
 
-        // subscribe to the new object
+        // listen to the new object
         _place = place;
-        _place.addSubscriber(this);
+        _place.addListener(this);
     }
 
+    // documentation inherited
     public void locationChangeFailed (int placeId, String reason)
     {
         // nothing we care about
     }
 
-    public void objectAvailable (DObject object)
+    // documentation inherited
+    public void messageReceived (MessageEvent event)
     {
-        // nothing to do here
-    }
-
-    public void requestFailed (int oid, ObjectAccessException cause)
-    {
-        // nothing to do here
-    }
-
-    public boolean handleEvent (DEvent event, DObject target)
-    {
-        // we only care about message events
-        if (!(event instanceof MessageEvent)) {
-            return true;
-        }
-
-        // and only those of proper name
-        MessageEvent mevt = (MessageEvent)event;
-        String name = mevt.getName();
+        String name = event.getName();
         if (name.equals(ChatService.SPEAK_NOTIFICATION)) {
-            handleSpeakMessage(mevt.getArgs());
+            handleSpeakMessage(event.getArgs());
         }
-
-        return true;
     }
 
     /**
@@ -216,6 +202,5 @@ public class ChatDirector
 
     protected CrowdContext _ctx;
     protected PlaceObject _place;
-
     protected ArrayList _displays = new ArrayList();
 }

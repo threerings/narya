@@ -1,5 +1,5 @@
 //
-// $Id: OccupantManager.java,v 1.6 2001/10/11 04:07:51 mdb Exp $
+// $Id: OccupantManager.java,v 1.7 2001/10/12 00:03:02 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -36,7 +36,7 @@ import com.threerings.crowd.util.CrowdContext;
  * what's in the cache.
  */
 public class OccupantManager
-    implements LocationObserver, Subscriber
+    implements LocationObserver, OidListListener
 {
     /**
      * Constructs a new occupant manager with the supplied context.
@@ -73,16 +73,16 @@ public class OccupantManager
     // inherit documentation
     public void locationDidChange (PlaceObject place)
     {
-        // unsubscribe from the old place object if there was one
+        // unlisten to the old place object if there was one
         if (_place != null) {
-            _place.removeSubscriber(this);
+            _place.removeListener(this);
             // clear out the occupant cache for the previous location
             _ocache.clear();
         }
 
-        // subscribe to the new one
+        // listen to the new one
         _place = place;
-        _place.addSubscriber(this);
+        _place.addListener(this);
 
         // cache the occupant info for the occupants in this room
         Iterator iter = _place.occupantInfo.elements();
@@ -98,43 +98,17 @@ public class OccupantManager
         // nothing to do here either
     }
 
-    // inherit documentation
-    public void objectAvailable (DObject object)
-    {
-        // nothing doing
-    }
-
-    // inherit documentation
-    public void requestFailed (int oid, ObjectAccessException cause)
-    {
-        // nothing doing
-    }
-
-    // inherit documentation
-    public boolean handleEvent (DEvent event, DObject target)
-    {
-        // we care about occupant added and removed events only
-        if (event instanceof ObjectAddedEvent) {
-            ObjectAddedEvent oe = (ObjectAddedEvent)event;
-            if (oe.getName().equals(PlaceObject.OCCUPANTS)) {
-                handleOccupantAdded(oe.getOid());
-            }
-
-        } else if (event instanceof ObjectRemovedEvent) {
-            ObjectRemovedEvent oe = (ObjectRemovedEvent)event;
-            if (oe.getName().equals(PlaceObject.OCCUPANTS)) {
-                handleOccupantRemoved(oe.getOid());
-            }
-        }
-
-        return true;
-    }
-
     /**
      * Deals with all of the processing when an occupant shows up.
      */
-    protected void handleOccupantAdded (int bodyOid)
+    public void objectAdded (ObjectAddedEvent event)
     {
+        // bail if this isn't for the OCCUPANTS field
+        if (!event.getName().equals(PlaceObject.OCCUPANTS)) {
+            return;
+        }
+
+        int bodyOid = event.getOid();
         Object key = new Integer(bodyOid);
 
         // get the occupant info from the place object
@@ -158,8 +132,14 @@ public class OccupantManager
     /**
      * Deals with all of the processing when an occupant leaves.
      */
-    protected void handleOccupantRemoved (int bodyOid)
+    public void objectRemoved (ObjectRemovedEvent event)
     {
+        // bail if this isn't for the OCCUPANTS field
+        if (!event.getName().equals(PlaceObject.OCCUPANTS)) {
+            return;
+        }
+
+        int bodyOid = event.getOid();
         // see if we have an occupant object for this body
         OccupantInfo info = (OccupantInfo)_ocache.get(bodyOid);
         if (info == null) {

@@ -1,5 +1,5 @@
 //
-// $Id: Subscriber.java,v 1.6 2001/10/11 04:07:52 mdb Exp $
+// $Id: Subscriber.java,v 1.7 2001/10/12 00:03:03 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -10,16 +10,24 @@ package com.threerings.presents.dobj;
  * registering as a subscriber to an object, an entity can react to
  * changes made to an object and ensure that their object is kept up to
  * date.
+ *
+ * <p> To actually receive callbacks when events are dispatched on a
+ * distributed object, an entity should register itself as a listener on
+ * the object once it has received its object reference.
+ *
+ * @see EventListener
+ * @see AttributeChangeListener
+ * @see SetListener
+ * @see OidListListener
  */
 public interface Subscriber
 {
     /**
      * Called when a subscription request has succeeded and the object is
      * available. If the object was requested for subscription, the
-     * subscriber will subsequently receive notifications via
-     * <code>handleEvent</code>. If the object was requested as a one-time
-     * read-only copy, these updates will not occur and the subscriber
-     * should not attempt to modify the object.
+     * subscriber can subsequently receive notifications by registering
+     * itself as a listener of some sort (see {@link
+     * DObject#addListener}).
      *
      * @see DObjectManager#subscribeToObject
      */
@@ -33,23 +41,4 @@ public interface Subscriber
      * @see DObjectManager#subscribeToObject
      */
     public void requestFailed (int oid, ObjectAccessException cause);
-
-    /**
-     * Called when an event has been dispatched on an object. The event
-     * will be of the derived class that corresponds to the kind of event
-     * that occurred on the object. <code>handleEvent</code> will be
-     * called <em>after</em> the event has been applied to the object. So
-     * fetching an attribute upon receiving an attribute changed event
-     * will provide the new value for the attribute.
-     *
-     * <p> A subscriber should return true from <code>handleEvent</code>
-     * unless they wish their subscription to be terminated.
-     *
-     * @param event The event dispatched on the object.
-     * @param target The object on which the event was dispatched.
-     *
-     * @return true if the subscriber wishes to remain subscribed to the
-     * target object, false if they do not.
-     */
-    public boolean handleEvent (DEvent event, DObject target);
 }

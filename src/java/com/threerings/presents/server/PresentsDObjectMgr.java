@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.17 2001/10/11 04:07:53 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.18 2001/10/12 00:03:03 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -173,9 +173,9 @@ public class PresentsDObjectMgr implements DObjectManager
 
                 // if the event returns false from applyToObject, this
                 // means it's a silent event and we shouldn't notify the
-                // subscribers
+                // listeners
                 if (notify) {
-                    target.notifySubscribers(event);
+                    target.notifyListeners(event);
                 }
 
             } catch (Exception e) {

@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.20 2001/10/11 04:07:53 mdb Exp $
+// $Id: PresentsClient.java,v 1.21 2001/10/12 00:03:03 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -74,11 +74,6 @@ public class PresentsClient implements Subscriber, MessageHandler
                 Log.warning("Unable to create client object " +
                             "[client=" + PresentsClient.this +
                             ", error=" + cause + "].");
-            }
-
-            public boolean handleEvent (DEvent event, DObject target)
-            {
-                return false;
             }
         };
         Class clobjClass = _cmgr.getClientObjectClass();
@@ -204,7 +199,13 @@ public class PresentsClient implements Subscriber, MessageHandler
      */
     public synchronized void unmapSubscrip (int oid)
     {
-        _subscrips.remove(oid);
+        DObject object = (DObject)_subscrips.remove(oid);
+        if (object != null) {
+            object.removeListener(this);
+        } else {
+            Log.warning("Requested to unmap non-existent subscription " +
+                        "[oid=" + oid + "].");
+        }
     }
 
     /**
@@ -409,6 +410,8 @@ public class PresentsClient implements Subscriber, MessageHandler
         // queue up an object response
         Connection conn = getConnection();
         if (conn != null) {
+            // add ourselves as an event listener
+            object.addListener(this);
             // pass the successful subscrip on to the client
             conn.postMessage(new ObjectResponse(object));
             // make a note of this new subscription
@@ -434,7 +437,7 @@ public class PresentsClient implements Subscriber, MessageHandler
     }
 
     // documentation inherited from interface
-    public boolean handleEvent (DEvent event, DObject target)
+    public void eventReceived (DEvent event)
     {
         // forward the event to the client
         Connection conn = getConnection();
@@ -447,8 +450,6 @@ public class PresentsClient implements Subscriber, MessageHandler
             Log.info("Dropped event forward notification " +
                      "[client=" + this + ", event=" + event + "].");
         }
-
-        return true;
     }
 
     public String toString ()

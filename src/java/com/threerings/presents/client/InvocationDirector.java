@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.13 2001/10/11 04:07:52 mdb Exp $
+// $Id: InvocationDirector.java,v 1.14 2001/10/12 00:03:03 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -35,7 +35,7 @@ import com.threerings.presents.util.ClassUtil;
  * notifications at any time from the server.
  */
 public class InvocationDirector
-    implements Subscriber
+    implements Subscriber, MessageListener
 {
     /**
      * Initializes the invocation director with the specified invocation
@@ -121,13 +121,18 @@ public class InvocationDirector
         _receivers.put(module, receiver);
     }
 
+    // documentation inherited
     public void objectAvailable (DObject object)
     {
+        // add ourselves as a message listener
+        object.addListener(this);
+
         // let the client know that we're ready to go now that we've got
         // our subscription to the client object
         _client.invocationDirectorReady((ClientObject)object);
     }
 
+    // documentation inherited
     public void requestFailed (int oid, ObjectAccessException cause)
     {
         // aiya! we were unable to subscribe to the client object. we're
@@ -139,23 +144,14 @@ public class InvocationDirector
     /**
      * Process incoming message requests on user object.
      */
-    public boolean handleEvent (DEvent event, DObject target)
+    public void messageReceived (MessageEvent event)
     {
-        // we only care about message events
-        if (!(event instanceof MessageEvent)) {
-            return true;
-        }
-
-        // and only those of proper name
-        MessageEvent mevt = (MessageEvent)event;
-        String name = mevt.getName();
+        String name = event.getName();
         if (name.equals(InvocationObject.RESPONSE_NAME)) {
-            handleInvocationResponse(mevt.getArgs());
+            handleInvocationResponse(event.getArgs());
         } else if (name.equals(InvocationObject.NOTIFICATION_NAME)) {
-            handleInvocationNotification(mevt.getArgs());
+            handleInvocationNotification(event.getArgs());
         }
-
-        return true;
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.8 2001/10/11 21:08:21 mdb Exp $
+// $Id: GameManager.java,v 1.9 2001/10/12 00:03:03 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -65,6 +65,8 @@ public class GameManager
     // documentation inherited
     protected void didStartup ()
     {
+        super.didStartup();
+
         // obtain a casted reference to our game object
         _gameobj = (GameObject)_plobj;
 

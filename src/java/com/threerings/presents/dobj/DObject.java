@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.27 2001/10/11 04:07:52 mdb Exp $
+// $Id: DObject.java,v 1.28 2001/10/12 00:03:03 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -99,7 +99,7 @@ public class DObject
      * instead to ensure that everything is done on the proper thread.
      * This function can only safely be called directly when you know you
      * are operating on the omgr thread (you are in the middle of a call
-     * to <code>objectAvailable</code> or <code>handleEvent</code>).
+     * to <code>objectAvailable</code> or to a listener callback).
      *
      * @see DObjectManager#subscribeToObject
      */
@@ -118,7 +118,7 @@ public class DObject
      * instead to ensure that everything is done on the proper thread.
      * This function can only safely be called directly when you know you
      * are operating on the omgr thread (you are in the middle of a call
-     * to <code>objectAvailable</code> or <code>handleEvent</code>).
+     * to <code>objectAvailable</code> or to a listener callback).
      *
      * @see DObjectManager#unsubscribeFromObject
      */
@@ -133,6 +133,38 @@ public class DObject
                 _mgr.removedLastSubscriber(this);
             }
         }
+    }
+
+    /**
+     * Adds an event listener to this object. The listener will be
+     * notified when any events are dispatched on this object that match
+     * their particular listener interface.
+     *
+     * @param listener the listener to be added.
+     *
+     * @see EventListener
+     * @see AttributeChangeListener
+     * @see SetListener
+     * @see OidListListener
+     */
+    public void addListener (Object listener)
+    {
+        // only add the listener if they're not already there
+        Object[] els = ListUtil.testAndAdd(_listeners, listener);
+        if (els != null) {
+            _listeners = els;
+        }
+    }
+
+    /**
+     * Removes an event listener from this object. The listener will no
+     * longer be notified when events are dispatched on this object.
+     *
+     * @param listener the listener to be removed.
+     */
+    public void removeListener (Object listener)
+    {
+        ListUtil.clear(_listeners, listener);
     }
 
     /**
@@ -257,36 +289,33 @@ public class DObject
      *
      * @param event the event that was just applied.
      */
-    public void notifySubscribers (DEvent event)
+    public void notifyListeners (DEvent event)
     {
-        // Log.info("Dispatching event to " + _scount +
-        // " subscribers: " + event);
+        // iterate over the listener list, performing the necessary
+        // notifications
+        int llength = _listeners.length;
+        for (int i = 0; i < llength; i++) {
+            Object listener = _listeners[i];
 
-        // nothing to do if we've no subscribers
-        if (_subs == null) {
-            return;
-        }
-
-        // otherwise iterate over the subscribers array and notify
-        int slength = _subs.length;
-        for (int i = 0; i < slength; i++) {
-            Subscriber sub = (Subscriber)_subs[i];
-            // skip empty spots
-            if (sub == null) {
+            // skip empty slots
+            if (listener == null) {
                 continue;
             }
 
-            // notify the subscriber
-            if (!sub.handleEvent(event, this)) {
-                // if they return false, we need to remove them from the
-                // subscriber list
-                _subs[i] = null;
+            try {
+                // do any event specific notifications
+                event.notifyListener(listener);
 
-                // if we just removed our last subscriber, we need to let
-                // the omgr know about it
-                if (--_scount == 0) {
-                    _mgr.removedLastSubscriber(this);
+                // and notify them if they are listening for all events
+                if (listener instanceof EventListener) {
+                    ((EventListener)listener).eventReceived(event);
                 }
+
+            } catch (Exception e) {
+                Log.warning("Listener choked during notification " +
+                            "[listener=" + listener +
+                            ", event=" + event + "].");
+                Log.logStackTrace(e);
             }
         }
     }
@@ -468,6 +497,9 @@ public class DObject
 
     /** Our subscribers list. */
     protected Object[] _subs;
+
+    /** Our event listeners list. */
+    protected Object[] _listeners;
 
     /** Our subscriber count. */
     protected int _scount;

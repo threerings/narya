@@ -1,5 +1,5 @@
 //
-// $Id: EntryAddedEvent.java,v 1.4 2001/10/11 04:07:52 mdb Exp $
+// $Id: EntryAddedEvent.java,v 1.5 2001/10/12 00:03:03 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -89,11 +89,13 @@ public class ElementAddedEvent extends TypedEvent
         return true;
     }
 
+    // documentation inherited
     public short getType ()
     {
         return TYPE;
     }
 
+    // documentation inherited
     public void writeTo (DataOutputStream out)
         throws IOException
     {
@@ -102,6 +104,7 @@ public class ElementAddedEvent extends TypedEvent
         ElementUtil.flatten(out, _elem);
     }
 
+    // documentation inherited
     public void readFrom (DataInputStream in)
         throws IOException
     {
@@ -116,6 +119,15 @@ public class ElementAddedEvent extends TypedEvent
         in.readFully(_bytes, 0, bcount);
     }
 
+    // documentation inherited
+    protected void notifyListener (Object listener)
+    {
+        if (listener instanceof SetListener) {
+            ((SetListener)listener).elementAdded(this);
+        }
+    }
+
+    // documentation inherited
     protected void toString (StringBuffer buf)
     {
         buf.append("ELADD:");

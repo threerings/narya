@@ -1,5 +1,5 @@
 //
-// $Id: InvocationManager.java,v 1.8 2001/10/11 04:07:53 mdb Exp $
+// $Id: InvocationManager.java,v 1.9 2001/10/12 00:03:03 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -32,7 +32,7 @@ import com.threerings.presents.util.ClassUtil;
  * the client.
  */
 public class InvocationManager
-    implements Subscriber
+    implements Subscriber, MessageListener
 {
     public InvocationManager (DObjectManager omgr)
     {
@@ -93,6 +93,9 @@ public class InvocationManager
     {
         // this must be our invocation object
         _invoid = object.getOid();
+
+        // add ourselves as a message listener
+        object.addListener(this);
     }
 
     public void requestFailed (int oid, ObjectAccessException cause)
@@ -104,23 +107,15 @@ public class InvocationManager
         _invoid = -1;
     }
 
-    public boolean handleEvent (DEvent event, DObject target)
+    public void messageReceived (MessageEvent event)
     {
-        // we shouldn't be getting non-message events, but check just to
-        // be sure
-        if (!(event instanceof MessageEvent)) {
-            Log.warning("Got non-message event!? [evt=" + event + "].");
-            return true;
-        }
-
         // make sure the name is proper just for sanity's sake
-        MessageEvent mevt = (MessageEvent)event;
-        if (!mevt.getName().equals(InvocationObject.REQUEST_NAME)) {
-            return true;
+        if (!event.getName().equals(InvocationObject.REQUEST_NAME)) {
+            return;
         }
 
         // we've got an invocation request, so we process it
-        Object[] args = mevt.getArgs();
+        Object[] args = event.getArgs();
         String module = (String)args[0];
         String procedure = (String)args[1];
         Integer invid = (Integer)args[2];
@@ -130,20 +125,20 @@ public class InvocationManager
             (InvocationProvider)_providers.get(module);
         if (provider == null) {
             Log.warning("No provider registered for invocation request " +
-                        "[evt=" + mevt + "].");
-            return true;
+                        "[evt=" + event + "].");
+            return;
         }
 
         // prune the method arguments from the full message arguments
         Object[] margs = new Object[args.length-1];
-        int cloid = mevt.getSourceOid();
+        int cloid = event.getSourceOid();
         margs[0] = PresentsServer.omgr.getObject(cloid);
         // make sure the client is still around
         if (margs[0] == null) {
             Log.warning("Client no longer around for invocation provider " +
                         "request [module=" + module +
                         ", proc=" + procedure + ", cloid=" + cloid + "].");
-            return true;
+            return;
         }
         System.arraycopy(args, 2, margs, 1, args.length-2);
 
@@ -154,7 +149,7 @@ public class InvocationManager
             Log.warning("Unable to resolve provider procedure " +
                         "[provider=" + provider.getClass().getName() +
                         ", method=" + mname + "].");
-            return true;
+            return;
         }
 
         // and invoke it
@@ -166,8 +161,6 @@ public class InvocationManager
                         ", method=" + procmeth + "].");
             Log.logStackTrace(e);
         }
-
-        return true;
     }
 
     protected DObjectManager _omgr;

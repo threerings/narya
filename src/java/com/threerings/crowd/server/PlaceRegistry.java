@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.11 2001/10/11 04:07:51 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.12 2001/10/12 00:03:02 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -171,13 +171,6 @@ public class PlaceRegistry implements Subscriber
 
         Log.warning("Failed to create place object [mgr=" + pmgr +
                     ", cause=" + cause + "].");
-    }
-
-    public boolean handleEvent (DEvent event, DObject target)
-    {
-        // this shouldn't be called because we don't subscribe to
-        // anything, we just want to hear about object creation
-        return false;
     }
 
     protected Queue _createq = new Queue();

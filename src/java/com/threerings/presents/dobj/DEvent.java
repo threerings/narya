@@ -1,5 +1,5 @@
 //
-// $Id: DEvent.java,v 1.6 2001/10/11 04:07:52 mdb Exp $
+// $Id: DEvent.java,v 1.7 2001/10/12 00:03:03 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -61,6 +61,18 @@ public abstract class DEvent
     protected DEvent (int targetOid)
     {
         _toid = targetOid;
+    }
+
+    /**
+     * Events with associated listener interfaces should implement this
+     * function and notify the supplied listener if it implements their
+     * event listening interface. For example, the {@link
+     * AttributeChangedEvent} will notify listeners that implement
+     * {@AttributeChangeListener}.
+     */
+    protected void notifyListener (Object listener)
+    {
+        // the default is to do nothing
     }
 
     /**

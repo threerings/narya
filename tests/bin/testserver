@@ -1,4 +1,4 @@
 #!/bin/sh
 
 bindir=`dirname $0`
-$bindir/runjava $* com.threerings.parlor.test.TestServer
+$bindir/runjava $* com.threerings.presents.server.PresentsServer

@@ -1,0 +1,40 @@
+//
+// $Id: SetListener.java,v 1.1 2001/10/12 00:03:03 mdb Exp $
+
+package com.threerings.presents.dobj;
+
+/**
+ * Implemented by entites which wish to hear about changes that occur to
+ * set attributes of a particular distributed object.
+ *
+ * @see DObject#addListener
+ */
+public interface SetListener
+{
+    /**
+     * Called when an element added event has been dispatched on an
+     * object. This will be called <em>after</em> the event has been
+     * applied to the object.
+     *
+     * @param event The event that was dispatched on the object.
+     */
+    public void elementAdded (ElementAddedEvent event);
+
+    /**
+     * Called when an element updated event has been dispatched on an
+     * object. This will be called <em>after</em> the event has been
+     * applied to the object.
+     *
+     * @param event The event that was dispatched on the object.
+     */
+    public void elementUpdated (ElementUpdatedEvent event);
+
+    /**
+     * Called when an element removed event has been dispatched on an
+     * object. This will be called <em>after</em> the event has been
+     * applied to the object.
+     *
+     * @param event The event that was dispatched on the object.
+     */
+    public void elementRemoved (ElementRemovedEvent event);
+}

@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.7 2001/10/11 21:08:21 mdb Exp $
+// $Id: GameController.java,v 1.8 2001/10/12 00:03:03 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -27,7 +27,8 @@ import com.threerings.parlor.util.ParlorContext;
  * distributed object events.
  */
 public abstract class GameController
-    extends PlaceController implements Subscriber, GameCodes
+    extends PlaceController
+    implements AttributeChangeListener, GameCodes
 {
     /**
      * Initializes this game controller with the game configuration that
@@ -51,7 +52,11 @@ public abstract class GameController
         super.init(ctx, config);
     }
 
-    // documentation inherited
+    /**
+     * Adds this controller as a listener to the game object (thus derived
+     * classes need not do so) and lets the game manager know that we are
+     * now ready to go.
+     */
     public void willEnterPlace (PlaceObject plobj)
     {
         super.willEnterPlace(plobj);
@@ -59,8 +64,8 @@ public abstract class GameController
         // obtain a casted reference
         _gobj = (GameObject)plobj;
 
-        // and add ourselves as a subscriber
-        _gobj.addSubscriber(this);
+        // and add ourselves as a listener
+        _gobj.addListener(this);
 
         // finally let the game manager know that we're ready to roll
         MessageEvent mevt = new MessageEvent(
@@ -68,13 +73,16 @@ public abstract class GameController
         _ctx.getDObjectManager().postEvent(mevt);
     }
 
-    // documentation inherited
+    /**
+     * Removes our listener registration from the game object and cleans
+     * house.
+     */
     public void didLeavePlace (PlaceObject plobj)
     {
-        super.willEnterPlace(plobj);
+        super.didLeavePlace(plobj);
 
-        // unsubscribe from the game object
-        _gobj.removeSubscriber(this);
+        // unlisten to the game object
+        _gobj.removeListener(this);
         _gobj = null;
     }
 
@@ -89,47 +97,27 @@ public abstract class GameController
     }
 
     // documentation inherited
-    public void objectAvailable (DObject object)
+    public void attributeChanged (AttributeChangedEvent event)
     {
-        Log.warning("Got call to objectAvailable()?! " +
-                    "[object=" + object + "].");
-    }
-
-    // documentation inherited
-    public void requestFailed (int oid, ObjectAccessException cause)
-    {
-        Log.warning("Got call to requestFailed()?! " +
-                    "[oid=" + oid + ", cause=" + cause + "].");
-    }
-
-    // documentation inherited
-    public boolean handleEvent (DEvent event, DObject target)
-    {
-        if (event instanceof AttributeChangedEvent) {
-            AttributeChangedEvent ace = (AttributeChangedEvent)event;
-
-            // deal with game state changes
-            if (ace.getName().equals(GameObject.STATE)) {
-                switch (ace.getIntValue()) {
-                case GameObject.IN_PLAY:
-                    gameDidStart();
-                    break;
-                case GameObject.GAME_OVER:
-                    gameDidEnd();
-                    break;
-                case GameObject.CANCELLED:
-                    gameWasCancelled();
-                    break;
-                default:
-                    Log.warning("Game transitioned to unknown state " +
-                                "[gobj=" + _gobj +
-                                ", state=" + ace.getIntValue() + "].");
-                    break;
-                }
+        // deal with game state changes
+        if (event.getName().equals(GameObject.STATE)) {
+            switch (event.getIntValue()) {
+            case GameObject.IN_PLAY:
+                gameDidStart();
+                break;
+            case GameObject.GAME_OVER:
+                gameDidEnd();
+                break;
+            case GameObject.CANCELLED:
+                gameWasCancelled();
+                break;
+            default:
+                Log.warning("Game transitioned to unknown state " +
+                            "[gobj=" + _gobj +
+                            ", state=" + event.getIntValue() + "].");
+                break;
             }
         }
-
-        return true;
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: TestServer.java,v 1.4 2001/10/11 04:07:53 mdb Exp $
+// $Id: TestServer.java,v 1.5 2001/10/12 00:03:03 mdb Exp $
 
 package com.threerings.presents.server.test;
 
@@ -37,11 +37,6 @@ public class TestServer extends PresentsServer
             {
                 Log.warning("Unable to create test object " +
                             "[error=" + cause + "].");
-            }
-
-            public boolean handleEvent (DEvent event, DObject target)
-            {
-                return false;
             }
         };
         omgr.createObject(TestObject.class, sub, false);

@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.10 2001/10/11 04:07:52 mdb Exp $
+// $Id: TestClient.java,v 1.11 2001/10/12 00:03:03 mdb Exp $
 
 package com.threerings.presents.client.test;
 
@@ -16,7 +16,7 @@ import com.threerings.presents.server.test.TestObject;
  * A standalone test client.
  */
 public class TestClient
-    implements Client.Invoker, ClientObserver, Subscriber
+    implements Client.Invoker, ClientObserver, Subscriber, EventListener
 {
     public void setClient (Client client)
     {
@@ -74,6 +74,7 @@ public class TestClient
 
     public void objectAvailable (DObject object)
     {
+        object.addListener(this);
         Log.info("Object available: " + object);
         ((TestObject)object).setBar("lawl!");
     }
@@ -86,17 +87,18 @@ public class TestClient
         _client.logoff(true);
     }
 
-    public boolean handleEvent (DEvent event, DObject target)
+    public void eventReceived (DEvent event)
     {
-        Log.info("Got event [event=" + event + ", target=" + target + "].");
+        Log.info("Got event [event=" + event + "].");
+
         if (event instanceof AttributeChangedEvent) {
             // request to destroy the object
-            target.destroy();
+            _client.getDObjectManager().destroyObject(event.getTargetOid());
+
         } else {
             // request that we log off
             _client.logoff(true);
         }
-        return true;
     }
 
     public void handleTestSucceeded (int invid, String one, int two)
