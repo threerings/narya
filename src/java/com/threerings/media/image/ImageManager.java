@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.3 2001/07/23 18:52:51 shaper Exp $
+// $Id: ImageManager.java,v 1.4 2001/09/06 01:35:05 shaper Exp $
 
 package com.threerings.media;
 
@@ -87,8 +87,8 @@ public class ImageManager
 	BufferedImage img =
 	    new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
-	Graphics2D g2 = img.createGraphics();
-	g2.drawImage(fullImg, -x, -y, null);
+	Graphics2D gfx = img.createGraphics();
+	gfx.drawImage(fullImg, -x, -y, null);
 
 	return img;
     }
