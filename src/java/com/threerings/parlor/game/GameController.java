@@ -36,8 +36,6 @@ import com.threerings.crowd.util.CrowdContext;
 import com.threerings.parlor.Log;
 import com.threerings.parlor.util.ParlorContext;
 
-import com.threerings.util.Name;
-
 /**
  * The game controller manages the flow and control of a game on the
  * client side. This class serves as the root of a hierarchy of controller
@@ -101,9 +99,7 @@ public abstract class GameController extends PlaceController
         // runnable here that will let the game manager know that we're
         // ready on the next pass through the distributed event loop
         Log.info("Entering game " + _gobj.which() + ".");
-        Name username = 
-            ((BodyObject)_ctx.getClient().getClientObject()).username;
-        if (_gobj.getPlayerIndex(username) != -1) {
+        if (_gobj.getPlayerIndex(bobj.username) != -1) {
             _ctx.getClient().getRunQueue().postRunnable(new Runnable() {
                 public void run () {
                     // finally let the game manager know that we're ready
