@@ -1,5 +1,5 @@
 //
-// $Id: ConfObjRegistry.java,v 1.9 2004/03/05 02:40:18 eric Exp $
+// $Id: ConfObjRegistry.java,v 1.10 2004/07/09 03:52:04 mdb Exp $
 
 package com.threerings.admin.server;
 
@@ -160,14 +160,16 @@ public class ConfObjRegistry
             String key = fieldToKey(event.getName());
             Object value = event.getValue();
 
-            if (value instanceof Integer) {
+            if (value instanceof Boolean) {
+                config.setValue(key, ((Boolean)value).booleanValue());
+            } else if (value instanceof Short) {
+                config.setValue(key, ((Short)value).shortValue());
+            } else if (value instanceof Integer) {
                 config.setValue(key, ((Integer)value).intValue());
             } else if (value instanceof Long) {
                 config.setValue(key, ((Long)value).longValue());
             } else if (value instanceof Float) {
                 config.setValue(key, ((Float)value).floatValue());
-            } else if (value instanceof Boolean) {
-                config.setValue(key, ((Boolean)value).booleanValue());
             } else if (value instanceof String) {
                 config.setValue(key, (String)value);
             } else if (value instanceof float[]) {
@@ -196,6 +198,11 @@ public class ConfObjRegistry
                 if (type.equals(Boolean.TYPE)) {
                     boolean defval = field.getBoolean(confObj);
                     field.setBoolean(confObj, config.getValue(key, defval));
+
+                } else if (type.equals(Short.TYPE)) {
+                    short defval = field.getShort(confObj);
+                    defval = (short)config.getValue(key, defval);
+                    field.setShort(confObj, defval);
 
                 } else if (type.equals(Integer.TYPE)) {
                     int defval = field.getInt(confObj);
