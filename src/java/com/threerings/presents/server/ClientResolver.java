@@ -1,5 +1,5 @@
 //
-// $Id: ClientResolver.java,v 1.2 2002/11/26 02:14:25 mdb Exp $
+// $Id: ClientResolver.java,v 1.3 2002/11/26 08:52:53 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -56,6 +56,10 @@ public class ClientResolver extends Invoker.Unit
         // thread to perform database loading
         _clobj = (ClientObject)object;
         PresentsServer.invoker.postUnit(this);
+
+        // we no longer need to be a subscriber of the object now that it
+        // has been created
+        _clobj.removeSubscriber(this);
     }
 
     // documentation inherited
