@@ -1,5 +1,5 @@
 //
-// $Id: WhirledServer.java,v 1.9 2001/11/12 20:56:56 mdb Exp $
+// $Id: WhirledServer.java,v 1.10 2001/12/03 22:07:31 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -43,6 +43,9 @@ public class WhirledServer extends CrowdServer
 
         // bind the whirled server config into the namespace
         config.bindProperties(CONFIG_KEY, CONFIG_PATH, true);
+
+        // configure the client to use our whirled client
+        clmgr.setClientClass(WhirledClient.class);
 
         // create and start up our invoker
         invoker = new Invoker();
