@@ -1,5 +1,5 @@
 //
-// $Id: DumpBundle.java,v 1.1 2001/11/29 22:10:54 mdb Exp $
+// $Id: DumpBundle.java,v 1.2 2001/11/29 23:07:38 mdb Exp $
 
 package com.threerings.media.tools.tile.bundle;
 
@@ -20,6 +20,8 @@ public class DumpBundle
 {
     public static void main (String[] args)
     {
+        boolean dumpTiles = false;
+
         if (args.length < 1) {
             String usage = "Usage: DumpBundle bundle.jar [bundle.jar ...]";
             System.err.println(usage);
@@ -27,6 +29,12 @@ public class DumpBundle
         }
 
         for (int i = 0; i < args.length; i++) {
+            // oh the hackery
+            if (args[i].equals("-tiles")) {
+                dumpTiles = true;
+                continue;
+            }
+
             File file = new File(args[i]);
             try {
                 ResourceBundle bundle = new ResourceBundle(file);
@@ -36,6 +44,12 @@ public class DumpBundle
                     Integer tsid = (Integer)tsids.next();
                     TileSet set = tsb.getTileSet(tsid.intValue());
                     System.out.println(tsid + " => " + set);
+                    if (dumpTiles) {
+                        for (int t = 0; t < set.getTileCount(); t++) {
+                            System.out.println("  " + t + " => " +
+                                               set.getTile(t));
+                        }
+                    }
                 }
 
             } catch (Exception e) {
