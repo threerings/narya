@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.125 2002/11/20 22:16:54 mdb Exp $
+// $Id: IsoSceneView.java,v 1.126 2002/11/28 03:42:17 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -385,10 +385,10 @@ public class IsoSceneView implements SceneView
             // if this is a miso character sprite, we can use its cached
             // tile coordinates
             int tx, ty;
-            if (sprite instanceof MisoCharacterSprite) {
-                MisoCharacterSprite mcs = (MisoCharacterSprite)sprite;
-                tx = mcs.getTileX();
-                ty = mcs.getTileY();
+            if (sprite instanceof IsoSprite) {
+                IsoSprite iso = (IsoSprite)sprite;
+                tx = iso.getTileX();
+                ty = iso.getTileY();
 
             } else {
                 // otherwise we have to compute them from the screen

@@ -1,5 +1,5 @@
 //
-// $Id: MisoCharacterSprite.java,v 1.5 2002/07/08 21:41:30 mdb Exp $
+// $Id: MisoCharacterSprite.java,v 1.6 2002/11/28 03:42:17 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -17,7 +17,7 @@ import com.threerings.miso.tile.BaseTile;
  * will itself keep the sprite coordinates properly up to date.
  */
 public class MisoCharacterSprite extends CharacterSprite
-    implements Traverser
+    implements Traverser, IsoSprite
 {
     // documentation inherited
     public boolean canTraverse (BaseTile tile)
@@ -26,17 +26,13 @@ public class MisoCharacterSprite extends CharacterSprite
 	return tile.isPassable();
     }
 
-    /**
-     * Returns the sprite's location on the x-axis in tile coordinates.
-     */
+    // documentation inherited from interface
     public int getTileX ()
     {
         return _tilex;
     }
 
-    /**
-     * Returns the sprite's location on the y-axis in tile coordinates.
-     */
+    // documentation inherited from interface
     public int getTileY ()
     {
         return _tiley;
