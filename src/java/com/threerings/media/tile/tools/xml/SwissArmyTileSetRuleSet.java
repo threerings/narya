@@ -1,8 +1,9 @@
 //
-// $Id: SwissArmyTileSetRuleSet.java,v 1.4 2001/11/21 02:42:15 mdb Exp $
+// $Id: SwissArmyTileSetRuleSet.java,v 1.5 2001/11/27 22:06:19 mdb Exp $
 
 package com.threerings.media.tools.tile.xml;
 
+import java.awt.Dimension;
 import java.awt.Point;
 
 import org.xml.sax.Attributes;
@@ -70,25 +71,33 @@ public class SwissArmyTileSetRuleSet extends TileSetRuleSet
                     ((SwissArmyTileSet)target).setTileCounts(tileCounts);
                 }
             });
+
+        digester.addRule(
+            _prefix + TILESET_PATH + "/offsetPos",
+            new CallMethodSpecialRule(digester) {
+                public void parseAndSet (String bodyText, Object target)
+                {
+                    int[] values = StringUtil.parseIntArray(bodyText);
+                    SwissArmyTileSet starget = (SwissArmyTileSet)target;
+                    starget.setOffsetPos(new Point(values[0], values[1]));
+                }
+            });
+
+        digester.addRule(
+            _prefix + TILESET_PATH + "/gapSize",
+            new CallMethodSpecialRule(digester) {
+                public void parseAndSet (String bodyText, Object target)
+                {
+                    int[] values = StringUtil.parseIntArray(bodyText);
+                    SwissArmyTileSet starget = (SwissArmyTileSet)target;
+                    starget.setGapSize(new Dimension(values[0], values[1]));
+                }
+            });
     }
 
     // documentation inherited
     protected Class getTileSetClass ()
     {
         return SwissArmyTileSet.class;
-    }
-
-    /**
-     * Converts a string containing values as (x, y) into the
-     * corresponding integer values and populates the given point
-     * object.
-     *
-     * @param str the point values in string format.
-     * @param point the point object to populate.
-     */
-    protected void parsePoint (String str, Point point)
-    {
-        int vals[] = StringUtil.parseIntArray(str);
-        point.setLocation(vals[0], vals[1]);
     }
 }
