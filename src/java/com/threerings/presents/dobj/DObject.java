@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.31 2001/10/12 20:12:48 mdb Exp $
+// $Id: DObject.java,v 1.32 2002/02/02 09:42:36 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -378,8 +378,8 @@ public class DObject
 
         } catch (Exception e) {
             String errmsg = "Attribute setting failure [name=" + name +
-                ", value=" + value + ", error=" + e + "].";
-            throw new ObjectAccessException(errmsg);
+                ", value=" + value + "].";
+            throw new ObjectAccessException(errmsg, e);
         }
     }
 
@@ -396,9 +396,8 @@ public class DObject
             return getClass().getField(name).get(this);
 
         } catch (Exception e) {
-            String errmsg = "Attribute getting failure [name=" + name +
-                ", error=" + e + "].";
-            throw new ObjectAccessException(errmsg);
+            String errmsg = "Attribute getting failure [name=" + name + "].";
+            throw new ObjectAccessException(errmsg, e);
         }
     }
 

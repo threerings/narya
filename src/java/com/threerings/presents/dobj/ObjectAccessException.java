@@ -1,7 +1,9 @@
 //
-// $Id: ObjectAccessException.java,v 1.2 2001/10/11 04:07:52 mdb Exp $
+// $Id: ObjectAccessException.java,v 1.3 2002/02/02 09:42:36 mdb Exp $
 
 package com.threerings.presents.dobj;
+
+import org.apache.commons.util.exception.NestableException;
 
 /**
  * An object access exception is delivered when an object is not
@@ -10,10 +12,32 @@ package com.threerings.presents.dobj;
  * the error. For others, a message string explaining the access failure
  * is provided.
  */
-public class ObjectAccessException extends Exception
+public class ObjectAccessException extends NestableException
 {
+    /**
+     * Constructs a object access exception with the specified error
+     * message.
+     */
     public ObjectAccessException (String message)
     {
         super(message);
+    }
+
+    /**
+     * Constructs a object access exception with the specified error
+     * message and the chained causing event.
+     */
+    public ObjectAccessException (String message, Exception cause)
+    {
+        super(message, cause);
+    }
+
+    /**
+     * Constructs a object access exception with the specified chained
+     * causing event.
+     */
+    public ObjectAccessException (Exception cause)
+    {
+        super(cause);
     }
 }

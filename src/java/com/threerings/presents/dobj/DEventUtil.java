@@ -1,5 +1,5 @@
 //
-// $Id: DEventUtil.java,v 1.3 2001/10/11 04:07:52 mdb Exp $
+// $Id: DEventUtil.java,v 1.4 2002/02/02 09:42:36 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -39,7 +39,7 @@ public class DEventUtil
             }
 
         } catch (SecurityException se) {
-            throw new ObjectAccessException("Reflection error: " + se);
+            throw new ObjectAccessException("Reflection error", se);
         }
 
         // make sure we found a matching method

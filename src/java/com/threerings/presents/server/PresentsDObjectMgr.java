@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.20 2001/12/04 01:01:54 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.21 2002/02/02 09:42:36 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -477,15 +477,6 @@ public class PresentsDObjectMgr implements RootDObjectManager
 
 //                  Log.info("Created object [obj=" + obj + "].");
 
-                if (_target != null) {
-                    // add the subscriber to this object's subscriber list
-                    obj.addSubscriber(_target);
-
-                    // let the target subscriber know that their object is
-                    // available
-                    informObjectAvailable(_target, obj);
-                }
-
             } catch (Exception e) {
                 Log.warning("Object creation failure " +
                             "[class=" + _class.getName() +
@@ -493,10 +484,21 @@ public class PresentsDObjectMgr implements RootDObjectManager
 
                 // let the subscriber know shit be fucked
                 if (_target != null) {
-                    String errmsg = "Object instantiation failed: " + e;
+                    String errmsg = "Object instantiation failed";
                     _target.requestFailed(
-                        oid, new ObjectAccessException(errmsg));
+                        oid, new ObjectAccessException(errmsg, e));
                 }
+
+                return false;
+            }
+
+            if (_target != null) {
+                // add the subscriber to this object's subscriber list
+                obj.addSubscriber(_target);
+
+                // let the target subscriber know that their object is
+                // available
+                informObjectAvailable(_target, obj);
             }
 
             // and return false to ensure that this event is not
