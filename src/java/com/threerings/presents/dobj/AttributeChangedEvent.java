@@ -1,5 +1,5 @@
 //
-// $Id: AttributeChangedEvent.java,v 1.12 2002/07/23 05:52:48 mdb Exp $
+// $Id: AttributeChangedEvent.java,v 1.13 2002/10/27 01:33:43 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -64,6 +64,15 @@ public class AttributeChangedEvent extends DEvent
     }
 
     /**
+     * Returns the value of the attribute prior to the application of this
+     * event.
+     */
+    public Object getOldValue ()
+    {
+        return _oldValue;
+    }
+
+    /**
      * Returns the new value of the attribute as a short. This will fail
      * if the attribute in question is not a short.
      */
@@ -114,6 +123,8 @@ public class AttributeChangedEvent extends DEvent
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
+        // grab the previous value
+        _oldValue = target.getAttribute(_name);
         // pass the new value on to the object
         target.setAttribute(_name, _value);
         return true;
@@ -161,4 +172,5 @@ public class AttributeChangedEvent extends DEvent
 
     protected String _name;
     protected Object _value;
+    protected transient Object _oldValue;
 }

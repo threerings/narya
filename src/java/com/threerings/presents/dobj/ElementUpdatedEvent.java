@@ -1,5 +1,5 @@
 //
-// $Id: ElementUpdatedEvent.java,v 1.2 2002/07/23 05:52:48 mdb Exp $
+// $Id: ElementUpdatedEvent.java,v 1.3 2002/10/27 01:33:43 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -66,6 +66,15 @@ public class ElementUpdatedEvent extends DEvent
     public Object getValue ()
     {
         return _value;
+    }
+
+    /**
+     * Returns the value of the element prior to the application of this
+     * event.
+     */
+    public Object getOldValue ()
+    {
+        return _oldValue;
     }
 
     /**
@@ -138,6 +147,9 @@ public class ElementUpdatedEvent extends DEvent
                 throw new Exception(msg);
             }
 
+            // grab the previous value to provide to interested parties
+            _oldValue = Array.get(field.get(target), _index);
+
             // we don't do any magical expansion or any funny business;
             // the array should be big enough to contain the value being
             // updated or we'll throw an ArrayIndexOutOfBoundsException
@@ -197,4 +209,5 @@ public class ElementUpdatedEvent extends DEvent
     protected String _name;
     protected Object _value;
     protected int _index;
+    protected transient Object _oldValue;
 }

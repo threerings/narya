@@ -1,5 +1,5 @@
 //
-// $Id: EntryUpdatedEvent.java,v 1.7 2002/07/23 05:52:48 mdb Exp $
+// $Id: EntryUpdatedEvent.java,v 1.8 2002/10/27 01:33:43 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -64,12 +64,23 @@ public class EntryUpdatedEvent extends DEvent
     }
 
     /**
+     * Returns the entry that was in the set prior to being updated.
+     */
+    public DSet.Entry getOldEntry ()
+    {
+        return _oldEntry;
+    }
+
+    /**
      * Applies this event to the object.
      */
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
         DSet set = (DSet)target.getAttribute(_name);
+
+        // fetch the previous value for interested callers
+        _oldEntry = set.get(_entry.getKey());
 
         // update the entry
         if (!set.update(_entry)) {
@@ -124,4 +135,5 @@ public class EntryUpdatedEvent extends DEvent
 
     protected String _name;
     protected DSet.Entry _entry;
+    protected transient DSet.Entry _oldEntry;
 }
