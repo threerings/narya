@@ -11,14 +11,8 @@ library directory specified in the build.xml file (java.libraries).
 * MM MySQL driver:
   http://mmmysql.sourceforge.net/
 
-* Various Apache Commons libraries:
+* Apache Commons libraries: collections, digester, io, and lang
   http://jakarta.apache.org/commons/
-
-* The Java API for XML Processing (JAXP) 1.1 Reference Implementation:
-  http://java.sun.com/xml/download.html
-
-  (Only crimson.jar and jaxp.jar are required.  xalan.jar may safely
-  be excluded.)
 
 * Megginson Technologies' XMLWriter 0.2 library:
   http://www.megginson.com/Software/xml-writer-0.2.zip
@@ -28,4 +22,4 @@ build system will automatically include them in the compile-time
 classpath.
 
 --
-$Id: README,v 1.6 2004/08/27 02:41:39 mdb Exp $
+$Id: README,v 1.7 2004/08/27 17:37:52 mdb Exp $
