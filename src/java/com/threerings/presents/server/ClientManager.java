@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.3 2001/06/05 22:44:31 mdb Exp $
+// $Id: ClientManager.java,v 1.4 2001/06/05 22:50:08 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -107,6 +107,21 @@ public class ClientManager implements ConnectionObserver
      */
     synchronized void clientDidEndSession (Client client)
     {
+        // remove the client from the username map
+        Client rc = (Client)_usermap.remove(client.getUsername());
+
+        // sanity check because we can
+        if (rc == null) {
+            Log.warning("Unregistered client ended session " +
+                        "[client=" + client + "].");
+
+        } else if (rc != client) {
+            Log.warning("Different clients with same username!? " +
+                        "[c1=" + rc + ", c2=" + client + "].");
+
+        } else {
+            Log.info("Ending session [client=" + client + "].");
+        }
     }
 
     protected HashMap _usermap = new HashMap();
