@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.52 2002/11/05 03:38:59 mdb Exp $
+// $Id: Sprite.java,v 1.53 2002/11/20 05:33:20 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -215,11 +215,10 @@ public abstract class Sprite extends AbstractMedia
      */
     public void move (Path path)
     {
-        // initialize the path
-        path.init(this, System.currentTimeMillis());
-
-        // and save it off
+        // save off this path
         _path = path;
+        // we'll initialize it on our next tick thanks to a zero path stamp
+        _pathStamp = 0;
     }
 
     /**
@@ -266,10 +265,27 @@ public abstract class Sprite extends AbstractMedia
     // documentation inherited
     public void tick (long tickStamp)
     {
-        // if we've a path, move the sprite along toward its destination
-        if (_path != null) {
-            _path.tick(this, tickStamp);
+        tickPath(tickStamp);
+    }
+
+    /**
+     * Ticks any path assigned to this sprite.
+     *
+     * @return true if the path relocated the sprite as a result of this
+     * tick, false if it remained in the same position.
+     */
+    protected boolean tickPath (long tickStamp)
+    {
+        if (_path == null) {
+            return false;
         }
+
+        // initialize the path if we haven't yet
+        if (_pathStamp == 0) {
+            _path.init(this, _pathStamp = tickStamp);
+        }
+
+        return _path.tick(this, tickStamp);
     }
 
     // documentation inherited
@@ -341,4 +357,7 @@ public abstract class Sprite extends AbstractMedia
 
     /** When moving, the path the sprite is traversing. */
     protected Path _path;
+
+    /** The timestamp at which we started along our path. */
+    protected long _pathStamp;
 }

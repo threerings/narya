@@ -1,5 +1,5 @@
 //
-// $Id: ImageSprite.java,v 1.15 2002/10/08 21:03:37 ray Exp $
+// $Id: ImageSprite.java,v 1.16 2002/11/20 05:33:20 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -240,9 +240,7 @@ public class ImageSprite extends Sprite
         boolean moved = false;
 
         // move the sprite along toward its destination, if any 
-        if (_path != null) {
-            moved = _path.tick(this, timestamp);
-        }
+        moved = tickPath(timestamp);
 
         // increment the display image if performing image animation
         int nfidx = _frameIdx;
