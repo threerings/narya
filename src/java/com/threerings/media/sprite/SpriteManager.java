@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.25 2002/02/21 06:01:29 mdb Exp $
+// $Id: SpriteManager.java,v 1.26 2002/02/28 23:25:15 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -169,7 +169,7 @@ public class SpriteManager
         int size = _sprites.size();
         for (int ii = 0; ii < size; ii++) {
             Sprite sprite = (Sprite)_sprites.get(ii);
-            if (sprite.inside(bounds)) {
+            if (sprite.intersects(bounds)) {
                 sprite.paint(gfx);
             }
         }
