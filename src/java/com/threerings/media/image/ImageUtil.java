@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.10 2002/04/30 02:14:13 mdb Exp $
+// $Id: ImageUtil.java,v 1.11 2002/05/04 19:34:14 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -271,6 +271,28 @@ public class ImageUtil
         }
 
         return new BufferedImage(mask.getColorModel(), target, true, null);
+    }
+
+    /**
+     * Returns true if the supplied image contains a non-transparent pixel
+     * at the specified coordinates, false otherwise.
+     */
+    public static boolean hitTest (Image image, int x, int y)
+    {
+        if (image instanceof BufferedImage) {
+            BufferedImage bimage = (BufferedImage)image;
+            int argb = bimage.getRGB(x, y);
+            int alpha = argb >> 24;
+            // Log.info("Checking [x=" + x + ", y=" + y + ", " + alpha);
+
+            // it's only a hit if the pixel is non-transparent
+            return (argb >> 24) != 0;
+
+        } else {
+            Log.warning("Can't check for transparent pixel " +
+                        "[image=" + image + "].");
+            return true;
+        }
     }
 
     /**
