@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.7 2001/10/11 04:13:33 mdb Exp $
+// $Id: ClientController.java,v 1.8 2001/10/18 01:40:40 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -44,8 +44,11 @@ public class ClientController
 //          _frame.setPanel(_logonPanel);
 
         // configure the client with some credentials and logon
-        String username = "bob" +
-            ((int)(Math.random() * Integer.MAX_VALUE) % 500);
+        String username = System.getProperty("username");
+        if (username == null) {
+            username =
+                "bob" + ((int)(Math.random() * Integer.MAX_VALUE) % 500);
+        }
         Credentials creds = new UsernamePasswordCreds(username, "test");
         Client client = _ctx.getClient();
         client.setCredentials(creds);
@@ -75,10 +78,33 @@ public class ClientController
         // keep the body object around for stuff
         _body = (BodyObject)client.getClientObject();
 
-        // head to the default lobby to start things off
-        MiCasaBootstrapData data = (MiCasaBootstrapData)
-            client.getBootstrapData();
-        _ctx.getLocationDirector().moveTo(data.defLobbyOid);
+        // figure out where to go
+        int moveOid = -1;
+
+        // hacky hack
+        String jumpOidStr = System.getProperty("jumpoid");
+        if (jumpOidStr != null) {
+            try {
+                moveOid = Integer.parseInt(jumpOidStr);
+            } catch (NumberFormatException nfe) {
+                Log.warning("Invalid jump oid [oid=" + jumpOidStr +
+                            ", err=" + nfe + "].");
+            }
+
+        } else if (_body.location != -1) {
+            // if we were already in a location, go there
+            moveOid = _body.location;
+
+        } else {
+            // otherwise head to the default lobby to start things off
+            MiCasaBootstrapData data = (MiCasaBootstrapData)
+                client.getBootstrapData();
+            moveOid = data.defLobbyOid;
+        }
+
+        if (moveOid > 0) {
+            _ctx.getLocationDirector().moveTo(moveOid);
+        }
     }
 
     // documentation inherited
