@@ -1,5 +1,5 @@
 /*
- * $Id: com_threerings_util_keybd_Keyboard.c,v 1.1 2003/01/12 00:26:39 shaper Exp $
+ * $Id$
  */
 
 #include <stdio.h>

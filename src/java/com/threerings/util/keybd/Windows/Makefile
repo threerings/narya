@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.1 2003/01/12 00:26:39 shaper Exp $
+# $Id$
 
 CROSSTOOLS_PATH=/usr/local/cross-tools
 MINGW_PATH=${CROSSTOOLS_PATH}/i386-mingw32msvc

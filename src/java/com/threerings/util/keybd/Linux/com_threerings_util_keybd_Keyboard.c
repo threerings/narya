@@ -1,5 +1,5 @@
 /*
- * $Id: com_threerings_util_keybd_Keyboard.c,v 1.2 2003/01/23 19:00:44 mdb Exp $
+ * $Id$
  */
 
 #include <stdio.h>
