@@ -1,5 +1,5 @@
 //
-// $Id: BodyProvider.java,v 1.4 2002/11/06 04:18:02 mdb Exp $
+// $Id: BodyProvider.java,v 1.5 2003/08/09 04:57:41 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -48,8 +48,8 @@ public class BodyProvider
         }
 
         // update their status!
-        Log.info("Setting user idle state [user=" + bobj.username +
-                 ", status=" + nstatus + "].");
+        Log.debug("Setting user idle state [user=" + bobj.username +
+                  ", status=" + nstatus + "].");
         updateOccupantStatus(bobj, bobj.location, nstatus);
     }
 
