@@ -1,7 +1,7 @@
 //
-// $Id: Log.java,v 1.1 2001/07/12 22:38:03 shaper Exp $
+// $Id: Log.java,v 1.2 2001/07/18 21:45:42 shaper Exp $
 
-package com.threerings.cocktail.miso;
+package com.threerings.miso;
 
 /**
  * A placeholder class that contains a reference to the log object used by

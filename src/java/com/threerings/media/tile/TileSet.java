@@ -1,10 +1,10 @@
 //
-// $Id: TileSet.java,v 1.6 2001/07/17 17:21:33 shaper Exp $
+// $Id: TileSet.java,v 1.7 2001/07/18 21:45:42 shaper Exp $
 
-package com.threerings.cocktail.miso.tile;
+package com.threerings.miso.tile;
 
-import com.threerings.cocktail.miso.Log;
-import com.threerings.cocktail.miso.media.ImageManager;
+import com.threerings.miso.Log;
+import com.threerings.media.ImageManager;
 
 import java.awt.Image;
 import java.awt.Graphics2D;
@@ -25,7 +25,7 @@ import java.awt.image.*;
  * the tile at the top-left of the image is tile id 0 and tiles are
  * numbered left to right, top to bottom, in ascending order.
  *
- * @see com.threerings.cocktail.miso.TileManager
+ * @see com.threerings.miso.TileManager
  */
 public class TileSet
 {

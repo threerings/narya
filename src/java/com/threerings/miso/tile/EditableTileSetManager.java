@@ -1,9 +1,9 @@
 //
-// $Id: EditableTileSetManager.java,v 1.3 2001/07/17 17:21:33 shaper Exp $
+// $Id: EditableTileSetManager.java,v 1.4 2001/07/18 21:45:42 shaper Exp $
 
-package com.threerings.cocktail.miso.tile;
+package com.threerings.miso.tile;
 
-import com.threerings.cocktail.miso.Log;
+import com.threerings.miso.Log;
 
 import java.io.IOException;
 import java.io.InputStream;

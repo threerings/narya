@@ -1,9 +1,9 @@
 //
-// $Id: MathUtil.java,v 1.1 2001/07/16 00:45:07 shaper Exp $
+// $Id: MathUtil.java,v 1.2 2001/07/18 21:45:42 shaper Exp $
 
-package com.threerings.cocktail.miso.util;
+package com.threerings.miso.util;
 
-import com.threerings.cocktail.miso.Log;
+import com.threerings.miso.Log;
 
 import java.awt.Point;
 

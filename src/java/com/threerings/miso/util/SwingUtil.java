@@ -1,7 +1,7 @@
 //
-// $Id: SwingUtil.java,v 1.1 2001/07/12 22:38:03 shaper Exp $
+// $Id: SwingUtil.java,v 1.2 2001/07/18 21:45:42 shaper Exp $
 
-package com.threerings.cocktail.miso.util;
+package com.threerings.miso.util;
 
 import java.awt.*;
 

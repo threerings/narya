@@ -1,13 +1,13 @@
 //
-// $Id: IsoSceneView.java,v 1.5 2001/07/18 21:19:00 shaper Exp $
+// $Id: IsoSceneView.java,v 1.6 2001/07/18 21:45:42 shaper Exp $
 
-package com.threerings.cocktail.miso.scene;
+package com.threerings.miso.scene;
 
-import com.threerings.cocktail.miso.Log;
-import com.threerings.cocktail.miso.media.ImageManager;
-import com.threerings.cocktail.miso.tile.Tile;
-import com.threerings.cocktail.miso.tile.TileManager;
-import com.threerings.cocktail.miso.util.MathUtil;
+import com.threerings.miso.Log;
+import com.threerings.miso.tile.Tile;
+import com.threerings.miso.tile.TileManager;
+import com.threerings.miso.util.MathUtil;
+import com.threerings.media.ImageManager;
 
 import java.awt.*;
 import java.awt.image.*;

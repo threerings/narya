@@ -1,9 +1,9 @@
 //
-// $Id: TileManager.java,v 1.5 2001/07/17 17:21:33 shaper Exp $
+// $Id: TileManager.java,v 1.6 2001/07/18 21:45:42 shaper Exp $
 
-package com.threerings.cocktail.miso.tile;
+package com.threerings.miso.tile;
 
-import com.threerings.cocktail.miso.Log;
+import com.threerings.miso.Log;
 
 import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.IntMap;

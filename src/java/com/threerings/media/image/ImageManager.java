@@ -1,7 +1,7 @@
 //
-// $Id: ImageManager.java,v 1.5 2001/07/18 21:19:00 shaper Exp $
+// $Id: ImageManager.java,v 1.1 2001/07/18 21:45:42 shaper Exp $
 
-package com.threerings.cocktail.miso.media;
+package com.threerings.media;
 
 import com.threerings.cocktail.miso.Log;
 

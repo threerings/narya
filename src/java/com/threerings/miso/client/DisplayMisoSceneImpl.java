@@ -1,10 +1,10 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.5 2001/07/17 17:21:33 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.6 2001/07/18 21:45:42 shaper Exp $
 
-package com.threerings.cocktail.miso.scene;
+package com.threerings.miso.scene;
 
-import com.threerings.cocktail.miso.tile.Tile;
-import com.threerings.cocktail.miso.tile.TileManager;
+import com.threerings.miso.tile.Tile;
+import com.threerings.miso.tile.TileManager;
 
 import java.awt.Point;
 import java.io.*;

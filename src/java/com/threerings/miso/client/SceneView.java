@@ -1,9 +1,9 @@
 //
-// $Id: SceneView.java,v 1.3 2001/07/16 22:12:01 shaper Exp $
+// $Id: SceneView.java,v 1.4 2001/07/18 21:45:42 shaper Exp $
 
-package com.threerings.cocktail.miso.scene;
+package com.threerings.miso.scene;
 
-import com.threerings.cocktail.miso.tile.Tile;
+import com.threerings.miso.tile.Tile;
 
 import java.awt.Component;
 import java.awt.Graphics;

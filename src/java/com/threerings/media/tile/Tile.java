@@ -1,7 +1,7 @@
 //
-// $Id: Tile.java,v 1.3 2001/07/16 00:45:07 shaper Exp $
+// $Id: Tile.java,v 1.4 2001/07/18 21:45:42 shaper Exp $
 
-package com.threerings.cocktail.miso.tile;
+package com.threerings.miso.tile;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -31,7 +31,7 @@ public class Tile
      * Construct a new tile with the specified identifiers.  Intended
      * only for use by the TileManager.  Do not use this method.
      *
-     * @see com.threerings.cocktail.miso.TileManager#getTile
+     * @see com.threerings.miso.TileManager#getTile
      */
     public Tile (short tsid, short tid)
     {
@@ -43,7 +43,7 @@ public class Tile
      * Construct a new tile with the specified identifiers.  Intended
      * only for use by the TileManager.  Do not use this method.
      *
-     * @see com.threerings.cocktail.miso.TileManager#getTile
+     * @see com.threerings.miso.TileManager#getTile
      */
     public Tile (int tsid, int tid)
     {
