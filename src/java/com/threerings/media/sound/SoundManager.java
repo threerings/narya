@@ -119,6 +119,14 @@ public class SoundManager
 
     /**
      * Constructs a sound manager.
+     */
+    public SoundManager (ResourceManager rmgr)
+    {
+        this(rmgr, null, null);
+    }
+
+    /**
+     * Constructs a sound manager.
      *
      * @param defaultClipBundle
      * @param defaultClipPath The pathname of a sound clip to use as a
