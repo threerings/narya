@@ -1,5 +1,5 @@
 //
-// $Id: SceneModel.java,v 1.1 2001/11/12 20:56:55 mdb Exp $
+// $Id: SceneModel.java,v 1.2 2001/11/29 00:15:48 mdb Exp $
 
 package com.threerings.whirled.data;
 
@@ -59,5 +59,25 @@ public class SceneModel implements Streamable
         for (int i = 0; i < nlength; i++) {
             neighborIds[i] = in.readInt();
         }
+    }
+
+    /**
+     * Creates and returns a blank scene model.
+     */
+    public static SceneModel blankSceneModel ()
+    {
+        SceneModel model = new SceneModel();
+        populateBlankSceneModel(model);
+        return model;
+    }
+
+    /**
+     * Populates a blank scene model with blank values.
+     */
+    protected static void populateBlankSceneModel (SceneModel model)
+    {
+        model.sceneId = -1;
+        model.version = 0;
+        model.neighborIds = new int[0];
     }
 }
