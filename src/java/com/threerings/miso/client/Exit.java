@@ -1,19 +1,14 @@
 //
-// $Id: Exit.java,v 1.1 2001/08/09 21:17:06 shaper Exp $
+// $Id: Exit.java,v 1.2 2001/08/11 00:00:13 shaper Exp $
 
 package com.threerings.miso.scene;
 
 /**
  * The <code>Exit</code> class represents a <code>Location</code> in a
  * scene that leads to a different scene.
- *
- * @see Location
  */
-public class Exit
+public class Exit extends Location
 {
-    /** The location this exit is associated with. */
-    public Location loc;
-
     /** The scene name this exit transitions to. */
     public String name;
 
@@ -25,18 +20,16 @@ public class Exit
      */
     public Exit (Location loc, String name)
     {
-	this.loc = loc;
+	super(loc.x, loc.y, loc.orient);
 	this.name = name;
     }
 
     /**
      * Return a String representation of this object.
      */
-    public String toString ()
+    protected void toString (StringBuffer buf)
     {
-        StringBuffer buf = new StringBuffer();
-        buf.append("[loc=").append(loc);
+	super.toString(buf);
         buf.append(", name=").append(name);
-        return buf.append("]").toString();
     }
 }

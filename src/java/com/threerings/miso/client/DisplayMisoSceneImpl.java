@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.23 2001/08/10 23:07:04 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.24 2001/08/11 00:00:13 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -115,6 +115,14 @@ public class Scene
 	return ClusterUtil.getClusterIndex(_clusters, loc);
     }
 
+    /**
+     * Update the specified location in the scene.  If the cluster
+     * index number is -1, the location will be removed from any
+     * cluster it may reside in.
+     *
+     * @param loc the location.
+     * @param clusteridx the cluster index number.
+     */
     public void updateLocation (Location loc, int clusteridx)
     {
 	// look the location up in our existing location list
@@ -195,6 +203,9 @@ public class Scene
         return _exits;
     }
 
+    /**
+     * Return the number of clusters in the scene.
+     */
     public int getNumClusters ()
     {
 	return _clusters.size();

@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.39 2001/08/10 23:07:04 shaper Exp $
+// $Id: IsoSceneView.java,v 1.40 2001/08/11 00:00:13 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -390,11 +390,6 @@ public class IsoSceneView implements EditableSceneView
 	IsoUtil.screenToFull(_model, x, y, _hfull);
     }
 
-    public void getFullCoordinates (int sx, int sy, Point fpos)
-    {
-	IsoUtil.screenToFull(_model, sx, sy, fpos);
-    }
-
     /**
      * Invalidate a list of rectangles in the view for later repainting.
      *
@@ -564,9 +559,18 @@ public class IsoSceneView implements EditableSceneView
 	_scene.updateLocation(loc, clusteridx);
     }
 
-    public Location getLocation (int x, int y)
+    public Location createLocation (int sx, int sy)
     {
-	return _scene.getLocation(x, y);
+	Point fpos = new Point();
+	IsoUtil.screenToFull(_model, sx, sy, fpos);
+	return new Location(fpos.x, fpos.y);
+    }
+
+    public Location getLocation (int sx, int sy)
+    {
+	Point fpos = new Point();
+	IsoUtil.screenToFull(_model, sx, sy, fpos);
+	return _scene.getLocation(fpos.x, fpos.y);
     }
 
     public int getClusterIndex (Location loc)

@@ -1,5 +1,5 @@
 //
-// $Id: Location.java,v 1.3 2001/08/10 23:07:04 shaper Exp $
+// $Id: Location.java,v 1.4 2001/08/11 00:00:13 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -54,9 +54,20 @@ public class Location
     public String toString ()
     {
         StringBuffer buf = new StringBuffer();
-        buf.append("[x=").append(x);
+        buf.append("[");
+	toString(buf);
+        return buf.append("]").toString();
+    }
+
+    /**
+     * This should be overridden by derived classes (which should be sure
+     * to call <code>super.toString()</code>) to append the derived class
+     * specific event information to the string buffer.
+     */
+    protected void toString (StringBuffer buf)
+    {
+	buf.append("x=").append(x);
 	buf.append(", y=").append(y);
         buf.append(", orient=").append(orient);
-        return buf.append("]").toString();
     }
 }
