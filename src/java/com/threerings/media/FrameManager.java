@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.15 2002/08/20 19:01:08 mdb Exp $
+// $Id: FrameManager.java,v 1.16 2002/08/23 20:22:09 mdb Exp $
 
 package com.threerings.media;
 
@@ -341,9 +341,9 @@ public class FrameManager
 
             // if the clipping region has not yet been set during this
             // render pass, the time has come to do so
-            if (!_clipped[0]) {
+            if (!clipped[0]) {
                 g.setClip(bounds);
-                _clipped[0] = true;
+                clipped[0] = true;
             }
 
             // translate into the components coordinate system and render
