@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: PuzzleController.java,v 1.2 2003/12/05 02:00:48 mdb Exp $
 
 package com.threerings.puzzle.client;
 
@@ -56,7 +56,7 @@ import com.threerings.puzzle.util.PuzzleContext;
  * The puzzle game controller handles logical actions for a puzzle game.
  */
 public abstract class PuzzleController extends GameController
-    implements PuzzleCodes, ElementUpdateListener
+    implements PuzzleCodes
 {
     /** The action command to toggle chatting mode. */
     public static final String TOGGLE_CHATTING = "toggle_chat";
@@ -259,6 +259,8 @@ public abstract class PuzzleController extends GameController
 
         // get a casted reference to our puzzle object
         _puzobj = (PuzzleObject)plobj;
+        _puzobj.addListener(_kolist);
+        _puzobj.addListener(_mlist);
 
         // listen to key events..
         _pctx.getKeyDispatcher().addGlobalKeyListener(_globalKeyListener);
@@ -302,7 +304,11 @@ public abstract class PuzzleController extends GameController
         _pctx.getKeyDispatcher().removeGlobalKeyListener(_globalKeyListener);
 
         // clear out the puzzle object
-        _puzobj = null;
+        if (_puzobj != null) {
+            _puzobj.removeListener(_mlist);
+            _puzobj.removeListener(_kolist);
+            _puzobj = null;
+        }
     }
 
     /**
@@ -882,17 +888,6 @@ public abstract class PuzzleController extends GameController
         });
     }
 
-    // documentation inherited
-    public void elementUpdated (ElementUpdatedEvent event)
-    {
-        String name = event.getName();
-        if (name.equals(PuzzleObject.PLAYER_STATUS)) {
-            if (event.getIntValue() == PuzzleObject.PLAYER_KNOCKED_OUT) {
-                playerKnockedOut(event.getIndex());
-            }
-        }
-    }
-
     /**
      * Called when a player is knocked out of the game to give the puzzle
      * a chance to perform any post-knockout actions that may be desired.
@@ -940,6 +935,31 @@ public abstract class PuzzleController extends GameController
         }
 
         protected long _lastProgressTick;
+    };
+
+    /** Listens for players being knocked out. */
+    protected ElementUpdateListener _kolist = new ElementUpdateListener() {
+        public void elementUpdated (ElementUpdatedEvent event) {
+            String name = event.getName();
+            if (name.equals(PuzzleObject.PLAYER_STATUS)) {
+                if (event.getIntValue() == PuzzleObject.PLAYER_KNOCKED_OUT) {
+                    playerKnockedOut(event.getIndex());
+                }
+            }
+        }
+    };
+
+    /** Listens for various attribute changes. */
+    protected AttributeChangeListener _mlist = new AttributeChangeListener() {
+        public void attributeChanged (AttributeChangedEvent event) {
+            String name = event.getName();
+            if (name.equals(PuzzleObject.DIFFICULTY)) {
+                difficultyChanged(_puzobj.difficulty);
+
+            } else if (name.equals(PuzzleObject.SEED)) {
+                generateNewBoard();
+            }
+        }
     };
 
     /** A casted reference to the client context. */
