@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.4 2001/11/20 00:23:32 mdb Exp $
+// $Id: ResourceManager.java,v 1.5 2001/11/26 23:48:04 mdb Exp $
 
 package com.threerings.resource;
 
@@ -120,7 +120,13 @@ public class ResourceManager
 
         // get our app root if we weren't provided with one
         if (appRoot == null) {
-            appRoot = System.getProperty(APP_ROOT_PROPERTY);
+            try {
+                appRoot = System.getProperty(APP_ROOT_PROPERTY);
+            } catch (SecurityException se) {
+                // we may be running in an applet, so we'll calmly ignore
+                // this little freakout
+            }
+
             // if it's still null, we complain loudly
             if (appRoot == null) {
                 Log.warning("No application root provided to resource " +
