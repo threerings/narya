@@ -1,5 +1,5 @@
 //
-// $Id: Invoker.java,v 1.1 2001/08/11 01:20:38 mdb Exp $
+// $Id: Invoker.java,v 1.2 2001/08/14 06:48:31 mdb Exp $
 
 package com.threerings.cocktail.cher.util;
 
@@ -124,5 +124,5 @@ public class Invoker extends LoopingThread
     }
 
     /** The invoker's queue of units to be executed. */
-    protected Queue _queue;
+    protected Queue _queue = new Queue();
 }
