@@ -191,7 +191,7 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
         do {
             _turnIdx = (_turnIdx + 1) % size;
         } while (_tgmgr.getPlayerName(_turnIdx) == null ||
-                 _tgmgr.isActivePlayer(_turnIdx));
+                 !_tgmgr.isActivePlayer(_turnIdx));
     }
 
     /** The game manager for which we are delegating. */
