@@ -1,5 +1,5 @@
 //
-// $Id: ColorPository.java,v 1.3 2003/06/05 17:31:21 mdb Exp $
+// $Id: ColorPository.java,v 1.4 2003/06/23 18:06:57 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -146,11 +146,13 @@ public class ColorPository implements Serializable
          */
         public Colorization getColorization ()
         {
-            if (_zation == null) {
-                _zation = new Colorization(getColorPrint(), cclass.source,
-                                           cclass.range, offsets);
-            }
-            return _zation;
+//             if (_zation == null) {
+//                 _zation = new Colorization(getColorPrint(), cclass.source,
+//                                            cclass.range, offsets);
+//             }
+//             return _zation;
+            return new Colorization(getColorPrint(), cclass.source,
+                                    cclass.range, offsets);
         }
 
         /**
