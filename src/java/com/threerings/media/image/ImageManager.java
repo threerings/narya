@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.46 2003/02/22 01:48:21 mdb Exp $
+// $Id: ImageManager.java,v 1.47 2003/04/09 22:02:05 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -210,6 +210,8 @@ public class ImageManager
         BufferedImage image = loadImage(key);
         if (image == null) {
             Log.warning("Failed to load image " + key + ".");
+            // create a blank image instead
+            image = new BufferedImage(10, 10, BufferedImage.TYPE_BYTE_INDEXED);
         }
 
 //         Log.info("Loaded " + key.path + ", image=" + image +
