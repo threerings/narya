@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.3 2001/08/16 23:14:21 mdb Exp $
+// $Id: TileUtil.java,v 1.4 2001/09/05 00:44:37 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -17,18 +17,18 @@ import com.threerings.miso.scene.AmbulatorySprite;
 public class TileUtil
 {
     /**
-     * Returns an array of multi-frame images corresponding to the frames
-     * of animation used to render the mobile sprite in each of the
-     * directions it may face.  The tileset id referenced must contain
-     * <code>Path.NUM_DIRECTIONS</code> rows of tiles, with each row
-     * containing <code>NUM_DIR_FRAMES</code> tiles.
+     * Returns an array of multi-frame images corresponding to the
+     * frames of animation used to render the ambulatory sprite in
+     * each of the directions it may face.  The tileset id referenced
+     * must contain <code>Path.NUM_DIRECTIONS</code> rows of tiles,
+     * with each row containing <code>NUM_DIR_FRAMES</code> tiles.
      *
      * @param tilemgr the tile manager to retrieve tiles from.
      * @param tsid the tileset id containing the sprite tiles.
      *
      * @return the array of multi-frame sprite images.
      */
-    public static MultiFrameImage[] getSpriteFrames (
+    public static MultiFrameImage[] getAmbulatorySpriteFrames (
         TileManager tilemgr, int tsid)
     {
         MultiFrameImage[] anims = new MultiFrameImage[Path.NUM_DIRECTIONS];
