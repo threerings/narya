@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.78 2001/12/15 04:20:55 mdb Exp $
+// $Id: IsoSceneView.java,v 1.79 2001/12/16 05:42:16 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -194,7 +194,7 @@ public class IsoSceneView implements SceneView
         gfx.setColor(Color.yellow);
         size = _dirtyItems.size();
         for (int ii = 0; ii < size; ii++) {
-            Rectangle rect = ((DirtyItem)_dirtyItems.get(ii)).dirtyRect;
+            Rectangle rect = _dirtyItems.get(ii).dirtyRect;
             gfx.draw(rect);
         }
     }

@@ -1,10 +1,18 @@
 //
-// $Id: DirtyItemList.java,v 1.6 2001/11/18 04:09:22 mdb Exp $
+// $Id: DirtyItemList.java,v 1.7 2001/12/16 05:42:16 shaper Exp $
 
 package com.threerings.miso.scene;
 
-import java.awt.*;
-import java.util.*;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.Shape;
+
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Comparator;
+
+import com.samskivert.util.HashIntMap;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.tile.ObjectTile;
@@ -15,7 +23,7 @@ import com.threerings.media.Log;
  * The dirty item list keeps track of dirty sprites and object tiles
  * in a scene.
  */
-public class DirtyItemList extends ArrayList
+public class DirtyItemList
 {
     /**
      * Appends the dirty sprite at the given coordinates to the dirty
@@ -24,7 +32,7 @@ public class DirtyItemList extends ArrayList
     public void appendDirtySprite (
         MisoCharacterSprite sprite, int x, int y, Rectangle dirtyRect)
     {
-        add(new DirtyItem(sprite, null, x, y, dirtyRect));
+        _items.add(new DirtyItem(sprite, null, x, y, dirtyRect));
     }
 
     /**
@@ -34,19 +42,105 @@ public class DirtyItemList extends ArrayList
     public void appendDirtyObject (
         ObjectTile tile, Shape bounds, int x, int y, Rectangle dirtyRect)
     {
-        add(new DirtyItem(tile, bounds, x, y, dirtyRect));
+        _items.add(new DirtyItem(tile, bounds, x, y, dirtyRect));
+    }
+
+    /**
+     * Returns the dirty item at the given index in the list.
+     */
+    public DirtyItem get (int idx)
+    {
+        return (DirtyItem)_items.get(idx);
     }
 
     /**
      * Returns an array of the {@link DirtyItem} objects in the list
-     * sorted with the {@link DirtyItemComparator}.
+     * sorted in proper rendering order.
      */
     public DirtyItem[] sort ()
     {
-        DirtyItem items[] = new DirtyItem[size()];
-        toArray(items);
-        Arrays.sort(items, DIRTY_COMP);
-        return items;
+        int size = size();
+
+        if (DEBUG_SORT) {
+            Log.info("Sorting dirty item list [size=" + size + "].");
+        }
+
+        // get items sorted by increasing origin x-coordinate
+        DirtyItem[] xitems = new DirtyItem[size];
+        _items.toArray(xitems);
+        Arrays.sort(xitems, ORIGIN_X_COMP);
+
+        if (DEBUG_SORT) {
+            Log.info("Sorted by x-origin " +
+                     "[items=" + DirtyItemList.toString(xitems) + "].");
+        }
+
+        // get items sorted by increasing origin y-coordinate
+        DirtyItem[] yitems = new DirtyItem[size];
+        _items.toArray(yitems);
+        Arrays.sort(yitems, ORIGIN_Y_COMP);
+
+        if (DEBUG_SORT) {
+            Log.info("Sorted by y-origin " +
+                     "[items=" + DirtyItemList.toString(yitems) + "].");
+        }
+
+        // sort items into proper render order
+        DirtyItem[] ritems = new DirtyItem[size];
+        _items.toArray(ritems);
+        Arrays.sort(ritems, new RenderComparator(xitems, yitems));
+
+        if (DEBUG_SORT) {
+            Log.info("Sorted for render " +
+                     "[items=" + toString(ritems) + "].");
+        }
+
+        return ritems;
+    }
+
+    /**
+     * Returns the number of items in the dirty item list.
+     */
+    public int size ()
+    {
+        return _items.size();
+    }
+
+    /**
+     * Clears all items in the list.
+     */
+    public void clear ()
+    {
+        _items.clear();
+    }
+
+    /**
+     * Returns an abbreviated string representation of the two given dirty
+     * items describing each by only its origin coordinates.  Intended for
+     * debugging purposes.
+     */
+    protected static String toString (DirtyItem a, DirtyItem b)
+    {
+        return toString(new DirtyItem[] { a, b });
+    }
+
+    /**
+     * Returns an abbreviated string representation of the given dirty
+     * items describing each by only its origin coordinates.  Intended for
+     * debugging purposes.
+     */
+    protected static String toString (DirtyItem[] items)
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append("[");
+        for (int ii = 0; ii < items.length; ii++) {
+            buf.append("(ox=").append(items[ii].ox);
+            buf.append(", oy=").append(items[ii].oy).append(")");
+            if (ii < (items.length - 1)) {
+                buf.append(", ");
+            }
+        }
+        return buf.append("]").toString();
     }
 
     /**
@@ -54,7 +148,7 @@ public class DirtyItemList extends ArrayList
      * all of the information necessary to render their dirty regions
      * to the target graphics context when the time comes to do so.
      */
-    public class DirtyItem
+    public static class DirtyItem
     {
         /** The dirtied object; one of either a sprite or an object tile. */
         public Object obj;
@@ -121,6 +215,7 @@ public class DirtyItemList extends ArrayList
             gfx.setClip(oclip);
         }
 
+        // documentation inherited
         public boolean equals (Object other)
         {
             // we're never equal to something that's not our kind
@@ -140,16 +235,56 @@ public class DirtyItemList extends ArrayList
             return (ox == b.ox && oy == b.oy);
         }
 
+        /**
+         * Returns a string representation of the dirty item.
+         */
         public String toString ()
         {
-            return "[obj=" + obj + ", ox=" + ox + ", oy=" + oy +
-                ", lx=" + lx + ", ly=" + ly + ", rx=" + rx +
-                ", ry=" + ry + "]";
+            StringBuffer buf = new StringBuffer();
+            buf.append("[obj=").append(obj);
+            buf.append(", ox=").append(ox);
+            buf.append(", oy=").append(oy);
+            buf.append(", lx=").append(lx);
+            buf.append(", ly=").append(ly);
+            buf.append(", rx=").append(rx);
+            buf.append(", ry=").append(ry);
+            return buf.append("]").toString();
         }
     }
 
-    /** The dirty item comparator used to sort dirty items back to front. */
-    protected static final Comparator DIRTY_COMP = new DirtyItemComparator();
+    /**
+     * A comparator class for use in sorting dirty items in ascending
+     * origin x- or y-axis coordinate order.
+     */
+    protected static class OriginComparator implements Comparator
+    {
+        /**
+         * Constructs an origin comparator that sorts dirty items in
+         * ascending order based on their origin coordinate on the given
+         * axis.
+        */
+        public OriginComparator (int axis)
+        {
+            _axis = axis;
+        }
+
+        // documentation inherited
+        public int compare (Object a, Object b)
+        {
+            DirtyItem da = (DirtyItem)a;
+            DirtyItem db = (DirtyItem)b;
+            return (_axis == X_AXIS) ? (da.ox - db.ox) : (da.oy - db.oy);
+        }
+
+        // documentation inherited
+        public boolean equals (Object obj)
+        {
+	    return (obj == this);
+        }
+
+        /** The axis this comparator sorts on. */
+        protected int _axis;
+    }
 
     /**
      * A comparator class for use in sorting the dirty sprites and
@@ -157,16 +292,167 @@ public class DirtyItemList extends ArrayList
      * suitable for rendering in the isometric view with proper visual
      * results.
      */
-    protected static class DirtyItemComparator implements Comparator
+    protected static class RenderComparator implements Comparator
     {
+        /**
+         * Constructs a render comparator with the given list of
+         * pre-sorted dirty item lists for each axis.
+         */
+        public RenderComparator (DirtyItem[] xitems, DirtyItem[] yitems)
+        {
+            _xitems = xitems;
+            _yitems = yitems;
+        }
+
+        // documentation inherited
         public int compare (Object a, Object b)
         {
             DirtyItem da = (DirtyItem)a;
             DirtyItem db = (DirtyItem)b;
 
+            // check for partitioning objects on the y-axis
+            int result = comparePartitioned(Y_AXIS, da, db);
+            if (result != 0) {
+                if (DEBUG_COMPARE) {
+                    Log.info("compare: Y-partitioned " +
+                             "[result=" + result +
+                             ", items=" + DirtyItemList.toString(da, db) + "].");
+                }
+                return result;
+            }
+            
+            // check for partitioning objects on the x-axis
+            result = comparePartitioned(X_AXIS, da, db);
+            if (result != 0) {
+                if (DEBUG_COMPARE) {
+                    Log.info("compare: X-partitioned " +
+                             "[result=" + result +
+                             ", items=" + DirtyItemList.toString(da, db) + "].");
+                }
+                return result;
+            }
+
+            // use normal iso-ordering check
+            result = compareNonPartitioned(da, db);
+            if (DEBUG_COMPARE) {
+                Log.info("compare: non-partitioned " +
+                         "[result=" + result +
+                         ", items=" + DirtyItemList.toString(da, db) + "].");
+            }
+
+            return result;
+        }
+
+        // documentation inherited
+        public boolean equals (Object obj)
+        {
+	    return (obj == this);
+        }
+
+        /**
+         * Returns whether two dirty items have a partitioning object
+         * between them on the given axis.
+         */
+        protected int comparePartitioned (
+            int axis, DirtyItem da, DirtyItem db)
+        {
+            // prepare for the partitioning check
+            DirtyItem[] sitems;
+            Comparator comp;
+            boolean swapped = false;
+            switch (axis) {
+            case X_AXIS:
+                if (da.ox == db.ox) {
+                    // can't be partitioned if there's no space between
+                    return 0;
+                }
+
+                // order items for proper comparison
+                if (da.ox > db.ox) {
+                    DirtyItem temp = da;
+                    da = db;
+                    db = temp;
+                    swapped = true;
+                }
+
+                // use the axis-specific sorted array
+                sitems = _xitems;
+                comp = ORIGIN_X_COMP;
+                break;
+
+            case Y_AXIS:
+            default:
+                if (da.oy == db.oy) {
+                    // can't be partitioned if there's no space between
+                    return 0;
+                }
+
+                // order items for proper comparison
+                if (da.oy > db.oy) {
+                    DirtyItem temp = da;
+                    da = db;
+                    db = temp;
+                    swapped = true;
+                }
+
+                // use the axis-specific sorted array
+                sitems = _yitems;
+                comp = ORIGIN_Y_COMP;
+                break;
+            }
+
+            // get the bounding item indices and the number of
+            // potentially-partitioning dirty items
+            int aidx = Arrays.binarySearch(sitems, da, comp);
+            int bidx = Arrays.binarySearch(sitems, db, comp);
+            int size = bidx - aidx - 1;
+
+            // check each potentially partitioning item
+            int startidx = aidx + 1, endidx = startidx + size;
+            for (int pidx = startidx; pidx < endidx; pidx++) {
+                DirtyItem dp = sitems[pidx];
+                if (dp.obj instanceof MisoCharacterSprite) {
+                    // character sprites can't partition things
+                    continue;
+                } else if ((dp.obj == da.obj) ||
+                           (dp.obj == db.obj)) {
+                    // can't be partitioned by ourselves
+                    continue;
+                }
+
+                // perform the actual partition check for this object
+                switch (axis) {
+                case X_AXIS:
+                    if (dp.ly >= da.ry &&
+                        dp.ry <= db.ly &&
+                        dp.lx > da.rx &&
+                        dp.rx < db.lx) {
+                        return (swapped) ? 1 : -1;
+                    }
+
+                case Y_AXIS:
+                default:
+                    if (dp.lx <= db.ox &&
+                        dp.rx >= da.lx &&
+                        dp.ry > da.oy &&
+                        dp.oy < db.ry) {
+                        return (swapped) ? 1 : -1;
+                    }
+                }
+            }
+
+            // no partitioning object found
+            return 0;
+        }
+
+        /**
+         * Compares the two dirty items assuming there are no partitioning
+         * objects between them.
+         */
+        protected int compareNonPartitioned (DirtyItem da, DirtyItem db)
+        {
             if (da.ox == db.ox &&
                 da.oy == db.oy) {
-
                 if (da.equals(db)) {
                     // render level is equal if we're the same sprite
                     // or an object at the same location
@@ -176,41 +462,57 @@ public class DirtyItemList extends ArrayList
                 if ((da.obj instanceof MisoCharacterSprite) &&
                     (db.obj instanceof MisoCharacterSprite)) {
                     // we're comparing two sprites co-existing on the same
-                    // tile, so study their fine coordinates to determine
-                    // rendering order
+                    // tile, so study their fine coordinates
                     MisoCharacterSprite as = (MisoCharacterSprite)da.obj;
                     MisoCharacterSprite bs = (MisoCharacterSprite)db.obj;
 
                     int ahei = as.getFineX() + as.getFineY();
                     int bhei = bs.getFineX() + bs.getFineY();
-
-                    if (ahei < bhei) {
-                        // item b is in front of item a
-                        return -1;
-                    } else if (ahei > bhei) {
-                        // item a is in front of item b
-                        return 1;
-                    } else {
-                        // if they're at the same vertical row of
-                        // intra-tile tiles, just use something consistent
-                        return as.hashCode() - bs.hashCode();
-                    }
+                    int diff = ahei - bhei;
+                    // if they're at the same vertical row of intra-tile
+                    // tiles, just use hashCode() for consistency
+                    return (diff != 0) ? diff : (as.hashCode() - bs.hashCode());
                 }
             }
 
-            if (da.lx > db.ox ||
-                da.ry > db.oy) {
-                // item a is in front of item b
+            // establish a consistent ordering between objects.  see the
+            // diagram at "narya/docs/miso/render_sort_diagram.png" for
+            // more information.
+            if (da.lx > db.ox) {
                 return 1;
+            } else if (da.ry > db.oy) {
+                return (db.lx > da.ox) ? -1 : 1;
             }
-
-            // item b is in front of item a
             return -1;
         }
 
-        public boolean equals (Object obj)
-        {
-	    return (obj == this);
-        }
+        /** The items in the dirty item list sorted by ascending x origin. */
+        protected DirtyItem[] _xitems;
+
+        /** The items in the dirty item list sorted by ascending y origin. */
+        protected DirtyItem[] _yitems;
     }
+
+    /** Whether to log debug info when comparing pairs of dirty items. */
+    protected static final boolean DEBUG_COMPARE = false;
+
+    /** Whether to log debug info for the overall dirty item sorting algorithm. */
+    protected static final boolean DEBUG_SORT = false;
+
+    /** Constants used to denote axis sorting constraints. */
+    protected static final int X_AXIS = 0;
+    protected static final int Y_AXIS = 1;
+
+    /** The comparator used to sort dirty items in ascending origin
+     * x-coordinate order. */
+    protected static final Comparator ORIGIN_X_COMP =
+        new OriginComparator(X_AXIS);
+
+    /** The comparator used to sort dirty items in ascending origin
+     * y-coordinate order. */
+    protected static final Comparator ORIGIN_Y_COMP =
+        new OriginComparator(Y_AXIS);
+
+    /** The list of dirty items. */
+    protected ArrayList _items = new ArrayList();
 }
