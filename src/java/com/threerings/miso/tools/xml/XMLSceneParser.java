@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.22 2001/10/22 18:21:41 shaper Exp $
+// $Id: XMLSceneParser.java,v 1.23 2001/10/25 16:36:43 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -73,6 +73,9 @@ public class XMLSceneParser extends SimpleParser
 	} else if (qName.equals("portals")) {
             String vals[] = StringUtil.parseStringArray(data);
 	    addPortals(_info.scene.portals, _info.scene.locations, vals);
+
+        } else if (qName.equals("entrance")) {
+            _info.scene.entrance = getEntrancePortal(data);
 
 	} else if (qName.equals("row")) {
 	    addTileRow(_info, data);
@@ -245,6 +248,23 @@ public class XMLSceneParser extends SimpleParser
     }
 
     /**
+     * Returns the default entrance portal for the scene, or
+     * <code>null</code> if an error occurs.
+     */
+    protected Portal getEntrancePortal (String data)
+    {
+        ArrayList locs = _info.scene.locations;
+        int size = locs.size();
+        int pidx = parseInt(data);
+
+        if (size == 0 || pidx < 0 || pidx > size - 1) {
+            return null;
+        }
+
+        return (Portal)locs.get(pidx);
+    }
+
+    /**
      * Parse the specified XML file and return a miso scene object with
      * the data contained therein.
      *
@@ -270,9 +290,6 @@ public class XMLSceneParser extends SimpleParser
 
     /** Temporary storage of scene info while parsing. */
     protected SceneInfo _info;
-
-    // TODO: allow specifying the entrance location for a scene in the
-    // editor, read/write to XML scene description files.
 
     /**
      * A class to hold the information gathered while parsing.

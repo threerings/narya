@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.68 2001/10/24 01:33:47 shaper Exp $
+// $Id: IsoSceneView.java,v 1.69 2001/10/25 16:36:42 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -196,6 +196,7 @@ public class IsoSceneView implements SceneView
      */
     protected void renderScene (Graphics2D gfx)
     {
+        // Log.info("renderScene");
         renderTiles(gfx);
         renderDirtyItems(gfx);
     }
@@ -236,7 +237,8 @@ public class IsoSceneView implements SceneView
      */
     protected void renderDirtyItems (Graphics2D gfx)
     {
-        // Log.info("renderDirtyItems");
+        // Log.info("renderDirtyItems [rects=" + _dirtyRects.size() +
+        // ", items=" + _dirtyItems.size() + "].");
 
         // sort the dirty sprites and objects visually back-to-front
         DirtyItem items[] = _dirtyItems.sort();
@@ -244,6 +246,7 @@ public class IsoSceneView implements SceneView
         // render each item clipping to its dirty rectangle
         for (int ii = 0; ii < items.length; ii++) {
             items[ii].paint(gfx, items[ii].dirtyRect);
+            // Log.info("Painting item [item=" + items[ii] + "].");
         }
     }
 
@@ -352,56 +355,34 @@ public class IsoSceneView implements SceneView
 	List locations = _scene.getLocations();
 	int size = locations.size();
 
-	// create the location triangle
-	Polygon tri = new Polygon();
-	tri.addPoint(-3, -3);
-	tri.addPoint(3, -3);
-	tri.addPoint(0, 3);
-
 	for (int ii = 0; ii < size; ii++) {
-
 	    // retrieve the location
 	    Location loc = (Location)locations.get(ii);
 
 	    // get the cluster index this location is in, if any
 	    int clusteridx = MisoSceneUtil.getClusterIndex(_scene, loc);
 
+            // get the location's center coordinate
 	    Point spos = new Point();
 	    IsoUtil.fullToScreen(_model, loc.x, loc.y, spos);
-
 	    int cx = spos.x, cy = spos.y;
 
-	    // translate the origin to center on the location
-	    gfx.translate(cx, cy);
-
-	    // rotate to reflect the location orientation
-	    double rot = (Math.PI / 4.0f) * loc.orient;
-	    gfx.rotate(rot);
-
-	    // draw the triangle
-	    Color fcol = (loc instanceof Portal) ? Color.green : Color.yellow;
-	    gfx.setColor(fcol);
-	    gfx.fill(tri);
-
-	    // outline the triangle in black
-	    gfx.setColor(Color.black);
-	    gfx.draw(tri);
-
-	    // draw the rectangle
-	    gfx.setColor(Color.red);
-  	    gfx.fillRect(-1, 2, 3, 3);
-
-	    // restore the original transform
-	    gfx.rotate(-rot);
-	    gfx.translate(-cx, -cy);
+            // paint the location
+            loc.paint(gfx, cx, cy);
 
 	    if (clusteridx != -1) {
 		// draw the cluster index number on the right side
 		gfx.setFont(_font);
 		gfx.setColor(Color.white);
-		gfx.drawString("" + clusteridx, cx + 5, cy + 3);
+		gfx.drawString(String.valueOf(clusteridx), cx + 5, cy + 3);
 	    }
-	}
+
+            // highlight the location if it's the default entrance
+            if (_scene.getEntrance() == loc) {
+                gfx.setColor(Color.cyan);
+                gfx.drawRect(spos.x - 5, spos.y - 5, 10, 10);
+            }
+        }
     }
 
     // documentation inherited

@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneWriter.java,v 1.17 2001/10/22 18:21:42 shaper Exp $
+// $Id: XMLSceneWriter.java,v 1.18 2001/10/25 16:36:43 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -61,6 +61,8 @@ public class XMLSceneWriter extends DataWriter
 	    endElement("clusters");
 
             dataElement("portals", getPortalData(scene));
+
+            dataElement("entrance", getEntranceData(scene));
 
             startElement("tiles");
             for (int lnum = 0; lnum < MisoScene.NUM_LAYERS; lnum++) {
@@ -187,6 +189,23 @@ public class XMLSceneWriter extends DataWriter
         }
 
         return buf.toString();
+    }
+
+    /**
+     * Returns a string detailing the location index of the default
+     * entrance portal for the scene, or <code>"-1"</code> if no
+     * default portal is specified or an error occurs.
+     */
+    protected String getEntranceData (MisoScene scene)
+    {
+        List locs = scene.getLocations();
+        Portal entrance = scene.getEntrance();
+
+        if (locs.size() == 0 || entrance == null) {
+            return "-1";
+        }
+
+        return String.valueOf(locs.indexOf(entrance));
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.41 2001/10/17 22:21:22 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.42 2001/10/25 16:36:42 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -36,6 +36,9 @@ public class MisoSceneImpl implements EditableMisoScene
 
     /** The portals to different scenes. */
     public ArrayList portals = new ArrayList();
+
+    /** The default entrance portal. */
+    public Portal entrance;
 
     /** The base tiles in the scene. */
     public MisoTile[][] baseTiles;
@@ -186,7 +189,7 @@ public class MisoSceneImpl implements EditableMisoScene
     // documentation inherited
     public Portal getEntrance ()
     {
-        return _entrance;
+        return entrance;
     }
 
     // documentation inherited
@@ -210,7 +213,7 @@ public class MisoSceneImpl implements EditableMisoScene
     // documentation inherited
     public void setEntrance (Portal entrance)
     {
-	_entrance = entrance;
+	this.entrance = entrance;
     }
 
     /**
@@ -377,9 +380,6 @@ public class MisoSceneImpl implements EditableMisoScene
 
     /** The scene version. */
     protected int _version;
-
-    /** The default entrance portal. */
-    protected Portal _entrance;
 
     /** The default tile for the base layer in the scene. */
     protected MisoTile _deftile;

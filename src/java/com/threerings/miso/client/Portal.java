@@ -1,7 +1,9 @@
 //
-// $Id: Portal.java,v 1.3 2001/08/21 01:15:16 shaper Exp $
+// $Id: Portal.java,v 1.4 2001/10/25 16:36:43 shaper Exp $
 
 package com.threerings.miso.scene;
+
+import java.awt.Color;
 
 /**
  * The portal class represents a {@link Location} in a scene that both
@@ -53,14 +55,18 @@ public class Portal extends Location
 	return (sid != MisoScene.SID_INVALID && dest != null);
     }
 
-    /**
-     * Return a String representation of this object.
-     */
+    // documentation inherited
     protected void toString (StringBuffer buf)
     {
 	super.toString(buf);
         buf.append(", name=").append(name);
 	buf.append(", sid=").append(sid);
 	buf.append(", dest=").append(dest);
+    }
+
+    // documentation inherited
+    protected Color getColor ()
+    {
+        return Color.green;
     }
 }
