@@ -1,5 +1,5 @@
 //
-// $Id: ChatService.java,v 1.9 2002/10/30 01:47:12 ray Exp $
+// $Id: ChatService.java,v 1.10 2002/10/31 23:27:16 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -45,4 +45,14 @@ public interface ChatService extends InvocationService
      */
     public void tell (Client client, String target, String message,
                       TellListener listener);
+
+    /**
+     * Requests that a message be broadcast to all users in the system.
+     *
+     * @param client a connected, operational client instance.
+     * @param message the contents of the message.
+     * @param listener the reference that will receive a failure response.
+     */
+    public void broadcast (Client client, String message,
+                           InvocationListener listener);
 }

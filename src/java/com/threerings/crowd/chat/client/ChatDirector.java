@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.36 2002/10/30 01:47:12 ray Exp $
+// $Id: ChatDirector.java,v 1.37 2002/10/31 23:27:16 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -288,6 +288,23 @@ public class ChatDirector extends BasicDirector
 
         // dispatch a speak request using the supplied speak service
         speakService.speak(_ctx.getClient(), message, mode);
+    }
+
+    /**
+     * Requests to send a site-wide broadcast message.
+     *
+     * @param message the contents of the message.
+     */
+    public void requestBroadcast (String message)
+    {
+        _cservice.broadcast(
+            _ctx.getClient(), message, new ChatService.InvocationListener () {
+                public void requestFailed (String reason) {
+                    displayFeedbackMessage(
+                        _bundle, MessageBundle.compose(
+                            "m.broadcast_failed", reason));
+                }
+            });
     }
 
     /**

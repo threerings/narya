@@ -1,8 +1,14 @@
 //
-// $Id: ChatProvider.java,v 1.15 2002/10/30 01:56:17 ray Exp $
+// $Id: ChatProvider.java,v 1.16 2002/10/31 23:27:16 mdb Exp $
 
 package com.threerings.crowd.chat;
 
+import java.util.Iterator;
+
+import com.threerings.util.MessageBundle;
+import com.threerings.util.TimeUtil;
+
+import com.threerings.presents.client.InvocationService.InvocationListener;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.MessageEvent;
@@ -14,12 +20,10 @@ import com.threerings.presents.server.InvocationProvider;
 import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
+import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.crowd.chat.ChatService.TellListener;
-
-import com.threerings.util.MessageBundle;
-import com.threerings.util.TimeUtil;
 
 /**
  * The chat provider handles the server side of the chat-related
@@ -28,6 +32,9 @@ import com.threerings.util.TimeUtil;
 public class ChatProvider
     implements ChatCodes, InvocationProvider
 {
+    /** The access control identifier for broadcast chat privileges. */
+    public static final String BROADCAST_TOKEN = "crowd.chat.broadcast";
+
     /**
      * Initializes the chat services and registers a chat provider with
      * the invocation manager.
@@ -74,6 +81,28 @@ public class ChatProvider
         } else {
             // normal success
             listener.tellSucceeded();
+        }
+    }
+
+    /**
+     * Processes a {@link ClientService#broadcast} request.
+     */
+    public void broadcast (ClientObject caller, String message,
+                           InvocationListener listener)
+        throws InvocationException
+    {
+        BodyObject body = (BodyObject)caller;
+
+        // make sure the requesting user has broadcast privileges
+        if (CrowdServer.actrl.checkAccess(body, BROADCAST_TOKEN)) {
+            throw new InvocationException(ACCESS_DENIED);
+        }
+
+        Iterator iter = CrowdServer.plreg.enumeratePlaces();
+        while (iter.hasNext()) {
+            PlaceObject plobj = (PlaceObject)iter.next();
+            SpeakProvider.sendSpeak(plobj, body.username, null,
+                                    message, BROADCAST_MODE);
         }
     }
 

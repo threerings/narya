@@ -1,5 +1,5 @@
 //
-// $Id: ChatCodes.java,v 1.12 2002/10/30 01:47:12 ray Exp $
+// $Id: ChatCodes.java,v 1.13 2002/10/31 23:27:16 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -37,6 +37,10 @@ public interface ChatCodes extends InvocationCodes
     /** A {@link SpeakService#speak} mode to indicate that a speak is
      * actually an emote. */
     public static final byte EMOTE_MODE = 2;
+
+    /** A {@link SpeakService#speak} mode to indicate that a speak is
+     * actually a server-wide broadcast. */
+    public static final byte BROADCAST_MODE = 3;
 
     /** An error code delivered when the user targeted for a tell
      * notification is not online. */
