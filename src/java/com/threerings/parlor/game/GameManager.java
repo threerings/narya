@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.4 2001/10/06 00:25:29 mdb Exp $
+// $Id: GameManager.java,v 1.5 2001/10/09 18:18:07 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -24,6 +24,7 @@ import com.threerings.parlor.data.GameObject;
 public class GameManager
     extends PlaceManager implements ParlorCodes
 {
+    // documentation inherited
     protected Class getPlaceObjectClass ()
     {
         return GameObject.class;
