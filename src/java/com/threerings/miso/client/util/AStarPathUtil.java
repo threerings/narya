@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.23 2003/01/15 21:43:33 mdb Exp $
+// $Id: AStarPathUtil.java,v 1.24 2003/01/15 21:44:52 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -287,7 +287,7 @@ class AStarInfo
         // meander off the edge of the scene; note, however, that their
         // cost is prohibitively high such that normal on-screen paths
         // won't make use of off-screen tiles. oh, the hackery.
-        return !isCoordinateValid(x, y)) || scene.canTraverse(trav, x, y);
+        return !isCoordinateValid(x, y) || scene.canTraverse(trav, x, y);
     }
 
     /**
