@@ -1,5 +1,5 @@
 //
-// $Id: FramedInputStream.java,v 1.1 2002/07/23 05:42:34 mdb Exp $
+// $Id: FramedInputStream.java,v 1.2 2002/11/18 18:51:33 mdb Exp $
 
 package com.threerings.io;
 
@@ -7,8 +7,8 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.samskivert.util.StringUtil;
-import com.threerings.presents.Log;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 
 /**
  * The framed input stream reads input that was framed by a framing output
@@ -37,81 +37,125 @@ import com.threerings.presents.Log;
  */
 public class FramedInputStream extends InputStream
 {
+    /**
+     * Creates a new framed input stream.
+     */
     public FramedInputStream ()
     {
-        _header = new byte[HEADER_SIZE];
-        _buffer = new byte[INITIAL_BUFFER_SIZE];
+        _buffer = ByteBuffer.allocate(INITIAL_BUFFER_CAPACITY);
     }
 
     /**
-     * Reads a frame from the provided input stream, or appends to a
-     * partially read frame. Appends the read data to the existing data
-     * available via the framed input stream's read methods. If the entire
-     * frame data is not yet available, <code>readFrame</code> will return
-     * false, otherwise true.
+     * Reads a frame from the provided channel, appending to any partially
+     * read frame. If the entire frame data is not yet available,
+     * <code>readFrame</code> will return false, otherwise true.
      *
-     * <p> The code assumes that it will be able to read the entire frame
-     * header in a single read. The header is only four bytes and should
-     * always arrive at the beginning of a packet, so unless something is
-     * very funky with the networking layer, this should be a safe
-     * assumption.
+     * <p> <em>Note:</em> when this method returns true, it is required
+     * that the caller read <em>all</em> of the frame data from the stream
+     * before again calling {@link #readFrame} as the previous frame's
+     * data will be elimitated upon the subsequent call.
      *
      * @return true if the entire frame has been read, false if the buffer
      * contains only a partial frame.
      */
-    public boolean readFrame (InputStream source)
+    public boolean readFrame (SocketChannel source)
         throws IOException
     {
-        // if the buffer currently contains a complete frame, that means
-        // we're not halfway through reading a frame and that we can start
-        // anew.
-        if (_count == _length) {
-            // read in the frame length
-            int got = source.read(_header, 0, HEADER_SIZE);
-            if (got < 0) {
+        // flush data from any previous frame from the buffer
+        if (_buffer.limit() == _length) {
+            // this will remove the old frame's bytes from the buffer,
+            // shift our old data to the start of the buffer, position the
+            // buffer appropriately for appending new data onto the end of
+            // our existing data, and set the limit to the capacity
+            _buffer.limit(_have);
+            _buffer.position(_length);
+            _buffer.compact();
+            _have -= _length;
+
+            // we may have picked up the next frame in a previous read, so
+            // try decoding the length straight away
+            _length = decodeLength();
+        }
+
+        // we may already have the next frame entirely in the buffer from
+        // a previous read
+        if (checkForCompleteFrame()) {
+            return true;
+        }
+
+        // read whatever data we can from the source
+        do {
+            int got = source.read(_buffer);
+            if (got == -1) {
                 throw new EOFException();
+            }
+            _have += got;
 
-            } else if (got == 0) {
-                // TBD: don't log this for now, but look into it later
-                // Log.info("Woke up to read data, but there ain't none. Sigh.");
-                return false;
-
-            } else if (got < HEADER_SIZE) {
-                String errmsg = "FramedInputStream does not support " +
-                    "partially reading the header. Needed " + HEADER_SIZE +
-                    " bytes, got " + got + " bytes.";
-                throw new RuntimeException(errmsg);
+            // if there's room remaining in the buffer, that means we've
+            // read all there is to read, so we can move on to inspecting
+            // what we've got
+            if (_buffer.remaining() > 0) {
+                break;
             }
 
-            // now that we've read our new frame length, we can clear out
-            // any prior data
-            _pos = 0;
-            _count = 0;
+            // otherwise, we've filled up our buffer as a result of this
+            // read, expand it and try reading some more
+            ByteBuffer newbuf = ByteBuffer.allocate(_buffer.capacity() << 1);
+            newbuf.put((ByteBuffer)_buffer.flip());
+            _buffer = newbuf;
 
-            // decode the frame length
-            _length = (_header[0] & 0xFF) << 24;
-            _length += (_header[1] & 0xFF) << 16;
-            _length += (_header[2] & 0xFF) << 8;
-            _length += (_header[3] & 0xFF);
+            // don't let things grow without bounds
+        } while (_buffer.capacity() < MAX_BUFFER_CAPACITY);
 
-            // if necessary, expand our buffer to accomodate the frame
-            if (_length > _buffer.length) {
-                // increase the buffer size in large increments
-                _buffer = new byte[Math.max(_buffer.length << 1, _length)];
-            }
+        // if we didn't already have our length, see if we now have enough
+        // data to obtain it
+        if (_length == -1) {
+            _length = decodeLength();
         }
 
-        // read the data into the buffer
-        int got = source.read(_buffer, _count, _length-_count);
-        if (got < 0) {
-            throw new EOFException();
+        // finally check to see if there's a complete frame in the buffer
+        // and prepare to serve it up if there is
+        return checkForCompleteFrame();
+    }
+
+    /**
+     * Decodes and returns the length of the current frame from the buffer
+     * if possible. Returns -1 otherwise.
+     */
+    protected final int decodeLength ()
+    {
+        // if we don't have enough bytes to determine our frame size, stop
+        // here and let the caller know that we're not ready
+        if (_have < HEADER_SIZE) {
+            return -1;
         }
-        _count += got;
 
-//         System.err.println("Read frame " + _count +
-//                            " (want " + _length + " pos " + _pos + ")");
+        // decode the frame length
+        _buffer.rewind();
+        int length = (_buffer.get() & 0xFF) << 24;
+        length += (_buffer.get() & 0xFF) << 16;
+        length += (_buffer.get() & 0xFF) << 8;
+        length += (_buffer.get() & 0xFF);
+        _buffer.position(_have);
 
-        return (_count == _length);
+        return length;
+    }
+
+    /**
+     * Returns true if a complete frame is in the buffer, false otherwise.
+     * If a complete frame is in the buffer, the buffer will be prepared
+     * to deliver that frame via our {@link InputStream} interface.
+     */
+    protected final boolean checkForCompleteFrame ()
+    {
+        if (_length == -1 || _have < _length) {
+            return false;
+        }
+
+        // prepare the buffer such that this frame can be read
+        _buffer.position(HEADER_SIZE);
+        _buffer.limit(_length);
+        return true;
     }
 
     /**
@@ -127,7 +171,7 @@ public class FramedInputStream extends InputStream
      */
     public int read ()
     {
-        return (_pos < _count) ? (_buffer[_pos++] & 0xFF) : -1;
+        return (_buffer.remaining() > 0) ? (_buffer.get() & 0xFF) : -1;
     }
 
     /**
@@ -155,32 +199,21 @@ public class FramedInputStream extends InputStream
      */
     public int read (byte[] b, int off, int len)
     {
-        // sanity check the arguments
-	if (b == null) {
-	    throw new NullPointerException();
-	} else if ((off < 0) || (off > b.length) || (len < 0) ||
-		   ((off + len) > b.length) || ((off + len) < 0)) {
-	    throw new IndexOutOfBoundsException();
-	}
+        // if they want no bytes, we give them no bytes; this is
+        // purportedly the right thing to do regardless of whether we're
+        // at EOF or not
+        if (len == 0) {
+            return 0;
+        }
 
-        // figure out how much data we'll return
-	if (_pos >= _count) {
-            // if they asked to read zero bytes and we have no bytes
-            // remaining; we're supposed to return 0 rather than EOF
-	    return (len == 0) ? 0 : -1;
-	}
-	if (_pos + len > _count) {
-	    len = _count - _pos;
-	}
-	if (len <= 0) {
-	    return 0;
-	}
+        // trim the amount to be read to what is available; if they wanted
+        // bytes and we have none, return -1 to indicate EOF
+        if ((len = Math.min(len, _buffer.remaining())) == 0) {
+            return -1;
+        }
 
-        // copy and advance
-	System.arraycopy(_buffer, _pos, b, off, len);
-	_pos += len;
-
-	return len;
+        _buffer.get(b, off, len);
+        return len;
     }
 
     /**
@@ -197,28 +230,19 @@ public class FramedInputStream extends InputStream
      */
     public long skip (long n)
     {
-	if (_pos + n > _count) {
-	    n = _count - _pos;
-	}
-	if (n <= 0) {
-	    return 0;
-	}
-	_pos += n;
-	return n;
+        throw new UnsupportedOperationException();
     }
 
     /**
      * Returns the number of bytes that can be read from this input stream
-     * without blocking. The value returned is <code>count - pos</code>,
-     * which is the number of bytes remaining to be read from the input
-     * buffer.
+     * without blocking.
      *
      * @return the number of bytes remaining to be read from the buffered
-     * frames.
+     * frame.
      */
     public int available ()
     {
-	return _count - _pos;
+	return _buffer.remaining();
     }
 
     /**
@@ -243,19 +267,26 @@ public class FramedInputStream extends InputStream
      */
     public void reset ()
     {
-	_pos = 0;
+        // position our buffer at the beginning of the frame data
+        _buffer.position(HEADER_SIZE);
     }
 
-    protected byte[] _header;
-    protected int _length;
+    /** The buffer in which we maintain our frame data. */
+    protected ByteBuffer _buffer;
 
-    protected byte[] _buffer;
-    protected int _pos;
-    protected int _count;
+    /** The length of the current frame being read. */
+    protected int _length = -1;
+
+    /** The number of bytes total that we have in our buffer (these bytes
+     * may comprise more than one frame. */
+    protected int _have = 0;
 
     /** The size of the frame header (a 32-bit integer). */
     protected static final int HEADER_SIZE = 4;
 
     /** The default initial size of the internal buffer. */
-    protected static final int INITIAL_BUFFER_SIZE = 32;
+    protected static final int INITIAL_BUFFER_CAPACITY = 32;
+
+    /** No need to get out of hand. */
+    protected static final int MAX_BUFFER_CAPACITY = 512 * 1024;
 }
