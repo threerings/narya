@@ -1,9 +1,10 @@
 //
-// $Id: RuntimeSpotScene.java,v 1.3 2002/04/17 00:16:34 mdb Exp $
+// $Id: RuntimeSpotScene.java,v 1.4 2002/04/17 00:20:56 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
 import com.threerings.whirled.server.RuntimeScene;
+import com.threerings.whirled.spot.data.SpotSceneModel;
 
 /**
  * Makes available the spot scene information that the server needs to
