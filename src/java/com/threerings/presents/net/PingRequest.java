@@ -1,17 +1,17 @@
 //
-// $Id: PingRequest.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
+// $Id: PingRequest.java,v 1.3 2001/06/05 21:29:51 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
-public class PingNotification extends UpstreamMessage
+public class PingRequest extends UpstreamMessage
 {
-    /** The code for a ping notification. */
+    /** The code for a ping request. */
     public static final short TYPE = TYPE_BASE + 5;
 
     /**
      * Zero argument constructor used when unserializing an instance.
      */
-    public PingNotification ()
+    public PingRequest ()
     {
         super();
     }

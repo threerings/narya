@@ -1,5 +1,5 @@
 //
-// $Id: ForwardEventRequest.java,v 1.4 2001/06/02 01:31:43 mdb Exp $
+// $Id: ForwardEventRequest.java,v 1.5 2001/06/05 21:29:51 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -9,23 +9,23 @@ import java.io.DataOutputStream;
 
 import com.threerings.cocktail.cher.dobj.DEvent;
 
-public class ForwardEventNotification extends UpstreamMessage
+public class ForwardEventRequest extends UpstreamMessage
 {
-    /** The code for a forward event notification. */
+    /** The code for a forward event request. */
     public static final short TYPE = TYPE_BASE + 4;
 
     /**
      * Zero argument constructor used when unserializing an instance.
      */
-    public ForwardEventNotification ()
+    public ForwardEventRequest ()
     {
         super();
     }
 
     /**
-     * Constructs a forward event notification for the supplied event.
+     * Constructs a forward event request for the supplied event.
      */
-    public ForwardEventNotification (DEvent event)
+    public ForwardEventRequest (DEvent event)
     {
         _event = event;
     }

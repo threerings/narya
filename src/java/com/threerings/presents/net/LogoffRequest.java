@@ -1,17 +1,17 @@
 //
-// $Id: LogoffRequest.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
+// $Id: LogoffRequest.java,v 1.3 2001/06/05 21:29:51 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
-public class LogoffNotification extends UpstreamMessage
+public class LogoffRequest extends UpstreamMessage
 {
-    /** The code for a logoff notification. */
+    /** The code for a logoff request. */
     public static final short TYPE = TYPE_BASE + 6;
 
     /**
      * Zero argument constructor used when unserializing an instance.
      */
-    public LogoffNotification ()
+    public LogoffRequest ()
     {
         super();
     }

@@ -1,5 +1,5 @@
 //
-// $Id: UnsubscribeRequest.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
+// $Id: UnsubscribeRequest.java,v 1.3 2001/06/05 21:29:51 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -7,24 +7,24 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-public class UnsubscribeNotification extends UpstreamMessage
+public class UnsubscribeRequest extends UpstreamMessage
 {
-    /** The code for an unsubscribe notification. */
+    /** The code for an unsubscribe request. */
     public static final short TYPE = TYPE_BASE + 3;
 
     /**
      * Zero argument constructor used when unserializing an instance.
      */
-    public UnsubscribeNotification ()
+    public UnsubscribeRequest ()
     {
         super();
     }
 
     /**
-     * Constructs a unsubscribe notification for the distributed object
+     * Constructs a unsubscribe request for the distributed object
      * with the specified object id.
      */
-    public UnsubscribeNotification (int oid)
+    public UnsubscribeRequest (int oid)
     {
         _oid = oid;
     }

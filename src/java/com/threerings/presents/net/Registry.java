@@ -1,5 +1,5 @@
 //
-// $Id: Registry.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
+// $Id: Registry.java,v 1.3 2001/06/05 21:29:51 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -27,14 +27,14 @@ public class Registry
                                          SubscribeRequest.class);
         TypedObjectFactory.registerClass(FetchRequest.TYPE,
                                          FetchRequest.class);
-        TypedObjectFactory.registerClass(UnsubscribeNotification.TYPE,
-                                         UnsubscribeNotification.class);
-        TypedObjectFactory.registerClass(ForwardEventNotification.TYPE,
-                                         ForwardEventNotification.class);
-        TypedObjectFactory.registerClass(PingNotification.TYPE,
-                                         PingNotification.class);
-        TypedObjectFactory.registerClass(LogoffNotification.TYPE,
-                                         LogoffNotification.class);
+        TypedObjectFactory.registerClass(UnsubscribeRequest.TYPE,
+                                         UnsubscribeRequest.class);
+        TypedObjectFactory.registerClass(ForwardEventRequest.TYPE,
+                                         ForwardEventRequest.class);
+        TypedObjectFactory.registerClass(PingRequest.TYPE,
+                                         PingRequest.class);
+        TypedObjectFactory.registerClass(LogoffRequest.TYPE,
+                                         LogoffRequest.class);
 
         // register our downstream message classes
         TypedObjectFactory.registerClass(AuthResponse.TYPE,
