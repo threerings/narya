@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleBoardView.java,v 1.9 2004/11/11 23:53:51 mdb Exp $
+// $Id: PuzzleBoardView.java,v 1.10 2004/11/12 01:09:48 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -263,9 +263,19 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
         label.layout(this);
 
         // create the score animation
-        ScoreAnimation anim = new ScoreAnimation(label, x, y);
+        ScoreAnimation anim = createScoreAnimation(label, x, y);
         anim.setRenderOrder(getScoreRenderOrder());
         return anim;
+    }
+
+    /**
+     * Creates a score animation, allowing derived classes to use custom
+     * animations that are customized following a call to
+     * {@link #createScoreAnimation}.
+     */
+    protected ScoreAnimation createScoreAnimation (Label label, int x, int y)
+    {
+        return new ScoreAnimation(label, x, y);
     }
 
     /**
