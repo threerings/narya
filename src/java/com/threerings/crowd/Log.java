@@ -1,5 +1,5 @@
 //
-// $Id: Log.java,v 1.2 2001/10/11 04:07:51 mdb Exp $
+// $Id: Log.java,v 1.3 2003/09/22 23:59:39 mdb Exp $
 
 package com.threerings.crowd;
 
@@ -11,6 +11,12 @@ public class Log
 {
     public static com.samskivert.util.Log log =
 	new com.samskivert.util.Log("crowd");
+
+    /** Convenience function. */
+    public static boolean debug ()
+    {
+        return log.getLevel() == com.samskivert.util.Log.DEBUG;
+    }
 
     /** Convenience function. */
     public static void debug (String message)

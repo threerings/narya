@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.47 2003/08/20 01:54:57 mdb Exp $
+// $Id: PlaceManager.java,v 1.48 2003/09/22 23:59:39 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -368,7 +368,10 @@ public class PlaceManager
      */
     protected void bodyEntered (final int bodyOid)
     {
-        Log.debug("Body entered [where=" + where() + ", oid=" + bodyOid + "].");
+        if (Log.debug()) {
+            Log.debug("Body entered [where=" + where() +
+                      ", oid=" + bodyOid + "].");
+        }
 
         // let our delegates know what's up
         applyToDelegates(new DelegateOp() {
@@ -386,7 +389,10 @@ public class PlaceManager
      */
     protected void bodyLeft (final int bodyOid)
     {
-        Log.debug("Body left [where=" + where() + ", oid=" + bodyOid + "].");
+        if (Log.debug()) {
+            Log.debug("Body left [where=" + where() +
+                      ", oid=" + bodyOid + "].");
+        }
 
         // if their occupant info hasn't been removed (which may be the
         // case if they logged off rather than left via a MoveTo request),
