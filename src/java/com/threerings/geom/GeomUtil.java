@@ -1,5 +1,5 @@
 //
-// $Id: GeomUtil.java,v 1.5 2003/05/12 05:22:34 ray Exp $
+// $Id: GeomUtil.java,v 1.6 2003/11/15 00:17:59 mdb Exp $
 
 package com.threerings.geom;
 
@@ -176,10 +176,6 @@ public class GeomUtil
      */
     public static void shiftToContain (Rectangle tainer, Rectangle tained)
     {
-        if (tainer.width < tained.width || tainer.height < tained.height) {
-            throw new IllegalArgumentException(
-                tainer + " cannot contain " + tained);
-        }
         if (tained.x < tainer.x) {
             tainer.x = tained.x;
         }
