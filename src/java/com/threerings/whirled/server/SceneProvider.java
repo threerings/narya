@@ -1,5 +1,5 @@
 //
-// $Id: SceneProvider.java,v 1.9 2002/05/26 02:24:46 mdb Exp $
+// $Id: SceneProvider.java,v 1.10 2002/05/26 02:29:13 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -108,7 +108,7 @@ public class SceneProvider extends InvocationProvider
      * request to move to the specified new scene. This is the
      * scene-equivalent to {@link LocationProvider#moveBody}.
      */
-    public void moveBody (BodyObject source, int sceneId)
+    public static void moveBody (BodyObject source, int sceneId)
     {
         // first remove them from their old place
         LocationProvider.leaveOccupiedPlace(source);
@@ -120,8 +120,8 @@ public class SceneProvider extends InvocationProvider
     }
 
     /** The invocation manager with which we interact. */
-    protected InvocationManager _invmgr;
+    protected static InvocationManager _invmgr;
 
     /** The scene registry with which we interact. */
-    protected SceneRegistry _screg;
+    protected static SceneRegistry _screg;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ZoneProvider.java,v 1.8 2002/05/26 02:24:46 mdb Exp $
+// $Id: ZoneProvider.java,v 1.9 2002/05/26 02:29:13 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -182,7 +182,7 @@ public class ZoneProvider
      * request to move to the specified new zone and scene. This is the
      * zone-equivalent to {@link LocationProvider#moveBody}.
      */
-    public void moveBody (BodyObject source, int zoneId, int sceneId)
+    public static void moveBody (BodyObject source, int zoneId, int sceneId)
     {
         // first remove them from their old place
         LocationProvider.leaveOccupiedPlace(source);
@@ -194,11 +194,11 @@ public class ZoneProvider
     }
 
     /** The invocation manager with which we interact. */
-    protected InvocationManager _invmgr;
+    protected static InvocationManager _invmgr;
 
     /** The zone registry with which we communicate. */
-    protected ZoneRegistry _zonereg;
+    protected static ZoneRegistry _zonereg;
 
     /** The scene registry with which we communicate. */
-    protected SceneRegistry _screg;
+    protected static SceneRegistry _screg;
 }
