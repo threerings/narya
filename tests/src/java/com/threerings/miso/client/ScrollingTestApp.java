@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.6 2002/02/19 22:08:25 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.7 2002/03/08 22:37:50 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -97,7 +97,7 @@ public class ScrollingTestApp
         try {
             CharacterComponent ccomp = crepo.getComponent(scclass, scname);
             CharacterDescriptor desc = new CharacterDescriptor(
-                new int[] { ccomp.componentId });
+                new int[] { ccomp.componentId }, null);
 
             // now create the actual sprite and stick 'em in the scene
             MisoCharacterSprite s =

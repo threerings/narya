@@ -1,5 +1,5 @@
 //
-// $Id: CastUtil.java,v 1.5 2002/03/05 07:15:27 mdb Exp $
+// $Id: CastUtil.java,v 1.6 2002/03/08 22:37:50 mdb Exp $
 
 package com.threerings.cast.util;
 
@@ -48,7 +48,7 @@ public class CastUtil
             components[ii] = ((Integer)choices.get(idx)).intValue();
         }
 
-        return new CharacterDescriptor(components);
+        return new CharacterDescriptor(components, null);
     }
 
     protected static final String[] CLASSES = {
