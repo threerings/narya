@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.22 2003/06/24 18:02:58 ray Exp $
+// $Id: VirtualMediaPanel.java,v 1.23 2003/11/12 21:47:09 ray Exp $
 
 package com.threerings.media;
 
@@ -33,6 +33,19 @@ import com.threerings.media.util.Pathable;
  */
 public class VirtualMediaPanel extends MediaPanel
 {
+    /** The code for the pathable following mode wherein we keep the view
+     * centered on the pathable's location. */
+    public static final byte CENTER_ON_PATHABLE = 0;
+
+    /** The code for the pathable following mode wherein we ensure that
+     * the marked pathable is always kept within the visible bounds of the
+     * view. */
+    public static final byte ENCLOSE_PATHABLE = 1;
+
+    /** The code for the pathable following mode wherein we set the upper-left
+     * corner of the view to the coordinates of the pathable. */
+    public static final byte TRACK_PATHABLE = 2;
+
     /**
      * Constructs a virtual media panel.
      */
@@ -77,39 +90,26 @@ public class VirtualMediaPanel extends MediaPanel
 
     /**
      * Instructs the view to follow the supplied pathable; ensuring that
-     * the pathable always remains in the center of the view. The virtual
-     * coordinates will be adjusted immediately and then on every tick to
-     * center the view on the sprite.
+     * the view's coordinates are adjusted according to the follow mode.
      *
      * @param pable the pathable to follow.
+     * @param followMode the strategy for keeping the pathable in view.
      */
-    public void setFollowsPathable (Pathable pable)
+    public void setFollowsPathable (Pathable pable, byte followMode)
     {
-        _fmode = CENTER_ON_PATHABLE;
-        _fpath = pable;
-        trackPathable(); // immediately update our location
-    }
-
-    /**
-     * Instructs the view to scroll to ensure that the specified pathable
-     * is always inside the visible bounds of the view.
-     */
-    public void setEnclosesPathable (Pathable pable)
-    {
-        _fmode = ENCLOSE_PATHABLE;
+        _fmode = followMode;
         _fpath = pable;
         trackPathable(); // immediately update our location
     }
 
     /**
      * Clears out the pathable that was being enclosed or followed due to
-     * a previous call to {@link #setFollowsPathable} or {@link
-     * #setEnclosesPathable}.
+     * a previous call to {@link #setFollowsPathable}.
      */
     public void clearPathable ()
     {
         _fpath = null;
-        _fmode = -1;
+        _fmode = (byte) -1;
     }
 
     /**
@@ -262,6 +262,11 @@ public class VirtualMediaPanel extends MediaPanel
 
         // figure out where to move
         switch (_fmode) {
+        case TRACK_PATHABLE:
+            nx = _fpath.getX();
+            ny = _fpath.getY();
+            break;
+
         case CENTER_ON_PATHABLE:
             nx = _fpath.getX() - width/2;
             ny = _fpath.getY() - height/2;
@@ -384,7 +389,7 @@ public class VirtualMediaPanel extends MediaPanel
     protected Mirage _background;
 
     /** The mode we're using when following a pathable. */
-    protected int _fmode = -1;
+    protected byte _fmode = -1;
 
     /** The pathable being followed. */
     protected Pathable _fpath;
@@ -392,13 +397,4 @@ public class VirtualMediaPanel extends MediaPanel
     /** We need to know our absolute coordinates in order to work around
      * the Windows copyArea() bug. */
     protected Rectangle _abounds = new Rectangle();
-
-    /** The code for the pathable following mode wherein we keep the view
-     * centered on the pathable's location. */
-    protected static final int CENTER_ON_PATHABLE = 0;
-
-    /** The code for the pathable following mode wherein we ensure that
-     * the marked pathable is always kept within the visible bounds of the
-     * view. */
-    protected static final int ENCLOSE_PATHABLE = 1;
 }
