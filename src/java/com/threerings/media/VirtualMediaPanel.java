@@ -1,10 +1,11 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.6 2002/06/20 07:49:44 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.7 2002/07/02 23:15:53 shaper Exp $
 
 package com.threerings.media;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;

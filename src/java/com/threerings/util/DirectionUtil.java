@@ -1,5 +1,5 @@
 //
-// $Id: DirectionUtil.java,v 1.6 2002/06/26 23:53:07 mdb Exp $
+// $Id: DirectionUtil.java,v 1.7 2002/07/02 23:15:53 shaper Exp $
 
 package com.threerings.util;
 
@@ -39,7 +39,7 @@ public class DirectionUtil implements DirectionCodes
 
     /**
      * Returns the direction code that corresponds to the supplied string
-     * or {@link NONE} if the string does not correspond to a known
+     * or {@link #NONE} if the string does not correspond to a known
      * direction code.
      */
     public static int fromString (String dirstr)
@@ -54,8 +54,8 @@ public class DirectionUtil implements DirectionCodes
 
     /**
      * Returns the direction code that corresponds to the supplied short
-     * string or {@link NONE} if the string does not correspond to a known
-     * direction code.
+     * string or {@link #NONE} if the string does not correspond to a
+     * known direction code.
      */
     public static int fromShortString (String dirstr)
     {

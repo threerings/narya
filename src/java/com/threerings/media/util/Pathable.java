@@ -1,5 +1,5 @@
 //
-// $Id: Pathable.java,v 1.3 2002/06/26 23:51:06 mdb Exp $
+// $Id: Pathable.java,v 1.4 2002/07/02 23:15:53 shaper Exp $
 
 package com.threerings.media.util;
 
@@ -42,7 +42,7 @@ public interface Pathable
 
     /**
      * Should return the orientation of the pathable, or {@link
-     * DirectionCodes.NONE} if the pathable does not support orientation.
+     * DirectionCodes#NONE} if the pathable does not support orientation.
      */
     public int getOrientation ();
 

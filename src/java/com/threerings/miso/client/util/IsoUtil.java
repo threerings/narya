@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.36 2002/06/27 01:27:13 ray Exp $
+// $Id: IsoUtil.java,v 1.37 2002/07/02 23:15:53 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -252,8 +252,8 @@ public class IsoUtil
 
     /**
      * Given two points in an isometric coordinate system (in which {@link
-     * NORTH} is in the direction of the negative x-axis and {@link WEST}
-     * in the direction of the negative y-axis), return the compass
+     * #NORTH} is in the direction of the negative x-axis and {@link
+     * #WEST} in the direction of the negative y-axis), return the compass
      * direction that point B lies in from point A.  This method is used
      * to determine direction for both tile coordinates and fine
      * coordinates within a tile, since the coordinate systems are the

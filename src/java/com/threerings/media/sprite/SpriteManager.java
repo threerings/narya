@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.34 2002/06/26 02:36:50 mdb Exp $
+// $Id: SpriteManager.java,v 1.35 2002/07/02 23:15:53 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -102,7 +102,7 @@ public class SpriteManager
     /**
      * Returns a list of all sprites registered with the sprite manager.
      * The returned list is immutable, sprites should be added or removed
-     * using {@link addSprite} or {@link removeSprite}.
+     * using {@link #addSprite} or {@link #removeSprite}.
      */
     public List getSprites ()
     {
