@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.18 2001/11/18 04:09:22 mdb Exp $
+// $Id: IsoSceneViewModel.java,v 1.19 2002/02/17 07:17:08 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -103,6 +103,9 @@ public class IsoSceneViewModel
 	// set our various flags
         showCoords = config.getValue(SHOW_COORDS_KEY, DEF_SHOW_COORDS);
 	showPaths = config.getValue(SHOW_PATHS_KEY, DEF_SHOW_PATHS);
+
+        // precalculate various things
+        precalculate();
     }
 
     /**
@@ -163,10 +166,10 @@ public class IsoSceneViewModel
     }
 
     /**
-     * Pre-calculate various member data that are commonly used in
-     * working with an isometric view.
+     * Pre-calculate various member data that are commonly used in working
+     * with an isometric view.
      */
-    public void precalculate ()
+    protected void precalculate ()
     {
 	// pre-calculate tile-related data
 	precalculateTiles();
