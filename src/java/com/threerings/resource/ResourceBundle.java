@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.9 2003/02/05 22:48:50 shaper Exp $
+// $Id: ResourceBundle.java,v 1.10 2003/02/06 19:13:49 mdb Exp $
 
 package com.threerings.resource;
 
@@ -31,7 +31,23 @@ public class ResourceBundle
      */
     public ResourceBundle (File source)
     {
+        this(source, false);
+    }
+
+    /**
+     * Constructs a resource bundle with the supplied jar file.
+     *
+     * @param source a file object that references our source jar file.
+     * @param delay if true, the bundle will wait until someone calls
+     * {@link #sourceIsReady} before allowing access to its resources.
+     */
+    public ResourceBundle (File source, boolean delay)
+    {
         _source = source;
+
+        if (!delay) {
+            sourceIsReady();
+        }
     }
 
     /**

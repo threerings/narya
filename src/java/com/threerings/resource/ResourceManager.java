@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.21 2003/01/18 19:56:45 mdb Exp $
+// $Id: ResourceManager.java,v 1.22 2003/02/06 19:13:49 mdb Exp $
 
 package com.threerings.resource;
 
@@ -474,7 +474,7 @@ public class ResourceManager
 
                 // finally, add the file that will be cached to the set as
                 // a resource bundle
-                set.add(new ResourceBundle(cfile));
+                set.add(new ResourceBundle(cfile, true));
 
             } catch (MalformedURLException mue) {
                 Log.warning("Unable to create URL for resource " +
