@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.73 2004/08/13 21:18:39 mdb Exp $
+// $Id: GameManager.java,v 1.74 2004/08/23 18:40:58 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -557,6 +557,9 @@ public class GameManager extends PlaceManager
             return false;
         }
 
+        // TEMP: clear out our game end tracker
+        _gameEndTracker.clear();
+
         // make sure everyone has turned up
         if (!allPlayersReady()) {
             Log.warning("Requested to start a game that is still " +
@@ -564,6 +567,20 @@ public class GameManager extends PlaceManager
                         ", pnames=" + StringUtil.toString(_gameobj.players) +
                         ", poids=" + StringUtil.toString(_playerOids) + "].");
             return false;
+        }
+
+        // if we're still waiting for a call to endGame() to propagate,
+        // queue up a runnable to start the game which will allow the
+        // endGame() to propagate before we start things up
+        if (_committedState == GameObject.IN_PLAY) {
+            Log.info("Postponing start of still-ending game " +
+                     "[which=" + _gameobj.which() + "].");
+            CrowdServer.omgr.postUnit(new Runnable() {
+                public void run () {
+                    startGame();
+                }
+            });
+            return true;
         }
 
         // let the derived class do its pre-start stuff
@@ -894,7 +911,7 @@ public class GameManager extends PlaceManager
     public void attributeChanged (AttributeChangedEvent event)
     {
         if (event.getName().equals(GameObject.STATE)) {
-            switch (event.getIntValue()) {
+            switch (_committedState = event.getIntValue()) {
             case GameObject.IN_PLAY:
                 gameDidStart();
                 break;
@@ -979,6 +996,10 @@ public class GameManager extends PlaceManager
 
     /** Our delegate operator to tick AIs. */
     protected TickAIDelegateOp _tickAIOp;
+
+    /** The state of the game that has been propagated to our
+     * subscribers. */
+    protected int _committedState;
 
     /** TEMP: debugging the pending rating double release bug. */
     protected RepeatCallTracker _gameEndTracker = new RepeatCallTracker();
