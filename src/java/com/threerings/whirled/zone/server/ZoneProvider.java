@@ -1,5 +1,5 @@
 //
-// $Id: ZoneProvider.java,v 1.16 2003/10/25 00:10:35 mdb Exp $
+// $Id: ZoneProvider.java,v 1.17 2004/07/30 21:13:41 ray Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -202,11 +202,17 @@ public class ZoneProvider
      */
     public void moveBody (ZonedBodyObject source, int zoneId, int sceneId)
     {
-        // first remove them from their old location
-        leaveOccupiedZone(source);
+        if (source.getZoneId() == zoneId) {
+            // handle the case of moving somewhere in the same zone
+            _screg.sceneprov.moveBody((BodyObject) source, sceneId);
 
-        // then send a forced move notification
-        ZoneSender.forcedMove((BodyObject)source, zoneId, sceneId);
+        } else {
+            // first remove them from their old location
+            leaveOccupiedZone(source);
+
+            // then send a forced move notification
+            ZoneSender.forcedMove((BodyObject)source, zoneId, sceneId);
+        }
     }
 
     /**
