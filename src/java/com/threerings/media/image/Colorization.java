@@ -1,9 +1,10 @@
 //
-// $Id: Colorization.java,v 1.1 2002/03/08 07:50:32 mdb Exp $
+// $Id: Colorization.java,v 1.2 2002/03/08 21:16:07 mdb Exp $
 
 package com.threerings.cast;
 
 import java.awt.Color;
+import com.threerings.media.util.ImageUtil;
 
 /**
  * Used to support colorization of character component images.
@@ -34,6 +35,16 @@ public class Colorization
         this.rootColor = rootColor;
         this.range = range;
         this.offsets = offsets;
+    }
+
+    /**
+     * Returns the root color adjusted by the colorization.
+     */
+    public Color getColorizedRoot ()
+    {
+        float[] hsv = Color.RGBtoHSB(rootColor.getRed(), rootColor.getGreen(),
+                                     rootColor.getBlue(), null);
+        return new Color(ImageUtil.recolorColor(hsv, offsets));
     }
 
     /**
