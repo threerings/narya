@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.18 2002/08/14 19:07:55 mdb Exp $
+// $Id: DSet.java,v 1.19 2002/08/14 23:52:15 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -171,7 +171,7 @@ public class DSet
 
         // expand our entries array if necessary
         int elength = _entries.length;
-        if (_size == elength-1) {
+        if (_size >= elength) {
             // sanity check
             if (elength > 2048) {
                 Log.warning("Requested to expand to questionably large size " +
