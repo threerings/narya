@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.23 2002/09/13 20:27:05 mdb Exp $
+// $Id: Tile.java,v 1.24 2002/09/23 21:52:43 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -135,7 +135,9 @@ public class Tile implements Cloneable
      */
     protected void toString (StringBuffer buf)
     {
-	buf.append("image=").append(_image);
+	buf.append("srcimg=").append(_image.getClass().getName());
+        buf.append("[").append(_image.getWidth(null)).append("x");
+        buf.append(_image.getHeight(null)).append("]");
 	buf.append(", bounds=").append(StringUtil.toString(_bounds));
     }
 
