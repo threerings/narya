@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleDispatcher.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: PuzzleDispatcher.java,v 1.2 2004/06/22 14:08:58 mdb Exp $
 
 package com.threerings.puzzle.server;
 
@@ -59,13 +59,6 @@ public class PuzzleDispatcher extends InvocationDispatcher
             ((PuzzleProvider)provider).leavePuzzle(
                 source
                 
-            );
-            return;
-
-        case PuzzleMarshaller.CHANGE_DIFFICULTY:
-            ((PuzzleProvider)provider).changeDifficulty(
-                source,
-                ((Integer)args[0]).intValue()
             );
             return;
 

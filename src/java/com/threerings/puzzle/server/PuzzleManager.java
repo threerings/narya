@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleManager.java,v 1.8 2004/03/06 11:29:19 mdb Exp $
+// $Id: PuzzleManager.java,v 1.9 2004/06/22 14:08:58 mdb Exp $
 
 package com.threerings.puzzle.server;
 
@@ -248,6 +248,11 @@ public abstract class PuzzleManager extends GameManager
         // initialize the player status
         _puzobj.setPlayerStatus(new int[size]);
 
+        // compute the starting difficulty
+        _puzobj.setDifficulty(computeDifficulty());
+        Log.info("Computed difficulty [game=" + _puzobj.which() +
+                 ", difficulty=" + _puzobj.difficulty + "].");
+
         // initialize the player boards
         initBoards();
 
@@ -282,6 +287,20 @@ public abstract class PuzzleManager extends GameManager
     protected long getStatusInterval ()
     {
         return 0L;
+    }
+
+    /**
+     * When a puzzle game starts, the manager is given the opportunity to
+     * configure the puzzle difficulty based on information known about
+     * the player. Additionally, when the game resets due to the player
+     * clearing the board, etc. this will be called again, so the
+     * difficulty can be ramped up as the player progresses. In situations
+     * where ratings and experience are tracked, the difficulty can be
+     * seeded based on the players prior performance.
+     */
+    protected int computeDifficulty ()
+    {
+        return DEFAULT_DIFFICULTY;
     }
 
     // documentation inherited
@@ -657,29 +676,6 @@ public abstract class PuzzleManager extends GameManager
      * this method and return <code>null</code>.
      */
     protected abstract BoardSummary newBoardSummary (Board board);
-
-    // documentation inherited
-    public void attributeChanged (AttributeChangedEvent event)
-    {
-        super.attributeChanged(event);
-
-        if (event.getName().equals(PuzzleObject.DIFFICULTY)) {
-            difficultyChanged(_puzobj.difficulty);
-        }
-    }
-
-    /**
-     * Called when the puzzle difficulty level is changed.
-     */
-    public void difficultyChanged (final int level)
-    {
-        // let our delegates do their business
-        applyToDelegates(new DelegateOp() {
-            public void apply (PlaceManagerDelegate delegate) {
-                ((PuzzleManagerDelegate)delegate).difficultyChanged(level);
-            }
-        });
-    }
 
     // documentation inherited from interface PuzzleGameProvider
     public void updateProgress (ClientObject caller, int roundId, int[] events)

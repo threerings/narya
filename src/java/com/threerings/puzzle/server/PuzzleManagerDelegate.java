@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleManagerDelegate.java,v 1.2 2003/11/26 03:17:16 mdb Exp $
+// $Id: PuzzleManagerDelegate.java,v 1.3 2004/06/22 14:08:58 mdb Exp $
 
 package com.threerings.puzzle.server;
 
@@ -18,13 +18,6 @@ public class PuzzleManagerDelegate extends GameManagerDelegate
     {
         super(puzmgr);
         _puzmgr = puzmgr;
-    }
-
-    /**
-     * Called when the puzzle difficulty level is changed.
-     */
-    public void difficultyChanged (int level)
-    {
     }
 
     protected PuzzleManager _puzmgr;

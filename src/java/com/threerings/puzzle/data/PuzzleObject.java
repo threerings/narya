@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleObject.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: PuzzleObject.java,v 1.2 2004/06/22 14:08:58 mdb Exp $
 
 package com.threerings.puzzle.data;
 
@@ -40,7 +40,7 @@ public class PuzzleObject extends GameObject
     public PuzzleGameMarshaller puzzleGameService;
 
     /** The puzzle difficulty level. */
-    public int difficulty = DEFAULT_DIFFICULTY;
+    public int difficulty;
 
     /**  The status of each of the players in the game. The status value
      * is one of {@link #PLAYER_KNOCKED_OUT} or {@link

@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleMarshaller.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: PuzzleMarshaller.java,v 1.2 2004/06/22 14:08:58 mdb Exp $
 
 package com.threerings.puzzle.data;
 
@@ -87,17 +87,6 @@ public class PuzzleMarshaller extends InvocationMarshaller
     {
         sendRequest(arg1, LEAVE_PUZZLE, new Object[] {
             
-        });
-    }
-
-    /** The method id used to dispatch {@link #changeDifficulty} requests. */
-    public static final int CHANGE_DIFFICULTY = 4;
-
-    // documentation inherited from interface
-    public void changeDifficulty (Client arg1, int arg2)
-    {
-        sendRequest(arg1, CHANGE_DIFFICULTY, new Object[] {
-            new Integer(arg2)
         });
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.9 2004/05/05 02:38:22 ray Exp $
+// $Id: PuzzleController.java,v 1.10 2004/06/22 14:08:58 mdb Exp $
 
 package com.threerings.puzzle.client;
 
@@ -852,19 +852,6 @@ public abstract class PuzzleController extends GameController
     }
 
     /**
-     * Called when the puzzle difficulty level is changed.
-     */
-    public void difficultyChanged (final int level)
-    {
-        // dispatch this to our delegates
-        applyToDelegates(PuzzleControllerDelegate.class, new DelegateOp() {
-            public void apply (PlaceControllerDelegate delegate) {
-                ((PuzzleControllerDelegate)delegate).difficultyChanged(level);
-            }
-        });
-    }
-
-    /**
      * Called when a player is knocked out of the game to give the puzzle
      * a chance to perform any post-knockout actions that may be desired.
      * Derived classes may wish to override this method but should be sure
@@ -962,10 +949,7 @@ public abstract class PuzzleController extends GameController
     protected AttributeChangeListener _mlist = new AttributeChangeListener() {
         public void attributeChanged (AttributeChangedEvent event) {
             String name = event.getName();
-            if (name.equals(PuzzleObject.DIFFICULTY)) {
-                difficultyChanged(_puzobj.difficulty);
-
-            } else if (name.equals(PuzzleObject.SEED)) {
+            if (name.equals(PuzzleObject.SEED)) {
                 generateNewBoard();
             }
         }

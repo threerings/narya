@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleProvider.java,v 1.3 2004/03/06 11:29:19 mdb Exp $
+// $Id: PuzzleProvider.java,v 1.4 2004/06/22 14:08:58 mdb Exp $
 
 package com.threerings.puzzle.server;
 
@@ -113,35 +113,6 @@ public class PuzzleProvider
         // set their puzzle location to -1 to indicate that they're no
         // longer in a puzzle
         ((PuzzlerObject)user).setPuzzleLoc(-1);
-    }
-
-    /**
-     * Processes a request from a client to change the difficulty level of
-     * their current puzzle.
-     */
-    public void changeDifficulty (ClientObject caller, int level)
-    {
-        BodyObject user = (BodyObject)caller;
-        int puzzleOid = ((PuzzlerObject)user).getPuzzleLoc();
-
-        // make sure they're currently in a puzzle
-        if (puzzleOid == -1) {
-            Log.warning("Received change difficulty request from user that " +
-                        "isn't in a puzzle [user=" + user.who() + "].");
-            return;
-        }
-
-        // make sure the puzzle in question actually exists
-        PlaceManager pmgr = _plreg.getPlaceManager(puzzleOid);
-        if (pmgr == null) {
-            Log.info("Requested to change difficulty of a non-existent " +
-                     "puzzle [user=" + user.who() + "].");
-            return;
-        }
-
-        // change the puzzle difficulty level
-        PuzzleObject puzobj = (PuzzleObject)pmgr.getPlaceObject();
-        puzobj.setDifficulty(level);
     }
 
     /**

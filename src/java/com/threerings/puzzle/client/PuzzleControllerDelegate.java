@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleControllerDelegate.java,v 1.2 2004/02/25 14:48:44 mdb Exp $
+// $Id: PuzzleControllerDelegate.java,v 1.3 2004/06/22 14:08:58 mdb Exp $
 
 package com.threerings.puzzle.client;
 
@@ -143,13 +143,6 @@ public class PuzzleControllerDelegate extends GameControllerDelegate
      * suspended.
      */
     public void didResume (long delta)
-    {
-    }
-
-    /**
-     * Called when the puzzle difficulty level is changed.
-     */
-    public void difficultyChanged (int level)
     {
     }
 

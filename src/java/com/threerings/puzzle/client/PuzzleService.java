@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleService.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: PuzzleService.java,v 1.2 2004/06/22 14:08:58 mdb Exp $
 
 package com.threerings.puzzle.client;
 
@@ -43,10 +43,4 @@ public interface PuzzleService extends InvocationService
      * Requests that this client depart whatever puzzle they occupy.
      */
     public void leavePuzzle (Client client);
-
-    /**
-     * Requests that the difficulty level of the puzzle this client is
-     * currently occupying be changed to the specified difficulty level.
-     */
-    public void changeDifficulty (Client client, int level);
 }
