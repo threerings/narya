@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.19 2004/08/27 02:12:38 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,7 +22,7 @@
 package com.threerings.media.animation;
 
 import com.threerings.media.AbstractMediaManager;
-import com.threerings.media.RegionManager;
+import com.threerings.media.MediaPanel;
 
 /**
  * Manages a collection of animations, ticking them when the animation
@@ -35,9 +35,9 @@ public class AnimationManager extends AbstractMediaManager
      * Construct and initialize the animation manager which readies itself
      * to manage animations.
      */
-    public AnimationManager (RegionManager remgr)
+    public AnimationManager (MediaPanel panel)
     {
-        super(remgr);
+        super(panel);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMediaManager.java,v 1.14 2004/11/11 23:52:43 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -41,9 +41,10 @@ public abstract class AbstractMediaManager
     /**
      * Default constructor.
      */
-    public AbstractMediaManager (RegionManager remgr)
+    public AbstractMediaManager (MediaPanel panel)
     {
-        _remgr = remgr;
+        _panel = panel;
+        _remgr = panel.getRegionManager();
     }
 
     /**
@@ -52,6 +53,14 @@ public abstract class AbstractMediaManager
     public RegionManager getRegionManager ()
     {
         return _remgr;
+    }
+
+    /**
+     * Returns the media panel with which we are coordinating.
+     */
+    public MediaPanel getMediaPanel ()
+    {
+        return _panel;
     }
 
     /**
@@ -277,6 +286,9 @@ public abstract class AbstractMediaManager
         }
         _notify.clear();
     }
+
+    /** The media panel we're working with. */
+    protected MediaPanel _panel;
 
     /** The region manager. */
     protected RegionManager _remgr;

@@ -93,8 +93,8 @@ public class MediaPanel extends JComponent
         _remgr = new RegionManager();
 
         // create our animation and sprite managers
-        _animmgr = new AnimationManager(_remgr);
-        _spritemgr = new SpriteManager(_remgr);
+        _animmgr = new AnimationManager(this);
+        _spritemgr = new SpriteManager(this);
 
         // participate in the frame when we're visible
         addAncestorListener(new AncestorAdapter() {
