@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.9 2002/11/12 01:42:28 shaper Exp $
+// $Id: SimulatorController.java,v 1.1 2002/11/12 19:54:05 shaper Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -19,20 +19,22 @@ import com.threerings.micasa.Log;
 import com.threerings.micasa.simulator.data.SimulatorInfo;
 
 /**
- * Responsible for top-level control of the client user interface.
+ * Responsible for top-level control of the simulator client user interface.
  */
-public class ClientController extends Controller
+public class SimulatorController extends Controller
     implements SessionObserver
 {
     /** Command constant used to logoff the client. */
     public static final String LOGOFF = "logoff";
 
+// 577-2028
+
     /**
-     * Creates a new client controller. The controller will set everything
-     * up in preparation for logging on.
+     * Creates a new simulator controller. The controller will set
+     * everything up in preparation for logging on.
      */
-    public ClientController (ParlorContext ctx, SimulatorFrame frame,
-                             SimulatorInfo info)
+    public SimulatorController (ParlorContext ctx, SimulatorFrame frame,
+                                SimulatorInfo info)
     {
         // we'll want to keep these around
         _ctx = ctx;
