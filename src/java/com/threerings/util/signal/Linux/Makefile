@@ -15,6 +15,7 @@ MKDIR=mkdir
 ROOT=../../../../../../..
 LIBRARIES_PATH=
 OSINCDIR:=$(shell uname -s | tr 'A-Z' 'a-z')
+INSTALL_PATH=${ROOT}/dist/lib/i686-Linux
 
 #
 # Parameter and file definitions
@@ -27,6 +28,10 @@ TARGET=libsignal.so
 # Target definitions
 
 all: ${TARGET}
+
+install: ${TARGET}
+	@${MKDIR} -p ${INSTALL_PATH}
+	cp ${TARGET} ${INSTALL_PATH}
 
 ${TARGET}: com_threerings_util_signal_SignalManager.c
 	@echo "Compiling SignalManager.c"

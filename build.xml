@@ -108,11 +108,11 @@
 
   <!-- build the native libraries -->
   <target name="ncompile" depends="prepare">
-    <exec dir="src/java/com/threerings/util/keybd/i686-Linux" 
+    <exec dir="src/java/com/threerings/util/keybd/${os.name}" 
      executable="make"><arg line="install"/></exec>
-    <exec dir="src/java/com/threerings/util/signal/i686-Linux" 
+    <exec dir="src/java/com/threerings/util/signal/${os.name}" 
      executable="make"><arg line="install"/></exec>
-    <exec dir="src/java/com/threerings/util/unsafe/i686-Linux" 
+    <exec dir="src/java/com/threerings/util/unsafe/${os.name}" 
      executable="make"><arg line="install"/></exec>
   </target>
 
