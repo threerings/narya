@@ -1,5 +1,5 @@
 //
-// $Id: JNLPDownloader.java,v 1.12 2003/12/15 19:37:32 mdb Exp $
+// $Id: JNLPDownloader.java,v 1.13 2003/12/15 19:40:11 mdb Exp $
 
 package com.threerings.resource;
 
@@ -190,8 +190,8 @@ public class JNLPDownloader extends Downloader
 
         // attempt to delete any old stale bundles as well
         try {
-            String pathex = ResourceManager.versionPath(
-                _desc.destFile.getPath(), "\\d+.\\d+", ".jar");
+            String pathex = StringUtil.replace(
+                _desc.destFile.getPath(), _desc.version, "\\d+.\\d+");
             String cpath = _desc.destFile.getPath();
             File pdir = _desc.destFile.getParentFile();
             File[] files = pdir.listFiles();
