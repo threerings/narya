@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.10 2002/02/19 01:42:28 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.11 2002/02/19 03:57:30 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -110,9 +110,9 @@ public class AnimatedPanel extends Canvas implements AnimatedView
             // lower of the two velocities (but not to zero if either one
             // is zero)
             if (_msppx == 0) {
-                _animmgr.setScrolling(msppy);
+                _animmgr.setScrolling(Math.abs(msppy));
             } else if (_msppy == 0) {
-                _animmgr.setScrolling(msppx);
+                _animmgr.setScrolling(Math.abs(msppx));
             } else {
                 _animmgr.setScrolling(
                     Math.min(Math.abs(msppx), Math.abs(msppy)));
