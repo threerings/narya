@@ -24,6 +24,9 @@ package com.threerings.crowd.data;
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.InvocationCodes;
+
+import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.SpeakObject;
 
 /**
@@ -80,10 +83,20 @@ public class BodyObject extends ClientObject
      * feature. Currently used by the chat system to regulate access to
      * chat broadcasts but also forms the basis of an extensible
      * fine-grained permissions system.
+     *
+     * @return null if the user has access, a fully-qualified translatable
+     * message string indicating the reason for denial of access (or just
+     * {@link InvocationCodes#ACCESS_DENIED} if you don't want to be
+     * specific).
      */
-    public boolean checkAccess (String feature, Object context)
+    public String checkAccess (String feature, Object context)
     {
-        return false;
+        // our default access control policy; how quaint
+        if (ChatCodes.CHAT_ACCESS.equals(feature)) {
+            return null;
+        } else {
+            return InvocationCodes.ACCESS_DENIED;
+        }
     }
 
     // documentation inherited

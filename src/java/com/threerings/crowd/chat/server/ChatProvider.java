@@ -75,16 +75,6 @@ public class ChatProvider
     }
 
     /**
-     * Set the authorizer we will use to see if the user is allowed to
-     * perform various chatting actions.
-     */
-    public static void setCommunicationAuthorizer (
-        CommunicationAuthorizer comAuth)
-    {
-        _comAuth = comAuth;
-    }
-
-    /**
      * Set an object to which all broadcasts should be sent, rather
      * than iterating over the place objects and sending to each of them.
      *
@@ -117,9 +107,11 @@ public class ChatProvider
                       TellListener listener)
         throws InvocationException
     {
-        // make sure the caller is authorized to perform this action
-        if ((_comAuth != null) && (!_comAuth.authorized(caller))) {
-            return;
+        // ensure that the caller has normal chat privileges
+        BodyObject source = (BodyObject)caller;
+        String errmsg = source.checkAccess(CHAT_ACCESS, null);
+        if (errmsg != null) {
+            throw new InvocationException(errmsg);
         }
 
         // make sure the target user is online
@@ -136,7 +128,6 @@ public class ChatProvider
         }
 
         // deliver a tell notification to the target player
-        BodyObject source = (BodyObject)caller;
         sendTellMessage(tobj, source.username, null, message);
 
         // let the teller know it went ok
@@ -163,11 +154,11 @@ public class ChatProvider
                            InvocationListener listener)
         throws InvocationException
     {
-        BodyObject body = (BodyObject)caller;
-
         // make sure the requesting user has broadcast privileges
-        if (!body.checkAccess(BROADCAST_ACCESS, null)) {
-            throw new InvocationException(ACCESS_DENIED);
+        BodyObject body = (BodyObject)caller;
+        String errmsg = body.checkAccess(BROADCAST_ACCESS, null);
+        if (errmsg != null) {
+            throw new InvocationException(errmsg);
         }
 
         broadcast(body.username, null, message, false);
@@ -247,8 +238,8 @@ public class ChatProvider
     public static void sendTellMessage (
         BodyObject target, Name speaker, String bundle, String message)
     {
-        UserMessage msg =
-            new UserMessage(message, bundle, speaker, DEFAULT_MODE);
+        UserMessage msg = new UserMessage(
+            message, bundle, speaker, DEFAULT_MODE);
         SpeakProvider.sendMessage(target, msg);
 
         // note that the teller "heard" what they said
@@ -260,9 +251,6 @@ public class ChatProvider
 
     /** Reference to our auto responder object. */
     protected static TellAutoResponder _autoRespond;
-
-    /** The entity that will authorize our chatters. */
-    protected static CommunicationAuthorizer _comAuth;
 
     /** An alternative object to which broadcasts should be sent. */
     protected static DObject _broadcastObject;

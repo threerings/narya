@@ -94,16 +94,6 @@ public class SpeakProvider
     }
 
     /**
-     * Set the authorizer we will use to see if the user is allowed to
-     * perform various speaking actions.
-     */
-    public static void setCommunicationAuthorizer (
-        CommunicationAuthorizer comAuth)
-    {
-        _comAuth = comAuth;
-    }
-
-    /**
      * Registers a {@link MessageObserver} to be notified whenever a
      * user-originated chat message is heard by another user.
      */
@@ -126,8 +116,14 @@ public class SpeakProvider
      */
     public void speak (ClientObject caller, String message, byte mode)
     {
-        // make sure the caller is authorized to perform this action
-        if ((_comAuth != null) && (!_comAuth.authorized(caller))) {
+        // ensure that the caller has normal chat privileges
+        BodyObject source = (BodyObject)caller;
+        String errmsg = source.checkAccess(CHAT_ACCESS, null);
+        if (errmsg != null) {
+            // we normally don't listen for responses to speak messages so
+            // we can't just throw an InvocationException we have to
+            // specifically communicate the error to the user
+            sendFeedback(source, null, errmsg);
             return;
         }
 
@@ -145,8 +141,7 @@ public class SpeakProvider
 
         } else {
             // issue the speak message on our speak object
-            sendSpeak(_speakObj, ((BodyObject)caller).username,
-                      null, message, mode);
+            sendSpeak(_speakObj, source.username, null, message, mode);
         }
     }
 
@@ -409,9 +404,6 @@ public class SpeakProvider
 
     /** The entity that will validate our speakers. */
     protected SpeakerValidator _validator;
-
-    /** The entity that will authorize our speakers. */
-    protected static CommunicationAuthorizer _comAuth;
     
     /** Recent chat history for the server. */
     protected static HashMap _histories = new HashMap();
