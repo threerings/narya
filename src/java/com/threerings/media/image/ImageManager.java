@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.26 2002/11/20 02:15:05 mdb Exp $
+// $Id: ImageManager.java,v 1.27 2002/11/20 03:06:06 mdb Exp $
 
 package com.threerings.media;
 
@@ -75,7 +75,11 @@ public class ImageManager
         InputStream imgin = null;
         try {
             // first attempt to load the image from the specified resource set
-            imgin = getImageSource(rset, path);
+            try {
+                imgin = _rmgr.getResource(rset, path);
+            } catch (FileNotFoundException fnfe) {
+                // fall through and try the classpath
+            }
 
             // if that fails, attempt to load the image from the classpath
             if (imgin == null) {
@@ -164,11 +168,7 @@ public class ImageManager
     public Image loadImage (String rset, String path)
         throws IOException
     {
-        InputStream imgin = getImageSource(rset, path);
-        if (imgin == null) {
-            throw new IOException("Image not in resource set " +
-                                  "[rset=" + rset + ", path=" + path + "].");
-        }
+        InputStream imgin = _rmgr.getResource(rset, path);
 
         // load up the image
         try {
@@ -178,22 +178,6 @@ public class ImageManager
             String errmsg = "Error loading image " +
                 "[rset=" + rset + ", path=" + path + "]";
             throw new NestableIOException(errmsg, t);
-        }
-    }
-
-    /**
-     * Returns an input stream from which the requested image can be
-     * loaded or null if the image could not be located in any bundle in
-     * the specified resource set.
-     */
-    protected InputStream getImageSource (String rset, String path)
-        throws IOException
-    {
-        try {
-            return _rmgr.getResource(rset, path);
-        } catch (FileNotFoundException fnfe) {
-            Log.warning(fnfe.getMessage());
-            return null;
         }
     }
 
