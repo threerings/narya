@@ -145,7 +145,7 @@ public class PuzzleObject extends GameObject
         int[] ovalue = this.playerStatus;
         requestAttributeChange(
             PLAYER_STATUS, value, ovalue);
-        this.playerStatus = value;
+        this.playerStatus = (int[])value.clone();
     }
 
     /**
@@ -178,7 +178,7 @@ public class PuzzleObject extends GameObject
         BoardSummary[] ovalue = this.summaries;
         requestAttributeChange(
             SUMMARIES, value, ovalue);
-        this.summaries = value;
+        this.summaries = (BoardSummary[])value.clone();
     }
 
     /**

@@ -176,10 +176,10 @@ public class PlaceObject extends DObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    public void setOccupantInfo (DSet occupantInfo)
+    public void setOccupantInfo (DSet value)
     {
-        requestAttributeChange(OCCUPANT_INFO, occupantInfo, this.occupantInfo);
-        this.occupantInfo = occupantInfo;
+        requestAttributeChange(OCCUPANT_INFO, value, this.occupantInfo);
+        this.occupantInfo = (DSet)value.clone();
     }
 
     /**

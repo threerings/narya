@@ -122,10 +122,10 @@ public class ClientObject extends DObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    public void setReceivers (DSet receivers)
+    public void setReceivers (DSet value)
     {
-        requestAttributeChange(RECEIVERS, receivers, this.receivers);
-        this.receivers = receivers;
+        requestAttributeChange(RECEIVERS, value, this.receivers);
+        this.receivers = (DSet)value.clone();
     }
     // AUTO-GENERATED: METHODS END
 }

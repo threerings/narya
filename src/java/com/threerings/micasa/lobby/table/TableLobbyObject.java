@@ -102,10 +102,10 @@ public class TableLobbyObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    public void setTableSet (DSet tableSet)
+    public void setTableSet (DSet value)
     {
-        requestAttributeChange(TABLE_SET, tableSet, this.tableSet);
-        this.tableSet = tableSet;
+        requestAttributeChange(TABLE_SET, value, this.tableSet);
+        this.tableSet = (DSet)value.clone();
     }
     // AUTO-GENERATED: METHODS END
 }

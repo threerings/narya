@@ -85,10 +85,10 @@ public class SpotSceneObject extends SceneObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    public void setOccupantLocs (DSet occupantLocs)
+    public void setOccupantLocs (DSet value)
     {
-        requestAttributeChange(OCCUPANT_LOCS, occupantLocs, this.occupantLocs);
-        this.occupantLocs = occupantLocs;
+        requestAttributeChange(OCCUPANT_LOCS, value, this.occupantLocs);
+        this.occupantLocs = (DSet)value.clone();
     }
 
     /**
@@ -131,10 +131,10 @@ public class SpotSceneObject extends SceneObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    public void setClusters (DSet clusters)
+    public void setClusters (DSet value)
     {
-        requestAttributeChange(CLUSTERS, clusters, this.clusters);
-        this.clusters = clusters;
+        requestAttributeChange(CLUSTERS, value, this.clusters);
+        this.clusters = (DSet)value.clone();
     }
     // AUTO-GENERATED: METHODS END
 }
