@@ -1,5 +1,5 @@
 //
-// $Id: Cluster.java,v 1.3 2003/03/25 03:16:11 mdb Exp $
+// $Id: Cluster.java,v 1.4 2003/03/26 02:37:08 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -16,14 +16,8 @@ public class Cluster extends SimpleStreamableObject
      * id of the cluster chat object). */
     public int clusterOid;
 
-    /** The x-coordinate of the cluster in the scene. */
-    public int x;
-
-    /** The y-coordinate of the cluster in the scene. */
-    public int y;
-
-    /** The number of occupants in this cluster. */
-    public int occupants;
+    /** The bounds of the cluster in the scene. */
+    public int x, y, width, height;
 
     // documentation inherited
     public Comparable getKey ()

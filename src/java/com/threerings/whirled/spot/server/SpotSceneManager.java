@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.30 2003/03/26 02:06:06 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.31 2003/03/26 02:37:08 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -360,7 +360,6 @@ public class SpotSceneManager extends SceneManager
                 }
 
                 put(body.getOid(), body);
-                _cluster.occupants++;
                 try {
                     body.startTransaction();
                     _ssobj.startTransaction();
@@ -403,7 +402,6 @@ public class SpotSceneManager extends SceneManager
                 body.startTransaction();
                 _ssobj.startTransaction();
                 ((ClusteredBodyObject)body).setClusterOid(-1);
-                _cluster.occupants--;
                 bodyRemoved(this, body); // do the hokey pokey
 
                 if (_clobj != null) {
