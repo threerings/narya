@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.2 2001/10/25 01:42:49 shaper Exp $
+// $Id: DirtyItemList.java,v 1.3 2001/10/25 16:35:45 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -164,7 +164,8 @@ public class DirtyItemList extends ArrayList
 
             if (da.ox == db.ox &&
                 da.oy == db.oy &&
-                da.obj != db.obj) {
+                (da.obj instanceof AmbulatorySprite) &&
+                (db.obj instanceof AmbulatorySprite)) {
                 // we're comparing two sprites co-existing on the same
                 // tile, so study their fine coordinates to determine
                 // rendering order
