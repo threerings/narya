@@ -1,12 +1,12 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: characters.xml,v 1.4 2001/10/22 18:09:48 shaper Exp $ -->
+<!-- $Id: characters.xml,v 1.5 2001/10/25 18:07:13 shaper Exp $ -->
 
 <!-- Initial test character description data. -->
 
 <characters>
 
-  <character tsid="1011" frames="6" fps="5" origin="47, 80"/>
+  <character tsid="1011" frames="5" fps="5" origin="47, 80"/>
   <character tsid="1012" frames="6" fps="5" origin="47, 80"/>
 
 </characters>
