@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundler.java,v 1.10 2003/01/13 22:49:47 mdb Exp $
+// $Id: TileSetBundler.java,v 1.11 2003/01/24 19:32:56 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -308,26 +308,36 @@ public class TileSetBundler
                 jar.putNextEntry(new JarEntry(imagePath));
 
                 // if this is an object tileset, we can't trim it!
-                if (set instanceof ObjectTileSet) {
-                    // set the tileset up with an image provider; we need to
-                    // do this so that we can trim it!
-                    set.setImageProvider(improv);
+                try {
+                    if (set instanceof ObjectTileSet) {
+                        // set the tileset up with an image provider; we
+                        // need to do this so that we can trim it!
+                        set.setImageProvider(improv);
 
-                    // create a trimmed object tileset, which will write
-                    // the trimmed tileset image to the jar output stream
-                    TrimmedObjectTileSet tset =
-                        TrimmedObjectTileSet.trimObjectTileSet(
-                            (ObjectTileSet)set, jar);
-                    tset.setImagePath(imagePath);
-                    // replace the original set with the trimmed tileset
-                    // in the tileset bundle
-                    bundle.addTileSet(tileSetId, tset);
+                        // create a trimmed object tileset, which will
+                        // write the trimmed tileset image to the jar
+                        // output stream
+                        System.out.println("Trimming " + imagePath);
+                        TrimmedObjectTileSet tset =
+                            TrimmedObjectTileSet.trimObjectTileSet(
+                                (ObjectTileSet)set, jar);
+                        tset.setImagePath(imagePath);
+                        // replace the original set with the trimmed
+                        // tileset in the tileset bundle
+                        bundle.addTileSet(tileSetId, tset);
 
-                } else {
-                    // open the image and pipe it into the jar file
-                    File imgfile = new File(bundleDesc.getParent(), imagePath);
-                    FileInputStream imgin = new FileInputStream(imgfile);
-                    StreamUtils.pipe(imgin, jar);
+                    } else {
+                        // open the image and pipe it into the jar file
+                        File imgfile = new File(bundleDesc.getParent(),
+                                                imagePath);
+                        FileInputStream imgin = new FileInputStream(imgfile);
+                        StreamUtils.pipe(imgin, jar);
+                    }
+
+                } catch (Exception e) {
+                    String errmsg = "Error adding tileset to bundle " +
+                        "[set=" + set.getName() + ", ipath=" + imagePath + "]";
+                    throw (IOException)new IOException(errmsg).initCause(e);
                 }
             }
 
