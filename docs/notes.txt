@@ -78,3 +78,17 @@ X Add "keepPathableVisible" or somesuch which like setFollowsPathable will
   specifically defined for the "on_hips" action should fall back to using
   the corresponding component in the "standing" action (with an overridden
   offsetPos specified by 'offsetOverride').
+
+* 10/2/2002
+** DashO client munging
+- Classes that can't be renamed
+  implements Streamable
+  extends GameConfig (due to MiCasa lobby) (caught by Streamable)
+  extends MessageBundle
+  implements ImageLoader
+
+- Classes whose fields can't be renamed
+  extends DObject
+
+- Classes whose methods can't be renamed
+  extends Controller (they look up handle<foo> methods by name)

@@ -361,7 +361,7 @@ Presents Notes -*- outline -*-
 
 * 8/15/2002
 ** Invocation service TODO
-X genservice + genreceiver need to slurp and replace $Id: notes.txt,v 1.29 2002/09/20 00:55:01 mdb Exp $
+X genservice + genreceiver need to slurp and replace "Id"
 
 * 9/18/2002
 ** Client DObjectManager enhancement
@@ -369,3 +369,15 @@ X genservice + genreceiver need to slurp and replace $Id: notes.txt,v 1.29 2002/
   "Unable to dispatch event on non-proxied object" reports that inevitably
   come in when the client has pitched a dobj but the server hasn't yet
   processed the unsubscribe request.
+
+* 10/2/2002
+** Compound events/DObject transactions
+- They are broken apart prior to dispatch on the server and thus
+  completely fail to accomplish their intended goal of providing efficient
+  network delivery to the client; attempt to resolve this in some way
+
+* 10/8/2002
+** Possible renamability improvements
+- Generate field code rather than name for all DObject classes; send code
+  over wire; somehow map code to Field instance for setting value (this
+  could be problematic)
