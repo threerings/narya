@@ -1,11 +1,12 @@
 //
-// $Id: DSet.java,v 1.4 2001/08/20 21:44:10 mdb Exp $
+// $Id: DSet.java,v 1.5 2001/08/21 00:58:26 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
 
 import com.threerings.cocktail.cher.Log;
 import com.threerings.cocktail.cher.io.Streamable;
@@ -143,6 +144,49 @@ public class DSet
             }
         }
         return null;
+    }
+
+    /**
+     * Returns an iterator over the elements of this set. It does not
+     * support modification (nor iteration while modifications are being
+     * made to the set). It should not be kept around as it can quickly
+     * become out of date.
+     */
+    public Iterator elements ()
+    {
+        return new Iterator() {
+            public boolean hasNext ()
+            {
+                // we need to scan to the next element the first time
+                if (_index < 0) {
+                    scanToNext();
+                }
+                return (_index < _elements.length);
+            }
+
+            public Object next ()
+            {
+                Object val = _elements[_index];
+                scanToNext();
+                return val;
+            }
+
+            public void remove ()
+            {
+                throw new UnsupportedOperationException();
+            }
+
+            protected void scanToNext ()
+            {
+                while (_index < _elements.length) {
+                    if (_elements[++_index] != null) {
+                        return;
+                    }
+                }
+            }
+
+            int _index = -1;
+        };
     }
 
     /**
