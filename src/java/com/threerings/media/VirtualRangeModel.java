@@ -48,8 +48,8 @@ public class VirtualRangeModel
         _panel = panel;
 
         // listen to our range models and scroll our badself
-        _horizRange.addChangeListener(this);
-        _vertRange.addChangeListener(this);
+        _hrange.addChangeListener(this);
+        _vrange.addChangeListener(this);
     }
 
     /**
@@ -58,12 +58,21 @@ public class VirtualRangeModel
      */
     public void setScrollableArea (int x, int y, int width, int height)
     {
-        Rectangle vbounds = _panel.getViewBounds();
-        int hmax = x + width, vmax = y + height, value =
-            MathUtil.bound(x, _horizRange.getValue(), hmax - vbounds.width);
-        _horizRange.setRangeProperties(value, vbounds.width, x, hmax, false);
-        value = MathUtil.bound(y, _vertRange.getValue(), vmax - vbounds.height);
-        _vertRange.setRangeProperties(value, vbounds.height, y, vmax, false);
+        Rectangle vb = _panel.getViewBounds();
+        int hmax = x + width, vmax = y + height, value;
+
+        if (width > vb.width) {
+            value = MathUtil.bound(x, _hrange.getValue(), hmax - vb.width);
+            _hrange.setRangeProperties(value, vb.width, x, hmax, false);
+        } else {
+            _hrange.setRangeProperties(0, vb.width, 0, vb.width, false);
+        }
+        if (height > vb.height) {
+            value = MathUtil.bound(y, _vrange.getValue(), vmax - vb.height);
+            _vrange.setRangeProperties(value, vb.height, y, vmax, false);
+        } else {
+            _vrange.setRangeProperties(0, vb.height, 0, vb.height, false);
+        }
     }
 
     /**
@@ -72,7 +81,7 @@ public class VirtualRangeModel
      */
     public BoundedRangeModel getHorizModel ()
     {
-        return _horizRange;
+        return _hrange;
     }
 
     /**
@@ -81,16 +90,16 @@ public class VirtualRangeModel
      */
     public BoundedRangeModel getVertModel ()
     {
-        return _vertRange;
+        return _vrange;
     }
 
     // documentation inherited from interface ChangeListener
     public void stateChanged (ChangeEvent e)
     {
-        _panel.setViewLocation(_horizRange.getValue(), _vertRange.getValue());
+        _panel.setViewLocation(_hrange.getValue(), _vrange.getValue());
     }
 
     protected VirtualMediaPanel _panel;
-    protected BoundedRangeModel _horizRange = new DefaultBoundedRangeModel();
-    protected BoundedRangeModel _vertRange = new DefaultBoundedRangeModel();
+    protected BoundedRangeModel _hrange = new DefaultBoundedRangeModel();
+    protected BoundedRangeModel _vrange = new DefaultBoundedRangeModel();
 }
