@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedObjectTileSet.java,v 1.8 2003/02/12 05:33:47 mdb Exp $
+// $Id: TrimmedObjectTileSet.java,v 1.9 2003/03/26 00:18:55 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -56,6 +56,22 @@ public class TrimmedObjectTileSet extends TileSet
     public int getSpotOrient (int tileIdx)
     {
         return (_bits == null) ? -1 : _bits[tileIdx].sorient;
+    }
+
+    /**
+     * Returns the base width for the specified object index.
+     */
+    public int getBaseWidth (int tileIdx)
+    {
+        return _ometrics[tileIdx].width;
+    }
+
+    /**
+     * Returns the base height for the specified object index.
+     */
+    public int getBaseHeight (int tileIdx)
+    {
+        return _ometrics[tileIdx].height;
     }
 
     // documentation inherited
