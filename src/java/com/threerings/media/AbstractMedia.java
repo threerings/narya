@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMedia.java,v 1.10 2004/02/25 14:43:17 mdb Exp $
+// $Id: AbstractMedia.java,v 1.11 2004/08/18 01:33:32 mdb Exp $
 
 package com.threerings.media;
 
@@ -58,6 +58,8 @@ public abstract class AbstractMedia
      */
     public void fastForward (long timeDelta)
     {
+        // adjust our first tick stamp
+        _firstTick += timeDelta;
     }
 
     /**
@@ -189,7 +191,6 @@ public abstract class AbstractMedia
     protected final void init (AbstractMediaManager manager)
     {
         _mgr = manager;
-
         init();
     }
 
@@ -200,6 +201,23 @@ public abstract class AbstractMedia
      */
     protected void init ()
     {
+    }
+
+    /**
+     * Prior to the first call to {@link #tick} on an abstract media, this
+     * method is called by the {@link AbstractMediaManager}. It is called
+     * during the normal tick cycle, immediately prior to the first call
+     * to {@link #tick}.
+     *
+     * <p><em>Note:</em> It is imperative that
+     * <code>super.willStart()</code> is called by any entity that
+     * overrides this method because the {@link AbstractMediaManager}
+     * depends on the setting of the {@link #_firstTick} value to know
+     * whether or not to call this method.
+     */
+    protected void willStart (long tickStamp)
+    {
+        _firstTick = tickStamp;
     }
 
     /**
@@ -267,4 +285,8 @@ public abstract class AbstractMedia
 
     /** Our observers. */
     protected ObserverList _observers = null;
+
+    /** The tick stamp associated with our first call to {@link #tick}.
+     * This is set up automatically in {@link #willStart}. */
+    protected long _firstTick;
 }

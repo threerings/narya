@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMediaManager.java,v 1.11 2003/11/22 19:57:03 mdb Exp $
+// $Id: AbstractMediaManager.java,v 1.12 2004/08/18 01:33:32 mdb Exp $
 
 package com.threerings.media;
 
@@ -131,7 +131,7 @@ public abstract class AbstractMediaManager
         // we use _tickpos so that it can be adjusted if media is added or
         // removed during the tick dispatch
         for (_tickpos = 0; _tickpos < _media.size(); _tickpos++) {
-            ((AbstractMedia) _media.get(_tickpos)).tick(tickStamp);
+            tickMedia((AbstractMedia) _media.get(_tickpos), tickStamp);
         }
         _tickpos = -1;
     }
@@ -159,7 +159,7 @@ public abstract class AbstractMediaManager
             if (_tickpos == -1) {
                 // if we're done with our own call to tick(), we
                 // definitely need to tick this new media
-                media.tick(_tickStamp);
+                tickMedia(media, _tickStamp);
             } else if (ipos <= _tickpos) {
                 // otherwise, we're in the middle of our call to tick()
                 // and we only need to tick this guy if he's being
@@ -167,11 +167,20 @@ public abstract class AbstractMediaManager
                 // inserted after our current position, we'll get to him
                 // as part of this tick iteration)
                 _tickpos++;
-                media.tick(_tickStamp);
+                tickMedia(media, _tickStamp);
             }
         }
 
         return true;
+    }
+
+    /** A helper function used to call {@link AbstractMedia#tick}. */
+    protected final void tickMedia (AbstractMedia media, long tickStamp)
+    {
+        if (media._firstTick == 0L) {
+            media.willStart(tickStamp);
+        }
+        media.tick(tickStamp);
     }
 
     /**

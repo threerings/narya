@@ -1,9 +1,7 @@
 //
-// $Id: AnimationManager.java,v 1.17 2004/02/25 14:43:17 mdb Exp $
+// $Id: AnimationManager.java,v 1.18 2004/08/18 01:33:32 mdb Exp $
 
 package com.threerings.media.animation;
-
-import com.samskivert.util.ObserverList;
 
 import com.threerings.media.AbstractMediaManager;
 import com.threerings.media.RegionManager;
@@ -56,27 +54,10 @@ public class AnimationManager extends AbstractMediaManager
             }
 
             // as the anim is finished, remove it and notify observers
-            anim.queueNotification(new AnimCompletedOp(anim, tickStamp));
+            anim.willFinish(tickStamp);
             unregisterAnimation(anim);
-            anim.didFinish();
+            anim.didFinish(tickStamp);
             // Log.info("Removed finished animation " + anim + ".");
         }
-    }
-
-    /** Used to dispatch {@link AnimationObserver#animationCompleted}. */
-    protected static class AnimCompletedOp implements ObserverList.ObserverOp
-    {
-        public AnimCompletedOp (Animation anim, long when) {
-            _anim = anim;
-            _when = when;
-        }
-
-        public boolean apply (Object observer) {
-            ((AnimationObserver)observer).animationCompleted(_anim, _when);
-            return true;
-        }
-
-        protected Animation _anim;
-        protected long _when;
     }
 }

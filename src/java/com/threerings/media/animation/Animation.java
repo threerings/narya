@@ -1,9 +1,11 @@
 //
-// $Id: Animation.java,v 1.11 2004/02/25 14:43:17 mdb Exp $
+// $Id: Animation.java,v 1.12 2004/08/18 01:33:32 mdb Exp $
 
 package com.threerings.media.animation;
 
 import java.awt.Rectangle;
+
+import com.samskivert.util.ObserverList;
 
 import com.threerings.media.AbstractMedia;
 
@@ -42,13 +44,28 @@ public abstract class Animation extends AbstractMedia
         _finished = false;
     }
 
+    // documentation inherited
+    protected void willStart (long tickStamp)
+    {
+        super.willStart(tickStamp);
+        queueNotification(new AnimStartedOp(this, tickStamp));
+    }
+
+    /**
+     * Called when the animation is finished and the animation manager is
+     * about to remove it from service.
+     */
+    protected void willFinish (long tickStamp)
+    {
+        queueNotification(new AnimCompletedOp(this, tickStamp));
+    }
+
     /**
      * Called when the animation is finished and the animation manager has
      * removed it from service.
      */
-    protected void didFinish ()
+    protected void didFinish (long tickStamp)
     {
-        // nothing for now
     }
 
     /**
@@ -61,4 +78,38 @@ public abstract class Animation extends AbstractMedia
 
     /** Whether the animation is finished. */
     protected boolean _finished = false;
+
+    /** Used to dispatch {@link AnimationObserver#animationStarted}. */
+    protected static class AnimStartedOp implements ObserverList.ObserverOp
+    {
+        public AnimStartedOp (Animation anim, long when) {
+            _anim = anim;
+            _when = when;
+        }
+
+        public boolean apply (Object observer) {
+            ((AnimationObserver)observer).animationStarted(_anim, _when);
+            return true;
+        }
+
+        protected Animation _anim;
+        protected long _when;
+    }
+
+    /** Used to dispatch {@link AnimationObserver#animationCompleted}. */
+    protected static class AnimCompletedOp implements ObserverList.ObserverOp
+    {
+        public AnimCompletedOp (Animation anim, long when) {
+            _anim = anim;
+            _when = when;
+        }
+
+        public boolean apply (Object observer) {
+            ((AnimationObserver)observer).animationCompleted(_anim, _when);
+            return true;
+        }
+
+        protected Animation _anim;
+        protected long _when;
+    }
 }

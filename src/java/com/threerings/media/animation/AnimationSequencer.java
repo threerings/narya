@@ -1,5 +1,5 @@
 //
-// $Id: AnimationSequencer.java,v 1.13 2003/04/30 00:45:02 mdb Exp $
+// $Id: AnimationSequencer.java,v 1.14 2004/08/18 01:33:32 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -149,8 +149,7 @@ public abstract class AnimationSequencer extends Animation
      */
     protected abstract void startAnimation (Animation anim, long tickStamp);
 
-    protected class AnimRecord
-        implements AnimationObserver
+    protected class AnimRecord extends AnimationAdapter
     {
         public AnimRecord (Animation anim, long delta, AnimRecord trigger,
                            Runnable completionAction) {

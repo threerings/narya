@@ -1,5 +1,5 @@
 //
-// $Id: SpriteAnimation.java,v 1.3 2003/04/30 00:45:02 mdb Exp $
+// $Id: SpriteAnimation.java,v 1.4 2004/08/18 01:33:32 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -65,9 +65,9 @@ public class SpriteAnimation extends Animation
     }
 
     // documentation inherited
-    protected void didFinish ()
+    protected void didFinish (long tickStamp)
     {
-        super.didFinish();
+        super.didFinish(tickStamp);
 
         _spritemgr.removeSprite(_sprite);
         _sprite = null;

@@ -1,5 +1,5 @@
 //
-// $Id: AnimationWaiter.java,v 1.3 2003/04/30 00:45:02 mdb Exp $
+// $Id: AnimationWaiter.java,v 1.4 2004/08/18 01:33:32 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -32,6 +32,11 @@ public abstract class AnimationWaiter
         for (int ii = 0; ii < acount; ii++) {
             addAnimation(anims[ii]);
         }
+    }
+
+    // documentation inherited from interface
+    public void animationStarted (Animation anim, long when)
+    {
     }
 
     // documentation inherited from interface
