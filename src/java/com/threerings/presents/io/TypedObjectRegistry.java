@@ -1,5 +1,5 @@
 //
-// $Id: TypedObjectRegistry.java,v 1.2 2001/07/19 07:48:25 mdb Exp $
+// $Id: TypedObjectRegistry.java,v 1.3 2001/07/21 01:06:49 mdb Exp $
 
 package com.threerings.cocktail.cher.io;
 
@@ -58,5 +58,9 @@ public class TypedObjectRegistry
                                          AttributesChangedEvent.class);
         TypedObjectFactory.registerClass(MessageEvent.TYPE,
                                          MessageEvent.class);
+        TypedObjectFactory.registerClass(ObjectAddedEvent.TYPE,
+                                         ObjectAddedEvent.class);
+        TypedObjectFactory.registerClass(ObjectRemovedEvent.TYPE,
+                                         ObjectRemovedEvent.class);
     }
 }

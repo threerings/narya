@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.13 2001/07/19 19:30:14 mdb Exp $
+// $Id: DObject.java,v 1.14 2001/07/21 01:06:48 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -201,12 +201,30 @@ public class DObject
         throws ObjectAccessException
     {
         try {
-            Field field = getClass().getField(name);
-            field.set(this, value);
+            getClass().getField(name).set(this, value);
 
         } catch (Exception e) {
             String errmsg = "Attribute setting failure [name=" + name +
                 ", value=" + value + ", error=" + e + "].";
+            throw new ObjectAccessException(errmsg);
+        }
+    }
+
+    /**
+     * Looks up the named attribute and returns a reference to it. This
+     * should only be used by the internals of the event dispatch
+     * mechanism and should not be called directly by users. Use the
+     * generated attribute getter methods instead.
+     */
+    public Object getAttribute (String name)
+        throws ObjectAccessException
+    {
+        try {
+            return getClass().getField(name).get(this);
+
+        } catch (Exception e) {
+            String errmsg = "Attribute getting failure [name=" + name +
+                ", error=" + e + "].";
             throw new ObjectAccessException(errmsg);
         }
     }
