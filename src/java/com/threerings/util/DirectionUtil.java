@@ -1,7 +1,9 @@
 //
-// $Id: DirectionUtil.java,v 1.3 2001/12/17 03:51:35 mdb Exp $
+// $Id: DirectionUtil.java,v 1.4 2002/05/17 21:12:14 mdb Exp $
 
 package com.threerings.util;
+
+import java.awt.Point;
 
 /**
  * Direction related utility functions.
@@ -49,6 +51,47 @@ public class DirectionUtil implements DirectionCodes
             buf.append(toShortString(directions[i]));
         }
         return buf.append("}").toString();
+    }
+
+    /**
+     * Returns the direction that point <code>b</code> lies in from point
+     * <code>a</code> as one of the {@link DirectionCodes} direction
+     * constants.
+     */
+    public static int getDirection (Point a, Point b)
+    {
+        return getDirection(a.x, a.y, b.x, b.y);
+    }
+
+    /**
+     * Returns the direction that point <code>b</code> lies in from point
+     * <code>a</code> as one of the {@link DirectionCodes} direction
+     * constants.
+     */
+    public static int getDirection (int ax, int ay, int bx, int by)
+    {
+        if (ax == bx && ay > by) {
+            return NORTH;
+        } else if (ax == bx && ay < by) {
+            return SOUTH;
+
+        } else if (ax < bx && ay > by) {
+            return NORTHEAST;
+        } else if (ax < bx && ay == by) {
+            return EAST;
+        } else if (ax < bx && ay < by) {
+            return SOUTHEAST;
+
+        } else if (ax > bx && ay < by) {
+            return SOUTHWEST;
+        } else if (ax > bx && ay == by) {
+            return WEST;
+        } else if (ax > bx && ay > by) {
+            return NORTHWEST;
+
+        } else {
+            return NONE;
+        }
     }
 
     /** Direction constant string names. */
