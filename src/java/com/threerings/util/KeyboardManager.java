@@ -1,5 +1,5 @@
 //
-// $Id: KeyboardManager.java,v 1.16 2003/01/14 00:53:38 shaper Exp $
+// $Id: KeyboardManager.java,v 1.17 2003/01/16 21:18:02 shaper Exp $
 
 package com.threerings.util;
 
@@ -530,7 +530,7 @@ public class KeyboardManager
                         release(now);
 //                     }
 
-                } else if (_pressCommand != null) {
+                } else if (_lastPress != 0 && _pressCommand != null) {
                     // post the key press command again
                     postPress(now);
                 }
