@@ -1,5 +1,5 @@
 //
-// $Id: Marshaller.java,v 1.6 2002/02/01 22:35:06 mdb Exp $
+// $Id: Marshaller.java,v 1.7 2002/02/01 23:26:49 mdb Exp $
 
 package com.threerings.presents.dobj.io;
 
@@ -9,12 +9,12 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 
 import com.threerings.presents.Log;
-import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.io.ObjectStreamException;
 
 /**
@@ -24,7 +24,47 @@ import com.threerings.presents.io.ObjectStreamException;
  */
 public class Marshaller
 {
-    public Marshaller (Class clazz)
+    /**
+     * Writes the supplied object instance out to the supplied data output
+     * stream, using a {@link Marshaller} for field marshalling.
+     */
+    public static void writeObject (DataOutputStream out, Object object)
+        throws IOException
+    {
+        getMarshaller(object).writeTo(out, object);
+    }
+
+    /**
+     * Populates the fields of the supplied object from the supplied data
+     * input stream, using a {@link Marshaller} for field unmarshalling.
+     */
+    public static void readObject (DataInputStream in, Object object)
+        throws IOException
+    {
+        getMarshaller(object).readFrom(in, object);
+    }
+
+    /**
+     * Returns the marshaller for objects of this object's class, creating
+     * one if necessary.
+     */
+    protected static synchronized Marshaller getMarshaller (Object object)
+    {
+        Class clazz = object.getClass();
+        Marshaller marsh = (Marshaller)_marshcache.get(clazz);
+        if (marsh == null) {
+            marsh = new Marshaller(clazz);
+            _marshcache.put(clazz, marsh);
+        }
+        return marsh;
+    }
+
+    /**
+     * Instantiate a marshaller for the specified class. Introspection is
+     * done during construct time to speed up subsequent marshalling and
+     * unmarshalling.
+     */
+    protected Marshaller (Class clazz)
     {
         // we introspect on the class and cache the public data members
         Field[] fields = clazz.getFields();
@@ -65,21 +105,21 @@ public class Marshaller
      * Writes out all of the fields of the specified distributed object to
      * the supplied data output stream.
      */
-    public void writeTo (DataOutputStream out, DObject dobj)
+    public void writeTo (DataOutputStream out, Object obj)
         throws IOException
     {
         // we simply iterate over our marshallers, writing each field
         // out in succession
         for (int i = 0; i < _fields.length; i++) {
             try {
-                _marshallers[i].writeTo(out, _fields[i], dobj);
+                _marshallers[i].writeTo(out, _fields[i], obj);
 
             } catch (IllegalAccessException iae) {
                 // this shouldn't happen because we only attempt to marshall
                 // public fields, but we'll pass it on none the less
-                String errmsg = "Unable to marshall dobj field " +
+                String errmsg = "Unable to marshall obj field " +
                     "[field=" + _fields[i].getName() +
-                    ", dobj=" + dobj  + "].";
+                    ", obj=" + obj  + "].";
                 throw new ObjectStreamException(errmsg);
             }
         }
@@ -89,21 +129,21 @@ public class Marshaller
      * Reads in all of the fields of the specified distributed object from
      * the supplied data input stream.
      */
-    public void readFrom (DataInputStream in, DObject dobj)
+    public void readFrom (DataInputStream in, Object obj)
         throws IOException
     {
         // we simply iterate over our marshallers, reading each field in
         // in succession
         for (int i = 0; i < _fields.length; i++) {
             try {
-                _marshallers[i].readFrom(in, _fields[i], dobj);
+                _marshallers[i].readFrom(in, _fields[i], obj);
 
             } catch (IllegalAccessException iae) {
                 // this shouldn't happen because we only attempt to
                 // unmarshall public fields, but we'll pass it on anyway
-                String errmsg = "Unable to unmarshall dobj field " +
+                String errmsg = "Unable to unmarshall obj field " +
                     "[field=" + _fields[i].getName() +
-                    ", dobj=" + dobj  + "].";
+                    ", obj=" + obj  + "].";
                 Log.logStackTrace(iae);
                 throw new ObjectStreamException(errmsg);
             }
@@ -127,8 +167,15 @@ public class Marshaller
         }
     }
 
+    /** The fields that are marshalled by this marshaller. */
     protected Field[] _fields;
+
+    /** The field marshallers that are used to marshall the fields. */
     protected FieldMarshaller[] _marshallers;
+
+    /** A table of instantiated marshallers for our various marshalled
+     * classes. */
+    protected static HashMap _marshcache;
 
     /** We use this to sort the fields into a predictable order. */
     protected static final FieldComparator FIELD_COMP = new FieldComparator();

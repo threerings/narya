@@ -1,5 +1,5 @@
 //
-// $Id: IntArrayFieldMarshaller.java,v 1.1 2001/10/17 02:56:51 mdb Exp $
+// $Id: IntArrayFieldMarshaller.java,v 1.2 2002/02/01 23:26:49 mdb Exp $
 
 package com.threerings.presents.dobj.io;
 
@@ -8,17 +8,15 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
-import com.threerings.presents.dobj.DObject;
-
 public class IntArrayFieldMarshaller implements FieldMarshaller
 {
     /** This is the sort of field that we marshall. */
     public int[] prototype;
 
-    public void writeTo (DataOutputStream out, Field field, DObject dobj)
+    public void writeTo (DataOutputStream out, Field field, Object obj)
         throws IOException, IllegalAccessException
     {
-        int[] value = (int[])field.get(dobj);
+        int[] value = (int[])field.get(obj);
         // we convert null arrays to zero length arrays
         if (value == null) {
             out.writeInt(0);
@@ -31,13 +29,13 @@ public class IntArrayFieldMarshaller implements FieldMarshaller
         }
     }
 
-    public void readFrom (DataInputStream in, Field field, DObject dobj)
+    public void readFrom (DataInputStream in, Field field, Object obj)
         throws IOException, IllegalAccessException
     {
         int[] value = new int[in.readInt()];
         for (int i = 0; i < value.length; i++) {
             value[i] = in.readInt();
         }
-        field.set(dobj, value);
+        field.set(obj, value);
     }
 }

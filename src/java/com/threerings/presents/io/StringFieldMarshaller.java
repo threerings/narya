@@ -1,5 +1,5 @@
 //
-// $Id: StringFieldMarshaller.java,v 1.5 2001/10/11 04:07:52 mdb Exp $
+// $Id: StringFieldMarshaller.java,v 1.6 2002/02/01 23:26:49 mdb Exp $
 
 package com.threerings.presents.dobj.io;
 
@@ -8,17 +8,15 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
-import com.threerings.presents.dobj.DObject;
-
 public class StringFieldMarshaller implements FieldMarshaller
 {
     /** This is the sort of field that we marshall. */
     public String prototype;
 
-    public void writeTo (DataOutputStream out, Field field, DObject dobj)
+    public void writeTo (DataOutputStream out, Field field, Object obj)
         throws IOException, IllegalAccessException
     {
-        String value = (String)field.get(dobj);
+        String value = (String)field.get(obj);
         // we convert null strings to empty strings
         if (value == null) {
             value = "";
@@ -26,9 +24,9 @@ public class StringFieldMarshaller implements FieldMarshaller
         out.writeUTF(value);
     }
 
-    public void readFrom (DataInputStream in, Field field, DObject dobj)
+    public void readFrom (DataInputStream in, Field field, Object obj)
         throws IOException, IllegalAccessException
     {
-        field.set(dobj, in.readUTF());
+        field.set(obj, in.readUTF());
     }
 }

@@ -1,12 +1,11 @@
 //
-// $Id: DObjectFactory.java,v 1.9 2001/10/16 16:44:20 mdb Exp $
+// $Id: DObjectFactory.java,v 1.10 2002/02/01 23:26:49 mdb Exp $
 
 package com.threerings.presents.dobj.io;
 
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.util.HashMap;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.dobj.DObject;
@@ -27,15 +26,13 @@ public class DObjectFactory
         throws IOException
     {
         // Log.info("Marshalling object: " + dobj);
-        // look up the marshaller for this object
-        Class clazz = dobj.getClass();
-        Marshaller marsh = getMarshaller(clazz);
-        // then write the class of the object to the stream
-        out.writeUTF(clazz.getName());
+
+        // write the class of the object to the stream
+        out.writeUTF(dobj.getClass().getName());
         // write out the oid
         out.writeInt(dobj.getOid());
         // then use the marshaller to write the object itself
-        marsh.writeTo(out, dobj);
+        Marshaller.writeObject(out, dobj);
     }
 
     /**
@@ -49,12 +46,11 @@ public class DObjectFactory
             Class clazz = Class.forName(in.readUTF());
             DObject dobj = (DObject)clazz.newInstance();
             dobj.setOid(in.readInt()); // read and set the oid
+
             // Log.info("Unmarshalling object: " + dobj);
 
-            // look up the marshaller for that class
-            Marshaller marsh = getMarshaller(clazz);
-            // use it to reconstitute the object from the stream
-            marsh.readFrom(in, dobj);
+            // use a marshaller to reconstitute the object from the stream
+            Marshaller.readObject(in, dobj);
 
             return dobj;
 
@@ -63,17 +59,4 @@ public class DObjectFactory
             throw new ObjectStreamException(errmsg, e);
         }
     }
-
-    protected static Marshaller getMarshaller (Class clazz)
-        throws IOException
-    {
-        Marshaller marsh = (Marshaller)_marshallers.get(clazz);
-        // create a new marshaller if we don't already have one
-        if (marsh == null) {
-            _marshallers.put(clazz, marsh = new Marshaller(clazz));
-        }
-        return marsh;
-    }
-
-    protected static HashMap _marshallers = new HashMap();
 }

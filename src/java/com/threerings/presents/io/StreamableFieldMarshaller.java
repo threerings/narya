@@ -1,5 +1,5 @@
 //
-// $Id: StreamableFieldMarshaller.java,v 1.1 2001/10/12 19:28:43 mdb Exp $
+// $Id: StreamableFieldMarshaller.java,v 1.2 2002/02/01 23:26:49 mdb Exp $
 
 package com.threerings.presents.dobj.io;
 
@@ -8,15 +8,14 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
-import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.io.Streamable;
 
 public class StreamableFieldMarshaller implements FieldMarshaller
 {
-    public void writeTo (DataOutputStream out, Field field, DObject dobj)
+    public void writeTo (DataOutputStream out, Field field, Object obj)
         throws IOException, IllegalAccessException
     {
-        Streamable value = (Streamable)field.get(dobj);
+        Streamable value = (Streamable)field.get(obj);
         // we freak out if our streamable is null
         if (value == null) {
             throw new IllegalAccessException(
@@ -25,7 +24,7 @@ public class StreamableFieldMarshaller implements FieldMarshaller
         value.writeTo(out);
     }
 
-    public void readFrom (DataInputStream in, Field field, DObject dobj)
+    public void readFrom (DataInputStream in, Field field, Object obj)
         throws IOException, IllegalAccessException
     {
         try {
@@ -34,11 +33,11 @@ public class StreamableFieldMarshaller implements FieldMarshaller
             // unserialize it
             value.readFrom(in);
             // and set the value in the object
-            field.set(dobj, value);
+            field.set(obj, value);
 
         } catch (InstantiationException ie) {
             throw new IOException("Unable to instantiate streamable " +
-                                  "[field=" + field + ", object=" + dobj +
+                                  "[field=" + field + ", object=" + obj +
                                   ", error=" + ie + "]");
         }
     }
