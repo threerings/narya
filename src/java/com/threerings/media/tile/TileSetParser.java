@@ -1,5 +1,5 @@
 //
-// $Id: TileSetParser.java,v 1.2 2001/07/18 21:45:42 shaper Exp $
+// $Id: TileSetParser.java,v 1.3 2001/07/23 18:52:51 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -15,16 +15,10 @@ import java.util.ArrayList;
 public interface TileSetParser
 {
     /**
-     * Return all tileset objects constructed from any previous
-     * parsing activity.
+     * Read tileset description data from the given input stream and
+     * construct TileSet objects to suit.  Return an ArrayList of all
+     * TileSet objects constructed, or a zero-length array if no
+     * tileset descriptions were fully parsed.
      */
-    public ArrayList getTileSets ();
-
-    /**
-     * Construct tileset objects from the tileset description data on
-     * the given input stream.  Classes that implement this method
-     * should store the tileset objects for later retrieval via the
-     * <code>getTileSets()</code> method.
-     */
-    public void loadTileSets (InputStream tis) throws IOException;
+    public ArrayList loadTileSets (InputStream tis) throws IOException;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.8 2001/07/20 07:09:56 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.9 2001/07/23 18:52:51 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -43,18 +43,6 @@ public class Scene
 		}
 	    }
 	}
-
-	_file = null;
-    }
-
-    public File getFile ()
-    {
-	return _file;
-    }
-
-    public void setFile (File file)
-    {
-	_file = file;
     }
     
     /**
@@ -224,8 +212,6 @@ public class Scene
     protected short _version;      // file format version
     protected Point _hotspots[];   // hot spot zone points
     protected ExitPoint _exits[];  // exit points to different scenes
-
-    protected File _file;  // the file last associated with this scene
 
     protected TileManager _tmgr;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParser.java,v 1.4 2001/07/20 23:41:12 shaper Exp $
+// $Id: XMLTileSetParser.java,v 1.5 2001/07/23 18:52:51 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -75,10 +75,11 @@ public class XMLTileSetParser extends DefaultHandler
 	}
     }
 
-    public void loadTileSets (InputStream tis) throws IOException
+    public ArrayList loadTileSets (InputStream tis) throws IOException
     {
     	try {
 	    XMLUtil.parse(this, tis);
+	    return _tilesets;
 
 	} catch (ParserConfigurationException pce) {
   	    throw new IOException(pce.toString());
@@ -88,13 +89,10 @@ public class XMLTileSetParser extends DefaultHandler
 	}
     }
 
-    public ArrayList getTileSets ()
-    {
-	if (_tilesets.size() == 0) return null;
-	return _tilesets;
-    }
-
+    /** The XML element tag currently being processed. */
     protected String _tag;
+
+    /** The tilesets constructed thus far. */
     protected ArrayList _tilesets = new ArrayList();
 
     // temporary storage of tileset object values

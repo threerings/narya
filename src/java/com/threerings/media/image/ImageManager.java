@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.2 2001/07/18 22:45:34 shaper Exp $
+// $Id: ImageManager.java,v 1.3 2001/07/23 18:52:51 shaper Exp $
 
 package com.threerings.media;
 
@@ -15,15 +15,12 @@ import java.util.Hashtable;
  * The ImageManager class provides a single point of access for image
  * retrieval and caching.
  *
- * <p> <b>Note:</b> The ImageManager must be initialized with a root
- * AWT component before images can be retrieved, in the interest of
- * allowing for proper preparation of images for optimal storage and
- * eventual display.
+ * <p> <b>Note:</b> The ImageManager must be constructed with a root
+ * AWT component, in the interest of allowing for proper preparation
+ * of images for optimal storage and eventual display.
  */
 public class ImageManager
 {
-    public Toolkit tk = Toolkit.getDefaultToolkit();
-
     /**
      * Construct an ImageManager object with the ResourceManager from
      * which it will obtain its data, and a root component to which
@@ -33,7 +30,7 @@ public class ImageManager
     {
 	_rmgr = rmgr;
 	_root = root;
-	tk = root.getToolkit();
+	_tk = root.getToolkit();
     }
 
     /**
@@ -57,7 +54,7 @@ public class ImageManager
 
 	try {
 	    byte[] data = _rmgr.getResourceAsBytes(fname);
-	    img = tk.createImage(data);
+	    img = _tk.createImage(data);
 	    MediaTracker tracker = new MediaTracker(_root);
 	    tracker.addImage(img, 0);
 
@@ -99,4 +96,5 @@ public class ImageManager
     protected ResourceManager _rmgr;
     protected Component _root;
     protected Hashtable _imgs = new Hashtable();
+    protected Toolkit _tk = Toolkit.getDefaultToolkit();
 }

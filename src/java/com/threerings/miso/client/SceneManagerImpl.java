@@ -1,5 +1,5 @@
 //
-// $Id: SceneManagerImpl.java,v 1.4 2001/07/20 08:08:59 shaper Exp $
+// $Id: SceneManagerImpl.java,v 1.5 2001/07/23 18:52:51 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -21,22 +21,5 @@ public abstract class SceneManagerImpl implements SceneManager
     public String[] getLayerNames ()
     {
 	return Scene.XLATE_LAYERS;
-    }
-
-    public void loadScenes (String fname)
-    {
-	try {
-	    InputStream tis = ConfigUtil.getStream(fname);
-	    if (tis == null) {
-		Log.warning("Couldn't find file [fname=" + fname + "].");
-		return;
-	    }
-
-	    loadScenes(tis);
-
-	} catch (IOException ioe) {
-	    Log.warning("Exception loading tileset [fname=" + fname +
-			", ioe=" + ioe + "].");
-	}
     }
 }

@@ -1,15 +1,8 @@
 //
-// $Id: CompiledSceneManager.java,v 1.4 2001/07/20 08:08:59 shaper Exp $
+// $Id: CompiledSceneManager.java,v 1.5 2001/07/23 18:52:51 shaper Exp $
 
 package com.threerings.miso.scene;
 
-import java.io.InputStream;
-import java.io.IOException;
-
 public class CompiledSceneManager extends SceneManagerImpl
 {
-    public void loadScenes (InputStream in) throws IOException
-    {
-
-    }
 }

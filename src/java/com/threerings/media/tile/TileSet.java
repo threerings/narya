@@ -1,14 +1,14 @@
 //
-// $Id: TileSet.java,v 1.9 2001/07/20 08:17:10 shaper Exp $
+// $Id: TileSet.java,v 1.10 2001/07/23 18:52:51 shaper Exp $
 
 package com.threerings.miso.tile;
 
+import java.awt.Image;
+import java.awt.image.*;
+
+import com.samskivert.util.StringUtil;
 import com.threerings.miso.Log;
 import com.threerings.media.ImageManager;
-
-import java.awt.Image;
-import java.awt.Graphics2D;
-import java.awt.image.*;
 
 /**
  * A tileset stores information on a single logical set of tiles.  It
@@ -16,9 +16,9 @@ import java.awt.image.*;
  * individual tile images from a particular tile in the tileset.
  *
  * <p> The width of each tile in every tileset is a constant
- * Tile.WIDTH in pixels.  The tile count in each row can vary.  The
- * height of the tiles in each row can also vary.  This information is
- * obtained from the config object.
+ * <code>Tile.WIDTH</code> in pixels.  The tile count in each row can
+ * vary.  The height of the tiles in each row can also vary.  This
+ * information is obtained from the config object.
  *
  * <p> Tiles are retrieved from the tile set by the TileManager, and
  * are referenced by their tile id (essentially the tile number,
@@ -116,27 +116,33 @@ public class TileSet
 	buf.append(", tsid=").append(_tsid);
 	buf.append(", numtiles=").append(_numTiles);
 
-	buf.append(", rowheight={");
-	for (int ii = 0; ii < _rowHeight.length; ii++) {
-	    if (ii > 0) buf.append(",");
-	    buf.append(_rowHeight[ii]);
-	}
+	buf.append(", rowheight=");
+	StringUtil.toString(buf, _rowHeight);
 
-	buf.append("}, tilecount={");
-	for (int ii = 0; ii < _tileCount.length; ii++) {
-	    if (ii > 0) buf.append(",");
-	    buf.append(_tileCount[ii]);
-	}
+	buf.append(", tilecount=");
+	StringUtil.toString(buf, _tileCount);
 
-	return buf.append("}]").toString();
+	return buf.append("]").toString();
     }
 
-    protected String _name;      // the tileset name
-    protected String _imgFile;   // the file containing the tile images
-    protected int _tsid;         // the tileset unique identifier
-    protected int _rowHeight[];  // the height of each row in pixels
-    protected int _tileCount[];  // the number of tiles in each row
-    protected int _numTiles;     // the total number of tiles
+    /** The tileset name. */
+    protected String _name;
 
+    /** The file containing the tile images. */
+    protected String _imgFile;
+
+    /** The tileset unique identifier. */
+    protected int _tsid;
+
+    /** The height of each row in pixels. */
+    protected int _rowHeight[];
+
+    /** The number of tiles in each row. */
+    protected int _tileCount[];
+
+    /** The total number of tiles. */
+    protected int _numTiles;
+
+    /** The image containing all tile images for this set. */
     protected Image _imgTiles;
 }

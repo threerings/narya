@@ -1,21 +1,27 @@
 //
-// $Id: TileSetManagerImpl.java,v 1.6 2001/07/21 01:51:10 shaper Exp $
+// $Id: TileSetManagerImpl.java,v 1.7 2001/07/23 18:52:51 shaper Exp $
 
 package com.threerings.miso.tile;
 
-import com.threerings.media.ImageManager;
-
-import com.samskivert.util.IntMap;
-
 import java.awt.Image;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
+import com.samskivert.util.*;
+import com.threerings.media.ImageManager;
+
 public abstract class TileSetManagerImpl implements TileSetManager
 {
-    public void init (ImageManager imgr)
+    /**
+     * Initialize the TileSetManager with a Config object to obtain
+     * configuration information and an ImageManager object for use in
+     * retrieving tile images.
+     */
+    public void init (Config config, ImageManager imgmgr)
     {
-	_imgr = imgr;
+	_imgmgr = imgmgr;
+        _config = config;
     }
 
     public int getNumTilesInSet (int tsid)
@@ -32,7 +38,7 @@ public abstract class TileSetManagerImpl implements TileSetManager
     public Image getTileImage (int tsid, int tid)
     {
 	TileSet tset = getTileSet(tsid);
-	return (tset != null) ? tset.getTileImage(_imgr, tid) : null;
+	return (tset != null) ? tset.getTileImage(_imgmgr, tid) : null;
     }
 
     public ArrayList getAllTileSets ()
@@ -41,12 +47,7 @@ public abstract class TileSetManagerImpl implements TileSetManager
 	if (size == 0) return null;
 
 	ArrayList list = new ArrayList();
-
-	Enumeration sets = _tilesets.elements();
-	for (int ii = 0; ii < size; ii++) {
-	    list.add(sets.nextElement());
-	}
-
+	CollectionUtil.addAll(list, _tilesets.elements());
 	return list;
     }
 
@@ -55,6 +56,7 @@ public abstract class TileSetManagerImpl implements TileSetManager
 	return _tilesets.size();
     }
 
-    protected ImageManager _imgr;
+    protected Config _config;
+    protected ImageManager _imgmgr;
     protected IntMap _tilesets = new IntMap();
 }

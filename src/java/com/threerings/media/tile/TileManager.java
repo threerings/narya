@@ -1,16 +1,14 @@
 //
-// $Id: TileManager.java,v 1.9 2001/07/21 01:51:10 shaper Exp $
+// $Id: TileManager.java,v 1.10 2001/07/23 18:52:51 shaper Exp $
 
 package com.threerings.miso.tile;
 
 import com.threerings.miso.Log;
 
-import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.IntMap;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
 import java.util.ArrayList;
 
 /**
@@ -33,7 +31,7 @@ public class TileManager
     public Tile getTile (int tsid, int tid)
     {
 	// the fully unique tile id is the conjoined tile set and tile id
-	int utid = tsid << 16 | tid;
+	int utid = (tsid << 16) | tid;
 
 	// look the tile up in our hash
 	Tile tile = (Tile) _tiles.get(utid);
@@ -65,30 +63,9 @@ public class TileManager
 	return _tsmgr;
     }
 
-    /**
-     * Load all tileset objects described in the specified file into
-     * the set of available tilesets.
-     */
-    public void loadTileSets (String fname)
-    {
-	try {
-	    InputStream tis = ConfigUtil.getStream(fname);
-	    if (tis == null) {
-		Log.warning("Couldn't find file [fname=" + fname + "].");
-		return;
-	    }
-
-	    _tsmgr.loadTileSets(tis);
-
-	} catch (IOException ioe) {
-	    Log.warning("Exception loading tileset [fname=" + fname +
-			", ioe=" + ioe + "].");
-	}
-    }
-
-    // mapping from (tsid << 16 | tid) to tile objects
+    /** Cache of tiles that have been requested thus far. */
     protected IntMap _tiles = new IntMap();
 
-    // our tile set manager
+    /** Our tileset manager. */
     protected TileSetManager _tsmgr;
 }

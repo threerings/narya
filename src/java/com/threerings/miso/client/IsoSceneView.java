@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.13 2001/07/20 08:17:10 shaper Exp $
+// $Id: IsoSceneView.java,v 1.14 2001/07/23 18:52:51 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -15,7 +15,7 @@ import java.awt.image.*;
  * The IsoSceneView provides an isometric graphics view of a
  * particular scene.
  */
-public class IsoSceneView implements SceneView
+public class IsoSceneView implements EditableSceneView
 {
     public IsoSceneView (TileManager tmgr)
     {
@@ -246,19 +246,23 @@ public class IsoSceneView implements SceneView
 	_scene.tiles[tpos.x][tpos.y][lnum] = tile;
     }
 
-    // default dimensions of the scene view
+    /** The default width of a scene in pixels. */
     protected static final int DEF_BOUNDS_WIDTH = 18 * Tile.WIDTH;
+
+    /** The default height of a scene in pixels. */
     protected static final int DEF_BOUNDS_HEIGHT = 37 * Tile.HEIGHT;
 
-    // total number of tile rows to render the full view
+    /** The total number of tile rows to render the full scene view. */
     protected static final int TILE_RENDER_ROWS =
         (Scene.TILE_WIDTH * Scene.TILE_HEIGHT) - 1;
 
-    // starting x/y-positions to render the view
+    /** The starting x-position to render the view. */
     protected static final int DEF_CENTER_X = DEF_BOUNDS_WIDTH / 2;
+
+    /** The starting y-position to render the view. */
     protected static final int DEF_CENTER_Y = -(9 * Tile.HEIGHT);
 
-    // length of a tile edge as rendered from an isometric perspective
+    /** The length of a tile edge as rendered from an isometric perspective. */
     public static final float TILE_EDGE_LENGTH = (float)
         Math.sqrt((Tile.HALF_WIDTH * Tile.HALF_WIDTH) +
 		  (Tile.HALF_HEIGHT * Tile.HALF_HEIGHT));

@@ -1,5 +1,5 @@
 //
-// $Id: SceneManager.java,v 1.4 2001/07/20 08:08:59 shaper Exp $
+// $Id: SceneManager.java,v 1.5 2001/07/23 18:52:51 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -22,16 +22,4 @@ public interface SceneManager
      * layer id.
      */
     public String[] getLayerNames ();
-
-    /**
-     * Load all scene objects described in the specified file into the
-     * set of available scenes.
-     */
-    public void loadScenes (String fname);
-
-    /**
-     * Load all scene objects described in the specified input stream
-     * into the set of available scenes.
-     */
-    public void loadScenes (InputStream in) throws IOException;
 }
