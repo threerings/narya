@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.17 2003/04/28 18:08:57 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.18 2003/04/28 18:12:09 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -1341,6 +1341,8 @@ public class MisoScenePanel extends VirtualMediaPanel
     /** A count of blocks in the process of being resolved. */
     protected int _pendingBlocks;
 
+    /** Used to avoid repaints while we don't yet have resolved all the
+     * blocks needed to render the visible view. */
     protected boolean _delayRepaint = false;
 
     /** A list of the potentially visible objects in the scene. */
