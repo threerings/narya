@@ -1,0 +1,41 @@
+<?xml version="1.0" standalone="yes"?>
+<!-- $Id: fringeconf.xml,v 1.1 2002/04/06 22:14:38 ray Exp $ -->
+
+<!-- If a base tileset is defined in this file, it will be fringed over
+     another base if and only if
+         1) It has fringe tilesets defined
+         2) the other base is not defined here or has a lower priority.
+  -->
+
+
+<!-- Define our fringe tiles by which fringebits they use.
+
+   see docs/miso/fringebits.png
+
+   The index of the following array corresponds to the position of a
+   particular fringe tile in any and all the fringe tilesets.
+   The values tell what kind of fringe is at that index.
+
+-->
+<fringe tiles="8, 56, 32, 14, 224,       2, 131, 128, 227, 143,
+               248, 62, 251, 239, 191,   254, 255">
+
+  <!-- Seawater fringes on most things. -->
+  <base name="Seawater" priority="20">
+    <tileset name="Seawater_fringe" mask="false"/>
+    <tileset name="generic_fringe" mask="true"/>
+  </base>
+
+  <!-- Cobble should fringe on things like dirt and grass. -->
+  <base name="Cobble" priority="10">
+     <tileset name="generic_fringe" mask="true"/>
+  </base>
+
+  <base name="Sand" priority="5">
+     <tileset name="generic_fringe" mask="true"/>
+  </base>
+
+  <!-- Wood does not fringe nor should be fringed upon. -->
+  <base name="Wood Planks" priority="100">
+  </base>
+</fringe>
