@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.21 2003/04/22 20:36:11 mdb Exp $
+// $Id: AutoFringer.java,v 1.22 2003/05/02 23:33:30 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -167,8 +167,8 @@ public class AutoFringer
                                 (fringeset << 16) + index);
         BufferedImage img = (BufferedImage)masks.get(maskkey);
         if (img == null) {
-            BufferedImage fsrc = fset.getTileImage(index);
-            BufferedImage bsrc = _tmgr.getTileSet(baseset).getTileImage(0);
+            BufferedImage fsrc = fset.getRawTileImage(index);
+            BufferedImage bsrc = _tmgr.getTileSet(baseset).getRawTileImage(0);
             img = ImageUtil.composeMaskedImage(_imgr, fsrc, bsrc);
             masks.put(maskkey, img);
         }
