@@ -19,13 +19,13 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.card.trick;
+package com.threerings.parlor.card.trick.server;
 
 import com.threerings.crowd.data.PlaceObject;
-
 import com.threerings.parlor.game.server.GameManager;
-
 import com.threerings.parlor.turn.server.TurnGameManagerDelegate;
+
+import com.threerings.parlor.card.trick.data.TrickCardGameObject;
 
 /**
  * A card game manager delegate for trick-based card games, such as

@@ -19,43 +19,29 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.card.trick;
+package com.threerings.parlor.card.trick.client;
 
-import com.threerings.parlor.turn.server.TurnGameManager;
+import com.threerings.parlor.turn.client.TurnGameController;
 
 /**
- * A card game manager interface for trick-based card games, such as
+ * A card game controller interface for trick-based card games, such as
  * Spades and Hearts.
  */
-public interface TrickCardGameManager extends TurnGameManager
+public interface TrickCardGameController extends TurnGameController
 {
     /**
-     * Notifies the manager that a hand is about to start.
+     * Notifies the controller that the gameplay entered or left a hand.
+     *
+     * @param playingHand true if the gameplay entered a hand, false if
+     * it left one
      */
-    public void handWillStart ();
+    public void playingHandDidChange (boolean playingHand);
     
     /**
-     * Notifies the manager that a hand just started.
+     * Notifies the controller that the gameplay entered or left a trick.
+     *
+     * @param playingTrick true if the gameplay entered a trick, false if
+     * it left one
      */
-    public void handDidStart ();
-    
-    /**
-     * Notifies the manager that a hand has ended.
-     */
-    public void handDidEnd ();
-    
-    /**
-     * Notifies the manager that a trick is about to start.
-     */
-    public void trickWillStart ();
-    
-    /**
-     * Notifies the manager that a trick just started.
-     */
-    public void trickDidStart ();
-    
-    /**
-     * Notifies the manager that a trick has ended.
-     */
-    public void trickDidEnd ();
+    public void playingTrickDidChange (boolean playingTrick);
 }
