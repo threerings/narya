@@ -1,5 +1,5 @@
 //
-// $Id: Colorization.java,v 1.4 2002/05/06 18:08:32 mdb Exp $
+// $Id: Colorization.java,v 1.5 2002/05/06 23:23:08 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -36,6 +36,11 @@ public class Colorization
         this.rootColor = rootColor;
         this.range = range;
         this.offsets = offsets;
+
+        // compute our HSV and fixed HSV
+        _hsv = Color.RGBtoHSB(rootColor.getRed(), rootColor.getGreen(),
+                              rootColor.getBlue(), null);
+        _fhsv = toFixedHSV(_hsv, null);
     }
 
     /**
@@ -43,9 +48,56 @@ public class Colorization
      */
     public Color getColorizedRoot ()
     {
-        float[] hsv = Color.RGBtoHSB(rootColor.getRed(), rootColor.getGreen(),
-                                     rootColor.getBlue(), null);
-        return new Color(ImageUtil.recolorColor(hsv, offsets));
+        return new Color(recolorColor(_hsv));
+    }
+
+    /**
+     * Adjusts the supplied color by the offests in this colorization,
+     * taking the appropriate measures for hue (wrapping it around) and
+     * saturation and value (clipping).
+     *
+     * @return the RGB value of the recolored color.
+     */
+    public int recolorColor (float[] hsv)
+    {
+        // for hue, we wrap around
+        hsv[0] += offsets[0];
+        if (hsv[0] > 1.0) {
+            hsv[0] -= 1.0;
+        }
+
+        // otherwise we clip
+        hsv[1] = Math.min(Math.max(hsv[1] + offsets[1], 0), 1);
+        hsv[2] = Math.min(Math.max(hsv[2] + offsets[2], 0), 1);
+
+        // convert back to RGB space
+        return Color.HSBtoRGB(hsv[0], hsv[1], hsv[2]);
+    }
+
+    /**
+     * Returns true if this colorization matches the supplied color, false
+     * otherwise.
+     *
+     * @param hsv the HSV values for the color in question.
+     * @param fhsv the HSV values converted to fixed point via {@link
+     * #toFixedHSV} for the color in question.
+     */
+    public boolean matches (float[] hsv, int[] fhsv)
+    {
+        // check to see that this color is sufficiently "close" to the
+        // root color based on the supplied distance parameters
+        if (distance(fhsv[0], _fhsv[0], Short.MAX_VALUE) >=
+            range[0] * Short.MAX_VALUE) {
+            return false;
+        }
+
+        // saturation and value don't wrap around like hue
+        if (Math.abs(_hsv[1] - hsv[1]) >= range[1] ||
+            Math.abs(_hsv[2] - hsv[2]) >= range[2]) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -75,4 +127,44 @@ public class Colorization
     {
         return StringUtil.fieldsToString(this);
     }
+
+    /**
+     * Converts floating point HSV values to a fixed point integer
+     * representation.
+     *
+     * @param hsv the HSV values to be converted.
+     * @param fhsv the destination array into which the fixed values will
+     * be stored. If this is null, a new array will be created of the
+     * appropriate length.
+     *
+     * @return the <code>fhsv</code> parameter if it was non-null or the
+     * newly created target array.
+     */
+    public static int[] toFixedHSV (float[] hsv, int[] fhsv)
+    {
+        if (fhsv == null) {
+            fhsv = new int[hsv.length];
+        }
+        for (int i = 0; i < hsv.length; i++) {
+            // fhsv[i] = (int)(hsv[i]*Integer.MAX_VALUE);
+            fhsv[i] = (int)(hsv[i]*Short.MAX_VALUE);
+        }
+        return fhsv;
+    }
+
+    /**
+     * Returns the distance between the supplied to numbers modulo N.
+     */
+    public static int distance (int a, int b, int N)
+    {
+        return (a > b) ? Math.min(a-b, b+N-a) : Math.min(b-a, a+N-b);
+    }
+
+    /** Fixed HSV values for our root color; used when calculating
+     * recolorizations using this colorization. */
+    protected int[] _fhsv;
+
+    /** HSV values for our root color; used when calculating
+     * recolorizations using this colorization. */
+    protected float[] _hsv;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.13 2002/05/06 18:08:32 mdb Exp $
+// $Id: ImageUtil.java,v 1.14 2002/05/06 23:23:08 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -104,6 +104,28 @@ public class ImageUtil
     public static BufferedImage recolorImage (
         BufferedImage image, Color rootColor, float[] dists, float[] offsets)
     {
+        return recolorImage(image, new Colorization[] {
+            new Colorization(-1, rootColor, dists, offsets) });
+    }
+
+    /**
+     * Recolors the supplied image as in {@link
+     * #recolorImage(BufferedImage,Color,float[],float[])} obtaining the
+     * recoloring parameters from the supplied {@link Colorization}
+     * instance.
+     */
+    public static BufferedImage recolorImage (
+        BufferedImage image, Colorization cz)
+    {
+        return recolorImage(image, new Colorization[] { cz });
+    }
+
+    /**
+     * Recolors the supplied image using the supplied colorizations.
+     */
+    public static BufferedImage recolorImage (
+        BufferedImage image, Colorization[] zations)
+    {
         ColorModel cm = image.getColorModel();
         if (!(cm instanceof IndexColorModel)) {
             String errmsg = "Unable to recolor images with non-index color " +
@@ -111,15 +133,10 @@ public class ImageUtil
             throw new RuntimeException(errmsg);
         }
 
-        // first convert the root color to HSV for later comparison
-        float[] rHSV = Color.RGBtoHSB(rootColor.getRed(), rootColor.getGreen(),
-                                      rootColor.getBlue(), null);
-        int[] frHSV = toFixedHSV(rHSV, null);
-        int[] rgb = new int[3];
-
         // now process the image
         IndexColorModel icm = (IndexColorModel)cm;
         int size = icm.getMapSize();
+        int zcount = zations.length;
         int[] rgbs = new int[size];
 
         // fetch the color data
@@ -143,23 +160,18 @@ public class ImageUtil
             int green = (value >> 8) & 0xFF;
             int blue = (value >> 0) & 0xFF;
             Color.RGBtoHSB(red, green, blue, hsv);
+            Colorization.toFixedHSV(hsv, fhsv);
 
-            // check to see that this color is sufficiently "close" to the
-            // root color based on the supplied distance parameters
-            toFixedHSV(hsv, fhsv);
-            if (distance(fhsv[0], frHSV[0], Short.MAX_VALUE) >=
-                dists[0] * Short.MAX_VALUE) {
-                continue;
+            // see if this color matches and of our colorizations and
+            // recolor it if it does
+            for (int z = 0; z < zcount; z++) {
+                Colorization cz = zations[z];
+                if (cz != null && cz.matches(hsv, fhsv)) {
+                    // massage the HSV bands and update the RGBs array
+                    rgbs[i] = cz.recolorColor(hsv);
+                    break;
+                }
             }
-
-            // saturation and value don't wrap around like hue
-            if (Math.abs(rHSV[1] - hsv[1]) >= dists[1] ||
-                Math.abs(rHSV[2] - hsv[2]) >= dists[2]) {
-                continue;
-            }
-
-            // massage the HSV bands and update the RGBs array
-            rgbs[i] = recolorColor(hsv, offsets);
         }
 
         // create a new image with the adjusted color palette
@@ -167,41 +179,6 @@ public class ImageUtil
             icm.getPixelSize(), size, rgbs, 0, icm.hasAlpha(),
             icm.getTransparentPixel(), icm.getTransferType());
         return new BufferedImage(nicm, image.getRaster(), false, null);
-    }
-
-    /**
-     * Recolors the supplied image as in {@link
-     * #recolorImage(BufferedImage,Color,float[],float[])} obtaining the
-     * recoloring parameters from the supplied {@link Colorization}
-     * instance.
-     */
-    public static BufferedImage recolorImage (
-        BufferedImage image, Colorization cz)
-    {
-        return recolorImage(image, cz.rootColor, cz.range, cz.offsets);
-    }
-
-    /**
-     * Adjusts the supplied color by the specified offests, taking the
-     * appropriate measures for hue (wrapping it around) and saturation
-     * and value (clipping).
-     *
-     * @return the RGB value of the recolored color.
-     */
-    public static int recolorColor (float[] hsv, float[] offsets)
-    {
-        // for hue, we wrap around
-        hsv[0] += offsets[0];
-        if (hsv[0] > 1.0) {
-            hsv[0] -= 1.0;
-        }
-
-        // otherwise we clip
-        hsv[1] = Math.min(Math.max(hsv[1] + offsets[1], 0), 1);
-        hsv[2] = Math.min(Math.max(hsv[2] + offsets[2], 0), 1);
-
-        // convert back to RGB space
-        return Color.HSBtoRGB(hsv[0], hsv[1], hsv[2]);
     }
 
     /**
@@ -305,30 +282,6 @@ public class ImageUtil
                         "[image=" + image + "].");
             return true;
         }
-    }
-
-    /**
-     * Converts floating point HSV values to a fixed point integer
-     * representation.
-     */
-    protected static int[] toFixedHSV (float[] hsv, int[] fhsv)
-    {
-        if (fhsv == null) {
-            fhsv = new int[hsv.length];
-        }
-        for (int i = 0; i < hsv.length; i++) {
-            // fhsv[i] = (int)(hsv[i]*Integer.MAX_VALUE);
-            fhsv[i] = (int)(hsv[i]*Short.MAX_VALUE);
-        }
-        return fhsv;
-    }
-
-    /**
-     * Returns the distance between the supplied to numbers modulo N.
-     */
-    protected static int distance (int a, int b, int N)
-    {
-        return (a > b) ? Math.min(a-b, b+N-a) : Math.min(b-a, a+N-b);
     }
 
     /** The graphics configuration for the default screen device. */
