@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.65 2001/10/22 18:21:41 shaper Exp $
+// $Id: IsoSceneView.java,v 1.66 2001/10/23 02:04:07 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -242,9 +242,6 @@ public class IsoSceneView implements SceneView
         _dirtyItems.toArray(items);
         Arrays.sort(items, IsoUtil.DIRTY_COMP);
 
-        // save original clipping region
-        Shape clip = gfx.getClip();
-
         // merge all dirty rectangles for each item into a single
         // rectangle before painting
         Rectangle dirtyRect = new Rectangle();
@@ -276,9 +273,6 @@ public class IsoSceneView implements SceneView
             cur.paint(gfx, dirtyRect);
             // Log.info("Painting dirty item [item=" + cur + "].");
         }
-
-        // restore original clipping region
-        gfx.setClip(clip);
     }
 
     /**
