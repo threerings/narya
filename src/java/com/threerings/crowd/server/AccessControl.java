@@ -1,5 +1,5 @@
 //
-// $Id: AccessControl.java,v 1.1 2002/10/31 21:32:39 mdb Exp $
+// $Id: AccessControl.java,v 1.2 2002/11/01 01:01:27 mdb Exp $
 
 package com.threerings.crowd.server;
 import com.threerings.crowd.data.BodyObject;
@@ -9,6 +9,10 @@ import com.threerings.crowd.data.BodyObject;
  */
 public interface AccessControl
 {
+    /** An error code that can be delivered when a user lacks access for a
+     * particular feature. */
+    public static final String LACK_ACCESS = "m.lack_access";
+
     /**
      * Checks to see if the specified user has access to the feature with
      * the specified name. Features are named according to their

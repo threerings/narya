@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.17 2002/11/01 00:57:50 mdb Exp $
+// $Id: ChatProvider.java,v 1.18 2002/11/01 01:01:27 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -95,7 +95,7 @@ public class ChatProvider
 
         // make sure the requesting user has broadcast privileges
         if (!CrowdServer.actrl.checkAccess(body, BROADCAST_TOKEN)) {
-            throw new InvocationException(ACCESS_DENIED);
+            throw new InvocationException(CrowdServer.actrl.LACK_ACCESS);
         }
 
         Iterator iter = CrowdServer.plreg.enumeratePlaces();
