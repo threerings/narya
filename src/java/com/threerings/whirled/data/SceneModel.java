@@ -1,5 +1,5 @@
 //
-// $Id: SceneModel.java,v 1.2 2001/11/29 00:15:48 mdb Exp $
+// $Id: SceneModel.java,v 1.3 2001/11/29 19:32:06 mdb Exp $
 
 package com.threerings.whirled.data;
 
@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
+import com.samskivert.util.StringUtil;
 import com.threerings.presents.io.Streamable;
 
 /**
@@ -79,5 +80,26 @@ public class SceneModel implements Streamable
         model.sceneId = -1;
         model.version = 0;
         model.neighborIds = new int[0];
+    }
+
+    /**
+     * Generates a string representation of this scene model.
+     */
+    public String toString ()
+    {
+        StringBuffer buf = new StringBuffer("[");
+        toString(buf);
+        return buf.append("]").toString();
+    }
+
+    /**
+     * Derived classes override this to tack their <code>toString</code>
+     * data on to the string buffer.
+     */
+    protected void toString (StringBuffer buf)
+    {
+        buf.append("sceneId=").append(sceneId);
+        buf.append(", version=").append(version);
+        buf.append(", neighborIds=").append(StringUtil.toString(neighborIds));
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneModel.java,v 1.2 2001/11/29 00:16:46 mdb Exp $
+// $Id: SpotSceneModel.java,v 1.3 2001/11/29 19:32:06 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
+import com.samskivert.util.StringUtil;
 import com.threerings.whirled.data.SceneModel;
 
 /**
@@ -154,5 +155,21 @@ public class SpotSceneModel extends SceneModel
         model.defaultEntranceId = -1;
         model.portalIds = new int[0];
         model.targetLocIds = new int[0];
+    }
+
+    // documentation inherited
+    protected void toString (StringBuffer buf)
+    {
+        super.toString(buf);
+        buf.append(", locationIds=").append(StringUtil.toString(locationIds));
+        buf.append(", locationX=").append(StringUtil.toString(locationX  ));
+        buf.append(", locationY=").append(StringUtil.toString(locationY));
+        buf.append(", locationOrients=").
+            append(StringUtil.toString(locationOrients));
+        buf.append(", locationClusters=").
+            append(StringUtil.toString(locationClusters));
+        buf.append(", defaultEntranceId=").append(defaultEntranceId);
+        buf.append(", portalIds=").append(StringUtil.toString(portalIds));
+        buf.append(", targetLocIds=").append(StringUtil.toString(targetLocIds));
     }
 }
