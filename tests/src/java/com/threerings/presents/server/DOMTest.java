@@ -1,5 +1,5 @@
 //
-// $Id: DOMTest.java,v 1.6 2001/11/08 05:40:07 mdb Exp $
+// $Id: DOMTest.java,v 1.7 2002/02/09 07:50:04 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -12,8 +12,7 @@ import com.threerings.presents.dobj.*;
 /**
  * A simple test case for the dobjmgr.
  */
-public class DOMTest
-    extends TestCase
+public class DOMTest extends TestCase
     implements Subscriber, AttributeChangeListener
 {
     public DOMTest ()
@@ -26,8 +25,15 @@ public class DOMTest
         // add ourselves as a listener
         object.addListener(this);
 
-        // set some values
         TestObject to = (TestObject)object;
+
+        // test transactions
+        to.startTransaction();
+        to.setFoo(99);
+        to.setBar("hoopie");
+        to.commitTransaction();
+
+        // now set some values straight up
         to.setFoo(25);
         to.setBar("howdy");
     }
@@ -35,37 +41,53 @@ public class DOMTest
     public void requestFailed (int oid, ObjectAccessException cause)
     {
         fail("Request failed: " + cause);
-        omgr.shutdown();
+        _omgr.shutdown();
     }
 
     public void attributeChanged (AttributeChangedEvent event)
     {
-        // if this is the second event, request a shutdown
-        if (event.getName().equals(TestObject.FOO)) {
-            assert("foo=25", event.getIntValue() == 25);
+        assert(fields[_fcount] + " == " + values[_fcount],
+               event.getName().equals(fields[_fcount]) &&
+               event.getValue().equals(values[_fcount]));
 
-        } else if (event.getName().equals(TestObject.BAR)) {
-            assert("bar=howdy", "howdy".equals(event.getValue()));
-            omgr.shutdown();
+        // shutdown once we receive our last update
+        if (++_fcount == fields.length) {
+            _omgr.shutdown();
         }
     }
 
     public void runTest ()
     {
         // request that a new TestObject be created
-        omgr.createObject(TestObject.class, this);
+        _omgr.createObject(TestObject.class, this);
 
         // or for fun you can try this bogus create request
-        // omgr.createObject(Integer.class, sub);
+        // _omgr.createObject(Integer.class, sub);
 
         // and run the object manager
-        omgr.run();
+        _omgr.run();
     }
 
     public static Test suite ()
     {
-        return new RefTest();
+        return new DOMTest();
     }
 
-    public static PresentsDObjectMgr omgr = new PresentsDObjectMgr();
+    public static void main (String[] args)
+    {
+        DOMTest test = new DOMTest();
+        test.runTest();
+    }
+
+    protected int _fcount = 0;
+
+    // the fields that will change in attribute changed events
+    protected Object[] fields = {
+        TestObject.FOO, TestObject.BAR, TestObject.FOO, TestObject.BAR };
+
+    // the values we'll receive via attribute changed events
+    protected Object[] values = {
+        new Integer(99), "hoopie", new Integer(25), "howdy" };
+
+    protected static PresentsDObjectMgr _omgr = new PresentsDObjectMgr();
 }

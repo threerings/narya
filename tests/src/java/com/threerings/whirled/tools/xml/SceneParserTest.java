@@ -1,5 +1,5 @@
 //
-// $Id: SceneParserTest.java,v 1.2 2001/12/13 01:35:52 mdb Exp $
+// $Id: SceneParserTest.java,v 1.3 2002/02/09 07:50:04 mdb Exp $
 
 package com.threerings.whirled.tools.xml;
 
@@ -23,7 +23,7 @@ public class SceneParserTest extends TestCase
             SceneParser parser = new SceneParser("scene");
             String tspath = TestUtil.getResourcePath(TEST_SCENE_PATH);
             EditableScene scene = parser.parseScene(tspath);
-            System.out.println("Parsed " + scene.getSceneModel() + ".");
+            // System.out.println("Parsed " + scene.getSceneModel() + ".");
 
         } catch (Exception e) {
             e.printStackTrace();

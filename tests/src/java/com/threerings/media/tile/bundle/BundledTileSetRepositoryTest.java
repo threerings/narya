@@ -1,5 +1,5 @@
 //
-// $Id: BundledTileSetRepositoryTest.java,v 1.5 2002/01/16 03:01:24 mdb Exp $
+// $Id: BundledTileSetRepositoryTest.java,v 1.6 2002/02/09 07:50:04 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -27,7 +27,8 @@ public class BundledTileSetRepositoryTest extends TestCase
                 new BundledTileSetRepository(rmgr, imgr, "tilesets");
             Iterator sets = repo.enumerateTileSets();
             while (sets.hasNext()) {
-                System.out.println(sets.next());
+                sets.next();
+//                 System.out.println(sets.next());
             }
 
         } catch (Exception e) {

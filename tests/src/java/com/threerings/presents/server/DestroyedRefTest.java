@@ -1,5 +1,5 @@
 //
-// $Id: DestroyedRefTest.java,v 1.6 2001/11/08 05:40:07 mdb Exp $
+// $Id: DestroyedRefTest.java,v 1.7 2002/02/09 07:50:04 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -71,7 +71,7 @@ public class DestroyedRefTest
 
         } else if (event instanceof AttributeChangedEvent) {
             // go bye bye
-            PresentsServer.shutdown();
+            _omgr.shutdown();
 
         } else {
             fail("Got unexpected event: " + event);
@@ -80,23 +80,12 @@ public class DestroyedRefTest
 
     public void runTest ()
     {
-        PresentsServer server = new TestPresentsServer();
-        try {
-            // initialize the server
-            server.init();
+        // create two test objects
+        _omgr.createObject(TestObject.class, this);
+        _omgr.createObject(TestObject.class, this);
 
-            // create two test objects
-            PresentsServer.omgr.createObject(TestObject.class, this);
-            PresentsServer.omgr.createObject(TestObject.class, this);
-
-            // start the server to running (this method call won't return
-            // until the server is shut down)
-            server.run();
-
-        } catch (Exception e) {
-            Log.warning("Unable to initialize server.");
-            Log.logStackTrace(e);
-        }
+        // and run the object manager
+        _omgr.run();
     }
 
     public static Test suite ()
@@ -106,4 +95,6 @@ public class DestroyedRefTest
 
     protected TestObject _objone;
     protected TestObject _objtwo;
+
+    protected static PresentsDObjectMgr _omgr = new PresentsDObjectMgr();
 }

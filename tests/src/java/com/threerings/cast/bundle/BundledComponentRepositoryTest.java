@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepositoryTest.java,v 1.5 2002/01/16 03:01:24 mdb Exp $
+// $Id: BundledComponentRepositoryTest.java,v 1.6 2002/02/09 07:50:04 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -28,21 +28,21 @@ public class BundledComponentRepositoryTest extends TestCase
             BundledComponentRepository repo =
                 new BundledComponentRepository(rmgr, imgr, "components");
 
-            System.out.println("Classes: " + StringUtil.toString(
-                                   repo.enumerateComponentClasses()));
+//             System.out.println("Classes: " + StringUtil.toString(
+//                                    repo.enumerateComponentClasses()));
 
-            System.out.println("Actions: " + StringUtil.toString(
-                                   repo.enumerateActionSequences()));
+//             System.out.println("Actions: " + StringUtil.toString(
+//                                    repo.enumerateActionSequences()));
 
-            System.out.println("Action sets: " + StringUtil.toString(
-                                   repo._actionSets.values().iterator()));
+//             System.out.println("Action sets: " + StringUtil.toString(
+//                                    repo._actionSets.values().iterator()));
 
             Iterator iter = repo.enumerateComponentClasses();
             while (iter.hasNext()) {
                 ComponentClass cclass = (ComponentClass)iter.next();
-                System.out.println("IDs [" + cclass + "]: " +
-                                   StringUtil.toString(
-                                       repo.enumerateComponentIds(cclass)));
+//                 System.out.println("IDs [" + cclass + "]: " +
+//                                    StringUtil.toString(
+//                                        repo.enumerateComponentIds(cclass)));
             }
 
         } catch (Exception e) {

@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParserTest.java,v 1.3 2002/02/05 20:29:09 mdb Exp $
+// $Id: XMLTileSetParserTest.java,v 1.4 2002/02/09 07:50:04 mdb Exp $
 
 package com.threerings.media.tile.tools.xml;
 
@@ -34,7 +34,8 @@ public class XMLTileSetParserTest extends TestCase
             // print them out
             Iterator iter = sets.values().iterator();
             while (iter.hasNext()) {
-                System.out.println(iter.next());
+                iter.next();
+                // System.out.println(iter.next());
             }
 
         } catch (IOException ioe) {

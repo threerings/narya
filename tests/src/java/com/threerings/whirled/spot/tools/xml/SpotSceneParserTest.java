@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneParserTest.java,v 1.2 2001/12/13 01:35:52 mdb Exp $
+// $Id: SpotSceneParserTest.java,v 1.3 2002/02/09 07:50:04 mdb Exp $
 
 package com.threerings.whirled.tools.spot.xml;
 
@@ -23,7 +23,7 @@ public class SpotSceneParserTest extends TestCase
             SpotSceneParser parser = new SpotSceneParser("scene");
             String tspath = TestUtil.getResourcePath(TEST_SCENE_PATH);
             EditableSpotScene scene = parser.parseScene(tspath);
-            System.out.println("Parsed " + scene.getSpotSceneModel() + ".");
+            // System.out.println("Parsed " + scene.getSpotSceneModel() + ".");
 
         } catch (Exception e) {
             e.printStackTrace();
