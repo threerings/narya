@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.2 2002/01/11 16:53:34 shaper Exp $
+// $Id: AnimationManager.java,v 1.3 2002/01/19 07:00:40 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -48,6 +48,29 @@ public class AnimationManager
 
         // start ourselves up
         start();
+    }
+
+    /**
+     * Constructs and initializes an animation manager. If sprites are to
+     * be used with this animation manager, the other constructor should
+     * be used or the sprite manager should be set shortly after
+     * construction via {@link #setSpriteManager}. The animation manager
+     * will automatically start itself up, but must be explicitly shutdown
+     * when the animated view is no longer in operation via a call to
+     * {@link #stop}.
+     */
+    public AnimationManager (AnimatedView view)
+    {
+        this(null, view);
+    }
+
+    /**
+     * Sets the sprite manager with which this animation manager should
+     * coordinate.
+     */
+    public void setSpriteManager (SpriteManager spritemgr)
+    {
+        _spritemgr = spritemgr;
     }
 
     /**
