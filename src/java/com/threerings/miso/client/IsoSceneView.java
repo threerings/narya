@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.58 2001/10/11 16:21:08 shaper Exp $
+// $Id: IsoSceneView.java,v 1.59 2001/10/12 00:42:08 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -10,8 +10,11 @@ import java.awt.image.*;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.samskivert.util.HashIntMap;
+
 import com.threerings.media.sprite.*;
 import com.threerings.media.tile.Tile;
+import com.threerings.media.tile.ObjectTile;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.util.AStarPathUtil;
@@ -49,6 +52,9 @@ public class IsoSceneView implements SceneView
 	    }
 	}
 
+        // create the hashtable used to store object bounds polygons
+        _objpolys = new HashIntMap();
+
         // create the array used to mark dirty tiles
         _dirty = new boolean[model.scenewid][model.tilehei];
 
@@ -62,6 +68,9 @@ public class IsoSceneView implements SceneView
     public void setScene (MisoScene scene)
     {
         _scene = scene;
+
+        // generate all object shadow tiles and polygons
+        prepareAllObjectTiles();
     }
 
     // documentation inherited
@@ -186,7 +195,7 @@ public class IsoSceneView implements SceneView
 			(tile.height - _model.tilehei);
 
 		    // draw the tile image
-		    tile.paint(gfx, poly);
+		    renderTile(gfx, tile, xx, yy, poly);
 		}
 
 		// draw all sprites residing in the current tile
@@ -246,7 +255,7 @@ public class IsoSceneView implements SceneView
 		    int ypos = screenY - (tile.height - _model.tilehei);
 
 		    // draw the tile image at the appropriate screen position
-		    tile.paint(gfx, poly);
+                    renderTile(gfx, tile, tx, ty, poly);
 
                     // draw all sprites residing in the current tile
                     // TODO: simplify other tile positioning here to use poly
@@ -275,6 +284,69 @@ public class IsoSceneView implements SceneView
                 my = _model.scenehei - 1;
             }
 	}
+    }
+
+    /**
+     * Render the given tile in the scene to the given graphics
+     * context.
+     */
+    protected void renderTile (
+        Graphics2D gfx, Tile tile, int x, int y, Polygon poly)
+    {
+        if (tile instanceof ObjectTile) {
+            poly = (Polygon)_objpolys.get(getCoordinateKey(x, y));
+        }
+
+        tile.paint(gfx, poly);
+    }
+
+    /**
+     * Pre-processes all object tiles in the scene to create shadow
+     * tiles and bounding polygons.
+     */
+    protected void prepareAllObjectTiles ()
+    {
+        ObjectTile[][] tiles = _scene.getObjectLayer();
+        for (int xx = 0; xx < _model.scenewid; xx++) {
+            for (int yy = 0; yy < _model.scenehei; yy++) {
+                ObjectTile tile = tiles[xx][yy];
+                if (tile == null) {
+                    continue;
+                }
+
+                prepareObjectTile(tile, xx, yy);
+            }
+        }
+    }
+
+    /**
+     * Pre-processes a single object tile.  Creates shadow tiles in
+     * its footprint making the object fully impassable, and creates
+     * the bounding polygon for the object which is used when
+     * invalidating dirty rectangles or tiles, and when rendering the
+     * object to a graphics context.  This method should be called
+     * when an object tile is added to a scene.
+     */
+    protected void prepareObjectTile (ObjectTile tile, int x, int y)
+    {
+        // TODO: create shadow tiles in the footprint of this object
+
+        // create the bounding polygon for this object
+        int key = getCoordinateKey(x, y);
+        Polygon bounds = IsoUtil.getObjectBounds(_model, _polys[x][y], tile);
+
+        // save it off in the object bounds hashtable
+        _objpolys.put(key, bounds);
+    }
+
+    /**
+     * Returns a unique integer key corresponding to the given
+     * coordinates, suitable for storing and retrieving objects from a
+     * hashtable.
+     */
+    protected int getCoordinateKey (int x, int y)
+    {
+        return (x << 16 | y);
     }
 
     /**
@@ -606,6 +678,9 @@ public class IsoSceneView implements SceneView
 
     /** Polygon instances for all of our tiles. */
     protected Polygon _polys[][];
+
+    /** Bounding polygons for all of the object tiles. */
+    protected HashIntMap _objpolys;
 
     /** The dirty tiles that need to be re-painted. */
     protected boolean _dirty[][];

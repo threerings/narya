@@ -1,12 +1,12 @@
 //
-// $Id: IsoUtil.java,v 1.6 2001/09/13 19:10:26 mdb Exp $
+// $Id: IsoUtil.java,v 1.7 2001/10/12 00:42:08 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
-import java.awt.Point;
-import java.awt.Polygon;
+import java.awt.*;
 
 import com.threerings.media.sprite.Sprite;
+import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.util.MathUtil;
 
 import com.threerings.miso.Log;
@@ -18,7 +18,44 @@ import com.threerings.miso.scene.*;
  */
 public class IsoUtil
 {
-    /**
+    public static Polygon getObjectBounds (
+        IsoSceneViewModel model, Polygon root, ObjectTile tile)
+    {
+	Rectangle bounds = root.getBounds();
+        int sx = bounds.x - ((tile.baseWidth - 1) * model.tilehwid);
+        int sy = bounds.y - tile.height + model.tilehei;
+
+        Polygon boundsPoly = new Polygon();
+        int rx = sx, ry = sy;
+
+        // top-left point
+        boundsPoly.addPoint(rx, ry);
+
+        // top-right point
+        rx = sx + tile.width;
+        boundsPoly.addPoint(rx, ry);
+
+        // bottom-right point
+        ry = bounds.y - ((tile.baseHeight - 2) * model.tilehhei);
+        boundsPoly.addPoint(rx, ry);
+
+        // bottom-middle point
+        rx = bounds.x + model.tilehwid;
+        ry = bounds.y + model.tilehei;
+        boundsPoly.addPoint(rx, ry);
+
+        // bottom-left point
+        rx = sx;
+        ry = bounds.y - ((tile.baseWidth - 2) * model.tilehhei);
+        boundsPoly.addPoint(rx, ry);
+
+        // top-left point
+        boundsPoly.addPoint(sx, sy);
+
+        return boundsPoly;
+    }
+
+ /**
      * Given two points in screen pixel coordinates, return the
      * compass direction that point B lies in from point A from an
      * isometric perspective.
