@@ -1,18 +1,18 @@
 //
-// $Id: InvocationDirector.java,v 1.9 2001/08/21 19:33:06 mdb Exp $
+// $Id: InvocationDirector.java,v 1.10 2001/10/02 02:05:50 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
+import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.cocktail.cher.Log;
 import com.threerings.cocktail.cher.data.*;
 import com.threerings.cocktail.cher.dobj.*;
 import com.threerings.cocktail.cher.util.ClassUtil;
-import com.threerings.cocktail.cher.util.IntMap;
 
 /**
  * The invocation services provide client to server invocations (service
@@ -28,23 +28,23 @@ import com.threerings.cocktail.cher.util.IntMap;
  * non-local objects (it is assumed that the distributed object facility
  * will already be in use for any objects that should be shared).
  *
- * <p> The client invocation manager delivers invocation requests to the
+ * <p> The client invocation director delivers invocation requests to the
  * server invocation manager and maps the responses back to the proper
  * response target objects when they arrive. It also maintains the mapping
  * of invocation receivers that can receive asynchronous invocation
  * notifications at any time from the server.
  */
-public class InvocationManager
+public class InvocationDirector
     implements Subscriber
 {
     /**
-     * Constructs a new invocation manager with the specified invocation
+     * Constructs a new invocation director with the specified invocation
      * manager oid. It will obtain its distributed object manager and
      * client object references from the supplied client instance. The
      * invocation manager oid is the oid of the object on the server to
      * which to deliver invocation requests.
      */
-    public InvocationManager (Client client, int imoid)
+    public InvocationDirector (Client client, int imoid)
     {
         _client = client;
         _omgr = client.getDObjectManager();
@@ -120,14 +120,14 @@ public class InvocationManager
     {
         // let the client know that we're ready to go now that we've got
         // our subscription to the client object
-        _client.invocationManagerReady((ClientObject)object);
+        _client.invocationDirectorReady((ClientObject)object);
     }
 
     public void requestFailed (int oid, ObjectAccessException cause)
     {
         // aiya! we were unable to subscribe to the client object. we're
         // hosed, hosed, hosed
-        Log.warning("Invocation manager unable to subscribe to client " +
+        Log.warning("Invocation director unable to subscribe to client " +
                     "object. All is wrong in the universe.");
     }
 
@@ -266,6 +266,6 @@ public class InvocationManager
     protected int _imoid;
 
     protected int _invocationId;
-    protected IntMap _targets = new IntMap();
+    protected HashIntMap _targets = new HashIntMap();
     protected HashMap _receivers = new HashMap();
 }

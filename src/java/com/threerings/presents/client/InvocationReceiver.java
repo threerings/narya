@@ -1,12 +1,12 @@
 //
-// $Id: InvocationReceiver.java,v 1.2 2001/08/04 02:31:20 mdb Exp $
+// $Id: InvocationReceiver.java,v 1.3 2001/10/02 02:05:50 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
 /**
  * Classes registered to process invocation notifications should implement
  * the invocation receiver interface and register themselves with the
- * invocation manager. Because the invocation notification procedures are
+ * invocation director. Because the invocation notification procedures are
  * looked up using reflection, there are no methods to implement in the
  * receiver interface, but it serves as a useful point for documentation
  * and as a useful indicator that the class in question is serving as an
@@ -15,7 +15,7 @@ package com.threerings.cocktail.cher.client;
  * <p> Invocation notifications are identified by a module name and a
  * procedure name. The module name identifies which invocation receiver
  * instance will receive the notification. Receivers are registered with
- * the invocation manager as handling all notification procedures for a
+ * the invocation director as handling all notification procedures for a
  * particular module. The notification procedure name is used to construct
  * a method name which is then reflected and invoked.
  *
@@ -29,7 +29,7 @@ package com.threerings.cocktail.cher.client;
  * the standard reflection argument type conversion process taken into
  * account).
  *
- * @see InvocationManager#registerReceiver
+ * @see InvocationDirector#registerReceiver
  */
 public interface InvocationReceiver
 {

@@ -1,19 +1,19 @@
 //
-// $Id: PresentsClient.java,v 1.18 2001/08/11 00:12:11 mdb Exp $
+// $Id: PresentsClient.java,v 1.19 2001/10/02 02:05:50 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
+
+import com.samskivert.util.HashIntMap;
 
 import com.threerings.cocktail.cher.Log;
 import com.threerings.cocktail.cher.data.ClientObject;
 import com.threerings.cocktail.cher.dobj.*;
 import com.threerings.cocktail.cher.net.*;
 import com.threerings.cocktail.cher.server.net.*;
-import com.threerings.cocktail.cher.util.IntMap;
 
 /**
  * A client object represents a client session in the server. It is
@@ -213,9 +213,9 @@ public class CherClient implements Subscriber, MessageHandler
      */
     protected synchronized void clearSubscrips ()
     {
-        Enumeration enum = _subscrips.elements();
-        while (enum.hasMoreElements()) {
-            DObject object = (DObject)enum.nextElement();
+        Iterator enum = _subscrips.elements();
+        while (enum.hasNext()) {
+            DObject object = (DObject)enum.next();
 //              Log.info("Clearing subscription [client=" + this +
 //                       ", obj=" + object + "].");
             object.removeSubscriber(this);
@@ -562,7 +562,7 @@ public class CherClient implements Subscriber, MessageHandler
     protected String _username;
     protected Connection _conn;
     protected ClientObject _clobj;
-    protected IntMap _subscrips = new IntMap();
+    protected HashIntMap _subscrips = new HashIntMap();
 
     protected static HashMap _disps = new HashMap();
 

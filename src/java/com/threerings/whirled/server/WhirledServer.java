@@ -1,5 +1,5 @@
 //
-// $Id: WhirledServer.java,v 1.4 2001/09/28 22:32:28 mdb Exp $
+// $Id: WhirledServer.java,v 1.5 2001/10/02 02:08:16 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -61,7 +61,7 @@ public class WhirledServer extends PartyServer
      * provider, it can override this method. The default mechanism is to
      * load a properties file referenced by <code>dbmap</code> in the
      * whirled server configuration and use those properties to create a
-     * {@link com.samskivert.jdbc.StaticConnectionProvider}.
+     * {@link StaticConnectionProvider}.
      *
      * @exception Exception thrown if an error occurs creating the
      * connection provider.

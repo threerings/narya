@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.6 2001/08/21 19:35:56 mdb Exp $
+// $Id: DSet.java,v 1.7 2001/10/02 02:05:50 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -28,15 +28,14 @@ import com.threerings.cocktail.cher.io.Streamable;
  *
  * <p> Classes that wish to act as set elements must implement the {@link
  * com.threerings.cocktail.cher.dobj.DSet.Element} interface which extends
- * {@link com.threerings.cocktail.cher.io.Streamable} and adds the
- * requirement that the object provide a key which will be used to
- * identify element equality. Thus an element is declared to be in a set
- * of the object returned by that element's <code>geyKey()</code> method
- * is equal (using <code>equal()</code>) to the element returned by the
- * <code>getKey()</code> method of some other element in the set.
- * Additionally, in the case of element removal, only the key for the
- * element to be removed will be transmitted with the removal event to
- * save network bandwidth. Lastly, the object returned by
+ * {@link Streamable} and adds the requirement that the object provide a
+ * key which will be used to identify element equality. Thus an element is
+ * declared to be in a set of the object returned by that element's
+ * <code>geyKey()</code> method is equal (using <code>equal()</code>) to
+ * the element returned by the <code>getKey()</code> method of some other
+ * element in the set.  Additionally, in the case of element removal, only
+ * the key for the element to be removed will be transmitted with the
+ * removal event to save network bandwidth. Lastly, the object returned by
  * <code>getKey()</code> must be a valid distributed object type.
  */
 public class DSet

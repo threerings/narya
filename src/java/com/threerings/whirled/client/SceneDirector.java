@@ -1,13 +1,13 @@
 //
-// $Id: SceneDirector.java,v 1.3 2001/10/01 22:16:02 mdb Exp $
+// $Id: SceneDirector.java,v 1.4 2001/10/02 02:08:16 mdb Exp $
 
 package com.threerings.whirled.client;
 
 import java.io.IOException;
+import com.samskivert.util.HashIntMap;
 
 import com.threerings.cocktail.cher.dobj.DObject;
 import com.threerings.cocktail.cher.dobj.ObjectAccessException;
-import com.threerings.cocktail.cher.util.IntMap;
 
 import com.threerings.cocktail.party.client.LocationDirector;
 import com.threerings.cocktail.party.client.LocationObserver;
@@ -200,7 +200,7 @@ public class SceneDirector
 
     protected WhirledContext _ctx;
     protected SceneRepository _screp;
-    protected IntMap _scache = new IntMap();
+    protected HashIntMap _scache = new HashIntMap();
 
     /** The scene object of the scene we currently occupy. */
     protected Scene _scene;

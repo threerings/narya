@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.8 2001/08/07 20:38:58 mdb Exp $
+// $Id: TestClient.java,v 1.9 2001/10/02 02:05:50 mdb Exp $
 
 package com.threerings.cocktail.cher.client.test;
 
@@ -42,8 +42,8 @@ public class TestClient
     {
         Log.info("Client did logon [client=" + client + "].");
         // register our test notification receiver
-        client.getInvocationManager().registerReceiver(TestService.MODULE,
-                                                       new TestReceiver());
+        client.getInvocationDirector().registerReceiver(TestService.MODULE,
+                                                        new TestReceiver());
         // get the test object id
         TestService.getTestOid(client, this);
     }

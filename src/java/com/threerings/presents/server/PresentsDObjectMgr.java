@@ -1,16 +1,16 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.14 2001/08/11 01:00:26 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.15 2001/10/02 02:05:50 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
 import java.lang.reflect.*;
 import java.util.HashMap;
 
+import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Queue;
 
 import com.threerings.cocktail.cher.Log;
 import com.threerings.cocktail.cher.dobj.*;
-import com.threerings.cocktail.cher.util.IntMap;
 
 /**
  * The cher distributed object manager implements the
@@ -328,7 +328,7 @@ public class CherDObjectMgr implements DObjectManager
         int oid = oae.getOid();
 
         // ensure that the target object exists
-        if (!_objects.contains(oid)) {
+        if (!_objects.containsKey(oid)) {
             Log.info("Rejecting object added event of non-existent object " +
                      "[refferOid=" + target.getOid() +
                      ", reffedOid=" + oid + "].");
@@ -427,7 +427,7 @@ public class CherDObjectMgr implements DObjectManager
         // come to an end long before we had two billion objects
         do {
             _nextOid = (_nextOid + 1) % Integer.MAX_VALUE;
-        } while (_objects.contains(_nextOid));
+        } while (_objects.containsKey(_nextOid));
 
         return _nextOid;
     }
@@ -646,13 +646,13 @@ public class CherDObjectMgr implements DObjectManager
     protected Queue _evqueue = new Queue();
 
     /** The managed distributed objects table. */
-    protected IntMap _objects = new IntMap();
+    protected HashIntMap _objects = new HashIntMap();
 
     /** Used to assign a unique oid to each distributed object. */
     protected int _nextOid = 0;
 
     /** Used to track oid list references of distributed objects. */
-    protected IntMap _refs = new IntMap();
+    protected HashIntMap _refs = new HashIntMap();
 
     /** The default size of an oid list refs vector. */
     protected static final int DEFREFVEC_SIZE = 4;

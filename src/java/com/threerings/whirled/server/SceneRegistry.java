@@ -1,13 +1,13 @@
 //
-// $Id: SceneRegistry.java,v 1.2 2001/08/14 06:51:07 mdb Exp $
+// $Id: SceneRegistry.java,v 1.3 2001/10/02 02:08:16 mdb Exp $
 
 package com.threerings.whirled.server;
 
 import java.util.ArrayList;
 import java.util.Properties;
 
+import com.samskivert.util.HashIntMap;
 import com.threerings.cocktail.cher.util.Invoker;
-import com.threerings.cocktail.cher.util.IntMap;
 
 import com.threerings.cocktail.party.server.PartyServer;
 
@@ -159,14 +159,14 @@ public class SceneRegistry
         // that is finally complete, then we can let our penders know
         // what's up
 
-        // we'll eventually want to load up the proper properties file for
-        // the scene, but for now let's punt
         try {
-            Properties props = new Properties();
             SceneManager scmgr = (SceneManager)
-                PartyServer.plreg.createPlace(
-                    SceneObject.class, SceneManager.class, props);
-            // configure the scene manager with references to useful stuff
+                PartyServer.plreg.createPlace(SceneManager.class);
+
+            // configure the scene manager with references to useful
+            // stuff; we'll somehow need to convey configuration
+            // information for the scene to the scene manager, but for now
+            // let's punt
             scmgr.postInit(scene, this);
 
             // when the scene manager completes its startup procedings, it
@@ -223,6 +223,6 @@ public class SceneRegistry
     protected SceneRepository _screp;
     protected Invoker _invoker;
     
-    protected IntMap _scenemgrs = new IntMap();
-    protected IntMap _penders = new IntMap();
+    protected HashIntMap _scenemgrs = new HashIntMap();
+    protected HashIntMap _penders = new HashIntMap();
 }

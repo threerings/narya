@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.13 2001/08/21 19:33:06 mdb Exp $
+// $Id: Client.java,v 1.14 2001/10/02 02:05:50 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -178,12 +178,12 @@ public class Client
     }
 
     /**
-     * Returns the invocation manager associated with this session. This
+     * Returns the invocation director associated with this session. This
      * reference is only valid for the duration of the session.
      */
-    public InvocationManager getInvocationManager ()
+    public InvocationDirector getInvocationDirector ()
     {
-        return _invmgr;
+        return _invdir;
     }
 
     /**
@@ -277,16 +277,16 @@ public class Client
         // extract bootstrap information
         _cloid = data.clientOid;
 
-        // create our invocation manager
-        _invmgr = new InvocationManager(this, data.invOid);
+        // create our invocation director
+        _invdir = new InvocationDirector(this, data.invOid);
 
         // we can't quite call initialization completed at this point
-        // because we need for the invocation manager to fully initialize
+        // because we need for the invocation director to fully initialize
         // (which requires a round trip to the server) before turning the
         // client loose to do things like request invocation services
     }
 
-    void invocationManagerReady (ClientObject clobj)
+    void invocationDirectorReady (ClientObject clobj)
     {
         // keep this around
         _clobj = clobj;
@@ -309,7 +309,7 @@ public class Client
     protected Communicator _comm;
 
     protected int _cloid;
-    protected InvocationManager _invmgr;
+    protected InvocationDirector _invdir;
 
     // client observer codes
     static final int CLIENT_DID_LOGON = 0;
