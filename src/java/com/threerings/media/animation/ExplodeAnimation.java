@@ -1,5 +1,5 @@
 //
-// $Id: ExplodeAnimation.java,v 1.2 2002/01/11 19:37:49 shaper Exp $
+// $Id: ExplodeAnimation.java,v 1.3 2002/01/15 02:20:02 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -20,6 +20,7 @@ public class ExplodeAnimation extends Animation
     /**
      * Constructs an explode animation.
      *
+     * @param timestamp the animation starting time.
      * @param bounds the bounds within which to animate.
      * @param image the image to animate.
      * @param xchunk the number of image chunks on the x-axis.
@@ -30,12 +31,13 @@ public class ExplodeAnimation extends Animation
      * @param rvel the chunk rotation velocity in rotations per millisecond.
      */
     public ExplodeAnimation (
-        Rectangle bounds, Image image, int xchunk, int ychunk,
+        long timestamp, Rectangle bounds, Image image, int xchunk, int ychunk,
         int sx, int sy, float vel, float rvel)
     {
         super(bounds);
 
         // save things off
+        _start = timestamp;
         _image = image;
         _xchunk = xchunk;
         _ychunk = ychunk;
@@ -47,9 +49,6 @@ public class ExplodeAnimation extends Animation
         _chunkcount = (_xchunk * _ychunk);
         _cpos = new int[_chunkcount];
 
-        // save the animation starting time
-        _start = System.currentTimeMillis();
-
         // determine chunk dimensions
         _cwid = image.getWidth(null) / _xchunk;
         _chei = image.getHeight(null) / _ychunk;
@@ -57,9 +56,6 @@ public class ExplodeAnimation extends Animation
         _hchei = _chei / 2;
 
         // initialize the chunk positions
-        int cx = sx + (image.getWidth(null) / 2);
-        int cy = sy + (image.getHeight(null) / 2);
-        int cpos = (cx << 16 | cy);
         for (int ii = 0; ii < _chunkcount; ii++) {
             int xpos = ii % _xchunk;
             int ypos = ii / _xchunk;
