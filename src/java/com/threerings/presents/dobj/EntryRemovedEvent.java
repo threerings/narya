@@ -1,5 +1,5 @@
 //
-// $Id: EntryRemovedEvent.java,v 1.12 2003/02/26 17:54:56 mdb Exp $
+// $Id: EntryRemovedEvent.java,v 1.13 2003/02/26 21:41:47 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -42,7 +42,7 @@ public class EntryRemovedEvent extends NamedEvent
      */
     public Comparable getKey ()
     {
-        return _key;
+        return (Comparable)_key;
     }
 
     /**
@@ -83,6 +83,6 @@ public class EntryRemovedEvent extends NamedEvent
         buf.append(", key=").append(_key);
     }
 
-    protected Comparable _key;
+    protected Object _key;
     protected transient DSet.Entry _oldEntry;
 }
