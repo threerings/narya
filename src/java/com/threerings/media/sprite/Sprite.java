@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.30 2001/10/26 01:17:21 shaper Exp $
+// $Id: Sprite.java,v 1.31 2001/11/02 01:09:08 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -288,8 +288,8 @@ public class Sprite
     public void setFrames (MultiFrameImage frames)
     {
         if (frames == null) {
-            Log.warning("Someone set up us the null frames! " +
-                        "[sprite=" + this + "].");
+            // Log.warning("Someone set up us the null frames! " +
+            // "[sprite=" + this + "].");
             return;
         }
 
@@ -387,8 +387,8 @@ public class Sprite
             _spritemgr.addDirtyRect((r != null) ? r : new Rectangle(_bounds));
 
         } else {
-            Log.warning("Was invalidated but have no sprite manager " +
-                        this + ".");
+            // Log.warning("Was invalidated but have no sprite manager " +
+            // this + ".");
         }
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.5 2001/10/25 22:10:32 mdb Exp $
+// $Id: ImageManager.java,v 1.6 2001/11/02 01:08:52 shaper Exp $
 
 package com.threerings.media;
 
@@ -47,11 +47,11 @@ public class ImageManager
 
 	Image img = (Image)_imgs.get(fname);
 	if (img != null) {
-	    Log.info("Retrieved image from cache [fname=" + fname + "].");
+	    // Log.info("Retrieved image from cache [fname=" + fname + "].");
 	    return img;
 	}
 
-	Log.info("Loading image into cache [fname=" + fname + "].");
+	// Log.info("Loading image into cache [fname=" + fname + "].");
 
 	try {
 	    byte[] data = _rmgr.getResourceAsBytes(fname);
