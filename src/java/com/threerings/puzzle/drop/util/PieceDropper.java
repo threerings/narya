@@ -1,5 +1,5 @@
 //
-// $Id: PieceDropper.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: PieceDropper.java,v 1.2 2003/12/16 03:45:31 mdb Exp $
 
 package com.threerings.puzzle.drop.util;
 
@@ -133,16 +133,29 @@ public class PieceDropper
 	}
 
 	if (_logic.isConstrainedPiece(piece)) {
-	    // get the distance to drop the block
-	    int dist = getBlockDropDistance(board, x, y);
+            // find out where this constrained block starts and ends
+            int start = _logic.getConstrainedEdge(board, x, y, LEFT);
+            int end = _logic.getConstrainedEdge(board, x, y, RIGHT);
+            int bwid = board.getWidth();
+            if (start < 0 || end >= bwid) {
+                Log.warning("Board reported bogus constrained edge " +
+                            "[x=" + x + ", y=" + y +
+                            ", start=" + start + ", end=" + end + "].");
+                board.dump();
+                start = Math.max(start, 0);
+                end = Math.min(end, bwid);
+            }
+
+            // get the smallest drop distance across all of the block columns
+            int dist = board.getHeight() - 1;
+            for (int xpos = start; xpos <= end; xpos++) {
+                dist = Math.min(dist, board.getDropDistance(xpos, y));
+            }
 	    if (dist == 0) {
 		return;
 	    }
 
 	    // scoot along the bottom edge of the block dropping each column
-            int bwid = board.getWidth();
-            int start = _logic.getConstrainedEdge(board, x, y, LEFT);
-            int end = _logic.getConstrainedEdge(board, x, y, RIGHT);
             for (int xpos = start; xpos <= end; xpos++) {
 		addDropInfo(board, drops, true, xpos, y, dist);
 	    }
@@ -283,29 +296,6 @@ public class PieceDropper
         }
         // place the pieces in their destination positions
 	applyPieces(board, pdi);
-    }
-
-    /**
-     * Returns the number of spaces the block whose bottom edge
-     * contains the specified coordinate can be dropped based on the
-     * contents of the given board.  The droppable distance for a
-     * block is determined by finding the minimum drop distance across
-     * all columns the block spans.
-     */
-    protected int getBlockDropDistance (DropBoard board, int x, int y)
-    {
-	// get the smallest drop distance across all of the block columns
-        int bwid = board.getWidth();
-        int start = Math.max(_logic.getConstrainedEdge(board, x, y, LEFT), 0);
-        int end = Math.min(
-            _logic.getConstrainedEdge(board, x, y, RIGHT), bwid - 1);
-	int dist = board.getHeight() - 1;
-
-        for (int xpos = start; xpos <= end; xpos++) {
-	    dist = Math.min(dist, board.getDropDistance(xpos, y));
-	}
-
-	return dist;
     }
 
     /**
