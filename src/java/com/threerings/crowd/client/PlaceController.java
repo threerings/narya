@@ -1,5 +1,5 @@
 //
-// $Id: PlaceController.java,v 1.7 2002/02/14 00:00:45 mdb Exp $
+// $Id: PlaceController.java,v 1.8 2002/03/21 00:55:10 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -17,8 +17,7 @@ import com.threerings.crowd.util.CrowdContext;
  * constructed and requested to create and display the appopriate user
  * interface for that place.
  */
-public abstract class PlaceController
-     extends Controller
+public abstract class PlaceController extends Controller
 {
     /**
      * Initializes this place controller with a reference to the context
@@ -88,6 +87,9 @@ public abstract class PlaceController
      */
     public void willEnterPlace (final PlaceObject plobj)
     {
+        // keep a handle on our place object
+        _plobj = plobj;
+
         if (_view != null ) {
             // let the UI hierarchy know that we've got our place
             PlaceViewUtil.dispatchWillEnterPlace(_view, plobj);
@@ -142,7 +144,8 @@ public abstract class PlaceController
             }
         });
 
-        return handled[0];
+        // if they didn't handly it, pass it off to the super class
+        return handled[0] ? true : super.handleAction(action);
     }
 
     /**
