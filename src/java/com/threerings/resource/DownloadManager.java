@@ -1,5 +1,5 @@
 //
-// $Id: DownloadManager.java,v 1.6 2003/01/16 22:50:29 mdb Exp $
+// $Id: DownloadManager.java,v 1.7 2003/05/27 07:51:49 mdb Exp $
 
 package com.threerings.resource;
 
@@ -59,6 +59,18 @@ public class DownloadManager
          * determined.
          */
         public void downloadProgress (int percent, long remaining);
+
+        /**
+         * Called after the download has completed on the download manager
+         * thread, immediately after reporting download progress of 100%.
+         */
+        public void postDownloadHook ();
+
+        /**
+         * Called on the preferred notification thread after the download
+         * is complete and the post-download hook has run to completion.
+         */
+        public void downloadComplete ();
 
         /**
          * Called if a failure occurs while checking for an update or
@@ -295,6 +307,27 @@ public class DownloadManager
             });
         } else {
             obs.downloadProgress(progress, remaining);
+        }
+
+        if (progress == 100) {
+            // if we're at 100%, run the post-download hook
+            try {
+                obs.postDownloadHook();
+            } catch (Exception e) {
+                Log.warning("Observer choked in post-download hook.");
+                Log.logStackTrace(e);
+            }
+
+            // notify of total and final download completion
+            if (obs.notifyOnAWTThread()) {
+                EventQueue.invokeLater(new Runnable() {
+                    public void run () {
+                        obs.downloadComplete();
+                    }
+                });
+            } else {
+                obs.downloadComplete();
+            }
         }
     }
 
