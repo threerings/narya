@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.39 2003/01/13 22:53:04 mdb Exp $
+// $Id: CharacterSprite.java,v 1.40 2003/01/13 23:54:19 mdb Exp $
 
 package com.threerings.cast;
 
@@ -180,6 +180,9 @@ public class CharacterSprite extends ImageSprite
     // documentation inherited
     public void paint (Graphics2D gfx)
     {
+        // attempt to composite our action frames if necessary
+        compositeActionFrames();
+
         if (_frames != null) {
             decorateBehind(gfx);
             // paint the image using _ibounds rather than _bounds which
@@ -197,7 +200,7 @@ public class CharacterSprite extends ImageSprite
      * their frames. This is called lazily after we have been instructed
      * to use a new action.
      */
-    protected void compositeActionFrames ()
+    protected final void compositeActionFrames ()
     {
         if (_frames == null) {
             setFrames(_aframes.getFrames(_orient));
