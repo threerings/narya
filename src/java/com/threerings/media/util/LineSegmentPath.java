@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.24 2002/06/12 23:33:03 ray Exp $
+// $Id: LineSegmentPath.java,v 1.25 2002/06/18 22:25:33 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -154,18 +154,6 @@ public class LineSegmentPath
 
         // set the velocity accordingly
         setVelocity(distance/millis);
-    }
-
-    // documentation inherited from interface
-    public void viewWillScroll (int dx, int dy)
-    {
-        // adjust the coordinates of our path nodes
-        int ncount = _nodes.size();
-        for (int ii = 0; ii < ncount; ii++) {
-            PathNode node = (PathNode)_nodes.get(ii);
-            node.loc.x -= dx;
-            node.loc.y -= dy;
-        }
     }
 
     // documentation inherited

@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.10 2002/06/11 00:52:37 mdb Exp $
+// $Id: FrameManager.java,v 1.11 2002/06/18 22:25:33 mdb Exp $
 
 package com.threerings.media;
 
@@ -511,8 +511,12 @@ public class FrameManager
             }
 
             try {
-                // render this participant
-                _g.setClip(_bounds);
+                // render this participant; we don't set the clip because
+                // frame participants are expected to handle clipping
+                // themselves; otherwise we might pointlessly set the clip
+                // here, creating a few Rectangle objects in the process,
+                // only to have the frame participant immediately set the
+                // clip to something more sensible
                 _g.translate(_bounds.x, _bounds.y);
                 pcomp.paint(_g);
                 _g.translate(-_bounds.x, -_bounds.y);

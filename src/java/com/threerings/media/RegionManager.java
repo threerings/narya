@@ -1,5 +1,5 @@
 //
-// $Id: RegionManager.java,v 1.2 2002/06/11 00:52:37 mdb Exp $
+// $Id: RegionManager.java,v 1.3 2002/06/18 22:25:33 mdb Exp $
 
 package com.threerings.media;
 
@@ -7,6 +7,8 @@ import java.awt.Rectangle;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.samskivert.util.StringUtil;
 
 /**
  * Manages regions (rectangles) that are invalidated in the process of
@@ -20,7 +22,9 @@ public class RegionManager
      */
     public void invalidateRegion (int x, int y, int width, int height)
     {
-        _dirty.add(new Rectangle(x, y, width, height));
+        if (width != 0 && height != 0) {
+            addDirtyRegion(new Rectangle(x, y, width, height));
+        }
     }
 
     /**
@@ -30,7 +34,9 @@ public class RegionManager
      */
     public void invalidateRegion (Rectangle rect)
     {
-        _dirty.add((Rectangle)rect.clone());
+        if (rect.width != 0 && rect.height != 0) {
+            addDirtyRegion((Rectangle)rect.clone());
+        }
     }
 
     /**
@@ -41,7 +47,10 @@ public class RegionManager
      */
     public void addDirtyRegion (Rectangle rect)
     {
-        _dirty.add(rect);
+        if (rect.width != 0 && rect.height != 0) {
+//             Log.info("Invalidating " + StringUtil.toString(rect));
+            _dirty.add(rect);
+        }
     }
 
     /**

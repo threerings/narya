@@ -1,5 +1,5 @@
 //
-// $Id: Path.java,v 1.7 2002/05/31 03:38:03 mdb Exp $
+// $Id: Path.java,v 1.8 2002/06/18 22:25:33 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -47,13 +47,6 @@ public interface Path
      * illusion of flowing smoothly forward.
      */
     public void fastForward (long timeDelta);
-
-    /**
-     * Called when the view that contains the pathable following this path
-     * is scrolling by the specified amount. Gives the path an opportunity
-     * to adjust its internal coordinates by the scrolled amount.
-     */
-    public void viewWillScroll (int dx, int dy);
 
     /**
      * Paint this path on the screen (used for debugging purposes only).

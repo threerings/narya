@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.46 2002/06/11 05:56:44 mdb Exp $
+// $Id: Sprite.java,v 1.47 2002/06/18 22:25:33 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -42,25 +42,6 @@ public abstract class Sprite
     {
         _x = x;
         _y = y;
-    }
-
-    /**
-     * Returns true if this sprite should scroll along with the view or
-     * false if it should remain fixed relative to the view when it
-     * scrolls.
-     */
-    public boolean scrollsWithView ()
-    {
-        return _scrollsWithView;
-    }
-
-    /**
-     * Specifies whether this sprite scrolls when the view scrolls or
-     * remains fixed relative to the view.
-     */
-    public void setScrollsWithView (boolean scrollsWithView)
-    {
-        _scrollsWithView = scrollsWithView;
     }
 
     /**
@@ -182,8 +163,8 @@ public abstract class Sprite
      */
     public void setLocation (int x, int y)
     {
-        // dirty our current bounds
-        invalidate();
+        // start with our current bounds
+        Rectangle dirty = new Rectangle(_bounds);
 
         // move ourselves
         _x = x;
@@ -193,8 +174,19 @@ public abstract class Sprite
         // size of our current bounds
         updateRenderOrigin();
 
-        // dirty our new bounds
-        invalidate();
+        // grow the dirty rectangle to incorporate our new bounds and pass
+        // the dirty region to our region manager
+        if (_spritemgr != null) {
+            // if our new bounds intersect our old bounds, grow a single
+            // dirty rectangle to incorporate them both
+            if (_bounds.intersects(dirty)) {
+                dirty.add(_bounds);
+            } else {
+                // otherwise invalidate our new bounds separately
+                _spritemgr.getRegionManager().invalidateRegion(_bounds);
+            }
+            _spritemgr.getRegionManager().addDirtyRegion(dirty);
+        }
     }
 
     /**
@@ -406,47 +398,6 @@ public abstract class Sprite
     }
 
     /**
-     * Called by the sprite manager to let us know that the view we occupy
-     * is scrolling by the specified amount. A sprite anchored to the view
-     * will simply update its coordinates; a fixed sprite will remain in
-     * the same position but invalidate its bounds and its scrolled
-     * bounds.
-     */
-    protected void viewWillScroll (int dx, int dy)
-    {
-        if (_scrollsWithView) {
-            // update our coordinates
-            _x -= dx;
-            _y -= dy;
-            _bounds.x -= dx;
-            _bounds.y -= dy;
-
-            // and let any path that we're following know what's up
-            if (_path != null) {
-                _path.viewWillScroll(dx, dy);
-            }
-
-        } else {
-            // if we're not scrolling, we need to dirty our bounds and the
-            // part that was just scrolled out from under us
-            Rectangle dirty = new Rectangle(_bounds);
-
-            // expand the rectangle to contain the scrolled regions
-            int ex = dirty.x - dx, ey = dirty.y - dy;
-            if (dx < 0) {
-                ex += dirty.width;
-            }
-            if (dy < 0) {
-                ey += dirty.height;
-            }
-            dirty.add(ex, ey);
-
-            // give the dirty rectangle to the region manager
-            _spritemgr.getRegionManager().addDirtyRegion(dirty);
-        }
-    }
-
-    /**
      * Inform all sprite observers of a sprite event.
      *
      * @param event the sprite event.
@@ -496,11 +447,6 @@ public abstract class Sprite
 
     /** The orientation of this sprite. */
     protected int _orient = NONE;
-
-    /** True if we should move along with the view when it scrolls, false
-     * if we should remain fixed relative to the viewport. We are fixed by
-     * default. */
-    protected boolean _scrollsWithView = false;
 
     /** When moving, the path the sprite is traversing. */
     protected Path _path;

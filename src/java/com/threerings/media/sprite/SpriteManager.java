@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.30 2002/04/25 16:23:31 mdb Exp $
+// $Id: SpriteManager.java,v 1.31 2002/06/18 22:25:33 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -36,23 +36,6 @@ public class SpriteManager
         _sprites = new SortableArrayList();
 	_notify = new ArrayList();
         _remgr = remgr;
-    }
-
-    /**
-     * Lets the sprite manager know that the view is about to scroll by
-     * the specified offsets. It can update the positions of its sprites
-     * if they are tracking the scrolled view, or generate dirty regions
-     * for the sprites that remain in place (meaning they move relative to
-     * the scrolling view).
-     */
-    public void viewWillScroll (int dx, int dy)
-    {
-        // let the sprites know that the view is scrolling
-        int size = _sprites.size();
-        for (int i = 0; i < size; i++) {
-            Sprite sprite = (Sprite)_sprites.get(i);
-            sprite.viewWillScroll(dx, dy);
-        }
     }
 
     /**

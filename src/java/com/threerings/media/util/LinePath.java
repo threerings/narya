@@ -1,5 +1,5 @@
 //
-// $Id: LinePath.java,v 1.8 2002/06/12 01:11:55 mdb Exp $
+// $Id: LinePath.java,v 1.9 2002/06/18 22:25:33 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -44,28 +44,6 @@ public class LinePath implements Path
         _source = source;
         _dest = dest;
         _duration = duration;
-    }
-
-    /**
-     * Instructs this path to adjust itself when the view scrolls, or not.
-     * If the path scrolls with the view, it will adjust its starting and
-     * ending positions by the amount scrolled by the view so that they
-     * remain fixed relative to the scrolled view. If it doesn't they will
-     * remain the same regardless of whether the view scrolls.
-     */
-    public void setScrollsWithView (boolean scrollsWithView)
-    {
-        _scrollsWithView = scrollsWithView;
-    }
-
-    // documentation inherited from interface
-    public void viewWillScroll (int dx, int dy)
-    {
-        // adjust our source and dest points if we're tracking the view
-        if (_scrollsWithView) {
-            _source.translate(-dx, -dy);
-            _dest.translate(-dx, -dy);
-        }
     }
 
     // documentation inherited
@@ -153,9 +131,4 @@ public class LinePath implements Path
 
     /** The duration that we're to spend following the path. */
     protected long _duration;
-
-    /** Whether or not we scroll along with the view (which we accomplish
-     * by scrolling our start and end positions when the view scrolls) or
-     * if we should leave our coordinates alone. */
-    protected boolean _scrollsWithView = true;
 }
