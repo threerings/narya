@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.43 2002/04/12 00:00:05 mdb Exp $
+// $Id: DObject.java,v 1.44 2002/05/31 20:47:55 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -566,6 +566,15 @@ public class DObject
         }
         _tevent.commit();
     }        
+
+    /**
+     * Returns true if this object is in the middle of a transaction or
+     * false if it is not.
+     */
+    public boolean inTransaction ()
+    {
+        return (_tevent != null);
+    }
 
     /**
      * Cancels the transaction in which this distributed object is
