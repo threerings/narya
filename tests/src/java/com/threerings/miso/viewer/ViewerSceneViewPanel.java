@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.50 2002/06/18 22:38:55 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.51 2002/06/25 01:21:17 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -28,6 +28,7 @@ import com.threerings.media.util.PerformanceObserver;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.DisplayMisoScene;
+import com.threerings.miso.scene.IsoSceneView;
 import com.threerings.miso.scene.IsoSceneViewModel;
 import com.threerings.miso.scene.MisoCharacterSprite;
 import com.threerings.miso.scene.SceneViewPanel;
@@ -54,6 +55,9 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         // create the manipulable sprite
         _sprite = createSprite(_spritemgr, charmgr, _descUser);
         setFollowsPathable(_sprite);
+
+//         // turn on object highlighting
+//         ((IsoSceneView)_view).setHighlightMode(IsoSceneView.HIGHLIGHT_ALWAYS);
 
         // create the decoy sprites
         createDecoys(_spritemgr, charmgr);
@@ -137,10 +141,10 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     }
 
     /** MouseListener interface methods */
-
     public void mousePressed (MouseEvent e)
     {
         int x = e.getX(), y = e.getY();
+
         switch (e.getModifiers()) {
         case MouseEvent.BUTTON1_MASK:
             createPath(_sprite, x, y);
