@@ -1,5 +1,5 @@
 //
-// $Id: DObjectManager.java,v 1.2 2001/06/01 05:17:16 mdb Exp $
+// $Id: DObjectManager.java,v 1.3 2001/06/01 07:12:13 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -67,4 +67,22 @@ public interface DObjectManager
      * @see Subscriber.requestFailed
      */
     public void fetchObject (int oid, Subscriber target);
+
+    /**
+     * Posts a distributed object event into the system. Instead of
+     * requesting the modification of a distributed object attribute by
+     * calling the setter for that attribute on the object itself, an
+     * <code>AttributeChangedEvent</code> can be constructed and posted
+     * directly. This is true for all event types and is useful for
+     * situations where one doesn't have access to the object in question,
+     * but needs to affect some event.
+     *
+     * <p> This event will be forwarded to the ultimate manager of the
+     * object (on the client, this means it will be forwarded to the
+     * server) where it will be checked for validity and then applied to
+     * the object and dispatched to all its subscribers.
+     *
+     * @param event The event to be dispatched.
+     */
+    public void postEvent (DEvent event);
 }
