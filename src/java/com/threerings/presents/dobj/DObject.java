@@ -1,10 +1,12 @@
 //
-// $Id: DObject.java,v 1.10 2001/06/12 02:57:30 mdb Exp $
+// $Id: DObject.java,v 1.11 2001/06/13 05:17:55 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+
+import com.threerings.cocktail.cher.Log;
 
 /**
  * The distributed object forms the foundation of the cocktail system. All
@@ -118,7 +120,13 @@ public class DObject
      */
     public void removeSubscriber (Subscriber sub)
     {
-        _subscribers.remove(sub);
+        if (_subscribers.remove(sub)) {
+            // if we removed something, check to see if we just removed
+            // the last subscriber from our list
+            if (_subscribers.size() == 0) {
+                _mgr.removedLastSubscriber(this);
+            }
+        }
     }
 
     /**
@@ -163,6 +171,9 @@ public class DObject
      */
     public void notifySubscribers (DEvent event)
     {
+        Log.info("Dispatching event to " + _subscribers.size() +
+                 " subscribers: " + event);
+
         for (int i = 0; i < _subscribers.size(); i++) {
             Subscriber sub = (Subscriber)_subscribers.get(i);
             // notify the subscriber
@@ -170,6 +181,12 @@ public class DObject
                 // if they return false, we need to remove them from the
                 // subscriber list
                 _subscribers.remove(i--);
+
+                // if we just removed our last subscriber, we need to let
+                // the omgr know about it
+                if (_subscribers.size() == 0) {
+                    _mgr.removedLastSubscriber(this);
+                }
             }
         }
     }

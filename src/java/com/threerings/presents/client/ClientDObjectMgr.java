@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.2 2001/06/11 17:44:04 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.3 2001/06/13 05:17:54 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -53,9 +53,6 @@ public class ClientDObjectMgr
     public void unsubscribeFromObject (int oid, Subscriber target)
     {
         queueAction(oid, target, false);
-
-        // forward an unsubscribe request to the server
-        _comm.postMessage(new UnsubscribeRequest(oid));
     }
 
     protected void queueAction (int oid, Subscriber target, boolean subscribe)
@@ -76,6 +73,17 @@ public class ClientDObjectMgr
 
         // send a forward event request to the server
         _comm.postMessage(new ForwardEventRequest(tevent));
+    }
+
+    // inherit documentation from the interface
+    public void removedLastSubscriber (DObject obj)
+    {
+        // if object has no subscribers, we no longer need to proxy it;
+        // first remove it from the object table
+        _ocache.remove(obj.getOid());
+
+        // then ship off an unsubscribe message to the server
+        _comm.postMessage(new UnsubscribeRequest(obj.getOid()));
     }
 
     /**
@@ -141,6 +149,9 @@ public class ClientDObjectMgr
                      "object [event=" + event + "].");
             return;
         }
+
+        // have the object pass this event on to its subscribers
+        target.notifySubscribers(event);
     }
 
     /**
@@ -165,6 +176,9 @@ public class ClientDObjectMgr
 
         for (int i = 0; i < req.targets.size(); i++) {
             Subscriber target = (Subscriber)req.targets.get(i);
+            // add them as a subscriber
+            obj.addSubscriber(target);
+            // and let them know that the object is in
             target.objectAvailable(obj);
         }
     }

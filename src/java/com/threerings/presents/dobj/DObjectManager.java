@@ -1,5 +1,5 @@
 //
-// $Id: DObjectManager.java,v 1.5 2001/06/09 23:39:04 mdb Exp $
+// $Id: DObjectManager.java,v 1.6 2001/06/13 05:17:55 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -76,4 +76,12 @@ public interface DObjectManager
      * @param event The event to be dispatched.
      */
     public void postEvent (DEvent event);
+
+    /**
+     * When a distributed object removes its last subscriber, it will call
+     * this function to let the object manager know. The manager might
+     * then choose to flush this object from the system or unregister from
+     * some upstream manager whose object it was proxying, for example.
+     */
+    public void removedLastSubscriber (DObject obj);
 }

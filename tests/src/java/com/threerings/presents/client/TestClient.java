@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.3 2001/06/09 23:39:03 mdb Exp $
+// $Id: TestClient.java,v 1.4 2001/06/13 05:17:55 mdb Exp $
 
 package com.threerings.cocktail.cher.client.test;
 
@@ -79,7 +79,10 @@ public class TestClient
     public boolean handleEvent (DEvent event, DObject target)
     {
         Log.info("Got event [event=" + event + ", target=" + target + "].");
-        return true;
+        // dispatch a second event
+        ((TestObject)target).setBar("rofl!");
+        // unsubscribe to the object to make sure we don't get the event
+        return false;
     }
 
     public static void main (String[] args)

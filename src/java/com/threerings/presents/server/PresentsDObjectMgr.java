@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.5 2001/06/09 23:39:04 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.6 2001/06/13 05:17:55 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -66,6 +66,12 @@ public class CherDObjectMgr implements DObjectManager
     {
         // just append it to the queue
         _evqueue.append(event);
+    }
+
+    // inherit documentation from the interface
+    public void removedLastSubscriber (DObject obj)
+    {
+        // nothing to do here, our objects live forever!
     }
 
     /**
