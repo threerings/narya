@@ -1,8 +1,9 @@
 //
-// $Id: DirtyItemList.java,v 1.9 2002/01/31 01:04:54 mdb Exp $
+// $Id: DirtyItemList.java,v 1.10 2002/02/06 23:14:56 mdb Exp $
 
 package com.threerings.miso.scene;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -32,7 +33,7 @@ public class DirtyItemList
     public void appendDirtySprite (
         MisoCharacterSprite sprite, int x, int y, Rectangle dirtyRect)
     {
-        _items.add(new DirtyItem(sprite, null, x, y, dirtyRect));
+        _items.add(new DirtyItem(sprite, null, null, x, y, dirtyRect));
     }
 
     /**
@@ -40,9 +41,10 @@ public class DirtyItemList
      * dirty item list.
      */
     public void appendDirtyObject (
-        ObjectTile tile, Shape bounds, int x, int y, Rectangle dirtyRect)
+        ObjectTile tile, Shape bounds, Shape footprint,
+        int x, int y, Rectangle dirtyRect)
     {
-        _items.add(new DirtyItem(tile, bounds, x, y, dirtyRect));
+        _items.add(new DirtyItem(tile, bounds, footprint, x, y, dirtyRect));
     }
 
     /**
@@ -160,6 +162,10 @@ public class DirtyItemList
         /** The bounds of the dirty item if it's an object tile. */
         public Shape bounds;
 
+        /** The footprint of the dirty item if it's an object tile and
+         * we're drawing footprints. */
+        public Shape footprint;
+
         /** The origin tile coordinates. */
         public int ox, oy;
 
@@ -175,11 +181,12 @@ public class DirtyItemList
         /**
          * Constructs a dirty item.
          */
-        public DirtyItem (
-            Object obj, Shape bounds, int x, int y, Rectangle dirtyRect)
+        public DirtyItem (Object obj, Shape bounds, Shape footprint,
+                          int x, int y, Rectangle dirtyRect)
         {
             this.obj = obj;
             this.bounds = bounds;
+            this.footprint = footprint;
             this.ox = x;
             this.oy = y;
             this.dirtyRect = dirtyRect;
@@ -207,6 +214,12 @@ public class DirtyItemList
 
             // clip the draw region to the dirty portion of the item
             gfx.clip(clip);
+
+            // if there's a footprint, paint that
+            if (footprint != null) {
+                gfx.setColor(Color.black);
+                gfx.draw(footprint);
+            }
 
             // paint the item
             if (obj instanceof Sprite) {

@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.90 2002/02/06 17:13:06 mdb Exp $
+// $Id: IsoSceneView.java,v 1.91 2002/02/06 23:14:56 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -648,16 +648,24 @@ public class IsoSceneView implements SceneView
                 // get the object's coordinates and bounding polygon
                 int coord = ((Integer)iter.next()).intValue();
                 Polygon poly = (Polygon)_objpolys.get(coord);
-
-                if (poly.intersects(r)) {
-                    // get the dirty portion of the object
-                    Rectangle drect = poly.getBounds().intersection(r);
-                    int tx = coord >> 16, ty = coord & 0x0000FFFF;
-                    _dirtyItems.appendDirtyObject(
-                        tiles.getTile(tx, ty), poly, tx, ty, drect);
-                    // Log.info("Dirtied item: Object(" + tx + ", " +
-                    // ty + ")");
+                if (!poly.intersects(r)) {
+                    continue;
                 }
+
+                // get the dirty portion of the object
+                Rectangle drect = poly.getBounds().intersection(r);
+                int tx = coord >> 16, ty = coord & 0x0000FFFF;
+                ObjectTile tile = tiles.getTile(tx, ty);
+
+                // compute the footprint if we're rendering those
+                Polygon foot = null;
+                if (_renderObjectFootprints) {
+                    foot = IsoUtil.getObjectFootprint(
+                        _model, _polys[tx][ty], tile);
+                }
+
+                _dirtyItems.appendDirtyObject(tile, poly, foot, tx, ty, drect);
+                // Log.info("Dirtied item: Object(" + tx + ", " + ty + ")");
             }
         }
     }
@@ -791,7 +799,7 @@ public class IsoSceneView implements SceneView
             }
 
             // we've passed the test, add the object to the list
-            list.appendDirtyObject(tile, poly, tx, ty, pbounds);
+            list.appendDirtyObject(tile, poly, null, tx, ty, pbounds);
         }
     }
 
@@ -900,6 +908,9 @@ public class IsoSceneView implements SceneView
 
     /** The object that the mouse is currently hovering over. */
     protected Object _hobject;
+
+    /** If true, object footprints are rendered when rendering objects. */
+    protected boolean _renderObjectFootprints;
 
     /** The stroke object used to draw highlighted tiles and coordinates. */
     protected BasicStroke _hstroke = new BasicStroke(2);
