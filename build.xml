@@ -166,6 +166,8 @@
     </jar>
     <jar destfile="${deploy.dir}/${app.name}-parlor.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/parlor/**"/>
+    </jar>
+    <jar destfile="${deploy.dir}/${app.name}-puzzle.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/puzzle/**"/>
     </jar>
     <jar destfile="${deploy.dir}/${app.name}-micasa.jar">
