@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.36 2003/08/13 21:05:28 mdb Exp $
+// $Id: PresentsServer.java,v 1.37 2003/08/13 21:38:37 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -203,10 +203,11 @@ public class PresentsServer
         }
 
         report.append("* samskivert.IntervalManager:");
-        report.append("- Registered intervals: " +
-                      IntervalManager.registeredIntervalCount());
-        report.append("- Fired since last report: " +
-                      IntervalManager.getAndClearFiredIntervals());
+        report.append("- Registered intervals: ");
+        report.append(IntervalManager.registeredIntervalCount());
+        report.append("\n- Fired since last report: ");
+        report.append(IntervalManager.getAndClearFiredIntervals());
+        report.append("\n");
 
         // strip off the final newline
         int blen = report.length();
