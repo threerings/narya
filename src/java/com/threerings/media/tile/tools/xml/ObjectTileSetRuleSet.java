@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSetRuleSet.java,v 1.1 2001/11/29 21:58:15 mdb Exp $
+// $Id: ObjectTileSetRuleSet.java,v 1.2 2001/11/29 22:10:28 mdb Exp $
 
 package com.threerings.media.tools.tile.xml;
 
@@ -39,7 +39,7 @@ import com.threerings.media.tile.ObjectTileSet;
  * &lt;/tileset&gt;
  * </pre>
  */
-public class ObjectTileSetRuleSet extends TileSetRuleSet
+public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
 {
     // documentation inherited
     public void addRuleInstances (Digester digester)
