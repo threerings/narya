@@ -1,10 +1,10 @@
 //
-// $Id: AIGameTicker.java,v 1.1 2002/04/19 18:33:32 ray Exp $
+// $Id: AIGameTicker.java,v 1.2 2002/04/19 21:33:21 ray Exp $
 
 package com.threerings.parlor.game;
 
 import java.util.Iterator;
-import java.util.ArrayList;
+import java.util.HashSet;
 
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
@@ -42,7 +42,7 @@ public class AIGameTicker implements Interval, Runnable
      */
     private AIGameTicker ()
     {
-        _games = new ArrayList();
+        _games = new HashSet();
 
         _id = IntervalManager.register(this, TICK_FREQUENCY, null, true);
     }
@@ -64,8 +64,8 @@ public class AIGameTicker implements Interval, Runnable
     {
         _games.remove(mgr);
 
-        // if there aren't any AIs, let's 
-        if (_games.size() == 0) {
+        // if there aren't any AIs, let's stop running
+        if (_games.isEmpty()) {
             _ticker = null;
             IntervalManager.remove(_id);
         }
@@ -88,8 +88,8 @@ public class AIGameTicker implements Interval, Runnable
         }
     }
 
-    /** Our list of ai games. */
-    protected ArrayList _games;
+    /** Our set of ai games. */
+    protected HashSet _games;
 
     /** Our interval id. */
     protected int _id;
