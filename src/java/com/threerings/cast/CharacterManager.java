@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.8 2001/11/02 01:10:28 shaper Exp $
+// $Id: CharacterManager.java,v 1.9 2001/11/02 15:28:20 shaper Exp $
 
 package com.threerings.cast;
 
@@ -7,10 +7,11 @@ import java.util.*;
 
 import com.samskivert.util.CollectionUtil;
 
-import com.threerings.cast.Log;
-
 import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.sprite.Sprite;
+
+import com.threerings.cast.Log;
+import com.threerings.cast.util.TileUtil;
 
 /**
  * The character manager provides facilities for constructing sprites

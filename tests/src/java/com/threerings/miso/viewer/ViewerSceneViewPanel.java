@@ -1,19 +1,18 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.28 2001/11/02 03:09:10 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.29 2001/11/02 15:28:20 shaper Exp $
 
 package com.threerings.miso.viewer;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import javax.swing.JPanel;
 
-import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.Config;
 
-import com.threerings.cast.*;
+import com.threerings.cast.CharacterDescriptor;
+import com.threerings.cast.CharacterManager;
+import com.threerings.cast.util.CastUtil;
 
 import com.threerings.media.ImageManager;
 import com.threerings.media.sprite.*;
@@ -52,8 +51,8 @@ public class ViewerSceneViewPanel extends SceneViewPanel
             ctx.getConfig(), ctx.getImageManager());
 
         // create the character descriptors
-        _descUser = createCharacterDescriptor(charmgr);
-        _descDecoy = createCharacterDescriptor(charmgr);
+        _descUser = CastUtil.getRandomDescriptor(charmgr);
+        _descDecoy = CastUtil.getRandomDescriptor(charmgr);
 
         // create the manipulable sprite
         _sprite = createSprite(spritemgr, charmgr, _descUser);
@@ -184,37 +183,6 @@ public class ViewerSceneViewPanel extends SceneViewPanel
             x = RandomUtil.getInt(d.width);
             y = RandomUtil.getInt(d.height);
         } while (!createPath(s, x, y));
-    }
-
-    /**
-     * Returns a new {@link CharacterDescriptor} suitable for use in
-     * creating character sprites via {@link
-     * CharacterManager#getCharacter}.
-     */
-    protected CharacterDescriptor
-        createCharacterDescriptor (CharacterManager charmgr)
-    {
-        // get all available classes
-        ArrayList classes = new ArrayList();
-        CollectionUtil.addAll(classes, charmgr.enumerateComponentClasses());
-
-        // select the components
-        int size = classes.size();
-        int components[] = new int[size];
-        for (int ii = 0; ii < size; ii++) {
-            ComponentClass cclass = (ComponentClass)classes.get(ii);
-
-            // get the components available for this class
-            ArrayList choices = new ArrayList();
-            Iterator iter = charmgr.enumerateComponentsByClass(cclass.clid);
-            CollectionUtil.addAll(choices, iter);
-
-            // choose a random component
-            int idx = RandomUtil.getInt(choices.size());
-            components[cclass.clid] = ((Integer)choices.get(idx)).intValue();
-        }
-
-        return new CharacterDescriptor(components);
     }
 
     // documentation inherited

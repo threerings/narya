@@ -1,5 +1,5 @@
 //
-// $Id: XMLComponentRepository.java,v 1.4 2001/11/02 02:52:16 shaper Exp $
+// $Id: XMLComponentRepository.java,v 1.5 2001/11/02 15:28:20 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -12,6 +12,7 @@ import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Tuple;
 
 import com.threerings.cast.*;
+import com.threerings.cast.util.TileUtil;
 
 import com.threerings.media.ImageManager;
 import com.threerings.media.tile.TileManager;
