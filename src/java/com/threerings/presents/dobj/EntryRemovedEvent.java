@@ -1,5 +1,5 @@
 //
-// $Id: EntryRemovedEvent.java,v 1.15 2003/04/30 22:32:04 mdb Exp $
+// $Id: EntryRemovedEvent.java,v 1.16 2003/07/11 01:21:43 ray Exp $
 
 package com.threerings.presents.dobj;
 
@@ -88,6 +88,6 @@ public class EntryRemovedEvent extends NamedEvent
         buf.append(", key=").append(_key);
     }
 
-    protected Object _key;
+    protected Comparable _key;
     protected transient DSet.Entry _oldEntry = UNSET_OLD_ENTRY;
 }
