@@ -1,12 +1,11 @@
 //
-// $Id: ResourceManager.java,v 1.6 2001/11/27 08:09:35 mdb Exp $
+// $Id: ResourceManager.java,v 1.7 2002/01/16 03:00:06 mdb Exp $
 
 package com.threerings.resource;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -19,7 +18,8 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import com.samskivert.Log;
+import org.apache.commons.util.StreamUtils;
+import com.samskivert.util.StringUtil;
 
 /**
  * The resource manager is responsible for maintaining a repository of
@@ -36,26 +36,26 @@ import com.samskivert.Log;
  * locate a resource in the default resource set, it falls back to loading
  * the resource via the classloader (which will search the classpath).
  *
- * <p> The resource manager can be provided with config properties at
- * construct time, or it can load them via {@link #getResource} with a
- * path of <code>config/resource/manager.properties</code>. The config
- * properties should contain resource set definitions for the default
- * resource set and for any named resource sets needed by the application.
- * An example configuration follows:
+ * <p> The resource manager must be provided with the URL of a resource
+ * definition file which describes these resource sets at construct
+ * time. The definition file will be loaded and the resource bundles
+ * defined within will be loaded relative to the resource definition URL.
+ * The bundles will be cached in the user's home directory and only
+ * reloaded when the source resources have been updated. The resource
+ * definition file looks something like the following:
  *
  * <pre>
- * resource.set.default = rsrc/sets/misc
- * resource.set.tiles = rsrc/sets/tiles:/global/resources/tiles: \
- *                      /home/mdb/test_tiles.jar
- * resource.set.sounds = rsrc/sets/sounds:/global/resources/sounds
+ * resource.set.default = sets/misc/config.jar: \
+ *                        sets/misc/icons.jar
+ * resource.set.tiles = sets/tiles/ground.jar: \
+ *                      sets/tiles/objects.jar: \
+ *                      /global/resources/tiles/ground.jar: \
+ *                      /global/resources/tiles/objects.jar
+ * resource.set.sounds = sets/sounds/sfx.jar: \
+ *                       sets/sounds/music.jar: \
+ *                       /global/resources/sounds/sfx.jar: \
+ *                       /global/resources/sounds/music.jar
  * </pre>
- *
- * Platform-specific file and path separators should be used in the
- * resource set definitions as these are actual file paths. If a path
- * component starts with a file separator, it will be interpreted as an
- * absolute path, whereas if it doesn't, it will be interpreted as
- * relative to the application root that was supplied to the resource
- * manager at construct time.
  *
  * <p> All resource set definitions are prefixed with
  * <code>resource.set.</code> and all text following that string is
@@ -63,50 +63,35 @@ import com.samskivert.Log;
  * <code>default</code> is the default resource set and is the one that is
  * searched for resources is a call to {@link #getResource}.
  *
- * <p> Resource set definitions can contain directories or individual jar
- * files, the latter are simply added to the resource set; for the former,
- * all jar files in the specified directory (but not its subdirectories)
- * are added to the set. When a resource is loaded from a resource set,
- * the set is searched in the order that entries are specified in the
- * definition (the left-most entry first, and so on). Jar files in a
- * directory are added to the set (and thus, searched) in alphabetical
- * order.
+ * <p> When a resource is loaded from a resource set, the set is searched
+ * in the order that entries are specified in the definition.
  */
 public class ResourceManager
 {
     /**
-     * Constructs a resource manager with the supplied application and
-     * resource roots. The resource manager configuration is loaded via
-     * the resource root (see class documentation for details).
+     * Constructs a resource manager which will load resources as
+     * specified in the configuration file, the path to which is supplied
+     * via <code>configPath</code>. If resource sets are not needed and
+     * resources will only be loaded via the classpath, null may be passed
+     * in <code>resourceURL</code> and <code>configPath</code>.
      *
-     * @param appRoot the path to the application root directory. This is
-     * a platform dependent path and should contain separator characters
-     * proper to the host platform. If null, this will be obtained via the
-     * <code>application.root</code> system property.
      * @param resourceRoot the path to prepend to resource paths prior to
-     * attempting to load them via the classloader. This is not a platform
-     * dependent path.
-     */
-    public ResourceManager (String appRoot, String resourceRoot)
-    {
-        this(appRoot, resourceRoot, null);
-    }
-
-    /**
-     * Constructs a resource manager with the supplied application and
-     * resource roots.
-     *
-     * @param appRoot the path to the application root directory. This is
-     * a platform dependent path and should contain separator characters
-     * proper to the host platform.
-     * @param resourceRoot the path to prepend to resource paths prior to
-     * attempting to load them via the classloader. This is not a platform
-     * dependent path.
-     * @param config the configuration for this resource manager. See
-     * class documentation for a description of the config properties.
+     * attempting to load them via the classloader. When resources are
+     * bundled into the default resource bundle, they don't need this
+     * prefix, but if they're to be loaded from the classpath, it's likely
+     * that they'll live in some sort of <code>resources</code> directory
+     * to isolate them from the rest of the files in the classpath. This
+     * is not a platform dependent path (forward slash is always used to
+     * separate path elements).
+     * @param resourceURL the base URL from which resources are loaded.
+     * Relative paths specified in the resource definition file will be
+     * loaded relative to this path. If this is null, the system property
+     * <code>resource_url</code> will be used, if available.
+     * @param configPath the path (relative to the resource URL) of the
+     * resource definition file.
      */
     public ResourceManager (
-        String appRoot, String resourceRoot, Properties config)
+        String resourceRoot, String resourceURL, String configPath)
     {
         // keep track of our root path
         _rootPath = resourceRoot;
@@ -118,50 +103,43 @@ public class ResourceManager
             _rootPath = _rootPath + "/";
         }
 
-        // get our app root if we weren't provided with one
-        if (appRoot == null) {
-            try {
-                appRoot = System.getProperty(APP_ROOT_PROPERTY);
-            } catch (SecurityException se) {
-                // we may be running in an applet, so we'll calmly ignore
-                // this little freakout
-            }
-
-            // if it's still null, we complain loudly
-            if (appRoot == null) {
-                Log.warning("No application root provided to resource " +
-                            "manager. Assuming current working directory.");
-                appRoot = "";
-            }
-        }
-
-        // make the app root end with a file separator (unless we're
-        // rolling with an empty app root)
-        if ((appRoot.length() > 0) && !appRoot.endsWith(File.separator)) {
-            appRoot = appRoot + File.separator;
-        }
-
         // use the classloader that loaded us
         _loader = getClass().getClassLoader();
 
-        // load up our configuration if it wasn't supplied by the caller
-        try {
-            if (config == null) {
-                config = new Properties();
-                config.load(getResource(CONFIG_PATH));
+        // if the resource URL wasn't provided, we try to figure it out
+        // for ourselves
+        if (resourceURL == null) {
+            try {
+                // first look for the explicit system property
+                resourceURL = System.getProperty("resource_url");
+
+                // if that doesn't work, fall back to the current directory
+                if (resourceURL == null) {
+                    resourceURL = "file:" + System.getProperty("user.dir");
+                }
+
+            } catch (SecurityException se) {
+                resourceURL = "file:" + File.separator;
             }
-
-        } catch (FileNotFoundException fnfe) {
-            // nothing to worry about here, we aren't required to have a
-            // configuration
-
-        } catch (IOException ioe) {
-            // complain if some other error occurs
-            Log.warning("Error loading resource manager configuration " +
-                        "[path=" + CONFIG_PATH + ", error=" + ioe + "].");
         }
 
-        // load up any configured resource sets
+        // make sure there's a slash at the end of the URL
+        if (!resourceURL.endsWith("/")) {
+            resourceURL += "/";
+        }
+
+        URL rurl = null;
+        try {
+            rurl = new URL(resourceURL);
+        } catch (MalformedURLException mue) {
+            Log.warning("Invalid resource URL [url=" + resourceURL +
+                        ", error=" + mue + "].");
+        }
+
+        // load up our configuration
+        Properties config = loadConfig(rurl, configPath);
+
+        // resolve the configured resource sets
         Enumeration names = config.propertyNames();
         while (names.hasMoreElements()) {
             String key = (String)names.nextElement();
@@ -169,8 +147,107 @@ public class ResourceManager
                 continue;
             }
             String setName = key.substring(RESOURCE_SET_PREFIX.length());
-            resolveResourceSet(appRoot, setName, config.getProperty(key));
+            resolveResourceSet(rurl, setName, config.getProperty(key));
         }
+    }
+
+    /**
+     * Loads up the most recent version of the resource manager
+     * configuration.
+     */
+    protected Properties loadConfig (URL resourceURL, String configPath)
+    {
+        Properties config = new Properties();
+        URL curl = null;
+
+        try {
+            if (configPath != null) {
+                curl = new URL(resourceURL, configPath);
+                config.load(curl.openStream());
+            }
+
+        } catch (MalformedURLException mue) {
+            Log.warning("Unable to construct config URL " +
+                        "[resourceURL=" + resourceURL +
+                        ", configPath=" + configPath +
+                        ", error=" + mue + "].");
+
+        } catch (IOException ioe) {
+            // complain if some other error occurs
+            Log.warning("Error loading resource manager configuration " +
+                        "[url=" + curl + ", error=" + ioe + "].");
+        }
+
+        return config;
+    }
+
+    /**
+     * Ensures that the cache directory for the specified resource set is
+     * created.
+     *
+     * @return true if the directory was successfully created (or was
+     * already there), false if we failed to create it.
+     */
+    protected boolean createCacheDirectory (String setName)
+    {
+        // get the path to the top-level cache directory if we don't
+        // already have it
+        if (_cachePath == null) {
+            try {
+                String dir = System.getProperty("user.home");
+                _cachePath = (dir + File.separator +
+                              CACHE_PATH + File.separator);
+            } catch (SecurityException se) {
+                Log.info("Can't obtain user.home system property. Probably " +
+                         "won't be able to create our cache directory " +
+                         "either. [error=" + se + "].");
+                _cachePath = "";
+            }
+        }
+
+        // make sure the main cache directory exists
+        if (!createDirectory(_cachePath)) {
+            return false;
+        }
+
+        // ensure that the set-specific cache directory exists
+        return createDirectory(_cachePath + setName);
+    }
+
+    /**
+     * Creates the specified directory if it doesn't already exist.
+     *
+     * @return true if directory was created (or existed), false if not.
+     */
+    protected boolean createDirectory (String path)
+    {
+        File cdir = new File(path);
+        if (cdir.exists()) {
+            if (!cdir.isDirectory()) {
+                Log.warning("Cache dir exists but isn't a directory?! " +
+                            "[path=" + path + "].");
+                return false;
+            }
+
+        } else {
+            if (!cdir.mkdir()) {
+                Log.warning("Unable to create cache dir. " +
+                            "[path=" + path + "].");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Generates the name of the bundle cache file given the name of the
+     * resource set to which it belongs and the relative path URL.
+     */
+    protected String genCachePath (String setName, String resourcePath)
+    {
+        return _cachePath + setName + File.separator +
+            StringUtil.replace(resourcePath, "/", "-");
     }
 
     /**
@@ -178,61 +255,58 @@ public class ResourceManager
      * information.
      */
     protected void resolveResourceSet (
-        String appRoot, String name, String definition)
+        URL resourceURL, String setName, String definition)
     {
-        StringTokenizer tok =
-            new StringTokenizer(definition, File.pathSeparator);
+        StringTokenizer tok = new StringTokenizer(definition, ":");
         ArrayList set = new ArrayList();
 
         while (tok.hasMoreTokens()) {
-            // obtain the path and fully qualify it
             String path = tok.nextToken().trim();
-            if (!path.startsWith(File.separator)) {
-                path = appRoot + path;
-            }
+            URL burl = null;
 
             try {
-                File efile = new File(path);
+                burl = new URL(resourceURL, path);
+                Log.info("Resolving resource: " + burl);
 
-                // if this isn't a directory, we assume it's a jar file
-                if (!efile.isDirectory()) {
-                    set.add(new ResourceBundle(efile));
-                    continue;
-                }
+                // make sure the cache directory exists for this set
+                createCacheDirectory(setName);
 
-                // it is a directory, so we have to add all of its entries
-                // to the bundle
-                File[] efiles = efile.listFiles(new FilenameFilter() {
-                    public boolean accept (File dir, String filename) {
-                        // only worry about .jar files
-                        return filename.endsWith(".jar");
-                    }
-                });
+                // compute the path to the cache file for this bundle
+                File cfile = new File(genCachePath(setName, path));
 
-                if (efiles == null) {
-                    Log.warning("Failure enumerating jars in directory " +
-                                "[path=" + path + "].");
-                    continue;
-                }
+                Log.info("Cached to " + cfile.getPath());
 
-                // phew, we made it
-                for (int i = 0; i < efiles.length; i++) {
-                    set.add(new ResourceBundle(efiles[i]));
-                }
+                // download the resource bundle from the specified URL
+                InputStream in = burl.openStream();
+                FileOutputStream out = new FileOutputStream(cfile);
+
+                // pipe the input stream into the output stream
+                StreamUtils.pipe(in, out);
+                in.close();
+                out.close();
+
+                // finally add this newly cached file to the set as a
+                // resource bundle
+                set.add(new ResourceBundle(cfile));
+
+            } catch (MalformedURLException mue) {
+                Log.warning("Unable to create URL for resource " +
+                            "[set=" + setName + ", path=" + path +
+                            ", error=" + mue + "].");
 
             } catch (IOException ioe) {
                 Log.warning("Error processing resource set entry " +
-                            "[entry=" + path + ", error=" + ioe + "].");
+                            "[url=" + burl + ", error=" + ioe + "].");
             }
         }
 
         // convert our array list into an array and stick it in the table
         ResourceBundle[] setvec = new ResourceBundle[set.size()];
         set.toArray(setvec);
-        _sets.put(name, setvec);
+        _sets.put(setName, setvec);
 
         // if this is our default resource bundle, keep a reference to it
-        if (DEFAULT_RESOURCE_SET.equals(name)) {
+        if (DEFAULT_RESOURCE_SET.equals(setName)) {
             _default = setvec;
         }
     }
@@ -290,19 +364,14 @@ public class ResourceManager
      * them from the classpath. */
     protected String _rootPath;
 
+    /** The path to our bundle cache directory. */
+    protected String _cachePath;
+
     /** Our default resource set. */
     protected ResourceBundle[] _default = new ResourceBundle[0];
 
     /** A table of our resource sets. */
     protected HashMap _sets = new HashMap();
-
-    /** The system property from which we load our application root. */
-    protected static final String APP_ROOT_PROPERTY = "application.root";
-
-    /** The path to the resource manager config file (which will be loaded
-     * via the classloader). */
-    protected static final String CONFIG_PATH =
-        "config/resource/manager.properties";
 
     /** The prefix of configuration entries that describe a resource
      * set. */
@@ -310,4 +379,7 @@ public class ResourceManager
 
     /** The name of the default resource set. */
     protected static final String DEFAULT_RESOURCE_SET = "default";
+
+    /** The name of our resource bundle cache directory. */
+    protected static final String CACHE_PATH = ".naryarsrc";
 }
