@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.34 2003/03/31 04:11:01 mdb Exp $
+// $Id: PresentsServer.java,v 1.35 2003/08/08 03:11:55 ray Exp $
 
 package com.threerings.presents.server;
 
@@ -247,8 +247,8 @@ public class PresentsServer
         });
 
         // finally shut down the invoker and distributed object manager
+        // (The invoker does both for us.)
         invoker.shutdown();
-        omgr.shutdown();
     }
 
     /**

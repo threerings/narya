@@ -1,5 +1,5 @@
 //
-// $Id: Invoker.java,v 1.7 2003/04/10 21:04:55 mdb Exp $
+// $Id: Invoker.java,v 1.8 2003/08/08 03:11:55 ray Exp $
 
 package com.threerings.presents.util;
 
@@ -115,55 +115,47 @@ public class Invoker extends LoopingThread
     public void iterate ()
     {
         // pop the next item off of the queue
-        Object unit = _queue.get();
+        Unit unit = (Unit) _queue.get();
 
-        // if it's a unit, we invoke it
-        if (unit instanceof Runnable) {
-            long start;
+        long start;
+        if (PERF_TRACK) {
+            start = System.currentTimeMillis();
+            _unitsRun++;
+        }
+
+        try {
+            if (unit.invoke()) {
+                // if it returned true, we post it to the dobjmgr
+                // thread to invoke the result processing
+                _omgr.postUnit(unit);
+            }
+
+            // track some performance metrics
             if (PERF_TRACK) {
-                start = System.currentTimeMillis();
-                _unitsRun++;
+                long duration = System.currentTimeMillis() - start;
+                Object key = unit.getClass();
+
+                Histogram histo = (Histogram)_tracker.get(key);
+                if (histo == null) {
+                    // track in buckets of 50ms up to 500ms
+                    _tracker.put(key, histo = new Histogram(0, 50, 10));
+                }
+                histo.addValue((int)duration);
             }
 
-            try {
-                if (((Unit)unit).invoke()) {
-                    // if it returned true, we post it to the dobjmgr
-                    // thread to invoke the result processing
-                    _omgr.postUnit((Runnable)unit);
-                }
-
-                // track some performance metrics
-                if (PERF_TRACK) {
-                    long duration = System.currentTimeMillis() - start;
-                    Object key = unit.getClass();
-
-                    Histogram histo = (Histogram)_tracker.get(key);
-                    if (histo == null) {
-                        // track in buckets of 50ms up to 500ms
-                        _tracker.put(key, histo = new Histogram(0, 50, 10));
-                    }
-                    histo.addValue((int)duration);
-                }
-
-            } catch (Exception e) {
-                Log.warning("Invocation unit failed [unit=" + unit + "].");
-                Log.logStackTrace(e);
-            }
-
-        } else {
-            // if it's not a runnable, it was just an object posted to our
-            // queue to wake us up and tell us to go away
-            _running = false;
+        } catch (Exception e) {
+            Log.warning("Invocation unit failed [unit=" + unit + "].");
+            Log.logStackTrace(e);
         }
     }
 
-    // documentation inherited
+    /**
+     * Will do a sophisticated shutdown of both itself and the DObjectManager
+     * thread.
+     */
     public void shutdown ()
     {
-        // we do some custom shutdown business: add a non-runnable to the
-        // queue which, when the invoker gets to it, will cause it to shut
-        // itself down
-        _queue.append(new Integer(0));
+        _queue.append(new ShutdownUnit());
     }
 
     // documentation inherited from interface
@@ -180,6 +172,60 @@ public class Invoker extends LoopingThread
             buffer.append(histo.summarize()).append("\n");
             histo.clear();
         }
+    }
+
+    /**
+     * This unit gets posted back and forth between the invoker and DObjectMgr
+     * until both of their queues are empty and they can both be safely
+     * shutdown.
+     */
+    protected class ShutdownUnit extends Unit
+    {
+        // run on the invoker thread
+        public boolean invoke ()
+        {
+            // if the invoker queue is not empty, we put ourselves back on it
+            if (_queue.hasElements()) {
+                System.err.println("invoker not empty");
+                postUnit(this);
+                return false;
+
+            } else {
+                // the invoker is empty, let's go over to the omgr
+                System.err.println("invoker empty, passing");
+                _passCount++;
+                return true;
+            }
+        }
+
+        // run on the dobj thread
+        public void handleResult ()
+        {
+            // if the queue isn't empty, re-post
+            if (!_omgr.queueIsEmpty()) {
+                _omgr.postUnit(this);
+
+            // if both queues are empty, or we've passed 50 times, end it all
+            } else if (!_queue.hasElements() || (_passCount >= 50)) {
+                // shut it down!
+                _omgr.harshShutdown(); // end the dobj thread
+                // and since we're ending the invoker from the dobjmgr
+                // we need to post one last event to the invoker
+                postUnit(new Unit() {
+                    public boolean invoke () {
+                        _running = false; // end this thread
+                        return false;
+                    }
+                });
+
+            // otherwise, we need to pass back to the invoker
+            } else {
+                postUnit(this);
+            }
+        }
+
+        /** The number of times we've been passed to the object manager. */
+        protected int _passCount = 0;
     }
 
     /** The invoker's queue of units to be executed. */

@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.34 2003/06/15 16:47:33 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.35 2003/08/08 03:11:55 ray Exp $
 
 package com.threerings.presents.server;
 
@@ -254,12 +254,6 @@ public class PresentsDObjectMgr
      */
     protected void processEvent (DEvent event)
     {
-        // handle graceful shutdown
-        if (event instanceof ShutdownEvent) {
-            _running = false;
-            return;
-        }
-
         // look up the target object
         DObject target = (DObject)_objects.get(event.getTargetOid());
         if (target == null) {
@@ -325,14 +319,17 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Requests that the dobjmgr shut itself down. It will exit the event
-     * processing loop which cause <code>run()</code> to return.
+     * Requests that the dobjmgr shut itself down soon- you may
+     * want to try using {@link Invoker#shutdown} which will make sure that
+     * both the Invoker and DObjectMgr are empty and then shut them both down.
      */
-    public void shutdown ()
+    public void harshShutdown ()
     {
-        // stick a bogus object on the event queue to ensure that the mgr
-        // wakes up and smells the coffee
-        _evqueue.append(new ShutdownEvent());
+        postUnit(new Runnable() {
+            public void run () {
+                _running = false;
+            }
+        });
     }
 
     /**
@@ -568,6 +565,15 @@ public class PresentsDObjectMgr
         return true;
     }
 
+    /**
+     * Should not need to be called except by the invoker during shutdown
+     * to ensure that things are proceeding smoothly.
+     */
+    public boolean queueIsEmpty ()
+    {
+        return !_evqueue.hasElements();
+    }
+
     protected synchronized boolean isRunning ()
     {
         return _running;
@@ -766,21 +772,6 @@ public class PresentsDObjectMgr
         protected int _oid;
         protected Subscriber _target;
         protected int _action;
-    }
-
-    protected class ShutdownEvent extends DEvent
-    {
-        public ShutdownEvent ()
-        {
-            super(0); // target the bogus object
-        }
-
-        public boolean applyToObject (DObject target)
-            throws ObjectAccessException
-        {
-            // nothing doing!
-            return false;
-        }
     }
 
     /**
