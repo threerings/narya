@@ -1,5 +1,5 @@
 //
-// $Id: ZoneObserver.java,v 1.1 2001/12/17 04:00:27 mdb Exp $
+// $Id: ZoneObserver.java,v 1.2 2001/12/17 04:11:40 mdb Exp $
 
 package com.threerings.whirled.zone.client;
 
@@ -11,6 +11,16 @@ import com.threerings.whirled.zone.data.ZoneSummary;
  */
 public interface ZoneObserver
 {
+    /**
+     * Called when we begin the process of switching to a new zone. This
+     * will be followed by a call to {@link #zoneDidChange} to indicate
+     * that the change was successful or {@link #zoneChangeFailed} if the
+     * change fails.
+     *
+     * @param zoneId the zone id of the zone to which we are changing.
+     */
+    public void zoneWillChange (int zoneId);
+
     /**
      * Called when we have switched to a new zone.
      *

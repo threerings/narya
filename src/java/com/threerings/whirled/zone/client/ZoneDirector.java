@@ -1,5 +1,5 @@
 //
-// $Id: ZoneDirector.java,v 1.3 2001/12/17 04:00:27 mdb Exp $
+// $Id: ZoneDirector.java,v 1.4 2001/12/17 04:11:40 mdb Exp $
 
 package com.threerings.whirled.zone.client;
 
@@ -82,6 +82,10 @@ public class ZoneDirector
                 return;
             }
 
+            // let our zone observers know that we're attempting to switch
+            // zones
+            notifyObservers(new Integer(zoneId));
+
             // check the version of our cached copy of the scene to which
             // we're requesting to move; if we were unable to load it, assume
             // a cached version of zero
@@ -155,7 +159,9 @@ public class ZoneDirector
         for (int i = 0; i < _observers.size(); i++) {
             ZoneObserver obs = (ZoneObserver)_observers.get(i);
             try {
-                if (data instanceof ZoneSummary) {
+                if (data instanceof Integer) {
+                    obs.zoneWillChange(((Integer)data).intValue());
+                } else if (data instanceof ZoneSummary) {
                     obs.zoneDidChange((ZoneSummary)data);
                 } else {
                     obs.zoneChangeFailed((String)data);
