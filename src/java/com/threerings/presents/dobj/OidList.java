@@ -1,5 +1,5 @@
 //
-// $Id: OidList.java,v 1.2 2001/08/02 05:09:21 mdb Exp $
+// $Id: OidList.java,v 1.3 2001/08/04 01:04:49 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -78,7 +78,7 @@ public class OidList
     {
         // scan for the oid in question
         for (int i = 0; i < _size; i++) {
-            if (_oids[oid] == oid) {
+            if (_oids[i] == oid) {
                 // shift the rest of the list back one
                 System.arraycopy(_oids, i+1, _oids, i, --_size-i);
                 return true;
