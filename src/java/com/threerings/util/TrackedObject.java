@@ -1,5 +1,5 @@
 //
-// $Id: TrackedObject.java,v 1.1 2004/08/13 23:44:16 mdb Exp $
+// $Id: TrackedObject.java,v 1.2 2004/08/14 01:32:23 ray Exp $
 
 package com.threerings.util;
 
@@ -21,7 +21,6 @@ import com.samskivert.util.Tuple;
 public class TrackedObject
 {
     /** Records that this object came into existence. */
-    public TrackedObject ()
     {
         Class clazz = getClass();
         synchronized (_map) {
