@@ -1,9 +1,12 @@
 //
-// $Id: AnimatedPanel.java,v 1.4 2001/12/16 08:04:25 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.5 2002/01/07 23:05:39 shaper Exp $
 
 package com.threerings.media.sprite;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Rectangle;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
@@ -26,25 +29,24 @@ public class AnimatedPanel extends JPanel implements AnimatedView
 	// set our attributes for optimal display performance
         setDoubleBuffered(false);
         setOpaque(true);
-    }        
+    }
 
     // documentation inherited
     public void paintComponent (Graphics g)
     {
-        // create the offscreens if they don't yet exist
-	if (_offimg == null) {
-	    createOffscreen();
-	}
+         // create the offscreens if they don't yet exist
+ 	if (_offimg == null && !createOffscreen()) {
+             return;
+        }
 
         // give sub-classes a chance to do their thing
         render(_offg);
 
         // Rectangle bounds = getBounds();
         // Log.info("paintComponent [bounds=" + bounds + "].");
-        // _offg.drawRect(bounds.x, bounds.y, bounds.width-1, bounds.height-1);
 
         // draw the offscreen to the screen
-	g.drawImage(_offimg, 0, 0, null);
+        g.drawImage(_offimg, 0, 0, null);
     }
 
     /**
@@ -58,14 +60,23 @@ public class AnimatedPanel extends JPanel implements AnimatedView
     }
 
     /**
-     * Creates the offscreen image and graphics context to which we
-     * draw the scene for double-buffering purposes.
+     * Creates the offscreen image and graphics context to which we draw
+     * the scene for double-buffering purposes.  Returns whether the
+     * offscreen image was successfully created.
      */
-    protected void createOffscreen ()
+    protected boolean createOffscreen ()
     {
 	Dimension d = getSize();
-	_offimg = createImage(d.width, d.height);
-	_offg = _offimg.getGraphics();
+        try {
+            _offimg = createImage(d.width, d.height);
+            _offg = _offimg.getGraphics();
+            return true;
+
+        } catch (Exception e) {
+            Log.warning("Failed to create offscreen [e=" + e + "].");
+            Log.logStackTrace(e);
+            return false;
+        }
     }
 
     // documentation inherited
@@ -88,6 +99,12 @@ public class AnimatedPanel extends JPanel implements AnimatedView
      */
     public void paintImmediately ()
     {
+        if (!isValid()) {
+            // don't paint anything until we've been fully laid out
+            // Log.warning("Attempted to paint invalid panel.");
+            return;
+        }
+
         Graphics g = null;
 
         try {
@@ -98,7 +115,7 @@ public class AnimatedPanel extends JPanel implements AnimatedView
             if (pcg != null) {
                 g = pcg.create();
                 pcg.dispose();
-                paint(g);
+                paintComponent(g);
             }
 
         } catch (NullPointerException e) {
