@@ -1,5 +1,5 @@
 //
-// $Id: DummyAuthenticator.java,v 1.7 2004/08/27 02:20:23 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -35,11 +35,15 @@ public class DummyAuthenticator extends Authenticator
     /**
      * Accept all authentication requests.
      */
-    public void authenticateConnection (AuthingConnection conn)
+    public void authenticateConnection (final AuthingConnection conn)
     {
         Log.info("Accepting request: " + conn.getAuthRequest());
-        AuthResponseData rdata = new AuthResponseData();
-        rdata.code = AuthResponseData.SUCCESS;
-        connectionWasAuthenticated(conn, new AuthResponse(rdata));
+        PresentsServer.omgr.postRunnable(new Runnable() {
+            public void run () {
+                AuthResponseData rdata = new AuthResponseData();
+                rdata.code = AuthResponseData.SUCCESS;
+                connectionWasAuthenticated(conn, new AuthResponse(rdata));
+            }
+        });
     }
 }

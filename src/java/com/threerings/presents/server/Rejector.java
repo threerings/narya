@@ -1,5 +1,5 @@
 //
-// $Id: Rejector.java,v 1.2 2004/10/13 01:09:14 mdb Exp $
+// $Id$
 
 package com.threerings.presents.server;
 
@@ -55,12 +55,16 @@ public class Rejector extends PresentsServer
     protected class RejectingAuthenticator extends Authenticator
     {
         /** Reject all authentication requests. */
-        public void authenticateConnection (AuthingConnection conn)
+        public void authenticateConnection (final AuthingConnection conn)
         {
             Log.info("Rejecting request: " + conn.getAuthRequest());
-            AuthResponseData rdata = new AuthResponseData();
-            rdata.code = _errmsg;
-            connectionWasAuthenticated(conn, new AuthResponse(rdata));
+            omgr.postRunnable(new Runnable() {
+                public void run () {
+                    AuthResponseData rdata = new AuthResponseData();
+                    rdata.code = _errmsg;
+                    connectionWasAuthenticated(conn, new AuthResponse(rdata));
+                }
+            });
         }
     }
 

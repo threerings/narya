@@ -333,8 +333,7 @@ public class ConnectionManager extends LoopingThread
                     if (oq.writeOverflowMessages(iterStamp)) {
                         // if they were all written, we can remove it
                         oqiter.remove();
-//                         Log.info("Flushed overflow queue for " +
-//                                  oq.conn + ".");
+                        Log.info("Flushed overflow queue " + oq + ".");
                     }
 
                 } catch (IOException ioe) {
@@ -364,7 +363,7 @@ public class ConnectionManager extends LoopingThread
             }
 
             // otherwise write the message out to the client directly
-            writeMessage(conn, (DownstreamMessage)tup.right, _oflowHandler);
+            writeMessage(conn, (byte[])tup.right, _oflowHandler);
         }
 
         // check for connections that have completed authentication
@@ -472,7 +471,7 @@ public class ConnectionManager extends LoopingThread
      * have been invoked).
      */
     protected boolean writeMessage (
-        Connection conn, DownstreamMessage outmsg, PartialWriteHandler pwh)
+        Connection conn, byte[] data, PartialWriteHandler pwh)
     {
         // if the connection to which this message is destined is closed,
         // drop the message and move along quietly; this is perfectly
@@ -482,44 +481,55 @@ public class ConnectionManager extends LoopingThread
         if (conn.isClosed()) {
             return true;
         }
-            
+
+        // sanity check the message size
+        if (data.length > 1024 * 1024) {
+            Log.warning("Refusing to write absurdly large message " +
+                        "[conn=" + conn + ", size=" + data.length + "].");
+            return true;
+        }
+
+        // expand our output buffer if needed to accomodate this message
+        if (data.length > _outbuf.capacity()) {
+            // increase the buffer size in large increments
+            int ncapacity = Math.max(_outbuf.capacity() << 1, data.length);
+            Log.info("Expanding output buffer size [nsize=" + ncapacity + "].");
+            _outbuf = ByteBuffer.allocateDirect(ncapacity);
+	}
+
         boolean fully = true;
         try {
-            // write the message via the connection's object output stream
-            // (which we configure to write data to our framing output
-            // stream)
-            ObjectOutputStream oout = conn.getObjectOutputStream(_framer);
-//             Log.info("Sending " + outmsg + ".");
-            oout.writeObject(outmsg);
-            oout.flush();
+//             Log.info("Writing " + data.length + " byte message to " +
+//                      conn + ".");
 
-            try {
-                // then write the framed message to the socket
-                ByteBuffer buffer = _framer.frameAndReturnBuffer();
-                int wrote = conn.getChannel().write(buffer);
-                noteWrite(1, wrote);
+            // first copy the data into our "direct" output buffer
+            _outbuf.put(data);
+            _outbuf.flip();
 
-                if (buffer.remaining() > 0) {
-                    fully = false;
+            // then write the data to the socket
+            int wrote = conn.getChannel().write(_outbuf);
+            noteWrite(1, wrote);
+
+            if (_outbuf.remaining() > 0) {
+                fully = false;
 //                     Log.info("Partial write [conn=" + conn +
 //                              ", msg=" + StringUtil.shortClassName(outmsg) +
 //                              ", wrote=" + wrote +
 //                              ", size=" + buffer.limit() + "].");
-                    pwh.handlePartialWrite(conn, buffer);
+                pwh.handlePartialWrite(conn, _outbuf);
 
 //                 } else if (wrote > 10000) {
 //                     Log.info("Big write [conn=" + conn +
 //                              ", msg=" + StringUtil.shortClassName(outmsg) +
 //                              ", wrote=" + wrote + "].");
-                }
-
-            } finally {
-                _framer.resetFrame();
             }
 
         } catch (IOException ioe) {
             // instruct the connection to deal with its failure
             conn.handleFailure(ioe);
+
+        } finally {
+            _outbuf.clear();
         }
 
         return fully;
@@ -609,7 +619,11 @@ public class ConnectionManager extends LoopingThread
 
     /**
      * Called by a connection when it has a downstream message that needs
-     * to be delivered.
+     * to be delivered. <em>Note:</em> this method is called as a result
+     * of a call to {@link Connection#postMessage} which happens when
+     * forwarding an event to a client and at the completion of
+     * authentication, both of which <em>should</em> happen only on the
+     * distributed object thread.
      */
     void postMessage (Connection conn, DownstreamMessage msg)
     {
@@ -619,8 +633,29 @@ public class ConnectionManager extends LoopingThread
             Thread.dumpStack();
 
         } else {
-            // slap both these suckers onto the outgoing message queue
-            _outq.append(new Tuple(conn, msg));
+            // flatten this message using the connection's output stream
+            try {
+                ObjectOutputStream oout = conn.getObjectOutputStream(_framer);
+                oout.writeObject(msg);
+                oout.flush();
+
+                // now extract that data into a byte array
+                ByteBuffer buffer = _framer.frameAndReturnBuffer();
+                byte[] data = new byte[buffer.limit()];
+                buffer.get(data);
+                _framer.resetFrame();
+
+//                 Log.info("Flattened " + msg + " into " +
+//                          data.length + " bytes.");
+
+                // and slap both on the queue
+                _outq.append(new Tuple(conn, data));
+
+            } catch (Exception e) {
+                Log.warning("Failure flattening message [conn=" + conn +
+                            ", msg=" + msg + "]. Dropping.");
+                Log.logStackTrace(e);
+            }
         }
     }
 
@@ -710,6 +745,7 @@ public class ConnectionManager extends LoopingThread
 
                 if (_partial.remaining() == 0) {
                     _partial = null;
+                    _partials++;
                 } else {
 //                     Log.info("Still going [conn=" + conn +
 //                              ", wrote=" + wrote +
@@ -719,10 +755,11 @@ public class ConnectionManager extends LoopingThread
             }
 
             while (size() > 0) {
-                DownstreamMessage outmsg = (DownstreamMessage)remove(0);
+                byte[] data = (byte[])remove(0);
                 // if any of these messages are partially written, we have
                 // to stop and wait for the next tick
-                if (!writeMessage(conn, outmsg, this)) {
+                _msgs++;
+                if (!writeMessage(conn, data, this)) {
                     return false;
                 }
             }
@@ -739,9 +776,21 @@ public class ConnectionManager extends LoopingThread
             _partial.flip();
         }
 
+        /**
+         * Returns a string representation of this instance.
+         */
+        public String toString ()
+        {
+            return "[conn=" + conn + ", partials=" + _partials +
+                ", msgs=" + _msgs + "]";
+        }
+
         /** The remains of a message that was only partially written on
          * its first attempt. */
         protected ByteBuffer _partial;
+
+        /** A couple of counters. */
+        protected int _msgs, _partials;
     }
 
     protected int _port;
@@ -758,6 +807,7 @@ public class ConnectionManager extends LoopingThread
 
     protected Queue _outq = new Queue();
     protected FramingOutputStream _framer;
+    protected ByteBuffer _outbuf = ByteBuffer.allocateDirect(64 * 1024);
 
     protected HashMap _oflowqs = new HashMap();
 
@@ -780,6 +830,7 @@ public class ConnectionManager extends LoopingThread
         public void handlePartialWrite (Connection conn, ByteBuffer msgbuf) {
             // if we couldn't write all the data for this message, we'll
             // need to establish an overflow queue
+            Log.info("Starting overflow queue for " + conn + ".");
             _oflowqs.put(conn, new OverflowQueue(conn, msgbuf));
         }
     };

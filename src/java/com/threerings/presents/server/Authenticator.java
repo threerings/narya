@@ -1,5 +1,5 @@
 //
-// $Id: Authenticator.java,v 1.6 2004/08/27 02:20:23 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -53,7 +53,8 @@ public abstract class Authenticator
      * off a task on the {@link PresentsServer#invoker} to perform the
      * authentication. When the authentication is complete, the
      * authenticator implementation should call {@link
-     * #connectionWasAuthenticated}.
+     * #connectionWasAuthenticated} <em>from the distributed object
+     * thread</em>.
      */
     public abstract void authenticateConnection (AuthingConnection conn);
 
@@ -61,7 +62,9 @@ public abstract class Authenticator
      * This is called by authenticator implementations when they have
      * completed the authentication process. It will deliver the response
      * to the user and let the connection manager know to report the
-     * authentication if it succeeded.
+     * authentication if it succeeded. <em>Note:</em> this method should
+     * only be called on the distributed object thread as all messages
+     * being sent to the client should originate therefrom.
      */
     protected void connectionWasAuthenticated (
         AuthingConnection conn, AuthResponse rsp)
