@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaClient.java,v 1.16 2002/11/08 09:31:59 mdb Exp $
+// $Id: MiCasaClient.java,v 1.17 2003/11/24 17:51:56 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -9,6 +9,7 @@ import java.io.IOException;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import com.samskivert.util.Config;
 import com.threerings.util.MessageManager;
 
 import com.threerings.presents.client.Client;
@@ -140,6 +141,11 @@ public class MiCasaClient
             return _client.getDObjectManager();
         }
 
+        public Config getConfig ()
+        {
+            return _config;
+        }
+
         public LocationDirector getLocationDirector ()
         {
             return _locdir;
@@ -179,6 +185,7 @@ public class MiCasaClient
 
     protected MiCasaContext _ctx;
     protected MiCasaFrame _frame;
+    protected Config _config = new Config("micasa");
 
     protected Client _client;
     protected LocationDirector _locdir;

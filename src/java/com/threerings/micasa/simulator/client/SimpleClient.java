@@ -1,5 +1,5 @@
 //
-// $Id: SimpleClient.java,v 1.8 2002/11/08 09:31:59 mdb Exp $
+// $Id: SimpleClient.java,v 1.9 2003/11/24 17:51:56 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -11,6 +11,7 @@ import java.io.IOException;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import com.samskivert.util.Config;
 import com.threerings.util.MessageManager;
 
 import com.threerings.presents.client.Client;
@@ -82,6 +83,11 @@ public class SimpleClient
      */
     protected class MiCasaContextImpl implements MiCasaContext
     {
+        public Config getConfig ()
+        {
+            return _config;
+        }
+
         public Client getClient ()
         {
             return _client;
@@ -133,6 +139,7 @@ public class SimpleClient
     protected SimulatorFrame _frame;
     protected MessageManager _msgmgr;
 
+    protected Config _config = new Config("micasa");
     protected Client _client;
     protected LocationDirector _locdir;
     protected OccupantDirector _occdir;
