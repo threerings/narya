@@ -192,6 +192,9 @@
     <jar destfile="${deploy.dir}/${app.name}-cast.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/cast/**"/>
     </jar>
+    <jar destfile="${deploy.dir}/${app.name}-stage.jar">
+      <fileset dir="${classes.dir}" includes="com/threerings/stage/**"/>
+    </jar>
   </target>
 
   <!-- generate a class hierarchy diagram -->
