@@ -1,5 +1,5 @@
 //
-// $Id: ImageSprite.java,v 1.2 2002/03/27 21:51:15 mdb Exp $
+// $Id: ImageSprite.java,v 1.3 2002/04/17 15:52:49 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -167,21 +167,35 @@ public class ImageSprite extends Sprite
         _frame = _frames.getFrame(_frameIdx);
 
         // determine our drawing offsets and rendered rectangle size
-        if (_frame == null) {
-            _bounds.width = 0;
-            _bounds.height = 0;
-
-        } else {
-            _bounds.width = _frame.getWidth(null);
-            _bounds.height = _frame.getHeight(null);
-        }
+        accomodateFrame(_frame);
 
         // add our new bounds
         dirty.add(_bounds);
 
         updateRenderOffset();
         updateRenderOrigin();
+
+        // now invalidate the dirtied region
         invalidate(dirty);
+    }
+
+    /**
+     * Must adjust the bounds to accomodate the new image. Called when a
+     * new image has been set for this image sprite. If a derived class is
+     * going to expand the bounds beyond the bounds of the image frame, it
+     * will need to override this method and adjust bounds accordingly for
+     * the new frame (which can be null).
+     */
+    protected void accomodateFrame (Image frame)
+    {
+        if (frame == null) {
+            _bounds.width = 0;
+            _bounds.height = 0;
+
+        } else {
+            _bounds.width = frame.getWidth(null);
+            _bounds.height = frame.getHeight(null);
+        }
     }
 
     // documentation inherited
