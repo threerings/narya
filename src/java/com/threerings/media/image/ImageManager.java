@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.36 2003/01/13 23:55:05 mdb Exp $
+// $Id: ImageManager.java,v 1.37 2003/01/14 04:05:56 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -121,6 +121,8 @@ public class ImageManager
      */
     public BufferedImage createImage (int width, int height, int transparency)
     {
+        // DEBUG: override transparency for the moment on all images
+        transparency = Transparency.TRANSLUCENT;
         return _gc.createCompatibleImage(width, height, transparency);
     }
 
