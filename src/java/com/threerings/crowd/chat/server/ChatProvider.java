@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.20 2003/06/14 00:55:19 mdb Exp $
+// $Id: ChatProvider.java,v 1.21 2003/06/25 17:17:41 ray Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -103,8 +103,10 @@ public class ChatProvider
         Iterator iter = CrowdServer.plreg.enumeratePlaces();
         while (iter.hasNext()) {
             PlaceObject plobj = (PlaceObject)iter.next();
-            SpeakProvider.sendSpeak(plobj, body.username, null,
-                                    message, BROADCAST_MODE);
+            if (plobj.shouldBroadcast()) {
+                SpeakProvider.sendSpeak(plobj, body.username, null,
+                                        message, BROADCAST_MODE);
+            }
         }
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: PlaceObject.java,v 1.13 2003/06/14 00:55:40 mdb Exp $
+// $Id: PlaceObject.java,v 1.14 2003/06/25 17:17:41 ray Exp $
 
 package com.threerings.crowd.data;
 
@@ -45,6 +45,15 @@ public class PlaceObject extends DObject
 
     /** Used to generate speak requests on this place object. */
     public SpeakMarshaller speakService;
+
+    /**
+     * Used to indicate whether broadcast chat messages should be dispatched
+     * on this place object.
+     */
+    public boolean shouldBroadcast ()
+    {
+        return true;
+    }
 
     /**
      * Looks up a user's occupant info by name.
