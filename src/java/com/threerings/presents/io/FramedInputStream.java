@@ -1,5 +1,5 @@
 //
-// $Id: FramedInputStream.java,v 1.8 2001/10/18 01:42:42 mdb Exp $
+// $Id: FramedInputStream.java,v 1.9 2001/10/24 00:35:37 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -72,7 +72,8 @@ public class FramedInputStream extends InputStream
                 throw new EOFException();
 
             } else if (got == 0) {
-                Log.info("Woke up to read data, but there ain't none. Sigh.");
+                // TBD: don't log this for now, but look into it later
+                // Log.info("Woke up to read data, but there ain't none. Sigh.");
                 return false;
 
             } else if (got < HEADER_SIZE) {
