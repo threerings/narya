@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.54 2003/04/04 22:34:59 ray Exp $
+// $Id: SoundManager.java,v 1.55 2003/04/05 03:38:41 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -404,8 +404,10 @@ public class SoundManager
             LineSpooler.play(stream, _clipVol, key);
 
         } catch (IOException ioe) {
-            Log.warning("Error loading sound file [key=" + key +
-                ", e=" + ioe + "].");
+            if (_verbose.getValue()) {
+                Log.warning("Error loading sound file [key=" + key +
+                    ", e=" + ioe + "].");
+            }
 
         } catch (UnsupportedAudioFileException uafe) {
             Log.warning("Unsupported sound format [key=" + key + ", e=" +
@@ -764,26 +766,28 @@ public class SoundManager
             try {
                 clipin = _rmgr.getResource(path);
             } catch (FileNotFoundException fnfe2) {
-                Log.warning("Could not locate sound data [bundle=" + bundle +
-                    ", path=" + path + "].");
                 // only play the default sound if we have verbose sound
                 // debuggin turned on.
-                if (_verbose.getValue() && _defaultClipPath != null) {
-                    try {
-                        clipin = _rmgr.getResource(
-                            _defaultClipBundle, _defaultClipPath);
-                    } catch (FileNotFoundException fnfe3) {
+                if (_verbose.getValue()) {
+                    Log.warning("Could not locate sound data [bundle=" +
+                        bundle + ", path=" + path + "].");
+                    if (_defaultClipPath != null) {
                         try {
-                            clipin = _rmgr.getResource(_defaultClipPath);
-                        } catch (FileNotFoundException fnfe4) {
-                            Log.warning("Additionally, the default fallback " +
-                                "sound could not be located [bundle=" +
-                                _defaultClipBundle + ", path=" +
-                                _defaultClipPath + "].");
+                            clipin = _rmgr.getResource(
+                                _defaultClipBundle, _defaultClipPath);
+                        } catch (FileNotFoundException fnfe3) {
+                            try {
+                                clipin = _rmgr.getResource(_defaultClipPath);
+                            } catch (FileNotFoundException fnfe4) {
+                                Log.warning("Additionally, the default " +
+                                    "fallback sound could not be located " +
+                                    "[bundle=" + _defaultClipBundle +
+                                    ", path=" + _defaultClipPath + "].");
+                            }
                         }
+                    } else {
+                        Log.warning("No fallback default sound specified!");
                     }
-                } else {
-                    Log.warning("No fallback default sound specified!");
                 }
                 // if we couldn't load the default, rethrow
                 if (clipin == null) {
