@@ -1,5 +1,5 @@
 //
-// $Id: ModeUtil.java,v 1.5 2002/12/13 04:37:27 shaper Exp $
+// $Id: ModeUtil.java,v 1.6 2003/05/01 22:04:48 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -57,8 +57,8 @@ public class ModeUtil
         // but we only add modes that meet our minimum requirements
         TreeSet mset = new TreeSet(mcomp);
         for (int i = 0; i < modes.length; i++) {
-            if (modes[i].getWidth() == 800 &&
-                modes[i].getHeight() == 600 &&
+            if (modes[i].getWidth() == width &&
+                modes[i].getHeight() == height &&
                 modes[i].getBitDepth() >= minimumDepth &&
                 modes[i].getRefreshRate() <= 75) {
                 mset.add(modes[i]);
