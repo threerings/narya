@@ -1,5 +1,5 @@
 //
-// $Id: StreamableFieldMarshaller.java,v 1.3 2002/02/01 23:32:37 mdb Exp $
+// $Id: StreamableFieldMarshaller.java,v 1.4 2002/02/19 03:30:55 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -18,20 +18,29 @@ public class StreamableFieldMarshaller implements FieldMarshaller
         Streamable value = (Streamable)field.get(obj);
         // we freak out if our streamable is null
         if (value == null) {
-            throw new IllegalAccessException(
-                "No streamable instance to marshall!");
+            out.writeByte(0);
+        } else {
+            out.writeByte(1);
+            value.writeTo(out);
         }
-        value.writeTo(out);
     }
 
     public void readFrom (DataInputStream in, Field field, Object obj)
         throws IOException, IllegalAccessException
     {
         try {
-            // create a new instance into which to unmarshall the field
-            Streamable value = (Streamable)field.getType().newInstance();
-            // unserialize it
-            value.readFrom(in);
+            byte isNull = in.readByte();
+            Streamable value = null;
+
+            // instantiate and unserialize the streamable if we actually
+            // have a value
+            if (isNull == 1) {
+                // create a new instance into which to unmarshall the field
+                value = (Streamable)field.getType().newInstance();
+                // unserialize it
+                value.readFrom(in);
+            }
+
             // and set the value in the object
             field.set(obj, value);
 
