@@ -1,5 +1,5 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.12 2002/09/11 19:31:40 mdb Exp $
+// $Id: ComponentBundlerTask.java,v 1.13 2002/09/12 21:11:16 mdb Exp $
 
 package com.threerings.cast.bundle.tools;
 
@@ -126,6 +126,8 @@ public class ComponentBundlerTask extends Task
 
         // load up our component ID broker
         ComponentIDBroker broker = loadBroker(_mapfile);
+
+        System.out.println("Generating " + _target.getPath() + "...");
 
         try {
             // make sure we can create our bundle file
