@@ -108,6 +108,9 @@ public class PresentsServer
         // register a ctrl-c handler
         SignalManager.registerSignalHandler(SignalManager.SIGINT, this);
 
+        // create our list of shutdowners
+        _downers = new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
+
         // create our distributed object manager
         omgr = createDObjectManager();
 
@@ -353,8 +356,7 @@ public class PresentsServer
     protected static ArrayList _reporters = new ArrayList();
 
     /** A list of shutdown participants. */
-    protected static ObserverList _downers =
-        new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
+    protected static ObserverList _downers;;
 
     /** The frequency with which we generate "state of server" reports. */
     protected static final long REPORT_INTERVAL = 15 * 60 * 1000L;
