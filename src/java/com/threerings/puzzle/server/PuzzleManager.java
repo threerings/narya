@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleManager.java,v 1.11 2004/06/22 15:35:10 mdb Exp $
+// $Id: PuzzleManager.java,v 1.12 2004/07/29 21:51:38 ray Exp $
 
 package com.threerings.puzzle.server;
 
@@ -770,19 +770,6 @@ public abstract class PuzzleManager extends GameManager
         // nothing for now
     }
 
-    /**
-     * Get the performance level for the specified percentile score.
-     */
-    public static byte getPerformanceLevel (int pctile)
-    {
-        for (int ii=0; ii < PERFORMANCE_CUTOFFS.length; ii++) {
-            if (pctile <= PERFORMANCE_CUTOFFS[ii]) {
-                return (byte) ii;
-            }
-        }
-        return (byte) PERFORMANCE_CUTOFFS.length;
-    }
-
     /** A casted reference to our puzzle config object. */
     protected PuzzleConfig _puzconfig;
 
@@ -798,10 +785,4 @@ public abstract class PuzzleManager extends GameManager
     /** Used to track the last time we received a progress event from each
      * player in this puzzle. */
     protected long[] _lastProgress;
-
-    /** The percentile cutoffs for performance levels. Above the last one
-     * is "incredible". These could be defined in {@link PuzzleCodes}, but
-     * then users could find out these super-secret cutoff values! */
-    protected static final int[] PERFORMANCE_CUTOFFS = new int[] {
-        5, 20, 50, 75, 95 };
 }
