@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundler.java,v 1.7 2002/06/21 18:53:13 mdb Exp $
+// $Id: TileSetBundler.java,v 1.8 2002/06/21 20:16:34 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -308,14 +308,12 @@ public class TileSetBundler
                             return ImageIO.read(source);
                         }
                     });
-
                     // create a trimmed object tileset, which will write
                     // the trimmed tileset image to the jar output stream
                     TrimmedObjectTileSet tset =
                         TrimmedObjectTileSet.trimObjectTileSet(
                             (ObjectTileSet)set, jar);
                     tset.setImagePath(imagePath);
-                    Log.info("Trimmed! " + tset);
                     // replace the original set with the trimmed tileset
                     // in the tileset bundle
                     bundle.addTileSet(tileSetId, tset);
