@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.40 2002/04/15 23:10:23 mdb Exp $
+// $Id: Sprite.java,v 1.41 2002/04/16 02:28:50 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -421,9 +421,10 @@ public abstract class Sprite
     {
         if (_scrollsWithView) {
             // update our coordinates
-            _x += dx;
-            _y += dy;
-            _bounds.translate(dx, dy);
+            _x -= dx;
+            _y -= dy;
+            _bounds.x -= dx;
+            _bounds.y -= dy;
 
             // and let any path that we're following know what's up
             if (_path != null) {

@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.16 2002/04/15 23:09:10 mdb Exp $
+// $Id: LineSegmentPath.java,v 1.17 2002/04/16 02:29:05 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -136,7 +136,8 @@ public class LineSegmentPath
         int ncount = _nodes.size();
         for (int ii = 0; ii < ncount; ii++) {
             PathNode node = (PathNode)_nodes.get(ii);
-            node.loc.translate(dx, dy);
+            node.loc.x -= dx;
+            node.loc.y -= dy;
         }
     }
 
