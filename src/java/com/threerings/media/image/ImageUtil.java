@@ -1,10 +1,11 @@
 //
-// $Id: ImageUtil.java,v 1.27 2003/01/21 22:11:04 mdb Exp $
+// $Id: ImageUtil.java,v 1.28 2003/01/24 21:48:14 mdb Exp $
 
 package com.threerings.media.image;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
@@ -27,6 +28,7 @@ import java.awt.geom.Area;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import com.samskivert.swing.Label;
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.StringUtil;
 
@@ -47,6 +49,28 @@ public class ImageUtil
         WritableRaster raster =
             source.getRaster().createCompatibleWritableRaster(width, height);
         return new BufferedImage(source.getColorModel(), raster, false, null);
+    }
+
+    /**
+     * Creates an image with the word "Error" written in it.
+     */
+    public static BufferedImage createErrorImage (int width, int height)
+    {
+        BufferedImage img = new BufferedImage(
+            width, height, BufferedImage.TYPE_BYTE_INDEXED);
+        Graphics2D g = (Graphics2D)img.getGraphics();
+        g.setColor(Color.red);
+        Label l = new Label("Error");
+        l.layout(g);
+        Dimension d = l.getSize();
+        // fill that sucker with errors
+        for (int yy = 0; yy < height; yy += d.height) {
+            for (int xx = 0; xx < width; xx += (d.width+5)) {
+                l.render(g, xx, yy);
+            }
+        }
+        g.dispose();
+        return img;
     }
 
     /**
@@ -199,12 +223,6 @@ public class ImageUtil
 //    public static Area createImageMask (BufferedImage src)
 //    {
 //        Raster srcdata = src.getData(); 
-//        if (srcdata.getNumBands() != 4) {
-//            throw new IllegalArgumentException(
-//                "Can't create a mask of an image with no transparency " +
-//                "[image=" + src + "].");
-//        }
-//
 //        int wid = src.getWidth(), hei = src.getHeight();
 //        Log.info("creating area of (" + wid + ", " + hei + ")");
 //        Area a = new Area(new Rectangle(wid, hei));
@@ -241,14 +259,9 @@ public class ImageUtil
         float startAlpha, float endAlpha)
     {
         Raster srcdata = src.getData(); 
-        if (srcdata.getNumBands() != 4) {
-            throw new IllegalArgumentException(
-                "Can't trace an image with no transparency " +
-                "[image=" + src + ", bands=" + srcdata.getNumBands() + "].");
-        }
+        int wid = src.getWidth(), hei = src.getHeight();
 
         // create the destination image
-        int wid = src.getWidth(), hei = src.getHeight();
         BufferedImage dest = imgr.createImage(
             wid, hei, Transparency.TRANSLUCENT);
 
