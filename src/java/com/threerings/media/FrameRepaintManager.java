@@ -1,5 +1,5 @@
 //
-// $Id: FrameRepaintManager.java,v 1.17 2003/03/25 19:06:54 mdb Exp $
+// $Id: FrameRepaintManager.java,v 1.18 2003/04/02 03:59:17 mdb Exp $
 
 package com.threerings.media;
 
@@ -208,7 +208,9 @@ public class FrameRepaintManager extends RepaintManager
         int icount = invalid.length;
         for (int ii = 0; ii < icount; ii++) {
             if (invalid[ii] != null) {
-//                 Log.info("Validating " + invalid[ii]);
+                if (DEBUG) {
+                    Log.info("Validating " + invalid[ii]);
+                }
                 ((Component)invalid[ii]).validate();
             }
         }
