@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.17 2002/04/16 02:29:05 mdb Exp $
+// $Id: LineSegmentPath.java,v 1.18 2002/04/16 17:00:33 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -41,16 +41,15 @@ public class LineSegmentPath
      * connecting the point <code>(x1, y1)</code> with <code>(x2,
      * y2)</code>.  The orientation for the first node is set arbitrarily
      * and the second node is oriented based on the vector between the two
-     * nodes.
+     * nodes (in top-down coordinates).
      */
     public LineSegmentPath (int x1, int y1, int x2, int y2)
     {
-        _nodes = new ArrayList();
-        _nodes.add(new PathNode(x1, y1, NORTH));
+        this();
+        addNode(x1, y1, NORTH);
         Point p1 = new Point(x1, y1), p2 = new Point(x2, y2);
         int dir = getDirection(p1, p2);
-        Log.info("orient " + dir + " " + p1 + " " + p2 + ".");
-        _nodes.add(new PathNode(x2, y2, dir));
+        addNode(x2, y2, dir);
     }
 
     /**
@@ -63,8 +62,21 @@ public class LineSegmentPath
      */
     public LineSegmentPath (List points)
     {
-        _nodes = new ArrayList();
+        this();
         createPath(points);
+    }
+
+    /**
+     * Add a node to the path with the specified destination point and
+     * facing direction.
+     *
+     * @param x the x-position.
+     * @param y the y-position.
+     * @param dir the facing direction.
+     */
+    public void addNode (int x, int y, int dir)
+    {
+        _nodes.add(new PathNode(x, y, dir));
     }
 
     /**
@@ -284,19 +296,6 @@ public class LineSegmentPath
     }        
 
     /**
-     * Add a node to the path with the specified destination point and
-     * facing direction.
-     *
-     * @param x the x-position.
-     * @param y the y-position.
-     * @param dir the facing direction.
-     */
-    protected void addNode (int x, int y, int dir)
-    {
-        _nodes.add(new PathNode(x, y, dir));
-    }
-
-    /**
      * Gets the next node in the path.
      */
     protected PathNode getNextNode ()
@@ -331,8 +330,6 @@ public class LineSegmentPath
             return NORTHWEST;
 
         } else {
-            Log.warning("Can't sort out direction between " + a +
-                        " and " + b + ".");
             return NONE;
         }
     }
