@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.3 2001/08/01 20:37:35 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.4 2001/08/02 01:21:03 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -39,30 +39,36 @@ public class PlaceRegistry implements Subscriber
      *
      * @param config the configuration information for this place manager.
      *
+     * @return a reference to the place manager that will manage the new
+     * place object or null if an error occurred creating the place or
+     * place manager.
+     *
      * @see PlaceConfig#PLACEOBJ_CLASS
      * @see PlaceConfig#PLACEMGR_CLASS
      */
-    public void createPlace (Properties config)
+    public PlaceManager createPlace (Properties config)
     {
         String pobjcl = config.getProperty(PlaceConfig.PLACEOBJ_CLASS);
         if (pobjcl == null) {
             Log.warning("No place object classname specified in " +
                         "place config [config=" + config + "].");
-            return;
+            return null;
         }
 
         String pmgrcl = config.getProperty(PlaceConfig.PLACEMGR_CLASS);
         if (pobjcl == null) {
             Log.warning("No place manager classname specified in " +
                         "place config [config=" + config + "].");
-            return;
+            return null;
         }
 
         try {
-            createPlace(Class.forName(pobjcl), Class.forName(pmgrcl), config);
+            return createPlace(Class.forName(pobjcl),
+                               Class.forName(pmgrcl), config);
         } catch (Exception e) {
             Log.warning("Unable to instantiate place object or " +
                         "manager class [error=" + e + "].");
+            return null;
         }
     }
 
@@ -76,9 +82,12 @@ public class PlaceRegistry implements Subscriber
      * @param pmgrClass the <code>PlaceManager</code> derived class that
      * should be instantiated to manage the place.
      * @param config the configuration information for this place manager.
+     *
+     * @return a reference to the place manager that will manage the new
+     * place object.
      */
-    public void createPlace (Class pobjClass, Class pmgrClass,
-                             Properties config)
+    public PlaceManager createPlace (Class pobjClass, Class pmgrClass,
+                                     Properties config)
     {
         // create a place manager for this place
         try {
@@ -92,11 +101,14 @@ public class PlaceRegistry implements Subscriber
             // and request to create the place object
             PartyServer.omgr.createObject(pobjClass, this, false);
 
+            return pmgr;
+
         } catch (Exception e) {
             Log.warning("Error creating place " +
                         "[pobjc=" + pobjClass.getName() +
                         ", pmgrc=" + pmgrClass.getName() +
                         ", error=" + e + "].");
+            return null;
         }
     }
 
