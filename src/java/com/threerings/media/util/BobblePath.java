@@ -1,5 +1,5 @@
 //
-// $Id: BobblePath.java,v 1.1 2003/01/14 04:40:45 ray Exp $
+// $Id: BobblePath.java,v 1.2 2003/01/14 22:37:38 ray Exp $
 
 package com.threerings.media.util;
 
@@ -40,8 +40,7 @@ public class BobblePath implements Path
     public BobblePath (int dx, int dy, long duration, long updateFreq)
     {
         _updateFreq = updateFreq;
-        // we store the duration in stoptime for now
-        _stopTime = duration;
+        _duration = duration;
         setVariance(dx, dy);
     }
 
@@ -83,10 +82,10 @@ public class BobblePath implements Path
         _sx = pable.getX();
         _sy = pable.getY();
         // change the duration to a real stop time
-        if (_stopTime == -1L) {
+        if (_duration == -1L) {
             _stopTime = Long.MAX_VALUE;
         } else {
-            _stopTime += tickstamp;
+            _stopTime = tickstamp + _duration;
         }
         _nextMove = tickstamp;
     }
@@ -151,6 +150,9 @@ public class BobblePath implements Path
 
     /** The variance we will bobble around that initial position. */
     protected int _dx, _dy;
+
+    /** How long we'll bobble. */
+    protected long _duration;
 
     /** How often we update the locations. */
     protected long _updateFreq;
