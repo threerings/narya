@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.14 2001/07/25 01:38:08 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.15 2001/08/02 01:19:47 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -40,27 +40,30 @@ public class Scene
     public static final String[] XLATE_LAYERS = { "Base", "Object" };
 
     /** Scene id to denote an unset or otherwise invalid scene id. */
-    public static final int SID_INVALID = -1;
+    public static final short SID_INVALID = -1;
 
     /** The tiles comprising the scene. */
     public Tile tiles[][][];
 
     /**
-     * Construct a new Scene object initialized to a default state,
-     * specifying the tile manager from which the scene obtains tiles.
+     * Construct a new Scene object.  The base layer tiles are
+     * initialized to contain tiles of the specified default tileset
+     * and tile id.
      *
      * @param tilemgr the tile manager.
+     * @param deftsid the default tileset id.
+     * @param deftid the default tile id.
      */
-    public Scene (TileManager tilemgr, int sid)
+    public Scene (TileManager tilemgr, int deftsid, int deftid)
     {
 	_tilemgr = tilemgr;
-        _sid = (short)sid;
+        _sid = SID_INVALID;
 	_name = DEF_SCENE_NAME;
         _hotspots = new Point[0];
         _exits = new ExitPoint[0];
 
 	tiles = new Tile[TILE_WIDTH][TILE_HEIGHT][NUM_LAYERS];
-	Tile tile = _tilemgr.getTile(DEF_TSID, DEF_TID);
+	Tile tile = _tilemgr.getTile(deftsid, deftid);
 	for (int xx = 0; xx < TILE_WIDTH; xx++) {
 	    for (int yy = 0; yy < TILE_HEIGHT; yy++) {
 		for (int ii = 0; ii < NUM_LAYERS; ii++) {
@@ -77,18 +80,17 @@ public class Scene
      * the tile manager from which the scene obtains tiles.
      *
      * @param tilemgr the tile manager.
-     * @param sid the scene id.
      * @param name the scene name.
      * @param hotspots the hotspot points.
      * @param exits the exit points.
      * @param tiles the tiles comprising the scene.
      */
-    public Scene (TileManager tilemgr, int sid, String name,
+    public Scene (TileManager tilemgr, String name,
                   Point hotspots[], ExitPoint exits[],
                   Tile tiles[][][])
     {
         _tilemgr = tilemgr;
-        _sid = (short)sid;
+        _sid = SID_INVALID;
         _name = name;
         _hotspots = hotspots;
         _exits = exits;
@@ -161,12 +163,6 @@ public class Scene
 
     /** The default scene name. */
     protected static final String DEF_SCENE_NAME = "Untitled Scene";
-
-    /** The default tileset id. */
-    protected static final short DEF_TSID = 1000;
-
-    /** The default tile id. */
-    protected static final short DEF_TID = 1;
 
     /** The scene name. */
     protected String _name;

@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.4 2001/07/27 17:52:07 shaper Exp $
+// $Id: XMLSceneParser.java,v 1.5 2001/08/02 01:19:47 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -83,8 +83,9 @@ public class XMLSceneParser extends DefaultHandler
 
         } else if (qName.equals("scene")) {
             // construct the scene object on tag close
-            _scene = new Scene(_tilemgr, Scene.SID_INVALID, _scName,
-                               _scHotspots, _scExits, _scTiles);
+            _scene = new Scene(
+                _tilemgr, _scName, _scHotspots, _scExits, _scTiles);
+
             Log.info("Constructed parsed scene [scene=" + _scene + "].");
 	}
 
