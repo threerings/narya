@@ -1,5 +1,5 @@
 //
-// $Id: FastImageIO.java,v 1.1 2003/04/27 06:32:15 mdb Exp $
+// $Id: FastImageIO.java,v 1.2 2003/04/28 17:38:06 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -113,12 +113,17 @@ public class FastImageIO
                                       width + "x" + height);
             }
 
-            // make sure our colormap array is big enough
-            if  (_cmap == null || _cmap.length < msize) {
-                _cmap = new int[msize];
+            IndexColorModel cmodel;
+            synchronized (_origin) { // any old object will do
+                // make sure our colormap array is big enough
+                if  (_cmap == null || _cmap.length < msize) {
+                    _cmap = new int[msize];
+                }
+                // read in the data and create our colormap
+                ibuf.get(_cmap, 0, msize);
+                cmodel = new IndexColorModel(
+                    8, msize, _cmap, 0, DataBuffer.TYPE_BYTE, null);
             }
-            // read in the colormap
-            ibuf.get(_cmap, 0, msize);
 
             // advance the byte buffer accordingly
             mbuf.position(ibuf.position() * 4);
@@ -133,12 +138,8 @@ public class FastImageIO
             PixelInterleavedSampleModel smodel =
                 new PixelInterleavedSampleModel(
                     DataBuffer.TYPE_BYTE, width, height, 1, width, offsets);
-
             WritableRaster raster = WritableRaster.createWritableRaster(
                 smodel, dbuf, _origin);
-            IndexColorModel cmodel = new IndexColorModel(
-                8, msize, _cmap, 0, DataBuffer.TYPE_BYTE, null);
-
             return new BufferedImage(cmodel, raster, false, null);
 
         } finally {

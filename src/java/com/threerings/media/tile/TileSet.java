@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.48 2003/04/27 07:33:15 mdb Exp $
+// $Id: TileSet.java,v 1.49 2003/04/28 17:38:06 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -335,7 +335,9 @@ public abstract class TileSet
     public static void setCanFlushCache (boolean enabled)
     {
         if (_tiles != null) {
-            _tiles.setCanFlush(enabled);
+            synchronized (_tiles) {
+                _tiles.setCanFlush(enabled);
+            }
         }
     }
 

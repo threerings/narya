@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.52 2003/04/27 07:33:15 mdb Exp $
+// $Id: ImageManager.java,v 1.53 2003/04/28 17:38:06 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -119,7 +119,9 @@ public class ImageManager
      */
     public void setCanFlushCache (boolean enabled)
     {
-        _ccache.setCanFlush(enabled);
+        synchronized (_ccache) {
+            _ccache.setCanFlush(enabled);
+        }
     }
 
     /**
