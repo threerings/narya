@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.17 2002/09/23 18:19:07 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.18 2002/12/04 22:04:46 shaper Exp $
 
 package com.threerings.presents.client;
 
@@ -377,7 +377,7 @@ public class ClientDObjectMgr
         }
     };
 
-    /** The modifiers for our dump table debug hook (Ctrl+Alt). */
+    /** The modifiers for our dump table debug hook (Alt+Shift). */
     protected static int DUMP_OTABLE_MODMASK =
         KeyEvent.ALT_DOWN_MASK|KeyEvent.SHIFT_DOWN_MASK;
 
