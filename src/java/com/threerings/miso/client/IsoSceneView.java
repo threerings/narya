@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.83 2002/01/11 16:17:34 shaper Exp $
+// $Id: IsoSceneView.java,v 1.84 2002/01/31 01:07:02 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -7,13 +7,14 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Stroke;
+import java.awt.event.MouseEvent;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -35,6 +36,7 @@ import com.threerings.miso.scene.DirtyItemList.DirtyItem;
 import com.threerings.miso.scene.util.AStarPathUtil;
 import com.threerings.miso.scene.util.IsoUtil;
 import com.threerings.miso.tile.BaseTileLayer;
+import com.threerings.miso.tile.ShadowTile;
 
 /**
  * The iso scene view provides an isometric view of a particular
@@ -42,6 +44,23 @@ import com.threerings.miso.tile.BaseTileLayer;
  */
 public class IsoSceneView implements SceneView
 {
+    /** Instructs the scene view never to draw highlights around object
+     * tiles. */
+    public static final int HIGHLIGHT_NEVER = 0;
+
+    /** Instructs the scene view to highlight only object tiles that have
+     * a non-empty action string. */
+    public static final int HIGHLIGHT_WITH_ACTION = 1;
+
+    /** Instructs the scene view to highlight every object tile,
+     * regardless of whether it has a valid action string. */
+    public static final int HIGHLIGHT_ALWAYS = 2;
+
+    /** Instructs the scene view to highlight whatever tile the mouse is
+     * over, regardless of whether or not it is an object tile. This is
+     * generally only useful in an editor rather than a game. */
+    public static final int HIGHLIGHT_ALL = 2;
+
     /**
      * Constructs an iso scene view.
      *
@@ -72,6 +91,19 @@ public class IsoSceneView implements SceneView
 
         // create the array used to mark dirty tiles
         _dirty = new boolean[model.scenewid][model.tilehei];
+    }
+
+    /**
+     * Configures the scene view to highlight object tiles either never
+     * ({@link #HIGHLIGHT_NEVER}), only when an object tile has an
+     * associated action string ({@link HIGHLIGHT_WITH_ACTION}), or always
+     * ({@link HIGHLIGHT_ALWAYS}). It is also possible to configure the
+     * view to highlight whatever tile is under the cursor, even if it's
+     * not an object tile which is done in the {@link HIGHLIGHT_ALL} mode.
+     */
+    public void setHighlightMode (int hmode)
+    {
+        _hmode = hmode;
     }
 
     // documentation inherited
@@ -130,11 +162,50 @@ public class IsoSceneView implements SceneView
 	    _spritemgr.renderSpritePaths(gfx);
 	}
 
+        // paint our highlighted tile (if any)
+        paintHighlights(gfx);
+
         // paint any extra goodies
 	paintExtras(gfx);
 
 	// restore the original clipping region
 	gfx.setClip(oldclip);
+    }
+
+    /**
+     * Paints the highlighted tile.
+     *
+     * @param gfx the graphics context.
+     */
+    protected void paintHighlights (Graphics2D gfx)
+    {
+        // if we're not highlighting object tiles, bail now
+        if (_hmode == HIGHLIGHT_NEVER) {
+            return;
+        }
+
+        Polygon hpoly = null;
+
+        // if we have no highlight object, but we're in HIGHLIGHT_ALL,
+        // then paint the bounds of the highlighted base tile
+        if (_hobject == null && _hmode == HIGHLIGHT_ALL &&
+            _hcoords.x != -1 && _hcoords.y != -1) {
+            hpoly = _polys[_hcoords.x][_hcoords.y];
+        }
+
+        // if we've determined that there's something to highlight
+        if (hpoly != null) {
+            // set the desired stroke and color
+	    Stroke ostroke = gfx.getStroke();
+	    gfx.setStroke(_hstroke);
+	    gfx.setColor(Color.green);
+
+	    // draw the outline
+            gfx.draw(hpoly);
+
+	    // restore the original stroke
+	    gfx.setStroke(ostroke);
+        }
     }
 
     /**
@@ -571,6 +642,11 @@ public class IsoSceneView implements SceneView
     // documentation inherited
     public Path getPath (MisoCharacterSprite sprite, int x, int y)
     {
+        // make sure we have a scene
+        if (_scene == null) {
+            return null;
+        }
+
         // make sure the destination point is within our bounds
         if (!_model.bounds.contains(x, y)) {
             return null;
@@ -597,6 +673,147 @@ public class IsoSceneView implements SceneView
 	IsoUtil.fullToScreen(_model, x, y, coords);
         return coords;
     }
+
+    // documentation inherited
+    public Point getFullCoords (int x, int y)
+    {
+        Point coords = new Point();
+        IsoUtil.screenToFull(_model, x, y, coords);
+        return coords;
+    }
+
+    // documentation inherited
+    public boolean mouseMoved (MouseEvent e)
+    {
+        int x = e.getX(), y = e.getY();
+        boolean repaint = false;
+
+        // compute the list of objects over which the mouse is hovering
+        _hitList.clear();
+        _hitSpritesList.clear();
+        // add the sprites that contain the point
+        _spritemgr.getHitSprites(_hitSpritesList, x, y);
+        int hslen = _hitSpritesList.size();
+        for (int i = 0; i < hslen; i++) {
+            MisoCharacterSprite sprite =
+                (MisoCharacterSprite)_hitSpritesList.get(i);
+            _hitList.appendDirtySprite(
+                sprite, sprite.getTileX(), sprite.getTileY(),
+                sprite.getBounds());
+        }
+
+        // add the object tiles that contain the point
+        getHitObjects(_hitList, x, y);
+
+        // sort the list of hit items by rendering order
+        Object hobject = null;
+        DirtyItem[] items = _hitList.sort();
+        // the last element in the array is what we want (assuming there
+        // are any items in the array)
+        if (items.length > 0) {
+            hobject = items[items.length-1].obj;
+        }
+
+        // if this hover object is different than before, we'll need to be
+        // repainted
+        if (hobject != _hobject) {
+            _hobject = hobject;
+            System.out.println("New hover object: " + hobject);
+            repaint = true;
+        }
+
+        // update the tile coordinates that the mouse is over
+        if (_hmode == HIGHLIGHT_ALL) {
+            repaint = (updateTileCoords(x, y, _hcoords) || repaint);
+        }
+
+        return repaint;
+    }
+
+    /**
+     * Adds to the supplied dirty item list, all of the object tiles that
+     * are hit by the specified point (meaning the point is contained
+     * within their bounds and intersects a non-transparent pixel in the
+     * actual object image.
+     */
+    protected void getHitObjects (DirtyItemList list, int x, int y)
+    {
+//         ObjectTileLayer tiles = _scene.getObjectLayer();
+//         Iterator iter = _objpolys.keys();
+
+//         while (iter.hasNext()) {
+//             // get the object's coordinates and bounding polygon
+//             int coord = ((Integer)iter.next()).intValue();
+//             Polygon poly = (Polygon)_objpolys.get(coord);
+
+//             // skip polys that don't contain the point
+//             if (!poly.contains(x, y)) {
+//                 continue;
+//             }
+
+//             // do further analysis on those that do
+//             int tx = coord >> 16, ty = coord & 0x0000FFFF;
+//             ObjectTile tile = tiles.getTile(tx, ty);
+
+//             // get the dirty portion of the object
+//             Rectangle drect = poly.getBounds();
+//             _dirtyItems.appendDirtyObject(
+//                 , poly, tx, ty, drect);
+//             // Log.info("Dirtied item: Object(" + tx + ", " +
+//             // ty + ")");
+//         }
+    }
+
+    // documentation inherited
+    public void mouseExited (MouseEvent e)
+    {
+        // clear the highlight tracking data
+        _hcoords.setLocation(-1, -1);
+        _hobject = null;
+    }
+
+    // documentation inherited
+    public Object getHoverObject ()
+    {
+        return _hobject;
+    }
+
+    /**
+     * Converts the supplied screen coordinates into tile coordinates,
+     * writing the values into the supplied {@link Point} instance and
+     * returning true if the screen coordinates translated into a
+     * different set of tile coordinates than were already contained in
+     * the point (so that the caller can know to update a highlight, for
+     * example).
+     *
+     * @return true if the tile coordinates have changed.
+     */
+    protected boolean updateTileCoords (int sx, int sy, Point tpos)
+    {
+	Point npos = new Point();
+        IsoUtil.screenToTile(_model, sx, sy, npos);
+
+        // make sure the new coordinate is both valid and different
+        if (_model.isCoordinateValid(npos.x, npos.y) && !tpos.equals(npos)) {
+            tpos.setLocation(npos.x, npos.y);
+            return true;
+
+        } else {
+            return false;
+        }
+    }
+
+    /** The sprite manager. */
+    protected SpriteManager _spritemgr;
+
+    /** The animation manager. */
+    protected AnimationManager _animmgr;
+
+    /** The scene view model data. */
+    protected IsoSceneViewModel _model;
+
+    /** The scene to be displayed. */
+    protected DisplayMisoScene _scene;
 
     /** The stroke used to draw dirty rectangles. */
     protected static final Stroke DIRTY_RECT_STROKE = new BasicStroke(2);
@@ -625,15 +842,23 @@ public class IsoSceneView implements SceneView
     /** The working sprites list used when calculating dirty regions. */
     protected ArrayList _dirtySprites = new ArrayList();
 
-    /** The scene view model data. */
-    protected IsoSceneViewModel _model;
+    /** Used to collect the list of sprites "hit" by a particular mouse
+     * location. */
+    protected List _hitSpritesList = new ArrayList();
 
-    /** The scene to be displayed. */
-    protected DisplayMisoScene _scene;
+    /** The list that we use to track and sort the items over which the
+     * mouse is hovering. */
+    protected DirtyItemList _hitList = new DirtyItemList();
 
-    /** The sprite manager. */
-    protected SpriteManager _spritemgr;
+    /** The highlight mode. */
+    protected int _hmode = HIGHLIGHT_NEVER;
 
-    /** The animation manager. */
-    protected AnimationManager _animmgr;
+    /** The coordinates of the currently highlighted tile. */
+    protected Point _hcoords = new Point(-1, -1);
+
+    /** The object that the mouse is currently hovering over. */
+    protected Object _hobject;
+
+    /** The stroke object used to draw highlighted tiles and coordinates. */
+    protected BasicStroke _hstroke = new BasicStroke(2);
 }

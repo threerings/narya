@@ -1,11 +1,12 @@
 //
-// $Id: SceneView.java,v 1.22 2002/01/11 16:17:34 shaper Exp $
+// $Id: SceneView.java,v 1.23 2002/01/31 01:07:02 mdb Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 import com.threerings.media.sprite.Path;
@@ -64,4 +65,29 @@ public interface SceneView
      * Returns screen coordinates given the specified full coordinates.
      */
     public Point getScreenCoords (int x, int y);
+
+    /**
+     * Returns full coordinates given the specified screen coordinates.
+     */
+    public Point getFullCoords (int x, int y);
+
+    /**
+     * Must be called by the containing panel when the mouse moves over
+     * the view.
+     *
+     * @return true if a repaint is required, false if not.
+     */
+    public boolean mouseMoved (MouseEvent e);
+
+    /**
+     * Must be called by the containing panel when the mouse exits the
+     * view.
+     */
+    public void mouseExited (MouseEvent e);
+
+    /**
+     * Returns the object (sprite or object tile) over which the mouse is
+     * currently hovering.
+     */
+    public Object getHoverObject ();
 }

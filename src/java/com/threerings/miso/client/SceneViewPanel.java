@@ -1,11 +1,15 @@
 //
-// $Id: SceneViewPanel.java,v 1.25 2002/01/23 17:10:41 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.26 2002/01/31 01:07:02 mdb Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 
 import java.util.List;
 
@@ -44,6 +48,28 @@ public class SceneViewPanel extends AnimatedPanel
 
 	// create the scene view
         _view = newSceneView(_animmgr, spritemgr, _viewmodel);
+
+	// listen to mouse...
+	addMouseListener(new MouseAdapter() {
+            public void mouseExited (MouseEvent e) {
+                _view.mouseExited(e);
+                repaint();
+            }
+        });
+
+        // ...and mouse motion events
+	addMouseMotionListener(new MouseMotionAdapter() {
+            public void mouseMoved (MouseEvent e) {
+                if (_view.mouseMoved(e)) {
+                    repaint();
+                }
+            }
+            public void mouseDragged (MouseEvent e) {
+                if (_view.mouseMoved(e)) {
+                    repaint();
+                }
+            }
+        });
     }
 
     /**
@@ -57,7 +83,7 @@ public class SceneViewPanel extends AnimatedPanel
     /**
      * Constructs the underlying scene view implementation.
      */
-    protected IsoSceneView newSceneView (
+    protected SceneView newSceneView (
 	AnimationManager amgr, SpriteManager smgr, IsoSceneViewModel model)
     {
         return new IsoSceneView(amgr, smgr, model);
