@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.72 2004/07/10 01:32:54 mdb Exp $
+// $Id: GameManager.java,v 1.73 2004/08/13 21:18:39 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import com.samskivert.util.IntervalManager;
+import com.samskivert.util.RepeatCallTracker;
 import com.samskivert.util.StringUtil;
 import com.threerings.util.Name;
 
@@ -657,12 +658,11 @@ public class GameManager extends PlaceManager
     public void endGame ()
     {
         // TEMP: debug pending rating repeat bug
-        if (_gameEndTrace != null) {
-            Log.warning("Requested to end already ended game " +
-                        "[game=" + _gameobj.which() + "].");
-            Thread.dumpStack();
+        if (_gameEndTracker.checkCall(
+                "Requested to end already ended game " +
+                "[game=" + _gameobj.which() + "].")) {
+            return;
         }
-        _gameEndTrace = new Exception().getStackTrace();
         // END TEMP
 
         if (_gameobj.state != GameObject.IN_PLAY) {
@@ -981,7 +981,7 @@ public class GameManager extends PlaceManager
     protected TickAIDelegateOp _tickAIOp;
 
     /** TEMP: debugging the pending rating double release bug. */
-    protected StackTraceElement[] _gameEndTrace;
+    protected RepeatCallTracker _gameEndTracker = new RepeatCallTracker();
 
     /** A list of all currently active game managers. */
     protected static ArrayList _managers = new ArrayList();
