@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.26 2001/10/22 18:13:09 shaper Exp $
+// $Id: Sprite.java,v 1.27 2001/10/23 01:59:50 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -328,11 +328,13 @@ public class Sprite
      */
     protected void pathCompleted ()
     {
-        // inform observers that we've finished our path
-        notifyObservers(new PathCompletedEvent(this, _path));
-
-        // we no longer want to keep a reference to this path
+        // keep a reference to the path just completed
+        Path oldpath = _path;
+        // clear out the path we've now finished
 	_path = null;
+        // inform observers that we've finished our path
+        notifyObservers(new PathCompletedEvent(this, oldpath));
+
     }
 
     /**
