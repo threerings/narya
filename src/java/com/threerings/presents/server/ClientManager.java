@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.16 2002/04/18 20:46:43 mdb Exp $
+// $Id: ClientManager.java,v 1.17 2002/04/18 22:37:08 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -163,14 +163,17 @@ public class ClientManager implements ConnectionObserver
      * If an entity resolves a client object outside the scope of a normal
      * client session, it should call this to unmap the client object when
      * it's finished. This won't actually unmap the client if someone came
-     * along and started a session for that client in the meanwhile.
+     * along and started a session for that client in the meanwhile, but
+     * if it does unmap the client it will also destroy the client object
+     * (finishing the job, as it were).
      */
     public synchronized void unmapClientObject (String username)
     {
         // we only remove the mapping if there's not a session in progress
         // (which is indicated by a mapping in the usermap table)
         if (!_usermap.containsKey(username)) {
-            _objmap.remove(username);
+            ClientObject clobj = (ClientObject)_objmap.remove(username);
+            PresentsServer.omgr.destroyObject(clobj.getOid());
         }
     }
 
