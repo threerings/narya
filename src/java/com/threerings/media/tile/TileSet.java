@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.44 2003/04/01 02:16:28 mdb Exp $
+// $Id: TileSet.java,v 1.45 2003/04/04 19:36:21 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -137,7 +137,7 @@ public abstract class TileSet
     public Tile getTile (int tileIndex)
         throws NoSuchTileException
     {
-        return getTile(tileIndex, null);
+        return getTile(tileIndex, (Colorization[])null);
     }
 
     /**
@@ -162,7 +162,28 @@ public abstract class TileSet
         throws NoSuchTileException
     {
         checkTileIndex(tileIndex);
+        return getTile(tileIndex, getColorizations(tileIndex, rizer));
+    }
 
+    /**
+     * Creates a {@link Tile} object from this tileset corresponding to
+     * the specified tile id and returns that tile. A null tile will never
+     * be returned, but one with an error image may be returned if a
+     * problem occurs loading the underlying tileset image.
+     *
+     * @param tileIndex the index of the tile in the tileset. Tile indexes
+     * start with zero as the upper left tile and increase by one as the
+     * tiles move left to right and top to bottom over the source image.
+     * @param zations colorizations to be applied to the tile image prior
+     * to returning it. These may be null for uncolorized images.
+     *
+     * @return the tile object.
+     *
+     * @exception NoSuchTileException thrown if the specified tile index
+     * is out of range for this tileset.
+     */
+    public Tile getTile (int tileIndex, Colorization[] zations)
+    {
         // create our tile cache if necessary
         if (_tiles == null) {
             int tcsize = _cacheSize.getValue();
@@ -174,7 +195,6 @@ public abstract class TileSet
             });
         }
 
-        Colorization[] zations = getColorizations(tileIndex, rizer);
         TileKey key = new TileKey(this, tileIndex, zations);
         Tile tile = (Tile)_tiles.get(key);
         if (tile == null) {
