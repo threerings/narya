@@ -1,5 +1,5 @@
 //
-// $Id: MisoScene.java,v 1.1 2003/02/12 05:39:15 mdb Exp $
+// $Id: MisoScene.java,v 1.2 2003/02/20 00:40:13 ray Exp $
 
 package com.threerings.miso.data;
 
@@ -32,6 +32,11 @@ public interface MisoScene
      * TileUtil#getFQTileId}) of the tile to set.
      * @param x the x-coordinate of the tile to set.
      * @param y the y-coordinate of the tile to set.
+     *
+     * Note that if there are fringe tiles associated with this scene,
+     * calling this method may result in the surrounding fringe tiles being
+     * cleared and subsequently recalculated. This should not be called
+     * on a displaying scene unless you know what you are doing.
      */
     public void setBaseTile (int fqTileId, int x, int y);
 

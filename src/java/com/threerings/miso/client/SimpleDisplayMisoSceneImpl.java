@@ -1,5 +1,5 @@
 //
-// $Id: SimpleDisplayMisoSceneImpl.java,v 1.1 2003/02/12 07:21:15 mdb Exp $
+// $Id: SimpleDisplayMisoSceneImpl.java,v 1.2 2003/02/20 00:40:13 ray Exp $
 
 package com.threerings.miso.client;
 
@@ -74,6 +74,16 @@ public class SimpleDisplayMisoSceneImpl extends SimpleMisoSceneImpl
     {
         super.setBaseTile(fqTileId, x, y);
         populateBaseTile(fqTileId, x, y);
+
+        // setting a base tile has the side-effect of clearing out the
+        // surrounding fringe tiles.
+        for (int xx=Math.max(x - 1, 0),
+                 xn=Math.min(x + 1, _model.width - 1); xx <= xn; xx++) {
+            for (int yy=Math.max(y - 1, 0),
+                     yn=Math.min(y + 1, _model.height - 1); yy <= yn; yy++) {
+                _fringe[yy * _model.width + xx] = null;
+            }
+        }
     }
 
     // documentation inherited from interface
