@@ -1,7 +1,7 @@
 //
-// $Id: MisoSceneRuleSet.java,v 1.3 2001/11/20 04:15:44 mdb Exp $
+// $Id: MisoSceneRuleSet.java,v 1.4 2001/11/29 19:31:12 mdb Exp $
 
-package com.threerings.media.tools.tile.xml;
+package com.threerings.miso.tools.scene.xml;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.RuleSetBase;
@@ -16,9 +16,9 @@ import com.threerings.miso.scene.MisoSceneModel;
 public class MisoSceneRuleSet extends RuleSetBase
 {
     /**
-     * Constructs a miso scene rule set which will match scenes with the
-     * supplied prefix. For example, passing <code>scene.miso</code> will
-     * match the scene in the following XML file:
+     * Configures the rule set to match scenes with the supplied prefix.
+     * For example, passing <code>scene.miso</code> will match the scene
+     * in the following XML file:
      *
      * <pre>
      * &lt;scene&gt;
@@ -30,7 +30,7 @@ public class MisoSceneRuleSet extends RuleSetBase
      * &lt;/scene&gt;
      * </pre>
      */
-    public MisoSceneRuleSet (String prefix)
+    public void setPrefix (String prefix)
     {
         _prefix = prefix;
     }
