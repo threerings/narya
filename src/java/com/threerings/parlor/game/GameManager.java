@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.17 2001/12/14 00:11:18 mdb Exp $
+// $Id: GameManager.java,v 1.18 2002/02/12 06:57:29 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -63,6 +63,14 @@ public class GameManager
 
         // instantiate a player oid array which we'll fill in later
         _playerOids = new int[players.length];
+    }
+
+    /**
+     * Returns an array of the usernames of the players in this game.
+     */
+    public String[] getPlayers ()
+    {
+        return _players;
     }
 
     // documentation inherited
