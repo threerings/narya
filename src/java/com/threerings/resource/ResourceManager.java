@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.40 2004/02/25 14:49:39 mdb Exp $
+// $Id: ResourceManager.java,v 1.41 2004/06/15 18:25:13 mdb Exp $
 
 package com.threerings.resource;
 
@@ -283,11 +283,21 @@ public class ResourceManager
                 curl = new URL(_rurl, configPath);
                 config.load(curl.openStream());
             }
+
         } catch (MalformedURLException mue) {
             Log.warning("Unable to construct config URL [resourceURL=" + _rurl +
                         ", configPath=" + configPath + ", error=" + mue + "].");
             String errmsg = "Invalid config url [resourceURL=" + _rurl +
                 ", configPath=" + configPath + "]";
+            throw new IOException(errmsg);
+
+        } catch (Exception e) {
+            Log.warning("Unable to load resource mgr properties " +
+                        "[resourceURL=" + _rurl + ", configPath=" + configPath +
+                        ", error=" + e + "].");
+            Log.logStackTrace(e);
+            String errmsg = "Unable to load resource manager config " +
+                "[resourceURL=" + _rurl + ", configPath=" + configPath + "]";
             throw new IOException(errmsg);
         }
 
