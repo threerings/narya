@@ -1,5 +1,5 @@
 //
-// $Id: ImageIOLoader.java,v 1.3 2001/12/13 05:14:53 mdb Exp $
+// $Id: ImageIOLoader.java,v 1.4 2001/12/13 07:31:53 mdb Exp $
 
 package com.threerings.media;
 
@@ -19,7 +19,7 @@ public class ImageIOLoader implements ImageLoader
     {
         // we need to reference ImageIO in the constructor to force the
         // classloader to attempt to load the ImageIO classes
-        ImageIO.setUseCache(false);
+        ImageIO.setUseCache(true);
     }
 
     // documentation inherited
