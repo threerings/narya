@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.24 2003/02/12 07:23:30 mdb Exp $
+// $Id: SceneDirector.java,v 1.25 2003/10/03 20:41:31 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -94,6 +94,12 @@ public class SceneDirector extends BasicDirector
      */
     public boolean moveTo (int sceneId)
     {
+        // make sure the sceneId is valid
+        if (sceneId < 0) {
+            Log.warning("Refusing moveTo(): invalid sceneId " + sceneId + ".");
+            return false;
+        }
+
         // sanity-check the destination scene id
         if (sceneId == _sceneId) {
             Log.warning("Refusing request to move to the same scene " +

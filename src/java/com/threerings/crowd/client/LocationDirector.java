@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.30 2003/06/14 00:47:16 mdb Exp $
+// $Id: LocationDirector.java,v 1.31 2003/10/03 20:41:31 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -112,6 +112,12 @@ public class LocationDirector extends BasicDirector
      */
     public boolean moveTo (int placeId)
     {
+        // make sure the placeId is valid
+        if (placeId < 0) {
+            Log.warning("Refusing moveTo(): invalid placeId " + placeId + ".");
+            return false;
+        }
+
         // first check to see if our observers are happy with this move
         // request
         if (!mayMoveTo(placeId, null)) {

@@ -1,5 +1,5 @@
 //
-// $Id: ZoneDirector.java,v 1.14 2003/02/12 07:23:32 mdb Exp $
+// $Id: ZoneDirector.java,v 1.15 2003/10/03 20:41:32 mdb Exp $
 
 package com.threerings.whirled.zone.client;
 
@@ -94,6 +94,13 @@ public class ZoneDirector extends BasicDirector
      */
     public boolean moveTo (int zoneId, int sceneId, ResultListener rl)
     {
+        // make sure the zoneId and sceneId are valid
+        if (zoneId < 0 || sceneId < 0) {
+            Log.warning("Refusing moveTo(): invalid sceneId or zoneId " +
+                        "[zoneId=" + zoneId + ", sceneId=" + sceneId + "].");
+            return false;
+        }
+
         // if the requested zone is the same as our current zone, we just
         // want a regular old moveTo request
         if (_summary != null && zoneId == _summary.zoneId) {
