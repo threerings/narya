@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.8 2001/12/14 04:33:53 shaper Exp $
+// $Id: ChatPanel.java,v 1.9 2001/12/14 16:07:30 shaper Exp $
 
 package com.threerings.micasa.client;
 
@@ -17,7 +17,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Style;
@@ -27,6 +26,7 @@ import javax.swing.text.StyleContext;
 import com.samskivert.swing.GroupLayout;
 import com.samskivert.swing.HGroupLayout;
 import com.samskivert.swing.VGroupLayout;
+import com.samskivert.swing.event.AncestorAdapter;
 
 import com.threerings.crowd.chat.ChatCodes;
 import com.threerings.crowd.chat.ChatDirector;
@@ -86,17 +86,11 @@ public class ChatPanel
         add(epanel, GroupLayout.FIXED);
 
         // listen to ancestor events to request focus when added
-        addAncestorListener(new AncestorListener() {
+        addAncestorListener(new AncestorAdapter() {
             public void ancestorAdded (AncestorEvent e) {
                 if (_focus) {
                     _entry.requestFocus();
                 }
-            }
-            public void ancestorMoved (AncestorEvent e) {
-                // don't care
-            }
-            public void ancestorRemoved (AncestorEvent e) {
-                // don't care
             }
         });
     }

@@ -1,13 +1,14 @@
 //
-// $Id: AnimationManager.java,v 1.17 2001/10/25 22:08:28 mdb Exp $
+// $Id: AnimationManager.java,v 1.18 2001/12/14 16:08:00 shaper Exp $
 
 package com.threerings.media.sprite;
 
 import java.awt.Graphics;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
-import javax.swing.event.*;
+import javax.swing.event.AncestorEvent;
 
+import com.samskivert.swing.event.AncestorAdapter;
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
 
@@ -16,12 +17,12 @@ import com.threerings.media.util.PerformanceMonitor;
 import com.threerings.media.util.PerformanceObserver;
 
 /**
- * The AnimationManager handles the regular refreshing of the scene
- * view to allow for animation.  It also may someday manage special
- * scene-wide animations, such as rain, fog, or earthquakes.
+ * The animation manager handles the regular refreshing of the scene view
+ * to allow for animation.  It also may someday manage special scene-wide
+ * animations, such as rain, fog, or earthquakes.
  */
 public class AnimationManager
-    implements Interval, PerformanceObserver, AncestorListener
+    implements Interval, PerformanceObserver
 {
     /**
      * Construct and initialize the animation manager with a sprite
@@ -44,7 +45,19 @@ public class AnimationManager
 	}
 
 	// listen to the view's ancestor events
-	target.addAncestorListener(this);
+	target.addAncestorListener(new AncestorAdapter() {
+            public void ancestorAdded (AncestorEvent event) {
+                if (_iid == -1) {
+                    // register the refresh interval since we're now visible
+                    registerInterval();
+                }
+            }
+            public void ancestorRemoved (AncestorEvent event) {
+                // un-register the refresh interval since we're now hidden
+                IntervalManager.remove(_iid);
+                _iid = -1;
+            }
+        });
 
         // create a ticker for queueing up tick requests on the AWT thread
         _ticker = new Runnable() {
@@ -143,33 +156,14 @@ public class AnimationManager
         Log.info(name + " [ticks=" + ticks + "].");
     }
 
-    /** AncestorListener interface methods. */
-
-    public void ancestorAdded (AncestorEvent event)
-    {
-	if (_iid == -1) {
-	    // register the refresh interval since we're now visible
-	    registerInterval();
-	}
-    }
-
-    public void ancestorRemoved (AncestorEvent event)
-    {
-	// un-register the refresh interval since we're now hidden
-	IntervalManager.remove(_iid);
-	_iid = -1;
-    }
-
-    public void ancestorMoved (AncestorEvent event) { }
-
-    /** The ticker runnable that we put on the AWT thread periodically. */
-    protected Runnable _ticker;
-
     /** The desired number of refresh operations per second. */
     protected static final int FRAME_RATE = 70;
 
     /** The milliseconds to sleep to obtain desired frame rate. */
     protected static final long REFRESH_INTERVAL = 1000 / FRAME_RATE;
+
+    /** The ticker runnable that we put on the AWT thread periodically. */
+    protected Runnable _ticker;
 
     /** The number of outstanding tick requests. */
     protected int _ticking = 0;

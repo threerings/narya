@@ -1,5 +1,5 @@
 //
-// $Id: LobbySelector.java,v 1.3 2001/10/11 04:13:33 mdb Exp $
+// $Id: LobbySelector.java,v 1.4 2001/12/14 16:07:30 shaper Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -11,8 +11,8 @@ import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 
+import com.samskivert.swing.event.AncestorAdapter;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.crowd.data.PlaceObject;
@@ -67,15 +67,11 @@ public class LobbySelector
 
         // we'll need to know when we are made visible because we'll want
         // to issue a request for our categories when that happens
-        addAncestorListener(new AncestorListener () {
+        addAncestorListener(new AncestorAdapter () {
             public void ancestorAdded (AncestorEvent evt) {
                 // issue a get categories request to get the category list
                 LobbyService.getCategories(
                     _ctx.getClient(), LobbySelector.this);
-            }
-            public void ancestorRemoved (AncestorEvent evt) {
-            }
-            public void ancestorMoved (AncestorEvent evt) {
             }
         });
     }
