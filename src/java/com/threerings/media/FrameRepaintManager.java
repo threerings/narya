@@ -1,5 +1,5 @@
 //
-// $Id: FrameRepaintManager.java,v 1.4 2002/04/27 19:12:00 mdb Exp $
+// $Id: FrameRepaintManager.java,v 1.5 2002/05/03 04:14:20 mdb Exp $
 
 package com.threerings.media;
 
@@ -197,10 +197,61 @@ public class FrameRepaintManager extends RepaintManager
             _dirty = tmap;
         }
 
+        // scan through the list, looking for components for whom a parent
+        // component is also dirty. in such a case, the dirty rectangle
+        // for the parent component is expanded to contain the dirty
+        // rectangle of the child and the child is removed from the
+        // repaint list (painting the parent will repaint the child)
+        Iterator iter = _spare.entrySet().iterator();
+      PRUNE:
+        while (iter.hasNext()) {
+            Entry entry = (Entry)iter.next();
+            JComponent comp = (JComponent)entry.getKey();
+            Rectangle drect = (Rectangle)entry.getValue();
+            int x = drect.x, y = drect.y;
+
+            // climb up the parent heirarchy, looking for the first opaque
+            // parent as well as the root component
+            for (Component c = comp.getParent(); c != null; c = c.getParent()) {
+                // stop looking for combinable parents for non-visible or
+                // non-JComponents
+                if (!c.isVisible() || c.getPeer() == null ||
+                    !(c instanceof JComponent)) {
+                    break;
+                }
+
+                // check to see if this parent is dirty
+                Rectangle prect = (Rectangle)_spare.get(c);
+                if (prect != null) {
+//                     Log.info("Found dirty parent " +
+//                              "[comp=" + comp.getClass().getName() +
+//                              ", drect=" + StringUtil.toString(drect) +
+//                              ", pcomp=" + comp.getClass().getName() + 
+//                              ", prect=" + StringUtil.toString(prect) + "].");
+                    // we wanted to avoid modifying drect until we knew
+                    // that we were going to merge it with its parent and
+                    // blow it away
+                    drect.x = x;
+                    drect.y = y;
+                    prect.add(drect);
+//                     Log.info("New prect " + StringUtil.toString(prect));
+
+                    // remove the child component and be on our way
+                    iter.remove();
+                    continue PRUNE;
+                }
+
+                // translate the coordinates into this component's
+                // coordinate system
+                x += c.getX();
+                y += c.getY();
+            }
+        }
+
         // now paint each of the dirty components, by setting the clipping
         // rectangle appropriately and calling paint() on the associated
         // root component
-        Iterator iter = _spare.entrySet().iterator();
+        iter = _spare.entrySet().iterator();
         while (iter.hasNext()) {
             Entry entry = (Entry)iter.next();
             JComponent comp = (JComponent)entry.getKey();
@@ -260,6 +311,7 @@ public class FrameRepaintManager extends RepaintManager
             if (root == _rootFrame) {
 //                 Log.info("Repainting [comp=" + comp.getClass().getName() +
 //                          StringUtil.toString(_cbounds) +
+//                          ", ocomp=" + ocomp.getClass().getName() +
 //                          ", drect=" + StringUtil.toString(drect) + "].");
                 g.setClip(drect);
                 g.translate(_cbounds.x, _cbounds.y);
@@ -268,15 +320,17 @@ public class FrameRepaintManager extends RepaintManager
 
             } else if (root != null) {
 //                 Log.info("Repainting old-school " +
-//                          "[comp=" + comp.getClass().getName() + "].");
+//                          "[comp=" + comp.getClass().getName() +
+//                          ", ocomp=" + ocomp.getClass().getName() +
+//                          ", bounds=" + StringUtil.toString(_cbounds) + "].");
                 // otherwise, repaint with standard swing double buffers
                 Image obuf = getOffscreenBuffer(
-                    comp, _cbounds.width, _cbounds.height);
+                    ocomp, _cbounds.width, _cbounds.height);
                 Graphics og = null, cg = null;
                 try {
                     og = obuf.getGraphics();
                     ocomp.paint(og);
-                    cg = comp.getGraphics();
+                    cg = ocomp.getGraphics();
                     cg.drawImage(obuf, 0, 0, null);
 
                 } finally {
@@ -292,19 +346,6 @@ public class FrameRepaintManager extends RepaintManager
 
         // clear out the mapping of dirty components
         _spare.clear();
-    }
-
-    /**
-     * Locates the root component for the supplied component, translates
-     * the supplied dirty rectangle into the root components' coordinate
-     * system and fills in the component's bounds in the root coordinate
-     * system.
-     */
-    protected Component getRoot (JComponent comp, Rectangle dirty,
-                                 Rectangle bounds)
-    {
-
-        return null;
     }
 
     /** The managed frame. */
