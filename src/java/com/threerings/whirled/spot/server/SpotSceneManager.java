@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.31 2003/03/26 02:37:08 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.32 2003/03/26 18:18:29 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -188,6 +188,17 @@ public class SpotSceneManager extends SceneManager
         // update the user's location information in the scene which will
         // indicate to the client that their avatar should be moved from
         // its current position to their new position
+        updateLocation(source, loc);
+
+        // remove them from any cluster as they've departed
+        removeFromCluster(source.getOid());
+    }
+
+    /**
+     * Updates the location of the specified body.
+     */
+    protected void updateLocation (BodyObject source, Location loc)
+    {
         SceneLocation sloc = new SceneLocation(loc, source.getOid());
         if (!_ssobj.occupantLocs.contains(sloc)) {
             // complain if they don't already have a location configured
@@ -198,9 +209,6 @@ public class SpotSceneManager extends SceneManager
         } else {
             _ssobj.updateOccupantLocs(sloc);
         }
-
-        // remove them from any cluster as they've departed
-        removeFromCluster(source.getOid());
     }
 
     /**
@@ -238,30 +246,12 @@ public class SpotSceneManager extends SceneManager
         }
 
         // add our two lovely users to the newly created cluster
-        if (clrec.addBody(joiner)) {
-            _clusters.put(joiner.getOid(), clrec);
-        }
         if (clrec.addBody(member)) {
             _clusters.put(member.getOid(), clrec);
         }
-    }
-
-    /**
-     * Creates a new cluster with the specified user being added to said
-     * cluster.
-     */
-    protected void createNewCluster (BodyObject creator)
-    {
-        // remove them from any previous cluster
-        removeFromCluster(creator.getOid());
-
-        // create a cluster record and map this user to it
-        ClusterRecord clrec = new ClusterRecord();
-        if (clrec.addBody(creator)) {
-            _clusters.put(creator.getOid(), clrec);
+        if (clrec.addBody(joiner)) {
+            _clusters.put(joiner.getOid(), clrec);
         }
-        // if we failed to add the creator, the cluster record will
-        // quietly off itself when it's done subscribing to its object
     }
 
     /**
@@ -294,6 +284,15 @@ public class SpotSceneManager extends SceneManager
     }
 
     /**
+     * Returns the location of the specified body or null if they have no
+     * location in this scene.
+     */
+    protected SceneLocation locationForBody (int bodyOid)
+    {
+        return (SceneLocation)_ssobj.occupantLocs.get(new Integer(bodyOid));
+    }
+
+    /**
      * Converts the x and y coordinates in the supplied location object to
      * Cartesian coordinates that can be manipulated geometrically. The
      * default implementation assumes the location coordinates are
@@ -319,6 +318,15 @@ public class SpotSceneManager extends SceneManager
     {
         loc.x = cx;
         loc.y = cy;
+    }
+
+    /**
+     * Verifies that the specified cluster can be expanded to include
+     * another body.
+     */
+    protected boolean canAddBody (ClusterRecord clrec, BodyObject body)
+    {
+        return true;
     }
 
     /**
@@ -353,39 +361,44 @@ public class SpotSceneManager extends SceneManager
 
         public boolean addBody (BodyObject body)
         {
-            if (body instanceof ClusteredBodyObject) {
-                // if they're already in the cluster, do nothing
-                if (containsKey(body.getOid())) {
-                    return false;
-                }
-
-                put(body.getOid(), body);
-                try {
-                    body.startTransaction();
-                    _ssobj.startTransaction();
-                    bodyAdded(this, body); // do the hokey pokey
-
-                    if (_clobj != null) {
-                        ((ClusteredBodyObject)body).setClusterOid(
-                            _clobj.getOid());
-                        _clobj.addToOccupants(body.getOid());
-                        _ssobj.updateClusters(_cluster);
-                    }
-
-                } finally {
-                    _clobj.commitTransaction();
-                    _ssobj.commitTransaction();
-                }
-
-                Log.info("Added " + body.who() + " to "+ this + ".");
-                return true;
-
-            } else {
+            if (!(body instanceof ClusteredBodyObject)) {
                 Log.warning("Refusing to add non-clustered body to cluster " +
                             "[cloid=" + _clobj.getOid() +
                             ", size=" + size() + ", who=" + body.who() + "].");
                 return false;
             }
+
+            // if they're already in the cluster, do nothing
+            if (containsKey(body.getOid())) {
+                return false;
+            }
+
+            // make sure we can add this body
+            if (!canAddBody(this, body)) {
+                Log.info("Cluster full, refusing growth " + this + ".");
+                return false;
+            }
+
+            put(body.getOid(), body);
+            try {
+                body.startTransaction();
+                _ssobj.startTransaction();
+                bodyAdded(this, body); // do the hokey pokey
+
+                if (_clobj != null) {
+                    ((ClusteredBodyObject)body).setClusterOid(
+                        _clobj.getOid());
+                    _clobj.addToOccupants(body.getOid());
+                    _ssobj.updateClusters(_cluster);
+                }
+
+            } finally {
+                body.commitTransaction();
+                _ssobj.commitTransaction();
+            }
+
+            Log.info("Added " + body.who() + " to "+ this + ".");
+            return true;
         }
 
         public void removeBody (int bodyOid)
