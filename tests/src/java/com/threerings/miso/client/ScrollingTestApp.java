@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.8 2002/03/28 22:32:33 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.9 2002/04/06 02:03:54 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -22,7 +22,6 @@ import com.threerings.media.sprite.Sprite;
 import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.sprite.MultiFrameImageImpl;
 
-import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.bundle.BundledTileSetRepository;
 
 import com.threerings.cast.CharacterComponent;
@@ -33,6 +32,7 @@ import com.threerings.cast.bundle.BundledComponentRepository;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.MisoConfig;
+import com.threerings.miso.tile.MisoTileManager;
 import com.threerings.miso.util.MisoContext;
 
 /**
@@ -71,7 +71,7 @@ public class ScrollingTestApp
         ResourceManager rmgr = new ResourceManager(
             "rsrc", null, "config/resource/manager.properties");
         ImageManager imgr = new ImageManager(rmgr, _frame);
-	_tilemgr = new TileManager(imgr);
+	_tilemgr = new MisoTileManager(rmgr, imgr);
         _tilemgr.setTileSetRepository(
             new BundledTileSetRepository(rmgr, imgr, "tilesets"));
 
@@ -142,7 +142,7 @@ public class ScrollingTestApp
      */
     protected class ContextImpl implements MisoContext
     {
-	public TileManager getTileManager ()
+	public MisoTileManager getTileManager ()
 	{
 	    return _tilemgr;
 	}
@@ -172,7 +172,7 @@ public class ScrollingTestApp
     }
 
     /** The tile manager object. */
-    protected TileManager _tilemgr;
+    protected MisoTileManager _tilemgr;
 
     /** The main application window. */
     protected ScrollingFrame _frame;

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.28 2002/03/28 22:32:33 mdb Exp $
+// $Id: ViewerApp.java,v 1.29 2002/04/06 02:03:54 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -14,7 +14,6 @@ import com.samskivert.swing.util.SwingUtil;
 import com.threerings.resource.ResourceManager;
 import com.threerings.media.ImageManager;
 
-import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.bundle.BundledTileSetRepository;
 
 import com.threerings.cast.CharacterManager;
@@ -25,6 +24,7 @@ import com.threerings.miso.scene.DisplayMisoSceneImpl;
 import com.threerings.miso.scene.MisoCharacterSprite;
 import com.threerings.miso.scene.MisoSceneModel;
 import com.threerings.miso.scene.tools.xml.MisoSceneParser;
+import com.threerings.miso.tile.MisoTileManager;
 import com.threerings.miso.util.MisoContext;
 
 /**
@@ -69,7 +69,7 @@ public class ViewerApp
         ResourceManager rmgr = new ResourceManager(
             "rsrc", null, "config/resource/manager.properties");
         ImageManager imgr = new ImageManager(rmgr, _frame);
-	_tilemgr = new TileManager(imgr);
+	_tilemgr = new MisoTileManager(rmgr, imgr);
         _tilemgr.setTileSetRepository(
             new BundledTileSetRepository(rmgr, imgr, "tilesets"));
 
@@ -123,7 +123,7 @@ public class ViewerApp
      */
     protected class ContextImpl implements MisoContext
     {
-	public TileManager getTileManager ()
+	public MisoTileManager getTileManager ()
 	{
 	    return _tilemgr;
 	}
@@ -153,7 +153,7 @@ public class ViewerApp
     }
 
     /** The tile manager object. */
-    protected TileManager _tilemgr;
+    protected MisoTileManager _tilemgr;
 
     /** The main application window. */
     protected ViewerFrame _frame;
