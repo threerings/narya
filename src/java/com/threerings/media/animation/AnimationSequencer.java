@@ -1,5 +1,5 @@
 //
-// $Id: AnimationSequencer.java,v 1.7 2002/11/05 21:29:00 mdb Exp $
+// $Id: AnimationSequencer.java,v 1.8 2002/11/05 21:53:56 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -105,7 +105,11 @@ public abstract class AnimationSequencer extends Animation
         }
 
         // we're done when both lists are empty
+//         boolean finished = _finished;
         _finished = ((_queued.size() + _running.size()) == 0);
+//         if (!finished && _finished) {
+//             Log.info("Finishing sequence  at " + (tickStamp%100000) + ".");
+//         }
     }
 
     // documentation inherited
@@ -152,8 +156,10 @@ public abstract class AnimationSequencer extends Animation
 
         public void fire (long when)
         {
-//             Log.info("Firing animation [anim=" + anim +
-//                      ", tickStamp=" + tickStamp + "].");
+//             String aclass = (_anim == null) ? "<none>" :
+//                 _anim.getClass().getName();
+//             Log.info("Firing animation " + aclass + " at " +
+//                      (when%100000) + ".");
 
             // if we have an animation, start it up and await its
             // completion
