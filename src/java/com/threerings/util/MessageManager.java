@@ -1,5 +1,5 @@
 //
-// $Id: MessageManager.java,v 1.8 2004/08/27 02:20:36 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -93,6 +93,15 @@ public class MessageManager
     }
 
     /**
+     * Allows a custom classloader to be configured for locating
+     * translation resources.
+     */
+    public void setClassLoader (ClassLoader loader)
+    {
+        _loader = loader;
+    }
+
+    /**
      * Fetches the message bundle for the specified path. If no bundle can
      * be located with the specified path, a special bundle is returned
      * that returns the untranslated message identifiers instead of an
@@ -113,7 +122,11 @@ public class MessageManager
         String fqpath = _prefix + path;
         ResourceBundle rbundle = null;
         try {
-            rbundle = ResourceBundle.getBundle(fqpath, _locale);
+            if (_loader != null) {
+                rbundle = ResourceBundle.getBundle(fqpath, _locale, _loader);
+            } else {
+                rbundle = ResourceBundle.getBundle(fqpath, _locale);
+            }
         } catch (MissingResourceException mre) {
             Log.warning("Unable to resolve resource bundle " +
                         "[path=" + fqpath + ", locale=" + _locale + "].");
@@ -159,6 +172,9 @@ public class MessageManager
 
     /** The locale for which we're obtaining message bundles. */
     protected Locale _locale;
+
+    /** A custom class loader that we use to load resource bundles. */
+    protected ClassLoader _loader;
 
     /** A cache of instantiated message bundles. */
     protected HashMap _cache = new HashMap();
