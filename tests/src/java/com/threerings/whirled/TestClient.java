@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.4 2001/10/05 23:59:37 mdb Exp $
+// $Id: TestClient.java,v 1.5 2001/10/09 17:20:58 mdb Exp $
 
 package com.threerings.whirled.test;
 
@@ -146,6 +146,11 @@ public class TestClient
         public OccupantManager getOccupantManager ()
         {
             return _occmgr;
+        }
+
+        public void setPlaceView (PlaceView view)
+        {
+            // nothing to do because we don't create views
         }
 
         public SceneDirector getSceneDirector ()

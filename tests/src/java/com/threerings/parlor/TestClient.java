@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.1 2001/10/03 03:45:44 mdb Exp $
+// $Id: TestClient.java,v 1.2 2001/10/09 17:20:58 mdb Exp $
 
 package com.threerings.parlor.test;
 
@@ -169,6 +169,11 @@ public class TestClient
         public OccupantManager getOccupantManager ()
         {
             return _occmgr;
+        }
+
+        public void setPlaceView (PlaceView view)
+        {
+            // nothing to do because we don't create views
         }
 
         public ParlorDirector getParlorDirector ()
