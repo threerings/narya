@@ -12,6 +12,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.velocity.VelocityContext;
 
@@ -34,11 +35,11 @@ import com.threerings.presents.server.InvocationException;
 public class GenServiceTask extends InvocationTask
 {
     /** Used to keep track of custom InvocationListener derivations. */
-    public static class ServiceListener
+    public class ServiceListener implements Comparable<ServiceListener>
     {
         public Class listener;
 
-        public ArrayList methods = new ArrayList();
+        public SortableArrayList methods = new SortableArrayList();
 
         public ServiceListener (Class service, Class listener, HashMap imports)
         {
@@ -53,6 +54,12 @@ public class GenServiceTask extends InvocationTask
                 }
                 methods.add(new ServiceMethod(service, m, imports));
             }
+            methods.sort();
+        }
+
+        public int compareTo (ServiceListener other)
+        {
+            return getName().compareTo(other.getName());
         }
 
         public String getName ()
@@ -85,8 +92,8 @@ public class GenServiceTask extends InvocationTask
         }
 
         HashMap imports = new HashMap();
-        ArrayList methods = new ArrayList();
-        ArrayList listeners = new ArrayList();
+        SortableArrayList methods = new SortableArrayList();
+        SortableArrayList listeners = new SortableArrayList();
 
         // we need to import the service itself
         imports.put(importify(service.getName()), Boolean.TRUE);
@@ -104,7 +111,7 @@ public class GenServiceTask extends InvocationTask
             // check this method for custom listener declarations
             Class[] args = m.getParameterTypes();
             for (int aa = 0; aa < args.length; aa++) {
-                if (InvocationListener.class.isAssignableFrom(args[aa]) &&
+                if (_ilistener.isAssignableFrom(args[aa]) &&
                     simpleName(args[aa]).startsWith(sname + ".")) {
                     listeners.add(new ServiceListener(
                                       service, args[aa], imports));
@@ -112,6 +119,8 @@ public class GenServiceTask extends InvocationTask
             }
             methods.add(new ServiceMethod(service, m, imports));
         }
+        listeners.sort();
+        methods.sort();
 
         generateMarshaller(source, sname, spackage, methods, listeners,
                            imports.keySet().iterator());
@@ -120,8 +129,8 @@ public class GenServiceTask extends InvocationTask
     }
 
     protected void generateMarshaller (
-        File source, String sname, String spackage, ArrayList methods,
-        ArrayList listeners, Iterator imports)
+        File source, String sname, String spackage, List methods,
+        List listeners, Iterator imports)
     {
         String name = StringUtil.replace(sname, "Service", "");
         String mname = StringUtil.replace(sname, "Service", "Marshaller");
@@ -160,7 +169,7 @@ public class GenServiceTask extends InvocationTask
     }
 
     protected void generateDispatcher (
-        File source, String sname, String spackage, ArrayList methods,
+        File source, String sname, String spackage, List methods,
         Iterator imports)
     {
         String name = StringUtil.replace(sname, "Service", "");

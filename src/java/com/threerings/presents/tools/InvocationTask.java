@@ -43,7 +43,7 @@ import com.threerings.presents.client.InvocationService.InvocationListener;
 public abstract class InvocationTask extends Task
 {
     /** Used to keep track of invocation service method listener arguments. */
-    public static class ListenerArgument
+    public class ListenerArgument
     {
         public int index;
 
@@ -68,7 +68,7 @@ public abstract class InvocationTask extends Task
     }
 
     /** Used to keep track of invocation service methods. */
-    public static class ServiceMethod
+    public class ServiceMethod implements Comparable<ServiceMethod>
     {
         public Method method;
 
@@ -89,7 +89,7 @@ public abstract class InvocationTask extends Task
 
                 // if this is a listener, we need to add a listener
                 // argument info for it
-                if (InvocationListener.class.isAssignableFrom(arg)) {
+                if (_ilistener.isAssignableFrom(arg)) {
                     listenerArgs.add(new ListenerArgument(ii, arg));
                 }
 
@@ -106,7 +106,7 @@ public abstract class InvocationTask extends Task
                 // if it's a listener and not one of the special
                 // InvocationService listeners, we need to import its
                 // marshaller as well
-                if (InvocationListener.class.isAssignableFrom(arg) &&
+                if (_ilistener.isAssignableFrom(arg) &&
                     !simpleName(arg).startsWith("InvocationService")) {
                     String mname = arg.getName();
                     mname = StringUtil.replace(mname, "Service", "Marshaller");
@@ -153,6 +153,11 @@ public abstract class InvocationTask extends Task
             return (method.getParameterTypes().length > 1);
         }
 
+        public int compareTo (ServiceMethod other)
+        {
+            return getCode().compareTo(other.getCode());
+        }
+
         public String getUnwrappedArgList (boolean listenerMode)
         {
             StringBuffer buf = new StringBuffer();
@@ -185,7 +190,7 @@ public abstract class InvocationTask extends Task
                 return "new Float(arg" + index + ")";
             } else if (clazz == Double.TYPE) {
                 return "new Double(arg" + index + ")";
-            } else if (InvocationListener.class.isAssignableFrom(clazz)) {
+            } else if (_ilistener.isAssignableFrom(clazz)) {
                 return "listener" + index;
             } else {
                 return "arg" + index;
@@ -211,8 +216,7 @@ public abstract class InvocationTask extends Task
                 return "((Float)args[" + index + "]).floatValue()";
             } else if (clazz == Double.TYPE) {
                 return "((Double)args[" + index + "]).doubleValue()";
-            } else if (listenerMode &&
-                       InvocationListener.class.isAssignableFrom(clazz)) {
+            } else if (listenerMode && _ilistener.isAssignableFrom(clazz)) {
                 return "listener" + index;
             } else {
                 return "(" + simpleName(clazz) + ")args[" + index + "]";
@@ -263,6 +267,13 @@ public abstract class InvocationTask extends Task
             _velocity = VelocityUtil.createEngine();
         } catch (Exception e) {
             throw new BuildException("Failure initializing Velocity", e);
+        }
+
+        // resolve the InvocationListener class using our classloader
+        try {
+            _ilistener = _cloader.loadClass(InvocationListener.class.getName());
+        } catch (Exception e) {
+            throw new BuildException("Can't resolve InvocationListener", e);
         }
 
         ArrayList files = new ArrayList();
@@ -378,6 +389,10 @@ public abstract class InvocationTask extends Task
 
     /** Used to generate source files from templates. */
     protected VelocityEngine _velocity;
+
+    /** {@link InvocationListener} resolved with the proper classloader so
+     * that we can compare it to loaded derived classes. */
+    protected Class _ilistener;
 
     /** A regular expression for matching the package declaration. */
     protected static final Pattern PACKAGE_PATTERN =
