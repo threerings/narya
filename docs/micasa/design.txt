@@ -9,3 +9,13 @@ services and built on top of the Cocktail networking platform.
 
 The Mi Casa service is comprised of a server that can be configured to
 have any number of lobbies in which users can get together to play games.
+
+* Notes
+Maybe move lobby stuff into parlor.
+
+Move lobby configuration (which lobbies to load) into database. Make it so
+that lobbies can be created/destroyed on the fly.
+
+Sort out a different way for lobbies to get configuration information than
+being passed a properties file that was extracted from the server
+configuration. We'll want inheritance and all that.
