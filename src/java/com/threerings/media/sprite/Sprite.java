@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.45 2002/05/31 03:38:03 mdb Exp $
+// $Id: Sprite.java,v 1.46 2002/06/11 05:56:44 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -289,6 +289,15 @@ public abstract class Sprite
 	// even in the case where we aborted a path mid-traversal.
 
         _path = null;
+    }
+
+    /**
+     * Returns the path being followed by this sprite or null if the
+     * sprite is not following a path.
+     */
+    public Path getPath ()
+    {
+        return _path;
     }
 
     /**
