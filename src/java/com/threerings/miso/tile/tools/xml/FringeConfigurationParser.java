@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfigurationParser.java,v 1.4 2002/04/05 01:45:53 ray Exp $
+// $Id: FringeConfigurationParser.java,v 1.5 2002/04/05 23:18:36 ray Exp $
 
 package com.threerings.miso.scene.tools.xml;
 
@@ -154,7 +154,7 @@ public class FringeConfigurationParser extends CompiledConfigParser
                         }
 
                     } else if ("mask".equals(name)) {
-                        f.mask = Boolean.getBoolean(value);
+                        f.mask = Boolean.valueOf(value).booleanValue();
                     } else {
                         Log.warning("Skipping unknown attribute " +
                                     "[name=" + name + "].");
