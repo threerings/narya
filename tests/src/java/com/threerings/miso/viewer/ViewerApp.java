@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.12 2001/11/02 02:52:16 shaper Exp $
+// $Id: ViewerApp.java,v 1.13 2001/11/02 03:09:10 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -37,8 +37,8 @@ public class ViewerApp
 	_config = MisoUtil.createConfig(
             ViewerModel.CONFIG_KEY, "rsrc/config/miso/viewer");
 	_model = createModel(_config, args);
-        ImageManager imgmgr = MisoUtil.createImageManager(_frame);
-	_tilemgr = MisoUtil.createTileManager(_config, imgmgr);
+        _imgmgr = MisoUtil.createImageManager(_frame);
+	_tilemgr = MisoUtil.createTileManager(_config, _imgmgr);
 	_screpo = MisoUtil.createSceneRepository(_config, _tilemgr);
 
 	// create the context object
@@ -68,6 +68,11 @@ public class ViewerApp
 	{
 	    return _config;
 	}
+
+        public ImageManager getImageManager ()
+        {
+            return _imgmgr;
+        }
 
 	public TileManager getTileManager ()
 	{
@@ -115,6 +120,9 @@ public class ViewerApp
 
     /** The tile manager object. */
     protected TileManager _tilemgr;
+
+    /** The image manager object. */
+    protected ImageManager _imgmgr;
 
     /** The viewer data model. */
     protected ViewerModel _model;

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.27 2001/11/02 02:52:16 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.28 2001/11/02 03:09:10 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -35,8 +35,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     /**
      * Construct the panel and initialize it with a context.
      */
-    public ViewerSceneViewPanel (ViewerContext ctx, ImageManager imgmgr,
-                                 SpriteManager spritemgr)
+    public ViewerSceneViewPanel (ViewerContext ctx, SpriteManager spritemgr)
     {
 	super(ctx.getConfig(), spritemgr);
 
@@ -49,8 +48,8 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         prepareStartingScene();
 
         // construct the character manager from which we obtain sprites
-        CharacterManager charmgr =
-            MisoUtil.createCharacterManager(ctx.getConfig(), imgmgr);
+        CharacterManager charmgr = MisoUtil.createCharacterManager(
+            ctx.getConfig(), ctx.getImageManager());
 
         // create the character descriptors
         _descUser = createCharacterDescriptor(charmgr);
