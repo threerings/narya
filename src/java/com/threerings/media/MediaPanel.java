@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.15 2002/06/19 07:41:37 mdb Exp $
+// $Id: MediaPanel.java,v 1.16 2002/06/25 01:00:22 mdb Exp $
 
 package com.threerings.media;
 
@@ -148,18 +148,6 @@ public class MediaPanel extends JComponent
         _animmgr.unregisterAnimation(anim);
     }
 
-    // documentation inherited
-    public void invalidate ()
-    {
-        super.invalidate();
-
-        // invalidate our bounds with the region manager
-        int width = getWidth(), height = getHeight();
-        if (width > 0 && height > 0) {
-            dirtyScreenRect(new Rectangle(0, 0, width, height));
-        }
-    }
-
     // documentation inherited from interface
     public void tick (long tickStamp)
     {
@@ -231,8 +219,8 @@ public class MediaPanel extends JComponent
         if (!_tickPaintPending) {
             Shape clip = g.getClip();
             if (clip == null) {
-                // mark the whole component as invalid
-                invalidate();
+                // mark the whole component as dirty
+                repaint();
             } else {
                 dirtyScreenRect(clip.getBounds());
             }
