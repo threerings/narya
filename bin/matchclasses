@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: matchclasses,v 1.1 2002/10/08 18:46:02 mdb Exp $
+# $Id: matchclasses,v 1.2 2002/10/08 22:02:13 mdb Exp $
 #
 # A script which inspects a hierarchy of classes and generates lists of
 # classes that match specified criterion. The criterion are that a class
@@ -182,11 +182,7 @@ foreach $class (@classes) {
 
 # print out the results
 foreach $class (sort keys %matches) {
-    if (defined $orig{$class}) {
-        print "$orig{$class}\n";
-    } else {
-        print "$class\n";
-    }
+    print defined $orig{$class} ?  "$orig{$class}\n" :  "$class\n";
 }
 # print join("\n", ) . "\n";
 
@@ -211,18 +207,14 @@ sub implements {
         if (defined $irecord) {
             my $iface;
             foreach $iface (@{$irecord}) {
-                if ($iface eq $target || extends($iface, $target)) {
-                    return 1;
-                }
+                return 1 if (extends($iface, $target));
             }
         }
 
         # check our parents
         my $pclass;
         foreach $pclass (@{$crecord}) {
-            if (implements($pclass, $target)) {
-                return 1;
-            }
+            return 1 if (implements($pclass, $target));
         }
     }
 
@@ -234,15 +226,16 @@ sub implements {
 sub extends {
     my ($class, $target) = @_;
 
+    # if we are the class, we're good
+    return 1 if ($class eq $target);
+
     # look to see if any of our parent classes extend the target class
     # (recursing as necessary up the hierarchy)
     my $crecord = $ptable{$class};
     if (defined $crecord) {
         my $pclass;
         foreach $pclass (@{$crecord}) {
-            if ($target eq $pclass || extends($pclass, $target)) {
-                return 1;
-            }
+            return 1 if (extends($pclass, $target));
         }
     }
 
