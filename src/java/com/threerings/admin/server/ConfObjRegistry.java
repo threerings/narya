@@ -1,5 +1,5 @@
 //
-// $Id: ConfObjRegistry.java,v 1.8 2004/03/04 02:50:30 eric Exp $
+// $Id: ConfObjRegistry.java,v 1.9 2004/03/05 02:40:18 eric Exp $
 
 package com.threerings.admin.server;
 
@@ -139,7 +139,6 @@ public class ConfObjRegistry
         // documentation inherited
         public void entryAdded (EntryAddedEvent event)
         {
-            // TODO test
             serializeAttribute(event.getName());
         }
 
@@ -152,7 +151,6 @@ public class ConfObjRegistry
         // documentation inherited
         public void entryRemoved (EntryRemovedEvent event)
         {
-            // TODO test
             serializeAttribute(event.getName());
         }
 
