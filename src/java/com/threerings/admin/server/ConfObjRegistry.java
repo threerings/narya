@@ -1,5 +1,5 @@
 //
-// $Id: ConfObjRegistry.java,v 1.2 2002/09/23 01:34:32 mdb Exp $
+// $Id: ConfObjRegistry.java,v 1.3 2002/09/23 01:35:10 mdb Exp $
 
 package com.threerings.admin.server;
 
@@ -130,8 +130,6 @@ public class ConfObjRegistry
             // mirror this configuration update to the on-disk config
             String key = fieldToKey(event.getName());
             Object value = event.getValue();
-
-            Log.info("Mirroring value [key=" + key + ", value=" + value + "].");
 
             if (value instanceof Integer) {
                 config.setValue(key, ((Integer)value).intValue());
