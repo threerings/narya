@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMediaManager.java,v 1.9 2003/04/30 00:43:54 mdb Exp $
+// $Id: AbstractMediaManager.java,v 1.10 2003/04/30 20:48:38 mdb Exp $
 
 package com.threerings.media;
 
@@ -37,6 +37,33 @@ public abstract class AbstractMediaManager
     }
 
     /**
+     * Must be called every frame so that the media can be properly
+     * updated.
+     */
+    public void tick (long tickStamp)
+    {
+        _tickStamp = tickStamp;
+        tickAllMedia(tickStamp);
+        dispatchNotifications();
+        // we clear our tick stamp when we're about to be painted, this
+        // lets us handle situations when yet more media is slipped in
+        // between our being ticked and our being painted
+    }
+
+    /**
+     * This will always be called prior to the {@link #paint} calls for a
+     * particular tick. Because it is possible that there will be no dirty
+     * regions and thus no calls to {@link #paint} this method exists so
+     * that the media manager can guarantee that it will be notified when
+     * all ticking is complete and the painting phase has begun.
+     */
+    public void willPaint ()
+    {
+        // now that we're done ticking, we can safely clear this
+        _tickStamp = 0;
+    }
+
+    /**
      * Renders all registered media in the given layer that intersect
      * the supplied clipping rectangle to the given graphics context.
      *
@@ -45,11 +72,8 @@ public abstract class AbstractMediaManager
      * with a positive render order; the back layer contains all
      * animations with a negative render order; all, both.
      */
-    public void renderMedia (Graphics2D gfx, int layer, Shape clip)
+    public void paint (Graphics2D gfx, int layer, Shape clip)
     {
-        // now that we're rendering, we can safely clear this; see tick()
-        _tickStamp = 0;
-
         for (int ii = 0, nn = _media.size(); ii < nn; ii++) {
             AbstractMedia media = (AbstractMedia)_media.get(ii);
             int order = media.getRenderOrder();
@@ -67,20 +91,6 @@ public abstract class AbstractMediaManager
                 Log.logStackTrace(e);
             }
         }
-    }
-
-    /**
-     * Must be called every frame so that the media can be properly
-     * updated.
-     */
-    public void tick (long tickStamp)
-    {
-        _tickStamp = tickStamp;
-        tickAllMedia(tickStamp);
-        dispatchNotifications();
-        // we clear our tick stamp when we've been painted, this lets us
-        // handle situations when yet more media is slipped in between our
-        // being ticked and our being painted
     }
 
     /**
