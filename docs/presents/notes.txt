@@ -357,4 +357,8 @@ Presents Notes -*- outline -*-
 
 * 8/13/2002
 ** True Names
-Invocation -> Remote? That'd be a hairy pain...
+- Invocation -> Remote? That'd be a hairy pain...
+
+* 8/15/2002
+** Invocation service TODO
+X genservice + genreceiver need to slurp and replace $Id: notes.txt,v 1.28 2002/09/06 01:11:36 mdb Exp $

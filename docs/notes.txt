@@ -53,3 +53,28 @@ X Add "keepPathableVisible" or somesuch which like setFollowsPathable will
 ** Cast enhancements
 - Eventually make BundledComponentRepository use ImageManager cache on the
   images it loads in ResourceBundleProvider.loadImage
+
+* 9/5/2002
+** Character component enhancement
+- Add support for component "aliasing" (in the Macintosh sense) whereby
+  the same image data can be used for multiple character components,
+  possibly with different (x,y) origins. Perhaps this means that in the
+  action definition we do something like:
+
+  <action name="on_hips" extends="standing" offsetOverride="0, 0">
+    <framesPerSecond>5</framesPerSecond>
+    <origin>50,112</origin>
+    <orients>SW, W, NW, N, NE, E, SE, S</orients>
+    <tileset>
+      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
+      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
+      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+    </tileset>
+  </action>
+
+  Where the 'extends="standing"' indicates that any component not
+  specifically defined for the "on_hips" action should fall back to using
+  the corresponding component in the "standing" action (with an overridden
+  offsetPos specified by 'offsetOverride').
