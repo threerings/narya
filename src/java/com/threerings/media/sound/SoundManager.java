@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.40 2002/12/10 21:36:33 mdb Exp $
+// $Id: SoundManager.java,v 1.41 2002/12/12 19:00:25 mdb Exp $
 
 package com.threerings.media;
 
@@ -103,24 +103,23 @@ public class SoundManager
                 MusicInfo musicInfo = null;
 
                 while (amRunning()) {
-                    try {
+                    // Get the next command and arguments
+                    synchronized (_queue) {
+                        command = _queue.get();
 
-                        // Get the next command and arguments
-                        synchronized (_queue) {
-                            command = _queue.get();
+                        // some commands have an additional argument.
+                        if ((PLAY == command) ||
+                            (STOPMUSIC == command) ||
+                            (LOCK == command) ||
+                            (UNLOCK == command)) {
+                            key = (SoundKey) _queue.get();
 
-                            // some commands have an additional argument.
-                            if ((PLAY == command) ||
-                                (STOPMUSIC == command) ||
-                                (LOCK == command) ||
-                                (UNLOCK == command)) {
-                                key = (SoundKey) _queue.get();
-
-                            } else if (PLAYMUSIC == command) {
-                                musicInfo = (MusicInfo) _queue.get();
-                            }
+                        } else if (PLAYMUSIC == command) {
+                            musicInfo = (MusicInfo) _queue.get();
                         }
+                    }
 
+                    try {
                         // execute the command outside of the queue synch
                         if (PLAY == command) {
                             playSound(key);
@@ -152,7 +151,9 @@ public class SoundManager
                         }
 
                     } catch (Exception e) {
-                        Log.warning("Captured exception in SoundManager loop.");
+                        Log.warning("SoundManager failure [cmd=" + command +
+                                    ", key=" + key +
+                                    ", info=" + musicInfo + "].");
                         Log.logStackTrace(e);
                     }
                 }
