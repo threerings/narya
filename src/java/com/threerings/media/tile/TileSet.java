@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.28 2002/05/09 18:43:32 mdb Exp $
+// $Id: TileSet.java,v 1.29 2002/06/19 08:27:06 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -106,7 +106,7 @@ public abstract class TileSet
         }
 
         // make sure the tileset was able to load its image
-        Image timg = tset.getTilesetImage();
+        Image timg = tset.getTileSetImage();
         if (timg == null) {
             Log.warning("Failed to load tileset image in preparation " +
                         "for colorization [tset=" + tset + "].");
@@ -165,7 +165,7 @@ public abstract class TileSet
 	}
 
         // get our tileset image
-        Image tsimg = getTilesetImage();
+        Image tsimg = getTileSetImage();
         if (tsimg == null) {
             // we already logged an error, so we can just freak out
             throw new NoSuchTileException(tileIndex);
@@ -221,12 +221,13 @@ public abstract class TileSet
 
     /**
      * Returns the tileset image (which is loaded if it has not yet been
-     * loaded).
+     * loaded). Generally this is not called by external entities, rather
+     * {@link #getTileImage} or {@link #getTile} is used.
      *
      * @return the tileset image or null if an error occurred loading the
      * image.
      */
-    protected Image getTilesetImage ()
+    public Image getTileSetImage ()
     {
         // return it straight away if it's already loaded
 	if (_tilesetImg != null) {
@@ -264,7 +265,7 @@ public abstract class TileSet
     }
 
     /**
-     * Tileset derived classes should override this, calling
+     * Derived classes can override this, calling
      * <code>super.toString(buf)</code> and then appending additional
      * information to the buffer.
      */
@@ -285,7 +286,7 @@ public abstract class TileSet
     protected transient ImageProvider _improv;
 
     /** The image containing all tile images for this set. This is private
-     * because it should be accessed via {@link #getTilesetImage} even by
+     * because it should be accessed via {@link #getTileSetImage} even by
      * derived classes. */
     private transient Image _tilesetImg;
 
