@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.20 2001/12/17 03:33:40 mdb Exp $
+// $Id: CharacterSprite.java,v 1.21 2002/02/19 22:09:08 mdb Exp $
 
 package com.threerings.cast;
 
@@ -27,6 +27,24 @@ public class CharacterSprite
 
         // assign an arbitrary starting orientation
         _orient = NORTH;
+    }
+
+    /**
+     * Specifies the action to use when the sprite is at rest. The default
+     * is <code>STANDING</code>.
+     */
+    public void setRestingAction (String action)
+    {
+        _restingAction = action;
+    }
+
+    /**
+     * Specifies the action to use when the sprite is following a path.
+     * The default is <code>WALKING</code>.
+     */
+    public void setFollowingPathAction (String action)
+    {
+        _followingPathAction = action;
     }
 
     /**
@@ -106,7 +124,7 @@ public class CharacterSprite
         super.pathBeginning();
 
         // enable walking animation
-        setActionSequence(WALKING);
+        setActionSequence(_followingPathAction);
         setAnimationMode(TIME_BASED);
     }
 
@@ -126,8 +144,14 @@ public class CharacterSprite
         // disable animation
         setAnimationMode(NO_ANIMATION);
         // come to a halt looking settled and at peace
-        setActionSequence(STANDING);
+        setActionSequence(_restingAction);
     }
+
+    /** The action to use when at rest. */
+    protected String _restingAction = STANDING;
+
+    /** The action to use when following a path. */
+    protected String _followingPathAction = WALKING;
 
     /** A reference to the descriptor for the character that we're
      * visualizing. */
