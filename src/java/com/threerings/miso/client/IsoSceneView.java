@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.87 2002/01/31 02:12:35 mdb Exp $
+// $Id: IsoSceneView.java,v 1.88 2002/01/31 02:53:29 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -105,6 +105,14 @@ public class IsoSceneView implements SceneView
     public void setHighlightMode (int hmode)
     {
         _hmode = hmode;
+    }
+
+    /**
+     * Returns a reference to the scene being displayed by this view.
+     */
+    public DisplayMisoScene getScene ()
+    {
+        return _scene;
     }
 
     // documentation inherited
@@ -799,6 +807,16 @@ public class IsoSceneView implements SceneView
     public Object getHoverObject ()
     {
         return _hobject;
+    }
+
+    /**
+     * Returns the tile coordinates of the tile over which the mouse is
+     * hovering (which are the origin coordinates in the case of an object
+     * tile).
+     */
+    public Point getHoverCoords ()
+    {
+        return _hcoords;
     }
 
     /**
