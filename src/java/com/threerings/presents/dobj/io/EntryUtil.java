@@ -1,5 +1,5 @@
 //
-// $Id: EntryUtil.java,v 1.1 2001/08/16 03:45:43 mdb Exp $
+// $Id: EntryUtil.java,v 1.2 2001/08/21 21:16:53 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj.io;
 
@@ -32,6 +32,7 @@ public class ElementUtil
         _dout.flush();
         out.writeInt(_bout.size());
         _bout.writeTo(out);
+        _bout.reset();
     }
 
     /**
