@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.35 2002/12/12 23:56:10 shaper Exp $
+// $Id: Client.java,v 1.36 2003/01/28 04:24:16 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -445,6 +445,8 @@ public class Client
      */
     void gotBootstrap (BootstrapData data)
     {
+        Log.debug("Got bootstrap " + data + ".");
+
         // keep this around for interested parties
         _bstrap = data;
 
