@@ -1,9 +1,11 @@
 //
-// $Id: SceneObject.java,v 1.5 2003/04/24 21:12:10 mdb Exp $
+// $Id: SceneObject.java,v 1.6 2003/04/25 01:15:00 mdb Exp $
 
 package com.threerings.miso.client;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
@@ -75,6 +77,15 @@ public class SceneObject
     }
 
     /**
+     * Used to flag overlapping scene objects that have no resolving
+     * object priorities.
+     */
+    public void setWarning (boolean warning)
+    {
+        _warning = warning;
+    }
+
+    /**
      * Requests that this scene object render itself.
      */
     public void paint (Graphics2D gfx)
@@ -88,6 +99,15 @@ public class SceneObject
         if (footpaint) {
             gfx.setColor(Color.black);
             gfx.draw(_footprint);
+        }
+
+        // if we have a warning, render an alpha'd red rectangle over our
+        // bounds
+        if (_warning) {
+            Composite ocomp = gfx.getComposite();
+            gfx.setComposite(ALPHA_WARN);
+            gfx.fill(bounds);
+            gfx.setComposite(ocomp);
         }
 
         // paint our tile
@@ -253,6 +273,9 @@ public class SceneObject
     /** The screen-coordinates of our object spot; or null if we have none. */
     protected Point _sspot;
 
+    /** Used to mark objects with errors. */
+    protected boolean _warning;
+
     /** A debug hook that toggles rendering of objects. */
     protected static RuntimeAdjust.BooleanAdjust _hideObjects =
         new RuntimeAdjust.BooleanAdjust(
@@ -274,4 +297,8 @@ public class SceneObject
         _spotTri.addPoint(3, -3);
         _spotTri.addPoint(0, 3);
     };
+
+    /** The alpha used to fill our bounds for warning purposes. */
+    protected static final Composite ALPHA_WARN =
+        AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f);
 }
