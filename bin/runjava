@@ -2,7 +2,7 @@
 
 use Getopt::Std;
 
-my $usage = "Usage: $0 [-p pid_file] [-r server_root] args\n";
+my $usage = "Usage: $0 [-p pid_file] [-r root_directory] args\n";
 
 # locations of stuff
 chomp($location = `dirname $0`);
@@ -52,7 +52,7 @@ if (defined $libpath) {
 }
 
 # put everything in our class path
-my $classpath = "-classpath $jlib:$root/dist/classes";
+my $classpath = "-classpath $jlib:$root/dist/classes:$root/dist/rsrc";
 
 # any zip or jar files in our lib/ directory get added to the class path
 if (opendir(DIR, "$root/lib")) {
@@ -63,10 +63,7 @@ if (opendir(DIR, "$root/lib")) {
 }
 
 # specify our server root (this is for server code)
-my $serverroot = "-Dserver.root=$root";
-
-# specify our base directory (this is for client code)
-my $basedir = "-Dbase.dir=$root/src/java";
+my $rootarg = "-Droot=$root";
 
 my $pid_file = undef;
 my $i = 0;
@@ -89,7 +86,7 @@ for ($i = 0; $i < @ARGV; $i++) {
 	$i -= 1; # decrement i so that things stay in sync
 
     } elsif ($arg eq "-r") {
-        $serverroot = "-Dserver.root=" . $ARGV[$i+1];
+        $rootarg = "-Droot=" . $ARGV[$i+1];
         splice(@ARGV, $i, 2);
 	$i -= 1; # decrement i so that things stay in sync
     }
@@ -98,6 +95,6 @@ for ($i = 0; $i < @ARGV; $i++) {
 # log the pid file if requested to do so
 print `echo $$ > $pid_file` if (defined $pid_file);
 
-my $cmd = "$java -mx256M $classpath $serverroot $basedir " . join(" ", @ARGV);
+my $cmd = "$java -mx256M $classpath $rootarg " . join(" ", @ARGV);
 # print "$cmd\n";
 exec($cmd);
