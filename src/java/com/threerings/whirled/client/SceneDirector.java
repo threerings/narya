@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.8 2001/12/04 00:30:27 mdb Exp $
+// $Id: SceneDirector.java,v 1.9 2001/12/14 01:51:45 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -304,10 +304,8 @@ public class SceneDirector
      * to enter. */
     protected SceneModel _pendingModel;
 
-    /**
-     * The id of the scene for which we have an outstanding moveTo
-     * request, or -1 if we have no outstanding request.
-     */
+    /** The id of the scene for which we have an outstanding moveTo
+     * request, or -1 if we have no outstanding request. */
     protected int _pendingSceneId = -1;
 
     /** The id of the scene we previously occupied. */

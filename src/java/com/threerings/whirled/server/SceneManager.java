@@ -1,5 +1,5 @@
 //
-// $Id: SceneManager.java,v 1.8 2001/11/12 20:56:56 mdb Exp $
+// $Id: SceneManager.java,v 1.9 2001/12/14 01:51:46 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -40,12 +40,25 @@ public class SceneManager extends PlaceManager
      * Called by the scene registry once the scene manager has been
      * created (and initialized), but before it is started up.
      */
-    protected void postInit (
+    protected void setSceneData (
         RuntimeScene scene, SceneModel model, SceneRegistry screg)
     {
         _scene = scene;
         _model = model;
         _screg = screg;
+
+        // let derived classes react to the receipt of scene data
+        gotSceneData();
+    }
+
+    /**
+     * A method that can be overridden by derived classes to perform
+     * initialization processing after we receive our scene information
+     * but before we're started up (and hence registered as an active
+     * place).
+     */
+    protected void gotSceneData ()
+    {
     }
 
     /**

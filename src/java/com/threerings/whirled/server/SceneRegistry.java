@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.11 2001/12/13 07:23:25 mdb Exp $
+// $Id: SceneRegistry.java,v 1.12 2001/12/14 01:51:46 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -194,7 +194,7 @@ public class SceneRegistry
             // stuff; we'll somehow need to convey configuration
             // information for the scene to the scene manager, but for now
             // let's punt
-            scmgr.postInit(scene, model, this);
+            scmgr.setSceneData(scene, model, this);
 
             // when the scene manager completes its startup procedings, it
             // will call back to the scene registry and let us know that
