@@ -40,6 +40,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
@@ -173,9 +176,14 @@ public class ResourceManager
         _rootPath = resourceRoot;
         _loader = loader;
 
-        // set up a URL handler so that things can be loaded via urls with
-        // the 'resource' protocol
-        Handler.registerHandler(this);
+        // set up a URL handler so that things can be loaded via urls
+        // with the 'resource' protocol
+        AccessController.doPrivileged(new PrivilegedAction() {
+            public Object run () {
+                Handler.registerHandler(ResourceManager.this);
+                return null;
+            }
+        });
     }
 
     /**
@@ -378,8 +386,12 @@ public class ResourceManager
         }
 
         // if we didn't find anything, try the classloader
-        String rpath = PathUtil.appendPath(_rootPath, path);
-        in = _loader.getResourceAsStream(rpath);
+        final String rpath = PathUtil.appendPath(_rootPath, path);
+        in = (InputStream)AccessController.doPrivileged(new PrivilegedAction() {
+            public Object run () {
+                return _loader.getResourceAsStream(rpath);
+            }
+        });
         if (in != null) {
             return in;
         }
@@ -412,8 +424,13 @@ public class ResourceManager
         }
 
         // if we didn't find anything, try the classloader
-        String rpath = PathUtil.appendPath(_rootPath, path);
-        InputStream in = _loader.getResourceAsStream(rpath);
+        final String rpath = PathUtil.appendPath(_rootPath, path);
+        InputStream in = (InputStream)
+            AccessController.doPrivileged(new PrivilegedAction() {
+            public Object run () {
+                return _loader.getResourceAsStream(rpath);
+            }
+        });
         if (in != null) {
             return new MemoryCacheImageInputStream(new BufferedInputStream(in));
         }
