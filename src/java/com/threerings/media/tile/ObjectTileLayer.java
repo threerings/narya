@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileLayer.java,v 1.2 2002/03/26 20:17:51 ray Exp $
+// $Id: ObjectTileLayer.java,v 1.3 2002/03/26 23:35:01 ray Exp $
 
 package com.threerings.media.tile;
 
@@ -57,7 +57,7 @@ public final class ObjectTileLayer
      */
     public ObjectTile getTile (int column, int row)
     {
-	return (ObjectTile) _tiles.get(IsoUtil.coordsToKey(column, row));
+        return (ObjectTile) _tiles.get(IsoUtil.coordsToKey(column, row));
     }
 
     /**
@@ -67,15 +67,15 @@ public final class ObjectTileLayer
      */
     public void setTile (int column, int row, ObjectTile tile)
     {
-	_tiles.put(IsoUtil.coordsToKey(column, row), tile);
+        _tiles.put(IsoUtil.coordsToKey(column, row), tile);
     }
 
     /**
-     * Removes the tile at the specified row and column
+     * Removes the tile at the specified row and column.
      */
     public void clearTile (int column, int row)
     {
-	_tiles.remove(IsoUtil.coordsToKey(column, row));
+        _tiles.remove(IsoUtil.coordsToKey(column, row));
     }
 
     /** Our tiles. */

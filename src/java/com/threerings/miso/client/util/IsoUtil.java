@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.23 2002/03/26 20:17:51 ray Exp $
+// $Id: IsoUtil.java,v 1.24 2002/03/26 23:35:02 ray Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -62,7 +62,7 @@ public class IsoUtil
         IsoSceneViewModel model, Polygon root, ObjectTile tile)
     {
         Polygon boundsPoly = new SmartPolygon();
-	Rectangle bounds = root.getBounds();
+        Rectangle bounds = root.getBounds();
 
         int bwid = tile.getBaseWidth(), bhei = tile.getBaseHeight();
         int oox = bounds.x + model.tilehwid, ooy = bounds.y + model.tilehei;
@@ -107,7 +107,7 @@ public class IsoUtil
     public static Polygon getObjectBounds (
         IsoSceneViewModel model, Polygon root, ObjectTile tile)
     {
-	Rectangle bounds = root.getBounds();
+        Rectangle bounds = root.getBounds();
 
         // if the tile has an origin, use that, otherwise compute the
         // origin based on the tile footprint
@@ -178,41 +178,41 @@ public class IsoUtil
      *         class's direction constants.
      */
     public static int getDirection (
-	IsoSceneViewModel model, int ax, int ay, int bx, int by)
+        IsoSceneViewModel model, int ax, int ay, int bx, int by)
     {
-	Point afpos = new Point(), bfpos = new Point();
+        Point afpos = new Point(), bfpos = new Point();
 
-	// convert screen coordinates to full coordinates to get both
-	// tile coordinates and fine coordinates
-	screenToFull(model, ax, ay, afpos);
-	screenToFull(model, bx, by, bfpos);
+        // convert screen coordinates to full coordinates to get both
+        // tile coordinates and fine coordinates
+        screenToFull(model, ax, ay, afpos);
+        screenToFull(model, bx, by, bfpos);
 
-	// pull out the tile coordinates for each point
-	int tax = afpos.x / FULL_TILE_FACTOR;
-	int tay = afpos.y / FULL_TILE_FACTOR;
+        // pull out the tile coordinates for each point
+        int tax = afpos.x / FULL_TILE_FACTOR;
+        int tay = afpos.y / FULL_TILE_FACTOR;
 
-	int tbx = bfpos.x / FULL_TILE_FACTOR;
-	int tby = bfpos.y / FULL_TILE_FACTOR;
+        int tbx = bfpos.x / FULL_TILE_FACTOR;
+        int tby = bfpos.y / FULL_TILE_FACTOR;
 
-	// compare tile coordinates to determine direction
-	int dir = getIsoDirection(tax, tay, tbx, tby);
-	if (dir != DirectionCodes.NONE) return dir;
+        // compare tile coordinates to determine direction
+        int dir = getIsoDirection(tax, tay, tbx, tby);
+        if (dir != DirectionCodes.NONE) return dir;
 
-	// destination point is in the same tile as the
-	// origination point, so consider fine coordinates
+        // destination point is in the same tile as the
+        // origination point, so consider fine coordinates
 
-	// pull out the fine coordinates for each point
-	int fax = afpos.x - (tax * FULL_TILE_FACTOR);
-	int fay = afpos.y - (tay * FULL_TILE_FACTOR);
+        // pull out the fine coordinates for each point
+        int fax = afpos.x - (tax * FULL_TILE_FACTOR);
+        int fay = afpos.y - (tay * FULL_TILE_FACTOR);
 
-	int fbx = bfpos.x - (tbx * FULL_TILE_FACTOR);
-	int fby = bfpos.y - (tby * FULL_TILE_FACTOR);
+        int fbx = bfpos.x - (tbx * FULL_TILE_FACTOR);
+        int fby = bfpos.y - (tby * FULL_TILE_FACTOR);
 
-	// compare fine coordinates to determine direction
-	dir = getIsoDirection(fax, fay, fbx, fby);
+        // compare fine coordinates to determine direction
+        dir = getIsoDirection(fax, fay, fbx, fby);
 
-	// arbitrarily return southwest if fine coords were also equivalent
-	return (dir == -1) ? SOUTHWEST : dir;
+        // arbitrarily return southwest if fine coords were also equivalent
+        return (dir == -1) ? SOUTHWEST : dir;
     }
 
     /**
@@ -233,24 +233,24 @@ public class IsoUtil
      */
     public static int getIsoDirection (int ax, int ay, int bx, int by)
     {
-	if (bx > ax) {
-	    if (by == ay) {
+        if (bx > ax) {
+            if (by == ay) {
                 return SOUTH;
             }
-	    return (by < ay) ? SOUTHEAST : SOUTHWEST;
+            return (by < ay) ? SOUTHEAST : SOUTHWEST;
 
-	} else if (bx == ax) {
-	    if (by == ay) {
+        } else if (bx == ax) {
+            if (by == ay) {
                 return DirectionCodes.NONE;
             }
-	    return (by < ay) ? EAST : WEST;
+            return (by < ay) ? EAST : WEST;
 
-	} else {  // bx < ax
-	    if (by == ay) {
+        } else {  // bx < ax
+            if (by == ay) {
                 return NORTH;
             }
-	    return (by < ay) ? NORTHEAST : NORTHWEST;
-	}
+            return (by < ay) ? NORTHEAST : NORTHWEST;
+        }
     }
 
     /**
@@ -258,7 +258,7 @@ public class IsoUtil
      */
     public static int fullToTile (int val)
     {
-	return (val / FULL_TILE_FACTOR);
+        return (val / FULL_TILE_FACTOR);
     }
 
     /**
@@ -266,7 +266,7 @@ public class IsoUtil
      */
     public static int fullToFine (int val)
     {
-	return (val - ((val / FULL_TILE_FACTOR) * FULL_TILE_FACTOR));
+        return (val - ((val / FULL_TILE_FACTOR) * FULL_TILE_FACTOR));
     }
 
     /**
@@ -279,24 +279,24 @@ public class IsoUtil
      * @param tpos the point object to place coordinates in.
      */
     public static void screenToTile (
-	IsoSceneViewModel model, int sx, int sy, Point tpos)
+        IsoSceneViewModel model, int sx, int sy, Point tpos)
     {
-	// calculate line parallel to the y-axis (from mouse pos to x-axis)
-	int bY = (int)(sy - (model.slopeY * sx));
+        // calculate line parallel to the y-axis (from mouse pos to x-axis)
+        int bY = (int)(sy - (model.slopeY * sx));
 
-	// determine intersection of x- and y-axis lines
-	int crossx = (int)((bY - (model.bX + model.origin.y)) /
-			   (model.slopeX - model.slopeY));
-	int crossy = (int)((model.slopeY * crossx) + bY);
+        // determine intersection of x- and y-axis lines
+        int crossx = (int)((bY - (model.bX + model.origin.y)) /
+                           (model.slopeX - model.slopeY));
+        int crossy = (int)((model.slopeY * crossx) + bY);
 
-	// determine distance of mouse pos along the x axis
-	int xdist = (int)MathUtil.distance(
-	    model.origin.x, model.origin.y, crossx, crossy);
-	tpos.x = (int)(xdist / model.tilelen);
+        // determine distance of mouse pos along the x axis
+        int xdist = (int)MathUtil.distance(
+            model.origin.x, model.origin.y, crossx, crossy);
+        tpos.x = (int)(xdist / model.tilelen);
 
-	// determine distance of mouse pos along the y-axis
-	int ydist = (int)MathUtil.distance(sx, sy, crossx, crossy);
-	tpos.y = (int)(ydist / model.tilelen);
+        // determine distance of mouse pos along the y-axis
+        int ydist = (int)MathUtil.distance(sx, sy, crossx, crossy);
+        tpos.y = (int)(ydist / model.tilelen);
     }
 
     /**
@@ -309,7 +309,7 @@ public class IsoUtil
      * @param spos the point object to place coordinates in.
      */
     public static void tileToScreen (
-	IsoSceneViewModel model, int x, int y, Point spos)
+        IsoSceneViewModel model, int x, int y, Point spos)
     {
         spos.x = model.origin.x + ((x - y - 1) * model.tilehwid);
         spos.y = model.origin.y + ((x + y) * model.tilehhei);
@@ -325,10 +325,10 @@ public class IsoUtil
      * @param ppos the point object to place coordinates in.
      */
     public static void fineToPixel (
-	IsoSceneViewModel model, int x, int y, Point ppos)
+        IsoSceneViewModel model, int x, int y, Point ppos)
     {
-	ppos.x = model.tilehwid + ((x - y) * model.finehwid);
-	ppos.y = (x + y) * model.finehhei;
+        ppos.x = model.tilehwid + ((x - y) * model.finehwid);
+        ppos.y = (x + y) * model.finehhei;
     }
 
     /**
@@ -342,28 +342,28 @@ public class IsoUtil
      * @param fpos the point object to place coordinates in.
      */
     public static void pixelToFine (
-	IsoSceneViewModel model, int x, int y, Point fpos)
+        IsoSceneViewModel model, int x, int y, Point fpos)
     {
-	// calculate line parallel to the y-axis (from the given
-	// x/y-pos to the x-axis)
-	float bY = y - (model.fineSlopeY * x);
+        // calculate line parallel to the y-axis (from the given
+        // x/y-pos to the x-axis)
+        float bY = y - (model.fineSlopeY * x);
 
-	// determine intersection of x- and y-axis lines
-	int crossx = (int)((bY - model.fineBX) /
-			   (model.fineSlopeX - model.fineSlopeY));
-	int crossy = (int)((model.fineSlopeY * crossx) + bY);
+        // determine intersection of x- and y-axis lines
+        int crossx = (int)((bY - model.fineBX) /
+                           (model.fineSlopeX - model.fineSlopeY));
+        int crossy = (int)((model.fineSlopeY * crossx) + bY);
 
-	// TODO: final position should check distance between our
-	// position and the surrounding fine coords and return the
-	// actual closest fine coord, rather than just dividing.
+        // TODO: final position should check distance between our
+        // position and the surrounding fine coords and return the
+        // actual closest fine coord, rather than just dividing.
 
-	// determine distance along the x-axis
-	float xdist = MathUtil.distance(model.tilehwid, 0, crossx, crossy);
-	fpos.x = (int)(xdist / model.finelen);
+        // determine distance along the x-axis
+        float xdist = MathUtil.distance(model.tilehwid, 0, crossx, crossy);
+        fpos.x = (int)(xdist / model.finelen);
 
-	// determine distance along the y-axis
-	float ydist = MathUtil.distance(x, y, crossx, crossy);
-	fpos.y = (int)(ydist / model.finelen);
+        // determine distance along the y-axis
+        float ydist = MathUtil.distance(x, y, crossx, crossy);
+        fpos.y = (int)(ydist / model.finelen);
     }
 
     /**
@@ -377,22 +377,22 @@ public class IsoUtil
      * @param fpos the point object to place coordinates in.
      */
     public static void screenToFull (
-	IsoSceneViewModel model, int sx, int sy, Point fpos)
+        IsoSceneViewModel model, int sx, int sy, Point fpos)
     {
-	// get the tile coordinates
-	Point tpos = new Point();
-	screenToTile(model, sx, sy, tpos);
+        // get the tile coordinates
+        Point tpos = new Point();
+        screenToTile(model, sx, sy, tpos);
 
-	// get the screen coordinates for the containing tile
-	Point spos = new Point();
-	tileToScreen(model, tpos.x, tpos.y, spos);
+        // get the screen coordinates for the containing tile
+        Point spos = new Point();
+        tileToScreen(model, tpos.x, tpos.y, spos);
 
-	// get the fine coordinates within the containing tile
-	pixelToFine(model, sx - spos.x, sy - spos.y, fpos);
+        // get the fine coordinates within the containing tile
+        pixelToFine(model, sx - spos.x, sy - spos.y, fpos);
 
-	// toss in the tile coordinates for good measure
-	fpos.x += (tpos.x * FULL_TILE_FACTOR);
-	fpos.y += (tpos.y * FULL_TILE_FACTOR);
+        // toss in the tile coordinates for good measure
+        fpos.x += (tpos.x * FULL_TILE_FACTOR);
+        fpos.y += (tpos.y * FULL_TILE_FACTOR);
     }
 
     /**
@@ -405,21 +405,21 @@ public class IsoUtil
      * @param spos the point object to place coordinates in.
      */
     public static void fullToScreen (
-	IsoSceneViewModel model, int x, int y, Point spos)
+        IsoSceneViewModel model, int x, int y, Point spos)
     {
-	// get the tile screen position
-	Point tspos = new Point();
-	int tx = x / FULL_TILE_FACTOR, ty = y / FULL_TILE_FACTOR;
-	tileToScreen(model, tx, ty, tspos);
+        // get the tile screen position
+        Point tspos = new Point();
+        int tx = x / FULL_TILE_FACTOR, ty = y / FULL_TILE_FACTOR;
+        tileToScreen(model, tx, ty, tspos);
 
-	// get the pixel position of the fine coords within the tile
-	Point ppos = new Point();
-	int fx = x - (tx * FULL_TILE_FACTOR), fy = y - (ty * FULL_TILE_FACTOR);
-	fineToPixel(model, fx, fy, ppos);
+        // get the pixel position of the fine coords within the tile
+        Point ppos = new Point();
+        int fx = x - (tx * FULL_TILE_FACTOR), fy = y - (ty * FULL_TILE_FACTOR);
+        fineToPixel(model, fx, fy, ppos);
 
-	// final position is tile position offset by fine position
-	spos.x = tspos.x + ppos.x;
-	spos.y = tspos.y + ppos.y;
+        // final position is tile position offset by fine position
+        spos.x = tspos.x + ppos.x;
+        spos.y = tspos.y + ppos.y;
     }
 
     /**
@@ -429,7 +429,7 @@ public class IsoUtil
      * @param y the tile y-position coordinate.
      */
     public static Polygon getTilePolygon (
-	IsoSceneViewModel model, int x, int y)
+        IsoSceneViewModel model, int x, int y)
     {
         // get the top-left screen coordinate for the tile
         Point spos = new Point();
@@ -447,27 +447,33 @@ public class IsoUtil
     }
 
     /**
-     * @return the hash key, give x and y
+     * Turns x and y scene coordinates into an integer key.
+     *
+     * @return the hash key, given x and y.
      */
     public static final int coordsToKey (int x, int y)
     {
-	return ((y << 16) & (0xFFFF0000)) | (x & 0xFFFF);
+        return ((y << 16) & (0xFFFF0000)) | (x & 0xFFFF);
     }
 
     /**
-     * @return the x coordinate from the hash key
+     * Gets the x coordinate from an integer hash key.
+     *
+     * @return the x coordinate.
      */
     public static final int xCoordFromKey (int key)
     {
-	return (key & 0xFFFF);
+        return (key & 0xFFFF);
     }
 
     /**
-     * @return the y coordinate from the hash key
+     * Gets the y coordinate from an integer hash key.
+     *
+     * @return the y coordinate from the hash key.
      */
     public static final int yCoordFromKey (int key)
     {
-	return ((key >> 16) & 0xFFFF);
+        return ((key >> 16) & 0xFFFF);
     }
 
     /** Multiplication factor to embed tile coords in full coords. */

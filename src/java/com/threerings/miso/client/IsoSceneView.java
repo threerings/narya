@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.103 2002/03/26 20:17:51 ray Exp $
+// $Id: IsoSceneView.java,v 1.104 2002/03/26 23:35:01 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -112,7 +112,7 @@ public class IsoSceneView implements SceneView
         _scene = scene;
 
         // clear all dirty lists and tile array
-	clearDirtyRegions();
+        clearDirtyRegions();
 
         // obtain a list of the objects in the scene and generate records
         // for each of them that contain precomputed metrics
@@ -157,7 +157,7 @@ public class IsoSceneView implements SceneView
     // documentation inherited from interface
     public void paint (Graphics2D gfx, List invalidRects)
     {
-	if (_scene == null) {
+        if (_scene == null) {
             Log.warning("Scene view painted with null scene.");
             return;
         }
@@ -194,16 +194,16 @@ public class IsoSceneView implements SceneView
         // clear out the dirty tiles and rectangles
         clearDirtyRegions();
 
-	// draw sprite paths
-	if (_model.showPaths) {
-	    _spritemgr.renderSpritePaths(gfx);
-	}
+        // draw sprite paths
+        if (_model.showPaths) {
+            _spritemgr.renderSpritePaths(gfx);
+        }
 
         // paint our highlighted tile (if any)
         paintHighlights(gfx);
 
         // paint any extra goodies
-	paintExtras(gfx);
+        paintExtras(gfx);
     }
 
     /**
@@ -243,15 +243,15 @@ public class IsoSceneView implements SceneView
         // if we've determined that there's something to highlight
         if (hpoly != null) {
             // set the desired stroke and color
-	    Stroke ostroke = gfx.getStroke();
-	    gfx.setStroke(_hstroke);
-	    gfx.setColor(Color.green);
+            Stroke ostroke = gfx.getStroke();
+            gfx.setStroke(_hstroke);
+            gfx.setColor(Color.green);
 
-	    // draw the outline
+            // draw the outline
             gfx.draw(hpoly);
 
-	    // restore the original stroke
-	    gfx.setStroke(ostroke);
+            // restore the original stroke
+            gfx.setStroke(ostroke);
         }
     }
 
@@ -278,12 +278,12 @@ public class IsoSceneView implements SceneView
      */
     protected void clearDirtyRegions ()
     {
-	_dirtyRects.clear();
+        _dirtyRects.clear();
         _dirtyItems.clear();
         _numDirty = 0;
-	for (int xx = 0; xx < _model.scenewid; xx++) {
+        for (int xx = 0; xx < _model.scenewid; xx++) {
             Arrays.fill(_dirty[xx], false);
-	}
+        }
     }
 
     /**
@@ -291,25 +291,25 @@ public class IsoSceneView implements SceneView
      */
     protected void drawDirtyRegions (Graphics2D gfx)
     {
-	// draw the dirty tiles
-	gfx.setColor(Color.cyan);
-	for (int xx = 0; xx < _model.scenewid; xx++) {
-	    for (int yy = 0; yy < _model.scenehei; yy++) {
-		if (_dirty[xx][yy]) {
-		    gfx.draw(getTilePoly(xx, yy));
-		}
-	    }
-	}
+        // draw the dirty tiles
+        gfx.setColor(Color.cyan);
+        for (int xx = 0; xx < _model.scenewid; xx++) {
+            for (int yy = 0; yy < _model.scenehei; yy++) {
+                if (_dirty[xx][yy]) {
+                    gfx.draw(getTilePoly(xx, yy));
+                }
+            }
+        }
 
-	// draw the dirty rectangles
+        // draw the dirty rectangles
         Stroke ostroke = gfx.getStroke();
         gfx.setStroke(DIRTY_RECT_STROKE);
-	gfx.setColor(Color.red);
-	int size = _dirtyRects.size();
-	for (int ii = 0; ii < size; ii++) {
-	    Rectangle rect = (Rectangle)_dirtyRects.get(ii);
-	    gfx.draw(rect);
-	}
+        gfx.setColor(Color.red);
+        int size = _dirtyRects.size();
+        for (int ii = 0; ii < size; ii++) {
+            Rectangle rect = (Rectangle)_dirtyRects.get(ii);
+            gfx.draw(rect);
+        }
         gfx.setStroke(ostroke);
 
         // draw the dirty item rectangles
@@ -351,9 +351,9 @@ public class IsoSceneView implements SceneView
     protected void renderTiles (Graphics2D gfx)
     {
         // render the base and fringe layers
-	for (int yy = 0; yy < _model.scenehei; yy++) {
-	    for (int xx = 0; xx < _model.scenewid; xx++) {
- 		if (!_dirty[xx][yy]) {
+        for (int yy = 0; yy < _model.scenehei; yy++) {
+            for (int xx = 0; xx < _model.scenewid; xx++) {
+                 if (!_dirty[xx][yy]) {
                     continue;
                 }
 
@@ -373,8 +373,8 @@ public class IsoSceneView implements SceneView
                 if (_model.showCoords) {
                     gfx.draw(getTilePoly(xx, yy));
                 }
-	    }
-	}
+            }
+        }
     }
 
     /**
@@ -415,8 +415,8 @@ public class IsoSceneView implements SceneView
     {
         FontMetrics fm = gfx.getFontMetrics(_font);
 
-	gfx.setFont(_font);
-	gfx.setColor(Color.white);
+        gfx.setFont(_font);
+        gfx.setColor(Color.white);
 
         int cx = _model.tilehwid, cy = _model.tilehhei;
         int fhei = fm.getAscent();
@@ -503,12 +503,12 @@ public class IsoSceneView implements SceneView
      */
     protected Polygon getTilePoly (int x, int y)
     {
-	int key = IsoUtil.coordsToKey(x, y);
-	
-	Polygon poly = (Polygon) _polys.get(key);
+        int key = IsoUtil.coordsToKey(x, y);
+        
+        Polygon poly = (Polygon) _polys.get(key);
         if (poly == null) {
-	    poly = IsoUtil.getTilePolygon(_model, x, y);
-	    _polys.put(key, poly);
+            poly = IsoUtil.getTilePolygon(_model, x, y);
+            _polys.put(key, poly);
         }
         return poly;
     }
@@ -548,91 +548,91 @@ public class IsoSceneView implements SceneView
         // invalidated rectangle
         Rectangle tileBounds = new Rectangle(-1, -1, 0, 0);
 
-	// note that corner tiles may be included unnecessarily, but
-	// checking to determine whether they're actually needed
-	// complicates the code with likely-insufficient benefit
+        // note that corner tiles may be included unnecessarily, but
+        // checking to determine whether they're actually needed
+        // complicates the code with likely-insufficient benefit
 
-	// determine the top-left tile impacted by this rect
+        // determine the top-left tile impacted by this rect
         Point tpos = new Point();
         IsoUtil.screenToTile(_model, rx, ry, tpos);
 
-	// determine screen coordinates for top-left tile
-	Point topleft = new Point();
-	IsoUtil.tileToScreen(_model, tpos.x, tpos.y, topleft);
+        // determine screen coordinates for top-left tile
+        Point topleft = new Point();
+        IsoUtil.tileToScreen(_model, tpos.x, tpos.y, topleft);
 
-	// determine number of horizontal tiles for rect
-	int numh = (int)Math.ceil((float)r.width / (float)_model.tilewid);
+        // determine number of horizontal tiles for rect
+        int numh = (int)Math.ceil((float)r.width / (float)_model.tilewid);
 
-	// set up iterating variables
-	int tx = tpos.x, ty = tpos.y, mx = tpos.x, my = tpos.y;
+        // set up iterating variables
+        int tx = tpos.x, ty = tpos.y, mx = tpos.x, my = tpos.y;
 
-	// set the starting screen y-position
-	int screenY = topleft.y;
+        // set the starting screen y-position
+        int screenY = topleft.y;
 
-	// add top row if rect may overlap
-	if (ry < (screenY + _model.tilehhei)) {
-	    ty--;
-	    for (int ii = 0; ii < numh; ii++) {
-		addDirtyTile(tileBounds, tx++, ty--);
-	    }
-	}
+        // add top row if rect may overlap
+        if (ry < (screenY + _model.tilehhei)) {
+            ty--;
+            for (int ii = 0; ii < numh; ii++) {
+                addDirtyTile(tileBounds, tx++, ty--);
+            }
+        }
 
-	// determine the bottom-left tile impacted by this rect
+        // determine the bottom-left tile impacted by this rect
         Point bpos = new Point();
         IsoUtil.screenToTile(_model, rx, ry + r.height, bpos);
 
-	// determine screen coordinates for bottom-left tile
-	Point botleft = new Point();
-	IsoUtil.tileToScreen(_model, bpos.x, bpos.y, botleft);
+        // determine screen coordinates for bottom-left tile
+        Point botleft = new Point();
+        IsoUtil.tileToScreen(_model, bpos.x, bpos.y, botleft);
 
         // determine the number of vertical rows for our rect (we do this
         // by subtracting the "height" of the top tile from that of the
         // bottom tile, the height being the sum of the x and y
         // coordinate)
-	int numv = (bpos.x + bpos.y) - (tpos.x + tpos.y);
+        int numv = (bpos.x + bpos.y) - (tpos.x + tpos.y);
 
         // now we need to extend the rect to contain the row containing
         // the bottom tile, and potentially the row below that
         numv += ((ry + r.height) > (botleft.y + _model.tilehhei)) ? 2 : 1;
 
-	// add dirty tiles from each affected row
-	for (int ii = 0; ii < numv; ii++) {
+        // add dirty tiles from each affected row
+        for (int ii = 0; ii < numv; ii++) {
 
-	    // set up iterating variables for this row
-	    tx = mx;
-	    ty = my;
-	    int length = numh;
+            // set up iterating variables for this row
+            tx = mx;
+            ty = my;
+            int length = numh;
 
-	    // set the starting screen x-position
-	    int screenX = topleft.x;
-	    if (ii%2 == 1) {
-		screenX -= _model.tilehwid;
-	    }
+            // set the starting screen x-position
+            int screenX = topleft.x;
+            if (ii%2 == 1) {
+                screenX -= _model.tilehwid;
+            }
 
-	    // skip leftmost tile if rect doesn't overlap
-  	    if (rx > screenX + _model.tilewid) {
-  		tx++;
-  		ty--;
-		screenX += _model.tilewid;
-  	    }
+            // skip leftmost tile if rect doesn't overlap
+              if (rx > screenX + _model.tilewid) {
+                  tx++;
+                  ty--;
+                screenX += _model.tilewid;
+              }
 
-	    // add to the right edge if rect may overlap
-	    if (rx + r.width > (screenX + (length * _model.tilewid))) {
-		length++;
-	    }
+            // add to the right edge if rect may overlap
+            if (rx + r.width > (screenX + (length * _model.tilewid))) {
+                length++;
+            }
 
-	    // add all tiles in the row to the dirty set
-	    for (int jj = 0; jj < length; jj++) {
-		addDirtyTile(tileBounds, tx++, ty--);
-	    }
+            // add all tiles in the row to the dirty set
+            for (int jj = 0; jj < length; jj++) {
+                addDirtyTile(tileBounds, tx++, ty--);
+            }
 
-	    // step along the x- or y-axis appropriately
-	    if (ii%2 == 1) {
-		mx++;
-	    } else {
-		my++;
-	    }
-	}
+            // step along the x- or y-axis appropriately
+            if (ii%2 == 1) {
+                mx++;
+            } else {
+                my++;
+            }
+        }
 
         return tileBounds;
     }
@@ -655,14 +655,14 @@ public class IsoSceneView implements SceneView
             tileBounds.add(bounds);
         }
 
-	// do nothing if the tile's already dirty
-	if (_dirty[x][y]) {
-	    return false;
-	}
+        // do nothing if the tile's already dirty
+        if (_dirty[x][y]) {
+            return false;
+        }
 
-	// mark the tile dirty
-	_numDirty++;
-	_dirty[x][y] = true;
+        // mark the tile dirty
+        _numDirty++;
+        _dirty[x][y] = true;
         return true;
     }
 
@@ -738,11 +738,11 @@ public class IsoSceneView implements SceneView
         IsoUtil.screenToTile(_model, x + _xoff, y + _yoff, dest);
 
         // get a reasonable tile path through the scene
-	List points = AStarPathUtil.getPath(
+        List points = AStarPathUtil.getPath(
             _scene, _model.scenewid, _model.scenehei,
             sprite, sprite.getTileX(), sprite.getTileY(), dest.x, dest.y);
 
-	// construct a path object to guide the sprite on its merry way
+        // construct a path object to guide the sprite on its merry way
         return (points == null) ? null :
             new TilePath(_model, sprite, points, x, y);
     }
@@ -750,8 +750,8 @@ public class IsoSceneView implements SceneView
     // documentation inherited
     public Point getScreenCoords (int x, int y)
     {
-	Point coords = new Point();
-	IsoUtil.fullToScreen(_model, x, y, coords);
+        Point coords = new Point();
+        IsoUtil.fullToScreen(_model, x, y, coords);
         // adjust for our scrolling offset
         coords.x -= _xoff;
         coords.y -= _yoff;
@@ -895,7 +895,7 @@ public class IsoSceneView implements SceneView
      */
     protected boolean updateTileCoords (int sx, int sy, Point tpos)
     {
-	Point npos = new Point();
+        Point npos = new Point();
         IsoUtil.screenToTile(_model, sx + _xoff, sy + _yoff, npos);
 
         // make sure the new coordinate is both valid and different

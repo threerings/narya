@@ -1,7 +1,9 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.10 2002/03/26 20:17:51 ray Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.11 2002/03/26 23:35:02 ray Exp $
 
 package com.threerings.miso.scene.tools;
+
+import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
 
@@ -16,8 +18,6 @@ import com.threerings.miso.tile.BaseTile;
 import com.threerings.miso.scene.DisplayMisoSceneImpl;
 import com.threerings.miso.scene.MisoSceneModel;
 import com.threerings.miso.scene.util.IsoUtil;
-
-import java.util.Iterator;
 
 /**
  * The default implementation of the {@link EditableMisoScene} interface.
@@ -108,7 +108,7 @@ public class EditableMisoSceneImpl
         // object tile
         setObjectTileFootprint(tile, x, y, true);
         // stick this value into our non-sparse object layer
-	_objectTileIds.put(IsoUtil.coordsToKey(x, y), new Integer(fqTileId));
+        _objectTileIds.put(IsoUtil.coordsToKey(x, y), new Integer(fqTileId));
     }
 
     // documentation inherited from interface
@@ -145,7 +145,7 @@ public class EditableMisoSceneImpl
             _object.clearTile(x, y);
         }
         // clear it out in our non-sparse array
-	_objectTileIds.remove(IsoUtil.coordsToKey(x, y));
+        _objectTileIds.remove(IsoUtil.coordsToKey(x, y));
         // clear out any action for this tile as well
         _actions.remove(objectKey(x, y));
     }
@@ -170,15 +170,15 @@ public class EditableMisoSceneImpl
         String[] actions = new String[otileCount];
         int otidx = 0, actidx = 0;
 
-	Iterator keys = _objectTileIds.keys();
-	while (keys.hasNext()) {
-	    int key = ((Integer) keys.next()).intValue();
-	    int c = IsoUtil.xCoordFromKey(key);
- 	    int r = IsoUtil.yCoordFromKey(key);
-	    otids[otidx++] = c;
-	    otids[otidx++] = r;
-	    otids[otidx++] = ((Integer) _objectTileIds.get(key)).intValue();
-	    actions[actidx++] = (String)_actions.get(objectKey(c, r));
+        Iterator keys = _objectTileIds.keys();
+        while (keys.hasNext()) {
+            int key = ((Integer) keys.next()).intValue();
+            int c = IsoUtil.xCoordFromKey(key);
+             int r = IsoUtil.yCoordFromKey(key);
+            otids[otidx++] = c;
+            otids[otidx++] = r;
+            otids[otidx++] = ((Integer) _objectTileIds.get(key)).intValue();
+            actions[actidx++] = (String)_actions.get(objectKey(c, r));
         }
 
         // stuff the new arrays into the model
@@ -196,7 +196,7 @@ public class EditableMisoSceneImpl
     protected void unpackObjectLayer ()
     {
         // we need this to track object layer mods
-	_objectTileIds = new HashIntMap();
+        _objectTileIds = new HashIntMap();
 
         // populate our non-spare array
         int[] otids = _model.objectTileIds;
@@ -204,8 +204,8 @@ public class EditableMisoSceneImpl
             int x = otids[i];
             int y = otids[i+1];
             int fqTileId = otids[i+2];
-	    _objectTileIds.put(IsoUtil.coordsToKey(x, y),
-			       new Integer(fqTileId));
+            _objectTileIds.put(IsoUtil.coordsToKey(x, y),
+                               new Integer(fqTileId));
         }
     }
 

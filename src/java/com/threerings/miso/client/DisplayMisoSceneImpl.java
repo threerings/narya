@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.52 2002/03/26 20:17:51 ray Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.53 2002/03/26 23:35:01 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -227,10 +227,14 @@ public class DisplayMisoSceneImpl
         int endy = Math.max(0, (y - otile.getBaseHeight() + 1));
 
         for (int xx = x; xx >= endx; xx--) {
-	    if ((xx < 0) || (xx >= _model.width)) continue;
+            if ((xx < 0) || (xx >= _model.width)) {
+                continue;
+            }
 
             for (int yy = y; yy >= endy; yy--) {
-		if ((yy < 0) || (yy >= _model.height)) continue;
+                if ((yy < 0) || (yy >= _model.height)) {
+                    continue;
+                }
 
                 BaseTile tile = _base.getTile(xx, yy);
                 if (tile != null) {
