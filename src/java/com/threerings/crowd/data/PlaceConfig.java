@@ -1,11 +1,11 @@
 //
-// $Id: PlaceConfig.java,v 1.6 2004/02/25 14:41:47 mdb Exp $
+// $Id: PlaceConfig.java,v 1.7 2004/08/23 21:05:03 mdb Exp $
 
 package com.threerings.crowd.data;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.io.SimpleStreamableObject;
+import com.threerings.io.TrackedStreamableObject;
 
 /**
  * The place config class encapsulates the configuration information for a
@@ -20,7 +20,7 @@ import com.threerings.io.SimpleStreamableObject;
  * #getControllerClass} and {@link #getManagerClassName}, returning the
  * appropriate place controller and manager class for that place.
  */
-public abstract class PlaceConfig extends SimpleStreamableObject
+public abstract class PlaceConfig extends TrackedStreamableObject
 {
     /**
      * Returns the class that should be used to create a controller for

@@ -1,12 +1,12 @@
 //
-// $Id: SpotSceneModel.java,v 1.10 2004/02/25 14:50:28 mdb Exp $
+// $Id: SpotSceneModel.java,v 1.11 2004/08/23 21:05:04 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.ListUtil;
 
-import com.threerings.io.SimpleStreamableObject;
+import com.threerings.io.TrackedStreamableObject;
 
 import com.threerings.whirled.data.AuxModel;
 import com.threerings.whirled.data.SceneModel;
@@ -17,7 +17,7 @@ import com.threerings.whirled.data.SceneModel;
  * scene and unchanging, so that portals can stably reference the target
  * portal in the scene to which they connect.
  */
-public class SpotSceneModel extends SimpleStreamableObject
+public class SpotSceneModel extends TrackedStreamableObject
     implements AuxModel
 {
     /** An array containing all portals in this scene. */

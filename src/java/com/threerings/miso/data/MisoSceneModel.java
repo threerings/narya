@@ -1,12 +1,12 @@
 //
-// $Id: MisoSceneModel.java,v 1.20 2004/08/13 20:48:27 mdb Exp $
+// $Id: MisoSceneModel.java,v 1.21 2004/08/23 21:05:03 mdb Exp $
 
 package com.threerings.miso.data;
 
 import java.awt.Rectangle;
 import java.util.Random;
 
-import com.threerings.io.SimpleStreamableObject;
+import com.threerings.io.TrackedStreamableObject;
 
 import com.threerings.miso.util.ObjectSet;
 
@@ -14,7 +14,7 @@ import com.threerings.miso.util.ObjectSet;
  * Contains basic information for a miso scene model that is shared among
  * the specialized model implementations.
  */
-public abstract class MisoSceneModel extends SimpleStreamableObject
+public abstract class MisoSceneModel extends TrackedStreamableObject
     implements Cloneable
 {
     /**

@@ -1,9 +1,9 @@
 //
-// $Id: Portal.java,v 1.5 2003/02/12 07:23:31 mdb Exp $
+// $Id: Portal.java,v 1.6 2004/08/23 21:05:04 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
-import com.threerings.io.SimpleStreamableObject;
+import com.threerings.io.TrackedStreamableObject;
 import com.threerings.util.DirectionUtil;
 
 /**
@@ -15,7 +15,7 @@ import com.threerings.util.DirectionUtil;
  * when using this portal and the location at which the body sprite should
  * appear in that target scene.
  */
-public class Portal extends SimpleStreamableObject
+public class Portal extends TrackedStreamableObject
     implements Cloneable
 {
     /** This portal's unique identifier. */

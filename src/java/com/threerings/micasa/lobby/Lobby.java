@@ -1,15 +1,15 @@
 //
-// $Id: Lobby.java,v 1.4 2002/07/23 05:54:52 mdb Exp $
+// $Id: Lobby.java,v 1.5 2004/08/23 21:05:03 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
-import com.threerings.io.SimpleStreamableObject;
+import com.threerings.io.TrackedStreamableObject;
 
 /**
  * A simple class for keeping track of information for each lobby in
  * operation on the server.
  */
-public class Lobby extends SimpleStreamableObject
+public class Lobby extends TrackedStreamableObject
 {
     /** The object id of the lobby place object. */
     public int placeOid;

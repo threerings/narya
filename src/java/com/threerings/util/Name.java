@@ -1,11 +1,11 @@
 //
-// $Id: Name.java,v 1.2 2004/04/06 17:42:49 ray Exp $
+// $Id: Name.java,v 1.3 2004/08/23 21:05:04 mdb Exp $
 
 package com.threerings.util;
 
 import java.util.regex.Pattern;
 
-import com.threerings.io.SimpleStreamableObject;
+import com.threerings.io.TrackedStreamableObject;
 
 /**
  * Contains the name of an entity. Provides a means by which names can be
@@ -13,7 +13,7 @@ import com.threerings.io.SimpleStreamableObject;
  * things exactly or the challenge of inserting code to normalize names
  * everywhere they are compared.
  */
-public class Name extends SimpleStreamableObject
+public class Name extends TrackedStreamableObject
     implements Comparable
 {
     /** A blank name for use in situations where it is needed.

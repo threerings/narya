@@ -1,15 +1,15 @@
 //
-// $Id: Location.java,v 1.8 2004/02/25 14:50:28 mdb Exp $
+// $Id: Location.java,v 1.9 2004/08/23 21:05:04 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
-import com.threerings.io.SimpleStreamableObject;
+import com.threerings.io.TrackedStreamableObject;
 import com.threerings.util.DirectionUtil;
 
 /**
  * Contains information on a scene occupant's position and orientation.
  */
-public class Location extends SimpleStreamableObject
+public class Location extends TrackedStreamableObject
     implements Cloneable
 {
     /** The user's x position (interpreted by the display system). */

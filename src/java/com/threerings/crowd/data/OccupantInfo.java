@@ -1,9 +1,9 @@
 //
-// $Id: OccupantInfo.java,v 1.12 2004/03/06 11:29:19 mdb Exp $
+// $Id: OccupantInfo.java,v 1.13 2004/08/23 21:05:03 mdb Exp $
 
 package com.threerings.crowd.data;
 
-import com.threerings.io.SimpleStreamableObject;
+import com.threerings.io.TrackedStreamableObject;
 import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DSet;
@@ -26,7 +26,7 @@ import com.threerings.presents.dobj.DSet;
  * responsible for adding the code to clone those attributes when a clone
  * is requested.
  */
-public class OccupantInfo extends SimpleStreamableObject
+public class OccupantInfo extends TrackedStreamableObject
     implements DSet.Entry, Cloneable
 {
     /** Constant value for {@link #status}. */

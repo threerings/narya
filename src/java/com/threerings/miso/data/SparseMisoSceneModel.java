@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneModel.java,v 1.14 2004/08/13 20:48:27 mdb Exp $
+// $Id: SparseMisoSceneModel.java,v 1.15 2004/08/23 21:05:03 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -11,7 +11,7 @@ import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.io.SimpleStreamableObject;
+import com.threerings.io.TrackedStreamableObject;
 
 import com.threerings.media.util.MathUtil;
 import com.threerings.util.StreamableHashIntMap;
@@ -35,7 +35,7 @@ public class SparseMisoSceneModel extends MisoSceneModel
     /** Contains information on a section of this scene. This is only
      * public so that the scene model parser can do its job, so don't go
      * poking around in here. */
-    public static class Section extends SimpleStreamableObject
+    public static class Section extends TrackedStreamableObject
         implements Cloneable
     {
         /** The tile coordinate of our upper leftmost tile. */

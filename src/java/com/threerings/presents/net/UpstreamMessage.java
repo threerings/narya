@@ -1,16 +1,16 @@
 //
-// $Id: UpstreamMessage.java,v 1.12 2004/02/21 00:51:02 mdb Exp $
+// $Id: UpstreamMessage.java,v 1.13 2004/08/23 21:05:04 mdb Exp $
 
 package com.threerings.presents.net;
 
-import com.threerings.io.SimpleStreamableObject;
+import com.threerings.io.TrackedStreamableObject;
 
 /**
  * This class encapsulates a message in the distributed object protocol
  * that flows from the client to the server.  Upstream messages include
  * object subscription, event forwarding and session management.
  */
-public abstract class UpstreamMessage extends SimpleStreamableObject
+public abstract class UpstreamMessage extends TrackedStreamableObject
 {
     /**
      * This is a unique (within the context of a reasonable period of

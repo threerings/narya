@@ -1,11 +1,11 @@
 //
-// $Id: SceneModel.java,v 1.9 2003/02/12 07:23:31 mdb Exp $
+// $Id: SceneModel.java,v 1.10 2004/08/23 21:05:04 mdb Exp $
 
 package com.threerings.whirled.data;
 
 import com.samskivert.util.ArrayUtil;
 
-import com.threerings.io.SimpleStreamableObject;
+import com.threerings.io.TrackedStreamableObject;
 
 /**
  * The scene model is the bare bones representation of the data for a
@@ -16,7 +16,7 @@ import com.threerings.io.SimpleStreamableObject;
  * what is transmitted over the wire when communicating scenes from the
  * server to the client.
  */
-public class SceneModel extends SimpleStreamableObject
+public class SceneModel extends TrackedStreamableObject
     implements Cloneable
 {
     /** This scene's unique identifier. */

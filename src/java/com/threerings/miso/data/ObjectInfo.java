@@ -1,16 +1,16 @@
 //
-// $Id: ObjectInfo.java,v 1.5 2004/02/25 14:43:57 mdb Exp $
+// $Id: ObjectInfo.java,v 1.6 2004/08/23 21:05:03 mdb Exp $
 
 package com.threerings.miso.data;
 
 import com.samskivert.util.StringUtil;
-import com.threerings.io.SimpleStreamableObject;
+import com.threerings.io.TrackedStreamableObject;
 import com.threerings.media.tile.TileUtil;
 
 /**
  * Contains information about an object in a Miso scene.
  */
-public class ObjectInfo extends SimpleStreamableObject
+public class ObjectInfo extends TrackedStreamableObject
     implements Cloneable
 {
     /** The fully qualified object tile id. */
