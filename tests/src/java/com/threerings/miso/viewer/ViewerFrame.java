@@ -1,5 +1,5 @@
 //
-// $Id: ViewerFrame.java,v 1.15 2001/08/16 23:14:21 mdb Exp $
+// $Id: ViewerFrame.java,v 1.16 2001/08/21 19:41:58 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -45,8 +45,7 @@ class ViewerFrame extends JFrame implements WindowListener
         // add the test character sprite to the sprite manager
         MultiFrameImage[] anims =
             TileUtil.getSpriteFrames(tilemgr, TSID_CHAR);
-        AmbulatorySprite sprite =
-            new AmbulatorySprite(spritemgr, 300, 300, anims);
+        AmbulatorySprite sprite = new AmbulatorySprite(300, 300, anims);
 	sprite.setVelocity(6, 6);
         spritemgr.addSprite(sprite);
 
