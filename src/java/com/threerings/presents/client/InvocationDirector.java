@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.23 2002/10/27 22:24:20 mdb Exp $
+// $Id: InvocationDirector.java,v 1.24 2002/12/08 02:18:50 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -126,6 +126,14 @@ public class InvocationDirector
 
         // if we're logged on, clear out any receiver id mapping
         if (_clobj != null) {
+            Registration rreg = (Registration)
+                _clobj.receivers.get(receiverCode);
+            if (rreg == null) {
+                Log.warning("Receiver unregistered for which we have no " +
+                            "id to code mapping [code=" + receiverCode + "].");
+            } else {
+                _receivers.remove(rreg.receiverId);
+            }
             _clobj.removeFromReceivers(receiverCode);
         }
     }
@@ -177,6 +185,7 @@ public class InvocationDirector
                 ListenerMarshaller lm = (ListenerMarshaller)arg;
                 lm.callerOid = _clobj.getOid();
                 lm.requestId = nextRequestId();
+                lm.mapStamp = System.currentTimeMillis();
                 // create a mapping for this marshaller so that we can
                 // properly dispatch responses sent to it
                 _listeners.put(lm.requestId, lm);
@@ -237,7 +246,10 @@ public class InvocationDirector
             Log.warning("Received invocation response for which we have " +
                         "no registered listener [reqId=" + reqId +
                         ", methId=" + methodId +
-                        ", args=" + StringUtil.toString(args) + "].");
+                        ", args=" + StringUtil.toString(args) + "]. " +
+                        "It is possble that this listener was flushed " +
+                        "because the response did not arrive within " +
+                        LISTENER_MAX_AGE + " milliseconds.");
             return;
         }
 
@@ -253,6 +265,13 @@ public class InvocationDirector
                         "[listener=" + listener + ", methId=" + methodId +
                         ", args=" + StringUtil.toString(args) + "].");
             Log.logStackTrace(t);
+        }
+
+        // flush expired listeners periodically
+        long now = System.currentTimeMillis();
+        if (now - _lastFlushTime > LISTENER_FLUSH_INTERVAL) {
+            _lastFlushTime = now;
+            flushListeners(now);
         }
     }
 
@@ -331,7 +350,33 @@ public class InvocationDirector
         });
     }
 
-        /**
+    /**
+     * Flushes listener mappings that are older than {@link
+     * #LISTENER_MAX_AGE} milliseconds. An alternative to flushing
+     * listeners that did not explicitly receive a response within our
+     * expiry time period is to have the server's proxy listener send a
+     * message to the client when it is finalized. We then know that no
+     * server entity will subsequently use that proxy listener to send a
+     * response to the client. This involves more network traffic and
+     * complexity than seems necessary and if a user of the system does
+     * respond after their listener has been flushed, an informative
+     * warning will be logged. (Famous last words.)
+     */
+    protected void flushListeners (long now)
+    {
+        if (_listeners.size() > 0) {
+            Iterator iter = _listeners.values().iterator();
+            while (iter.hasNext()) {
+                ListenerMarshaller lm = (ListenerMarshaller)iter.next();
+                if (now - lm.mapStamp > LISTENER_MAX_AGE) {
+                    Log.debug("Flushing marshaller " + lm + ".");
+                    iter.remove();
+                }
+            }
+        }
+    }
+
+    /**
      * Used to generate monotonically increasing invocation request ids.
      */
     protected synchronized short nextRequestId ()
@@ -373,4 +418,13 @@ public class InvocationDirector
     /** All registered receivers are maintained in a list so that we can
      * assign receiver ids to them when we go online. */
     protected ArrayList _reclist = new ArrayList();
+
+    /** The last time we flushed our listeners. */
+    protected long _lastFlushTime;
+
+    /** The minimum interval between listener flush attempts. */
+    protected static final long LISTENER_FLUSH_INTERVAL = 15000L;
+
+    /** Listener mappings older than 90 seconds are reaped. */
+    protected static final long LISTENER_MAX_AGE = 90 * 1000L;
 }

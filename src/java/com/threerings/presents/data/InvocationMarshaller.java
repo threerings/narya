@@ -1,5 +1,5 @@
 //
-// $Id: InvocationMarshaller.java,v 1.2 2002/09/20 04:52:49 mdb Exp $
+// $Id: InvocationMarshaller.java,v 1.3 2002/12/08 02:18:50 mdb Exp $
 
 package com.threerings.presents.data;
 
@@ -45,6 +45,10 @@ public class InvocationMarshaller
         /** The actual invocation listener associated with this
          * marshalling listener. This is only valid on the client. */
         public transient InvocationListener listener;
+
+        /** The time at which this listener marshaller was registered.
+         * This is only valid on the client. */
+        public transient long mapStamp;
 
         /** The distributed object manager to use when dispatching proxied
          * responses. This is only valid on the server. */
