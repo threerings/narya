@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.12 2003/06/14 06:23:41 mdb Exp $
+// $Id: SpeakProvider.java,v 1.13 2003/06/24 05:19:57 mdb Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -229,7 +229,7 @@ public class SpeakProvider
      */
     public static ArrayList getChatHistory (String username)
     {
-        ArrayList history = getHistoryList(username);
+        HistoryList history = getHistoryList(username);
         pruneHistory(System.currentTimeMillis(), history);
         return history;
     }
@@ -256,7 +256,7 @@ public class SpeakProvider
         }
 
         // add the message to this user's chat history
-        ArrayList history = getHistoryList(username);
+        HistoryList history = getHistoryList(username);
         history.add(msg);
 
         // if the history is big enough, potentially prune it (we always
@@ -271,11 +271,11 @@ public class SpeakProvider
     /**
      * Returns this user's chat history, creating one if necessary.
      */
-    protected static ArrayList getHistoryList (String username)
+    protected static HistoryList getHistoryList (String username)
     {
-        ArrayList history = (ArrayList)_histories.get(username);
+        HistoryList history = (HistoryList)_histories.get(username);
         if (history == null) {
-            _histories.put(username, history = new ArrayList());
+            _histories.put(username, history = new HistoryList());
         }
         return history;
     }
@@ -283,16 +283,20 @@ public class SpeakProvider
     /**
      * Prunes all messages from this history which are expired.
      */
-    protected static void pruneHistory (long now, ArrayList history)
+    protected static void pruneHistory (long now, HistoryList history)
     {
-        for (int ii = history.size()-1; ii >= 0; ii--) {
+        int prunepos = -1;
+        for (int ii = 0, ll = history.size(); ii < ll; ii++) {
             ChatMessage msg = (ChatMessage)history.get(ii);
             if (now - msg.timestamp > HISTORY_EXPIRATION) {
-                Log.info("Expiring from history " + msg + ".");
-                history.remove(ii);
+                // Log.info("Expiring from history " + msg + ".");
+                prunepos = ii;
             } else {
                 break; // stop when we get to the first valid message
             }
+        }
+        if (prunepos >= 0) {
+            history.remove(0, prunepos+1);
         }
     }
 
@@ -310,6 +314,15 @@ public class SpeakProvider
 
         public void apply (String username) {
             noteMessage(username, message);
+        }
+    }
+
+    /** Extends {@link ArrayList} for the sole purpose of exposing {@link
+     * ArrayList#removeRange}. Yay! */
+    protected static class HistoryList extends ArrayList
+    {
+        public void remove (int fromIndex, int toIndex) {
+            removeRange(fromIndex, toIndex);
         }
     }
 
