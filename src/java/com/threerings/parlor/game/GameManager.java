@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.35 2002/06/19 23:06:08 shaper Exp $
+// $Id: GameManager.java,v 1.36 2002/06/19 23:18:58 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -96,11 +96,27 @@ public class GameManager extends PlaceManager
     }
 
     /**
-     * Returns an array of the usernames of the players in this game.
+     * Returns the name of the player with the specified index.
      */
-    public String[] getPlayers ()
+    public String getPlayerName (int index)
     {
-        return _players;
+        return _players[index];
+    }
+
+    /**
+     * Returns the user object oid of the player with the specified index.
+     */
+    public int getPlayerOid (int index)
+    {
+        return _playerOids[index];
+    }
+
+    /**
+     * Returns the number of players in the game.
+     */
+    public int getPlayerCount ()
+    {
+        return _players.length;
     }
 
     /**

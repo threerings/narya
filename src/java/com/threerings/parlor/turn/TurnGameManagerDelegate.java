@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameManagerDelegate.java,v 1.4 2002/02/13 03:21:28 mdb Exp $
+// $Id: TurnGameManagerDelegate.java,v 1.5 2002/06/19 23:18:58 mdb Exp $
 
 package com.threerings.parlor.turn;
 
@@ -41,8 +41,8 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
     public int getTurnHolderIndex ()
     {
         String holder = _turnGame.getTurnHolder();
-        for (int i = 0; i < _players.length; i++) {
-            if (_players[i].equals(holder)) {
+        for (int i = 0; i < _tgmgr.getPlayerCount(); i++) {
+            if (_tgmgr.getPlayerName(i).equals(holder)) {
                 return i;
             }
         }
@@ -62,7 +62,7 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
     public void startTurn ()
     {
         // sanity check
-        if (_turnIdx < 0 || _turnIdx >= _players.length) {
+        if (_turnIdx < 0 || _turnIdx >= _tgmgr.getPlayerCount()) {
             Log.warning("startTurn() called with invalid turn index " +
                         "[turnIdx=" + _turnIdx + "].");
             // abort, abort
@@ -73,7 +73,7 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
         _tgmgr.turnWillStart();
 
         // and set the turn indicator accordingly
-        _turnGame.setTurnHolder(_players[_turnIdx]);
+        _turnGame.setTurnHolder(_tgmgr.getPlayerName(_turnIdx));
     }
 
     /**
@@ -117,9 +117,6 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
      */
     public void gameDidStart ()
     {
-        // grab the players array
-        _players = _tgmgr.getPlayers();
-
         // figure out who will be first
         setFirstTurnHolder();
 
@@ -137,7 +134,7 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
     {
         // TODO: sort out a better random number generator and make it
         // available via the parlor services
-        _turnIdx = MathUtil.random(_players.length);
+        _turnIdx = MathUtil.random(_tgmgr.getPlayerCount());
     }
 
     /**
@@ -150,7 +147,7 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
     protected void setNextTurnHolder ()
     {
         // next!
-        _turnIdx = (_turnIdx + 1) % _players.length;
+        _turnIdx = (_turnIdx + 1) % _tgmgr.getPlayerCount();
     }
 
     /** The game manager for which we are delegating. */
@@ -158,10 +155,6 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
 
     /** A reference to our game object. */
     protected TurnGameObject _turnGame;
-
-    /** Our own happy copy of the game manager's players array. I *love*
-     * not having fucking multiple inheritance. */
-    protected String[] _players;
 
     /** The offset into the _players array of the current turn holder or
      * -1 if it's no one's turn. */

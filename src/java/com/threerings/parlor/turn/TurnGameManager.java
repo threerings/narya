@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameManager.java,v 1.5 2002/02/12 06:57:30 mdb Exp $
+// $Id: TurnGameManager.java,v 1.6 2002/06/19 23:18:58 mdb Exp $
 
 package com.threerings.parlor.turn;
 
@@ -32,7 +32,13 @@ public interface TurnGameManager
      * Extending {@link GameManager} should automatically handle
      * implementing this method.
      */
-    public String[] getPlayers ();
+    public String getPlayerName (int index);
+
+    /**
+     * Extending {@link GameManager} should automatically handle
+     * implementing this method.
+     */
+    public int getPlayerCount ();
 
     /**
      * Called when we are about to start the next turn. Implementations
