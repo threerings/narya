@@ -1,5 +1,5 @@
 //
-// $Id: TileSetIDBroker.java,v 1.2 2001/11/21 02:42:15 mdb Exp $
+// $Id: TileSetIDBroker.java,v 1.3 2002/04/03 22:03:21 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -28,6 +28,17 @@ public interface TileSetIDBroker
      * store the name to id mappings.
      */
     public int getTileSetID (String tileSetName)
+        throws PersistenceException;
+
+    /**
+     * Returns true if the specified tileset name is currently mapped to
+     * some value by this broker.
+     *
+     * @exception PersistenceException thrown if an error occurs
+     * communicating with the underlying persistence mechanism used to
+     * store the name to id mappings.
+     */
+    public boolean tileSetMapped (String tileSetName)
         throws PersistenceException;
 
     /**

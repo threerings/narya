@@ -1,5 +1,5 @@
 //
-// $Id: MapFileTileSetIDBroker.java,v 1.2 2002/02/05 20:29:09 mdb Exp $
+// $Id: MapFileTileSetIDBroker.java,v 1.3 2002/04/03 22:03:23 mdb Exp $
 
 package com.threerings.media.tile.tools;
 
@@ -62,6 +62,13 @@ public class MapFileTileSetIDBroker implements TileSetIDBroker
             _map.put(tileSetName, tsid);
         }
         return tsid.intValue();
+    }
+
+    // documentation inherited from interface
+    public boolean tileSetMapped (String tileSetName)
+        throws PersistenceException
+    {
+        return _map.containsKey(tileSetName);
     }
 
     // documentation inherited
