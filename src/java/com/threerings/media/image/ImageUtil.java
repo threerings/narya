@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.5 2002/02/25 07:14:56 mdb Exp $
+// $Id: ImageUtil.java,v 1.6 2002/03/08 01:38:12 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -98,7 +98,7 @@ public class ImageUtil
      * and modifying it.
      */
     public static BufferedImage recolorImage (
-        BufferedImage image, int rootColor, float[] dists, float[] offsets)
+        BufferedImage image, Color rootColor, float[] dists, float[] offsets)
     {
         ColorModel cm = image.getColorModel();
         if (!(cm instanceof IndexColorModel)) {
@@ -108,9 +108,8 @@ public class ImageUtil
         }
 
         // first convert the root color to HSV for later comparison
-        Color rcolor = new Color(rootColor);
-        float[] rHSV = Color.RGBtoHSB(rcolor.getRed(), rcolor.getGreen(),
-                                      rcolor.getBlue(), null);
+        float[] rHSV = Color.RGBtoHSB(rootColor.getRed(), rootColor.getGreen(),
+                                      rootColor.getBlue(), null);
         int[] frHSV = toFixedHSV(rHSV, null);
 
         // now process the image

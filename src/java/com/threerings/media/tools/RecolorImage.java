@@ -1,5 +1,5 @@
 //
-// $Id: RecolorImage.java,v 1.1 2002/02/25 07:28:34 mdb Exp $
+// $Id: RecolorImage.java,v 1.2 2002/03/08 01:38:12 mdb Exp $
 
 package com.threerings.media.tools;
 
@@ -141,8 +141,8 @@ public class RecolorImage extends JPanel
                 float valO = Float.parseFloat(_valueO.getText());
                 float[] offsets = new float[] { hueO, satO, valO };
 
-                BufferedImage image = 
-                    ImageUtil.recolorImage(_image, color, dists, offsets);
+                BufferedImage image = ImageUtil.recolorImage(
+                    _image, new Color(color), dists, offsets);
                 _newImage.setIcon(new ImageIcon(image));
                 _status.setText("Recolored image.");
                 repaint();
