@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.4 2001/10/01 22:14:55 mdb Exp $
+// $Id: TestClient.java,v 1.5 2001/10/09 17:20:03 mdb Exp $
 
 package com.threerings.cocktail.party.client.test;
 
@@ -120,6 +120,11 @@ public class TestClient
         public OccupantManager getOccupantManager ()
         {
             return _occmgr;
+        }
+
+        public void setPlaceView (PlaceView view)
+        {
+            // nothing to do because we don't create views
         }
     }
 

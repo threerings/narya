@@ -1,5 +1,5 @@
 //
-// $Id: PlaceController.java,v 1.2 2001/10/06 00:24:46 mdb Exp $
+// $Id: PlaceController.java,v 1.3 2001/10/09 17:20:03 mdb Exp $
 
 package com.threerings.cocktail.party.client;
 
@@ -58,9 +58,11 @@ public abstract class PlaceController
      */
     public void willEnterPlace (PlaceObject plobj)
     {
-        // let the UI hierarchy know that we've got our place
         if (_view != null ) {
+            // let the UI hierarchy know that we've got our place
             PlaceViewUtil.dispatchWillEnterPlace(_view, plobj);
+            // and display the user interface
+            _ctx.setPlaceView(_view);
         }
     }
 
