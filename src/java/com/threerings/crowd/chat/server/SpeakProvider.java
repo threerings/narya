@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.16 2003/09/11 16:36:39 mdb Exp $
+// $Id: SpeakProvider.java,v 1.17 2003/09/24 21:39:42 mdb Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -398,9 +398,6 @@ public class SpeakProvider
     
     /** Recent chat history for the server. */
     protected static HashMap _histories = new HashMap();
-
-    /** Maintains a mapping of listener identifiers. */
-    protected static HashMap _identers = new HashMap();
 
     /** Used to note the recipients of a chat message. */
     protected static MessageMapper _messageMapper = new MessageMapper();
