@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundle.java,v 1.10 2002/09/23 18:19:57 mdb Exp $
+// $Id: TileSetBundle.java,v 1.11 2002/10/08 21:59:09 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -125,10 +125,10 @@ public class TileSetBundle extends HashIntMap
     }
 
     /** That from which we load our tile images. */
-    protected ResourceBundle _bundle;
+    protected transient ResourceBundle _bundle;
 
     /** We use the image manager to decode our images. */
-    protected ImageManager _imgr;
+    protected transient ImageManager _imgr;
 
     /** Increase this value when object's serialized state is impacted by
      * a class change (modification of fields, inheritance). */
