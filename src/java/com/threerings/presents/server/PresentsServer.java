@@ -1,7 +1,10 @@
 //
-// $Id: PresentsServer.java,v 1.8 2001/07/19 19:18:07 mdb Exp $
+// $Id: PresentsServer.java,v 1.9 2001/07/19 21:29:01 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
+
+import java.io.IOException;
+import com.samskivert.util.Config;
 
 import com.threerings.cocktail.cher.Log;
 import com.threerings.cocktail.cher.dobj.DObjectManager;
@@ -14,10 +17,21 @@ import com.threerings.cocktail.cher.client.test.TestService;
 
 /**
  * The cher server provides a central point of access to the various
- * facilities that make up the cher layer of the system.
+ * facilities that make up the cher framework. To facilitate extension and
+ * customization, a single instance of the cher server should be created
+ * and initialized in a process. To facilitate easy access to the services
+ * provided by the cher server, static references to the various managers
+ * are made available in the <code>CherServer</code> class. These will be
+ * configured when the singleton instance is initialized.
  */
 public class CherServer
 {
+    /** The namespace used for server config properties. */
+    public static final String CONFIG_KEY = "cher";
+
+    /** The server configuration. */
+    public static Config config;
+
     /** The authentication manager. */
     public static AuthManager authmgr;
 
@@ -36,29 +50,74 @@ public class CherServer
     /**
      * Initializes all of the server services and prepares for operation.
      */
-    public static void init ()
+    public void init ()
+        throws IOException
     {
-        try {
-            // create our authentication manager
-            authmgr = new AuthManager(new DummyAuthenticator());
-            // create our connection manager
-            conmgr = new ConnectionManager(authmgr);
-            // create our client manager
-            clmgr = new ClientManager(conmgr);
-            // create our distributed object manager
-            omgr = new CherDObjectMgr();
-            // create our invocation manager
-            invmgr = new InvocationManager(omgr);
+        // create our configuration object
+        config = new Config();
+        // bind the cher server config into the namespace
+        config.bindProperties(CONFIG_KEY, CONFIG_PATH);
 
-            // create an object for testing
-            omgr.createObject(TestObject.class, null, false);
+        // create our authentication manager
+        authmgr = new AuthManager(new DummyAuthenticator());
+        // create our connection manager
+        conmgr = new ConnectionManager(authmgr);
+        // create our client manager
+        clmgr = new ClientManager(conmgr);
+        // create our distributed object manager
+        omgr = new CherDObjectMgr();
+        // create our invocation manager
+        invmgr = new InvocationManager(omgr);
 
-            // register our test provider
-            invmgr.registerProvider(TestService.MODULE, new TestProvider());
+        // register our invocation service providers
+        registerProviders(config.getValue(PROVIDERS_KEY, (String[])null));
+    }
 
-        } catch (Exception e) {
-            Log.warning("Unable to initialize server.");
-            Log.logStackTrace(e);
+    /**
+     * Registers invocation service providers as parsed from a
+     * configuration file. Each string in the array should contain an
+     * expression of the form:
+     *
+     * <pre>
+     * module = provider fully-qualified class name
+     * </pre>
+     *
+     * A comma separated list of these can be specified in the
+     * configuration file and loaded into a string array easily. These
+     * providers will be instantiated and registered with the invocation
+     * manager.
+     */
+    protected void registerProviders (String[] providers)
+    {
+        // ignore null arrays to make life easier for the caller
+        if (providers == null) {
+            return;
+        }
+
+        for (int i = 0; i < providers.length; i++) {
+            int eidx = providers[i].indexOf("=");
+            if (eidx == -1) {
+                Log.warning("Ignoring bogus provider declaration " +
+                            "[decl=" + providers[i] + "].");
+                continue;
+            }
+
+            String module = providers[i].substring(0, eidx).trim();
+            String pname = providers[i].substring(eidx+1).trim();
+
+            // instantiate the provider class and register it
+            try {
+                Class pclass = Class.forName(pname);
+                InvocationProvider provider = (InvocationProvider)
+                    pclass.newInstance();
+                invmgr.registerProvider(module, provider);
+                Log.info("Registered provider [module=" + module +
+                         ", provider=" + pname + "].");
+
+            } catch (Exception e) {
+                Log.warning("Unable to register provider [module=" + module +
+                            ", provider=" + pname + ", error=" + e + "].");
+            }
         }
     }
 
@@ -66,7 +125,7 @@ public class CherServer
      * Starts up all of the server services and enters the main server
      * event loop.
      */
-    public static void run ()
+    public void run ()
     {
         // start up the auth manager
         authmgr.start();
@@ -78,7 +137,20 @@ public class CherServer
 
     public static void main (String[] args)
     {
-        init();
-        run();
+        CherServer server = new CherServer();
+        try {
+            server.init();
+            server.run();
+        } catch (Exception e) {
+            Log.warning("Unable to initialize server.");
+            Log.logStackTrace(e);
+        }
     }
+
+    // the path to the config file
+    protected final static String CONFIG_PATH =
+        "rsrc/config/cocktail/cher/server";
+
+    // the config key for our list of invocation provider mappings
+    protected final static String PROVIDERS_KEY = CONFIG_KEY + ".providers";
 }
