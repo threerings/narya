@@ -1,5 +1,5 @@
           //
-// $Id: KeyboardManager.java,v 1.4 2001/12/17 22:13:19 shaper Exp $
+// $Id: KeyboardManager.java,v 1.5 2001/12/19 23:33:02 shaper Exp $
 
 package com.threerings.yohoho.puzzle.util;
 
@@ -339,10 +339,10 @@ public class KeyboardManager
     }
 
     /** Whether to output debugging info for individual key events. */
-    protected static final boolean DEBUG_EVENTS = true;
+    protected static final boolean DEBUG_EVENTS = false;
 
     /** Whether to output debugging info for interval callbacks. */
-    protected static final boolean DEBUG_INTERVAL = true;
+    protected static final boolean DEBUG_INTERVAL = false;
 
     /** The default repeat delay. */
     protected static final long DEFAULT_REPEAT_DELAY = 50L;
