@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.4 2001/12/16 05:38:26 mdb Exp $
+// $Id: SpotProvider.java,v 1.5 2001/12/16 21:02:18 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -200,12 +200,36 @@ public class SpotProvider extends InvocationProvider
                 throw new ServiceFailedException(INTERNAL_ERROR);
             }
 
-            smgr.handleChangeLocRequest(source, locationId);
-            sendResponse(source, invid, CHANGE_LOC_SUCCEEDED_RESPONSE);
+            int locOid = smgr.handleChangeLocRequest(source, locationId);
+            sendResponse(source, invid, CHANGE_LOC_SUCCEEDED_RESPONSE,
+                         new Integer(locOid));
 
         } catch (ServiceFailedException sfe) {
             sendResponse(source, invid, CHANGE_LOC_FAILED_RESPONSE,
                          sfe.getMessage());
+        }
+    }
+
+    /**
+     * Handles {@link SpotCodes#CLUSTER_SPEAK_REQUEST} messages.
+     */
+    public void handleClusterSpeakRequest (
+        BodyObject source, int invid, int sceneId, int locId, String message)
+    {
+        // look up the scene manager for the specified scene
+        SpotSceneManager smgr = (SpotSceneManager)
+            _screg.getSceneManager(sceneId);
+        if (smgr == null) {
+            Log.warning("User requested cluster chat in " +
+                        "non-existent scene [user=" + source.username +
+                        ", sceneId=" + sceneId + ", locId=" + locId +
+                        ", message=" + message + "].");
+
+        } else {
+            // pass this request on to the spot scene manager as it will
+            // need to check that the location exists and that the
+            // requester occupies it and so on
+            smgr.handleClusterSpeakRequest(source, locId, message);
         }
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: SpotService.java,v 1.3 2001/12/16 05:18:20 mdb Exp $
+// $Id: SpotService.java,v 1.4 2001/12/16 21:02:18 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -47,5 +47,21 @@ public class SpotService implements SpotCodes
         invdir.invoke(MODULE_NAME, CHANGE_LOC_REQUEST, args, rsptarget);
         Log.info("Sent changeLoc request [sceneId=" + sceneId +
                  ", locId=" + locationId + "].");
+    }
+
+    /**
+     * Requests that the supplied message be delivered to listeners in the
+     * cluster to which the specified location belongs.
+     */
+    public static void clusterSpeak (
+        Client client, int sceneId, int locationId, String message,
+        SpotSceneDirector rsptarget)
+    {
+        InvocationDirector invdir = client.getInvocationDirector();
+        Object[] args = new Object[] {
+            new Integer(sceneId), new Integer(locationId), message };
+        invdir.invoke(MODULE_NAME, CLUSTER_SPEAK_REQUEST, args, rsptarget);
+        Log.info("Sent clusterSpeak request [sceneId=" + sceneId +
+                 ", locId=" + locationId + ", message=" + message + "].");
     }
 }

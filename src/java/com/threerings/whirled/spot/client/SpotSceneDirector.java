@@ -1,10 +1,17 @@
 //
-// $Id: SpotSceneDirector.java,v 1.4 2001/12/16 05:18:20 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.5 2001/12/16 21:02:18 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
 import java.util.Iterator;
 import com.samskivert.util.StringUtil;
+
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.DObjectManager;
+import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.Subscriber;
+
+import com.threerings.crowd.chat.ChatDirector;
 
 import com.threerings.whirled.client.SceneDirector;
 import com.threerings.whirled.data.SceneModel;
@@ -19,7 +26,7 @@ import com.threerings.whirled.spot.data.Portal;
  * locations within a scene.
  */
 public class SpotSceneDirector
-    implements SpotCodes
+    implements SpotCodes, Subscriber
 {
     /**
      * This is used to communicate back to the caller of {@link
@@ -50,6 +57,15 @@ public class SpotSceneDirector
     {
         _ctx = ctx;
         _scdir = scdir;
+    }
+
+    /**
+     * Configures this spot scene director with a chat director, with
+     * which it will coordinate to implement cluster chatting.
+     */
+    public void setChatDirector (ChatDirector chatdir)
+    {
+        _chatdir = chatdir;
     }
 
     /**
@@ -158,20 +174,63 @@ public class SpotSceneDirector
     }
 
     /**
+     * Sends a chat message to the other users in the cluster to which the
+     * location that we currently occupy belongs.
+     */
+    public void requestClusterSpeak (String message)
+    {
+        // make sure we're currently in a scene
+        DisplaySpotScene scene = (DisplaySpotScene)_scdir.getScene();
+        if (scene == null) {
+            Log.warning("Requested to speak to cluster, but we're not " +
+                        "currently in any scene [message=" + message + "].");
+            return;
+        }
+
+        // make sure we're in a location
+        if (_locationId > 0) {
+            SpotService.clusterSpeak(
+                _ctx.getClient(), scene.getId(), _locationId, message, this);
+
+        } else {
+            Log.info("Ignoring cluster speak as we're not in a location.");
+        }
+    }
+
+    /**
      * Called in response to a successful <code>changeLoc</code> request.
      */
-    public void handleChangeLocSucceeded (int invid)
+    public void handleChangeLocSucceeded (int invid, int clusterOid)
     {
         ChangeObserver obs = _changeObserver;
-        int locId = _pendingLocId;
+        _locationId = _pendingLocId;
 
         // clear out our pending location info
         _pendingLocId = -1;
         _changeObserver = null;
 
+        // determine if our cluster oid changed (which we only care about
+        // if we're doing cluster chat)
+        if (_chatdir != null) {
+            int oldOid = (_clobj == null) ? -1 : _clobj.getOid();
+            if (clusterOid != oldOid) {
+                DObjectManager omgr = _ctx.getDObjectManager();
+                // remove our old subscription if necessary
+                if (_clobj != null) {
+                    _chatdir.removeAuxilliarySource(_clobj);
+                    // unsubscribe from our old object
+                    omgr.unsubscribeFromObject(_clobj.getOid(), this);
+                    _clobj = null;
+                }
+                // create a new subscription (we'll wire it up to the chat
+                // director when the subscription completes
+                omgr.subscribeToObject(clusterOid, this);
+            }
+        }
+
         // if we had an observer, let them know things went well
         if (obs != null) {
-            obs.locationChangeSucceeded(locId);
+            obs.locationChangeSucceeded(_locationId);
         }
     }
 
@@ -193,15 +252,42 @@ public class SpotSceneDirector
         }
     }
 
+    // documentation inherited
+    public void objectAvailable (DObject object)
+    {
+        // we've got our cluster chat object, configure the chat director
+        // with it and keep a reference ourselves
+        if (_chatdir != null) {
+            _chatdir.addAuxilliarySource(object);
+            _clobj = object;
+        }
+    }
+
+    // documentation inherited
+    public void requestFailed (int oid, ObjectAccessException cause)
+    {
+        Log.warning("Unable to subscribe to cluster chat object " +
+                    "[oid=" + oid + ",, cause=" + cause + "].");
+    }
+
     /** The active client context. */
     protected WhirledContext _ctx;
 
     /** The scene director with which we are cooperating. */
     protected SceneDirector _scdir;
 
+    /** A reference to the chat director with which we coordinate. */
+    protected ChatDirector _chatdir;
+
+    /** The location id of the location we currently occupy. */
+    protected int _locationId = -1;
+
     /** The location id on which we have an outstanding change location
      * request. */
     protected int _pendingLocId = -1;
+
+    /** The cluster chat object for the cluster we currently occupy. */
+    protected DObject _clobj;
 
     /** An entity that wants to know if a requested location change
      * succeded or failed. */

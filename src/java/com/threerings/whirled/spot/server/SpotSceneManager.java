@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.3 2001/12/16 08:07:53 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.4 2001/12/16 21:02:18 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -110,11 +110,15 @@ public class SpotSceneManager extends SceneManager
      * Called by the {@link SpotProvider} when we receive a request by a
      * user to occupy a particular location.
      *
+     * @return the oid of the chat object associated with the cluster to
+     * which this location belongs or -1 if the location is not part of a
+     * cluster.
+     *
      * @exception ServiceFailedException thrown with a reason code
      * explaining the location change failure if there is a problem
      * processing the location change request.
      */
-    protected void handleChangeLocRequest (BodyObject source, int locationId)
+    protected int handleChangeLocRequest (BodyObject source, int locationId)
         throws ServiceFailedException
     {
         // make sure no one is already in the requested location
@@ -154,13 +158,17 @@ public class SpotSceneManager extends SceneManager
         soi.locationId = locationId;
         // and broadcast the update to the place
         _plobj.updateOccupantInfo(soi);
+
+        // figure out the cluster chat oid
+        int clusterIdx = _sscene.getClusterIndex(locidx);
+        return (clusterIdx == -1) ? -1 : _clusterOids[clusterIdx];
     }
 
     /**
-     * Called by the {@link ClusterChatMessageHandler} when we receive a
-     * cluster chat request.
+     * Called by the {@link SpotProvider} when we receive a cluster speak
+     * request.
      */
-    protected void handleClusterChatRequest (
+    protected void handleClusterSpeakRequest (
         BodyObject source, int locationId, String message)
     {
         // make sure this user occupies the specified location
