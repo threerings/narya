@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.21 2002/02/14 07:28:12 mdb Exp $
+// $Id: GameManager.java,v 1.22 2002/02/15 03:42:32 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -220,8 +220,11 @@ public class GameManager extends PlaceManager
     {
         // figure out who won...
 
-        // transition to the game over state
-        _gameobj.setState(GameObject.GAME_OVER);
+        // transition to the game over state (do so using setImmediate so
+        // that game manager code doesn't have to keep its own "immediate"
+        // game over indicator in order to prevent stray, post-end-game
+        // events from messing things up)
+        _gameobj.setStateImmediate(GameObject.GAME_OVER);
 
         // wait until we hear the game state transition on the game object
         // to invoke our game over code so that we can be sure that any
