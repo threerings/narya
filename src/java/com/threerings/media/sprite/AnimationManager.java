@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.20 2001/12/16 08:05:06 mdb Exp $
+// $Id: AnimationManager.java,v 1.21 2001/12/18 09:46:07 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -26,7 +26,10 @@ public class AnimationManager
 {
     /**
      * Construct and initialize the animation manager with a sprite
-     * manager and the view in which the animations will take place.
+     * manager and the view in which the animations will take place. The
+     * animation manager will automatically start itself up, but must be
+     * explicitly shutdown when the animated view is no longer in
+     * operation via a call to {@link #stop}.
      */
     public AnimationManager (SpriteManager spritemgr, AnimatedView view)
     {
@@ -37,24 +40,8 @@ public class AnimationManager
         // register to monitor the refresh action 
         PerformanceMonitor.register(this, "refresh", 1000);
 
-	// register the refresh interval immediately if the component is
-	// already showing on-screen
-	JComponent target = _view.getComponent();
-  	if (target.isShowing()) {
-	    start();
-	}
-
-	// listen to the view's ancestor events
-	target.addAncestorListener(new AncestorAdapter() {
-            public void ancestorAdded (AncestorEvent event) {
-                // start ourselves up when our animated view is added
-                start();
-            }
-            public void ancestorRemoved (AncestorEvent event) {
-                // automatically shutdown if our animated view is hidden
-                stop();
-            }
-        });
+        // start ourselves up
+        start();
     }
 
     /**
