@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.14 2001/10/05 23:57:26 mdb Exp $
+// $Id: PlaceManager.java,v 1.15 2001/10/09 17:18:44 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -250,20 +250,25 @@ public class PlaceManager implements Subscriber
             }
             if (handler != null) {
                 handler.handleEvent(mevt, (PlaceObject)target);
+                return true;
             }
 
         } else if (event instanceof ObjectAddedEvent) {
             ObjectAddedEvent oae = (ObjectAddedEvent)event;
             if (oae.getName().equals(PlaceObject.OCCUPANTS)) {
                 bodyEntered(oae.getOid());
+                return true;
             }
 
         } else if (event instanceof ObjectRemovedEvent) {
             ObjectRemovedEvent ore = (ObjectRemovedEvent)event;
             if (ore.getName().equals(PlaceObject.OCCUPANTS)) {
                 bodyLeft(ore.getOid());
+                return true;
             }
         }
+
+        Log.warning("Unhandled place event " + event + ".");
 
         return true;
     }
