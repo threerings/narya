@@ -1,5 +1,5 @@
 //
-// $Id: LocationProvider.java,v 1.20 2003/07/16 18:03:30 ray Exp $
+// $Id: LocationProvider.java,v 1.21 2003/08/09 04:58:25 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -84,9 +84,9 @@ public class LocationProvider
         // just give them the config because we don't need to update
         // anything in distributed object world
         if (source.location == placeId) {
-            Log.info("Going along with client request to move to where " +
-                     "they already are [source=" + source.who() +
-                     ", placeId=" + placeId + "].");
+            Log.debug("Going along with client request to move to where " +
+                      "they already are [source=" + source.who() +
+                      ", placeId=" + placeId + "].");
             return pmgr.getConfig();
         }
 
