@@ -1,5 +1,5 @@
 //
-// $Id: RandomUtil.java,v 1.1 2001/10/23 02:01:29 shaper Exp $
+// $Id: RandomUtil.java,v 1.2 2001/12/14 16:46:01 shaper Exp $
 
 package com.threerings.media.util;
 
@@ -25,5 +25,5 @@ public class RandomUtil
     }
 
     /** The random object from which we choose random numbers. */
-    public static Random _rnd = new Random();
+    protected static Random _rnd = new Random();
 }
