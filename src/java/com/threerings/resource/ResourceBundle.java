@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.26 2004/02/25 14:49:39 mdb Exp $
+// $Id: ResourceBundle.java,v 1.27 2004/06/19 08:09:33 mdb Exp $
 
 package com.threerings.resource;
 
@@ -99,7 +99,7 @@ public class ResourceBundle
             } catch (IOException ioe) {
                 Log.warning("Failure resolving jar file '" + _source +
                             "': " + ioe + ".");
-                closeJar();
+                wipeBundle();
                 return false;
             }
 
