@@ -68,7 +68,7 @@
 
   <!-- builds our distribution files (war and jar) -->
   <target name="dist" depends="prepare,compile">
-    <jar file="${dist.home}/${dist.jar}"
+    <jar destfile="${dist.home}/${dist.jar}"
          basedir="${deploy.dir}/classes"/>
   </target>
 
