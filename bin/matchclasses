@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: matchclasses,v 1.6 2003/07/24 23:40:16 mdb Exp $
+# $Id: matchclasses,v 1.7 2003/07/24 23:50:32 mdb Exp $
 #
 # A script which inspects a hierarchy of classes and generates lists of
 # classes that match specified criterion. The criterion are that a class
@@ -89,7 +89,7 @@ while (@gclasses) {
     my @cargs = splice(@gclasses, 0, min($ccount, 100));
     my $carg = "'" . join("' '", @cargs) . "'";
 
-    # print "javap -classpath $classpath $carg\n";
+    print "javap -classpath $classpath $carg\n";
 
     if (!open(JAVAP, "javap -classpath $classpath $carg|")) {
         warn "Can't inspect $carg: $!\n";
@@ -98,10 +98,10 @@ while (@gclasses) {
 
     # look for a line that identifies a class or interface
     while (<JAVAP>) {
-        next unless (/class/ || /interface/);
-
         chomp;
         my $goods = $_;
+        my $class;
+        next unless ($class = match_class($goods));
 
         # strip off the close brace
         $goods =~ s:\s*{\s*$::g;
@@ -113,29 +113,17 @@ while (@gclasses) {
             @ifaces = split(/,/, $idefs);
         }
 
+        if (@ifaces) {
+            $itable{$class} = \@ifaces;
+            print STDERR "-> $class I[" . join(":", @ifaces) . "]\n"
+                if ($debug);
+        }
+
         # now the parent class or parent interfaces are at the end
         my @parents;
         if ($goods =~ s: extends (.*)$::g) {
             my $pdefs = clean_class($1);
             @parents = split(/,/, $pdefs);
-        }
-
-        # last is the class name
-        my $class;
-        if ($goods =~ s:(class|interface) ([A-Za-z0-9.\$]+)::g) {
-            $class = clean_class($2);
-            $class =~ s: ::g;
-        }
-
-        if (!defined $class) {
-            warn "Hrm, failed to parse '$_'.\n";
-            next;
-        }
-
-        if (@ifaces) {
-            $itable{$class} = \@ifaces;
-            print STDERR "-> $class I[" . join(":", @ifaces) . "]\n"
-                if ($debug);
         }
 
         if (@parents) {
@@ -181,6 +169,19 @@ foreach $class (sort keys %matches) {
 sub min {
     my ($a, $b) = @_;
     return ($a < $b) ? $a : $b;
+}
+
+# Matches a class declaration on the supplied line
+sub match_class {
+    my ($line) = @_;
+    # print "Matching $line\n";
+    if ($line !~ m:[a-z ]*(class|interface) ([A-Za-z0-9.\$]+):) {
+        return undef;
+    }
+    # print "Matched $2\n";
+    my $class = clean_class($2);
+    $class =~ s: ::g;
+    return $class;
 }
 
 # Cleans up class n ames as reported by javap
