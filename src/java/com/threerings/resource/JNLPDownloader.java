@@ -1,5 +1,5 @@
 //
-// $Id: JNLPDownloader.java,v 1.11 2003/10/29 23:09:48 mdb Exp $
+// $Id: JNLPDownloader.java,v 1.12 2003/12/15 19:37:32 mdb Exp $
 
 package com.threerings.resource;
 
@@ -64,26 +64,7 @@ public class JNLPDownloader extends Downloader
                 _curFile = new File(ResourceManager.versionPath(
                                         dpath, _cvers, ".jar"));
                 if (!_curFile.exists()) {
-                    // for backwards compatibility, check to see if we
-                    // have an old non-versioned-path version of our
-                    // existing version
-                    File legacyFile = new File(dpath);
-                    if (legacyFile.exists()) {
-                        if (!legacyFile.renameTo(_curFile)) {
-                            Log.warning("Failed to rename legacy bundle to " +
-                                        "versioned name [cur=" + _curFile +
-                                        ", leg=" + legacyFile + "].");
-                            // just cope and we won't be able to blow away
-                            // this version of the resources
-                            _curFile = legacyFile;
-                        } else {
-                            Log.info("Renamed legacy bundle [cur=" + _curFile +
-                                     ", leg=" + legacyFile + "].");
-                        }
-
-                    } else {
-                        _cvers = null;
-                    }
+                    _cvers = null;
                 }
 
             } catch (IOException ioe) {
@@ -205,6 +186,29 @@ public class JNLPDownloader extends Downloader
                                 unverDest + "'.");
                 }
             }
+        }
+
+        // attempt to delete any old stale bundles as well
+        try {
+            String pathex = ResourceManager.versionPath(
+                _desc.destFile.getPath(), "\\d+.\\d+", ".jar");
+            String cpath = _desc.destFile.getPath();
+            File pdir = _desc.destFile.getParentFile();
+            File[] files = pdir.listFiles();
+            for (int ii = 0; ii < files.length; ii++) {
+                String path = files[ii].getPath();
+                if (!path.equals(cpath) && path.matches(pathex)) {
+                    if (!files[ii].delete()) {
+                        Log.warning("Unable to delete stale bundle '" +
+                                    files[ii].getPath() + "'.");
+                    } else {
+                        Log.info("Deleted stale bundle '" + files[ii] + "'.");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.warning("Failure deleting stale bundles.");
+            Log.logStackTrace(e);
         }
 
         PrintWriter pout = new PrintWriter(
