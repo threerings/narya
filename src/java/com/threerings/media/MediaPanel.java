@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.33 2003/04/29 18:15:10 mdb Exp $
+// $Id: MediaPanel.java,v 1.34 2003/04/30 06:34:55 mdb Exp $
 
 package com.threerings.media;
 
@@ -215,19 +215,26 @@ public class MediaPanel extends JComponent
             perf.append("[FPS: ");
             perf.append(_framemgr.getPerfTicks()).append("/");
             perf.append(_framemgr.getPerfTries());
+            perf.append(" PM:");
+            StringUtil.toString(perf, _framemgr.getPerfMetrics());
             perf.append(" MP:").append(_dirtyPerTick).append("]");
-            _perfLabel.setText(perf.toString());
 
-            Graphics2D gfx = (Graphics2D)getGraphics();
-            _perfLabel.layout(gfx);
-            gfx.dispose();
+            String perfStatus = perf.toString();
+            if (!_perfStatus.equals(perfStatus)) {
+                _perfStatus = perfStatus;
+                _perfLabel.setText(perfStatus);
 
-            // make sure the region we dirty contains the old and the new
-            // text (which we ensure by never letting the rect shrink)
-            Dimension psize = _perfLabel.getSize();
-            _perfRect.width = Math.max(_perfRect.width, psize.width);
-            _perfRect.height = Math.max(_perfRect.height, psize.height);
-            dirtyScreenRect(new Rectangle(_perfRect));
+                Graphics2D gfx = (Graphics2D)getGraphics();
+                _perfLabel.layout(gfx);
+                gfx.dispose();
+
+                // make sure the region we dirty contains the old and the new
+                // text (which we ensure by never letting the rect shrink)
+                Dimension psize = _perfLabel.getSize();
+                _perfRect.width = Math.max(_perfRect.width, psize.width);
+                _perfRect.height = Math.max(_perfRect.height, psize.height);
+                dirtyScreenRect(new Rectangle(_perfRect));
+            }
         }
 
         // let derived classes do their business
@@ -501,10 +508,9 @@ public class MediaPanel extends JComponent
     /** Used to keep metrics. */
     protected float _dirtyPerTick;
 
-    /** Used to render performance metrics. */
+    // used to render performance metrics
+    protected String _perfStatus = "";
     protected Label _perfLabel;
-
-    /** Used to render performance metrics. */
     protected Rectangle _perfRect;
 
     /** A debug hook that toggles FPS rendering. */
