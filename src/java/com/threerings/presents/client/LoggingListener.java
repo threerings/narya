@@ -1,12 +1,13 @@
 //
-// $Id: LoggingListener.java,v 1.1 2002/08/14 19:07:54 mdb Exp $
+// $Id: LoggingListener.java,v 1.2 2002/10/27 18:49:51 mdb Exp $
 
 package com.threerings.presents.client;
 
 import com.samskivert.util.Log;
 
 /**
- * Implements the basic {@link InvocationListener} and logs the failure.
+ * Implements the basic {@link InvocationService.InvocationListener} and
+ * logs the failure.
  */
 public class LoggingListener
     implements InvocationService.InvocationListener

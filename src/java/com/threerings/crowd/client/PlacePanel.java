@@ -1,5 +1,5 @@
 //
-// $Id: PlacePanel.java,v 1.1 2002/07/09 21:05:33 mdb Exp $
+// $Id: PlacePanel.java,v 1.2 2002/10/27 18:49:51 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -11,8 +11,8 @@ import com.samskivert.swing.ControllerProvider;
 import com.threerings.crowd.data.PlaceObject;
 
 /**
- * A useful base class for client interfaces which wish to make use of
- * {@link a} JPanel as their top-level {@link PlaceView}.
+ * A useful base class for client interfaces which wish to make use of a
+ * {@link JPanel} as their top-level {@link PlaceView}.
  */
 public class PlacePanel extends JPanel
     implements ControllerProvider, PlaceView

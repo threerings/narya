@@ -1,5 +1,5 @@
 //
-// $Id: FieldMarshaller.java,v 1.1 2002/07/23 05:42:34 mdb Exp $
+// $Id: FieldMarshaller.java,v 1.2 2002/10/27 18:49:51 mdb Exp $
 
 package com.threerings.io;
 
@@ -97,7 +97,7 @@ public abstract class FieldMarshaller
 
     /**
      * Creates instances of all known field marshaller types and populates
-     * the {@link _marshallers} table with them. This is called the first
+     * the {@link #_marshallers} table with them. This is called the first
      * time a marshaller is requested.
      */
     protected static void createMarshallers ()

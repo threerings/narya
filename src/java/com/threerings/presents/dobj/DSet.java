@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.21 2002/10/15 21:01:39 ray Exp $
+// $Id: DSet.java,v 1.22 2002/10/27 18:49:51 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -27,7 +27,7 @@ import com.threerings.presents.Log;
  * requirement that the object provide a key which will be used to
  * identify entry equality. Thus an entry is declared to be in a set of
  * the object returned by that entry's {@link Entry#getKey} method is
- * equal (using {@link Object#equal}) to the entry returned by the {@link
+ * equal (using {@link Object#equals}) to the entry returned by the {@link
  * Entry#getKey} method of some other entry in the set. Additionally, in
  * the case of entry removal, only the key for the entry to be removed
  * will be transmitted with the removal event to save network

@@ -1,5 +1,5 @@
 //
-// $Id: ParlorService.java,v 1.13 2002/08/14 19:07:52 mdb Exp $
+// $Id: ParlorService.java,v 1.14 2002/10/27 18:49:51 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -46,9 +46,9 @@ public interface ParlorService extends InvocationService
 
     /**
      * You probably don't want to call this directly, but want to call one
-     * of {@link ParlorDirector#accept}, {@link ParlorDirector#refuse}, or
-     * {@link ParlorDirector#counter}. Requests that an invitation
-     * response be delivered with the specified parameters.
+     * of {@link Invitation#accept}, {@link Invitation#refuse}, or {@link
+     * Invitation#counter}. Requests that an invitation response be
+     * delivered with the specified parameters.
      *
      * @param client a connected, operational client instance.
      * @param inviteId the unique id previously assigned by the server to
@@ -67,7 +67,7 @@ public interface ParlorService extends InvocationService
 
     /**
      * You probably don't want to call this directly, but want to call
-     * {@link ParlorDirector#cancel}. Requests that an outstanding
+     * {@link Invitation#cancel}. Requests that an outstanding
      * invitation be cancelled.
      *
      * @param client a connected, operational client instance.

@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.33 2002/10/09 00:23:51 mdb Exp $
+// $Id: TileSet.java,v 1.34 2002/10/27 18:49:51 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -246,7 +246,8 @@ public abstract class TileSet
     /**
      * Returns the tileset image (which is loaded if it has not yet been
      * loaded). Generally this is not called by external entities, rather
-     * {@link #getTileImage} or {@link #getTile} is used.
+     * {@link #getTile} is used and the image rendered by rendering the
+     * tile.
      *
      * @return the tileset image or null if an error occurred loading the
      * image.

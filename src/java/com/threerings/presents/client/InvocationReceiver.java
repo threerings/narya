@@ -1,5 +1,5 @@
 //
-// $Id: InvocationReceiver.java,v 1.5 2002/08/14 19:07:54 mdb Exp $
+// $Id: InvocationReceiver.java,v 1.6 2002/10/27 18:49:51 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -10,7 +10,7 @@ import com.threerings.presents.dobj.DSet;
  * extending this interface. Actual notification receivers will implement
  * the requisite receiver interface definition and register themselves
  * with the {@link InvocationDirector} using the generated {@link
- * InvocationDispatcher} class specific to the notification receiver
+ * InvocationDecoder} class specific to the notification receiver
  * interface in question. For example:
  *
  * <pre>
@@ -19,7 +19,7 @@ import com.threerings.presents.dobj.DSet;
  *     public FooDirector (PresentsContext ctx)
  *     {
  *         InvocationDirector idir = ctx.getClient().getInvocationDirector();
- *         idir.registerReceiver(new FooDispatcher(this));
+ *         idir.registerReceiver(new FooDecoder(this));
  *     }
  * }
  * </pre>
