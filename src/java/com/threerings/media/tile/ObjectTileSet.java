@@ -1,11 +1,12 @@
 //
-// $Id: ObjectTileSet.java,v 1.3 2001/11/29 21:57:31 mdb Exp $
+// $Id: ObjectTileSet.java,v 1.4 2001/11/29 22:10:42 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Image;
 import java.util.Arrays;
 
+import com.samskivert.util.StringUtil;
 import com.threerings.media.ImageManager;
 
 /**
@@ -58,6 +59,14 @@ public class ObjectTileSet extends SwissArmyTileSet
     public void setObjectHeights (int[] objectHeights)
     {
         _oheights = objectHeights;
+    }
+
+    // documentation inherited
+    protected void toString (StringBuffer buf)
+    {
+        super.toString(buf);
+	buf.append(", owidths=").append(StringUtil.toString(_owidths));
+	buf.append(", oheights=").append(StringUtil.toString(_oheights));
     }
 
     /**
