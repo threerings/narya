@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.22 2001/10/12 00:29:51 mdb Exp $
+// $Id: PresentsClient.java,v 1.23 2001/10/18 18:41:29 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -203,6 +203,7 @@ public class PresentsClient
         DObject object = (DObject)_subscrips.remove(oid);
         if (object != null) {
             object.removeListener(this);
+            object.removeSubscriber(this);
         } else {
             Log.warning("Requested to unmap non-existent subscription " +
                         "[oid=" + oid + "].");
@@ -219,7 +220,8 @@ public class PresentsClient
         while (enum.hasNext()) {
             DObject object = (DObject)enum.next();
 //              Log.info("Clearing subscription [client=" + this +
-//                       ", obj=" + object + "].");
+//                       ", obj=" + object.getOid() + "].");
+            object.removeListener(this);
             object.removeSubscriber(this);
         }
     }
