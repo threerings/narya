@@ -1,5 +1,5 @@
 //
-// $Id: ChatDisplay.java,v 1.6 2001/12/17 01:06:34 mdb Exp $
+// $Id: ChatDisplay.java,v 1.7 2002/02/03 08:22:38 shaper Exp $
 
 package com.threerings.crowd.chat;
 
@@ -19,7 +19,7 @@ public interface ChatDisplay
      *
      * @param type {@link ChatCodes#PLACE_CHAT_TYPE} for a speak message
      * delivered via the place object, or for messages delivered via an
-     * auxilliary chat object, the type code provided when that auxilliary
+     * auxiliary chat object, the type code provided when that auxiliary
      * object was registered.
      * @param speaker the username of the speaker.
      * @param message the text of the message.
@@ -46,7 +46,7 @@ public interface ChatDisplay
      *
      * @param type {@link ChatCodes#PLACE_CHAT_TYPE} for a speak message
      * delivered via the place object, or for messages delivered via an
-     * auxilliary chat object, the type code provided when that auxilliary
+     * auxiliary chat object, the type code provided when that auxiliary
      * object was registered.
      * @param message the text of the message.
      */

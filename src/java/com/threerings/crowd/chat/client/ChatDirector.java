@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.14 2001/12/16 21:46:46 mdb Exp $
+// $Id: ChatDirector.java,v 1.15 2002/02/03 08:22:38 shaper Exp $
 
 package com.threerings.crowd.chat;
 
@@ -116,18 +116,18 @@ public class ChatDirector
      * Adds an additional object via which chat messages may arrive. The
      * chat director assumes the caller will be managing the subscription
      * to this object and will remain subscribed to it for as long as it
-     * remains in effect as an auxilliary chat source.
+     * remains in effect as an auxiliary chat source.
      */
-    public void addAuxilliarySource (String type, DObject source)
+    public void addAuxiliarySource (String type, DObject source)
     {
         source.addListener(this);
         _auxes.put(source.getOid(), type);
     }
 
     /**
-     * Removes a previously added auxilliary chat source.
+     * Removes a previously added auxiliary chat source.
      */
-    public void removeAuxilliarySource (DObject source)
+    public void removeAuxiliarySource (DObject source)
     {
         source.removeListener(this);
         _auxes.remove(source.getOid());
@@ -214,11 +214,11 @@ public class ChatDirector
 
     /**
      * Called when a speak message is received on the place object or one
-     * of our auxilliary chat objects.
+     * of our auxiliary chat objects.
      *
      * @param type {@link ChatCodes#PLACE_CHAT_TYPE} if the message was
      * received on the place object or the type associated with the
-     * auxilliary chat object on which the message was received.
+     * auxiliary chat object on which the message was received.
      * @param args the arguments provided with the speak notification.
      */
     protected void handleSpeakMessage (String type, Object[] args)
@@ -239,7 +239,7 @@ public class ChatDirector
      *
      * @param type {@link ChatCodes#PLACE_CHAT_TYPE} if the message was
      * received on the place object or the type associated with the
-     * auxilliary chat object on which the message was received.
+     * auxiliary chat object on which the message was received.
      * @param args the arguments provided with the system message
      * notification.
      */
@@ -273,7 +273,7 @@ public class ChatDirector
     /** A list of registered chat displays. */
     protected ArrayList _displays = new ArrayList();
 
-    /** A mapping from auxilliary chat objects to the types under which
+    /** A mapping from auxiliary chat objects to the types under which
      * they are registered. */
     protected HashIntMap _auxes = new HashIntMap();
 }

@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.9 2001/12/16 22:09:17 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.10 2002/02/03 08:22:38 shaper Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -237,7 +237,7 @@ public class SpotSceneDirector
                 DObjectManager omgr = _ctx.getDObjectManager();
                 // remove our old subscription if necessary
                 if (_clobj != null) {
-                    _chatdir.removeAuxilliarySource(_clobj);
+                    _chatdir.removeAuxiliarySource(_clobj);
                     // unsubscribe from our old object
                     omgr.unsubscribeFromObject(_clobj.getOid(), this);
                     _clobj = null;
@@ -278,7 +278,7 @@ public class SpotSceneDirector
         // we've got our cluster chat object, configure the chat director
         // with it and keep a reference ourselves
         if (_chatdir != null) {
-            _chatdir.addAuxilliarySource(CLUSTER_CHAT_TYPE, object);
+            _chatdir.addAuxiliarySource(CLUSTER_CHAT_TYPE, object);
             _clobj = object;
         }
     }
@@ -300,8 +300,8 @@ public class SpotSceneDirector
 
         // unwire and clear out our cluster chat object if we've got one
         if (_chatdir != null && _clobj != null) {
-            // unwire the auxilliary chat object
-            _chatdir.removeAuxilliarySource(_clobj);
+            // unwire the auxiliary chat object
+            _chatdir.removeAuxiliarySource(_clobj);
             // unsubscribe as well
             DObjectManager omgr = _ctx.getDObjectManager();
             omgr.unsubscribeFromObject(_clobj.getOid(), this);
