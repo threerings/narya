@@ -1,5 +1,5 @@
 //
-// $Id: FieldEditor.java,v 1.5 2002/10/02 20:10:20 mdb Exp $
+// $Id: FieldEditor.java,v 1.6 2003/04/30 22:32:20 mdb Exp $
 
 package com.threerings.admin.client;
 
@@ -22,6 +22,7 @@ import com.samskivert.swing.event.AncestorAdapter;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.util.PresentsContext;
 
 import com.threerings.admin.Log;
@@ -129,9 +130,15 @@ public class FieldEditor extends JPanel
 
         // submit an attribute changed event with the new value
         if (value != null) {
-            AttributeChangedEvent ace = new AttributeChangedEvent(
-                _object.getOid(), _field.getName(), value);
-            _ctx.getDObjectManager().postEvent(ace);
+            try {
+                AttributeChangedEvent ace = new AttributeChangedEvent(
+                    _object.getOid(), _field.getName(), value,
+                    _object.getAttribute(_field.getName()));
+                _ctx.getDObjectManager().postEvent(ace);
+            } catch (ObjectAccessException oae) {
+                Log.warning("Failed to update field " + _field.getName() +
+                            ": "+ oae);
+            }
         }
     }
 
