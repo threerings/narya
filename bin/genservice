@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: genservice,v 1.1 2002/08/09 03:33:16 mdb Exp $
+# $Id: genservice,v 1.2 2002/08/11 05:53:29 mdb Exp $
 #
 # This script is used to generate invocation service marshaller and
 # unmarshaller classes based on invocation service interface definitions.
@@ -37,7 +37,7 @@ die $usage unless (@ARGV);
 my $script = basename($0);
 my $rootdir = dirname($0); $rootdir =~ s:bin$:.:g;
 my $marshtmpl = "$rootdir/lib/marshaller.tmpl";
-my $disptmpl = "$rootdir/lib/sdispatcher.tmpl";
+my $disptmpl = "$rootdir/lib/dispatcher.tmpl";
 
 # now process our source files
 my %imports;
