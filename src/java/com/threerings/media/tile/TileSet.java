@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.40 2003/01/17 02:30:50 mdb Exp $
+// $Id: TileSet.java,v 1.41 2003/01/18 23:09:37 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -45,6 +45,12 @@ public abstract class TileSet
     public void setImageProvider (ImageProvider improv)
     {
         _improv = improv;
+
+        // HACKOLA: if we're a vessel tileset, colorize ourselves
+        if (_name != null && (this instanceof TrimmedObjectTileSet) &&
+            _name.indexOf("Vessel") != -1) {
+            _zations = ZATIONS;
+        }
     }
 
     /**
