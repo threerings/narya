@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.22 2003/02/06 19:13:49 mdb Exp $
+// $Id: ResourceManager.java,v 1.23 2003/02/12 18:11:33 mdb Exp $
 
 package com.threerings.resource;
 
@@ -246,11 +246,11 @@ public class ResourceManager
 
             public void downloadProgress (int percent, long remaining) {
                 if (percent == 100) {
+                    bundlesDownloaded();
                     synchronized (lock) {
                         // wake things up as the download is finished
                         lock.notify();
                     }
-                    bundlesDownloaded();
                 }
             }
 
