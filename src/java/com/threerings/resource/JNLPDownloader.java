@@ -1,5 +1,5 @@
 //
-// $Id: JNLPDownloader.java,v 1.2 2003/08/05 06:54:01 mdb Exp $
+// $Id: JNLPDownloader.java,v 1.3 2003/08/05 07:03:34 mdb Exp $
 
 package com.threerings.resource;
 
@@ -89,9 +89,7 @@ public class JNLPDownloader extends Downloader
         return true;
     }
 
-    /**
-     * Processes a single download descriptor.
-     */
+    // documentation inherited
     public void processDownload (DownloadManager dmgr, DownloadObserver obs,
                                  ProgressInfo pinfo, byte[] buffer)
         throws IOException
@@ -115,6 +113,18 @@ public class JNLPDownloader extends Downloader
             _patchFile = new File(mungePath(_desc.destFile, ".diff"));
             downloadContent(dmgr, obs, pinfo, buffer, ucon, _patchFile);
 
+        } else {
+            Log.info("Downloading whole jar [url=" + rsrcURL + "].");
+            downloadContent(dmgr, obs, pinfo, buffer, ucon, _desc.destFile);
+        }
+    }
+
+    // documentation inherited
+    public void postDownload (DownloadManager dmgr, DownloadObserver obs,
+                              ProgressInfo pinfo)
+        throws IOException
+    {
+        if (_patchFile != null) {
             // move the old jar out of the way
             File oldDest = new File(_desc.destFile.getPath() + ".old");
             if (!_desc.destFile.renameTo(oldDest)) {
@@ -150,12 +160,11 @@ public class JNLPDownloader extends Downloader
                 cleanUpAndFail(ioe);
             }
 
-        } else {
-            Log.info("Downloading whole jar [url=" + rsrcURL + "].");
-            downloadContent(dmgr, obs, pinfo, buffer, ucon, _desc.destFile);
+            // clean up the old jar and the patch file
+            oldDest.delete();
+            _patchFile.delete();
         }
 
-        // now that we've patched, update our version file
         PrintWriter pout = new PrintWriter(
             new BufferedWriter(new FileWriter(_vfile)));
         pout.println(_desc.version);

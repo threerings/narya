@@ -1,5 +1,5 @@
 //
-// $Id: DownloadManager.java,v 1.8 2003/08/05 01:33:20 mdb Exp $
+// $Id: DownloadManager.java,v 1.9 2003/08/05 07:03:33 mdb Exp $
 
 package com.threerings.resource;
 
@@ -257,6 +257,7 @@ public class DownloadManager
         }
 
         Log.info("Initiating download of " + pinfo.totalSize + " bytes.");
+
         // download all stale files
         size = fetch.size();
         pinfo.start = System.currentTimeMillis();
@@ -264,6 +265,19 @@ public class DownloadManager
             Downloader loader = (Downloader)fetch.get(ii);
             try {
                 loader.processDownload(this, obs, pinfo, _buffer);
+            } catch (IOException ioe) {
+                notifyFailed(obs, loader.getDescriptor(), ioe);
+                if (fragile) {
+                    return;
+                }
+            }
+        }
+
+        // now go through and do the post-download phase
+        for (int ii = 0; ii < size; ii++) {
+            Downloader loader = (Downloader)fetch.get(ii);
+            try {
+                loader.postDownload(this, obs, pinfo);
             } catch (IOException ioe) {
                 notifyFailed(obs, loader.getDescriptor(), ioe);
                 if (fragile) {

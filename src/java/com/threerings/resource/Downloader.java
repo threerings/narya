@@ -1,5 +1,5 @@
 //
-// $Id: Downloader.java,v 1.1 2003/08/05 01:33:20 mdb Exp $
+// $Id: Downloader.java,v 1.2 2003/08/05 07:03:34 mdb Exp $
 
 package com.threerings.resource;
 
@@ -85,6 +85,17 @@ public abstract class Downloader
                             "[file=" + _desc.destFile + "].");
             }
         }
+    }
+
+    /**
+     * Called after the download phase has completed to allow patching or
+     * other post-download activities.
+     */
+    public void postDownload (DownloadManager dmgr, DownloadObserver obs,
+                              ProgressInfo pinfo)
+        throws IOException
+    {
+        // nothing to do by default
     }
 
     /**
