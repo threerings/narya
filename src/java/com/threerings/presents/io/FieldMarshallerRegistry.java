@@ -1,11 +1,13 @@
 //
-// $Id: FieldMarshallerRegistry.java,v 1.6 2001/10/11 04:07:52 mdb Exp $
+// $Id: FieldMarshallerRegistry.java,v 1.7 2001/10/12 19:28:43 mdb Exp $
 
 package com.threerings.presents.dobj.io;
 
 import java.lang.reflect.Field;
 import java.util.Hashtable;
+
 import com.threerings.presents.Log;
+import com.threerings.presents.io.Streamable;
 
 /**
  * Field marshaller instances are registered for each type of field that
@@ -24,11 +26,25 @@ public class FieldMarshallerRegistry
     {
         Class clazz = field.getType();
         FieldMarshaller marsh = (FieldMarshaller)_registry.get(clazz);
+
+        // if we don't have a marshaller registered for this specific
+        // class, see if the class is an instance of streamable in which
+        // case we stick the streamable marshaller into the registry for
+        // this class
+        if (marsh == null) {
+            if (clazz.isAssignableFrom(Streamable.class)) {
+                marsh = _streamableMarsh;
+                _registry.put(clazz, marsh);
+            }
+        }
+
+        // if we still don't have a marshaller, we're out of luck
         if (marsh == null) {
             String errmsg = "No field marshaller registered for fields " +
                 "of type " + clazz.getName() + ".";
             throw new IllegalArgumentException(errmsg);
         }
+
         return marsh;
     }
 
@@ -52,7 +68,12 @@ public class FieldMarshallerRegistry
         }
     }
 
+    /** A mapping of classes to marshallers. */
     protected static Hashtable _registry = new Hashtable();
+
+    /** Used for marshalling instances of {@link Streamable}. */
+    protected static FieldMarshaller _streamableMarsh =
+        new StreamableFieldMarshaller();
 
     static {
         // register our field marshallers
