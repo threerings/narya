@@ -1,11 +1,12 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.10 2001/10/24 00:36:40 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.11 2002/02/07 00:24:36 shaper Exp $
 
 package com.threerings.presents.client;
 
 import java.util.ArrayList;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Queue;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.dobj.*;
@@ -302,6 +303,11 @@ public class ClientDObjectMgr
             this.oid = oid;
             this.target = target;
             this.subscribe = subscribe;
+        }
+
+        public String toString ()
+        {
+            return StringUtil.fieldsToString(this);
         }
     }
 
