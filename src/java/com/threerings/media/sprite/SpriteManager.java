@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Iterator;
 
 import com.threerings.media.AbstractMediaManager;
-import com.threerings.media.RegionManager;
+import com.threerings.media.MediaPanel;
 
 /**
  * The sprite manager manages the sprites running about in the game.
@@ -47,9 +47,9 @@ public class SpriteManager extends AbstractMediaManager
     /**
      * Construct and initialize the sprite manager.
      */
-    public SpriteManager (RegionManager remgr)
+    public SpriteManager (MediaPanel panel)
     {
-        super(remgr);
+        super(panel);
     }
 
     /**
