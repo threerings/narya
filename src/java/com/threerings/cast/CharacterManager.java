@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.27 2002/12/16 03:08:39 mdb Exp $
+// $Id: CharacterManager.java,v 1.28 2002/12/23 20:33:19 mdb Exp $
 
 package com.threerings.cast;
 
@@ -235,6 +235,12 @@ public class CharacterManager
             sources[ii] = new ComponentFrames();
             sources[ii].ccomp = _crepo.getComponent(cids[ii]);
             ActionFrames source = sources[ii].ccomp.getFrames(action);
+            if (source == null) {
+                String errmsg = "Cannot composite action frames; no such " +
+                    "action for component [action=" + action +
+                    ", desc=" + descrip + ", comp=" + sources[ii].ccomp + "]";
+                throw new RuntimeException(errmsg);
+            }
             sources[ii].frames = (zations == null || zations[ii] == null) ?
                 source : source.cloneColorized(zations[ii]);
         }
