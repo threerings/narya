@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.9 2001/12/07 01:33:29 mdb Exp $
+// $Id: ImageManager.java,v 1.10 2001/12/13 01:14:30 shaper Exp $
 
 package com.threerings.media;
 
@@ -55,7 +55,7 @@ public class ImageManager
             _loader = (ImageLoader)Class.forName(IMAGEIO_LOADER).newInstance();
         } catch (Exception e) {
             Log.info("Unable to use ImageIO to load images. " +
-                     "Falling back to Toolkit.");
+                     "Falling back to Toolkit [e=" + e + "].");
             _loader = new ToolkitLoader(context);
         }
     }

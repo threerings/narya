@@ -1,5 +1,5 @@
 //
-// $Id: ImageIOLoader.java,v 1.1 2001/12/07 01:33:29 mdb Exp $
+// $Id: ImageIOLoader.java,v 1.2 2001/12/13 01:14:30 shaper Exp $
 
 package com.threerings.media;
 
@@ -13,7 +13,7 @@ import javax.imageio.ImageIO;
  * Loads images using the <code>ImageIO</code> services provided by J2SE
  * 1.4 (and, presumably, above).
  */
-public class ImageIOLoader
+public class ImageIOLoader implements ImageLoader
 {
     // documentation inherited
     public Image loadImage (InputStream source)
