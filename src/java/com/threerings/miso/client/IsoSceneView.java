@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.135 2003/04/01 02:17:58 mdb Exp $
+// $Id: IsoSceneView.java,v 1.136 2003/04/07 21:43:00 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -347,6 +347,12 @@ public class IsoSceneView implements SceneView
                         if (_traverseDebug.getValue() && !passable) {
                             fillTile(gfx, tx, ty, Color.yellow);
                         }
+
+                    } else {
+                        // draw black where there are no tiles
+                        Polygon poly = IsoUtil.getTilePolygon(_model, tx, ty);
+                        gfx.setColor(Color.black);
+                        gfx.fill(poly);
                     }
 
                     if ((tile = _scene.getFringeTile(tx, ty)) != null) {
