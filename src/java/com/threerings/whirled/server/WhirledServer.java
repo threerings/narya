@@ -1,5 +1,5 @@
 //
-// $Id: WhirledServer.java,v 1.8 2001/11/08 02:59:17 mdb Exp $
+// $Id: WhirledServer.java,v 1.9 2001/11/12 20:56:56 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -7,6 +7,7 @@ import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.StaticConnectionProvider;
 import com.samskivert.util.Config;
 
+import com.threerings.presents.util.Invoker;
 import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.whirled.Log;
@@ -28,6 +29,9 @@ public class WhirledServer extends CrowdServer
     /** The scene registry. */
     public static SceneRegistry screg;
 
+    /** A thread on which we can do things like repository lookups. */
+    public static Invoker invoker;
+
     /**
      * Initializes all of the server services and prepares for operation.
      */
@@ -39,6 +43,10 @@ public class WhirledServer extends CrowdServer
 
         // bind the whirled server config into the namespace
         config.bindProperties(CONFIG_KEY, CONFIG_PATH, true);
+
+        // create and start up our invoker
+        invoker = new Invoker();
+        invoker.start();
 
         // create our connection provider
         conprov = createConnectionProvider(config);

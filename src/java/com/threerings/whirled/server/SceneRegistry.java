@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.9 2001/11/09 21:47:09 mdb Exp $
+// $Id: SceneRegistry.java,v 1.10 2001/11/12 20:56:56 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -13,7 +13,7 @@ import com.threerings.crowd.server.CrowdServer;
 import com.threerings.crowd.server.PlaceManager;
 
 import com.threerings.whirled.Log;
-import com.threerings.whirled.data.Scene;
+import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.data.SceneObject;
 import com.threerings.whirled.server.persist.SceneRepository;
 
@@ -43,9 +43,18 @@ public class SceneRegistry
     {
         _screp = screp;
 
-        // we'll use this to do database stuff
-        _invoker = new Invoker();
-        _invoker.start();
+        // use a default runtime scene factory for now; assume that
+        // containing systems will call setRuntimeSceneFactory() later
+        _scfact = new DefaultRuntimeSceneFactory();
+    }
+
+    /**
+     * Instructs the scene registry to use the supplied factory to create
+     * runtime scene instances from scene models.
+     */
+    public void setRuntimeSceneFactory (RuntimeSceneFactory factory)
+    {
+        _scfact = factory;
     }
 
     /**
@@ -120,24 +129,23 @@ public class SceneRegistry
         } else {
             // otherwise we've got to initiate the resolution process.
             // first we create the penders list
-            penders = new ArrayList();
-            _penders.put(sceneId, penders);
+            _penders.put(sceneId, penders = new ArrayList());
             penders.add(target);
 
             // i don't like cluttering up method declarations with final
             // keywords...
             final int fsceneId = sceneId;
 
-            Log.info("Invoking scene repository [id=" + sceneId + "].");
+            Log.info("Invoking scene lookup [id=" + sceneId + "].");
 
             // then we queue up an execution unit that'll load the scene
             // and initialize it and all that
-            _invoker.postUnit(new Invoker.Unit() {
+            WhirledServer.invoker.postUnit(new Invoker.Unit() {
                 // this is run on the invoker thread
                 public boolean invoke ()
                 {
                     try {
-                        _scene = _screp.loadScene(fsceneId);
+                        _model = _screp.loadSceneModel(fsceneId);
                     } catch (Exception e) {
                         _cause = e;
                     }
@@ -147,8 +155,8 @@ public class SceneRegistry
                 // this is run on the dobjmgr thread
                 public void handleResult ()
                 {
-                    if (_scene != null) {
-                        processSuccessfulResolution(_scene);
+                    if (_model != null) {
+                        processSuccessfulResolution(_model);
                     } else if (_cause != null) {
                         processFailedResolution(fsceneId, _cause);
                     } else {
@@ -158,7 +166,7 @@ public class SceneRegistry
                     }
                 }
 
-                protected Scene _scene;
+                protected SceneModel _model;
                 protected Exception _cause;
             });
         }
@@ -167,7 +175,7 @@ public class SceneRegistry
     /**
      * Called when the scene resolution has completed successfully.
      */
-    protected void processSuccessfulResolution (Scene scene)
+    protected void processSuccessfulResolution (SceneModel model)
     {
         // now that the scene is loaded, we can create a scene manager for
         // it. that will be initialized by the place registry and when
@@ -175,6 +183,10 @@ public class SceneRegistry
         // what's up
 
         try {
+            // first create our runtime scene instance
+            RuntimeScene scene = _scfact.createScene(model);
+
+            // now create our scene manager
             SceneManager scmgr = (SceneManager)
                 CrowdServer.plreg.createPlace(scene.getPlaceConfig(), null);
 
@@ -182,7 +194,7 @@ public class SceneRegistry
             // stuff; we'll somehow need to convey configuration
             // information for the scene to the scene manager, but for now
             // let's punt
-            scmgr.postInit(scene, this);
+            scmgr.postInit(scene, model, this);
 
             // when the scene manager completes its startup procedings, it
             // will call back to the scene registry and let us know that
@@ -190,7 +202,7 @@ public class SceneRegistry
 
         } catch (InstantiationException ie) {
             // so close, but no cigar
-            processFailedResolution(scene.getId(), ie);
+            processFailedResolution(model.sceneId, ie);
         }
     }
 
@@ -255,9 +267,16 @@ public class SceneRegistry
         }
     }
 
+    /** The entity from which we load scene models. */
     protected SceneRepository _screp;
-    protected Invoker _invoker;
-    
+
+    /** The entity via which we create runtime scene instances from scene
+     * models. */
+    protected RuntimeSceneFactory _scfact;
+
+    /** A mapping from scene ids to scene managers. */
     protected HashIntMap _scenemgrs = new HashIntMap();
+
+    /** The table of pending resolution listeners. */
     protected HashIntMap _penders = new HashIntMap();
 }

@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.42 2001/10/25 16:36:42 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.43 2001/11/12 20:56:55 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -11,7 +11,6 @@ import java.util.List;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.tile.*;
-import com.threerings.whirled.data.Scene;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.util.ClusterUtil;

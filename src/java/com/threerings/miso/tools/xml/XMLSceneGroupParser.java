@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneGroupParser.java,v 1.7 2001/10/17 22:21:22 shaper Exp $
+// $Id: XMLSceneGroupParser.java,v 1.8 2001/11/12 20:56:55 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -14,8 +14,6 @@ import com.samskivert.xml.SimpleParser;
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;
 import com.threerings.miso.scene.util.MisoSceneUtil;
-
-import com.threerings.whirled.data.Scene;
 
 /**
  * Parses an XML scene group description file, loads the referenced

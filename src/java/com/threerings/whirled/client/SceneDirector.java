@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.6 2001/10/11 04:07:54 mdb Exp $
+// $Id: SceneDirector.java,v 1.7 2001/11/12 20:56:55 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -16,43 +16,50 @@ import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.client.persist.SceneRepository;
+import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.util.NoSuchSceneException;
-import com.threerings.whirled.data.Scene;
 import com.threerings.whirled.util.WhirledContext;
 
 /**
  * The scene director is the client's interface to all things scene
  * related. It interfaces with the scene repository to ensure that scene
  * objects are available when the client enters a particular scene. It
- * handles moving from scene to scene (it extends and replaces the
- * location director in order to do this).
+ * handles moving from scene to scene (it extends and replaces the {@link
+ * LocationDirector} in order to do this).
  *
  * <p> Note that when the scene director is in use instead of the location
  * director, scene ids instead of place oids will be supplied to {@link
- * com.threerings.crowd.client.LocationObserver#locationMayChange}
- * and {@link
- * com.threerings.crowd.client.LocationObserver#locationChangeFailed}.
+ * LocationObserver#locationMayChange} and {@link
+ * LocationObserver#locationChangeFailed}.
  */
 public class SceneDirector
     extends LocationDirector implements SceneCodes
 {
     /**
      * Creates a new scene director with the specified context.
+     *
+     * @param ctx the active client context.
+     * @param screp the entity from which the scene director will load
+     * scene data from the local client scene storage.
+     * @param dsfact the factory that knows which derivation of {@link
+     * DisplayScene} to create for the current system.
      */
-    public SceneDirector (WhirledContext ctx, SceneRepository screp)
+    public SceneDirector (WhirledContext ctx, SceneRepository screp,
+                          DisplaySceneFactory dsfact)
     {
         super(ctx);
 
         // we'll need these for later
         _ctx = ctx;
         _screp = screp;
+        _dsfact = dsfact;
     }
 
     /**
-     * Returns the scene object associated with the scene we currently
-     * occupy or null if we currently occupy no scene.
+     * Returns the dispaly scene object associated with the scene we
+     * currently occupy or null if we currently occupy no scene.
      */
-    public Scene getScene ()
+    public DisplayScene getScene ()
     {
         return _scene;
     }
@@ -86,10 +93,10 @@ public class SceneDirector
         // load up the pending scene so that we can communicate it's most
         // recent version to the server
         int sceneVers = 0;
-        _pendingScene = loadScene(sceneId);
+        _pendingModel = loadSceneModel(sceneId);
         // if we were unable to load it, assume a previous version of zero
-        if (_pendingScene != null) {
-            sceneVers = _pendingScene.getVersion();
+        if (_pendingModel != null) {
+            sceneVers = _pendingModel.version;
         }
 
         // make a note of our pending scene id
@@ -113,22 +120,54 @@ public class SceneDirector
         // parallelize and go ahead and load up the new scene now rather
         // than wait until subscription to our place object succeeds
 
-        // release the old scene
-        releaseScene(_scene);
-
-        // update our scene id tracking fields
+        // keep track of our previous scene info
         _previousSceneId = _sceneId;
+
+        // clear out the old info
+        clearScene();
+
+        // make the pending scene the active scene
         _sceneId = _pendingSceneId;
         _pendingSceneId = -1;
 
-        // and load the new scene
-        _scene = loadScene(_sceneId);
+        // load the new scene model
+        _model = loadSceneModel(_sceneId);
 
         // complain if we didn't find a scene
-        if (_scene == null) {
+        if (_model == null) {
             Log.warning("Aiya! Unable to load scene [sid=" + _sceneId +
                         ", plid=" + placeId + "].");
         }
+
+        // and finally create a display scene instance with the model and
+        // the place config
+        _scene = _dsfact.createScene(_model, config);
+    }
+
+    /**
+     * Called in response to a successful <code>moveTo</code> request when
+     * our cached scene was out of date and the server determined that we
+     * needed an updated copy.
+     */
+    public void handleMoveSucceededPlusUpdate (
+        int invid, int placeId, PlaceConfig config, SceneModel model)
+    {
+        // update the model in the repository
+        try {
+            _screp.updateSceneModel(model);
+        } catch (IOException ioe) {
+            Log.warning("Danger Will Robinson! We were unable to update " +
+                        "our scene cache with a new version of a scene " +
+                        "provided by the server " +
+                        "[newVersion=" + model.version + "].");
+            Log.logStackTrace(ioe);
+        }
+
+        // update our scene cache
+        _scache.put(model.sceneId, model);
+
+        // and pass through to the normal move succeeded handler
+        handleMoveSucceeded(invid, placeId, config);
     }
 
     /**
@@ -144,13 +183,17 @@ public class SceneDirector
         notifyFailure(sceneId, reason);
     }
 
+    /**
+     * Called when something breaks down in the process of performing a
+     * <code>moveTo</code> request.
+     */
     protected void recoverFailedMove (int placeId)
     {
-        // clear out our now bogus scene tracking info
+        // we'll need this momentarily
         int sceneId = _sceneId;
-        _sceneId = -1;
-        releaseScene(_scene);
-        _scene = null;
+
+        // clear out our now bogus scene tracking info
+        clearScene();
 
         // if we were previously somewhere (and that somewhere isn't where
         // we just tried to go), try going back to that happy place
@@ -160,19 +203,36 @@ public class SceneDirector
     }
 
     /**
+     * Clears out our current scene information and releases the scene
+     * model for the loaded scene back to the cache.
+     */
+    protected void clearScene ()
+    {
+        // clear out our scene id info
+        _sceneId = -1;
+
+        // release the old scene model
+        releaseSceneModel(_model);
+
+        // clear out our references
+        _model = null;
+        _scene = null;
+    }
+
+    /**
      * Loads a scene from the repository. If the scene is cached, it will
      * be returned from the cache instead.
      */
-    protected Scene loadScene (int sceneId)
+    protected SceneModel loadSceneModel (int sceneId)
     {
-        // first look in the cache
-        Scene scene = (Scene)_scache.get(sceneId);
+        // first look in the model cache
+        SceneModel model = (SceneModel)_scache.get(sceneId);
 
         // load from the repository if it's not cached
-        if (scene == null) {
+        if (model == null) {
             try {
-                scene = _screp.loadScene(sceneId);
-                _scache.put(sceneId, scene);
+                model = _screp.loadSceneModel(sceneId);
+                _scache.put(sceneId, model);
 
             } catch (NoSuchSceneException nsse) {
                 // nothing special here, just fall through and return null
@@ -184,34 +244,46 @@ public class SceneDirector
             }
         }
 
-        return scene;
+        return model;
     }
 
     /**
-     * Unloads a scene that was previously loaded via {@link #loadScene}.
-     * The scene will probably continue to live in the cache for a while
-     * in case we quickly return to it.
+     * Unloads a scene model that was previously loaded via {@link
+     * #loadSceneModel}. The model will probably continue to live in the
+     * cache for a while in case we quickly return to it.
      */
-    protected void releaseScene (Scene scene)
+    protected void releaseSceneModel (SceneModel model)
     {
         // we're cool if we're called with null
-        if (scene == null) {
+        if (model == null) {
             return;
         }
     }
 
+    /** Access to general client services. */
     protected WhirledContext _ctx;
+
+    /** The entity via which we load scene data. */
     protected SceneRepository _screp;
+
+    /** The entity we use to create display scenes from scene models. */
+    protected DisplaySceneFactory _dsfact;
+
+    /** A cache of scene model information. */
     protected HashIntMap _scache = new HashIntMap();
 
-    /** The scene object of the scene we currently occupy. */
-    protected Scene _scene;
+    /** The display scene object for the scene we currently occupy. */
+    protected DisplayScene _scene;
+
+    /** The scene model for the scene we currently occupy. */
+    protected SceneModel _model;
 
     /** The id of the scene we currently occupy. */
     protected int _sceneId = -1;
 
-    /** Our most recent copy of the scene we're about to enter. */
-    protected Scene _pendingScene;
+    /** Our most recent copy of the scene model for the scene we're about
+     * to enter. */
+    protected SceneModel _pendingModel;
 
     /**
      * The id of the scene for which we have an outstanding moveTo

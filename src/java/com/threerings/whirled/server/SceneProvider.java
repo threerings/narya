@@ -1,16 +1,19 @@
 //
-// $Id: SceneProvider.java,v 1.4 2001/10/11 04:07:54 mdb Exp $
+// $Id: SceneProvider.java,v 1.5 2001/11/12 20:56:56 mdb Exp $
 
 package com.threerings.whirled.server;
 
 import com.threerings.presents.server.InvocationProvider;
 import com.threerings.presents.server.ServiceFailedException;
 
-import com.threerings.crowd.data.*;
+import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.PlaceConfig;
+import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.LocationProvider;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.client.SceneCodes;
+import com.threerings.whirled.data.SceneModel;
 
 /**
  * The scene provider handles the server side of the scene related
@@ -72,10 +75,17 @@ public class SceneProvider
             PlaceConfig config = LocationProvider.moveTo(source, ploid);
 
             // check to see if they need a newer version of the scene data
+            SceneModel model = scmgr.getSceneModel();
+            if (sceneVersion < model.version) {
+                // then send the moveTo response
+                sendResponse(source, invid, MOVE_SUCCEEDED_PLUS_UPDATE_RESPONSE,
+                             new Integer(ploid), config, model);
 
-            // then send the moveTo response
-            sendResponse(source, invid, MOVE_SUCCEEDED_RESPONSE,
-                         new Integer(ploid), config);
+            } else {
+                // then send the moveTo response
+                sendResponse(source, invid, MOVE_SUCCEEDED_RESPONSE,
+                             new Integer(ploid), config);
+            }
 
         } catch (ServiceFailedException sfe) {
             sendResponse(source, invid, MOVE_FAILED_RESPONSE,

@@ -1,42 +1,43 @@
 //
-// $Id: SceneRepository.java,v 1.2 2001/08/14 06:51:07 mdb Exp $
+// $Id: SceneRepository.java,v 1.3 2001/11/12 20:56:55 mdb Exp $
 
 package com.threerings.whirled.client.persist;
 
 import java.io.IOException;
 
-import com.threerings.whirled.data.Scene;
+import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.util.NoSuchSceneException;
 
 /**
  * The scene repository provides access to a persistent repository of
- * scene information. The scenes in the repository can be updated with
- * individual scenes fetched from the server as well as with new scene
+ * scene information. The scene models in the repository can be updated
+ * with scene data fetched from the server as well as with new scene
  * bundles that are periodically distributed to bring all clients into
  * sync with the latest snapshot of the scene database.
  *
- * @see com.threerings.whirled.data.Scene
+ * @see SceneModel
  */
 public interface SceneRepository
 {
     /**
-     * Fetches the scene with the specified scene id.
+     * Fetches the mode for the scene with the specified scene id.
      *
      * @exception IOException thrown if an error occurs attempting to load
-     * a scene.
+     * the scene data.
      * @exception NoSuchSceneException thrown if no scene exists with the
      * specified scene id.
      */
-    public Scene loadScene (int sceneId)
+    public SceneModel loadSceneModel (int sceneId)
         throws IOException, NoSuchSceneException;
 
     /**
-     * Updates the specified scene in the repository with the information
-     * provided in the scene object.
+     * Updates this scene model in the repository. This is generally only
+     * called when the server has provided us with a newer version of a
+     * scene than we previously had in our local repository.
      *
      * @exception IOException thrown if an error occurs attempting to
-     * update the scene.
+     * update the scene data.
      */
-    public void updateScene (Scene scene)
+    public void updateSceneModel (SceneModel model)
         throws IOException;
 }
