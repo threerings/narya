@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundler.java,v 1.12 2003/01/24 19:34:25 mdb Exp $
+// $Id: TileSetBundler.java,v 1.13 2003/01/24 21:51:26 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -33,6 +33,7 @@ import com.samskivert.io.PersistenceException;
 
 import com.threerings.media.Log;
 import com.threerings.media.image.Colorization;
+import com.threerings.media.image.ImageUtil;
 import com.threerings.media.image.Mirage;
 
 import com.threerings.media.tile.ObjectTileSet;
@@ -40,6 +41,7 @@ import com.threerings.media.tile.SimpleCachingImageProvider;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileSetIDBroker;
 import com.threerings.media.tile.TrimmedObjectTileSet;
+import com.threerings.media.tile.UniformTileSet;
 
 import com.threerings.media.tile.bundle.BundleUtil;
 import com.threerings.media.tile.bundle.TileSetBundle;
@@ -308,12 +310,12 @@ public class TileSetBundler
                 jar.putNextEntry(new JarEntry(imagePath));
 
                 // if this is an object tileset, we can't trim it!
-                try {
-                    if (set instanceof ObjectTileSet) {
-                        // set the tileset up with an image provider; we
-                        // need to do this so that we can trim it!
-                        set.setImageProvider(improv);
+                if (set instanceof ObjectTileSet) {
+                    // set the tileset up with an image provider; we
+                    // need to do this so that we can trim it!
+                    set.setImageProvider(improv);
 
+                    try {
                         // create a trimmed object tileset, which will
                         // write the trimmed tileset image to the jar
                         // output stream
@@ -325,18 +327,30 @@ public class TileSetBundler
                         // tileset in the tileset bundle
                         bundle.addTileSet(tileSetId, tset);
 
-                    } else {
-                        // open the image and pipe it into the jar file
-                        File imgfile = new File(bundleDesc.getParent(),
-                                                imagePath);
-                        FileInputStream imgin = new FileInputStream(imgfile);
-                        StreamUtils.pipe(imgin, jar);
+                    } catch (Exception e) {
+                        System.err.println("Error adding tileset to bundle " +
+                                           "[set=" + set.getName() +
+                                           ", ipath=" + imagePath + "].");
+                        e.printStackTrace(System.err);
+                        // replace the tileset with an error tileset
+                        UniformTileSet ets = new UniformTileSet();
+                        ets.setName(set.getName());
+                        ets.setWidth(50);
+                        ets.setHeight(50);
+                        ets.setTileCount(1);
+                        ets.setImagePath(imagePath);
+                        bundle.addTileSet(tileSetId, ets);
+                        // and write an error image to the jar file
+                        ImageIO.write(ImageUtil.createErrorImage(50, 50),
+                                      "PNG", jar);
                     }
 
-                } catch (Exception e) {
-                    String errmsg = "Error adding tileset to bundle " +
-                        "[set=" + set.getName() + ", ipath=" + imagePath + "]";
-                    throw (IOException)new IOException(errmsg).initCause(e);
+                } else {
+                    // open the image and pipe it into the jar file
+                    File imgfile = new File(
+                        bundleDesc.getParent(), imagePath);
+                    FileInputStream imgin = new FileInputStream(imgfile);
+                    StreamUtils.pipe(imgin, jar);
                 }
             }
 
