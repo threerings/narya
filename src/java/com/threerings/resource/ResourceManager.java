@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.33 2003/08/09 00:31:14 mdb Exp $
+// $Id: ResourceManager.java,v 1.34 2003/08/09 05:51:12 mdb Exp $
 
 package com.threerings.resource;
 
@@ -353,8 +353,12 @@ public class ResourceManager
         final ResourceBundle bundle = createResourceBundle(
             DYNAMIC_BUNDLE_SET, path);
         if (bundle.isUnpacked()) {
-            bundle.sourceIsReady();
-            listener.requestCompleted(bundle);
+            if (bundle.sourceIsReady()) {
+                listener.requestCompleted(bundle);
+            } else {
+                String errmsg = "Bundle initialization failed.";
+                listener.requestFailed(new IOException(errmsg));
+            }
             return;
         }
 
@@ -384,10 +388,15 @@ public class ResourceManager
 
             public void downloadComplete ()
             {
-                bundle.sourceIsReady();
+                final boolean unpacked = bundle.sourceIsReady();
                 EventQueue.invokeLater(new Runnable() {
                     public void run () {
-                        listener.requestCompleted(bundle);
+                        if (unpacked) {
+                            listener.requestCompleted(bundle);
+                        } else {
+                            String errmsg = "Bundle initialization failed.";
+                            listener.requestFailed(new IOException(errmsg));
+                        }
                     }
                 });
             }
@@ -500,33 +509,45 @@ public class ResourceManager
 
             public void postDownloadHook () {
                 obs.unpacking();
-                bundlesDownloaded();
+                _unpacked = bundlesDownloaded();
             }
 
             public void downloadComplete () {
-                obs.downloadComplete();
+                if (_unpacked) {
+                    obs.downloadComplete();
+                } else {
+                    String errmsg = "Bundle(s) failed initialization.";
+                    obs.downloadFailed(new IOException(errmsg));
+                }
             }
 
             public void downloadFailed (DownloadDescriptor desc, Exception e) {
                 obs.downloadFailed(e);
             }
+
+            protected boolean _unpacked;
         });
     }
 
     /**
      * Called when our resource bundle downloads have completed.
+     *
+     * @return true if we are fully operational, false if one or more
+     * bundles failed to initialize.
      */
-    protected void bundlesDownloaded ()
+    protected boolean bundlesDownloaded ()
     {
         // let our bundles know that it's ok for them to access their
         // resource files
         Iterator iter = _sets.values().iterator();
+        boolean unpacked = true;
         while (iter.hasNext()) {
             ResourceBundle[] bundles = (ResourceBundle[])iter.next();
             for (int ii = 0; ii < bundles.length; ii++) {
-                bundles[ii].sourceIsReady();
+                unpacked = bundles[ii].sourceIsReady() && unpacked;
             }
         }
+        return unpacked;
     }
 
     /**
