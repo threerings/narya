@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.105 2002/04/02 01:06:46 mdb Exp $
+// $Id: IsoSceneView.java,v 1.106 2002/04/23 01:18:17 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -24,7 +24,8 @@ import java.util.List;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.HashIntMap;
 
-import com.threerings.media.animation.AnimationManager;
+import com.threerings.media.RegionManager;
+
 import com.threerings.media.sprite.Path;
 import com.threerings.media.sprite.SpriteManager;
 
@@ -64,17 +65,18 @@ public class IsoSceneView implements SceneView
     /**
      * Constructs an iso scene view.
      *
-     * @param animmgr the animation manager.
      * @param spritemgr the sprite manager.
      * @param model the data model.
+     * @param remgr the region manager that is collecting invalid regions
+     * for this view.
      */
-    public IsoSceneView (AnimationManager animmgr, SpriteManager spritemgr,
-                         IsoSceneViewModel model)
+    public IsoSceneView (SpriteManager spritemgr, IsoSceneViewModel model,
+                         RegionManager remgr)
     {
         // save off references
-        _animmgr = animmgr;
         _spritemgr = spritemgr;
         _model = model;
+        _remgr = remgr;
 
         // create our polygon arrays, these will be populated with the
         // tile polygons as they are requested
@@ -111,15 +113,20 @@ public class IsoSceneView implements SceneView
     {
         _scene = scene;
 
-        // clear all dirty lists and tile array
-        clearDirtyRegions();
-
         // obtain a list of the objects in the scene and generate records
         // for each of them that contain precomputed metrics
         prepareObjectList();
 
         // invalidate the entire screen as there's a new scene in town
         invalidate();
+    }
+
+    /**
+     * Invalidate the entire visible scene view.
+     */
+    public void invalidate ()
+    {
+        _remgr.invalidateRegion(_model.bounds);
     }
 
     // documentation inherited from interface
@@ -155,44 +162,48 @@ public class IsoSceneView implements SceneView
     }
 
     // documentation inherited from interface
-    public void paint (Graphics2D gfx, List invalidRects)
+    public void paint (Graphics2D gfx, Rectangle[] dirtyRects)
     {
         if (_scene == null) {
             Log.warning("Scene view painted with null scene.");
             return;
         }
 
-        // invalidate the invalid rectangles
-        int rsize = invalidRects.size();
-        for (int ii = 0; ii < rsize; ii++) {
-            invalidateRect((Rectangle)invalidRects.get(ii));
-        }
+//         Log.info("Rendering: " + StringUtil.toString(dirtyRects) +
+//                  ", clip: " + StringUtil.toString(gfx.getClip()));
+
+//         // invalidate the invalid rectangles
+//         int rsize = dirtyRects.length;
+//         for (int ii = 0; ii < rsize; ii++) {
+//             invalidateRect(dirtyRects[ii]);
+//         }
 
         // translate according to our scroll parameters
         gfx.translate(-_xoff, -_yoff);
 
         // render the scrolling part of the scene
-        renderScrollingScene(gfx);
-
-        // draw tile coordinates
-        if (_model.showCoords) {
-            paintCoordinates(gfx);
+        int rcount = dirtyRects.length;
+        for (int ii = 0; ii < rcount; ii++) {
+            Rectangle rect = dirtyRects[ii];
+            rect.translate(_xoff, _yoff);
+            Shape oclip = gfx.getClip();
+            gfx.clipRect(rect.x, rect.y, rect.width, rect.height);
+            renderScrollingScene(gfx, rect);
+            gfx.setClip(oclip);
+            rect.translate(-_xoff, -_yoff);
         }
 
         // untranslate according to our scroll parameters
         gfx.translate(_xoff, _yoff);
 
         // render the fixed part of the scene
-        renderFixedScene(gfx);
-
-        // draw frames of dirty tiles and rectangles
-        // drawDirtyRegions(gfx);
-
-        // render any animations
-        _animmgr.renderAnimations(gfx, AnimationManager.ALL);
-
-        // clear out the dirty tiles and rectangles
-        clearDirtyRegions();
+        for (int ii = 0; ii < rcount; ii++) {
+            Rectangle rect = dirtyRects[ii];
+            Shape oclip = gfx.getClip();
+            gfx.clipRect(rect.x, rect.y, rect.width, rect.height);
+            renderFixedScene(gfx, rect);
+            gfx.setClip(oclip);
+        }
 
         // draw sprite paths
         if (_model.showPaths) {
@@ -265,72 +276,18 @@ public class IsoSceneView implements SceneView
     }
 
     /**
-     * Invalidate the entire visible scene view.
-     */
-    protected void invalidate ()
-    {
-        invalidateRect(_model.bounds);
-    }
-
-    /**
-     * Clears the dirty rectangles and items lists, and the array of
-     * dirty tiles.
-     */
-    protected void clearDirtyRegions ()
-    {
-        _dirtyRects.clear();
-        _dirtyItems.clear();
-        _numDirty = 0;
-        for (int xx = 0; xx < _model.scenewid; xx++) {
-            Arrays.fill(_dirty[xx], false);
-        }
-    }
-
-    /**
-     * Draws highlights around the dirty tiles and rectangles.
-     */
-    protected void drawDirtyRegions (Graphics2D gfx)
-    {
-        // draw the dirty tiles
-        gfx.setColor(Color.cyan);
-        for (int xx = 0; xx < _model.scenewid; xx++) {
-            for (int yy = 0; yy < _model.scenehei; yy++) {
-                if (_dirty[xx][yy]) {
-                    gfx.draw(getTilePoly(xx, yy));
-                }
-            }
-        }
-
-        // draw the dirty rectangles
-        Stroke ostroke = gfx.getStroke();
-        gfx.setStroke(DIRTY_RECT_STROKE);
-        gfx.setColor(Color.red);
-        int size = _dirtyRects.size();
-        for (int ii = 0; ii < size; ii++) {
-            Rectangle rect = (Rectangle)_dirtyRects.get(ii);
-            gfx.draw(rect);
-        }
-        gfx.setStroke(ostroke);
-
-        // draw the dirty item rectangles
-        gfx.setColor(Color.yellow);
-        size = _dirtyItems.size();
-        for (int ii = 0; ii < size; ii++) {
-            Rectangle rect = _dirtyItems.get(ii).dirtyRect;
-            gfx.draw(rect);
-        }
-    }
-
-    /**
      * Renders the scrolling part of the scene to the given graphics
      * context.
      *
      * @param gfx the graphics context.
      */
-    protected void renderScrollingScene (Graphics2D gfx)
+    protected void renderScrollingScene (Graphics2D gfx, Rectangle clip)
     {
-        renderTiles(gfx);
-        renderBaseDecorations(gfx);
+        // render any intersecting tiles
+        renderTiles(gfx, clip);
+
+        // render anything that goes on top of the tiles
+        renderBaseDecorations(gfx, clip);
     }
 
     /**
@@ -339,21 +296,32 @@ public class IsoSceneView implements SceneView
      *
      * @param gfx the graphics context.
      */
-    protected void renderFixedScene (Graphics2D gfx)
+    protected void renderFixedScene (Graphics2D gfx, Rectangle clip)
     {
-        renderDirtyItems(gfx);
+        renderDirtyItems(gfx, clip);
     }
 
     /**
-     * Renders the base and fringe layer tiles to the given graphics
-     * context.
+     * Renders the base and fringe layer tiles that intersect the
+     * specified clipping rectangle.
      */
-    protected void renderTiles (Graphics2D gfx)
+    protected void renderTiles (Graphics2D gfx, Rectangle clip)
     {
-        // render the base and fringe layers
+        FontMetrics fm = gfx.getFontMetrics(_font);
+        int fhei = fm.getAscent();
+        int cx = _model.tilehwid, cy = _model.tilehhei;
+
+        if (_model.showCoords) {
+            gfx.setFont(_font);
+            gfx.setColor(Color.white);
+        }
+        
         for (int yy = 0; yy < _model.scenehei; yy++) {
             for (int xx = 0; xx < _model.scenewid; xx++) {
-                 if (!_dirty[xx][yy]) {
+                Polygon tpoly = getTilePoly(xx, yy);
+
+                // skip non-intersecting tiles
+                if (!tpoly.intersects(clip)) {
                     continue;
                 }
 
@@ -363,15 +331,30 @@ public class IsoSceneView implements SceneView
                 // draw the base and fringe tile images
                 Tile tile;
                 if ((tile = _scene.getBaseTile(tx, ty)) != null) {
-                    tile.paint(gfx, getTilePoly(xx, yy));
+                    tile.paint(gfx, tpoly);
                 }
                 if ((tile = _scene.getFringeTile(tx, ty)) != null) {
-                    tile.paint(gfx, getTilePoly(xx, yy));
+                    tile.paint(gfx, tpoly);
                 }
 
-                // if we're showing coordinates, outline the tiles as well
+                // if we're showing coordinates, do that
                 if (_model.showCoords) {
-                    gfx.draw(getTilePoly(xx, yy));
+                    // outline the tile
+                    gfx.draw(tpoly);
+
+                    // get the top-left screen coordinates of the tile
+                    Rectangle bounds = tpoly.getBounds();
+                    int sx = bounds.x, sy = bounds.y;
+
+                    // draw x-coordinate
+                    String str = String.valueOf(xx + _tiledx);
+                    int xpos = sx + cx - (fm.stringWidth(str) / 2);
+                    gfx.drawString(str, xpos, sy + cy);
+
+                    // draw y-coordinate
+                    str = String.valueOf(yy + _tiledy);
+                    xpos = sx + cx - (fm.stringWidth(str) / 2);
+                    gfx.drawString(str, xpos, sy + cy + fhei);
                 }
             }
         }
@@ -382,7 +365,7 @@ public class IsoSceneView implements SceneView
      * tiles have been rendered but before anything else has been rendered
      * (so that whatever is painted appears to be on the ground).
      */
-    protected void renderBaseDecorations (Graphics2D gfx)
+    protected void renderBaseDecorations (Graphics2D gfx, Rectangle clip)
     {
         // nothing for now
     }
@@ -391,10 +374,11 @@ public class IsoSceneView implements SceneView
      * Renders the dirty sprites and objects in the scene to the given
      * graphics context.
      */
-    protected void renderDirtyItems (Graphics2D gfx)
+    protected void renderDirtyItems (Graphics2D gfx, Rectangle clip)
     {
-//         Log.info("renderDirtyItems [rects=" + _dirtyRects.size() +
-//                  ", items=" + _dirtyItems.size() + "].");
+        invalidateItems(clip);
+
+//         Log.info("renderDirtyItems [items=" + _dirtyItems.size() + "].");
 
         // sort the dirty sprites and objects visually back-to-front
         DirtyItem items[] = _dirtyItems.sort();
@@ -402,47 +386,10 @@ public class IsoSceneView implements SceneView
         // render each item clipping to its dirty rectangle
         for (int ii = 0; ii < items.length; ii++) {
             items[ii].paint(gfx, items[ii].dirtyRect);
-            // Log.info("Painting item [item=" + items[ii] + "].");
+//             Log.info("Painting item [item=" + items[ii] + "].");
         }
-    }
 
-    /**
-     * Paints tile coordinate numbers on all dirty tiles.
-     *
-     * @param gfx the graphics context.
-     */
-    protected void paintCoordinates (Graphics2D gfx)
-    {
-        FontMetrics fm = gfx.getFontMetrics(_font);
-
-        gfx.setFont(_font);
-        gfx.setColor(Color.white);
-
-        int cx = _model.tilehwid, cy = _model.tilehhei;
-        int fhei = fm.getAscent();
-
-        for (int yy = 0; yy < _model.scenehei; yy++) {
-            for (int xx = 0; xx < _model.scenewid; xx++) {
-                // if the tile's not dirty, don't paint the coordinates
-                if (!_dirty[xx][yy]) {
-                    continue;
-                }
-
-                // get the top-left screen coordinates of the tile
-                Rectangle bounds = getTilePoly(xx, yy).getBounds();
-                int sx = bounds.x, sy = bounds.y;
-
-                // draw x-coordinate
-                String str = String.valueOf(xx + _tiledx);
-                int xpos = sx + cx - (fm.stringWidth(str) / 2);
-                gfx.drawString(str, xpos, sy + cy);
-
-                // draw y-coordinate
-                str = String.valueOf(yy + _tiledy);
-                xpos = sx + cx - (fm.stringWidth(str) / 2);
-                gfx.drawString(str, xpos, sy + cy + fhei);
-            }
-        }
+        _dirtyItems.clear();
     }
 
     /**
@@ -511,23 +458,6 @@ public class IsoSceneView implements SceneView
             _polys.put(key, poly);
         }
         return poly;
-    }
-
-    /**
-     * Invalidates the specified rectangle in preparation for
-     * rendering. Items that overlap the rectangle as well as tiles that
-     * overlap the rectangle will be marked as needing to be rerendered.
-     */
-    protected void invalidateRect (Rectangle rect)
-    {
-        // dirty the tiles impacted by this rectangle
-        Rectangle tileBounds = invalidateScreenRect(rect);
-
-        // dirty any sprites or objects impacted by this rectangle
-        invalidateItems(tileBounds);
-
-        // save the rectangle for potential display later
-        _dirtyRects.add(rect);
     }
 
     /**
@@ -927,11 +857,11 @@ public class IsoSceneView implements SceneView
     /** The sprite manager. */
     protected SpriteManager _spritemgr;
 
-    /** The animation manager. */
-    protected AnimationManager _animmgr;
-
     /** The scene view model data. */
     protected IsoSceneViewModel _model;
+
+    /** Our region manager. */
+    protected RegionManager _remgr;
 
     /** The scene to be displayed. */
     protected DisplayMisoScene _scene;
@@ -954,9 +884,6 @@ public class IsoSceneView implements SceneView
 
     /** The number of dirty tiles. */
     protected int _numDirty;
-
-    /** The dirty rectangles that need to be re-painted. */
-    protected ArrayList _dirtyRects = new ArrayList();
 
     /** The dirty sprites and objects that need to be re-painted. */
     protected DirtyItemList _dirtyItems = new DirtyItemList();

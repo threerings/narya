@@ -1,5 +1,5 @@
 //
-// $Id: SpritePanel.java,v 1.12 2002/03/16 03:15:04 shaper Exp $
+// $Id: SpritePanel.java,v 1.13 2002/04/23 01:17:28 mdb Exp $
 
 package com.threerings.cast.builder;
 
@@ -11,9 +11,8 @@ import java.awt.Rectangle;
 
 import java.util.List;
 
-import com.threerings.media.animation.AnimatedPanel;
-import com.threerings.media.animation.AnimationManager;
-import com.threerings.media.sprite.SpriteManager;
+import com.threerings.media.FrameManager;
+import com.threerings.media.MediaPanel;
 
 import com.threerings.util.DirectionCodes;
 
@@ -27,21 +26,20 @@ import com.threerings.cast.StandardActions;
  * The sprite panel displays a character sprite centered in the panel
  * suitable for user perusal.
  */
-public class SpritePanel extends AnimatedPanel
+public class SpritePanel extends MediaPanel
     implements DirectionCodes, BuilderModelListener
 {
     /**
      * Constructs the sprite panel.
      */
-    public SpritePanel (CharacterManager charmgr, BuilderModel model)
+    public SpritePanel (FrameManager framemgr, CharacterManager charmgr,
+                        BuilderModel model)
     {
+        super(framemgr);
+
         // save off references
         _charmgr = charmgr;
         _model = model;
-
-        // create managers
-        _spritemgr = new SpriteManager();
-        _animmgr = new AnimationManager(_spritemgr, this);
 
         // listen to the builder model so that we can update the
         // sprite when a new component is selected
@@ -49,7 +47,7 @@ public class SpritePanel extends AnimatedPanel
     }
 
     // documentation inherited
-    protected void render (Graphics2D gfx, List invalidRects)
+    protected void paintMiddle (Graphics2D gfx, List invalidRects)
     {
         // clear the background
         gfx.setColor(Color.lightGray);
@@ -121,12 +119,6 @@ public class SpritePanel extends AnimatedPanel
 
     /** The sprite displayed by the panel. */
     protected CharacterSprite _sprite;
-
-    /** The animation manager. */
-    protected AnimationManager _animmgr;
-
-    /** The sprite manager. */
-    protected SpriteManager _spritemgr;
 
     /** The character manager. */
     protected CharacterManager _charmgr;

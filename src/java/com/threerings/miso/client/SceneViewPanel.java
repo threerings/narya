@@ -1,11 +1,12 @@
 //
-// $Id: SceneViewPanel.java,v 1.38 2002/04/15 23:10:40 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.39 2002/04/23 01:18:17 mdb Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Shape;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -13,8 +14,10 @@ import java.awt.event.MouseMotionAdapter;
 
 import java.util.List;
 
-import com.threerings.media.animation.AnimatedPanel;
-import com.threerings.media.animation.AnimationManager;
+import com.threerings.media.FrameManager;
+import com.threerings.media.MediaPanel;
+
+import com.threerings.media.sprite.Sprite;
 import com.threerings.media.sprite.SpriteManager;
 
 import com.threerings.miso.Log;
@@ -25,14 +28,19 @@ import com.threerings.miso.scene.util.IsoUtil;
  * SceneView}, rendering it to the screen, and handling view-related
  * UI events.
  */
-public class SceneViewPanel extends AnimatedPanel
+public class SceneViewPanel extends MediaPanel
     implements IsoSceneViewModelListener
 {
     /**
      * Constructs the scene view panel with the supplied view model.
      */
-    public SceneViewPanel (IsoSceneViewModel model)
+    public SceneViewPanel (FrameManager framemgr, IsoSceneViewModel model)
     {
+        super(framemgr);
+
+        // we're going to want to be opaque 
+        setOpaque(true);
+
         // create the data model for the scene view
         _viewmodel = model;
 
@@ -41,7 +49,7 @@ public class SceneViewPanel extends AnimatedPanel
         _viewmodel.addListener(this);
 
 	// create the scene view
-        _view = newSceneView(_animmgr, _spritemgr, _viewmodel);
+        _view = newSceneView(_spritemgr, _viewmodel);
 
 	// listen to mouse...
 	addMouseListener(new MouseAdapter() {
@@ -78,9 +86,9 @@ public class SceneViewPanel extends AnimatedPanel
      * Constructs the underlying scene view implementation.
      */
     protected SceneView newSceneView (
-	AnimationManager amgr, SpriteManager smgr, IsoSceneViewModel model)
+        SpriteManager smgr, IsoSceneViewModel model)
     {
-        return new IsoSceneView(amgr, smgr, model);
+        return new IsoSceneView(smgr, model, _remgr);
     }
 
     /**
@@ -100,29 +108,24 @@ public class SceneViewPanel extends AnimatedPanel
     }
 
     /**
-     * Adds the supplied sprite to the scene.
+     * Adds the supplied sprite to the scene, setting up its scene
+     * coordinates if it is a {@link MisoCharacterSprite}.
      */
-    public void addSprite (MisoCharacterSprite sprite)
+    public void addSprite (Sprite sprite)
     {
-        // set up the sprite's tile coordinates
-        IsoUtil.setSpriteSceneLocation(_viewmodel, sprite);
+        if (sprite instanceof MisoCharacterSprite) {
+            // set up the sprite's tile coordinates
+            IsoUtil.setSpriteSceneLocation(
+                _viewmodel, (MisoCharacterSprite)sprite);
+        }
 
-        // and add it to the sprite manager
-        _spritemgr.addSprite(sprite);
-    }
-
-    /**
-     * Removes the supplied sprite from the screen.
-     */
-    public void removeSprite (MisoCharacterSprite sprite)
-    {
-        _spritemgr.removeSprite(sprite);
+        super.addSprite(sprite);
     }
 
     /**
      * If we're scrolling, we need to pass the word on to our scene view.
      */
-    protected void viewWillScroll (int dx, int dy, long now, List invalidRects)
+    protected void viewWillScroll (int dx, int dy, long now)
     {
         _view.viewWillScroll(dx, dy);
     }
@@ -159,23 +162,23 @@ public class SceneViewPanel extends AnimatedPanel
     }
 
     // documentation inherited
-    protected void render (Graphics2D gfx, List invalidRects)
+    protected void paintBetween (Graphics2D gfx, Rectangle[] dirtyRects)
     {
-        // render the view
-        _view.paint(gfx, invalidRects);
-
-        // give derived classes a chance to render on top of the view
-        renderOnView(gfx, invalidRects);
+        // render the isometric view
+        _view.paint(gfx, dirtyRects);
     }
 
     /**
-     * Provides an opportunity for derived classes to render things while
-     * under the influence of the proper coordinate translations. This is
-     * called after the view is rendered, so things drawn here appear on
-     * top of the scene view.
+     * We don't want sprites rendered using the standard mechanism because
+     * we intersperse them with objects in our scene and need to manage
+     * their z-order.
      */
-    protected void renderOnView (Graphics2D gfx, List invalidRects)
+    protected void paintBits (Graphics2D gfx, int layer, Rectangle clip)
     {
+        Shape oclip = gfx.getClip();
+        gfx.setClip(clip);
+        _animmgr.renderAnimations(gfx, layer, clip);
+        gfx.setClip(oclip);
     }
 
     /**

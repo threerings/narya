@@ -1,5 +1,5 @@
 //
-// $Id: SceneView.java,v 1.26 2002/02/19 05:03:17 mdb Exp $
+// $Id: SceneView.java,v 1.27 2002/04/23 01:18:17 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-import java.util.List;
 
 import com.threerings.media.sprite.Path;
 
@@ -33,7 +32,7 @@ public interface SceneView
      * @param gfx the graphics context.
      * @param invalidRects the list of invalid regions to be repainted.
      */
-    public void paint (Graphics2D gfx, List invalidRects);
+    public void paint (Graphics2D gfx, Rectangle[] invalidRects);
 
     /**
      * Sets the scene that we're rendering.
