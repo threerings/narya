@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.14 2002/09/23 23:07:11 mdb Exp $
+// $Id: DirtyItemList.java,v 1.15 2002/09/26 23:35:10 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -513,14 +513,21 @@ public class DirtyItemList
                 }
 
                 if ((da.obj instanceof Sprite) && (db.obj instanceof Sprite)) {
-                    // we're comparing two sprites co-existing on the same
-                    // tile, so simply sort them by y-position
                     Sprite as = (Sprite)da.obj, bs = (Sprite)db.obj;
-                    int diff = as.getY() - bs.getY();
+                    // we're comparing two sprites co-existing on the same
+                    // tile, first check their render order
+                    int rocomp = as.getRenderOrder() - bs.getRenderOrder();
+                    if (rocomp != 0) {
+                        return rocomp;
+                    }
+                    // next sort them by y-position
+                    int ydiff = as.getY() - bs.getY();
+                    if (ydiff != 0) {
+                        return ydiff;
+                    }
                     // if they're at the same height, just use hashCode()
                     // to establish a consistent arbitrary ordering
-                    return (diff != 0) ? diff :
-                        (as.hashCode() - bs.hashCode());
+                    return (as.hashCode() - bs.hashCode());
                 }
             }
 
