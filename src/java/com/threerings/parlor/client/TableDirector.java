@@ -1,5 +1,5 @@
 //
-// $Id: TableDirector.java,v 1.2 2001/10/23 20:23:29 mdb Exp $
+// $Id: TableDirector.java,v 1.3 2001/10/23 20:26:30 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -267,6 +267,18 @@ public class TableManager
     public void handleJoinFailed (int invid, String reason)
     {
         Log.warning("Join table failed [reason=" + reason + "].");
+    }
+
+    /**
+     * Called by the invocation services when a leave table request failed
+     * or was rejected for some reason.
+     *
+     * @param invid the invocation id of the leave request.
+     * @param reason a reason code explaining the failure.
+     */
+    public void handleLeaveFailed (int invid, String reason)
+    {
+        Log.warning("Leave table failed [reason=" + reason + "].");
     }
 
     /**
