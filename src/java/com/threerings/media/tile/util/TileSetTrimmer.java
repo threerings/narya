@@ -1,5 +1,5 @@
 //
-// $Id: TileSetTrimmer.java,v 1.7 2003/04/27 06:38:15 mdb Exp $
+// $Id: TileSetTrimmer.java,v 1.8 2003/05/02 23:32:37 mdb Exp $
 
 package com.threerings.media.tile.util;
 
@@ -86,7 +86,7 @@ public class TileSetTrimmer
         for (int ii = 0; ii < tcount; ii++) {
             // extract the image from the original tileset
             try {
-                timgs[ii] = source.getTileImage(ii);
+                timgs[ii] = source.getRawTileImage(ii);
             } catch (RasterFormatException rfe) {
                 throw new IOException("Failed to get tile image " +
                                       "[tidx=" + ii + ", tset=" + source +
@@ -110,7 +110,7 @@ public class TileSetTrimmer
         BufferedImage image = null;
         try {
             image = ImageUtil.createCompatibleImage(
-                (BufferedImage)source.getTileSetImage(), nextx, maxy);
+                (BufferedImage)source.getRawTileSetImage(), nextx, maxy);
 
         } catch (RasterFormatException rfe) {
             throw new IOException("Failed to create trimmed tileset image " +
