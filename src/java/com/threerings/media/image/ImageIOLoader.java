@@ -1,5 +1,5 @@
 //
-// $Id: ImageIOLoader.java,v 1.2 2001/12/13 01:14:30 shaper Exp $
+// $Id: ImageIOLoader.java,v 1.3 2001/12/13 05:14:53 mdb Exp $
 
 package com.threerings.media;
 
@@ -15,6 +15,13 @@ import javax.imageio.ImageIO;
  */
 public class ImageIOLoader implements ImageLoader
 {
+    public ImageIOLoader ()
+    {
+        // we need to reference ImageIO in the constructor to force the
+        // classloader to attempt to load the ImageIO classes
+        ImageIO.setUseCache(false);
+    }
+
     // documentation inherited
     public Image loadImage (InputStream source)
         throws IOException
