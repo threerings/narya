@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.42 2003/06/02 18:57:15 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.43 2003/06/05 18:41:36 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -294,8 +294,9 @@ public class MisoScenePanel extends VirtualMediaPanel
             SceneBlock block = (SceneBlock)iter.next();
             block.computeMemoryUsage(base, fringe, object, usage);
         }
-        Log.info("Scene tile memory usage [base=" + base.size() +
-                 "->" + (usage[0] / 1024) + "k" +
+        Log.info("Scene tile memory usage " +
+                 "[scene=" + StringUtil.shortClassName(this) +
+                 ", base=" + base.size() + "->" + (usage[0] / 1024) + "k" +
                  ", fringe=" + fringe.size() + "->" + (usage[1] / 1024) + "k" +
                  ", fmasks=" + _masks.size() + ", obj=" + object.size() +
                  "->" + (usage[2] / 1024) + "k" + "].");
@@ -832,11 +833,11 @@ public class MisoScenePanel extends VirtualMediaPanel
             }
         }
         --_pendingBlocks;
-        if (_pendingBlocks == 0) {
-            Log.info("Finished resolving pending blocks " +
-                     "[view=" + StringUtil.toString(_vbounds) + "].");
-            reportMemoryUsage();
-        }
+//         if (_pendingBlocks == 0) {
+//             Log.info("Finished resolving pending blocks " +
+//                      "[view=" + StringUtil.toString(_vbounds) + "].");
+//             reportMemoryUsage();
+//         }
 
         // once all the visible pending blocks have completed their
         // resolution, recompute our visible object set and show ourselves
