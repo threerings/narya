@@ -1,5 +1,5 @@
 //
-// $Id: Log.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: Log.java,v 1.2 2004/05/04 23:36:01 ray Exp $
 
 package com.threerings.puzzle;
 
@@ -10,7 +10,7 @@ package com.threerings.puzzle;
 public class Log
 {
     public static com.samskivert.util.Log log =
-	new com.samskivert.util.Log("yohoho.puzzle");
+	new com.samskivert.util.Log("puzzle");
 
     /** Convenience function. */
     public static void debug (String message)
