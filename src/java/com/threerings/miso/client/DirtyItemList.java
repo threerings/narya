@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.10 2002/02/06 23:14:56 mdb Exp $
+// $Id: DirtyItemList.java,v 1.11 2002/06/18 22:38:12 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -8,17 +8,15 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-import com.samskivert.util.HashIntMap;
+import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.media.Log;
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.tile.ObjectTile;
-
-import com.threerings.media.Log;
 
 /**
  * The dirty item list keeps track of dirty sprites and object tiles
@@ -27,24 +25,37 @@ import com.threerings.media.Log;
 public class DirtyItemList
 {
     /**
-     * Appends the dirty sprite at the given coordinates to the dirty
-     * item list.
+     * Appends the dirty sprite at the given coordinates to the dirty item
+     * list.
+     *
+     * @param sprite the dirty sprite itself.
+     * @param tx the sprite's x tile position.
+     * @param ty the sprite's y tile position.
      */
-    public void appendDirtySprite (
-        MisoCharacterSprite sprite, int x, int y, Rectangle dirtyRect)
+    public void appendDirtySprite (MisoCharacterSprite sprite, int tx, int ty)
     {
-        _items.add(new DirtyItem(sprite, null, null, x, y, dirtyRect));
+        DirtyItem item = getDirtyItem();
+        item.init(sprite, null, null, tx, ty);
+        _items.add(item);
     }
 
     /**
-     * Appends the dirty object tile at the given coordinates to the
-     * dirty item list.
+     * Appends the dirty object tile at the given coordinates to the dirty
+     * item list.
+     *
+     * @param tile the object tile that is dirty.
+     * @param bounds the bounds of this object tile.
+     * @param footprint the footprint of the object tile if it should be
+     * rendered, null otherwise.
+     * @param tx the object tile's x tile position.
+     * @param ty the object tile's y tile position.
      */
     public void appendDirtyObject (
-        ObjectTile tile, Shape bounds, Shape footprint,
-        int x, int y, Rectangle dirtyRect)
+        ObjectTile tile, Rectangle bounds, Shape footprint, int tx, int ty)
     {
-        _items.add(new DirtyItem(tile, bounds, footprint, x, y, dirtyRect));
+        DirtyItem item = getDirtyItem();
+        item.init(tile, bounds, footprint, tx, ty);
+        _items.add(item);
     }
 
     /**
@@ -59,7 +70,7 @@ public class DirtyItemList
      * Returns an array of the {@link DirtyItem} objects in the list
      * sorted in proper rendering order.
      */
-    public DirtyItem[] sort ()
+    public void sort ()
     {
         int size = size();
 
@@ -67,41 +78,64 @@ public class DirtyItemList
             Log.info("Sorting dirty item list [size=" + size + "].");
         }
 
-        // get items sorted by increasing origin x-coordinate
-        DirtyItem[] xitems = new DirtyItem[size];
-        _items.toArray(xitems);
-        // if we've only got one item, bail out now
-        if (xitems.length < 2) {
-            return xitems;
+        // if we've only got one item, we need to do no sorting
+        if (size > 1) {
+            // get items sorted by increasing origin x-coordinate
+            _xitems.addAll(_items);
+            _xitems.sort(ORIGIN_X_COMP);
+            if (DEBUG_SORT) {
+                Log.info("Sorted by x-origin " +
+                         "[items=" + toString(_xitems) + "].");
+            }
+
+            // get items sorted by increasing origin y-coordinate
+            _yitems.addAll(_items);
+            _yitems.sort(ORIGIN_Y_COMP);
+            if (DEBUG_SORT) {
+                Log.info("Sorted by y-origin " +
+                         "[items=" + toString(_yitems) + "].");
+            }
+
+            // sort items into proper render order
+            _items.sort(_rcomp);
+
+            // clear out our temporary arrays
+            _xitems.clear();
+            _yitems.clear();
         }
-        Arrays.sort(xitems, ORIGIN_X_COMP);
 
         if (DEBUG_SORT) {
-            Log.info("Sorted by x-origin " +
-                     "[items=" + DirtyItemList.toString(xitems) + "].");
+            Log.info("Sorted for render [items=" + toString(_items) + "].");
         }
+    }
 
-        // get items sorted by increasing origin y-coordinate
-        DirtyItem[] yitems = new DirtyItem[size];
-        _items.toArray(yitems);
-        Arrays.sort(yitems, ORIGIN_Y_COMP);
-
-        if (DEBUG_SORT) {
-            Log.info("Sorted by y-origin " +
-                     "[items=" + DirtyItemList.toString(yitems) + "].");
+    /**
+     * Paints all the dirty items in this list using the supplied graphics
+     * context. The items are removed from the dirty list after being
+     * painted and the dirty list ends up empty.
+     */
+    public void paintAndClear (Graphics2D gfx)
+    {
+        int icount = _items.size();
+        for (int ii = 0; ii < icount; ii++) {
+            DirtyItem item = (DirtyItem)_items.get(ii);
+            item.paint(gfx);
+            item.clear();
+            _freelist.add(item);
         }
+        _items.clear();
+    }
 
-        // sort items into proper render order
-        DirtyItem[] ritems = new DirtyItem[size];
-        _items.toArray(ritems);
-        Arrays.sort(ritems, new RenderComparator(xitems, yitems));
-
-        if (DEBUG_SORT) {
-            Log.info("Sorted for render " +
-                     "[items=" + toString(ritems) + "].");
+    /**
+     * Clears out any items that were in this list.
+     */
+    public void clear ()
+    {
+        for (int icount = _items.size(); icount > 0; icount--) {
+            DirtyItem item = (DirtyItem)_items.remove(0);
+            item.clear();
+            _freelist.add(item);
         }
-
-        return ritems;
     }
 
     /**
@@ -113,11 +147,16 @@ public class DirtyItemList
     }
 
     /**
-     * Clears all items in the list.
+     * Obtains a new dirty item instance, reusing an old one if possible
+     * or creating a new one otherwise.
      */
-    public void clear ()
+    protected DirtyItem getDirtyItem ()
     {
-        _items.clear();
+        if (_freelist.size() > 0) {
+            return (DirtyItem)_freelist.remove(0);
+        } else {
+            return new DirtyItem();
+        }
     }
 
     /**
@@ -127,7 +166,12 @@ public class DirtyItemList
      */
     protected static String toString (DirtyItem a, DirtyItem b)
     {
-        return toString(new DirtyItem[] { a, b });
+        StringBuffer buf = new StringBuffer();
+        buf.append("[(ox=").append(a.ox);
+        buf.append(", oy=").append(a.oy).append("), ");
+        buf.append("(ox=").append(b.ox);
+        buf.append(", oy=").append(b.oy).append(")");
+        return buf.append("]").toString();
     }
 
     /**
@@ -135,14 +179,15 @@ public class DirtyItemList
      * items describing each by only its origin coordinates.  Intended for
      * debugging purposes.
      */
-    protected static String toString (DirtyItem[] items)
+    protected static String toString (SortableArrayList items)
     {
         StringBuffer buf = new StringBuffer();
         buf.append("[");
-        for (int ii = 0; ii < items.length; ii++) {
-            buf.append("(ox=").append(items[ii].ox);
-            buf.append(", oy=").append(items[ii].oy).append(")");
-            if (ii < (items.length - 1)) {
+        for (int ii = 0; ii < items.size(); ii++) {
+            DirtyItem item = (DirtyItem)items.get(ii);
+            buf.append("(ox=").append(item.ox);
+            buf.append(", oy=").append(item.oy).append(")");
+            if (ii < (items.size() - 1)) {
                 buf.append(", ");
             }
         }
@@ -160,7 +205,7 @@ public class DirtyItemList
         public Object obj;
 
         /** The bounds of the dirty item if it's an object tile. */
-        public Shape bounds;
+        public Rectangle bounds;
 
         /** The footprint of the dirty item if it's an object tile and
          * we're drawing footprints. */
@@ -175,25 +220,21 @@ public class DirtyItemList
         /** The rightmost tile coordinates. */
         public int rx, ry;
 
-        /** The dirty rectangle. */
-        public Rectangle dirtyRect;
-
         /**
-         * Constructs a dirty item.
+         * Initializes a dirty item.
          */
-        public DirtyItem (Object obj, Shape bounds, Shape footprint,
-                          int x, int y, Rectangle dirtyRect)
+        public void init (Object obj, Rectangle bounds, Shape footprint,
+                          int x, int y)
         {
             this.obj = obj;
             this.bounds = bounds;
             this.footprint = footprint;
             this.ox = x;
             this.oy = y;
-            this.dirtyRect = dirtyRect;
 
-            // calculate the item's leftmost and rightmost tiles.
-            // note that sprites occupy only a single tile, so
-            // leftmost and rightmost tiles are equivalent
+            // calculate the item's leftmost and rightmost tiles; note
+            // that sprites occupy only a single tile, so leftmost and
+            // rightmost tiles are equivalent
             lx = rx = ox;
             ly = ry = oy;
             if (obj instanceof ObjectTile) {
@@ -208,13 +249,8 @@ public class DirtyItemList
          * the portion of the item that falls within the given dirty
          * rectangle is actually drawn.
          */
-        public void paint (Graphics2D gfx, Rectangle clip)
+        public void paint (Graphics2D gfx)
         {
-            Shape oclip = gfx.getClip();
-
-            // clip the draw region to the dirty portion of the item
-            gfx.clip(clip);
-
             // if there's a footprint, paint that
             if (footprint != null) {
                 gfx.setColor(Color.black);
@@ -225,11 +261,19 @@ public class DirtyItemList
             if (obj instanceof Sprite) {
                 ((Sprite)obj).paint(gfx);
             } else {
-                ((ObjectTile)obj).paint(gfx, bounds);
+                ((ObjectTile)obj).paint(gfx, bounds.x, bounds.y);
             }
+        }
 
-            // restore original clipping region
-            gfx.setClip(oclip);
+        /**
+         * Releases all references held by this dirty item so that it
+         * doesn't inadvertently hold on to any objects while waiting to
+         * be reused.
+         */
+        public void clear ()
+        {
+            obj = null;
+            bounds = null;
         }
 
         // documentation inherited
@@ -309,18 +353,8 @@ public class DirtyItemList
      * suitable for rendering in the isometric view with proper visual
      * results.
      */
-    protected static class RenderComparator implements Comparator
+    protected class RenderComparator implements Comparator
     {
-        /**
-         * Constructs a render comparator with the given list of
-         * pre-sorted dirty item lists for each axis.
-         */
-        public RenderComparator (DirtyItem[] xitems, DirtyItem[] yitems)
-        {
-            _xitems = xitems;
-            _yitems = yitems;
-        }
-
         // documentation inherited
         public int compare (Object a, Object b)
         {
@@ -374,7 +408,7 @@ public class DirtyItemList
             int axis, DirtyItem da, DirtyItem db)
         {
             // prepare for the partitioning check
-            DirtyItem[] sitems;
+            SortableArrayList sitems;
             Comparator comp;
             boolean swapped = false;
             switch (axis) {
@@ -420,14 +454,14 @@ public class DirtyItemList
 
             // get the bounding item indices and the number of
             // potentially-partitioning dirty items
-            int aidx = Arrays.binarySearch(sitems, da, comp);
-            int bidx = Arrays.binarySearch(sitems, db, comp);
+            int aidx = sitems.binarySearch(da, comp);
+            int bidx = sitems.binarySearch(db, comp);
             int size = bidx - aidx - 1;
 
             // check each potentially partitioning item
             int startidx = aidx + 1, endidx = startidx + size;
             for (int pidx = startidx; pidx < endidx; pidx++) {
-                DirtyItem dp = sitems[pidx];
+                DirtyItem dp = (DirtyItem)sitems.get(pidx);
                 if (dp.obj instanceof MisoCharacterSprite) {
                     // character sprites can't partition things
                     continue;
@@ -503,12 +537,6 @@ public class DirtyItemList
             }
             return -1;
         }
-
-        /** The items in the dirty item list sorted by ascending x origin. */
-        protected DirtyItem[] _xitems;
-
-        /** The items in the dirty item list sorted by ascending y origin. */
-        protected DirtyItem[] _yitems;
     }
 
     /** Whether to log debug info when comparing pairs of dirty items. */
@@ -532,5 +560,17 @@ public class DirtyItemList
         new OriginComparator(Y_AXIS);
 
     /** The list of dirty items. */
-    protected ArrayList _items = new ArrayList();
+    protected SortableArrayList _items = new SortableArrayList();
+
+    /** The list of dirty items sorted by x-position. */
+    protected SortableArrayList _xitems = new SortableArrayList();
+
+    /** The list of dirty items sorted by y-position. */
+    protected SortableArrayList _yitems = new SortableArrayList();
+
+    /** The render comparator we'll use for our final, magical sort. */
+    protected Comparator _rcomp = new RenderComparator();
+
+    /** Unused dirty items. */
+    protected ArrayList _freelist = new ArrayList();
 }

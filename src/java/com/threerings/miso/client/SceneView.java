@@ -1,5 +1,5 @@
 //
-// $Id: SceneView.java,v 1.28 2002/05/31 03:38:03 mdb Exp $
+// $Id: SceneView.java,v 1.29 2002/06/18 22:38:12 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -18,21 +18,13 @@ import com.threerings.media.util.Path;
 public interface SceneView
 {
     /**
-     * Lets the view know that it will be scrolled by the specified number
-     * of pixels in each direction the next time that {@link #paint} is
-     * called. This is called automatically by the {@link SceneViewPanel}
-     * which takes care of dirtying the regions exposed by the scrolling
-     * and copying the scrollable pixels.
-     */
-    public void viewWillScroll (int dx, int dy);
-
-    /**
-     * Renders the scene to the given graphics context.
+     * Renders an invalid porition of the scene to the given graphics
+     * context.
      *
      * @param gfx the graphics context.
-     * @param invalidRects the list of invalid regions to be repainted.
+     * @param invalidRect the invalid region to be repainted.
      */
-    public void paint (Graphics2D gfx, Rectangle[] invalidRects);
+    public void paint (Graphics2D gfx, Rectangle invalidRect);
 
     /**
      * Sets the scene that we're rendering.

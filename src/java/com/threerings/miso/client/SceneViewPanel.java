@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.40 2002/04/23 03:11:17 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.41 2002/06/18 22:38:12 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -13,9 +13,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 
 import java.util.List;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.media.FrameManager;
-import com.threerings.media.MediaPanel;
+import com.threerings.media.VirtualMediaPanel;
 
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.sprite.SpriteManager;
@@ -28,7 +29,7 @@ import com.threerings.miso.scene.util.IsoUtil;
  * SceneView}, rendering it to the screen, and handling view-related
  * UI events.
  */
-public class SceneViewPanel extends MediaPanel
+public class SceneViewPanel extends VirtualMediaPanel
     implements IsoSceneViewModelListener
 {
     /**
@@ -38,7 +39,7 @@ public class SceneViewPanel extends MediaPanel
     {
         super(framemgr);
 
-        // we're going to want to be opaque 
+        // we're going to want to be opaque
         setOpaque(true);
 
         // create the data model for the scene view
@@ -122,50 +123,27 @@ public class SceneViewPanel extends MediaPanel
         super.addSprite(sprite);
     }
 
-    /**
-     * If we're scrolling, we need to pass the word on to our scene view.
-     */
-    protected void viewWillScroll (int dx, int dy, long now)
+    // documentation inherited
+    public void doLayout ()
     {
-        _view.viewWillScroll(dx, dy);
-    }
+        super.doLayout();
 
-    /**
-     * We want to pretend like we're in a view that fits our whole model
-     * so we return the model bounds as our view size.
-     */
-    protected Dimension getViewSize ()
-    {
-        return _viewmodel.bounds.getSize();
-    }
+        // figure out our viewport offsets
+        Dimension size = getSize();
 
-    /**
-     * We overload this to translate mouse events into the proper
-     * coordinates before they are dispatched to any of the mouse
-     * listeners.
-     */
-    protected void processMouseEvent (MouseEvent event)
-    {
-        event.translatePoint(_tx, _ty);
-        super.processMouseEvent(event);
-    }
+        // start out centered in the display
+        setViewLocation((_viewmodel.bounds.width - size.width)/2,
+                        (_viewmodel.bounds.height - size.height)/2);
 
-    /**
-     * We overload this to translate mouse events into the proper
-     * coordinates before they are dispatched to any of the mouse
-     * listeners.
-     */
-    protected void processMouseMotionEvent (MouseEvent event)
-    {
-        event.translatePoint(_tx, _ty);
-        super.processMouseMotionEvent(event);
+//         Log.info("Size: " + StringUtil.toString(size) +
+//                  ", vsize: " + StringUtil.toString(_viewmodel.bounds) +
+//                  ", nx: " + _nx + ", ny: " + _ny + ".");
     }
 
     // documentation inherited
-    protected void paintBetween (Graphics2D gfx, Rectangle[] dirtyRects)
+    protected void paintBetween (Graphics2D gfx, Rectangle dirty)
     {
-        // render the isometric view
-        _view.paint(gfx, dirtyRects);
+        _view.paint(gfx, dirty);
     }
 
     /**
@@ -173,12 +151,9 @@ public class SceneViewPanel extends MediaPanel
      * we intersperse them with objects in our scene and need to manage
      * their z-order.
      */
-    protected void paintBits (Graphics2D gfx, int layer, Rectangle clip)
+    protected void paintBits (Graphics2D gfx, int layer, Rectangle dirty)
     {
-        Shape oclip = gfx.getClip();
-        gfx.clipRect(clip.x, clip.y, clip.width, clip.height);
-        _animmgr.renderAnimations(gfx, layer, clip);
-        gfx.setClip(oclip);
+        _animmgr.renderAnimations(gfx, layer, dirty);
     }
 
     /**
