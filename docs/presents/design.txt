@@ -6,6 +6,34 @@ information among different nodes in the network. Plus, I don't think Cher
 has ever had a software system named after her and it's high time. Imagine
 Cher as the social lubricant that allows the party goers to communicate.
 
+* A note on thread-safety
+
+Distributed objects are designed only to be accessed from one thread. On
+the server, there is a distributed object dispatch thread on which 95% of
+all activity takes place anyway. It would be questionable to require that
+thread to access distributed object members through synchronized members
+just so that the few places where it is convenient to access dobjs off of
+the dobjmgr thread are simplified. Instead we've opted for the performance
+and care must be taken not to access distributed objects outside of the
+dobjmgr thread.
+
+Events can be generated from any thread, but values should not be read
+from the distributed object on other threads because they are subject to
+change at any time and could be half changed when some other thread goes
+to read them.
+
+On the client, care is taken to combine the AWT and dobj threads so that
+life is simple from a synchronization standpoint. None the less, the same
+care should be taken when other threads are introduced (IntervalManager
+for example) not to read values from a distributed object on those other
+threads.
+
+This is easy enough to do. Simply copy the values you care about out of
+the object before passing the information on to another thread (take care
+to copy non-primitive values like arrays and OidLists). If you find the
+need to fetch values from a distributed object after another thread has
+already started, you'll just have to rethink your approach.
+
 * Client components
 
 ** DObjectManager
