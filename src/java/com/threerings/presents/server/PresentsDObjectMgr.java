@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.41 2004/02/21 00:22:30 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.42 2004/02/21 02:18:56 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -189,9 +189,9 @@ public class PresentsDObjectMgr
                     Log.warning("Execution unit failed [unit=" + unit + "].");
                     Log.logStackTrace(e);
                 } catch (OutOfMemoryError oome) {
-                    handleFatalError(oome);
+                    handleFatalError(unit, oome);
                 } catch (StackOverflowError soe) {
-                    handleFatalError(soe);
+                    handleFatalError(unit, soe);
                 }
 
             } else if (unit instanceof CompoundEvent) {
@@ -328,10 +328,10 @@ public class PresentsDObjectMgr
             Log.logStackTrace(e);
 
         } catch (OutOfMemoryError oome) {
-            handleFatalError(oome);
+            handleFatalError(event, oome);
 
         } catch (StackOverflowError soe) {
-            handleFatalError(soe);
+            handleFatalError(event, soe);
         }
 
         // track the number of events dispatched
@@ -343,11 +343,12 @@ public class PresentsDObjectMgr
      * Attempts to recover from fatal errors but rethrows if things are
      * freaking out too frequently.
      */
-    protected void handleFatalError (Error error)
+    protected void handleFatalError (Object causer, Error error)
     {
         if (_fatalThrottle.throttleOp()) {
             throw error;
         }
+        Log.warning("Fatal error caused by '" + causer + "': " + error);
         Log.logStackTrace(error);
     }
 
