@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.6 2001/12/16 21:23:27 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.7 2001/12/16 21:47:37 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -275,7 +275,7 @@ public class SpotSceneDirector
         // we've got our cluster chat object, configure the chat director
         // with it and keep a reference ourselves
         if (_chatdir != null) {
-            _chatdir.addAuxilliarySource(object);
+            _chatdir.addAuxilliarySource(CLUSTER_CHAT_TYPE, object);
             _clobj = object;
         }
     }

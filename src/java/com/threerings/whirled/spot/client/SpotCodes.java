@@ -1,5 +1,5 @@
 //
-// $Id: SpotCodes.java,v 1.3 2001/12/16 21:02:18 mdb Exp $
+// $Id: SpotCodes.java,v 1.4 2001/12/16 21:47:37 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -43,4 +43,9 @@ public interface SpotCodes extends ChatCodes, SceneCodes
 
     /** The message identifier for a cluster speak request. */
     public static final String CLUSTER_SPEAK_REQUEST = "ClusterSpeak";
+
+    /** The chat type code with which we register our cluster auxilliary
+     * chat objects. Chat display implementations should interpret chat
+     * messages with this type accordingly. */
+    public static final String CLUSTER_CHAT_TYPE = "clusterChat";
 }
