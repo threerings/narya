@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.63 2003/06/07 00:41:25 ray Exp $
+// $Id: SoundManager.java,v 1.64 2003/07/12 03:59:54 mdb Exp $
 
 package com.threerings.media.sound;
 
@@ -206,6 +206,26 @@ public class SoundManager
     protected boolean amRunning ()
     {
         return (_player == Thread.currentThread());
+    }
+
+    /**
+     * Returns a string summarizing our volume settings and disabled sound
+     * types.
+     */
+    public String summarizeState ()
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append("musicVol=").append(_musicVol);
+        buf.append(", clipVol=").append(_clipVol);
+        buf.append(", disabled=[");
+        int ii = 0;
+        for (Iterator iter = _disabledTypes.iterator(); iter.hasNext(); ) {
+            if (ii++ > 0) {
+                buf.append(", ");
+            }
+            buf.append(iter.next());
+        }
+        return buf.append("]").toString();
     }
 
     /**
