@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.45 2003/06/19 22:20:02 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.46 2003/06/20 21:50:56 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -70,9 +70,6 @@ public class MisoScenePanel extends VirtualMediaPanel
 {
     /** Show flag that indicates we should show all tips. */
     public static final int SHOW_TIPS = (1 << 0);
-
-    /** Show flag that indicates we should show everything. */
-    public static final int SHOW_ALL = 0xFFFFFF;
 
     /**
      * Creates a blank miso scene display. Configure it with a scene model
