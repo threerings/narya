@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.16 2001/11/07 10:47:55 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.17 2001/12/04 01:02:59 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -11,10 +11,13 @@ import com.samskivert.util.Tuple;
 import com.samskivert.util.Queue;
 
 import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
+import com.threerings.presents.server.InvocationManager;
 
 import com.threerings.crowd.Log;
+import com.threerings.crowd.client.LocationCodes;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 
@@ -46,8 +49,14 @@ public class PlaceRegistry
      * Creates and initializes the place registry; called by the server
      * during its initialization phase.
      */
-    public PlaceRegistry (Config config)
+    public PlaceRegistry (Config config, InvocationManager invmgr,
+                          RootDObjectManager omgr)
     {
+        // we'll need this later
+        _omgr = omgr;
+
+        // register the location provider
+        LocationProvider.init(invmgr, omgr, this);
     }
 
     /**
@@ -88,7 +97,7 @@ public class PlaceRegistry
             _createq.append(new Tuple(pmgr, observer));
 
             // and request to create the place object
-            CrowdServer.omgr.createObject(pmgr.getPlaceObjectClass(), this);
+            _omgr.createObject(pmgr.getPlaceObjectClass(), this);
 
             return pmgr;
 
@@ -214,6 +223,9 @@ public class PlaceRegistry
                      ", ploid=" + ploid + "].");
         }
     }
+
+    /** The distributed object manager with which we operate. */
+    protected RootDObjectManager _omgr;
 
     /** A queue of place managers waiting for their place objects. */
     protected Queue _createq = new Queue();

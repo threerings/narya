@@ -1,16 +1,18 @@
 //
-// $Id: LocationProvider.java,v 1.10 2001/10/11 04:07:51 mdb Exp $
+// $Id: LocationProvider.java,v 1.11 2001/12/04 01:02:59 mdb Exp $
 
 package com.threerings.crowd.server;
 
 import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.RootDObjectManager;
+
+import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 import com.threerings.presents.server.ServiceFailedException;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.client.LocationCodes;
 import com.threerings.crowd.data.*;
-import com.threerings.crowd.server.CrowdServer;
 
 /**
  * This class provides the server end of the location services.
@@ -18,6 +20,22 @@ import com.threerings.crowd.server.CrowdServer;
 public class LocationProvider
     extends InvocationProvider implements LocationCodes
 {
+    /**
+     * Constructs a location provider and registers it with the invocation
+     * manager to handle location services. This is done automatically by
+     * the {@link PlaceRegistry}.
+     */
+    public static void init (
+        InvocationManager invmgr, RootDObjectManager omgr, PlaceRegistry plreg)
+    {
+        // we'll need these later
+        _omgr = omgr;
+        _plreg = plreg;
+
+        // register a location provider instance
+        invmgr.registerProvider(MODULE_NAME, new LocationProvider());
+    }
+
     /**
      * Processes a request from a client to move to a new place.
      */
@@ -52,7 +70,7 @@ public class LocationProvider
         int bodoid = source.getOid();
 
         // make sure the place in question actually exists
-        PlaceManager pmgr = CrowdServer.plreg.getPlaceManager(placeId);
+        PlaceManager pmgr = _plreg.getPlaceManager(placeId);
         if (pmgr == null) {
             Log.info("Requested to move to non-existent place " +
                      "[source=" + source + ", place=" + placeId + "].");
@@ -78,7 +96,7 @@ public class LocationProvider
             // remove them from the occupant list of the previous location
             try {
                 PlaceObject pold = (PlaceObject)
-                    CrowdServer.omgr.getObject(source.location);
+                    _omgr.getObject(source.location);
                 if (pold != null) {
                     Object key = new Integer(bodoid);
                     // remove their occupant info (which is keyed on oid)
@@ -120,4 +138,10 @@ public class LocationProvider
 
         return pmgr.getConfig();
     }
+
+    /** The distributed object manager with which we interoperate. */
+    protected static RootDObjectManager _omgr;
+
+    /** The place registry with which we interoperate. */
+    protected static PlaceRegistry _plreg;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: CrowdServer.java,v 1.8 2001/10/11 04:07:51 mdb Exp $
+// $Id: CrowdServer.java,v 1.9 2001/12/04 01:02:59 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -41,7 +41,7 @@ public class CrowdServer extends PresentsServer
         clmgr.setClientObjectClass(BodyObject.class);
 
         // create our place registry
-        plreg = new PlaceRegistry(config);
+        plreg = new PlaceRegistry(config, invmgr, omgr);
 
         // register our invocation service providers
         registerProviders(config.getValue(PROVIDERS_KEY, (String[])null));
