@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.25 2002/10/31 21:32:15 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.26 2003/08/09 04:56:35 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -237,10 +237,10 @@ public class PlaceRegistry
             Log.warning("Requested to unmap unmapped place manager " +
                         "[pmgr=" + pmgr + "].");
 
-        } else {
-            Log.info("Unmapped place manager " +
-                     "[class=" + pmgr.getClass().getName() +
-                     ", ploid=" + ploid + "].");
+//         } else {
+//             Log.info("Unmapped place manager " +
+//                      "[class=" + pmgr.getClass().getName() +
+//                      ", ploid=" + ploid + "].");
         }
     }
 
