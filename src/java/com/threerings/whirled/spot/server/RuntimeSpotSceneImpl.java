@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeSpotSceneImpl.java,v 1.4 2002/06/20 22:13:39 mdb Exp $
+// $Id: RuntimeSpotSceneImpl.java,v 1.5 2002/12/11 23:06:24 shaper Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -15,6 +15,7 @@ import com.threerings.whirled.spot.data.SpotSceneModel;
  * is used by default if no extended implementation is desired.
  */
 public class RuntimeSpotSceneImpl extends RuntimeSceneImpl
+    implements RuntimeSpotScene
 {
     /**
      * Creates an instance that will obtain data from the supplied scene
