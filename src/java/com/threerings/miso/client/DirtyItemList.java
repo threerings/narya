@@ -1,10 +1,12 @@
 //
-// $Id: DirtyItemList.java,v 1.21 2003/02/11 05:47:28 mdb Exp $
+// $Id: DirtyItemList.java,v 1.22 2003/02/12 05:46:05 mdb Exp $
 
 package com.threerings.miso.client;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
@@ -25,6 +27,15 @@ import com.threerings.miso.client.util.IsoUtil;
  */
 public class DirtyItemList
 {
+    /**
+     * Creates a dirt item list that will handle dirty items for the
+     * specified view.
+     */
+    public DirtyItemList (IsoSceneView view)
+    {
+        _view = view;
+    }
+
     /**
      * Appends the dirty sprite at the given coordinates to the dirty item
      * list.
@@ -196,7 +207,7 @@ public class DirtyItemList
      * all of the information necessary to render their dirty regions
      * to the target graphics context when the time comes to do so.
      */
-    public static class DirtyItem
+    public class DirtyItem
     {
         /** The dirtied object; one of either a sprite or an object tile. */
         public Object obj;
@@ -259,6 +270,36 @@ public class DirtyItemList
                 ((Sprite)obj).paint(gfx);
             } else {
                 ((DisplayObjectInfo)obj).tile.paint(gfx, bounds.x, bounds.y);
+            }
+
+            // and paint the object's spot if it has one
+            if (footprint != null && obj instanceof DisplayObjectInfo) {
+                DisplayObjectInfo info = (DisplayObjectInfo)obj;
+                if (info.tile.hasSpot()) {
+                    // get the spot's center coordinate
+                    Point fpos = _view.getObjectSpot(info);
+                    Point spos = _view.getScreenCoords(fpos.x, fpos.y);
+
+                    // translate the origin to center on the portal
+                    gfx.translate(spos.x, spos.y);
+
+                    // rotate to reflect the spot orientation
+                    double rot = (Math.PI / 4.0f) *
+                        info.tile.getSpotOrient();
+                    gfx.rotate(rot);
+
+                    // draw the spot triangle
+                    gfx.setColor(Color.green);
+                    gfx.fill(_spotTri);
+
+                    // outline the triangle in black
+                    gfx.setColor(Color.black);
+                    gfx.draw(_spotTri);
+
+                    // restore the original transform
+                    gfx.rotate(-rot);
+                    gfx.translate(-spos.x, -spos.y);
+                }
             }
         }
 
@@ -571,6 +612,34 @@ public class DirtyItemList
         }
     }
 
+    /** The view for which we're managing dirty items. */
+    protected IsoSceneView _view;
+
+    /** The list of dirty items. */
+    protected SortableArrayList _items = new SortableArrayList();
+
+    /** The list of dirty items sorted by x-position. */
+    protected SortableArrayList _xitems = new SortableArrayList();
+
+    /** The list of dirty items sorted by y-position. */
+    protected SortableArrayList _yitems = new SortableArrayList();
+
+    /** The render comparator we'll use for our final, magical sort. */
+    protected Comparator _rcomp = new RenderComparator();
+
+    /** Unused dirty items. */
+    protected ArrayList _freelist = new ArrayList();
+
+    /** The triangle used to render an object's spot. */
+    protected static Polygon _spotTri;
+
+    static {
+        _spotTri = new Polygon();
+        _spotTri.addPoint(-3, -3);
+        _spotTri.addPoint(3, -3);
+        _spotTri.addPoint(0, 3);
+    };
+
     /** Whether to log debug info when comparing pairs of dirty items. */
     protected static final boolean DEBUG_COMPARE = false;
 
@@ -590,19 +659,4 @@ public class DirtyItemList
      * y-coordinate order. */
     protected static final Comparator ORIGIN_Y_COMP =
         new OriginComparator(Y_AXIS);
-
-    /** The list of dirty items. */
-    protected SortableArrayList _items = new SortableArrayList();
-
-    /** The list of dirty items sorted by x-position. */
-    protected SortableArrayList _xitems = new SortableArrayList();
-
-    /** The list of dirty items sorted by y-position. */
-    protected SortableArrayList _yitems = new SortableArrayList();
-
-    /** The render comparator we'll use for our final, magical sort. */
-    protected Comparator _rcomp = new RenderComparator();
-
-    /** Unused dirty items. */
-    protected ArrayList _freelist = new ArrayList();
 }

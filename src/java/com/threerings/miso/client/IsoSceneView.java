@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.131 2003/01/31 23:10:45 mdb Exp $
+// $Id: IsoSceneView.java,v 1.132 2003/02/12 05:46:05 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -7,6 +7,7 @@ import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Composite;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -110,8 +111,17 @@ public class IsoSceneView implements SceneView
         // for each of them that contain precomputed metrics
         prepareObjectList();
 
-        // invalidate the entire screen as there's a new scene in town
-        invalidate();
+        // invalidate the entire screen as there's a new scene in town;
+        // making sure we're on the AWT thread
+        if (EventQueue.isDispatchThread()) {
+            invalidate();
+        } else {
+            EventQueue.invokeLater(new Runnable() {
+                public void run () {
+                    invalidate();
+                }
+            });
+        }
     }
 
     /**
@@ -129,7 +139,7 @@ public class IsoSceneView implements SceneView
         // and fill in the new objects' bounds
         int ocount = _objects.size();
         for (int ii = 0; ii < ocount; ii++) {
-            DisplayObjectInfo scobj = _objects.get(ii);
+            DisplayObjectInfo scobj = (DisplayObjectInfo)_objects.get(ii);
             if (scobj.bounds == null) {
                 scobj.bounds = IsoUtil.getObjectBounds(_model, scobj);
             }
@@ -148,6 +158,21 @@ public class IsoSceneView implements SceneView
     public void invalidate ()
     {
         _remgr.invalidateRegion(_model.bounds);
+    }
+
+    /**
+     * Returns the location associated with the specified object's "spot"
+     * in fine coordinates or null if the object has no spot.
+     */
+    public Point getObjectSpot (DisplayObjectInfo info)
+    {
+        if (info.tile.hasSpot()) {
+            return IsoUtil.tilePlusFineToFull(
+                _model, info.x, info.y, info.tile.getSpotX(),
+                info.tile.getSpotY(), new Point());
+        } else {
+            return null;
+        }
     }
 
     // documentation inherited from interface
@@ -421,7 +446,7 @@ public class IsoSceneView implements SceneView
         // add any objects impacted by the dirty rectangle
         int ocount = _objects.size();
         for (int ii = 0; ii < ocount; ii++) {
-            DisplayObjectInfo scobj = _objects.get(ii);
+            DisplayObjectInfo scobj = (DisplayObjectInfo)_objects.get(ii);
             if (!scobj.bounds.intersects(clip)) {
                 continue;
             }
@@ -473,7 +498,7 @@ public class IsoSceneView implements SceneView
         // and fill in those objects' bounds
         int ocount = _objects.size();
         for (int ii = 0; ii < ocount; ii++) {
-            DisplayObjectInfo scobj = _objects.get(ii);
+            DisplayObjectInfo scobj = (DisplayObjectInfo)_objects.get(ii);
             scobj.bounds = IsoUtil.getObjectBounds(_model, scobj);
         }
     }
@@ -520,6 +545,12 @@ public class IsoSceneView implements SceneView
     public Point getFullCoords (int x, int y)
     {
         return IsoUtil.screenToFull(_model, x, y, new Point());
+    }
+
+    // documentation inherited
+    public Point getTileCoords (int x, int y)
+    {
+        return IsoUtil.screenToTile(_model, x, y, new Point());
     }
 
     // documentation inherited
@@ -703,7 +734,7 @@ public class IsoSceneView implements SceneView
     protected ObjectSet _objects = new ObjectSet();
 
     /** The dirty sprites and objects that need to be re-painted. */
-    protected DirtyItemList _dirtyItems = new DirtyItemList();
+    protected DirtyItemList _dirtyItems = new DirtyItemList(this);
 
     /** The working sprites list used when calculating dirty regions. */
     protected ArrayList _dirtySprites = new ArrayList();
@@ -720,7 +751,7 @@ public class IsoSceneView implements SceneView
 
     /** The list that we use to track and sort the items over which the
      * mouse is hovering. */
-    protected DirtyItemList _hitList = new DirtyItemList();
+    protected DirtyItemList _hitList = new DirtyItemList(this);
 
     /** The highlight mode. */
     protected int _hmode = HIGHLIGHT_NEVER;
