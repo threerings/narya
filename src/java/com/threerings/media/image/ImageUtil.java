@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.26 2003/01/17 02:27:02 mdb Exp $
+// $Id: ImageUtil.java,v 1.27 2003/01/21 22:11:04 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -244,7 +244,7 @@ public class ImageUtil
         if (srcdata.getNumBands() != 4) {
             throw new IllegalArgumentException(
                 "Can't trace an image with no transparency " +
-                "[image=" + src + "].");
+                "[image=" + src + ", bands=" + srcdata.getNumBands() + "].");
         }
 
         // create the destination image
