@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.63 2004/02/21 00:54:51 mdb Exp $
+// $Id: PresentsClient.java,v 1.64 2004/02/22 18:52:33 ray Exp $
 
 package com.threerings.presents.server;
 
@@ -463,8 +463,8 @@ public class PresentsClient
      */
     protected void clearSubscrips (boolean verbose)
     {
-        for (Iterator enum = _subscrips.elements(); enum.hasNext(); ) {
-            DObject object = (DObject)enum.next();
+        for (Iterator itr = _subscrips.elements(); itr.hasNext(); ) {
+            DObject object = (DObject)itr.next();
             if (verbose) {
                 Log.info("Clearing subscription [client=" + this +
                          ", obj=" + object.getOid() + "].");

@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.26 2003/08/09 04:56:35 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.27 2004/02/22 18:52:33 ray Exp $
 
 package com.threerings.crowd.server;
 
@@ -144,16 +144,16 @@ public class PlaceRegistry
      */
     public Iterator enumeratePlaces ()
     {
-        final Iterator enum = _pmgrs.elements();
+        final Iterator itr = _pmgrs.elements();
         return new Iterator() {
             public boolean hasNext ()
             {
-                return enum.hasNext();
+                return itr.hasNext();
             }
 
             public Object next ()
             {
-                PlaceManager plmgr = (PlaceManager)enum.next();
+                PlaceManager plmgr = (PlaceManager)itr.next();
                 return (plmgr == null) ? null : plmgr.getPlaceObject();
             }
 
