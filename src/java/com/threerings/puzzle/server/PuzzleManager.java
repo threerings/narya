@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleManager.java,v 1.3 2003/11/26 17:46:06 mdb Exp $
+// $Id: PuzzleManager.java,v 1.4 2003/11/26 18:04:37 mdb Exp $
 
 package com.threerings.puzzle.server;
 
@@ -573,7 +573,11 @@ public abstract class PuzzleManager extends GameManager
 
         int pidx = IntListUtil.indexOf(_playerOids, bodyOid);
         if (pidx != -1) {
-            if (_puzobj.state == PuzzleObject.AWAITING_PLAYERS &&
+            if (_puzobj.isInPlay() && _puzobj.isActivePlayer(pidx)) {
+                // end the player's game if they bail on an in-progress puzzle
+                endPlayerGame(pidx);
+
+            } else if (_puzobj.state == PuzzleObject.AWAITING_PLAYERS &&
                 isPartyGame()) {
                 // handle a player leaving a party game that hasn't yet begun
                 if (removePlayer(getPlayerName(pidx))) {
