@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.60 2003/04/08 20:30:44 ray Exp $
+// $Id: SoundManager.java,v 1.61 2003/05/03 00:13:04 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -42,6 +42,7 @@ import com.samskivert.util.Config;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.Queue;
 import com.samskivert.util.RuntimeAdjust;
+import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.resource.ResourceManager;
@@ -1039,7 +1040,7 @@ public class SoundManager
             // There is a major bug with using drain() under linux. It often
             // causes the thread to just loop forever inside the native
             // implementation of drain(), and we're screwed.
-            if (_shouldDrain) {
+            if (!RunAnywhere.isLinux()) {
                 _line.drain();
 
             } else {
@@ -1074,9 +1075,6 @@ public class SoundManager
         /** The list of all the currently instantiated spoolers. */
         protected static ArrayList _openSpoolers = new ArrayList();
 
-        /** Should we attempt to use line.drain()? */
-        protected static boolean _shouldDrain = true;
-
         /** The maximum time a spooler will wait for a stream before
          * deciding to shut down. */
         protected static final long MAX_WAIT_TIME = 30000L;
@@ -1086,15 +1084,6 @@ public class SoundManager
 
         /** The time we sleep if it's not safe to drain. */
         protected static final long NO_DRAIN_SLEEP_TIME = 3000L;
-
-        // see if we should use drain.
-        static {
-            String os = System.getProperty("os.name");
-            if (os == null || (os.indexOf("Linux") != -1)) {
-                _shouldDrain = false;
-                Log.info("Detected Linux, will not use drain() on lines.");
-            }
-        }
     }
 
     /**
