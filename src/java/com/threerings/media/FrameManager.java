@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.41 2003/05/02 23:53:55 mdb Exp $
+// $Id: FrameManager.java,v 1.42 2003/05/08 21:26:27 mdb Exp $
 
 package com.threerings.media;
 
@@ -42,6 +42,7 @@ import com.samskivert.util.StringUtil;
 import com.threerings.media.timer.MediaTimer;
 import com.threerings.media.timer.SystemMediaTimer;
 import com.threerings.media.util.TrailingAverage;
+import com.threerings.util.unsafe.Unsafe;
 
 /**
  * Provides a central point from which the computation for each "frame" or
@@ -681,16 +682,7 @@ public abstract class FrameManager
                 if (MediaPanel._perfDebug.getValue()) {
                     start = _timer.getElapsedMillis();
                 }
-                try {
-                    int sleepGran = _sleepGranularity.getValue();
-                    if (sleepGran > 0) {
-                        Thread.sleep(sleepGran);
-                    } else {
-                        Thread.yield();
-                    }
-                } catch (InterruptedException ie) {
-                    Log.warning("Ticker thread interrupted.");
-                }
+                Unsafe.sleep(_sleepGranularity.getValue());
 
                 long woke = _timer.getElapsedMillis();
                 if (start > 0L) {
