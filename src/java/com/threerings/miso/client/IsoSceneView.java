@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.93 2002/02/17 07:16:21 mdb Exp $
+// $Id: IsoSceneView.java,v 1.94 2002/02/17 07:30:45 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -184,12 +184,11 @@ public class IsoSceneView implements SceneView
         if (_hobject instanceof ObjectTile) {
             // if we're only highlighting objects with actions, make sure
             // this one has an action
-            if (_hmode != HIGHLIGHT_WITH_ACTION ||
-                !StringUtil.blank(_scene.getObjectAction(
-                                      _hcoords.x, _hcoords.y))) {
+            String action = _scene.getObjectAction(_hcoords.x, _hcoords.y);
+            if (_hmode != HIGHLIGHT_WITH_ACTION || !StringUtil.blank(action)) {
+                Polygon tpoly = getTilePoly(_hcoords.x, _hcoords.y);
                 hpoly = IsoUtil.getObjectFootprint(
-                    _model, getTilePoly(_hcoords.x, _hcoords.y),
-                    (ObjectTile)_hobject);
+                    _model, tpoly, (ObjectTile)_hobject);
             }
         }
 
@@ -381,7 +380,6 @@ public class IsoSceneView implements SceneView
                 metrics.tile = tile;
                 metrics.x = xx;
                 metrics.y = yy;
-                metrics.action = _scene.getObjectAction(xx, yy);
                 metrics.bounds = IsoUtil.getObjectBounds(
                     _model, getTilePoly(xx, yy), tile);
 
@@ -835,10 +833,6 @@ public class IsoSceneView implements SceneView
 
         /** The object's bounding polygon. */
         public Polygon bounds;
-
-        /** The action associated with the object or null if no action is
-         * associated. */
-        public String action;
     }
 
     /** The sprite manager. */
