@@ -1,5 +1,5 @@
 //
-// $Id: BodyObject.java,v 1.7 2003/06/14 00:55:40 mdb Exp $
+// $Id: BodyObject.java,v 1.8 2003/09/18 17:53:48 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -22,6 +22,9 @@ public class BodyObject extends ClientObject
     /** The field name of the <code>status</code> field. */
     public static final String STATUS = "status";
 
+    /** The field name of the <code>awayMessage</code> field. */
+    public static final String AWAY_MESSAGE = "awayMessage";
+
     /**
      * The username associated with this body object.
      */
@@ -43,6 +46,12 @@ public class BodyObject extends ClientObject
      * is only available on the server.
      */
     public transient long statusTime;
+
+    /**
+     * If non-null, this contains a message to be auto-replied whenever
+     * another user delivers a tell message to this user.
+     */
+    public String awayMessage;
 
     // documentation inherited
     public void applyToListeners (ListenerOp op)
@@ -101,5 +110,19 @@ public class BodyObject extends ClientObject
     {
         requestAttributeChange(STATUS, new Byte(status));
         this.status = status;
+    }
+
+    /**
+     * Requests that the <code>awayMessage</code> field be set to the specified
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public void setAwayMessage (String awayMessage)
+    {
+        requestAttributeChange(AWAY_MESSAGE, awayMessage);
+        this.awayMessage = awayMessage;
     }
 }

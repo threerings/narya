@@ -1,10 +1,11 @@
 //
-// $Id: ChatProvider.java,v 1.24 2003/07/18 01:58:38 eric Exp $
+// $Id: ChatProvider.java,v 1.25 2003/09/18 17:53:48 mdb Exp $
 
 package com.threerings.crowd.chat.server;
 
 import java.util.Iterator;
 
+import com.samskivert.util.StringUtil;
 import com.threerings.util.MessageBundle;
 import com.threerings.util.TimeUtil;
 
@@ -111,14 +112,15 @@ public class ChatProvider
         sendTellMessage(tobj, source.username, null, message);
 
         // let the teller know it went ok
+        long idle = 0L;
         if (tobj.status == OccupantInfo.IDLE) {
-            listener.tellSucceededIdle(
-                System.currentTimeMillis() - tobj.statusTime);
-
-        } else {
-            // normal success
-            listener.tellSucceeded();
+            idle = System.currentTimeMillis() - tobj.statusTime;
         }
+        String awayMessage = null;
+        if (!StringUtil.blank(tobj.awayMessage)) {
+            awayMessage = tobj.awayMessage;
+        }
+        listener.tellSucceeded(idle, awayMessage);
 
         // do the autoresponse if needed
         if (_autoRespond != null) {
@@ -148,6 +150,17 @@ public class ChatProvider
                                         message, BROADCAST_MODE);
             }
         }
+    }
+
+    /**
+     * Processes a {@link ClientService#away} request.
+     */
+    public void away (ClientObject caller, String message)
+    {
+        BodyObject body = (BodyObject)caller;
+        // we modify this field via an invocation service request because
+        // a body object is not modifiable by the client
+        body.setAwayMessage(message);
     }
 
     /**

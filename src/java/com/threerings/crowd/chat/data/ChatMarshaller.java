@@ -1,5 +1,5 @@
 //
-// $Id: ChatMarshaller.java,v 1.5 2003/06/03 21:41:33 ray Exp $
+// $Id: ChatMarshaller.java,v 1.6 2003/09/18 17:53:48 mdb Exp $
 
 package com.threerings.crowd.chat.data;
 
@@ -29,23 +29,11 @@ public class ChatMarshaller extends InvocationMarshaller
         public static final int TELL_SUCCEEDED = 1;
 
         // documentation inherited from interface
-        public void tellSucceeded ()
+        public void tellSucceeded (long arg1, String arg2)
         {
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, TELL_SUCCEEDED,
-                               new Object[] {  }));
-        }
-
-        /** The method id used to dispatch {@link #tellSucceededIdle}
-         * responses. */
-        public static final int TELL_SUCCEEDED_IDLE = 2;
-
-        // documentation inherited from interface
-        public void tellSucceededIdle (long arg1)
-        {
-            omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, TELL_SUCCEEDED_IDLE,
-                               new Object[] { new Long(arg1) }));
+                               new Object[] { new Long(arg1), arg2 }));
         }
 
         // documentation inherited
@@ -54,12 +42,7 @@ public class ChatMarshaller extends InvocationMarshaller
             switch (methodId) {
             case TELL_SUCCEEDED:
                 ((TellListener)listener).tellSucceeded(
-                    );
-                return;
-
-            case TELL_SUCCEEDED_IDLE:
-                ((TellListener)listener).tellSucceededIdle(
-                    ((Long)args[0]).longValue());
+                    ((Long)args[0]).longValue(), (String)args[1]);
                 return;
 
             default:
@@ -91,6 +74,17 @@ public class ChatMarshaller extends InvocationMarshaller
         listener3.listener = arg3;
         sendRequest(arg1, BROADCAST, new Object[] {
             arg2, listener3
+        });
+    }
+
+    /** The method id used to dispatch {@link #away} requests. */
+    public static final int AWAY = 3;
+
+    // documentation inherited from interface
+    public void away (Client arg1, String arg2)
+    {
+        sendRequest(arg1, AWAY, new Object[] {
+            arg2
         });
     }
 

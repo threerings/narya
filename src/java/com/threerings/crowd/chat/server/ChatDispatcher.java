@@ -1,5 +1,5 @@
 //
-// $Id: ChatDispatcher.java,v 1.5 2003/06/03 21:41:33 ray Exp $
+// $Id: ChatDispatcher.java,v 1.6 2003/09/18 17:53:48 mdb Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -50,6 +50,13 @@ public class ChatDispatcher extends InvocationDispatcher
             ((ChatProvider)provider).broadcast(
                 source,
                 (String)args[0], (InvocationListener)args[1]
+            );
+            return;
+
+        case ChatMarshaller.AWAY:
+            ((ChatProvider)provider).away(
+                source,
+                (String)args[0]
             );
             return;
 

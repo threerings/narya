@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.49 2003/09/16 21:26:15 ray Exp $
+// $Id: ChatDirector.java,v 1.50 2003/09/18 17:53:48 mdb Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -363,17 +363,24 @@ public class ChatDirector extends BasicDirector
 
         // create a listener that will report success or failure
         ChatService.TellListener listener = new ChatService.TellListener() {
-            public void tellSucceeded () {
+            public void tellSucceeded (long idletime, String awayMessage) {
                 success(xlate(_bundle, MessageBundle.tcompose(
                                   "m.told_format", target, message)));
-            }
 
-            public void tellSucceededIdle (long idletime) {
-                String msg = MessageBundle.compose(
-                    "m.told_idle_format", MessageBundle.taint(target),
-                    MessageBundle.taint(message),
-                    TimeUtil.getTimeOrderString(idletime, TimeUtil.MINUTE));
-                success(xlate(_bundle, msg));
+                // if they have an away message, report that
+                if (awayMessage != null) {
+                    String msg = MessageBundle.tcompose(
+                        "m.recipient_afk", target, awayMessage);
+                    displayFeedback(_bundle, msg);
+                }
+
+                // if they are idle, report that
+                if (idletime > 0L) {
+                    String msg = MessageBundle.compose(
+                        "m.recipient_idle", MessageBundle.taint(target),
+                        TimeUtil.getTimeOrderString(idletime, TimeUtil.MINUTE));
+                    displayFeedback(_bundle, msg);
+                }
             }
 
             protected void success (String feedback) {
@@ -395,6 +402,17 @@ public class ChatDirector extends BasicDirector
         };
 
         _cservice.tell(_ctx.getClient(), target, message, listener);
+    }
+
+    /**
+     * Configures a message that will be automatically reported to anyone
+     * that sends a tell message to this client to indicate that we are
+     * busy or away from the keyboard.
+     */
+    public void setAwayMessage (String message)
+    {
+        // pass the buck right on along
+        _cservice.away(_ctx.getClient(), message);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: ChatService.java,v 1.11 2003/06/03 21:41:33 ray Exp $
+// $Id: ChatService.java,v 1.12 2003/09/18 17:53:48 mdb Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -22,15 +22,13 @@ public interface ChatService extends InvocationService
     {
         /**
          * Communicates the response to a {@link #tell} request.
-         */
-        public void tellSucceeded ();
-
-        /**
-         * Communicates the response to a {@link #tell} request.
          *
-         * @param idletime, the number of ms the tellee has been idle.
+         * @param idletime the number of ms the tellee has been idle or 0L
+         * if they are not idle.
+         * @param awayMessage the away message configured by the told
+         * player or null if they have no away message.
          */
-        public void tellSucceededIdle (long idletime);
+        public void tellSucceeded (long idleTime, String awayMessage);
     }
 
     /**
@@ -55,4 +53,10 @@ public interface ChatService extends InvocationService
      */
     public void broadcast (Client client, String message,
                            InvocationListener listener);
+
+    /**
+     * Sets this client's away message. If the message is null or the
+     * empty string, the away message will be cleared.
+     */
+    public void away (Client client, String message);
 }
