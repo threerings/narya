@@ -1,5 +1,5 @@
 //
-// $Id: MessageManager.java,v 1.6 2002/12/12 22:24:51 mdb Exp $
+// $Id: MessageManager.java,v 1.7 2004/03/31 02:09:37 mdb Exp $
 
 package com.threerings.util;
 
@@ -52,6 +52,7 @@ public class MessageManager
 
         // use the default locale
         _locale = Locale.getDefault();
+        Log.info("Using locale: " + _locale + ".");
 
         // make sure the prefix ends with a dot
         if (!_prefix.endsWith(".")) {
