@@ -1,5 +1,5 @@
 //
-// $Id: FramedInputStream.java,v 1.2 2002/11/18 18:51:33 mdb Exp $
+// $Id: FramedInputStream.java,v 1.3 2002/12/10 19:33:22 mdb Exp $
 
 package com.threerings.io;
 
@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.ReadableByteChannel;
 
 /**
  * The framed input stream reads input that was framed by a framing output
@@ -58,7 +58,7 @@ public class FramedInputStream extends InputStream
      * @return true if the entire frame has been read, false if the buffer
      * contains only a partial frame.
      */
-    public boolean readFrame (SocketChannel source)
+    public boolean readFrame (ReadableByteChannel source)
         throws IOException
     {
         // flush data from any previous frame from the buffer
