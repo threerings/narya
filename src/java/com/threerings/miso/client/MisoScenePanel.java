@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.6 2003/04/19 01:04:57 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.7 2003/04/19 02:01:56 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -106,6 +106,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         setViewLocation((_metrics.bounds.width - _vbounds.width)/2,
                         (_metrics.bounds.height - _vbounds.height)/2);
         rethink();
+        repaint();
     }
 
     /**
@@ -544,10 +545,6 @@ public class MisoScenePanel extends VirtualMediaPanel
         // coordinate and request a rethink if they've changed
         MisoUtil.screenToTile(_metrics, nx, ny, _tcoords);
         if (!_tcoords.equals(_ulpos)) {
-//             Log.info("Rethinking +" + nx + "+" + ny + " -> " +
-//                      StringUtil.toString(_vbounds) + "/" +
-//                      StringUtil.toString(_tcoords) + "/" +
-//                      StringUtil.toString(_ulpos));
             _ulpos.setLocation(_tcoords);
             rethink();
         }
@@ -592,35 +589,16 @@ public class MisoScenePanel extends VirtualMediaPanel
      */
     protected void rethink ()
     {
+//         Log.info("Rethinking vb:" + StringUtil.toString(_vbounds) +
+//                  " ul:" + StringUtil.toString(_ulpos));
+
         // recompute our "area of influence"
         int infborx = _vbounds.width/4;
         int infbory = _vbounds.height/4;
         _ibounds.setBounds(_vbounds.x-infborx, _vbounds.y-infbory,
                            _vbounds.width+2*infborx, _vbounds.height+2*infbory);
 
-        // prune any blocks that are no longer influential
-        for (Iterator iter = _blocks.values().iterator(); iter.hasNext(); ) {
-            SceneBlock block = (SceneBlock)iter.next();
-            if (!block.getFootprint().intersects(_ibounds)) {
-//                 Log.info("Flushing block " + block + ".");
-                iter.remove();
-            }
-        }
-
-        // flush our visible object set which we'll recreate later
-        _vizobjs.clear();
-
-        // not to worry if we presently have no scene model
-        if (_model == null) {
-            return;
-        }
-
-//         Log.info("View: " + StringUtil.toString(_vbounds) +
-//                  ", vsize: " + StringUtil.toString(_metrics.bounds) +
-//                  ", ibounds: " + StringUtil.toString(_ibounds) + ".");
-
-        // compute the set of blocks that are influential and queue up any
-        // that aren't already resolved to become so
+        // compute the tile bounds of this influential area
         Rectangle itb = new Rectangle();
         int minx, miny, maxx, maxy;
         Point tpos = MisoUtil.screenToTile(
@@ -642,6 +620,26 @@ public class MisoScenePanel extends VirtualMediaPanel
 
 //         Log.info("Resolving blocks from " + minx + "," + miny + " to " +
 //                  maxx + "," + maxy + " (" + StringUtil.toString(itb) + ").");
+
+        boolean changed = false;
+
+        // prune any blocks that are no longer influential
+        for (Iterator iter = _blocks.values().iterator(); iter.hasNext(); ) {
+            SceneBlock block = (SceneBlock)iter.next();
+            if (!itb.intersects(block.getBounds())) {
+//                 Log.info("Flushing block " + block + ".");
+                iter.remove();
+                changed = true;
+            }
+        }
+
+        // not to worry if we presently have no scene model
+        if (_model == null) {
+            return;
+        }
+
+        // queue up any influential blocks that aren't already resolved to
+        // become so
         for (int yy = miny; yy <= maxy; yy++) {
             for (int xx = minx; xx <= maxx; xx++) {
                 int bkey = (xx << 16) | yy;
@@ -650,10 +648,19 @@ public class MisoScenePanel extends VirtualMediaPanel
                         this, xx*_metrics.blockwid, yy*_metrics.blockhei,
                         _metrics.blockwid, _metrics.blockhei);
                     _blocks.put(bkey, block);
+                    changed = true;
 //                     Log.info("Created new block " + block + ".");
                 }
             }
         }
+
+        // if nothing changed, we need do nothing more
+        if (!changed) {
+            return;
+        }
+
+        // flush our visible object set which we'll recreate later
+        _vizobjs.clear();
 
         Rectangle vbounds = new Rectangle(
             _vbounds.x-_metrics.tilewid, _vbounds.y-_metrics.tilehei,
@@ -679,9 +686,6 @@ public class MisoScenePanel extends VirtualMediaPanel
         computeTips();
 
 //         Log.info("Computed " + _vizobjs.size() + " visible objects.");
-
-        // TODO: see about not having to repaint here
-        repaint();
     }
 
     /**
