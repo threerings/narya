@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.67 2004/08/27 02:12:41 mdb Exp $
+// $Id: Sprite.java,v 1.68 2004/11/12 02:16:04 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -50,15 +50,20 @@ public abstract class Sprite extends AbstractMedia
      */
     public Sprite ()
     {
-        super(new Rectangle());
+        this(0, 0);
     }
 
     /**
-     * Constructs a sprite with the supplied bounds.
+     * Constructs a sprite with the supplied dimensions. Because
+     * sprite derived classes generally want to get in on the business
+     * when a sprite's location is set, it is not safe to do so in the
+     * constructor because their derived methods will be called before
+     * their constructor has been called. Thus a sprite should be fully
+     * constructed and <em>then</em> its location should be set.
      */
-    public Sprite (Rectangle bounds)
+    public Sprite (int width, int height)
     {
-        super(bounds);
+        super(new Rectangle(0, 0, width, height));
     }
 
     /**
@@ -361,6 +366,14 @@ public abstract class Sprite extends AbstractMedia
     public void removeSpriteObserver (Object obs)
     {
         removeObserver(obs);
+    }
+
+    // documentation inherited
+    public void viewLocationDidChange (int dx, int dy)
+    {
+        if (_renderOrder >= HUD_LAYER) {
+            setLocation(_ox + dx, _oy + dy);
+        }
     }
 
     // documentation inherited
