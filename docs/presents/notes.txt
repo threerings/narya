@@ -1,94 +1,132 @@
 Presents Notes -*- outline -*-
 
 * TODO
-Pass cause back to client somehow via FailureResponse in Client.requestFailed
+- Pass cause back to client somehow via FailureResponse in
+  Client.requestFailed
 
-clientWillLogff becomes clientMayLogoff?
+- clientWillLogff becomes clientMayLogoff?
 
-Look into nbio waking up all sockets when any data comes in.
+- Look into nbio waking up all sockets when any data comes in.
 
-(maybe) Allow piggybacking of object subscription onto service defined
-responses (like moveTo request).
+- (maybe) Allow piggybacking of object subscription onto service defined
+  responses (like moveTo request).
 
-(maybe) Allow better server side control of subscription management (to
-ensure that clients don't remain subscribed to objects they should no
-longer be susbcribed to; like scenes they've departed from).
+- (maybe) Allow better server side control of subscription management (to
+  ensure that clients don't remain subscribed to objects they should no
+  longer be susbcribed to; like scenes they've departed from).
 
-Sort out support for server-side modifiable only fields to DObject.
+- Sort out support for server-side modifiable only fields to DObject.
 
-Create a CompoundEvent that allows packaging up of multiple events to be
-dispatched in unison. Build dobj source generator and have it add versions
-of all update methods that take a compound event to which to append the
-event rather than dispatching them directly.
+- Create a CompoundEvent that allows packaging up of multiple events to be
+  dispatched in unison. Build dobj source generator and have it add
+  versions of all update methods that take a compound event to which to
+  append the event rather than dispatching them directly.
 
-Maybe make AuthResponseData a Streamable instead of a DObject.
+- Maybe make AuthResponseData a Streamable instead of a DObject.
 
-Have the LocationRegistry register the LocationProvider rather than doing
-it via a config file. Perhaps lose the config file element altogether.
+- Have the LocationRegistry register the LocationProvider rather than
+  doing it via a config file. Perhaps lose the config file element
+  altogether.
 
-Think about Subscriber business and whether or not DObject needs a list of
-subscribers or if there's a better way to handle removedLastSubscriber()
-on the client side and not taint the server side with all dat crap.
+- Think about Subscriber business and whether or not DObject needs a list
+  of subscribers or if there's a better way to handle
+  removedLastSubscriber() on the client side and not taint the server side
+  with all dat crap.
 
 * Server-side event concentrator
-The client objects will not subscribe directly, but will subscribe through
-the concentrator so that, at least, it can create a single
-ForwardEventNotification for each Event being dispatched to a group of
-clients. Optimally, it would be able to flatten that notification as well
-and the byte array can be written to the socket of each of the individual
-clients rather than creating a separate byte array for each client. This
-will require a special "flattened notification" that can be inserted into
-the queue to preserve message ordering but then is simply sent rather than
-flattened and sent.
+- The client objects will not subscribe directly, but will subscribe
+  through the concentrator so that, at least, it can create a single
+  ForwardEventNotification for each Event being dispatched to a group of
+  clients. Optimally, it would be able to flatten that notification as
+  well and the byte array can be written to the socket of each of the
+  individual clients rather than creating a separate byte array for each
+  client. This will require a special "flattened notification" that can be
+  inserted into the queue to preserve message ordering but then is simply
+  sent rather than flattened and sent.
 
 * Marshaller
-Consider how the dobject marshaller deals with classes loaded and reloaded
-using flushable classloaders.
+- Consider how the dobject marshaller deals with classes loaded and
+  reloaded using flushable classloaders.
 
-Also consider whether access to the marshaller cache needs to be
-synchronized.
+  Also consider whether access to the marshaller cache needs to be
+  synchronized.
 
 * Check into "connection closed by peer" thread exiting on client
 
 * TypedObjectFactory
-Maybe modify so that types are assigned automatically even if everything
-has to be registered in a single place, since it pretty much does anyway.
+- Maybe modify so that types are assigned automatically even if everything
+  has to be registered in a single place, since it pretty much does
+  anyway.
 
 * Client network mgmt
-Client perform all network ops on own thread, will call back to main code
-through Observer interface to notify of state changes in the
-authentication process/connectedness:
+- Client perform all network ops on own thread, will call back to main
+  code through Observer interface to notify of state changes in the
+  authentication process/connectedness:
 
-public interface ClientObserver
-{
-    public void didConnect ();
-    public void connectionFailed ();
-    public void didLogon ();
-    public void logonFailed ();
-    public void didDisconnect ();
-    public void didLogoff ();
-}
+  public interface ClientObserver
+  {
+      public void didConnect ();
+      public void connectionFailed ();
+      public void didLogon ();
+      public void logonFailed ();
+      public void didDisconnect ();
+      public void didLogoff ();
+  }
 
 * DObject class generation
-Distributed objects are defined like a class with a set of public data
-members which is then converted into an actual class with get/set methods
-for each member.
+- Distributed objects are defined like a class with a set of public data
+  members which is then converted into an actual class with get/set
+  methods for each member.
 
-public dclass GameObject
-{
-    public int[] players;
-    public String description;
-}
+  public dclass GameObject
+  {
+      public int[] players;
+      public String description;
+  }
 
-becomes
+  becomes
 
-public class GameObject extends DObject
-{
-     public void setPlayers (int[] players);
-     public void setPlayersAt (int index, int value);
-     public int[] getPlayers ();
-     public int getPlayersAt (int index);
+  public class GameObject extends DObject
+  {
+       public void setPlayers (int[] players);
+       public void setPlayersAt (int index, int value);
+       public int[] getPlayers ();
+       public int getPlayersAt (int index);
 
-     public void setDescription (String description);
-     public String getDescription ();
-}
+       public void setDescription (String description);
+       public String getDescription ();
+  }
+
+* 5/27/2002
+** Synchronizing time between client and server
+- After authentication, client begins a process of establishing the time
+  differential between the client clock and the server clock.
+
+- The client sends a PING packet, noting the time immediately prior to
+  delivering the packet over the network.
+
+- The server notes the at which the PING packet was unserialized. It
+  supplies that time to the constructed PONG packet which then notes the
+  time immediately prior to serialization and uses that to deliver to the
+  client the server time and the number of milliseconds that passed
+  between the unserialization of the PING packet and the serialization
+  (and subsequent network delivery) of the PONG packet.
+
+- The client can then subtract the server processing time from the total
+  round trip delay, divide the round trip delay by two, adjust the server
+  time stamp accordingly and then obtain the client/server time
+  differential.
+
+- The client then repeats this process some small number of times (five)
+  to attempt to account for spurious differences in upstream
+  vs. downstream transmission times and finally settles on a dT that will
+  be used for the duration of the session.
+
+- We assume that the session will not last long enough for clock drift on
+  either the client or server to become significant when compared to the
+  error in the original time differential measurement.
+
+- We'll want to use the high-precision timing services once we have those
+  because we don't want unnecessary error introduced into our ping and
+  pong time stamps by the unreliable granularity of
+  System.currentTimeMillis().
