@@ -1,10 +1,11 @@
 //
-// $Id: SceneBlock.java,v 1.20 2003/07/12 04:16:32 mdb Exp $
+// $Id: SceneBlock.java,v 1.21 2003/10/29 01:42:37 mdb Exp $
 
 package com.threerings.miso.client;
 
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -124,12 +125,17 @@ public class SceneBlock
         // resolve our objects
         ObjectSet set = new ObjectSet();
         model.getObjects(_bounds, set);
-        _objects = new SceneObject[set.size()];
+        ArrayList scobjs = new ArrayList();
         now = System.currentTimeMillis();
-        for (int ii = 0; ii < _objects.length; ii++) {
-            _objects[ii] = new SceneObject(_panel, set.get(ii));
-            sbounds.add(_objects[ii].bounds);
-            obounds = GeomUtil.grow(obounds, _objects[ii].bounds);
+        for (int ii = 0, ll = set.size(); ii < ll; ii++) {
+            SceneObject scobj = new SceneObject(_panel, set.get(ii));
+            // ignore this object if it failed to resolve
+            if (scobj.bounds == null) {
+                continue;
+            }
+            sbounds.add(scobj.bounds);
+            obounds = GeomUtil.grow(obounds, scobj.bounds);
+            scobjs.add(scobj);
 
             // DEBUG: check for long resolution times
             stamp = System.currentTimeMillis();
@@ -137,10 +143,12 @@ public class SceneBlock
             now = stamp;
             if (elapsed > 250L) {
                 Log.warning("Scene object took look time to resolve " +
-                            "[block=" + this + ", scobj=" + _objects[ii] +
+                            "[block=" + this + ", scobj=" + scobj +
                             ", elapsed=" + elapsed + "].");
             }
         }
+        _objects = (SceneObject[])scobjs.toArray(
+            new SceneObject[scobjs.size()]);
 
         // resolve our default tileset
         int bsetid = model.getDefaultBaseTileSet();
