@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.56 2002/12/18 23:14:23 ray Exp $
+// $Id: Sprite.java,v 1.57 2003/01/13 23:53:34 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -146,7 +146,7 @@ public abstract class Sprite extends AbstractMedia
     // documentation inherited
     public void paint (Graphics2D gfx)
     {
-        gfx.draw(_bounds);
+        gfx.drawRect(_bounds.x, _bounds.y, _bounds.width-1, _bounds.height-1);
     }
 
     /**
