@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.8 2001/08/15 00:00:51 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.9 2001/08/15 00:10:58 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -13,7 +13,7 @@ import com.threerings.media.sprite.*;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;
-import com.threerings.miso.scene.SceneRepository;
+import com.threerings.miso.scene.xml.XMLFileSceneRepository;
 import com.threerings.miso.util.*;
 import com.threerings.miso.viewer.util.ViewerContext;
 
@@ -49,7 +49,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
      */
     protected void prepareStartingScene ()
     {
-        SceneRepository screpo = _ctx.getSceneRepository();
+        XMLFileSceneRepository screpo = _ctx.getSceneRepository();
 
         // get the starting scene filename
         Config config = _ctx.getConfig();

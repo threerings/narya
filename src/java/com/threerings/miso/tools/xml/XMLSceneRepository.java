@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneRepository.java,v 1.5 2001/08/09 00:01:58 shaper Exp $
+// $Id: XMLSceneRepository.java,v 1.6 2001/08/15 00:10:58 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -9,16 +9,15 @@ import java.util.ArrayList;
 import com.samskivert.util.Config;
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.Scene;
-import com.threerings.miso.scene.SceneRepositoryImpl;
 import com.threerings.miso.tile.TileManager;
 
 /**
- * The XMLFileSceneRepository provides a mechanism for reading scenes
- * from and writing scenes to XML files.  These files will comprise
- * the template scene files from which actual runtime game scenes will
- * be constructed.
+ * The <code>XMLFileSceneRepository</code> provides a mechanism for
+ * reading scenes from and writing scenes to XML files.  These files will
+ * comprise the template scene files from which actual runtime game scenes
+ * will be constructed.
  */
-public class XMLFileSceneRepository extends SceneRepositoryImpl
+public class XMLFileSceneRepository
 {
     /**
      * Initialize the XMLFileSceneRepository with the given config and
@@ -29,7 +28,9 @@ public class XMLFileSceneRepository extends SceneRepositoryImpl
      */
     public void init (Config config, TileManager tilemgr)
     {
-        super.init(config, tilemgr);
+        // keep these for later
+        _config = config;
+        _tilemgr = tilemgr;
 
 	// get path-related information
 	_sep = System.getProperty("file.separator", "/");
@@ -81,11 +82,11 @@ public class XMLFileSceneRepository extends SceneRepositoryImpl
         _writer.saveScene(scene, path);
     }
 
-    /** The config key for the root scene directory. */
-    protected static final String CFG_SROOT = "miso.sceneroot";
+    /** The config object. */
+    protected Config _config;
 
-    /** The default root scene directory path. */
-    protected static final String DEF_SROOT = "rsrc/scenes";
+    /** The tile manager from which the scenes obtain their tiles. */
+    protected TileManager _tilemgr;
 
     /** The main program absolute root directory. */
     protected String _root;
@@ -101,4 +102,10 @@ public class XMLFileSceneRepository extends SceneRepositoryImpl
 
     /** The writer object for writing scenes to files. */
     protected XMLSceneWriter _writer;
+
+    /** The config key for the root scene directory. */
+    protected static final String CFG_SROOT = "miso.sceneroot";
+
+    /** The default root scene directory path. */
+    protected static final String DEF_SROOT = "rsrc/scenes";
 }
