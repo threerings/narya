@@ -1,5 +1,5 @@
 //
-// $Id: LocationProvider.java,v 1.6 2001/08/16 04:28:36 mdb Exp $
+// $Id: LocationProvider.java,v 1.7 2001/08/20 20:54:57 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -42,6 +42,8 @@ public class LocationProvider extends InvocationProvider
      */
     public static String moveTo (BodyObject source, int placeId)
     {
+        int bodoid = source.getOid();
+
         // make sure the place in question actually exists
         PlaceManager pmgr = PartyServer.plreg.getPlaceManager(placeId);
         if (pmgr == null) {
@@ -71,21 +73,22 @@ public class LocationProvider extends InvocationProvider
                 PlaceObject pold = (PlaceObject)
                     PartyServer.omgr.getObject(source.location);
                 if (pold != null) {
-                    pold.removeFromOccupants(source.getOid());
-                    // also remove their occupant info (which is keyed on
-                    // username)
-                    pold.removeFromOccupantInfo(source.username);
+                    Object key = new Integer(bodoid);
+                    // remove their occupant info (which is keyed on oid)
+                    pold.removeFromOccupantInfo(key);
+                    // and remove them from the occupant list
+                    pold.removeFromOccupants(bodoid);
 
                 } else {
                     Log.info("Body's prior location no longer around? " +
-                             "[boid=" + source.getOid() +
+                             "[boid=" + bodoid +
                              ", poid=" + source.location + "].");
                 }
 
             } catch (ClassCastException cce) {
                 Log.warning("Body claims to be at location which " +
                             "references non-PlaceObject!? " +
-                            "[boid=" + source.getOid() +
+                            "[boid=" + bodoid +
                             ", poid=" + source.location  + "].");
             }
         }
@@ -102,7 +105,7 @@ public class LocationProvider extends InvocationProvider
         }
 
         // add the body object id to the place object's occupant list
-        place.addToOccupants(source.getOid());
+        place.addToOccupants(bodoid);
 
         // and finally queue up a lock release event to release the lock
         // once all these events are processed

@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.8 2001/08/16 04:28:36 mdb Exp $
+// $Id: PlaceManager.java,v 1.9 2001/08/20 20:54:57 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -126,6 +126,7 @@ public class PlaceManager implements Subscriber
     protected void populateOccupantInfo (OccupantInfo info, BodyObject body)
     {
         // the base occupant info is only their username
+        info.bodyOid = new Integer(body.getOid());
         info.username = body.username;
     }
 
@@ -145,6 +146,14 @@ public class PlaceManager implements Subscriber
     {
         Log.info("Body left [ploid=" + _plobj.getOid() +
                  ", oid=" + bodyOid + "].");
+
+        // if their occupant info hasn't been removed (which may be the
+        // case if they logged off rather than left via a MoveTo request),
+        // we need to get it on out of here
+        Object key = new Integer(bodyOid);
+        if (_plobj.occupantInfo.containsKey(key)) {
+            _plobj.removeFromOccupantInfo(key);
+        }
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: OccupantInfo.java,v 1.1 2001/08/16 04:28:36 mdb Exp $
+// $Id: OccupantInfo.java,v 1.2 2001/08/20 20:54:57 mdb Exp $
 
 package com.threerings.cocktail.party.data;
 
@@ -23,19 +23,29 @@ import com.threerings.cocktail.cher.dobj.DSet;
  */
 public class OccupantInfo implements DSet.Element
 {
+    /** The body object id of this occupant (and our element key). */
+    public Integer bodyOid;
+
     /** The username of this occupant. */
     public String username;
+
+    /** Access to the body object id as an int. */
+    public int getBodyOid ()
+    {
+        return bodyOid.intValue();
+    }
 
     // documentation inherited
     public Object getKey ()
     {
-        return username;
+        return bodyOid;
     }
 
     // documentation inherited
     public void writeTo (DataOutputStream out)
         throws IOException
     {
+        out.writeInt(bodyOid.intValue());
         out.writeUTF(username);
     }
 
@@ -43,6 +53,7 @@ public class OccupantInfo implements DSet.Element
     public void readFrom (DataInputStream in)
         throws IOException
     {
+        bodyOid = new Integer(in.readInt());
         username = in.readUTF();
     }
 
@@ -67,6 +78,7 @@ public class OccupantInfo implements DSet.Element
      */
     protected void toString (StringBuffer buf)
     {
-        buf.append("username=").append(username);
+        buf.append("boid=").append(bodyOid);
+        buf.append(", username=").append(username);
     }
 }
