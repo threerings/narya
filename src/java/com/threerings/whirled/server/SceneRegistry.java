@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.1 2001/08/11 04:09:50 mdb Exp $
+// $Id: SceneRegistry.java,v 1.2 2001/08/14 06:51:07 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -44,6 +44,7 @@ public class SceneRegistry
 
         // we'll use this to do database stuff
         _invoker = new Invoker();
+        _invoker.start();
     }
 
     /**
@@ -91,6 +92,8 @@ public class SceneRegistry
             return;
         }
 
+        Log.info("Resolving scene [id=" + sceneId + "].");
+
         // otherwise we've got to resolve the scene and call them back
         // later; we can manipulate the penders table with impunity here
         // because we only do so on the dobjmgr thread
@@ -113,6 +116,8 @@ public class SceneRegistry
             // keywords...
             final int fsceneId = sceneId;
 
+            Log.info("Invoking scene repository [id=" + sceneId + "].");
+
             // then we queue up an execution unit that'll load the scene
             // and initialize it and all that
             _invoker.postUnit(new Invoker.Unit() {
@@ -120,7 +125,7 @@ public class SceneRegistry
                 public boolean invoke ()
                 {
                     try {
-                        _scene = _screp.getScene(fsceneId);
+                        _scene = _screp.loadScene(fsceneId);
                     } catch (Exception e) {
                         _cause = e;
                     }

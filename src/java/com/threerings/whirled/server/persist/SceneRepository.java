@@ -1,5 +1,5 @@
 //
-// $Id: SceneRepository.java,v 1.1 2001/08/11 04:09:50 mdb Exp $
+// $Id: SceneRepository.java,v 1.2 2001/08/14 06:51:07 mdb Exp $
 
 package com.threerings.whirled.server.persist;
 
@@ -17,7 +17,7 @@ public interface SceneRepository
      * @exception NoSuchSceneException thrown if no scene exists with the
      * specified scene id.
      */
-    public Scene getScene (int sceneid)
+    public Scene loadScene (int sceneId)
         throws IOException, NoSuchSceneException;
 
     /**

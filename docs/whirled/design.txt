@@ -1,17 +1,8 @@
 Whirled Design -*- mode: outline -*-
 
 * Notes
-Scenes map to places.
-
-Scene manager extends place manager, handles scene related stuff.
-
 Scene manager registers a timer when it becomes empty and flushes itself
 from memory after timeout period.
-
-Location manager is used to navigate between scenes on the client;
-location services will need extensions to support delivering scene version
-with moveTo request and serialized scene data with moveTo response
-(desirable to avoid extra server round-trips).
 
 Client should avoid unsubscribing from scene objects straight away so that
 it can avoid resubscribing if they bounce back and forth between scenes.
@@ -19,6 +10,10 @@ it can avoid resubscribing if they bounce back and forth between scenes.
 We'll want the scenes to adhere to some sort of hierarchy so that we can
 associate properties files with classes of scenes which will be used to
 configure the scene managers when they are initialized.
+
+Add code to deal with receiving updated scenes from the server.
+
+Add code to flush scenes from the client scene manager cache.
 
 * Overview
 Whirled builds on top of the Cocktail platform and provides a framework

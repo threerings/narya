@@ -1,5 +1,5 @@
 //
-// $Id: WhirledServer.java,v 1.1 2001/08/11 04:09:50 mdb Exp $
+// $Id: WhirledServer.java,v 1.2 2001/08/14 06:51:07 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -9,7 +9,7 @@ import com.threerings.cocktail.party.server.PartyServer;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.server.persist.SceneRepository;
-import com.threerings.whirled.server.persist.DummySceneRepository;
+import com.threerings.whirled.server.test.DummySceneRepository;
 
 /**
  * The whirled server extends the party server and provides access to
@@ -75,7 +75,7 @@ public class WhirledServer extends PartyServer
     protected final static String PROVIDERS_KEY = CONFIG_KEY + ".providers";
 
     // scene repository related configuration info
-    protected final static String SCENEREP_KEY = "scene_rep";
+    protected final static String SCENEREP_KEY = CONFIG_KEY + ".scene_rep";
     protected final static String DEF_SCENEREP =
         DummySceneRepository.class.getName();
 }

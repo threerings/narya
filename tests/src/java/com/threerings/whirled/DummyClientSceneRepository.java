@@ -1,13 +1,13 @@
 //
-// $Id: DummySceneRepository.java,v 1.2 2001/08/14 06:51:07 mdb Exp $
+// $Id: DummyClientSceneRepository.java,v 1.1 2001/08/14 06:51:07 mdb Exp $
 
-package com.threerings.whirled.server.test;
+package com.threerings.whirled.client.test;
 
 import java.io.IOException;
 
 import com.threerings.whirled.Log;
+import com.threerings.whirled.client.persist.SceneRepository;
 import com.threerings.whirled.data.Scene;
-import com.threerings.whirled.server.persist.SceneRepository;
 import com.threerings.whirled.util.NoSuchSceneException;
 
 /**
