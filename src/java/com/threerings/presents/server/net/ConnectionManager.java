@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.43 2004/08/27 02:20:24 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -716,7 +716,7 @@ public class ConnectionManager extends LoopingThread
         public void handlePartialWrite (Connection conn, ByteBuffer buffer)
         {
             // set up our _partial buffer
-            _partial = ByteBuffer.allocate(buffer.remaining());
+            _partial = ByteBuffer.allocateDirect(buffer.remaining());
             _partial.put(buffer);
             _partial.flip();
         }
