@@ -1,5 +1,5 @@
 //
-// $Id: SceneObjectTip.java,v 1.1 2003/04/17 19:21:16 mdb Exp $
+// $Id: SceneObjectTip.java,v 1.2 2003/04/26 00:48:47 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -57,6 +57,7 @@ public class SceneObjectTip extends LabelSausage
     {
         layout(gfx, PAD);
         bounds = new Rectangle(_size);
+        boundary = MAX_RECT;
 
         // center in the on-screen portion of the bounding box of the
         // object we're tipping for, but don't go above MAX_HEIGHT from
@@ -123,4 +124,10 @@ public class SceneObjectTip extends LabelSausage
     /** The maximum height above the bottom of the object bounds that we are
      * to center ourselves. */
     protected static final int MAX_HEIGHT = 80;
+
+    /** Since we don't bound our tooltips into the view, we provide this
+     * generous region in which they may lay themselves out. */
+    protected static final Rectangle MAX_RECT = new Rectangle(
+        Integer.MIN_VALUE/2, Integer.MIN_VALUE/2,
+        Integer.MAX_VALUE, Integer.MAX_VALUE);
 }
