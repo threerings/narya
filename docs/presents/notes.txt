@@ -3,9 +3,6 @@ Cher Notes -*- outline -*-
 * TODO
 Pass cause back to client somehow via FailureResponse in Client.requestFailed
 
-Ensure at time of OBJECT_ADDED that the object being added exists and has
-not been destroyed.
-
 clientWillLogff becomes clientMayLogoff?
 
 Look into nbio waking up all sockets when any data comes in.
@@ -34,89 +31,41 @@ synchronized.
 Maybe modify so that types are assigned automatically even if everything
 has to be registered in a single place, since it pretty much does anyway.
 
-* Server components:
-  + Connection manager 
-  + Client manager
-  + Event dispatch thread (DObjectManager)
-  + Server side services?
-  + Room/Game managers
-  + Info repository for shared info?
-
-* Client components:
-  + Network client (auth + DObject services)
-  + Applet shell
-  + Panel management
-  + Components: chatbox, occupant info, turn indicator?
-  + Room/Game panels, controllers, etc.
-
-* Client detail:
-  + Supply credentials (username, password)
-  + Establishes, maintains connection: 
-    logon (connect), logout (disconnect)
-  + Creates, manages client-side DObjectManager
-
-* Events in the client will be dispatched on the AWT thread
-- Provide pluggable "event dispatcher" on the client
-- Allow extension of Event as DispatchableEvent so that event objects
-  themselves can extend Runnable and be popped right into
-  SwingUtil.invokeLater().
-
 * Client network mgmt
-  Client perform all network ops on own thread, will call back to main
-  code through Observer interface to notify of state changes in the
-  authentication process/connectedness:
+Client perform all network ops on own thread, will call back to main code
+through Observer interface to notify of state changes in the
+authentication process/connectedness:
 
-  public interface ClientObserver
-  {
-      public void didConnect ();
-      public void connectionFailed ();
-      public void didLogon ();
-      public void logonFailed ();
-      public void didDisconnect ();
-      public void didLogoff ();
-  }
-
-* Three Rings Client flowlist:
-  Instantiate client
-  Obtain auth info
-  Obtain room info
-  Authenticate
+public interface ClientObserver
+{
+    public void didConnect ();
+    public void connectionFailed ();
+    public void didLogon ();
+    public void logonFailed ();
+    public void didDisconnect ();
+    public void didLogoff ();
+}
 
 * DObject class generation
-  Distributed objects are defined like a class with a set of public data
-  members which is then converted into an actual class with get/set
-  methods for each member.
+Distributed objects are defined like a class with a set of public data
+members which is then converted into an actual class with get/set methods
+for each member.
 
-  public dclass GameObject
-  {
-      public int[] players;
-      public String description;
-  }
+public dclass GameObject
+{
+    public int[] players;
+    public String description;
+}
 
-  becomes
+becomes
 
-  public class GameObject extends DObject
-  {
-       public void setPlayers (int[] players);
-       public void setPlayersAt (int index, int value);
-       public int[] getPlayers ();
-       public int getPlayersAt (int index);
+public class GameObject extends DObject
+{
+     public void setPlayers (int[] players);
+     public void setPlayersAt (int index, int value);
+     public int[] getPlayers ();
+     public int getPlayersAt (int index);
 
-       public void setDescription (String description);
-       public String getDescription ();
-  }
-
-* Events:
-  ATTRIBUTE_CHANGED
-  ATTRIBUTES_CHANGED
-  ATTRIBUTES_CHANGED_SPLIT?
-  ELEMENT_CHANGED
-  OBJECT_DESTROYED
-
-  ELEMENT_ADDED
-  ELEMENT_REMOVED
-
-  OID_ADDED
-  OID_REMOVED
-
-  NOTIFICATION
+     public void setDescription (String description);
+     public String getDescription ();
+}
