@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.35 2003/09/24 18:37:55 mdb Exp $
+// $Id: ConnectionManager.java,v 1.36 2003/10/07 22:41:24 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -239,7 +239,7 @@ public class ConnectionManager extends LoopingThread
             if (handler.checkIdle(iterStamp)) {
                 // this will queue the connection up for closure on our
                 // next tick
-                closeConnection(((Connection)handler));
+                closeConnection((Connection)handler);
             }
         }
 
@@ -344,9 +344,9 @@ public class ConnectionManager extends LoopingThread
         Iterator siter = ready.iterator();
         while (siter.hasNext()) {
             SelectionKey selkey = (SelectionKey)siter.next();
+            NetEventHandler handler = null;
             try {
-                NetEventHandler handler = (NetEventHandler)
-                    _handlers.get(selkey);
+                handler = (NetEventHandler)_handlers.get(selkey);
                 if (handler == null) {
                     Log.warning("Received network event but have no " +
                                 "registered handler [selkey=" + selkey + "].");
@@ -368,8 +368,13 @@ public class ConnectionManager extends LoopingThread
                 }
 
             } catch (Exception e) {
-                Log.warning("Error processing network data.");
+                Log.warning("Error processing network data: " + handler + ".");
                 Log.logStackTrace(e);
+
+                // if you freak out here, you go straight in the can
+                if (handler != null && handler instanceof Connection) {
+                    closeConnection((Connection)handler);
+                }
             }
         }
         ready.clear();
