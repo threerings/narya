@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.41 2002/12/12 23:54:27 shaper Exp $
+// $Id: ChatDirector.java,v 1.42 2003/01/06 00:24:32 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -368,8 +368,8 @@ public class ChatDirector extends BasicDirector
             }
 
             public void requestFailed (String reason) {
-                String msg =
-                    MessageBundle.compose("m.tell_failed", target, reason);
+                String msg = MessageBundle.compose(
+                    "m.tell_failed", MessageBundle.taint(target), reason);
                 displayFeedbackMessage(_bundle, msg);
             }
         };
