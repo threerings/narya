@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.38 2003/05/20 19:07:52 mdb Exp $
+// $Id: Client.java,v 1.39 2003/07/17 21:39:15 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -12,6 +12,7 @@ import com.samskivert.util.ResultListener;
 import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObjectManager;
+import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.Credentials;
 import com.threerings.presents.net.PingRequest;
@@ -168,6 +169,17 @@ public class Client
     public void setVersion (String version)
     {
         _version = version;
+    }
+
+    /**
+     * Returns the data associated with our authentication response. Users
+     * of the Presents system may wish to communicate authentication
+     * related information to their client by extending and augmenting
+     * {@link AuthResponseData}.
+     */
+    public AuthResponseData getAuthResponseData ()
+    {
+        return _authData;
     }
 
     /**
@@ -588,6 +600,9 @@ public class Client
     /** An entity that gives us the ability to process events on the main
      * client thread (which is also the AWT thread). */
     protected Invoker _invoker;
+
+    /** The data associated with our authentication response. */
+    protected AuthResponseData _authData;
 
     /** Our client distribted object id. */
     protected int _cloid = -1;

@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.31 2003/06/05 00:33:43 ray Exp $
+// $Id: Communicator.java,v 1.32 2003/07/17 21:39:15 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -180,6 +180,10 @@ public class Communicator
         }
         _writer = new Writer();
         _writer.start();
+
+        // fill the auth data into the client's local field so that it can
+        // be requested by external entities
+        _client._authData = data;
 
         // wait for the bootstrap notification before we claim that we're
         // actually logged on
