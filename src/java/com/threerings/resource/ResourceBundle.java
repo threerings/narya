@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.3 2002/07/19 20:12:23 shaper Exp $
+// $Id: ResourceBundle.java,v 1.4 2002/08/19 23:31:48 mdb Exp $
 
 package com.threerings.resource;
 
@@ -25,6 +25,15 @@ public class ResourceBundle
     public ResourceBundle (File source)
     {
         _source = source;
+    }
+
+    /**
+     * Returns the {@link File} from which resources are fetched for this
+     * bundle.
+     */
+    public File getSource ()
+    {
+        return _source;
     }
 
     /**
