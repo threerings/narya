@@ -1,5 +1,5 @@
 //
-// $Id: ObjectInfo.java,v 1.2 2003/02/04 03:33:09 mdb Exp $
+// $Id: ObjectInfo.java,v 1.3 2003/03/05 21:17:27 ray Exp $
 
 package com.threerings.miso.data;
 
@@ -10,6 +10,7 @@ import com.threerings.io.SimpleStreamableObject;
  * Contains information about an object in a Miso scene.
  */
 public class ObjectInfo extends SimpleStreamableObject
+    implements Cloneable
 {
     /** The fully qualified object tile id. */
     public int tileId;
@@ -125,5 +126,16 @@ public class ObjectInfo extends SimpleStreamableObject
     public int hashCode ()
     {
         return x ^ y ^ tileId;
+    }
+
+    // documentation inherited
+    public Object clone ()
+    {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException cnse) {
+            // notgunnahappen.
+            return null;
+        }
     }
 }
