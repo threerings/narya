@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameManager.java,v 1.2 2001/10/12 19:31:35 mdb Exp $
+// $Id: TurnGameManager.java,v 1.3 2001/10/17 23:29:42 mdb Exp $
 
 package com.threerings.parlor.turn;
 
@@ -76,9 +76,11 @@ public class TurnGameManager extends GameManager
         BodyObject body = (BodyObject)CrowdServer.omgr.getObject(boid);
         if (body != null) {
             _turnGame.setTurnHolder(body.username);
+
         } else {
-            Log.warning("Unable to start game; first player isn't around " +
-                        "[boid=" + boid + "].");
+            Log.warning("Unable to start turn; turn holder isn't around " +
+                        "[username=" + _players[_turnIdx] +
+                        ", boid=" + boid + "].");
         }
     }
 
@@ -140,6 +142,23 @@ public class TurnGameManager extends GameManager
     {
         // next!
         _turnIdx = (_turnIdx + 1) % _playerOids.length;
+    }
+
+    /**
+     * Returns the index of the current turn holder as configured in the
+     * game object.
+     *
+     * @return the index into the players array of the current turn holder
+     * or -1 if there is no current turn holder.
+     */
+    protected int getTurnHolderIndex ()
+    {
+        for (int i = 0; i < _players.length; i++) {
+            if (_players[i].equals(_turnGame.turnHolder)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /** A reference to our game object. */
