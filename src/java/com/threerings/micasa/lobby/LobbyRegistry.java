@@ -1,5 +1,5 @@
 //
-// $Id: LobbyRegistry.java,v 1.8 2002/03/28 22:32:31 mdb Exp $
+// $Id: LobbyRegistry.java,v 1.9 2002/05/21 04:46:44 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -222,6 +222,5 @@ public class LobbyRegistry implements LobbyCodes
     protected int _defLobbyOid = -1;
 
     /** The configuration key for the lobby managers list. */
-    protected static final String LOBIDS_KEY =
-        MiCasaServer.CONFIG_KEY + ".lobby_ids";
+    protected static final String LOBIDS_KEY = "lobby_ids";
 }
