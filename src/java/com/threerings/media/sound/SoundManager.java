@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.9 2002/11/05 21:02:03 ray Exp $
+// $Id: SoundManager.java,v 1.10 2002/11/13 07:12:40 ray Exp $
 
 package com.threerings.media;
 
@@ -20,10 +20,13 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine.Info;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.FloatControl.Type;
 import javax.sound.sampled.Line;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -42,11 +45,13 @@ import com.threerings.media.Log;
  * Manages the playing of audio files.
  */
 // TODO:
-// - volume for different sound types
-//   Clip.getControl(FloatControl.Type.VOLUME);
 // - maybe a way to put items in the queue with a timestamp,
 //   and if they're processed after that time, we cut them out.
-// - looping a sound
+// - looping a sound (is this really needed? Music should loop, but sfx?)
+// - Music is special type that has it's own methods
+//   - push()
+//   - pop()
+//   - fade music out when it's popped and was playing
 public class SoundManager
 {
     /**
@@ -55,21 +60,28 @@ public class SoundManager
      */
     public static class SoundType
     {
-        public SoundType (String description)
+        /**
+         * Construct a new SoundType.
+         * Which should be a static variable stashed somewhere for the
+         * entire application to share.
+         * 
+         * @param strname a short string identifier, preferably without spaces.
+         */
+        public SoundType (String strname)
         {
-            _desc = description;
+            _strname = strname;
         }
 
         public String toString ()
         {
-            return _desc;
+            return _strname;
         }
 
-        protected String _desc;
+        protected String _strname;
     }
 
     /** The default sound type. */
-    public static final SoundType DEFAULT = null;
+    public static final SoundType DEFAULT = new SoundType("default");
 
     /**
      * Constructs a sound manager.
@@ -78,9 +90,6 @@ public class SoundManager
     {
         // save things off
         _rmgr = rmgr;
-
-        // enable default sounds
-        setEnabled(DEFAULT, true);
 
 //        // obtain the mixer
 //        _mixer = AudioSystem.getMixer(null);
@@ -95,26 +104,31 @@ public class SoundManager
         _player = new Thread() {
             public void run () {
                 while (amRunning()) {
-//                    Log.info("Waiting for clip");
+                    try {
+//                        Log.info("Waiting for clip");
 
-                    // wait until there is an item to get from the queue
-                    Object o = _queue.get();
+                        // wait until there is an item to get from the queue
+                        Object o = _queue.get();
 
-                    // play sounds
-                    if (o instanceof String) {
-                        playSound((String) o);
+                        // play sounds
+                        if (o instanceof SoundKey) {
+                            playSound((SoundKey) o);
 
-                    // see if we got the flush rsrcs signal
-                    } else if (o == FLUSH) {
-                        flushResources(false);
-                        // and re-start the resource freer timer to do
-                        // it again in 3 seconds
-                        _resourceFreer.restart();
+                        // see if we got the flush rsrcs signal
+                        } else if (o == FLUSH) {
+                            flushResources(false);
+                            // and re-start the resource freer timer to do
+                            // it again in 3 seconds
+                            _resourceFreer.restart();
 
-                    // see if we got the die signal
-                    } else if (o == DIE) {
-                        _resourceFreer.stop();
-                        flushResources(true);
+                        // see if we got the die signal
+                        } else if (o == DIE) {
+                            _resourceFreer.stop();
+                            flushResources(true);
+                        }
+                    } catch (Exception e) {
+                        Log.warning("Captured exception playing sound.");
+                        Log.logStackTrace(e);
                     }
                 }
                 Log.debug("SoundManager exit.");
@@ -150,23 +164,26 @@ public class SoundManager
     }
 
     /**
-     * Sets whether sound is enabled.
+     * Sets the volume of a particular type of sound.
+     *
+     * @param val a volume parameter between 0f and 1f, inclusive.
      */
-    public void setEnabled (SoundType type, boolean enabled)
+    public void setVolume (SoundType type, float val)
     {
-        if (enabled) {
-            _enabled.add(type);
-        } else {
-            _enabled.remove(type);
-        }
+        // bound it in
+        val = Math.max(0f, Math.min(1f, val));
+        _volumes.put(type, new Float(val));
     }
 
     /**
      * Is the specified soundtype enabled?
      */
-    public boolean isEnabled (SoundType type)
+    public float getVolume (SoundType type)
     {
-        return _enabled.contains(type);
+        Float vol = (Float) _volumes.get(type);
+
+        // now we're nice to unregistered sounds..
+        return (vol != null) ? vol.floatValue() : 1f;
     }
 
     /**
@@ -175,11 +192,17 @@ public class SoundManager
      */
     public void play (SoundType type, String path)
     {
-        if (_player != null && isEnabled(type)) {
+        if (type == null) {
+            // let the lazy kids play too
+            type = DEFAULT;
+        }
+
+        if (_player != null && (0f != getVolume(type))) {
 //            Log.info("Queueing sound [path=" + path + "].");
             synchronized (_queue) {
                 if (_queue.size() < MAX_SOUNDS_ENQUEUED) {
-                    _queue.append(path);
+                    SoundKey key = new SoundKey(path, type);
+                    _queue.append(key);
                 } else {
                     Log.warning("SoundManager not playing sound because " +
                         "too many sounds in queue [path=" + path +
@@ -192,19 +215,19 @@ public class SoundManager
     /**
      * Plays the sound file with the given pathname.
      */
-    protected void playSound (String path)
+    protected void playSound (SoundKey key)
     {
 //        Log.info("Playing sound [path=" + path + "].");
 
         // see if we're playing the same sound that was just played.
-        SoundRecord rec = (SoundRecord) _active.get(path);
+        SoundRecord rec = (SoundRecord) _active.get(key);
         if (rec != null) {
             rec.restart();
             return;
         }
 
         // get the sound data from our LRU cache
-        byte[] data = getAudioData(path);
+        byte[] data = getAudioData(key.path);
         if (data == null) {
             return; // borked!
         }
@@ -219,21 +242,21 @@ public class SoundManager
             Clip clip = (Clip) AudioSystem.getLine(info);
             clip.open(stream);
 
-            rec = new SoundRecord(clip);
+            rec = new SoundRecord(key, clip);
             rec.start();
-            _active.put(path, rec);
+            _active.put(key, rec);
 //            Log.info("clip played [path=" + path + "]");
 
         } catch (IOException ioe) {
-            Log.warning("Error loading sound file [path=" + path +
+            Log.warning("Error loading sound file [path=" + key.path +
                 ", e=" + ioe + "].");
 
         } catch (UnsupportedAudioFileException uafe) {
-            Log.warning("Unsupported sound format [path=" + path + ", e=" +
+            Log.warning("Unsupported sound format [path=" + key.path + ", e=" +
                 uafe + "].");
 
         } catch (LineUnavailableException lue) {
-            Log.warning("Line not available to play sound [path=" + path +
+            Log.warning("Line not available to play sound [path=" + key.path +
                 ", e=" + lue + "].");
         }
     }
@@ -282,19 +305,50 @@ public class SoundManager
     }
 
     /**
+     * A key for looking up a SoundRecord.
+     */
+    protected static class SoundKey
+    {
+        public String path;
+        public SoundType type;
+
+        public SoundKey (String path, SoundType type)
+        {
+            this.path = path;
+            this.type = type;
+        }
+
+        public int hashCode ()
+        {
+            return path.hashCode() ^ type.hashCode();
+        }
+
+        public boolean equals (Object other)
+        {
+            if (other instanceof SoundKey) {
+                SoundKey that = (SoundKey) other;
+                return this.path.equals(that.path) &&
+                       this.type.equals(that.type);
+            }
+            return false;
+        }
+    }
+
+    /**
      * A record to help us manage the use of sound resources.
      * We don't free the resources associated with a clip immediately, because
      * it may be played again shortly.
      */
-    protected static class SoundRecord
+    protected class SoundRecord
         implements LineListener
     {
 
         /**
          * Construct a SoundRecord.
          */
-        public SoundRecord (Clip clip)
+        public SoundRecord (SoundKey key, Clip clip)
         {
+            _key = key;
             _clip = clip;
 
             // The mess:
@@ -334,6 +388,7 @@ public class SoundManager
          */
         public void start ()
         {
+            adjustVolume(_clip, _key.type);
             _clip.start();
             didStart();
         }
@@ -438,6 +493,71 @@ public class SoundManager
 
         /** The clip we're wrapping. */
         protected Clip _clip;
+
+        /** Other information associated with this clip. */
+        protected SoundKey _key;
+    }
+
+    /**
+     * Adjust the volume of this clip.
+     */
+    protected void adjustVolume (Line c, SoundType type)
+    {
+        if (c.isControlSupported(FloatControl.Type.VOLUME)) {
+            try {
+                FloatControl vol = (FloatControl) 
+                    c.getControl(FloatControl.Type.VOLUME);
+
+                float min = vol.getMinimum();
+                float max = vol.getMaximum();
+
+                float ourval = (getVolume(type) * (max - min)) + min;
+                Log.debug("adjust vol: [min=" + min + ", ourval=" + ourval +
+                    ", max=" + max + "].");
+                vol.setValue(ourval);
+                return;
+            } catch (Exception e) {
+                Log.logStackTrace(e);
+            }
+        }
+        // fall back
+        adjustVolumeFallback(c, type);
+    }
+
+    /**
+     * Use the gain control to implement volume.
+     */
+    protected void adjustVolumeFallback (Line c, SoundType type)
+    {
+        FloatControl vol = (FloatControl) 
+            c.getControl(FloatControl.Type.MASTER_GAIN);
+
+        // the only problem is that gain is specified in decibals,
+        // which is a logarithmic scale.
+        // Since we want max volume to leave the sample unchanged, our
+        // maximum volume translates into a 0db gain.
+        float ourSetting = getVolume(type);
+        float gain;
+        if (ourSetting == 1f) {
+            // because our max is a 0db gain, and we're short-circuiting
+            // divide-by-zero problems down below
+            gain = 0f;
+
+        } else {
+
+            // if our setting isn't 1, we need to scale it by the
+            // linear value of the minimum gain.
+            // And we have to be very careful with the sign, since
+            // it fucks up these log/pow methods.
+            double absmin = Math.abs(vol.getMinimum());
+            double minlin = Math.pow(10.0, absmin / 20.0);
+            double ourval = ((1f - ourSetting) * absmin);
+
+            gain = (float) ((Math.log(ourval) / Math.log(10)) * -20d);
+        }
+
+        vol.setValue(gain);
+        //Log.info("Set gain: " + gain);
     }
 
     /**
@@ -472,7 +592,7 @@ public class SoundManager
     protected HashMap _active = new HashMap();
 
     /** A set of soundTypes for which sound is enabled. */
-    protected HashSet _enabled = new HashSet();
+    protected HashMap _volumes = new HashMap();
 
     /** Signals to the queue to do different things. */
     protected Object FLUSH = new Object(), DIE = new Object();
