@@ -1,5 +1,5 @@
 //
-// $Id: ZoneSummary.java,v 1.2 2001/12/13 05:49:50 mdb Exp $
+// $Id: ZoneSummary.java,v 1.3 2001/12/17 00:58:04 mdb Exp $
 
 package com.threerings.whirled.zone.data;
 
@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import com.samskivert.util.StringUtil;
 import com.threerings.presents.io.Streamable;
 
 /**
@@ -50,5 +51,14 @@ public class ZoneSummary implements Streamable
             scenes[i] = new SceneSummary();
             scenes[i].readFrom(in);
         }
+    }
+
+    /**
+     * Generates a string representation of this instance.
+     */
+    public String toString ()
+    {
+        return "[zoneId=" + zoneId + ", name=" + name +
+            ", scenes=" + StringUtil.toString(scenes) + "]";
     }
 }

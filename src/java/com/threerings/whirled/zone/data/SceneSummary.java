@@ -1,5 +1,5 @@
 //
-// $Id: SceneSummary.java,v 1.1 2001/12/04 00:31:58 mdb Exp $
+// $Id: SceneSummary.java,v 1.2 2001/12/17 00:58:04 mdb Exp $
 
 package com.threerings.whirled.zone.data;
 
@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import com.samskivert.util.StringUtil;
 import com.threerings.presents.io.Streamable;
 import com.threerings.presents.io.StreamableUtil;
 
@@ -64,6 +65,15 @@ public class SceneSummary implements Streamable
         name = in.readUTF();
         neighbors = StreamableUtil.readInts(in);
         _population = in.readInt();
+    }
+
+    /**
+     * Generates a string representation of this instance.
+     */
+    public String toString ()
+    {
+        return "[sceneId=" + sceneId + ", name=" + name +
+            ", neighbors=" + StringUtil.toString(neighbors) + "]";
     }
 
     /** The number of people currently occupying this scene. */
