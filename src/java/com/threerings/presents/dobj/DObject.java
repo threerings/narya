@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.76 2004/07/07 04:08:41 mdb Exp $
+// $Id: DObject.java,v 1.77 2004/08/13 23:44:16 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -14,6 +14,7 @@ import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.Streamable;
+import com.threerings.util.TrackedObject;
 
 import com.threerings.presents.Log;
 
@@ -101,7 +102,8 @@ import com.threerings.presents.Log;
  *
  * Fields of type {@link Streamable} can also be used.
  */
-public class DObject implements Streamable
+public class DObject extends TrackedObject
+    implements Streamable
 {
     public DObject ()
     {
