@@ -1,8 +1,9 @@
 //
-// $Id: Handler.java,v 1.5 2003/07/09 18:44:52 ray Exp $
+// $Id: Handler.java,v 1.6 2004/08/17 00:49:58 mdb Exp $
 
 package com.threerings.resource;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -10,7 +11,14 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 
+import javax.imageio.ImageIO;
+
 import com.samskivert.net.AttachableURLFactory;
+import com.samskivert.io.ByteArrayOutInputStream;
+import java.awt.image.BufferedImage;
+import java.awt.Rectangle;
+import com.threerings.geom.GeomUtil;
+import com.samskivert.util.StringUtil;
 
 /**
  * This class is not used directly, except by a registering ResourceManager
@@ -34,30 +42,8 @@ public class Handler extends URLStreamHandler
         }
         _rmgr = rmgr;
 
-        // There are two ways to do this.
-        // Method 1, which is the only one that seems to work under
-        // Java Web Start, is to register a factory.
-        // This *used* to be scary to me, because you could only have one
-        // factory, but now we have the attachable factory!
+        // wire up our handler with the handy dandy attachable URL factory
         AttachableURLFactory.attachHandler("resource", Handler.class);
-
-        // Method 2 seems like a better idea but doesn't work under
-        // Java Web Start. We add on a property that registers this
-        // very class as the handler for the resource property.
-        // It would be instantiated with Class.forName().
-        // (And I did check, it's not dasho that is preventing this
-        // from working under JWS, it's something else.)
-        /*
-        // dug up from java.net.URL
-        String HANDLER_PROP = "java.protocol.handler.pkgs";
-
-        String prop = System.getProperty(HANDLER_PROP, "");
-        if (!"".equals(prop)) {
-            prop += "|";
-        }
-        prop += "com.threerings";
-        System.setProperty(HANDLER_PROP, prop);
-        */
     }
 
     // documentation inherited
@@ -69,11 +55,18 @@ public class Handler extends URLStreamHandler
             public void connect ()
                 throws IOException
             {
+                // the host is the bundle name
+                String bundle = this.url.getHost();
+                // and we need to remove the leading '/' from path;
+                String path = this.url.getPath().substring(1);
                 try {
-                    // the host is the bundle name
-                    _stream = _rmgr.getResource(this.url.getHost(),
-                        // and we need to remove the leading '/' from path
-                        this.url.getPath().substring(1));
+                    // if there are query parameters, we need special magic
+                    String query = url.getQuery();
+                    if (!StringUtil.blank(query)) {
+                        _stream = getStream(bundle, path, query);
+                    } else {
+                        _stream = _rmgr.getResource(bundle, path);
+                    }
                     this.connected = true;
 
                 } catch (IOException ioe) {
@@ -95,6 +88,55 @@ public class Handler extends URLStreamHandler
 
             protected InputStream _stream;
         };
+    }
+
+    /**
+     * Does some magic to allow a subset of an image to be extracted,
+     * reencoded as a PNG and then spat back out to the Java content
+     * handler system for inclusion in internal documentation.
+     */
+    protected InputStream getStream (String bundle, String path, String query)
+        throws IOException
+    {
+        // we can only do this with PNGs
+        if (!path.endsWith(".png")) {
+            Log.warning("Requested sub-tile of non-PNG resource " +
+                        "[bundle=" + bundle + ", path=" + path +
+                        ", dims=" + query + "].");
+            return _rmgr.getResource(bundle, path);
+        }
+
+        // parse the query string
+        String[] bits = StringUtil.split(query, "&");
+        int width = -1, height = -1, tidx = -1;
+        try {
+            for (int ii = 0; ii < bits.length; ii++) {
+                if (bits[ii].startsWith("width=")) {
+                    width = Integer.parseInt(bits[ii].substring(6));
+                } else if (bits[ii].startsWith("height=")) {
+                    height = Integer.parseInt(bits[ii].substring(7));
+                } else if (bits[ii].startsWith("tile=")) {
+                    tidx = Integer.parseInt(bits[ii].substring(5));
+                }
+            }
+        } catch (NumberFormatException nfe) {
+        }
+        if (width <= 0 || height <= 0 || tidx < 0) {
+            Log.warning("Bogus sub-image dimensions [bundle=" + bundle +
+                        ", path=" + path + ", dims=" + query + "].");
+            throw new FileNotFoundException(path);
+        }
+
+        // locate the tile image, then write that subimage back out in PNG
+        // format into memory and return an input stream for that
+        BufferedImage src = ImageIO.read(_rmgr.getImageResource(bundle, path));
+        Rectangle trect = GeomUtil.getTile(
+            src.getWidth(), src.getHeight(), width, height, tidx);
+        BufferedImage tile = src.getSubimage(
+            trect.x, trect.y, trect.width, trect.height);
+        ByteArrayOutInputStream data = new ByteArrayOutInputStream();
+        ImageIO.write(tile, "PNG", data);
+        return data.getInputStream();
     }
 
     /** Our singleton resource manager. */
