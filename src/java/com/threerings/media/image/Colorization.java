@@ -1,5 +1,5 @@
 //
-// $Id: Colorization.java,v 1.8 2004/08/27 02:12:38 mdb Exp $
+// $Id: Colorization.java,v 1.9 2004/09/29 01:54:14 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -79,17 +79,17 @@ public class Colorization
     public int recolorColor (float[] hsv)
     {
         // for hue, we wrap around
-        hsv[0] += offsets[0];
-        if (hsv[0] > 1.0) {
-            hsv[0] -= 1.0;
+        float hue = hsv[0] + offsets[0];
+        if (hue > 1.0) {
+            hue -= 1.0;
         }
 
         // otherwise we clip
-        hsv[1] = Math.min(Math.max(hsv[1] + offsets[1], 0), 1);
-        hsv[2] = Math.min(Math.max(hsv[2] + offsets[2], 0), 1);
+        float sat = Math.min(Math.max(hsv[1] + offsets[1], 0), 1);
+        float val = Math.min(Math.max(hsv[2] + offsets[2], 0), 1);
 
         // convert back to RGB space
-        return Color.HSBtoRGB(hsv[0], hsv[1], hsv[2]);
+        return Color.HSBtoRGB(hue, sat, val);
     }
 
     /**
