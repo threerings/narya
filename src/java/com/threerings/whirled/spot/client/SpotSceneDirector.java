@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.19 2002/10/27 21:24:58 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.20 2003/01/03 23:07:00 shaper Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -289,14 +289,9 @@ public class SpotSceneDirector extends BasicDirector
             if (clusterOid != oldOid) {
                 DObjectManager omgr = _ctx.getDObjectManager();
                 // remove our old subscription if necessary
-                if (_clobj != null) {
-                    _chatdir.removeAuxiliarySource(_clobj);
-                    // unsubscribe from our old object
-                    omgr.unsubscribeFromObject(_clobj.getOid(), this);
-                    _clobj = null;
-                }
+                clearCluster();
                 // create a new subscription (we'll wire it up to the chat
-                // director when the subscription completes
+                // director when the subscription completes)
                 omgr.subscribeToObject(clusterOid, this);
             }
         }
@@ -329,6 +324,10 @@ public class SpotSceneDirector extends BasicDirector
         // we've got our cluster chat object, configure the chat director
         // with it and keep a reference ourselves
         if (_chatdir != null) {
+            // unwire and clear out our cluster chat object if we've got one
+            clearCluster();
+
+            // set up the new cluster object
             _chatdir.addAuxiliarySource(object, CLUSTER_CHAT_TYPE);
             _clobj = object;
         }
@@ -338,7 +337,7 @@ public class SpotSceneDirector extends BasicDirector
     public void requestFailed (int oid, ObjectAccessException cause)
     {
         Log.warning("Unable to subscribe to cluster chat object " +
-                    "[oid=" + oid + ",, cause=" + cause + "].");
+                    "[oid=" + oid + ", cause=" + cause + "].");
     }
 
     /**
@@ -350,6 +349,15 @@ public class SpotSceneDirector extends BasicDirector
         _locationId = -1;
 
         // unwire and clear out our cluster chat object if we've got one
+        clearCluster();
+    }
+
+    /**
+     * Convenience routine to unwire chat for and unsubscribe from our
+     * current cluster, if any.
+     */
+    protected void clearCluster ()
+    {
         if (_chatdir != null && _clobj != null) {
             // unwire the auxiliary chat object
             _chatdir.removeAuxiliarySource(_clobj);
@@ -383,6 +391,6 @@ public class SpotSceneDirector extends BasicDirector
     protected DObject _clobj;
 
     /** An entity that wants to know if a requested location change
-     * succeded or failed. */
+     * succeeded or failed. */
     protected ChangeObserver _changeObserver;
 }
