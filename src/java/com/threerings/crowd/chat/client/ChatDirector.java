@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.42 2003/01/06 00:24:32 mdb Exp $
+// $Id: ChatDirector.java,v 1.43 2003/01/21 01:08:36 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -445,8 +445,9 @@ public class ChatDirector extends BasicDirector
                 getLocalType(event.getTargetOid()), event.getArgs());
 
         } else if (name.equals(SYSTEM_NOTIFICATION)) {
-            handleSystemMessage(
-                getLocalType(event.getTargetOid()), event.getArgs());
+            Object[] args = event.getArgs();
+            displaySystemMessage((String)args[0], (String)args[1],
+                                 getLocalType(event.getTargetOid()));
         }
     }
 
@@ -501,21 +502,6 @@ public class ChatDirector extends BasicDirector
         }
 
         dispatchMessage(new UserMessage(message, localtype, speaker, mode));
-    }
-
-    /**
-     * Called when a system message is delivered on one of our chat
-     * objects.
-     *
-     * @param type {@link ChatCodes#PLACE_CHAT_TYPE} if the message was
-     * received on the place object or the type associated with the
-     * auxiliary chat object on which the message was received.
-     * @param args the arguments provided with the system message
-     * notification.
-     */
-    protected void handleSystemMessage (String localtype, Object[] args)
-    {
-        displaySystemMessage((String) args[0], (String) args[1], localtype);
     }
 
     /**
