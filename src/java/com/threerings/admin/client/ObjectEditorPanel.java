@@ -1,5 +1,5 @@
 //
-// $Id: ObjectEditorPanel.java,v 1.2 2003/01/11 01:03:01 shaper Exp $
+// $Id: ObjectEditorPanel.java,v 1.3 2004/03/04 02:43:48 eric Exp $
 
 package com.threerings.admin.client;
 
@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import javax.swing.BorderFactory;
+import javax.swing.JPanel;
 import javax.swing.event.AncestorEvent;
 
 import com.samskivert.swing.ScrollablePanel;
@@ -86,7 +87,7 @@ public class ObjectEditorPanel extends ScrollablePanel
     public void objectAvailable (DObject object)
     {
         // keep this for later
-        _object = object;
+        _object = (ConfigObject)object;
 
         // create our field editors
         try {
@@ -95,7 +96,12 @@ public class ObjectEditorPanel extends ScrollablePanel
                 // if the field is anything but a plain old public field,
                 // we don't want to edit it
                 if (fields[ii].getModifiers() == Modifier.PUBLIC) {
-                    add(new FieldEditor(_ctx, fields[ii], _object));
+                    JPanel panel = _object.getCustomEditor(_ctx,
+                                                           fields[ii].getName());
+                    if (panel == null) {
+                        panel = new FieldEditor(_ctx, fields[ii], _object);
+                    }
+                    add(panel);
                 }
             }
 
@@ -115,5 +121,5 @@ public class ObjectEditorPanel extends ScrollablePanel
     protected PresentsContext _ctx;
     protected String _key;
     protected int _oid;
-    protected DObject _object;
+    protected ConfigObject _object;
 }
