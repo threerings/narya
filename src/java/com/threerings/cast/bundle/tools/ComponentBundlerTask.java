@@ -1,5 +1,5 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.4 2002/02/06 19:33:36 shaper Exp $
+// $Id: ComponentBundlerTask.java,v 1.5 2002/03/08 22:36:43 mdb Exp $
 
 package com.threerings.cast.bundle.tools;
 
@@ -64,6 +64,16 @@ public class ComponentBundlerTask extends Task
     public void setMapfile (File mapfile)
     {
         _mapfile = mapfile;
+    }
+
+    /**
+     * Sets the root path which will be stripped from the image paths
+     * prior to parsing them to obtain the component class, type and
+     * action names.
+     */
+    public void setRoot (File root)
+    {
+        _root = root.getPath();
     }
 
     /**
@@ -147,7 +157,20 @@ public class ComponentBundlerTask extends Task
     protected String[] decomposePath (String path)
         throws BuildException
     {
-        // first strip off the file extension
+        // first strip off the root
+        if (!path.startsWith(_root)) {
+            throw new BuildException("Can't bundle images outside the " +
+                                     "root directory [root=" + _root +
+                                     ", path=" + path + "].");
+        }
+        path = path.substring(_root.length());
+
+        // strip off any preceding slash
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+
+        // now strip off the file extension
         if (!path.endsWith(BundleUtil.IMAGE_EXTENSION)) {
             throw new BuildException("Can't bundle malformed image file " +
                                      "[path=" + path + "].");
@@ -155,15 +178,24 @@ public class ComponentBundlerTask extends Task
         path = path.substring(0, path.length() -
                               BundleUtil.IMAGE_EXTENSION.length());
 
-        // now decompose the path
-        String[] components = StringUtil.split(path, File.separator);
-        int clen = components.length;
-        if (clen < 3) {
-            throw new BuildException("Can't bundle malformed image file " +
-                                     "[path=" + path + "].");
-        }
+        // now decompose the path; the component type and action must
+        // always be a single string but the class can span multiple
+        // directories for easier component organization; thus
+        // "male/head/goatee/standing" will be parsed as [class=male/head,
+        // type=goatee, action=standing]
+        String malmsg = "Can't decode malformed image path: '" + path + "'";
         String[] info = new String[3];
-        System.arraycopy(components, clen-3, info, 0, 3);
+        int lsidx = path.lastIndexOf(File.separator);
+        if (lsidx == -1) {
+            throw new BuildException(malmsg);
+        }
+        info[2] = path.substring(lsidx+1);
+        int slsidx = path.lastIndexOf(File.separator, lsidx-1);
+        if (slsidx == -1) {
+            throw new BuildException(malmsg);
+        }
+        info[1] = path.substring(slsidx+1, lsidx);
+        info[0] = path.substring(0, slsidx);
         return info;
     }
 
@@ -206,7 +238,7 @@ public class ComponentBundlerTask extends Task
 
         } catch (Exception e) {
             throw new BuildException("Error loading component ID map " +
-                                     "[mapfile=" + mapfile + "].", e);
+                                     "[mapfile=" + mapfile + "]", e);
         }
 
         return broker;
@@ -226,7 +258,7 @@ public class ComponentBundlerTask extends Task
             oout.close();
         } catch (IOException ioe) {
             throw new BuildException("Unable to store component ID map " +
-                                     "[mapfile=" + mapfile + "].", ioe);
+                                     "[mapfile=" + mapfile + "]", ioe);
         }
     }
 
@@ -259,6 +291,9 @@ public class ComponentBundlerTask extends Task
 
     /** The path to our component map file. */
     protected File _mapfile;
+
+    /** The component directory root. */
+    protected String _root;
 
     /** A list of filesets that contain tile images. */
     protected ArrayList _filesets = new ArrayList();
