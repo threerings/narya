@@ -185,8 +185,7 @@ Presents Notes -*- outline -*-
        * @param listener the listener that will be informed of success or
        * failure.
        */
-      public void moveTo (int placeId, MoveListener listener)
-          throws InvocationException;
+      public void moveTo (int placeId, MoveListener listener);
   }
 
   Note again that remotely callable methods cannot return values.
@@ -211,54 +210,68 @@ Presents Notes -*- outline -*-
   is not recommended), the first listener in the argument list will be the
   one to which caught exceptions are delivered.
 
-- From the interface, marshaller implementations are generated for the
-  service interface and all listener interfaces contained therein:
+- An InvocationProvider interface is generated from the InvocationService
+  interface:
 
-    public class LocationMarshaller implements LocationService
-    {
-        // ...
+  public interface LocationProvider extends InvocationProvider
+  {
+      /**
+       * Requests that this client's body be moved to the specified
+       * location.
+       *
+       * @param caller the client object of the client that invoked this
+       * remotely callable method.
+       * @param placeId the object id of the place object to which the
+       * body should be moved.
+       * @param listener the listener that will be informed of success or
+       * failure.
+       */
+      public void moveTo (ClientObject caller, int placeId,
+                          InvocationService.MoveListener listener)
+          throws InvocationException;
+  }
 
-        public int marshallerId;
+  This InvocationProvider interface is what is implemented by a server
+  entity to provider an actual implementation of the services.
 
-        public void moveTo (int placeId, MoveListener listener)
-        {
-            try {
-                if (_provider != null) {
-                    // this is a local request, dispatch it directly
-                    _provider.moveTo(placeId, listener);
-                } else {
-                    // pass the request to the invocation services for
-                    // dispatch over the network
-                }
+- From the InvocationService interface, marshaller implementations are
+  generated for the service interface and all listener interfaces
+  contained therein:
 
-            } catch (InvocationException ie) {
-                if (listener != null) {
-                    listener.requestFailed(ie);
-                }
-            }
-        }
+  public class LocationMarshaller implements LocationService
+  {
+      // ...
 
-        protected transient LocationService _provider;
-    }
+      public int marshallerId;
 
-    An InvocationMarshaller is constructed on the server and passed at
-    construct time a InvocationService implementation that will provide
-    the actual implementation of the service. The marshaller will then
-    register itself with the invocation services to receive an invocation
-    object id which will be used to identify that marshaller in client
-    JVMs.
+      public void moveTo (int placeId, MoveListener listener)
+      {
+          // pass the request to the invocation services for dispatch
+          // over the network
+      }
+  }
 
-    The InvocationMarshaller instance can then be passed around the
-    distributed object system as any other object. If it is used on the
-    server, the methods will be passed directly through to the
-    implementation. If it is used on the client, it will marshall the
-    request parameters and send them over the network to the server --
-    where they will be dispatched to the implementation -- any response
-    from which will be communicated back through InvocationListener
-    proxies which marshall the response and deliver it to the calling
-    client, which then unpacks the response and delivers it to the
-    original InvocationListener.
+  On the server, an InvocationProvider is registered with the invocation
+  services which will return an InvocationMarshaller to be used to provide
+  access to those services. The InvocationMarshaller instance can then be
+  passed around the distributed object system as any other object. It can
+  be made a member of a distributed object or delivered in a distributed
+  object event.
+
+  When the InvocationMarshaller is used on the client, it will marshall
+  the request parameters and send them over the network to the server --
+  where they will be dispatched to the implementation -- any response from
+  which will be communicated back through InvocationListener proxies which
+  marshall the response and deliver it to the calling client, which then
+  unpacks the response and delivers it to the original InvocationListener.
+
+  Access to the services on the server would generally be accomplished by
+  obtaining a reference directly to the provider that implements the
+  services and calling the methods via normal means. This allows the
+  server entities to provide whichever "caller" is appropriate.
 
 - Notification services? Client provides "marshaller" in ClientObject,
   server calls down to client through said marshaller object. How to
   register implementations on the client end?
+
+- Possible to integrate useful general purpose security?
