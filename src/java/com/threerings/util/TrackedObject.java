@@ -1,5 +1,5 @@
 //
-// $Id: TrackedObject.java,v 1.5 2004/08/27 02:20:36 mdb Exp $
+// $Id: TrackedObject.java,v 1.6 2004/08/28 01:23:31 ray Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -38,7 +38,22 @@ import com.samskivert.util.Tuple;
  */
 public class TrackedObject
 {
+    // instance initializer - called whenever an instance is constructed
+    {
+        incrementInstanceCount();
+    }
+
+    // documentation inherited
+    protected Object clone ()
+        throws CloneNotSupportedException
+    {
+        Object o = super.clone();
+        incrementInstanceCount();
+        return o;
+    }
+
     /** Records that this object came into existence. */
+    protected final void incrementInstanceCount ()
     {
         Class clazz = getClass();
         synchronized (_map) {
