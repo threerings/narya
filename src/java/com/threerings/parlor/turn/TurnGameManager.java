@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameManager.java,v 1.1 2001/10/12 00:30:10 mdb Exp $
+// $Id: TurnGameManager.java,v 1.2 2001/10/12 19:31:35 mdb Exp $
 
 package com.threerings.parlor.turn;
 
@@ -12,6 +12,14 @@ import com.threerings.parlor.util.MathUtil;
 
 /**
  * Extends the basic game manager with support for turn-based games.
+ *
+ * <p> The basic flow of a turn-based game is as follows:
+ * <pre>
+ * gameWillStart()
+ * gameDidStart()
+ *   setFirstTurnHolder()
+ *   startTurn()
+ * </pre>
  */
 public class TurnGameManager extends GameManager
 {
@@ -32,14 +40,9 @@ public class TurnGameManager extends GameManager
         // figure out who will be first
         setFirstTurnHolder();
 
-        // and set the turn indicator accordingly
-        int boid = _playerOids[_turnIdx];
-        BodyObject body = (BodyObject)CrowdServer.omgr.getObject(boid);
-        if (body != null) {
-            _turnGame.setTurnHolder(body.username);
-        } else {
-            Log.warning("Unable to start game; first player isn't around " +
-                        "[boid=" + boid + "].");
+        // and start the first turn if we should apparently do so
+        if (_turnIdx != -1) {
+            startTurn();
         }
     }
 
@@ -52,6 +55,78 @@ public class TurnGameManager extends GameManager
         // TODO: sort out a better random number generator and make it
         // available via the parlor services
         _turnIdx = MathUtil.random(_playerOids.length);
+    }
+
+    /**
+     * Called to start the next turn. It calls the derived class to allow
+     * it to perform any pre-turn processing and then sets the turn holder
+     * that was configured either when the game started or when finishing
+     * up the last turn. This assumes that a valid turn holder has been
+     * assigned. If some pre-game preparation needs take place in a
+     * non-turn-based manner, this function should not be called until it
+     * is time to start the first turn.
+     */
+    protected void startTurn ()
+    {
+        // let the derived class do their thing
+        turnWillStart();
+
+        // and set the turn indicator accordingly
+        int boid = _playerOids[_turnIdx];
+        BodyObject body = (BodyObject)CrowdServer.omgr.getObject(boid);
+        if (body != null) {
+            _turnGame.setTurnHolder(body.username);
+        } else {
+            Log.warning("Unable to start game; first player isn't around " +
+                        "[boid=" + boid + "].");
+        }
+    }
+
+    /**
+     * Called when we are about to start the next turn. Derived classes
+     * should override this and do whatever pre-turn activities need to be
+     * done.
+     */
+    protected void turnWillStart ()
+    {
+    }
+
+    /**
+     * Called to end the turn. Whatever indication a game manager has that
+     * the turn has ended (probably the submission of a valid move of some
+     * sort by the turn holding player), it should call this function to
+     * cause this turn to end and the next to begin.
+     *
+     * <p> If the next turn should not be started immediately after this
+     * turn, the game manager should arrange for {@link
+     * #setNextTurnHolder} to set the {@link #_turnIdx} field to -1 which
+     * will cause us not to start the next turn. It can then call {@link
+     * #endGame} if the game is over or do whatever else it needs to do
+     * outside the context of the turn flow.  To start things back up
+     * again it would set {@link #_turnIdx} to the next turn holder and
+     * call {@link #startTurn} itself.
+     */
+    protected void endTurn ()
+    {
+        // let the derived class know that the turn is over
+        turnDidEnd();
+
+        // figure out whose up next
+        setNextTurnHolder();
+
+        // and start the next turn if desired
+        if (_turnIdx != -1) {
+            startTurn();
+        }
+    }
+
+    /**
+     * Called when the turn was ended. Derived classes should override
+     * this and perform any post-turn processing (like updating scores,
+     * etc.).
+     */
+    protected void turnDidEnd ()
+    {
     }
 
     /**
