@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.14 2002/06/11 00:04:43 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.15 2002/06/18 22:38:55 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -20,9 +20,12 @@ import com.threerings.resource.ResourceManager;
 import com.threerings.media.FrameManager;
 import com.threerings.media.ImageManager;
 
-import com.threerings.media.sprite.Sprite;
 import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.sprite.MultiFrameImageImpl;
+import com.threerings.media.sprite.PathCompletedEvent;
+import com.threerings.media.sprite.Sprite;
+import com.threerings.media.sprite.SpriteEvent;
+import com.threerings.media.sprite.SpriteObserver;
 
 import com.threerings.media.tile.bundle.BundledTileSetRepository;
 import com.threerings.media.util.LinePath;
@@ -94,22 +97,7 @@ public class ScrollingTestApp
         charmgr.setCharacterClass(MisoCharacterSprite.class);
 
         // create our scene view panel
-        _panel = new SceneViewPanel(_framemgr, new IsoSceneViewModel()) {
-            protected void viewFinishedScrolling () {
-                // keep scrolling for a spell
-                if (++_sidx < DX.length) {
-                    int x = _viewmodel.bounds.width/2,
-                        y = _viewmodel.bounds.height/2;
-                    LinePath path = new LinePath(
-                        x, y, x + DX[_sidx], y + DY[_sidx], 3000l);
-                    setPath(path);
-                }
-            }
-            protected int _sidx = -1;
-            protected final int[] DX = { 162, 0, 1000, -1000, 1000, 2000 };
-            protected final int[] DY = { 140, 1000, 0, 1000, -1000, 1000 };
-        };
-        _panel.setScrolling(0, 1000, 3000l);
+        _panel = new SceneViewPanel(_framemgr, new IsoSceneViewModel());
         _frame.setPanel(_panel);
 
         // create our "ship" sprite
@@ -120,19 +108,42 @@ public class ScrollingTestApp
                 new int[] { ccomp.componentId }, null);
 
             // now create the actual sprite and stick 'em in the scene
-            MisoCharacterSprite s =
-                (MisoCharacterSprite)charmgr.getCharacter(desc);
-            if (s != null) {
-                s.setRestingAction("sailing");
-                s.setActionSequence("sailing");
-                s.setLocation(160, 144);
-                _panel.addSprite(s);
+            _ship = (MisoCharacterSprite)charmgr.getCharacter(desc);
+            if (_ship != null) {
+                _ship.setFollowingPathAction("sailing");
+                _ship.setRestingAction("sailing");
+                _ship.setActionSequence("sailing");
+                _ship.setLocation(_panel.getModel().bounds.width/2,
+                                  _panel.getModel().bounds.height/2);
+                _panel.addSprite(_ship);
             }
 
         } catch (NoSuchComponentException nsce) {
             Log.warning("Can't locate ship component [class=" + scclass +
                         ", name=" + scname + "].");
         }
+
+        _ship.addSpriteObserver(new SpriteObserver() {
+            public void handleEvent (SpriteEvent event) {
+                if (event instanceof PathCompletedEvent) {
+                    // keep scrolling for a spell
+                    if (++_sidx < DX.length) {
+                        int x = _ship.getX(), y = _ship.getY();
+                        LinePath path = new LinePath(
+                            x, y, x + DX[_sidx], y + DY[_sidx], 30000l);
+                        _ship.move(path);
+                    }
+                }
+            }
+            protected int _sidx = -1;
+            protected final int[] DX = { 1620, 0, 1000, -1000, 1000, 2000 };
+            protected final int[] DY = { 1400, 1000, 0, 1000, -1000, 1000 };
+        });
+
+        // make the panel follow the ship around
+        _panel.setFollowsPathable(_ship);
+        int x = _ship.getX(), y = _ship.getY();
+        _ship.move(new LinePath(x, y, x, y + 1000, 3000l));
 
         // set the scene to our scrolling scene
         try {
@@ -205,4 +216,7 @@ public class ScrollingTestApp
 
     /** The main panel. */
     protected SceneViewPanel _panel;
+
+    /** The ship in the center of our screen. */
+    protected MisoCharacterSprite _ship;
 }

@@ -1,10 +1,10 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.49 2002/05/31 07:34:11 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.50 2002/06/18 22:38:55 mdb Exp $
 
 package com.threerings.miso.viewer;
 
 import java.awt.Dimension;
-import java.awt.Graphics2D;
+import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -53,6 +53,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 
         // create the manipulable sprite
         _sprite = createSprite(_spritemgr, charmgr, _descUser);
+        setFollowsPathable(_sprite);
 
         // create the decoy sprites
         createDecoys(_spritemgr, charmgr);
@@ -123,9 +124,9 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     }
 
     // documentation inherited
-    public void paintBetween (Graphics2D g, Rectangle[] dirty)
+    public void paint (Graphics g)
     {
-	super.paintBetween(g, dirty);
+	super.paint(g);
 	PerformanceMonitor.tick(this, "paint");
     }
 
