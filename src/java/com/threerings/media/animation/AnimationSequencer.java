@@ -1,5 +1,5 @@
 //
-// $Id: AnimationSequencer.java,v 1.8 2002/11/05 21:53:56 mdb Exp $
+// $Id: AnimationSequencer.java,v 1.9 2002/11/05 23:56:35 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -32,7 +32,11 @@ public abstract class AnimationSequencer extends Animation
     /**
      * Adds the supplied animation to the sequence with the given
      * parameters. Note that care should be taken if this is called after
-     * the animation sequence has begun firing animations.
+     * the animation sequence has begun firing animations. Do not add new
+     * animations after the final animation in the sequence has been
+     * started or you run the risk of attempting to add an animation to
+     * the sequence after it thinks that it has finished (in which case
+     * this method will fail).
      *
      * @param anim the animation to be sequenced, or null if the
      * completion action should be run immediately when this "animation"
@@ -54,17 +58,25 @@ public abstract class AnimationSequencer extends Animation
                 "Animation added to finished sequencer");
         }
 
-        AnimRecord arec = new AnimRecord(anim, delta, completionAction);
+        // if this guy is triggering on a previous animation, grab that
+        // good fellow here
+        AnimRecord trigger = null;
         if (delta == -1) {
-            int size = _queued.size();
-            if (size == 0) {
-                // if there's no predecessor then this guy has nobody to
-                // wait for, so we run him immediately
-                arec.delta = 0;
-            } else {
-                ((AnimRecord)_queued.get(size - 1)).dependent = arec;
+            if (_queued.size() > 0) {
+                // if there are queued animations we want the most
+                // recently queued animation
+                trigger = (AnimRecord)_queued.get(_queued.size()-1);
+            } else if (_running.size() > 0) {
+                // otherwise, if there are running animations, we want the
+                // last one in that list
+                trigger = (AnimRecord)_running.get(_running.size()-1);
             }
+            // otherwise we have no trigger, we'll just start ASAP
         }
+
+        AnimRecord arec = new AnimRecord(
+            anim, delta, trigger, completionAction);
+//         Log.info("Queued " + arec + ".");
         _queued.add(arec);
     }
 
@@ -138,28 +150,35 @@ public abstract class AnimationSequencer extends Animation
     protected class AnimRecord
         implements AnimationObserver
     {
-        public long delta;
-        public AnimRecord dependent;
-
-        public AnimRecord (
-            Animation anim, long delta, Runnable completionAction)
+        public AnimRecord (Animation anim, long delta, AnimRecord trigger,
+                           Runnable completionAction)
         {
             _anim = anim;
-            this.delta = delta;
+            _delta = delta;
+            _trigger = trigger;
             _completionAction = completionAction;
         }
 
         public boolean readyToFire (long now, long lastStamp)
         {
-            return (delta != -1) && (lastStamp + delta >= now);
+            if (_delta == -1) {
+                // if we have no trigger, that means we should start
+                // immediately, otherwise we wait until our trigger is no
+                // longer running (they are guaranteed not to be still
+                // queued at this point because readyToFire is only called
+                // on an animation after all animations previous in the
+                // queue have been started)
+                return (_trigger == null) ?
+                    true : !_running.contains(_trigger);
+
+            } else {
+                return (lastStamp + _delta >= now);
+            }
         }
 
         public void fire (long when)
         {
-//             String aclass = (_anim == null) ? "<none>" :
-//                 _anim.getClass().getName();
-//             Log.info("Firing animation " + aclass + " at " +
-//                      (when%100000) + ".");
+//             Log.info("Firing " + this + " at " + (when%100000) + ".");
 
             // if we have an animation, start it up and await its
             // completion
@@ -188,20 +207,11 @@ public abstract class AnimationSequencer extends Animation
             // make a note that this animation is complete
             _running.remove(this);
 
-            // if the next animation is triggered on the completion of
-            // this animation...
-            if (dependent != null) {
-                // ...fiddle its delta so that it becomes immediately
-                // ready to fire
-                dependent.delta = when - _lastStamp;
-
-                // kids, don't try this at home; we call tick()
-                // immediately so that this dependent animation and
-                // any simultaneous subsequent animations are fired
-                // immediately rather than waiting for the next call
-                // to tick
-                tick(when);
-            }
+            // kids, don't try this at home; we call tick() immediately so
+            // that any animations triggered on the completion of previous
+            // animations can trigger on the completion of this animation
+            // rather than having to wait until the next tick to do so
+            tick(when);
         }
 
         public void handleEvent (AnimationEvent event)
@@ -213,6 +223,8 @@ public abstract class AnimationSequencer extends Animation
 
         protected Animation _anim;
         protected Runnable _completionAction;
+        protected long _delta;
+        protected AnimRecord _trigger;
     }
 
     /** Animations that have not been fired. */
