@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.12 2001/08/08 00:28:49 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.13 2001/08/08 21:56:47 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -126,15 +126,21 @@ public class CherDObjectMgr implements DObjectManager
             }
 
             try {
-                // everything's good so far, apply the event to the object
-                boolean notify = event.applyToObject(target);
-
                 // do any internal management necessary based on this
                 // event
                 Method helper = (Method)_helpers.get(event.getClass());
                 if (helper != null) {
-                    helper.invoke(this, new Object[] { event, target });
+                    // invoke the helper method
+                    Object rv =
+                        helper.invoke(this, new Object[] { event, target });
+                    // if helper returns false, we abort event processing
+                    if (!((Boolean)rv).booleanValue()) {
+                        continue;
+                    }
                 }
+
+                // everything's good so far, apply the event to the object
+                boolean notify = event.applyToObject(target);
 
                 // if the event returns false from applyToObject, this
                 // means it's a silent event and we shouldn't notify the
@@ -169,8 +175,11 @@ public class CherDObjectMgr implements DObjectManager
     /**
      * Called as a helper for <code>ObjectDestroyedEvent</code> events. It
      * removes the object from the object table.
+     *
+     * @return true if the event should be dispatched, false if it should
+     * be aborted.
      */
-    public void objectDestroyed (DEvent event, DObject target)
+    public boolean objectDestroyed (DEvent event, DObject target)
     {
         int oid = target.getOid();
 
@@ -240,6 +249,8 @@ public class CherDObjectMgr implements DObjectManager
                             "[target=" + target + ", field=" + field + "].");
             }
         }
+
+        return true;
     }
 
     /**
@@ -278,12 +289,22 @@ public class CherDObjectMgr implements DObjectManager
     /**
      * Called as a helper for <code>ObjectAddedEvent</code> events. It
      * updates the object/oid list tracking structures.
+     *
+     * @return true if the event should be dispatched, false if it should
+     * be aborted.
      */
-    public void objectAdded (DEvent event, DObject target)
+    public boolean objectAdded (DEvent event, DObject target)
     {
         ObjectAddedEvent oae = (ObjectAddedEvent)event;
         int oid = oae.getOid();
-        Reference ref = new Reference(target.getOid(), oae.getName(), oid);
+
+        // ensure that the target object exists
+        if (!_objects.contains(oid)) {
+            Log.info("Rejecting object added event of non-existent object " +
+                     "[refferOid=" + target.getOid() +
+                     ", reffedOid=" + oid + "].");
+            return false;
+        }
 
         // get the reference vector for the referenced object. we use bare
         // arrays rather than something like an array list to conserve
@@ -295,12 +316,13 @@ public class CherDObjectMgr implements DObjectManager
         }
 
         // determine where to add the reference
+        Reference ref = new Reference(target.getOid(), oae.getName(), oid);
         int rpos = -1;
         for (int i = 0; i < refs.length; i++) {
             if (ref.equals(refs[i])) {
                 Log.warning("Ignoring request to track existing " +
                             "reference " + ref + ".");
-                return;
+                return true;
             } else if (refs[i] == null && rpos == -1) {
                 rpos = i;
             }
@@ -318,13 +340,17 @@ public class CherDObjectMgr implements DObjectManager
         refs[rpos] = ref;
 
 //          Log.info("Tracked reference " + ref + ".");
+        return true;
     }
 
     /**
      * Called as a helper for <code>ObjectRemovedEvent</code> events. It
      * updates the object/oid list tracking structures.
+     *
+     * @return true if the event should be dispatched, false if it should
+     * be aborted.
      */
-    public void objectRemoved (DEvent event, DObject target)
+    public boolean objectRemoved (DEvent event, DObject target)
     {
         ObjectRemovedEvent ore = (ObjectRemovedEvent)event;
         String field = ore.getName();
@@ -342,7 +368,7 @@ public class CherDObjectMgr implements DObjectManager
 //              Log.warning("Object removed without reference to track it " +
 //                          "[toid=" + toid + ", field=" + field +
 //                          ", oid=" + oid + "].");
-            return;
+            return true;
         }
 
         // look for the matching reference
@@ -350,13 +376,14 @@ public class CherDObjectMgr implements DObjectManager
             if (refs[i].equals(toid, field)) {
 //                  Log.info("Removed reference " + refs[i] + ".");
                 refs[i] = null;
-                return;
+                return true;
             }
         }
 
         Log.warning("Unable to locate reference for removal " +
                     "[reffingOid=" + toid + ", field=" + field +
                     ", reffedOid=" + oid + "].");
+        return true;
     }
 
     protected synchronized boolean isRunning ()
