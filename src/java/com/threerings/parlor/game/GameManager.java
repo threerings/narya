@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.52 2002/10/27 23:54:32 shaper Exp $
+// $Id: GameManager.java,v 1.53 2002/11/02 01:20:59 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -704,13 +704,21 @@ public class GameManager extends PlaceManager
     {
         BodyObject plobj = (BodyObject)caller;
 
-        // make a note of this player's oid
+        // get the user's player index
         int pidx = _gameobj.getPlayerIndex(plobj.username);
         if (pidx == -1) {
-            Log.warning("Received playerReady() from non-player? " +
-                        "[caller=" + caller + "].");
+            // only complain if this is not a party game, since it's
+            // perfectly normal to receive a player ready notification
+            // from a user entering a party game in which they're not yet
+            // a participant
+            if (!_gameconfig.isPartyGame()) {
+                Log.warning("Received playerReady() from non-player? " +
+                            "[caller=" + caller + "].");
+            }
             return;
         }
+
+        // make a note of this player's oid
         _playerOids[pidx] = plobj.getOid();
 
         // if everyone is now ready to go, get things underway
