@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.8 2001/07/19 00:22:02 shaper Exp $
+// $Id: IsoSceneView.java,v 1.9 2001/07/19 23:11:27 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -21,9 +21,6 @@ public class IsoSceneView implements SceneView
     {
 	_tmgr = tmgr;
 	
-	_viewX = 0;
-	_viewY = 0;
-
 	_bounds = new Rectangle(0, 0, DEF_BOUNDS_WIDTH, DEF_BOUNDS_HEIGHT);
 
 	_htile = new Point();
@@ -46,119 +43,121 @@ public class IsoSceneView implements SceneView
     {
 	Graphics2D gfx = (Graphics2D)g;
 
-	gfx.setColor(Color.red);
-	gfx.fillRect(0, 0, _bounds.width, _bounds.height);
+//  	gfx.setColor(Color.red);
+//  	gfx.fillRect(0, 0, _bounds.width, _bounds.height);
 
 	// draw the full scene into the offscreen image buffer
-	renderScene(gfx, _viewX, _viewY);
+	renderScene(gfx);
     }
 
-    protected void renderScene (Graphics2D g2, int x, int y)
+    protected void renderScene (Graphics2D gfx)
     {
-	int mapX = x / Tile.HALF_WIDTH;
-	int xOff = x & (Tile.HALF_WIDTH - 1);
+	int mx = 1;
+	int my = 0;
 
-	int mapY = y / Tile.HEIGHT;
-	int yOff = y & Tile.HEIGHT - 1;
+	int screenY = Tile.HALF_HEIGHT;
 
-	int xa   = xOff - yOff;
-	int ya   = (xOff >> 1) + (yOff >> 1);
-
-	int mx = mapX;
-	int my = mapY;
-
-	int screenY = OFF_Y + (Tile.HALF_HEIGHT - ya);
-
-	for (int ii = 0; ii < Scene.TILE_HEIGHT; ii++) {
-	    int tx = mx;
+	for (int ii = 0; ii < TILE_RENDER_ROWS; ii++) {
+	    // determine starting tile coordinates
+	    int tx = (ii < Scene.TILE_HEIGHT) ? 0 : mx++;
 	    int ty = my;
 
-	    int screenX = OFF_X + (Tile.HALF_WIDTH - xa);
+	    // determine number of tiles in this row
+	    int length = (ty - tx) + 1;
 
-	    int length = Scene.TILE_WIDTH;
-	    if ((ii & 1) == 1) {
-		length++;
-		screenX -= Tile.HALF_WIDTH;
-	    }
+	    // determine starting screen x-position
+	    int screenX = DEF_CENTER_X - ((length - 1) * Tile.HALF_WIDTH);
 
 	    for (int j = 0; j < length; j++) {
 		// TODO: draw layers L1+.
+
+		// grab the tile we're rendering
 		Tile tile = _scene.tiles[tx][ty][Scene.LAYER_BASE];
 
+		// determine screen y-position accounting for tile image height
 		int ypos = screenY - (tile.height - Tile.HEIGHT);
-		g2.drawImage(tile.img, screenX, ypos, null);
 
-		//paintCoords(g2, tx, ty, screenX, screenY);
+		// draw the tile image at the appropriate screen position
+		gfx.drawImage(tile.img, screenX, ypos, null);
+
+		// draw tile coordinates in each tile
+  		paintCoords(gfx, tx, ty, screenX, screenY);
 
 		// draw an outline around the highlighted tile
 		if (tx == _htile.x && ty == _htile.y) {
-		    paintHighlightedTile(g2, screenX, screenY);
+		    paintHighlightedTile(gfx, screenX, screenY);
 		}
 
+		// each tile is one tile-width to the right of the previous
 		screenX += Tile.WIDTH;
 
-		if ((tx += 1) > Scene.TILE_WIDTH - 1) tx = 0;
-		if ((ty -= 1) < 0) ty = Scene.TILE_HEIGHT - 1;
+		// advance tile x and decrement tile y as we move to
+		// the right drawing the row
+		tx++;
+		ty--;
 	    }
 
+	    // each row is a half-tile-height away from the previous row
 	    screenY += Tile.HALF_HEIGHT;
 
-	    if ((ii & 1) == 1) {
-		if ((mx += 1) > Scene.TILE_WIDTH - 1) mx = 0;
-	    } else {
-		if ((my += 1) > Scene.TILE_HEIGHT - 1) my = 0;
-	    }
+	    // advance starting y-axis coordinate unless we've hit bottom
+	    if ((++my) > Scene.TILE_HEIGHT - 1) my = Scene.TILE_HEIGHT - 1;
 	}
 
+	paintMouseLines(gfx);
+    }
+
+    protected void paintMouseLines (Graphics2D gfx)
+    {
 	// draw the baseline x-axis line
-	g2.setColor(Color.red);
-	g2.drawLine(_lineX[0].x, _lineX[0].y, _lineX[1].x, _lineX[1].y);
+	gfx.setColor(Color.red);
+	gfx.drawLine(_lineX[0].x, _lineX[0].y, _lineX[1].x, _lineX[1].y);
 
 	// draw line from last mouse pos to baseline
-	g2.setColor(Color.yellow);
-	g2.drawLine(_lineY[0].x, _lineY[0].y, _lineY[1].x, _lineY[1].y);
+	gfx.setColor(Color.yellow);
+	gfx.drawLine(_lineY[0].x, _lineY[0].y, _lineY[1].x, _lineY[1].y);
 
 	// draw the most recent mouse cursor position
-	g2.setColor(Color.green);
-	g2.fillRect(_lineY[0].x, _lineY[0].y, 2, 2);
-	g2.setColor(Color.red);
-	g2.drawRect(_lineY[0].x - 1, _lineY[0].y - 1, 3, 3);
+	gfx.setColor(Color.green);
+	gfx.fillRect(_lineY[0].x, _lineY[0].y, 2, 2);
+	gfx.setColor(Color.red);
+	gfx.drawRect(_lineY[0].x - 1, _lineY[0].y - 1, 3, 3);
     }
 
     /**
      * Paint the tile coordinates in tile (x, y) whose top-left corner
      * is at screen coordinates (sx, sy).
      */
-    protected void paintCoords (Graphics2D g2, int x, int y, int sx, int sy)
+    protected void paintCoords (Graphics2D gfx, int x, int y, int sx, int sy)
     {
-	g2.setFont(_font);
-	g2.setColor(Color.white);
-	g2.drawString(""+x, sx+Tile.HALF_WIDTH-2, sy+Tile.HALF_HEIGHT-2);
-	g2.drawString(""+y, sx+Tile.HALF_WIDTH-2, sy+Tile.HEIGHT-2);
+	gfx.setFont(_font);
+	gfx.setColor(Color.white);
+	gfx.drawString(""+x, sx+Tile.HALF_WIDTH-2, sy+Tile.HALF_HEIGHT-2);
+	gfx.drawString(""+y, sx+Tile.HALF_WIDTH-2, sy+Tile.HEIGHT-2);
     }
 
     /**
      * Paint a highlight around the tile at screen coordinates (sx, sy).
      */
-    protected void paintHighlightedTile (Graphics2D g2, int sx, int sy)
+    protected void paintHighlightedTile (Graphics2D gfx, int sx, int sy)
     {
 	int x = sx;
 	int y = sy;
 
-	Stroke ostroke = g2.getStroke();
-	g2.setStroke(_hstroke);
-	g2.setColor(_hcolor);
+	Stroke ostroke = gfx.getStroke();
+	gfx.setStroke(_hstroke);
+	gfx.setColor(_hcolor);
 
-	g2.drawLine(x, y + Tile.HALF_HEIGHT,
-		    x + Tile.HALF_WIDTH, y);
-	g2.drawLine(x + Tile.HALF_WIDTH, y,
-		    x + Tile.WIDTH, y + Tile.HALF_HEIGHT);
-	g2.drawLine(x + Tile.WIDTH, y + Tile.HALF_HEIGHT,
-		    x + Tile.HALF_WIDTH, y + Tile.HEIGHT);
-	g2.drawLine(x + Tile.HALF_WIDTH, y + Tile.HEIGHT,
-		    x, y + Tile.HALF_HEIGHT);
+	gfx.drawLine(x, y + Tile.HALF_HEIGHT,
+		     x + Tile.HALF_WIDTH, y);
+	gfx.drawLine(x + Tile.HALF_WIDTH, y,
+		     x + Tile.WIDTH, y + Tile.HALF_HEIGHT);
+	gfx.drawLine(x + Tile.WIDTH, y + Tile.HALF_HEIGHT,
+		     x + Tile.HALF_WIDTH, y + Tile.HEIGHT);
+	gfx.drawLine(x + Tile.HALF_WIDTH, y + Tile.HEIGHT,
+		     x, y + Tile.HALF_HEIGHT);
 
-	g2.setStroke(ostroke);
+	gfx.setStroke(ostroke);
     }
 
     /**
@@ -232,16 +231,20 @@ public class IsoSceneView implements SceneView
 	_scene.tiles[tpos.x][tpos.y][lnum] = tile;
     }
 
-    protected static final int OFF_X = 0;
-    protected static final int OFF_Y = 0;
-
+    // default dimensions of the scene view
     protected static final int DEF_BOUNDS_WIDTH = 600;
     protected static final int DEF_BOUNDS_HEIGHT = 600;
+
+    // total number of tile rows to render the full view
+    protected static final int TILE_RENDER_ROWS =
+        (Scene.TILE_WIDTH * Scene.TILE_HEIGHT) - 1;
+
+    // starting x/y-positions to render the view
+    protected static final int DEF_CENTER_X = DEF_BOUNDS_WIDTH / 2;
 
     protected Point _lineX[], _lineY[];
 
     protected Rectangle _bounds;
-    protected int _viewX, _viewY;
 
     protected Point _htile;
     protected Color _hcolor;
