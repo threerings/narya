@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneModel.java,v 1.9 2003/05/27 19:04:29 mdb Exp $
+// $Id: SparseMisoSceneModel.java,v 1.10 2004/01/11 12:21:17 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -257,18 +257,31 @@ public class SparseMisoSceneModel extends MisoSceneModel
      */
     public void visitObjects (ObjectVisitor visitor)
     {
+        visitObjects(visitor, false);
+    }
+
+    /**
+     * Informs the supplied visitor of each object in this scene.
+     *
+     * @param interestingOnly if true, only the interesting objects will
+     * be visited.
+     */
+    public void visitObjects (ObjectVisitor visitor, boolean interestingOnly)
+    {
         for (Iterator iter = getSections(); iter.hasNext(); ) {
             Section sect = (Section)iter.next();
             for (int oo = 0; oo < sect.objectInfo.length; oo++) {
                 ObjectInfo oinfo = sect.objectInfo[oo];
                 visitor.visit(oinfo);
             }
-            ObjectInfo info = new ObjectInfo();
-            for (int oo = 0; oo < sect.objectTileIds.length; oo++) {
-                info.tileId = sect.objectTileIds[oo];
-                info.x = sect.objectXs[oo];
-                info.y = sect.objectYs[oo];
-                visitor.visit(info);
+            if (!interestingOnly) {
+                ObjectInfo info = new ObjectInfo();
+                for (int oo = 0; oo < sect.objectTileIds.length; oo++) {
+                    info.tileId = sect.objectTileIds[oo];
+                    info.x = sect.objectXs[oo];
+                    info.y = sect.objectYs[oo];
+                    visitor.visit(info);
+                }
             }
         }
     }
