@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.24 2003/04/24 07:23:47 ray Exp $
+// $Id: ResourceManager.java,v 1.25 2003/04/27 03:27:33 mdb Exp $
 
 package com.threerings.resource;
 
@@ -152,6 +152,39 @@ public class ResourceManager
         // set up a URL handler so that things can be loaded via
         // urls with the 'resource' protocol
         Handler.registerHandler(this);
+
+        // sort our our default cache path
+        _baseCachePath = "";
+        try {
+            // first check for an explicitly specified cache directory
+            _baseCachePath = System.getProperty("narya.resource.cache_dir");
+            // if that's null, try putting it into their home directory
+            if (_baseCachePath == null) {
+                _baseCachePath = System.getProperty("user.home");
+            }
+            if (!_baseCachePath.endsWith(File.separator)) {
+                _baseCachePath += File.separator;
+            }
+            _baseCachePath += (CACHE_PATH + File.separator);
+        } catch (SecurityException se) {
+            Log.info("Can't obtain user.home system property. Probably " +
+                     "won't be able to create our cache directory " +
+                     "either. [error=" + se + "].");
+        }
+    }
+
+    /**
+     * Instructs the resource manager to store cached resources in the
+     * specified directory. This must be called before {@link
+     * #initBundles} if it is going to be called at all. If it is not
+     * called, the default cache directory will be used.
+     */
+    public void setCachePath (String cachePath)
+    {
+        if (!cachePath.endsWith(File.separator)) {
+            cachePath += File.separator;
+        }
+        _baseCachePath = cachePath;
     }
 
     /**
@@ -368,28 +401,11 @@ public class ResourceManager
      */
     protected boolean createCacheDirectory (URL resourceURL, String setName)
     {
-        // get the path to the top-level cache directory if we don't
-        // already have it
+        // compute the path to the top-level cache directory if we haven't
+        // already been so configured
         if (_cachePath == null) {
-            try {
-                // first check for an explicitly specified cache directory
-                _cachePath = System.getProperty("rsrc_cache_dir");
-                // if that's null, try putting it into their home directory
-                if (_cachePath == null) {
-                    _cachePath = System.getProperty("user.home");
-                }
-                _cachePath += File.separator;
-
-            } catch (SecurityException se) {
-                Log.info("Can't obtain user.home system property. Probably " +
-                         "won't be able to create our cache directory " +
-                         "either. [error=" + se + "].");
-                _cachePath = "";
-            }
-
-            // create our directories one at a time: first the top-level
-            // cache directory
-            _cachePath += CACHE_PATH + File.separator;
+            // start with the base cache path
+            _cachePath = _baseCachePath;
             if (!createDirectory(_cachePath)) {
                 return false;
             }
@@ -397,15 +413,13 @@ public class ResourceManager
             // next incorporate the resource URL into the cache path so
             // that files fetched from different resource roots do not
             // overwrite one another
-            _cachePath +=
-                StringUtil.md5hex(resourceURL.toString()) + File.separator;
+            _cachePath += StringUtil.md5hex(resourceURL.toString()) +
+                File.separator;
             if (!createDirectory(_cachePath)) {
                 return false;
             }
 
-            Log.debug("Generated cache path '" + _cachePath + "' from " +
-                      "root '" + _rootPath + "'.");
-
+            Log.debug("Caching bundles in '" + _cachePath + "'.");
         }
 
         // ensure that the set-specific cache directory exists
@@ -428,7 +442,7 @@ public class ResourceManager
             }
 
         } else {
-            if (!cdir.mkdir()) {
+            if (!cdir.mkdirs()) {
                 Log.warning("Unable to create cache dir. " +
                             "[path=" + path + "].");
                 return false;
@@ -664,6 +678,9 @@ public class ResourceManager
     /** The prefix we prepend to resource paths before attempting to load
      * them from the classpath. */
     protected String _rootPath;
+
+    /** The path to the directory that will contain our bundle cache. */
+    protected String _baseCachePath;
 
     /** The path to our bundle cache directory. */
     protected String _cachePath;
