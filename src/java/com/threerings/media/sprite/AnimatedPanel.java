@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.1 2001/10/17 22:12:20 shaper Exp $
+// $Id: AnimatedPanel.java,v 1.2 2001/10/22 18:13:51 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -63,8 +63,8 @@ public class AnimatedPanel extends JPanel implements AnimatedView
      */
     protected void createOffscreen ()
     {
-	Rectangle bounds = getBounds();
-	_offimg = createImage(bounds.width, bounds.height);
+	Dimension d = getSize();
+	_offimg = createImage(d.width, d.height);
 	_offg = _offimg.getGraphics();
     }
 
