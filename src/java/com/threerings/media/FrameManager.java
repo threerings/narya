@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.30 2002/12/08 02:49:12 mdb Exp $
+// $Id: FrameManager.java,v 1.31 2002/12/09 05:13:45 mdb Exp $
 
 package com.threerings.media;
 
@@ -323,15 +323,12 @@ public class FrameManager
 
             // paint our frame participants (which want to be handled
             // specially)
-            _bgfx.setFont(_saveFont);
             _participantPaintOp.setGraphics(_bgfx);
             _participants.apply(_participantPaintOp);
 
             // repaint any widgets that have declared they need to be
             // repainted since the last tick
-            _bgfx.setFont(_saveFont);
             _remgr.paintComponents(_bgfx, this);
-            _saveFont = _bgfx.getFont();
 
             if (_displayPerf && _perfLabel != null) {
                 // render the current performance status
@@ -484,7 +481,6 @@ public class FrameManager
         // fill the back buffer with white
         _bgfx = _backimg.getGraphics();
         _bgfx.fillRect(0, 0, width, height);
-        _saveFont = _bgfx.getFont();
 
         // clear out our frame graphics in case that became invalid for
         // the same reasons our back buffer became invalid
@@ -750,10 +746,6 @@ public class FrameManager
 
     /** The graphics object from our frame. */
     protected Graphics _fgfx;
-
-    /** We try to preserve the font in between renders in case other
-     * things mess with it. */
-    protected Font _saveFont;
 
     /** Used to avoid creating rectangles when rendering layered
      * components. */
