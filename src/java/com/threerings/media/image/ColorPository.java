@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 
+import java.text.ParseException;
+
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
 
@@ -98,7 +100,7 @@ public class ColorPository implements Serializable
          * in time critical situations.
          */
         public int getColorId (String name)
-            throws Exception
+            throws ParseException
         {
             // Check if the string is itself a number
             try {
@@ -120,13 +122,7 @@ public class ColorPository implements Serializable
             }
 
             // That input wasn't a color
-            //
-            // FIXME: I tried to make this throw a FormatException
-            // but it would never compile.  For some reason, the
-            // "import java.text.FormatException;" line complained
-            // that FormatException wasn't part of java.text,
-            // contrary to the documentation.
-            throw new Exception("No color named '" + name + "'");
+            throw new ParseException("No color named '" + name + "'", 0);
         }
 
         /** Returns a random starting id from the entries in this
