@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.15 2002/06/12 07:02:31 ray Exp $
+// $Id: AStarPathUtil.java,v 1.16 2002/06/12 17:48:11 ray Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -201,7 +201,7 @@ public class AStarPathUtil
             BaseTile tile = info.scene.getBaseTile(x, y);
             return (tile == null) || info.trav.canTraverse(tile);
         }
-        return false;
+        return true;
     }
 
     /**
@@ -231,6 +231,12 @@ public class AStarPathUtil
      */
     protected static AStarNode getNode (AStarInfo info, int x, int y)
     {
+        // deal gracefully if we were asked to create a node offscreen
+        if ((x < 0) || (x >= info.nodes.length) ||
+            (y < 0) || (y >= info.nodes[x].length)) {
+            return new AStarNode(x, y); // fake the funk
+        }
+
 	AStarNode n = info.nodes[x][y];
 	return (n == null) ? (info.nodes[x][y] = new AStarNode(x, y)) : n;
     }
