@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.3 2001/08/03 02:14:41 mdb Exp $
+// $Id: ChatDirector.java,v 1.4 2001/08/04 02:54:28 mdb Exp $
 
 package com.threerings.cocktail.party.chat;
 
@@ -8,6 +8,7 @@ import com.threerings.cocktail.cher.dobj.*;
 
 import com.threerings.cocktail.party.Log;
 import com.threerings.cocktail.party.client.LocationObserver;
+import com.threerings.cocktail.cher.client.InvocationReceiver;
 import com.threerings.cocktail.party.data.PlaceObject;
 import com.threerings.cocktail.party.util.PartyContext;
 
@@ -17,7 +18,7 @@ import com.threerings.cocktail.party.util.PartyContext;
  * messaging.
  */
 public class ChatManager
-    implements LocationObserver, Subscriber
+    implements LocationObserver, Subscriber, InvocationReceiver
 {
     /**
      * Creates a chat manager and initializes it with the supplied
@@ -29,6 +30,10 @@ public class ChatManager
     {
         // keep the context around
         _ctx = ctx;
+
+        // register ourselves as the chat receiver
+        _ctx.getClient().getInvocationManager().registerReceiver(
+            ChatService.MODULE, this);
 
         // register ourselves as a location observer
         _ctx.getLocationManager().addLocationObserver(this);
@@ -94,7 +99,7 @@ public class ChatManager
      */
     public int requestTell (String target, String message)
     {
-        return -1;
+        return ChatService.tell(_ctx.getClient(), target, message, this);
     }
 
     public boolean locationMayChange (int placeId)
@@ -145,6 +150,38 @@ public class ChatManager
         }
 
         return true;
+    }
+
+    /**
+     * Called by the invocation manager when another client has requested
+     * a tell message be delivered to this client.
+     */
+    public void handleTellNotification (String source, String message)
+    {
+        Log.info("Tell notification [src=" + source +
+                 ", msg=" + message + "].");
+    }
+
+    /**
+     * Called in response to a tell request that succeeded.
+     *
+     * @param invid the invocation id of the tell request.
+     */
+    public void handleTellSuccess (int invid)
+    {
+        Log.info("Tell succeeded [invid=" + invid + "].");
+    }
+
+    /**
+     * Called in response to a tell request that failed.
+     *
+     * @param invid the invocation id of the tell request.
+     * @param reason the code that describes the reason for failure.
+     */
+    public void handleTellFailed (int invid, String reason)
+    {
+        Log.info("Tell failed [invid=" + invid +
+                 ", reason=" + reason + "].");
     }
 
     protected void handleSpeakMessage (Object[] args)
