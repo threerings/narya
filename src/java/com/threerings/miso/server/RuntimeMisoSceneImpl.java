@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeMisoSceneImpl.java,v 1.2 2003/01/31 23:10:45 mdb Exp $
+// $Id: RuntimeMisoSceneImpl.java,v 1.3 2003/02/04 17:24:56 mdb Exp $
 
 package com.threerings.miso.server;
 
@@ -33,6 +33,23 @@ public class RuntimeMisoSceneImpl
     {
         return _objects.iterator();
     }
+
+    // documentation inherited from interface
+    public void addObject (ObjectInfo info)
+    {
+        // slap it on our list
+        _objects.add(info);
+
+        // slip it into the interesting array
+        int ocount = _model.objectInfo.length;
+        ObjectInfo[] objectInfo = new ObjectInfo[ocount+1];
+        System.arraycopy(_model.objectInfo, 0, objectInfo, 0, ocount);
+        objectInfo[ocount] = info;
+        _model.objectInfo = objectInfo;
+    }
+
+    /** Our scene model. */
+    protected MisoSceneModel _model;
 
     /** The object info records. */
     protected ArrayList _objects = new ArrayList();

@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeMisoScene.java,v 1.2 2003/01/31 23:10:45 mdb Exp $
+// $Id: RuntimeMisoScene.java,v 1.3 2003/02/04 17:24:56 mdb Exp $
 
 package com.threerings.miso.server;
 
@@ -17,4 +17,10 @@ public interface RuntimeMisoScene
      * "interesting" objects in the scene.
      */
     public Iterator enumerateObjects ();
+
+    /**
+     * Adds the supplied object to this scene and immediately updates the
+     * underlying scene model.
+     */
+    public void addObject (ObjectInfo info);
 }
