@@ -1,5 +1,5 @@
 //
-// $Id: DropControllerDelegate.java,v 1.7 2004/10/15 23:36:41 mdb Exp $
+// $Id: DropControllerDelegate.java,v 1.8 2004/10/22 21:13:08 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -912,19 +912,18 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
             // no evolving again until someone destabilizes the board
             _stable = true;
 
-            if (_ctrl.hasAction()) {
-                // this will trigger further puzzle activity
-                if (debug) {
-                    Log.info("Board did stabilize");
-                }
-                boardDidStabilize();
+            // this will trigger further puzzle activity
+            if (debug) {
+                Log.info("Board did stabilize");
+            }
+            boardDidStabilize();
 
-            } else {
+            // ensure that if we have been postponing action due to board
+            // evolution, that it will now be cleared
+            if (!_ctrl.hasAction()) {
                 if (debug) {
                     Log.info("Maybe clearing action.");
                 }
-                // this will ensure that if we have been postponing action
-                // due to board evolution, that it will now be cleared
                 maybeClearAction();
             }
         }
