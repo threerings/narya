@@ -1,5 +1,5 @@
 //
-// $Id: MultiFrameAnimation.java,v 1.4 2002/09/17 22:18:42 mdb Exp $
+// $Id: MultiFrameAnimation.java,v 1.5 2002/09/20 21:37:22 ray Exp $
 
 package com.threerings.media.animation;
 
@@ -67,6 +67,9 @@ public class MultiFrameAnimation extends Animation
 
         // reset our frame sequencer
         _seeker.init(_frames);
+        if (_seeker instanceof AnimationFrameSequencer) {
+            ((AnimationFrameSequencer) _seeker).setAnimation(this);
+        }
     }
 
     // documentation inherited
