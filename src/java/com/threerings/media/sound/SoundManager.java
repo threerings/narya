@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.62 2003/05/09 03:24:12 mdb Exp $
+// $Id: SoundManager.java,v 1.63 2003/06/07 00:41:25 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -470,7 +470,7 @@ public class SoundManager
 
         Config c = getConfig(info);
         String[] names = c.getValue(info.key, (String[])null);
-        if (names == null) {
+        if ((names == null) || (names.length == 0)) {
             Log.warning("No such music [key=" + info + "].");
             _musicStack.removeFirst();
             playTopMusic();
