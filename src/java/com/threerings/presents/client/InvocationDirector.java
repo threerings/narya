@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.11 2001/10/03 03:42:31 mdb Exp $
+// $Id: InvocationDirector.java,v 1.12 2001/10/04 20:02:13 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -82,6 +82,11 @@ public class InvocationDirector
                        Object rsptarget)
     {
         int invid = nextInvocationId();
+
+        // if null arguments were supplied, assume zero arguments
+        if (args == null) {
+            args = new Object[0];
+        }
 
         // we need an args array for a message that can contain the
         // invocation names, an invocation id and the invocation arguments
