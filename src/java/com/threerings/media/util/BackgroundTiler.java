@@ -1,5 +1,5 @@
 //
-// $Id: BackgroundTiler.java,v 1.4 2002/10/22 02:02:40 shaper Exp $
+// $Id: BackgroundTiler.java,v 1.5 2002/10/22 02:05:42 shaper Exp $
 
 package com.threerings.media.util;
 
@@ -39,7 +39,8 @@ public class BackgroundTiler
         // make sure the image suits our minimum useful dimensions
         if (_w3 <= 0 || _cw3 <= 0 || _h3 <= 0 || _ch3 <= 0) {
             Log.warning("Backgrounder given source image of insufficient " +
-                        "size for tiling [src=" + src + "].");
+                        "size for tiling " +
+                        "[width=" + _width + ", height=" + _height + "].");
             return;
         }
 
