@@ -1,5 +1,5 @@
 //
-// $Id: ZoneProvider.java,v 1.2 2001/12/04 01:06:33 mdb Exp $
+// $Id: ZoneProvider.java,v 1.3 2001/12/13 05:49:50 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -45,7 +45,7 @@ public class ZoneProvider
      *
      * @param source the user requesting the move.
      * @param invid the invocation id of the request.
-     * @param zoneId the identifier of the new zone.
+     * @param zoneId the qualified zone id of the new zone.
      * @param sceneId the identifier of the new scene.
      * @param sceneVew the version of the scene model currently held by
      * the client.

@@ -1,5 +1,5 @@
 //
-// $Id: ZoneSummary.java,v 1.1 2001/12/04 00:31:58 mdb Exp $
+// $Id: ZoneSummary.java,v 1.2 2001/12/13 05:49:50 mdb Exp $
 
 package com.threerings.whirled.zone.data;
 
@@ -16,7 +16,7 @@ import com.threerings.presents.io.Streamable;
  */
 public class ZoneSummary implements Streamable
 {
-    /** The zone's unique identifier. */
+    /** The zone's fully qualified unique identifier. */
     public int zoneId;
 
     /** The name of the zone. */

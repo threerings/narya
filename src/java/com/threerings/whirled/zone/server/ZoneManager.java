@@ -1,5 +1,5 @@
 //
-// $Id: ZoneManager.java,v 1.1 2001/12/04 00:31:58 mdb Exp $
+// $Id: ZoneManager.java,v 1.2 2001/12/13 05:49:50 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -37,6 +37,10 @@ public interface ZoneManager
      * Resolves and delivers the scene summary information for the
      * requested zone. Zone resolution is an asynchronous process, which
      * necessitates this callback-style interface.
+     *
+     * @param zoneId the qualified zone id of the zone to resolve.
+     * @param listener the listener that should be notified when the zone
+     * is successfully resolved or is known to have failed to resolve.
      */
     public void resolveZone (int zoneId, ResolutionListener listener);
 }
