@@ -1,5 +1,5 @@
 //
-// $Id: Registry.java,v 1.3 2001/06/05 21:29:51 mdb Exp $
+// $Id: Registry.java,v 1.4 2001/06/05 21:53:45 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -45,8 +45,8 @@ public class Registry
                                          ObjectResponse.class);
         TypedObjectFactory.registerClass(FailureResponse.TYPE,
                                          FailureResponse.class);
-        TypedObjectFactory.registerClass(PongNotification.TYPE,
-                                         PongNotification.class);
+        TypedObjectFactory.registerClass(PongResponse.TYPE,
+                                         PongResponse.class);
 
         // register our credential classes
         TypedObjectFactory.registerClass(UsernamePasswordCreds.TYPE,
