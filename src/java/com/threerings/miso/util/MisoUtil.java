@@ -1,5 +1,5 @@
 //
-// $Id: MisoUtil.java,v 1.3 2001/07/23 22:31:48 shaper Exp $
+// $Id: MisoUtil.java,v 1.4 2001/07/24 16:10:19 shaper Exp $
 
 package com.threerings.miso.util;
 
@@ -12,6 +12,7 @@ import com.samskivert.util.*;
 import com.threerings.media.ImageManager;
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;
+import com.threerings.miso.scene.xml.XMLFileSceneRepository;
 import com.threerings.miso.tile.*;
 import com.threerings.resource.ResourceManager;
 
@@ -43,11 +44,14 @@ public class MisoUtil
         createSceneManager (Config config, TileManager tilemgr)
     {
 	try {
-	    SceneManagerImpl scenemgr = (SceneManagerImpl)
-		config.instantiateValue("miso.scenemgr", DEF_SCENEMGR);
-            scenemgr.init(tilemgr);
+            SceneRepositoryImpl scenerepo = (SceneRepositoryImpl)
+                config.instantiateValue("miso.scenerepo", DEF_SCENEREPO);
+            scenerepo.init(config, tilemgr);
+
+	    SceneManager scenemgr = new SceneManager(scenerepo);
+
             return scenemgr;
-            
+
 	} catch (Exception e) {
 	    Log.warning("Failed to instantiate scene manager [e=" + e + "].");
 	    return null;
@@ -119,8 +123,8 @@ public class MisoUtil
     }
 
     /** The default SceneManager class name. */
-    protected static final String DEF_SCENEMGR =
-        CompiledSceneManager.class.getName();
+    protected static final String DEF_SCENEREPO =
+        XMLFileSceneRepository.class.getName();
 
     /** The default TileSetManager class name. */
     protected static final String DEF_TILESETMGR =

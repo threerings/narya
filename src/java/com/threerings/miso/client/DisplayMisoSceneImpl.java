@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.10 2001/07/23 22:31:47 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.11 2001/07/24 16:10:19 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -97,130 +97,24 @@ public class Scene
 	return numTiles;
     }
 
-    /**
-     * Populate the scene object by reading the contents from the given
-     * input stream.
-     */
-    public void readFrom (InputStream in) throws IOException
+    public static int getNumLayers ()
     {
-	DataInputStream dis = new DataInputStream(in);
-
-	// read scene header information
-	_name    = dis.readUTF();
-	_sid     = dis.readShort();
-	short version = dis.readShort();
-
-	// make sure we can understand the file format
-	if (version < 0 || version > VERSION) {
-	    throw new IOException("Can't understand scene file format " +
-				  " [version=" + version + "]");
-	}
-
-	// allocate full tile array.  null tiles denote tiles in absentia.
-	tiles = new Tile[TILE_WIDTH][TILE_HEIGHT][NUM_LAYERS];
-
-	// read all tiles for the base layer
-	for (int xx = 0; xx < TILE_WIDTH; xx++) {
-	    for (int yy = 0; yy < TILE_HEIGHT; yy++) {
-		// read tile details
-		short tsid = dis.readShort();
-		short tid = dis.readShort();
-
-		// retrieve tile from tile manager
-		tiles[xx][yy][LAYER_BASE] = _tilemgr.getTile(tsid, tid);
-	    }
-	}
-
-	// read tiles for each of the subsequent layers
-	for (int lnum = 1; lnum < NUM_LAYERS; lnum++) {
-	    // read the number of tiles in this layer
-	    int numTiles = dis.readShort();
-
-	    for (int ii = 0; ii < numTiles; ii++) {
-		// read tile details
-		short tsid = dis.readShort();
-		short tid = dis.readShort();
-		byte tx = dis.readByte();
-		byte ty = dis.readByte();
-
-		// retrieve tile from tile manager
-		tiles[tx][ty][lnum] = _tilemgr.getTile(tsid, tid);
-	    }
-	}
-	
-	// read hotspot points
-	short numSpots = dis.readShort();
-	_hotspots = new Point[numSpots];
-	for (int ii = 0; ii < numSpots; ii++) {
-	    _hotspots[ii] = new Point();
-	    _hotspots[ii].x = dis.readByte();
-	    _hotspots[ii].y = dis.readByte();
-	}
-
-	// read exit points
-	short numExits = dis.readShort();
-	_exits = new ExitPoint[numExits];
-	for (int ii = 0; ii < numExits; ii++) {
-	    _exits[ii] = new ExitPoint();
-	    _exits[ii].x = dis.readByte();
-	    _exits[ii].y = dis.readByte();
-	    _exits[ii].sid = dis.readShort();
-	}
+        return NUM_LAYERS;
     }
 
-    /**
-     * Write this scene object to the specified output stream.
-     */
-    public void writeTo (OutputStream out) throws IOException
+    public static int getVersion ()
     {
-	DataOutputStream dos = new DataOutputStream(out);
+        return VERSION;
+    }
 
-	// write scene header information
-	dos.writeUTF(_name);
-	dos.writeShort(_sid);
-	dos.writeShort(VERSION);
+    public static int getTileWidth ()
+    {
+        return TILE_WIDTH;
+    }
 
-	// write tiles for the base layer
-	for (int xx = 0; xx < TILE_WIDTH; xx++) {
-	    for (int yy = 0; yy < TILE_HEIGHT; yy++) {
-		Tile tile = tiles[xx][yy][LAYER_BASE];
-		dos.writeShort(tile.tsid);
-		dos.writeShort(tile.tid);
-	    }
-	}
-
-	// write tiles for each of the subsequent layers
-	for (int lnum = 1; lnum < NUM_LAYERS; lnum++) {
-	    // write the number of tiles in this layer
-	    dos.writeShort(getNumLayerTiles(lnum));
-
-	    for (int xx = 0; xx < TILE_WIDTH; xx++) {
-		for (int yy = 0; yy < TILE_HEIGHT; yy++) {
-		    Tile tile = tiles[xx][yy][lnum];
-		    if (tile != null) {
-			dos.writeShort(tile.tsid);
-			dos.writeShort(tile.tid);
-		    }
-		}
-	    }
-	}
-
-	// write hotspot points
-	int numSpots = (_hotspots == null) ? 0 : _hotspots.length;
-	dos.writeShort(numSpots);
-	for (int ii = 0; ii < numSpots; ii++) {
-	    dos.writeByte(_hotspots[ii].x);
-	    dos.writeByte(_hotspots[ii].y);
-	}
-	
-	// write exit points
-	int numExits = (_exits == null) ? 0 : _exits.length;
-	dos.writeShort(numExits);
-	for (int ii = 0; ii < numExits; ii++) {
-	    dos.writeByte(_exits[ii].x);
-	    dos.writeByte(_exits[ii].y);
-	    dos.writeByte(_exits[ii].sid);
-	}
+    public static int getTileHeight ()
+    {
+        return TILE_HEIGHT;
     }
 
     /** The latest scene file format version. */

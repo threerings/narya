@@ -1,40 +1,57 @@
 //
-// $Id: SceneManager.java,v 1.6 2001/07/23 22:31:47 shaper Exp $
+// $Id: SceneManager.java,v 1.7 2001/07/24 16:10:19 shaper Exp $
 
 package com.threerings.miso.scene;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
+import com.samskivert.util.IntMap;
 
 /**
- * Manages the various scenes that are displayed during the game and
- * provides simplified retrieval and caching facilities.
+ * The SceneManager provides a single access point for retrieving and
+ * caching the various scenes that make up a game.
  */
-public interface SceneManager
+public class SceneManager
 {
     /**
-     * Return an ArrayList containing all Scene objects available.
+     * Initialize the SceneManager with the given scene repository.
      *
-     * @return the list of scenes.
+     * @param repo the scene repository.
      */
-    public ArrayList getAllScenes ();
-
-    /**
-     * Return a new Scene object with the next unique scene id.  The
-     * scene id is only guaranteed to be unique in the context of the
-     * scenes currently available via this SceneManager.
-     */
-    public Scene getNewScene ();
+    public SceneManager (SceneRepository repo)
+    {
+        _repo = repo;
+    }
 
     /**
      * Return the Scene object for the specified scene id.
+     *
+     * @param sid the scene id.
+     * @return the Scene object.
      */
-    public Scene getScene (int sid);
+    public Scene getScene (int sid)
+    {
+        // TBD
+        return null;
+    }
+
+    public SceneRepository getSceneRepository ()
+    {
+        return _repo;
+    }
 
     /**
-     * Return a String array of all layer names ordered by ascending
-     * layer id.
+     * Return a String array of all scene layer names ordered by
+     * ascending layer id.
+     *
+     * @return the layer names.
      */
-    public String[] getLayerNames ();
+    public String[] getLayerNames ()
+    {
+	return Scene.XLATE_LAYERS;
+    }
+
+    /** The repository used to read and write scenes. */
+    protected SceneRepository _repo;
+
+    /** The currently cached scenes. */
+    protected IntMap _scenes = new IntMap();
 }
