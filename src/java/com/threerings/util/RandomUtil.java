@@ -1,5 +1,5 @@
 //
-// $Id: RandomUtil.java,v 1.7 2003/03/18 19:38:30 ray Exp $
+// $Id: RandomUtil.java,v 1.8 2003/05/16 02:21:37 ray Exp $
 
 package com.threerings.util;
 
@@ -26,6 +26,15 @@ public class RandomUtil
     public static int getInt (int high)
     {
 	return rand.nextInt(high);
+    }
+
+    /**
+     * Returns a pseudorandom, uniformly distributed <code>int</code>
+     * value between <code>high</code> and <code>low</code>, exclusive of each.
+     */
+    public static int getInt (int high, int low)
+    {
+        return low + 1 + rand.nextInt(high - low - 1);
     }
 
     /**
