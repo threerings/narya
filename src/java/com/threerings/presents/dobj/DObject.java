@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.51 2002/10/02 19:29:23 mdb Exp $
+// $Id: DObject.java,v 1.52 2002/10/04 01:31:59 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -573,6 +573,13 @@ public class DObject implements Streamable
      */
     public CompoundEvent startTransaction ()
     {
+        // sanity check
+        if (!isActive()) {
+            String errmsg = "Can't start transaction on non-active object " +
+                "[oid=" + getOid() + ", type=" + getClass().getName() + "]";
+            throw new IllegalStateException(errmsg);
+        }
+
         if (_tevent != null) {
             // a transaction count of -1 indicates that we're joined to
             // another objects transaction that should not allow
