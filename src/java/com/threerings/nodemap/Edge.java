@@ -1,5 +1,5 @@
 //
-// $Id: Edge.java,v 1.1 2001/08/20 22:56:55 shaper Exp $
+// $Id: Edge.java,v 1.2 2002/06/15 01:59:12 shaper Exp $
 
 package com.threerings.nodemap;
 
@@ -40,8 +40,7 @@ public abstract class Edge
      */
     public String toString ()
     {
-	StringBuffer buf = new StringBuffer();
-	buf.append("[");
+	StringBuffer buf = new StringBuffer("[");
 	toString(buf);
 	return buf.append("]").toString();
     }
