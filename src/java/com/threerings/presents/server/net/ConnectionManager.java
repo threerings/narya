@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.14 2001/12/03 20:14:51 mdb Exp $
+// $Id: ConnectionManager.java,v 1.15 2002/03/05 03:19:18 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -34,18 +34,12 @@ public class ConnectionManager extends LoopingThread
      *
      * @param config A config object from which the connection manager
      * will fetch its configuration parameters.
-     * @param authmgr The authentication manager to use when
-     * authenticating client connections.
      */
-    public ConnectionManager (Config config, AuthManager authmgr)
+    public ConnectionManager (Config config)
         throws IOException
     {
+        // the listen port is specified in our configuration
         _port = config.getValue(CM_PORT_KEY, Client.DEFAULT_SERVER_PORT);
-
-        // keep a handle on our authentication manager
-        _authmgr = authmgr;
-        // complete the introductions
-        _authmgr.setConnectionManager(this);
 
         // we use this to wait for activity on our sockets
         _selset = new SelectSet();
@@ -67,12 +61,22 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Returns a reference to the auth manager being used to authenticate
-     * connections.
+     * Specifies the authenticator that should be used by the connection
+     * manager to authenticate logon requests.
      */
-    public AuthManager getAuthManager ()
+    public void setAuthenticator (Authenticator author)
     {
-        return _authmgr;
+        // say hello to our new authenticator
+        _author = author;
+        _author.setConnectionManager(this);
+    }
+
+    /**
+     * Returns the entity that is being used to authenticate connections.
+     */
+    public Authenticator getAuthenticator ()
+    {
+        return _author;
     }
 
     /**
@@ -310,7 +314,7 @@ public class ConnectionManager extends LoopingThread
     }
 
     protected int _port;
-    protected AuthManager _authmgr;
+    protected Authenticator _author;
     protected SelectSet _selset;
 
     protected NonblockingServerSocket _listener;

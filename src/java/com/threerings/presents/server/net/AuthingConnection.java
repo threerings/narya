@@ -1,5 +1,5 @@
 //
-// $Id: AuthingConnection.java,v 1.5 2001/12/03 20:14:51 mdb Exp $
+// $Id: AuthingConnection.java,v 1.6 2002/03/05 03:19:18 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -41,7 +41,7 @@ public class AuthingConnection
             _authreq = (AuthRequest)msg;
 
             // post ourselves for processing by the authmgr
-            _cmgr.getAuthManager().postAuthingConnection(this);
+            _cmgr.getAuthenticator().authenticateConnection(this);
 
         } catch (ClassCastException cce) {
             Log.warning("Received non-authreq message during " +

@@ -1,22 +1,28 @@
 //
-// $Id: DummyAuthenticator.java,v 1.4 2001/10/11 04:07:53 mdb Exp $
+// $Id: DummyAuthenticator.java,v 1.5 2002/03/05 03:19:18 mdb Exp $
 
 package com.threerings.presents.server;
 
 import com.threerings.presents.Log;
-import com.threerings.presents.net.*;
+import com.threerings.presents.net.AuthResponse;
+import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.server.net.Authenticator;
+import com.threerings.presents.server.net.AuthingConnection;
 
-public class DummyAuthenticator implements Authenticator
+/**
+ * A simple authenticator implementation that simply accepts all
+ * authentication requests.
+ */
+public class DummyAuthenticator extends Authenticator
 {
     /**
-     * We just accept all authentication requests.
+     * Accept all authentication requests.
      */
-    public AuthResponse process (AuthRequest req)
+    public void authenticateConnection (AuthingConnection conn)
     {
-        Log.info("Accepting request: " + req);
+        Log.info("Accepting request: " + conn.getAuthRequest());
         AuthResponseData rdata = new AuthResponseData();
         rdata.code = AuthResponseData.SUCCESS;
-        return new AuthResponse(rdata);
+        connectionWasAuthenticated(conn, new AuthResponse(rdata));
     }
 }

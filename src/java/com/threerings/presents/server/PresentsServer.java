@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.17 2002/02/09 07:49:41 mdb Exp $
+// $Id: PresentsServer.java,v 1.18 2002/03/05 03:19:18 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -7,8 +7,8 @@ import com.samskivert.util.Config;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.dobj.DObjectManager;
-import com.threerings.presents.server.net.AuthManager;
 import com.threerings.presents.server.net.ConnectionManager;
+import com.threerings.presents.util.Invoker;
 
 /**
  * The presents server provides a central point of access to the various
@@ -28,9 +28,6 @@ public class PresentsServer
     /** The server configuration. */
     public static Config config;
 
-    /** The authentication manager. */
-    public static AuthManager authmgr;
-
     /** The manager of network connections. */
     public static ConnectionManager conmgr;
 
@@ -43,6 +40,11 @@ public class PresentsServer
     /** The invocation manager. */
     public static InvocationManager invmgr;
 
+    /** This is used to invoke background tasks that should not be allowed
+     * to tie up the distributed object manager thread. This is generally
+     * used to talk to databases and other (relatively) slow entities. */
+    public static Invoker invoker;
+
     /**
      * Initializes all of the server services and prepares for operation.
      */
@@ -54,14 +56,20 @@ public class PresentsServer
         // bind the presents server config into the namespace
         config.bindProperties(CONFIG_KEY, CONFIG_PATH, true);
 
-        // create our authentication manager
-        authmgr = new AuthManager(new DummyAuthenticator());
-        // create our connection manager
-        conmgr = new ConnectionManager(config, authmgr);
-        // create our client manager
-        clmgr = new ClientManager(conmgr);
         // create our distributed object manager
         omgr = new PresentsDObjectMgr();
+
+        // create and start up our invoker
+        invoker = new Invoker(omgr);
+        invoker.start();
+
+        // create our connection manager
+        conmgr = new ConnectionManager(config);
+        conmgr.setAuthenticator(new DummyAuthenticator());
+
+        // create our client manager
+        clmgr = new ClientManager(conmgr);
+
         // create our invocation manager
         invmgr = new InvocationManager(omgr);
 
@@ -123,8 +131,6 @@ public class PresentsServer
      */
     public void run ()
     {
-        // start up the auth manager
-        authmgr.start();
         // start up the connection manager
         conmgr.start();
         // invoke the dobjmgr event loop
@@ -137,7 +143,6 @@ public class PresentsServer
     public static void shutdown ()
     {
         // shut down our managers
-        authmgr.shutdown();
         conmgr.shutdown();
         omgr.shutdown();
     }
