@@ -85,7 +85,7 @@ public class StageScenePanel extends MisoScenePanel
     /**
      * Constructs a stage scene view panel.
      */
-    public StageScenePanel (StageContext ctx, StageSceneController ctrl)
+    public StageScenePanel (StageContext ctx, Controller ctrl)
     {
         super(ctx, StageSceneUtil.getMetrics());
 
@@ -568,9 +568,7 @@ public class StageScenePanel extends MisoScenePanel
      */
     protected UniformTileSet loadPortalTileSet ()
     {
-//         return YoUI.client.loadTileSet(
-//             "media/yohoho/icons/portal_arrows.png",
-//             PORTAL_ICON_WIDTH, PORTAL_ICON_HEIGHT);
+        // TODO: load some sort of portal tileset
         return null;
     }
 
@@ -599,7 +597,7 @@ public class StageScenePanel extends MisoScenePanel
     protected StageContext _ctx;
 
     /** The controller with which we work in tandem. */
-    protected StageSceneController _ctrl;
+    protected Controller _ctrl;
 
     /** Our currently displayed scene. */
     protected StageScene _scene;
