@@ -1,5 +1,5 @@
 //
-// $Id: ParlorDirector.java,v 1.8 2001/10/06 00:25:29 mdb Exp $
+// $Id: ParlorDirector.java,v 1.9 2001/10/09 20:20:52 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -195,6 +195,9 @@ public class ParlorDirector
     public void handleGameReadyNotification (int gameOid)
     {
         Log.info("Handling game ready [goid=" + gameOid + "].");
+
+        // go there
+        _ctx.getLocationDirector().moveTo(gameOid);
     }
 
     /**
