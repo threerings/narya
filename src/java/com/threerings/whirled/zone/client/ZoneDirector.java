@@ -1,7 +1,9 @@
 //
-// $Id: ZoneDirector.java,v 1.2 2001/12/16 05:18:20 mdb Exp $
+// $Id: ZoneDirector.java,v 1.3 2001/12/17 04:00:27 mdb Exp $
 
 package com.threerings.whirled.zone.client;
+
+import java.util.ArrayList;
 
 import com.threerings.crowd.data.PlaceConfig;
 
@@ -9,6 +11,7 @@ import com.threerings.whirled.client.SceneDirector;
 import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.util.WhirledContext;
 
+import com.threerings.whirled.zone.Log;
 import com.threerings.whirled.zone.data.ZoneSummary;
 
 /**
@@ -42,6 +45,23 @@ public class ZoneDirector
     public ZoneSummary getZoneSummary ()
     {
         return _summary;
+    }
+
+    /**
+     * Adds a zone observer to the list. This observer will subsequently
+     * be notified of effected and failed zone changes.
+     */
+    public void addZoneObserver (ZoneObserver observer)
+    {
+        _observers.add(observer);
+    }
+
+    /**
+     * Removes a zone observer from the list.
+     */
+    public void removeZoneObserver (ZoneObserver observer)
+    {
+        _observers.remove(observer);
     }
 
     /**
@@ -87,8 +107,11 @@ public class ZoneDirector
         // keep track of the summary
         _summary = summary;
 
-        // and pass the rest off to the standard scene transition code
+        // pass the rest off to the standard scene transition code
         _scdir.handleMoveSucceeded(invid, placeId, config);
+
+        // and let the zone observers know what's up
+        notifyObservers(summary);
     }
 
     /**
@@ -103,8 +126,11 @@ public class ZoneDirector
         // keep track of the summary
         _summary = summary;
 
-        // and pass the rest off to the standard scene transition code
+        // pass the rest off to the standard scene transition code
         _scdir.handleMoveSucceededPlusUpdate(invid, placeId, config, model);
+
+        // and let the zone observers know what's up
+        notifyObservers(summary);
     }
 
     /**
@@ -112,7 +138,35 @@ public class ZoneDirector
      */
     public void handleMoveFailed (int invid, String reason)
     {
+        // let the scene director cope
         _scdir.handleMoveFailed(invid, reason);
+
+        // and let the observers know what's up
+        notifyObservers(reason);
+    }
+
+    /**
+     * Notifies observers of success or failure, depending on the type of
+     * object provided as data.
+     */
+    protected void notifyObservers (Object data)
+    {
+        // let our observers know that all is well on the western front
+        for (int i = 0; i < _observers.size(); i++) {
+            ZoneObserver obs = (ZoneObserver)_observers.get(i);
+            try {
+                if (data instanceof ZoneSummary) {
+                    obs.zoneDidChange((ZoneSummary)data);
+                } else {
+                    obs.zoneChangeFailed((String)data);
+                }
+
+            } catch (Throwable t) {
+                Log.warning("Zone observer choked during notification " +
+                            "[data=" + data + ", obs=" + obs + "].");
+                Log.logStackTrace(t);
+            }
+        }
     }
 
     /** A reference to the active client context. */
@@ -124,4 +178,7 @@ public class ZoneDirector
     /** A reference to the zone summary for the currently occupied
      * zone. */
     protected ZoneSummary _summary;
+
+    /** Our zone observer list. */
+    protected ArrayList _observers = new ArrayList();
 }
