@@ -1,5 +1,5 @@
 //
-// $Id: PathSequence.java,v 1.2 2003/05/20 04:09:13 mdb Exp $
+// $Id: PathSequence.java,v 1.3 2003/09/25 21:07:20 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -87,7 +87,9 @@ public class PathSequence
     // documentation inherited from interface Path
     public void wasRemoved (Pathable pable)
     {
-        _curPath.wasRemoved(_pableRep);
+        if (_curPath != null) {
+            _curPath.wasRemoved(_pableRep);
+        }
     }
 
     /**
