@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundlerTask.java,v 1.6 2003/02/28 00:46:52 mdb Exp $
+// $Id: TileSetBundlerTask.java,v 1.7 2003/04/27 06:33:40 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -57,6 +57,7 @@ public class TileSetBundlerTask extends Task
         ensureSet(_mapfile, "Must specify the path to the tileset id map " +
                   "file via the 'mapfile' attribute.");
 
+        File cfile = null;
         try {
             // create a tileset bundler
             TileSetBundler bundler = new TileSetBundler(_config);
@@ -73,7 +74,7 @@ public class TileSetBundlerTask extends Task
                 String[] srcFiles = ds.getIncludedFiles();
 
                 for (int f = 0; f < srcFiles.length; f++) {
-                    File cfile = new File(fromDir, srcFiles[f]);
+                    cfile = new File(fromDir, srcFiles[f]);
 
                     // figure out the bundle file based on the definition
                     // file
@@ -104,8 +105,8 @@ public class TileSetBundlerTask extends Task
             broker.commit();
 
         } catch (Exception e) {
-            String errmsg = "Failure creating tileset bundle: " +
-                e.getMessage();
+            String errmsg = "Failure creating tileset bundle [source=" + cfile +
+                "]: " + e.getMessage();
             throw new BuildException(errmsg, e);
         }
     }
