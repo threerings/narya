@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.13 2004/10/15 23:33:51 mdb Exp $
+// $Id: PuzzleController.java,v 1.14 2004/10/15 23:52:25 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -558,10 +558,10 @@ public abstract class PuzzleController extends GameController
     {
         final boolean[] canClear = new boolean[1];
         canClear[0] = (_pview.getActionCount() == 0);
-        if (!canClear[0]) {
-            _pview.dumpActors();
-            PuzzleBoardView.DEBUG_ACTION = true;
-        }
+//         if (!canClear[0]) {
+//             _pview.dumpActors();
+//             PuzzleBoardView.DEBUG_ACTION = true;
+//         }
 
         // let our delegates do their business
         applyToDelegates(PuzzleControllerDelegate.class, new DelegateOp() {
@@ -603,7 +603,7 @@ public abstract class PuzzleController extends GameController
 
         // make a note that we've cleared the action
         _astate = ACTION_CLEARED;
-        PuzzleBoardView.DEBUG_ACTION = false;
+//         PuzzleBoardView.DEBUG_ACTION = false;
 
         // let our delegates do their business
         applyToDelegates(PuzzleControllerDelegate.class, new DelegateOp() {
