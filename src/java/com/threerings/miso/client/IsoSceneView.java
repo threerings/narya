@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.88 2002/01/31 02:53:29 mdb Exp $
+// $Id: IsoSceneView.java,v 1.89 2002/01/31 17:43:57 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -97,10 +97,11 @@ public class IsoSceneView implements SceneView
     /**
      * Configures the scene view to highlight object tiles either never
      * ({@link #HIGHLIGHT_NEVER}), only when an object tile has an
-     * associated action string ({@link HIGHLIGHT_WITH_ACTION}), or always
-     * ({@link HIGHLIGHT_ALWAYS}). It is also possible to configure the
-     * view to highlight whatever tile is under the cursor, even if it's
-     * not an object tile which is done in the {@link HIGHLIGHT_ALL} mode.
+     * associated action string ({@link #HIGHLIGHT_WITH_ACTION}), or
+     * always ({@link #HIGHLIGHT_ALWAYS}). It is also possible to
+     * configure the view to highlight whatever tile is under the cursor,
+     * even if it's not an object tile which is done in the {@link
+     * #HIGHLIGHT_ALL} mode.
      */
     public void setHighlightMode (int hmode)
     {
