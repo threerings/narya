@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.2 2001/10/04 23:41:44 mdb Exp $
+// $Id: ClientController.java,v 1.3 2001/10/09 00:48:34 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -14,7 +14,6 @@ import com.threerings.cocktail.cher.net.UsernamePasswordCreds;
 
 import com.threerings.cocktail.party.client.*;
 import com.threerings.cocktail.party.data.*;
-import com.threerings.cocktail.party.util.PlaceViewUtil;
 
 import com.threerings.media.sprite.SpriteManager;
 
@@ -133,8 +132,9 @@ public class ClientController
 
         // clean up after the old place
         if (_place != null) {
-            _place.removeSubscriber(this);
+            // dispatch didLeavePlace to our views
             PlaceViewUtil.dispatchDidLeavePlace(_frame, _place);
+            _place.removeSubscriber(this);
         }
 
         _place = place;
@@ -142,6 +142,7 @@ public class ClientController
         // and enter the new place with bells on
         if (_place != null) {
             _place.addSubscriber(this);
+            // dispatch willEnterPlace to our views
             PlaceViewUtil.dispatchWillEnterPlace(_frame, _place);
         }
     }

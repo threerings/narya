@@ -1,5 +1,5 @@
 //
-// $Id: LobbyRegistry.java,v 1.2 2001/10/04 23:41:44 mdb Exp $
+// $Id: LobbyRegistry.java,v 1.3 2001/10/09 00:48:34 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -106,15 +106,17 @@ public class LobbyRegistry implements LobbyCodes
             props = PropertiesUtil.getSubProperties(props, lobbyId);
 
             // get the lobby manager class and UGI
-            String lmgrClass = props.getProperty("mgrclass");
-            if (StringUtil.blank(lmgrClass)) {
-                throw new Exception("Missing 'mgrclass' definition in " +
+            String cfgClass = props.getProperty("config");
+            if (StringUtil.blank(cfgClass)) {
+                throw new Exception("Missing 'config' definition in " +
                                     "lobby configuration.");
             }
 
             // instantiate the manager class and create the lobby
+            LobbyConfig config = (LobbyConfig)
+                Class.forName(cfgClass).newInstance();
             LobbyManager lobmgr = (LobbyManager)
-                MiCasaServer.plreg.createPlace(Class.forName(lmgrClass));
+                MiCasaServer.plreg.createPlace(config);
 
             // initialize the lobby manager. it will call lobbyReady()
             // when it has obtained a reference to its lobby object and is
