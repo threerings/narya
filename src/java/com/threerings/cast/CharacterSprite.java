@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.14 2001/10/24 00:55:08 shaper Exp $
+// $Id: CharacterSprite.java,v 1.15 2001/10/25 18:06:17 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -25,17 +25,17 @@ public class AmbulatorySprite extends Sprite implements Traverser
      *
      * @param x the sprite x-position in pixels.
      * @param y the sprite y-position in pixels.
-     * @param anims the set of multi-frame images to use when animating
-     * the sprite in each of the compass directions.
+     * @param images the images used to display the sprite when
+     * standing or walking about.
      */
     public AmbulatorySprite (
-        IsoSceneViewModel model, int x, int y, MultiFrameImage[] anims)
+        IsoSceneViewModel model, int x, int y, CharacterImages images)
     {
         super(x, y);
 
         // keep track of these
         _model = model;
-        _anims = anims;
+        _images = images;
 
         // give ourselves an initial orientation
         setOrientation(DIR_NORTH);
@@ -47,7 +47,11 @@ public class AmbulatorySprite extends Sprite implements Traverser
         super.setOrientation(orient);
 
         // update the sprite frames to reflect the direction
-        setFrames(_anims[_orient]);
+        if (_path == null) {
+            setFrames(_images.standing[_orient]);
+        } else {
+            setFrames(_images.walking[_orient]);
+        }
     }
 
     /**
@@ -106,8 +110,7 @@ public class AmbulatorySprite extends Sprite implements Traverser
     protected void halt ()
     {
         // come to a halt looking settled and at peace
-        _frame = _frames.getFrame(_frameIdx = 0);
-        invalidate();
+        setFrames(_images.standing[_orient]);
 
         // disable walking animation
         setAnimationMode(NO_ANIMATION);
@@ -213,8 +216,21 @@ public class AmbulatorySprite extends Sprite implements Traverser
         buf.append(", finey=").append(_finey);
     }
 
+    /**
+     * A class to hold the images that are used to display the sprite
+     * while walking about.
+     */
+    public static class CharacterImages
+    {
+        /** The images of the sprite standing at rest in each orientation. */
+        public MultiFrameImage standing[];
+
+        /** The images of the sprite walking in each orientation. */
+        public MultiFrameImage walking[];
+    }
+
     /** The animation frames for the sprite facing each direction. */
-    protected MultiFrameImage[] _anims;
+    protected CharacterImages _images;
 
     /** The iso scene view model. */
     protected IsoSceneViewModel _model;

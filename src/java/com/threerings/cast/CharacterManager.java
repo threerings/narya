@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.3 2001/10/24 00:55:08 shaper Exp $
+// $Id: CharacterManager.java,v 1.4 2001/10/25 18:06:17 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -13,6 +13,7 @@ import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.tile.TileManager;
 
 import com.threerings.miso.Log;
+import com.threerings.miso.scene.AmbulatorySprite.CharacterImages;
 import com.threerings.miso.scene.xml.XMLCharacterParser;
 import com.threerings.miso.tile.TileUtil;
 import com.threerings.miso.util.MisoUtil;
@@ -57,10 +58,10 @@ public class CharacterManager
             return null;
         }
 
-	MultiFrameImage[] anims = TileUtil.getAmbulatorySpriteFrames(
+	CharacterImages imgs = TileUtil.getCharacterImages(
             _tilemgr, tsid, info.frameCount);
 
-        AmbulatorySprite sprite = new AmbulatorySprite(_model, 0, 0, anims);
+        AmbulatorySprite sprite = new AmbulatorySprite(_model, 0, 0, imgs);
         sprite.setFrameRate(info.fps);
         sprite.setOrigin(info.origin.x, info.origin.y);
 

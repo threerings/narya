@@ -1,16 +1,15 @@
 //
-// $Id: TileUtil.java,v 1.7 2001/10/15 23:53:43 shaper Exp $
+// $Id: TileUtil.java,v 1.8 2001/10/25 18:06:17 shaper Exp $
 
 package com.threerings.miso.tile;
 
 import java.awt.Image;
 
-import com.threerings.media.sprite.MultiFrameImage;
-import com.threerings.media.sprite.Sprite;
+import com.threerings.media.sprite.*;
 import com.threerings.media.tile.*;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.AmbulatorySprite;
+import com.threerings.miso.scene.AmbulatorySprite.CharacterImages;
 
 /**
  * Tile-related utility functions.
@@ -18,65 +17,53 @@ import com.threerings.miso.scene.AmbulatorySprite;
 public class TileUtil
 {
     /**
-     * Returns an array of multi-frame images corresponding to the
-     * frames of animation used to render the ambulatory sprite in
-     * each of the directions it may face.  The tileset id referenced
-     * must contain <code>Sprite.NUM_DIRECTIONS</code> rows of tiles,
-     * with each row containing <code>frameCount</code> tiles.
+     * Returns a {@link CharacterImages} object containing the frames
+     * of animation used to render the sprite while standing or
+     * walking in each of the directions it may face.  The tileset id
+     * referenced must contain <code>Sprite.NUM_DIRECTIONS</code> rows
+     * of tiles, with each row containing first the single standing
+     * tile, followed by <code>frameCount</code> tiles describing the
+     * walking animation.
      *
      * @param tilemgr the tile manager to retrieve tiles from.
      * @param tsid the tileset id containing the sprite tiles.
+     * @param frameCount the number of walking frames of animation.
      *
-     * @return the array of multi-frame sprite images.
+     * @return the ambulatory images object.
      */
-    public static MultiFrameImage[]
-        getAmbulatorySpriteFrames (TileManager tilemgr, int tsid,
-                                   int frameCount)
+    public static CharacterImages getCharacterImages (
+        TileManager tilemgr, int tsid, int frameCount)
     {
-        MultiFrameImage[] anims = new MultiFrameImage[Sprite.NUM_DIRECTIONS];
+        CharacterImages images = new CharacterImages();
+        images.standing = new MultiFrameImage[Sprite.NUM_DIRECTIONS];
+        images.walking = new MultiFrameImage[Sprite.NUM_DIRECTIONS];
 
 	try {
 	    for (int ii = 0; ii < Sprite.NUM_DIRECTIONS; ii++) {
-		Tile[] tiles = new Tile[frameCount];
 
-		for (int jj = 0; jj < frameCount; jj++) {
-		    int idx = (ii * frameCount) + jj;
-		    tiles[jj] = tilemgr.getTile(tsid, idx);
+                Image walkimgs[] = new Image[frameCount];
+
+                int rowcount = frameCount + 1;
+		for (int jj = 0; jj < rowcount; jj++) {
+		    int idx = (ii * rowcount) + jj;
+
+                    Image img = tilemgr.getTile(tsid, idx).img;
+                    if (jj == 0) {
+                        images.standing[ii] = new SingleFrameImageImpl(img);
+                    } else {
+                        walkimgs[jj - 1] = img;
+                    }
 		}
 
-		anims[ii] = new MultiTileImage(tiles);
+                images.walking[ii] = new MultiFrameImageImpl(walkimgs);
 	    }
 
 	} catch (TileException te) {
-	    Log.warning("Exception retrieving ambulatory sprite tiles " +
+	    Log.warning("Exception retrieving character images " +
 			"[te=" + te + "].");
 	    return null;
 	}
 
-        return anims;
-    }
-
-    /**
-     * A class that treats an array of tiles as source images for a
-     * multi-frame animation to be used by the sprite engine.
-     */
-    protected static class MultiTileImage implements MultiFrameImage
-    {
-        public MultiTileImage (Tile[] tiles)
-        {
-            _tiles = tiles;
-        }
-
-        public int getFrameCount ()
-        {
-            return _tiles.length;
-        }
-
-        public Image getFrame (int index)
-        {
-            return _tiles[index].img;
-        }
-
-        protected Tile[] _tiles;
+        return images;
     }
 }
