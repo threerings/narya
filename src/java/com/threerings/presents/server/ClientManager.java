@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.21 2002/07/23 05:52:49 mdb Exp $
+// $Id: ClientManager.java,v 1.22 2002/09/16 23:34:25 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -183,6 +183,45 @@ public class ClientManager implements ConnectionObserver
             Log.warning("Requested to unmap non-existent client object " +
                         "[username=" + username + "].");
         }
+    }
+
+    /**
+     * Remaps a client from its old username to the specified new
+     * username. The client must end its session using the new username.
+     * This most likely shouldn't be called anywhere except from {@link
+     * PresentsClient#setUsername}.
+     *
+     * @return true if the remapping succeeded, false if it failed.
+     */
+    protected synchronized boolean remapClient (
+        String oldname, String newname)
+    {
+        // make sure they are already mapped
+        PresentsClient client = (PresentsClient)_usermap.remove(oldname);
+        if (client == null) {
+            Log.warning("Aiya! Can't remap non-existent user " +
+                        "[oldname=" + oldname + ", newname=" + newname + "].");
+            return false;
+        }
+
+        // map them under their new name
+        _usermap.put(newname, client);
+
+        // release their old lock and create a lock for their new name
+        releaseClient(oldname);
+        lockClient(newname);
+
+        // update their client object mapping
+        ClientObject clobj = (ClientObject)_objmap.remove(oldname);
+        if (clobj == null) {
+            Log.warning("Aiya! Unable to unmap old client object when " +
+                        "remapping user [oldname=" + oldname +
+                        ", newname=" + newname + "]. Hoping for the best.");
+        } else {
+            _objmap.put(newname, clobj);
+        }
+
+        return true;
     }
 
     /**

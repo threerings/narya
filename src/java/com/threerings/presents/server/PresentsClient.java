@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.35 2002/08/14 19:07:56 mdb Exp $
+// $Id: PresentsClient.java,v 1.36 2002/09/16 23:34:25 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -60,6 +60,36 @@ public class PresentsClient
     public String getUsername ()
     {
         return _username;
+    }
+
+    /**
+     * <em>Danger:</em> this method is not for general consumption. This
+     * changes the username of the client, but should only be done very
+     * early in a user's session, when you know that no one has mapped the
+     * user based on their username or has in any other way made use of
+     * their username in a way that will break. However, it should not be
+     * done <em>too</em> early in the session. The client must be fully
+     * resolved.
+     *
+     * <p> It exists to support systems wherein a user logs in with an
+     * account username and then chooses a "screen name" by which they
+     * will play (often from a small set of available "characters"
+     * available per account). This will take care of remapping the
+     * username to client object mappings that were made by the Presents
+     * services when the user logs on, but anything else that has had its
+     * grubby mits on the username will be left to its own devices, hence
+     * the care that must be exercised when using this method.
+     */
+    public void setUsername (String username)
+    {
+        // remap the client object in the client manager
+        if (_cmgr.remapClient(_username, username)) {
+            // change our internal business
+            _username = username;
+        } else {
+            Log.warning("Unable to remap username [client=" + this +
+                        ", newname=" + username + "].");
+        }
     }
 
     /**
