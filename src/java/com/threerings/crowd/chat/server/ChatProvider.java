@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.8 2001/12/17 00:52:43 mdb Exp $
+// $Id: ChatProvider.java,v 1.9 2002/02/26 05:47:40 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -66,11 +66,15 @@ public class ChatProvider
      * that makes it clear that it is a message from the server.
      *
      * @param placeOid the place to which to deliver the message.
+     * @param bundle the name of the localization bundle that should be
+     * used to translate this system message prior to displaying it to the
+     * client.
      * @param message the text of the message.
      */
-    public static void sendSystemMessage (int placeOid, String message)
+    public static void sendSystemMessage (
+        int placeOid, String bundle, String message)
     {
-        Object[] outargs = new Object[] { message };
+        Object[] outargs = new Object[] { bundle, message };
         MessageEvent nevt = new MessageEvent(
             placeOid, ChatService.SYSTEM_NOTIFICATION, outargs);
         CrowdServer.omgr.postEvent(nevt);

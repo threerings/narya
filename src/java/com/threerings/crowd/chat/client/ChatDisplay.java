@@ -1,5 +1,5 @@
 //
-// $Id: ChatDisplay.java,v 1.7 2002/02/03 08:22:38 shaper Exp $
+// $Id: ChatDisplay.java,v 1.8 2002/02/26 05:47:40 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -48,9 +48,12 @@ public interface ChatDisplay
      * delivered via the place object, or for messages delivered via an
      * auxiliary chat object, the type code provided when that auxiliary
      * object was registered.
+     * @param bundle the bundle identifier to be used when localizing this
+     * message for display to the client.
      * @param message the text of the message.
      */
-    public void displaySystemMessage (String type, String message);
+    public void displaySystemMessage (
+        String type, String bundle, String message);
 
     /**
      * Called in response to a chat request (either speak or tell) that

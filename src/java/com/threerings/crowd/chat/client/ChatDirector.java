@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.16 2002/02/09 20:47:11 mdb Exp $
+// $Id: ChatDirector.java,v 1.17 2002/02/26 05:47:40 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -245,12 +245,13 @@ public class ChatDirector
      */
     protected void handleSystemMessage (String type, Object[] args)
     {
-        String message = (String)args[0];
+        String bundle = (String)args[0];
+        String message = (String)args[1];
 
         // pass this on to our chat displays
         for (int i = 0; i < _displays.size(); i++) {
             ChatDisplay display = (ChatDisplay)_displays.get(i);
-            display.displaySystemMessage(type, message);
+            display.displaySystemMessage(type, bundle, message);
         }
     }
 
