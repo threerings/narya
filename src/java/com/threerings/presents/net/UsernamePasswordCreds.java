@@ -1,5 +1,5 @@
 //
-// $Id: UsernamePasswordCreds.java,v 1.9 2002/09/18 22:06:54 mdb Exp $
+// $Id: UsernamePasswordCreds.java,v 1.10 2002/12/20 23:28:24 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -30,26 +30,6 @@ public class UsernamePasswordCreds extends Credentials
     public String getPassword ()
     {
         return _password;
-    }
-
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeUTF(_password);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(in);
-        _password = in.readUTF();
     }
 
     // documentation inherited

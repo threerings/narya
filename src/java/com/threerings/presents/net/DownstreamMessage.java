@@ -1,5 +1,5 @@
 //
-// $Id: DownstreamMessage.java,v 1.9 2002/07/23 05:52:48 mdb Exp $
+// $Id: DownstreamMessage.java,v 1.10 2002/12/20 23:28:24 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -22,24 +22,6 @@ public abstract class DownstreamMessage extends SimpleStreamableObject
      * upstream message).
      */
     public short messageId = -1;
-
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        out.defaultWriteObject();
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        in.defaultReadObject();
-    }
 
     /**
      * Generates a string representation of this instance.

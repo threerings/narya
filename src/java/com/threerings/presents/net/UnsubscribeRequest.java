@@ -1,5 +1,5 @@
 //
-// $Id: UnsubscribeRequest.java,v 1.7 2002/07/23 05:52:49 mdb Exp $
+// $Id: UnsubscribeRequest.java,v 1.8 2002/12/20 23:28:24 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -33,26 +33,6 @@ public class UnsubscribeRequest extends UpstreamMessage
     public int getOid ()
     {
         return _oid;
-    }
-
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeInt(_oid);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(in);
-        _oid = in.readInt();
     }
 
     public String toString ()

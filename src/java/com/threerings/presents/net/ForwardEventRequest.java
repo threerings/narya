@@ -1,5 +1,5 @@
 //
-// $Id: ForwardEventRequest.java,v 1.10 2002/07/23 05:52:48 mdb Exp $
+// $Id: ForwardEventRequest.java,v 1.11 2002/12/20 23:28:24 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -34,26 +34,6 @@ public class ForwardEventRequest extends UpstreamMessage
     public DEvent getEvent ()
     {
         return _event;
-    }
-
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeObject(_event);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(in);
-        _event = (DEvent)in.readObject();
     }
 
     public String toString ()

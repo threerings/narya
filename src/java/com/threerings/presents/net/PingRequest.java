@@ -1,5 +1,5 @@
 //
-// $Id: PingRequest.java,v 1.8 2002/10/29 23:51:26 mdb Exp $
+// $Id: PingRequest.java,v 1.9 2002/12/20 23:28:24 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -47,11 +47,11 @@ public class PingRequest extends UpstreamMessage
     public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeObject(out);
-
         // grab a timestamp noting when we were encoded into a raw buffer
         // for delivery over the network
         _packStamp = System.currentTimeMillis();
+
+        out.defaultWriteObject();
     }
 
     /**
@@ -60,11 +60,11 @@ public class PingRequest extends UpstreamMessage
     public void readObject (ObjectInputStream in)
         throws IOException, ClassNotFoundException
     {
-        super.readObject(in);
-
         // grab a timestamp noting when we were decoded from a raw buffer
         // after being received over the network
         _unpackStamp = System.currentTimeMillis();
+
+        in.defaultReadObject();
     }
 
     public String toString ()
@@ -73,10 +73,10 @@ public class PingRequest extends UpstreamMessage
     }
 
     /** A time stamp obtained when we serialize this object. */
-    protected long _packStamp;
+    protected transient long _packStamp;
 
     /** A time stamp obtained when we unserialize this object (the intent
      * is to get a timestamp as close as possible to when the packet was
      * received on the network). */
-    protected long _unpackStamp;
+    protected transient long _unpackStamp;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: UpstreamMessage.java,v 1.9 2002/07/23 05:52:49 mdb Exp $
+// $Id: UpstreamMessage.java,v 1.10 2002/12/20 23:28:24 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -35,24 +35,6 @@ public abstract class UpstreamMessage extends SimpleStreamableObject
         // will be used, on the server it will be overwritten by the
         // unserialized value
         this.messageId = nextMessageId();
-    }
-
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        out.defaultWriteObject();
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        in.defaultReadObject();
     }
 
     public String toString ()

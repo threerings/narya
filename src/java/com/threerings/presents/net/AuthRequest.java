@@ -1,5 +1,5 @@
 //
-// $Id: AuthRequest.java,v 1.9 2002/10/31 18:44:34 mdb Exp $
+// $Id: AuthRequest.java,v 1.10 2002/12/20 23:28:24 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -43,28 +43,6 @@ public class AuthRequest extends UpstreamMessage
     public String getVersion ()
     {
         return _version;
-    }
-
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeObject(_creds);
-        out.writeUTF(_version);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(in);
-        _creds = (Credentials)in.readObject();
-        _version = in.readUTF();
     }
 
     /**

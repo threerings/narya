@@ -1,5 +1,5 @@
 //
-// $Id: AuthResponse.java,v 1.12 2002/07/23 05:52:48 mdb Exp $
+// $Id: AuthResponse.java,v 1.13 2002/12/20 23:28:24 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -36,26 +36,6 @@ public class AuthResponse extends DownstreamMessage
     public AuthResponseData getData ()
     {
         return _data;
-    }
-
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeObject(_data);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(in);
-        _data = (AuthResponseData)in.readObject();
     }
 
     public String toString ()

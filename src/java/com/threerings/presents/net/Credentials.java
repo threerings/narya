@@ -1,5 +1,5 @@
 //
-// $Id: Credentials.java,v 1.9 2002/09/18 21:58:30 mdb Exp $
+// $Id: Credentials.java,v 1.10 2002/12/20 23:28:24 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -44,26 +44,6 @@ public abstract class Credentials implements Streamable
     public String getUsername ()
     {
         return _username;
-    }
-
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        out.defaultWriteObject();
-        out.writeUTF(_username);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        in.defaultReadObject();
-        _username = in.readUTF();
     }
 
     // documentation inherited

@@ -1,5 +1,5 @@
 //
-// $Id: FailureResponse.java,v 1.8 2002/07/23 05:52:48 mdb Exp $
+// $Id: FailureResponse.java,v 1.9 2002/12/20 23:28:24 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -30,26 +30,6 @@ public class FailureResponse extends DownstreamMessage
     public int getOid ()
     {
         return _oid;
-    }
-
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeInt(_oid);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(in);
-        _oid = in.readInt();
     }
 
     public String toString ()
