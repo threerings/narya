@@ -1,5 +1,5 @@
 //
-// $Id: ResolutionView.java,v 1.1 2003/05/12 02:03:31 mdb Exp $
+// $Id: ResolutionView.java,v 1.2 2003/05/15 22:49:38 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -39,7 +39,7 @@ public class ResolutionView extends JPanel
 
     public synchronized void queuedBlock (SceneBlock block)
     {
-        _blocks.put(blockKey(block), Color.yellow);
+        assignColor(block, Color.yellow);
         repaint();
     }
 
@@ -47,7 +47,7 @@ public class ResolutionView extends JPanel
     {
         IntTuple key = blockKey(block);
         if (_blocks.containsKey(key)) {
-            _blocks.put(key, Color.red);
+            assignColor(block, Color.red);
             repaint();
         }
     }
@@ -56,7 +56,7 @@ public class ResolutionView extends JPanel
     {
         IntTuple key = blockKey(block);
         if (_blocks.containsKey(key)) {
-            _blocks.put(key, Color.green);
+            assignColor(block, Color.green);
             repaint();
         }
     }
@@ -73,26 +73,37 @@ public class ResolutionView extends JPanel
         repaint();
     }
 
+    protected void assignColor (SceneBlock block, Color color)
+    {
+        IntTuple key = blockKey(block);
+        BlockGlyph glyph = (BlockGlyph)_blocks.get(key);
+        if (glyph == null) {
+            glyph = new BlockGlyph(_metrics, key.left, key.right);
+            _blocks.put(key, glyph);
+        }
+        glyph.color = color;
+    }
+
     public synchronized void paintComponent (Graphics g)
     {
         super.paintComponent(g);
-
         Graphics2D gfx = (Graphics2D)g;
+
+        Rectangle vbounds = _panel.getViewBounds();
+        gfx.translate((getWidth()-vbounds.width/16)/2 - vbounds.x/16,
+                      (getHeight()-vbounds.height/16)/2 - vbounds.y/16);
+
         AffineTransform xform = gfx.getTransform();
-        gfx.translate(getWidth()/2, getHeight()/2);
         gfx.scale(0.25, 0.25);
-        for (Iterator iter = _blocks.keySet().iterator(); iter.hasNext(); ) {
-            IntTuple key = (IntTuple)iter.next();
-            Color color = (Color)_blocks.get(key);
-            Polygon poly = MisoUtil.getTilePolygon(
-                _metrics, key.left, key.right);
-            gfx.setColor(color);
-            gfx.fill(poly);
-            gfx.setColor(Color.black);
-            gfx.draw(poly);
+
+        // draw our block glyphs
+        for (Iterator iter = _blocks.values().iterator(); iter.hasNext(); ) {
+            ((BlockGlyph)iter.next()).paint(gfx);
         }
+
+        // draw the view bounds
         gfx.scale(0.25, 0.25);
-        gfx.draw(_panel.getViewBounds());
+        gfx.draw(vbounds);
         gfx.setColor(Color.red);
         gfx.draw(_panel.getInfluentialBounds());
         gfx.setTransform(xform);
@@ -103,6 +114,26 @@ public class ResolutionView extends JPanel
         Rectangle bounds = block.getBounds();
         return new IntTuple(MathUtil.floorDiv(bounds.x, bounds.width),
                             MathUtil.floorDiv(bounds.y, bounds.height));
+    }
+
+    protected static class BlockGlyph
+    {
+        public Color color;
+
+        public BlockGlyph (MisoSceneMetrics metrics, int bx, int by)
+        {
+            _bpoly = MisoUtil.getTilePolygon(metrics, bx, by);
+        }
+
+        public void paint (Graphics2D gfx)
+        {
+            gfx.setColor(color);
+            gfx.fill(_bpoly);
+            gfx.setColor(Color.black);
+            gfx.draw(_bpoly);
+        }
+
+        protected Polygon _bpoly;
     }
 
     protected MisoScenePanel _panel;
