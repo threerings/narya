@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.23 2002/10/18 01:32:23 ray Exp $
+// $Id: CharacterManager.java,v 1.24 2002/12/07 00:49:36 mdb Exp $
 
 package com.threerings.cast;
 
@@ -15,6 +15,7 @@ import com.threerings.media.util.Colorization;
 import com.threerings.util.DirectionCodes;
 
 import com.threerings.cast.Log;
+import com.samskivert.util.Throttle;
 
 /**
  * The character manager provides facilities for constructing sprites that
@@ -181,9 +182,12 @@ public class CharacterManager
             _frames.put(key, frames);
         }
 
-        int[] eff = _frames.getTrackedEffectiveness();
-        Log.debug("CharacterManager LRU [hits=" + eff[0] +
-            ", misses=" + eff[1] + "].");
+        // periodically report our action cache performance
+        if (!_cacheStatThrottle.throttleOp()) {
+            int[] eff = _frames.getTrackedEffectiveness();
+            Log.debug("CharacterManager LRU [hits=" + eff[0] +
+                      ", misses=" + eff[1] + "].");
+        }
 
         return frames;
     }
@@ -270,6 +274,9 @@ public class CharacterManager
 
     /** The action animation cache, if we have one. */
     protected ActionCache _acache;
+
+    /** Throttle our cache status logging to once every 30 seconds. */
+    protected Throttle _cacheStatThrottle = new Throttle(1, 30000L);
 
     /** The number of actions to cache before we start clearing them
      * out. */
