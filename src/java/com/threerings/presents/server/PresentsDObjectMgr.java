@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.21 2002/02/02 09:42:36 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.22 2002/02/02 09:53:00 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Queue;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.dobj.*;
@@ -441,7 +442,8 @@ public class PresentsDObjectMgr implements RootDObjectManager
             sub.objectAvailable(obj);
         } catch (Exception e) {
             Log.warning("Subscriber choked during object available " +
-                        "[obj=" + obj + ", sub=" + sub + "].");
+                        "[obj=" + StringUtil.safeToString(obj) +
+                        ", sub=" + sub + "].");
             Log.logStackTrace(e);
         }
     }
