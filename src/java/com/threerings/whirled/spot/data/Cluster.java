@@ -1,5 +1,5 @@
 //
-// $Id: Cluster.java,v 1.1 2003/02/13 21:55:22 mdb Exp $
+// $Id: Cluster.java,v 1.2 2003/02/13 23:01:35 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -31,6 +31,22 @@ public class Cluster
             _key = new Integer(clusterOid);
         }
         return _key;
+    }
+
+    // documentation inherited
+    public boolean equals (Object other)
+    {
+        if (other instanceof Cluster) {
+            return ((Cluster)other).clusterOid == clusterOid;
+        } else {
+            return false;
+        }
+    }
+
+    // documentation inherited
+    public int hashCode ()
+    {
+        return clusterOid;
     }
 
     /** Used for {@link #geyKey}. */
