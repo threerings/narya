@@ -1,5 +1,5 @@
 //
-// $Id: FieldEditor.java,v 1.6 2003/04/30 22:32:20 mdb Exp $
+// $Id: FieldEditor.java,v 1.7 2003/06/25 03:13:56 mdb Exp $
 
 package com.threerings.admin.client;
 
@@ -113,6 +113,22 @@ public class FieldEditor extends JPanel
                    _field.getType().equals(Long.TYPE)) {
             try {
                 value = new Long(_value.getText());
+            } catch (NumberFormatException nfe) {
+                updateBorder(true);
+            }
+
+        } else if (_field.getType().equals(Float.class) ||
+                   _field.getType().equals(Float.TYPE)) {
+            try {
+                value = new Float(_value.getText());
+            } catch (NumberFormatException nfe) {
+                updateBorder(true);
+            }
+
+        } else if (_field.getType().equals(Double.class) ||
+                   _field.getType().equals(Double.TYPE)) {
+            try {
+                value = new Double(_value.getText());
             } catch (NumberFormatException nfe) {
                 updateBorder(true);
             }
