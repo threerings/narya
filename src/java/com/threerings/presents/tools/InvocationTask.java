@@ -13,6 +13,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -353,7 +354,7 @@ public abstract class InvocationTask extends Task
         FileUtils.writeStringToFile(new File(path), data, "UTF-8");
     }
 
-    protected static void checkedAdd (SortableArrayList list, String value)
+    protected static void checkedAdd (List list, Object value)
     {
         if (!list.contains(value)) {
             list.add(value);

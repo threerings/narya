@@ -62,6 +62,12 @@ public class GenServiceTask extends InvocationTask
             return getName().compareTo(other.getName());
         }
 
+        public boolean equals (Object other)
+        {
+            return getClass().equals(other.getClass()) &&
+                listener.equals(((ServiceListener)other).listener);
+        }
+
         public String getName ()
         {
             String name = simpleName(listener);
@@ -113,8 +119,8 @@ public class GenServiceTask extends InvocationTask
             for (int aa = 0; aa < args.length; aa++) {
                 if (_ilistener.isAssignableFrom(args[aa]) &&
                     simpleName(args[aa]).startsWith(sname + ".")) {
-                    listeners.add(new ServiceListener(
-                                      service, args[aa], imports));
+                    checkedAdd(listeners, new ServiceListener(
+                                   service, args[aa], imports));
                 }
             }
             methods.add(new ServiceMethod(service, m, imports));
