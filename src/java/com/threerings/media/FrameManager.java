@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.38 2003/04/29 18:14:37 mdb Exp $
+// $Id: FrameManager.java,v 1.39 2003/04/30 06:42:50 mdb Exp $
 
 package com.threerings.media;
 
@@ -25,10 +25,6 @@ import java.awt.event.WindowListener;
 
 import java.awt.EventQueue;
 
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
@@ -44,6 +40,7 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.media.timer.MediaTimer;
 import com.threerings.media.timer.SystemMediaTimer;
+import com.threerings.media.util.TrailingAverage;
 
 /**
  * Provides a central point from which the computation for each "frame" or
@@ -296,8 +293,8 @@ public abstract class FrameManager
     public void start ()
     {
         if (_ticker == null) {
-            _ticker = new Timer(true);
-            _ticker.scheduleAtFixedRate(_callTick, new Date(), _millisPerFrame);
+            _ticker = new Ticker();
+            _ticker.start();
             _lastTickStamp = 0;
         }
     }
@@ -339,18 +336,42 @@ public abstract class FrameManager
     }
 
     /**
+     * Returns debug performance metrics.
+     */
+    public TrailingAverage[] getPerfMetrics ()
+    {
+        if (_metrics == null) {
+            _metrics = new TrailingAverage[] {
+                new TrailingAverage(150),
+                new TrailingAverage(150),
+                new TrailingAverage(150) };
+        }
+        return _metrics;
+    }
+
+    /**
      * Called to perform the frame processing and rendering.
      */
     protected void tick (long tickStamp)
     {
+        long start = 0L, paint = 0L;
+        if (MediaPanel._perfDebug.getValue()) {
+            start = paint = System.currentTimeMillis();
+        }
         // if our frame is not showing (or is impossibly sized), don't try
         // rendering anything
         if (_frame.isShowing() &&
             _frame.getWidth() > 0 && _frame.getHeight() > 0) {
             // tick our participants
             tickParticipants(tickStamp);
+            paint = System.currentTimeMillis();
             // repaint our participants and components
             paint(tickStamp);
+        }
+        if (MediaPanel._perfDebug.getValue()) {
+            long end = System.currentTimeMillis();
+            getPerfMetrics()[1].record((int)(paint-start));
+            getPerfMetrics()[2].record((int)(end-paint));
         }
     }
 
@@ -650,13 +671,38 @@ public abstract class FrameManager
     }
 
     /** Used to effect periodic calls to {@link #tick}. */
-    protected TimerTask _callTick = new TimerTask () {
+    protected class Ticker extends Thread
+    {
         public void run ()
         {
-            if (testAndSet()) {
-                EventQueue.invokeLater(_awtTicker);
+            while (_running) {
+                long start = 0L;
+                if (MediaPanel._perfDebug.getValue()) {
+                    start = _timer.getElapsedMillis();
+                }
+                try {
+                    Thread.sleep(_sleepGranularity.getValue());
+                } catch (InterruptedException ie) {
+                    Log.warning("Ticker thread interrupted.");
+                }
+
+                long woke = _timer.getElapsedMillis();
+                if (start > 0L) {
+                    getPerfMetrics()[0].record((int)(woke-start));
+                }
+                if (woke - _lastAttempt >= _millisPerFrame) {
+                    _lastAttempt = woke;
+                    if (testAndSet()) {
+                        EventQueue.invokeLater(_awtTicker);
+                    }
+                    // else: drop the frame
+                }
             }
-            // else: drop the frame
+        }
+
+        public void cancel ()
+        {
+            _running = false;
         }
 
         protected final synchronized boolean testAndSet ()
@@ -696,8 +742,14 @@ public abstract class FrameManager
             }
         };
 
+        /** Used to stick a fork in our ticker when desired. */
+        protected transient boolean _running = true;
+
         /** Used to detect when we need to drop frames. */
         protected boolean _ticking;
+
+        /** The time at which we last attempted to tick. */
+        protected long _lastAttempt;
 
         /** Used to compute metrics. */
         protected int _tries, _ticks, _time;
@@ -722,11 +774,14 @@ public abstract class FrameManager
     /** Used to track big delays in calls to our tick method. */
     protected long _lastTickStamp;
 
-    /** The timer that dispatches our frame ticks. */
-    protected Timer _ticker;
+    /** The thread that dispatches our frame ticks. */
+    protected Ticker _ticker;
 
     /** Used to track and report frames per second. */
     protected float[] _fps = new float[2];
+
+    /** Used to track performance metrics. */
+    protected TrailingAverage[] _metrics;
 
     /** Used to avoid creating rectangles when rendering layered
      * components. */
@@ -765,6 +820,13 @@ public abstract class FrameManager
             "rendering, otherwise a volatile back buffer is used " +
             "[requires restart]", "narya.media.frame",
             MediaPrefs.config, false);
+
+    /** Allows us to tweak the sleep granularity. */
+    protected static RuntimeAdjust.IntAdjust _sleepGranularity =
+        new RuntimeAdjust.IntAdjust(
+            "The number of milliseconds slept before checking to see if " +
+            "it's time to queue up a new frame tick.", "narya.media.sleep_gran",
+            MediaPrefs.config, 7);
 
     /** Whether to enable AWT event debugging for the frame. */
     protected static final boolean DEBUG_EVENTS = false;
