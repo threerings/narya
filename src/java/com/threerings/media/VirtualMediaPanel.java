@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.1 2002/06/18 22:25:33 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.2 2002/06/18 23:34:34 mdb Exp $
 
 package com.threerings.media;
 
@@ -184,9 +184,6 @@ public class VirtualMediaPanel extends MediaPanel
 
         // now do the actual painting
         super.paint(gfx, dirty);
-
-        gfx.setColor(java.awt.Color.white);
-        gfx.drawOval(_tx, _tx, 10, 10);
 
         // translate back out of happy space
         gfx.translate(_tx, _ty);
