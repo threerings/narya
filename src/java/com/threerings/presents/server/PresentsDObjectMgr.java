@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.10 2001/08/07 20:38:58 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.11 2001/08/07 21:25:13 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -172,8 +172,8 @@ public class CherDObjectMgr implements DObjectManager
      */
     public void objectDestroyed (DEvent event, DObject target)
     {
-        Log.info("Removing destroyed object from table " +
-                 "[oid=" + target.getOid() + "].");
+        // Log.info("Removing destroyed object from table " +
+        // "[oid=" + target.getOid() + "].");
         _objects.remove(target.getOid());
     }
 
@@ -224,7 +224,7 @@ public class CherDObjectMgr implements DObjectManager
                 // insert it into the table
                 _objects.put(oid, obj);
 
-                Log.info("Created object [obj=" + obj + "].");
+                // Log.info("Created object [obj=" + obj + "].");
 
                 if (_target != null) {
                     // add the subscriber to this object's subscriber list

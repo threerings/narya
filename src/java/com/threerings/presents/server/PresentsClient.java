@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.16 2001/08/07 21:20:48 mdb Exp $
+// $Id: PresentsClient.java,v 1.17 2001/08/07 21:25:13 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -479,8 +479,9 @@ public class CherClient implements Subscriber, MessageHandler
         public void dispatch (CherClient client, UpstreamMessage msg)
         {
             SubscribeRequest req = (SubscribeRequest)msg;
-            Log.info("Subscribing [client=" + client +
-                     ", oid=" + req.getOid() + "].");
+            // Log.info("Subscribing [client=" + client +
+            // ", oid=" + req.getOid() + "].");
+
             // forward the subscribe request to the omgr for processing
             CherServer.omgr.subscribeToObject(req.getOid(), client);
         }
@@ -494,8 +495,9 @@ public class CherClient implements Subscriber, MessageHandler
         public void dispatch (CherClient client, UpstreamMessage msg)
         {
             UnsubscribeRequest req = (UnsubscribeRequest)msg;
-            Log.info("Unsubscribing [client=" + client +
-                     ", oid=" + req.getOid() + "].");
+            // Log.info("Unsubscribing [client=" + client +
+            // ", oid=" + req.getOid() + "].");
+
             // forward the unsubscribe request to the omgr for processing
             CherServer.omgr.unsubscribeFromObject(req.getOid(), client);
             // update our subscription tracking table
