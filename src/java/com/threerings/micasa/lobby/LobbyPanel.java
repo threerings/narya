@@ -1,5 +1,5 @@
 //
-// $Id: LobbyPanel.java,v 1.4 2001/10/09 19:24:54 mdb Exp $
+// $Id: LobbyPanel.java,v 1.5 2001/10/09 19:49:59 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -45,8 +45,6 @@ public class LobbyPanel
         _main.add(createMatchMakingView(ctx));
 
         // create a chat box and stick that in as well
-        JLabel label = new JLabel("Chat with other people in this lobby...");
-        _main.add(label, GroupLayout.FIXED);
         _main.add(new ChatPanel(ctx));
 
         // now add the main panel into the mix
@@ -58,7 +56,7 @@ public class LobbyPanel
         JPanel sidePanel = new JPanel(gl);
 
         // the sidebar contains a lobby selector...
-        label = new JLabel("Select a lobby...");
+        JLabel label = new JLabel("Select a lobby...");
         sidePanel.add(label, GroupLayout.FIXED);
         LobbySelector selector = new LobbySelector(ctx);
         sidePanel.add(selector);
