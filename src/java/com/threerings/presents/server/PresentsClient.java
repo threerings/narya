@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.11 2001/08/03 02:12:27 mdb Exp $
+// $Id: PresentsClient.java,v 1.12 2001/08/03 02:21:16 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -45,6 +45,7 @@ public class Client implements Subscriber, MessageHandler
             public void objectAvailable (DObject object)
             {
                 _clobj = (ClientObject)object;
+                sessionWillStart();
                 sendBootstrap();
             }
 
@@ -102,11 +103,38 @@ public class Client implements Subscriber, MessageHandler
         // start using the new connection
         setConnection(conn);
 
+        // let derived classes do any session resuming
+        sessionWillResume();
+
         // send off a bootstrap notification immediately because we've
         // already got our client object
         sendBootstrap();
 
         Log.info("Session resumed [client=" + this + "].");
+    }
+
+    /**
+     * Called when the client session is first started. The client object
+     * has been created at this point and after this method is executed,
+     * the bootstrap information will be sent to the client which will
+     * trigger the start of the session. Derived classes that override
+     * this function should be sure to call
+     * <code>super.sessionWillStart()</code>.
+     */
+    protected void sessionWillStart ()
+    {
+    }
+
+    /**
+     * Called when the client resumes a session (after having disconnected
+     * and reconnected). After this method is executed, the bootstrap
+     * information will be sent to the client which will trigger the
+     * resumption of the session. Derived classes that override this
+     * function should be sure to call
+     * <code>super.sessionWillResume()</code>.
+     */
+    protected void sessionWillResume ()
+    {
     }
 
     /**
