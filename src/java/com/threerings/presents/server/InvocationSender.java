@@ -1,5 +1,5 @@
 //
-// $Id: InvocationSender.java,v 1.1 2002/08/14 19:07:56 mdb Exp $
+// $Id: InvocationSender.java,v 1.2 2002/09/18 18:40:20 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -26,8 +26,8 @@ public abstract class InvocationSender
         // specific client
         Registration rreg = (Registration)target.receivers.get(receiverCode);
         if (rreg == null) {
-            Log.warning("Unable to locate registered receiver for " +
-                        "invocation service notification [target=" + target +
+            Log.warning("Unable to locate receiver for invocation " +
+                        "service notification [clobj=" + target.who() +
                         ", code=" + receiverCode + ", methId=" + methodId +
                         ", args=" + StringUtil.toString(args) + "].");
 
