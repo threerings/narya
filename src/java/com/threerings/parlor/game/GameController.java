@@ -85,8 +85,13 @@ public abstract class GameController extends PlaceController
         // obtain a casted reference
         _gobj = (GameObject)plobj;
 
-        _ctx.getChatDirector().addAuxiliarySource(
-            _gobj, GameCodes.GAME_CHAT_TYPE);
+        // if this place object is not our current location we'll need to
+        // add it as an auxiliary chat source
+        BodyObject bobj = (BodyObject)_ctx.getClient().getClientObject();
+        if (bobj.location != plobj.getOid()) {
+            _ctx.getChatDirector().addAuxiliarySource(
+                _gobj, GameCodes.GAME_CHAT_TYPE);
+        }
 
         // and add ourselves as a listener
         _gobj.addListener(this);
