@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.21 2001/09/13 19:36:20 mdb Exp $
+// $Id: Sprite.java,v 1.22 2001/09/17 23:25:26 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -144,6 +144,16 @@ public class Sprite
     public void setOrientation (int orient)
     {
         _orient = orient;
+    }
+
+    /**
+     * Returns the sprite's orientation as one of the eight cardinal
+     * directions: <code>DIR_NORTH</code>, <code>DIR_NORTHEAST</code>,
+     * etc.
+     */
+    public int getOrientation ()
+    {
+	return _orient;
     }
 
     /**
@@ -441,8 +451,7 @@ public class Sprite
     /**
      * Inform all sprite observers of a sprite event.
      *
-     * @param eventCode the type of sprite event.
-     * @param arg the argument associated with the event.
+     * @param event the sprite event.
      */
     protected void notifyObservers (SpriteEvent event)
     {
@@ -460,10 +469,21 @@ public class Sprite
     public String toString ()
     {
         StringBuffer buf = new StringBuffer();
-        buf.append("[x=").append(_x);
+        buf.append("[");
+	toString(buf);
+        return buf.append("]").toString();
+    }
+
+    /**
+     * This should be overridden by derived classes (which should be sure
+     * to call <code>super.toString()</code>) to append the derived class
+     * specific event information to the string buffer.
+     */
+    protected void toString (StringBuffer buf)
+    {
+        buf.append("x=").append(_x);
         buf.append(", y=").append(_y);
         buf.append(", fidx=").append(_frameIdx);
-        return buf.append("]").toString();
     }
 
     /** The images used to render the sprite. */
