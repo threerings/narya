@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.10 2004/06/22 14:08:58 mdb Exp $
+// $Id: PuzzleController.java,v 1.11 2004/08/16 22:58:23 mdb Exp $
 
 package com.threerings.puzzle.client;
 
@@ -312,6 +312,18 @@ public abstract class PuzzleController extends GameController
     }
 
     /**
+     * Indicates whether the action should start immediately as a result
+     * of {@link #gameDidStart} being called. If a puzzle wishes to do
+     * some beginning of the game fun stuff, like display a tutorial
+     * screen, they can veto the action start and then start it themselves
+     * later.
+     */
+    protected boolean startActionImmediately ()
+    {
+        return true;
+    }
+
+    /**
      * A way for controllers to display a puzzle-related system message.
      */
     public void systemMessage (String bundle, String msg)
@@ -330,7 +342,9 @@ public abstract class PuzzleController extends GameController
             public int actionCleared () {
                 // do the standard game did start business
                 PuzzleController.super.gameDidStart();
-                return RESTART_ACTION;
+                // we don't always start the action immediately
+                return startActionImmediately() ?
+                    RESTART_ACTION : NO_RESTART_ACTION;
             }
         });
     }
