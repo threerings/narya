@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.51 2003/03/22 18:14:00 ray Exp $
+// $Id: SoundManager.java,v 1.52 2003/03/23 04:10:50 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -325,7 +325,11 @@ public class SoundManager
             synchronized (_queue) {
                 SoundKey skey = new SoundKey(pkgPath, key);
                 if (_queue.size() < MAX_QUEUE_SIZE) {
-                    Log.debug("play requested [key=" + skey + "].");
+                    /*
+                    if (_verbose.getValue()) {
+                        Log.info("Sound request [key=" + skey + "].");
+                    }
+                    */
                     _queue.append(PLAY);
                     _queue.append(skey);
 
@@ -944,7 +948,9 @@ public class SoundManager
             int count = 0;
             byte[] data = new byte[BUFFER_SIZE];
 
-            Log.debug("play happening [key=" + _key.key + "].");
+            if (_verbose.getValue()) {
+                Log.info("Sound playing [key=" + _key.key + "].");
+            }
             while (_valid && count != -1) {
                 try {
                     count = _stream.read(data, 0, data.length);
@@ -1134,6 +1140,11 @@ public class SoundManager
         new RuntimeAdjust.IntAdjust(
             "Sound output buffer size", "narya.media.sound.outbufsize",
             MediaPrefs.config, 8192);
+
+    protected static RuntimeAdjust.BooleanAdjust _verbose =
+        new RuntimeAdjust.BooleanAdjust(
+            "Verbose sound event logging", "narya.media.sound.verbose",
+            MediaPrefs.config, false);
 
     /** Music action constants. */
     protected static final int NONE = 0;
