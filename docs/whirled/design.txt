@@ -58,3 +58,10 @@ on the client to generate a map of the zone.
 
 Zones are identified by an integer of which the upper 8 bits is a zone
 type identifier and the lower 24 bits are the zone identifier.
+
+* 1/28/2003
+** Spot revamp
+- Eliminate locations
+- Dynamically create clusters around stationary scene occupants
+- "Station" objects will have an associated location at which a scene
+  occupant would stand rather than being associated with a location

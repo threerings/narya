@@ -1,6 +1,6 @@
 # Miso Notes -*- mode: outline -*-
 #
-# $Id: design.txt,v 1.4 2001/11/29 00:22:41 mdb Exp $
+# $Id: design.txt,v 1.5 2003/02/04 03:33:38 mdb Exp $
 
 * Notes
 Consider making MISO sufficiently sophisticated to allow the cluster stuff
@@ -119,3 +119,21 @@ placement of exits in a scene since allowing folks to place exits to their
 houses/bldgs willy-nilly may make map generation wacky.  perhaps useful
 for game designer use as well when laying things out and "surveying the
 landscape."
+
+* 1/14/2003
+** Ground zero
+- Render all ground and fringe tiles (unprepared) into a single offscreen
+  buffer and use that to repaint the ground instead of going from the
+  original tile images
+
+* 1/28/2003
+** Scene revamp
+- Objects without actions are largely inconsequential (in the model, they
+  exist only as fqtid and coordinates)
+- Objects with actions have extra data:
+  + the action string
+  + a location and orientation associated with the object (for building
+    facades this would be the entrance portal location, for "stations"
+    this would be where the user stands when occupying that station)
+- Scene model is not used by anyone but the scene impl (so that more
+  sophisticated models and impls can come to exist)
