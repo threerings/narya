@@ -1,11 +1,7 @@
 //
-// $Id: GameConfig.java,v 1.7 2001/10/11 21:08:21 mdb Exp $
+// $Id: GameConfig.java,v 1.8 2002/03/26 22:58:31 mdb Exp $
 
 package com.threerings.parlor.game;
-
-import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
 import com.threerings.crowd.data.PlaceConfig;
 
@@ -36,26 +32,30 @@ public abstract class GameConfig extends PlaceConfig
     /** Indicates whether or not this game is rated. */
     public boolean rated = false;
 
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
-        throws IOException
+    /**
+     * Returns true if this game config object is equal to the supplied
+     * object (meaning it is also a game config object and its
+     * configuration settings are the same as ours).
+     */
+    public boolean equals (Object other)
     {
-        super.writeTo(out);
-        out.writeBoolean(rated);
+        if (other instanceof GameConfig) {
+            GameConfig go = (GameConfig)other;
+            return go.rated == rated;
+
+        } else {
+            return false;
+        }
     }
 
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Computes a hashcode for this game config object that supports our
+     * {@link #equals} implementation. Objects that are equal should have
+     * the same hashcode.
+     */
+    public int hashCode ()
     {
-        super.readFrom(in);
-        rated = in.readBoolean();
-    }
-
-    // documentation inherited
-    protected void toString (StringBuffer buf)
-    {
-        super.toString(buf);
-        buf.append(", rated=").append(rated);
+        // look ma, it's so sophisticated!
+        return (rated ? 1 : 0);
     }
 }
