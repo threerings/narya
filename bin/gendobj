@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: gendobj,v 1.2 2002/02/08 23:08:39 mdb Exp $
+# $Id: gendobj,v 1.3 2002/02/08 23:32:16 mdb Exp $
 #
 # gendobj is used to generate DObject source file definitons basded on
 # abbreviated declarations. Because DObject fields all have standard
@@ -188,6 +188,17 @@ sub print_dobj_setters
     public void update$cfield (DSet.Element elem)
     {
         requestElementUpdate($fcode, elem);
+    }
+
+    /**
+     * Requests that the <code>$field</code> field be set to the
+     * specified value. Generally one only adds, updates and removes
+     * elements of a distributed set, but certain situations call for a
+     * complete replacement of the set value.
+     */
+    public void set$cfield (DSet value)
+    {
+        requestAttributeChange($fcode, value);
     }
 EOF
 
