@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.54 2003/04/10 17:48:42 mdb Exp $
+// $Id: PresentsClient.java,v 1.55 2003/04/10 18:12:16 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -30,6 +30,7 @@ import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.SubscribeRequest;
 import com.threerings.presents.net.UnsubscribeRequest;
 
+import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.net.FailureResponse;
 import com.threerings.presents.net.ObjectResponse;
 import com.threerings.presents.net.PongResponse;
@@ -499,12 +500,7 @@ public class PresentsClient
         populateBootstrapData(data);
 
         // create a send bootstrap notification
-        if (_conn != null) {
-            _conn.postMessage(new BootstrapNotification(data));
-        } else {
-            Log.warning("Have no connection on which to deliver " +
-                        "bootstrap notification " + this + ".");
-        }
+        postMessage(new BootstrapNotification(data));
     }
 
     /**
@@ -626,6 +622,8 @@ public class PresentsClient
     // documentation inherited from interface
     public void handleMessage (UpstreamMessage message)
     {
+        _messagesIn++; // count 'em up!
+
         // we dispatch to a message dispatcher that is specialized for the
         // particular class of message that we received
         MessageDispatcher disp = (MessageDispatcher)
@@ -642,43 +640,35 @@ public class PresentsClient
     // documentation inherited from interface
     public void objectAvailable (DObject object)
     {
-        // queue up an object response
-        Connection conn = getConnection();
-        if (conn != null) {
-            // pass the successful subscrip on to the client
-            conn.postMessage(new ObjectResponse(object));
+        if (postMessage(new ObjectResponse(object))) {
             // make a note of this new subscription
             mapSubscrip(object);
-
-        } else {
-            Log.info("Dropped object available notification " +
-                     "[client=" + this + ", oid=" + object.getOid() + "].");
         }
     }
 
     // documentation inherited from interface
     public void requestFailed (int oid, ObjectAccessException cause)
     {
-        Connection conn = getConnection();
-        if (conn != null) {
-            conn.postMessage(new FailureResponse(oid));
-        } else {
-            Log.info("Dropped failure notification " +
-                     "[client=" + this + ", oid=" + oid +
-                     ", cause=" + cause + "].");
-        }
+        postMessage(new FailureResponse(oid));
     }
 
     // documentation inherited from interface
     public void eventReceived (DEvent event)
     {
-        // forward the event to the client
+        postMessage(new EventNotification(event));
+    }
+
+    /** Queues a message for delivery to the client. */
+    protected final boolean postMessage (DownstreamMessage msg)
+    {
         Connection conn = getConnection();
         if (conn != null) {
-            conn.postMessage(new EventNotification(event));
+            conn.postMessage(msg);
+            _messagesOut++; // count 'em up!
+            return true;
         } else {
-            Log.info("Dropped event forward notification " +
-                     "[client=" + this + ", event=" + event + "].");
+            Log.info("Dropped message [client=" + this + ", msg=" + msg + "].");
+            return false;
         }
     }
 
@@ -701,6 +691,8 @@ public class PresentsClient
         buf.append(", conn=").append(_conn);
         buf.append(", cloid=").append(
             (_clobj == null) ? -1 : _clobj.getOid());
+        buf.append(", in=").append(_messagesIn);
+        buf.append(", out=").append(_messagesOut);
     }
 
     /**
@@ -751,12 +743,7 @@ public class PresentsClient
 
             // post a response to the client letting them know that we
             // will no longer send them events regarding this object
-            Connection conn = client.getConnection();
-            if (conn != null) {
-                conn.postMessage(new UnsubscribeResponse(oid));
-            } else {
-                Log.info("Dropped unsub ack " + client + " [oid=" + oid + "].");
-            }
+            client.postMessage(new UnsubscribeResponse(oid));
         }
     }
 
@@ -789,13 +776,8 @@ public class PresentsClient
         public void dispatch (PresentsClient client, UpstreamMessage msg)
         {
             // send a pong response
-            Connection conn = client.getConnection();
-            if (conn != null) {
-                PingRequest req = (PingRequest)msg;
-                conn.postMessage(new PongResponse(req.getUnpackStamp()));
-            } else {
-                Log.info("Dropped pong response " + client + ".");
-            }
+            PingRequest req = (PingRequest)msg;
+            client.postMessage(new PongResponse(req.getUnpackStamp()));
         }
     }
 
@@ -841,6 +823,10 @@ public class PresentsClient
     /** The time at which this client most recently connected or
      * disconnected. */
     protected long _networkStamp;
+
+    // keep these for kicks and giggles
+    protected int _messagesIn;
+    protected int _messagesOut;
 
     /** The amount of time after disconnection a user is allowed before
      * their session is forcibly ended. */
