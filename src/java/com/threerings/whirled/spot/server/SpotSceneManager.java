@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.19 2002/09/12 23:04:04 ray Exp $
+// $Id: SpotSceneManager.java,v 1.20 2002/09/13 00:20:43 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -203,8 +203,7 @@ public class SpotSceneManager extends SceneManager
 
         // make sure they have an occupant info object in the place
         int bodyOid = source.getOid();
-        SpotOccupantInfo soi = (SpotOccupantInfo)
-            _plobj.occupantInfo.get(new Integer(bodyOid));
+        SpotOccupantInfo soi = (SpotOccupantInfo)getOccupantInfo(bodyOid);
         if (soi == null) {
             Log.warning("Aiya! Can't update non-existent occupant info " +
                         "with new location [where=" + where() +
@@ -231,7 +230,7 @@ public class SpotSceneManager extends SceneManager
 
         // update the location and broadcast to the place
         soi.locationId = locationId;
-        _plobj.updateOccupantInfo(soi);
+        updateOccupantInfo(soi);
 
         // figure out the cluster chat oid
         int clusterIdx = _sscene.getClusterIndex(locidx);

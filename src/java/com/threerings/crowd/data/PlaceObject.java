@@ -1,5 +1,5 @@
 //
-// $Id: PlaceObject.java,v 1.7 2002/08/14 19:07:49 mdb Exp $
+// $Id: PlaceObject.java,v 1.8 2002/09/13 00:20:43 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -29,7 +29,13 @@ public class PlaceObject extends DObject
     /**
      * Contains an info record (of type {@link OccupantInfo}) for each
      * occupant that contains information about that occupant that needs
-     * to be known by everyone in the place.
+     * to be known by everyone in the place. <em>Note:</em> Don't obtain
+     * occupant info records directly from this set when on the server,
+     * use <code>PlaceManager.getOccupantInfo()</code> instead (along with
+     * <code>PlaceManager.updateOccupantInfo()</code>) because it does
+     * some special processing to ensure that readers and updaters don't
+     * step on one another even if they make rapid fire changes to a
+     * user's occupant info.
      */
     public DSet occupantInfo = new DSet();
 

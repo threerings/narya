@@ -1,11 +1,13 @@
 //
-// $Id: PlaceManager.java,v 1.32 2002/08/14 19:07:49 mdb Exp $
+// $Id: PlaceManager.java,v 1.33 2002/09/13 00:20:43 mdb Exp $
 
 package com.threerings.crowd.server;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
+
+import com.samskivert.util.HashIntMap;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationManager;
@@ -84,6 +86,38 @@ public class PlaceManager
     public PlaceObject getPlaceObject ()
     {
         return _plobj;
+    }
+
+    /**
+     * Returns the occupant info record for the user with the specified
+     * body oid, if they are an occupant of this room. Returns null
+     * otherwise.
+     */
+    public OccupantInfo getOccupantInfo (int bodyOid)
+    {
+        return (OccupantInfo)_occInfo.get(bodyOid);
+    }
+
+    /**
+     * Updates the occupant info for this room occupant. <em>Note:</em>
+     * This must be used rather than setting the occupant info directly to
+     * avoid possible complications due to rapid fire changes to a user's
+     * occupant info. The occupant info record supplied to this method
+     * must be one returned from {@link #getOccupantInfo}. For example:
+     *
+     * <pre>
+     * OccupantInfo info = _plmgr.getOccupantInfo(bodyOid);
+     * // ... modifications made to 'info'
+     * _plmgr.updateOccupantInfo(info);
+     * </pre>
+     */
+    public void updateOccupantInfo (OccupantInfo occInfo)
+    {
+        // update the canonical copy
+        _occInfo.put(occInfo.getBodyOid(), occInfo);
+        // clone the canonical copy and send out an event updating the
+        // distributed set with that clone
+        _plobj.updateOccupantInfo((OccupantInfo)occInfo.clone());
     }
 
     /**
@@ -216,19 +250,28 @@ public class PlaceManager
     }
 
     /**
-     * Builds an occupant info record for the specified body object. This
-     * is called by the location services when a body enters a place. It
-     * should not be overridden by derived classes, they should override
-     * {@link #populateOccupantInfo}, which is set up for that sort of
-     * thing.
+     * Builds an occupant info record for the specified body object and
+     * inserts it into our place object. This is called by the location
+     * services when a body enters a place. It should not be overridden by
+     * derived classes, they should override {@link
+     * #populateOccupantInfo}, which is set up for that sort of thing.
      */
     public OccupantInfo buildOccupantInfo (BodyObject body)
     {
-        // create a new occupant info instance
         try {
+            // create a new occupant info instance
             OccupantInfo info = (OccupantInfo)
                 getOccupantInfoClass(body).newInstance();
+
+            // configure it with the appropriate values
             populateOccupantInfo(info, body);
+
+            // insert the occupant info into our canonical table
+            _occInfo.put(info.getBodyOid(), info);
+
+            // and insert it into the place object
+            _plobj.addToOccupantInfo(info);
+
             return info;
 
         } catch (Exception e) {
@@ -293,6 +336,9 @@ public class PlaceManager
         if (_plobj.occupantInfo.containsKey(key)) {
             _plobj.removeFromOccupantInfo(key);
         }
+
+        // clear out their canonical (local) occupant info record
+        _occInfo.remove(bodyOid);
 
         // let our delegates know what's up
         applyToDelegates(new DelegateOp() {
@@ -484,4 +530,7 @@ public class PlaceManager
 
     /** A list of the delegates in use by this manager. */
     protected ArrayList _delegates;
+
+    /** Used to keep a canonical copy of the occupant info records. */
+    protected HashIntMap _occInfo = new HashIntMap();
 }

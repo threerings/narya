@@ -1,5 +1,5 @@
 //
-// $Id: LocationProvider.java,v 1.16 2002/08/14 19:07:49 mdb Exp $
+// $Id: LocationProvider.java,v 1.17 2002/09/13 00:20:43 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -107,12 +107,9 @@ public class LocationProvider
                 // remove them from any previous location
                 leaveOccupiedPlace(source);
 
-                // generate a new occupant info record and add it to the
-                // target location
-                OccupantInfo info = pmgr.buildOccupantInfo(source);
-                if (info != null) {
-                    place.addToOccupantInfo(info);
-                }
+                // generate a new occupant info record (which will add it
+                // to the target location)
+                pmgr.buildOccupantInfo(source);
 
                 // set the body's new location
                 source.setLocation(place.getOid());
