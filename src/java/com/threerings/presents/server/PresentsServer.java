@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.14 2001/10/11 04:07:53 mdb Exp $
+// $Id: PresentsServer.java,v 1.15 2001/11/08 02:59:30 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -9,10 +9,6 @@ import com.threerings.presents.Log;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.server.net.AuthManager;
 import com.threerings.presents.server.net.ConnectionManager;
-
-import com.threerings.presents.server.test.TestObject;
-import com.threerings.presents.server.test.TestProvider;
-import com.threerings.presents.client.test.TestService;
 
 /**
  * The presents server provides a central point of access to the various
