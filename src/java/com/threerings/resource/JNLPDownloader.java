@@ -1,5 +1,5 @@
 //
-// $Id: JNLPDownloader.java,v 1.5 2003/08/08 23:45:39 mdb Exp $
+// $Id: JNLPDownloader.java,v 1.6 2003/08/09 05:27:07 mdb Exp $
 
 package com.threerings.resource;
 
@@ -23,6 +23,7 @@ import com.sun.javaws.cache.Patcher;
 import com.sun.javaws.jardiff.JarDiffPatcher;
 
 import com.samskivert.io.StreamUtil;
+import com.samskivert.util.FileUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.resource.DownloadManager.DownloadDescriptor;
@@ -39,7 +40,7 @@ public class JNLPDownloader extends Downloader
         super.init(ddesc);
 
         // determine which version we already have, if any
-        _vfile = new File(mungePath(_desc.destFile, ".vers"));
+        _vfile = new File(FileUtil.resuffix(_desc.destFile, ".jar", ".vers"));
         try {
             BufferedReader vin = new BufferedReader(new FileReader(_vfile));
             _cvers = vin.readLine();
@@ -101,7 +102,8 @@ public class JNLPDownloader extends Downloader
         // determine whether or not this is a patch
         if (ucon.getContentType().equals(JARDIFF_TYPE)) {
             Log.info("Downloading patch [url=" + rsrcURL + "].");
-            _patchFile = new File(mungePath(_desc.destFile, ".diff"));
+            _patchFile = new File(
+                FileUtil.resuffix(_desc.destFile, ".jar", ".diff"));
             downloadContent(dmgr, obs, pinfo, buffer, ucon, _patchFile);
 
         } else {
@@ -117,7 +119,8 @@ public class JNLPDownloader extends Downloader
     {
         if (_patchFile != null) {
             // move the old jar out of the way
-            File oldDest = new File(mungePath(_desc.destFile, ".old"));
+            File oldDest = new File(
+                FileUtil.resuffix(_desc.destFile, ".jar", ".old"));
             if (!_desc.destFile.renameTo(oldDest)) {
                 Log.warning("Unable to move " + _desc.destFile + " to " +
                             oldDest + ". Cleaning up and failing.");
@@ -163,20 +166,6 @@ public class JNLPDownloader extends Downloader
         pout.println(_desc.version);
         pout.close();
         // Log.info("Updated version to " + _desc.version + ".");
-    }
-
-    /**
-     * Replaces <code>.jar</code> with the supplied new extention if the
-     * supplied file path ends in <code>.jar</code>. Otherwise the new
-     * extension is appended to the whole existing file path.
-     */
-    protected String mungePath (File file, String newext)
-    {
-        String path = file.getPath();
-        if (path.endsWith(".jar")) {
-            path = path.substring(0, path.length()-4);
-        }
-        return path + newext;
     }
 
     /**
