@@ -1,5 +1,5 @@
 //
-// $Id: KeyboardManager.java,v 1.13 2002/11/04 22:28:58 shaper Exp $
+// $Id: KeyboardManager.java,v 1.14 2002/11/08 08:17:35 ray Exp $
 
 package com.threerings.util;
 
@@ -230,16 +230,10 @@ public class KeyboardManager
         // handle key press and release events
         switch (e.getID()) {
         case KeyEvent.KEY_PRESSED:
-            keyPressed(e);
-            return true;
+            return keyPressed(e);
 
         case KeyEvent.KEY_RELEASED:
-            keyReleased(e);
-            return true;
-
-        case KeyEvent.KEY_TYPED:
-            // silently absorb key typed events
-            return true;
+            return keyReleased(e);
 
         default:
             return false;
@@ -249,14 +243,17 @@ public class KeyboardManager
     /**
      * Called when Swing notifies us that a key has been pressed while the
      * keyboard manager is active.
+     *
+     * @return true to swallow the key event
      */
-    protected void keyPressed (KeyEvent e)
+    protected boolean keyPressed (KeyEvent e)
     {
         logKey("keyPressed", e);
 
         // get the action command associated with this key
         int keyCode = e.getKeyCode();
-        if (_xlate.hasCommand(keyCode)) {
+        boolean hasCommand = _xlate.hasCommand(keyCode);
+        if (hasCommand) {
             // get the info object for this key, creating one if necessary
             KeyInfo info = (KeyInfo)_keys.get(keyCode);
             if (info == null) {
@@ -270,13 +267,17 @@ public class KeyboardManager
 
         // notify any key observers of the key press
         notifyObservers(KeyEvent.KEY_PRESSED, e.getKeyCode(), e.getWhen());
+
+        return hasCommand;
     }
 
     /**
      * Called when Swing notifies us that a key has been released while
      * the keyboard manager is active.
+     *
+     * @return true to swallow the key event
      */
-    protected void keyReleased (KeyEvent e)
+    protected boolean keyReleased (KeyEvent e)
     {
         logKey("keyReleased", e);
 
@@ -289,6 +290,8 @@ public class KeyboardManager
 
         // notify any key observers of the key release
         notifyObservers(KeyEvent.KEY_RELEASED, e.getKeyCode(), e.getWhen());
+
+        return (info != null);
     }
 
     /**
