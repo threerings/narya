@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.27 2002/12/07 22:33:04 mdb Exp $
+// $Id: ConnectionManager.java,v 1.28 2002/12/12 23:56:36 shaper Exp $
 
 package com.threerings.presents.server.net;
 
@@ -122,9 +122,7 @@ public class ConnectionManager extends LoopingThread
     public void addConnectionObserver (ConnectionObserver observer)
     {
         synchronized (_observers) {
-            if (!_observers.contains(observer)) {
-                _observers.add(observer);
-            }
+            _observers.add(observer);
         }
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.34 2002/10/31 18:44:34 mdb Exp $
+// $Id: Client.java,v 1.35 2002/12/12 23:56:10 shaper Exp $
 
 package com.threerings.presents.client;
 
@@ -78,10 +78,7 @@ public class Client
     public void addClientObserver (SessionObserver observer)
     {
         synchronized (_observers) {
-            // disallow multiple instances of the same observer
-            if (!_observers.contains(observer)) {
-                _observers.add(observer);
-            }
+            _observers.add(observer);
         }
     }
 

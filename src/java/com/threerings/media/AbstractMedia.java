@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMedia.java,v 1.5 2002/11/20 05:32:51 mdb Exp $
+// $Id: AbstractMedia.java,v 1.6 2002/12/12 23:54:59 shaper Exp $
 
 package com.threerings.media;
 
@@ -205,13 +205,7 @@ public abstract class AbstractMedia
     {
         if (_observers == null) {
             _observers = new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
-
-        } else if (_observers.contains(obs)) {
-            Log.info("Attempt to observe media already observing " + 
-                     "[media=" + this + ", obs=" + obs + "].");
-            return;
         }
-
         _observers.add(obs);
     }
 
