@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.41 2002/09/26 17:49:36 mdb Exp $
+// $Id: PresentsClient.java,v 1.42 2002/10/26 02:40:30 shaper Exp $
 
 package com.threerings.presents.server;
 
@@ -275,10 +275,8 @@ public class PresentsClient
         // we need to get onto the distributed object thread so that we
         // can finalize the resumption of the session. we do so by
         // posting a special event
-        DEvent event = new DEvent(0)
-        {
-            public boolean applyToObject (DObject target)
-            {
+        DEvent event = new DEvent(0) {
+            public boolean applyToObject (DObject target) {
                 // now that we're on the dobjmgr thread we can resume our
                 // session resumption
                 finishResumeSession();
@@ -426,6 +424,9 @@ public class PresentsClient
         // then let the client manager know what's up (it will take care
         // of destroying our client object for us)
         _cmgr.clientDidEndSession(this);
+
+        // clear out the client object so that we know the session is over
+        _clobj = null;
     }
 
     /**
@@ -549,7 +550,7 @@ public class PresentsClient
         MessageDispatcher disp = (MessageDispatcher)
             _disps.get(message.getClass());
         if (disp == null) {
-            Log.warning("No dispacther for message [msg=" + message + "].");
+            Log.warning("No dispatcher for message [msg=" + message + "].");
             return;
         }
 

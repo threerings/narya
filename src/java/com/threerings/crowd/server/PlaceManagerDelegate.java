@@ -1,8 +1,9 @@
 //
-// $Id: PlaceManagerDelegate.java,v 1.1 2002/02/13 03:21:28 mdb Exp $
+// $Id: PlaceManagerDelegate.java,v 1.2 2002/10/26 02:40:30 shaper Exp $
 
 package com.threerings.crowd.server;
 
+import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 
@@ -61,6 +62,13 @@ public class PlaceManagerDelegate
      * Called when a body leaves the place.
      */
     public void bodyLeft (int bodyOid)
+    {
+    }
+
+    /**
+     * Called when a body occupant info is updated.
+     */
+    public void bodyUpdated (OccupantInfo info)
     {
     }
 

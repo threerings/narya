@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.38 2002/10/06 03:31:16 mdb Exp $
+// $Id: PlaceManager.java,v 1.39 2002/10/26 02:40:30 shaper Exp $
 
 package com.threerings.crowd.server;
 
@@ -14,6 +14,9 @@ import com.threerings.presents.server.InvocationManager;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
+import com.threerings.presents.dobj.EntryAddedEvent;
+import com.threerings.presents.dobj.EntryRemovedEvent;
+import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.MessageListener;
 import com.threerings.presents.dobj.ObjectAddedEvent;
@@ -21,6 +24,7 @@ import com.threerings.presents.dobj.ObjectDeathListener;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.ObjectRemovedEvent;
 import com.threerings.presents.dobj.OidListListener;
+import com.threerings.presents.dobj.SetListener;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
@@ -53,7 +57,7 @@ import com.threerings.crowd.chat.SpeakProvider;
  */
 public class PlaceManager
     implements MessageListener, OidListListener, ObjectDeathListener,
-               SpeakProvider.SpeakerValidator
+               SetListener, SpeakProvider.SpeakerValidator
 {
     /**
      * An interface used to allow the registration of standard message
@@ -382,6 +386,19 @@ public class PlaceManager
     }
 
     /**
+     * Called when a body's occupant info is updated.
+     */
+    protected void bodyUpdated (final OccupantInfo info)
+    {
+        // let our delegates know what's up
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                delegate.bodyUpdated(info);
+            }
+        });
+    }
+
+    /**
      * Called when we transition from having bodies in the place to not
      * having any bodies in the place. Some places may take this as a sign
      * to pack it in, others may wish to stick around. In any case, they
@@ -469,6 +486,24 @@ public class PlaceManager
 
         // let our derived classes and delegates shut themselves down
         didShutdown();
+    }
+
+    // documentation inherited from interface
+    public void entryAdded (EntryAddedEvent event)
+    {
+    }
+
+    // documentation inherited from interface
+    public void entryUpdated (EntryUpdatedEvent event)
+    {
+        if (event.getName().equals(PlaceObject.OCCUPANT_INFO)) {
+            bodyUpdated((OccupantInfo)event.getEntry());
+        }
+    }
+
+    // documentation inherited from interface
+    public void entryRemoved (EntryRemovedEvent event)
+    {
     }
 
     // documentation inherited from interface

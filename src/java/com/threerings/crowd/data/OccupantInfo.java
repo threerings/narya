@@ -1,5 +1,5 @@
 //
-// $Id: OccupantInfo.java,v 1.9 2002/08/14 19:07:49 mdb Exp $
+// $Id: OccupantInfo.java,v 1.10 2002/10/26 02:40:30 shaper Exp $
 
 package com.threerings.crowd.data;
 
@@ -27,11 +27,23 @@ import com.threerings.presents.dobj.DSet;
 public class OccupantInfo extends SimpleStreamableObject
     implements DSet.Entry, Cloneable
 {
+    /** Constant value for {@link #status}. */
+    public static final byte ACTIVE = 0;
+
+    /** Constant value for {@link #status}. */
+    public static final byte IDLE = 1;
+
+    /** Constant value for {@link #status}. */
+    public static final byte DISCONNECTED = 2;
+
     /** The body object id of this occupant (and our entry key). */
     public Integer bodyOid;
 
     /** The username of this occupant. */
     public String username;
+
+    /** The status of this occupant. */
+    public byte status = ACTIVE;
 
     /** Access to the body object id as an int. */
     public int getBodyOid ()
