@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: genservice,v 1.4 2002/08/20 19:26:23 mdb Exp $
+# $Id: genservice,v 1.5 2002/08/20 19:36:43 mdb Exp $
 #
 # This script is used to generate invocation service marshaller and
 # unmarshaller classes based on invocation service interface definitions.
@@ -225,7 +225,8 @@ while ($srcfile = shift) {
     $mimports{"com.threerings.presents.data.InvocationMarshaller"} = 1;
     $mimports{"com.threerings.presents.dobj.InvocationResponseEvent"} = 1;
     my @mimportsl = sort keys %mimports;
-    my %mdata = ( "imports" => \@mimportsl,
+    my %mdata = ( "idstr" => slurp_idstr($marshpath),
+                  "imports" => \@mimportsl,
                   "name" => $svcname,
                   "package" => $marshpkg,
                   "listeners" => \@listeners,
@@ -258,7 +259,8 @@ while ($srcfile = shift) {
     $dimports{"com.threerings.presents.server.InvocationException"} = 1;
     $dimports{"$marshpkg.${svcname}Marshaller"} = 1;
     my @dimportsl = sort keys %dimports;
-    my %ddata = ( "imports" => \@dimportsl,
+    my %ddata = ( "idstr" => slurp_idstr($disppath),
+                  "imports" => \@dimportsl,
                   "name" => $svcname,
                   "package" => $disppkg,
                   "listeners" => \@listeners,
@@ -443,4 +445,23 @@ sub gen_listener_args {
                                 "oaname" => "arg$i" });
     }
     return \@listener_args;
+}
+
+#
+# If the specified file exists, it is opened and its RCS Id string is read
+# and returned.
+#
+sub slurp_idstr {
+    my ($path) = @_;
+    my $idstr = "\$Id\$";
+    if (-f $path && open(IN, "$path")) {
+        while (<IN>) {
+            if (/(\$[I][d]: .*\$)/) {
+                $idstr = $1;
+                last;
+            }
+        }
+        close(IN);
+    }
+    return $idstr;
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: genreceiver,v 1.2 2002/08/14 19:07:48 mdb Exp $
+# $Id: genreceiver,v 1.3 2002/08/20 19:36:43 mdb Exp $
 #
 # This script is used to generate invocation receiver marshaller and
 # unmarshaller classes based on receiver interface definitions.
@@ -179,7 +179,8 @@ while ($srcfile = shift) {
     $mimports{"com.threerings.presents.server.InvocationSender"} = 1;
     $mimports{"$dcdrpkg.${svcname}Decoder"} = 1;
     my @mimportsl = sort keys %mimports;
-    my %mdata = ( "imports" => \@mimportsl,
+    my %mdata = ( "idstr" => slurp_idstr($sendpath),
+                  "imports" => \@mimportsl,
                   "name" => $svcname,
                   "package" => $sendpkg,
                   "methods" => \@methods,
@@ -207,7 +208,8 @@ while ($srcfile = shift) {
     my %dimports = %imports;
     $dimports{"com.threerings.presents.client.InvocationDecoder"} = 1;
     my @dimportsl = sort keys %dimports;
-    my %ddata = ( "imports" => \@dimportsl,
+    my %ddata = ( "idstr" => slurp_idstr($dcdrpath),
+                  "imports" => \@dimportsl,
                   "name" => $svcname,
                   "receiver_code" => MD5->hexhash($ifcname),
                   "package" => $dcdrpkg,
@@ -351,4 +353,23 @@ sub unwrap_arglist {
         $i++;
     }
     return $argvals;
+}
+
+#
+# If the specified file exists, it is opened and its RCS Id string is read
+# and returned.
+#
+sub slurp_idstr {
+    my ($path) = @_;
+    my $idstr = "\$Id\$";
+    if (-f $path && open(IN, "$path")) {
+        while (<IN>) {
+            if (/(\$[I][d]: .*\$)/) {
+                $idstr = $1;
+                last;
+            }
+        }
+        close(IN);
+    }
+    return $idstr;
 }
