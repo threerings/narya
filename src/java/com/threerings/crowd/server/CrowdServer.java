@@ -110,7 +110,8 @@ public class CrowdServer extends PresentsServer
     {
         BodyObject bobj = (BodyObject)clmgr.getClientObject(username);
         // TEMP until we figure some things out
-        if (bobj.getClass().getName().indexOf("AuthUserObject") != -1) {
+        if (bobj == null ||
+            bobj.getClass().getName().indexOf("AuthUserObject") != -1) {
             return null;
         }
         // END TEMP
