@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.22 2002/06/19 23:31:57 mdb Exp $
+// $Id: CharacterManager.java,v 1.23 2002/10/18 01:32:23 ray Exp $
 
 package com.threerings.cast;
 
@@ -7,10 +7,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.HashMap;
 
+import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
-
-import org.apache.commons.collections.LRUMap;
 
 import com.threerings.media.util.Colorization;
 import com.threerings.util.DirectionCodes;
@@ -39,6 +38,9 @@ public class CharacterManager
             ActionSequence action = (ActionSequence)iter.next();
             _actions.put(action.name, action);
         }
+
+        // TODO
+        _frames.setTracking(true);
     }
 
     /**
@@ -179,6 +181,10 @@ public class CharacterManager
             _frames.put(key, frames);
         }
 
+        int[] eff = _frames.getTrackedEffectiveness();
+        Log.debug("CharacterManager LRU [hits=" + eff[0] +
+            ", misses=" + eff[1] + "].");
+
         return frames;
     }
 
@@ -257,7 +263,7 @@ public class CharacterManager
     protected HashMap _actions = new HashMap();
 
     /** A cache of composited animation frames. */
-    protected LRUMap _frames = new LRUMap(ACTION_CACHE_SIZE);
+    protected LRUHashMap _frames = new LRUHashMap(ACTION_CACHE_SIZE);
 
     /** The character class to be created. */
     protected Class _charClass = CharacterSprite.class;
