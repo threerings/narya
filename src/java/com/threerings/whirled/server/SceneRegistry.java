@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.16 2002/08/14 19:07:57 mdb Exp $
+// $Id: SceneRegistry.java,v 1.17 2002/10/06 00:44:58 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -209,9 +209,9 @@ public class SceneRegistry
             // will call back to the scene registry and let us know that
             // we can turn the penders loose
 
-        } catch (InstantiationException ie) {
+        } catch (Exception e) {
             // so close, but no cigar
-            processFailedResolution(model.sceneId, ie);
+            processFailedResolution(model.sceneId, e);
         }
     }
 

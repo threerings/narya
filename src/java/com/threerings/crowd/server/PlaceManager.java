@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.36 2002/09/20 04:53:14 mdb Exp $
+// $Id: PlaceManager.java,v 1.37 2002/10/06 00:44:58 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -169,6 +169,22 @@ public class PlaceManager
                 delegate.didInit(_config);
             }
         });
+    }
+
+    /**
+     * Provides an opportunity for place managers to ratify the creation
+     * of a place based on whatever criterion they may require (based on
+     * information available to the manager at this post-init() but
+     * pre-startup() phase of initialization).
+     *
+     * @return If a permissions check is to fail, the manager should
+     * return a translatable string explaining the failure.
+     * <code>null</code> should be returned if initialization is to be
+     * allowed to proceed.
+     */
+    public String checkPermissions ()
+    {
+        return null;
     }
 
     /**

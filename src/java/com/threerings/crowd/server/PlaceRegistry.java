@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.21 2002/08/14 19:07:49 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.22 2002/10/06 00:44:58 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -10,9 +10,10 @@ import com.samskivert.util.Tuple;
 import com.samskivert.util.Queue;
 
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.dobj.Subscriber;
+import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 
 import com.threerings.crowd.Log;
@@ -81,10 +82,14 @@ public class PlaceRegistry
      *
      * @exception InstantiationException thrown if an error occurs trying
      * to instantiate and initialize the place manager.
+     * @exception InvocationException thrown if the place manager returns
+     * failure from the call to {@link PlaceManager#checkPermissions}. The
+     * error string returned by that call will be provided as in the
+     * exception.
      */
     public PlaceManager createPlace (
         PlaceConfig config, CreationObserver observer)
-        throws InstantiationException
+        throws InstantiationException, InvocationException
     {
         try {
             // load up the manager class
@@ -93,6 +98,13 @@ public class PlaceRegistry
             PlaceManager pmgr = (PlaceManager)pmgrClass.newInstance();
             // let the pmgr know about us and its configuration
             pmgr.init(this, _invmgr, _omgr, config);
+
+            // give the manager an opportunity to abort the whole process
+            // if it fails any permissions checks
+            String errmsg = pmgr.checkPermissions();
+            if (errmsg != null) {
+                throw new InvocationException(errmsg);
+            }
 
             // stick the manager on the creation queue because we know
             // we'll get our calls to objectAvailable()/requestFailed() in
