@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.23 2003/03/26 02:06:06 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.24 2003/03/27 17:24:55 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -285,17 +285,21 @@ public class SpotSceneDirector extends BasicDirector
     // documentation inherited from interface
     public void attributeChanged (AttributeChangedEvent event)
     {
-        // if our cluster oid changes from the one we're currently
-        // subscribed to, give it the boot
-        if (_clobj != null && _self.getClusterOid() != _clobj.getOid()) {
-            clearCluster();
+        int cloid = _self.getClusterOid();
+        if ((_clobj == null && cloid == -1) ||
+            (_clobj != null && cloid == _clobj.getOid())) {
+            // our cluster didn't change, we can stop now
+            return;
         }
 
+        // clear out any old cluster object
+        clearCluster();
+
         // if there's a new cluster object, subscribe to it
-        if (_chatdir != null && _self.getClusterOid() > 0) {
+        if (_chatdir != null && cloid > 0) {
             DObjectManager omgr = _ctx.getDObjectManager();
             // we'll wire up to the chat director when this completes
-            omgr.subscribeToObject(_self.getClusterOid(), this);
+            omgr.subscribeToObject(cloid, this);
         }
     }
 
