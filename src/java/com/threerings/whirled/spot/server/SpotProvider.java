@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.16 2003/03/17 19:34:26 mdb Exp $
+// $Id: SpotProvider.java,v 1.17 2003/03/26 02:06:06 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -23,7 +23,7 @@ import com.threerings.whirled.server.SceneManager;
 import com.threerings.whirled.server.SceneRegistry;
 
 import com.threerings.whirled.spot.Log;
-import com.threerings.whirled.spot.client.SpotService.ChangeLocListener;
+import com.threerings.whirled.spot.client.SpotService;
 import com.threerings.whirled.spot.data.Location;
 import com.threerings.whirled.spot.data.Portal;
 import com.threerings.whirled.spot.data.SpotCodes;
@@ -137,10 +137,10 @@ public class SpotProvider
     }
 
     /**
-     * Processes a {@link SpotService#changeLog} request.
+     * Processes a {@link SpotService#changeLocation} request.
      */
-    public void changeLoc (ClientObject caller, Location loc, int cluster,
-                           ChangeLocListener listener)
+    public void changeLocation (ClientObject caller, Location loc,
+                                SpotService.ConfirmListener listener)
         throws InvocationException
     {
         int sceneId = getCallerSceneId(caller);
@@ -150,17 +150,44 @@ public class SpotProvider
         SpotSceneManager smgr = (SpotSceneManager)
             _screg.getSceneManager(sceneId);
         if (smgr == null) {
-            Log.warning("User requested to change location in " +
+            Log.warning("User requested to change location from " +
                         "non-existent scene [user=" + source.who() +
                         ", sceneId=" + sceneId + ", loc=" + loc +"].");
             throw new InvocationException(INTERNAL_ERROR);
         }
 
         // pass the buck to yon scene manager
-        smgr.handleChangeLocRequest(source, loc, cluster);
+        smgr.handleChangeLoc(source, loc);
 
         // if that method finished, we're good to go
-        listener.changeLocSucceeded();
+        listener.requestProcessed();
+    }
+
+    /**
+     * Processes a {@link SpotService#joinCluster} request.
+     */
+    public void joinCluster (ClientObject caller, int friendOid,
+                             SpotService.ConfirmListener listener)
+        throws InvocationException
+    {
+        int sceneId = getCallerSceneId(caller);
+        BodyObject source = (BodyObject)caller;
+
+        // look up the scene manager for the specified scene
+        SpotSceneManager smgr = (SpotSceneManager)
+            _screg.getSceneManager(sceneId);
+        if (smgr == null) {
+            Log.warning("User requested to join cluster from " +
+                        "non-existent scene [user=" + source.who() +
+                        ", sceneId=" + sceneId + ", foid=" + friendOid +"].");
+            throw new InvocationException(INTERNAL_ERROR);
+        }
+
+        // pass the buck to yon scene manager
+        smgr.handleJoinCluster(source, friendOid);
+
+        // if that method finished, we're good to go
+        listener.requestProcessed();
     }
 
     /**

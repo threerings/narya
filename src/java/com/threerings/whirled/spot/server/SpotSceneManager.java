@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.29 2003/03/25 19:28:59 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.30 2003/03/26 02:06:06 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -53,7 +53,7 @@ public class SpotSceneManager extends SceneManager
             SpotScene scene = (SpotScene)mgr.getScene();
             try {
                 Location eloc = scene.getDefaultEntrance().getLocation();
-                mgr.handleChangeLocRequest(body, eloc, -1);
+                mgr.handleChangeLoc(body, eloc);
             } catch (InvocationException ie) {
                 Log.warning("Could not move user to default portal " +
                             "[where=" + mgr.where() + ", who=" + body.who() +
@@ -170,11 +170,9 @@ public class SpotSceneManager extends SceneManager
      * join the other user's cluster.
      *
      * @exception InvocationException thrown with a reason code explaining
-     * the location change failure if there is a problem processing the
-     * location change request.
+     * the failure if there is a problem processing the request.
      */
-    protected void handleChangeLocRequest (
-        BodyObject source, Location loc, int cluster)
+    protected void handleChangeLoc (BodyObject source, Location loc)
         throws InvocationException
     {
         // make sure they are in our scene
@@ -201,13 +199,50 @@ public class SpotSceneManager extends SceneManager
             _ssobj.updateOccupantLocs(sloc);
         }
 
-        // handle the cluster situation; -1 means remove, our own oid
-        // means leave us in whatever cluster we're already in; someone
-        // else's oid means join their cluster or start one with them
-        if (cluster == -1) {
-            removeFromCluster(source.getOid());
-        } else if (cluster != source.getOid()) {
-            createOrJoinCluster(cluster, source);
+        // remove them from any cluster as they've departed
+        removeFromCluster(source.getOid());
+    }
+
+    /**
+     * Called by the {@link SpotProvider} when we receive a request by a
+     * user to join a particular cluster.
+     *
+     * @param joiner the body to be moved.
+     * @param friendOid the bodyOid of another user; the moving user will
+     * be made to join the other user's cluster.
+     *
+     * @exception InvocationException thrown with a reason code explaining
+     * the failure if there is a problem processing the request.
+     */
+    protected void handleJoinCluster (BodyObject joiner, int friendOid)
+        throws InvocationException
+    {
+        ClusterRecord clrec = (ClusterRecord)_clusters.get(friendOid);
+        if (clrec != null) {
+            // if the cluster already exists, add this user and be done
+            if (clrec.addBody(joiner)) {
+                _clusters.put(joiner.getOid(), clrec);
+            }
+            return;
+        }
+
+        // otherwise we have to create a new cluster and add our two
+        // charter members!
+        clrec = new ClusterRecord();
+        BodyObject member = (BodyObject)CrowdServer.omgr.getObject(friendOid);
+        if (member == null) {
+            Log.warning("Can't create cluster, missing target " +
+                        "[creator=" + joiner.who() +
+                        ", friendOid=" + friendOid + "].");
+            return;
+        }
+
+        // add our two lovely users to the newly created cluster
+        if (clrec.addBody(joiner)) {
+            _clusters.put(joiner.getOid(), clrec);
+        }
+        if (clrec.addBody(member)) {
+            _clusters.put(member.getOid(), clrec);
         }
     }
 
@@ -227,42 +262,6 @@ public class SpotSceneManager extends SceneManager
         }
         // if we failed to add the creator, the cluster record will
         // quietly off itself when it's done subscribing to its object
-    }
-
-    /**
-     * Adds the specified user to the cluster occupied by the specified
-     * other user or creates a new cluster for the two users if neither is
-     * already clustered.
-     */
-    protected void createOrJoinCluster (int memberOid, BodyObject joiner)
-    {
-        ClusterRecord clrec = (ClusterRecord)_clusters.get(memberOid);
-        if (clrec != null) {
-            // if the cluster already exists, add this user and be done
-            if (clrec.addBody(joiner)) {
-                _clusters.put(joiner.getOid(), clrec);
-            }
-            return;
-        }
-
-        // otherwise we have to create a new cluster and add our two
-        // charter members!
-        clrec = new ClusterRecord();
-        BodyObject member = (BodyObject)CrowdServer.omgr.getObject(memberOid);
-        if (member == null) {
-            Log.warning("Can't create cluster, missing target " +
-                        "[creator=" + joiner.who() +
-                        ", targetOid=" + memberOid + "].");
-            return;
-        }
-
-        // add our two lovely users to the newly created cluster
-        if (clrec.addBody(joiner)) {
-            _clusters.put(joiner.getOid(), clrec);
-        }
-        if (clrec.addBody(member)) {
-            _clusters.put(member.getOid(), clrec);
-        }
     }
 
     /**
@@ -323,6 +322,24 @@ public class SpotSceneManager extends SceneManager
     }
 
     /**
+     * Called when a user is added to a cluster. The scene manager
+     * implementation should take this opportunity to rearrange everyone
+     * in the cluster appropriately for the new size.
+     */
+    protected void bodyAdded (ClusterRecord clrec, BodyObject body)
+    {
+    }
+
+    /**
+     * Called when a user is removed from a cluster. The scene manager
+     * implementation should take this opportunity to rearrange everyone
+     * in the cluster appropriately for the new size.
+     */
+    protected void bodyRemoved (ClusterRecord clrec, BodyObject body)
+    {
+    }
+
+    /**
      * Used to manage clusters which are groups of users that can chat to
      * one another.
      */
@@ -344,11 +361,21 @@ public class SpotSceneManager extends SceneManager
 
                 put(body.getOid(), body);
                 _cluster.occupants++;
-                recomputeCenter();
-                if (_clobj != null) {
-                    ((ClusteredBodyObject)body).setClusterOid(_clobj.getOid());
-                    _clobj.addToOccupants(body.getOid());
-                    _ssobj.updateClusters(_cluster);
+                try {
+                    body.startTransaction();
+                    _ssobj.startTransaction();
+                    bodyAdded(this, body); // do the hokey pokey
+
+                    if (_clobj != null) {
+                        ((ClusteredBodyObject)body).setClusterOid(
+                            _clobj.getOid());
+                        _clobj.addToOccupants(body.getOid());
+                        _ssobj.updateClusters(_cluster);
+                    }
+
+                } finally {
+                    _clobj.commitTransaction();
+                    _ssobj.commitTransaction();
                 }
 
                 Log.info("Added " + body.who() + " to "+ this + ".");
@@ -364,7 +391,7 @@ public class SpotSceneManager extends SceneManager
 
         public void removeBody (int bodyOid)
         {
-            ClusteredBodyObject body = (ClusteredBodyObject)remove(bodyOid);
+            BodyObject body = (BodyObject)remove(bodyOid);
             if (body == null) {
                 Log.warning("Requested to remove unknown body from cluster " +
                             "[cloid=" + _clobj.getOid() +
@@ -372,13 +399,23 @@ public class SpotSceneManager extends SceneManager
                 return;
             }
 
-            body.setClusterOid(-1);
-            _cluster.occupants--;
-            recomputeCenter();
-            if (_clobj != null) {
-                _clobj.removeFromOccupants(bodyOid);
-                _ssobj.updateClusters(_cluster);
+            try {
+                body.startTransaction();
+                _ssobj.startTransaction();
+                ((ClusteredBodyObject)body).setClusterOid(-1);
+                _cluster.occupants--;
+                bodyRemoved(this, body); // do the hokey pokey
+
+                if (_clobj != null) {
+                    _clobj.removeFromOccupants(bodyOid);
+                    _ssobj.updateClusters(_cluster);
+                }
+
+            } finally {
+                _ssobj.commitTransaction();
+                body.commitTransaction();
             }
+
             Log.info("Removed " + bodyOid + " from "+ this + ".");
 
             // if we've removed our last body; stick a fork in ourselves
@@ -390,6 +427,11 @@ public class SpotSceneManager extends SceneManager
         public ClusterObject getClusterObject ()
         {
             return _clobj;
+        }
+
+        public Cluster getCluster ()
+        {
+            return _cluster;
         }
 
         public void objectAvailable (DObject object)
@@ -434,31 +476,6 @@ public class SpotSceneManager extends SceneManager
             return "[cluster=" + _cluster + ", size=" + size() + "]";
         }
 
-        protected void recomputeCenter ()
-        {
-            int tx = 0, ty = 0, count = 0;
-
-            // compute the average x and y position of all our cluster
-            // occupants
-            Iterator iter = _ssobj.occupantLocs.entries();
-            while (iter.hasNext()) {
-                SceneLocation sloc = (SceneLocation)iter.next();
-                if (containsKey(sloc.bodyOid)) {
-                    locationToCoords(sloc.x, sloc.y, _scratch);
-                    tx += _scratch.x;
-                    ty += _scratch.x;
-                    count++;
-                }
-            }
-
-            if (count > 1) {
-                // convert the center back to "location" coordinates
-                coordsToLocation(tx/count, ty/count, _scratch);
-                _cluster.x = _scratch.x;
-                _cluster.y = _scratch.y;
-            }
-        }
-
         protected void destroy ()
         {
             Log.info("Cluster empty, going away " +
@@ -469,7 +486,6 @@ public class SpotSceneManager extends SceneManager
 
         protected ClusterObject _clobj;
         protected Cluster _cluster = new Cluster();
-        protected Point _scratch = new Point();
     }
 
     /** A casted reference to our place object. */

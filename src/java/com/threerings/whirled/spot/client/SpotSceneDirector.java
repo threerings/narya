@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.22 2003/03/25 19:28:58 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.23 2003/03/26 02:06:06 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -9,6 +9,7 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
+import com.threerings.presents.client.InvocationService.ConfirmListener;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 
@@ -39,27 +40,8 @@ import com.threerings.whirled.spot.data.SpotScene;
  * locations within a scene.
  */
 public class SpotSceneDirector extends BasicDirector
-    implements SpotCodes, Subscriber, SpotService.ChangeLocListener,
-               AttributeChangeListener
+    implements SpotCodes, Subscriber, AttributeChangeListener
 {
-    /**
-     * This is used to communicate back to the caller of {@link
-     * #changeLocation}.
-     */
-    public static interface ChangeObserver
-    {
-        /**
-         * Indicates that the requested location change succeeded.
-         */
-        public void locationChangeSucceeded (Location loc);
-
-        /**
-         * Indicates that the requested location change failed and
-         * provides a reason code explaining the failure.
-         */
-        public void locationChangeFailed (Location loc, String reason);
-    }
-
     /**
      * Creates a new spot scene director with the specified context and
      * which will cooperate with the supplied scene director.
@@ -155,16 +137,9 @@ public class SpotSceneDirector extends BasicDirector
 
     /**
      * Issues a request to change our location within the scene to the
-     * specified location. Depending on the value of <code>cluster</code>
-     * the client will be made to create a new cluster, join and existing
-     * cluster or join no cluster at all.
+     * specified location.
      *
      * @param loc the new location to which to move.
-     * @param cluster if zero, a new cluster will be created and assigned
-     * to the calling user; if -1, the calling user will be removed from
-     * any cluster they currently occupy and not made to occupy a new
-     * cluster; if the bodyOid of another user, the calling user will be
-     * made to join the target user's cluster.
      * @param obs will be notified of success or failure. Most client
      * entities find out about location changes via changes to the
      * occupant info data, but the initiator of a location change request
@@ -173,7 +148,7 @@ public class SpotSceneDirector extends BasicDirector
      * starting a sprite moving toward the new location), but backtrack if
      * it finds out that the location change failed.
      */
-    public void changeLocation (Location loc, int cluster, ChangeObserver obs)
+    public void changeLocation (Location loc, final ResultListener listener)
     {
         // refuse if there's a pending location change or if we're already
         // at the specified location
@@ -190,11 +165,59 @@ public class SpotSceneDirector extends BasicDirector
             return;
         }
 
-        Log.info("Changing location [loc=" + loc + ", clus=" + cluster + "].");
+        Log.info("Changing location [loc=" + loc + "].");
 
         _pendingLoc = (Location)loc.clone();
-        _changeObserver = obs;
-        _sservice.changeLoc(_ctx.getClient(), loc, cluster, this);
+        _sservice.changeLocation(_ctx.getClient(), loc, new ConfirmListener() {
+            public void requestProcessed () {
+                _location = _pendingLoc;
+                _pendingLoc = null;
+                if (listener != null) {
+                    listener.requestCompleted(_location);
+                }
+            }
+
+            public void requestFailed (String reason) {
+                _pendingLoc = null;
+                if (listener != null) {
+                    listener.requestFailed(new Exception(reason));
+                }
+            }
+        });
+    }
+
+    /**
+     * Issues a request to join the cluster associated with the specified
+     * user (starting one if necessary).
+     *
+     * @param froid the bodyOid of another user; the calling user will
+     * be made to join the target user's cluster.
+     * @param listener will be notified of success or failure.
+     */
+    public void joinCluster (int froid, final ResultListener listener)
+    {
+        SpotScene scene = (SpotScene)_scdir.getScene();
+        if (scene == null) {
+            Log.warning("Requested to join cluster, but we're not " +
+                        "currently in any scene [froid=" + froid + "].");
+            return;
+        }
+
+        Log.info("Joining cluster [friend=" + froid + "].");
+
+        _sservice.joinCluster(_ctx.getClient(), froid, new ConfirmListener() {
+            public void requestProcessed () {
+                if (listener != null) {
+                    listener.requestCompleted(null);
+                }
+            }
+
+            public void requestFailed (String reason) {
+                if (listener != null) {
+                    listener.requestFailed(new Exception(reason));
+                }
+            }
+        });
     }
 
     /**
@@ -235,38 +258,6 @@ public class SpotSceneDirector extends BasicDirector
 
         _sservice.clusterSpeak(_ctx.getClient(), message, mode);
         return true;
-    }
-
-    // documentation inherited from interface
-    public void changeLocSucceeded ()
-    {
-        ChangeObserver obs = _changeObserver;
-        _location = _pendingLoc;
-
-        // clear out our pending location info
-        _pendingLoc = null;
-        _changeObserver = null;
-
-        // if we had an observer, let them know things went well
-        if (obs != null) {
-            obs.locationChangeSucceeded(_location);
-        }
-    }
-
-    // documentation inherited from interface
-    public void requestFailed (String reason)
-    {
-        ChangeObserver obs = _changeObserver;
-        Location loc = _pendingLoc;
-
-        // clear out our pending location info
-        _pendingLoc = null;
-        _changeObserver = null;
-
-        // if we had an observer, let them know things went well
-        if (obs != null) {
-            obs.locationChangeFailed(loc, reason);
-        }
     }
 
     // documentation inherited
@@ -336,7 +327,6 @@ public class SpotSceneDirector extends BasicDirector
         // clear out our business
         _location = null;
         _pendingLoc = null;
-        _changeObserver = null;
         _sservice = null;
         clearCluster();
 
@@ -403,8 +393,4 @@ public class SpotSceneDirector extends BasicDirector
 
     /** The cluster chat object for the cluster we currently occupy. */
     protected DObject _clobj;
-
-    /** An entity that wants to know if a requested location change
-     * succeeded or failed. */
-    protected ChangeObserver _changeObserver;
 }

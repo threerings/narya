@@ -1,15 +1,15 @@
 //
-// $Id: SpotMarshaller.java,v 1.3 2003/02/12 07:23:31 mdb Exp $
+// $Id: SpotMarshaller.java,v 1.4 2003/03/26 02:06:06 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
 import com.threerings.presents.client.Client;
+import com.threerings.presents.client.InvocationService.ConfirmListener;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 import com.threerings.whirled.client.SceneService.SceneMoveListener;
 import com.threerings.whirled.data.SceneMarshaller.SceneMoveMarshaller;
 import com.threerings.whirled.spot.client.SpotService;
-import com.threerings.whirled.spot.client.SpotService.ChangeLocListener;
 import com.threerings.whirled.spot.data.Location;
 
 /**
@@ -22,37 +22,6 @@ import com.threerings.whirled.spot.data.Location;
 public class SpotMarshaller extends InvocationMarshaller
     implements SpotService
 {
-    // documentation inherited
-    public static class ChangeLocMarshaller extends ListenerMarshaller
-        implements ChangeLocListener
-    {
-        /** The method id used to dispatch {@link #changeLocSucceeded}
-         * responses. */
-        public static final int CHANGE_LOC_SUCCEEDED = 1;
-
-        // documentation inherited from interface
-        public void changeLocSucceeded ()
-        {
-            omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, CHANGE_LOC_SUCCEEDED,
-                               new Object[] {  }));
-        }
-
-        // documentation inherited
-        public void dispatchResponse (int methodId, Object[] args)
-        {
-            switch (methodId) {
-            case CHANGE_LOC_SUCCEEDED:
-                ((ChangeLocListener)listener).changeLocSucceeded(
-                    );
-                return;
-
-            default:
-                super.dispatchResponse(methodId, args);
-            }
-        }
-    }
-
     /** The method id used to dispatch {@link #traversePortal} requests. */
     public static final int TRAVERSE_PORTAL = 1;
 
@@ -66,21 +35,34 @@ public class SpotMarshaller extends InvocationMarshaller
         });
     }
 
-    /** The method id used to dispatch {@link #changeLoc} requests. */
-    public static final int CHANGE_LOC = 2;
+    /** The method id used to dispatch {@link #changeLocation} requests. */
+    public static final int CHANGE_LOCATION = 2;
 
     // documentation inherited from interface
-    public void changeLoc (Client arg1, Location arg2, int arg3, ChangeLocListener arg4)
+    public void changeLocation (Client arg1, Location arg2, ConfirmListener arg3)
     {
-        ChangeLocMarshaller listener4 = new ChangeLocMarshaller();
-        listener4.listener = arg4;
-        sendRequest(arg1, CHANGE_LOC, new Object[] {
-            arg2, new Integer(arg3), listener4
+        ConfirmMarshaller listener3 = new ConfirmMarshaller();
+        listener3.listener = arg3;
+        sendRequest(arg1, CHANGE_LOCATION, new Object[] {
+            arg2, listener3
+        });
+    }
+
+    /** The method id used to dispatch {@link #joinCluster} requests. */
+    public static final int JOIN_CLUSTER = 3;
+
+    // documentation inherited from interface
+    public void joinCluster (Client arg1, int arg2, ConfirmListener arg3)
+    {
+        ConfirmMarshaller listener3 = new ConfirmMarshaller();
+        listener3.listener = arg3;
+        sendRequest(arg1, JOIN_CLUSTER, new Object[] {
+            new Integer(arg2), listener3
         });
     }
 
     /** The method id used to dispatch {@link #clusterSpeak} requests. */
-    public static final int CLUSTER_SPEAK = 3;
+    public static final int CLUSTER_SPEAK = 4;
 
     // documentation inherited from interface
     public void clusterSpeak (Client arg1, String arg2, byte arg3)
@@ -90,5 +72,4 @@ public class SpotMarshaller extends InvocationMarshaller
         });
     }
 
-    // Generated on 10:09:04 02/05/03.
 }

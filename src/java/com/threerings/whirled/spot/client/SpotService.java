@@ -1,5 +1,5 @@
 //
-// $Id: SpotService.java,v 1.13 2003/02/13 21:55:22 mdb Exp $
+// $Id: SpotService.java,v 1.14 2003/03/26 02:06:06 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -29,29 +29,25 @@ public interface SpotService extends InvocationService
         SceneMoveListener listener);
 
     /**
-     * Used to communicate responses to a {@link #changeLoc} request.
-     */
-    public static interface ChangeLocListener extends InvocationListener
-    {
-        /**
-         * Called when the change location request succeeds.
-         */
-        public void changeLocSucceeded ();
-    }
-
-    /**
      * Requests that this client's body be made to move to the specified
-     * location.
+     * location. The user will be removed from any cluster from which they
+     * are an occupant.
      *
      * @param loc the location to which to move.
-     * @param cluster if -1, the calling user will be removed from any
-     * cluster they currently occupy and not made to occupy a new cluster;
-     * if the bodyOid of another user, the calling user will be made to
-     * join the target user's cluster, or create a cluster with the target
-     * user if they are not already in one.
      */
-    public void changeLoc (Client client, Location loc, int cluster,
-                           ChangeLocListener listener);
+    public void changeLocation (Client client, Location loc,
+                                ConfirmListener listener);
+
+    /**
+     * Requests that this client start or join the specified cluster. They
+     * will be relocated appropriately by the scene manager.
+     *
+     * @param friendOid the bodyOid of another user; the calling user will
+     * be made to join the target user's cluster, or create a cluster with
+     * the target user if they are not already in one.
+     */
+    public void joinCluster (Client client, int friendOid,
+                             ConfirmListener listener);
 
     /**
      * Requests that the supplied message be delivered to listeners in the
