@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.69 2004/02/12 04:14:21 ray Exp $
+// $Id: SoundManager.java,v 1.70 2004/02/24 08:08:25 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -989,8 +989,25 @@ public class SoundManager
 
             _line = (SourceDataLine) AudioSystem.getLine(new DataLine.Info(
                 SourceDataLine.class, _format));
-            _line.open(_format, _outBufSize.getValue());
+            _line.open(_format, LINEBUF_SIZE);
             _line.start();
+
+            // calculate how long we should sleep when 'draining' the line
+            float sampleRate = format.getSampleRate();
+            if (sampleRate == AudioSystem.NOT_SPECIFIED) {
+                sampleRate = 11025; // most of our sounds are
+            }
+            int sampleSize = format.getSampleSizeInBits();
+            if (sampleSize == AudioSystem.NOT_SPECIFIED) {
+                sampleSize = 16;
+            }
+            _drainTime = (int) Math.ceil(
+                (LINEBUF_SIZE * 8 * 1000) / (sampleRate * sampleSize));
+            if (_verbose.getValue()) {
+                Log.info("Calculated drainTime as " + _drainTime +
+                    " (sampleSize=" + sampleSize +
+                    ", sampleRate=" + sampleRate + ")");
+            }
         }
 
         /**
@@ -1066,7 +1083,7 @@ public class SoundManager
         protected void playStream ()
         {
             int count = 0;
-            byte[] data = new byte[BUFFER_SIZE];
+            byte[] data = new byte[LINEBUF_SIZE];
 
 //             if (_verbose.getValue()) {
                 Log.info("Sound playing [key=" + _key.key + "].");
@@ -1087,21 +1104,12 @@ public class SoundManager
                 }
             }
 
-            // There is a major bug with using drain() under linux. It often
-            // causes the thread to just loop forever inside the native
-            // implementation of drain(), and we're screwed.
-            // UPDATE- it seems that it happens under windows as well sometimes
-            // so I am now just disabling drain.
-            if (true || RunAnywhere.isLinux()) {
-                // we instead attempt to sleep long enough such that
-                // everything should be drained.
-                try {
-                    Thread.sleep(NO_DRAIN_SLEEP_TIME);
-                } catch (InterruptedException ie) {
-                }
-
-            } else {
-                _line.drain();
+            // For now, we never trust _line.drain() because it seems that
+            // it is simply buggy. On multithreading systems
+            // (linux, windows XP with HT processors) it consistently booches.
+            try {
+                Thread.sleep(_drainTime);
+            } catch (InterruptedException ie) {
             }
 
             // clear it out so that we can wait for more.
@@ -1117,6 +1125,11 @@ public class SoundManager
         /** The line that we spool to. */
         protected SourceDataLine _line;
 
+        /** The amount of time we need to sleep after the last write
+         * of data to the line to be sure that all of it will have been
+         * played. */
+        protected int _drainTime;
+
         /** Are we still active and usable for spooling sounds, or should
          * we be removed. */
         protected boolean _valid = true;
@@ -1127,15 +1140,15 @@ public class SoundManager
         /** The list of all the currently instantiated spoolers. */
         protected static ArrayList _openSpoolers = new ArrayList();
 
+        /** The size of the line's buffer. */
+        protected static final int LINEBUF_SIZE = 8 * 1024;
+
         /** The maximum time a spooler will wait for a stream before
          * deciding to shut down. */
         protected static final long MAX_WAIT_TIME = 30000L;
 
         /** The maximum number of spoolers we'll allow. This is a lot. */
-        protected static final int MAX_SPOOLERS = 10;
-
-        /** The time we sleep if it's not safe to drain. */
-        protected static final long NO_DRAIN_SLEEP_TIME = 3000L;
+        protected static final int MAX_SPOOLERS = 12;
     }
 
     /**
@@ -1278,11 +1291,6 @@ public class SoundManager
         new RuntimeAdjust.FileAdjust(
             "Test sound directory", "narya.media.sound.test_dir",
             MediaPrefs.config, true, "");
-
-    protected static RuntimeAdjust.IntAdjust _outBufSize =
-        new RuntimeAdjust.IntAdjust(
-            "Sound output buffer size", "narya.media.sound.outbufsize",
-            MediaPrefs.config, 8192);
 
     protected static RuntimeAdjust.BooleanAdjust _verbose =
         new RuntimeAdjust.BooleanAdjust(
