@@ -1,5 +1,5 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- $Id: actions.xml,v 1.1 2001/11/27 08:06:57 mdb Exp $ -->
+<!-- $Id: actions.xml,v 1.2 2001/11/27 22:11:43 mdb Exp $ -->
 
 <!-- test component action definitions -->
 <actions>
@@ -11,7 +11,7 @@
       <widths>94, 94, 94, 94, 94, 94, 94, 94</widths>
       <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
       <offsetPos>1, 1</offsetPos>
-      <gapDist>39, 18</gapDist>
+      <gapSize>39, 18</gapSize>
     </tileset>
   </action>
 
@@ -23,7 +23,7 @@
       <widths>94, 94, 94, 94, 94, 94, 94, 94</widths>
       <tileCounts>6, 6, 6, 6, 6, 6, 6, 6</tileCounts>
       <offsetPos>1, 1</offsetPos>
-      <gapDist>39, 18</gapDist>
+      <gapSize>39, 18</gapSize>
     </tileset>
   </action>
 </actions>
