@@ -15,6 +15,9 @@
     <mkdir dir="${deploy.home}"/>
     <mkdir dir="${deploy.home}/classes"/>
     <mkdir dir="${javadoc.home}"/>
+    <copy todir="${deploy.home}/classes">
+      <fileset dir="src/java" includes="**/*.properties"/>
+    </copy>
   </target>
 
   <!-- cleans out the installed application -->
