@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.11 2002/05/06 18:08:31 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.12 2002/05/15 23:54:05 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -29,6 +29,8 @@ import com.threerings.resource.ResourceManager;
 import com.threerings.media.ImageManager;
 import com.threerings.media.util.Colorization;
 import com.threerings.media.util.ImageUtil;
+
+import com.threerings.media.sprite.MultiFrameImage;
 
 import com.threerings.media.tile.ImageProvider;
 import com.threerings.media.tile.NoSuchTileException;
@@ -303,78 +305,72 @@ public class BundledComponentRepository
             _set = set;
         }
 
-        // documentation inherited
-        public int getFrameCount ()
-        {
-            return _set.getTileCount() / DIRECTION_COUNT;
-        }
-
         // documentation inherited from interface
-        public int getWidth (int index)
+        public MultiFrameImage getFrames (final int orient)
         {
-            Tile tile = getTile(index);
-            return (tile == null) ? 0 : tile.getWidth();
-        }
+            return new MultiFrameImage() {
+                // documentation inherited
+                public int getFrameCount ()
+                {
+                    return _set.getTileCount() / DIRECTION_COUNT;
+                }
 
-        // documentation inherited from interface
-        public int getHeight (int index)
-        {
-            Tile tile = getTile(index);
-            return (tile == null) ? 0 : tile.getHeight();
-        }
+                // documentation inherited from interface
+                public int getWidth (int index)
+                {
+                    Tile tile = getTile(orient, index);
+                    return (tile == null) ? 0 : tile.getWidth();
+                }
 
-        // documentation inherited from interface
-        public void paintFrame (Graphics g, int index, int x, int y)
-        {
-            Tile tile = getTile(index);
-            if (tile != null) {
-                tile.paint(g, x, y);
-            }
-        }
+                // documentation inherited from interface
+                public int getHeight (int index)
+                {
+                    Tile tile = getTile(orient, index);
+                    return (tile == null) ? 0 : tile.getHeight();
+                }
 
-        // documentation inherited from interface
-        public boolean hitTest (int index, int x, int y)
-        {
-            Tile tile = getTile(index);
-            return (tile != null) ? tile.hitTest(x, y) : false;
-        }
+                // documentation inherited from interface
+                public void paintFrame (Graphics g, int index, int x, int y)
+                {
+                    Tile tile = getTile(orient, index);
+                    if (tile != null) {
+                        tile.paint(g, x, y);
+                    }
+                }
 
-        // documentation inherited from interface
-        public void setOrientation (int orient)
-        {
-            _orient = orient;
+                // documentation inherited from interface
+                public boolean hitTest (int index, int x, int y)
+                {
+                    Tile tile = getTile(orient, index);
+                    return (tile != null) ? tile.hitTest(x, y) : false;
+                }
+            };
         }
 
         // documentation inherited from interface
         public ActionFrames cloneColorized (Colorization[] zations)
         {
-            TileSet zset = _set.cloneColorized(zations);
-            TileSetFrameImage cframes = new TileSetFrameImage(zset);
-            cframes.setOrientation(_orient);
-            return cframes;
+            return new TileSetFrameImage(_set.cloneColorized(zations));
         }
 
         /**
          * Fetches the requested tile.
          */
-        protected Tile getTile (int index)
+        protected Tile getTile (int orient, int index)
         {
-            int tileIndex = _orient * getFrameCount() + index;
+            int fcount = _set.getTileCount() / DIRECTION_COUNT;
+            int tileIndex = orient * fcount + index;
             try {
                 return _set.getTile(tileIndex);
             } catch (NoSuchTileException nste) {
                 Log.warning("Can't extract action frame [set=" + _set +
-                            ", orient=" + _orient + ", index=" + index + "].");
+                            ", orient=" + orient + ", index=" + index + "].");
                 return null;
             }
         }
 
         /** The tileset from which we obtain our frame images. */
         protected TileSet _set;
-
-        /** The particular orientation for which we are providing
-         * frames. */
-        protected int _orient;
     }
 
     /** We use the image manager to decode and cache images. */

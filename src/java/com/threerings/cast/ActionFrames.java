@@ -1,5 +1,5 @@
 //
-// $Id: ActionFrames.java,v 1.2 2002/05/06 18:08:31 mdb Exp $
+// $Id: ActionFrames.java,v 1.3 2002/05/15 23:54:04 mdb Exp $
 
 package com.threerings.cast;
 
@@ -15,13 +15,13 @@ import com.threerings.util.DirectionCodes;
  * DirectionCodes#DIRECTION_COUNT} orientations that are used to render a
  * character sprite.
  */
-public interface ActionFrames extends MultiFrameImage
+public interface ActionFrames
 {
     /**
-     * Updates the orientation that is currently being returned by the
-     * {@link MultiFrameImage} implementation.
+     * Returns the multi-frame image that comprises the frames for the
+     * specified orientation.
      */
-    public void setOrientation (int orient);
+    public MultiFrameImage getFrames (int orient);
 
     /**
      * Creates a clone of these action frames which will have the supplied

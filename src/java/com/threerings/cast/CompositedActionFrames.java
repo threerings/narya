@@ -1,14 +1,16 @@
 //
-// $Id: CompositedActionFrames.java,v 1.3 2002/05/06 18:08:31 mdb Exp $
+// $Id: CompositedActionFrames.java,v 1.4 2002/05/15 23:54:04 mdb Exp $
 
 package com.threerings.cast;
 
 import java.awt.Graphics;
 import java.awt.Image;
 
-import com.threerings.util.DirectionCodes;
+import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.util.Colorization;
 import com.threerings.media.util.ImageUtil;
+
+import com.threerings.util.DirectionCodes;
 
 /**
  * An implementation of the {@link MultiFrameImage} interface that is used
@@ -27,44 +29,46 @@ public class CompositedActionFrames
         _sources = sources;
         // the sources must all have the same frame count, so we just use
         // the count from the first one
-        _frameCount = _sources[0].getFrameCount();
+        _frameCount = _sources[0].getFrames(NORTH).getFrameCount();
         _images = new Image[DIRECTION_COUNT][_frameCount];
     }
 
-    // documentation inherited
-    public int getFrameCount ()
-    {
-        return _frameCount;
-    }
-
     // documentation inherited from interface
-    public int getWidth (int index)
+    public MultiFrameImage getFrames (final int orient)
     {
-        return getExampleSource().getWidth(index);
-    }
+        return new MultiFrameImage() {
+            // documentation inherited
+            public int getFrameCount ()
+            {
+                return _proto.getFrameCount();
+            }
 
-    // documentation inherited from interface
-    public int getHeight (int index)
-    {
-        return getExampleSource().getHeight(index);
-    }
+            // documentation inherited from interface
+            public int getWidth (int index)
+            {
+                return _proto.getWidth(index);
+            }
 
-    // documentation inherited from interface
-    public void paintFrame (Graphics g, int index, int x, int y)
-    {
-        g.drawImage(getFrame(index), x, y, null);
-    }
+            // documentation inherited from interface
+            public int getHeight (int index)
+            {
+                return _proto.getHeight(index);
+            }
 
-    // documentation inherited from interface
-    public boolean hitTest (int index, int x, int y)
-    {
-        return ImageUtil.hitTest(getFrame(index), x, y);
-    }
+            // documentation inherited from interface
+            public void paintFrame (Graphics g, int index, int x, int y)
+            {
+                g.drawImage(getFrame(orient, index), x, y, null);
+            }
 
-    // documentation inherited from interface
-    public void setOrientation (int orient)
-    {
-        _orient = orient;
+            // documentation inherited from interface
+            public boolean hitTest (int index, int x, int y)
+            {
+                return ImageUtil.hitTest(getFrame(orient, index), x, y);
+            }
+
+            protected MultiFrameImage _proto = _sources[0].getFrames(orient);
+        };
     }
 
     // documentation inherited from interface
@@ -74,18 +78,18 @@ public class CompositedActionFrames
     }
 
     // documentation inherited
-    protected Image getFrame (int index)
+    protected Image getFrame (int orient, int index)
     {
         // create the frame if we don't already have it
-        if (_images[_orient] == null) {
-            _images[_orient] = new Image[_frameCount];
+        if (_images[orient] == null) {
+            _images[orient] = new Image[_frameCount];
         }
-        if (_images[_orient][index] == null) {
-//             Log.info("Compositing [orient=" + _orient +
+        if (_images[orient][index] == null) {
+//             Log.info("Compositing [orient=" + orient +
 //                      ", index=" + index + "].");
-            _images[_orient][index] = compositeFrames(_orient, index);
+            _images[orient][index] = compositeFrames(orient, index);
         }
-        return _images[_orient][index];
+        return _images[orient][index];
     }
 
     /**
@@ -102,20 +106,17 @@ public class CompositedActionFrames
 //         long start = System.currentTimeMillis();
 
         for (int ii = 0; ii < _sources.length; ii++) {
+            MultiFrameImage source = _sources[ii].getFrames(orient);
             // create the image now that we know how big it should be
             if (dest == null) {
-                dest = ImageUtil.createImage(_sources[ii].getWidth(index),
-                                             _sources[ii].getHeight(index));
+                dest = ImageUtil.createImage(source.getWidth(index),
+                                             source.getHeight(index));
                 g = dest.getGraphics();
             }
 
-            // make sure the action frames are configured with the right
-            // orientation before we render
-            _sources[ii].setOrientation(orient);
-
             // render the particular action from this component into the
             // target image
-            _sources[ii].paintFrame(g, index, 0, 0);
+            source.paintFrame(g, index, 0, 0);
         }
 
         // clean up after ourselves
@@ -129,20 +130,6 @@ public class CompositedActionFrames
 
         return dest;
     }
-
-    /**
-     * When fetching width and height, we can simply use the first
-     * component's image set since they must all be the same.
-     */
-    protected ActionFrames getExampleSource ()
-    {
-        ActionFrames source = _sources[0];
-        source.setOrientation(_orient);
-        return source;
-    }
-
-    /** The orientation we're currently using. */
-    protected int _orient;
 
     /** The number of frames in each orientation. */
     protected int _frameCount;

@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.29 2002/05/06 23:24:15 mdb Exp $
+// $Id: CharacterSprite.java,v 1.30 2002/05/15 23:54:04 mdb Exp $
 
 package com.threerings.cast;
 
@@ -111,12 +111,11 @@ public class CharacterSprite extends ImageSprite
         try {
             // obtain our animation frames for this action sequence
             _aframes = _charmgr.getActionFrames(_descrip, action);
-            _aframes.setOrientation(_orient);
 
             // update the sprite render attributes
             setOrigin(actseq.origin.x, actseq.origin.y);
             setFrameRate(actseq.framesPerSecond);
-            setFrames(_aframes);
+            setFrames(_aframes.getFrames(_orient));
 
         } catch (NoSuchComponentException nsce) {
             Log.warning("Character sprite references non-existent " +
@@ -131,8 +130,7 @@ public class CharacterSprite extends ImageSprite
 
         // update the sprite frames to reflect the direction
         if (_aframes != null) {
-            _aframes.setOrientation(orient);
-            setFrames(_aframes);
+            setFrames(_aframes.getFrames(orient));
         }
     }
 
