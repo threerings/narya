@@ -1,5 +1,5 @@
 //
-// $Id: ChatDisplay.java,v 1.15 2002/10/27 22:33:42 ray Exp $
+// $Id: ChatDisplay.java,v 1.16 2002/11/08 07:28:23 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -12,10 +12,8 @@ public interface ChatDisplay
 {
     /**
      * Called to clear the chat display.
-     *
-     * @param force if false, the ChatDisplay can choose to ignore the clear.
      */
-    public void clear (boolean force);
+    public void clear ();
 
     /**
      * Called to display a chat message.

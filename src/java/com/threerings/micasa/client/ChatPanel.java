@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.21 2002/10/27 22:34:43 ray Exp $
+// $Id: ChatPanel.java,v 1.22 2002/11/08 07:28:23 ray Exp $
 
 package com.threerings.micasa.client;
 
@@ -209,7 +209,7 @@ public class ChatPanel
 
         } else if (text.startsWith("/clear")) {
             // clear the chat box
-            _text.setText("");
+            _chatdtr.clearDisplays();
 
         } else {
             // request to send this text as a chat message
@@ -221,9 +221,8 @@ public class ChatPanel
     }
 
     // documentation inherited from interface ChatDisplay
-    public void clear (boolean force)
+    public void clear ()
     {
-        // we go ahead and always clear..
         _text.setText("");
     }
 

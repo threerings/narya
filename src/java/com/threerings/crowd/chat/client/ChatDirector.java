@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.38 2002/11/04 20:06:15 ray Exp $
+// $Id: ChatDirector.java,v 1.39 2002/11/08 07:28:23 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -192,18 +192,8 @@ public class ChatDirector extends BasicDirector
      */
     public void clearDisplays ()
     {
-        clearDisplays(false);
-    }
-
-    /**
-     * Request that all chat displays clear their contents.
-     *
-     * @param force if false, a display may choose to ignore the clear.
-     */
-    protected void clearDisplays (boolean force)
-    {
         for (int ii=0, nn=_displays.size(); ii < nn; ii++) {
-            ((ChatDisplay) _displays.get(ii)).clear(force);
+            ((ChatDisplay) _displays.get(ii)).clear();
         }
     }
 
@@ -580,7 +570,7 @@ public class ChatDirector extends BasicDirector
     {
         super.clientObjectDidChange(client);
 
-        clearDisplays(true);
+        clearDisplays();
     }
 
     // documentation inherited
@@ -588,7 +578,7 @@ public class ChatDirector extends BasicDirector
     {
         super.clientDidLogoff(client);
 
-        clearDisplays(true);
+        clearDisplays();
 
         // clear out the list of people we've chatted with
         _chatters.clear();
