@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.9 2003/04/24 21:27:23 mdb Exp $
+// $Id: SceneBlock.java,v 1.10 2003/04/25 18:22:52 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -48,16 +48,30 @@ public class SceneBlock
         _footprint = MisoUtil.getFootprintPolygon(
             panel.getSceneMetrics(), tx, ty, width, height);
 
+        // start with the bounds of the footprint polygon
+        _sbounds = new Rectangle(_footprint.getBounds());
+
+        // the rest of our resolution will happen in resolve()
+    }
+
+    /**
+     * This method is called by the {@link SceneBlockResolver} on the
+     * block resolution thread to allow us to load up our image data
+     * without blocking the AWT thread.
+     */
+    protected synchronized void resolve ()
+    {
         // resolve our base tiles
-        MisoSceneModel model = panel.getSceneModel();
-        for (int yy = 0; yy < height; yy++) {
-            for (int xx = 0; xx < width; xx++) {
-                int x = tx + xx, y = ty + yy;
+        MisoSceneModel model = _panel.getSceneModel();
+        for (int yy = 0; yy < _bounds.height; yy++) {
+            for (int xx = 0; xx < _bounds.width; xx++) {
+                int x = _bounds.x + xx, y = _bounds.y + yy;
                 int fqTileId = model.getBaseTileId(x, y);
                 if (fqTileId <= 0) {
                     continue;
                 }
 
+                // load up this base tile
                 updateBaseTile(fqTileId, x, y);
 
                 // if there's no tile here, we don't need no fringe
@@ -67,7 +81,7 @@ public class SceneBlock
                 }
 
                 // compute the fringe for this tile
-                _fringe[tidx] = panel.computeFringeTile(x, y);
+                _fringe[tidx] = _panel.computeFringeTile(x, y);
             }
         }
 
@@ -76,7 +90,8 @@ public class SceneBlock
         model.getObjects(_bounds, set);
         _objects = new SceneObject[set.size()];
         for (int ii = 0; ii < _objects.length; ii++) {
-            _objects[ii] = new SceneObject(panel, set.get(ii));
+            _objects[ii] = new SceneObject(_panel, set.get(ii));
+            _sbounds.add(_objects[ii].bounds);
         }
 
         // resolve our default tileset
@@ -92,11 +107,38 @@ public class SceneBlock
     }
 
     /**
+     * This is called by the {@link SceneBlockResolver} on the AWT thread
+     * when our resolution has completed. We inform our containing panel.
+     */
+    protected void wasResolved ()
+    {
+        _panel.blockResolved(this);
+    }
+
+    /**
+     * Returns true if this block has been resolved, false if not.
+     */
+    protected boolean isResolved ()
+    {
+        return (_defset != null);
+    }
+
+    /**
      * Returns the bounds of this block, in tile coordinates.
      */
     public Rectangle getBounds ()
     {
         return _bounds;
+    }
+
+    /**
+     * Returns the bounds of the screen coordinate rectangle that contains
+     * all pixels that are drawn on by all tiles and objects in this
+     * block.
+     */
+    public Rectangle getScreenBounds ()
+    {
+        return _sbounds;
     }
 
     /**
@@ -260,7 +302,11 @@ public class SceneBlock
      */
     public String toString ()
     {
-        return StringUtil.toString(_bounds) + ":" + _objects.length;
+        int bx = MathUtil.floorDiv(_bounds.x, _bounds.width);
+        int by = MathUtil.floorDiv(_bounds.y, _bounds.height);
+        return StringUtil.coordsToString(bx, by) + ":" +
+            StringUtil.toString(_bounds) + ":" +
+            ((_objects == null) ? 0 : _objects.length);
     }
 
     /**
@@ -355,6 +401,9 @@ public class SceneBlock
 
     /** The bounds of (in tile coordinates) of this block. */
     protected Rectangle _bounds;
+
+    /** The bounds (in screen coords) of all images rendered by this block. */
+    protected Rectangle _sbounds;
 
     /** A polygon bounding the footprint of this block. */
     protected Polygon _footprint;

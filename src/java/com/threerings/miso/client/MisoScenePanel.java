@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.13 2003/04/22 22:00:51 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.14 2003/04/25 18:22:52 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -89,6 +89,13 @@ public class MisoScenePanel extends VirtualMediaPanel
 
         // handy rectangle
         _tbounds = new Rectangle(0, 0, _metrics.tilewid, _metrics.tilehei);
+
+        // create the resolver if it's not already around
+        if (_resolver == null) {
+            _resolver = new SceneBlockResolver();
+            _resolver.setDaemon(true);
+            _resolver.start();
+        }
     }
 
     /**
@@ -107,7 +114,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         // recenter and rethink
         centerOnTile(0, 0);
         rethink();
-        repaint();
+        _remgr.invalidateRegion(_vbounds);
     }
 
     /**
@@ -380,7 +387,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         // clear the highlight tracking data
         _hcoords.setLocation(-1, -1);
         changeHoverObject(null);
-        repaint();
+        _remgr.invalidateRegion(_vbounds);
     }
 
     // documentation inherited from interface
@@ -577,8 +584,8 @@ public class MisoScenePanel extends VirtualMediaPanel
      */
     protected void rethink ()
     {
-//         Log.info("Rethinking vb:" + StringUtil.toString(_vbounds) +
-//                  " ul:" + StringUtil.toString(_ulpos));
+        Log.info("Rethinking vb:" + StringUtil.toString(_vbounds) +
+                 " ul:" + StringUtil.toString(_ulpos));
 
         // recompute our "area of influence"
         int infborx = _vbounds.width/4;
@@ -614,18 +621,15 @@ public class MisoScenePanel extends VirtualMediaPanel
         itb.height = (tpos.y-itb.y+1);
         maxy = MathUtil.floorDiv(tpos.y, _metrics.blockhei);
 
-//         Log.info("Resolving blocks from " + minx + "," + miny + " to " +
-//                  maxx + "," + maxy + " (" + StringUtil.toString(itb) + ").");
-
-        boolean changed = false;
+        Log.info("Resolving blocks from " + minx + "," + miny + " to " +
+                 maxx + "," + maxy + " (" + StringUtil.toString(itb) + ").");
 
         // prune any blocks that are no longer influential
         for (Iterator iter = _blocks.values().iterator(); iter.hasNext(); ) {
             SceneBlock block = (SceneBlock)iter.next();
             if (!itb.intersects(block.getBounds())) {
-//                 Log.info("Flushing block " + block + ".");
+                Log.info("Flushing block " + block + ".");
                 iter.remove();
-                changed = true;
             }
         }
 
@@ -644,14 +648,40 @@ public class MisoScenePanel extends VirtualMediaPanel
                         this, xx*_metrics.blockwid, yy*_metrics.blockhei,
                         _metrics.blockwid, _metrics.blockhei);
                     _blocks.put(bkey, block);
-                    changed = true;
-//                     Log.info("Created new block " + block + ".");
+                    Log.info("Created new block " + block + ".");
+
+                    // queue the block up to be resolved
+                    _pendingBlocks++;
+                    _resolver.resolveBlock(block);
                 }
             }
         }
 
         // recompute our visible object set
         recomputeVisible();
+    }
+
+    /**
+     * Called by a scene block when it has completed its resolution
+     * process.
+     */
+    protected void blockResolved (SceneBlock block)
+    {
+        // once all the pending blocks have completed their resolution,
+        // recompute our visible object set
+        if (--_pendingBlocks == 0) {
+            recomputeVisible();
+            _remgr.invalidateRegion(_vbounds);
+        }
+
+        // if this block has objects that intersect our visible bounds
+        // (zoiks!) then repaint
+        Rectangle sbounds = block.getScreenBounds();
+        if (sbounds.intersects(_vbounds)) {
+            Log.info("Eek, block came into view during resolution " +
+                     block + ".");
+            _remgr.invalidateRegion(_vbounds);
+        }
     }
 
     /**
@@ -668,8 +698,13 @@ public class MisoScenePanel extends VirtualMediaPanel
             _vbounds.height+2*_metrics.tilehei);
 
         for (Iterator iter = _blocks.values().iterator(); iter.hasNext(); ) {
-            // links this block to its neighbors; computes coverage
             SceneBlock block = (SceneBlock)iter.next();
+            if (!block.isResolved()) {
+                Log.info("Skipping unresolved block " + block + ".");
+                continue;
+            }
+
+            // links this block to its neighbors; computes coverage
             block.update(_blocks);
 
             // see which of this block's objects are visible
@@ -685,8 +720,8 @@ public class MisoScenePanel extends VirtualMediaPanel
         // recompute our object tips
         computeTips();
 
-//         Log.info("Computed " + _vizobjs.size() + " visible objects from " +
-//                  _blocks.size() + " blocks.");
+        Log.info("Computed " + _vizobjs.size() + " visible objects from " +
+                 _blocks.size() + " blocks.");
 
 //         Log.info(StringUtil.listToString(_vizobjs, new StringUtil.Formatter() {
 //             public String toString (Object object) {
@@ -1240,6 +1275,9 @@ public class MisoScenePanel extends VirtualMediaPanel
     /** Contains our scene blocks. See {@link #getBlock} for details. */
     protected HashIntMap _blocks = new HashIntMap();
 
+    /** A count of blocks in the process of being resolved. */
+    protected int _pendingBlocks;
+
     /** A list of the potentially visible objects in the scene. */
     protected ArrayList _vizobjs = new ArrayList();
 
@@ -1292,6 +1330,9 @@ public class MisoScenePanel extends VirtualMediaPanel
 
     /** The font to draw tile coordinates. */
     protected Font _font = new Font("Arial", Font.PLAIN, 7);
+
+    /** A scene block resolver shared by all scene panels. */
+    protected static SceneBlockResolver _resolver;
 
     /** A debug hook that toggles debug rendering of traversable tiles. */
     protected static RuntimeAdjust.BooleanAdjust _traverseDebug =
