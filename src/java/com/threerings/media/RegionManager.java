@@ -1,5 +1,5 @@
 //
-// $Id: RegionManager.java,v 1.3 2002/06/18 22:25:33 mdb Exp $
+// $Id: RegionManager.java,v 1.4 2002/10/17 02:11:58 ray Exp $
 
 package com.threerings.media;
 
@@ -72,16 +72,17 @@ public class RegionManager
     {
         ArrayList merged = new ArrayList();
 
-        while (_dirty.size() > 0) {
+        for (int ii=_dirty.size() - 1; ii >= 0; ii--) {
             // pop the next rectangle from the dirty list
-            Rectangle mr = (Rectangle)_dirty.remove(0);
+            Rectangle mr = (Rectangle)_dirty.remove(ii);
 
             // merge in any overlapping rectangles
-            for (int ii = 0; ii < _dirty.size(); ii++) {
-                Rectangle r = (Rectangle)_dirty.get(ii);
+            for (int jj = ii - 1; jj >= 0; jj--) {
+                Rectangle r = (Rectangle)_dirty.get(jj);
                 if (mr.intersects(r)) {
                     // remove the overlapping rectangle from the list
-                    _dirty.remove(ii--);
+                    _dirty.remove(jj);
+                    ii--;
                     // grow the merged dirty rectangle
                     mr.add(r);
                 }
