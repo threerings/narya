@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.10 2001/10/25 23:21:32 mdb Exp $
+// $Id: ClientController.java,v 1.11 2001/12/20 01:10:51 shaper Exp $
 
 package com.threerings.micasa.client;
 
@@ -7,11 +7,10 @@ import java.awt.event.ActionEvent;
 import com.samskivert.swing.Controller;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.dobj.*;
-import com.threerings.presents.client.*;
+import com.threerings.presents.client.Client;
+import com.threerings.presents.client.ClientObserver;
 
-import com.threerings.crowd.client.*;
-import com.threerings.crowd.data.*;
+import com.threerings.crowd.data.BodyObject;
 
 import com.threerings.micasa.Log;
 import com.threerings.micasa.data.MiCasaBootstrapData;
@@ -131,7 +130,6 @@ public class ClientController
     protected MiCasaContext _ctx;
     protected MiCasaFrame _frame;
     protected BodyObject _body;
-    protected PlaceObject _place;
 
     // our panels
     protected LogonPanel _logonPanel;

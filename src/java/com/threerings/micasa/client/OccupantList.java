@@ -1,10 +1,11 @@
 //
-// $Id: OccupantList.java,v 1.3 2001/10/11 04:13:33 mdb Exp $
+// $Id: OccupantList.java,v 1.4 2001/12/20 01:10:52 shaper Exp $
 
 package com.threerings.micasa.client;
 
 import java.util.Iterator;
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
 
 import com.threerings.crowd.client.OccupantObserver;
 import com.threerings.crowd.client.PlaceView;

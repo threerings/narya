@@ -1,10 +1,11 @@
 //
-// $Id: MiCasaFrame.java,v 1.3 2001/10/09 18:20:08 mdb Exp $
+// $Id: MiCasaFrame.java,v 1.4 2001/12/20 01:10:51 shaper Exp $
 
 package com.threerings.micasa.client;
 
 import java.awt.BorderLayout;
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.ControllerProvider;

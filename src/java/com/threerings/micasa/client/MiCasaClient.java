@@ -1,18 +1,18 @@
 //
-// $Id: MiCasaClient.java,v 1.6 2001/10/25 23:21:32 mdb Exp $
+// $Id: MiCasaClient.java,v 1.7 2001/12/20 01:10:51 shaper Exp $
 
 package com.threerings.micasa.client;
 
-import java.awt.event.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import com.samskivert.util.Config;
 
-import com.threerings.presents.client.*;
+import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.DObjectManager;
-import com.threerings.presents.net.*;
 
 import com.threerings.crowd.client.LocationDirector;
 import com.threerings.crowd.client.OccupantManager;

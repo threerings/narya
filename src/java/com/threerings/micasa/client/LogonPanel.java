@@ -1,5 +1,5 @@
 //
-// $Id: LogonPanel.java,v 1.2 2001/10/11 04:13:33 mdb Exp $
+// $Id: LogonPanel.java,v 1.3 2001/12/20 01:10:51 shaper Exp $
 
 package com.threerings.micasa.client;
 
@@ -7,12 +7,23 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.*;
 
-import com.samskivert.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import com.samskivert.swing.GroupLayout;
+import com.samskivert.swing.HGroupLayout;
+import com.samskivert.swing.VGroupLayout;
 
 import com.threerings.presents.client.Client;
-import com.threerings.presents.net.*;
+import com.threerings.presents.net.Credentials;
+import com.threerings.presents.net.UsernamePasswordCreds;
 
 import com.threerings.micasa.util.MiCasaContext;
 
