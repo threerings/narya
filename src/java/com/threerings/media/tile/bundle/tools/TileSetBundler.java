@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundler.java,v 1.14 2003/02/28 00:46:52 mdb Exp $
+// $Id: TileSetBundler.java,v 1.15 2003/04/27 06:34:43 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -33,6 +33,7 @@ import com.samskivert.io.PersistenceException;
 
 import com.threerings.media.Log;
 import com.threerings.media.image.Colorization;
+import com.threerings.media.image.FastImageIO;
 import com.threerings.media.image.ImageUtil;
 import com.threerings.media.image.Mirage;
 
@@ -334,14 +335,15 @@ public class TileSetBundler
                     continue;
                 }
 
-                // let the jar file know what's coming
-                jar.putNextEntry(new JarEntry(imagePath));
-
                 // if this is an object tileset, we can't trim it!
                 if (set instanceof ObjectTileSet) {
                     // set the tileset up with an image provider; we
                     // need to do this so that we can trim it!
                     set.setImageProvider(improv);
+
+                    // we're going to trim it, so adjust the path
+                    imagePath = adjustImagePath(imagePath);
+                    jar.putNextEntry(new JarEntry(imagePath));
 
                     try {
                         // create a trimmed object tileset, which will
@@ -374,11 +376,25 @@ public class TileSetBundler
                     }
 
                 } else {
-                    // open the image and pipe it into the jar file
-                    File imgfile = new File(
-                        bundleDesc.getParent(), imagePath);
-                    FileInputStream imgin = new FileInputStream(imgfile);
-                    StreamUtils.pipe(imgin, jar);
+                    // read the image file and convert it to our custom
+                    // format in the bundle
+                    File ifile = new File(bundleDesc.getParent(), imagePath);
+                    try {
+                        BufferedImage image = ImageIO.read(ifile);
+                        if (FastImageIO.canWrite(image)) {
+                            imagePath = adjustImagePath(imagePath);
+                            jar.putNextEntry(new JarEntry(imagePath));
+                            set.setImagePath(imagePath);
+                            FastImageIO.write(image, jar);
+                        } else {
+                            jar.putNextEntry(new JarEntry(imagePath));
+                            FileInputStream imgin = new FileInputStream(ifile);
+                            StreamUtils.pipe(imgin, jar);
+                        }
+                    } catch (Exception e) {
+                        throw new NestableIOException(
+                            "Failure bundling image " + ifile + ": " + e, e);
+                    }
                 }
             }
 
@@ -395,12 +411,23 @@ public class TileSetBundler
 
             return true;
 
-        } catch (IOException ioe) {
+        } catch (Exception e) {
             // remove the incomplete jar file and rethrow the exception
-            fout.close();
-            target.delete();
-            throw ioe;
+            jar.close();
+            if (!target.delete()) {
+                Log.warning("Failed to close botched bundle '" + target + "'.");
+            }
+            String errmsg = "Failed to create bundle " + target + ": " + e;
+            throw new NestableIOException(errmsg, e);
         }
+    }
+
+    /** Replaces the image suffix with <code>.raw</code>. */
+    protected String adjustImagePath (String imagePath)
+    {
+        int didx = imagePath.lastIndexOf(".");
+        return ((didx == -1) ? imagePath :
+                imagePath.substring(0, didx)) + ".raw";
     }
 
     /** Used to parse our configuration. */
