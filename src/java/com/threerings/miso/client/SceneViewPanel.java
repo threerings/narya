@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.28 2002/02/17 23:45:36 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.29 2002/02/18 00:40:58 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -12,8 +12,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 
 import java.util.List;
-
-import com.samskivert.util.Config;
 
 import com.threerings.media.animation.AnimationManager;
 import com.threerings.media.animation.AnimatedPanel;
@@ -29,25 +27,25 @@ public class SceneViewPanel extends AnimatedPanel
     implements IsoSceneViewModelListener
 {
     /**
-     * Constructs the scene view panel.
+     * Constructs the scene view panel with the supplied view model.
      */
-    public SceneViewPanel (Config config, SpriteManager spritemgr)
+    public SceneViewPanel (IsoSceneViewModel model)
     {
-        // save off references
-        _spritemgr = spritemgr;
+        // create a sprite manager
+        _spritemgr = new SpriteManager();
 
         // configure our animation manager with the sprite manager
         _animmgr.setSpriteManager(_spritemgr);
 
         // create the data model for the scene view
-        _viewmodel = new IsoSceneViewModel(config);
+        _viewmodel = model;
 
         // listen to the iso scene view model to receive notice when
         // the scene display has changed and needs must be repainted
         _viewmodel.addListener(this);
 
 	// create the scene view
-        _view = newSceneView(_animmgr, spritemgr, _viewmodel);
+        _view = newSceneView(_animmgr, _spritemgr, _viewmodel);
 
 	// listen to mouse...
 	addMouseListener(new MouseAdapter() {
