@@ -8,9 +8,6 @@ library directory specified in the build.xml file (java.libraries).
 * The samskivert library:
   http://samskivert.com/code/samskivert/
 
-* MM MySQL driver:
-  http://mmmysql.sourceforge.net/
-
 * Apache Commons libraries: collections, digester, io, and lang
   http://jakarta.apache.org/commons/
 
@@ -22,4 +19,4 @@ build system will automatically include them in the compile-time
 classpath.
 
 --
-$Id: README,v 1.7 2004/08/27 17:37:52 mdb Exp $
+$Id: README,v 1.8 2004/08/27 18:38:55 mdb Exp $
