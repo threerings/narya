@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaApp.java,v 1.13 2004/03/06 11:29:19 mdb Exp $
+// $Id: MiCasaApp.java,v 1.14 2004/08/27 01:41:21 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -27,7 +27,12 @@ public class MiCasaApp
         _frame = new MiCasaFrame();
 
         // create our client instance
-        String cclass = getProperty("client");
+        String cclass = null;
+        try {
+            cclass = System.getProperty("client");
+        } catch (Throwable t) {
+            // security manager in effect, no problem
+        }
         if (cclass == null) {
             cclass = MiCasaClient.class.getName();
         }
@@ -44,7 +49,7 @@ public class MiCasaApp
         _client.init(_frame);
     }
 
-    public void run ()
+    public void run (String server, int port, String username, String password)
     {
         // position everything and show the frame
         _frame.setSize(800, 600);
@@ -53,27 +58,11 @@ public class MiCasaApp
 
         Client client = _client.getContext().getClient();
 
-        // read our server and port settings
-        String server = getProperty("server");
-        if (server == null) {
-            server = "localhost";
-        }
-        int port = Client.DEFAULT_SERVER_PORT;
-        String portstr = getProperty("port");
-        if (portstr != null) {
-            try {
-                port = Integer.parseInt(portstr);
-            } catch (NumberFormatException nfe) {
-                Log.warning("Invalid port specification '" + portstr + "'.");
-            }
-        }
-
         // pass them on to the client
+        Log.info("Using [server=" + server + ", port=" + port + "].");
         client.setServer(server, port);
 
         // configure the client with some credentials and logon
-        String username = getProperty("username");
-        String password = getProperty("password");
         if (username != null && password != null) {
             // create and set our credentials
             client.setCredentials(
@@ -82,22 +71,25 @@ public class MiCasaApp
         }
     }
 
-    /**
-     * Attempts to get a property but doesn't freak out if we fail
-     * security check.
-     */
-    protected String getProperty (String key)
-    {
-        try {
-            return System.getProperty(key);
-        } catch (Throwable t) {
-            Log.info("Can't fetch '" + key + "' system property.");
-            return null;
-        }
-    }
-
     public static void main (String[] args)
     {
+        String server = "localhost";
+        if (args.length > 0) {
+            server = args[0];
+        }
+
+        int port = Client.DEFAULT_SERVER_PORT;
+        if (args.length > 1) {
+            try {
+                port = Integer.parseInt(args[1]);
+            } catch (NumberFormatException nfe) {
+                Log.warning("Invalid port specification '" + args[1] + "'.");
+            }
+        }
+
+        String username = (args.length > 2) ? args[2] : null;
+        String password = (args.length > 3) ? args[3] : null;
+
         MiCasaApp app = new MiCasaApp();
         try {
             // initialize the app
@@ -106,8 +98,9 @@ public class MiCasaApp
             Log.warning("Error initializing application.");
             Log.logStackTrace(ioe);
         }
+
         // and run it
-        app.run();
+        app.run(server, port, username, password);
     }
 
     protected MiCasaClient _client;
