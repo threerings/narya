@@ -1,5 +1,5 @@
 //
-// $Id: MathUtil.java,v 1.5 2002/09/17 04:00:09 mdb Exp $
+// $Id: MathUtil.java,v 1.6 2002/10/26 20:31:06 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -55,5 +55,14 @@ public class MathUtil
     public static double ellipseCircum (double a, double b)
     {
         return Math.PI * (3*a + 3*b - Math.sqrt((a + 3*b) * (b + 3*a)));
+    }
+
+    /**
+     * Returns positive 1 if the sign of the argument is positive, or -1
+     * if the sign of the argument is negative.
+     */
+    public static int sign (int value)
+    {
+        return (value == 0) ? 1 : value/value;
     }
 }
