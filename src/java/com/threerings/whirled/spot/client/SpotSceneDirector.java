@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.11 2002/04/15 16:28:03 shaper Exp $
+// $Id: SpotSceneDirector.java,v 1.12 2002/06/12 07:03:23 ray Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -149,8 +149,9 @@ public class SpotSceneDirector
      */
     public void changeLocation (int locationId, ChangeObserver obs)
     {
-        // refuse if there's a pending location change
-        if (_pendingLocId != -1) {
+        // refuse if there's a pending location change or if we're already
+        // at the specified location
+        if ((locationId == _locationId) || (_pendingLocId != -1)) {
             return;
         }
 
