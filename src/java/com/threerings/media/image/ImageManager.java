@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.41 2003/01/15 02:45:37 mdb Exp $
+// $Id: ImageManager.java,v 1.42 2003/01/15 02:48:45 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -364,9 +364,9 @@ public class ImageManager
         if (_runBlank.getValue()) {
             return new BlankMirage(bounds.width, bounds.height);
         } else if (_prepareImages.getValue()) {
-            return new BufferedMirage(src);
-        } else {
             return new CachedVolatileMirage(this, key, bounds, zations);
+        } else {
+            return new BufferedMirage(src);
         }
     }
 
