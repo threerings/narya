@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.62 2004/02/21 00:52:16 mdb Exp $
+// $Id: PresentsClient.java,v 1.63 2004/02/21 00:54:51 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -877,7 +877,7 @@ public class PresentsClient
      * disconnected. */
     protected long _networkStamp;
 
-    /** Limit the client from sending too many messages too frequently.
+    /** Prevent the client from sending too many messages too frequently.
      * 100 messages in 10 seconds and you're audi. */
     protected Throttle _throttle = new Throttle(100, 10 * 1000L);
 
