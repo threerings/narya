@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.17 2002/05/29 18:45:00 mdb Exp $
+// $Id: ImageManager.java,v 1.18 2002/07/06 00:38:45 shaper Exp $
 
 package com.threerings.media;
 
@@ -117,15 +117,24 @@ public class ImageManager
     public Image createImage (InputStream source)
         throws IOException
     {
-        Image src = loadImage(source);
+        return createImage(loadImage(source));
+    }
+
+    /**
+     * Creates an image that is optimized for rendering in the client's
+     * environment and renders the supplied image into the optimized
+     * image.  The resulting image is not cached.
+     */
+    public Image createImage (Image src)
+    {
         int swidth = src.getWidth(null);
         int sheight = src.getHeight(null);
 
         // now convert the image to a format optimized for display
         BufferedImage dest = ImageUtil.createImage(swidth, sheight);
-        Graphics2D g2 = dest.createGraphics();
-        g2.drawImage(src, 0, 0, null);
-        g2.dispose();
+        Graphics2D gfx = dest.createGraphics();
+        gfx.drawImage(src, 0, 0, null);
+        gfx.dispose();
 
         return dest;
     }
