@@ -1,5 +1,5 @@
 //
-// $Id: LinePath.java,v 1.2 2002/05/31 03:38:03 mdb Exp $
+// $Id: LinePath.java,v 1.3 2002/05/31 20:47:32 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -65,7 +65,7 @@ public class LinePath implements Path
         _arrivalTime = timestamp + _duration;
 
         // pretend like we just moved the pathable
-        _lastMove = timestamp;
+        _lastMoveX = _lastMoveY = timestamp;
 
         // update our position to the start of the path
         tick(pable, timestamp);
@@ -83,16 +83,26 @@ public class LinePath implements Path
         }
 
         // the number of milliseconds since we last moved (move delta)
-        float dt = (float)(timestamp - _lastMove);
+        float dtX = (float)(timestamp - _lastMoveX);
+        float dtY = (float)(timestamp - _lastMoveY);
         // the number of milliseconds until we're expected to finish
-        float rt = (float)(_arrivalTime - _lastMove);
+        float rtX = (float)(_arrivalTime - _lastMoveX);
+        float rtY = (float)(_arrivalTime - _lastMoveY);
         // how many pixels we have left to go
         int leftx = _dest.x - pable.getX(), lefty = _dest.y - pable.getY();
 
         // we want to move the pathable by the remaining distance
-        // multiplied by the move delta divided by the remaining time
-        int dx = Math.round((float)(leftx * dt) / rt);
-        int dy = Math.round((float)(lefty * dt) / rt);
+        // multiplied by the move delta divided by the remaining time and
+        // we update our last move stamps if there is movement to be had
+        // in either direction
+        int dx = Math.round((float)(leftx * dtX) / rtX);
+        if (dx != 0) {
+            _lastMoveX = timestamp;
+        }
+        int dy = Math.round((float)(lefty * dtY) / rtY);
+        if (dy != 0) {
+            _lastMoveY = timestamp;
+        }
 
 //         Log.info("Updated pathable [duration=" + _duration +
 //                  ", dist=" + _distance + ", dt=" + dt + ", rt=" + rt +
@@ -101,7 +111,6 @@ public class LinePath implements Path
 
         // only update the pathable's location if it actually moved
         if (dx != 0 || dy != 0) {
-            _lastMove = timestamp;
             pable.setLocation(pable.getX() + dx, pable.getY() + dy);
             return true;
         }
@@ -113,7 +122,8 @@ public class LinePath implements Path
     public void fastForward (long timeDelta)
     {
         _arrivalTime += timeDelta;
-        _lastMove += timeDelta;
+        _lastMoveX += timeDelta;
+        _lastMoveY += timeDelta;
     }
 
     // documentation inherited
@@ -143,6 +153,11 @@ public class LinePath implements Path
     /** The time at which we expect to complete our path. */
     protected long _arrivalTime;
 
-    /** The time at which we last actually moved the pathable. */
-    protected long _lastMove;
+    /** The time at which we last actually moved the pathable in the x
+     * direction. */
+    protected long _lastMoveX;
+
+    /** The time at which we last actually moved the pathable in the y
+     * direction. */
+    protected long _lastMoveY;
 }
