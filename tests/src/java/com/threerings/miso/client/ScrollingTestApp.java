@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.4 2002/02/19 07:21:15 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.5 2002/02/19 20:03:13 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -7,7 +7,10 @@ import java.awt.DisplayMode;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
+
 import java.io.IOException;
+import java.util.Iterator;
 
 import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.Config;
@@ -15,9 +18,17 @@ import com.samskivert.util.Config;
 import com.threerings.resource.ResourceManager;
 import com.threerings.media.ImageManager;
 
-import com.threerings.media.sprite.SpriteManager;
+import com.threerings.media.sprite.Sprite;
+import com.threerings.media.sprite.MultiFrameImage;
+import com.threerings.media.sprite.MultiFrameImageImpl;
+
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.bundle.BundledTileSetRepository;
+
+import com.threerings.cast.CharacterDescriptor;
+import com.threerings.cast.CharacterManager;
+import com.threerings.cast.ComponentClass;
+import com.threerings.cast.bundle.BundledComponentRepository;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.util.MisoContext;
@@ -71,16 +82,39 @@ public class ScrollingTestApp
 	MisoContext ctx = new ContextImpl();
 
         // create the various managers
-        SpriteManager spritemgr = new SpriteManager();
+        BundledComponentRepository crepo =
+            new BundledComponentRepository(rmgr, imgr, "ships");
+        CharacterManager charmgr = new CharacterManager(crepo);
+        charmgr.setCharacterClass(MisoCharacterSprite.class);
 
         // create our scene view panel
         _panel = new SceneViewPanel(new IsoSceneViewModel(_config));
         _frame.setPanel(_panel);
 
+        // create our "ship" sprite
+        ComponentClass slclass = crepo.getComponentClass("smsloop");
+        Iterator cids = crepo.enumerateComponentIds(slclass);
+        CharacterDescriptor desc = null;
+        // there should be only one component in this class, which we use
+        // to create our character descriptor
+        if (cids.hasNext()) {
+            int cid = ((Integer)cids.next()).intValue();
+            desc = new CharacterDescriptor(new int[] { cid });
+        }
+
+        // now create the actual sprite and stick 'em in the scene
+        MisoCharacterSprite s =
+            (MisoCharacterSprite)charmgr.getCharacter(desc);
+        if (s != null) {
+            s.setActionSequence(MisoCharacterSprite.STANDING);
+            s.setLocation(160 - s.getWidth()/2, 144 + s.getHeight()/2);
+            _panel.addSprite(s);
+        }
+
         // set the scene to our scrolling scene
         try {
             _panel.setScene(new ScrollingScene(ctx));
-            _panel.setScrolling(30, -30);
+            _panel.setScrolling(90, 90);
 
         } catch (Exception e) {
             Log.warning("Error creating scene: " + e);
@@ -140,10 +174,6 @@ public class ScrollingTestApp
             ioe.printStackTrace();
         }
     }
-
-    /** The desired width and height for the main application window. */
-    protected static final int WIDTH = 800;
-    protected static final int HEIGHT = 622;
 
     /** The config object. */
     protected Config _config;
