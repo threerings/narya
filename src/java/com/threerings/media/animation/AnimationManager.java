@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.7 2002/02/19 01:23:56 mdb Exp $
+// $Id: AnimationManager.java,v 1.8 2002/03/16 03:11:23 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -30,6 +30,15 @@ import com.threerings.media.util.PerformanceObserver;
 public class AnimationManager
     implements Interval, PerformanceObserver
 {
+    /** Constant for the front layer of animations. */
+    public static final int FRONT = 0;
+
+    /** Constant for the back layer of animations. */
+    public static final int BACK = 1;
+
+    /** Constant for all layers of animations. */
+    public static final int ALL = 2;
+
     /**
      * Construct and initialize the animation manager with a sprite
      * manager and the view in which the animations will take place. The
@@ -150,14 +159,25 @@ public class AnimationManager
     }
 
     /**
-     * Renders all registered animations to the given graphics context.
+     * Renders all registered animations in the given layer to the given
+     * graphics context.
+     *
+     * @param layer the layer to render; one of {@link #FRONT}, {@link
+     * #BACK}, or {@link #ALL}.  The front layer contains all animations
+     * with a positive render order; the back layer contains all
+     * animations with a negative render order; all, both.
      */
-    public void renderAnimations (Graphics2D gfx)
+    public void renderAnimations (Graphics2D gfx, int layer)
     {
         int size = _anims.size();
         for (int ii = 0; ii < size; ii++) {
             Animation anim = (Animation)_anims.get(ii);
-            anim.paint(gfx);
+            int order = anim.getRenderOrder();
+            if ((layer == ALL) ||
+                (layer == FRONT && order >= 0) ||
+                (layer == BACK && order < 0)) {
+                anim.paint(gfx);
+            }
         }
     }
 
@@ -268,7 +288,7 @@ public class AnimationManager
 
     /**
      * The <code>tick</code> method handles updating sprites and
-     * repainting the target display.
+     * animations, and repainting the target display.
      */
     protected void tick ()
     {
@@ -343,6 +363,8 @@ public class AnimationManager
                 anim.notifyObservers(new AnimationCompletedEvent(anim));
                 // un-register the animation
                 unregisterAnimation(anim);
+                // let the animation clean itself up as necessary
+                anim.didFinish();
                 // Log.info("Removed finished animation [anim=" + anim + "].");
             }
         }

@@ -1,5 +1,5 @@
 //
-// $Id: Animation.java,v 1.3 2002/03/14 21:09:01 shaper Exp $
+// $Id: Animation.java,v 1.4 2002/03/16 03:11:23 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -25,6 +25,25 @@ public abstract class Animation
     public Animation (Rectangle bounds)
     {
         _bounds = bounds;
+    }
+
+    /**
+     * Returns the render order of this animation.
+     */
+    public int getRenderOrder ()
+    {
+        return _renderOrder;
+    }
+
+    /**
+     * Sets the render order associated with this animation.  Animations
+     * can be rendered in two layers; those with negative render order and
+     * those with positive render order.  Someday animations will be
+     * rendered in each layer according to render order.
+     */
+    public void setRenderOrder (int value)
+    {
+        _renderOrder = value;
     }
 
     /**
@@ -63,6 +82,15 @@ public abstract class Animation
     public boolean isFinished ()
     {
         return _finished;
+    }
+
+    /**
+     * Called when the animation is finished and the animation manager has
+     * removed it from service.
+     */
+    protected void didFinish ()
+    {
+        // nothing for now
     }
 
     /**
@@ -136,6 +164,9 @@ public abstract class Animation
 
     /** The animation bounds. */
     protected Rectangle _bounds;
+
+    /** The render order of this animation. */
+    protected int _renderOrder;
 
     /** The list of animation observers. */
     protected ArrayList _observers;
