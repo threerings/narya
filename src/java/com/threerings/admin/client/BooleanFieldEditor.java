@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -19,32 +19,45 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.admin.data;
+package com.threerings.admin.client;
 
 import java.lang.reflect.Field;
-import javax.swing.JPanel;
+
+import javax.swing.JCheckBox;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.util.PresentsContext;
 
-import com.threerings.admin.client.AsStringFieldEditor;
-import com.threerings.admin.client.BooleanFieldEditor;
-
 /**
- * Base class for runtime config distributed objects.  Used to allow
- * config objects to supply custom object editing UI.
+ * Provides "editing" of boolean fields
  */
-public class ConfigObject extends DObject
+public class BooleanFieldEditor extends FieldEditor
 {
-    /**
-     * Returns the editor panel for the specified field.
-     */
-    public JPanel getEditor (PresentsContext ctx, Field field)
+    public BooleanFieldEditor (PresentsContext ctx, Field field, DObject object)
     {
-        if (field.getType().equals(Boolean.TYPE)) {
-            return new BooleanFieldEditor(ctx, field, this);
-        } else {
-            return new AsStringFieldEditor(ctx, field, this);
-        }
+        super(ctx, field, object);
+
+        // and a text entry field to display the field value
+        add(_value = new JCheckBox());
+        _value.addActionListener(this);
+
+        // we want to let the user know if they remove focus from a text
+        // box without changing a field that it's not saved
+        _value.addFocusListener(this);
     }
+
+    // documentation inherited
+    protected Object getDisplayValue ()
+        throws Exception
+    {
+        return Boolean.valueOf(_value.isSelected());
+    }
+
+    // documentation inherited
+    protected void displayValue (Object value)
+    {
+        _value.setSelected(Boolean.TRUE.equals(value));
+    }
+
+    protected JCheckBox _value;
 }

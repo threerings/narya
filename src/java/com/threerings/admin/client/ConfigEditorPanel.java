@@ -1,5 +1,5 @@
 //
-// $Id: ConfigEditorPanel.java,v 1.8 2004/08/27 02:12:23 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -45,13 +45,23 @@ public class ConfigEditorPanel extends JPanel
      */
     public ConfigEditorPanel (PresentsContext ctx)
     {
+        this(ctx, null);
+    }
+
+    /**
+     * Constructs an editor panel with the specified pane defaulting to
+     * selected.
+     */
+    public ConfigEditorPanel (PresentsContext ctx, String defaultPane)
+    {
         _ctx = ctx;
+        _defaultPane = defaultPane;
 
         setLayout(new VGroupLayout(VGroupLayout.STRETCH, VGroupLayout.STRETCH,
                                    5, VGroupLayout.CENTER));
 
         // create our objects tabbed pane
-        add(_oeditors = new JTabbedPane());
+        add(_oeditors = new JTabbedPane(JTabbedPane.LEFT));
 
         // add a handy label at the bottom
         add(new JLabel("Fields outline in red have been modified " +
@@ -93,6 +103,9 @@ public class ConfigEditorPanel extends JPanel
                 new ObjectEditorPanel(_ctx, keys[ii], oids[ii]);
             SafeScrollPane scrolly = new SafeScrollPane(panel);
             _oeditors.addTab(keys[ii], scrolly);
+            if (keys[ii].equals(_defaultPane)) {
+                _oeditors.setSelectedComponent(scrolly);
+            }
         }
     }
 
@@ -107,4 +120,7 @@ public class ConfigEditorPanel extends JPanel
 
     /** Holds our object editors. */
     protected JTabbedPane _oeditors;
+
+    /** Our default tab pane. */
+    protected String _defaultPane;
 }
