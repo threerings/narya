@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.40 2003/01/15 02:36:18 mdb Exp $
+// $Id: ImageManager.java,v 1.41 2003/01/15 02:45:37 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -346,18 +346,28 @@ public class ImageManager
     public Mirage getMirage (ImageKey key, Rectangle bounds,
                              Colorization[] zations)
     {
+        BufferedImage src = null;
+
         if (bounds == null) {
-            BufferedImage src = getImage(key, zations);
+            // if they specified no bounds, we need to load up the raw
+            // image and determine its bounds so that we can pass those
+            // along to the created mirage
+            src = getImage(key, zations);
             bounds = new Rectangle(0, 0, src.getWidth(), src.getHeight());
-//             return new BufferedMirage(src);
-//         } else {
-//             BufferedImage src = getImage(key, zations);
-//             src = src.getSubimage(bounds.x, bounds.y,
-//                                   bounds.width, bounds.height);
-//             return new BufferedMirage(src);
+
+        } else if (_prepareImages.getValue()) {
+            src = getImage(key, zations);
+            src = src.getSubimage(bounds.x, bounds.y,
+                                  bounds.width, bounds.height);
         }
-        return new CachedVolatileMirage(this, key, bounds, zations);
-//         return new BlankMirage(bounds.width, bounds.height);
+
+        if (_runBlank.getValue()) {
+            return new BlankMirage(bounds.width, bounds.height);
+        } else if (_prepareImages.getValue()) {
+            return new BufferedMirage(src);
+        } else {
+            return new CachedVolatileMirage(this, key, bounds, zations);
+        }
     }
 
     /**
@@ -491,6 +501,18 @@ public class ImageManager
         new RuntimeAdjust.IntAdjust(
             "Size (in images) of the image manager LRU cache [requires reboot]",
             "narya.media.image.cache_size", MediaPrefs.config, 100);
+
+    /** Controls whether or not we prepare images or use raw versions. */
+    protected static RuntimeAdjust.BooleanAdjust _prepareImages =
+        new RuntimeAdjust.BooleanAdjust(
+            "Cause image manager to optimize all images for display.",
+            "narya.media.image.prep_images", MediaPrefs.config, true);
+
+    /** A debug toggle for running entirely without rendering images. */
+    protected static RuntimeAdjust.BooleanAdjust _runBlank =
+        new RuntimeAdjust.BooleanAdjust(
+            "Cause image manager to return blank images.",
+            "narya.media.image.run_blank", MediaPrefs.config, false);
 
     /** The classname of the ImageIO-based image loader which we attempt
      * to use but fallback from if we're not running a JVM that has
