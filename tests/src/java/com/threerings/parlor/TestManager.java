@@ -1,9 +1,9 @@
 //
-// $Id: TestManager.java,v 1.1 2001/10/03 03:45:44 mdb Exp $
+// $Id: TestManager.java,v 1.2 2001/10/11 21:12:29 mdb Exp $
 
 package com.threerings.parlor.test;
 
-import com.threerings.parlor.server.GameManager;
+import com.threerings.parlor.game.GameManager;
 
 public class TestManager extends GameManager
 {
