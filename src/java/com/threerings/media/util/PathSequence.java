@@ -1,5 +1,5 @@
 //
-// $Id: PathSequence.java,v 1.1 2003/05/16 02:22:52 ray Exp $
+// $Id: PathSequence.java,v 1.2 2003/05/20 04:09:13 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -42,6 +42,21 @@ public class PathSequence
     public void init (Pathable pable, long tickStamp)
     {
         _pable = pable;
+        _pableRep = new DelegatingPathable(_pable) {
+            public void pathCompleted (long timeStamp) {
+                long initStamp;
+                // if we just finished a timed path, we can figure out how
+                // long ago it really finished and init the next path at
+                // that time in the past.
+                if (_curPath instanceof TimedPath) {
+                    initStamp = _lastInit + ((TimedPath) _curPath)._duration;
+                } else {
+                    // we don't know
+                    initStamp = timeStamp;
+                }
+                initNextPath(initStamp, timeStamp);
+            }
+        };
         initNextPath(tickStamp, tickStamp);
     }
 
@@ -105,56 +120,5 @@ public class PathSequence
     protected Pathable _pable;
 
     /** A fake pathable that we pass to the subpaths. */
-    protected Pathable _pableRep = new Pathable() {
-        public void pathCompleted (long timeStamp)
-        {
-            long initStamp;
-            // if we just finished a timedpath, we can figure out how
-            // long ago it really finished and init the next path
-            // at that time in the past.
-            if (_curPath instanceof TimedPath) {
-                initStamp = _lastInit + ((TimedPath) _curPath)._duration;
-            } else {
-                // we don't know
-                initStamp = timeStamp;
-            }
-
-            initNextPath(initStamp, timeStamp);
-        }
-
-        public int getX ()
-        {
-            return _pable.getX();
-        }
-
-        public int getY ()
-        {
-            return _pable.getY();
-        }
-
-        public Rectangle getBounds ()
-        {
-            return _pable.getBounds();
-        }
-
-        public void setLocation (int x, int y)
-        {
-            _pable.setLocation(x, y);
-        }
-
-        public void setOrientation (int orient)
-        {
-            _pable.setOrientation(orient);
-        }
-
-        public int getOrientation ()
-        {
-            return _pable.getOrientation();
-        }
-
-        public void pathBeginning ()
-        {
-            _pable.pathBeginning();
-        }
-    };
+    protected Pathable _pableRep;
 }
