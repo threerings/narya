@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.38 2004/02/25 14:45:16 mdb Exp $
+// $Id: ConnectionManager.java,v 1.39 2004/06/03 09:02:47 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -55,6 +55,19 @@ public class ConnectionManager extends LoopingThread
 
         // register as a "state of server" reporter
         PresentsServer.registerReporter(this);
+    }
+
+    /**
+     * Configures the connection manager with an entity that will be
+     * informed of the success or failure of the connection manager
+     * initialization process. <em>Note:</em> the callback methods will be
+     * called on the connection manager thread, so be careful not to do
+     * anything on those methods that will conflict with activities on the
+     * dobjmgr thread, etc.
+     */
+    public void setStartupListener (ResultListener rl)
+    {
+        _startlist = rl;
     }
 
     /**
@@ -205,11 +218,21 @@ public class ConnectionManager extends LoopingThread
         } catch (IOException ioe) {
             Log.warning("Failure listening to socket on port '" +_port + "'.");
             Log.logStackTrace(ioe);
+
+            // notify our startup listener, if we have one
+            if (_startlist != null) {
+                _startlist.requestFailed(ioe);
+            }
             return;
         }
 
         // we'll use this for sending messages to clients
         _framer = new FramingOutputStream();
+
+        // notify our startup listener, if we have one
+        if (_startlist != null) {
+            _startlist.requestCompleted(null);
+        }
     }
 
     /**
@@ -656,6 +679,7 @@ public class ConnectionManager extends LoopingThread
     protected Authenticator _author;
     protected Selector _selector;
     protected ServerSocketChannel _listener;
+    protected ResultListener _startlist;
 
     /** Maps selection keys to network event handlers. */
     protected HashMap _handlers = new HashMap();
