@@ -1,0 +1,75 @@
+Parlor Design -*- mode: outline -*-
+
+* Notes
+
+* Overview
+
+The Parlor package intends to provide a framework that supports the
+implementation of simple networked games. These may be turn based, puzzle,
+party, or other types of games that involve one or more players acting out
+a fairly uncomplicated game mechanic.
+
+It builds upon the Cocktail package also provided by the <?> platform. The
+Cocktail package is used to provide a basic network environment where
+clients can share information with the server and with one another. It
+allows the Parlor services to largely concentrate on requirements specific
+to implementing simple online games.
+
+The services provided are divided into the following components:
+
+** Game configuration and creation
+
+Games are likely to have a variety of configuration options that need be
+negotiated before the game starts and then communicated to the game
+management code. Additionally, players must be brought together via some
+sort of matchmaking mechanism that is apporpriate for the particular game.
+This component aims to provide the following services:
+
+- A simple invitation mechanism: one player invites another to play a
+  game.
+
+- A table-based matchmaking mechanism: one player creates a table with a
+  game configured in a specific way and other players "sit down" at that
+  table to join the game.
+
+- A room-based, party game creation mechanism: one player configures the
+  game and creates a room in which the game is taking place. Other players
+  enter that room and either enter the game immediately or participate
+  when the next "round" begins.
+
+- An extensible game configuration mechanism: an object model and user
+  interface for setting game configuration parameters and communicating
+  them to the game manager.
+
+** Game state management
+
+Once the game has begun, a means is needed to share the public game state
+with the players of the game and to communicate private game state if and
+when necessary. This component uses the Cocktail distributed object
+services to share information among the players and provide channels of
+communication between the game manager and the players.
+
+** Game flow management
+
+Many games share a common order of events or flow. Turn based games, for
+example, tend to progress by each player taking the action appropriate for
+their turn after which the turn proceeds to the next player. This
+component aims to extract, as much as possible, the commonalities among
+game flows and implement them in extensible manager classes that reduce
+game implementation to the authoring only of code specific to the game in
+question.
+
+** Rating calculation and tracking
+
+Rating calculation and tracking are popular components of most online
+games. The Parlor services will incorporate hooks for calculating ratings
+adjustments for players when a game's outcome has been decided and will
+provide a framework for storing those ratings persistently.
+
+** Player availability management
+
+A plague of online gameplay is that any of the players may disconnect from
+the game server at any time, or simply stop responding. The Parlor
+services aim to provide common facilities for handling disappeared or
+unresponsive players in whatever way is most appropriate for each
+particular game.
