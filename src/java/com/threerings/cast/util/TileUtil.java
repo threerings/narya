@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.4 2001/11/27 08:09:35 mdb Exp $
+// $Id: TileUtil.java,v 1.5 2001/11/27 08:39:43 mdb Exp $
 
 package com.threerings.cast.util;
 
@@ -35,7 +35,7 @@ public class TileUtil
 
             // create blank destination frames if needed
             if (dframes == null) {
-                dest[orient] = new BlankFrameImage(sframes);
+                dframes = (dest[orient] = new BlankFrameImage(sframes));
             }
 
             // sanity check
