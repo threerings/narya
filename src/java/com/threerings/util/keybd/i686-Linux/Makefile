@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.2 2003/01/12 02:04:19 shaper Exp $
+# $Id: Makefile,v 1.3 2003/01/12 02:06:10 shaper Exp $
 
 #
 # Executable definitions
@@ -27,9 +27,9 @@ INSTALL_TARGET=${INSTALL_PATH}/${TARGET}
 #
 # Target definitions
 
-all: ${TARGET}
+all: ${INSTALL_TARGET}
 
-${TARGET}: com_threerings_util_keybd_Keyboard.c
+${INSTALL_TARGET}: com_threerings_util_keybd_Keyboard.c
 	${CC} ${INCLUDES} -c com_threerings_util_keybd_Keyboard.c \
 	    -o com_threerings_util_keybd_Keyboard.o
 	${MKDIR} -p ${INSTALL_PATH}
