@@ -1,5 +1,5 @@
 //
-// $Id: ZoneRegistry.java,v 1.3 2001/12/13 05:46:11 mdb Exp $
+// $Id: ZoneRegistry.java,v 1.4 2001/12/17 00:56:19 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -7,9 +7,9 @@ import com.samskivert.util.Config;
 import com.samskivert.util.HashIntMap;
 
 import com.threerings.presents.server.InvocationManager;
-
-import com.threerings.whirled.Log;
 import com.threerings.whirled.server.SceneRegistry;
+
+import com.threerings.whirled.zone.Log;
 import com.threerings.whirled.zone.server.util.ZoneUtil;
 
 /**

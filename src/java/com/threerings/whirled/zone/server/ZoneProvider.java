@@ -1,5 +1,5 @@
 //
-// $Id: ZoneProvider.java,v 1.3 2001/12/13 05:49:50 mdb Exp $
+// $Id: ZoneProvider.java,v 1.4 2001/12/17 00:56:19 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -11,12 +11,11 @@ import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.LocationProvider;
 
-import com.threerings.whirled.Log;
-
 import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.server.SceneRegistry;
 import com.threerings.whirled.server.SceneManager;
 
+import com.threerings.whirled.zone.Log;
 import com.threerings.whirled.zone.client.ZoneCodes;
 import com.threerings.whirled.zone.data.ZoneSummary;
 import com.threerings.whirled.zone.data.ZonedBodyObject;
