@@ -1,5 +1,5 @@
 //
-// $Id: LobbyRegistry.java,v 1.4 2001/10/09 19:24:11 mdb Exp $
+// $Id: LobbyRegistry.java,v 1.5 2001/10/09 20:22:51 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -120,15 +120,16 @@ public class LobbyRegistry implements LobbyCodes
                                     "lobby configuration.");
             }
 
-            // instantiate the manager class and create the lobby
+            // create and initialize the lobby config object
             LobbyConfig config = (LobbyConfig)
                 Class.forName(cfgClass).newInstance();
+            config.init(props);
+
+            // create and initialize the lobby manager. it will call
+            // lobbyReady() when it has obtained a reference to its lobby
+            // object and is ready to roll
             LobbyManager lobmgr = (LobbyManager)
                 MiCasaServer.plreg.createPlace(config);
-
-            // initialize the lobby manager. it will call lobbyReady()
-            // when it has obtained a reference to its lobby object and is
-            // ready to roll
             lobmgr.init(this, props);
 
         } catch (Exception e) {
