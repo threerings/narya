@@ -1,5 +1,5 @@
 //
-// $Id: SceneObject.java,v 1.1 2003/04/17 19:21:16 mdb Exp $
+// $Id: SceneObject.java,v 1.2 2003/04/18 18:33:07 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -53,7 +53,7 @@ public class SceneObject
         try {
             tile = (ObjectTile)panel.getTileManager().getTile(
                 tsid, tidx, panel.getColorizer(info));
-            init(panel);
+            relocateObject(panel.getSceneMetrics(), info.x, info.y);
 
         } catch (NoSuchTileException nste) {
             Log.warning("Scene contains non-existent object tile " +
@@ -71,48 +71,7 @@ public class SceneObject
     {
         this.info = info;
         this.tile = tile;
-        init(panel);
-    }
-
-    /**
-     * Finishes the initialization of this scene object.
-     */
-    protected void init (MisoScenePanel panel)
-    {
-        // compute our object's screen bounds
-        MisoSceneMetrics metrics = panel.getSceneMetrics();
-
-        // start with the screen coordinates of our origin tile
-        Point tpos = MisoUtil.tileToScreen(
-            metrics, info.x, info.y, new Point());
-
-        // if the tile has an origin coordinate, use that, otherwise
-        // compute it from the tile footprint
-        int tox = tile.getOriginX(), toy = tile.getOriginY();
-        if (tox == Integer.MIN_VALUE) {
-            tox = tile.getBaseWidth() * metrics.tilehwid;
-        }
-        if (toy == Integer.MIN_VALUE) {
-            toy = tile.getHeight();
-        }
-
-        bounds = new Rectangle(tpos.x + metrics.tilehwid - tox,
-                               tpos.y + metrics.tilehei - toy,
-                               tile.getWidth(), tile.getHeight());
-
-        // compute our object footprint as well
-        _footprint = MisoUtil.getFootprintPolygon(
-            metrics, info.x-tile.getWidth()+1, info.y-tile.getHeight()+1,
-            tile.getWidth(), tile.getHeight());
-
-        // compute our object spot if we've got one
-        if (tile.hasSpot()) {
-            _fspot = MisoUtil.tilePlusFineToFull(
-                metrics, info.x, info.y, tile.getSpotX(), tile.getSpotY(),
-                new Point());
-            _sspot = MisoUtil.fullToScreen(
-                metrics, _fspot.x, _fspot.y, new Point());
-        }
+        relocateObject(panel.getSceneMetrics(), info.x, info.y);
     }
 
     /**
@@ -217,6 +176,47 @@ public class SceneObject
     public boolean setHovered (boolean hovered)
     {
         return false;
+    }
+
+    /**
+     * Updates this object's origin tile coordinate. It's bounds and other
+     * cached screen coordinate information are updated.
+     */
+    public void relocateObject (MisoSceneMetrics metrics, int tx, int ty)
+    {
+        info.x = tx; info.y = ty;
+
+        // start with the screen coordinates of our origin tile
+        Point tpos = MisoUtil.tileToScreen(
+            metrics, info.x, info.y, new Point());
+
+        // if the tile has an origin coordinate, use that, otherwise
+        // compute it from the tile footprint
+        int tox = tile.getOriginX(), toy = tile.getOriginY();
+        if (tox == Integer.MIN_VALUE) {
+            tox = tile.getBaseWidth() * metrics.tilehwid;
+        }
+        if (toy == Integer.MIN_VALUE) {
+            toy = tile.getHeight();
+        }
+
+        bounds = new Rectangle(tpos.x + metrics.tilehwid - tox,
+                               tpos.y + metrics.tilehei - toy,
+                               tile.getWidth(), tile.getHeight());
+
+        // compute our object footprint as well
+        _footprint = MisoUtil.getFootprintPolygon(
+            metrics, info.x-tile.getWidth()+1, info.y-tile.getHeight()+1,
+            tile.getWidth(), tile.getHeight());
+
+        // compute our object spot if we've got one
+        if (tile.hasSpot()) {
+            _fspot = MisoUtil.tilePlusFineToFull(
+                metrics, info.x, info.y, tile.getSpotX(), tile.getSpotY(),
+                new Point());
+            _sspot = MisoUtil.fullToScreen(
+                metrics, _fspot.x, _fspot.y, new Point());
+        }
     }
 
     /**
