@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.21 2003/04/17 19:21:17 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.22 2003/04/25 15:52:25 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -114,8 +114,7 @@ public class ScrollingTestApp
                 _ship.setFollowingPathAction("sailing");
                 _ship.setRestingAction("sailing");
                 _ship.setActionSequence("sailing");
-                _ship.setLocation(_panel.getSceneMetrics().bounds.width/2,
-                                  _panel.getSceneMetrics().bounds.height/2);
+                _ship.setLocation(0, 0);
                 _panel.addSprite(_ship);
             }
 

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.57 2003/04/17 19:21:17 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.58 2003/04/25 15:52:25 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -172,8 +172,7 @@ public class ViewerSceneViewPanel extends MisoScenePanel
      */
     protected void createRandomPath (CharacterSprite s)
     {
-        Dimension d = _metrics.bounds.getSize();
-
+        Dimension d = _vbounds.getSize();
         int x, y;
         do {
             x = RandomUtil.getInt(d.width);
