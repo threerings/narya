@@ -45,6 +45,12 @@
   <!-- generates marshaller and dispatcher classes for all invocation
        service declarations -->
   <target name="genservice">
+    <!-- make sure the service class files are all compiled -->
+    <javac srcdir="src/java" destdir="${classes.dir}"
+           debug="on" optimize="${build.optimize}" deprecation="on">
+      <classpath refid="classpath"/>
+      <include name="**/*Service.java"/>
+    </javac>
     <apply executable="bin/genservice" failonerror="true" parallel="true">
       <arg value="--classpath"/>
       <arg value="${classes.dir}"/>
