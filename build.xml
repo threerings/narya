@@ -11,7 +11,10 @@
   <property name="javadoc.home"   value="${deploy.dir}/docs"/>
   <property name="build.compiler" value="jikes"/>
   <property name="build.optimize" value="off"/>
-  <property name="java.libraries" value="/usr/share/java"/>
+
+  <!-- we want to access the environment -->
+  <property environment="env"/>
+  <property name="java.libraries" value="${env.JAVA_LIBS}"/>
 
   <!-- declare our classpath -->
   <path id="classpath">
