@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSet.java,v 1.9 2003/01/13 22:49:46 mdb Exp $
+// $Id: ObjectTileSet.java,v 1.10 2003/01/15 09:28:43 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -90,4 +90,8 @@ public class ObjectTileSet extends SwissArmyTileSet
 
     /** The y offset in pixels to the origin of the tile images. */
     protected int[] _yorigins;
+
+    /** Increase this value when object's serialized state is impacted by
+     * a class change (modification of fields, inheritance). */
+    private static final long serialVersionUID = 1;
 }

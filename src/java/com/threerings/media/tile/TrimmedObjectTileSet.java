@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedObjectTileSet.java,v 1.3 2003/01/13 22:49:46 mdb Exp $
+// $Id: TrimmedObjectTileSet.java,v 1.4 2003/01/15 09:28:43 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -116,4 +116,8 @@ public class TrimmedObjectTileSet extends TileSet
     /** Contains the origin offset for each object tile and the object
      * footprint width and height (in tile units). */
     protected Rectangle[] _ometrics;
+
+    /** Increase this value when object's serialized state is impacted by
+     * a class change (modification of fields, inheritance). */
+    private static final long serialVersionUID = 1;
 }
