@@ -1,5 +1,5 @@
 //
-// $Id: SpotService.java,v 1.6 2002/04/17 17:07:13 ray Exp $
+// $Id: SpotService.java,v 1.7 2002/04/29 21:03:00 ray Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -24,7 +24,7 @@ public class SpotService implements SpotCodes
      */
     public static void traversePortal (
         Client client, int sceneId, int portalId, int sceneVer,
-        SceneDirector rsptarget)
+        Object rsptarget)
     {
         InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] {
