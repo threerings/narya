@@ -1,5 +1,5 @@
 //
-// $Id: AnimationFrameSequencer.java,v 1.1 2002/09/20 21:36:53 ray Exp $
+// $Id: AnimationFrameSequencer.java,v 1.2 2002/09/30 06:18:46 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -25,7 +25,7 @@ public interface AnimationFrameSequencer extends FrameSequencer
     public static class MultiFunction implements AnimationFrameSequencer
     {
         /**
-         * Creates the simplist multifunction frame sequencer.
+         * Creates the simplest multifunction frame sequencer.
          *
          * @param sequence the ordering to display the frames.
          * @param msPerFrame the number of ms to display each frame.
