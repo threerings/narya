@@ -1,5 +1,5 @@
 //
-// $Id: SceneService.java,v 1.6 2002/04/15 16:28:03 shaper Exp $
+// $Id: SceneService.java,v 1.7 2002/04/26 00:07:05 ray Exp $
 
 package com.threerings.whirled.client;
 
@@ -24,7 +24,7 @@ public class SceneService implements SceneCodes
      * have in our local repository.
      */
     public static void moveTo (Client client, int sceneId,
-                               int sceneVers, SceneDirector rsptarget)
+                               int sceneVers, Object rsptarget)
     {
         InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] {
