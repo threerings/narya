@@ -1,5 +1,5 @@
 //
-// $Id: UsernamePasswordCreds.java,v 1.7 2002/07/23 05:52:49 mdb Exp $
+// $Id: UsernamePasswordCreds.java,v 1.8 2002/09/18 21:58:30 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -50,6 +50,25 @@ public class UsernamePasswordCreds extends Credentials
     {
         super.readObject(in);
         _password = in.readUTF();
+    }
+
+    // documentation inherited
+    public int hashCode ()
+    {
+        return super.hashCode() ^ _password.hashCode();
+    }
+
+    // documentation inherited
+    public boolean equals (Object other)
+    {
+        if (other instanceof UsernamePasswordCredentials) {
+            UsernamePasswordCredentials upcreds =
+                (UsernamePasswordCredentials)other;
+            return super.equals(other) &&
+                _password.equals(upcreds._password);
+        } else {
+            return false;
+        }
     }
 
     public String toString ()

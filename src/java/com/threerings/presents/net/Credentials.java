@@ -1,5 +1,5 @@
 //
-// $Id: Credentials.java,v 1.8 2002/07/23 05:52:48 mdb Exp $
+// $Id: Credentials.java,v 1.9 2002/09/18 21:58:30 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -64,6 +64,22 @@ public abstract class Credentials implements Streamable
     {
         in.defaultReadObject();
         _username = in.readUTF();
+    }
+
+    // documentation inherited
+    public int hashCode ()
+    {
+        return _username.hashCode();
+    }
+
+    // documentation inherited
+    public boolean equals (Object other)
+    {
+        if (other instanceof Credentials) {
+            return _username.equals(((Credentials)other)._username);
+        } else {
+            return false;
+        }
     }
 
     public String toString ()
