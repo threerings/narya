@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.33 2001/08/09 06:26:52 shaper Exp $
+// $Id: IsoSceneView.java,v 1.34 2001/08/09 17:04:56 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -87,9 +87,6 @@ public class IsoSceneView implements EditableSceneView
 
 	// draw an outline around the highlighted full coordinate
 	paintHighlightedFull(gfx, _hfull.x, _hfull.y);
-
-        // draw lines illustrating tracking of the mouse position
-  	//paintMouseLines(gfx);
 
 	// restore the original clipping region
 	gfx.setClip(oldclip);
@@ -236,33 +233,6 @@ public class IsoSceneView implements EditableSceneView
     }
 
     /**
-     * Paint lines showing the most recently calculated x- and y-axis
-     * mouse position tracking lines, and the mouse position itself.
-     *
-     * @param gfx the graphics context.
-     */
-    protected void paintMouseLines (Graphics2D gfx)
-    {
-        Point[] lx = _model.lineX;
-
-	// draw the baseline x-axis line
-	gfx.setColor(Color.red);
-	gfx.drawLine(lx[0].x, lx[0].y, lx[1].x, lx[1].y);
-
-	/*
-	// draw line from last mouse pos to baseline
-	gfx.setColor(Color.yellow);
-	gfx.drawLine(ly[0].x, ly[0].y, ly[1].x, ly[1].y);
-
-	// draw the most recent mouse cursor position
-	gfx.setColor(Color.green);
-	gfx.fillRect(ly[0].x, ly[0].y, 2, 2);
-	gfx.setColor(Color.red);
-	gfx.drawRect(ly[0].x - 1, ly[0].y - 1, 3, 3);
-	*/
-    }
-
-    /**
      * Paint the tile coordinate numbers in tile (x, y) whose top-left
      * corner is at screen pixel coordinates (sx, sy).
      *
@@ -382,10 +352,6 @@ public class IsoSceneView implements EditableSceneView
      */
     public void invalidateScreenRect (int x, int y, int width, int height)
     {
-	// TODO: fix boundary conditions, store contiguous dirty tile
-	// row segments rather than individual tiles, use specialized
-	// data structure rather than allocating int[] every time.
-
 	// note that corner tiles may be included unnecessarily, but
 	// checking to determine whether they're actually needed
 	// complicates the code with likely-insufficient benefit

@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.3 2001/08/08 22:29:39 shaper Exp $
+// $Id: IsoUtil.java,v 1.4 2001/08/09 17:04:56 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -157,7 +157,7 @@ public class IsoUtil
     public static void fineToPixel (
 	IsoSceneModel model, int x, int y, Point ppos)
     {
-	ppos.x = model.tilehwid + ((x - y - 1) * model.finehwid);
+	ppos.x = model.tilehwid + ((x - y) * model.finehwid);
 	ppos.y = (x + y) * model.finehhei;
     }
 
