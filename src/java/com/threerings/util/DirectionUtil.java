@@ -1,5 +1,5 @@
 //
-// $Id: DirectionUtil.java,v 1.9 2003/05/07 19:41:57 ray Exp $
+// $Id: DirectionUtil.java,v 1.10 2003/05/07 19:47:02 ray Exp $
 
 package com.threerings.util;
 
@@ -196,8 +196,8 @@ public class DirectionUtil implements DirectionCodes
     }
 
     /**
-     * Move the specified point the specified number of logical
-     * pixels in the specified direction. Fine coordinates are
+     * Move the specified point in the specified screen direction,
+     * adjusting by the specified adjustments. Fine directions are
      * not supported.
      */
     public static void moveDirection (Point p, int direction, int dx, int dy)
