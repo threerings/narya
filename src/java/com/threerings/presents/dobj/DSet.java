@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.25 2002/12/20 23:41:26 mdb Exp $
+// $Id: DSet.java,v 1.26 2003/02/18 19:50:34 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -62,6 +62,26 @@ public class DSet
     {
         while (source.hasNext()) {
             add((Entry)source.next());
+        }
+    }
+
+    /**
+     * Creates a distributed set and populates it with values from the
+     * supplied array. This should be done before the set is unleashed
+     * into the wild distributed object world because no associated entry
+     * added events will be generated. Additionally, this operation does
+     * not check for duplicates when adding entries, so one should be sure
+     * that the iterator contains only unique entries.
+     *
+     * @param source an array from which we will initially populate the
+     * set.
+     */
+    public DSet (Entry[] source)
+    {
+        for (int ii = 0; ii < source.length; ii++) {
+            if (source[ii] != null) {
+                add(source[ii]);
+            }
         }
     }
 
