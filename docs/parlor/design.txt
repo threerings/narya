@@ -115,3 +115,10 @@ particular game and participating in the game on the client side.
 * Notes
 Where does the panel/view, controller stuff fit in? Should it be in its
 own package and used by the Parlor services or provided directly?
+
+Update ParlorManager to check access control related things before
+accepting and delivering an invitation.
+
+How to prune stale invitations since invitations are not set up to be tied
+to a location (in which case we could use occupant added/removed to
+trigger invite cleanup)?

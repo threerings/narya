@@ -46,3 +46,7 @@ configure the scene managers when they are initialized.
 
 Add code to flush scenes from the client scene manager cache.
 
+We need some mechanism for the scene registry to know which SceneManager
+derived class to instantiate. Probably something like
+Scene.getManagerClassName() which can be implemented by an application
+when it creates its Scene implementation.
