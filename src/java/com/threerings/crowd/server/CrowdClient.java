@@ -1,5 +1,5 @@
 //
-// $Id: CrowdClient.java,v 1.22 2002/12/09 17:19:04 mdb Exp $
+// $Id: CrowdClient.java,v 1.23 2003/06/14 00:47:16 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -7,6 +7,7 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.PresentsClient;
 
 import com.threerings.crowd.Log;
+import com.threerings.crowd.chat.server.SpeakProvider;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
@@ -53,9 +54,16 @@ public class CrowdClient extends PresentsClient
     {
         super.sessionDidEnd();
 
+        BodyObject body = (BodyObject)_clobj;
+
         // clear out our location so that anyone listening for such things
         // will know that we've left
-        clearLocation((BodyObject)_clobj);
+        clearLocation(body);
+
+        // clear our chat history
+        if (body != null) {
+            SpeakProvider.clearHistory(body.username);
+        }
     }
 
     /**

@@ -1,7 +1,10 @@
 //
-// $Id: SpeakProvider.java,v 1.6 2003/06/04 02:50:18 ray Exp $
+// $Id: SpeakProvider.java,v 1.7 2003/06/14 00:47:16 mdb Exp $
 
 package com.threerings.crowd.chat.server;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.samskivert.util.ObserverList;
 
@@ -12,9 +15,11 @@ import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.ChatMessage;
+import com.threerings.crowd.chat.data.SpeakObject;
 import com.threerings.crowd.chat.data.SystemMessage;
 import com.threerings.crowd.chat.data.UserMessage;
 
@@ -203,6 +208,95 @@ public class SpeakProvider
     {
         // post the message to the relevant object
         speakObj.postMessage(CHAT_NOTIFICATION, new Object[] { msg });
+
+        // determine to whom this message will be delivered and register
+        // the message with all parties
+        if (speakObj instanceof SpeakObject) {
+            _messageMapper.message = msg;
+            ((SpeakObject)speakObj).applyToListeners(_messageMapper);
+            _messageMapper.message = null;
+        } else {
+            Log.info("Unable to note listeners [dclass=" + speakObj.getClass() +
+                     ", msg=" + msg + "].");
+        }
+
+        // if this is a user message, note the message in their history as
+        // well
+        if (msg instanceof UserMessage) {
+            noteMessage(((UserMessage)msg).speaker, msg);
+        }
+    }
+
+    /**
+     * Returns a list of {@link ChatMessage} objects to which this user
+     * has been privy in the recent past.
+     */
+    public static ArrayList getChatHistory (String username)
+    {
+        ArrayList history = getHistoryList(username);
+        pruneHistory(System.currentTimeMillis(), history);
+        return history;
+    }
+
+    /**
+     * Called to clear the chat history for the specified user.
+     */
+    public static void clearHistory (String username)
+    {
+        Log.info("Clearing history for " + username + ".");
+        _histories.remove(username);
+    }
+
+    /**
+     * Notes that the specified user was privy to the specified
+     * message. If {@link ChatMessage#timestamp} is not already filled in,
+     * it will be.
+     */
+    protected static void noteMessage (String username, ChatMessage msg)
+    {
+        if (msg.timestamp == 0L) {
+            msg.timestamp = System.currentTimeMillis();
+        }
+        getHistoryList(username).add(msg);
+    }
+
+    /**
+     * Returns this user's chat history, creating one if necessary.
+     */
+    protected static ArrayList getHistoryList (String username)
+    {
+        ArrayList history = (ArrayList)_histories.get(username);
+        if (history == null) {
+            _histories.put(username, history = new ArrayList());
+        }
+        return history;
+    }
+
+    /**
+     * Prunes all messages from this history which are expired.
+     */
+    protected static void pruneHistory (long now, ArrayList history)
+    {
+        for (int ii = history.size()-1; ii >= 0; ii++) {
+            ChatMessage msg = (ChatMessage)history.get(ii);
+            if (now - msg.timestamp > HISTORY_EXPIRATION) {
+                Log.info("Expiring from history " + msg + ".");
+                history.remove(ii);
+            }
+        }
+    }
+
+    /** Used to note the recipients of a chat message. */
+    protected static class MessageMapper implements SpeakObject.ListenerOp
+    {
+        public ChatMessage message;
+
+        public void apply (int bodyOid) {
+            DObject dobj = CrowdServer.omgr.getObject(bodyOid);
+            if (dobj != null && dobj instanceof BodyObject) {
+                noteMessage(((BodyObject)dobj).username, message);
+            }
+        }
     }
 
     /** Our speech object. */
@@ -210,4 +304,16 @@ public class SpeakProvider
 
     /** The entity that will validate our speakers. */
     protected SpeakerValidator _validator;
+
+    /** Recent chat history for the server. */
+    protected static HashMap _histories = new HashMap();
+
+    /** Maintains a mapping of listener identifiers. */
+    protected static HashMap _identers = new HashMap();
+
+    /** Used to note the recipients of a chat message. */
+    protected static MessageMapper _messageMapper = new MessageMapper();
+
+    /** The amount of time before chat history becomes... history. */
+    protected static final long HISTORY_EXPIRATION = 5L * 60L * 1000L;
 }

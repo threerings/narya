@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.29 2003/01/09 02:46:58 mdb Exp $
+// $Id: LocationDirector.java,v 1.30 2003/06/14 00:47:16 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -91,6 +91,14 @@ public class LocationDirector extends BasicDirector
     public PlaceObject getPlaceObject ()
     {
         return _plobj;
+    }
+
+    /**
+     * Returns true if there is a pending move request.
+     */
+    public boolean movePending ()
+    {
+        return (_pendingPlaceId > 0);
     }
 
     /**
@@ -415,16 +423,18 @@ public class LocationDirector extends BasicDirector
     }
 
     // documentation inherited from interface
-    public void forcedMove (int placeId)
+    public void forcedMove (final int placeId)
     {
         Log.info("Moving at request of server [placeId=" + placeId + "].");
 
-        // clear out our old place information
-        mayLeavePlace();
-        didLeavePlace();
+        if (movePending()) {
+            // clear out our old place information
+            mayLeavePlace();
+            didLeavePlace();
 
-        // move to the new place
-        moveTo(placeId);
+            // move to the new place
+            moveTo(placeId);
+        }
     }
 
     /**
