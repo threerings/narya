@@ -1,5 +1,5 @@
 //
-// $Id: BaseTile.java,v 1.3 2001/11/27 22:17:42 mdb Exp $
+// $Id: BaseTile.java,v 1.4 2002/02/06 17:13:06 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -37,7 +37,7 @@ public class BaseTile extends Tile
      */
     public boolean isPassable ()
     {
-        return _passable;
+        return _passable && !_covered;
     }
 
     /**
@@ -49,6 +49,19 @@ public class BaseTile extends Tile
         _passable = passable;
     }
 
+    /**
+     * Sets whether this tile is currently covered by the footprint of an
+     * object tile or not. When it is covered, it can't be walked on by
+     * character sprites.
+     */
+    public void setCovered (boolean covered)
+    {
+        _covered = covered;
+    }
+
     /** Whether the tile is passable. */
     protected boolean _passable = true;
+
+    /** Whether the tile is covered by an object tile. */
+    protected boolean _covered = true;
 }

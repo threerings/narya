@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.8 2002/02/02 01:09:53 mdb Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.9 2002/02/06 17:13:06 mdb Exp $
 
 package com.threerings.miso.scene.tools;
 
@@ -10,7 +10,6 @@ import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileManager;
 
 import com.threerings.miso.tile.BaseTile;
-import com.threerings.miso.tile.ShadowTile;
 
 import com.threerings.miso.scene.DisplayMisoSceneImpl;
 import com.threerings.miso.scene.MisoSceneModel;
@@ -93,20 +92,18 @@ public class EditableMisoSceneImpl
     public void setObjectTile (int x, int y, ObjectTile tile, int fqTileId)
     {
         ObjectTile prev = _object.getTile(x, y);
-        // clear out any previous tile so that shadow tiles are properly
-        // removed
+        // clear out any previous tile to ensure that everything is
+        // properly cleaned up
         if (prev != null) {
             clearObjectTile(x, y);
         }
+        // stick the new object into the layer
         _object.setTile(x, y, tile);
-        // set the footprint in the base layer
-        setObjectTileFootprint(tile, x, y, new ShadowTile(x, y));
+        // toggle the "covered" flag on in all base tiles below this
+        // object tile
+        setObjectTileFootprint(tile, x, y, true);
         // stick this value into our non-sparse object layer
         _objectTileIds[_model.width*y + x] = fqTileId;
-        // we don't have to worry about setting the footprint in the model
-        // because footprints are always inferred from the contents of the
-        // object layer and the base layer in the model can simply contain
-        // the default tiles
     }
 
     // documentation inherited from interface
@@ -136,8 +133,9 @@ public class EditableMisoSceneImpl
     {
         ObjectTile tile = _object.getTile(x, y);
         if (tile != null) {
-            // clear the footprint in the base layer
-            setObjectTileFootprint(tile, x, y, _defaultBaseTile);
+            // toggle the "covered" flag off on the base tiles in this
+            // object tile's footprint
+            setObjectTileFootprint(tile, x, y, false);
             // clear out the tile itself
             _object.setTile(x, y, null);
         }

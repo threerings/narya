@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.89 2002/01/31 17:43:57 shaper Exp $
+// $Id: IsoSceneView.java,v 1.90 2002/02/06 17:13:06 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -37,7 +37,6 @@ import com.threerings.miso.scene.DirtyItemList.DirtyItem;
 import com.threerings.miso.scene.util.AStarPathUtil;
 import com.threerings.miso.scene.util.IsoUtil;
 import com.threerings.miso.tile.BaseTileLayer;
-import com.threerings.miso.tile.ShadowTile;
 
 /**
  * The iso scene view provides an isometric view of a particular
@@ -124,7 +123,7 @@ public class IsoSceneView implements SceneView
         // clear all dirty lists and tile array
 	clearDirtyRegions();
 
-        // generate all object shadow tiles and polygons
+        // generate all object tile polygons
         initAllObjectBounds();
 
         // invalidate the entire screen as there's a new scene in town

@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.49 2002/01/30 18:28:32 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.50 2002/02/06 17:13:06 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -17,7 +17,6 @@ import com.threerings.media.tile.TileManager;
 import com.threerings.miso.Log;
 import com.threerings.miso.tile.BaseTile;
 import com.threerings.miso.tile.BaseTileLayer;
-import com.threerings.miso.tile.ShadowTile;
 
 /**
  * The default implementation of the {@link DisplayMisoScene} interface.
@@ -165,11 +164,10 @@ public class DisplayMisoSceneImpl
             // spot in the object layer
             ObjectTile otile = (ObjectTile)_tmgr.getTile(tsid, tid);
             _object.setTile(col, row, otile);
-
-            // we have to generate a shadow for this object tile in the
-            // base layer so that we can prevent sprites from walking on
-            // the object
-            setObjectTileFootprint(otile, col, row, new ShadowTile(col, row));
+            // generate a "shadow" for this object tile by toggling the
+            // "covered" flag on in all base tiles below it (to prevent
+            // sprites from walking on those tiles)
+            setObjectTileFootprint(otile, col, row, true);
         }
     }
 
@@ -213,23 +211,27 @@ public class DisplayMisoSceneImpl
     }
 
     /**
-     * Place the given tile in the footprint of the object tile at the
-     * given coordinates in the scene.
+     * Sets the "covered" flag on all base tiles that are in the footprint
+     * of the specified object tile.
      *
      * @param otile the object tile whose footprint should be set.
      * @param x the tile x-coordinate.
      * @param y the tile y-coordinate.
-     * @param stamp the tile to place in the object footprint.
+     * @param covered whether or not the footprint is being covered or
+     * uncovered.
      */
     protected void setObjectTileFootprint (
-        ObjectTile otile, int x, int y, BaseTile stamp)
+        ObjectTile otile, int x, int y, boolean covered)
     {
         int endx = Math.max(0, (x - otile.getBaseWidth() + 1));
         int endy = Math.max(0, (y - otile.getBaseHeight() + 1));
 
         for (int xx = x; xx >= endx; xx--) {
             for (int yy = y; yy >= endy; yy--) {
-                _base.setTile(xx, yy, stamp);
+                BaseTile tile = _base.getTile(xx, yy);
+                if (tile != null) {
+                    tile.setCovered(covered);
+                }
             }
         }
 
