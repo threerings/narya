@@ -1,9 +1,9 @@
 //
-// $Id: LocationObserver.java,v 1.3 2001/08/02 04:59:54 mdb Exp $
+// $Id: LocationObserver.java,v 1.4 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.client;
+package com.threerings.crowd.client;
 
-import com.threerings.cocktail.party.data.PlaceObject;
+import com.threerings.crowd.data.PlaceObject;
 
 /**
  * The location observer interface makes it possible for entities to be

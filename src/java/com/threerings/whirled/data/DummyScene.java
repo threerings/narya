@@ -1,9 +1,9 @@
 //
-// $Id: DummyScene.java,v 1.4 2001/10/05 23:59:37 mdb Exp $
+// $Id: DummyScene.java,v 1.5 2001/10/11 04:07:54 mdb Exp $
 
 package com.threerings.whirled.test;
 
-import com.threerings.cocktail.party.data.PlaceConfig;
+import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.whirled.data.Scene;
 
 public class DummyScene implements Scene

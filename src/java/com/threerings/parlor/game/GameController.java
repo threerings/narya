@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.5 2001/10/11 03:12:38 mdb Exp $
+// $Id: GameController.java,v 1.6 2001/10/11 04:07:51 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -7,11 +7,11 @@ import java.awt.event.ActionEvent;
 
 import com.samskivert.swing.Controller;
 
-import com.threerings.cocktail.cher.dobj.*;
-import com.threerings.cocktail.party.client.PlaceController;
-import com.threerings.cocktail.party.data.PlaceConfig;
-import com.threerings.cocktail.party.data.PlaceObject;
-import com.threerings.cocktail.party.util.PartyContext;
+import com.threerings.presents.dobj.*;
+import com.threerings.crowd.client.PlaceController;
+import com.threerings.crowd.data.PlaceConfig;
+import com.threerings.crowd.data.PlaceObject;
+import com.threerings.crowd.util.CrowdContext;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.data.GameConfig;
@@ -42,7 +42,7 @@ public abstract class GameController
      * @param config the configuration of the game we are intended to
      * control.
      */
-    public void init (PartyContext ctx, PlaceConfig config)
+    public void init (CrowdContext ctx, PlaceConfig config)
     {
         // cast our references before we call super.init() so that when
         // super.init() calls createPlaceView(), we have our casted

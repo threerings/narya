@@ -1,23 +1,23 @@
 //
-// $Id: CrowdServer.java,v 1.7 2001/09/28 22:32:28 mdb Exp $
+// $Id: CrowdServer.java,v 1.8 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.server;
+package com.threerings.crowd.server;
 
 import java.util.HashMap;
 
-import com.threerings.cocktail.cher.server.CherServer;
+import com.threerings.presents.server.PresentsServer;
 
-import com.threerings.cocktail.party.Log;
-import com.threerings.cocktail.party.data.BodyObject;
+import com.threerings.crowd.Log;
+import com.threerings.crowd.data.BodyObject;
 
 /**
- * The party server extends the cher server by configuring it to use the
- * extensions provided by the party layer to support party services.
+ * The crowd server extends the presents server by configuring it to use the
+ * extensions provided by the crowd layer to support crowd services.
  */
-public class PartyServer extends CherServer
+public class CrowdServer extends PresentsServer
 {
     /** The namespace used for server config properties. */
-    public static final String CONFIG_KEY = "party";
+    public static final String CONFIG_KEY = "crowd";
 
     /** The place registry. */
     public static PlaceRegistry plreg;
@@ -28,14 +28,14 @@ public class PartyServer extends CherServer
     public void init ()
         throws Exception
     {
-        // do the cher server initialization
+        // do the presents server initialization
         super.init();
 
-        // bind the party server config into the namespace
+        // bind the crowd server config into the namespace
         config.bindProperties(CONFIG_KEY, CONFIG_PATH, true);
 
-        // configure the client to use our party client
-        clmgr.setClientClass(PartyClient.class);
+        // configure the client to use our crowd client
+        clmgr.setClientClass(CrowdClient.class);
 
         // configure the client to use the body object
         clmgr.setClientObjectClass(BodyObject.class);
@@ -46,11 +46,11 @@ public class PartyServer extends CherServer
         // register our invocation service providers
         registerProviders(config.getValue(PROVIDERS_KEY, (String[])null));
 
-        Log.info("Party server initialized.");
+        Log.info("Crowd server initialized.");
     }
 
     /**
-     * The party server maintains a mapping of username to body object for
+     * The crowd server maintains a mapping of username to body object for
      * all active users on the server. This should only be called from the
      * dobjmgr thread.
      */
@@ -60,7 +60,7 @@ public class PartyServer extends CherServer
     }
 
     /**
-     * Called by the party client to map a username to a particular body
+     * Called by the crowd client to map a username to a particular body
      * object. This should only be called from the dobjmgr thread.
      */
     protected static void mapBody (String username, BodyObject bodobj)
@@ -69,7 +69,7 @@ public class PartyServer extends CherServer
     }
 
     /**
-     * Called by the party client to unmap a username from a particular
+     * Called by the crowd client to unmap a username from a particular
      * body object. This should only be called from the dobjmgr thread.
      */
     protected static void unmapBody (String username)
@@ -79,7 +79,7 @@ public class PartyServer extends CherServer
 
     public static void main (String[] args)
     {
-        PartyServer server = new PartyServer();
+        CrowdServer server = new CrowdServer();
         try {
             server.init();
             server.run();
@@ -94,7 +94,7 @@ public class PartyServer extends CherServer
 
     // the path to the config file
     protected final static String CONFIG_PATH =
-        "rsrc/config/cocktail/party/server";
+        "rsrc/config/crowd/server";
 
     // the config key for our list of invocation provider mappings
     protected final static String PROVIDERS_KEY = CONFIG_KEY + ".providers";

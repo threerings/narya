@@ -1,10 +1,10 @@
-Cocktail: Party Design -*- outline -*-
+Crowd Design -*- outline -*-
 
 * Introduction
-The Party layer builds upon the Cher layer through the addition of a few
-key services. These services are based around the concept of bodies and
-places. A client of the system is represented by a body and that body can
-occupy a place. Bodies can communicate with one another through two
+The Crowd layer builds upon the Presents layer through the addition of a
+few key services. These services are based around the concept of bodies
+and places. A client of the system is represented by a body and that body
+can occupy a place. Bodies can communicate with one another through two
 mechanisms: they can speak which broadcasts their message to all other
 bodies that occupy the same place, or they can tell which delivers their
 message specifically to one target body regardless of place.
@@ -16,11 +16,11 @@ to specialize the place concept and extend it with functionality specific
 to their needs.
 
 * Components
-Wherein the individual classes and components that make up the Party
+Wherein the individual classes and components that make up the Crowd
 framework are described.
 
 ** BodyObject
-The body object extends the client object from the Cher framework and
+The body object extends the client object from the Presents framework and
 tracks information like the current place occupied by the body.
 
 ** PlaceObject, PlaceManager

@@ -1,13 +1,13 @@
 //
-// $Id: SceneProvider.java,v 1.3 2001/10/05 23:59:36 mdb Exp $
+// $Id: SceneProvider.java,v 1.4 2001/10/11 04:07:54 mdb Exp $
 
 package com.threerings.whirled.server;
 
-import com.threerings.cocktail.cher.server.InvocationProvider;
-import com.threerings.cocktail.cher.server.ServiceFailedException;
+import com.threerings.presents.server.InvocationProvider;
+import com.threerings.presents.server.ServiceFailedException;
 
-import com.threerings.cocktail.party.data.*;
-import com.threerings.cocktail.party.server.LocationProvider;
+import com.threerings.crowd.data.*;
+import com.threerings.crowd.server.LocationProvider;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.client.SceneCodes;

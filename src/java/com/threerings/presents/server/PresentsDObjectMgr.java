@@ -1,7 +1,7 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.16 2001/10/03 03:40:44 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.17 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.server;
+package com.threerings.presents.server;
 
 import java.lang.reflect.*;
 import java.util.HashMap;
@@ -9,28 +9,28 @@ import java.util.HashMap;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Queue;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.dobj.*;
+import com.threerings.presents.Log;
+import com.threerings.presents.dobj.*;
 
 /**
- * The cher distributed object manager implements the
- * <code>DObjectManager</code> interface, providing an object manager that
- * runs on the server. By virtue of running on the server, it manages its
- * objects directly rather than managing proxies of objects which is what
- * is done on the client. Thus it simply queues up events and dispatches
- * them to subscribers.
+ * The presents distributed object manager implements the {@link
+ * DObjectManager} interface, providing an object manager that runs on the
+ * server. By virtue of running on the server, it manages its objects
+ * directly rather than managing proxies of objects which is what is done
+ * on the client. Thus it simply queues up events and dispatches them to
+ * subscribers.
  *
  * <p> The server object manager is meant to run on the main thread of the
  * server application and thus provides a method to be invoked by the
  * application main thread which won't return until the manager has been
  * requested to shut down.
  */
-public class CherDObjectMgr implements DObjectManager
+public class PresentsDObjectMgr implements DObjectManager
 {
     /**
      * Creates the dobjmgr and prepares it for operation.
      */
-    public CherDObjectMgr ()
+    public PresentsDObjectMgr ()
     {
         // we create a dummy object to live as oid zero and we'll use that
         // for some internal event trickery
@@ -474,7 +474,7 @@ public class CherDObjectMgr implements DObjectManager
 
                 // initialize this object
                 obj.setOid(oid);
-                obj.setManager(CherDObjectMgr.this);
+                obj.setManager(PresentsDObjectMgr.this);
                 // insert it into the table
                 _objects.put(oid, obj);
 
@@ -598,7 +598,7 @@ public class CherDObjectMgr implements DObjectManager
     protected static void registerEventHelpers ()
     {
         Class[] ptypes = new Class[] { DEvent.class, DObject.class };
-        Class omgrcl = CherDObjectMgr.class;
+        Class omgrcl = PresentsDObjectMgr.class;
         Method method;
 
         try {

@@ -1,16 +1,16 @@
 //
-// $Id: DObjectFactory.java,v 1.7 2001/08/07 20:38:58 mdb Exp $
+// $Id: DObjectFactory.java,v 1.8 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.dobj.io;
+package com.threerings.presents.dobj.io;
 
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.util.HashMap;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.dobj.DObject;
-import com.threerings.cocktail.cher.io.ObjectStreamException;
+import com.threerings.presents.Log;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.io.ObjectStreamException;
 
 /**
  * The distributed object factory is responsible for marshalling and

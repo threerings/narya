@@ -1,12 +1,19 @@
-Cocktail -*- outline -*-
+Narya -*- outline -*-
 
 * What is it?
-Cocktail is a platform on which multiplayer networked games may be
-developed. The platform is (extremely) loosely based around the idea of a
-cocktail party. For the most part, this just gives us a useful context
-from which to choose names. The basic service of the Cocktail platform is
-a simple information sharing mechanism based on the concept of distributed
-objects. This layer is called "Cher" for reasons outlined in the Cher
+Narya is a platform on which multiplayer networked games may be developed.
+The various packages that comprise Narya attempt to be as loosely
+connected as possible so that they may be used individually without having
+to buy into our entire system. In some cases, packages depend wholesale on
+other packages but that is generally only when the depending package
+extends or makes serious use of the depended package (the networking layer
+is used by the group management layer which is in turn used by the parlor
+game layer).
+
+** You brought presents?
+One basic service of the Narya platform is a simple information sharing
+mechanism based on the concept of distributed objects. This layer is
+called Presents for reasons explained and apologized for in the Presents
 design notes.
 
 A distributed object has a set of subscribers. Whenever a modification is
@@ -27,15 +34,14 @@ view, controller pattern as well as into other useful patterns.
 The primary value of the design is to bring the level of abstraction up
 from network connections and packets, to objects and events.
 
-** Getting the party started
-Atop the distributed object layer, we further develop the concept of the
-cocktail party. Parties tend to take place in rooms and be attended by
-groups of people. This is the essence of the next layer of the system: a
-framework for providing rooms, with occupants and mechanisms for the
-people to move between those rooms. Within the rooms, we provide some
-useful basic services like the ability to chat among the occupants of the
-room, as well as some non-room-specific facilities like person to person
-messaging from anywhere in the system and a location directory.
+** Three's a crowd
+Atop the Presents package, we've built the Crowd package: a framework for
+providing rooms (called places), with occupants (also called bodies) and
+mechanisms for the people to move between those rooms. Within the rooms,
+we provide some useful basic services like the ability to chat among the
+occupants of the room, as well as some non-room-specific facilities like
+person to person messaging from anywhere in the system and a location
+directory.
 
 Not all games developed with the platform will want to use the room
 concept, therefore we attempt at this layer and in all subsequent layers
@@ -45,11 +51,31 @@ leverage some of the useful services without having to bend their design
 in uncomfortable ways or hack up some additional interface to the services
 we provide.
 
-** Let's play
-From here, we branch off into all sorts of interesting directions based on
-the different kinds of games that are implemented with the system. We
-provide matchmaking lobbies, an extension of the room concept to the game
-room, on top of which is provided a framework for managing generic
-turn-based games, and various other useful services. Again the philosophy
-is to provide consistently designed, but decoupled services that can be
-used within and along side whatever design works best for your game.
+** Come into my parlor
+The Parlor services branch off into all sorts of interesting directions
+based on the different kinds of games that are implemented with the
+system. We provide matchmaking lobbies, an extension of the room concept
+to the game room, on top of which is provided a framework for managing
+generic turn-based games, and various other useful services. Again the
+philosophy is to provide consistently designed, but decoupled services
+that can be used within and along side whatever design works best for your
+game.
+
+** Visualized whirled peas
+The Whirled services provide support for building online world games that
+are composed of myriad scenes between which the user can navigate. It
+provides a simple extensible framework for defining your scenes and
+dynamically loading them into the server when a user traverses into them.
+
+** Miso
+A tile-based isometric rendering engine.
+
+** Media
+Various image and sound related services.
+
+** Resource
+Services for distributing bundles of resources to clients and making sure
+they are up to date.
+
+** Nodemap
+Services for displaying maps made up of connected nodes.

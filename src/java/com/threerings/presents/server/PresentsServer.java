@@ -1,32 +1,33 @@
 //
-// $Id: PresentsServer.java,v 1.13 2001/09/28 22:32:28 mdb Exp $
+// $Id: PresentsServer.java,v 1.14 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.server;
+package com.threerings.presents.server;
 
 import com.samskivert.util.Config;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.dobj.DObjectManager;
-import com.threerings.cocktail.cher.server.net.AuthManager;
-import com.threerings.cocktail.cher.server.net.ConnectionManager;
+import com.threerings.presents.Log;
+import com.threerings.presents.dobj.DObjectManager;
+import com.threerings.presents.server.net.AuthManager;
+import com.threerings.presents.server.net.ConnectionManager;
 
-import com.threerings.cocktail.cher.server.test.TestObject;
-import com.threerings.cocktail.cher.server.test.TestProvider;
-import com.threerings.cocktail.cher.client.test.TestService;
+import com.threerings.presents.server.test.TestObject;
+import com.threerings.presents.server.test.TestProvider;
+import com.threerings.presents.client.test.TestService;
 
 /**
- * The cher server provides a central point of access to the various
- * facilities that make up the cher framework. To facilitate extension and
- * customization, a single instance of the cher server should be created
- * and initialized in a process. To facilitate easy access to the services
- * provided by the cher server, static references to the various managers
- * are made available in the <code>CherServer</code> class. These will be
- * configured when the singleton instance is initialized.
+ * The presents server provides a central point of access to the various
+ * facilities that make up the presents framework. To facilitate extension
+ * and customization, a single instance of the presents server should be
+ * created and initialized in a process. To facilitate easy access to the
+ * services provided by the presents server, static references to the
+ * various managers are made available in the <code>PresentsServer</code>
+ * class. These will be configured when the singleton instance is
+ * initialized.
  */
-public class CherServer
+public class PresentsServer
 {
     /** The namespace used for server config properties. */
-    public static final String CONFIG_KEY = "cher";
+    public static final String CONFIG_KEY = "presents";
 
     /** The server configuration. */
     public static Config config;
@@ -41,7 +42,7 @@ public class CherServer
     public static ClientManager clmgr;
 
     /** The distributed object manager. */
-    public static CherDObjectMgr omgr;
+    public static PresentsDObjectMgr omgr;
 
     /** The invocation manager. */
     public static InvocationManager invmgr;
@@ -54,7 +55,7 @@ public class CherServer
     {
         // create our configuration object
         config = new Config();
-        // bind the cher server config into the namespace
+        // bind the presents server config into the namespace
         config.bindProperties(CONFIG_KEY, CONFIG_PATH, true);
 
         // create our authentication manager
@@ -64,7 +65,7 @@ public class CherServer
         // create our client manager
         clmgr = new ClientManager(conmgr);
         // create our distributed object manager
-        omgr = new CherDObjectMgr();
+        omgr = new PresentsDObjectMgr();
         // create our invocation manager
         invmgr = new InvocationManager(omgr);
 
@@ -147,9 +148,9 @@ public class CherServer
 
     public static void main (String[] args)
     {
-        Log.info("Cher server starting...");
+        Log.info("Presents server starting...");
 
-        CherServer server = new CherServer();
+        PresentsServer server = new PresentsServer();
         try {
             // initialize the server
             server.init();
@@ -182,7 +183,7 @@ public class CherServer
 
     // the path to the config file
     protected final static String CONFIG_PATH =
-        "rsrc/config/cocktail/cher/server";
+        "rsrc/config/presents/server";
 
     // the config key for our list of invocation provider mappings
     protected final static String PROVIDERS_KEY = CONFIG_KEY + ".providers";

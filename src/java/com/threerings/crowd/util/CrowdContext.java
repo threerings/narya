@@ -1,18 +1,18 @@
 //
-// $Id: CrowdContext.java,v 1.5 2001/10/09 17:20:03 mdb Exp $
+// $Id: CrowdContext.java,v 1.6 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.util;
+package com.threerings.crowd.util;
 
-import com.threerings.cocktail.cher.util.CherContext;
-import com.threerings.cocktail.party.client.LocationDirector;
-import com.threerings.cocktail.party.client.OccupantManager;
-import com.threerings.cocktail.party.client.PlaceView;
+import com.threerings.presents.util.PresentsContext;
+import com.threerings.crowd.client.LocationDirector;
+import com.threerings.crowd.client.OccupantManager;
+import com.threerings.crowd.client.PlaceView;
 
 /**
- * The party context provides access to the various managers, etc. that
- * are needed by the party client code.
+ * The crowd context provides access to the various managers, etc. that
+ * are needed by the crowd client code.
  */
-public interface PartyContext extends CherContext
+public interface CrowdContext extends PresentsContext
 {
     /**
      * Returns a reference to the location director.

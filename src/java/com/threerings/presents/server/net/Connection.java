@@ -1,16 +1,16 @@
 //
-// $Id: Connection.java,v 1.5 2001/08/03 03:09:58 mdb Exp $
+// $Id: Connection.java,v 1.6 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.server.net;
+package com.threerings.presents.server.net;
 
 import java.io.*;
 import ninja2.core.io_core.nbio.*;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.io.FramedInputStream;
-import com.threerings.cocktail.cher.io.TypedObjectFactory;
-import com.threerings.cocktail.cher.net.UpstreamMessage;
-import com.threerings.cocktail.cher.net.DownstreamMessage;
+import com.threerings.presents.Log;
+import com.threerings.presents.io.FramedInputStream;
+import com.threerings.presents.io.TypedObjectFactory;
+import com.threerings.presents.net.UpstreamMessage;
+import com.threerings.presents.net.DownstreamMessage;
 
 /**
  * The base connection class implements the net event handler interface

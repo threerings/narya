@@ -1,9 +1,9 @@
 //
-// $Id: InvocationObject.java,v 1.2 2001/07/19 19:18:06 mdb Exp $
+// $Id: InvocationObject.java,v 1.3 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.data;
+package com.threerings.presents.data;
 
-import com.threerings.cocktail.cher.dobj.DObject;
+import com.threerings.presents.dobj.DObject;
 
 /**
  * A single invocation object is created by the server invocation manager

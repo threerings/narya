@@ -1,15 +1,15 @@
 //
-// $Id: PlaceManager.java,v 1.16 2001/10/09 18:41:01 mdb Exp $
+// $Id: PlaceManager.java,v 1.17 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.server;
+package com.threerings.crowd.server;
 
 import java.util.HashMap;
 import java.util.Properties;
 
-import com.threerings.cocktail.cher.dobj.*;
+import com.threerings.presents.dobj.*;
 
-import com.threerings.cocktail.party.Log;
-import com.threerings.cocktail.party.data.*;
+import com.threerings.crowd.Log;
+import com.threerings.crowd.data.*;
 
 /**
  * The place manager is the server-side entity that handles all
@@ -18,7 +18,7 @@ import com.threerings.cocktail.party.data.*;
  * places) should live in the place manager. An intelligently constructed
  * hierarchy of place manager classes working in concert with invocation
  * services should provide the majority of the server-side functionality
- * of an application built on the Cocktail platform.
+ * of an application built on the Presents platform.
  *
  * <p> The base place manager class takes care of the necessary
  * interactions with the place registry to manage place registration. It

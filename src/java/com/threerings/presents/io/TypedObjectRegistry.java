@@ -1,10 +1,10 @@
 //
-// $Id: TypedObjectRegistry.java,v 1.6 2001/08/16 03:31:09 mdb Exp $
+// $Id: TypedObjectRegistry.java,v 1.7 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.io;
+package com.threerings.presents.io;
 
-import com.threerings.cocktail.cher.dobj.*;
-import com.threerings.cocktail.cher.net.*;
+import com.threerings.presents.dobj.*;
+import com.threerings.presents.net.*;
 
 /**
  * The registry provides a single place where all typed objects that are

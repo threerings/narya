@@ -1,7 +1,7 @@
 //
-// $Id: InvocationReceiver.java,v 1.3 2001/10/02 02:05:50 mdb Exp $
+// $Id: InvocationReceiver.java,v 1.4 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.client;
+package com.threerings.presents.client;
 
 /**
  * Classes registered to process invocation notifications should implement

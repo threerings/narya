@@ -1,7 +1,7 @@
 //
-// $Id: ChatDisplay.java,v 1.2 2001/10/01 22:14:55 mdb Exp $
+// $Id: ChatDisplay.java,v 1.3 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.chat;
+package com.threerings.crowd.chat;
 
 /**
  * A chat display provides a means by which chat messages can be

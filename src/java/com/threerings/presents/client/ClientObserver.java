@@ -1,7 +1,7 @@
 //
-// $Id: ClientObserver.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
+// $Id: ClientObserver.java,v 1.3 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.client;
+package com.threerings.presents.client;
 
 /**
  * A client observer is registered with the client instance to be notified

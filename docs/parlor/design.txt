@@ -6,11 +6,11 @@ implementation of simple networked games. These may be turn based, puzzle,
 party, or other types of games that involve one or more players acting out
 a fairly uncomplicated game mechanic.
 
-It builds upon the Cocktail package also provided by the <?> platform. The
-Cocktail package is used to provide a basic network environment where
-clients can share information with the server and with one another. It
-allows the Parlor services to largely concentrate on requirements specific
-to implementing simple online games.
+It builds upon the Presents and Crowd packages also provided by the Narya
+platform. These packages are used to provide a basic network environment
+where clients can share information with the server and with one
+another. It allows the Parlor services to largely concentrate on
+requirements specific to implementing simple online games.
 
 The services provided are divided into the following components:
 
@@ -40,7 +40,7 @@ This component aims to provide the following services:
 ** Game state management
 Once the game has begun, a means is needed to share the public game state
 with the players of the game and to communicate private game state if and
-when necessary. This component uses the Cocktail distributed object
+when necessary. This component uses the Presents distributed object
 services to share information among the players and provide channels of
 communication between the game manager and the players.
 

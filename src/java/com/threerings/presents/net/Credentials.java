@@ -1,14 +1,14 @@
 //
-// $Id: Credentials.java,v 1.6 2001/07/19 19:30:14 mdb Exp $
+// $Id: Credentials.java,v 1.7 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.net;
+package com.threerings.presents.net;
 
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.threerings.cocktail.cher.io.TypedObject;
-import com.threerings.cocktail.cher.io.TypedObjectFactory;
+import com.threerings.presents.io.TypedObject;
+import com.threerings.presents.io.TypedObjectFactory;
 
 /**
  * Credentials are supplied by the client implementation and sent along to

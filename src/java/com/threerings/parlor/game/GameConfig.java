@@ -1,5 +1,5 @@
 //
-// $Id: GameConfig.java,v 1.5 2001/10/06 00:25:29 mdb Exp $
+// $Id: GameConfig.java,v 1.6 2001/10/11 04:07:51 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.threerings.cocktail.party.data.PlaceConfig;
+import com.threerings.crowd.data.PlaceConfig;
 
 /**
  * The game config class encapsulates the configuration information for a

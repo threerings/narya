@@ -1,12 +1,12 @@
 Whirled Design -*- mode: outline -*-
 
 * Overview
-Whirled builds on top of the Cocktail platform and provides a framework
-for building a virtual world made up of a node network of individual
-scenes. In the abstract, scenes contain only exits to other scenes and the
-world is one big directed graph. This is not unlike the structure of MUDs
-where one classically thinks of rooms and exits. We've chosen the term
-scene to avoid implying that we're indoors.
+Whirled builds on top of the Presents and Crowd packages and provides a
+framework for building a virtual world made up of a node network of
+individual scenes. In the abstract, scenes contain only exits to other
+scenes and the world is one big directed graph. This is not unlike the
+structure of MUDs where one classically thinks of rooms and exits. We've
+chosen the term scene to avoid implying that we're indoors.
 
 Whirled provides a means by which clients can move from scene to scene,
 and to different locations within the scene (though restricting clients to

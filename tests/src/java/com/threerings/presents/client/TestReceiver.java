@@ -1,10 +1,10 @@
 //
-// $Id: TestReceiver.java,v 1.3 2001/08/04 02:54:01 mdb Exp $
+// $Id: TestReceiver.java,v 1.4 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.client.test;
+package com.threerings.presents.client.test;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.client.InvocationReceiver;
+import com.threerings.presents.Log;
+import com.threerings.presents.client.InvocationReceiver;
 
 public class TestReceiver implements InvocationReceiver
 {

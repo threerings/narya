@@ -1,9 +1,9 @@
 //
-// $Id: PlaceObject.dobj,v 1.5 2001/08/16 04:28:36 mdb Exp $
+// $Id: PlaceObject.dobj,v 1.6 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.data;
+package com.threerings.crowd.data;
 
-import com.threerings.cocktail.cher.dobj.*;
+import com.threerings.presents.dobj.*;
 
 public class PlaceObject extends DObject
 {

@@ -1,14 +1,14 @@
 //
-// $Id: EntryAddedEvent.java,v 1.3 2001/08/16 03:45:43 mdb Exp $
+// $Id: EntryAddedEvent.java,v 1.4 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.dobj;
+package com.threerings.presents.dobj;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.dobj.io.ElementUtil;
+import com.threerings.presents.Log;
+import com.threerings.presents.dobj.io.ElementUtil;
 
 /**
  * An element added event is dispatched when an element is added to a

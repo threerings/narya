@@ -1,14 +1,14 @@
 //
-// $Id: ForwardEventRequest.java,v 1.8 2001/07/19 19:30:14 mdb Exp $
+// $Id: ForwardEventRequest.java,v 1.9 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.net;
+package com.threerings.presents.net;
 
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.threerings.cocktail.cher.dobj.TypedEvent;
-import com.threerings.cocktail.cher.io.TypedObjectFactory;
+import com.threerings.presents.dobj.TypedEvent;
+import com.threerings.presents.io.TypedObjectFactory;
 
 public class ForwardEventRequest extends UpstreamMessage
 {

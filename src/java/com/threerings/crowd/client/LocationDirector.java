@@ -1,17 +1,17 @@
 //
-// $Id: LocationDirector.java,v 1.10 2001/10/05 23:57:26 mdb Exp $
+// $Id: LocationDirector.java,v 1.11 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.client;
+package com.threerings.crowd.client;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.threerings.cocktail.cher.client.*;
-import com.threerings.cocktail.cher.dobj.*;
+import com.threerings.presents.client.*;
+import com.threerings.presents.dobj.*;
 
-import com.threerings.cocktail.party.Log;
-import com.threerings.cocktail.party.data.*;
-import com.threerings.cocktail.party.util.PartyContext;
+import com.threerings.crowd.Log;
+import com.threerings.crowd.data.*;
+import com.threerings.crowd.util.CrowdContext;
 
 /**
  * The location director provides a means by which entities on the client
@@ -23,7 +23,7 @@ import com.threerings.cocktail.party.util.PartyContext;
 public class LocationDirector
     implements ClientObserver, Subscriber
 {
-    public LocationDirector (PartyContext ctx)
+    public LocationDirector (CrowdContext ctx)
     {
         // keep this around for later
         _ctx = ctx;
@@ -341,7 +341,7 @@ public class LocationDirector
     }
 
     /** The context through which we access needed services. */
-    protected PartyContext _ctx;
+    protected CrowdContext _ctx;
 
     /** Our location observer list. */
     protected List _observers = new ArrayList();

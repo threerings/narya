@@ -1,13 +1,13 @@
 //
-// $Id: PlaceConfig.java,v 1.1 2001/10/05 23:57:26 mdb Exp $
+// $Id: PlaceConfig.java,v 1.2 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.data;
+package com.threerings.crowd.data;
 
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.threerings.cocktail.cher.io.Streamable;
+import com.threerings.presents.io.Streamable;
 
 /**
  * The place config class encapsulates the configuration information for a
@@ -36,14 +36,14 @@ public abstract class PlaceConfig implements Streamable
     /**
      * Returns the class that should be used to create a controller for
      * this place. The controller class must derive from {@link
-     * com.threerings.cocktail.party.client.PlaceController}.
+     * com.threerings.crowd.client.PlaceController}.
      */
     public abstract Class getControllerClass ();
 
     /**
      * Returns the name of the class that should be used to create a
      * manager for this place. The manager class must derive from {@link
-     * com.threerings.cocktail.party.server.PlaceManager}. <em>Note:</em>
+     * com.threerings.crowd.server.PlaceManager}. <em>Note:</em>
      * this method differs from {@link #getControllerClass} because we
      * want to avoid compile time linkage of the place config object
      * (which is used on the client) to server code. This allows a code

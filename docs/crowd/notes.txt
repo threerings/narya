@@ -1,4 +1,4 @@
-Party Notes -*- outline -*-
+Crowd Notes -*- outline -*-
 
 * TODO
 Wire up PlaceRegistry code to remove registrations when place objects are

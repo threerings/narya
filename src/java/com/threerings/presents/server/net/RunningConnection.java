@@ -1,11 +1,11 @@
 //
-// $Id: RunningConnection.java,v 1.4 2001/08/07 20:38:58 mdb Exp $
+// $Id: RunningConnection.java,v 1.5 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.server.net;
+package com.threerings.presents.server.net;
 
 import java.io.IOException;
 import ninja2.core.io_core.nbio.NonblockingSocket;
-import com.threerings.cocktail.cher.net.UpstreamMessage;
+import com.threerings.presents.net.UpstreamMessage;
 
 /**
  * A running connection object represents a fully operational client

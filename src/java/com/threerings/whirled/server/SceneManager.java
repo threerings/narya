@@ -1,11 +1,11 @@
 //
-// $Id: SceneManager.java,v 1.5 2001/10/05 23:59:36 mdb Exp $
+// $Id: SceneManager.java,v 1.6 2001/10/11 04:07:54 mdb Exp $
 
 package com.threerings.whirled.server;
 
-import com.threerings.cocktail.party.chat.ChatMessageHandler;
-import com.threerings.cocktail.party.chat.ChatService;
-import com.threerings.cocktail.party.server.PlaceManager;
+import com.threerings.crowd.chat.ChatMessageHandler;
+import com.threerings.crowd.chat.ChatService;
+import com.threerings.crowd.server.PlaceManager;
 
 import com.threerings.whirled.data.Scene;
 

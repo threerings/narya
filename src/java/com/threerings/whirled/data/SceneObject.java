@@ -1,9 +1,9 @@
 //
-// $Id: SceneObject.java,v 1.1 2001/08/11 04:09:50 mdb Exp $
+// $Id: SceneObject.java,v 1.2 2001/10/11 04:07:54 mdb Exp $
 
 package com.threerings.whirled.data;
 
-import com.threerings.cocktail.party.data.PlaceObject;
+import com.threerings.crowd.data.PlaceObject;
 
 public class SceneObject extends PlaceObject
 {

@@ -1,18 +1,18 @@
 //
-// $Id: OccupantManager.java,v 1.5 2001/10/02 02:07:50 mdb Exp $
+// $Id: OccupantManager.java,v 1.6 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.client;
+package com.threerings.crowd.client;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
-import com.threerings.cocktail.cher.dobj.*;
+import com.threerings.presents.dobj.*;
 
-import com.threerings.cocktail.party.Log;
-import com.threerings.cocktail.party.data.OccupantInfo;
-import com.threerings.cocktail.party.data.PlaceObject;
-import com.threerings.cocktail.party.util.PartyContext;
+import com.threerings.crowd.Log;
+import com.threerings.crowd.data.OccupantInfo;
+import com.threerings.crowd.data.PlaceObject;
+import com.threerings.crowd.util.CrowdContext;
 
 /**
  * The occupant manager listens for occupants of places to enter and exit,
@@ -41,7 +41,7 @@ public class OccupantManager
     /**
      * Constructs a new occupant manager with the supplied context.
      */
-    public OccupantManager (PartyContext ctx)
+    public OccupantManager (CrowdContext ctx)
     {
         // register ourselves as a location observer
         ctx.getLocationDirector().addLocationObserver(this);

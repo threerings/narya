@@ -1,12 +1,12 @@
 //
-// $Id: PlaceViewUtil.java,v 1.2 2001/10/05 23:57:26 mdb Exp $
+// $Id: PlaceViewUtil.java,v 1.3 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.client;
+package com.threerings.crowd.client;
 
 import java.awt.Container;
 
-import com.threerings.cocktail.party.Log;
-import com.threerings.cocktail.party.data.PlaceObject;
+import com.threerings.crowd.Log;
+import com.threerings.crowd.data.PlaceObject;
 
 /**
  * Provides a mechanism for dispatching notifications to all user

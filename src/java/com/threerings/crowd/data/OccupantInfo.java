@@ -1,25 +1,25 @@
 //
-// $Id: OccupantInfo.java,v 1.2 2001/08/20 20:54:57 mdb Exp $
+// $Id: OccupantInfo.java,v 1.3 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.data;
+package com.threerings.crowd.data;
 
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.threerings.cocktail.cher.dobj.DSet;
+import com.threerings.presents.dobj.DSet;
 
 /**
  * The occupant info object contains all of the information about an
  * occupant of a place that should be shared with other occupants of the
  * place. These objects are stored in the place object itself and are
  * updated when bodies enter and exit a place. A system that builds upon
- * the Party framework can extend this class to include extra information
+ * the Crowd framework can extend this class to include extra information
  * about their occupants. They will need to be sure to return the proper
  * class from {@link
- * com.threerings.cocktail.party.server.PlaceManager#getOccupantInfoClass}
+ * com.threerings.crowd.server.PlaceManager#getOccupantInfoClass}
  * and populate their occupant info in {@link
- * com.threerings.cocktail.party.server.PlaceManager#populateOccupantInfo}.
+ * com.threerings.crowd.server.PlaceManager#populateOccupantInfo}.
  */
 public class OccupantInfo implements DSet.Element
 {

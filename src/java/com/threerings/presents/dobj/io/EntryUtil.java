@@ -1,11 +1,11 @@
 //
-// $Id: EntryUtil.java,v 1.2 2001/08/21 21:16:53 mdb Exp $
+// $Id: EntryUtil.java,v 1.3 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.dobj.io;
+package com.threerings.presents.dobj.io;
 
 import java.io.*;
 
-import com.threerings.cocktail.cher.dobj.DSet;
+import com.threerings.presents.dobj.DSet;
 
 /**
  * Routines to simplify the process of moving set elements over the wire.

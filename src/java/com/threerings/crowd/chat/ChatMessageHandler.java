@@ -1,15 +1,15 @@
 //
-// $Id: ChatMessageHandler.java,v 1.1 2001/08/03 02:14:41 mdb Exp $
+// $Id: ChatMessageHandler.java,v 1.2 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.chat;
+package com.threerings.crowd.chat;
 
-import com.threerings.cocktail.cher.dobj.MessageEvent;
+import com.threerings.presents.dobj.MessageEvent;
 
-import com.threerings.cocktail.party.Log;
-import com.threerings.cocktail.party.data.BodyObject;
-import com.threerings.cocktail.party.data.PlaceObject;
-import com.threerings.cocktail.party.server.PartyServer;
-import com.threerings.cocktail.party.server.PlaceManager;
+import com.threerings.crowd.Log;
+import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.PlaceObject;
+import com.threerings.crowd.server.CrowdServer;
+import com.threerings.crowd.server.PlaceManager;
 
 /**
  * The chat message handler handles chat messages that are issued on a
@@ -23,7 +23,7 @@ public class ChatMessageHandler implements PlaceManager.MessageHandler
         // generate a chat notification with the message and name of the
         // speaker
         int soid = event.getSourceOid();
-        BodyObject source = (BodyObject)PartyServer.omgr.getObject(soid);
+        BodyObject source = (BodyObject)CrowdServer.omgr.getObject(soid);
         if (source == null) {
             Log.info("Chatter went away. Dropping chat request " +
                      "[req=" + event + "].");
@@ -39,6 +39,6 @@ public class ChatMessageHandler implements PlaceManager.MessageHandler
         Object[] outargs = new Object[] { source.username, message };
         MessageEvent nevt = new MessageEvent(
             target.getOid(), ChatService.SPEAK_NOTIFICATION, outargs);
-        PartyServer.omgr.postEvent(nevt);
+        CrowdServer.omgr.postEvent(nevt);
     }
 }

@@ -1,7 +1,7 @@
 //
-// $Id: ClassUtil.java,v 1.3 2001/10/03 03:38:21 mdb Exp $
+// $Id: ClassUtil.java,v 1.4 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.util;
+package com.threerings.presents.util;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -9,7 +9,7 @@ import java.util.HashMap;
 import com.samskivert.util.MethodFinder;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.cocktail.cher.Log;
+import com.threerings.presents.Log;
 
 /**
  * Class related utility functions.

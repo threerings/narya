@@ -1,17 +1,17 @@
-Cher Design -*- outline -*-
+Presents Design -*- outline -*-
 
-* Why Cher?
-The basic function of this layer is to allow the sharing (Cher-ing) of
-information among different nodes in the network. Plus, I don't think Cher
-has ever had a software system named after her and it's high time. Imagine
-Cher as the social lubricant that allows the party goers to communicate.
+* Why Presents?
+The basic function of this layer is to provide a network presence (as you
+can see, we love to pun; don't complain, this package used to be called
+Cher) and to allow the sharing of information among different nodes in the
+network.
 
 * Overview
-The Cher layer implements the distributed object services described in the
-Cocktail design document. It does this within the context of an extensible
-client/server application framework. Cher provides services that can be
-integrated into your distributed application to share information between
-a set of clients and entities operating on the server.
+The Presents layer implements the distributed object services described in
+the Narya design document. It does this within the context of an
+extensible client/server application framework. Presents provides services
+that can be integrated into your distributed application to share
+information between a set of clients and entities operating on the server.
 
 * Authentication and bootstrapping
 The client initially transmits an authentication request to the server and
@@ -121,15 +121,15 @@ This function will simply wrap up the arguments and pass them to the
 invocation manager for delivery to the appropriate client.
 
 * Server configuration
-The Cher server binds a properties file into the configuration name space
-under the key "cher". This properties file lives in
-rsrc/config/cocktail/cher/server.properties and is loaded from the jar
-file in which the Cher server code is provided.
+The Presents server binds a properties file into the configuration name
+space under the key "presents". This properties file lives in
+rsrc/config/presents/server.properties and is loaded from the jar file in
+which the Presents server code is provided.
 
 Values specified in this properties file can be overridden by a mechanism
 that will be provided by the configuration utilities used by the
 server. This is accomplished by placing a properties file earlier in the
-classpath than the one supplied with the cher code. The values in that
+classpath than the one supplied with the Presents code. The values in that
 earlier properties file will override the ones in the standard file.
 Values not supplied in the override file will be retrieved from the
 standard file.
@@ -138,9 +138,9 @@ Derived server classes should place their server properties into the
 classpath with a path along the lines of
 rsrc/config/<ident>/server.properties and should bind it into the config
 namespace with their own identifier. If they desire to override values in
-the Cher server configuration, they should provide a
-rsrc/config/cocktail/cher/server.properties in their jar file ensure that
-their jar file occurs earlier in the classpath than the Cher server jar
+the Presents server configuration, they should provide a
+rsrc/config/presents/server.properties in their jar file ensure that their
+jar file occurs earlier in the classpath than the Presents server jar
 file.
 
 * A note on thread-safety

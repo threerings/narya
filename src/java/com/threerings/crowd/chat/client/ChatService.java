@@ -1,11 +1,11 @@
 //
-// $Id: ChatService.java,v 1.5 2001/10/02 02:07:50 mdb Exp $
+// $Id: ChatService.java,v 1.6 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.chat;
+package com.threerings.crowd.chat;
 
-import com.threerings.cocktail.cher.client.Client;
-import com.threerings.cocktail.cher.client.InvocationDirector;
-import com.threerings.cocktail.party.Log;
+import com.threerings.presents.client.Client;
+import com.threerings.presents.client.InvocationDirector;
+import com.threerings.crowd.Log;
 
 /**
  * The chat services provide a mechanism by which the client can broadcast

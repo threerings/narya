@@ -1,16 +1,16 @@
 //
-// $Id: LocationProvider.java,v 1.9 2001/10/05 23:57:26 mdb Exp $
+// $Id: LocationProvider.java,v 1.10 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.server;
+package com.threerings.crowd.server;
 
-import com.threerings.cocktail.cher.dobj.DObject;
-import com.threerings.cocktail.cher.server.InvocationProvider;
-import com.threerings.cocktail.cher.server.ServiceFailedException;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.server.InvocationProvider;
+import com.threerings.presents.server.ServiceFailedException;
 
-import com.threerings.cocktail.party.Log;
-import com.threerings.cocktail.party.client.LocationCodes;
-import com.threerings.cocktail.party.data.*;
-import com.threerings.cocktail.party.server.PartyServer;
+import com.threerings.crowd.Log;
+import com.threerings.crowd.client.LocationCodes;
+import com.threerings.crowd.data.*;
+import com.threerings.crowd.server.CrowdServer;
 
 /**
  * This class provides the server end of the location services.
@@ -52,7 +52,7 @@ public class LocationProvider
         int bodoid = source.getOid();
 
         // make sure the place in question actually exists
-        PlaceManager pmgr = PartyServer.plreg.getPlaceManager(placeId);
+        PlaceManager pmgr = CrowdServer.plreg.getPlaceManager(placeId);
         if (pmgr == null) {
             Log.info("Requested to move to non-existent place " +
                      "[source=" + source + ", place=" + placeId + "].");
@@ -78,7 +78,7 @@ public class LocationProvider
             // remove them from the occupant list of the previous location
             try {
                 PlaceObject pold = (PlaceObject)
-                    PartyServer.omgr.getObject(source.location);
+                    CrowdServer.omgr.getObject(source.location);
                 if (pold != null) {
                     Object key = new Integer(bodoid);
                     // remove their occupant info (which is keyed on oid)

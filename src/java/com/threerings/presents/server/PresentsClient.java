@@ -1,7 +1,7 @@
 //
-// $Id: PresentsClient.java,v 1.19 2001/10/02 02:05:50 mdb Exp $
+// $Id: PresentsClient.java,v 1.20 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.server;
+package com.threerings.presents.server;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -9,11 +9,11 @@ import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.data.ClientObject;
-import com.threerings.cocktail.cher.dobj.*;
-import com.threerings.cocktail.cher.net.*;
-import com.threerings.cocktail.cher.server.net.*;
+import com.threerings.presents.Log;
+import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.dobj.*;
+import com.threerings.presents.net.*;
+import com.threerings.presents.server.net.*;
 
 /**
  * A client object represents a client session in the server. It is
@@ -29,7 +29,7 @@ import com.threerings.cocktail.cher.server.net.*;
  * not overlap with its other client duties which are called from the
  * conmgr thread and therefore also need not be synchronized.
  */
-public class CherClient implements Subscriber, MessageHandler
+public class PresentsClient implements Subscriber, MessageHandler
 {
     /**
      * Returns the username with which this client instance is associated.
@@ -72,7 +72,7 @@ public class CherClient implements Subscriber, MessageHandler
             public void requestFailed (int oid, ObjectAccessException cause)
             {
                 Log.warning("Unable to create client object " +
-                            "[client=" + CherClient.this +
+                            "[client=" + PresentsClient.this +
                             ", error=" + cause + "].");
             }
 
@@ -82,7 +82,7 @@ public class CherClient implements Subscriber, MessageHandler
             }
         };
         Class clobjClass = _cmgr.getClientObjectClass();
-        CherServer.omgr.createObject(clobjClass, sub, false);
+        PresentsServer.omgr.createObject(clobjClass, sub, false);
     }
 
     /**
@@ -130,7 +130,7 @@ public class CherClient implements Subscriber, MessageHandler
                 return false;
             }
         };
-        CherServer.omgr.postEvent(event);
+        PresentsServer.omgr.postEvent(event);
     }
 
     /**
@@ -182,7 +182,7 @@ public class CherClient implements Subscriber, MessageHandler
                 return false;
             }
         };
-        CherServer.omgr.postEvent(event);
+        PresentsServer.omgr.postEvent(event);
     }
 
     /**
@@ -266,7 +266,7 @@ public class CherClient implements Subscriber, MessageHandler
     protected void sessionDidTerminate ()
     {
         // destroy the client object
-        CherServer.omgr.destroyObject(_clobj.getOid());
+        PresentsServer.omgr.destroyObject(_clobj.getOid());
     }
 
     /**
@@ -312,7 +312,7 @@ public class CherClient implements Subscriber, MessageHandler
         data.clientOid = _clobj.getOid();
 
         // give them the invocation oid
-        data.invOid = CherServer.invmgr.getOid();
+        data.invOid = PresentsServer.invmgr.getOid();
     }
 
     /**
@@ -343,7 +343,7 @@ public class CherClient implements Subscriber, MessageHandler
                 return false;
             }
         };
-        CherServer.omgr.postEvent(event);
+        PresentsServer.omgr.postEvent(event);
     }
 
     /**
@@ -468,7 +468,7 @@ public class CherClient implements Subscriber, MessageHandler
         /**
          * Dispatch the supplied message for the specified client.
          */
-        public void dispatch (CherClient client, UpstreamMessage mge);
+        public void dispatch (PresentsClient client, UpstreamMessage mge);
     }
 
     /**
@@ -476,14 +476,14 @@ public class CherClient implements Subscriber, MessageHandler
      */
     protected static class SubscribeDispatcher implements MessageDispatcher
     {
-        public void dispatch (CherClient client, UpstreamMessage msg)
+        public void dispatch (PresentsClient client, UpstreamMessage msg)
         {
             SubscribeRequest req = (SubscribeRequest)msg;
 //              Log.info("Subscribing [client=" + client +
 //                       ", oid=" + req.getOid() + "].");
 
             // forward the subscribe request to the omgr for processing
-            CherServer.omgr.subscribeToObject(req.getOid(), client);
+            PresentsServer.omgr.subscribeToObject(req.getOid(), client);
         }
     }
 
@@ -492,14 +492,14 @@ public class CherClient implements Subscriber, MessageHandler
      */
     protected static class UnsubscribeDispatcher implements MessageDispatcher
     {
-        public void dispatch (CherClient client, UpstreamMessage msg)
+        public void dispatch (PresentsClient client, UpstreamMessage msg)
         {
             UnsubscribeRequest req = (UnsubscribeRequest)msg;
 //              Log.info("Unsubscribing [client=" + client +
 //                       ", oid=" + req.getOid() + "].");
 
             // forward the unsubscribe request to the omgr for processing
-            CherServer.omgr.unsubscribeFromObject(req.getOid(), client);
+            PresentsServer.omgr.unsubscribeFromObject(req.getOid(), client);
             // update our subscription tracking table
             client.unmapSubscrip(req.getOid());
         }
@@ -510,7 +510,7 @@ public class CherClient implements Subscriber, MessageHandler
      */
     protected static class ForwardEventDispatcher implements MessageDispatcher
     {
-        public void dispatch (CherClient client, UpstreamMessage msg)
+        public void dispatch (PresentsClient client, UpstreamMessage msg)
         {
             ForwardEventRequest req = (ForwardEventRequest)msg;
             DEvent fevt = req.getEvent();
@@ -522,7 +522,7 @@ public class CherClient implements Subscriber, MessageHandler
 //                       ", event=" + fevt + "].");
 
             // forward the event to the omgr for processing
-            CherServer.omgr.postEvent(fevt);
+            PresentsServer.omgr.postEvent(fevt);
         }
     }
 
@@ -531,7 +531,7 @@ public class CherClient implements Subscriber, MessageHandler
      */
     protected static class PingDispatcher implements MessageDispatcher
     {
-        public void dispatch (CherClient client, UpstreamMessage msg)
+        public void dispatch (PresentsClient client, UpstreamMessage msg)
         {
             Log.info("Received client ping [client=" + client + "].");
             // send a pong response
@@ -549,7 +549,7 @@ public class CherClient implements Subscriber, MessageHandler
      */
     protected static class LogoffDispatcher implements MessageDispatcher
     {
-        public void dispatch (CherClient client, UpstreamMessage msg)
+        public void dispatch (PresentsClient client, UpstreamMessage msg)
         {
             Log.info("Client requested logoff " +
                      "[client=" + client + "].");

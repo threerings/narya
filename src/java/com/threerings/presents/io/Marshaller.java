@@ -1,7 +1,7 @@
 //
-// $Id: Marshaller.java,v 1.4 2001/06/11 17:42:20 mdb Exp $
+// $Id: Marshaller.java,v 1.5 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.dobj.io;
+package com.threerings.presents.dobj.io;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -13,9 +13,9 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.dobj.DObject;
-import com.threerings.cocktail.cher.io.ObjectStreamException;
+import com.threerings.presents.Log;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.io.ObjectStreamException;
 
 /**
  * The marshaller inspects the class with which it is constructed and

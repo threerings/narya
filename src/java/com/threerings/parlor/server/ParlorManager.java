@@ -1,16 +1,16 @@
 //
-// $Id: ParlorManager.java,v 1.7 2001/10/09 20:20:35 mdb Exp $
+// $Id: ParlorManager.java,v 1.8 2001/10/11 04:07:51 mdb Exp $
 
 package com.threerings.parlor.server;
 
 import com.samskivert.util.Config;
 import com.samskivert.util.HashIntMap;
 
-import com.threerings.cocktail.cher.server.InvocationManager;
-import com.threerings.cocktail.cher.server.ServiceFailedException;
+import com.threerings.presents.server.InvocationManager;
+import com.threerings.presents.server.ServiceFailedException;
 
-import com.threerings.cocktail.party.data.BodyObject;
-import com.threerings.cocktail.party.server.PartyServer;
+import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.client.ParlorCodes;
@@ -176,7 +176,7 @@ public class ParlorManager
             // started up (which is done by the place registry once the
             // game object creation has completed)
             GameManager gmgr = (GameManager)
-                PartyServer.plreg.createPlace(invite.config);
+                CrowdServer.plreg.createPlace(invite.config);
 
             // provide the game manager with some initialization info
             String[] players = new String[] {

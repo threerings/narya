@@ -1,7 +1,7 @@
 //
-// $Id: InvocationCodes.java,v 1.1 2001/10/01 22:14:54 mdb Exp $
+// $Id: InvocationCodes.java,v 1.2 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.client;
+package com.threerings.presents.client;
 
 /**
  * The invocation codes interface provides codes that are commonly used by

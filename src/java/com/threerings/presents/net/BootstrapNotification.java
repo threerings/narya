@@ -1,13 +1,13 @@
 //
-// $Id: BootstrapNotification.java,v 1.2 2001/07/19 19:30:14 mdb Exp $
+// $Id: BootstrapNotification.java,v 1.3 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.net;
+package com.threerings.presents.net;
 
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.threerings.cocktail.cher.dobj.io.DObjectFactory;
+import com.threerings.presents.dobj.io.DObjectFactory;
 
 /**
  * A bootstrap notification is delivered to the client once the server has

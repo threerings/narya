@@ -1,10 +1,10 @@
 //
-// $Id: FrameTest.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
+// $Id: FrameTest.java,v 1.3 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.io.test;
+package com.threerings.presents.io.test;
 
 import java.io.*;
-import com.threerings.cocktail.cher.io.*;
+import com.threerings.presents.io.*;
 
 public class FrameTest
 {

@@ -1,11 +1,11 @@
 //
-// $Id: DOMTest.java,v 1.1 2001/06/09 23:39:42 mdb Exp $
+// $Id: DOMTest.java,v 1.2 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.server.test;
+package com.threerings.presents.server.test;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.dobj.*;
-import com.threerings.cocktail.cher.server.*;
+import com.threerings.presents.Log;
+import com.threerings.presents.dobj.*;
+import com.threerings.presents.server.*;
 
 /**
  * A simple test case for the dobjmgr.
@@ -40,7 +40,7 @@ public class DOMTest implements Subscriber
         return true;
     }
 
-    public static CherDObjectMgr omgr = new CherDObjectMgr();
+    public static PresentsDObjectMgr omgr = new PresentsDObjectMgr();
 
     public static void main (String[] args)
     {

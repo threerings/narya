@@ -1,10 +1,10 @@
 //
-// $Id: ConnectionObserver.java,v 1.4 2001/06/02 01:30:37 mdb Exp $
+// $Id: ConnectionObserver.java,v 1.5 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.server.net;
+package com.threerings.presents.server.net;
 
 import java.io.IOException;
-import com.threerings.cocktail.cher.net.Credentials;
+import com.threerings.presents.net.Credentials;
 
 /**
  * A connection observer can be registered with the connection manager to

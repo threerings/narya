@@ -1,13 +1,13 @@
 //
-// $Id: ValueMarshaller.java,v 1.4 2001/10/03 03:38:55 mdb Exp $
+// $Id: ValueMarshaller.java,v 1.5 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.dobj.io;
+package com.threerings.presents.dobj.io;
 
 import java.io.*;
 import java.util.HashMap;
 
 import com.samskivert.util.HashIntMap;
-import com.threerings.cocktail.cher.io.Streamable;
+import com.threerings.presents.io.Streamable;
 
 /**
  * The value marshaller provides a mechanism for marshalling and
@@ -37,7 +37,7 @@ public class ValueMarshaller
      * The value must be one of the valid distributed object attribute
      * types.
      *
-     * @see com.threerings.cocktail.cher.dobj.DObject
+     * @see com.threerings.presents.dobj.DObject
      * @see #readFrom
      */
     public static void writeTo (DataOutputStream out, Object value)

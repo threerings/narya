@@ -1,12 +1,12 @@
 //
-// $Id: ParlorProvider.java,v 1.5 2001/10/03 03:44:52 mdb Exp $
+// $Id: ParlorProvider.java,v 1.6 2001/10/11 04:07:51 mdb Exp $
 
 package com.threerings.parlor.server;
 
-import com.threerings.cocktail.cher.server.InvocationProvider;
-import com.threerings.cocktail.cher.server.ServiceFailedException;
-import com.threerings.cocktail.party.data.BodyObject;
-import com.threerings.cocktail.party.server.PartyServer;
+import com.threerings.presents.server.InvocationProvider;
+import com.threerings.presents.server.ServiceFailedException;
+import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.client.ParlorCodes;
@@ -49,7 +49,7 @@ public class ParlorProvider
 
         // ensure that the invitee is online at present
         try {
-            BodyObject target = PartyServer.lookupBody(invitee);
+            BodyObject target = CrowdServer.lookupBody(invitee);
             if (target == null) {
                 throw new ServiceFailedException(INVITEE_NOT_ONLINE);
             }

@@ -1,9 +1,9 @@
 //
-// $Id: ParlorCodes.java,v 1.4 2001/10/04 22:47:49 mdb Exp $
+// $Id: ParlorCodes.java,v 1.5 2001/10/11 04:07:51 mdb Exp $
 
 package com.threerings.parlor.client;
 
-import com.threerings.cocktail.cher.client.InvocationCodes;
+import com.threerings.presents.client.InvocationCodes;
 
 /**
  * Contains codes used by the parlor invocation services.

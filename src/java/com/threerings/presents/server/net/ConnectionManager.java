@@ -1,7 +1,7 @@
 //
-// $Id: ConnectionManager.java,v 1.10 2001/10/09 18:27:25 mdb Exp $
+// $Id: ConnectionManager.java,v 1.11 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.server.net;
+package com.threerings.presents.server.net;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import ninja2.core.io_core.nbio.*;
 import com.samskivert.util.*;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.io.FramingOutputStream;
-import com.threerings.cocktail.cher.io.TypedObjectFactory;
-import com.threerings.cocktail.cher.net.Credentials;
-import com.threerings.cocktail.cher.net.DownstreamMessage;
-import com.threerings.cocktail.cher.server.CherServer;
+import com.threerings.presents.Log;
+import com.threerings.presents.io.FramingOutputStream;
+import com.threerings.presents.io.TypedObjectFactory;
+import com.threerings.presents.net.Credentials;
+import com.threerings.presents.net.DownstreamMessage;
+import com.threerings.presents.server.PresentsServer;
 
 /**
  * The connection manager manages the socket on which connections are
@@ -322,7 +322,7 @@ public class ConnectionManager extends LoopingThread
 
     /** The config key for our listening port. */
     protected static final String CM_PORT_KEY =
-        CherServer.CONFIG_KEY + ".conmgr_port";
+        PresentsServer.CONFIG_KEY + ".conmgr_port";
 
     /** The default port on which we listen for connections. */
     protected static final int DEFAULT_CM_PORT = 4007;

@@ -1,15 +1,15 @@
 //
-// $Id: InvocationManager.java,v 1.7 2001/08/14 06:47:38 mdb Exp $
+// $Id: InvocationManager.java,v 1.8 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.server;
+package com.threerings.presents.server;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.dobj.*;
-import com.threerings.cocktail.cher.data.*;
-import com.threerings.cocktail.cher.util.ClassUtil;
+import com.threerings.presents.Log;
+import com.threerings.presents.dobj.*;
+import com.threerings.presents.data.*;
+import com.threerings.presents.util.ClassUtil;
 
 /**
  * The invocation services provide client to server invocations (service
@@ -86,7 +86,7 @@ public class InvocationManager
         // construct a message event and deliver it
         MessageEvent nevt = new MessageEvent(
             cloid, InvocationObject.NOTIFICATION_NAME, nargs);
-        CherServer.omgr.postEvent(nevt);
+        PresentsServer.omgr.postEvent(nevt);
     }
 
     public void objectAvailable (DObject object)
@@ -137,7 +137,7 @@ public class InvocationManager
         // prune the method arguments from the full message arguments
         Object[] margs = new Object[args.length-1];
         int cloid = mevt.getSourceOid();
-        margs[0] = CherServer.omgr.getObject(cloid);
+        margs[0] = PresentsServer.omgr.getObject(cloid);
         // make sure the client is still around
         if (margs[0] == null) {
             Log.warning("Client no longer around for invocation provider " +

@@ -1,7 +1,7 @@
 //
-// $Id: Communicator.java,v 1.15 2001/10/03 03:39:39 mdb Exp $
+// $Id: Communicator.java,v 1.16 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.client;
+package com.threerings.presents.client;
 
 import java.io.*;
 import java.net.Socket;
@@ -10,11 +10,11 @@ import java.net.InetAddress;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.dobj.DObjectManager;
-import com.threerings.cocktail.cher.io.*;
-import com.threerings.cocktail.cher.io.ObjectStreamException;
-import com.threerings.cocktail.cher.net.*;
+import com.threerings.presents.Log;
+import com.threerings.presents.dobj.DObjectManager;
+import com.threerings.presents.io.*;
+import com.threerings.presents.io.ObjectStreamException;
+import com.threerings.presents.net.*;
 
 /**
  * The client performs all network I/O on separate threads (one for

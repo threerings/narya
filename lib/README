@@ -1,7 +1,7 @@
 Required external libraries
 ---------------------------
 
-The cocktail code requires the following external Java libraries (JAR
+The Narya code requires the following external Java libraries (JAR
 files) to be placed (or symlinked) here in the lib/ directory or in the
 shared library directory specified in the build.xml file
 (${java.libraries}).
@@ -34,4 +34,4 @@ build system will automatically include them in the compile-time
 classpath.
 
 --
-$Id: README,v 1.4 2001/07/23 22:25:54 shaper Exp $
+$Id: README,v 1.5 2001/10/11 04:07:50 mdb Exp $

@@ -1,16 +1,16 @@
 //
-// $Id: DObject.java,v 1.26 2001/08/21 19:35:02 mdb Exp $
+// $Id: DObject.java,v 1.27 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.dobj;
+package com.threerings.presents.dobj;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import com.samskivert.util.ListUtil;
-import com.threerings.cocktail.cher.Log;
+import com.threerings.presents.Log;
 
 /**
- * The distributed object forms the foundation of the cocktail system. All
+ * The distributed object forms the foundation of the Presents system. All
  * information shared among users of the system is done via distributed
  * objects. A distributed object has a set of subscribers. These
  * subscribers have access to the object or a proxy of the object and

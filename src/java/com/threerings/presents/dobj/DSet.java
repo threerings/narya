@@ -1,15 +1,15 @@
 //
-// $Id: DSet.java,v 1.7 2001/10/02 02:05:50 mdb Exp $
+// $Id: DSet.java,v 1.8 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.dobj;
+package com.threerings.presents.dobj;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.io.Streamable;
+import com.threerings.presents.Log;
+import com.threerings.presents.io.Streamable;
 
 /**
  * The distributed set class provides a means by which an unordered set of
@@ -27,7 +27,7 @@ import com.threerings.cocktail.cher.io.Streamable;
  * sent over the wire.
  *
  * <p> Classes that wish to act as set elements must implement the {@link
- * com.threerings.cocktail.cher.dobj.DSet.Element} interface which extends
+ * com.threerings.presents.dobj.DSet.Element} interface which extends
  * {@link Streamable} and adds the requirement that the object provide a
  * key which will be used to identify element equality. Thus an element is
  * declared to be in a set of the object returned by that element's

@@ -1,18 +1,18 @@
 //
-// $Id: SceneDirector.java,v 1.5 2001/10/05 23:59:36 mdb Exp $
+// $Id: SceneDirector.java,v 1.6 2001/10/11 04:07:54 mdb Exp $
 
 package com.threerings.whirled.client;
 
 import java.io.IOException;
 import com.samskivert.util.HashIntMap;
 
-import com.threerings.cocktail.cher.dobj.DObject;
-import com.threerings.cocktail.cher.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.ObjectAccessException;
 
-import com.threerings.cocktail.party.client.LocationDirector;
-import com.threerings.cocktail.party.client.LocationObserver;
-import com.threerings.cocktail.party.data.PlaceConfig;
-import com.threerings.cocktail.party.data.PlaceObject;
+import com.threerings.crowd.client.LocationDirector;
+import com.threerings.crowd.client.LocationObserver;
+import com.threerings.crowd.data.PlaceConfig;
+import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.client.persist.SceneRepository;
@@ -29,9 +29,9 @@ import com.threerings.whirled.util.WhirledContext;
  *
  * <p> Note that when the scene director is in use instead of the location
  * director, scene ids instead of place oids will be supplied to {@link
- * com.threerings.cocktail.party.client.LocationObserver#locationMayChange}
+ * com.threerings.crowd.client.LocationObserver#locationMayChange}
  * and {@link
- * com.threerings.cocktail.party.client.LocationObserver#locationChangeFailed}.
+ * com.threerings.crowd.client.LocationObserver#locationChangeFailed}.
  */
 public class SceneDirector
     extends LocationDirector implements SceneCodes

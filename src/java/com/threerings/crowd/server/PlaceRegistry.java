@@ -1,7 +1,7 @@
 //
-// $Id: PlaceRegistry.java,v 1.10 2001/10/05 23:57:26 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.11 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.server;
+package com.threerings.crowd.server;
 
 import java.util.Iterator;
 
@@ -9,11 +9,11 @@ import com.samskivert.util.Config;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Queue;
 
-import com.threerings.cocktail.cher.dobj.*;
+import com.threerings.presents.dobj.*;
 
-import com.threerings.cocktail.party.Log;
-import com.threerings.cocktail.party.data.PlaceConfig;
-import com.threerings.cocktail.party.data.PlaceObject;
+import com.threerings.crowd.Log;
+import com.threerings.crowd.data.PlaceConfig;
+import com.threerings.crowd.data.PlaceObject;
 
 /**
  * The place registry keeps track of all of the active places in the
@@ -65,7 +65,7 @@ public class PlaceRegistry implements Subscriber
             _createq.append(pmgr);
 
             // and request to create the place object
-            PartyServer.omgr.createObject(
+            CrowdServer.omgr.createObject(
                 pmgr.getPlaceObjectClass(), this, false);
 
             return pmgr;

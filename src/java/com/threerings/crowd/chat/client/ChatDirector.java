@@ -1,17 +1,17 @@
 //
-// $Id: ChatDirector.java,v 1.9 2001/10/11 03:10:55 mdb Exp $
+// $Id: ChatDirector.java,v 1.10 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.chat;
+package com.threerings.crowd.chat;
 
 import java.util.ArrayList;
 
-import com.threerings.cocktail.cher.client.*;
-import com.threerings.cocktail.cher.dobj.*;
+import com.threerings.presents.client.*;
+import com.threerings.presents.dobj.*;
 
-import com.threerings.cocktail.party.Log;
-import com.threerings.cocktail.party.client.LocationObserver;
-import com.threerings.cocktail.party.data.PlaceObject;
-import com.threerings.cocktail.party.util.PartyContext;
+import com.threerings.crowd.Log;
+import com.threerings.crowd.client.LocationObserver;
+import com.threerings.crowd.data.PlaceObject;
+import com.threerings.crowd.util.CrowdContext;
 
 /**
  * The chat director is the client side coordinator of all chat related
@@ -27,7 +27,7 @@ public class ChatDirector
      * observer so that it can automatically process place constrained
      * chat.
      */
-    public ChatDirector (PartyContext ctx)
+    public ChatDirector (CrowdContext ctx)
     {
         // keep the context around
         _ctx = ctx;
@@ -214,7 +214,7 @@ public class ChatDirector
         }
     }
 
-    protected PartyContext _ctx;
+    protected CrowdContext _ctx;
     protected PlaceObject _place;
 
     protected ArrayList _displays = new ArrayList();

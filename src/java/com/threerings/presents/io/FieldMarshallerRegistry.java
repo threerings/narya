@@ -1,11 +1,11 @@
 //
-// $Id: FieldMarshallerRegistry.java,v 1.5 2001/08/20 21:44:10 mdb Exp $
+// $Id: FieldMarshallerRegistry.java,v 1.6 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.dobj.io;
+package com.threerings.presents.dobj.io;
 
 import java.lang.reflect.Field;
 import java.util.Hashtable;
-import com.threerings.cocktail.cher.Log;
+import com.threerings.presents.Log;
 
 /**
  * Field marshaller instances are registered for each type of field that

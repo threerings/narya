@@ -1,16 +1,16 @@
 //
-// $Id: CrowdClient.java,v 1.2 2001/08/04 01:55:41 mdb Exp $
+// $Id: CrowdClient.java,v 1.3 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.server;
+package com.threerings.crowd.server;
 
-import com.threerings.cocktail.cher.server.CherClient;
-import com.threerings.cocktail.party.data.BodyObject;
+import com.threerings.presents.server.PresentsClient;
+import com.threerings.crowd.data.BodyObject;
 
 /**
- * The party client extends the cher client and does some initializations
- * necessary for the party services.
+ * The crowd client extends the presents client and does some
+ * initializations necessary for the crowd services.
  */
-public class PartyClient extends CherClient
+public class CrowdClient extends PresentsClient
 {
     protected void sessionWillStart ()
     {
@@ -23,7 +23,7 @@ public class PartyClient extends CherClient
         _bodobj.setUsername(_username);
 
         // register our body object mapping
-        PartyServer.mapBody(_username, _bodobj);
+        CrowdServer.mapBody(_username, _bodobj);
     }
 
     protected void sessionWillResume ()
@@ -38,7 +38,7 @@ public class PartyClient extends CherClient
         super.sessionDidTerminate();
 
         // unregister our body object mapping
-        PartyServer.unmapBody(_username);
+        CrowdServer.unmapBody(_username);
     }
 
     protected BodyObject _bodobj;

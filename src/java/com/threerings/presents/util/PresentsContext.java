@@ -1,14 +1,14 @@
 //
-// $Id: PresentsContext.java,v 1.3 2001/07/21 01:06:24 mdb Exp $
+// $Id: PresentsContext.java,v 1.4 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.util;
+package com.threerings.presents.util;
 
 import com.samskivert.util.Context;
 
-import com.threerings.cocktail.cher.client.Client;
-import com.threerings.cocktail.cher.dobj.DObjectManager;
+import com.threerings.presents.client.Client;
+import com.threerings.presents.dobj.DObjectManager;
 
-public interface CherContext extends Context
+public interface PresentsContext extends Context
 {
     /**
      * Returns a reference to the client. This reference should be valid

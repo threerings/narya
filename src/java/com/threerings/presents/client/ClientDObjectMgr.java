@@ -1,15 +1,15 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.6 2001/09/17 05:18:20 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.7 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.client;
+package com.threerings.presents.client;
 
 import java.util.ArrayList;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Queue;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.dobj.*;
-import com.threerings.cocktail.cher.net.*;
+import com.threerings.presents.Log;
+import com.threerings.presents.dobj.*;
+import com.threerings.presents.net.*;
 
 /**
  * The client distributed object manager manages a set of proxy objects

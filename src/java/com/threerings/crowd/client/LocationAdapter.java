@@ -1,9 +1,9 @@
 //
-// $Id: LocationAdapter.java,v 1.1 2001/08/22 00:08:12 mdb Exp $
+// $Id: LocationAdapter.java,v 1.2 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.client;
+package com.threerings.crowd.client;
 
-import com.threerings.cocktail.party.data.PlaceObject;
+import com.threerings.crowd.data.PlaceObject;
 
 /**
  * The location adapter makes life easier for a class that really only

@@ -1,14 +1,14 @@
 //
-// $Id: StreamableArrayList.java,v 1.1 2001/10/04 23:02:07 mdb Exp $
+// $Id: StreamableArrayList.java,v 1.2 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.util;
+package com.threerings.presents.util;
 
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
 import java.util.ArrayList;
-import com.threerings.cocktail.cher.io.Streamable;
+import com.threerings.presents.io.Streamable;
 
 /**
  * Provides a means by which an ordered collection of streamable instances
@@ -17,7 +17,7 @@ import com.threerings.cocktail.cher.io.Streamable;
  * object value can be supplied, but bear in mind that once the list is
  * created, it's elements cannot be changed without rebroadcasting the
  * entire list. It is not like a {@link
- * com.threerings.cocktail.cher.dobj.DSet} which allows individual
+ * com.threerings.presents.dobj.DSet} which allows individual
  * elements to be added or removed.
  */
 public class StreamableArrayList

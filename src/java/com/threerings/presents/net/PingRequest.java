@@ -1,7 +1,7 @@
 //
-// $Id: PingRequest.java,v 1.4 2001/07/19 19:30:14 mdb Exp $
+// $Id: PingRequest.java,v 1.5 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.net;
+package com.threerings.presents.net;
 
 public class PingRequest extends UpstreamMessage
 {

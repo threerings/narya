@@ -1,14 +1,14 @@
 //
-// $Id: InvocationProvider.java,v 1.5 2001/08/11 02:02:24 mdb Exp $
+// $Id: InvocationProvider.java,v 1.6 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.server;
+package com.threerings.presents.server;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.data.ClientObject;
-import com.threerings.cocktail.cher.data.InvocationObject;
-import com.threerings.cocktail.cher.dobj.MessageEvent;
+import com.threerings.presents.Log;
+import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.InvocationObject;
+import com.threerings.presents.dobj.MessageEvent;
 
 /**
  * Invocation providers should extend this class when implementing
@@ -123,7 +123,7 @@ public class InvocationProvider
             MessageEvent mevt = new MessageEvent(
                 source.getOid(), InvocationObject.RESPONSE_NAME, args);
             // and ship it off
-            CherServer.omgr.postEvent(mevt);
+            PresentsServer.omgr.postEvent(mevt);
 
         } else {
             Log.warning("Dropping invrsp due to disappearing client " +

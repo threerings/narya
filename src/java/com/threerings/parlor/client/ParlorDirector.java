@@ -1,5 +1,5 @@
 //
-// $Id: ParlorDirector.java,v 1.9 2001/10/09 20:20:52 mdb Exp $
+// $Id: ParlorDirector.java,v 1.10 2001/10/11 04:07:51 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import com.samskivert.util.HashIntMap;
 
-import com.threerings.cocktail.cher.client.InvocationReceiver;
+import com.threerings.presents.client.InvocationReceiver;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.data.GameConfig;

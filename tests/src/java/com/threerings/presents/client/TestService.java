@@ -1,11 +1,11 @@
 //
-// $Id: TestService.java,v 1.3 2001/10/02 02:05:50 mdb Exp $
+// $Id: TestService.java,v 1.4 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.client.test;
+package com.threerings.presents.client.test;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.client.Client;
-import com.threerings.cocktail.cher.client.InvocationDirector;
+import com.threerings.presents.Log;
+import com.threerings.presents.client.Client;
+import com.threerings.presents.client.InvocationDirector;
 
 /**
  * A test of the invocation services.

@@ -1,14 +1,14 @@
 //
-// $Id: ObjectResponse.java,v 1.10 2001/07/19 19:30:14 mdb Exp $
+// $Id: ObjectResponse.java,v 1.11 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.net;
+package com.threerings.presents.net;
 
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.threerings.cocktail.cher.dobj.DObject;
-import com.threerings.cocktail.cher.dobj.io.DObjectFactory;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.io.DObjectFactory;
 
 public class ObjectResponse extends DownstreamMessage
 {

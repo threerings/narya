@@ -1,7 +1,7 @@
 //
-// $Id: ObjectRemovedEvent.java,v 1.4 2001/08/04 00:32:11 mdb Exp $
+// $Id: ObjectRemovedEvent.java,v 1.5 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.dobj;
+package com.threerings.presents.dobj;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

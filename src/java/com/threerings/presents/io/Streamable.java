@@ -1,7 +1,7 @@
 //
-// $Id: Streamable.java,v 1.1 2001/08/16 03:25:14 mdb Exp $
+// $Id: Streamable.java,v 1.2 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.io;
+package com.threerings.presents.io;
 
 import java.io.IOException;
 import java.io.DataInputStream;

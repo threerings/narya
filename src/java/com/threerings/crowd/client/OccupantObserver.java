@@ -1,9 +1,9 @@
 //
-// $Id: OccupantObserver.java,v 1.1 2001/08/20 20:54:56 mdb Exp $
+// $Id: OccupantObserver.java,v 1.2 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.client;
+package com.threerings.crowd.client;
 
-import com.threerings.cocktail.party.data.OccupantInfo;
+import com.threerings.crowd.data.OccupantInfo;
 
 /**
  * An entity that is interested in hearing about bodies that enter and

@@ -1,7 +1,7 @@
 //
-// $Id: FramedInputStream.java,v 1.6 2001/08/21 23:26:21 mdb Exp $
+// $Id: FramedInputStream.java,v 1.7 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.io;
+package com.threerings.presents.io;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -9,7 +9,7 @@ import java.io.InputStream;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.cocktail.cher.Log;
+import com.threerings.presents.Log;
 
 /**
  * The framed input stream reads input that was framed by a framing output

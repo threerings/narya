@@ -1,9 +1,9 @@
 //
-// $Id: ClientObject.java,v 1.1 2001/07/19 05:56:20 mdb Exp $
+// $Id: ClientObject.java,v 1.2 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.data;
+package com.threerings.presents.data;
 
-import com.threerings.cocktail.cher.dobj.DObject;
+import com.threerings.presents.dobj.DObject;
 
 /**
  * Every client in the system has an associated client object to which

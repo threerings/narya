@@ -1,16 +1,16 @@
 //
-// $Id: Client.java,v 1.16 2001/10/09 18:17:33 mdb Exp $
+// $Id: Client.java,v 1.17 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.client;
+package com.threerings.presents.client;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.data.ClientObject;
-import com.threerings.cocktail.cher.dobj.DObjectManager;
-import com.threerings.cocktail.cher.net.BootstrapData;
-import com.threerings.cocktail.cher.net.Credentials;
+import com.threerings.presents.Log;
+import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.dobj.DObjectManager;
+import com.threerings.presents.net.BootstrapData;
+import com.threerings.presents.net.Credentials;
 
 /**
  * Through the client object, a connection to the system is established

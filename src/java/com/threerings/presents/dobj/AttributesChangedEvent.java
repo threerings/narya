@@ -1,14 +1,14 @@
 //
-// $Id: AttributesChangedEvent.java,v 1.7 2001/08/04 00:32:11 mdb Exp $
+// $Id: AttributesChangedEvent.java,v 1.8 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.dobj;
+package com.threerings.presents.dobj;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
 import com.samskivert.util.StringUtil;
-import com.threerings.cocktail.cher.dobj.io.ValueMarshaller;
+import com.threerings.presents.dobj.io.ValueMarshaller;
 
 /**
  * An attribute<em>s</em> changed event is dispatched when multiple

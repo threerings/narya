@@ -1,7 +1,7 @@
 //
-// $Id: MessageEvent.java,v 1.5 2001/08/11 00:05:58 mdb Exp $
+// $Id: MessageEvent.java,v 1.6 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.dobj;
+package com.threerings.presents.dobj;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 
 import com.samskivert.util.StringUtil;
-import com.threerings.cocktail.cher.dobj.io.ValueMarshaller;
+import com.threerings.presents.dobj.io.ValueMarshaller;
 
 /**
  * A message event is used to dispatch a message to all subscribers of a

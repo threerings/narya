@@ -1,9 +1,9 @@
 //
-// $Id: PlaceView.java,v 1.4 2001/10/06 00:24:46 mdb Exp $
+// $Id: PlaceView.java,v 1.5 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.client;
+package com.threerings.crowd.client;
 
-import com.threerings.cocktail.party.data.PlaceObject;
+import com.threerings.crowd.data.PlaceObject;
 
 /**
  * This interface provides a convenient means for decoupling user
@@ -35,7 +35,7 @@ import com.threerings.cocktail.party.data.PlaceObject;
  * of place entering and exiting by virtue of the single dispatching
  * calls. It is useful to note that place-sensitive user interface
  * elements will also generally need a reference to the {@link
- * com.threerings.cocktail.party.util.PartyContext} derivative in use by
+ * com.threerings.crowd.util.CrowdContext} derivative in use by
  * the client, but those are best supplied at construct time.
  */
 public interface PlaceView

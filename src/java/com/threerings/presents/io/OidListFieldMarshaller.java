@@ -1,15 +1,15 @@
 //
-// $Id: OidListFieldMarshaller.java,v 1.1 2001/08/02 05:09:21 mdb Exp $
+// $Id: OidListFieldMarshaller.java,v 1.2 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.dobj.io;
+package com.threerings.presents.dobj.io;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
-import com.threerings.cocktail.cher.dobj.DObject;
-import com.threerings.cocktail.cher.dobj.OidList;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.OidList;
 
 public class OidListFieldMarshaller implements FieldMarshaller
 {

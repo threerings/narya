@@ -1,13 +1,13 @@
 //
-// $Id: AuthResponse.java,v 1.8 2001/07/19 19:30:14 mdb Exp $
+// $Id: AuthResponse.java,v 1.9 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.net;
+package com.threerings.presents.net;
 
 import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.threerings.cocktail.cher.dobj.io.DObjectFactory;
+import com.threerings.presents.dobj.io.DObjectFactory;
 
 /**
  * The auth response communicates authentication success or failure as

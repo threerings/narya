@@ -1,7 +1,7 @@
 //
-// $Id: DObjectManager.java,v 1.8 2001/08/07 20:38:58 mdb Exp $
+// $Id: DObjectManager.java,v 1.9 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.dobj;
+package com.threerings.presents.dobj;
 
 /**
  * The distributed object manager is responsible for managing the creation

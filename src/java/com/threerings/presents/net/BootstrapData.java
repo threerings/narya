@@ -1,9 +1,9 @@
 //
-// $Id: BootstrapData.java,v 1.2 2001/10/09 18:17:52 mdb Exp $
+// $Id: BootstrapData.java,v 1.3 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.net;
+package com.threerings.presents.net;
 
-import com.threerings.cocktail.cher.dobj.DObject;
+import com.threerings.presents.dobj.DObject;
 
 /**
  * A <code>BootstrapData</code> object is communicated back to the client

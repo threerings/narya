@@ -1,11 +1,11 @@
 //
-// $Id: DummyAuthenticator.java,v 1.3 2001/10/01 22:14:55 mdb Exp $
+// $Id: DummyAuthenticator.java,v 1.4 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.server;
+package com.threerings.presents.server;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.net.*;
-import com.threerings.cocktail.cher.server.net.Authenticator;
+import com.threerings.presents.Log;
+import com.threerings.presents.net.*;
+import com.threerings.presents.server.net.Authenticator;
 
 public class DummyAuthenticator implements Authenticator
 {

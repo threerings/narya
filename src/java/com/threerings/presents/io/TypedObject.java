@@ -1,7 +1,7 @@
 //
-// $Id: TypedObject.java,v 1.4 2001/08/16 03:25:14 mdb Exp $
+// $Id: TypedObject.java,v 1.5 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.io;
+package com.threerings.presents.io;
 
 /**
  * A typed object is one that is associated with a particular type code.

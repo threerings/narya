@@ -1,7 +1,7 @@
 //
-// $Id: FramingOutputStream.java,v 1.3 2001/05/30 23:58:31 mdb Exp $
+// $Id: FramingOutputStream.java,v 1.4 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.io;
+package com.threerings.presents.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

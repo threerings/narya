@@ -1,9 +1,9 @@
 //
-// $Id: AuthResponseData.java,v 1.8 2001/10/03 03:41:04 mdb Exp $
+// $Id: AuthResponseData.java,v 1.9 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.net;
+package com.threerings.presents.net;
 
-import com.threerings.cocktail.cher.dobj.DObject;
+import com.threerings.presents.dobj.DObject;
 
 /**
  * An <code>AuthResponseData</code> object is communicated back to the

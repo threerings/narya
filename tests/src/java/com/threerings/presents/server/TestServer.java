@@ -1,13 +1,13 @@
 //
-// $Id: TestServer.java,v 1.3 2001/09/28 22:32:28 mdb Exp $
+// $Id: TestServer.java,v 1.4 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.server.test;
+package com.threerings.presents.server.test;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.dobj.*;
-import com.threerings.cocktail.cher.server.*;
+import com.threerings.presents.Log;
+import com.threerings.presents.dobj.*;
+import com.threerings.presents.server.*;
 
-public class TestServer extends CherServer
+public class TestServer extends PresentsServer
 {
     /** The namespace used for server config properties. */
     public static final String CONFIG_KEY = "test";
@@ -19,7 +19,7 @@ public class TestServer extends CherServer
     {
         super.init();
 
-        // bind the party server config into the namespace
+        // bind the crowd server config into the namespace
         config.bindProperties(CONFIG_KEY, CONFIG_PATH, true);
 
         // register our invocation service providers
@@ -61,7 +61,7 @@ public class TestServer extends CherServer
 
     // the path to the config file
     protected final static String CONFIG_PATH =
-        "rsrc/config/cocktail/cher/test/server";
+        "rsrc/config/presents/test/server";
 
     // the config key for our list of invocation provider mappings
     protected final static String PROVIDERS_KEY = CONFIG_KEY + ".providers";

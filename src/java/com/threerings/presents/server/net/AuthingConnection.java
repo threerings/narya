@@ -1,14 +1,14 @@
 //
-// $Id: AuthingConnection.java,v 1.3 2001/06/02 01:30:37 mdb Exp $
+// $Id: AuthingConnection.java,v 1.4 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.server.net;
+package com.threerings.presents.server.net;
 
 import java.io.IOException;
 import ninja2.core.io_core.nbio.NonblockingSocket;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.net.UpstreamMessage;
-import com.threerings.cocktail.cher.net.AuthRequest;
+import com.threerings.presents.Log;
+import com.threerings.presents.net.UpstreamMessage;
+import com.threerings.presents.net.AuthRequest;
 
 /**
  * The authing connection manages the client connection until

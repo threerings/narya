@@ -1,9 +1,9 @@
 //
-// $Id: TestServer.java,v 1.1 2001/10/03 03:45:44 mdb Exp $
+// $Id: TestServer.java,v 1.2 2001/10/11 04:07:51 mdb Exp $
 
 package com.threerings.parlor.test;
 
-import com.threerings.cocktail.party.server.PartyServer;
+import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.server.ParlorManager;
@@ -11,7 +11,7 @@ import com.threerings.parlor.server.ParlorManager;
 /**
  * A test server for the Parlor services.
  */
-public class TestServer extends PartyServer
+public class TestServer extends CrowdServer
 {
     /** The parlor manager in operation on this server. */
     public static ParlorManager parmgr = new ParlorManager();

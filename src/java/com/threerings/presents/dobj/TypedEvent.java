@@ -1,13 +1,13 @@
 //
-// $Id: TypedEvent.java,v 1.1 2001/06/11 17:44:04 mdb Exp $
+// $Id: TypedEvent.java,v 1.2 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.dobj;
+package com.threerings.presents.dobj;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import com.threerings.cocktail.cher.io.TypedObject;
+import com.threerings.presents.io.TypedObject;
 
 /**
  * A typed event is one that can be transmitted over the network. All

@@ -1,11 +1,11 @@
 //
-// $Id: DestroyedRefTest.java,v 1.1 2001/08/08 21:56:48 mdb Exp $
+// $Id: DestroyedRefTest.java,v 1.2 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.server.test;
+package com.threerings.presents.server.test;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.dobj.*;
-import com.threerings.cocktail.cher.server.CherServer;
+import com.threerings.presents.Log;
+import com.threerings.presents.dobj.*;
+import com.threerings.presents.server.PresentsServer;
 
 /**
  * Tests that the dobjmgr will not allow a destroyed object to be added to
@@ -17,8 +17,8 @@ public class DestroyedRefTest
     public void run ()
     {
         // create two test objects
-        CherServer.omgr.createObject(TestObject.class, this, true);
-        CherServer.omgr.createObject(TestObject.class, this, true);
+        PresentsServer.omgr.createObject(TestObject.class, this, true);
+        PresentsServer.omgr.createObject(TestObject.class, this, true);
     }
 
     public void objectAvailable (DObject object)
@@ -63,7 +63,7 @@ public class DestroyedRefTest
 
         } else if (event instanceof AttributeChangedEvent) {
             // go bye bye
-            CherServer.shutdown();
+            PresentsServer.shutdown();
 
         } else {
             Log.info("Got unexpected event: " + event);

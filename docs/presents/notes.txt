@@ -1,4 +1,4 @@
-Cher Notes -*- outline -*-
+Presents Notes -*- outline -*-
 
 * TODO
 Pass cause back to client somehow via FailureResponse in Client.requestFailed

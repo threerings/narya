@@ -1,17 +1,17 @@
 //
-// $Id: TestClient.java,v 1.2 2001/10/09 17:20:58 mdb Exp $
+// $Id: TestClient.java,v 1.3 2001/10/11 04:07:51 mdb Exp $
 
 package com.threerings.parlor.test;
 
 import com.samskivert.util.Config;
 import com.samskivert.util.Queue;
 
-import com.threerings.cocktail.cher.client.*;
-import com.threerings.cocktail.cher.dobj.DObjectManager;
-import com.threerings.cocktail.cher.net.*;
+import com.threerings.presents.client.*;
+import com.threerings.presents.dobj.DObjectManager;
+import com.threerings.presents.net.*;
 
-import com.threerings.cocktail.party.data.BodyObject;
-import com.threerings.cocktail.party.client.*;
+import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.client.*;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.client.*;

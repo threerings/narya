@@ -1,9 +1,9 @@
 //
-// $Id: Scene.java,v 1.5 2001/10/05 23:59:36 mdb Exp $
+// $Id: Scene.java,v 1.6 2001/10/11 04:07:54 mdb Exp $
 
 package com.threerings.whirled.data;
 
-import com.threerings.cocktail.party.data.PlaceConfig;
+import com.threerings.crowd.data.PlaceConfig;
 
 /**
  * The base scene interface. This encapsulates the minimum information

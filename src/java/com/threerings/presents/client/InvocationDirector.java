@@ -1,7 +1,7 @@
 //
-// $Id: InvocationDirector.java,v 1.12 2001/10/04 20:02:13 mdb Exp $
+// $Id: InvocationDirector.java,v 1.13 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.client;
+package com.threerings.presents.client;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -9,10 +9,10 @@ import java.util.HashMap;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.data.*;
-import com.threerings.cocktail.cher.dobj.*;
-import com.threerings.cocktail.cher.util.ClassUtil;
+import com.threerings.presents.Log;
+import com.threerings.presents.data.*;
+import com.threerings.presents.dobj.*;
+import com.threerings.presents.util.ClassUtil;
 
 /**
  * The invocation services provide client to server invocations (service

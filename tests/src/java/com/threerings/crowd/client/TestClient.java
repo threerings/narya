@@ -1,18 +1,18 @@
 //
-// $Id: TestClient.java,v 1.5 2001/10/09 17:20:03 mdb Exp $
+// $Id: TestClient.java,v 1.6 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.client.test;
+package com.threerings.crowd.client.test;
 
 import com.samskivert.util.Config;
 import com.samskivert.util.Queue;
 
-import com.threerings.cocktail.cher.client.*;
-import com.threerings.cocktail.cher.dobj.DObjectManager;
-import com.threerings.cocktail.cher.net.*;
+import com.threerings.presents.client.*;
+import com.threerings.presents.dobj.DObjectManager;
+import com.threerings.presents.net.*;
 
-import com.threerings.cocktail.party.Log;
-import com.threerings.cocktail.party.client.*;
-import com.threerings.cocktail.party.util.PartyContext;
+import com.threerings.crowd.Log;
+import com.threerings.crowd.client.*;
+import com.threerings.crowd.util.CrowdContext;
 
 public class TestClient
     implements Client.Invoker, ClientObserver
@@ -20,7 +20,7 @@ public class TestClient
     public TestClient (Credentials creds)
     {
         // create our context
-        _ctx = new PartyContextImpl();
+        _ctx = new CrowdContextImpl();
 
         // create the handles on our various services
         _config = new Config();
@@ -95,7 +95,7 @@ public class TestClient
         tclient.run();
     }
 
-    protected class PartyContextImpl implements PartyContext
+    protected class CrowdContextImpl implements CrowdContext
     {
         public Config getConfig ()
         {
@@ -132,7 +132,7 @@ public class TestClient
     protected Client _client;
     protected LocationDirector _locdir;
     protected OccupantManager _occmgr;
-    protected PartyContext _ctx;
+    protected CrowdContext _ctx;
 
     protected Queue _queue = new Queue();
 }

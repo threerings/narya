@@ -1,7 +1,7 @@
 //
-// $Id: ServiceFailedException.java,v 1.1 2001/10/01 23:06:23 mdb Exp $
+// $Id: ServiceFailedException.java,v 1.2 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.server;
+package com.threerings.presents.server;
 
 /**
  * An exception class for use in concert with invocation services when

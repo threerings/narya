@@ -1,5 +1,5 @@
 //
-// $Id: WhirledServer.java,v 1.6 2001/10/05 23:59:36 mdb Exp $
+// $Id: WhirledServer.java,v 1.7 2001/10/11 04:07:54 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -7,17 +7,17 @@ import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.StaticConnectionProvider;
 import com.samskivert.util.Config;
 
-import com.threerings.cocktail.party.server.PartyServer;
+import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.server.persist.SceneRepository;
 import com.threerings.whirled.test.DummySceneRepository;
 
 /**
- * The whirled server extends the party server and provides access to
+ * The whirled server extends the crowd server and provides access to
  * managers and the like that are needed by the whirled serviecs.
  */
-public class WhirledServer extends PartyServer
+public class WhirledServer extends CrowdServer
 {
     /** The namespace used for server config properties. */
     public static final String CONFIG_KEY = "whirled";
@@ -34,7 +34,7 @@ public class WhirledServer extends PartyServer
     public void init ()
         throws Exception
     {
-        // do the cher server initialization
+        // do the base server initialization
         super.init();
 
         // bind the whirled server config into the namespace

@@ -1,7 +1,7 @@
 //
-// $Id: ClientAdapter.java,v 1.2 2001/09/13 19:08:21 mdb Exp $
+// $Id: ClientAdapter.java,v 1.3 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.client;
+package com.threerings.presents.client;
 
 /**
  * The client adapter makes life easier for client observer classes that

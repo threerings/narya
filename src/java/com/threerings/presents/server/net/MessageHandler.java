@@ -1,9 +1,9 @@
 //
-// $Id: MessageHandler.java,v 1.1 2001/06/02 01:30:37 mdb Exp $
+// $Id: MessageHandler.java,v 1.2 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.server.net;
+package com.threerings.presents.server.net;
 
-import com.threerings.cocktail.cher.net.UpstreamMessage;
+import com.threerings.presents.net.UpstreamMessage;
 
 /**
  * After the connection object has parsed an entire upstream message, it

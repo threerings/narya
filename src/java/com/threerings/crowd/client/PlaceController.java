@@ -1,14 +1,14 @@
 //
-// $Id: PlaceController.java,v 1.3 2001/10/09 17:20:03 mdb Exp $
+// $Id: PlaceController.java,v 1.4 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.client;
+package com.threerings.crowd.client;
 
 import java.awt.event.ActionEvent;
 import com.samskivert.swing.Controller;
 
-import com.threerings.cocktail.party.data.PlaceConfig;
-import com.threerings.cocktail.party.data.PlaceObject;
-import com.threerings.cocktail.party.util.PartyContext;
+import com.threerings.crowd.data.PlaceConfig;
+import com.threerings.crowd.data.PlaceObject;
+import com.threerings.crowd.util.CrowdContext;
 
 /**
  * Controls the user interface that is used to display a place. When the
@@ -32,7 +32,7 @@ public abstract class PlaceController
      * @param ctx the client context.
      * @param config the place configuration for this place.
      */
-    public void init (PartyContext ctx, PlaceConfig config)
+    public void init (CrowdContext ctx, PlaceConfig config)
     {
         // keep these around
         _ctx = ctx;
@@ -92,7 +92,7 @@ public abstract class PlaceController
     }
 
     /** A reference to the active client context. */
-    protected PartyContext _ctx;
+    protected CrowdContext _ctx;
 
     /** A reference to our place configuration. */
     protected PlaceConfig _config;

@@ -1,15 +1,15 @@
 //
-// $Id: GameManager.java,v 1.6 2001/10/11 03:12:38 mdb Exp $
+// $Id: GameManager.java,v 1.7 2001/10/11 04:07:51 mdb Exp $
 
 package com.threerings.parlor.server;
 
-import com.threerings.cocktail.cher.dobj.MessageEvent;
+import com.threerings.presents.dobj.MessageEvent;
 
-import com.threerings.cocktail.party.data.BodyObject;
-import com.threerings.cocktail.party.data.PlaceObject;
-import com.threerings.cocktail.party.server.PlaceManager;
-import com.threerings.cocktail.party.server.PartyServer;
-import com.threerings.cocktail.party.server.PartyServer;
+import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.PlaceObject;
+import com.threerings.crowd.server.PlaceManager;
+import com.threerings.crowd.server.CrowdServer;
+import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.client.GameCodes;
@@ -77,9 +77,9 @@ public class GameManager
             Object[] args = new Object[] {
                 new Integer(_gameobj.getOid()) };
             for (int i = 0; i < _players.length; i++) {
-                BodyObject bobj = PartyServer.lookupBody(_players[i]);
+                BodyObject bobj = CrowdServer.lookupBody(_players[i]);
                 // deliver a game ready notification to the player
-                PartyServer.invmgr.sendNotification(
+                CrowdServer.invmgr.sendNotification(
                     bobj.getOid(), MODULE_NAME, GAME_READY_NOTIFICATION, args);
             }
         }
@@ -169,7 +169,7 @@ public class GameManager
         {
             int cloid = event.getSourceOid();
             BodyObject body = (BodyObject)
-                PartyServer.omgr.getObject(cloid);
+                CrowdServer.omgr.getObject(cloid);
             if (body == null) {
                 Log.warning("Player sent am ready notification and then " +
                             "disappeared [event=" + event + "].");

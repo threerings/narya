@@ -1,9 +1,9 @@
 //
-// $Id: BodyObject.dobj,v 1.4 2001/08/21 19:37:21 mdb Exp $
+// $Id: BodyObject.dobj,v 1.5 2001/10/11 04:07:51 mdb Exp $
 
-package com.threerings.cocktail.party.data;
+package com.threerings.crowd.data;
 
-import com.threerings.cocktail.cher.data.ClientObject;
+import com.threerings.presents.data.ClientObject;
 
 public class BodyObject extends ClientObject
 {

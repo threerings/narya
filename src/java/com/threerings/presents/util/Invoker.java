@@ -1,13 +1,13 @@
 //
-// $Id: Invoker.java,v 1.2 2001/08/14 06:48:31 mdb Exp $
+// $Id: Invoker.java,v 1.3 2001/10/11 04:07:53 mdb Exp $
 
-package com.threerings.cocktail.cher.util;
+package com.threerings.presents.util;
 
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 
-import com.threerings.cocktail.cher.Log;
-import com.threerings.cocktail.cher.server.CherServer;
+import com.threerings.presents.Log;
+import com.threerings.presents.server.PresentsServer;
 
 /**
  * The invoker is used to invoke self-contained units of code on an
@@ -19,7 +19,7 @@ import com.threerings.cocktail.cher.server.CherServer;
  *
  * <p> The invoker is a useful tool for services that need to block and
  * therefore cannot be run on the distributed object thread. For example,
- * a user of the Cher system might provide an invoker on which to run
+ * a user of the Presents system might provide an invoker on which to run
  * database queries.
  *
  * <p> Bear in mind that each invoker instance runs units on its own
@@ -102,7 +102,7 @@ public class Invoker extends LoopingThread
                 if (((Unit)unit).invoke()) {
                     // if it returned true, we post it to the dobjmgr
                     // thread to invoke the result processing
-                    CherServer.omgr.postUnit((Runnable)unit);
+                    PresentsServer.omgr.postUnit((Runnable)unit);
                 }
 
             } catch (Exception e) {

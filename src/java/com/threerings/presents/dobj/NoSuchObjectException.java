@@ -1,7 +1,7 @@
 //
-// $Id: NoSuchObjectException.java,v 1.1 2001/06/01 05:01:52 mdb Exp $
+// $Id: NoSuchObjectException.java,v 1.2 2001/10/11 04:07:52 mdb Exp $
 
-package com.threerings.cocktail.cher.dobj;
+package com.threerings.presents.dobj;
 
 /**
  * A no such object exception is delivered when a subscriber requests

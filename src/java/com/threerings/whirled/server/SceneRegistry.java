@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.4 2001/10/05 23:59:36 mdb Exp $
+// $Id: SceneRegistry.java,v 1.5 2001/10/11 04:07:54 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 import com.samskivert.util.HashIntMap;
-import com.threerings.cocktail.cher.util.Invoker;
+import com.threerings.presents.util.Invoker;
 
-import com.threerings.cocktail.party.server.PartyServer;
+import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.data.Scene;
@@ -161,7 +161,7 @@ public class SceneRegistry
 
         try {
             SceneManager scmgr = (SceneManager)
-                PartyServer.plreg.createPlace(scene.getPlaceConfig());
+                CrowdServer.plreg.createPlace(scene.getPlaceConfig());
 
             // configure the scene manager with references to useful
             // stuff; we'll somehow need to convey configuration
