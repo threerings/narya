@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.49 2004/08/27 02:20:17 mdb Exp $
+// $Id: Client.java,v 1.50 2004/10/18 21:40:24 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -418,10 +418,16 @@ public class Client
 
         long now = RunAnywhere.currentTimeMillis();
         if (_dcalc != null) {
-            // if we're syncing the clock, send another ping
-            PingRequest req = new PingRequest();
-            _comm.postMessage(req);
-            _dcalc.sentPing(req);
+            // if our current calculator is done, clear it out
+            if (_dcalc.isDone()) {
+                Log.debug("Time offset from server: " + _serverDelta + "ms.");
+                _dcalc = null;
+            } else {
+                // otherwise, send another ping
+                PingRequest req = new PingRequest();
+                _comm.postMessage(req);
+                _dcalc.sentPing(req);
+            }
 
         } else if (now - _comm.getLastWrite() > PingRequest.PING_INTERVAL) {
             // if we haven't sent anything over the network in a while, we
@@ -575,13 +581,8 @@ public class Client
         // we update the delta after every receipt so as to immediately
         // obtain an estimate of the clock delta and then refine it as
         // more packets come in
-        boolean done = _dcalc.gotPong(pong);
+        _dcalc.gotPong(pong);
         _serverDelta = _dcalc.getTimeDelta();
-
-        if (done) {
-            Log.debug("Time offset from server: " + _serverDelta + "ms.");
-            _dcalc = null;
-        }
     }
 
     /**

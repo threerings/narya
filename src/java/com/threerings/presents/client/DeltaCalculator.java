@@ -1,5 +1,5 @@
 //
-// $Id: DeltaCalculator.java,v 1.6 2004/08/27 02:20:18 mdb Exp $
+// $Id: DeltaCalculator.java,v 1.7 2004/10/18 21:40:24 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -91,6 +91,15 @@ public class DeltaCalculator
         // sort the estimates and return one from the middle
         Arrays.sort(_deltas);
         return _deltas[_deltas.length/2];
+    }
+
+    /**
+     * Returns true if this calculator has enough data to compute a time
+     * delta estimate. Stick a fork in it!
+     */
+    public boolean isDone ()
+    {
+        return (_iter >= CLOCK_SYNC_PING_COUNT);
     }
 
     /** The number of ping/pong iterations we've made. */
