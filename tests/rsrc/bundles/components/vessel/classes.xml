@@ -1,0 +1,7 @@
+<?xml version="1.0" standalone="yes"?>
+<!-- $Id: classes.xml,v 1.1 2002/02/19 20:01:21 mdb Exp $ -->
+
+<!-- test ship class definitions -->
+<classes>
+  <class name="smsloop" renderPriority="0"/>
+</classes>

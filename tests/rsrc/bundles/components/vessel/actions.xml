@@ -1,0 +1,17 @@
+<?xml version="1.0" standalone="yes"?>
+<!-- $Id: actions.xml,v 1.1 2002/02/19 20:01:21 mdb Exp $ -->
+
+<!-- test ship action definitions -->
+<actions>
+  <action name="standing">
+    <framesPerSecond>8</framesPerSecond>
+    <origin>22,46</origin>
+    <tileset>
+      <widths>44, 44, 44, 44, 44, 44, 44, 44</widths>
+      <heights>46, 46, 46, 46, 46, 46, 46, 46</heights>
+      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+    </tileset>
+  </action>
+</actions>
