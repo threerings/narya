@@ -1,5 +1,5 @@
 //
-// $Id: FileDownloader.java,v 1.1 2003/08/05 01:33:20 mdb Exp $
+// $Id: FileDownloader.java,v 1.2 2004/06/16 09:44:23 mdb Exp $
 
 package com.threerings.resource;
 
@@ -17,12 +17,12 @@ public class FileDownloader extends Downloader
     {
         // read the file information directly from the file system
         File tfile = new File(_desc.sourceURL.getPath());
-        long fileSize = tfile.length();
+        _contentLength = tfile.length();
         _desc.lastModified = tfile.lastModified();
 
-        if (compareWithLocal(fileSize, _desc.lastModified)) {
+        if (compareWithLocal(_contentLength, _desc.lastModified)) {
             // increment the total file size to be fetched
-            info.totalSize += fileSize;
+            info.totalSize += _contentLength;
             Log.debug("File deemed stale [url=" + _desc.sourceURL + "].");
             return true;
         } else {

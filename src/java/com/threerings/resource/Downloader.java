@@ -1,5 +1,5 @@
 //
-// $Id: Downloader.java,v 1.3 2004/03/06 11:29:19 mdb Exp $
+// $Id: Downloader.java,v 1.4 2004/06/16 09:44:23 mdb Exp $
 
 package com.threerings.resource;
 
@@ -116,14 +116,24 @@ public abstract class Downloader
         // info on potentially partially downloaded data; if so, use a
         // "Range: bytes=HAVE-" header.
 
+        // if we were unable to determine our content length, record a
+        // single "byte" of progress to indicate that we've started to
+        // download this file
+        if (_contentLength <= 0) {
+            pinfo.currentSize += 1;
+        }
+
         // read in the file data
         while ((read = in.read(buffer)) != -1) {
             // write it out to our local copy
             out.write(buffer, 0, read);
 
-            // report our progress to the download observer as a
+            // if we know we added something to the total download size,
+            // then report our progress to the download observer as a
             // percentage of the total file data to be transferred
-            pinfo.currentSize += read;
+            if (_contentLength > 0) {
+                pinfo.currentSize += read;
+            }
 
             // update our percent completion; if we're totally done, hold
             // off on notifying the observer until the download manager
@@ -156,6 +166,9 @@ public abstract class Downloader
 
     /** The descriptor that we're downloading. */
     protected DownloadDescriptor _desc;
+
+    /** We need this to cope gracefully with a missing content-length. */
+    protected long _contentLength;
 
     /** The last-modified difference in milliseconds allowed between the
      * source and destination file without considering the destination
