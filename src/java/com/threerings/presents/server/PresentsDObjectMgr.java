@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.27 2002/11/28 22:51:52 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.28 2003/01/27 22:56:29 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.Histogram;
 import com.samskivert.util.Queue;
 import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.StringUtil;
@@ -156,6 +157,10 @@ public class PresentsDObjectMgr
         while (isRunning()) {
             // pop the next unit off the queue
             Object unit = _evqueue.get();
+            long start = 0L;
+            if (UNIT_PROFILING) {
+                start = System.currentTimeMillis();
+            }
 
             // if this is a runnable, it's just an executable unit that
             // should be invoked
@@ -181,6 +186,24 @@ public class PresentsDObjectMgr
                 // otherwise it's a regular event, so do the standard
                 // processing
                 processEvent((DEvent)unit);
+            }
+
+            if (UNIT_PROFILING) {
+                long elapsed = System.currentTimeMillis() - start;
+
+                // report excessively long units
+                if (elapsed > 500) {
+                    Log.warning("Unit '" + StringUtil.safeToString(unit) +
+                                "' ran for " + elapsed + "ms.");
+                }
+
+                // record the time spent processing this unit
+                String cname = StringUtil.shortClassName(unit);
+                UnitProfile uprof = (UnitProfile)_profiles.get(cname);
+                if (uprof == null) {
+                    _profiles.put(cname, uprof = new UnitProfile());
+                }
+                uprof.record(start, elapsed);
             }
         }
 
@@ -253,6 +276,24 @@ public class PresentsDObjectMgr
         // stick a bogus object on the event queue to ensure that the mgr
         // wakes up and smells the coffee
         _evqueue.append(new ShutdownEvent());
+    }
+
+    /**
+     * Dumps collected profiling information to the system log. Does
+     * nothing if unit profiling is not enabled.
+     */
+    public void dumpUnitProfiles ()
+    {
+        if (!UNIT_PROFILING) {
+            return;
+        }
+
+        Iterator iter = _profiles.keySet().iterator();
+        while (iter.hasNext()) {
+            String cname = (String)iter.next();
+            UnitProfile uprof = (UnitProfile)_profiles.get(cname);
+            Log.info("P: " + cname + " => " + uprof);
+        }
     }
 
     /**
@@ -748,6 +789,42 @@ public class PresentsDObjectMgr
         }
     }
 
+    /** Used to profile time spent invoking units and processing events if
+     * such profiling is enabled. */
+    protected static class UnitProfile
+    {
+        public void record (long start, long elapsed)
+        {
+            if (start - _lastRecorded > RECENT_INTERVAL) {
+                _recentElapsed = 0L;
+                _recentCount = 0;
+            }
+
+            _recentElapsed += elapsed;
+            _recentCount++;
+            _totalElapsed += elapsed;
+            _lastRecorded = start;
+            _histo.addValue((int)elapsed);
+        }
+
+        public String toString ()
+        {
+            int count = _histo.size();
+            return "r:" + _recentElapsed + " t:" + _totalElapsed +
+                " c:" + count + " ra:" + (_recentElapsed/_recentCount) +
+                " ta:" + (_totalElapsed/count) +
+                " h:" + StringUtil.toString(_histo.getBuckets());
+        }
+
+        protected long _lastRecorded;
+        protected int _recentCount;
+        protected long _recentElapsed;
+        protected long _totalElapsed;
+        protected Histogram _histo = new Histogram(0, 50, 10);
+
+        protected static final long RECENT_INTERVAL = 5 * 60 * 1000L;
+    }
+
     /** A flag indicating that the event dispatcher is still running. */
     protected boolean _running = true;
 
@@ -780,6 +857,12 @@ public class PresentsDObjectMgr
      * other services can enforce restrictions on code that should or
      * should not be called from the event dispatch thread. */
     protected Thread _dobjThread;
+
+    /** Used to profile our events and runnable units. */
+    protected HashMap _profiles = new HashMap();
+
+    /** Indicates whether or not profiling is enabled. */
+    protected static final boolean UNIT_PROFILING = false;
 
     /** Check whether we should generate a report every 100 events. */
     protected static final long REPORT_CHECK_PERIOD = 100;
