@@ -1,10 +1,11 @@
 //
-// $Id: MiCasaServer.java,v 1.7 2002/10/21 20:56:20 mdb Exp $
+// $Id: MiCasaServer.java,v 1.8 2003/04/01 04:00:54 mdb Exp $
 
 package com.threerings.micasa.server;
 
 import com.threerings.crowd.server.CrowdServer;
 import com.threerings.parlor.server.ParlorManager;
+import com.threerings.presents.client.Client;
 
 import com.threerings.micasa.Log;
 import com.threerings.micasa.lobby.LobbyRegistry;
@@ -40,6 +41,20 @@ public class MiCasaServer extends CrowdServer
         lobreg.init(invmgr);
 
         Log.info("MiCasa server initialized.");
+    }
+
+    /**
+     * Returns the port on which the connection manager will listen for
+     * client connections.
+     */
+    protected int getListenPort ()
+    {
+        int port = Client.DEFAULT_SERVER_PORT;
+        try {
+            port = Integer.parseInt(System.getProperty("port"));
+        } catch (Exception e) {
+        }
+        return port;
     }
 
     public static void main (String[] args)
