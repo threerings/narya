@@ -121,9 +121,6 @@ public class LocationProvider
         PresentsClient client = CrowdServer.clmgr.getClient(source.username);
         if (client != null) {
             client.setClassLoader(_plreg.getClassLoader(pmgr.getConfig()));
-        } else {
-            Log.warning("No client for moveTo class loader fiddling? " +
-                        "[who=" + source.username + "].");
         }
 
         try {
