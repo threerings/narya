@@ -20,3 +20,9 @@ being passed a properties file that was extracted from the server
 configuration. We'll want inheritance and all that.
 
 Make sure chat box remains focused for games where that's feasible...
+
+Logoff shouldn't be in same place as "Back to lobby"
+
+"Back to lobby" accidentally pressed when typing not in chat box...
+
+Chat box shouldn't allow blank submissions.
