@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.115 2002/06/25 01:20:07 mdb Exp $
+// $Id: IsoSceneView.java,v 1.116 2002/06/29 01:32:28 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -537,16 +537,8 @@ public class IsoSceneView implements SceneView
         // if this hover object is different than before, we'll need to be
         // repainted
         if (hobject != _hobject) {
+            repaint = hoverObjectWillChange(hobject) || repaint;
             _hobject = hobject;
-
-            // we need to repaint if we're highlighting objects, but if
-            // we're only highlighting objects with actions, we only need
-            // to repaint if the object has an action
-            if (_hmode != HIGHLIGHT_NEVER) {
-                repaint = (_hmode == HIGHLIGHT_WITH_ACTION) ?
-                    (_scene.getObjectAction((ObjectTile)_hobject) != null) :
-                    true;
-            }
         }
 
         // clear out the hitlists
@@ -554,6 +546,24 @@ public class IsoSceneView implements SceneView
         _hitSprites.clear();
 
         return repaint;
+    }
+
+    /**
+     * Called to inform that the hover object, _hobject, has changed.
+     * When overriding this method, be sure not to short-circuit any
+     * calls to super() unless you mean to.
+     *
+     * @return true if we need to repaint.
+     */
+    protected boolean hoverObjectWillChange (Object newhobject)
+    {
+        // we need to repaint if we're highlighting objects, but if
+        // we're only highlighting objects with actions, we only need
+        // to repaint if the object has an action
+        return (_hmode == HIGHLIGHT_WITH_ACTION)
+            ?  ((newhobject instanceof ObjectTile) &&
+                (_scene.getObjectAction((ObjectTile)newhobject) != null))
+            : (_hmode != HIGHLIGHT_NEVER);
     }
 
     /**
