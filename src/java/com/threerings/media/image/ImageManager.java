@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.54 2003/05/02 22:59:20 mdb Exp $
+// $Id: ImageManager.java,v 1.55 2003/05/02 23:09:28 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -179,12 +179,44 @@ public class ImageManager
     }
 
     /**
-     * Like {@link #getImage(String,String)} but the specified
-     * colorizations are applied to the image before it is returned.
-     * Additionally the image is optimized for display in the current
-     * graphics configuration. Consider using {@link getMirage} instead of
-     * prepared images as they (some day) will automatically use volatile
-     * images to increase performance.
+     * Loads (and caches) the specified image from the resource manager
+     * using the supplied path to identify the image.
+     *
+     * <p> Additionally the image is optimized for display in the current
+     * graphics configuration. Consider using {@link getMirage(String)}
+     * instead of prepared images as they (some day) will automatically
+     * use volatile images to increase performance.
+     */
+    public BufferedImage getPreparedImage (String path)
+    {
+        return getPreparedImage(null, path, null);
+    }
+
+    /**
+     * Loads (and caches) the specified image from the resource manager,
+     * obtaining the image from the supplied resource set.
+     *
+     * <p> Additionally the image is optimized for display in the current
+     * graphics configuration. Consider using {@link
+     * getMirage(String,String)} instead of prepared images as they (some
+     * day) will automatically use volatile images to increase
+     * performance.
+     */
+    public BufferedImage getPreparedImage (String rset, String path)
+    {
+        return getPreparedImage(rset, path, null);
+    }
+
+    /**
+     * Loads (and caches) the specified image from the resource manager,
+     * obtaining the image from the supplied resource set and applying the
+     * using the supplied path to identify the image.
+     *
+     * <p> Additionally the image is optimized for display in the current
+     * graphics configuration. Consider using {@link
+     * getMirage(String,String,Colorizationp[]} instead of prepared images
+     * as they (some day) will automatically use volatile images to
+     * increase performance.
      */
     public BufferedImage getPreparedImage (String rset, String path,
                                            Colorization[] zations)
