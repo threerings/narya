@@ -1,7 +1,11 @@
 //
-// $Id: DSet.java,v 1.3 2001/08/16 04:22:50 mdb Exp $
+// $Id: DSet.java,v 1.4 2001/08/20 21:44:10 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 import com.threerings.cocktail.cher.Log;
 import com.threerings.cocktail.cher.io.Streamable;
@@ -171,14 +175,11 @@ public class DSet
         }
 
         // expand the array if necessary
-        if (index >= elength) {
-            Element[] elems = new Element[elength*2];
-            System.arraycopy(_elements, 0, elems, 0, elength);
-            _elements = elems;
-        }
+        expand(index);
 
         // insert the item
         _elements[index] = elem;
+        _size++;
         return true;
     }
 
@@ -213,6 +214,7 @@ public class DSet
             Element el = _elements[i];
             if (el != null && el.getKey().equals(key)) {
                 _elements[i] = null;
+                _size--;
                 return true;
             }
         }
@@ -246,6 +248,97 @@ public class DSet
         return false;
     }
 
+    /**
+     * Serializes this instance to the supplied output stream.
+     */
+    public void writeTo (DataOutputStream out)
+        throws IOException
+    {
+        out.writeUTF(_elementType.getName());
+        out.writeInt(_size);
+        int elength = _elements.length;
+        for (int i = 0; i < elength; i++) {
+            Element elem = _elements[i];
+            if (elem != null) {
+                elem.writeTo(out);
+            }
+        }
+    }
+
+    /**
+     * Unserializes this instance from the supplied input stream.
+     */
+    public void readFrom (DataInputStream in)
+        throws IOException
+    {
+        // read our element class and forName() it
+        String eclass = in.readUTF();
+        try {
+            _elementType = Class.forName(eclass);
+        } catch (Exception e) {
+            String err = "Unable to instantiate element class [err=" + e + "]";
+            throw new IOException(err);
+        }
+
+        // find out how many elements we'll be reading
+        _size = in.readInt();
+
+        // make sure we can fit _size elements
+        expand(_size-1);
+
+        for (int i = 0; i < _size; i++) {
+            Element elem = newElement();
+            elem.readFrom(in);
+            _elements[i] = elem;
+        }
+    }
+
+    /**
+     * Generates a string representation of this set instance.
+     */
+    public String toString ()
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append("[etype=").append(_elementType.getName());
+        buf.append(", elems=(");
+        String prefix = "";
+        for (int i = 0; i < _elements.length; i++) {
+            Element elem = _elements[i];
+            if (elem != null) {
+                buf.append(prefix);
+                prefix = ", ";
+                buf.append(elem);
+            }
+        }
+        buf.append(")]");
+        return buf.toString();
+    }
+
+    protected void expand (int index)
+    {
+        int elength = _elements.length;
+
+        // increase our length in powers of two until we're big enough
+        int tlength = elength*2;
+        while (index >= tlength) {
+            tlength *= 2;
+        }
+
+        // create a new array and copy our data into it
+        Element[] elems = new Element[tlength];
+        System.arraycopy(_elements, 0, elems, 0, elength);
+        _elements = elems;
+    }
+
+    /** The type of element this set holds. */
     protected Class _elementType;
-    protected Element[] _elements;
+
+    /** The elements of the set (in a sparse array). */
+    protected Element[] _elements = new Element[INITIAL_CAPACITY];
+
+    /** The number of elements in this set. */
+    protected int _size;
+
+    /** The default capacity of a set instance. */
+    protected static final int INITIAL_CAPACITY = 2;
 }
