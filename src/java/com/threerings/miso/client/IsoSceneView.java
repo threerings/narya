@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.110 2002/05/31 03:38:03 mdb Exp $
+// $Id: IsoSceneView.java,v 1.111 2002/06/18 21:22:34 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -651,6 +651,18 @@ public class IsoSceneView implements SceneView
         }
     }
 
+    /**
+     * Get a path between the two points (in screen coordinates)
+     * that will update a MisoCharacterSprite as it walks the path.
+     */
+    public Path getScreenTilePath (Point start, Point dest, int direction)
+    {
+        ScreenTilePath path = new ScreenTilePath(_model);
+        path.addNode(start.x, start.y, 0); // first direction matters not
+        path.addNode(dest.x, dest.y, direction);
+        return path;
+    }
+ 
     // documentation inherited
     public Path getPath (MisoCharacterSprite sprite, int x, int y)
     {

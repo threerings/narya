@@ -1,9 +1,9 @@
 //
-// $Id: TilePath.java,v 1.7 2002/06/12 23:31:42 ray Exp $
+// $Id: TilePath.java,v 1.8 2002/06/18 21:22:34 ray Exp $
 
 package com.threerings.miso.scene;
 
-import java.awt.*;
+import java.awt.Point;
 import java.util.List;
 
 import com.threerings.util.DirectionCodes;
@@ -21,7 +21,7 @@ import com.threerings.miso.scene.util.IsoUtil;
  * Only ambulatory sprites can follow a tile path, and their tile
  * coordinates are updated as the path is traversed.
  */
-public class TilePath extends LineSegmentPath
+public class TilePath extends ScreenTilePath
     implements DirectionCodes
 {
     /**
@@ -39,51 +39,29 @@ public class TilePath extends LineSegmentPath
         IsoSceneViewModel model, MisoCharacterSprite sprite, List tiles,
         int destx, int desty)
     {
-        _model = model;
+        super(model); // I won't make any jokes if you don't.
 
         // set up the path nodes
         createPath(sprite, tiles, destx, desty);
     }
 
     // documentation inherited
-    public boolean tick (Pathable pable, long timestamp)
+    protected boolean shouldComputeTileCoords ()
     {
-        boolean moved = super.tick(pable, timestamp);
+        return !_arrived;
+    }
 
-        if (moved) {
-            MisoCharacterSprite mcs = (MisoCharacterSprite)pable;
-            int sx = mcs.getX(), sy = mcs.getY();
-            Point pos = new Point();
-
-            // check whether we've arrived at the destination tile
-            if (!_arrived) {
-                // get the sprite's latest tile coordinates
-                IsoUtil.screenToTile(_model, sx, sy, pos);
-
-                // if the sprite has reached the destination tile,
-                // update the sprite's tile location and remember
-                // we've arrived
-                int dtx = _dest.getTileX(), dty = _dest.getTileY();
-                if (pos.x == dtx && pos.y == dty) {
-                    mcs.setTileLocation(dtx, dty);
-                    // Log.info("Sprite arrived [dtx=" + dtx +
-                    // ", dty=" + dty + "].");
-                    _arrived = true;
-                }
-            }
-
-            // get the sprite's latest fine coordinates
-            IsoUtil.tileToScreen(_model, mcs.getTileX(), mcs.getTileY(), pos);
-            Point fpos = new Point();
-            IsoUtil.pixelToFine(_model, sx - pos.x, sy - pos.y, fpos);
-
-            // inform the sprite
-            mcs.setFineLocation(fpos.x, fpos.y);
-
-            // Log.info("Sprite moved [s=" + mcs + "].");
+    // documentation inherited
+    protected void setTileCoords (MisoCharacterSprite mcs, Point pos)
+    {
+        // if the sprite has reached the destination tile,
+        // update the sprite's tile location and remember
+        // we've arrived
+        if (pos.x == _dest.getTileX() &&
+            pos.y == _dest.getTileY()) {
+            super.setTileCoords(mcs, pos);
+            _arrived = true;
         }
-
-        return moved;
     }
 
     // documentation inherited
@@ -184,7 +162,4 @@ public class TilePath extends LineSegmentPath
 
     /** The destination tile path node. */
     protected TilePathNode _dest;
-
-    /** The iso scene view model. */
-    protected IsoSceneViewModel _model;
 }
