@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.33 2004/02/25 14:50:28 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.34 2004/03/10 16:20:04 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -141,6 +141,7 @@ public class SpotSceneDirector extends BasicDirector
         }
 
         // issue a traversePortal request
+        Log.info("Issuing traversePortal(" + dest + ", " + sceneVer + ").");
         _sservice.traversePortal(_ctx.getClient(), portalId, sceneVer, _scdir);
         return true;
     }

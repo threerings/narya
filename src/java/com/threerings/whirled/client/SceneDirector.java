@@ -1,11 +1,13 @@
 //
-// $Id: SceneDirector.java,v 1.26 2004/02/25 14:50:28 mdb Exp $
+// $Id: SceneDirector.java,v 1.27 2004/03/10 16:20:04 mdb Exp $
 
 package com.threerings.whirled.client;
 
 import java.io.IOException;
+
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.ResultListener;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
@@ -219,6 +221,9 @@ public class SceneDirector extends BasicDirector
     public void moveSucceededWithUpdates (
         int placeId, PlaceConfig config, SceneUpdate[] updates)
     {
+        Log.info("Got updates [placeId=" + placeId + ", config=" + config +
+                 ", updates=" + StringUtil.toString(updates) + "].");
+
         // apply the updates to our cached scene
         SceneModel model = loadSceneModel(_pendingSceneId);
         boolean failure = false;
@@ -278,6 +283,10 @@ public class SceneDirector extends BasicDirector
     public void moveSucceededWithScene (
         int placeId, PlaceConfig config, SceneModel model)
     {
+        Log.info("Got updated scene model [placeId=" + placeId +
+                 ", config=" + config + ", scene=" + model.sceneId + "/" +
+                 model.name + "/" + model.version + "].");
+
         // update the model in the repository
         try {
             _screp.storeSceneModel(model);
