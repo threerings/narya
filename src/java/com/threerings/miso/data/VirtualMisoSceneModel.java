@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMisoSceneModel.java,v 1.1 2003/04/17 19:21:16 mdb Exp $
+// $Id: VirtualMisoSceneModel.java,v 1.2 2003/04/18 18:31:21 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -23,12 +23,6 @@ public abstract class VirtualMisoSceneModel extends MisoSceneModel
 
     // documentation inherited from interface
     public boolean setBaseTile (int fqTileId, int x, int y)
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    // documentation inherited from interface
-    public void setBaseTiles (Rectangle r, int setId, int setSize)
     {
         throw new UnsupportedOperationException();
     }

@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneModel.java,v 1.14 2003/04/17 19:21:16 mdb Exp $
+// $Id: MisoSceneModel.java,v 1.15 2003/04/18 18:31:20 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -69,24 +69,6 @@ public abstract class MisoSceneModel extends SimpleStreamableObject
      * scene and the tile was not saved, true otherwise.
      */
     public abstract boolean setBaseTile (int fqTileId, int x, int y);
-
-    /**
-     * Fill a rectangular area with random tiles from the specified base
-     * tileset.
-     *
-     * @param r the region to be filled.
-     * @param setId the id of the tileset to use when filling.
-     * @param setSize the number of tiles in the tileset.
-     */
-    public void setBaseTiles (Rectangle r, int setId, int setSize)
-    {
-        for (int x = r.x; x < r.x + r.width; x++) {
-            for (int y = r.y; y < r.y + r.height; y++) {
-                int index = _rando.nextInt(setSize);
-                setBaseTile(TileUtil.getFQTileId(setId, index), x, y);
-            }
-        }
-    }
 
     /**
      * Populates the supplied object set with info on all objects whose
