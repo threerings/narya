@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.56 2003/05/24 01:50:33 mdb Exp $
+// $Id: PresentsClient.java,v 1.57 2003/09/07 23:30:13 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -672,10 +672,16 @@ public class PresentsClient
             conn.postMessage(msg);
             _messagesOut++; // count 'em up!
             return true;
-        } else {
-            Log.info("Dropped message [client=" + this + ", msg=" + msg + "].");
-            return false;
         }
+
+        Log.info("Dropped message [client=" + this + ", msg=" + msg + "].");
+
+        // make darned sure we don't have any remaining subscriptions
+        if (_subscrips.size() > 0) {
+            Log.warning("Clearing stale subscriptions [client=" + this + "].");
+            clearSubscrips();
+        }
+        return false;
     }
 
     /**
