@@ -1,5 +1,5 @@
 #
-# $Id: design.txt,v 1.1 2001/07/10 22:18:55 shaper Exp $
+# $Id: design.txt,v 1.2 2001/07/10 22:22:35 shaper Exp $
 
 Date: 07/10/01
 Venue: General discussion in vast sweeping loft area.
@@ -30,19 +30,19 @@ color-replacement to allow increased re-use of clothing art.
 
 Scene Description
 -----------------
-- sid: unique screen identifier
-- name: screen name
-- version: screen description file format version
+- sid: unique scene identifier
+- name: scene name
+- version: scene description file format version
 - tile array: full NxM set of tiles for L0, sparse for L1+
 - hot spots: the "zones" wherein people congregate in each scene, a set 
-  of screen coords
-- exits: set of screen coords and associated sids that the exits lead to
+  of scene coords
+- exits: set of scene coords and associated sids that the exits lead to
 
 Potential Classes
 -----------------
 
-ScreenIDBroker: dynamic screen creation and obtaining/tracking screen ids
-ScreenManager: screen retrieval, caching
+SceneIDBroker: dynamic scene creation and obtaining/tracking scene ids
+SceneManager: scene retrieval, caching
 TileManager: tile retrieval, caching
 Config: tileset/tile info
 
@@ -60,8 +60,8 @@ a 16-bit tile id within that set.
 
 Estimating:
 
-400 tiles per screen
-1000 screens = (approx) 1.6 MB (highly compressible)
+400 tiles per scene
+1000 scenes = (approx) 1.6 MB (highly compressible)
 
 Tileset config info associated with each tile set includes, for each
 row of tiles in the tile set, the "row height" (height of the tiles in
@@ -106,7 +106,7 @@ worthwhile uses.
 
 TBD:
 
-- Resource mgmt: when is screen data and art loaded, how big are the
+- Resource mgmt: when is scene data and art loaded, how big are the
   chunks of data downloaded, what's the user experience during
   download like.
 
