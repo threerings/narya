@@ -1,5 +1,5 @@
 //
-// $Id: ParlorDirector.java,v 1.5 2001/10/02 02:09:06 mdb Exp $
+// $Id: ParlorDirector.java,v 1.6 2001/10/02 21:52:33 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -178,6 +178,30 @@ public class ParlorDirector
             ParlorService.cancel(_ctx.getClient(), invite.remoteId, this);
             // and remove it from the pending table
             _pendingInvites.remove(invite.remoteId);
+        }
+    }
+
+    /**
+     * Called by the invocation services when a game in which we are a
+     * player is ready to begin.
+     *
+     * @param gameOid the object id of the game object.
+     * @param config the configuration information for the started game.
+     */
+    public void handleGameReadyNotification (int gameOid, GameConfig config)
+    {
+        try {
+            // create the game controller for this game
+            GameController ctrl = (GameController)
+                config.getControllerClass().newInstance();
+
+            // initialize it and get things underway
+            ctrl.init(_ctx, gameOid, config);
+
+        } catch (Exception e) {
+            Log.warning("Unable to instantiate game controller " +
+                        "[goid=" + gameOid + ", config=" + config +
+                        ", error=" + e + "].");
         }
     }
 

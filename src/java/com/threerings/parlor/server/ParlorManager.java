@@ -1,5 +1,5 @@
 //
-// $Id: ParlorManager.java,v 1.3 2001/10/02 02:09:06 mdb Exp $
+// $Id: ParlorManager.java,v 1.4 2001/10/02 21:52:33 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -10,6 +10,7 @@ import com.threerings.cocktail.cher.server.InvocationManager;
 import com.threerings.cocktail.cher.server.ServiceFailedException;
 
 import com.threerings.cocktail.party.data.BodyObject;
+import com.threerings.cocktail.party.server.PartyServer;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.client.ParlorCodes;
@@ -127,7 +128,7 @@ public class ParlorManager
             new Integer(invite.inviteId), new Integer(code), arg };
         _invmgr.sendNotification(
             invite.inviter.getOid(), MODULE_NAME, RESPOND_INVITE_ID, args);
-        
+
         switch (code) {
         case INVITATION_ACCEPTED:
             // the invitation was accepted, so we'll need to start up the
@@ -163,7 +164,18 @@ public class ParlorManager
 
     protected void processAcceptedInvitation (Invitation invite)
     {
-        // start up the game and all that...
+        try {
+            // create the game manager and begin it's initialization
+            // process. the game manager will take care of notifying the
+            // players that the game has been created
+            Class gmclass =
+                Class.forName(invite.config.getManagerClassName());
+            PartyServer.plreg.createPlace(gmclass);
+
+        } catch (Exception e) {
+            Log.warning("Unable to create game manager [invite=" + invite +
+                        ", error=" + e + "].");
+        }
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: ParlorCodes.java,v 1.2 2001/10/02 02:09:06 mdb Exp $
+// $Id: ParlorCodes.java,v 1.3 2001/10/02 21:52:33 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -13,8 +13,14 @@ public interface ParlorCodes extends InvocationCodes
     /** The module name for the parlor services. */
     public static final String MODULE_NAME = "parlor";
 
+    /** The message identifier for a game ready notification. This is
+     * mapped by the invocation services to a call to {@link
+     * ParlorDirector#handleGameReady}. */
+    public static final String GAME_READY_NOTIFICATION = "GameReady";
+
     /** The message identifier for an invitation creation request or
-     * notification. */
+     * notification. The notification is mapped by the invocation services
+     * to a call to {@link ParlorDirector#handleInviteNotification}. */
     public static final String INVITE_ID = "Invite";
 
     /** The response identifier for an accepted invite request. This is
@@ -28,11 +34,15 @@ public interface ParlorCodes extends InvocationCodes
     public static final String INVITE_FAILED_RESPONSE = "InviteFailed";
 
     /** The message identifier for an invitation cancellation request or
-     * notification. */
+     * notification. The notification is mapped by the invocation services
+     * to a call to {@link
+     * ParlorDirector#handleCancelInviteNotification}. */
     public static final String CANCEL_INVITE_ID = "CancelInvite";
 
     /** The message identifier for an invitation response request or
-     * notification. */
+     * notification. The notification is mapped by the invocation services
+     * to a call to {@link
+     * ParlorDirector#handleRespondInviteNotification}. */
     public static final String RESPOND_INVITE_ID = "RespondInvite";
 
     /** The response code for an accepted invitation. */
