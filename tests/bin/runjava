@@ -13,6 +13,7 @@ pop(@parts);
 my $root = join("/", @parts);
 
 # but we're in the test directory, so we want up one
+$realroot = $root;
 $root = "$root/..";
 
 # make sure JAVA_HOME is set
@@ -71,7 +72,7 @@ foreach $dir (@dirs) {
 $classpath = "$classpath:$jlib";
 
 # specify our server root (this is for server code)
-my $rootarg = "-Droot=$root";
+my $rootarg = "-Dapplication.root=$realroot";
 
 my $pid_file = undef;
 my $i = 0;
