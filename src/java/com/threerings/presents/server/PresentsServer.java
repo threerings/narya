@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.28 2002/11/06 06:18:17 mdb Exp $
+// $Id: PresentsServer.java,v 1.29 2002/12/22 07:27:20 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -172,8 +172,18 @@ public class PresentsServer
             report.delete(blen-1, blen);
         }
 
-        Log.info(report.toString());
         _lastReportStamp = now;
+        logReport(report.toString());
+    }
+
+    /**
+     * Logs the state of the server report via the default logging
+     * mechanism. Derived classes may wish to log the state of the server
+     * report via a different means.
+     */
+    protected void logReport (String report)
+    {
+        Log.info(report);
     }
 
     /**
