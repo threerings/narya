@@ -1,15 +1,18 @@
 //
-// $Id: IsoSceneView.java,v 1.42 2001/08/14 21:29:40 shaper Exp $
+// $Id: IsoSceneView.java,v 1.43 2001/08/14 23:35:22 mdb Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.*;
+
+import java.util.List;
 import java.util.ArrayList;
 
+import com.threerings.media.sprite.*;
+
 import com.threerings.miso.Log;
-import com.threerings.miso.sprite.*;
 import com.threerings.miso.tile.Tile;
 import com.threerings.miso.tile.TileManager;
 import com.threerings.miso.scene.util.IsoUtil;
@@ -397,7 +400,7 @@ public class IsoSceneView implements EditableSceneView
      *
      * @param rects the list of Rectangle objects.
      */
-    public void invalidateRects (ArrayList rects)
+    public void invalidateRects (List rects)
     {
         int size = rects.size();
         for (int ii = 0; ii < size; ii++) {

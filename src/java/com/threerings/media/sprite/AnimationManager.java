@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.11 2001/08/14 22:54:45 mdb Exp $
+// $Id: AnimationManager.java,v 1.12 2001/08/14 23:35:22 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -12,7 +12,6 @@ import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
 
 import com.threerings.media.Log;
-import com.threerings.miso.scene.SceneView;
 import com.threerings.miso.util.PerformanceMonitor;
 import com.threerings.miso.util.PerformanceObserver;
 
@@ -28,7 +27,7 @@ public class AnimationManager implements Interval, PerformanceObserver
      * manager and the panel that animations will take place within.
      */
     public AnimationManager (SpriteManager spritemgr, JComponent target,
-                             SceneView view)
+                             AnimatedView view)
     {
         // save off references to the objects we care about
         _spritemgr = spritemgr;
@@ -176,6 +175,6 @@ public class AnimationManager implements Interval, PerformanceObserver
     /** The component to refresh. */
     protected JComponent _target;
 
-    /** The scene view. */
-    protected SceneView _view;
+    /** The view on which we are animating. */
+    protected AnimatedView _view;
 }

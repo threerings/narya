@@ -1,9 +1,9 @@
 //
-// $Id: Location.java,v 1.4 2001/08/11 00:00:13 shaper Exp $
+// $Id: Location.java,v 1.5 2001/08/14 23:35:22 mdb Exp $
 
 package com.threerings.miso.scene;
 
-import com.threerings.miso.sprite.Path;
+import com.threerings.media.sprite.Path;
 
 /**
  * The <code>Location</code> class represents a unique well-defined

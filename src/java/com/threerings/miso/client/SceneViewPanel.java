@@ -1,12 +1,12 @@
 //
-// $Id: SceneViewPanel.java,v 1.4 2001/08/08 03:19:38 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.5 2001/08/14 23:35:22 mdb Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.*;
 import javax.swing.JPanel;
 
-import com.threerings.miso.sprite.SpriteManager;
+import com.threerings.media.sprite.SpriteManager;
 import com.threerings.miso.tile.TileManager;
 
 /**

@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.9 2001/08/14 22:54:45 mdb Exp $
+// $Id: Sprite.java,v 1.10 2001/08/14 23:35:22 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -9,12 +9,10 @@ import java.util.Enumeration;
 import com.threerings.media.Log;
 import com.threerings.media.util.MathUtil;
 
-import com.threerings.miso.tile.Tile;
-
 /**
- * The Sprite class represents a single moveable object within a
- * scene.  A sprite has a position within the scene, and a set of
- * tiles used to render it (perhaps multiple frames for animation).
+ * The <code>Sprite</code> class represents a single moveable object
+ * within a scene.  A sprite has a position within the scene, and a set of
+ * images used to render it (perhaps multiple frames for animation).
  */
 public class Sprite
 {
@@ -25,22 +23,23 @@ public class Sprite
     public int y;
 
     /**
-     * Construct a Sprite object.
+     * Construct a sprite object.
      *
      * @param spritemgr the sprite manager.
      * @param x the sprite x-position in pixels.
      * @param y the sprite y-position in pixels.
-     * @param tiles the tiles used to display the sprite.
+     * @param frames the multi-frame image used to display the sprite.
      */
-    public Sprite (SpriteManager spritemgr, int x, int y, Tile[] tiles)
+    public Sprite (SpriteManager spritemgr, int x, int y,
+                   MultiFrameImage frames)
     {
-        init(spritemgr, x, y, tiles);
+        init(spritemgr, x, y, frames);
     }
 
     /**
-     * Construct a Sprite object without any associated tiles.  The
-     * sprite should be populated with a set of tiles used to display
-     * it via a subsequent call to <code>setTiles()</code>.
+     * Construct a sprite object without any associated frames. The sprite
+     * should be populated with a set of frames used to display it via a
+     * subsequent call to <code>setFrames()</code>.
      *
      * @param spritemgr the sprite manager.
      * @param x the sprite x-position in pixels.
@@ -54,7 +53,8 @@ public class Sprite
     /**
      * Initialize the sprite object with its variegated parameters.
      */
-    protected void init (SpriteManager spritemgr, int x, int y, Tile[] tiles)
+    protected void init (
+        SpriteManager spritemgr, int x, int y, MultiFrameImage frames)
     {
         _spritemgr = spritemgr;
 
@@ -63,11 +63,11 @@ public class Sprite
 
         updateDrawPosition();
 
-        _curFrame = 0;
+        _frameIdx = 0;
         _animDelay = ANIM_NONE;
         _numTicks = 0;
 
-        setTiles(_tiles);
+        setFrames(frames);
 
         invalidate();
     }        
@@ -79,7 +79,7 @@ public class Sprite
      */
     public void paint (Graphics2D gfx)
     {
-        gfx.drawImage(_curTile.img, _drawx, _drawy, null);
+        gfx.drawImage(_frame, _drawx, _drawy, null);
 //          Log.info("Sprite painting image [sprite=" + this + "].");
     }
 
@@ -97,8 +97,8 @@ public class Sprite
     }
 
     /**
-     * Set the number of ticks to wait before switching to the next
-     * tile in the array of tiles used to display the sprite.
+     * Set the number of ticks to wait before switching to the next image
+     * in the array of images used to display the sprite.
      *
      * @param ticks the number of ticks.
      */
@@ -108,16 +108,16 @@ public class Sprite
     }
 
     /**
-     * Set the tile array used to render the sprite.
+     * Set the image array used to render the sprite.
      *
-     * @param tiles the sprite tiles.
+     * @param frames the sprite images.
      */
-    public void setTiles (Tile[] tiles)
+    public void setFrames (MultiFrameImage frames)
     {
-        if (tiles == null) return;
+        if (frames == null) return;
 
-        _tiles = tiles;
-        _curTile = _tiles[_curFrame];
+        _frames = frames;
+        _frame = _frames.getFrame(_frameIdx);
         updateDrawPosition();
         invalidate();
     }
@@ -183,10 +183,10 @@ public class Sprite
      */
     public void invalidate ()
     {
-        if (_curTile == null) return;
+        if (_frame == null) return;
 
         Rectangle dirty = new Rectangle(
-            _drawx, _drawy, _curTile.width, _curTile.height);
+            _drawx, _drawy, _frame.getWidth(null), _frame.getHeight(null));
 
 //  	Log.info("Sprite invalidate [x=" + x + ", y=" + y +
 //  		 ", dx=" + dirty.x + ", dy=" + dirty.y +
@@ -202,13 +202,13 @@ public class Sprite
      */
     public void tick ()
     {
-        // increment the display tile if performing tile animation
+        // increment the display image if performing image animation
         if (_animDelay != ANIM_NONE && (_numTicks++ == _animDelay)) {
             _numTicks = 0;
-            if (++_curFrame > _tiles.length - 1) _curFrame = 0;
-            _curTile = _tiles[_curFrame];
+            _frameIdx = (_frameIdx + 1) % _frames.getFrameCount();
+            _frame = _frames.getFrame(_frameIdx);
 
-            // dirty our rectangle since we've altered our display tile
+            // dirty our rectangle since we've altered our display image
             invalidate();
         }
 
@@ -256,14 +256,14 @@ public class Sprite
      */
     protected void updateDrawPosition ()
     {
-        if (_curTile == null) {
+        if (_frame == null) {
             _drawx = x;
             _drawy = y;
-            return;
-        }
 
-        _drawx = x - (_curTile.width / 2);
-        _drawy = y - _curTile.height;
+        } else {
+            _drawx = x - (_frame.getWidth(null) / 2);
+            _drawy = y - _frame.getHeight(null);
+        }
     }
 
     /**
@@ -274,23 +274,23 @@ public class Sprite
         StringBuffer buf = new StringBuffer();
         buf.append("[x=").append(x);
         buf.append(", y=").append(y);
-        buf.append(", curframe=").append(_curFrame);
+        buf.append(", fidx=").append(_frameIdx);
         return buf.append("]").toString();
     }
 
-    /** Value used to denote that no tile animation is desired. */
+    /** Value used to denote that no image animation is desired. */
     protected static final int ANIM_NONE = -1;
 
-    /** The tiles used to render the sprite. */
-    protected Tile[] _tiles;
+    /** The images used to render the sprite. */
+    protected MultiFrameImage _frames;
 
-    /** The current tile to render the sprite. */
-    protected Tile _curTile;
+    /** The current frame being rendered. */
+    protected Image _frame;
 
-    /** The current tile index to render. */
-    protected int _curFrame;
+    /** The current frame index to render. */
+    protected int _frameIdx;
 
-    /** The coordinates at which the tile image is drawn. */
+    /** The coordinates at which the frame image is drawn. */
     protected int _drawx, _drawy;
 
     /** The PathNode objects describing the path the sprite is following. */
@@ -305,10 +305,10 @@ public class Sprite
     /** When moving, the distance to move per tick in fractional pixels. */
     protected float _incx, _incy;
 
-    /** The number of ticks to wait before rendering with the next tile. */
+    /** The number of ticks to wait before rendering with the next image. */
     protected int _animDelay;
 
-    /** The number of ticks since the last tile animation. */
+    /** The number of ticks since the last image animation. */
     protected int _numTicks;
 
     /** The sprite manager. */

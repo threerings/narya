@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.6 2001/08/10 21:17:07 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.7 2001/08/14 23:35:22 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -9,12 +9,13 @@ import java.io.IOException;
 import javax.swing.JPanel;
 
 import com.samskivert.util.Config;
+import com.threerings.media.sprite.*;
+
 import com.threerings.miso.Log;
-import com.threerings.miso.viewer.util.ViewerContext;
 import com.threerings.miso.scene.*;
 import com.threerings.miso.scene.xml.XMLFileSceneRepository;
-import com.threerings.miso.sprite.*;
 import com.threerings.miso.util.*;
+import com.threerings.miso.viewer.util.ViewerContext;
 
 public class ViewerSceneViewPanel extends SceneViewPanel
     implements MouseListener, MouseMotionListener, PerformanceObserver

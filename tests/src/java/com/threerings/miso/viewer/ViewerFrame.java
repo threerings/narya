@@ -1,19 +1,22 @@
 //
-// $Id: ViewerFrame.java,v 1.9 2001/08/07 18:29:18 shaper Exp $
+// $Id: ViewerFrame.java,v 1.10 2001/08/14 23:35:22 mdb Exp $
 
 package com.threerings.miso.viewer;
-
-import com.samskivert.swing.*;
-import com.threerings.miso.Log;
-import com.threerings.miso.scene.Scene;
-import com.threerings.miso.sprite.*;
-import com.threerings.miso.tile.TileManager;
-import com.threerings.miso.viewer.util.ViewerContext;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import javax.swing.*;
+
+import com.samskivert.swing.*;
+
+import com.threerings.media.sprite.*;
+
+import com.threerings.miso.Log;
+import com.threerings.miso.scene.Scene;
+import com.threerings.miso.tile.TileManager;
+import com.threerings.miso.tile.TileUtil;
+import com.threerings.miso.viewer.util.ViewerContext;
 
 /**
  * The ViewerFrame is the main application window that constructs and
@@ -40,8 +43,10 @@ class ViewerFrame extends JFrame implements WindowListener
         TileManager tilemgr = _ctx.getTileManager();
 
         // add the test character sprite to the sprite manager
-        AmbulatorySprite sprite = 
-            new AmbulatorySprite(spritemgr, 300, 300, tilemgr, TSID_CHAR);
+        MultiFrameImage[] anims =
+            TileUtil.getSpriteFrames(tilemgr, TSID_CHAR);
+        AmbulatorySprite sprite =
+            new AmbulatorySprite(spritemgr, 300, 300, anims);
         spritemgr.addSprite(sprite);
 
 	// create a top-level panel to manage everything
