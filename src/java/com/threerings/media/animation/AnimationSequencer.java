@@ -1,5 +1,5 @@
 //
-// $Id: AnimationSequencer.java,v 1.4 2002/11/05 21:17:32 mdb Exp $
+// $Id: AnimationSequencer.java,v 1.5 2002/11/05 21:23:55 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -12,8 +12,10 @@ import com.threerings.media.Log;
 
 /**
  * An animation that provides facilities for adding a sequence of
- * animations with a standard or per-animation-specifiable delay between
- * each.
+ * animations that are fired after a fixed time interval has elapsed or
+ * after previous animations in the sequence have completed. Facilities
+ * are also provided for running code upon the completion of animations in
+ * the sequence.
  */
 public abstract class AnimationSequencer extends Animation
 {
@@ -29,17 +31,17 @@ public abstract class AnimationSequencer extends Animation
 
     /**
      * Adds the supplied animation to the sequence with the given
-     * parameters.  Note that this cannot be called after the animation
-     * sequence has begun executing without endangering your sanity and
-     * the robustness of your code.
+     * parameters. Note that care should be taken if this is called after
+     * the animation sequence has begun firing animations.
      *
      * @param anim the animation to be sequenced, or null if the
-     * completion action should be run immediately when this animation is
-     * ready to fired.
-     * @param delta the number of milliseconds following the start of the last
-     * animation currently in the sequence that this animation should be
-     * started; or -1 which means that this animation should be started
-     * when the last animation has completed.
+     * completion action should be run immediately when this "animation"
+     * is ready to fired.
+     * @param delta the number of milliseconds following the
+     * <em>start</em> of the previous animation in the queue that this
+     * animation should be started; 0 if it should be started
+     * simultaneously with its predecessor int the queue; -1 if it should
+     * be started when its predecessor has completed.
      * @param completionAction a runnable to be executed when this
      * animation completes.
      */
@@ -217,15 +219,12 @@ public abstract class AnimationSequencer extends Animation
         protected Runnable _completionAction;
     }
 
-    /** The animation records detailing the animations to be sequenced. */
+    /** Animations that have not been fired. */
     protected ArrayList _queued = new ArrayList();
 
-    /** The animations that are currently running. */
+    /** Animations that are currently running. */
     protected ArrayList _running = new ArrayList();
 
-    /** The index of the last animation that was added. */
-    protected int _lastidx = -1;
-
-    /** The timestamp at which we added the last animation. */
+    /** The timestamp at which we fired the last animation. */
     protected long _lastStamp;
 }
