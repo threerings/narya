@@ -23,6 +23,7 @@ package com.threerings.media.sprite;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 import com.samskivert.swing.Label;
 
@@ -51,6 +52,14 @@ public class LabelSprite extends Sprite
         return _label;
     }
 
+    /**
+     * Indicates that our label should be rendered with antialiased text.
+     */
+    public void setAntiAliased (boolean antiAliased)
+    {
+        _antiAliased = antiAliased;
+    }
+
     // documentation inherited
     protected void init ()
     {
@@ -58,7 +67,15 @@ public class LabelSprite extends Sprite
 
         // if our label is not yet laid out, do the deed
         if (!_label.isLaidOut()) {
-            _label.layout(_mgr.getMediaPanel());
+            Graphics2D gfx = (Graphics2D)_mgr.getMediaPanel().getGraphics();
+            if (gfx != null) {
+                gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                     (_antiAliased) ?
+                                     RenderingHints.VALUE_ANTIALIAS_ON :
+                                     RenderingHints.VALUE_ANTIALIAS_OFF);
+                _label.layout(gfx);
+                gfx.dispose();
+            }
         }
 
         // size the bounds to fit our label
@@ -75,4 +92,7 @@ public class LabelSprite extends Sprite
 
     /** The label associated with this sprite. */
     protected Label _label;
+
+    /** Whether or not to use anti-aliased rendering. */
+    protected boolean _antiAliased;
 }
