@@ -1,5 +1,5 @@
 //
-// $Id: LogonPanel.java,v 1.3 2001/12/20 01:10:51 shaper Exp $
+// $Id: LogonPanel.java,v 1.4 2002/04/12 16:26:12 shaper Exp $
 
 package com.threerings.micasa.client;
 
@@ -110,7 +110,7 @@ public class LogonPanel
         setLogonEnabled(false);
 
         String username = _username.getText().trim();
-        String password = _password.getText().trim();
+        String password = new String(_password.getPassword()).trim();
 
         System.out.println("Logging on " + username + "/" + password);
 
