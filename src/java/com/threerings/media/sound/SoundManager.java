@@ -89,6 +89,31 @@ public class SoundManager
         protected String _strname;
     }
 
+    /**
+     * A control for sounds.
+     */
+    public static interface Frob
+    {
+        /**
+         * Stop playing or looping the sound.
+         * At present, the granularity of this command is limited to the
+         * buffer size of the line spooler, or about 8k of data. Thus,
+         * if playing an 11khz sample, it could take 8/11ths of a second
+         * for the sound to actually stop playing.
+         */
+        public void stop ();
+
+        /**
+         * Set the volume of the sound.
+         */
+        public void setVolume (float vol);
+
+        /**
+         * Get the volume of this sound.
+         */
+        public float getVolume ();
+    }
+
     /** The default sound type. */
     public static final SoundType DEFAULT = new SoundType("default");
 
@@ -239,7 +264,8 @@ public class SoundManager
         }
 
         if ((_clipVol != 0f) && isEnabled(type)) {
-            final SoundKey skey = new SoundKey(PLAY, pkgPath, key, delay);
+            final SoundKey skey = new SoundKey(PLAY, pkgPath, key, delay,
+                _clipVol);
             if (delay > 0) {
                 new Interval() {
                     public void expired () {
@@ -251,6 +277,18 @@ public class SoundManager
             }
         }
     }
+
+    /**
+     * Loop the specified sound.
+     */
+    public Frob loop (SoundType type, String pkgPath, String key)
+    {
+        SoundKey skey = new SoundKey(LOOP, pkgPath, key, 0, _clipVol);
+        addToPlayQueue(skey);
+        return skey; // it is a frob
+    }
+
+    // ==== End of public methods ====
 
     /**
      * Add the sound clip key to the queue to be played.
@@ -344,6 +382,7 @@ public class SoundManager
     {
         switch (key.cmd) {
         case PLAY:
+        case LOOP:
             playSound(key);
             break;
 
@@ -378,6 +417,10 @@ public class SoundManager
      */
     protected void playSound (SoundKey key)
     {
+        if (!key.running) {
+            return;
+        }
+        key.thread = Thread.currentThread();
         SourceDataLine line = null;
         try {
             // get the sound data from our LRU cache
@@ -390,6 +433,7 @@ public class SoundManager
                     Log.info("Sound expired [key=" + key.key + "].");
                 }
                 return;
+
             }
 
             AudioInputStream stream = AudioSystem.getAudioInputStream(
@@ -400,27 +444,39 @@ public class SoundManager
             line = (SourceDataLine) AudioSystem.getLine(
                 new DataLine.Info(SourceDataLine.class, format));
             line.open(format, LINEBUF_SIZE);
+            float setVolume = 1;
             line.start();
-            adjustVolume(line, _clipVol);
             _soundSeemsToWork = true;
 
-            // play the sound
-            byte[] buffer = new byte[LINEBUF_SIZE];
-            int count = 0;
-            while (count != -1) {
-                try {
-                    count = stream.read(buffer, 0, buffer.length);
-                } catch (IOException e) {
-                    // this shouldn't ever ever happen because the stream
-                    // we're given is from a reliable source
-                    Log.warning("Error reading clip data! [e=" + e + "].");
-                    return;
+            do {
+                // play the sound
+                byte[] buffer = new byte[LINEBUF_SIZE];
+                int count = 0;
+                while (key.running && count != -1) {
+                    float vol = key.volume;
+                    if (vol != setVolume) {
+                        adjustVolume(line, vol);
+                        setVolume = vol;
+                    }
+                    try {
+                        count = stream.read(buffer, 0, buffer.length);
+                    } catch (IOException e) {
+                        // this shouldn't ever ever happen because the stream
+                        // we're given is from a reliable source
+                        Log.warning("Error reading clip data! [e=" + e + "].");
+                        return;
+                    }
+
+                    if (count >= 0) {
+                        line.write(buffer, 0, count);
+                    }
                 }
 
-                if (count >= 0) {
-                    line.write(buffer, 0, count);
+                // if we're going to loop, reset the stream to the beginning
+                if (key.cmd == LOOP) {
+                    stream.reset();
                 }
-            }
+            } while (key.cmd == LOOP && key.running);
 
             // sleep the drain time. We never trust line.drain() because
             // it is buggy and locks up on natively multithreaded systems
@@ -468,6 +524,7 @@ public class SoundManager
             if (line != null) {
                 line.close();
             }
+            key.thread = null;
         }
     }
 
@@ -696,6 +753,7 @@ public class SoundManager
      * A key for tracking sounds.
      */
     protected static class SoundKey
+        implements Frob
     {
         public byte cmd;
 
@@ -704,6 +762,14 @@ public class SoundManager
         public String key;
 
         public long stamp;
+
+        /** Should we still be running? */
+        public volatile boolean running = true;
+
+        public volatile float volume;
+
+        /** The player thread, if it's playing us. */
+        public Thread thread;
 
         /**
          * Create a SoundKey that just contains the specified command.
@@ -727,11 +793,36 @@ public class SoundManager
         /**
          * Constructor for a sound effect soundkey.
          */
-        public SoundKey (byte cmd, String pkgPath, String key, int delay)
+        public SoundKey (byte cmd, String pkgPath, String key, int delay,
+                         float volume)
         {
             this(cmd, pkgPath, key);
 
             stamp = System.currentTimeMillis() + delay;
+            this.volume = volume;
+        }
+
+        // documentation inherited from interface Frob
+        public void stop ()
+        {
+            running = false;
+            Thread t = thread;
+            if (t != null) {
+                // doesn't actually ever seem to do much
+                t.interrupt();
+            }
+        }
+
+        // documentation inherited from interface Frob
+        public void setVolume (float vol)
+        {
+            volume = Math.max(0f, Math.min(1f, vol));
+        }
+
+        // documentation inherited from interface Frob
+        public float getVolume ()
+        {
+            return volume;
         }
 
         /**
@@ -804,6 +895,7 @@ public class SoundManager
     protected static final byte LOCK = 1;
     protected static final byte UNLOCK = 2;
     protected static final byte DIE = 3;
+    protected static final byte LOOP = 4;
 
     /** A pref that specifies a directory for us to get test sounds from. */
     protected static RuntimeAdjust.FileAdjust _testDir =
