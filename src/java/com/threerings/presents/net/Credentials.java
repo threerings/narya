@@ -1,5 +1,5 @@
 //
-// $Id: Credentials.java,v 1.11 2002/12/20 23:41:26 mdb Exp $
+// $Id: Credentials.java,v 1.12 2004/01/31 12:16:12 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -58,9 +58,23 @@ public abstract class Credentials implements Streamable
         }
     }
 
+    /**
+     * Generates a string representation of this instance.
+     */
     public String toString ()
     {
-        return "[username=" + _username + "]";
+        StringBuffer buf = new StringBuffer("[");
+        toString(buf);
+        return buf.append("]").toString();
+    }
+
+    /**
+     * An easily extensible method via which derived classes can add to
+     * {@link #toString()}'s output.
+     */
+    protected void toString (StringBuffer buf)
+    {
+        buf.append("username=").append(_username);
     }
 
     protected String _username;

@@ -1,5 +1,5 @@
 //
-// $Id: UsernamePasswordCreds.java,v 1.11 2002/12/20 23:41:26 mdb Exp $
+// $Id: UsernamePasswordCreds.java,v 1.12 2004/01/31 12:16:12 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -45,9 +45,11 @@ public class UsernamePasswordCreds extends Credentials
         }
     }
 
-    public String toString ()
+    // documentation inherited
+    protected void toString (StringBuffer buf)
     {
-        return "[username=" + _username + ", password=" + _password + "]";
+        super.toString(buf);
+        buf.append(", password=").append(_password);
     }
 
     protected String _password;
