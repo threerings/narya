@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeSpotSceneImpl.java,v 1.2 2001/12/14 00:12:32 mdb Exp $
+// $Id: RuntimeSpotSceneImpl.java,v 1.3 2002/04/17 00:16:34 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -92,6 +92,12 @@ public class RuntimeSpotSceneImpl extends RuntimeSceneImpl
     {
         int pidx = getPortalIndex(locationId);
         return (pidx == -1) ? -1 : _model.targetLocIds[pidx];
+    }
+
+    // documentation inherited from interface
+    public SpotSceneModel getModel ()
+    {
+        return _model;
     }
 
     /**

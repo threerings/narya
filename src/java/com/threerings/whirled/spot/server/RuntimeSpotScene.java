@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeSpotScene.java,v 1.2 2001/12/14 00:12:32 mdb Exp $
+// $Id: RuntimeSpotScene.java,v 1.3 2002/04/17 00:16:34 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -14,7 +14,7 @@ import com.threerings.whirled.server.RuntimeScene;
 public interface RuntimeSpotScene extends RuntimeScene
 {
     /**
-     * Returns the number of locations in this scene.
+     * Returns the number of locations (and portals) in this scene.
      */
     public int getLocationCount ();
 
@@ -60,4 +60,9 @@ public interface RuntimeSpotScene extends RuntimeScene
      * is not a portal.
      */
     public int getTargetLocationId (int locationId);
+
+    /**
+     * Returns a reference to the underlying model.
+     */
+    public SpotSceneModel getModel ();
 }
