@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSetRuleSet.java,v 1.8 2003/02/11 06:18:59 mdb Exp $
+// $Id: ObjectTileSetRuleSet.java,v 1.9 2003/03/03 20:41:50 ray Exp $
 
 package com.threerings.media.tile.tools.xml;
 
@@ -140,7 +140,10 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
                     for (int ii = 0; ii < sorients.length; ii++) {
                         sorients[ii] = (byte)
                             DirectionUtil.fromShortString(ostrs[ii]);
-                        if (sorients[ii] == DirectionUtil.NONE) {
+                        if ((sorients[ii] == DirectionUtil.NONE) &&
+                            // don't complain if they didn't even try to
+                            // specify a valid direction
+                            (! ostrs[ii].equals("-1"))) {
                             System.err.println("Invalid spot orientation " +
                                                "[set=" + set.getName() +
                                                ", idx=" + ii +
