@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.48 2002/09/13 06:41:34 mdb Exp $
+// $Id: DObject.java,v 1.49 2002/09/19 16:38:03 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -454,8 +454,14 @@ public class DObject implements Streamable
     {
         if (_tevent != null) {
             _tevent.postEvent(event);
-        } else {
+
+        } else if (_omgr != null) {
             _omgr.postEvent(event);
+
+        } else {
+            Log.warning("Unable to post event, object has no omgr " +
+                        "[oid=" + getOid() + ", class=" + getClass().getName() +
+                        ", event=" + event + "].");
         }
     }
 
