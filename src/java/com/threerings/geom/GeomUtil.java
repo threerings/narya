@@ -1,9 +1,11 @@
 //
-// $Id: GeomUtil.java,v 1.2 2002/06/28 01:29:08 mdb Exp $
+// $Id: GeomUtil.java,v 1.3 2002/10/29 06:07:22 mdb Exp $
 
 package com.threerings.geom;
 
 import java.awt.Point;
+import java.awt.Rectangle;
+
 import com.samskivert.util.StringUtil;
 
 /**
@@ -111,5 +113,31 @@ public class GeomUtil
         // it's positive, we're on the right hand side, if it's negative
         // we're on the left hand side and if it's zero, we're on the line
         return dot(p1.x, p1.y, p2.x, p2.y, x, y);
+    }
+
+    /**
+     * Shifts the position of the <code>tainer</code> rectangle to ensure
+     * that it contains the <code>tained</code> rectangle. The
+     * <code>tainer</code> rectangle must be larger than or equal to the
+     * size of the <code>tained</code> rectangle.
+     */
+    public static void shiftToContain (Rectangle tainer, Rectangle tained)
+    {
+        if (tainer.width < tained.width || tainer.height < tained.height) {
+            throw new IllegalArgumentException(
+                tainer + " cannot contain " + tained);
+        }
+        if (tained.x < tainer.x) {
+            tainer.x = tained.x;
+        }
+        if (tained.y < tainer.y) {
+            tainer.y = tained.y;
+        }
+        if (tained.x + tained.width > tainer.x + tainer.width) {
+            tainer.x = tained.x - (tainer.width - tained.width);
+        }
+        if (tained.y + tained.height > tainer.y + tainer.height) {
+            tainer.y = tained.y - (tainer.height - tained.height);
+        }
     }
 }
