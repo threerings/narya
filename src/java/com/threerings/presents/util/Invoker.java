@@ -1,5 +1,5 @@
 //
-// $Id: Invoker.java,v 1.9 2003/08/08 03:23:43 ray Exp $
+// $Id: Invoker.java,v 1.10 2003/08/18 21:38:07 mdb Exp $
 
 package com.threerings.presents.util;
 
@@ -161,7 +161,7 @@ public class Invoker extends LoopingThread
     // documentation inherited from interface
     public void appendReport (StringBuffer buffer, long now, long sinceLast)
     {
-        buffer.append("* presents.util.Invoker:");
+        buffer.append("* presents.util.Invoker:\n");
         buffer.append("- Units executed: ").append(_unitsRun).append("\n");
         _unitsRun = 0;
         for (Iterator iter = _tracker.keySet().iterator(); iter.hasNext(); ) {
