@@ -1,5 +1,5 @@
 //
-// $Id: CastUtil.java,v 1.2 2001/11/18 04:09:21 mdb Exp $
+// $Id: CastUtil.java,v 1.3 2001/11/27 08:06:57 mdb Exp $
 
 package com.threerings.cast.util;
 
@@ -12,6 +12,7 @@ import com.threerings.media.util.RandomUtil;
 import com.threerings.cast.CharacterDescriptor;
 import com.threerings.cast.CharacterManager;
 import com.threerings.cast.ComponentClass;
+import com.threerings.cast.ComponentRepository;
 
 /**
  * Miscellaneous cast utility routines.
@@ -23,11 +24,11 @@ public class CastUtil
      * components.
      */
     public static CharacterDescriptor getRandomDescriptor (
-        CharacterManager charmgr)
+        ComponentRepository crepo)
     {
         // get all available classes
         ArrayList classes = new ArrayList();
-        CollectionUtil.addAll(classes, charmgr.enumerateComponentClasses());
+        CollectionUtil.addAll(classes, crepo.enumerateComponentClasses());
 
         // select the components
         int size = classes.size();
@@ -37,12 +38,12 @@ public class CastUtil
 
             // get the components available for this class
             ArrayList choices = new ArrayList();
-            Iterator iter = charmgr.enumerateComponentsByClass(cclass.clid);
+            Iterator iter = crepo.enumerateComponentIds(cclass);
             CollectionUtil.addAll(choices, iter);
 
             // choose a random component
             int idx = RandomUtil.getInt(choices.size());
-            components[cclass.clid] = ((Integer)choices.get(idx)).intValue();
+            components[ii] = ((Integer)choices.get(idx)).intValue();
         }
 
         return new CharacterDescriptor(components);

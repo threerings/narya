@@ -1,0 +1,29 @@
+<?xml version="1.0" standalone="yes"?>
+<!-- $Id: actions.xml,v 1.1 2001/11/27 08:06:57 mdb Exp $ -->
+
+<!-- test component action definitions -->
+<actions>
+  <action name="standing">
+    <framesPerSecond>5</framesPerSecond>
+    <origin>47,80</origin>
+    <tileset>
+      <heights>94, 94, 94, 94, 94, 94, 94, 94</heights>
+      <widths>94, 94, 94, 94, 94, 94, 94, 94</widths>
+      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
+      <offsetPos>1, 1</offsetPos>
+      <gapDist>39, 18</gapDist>
+    </tileset>
+  </action>
+
+  <action name="walking">
+    <framesPerSecond>5</framesPerSecond>
+    <origin>47,80</origin>
+    <tileset>
+      <heights>94, 94, 94, 94, 94, 94, 94, 94</heights>
+      <widths>94, 94, 94, 94, 94, 94, 94, 94</widths>
+      <tileCounts>6, 6, 6, 6, 6, 6, 6, 6</tileCounts>
+      <offsetPos>1, 1</offsetPos>
+      <gapDist>39, 18</gapDist>
+    </tileset>
+  </action>
+</actions>

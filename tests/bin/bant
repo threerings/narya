@@ -1,0 +1,14 @@
+#!/bin/sh
+#
+# Invokes ant with the necessary class to build the component bundles.
+
+BINDIR=`dirname $0`
+
+# add all JAR files in /usr/share/ant/lib/ to CLASSPATH
+SYSTEMCP=`echo /usr/share/java/*.jar | tr ' ' ':'`
+# add all JAR files in /usr/share/ant/lib/ to CLASSPATH
+PROJECTCP=`echo $BINDIR/../../lib/*.jar | tr ' ' ':'`
+# also add narya.jar
+export CLASSPATH=$BINDIR/../../dist/narya.jar:$PROJECTCP:$SYSTEMCP
+# and invoke ant with the proper target
+ant "$@" cbundles

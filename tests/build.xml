@@ -11,6 +11,9 @@
   <property name="src.dir"    value="src/java"/>
   <property name="deploy.dir" value="dist"/>
 
+  <property name="cbundle.dir" value="rsrc/bundles/components/pirate"/>
+  <property name="tbundle.dir" value="rsrc/bundles/tiles"/>
+
   <!-- declare our classpath -->
   <path id="classpath">
     <pathelement location="../${deploy.dir}/classes"/>
@@ -39,7 +42,8 @@
   <!-- build the java class files -->
   <target name="compile" depends="prepare">
     <javac srcdir="${src.dir}" destdir="${deploy.dir}/classes"
-           debug="on" optimize="off" deprecation="off">
+      debug="on" optimize="off" deprecation="off"
+      excludes="com/threerings/cast/builder/**">
       <classpath refid="classpath"/>
     </javac>
   </target>
@@ -57,6 +61,24 @@
         </fileset>
       </batchtest>
     </junit>
+  </target>
+
+  <!-- test the component metadata bundling process -->
+  <target name="cbundles" description="Build component bundles.">
+    <!-- first build the metadata bundle -->
+    <taskdef name="metabundle"
+      classname="com.threerings.cast.tools.bundle.MetadataBundlerTask"/>
+    <metabundle actiondef="${cbundle.dir}/actions.xml"
+      classdef="${cbundle.dir}/classes.xml"
+      target="${cbundle.dir}/metadata.jar"/>
+
+    <!-- then a component bundle -->
+    <taskdef name="cbundle"
+      classname="com.threerings.cast.tools.bundle.ComponentBundlerTask"/>
+    <cbundle target="${cbundle.dir}/components.jar"
+      mapfile="${cbundle.dir}/components.map">
+      <fileset dir="${cbundle.dir}" includes="**/*.png"/>
+    </cbundle>
   </target>
 
 </project>

@@ -1,0 +1,8 @@
+<?xml version="1.0" standalone="yes"?>
+<!-- $Id: classes.xml,v 1.1 2001/11/27 08:06:57 mdb Exp $ -->
+
+<!-- test component class definitions -->
+<classes>
+  <class name="hat" renderPriority="1"/>
+  <class name="torso" renderPriority="0"/>
+</classes>
