@@ -1,5 +1,5 @@
 //
-// $Id: NodeMap.java,v 1.4 2001/08/28 23:50:45 shaper Exp $
+// $Id: NodeMap.java,v 1.5 2001/10/11 00:41:27 shaper Exp $
 
 package com.threerings.nodemap;
 
@@ -36,7 +36,9 @@ public class NodeMap
     public void layout ()
     {
 	// do nothing if we have no nodes
-	if (_nodes.size() == 0) return;
+	if (_nodes.size() == 0) {
+	    return;
+	}
 
 	// default to using the first node as the root
 	if (_root == null) {
@@ -54,7 +56,8 @@ public class NodeMap
     }
 
     /**
-     * Calculate the bounding rectangle that wholly contains the node map.
+     * Calculate the bounding rectangle that wholly contains the node
+     * map.
      */
     protected void updateBounds ()
     {
@@ -126,6 +129,9 @@ public class NodeMap
      * present in the node map more than once.
      *
      * @param n the node to add.
+     *
+     * @exception DuplicateNodeException thrown if the node already
+     * exists in the node map.
      */
     public void addNode (Node n) throws DuplicateNodeException
     {
@@ -146,6 +152,11 @@ public class NodeMap
      *
      * @param n the node.
      * @param e the edge to add.
+     *
+     * @exception NoSuchNodeException thrown if the given node does
+     * not exist in the node map.
+     * @exception DuplicateEdgeException thrown if the given node
+     * already contains the given edge.
      */
     public void addEdge (Node n, Edge e)
 	throws NoSuchNodeException, DuplicateEdgeException
@@ -165,6 +176,9 @@ public class NodeMap
      * present in the node map.
      *
      * @param n the root node.
+     *
+     * @exception NoSuchNodeException thrown if the given node does
+     * not exist in the node map.
      */
     public void setRootNode (Node n) throws NoSuchNodeException
     {
@@ -177,7 +191,7 @@ public class NodeMap
     }
 
     /**
-     * Return the dimensions of the node map in pixels.
+     * Returns the dimensions of the node map in pixels.
      */
     public Dimension getSize ()
     {
@@ -190,7 +204,7 @@ public class NodeMap
     }
 
     /**
-     * Return the bounding rectangle of the node map.
+     * Returns the bounding rectangle of the node map.
      */
     public Rectangle getBounds ()
     {
@@ -204,7 +218,7 @@ public class NodeMap
      * events.
      *
      * @param x the mouse x-coordinate.
-     * @param y the ymouse y-coordinate.
+     * @param y the mouse y-coordinate.
      */
     public void handleMouseMoved (int x, int y)
     {
@@ -263,7 +277,7 @@ public class NodeMap
      * Inform any affected nodes of mouse-clicked events.
      *
      * @param x the mouse x-coordinate.
-     * @param y the ymouse y-coordinate.
+     * @param y the mouse y-coordinate.
      */
     public void handleMouseClicked (int x, int y)
     {

@@ -1,5 +1,5 @@
 //
-// $Id: TileSetManagerImpl.java,v 1.12 2001/09/17 05:18:21 mdb Exp $
+// $Id: TileSetManagerImpl.java,v 1.13 2001/10/11 00:41:26 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -28,20 +28,26 @@ public abstract class TileSetManagerImpl implements TileSetManager
     }
 
     public int getNumTilesInSet (int tsid)
+	throws NoSuchTileSetException
     {
-	TileSet tset = getTileSet(tsid);
-	return (tset != null) ? tset.getNumTiles() : -1;
+	return getTileSet(tsid).getNumTiles();
     }
 
     public TileSet getTileSet (int tsid)
+	throws NoSuchTileSetException
     {
-	return (TileSet)_tilesets.get(tsid);
+	TileSet tset = (TileSet)_tilesets.get(tsid);
+	if (tset == null) {
+	    throw new NoSuchTileSetException(tsid);
+	}
+
+	return tset;
     }
 
     public Tile getTile (int tsid, int tid)
+	throws NoSuchTileSetException, NoSuchTileException
     {
-	TileSet tset = getTileSet(tsid);
-	return (tset == null) ? null : tset.getTile(_imgmgr, tid);
+	return getTileSet(tsid).getTile(_imgmgr, tid);
     }
 
     public ArrayList getAllTileSets ()

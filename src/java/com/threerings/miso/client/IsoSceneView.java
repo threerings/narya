@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.56 2001/09/28 01:31:32 mdb Exp $
+// $Id: IsoSceneView.java,v 1.57 2001/10/11 00:41:27 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -12,7 +12,6 @@ import java.util.ArrayList;
 
 import com.threerings.media.sprite.*;
 import com.threerings.media.tile.Tile;
-import com.threerings.media.tile.TileManager;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.util.AStarPathUtil;
@@ -28,14 +27,11 @@ public class IsoSceneView implements SceneView
     /**
      * Construct an <code>IsoSceneView</code> object.
      *
-     * @param tilemgr the tile manager.
      * @param spritemgr the sprite manager.
      * @param model the data model.
      */
-    public IsoSceneView (TileManager tilemgr, SpriteManager spritemgr,
-                         IsoSceneViewModel model)
+    public IsoSceneView (SpriteManager spritemgr, IsoSceneViewModel model)
     {
-	_tilemgr = tilemgr;
         _spritemgr = spritemgr;
 
         setModel(model);
@@ -174,7 +170,9 @@ public class IsoSceneView implements SceneView
 	    for (int xx = 0; xx < _model.scenewid; xx++) {
 
 		// skip this tile if it's not marked dirty
-		if (!_dirty[xx][yy]) continue;
+		if (!_dirty[xx][yy]) {
+		    continue;
+		}
 
 		// get the tile's screen position
 		Polygon poly = _polys[xx][yy];
@@ -183,15 +181,17 @@ public class IsoSceneView implements SceneView
 		for (int kk = 0; kk < MisoScene.NUM_LAYERS; kk++) {
 
 		    // get the tile at these coordinates and layer
-		    Tile tile = tiles[xx][yy][kk];
-		    if (tile == null) continue;
+		    Tile tile = tiles[kk][xx][yy];
+		    if (tile == null) {
+			continue;
+		    }
 
 		    // offset the image y-position by the tile-specific height
 		    int ypos = poly.ypoints[0] - _model.tilehhei -
 			(tile.height - _model.tilehei);
 
 		    // draw the tile image
-		    gfx.drawImage(tile.img, poly.xpoints[0], ypos, null);
+		    tile.paint(gfx, poly);
 		}
 
 		// draw all sprites residing in the current tile
@@ -204,7 +204,9 @@ public class IsoSceneView implements SceneView
                 }
 
 		// bail early if we know we've drawn all dirty tiles
-		if (++numDrawn == _numDirty) break;
+		if (++numDrawn == _numDirty) {
+		    break;
+		}
 	    }
 	}
     }
@@ -237,19 +239,23 @@ public class IsoSceneView implements SceneView
 
 		for (int kk = 0; kk < MisoScene.NUM_LAYERS; kk++) {
 		    // grab the tile we're rendering
-		    Tile tile = tiles[tx][ty][kk];
-		    if (tile == null) continue;
+		    Tile tile = tiles[kk][tx][ty];
+		    if (tile == null) {
+			continue;
+		    }
+
+		    Polygon poly = _polys[tx][ty];
 
 		    // determine screen y-position, accounting for
 		    // tile image height
 		    int ypos = screenY - (tile.height - _model.tilehei);
 
 		    // draw the tile image at the appropriate screen position
-		    gfx.drawImage(tile.img, screenX, ypos, null);
+		    tile.paint(gfx, poly);
 
                     // draw all sprites residing in the current tile
                     // TODO: simplify other tile positioning here to use poly
-                    _spritemgr.renderSprites(gfx, _polys[tx][ty]);
+                    _spritemgr.renderSprites(gfx, poly);
                 }
 
 		// draw tile coordinates in each tile
@@ -505,7 +511,9 @@ public class IsoSceneView implements SceneView
 	}
 
 	// do nothing if the tile's already dirty
-	if (_dirty[x][y]) return;
+	if (_dirty[x][y]) {
+	    return;
+	}
 
 	// mark the tile dirty
 	_numDirty++;
@@ -543,7 +551,7 @@ public class IsoSceneView implements SceneView
 	// get a reasonable path from start to end
 	List tilepath =
 	    AStarPathUtil.getPath(
-		_scene.getTiles(), _model.scenewid, _model.scenehei,
+		_scene.getBaseLayer(), _model.scenewid, _model.scenehei,
 		sprite, stpos.x, stpos.y, tbx, tby);
 	if (tilepath == null) {
 	    return null;
@@ -624,7 +632,4 @@ public class IsoSceneView implements SceneView
 
     /** The sprite manager. */
     protected SpriteManager _spritemgr;
-
-    /** The tile manager. */
-    protected TileManager _tilemgr;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneWriter.java,v 1.14 2001/09/28 01:31:32 mdb Exp $
+// $Id: XMLSceneWriter.java,v 1.15 2001/10/11 00:41:27 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -211,7 +211,7 @@ public class XMLSceneWriter extends DataWriter
 
         int numtiles = colstart + len;
         for (int ii = colstart; ii < numtiles; ii++) {
-            Tile tile = tiles[ii][rownum][lnum];
+            Tile tile = tiles[lnum][ii][rownum];
             if (tile == null) {
                 Log.warning("Null tile [x=" + ii + ", rownum=" + rownum +
                             ", lnum=" + lnum + "].");
@@ -277,7 +277,7 @@ public class XMLSceneWriter extends DataWriter
         Tile[][][] tiles = scene.getTiles();
         int start = -1, len = 0;
         for (int xx = info[0]; xx < _model.scenewid; xx++) {
-            Tile tile = tiles[xx][rownum][lnum];
+            Tile tile = tiles[lnum][xx][rownum];
             if (tile == null) {
                 if (start == -1) {
                     continue;

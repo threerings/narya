@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.5 2001/10/08 21:04:25 shaper Exp $
+// $Id: AStarPathUtil.java,v 1.6 2001/10/11 00:41:27 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -43,7 +43,7 @@ public class AStarPathUtil
      * @return the list of points in the path.
      */
     public static List getPath (
-	MisoTile tiles[][][], int tilewid, int tilehei, Traverser trav,
+	MisoTile tiles[][], int tilewid, int tilehei, Traverser trav,
 	int ax, int ay, int bx, int by)
     {
 	AStarInfo info = new AStarInfo(tiles, tilewid, tilehei, trav, bx, by);
@@ -109,8 +109,7 @@ public class AStarPathUtil
 	}
 
 	// skip node if it's impassable
-	// TODO: fix hard-coded consideration of only the base layer
-	if (!info.trav.canTraverse(info.tiles[x][y][0])) {
+	if (!info.trav.canTraverse(info.tiles[x][y])) {
 	    return;
 	}
 
@@ -198,7 +197,7 @@ public class AStarPathUtil
 class AStarInfo
 {
     /** The array of tiles being traversed. */
-    public MisoTile tiles[][][];
+    public MisoTile tiles[][];
 
     /** The tile array dimensions. */
     public int tilewid, tilehei;
@@ -219,7 +218,7 @@ class AStarInfo
     public int destx, desty;
 
     public AStarInfo (
-	MisoTile tiles[][][], int tilewid, int tilehei, Traverser trav,
+	MisoTile tiles[][], int tilewid, int tilehei, Traverser trav,
 	int destx, int desty)
     {
 	// save off references

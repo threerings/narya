@@ -1,33 +1,33 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: tilesets.xml,v 1.18 2001/09/28 03:46:01 shaper Exp $ -->
+<!-- $Id: tilesets.xml,v 1.19 2001/10/11 00:41:26 shaper Exp $ -->
 
 <!-- Initial test tileset description data. -->
 
 <tilesetgroup>
 
-  <tileset tsid="1000" name="Ground">
+  <tileset tsid="1000" name="Ground" layer="Base">
     <imagefile>media/miso/tiles/base.png</imagefile>
     <rowheight>16, 16</rowheight>
     <rowwidth>32, 32</rowwidth>
     <tilecount>10, 10</tilecount>
   </tileset>
 
-  <tileset tsid="1001" name="Wall">
+  <tileset tsid="1001" name="Wall" layer="Object">
     <imagefile>media/miso/tiles/wall.png</imagefile>
     <rowheight>45, 45</rowheight>
     <rowwidth>32, 32</rowwidth>
     <tilecount>3, 3</tilecount>
   </tileset>
 
-  <tileset tsid="1002" name="Icons">
+  <tileset tsid="1002" name="Icons" layer="Object">
     <imagefile>media/miso/tiles/icons.png</imagefile>
     <rowheight>20, 49</rowheight>
     <rowwidth>32, 32</rowwidth>
     <tilecount>9, 2</tilecount>
   </tileset>
 
-  <tileset tsid="1003" name="Red Character">
+  <tileset tsid="1003" name="Red Character" layer="Fringe">
     <imagefile>media/miso/tiles/character.png</imagefile>
     <rowheight>94, 94, 94, 94, 94, 94, 94, 94</rowheight>
     <rowwidth>94, 94, 94, 94, 94, 94, 94, 94</rowwidth>
@@ -36,7 +36,7 @@
     <gapdist>39, 18</gapdist>
   </tileset>
 
-  <tileset tsid="1005" name="Yellow Character">
+  <tileset tsid="1005" name="Yellow Character" layer="Fringe">
     <imagefile>media/miso/tiles/character-yellow.png</imagefile>
     <rowheight>94, 94, 94, 94, 94, 94, 94, 94</rowheight>
     <rowwidth>94, 94, 94, 94, 94, 94, 94, 94</rowwidth>
@@ -45,7 +45,7 @@
     <gapdist>39, 18</gapdist>
   </tileset>
 
-  <tileset tsid="1006" name="Black Character">
+  <tileset tsid="1006" name="Black Character" layer="Fringe">
     <imagefile>media/miso/tiles/character-black.png</imagefile>
     <rowheight>94, 94, 94, 94, 94, 94, 94, 94</rowheight>
     <rowwidth>94, 94, 94, 94, 94, 94, 94, 94</rowwidth>
@@ -54,7 +54,7 @@
     <gapdist>39, 18</gapdist>
   </tileset>
 
-  <tileset tsid="1004" name="Sample">
+  <tileset tsid="1004" name="Sample" layer="Base">
     <imagefile>media/miso/tiles/sample.png</imagefile>
     <rowheight>48</rowheight>
     <rowwidth>64</rowwidth>
@@ -62,21 +62,21 @@
     <passable>1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1</passable>
   </tileset>
 
-  <tileset tsid="1007" name="Node Icons">
+  <tileset tsid="1007" name="Node Icons" layer="Fringe">
     <imagefile>media/miso/tiles/node-icons.png</imagefile>
     <rowheight>16</rowheight>
     <rowwidth>16</rowwidth>
     <tilecount>8</tilecount>
   </tileset>
 
-  <tileset tsid="1008" name="Editor Icons">
+  <tileset tsid="1008" name="Editor Icons" layer="Fringe">
     <imagefile>media/miso/tiles/editor-icons.png</imagefile>
     <rowheight>22</rowheight>
     <rowwidth>20</rowwidth>
     <tilecount>5</tilecount>
   </tileset>
 
-  <tileset tsid="1009" name="Building">
+  <tileset tsid="1009" name="Building" layer="Object">
     <imagefile>media/miso/tiles/building.png</imagefile>
     <rowheight>240</rowheight>
     <rowwidth>64</rowwidth>
@@ -84,7 +84,7 @@
     <passable>0, 0, 0, 0, 0, 0</passable>
   </tileset>
 
-  <tileset tsid="1010" name="Sword Pieces">
+  <tileset tsid="1010" name="Sword Pieces" layer="Fringe">
     <imagefile>media/miso/tiles/sword-pieces.png</imagefile>
     <rowheight>10</rowheight>
     <rowwidth>10</rowwidth>

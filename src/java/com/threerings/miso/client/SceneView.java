@@ -1,5 +1,5 @@
 //
-// $Id: SceneView.java,v 1.15 2001/08/22 02:14:57 mdb Exp $
+// $Id: SceneView.java,v 1.16 2001/10/11 00:41:27 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -8,7 +8,6 @@ import java.util.List;
 
 import com.threerings.media.sprite.DirtyRectList;
 import com.threerings.media.sprite.Path;
-import com.threerings.media.tile.Tile;
 
 /**
  * The scene view interface provides an interface to be implemented by

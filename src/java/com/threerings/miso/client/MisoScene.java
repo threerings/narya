@@ -1,10 +1,12 @@
 //
-// $Id: MisoScene.java,v 1.4 2001/10/08 21:04:25 shaper Exp $
+// $Id: MisoScene.java,v 1.5 2001/10/11 00:41:27 shaper Exp $
 
 package com.threerings.miso.scene;
 
 import java.util.List;
 
+import com.threerings.media.tile.Tile;
+import com.threerings.media.tile.ObjectTile;
 import com.threerings.miso.tile.MisoTile;
 
 /**
@@ -40,38 +42,58 @@ public interface MisoScene
     public String getName ();
 
     /**
-     * Return the tiles that comprise this scene.
+     * Returns an array of the tile layers that comprise the scene.
      */
-    public MisoTile[][][] getTiles ();
+    public Tile[][][] getTiles ();
 
     /**
-     * Return the default tile for the base layer of the scene.
+     * Returns the tile layer for the specified layer index.
+     */
+    public Tile[][] getTiles (int lnum);
+
+    /**
+     * Returns the tiles that comprise the base layer of this scene.
+     */
+    public MisoTile[][] getBaseLayer ();
+
+    /**
+     * Returns the tiles that comprise the fringe layer of this scene.
+     */
+    public Tile[][] getFringeLayer ();
+
+    /**
+     * Returns the tiles that comprise the object layer of this scene.
+     */
+    public ObjectTile[][] getObjectLayer ();
+
+    /**
+     * Returns the default tile for the base layer of the scene.
      */
     public MisoTile getDefaultTile ();
 
     /**
-     * Return the locations in this scene. The locations list should
-     * contain all locations and portals in the scene. The list returned
-     * by this method should <em>not</em> be modified.
+     * Returns the locations in this scene. The locations list should
+     * contain all locations and portals in the scene. The list
+     * returned by this method should <em>not</em> be modified.
      */
     public List getLocations ();
 
     /**
-     * Return the clusters in this scene. The clusters will reference all
-     * of the locations that are clustered. The list returned by this
-     * method should <em>not</em> be modified.
+     * Returns the clusters in this scene. The clusters will reference
+     * all of the locations that are clustered. The list returned by
+     * this method should <em>not</em> be modified.
      */
     public List getClusters ();
 
     /**
-     * Return the portals associated with this scene. Portals should never
-     * be part of a cluster. The list returned by this method should
-     * <em>not</em> be modified.
+     * Returns the portals associated with this scene. Portals should
+     * never be part of a cluster. The list returned by this method
+     * should <em>not</em> be modified.
      */
     public List getPortals ();
 
     /**
-     * Return the portal that is the default entrance to this scene.
+     * Returns the portal that is the default entrance to this scene.
      */
     public Portal getEntrance ();
 }

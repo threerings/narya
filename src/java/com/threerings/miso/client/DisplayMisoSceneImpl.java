@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.38 2001/10/08 21:04:25 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.39 2001/10/11 00:41:27 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -10,11 +10,12 @@ import java.util.List;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.media.tile.TileManager;
+import com.threerings.media.tile.*;
 import com.threerings.whirled.data.Scene;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.util.ClusterUtil;
+
 import com.threerings.miso.tile.MisoTile;
 
 /**
@@ -24,71 +25,55 @@ import com.threerings.miso.tile.MisoTile;
  */
 public class MisoSceneImpl implements EditableMisoScene
 {
+    /** The scene name. */
+    public String name = DEF_SCENE_NAME;
+
+    /** The locations within the scene. */
+    public ArrayList locations = new ArrayList();
+
+    /** The clusters within the scene. */
+    public ArrayList clusters = new ArrayList();
+
+    /** The portals to different scenes. */
+    public ArrayList portals = new ArrayList();
+
+    /** The base tiles in the scene. */
+    public MisoTile[][] baseTiles;
+
+    /** The fringe tiles in the scene. */
+    public Tile[][] fringeTiles;
+
+    /** The object tiles in the scene. */
+    public ObjectTile[][] objectTiles;
+
+    /** All tiles in the scene. */
+    public Tile[][][] tiles;
+
     /**
      * Construct a new miso scene object. The base layer tiles are
      * initialized to contain tiles of the specified default tileset and
      * tile id.
      *
      * @param model the iso scene view model.
-     * @param tilemgr the tile manager.
-     * @param deftsid the default tileset id.
-     * @param deftid the default tile id.
+     * @param deftile the default tile.
      */
-    public MisoSceneImpl (IsoSceneViewModel model, TileManager tilemgr,
-                          int deftsid, int deftid)
+    public MisoSceneImpl (IsoSceneViewModel model, MisoTile deftile)
     {
 	_model = model;
-	_tilemgr = tilemgr;
+	_deftile = deftile;
 
-	_sid = SID_INVALID;
-	_name = DEF_SCENE_NAME;
+	baseTiles = new MisoTile[_model.scenewid][_model.scenehei];
+	fringeTiles = new Tile[_model.scenewid][_model.scenehei];
+	objectTiles = new ObjectTile[_model.scenewid][_model.scenehei];
+	tiles = new Tile[][][] { baseTiles, fringeTiles, objectTiles };
 
-        _locations = new ArrayList();
-	_clusters = new ArrayList();
-        _portals = new ArrayList();
-
-	_tiles = new MisoTile[_model.scenewid][_model.scenehei][NUM_LAYERS];
-	_deftile = (MisoTile)_tilemgr.getTile(deftsid, deftid);
-	for (int xx = 0; xx < _model.scenewid; xx++) {
-	    for (int yy = 0; yy < _model.scenehei; yy++) {
-		for (int ii = 0; ii < NUM_LAYERS; ii++) {
-		    if (ii == LAYER_BASE) {
-			_tiles[xx][yy][ii] = _deftile;
-		    }
-		}
-	    }
-	}
-    }
-
-    /**
-     * Construct a new Miso scene object with the given values.
-     *
-     * @param model the iso scene view model.
-     * @param tilemgr the tile manager.
-     * @param name the scene name.
-     * @param locations the locations.
-     * @param portals the portals.
-     * @param tiles the tiles comprising the scene.
-     */
-    public MisoSceneImpl (IsoSceneViewModel model, TileManager tilemgr,
-                          String name, ArrayList locations,
-                          ArrayList clusters, ArrayList portals,
-                          MisoTile[][][] tiles)
-    {
-	_model = model;
-	_tilemgr = tilemgr;
-        _sid = SID_INVALID;
-        _name = name;
-        _locations = locations;
-	_clusters = clusters;
-        _portals = portals;
-        _tiles = tiles;
+	initBaseTiles();
     }
 
     // documentation inherited
     public String getName ()
     {
-        return _name;
+        return name;
     }
 
     // documentation inherited
@@ -109,10 +94,32 @@ public class MisoSceneImpl implements EditableMisoScene
         return null;
     }
 
-    // documentation inherited
-    public MisoTile[][][] getTiles ()
+    public Tile[][][] getTiles ()
     {
-        return _tiles;
+	return tiles;
+    }
+
+    public Tile[][] getTiles (int lnum)
+    {
+	return tiles[lnum];
+    }
+
+    // documentation inherited
+    public MisoTile[][] getBaseLayer ()
+    {
+	return baseTiles;
+    }
+
+    // documentation inherited
+    public Tile[][] getFringeLayer ()
+    {
+	return fringeTiles;
+    }
+
+    // documentation inherited
+    public ObjectTile[][] getObjectLayer ()
+    {
+	return objectTiles;
     }
 
     // documentation inherited
@@ -124,19 +131,19 @@ public class MisoSceneImpl implements EditableMisoScene
     // documentation inherited
     public List getLocations ()
     {
-        return _locations;
+        return locations;
     }
 
     // documentation inherited
     public List getClusters ()
     {
-        return _clusters;
+        return clusters;
     }
 
     // documentation inherited
     public List getPortals ()
     {
-        return _portals;
+        return portals;
     }
 
     // documentation inherited
@@ -160,7 +167,7 @@ public class MisoSceneImpl implements EditableMisoScene
     // documentation inherited
     public void setName (String name)
     {
-        _name = name;
+        this.name = name;
     }
 
     // documentation inherited
@@ -180,12 +187,12 @@ public class MisoSceneImpl implements EditableMisoScene
     public void updateLocation (Location loc, int clusteridx)
     {
 	// add the location if it's not already present
-	if (!_locations.contains(loc)) {
-	    _locations.add(loc);
+	if (!locations.contains(loc)) {
+	    locations.add(loc);
 	}
 
 	// update the cluster contents
-	ClusterUtil.regroup(_clusters, loc, clusteridx);
+	ClusterUtil.regroup(clusters, loc, clusteridx);
     }
 
     /**
@@ -201,14 +208,14 @@ public class MisoSceneImpl implements EditableMisoScene
 	updateLocation(portal, -1);
 
 	// don't allow adding a portal more than once
-	if (_portals.contains(portal)) {
+	if (portals.contains(portal)) {
 	    Log.warning("Attempt to add already-existing portal " +
 			"[portal=" + portal + "].");
 	    return;
 	}
 
 	// add it to the list
-	_portals.add(portal);
+	portals.add(portal);
     }
 
     /**
@@ -221,17 +228,17 @@ public class MisoSceneImpl implements EditableMisoScene
     public void removeLocation (Location loc)
     {
 	// remove from the location list
-	if (!_locations.remove(loc)) {
+	if (!locations.remove(loc)) {
 	    // we didn't know about it, so it can't be in a cluster or
 	    // the portal list
 	    return;
 	}
 
 	// remove from any possible cluster
-	ClusterUtil.remove(_clusters, loc);
+	ClusterUtil.remove(clusters, loc);
 
 	// remove from any possible existence on the portal list
-	_portals.remove(loc);
+	portals.remove(loc);
     }
 
     /**
@@ -240,47 +247,41 @@ public class MisoSceneImpl implements EditableMisoScene
     public String toString ()
     {
         StringBuffer buf = new StringBuffer();
-        buf.append("[name=").append(_name);
+        buf.append("[name=").append(name);
         buf.append(", sid=").append(_sid);
-        buf.append(", locations=").append(StringUtil.toString(_locations));
-        buf.append(", clusters=").append(StringUtil.toString(_clusters));
-        buf.append(", portals=").append(StringUtil.toString(_portals));
+        buf.append(", locations=").append(StringUtil.toString(locations));
+        buf.append(", clusters=").append(StringUtil.toString(clusters));
+        buf.append(", portals=").append(StringUtil.toString(portals));
         return buf.append("]").toString();
+    }
+
+    /**
+     * Initialize the base tile layer with the default tile.
+     */
+    protected void initBaseTiles ()
+    {
+	for (int xx = 0; xx < _model.scenewid; xx++) {
+	    for (int yy = 0; yy < _model.scenehei; yy++) {
+		baseTiles[xx][yy] = _deftile;
+	    }
+	}
     }
 
     /** The default scene name. */
     protected static final String DEF_SCENE_NAME = "Untitled Scene";
 
-    /** The scene name. */
-    protected String _name;
-
     /** The unique scene id. */
-    protected int _sid;
+    protected int _sid = SID_INVALID;
 
     /** The scene version. */
     protected int _version;
 
-    /** The tiles comprising the scene. */
-    public MisoTile[][][] _tiles;
-
     /** The default entrance portal. */
     protected Portal _entrance;
-
-    /** The locations within the scene. */
-    protected ArrayList _locations;
-
-    /** The clusters within the scene. */
-    protected ArrayList _clusters;
-
-    /** The portals to different scenes. */
-    protected ArrayList _portals;
 
     /** The default tile for the base layer in the scene. */
     protected MisoTile _deftile;
 
     /** The iso scene view data model. */
     protected IsoSceneViewModel _model;
-
-    /** The tile manager. */
-    protected TileManager _tilemgr;
 }

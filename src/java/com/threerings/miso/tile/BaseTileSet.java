@@ -1,9 +1,11 @@
 //
-// $Id: BaseTileSet.java,v 1.1 2001/10/08 21:04:25 shaper Exp $
+// $Id: BaseTileSet.java,v 1.2 2001/10/11 00:41:27 shaper Exp $
 
 package com.threerings.miso.tile;
 
 import com.threerings.media.tile.*;
+
+import com.threerings.miso.scene.MisoScene;
 
 /**
  * The miso tile set class extends the base tile set class to add
@@ -12,28 +14,33 @@ import com.threerings.media.tile.*;
  * traverse a particular tile in a {@link
  * com.threerings.miso.scene.MisoScene}.
  */
-public class MisoTileSet extends TileSet
+public class MisoTileSet extends TileSetImpl
 {
-    public MisoTileSet ()
-    {
-	_model = new MisoTileSetModel();
-    }
+    /** The miso scene layer the tiles are intended for. */
+    public int layer;
+
+    /** Whether each tile is passable. */
+    public int passable[];
 
     public Tile createTile (int tid)
     {
-	MisoTile tile = new MisoTile(_model.tsid, tid);
+	// only create miso tiles for the base layer
+	if (layer != MisoScene.LAYER_BASE) {
+	    return super.createTile(tid);
+	}
 
-	// set the tile's passability, defaulting to passable if this
-	// tileset has no passability specified
-	int passable[] = ((MisoTileSetModel)_model).passable;
-	tile.passable = (passable == null || (passable[tid] == 1));
-
-	return tile;
+	return new MisoTile(tsid, tid);
     }
 
-    protected static class MisoTileSetModel extends TileSetModel
+    protected void populateTile (Tile tile)
     {
-	/** Whether each tile is passable. */
-	public int passable[];
+	super.populateTile(tile);
+
+	if (tile instanceof MisoTile) {
+	    // set the tile's passability, defaulting to passable if this
+	    // tileset has no passability specified
+	    ((MisoTile)tile).passable =
+		(passable == null || (passable[tile.tid] == 1));
+	}
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.17 2001/09/28 00:44:31 shaper Exp $
+// $Id: TileManager.java,v 1.18 2001/10/11 00:41:26 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -39,6 +39,7 @@ public class TileManager
      * @return the tile object, or null if an error occurred.
      */
     public Tile getTile (int tsid, int tid)
+	throws NoSuchTileSetException, NoSuchTileException
     {
 	// the fully unique tile id is the conjoined tile set and tile id
 	int utid = (tsid << 16) | tid;

@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParser.java,v 1.15 2001/10/08 21:04:25 shaper Exp $
+// $Id: XMLTileSetParser.java,v 1.16 2001/10/11 00:41:26 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -35,27 +35,27 @@ public class XMLTileSetParser extends DefaultHandler
     protected void finishElement (String qName, String str)
     {
 	if (qName.equals("imagefile")) {
-	    _model.imgFile = str;
+	    _tset.imgFile = str;
 
 	} else if (qName.equals("rowwidth")) {
-	    _model.rowWidth = StringUtil.parseIntArray(str);
+	    _tset.rowWidth = StringUtil.parseIntArray(str);
 
 	} else if (qName.equals("rowheight")) {
-	    _model.rowHeight = StringUtil.parseIntArray(str);
+	    _tset.rowHeight = StringUtil.parseIntArray(str);
 
 	} else if (qName.equals("tilecount")) {
-	    _model.tileCount = StringUtil.parseIntArray(str);
+	    _tset.tileCount = StringUtil.parseIntArray(str);
 
 	    // calculate the total number of tiles in the tileset
-	    for (int ii = 0; ii < _model.tileCount.length; ii++) {
-		_model.numTiles += _model.tileCount[ii];
+	    for (int ii = 0; ii < _tset.tileCount.length; ii++) {
+		_tset.numTiles += _tset.tileCount[ii];
 	    }
 
 	} else if (qName.equals("offsetpos")) {
-            getPoint(str, _model.offsetPos);
+            getPoint(str, _tset.offsetPos);
 
         } else if (qName.equals("gapdist")) {
-            getPoint(str, _model.gapDist);
+            getPoint(str, _tset.gapDist);
 
         } else if (qName.equals("tileset")) {
 	    // construct the tileset on tag close and add it to the
@@ -67,19 +67,31 @@ public class XMLTileSetParser extends DefaultHandler
 	}
     }
 
+    // documentation inherited
     public void startElement (String uri, String localName,
 			      String qName, Attributes attributes)
     {
 	_tag = qName;
 
 	if (_tag.equals("tileset")) {
-	    _model.tsid = getTileSetId(attributes.getValue("tsid"));
+	    _tset.tsid = getInt(attributes.getValue("tsid"));
 
 	    String str = attributes.getValue("name");
-	    _model.name = (str == null) ? DEF_NAME : str;
+	    _tset.name = (str == null) ? DEF_NAME : str;
+
+	} else if (_tag.equals("object")) {
+	    // TODO: should we bother checking to make sure we only
+	    // see <object> tags while within an <objects> tag?
+	    int tid = getInt(attributes.getValue("tid"));
+	    int wid = getInt(attributes.getValue("width"));
+	    int hei = getInt(attributes.getValue("height"));
+
+	    // add the object info to the tileset object hashtable
+	    _tset.objects.put(tid, new int[] { wid, hei });
 	}
     }
 
+    // documentation inherited
     public void endElement (String uri, String localName, String qName)
     {
 	// we know we've received the entirety of the character data
@@ -96,6 +108,7 @@ public class XMLTileSetParser extends DefaultHandler
         _chars = new StringBuffer();
     }
 
+    // documentation inherited
     public void characters (char ch[], int start, int length)
     {
 	// bail if we're not within a meaningful tag
@@ -106,6 +119,7 @@ public class XMLTileSetParser extends DefaultHandler
   	_chars.append(ch, start, length);
     }
 
+    // documentation inherited
     public ArrayList loadTileSets (String fname) throws IOException
     {
 	try {
@@ -141,15 +155,16 @@ public class XMLTileSetParser extends DefaultHandler
     {
 	_chars = new StringBuffer();
 	_tset = createTileSet();
-	_model = _tset.getModel();
     }
 
     /**
-     * Constructs and returns a new tile set object.
+     * Constructs and returns a new tile set object.  Derived classes
+     * may override this method to create their own sub-classes of the
+     * <code>TileSet</code> object.
      */
-    protected TileSet createTileSet ()
+    protected TileSetImpl createTileSet ()
     {
-	return new TileSet();
+	return new TileSetImpl();
     }
 
     /**
@@ -167,25 +182,18 @@ public class XMLTileSetParser extends DefaultHandler
     }
 
     /**
-     * Returns the integer tileset id corresponding to the given
-     * string, or <code>DEF_TSID</code> if an error occurred.
+     * Returns the integer represented by the given string or -1 if an
+     * error occurred.
      */
-    protected int getTileSetId (String str)
+    protected int getInt (String str)
     {
-	if (str == null) {
-	    return DEF_TSID;
-	}
-
 	try {
-	    return Integer.parseInt(str);
+	    return (str == null) ? -1 : Integer.parseInt(str);
 	} catch (NumberFormatException nfe) {
-	    Log.warning("Malformed integer tileset id [str=" + str + "].");
-	    return DEF_TSID;
+	    Log.warning("Malformed integer value [str=" + str + "].");
+	    return -1;
 	}
     }
-
-    /** Default tileset id. */
-    protected static final int DEF_TSID = -1;
 
     /** Default tileset name. */
     protected static final String DEF_NAME = "Untitled";
@@ -199,9 +207,6 @@ public class XMLTileSetParser extends DefaultHandler
     /** Temporary storage of character data while parsing. */
     protected StringBuffer _chars;
 
-    /** The tile set whose model is populated while parsing. */
-    protected TileSet _tset;
-
-    /** The tile set data model populated while parsing. */
-    protected TileSet.TileSetModel _model;
+    /** The tile set populated while parsing. */
+    protected TileSetImpl _tset;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.17 2001/10/08 21:04:26 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.18 2001/10/11 00:41:27 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -26,7 +26,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     public ViewerSceneViewPanel (
 	ViewerContext ctx, SpriteManager spritemgr, AmbulatorySprite sprite)
     {
-	super(ctx.getConfig(), ctx.getTileManager(), spritemgr);
+	super(ctx.getConfig(), spritemgr);
 
 	_ctx = ctx;
         _sprite = sprite;

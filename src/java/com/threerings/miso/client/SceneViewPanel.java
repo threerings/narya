@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.14 2001/09/21 02:30:35 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.15 2001/10/11 00:41:27 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -9,7 +9,6 @@ import javax.swing.*;
 
 import com.samskivert.util.Config;
 import com.threerings.media.sprite.*;
-import com.threerings.media.tile.TileManager;
 import com.threerings.miso.util.MisoUtil;
 
 /**
@@ -23,14 +22,13 @@ public class SceneViewPanel
     /**
      * Construct the panel and initialize it with a context.
      */
-    public SceneViewPanel (Config config, TileManager tilemgr,
-			   SpriteManager spritemgr)
+    public SceneViewPanel (Config config, SpriteManager spritemgr)
     {
         // create the data model for the scene view
         _smodel = new IsoSceneViewModel(config);
 
 	// create the scene view
-        _view = newSceneView(tilemgr, spritemgr, _smodel);
+        _view = newSceneView(spritemgr, _smodel);
 
 	// set our attributes for optimal display performance
         setDoubleBuffered(false);
@@ -41,9 +39,9 @@ public class SceneViewPanel
      * Constructs the underlying scene view implementation.
      */
     protected IsoSceneView newSceneView (
-        TileManager tmgr, SpriteManager smgr, IsoSceneViewModel model)
+	SpriteManager smgr, IsoSceneViewModel model)
     {
-        return new IsoSceneView(tmgr, smgr, model);
+        return new IsoSceneView(smgr, model);
     }
 
     /**

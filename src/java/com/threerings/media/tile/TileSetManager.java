@@ -1,5 +1,5 @@
 //
-// $Id: TileSetManager.java,v 1.12 2001/08/16 23:14:20 mdb Exp $
+// $Id: TileSetManager.java,v 1.13 2001/10/11 00:41:26 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -26,7 +26,8 @@ public interface TileSetManager
      * @param tsid the tileset identifier.
      * @return the number of tiles.
      */
-    public int getNumTilesInSet (int tsid);
+    public int getNumTilesInSet (int tsid)
+	throws NoSuchTileSetException;
 
     /**
      * Return an <code>ArrayList</code> containing all
@@ -43,7 +44,8 @@ public interface TileSetManager
      * @param tsid the tileset identifier.
      * @return the tileset object.
      */
-    public TileSet getTileSet (int tsid);
+    public TileSet getTileSet (int tsid)
+	throws NoSuchTileSetException;
 
     /**
      * Return the tile object corresponding to the specified tileset
@@ -54,7 +56,8 @@ public interface TileSetManager
      *
      * @return the tile object.
      */
-    public Tile getTile (int tsid, int tid);
+    public Tile getTile (int tsid, int tid)
+	throws NoSuchTileSetException, NoSuchTileException;
 
     /**
      * Return the total number of tilesets available for use.

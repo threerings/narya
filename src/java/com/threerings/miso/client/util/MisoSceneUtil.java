@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneUtil.java,v 1.2 2001/09/28 01:31:32 mdb Exp $
+// $Id: MisoSceneUtil.java,v 1.3 2001/10/11 00:41:27 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -14,6 +14,31 @@ public class MisoSceneUtil
 {
     /** String translations of each tile layer name. */
     public static final String[] XLATE_LAYERS = { "Base", "Fringe", "Object" };
+
+    /**
+     * Returns the layer index number for the named layer.  Layer
+     * names are looked up via <code>XLATE_LAYERS</code> and are
+     * case-insensitive.
+     *
+     * @param name the layer name.
+     */
+    public static int getLayerIndex (String name)
+    {
+	if (name == null) {
+	    return DEF_LAYER;
+	}
+
+	name = name.toLowerCase();
+
+	for (int ii = 0; ii < MisoScene.NUM_LAYERS; ii++) {
+	    String b = MisoSceneUtil.XLATE_LAYERS[ii].toLowerCase();
+	    if (name.equals(b)) {
+		return ii;
+	    }
+	}
+
+	return DEF_LAYER;
+    }
 
     /**
      * Return the location object at the given full coordinates, or null
@@ -74,4 +99,7 @@ public class MisoSceneUtil
     {
 	return ClusterUtil.getClusterIndex(scene.getClusters(), loc);
     }
+
+    /** The default layer index for an unknown named layer. */
+    protected static final int DEF_LAYER = MisoScene.LAYER_BASE;
 }

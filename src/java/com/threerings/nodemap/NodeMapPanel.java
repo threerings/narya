@@ -1,5 +1,5 @@
 //
-// $Id: NodeMapPanel.java,v 1.4 2001/09/28 00:46:54 shaper Exp $
+// $Id: NodeMapPanel.java,v 1.5 2001/10/11 00:41:27 shaper Exp $
 
 package com.threerings.nodemap;
 
@@ -20,7 +20,7 @@ public class NodeMapPanel extends JPanel
     implements MouseListener, MouseMotionListener, ToolTipObserver
 {
     /**
-     * Construct a node map panel.
+     * Constructs a node map panel.
      */
     public NodeMapPanel ()
     {
@@ -28,7 +28,7 @@ public class NodeMapPanel extends JPanel
     }
 
     /**
-     * Construct a node map panel that displays the given node map.
+     * Constructs a node map panel that displays the given node map.
      *
      * @param map the node map to display.
      */
@@ -39,7 +39,7 @@ public class NodeMapPanel extends JPanel
     }
 
     /**
-     * Initialize the node map panel.
+     * Initializes the node map panel.
      */
     protected void init ()
     {
@@ -49,7 +49,7 @@ public class NodeMapPanel extends JPanel
     }
 
     /**
-     * Set the node map displayed by this panel.
+     * Sets the node map displayed by this panel.
      *
      * @param map the node map to display.
      */

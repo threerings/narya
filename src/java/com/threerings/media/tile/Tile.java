@@ -1,9 +1,9 @@
 //
-// $Id: Tile.java,v 1.13 2001/10/08 21:04:25 shaper Exp $
+// $Id: Tile.java,v 1.14 2001/10/11 00:41:26 shaper Exp $
 
 package com.threerings.media.tile;
 
-import java.awt.Image;
+import java.awt.*;
 
 /**
  * A tile represents a single square in a single layer in a scene.
@@ -46,6 +46,16 @@ public class Tile
     public int getTileId ()
     {
         return ((int)tsid << 16) | tid;
+    }
+
+    /**
+     * Render the tile into the given rectangle in the given graphics
+     * context.
+     */
+    public void paint (Graphics2D gfx, Shape dest)
+    {
+	Rectangle bounds = dest.getBounds();
+	gfx.drawImage(img, bounds.x, bounds.y, null);
     }
 
     /**

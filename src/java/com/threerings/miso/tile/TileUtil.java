@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.5 2001/09/13 19:10:26 mdb Exp $
+// $Id: TileUtil.java,v 1.6 2001/10/11 00:41:27 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -9,6 +9,7 @@ import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.tile.*;
 
+import com.threerings.miso.Log;
 import com.threerings.miso.scene.AmbulatorySprite;
 
 /**
@@ -28,19 +29,27 @@ public class TileUtil
      *
      * @return the array of multi-frame sprite images.
      */
-    public static MultiFrameImage[] getAmbulatorySpriteFrames (
-        TileManager tilemgr, int tsid)
+    public static MultiFrameImage[]
+	getAmbulatorySpriteFrames (TileManager tilemgr, int tsid)
     {
         MultiFrameImage[] anims = new MultiFrameImage[Sprite.NUM_DIRECTIONS];
 
-        for (int ii = 0; ii < Sprite.NUM_DIRECTIONS; ii++) {
-            Tile[] tiles = new Tile[NUM_DIR_FRAMES];
-            for (int jj = 0; jj < NUM_DIR_FRAMES; jj++) {
-                int idx = (ii * NUM_DIR_FRAMES) + jj;
-                tiles[jj] = tilemgr.getTile(tsid, idx);
-            }
-            anims[ii] = new MultiTileImage(tiles);
-        }
+	try {
+	    for (int ii = 0; ii < Sprite.NUM_DIRECTIONS; ii++) {
+		Tile[] tiles = new Tile[NUM_DIR_FRAMES];
+		for (int jj = 0; jj < NUM_DIR_FRAMES; jj++) {
+		    int idx = (ii * NUM_DIR_FRAMES) + jj;
+		    tiles[jj] = tilemgr.getTile(tsid, idx);
+		}
+
+		anims[ii] = new MultiTileImage(tiles);
+	    }
+
+	} catch (TileException te) {
+	    Log.warning("Exception retrieving ambulatory sprite tiles " +
+			"[te=" + te + "].");
+	    return null;
+	}
 
         return anims;
     }

@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.17 2001/10/08 21:04:25 shaper Exp $
+// $Id: XMLSceneParser.java,v 1.18 2001/10/11 00:41:27 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -13,6 +13,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import com.samskivert.util.*;
 import com.samskivert.xml.XMLUtil;
+
 import com.threerings.media.tile.*;
 
 import com.threerings.miso.Log;
@@ -43,10 +44,7 @@ public class XMLSceneParser extends DefaultHandler
 
         } else if (_tag.equals("row")) {
             _info.rownum = getInt(attributes.getValue("rownum"));
-
-            // get the column start value if present
-            String strcs = attributes.getValue("colstart");
-            if (strcs != null) _info.colstart = getInt(strcs);
+	    _info.colstart = getInt(attributes.getValue("colstart"));
         }
     }
 
@@ -56,11 +54,13 @@ public class XMLSceneParser extends DefaultHandler
         // for the elements we're tracking at this point, so proceed
         // with saving off element values for use when we construct
         // the scene object.
+	String str = _chars.toString().trim();
+
 	if (qName.equals("name")) {
-	    _info.name = _chars.toString().trim();
+	    _info.scene.name = str;
 
 	} else if (qName.equals("version")) {
-            int version = getInt(_chars.toString());
+            int version = getInt(str);
             if (version < 0 || version > XMLSceneVersion.VERSION) {
                 Log.warning(
                     "Unrecognized scene file format version, will attempt " + 
@@ -70,27 +70,22 @@ public class XMLSceneParser extends DefaultHandler
             }
 
 	} else if (qName.equals("locations")) {
-            int vals[] = StringUtil.parseIntArray(_chars.toString());
-            _info.locations = toLocationsList(vals);
+            int vals[] = StringUtil.parseIntArray(str);
+            addLocations(_info.scene.locations, vals);
 
 	} else if (qName.equals("cluster")) {
-	    int vals[] = StringUtil.parseIntArray(_chars.toString());
-	    _info.clusters.add(toCluster(_info.locations, vals));
+	    int vals[] = StringUtil.parseIntArray(str);
+	    _info.scene.clusters.add(toCluster(_info.scene.locations, vals));
 
 	} else if (qName.equals("portals")) {
-            String vals[] = StringUtil.parseStringArray(_chars.toString());
-	    _info.portals = toPortalList(_info.locations, vals);
+            String vals[] = StringUtil.parseStringArray(str);
+	    addPortals(_info.scene.portals, _info.scene.locations, vals);
 
 	} else if (qName.equals("row")) {
-            if (_info.lnum == MisoScene.LAYER_BASE) {
-                readRowData(_info, _chars.toString());
-            } else {
-                readSparseRowData(_info, _chars.toString());
-            }
+	    addTileRow(_info, str);
 
         } else if (qName.equals("scene")) {
-            // construct the scene object on tag close
-            _info.constructScene(_tilemgr);
+	    // nothing for now
 	}
 
 	// note that we're not within a tag to avoid considering any
@@ -112,6 +107,24 @@ public class XMLSceneParser extends DefaultHandler
     }
 
     /**
+     * Add the tiles described by the given data to the scene.
+     */
+    protected void addTileRow (SceneInfo info, String data)
+    {
+	try {
+	    if (info.lnum == MisoScene.LAYER_BASE) {
+		readRowData(info, data);
+	    } else {
+		readSparseRowData(info, data);
+	    }
+
+	} catch (TileException te) {
+	    Log.warning("Exception reading scene tile data " + 
+			"[te=" + te + "].");
+	}
+    }
+
+    /**
      * Given a string of comma-delimited tuples as (tileset id, tile
      * id), populate the scene info tile array with tiles to suit.
      *
@@ -119,6 +132,7 @@ public class XMLSceneParser extends DefaultHandler
      * @param data the tile data.
      */
     protected void readRowData (SceneInfo info, String data)
+	throws TileException
     {
         int[] vals = StringUtil.parseIntArray(data);
 
@@ -133,9 +147,10 @@ public class XMLSceneParser extends DefaultHandler
         }
 
         // create the tile objects in the tile array
+	Tile[][] tiles = info.scene.getTiles(info.lnum);
         for (int xx = 0; xx < vals.length; xx += 2) {
-            MisoTile tile = (MisoTile)_tilemgr.getTile(vals[xx], vals[xx + 1]);
-            info.tiles[xx / 2][info.rownum][info.lnum] = tile;
+            Tile tile = _tilemgr.getTile(vals[xx], vals[xx + 1]);
+            tiles[xx / 2][info.rownum] = tile;
         }
     }
 
@@ -151,6 +166,7 @@ public class XMLSceneParser extends DefaultHandler
      * @param data the tile data.
      */
     protected void readSparseRowData (SceneInfo info, String data)
+	throws TileException
     {
         int[] vals = StringUtil.parseIntArray(data);
 
@@ -164,10 +180,11 @@ public class XMLSceneParser extends DefaultHandler
         }
 
         // create the tile objects in the tile array
+	Tile[][] tiles = info.scene.getTiles(info.lnum);
         for (int xx = 0; xx < vals.length; xx += 2) {
-            MisoTile tile = (MisoTile)_tilemgr.getTile(vals[xx], vals[xx + 1]);
+            Tile tile = _tilemgr.getTile(vals[xx], vals[xx + 1]);
 	    int xidx = info.colstart + (xx / 2);
-            info.tiles[xidx][info.rownum][info.lnum] = tile;
+            tiles[xidx][info.rownum] = tile;
         }
     }
 
@@ -191,37 +208,34 @@ public class XMLSceneParser extends DefaultHandler
     }
 
     /**
-     * Given an array of integer values, return a list of the
-     * <code>Location</code> objects represented therein, constructed
-     * from each successive triplet of values as (x, y, orientation)
-     * in the integer array.
+     * Given an array of integer values, add the <code>Location</code>
+     * objects represented therein to the given list, constructed from
+     * each successive triplet of values as (x, y, orientation) in the
+     * integer array.
      *
      * @param vals the integer values.
-     *
-     * @return the location list, or null if an error occurred.
      */
-    protected ArrayList toLocationsList (int[] vals)
+    protected void addLocations (ArrayList list, int[] vals)
     {
         // make sure we have a seemingly-appropriate number of points
-        if ((vals.length % 3) != 0) return null;
+        if ((vals.length % 3) != 0) {
+	    return;
+	}
 
 	// read in all of the locations and add to the list
-	ArrayList list = new ArrayList();
         for (int ii = 0; ii < vals.length; ii += 3) {
 	    Location loc = new Location(
 		vals[ii], vals[ii+1], vals[ii+2]);
 	    list.add(loc);
         }
-
-        return list;
     }
 
     /**
-     * Given an array of string values, return a list of
-     * <code>Portal</code> objects constructed from each successive
-     * triplet of values as (locidx, portal name) in the array.  The
-     * list of <code>Location</code> objects must have already been
-     * fully read previously.
+     * Given an array of string values, add the <code>Portal</code>
+     * objects constructed from each successive triplet of values as
+     * (locidx, portal name) in the array to the given portal list.
+     * The list of <code>Location</code> objects must have already
+     * been fully read previously.
      *
      * <p> This is something of a hack since we perhaps ought to parse
      * the original String into its constituent components ourselves,
@@ -229,20 +243,19 @@ public class XMLSceneParser extends DefaultHandler
      * <code>StringUtil.toString()</code> method to take care of
      * tokenizing things for us, so, there you have it.
      *
-     * @param ArrayList the location list.
+     * @param portals the portal list.
+     * @param locs the location list.
      * @param vals the String values.
-     *
-     * @return the portal list, or null if an error occurred.
      */
-    protected ArrayList toPortalList (ArrayList locs, String[] vals)
+    protected void addPortals (
+	ArrayList portals, ArrayList locs, String[] vals)
     {
         // make sure we have an appropriate number of values
         if ((vals.length % 2) != 0) {
-	    return null;
+	    return;
 	}
 
 	// read in all of the portals
-	ArrayList portals = new ArrayList();
 	for (int ii = 0; ii < vals.length; ii += 2) {
 	    int locidx = getInt(vals[ii]);
 
@@ -253,8 +266,6 @@ public class XMLSceneParser extends DefaultHandler
 	    // upgrade the corresponding location in the location list
 	    locs.set(locidx, portal);
 	}
-
-        return portals;
     }
 
     /**
@@ -264,7 +275,7 @@ public class XMLSceneParser extends DefaultHandler
     protected int getInt (String str)
     {
         try {
-            return Integer.parseInt(str);
+            return (str == null) ? -1 : Integer.parseInt(str);
         } catch (NumberFormatException nfe) {
             Log.warning("Malformed integer value [str=" + str + "].");
             return -1;
@@ -329,25 +340,16 @@ public class XMLSceneParser extends DefaultHandler
     /** Temporary storage of scene info while parsing. */
     protected SceneInfo _info;
 
+    // TODO: allow specifying the entrance location for a scene in the
+    // editor, read/write to XML scene description files.
+
     /**
-     * A class to hold temporary information on a scene.
+     * A class to hold the information gathered while parsing.
      */
     class SceneInfo
     {
-	/** The scene name. */
-	public String name;
-
-	/** The location list. */
-	public ArrayList locations;
-
-	/** The portal list. */
-	public ArrayList portals;
-
-	/** The cluster list. */
-	public ArrayList clusters;
-
-	/** The tile array. */
-	public MisoTile[][][] tiles;
+	/** The scene populated with data while parsing. */
+	public MisoSceneImpl scene;
 
 	/** The current layer number being processed. */
 	public int lnum;
@@ -358,20 +360,9 @@ public class XMLSceneParser extends DefaultHandler
 	/** The column at which the current row data begins. */
 	public int colstart;
 
-	/** The scene object constructed once all scene info is parsed. */
-	public EditableMisoScene scene;
-
 	public SceneInfo ()
 	{
-	    int width = _model.scenewid, height = _model.scenehei;
-	    tiles = new MisoTile[width][height][MisoScene.NUM_LAYERS];
-	    clusters = new ArrayList();
-	}
-
-	public void constructScene (TileManager tilemgr)
-	{
-	    scene = new MisoSceneImpl(
-                _model, tilemgr, name, locations, clusters, portals, tiles);
+	    scene = new MisoSceneImpl(_model, null);
 	}
     }
 }

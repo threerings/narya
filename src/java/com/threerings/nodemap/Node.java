@@ -1,5 +1,5 @@
 //
-// $Id: Node.java,v 1.5 2001/08/28 23:50:45 shaper Exp $
+// $Id: Node.java,v 1.6 2001/10/11 00:41:27 shaper Exp $
 
 package com.threerings.nodemap;
 
@@ -37,6 +37,9 @@ public abstract class Node implements ToolTipProvider
      * added to the node more than once.
      *
      * @param e the new edge.
+     *
+     * @exception DuplicateEdgeException thrown if the node already
+     * contains the given edge.
      */
     protected void addEdge (Edge e) throws DuplicateEdgeException
     {
@@ -50,7 +53,7 @@ public abstract class Node implements ToolTipProvider
     }
 
     /**
-     * Return an <code>Iterator</code> object that iterates over the
+     * Returns an <code>Iterator</code> object that iterates over the
      * edges leaving this node.
      *
      * @return the iterator object.
@@ -90,7 +93,7 @@ public abstract class Node implements ToolTipProvider
     }
 
     /**
-     * Return whether the node contains the given point.
+     * Returns whether the node contains the given point.
      *
      * @param x the x-position.
      * @param y the y-position.
@@ -104,7 +107,7 @@ public abstract class Node implements ToolTipProvider
     }
 
     /**
-     * Return the node width in pixels.
+     * Returns the node width in pixels.
      */
     public int getWidth ()
     {
@@ -112,7 +115,7 @@ public abstract class Node implements ToolTipProvider
     }
 
     /**
-     * Return the node height in  pixels.
+     * Returns the node height in  pixels.
      */
     public int getHeight ()
     {
@@ -192,7 +195,7 @@ public abstract class Node implements ToolTipProvider
     public void handleMouseClicked (int x, int y) { }
 
     /**
-     * Return a string representation of this node.
+     * Returns a string representation of this node.
      */
     public String toString ()
     {
