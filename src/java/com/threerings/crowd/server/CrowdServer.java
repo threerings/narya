@@ -1,5 +1,5 @@
 //
-// $Id: CrowdServer.java,v 1.16 2002/11/01 00:39:18 shaper Exp $
+// $Id: CrowdServer.java,v 1.17 2002/11/01 21:33:49 shaper Exp $
 
 package com.threerings.crowd.server;
 
@@ -48,7 +48,7 @@ public class CrowdServer extends PresentsServer
         actrl = createAccessControl();
 
         // initialize the body services
-        BodyProvider.init(invmgr, omgr);
+        BodyProvider.init(invmgr);
 
         // initialize the chat services
         ChatProvider.init(invmgr, omgr);
