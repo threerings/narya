@@ -1,9 +1,10 @@
 //
-// $Id: Sprite.java,v 1.35 2002/01/22 18:58:52 shaper Exp $
+// $Id: Sprite.java,v 1.36 2002/01/31 01:03:45 mdb Exp $
 
 package com.threerings.media.sprite;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -219,6 +220,35 @@ public class Sprite implements DirectionCodes
     public boolean contains (int x, int y)
     {
         return _bounds.contains(x, y);
+    }
+
+    /**
+     * Returns true if the sprite's bounds contain the specified point,
+     * and if there is a non-transparent pixel in the sprite's image at
+     * the specified point, false if not.
+     */
+    public boolean hitTest (int x, int y)
+    {
+        // first check to see that we're in the sprite's bounds and that
+        // we've got a frame image (if we've got no image, there's nothing
+        // to be hit)
+        if (!_bounds.contains(x, y) || _frame == null) {
+            return false;
+        }
+
+        if (_frame instanceof BufferedImage) {
+            BufferedImage bimage = (BufferedImage)_frame;
+            int argb = bimage.getRGB(x - _bounds.x, y - _bounds.y);
+            int alpha = argb >> 24;
+            // Log.info("Checking [x=" + x + ", y=" + y + ", bounds=" + _bounds + ", " + alpha);
+            // it's only a hit if the pixel is non-transparent
+            return (argb >> 24) != 0;
+
+        } else {
+            Log.warning("Can't check for transparent pixel " +
+                        "[image=" + _frame + "].");
+            return true;
+        }
     }
 
     /**
