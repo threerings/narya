@@ -1,5 +1,5 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.11 2002/06/21 18:44:28 mdb Exp $
+// $Id: ComponentBundlerTask.java,v 1.12 2002/09/11 19:31:40 mdb Exp $
 
 package com.threerings.cast.bundle.tools;
 
@@ -181,17 +181,29 @@ public class ComponentBundlerTask extends Task
                             return ImageIO.read(new File(path));
                         }
                     });
-                    TrimmedTileSet tset =
-                        TrimmedTileSet.trimTileSet(aset, jout);
-                    tset.setImagePath(ipath);
 
-                    // also write our trimmed tileset to the jar file
-                    String tpath = composePath(
-                        info, BundleUtil.TILESET_EXTENSION);
-                    jout.putNextEntry(new JarEntry(tpath));
-                    ObjectOutputStream oout = new ObjectOutputStream(jout);
-                    oout.writeObject(tset);
-                    oout.flush();
+                    TrimmedTileSet tset = null;
+                    try {
+                        tset = TrimmedTileSet.trimTileSet(aset, jout);
+                        tset.setImagePath(ipath);
+                    } catch (Throwable t) {
+                        System.err.println(
+                            "Failure trimming tileset " +
+                            "[class=" + info[0] + ", name=" + info[1] +
+                            ", action=" + info[2] +
+                            ", srcimg=" + aset.getImagePath() +
+                            ", error=" + t.getMessage() + "].");
+                    }
+
+                    // then write our trimmed tileset to the jar file
+                    if (tset != null) {
+                        String tpath = composePath(
+                            info, BundleUtil.TILESET_EXTENSION);
+                        jout.putNextEntry(new JarEntry(tpath));
+                        ObjectOutputStream oout = new ObjectOutputStream(jout);
+                        oout.writeObject(tset);
+                        oout.flush();
+                    }
                 }
             }
 
