@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.85 2002/01/31 02:10:00 mdb Exp $
+// $Id: IsoSceneView.java,v 1.86 2002/01/31 02:10:36 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -875,7 +875,7 @@ public class IsoSceneView implements SceneView
     protected DirtyItemList _hitList = new DirtyItemList();
 
     /** The highlight mode. */
-    protected int _hmode = HIGHLIGHT_ALWAYS;
+    protected int _hmode = HIGHLIGHT_NEVER;
 
     /** The coordinates of the currently highlighted base or object
      * tile. */
