@@ -1,5 +1,5 @@
 //
-// $Id: ValueMarshaller.java,v 1.10 2002/02/19 03:05:56 mdb Exp $
+// $Id: ValueMarshaller.java,v 1.11 2002/03/20 23:00:11 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -9,6 +9,7 @@ import java.util.HashMap;
 
 import com.samskivert.util.HashIntMap;
 import com.threerings.presents.io.Streamable;
+import com.threerings.presents.io.StreamableUtil;
 
 /**
  * The value marshaller provides a mechanism for marshalling and
@@ -571,38 +572,13 @@ public class ValueMarshaller
         public void writeValue (DataOutputStream out, Object value)
             throws IOException
         {
-            out.writeUTF(value.getClass().getComponentType().getName());
-            Streamable[] values = (Streamable[])value;
-            int vlength = values.length;
-            out.writeInt(vlength);
-            for (int i = 0; i < vlength; i++) {
-                values[i].writeTo(out);
-            }
+            StreamableUtil.writeStreamables(out, (Streamable[])value);
         }
 
         public Object readValue (DataInputStream in)
             throws IOException
         {
-            String cname = in.readUTF();
-            int vlength = in.readInt();
-
-            try {
-                Class vclass = Class.forName(cname);
-                Streamable[] values = (Streamable[])
-                    Array.newInstance(vclass, vlength);
-                for (int i = 0; i < vlength; i++) {
-                    Streamable value = (Streamable)vclass.newInstance();
-                    value.readFrom(in);
-                    values[i] = value;
-                }
-                return values;
-
-            } catch (Exception e) {
-                throw new IOException("Unable to unmarshall streamable " +
-                                      "array [cname=" + cname +
-                                      ", length=" + vlength +
-                                      ", error=" + e + "]");
-            }
+            return StreamableUtil.readStreamables(in);
         }
     }
 
