@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.10 2002/03/15 02:18:18 mdb Exp $
+// $Id: ResourceManager.java,v 1.11 2002/03/15 19:12:16 mdb Exp $
 
 package com.threerings.resource;
 
@@ -310,6 +310,15 @@ public class ResourceManager
                     }
                 }
 
+                // if this is a URL request, we want to keep track of the
+                // last modified time
+                if (ucon instanceof HttpURLConnection) {
+                    HttpURLConnection hucon = (HttpURLConnection)ucon;
+                    lastModified = hucon.getLastModified();
+                } else {
+                    lastModified = 0;
+                }
+
                 // read the data from the URL into the cache file
                 if (readData) {
                     InputStream in = ucon.getInputStream();
@@ -318,6 +327,11 @@ public class ResourceManager
                     StreamUtils.pipe(in, out);
                     in.close();
                     out.close();
+                    // if we have a last modified time, we want to adjust
+                    // our cache file accordingly
+                    if (lastModified != 0) {
+                        cfile.setLastModified(lastModified);
+                    }
                 }
 
                 // finally add this newly cached file to the set as a
