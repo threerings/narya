@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.20 2002/03/28 23:59:33 mdb Exp $
+// $Id: PresentsServer.java,v 1.21 2002/05/28 22:25:44 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -64,9 +64,7 @@ public class PresentsServer
         invmgr = new InvocationManager(omgr);
 
         // register our invocation service providers
-        String[] providers = null;
-        providers = PresentsConfig.config.getValue(PROVIDERS_KEY, providers);
-        registerProviders(providers);
+        registerProviders(PresentsConfig.getProviders());
     }
 
     /**
@@ -173,7 +171,4 @@ public class PresentsServer
             Log.logStackTrace(e);
         }
     }
-
-    // the config key for our list of invocation provider mappings
-    protected final static String PROVIDERS_KEY = "providers";
 }
