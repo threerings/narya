@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.13 2003/04/28 20:27:35 mdb Exp $
+// $Id: SceneBlock.java,v 1.14 2003/04/28 20:41:13 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -162,7 +162,8 @@ public class SceneBlock
     /**
      * Returns the bounds of the screen coordinate rectangle that contains
      * all pixels that are drawn on by all objects (but not base tiles) in
-     * this block.
+     * this block. <em>Note:</em> this will return <code>null</code> if
+     * the block has no objects.
      */
     public Rectangle getObjectBounds ()
     {
