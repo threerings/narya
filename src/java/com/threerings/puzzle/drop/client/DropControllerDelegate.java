@@ -1,5 +1,5 @@
 //
-// $Id: DropControllerDelegate.java,v 1.8 2004/10/22 21:13:08 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -620,7 +620,7 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
      */
     protected void updateSelfSummary ()
     {
-        if (_puzobj.summaries != null) {
+        if (_puzobj != null && _puzobj.summaries != null) {
             BoardSummary bsum = _puzobj.summaries[_pidx];
             bsum.setBoard(_dboard);
             bsum.summarize();
