@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.7 2001/10/18 23:55:24 mdb Exp $
+// $Id: ChatProvider.java,v 1.8 2001/12/17 00:52:43 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -8,6 +8,8 @@ import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.server.CrowdServer;
+
+import com.threerings.crowd.Log;
 
 /**
  * The chat provider handles the server side of the chat-related
@@ -28,14 +30,15 @@ public class ChatProvider
         if (tobj == null) {
             sendResponse(source, invid, TELL_FAILED_RESPONSE,
                          USER_NOT_ONLINE);
+
+        } else {
+            // deliver a tell notification to the target player
+            Object[] args = new Object[] { source.username, message };
+            CrowdServer.invmgr.sendNotification(
+                tobj.getOid(), MODULE_NAME, TELL_NOTIFICATION, args);
+            // let the teller know it went ok
+            sendResponse(source, invid, TELL_SUCCEEDED_RESPONSE);
         }
-
-        // deliver a tell notification to the target player
-        Object[] args = new Object[] { source.username, message };
-        CrowdServer.invmgr.sendNotification(
-            tobj.getOid(), MODULE_NAME, TELL_NOTIFICATION, args);
-
-        sendResponse(source, invid, TELL_SUCCEEDED_RESPONSE);
     }
 
     /**
