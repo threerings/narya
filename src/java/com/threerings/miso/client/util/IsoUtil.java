@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.44 2003/02/04 03:11:13 mdb Exp $
+// $Id: IsoUtil.java,v 1.45 2003/02/12 05:36:18 mdb Exp $
 
 package com.threerings.miso.client.util;
 
@@ -451,8 +451,16 @@ public class IsoUtil
      */
     public static int fineToFull (IsoSceneViewModel model, int fine)
     {
-        return (fine / model.finegran) * FULL_TILE_FACTOR +
-            (fine % model.finegran);
+        return toFull(fine / model.finegran, fine % model.finegran);
+    }
+
+    /**
+     * Composes the supplied tile coordinate and fine coordinate offset
+     * into a full coordinate.
+     */
+    public static int toFull (int tile, int fine)
+    {
+        return tile * FULL_TILE_FACTOR + fine;
     }
 
     /**
@@ -517,6 +525,35 @@ public class IsoUtil
         poly.addPoint(p[maxy].x + model.tilehwid, p[maxy].y + model.tilehei);
 
         return poly;
+    }
+
+    /**
+     * Adds the supplied fine coordinates to the supplied tile coordinates
+     * to compute full coordinates.
+     *
+     * @retun the point object supplied as <code>full</code>.
+     */
+    public static Point tilePlusFineToFull (IsoSceneViewModel model,
+                                            int tileX, int tileY,
+                                            int fineX, int fineY,
+                                            Point full)
+    {
+        int dtx = fineX / model.finegran;
+        int dty = fineY / model.finegran;
+        int fx = fineX - dtx * model.finegran;
+        if (fx < 0) {
+            dtx--;
+            fx += model.finegran;
+        }
+        int fy = fineY - dty * model.finegran;
+        if (fy < 0) {
+            dty--;
+            fy += model.finegran;
+        }
+
+        full.x = toFull(tileX + dtx, fx);
+        full.y = toFull(tileY + dty, fy);
+        return full;
     }
 
     /**
