@@ -1,16 +1,16 @@
 //
-// $Id: Log.java,v 1.4 2001/07/20 23:23:50 mdb Exp $
+// $Id: Log.java,v 1.1 2001/07/20 23:23:50 mdb Exp $
 
-package com.threerings.cocktail.cher;
+package com.threerings.cocktail.party;
 
 /**
  * A placeholder class that contains a reference to the log object used by
- * the Cher services.
+ * the Party services.
  */
 public class Log
 {
     public static com.samskivert.util.Log log =
-	new com.samskivert.util.Log("cocktail.cher");
+	new com.samskivert.util.Log("cocktail.party");
 
     /** Convenience function. */
     public static void debug (String message)

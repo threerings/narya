@@ -1,5 +1,5 @@
 //
-// $Id: PresentsContext.java,v 1.1 2001/07/20 19:49:06 mdb Exp $
+// $Id: PresentsContext.java,v 1.2 2001/07/20 23:23:50 mdb Exp $
 
 package com.threerings.cocktail.cher.util;
 
@@ -17,5 +17,5 @@ public interface CherContext extends Context
     /**
      * Returns a reference to the distributed object manager.
      */
-    public Client getDObjectManager ();
+    public DObjectManager getDObjectManager ();
 }
