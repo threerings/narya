@@ -1,5 +1,5 @@
 //
-// $Id: ButtonSprite.java,v 1.3 2004/11/05 02:07:19 andrzej Exp $
+// $Id: ButtonSprite.java,v 1.4 2004/11/09 03:24:50 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -104,11 +104,17 @@ public class ButtonSprite extends Sprite
      */
     public void updateBounds ()
     {
+        // invalidate the old...
+        invalidate();
+        
         // size the bounds to fit our label
         Dimension size = _label.getSize();
         _bounds.width = size.width + PADDING*2 + 
             (_style == ROUNDED ? _arcWidth : 0);
         _bounds.height = size.height + PADDING*2;
+        
+        // ...and the new
+        invalidate();
     }
     
     /**
