@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.19 2002/04/16 18:24:43 mdb Exp $
+// $Id: LineSegmentPath.java,v 1.20 2002/04/16 20:38:24 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -135,8 +135,6 @@ public class LineSegmentPath
             start = end;
         }
 
-        Log.info("Set velocity [millis=" + millis + ", dist=" + distance +
-                 ", path=" + this + "].");
         // set the velocity accordingly
         setVelocity(distance/millis);
     }
