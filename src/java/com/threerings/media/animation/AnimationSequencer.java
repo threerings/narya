@@ -1,5 +1,5 @@
 //
-// $Id: AnimationSequencer.java,v 1.6 2002/11/05 21:27:49 mdb Exp $
+// $Id: AnimationSequencer.java,v 1.7 2002/11/05 21:29:00 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -158,7 +158,7 @@ public abstract class AnimationSequencer extends Animation
             // if we have an animation, start it up and await its
             // completion
             if (_anim != null) {
-                addAnimation(_anim, when);
+                startAnimation(_anim, when);
                 _anim.addAnimationObserver(this);
 
             } else {
