@@ -1,5 +1,5 @@
 //
-// $Id: LocationProvider.java,v 1.12 2002/04/15 16:28:01 shaper Exp $
+// $Id: LocationProvider.java,v 1.13 2002/05/02 21:19:28 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -80,18 +80,22 @@ public class LocationProvider
             throw new ServiceFailedException(NO_SUCH_PLACE);
         }
 
+        // if they're already in the location they're asking to move to,
+        // just give them the config because we don't need to update
+        // anything in distributed object world
+        if (source.location == placeId) {
+            Log.info("Going along with client request to move to where " +
+                     "they already are [source=" + source.username +
+                     ", placeId=" + placeId + "].");
+            return pmgr.getConfig();
+        }
+
         // acquire a lock on the body object to ensure that rapid fire
         // moveto requests don't break things
         if (!source.acquireLock("moveToLock")) {
             // if we're still locked, a previous moveTo request hasn't
             // been fully processed
             throw new ServiceFailedException(MOVE_IN_PROGRESS);
-        }
-
-        // make sure they're not already in the location they're asking to
-        // move to
-        if (source.location == placeId) {
-            throw new ServiceFailedException(ALREADY_THERE);
         }
 
         // find out if they were previously in some other location
