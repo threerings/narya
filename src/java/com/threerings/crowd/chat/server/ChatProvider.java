@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.22 2003/07/01 21:50:18 eric Exp $
+// $Id: ChatProvider.java,v 1.23 2003/07/01 21:53:02 mdb Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -37,9 +37,13 @@ public class ChatProvider
     /** The access control identifier for broadcast chat privileges. */
     public static final String BROADCAST_TOKEN = "crowd.chat.broadcast";
 
-
     /** Interface to allow an auto response to a tell message. */
-    public static interface TellAutoResponder {
+    public static interface TellAutoResponder
+    {
+        /**
+         * Called following the delivery of <code>message</code> from
+         * <code>teller</code> to <code>tellee</code>.
+         */
         public void sentTell (BodyObject teller, BodyObject tellee,
                               String message);
     }
