@@ -1,5 +1,5 @@
 //
-// $Id: DObjectFactory.java,v 1.11 2002/02/01 23:32:37 mdb Exp $
+// $Id: DObjectFactory.java,v 1.12 2002/07/18 00:42:30 mdb Exp $
 
 package com.threerings.presents.dobj.io;
 
@@ -26,7 +26,7 @@ public class DObjectFactory
     public static void writeTo (DataOutputStream out, DObject dobj)
         throws IOException
     {
-        // Log.info("Marshalling object: " + dobj);
+//         Log.info("Marshalling object: " + dobj);
 
         // write the class of the object to the stream
         out.writeUTF(dobj.getClass().getName());
@@ -48,7 +48,9 @@ public class DObjectFactory
             DObject dobj = (DObject)clazz.newInstance();
             dobj.setOid(in.readInt()); // read and set the oid
 
-            // Log.info("Unmarshalling object: " + dobj);
+//             Log.info("Unmarshalling object " +
+//                      "[class=" + dobj.getClass().getName() +
+//                      ", object=" + dobj + "].");
 
             // use a marshaller to reconstitute the object from the stream
             Marshaller.readObject(in, dobj);
