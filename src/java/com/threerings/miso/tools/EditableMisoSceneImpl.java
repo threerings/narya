@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.11 2002/03/26 23:35:02 ray Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.12 2002/04/06 01:52:34 mdb Exp $
 
 package com.threerings.miso.scene.tools;
 
@@ -11,9 +11,9 @@ import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
-import com.threerings.media.tile.TileManager;
 
 import com.threerings.miso.tile.BaseTile;
+import com.threerings.miso.tile.MisoTileManager;
 
 import com.threerings.miso.scene.DisplayMisoSceneImpl;
 import com.threerings.miso.scene.MisoSceneModel;
@@ -36,7 +36,7 @@ public class EditableMisoSceneImpl
      * @exception NoSuchTileException thrown if the model references a
      * tile which is not available via the supplied tile manager.
      */
-    public EditableMisoSceneImpl (MisoSceneModel model, TileManager tmgr)
+    public EditableMisoSceneImpl (MisoSceneModel model, MisoTileManager tmgr)
         throws NoSuchTileException, NoSuchTileSetException
     {
         super(model, tmgr);

@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.53 2002/03/26 23:35:01 ray Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.54 2002/04/06 01:52:34 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -12,11 +12,11 @@ import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.ObjectTileLayer;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileLayer;
-import com.threerings.media.tile.TileManager;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.tile.BaseTile;
 import com.threerings.miso.tile.BaseTileLayer;
+import com.threerings.miso.tile.MisoTileManager;
 
 /**
  * The default implementation of the {@link DisplayMisoScene} interface.
@@ -35,7 +35,7 @@ public class DisplayMisoSceneImpl
      * @exception NoSuchTileException thrown if the model references a
      * tile which is not available via the supplied tile manager.
      */
-    public DisplayMisoSceneImpl (MisoSceneModel model, TileManager tmgr)
+    public DisplayMisoSceneImpl (MisoSceneModel model, MisoTileManager tmgr)
         throws NoSuchTileException, NoSuchTileSetException
     {
         this(model);
@@ -97,7 +97,7 @@ public class DisplayMisoSceneImpl
      * @exception NoSuchTileException thrown if the model references a
      * tile which is not available via the supplied tile manager.
      */
-    public void setTileManager (TileManager tmgr)
+    public void setTileManager (MisoTileManager tmgr)
         throws NoSuchTileException, NoSuchTileSetException
     {
         _tmgr = tmgr;
@@ -257,7 +257,7 @@ public class DisplayMisoSceneImpl
     }
 
     /** The tile manager from which we load tiles. */
-    protected TileManager _tmgr;
+    protected MisoTileManager _tmgr;
 
     /** The miso scene model from which we obtain our data. */
     protected MisoSceneModel _model;
