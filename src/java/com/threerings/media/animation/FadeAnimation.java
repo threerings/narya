@@ -1,5 +1,5 @@
 //
-// $Id: FadeAnimation.java,v 1.2 2002/01/11 16:53:34 shaper Exp $
+// $Id: FadeAnimation.java,v 1.3 2002/01/31 17:35:41 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -44,9 +44,14 @@ public class FadeAnimation extends Animation
 
         // create the initial composite
         _comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, _alpha);
+    }
 
-        // save the animation starting time
-        _start = System.currentTimeMillis();
+    /**
+     * Sets the animation starting time.
+     */
+    public void setStartTime (long timestamp)
+    {
+        _start = timestamp;
     }
 
     // documentation inherited
@@ -54,7 +59,13 @@ public class FadeAnimation extends Animation
     {
         // figure out the current alpha
         long msecs = timestamp - _start;
-        _alpha = Math.min(_startAlpha + (msecs * _step), 1.0f);
+        _alpha = _startAlpha + (msecs * _step);
+        if (_alpha < 0.0f) {
+            _alpha = 0.0f;
+        } else if (_alpha > 1.0f) {
+            _alpha = 1.0f;
+        }
+
         _comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, _alpha);
 
         // check whether we're done
