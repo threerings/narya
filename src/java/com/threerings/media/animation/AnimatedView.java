@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedView.java,v 1.3 2002/02/19 01:23:56 mdb Exp $
+// $Id: AnimatedView.java,v 1.4 2002/02/21 06:01:29 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -14,6 +14,14 @@ import java.util.List;
  */
 public interface AnimatedView
 {
+    /**
+     * Requests that the specified rectangle (in view coordinates, which
+     * need not account for scrolling offsets or viewport offsets) be
+     * rendered invalid. The animated view should massage the location of
+     * the invalid rectangle and pass it on to the animation manager.
+     */
+    public void invalidateRect (Rectangle invalidRect);
+
     /**
      * Requests that the animated view paint itself immediately (that it
      * complete the painting process before returning from this function).

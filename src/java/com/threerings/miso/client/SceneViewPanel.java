@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.35 2002/02/21 00:20:22 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.36 2002/02/21 06:01:29 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -112,27 +112,21 @@ public class SceneViewPanel extends AnimatedPanel
         _spritemgr.addSprite(sprite);
     }
 
-    // documentation inherited
-    public void validate ()
-    {
-        super.validate();
-
-        // figure out our translations
-        Dimension size = getSize();
-        _tx = (_viewmodel.bounds.width - size.width)/2;
-        _ty = (_viewmodel.bounds.height - size.height)/2;
-
-        // tell the sprite manager about the offsets so that it can
-        // communicate valid dirty rectangles to the animation manager
-        _spritemgr.setViewportOffset(_tx, _ty);
-    }
-
     /**
      * If we're scrolling, we need to pass the word on to our scene view.
      */
-    protected void viewWillScroll (int dx, int dy, long now)
+    protected void viewWillScroll (int dx, int dy, long now, List invalidRects)
     {
         _view.viewWillScroll(dx, dy);
+    }
+
+    /**
+     * We want to pretend like we're in a view that fits our whole model
+     * so we return the model bounds as our view size.
+     */
+    protected Dimension getViewSize ()
+    {
+        return _viewmodel.bounds.getSize();
     }
 
     /**
@@ -160,32 +154,11 @@ public class SceneViewPanel extends AnimatedPanel
     // documentation inherited
     protected void render (Graphics2D gfx, List invalidRects)
     {
-        // we have to translate all of the invalid rects into our
-        // translated coordinate space before passing them on to the
-        // underlying view code
-        int isize = invalidRects.size();
-        for (int i = 0; i < isize; i++) {
-            ((Rectangle)invalidRects.get(i)).translate(_tx, _ty);
-        }
-
-        // translate into happy space
-        gfx.translate(-_tx, -_ty);
-
         // render the view
         _view.paint(gfx, invalidRects);
 
         // give derived classes a chance to render on top of the view
         renderOnView(gfx, invalidRects);
-
-        // translate back out of happy space
-        gfx.translate(_tx, _ty);
-
-        // now we translate them back out (because the animated panel
-        // needs to use them as they were); we translate in and out rather
-        // than copy them to save on object creation overhead
-        for (int i = 0; i < isize; i++) {
-            ((Rectangle)invalidRects.get(i)).translate(-_tx, -_ty);
-        }
     }
 
     /**
@@ -204,9 +177,8 @@ public class SceneViewPanel extends AnimatedPanel
      */
     public Dimension getPreferredSize ()
     {
-        Dimension psize = (_viewmodel == null) ?
-            super.getPreferredSize() : _viewmodel.bounds.getSize();
-	return psize;
+	return (_viewmodel == null) ? super.getPreferredSize() :
+            _viewmodel.bounds.getSize();
     }
 
     // documentation inherited
@@ -221,7 +193,4 @@ public class SceneViewPanel extends AnimatedPanel
 
     /** The scene view we're managing. */
     protected SceneView _view;
-
-    /** Our rendering translation. */
-    protected int _tx, _ty;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.16 2002/02/21 00:20:22 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.17 2002/02/21 06:01:28 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -86,7 +86,9 @@ public class AnimatedPanel extends Canvas implements AnimatedView
     /**
      * Instructs the view to begin scrolling with the specified velocities
      * in milliseconds per pixel. A setting of zero indicates that
-     * scrolling should be deactivated in that direction.
+     * scrolling should be deactivated in that direction. Negative values
+     * mean that the view should be scrolled one pixel in the opposite
+     * direction in the positive number of milliseconds.
      */
     public void setScrolling (int msppx, int msppy)
     {
@@ -123,7 +125,11 @@ public class AnimatedPanel extends Canvas implements AnimatedView
     {
         // we don't paint directly any more, we pass the dirty rect to the
         // animation manager to queue up along with our next repaint
-        _animmgr.addDirtyRect(g.getClipBounds());
+        Rectangle dirty = g.getClipBounds();
+        // we need to adjust the dirty rect by our viewport offset before
+        // passing it to the animation manager
+        dirty.translate(_tx, _ty);
+        _animmgr.addDirtyRect(dirty);
     }
 
     // documentation inherited
@@ -141,6 +147,18 @@ public class AnimatedPanel extends Canvas implements AnimatedView
 
         // if we change size, clear out our old back buffer
         _backimg = null;
+
+        // figure out our viewport offsets
+        Dimension size = getSize(), vsize = getViewSize();
+        _tx = (vsize.width - size.width)/2;
+        _ty = (vsize.height - size.height)/2;
+    }
+
+    // documentation inherited
+    public void invalidateRect (Rectangle invalidRect)
+    {
+        // pass it on to the animation manager
+        _animmgr.addDirtyRect(invalidRect);
     }
 
     // documentation inherited
@@ -191,14 +209,22 @@ public class AnimatedPanel extends Canvas implements AnimatedView
 
             // and add invalid rectangles for the exposed areas
             if (dx > 0) {
-                invalidRects.add(new Rectangle(width - dx, 0, dx, height));
+                Rectangle dirty = new Rectangle(width - dx, 0, dx, height);
+                dirty.translate(_tx, _ty);
+                invalidRects.add(dirty);
             } else if (dx < 0) {
-                invalidRects.add(new Rectangle(0, 0, -dx, height));
+                Rectangle dirty = new Rectangle(0, 0, -dx, height);
+                dirty.translate(_tx, _ty);
+                invalidRects.add(dirty);
             }
             if (dy > 0) {
-                invalidRects.add(new Rectangle(0, height - dy, width, dy));
+                Rectangle dirty = new Rectangle(0, height - dy, width, dy);
+                dirty.translate(_tx, _ty);
+                invalidRects.add(dirty);
             } else if (dy < 0) {
-                invalidRects.add(new Rectangle(0, 0, width, -dy));
+                Rectangle dirty = new Rectangle(0, 0, width, -dy);
+                dirty.translate(_tx, _ty);
+                invalidRects.add(dirty);
             }
 
             // make sure we're actually scrolling before telling people
@@ -213,7 +239,7 @@ public class AnimatedPanel extends Canvas implements AnimatedView
 
                 // let our derived classes do whatever they need to do to
                 // prepare to be scrolled
-                viewWillScroll(dx, dy, now);
+                viewWillScroll(dx, dy, now, invalidRects);
             }
         }
 
@@ -248,7 +274,7 @@ public class AnimatedPanel extends Canvas implements AnimatedView
                 // business rather than just the dirty parts
                 if (valres != VolatileImage.IMAGE_OK) {
                     invalidRects.clear();
-                    invalidRects.add(new Rectangle(0, 0, width, height));
+                    invalidRects.add(new Rectangle(_tx, _ty, width, height));
                     Log.info("Lost back buffer, redrawing.");
 
                 } else if (dx != 0 || dy != 0) {
@@ -256,8 +282,14 @@ public class AnimatedPanel extends Canvas implements AnimatedView
                     g.copyArea(0, 0, width, height, -dx, -dy);
                 }
 
+                // translate into happy space
+                g.translate(-_tx, -_ty);
+
                 // now do our actual rendering
                 render((Graphics2D)g, invalidRects);
+
+                // translate back out of happy space
+                g.translate(_tx, _ty);
 
             } finally {
                 g.dispose();
@@ -279,6 +311,9 @@ public class AnimatedPanel extends Canvas implements AnimatedView
                     int isize = invalidRects.size();
                     for (int i = 0; i < isize; i++) {
                         Rectangle rect = (Rectangle)invalidRects.get(i);
+                        // we have to translate out of view coordinates
+                        // before doing the actual copy
+                        rect.translate(-_tx, -_ty);
                         g.setClip(rect);
                         g.drawImage(_backimg, 0, 0, null);
                     }
@@ -306,16 +341,33 @@ public class AnimatedPanel extends Canvas implements AnimatedView
      * y direction.
      * @param now the current time, provided because we have it and
      * scrolling views are likely to want to use it in calculating stuff.
+     * @param invalidRects the list of invalid rectangles which will be
+     * redrawn; rectangles can be added to this list if necessary.
      */
-    protected void viewWillScroll (int dx, int dy, long now)
+    protected void viewWillScroll (int dx, int dy, long now, List invalidRects)
     {
         // nothing to do here
     }
 
     /**
+     * Derived classes that wish to operate in a coordinate system based
+     * on a view size that is larger or smaller than the viewport size
+     * (the actual dimensions of the animated panel) can override this
+     * method and return the desired size of the view. The animated panel
+     * will take this size into account and translate into the view
+     * coordinate system before calling {@link #render}.
+     */
+    protected Dimension getViewSize ()
+    {
+        return getSize();
+    }
+
+    /**
      * Requests that the supplied list of invalid rectangles be redrawn in
-     * the supplied graphics context.  Sub-classes should override this
-     * method to do the actual rendering for their display.
+     * the supplied graphics context. The rectangles will be in the view
+     * coordinate system (which may differ from screen coordinates, see
+     * {@link #getViewSize}. Sub-classes should override this method to do
+     * the actual rendering for their display.
      */
     protected void render (Graphics2D gfx, List invalidRects)
     {
@@ -339,6 +391,9 @@ public class AnimatedPanel extends Canvas implements AnimatedView
 
     /** The image used to render off-screen. */
     protected VolatileImage _backimg;
+
+    /** Our viewport offsets. */
+    protected int _tx, _ty;
 
     /** The scrolling velocity in milliseconds per pixel. */
     protected int _msppx, _msppy;

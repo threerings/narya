@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.24 2002/02/19 19:55:14 mdb Exp $
+// $Id: SpriteManager.java,v 1.25 2002/02/21 06:01:29 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -36,21 +36,6 @@ public class SpriteManager
     }
 
     /**
-     * Specifies the viewport offset of the view into which the sprites
-     * are being rendered. This is an annoying hack, but the sprite
-     * manager needs to create dirty rectangles and communicate them to
-     * the animation manager who deals in untranslated coordinates,
-     * whereas the sprites remain in translated coordinates; but only the
-     * view itself knows what the translation should be, so it has to tell
-     * the sprite manager about it using this method.
-     */
-    public void setViewportOffset (int tx, int ty)
-    {
-        _tx = tx;
-        _ty = ty;
-    }
-
-    /**
      * Lets the sprite manager know that the view is about to scroll by
      * the specified offsets. It can update the positions of its sprites
      * if they are tracking the scrolled view, or generate dirty regions
@@ -76,9 +61,6 @@ public class SpriteManager
             }
             dirty.add(ex, ey);
 
-            // translate the rectangle according to our viewport offset
-            dirty.translate(-_tx, -_ty);
-
             // append it to the list
             invalidRects.add(dirty);
         }
@@ -92,7 +74,6 @@ public class SpriteManager
     public void addDirtyRect (Rectangle rect)
     {
         // translate the rectangle according to our viewport offset
-        rect.translate(-_tx, -_ty);
         _dirty.add(rect);
     }
 
@@ -359,9 +340,6 @@ public class SpriteManager
 
     /** The list of pending sprite notifications. */
     protected ArrayList _notify;
-
-    /** Our viewport offset. */
-    protected int _tx, _ty;
 
     protected static class SpriteComparator implements Comparator
     {
