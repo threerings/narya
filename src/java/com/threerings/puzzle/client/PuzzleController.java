@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.14 2004/10/15 23:52:25 mdb Exp $
+// $Id: PuzzleController.java,v 1.15 2004/10/16 00:06:37 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -583,9 +583,9 @@ public abstract class PuzzleController extends GameController
     {
         if (_astate == CLEAR_PENDING && canClearAction()) {
             actuallyClearAction();
-        } else {
-            Log.info("Not clearing action [astate=" + _astate +
-                     ", canClear=" + canClearAction() + "].");
+//         } else {
+//             Log.info("Not clearing action [astate=" + _astate +
+//                      ", canClear=" + canClearAction() + "].");
         }
     }
 
