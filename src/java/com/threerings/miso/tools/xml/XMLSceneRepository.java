@@ -1,8 +1,9 @@
 //
-// $Id: XMLSceneRepository.java,v 1.7 2001/08/15 01:08:49 mdb Exp $
+// $Id: XMLSceneRepository.java,v 1.8 2001/08/15 02:13:36 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -33,7 +34,6 @@ public class XMLFileSceneRepository
         _tilemgr = tilemgr;
 
 	// get path-related information
-	_sep = System.getProperty("file.separator", "/");
 	_root = System.getProperty("root", "");
         _sceneRoot = _config.getValue(CFG_SROOT, DEF_SROOT);
 
@@ -47,7 +47,7 @@ public class XMLFileSceneRepository
      */
     public String getScenePath ()
     {
-	return _root + _sep + _sceneRoot + _sep;
+	return _root + File.separator + _sceneRoot + File.separator;
     }
 
     /**
@@ -93,9 +93,6 @@ public class XMLFileSceneRepository
 
     /** The root scene directory path. */
     protected String _sceneRoot;
-
-    /** The file separator string. */
-    protected String _sep;
 
     /** The parser object for reading scenes from files. */
     protected XMLSceneParser _parser;
