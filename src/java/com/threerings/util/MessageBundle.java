@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.26 2004/08/23 22:53:39 mdb Exp $
+// $Id: MessageBundle.java,v 1.27 2004/08/23 23:21:40 ray Exp $
 
 package com.threerings.util;
 
@@ -209,12 +209,18 @@ public class MessageBundle
         if (msg == null) {
             if (getResourceString(key + ".n", false) != null) {
                 try {
-                    args[0] = new Integer(args[0].toString());
+                    // args could be a String[], we need to turn it into
+                    // an Object[]
+                    Object[] newargs = new Object[args.length];
+                    System.arraycopy(args, 1, newargs, 1, args.length - 1);
+                    newargs[0] = new Integer(args[0].toString());
+                    args = newargs;
                     msg = getResourceString(key + getSuffix(args));
                 } catch (Exception e) {
                     Log.warning("Failure doing automatic plural handling " +
                                 "[bundle=" + _path + ", key=" + key +
-                                ", args=" + StringUtil.toString(args) + "].");
+                                ", args=" + StringUtil.toString(args) +
+                                ", error=" + e + "].");
                 }
 
             } else {
@@ -236,15 +242,14 @@ public class MessageBundle
      */
     protected String getSuffix (Object[] args)
     {
-        String suffix = "";
         if (args[0] instanceof Integer) {
             switch (((Integer)args[0]).intValue()) {
-            case 0: suffix = ".0"; break;
-            case 1: suffix = ".1"; break;
-            default: suffix = ".n"; break;
+            case 0: return ".0";
+            case 1: return ".1";
+            default: return ".n";
             }
         }
-        return suffix;
+        return "";
     }
 
     /**
