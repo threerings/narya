@@ -1,5 +1,5 @@
 //
-// $Id: CrowdServer.java,v 1.1 2001/07/23 21:14:27 mdb Exp $
+// $Id: CrowdServer.java,v 1.2 2001/08/01 03:22:54 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -19,6 +19,9 @@ public class PartyServer extends CherServer
     /** The namespace used for server config properties. */
     public static final String CONFIG_KEY = "party";
 
+    /** The place registry. */
+    public PlaceRegistry plreg;
+
     /**
      * Initializes all of the server services and prepares for operation.
      */
@@ -33,6 +36,9 @@ public class PartyServer extends CherServer
 
         // configure the client to use the body object
         clmgr.setClientObjectClass(BodyObject.class);
+
+        // create our place registry
+        plreg = new PlaceRegistry(config);
 
         // register our invocation service providers
         registerProviders(config.getValue(PROVIDERS_KEY, (String[])null));
