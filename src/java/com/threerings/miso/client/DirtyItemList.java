@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.19 2003/02/04 03:33:09 mdb Exp $
+// $Id: DirtyItemList.java,v 1.20 2003/02/07 22:06:28 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -336,7 +336,26 @@ public class DirtyItemList
         {
             DirtyItem da = (DirtyItem)a;
             DirtyItem db = (DirtyItem)b;
-            return (_axis == X_AXIS) ? (da.ox - db.ox) : (da.oy - db.oy);
+
+            // if they don't overlap, sort them normally
+            if (_axis == X_AXIS) {
+                if (da.ox != db.ox) {
+                    return da.ox - db.ox;
+                }
+            } else {
+                if (da.oy != db.oy) {
+                    return da.oy - db.oy;
+                }
+            }
+
+            // if they do overlap, incorporate render priority
+            if (da.obj instanceof DisplayObjectInfo &&
+                db.obj instanceof DisplayObjectInfo) {
+                return (((DisplayObjectInfo)da.obj).getPriority() -
+                        ((DisplayObjectInfo)db.obj).getPriority());
+            } else {
+                return 0;
+            }
         }
 
         /** The axis this comparator sorts on. */
@@ -466,8 +485,8 @@ public class DirtyItemList
                 case X_AXIS:
                     if (dp.ly >= da.ry &&
                         dp.ry <= db.ly &&
-                        dp.lx > da.rx &&
-                        dp.rx < db.lx) {
+                        dp.lx >= da.rx &&
+                        dp.rx <= db.lx) {
                         return (swapped) ? 1 : -1;
                     }
 
@@ -475,8 +494,8 @@ public class DirtyItemList
                 default:
                     if (dp.lx <= db.ox &&
                         dp.rx >= da.lx &&
-                        dp.ry > da.oy &&
-                        dp.oy < db.ry) {
+                        dp.ry >= da.oy &&
+                        dp.oy <= db.ry) {
                         return (swapped) ? 1 : -1;
                     }
                 }
