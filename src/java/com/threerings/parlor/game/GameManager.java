@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.65 2003/06/04 02:50:19 ray Exp $
+// $Id: GameManager.java,v 1.66 2003/06/29 23:11:23 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -61,6 +61,15 @@ public class GameManager extends PlaceManager
                     }
                 }, TICK_DELAY, null, true);
         }
+    }
+
+    /**
+     * Returns the configuration object for the game being managed by this
+     * manager.
+     */
+    public GameConfig getGameConfig ()
+    {
+        return _gameconfig;
     }
 
     /**
