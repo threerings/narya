@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.22 2001/09/17 23:25:26 shaper Exp $
+// $Id: Sprite.java,v 1.23 2001/09/17 23:55:45 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -477,7 +477,7 @@ public class Sprite
     /**
      * This should be overridden by derived classes (which should be sure
      * to call <code>super.toString()</code>) to append the derived class
-     * specific event information to the string buffer.
+     * specific sprite information to the string buffer.
      */
     protected void toString (StringBuffer buf)
     {
