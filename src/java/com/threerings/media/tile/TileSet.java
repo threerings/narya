@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.59 2004/02/25 14:43:17 mdb Exp $
+// $Id: TileSet.java,v 1.60 2004/07/09 04:00:20 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -272,6 +272,9 @@ public abstract class TileSet
         checkTileIndex(tileIndex);
         Rectangle bounds = computeTileBounds(tileIndex);
         BufferedImage timg = getRawTileSetImage();
+        if (timg == null) {
+            throw new IllegalStateException("Missing source image " + this);
+        }
         return timg.getSubimage(bounds.x, bounds.y,
                                 bounds.width, bounds.height);
     }
