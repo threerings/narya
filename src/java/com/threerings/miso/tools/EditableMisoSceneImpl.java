@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.19 2002/05/03 04:12:48 mdb Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.20 2002/05/17 19:06:23 ray Exp $
 
 package com.threerings.miso.scene.tools;
 
@@ -91,8 +91,8 @@ public class EditableMisoSceneImpl
                 try {
                     int index = _rando.nextInt(setcount);
                     _base.setTile(x, y, (BaseTile) set.getTile(index));
-                    _model.baseTileIds[_model.width*y + x] =
-                        TileUtil.getFQTileId(setId, index);
+                    _model.setBaseTile(
+                        x, y, TileUtil.getFQTileId(setId, index));
 
                 } catch (NoSuchTileException nste) {
                     // not going to happen
@@ -109,16 +109,8 @@ public class EditableMisoSceneImpl
     public void setBaseTile (int x, int y, BaseTile tile, int fqTileId)
     {
         _base.setTile(x, y, tile);
-        _model.baseTileIds[_model.width*y + x] = fqTileId;
+        _model.setBaseTile(x, y, fqTileId);
         _fringer.fringe(_model, _fringe, new Rectangle(x, y, 1, 1), _rando);
-    }
-
-    // documentation inherited
-    public void setFringeTile (int x, int y, Tile tile, int fqTileId)
-    {
-        _fringe.setTile(x, y, tile);
-        // update the model as well
-        _model.fringeTileIds[_model.width*y + x] = fqTileId;
     }
 
     // documentation inherited
@@ -146,14 +138,6 @@ public class EditableMisoSceneImpl
         // implemented as a set of one of the random base tiles
         setBaseTiles(new Rectangle(x, y, 1, 1),
                      _defaultBaseTileSet, _defaultBaseTileSetId);
-    }
-
-    // documentation inherited
-    public void clearFringeTile (int x, int y)
-    {
-        _fringe.setTile(x, y, null);
-        // clear it out in the model
-        _model.fringeTileIds[_model.width*y + x] = 0;
     }
 
     // documentation inherited

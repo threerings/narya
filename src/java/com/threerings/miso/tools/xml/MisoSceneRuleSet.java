@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneRuleSet.java,v 1.8 2002/05/16 02:25:19 ray Exp $
+// $Id: MisoSceneRuleSet.java,v 1.9 2002/05/17 19:06:23 ray Exp $
 
 package com.threerings.miso.scene.tools.xml;
 
@@ -9,6 +9,7 @@ import org.apache.commons.digester.RuleSetBase;
 import com.samskivert.xml.CallMethodSpecialRule;
 import com.samskivert.xml.SetFieldRule;
 
+import com.threerings.miso.Log;
 import com.threerings.miso.scene.MisoSceneModel;
 
 /**
@@ -51,6 +52,10 @@ public class MisoSceneRuleSet extends RuleSetBase
                          new SetFieldRule(digester, "width"));
         digester.addRule(_prefix + "/height",
                          new SetFieldRule(digester, "height"));
+        digester.addRule(_prefix + "/viewwidth",
+                         new SetFieldRule(digester, "vwidth"));
+        digester.addRule(_prefix + "/viewheight",
+                         new SetFieldRule(digester, "vheight"));
         digester.addRule(_prefix + "/base",
                          new SetFieldRule(digester, "baseTileIds"));
         digester.addRule(_prefix + "/object",
@@ -72,8 +77,13 @@ public class MisoSceneRuleSet extends RuleSetBase
                     model.objectActions = new String[1];
                 }
 
-                // and allocate the fringe tile layer
-                model.fringeTileIds = new int[model.baseTileIds.length];
+                // check to see if we've read in an old-style model.
+                // TODO: remove this someday after all our scenes are
+                // converted.
+                if (model.vwidth == 0) {
+                    model.convertOldSchool(10, 12);
+                    Log.info("Converted old-school MisoSceneModel.");
+                }
             }
         });
     }

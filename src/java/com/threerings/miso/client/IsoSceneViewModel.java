@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.23 2002/03/28 22:32:32 mdb Exp $
+// $Id: IsoSceneViewModel.java,v 1.24 2002/05/17 19:06:23 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -33,6 +33,9 @@ public class IsoSceneViewModel
 
     /** Scene dimensions in tile count. */
     public int scenewid, scenehei;
+
+    /** Size of the view in tile count. */
+    public int scenevwid, scenevhei;
 
     /** The bounds of the view in screen pixel coordinates. */
     public Rectangle bounds;
@@ -87,6 +90,12 @@ public class IsoSceneViewModel
 	scenehei = MisoConfig.config.getValue(
             SCENE_HEIGHT_KEY, DEF_SCENE_HEIGHT);
 
+        // and the view dimensions
+	scenevwid = MisoConfig.config.getValue(
+            SCENE_VWIDTH_KEY, DEF_SCENE_VWIDTH);
+	scenevhei = MisoConfig.config.getValue(
+            SCENE_VHEIGHT_KEY, DEF_SCENE_VHEIGHT);
+
 	// get the tile dimensions
 	tilewid = MisoConfig.config.getValue(TILE_WIDTH_KEY, DEF_TILE_WIDTH);
 	tilehei = MisoConfig.config.getValue(TILE_HEIGHT_KEY, DEF_TILE_HEIGHT);
@@ -102,12 +111,8 @@ public class IsoSceneViewModel
             SHOW_FOOTPRINTS_KEY, DEF_SHOW_FOOTPRINTS);
 
         // precalculate various things
-	int svwid = MisoConfig.config.getValue(
-            SCENE_VWIDTH_KEY, DEF_SCENE_VWIDTH);
-	int svhei = MisoConfig.config.getValue(
-            SCENE_VHEIGHT_KEY, DEF_SCENE_VHEIGHT);
 	int offy = MisoConfig.config.getValue(SCENE_OFFSET_Y_KEY, DEF_OFFSET_Y);
-        precalculate(svwid, svhei, offy);
+        precalculate(offy);
     }
 
     /**
@@ -135,11 +140,13 @@ public class IsoSceneViewModel
         this.tilewid = tilewid;
         this.tilehei = tilehei;
         this.finegran = finegran;
+        this.scenevwid = svwid;
+        this.scenevhei = svhei;
 
         // let our flags default to false
 
         // precalculate various things
-        precalculate(svwid, svhei, offy);
+        precalculate(offy);
     }
 
     /**
@@ -203,10 +210,10 @@ public class IsoSceneViewModel
      * Pre-calculate various member data that are commonly used in working
      * with an isometric view.
      */
-    protected void precalculate (int svwid, int svhei, int offy)
+    protected void precalculate (int offy)
     {
 	// set the desired scene view bounds
-	bounds = new Rectangle(0, 0, svwid * tilewid, svhei * tilehei);
+	bounds = new Rectangle(0, 0, scenevwid * tilewid, scenevhei * tilehei);
 
 	// set the scene display origin
         origin = new Point((bounds.width / 2), (offy * tilehei));

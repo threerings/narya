@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoScene.java,v 1.15 2002/04/27 18:41:14 mdb Exp $
+// $Id: EditableMisoScene.java,v 1.16 2002/05/17 19:06:23 ray Exp $
 
 package com.threerings.miso.scene.tools;
 
@@ -59,17 +59,6 @@ public interface EditableMisoScene
     public void setBaseTiles (Rectangle r, BaseTileSet set, int setId);
 
     /**
-     * Updates the tile at the specified location in the fringe layer.
-     *
-     * @param x the x-coordinate of the tile to set.
-     * @param y the y-coordinate of the tile to set.
-     * @param tile the tile to set.
-     * @param fqTileId the fully-qualified tile id (@see
-     * TileUtil#getFQTileId}) of the new default base tile.
-     */
-    public void setFringeTile (int x, int y, Tile tile, int fqTileId);
-
-    /**
      * Addds an object tile to this scene.
      *
      * @param x the object's origin x-coordinate.
@@ -89,11 +78,6 @@ public interface EditableMisoScene
      * Clears out the tile at the specified location in the base layer.
      */
     public void clearBaseTile (int x, int y);
-
-    /**
-     * Clears out the tile at the specified location in the fringe layer.
-     */
-    public void clearFringeTile (int x, int y);
 
     /**
      * Clears out the specified tile from the object list.
