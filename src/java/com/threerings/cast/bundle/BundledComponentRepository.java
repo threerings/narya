@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.27 2003/04/27 06:43:51 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.28 2003/07/01 21:56:10 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -90,7 +90,8 @@ public class BundledComponentRepository
 
         // look for our metadata info in each of the bundles
         try {
-            for (int i = 0; i < rbundles.length; i++) {
+            int rcount = (rbundles == null) ? 0 : rbundles.length;
+            for (int i = 0; i < rcount; i++) {
                 if (_actions == null) {
                     _actions = (HashMap)BundleUtil.loadObject(
                         rbundles[i], BundleUtil.ACTIONS_PATH);
