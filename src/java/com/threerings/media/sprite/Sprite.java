@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.49 2002/06/20 21:42:53 mdb Exp $
+// $Id: Sprite.java,v 1.50 2002/07/08 21:15:35 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -24,24 +24,15 @@ public abstract class Sprite
     implements DirectionCodes, Pathable
 {
     /**
-     * Constructs a sprite with a default initial location of <code>(0,
-     * 0)</code>.
+     * Constructs a sprite with an initially invalid location. Because
+     * sprite derived classes generally want to get in on the business
+     * when a sprite's location is set, it is not safe to do so in the
+     * constructor because their derived methods will be called before
+     * their constructor has been called. Thus a sprite should be fully
+     * constructed and <em>then</em> its location should be set.
      */
     public Sprite ()
     {
-        this(0, 0);
-    }
-
-    /**
-     * Constructs a sprite initially positioned at the specified location.
-     *
-     * @param x the sprite x-position in pixels.
-     * @param y the sprite y-position in pixels.
-     */
-    public Sprite (int x, int y)
-    {
-        _ox = x;
-        _oy = y;
     }
 
     /**
@@ -430,7 +421,7 @@ public abstract class Sprite
      * sprite positions itself via a hotspot that is not the upper left
      * coordinate of the sprite's bounds, the offset to the hotspot should
      * be maintained in {@link #_oxoff} and {@link #_oyoff}. */
-    protected int _ox, _oy;
+    protected int _ox = Integer.MIN_VALUE, _oy = Integer.MIN_VALUE;
 
     /** The offsets from our upper left coordinate to our origin (or hot
      * spot). Derived classes will need to update these values if the

@@ -1,5 +1,5 @@
 //
-// $Id: ImageSprite.java,v 1.9 2002/06/20 21:42:53 mdb Exp $
+// $Id: ImageSprite.java,v 1.10 2002/07/08 21:15:35 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -39,28 +39,15 @@ public class ImageSprite extends Sprite
     public static final int TIME_BASED = 2;
 
     /**
-     * Constructs an image sprite without any associated frames and with a
-     * default initial location of <code>(0, 0)</code>.  The sprite should
-     * be populated with a set of frames used to display it via a
-     * subsequent call to {@link #setFrames}, and its location updated
-     * with {@link #setLocation}.
+     * Constructs an image sprite without any associated frames and with
+     * an invalid default initial location. The sprite should be populated
+     * with a set of frames used to display it via a subsequent call to
+     * {@link #setFrames}, and its location updated with {@link
+     * #setLocation}.
      */
     public ImageSprite ()
     {
-        this(0, 0, null);
-    }
-
-    /**
-     * Constructs an image sprite without any associated frames. The
-     * sprite should be populated with a set of frames used to display it
-     * via a subsequent call to {@link #setFrames}.
-     *
-     * @param x the sprite x-position in pixels.
-     * @param y the sprite y-position in pixels.
-     */
-    public ImageSprite (int x, int y)
-    {
-        this(x, y, null);
+        this(null);
     }
 
     /**
@@ -70,10 +57,8 @@ public class ImageSprite extends Sprite
      * @param y the sprite y-position in pixels.
      * @param frames the multi-frame image used to display the sprite.
      */
-    public ImageSprite (int x, int y, MultiFrameImage frames)
+    public ImageSprite (MultiFrameImage frames)
     {
-        super(x, y);
-
 	// initialize frame animation member data
         _frames = frames;
         _frameIdx = 0;

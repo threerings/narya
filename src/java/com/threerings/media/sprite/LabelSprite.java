@@ -1,5 +1,5 @@
 //
-// $Id: LabelSprite.java,v 1.2 2002/06/20 09:01:28 shaper Exp $
+// $Id: LabelSprite.java,v 1.3 2002/07/08 21:15:35 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -23,17 +23,6 @@ public class LabelSprite extends Sprite
      */
     public LabelSprite (Label label)
     {
-        this(0, 0, label);
-    }
-
-    /**
-     * Constructs a label sprite with the given initial position that
-     * renders itself with the specified label.
-     */
-    public LabelSprite (int x, int y, Label label)
-    {
-        super(x, y);
-
         _label = label;
     }
 
