@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.15 2003/04/25 22:13:14 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.16 2003/04/26 02:16:18 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -661,7 +661,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         // if this block has objects that intersect our visible bounds
         // (zoiks!) then repaint
         Rectangle sbounds = block.getScreenBounds();
-        if (sbounds.intersects(_vbounds)) {
+        if (sbounds != null && sbounds.intersects(_vbounds)) {
 //             Log.info("Eek, block came into view during resolution " +
 //                      block + ".");
         }

@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.11 2003/04/25 22:13:14 mdb Exp $
+// $Id: SceneBlock.java,v 1.12 2003/04/26 02:16:18 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -48,9 +48,6 @@ public class SceneBlock
         _footprint = MisoUtil.getFootprintPolygon(
             panel.getSceneMetrics(), tx, ty, width, height);
 
-        // start with the bounds of the footprint polygon
-        _sbounds = new Rectangle(_footprint.getBounds());
-
         // the rest of our resolution will happen in resolve()
     }
 
@@ -59,13 +56,16 @@ public class SceneBlock
      * block resolution thread to allow us to load up our image data
      * without blocking the AWT thread.
      */
-    protected synchronized boolean resolve ()
+    protected boolean resolve ()
     {
         // if we got canned before we were resolved, go ahead and bail now
         if (_panel.getBlock(_bounds.x, _bounds.y) != this) {
             // Log.info("Not resolving abandoned block " + this + ".");
             return false;
         }
+
+        // start with the bounds of the footprint polygon
+        Rectangle sbounds = new Rectangle(_footprint.getBounds());
 
         // resolve our base tiles
         MisoSceneModel model = _panel.getSceneModel();
@@ -97,7 +97,7 @@ public class SceneBlock
         _objects = new SceneObject[set.size()];
         for (int ii = 0; ii < _objects.length; ii++) {
             _objects[ii] = new SceneObject(_panel, set.get(ii));
-            _sbounds.add(_objects[ii].bounds);
+            sbounds.add(_objects[ii].bounds);
         }
 
         // resolve our default tileset
@@ -109,6 +109,12 @@ public class SceneBlock
         } catch (Exception e) {
             Log.warning("Unable to fetch default base tileset [tsid=" + bsetid +
                         ", error=" + e + "].");
+        }
+
+        // this both marks us as resolved and makes all our other updated
+        // fields visible
+        synchronized (this) {
+            _sbounds = sbounds;
         }
 
         return true;
@@ -126,9 +132,9 @@ public class SceneBlock
     /**
      * Returns true if this block has been resolved, false if not.
      */
-    protected boolean isResolved ()
+    protected synchronized boolean isResolved ()
     {
-        return (_defset != null);
+        return _sbounds != null;
     }
 
     /**
