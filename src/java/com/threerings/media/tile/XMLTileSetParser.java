@@ -1,12 +1,12 @@
 //
-// $Id: XMLTileSetParser.java,v 1.3 2001/07/20 08:08:59 shaper Exp $
+// $Id: XMLTileSetParser.java,v 1.4 2001/07/20 23:41:12 shaper Exp $
 
 package com.threerings.miso.tile;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.util.XMLUtil;
 
 import com.samskivert.util.StringUtil;
+import com.samskivert.xml.XMLUtil;
 
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
