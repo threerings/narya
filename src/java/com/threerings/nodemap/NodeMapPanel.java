@@ -1,5 +1,5 @@
 //
-// $Id: NodeMapPanel.java,v 1.7 2001/12/18 12:21:21 mdb Exp $
+// $Id: NodeMapPanel.java,v 1.8 2001/12/18 12:43:12 mdb Exp $
 
 package com.threerings.nodemap;
 
@@ -69,16 +69,37 @@ public class NodeMapPanel extends JPanel
         return _map;
     }
 
+    /**
+     * Instructs the panel to center the displayed node map on the
+     * specified node. If the node is null, the panel will revert back to
+     * centering on the entire map.
+     */
+    public void centerOnNode (Node node)
+    {
+        _centerNode = node;
+        repaint();
+    }
+
+    // documentation inherited
     public void paintComponent (Graphics g)
     {
 	super.paintComponent(g);
         if (_map != null) {
-            // compute the offset necessary to center the map in the
-            // display
             Dimension osize = getSize();
-            Dimension msize = _map.getSize();
-            int tx = (osize.width - msize.width)/2;
-            int ty = (osize.height - msize.height)/2;
+            int tx, ty;
+
+            // compute the necessary centering offset
+            if (_centerNode != null) {
+                Point ncoords = _map.getNodeCoords(_centerNode);
+                tx = (osize.width - _centerNode.getWidth())/2 - ncoords.x;
+                ty = (osize.height - _centerNode.getHeight())/2 - ncoords.y;
+
+            } else {
+                Dimension msize = _map.getSize();
+                tx = (osize.width - msize.width)/2;
+                ty = (osize.height - msize.height)/2;
+            }
+
             g.translate(tx, ty);
             _map.paint(g);
             g.translate(-tx, -ty);
@@ -144,4 +165,7 @@ public class NodeMapPanel extends JPanel
 
     /** The node map. */
     protected NodeMap _map;
+
+    /** The node on which we're centering, or null. */
+    protected Node _centerNode;
 }

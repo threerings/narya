@@ -1,5 +1,5 @@
 //
-// $Id: NodeMap.java,v 1.5 2001/10/11 00:41:27 shaper Exp $
+// $Id: NodeMap.java,v 1.6 2001/12/18 12:43:12 mdb Exp $
 
 package com.threerings.nodemap;
 
@@ -31,6 +31,14 @@ public class NodeMap
     }
 
     /**
+     * Returns an iterator over the nodes in this node map.
+     */
+    public Iterator nodes ()
+    {
+        return _nodes.iterator();
+    }
+
+    /**
      * Force the nodes in the map to be re-laid out.
      */
     public void layout ()
@@ -53,6 +61,15 @@ public class NodeMap
 
 	// note that we're no longer dirty
 	_dirty = false;
+    }
+
+    /**
+     * Returns the coordinates of the supplied node, adjusted into
+     * absolute coordinates (where 0,0 is the upper left of the node map).
+     */
+    public Point getNodeCoords (Node node)
+    {
+        return new Point(node.getX()-_minx, node.getY()-_miny);
     }
 
     /**
