@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneParser.java,v 1.1 2003/04/19 22:40:34 mdb Exp $
+// $Id: SparseMisoSceneParser.java,v 1.2 2003/05/14 21:34:01 ray Exp $
 
 package com.threerings.miso.tools.xml;
 
@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import org.xml.sax.SAXException;
 import org.apache.commons.digester.Digester;
 
+import com.samskivert.io.StreamUtil;
 import com.samskivert.util.StringUtil;
 import com.threerings.tools.xml.NestableRuleSet;
 
@@ -55,7 +56,13 @@ public class SparseMisoSceneParser
     {
         _model = null;
         _digester.push(this);
-        _digester.parse(new FileInputStream(path));
+        FileInputStream stream = null;
+        try {
+            stream = new FileInputStream(path);
+            _digester.parse(stream);
+        } finally {
+            StreamUtil.close(stream);
+        }
         return _model;
     }
 

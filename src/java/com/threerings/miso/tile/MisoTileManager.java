@@ -1,10 +1,12 @@
 //
-// $Id: MisoTileManager.java,v 1.4 2003/01/13 22:55:12 mdb Exp $
+// $Id: MisoTileManager.java,v 1.5 2003/05/14 21:34:01 ray Exp $
 
 package com.threerings.miso.tile;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import com.samskivert.io.StreamUtil;
 
 import com.threerings.resource.ResourceManager;
 import com.threerings.util.CompiledConfig;
@@ -32,8 +34,9 @@ public class MisoTileManager extends TileManager
         super(imgr);
 
         // look for a fringe configuration in the appropriate place
+        InputStream in = null;
         try {
-            InputStream in = rmgr.getResource(FRINGE_CONFIG_PATH);
+            in = rmgr.getResource(FRINGE_CONFIG_PATH);
             FringeConfiguration config = (FringeConfiguration)
                 CompiledConfig.loadConfig(in);
 
@@ -44,6 +47,9 @@ public class MisoTileManager extends TileManager
             Log.warning("Unable to load fringe configuration " +
                         "[path=" + FRINGE_CONFIG_PATH +
                         ", error=" + ioe + "].");
+
+        } finally {
+            StreamUtil.close(in);
         }
     }
 

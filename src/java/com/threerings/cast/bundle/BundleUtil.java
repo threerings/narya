@@ -1,5 +1,5 @@
 //
-// $Id: BundleUtil.java,v 1.5 2003/01/14 00:36:14 mdb Exp $
+// $Id: BundleUtil.java,v 1.6 2003/05/14 21:34:01 ray Exp $
 
 package com.threerings.cast.bundle;
 
@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
+
+import com.samskivert.io.StreamUtil;
 
 import com.threerings.cast.Log;
 import com.threerings.resource.ResourceBundle;
@@ -51,8 +53,9 @@ public class BundleUtil
     public static Object loadObject (ResourceBundle bundle, String path)
         throws IOException, ClassNotFoundException
     {
+        InputStream bin = null;
         try {
-            InputStream bin = bundle.getResource(path);
+            bin = bundle.getResource(path);
             if (bin == null) {
                 return null;
             }
@@ -64,6 +67,9 @@ public class BundleUtil
                         ", element=" + path +
                         ", error=" + ice.getMessage() + "].");
             return null;
+
+        } finally {
+            StreamUtil.close(bin);
         }
     }
 }
