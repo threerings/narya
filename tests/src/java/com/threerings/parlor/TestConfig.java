@@ -1,11 +1,7 @@
 //
-// $Id: TestConfig.java,v 1.3 2001/11/08 02:07:36 mdb Exp $
+// $Id: TestConfig.java,v 1.4 2002/07/23 05:55:40 mdb Exp $
 
 package com.threerings.parlor;
-
-import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
 import com.threerings.parlor.game.GameConfig;
 
@@ -22,22 +18,6 @@ public class TestConfig extends GameConfig
     public String getManagerClassName ()
     {
         return "com.threerings.parlor.test.TestManager";
-    }
-
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
-        throws IOException
-    {
-        super.writeTo(out);
-        out.writeInt(foozle);
-    }
-
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
-    {
-        super.readFrom(in);
-        foozle = in.readInt();
     }
 
     protected void toString (StringBuffer buf)
