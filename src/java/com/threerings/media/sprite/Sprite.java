@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.64 2003/04/30 00:44:36 mdb Exp $
+// $Id: Sprite.java,v 1.65 2003/11/24 21:58:36 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -344,6 +344,13 @@ public abstract class Sprite extends AbstractMedia
     public void removeSpriteObserver (Object obs)
     {
         removeObserver(obs);
+    }
+
+    // documentation inherited
+    public void shutdown ()
+    {
+        super.shutdown();
+        cancelMove(); // cancel any active path
     }
 
     // documentation inherited
