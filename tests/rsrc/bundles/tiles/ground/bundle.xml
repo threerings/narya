@@ -1,0 +1,32 @@
+<?xml version="1.0" standalone="yes"?>
+<!-- $Id: bundle.xml,v 1.1 2001/11/29 00:21:15 mdb Exp $ -->
+
+<!-- Ground tile bundle tileset descriptions. -->
+<bundle>
+  <base>
+    <tileset name="Sample">
+      <imagePath>sample.png</imagePath>
+      <heights>48</heights>
+      <widths>64</widths>
+      <tileCounts>14</tileCounts>
+      <passable>1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1</passable>
+    </tileset>
+
+    <tileset name="Landscape">
+      <imagePath>landscape.png</imagePath>
+      <heights>48</heights>
+      <widths>64</widths>
+      <tileCounts>5</tileCounts>
+      <passable>1, 0, 1, 1, 1</passable>
+    </tileset>
+  </base>
+
+  <fringe>
+    <tileset name="Fringe">
+      <imagePath>fringe.png</imagePath>
+      <heights>48, 48, 48, 48, 48</heights>
+      <widths>64, 64, 64, 64, 64</widths>
+      <tileCounts>8, 8, 8, 8, 8</tileCounts>
+    </tileset>
+  </fringe>
+</bundle>
