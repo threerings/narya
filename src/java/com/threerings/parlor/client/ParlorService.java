@@ -1,5 +1,5 @@
 //
-// $Id: ParlorService.java,v 1.10 2001/10/23 23:47:01 mdb Exp $
+// $Id: ParlorService.java,v 1.11 2001/10/26 01:40:22 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -99,7 +99,7 @@ public class ParlorService implements ParlorCodes
 
     /**
      * You probably don't want to call this directly, but want to call
-     * {@link TableManager#createTable}. Requests that a new table be
+     * {@link TableDirector#createTable}. Requests that a new table be
      * created.
      *
      * @param client a connected, operational client instance.
@@ -122,7 +122,7 @@ public class ParlorService implements ParlorCodes
 
     /**
      * You probably don't want to call this directly, but want to call
-     * {@link TableManager#joinTable}. Requests that the current user
+     * {@link TableDirector#joinTable}. Requests that the current user
      * be added to the specified table at the specified position.
      *
      * @param client a connected, operational client instance.
@@ -148,7 +148,7 @@ public class ParlorService implements ParlorCodes
 
     /**
      * You probably don't want to call this directly, but want to call
-     * {@link TableManager#leaveTable}. Requests that the current user
+     * {@link TableDirector#leaveTable}. Requests that the current user
      * be removed from the specified table.
      *
      * @param client a connected, operational client instance.

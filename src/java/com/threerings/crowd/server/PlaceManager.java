@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.22 2001/10/24 01:00:09 mdb Exp $
+// $Id: PlaceManager.java,v 1.23 2001/10/26 01:40:22 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -57,11 +57,11 @@ public class PlaceManager
 
     /**
      * A place manager derived class is likely to have a corresponding
-     * derived class of {@link PlaceObject} that it will be managing.
-     * Derived classes should override this method and return the class
-     * object for the place object derived class they desire to use. The
-     * place registry will use this method to create the proper place
-     * object during the place creation process.
+     * derived class of {@link com.threerings.crowd.data.PlaceObject} that
+     * it will be managing.  Derived classes should override this method
+     * and return the class object for the place object derived class they
+     * desire to use. The place registry will use this method to create
+     * the proper place object during the place creation process.
      *
      * @return the class of the class, derived from {@link PlaceObject},
      * that this manager wishes to manage.

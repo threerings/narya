@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.1 2001/10/26 01:17:21 shaper Exp $
+// $Id: TileUtil.java,v 1.2 2001/10/26 01:40:22 mdb Exp $
 
 package com.threerings.cast;
 
@@ -17,13 +17,13 @@ import com.threerings.cast.CharacterComponent.ComponentFrames;
 public class TileUtil
 {
     /**
-     * Returns a {@link ComponentFrames} object containing the frames
-     * of animation used to render the sprite while standing or
-     * walking in each of the directions it may face.  The tileset id
-     * referenced must contain <code>Sprite.NUM_DIRECTIONS</code> rows
-     * of tiles, with each row containing first the single standing
-     * tile, followed by <code>frameCount</code> tiles describing the
-     * walking animation.
+     * Returns a {@link CharacterComponent.ComponentFrames} object
+     * containing the frames of animation used to render the sprite while
+     * standing or walking in each of the directions it may face.  The
+     * tileset id referenced must contain
+     * <code>Sprite.NUM_DIRECTIONS</code> rows of tiles, with each row
+     * containing first the single standing tile, followed by
+     * <code>frameCount</code> tiles describing the walking animation.
      *
      * @param tilemgr the tile manager to retrieve tiles from.
      * @param tsid the tileset id containing the sprite tiles.

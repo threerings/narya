@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModelListener.java,v 1.1 2001/10/18 21:01:44 shaper Exp $
+// $Id: IsoSceneViewModelListener.java,v 1.2 2001/10/26 01:40:22 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -13,7 +13,8 @@ package com.threerings.miso.scene;
 public interface IsoSceneViewModelListener
 {
     /**
-     * Called by the {@link IsoSceneView} when the model is changed.
+     * Called by the {@link com.threerings.miso.scene.IsoSceneView} when
+     * the model is changed.
      */
     public void viewChanged (int event);
 

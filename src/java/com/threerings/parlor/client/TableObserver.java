@@ -1,14 +1,14 @@
 //
-// $Id: TableObserver.java,v 1.1 2001/10/23 02:22:16 mdb Exp $
+// $Id: TableObserver.java,v 1.2 2001/10/26 01:40:22 mdb Exp $
 
 package com.threerings.parlor.client;
 
 import com.threerings.parlor.data.Table;
 
 /**
- * The {@link TableManager} converts distributed object events into higher
- * level callbacks to implementers of this interface, which are expected
- * to render these events sensically in a user interface.
+ * The {@link TableDirector} converts distributed object events into
+ * higher level callbacks to implementers of this interface, which are
+ * expected to render these events sensically in a user interface.
  */
 public interface TableObserver
 {

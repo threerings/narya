@@ -1,12 +1,12 @@
 //
-// $Id: SeatednessObserver.java,v 1.1 2001/10/23 20:23:29 mdb Exp $
+// $Id: SeatednessObserver.java,v 1.2 2001/10/26 01:40:22 mdb Exp $
 
 package com.threerings.parlor.client;
 
 /**
  * Entites that wish to hear about when we sit down at a table or stand up
  * from a table can implement this interface and register themselves with
- * the {@link TableManager}.
+ * the {@link TableDirector}.
  */
 public interface SeatednessObserver
 {

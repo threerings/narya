@@ -1,5 +1,5 @@
 //
-// $Id: TableManager.java,v 1.3 2001/10/25 23:02:17 mdb Exp $
+// $Id: TableManager.java,v 1.4 2001/10/26 01:40:22 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -34,8 +34,8 @@ import com.threerings.parlor.game.GameManager;
  * A table manager can be used by a place manager to take care of the
  * management of a table matchmaking service in the place managed by the
  * place manager. The place manager need instantiate a table manager and
- * implement the {@link TableLobbyManager} interface to provide access to
- * the table manager for the associated invocation services.
+ * implement the {@link TableManagerProvider} interface to provide access
+ * to the table manager for the associated invocation services.
  */
 public class TableManager
     implements ParlorCodes, PlaceRegistry.CreationObserver, OidListListener
