@@ -1,18 +1,22 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.6 2002/04/01 16:49:26 mdb Exp $
+// $Id: ComponentBundlerTask.java,v 1.7 2002/04/07 23:15:29 mdb Exp $
 
 package com.threerings.cast.bundle.tools;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import java.util.jar.JarOutputStream;
 import java.util.jar.JarEntry;
@@ -225,16 +229,16 @@ public class ComponentBundlerTask extends Task
     protected HashMapIDBroker loadBroker (File mapfile)
         throws BuildException
     {
-        HashMapIDBroker broker;
+        HashMapIDBroker broker = new HashMapIDBroker();
 
         try {
             FileInputStream fin = new FileInputStream(mapfile);
-            ObjectInputStream oin = new ObjectInputStream(fin);
-            broker = (HashMapIDBroker)oin.readObject();
+            DataInputStream din =
+                new DataInputStream(new BufferedInputStream(fin));
+            broker.readFrom(din);
 
         } catch (FileNotFoundException fnfe) {
             // if the file doesn't yet exist, start with a blank broker
-            broker = new HashMapIDBroker();
 
         } catch (Exception e) {
             throw new BuildException("Error loading component ID map " +
@@ -253,9 +257,10 @@ public class ComponentBundlerTask extends Task
     {
         try {
             FileOutputStream fout = new FileOutputStream(mapfile);
-            ObjectOutputStream oout = new ObjectOutputStream(fout);
-            oout.writeObject(broker);
-            oout.close();
+            DataOutputStream dout =
+                new DataOutputStream(new BufferedOutputStream(fout));
+            ((HashMapIDBroker)broker).writeTo(dout);
+            dout.close();
         } catch (IOException ioe) {
             throw new BuildException("Unable to store component ID map " +
                                      "[mapfile=" + mapfile + "]", ioe);
@@ -281,6 +286,40 @@ public class ComponentBundlerTask extends Task
             throws PersistenceException
         {
             // nothing doing
+        }
+
+        public void writeTo (DataOutputStream dout)
+            throws IOException
+        {
+            // write out the size of the table
+            dout.writeInt(size());
+            // write out the keys and values
+            Iterator keys = keySet().iterator();
+            while (keys.hasNext()) {
+                Tuple key = (Tuple)keys.next();
+                Integer value = (Integer)get(key);
+                dout.writeUTF((String)key.left);
+                dout.writeUTF((String)key.right);
+                dout.writeInt(value.intValue());
+            }
+            // write out our most recently assigned component id
+            dout.writeInt(_nextCID);
+        }
+
+        public void readFrom (DataInputStream din)
+            throws IOException
+        {
+            // figure out how many keys and values we'll be reading
+            int size = din.readInt();
+            // and read them on in
+            for (int i = 0; i < size; i++) {
+                String cclass = din.readUTF();
+                String cname = din.readUTF();
+                int value = din.readInt();
+                put(new Tuple(cclass, cname), new Integer(value));
+            }
+            // read in our most recently assigned component id
+            _nextCID = din.readInt();
         }
 
         protected int _nextCID = 0;
