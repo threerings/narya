@@ -1,10 +1,9 @@
 //
-// $Id: StreamableArrayIntSet.java,v 1.1 2004/01/17 01:14:12 eric Exp $
+// $Id: StreamableArrayIntSet.java,v 1.2 2004/01/17 01:55:46 ray Exp $
 
 package com.threerings.util;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import com.samskivert.util.ArrayIntSet;
 
@@ -18,7 +17,6 @@ import com.threerings.io.Streamable;
 public class StreamableArrayIntSet extends ArrayIntSet
     implements Streamable
 {
-
     // documentation inherited
     public StreamableArrayIntSet (int[] values)
     {
@@ -43,13 +41,8 @@ public class StreamableArrayIntSet extends ArrayIntSet
     public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        int size = size();
-        out.writeInt(size);
-        Iterator itr = iterator();
-        while (itr.hasNext()) {
-            int value = ((Integer)itr.next()).intValue();
-            out.writeInt(value);
-        }
+        out.writeInt(_size);
+        out.writeObject(_values);
     }
 
     /**
@@ -58,9 +51,7 @@ public class StreamableArrayIntSet extends ArrayIntSet
     public void readObject (ObjectInputStream in)
         throws IOException, ClassNotFoundException
     {
-        int size = in.readInt();
-        for (int ii = 0; ii < size; ii++) {
-            add(in.readInt());
-        }
+        _size = in.readInt();
+        _values = (int[]) in.readObject();
     }
 }
