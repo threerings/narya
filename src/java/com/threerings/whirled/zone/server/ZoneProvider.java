@@ -233,7 +233,7 @@ public class ZoneProvider
      * request to move to the specified new zone and scene. This is the
      * zone-equivalent to {@link LocationProvider#moveBody}.
      *
-     * @return null if the user was forcibly moved, a string indicating
+     * @return null if the user was forcibly moved, or a string indicating
      * the reason for denial of departure of their current zone (from
      * {@link ZoneManager#ratifyBodyExit}).
      */
@@ -261,7 +261,7 @@ public class ZoneProvider
      * is the zone equivalent to {@link
      * LocationProvider#leaveOccupiedPlace}.
      *
-     * @return null if the user was forcibly moved, a string indicating
+     * @return null if the user was forcibly moved, or a string indicating
      * the reason for denial of departure of their current zone (from
      * {@link ZoneManager#ratifyBodyExit}).
      */
