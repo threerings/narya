@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.22 2002/11/20 02:26:33 mdb Exp $
+// $Id: FrameManager.java,v 1.23 2002/11/22 01:53:39 mdb Exp $
 
 package com.threerings.media;
 
@@ -183,6 +183,7 @@ public class FrameManager
         if (_ticker == null) {
             _ticker = new Timer(true);
             _ticker.scheduleAtFixedRate(_callTick, new Date(), _millisPerFrame);
+            _lastTickStamp = 0;
         }
     }
 
@@ -234,8 +235,8 @@ public class FrameManager
                 paintParticipants(tickStamp);
             }
 
-        // note that we've done a frame
-//         PerformanceMonitor.tick(this, "frame-rate");
+            // note that we've done a frame
+//             PerformanceMonitor.tick(this, "frame-rate");
 
         } finally {
             synchronized (this) {
@@ -250,6 +251,12 @@ public class FrameManager
      */
     protected void tickParticipants (long tickStamp)
     {
+        long gap = tickStamp - _lastTickStamp;
+        if (_lastTickStamp != 0 && gap > (HANG_DEBUG ? HANG_GAP : BIG_GAP)) {
+            Log.debug("Long tick delay [delay=" + gap + "ms].");
+        }
+        _lastTickStamp = tickStamp;
+
         // validate any invalid components
         try {
             _remgr.validateComponents();
@@ -461,7 +468,22 @@ public class FrameManager
         public boolean apply (Object observer)
         {
             try {
+                long start = 0L;
+                if (HANG_DEBUG) {
+                    start = System.currentTimeMillis();
+                }
+
                 ((FrameParticipant)observer).tick(_tickStamp);
+
+                if (HANG_DEBUG) {
+                    long delay = (System.currentTimeMillis() - start);
+                    if (delay > HANG_GAP) {
+                        Log.info("Whoa nelly! Ticker took a long time " +
+                                 "[part=" + observer +
+                                 ", time=" + delay + "ms].");
+                    }
+                }
+
             } catch (Throwable t) {
                 Log.warning("Frame participant choked during tick " +
                             "[part=" +
@@ -501,6 +523,11 @@ public class FrameManager
                 return true;
             }
 
+            long start = 0L;
+            if (HANG_DEBUG) {
+                start = System.currentTimeMillis();
+            }
+
             // get the bounds of this component
             pcomp.getBounds(_bounds);
 
@@ -538,6 +565,15 @@ public class FrameManager
             _clipped[0] = false;
             renderLayers(_g, pcomp, _bounds, _clipped);
 
+            if (HANG_DEBUG) {
+                long delay = (System.currentTimeMillis() - start);
+                if (delay > HANG_GAP) {
+                    Log.warning("Whoa nelly! Painter took a long time " +
+                                "[part=" + observer +
+                                ", time=" + delay + "ms].");
+                }
+            }
+
             return true;
         }
 
@@ -568,6 +604,9 @@ public class FrameManager
     /** The number of milliseconds per frame (14 by default, which gives
      * an fps of ~71). */
     protected long _millisPerFrame = 14;
+
+    /** Used to track big delays in calls to our tick method. */
+    protected long _lastTickStamp;
 
     /** The timer that dispatches our frame ticks. */
     protected Timer _ticker;
@@ -612,4 +651,15 @@ public class FrameManager
     /** The observer operation applied to all frame participants each time
      * the frame is rendered. */
     protected ParticipantPaintOp _participantPaintOp = new ParticipantPaintOp();
+
+    /** If we don't get ticked for 500ms, that's worth complaining about. */
+    protected static final long BIG_GAP = 500L;
+
+    /** If we don't get ticked for 100ms and we're hang debugging,
+     * complain. */
+    protected static final long HANG_GAP = 100L;
+
+    /** Enable this to log warnings when ticking or painting takes too
+     * long. */
+    protected static final boolean HANG_DEBUG = false;
 }
