@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.22 2002/05/28 23:14:06 mdb Exp $
+// $Id: PresentsServer.java,v 1.23 2002/07/25 20:24:02 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -172,6 +172,7 @@ public class PresentsServer
         } catch (Exception e) {
             Log.warning("Unable to initialize server.");
             Log.logStackTrace(e);
+            System.exit(-1);
         }
     }
 }
