@@ -1,5 +1,5 @@
 //
-// $Id: EventNotification.java,v 1.3 2001/05/30 23:58:31 mdb Exp $
+// $Id: EventNotification.java,v 1.4 2001/05/30 23:59:16 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -8,7 +8,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
 import com.threerings.cocktail.cher.dobj.Event;
-import com.threerings.cocktail.cher.dobj.EventFactory;
 
 public class EventNotification extends DownstreamMessage
 {
@@ -40,14 +39,14 @@ public class EventNotification extends DownstreamMessage
         throws IOException
     {
         super.writeTo(out);
-        _event.writeTo(out);
+        // _event.writeTo(out);
     }
 
     public void readFrom (DataInputStream in)
         throws IOException
     {
         super.readFrom(in);
-        _event = EventFactory.readFrom(in);
+        // _event = EventFactory.readFrom(in);
     }
 
     /** The event which we are forwarding. */
