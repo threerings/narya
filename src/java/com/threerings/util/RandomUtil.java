@@ -1,7 +1,7 @@
 //
-// $Id: RandomUtil.java,v 1.4 2002/04/15 17:13:38 mdb Exp $
+// $Id: RandomUtil.java,v 1.5 2002/04/15 18:18:20 mdb Exp $
 
-package com.threerings.media.util;
+package com.threerings.util;
 
 import java.util.Random;
 

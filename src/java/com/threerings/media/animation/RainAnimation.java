@@ -1,5 +1,5 @@
 //
-// $Id: RainAnimation.java,v 1.1 2002/01/18 16:22:23 shaper Exp $
+// $Id: RainAnimation.java,v 1.2 2002/04/15 18:18:20 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -7,7 +7,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-import com.threerings.media.util.RandomUtil;
+import com.threerings.util.RandomUtil;
 
 /**
  * An animation that displays raindrops spattering across an image.

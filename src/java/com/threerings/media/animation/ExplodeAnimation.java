@@ -1,5 +1,5 @@
 //
-// $Id: ExplodeAnimation.java,v 1.6 2002/01/31 17:34:20 shaper Exp $
+// $Id: ExplodeAnimation.java,v 1.7 2002/04/15 18:18:20 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -9,8 +9,9 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
+import com.threerings.util.RandomUtil;
+
 import com.threerings.media.Log;
-import com.threerings.media.util.RandomUtil;
 
 /**
  * An animation that displays an object exploding into chunks.  The

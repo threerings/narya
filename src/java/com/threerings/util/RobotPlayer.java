@@ -1,5 +1,5 @@
 //
-// $Id: RobotPlayer.java,v 1.1 2002/01/18 23:32:14 shaper Exp $
+// $Id: RobotPlayer.java,v 1.2 2002/04/15 18:18:20 mdb Exp $
 
 package com.threerings.util;
 
@@ -11,7 +11,7 @@ import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
 
-import com.threerings.media.util.RandomUtil;
+import com.threerings.util.RandomUtil;
 
 /**
  * The robot player is a computer player with truly rudimentary artificial

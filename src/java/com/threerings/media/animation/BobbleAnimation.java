@@ -1,5 +1,5 @@
 //
-// $Id: BobbleAnimation.java,v 1.2 2002/01/11 16:53:34 shaper Exp $
+// $Id: BobbleAnimation.java,v 1.3 2002/04/15 18:18:20 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -8,8 +8,9 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 
+import com.threerings.util.RandomUtil;
+
 import com.threerings.media.Log;
-import com.threerings.media.util.RandomUtil;
 
 /**
  * An animation that bobbles an image around within a specific horizontal
