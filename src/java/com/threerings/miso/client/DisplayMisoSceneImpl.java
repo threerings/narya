@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.65 2003/01/31 23:10:45 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.66 2003/02/04 21:39:28 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -187,9 +187,11 @@ public class DisplayMisoSceneImpl
         }
 
         // populate our display objects with object tiles
-        int ocount = _objects.size();
-        for (int ii = 0; ii < ocount; ii++) {
-            populateObject((DisplayObjectInfo)_objects.get(ii));
+        for (int ii = 0; ii < _objects.size(); ii++) {
+            if (!populateObject((DisplayObjectInfo)_objects.get(ii))) {
+                // initialization failed, remove the object
+                _objects.remove(ii--);
+            }
         }
     }
 
@@ -197,16 +199,22 @@ public class DisplayMisoSceneImpl
      * Called to populate an object with its object tile when we have been
      * configured with a tile manager from which to obtain such things.
      */
-    protected void populateObject (DisplayObjectInfo info)
+    protected boolean populateObject (DisplayObjectInfo info)
     {
         int tsid = (info.tileId >> 16) & 0xFFFF, tid = (info.tileId & 0xFFFF);
         try {
             initObject(info, (ObjectTile)_tmgr.getTile(tsid, tid));
+            return true;
+        } catch (NoSuchTileException nste) {
+            Log.warning("Scene contains non-existent object tile " +
+                        "[info=" + info + ", tsid=" + tsid +
+                        ", tid=" + tid + "].");
         } catch (NoSuchTileSetException te) {
             Log.warning("Scene contains non-existent object tile " +
                         "[info=" + info + ", tsid=" + tsid +
                         ", tid=" + tid + "].");
         }
+        return false;
     }
 
     /**
