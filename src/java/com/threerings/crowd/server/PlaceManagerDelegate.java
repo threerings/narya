@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManagerDelegate.java,v 1.2 2002/10/26 02:40:30 shaper Exp $
+// $Id: PlaceManagerDelegate.java,v 1.3 2003/05/26 21:24:56 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -77,6 +77,14 @@ public class PlaceManagerDelegate
      */
     public void placeBecameEmpty ()
     {
+    }
+
+    /**
+     * Invokes {PlaceManager#where}.
+     */
+    public String where ()
+    {
+        return _plmgr.where();
     }
 
     /** A reference to the manager for which we are delegating. */
