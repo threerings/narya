@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.18 2002/03/28 22:32:32 mdb Exp $
+// $Id: ConnectionManager.java,v 1.19 2002/07/10 01:23:45 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -173,13 +173,27 @@ public class ConnectionManager extends LoopingThread
         // close any connections that have been queued up to die
         Connection dconn;
         while ((dconn = (Connection)_deathq.getNonBlocking()) != null) {
-            dconn.close();
+            // it's possible that we caught an EOF trying to read from
+            // this connection even after it was queued up for death, so
+            // let's avoid trying to close it twice
+            if (!dconn.isClosed()) {
+                dconn.close();
+            }
         }
 
         // send any messages that are waiting on the outgoing queue
         Tuple tup;
         while ((tup = (Tuple)_outq.getNonBlocking()) != null) {
             Connection conn = (Connection)tup.left;
+            // if the connection to which this message is destined is
+            // closed, drop the message and move along quietly; this is
+            // perfectly legal, a user can logoff whenever they like, even
+            // if we still have things to tell them; such is life in a
+            // fully asynchronous distributed system
+            if (conn.isClosed()) {
+                continue;
+            }
+
             DownstreamMessage outmsg = (DownstreamMessage)tup.right;
             try {
                 // first flatten the message (and frame it)
@@ -188,7 +202,8 @@ public class ConnectionManager extends LoopingThread
                 _framer.writeFrameAndReset(conn.getOutputStream());
 
             } catch (IOException ioe) {
-                connectionFailed(conn, ioe);
+                // instruct the connection to deal with its failure
+                conn.handleFailure(ioe);
             }
         }
 

@@ -1,5 +1,5 @@
 //
-// $Id: Connection.java,v 1.6 2001/10/11 04:07:53 mdb Exp $
+// $Id: Connection.java,v 1.7 2002/07/10 01:23:45 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -82,14 +82,23 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
+     * Returns true if this connection is closed.
+     */
+    public boolean isClosed ()
+    {
+        return (_socket == null);
+    }
+
+    /**
      * Closes this connection and unregisters it from the connection
      * manager. This should only be called from the conmgr thread.
      */
     public void close ()
     {
         // we shouldn't be closed twice
-        if (_socket == null) {
-            Log.warning("Attempted to re-close connection.");
+        if (isClosed()) {
+            Log.warning("Attempted to re-close connection " + this + ".");
+            Thread.dumpStack();
             return;
         }
 
@@ -97,15 +106,48 @@ public abstract class Connection implements NetEventHandler
         _cmgr.connectionClosed(this);
 
         // close our socket
-        try {
-            _socket.close();
-        } catch (IOException ioe) {
-            Log.warning("Error closing connection [conn=" + this +
-                        ", error=" + ioe + "].");
+        closeSocket();
+    }
+
+    /**
+     * Called when there is a failure reading or writing on this
+     * connection. We notify the connection manager and close ourselves
+     * down.
+     */
+    public void handleFailure (IOException ioe)
+    {
+        // if we're already closed, then something is seriously funny
+        if (isClosed()) {
+            Log.warning("Failure reported on closed connection " + this + ".");
+            Thread.dumpStack();
+            return;
         }
 
-        // clear out our socket reference to prevent repeat closings
-        _socket = null;
+        // let the connection manager know we're hosed
+        _cmgr.connectionFailed(this, ioe);
+
+        // and close our socket
+        closeSocket();
+    }
+
+    /**
+     * Closes the socket associated with this connection. This happens
+     * when we receive EOF, are requested to close down or when our
+     * connection fails.
+     */
+    protected void closeSocket ()
+    {
+        if (_socket != null) {
+            try {
+                _socket.close();
+            } catch (IOException ioe) {
+                Log.warning("Error closing connection [conn=" + this +
+                            ", error=" + ioe + "].");
+            }
+
+            // clear out our socket reference to prevent repeat closings
+            _socket = null;
+        }
     }
 
     /**
@@ -122,15 +164,14 @@ public abstract class Connection implements NetEventHandler
             }
 
         } catch (EOFException eofe) {
-            // let the connection manager know that we done went away
-            _cmgr.connectionClosed(this);
+            // close down the socket gracefully
+            close();
 
         } catch (IOException ioe) {
             Log.warning("Error reading message from socket " +
                         "[socket=" + _socket + ", error=" + ioe + "].");
-            Log.logStackTrace(ioe);
-            // let the connection manager know that something when awry
-            _cmgr.connectionFailed(this, ioe);
+            // deal with the failure
+            handleFailure(ioe);
         }
     }
 
