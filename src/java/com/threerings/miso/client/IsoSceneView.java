@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.31 2001/08/08 22:29:39 shaper Exp $
+// $Id: IsoSceneView.java,v 1.32 2001/08/09 05:44:07 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -480,6 +480,15 @@ public class IsoSceneView implements EditableSceneView
     {
 	Point tpos = new Point();
         IsoUtil.screenToTile(_model, x, y, tpos);
+	_scene.tiles[tpos.x][tpos.y][lnum] = tile;
+    }
+
+    public void deleteTile (int x, int y, int lnum)
+    {
+	Point tpos = new Point();
+        IsoUtil.screenToTile(_model, x, y, tpos);
+
+	Tile tile = (lnum == 0) ? _scene.getDefaultTile() : null;
 	_scene.tiles[tpos.x][tpos.y][lnum] = tile;
     }
 

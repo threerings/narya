@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.17 2001/08/04 01:41:02 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.18 2001/08/09 05:44:07 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -60,18 +60,19 @@ public class Scene
     public Scene (TileManager tilemgr, int deftsid, int deftid)
     {
 	_tilemgr = tilemgr;
-        _sid = SID_INVALID;
+
+	_sid = SID_INVALID;
 	_name = DEF_SCENE_NAME;
         _hotspots = new Point[0];
         _exits = new ExitPoint[0];
 
 	tiles = new Tile[TILE_WIDTH][TILE_HEIGHT][NUM_LAYERS];
-	Tile tile = _tilemgr.getTile(deftsid, deftid);
+	_deftile = _tilemgr.getTile(deftsid, deftid);
 	for (int xx = 0; xx < TILE_WIDTH; xx++) {
 	    for (int yy = 0; yy < TILE_HEIGHT; yy++) {
 		for (int ii = 0; ii < NUM_LAYERS; ii++) {
 		    if (ii == LAYER_BASE) {
-			tiles[xx][yy][ii] = tile;
+			tiles[xx][yy][ii] = _deftile;
 		    }
 		}
 	    }
@@ -152,6 +153,14 @@ public class Scene
     }
 
     /**
+     * Return the default tile for the base layer of the scene.
+     */
+    public Tile getDefaultTile ()
+    {
+	return _deftile;
+    }
+
+    /**
      * Return a string representation of this Scene object.
      */
     public String toString ()
@@ -173,11 +182,14 @@ public class Scene
     /** The unique scene id. */
     protected short _sid;
 
-    /** Hot-spot zone points. */
+    /** The hot-spot zone points. */
     protected Point _hotspots[];
 
-    /** Exit points to different scenes. */
+    /** The exit points to different scenes. */
     protected ExitPoint _exits[];
+
+    /** The default tile for the base layer in the scene. */
+    protected Tile _deftile;
 
     /** The tile manager. */
     protected TileManager _tilemgr;
