@@ -1,5 +1,5 @@
 //
-// $Id: GameConfig.java,v 1.9 2002/06/05 00:47:13 ray Exp $
+// $Id: GameConfig.java,v 1.10 2002/07/23 05:54:52 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -21,11 +21,6 @@ import com.threerings.crowd.data.PlaceConfig;
  * the construction of the appropriate game config instance which is
  * provided to the server as part of an invitation or via some other
  * matchmaking mechanism.
- *
- * <p> A game that has specific configuration needs would extend this
- * class (or an appropriate subclass) adding it's configuration
- * information and overriding {@link #writeTo} and {@link #readFrom} to
- * provide code to serialize and unserialize the additional fields.
  */
 public abstract class GameConfig extends PlaceConfig
 {

@@ -1,15 +1,11 @@
 //
-// $Id: SceneModel.java,v 1.7 2002/02/01 23:43:45 mdb Exp $
+// $Id: SceneModel.java,v 1.8 2002/07/23 05:54:52 mdb Exp $
 
 package com.threerings.whirled.data;
 
-import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-
 import com.samskivert.util.StringUtil;
-import com.threerings.presents.io.Streamable;
-import com.threerings.presents.io.StreamableUtil;
+
+import com.threerings.io.SimpleStreamableObject;
 
 /**
  * The scene model is the bare bones representation of the data for a
@@ -22,8 +18,8 @@ import com.threerings.presents.io.StreamableUtil;
  * what is transmitted over the wire when communicating scenes from the
  * server to the client.
  */
-public class SceneModel
-    implements Streamable, Cloneable
+public class SceneModel extends SimpleStreamableObject
+    implements Cloneable
 {
     /** This scene's unique identifier. */
     public int sceneId;
@@ -40,26 +36,6 @@ public class SceneModel
     /** The scene ids of the scenes that neighbor this scene. A neighbor
      * is a scene that can be entered from this scene. */
     public int[] neighborIds;
-
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
-        throws IOException
-    {
-        out.writeInt(sceneId);
-        out.writeUTF(sceneName);
-        out.writeInt(version);
-        StreamableUtil.writeInts(out, neighborIds);
-    }
-
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
-    {
-        sceneId = in.readInt();
-        sceneName = in.readUTF();
-        version = in.readInt();
-        neighborIds = StreamableUtil.readInts(in);
-    }
 
     /**
      * Generates a string representation of this scene model.

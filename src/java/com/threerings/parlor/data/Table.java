@@ -1,16 +1,16 @@
 //
-// $Id: Table.java,v 1.9 2002/04/15 16:28:02 shaper Exp $
+// $Id: Table.java,v 1.10 2002/07/23 05:54:52 mdb Exp $
 
 package com.threerings.parlor.data;
 
 import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
 import com.samskivert.util.StringUtil;
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+
 import com.threerings.presents.dobj.DSet;
-import com.threerings.presents.io.ValueMarshaller;
 
 import com.threerings.parlor.data.ParlorCodes;
 import com.threerings.parlor.game.GameConfig;
@@ -34,12 +34,12 @@ public class Table
     public int gameOid = -1;
 
     /** An array of the usernames of the occupants of this table (some
-     * slots may not be filled. */
+     * slots may not be filled). */
     public String[] occupants;
 
     /** The body oids of the occupants of this table. (This is not
      * propagated to remote instances.) */
-    public int[] bodyOids;
+    public transient int[] bodyOids;
 
     /** The game config for the game that is being matchmade. This config
      * instance will also implement {@link TableConfig}. */
@@ -242,30 +242,6 @@ public class Table
         return tableId;
     }
 
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
-        throws IOException
-    {
-        out.writeInt(getTableId());
-        out.writeInt(lobbyOid);
-        out.writeInt(gameOid);
-        ValueMarshaller.writeTo(out, occupants);
-        ValueMarshaller.writeTo(out, config);
-    }
-
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
-    {
-        tableId = new Integer(in.readInt());
-        lobbyOid = in.readInt();
-        gameOid = in.readInt();
-        occupants = (String[])ValueMarshaller.readFrom(in);
-        // bodyOids = new int[occupants.length]; // not used
-        config = (GameConfig)ValueMarshaller.readFrom(in);
-        _tconfig = (TableConfig)config;
-    }
-
     /**
      * Returns true if this table is equal to the supplied object (which
      * must be a table with the same table id).
@@ -277,6 +253,26 @@ public class Table
         } else {
             return false;
         }
+    }
+
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
+        throws IOException
+    {
+        out.defaultWriteObject();
+        out.writeObject(_tconfig);
+    }
+
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
+    {
+        in.defaultReadObject();
+        _tconfig = (TableConfig)in.readObject();
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: TableLobbyObject.java,v 1.4 2002/03/18 23:21:26 mdb Exp $
+// $Id: TableLobbyObject.java,v 1.5 2002/07/23 05:54:52 mdb Exp $
 
 package com.threerings.micasa.lobby.table;
 
@@ -15,7 +15,7 @@ public class TableLobbyObject
     public static final String TABLE_SET = "tableSet";
 
     /** A set containing all of the tables being managed by this lobby. */
-    public DSet tableSet = new DSet(Table.class);
+    public DSet tableSet = new DSet();
 
     // documentation inherited
     public DSet getTables ()

@@ -1,5 +1,5 @@
 //
-// $Id: TableManager.java,v 1.5 2002/04/15 16:28:02 shaper Exp $
+// $Id: TableManager.java,v 1.6 2002/07/23 05:54:52 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -102,8 +102,8 @@ public class TableManager
             table.setOccupant(0, creator.username, creator.getOid());
         if (error != null) {
             Log.warning("Unable to add creator to position zero of " +
-                        "table!? [table=" + table +
-                        ", creator=" + creator + "].");
+                        "table!? [table=" + table + ", creator=" + creator +
+                        ", error=" + error + "].");
             // bail out now and abort the table creation process
             throw new ServiceFailedException(error);
         }

@@ -1,11 +1,7 @@
 //
-// $Id: SpotSceneModel.java,v 1.7 2002/05/02 19:34:51 mdb Exp $
+// $Id: SpotSceneModel.java,v 1.8 2002/07/23 05:54:52 mdb Exp $
 
 package com.threerings.whirled.spot.data;
-
-import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
 import com.samskivert.util.StringUtil;
 import com.threerings.whirled.data.SceneModel;
@@ -60,72 +56,6 @@ public class SpotSceneModel extends SceneModel
      * connect to locations in other scenes as dictated by these
      * values. */
     public int[] targetLocIds;
-
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
-        throws IOException
-    {
-        super.writeTo(out);
-
-        // write out our location info
-        int lcount = locationIds.length;
-        out.writeInt(lcount);
-        for (int i = 0; i < lcount; i++) {
-            out.writeInt(locationIds[i]);
-            out.writeInt(locationX[i]);
-            out.writeInt(locationY[i]);
-            out.writeInt(locationOrients[i]);
-            out.writeInt(locationClusters[i]);
-        }
-
-        // write out our default entrance id
-        out.writeInt(defaultEntranceId);
-
-        // write out our portal info; we need not serialize the portal
-        // count because our based class already did when writing out the
-        // neighborIds array
-        int pcount = portalIds.length;
-        for (int i = 0; i < pcount; i++) {
-            out.writeInt(portalIds[i]);
-            out.writeInt(targetLocIds[i]);
-        }
-    }
-
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
-    {
-        super.readFrom(in);
-
-        // read in our location info
-        int lcount = in.readInt();
-        locationIds = new int[lcount];
-        locationX = new int[lcount];
-        locationY = new int[lcount];
-        locationOrients = new int[lcount];
-        locationClusters = new int[lcount];
-
-        for (int i = 0; i < lcount;i++) {
-            locationIds[i] = in.readInt();
-            locationX[i] = in.readInt();
-            locationY[i] = in.readInt();
-            locationOrients[i] = in.readInt();
-            locationClusters[i] = in.readInt();
-        }
-
-        // read in our default entrance id
-        defaultEntranceId = in.readInt();
-
-        // and read in our portal info
-        int pcount = neighborIds.length;
-        portalIds = new int[pcount];
-        targetLocIds = new int[pcount];
-
-        for (int i = 0; i < pcount; i++) {
-            portalIds[i] = in.readInt();
-            targetLocIds[i] = in.readInt();
-        }
-    }
 
     // documentation inherited
     public Object clone ()

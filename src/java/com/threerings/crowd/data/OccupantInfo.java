@@ -1,10 +1,10 @@
 //
-// $Id: OccupantInfo.java,v 1.7 2002/04/17 22:19:40 mdb Exp $
+// $Id: OccupantInfo.java,v 1.8 2002/07/23 05:54:52 mdb Exp $
 
 package com.threerings.crowd.data;
 
+import com.threerings.io.SimpleStreamableObject;
 import com.threerings.presents.dobj.DSet;
-import com.threerings.presents.io.SimpleStreamableObject;
 
 /**
  * The occupant info object contains all of the information about an
@@ -23,11 +23,6 @@ import com.threerings.presents.io.SimpleStreamableObject;
  * that if derived classes add non-primitive attributes, they are
  * responsible for adding the code to clone those attributes when a clone
  * is requested.
- *
- * <p> Note also that this class extends {@link SimpleStreamableObject}
- * which means that public data members will automatically be serialized,
- * but if any non-public or data members are added, code must be added to
- * serialize them when this object is streamed.
  */
 public class OccupantInfo extends SimpleStreamableObject
     implements DSet.Entry, Cloneable

@@ -1,17 +1,18 @@
 //
-// $Id: LobbyConfig.java,v 1.5 2001/10/23 20:24:10 mdb Exp $
+// $Id: LobbyConfig.java,v 1.6 2002/07/23 05:54:52 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
 import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
 import java.util.Properties;
 import com.samskivert.util.StringUtil;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.parlor.game.GameConfig;
@@ -64,19 +65,23 @@ public class LobbyConfig extends PlaceConfig
         _gameConfigClass = getConfigValue(config, "game_config");
     }
 
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
+        out.defaultWriteObject();
         out.writeUTF(_gameConfigClass);
     }
 
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        super.readFrom(in);
+        in.defaultReadObject();
         _gameConfigClass = in.readUTF();
     }
 
@@ -84,7 +89,10 @@ public class LobbyConfig extends PlaceConfig
     protected void toString (StringBuffer buf)
     {
         super.toString(buf);
-        buf.append(", game_config=").append(_gameConfigClass);
+        if (buf.length() > 1) {
+            buf.append(", ");
+        }
+        buf.append("game_config=").append(_gameConfigClass);
     }
 
     /** Looks up a configuration property in the supplied properties

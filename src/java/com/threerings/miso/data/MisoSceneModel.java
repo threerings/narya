@@ -1,16 +1,11 @@
 //
-// $Id: MisoSceneModel.java,v 1.8 2002/05/17 19:06:23 ray Exp $
+// $Id: MisoSceneModel.java,v 1.9 2002/07/23 05:54:52 mdb Exp $
 
 package com.threerings.miso.scene;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-
 import com.samskivert.util.StringUtil;
+
+import com.threerings.io.SimpleStreamableObject;
 
 import com.threerings.miso.Log;
 
@@ -19,7 +14,7 @@ import com.threerings.miso.Log;
  * scene in the Miso system. From the scene model, one would create an
  * instance of {@link DisplayMisoScene}.
  */
-public class MisoSceneModel
+public class MisoSceneModel extends SimpleStreamableObject
     implements Cloneable
 {
     /** The width of the scene in tile units. */
@@ -124,72 +119,6 @@ public class MisoSceneModel
         }
     }
 
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
-        throws IOException
-    {
-        int otc = objectTileIds.length;
-        int btc = baseTileIds.length;
-
-        // write everything into a ByteBuffer, viewed as an IntBuffer and
-        // then write the bytes from those operations out to the output
-        // stream
-        ByteBuffer bbuf = ByteBuffer.allocate(4*(btc + otc + 5));
-        IntBuffer ibuf = bbuf.asIntBuffer();
-
-        // insert the dimensions
-        ibuf.put(width);
-        ibuf.put(height);
-        ibuf.put(vwidth);
-        ibuf.put(vheight);
-        ibuf.put(otc);
-
-        // insert the layer data
-        ibuf.put(baseTileIds);
-        ibuf.put(objectTileIds);
-
-        // now write the binary data out to the output stream
-        out.write(bbuf.array());
-
-        // next write out the object action strings
-        int acount = otc/3;
-        for (int i = 0; i < acount; i++) {
-            out.writeUTF((objectActions[i] == null) ? "" : objectActions[i]);
-        }
-    }
-
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
-    {
-        // we can read these directly because the byte order of the byte
-        // buffer we created to write out the data is big endian which is
-        // what the data input stream expects
-        width = in.readInt();
-        height = in.readInt();
-        vwidth = in.readInt();
-        vheight = in.readInt();
-        int otc = in.readInt();
-
-        // read in the base layer
-        allocateBaseTileArray();
-        for (int i = 0; i < baseTileIds.length; i++) {
-            baseTileIds[i] = in.readInt();
-        }
-
-        // read in the object layer
-        objectTileIds = new int[otc];
-        for (int i = 0; i < otc; i++) {
-            objectTileIds[i] = in.readInt();
-        }
-
-        // read in the object action strings
-        objectActions = new String[otc/3];
-        for (int i = 0; i < otc/3; i++) {
-            objectActions[i] = in.readUTF();
-        }
-    }
-
     /**
      * Convert an old school model to the new-style, baby.
      * TODO: Remove this method someday after we've converted all
@@ -224,18 +153,6 @@ public class MisoSceneModel
     protected void allocateBaseTileArray ()
     {
         baseTileIds = new int[vwidth + vheight + ((vwidth * vheight) << 1)];
-    }
-
-    /**
-     * Generates a string representation of this scene model.
-     */
-    public String toString ()
-    {
-        return "[width=" + width + ", height=" + height +
-            ", vwidth=" + vwidth + ", vheight=" + vheight +
-            ", baseTileIds=" + StringUtil.toString(baseTileIds) +
-            ", objectTileIds=" + StringUtil.toString(objectTileIds) +
-            ", objectActions=" + StringUtil.toString(objectActions) + "]";
     }
 
     /**

@@ -1,20 +1,15 @@
 //
-// $Id: Lobby.java,v 1.3 2002/02/01 23:43:45 mdb Exp $
+// $Id: Lobby.java,v 1.4 2002/07/23 05:54:52 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
-import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-
-import com.threerings.presents.io.Marshaller;
-import com.threerings.presents.io.Streamable;
+import com.threerings.io.SimpleStreamableObject;
 
 /**
  * A simple class for keeping track of information for each lobby in
  * operation on the server.
  */
-public class Lobby implements Streamable
+public class Lobby extends SimpleStreamableObject
 {
     /** The object id of the lobby place object. */
     public int placeOid;
@@ -42,25 +37,5 @@ public class Lobby implements Streamable
      */
     public Lobby ()
     {
-    }
-
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
-        throws IOException
-    {
-        Marshaller.writeObject(out, this);
-    }
-
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
-    {
-        Marshaller.readObject(in, this);
-    }
-
-    public String toString ()
-    {
-        return "[oid=" + placeOid + ", ident=" + gameIdent +
-            ", name=" + name + "]";
     }
 }

@@ -1,10 +1,8 @@
 //
-// $Id: SceneSummary.java,v 1.3 2001/12/17 03:38:50 mdb Exp $
+// $Id: SceneSummary.java,v 1.4 2002/07/23 05:54:53 mdb Exp $
 
 package com.threerings.whirled.zone.data;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 
 import com.samskivert.util.StringUtil;
@@ -12,8 +10,9 @@ import com.samskivert.util.StringUtil;
 import com.threerings.util.DirectionCodes;
 import com.threerings.util.DirectionUtil;
 
-import com.threerings.presents.io.Streamable;
-import com.threerings.presents.io.StreamableUtil;
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.Streamable;
 
 /**
  * The scene summary class is used to provide info about the connected
@@ -55,25 +54,23 @@ public class SceneSummary implements Streamable
         _population = population;
     }
 
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        out.writeInt(sceneId);
-        out.writeUTF(name);
-        StreamableUtil.writeInts(out, neighbors);
-        StreamableUtil.writeInts(out, neighborDirs);
-        out.writeInt(_population);
+        out.defaultWriteObject();
+        out.writeInt(getPopulation());
     }
 
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
     {
-        sceneId = in.readInt();
-        name = in.readUTF();
-        neighbors = StreamableUtil.readInts(in);
-        neighborDirs = StreamableUtil.readInts(in);
+        in.defaultReadObject();
         _population = in.readInt();
     }
 
@@ -84,7 +81,8 @@ public class SceneSummary implements Streamable
     {
         return "[sceneId=" + sceneId + ", name=" + name +
             ", neighbors=" + StringUtil.toString(neighbors) +
-            ", neighborDirs=" + DirectionUtil.toString(neighborDirs) + "]";
+            ", neighborDirs=" + DirectionUtil.toString(neighborDirs) +
+            ", pop=" + _population + "]";
     }
 
     /** The number of people currently occupying this scene. */
