@@ -1,5 +1,5 @@
 //
-// $Id: CrowdServer.java,v 1.14 2002/10/21 20:56:20 mdb Exp $
+// $Id: CrowdServer.java,v 1.15 2002/10/31 21:32:39 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -20,6 +20,12 @@ public class CrowdServer extends PresentsServer
     /** The place registry. */
     public static PlaceRegistry plreg;
 
+    /** An object that is used to ratify access control on an action by
+     * action basis. Systems will want to override {@link
+     * #createAccessControl} to provide an implementation that will
+     * enforce their access control requirements. */
+    public static AccessControl actrl;
+
     /**
      * Initializes all of the server services and prepares for operation.
      */
@@ -38,10 +44,27 @@ public class CrowdServer extends PresentsServer
         // create our place registry
         plreg = new PlaceRegistry(invmgr, omgr);
 
+        // create our access control implementation
+        actrl = createAccessControl();
+
         // initialize the chat services
         ChatProvider.init(invmgr, omgr);
 
         Log.info("Crowd server initialized.");
+    }
+
+    /**
+     * Creates the {@link AccessControl} instance used to limit access to
+     * system features. The default implementation refuses access to
+     * everything.
+     */
+    protected AccessControl createAccessControl ()
+    {
+        return new AccessControl() {
+            public boolean checkAccess (BodyObject user, String feature) {
+                return false;
+            }
+        };
     }
 
     /**
