@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.121 2002/09/24 05:33:51 mdb Exp $
+// $Id: IsoSceneView.java,v 1.122 2002/10/16 01:55:22 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -447,6 +447,7 @@ public class IsoSceneView implements SceneView
         Rectangle rect = new Rectangle(Short.MIN_VALUE, Short.MIN_VALUE,
                                        2*Short.MAX_VALUE, 2*Short.MAX_VALUE);
         _scene.getSceneObjects(rect, _objects);
+        addAdditionalSceneObjects(_objects);
 
         // and fill in those objects' bounds
         int ocount = _objects.size();
@@ -454,6 +455,15 @@ public class IsoSceneView implements SceneView
             SceneObject scobj = _objects.get(ii);
             scobj.bounds = IsoUtil.getObjectBounds(_model, scobj);
         }
+    }
+
+    /**
+     * A place for subclasses to add any additional scene objects they
+     * may have.
+     */
+    protected void addAdditionalSceneObjects (ObjectSet set)
+    {
+        // nothing by default
     }
 
     // documentation inherited
@@ -533,7 +543,25 @@ public class IsoSceneView implements SceneView
         // repainted unless we're not highlighting anything
         if (hobject != _hobject) {
             repaint |= (_hmode != HIGHLIGHT_NEVER);
+
+            // unhover the old
+            if (_hobject instanceof SceneObject) {
+                SceneObject oldhov = (SceneObject) _hobject;
+                if (oldhov.setHovered(false)) {
+                    _remgr.invalidateRegion(oldhov.bounds);
+                }
+            }
+
+            // set the new 
             _hobject = hobject;
+
+            // hover the new
+            if (_hobject instanceof SceneObject) {
+                SceneObject newhov = (SceneObject) _hobject;
+                if (newhov.setHovered(true)) {
+                    _remgr.invalidateRegion(newhov.bounds);
+                }
+            }
 //             Log.info("New hover object [ho=" + _hobject + "].");
         }
 
