@@ -1,5 +1,5 @@
 //
-// $Id: DownloadManager.java,v 1.9 2003/08/05 07:03:33 mdb Exp $
+// $Id: DownloadManager.java,v 1.10 2003/08/05 23:34:01 mdb Exp $
 
 package com.threerings.resource;
 
@@ -256,7 +256,9 @@ public class DownloadManager
             }
         }
 
-        Log.info("Initiating download of " + pinfo.totalSize + " bytes.");
+        if (pinfo.totalSize > 0) {
+            Log.info("Initiating download of " + pinfo.totalSize + " bytes.");
+        }
 
         // download all stale files
         size = fetch.size();
