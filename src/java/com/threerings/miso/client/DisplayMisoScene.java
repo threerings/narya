@@ -1,13 +1,14 @@
 //
-// $Id: DisplayMisoScene.java,v 1.6 2002/09/18 02:32:57 mdb Exp $
+// $Id: DisplayMisoScene.java,v 1.7 2002/09/23 21:54:50 mdb Exp $
 
 package com.threerings.miso.scene;
 
-import java.awt.Point;
-import java.util.Iterator;
+import java.awt.Rectangle;
 
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
+
+import com.threerings.miso.scene.util.ObjectSet;
 import com.threerings.miso.tile.BaseTile;
 
 /**
@@ -29,29 +30,8 @@ public interface DisplayMisoScene
     public Tile getFringeTile (int x, int y);
 
     /**
-     * Returns the number of object tiles in the scene.
+     * Populates the supplied scene object set with all objects whose
+     * origin falls in the requested region.
      */
-    public int getObjectCount ();
-
-    /**
-     * Returns the object tile with the specified index.
-     */
-    public ObjectTile getObjectTile (int index);
-
-    /**
-     * Returns the tile coordinates for the specified object tile.
-     *
-     * @param index the index of the object tile for which coordinates are
-     * desired.
-     */
-    public Point getObjectCoords (int index);
-
-    /**
-     * Returns the action associated with the specified object tile. Null
-     * is returned if the object tile does not have an associated action.
-     *
-     * @param index the index of the object for which the action is
-     * desired.
-     */
-    public String getObjectAction (int index);
+    public void getSceneObjects (Rectangle region, ObjectSet set);
 }

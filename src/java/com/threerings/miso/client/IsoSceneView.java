@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.119 2002/09/18 02:32:57 mdb Exp $
+// $Id: IsoSceneView.java,v 1.120 2002/09/23 21:54:50 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -35,6 +35,7 @@ import com.threerings.miso.Log;
 import com.threerings.miso.scene.DirtyItemList.DirtyItem;
 import com.threerings.miso.scene.util.AStarPathUtil;
 import com.threerings.miso.scene.util.IsoUtil;
+import com.threerings.miso.scene.util.ObjectSet;
 
 /**
  * The iso scene view provides an isometric view of a particular scene. It
@@ -422,27 +423,17 @@ public class IsoSceneView implements SceneView
         // clear out any previously existing object data
         _objects.clear();
 
-        // generate metric records for all objects
-        int ocount = _scene.getObjectCount();
-        for (int ii = 0; ii < ocount; ii++) {
-            createSceneObject(_scene.getObjectCoords(ii).x,
-                              _scene.getObjectCoords(ii).y,
-                              _scene.getObjectTile(ii), ii,
-                              _scene.getObjectAction(ii));
-        }
-    }
+        // grab all available objects
+        Rectangle rect = new Rectangle(Short.MIN_VALUE, Short.MIN_VALUE,
+                                       2*Short.MAX_VALUE, 2*Short.MAX_VALUE);
+        _scene.getSceneObjects(rect, _objects);
 
-    /**
-     * Creates a new scene object and adds it to the list.
-     */
-    protected void createSceneObject (
-        int x, int y, ObjectTile tile, int index, String action)
-    {
-        SceneObject scobj = new SceneObject(x, y, tile);
-        scobj.index = index;
-        scobj.action = action;
-        scobj.bounds = IsoUtil.getObjectBounds(_model, scobj);
-        _objects.add(scobj);
+        // and fill in those objects' bounds
+        int ocount = _objects.size();
+        for (int ii = 0; ii < ocount; ii++) {
+            SceneObject scobj = _objects.get(ii);
+            scobj.bounds = IsoUtil.getObjectBounds(_model, scobj);
+        }
     }
 
     // documentation inherited
@@ -620,8 +611,8 @@ public class IsoSceneView implements SceneView
     /** The scene to be displayed. */
     protected DisplayMisoScene _scene;
 
-    /** Metric information for all of the object tiles. */
-    protected ArrayList _objects = new ArrayList();
+    /** Information for all of the objects visible in the scene. */
+    protected ObjectSet _objects = new ObjectSet();
 
     /** The dirty sprites and objects that need to be re-painted. */
     protected DirtyItemList _dirtyItems = new DirtyItemList();

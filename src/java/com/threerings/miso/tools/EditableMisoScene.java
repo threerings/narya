@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoScene.java,v 1.17 2002/09/18 02:32:57 mdb Exp $
+// $Id: EditableMisoScene.java,v 1.18 2002/09/23 21:54:50 mdb Exp $
 
 package com.threerings.miso.scene.tools;
 
@@ -9,10 +9,11 @@ import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileUtil;
 
-import com.threerings.miso.tile.BaseTile;
-import com.threerings.miso.tile.BaseTileSet;
 import com.threerings.miso.scene.DisplayMisoScene;
 import com.threerings.miso.scene.MisoSceneModel;
+import com.threerings.miso.scene.SceneObject;
+import com.threerings.miso.tile.BaseTile;
+import com.threerings.miso.tile.BaseTileSet;
 
 /**
  * The editable Miso scene interface is used in the offline scene building
@@ -59,7 +60,7 @@ public interface EditableMisoScene
     public void setBaseTiles (Rectangle r, BaseTileSet set, int setId);
 
     /**
-     * Addds an object tile to this scene.
+     * Adds an object to this scene.
      *
      * @param x the object's origin x-coordinate.
      * @param y the object's origin y-coordinate.
@@ -67,14 +68,10 @@ public interface EditableMisoScene
      * @param fqTileId the fully-qualified tile id (@see
      * TileUtil#getFQTileId}) of the new default base tile.
      *
-     * @return the new object's index in the object list.
+     * @return the new scene object instance.
      */
-    public int addObjectTile (ObjectTile tile, int x, int y, int fqTileId);
-
-    /**
-     * Sets the action string for the specified object tile.
-     */
-    public void setObjectAction (int index, String action);
+    public SceneObject addSceneObject (
+        ObjectTile tile, int x, int y, int fqTileId);
 
     /**
      * Clears out the tile at the specified location in the base layer.
@@ -82,15 +79,9 @@ public interface EditableMisoScene
     public void clearBaseTile (int x, int y);
 
     /**
-     * Clears out the specified object tile at the specified coordinates
-     * from the object list.
+     * Removes the specified object from the scene.
      */
-    public void removeObjectTile (int index);
-
-    /**
-     * Clears the action string for the specified object tile.
-     */
-    public void clearObjectAction (int index);
+    public boolean removeSceneObject (SceneObject scobj);
 
     /**
      * Returns a reference to the miso scene model that reflects the

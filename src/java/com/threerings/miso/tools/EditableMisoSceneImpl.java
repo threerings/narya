@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.22 2002/09/18 02:32:57 mdb Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.23 2002/09/23 21:54:50 mdb Exp $
 
 package com.threerings.miso.scene.tools;
 
@@ -23,6 +23,7 @@ import com.threerings.miso.tile.MisoTileManager;
 
 import com.threerings.miso.scene.DisplayMisoSceneImpl;
 import com.threerings.miso.scene.MisoSceneModel;
+import com.threerings.miso.scene.SceneObject;
 import com.threerings.miso.scene.util.IsoUtil;
 
 /**
@@ -110,26 +111,21 @@ public class EditableMisoSceneImpl
     }
 
     // documentation inherited
-    public int addObjectTile (ObjectTile tile, int x, int y, int fqTileId)
+    public SceneObject addSceneObject (
+        ObjectTile tile, int x, int y, int fqTileId)
     {
-        // create an object info record and add it to the list
-        EditableObjectInfo info = (EditableObjectInfo)createObjectInfo();
-        info.object = tile;
-        info.coords = new Point(x, y);
-        info.fqTileId = fqTileId;
-        _objects.add(info);
+        // create a scene object record and add it to the list
+        EditableSceneObject scobj = (EditableSceneObject)
+            createSceneObject(x, y, tile);
+        scobj.fqTileId = fqTileId;
+        scobj.index = _objects.size();
+        _objects.add(scobj);
 
         // toggle the "covered" flag on in all base tiles below this
         // object tile
         setObjectTileFootprint(tile, x, y, true);
 
-        return _objects.size()-1;
-    }
-
-    // documentation inherited from interface
-    public void setObjectAction (int index, String action)
-    {
-        ((ObjectInfo)_objects.get(index)).action = action;
+        return scobj;
     }
 
     // documentation inherited
@@ -141,20 +137,16 @@ public class EditableMisoSceneImpl
     }
 
     // documentation inherited
-    public void removeObjectTile (int index)
+    public boolean removeSceneObject (SceneObject scobj)
     {
-        ObjectInfo info = (ObjectInfo)_objects.remove(index);
-
-        // toggle the "covered" flag off on the base tiles in this object
-        // tile's footprint
-        setObjectTileFootprint(
-            info.object, info.coords.x, info.coords.y, false);
-    }
-
-    // documentation inherited from interface
-    public void clearObjectAction (int index)
-    {
-        ((ObjectInfo)_objects.get(index)).action = null;
+        if (_objects.remove(scobj)) {
+            // toggle the "covered" flag off on the base tiles in this object
+            // tile's footprint
+            setObjectTileFootprint(scobj.tile, scobj.x, scobj.y, false);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     // documentation inherited
@@ -170,11 +162,12 @@ public class EditableMisoSceneImpl
             String[] actions = new String[ocount];
 
             for (int ii = 0; ii < ocount; ii++) {
-                EditableObjectInfo info = (EditableObjectInfo)_objects.get(ii);
-                otids[3*ii] = info.coords.x;
-                otids[3*ii+1] = info.coords.y;
-                otids[3*ii+2] = info.fqTileId;
-                actions[ii] = info.action;
+                EditableSceneObject scobj = (EditableSceneObject)
+                    _objects.get(ii);
+                otids[3*ii] = scobj.x;
+                otids[3*ii+1] = scobj.y;
+                otids[3*ii+2] = scobj.fqTileId;
+                actions[ii] = scobj.action;
             }
 
             // stuff the new arrays into the model
@@ -187,31 +180,36 @@ public class EditableMisoSceneImpl
     }
 
     // documentation inherited
-    protected ObjectInfo createObjectInfo ()
+    protected SceneObject createSceneObject (int x, int y, ObjectTile tile)
     {
-        return new EditableObjectInfo();
+        return new EditableSceneObject(x, y, tile);
     }
 
     // documentation inherited
-    protected ObjectInfo expandObject (
+    protected SceneObject expandObject (
         int col, int row, int tsid, int tid, int fqTid, String action)
         throws NoSuchTileException, NoSuchTileSetException
     {
         // do the actual object creation
-        EditableObjectInfo info = (EditableObjectInfo)
+        EditableSceneObject scobj = (EditableSceneObject)
             super.expandObject(col, row, tsid, tid, fqTid, action);
 
         // we need this to track object layer mods
-        info.fqTileId = fqTid;
+        scobj.fqTileId = fqTid;
 
         // pass on the objecty goodness
-        return info;
+        return scobj;
     }
 
     /** Used to report information on objects in this scene. */
-    protected static class EditableObjectInfo extends ObjectInfo
+    protected static class EditableSceneObject extends SceneObject
     {
         public int fqTileId;
+
+        public EditableSceneObject (int x, int y, ObjectTile tile)
+        {
+            super(x, y, tile);
+        }
     }
 
     /** The default tileset with which to fill the base layer. */

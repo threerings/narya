@@ -1,5 +1,5 @@
 //
-// $Id: DisplayObjectInfo.java,v 1.1 2002/09/18 02:32:57 mdb Exp $
+// $Id: DisplayObjectInfo.java,v 1.2 2002/09/23 21:54:50 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -44,7 +44,8 @@ public class SceneObject
     public boolean equals (Object other)
     {
         if (other instanceof SceneObject) {
-            return (index == ((SceneObject)other).index);
+            SceneObject oso = (SceneObject)other;
+            return (x == oso.x && y == oso.y && tile == oso.tile);
         } else {
             return false;
         }
@@ -53,7 +54,7 @@ public class SceneObject
     // documentation inherited
     public int hashCode ()
     {
-        return x ^ y ^ index ^ tile.hashCode();
+        return x ^ y ^ tile.hashCode();
     }
 
     /**
