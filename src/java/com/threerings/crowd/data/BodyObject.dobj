@@ -1,0 +1,10 @@
+//
+// $Id: BodyObject.dobj,v 1.1 2001/07/20 20:07:37 mdb Exp $
+
+package com.threerings.cocktail.party.data;
+
+import com.threerings.cocktail.cher.data.ClientObject;
+
+public class BodyObject extends ClientObject
+{
+}

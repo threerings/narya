@@ -1,0 +1,10 @@
+//
+// $Id: PlaceObject.dobj,v 1.1 2001/07/20 20:07:37 mdb Exp $
+
+package com.threerings.cocktail.party.place;
+
+import com.threerings.cocktail.cher.dobj.DObject;
+
+public class PlaceObject extends DObject
+{
+}
