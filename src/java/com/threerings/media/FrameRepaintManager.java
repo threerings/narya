@@ -1,5 +1,5 @@
 //
-// $Id: FrameRepaintManager.java,v 1.13 2002/10/10 00:09:07 mdb Exp $
+// $Id: FrameRepaintManager.java,v 1.14 2002/11/05 05:49:31 mdb Exp $
 
 package com.threerings.media;
 
@@ -17,6 +17,7 @@ import javax.swing.CellRendererPane;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
@@ -75,6 +76,7 @@ public class FrameRepaintManager extends RepaintManager
             // ignore it's claims here and restore order to the universe;
             // see bug #403550 for more fallout from Sun's fuckup
             if (!(c instanceof JTextField) &&
+                !(c instanceof JScrollPane) &&
                 ((JComponent)c).isValidateRoot()) {
                 vroot = c;
                 break;
