@@ -1,12 +1,15 @@
 //
-// $Id: ClientManager.java,v 1.24 2002/09/24 00:51:01 mdb Exp $
+// $Id: ClientManager.java,v 1.25 2002/10/31 21:04:19 mdb Exp $
 
 package com.threerings.presents.server;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+
+import com.samskivert.util.IntervalManager;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
@@ -14,6 +17,7 @@ import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.Credentials;
 import com.threerings.presents.server.net.*;
+import com.threerings.presents.server.util.SafeInterval;
 
 /**
  * The client manager is responsible for managing the clients (surprise,
@@ -36,6 +40,15 @@ public class ClientManager implements ConnectionObserver
     {
         // register ourselves as a connection observer
         conmgr.addConnectionObserver(this);
+
+        // start up an interval that will check for expired clients and
+        // flush them from the bowels of the server
+        IntervalManager.register(new SafeInterval(PresentsServer.omgr) {
+            public void run () {
+                flushClients();
+            }
+        }, CLIENT_FLUSH_INTERVAL, null, true);
+
     }
 
     /**
@@ -345,6 +358,39 @@ public class ClientManager implements ConnectionObserver
         unmapClientObject(username);
     }
 
+    /**
+     * Called once per minute to check for clients that have been
+     * disconnected too long and forcibly end their sessions.
+     */
+    protected void flushClients ()
+    {
+        ArrayList victims = null;
+        long now = System.currentTimeMillis();
+
+        // first build a list of our victims (we can't flush clients
+        // directly while iterating due to risk of a
+        // ConcurrentModificationException)
+        Iterator iter = _usermap.values().iterator();
+        while (iter.hasNext()) {
+            PresentsClient client = (PresentsClient)iter.next();
+            if (client.checkExpired(now)) {
+                if (victims == null) {
+                    victims = new ArrayList();
+                }
+                victims.add(client);
+            }
+        }
+
+        if (victims != null) {
+            for (int ii = 0; ii < victims.size(); ii++) {
+                PresentsClient client = (PresentsClient)victims.get(ii);
+                Log.info("Client expired, ending session [client=" + client +
+                         ", dtime=" + (now-client.getNetworkStamp()) + "ms].");
+                client.endSession();
+            }
+        }
+    }
+
     /** A mapping from usernames to client instances. */
     protected HashMap _usermap = new HashMap();
 
@@ -365,4 +411,7 @@ public class ClientManager implements ConnectionObserver
 
     /** The client resolver class in use. */
     protected Class _clrClass = ClientResolver.class;
+
+    /** The frequency with which we check for expired clients. */
+    protected static final long CLIENT_FLUSH_INTERVAL = 60 * 1000L;
 }
