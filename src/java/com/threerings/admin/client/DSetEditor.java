@@ -1,5 +1,5 @@
 //
-// $Id: DSetEditor.java,v 1.4 2004/06/14 01:09:23 ray Exp $
+// $Id: DSetEditor.java,v 1.5 2004/06/15 17:58:38 ray Exp $
 
 package com.threerings.admin.client;
 
@@ -19,6 +19,7 @@ import com.samskivert.swing.event.CommandEvent;
 
 import com.samskivert.util.ClassUtil;
 import com.samskivert.util.ListUtil;
+import com.samskivert.util.SortableArrayList;
 
 import com.threerings.media.SafeScrollPane;
 
@@ -121,7 +122,14 @@ public class DSetEditor extends JPanel
         super.addNotify();
         _setter.addListener(this);
         _table.addActionListener(this);
-        makeData();
+
+        // populate the table
+        DSet.Entry[] entries =  new DSet.Entry[_set.size()];
+        _set.toArray(entries);
+        for (int ii=0; ii < entries.length; ii++) {
+            _keys.insertSorted(entries[ii].getKey());
+        }
+        _table.setData(entries); // this works because DSet itself is sorted
     }
 
     // documentation inherited
@@ -132,16 +140,13 @@ public class DSetEditor extends JPanel
         super.removeNotify();
     }
 
-    protected void makeData ()
-    {
-        _table.setData(_set.toArray(null));
-    }
-
     // documentation inherited from interface SetListener
     public void entryAdded (EntryAddedEvent event)
     {
         if (event.getName().equals(_setName)) {
-            makeData(); // recreate the entire shebang
+            DSet.Entry entry = event.getEntry();
+            int index = _keys.insertSorted(entry.getKey());
+            _table.insertData(entry, index);
         }
     }
 
@@ -149,7 +154,10 @@ public class DSetEditor extends JPanel
     public void entryRemoved (EntryRemovedEvent event)
     {
         if (event.getName().equals(_setName)) {
-            makeData(); // recreate the entire shebang
+            Comparable key = event.getKey();
+            int index = _keys.indexOf(key);
+            _keys.remove(index);
+            _table.removeData(index);
         }
     }
 
@@ -157,7 +165,9 @@ public class DSetEditor extends JPanel
     public void entryUpdated (EntryUpdatedEvent event)
     {
         if (event.getName().equals(_setName)) {
-            makeData(); // recreate the entire shebang
+            DSet.Entry entry = event.getEntry();
+            int index = _keys.indexOf(entry.getKey());
+            _table.updateData(entry, index);
         }
     }
 
@@ -176,6 +186,9 @@ public class DSetEditor extends JPanel
 
     /** The set itself. */
     protected DSet _set;
+
+    /** An array we use to track our entries' positions by key. */
+    protected SortableArrayList _keys = new SortableArrayList();
 
     /** The table used to edit. */
     protected ObjectEditorTable _table;
