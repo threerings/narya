@@ -1,5 +1,5 @@
 //
-// $Id: AttributeChangedEvent.java,v 1.7 2001/08/02 04:49:08 mdb Exp $
+// $Id: AttributeChangedEvent.java,v 1.8 2001/08/04 00:32:11 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -142,10 +142,12 @@ public class AttributeChangedEvent extends TypedEvent
         _value = ValueMarshaller.readFrom(in);
     }
 
-    public String toString ()
+    protected void toString (StringBuffer buf)
     {
-        return "[CHANGE:targetOid=" + _toid + ", name=" + _name +
-            ", value=" + _value + "]";
+        buf.append("CHANGE:");
+        super.toString(buf);
+        buf.append(", name=").append(_name);
+        buf.append(", value=").append(_value);
     }
 
     protected String _name;

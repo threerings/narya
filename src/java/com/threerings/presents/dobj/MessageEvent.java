@@ -1,5 +1,5 @@
 //
-// $Id: MessageEvent.java,v 1.3 2001/08/02 04:49:08 mdb Exp $
+// $Id: MessageEvent.java,v 1.4 2001/08/04 00:32:11 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -110,10 +110,12 @@ public class MessageEvent extends TypedEvent
         }
     }
 
-    public String toString ()
+    protected void toString (StringBuffer buf)
     {
-        return "[MSG:targetOid=" + _toid + ", name=" + _name +
-            ", args=" + StringUtil.toString(_args) + "]";
+        buf.append("MSG:");
+        super.toString(buf);
+        buf.append(", name=").append(_name);
+        buf.append(", args=").append(StringUtil.toString(_args));
     }
 
     protected String _name;

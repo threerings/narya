@@ -1,5 +1,5 @@
 //
-// $Id: AttributesChangedEvent.java,v 1.6 2001/08/02 04:49:08 mdb Exp $
+// $Id: AttributesChangedEvent.java,v 1.7 2001/08/04 00:32:11 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import com.samskivert.util.StringUtil;
 import com.threerings.cocktail.cher.dobj.io.ValueMarshaller;
 
 /**
@@ -196,6 +197,14 @@ public class AttributesChangedEvent extends TypedEvent
             _names[i] = in.readUTF();
             _values[i] = ValueMarshaller.readFrom(in);
         }
+    }
+
+    protected void toString (StringBuffer buf)
+    {
+        buf.append("CHANGES:");
+        super.toString(buf);
+        buf.append(", names=").append(StringUtil.toString(_names));
+        buf.append(", values=").append(StringUtil.toString(_values));
     }
 
     protected int _count;

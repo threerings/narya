@@ -1,5 +1,5 @@
 //
-// $Id: ObjectAddedEvent.java,v 1.3 2001/08/02 04:49:08 mdb Exp $
+// $Id: ObjectAddedEvent.java,v 1.4 2001/08/04 00:32:11 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -94,10 +94,12 @@ public class ObjectAddedEvent extends TypedEvent
         _oid = in.readInt();
     }
 
-    public String toString ()
+    protected void toString (StringBuffer buf)
     {
-        return "[OBJADD:targetOid=" + _toid + ", name=" + _name +
-            ", oid=" + _oid + "]";
+        buf.append("OBJADD:");
+        super.toString(buf);
+        buf.append(", name=").append(_name);
+        buf.append(", oid=").append(_oid);
     }
 
     protected String _name;

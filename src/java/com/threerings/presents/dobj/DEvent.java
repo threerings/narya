@@ -1,5 +1,5 @@
 //
-// $Id: DEvent.java,v 1.4 2001/07/19 18:08:20 mdb Exp $
+// $Id: DEvent.java,v 1.5 2001/08/04 00:32:11 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -61,6 +61,29 @@ public abstract class DEvent
     protected DEvent (int targetOid)
     {
         _toid = targetOid;
+    }
+
+    /**
+     * Constructs and returns a string representation of this event.
+     */
+    public String toString ()
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append("[");
+        toString(buf);
+        buf.append("]");
+        return buf.toString();
+    }
+
+    /**
+     * This should be overridden by derived classes (which should be sure
+     * to call <code>super.toString()</code>) to append the derived class
+     * specific event information to the string buffer.
+     */
+    protected void toString (StringBuffer buf)
+    {
+        buf.append("targetOid=").append(_toid);
+        buf.append(", sourceOid=").append(_soid);
     }
 
     /** The oid of the object that is the target of this event. */
