@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.55 2003/11/24 17:53:11 mdb Exp $
+// $Id: ChatDirector.java,v 1.56 2003/12/03 23:38:45 mdb Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -501,12 +501,14 @@ public class ChatDirector extends BasicDirector
 
             // if the message came from a user, make sure we want to hear it
             if (msg instanceof UserMessage) {
-                String speaker = ((UserMessage) msg).speaker;
+                UserMessage umsg = (UserMessage)msg;
+                String speaker = umsg.speaker;
                 message = filter(message, speaker, false);
                 if (message == null) {
                     return;
 
-                } else if (USER_CHAT_TYPE.equals(localtype)) {
+                } else if (USER_CHAT_TYPE.equals(localtype) &&
+                           umsg.mode == ChatCodes.DEFAULT_MODE) {
                     // if it was a tell, add the speaker as a chatter
                     addChatter(speaker);
 
