@@ -1,7 +1,7 @@
 //
-// $Id: BaseTileSetRuleSet.java,v 1.7 2001/11/29 21:58:49 mdb Exp $
+// $Id: BaseTileSetRuleSet.java,v 1.8 2002/02/02 01:09:53 mdb Exp $
 
-package com.threerings.miso.tools.tile.xml;
+package com.threerings.miso.tile.tools.xml;
 
 import org.xml.sax.Attributes;
 import org.apache.commons.digester.Digester;

@@ -1,7 +1,7 @@
 //
-// $Id: MisoSceneParser.java,v 1.1 2001/11/29 20:34:13 mdb Exp $
+// $Id: MisoSceneParser.java,v 1.2 2002/02/02 01:09:53 mdb Exp $
 
-package com.threerings.miso.tools.scene.xml;
+package com.threerings.miso.scene.tools.xml;
 
 import java.io.IOException;
 import java.io.FileInputStream;

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.24 2002/01/16 03:01:24 mdb Exp $
+// $Id: ViewerApp.java,v 1.25 2002/02/02 01:09:53 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -26,7 +26,7 @@ import com.threerings.miso.Log;
 import com.threerings.miso.scene.DisplayMisoSceneImpl;
 import com.threerings.miso.scene.MisoCharacterSprite;
 import com.threerings.miso.scene.MisoSceneModel;
-import com.threerings.miso.tools.scene.xml.MisoSceneParser;
+import com.threerings.miso.scene.tools.xml.MisoSceneParser;
 import com.threerings.miso.util.MisoContext;
 import com.threerings.miso.util.MisoUtil;
 

@@ -1,7 +1,7 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.7 2002/01/30 18:28:32 mdb Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.8 2002/02/02 01:09:53 mdb Exp $
 
-package com.threerings.miso.tools.scene;
+package com.threerings.miso.scene.tools;
 
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;

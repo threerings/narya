@@ -1,7 +1,7 @@
 //
-// $Id: MisoSceneWriter.java,v 1.4 2002/01/30 18:28:32 mdb Exp $
+// $Id: MisoSceneWriter.java,v 1.5 2002/02/02 01:09:53 mdb Exp $
 
-package com.threerings.miso.tools.scene.xml;
+package com.threerings.miso.scene.tools.xml;
 
 import org.xml.sax.SAXException;
 import com.megginson.sax.DataWriter;
