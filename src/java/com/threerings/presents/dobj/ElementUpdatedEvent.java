@@ -1,5 +1,5 @@
 //
-// $Id: ElementUpdatedEvent.java,v 1.6 2003/04/30 22:38:49 ray Exp $
+// $Id: ElementUpdatedEvent.java,v 1.7 2003/05/01 02:05:51 ray Exp $
 
 package com.threerings.presents.dobj;
 
@@ -139,7 +139,7 @@ public class ElementUpdatedEvent extends NamedEvent
             }
 
             // grab the previous value to provide to interested parties
-            if (_oldValue != UNSET_OLD_VALUE) {
+            if (_oldValue == UNSET_OLD_VALUE) {
                 _oldValue = Array.get(field.get(target), _index);
             }
 
