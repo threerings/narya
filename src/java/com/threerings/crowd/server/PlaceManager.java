@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.40 2002/10/31 01:12:08 shaper Exp $
+// $Id: PlaceManager.java,v 1.41 2002/11/01 21:32:23 shaper Exp $
 
 package com.threerings.crowd.server;
 
@@ -352,6 +352,7 @@ public class PlaceManager
         // the base occupant info is only their username
         info.bodyOid = new Integer(body.getOid());
         info.username = body.username;
+        info.status = body.status;
     }
 
     /**
