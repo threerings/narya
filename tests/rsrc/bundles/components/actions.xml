@@ -1,5 +1,5 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- $Id: actions.xml,v 1.3 2002/02/14 01:11:11 mdb Exp $ -->
+<!-- $Id: actions.xml,v 1.4 2002/02/19 22:10:30 mdb Exp $ -->
 
 <!-- test component action definitions -->
 <actions>
@@ -22,6 +22,18 @@
       <heights>124, 124, 124, 124, 124, 124, 124, 124</heights>
       <widths>94, 94, 94, 94, 94, 94, 94, 94</widths>
       <tileCounts>6, 6, 6, 6, 6, 6, 6, 6</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+    </tileset>
+  </action>
+
+  <action name="sailing">
+    <framesPerSecond>8</framesPerSecond>
+    <origin>22,46</origin>
+    <tileset>
+      <widths>44, 44, 44, 44, 44, 44, 44, 44</widths>
+      <heights>46, 46, 46, 46, 46, 46, 46, 46</heights>
+      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
       <offsetPos>0, 0</offsetPos>
       <gapSize>0, 0</gapSize>
     </tileset>

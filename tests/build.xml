@@ -81,22 +81,19 @@
     <taskdef name="cbundle"
       classname="com.threerings.cast.bundle.tools.ComponentBundlerTask"/>
 
-    <!-- build the pirate metadata and component bundles -->
-    <metabundle actiondef="${cbundle.dir}/pirate/actions.xml"
-      classdef="${cbundle.dir}/pirate/classes.xml"
-      target="${cbundle.dir}/pirate/metadata.jar"/>
+    <!-- build the metadata bundles -->
+    <metabundle actiondef="${cbundle.dir}/actions.xml"
+      classdef="${cbundle.dir}/classes.xml"
+      target="${cbundle.dir}/metadata.jar"/>
+
+    <!-- build the component bundles -->
     <cbundle target="${cbundle.dir}/pirate/components.jar"
-      mapfile="${cbundle.dir}/pirate/components.map">
+      mapfile="${cbundle.dir}/components.map">
       <fileset dir="${cbundle.dir}/pirate" includes="**/*.png"/>
     </cbundle>
-
-    <!-- build the ship metadata and component bundles -->
-    <metabundle actiondef="${cbundle.dir}/ship/actions.xml"
-      classdef="${cbundle.dir}/ship/classes.xml"
-      target="${cbundle.dir}/ship/metadata.jar"/>
-    <cbundle target="${cbundle.dir}/ship/components.jar"
-      mapfile="${cbundle.dir}/ship/components.map">
-      <fileset dir="${cbundle.dir}/ship" includes="**/*.png"/>
+    <cbundle target="${cbundle.dir}/vessel/components.jar"
+      mapfile="${cbundle.dir}/components.map">
+      <fileset dir="${cbundle.dir}/vessel" includes="**/*.png"/>
     </cbundle>
   </target>
 

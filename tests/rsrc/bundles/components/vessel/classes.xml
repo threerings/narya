@@ -1,7 +1,0 @@
-<?xml version="1.0" standalone="yes"?>
-<!-- $Id: classes.xml,v 1.2 2002/02/19 20:17:36 mdb Exp $ -->
-
-<!-- test vessel class definitions -->
-<classes>
-  <class name="navsail" renderPriority="0"/>
-</classes>
