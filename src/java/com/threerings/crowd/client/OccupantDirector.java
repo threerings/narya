@@ -1,5 +1,5 @@
 //
-// $Id: OccupantDirector.java,v 1.5 2002/10/27 21:58:18 shaper Exp $
+// $Id: OccupantDirector.java,v 1.6 2002/10/27 23:30:56 shaper Exp $
 
 package com.threerings.crowd.client;
 
@@ -8,6 +8,8 @@ import java.util.Iterator;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.ObserverList;
 
+import com.threerings.presents.client.BasicDirector;
+import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.EntryAddedEvent;
 import com.threerings.presents.dobj.EntryRemovedEvent;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
@@ -39,7 +41,7 @@ import com.threerings.crowd.util.CrowdContext;
  * can update non-static occupant data rather than permanently using
  * what's in the cache.
  */
-public class OccupantDirector
+public class OccupantDirector extends BasicDirector
     implements LocationObserver, SetListener
 {
     /**
@@ -47,6 +49,8 @@ public class OccupantDirector
      */
     public OccupantDirector (CrowdContext ctx)
     {
+        super(ctx);
+
         // register ourselves as a location observer
         ctx.getLocationDirector().addLocationObserver(this);
     }
@@ -75,10 +79,8 @@ public class OccupantDirector
     public OccupantInfo getOccupantInfo (int bodyOid)
     {
         // make sure we're somewhere
-        if (_place == null) {
-            return null;
-        }
-        return (OccupantInfo)_place.occupantInfo.get(new Integer(bodyOid));
+        return (_place == null) ? null :
+            (OccupantInfo)_place.occupantInfo.get(new Integer(bodyOid));
     }
 
     /**
@@ -101,6 +103,17 @@ public class OccupantDirector
             }
         }
         return null;
+    }
+
+    // documentation inherited from interface
+    public void clientDidLogoff (Client client)
+    {
+        // clear things out
+        if (_place != null) {
+            _place.removeListener(this);
+            _place = null;
+        }
+        _ocache.clear();
     }
 
     // inherit documentation
