@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.40 2002/12/15 23:12:37 shaper Exp $
+// $Id: SpriteManager.java,v 1.41 2003/04/30 00:44:36 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -10,8 +10,6 @@ import java.awt.Shape;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import com.samskivert.util.ObserverList;
 
 import com.threerings.media.AbstractMediaManager;
 import com.threerings.media.Log;
@@ -122,13 +120,6 @@ public class SpriteManager extends AbstractMediaManager
         }
     }
 
-    // documentation inherited
-    protected void dispatchEvent (ObserverList observers, Object event)
-    {
-        _dispatchOp.init((SpriteEvent)event);
-        observers.apply(_dispatchOp);
-    }
-
 // NOTE- collision handling code is turned off for now. To re-implement,
 // a new array should be kept with sprites sorted in some sort of x/y order
 //
@@ -201,23 +192,4 @@ public class SpriteManager extends AbstractMediaManager
 //	    return (s2.getX() - s1.getX());
 //	}
 //    }
-
-    /** Used by {@link #dispatchEvent}. */
-    protected static class DispatchOp implements ObserverList.ObserverOp
-    {
-        public void init (SpriteEvent event)
-        {
-            _event = event;
-        }
-
-        public boolean apply (Object observer)
-        {
-            ((SpriteObserver)observer).handleEvent(_event);
-            return true;
-        }
-
-        protected SpriteEvent _event;
-    };
-
-    protected DispatchOp _dispatchOp = new DispatchOp();
 }

@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.63 2003/04/20 04:52:33 mdb Exp $
+// $Id: Sprite.java,v 1.64 2003/04/30 00:44:36 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
+import com.samskivert.util.ObserverList;
 import com.threerings.util.DirectionCodes;
 
 import com.threerings.media.AbstractMedia;
@@ -224,9 +225,7 @@ public abstract class Sprite extends AbstractMedia
     public void move (Path path)
     {
         // if there's a previous path, let it know that it's going away
-        if (_path != null) {
-            _path.wasRemoved(this);
-        }
+        cancelMove();
 
         // save off this path
         _path = path;
@@ -240,12 +239,13 @@ public abstract class Sprite extends AbstractMedia
      */
     public void cancelMove ()
     {
-	// TODO: make sure we come to a stop on a full coordinate,
-	// even in the case where we aborted a path mid-traversal.
-
         if (_path != null) {
-            _path.wasRemoved(this);
+            Path oldpath = _path;
             _path = null;
+            oldpath.wasRemoved(this);
+            if (_observers != null) {
+                _observers.apply(new CancelledOp(this, oldpath));
+            }
         }
     }
 
@@ -271,14 +271,12 @@ public abstract class Sprite extends AbstractMedia
      */
     public void pathCompleted (long timestamp)
     {
-        // keep a reference to the path just completed
         Path oldpath = _path;
-        // let the path know that it's audi
-        _path.wasRemoved(this);
-        // clear out the path we've now finished
 	_path = null;
-        // inform observers that we've finished our path
-        notifyObservers(new PathCompletedEvent(this, timestamp, oldpath));
+        oldpath.wasRemoved(this);
+        if (_observers != null) {
+            _observers.apply(new CompletedOp(this, oldpath, timestamp));
+        }
     }
 
     // documentation inherited
@@ -335,7 +333,7 @@ public abstract class Sprite extends AbstractMedia
      *
      * @param obs the sprite observer.
      */
-    public void addSpriteObserver (SpriteObserver obs)
+    public void addSpriteObserver (Object obs)
     {
         addObserver(obs);
     }
@@ -343,21 +341,9 @@ public abstract class Sprite extends AbstractMedia
     /**
      * Remove a sprite observer.
      */
-    public void removeSpriteObserver (SpriteObserver obs)
+    public void removeSpriteObserver (Object obs)
     {
         removeObserver(obs);
-    }
-
-    /**
-     * Inform all sprite observers of a sprite event.
-     *
-     * @param event the sprite event.
-     */
-    protected void notifyObservers (SpriteEvent event)
-    {
-        if (_observers != null) {
-            ((SpriteManager)_mgr).dispatchEvent(_observers, event);
-        }
     }
 
     // documentation inherited
@@ -368,6 +354,46 @@ public abstract class Sprite extends AbstractMedia
         buf.append(", oy=").append(_oy);
         buf.append(", oxoff=").append(_oxoff);
         buf.append(", oyoff=").append(_oyoff);
+    }
+
+    /** Used to dispatch {@link PathObserver#pathCancelled}. */
+    protected static class CancelledOp implements ObserverList.ObserverOp
+    {
+        public CancelledOp (Sprite sprite, Path path) {
+            _sprite = sprite;
+            _path = path;
+        }
+
+        public boolean apply (Object observer) {
+            if (observer instanceof PathObserver) {
+                ((PathObserver)observer).pathCancelled(_sprite, _path);
+            }
+            return true;
+        }
+
+        protected Sprite _sprite;
+        protected Path _path;
+    }
+
+    /** Used to dispatch {@link PathObserver#pathCompleted}. */
+    protected static class CompletedOp implements ObserverList.ObserverOp
+    {
+        public CompletedOp (Sprite sprite, Path path, long when) {
+            _sprite = sprite;
+            _path = path;
+            _when = when;
+        }
+
+        public boolean apply (Object observer) {
+            if (observer instanceof PathObserver) {
+                ((PathObserver)observer).pathCompleted(_sprite, _path, _when);
+            }
+            return true;
+        }
+
+        protected Sprite _sprite;
+        protected Path _path;
+        protected long _when;
     }
 
     /** The location of the sprite's origin in pixel coordinates. If the
