@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMedia.java,v 1.1 2002/10/08 21:03:37 ray Exp $
+// $Id: AbstractMedia.java,v 1.2 2002/11/05 20:50:42 mdb Exp $
 
 package com.threerings.media;
 
@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
+import com.samskivert.util.ObserverList;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -138,11 +139,11 @@ public abstract class AbstractMedia
     protected void addObserver (Object obs)
     {
         if (_observers == null) {
-            _observers = new ArrayList();
+            _observers = new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
 
         } else if (_observers.contains(obs)) {
             Log.info("Attempt to observe media already observing " + 
-                "[media=" + this + ", obs=" + obs + "].");
+                     "[media=" + this + ", obs=" + obs + "].");
             return;
         }
 
@@ -180,5 +181,5 @@ public abstract class AbstractMedia
     protected AbstractMediaManager _mgr;
 
     /** Our observers. */
-    protected ArrayList _observers = null;
+    protected ObserverList _observers = null;
 }

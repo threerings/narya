@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMediaManager.java,v 1.1 2002/10/08 21:03:37 ray Exp $
+// $Id: AbstractMediaManager.java,v 1.2 2002/11/05 20:50:42 mdb Exp $
 
 package com.threerings.media;
 
@@ -10,8 +10,10 @@ import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.Comparator;
 
+import com.samskivert.util.ObserverList;
 import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.Tuple;
 
 /**
  * Manages, ticks, and paints AbstractMedia.
@@ -89,9 +91,9 @@ public abstract class AbstractMediaManager
     }
 
     /**
-     * Call {@link AbstractMedia#tick} on all media to give
-     * them a chance to move about, change their look, generate dirty
-     * regions, and so forth.
+     * Calls {@link AbstractMedia#tick} on all media to give them a chance
+     * to move about, change their look, generate dirty regions, and so
+     * forth.
      */
     protected void tickAllMedia (long tickStamp)
     {
@@ -103,7 +105,8 @@ public abstract class AbstractMediaManager
     }
 
     /**
-     * Insert the specified media into this manager, return true on success.
+     * Inserts the specified media into this manager, return true on
+     * success.
      */
     protected boolean insertMedia (AbstractMedia media)
     {
@@ -119,7 +122,8 @@ public abstract class AbstractMediaManager
     }
 
     /**
-     * Remove the specified media from this manager, return true on success.
+     * Removes the specified media from this manager, return true on
+     * success.
      */
     protected boolean removeMedia (AbstractMedia media)
     {
@@ -134,8 +138,8 @@ public abstract class AbstractMediaManager
     }
 
     /**
-     * Clears all media from the manager. This does not invalidate
-     * their vacated bounds, it is assumed that it will be ok.
+     * Clears all media from the manager. This does not invalidate their
+     * vacated bounds; it is assumed that it will be ok.
      */
     protected void clearMedia ()
     {
@@ -146,34 +150,32 @@ public abstract class AbstractMediaManager
     }
 
     /**
-     * Queue the event for dispatching after we've ticked all
+     * Queues the event for dispatching after we've ticked all
      * the media.
      */
-    public void queueNotification (ArrayList observers, Object event)
+    public void queueNotification (ObserverList observers, Object event)
     {
-        _notify.add(new Object[] {observers, event});
+        _notify.add(new Tuple(observers, event));
     }
 
     /**
-     * Dispatch all queued events.
+     * Dispatches all queued events.
      */
     protected void dispatchNotifications ()
     {
         for (int ii=0, nn=_notify.size(); ii < nn; ii++) {
-            Object[] junk = (Object[]) _notify.remove(0);
-            ArrayList observers = (ArrayList) junk[0];
-            Object event = junk[1];
-
-            dispatchEvent(observers, event);
+            Tuple tuple = (Tuple)_notify.remove(0);
+            dispatchEvent((ObserverList)tuple.left, tuple.right);
         }
     }
 
     /**
-     * Dispatch the specified event to the specified observers.
+     * Dispatches the specified event to the specified observers.
      */
-    protected abstract void dispatchEvent (ArrayList observers, Object event);
+    protected abstract void dispatchEvent (
+        ObserverList observers, Object event);
 
-    /** The Region Manager. */
+    /** The region manager. */
     protected RegionManager _remgr;
 
     /** List of observers to notify at the end of the tick. */
@@ -187,14 +189,10 @@ public abstract class AbstractMediaManager
         public int compare (Object o1, Object o2) {
             int result = (((AbstractMedia)o1)._renderOrder -
                           ((AbstractMedia)o2)._renderOrder);
-            if (result != 0) {
-                return result;
-
-            } else {
-                // find some other way to keep them stable relative to each
-                // other.
-                return o1.hashCode() - o2.hashCode();
-            }
+            return (result != 0) ? result : 
+                // find some other way to keep them stable relative to
+                // each other
+                o1.hashCode() - o2.hashCode();
         }
     };
 }
