@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.25 2003/04/17 19:21:16 mdb Exp $
+// $Id: DirtyItemList.java,v 1.26 2003/04/28 20:53:58 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -617,7 +617,7 @@ public class DirtyItemList
             } else if (db.lx >= da.lx && db.ry >= da.ry) {
                 return -1;
             } else {
-                return 0;
+                return da.oy - db.oy;
             }
         }
     }
