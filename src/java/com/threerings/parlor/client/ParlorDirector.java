@@ -1,5 +1,5 @@
 //
-// $Id: ParlorDirector.java,v 1.16 2002/08/14 19:07:52 mdb Exp $
+// $Id: ParlorDirector.java,v 1.17 2002/10/27 22:23:14 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -101,6 +101,14 @@ public class ParlorDirector extends BasicDirector
         _pservice.invite(_ctx.getClient(), invitee, config, invite);
         // and return the invitation to the caller
         return invite;
+    }
+
+    // documentation inherited
+    public void clientDidLogoff (Client client)
+    {
+        super.clientDidLogoff(client);
+        _pservice = null;
+        _pendingInvites.clear();
     }
 
     // documentation inherited

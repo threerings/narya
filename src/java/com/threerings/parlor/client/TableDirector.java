@@ -1,5 +1,5 @@
 //
-// $Id: TableDirector.java,v 1.8 2002/08/14 19:07:52 mdb Exp $
+// $Id: TableDirector.java,v 1.9 2002/10/27 22:23:14 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -190,6 +190,15 @@ public class TableDirector extends BasicDirector
 
         // issue the leave request
         _pservice.leaveTable(_ctx.getClient(), _lobby.getOid(), tableId, this);
+    }
+
+    // documentation inherited
+    public void clientDidLogoff (Client client)
+    {
+        super.clientDidLogoff(client);
+        _pservice = null;
+        _lobby = null;
+        _ourTable = null;
     }
 
     // documentation inherited
