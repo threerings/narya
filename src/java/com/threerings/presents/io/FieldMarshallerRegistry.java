@@ -1,5 +1,5 @@
 //
-// $Id: FieldMarshallerRegistry.java,v 1.14 2002/03/20 22:58:26 mdb Exp $
+// $Id: FieldMarshallerRegistry.java,v 1.15 2002/04/17 22:45:32 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -92,6 +92,7 @@ public class FieldMarshallerRegistry
         registerMarshaller(ByteFieldMarshaller.class);
         registerMarshaller(ShortFieldMarshaller.class);
         registerMarshaller(IntFieldMarshaller.class);
+        registerMarshaller(IntegerFieldMarshaller.class);
         registerMarshaller(LongFieldMarshaller.class);
         registerMarshaller(FloatFieldMarshaller.class);
         registerMarshaller(DoubleFieldMarshaller.class);
