@@ -1,5 +1,5 @@
 //
-// $Id: BackgroundTiler.java,v 1.2 2002/05/07 03:23:46 mdb Exp $
+// $Id: BackgroundTiler.java,v 1.3 2002/09/25 21:49:53 shaper Exp $
 
 package com.threerings.media.util;
 
@@ -129,13 +129,14 @@ public class BackgroundTiler
         int tidx = 3*srow;
 
         // draw the first image in the row
-        g.drawImage(_tiles[tidx++], x, y, null);
-        x += _w3;
+        int cx = x;
+        g.drawImage(_tiles[tidx++], cx, y, null);
+        cx += _w3;
 
         // draw the (complete) tiled middle images
         for (int ii = 0; ii < xcount; ii++) {
-            g.drawImage(_tiles[tidx], x, y, null);
-            x += _cw3;
+            g.drawImage(_tiles[tidx], cx, y, null);
+            cx += _cw3;
         }
 
         // we'll render the last (incomplete) tiled image in a final
@@ -143,8 +144,8 @@ public class BackgroundTiler
         // once
 
         // draw the end image
-        x = width-_w3;
-        g.drawImage(_tiles[++tidx], x, y, null);
+        cx = x+width-_w3;
+        g.drawImage(_tiles[++tidx], cx, y, null);
     }
 
     /** Our nine sub-divided images. */
