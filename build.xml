@@ -82,7 +82,7 @@
   <!-- build the java class files -->
   <target name="compile" depends="prepare">
     <javac srcdir="src/java" destdir="${classes.dir}"
-           debug="on" optimize="{$build.optimize}" deprecation="off">
+           debug="on" optimize="{$build.optimize}" deprecation="on">
       <classpath refid="classpath"/>
     </javac>
   </target>
