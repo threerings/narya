@@ -1,5 +1,5 @@
 //
-// $Id: UpstreamMessage.java,v 1.2 2001/05/22 21:51:29 mdb Exp $
+// $Id: UpstreamMessage.java,v 1.3 2001/05/23 04:03:40 mdb Exp $
 
 package com.samskivert.cocktail.cher.net;
 
@@ -16,7 +16,7 @@ import com.samskivert.cocktail.cher.io.TypedObjectFactory;
  * Upstream messages include object subscription, event forwarding and
  * session management.
  */
-public abstract class UpstreamMessage extends TypedObject
+public abstract class UpstreamMessage implements TypedObject
 {
     /**
      * All upstream message derived classes should base their typed object
@@ -53,7 +53,6 @@ public abstract class UpstreamMessage extends TypedObject
     public void writeTo (DataOutputStream out)
         throws IOException
     {
-        super.writeTo(out);
         out.writeShort(messageId);
     }
 
@@ -65,7 +64,6 @@ public abstract class UpstreamMessage extends TypedObject
     public void readFrom (DataInputStream in)
         throws IOException
     {
-        super.readFrom(in);
         messageId = in.readShort();
     }
 

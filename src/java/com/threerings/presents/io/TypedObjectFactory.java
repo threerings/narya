@@ -1,5 +1,5 @@
 //
-// $Id: TypedObjectFactory.java,v 1.2 2001/05/22 21:51:29 mdb Exp $
+// $Id: TypedObjectFactory.java,v 1.3 2001/05/23 04:03:40 mdb Exp $
 
 package com.samskivert.cocktail.cher.io;
 
@@ -35,6 +35,19 @@ public class TypedObjectFactory
         msg.readFrom(din);
 
         return msg;
+    }
+
+    /**
+     * Writes (serializes) a typed object to the supplied data output
+     * stream.
+     */
+    public static void writeTo (DataOutputStream dout, TypedObject tobj)
+        throws IOException
+    {
+        // first write the type of the object
+        dout.writeShort(tobj.getType());
+        // then write the object itself
+        tobj.writeTo(dout);
     }
 
     /**

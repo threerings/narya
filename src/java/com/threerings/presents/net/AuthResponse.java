@@ -1,5 +1,5 @@
 //
-// $Id: AuthResponse.java,v 1.1 2001/05/22 21:51:29 mdb Exp $
+// $Id: AuthResponse.java,v 1.2 2001/05/23 04:03:40 mdb Exp $
 
 package com.samskivert.cocktail.cher.net;
 
@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.samskivert.cocktail.cher.dobj.DObject;
 import com.samskivert.cocktail.cher.io.TypedObjectFactory;
 
 /**
@@ -22,12 +21,6 @@ public class AuthResponse extends DownstreamMessage
     /** The code for an auth response. */
     public static final short TYPE = TYPE_BASE + 0;
 
-    /** The response code key in the data object. */
-    public static final String CODE = "code";
-
-    /** The failure reason key in the data object. */
-    public static final String REASON = "reason";
-
     /**
      * Zero argument constructor used when unserializing an instance.
      */
@@ -39,12 +32,12 @@ public class AuthResponse extends DownstreamMessage
     /**
      * Constructs a auth response with the supplied credentials.
      */
-    public AuthResponse (DObject data)
+    public AuthResponse (AuthResponseData data)
     {
         _data = data;
     }
 
-    public DObject getData ()
+    public AuthResponseData getData ()
     {
         return _data;
     }
@@ -58,15 +51,15 @@ public class AuthResponse extends DownstreamMessage
         throws IOException
     {
         super.writeTo(out);
-        _data.writeTo(out);
+        TypedObjectFactory.writeTo(out, _data);
     }
 
     public void readFrom (DataInputStream in)
         throws IOException
     {
         super.readFrom(in);
-        _data = (DObject)TypedObjectFactory.readFrom(in);
+        _data = (AuthResponseData)TypedObjectFactory.readFrom(in);
     }
 
-    protected DObject _data;
+    protected AuthResponseData _data;
 }

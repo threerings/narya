@@ -1,5 +1,5 @@
 //
-// $Id: ObjectResponse.java,v 1.1 2001/05/22 21:51:29 mdb Exp $
+// $Id: ObjectResponse.java,v 1.2 2001/05/23 04:03:40 mdb Exp $
 
 package com.samskivert.cocktail.cher.net;
 
@@ -43,7 +43,7 @@ public class ObjectResponse extends DownstreamMessage
     {
         super.writeTo(out);
         out.writeShort(messageId);
-        _dobj.writeTo(out);
+        TypedObjectFactory.writeTo(out, _dobj);
     }
 
     public void readFrom (DataInputStream in)

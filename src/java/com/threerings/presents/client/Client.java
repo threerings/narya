@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.1 2001/05/22 06:07:59 mdb Exp $
+// $Id: Client.java,v 1.2 2001/05/23 04:03:40 mdb Exp $
 
 package com.samskivert.cocktail.cher.client;
 
@@ -152,7 +152,7 @@ public class Client
                 case CLIENT_FAILED_TO_LOGON:
                     obs.clientFailedToLogon(this, cause);
                     break;
-                case CLIENT_CONNETION_FAILED:
+                case CLIENT_CONNECTION_FAILED:
                     obs.clientConnectionFailed(this, cause);
                     break;
                 case CLIENT_WILL_LOGOFF:
@@ -191,7 +191,7 @@ public class Client
     // client observer codes
     static final int CLIENT_DID_LOGON = 0;
     static final int CLIENT_FAILED_TO_LOGON = 1;
-    static final int CLIENT_CONNETION_FAILED = 2;
+    static final int CLIENT_CONNECTION_FAILED = 2;
     static final int CLIENT_WILL_LOGOFF = 3;
     static final int CLIENT_DID_LOGOFF = 4;
 }

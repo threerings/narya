@@ -1,7 +1,11 @@
 //
-// $Id: DownstreamMessage.java,v 1.2 2001/05/22 21:51:29 mdb Exp $
+// $Id: DownstreamMessage.java,v 1.3 2001/05/23 04:03:40 mdb Exp $
 
 package com.samskivert.cocktail.cher.net;
+
+import java.io.IOException;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 
 import com.samskivert.cocktail.cher.io.TypedObject;
 import com.samskivert.cocktail.cher.io.TypedObjectFactory;
@@ -12,7 +16,7 @@ import com.samskivert.cocktail.cher.io.TypedObjectFactory;
  * client. Downstream messages include object subscription, event
  * forwarding and session management.
  */
-public abstract class DownstreamMessage extends TypedObject
+public abstract class DownstreamMessage implements TypedObject
 {
     /**
      * All downstream message derived classes should base their typed
@@ -39,6 +43,28 @@ public abstract class DownstreamMessage extends TypedObject
     public DownstreamMessage ()
     {
         // nothing to do...
+    }
+
+    /**
+     * Derived classes should override this function to write their fields
+     * out to the supplied data output stream. They <em>must</em> be sure
+     * to first call <code>super.writeTo()</code>.
+     */
+    public void writeTo (DataOutputStream out)
+        throws IOException
+    {
+        // we don't do anything here, but we may want to some day
+    }
+
+    /**
+     * Derived classes should override this function to read their fields
+     * from the supplied data input stream. They <em>must</em> be sure to
+     * first call <code>super.readFrom()</code>.
+     */
+    public void readFrom (DataInputStream in)
+        throws IOException
+    {
+        // we don't do anything here, but we may want to some day
     }
 
     // register our downstream message classes

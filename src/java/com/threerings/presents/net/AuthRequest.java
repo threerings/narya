@@ -1,5 +1,5 @@
 //
-// $Id: AuthRequest.java,v 1.2 2001/05/22 21:51:29 mdb Exp $
+// $Id: AuthRequest.java,v 1.3 2001/05/23 04:03:40 mdb Exp $
 
 package com.samskivert.cocktail.cher.net;
 
@@ -39,7 +39,7 @@ public class AuthRequest extends UpstreamMessage
         throws IOException
     {
         super.writeTo(out);
-        _creds.writeTo(out);
+        TypedObjectFactory.writeTo(out, _creds);
     }
 
     public void readFrom (DataInputStream in)
