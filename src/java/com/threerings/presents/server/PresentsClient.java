@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.59 2003/09/29 18:28:22 mdb Exp $
+// $Id: PresentsClient.java,v 1.60 2003/10/10 23:23:41 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -658,6 +658,9 @@ public class PresentsClient
         if (postMessage(new ObjectResponse(object))) {
             // make a note of this new subscription
             mapSubscrip(object);
+        } else {
+            // if we failed to send the object response, unsubscribe
+            object.removeSubscriber(this);
         }
     }
 
