@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.7 2002/04/30 17:27:30 mdb Exp $
+// $Id: SpotProvider.java,v 1.8 2002/06/12 07:04:41 ray Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -135,20 +135,6 @@ public class SpotProvider extends InvocationProvider
         int ploid = plobj.getOid();
         int bodyOid = source.getOid();
 
-        // if they were in a scene (and at a location) prior to issuing
-        // this traverse portal request, we need to send a notification to
-        // that scene indicating that they are headed to the portal from
-        // which they depart. we unfortunately can't do it deep in the
-        // bowels of LocationProvider.moveTo() which is where we'd like to
-        // do it to ensure that nothing else ran amuck in the process.
-        // since we can't, we simply send another response putting the
-        // user back where they were in the event that anything fails
-        // during the moveTo process. it's a hack, but it's better than
-        // ripping apart moveTo and restructuring the code with this
-        // requirement in mind
-        int oldLocId =
-            updateLocation(source.location, bodyOid, exitPortalId);
-
         // let the destination scene manager know that we're coming in
         scmgr.mapEnteringBody(bodyOid, destLocId);
 
@@ -171,10 +157,6 @@ public class SpotProvider extends InvocationProvider
 
         } catch (ServiceFailedException sfe) {
             sendResponse(source, invid, MOVE_FAILED_RESPONSE, sfe.getMessage());
-
-            // we need to undo the move to the exit portal location that
-            // we enacted earlier
-            updateLocation(source.location, bodyOid, oldLocId);
 
             // and let the destination scene manager know that we're no
             // longer coming in
