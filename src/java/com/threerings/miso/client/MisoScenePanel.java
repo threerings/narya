@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.19 2003/04/28 20:28:45 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.20 2003/04/28 21:02:54 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -593,13 +593,7 @@ public class MisoScenePanel extends VirtualMediaPanel
     protected void rethink ()
     {
         // recompute our "area of influence"
-        int infborx = _vbounds.width/3;
-        int infbory = _vbounds.height/3;
-        _ibounds.setBounds(_vbounds.x-infborx, _vbounds.y-infbory,
-                           _vbounds.width+2*infborx,
-                           // we go extra on the height because objects
-                           // below can influence fairly high up
-                           _vbounds.height+3*infbory);
+        computeInfluentialBounds();
 
 //         Log.info("Rethinking vb:" + StringUtil.toString(_vbounds) +
 //                  " ul:" + StringUtil.toString(_ulpos) +
@@ -648,6 +642,28 @@ public class MisoScenePanel extends VirtualMediaPanel
 
         // recompute our visible object set
         recomputeVisible();
+    }
+
+    /**
+     * Called during the {@link #rethink} process, configures {@link
+     * #_ibounds} to contain the bounds of the potentially "influential"
+     * world. Everything that intersects the influential area will be
+     * resolved on the expectation that it could be scrolled into view at
+     * any time. The influential bounds should be large enough that the
+     * time between a block becoming influential and the time at which it
+     * is resolved is longer than the expected time by which it will be
+     * scrolled into view, otherwise the users will see the man behind the
+     * curtain.
+     */
+    protected void computeInfluentialBounds ()
+    {
+        int infborx = _vbounds.width/3;
+        int infbory = _vbounds.height/3;
+        _ibounds.setBounds(_vbounds.x-infborx, _vbounds.y-infbory,
+                           _vbounds.width+2*infborx,
+                           // we go extra on the height because objects
+                           // below can influence fairly high up
+                           _vbounds.height+3*infbory);
     }
 
     /**
