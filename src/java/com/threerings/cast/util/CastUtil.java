@@ -1,5 +1,5 @@
 //
-// $Id: CastUtil.java,v 1.7 2002/03/27 20:31:11 mdb Exp $
+// $Id: CastUtil.java,v 1.8 2002/03/27 21:48:41 mdb Exp $
 
 package com.threerings.cast.util;
 
@@ -33,12 +33,23 @@ public class CastUtil
         for (int i = 0; i < CLASSES.length; i++) {
             String cname = gender + "/" + CLASSES[i];
             ComponentClass cclass = crepo.getComponentClass(cname);
+
+            // make sure the component class exists
             if (cclass == null) {
                 Log.warning("Missing definition for component class " +
                             "[class=" + cname + "].");
-            } else {
-                classes.add(cclass);
+                continue;
             }
+
+            // make sure there are some components in this class
+            Iterator iter = crepo.enumerateComponentIds(cclass);
+            if (!iter.hasNext()) {
+                Log.info("Skipping class for which we have no components " +
+                         "[class=" + cclass + "].");
+                continue;
+            }
+
+            classes.add(cclass);
         }
 
         // select the components
@@ -53,8 +64,12 @@ public class CastUtil
             CollectionUtil.addAll(choices, iter);
 
             // choose a random component
-            int idx = RandomUtil.getInt(choices.size());
-            components[ii] = ((Integer)choices.get(idx)).intValue();
+            if (choices.size() > 0) {
+                int idx = RandomUtil.getInt(choices.size());
+                components[ii] = ((Integer)choices.get(idx)).intValue();
+            } else {
+                Log.info("Have no components in class [class=" + cclass + "].");
+            }
         }
 
         return new CharacterDescriptor(components, null);
