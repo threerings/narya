@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.27 2003/07/11 03:13:30 mdb Exp $
+// $Id: InvocationDirector.java,v 1.28 2003/07/12 22:34:03 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -60,6 +60,9 @@ public class InvocationDirector
 
                 // add ourselves as an event listener
                 _clobj.addListener(InvocationDirector.this);
+
+                // clear out our previous registrations
+                _clobj.setReceivers(new DSet());
 
                 // assign a mapping to already registered receivers
                 assignReceiverIds();
