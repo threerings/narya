@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.100 2002/02/19 05:03:17 mdb Exp $
+// $Id: IsoSceneView.java,v 1.101 2002/02/19 19:57:46 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -170,8 +170,8 @@ public class IsoSceneView implements SceneView
         // translate according to our scroll parameters
         gfx.translate(-_xoff, -_yoff);
 
-        // render the scene to the graphics context
-        renderScene(gfx);
+        // render the scrolling part of the scene
+        renderScrollingScene(gfx);
 
         // draw tile coordinates
         if (_model.showCoords) {
@@ -180,6 +180,9 @@ public class IsoSceneView implements SceneView
 
         // untranslate according to our scroll parameters
         gfx.translate(_xoff, _yoff);
+
+        // render the fixed part of the scene
+        renderFixedScene(gfx);
 
         // draw frames of dirty tiles and rectangles
         // drawDirtyRegions(gfx);
@@ -318,15 +321,25 @@ public class IsoSceneView implements SceneView
     }
 
     /**
-     * Renders the scene to the given graphics context.
+     * Renders the scrolling part of the scene to the given graphics
+     * context.
      *
      * @param gfx the graphics context.
      */
-    protected void renderScene (Graphics2D gfx)
+    protected void renderScrollingScene (Graphics2D gfx)
     {
-        // Log.info("renderScene");
         renderTiles(gfx);
         renderBaseDecorations(gfx);
+    }
+
+    /**
+     * Renders the non-scrolling part of the scene to the given graphics
+     * context.
+     *
+     * @param gfx the graphics context.
+     */
+    protected void renderFixedScene (Graphics2D gfx)
+    {
         renderDirtyItems(gfx);
     }
 
