@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.1 2001/07/12 22:38:03 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.2 2001/07/14 00:21:23 shaper Exp $
 
 package com.threerings.cocktail.miso.scene;
 
@@ -31,7 +31,7 @@ public class Scene
 
 	tiles = new Tile[TILE_WIDTH][TILE_HEIGHT][NUM_LAYERS];
 
-	Tile tile = _tmgr.getTile(DEF_TILESET_NAME, DEF_TILE_NAME);
+	Tile tile = _tmgr.getTile(DEF_TSID, DEF_TID);
 	for (int xx = 0; xx < TILE_WIDTH; xx++) {
 	    for (int yy = 0; yy < TILE_HEIGHT; yy++) {
 		for (int ii = 0; ii < NUM_LAYERS; ii++) {
@@ -214,8 +214,8 @@ public class Scene
 
     protected static final String DEF_SCENE_NAME = "Untitled Scene";
 
-    protected static final String DEF_TILESET_NAME = "ground";
-    protected static final String DEF_TILE_NAME = "dirt";
+    protected static final short DEF_TSID = 0;
+    protected static final short DEF_TID = 1;
 
     protected String _name;        // the scene name
     protected short _sid;          // the unique scene id

@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.1 2001/07/12 22:38:03 shaper Exp $
+// $Id: TileSet.java,v 1.2 2001/07/14 00:21:24 shaper Exp $
 
 package com.threerings.cocktail.miso.tile;
 
@@ -9,6 +9,7 @@ import com.threerings.cocktail.miso.media.ImageManager;
 import com.samskivert.util.Config;
 
 import java.awt.Image;
+import java.awt.Graphics2D;
 import java.awt.image.*;
 
 /**
@@ -49,13 +50,19 @@ public class TileSet
      * Return the image corresponding to the specified tile id within
      * this tile set.
      */
-    public Image getTileImage (int tid, ImageObserver obs)
+    public BufferedImage getTileImage (int tid)
     {
 	// load the full tile image if we don't already have it
 	if (_imgTiles == null) {
-	    _imgTiles = ImageManager.getImage(_file, obs);
+	    Log.info("Getting full tileset image [file=" + _file + "].");
+	    if (_imgTiles == null) {
+		if ((_imgTiles = ImageManager.getImage(_file)) == null) {
+		    Log.warning("Failed to retrieve full tileset image.");
+		    return null;
+		}
+	    }
 	}
-
+	
 	// find the row number containing the sought-after tile
 	int ridx, tcount, ty, tx;
 	ridx = tcount = ty = tx = 0;
@@ -71,17 +78,9 @@ public class TileSet
 		 ridx + ", xidx=" + xidx + ", tx=" + tx +
 		 ", ty=" + ty + "].");
 
-	// retrieve the appropriate image chunk from the full image
-	CropImageFilter crop =
-	    new CropImageFilter(tx, ty, Tile.WIDTH, _rowHeight[ridx]);
-
-	FilteredImageSource prod =
-	    new FilteredImageSource(_imgTiles.getSource(), crop);
-
-	Image img = ImageManager.tk.createImage(prod);
-	ImageManager.tk.prepareImage(img, -1, -1, obs);
-
-	return img;
+	// crop the tile-sized image chunk from the full image
+	return ImageManager.getImageCropped(_imgTiles, tx, ty,
+					    Tile.WIDTH, _rowHeight[ridx]);
     }
 
     /**
@@ -110,7 +109,7 @@ public class TileSet
 	return buf.append("}]").toString();
     }
 
-    protected static final String PREFIX = "tileset.";
+    protected static final String PREFIX = "miso.tileset.";
 
     protected static final String CONF_FILE = "file";
     protected static final String CONF_NAME = "name";

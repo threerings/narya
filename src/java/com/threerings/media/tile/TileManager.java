@@ -1,21 +1,20 @@
 //
-// $Id: TileManager.java,v 1.1 2001/07/12 22:38:03 shaper Exp $
+// $Id: TileManager.java,v 1.2 2001/07/14 00:21:24 shaper Exp $
 
 package com.threerings.cocktail.miso.tile;
+
+import com.threerings.cocktail.miso.Log;
 
 import com.samskivert.util.IntMap;
 
 import java.awt.*;
-import java.awt.image.ImageObserver;
-
-import java.util.Vector;
 
 /**
  * Provides a simplified interface for retrieving tile objects from
  * various tilesets, by name or identifier, and manages caching of
  * tiles and related resources as appropriate.
  */
-public class TileManager implements ImageObserver
+public class TileManager
 {
     public TileManager (TileSetManager tsmgr)
     {
@@ -38,32 +37,17 @@ public class TileManager implements ImageObserver
 
 	    // retrieve the tileset containing the tile
 	    TileSet tset = _tsmgr.getTileSet(tsid);
+	    Log.info("Retrieved tileset [tsid=" + tsid + ", tid=" +
+		     tid + ", tset=" + tset + "].");
 
 	    // retrieve the tile image from the tileset
 	    tile = new Tile(tsid, tid);
-	    tile.img = tset.getTileImage(tid, this);
+	    tile.img = tset.getTileImage(tid);
+
 	    _tiles.put(utid, tile);
 	}
 
 	return tile;
-    }
-
-    public void registerObserver (ImageObserver obs)
-    {
-	if (_observers == null) _observers = new Vector();
-	_observers.addElement(obs);
-    }
-
-    public boolean imageUpdate (Image img, int infoflags, int x, int y, 
-				int width, int height)
-    {
-	int size = _observers.size();
-	for (int ii = 0; ii < size; ii++) {
-	    ImageObserver obs = (ImageObserver)_observers.elementAt(ii);
-	    obs.imageUpdate(img, infoflags, x, y, width, height);
-	}
-
-	return true;
     }
 
     // mapping from (tsid << 16 | tid) to tile objects
@@ -71,9 +55,6 @@ public class TileManager implements ImageObserver
 
     // mapping from tileset ids to tileset objects
     protected IntMap _tilesets = new IntMap();
-
-    // registered tile image observers
-    protected Vector _observers;
 
     // our tile set manager
     protected TileSetManager _tsmgr;

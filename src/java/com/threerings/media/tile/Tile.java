@@ -1,18 +1,19 @@
 //
-// $Id: Tile.java,v 1.1 2001/07/12 22:38:03 shaper Exp $
+// $Id: Tile.java,v 1.2 2001/07/14 00:21:24 shaper Exp $
 
 package com.threerings.cocktail.miso.tile;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 /**
  * A tile represents a single square in a single layer in a scene.
  */
 public class Tile
 {
-    public Image img;  // the tile image
-    public short tsid; // the tile set identifier
-    public short tid;  // the tile identifier within the set
+    public BufferedImage img;  // the tile image
+    public short tsid;  // the tile set identifier
+    public short tid;   // the tile identifier within the set
 
     // height and width of a tile image in pixels
     public static final int HEIGHT = 16;
@@ -45,5 +46,14 @@ public class Tile
     {
 	this.tsid = (short) tsid;
 	this.tid = (short) tid;
+    }
+
+    public String toString ()
+    {
+	StringBuffer buf = new StringBuffer();
+	buf.append("[tsid=").append(tsid);
+	buf.append(", tid=").append(tid);
+	buf.append(", img=").append(img);
+	return buf.append("]").toString();
     }
 }
