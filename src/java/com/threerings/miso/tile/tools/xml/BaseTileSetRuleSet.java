@@ -1,30 +1,24 @@
 //
-// $Id: BaseTileSetRuleSet.java,v 1.5 2001/11/27 22:17:42 mdb Exp $
+// $Id: BaseTileSetRuleSet.java,v 1.6 2001/11/29 00:18:33 mdb Exp $
 
 package com.threerings.miso.tools.tile.xml;
 
 import org.xml.sax.Attributes;
 import org.apache.commons.digester.Digester;
 
+import com.samskivert.util.StringUtil;
+import com.samskivert.xml.CallMethodSpecialRule;
+
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tools.tile.xml.SwissArmyTileSetRuleSet;
 import com.threerings.miso.tile.BaseTileSet;
 
 /**
- * Parses {@link BaseTileSet} instances from a tileset description. A
- * uniform tileset description looks like so:
+ * Parses {@link BaseTileSet} instances from a tileset description. Base
+ * tilesets extend swiss army tilesets with the addition of a passability
+ * flag for each tile.
  *
- * <pre>
- * &lt;tileset name="Sample Miso Tileset"&gt;
- *   &lt;imgpath&gt;path/to/image.png&lt;/imgpath&gt;
- *   &lt;!-- the width of each tile in pixels --&gt;
- *   &lt;width&gt;64&lt;/width&gt;
- *   &lt;!-- the height of each tile in pixels --&gt;
- *   &lt;height&gt;48&lt;/height&gt;
- *   &lt;!-- the total number of tiles in the set --&gt;
- *   &lt;tileCount&gt;16&lt;/tileCount&gt;
- * &lt;/tileset&gt;
- * </pre>
+ * @see SwissArmyTileSetRuleSet
  */
 public class BaseTileSetRuleSet extends SwissArmyTileSetRuleSet
 {
@@ -33,15 +27,25 @@ public class BaseTileSetRuleSet extends SwissArmyTileSetRuleSet
     {
         super.addRuleInstances(digester);
 
-        digester.addCallMethod(
-            _prefix + "/tileset/width", "setWidth", 0,
-            new Class[] { java.lang.Integer.TYPE });
+        digester.addRule(
+            _prefix + TILESET_PATH + "/passable",
+            new CallMethodSpecialRule(digester) {
+                public void parseAndSet (String bodyText, Object target)
+                {
+                    int[] values = StringUtil.parseIntArray(bodyText);
+                    boolean[] passable = new boolean[values.length];
+                    for (int i = 0; i < values.length; i++) {
+                        passable[i] = (values[i] != 0);
+                    }
+                    BaseTileSet starget = (BaseTileSet)target;
+                    starget.setPassability(passable);
+                }
+            });
     }
 
     // documentation inherited
-    protected TileSet createTileSet (Attributes attributes)
+    protected Class getTileSetClass ()
     {
-        // we use uniform tilesets
-        return new BaseTileSet();
+        return BaseTileSet.class;
     }
 }
