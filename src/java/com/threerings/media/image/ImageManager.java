@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.18 2002/07/06 00:38:45 shaper Exp $
+// $Id: ImageManager.java,v 1.19 2002/09/23 23:30:23 mdb Exp $
 
 package com.threerings.media;
 
@@ -129,9 +129,17 @@ public class ImageManager
     {
         int swidth = src.getWidth(null);
         int sheight = src.getHeight(null);
+        BufferedImage dest = null;
 
-        // now convert the image to a format optimized for display
-        BufferedImage dest = ImageUtil.createImage(swidth, sheight);
+        // use the same kind of transparency as the source image if we can
+        // when converting the image to a format optimized for display
+        if (src instanceof BufferedImage) {
+            int trans = ((BufferedImage)src).getColorModel().getTransparency();
+            dest = ImageUtil.createImage(swidth, sheight, trans);
+        } else {
+            dest = ImageUtil.createImage(swidth, sheight);
+        }
+
         Graphics2D gfx = dest.createGraphics();
         gfx.drawImage(src, 0, 0, null);
         gfx.dispose();
