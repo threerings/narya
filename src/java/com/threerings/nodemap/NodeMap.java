@@ -1,5 +1,5 @@
 //
-// $Id: NodeMap.java,v 1.6 2001/12/18 12:43:12 mdb Exp $
+// $Id: NodeMap.java,v 1.7 2002/06/14 07:56:29 shaper Exp $
 
 package com.threerings.nodemap;
 
@@ -9,7 +9,7 @@ import javax.swing.JComponent;
 
 import com.samskivert.swing.ToolTipManager;
 import com.samskivert.swing.ToolTipProvider;
-import com.samskivert.swing.util.ToolTipUtil;
+import com.samskivert.swing.util.SwingUtil;
 
 /**
  * The node map class represents a directed graph of nodes comprised
@@ -130,9 +130,10 @@ public class NodeMap
 	// draw the tool tip, if any
 	if (_tipper != null) {
 	    // determine proper tool tip placement
-	    Point pos = ToolTipUtil.getTipPosition(
-		_tipx, _tipy, _tipper.getToolTipSize(g), getBounds());
-
+            Dimension tsize = _tipper.getToolTipSize(g);
+            Point pos = SwingUtil.fitRectInRect(
+                new Rectangle(_tipx, _tipy, tsize.width, tsize.height),
+                getBounds());
 	    // paint away
 	    _tipper.paintToolTip(g, pos.x, pos.y);
 	}
