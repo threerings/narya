@@ -1,16 +1,17 @@
 //
-// $Id: IsoSceneView.java,v 1.30 2001/08/08 21:24:20 shaper Exp $
+// $Id: IsoSceneView.java,v 1.31 2001/08/08 22:29:39 shaper Exp $
 
 package com.threerings.miso.scene;
+
+import java.awt.*;
+import java.awt.geom.*;
+import java.awt.image.*;
+import java.util.ArrayList;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.sprite.*;
 import com.threerings.miso.tile.Tile;
 import com.threerings.miso.tile.TileManager;
-
-import java.awt.*;
-import java.awt.image.*;
-import java.util.ArrayList;
 
 /**
  * The <code>IsoSceneView</code> provides an isometric view of a
@@ -33,8 +34,9 @@ public class IsoSceneView implements EditableSceneView
 
         setModel(model);
 
-        // initialize the highlighted tile
+        // initialize the highlighted objects
 	_htile = new Point(-1, -1);
+	_hfull = new Point(-1, -1);
 
         // get the font used to render tile coordinates
 	_font = new Font("Arial", Font.PLAIN, 7);
@@ -83,6 +85,9 @@ public class IsoSceneView implements EditableSceneView
         // draw an outline around the highlighted tile
         paintHighlightedTile(gfx, _htile.x, _htile.y);
 
+	// draw an outline around the highlighted full coordinate
+	paintHighlightedFull(gfx, _hfull.x, _hfull.y);
+
         // draw lines illustrating tracking of the mouse position
   	//paintMouseLines(gfx);
 
@@ -109,7 +114,7 @@ public class IsoSceneView implements EditableSceneView
 	for (int xx = 0; xx < Scene.TILE_WIDTH; xx++) {
 	    for (int yy = 0; yy < Scene.TILE_HEIGHT; yy++) {
 		if (_dirty[xx][yy]) {
-		    gfx.draw(getTilePolygon(xx, yy));
+		    gfx.draw(IsoUtil.getTilePolygon(_model, xx, yy));
 		}
 	    }
 	}
@@ -139,7 +144,7 @@ public class IsoSceneView implements EditableSceneView
 		if (!_dirty[xx][yy]) continue;
 
 		// get the tile's screen position
-		Polygon poly = getTilePolygon(xx, yy);
+		Polygon poly = IsoUtil.getTilePolygon(_model, xx, yy);
 
 		// draw all layers at this tile position
 		for (int kk = 0; kk < Scene.NUM_LAYERS; kk++) {
@@ -163,29 +168,6 @@ public class IsoSceneView implements EditableSceneView
 		if (++numDrawn == _numDirty) break;
 	    }
 	}
-    }
-
-    /**
-     * Return a polygon framing the specified tile.
-     *
-     * @param x the tile x-position coordinate.
-     * @param y the tile y-position coordinate.
-     */
-    protected Polygon getTilePolygon (int x, int y)
-    {
-        // get the top-left screen coordinate for the tile
-        Point spos = new Point();
-        IsoUtil.tileToScreen(_model, x, y, spos);
-
-        // create a polygon framing the tile
-        Polygon poly = new Polygon();
-        poly.addPoint(spos.x, spos.y + _model.tilehhei);
-        poly.addPoint(spos.x + _model.tilehwid, spos.y);
-        poly.addPoint(spos.x + _model.tilewid, spos.y + _model.tilehhei);
-        poly.addPoint(spos.x + _model.tilehwid, spos.y + _model.tilehei);
-        poly.addPoint(spos.x, spos.y + _model.tilehhei);
-
-        return poly;
     }
 
     /**
@@ -227,7 +209,8 @@ public class IsoSceneView implements EditableSceneView
 
                     // draw all sprites residing in the current tile
                     // TODO: simplify other tile positioning here to use poly
-                    _spritemgr.renderSprites(gfx, getTilePolygon(tx, ty));
+                    _spritemgr.renderSprites(
+			gfx, IsoUtil.getTilePolygon(_model, tx, ty));
                 }
 
 		// draw tile coordinates in each tile
@@ -317,21 +300,46 @@ public class IsoSceneView implements EditableSceneView
      */
     protected void paintHighlightedTile (Graphics2D gfx, int x, int y)
     {
+	if (x == -1 || y == -1) return;
+
         // set the desired stroke and color
 	Stroke ostroke = gfx.getStroke();
 	gfx.setStroke(HLT_STROKE);
 	gfx.setColor(HLT_COLOR);
 
         // draw the tile outline
-        gfx.draw(getTilePolygon(x, y));
+        gfx.draw(IsoUtil.getTilePolygon(_model, x, y));
 
         // restore the original stroke
 	gfx.setStroke(ostroke);
     }
 
+    /**
+     * Paint a highlight around the specified full coordinate.
+     *
+     * @param gfx the graphics context.
+     * @param x the full x-position coordinate.
+     * @param y the full y-position coordinate.
+     */
+    protected void paintHighlightedFull (Graphics2D gfx, int x, int y)
+    {
+	if (x == -1 || y == -1) return;
+
+	Point spos = new Point();
+	IsoUtil.fullToScreen(_model, x, y, spos);
+
+	gfx.setColor(Color.red);
+	gfx.draw(new Ellipse2D.Float(spos.x, spos.y, 3, 3));
+    }
+
     public void setHighlightedTile (int sx, int sy)
     {
         IsoUtil.screenToTile(_model, sx, sy, _htile);
+    }
+
+    public void setHighlightedFull (int x, int y)
+    {
+	IsoUtil.screenToFull(_model, x, y, _hfull);
     }
 
     /**
@@ -478,7 +486,7 @@ public class IsoSceneView implements EditableSceneView
     public void setModel (IsoSceneModel model)
     {
         _model = model;
-        _model.calculateXAxis();
+        _model.precalculate();
     }
 
     public Path getPath (Sprite sprite, int x, int y)
@@ -489,10 +497,16 @@ public class IsoSceneView implements EditableSceneView
             return null;
         }
 
-        // create path from current loc to destination
+	// constrain destination pixels to fine coordinates
+	Point fpos = new Point();
+	IsoUtil.screenToFull(_model, x, y, fpos);
+	Point spos = new Point();
+	IsoUtil.fullToScreen(_model, fpos.x, fpos.y, spos);
+
+	// create path from current loc to destination
         Path path = new Path(sprite.x, sprite.y);
 	int dir = IsoUtil.getDirection(_model, sprite.x, sprite.y, x, y);
-        path.addNode(x, y, dir);
+        path.addNode(spos.x, spos.y, dir);
 
         return path;
     }
@@ -505,6 +519,9 @@ public class IsoSceneView implements EditableSceneView
 
     /** The currently highlighted tile. */
     protected Point _htile;
+
+    /** The currently highlighted full coordinate. */
+    protected Point _hfull;
 
     /** The font to draw tile coordinates. */
     protected Font _font;

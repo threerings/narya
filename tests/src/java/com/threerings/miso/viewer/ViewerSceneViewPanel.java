@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.4 2001/08/08 03:19:39 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.5 2001/08/08 22:29:39 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -100,7 +100,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         }
 
         // hackily highlight the tile that was clicked on for happy testing
-//        ((EditableSceneView)_view).setHighlightedTile(x, y);
+        ((EditableSceneView)_view).setHighlightedFull(x, y);
     }
 
     public void mouseClicked (MouseEvent e) { }

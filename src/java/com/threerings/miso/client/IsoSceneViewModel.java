@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.4 2001/08/07 18:29:17 shaper Exp $
+// $Id: IsoSceneViewModel.java,v 1.5 2001/08/08 22:29:39 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -22,6 +22,9 @@ public class IsoSceneModel
 {
     /** Tile dimensions and half-dimensions in the view. */
     public int tilewid, tilehei, tilehwid, tilehhei;
+
+    /** Fine coordinate dimensions. */
+    public int finehwid, finehhei;
 
     /** Number of fine coordinates on each axis within a tile. */
     public int finegran;
@@ -149,13 +152,13 @@ public class IsoSceneModel
     }
 
     /**
-     * Pre-calculate the x-axis lines for later use in converting
-     * screen coordinates to tile coordinates and tile-based pixel
-     * coordinates to fine coordinates.
+     * Pre-calculate various values that are commonly used in working
+     * with an isometric view.  Includes x-axis line values for use in
+     * converting coordinates, and fine coordinate dimensions.
      */
-    public void calculateXAxis ()
+    public void precalculate ()
     {
-	// first calculate scene-based x-axis line for conversion from
+	// calculate scene-based x-axis line for conversion from
 	// screen to tile coordinates
 
         // create the x- and y-axis lines
@@ -172,15 +175,19 @@ public class IsoSceneModel
 	lineX[1].x = lineX[0].x + (tilehwid * Scene.TILE_WIDTH);
 	lineX[1].y = lineX[0].y + (int)((slopeX * lineX[1].x) + bX);
 
-	// next calculate tile-based x-axis line for conversion from
+	// calculate tile-based x-axis line for conversion from
 	// tile-based pixel to fine coordinates
 
 	// calculate the edge length separating each fine coordinate
 	finelen = tilelen / (float)finegran;
 
-	// calculate the x-axis line
+	// calculate the fine-coordinate x-axis line
 	fineSlopeX = (float)tilehei / (float)tilewid;
 	fineBX = -(fineSlopeX * (float)tilehwid);
 	fineSlopeY = -fineSlopeX;
+
+	// calculate the fine coordinate dimensions
+	finehwid = (int)((float)tilehwid / (float)finegran);
+	finehhei = (int)((float)tilehhei / (float)finegran);
     }
 }

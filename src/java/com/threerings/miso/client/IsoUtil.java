@@ -1,9 +1,10 @@
 //
-// $Id: IsoUtil.java,v 1.2 2001/08/07 18:29:17 shaper Exp $
+// $Id: IsoUtil.java,v 1.3 2001/08/08 22:29:39 shaper Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.Point;
+import java.awt.Polygon;
 
 import com.threerings.miso.sprite.Path;
 import com.threerings.miso.util.MathUtil;
@@ -145,6 +146,22 @@ public class IsoUtil
     }
 
     /**
+     * Convert the given fine coordinates to pixel coordinates within
+     * the containing tile.  Converted coordinates are placed in the
+     * given point object.
+     *
+     * @param x the x-position fine coordinate.
+     * @param y the y-position fine coordinate.
+     * @param ppos the point object to place coordinates in.
+     */
+    public static void fineToPixel (
+	IsoSceneModel model, int x, int y, Point ppos)
+    {
+	ppos.x = model.tilehwid + ((x - y - 1) * model.finehwid);
+	ppos.y = (x + y) * model.finehhei;
+    }
+
+    /**
      * Convert the given pixel coordinates, whose origin is at the
      * top-left of a tile's containing rectangle, to fine coordinates
      * within that tile.  Converted coordinates are placed in the
@@ -206,6 +223,56 @@ public class IsoUtil
 	// toss in the tile coordinates for good measure
 	fpos.x += (tpos.x * FULL_TILE_FACTOR);
 	fpos.y += (tpos.y * FULL_TILE_FACTOR);
+    }
+
+    /**
+     * Convert the given full coordinates to screen-based pixel
+     * coordinates.  Converted coordinates are placed in the given
+     * point object.
+     *
+     * @param x the x-position full coordinate.
+     * @param y the y-position full coordinate.
+     * @param spos the point object to place coordinates in.
+     */
+    public static void fullToScreen (
+	IsoSceneModel model, int x, int y, Point spos)
+    {
+	// get the tile screen position
+	Point tspos = new Point();
+	int tx = x / FULL_TILE_FACTOR, ty = y / FULL_TILE_FACTOR;
+	tileToScreen(model, tx, ty, tspos);
+
+	// get the pixel position of the fine coords within the tile
+	Point ppos = new Point();
+	int fx = x - (tx * FULL_TILE_FACTOR), fy = y - (ty * FULL_TILE_FACTOR);
+	fineToPixel(model, fx, fy, ppos);
+
+	// final position is tile position offset by fine position
+	spos.x = tspos.x + ppos.x;
+	spos.y = tspos.y + ppos.y;
+    }
+
+    /**
+     * Return a polygon framing the specified tile.
+     *
+     * @param x the tile x-position coordinate.
+     * @param y the tile y-position coordinate.
+     */
+    public static Polygon getTilePolygon (IsoSceneModel model, int x, int y)
+    {
+        // get the top-left screen coordinate for the tile
+        Point spos = new Point();
+        IsoUtil.tileToScreen(model, x, y, spos);
+
+        // create a polygon framing the tile
+        Polygon poly = new Polygon();
+        poly.addPoint(spos.x, spos.y + model.tilehhei);
+        poly.addPoint(spos.x + model.tilehwid, spos.y);
+        poly.addPoint(spos.x + model.tilewid, spos.y + model.tilehhei);
+        poly.addPoint(spos.x + model.tilehwid, spos.y + model.tilehei);
+        poly.addPoint(spos.x, spos.y + model.tilehhei);
+
+        return poly;
     }
 
     /** Multiplication factor to embed tile coords in full coords. */
