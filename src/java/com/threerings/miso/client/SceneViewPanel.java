@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.32 2002/02/19 07:20:13 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.33 2002/02/19 07:41:55 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -114,6 +114,10 @@ public class SceneViewPanel extends AnimatedPanel
         Dimension size = getSize();
         _tx = (_viewmodel.bounds.width - size.width)/2;
         _ty = (_viewmodel.bounds.height - size.height)/2;
+
+        // tell the sprite manager about the offsets so that it can
+        // communicate valid dirty rectangles to the animation manager
+        _spritemgr.setViewportOffset(_tx, _ty);
     }
 
     /**
