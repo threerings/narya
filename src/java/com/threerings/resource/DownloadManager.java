@@ -1,5 +1,5 @@
 //
-// $Id: DownloadManager.java,v 1.4 2002/09/30 09:36:22 shaper Exp $
+// $Id: DownloadManager.java,v 1.5 2002/10/08 23:42:21 shaper Exp $
 
 package com.threerings.resource;
 
@@ -182,7 +182,7 @@ public class DownloadManager
         // check the size and last-modified information for each file to
         // ascertain whether our local copy needs to be refreshed
         ArrayList fetch = new ArrayList();
-        long totalSize = 0;
+        ProgressInfo pinfo = new ProgressInfo();
         int size = descriptors.size();
         for (int ii = 0; ii < size; ii++) {
             DownloadDescriptor desc = (DownloadDescriptor)descriptors.get(ii);
@@ -224,7 +224,7 @@ public class DownloadManager
                     (desc.destLastModified < (desc.lastModified - DELTA)) ||
                     (desc.destLastModified > (desc.lastModified + DELTA))) {
                     // increment the total file size to be fetched
-                    totalSize += desc.fileSize;
+                    pinfo.totalSize += desc.fileSize;
                     // add the file to the list of files to be fetched
                     fetch.add(desc);
                     Log.debug("File deemed stale " +
@@ -245,18 +245,11 @@ public class DownloadManager
 
         // download all stale files
         size = fetch.size();
-        long currentSize = 0;
-        long start = System.currentTimeMillis();
-        long bytesPerSecond = 0;
-        boolean complete = false;
+        pinfo.start = System.currentTimeMillis();
         for (int ii = 0; ii < size; ii++) {
             DownloadDescriptor desc = (DownloadDescriptor)fetch.get(ii);
             try {
-                complete = processDownload(
-                    desc, obs, currentSize, totalSize, start, bytesPerSecond);
-                currentSize += desc.fileSize;
-                bytesPerSecond = calculateXferRate(currentSize, start);
-
+                processDownload(desc, obs, pinfo);
             } catch (IOException ioe) {
                 obs.downloadFailed(desc, ioe);
                 if (fragile) {
@@ -267,18 +260,16 @@ public class DownloadManager
 
         // make sure to always let the observer know that we've wrapped up
         // by reporting 100% completion
-        if (!complete) {
+        if (!pinfo.complete) {
             obs.downloadProgress(100, 0L);
         }
     }
 
     /**
-     * Processes a single download descriptor.  Returns whether the
-     * download observer was notified of a 100% complete progress update.
+     * Processes a single download descriptor.
      */
-    protected boolean processDownload (
-        DownloadDescriptor desc, DownloadObserver obs, long currentSize,
-        long totalSize, long start, long bytesPerSecond)
+    protected void processDownload (
+        DownloadDescriptor desc, DownloadObserver obs, ProgressInfo pinfo)
         throws IOException
     {
         // download the resource bundle from the specified URL
@@ -289,7 +280,6 @@ public class DownloadManager
         InputStream in = ucon.getInputStream();
         FileOutputStream out = new FileOutputStream(desc.destFile);
         int read;
-        boolean complete = false;
 
         // read in the file data
         while ((read = in.read(_buffer)) != -1) {
@@ -297,18 +287,26 @@ public class DownloadManager
             out.write(_buffer, 0, read);
             // report our progress to the download observer as a
             // percentage of the total file data to be transferred
-            currentSize += read;
-            int pctdone = (int)((currentSize / (float)totalSize) * 100f);
-            complete = (pctdone >= 100);
+            pinfo.currentSize += read;
+            int pctdone = pinfo.getPercentDone();
+            pinfo.complete = (pctdone >= 100);
             // if we've finished downloading everything, hold off on
             // notifying the observer until we're done working with the
             // file to ensure that any action the observer may take with
             // respect to the downloaded files can be safely undertaken
-            if (!complete) {
-                bytesPerSecond = calculateXferRate(currentSize, start);
-                long remaining = (bytesPerSecond == 0) ? -1 :
-                    (totalSize - currentSize) / bytesPerSecond;
-                obs.downloadProgress(pctdone, remaining);
+            if (!pinfo.complete) {
+                // update the transfer rate to reflect the bit of data we
+                // just transferred
+                long now = System.currentTimeMillis();
+                pinfo.updateXferRate(now);
+
+                // notify the progress observer if it's been sufficiently
+                // long since our last notification
+                if ((now - pinfo.lastUpdate) >= UPDATE_DELAY) {
+                    pinfo.lastUpdate = now;
+                    long remaining = pinfo.getXferTimeRemaining();
+                    obs.downloadProgress(pctdone, remaining);
+                }
             }
         }
 
@@ -325,24 +323,11 @@ public class DownloadManager
             }
         }
 
-        if (complete) {
+        if (pinfo.complete) {
             // let the observer know we're finished now that we've
             // finished all of our work with the file
             obs.downloadProgress(100, 0L);
         }
-
-        return complete;
-    }
-
-    /**
-     * Returns the current transfer rate in bytes per second based on
-     * transferring the specified quantity of data starting at the given
-     * time.
-     */
-    protected long calculateXferRate (long size, long start)
-    {
-        long secs = (System.currentTimeMillis() - start) / 1000L;
-        return (secs == 0) ? 0 : (size / secs);
     }
 
     /**
@@ -358,6 +343,62 @@ public class DownloadManager
 
         /** Whether to abort downloading if an error occurs. */
         public boolean fragile;
+    }
+
+    /**
+     * A record detailing the progress of a download request.
+     */
+    protected class ProgressInfo
+    {
+        /** The total file size in bytes to be transferred. */
+        public long totalSize;
+
+        /** The file size in bytes transferred thus far. */
+        public long currentSize;
+
+        /** The time at which the file transfer began. */
+        public long start;
+
+        /** The current transfer rate in bytes per second. */
+        public long bytesPerSecond;
+
+        /** The time at which the last progress update was posted to the
+         * progress observer. */
+        public long lastUpdate;
+
+        /** Whether the download has completed and the progress observer
+         * notified. */
+        public boolean complete;
+
+        /**
+         * Returns the percent completion, based on data size transferred,
+         * of the file transfer.
+         */
+        public int getPercentDone ()
+        {
+            return (int)((currentSize / (float)totalSize) * 100f);
+        }
+
+        /**
+         * Updates the bytes per second transfer rate for the download
+         * associated with this progress info record.
+         */
+        public void updateXferRate (long now)
+        {
+            long secs = (now - start) / 1000L;
+            bytesPerSecond = (secs == 0) ? 0 : (currentSize / secs);
+        }
+
+        /**
+         * Returns the estimated transfer time remaining for the download
+         * associated with this progress info record, or <code>-1</code> if
+         * the transfer time cannot currently be estimated.
+         */
+        public long getXferTimeRemaining ()
+        {
+            return (bytesPerSecond == 0) ? -1 :
+                (totalSize - currentSize) / bytesPerSecond;
+        }
     }
 
     /** The downloading thread. */
@@ -376,4 +417,8 @@ public class DownloadManager
      * source and destination file without considering the destination
      * file to be out of date. */
     protected static final long DELTA = 5000L;
+
+    /** The delay in milliseconds between notifying progress observers of
+     * file download progress. */
+    protected static final long UPDATE_DELAY = 2500L;
 }
