@@ -1,5 +1,5 @@
 //
-// $Id: KeyboardManager.java,v 1.10 2002/01/19 06:07:20 shaper Exp $
+// $Id: KeyboardManager.java,v 1.11 2002/10/09 08:17:02 mdb Exp $
 
 package com.threerings.util;
 
@@ -247,19 +247,19 @@ public class KeyboardManager
             _lastPress = time;
             _lastRelease = time;
 
-            if (_iid == -1) {
-                // register an interval to post the command associated
-                // with the key press until the key is decidedly released
-                _iid = IntervalManager.register(this, _pressDelay, null, true);
-                if (DEBUG_EVENTS) {
-                    Log.info("Pressing key [key=" + _keyText + "].");
-                }
+//             if (_iid == -1) {
+//                 // register an interval to post the command associated
+//                 // with the key press until the key is decidedly released
+//                 _iid = IntervalManager.register(this, _pressDelay, null, true);
+//                 if (DEBUG_EVENTS) {
+//                     Log.info("Pressing key [key=" + _keyText + "].");
+//                 }
 
                 if (_pressCommand != null) {
                     // post the initial key press command
                     Controller.postAction(_target, _pressCommand);
                 }
-            }
+//             }
         }
 
         /**
@@ -267,33 +267,34 @@ public class KeyboardManager
          */
         public synchronized void setReleaseTime (long time)
         {
-            _lastRelease = time;
+            release();
+//             _lastRelease = time;
 
-            // handle key release events received so quickly after the key
-            // press event that the press/release times are exactly equal
-            // and, in intervalExpired(), we would therefore be unable to
-            // distinguish between the key being initially pressed and the
-            // actual true key release that's taken place.
+//             // handle key release events received so quickly after the key
+//             // press event that the press/release times are exactly equal
+//             // and, in intervalExpired(), we would therefore be unable to
+//             // distinguish between the key being initially pressed and the
+//             // actual true key release that's taken place.
 
-            // the only case I can think of that might result in this
-            // happening is if the event manager class queues up a key
-            // press and release event succession while other code is
-            // executing, and when it comes time for it to dispatch the
-            // events in its queue it manages to dispatch both of them to
-            // us really-lickety-split.  one would still think at least a
-            // few milliseconds should pass between the press and release,
-            // but in any case, we arguably ought to be watching for and
-            // handling this case for posterity even though it would seem
-            // unlikely or impossible, and so, now we do, which is a good
-            // thing since it appears this does in fact happen, and not so
-            // infrequently.
-            if (_lastPress == _lastRelease) {
-                if (DEBUG_EVENTS) {
-                    Log.warning("Insta-releasing key due to equal key " +
-                                "press/release times [key=" + _keyText + "].");
-                }
-                release();
-            }
+//             // the only case I can think of that might result in this
+//             // happening is if the event manager class queues up a key
+//             // press and release event succession while other code is
+//             // executing, and when it comes time for it to dispatch the
+//             // events in its queue it manages to dispatch both of them to
+//             // us really-lickety-split.  one would still think at least a
+//             // few milliseconds should pass between the press and release,
+//             // but in any case, we arguably ought to be watching for and
+//             // handling this case for posterity even though it would seem
+//             // unlikely or impossible, and so, now we do, which is a good
+//             // thing since it appears this does in fact happen, and not so
+//             // infrequently.
+//             if (_lastPress == _lastRelease) {
+//                 if (DEBUG_EVENTS) {
+//                     Log.warning("Insta-releasing key due to equal key " +
+//                                 "press/release times [key=" + _keyText + "].");
+//                 }
+//                 release();
+//             }
         }
 
         /**
@@ -303,17 +304,19 @@ public class KeyboardManager
         public synchronized void release ()
         {
             // bail if we're not currently pressed
-            if (_iid == -1) {
-                return;
-            }
+//             if (_iid == -1) {
+//                 return;
+//             }
 
             if (DEBUG_EVENTS) {
                 Log.info("Releasing key [key=" + _keyText + "].");
             }
 
             // remove the repeat interval
-            IntervalManager.remove(_iid);
-            _iid = -1;
+            if (_iid != -1) {
+                IntervalManager.remove(_iid);
+                _iid = -1;
+            }
 
             if (_siid != -1) {
                 // remove the sub-interval
