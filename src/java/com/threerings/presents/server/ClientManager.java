@@ -1,10 +1,11 @@
 //
-// $Id: ClientManager.java,v 1.14 2002/03/05 05:33:25 mdb Exp $
+// $Id: ClientManager.java,v 1.15 2002/04/18 00:44:50 shaper Exp $
 
 package com.threerings.presents.server;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
@@ -72,6 +73,14 @@ public class ClientManager implements ConnectionObserver
             // make a note of it
             _clrClass = clrClass;
         }
+    }
+
+    /**
+     * Enumerates all active client objects.
+     */
+    public Iterator enumerateClientObjects ()
+    {
+        return _objmap.values().iterator();
     }
 
     /**

@@ -1,9 +1,9 @@
 //
-// $Id: CrowdServer.java,v 1.11 2002/03/28 22:32:31 mdb Exp $
+// $Id: CrowdServer.java,v 1.12 2002/04/18 00:44:50 shaper Exp $
 
 package com.threerings.crowd.server;
 
-import java.util.HashMap;
+import java.util.Iterator;
 
 import com.threerings.presents.server.PresentsServer;
 
@@ -49,6 +49,17 @@ public class CrowdServer extends PresentsServer
     }
 
     /**
+     * Enumerates the body objects for all active users on the server.
+     * This should only be called from the dobjmgr thread.  The caller had
+     * best be certain they know what they're doing, since this should
+     * only be necessary for use in rather special circumstances.
+     */
+    public static Iterator enumerateBodies ()
+    {
+        return clmgr.enumerateClientObjects();
+    }
+
+    /**
      * The server maintains a mapping of username to body object for all
      * active users on the server. This should only be called from the
      * dobjmgr thread.
@@ -69,9 +80,6 @@ public class CrowdServer extends PresentsServer
             Log.logStackTrace(e);
         }
     }
-
-    /** We use this to map usernames to body objects. */
-    protected static HashMap _bodymap = new HashMap();
 
     /** The config key for our list of invocation provider mappings. */
     protected final static String PROVIDERS_KEY = "providers";
