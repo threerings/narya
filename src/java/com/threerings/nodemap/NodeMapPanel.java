@@ -1,5 +1,5 @@
 //
-// $Id: NodeMapPanel.java,v 1.6 2001/12/18 08:39:20 mdb Exp $
+// $Id: NodeMapPanel.java,v 1.7 2001/12/18 12:21:21 mdb Exp $
 
 package com.threerings.nodemap;
 
@@ -73,7 +73,15 @@ public class NodeMapPanel extends JPanel
     {
 	super.paintComponent(g);
         if (_map != null) {
+            // compute the offset necessary to center the map in the
+            // display
+            Dimension osize = getSize();
+            Dimension msize = _map.getSize();
+            int tx = (osize.width - msize.width)/2;
+            int ty = (osize.height - msize.height)/2;
+            g.translate(tx, ty);
             _map.paint(g);
+            g.translate(-tx, -ty);
         }
     }
 
