@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.3 2001/08/08 00:10:50 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.4 2001/08/08 03:19:38 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -54,10 +54,26 @@ public class SceneViewPanel extends JPanel
     /**
      * Render the panel and the scene view to the given graphics object.
      */
+    public void render (Graphics g)
+    {
+	if (_offimg == null) {
+	    createOffscreen();
+	}
+
+	_view.paint(_offg);
+	g.drawImage(_offimg, 0, 0, null);
+    }
+
     public void paintComponent (Graphics g)
     {
-//	super.paintComponent(g);
-	_view.paint(g);
+	render(g);
+    }
+
+    protected void createOffscreen ()
+    {
+	Rectangle bounds = getBounds();
+	_offimg = createImage(bounds.width, bounds.height);
+	_offg = _offimg.getGraphics();
     }
 
     /**
@@ -83,6 +99,12 @@ public class SceneViewPanel extends JPanel
 
     /** Origin vertical offset in pixels. */
     protected static final int VOFFSET = -(5 * THEIGHT);
+
+    /** The offscreen image used for double-buffering. */
+    protected Image _offimg;
+
+    /** The graphics context for the offscreen image. */
+    protected Graphics _offg;
 
     /** The scene data model. */
     protected IsoSceneModel _smodel;

@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.9 2001/08/08 00:10:50 shaper Exp $
+// $Id: AnimationManager.java,v 1.10 2001/08/08 03:19:39 shaper Exp $
 
 package com.threerings.miso.sprite;
 
@@ -113,6 +113,7 @@ public class AnimationManager implements Interval, PerformanceObserver
         ArrayList rects = _spritemgr.getDirtyRects();
 
 	if (rects.size() > 0) {
+
 	    // pass the dirty-rects on to the scene view
 	    _view.invalidateRects(rects);
 
@@ -160,7 +161,7 @@ public class AnimationManager implements Interval, PerformanceObserver
     protected Runnable _ticker;
 
     /** The desired number of refresh operations per second. */
-    protected static final int FRAME_RATE = 40;
+    protected static final int FRAME_RATE = 70;
 
     /** The milliseconds to sleep to obtain desired frame rate. */
     protected static final long REFRESH_INTERVAL = 1000 / FRAME_RATE;

@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.28 2001/08/08 00:10:50 shaper Exp $
+// $Id: IsoSceneView.java,v 1.29 2001/08/08 03:19:38 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -39,9 +39,13 @@ public class IsoSceneView implements EditableSceneView
         // get the font used to render tile coordinates
 	_font = new Font("Arial", Font.PLAIN, 7);
 
-        // create the lists of dirty tiles and rectangles
-        _dirty = new ArrayList();
+        // create the array used to mark dirty tiles
+        _dirty = new boolean[Scene.TILE_WIDTH][Scene.TILE_HEIGHT];
+
+	// create the list of dirty rectangles
 	_dirtyRects = new ArrayList();
+
+	clearDirtyRegions();
     }
 
     /**
@@ -61,7 +65,7 @@ public class IsoSceneView implements EditableSceneView
   	Shape oldclip = gfx.getClip();
   	gfx.setClip(0, 0, _model.bounds.width, _model.bounds.height);
 
-	if (_dirty.size() == 0) {
+	if (_numDirty == 0) {
 	    // render the full scene
 	    renderScene(gfx);
 
@@ -70,8 +74,9 @@ public class IsoSceneView implements EditableSceneView
 	    renderSceneInvalid(gfx);
 
 	    // draw frames of dirty tiles and rectangles
-	    drawDirtyRegions(gfx);
+	    //drawDirtyRegions(gfx);
 
+	    // clear out the dirty tiles and rectangles
 	    clearDirtyRegions();
 	}
 
@@ -87,23 +92,31 @@ public class IsoSceneView implements EditableSceneView
 
     protected void clearDirtyRegions ()
     {
-	_dirty.clear();
 	_dirtyRects.clear();
+
+	_numDirty = 0;
+	for (int xx = 0; xx < Scene.TILE_WIDTH; xx++) {
+	    for (int yy = 0; yy < Scene.TILE_HEIGHT; yy++) {
+		_dirty[xx][yy] = false;
+	    }
+	}
     }
 
     protected void drawDirtyRegions (Graphics2D gfx)
     {
 	// draw the dirty tiles
 	gfx.setColor(Color.cyan);
-	int size = _dirty.size();
-	for (int ii = 0; ii < size; ii++) {
-	    int dinfo[] = (int[])_dirty.get(ii);
-	    gfx.draw(getTilePolygon(dinfo[0], dinfo[1]));
+	for (int xx = 0; xx < Scene.TILE_WIDTH; xx++) {
+	    for (int yy = 0; yy < Scene.TILE_HEIGHT; yy++) {
+		if (_dirty[xx][yy]) {
+		    gfx.draw(getTilePolygon(xx, yy));
+		}
+	    }
 	}
 
 	// draw the dirty rectangles
 	gfx.setColor(Color.red);
-	size = _dirtyRects.size();
+	int size = _dirtyRects.size();
 	for (int ii = 0; ii < size; ii++) {
 	    Rectangle rect = (Rectangle)_dirtyRects.get(ii);
 	    gfx.draw(rect);
@@ -117,34 +130,39 @@ public class IsoSceneView implements EditableSceneView
      */
     protected void renderSceneInvalid (Graphics2D gfx)
     {
-        int size = _dirty.size();
-        for (int ii = 0; ii < size; ii++) {
+	int numDrawn = 0;
 
-            // retrieve the next dirty tile coordinates
-            int[] dinfo = (int[])_dirty.get(ii);
-            int tx = dinfo[0], ty = dinfo[1];
+	for (int xx = 0; xx < Scene.TILE_WIDTH; xx++) {
+	    for (int yy = 0; yy < Scene.TILE_HEIGHT; yy++) {
 
-            // get the tile's screen position
-            Polygon poly = getTilePolygon(tx, ty);
+		// skip this tile if it's not marked dirty
+		if (!_dirty[xx][yy]) continue;
 
-            // draw all layers at this tile position
-            for (int kk = 0; kk < Scene.NUM_LAYERS; kk++) {
+		// get the tile's screen position
+		Polygon poly = getTilePolygon(xx, yy);
 
-                // get the tile at these coordinates and layer
-                Tile tile = _scene.tiles[tx][ty][kk];
-                if (tile == null) continue;
+		// draw all layers at this tile position
+		for (int kk = 0; kk < Scene.NUM_LAYERS; kk++) {
 
-                // offset the image y-position by the tile-specific height
-                int ypos = poly.ypoints[0] - _model.tilehhei -
-                    (tile.height - _model.tilehei);
+		    // get the tile at these coordinates and layer
+		    Tile tile = _scene.tiles[xx][yy][kk];
+		    if (tile == null) continue;
 
-                // draw the tile image
-                gfx.drawImage(tile.img, poly.xpoints[0], ypos, null);
-            }
+		    // offset the image y-position by the tile-specific height
+		    int ypos = poly.ypoints[0] - _model.tilehhei -
+			(tile.height - _model.tilehei);
 
-            // draw all sprites residing in the current tile
-            _spritemgr.renderSprites(gfx, poly);
-        }
+		    // draw the tile image
+		    gfx.drawImage(tile.img, poly.xpoints[0], ypos, null);
+		}
+
+		// draw all sprites residing in the current tile
+		_spritemgr.renderSprites(gfx, poly);
+
+		// bail early if we know we've drawn all dirty tiles
+		if (++numDrawn == _numDirty) break;
+	    }
+	}
     }
 
     /**
@@ -376,7 +394,8 @@ public class IsoSceneView implements EditableSceneView
 	if (y < (screenY + _model.tilehhei)) {
 	    ty--;
 	    for (int ii = 0; ii < numh; ii++) {
-		_dirty.add(new int[] { tx++, ty-- });
+		if (!_dirty[tx][ty]) _numDirty++;
+		_dirty[tx++][ty--] = true;
 	    }
 	}
 
@@ -415,7 +434,8 @@ public class IsoSceneView implements EditableSceneView
 
 	    // add all tiles in the row to the dirty set
 	    for (int jj = 0; jj < length; jj++) {
-		_dirty.add(new int[] { tx++, ty-- });
+		if (!_dirty[tx][ty]) _numDirty++;
+		_dirty[tx++][ty--] = true;
 	    }
 
 	    // step along the x- or y-axis appropriately
@@ -489,8 +509,11 @@ public class IsoSceneView implements EditableSceneView
     /** The font to draw tile coordinates. */
     protected Font _font;
 
-    /** The dirty tile row segments that need to be re-painted. */
-    protected ArrayList _dirty;
+    /** The dirty tiles that need to be re-painted. */
+    protected boolean _dirty[][];
+
+    /** The number of dirty tiles. */
+    protected int _numDirty;
 
     /** The dirty rectangles that need to be re-painted. */
     protected ArrayList _dirtyRects;
