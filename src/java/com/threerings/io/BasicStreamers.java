@@ -1,5 +1,5 @@
 //
-// $Id: BasicStreamers.java,v 1.3 2004/08/27 02:12:36 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -297,7 +297,13 @@ public class BasicStreamers
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
-            return in.readUTF();
+            try {
+                return in.readUTF();
+            } catch (java.io.EOFException eofe) {
+                // TODO: remove all this and just return in.readUTF();
+                System.err.println("Hack: read EOF as null.");
+                return null;
+            }
         }
 
         // documentation inherited
