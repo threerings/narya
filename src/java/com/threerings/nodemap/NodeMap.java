@@ -1,5 +1,5 @@
 //
-// $Id: NodeMap.java,v 1.2 2001/08/23 00:22:30 shaper Exp $
+// $Id: NodeMap.java,v 1.3 2001/08/23 23:44:12 shaper Exp $
 
 package com.threerings.nodemap;
 
@@ -59,13 +59,13 @@ public class NodeMap
 	Iterator iter = _nodes.iterator();
 	while (iter.hasNext()) {
 	    Node n = (Node)iter.next();
-	    Point pos = n.getPosition();
+	    int x = n.getX(), y = n.getY();
 	    int wid = n.getWidth(), hei = n.getHeight();
 
-	    _minx = Math.min(_minx, pos.x);
-	    _maxx = Math.max(_maxx, pos.x + wid);
-	    _miny = Math.min(_miny, pos.y);
-	    _maxy = Math.max(_maxy, pos.y + hei);
+	    _minx = Math.min(_minx, x);
+	    _maxx = Math.max(_maxx, x + wid);
+	    _miny = Math.min(_miny, y);
+	    _maxy = Math.max(_maxy, y + hei);
 	}
     }	
 
@@ -100,9 +100,9 @@ public class NodeMap
 	// highlight the last node entered
 	if (_lastnode != null) {
 	    g.setColor(Color.red);
-	    Point pos = _lastnode.getPosition();
+	    int x = _lastnode.getX(), y = _lastnode.getY();
 	    int wid = _lastnode.getWidth(), hei = _lastnode.getHeight();
-	    g.drawRect(pos.x, pos.y, wid, hei);
+	    g.drawRect(x, y, wid, hei);
 	}
 
 	// draw the tool tip, if any
@@ -263,8 +263,8 @@ public class NodeMap
 
 		// inform the node of the mouse click, with
 		// coordinates translated to suit node interior
-		Point pos = n.getPosition();
-		n.handleMouseClicked(x - pos.x, y - pos.y);
+		int nx = n.getX(), ny = n.getY();
+		n.handleMouseClicked(x - nx, y - ny);
 
 		// let the tool tip manager know about the click
 		if (_tipmgr != null) {

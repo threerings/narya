@@ -1,5 +1,5 @@
 //
-// $Id: DirectionalLayoutManager.java,v 1.1 2001/08/20 22:56:55 shaper Exp $
+// $Id: DirectionalLayoutManager.java,v 1.2 2001/08/23 23:44:12 shaper Exp $
 
 package com.threerings.nodemap.direction;
 
@@ -37,7 +37,7 @@ public class DirectionalLayoutManager implements LayoutManager
 	}
 
 	// set the node's location
-	n.setPosition(x, y);
+	n.setLocation(x, y);
 
 	// remember that we've placed this node
 	_closed.put(n, null);

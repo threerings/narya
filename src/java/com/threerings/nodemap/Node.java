@@ -1,5 +1,5 @@
 //
-// $Id: Node.java,v 1.2 2001/08/23 00:22:30 shaper Exp $
+// $Id: Node.java,v 1.3 2001/08/23 23:44:12 shaper Exp $
 
 package com.threerings.nodemap;
 
@@ -28,7 +28,6 @@ public abstract class Node
 	_width = width;
 	_height = height;
 
-	_pos = new Point();
 	_edges = new ArrayList();
     }
 
@@ -61,13 +60,20 @@ public abstract class Node
     }
 
     /**
-     * Return the node's current position in pixels.
-     *
-     * @return point the node position.
+     * Returns the node's x position in screen coordinates.
      */
-    public Point getPosition ()
+    public int getX ()
     {
-	return _pos;
+	return _x;
+    }
+
+
+    /**
+     * Returns the node's y position in screen coordinates.
+     */
+    public int getY ()
+    {
+	return _y;
     }
 
     /**
@@ -76,9 +82,10 @@ public abstract class Node
      * @param x the x-position.
      * @param y the y-position.
      */
-    public void setPosition (int x, int y)
+    public void setLocation (int x, int y)
     {
-	_pos.setLocation(x, y);
+	_x = x;
+	_y = y;
     }
 
     /**
@@ -91,8 +98,8 @@ public abstract class Node
      */
     public boolean contains (int x, int y)
     {
-	return (x >= _pos.x && x <= (_pos.x + _width) &&
-		y >= _pos.y && y <= (_pos.y + _height));
+	return (x >= _x && x <= (_x + _width) &&
+		y >= _y && y <= (_y + _height));
     }
 
     /**
@@ -146,8 +153,8 @@ public abstract class Node
 	int wid = fm.stringWidth(_name) + 10;
 	int hei = fm.getAscent() + 4;
 
-	int xpos = _pos.x + ((_width - wid) / 2);
-	int ypos = _pos.y + ((_height - hei) / 2);
+	int xpos = _x + ((_width - wid) / 2);
+	int ypos = _y + ((_height - hei) / 2);
 
 	// draw the yellow box
 	g.setColor(Color.yellow);
@@ -195,7 +202,7 @@ public abstract class Node
     }
 
     /** The position in pixel coordinates. */
-    protected Point _pos;
+    protected int _x, _y;
 
     /** The dimensions in pixel coordinates. */
     protected int _width, _height;
