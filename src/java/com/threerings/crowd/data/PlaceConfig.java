@@ -1,13 +1,10 @@
 //
-// $Id: PlaceConfig.java,v 1.2 2001/10/11 04:07:51 mdb Exp $
+// $Id: PlaceConfig.java,v 1.3 2002/03/26 22:57:52 mdb Exp $
 
 package com.threerings.crowd.data;
 
-import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-
 import com.threerings.presents.io.Streamable;
+import com.threerings.presents.io.SimpleStreamableObject;
 
 /**
  * The place config class encapsulates the configuration information for a
@@ -27,12 +24,8 @@ import com.threerings.presents.io.Streamable;
  * information and overriding {@link #writeTo} and {@link #readFrom} to
  * provide code to serialize and unserialize the additional fields.
  */
-public abstract class PlaceConfig implements Streamable
+public abstract class PlaceConfig extends SimpleStreamableObject
 {
-    /** The oid of the place object for which we represent the
-     * configuration information. */
-    public int placeOid;
-
     /**
      * Returns the class that should be used to create a controller for
      * this place. The controller class must derive from {@link
@@ -51,44 +44,4 @@ public abstract class PlaceConfig implements Streamable
      * the client, knowing that it is never used.
      */
     public abstract String getManagerClassName ();
-
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
-        throws IOException
-    {
-        out.writeInt(placeOid);
-    }
-
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
-    {
-        placeOid = in.readInt();
-    }
-
-    /**
-     * Generates a string representation of this object by calling the
-     * overridable {@link #toString(StringBuffer)} which builds up the
-     * string in a manner friendly to derived classes.
-     */
-    public String toString ()
-    {
-        StringBuffer buf = new StringBuffer();
-        buf.append("[");
-        toString(buf);
-        buf.append("]");
-        return buf.toString();
-    }
-
-    /**
-     * An extensible mechanism for generating a string representation of
-     * this object. Derived classes should override this method, calling
-     * super and then appending their own data to the supplied string
-     * buffer. The regular {@link #toString} function will call this
-     * derived function to generate its string.
-     */
-    protected void toString (StringBuffer buf)
-    {
-        buf.append("type=").append(getClass().getName());
-    }
 }
