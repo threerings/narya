@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.7 2003/04/23 00:37:46 mdb Exp $
+// $Id: SceneBlock.java,v 1.8 2003/04/23 00:45:24 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -301,15 +301,17 @@ public class SceneBlock
     /** Computes the key of our neighbor. */
     protected final int neighborKey (int dx, int dy)
     {
-        return ((short)(MathUtil.floorDiv(_bounds.x, _bounds.width)+dx) << 16 |
-                (short)(MathUtil.floorDiv(_bounds.y, _bounds.height)+dy));
+        int nx = MathUtil.floorDiv(_bounds.x, _bounds.width)+dx;
+        int ny = MathUtil.floorDiv(_bounds.y, _bounds.height)+dy;
+        return MisoScenePanel.compose(nx, ny);
     }
 
     /** Computes the key for the block that holds the specified tile. */
     protected final int blockKey (int tx, int ty)
     {
-        return ((short)MathUtil.floorDiv(tx, _bounds.width) << 16 |
-                (short)MathUtil.floorDiv(ty, _bounds.height));
+        int bx = MathUtil.floorDiv(tx, _bounds.width);
+        int by = MathUtil.floorDiv(ty, _bounds.height);
+        return MisoScenePanel.compose(bx, by);
     }
 
     /**
