@@ -13,8 +13,8 @@
   <property name="savedoc.dir"    value="docs"/>
 
   <!-- derived properties -->  
-  <property name="dist.jar"       value="${app.name}.jar"/>
   <property name="javadoc.home"   value="${deploy.dir}/docs"/>
+  <property name="classes.dir"    value="${deploy.dir}/classes"/>
 
   <!-- we want to access the environment -->
   <property environment="env"/>
@@ -22,7 +22,7 @@
 
   <!-- declare our classpath -->
   <path id="classpath">
-    <pathelement location="${deploy.dir}/classes"/>
+    <pathelement location="${classes.dir}"/>
     <fileset dir="lib" includes="**/*.jar"/>
     <fileset dir="${java.libraries}" includes="**/*.jar"/>
   </path>
@@ -38,13 +38,13 @@
   <!-- prepares the application directories -->
   <target name="prepare" depends="gendobj">
     <mkdir dir="${deploy.dir}"/>
-    <mkdir dir="${deploy.dir}/classes"/>
-    <mkdir dir="${deploy.dir}/classes/rsrc"/>
+    <mkdir dir="${classes.dir}"/>
+    <mkdir dir="${classes.dir}/rsrc"/>
     <mkdir dir="${javadoc.home}"/>
-    <copy todir="${deploy.dir}/classes">
+    <copy todir="${classes.dir}">
       <fileset dir="src/java" includes="**/*.properties"/>
     </copy>
-    <copy todir="${deploy.dir}/classes/rsrc">
+    <copy todir="${classes.dir}/rsrc">
       <fileset dir="rsrc" includes="**/*" excludes="**/bundles/**"/>
     </copy>
   </target>
@@ -56,7 +56,7 @@
 
   <!-- build the java class files -->
   <target name="compile" depends="prepare">
-    <javac srcdir="src/java" destdir="${deploy.dir}/classes"
+    <javac srcdir="src/java" destdir="${classes.dir}"
            debug="on" optimize="{$build.optimize}" deprecation="off">
       <classpath refid="classpath"/>
     </javac>
@@ -90,8 +90,45 @@
 
   <!-- builds our distribution files (war and jar) -->
   <target name="dist" depends="prepare,compile">
-    <jar destfile="${deploy.dir}/${dist.jar}"
-         basedir="${deploy.dir}/classes"/>
+    <!-- build our various jar files -->
+    <jar destfile="${deploy.dir}/${app.name}-base.jar">
+      <fileset dir="${classes.dir}" includes="com/threerings/util/**"/>
+      <fileset dir="${classes.dir}" includes="com/threerings/resource/**"/>
+      <fileset dir="${classes.dir}" includes="com/threerings/tools/**"/>
+    </jar>
+    <jar destfile="${deploy.dir}/${app.name}-media.jar">
+      <fileset dir="${classes.dir}" includes="com/threerings/geom/**"/>
+      <fileset dir="${classes.dir}" includes="com/threerings/media/**"/>
+    </jar>
+    <jar destfile="${deploy.dir}/${app.name}-distrib.jar">
+      <fileset dir="${classes.dir}" includes="com/threerings/presents/**"/>
+      <fileset dir="${classes.dir}" includes="com/threerings/crowd/**"/>
+      <fileset dir="${classes.dir}" includes="com/threerings/admin/**"/>
+      <fileset dir="${classes.dir}" includes="rsrc/config/presents/**"/>
+      <fileset dir="${classes.dir}" includes="rsrc/config/crowd/**"/>
+    </jar>
+    <jar destfile="${deploy.dir}/${app.name}-parlor.jar">
+      <fileset dir="${classes.dir}" includes="com/threerings/parlor/**"/>
+    </jar>
+    <jar destfile="${deploy.dir}/${app.name}-micasa.jar">
+      <fileset dir="${classes.dir}" includes="com/threerings/micasa/**"/>
+      <fileset dir="${classes.dir}" includes="rsrc/config/micasa/**"/>
+      <fileset dir="${classes.dir}" includes="rsrc/i18n/micasa*"/>
+    </jar>
+    <jar destfile="${deploy.dir}/${app.name}-whirled.jar">
+      <fileset dir="${classes.dir}" includes="com/threerings/whirled/**"/>
+      <fileset dir="${classes.dir}" includes="rsrc/config/whirled/**"/>
+    </jar>
+    <jar destfile="${deploy.dir}/${app.name}-miso.jar">
+      <fileset dir="${classes.dir}" includes="com/threerings/miso/**"/>
+      <fileset dir="${classes.dir}" includes="rsrc/config/miso/**"/>
+    </jar>
+    <jar destfile="${deploy.dir}/${app.name}-cast.jar">
+      <fileset dir="${classes.dir}" includes="com/threerings/cast/**"/>
+    </jar>
+    <jar destfile="${deploy.dir}/${app.name}-nodemap.jar">
+      <fileset dir="${classes.dir}" includes="com/threerings/nodemap/**"/>
+    </jar>
   </target>
 
   <!-- generate a class hierarchy diagram -->
