@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.8 2002/02/06 01:47:08 mdb Exp $
+// $Id: ResourceManager.java,v 1.9 2002/02/26 05:28:02 mdb Exp $
 
 package com.threerings.resource;
 
@@ -9,8 +9,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -274,13 +276,44 @@ public class ResourceManager
                 File cfile = new File(genCachePath(setName, path));
 
                 // download the resource bundle from the specified URL
-                InputStream in = burl.openStream();
-                FileOutputStream out = new FileOutputStream(cfile);
+                URLConnection ucon = burl.openConnection();
+                boolean readData = true;
 
-                // pipe the input stream into the output stream
-                StreamUtils.pipe(in, out);
-                in.close();
-                out.close();
+                // set the last-modified time we're looking for
+                long lastModified = 0;
+                if (cfile.exists()) {
+                    lastModified = cfile.lastModified();
+                    ucon.setIfModifiedSince(lastModified);
+                }
+
+                // connect the URL
+                ucon.connect();
+
+                // if this is an HTTP connection, we want to use
+                // if-modified-since
+                if (lastModified != 0) {
+                    if (ucon instanceof HttpURLConnection) {
+                        HttpURLConnection hucon = (HttpURLConnection)ucon;
+                        readData = (hucon.getResponseCode() !=
+                                    HttpURLConnection.HTTP_NOT_MODIFIED);
+
+                    } else if (burl.getProtocol().equals("file")) {
+                        // do some jockeying for file: URLs to determine
+                        // whether or not the data is newer
+                        File tfile = new File(burl.getPath());
+                        readData = (tfile.lastModified() > lastModified);
+                    }
+                }
+
+                // read the data from the URL into the cache file
+                if (readData) {
+                    InputStream in = ucon.getInputStream();
+                    FileOutputStream out = new FileOutputStream(cfile);
+                    // pipe the input stream into the output stream
+                    StreamUtils.pipe(in, out);
+                    in.close();
+                    out.close();
+                }
 
                 // finally add this newly cached file to the set as a
                 // resource bundle
