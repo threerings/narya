@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.5 2002/03/11 19:51:24 mdb Exp $
+// $Id: ClientController.java,v 1.6 2002/05/17 21:22:46 shaper Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -25,6 +25,9 @@ import com.threerings.micasa.simulator.data.SimulatorInfo;
 public class ClientController extends Controller
     implements SessionObserver
 {
+    /** Command constant used to logoff the client. */
+    public static final String LOGOFF = "logoff";
+
     /**
      * Creates a new client controller. The controller will set everything
      * up in preparation for logging on.
@@ -46,7 +49,7 @@ public class ClientController extends Controller
     {
 	String cmd = action.getActionCommand();
 
-        if (cmd.equals("logoff")) {
+        if (cmd.equals(LOGOFF)) {
             // request that we logoff
             _ctx.getClient().logoff(true);
             return true;
