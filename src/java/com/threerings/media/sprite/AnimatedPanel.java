@@ -1,25 +1,28 @@
 //
-// $Id: AnimatedPanel.java,v 1.5 2002/01/07 23:05:39 shaper Exp $
+// $Id: AnimatedPanel.java,v 1.6 2002/01/08 22:16:58 shaper Exp $
 
 package com.threerings.media.sprite;
 
-import java.awt.Dimension;
+import java.awt.AWTException;
+import java.awt.BufferCapabilities;
+import java.awt.Canvas;
 import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.ImageCapabilities;
 import java.awt.Rectangle;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
+
+import java.awt.image.BufferStrategy;
 
 import com.threerings.media.Log;
 
 /**
  * The animated panel provides a useful extensible implementation of a
- * Swing {@link JPanel} that implements the {@link AnimatedView}
- * interface.  Sub-classes should override {@link #render} to draw
- * their panel-specific contents, and may choose to override {@link
- * #invalidateRects} to optimize their internal rendering.
+ * {@link Canvas} that implements the {@link AnimatedView} interface.
+ * Sub-classes should override {@link #render} to draw their
+ * panel-specific contents, and may choose to override {@link
+ * #invalidateRects} and {@link #invalidateRect} to optimize their
+ * internal rendering.
  */
-public class AnimatedPanel extends JPanel implements AnimatedView
+public class AnimatedPanel extends Canvas implements AnimatedView
 {
     /**
      * Constructs an animated panel.
@@ -27,26 +30,19 @@ public class AnimatedPanel extends JPanel implements AnimatedView
     public AnimatedPanel ()
     {
 	// set our attributes for optimal display performance
-        setDoubleBuffered(false);
-        setOpaque(true);
+        // setIgnoreRepaint(true);
     }
 
     // documentation inherited
-    public void paintComponent (Graphics g)
+    public void paint (Graphics g)
     {
-         // create the offscreens if they don't yet exist
- 	if (_offimg == null && !createOffscreen()) {
-             return;
-        }
+        update(g);
+    }
 
-        // give sub-classes a chance to do their thing
-        render(_offg);
-
-        // Rectangle bounds = getBounds();
-        // Log.info("paintComponent [bounds=" + bounds + "].");
-
-        // draw the offscreen to the screen
-        g.drawImage(_offimg, 0, 0, null);
+    // documentation inherited
+    public void update (Graphics g)
+    {
+        paintImmediately();
     }
 
     /**
@@ -57,26 +53,6 @@ public class AnimatedPanel extends JPanel implements AnimatedView
     protected void render (Graphics g)
     {
         // nothing for now
-    }
-
-    /**
-     * Creates the offscreen image and graphics context to which we draw
-     * the scene for double-buffering purposes.  Returns whether the
-     * offscreen image was successfully created.
-     */
-    protected boolean createOffscreen ()
-    {
-	Dimension d = getSize();
-        try {
-            _offimg = createImage(d.width, d.height);
-            _offg = _offimg.getGraphics();
-            return true;
-
-        } catch (Exception e) {
-            Log.warning("Failed to create offscreen [e=" + e + "].");
-            Log.logStackTrace(e);
-            return false;
-        }
     }
 
     // documentation inherited
@@ -91,47 +67,54 @@ public class AnimatedPanel extends JPanel implements AnimatedView
         // nothing for now
     }
 
-    /**
-     * Paints this panel immediately. Since we know that we are always
-     * opaque and not dependent on Swing's double-buffering, we bypass the
-     * antics that <code>JComponent.paintImmediately()</code> performs in
-     * the interest of better performance.
-     */
+    // documentation inherited
     public void paintImmediately ()
     {
-        if (!isValid()) {
-            // don't paint anything until we've been fully laid out
-            // Log.warning("Attempted to paint invalid panel.");
+        if (!isValid() || !isShowing()) {
+            Log.warning("Attempt to paint unprepared panel " +
+                        "[valid=" + isValid() +
+                        ", showing=" + isShowing() + "].");
             return;
         }
 
+        if (_strategy == null) {
+            // create and obtain a reference to the buffer strategy
+            createBufferStrategy(BUFFER_COUNT);
+            _strategy = getBufferStrategy();
+            Log.info("Created buffer strategy [strategy=" + _strategy + "].");
+        }
+
+        // render the panel
         Graphics g = null;
-
         try {
-            Graphics pcg = getGraphics();
-            // apparently getGraphics() can fail if we are removed from
-            // the UI between the time that we queued up the code that
-            // calls this method and the time that it's called
-            if (pcg != null) {
-                g = pcg.create();
-                pcg.dispose();
-                paintComponent(g);
+            g = _strategy.getDrawGraphics();
+            render(g);
+        } finally {
+            if (g != null) {
+                g.dispose();
             }
+        }
+        _strategy.show();
+    }
 
-        } catch (NullPointerException e) {
-            e.printStackTrace();
+    public void createBufferStrategy (int numBuffers)
+    {
+        // for now, always use un-accelerated blitting.  page-flipping
+        // seems to result in artifacts in certain conditions, and the
+        // buffer strategy's volatile images are irretrievably lost when
+        // the panel is hidden.
+        BufferCapabilities bufferCaps = new BufferCapabilities(
+            new ImageCapabilities(false), new ImageCapabilities(false), null);
+        try {
+            createBufferStrategy(numBuffers, bufferCaps);
+        } catch (AWTException e) {
+            throw new InternalError("Could not create a buffer strategy");
         }
     }
 
-    // documentation inherited
-    public JComponent getComponent ()
-    {
-	return this;
-    }
+    /** The number of buffers to use when rendering. */
+    protected static final int BUFFER_COUNT = 2;
 
-    /** The offscreen image used for double-buffering. */
-    protected Image _offimg;
-
-    /** The graphics context for the offscreen image. */
-    protected Graphics _offg;
+    /** The buffer strategy used for optimal animation rendering. */
+    protected BufferStrategy _strategy;
 }

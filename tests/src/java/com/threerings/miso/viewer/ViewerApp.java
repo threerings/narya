@@ -1,8 +1,12 @@
 //
-// $Id: ViewerApp.java,v 1.22 2001/12/16 06:52:11 shaper Exp $
+// $Id: ViewerApp.java,v 1.23 2002/01/08 22:16:59 shaper Exp $
 
 package com.threerings.miso.viewer;
 
+import java.awt.DisplayMode;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.io.IOException;
 
 import com.samskivert.swing.util.SwingUtil;
@@ -43,9 +47,26 @@ public class ViewerApp
             System.exit(-1);
         }
 
-        // create and size the main application frame
-	_frame = new ViewerFrame();
-	_frame.setSize(WIDTH, HEIGHT);
+        // get the graphics environment
+        GraphicsEnvironment env =
+            GraphicsEnvironment.getLocalGraphicsEnvironment();
+
+        // get the target graphics device
+        GraphicsDevice gd = env.getDefaultScreenDevice();
+        Log.info("Graphics device [dev=" + gd +
+                 ", mem=" + gd.getAvailableAcceleratedMemory() +
+                 ", displayChange=" + gd.isDisplayChangeSupported() +
+                 ", fullScreen=" + gd.isFullScreenSupported() + "].");
+
+        // get the graphics configuration and display mode information
+        GraphicsConfiguration gc = gd.getDefaultConfiguration();
+        DisplayMode dm = gd.getDisplayMode();
+        Log.info("Display mode [bits=" + dm.getBitDepth() +
+                 ", wid=" + dm.getWidth() + ", hei=" + dm.getHeight() +
+                 ", refresh=" + dm.getRefreshRate() + "].");
+
+        // create the window
+	_frame = new ViewerFrame(gc);
 
         // we don't need to configure anything
         _config = new Config();
@@ -88,6 +109,18 @@ public class ViewerApp
             Log.logStackTrace(e);
             System.exit(-1);
         }
+
+        // size and position the window, entering full-screen exclusive
+        // mode if available
+        if (gd.isFullScreenSupported()) {
+            Log.info("Entering full-screen exclusive mode.");
+            gd.setFullScreenWindow(_frame);
+
+        } else {
+            Log.warning("Full-screen exclusive mode not available.");
+            _frame.pack();
+            SwingUtil.centerWindow(_frame);
+        }
     }
 
     /**
@@ -113,8 +146,7 @@ public class ViewerApp
      */
     public void run ()
     {
-        _frame.pack();
-  	SwingUtil.centerWindow(_frame);
+        // show the window
         _frame.show();
     }
 

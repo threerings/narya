@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedView.java,v 1.5 2001/12/15 04:20:26 mdb Exp $
+// $Id: AnimatedView.java,v 1.6 2002/01/08 22:16:58 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -37,11 +37,4 @@ public interface AnimatedView
      * paint.
      */
     public void paintImmediately ();
-
-    /**
-     * Return the component associated with the view so that the
-     * animation manager can restrict its animation to when the
-     * component is actually visible.
-     */
-    public JComponent getComponent ();
 }

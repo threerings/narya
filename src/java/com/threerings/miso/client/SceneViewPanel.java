@@ -1,15 +1,17 @@
 //
-// $Id: SceneViewPanel.java,v 1.21 2001/11/29 20:33:16 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.22 2002/01/08 22:16:59 shaper Exp $
 
 package com.threerings.miso.scene;
 
-import java.awt.*;
-import java.util.List;
-import javax.swing.*;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Rectangle;
 
 import com.samskivert.util.Config;
 
-import com.threerings.media.sprite.*;
+import com.threerings.media.sprite.AnimatedPanel;
+import com.threerings.media.sprite.DirtyRectList;
+import com.threerings.media.sprite.SpriteManager;
 import com.threerings.miso.util.MisoUtil;
 
 /**
@@ -80,6 +82,12 @@ public class SceneViewPanel extends AnimatedPanel
     {
         // pass the invalid rects on to our scene view
         _view.invalidateRects(rects);
+    }
+
+    // documentation inherited
+    public void invalidateRect (Rectangle rect)
+    {
+        _view.invalidateRect(rect);
     }
 
     /**

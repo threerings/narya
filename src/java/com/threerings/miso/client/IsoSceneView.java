@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.81 2001/12/18 08:38:33 mdb Exp $
+// $Id: IsoSceneView.java,v 1.82 2002/01/08 22:16:59 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -143,9 +143,7 @@ public class IsoSceneView implements SceneView
      */
     protected void invalidate ()
     {
-        DirtyRectList rects = new DirtyRectList();
-        rects.add(_model.bounds);
-        invalidateRects(rects);
+        invalidateRect(_model.bounds);
     }
 
     /**

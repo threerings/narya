@@ -1,9 +1,10 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.36 2001/12/16 06:52:11 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.37 2002/01/08 22:16:59 shaper Exp $
 
 package com.threerings.miso.viewer;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -45,7 +46,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 	super(ctx.getConfig(), spritemgr);
 
         // create an animation manager for this panel
-  	_animmgr = new AnimationManager(spritemgr, this);
+        _animmgr = new AnimationManager(spritemgr, this);
 
         // create the character descriptors
         _descUser = CastUtil.getRandomDescriptor(crepo);
@@ -126,9 +127,9 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     }
 
     // documentation inherited
-    public void paintComponent (Graphics g)
+    public void render (Graphics g)
     {
-	super.paintComponent(g);
+	super.render(g);
 	PerformanceMonitor.tick(this, "paint");
     }
 

@@ -1,11 +1,9 @@
 //
-// $Id: SpritePanel.java,v 1.8 2001/12/17 03:33:40 mdb Exp $
+// $Id: SpritePanel.java,v 1.9 2002/01/08 22:16:58 shaper Exp $
 
 package com.threerings.cast.builder;
 
 import java.awt.*;
-import javax.swing.BorderFactory;
-import javax.swing.border.BevelBorder;
 
 import com.threerings.media.sprite.*;
 
@@ -32,9 +30,6 @@ public class SpritePanel
         // create managers
         _spritemgr = new SpriteManager();
         _animmgr = new AnimationManager(_spritemgr, this);
-
-        // create a visually pleasing border
-        setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 
         // listen to the builder model so that we can update the
         // sprite when a new component is selected
