@@ -1,5 +1,5 @@
 //
-// $Id: IconManager.java,v 1.2 2002/05/06 18:08:32 mdb Exp $
+// $Id: IconManager.java,v 1.3 2002/10/17 17:43:21 mdb Exp $
 
 package com.threerings.media;
 
@@ -77,6 +77,15 @@ public class IconManager
     }
 
     /**
+     * If icon images should be loaded from a set of resource bundles
+     * rather than the classpath, that set can be set here.
+     */
+    public void setSource (String resourceSet)
+    {
+        _rsrcSet = resourceSet;
+    }
+
+    /**
      * Fetches the icon with the specified index from the named icon set.
      */
     public Icon getIcon (String iconSet, int index)
@@ -104,8 +113,13 @@ public class IconManager
                 }
 
                 // load up the tileset
-                set = _tilemgr.loadTileSet(
-                    path, metrics[0], metrics[1], metrics[2]);
+                if (_rsrcSet == null) {
+                    set = _tilemgr.loadTileSet(
+                        path, metrics[0], metrics[1], metrics[2]);
+                } else {
+                    set = _tilemgr.loadTileSet(
+                        _rsrcSet, path, metrics[0], metrics[1], metrics[2]);
+                }
 
                 // cache it
                 _icons.put(iconSet, set);
@@ -131,6 +145,10 @@ public class IconManager
 
     /** Our configuration information. */
     protected Properties _config;
+
+    /** The resource bundle from which we load icon images, or null if
+     * they should be loaded from the classpath. */
+    protected String _rsrcSet;
 
     /** A cache of our icon tilesets. TODO: use a real LRU cache instead
      * of a hash map. */
