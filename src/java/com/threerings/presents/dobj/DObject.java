@@ -1,11 +1,12 @@
 //
-// $Id: DObject.java,v 1.22 2001/08/11 00:11:53 mdb Exp $
+// $Id: DObject.java,v 1.23 2001/08/15 18:38:54 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
+import com.samskivert.util.ListUtil;
 import com.threerings.cocktail.cher.Log;
 
 /**
@@ -104,8 +105,11 @@ public class DObject
      */
     public void addSubscriber (Subscriber sub)
     {
-        if (!_subscribers.contains(sub)) {
-            _subscribers.add(sub);
+        // only add the subscriber if they're not already there
+        Object[] subs = ListUtil.testAndAdd(_subs, sub);
+        if (subs != null) {
+            _subs = subs;
+            _scount++;
         }
     }
 
@@ -120,12 +124,12 @@ public class DObject
      */
     public void removeSubscriber (Subscriber sub)
     {
-        if (_subscribers.remove(sub)) {
+        if (ListUtil.clear(_subs, sub) != null) {
             // if we removed something, check to see if we just removed
             // the last subscriber from our list; we also want to be sure
             // that we're still active otherwise there's no need to notify
             // our objmgr because we don't have one
-            if (_subscribers.size() == 0 && _mgr != null) {
+            if (--_scount == 0 && _mgr != null) {
                 _mgr.removedLastSubscriber(this);
             }
         }
@@ -156,37 +160,18 @@ public class DObject
      */
     public boolean acquireLock (String name)
     {
-        // create our lock array if we haven't already. we do all this
-        // jockeying rather than just use something like an ArrayList to
-        // be memory efficient because there may be very many distributed
-        // objects
-        if (_locks == null) {
-            _locks = new String[2];
-        }
+        // check for the existence of the lock in the list and add it if
+        // it's not already there
+        Object[] list = ListUtil.testAndAdd(_locks, name);
+        if (list == null) {
+            // a null list means the object was already in the list
+            return false;
 
-        // scan the lock array to see if this lock is already acquired
-        int slot = -1;
-        for (int i = 0; i < _locks.length; i++) {
-            if (_locks[i] == null && slot == -1) {
-                // keep track of this for later
-                slot = i;
-            } else if (name.equals(_locks[i])) {
-                return false;
-            }
+        } else {
+            // a non-null list means the object was added
+            _locks = list;
+            return true;
         }
-
-        // if we didnt' find a blank slot in our previous scan, we'll have
-        // to expand the locks array
-        if (slot == -1) {
-            String[] locks = new String[_locks.length*2];
-            System.arraycopy(_locks, 0, locks, 0, _locks.length);
-            slot = _locks.length;
-        }
-
-        // place our lock in the array and let the user know that they
-        // acquired the lock
-        _locks[slot] = name;
-        return true;
     }
 
     /**
@@ -214,22 +199,9 @@ public class DObject
      */
     protected void clearLock (String name)
     {
-        // track the lock index for reporting purposes
-        int lockidx = -1;
-
-        // scan through and clear the lock in question
-        if (_locks != null) {
-            for (int i = 0; i < _locks.length; i++) {
-                if (name.equals(_locks[i])) {
-                    _locks[i] = null;
-                    lockidx = i;
-                    break;
-                }
-            }
-        }
-
-        // complain if we didn't find the lock
-        if (lockidx == -1) {
+        // clear the lock from the list
+        if (ListUtil.clearEqual(_locks, name) == null) {
+            // complain if we didn't find the lock
             Log.info("Unable to clear non-existent lock [lock=" + name +
                      ", dobj=" + this + "].");
         }
@@ -287,20 +259,20 @@ public class DObject
      */
     public void notifySubscribers (DEvent event)
     {
-        // Log.info("Dispatching event to " + _subscribers.size() +
+        // Log.info("Dispatching event to " + _scount +
         // " subscribers: " + event);
 
-        for (int i = 0; i < _subscribers.size(); i++) {
-            Subscriber sub = (Subscriber)_subscribers.get(i);
+        for (int i = 0; i < _scount; i++) {
+            Subscriber sub = (Subscriber)_subs[i];
             // notify the subscriber
             if (!sub.handleEvent(event, this)) {
                 // if they return false, we need to remove them from the
                 // subscriber list
-                _subscribers.remove(i--);
+                _subs[i--] = null;
 
                 // if we just removed our last subscriber, we need to let
                 // the omgr know about it
-                if (_subscribers.size() == 0) {
+                if (--_scount == 0) {
                     _mgr.removedLastSubscriber(this);
                 }
             }
@@ -380,6 +352,11 @@ public class DObject
         _oid = oid;
     }
 
+    /**
+     * Generates a string representation of this object by calling the
+     * overridable {@link #toString(StringBuffer)} which builds up the
+     * string in a manner friendly to derived classes.
+     */
     public String toString ()
     {
         StringBuffer buf = new StringBuffer();
@@ -389,6 +366,13 @@ public class DObject
         return buf.toString();
     }
 
+    /**
+     * An extensible mechanism for generating a string representation of
+     * this object. Derived classes should override this method, calling
+     * super and then appending their own data to the supplied string
+     * buffer. The regular {@link #toString} function will call this
+     * derived function to generate its string.
+     */
     protected void toString (StringBuffer buf)
     {
         buf.append("oid=").append(_oid);
@@ -428,8 +412,18 @@ public class DObject
         _mgr.postEvent(event);
     }
 
+    /** Our object id. */
     protected int _oid;
+
+    /** A reference to our object manager. */
     protected DObjectManager _mgr;
-    protected ArrayList _subscribers = new ArrayList();
-    protected String[] _locks;
+
+    /** A list of outstanding locks. */
+    protected Object[] _locks;
+
+    /** Our subscribers list. */
+    protected Object[] _subs;
+
+    /** Our subscriber count. */
+    protected int _scount;
 }
