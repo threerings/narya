@@ -1,11 +1,12 @@
 //
-// $Id: MisoSceneWriter.java,v 1.2 2001/11/20 04:15:44 mdb Exp $
+// $Id: MisoSceneWriter.java,v 1.3 2001/11/29 06:36:28 mdb Exp $
 
 package com.threerings.miso.tools.scene.xml;
 
 import org.xml.sax.SAXException;
 import com.megginson.sax.DataWriter;
 import com.samskivert.util.StringUtil;
+
 import com.threerings.miso.scene.MisoSceneModel;
 
 /**
@@ -24,11 +25,24 @@ public class MisoSceneWriter
         throws SAXException
     {
         writer.startElement("miso");
+        writeSceneData(model, writer);
+        writer.endElement("miso");
+    }
+
+    /**
+     * Writes just the scene data which is handy for derived classes which
+     * may wish to add their own scene data to the scene output.
+     */
+    protected void writeSceneData (MisoSceneModel model, DataWriter writer)
+        throws SAXException
+    {
         writer.dataElement("width", Integer.toString(model.width));
         writer.dataElement("height", Integer.toString(model.height));
-        writer.dataElement("base", StringUtil.toString(model.baseTileIds));
-        writer.dataElement("fringe", StringUtil.toString(model.fringeTileIds));
-        writer.dataElement("object", StringUtil.toString(model.objectTileIds));
-        writer.endElement("miso");
+        writer.dataElement("base",
+                           StringUtil.toString(model.baseTileIds, "", ""));
+        writer.dataElement("fringe",
+                           StringUtil.toString(model.fringeTileIds, "", ""));
+        writer.dataElement("object",
+                           StringUtil.toString(model.objectTileIds, "", ""));
     }
 }
