@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.15 2001/10/02 02:05:50 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.16 2001/10/03 03:40:44 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -433,6 +433,21 @@ public class CherDObjectMgr implements DObjectManager
     }
 
     /**
+     * Calls {@link Subscriber#objectAvailable} and catches and logs any
+     * exception thrown by the subscriber during the call.
+     */
+    protected static void informObjectAvailable (Subscriber sub, DObject obj)
+    {
+        try {
+            sub.objectAvailable(obj);
+        } catch (Exception e) {
+            Log.warning("Subscriber choked during object available " +
+                        "[obj=" + obj + ", sub=" + sub + "].");
+            Log.logStackTrace(e);
+        }
+    }
+
+    /**
      * Used to create a distributed object and register it with the
      * system.
      */
@@ -451,10 +466,11 @@ public class CherDObjectMgr implements DObjectManager
             throws ObjectAccessException
         {
             int oid = getNextOid();
+            DObject obj = null;
 
             try {
                 // create a new instance of this object
-                DObject obj = (DObject)_class.newInstance();
+                obj = (DObject)_class.newInstance();
 
                 // initialize this object
                 obj.setOid(oid);
@@ -473,7 +489,7 @@ public class CherDObjectMgr implements DObjectManager
 
                     // let the target subscriber know that their object is
                     // available
-                    _target.objectAvailable(obj);
+                    informObjectAvailable(_target, obj);
                 }
 
             } catch (Exception e) {
@@ -549,7 +565,7 @@ public class CherDObjectMgr implements DObjectManager
             obj.addSubscriber(_target);
 
             // let them know that things are groovy
-            _target.objectAvailable(obj);
+            informObjectAvailable(_target, obj);
 
             // return false to ensure that this event is not dispatched to
             // the fake object's subscriber list (even though it's empty)
