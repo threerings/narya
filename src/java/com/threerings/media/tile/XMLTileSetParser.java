@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParser.java,v 1.18 2001/10/15 23:53:43 shaper Exp $
+// $Id: XMLTileSetParser.java,v 1.19 2001/10/22 18:11:59 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -78,10 +78,10 @@ public class XMLTileSetParser extends SimpleParser
 	    }
 
 	} else if (qName.equals("offsetpos")) {
-            getPoint(data, _tset.offsetPos);
+            parsePoint(data, _tset.offsetPos);
 
         } else if (qName.equals("gapdist")) {
-            getPoint(data, _tset.gapDist);
+            parsePoint(data, _tset.gapDist);
 
         } else if (qName.equals("tileset")) {
 	    // add the fully-read tileset to the list of tilesets
@@ -127,7 +127,7 @@ public class XMLTileSetParser extends SimpleParser
      * @param str the point values in string format.
      * @param point the point object to populate.
      */
-    protected void getPoint (String str, Point point)
+    protected void parsePoint (String str, Point point)
     {
         int vals[] = StringUtil.parseIntArray(str);
         point.setLocation(vals[0], vals[1]);
