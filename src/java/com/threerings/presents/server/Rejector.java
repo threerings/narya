@@ -55,16 +55,12 @@ public class Rejector extends PresentsServer
     protected class RejectingAuthenticator extends Authenticator
     {
         /** Reject all authentication requests. */
-        public void authenticateConnection (final AuthingConnection conn)
+        public void authenticateConnection (AuthingConnection conn)
         {
             Log.info("Rejecting request: " + conn.getAuthRequest());
-            omgr.postRunnable(new Runnable() {
-                public void run () {
-                    AuthResponseData rdata = new AuthResponseData();
-                    rdata.code = _errmsg;
-                    connectionWasAuthenticated(conn, new AuthResponse(rdata));
-                }
-            });
+            AuthResponseData rdata = new AuthResponseData();
+            rdata.code = _errmsg;
+            connectionWasAuthenticated(conn, new AuthResponse(rdata));
         }
     }
 

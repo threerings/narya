@@ -35,15 +35,11 @@ public class DummyAuthenticator extends Authenticator
     /**
      * Accept all authentication requests.
      */
-    public void authenticateConnection (final AuthingConnection conn)
+    public void authenticateConnection (AuthingConnection conn)
     {
         Log.info("Accepting request: " + conn.getAuthRequest());
-        PresentsServer.omgr.postRunnable(new Runnable() {
-            public void run () {
-                AuthResponseData rdata = new AuthResponseData();
-                rdata.code = AuthResponseData.SUCCESS;
-                connectionWasAuthenticated(conn, new AuthResponse(rdata));
-            }
-        });
+        AuthResponseData rdata = new AuthResponseData();
+        rdata.code = AuthResponseData.SUCCESS;
+        connectionWasAuthenticated(conn, new AuthResponse(rdata));
     }
 }

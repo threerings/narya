@@ -53,8 +53,7 @@ public abstract class Authenticator
      * off a task on the {@link PresentsServer#invoker} to perform the
      * authentication. When the authentication is complete, the
      * authenticator implementation should call {@link
-     * #connectionWasAuthenticated} <em>from the distributed object
-     * thread</em>.
+     * #connectionWasAuthenticated}.
      */
     public abstract void authenticateConnection (AuthingConnection conn);
 
@@ -62,9 +61,7 @@ public abstract class Authenticator
      * This is called by authenticator implementations when they have
      * completed the authentication process. It will deliver the response
      * to the user and let the connection manager know to report the
-     * authentication if it succeeded. <em>Note:</em> this method should
-     * only be called on the distributed object thread as all messages
-     * being sent to the client should originate therefrom.
+     * authentication if it succeeded.
      */
     protected void connectionWasAuthenticated (
         AuthingConnection conn, AuthResponse rsp)

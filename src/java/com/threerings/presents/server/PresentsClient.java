@@ -758,17 +758,6 @@ public class PresentsClient
         }
     }
 
-    /** Callable from non-dobjmgr thread, this queues up a runnable on the
-     * dobjmgr thread to post the supplied message to this client. */
-    protected final void safePostMessage (final DownstreamMessage msg)
-    {
-        PresentsServer.omgr.postRunnable(new Runnable() {
-            public void run () {
-                postMessage(msg);
-            }
-        });
-    }
-
     /** Queues a message for delivery to the client. */
     protected final boolean postMessage (DownstreamMessage msg)
     {
@@ -867,7 +856,7 @@ public class PresentsClient
 
             // post a response to the client letting them know that we
             // will no longer send them events regarding this object
-            client.safePostMessage(new UnsubscribeResponse(oid));
+            client.postMessage(new UnsubscribeResponse(oid));
         }
     }
 
@@ -901,7 +890,7 @@ public class PresentsClient
         {
             // send a pong response
             PingRequest req = (PingRequest)msg;
-            client.safePostMessage(new PongResponse(req.getUnpackStamp()));
+            client.postMessage(new PongResponse(req.getUnpackStamp()));
         }
     }
 

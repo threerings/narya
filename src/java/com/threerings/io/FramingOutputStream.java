@@ -44,7 +44,7 @@ public class FramingOutputStream extends OutputStream
 {
     public FramingOutputStream ()
     {
-        _buffer = ByteBuffer.allocate(INITIAL_BUFFER_SIZE);
+        _buffer = ByteBuffer.allocateDirect(INITIAL_BUFFER_SIZE);
         _buffer.put(HEADER_PAD);
     }
 
@@ -99,7 +99,7 @@ public class FramingOutputStream extends OutputStream
 	if (ncapacity > ocapacity) {
             // increase the buffer size in large increments
             ncapacity = Math.max(ocapacity << 1, ncapacity);
-            ByteBuffer newbuf = ByteBuffer.allocate(ncapacity);
+            ByteBuffer newbuf = ByteBuffer.allocateDirect(ncapacity);
             newbuf.put((ByteBuffer)_buffer.flip());
 	    _buffer = newbuf;
 	}

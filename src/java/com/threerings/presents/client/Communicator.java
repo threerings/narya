@@ -316,8 +316,7 @@ public class Communicator
         try {
             ByteBuffer buffer = _fout.frameAndReturnBuffer();
             if (buffer.limit() > 4096) {
-                String txt = StringUtil.truncate(
-                    String.valueOf(msg), 80, "...");
+                String txt = StringUtil.truncate(String.valueOf(msg), 80, "...");
                 Log.info("Whoa, writin' a big one [msg=" + txt +
                          ", size=" + buffer.limit() + "].");
             }
