@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.23 2002/10/06 02:37:58 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.24 2002/10/06 03:31:16 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -111,6 +111,9 @@ public class PlaceRegistry
         // if it fails any permissions checks
         String errmsg = pmgr.checkPermissions();
         if (errmsg != null) {
+            // give the place manager a chance to clean up after its early
+            // initialization process
+            pmgr.permissionsFailed();
             throw new InvocationException(errmsg);
         }
 

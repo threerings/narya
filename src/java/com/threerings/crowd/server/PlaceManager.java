@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.37 2002/10/06 00:44:58 mdb Exp $
+// $Id: PlaceManager.java,v 1.38 2002/10/06 03:31:16 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -185,6 +185,15 @@ public class PlaceManager
     public String checkPermissions ()
     {
         return null;
+    }
+
+    /**
+     * Called if the permissions check failed, to give place managers a
+     * chance to do any cleanup that might be necessary due to their early
+     * initialization or permissions checking code.
+     */
+    protected void permissionsFailed ()
+    {
     }
 
     /**
