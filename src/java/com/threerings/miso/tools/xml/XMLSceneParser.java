@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.23 2001/10/25 16:36:43 shaper Exp $
+// $Id: XMLSceneParser.java,v 1.24 2001/11/08 03:04:44 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -58,7 +58,7 @@ public class XMLSceneParser extends SimpleParser
                 Log.warning(
                     "Unrecognized scene file format version, will attempt " + 
                     "to continue parsing file but your mileage may vary " +
-                    "[fname=" + _fname + ", version=" + version +
+                    "[version=" + version +
                     ", known_version=" + XMLSceneVersion.VERSION + "].");
             }
 
@@ -268,14 +268,28 @@ public class XMLSceneParser extends SimpleParser
      * Parse the specified XML file and return a miso scene object with
      * the data contained therein.
      *
-     * @param fname the file name.
+     * @param path the full path to the scene description file.
      *
      * @return the scene object, or null if an error occurred.
      */
-    public EditableMisoScene loadScene (String fname) throws IOException
+    public EditableMisoScene loadScene (String path) throws IOException
+    {
+        return loadScene(getInputStream(path));
+    }
+
+    /**
+     * Parse the specified XML file and return a miso scene object with
+     * the data contained therein.
+     *
+     * @param stream the input stream from which the XML scene description
+     * can be read.
+     *
+     * @return the scene object, or null if an error occurred.
+     */
+    public EditableMisoScene loadScene (InputStream stream) throws IOException
     {
 	_info = new SceneInfo();
-        parseFile(fname);
+        parseStream(stream);
         // place shadow tiles for any objects in the scene
         _info.scene.generateAllObjectShadows();
         // return the final scene object

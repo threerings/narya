@@ -1,5 +1,5 @@
 //
-// $Id: XMLMisoTileSetParser.java,v 1.5 2001/11/01 01:40:42 shaper Exp $
+// $Id: XMLMisoTileSetParser.java,v 1.6 2001/11/08 03:04:45 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -45,6 +45,7 @@ public class XMLMisoTileSetParser extends XMLTileSetParser
 
 	if (qName.equals("passable")) {
 	    _passable = StringUtil.parseIntArray(data);
+
 	} else if (qName.equals("tileset")) {
             _passable = null;
             _layer = -1;
@@ -54,13 +55,24 @@ public class XMLMisoTileSetParser extends XMLTileSetParser
     // documentation inherited
     protected TileSet createTileSet ()
     {
-        return new MisoTileSet(
-            _imgmgr, _info.tsid, _info.name, _info.imgFile, _info.tileCount,
-            _info.rowWidth, _info.rowHeight, _info.numTiles, _info.offsetPos,
-            _info.gapDist, _info.isObjectSet, _info.objects,
-            _layer, _passable);
+        if (_info.isObjectSet) {
+            return new ObjectTileSet(
+                _imgmgr, _info.imgFile, _info.name, _info.tsid,
+                _info.tileCount, _info.rowWidth, _info.rowHeight,
+                _info.offsetPos, _info.gapDist, _info.objects);
+
+        } else {
+            return new MisoTileSet(
+                _imgmgr, _info.imgFile, _info.name, _info.tsid,
+                _info.tileCount, _info.rowWidth, _info.rowHeight,
+                _info.offsetPos, _info.gapDist, _layer, _passable);
+        }
     }
 
-    protected int _passable[];
+    /** Info on whether or not the tiles are passable (can be walked on by
+     * sprites). */
+    protected int[] _passable;
+
+    /** The layer to which the tiles are assigned. */
     protected int _layer = -1;
 }

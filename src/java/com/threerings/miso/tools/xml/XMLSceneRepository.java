@@ -1,10 +1,11 @@
 //
-// $Id: XMLSceneRepository.java,v 1.13 2001/11/02 02:52:16 shaper Exp $
+// $Id: XMLSceneRepository.java,v 1.14 2001/11/08 03:04:44 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import com.samskivert.util.Config;
@@ -48,27 +49,31 @@ public class XMLSceneRepository
     }
 
     /**
-     * Returns the path to the scene root directory.
+     * Loads and returns a miso scene object for the scene described in
+     * the specified XML file.
+     *
+     * @param path the full pathname to the file.
+     *
+     * @return the scene object.
      */
-    public String getScenePath ()
+    public EditableMisoScene loadScene (String path) throws IOException
     {
-	return _root + File.separator + _sceneRoot + File.separator;
+	Log.info("Loading scene [path=" + path + "].");
+        return _parser.loadScene(path);
     }
 
     /**
      * Loads and returns a miso scene object for the scene described in
-     * the specified XML file. The filename should be relative to the
-     * scene root directory.
+     * the XML file available via the supplied input stream.
      *
-     * @param fname the full pathname to the file.
+     * @param path the full pathname to the file.
+     *
      * @return the scene object.
      */
-    public EditableMisoScene loadScene (String fname) throws IOException
+    public EditableMisoScene loadScene (InputStream stream)
+        throws IOException
     {
-	String path = getScenePath() + fname;
-	Log.info("Loading scene [path=" + path + "].");
-
-        return _parser.loadScene(path);
+        return _parser.loadScene(stream);
     }
 
     /**
@@ -77,13 +82,11 @@ public class XMLSceneRepository
      * the scene root directory.
      *
      * @param scene the scene to save.
-     * @param fname the file to write the scene to.
+     * @param path the full path of the file to write the scene to.
      */
-    public void saveScene (MisoScene scene, String fname) throws IOException
+    public void saveScene (MisoScene scene, String path) throws IOException
     {
-	String path = getScenePath() + fname;
 	Log.info("Saving scene [path=" + path + "].");
-
         _writer.saveScene(scene, path);
     }
 

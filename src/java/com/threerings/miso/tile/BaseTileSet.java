@@ -1,5 +1,5 @@
 //
-// $Id: BaseTileSet.java,v 1.4 2001/11/01 01:40:42 shaper Exp $
+// $Id: BaseTileSet.java,v 1.5 2001/11/08 03:04:45 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -13,23 +13,31 @@ import com.threerings.media.tile.*;
 import com.threerings.miso.scene.MisoScene;
 
 /**
- * The miso tile set extends the base tile set to add support for tile
- * passability.  Passability is used to determine whether {@link
- * com.threerings.miso.scene.Traverser} objects can traverse a
- * particular tile in a {@link com.threerings.miso.scene.MisoScene}.
+ * The miso tile set extends the swiss army tile set to add support for
+ * tile passability. Passability is used to determine whether {@link
+ * com.threerings.miso.scene.Traverser} objects can traverse a particular
+ * tile in a {@link MisoScene}.
  */
-public class MisoTileSet extends TileSet
+public class MisoTileSet extends SwissArmyTileSet
 {
+    /**
+     * Constructs a Miso tileset with the swiss army tile set
+     * configuration information and additional information about tile
+     * passability.
+     *
+     * @param layer the layer to which this tileset is assigned.
+     * @param passable info on each tile indicating whether or not the
+     * tile is passable (can be walked on by sprites).
+     *
+     * @see SwissArmyTileSet#SwissArmyTileSet
+     */
     public MisoTileSet (
-        ImageManager imgmgr, int tsid, String name, String imgFile,
-        int tileCount[], int rowWidth[], int rowHeight[],
-        int numTiles, Point offsetPos, Point gapDist,
-        boolean isObjectSet, HashIntMap objects,
-        int layer, int passable[])
+        ImageManager imgmgr, String imgFile, String name, int tsid,
+        int[] tileCount, int[] rowWidth, int[] rowHeight,
+        Point offsetPos, Point gapDist, int layer, int[] passable)
     {
-        super(imgmgr, tsid, name, imgFile, tileCount, rowWidth,
-              rowHeight, numTiles, offsetPos, gapDist,
-              isObjectSet, objects);
+        super(imgmgr, imgFile, name, tsid, tileCount,
+              rowWidth, rowHeight, offsetPos, gapDist);
 
         _layer = layer;
         _passable = passable;

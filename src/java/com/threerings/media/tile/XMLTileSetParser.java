@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParser.java,v 1.20 2001/11/01 01:40:42 shaper Exp $
+// $Id: XMLTileSetParser.java,v 1.21 2001/11/08 03:04:44 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -78,11 +78,6 @@ public class XMLTileSetParser
 	} else if (qName.equals("tilecount")) {
 	    _info.tileCount = StringUtil.parseIntArray(data);
 
-	    // calculate the total number of tiles in the tileset
-	    for (int ii = 0; ii < _info.tileCount.length; ii++) {
-		_info.numTiles += _info.tileCount[ii];
-	    }
-
 	} else if (qName.equals("offsetpos")) {
             parsePoint(data, _info.offsetPos);
 
@@ -119,7 +114,13 @@ public class XMLTileSetParser
     // documentation inherited
     protected InputStream getInputStream (String fname) throws IOException
     {
-        return ConfigUtil.getStream(fname);
+        InputStream is = ConfigUtil.getStream(fname);
+        if (is == null) {
+            String errmsg = "Can't load tileset description file from " +
+                "classpath [path=" + fname + "].";
+            throw new FileNotFoundException(errmsg);
+        }
+        return is;
     }
 
     /**
@@ -129,10 +130,18 @@ public class XMLTileSetParser
      */
     protected TileSet createTileSet ()
     {
-        return new TileSet(
-            _imgmgr, _info.tsid, _info.name, _info.imgFile, _info.tileCount,
-            _info.rowWidth, _info.rowHeight, _info.numTiles, _info.offsetPos,
-            _info.gapDist, _info.isObjectSet, _info.objects);
+        if (_info.isObjectSet) {
+            return new ObjectTileSet(
+                _imgmgr, _info.imgFile, _info.name, _info.tsid,
+                _info.tileCount, _info.rowWidth, _info.rowHeight,
+                _info.offsetPos, _info.gapDist, _info.objects);
+
+        } else {
+            return new SwissArmyTileSet(
+                _imgmgr, _info.imgFile, _info.name, _info.tsid,
+                _info.tileCount, _info.rowWidth, _info.rowHeight,
+                _info.offsetPos, _info.gapDist);
+        }
     }
 
     /**
@@ -160,7 +169,6 @@ public class XMLTileSetParser
         public String name;
         public String imgFile;
         public int tileCount[], rowWidth[], rowHeight[];
-        public int numTiles;
         public Point offsetPos = new Point();
         public Point gapDist = new Point();
         public boolean isObjectSet;

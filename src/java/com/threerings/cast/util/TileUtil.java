@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.1 2001/11/02 15:28:20 shaper Exp $
+// $Id: TileUtil.java,v 1.2 2001/11/08 03:04:44 mdb Exp $
 
 package com.threerings.cast.util;
 
@@ -84,7 +84,7 @@ public class TileUtil
                 }
 
                 // get the number of frames of animation
-                int frameCount = tset.getNumTiles() / Sprite.NUM_DIRECTIONS;
+                int frameCount = tset.getTileCount() / Sprite.NUM_DIRECTIONS;
 
                 for (int dir = 0; dir < Sprite.NUM_DIRECTIONS; dir++) {
                     // retrieve all images for the sequence and direction

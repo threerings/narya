@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.18 2001/11/01 01:40:42 shaper Exp $
+// $Id: TileSet.java,v 1.19 2001/11/08 03:04:44 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -7,62 +7,45 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.*;
 
-import com.samskivert.util.HashIntMap;
-import com.samskivert.util.StringUtil;
-
 import com.threerings.media.Log;
 import com.threerings.media.ImageManager;
 
 /**
- * A tile set stores information on a single logical set of tiles.  It
- * provides a clean interface for the {@link TileManager} to retrieve
- * individual tiles from the tile set.
+ * A tileset stores information on a single logical set of tiles. It
+ * provides a clean interface for the {@link TileManager} or other
+ * entities to retrieve individual tiles from the tile set and
+ * encapsulates the potentially sophisticated process of extracting the
+ * tile image from a composite tileset image.
  *
- * <p> Tiles are referenced by their tile id.  The tile id is
- * essentially the tile number, assuming the tile at the top-left of
- * the image is tile id 0 and tiles are numbered left to right, top to
- * bottom, in ascending order.
+ * <p> Tiles are referenced by their tile id.  The tile id is essentially
+ * the tile number, assuming the tile at the top-left of the image is tile
+ * id zero and tiles are numbered, in ascending order, left to right, top
+ * to bottom.
  */
-public class TileSet implements Cloneable
+public abstract class TileSet implements Cloneable
 {
     /**
-     * Constructs a tile set object with the given image manager as
-     * the source for retrieving tile images.
+     * Provides the basic information needed to load a tileset image to
+     * the tileset base class.
+     *
+     * @param imgmgr an image manager from which the tileset image can be
+     * loaded.
+     * @param imgPath the path to the tileset image.
+     * @param name the name of the tileset (optional, can be null).
+     * @param tsid the unique integer identifier of the tileset (optional,
+     * can be zero if the tileset is not to be loaded by id).
      */
-    public TileSet (
-        ImageManager imgmgr, int tsid, String name, String imgFile,
-        int tileCount[], int rowWidth[], int rowHeight[],
-        int numTiles, Point offsetPos, Point gapDist,
-        boolean isObjectSet, HashIntMap objects)
+    public TileSet (ImageManager imgmgr, String imgPath,
+                    String name, int tsid)
     {
         _imgmgr = imgmgr;
-        _tsid = tsid;
+        _imgPath = imgPath;
         _name = name;
-        _imgFile = imgFile;
-        _tileCount = tileCount;
-        _rowWidth = rowWidth;
-        _rowHeight = rowHeight;
-        _numTiles = numTiles;
-        _offsetPos = offsetPos;
-        _gapDist = gapDist;
-        _isObjectSet = isObjectSet;
-        _objects = objects;
+        _tsid = tsid;
     }
 
     /**
-     * Returns a new tile set that is a clone of this tile set with
-     * the image file updated to reference the given file name.
-     */
-    public TileSet clone (String imgFile)
-        throws CloneNotSupportedException
-    {
-        TileSet dup = (TileSet)clone();
-        dup.setImageFile(imgFile);
-        return dup;
-    }
-
-    /**
-     * Returns the tile set identifier.
+     * Returns the tileset identifier.
      */
     public int getId ()
     {
@@ -70,7 +53,7 @@ public class TileSet implements Cloneable
     }
 
     /**
-     * Returns the tile set name.
+     * Returns the tileset name.
      */
     public String getName ()
     {
@@ -78,43 +61,64 @@ public class TileSet implements Cloneable
     }
 
     /**
-     * Returns the number of tiles in the tile set.
+     * Returns the number of tiles in the tileset.
      */
-    public int getNumTiles ()
+    public abstract int getTileCount ();
+
+    /**
+     * Sets the image file to be used as the source for the tile
+     * images produced by this tileset.
+     */
+    public void setImageFile (String imgPath)
     {
-	return _numTiles;
+        _imgPath = imgPath;
+        _tilesetImg = null;
     }
 
     /**
-     * Returns the {@link Tile} object from this tile set
-     * corresponding to the specified tile id, or null if an error
+     * Returns a new tileset that is a clone of this tileset with the
+     * image file updated to reference the given file name. Useful for
+     * configuring a single tileset and then generating additional
+     * tilesets with new images with the same configuration.
+     */
+    public TileSet clone (String imgPath)
+        throws CloneNotSupportedException
+    {
+        TileSet dup = (TileSet)clone();
+        dup.setImageFile(imgPath);
+        return dup;
+    }
+
+    /**
+     * Creates a @link Tile} object from this tileset corresponding to the
+     * specified tile id and returns that tile, or null if an error
      * occurred.
      *
-     * @param tid the tile identifier.
+     * @param tileId the tile identifier. Tile identifiers start with zero
+     * as the upper left tile and increase by one as the tiles move left
+     * to right and top to bottom over the source image.
      *
      * @return the tile object, or null if an error occurred.
+     *
+     * @exception NoSuchTileException thrown if the specified tile id is
+     * out of range for this tileset.
      */
-    public Tile getTile (int tid)
+    public Tile getTile (int tileId)
         throws NoSuchTileException
     {
-        if (_imgmgr == null) {
-            Log.warning("No default image manager [tsid=" + _tsid +
-                        ", tid=" + tid + "].");
-            return null;
-        }
-
 	// bail if there's no such tile
-	if (tid < 0 || tid > (_numTiles - 1)) {
-	    throw new NoSuchTileException(tid);
+	if (tileId < 0 || tileId > (getTileCount() - 1)) {
+	    throw new NoSuchTileException(tileId);
 	}
 
 	// create and populate the tile object
-	Tile tile = createTile(tid);
+	Tile tile = createTile(tileId);
 
 	// retrieve the tile image
-	tile.img = getTileImage(_imgmgr, tile.tid);
+	tile.img = getTileImage(tile.tid);
 	if (tile.img == null) {
 	    Log.warning("Null tile image [tile=" + tile + "].");
+            return null;
 	}
 
 	// populate the tile's dimensions
@@ -129,59 +133,29 @@ public class TileSet implements Cloneable
     }
 
     /**
-     * Sets the image file to be used as the source for the tile
-     * images produced by this tile set.
-     */
-    public void setImageFile (String imgFile)
-    {
-        _imgFile = imgFile;
-        _imgTiles = null;
-    }
-
-    /**
-     * Return a string representation of the tileset information.
-     */
-    public String toString ()
-    {
-	StringBuffer buf = new StringBuffer();
-	buf.append("[name=").append(_name);
-	buf.append(", file=").append(_imgFile);
-	buf.append(", tsid=").append(_tsid);
-	buf.append(", numtiles=").append(_numTiles);
-	return buf.append("]").toString();
-    }
-
-    /**
-     * Construct and return a new tile object for further population
-     * with tile-specific information.  Derived classes can override
-     * this method to create their own sub-class of <code>Tile</code>.
+     * Construct and return a new tile object for further population with
+     * tile-specific information. Derived classes can override this method
+     * to create their own sub-class of {@link Tile}.
      *
-     * @param tid the tile id for the new tile.
+     * @param tileId the tile id for the new tile.
      *
      * @return the new tile object.
      */
-    protected Tile createTile (int tid)
+    protected Tile createTile (int tileId)
     {
-        // construct an object tile if the tile set was specified as such
-	if (_isObjectSet) {
-            // default object dimensions to (1, 1)
-            int wid = 1, hei = 1;
-
-            // retrieve object dimensions if known
-            if (_objects != null) {
-                int size[] = (int[])_objects.get(tid);
-                if (size != null) {
-                    wid = size[0];
-                    hei = size[1];
-                }
-            }
-
-	    return new ObjectTile(_tsid, tid, wid, hei);
-	}
-
         // construct a basic tile
-	return new Tile(_tsid, tid);
+	return new Tile(_tsid, tileId);
     }
+
+    /**
+     * Returns the image corresponding to the specified tile within this
+     * tileset.
+     *
+     * @param tileId the index of the tile to be retrieved.
+     *
+     * @return the tile image.
+     */
+    protected abstract Image getTileImage (int tileId);
 
     /**
      * Populates the given tile object with its detailed tile
@@ -197,52 +171,56 @@ public class TileSet implements Cloneable
     }
 
     /**
-     * Returns the image corresponding to the specified tile id within
-     * this tile set.
+     * Returns the tileset image (which is loaded if it has not yet been
+     * loaded).
      *
-     * @param imgmgr the image manager.
-     * @param tid the tile id.
-     *
-     * @return the tile image.
+     * @return the tileset image or null if an error occurred loading the
+     * image.
      */
-    protected Image getTileImage (ImageManager imgmgr, int tid)
+    protected Image getTilesetImage ()
     {
-	// load the full tile image if we don't already have it
-	if (_imgTiles == null) {
-	    if ((_imgTiles = imgmgr.getImage(_imgFile)) == null) {
-		Log.warning("Failed to retrieve full tileset image " +
-			    "[file=" + _imgFile + "].");
-		return null;
-	    }
+        // return it straight away if it's already loaded
+	if (_tilesetImg != null) {
+            return _tilesetImg;
+        }
+
+        // load up the tileset image via the image manager
+        if ((_tilesetImg = _imgmgr.getImage(_imgPath)) == null) {
+            Log.warning("Failed to retrieve tileset image " +
+                        "[tsid=" + _tsid + ", path=" + _imgPath + "].");
 	}
 
-	// find the row number containing the sought-after tile
-	int ridx, tcount, ty, tx;
-	ridx = tcount = 0;
-
-        // start tile image position at image start offset
-        tx = _offsetPos.x;
-        ty = _offsetPos.y;
-
-	while ((tcount += _tileCount[ridx]) < tid + 1) {
-            // increment tile image position by row height and gap distance
-	    ty += (_rowHeight[ridx++] + _gapDist.y);
-	}
-
-        // determine the horizontal index of this tile in the row
-	int xidx = tid - (tcount - _tileCount[ridx]);
-
-        // final image x-position is based on tile width and gap distance
-        tx += (xidx * (_rowWidth[ridx] + _gapDist.x));
-
-	// Log.info("Retrieving tile image [tid=" + tid + ", ridx=" +
-	// ridx + ", xidx=" + xidx + ", tx=" + tx +
-	// ", ty=" + ty + "].");
-
-	// crop the tile-sized image chunk from the full image
-	return imgmgr.getImageCropped(
-            _imgTiles, tx, ty, _rowWidth[ridx], _rowHeight[ridx]);
+        return _tilesetImg;
     }
+
+    /**
+     * Generates a string representation of the tileset information.
+     */
+    public String toString ()
+    {
+	StringBuffer buf = new StringBuffer("[");
+        toString(buf);
+	return buf.append("]").toString();
+    }
+
+    /**
+     * Tileset derived classes should override this, calling
+     * <code>super.toString(buf)</code> and then appending additional
+     * information to the buffer.
+     */
+    protected void toString (StringBuffer buf)
+    {
+        buf.append("name=").append(_name);
+	buf.append(", tsid=").append(_tsid);
+	buf.append(", path=").append(_imgPath);
+	buf.append(", tileCount=").append(getTileCount());
+    }
+
+    /** The default image manager for retrieving tile images. */
+    protected ImageManager _imgmgr;
+
+    /** The path to the file containing the tile images. */
+    protected String _imgPath;
 
     /** The tileset name. */
     protected String _name;
@@ -250,38 +228,8 @@ public class TileSet implements Cloneable
     /** The tileset unique identifier. */
     protected int _tsid;
 
-    /** The file containing the tile images. */
-    protected String _imgFile;
-
-    /** The width of the tiles in each row in pixels. */
-    protected int[] _rowWidth;
-
-    /** The height of the tiles in each row in pixels. */
-    protected int[] _rowHeight;
-
-    /** The number of tiles in each row. */
-    protected int[] _tileCount;
-
-    /** The number of tiles in the tileset. */
-    protected int _numTiles;
-
-    /** Whether this set produces object tiles. */
-    protected boolean _isObjectSet = false;
-
-    /** The offset distance (x, y) in pixels from the top-left of the
-     * image to the start of the first tile image.  */
-    protected Point _offsetPos = new Point();
-
-    /** The distance (x, y) in pixels between each tile in each row
-     * horizontally, and between each row of tiles vertically.  */
-    protected Point _gapDist = new Point();
-
-    /** Mapping of object tile ids to object dimensions. */
-    protected HashIntMap _objects;
-
-    /** The image containing all tile images for this set. */
-    protected Image _imgTiles;
-
-    /** The default image manager for retrieving tile images. */
-    protected ImageManager _imgmgr;
+    /** The image containing all tile images for this set. This is private
+     * because it should be accessed via {@link #getTilesetImage} even by
+     * derived classes. */
+    private Image _tilesetImg;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: MisoUtil.java,v 1.13 2001/11/02 02:52:16 shaper Exp $
+// $Id: MisoUtil.java,v 1.14 2001/11/08 03:04:45 mdb Exp $
 
 package com.threerings.miso.util;
 
@@ -11,8 +11,6 @@ import java.net.MalformedURLException;
 import com.samskivert.util.*;
 
 import com.threerings.cast.CharacterManager;
-
-import com.threerings.resource.ResourceManager;
 
 import com.threerings.media.ImageManager;
 import com.threerings.media.tile.*;
@@ -123,19 +121,6 @@ public class MisoUtil
     }
 
     /**
-     * Creates an <code>ImageManager</code> object.
-     *
-     * @param frame the root frame to which images will be rendered.
-     *
-     * @return the new tile manager object or null if an error occurred.
-     */
-    public static ImageManager createImageManager (Frame frame)
-    {
-	ResourceManager rmgr = createResourceManager();
-	return new ImageManager(rmgr, frame);
-    }
-
-    /**
      * Creates a <code>TileManager</code> object.
      *
      * @param config the <code>Config</code> object.
@@ -147,19 +132,10 @@ public class MisoUtil
         Config config, ImageManager imgmgr)
     {
 	TileSetRepository tsrepo = createTileSetRepository(config, imgmgr);
-	TileManager tilemgr = new TileManager(tsrepo);
+	TileManager tilemgr = new TileManager(imgmgr);
+        tilemgr.setTileSetRepository(tsrepo);
 	return tilemgr;
     }
-
-    /**
-     * Creates a <code>ResourceManager</code> object.
-     *
-     * @return the new resource manager object or null if an error occurred.
-     */
-    protected static ResourceManager createResourceManager ()
-    {
-        return new ResourceManager("rsrc");
-    }	
 
     /**
      * Creates a <code>TileSetRepository</code> object, reading the
