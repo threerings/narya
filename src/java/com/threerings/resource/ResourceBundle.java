@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.13 2003/05/05 18:02:37 mdb Exp $
+// $Id: ResourceBundle.java,v 1.14 2003/05/14 20:46:25 mdb Exp $
 
 package com.threerings.resource;
 
@@ -231,7 +231,7 @@ public class ResourceBundle
         String tmpdir = System.getProperty("java.io.tmpdir");
         if (tmpdir == null) {
             Log.info("No system defined temp directory. Faking it.");
-            tmpdir = System.getProperty("user.dir");
+            tmpdir = System.getProperty("user.home");
         }
         long rando = (long)(Math.random() * Long.MAX_VALUE);
         _tmpdir = new File(tmpdir, ".narcache" + File.separator + rando);
