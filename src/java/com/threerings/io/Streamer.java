@@ -1,5 +1,5 @@
 //
-// $Id: Streamer.java,v 1.3 2002/12/20 23:27:12 mdb Exp $
+// $Id: Streamer.java,v 1.4 2002/12/21 00:44:03 mdb Exp $
 
 package com.threerings.io;
 
@@ -376,7 +376,7 @@ public class Streamer
     {
         // first reflect on our parent's fields if it has such
         Class pclazz = clazz.getSuperclass();
-        if (!pclazz.equals(Object.class)) {
+        if (pclazz != null && !pclazz.equals(Object.class)) {
             getFields(pclazz, flist);
         }
 
