@@ -1,5 +1,5 @@
 //
-// $Id: FramedInputStream.java,v 1.4 2003/07/06 18:39:55 mdb Exp $
+// $Id: FramedInputStream.java,v 1.5 2003/07/07 22:35:38 eric Exp $
 
 package com.threerings.io;
 
@@ -96,18 +96,6 @@ public class FramedInputStream extends InputStream
             // what we've got
             if (_buffer.remaining() > 0) {
                 break;
-            } else if (_length == -1) {
-                // if we didn't already have our length, see if we now have
-                // enough data to obtain it
-                _length = decodeLength();
-            }
-
-            // additionally, if the buffer happened to be exactly as long
-            // as we needed, we need to break as well
-            if ((_length > 0) && (_have >= _length)) {
-                System.err.println("Phew, we would have been screwed in " +
-                                   "the previous release (" + _length + ").");
-                break;
             }
 
             // otherwise, we've filled up our buffer as a result of this
@@ -118,6 +106,12 @@ public class FramedInputStream extends InputStream
 
             // don't let things grow without bounds
         } while (_buffer.capacity() < MAX_BUFFER_CAPACITY);
+
+        // if we didn't already have our length, see if we now have enough
+        // data to obtain it
+        if (_length == -1) {
+            _length = decodeLength();
+        }
 
         // finally check to see if there's a complete frame in the buffer
         // and prepare to serve it up if there is
