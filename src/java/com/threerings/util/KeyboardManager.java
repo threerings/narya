@@ -1,18 +1,24 @@
 //
-// $Id: KeyboardManager.java,v 1.8 2002/01/18 23:32:14 shaper Exp $
+// $Id: KeyboardManager.java,v 1.9 2002/01/19 01:19:56 shaper Exp $
 
 package com.threerings.util;
 
-import java.awt.Component;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+import java.awt.Window;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 import java.util.Iterator;
 
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
+import javax.swing.event.AncestorEvent;
+
 import com.samskivert.swing.Controller;
+import com.samskivert.swing.event.AncestorAdapter;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
@@ -33,42 +39,35 @@ public class KeyboardManager
      * @param xlate the key translator used to map keyboard events to
      * controller action commands.
      */
-    public KeyboardManager (Component target, KeyTranslator xlate)
+    public KeyboardManager (JComponent target, KeyTranslator xlate)
     {
         // save off references
         _target = target;
         _xlate = xlate;
 
-        // listen to key events
-        target.addKeyListener(new KeyAdapter () {
-            public void keyPressed (KeyEvent e) {
-                KeyboardManager.this.keyPressed(e);
-            }
-            public void keyReleased (KeyEvent e) {
-                KeyboardManager.this.keyReleased(e);
-            }
-        });
-
-        // listen to focus events so that we can cease repeating if we
-        // lose focus
-        target.addFocusListener(new FocusAdapter() {
-            public void focusLost (FocusEvent e) {
-                releaseAllKeys();
-            }
-        });
-
-        if (DEBUG_EVENTS) {
-            // listen to and report on lower-level incoming keyboard
-            // events at the keyboard focus manager level
-            KeyboardFocusManager keymgr =
-                KeyboardFocusManager.getCurrentKeyboardFocusManager();
-            keymgr.addKeyEventDispatcher(new KeyEventDispatcher() {
-                public boolean dispatchKeyEvent (KeyEvent e) {
-                    Log.info("dispatchKeyEvent [e=" + e + "].");
-                    return false;
+        // listen to ancestor events so that we can cease our business if
+        // we lose the focus
+        target.addAncestorListener(new AncestorAdapter() {
+            public void ancestorAdded (AncestorEvent e) {
+                KeyboardManager.this.gainedFocus();
+                // add the window focus listener if it's not yet present
+                if (_wadapter == null) {
+                    addWindowListener();
                 }
-            });
-        }
+            }
+            public void ancestorRemoved (AncestorEvent e) {
+                KeyboardManager.this.lostFocus();
+            }
+        });
+
+        // capture low-level keyboard events via the keyboard focus manager
+        KeyboardFocusManager keymgr =
+            KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        keymgr.addKeyEventDispatcher(new KeyEventDispatcher() {
+            public boolean dispatchKeyEvent (KeyEvent e) {
+                return KeyboardManager.this.dispatchKeyEvent(e);
+            }
+        });
     }
 
     /**
@@ -114,15 +113,75 @@ public class KeyboardManager
         }
     }
 
+    /**
+     * Called when the {@link KeyboardFocusManager} has a key event for us
+     * to scrutinize.  Returns whether we've handled the key event.
+     */
+    protected boolean dispatchKeyEvent (KeyEvent e)
+    {
+        // bail if we're not enabled or we haven't the focus
+        if (!_enabled || !_focus) {
+            return false;
+        }
+
+        // handle key press and release events
+        switch (e.getID()) {
+        case KeyEvent.KEY_PRESSED:
+            KeyboardManager.this.keyPressed(e);
+            return true;
+
+        case KeyEvent.KEY_RELEASED:
+            KeyboardManager.this.keyReleased(e);
+            return true;
+
+        default:
+            return false;
+        }
+    }
+
+    /**
+     * Called when the keyboard manager gains focus and should begin
+     * handling keys again if it was previously enabled.
+     */
+    protected void gainedFocus ()
+    {
+        _focus = true;
+    }
+
+    /**
+     * Called when the keyboard manager loses focus and should cease
+     * handling keys.
+     */
+    protected void lostFocus ()
+    {
+        releaseAllKeys();
+        _focus = false;
+    }
+
+    /**
+     * Adds a window focus event listener to the target component's window
+     * so that the keyboard manager can enabled and disable handling of
+     * keyboard events appropriately.
+     */
+    protected void addWindowListener ()
+    {
+        _wadapter = new WindowAdapter() {
+            public void windowGainedFocus (WindowEvent e) {
+                KeyboardManager.this.gainedFocus();
+            }
+            public void windowLostFocus (WindowEvent e) {
+                KeyboardManager.this.lostFocus();
+            }
+        };
+
+        Window window = SwingUtilities.getWindowAncestor(_target);
+        window.addWindowFocusListener(_wadapter);
+    }
+
     // documentation inherited
     protected void keyPressed (KeyEvent e)
     {
         logKey("keyPressed", e);
-
-        // bail if we're not accepting input
-        if (!_enabled) {
-            return;
-        }
 
         // get the action command associated with this key
         int keyCode = e.getKeyCode();
@@ -143,11 +202,6 @@ public class KeyboardManager
     protected void keyReleased (KeyEvent e)
     {
         logKey("keyReleased", e);
-
-        // bail if we're not accepting input
-        if (!_enabled) {
-            return;
-        }
 
         // get the info object for this key
         KeyInfo info = (KeyInfo)_keys.get(e.getKeyCode());
@@ -399,12 +453,18 @@ public class KeyboardManager
     /** A hashtable mapping key codes to {@link KeyInfo} objects. */
     protected HashIntMap _keys = new HashIntMap();
 
+    /** Whether the keyboard manager currently has the keyboard focus. */
+    protected boolean _focus = true;
+
     /** Whether the keyboard manager is accepting keyboard input. */
     protected boolean _enabled = true;
 
+    /** The window focus event listener. */
+    protected WindowAdapter _wadapter;
+
     /** The component that receives keyboard events and that we associate
      * with posted controller commands. */
-    protected Component _target;
+    protected JComponent _target;
 
     /** The translator that maps keyboard events to controller commands. */
     protected KeyTranslator _xlate;
