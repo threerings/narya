@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.20 2001/12/07 01:33:29 mdb Exp $
+// $Id: ViewerApp.java,v 1.21 2001/12/12 19:52:50 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -74,7 +74,12 @@ public class ViewerApp
         try {
             MisoSceneParser parser = new MisoSceneParser("miso");
             MisoSceneModel model = parser.parseScene(args[0]);
-            _panel.setScene(new DisplayMisoSceneImpl(model, _tilemgr));
+            if (model != null) {
+                _panel.setScene(new DisplayMisoSceneImpl(model, _tilemgr));
+            } else {
+                Log.warning("No miso scene found in scene file " +
+                            "[path=" + args[0] + "].");
+            }
 
         } catch (Exception e) {
             Log.warning("Unable to parse scene [path=" + args[0] + "].");
