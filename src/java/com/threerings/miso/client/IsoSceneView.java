@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.57 2001/10/11 00:41:27 shaper Exp $
+// $Id: IsoSceneView.java,v 1.58 2001/10/11 16:21:08 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -64,12 +64,7 @@ public class IsoSceneView implements SceneView
         _scene = scene;
     }
 
-    /**
-     * Paint the scene view and any highlighted tiles to the given
-     * graphics context.
-     *
-     * @param g the graphics context.
-     */
+    // documentation inherited
     public void paint (Graphics g)
     {
 	if (_scene == null) {
@@ -375,11 +370,7 @@ public class IsoSceneView implements SceneView
 	}
     }
 
-    /**
-     * Invalidate a list of rectangles in the view for later repainting.
-     *
-     * @param rects the list of Rectangle objects.
-     */
+    // documentation inherited
     public void invalidateRects (DirtyRectList rects)
     {
         // we specifically need to allow the dirty rects list to grow
@@ -530,6 +521,7 @@ public class IsoSceneView implements SceneView
         _model.precalculate();
     }
 
+    // documentation inherited
     public Path getPath (AmbulatorySprite sprite, int x, int y)
     {
         // make sure the destination point is within our bounds

@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.12 2001/08/29 20:07:54 shaper Exp $
+// $Id: IsoSceneViewModel.java,v 1.13 2001/10/11 16:21:09 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -8,6 +8,7 @@ import java.awt.Point;
 
 import com.samskivert.util.Config;
 import com.threerings.miso.Log;
+import com.threerings.miso.scene.util.IsoUtil;
 import com.threerings.miso.util.MisoUtil;
 
 /**
@@ -105,6 +106,29 @@ public class IsoSceneViewModel
         showCoords = config.getValue(SHOW_COORDS_KEY, DEF_SHOW_COORDS);
 	showLocs = config.getValue(SHOW_COORDS_KEY, DEF_SHOW_COORDS);
 	showPaths = config.getValue(SHOW_PATHS_KEY, DEF_SHOW_PATHS);
+    }
+
+    /**
+     * Returns whether the given tile coordinate is a valid coordinate
+     * within the scene.
+     */
+    public boolean isValidCoordinate (int x, int y)
+    {
+        return (x >= 0 && x < scenewid &&
+                y >= 0 && y < scenehei);
+    }
+
+    /**
+     * Returns whether the given full coordinate is a valid coordinate
+     * within the scene.
+     */
+    public boolean isValidFullCoordinate (int x, int y)
+    {
+        int tx = IsoUtil.fullToTile(x), ty = IsoUtil.fullToTile(y);
+        int fx = IsoUtil.fullToFine(x), fy = IsoUtil.fullToFine(y);
+        return (isValidCoordinate(tx, ty) &&
+                fx >= 0 && fx < finegran &&
+                fy >= 0 && fy < finegran);
     }
 
     /**
