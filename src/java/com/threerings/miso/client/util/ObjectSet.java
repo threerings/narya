@@ -1,5 +1,5 @@
 //
-// $Id: ObjectSet.java,v 1.3 2003/01/31 23:10:45 mdb Exp $
+// $Id: ObjectSet.java,v 1.4 2003/02/12 05:36:44 mdb Exp $
 
 package com.threerings.miso.client.util;
 
@@ -10,11 +10,11 @@ import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.ListUtil;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.client.DisplayObjectInfo;
+import com.threerings.miso.data.ObjectInfo;
 
 /**
  * Used to store an (arbitrarily) ordered, low-impact iteratable (doesn't
- * require object creation), set of {@link DisplayObjectInfo} instances.
+ * require object creation), set of {@link ObjectInfo} instances.
  */
 public class ObjectSet
 {
@@ -24,7 +24,7 @@ public class ObjectSet
      * @return true if it was inserted, false if the object was already in
      * the set.
      */
-    public boolean insert (DisplayObjectInfo info)
+    public boolean insert (ObjectInfo info)
     {
         // bail if it's already in the set
         int ipos = indexOf(info);
@@ -47,7 +47,7 @@ public class ObjectSet
      * Returns true if the specified object is in the set, false if it is
      * not.
      */
-    public boolean contains (DisplayObjectInfo info)
+    public boolean contains (ObjectInfo info)
     {
         return (indexOf(info) >= 0);
     }
@@ -64,9 +64,9 @@ public class ObjectSet
      * Returns the object with the specified index. The index must & be
      * between <code>0</code> and {@link #size}<code>-1</code>.
      */
-    public DisplayObjectInfo get (int index)
+    public ObjectInfo get (int index)
     {
-        return (DisplayObjectInfo)_objs[index];
+        return (ObjectInfo)_objs[index];
     }
 
     /**
@@ -83,7 +83,7 @@ public class ObjectSet
      *
      * @return true if it was removed, false if it was not in the set.
      */
-    public boolean remove (DisplayObjectInfo info)
+    public boolean remove (ObjectInfo info)
     {
         int opos = indexOf(info);
         if (opos >= 0) {
@@ -122,7 +122,7 @@ public class ObjectSet
      * Returns the index of the object or it's insertion index if it is
      * not in the set.
      */
-    protected final int indexOf (DisplayObjectInfo info)
+    protected final int indexOf (ObjectInfo info)
     {
         return ArrayUtil.binarySearch(_objs, 0, _size, info, INFO_COMP);
     }
@@ -137,8 +137,8 @@ public class ObjectSet
      * care about their order, it exists only to support binary search. */
     protected static final Comparator INFO_COMP = new Comparator() {
         public int compare (Object o1, Object o2) {
-            DisplayObjectInfo do1 = (DisplayObjectInfo)o1;
-            DisplayObjectInfo do2 = (DisplayObjectInfo)o2;
+            ObjectInfo do1 = (ObjectInfo)o1;
+            ObjectInfo do2 = (ObjectInfo)o2;
             if (do1.tileId == do2.tileId) {
                 return ((do1.x << 16) + do1.y) - ((do2.x << 16) + do2.y);
             } else {
