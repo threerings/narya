@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.33 2002/05/03 04:17:25 mdb Exp $
+// $Id: ViewerApp.java,v 1.34 2002/07/19 20:13:30 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -68,8 +68,8 @@ public class ViewerApp
         _framemgr = new FrameManager(_frame);
 
         // we don't need to configure anything
-        ResourceManager rmgr = new ResourceManager(
-            "rsrc", null, "config/resource/manager.properties");
+        ResourceManager rmgr = new ResourceManager("rsrc");
+        rmgr.initBundles(null, "config/resource/manager.properties", null);
         ImageManager imgr = new ImageManager(rmgr, _frame);
 	_tilemgr = new MisoTileManager(rmgr, imgr);
         _tilemgr.setTileSetRepository(

@@ -1,5 +1,5 @@
 //
-// $Id: BundledTileSetRepositoryTest.java,v 1.6 2002/02/09 07:50:04 mdb Exp $
+// $Id: BundledTileSetRepositoryTest.java,v 1.7 2002/07/19 20:13:30 shaper Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -20,8 +20,8 @@ public class BundledTileSetRepositoryTest extends TestCase
     public void runTest ()
     {
         try {
-            ResourceManager rmgr = new ResourceManager(
-                "rsrc", null, "config/resource/manager.properties");
+            ResourceManager rmgr = new ResourceManager("rsrc");
+            rmgr.initBundles(null, "config/resource/manager.properties", null);
             ImageManager imgr = new ImageManager(rmgr, null);
             BundledTileSetRepository repo =
                 new BundledTileSetRepository(rmgr, imgr, "tilesets");

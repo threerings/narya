@@ -1,5 +1,5 @@
 //
-// $Id: DumpBundle.java,v 1.6 2002/02/05 20:29:09 mdb Exp $
+// $Id: DumpBundle.java,v 1.7 2002/07/19 20:13:04 shaper Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -33,7 +33,7 @@ public class DumpBundle
 
         // create a resource and image manager in case they want to dump
         // the tiles
-        ResourceManager rmgr = new ResourceManager("rsrc", null, null);
+        ResourceManager rmgr = new ResourceManager("rsrc");
         ImageManager imgr = new ImageManager(rmgr, null);
 
         for (int i = 0; i < args.length; i++) {

@@ -1,5 +1,5 @@
 //
-// $Id: TestApp.java,v 1.14 2002/06/19 23:24:19 mdb Exp $
+// $Id: TestApp.java,v 1.15 2002/07/19 20:13:29 shaper Exp $
 
 package com.threerings.cast.builder;
 
@@ -27,8 +27,8 @@ public class TestApp
         _frame.setSize(800, 600);
         SwingUtil.centerWindow(_frame);
 
-        ResourceManager rmgr = new ResourceManager(
-            "rsrc", null, "config/resource/manager.properties");
+        ResourceManager rmgr = new ResourceManager("rsrc");
+        rmgr.initBundles(null, "config/resource/manager.properties", null);
         ImageManager imgr = new ImageManager(rmgr, _frame);
 
         ComponentRepository crepo =

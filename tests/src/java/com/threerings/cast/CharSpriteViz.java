@@ -1,5 +1,5 @@
 //
-// $Id: CharSpriteViz.java,v 1.1 2002/06/26 23:53:07 mdb Exp $
+// $Id: CharSpriteViz.java,v 1.2 2002/07/19 20:13:29 shaper Exp $
 
 package com.threerings.cast;
 
@@ -102,8 +102,8 @@ public class CharSpriteViz extends JPanel
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         try {
-            ResourceManager rmgr = new ResourceManager(
-                "rsrc", null, "config/resource/manager.properties");
+            ResourceManager rmgr = new ResourceManager("rsrc");
+            rmgr.initBundles(null, "config/resource/manager.properties", null);
             ImageManager imgr = new ImageManager(rmgr, frame);
             ComponentRepository crepo =
                 new BundledComponentRepository(rmgr, imgr, "components");

@@ -1,5 +1,5 @@
 //
-// $Id: TestIconManager.java,v 1.1 2002/02/03 22:43:54 mdb Exp $
+// $Id: TestIconManager.java,v 1.2 2002/07/19 20:13:29 shaper Exp $
 
 package com.threerings.media;
 
@@ -23,7 +23,7 @@ public class TestIconManager
             JFrame frame = new JFrame("TestIconManager");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-            ResourceManager rmgr = new ResourceManager("rsrc", null, null);
+            ResourceManager rmgr = new ResourceManager("rsrc");
             ImageManager imgr = new ImageManager(rmgr, frame);
             TileManager tmgr = new TileManager(imgr);
             IconManager iconmgr = new IconManager(

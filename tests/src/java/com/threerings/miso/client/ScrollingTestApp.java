@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.15 2002/06/18 22:38:55 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.16 2002/07/19 20:13:30 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -77,8 +77,8 @@ public class ScrollingTestApp
         _framemgr = new FrameManager(_frame);
 
         // we don't need to configure anything
-        ResourceManager rmgr = new ResourceManager(
-            "rsrc", null, "config/resource/manager.properties");
+        ResourceManager rmgr = new ResourceManager("rsrc");
+        rmgr.initBundles(null, "config/resource/manager.properties", null);
         ImageManager imgr = new ImageManager(rmgr, _frame);
 	_tilemgr = new MisoTileManager(rmgr, imgr);
         _tilemgr.setTileSetRepository(
