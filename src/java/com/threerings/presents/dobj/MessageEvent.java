@@ -1,5 +1,5 @@
 //
-// $Id: MessageEvent.java,v 1.2 2001/07/19 19:17:06 mdb Exp $
+// $Id: MessageEvent.java,v 1.3 2001/08/02 04:49:08 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -18,7 +18,7 @@ import com.threerings.cocktail.cher.dobj.io.ValueMarshaller;
  * same object can distinguish their different messages, and an array of
  * arguments by which any contents of the message can be delivered.
  *
- * @see DObjectManager.postEvent
+ * @see DObjectManager#postEvent
  */
 public class MessageEvent extends TypedEvent
 {

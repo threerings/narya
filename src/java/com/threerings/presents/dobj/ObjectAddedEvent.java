@@ -1,5 +1,5 @@
 //
-// $Id: ObjectAddedEvent.java,v 1.2 2001/07/21 01:09:55 mdb Exp $
+// $Id: ObjectAddedEvent.java,v 1.3 2001/08/02 04:49:08 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -13,7 +13,7 @@ import java.io.IOException;
  * constructed to request the addition of an oid to an
  * <code>OidList</code> attribute of an object and posted to the dobjmgr.
  *
- * @see DObjectManager.postEvent
+ * @see DObjectManager#postEvent
  */
 public class ObjectAddedEvent extends TypedEvent
 {

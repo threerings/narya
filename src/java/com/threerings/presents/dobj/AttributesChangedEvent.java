@@ -1,5 +1,5 @@
 //
-// $Id: AttributesChangedEvent.java,v 1.5 2001/06/13 05:15:49 mdb Exp $
+// $Id: AttributesChangedEvent.java,v 1.6 2001/08/02 04:49:08 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -14,7 +14,7 @@ import com.threerings.cocktail.cher.dobj.io.ValueMarshaller;
  * attributes of a distributed object have been changed in a single
  * transaction.
  *
- * @see DObjectManager.postEvent
+ * @see DObjectManager#postEvent
  */
 public class AttributesChangedEvent extends TypedEvent
 {

@@ -1,5 +1,5 @@
 //
-// $Id: Subscriber.java,v 1.4 2001/06/09 23:39:04 mdb Exp $
+// $Id: Subscriber.java,v 1.5 2001/08/02 04:49:08 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -21,7 +21,7 @@ public interface Subscriber
      * read-only copy, these updates will not occur and the subscriber
      * should not attempt to modify the object.
      *
-     * @see DObjectManager.subscribeToObject
+     * @see DObjectManager#subscribeToObject
      */
     public void objectAvailable (DObject object);
 
@@ -30,7 +30,7 @@ public interface Subscriber
      * failure will be communicated via the supplied
      * <code>ObjectAccessException</code>.
      *
-     * @see DObjectManager.subscribeToObject
+     * @see DObjectManager#subscribeToObject
      */
     public void requestFailed (int oid, ObjectAccessException cause);
 

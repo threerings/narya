@@ -1,5 +1,5 @@
 //
-// $Id: DObjectManager.java,v 1.6 2001/06/13 05:17:55 mdb Exp $
+// $Id: DObjectManager.java,v 1.7 2001/08/02 04:49:08 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -44,8 +44,8 @@ public interface DObjectManager
      * subscription is desired.
      * @param target The subscriber to be subscribed.
      *
-     * @see Subscriber.objectAvailable
-     * @see Subscriber.requestFailed
+     * @see Subscriber#objectAvailable
+     * @see Subscriber#requestFailed
      */
     public void subscribeToObject (int oid, Subscriber target);
 

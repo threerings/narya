@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.15 2001/07/23 21:11:48 mdb Exp $
+// $Id: DObject.java,v 1.16 2001/08/02 04:49:08 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -100,7 +100,7 @@ public class DObject
      * are operating on the omgr thread (you are in the middle of a call
      * to <code>objectAvailable</code> or <code>handleEvent</code>).
      *
-     * @see DObjectManager.subscribeToObject
+     * @see DObjectManager#subscribeToObject
      */
     public void addSubscriber (Subscriber sub)
     {
@@ -116,7 +116,7 @@ public class DObject
      * are operating on the omgr thread (you are in the middle of a call
      * to <code>objectAvailable</code> or <code>handleEvent</code>).
      *
-     * @see DObjectManager.unsubscribeFromObject
+     * @see DObjectManager#unsubscribeFromObject
      */
     public void removeSubscriber (Subscriber sub)
     {
@@ -235,7 +235,7 @@ public class DObject
      * distributed object manager when an object is created and registered
      * with the system.
      *
-     * @see DObjectManager.createObject
+     * @see DObjectManager#createObject
      */
     public void setManager (DObjectManager mgr)
     {
@@ -246,7 +246,7 @@ public class DObject
      * Don't call this function. It is called by the distributed object
      * manager when an object is created and registered with the system.
      *
-     * @see DObjectManager.createObject
+     * @see DObjectManager#createObject
      */
     public void setOid (int oid)
     {
