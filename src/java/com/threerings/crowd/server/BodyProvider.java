@@ -1,5 +1,5 @@
 //
-// $Id: BodyProvider.java,v 1.3 2002/11/06 04:12:39 mdb Exp $
+// $Id: BodyProvider.java,v 1.4 2002/11/06 04:18:02 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -61,7 +61,7 @@ public class BodyProvider
         BodyObject body, int locationId, byte status)
     {
         // no need to NOOP
-        if (body.status == status) {
+        if (body.status != status) {
             // update the status in their body object
             body.setStatus(status);
             body.statusTime = System.currentTimeMillis();
