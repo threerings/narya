@@ -1,5 +1,5 @@
 //
-// $Id: SimpleClient.java,v 1.1 2002/01/16 02:59:08 mdb Exp $
+// $Id: SimpleClient.java,v 1.2 2002/02/05 22:58:23 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -65,7 +65,7 @@ public class SimpleClient
      * Returns a reference to the context in effect for this client. This
      * reference is valid for the lifetime of the application.
      */
-    public ParlorContext getContext ()
+    public ParlorContext getParlorContext ()
     {
         return _ctx;
     }

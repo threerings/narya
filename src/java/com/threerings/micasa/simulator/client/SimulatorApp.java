@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorApp.java,v 1.3 2002/02/05 22:12:42 mdb Exp $
+// $Id: SimulatorApp.java,v 1.4 2002/02/05 22:58:23 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -46,7 +46,7 @@ public class SimulatorApp
 
         // set up the top-level client controller
         Controller ctrl = new ClientController(
-            _client.getContext(), _frame, siminfo);
+            _client.getParlorContext(), _frame, siminfo);
         _frame.setController(ctrl);
     }
 
@@ -80,7 +80,7 @@ public class SimulatorApp
         _serverThread.start();
 
         // start up the client
-        Client client = _client.getContext().getClient();
+        Client client = _client.getParlorContext().getClient();
 
         // we're connecting to our own server
         client.setServer("localhost", Client.DEFAULT_SERVER_PORT);
