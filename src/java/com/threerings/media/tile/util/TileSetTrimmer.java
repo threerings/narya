@@ -1,5 +1,5 @@
 //
-// $Id: TileSetTrimmer.java,v 1.3 2002/09/09 20:26:52 shaper Exp $
+// $Id: TileSetTrimmer.java,v 1.4 2002/09/11 19:17:55 shaper Exp $
 
 package com.threerings.media.tile.util;
 
@@ -90,6 +90,12 @@ public class TileSetTrimmer
             try {
                 Tile tile = source.getTile(ii);
                 timgs[ii] = (BufferedImage)tile.getImage();
+
+            } catch (RasterFormatException rfe) {
+                throw new IOException("Failed to get tile image " +
+                                      "[tidx=" + ii + ", tset=" + source +
+                                      ", rfe=" + rfe + "].");
+
             } catch (NoSuchTileException nste) {
                 throw new RuntimeException("WTF? No such tile [tset=" + source +
                                            ", tidx=" + ii + "]");
