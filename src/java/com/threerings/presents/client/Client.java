@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.15 2001/10/03 03:42:31 mdb Exp $
+// $Id: Client.java,v 1.16 2001/10/09 18:17:33 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -187,6 +187,15 @@ public class Client
     }
 
     /**
+     * Returns a reference to the bootstrap data provided to this client
+     * at logon time.
+     */
+    public BootstrapData getBootstrapData ()
+    {
+        return _bstrap;
+    }
+
+    /**
      * Requests that this client connect and logon to the server with
      * which it was previously configured.
      */
@@ -274,6 +283,9 @@ public class Client
      */
     void gotBootstrap (BootstrapData data)
     {
+        // keep this around for interested parties
+        _bstrap = data;
+
         // extract bootstrap information
         _cloid = data.clientOid;
 
@@ -308,6 +320,7 @@ public class Client
     /** The entity that manages our network communications. */
     protected Communicator _comm;
 
+    protected BootstrapData _bstrap;
     protected int _cloid;
     protected InvocationDirector _invdir = new InvocationDirector();
 
