@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.18 2002/02/26 20:37:55 mdb Exp $
+// $Id: ChatDirector.java,v 1.19 2002/02/26 20:52:45 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -224,7 +224,7 @@ public class ChatDirector
      *
      * @param invid the invocation id of the tell request.
      */
-    public void handleTellSucceded (int invid)
+    public void handleTellSucceeded (int invid)
     {
         // pass this on to our chat displays
         for (int i = 0; i < _displays.size(); i++) {
