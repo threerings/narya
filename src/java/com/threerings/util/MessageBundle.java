@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.9 2002/05/01 02:45:00 mdb Exp $
+// $Id: MessageBundle.java,v 1.10 2002/05/01 03:39:13 ray Exp $
 
 package com.threerings.util;
 
@@ -38,26 +38,31 @@ public class MessageBundle
      */
     public String get (String key)
     {
-        // if we were unable to resolve our resource bundle, we can't do
-        // any translations
-        if (_bundle == null) {
-            return key;
-        }
-
         // if this string is tainted, we don't translate it, instead we
         // simply remove the taint character and return it to the caller
         if (key.startsWith(TAINT_CHAR)) {
             return key.substring(1);
         }
 
+        String msg = getResourceString(key);
+        return (msg != null) ? msg : key;
+    }
+
+    /**
+     * Get a String from the resource bundle, or null if there was an error.
+     */
+    protected String getResourceString (String key)
+    {
         try {
-            return _bundle.getString(key);
+            if (_bundle != null) {
+                return _bundle.getString(key);
+            }
 
         } catch (MissingResourceException mre) {
             Log.warning("Missing translation message " +
                         "[bundle=" + _path + ", key=" + key + "].");
-            return key;
         }
+        return null;
     }
 
     /**
@@ -117,21 +122,9 @@ public class MessageBundle
      */
     public String get (String key, Object[] args)
     {
-        // if we were unable to resolve our resource bundle, we can't do
-        // any translations
-        if (_bundle == null) {
-            return key + StringUtil.toString(args);
-        }
-
-        try {
-            String message = _bundle.getString(key);
-            return MessageFormat.format(message, args);
-
-        } catch (MissingResourceException mre) {
-            Log.warning("Missing translation message " +
-                        "[bundle=" + _path + ", key=" + key + "].");
-            return key + StringUtil.toString(args);
-        }
+        String msg = getResourceString(key);
+        return (msg != null) ? MessageFormat.format(msg, args)
+                             : (key + StringUtil.toString(args));
     }
 
     /**
