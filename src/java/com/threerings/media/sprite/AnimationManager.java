@@ -1,11 +1,12 @@
 //
-// $Id: AnimationManager.java,v 1.14 2001/08/22 02:14:57 mdb Exp $
+// $Id: AnimationManager.java,v 1.15 2001/08/23 00:23:58 shaper Exp $
 
 package com.threerings.media.sprite;
 
 import java.awt.Graphics;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
+import javax.swing.event.*;
 
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
@@ -19,7 +20,8 @@ import com.threerings.miso.util.PerformanceObserver;
  * view to allow for animation.  It also may someday manage special
  * scene-wide animations, such as rain, fog, or earthquakes.
  */
-public class AnimationManager implements Interval, PerformanceObserver
+public class AnimationManager
+    implements Interval, PerformanceObserver, AncestorListener
 {
     /**
      * Construct and initialize the animation manager with a sprite
@@ -31,6 +33,19 @@ public class AnimationManager implements Interval, PerformanceObserver
         _spritemgr = spritemgr;
         _view = view;
 
+        // register to monitor the refresh action 
+        PerformanceMonitor.register(this, "refresh", 1000);
+
+	// register the refresh interval immediately if the component
+	// is already showing on-screen
+	JComponent target = _view.getComponent();
+  	if (target.isShowing()) {
+	    registerInterval();
+	}
+
+	// listen to the view's ancestor events
+	target.addAncestorListener(this);
+
         // create a ticker for queueing up tick requests on the AWT thread
         _ticker = new Runnable() {
             public void run ()
@@ -41,20 +56,12 @@ public class AnimationManager implements Interval, PerformanceObserver
     }
 
     /**
-     * This method should be called by the component the animation
-     * manager is animating after it's been fully laid out within its
-     * container(s); typically, after <code>Component.doLayout()</code>
-     * has been called.  The animation manager will then register
-     * itself with the <code>IntervalManager</code> to effect its
-     * periodic repainting of the target component.
+     * Register the animation manager's refresh interval with the
+     * interval manager.
      */
-    public void start ()
+    protected void registerInterval ()
     {
-        // register to monitor the refresh action 
-        PerformanceMonitor.register(this, "refresh", 1000);
-
-        // register ourselves with the interval manager
-        IntervalManager.register(this, REFRESH_INTERVAL, null, true);
+	_iid = IntervalManager.register(this, REFRESH_INTERVAL, null, true);
     }
 
     /**
@@ -133,6 +140,25 @@ public class AnimationManager implements Interval, PerformanceObserver
         Log.info(name + " [ticks=" + ticks + "].");
     }
 
+    /** AncestorListener interface methods. */
+
+    public void ancestorAdded (AncestorEvent event)
+    {
+	if (_iid == -1) {
+	    // register the refresh interval since we're now visible
+	    registerInterval();
+	}
+    }
+
+    public void ancestorRemoved (AncestorEvent event)
+    {
+	// un-register the refresh interval since we're now hidden
+	IntervalManager.remove(_iid);
+	_iid = -1;
+    }
+
+    public void ancestorMoved (AncestorEvent event) { }
+
     /** The ticker runnable that we put on the AWT thread periodically. */
     protected Runnable _ticker;
 
@@ -144,6 +170,9 @@ public class AnimationManager implements Interval, PerformanceObserver
 
     /** The number of outstanding tick requests. */
     protected int _ticking = 0;
+
+    /** The refresh interval id. */
+    protected int _iid = -1;
 
     /** The sprite manager. */
     protected SpriteManager _spritemgr;

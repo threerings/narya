@@ -1,11 +1,11 @@
 //
-// $Id: SceneViewPanel.java,v 1.11 2001/08/22 02:14:57 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.12 2001/08/23 00:23:58 shaper Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.*;
 import java.util.List;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 import com.threerings.media.sprite.*;
 import com.threerings.media.tile.TileManager;
@@ -92,6 +92,11 @@ public class SceneViewPanel
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
+    }
+
+    public JComponent getComponent ()
+    {
+	return this;
     }
 
     public void paintComponent (Graphics g)

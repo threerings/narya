@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.12 2001/08/21 20:02:39 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.13 2001/08/23 00:23:58 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -76,14 +76,6 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     public void checkpoint (String name, int ticks)
     {
         Log.info(name + " [ticks=" + ticks + "].");
-    }
-
-    public void doLayout ()
-    {
-	super.doLayout();
-
-	// now that we've been fully laid out, start animating
-	_animmgr.start();
     }
 
     /** MouseListener interface methods */
