@@ -40,27 +40,6 @@ public class StageScene extends SceneImpl
         readInterestingObjects();
     }
 
-    protected void readInterestingObjects ()
-    {
-        _objects.clear();
-        StageMisoSceneModel mmodel = StageMisoSceneModel.getSceneModel(_model);
-        if (mmodel != null) {
-            mmodel.getInterestingObjects(_objects);
-        }
-    }
-
-    // documentation inherited
-    public void updateReceived (SceneUpdate update)
-    {
-        super.updateReceived(update);
-
-        // update our spot scene delegate
-        _sdelegate.updateReceived();
-
-        // re-read our interesting objects
-        readInterestingObjects();
-    }
-
     /**
      * Returns the scene type (e.g. "world", "port", "bank", etc.).
      */
@@ -104,6 +83,14 @@ public class StageScene extends SceneImpl
     }
 
     /**
+     * Iterates over all of the interesting objects in this scene.
+     */
+    public Iterator enumerateObjects ()
+    {
+        return _objects.iterator();
+    }
+
+    /**
      * Adds a new object to this scene.
      */
     public void addObject (ObjectInfo info)
@@ -136,42 +123,16 @@ public class StageScene extends SceneImpl
         return removed;
     }
 
-    /**
-     * Iterates over all of the interesting objects in this scene.
-     */
-    public Iterator enumerateObjects ()
+    // documentation inherited
+    public void updateReceived (SceneUpdate update)
     {
-        return _objects.iterator();
-    }
+        super.updateReceived(update);
 
-    /**
-     * Applies the supplied scene update to this scene.
-     */
-    public void applyUpdate (SceneUpdate update)
-    {
-        if (update instanceof AddObjectUpdate) {
-            AddObjectUpdate aou = (AddObjectUpdate) update;
+        // update our spot scene delegate
+        _sdelegate.updateReceived();
 
-            // remove any occluded objects
-            if (aou.casualties != null) {
-                for (int ii = 0; ii < aou.casualties.length; ii++) {
-                    removeObject(aou.casualties[ii]);
-                }
-            }
-
-            // add the object
-            addObject(aou.info);
-
-        } else if (update instanceof DefaultColorUpdate) {
-            DefaultColorUpdate dcu = (DefaultColorUpdate) update;
-            setDefaultColor(dcu.classId, dcu.colorId);
-
-        } else {
-            Log.warning("Unknown scene update applied to StageScene: " + update);
-        }
-
-        // increment our scene version
-        setVersion(getVersion() + 1);
+        // re-read our interesting objects
+        readInterestingObjects();
     }
 
     // documentation inherited
@@ -222,6 +183,15 @@ public class StageScene extends SceneImpl
     public void setDefaultEntrance (Portal portal)
     {
         _sdelegate.setDefaultEntrance(portal);
+    }
+
+    protected void readInterestingObjects ()
+    {
+        _objects.clear();
+        StageMisoSceneModel mmodel = StageMisoSceneModel.getSceneModel(_model);
+        if (mmodel != null) {
+            mmodel.getInterestingObjects(_objects);
+        }
     }
 
     /** A reference to our scene model. */

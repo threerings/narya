@@ -19,26 +19,28 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.game.server;
+package com.threerings.stage.server;
 
-import com.threerings.parlor.game.client.GameService;
-import com.threerings.parlor.game.data.GameMarshaller;
+import com.threerings.miso.data.ObjectInfo;
 import com.threerings.presents.client.Client;
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
+import com.threerings.stage.client.StageSceneService;
+import com.threerings.stage.data.StageSceneMarshaller;
 
 /**
- * Dispatches requests to the {@link GameProvider}.
+ * Dispatches requests to the {@link StageSceneProvider}.
  */
-public class GameDispatcher extends InvocationDispatcher
+public class StageSceneDispatcher extends InvocationDispatcher
 {
     /**
      * Creates a dispatcher that may be registered to dispatch invocation
      * service requests for the specified provider.
      */
-    public GameDispatcher (GameProvider provider)
+    public StageSceneDispatcher (StageSceneProvider provider)
     {
         this.provider = provider;
     }
@@ -46,7 +48,7 @@ public class GameDispatcher extends InvocationDispatcher
     // documentation inherited
     public InvocationMarshaller createMarshaller ()
     {
-        return new GameMarshaller();
+        return new StageSceneMarshaller();
     }
 
     // documentation inherited
@@ -55,15 +57,10 @@ public class GameDispatcher extends InvocationDispatcher
         throws InvocationException
     {
         switch (methodId) {
-        case GameMarshaller.PLAYER_READY:
-            ((GameProvider)provider).playerReady(
-                source                
-            );
-            return;
-
-        case GameMarshaller.START_PARTY_GAME:
-            ((GameProvider)provider).startPartyGame(
-                source                
+        case StageSceneMarshaller.ADD_OBJECT:
+            ((StageSceneProvider)provider).addObject(
+                source,
+                (ObjectInfo)args[0], (InvocationService.ConfirmListener)args[1]
             );
             return;
 

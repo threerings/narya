@@ -127,32 +127,35 @@ public class SceneManager extends PlaceManager
 
     /**
      * When a modification is made to a scene, the scene manager should
-     * update its internal structures, update the {@link Scene} object,
-     * update the repository (either by storing the updated scene
-     * wholesale or more efficiently updating only what has changed), and
-     * then it should create a {@link SceneUpdate} record that can be
-     * delivered to clients to effect the update to the clients's cached
-     * copy of the scene model. This update will be stored persistently
-     * and provided (along with any other accumulated updates) to clients
-     * that later request to enter the scene with an old version of the
-     * scene data. Updates are not stored forever, but a sizable number of
-     * recent updates are stored so that moderately current clients can
-     * apply incremental patches to their scenes rather than redownloading
-     * the entire scenes when they change.
+     * create a SceneUpdate instance and pass it to this method which will
+     * update the in-memory scene, and apply and record the update in the
+     * scene repository.
+     *
+     * <p> This update will be stored persistently and provided (along
+     * with any other accumulated updates) to clients that later request
+     * to enter the scene with an old version of the scene data. Updates
+     * are not stored forever, but a sizable number of recent updates are
+     * stored so that moderately current clients can apply incremental
+     * patches to their scenes rather than redownloading entire scenes
+     * when they change.
      */
     protected void recordUpdate (final SceneUpdate update)
     {
+        // instruct our in-memory copy of the scene to apply the update
+        _scene.updateReceived(update);
+
         // add it to our in memory update list
         _updates.addUpdate(update);
 
-        // and store it in the repository
+        // and apply and store it in the repository
         WhirledServer.invoker.postUnit(new Invoker.Unit() {
             public boolean invoke () {
                 try {
-                    _screg.getSceneRepository().addUpdate(update);
+                    _screg.getSceneRepository().applyAndRecordUpdate(
+                        _scene.getSceneModel(), update);
                 } catch (PersistenceException pe) {
-                    Log.warning("Failed to store scene update " +
-                                "[update=" + update + ", error=" + pe + "].");
+                    Log.warning("Failed to apply scene update " + update + ".");
+                    Log.logStackTrace(pe);
                 }
                 return false;
             }

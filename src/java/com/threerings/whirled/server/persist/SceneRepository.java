@@ -1,5 +1,5 @@
 //
-// $Id: SceneRepository.java,v 1.7 2004/08/27 02:20:43 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -60,12 +60,14 @@ public interface SceneRepository
         throws PersistenceException, NoSuchSceneException;
 
     /**
-     * Adds the supplied scene update to the list of updates for its
-     * associated scene.
+     * Applise the supplied scene update to persistent representation of
+     * its associated scene, then stores the update persistently for
+     * future invocations of the server to load. <em>Note:</em> the scene
+     * update will have already been applied to the supplied scene model.
      *
      * @exception PersistenceException thrown if an error occurs
-     * attempting to store the scene update.
+     * attempting to apply the scene update.
      */
-    public void addUpdate (SceneUpdate update)
+    public void applyAndRecordUpdate (SceneModel model, SceneUpdate update)
         throws PersistenceException;
 }

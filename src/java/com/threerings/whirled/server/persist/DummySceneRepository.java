@@ -1,5 +1,5 @@
 //
-// $Id: DummySceneRepository.java,v 1.9 2004/08/27 02:20:43 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -52,7 +52,7 @@ public class DummySceneRepository implements SceneRepository
     }
 
     // documentation inherited from interface
-    public void addUpdate (SceneUpdate update)
+    public void applyAndRecordUpdate (SceneModel model, SceneUpdate update)
         throws PersistenceException
     {
         // nothing doing
