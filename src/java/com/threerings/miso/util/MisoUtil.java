@@ -1,5 +1,5 @@
 //
-// $Id: MisoUtil.java,v 1.21 2003/04/19 22:40:34 mdb Exp $
+// $Id: MisoUtil.java,v 1.22 2003/05/29 01:58:06 ray Exp $
 
 package com.threerings.miso.util;
 
@@ -154,6 +154,19 @@ public class MisoUtil
             dir = DirectionUtil.rotateCW(dir, 2);
         }
         return dir;
+    }
+
+    /**
+     * Compute some hash value for "randomizing" tileset picks
+     * based on x and y coordinates.
+     *
+     * @return a positive, seemingly random number based on x and y.
+     */
+    public static int getTileHash (int x, int y)
+    {
+        long seed = ((x ^ y) ^ MULTIPLIER) & MASK;
+        long hash = (seed * MULTIPLIER + ADDEND) & MASK;
+        return (int) (hash >>> 30);
     }
 
     /**
@@ -503,4 +516,8 @@ public class MisoUtil
 
     /** Multiplication factor to embed tile coords in full coords. */
     protected static final int FULL_TILE_FACTOR = 100;
+
+    protected static final long MULTIPLIER = 0x5DEECE66DL;
+    protected static final long ADDEND = 0xBL;
+    protected static final long MASK = (1L << 48) - 1;
 }

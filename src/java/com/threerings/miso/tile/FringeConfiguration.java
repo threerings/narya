@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfiguration.java,v 1.14 2003/05/29 01:04:58 ray Exp $
+// $Id: FringeConfiguration.java,v 1.15 2003/05/29 01:58:06 ray Exp $
 
 package com.threerings.miso.tile;
 
@@ -122,10 +122,8 @@ public class FringeConfiguration implements Serializable
     public FringeTileSetRecord getFringe (int baseset, int hashValue)
     {
         FringeRecord f = (FringeRecord) _frecs.get(baseset);
-
-        int size = f.tilesets.size();
-        int pick = Math.abs(hashValue) % size;
-        return (FringeTileSetRecord) f.tilesets.get(pick);
+        return (FringeTileSetRecord) f.tilesets.get(
+            hashValue % f.tilesets.size());
     }
 
     /** The mapping from base tileset id to fringerecord. */

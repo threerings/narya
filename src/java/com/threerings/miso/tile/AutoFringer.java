@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.23 2003/05/29 01:04:58 ray Exp $
+// $Id: AutoFringer.java,v 1.24 2003/05/29 01:58:06 ray Exp $
 
 package com.threerings.miso.tile;
 
@@ -33,6 +33,7 @@ import com.threerings.media.image.ImageManager;
 import com.threerings.media.image.Mirage;
 
 import com.threerings.miso.data.MisoSceneModel;
+import com.threerings.miso.util.MisoUtil;
 
 /**
  * Automatically fringes a scene according to the rules in the supplied
@@ -110,16 +111,7 @@ public class AutoFringer
             }
         }
 
-        return composeFringeTile(frecs, masks, generateHashValue(col, row));
-    }
-
-    /**
-     * Create a hash value for picking which fringe to use for a particular
-     * tile.
-     */
-    protected int generateHashValue (int col, int row)
-    {
-        return col ^ row;
+        return composeFringeTile(frecs, masks, MisoUtil.getTileHash(col, row));
     }
 
     /**

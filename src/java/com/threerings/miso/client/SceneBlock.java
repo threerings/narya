@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.16 2003/05/23 19:35:11 mdb Exp $
+// $Id: SceneBlock.java,v 1.17 2003/05/29 01:58:06 ray Exp $
 
 package com.threerings.miso.client;
 
@@ -206,10 +206,8 @@ public class SceneBlock
     {
         BaseTile tile = _base[index(tx, ty)];
         if (tile == null && _defset != null) {
-            long seed = ((tx^ty) ^ multiplier) & mask;
-            long hash = (seed * multiplier + addend) & mask;
-            int tidx = (int)((hash >> 10) % _defset.getTileCount());
-            tile = (BaseTile)_defset.getTile(tidx);
+            tile = (BaseTile)_defset.getTile(
+                MisoUtil.getTileHash(tx, ty) % _defset.getTileCount());
         }
         return tile;
     }
