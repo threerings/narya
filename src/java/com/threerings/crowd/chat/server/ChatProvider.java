@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.14 2002/10/30 01:47:12 ray Exp $
+// $Id: ChatProvider.java,v 1.15 2002/10/30 01:56:17 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -59,7 +59,7 @@ public class ChatProvider
             throw new InvocationException(MessageBundle.compose(
                 USER_DISCONNECTED, TimeUtil.getTimeOrderString(
                 System.currentTimeMillis() - tobj.statusTime,
-                TimeUtil.MINUTE)));
+                TimeUtil.SECOND)));
         }
 
         // deliver a tell notification to the target player
