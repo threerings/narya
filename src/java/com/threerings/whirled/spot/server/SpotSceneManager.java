@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.37 2003/03/27 17:13:38 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.38 2003/03/30 03:33:52 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -264,10 +264,26 @@ public class SpotSceneManager extends SceneManager
             return;
         }
 
+        // confirm that they can start a cluster with this unsuspecting
+        // other person
+        checkCanCluster(joiner, friend);
+
         // otherwise we create a new cluster and add our charter members!
         clrec = new ClusterRecord();
         clrec.addBody(friend);
         clrec.addBody(joiner);
+    }
+
+    /**
+     * Gives derived classes an opportunity to veto a user's attempt to
+     * start a cluster with another user. If the attempt should be vetoed,
+     * this method should throw an {@link InvocationException} indicating
+     * the reason for veto.
+     */
+    protected void checkCanCluster (BodyObject initiator, BodyObject target)
+        throws InvocationException
+    {
+        // nothing to do by default
     }
 
     /**
