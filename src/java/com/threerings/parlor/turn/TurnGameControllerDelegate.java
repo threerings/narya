@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameControllerDelegate.java,v 1.2 2002/02/13 03:21:28 mdb Exp $
+// $Id: TurnGameControllerDelegate.java,v 1.3 2002/08/07 21:16:08 shaper Exp $
 
 package com.threerings.parlor.turn;
 
@@ -48,6 +48,24 @@ public class TurnGameControllerDelegate extends GameControllerDelegate
         BodyObject self = (BodyObject)_ctx.getClient().getClientObject();
         return (_gameObj.state == GameObject.IN_PLAY &&
                 _turnGame.getTurnHolder().equals(self.username));
+    }
+
+    /**
+     * Returns the index of the current turn holder as configured in the
+     * game object.
+     *
+     * @return the index into the players array of the current turn holder
+     * or -1 if there is no current turn holder.
+     */
+    public int getTurnHolderIndex ()
+    {
+        String holder = _turnGame.getTurnHolder();
+        for (int i = 0; i < _gameObj.players.length; i++) {
+            if (_gameObj.players[i].equals(holder)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     // documentation inherited
