@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.8 2002/06/12 07:04:41 ray Exp $
+// $Id: SpotProvider.java,v 1.9 2002/06/19 20:27:07 ray Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -241,44 +241,6 @@ public class SpotProvider extends InvocationProvider
             smgr.handleClusterSpeakRequest(
                 speakerOid, speaker, locId, bundle, message);
         }
-    }
-
-    /**
-     * Looks up the specified place object, obtains the occupant info for
-     * the specified body object and updates the location id in said
-     * occupant info.
-     *
-     * @return old location id or -1 if no update took place (because
-     * something was not in order, like the place object didn't exist,
-     * etc.).
-     */
-    protected static int updateLocation (
-        int placeOid, int bodyOid, int locationId)
-    {
-        PlaceObject place = null;
-        int oldLocId = -1;
-
-        if (placeOid != -1 && locationId != -1) {
-            place = (PlaceObject)_omgr.getObject(placeOid);
-        }
-
-        if (place != null) {
-            Integer key = new Integer(bodyOid);
-            SpotOccupantInfo info = (SpotOccupantInfo)
-                place.occupantInfo.get(key);
-            if (info != null) {
-                oldLocId = info.locationId;
-                // we need to clone the info because moveTo() down below
-                // is going to update the actual info record and post it
-                // in its own event, which would mess us up if we were
-                // using the real thing
-                info = (SpotOccupantInfo)info.clone();
-                info.locationId = locationId;
-                place.updateOccupantInfo(info);
-            }
-        }
-
-        return oldLocId;
     }
 
     /** The scene registry with which we interoperate. */
