@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.22 2002/05/26 02:24:45 mdb Exp $
+// $Id: ChatDirector.java,v 1.23 2002/06/19 23:12:48 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -62,6 +62,24 @@ public class ChatDirector
     }
 
     /**
+     * Add the specified chat validator to the list of validators.
+     * All chat requests will be validated with all validators before
+     * they may be accepted.
+     */
+    public void addChatValidator (ChatValidator validator)
+    {
+        _validators.add(validator);
+    }
+
+    /**
+     * Removes the specified chat validator from the list of chat validators.
+     */
+    public void removeChatValidator (ChatValidator validator)
+    {
+        _validators.remove(validator);
+    }
+
+    /**
      * Requests that the specified system message be dispatched to all
      * registered chat displays. The message will be delivered as if it
      * were received on the main chat object (meaning the chat type will
@@ -115,6 +133,13 @@ public class ChatDirector
             return -1;
         }
 
+        // make sure they can say what they want to say
+        for (int ii=0; ii < _validators.size(); ii++) {
+            if (!((ChatValidator) _validators.get(ii)).validateSpeak(message)) {
+                return -1;
+            }
+        }
+
         // dispatch a speak request on the active place object
         int reqid =
             _ctx.getClient().getInvocationDirector().nextInvocationId();
@@ -122,6 +147,9 @@ public class ChatDirector
         MessageEvent mevt = new MessageEvent(
             _place.getOid(), SPEAK_REQUEST, args);
         _ctx.getDObjectManager().postEvent(mevt);
+        // TODO: when this gets changed such that we actually validate
+        // this on the server, we have to make sure that the
+        // user is not on a portal before we allow the 'shout' to go through
         return reqid;
     }
 
@@ -139,6 +167,13 @@ public class ChatDirector
      */
     public int requestTell (String target, String message)
     {
+        // make sure they can say what they want to say
+        for (int ii=0; ii < _validators.size(); ii++) {
+            if (!((ChatValidator) _validators.get(ii)).validateTell(target,
+                                                                    message)) {
+                return -1;
+            }
+        }
         return ChatService.tell(_ctx.getClient(), target, message, this);
     }
 
@@ -327,6 +362,9 @@ public class ChatDirector
 
     /** A list of registered chat displays. */
     protected ArrayList _displays = new ArrayList();
+
+    /** A list of registered chat validators. */
+    protected ArrayList _validators = new ArrayList();
 
     /** A mapping from auxiliary chat objects to the types under which
      * they are registered. */
