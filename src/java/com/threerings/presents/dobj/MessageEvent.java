@@ -1,5 +1,5 @@
 //
-// $Id: MessageEvent.java,v 1.4 2001/08/04 00:32:11 mdb Exp $
+// $Id: MessageEvent.java,v 1.5 2001/08/11 00:05:58 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -64,6 +64,16 @@ public class MessageEvent extends TypedEvent
     public Object[] getArgs ()
     {
         return _args;
+    }
+
+    /**
+     * Replaces the arguments associated with this message event.
+     * <em>Note:</em> this should only be called on events that have not
+     * yet been dispatched into the distributed object system.
+     */
+    public void setArgs (Object[] args)
+    {
+        _args = args;
     }
 
     /**

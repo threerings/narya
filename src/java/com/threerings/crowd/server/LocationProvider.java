@@ -1,5 +1,5 @@
 //
-// $Id: LocationProvider.java,v 1.2 2001/08/04 01:13:36 mdb Exp $
+// $Id: LocationProvider.java,v 1.3 2001/08/11 00:05:58 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -18,14 +18,16 @@ public class LocationProvider extends InvocationProvider
     /**
      * Processes a request from a client to move to a new place.
      */
-    public Object[] handleMoveToRequest (BodyObject source, int placeId)
+    public void handleMoveToRequest (BodyObject source, int invid,
+                                     int placeId)
     {
         // make sure the place in question actually exists
         DObject pobj = CherServer.omgr.getObject(placeId);
         if (pobj == null || !(pobj instanceof PlaceObject)) {
             Log.info("Requested to move to non-existent place " +
                      "[source=" + source + ", place=" + placeId + "].");
-            return createResponse("MoveFailed", "m.no_such_place");
+            sendResponse(source, invid, "MoveFailed", "m.no_such_place");
+            return;
         }
 
         // acquire a lock on the body object to ensure that rapid fire
@@ -33,7 +35,8 @@ public class LocationProvider extends InvocationProvider
         if (!source.acquireLock("moveToLock")) {
             // if we're still locked, a previous moveTo request hasn't
             // been fully processed
-            return createResponse("MoveFailed", "m.move_in_progress");
+            sendResponse(source, invid, "MoveFailed", "m.move_in_progress");
+            return;
         }
 
         // find out if they were previously in some other location
@@ -63,6 +66,7 @@ public class LocationProvider extends InvocationProvider
         // once all these events are processed
         source.releaseLock("moveToLock");
 
-        return createResponse("MoveSucceeded");
+        // send the response
+        sendResponse(source, invid, "MoveSucceeded");
     }
 }

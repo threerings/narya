@@ -1,7 +1,11 @@
 //
-// $Id: InvocationProvider.java,v 1.3 2001/07/23 21:13:29 mdb Exp $
+// $Id: InvocationProvider.java,v 1.4 2001/08/11 00:05:58 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
+
+import com.threerings.cocktail.cher.dobj.MessageEvent;
+import com.threerings.cocktail.cher.data.ClientObject;
+import com.threerings.cocktail.cher.data.InvocationObject;
 
 /**
  * Invocation providers should extend this class when implementing
@@ -23,8 +27,8 @@ package com.threerings.cocktail.cher.server;
  *     // provider registered for MODULE should look like:
  *     public class TestProvider extends InvocationProvider
  *     {
- *         public Object[] handleTestRequest (ClientObject source,
- *                                            String one, int two)
+ *         public void handleTestRequest (ClientObject source, int invid,
+ *                                        String one, int two)
  *         {
  *             // ...
  *         }
@@ -36,7 +40,7 @@ package com.threerings.cocktail.cher.server;
  *
  * <p> Invocation procedures must also package up their response in a
  * particular way which is through the use of the
- * <code>createResponse</code> methods. These take a response identifier
+ * <code>sendResponse</code> methods. These take a response identifier
  * (which determines the name of the method that will be invoked on the
  * response target object provided in the client) and a variable number of
  * arguments. If a response was created with the identifier
@@ -50,51 +54,70 @@ package com.threerings.cocktail.cher.server;
 public class InvocationProvider
 {
     /**
-     * Creates a response array properly configured with the supplied name
-     * and no arguments.
+     * Delivers an invocation response properly configured with the
+     * supplied name and no arguments.
      */
-    protected Object[] createResponse (String name)
+    protected void sendResponse (ClientObject source, int invid, String name)
     {
-        return new Object[] { name, null };
+        deliverResponse(source, new Object[] { name, new Integer(invid) });
     }
 
     /**
-     * Creates a response array properly configured with the supplied name
-     * and single argument.
+     * Delivers an invocation response properly configured with the
+     * supplied name and single argument.
      */
-    protected Object[] createResponse (String name, Object arg)
+    protected void sendResponse (ClientObject source, int invid,
+                                 String name, Object arg)
     {
-        return new Object[] { name, null, arg };
+        Object[] args = new Object[] { name, new Integer(invid), arg };
+        deliverResponse(source, args);
     }
 
     /**
-     * Creates a response array properly configured with the supplied name
-     * and two arguments.
+     * Delivers an invocation response properly configured with the
+     * supplied name and two arguments.
      */
-    protected Object[] createResponse (String name, Object arg1, Object arg2)
+    protected void sendResponse (ClientObject source, int invid,
+                                 String name, Object arg1, Object arg2)
     {
-        return new Object[] { name, null, arg1, arg2 };
+        Object[] args = new Object[] {
+            name, new Integer(invid), arg1, arg2 };
+        deliverResponse(source, args);
     }
 
     /**
-     * Creates a response array properly configured with the supplied name
-     * and three arguments.
+     * Delivers an invocation response properly configured with the
+     * supplied name and three arguments.
      */
-    protected Object[] createResponse (String name, Object arg1, Object arg2,
-                                       Object arg3)
+    protected void sendResponse (ClientObject source, int invid,
+                                 String name, Object arg1, Object arg2,
+                                 Object arg3)
     {
-        return new Object[] { name, null, arg1, arg2, arg3 };
+        Object[] args = new Object[] {
+            name, new Integer(invid), arg1, arg2, arg3 };
+        deliverResponse(source, args);
     }
 
     /**
-     * Creates a response array properly configured with the supplied name
-     * and varying number of arguments.
+     * Delivers an invocation response properly configured with the
+     * supplied name and varying number of arguments.
      */
-    protected Object[] createResponse (String name, Object[] args)
+    protected void sendResponse (ClientObject source, int invid,
+                                 String name, Object[] args)
     {
-        Object[] rsp = new Object[args.length+2];
-        rsp[0] = name;
-        System.arraycopy(args, 0, rsp, 2, args.length);
-        return rsp;
+        Object[] rargs = new Object[args.length+2];
+        rargs[0] = name;
+        rargs[1] = new Integer(invid);
+        System.arraycopy(args, 0, rargs, 2, args.length);
+        deliverResponse(source, rargs);
+    }
+
+    protected void deliverResponse (ClientObject source, Object[] args)
+    {
+        // create the response event
+        MessageEvent mevt = new MessageEvent(
+            source.getOid(), InvocationObject.RESPONSE_NAME, args);
+        // and ship it off
+        CherServer.omgr.postEvent(mevt);
     }
 }

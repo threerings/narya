@@ -1,5 +1,5 @@
 //
-// $Id: TestProvider.java,v 1.5 2001/08/07 20:38:58 mdb Exp $
+// $Id: TestProvider.java,v 1.6 2001/08/11 00:05:58 mdb Exp $
 
 package com.threerings.cocktail.cher.server.test;
 
@@ -14,8 +14,8 @@ import com.threerings.cocktail.cher.server.InvocationProvider;
  */
 public class TestProvider extends InvocationProvider
 {
-    public Object[] handleTestRequest (
-        ClientObject source, String one, int two)
+    public void handleTestRequest (
+        ClientObject source, int invid, String one, int two)
     {
         Log.info("Test request [one=" + one + ", two=" + two + "].");
 
@@ -25,12 +25,12 @@ public class TestProvider extends InvocationProvider
             source.getOid(), TestService.MODULE, "Test", args);
 
         // and issue a response to this invocation request
-        return createResponse("TestSucceeded", one, new Integer(two));
+        sendResponse(source, invid, "TestSucceeded", one, new Integer(two));
     }
 
-    public Object[] handleGetTestOidRequest (ClientObject source)
+    public void handleGetTestOidRequest (ClientObject source, int invid)
     {
         int oid = TestServer.testobj.getOid();
-        return createResponse("GotTestOid", new Integer(oid));
+        sendResponse(source, invid, "GotTestOid", new Integer(oid));
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: InvocationManager.java,v 1.5 2001/07/19 19:18:07 mdb Exp $
+// $Id: InvocationManager.java,v 1.6 2001/08/11 00:05:58 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -135,7 +135,7 @@ public class InvocationManager
         }
 
         // prune the method arguments from the full message arguments
-        Object[] margs = new Object[args.length-2];
+        Object[] margs = new Object[args.length-1];
         int cloid = mevt.getSourceOid();
         margs[0] = CherServer.omgr.getObject(cloid);
         // make sure the client is still around
@@ -145,7 +145,7 @@ public class InvocationManager
                         ", proc=" + procedure + ", cloid=" + cloid + "].");
             return true;
         }
-        System.arraycopy(args, 3, margs, 1, args.length-3);
+        System.arraycopy(args, 2, margs, 1, args.length-2);
 
         // look up the method that will handle this procedure
         String mname = "handle" + procedure + "Request";
@@ -158,24 +158,12 @@ public class InvocationManager
         }
 
         // and invoke it
-        Object[] rargs = null;
         try {
-            rargs = (Object[])procmeth.invoke(provider, margs);
+            procmeth.invoke(provider, margs);
         } catch (Exception e) {
             Log.warning("Error invoking invocation procedure " +
                         "[provider=" + provider + ", method=" + procmeth +
                         ", error=" + e + "].");
-        }
-
-        // if there is a response to be delivered, do so
-        if (rargs != null) {
-            // fill in the invocation id
-            rargs[1] = invid;
-            // and create a message event for delivery to the client
-            MessageEvent revt = new MessageEvent(
-                mevt.getSourceOid(), InvocationObject.RESPONSE_NAME, rargs);
-            // and ship it off
-            CherServer.omgr.postEvent(revt);
         }
 
         return true;

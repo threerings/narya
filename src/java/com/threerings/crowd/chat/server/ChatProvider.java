@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.2 2001/08/04 02:54:28 mdb Exp $
+// $Id: ChatProvider.java,v 1.3 2001/08/11 00:05:58 mdb Exp $
 
 package com.threerings.cocktail.party.chat;
 
@@ -13,13 +13,13 @@ public class ChatProvider extends InvocationProvider
      * Processes a request from a client to deliver a tell message to
      * another client.
      */
-    public Object[] handleTellRequest (
-        BodyObject source, String target, String message)
+    public void handleTellRequest (
+        BodyObject source, int invid, String target, String message)
     {
         // look up the target body object
         BodyObject tobj = PartyServer.lookupBody(target);
         if (tobj == null) {
-            return createResponse("TellFailed", "m.player_not_online");
+            sendResponse(source, invid, "TellFailed", "m.player_not_online");
         }
 
         // deliver a tell notification to the target player
@@ -28,6 +28,6 @@ public class ChatProvider extends InvocationProvider
             tobj.getOid(), ChatService.MODULE, ChatService.TELL_NOTIFICATION,
             args);
 
-        return createResponse("TellSucceeded");
+        sendResponse(source, invid, "TellSucceeded");
     }
 }
