@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.9 2001/07/19 21:29:01 mdb Exp $
+// $Id: PresentsServer.java,v 1.10 2001/08/08 00:28:49 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -132,15 +132,49 @@ public class CherServer
         // start up the connection manager
         conmgr.start();
         // invoke the dobjmgr event loop
-        ((CherDObjectMgr)omgr).run();
+        omgr.run();
+    }
+
+    /**
+     * Requests that the server shut down.
+     */
+    public static void shutdown ()
+    {
+        // shut down our managers
+        authmgr.shutdown();
+        conmgr.shutdown();
+        omgr.shutdown();
     }
 
     public static void main (String[] args)
     {
+        Log.info("Cher server starting...");
+
         CherServer server = new CherServer();
         try {
+            // initialize the server
             server.init();
+
+            // check to see if we should load and invoke a test module
+            // before running the server
+            String testmod = System.getProperty("test_module");
+            if (testmod != null) {
+                try {
+                    Log.info("Invoking test module [mod=" + testmod + "].");
+                    Class tmclass = Class.forName(testmod);
+                    Runnable trun = (Runnable)tmclass.newInstance();
+                    trun.run();
+                } catch (Exception e) {
+                    Log.warning("Unable to invoke test module " +
+                                "[mod=" + testmod + "].");
+                    Log.logStackTrace(e);
+                }
+            }
+
+            // start the server to running (this method call won't return
+            // until the server is shut down)
             server.run();
+
         } catch (Exception e) {
             Log.warning("Unable to initialize server.");
             Log.logStackTrace(e);

@@ -1,9 +1,9 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.11 2001/08/07 21:25:13 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.12 2001/08/08 00:28:49 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.HashMap;
 
 import com.samskivert.util.Queue;
@@ -172,9 +172,191 @@ public class CherDObjectMgr implements DObjectManager
      */
     public void objectDestroyed (DEvent event, DObject target)
     {
-        // Log.info("Removing destroyed object from table " +
-        // "[oid=" + target.getOid() + "].");
-        _objects.remove(target.getOid());
+        int oid = target.getOid();
+
+//          Log.info("Removing destroyed object from table " +
+//                   "[oid=" + oid + "].");
+
+        // remove the object from the table
+        _objects.remove(oid);
+
+        // inactivate the object
+        target.setManager(null);
+
+        // deal with any remaining oid lists that reference this object
+        Reference[] refs = (Reference[])_refs.remove(oid);
+        if (refs != null) {
+            for (int i = 0; i < refs.length; i++) {
+                // skip empty spots
+                if (refs[i] == null) {
+                    continue;
+                }
+
+                Reference ref = refs[i];
+                DObject reffer = (DObject)_objects.get(ref.reffingOid);
+
+                // ensure that the referencing object is still around
+                if (reffer != null) {
+                    // post an object removed event to clear the reference
+                    postEvent(new ObjectRemovedEvent(
+                        ref.reffingOid, ref.field, oid));
+//                      Log.info("Forcing removal " + ref + ".");
+
+                } else {
+                    Log.info("Dangling reference from inactive object " +
+                             ref + ".");
+                }
+            }
+        }
+
+        // if this object has any oid list fields that are still
+        // referencing other objects, we need to clear out those
+        // references
+        Class oclass = target.getClass();
+        Field[] fields = oclass.getFields();
+        for (int f = 0; f < fields.length; f++) {
+            Field field = fields[f];
+
+            // ignore static and non-public fields
+            int mods = field.getModifiers();
+            if ((mods & Modifier.STATIC) != 0 ||
+                (mods & Modifier.PUBLIC) == 0) {
+                continue;
+            }
+
+            // ignore non-oidlist fields
+            if (!OidList.class.isAssignableFrom(field.getType())) {
+                continue;
+            }
+
+            try {
+                OidList list = (OidList)field.get(target);
+                for (int i = 0; i < list.size(); i++) {
+                    clearReference(target, field.getName(), list.get(i));
+                }
+
+            } catch (Exception e) {
+                Log.warning("Unable to clean up after oid list field " +
+                            "[target=" + target + ", field=" + field + "].");
+            }
+        }
+    }
+
+    /**
+     * Called by <code>objectDestroyed</code>; clears out the tracking
+     * info for a reference by the supplied object to the specified oid
+     * via the specified field.
+     */
+    protected void clearReference (
+        DObject reffer, String field, int reffedOid)
+    {
+        // look up the reference vector for the referenced object
+        Reference[] refs = (Reference[])_refs.get(reffedOid);
+        Reference ref = null;
+
+        if (refs != null) {
+            for (int i = 0; i < refs.length; i++) {
+                if (refs[i].equals(reffer.getOid(), field)) {
+                    ref = refs[i];
+                    refs[i] = null;
+                    break;
+                }
+            }
+        }
+
+        if (ref == null) {
+            Log.warning("Requested to clear out non-existent reference " +
+                        "[refferOid=" + reffer.getOid() +
+                        ", field=" + field +
+                        ", reffedOid=" + reffedOid + "].");
+
+//          } else {
+//              Log.info("Cleared out reference " + ref + ".");
+        }
+    }
+
+    /**
+     * Called as a helper for <code>ObjectAddedEvent</code> events. It
+     * updates the object/oid list tracking structures.
+     */
+    public void objectAdded (DEvent event, DObject target)
+    {
+        ObjectAddedEvent oae = (ObjectAddedEvent)event;
+        int oid = oae.getOid();
+        Reference ref = new Reference(target.getOid(), oae.getName(), oid);
+
+        // get the reference vector for the referenced object. we use bare
+        // arrays rather than something like an array list to conserve
+        // memory. there will be many objects and references
+        Reference[] refs = (Reference[])_refs.get(oid);
+        if (refs == null) {
+            refs = new Reference[DEFREFVEC_SIZE];
+            _refs.put(oid, refs);
+        }
+
+        // determine where to add the reference
+        int rpos = -1;
+        for (int i = 0; i < refs.length; i++) {
+            if (ref.equals(refs[i])) {
+                Log.warning("Ignoring request to track existing " +
+                            "reference " + ref + ".");
+                return;
+            } else if (refs[i] == null && rpos == -1) {
+                rpos = i;
+            }
+        }
+
+        // expand the refvec if necessary
+        if (rpos == -1) {
+            Reference[] nrefs = new Reference[refs.length*2];
+            System.arraycopy(refs, 0, nrefs, 0, refs.length);
+            rpos = refs.length;
+            _refs.put(oid, refs = nrefs);
+        }
+
+        // finally add the reference
+        refs[rpos] = ref;
+
+//          Log.info("Tracked reference " + ref + ".");
+    }
+
+    /**
+     * Called as a helper for <code>ObjectRemovedEvent</code> events. It
+     * updates the object/oid list tracking structures.
+     */
+    public void objectRemoved (DEvent event, DObject target)
+    {
+        ObjectRemovedEvent ore = (ObjectRemovedEvent)event;
+        String field = ore.getName();
+        int toid = target.getOid();
+        int oid = ore.getOid();
+
+        // get the reference vector for the referenced object
+        Reference[] refs = (Reference[])_refs.get(oid);
+        if (refs == null) {
+            // this can happen normally when an object is destroyed. it
+            // will remove itself from the reference system and then
+            // generate object removed events for all of its referencees.
+            // so we opt not to log anything in this case
+
+//              Log.warning("Object removed without reference to track it " +
+//                          "[toid=" + toid + ", field=" + field +
+//                          ", oid=" + oid + "].");
+            return;
+        }
+
+        // look for the matching reference
+        for (int i = 0; i < refs.length; i++) {
+            if (refs[i].equals(toid, field)) {
+//                  Log.info("Removed reference " + refs[i] + ".");
+                refs[i] = null;
+                return;
+            }
+        }
+
+        Log.warning("Unable to locate reference for removal " +
+                    "[reffingOid=" + toid + ", field=" + field +
+                    ", reffedOid=" + oid + "].");
     }
 
     protected synchronized boolean isRunning ()
@@ -224,7 +406,7 @@ public class CherDObjectMgr implements DObjectManager
                 // insert it into the table
                 _objects.put(oid, obj);
 
-                // Log.info("Created object [obj=" + obj + "].");
+//                  Log.info("Created object [obj=" + obj + "].");
 
                 if (_target != null) {
                     // add the subscriber to this object's subscriber list
@@ -351,16 +533,73 @@ public class CherDObjectMgr implements DObjectManager
             method = omgrcl.getMethod("objectDestroyed", ptypes);
             _helpers.put(ObjectDestroyedEvent.class, method);
 
+            method = omgrcl.getMethod("objectAdded", ptypes);
+            _helpers.put(ObjectAddedEvent.class, method);
+
+            method = omgrcl.getMethod("objectRemoved", ptypes);
+            _helpers.put(ObjectRemovedEvent.class, method);
+
         } catch (Exception e) {
             Log.warning("Unable to register event helpers " +
                         "[error=" + e + "].");
         }
     }
 
+    /**
+     * Used to track references of objects in oid lists.
+     */
+    protected static class Reference
+    {
+        public int reffingOid;
+        public String field;
+        public int reffedOid;
+
+        public Reference (int reffingOid, String field, int reffedOid)
+        {
+            this.reffingOid = reffingOid;
+            this.field = field;
+            this.reffedOid = reffedOid;
+        }
+
+        public boolean equals (Reference other)
+        {
+            if (other == null) {
+                return false;
+            } else {
+                return (reffingOid == other.reffingOid &&
+                        field.equals(other.field));
+            }
+        }
+
+        public boolean equals (int reffingOid, String field)
+        {
+            return (this.reffingOid == reffingOid && this.field.equals(field));
+        }
+
+        public String toString ()
+        {
+            return "[reffingOid=" + reffingOid + ", field=" + field +
+                ", reffedOid=" + reffedOid + "]";
+        }
+    }
+
+    /** A flag indicating that the event dispatcher is still running. */
     protected boolean _running = true;
+
+    /** The event queue via which all events are processed. */
     protected Queue _evqueue = new Queue();
+
+    /** The managed distributed objects table. */
     protected IntMap _objects = new IntMap();
+
+    /** Used to assign a unique oid to each distributed object. */
     protected int _nextOid = 0;
+
+    /** Used to track oid list references of distributed objects. */
+    protected IntMap _refs = new IntMap();
+
+    /** The default size of an oid list refs vector. */
+    protected static final int DEFREFVEC_SIZE = 4;
 
     /**
      * This table maps event classes to helper methods that perform some

@@ -1,5 +1,5 @@
 //
-// $Id: AuthManager.java,v 1.3 2001/06/01 22:12:03 mdb Exp $
+// $Id: AuthManager.java,v 1.4 2001/08/08 00:28:49 mdb Exp $
 
 package com.threerings.cocktail.cher.server.net;
 
@@ -55,8 +55,16 @@ public class AuthManager extends LoopingThread
     protected void iterate ()
     {
         // grab the next authing connection from the queue
-        AuthingConnection aconn = (AuthingConnection)_authq.get();
+        Object item = _authq.get();
 
+        // if we're being kicked and requested to exit, we'll just post
+        // some bogus item on the queue to wake up the auth manager and
+        // get him the hell out of dodge
+        if (!(item instanceof AuthingConnection)) {
+            return;
+        }
+
+        AuthingConnection aconn = (AuthingConnection)item;
         try {
             // instruct the authenticator to process the auth request
             AuthResponse rsp = _author.process(aconn.getAuthRequest());
@@ -72,6 +80,12 @@ public class AuthManager extends LoopingThread
             Log.warning("Failure processing authreq [conn=" + aconn + "].");
             Log.logStackTrace(e);
         }
+    }
+
+    protected void kick ()
+    {
+        // we post something bogus to the queue to wake up the authmgr
+        _authq.append(new Integer(0));
     }
 
     protected Authenticator _author;

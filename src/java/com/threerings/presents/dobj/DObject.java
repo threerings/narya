@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.20 2001/08/07 20:38:58 mdb Exp $
+// $Id: DObject.java,v 1.21 2001/08/08 00:28:49 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -165,7 +165,7 @@ public class DObject
         // scan the lock array to see if this lock is already acquired
         int slot = -1;
         for (int i = 0; i < _locks.length; i++) {
-            if (_locks[i] == null) {
+            if (_locks[i] == null && slot == -1) {
                 // keep track of this for later
                 slot = i;
             } else if (name.equals(_locks[i])) {
@@ -341,6 +341,17 @@ public class DObject
                 ", error=" + e + "].";
             throw new ObjectAccessException(errmsg);
         }
+    }
+
+    /**
+     * Returns true if this object is active and registered with the
+     * distributed object system. If an object is created via
+     * <code>DObjectManager.createObject</code> it will be active until
+     * such time as it is destroyed.
+     */
+    public boolean isActive ()
+    {
+        return _mgr != null;
     }
 
     /**
