@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMedia.java,v 1.7 2002/12/18 23:14:23 ray Exp $
+// $Id: AbstractMedia.java,v 1.8 2003/01/18 22:25:21 mdb Exp $
 
 package com.threerings.media;
 
@@ -224,7 +224,9 @@ public abstract class AbstractMedia
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer("[");
+        StringBuffer buf = new StringBuffer();
+        buf.append(StringUtil.shortClassName(this));
+        buf.append("[");
         toString(buf);
         return buf.append("]").toString();
     }
