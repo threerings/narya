@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.33 2003/06/12 22:10:07 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.34 2003/06/15 16:47:33 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -195,7 +195,8 @@ public class PresentsDObjectMgr
                 // report excessively long units
                 if (elapsed > 500) {
                     Log.warning("Unit '" + StringUtil.safeToString(unit) +
-                                "' ran for " + elapsed + "ms.");
+                                " [" + StringUtil.shortClassName(unit) +
+                                "]' ran for " + elapsed + "ms.");
                 }
 
                 // record the time spent processing this unit
