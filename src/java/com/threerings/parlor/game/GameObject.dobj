@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.dobj,v 1.12 2002/09/18 04:01:29 shaper Exp $
+// $Id: GameObject.dobj,v 1.13 2002/09/18 18:33:20 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -25,13 +25,13 @@ public class GameObject extends PlaceObject
     public static final int AWAITING_PLAYERS = 0;
 
     /** A game state constant indicating that the game is in play. */
-    public static final int IN_PLAY = AWAITING_PLAYERS+1;
+    public static final int IN_PLAY = 1;
 
     /** A game state constant indicating that the game ended normally. */
-    public static final int GAME_OVER = IN_PLAY+2;
+    public static final int GAME_OVER = 2;
 
     /** A game state constant indicating that the game was cancelled. */
-    public static final int CANCELLED = GAME_OVER+3;
+    public static final int CANCELLED = 3;
 
     /** Provides general game invocation services. */
     public GameMarshaller service;
