@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneModel.java,v 1.7 2003/05/16 17:26:07 ray Exp $
+// $Id: SparseMisoSceneModel.java,v 1.8 2003/05/22 22:18:02 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -85,13 +85,13 @@ public class SparseMisoSceneModel extends MisoSceneModel
         }
 
         public int getBaseTileId (int col, int row) {
-//             if (col < x || col >= (x+width) || row < y || row >= (y+width)) {
-//                 Log.warning("Requested bogus tile +" + col + "+" + row +
-//                             " from " + this + ".");
-//                 return -1;
-//             } else {
+            if (col < x || col >= (x+width) || row < y || row >= (y+width)) {
+                Log.warning("Requested bogus tile +" + col + "+" + row +
+                            " from " + this + ".");
+                return -1;
+            } else {
                 return baseTileIds[(row-y)*width+(col-x)];
-//             }
+            }
         }
 
         public void setBaseTile (int col, int row, int fqBaseTileId) {
