@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParserTest.java,v 1.1 2001/11/21 02:42:16 mdb Exp $
+// $Id: XMLTileSetParserTest.java,v 1.2 2001/11/29 21:55:56 mdb Exp $
 
 package com.threerings.media.tools.tile.xml;
 
@@ -25,7 +25,7 @@ public class XMLTileSetParserTest extends TestCase
         // add some rulesets
         parser.addRuleSet("tilesets/uniform", new UniformTileSetRuleSet());
         parser.addRuleSet("tilesets/swissarmy", new SwissArmyTileSetRuleSet());
-//         parser.addRuleSet("tilesets/object", new ObjectTileSetRuleSet());
+        parser.addRuleSet("tilesets/object", new ObjectTileSetRuleSet());
 
         // load up the tilesets
         try {
