@@ -117,7 +117,7 @@ public class ChatPanel
         addAncestorListener(new AncestorAdapter() {
             public void ancestorAdded (AncestorEvent e) {
                 if (_focus) {
-                    _entry.requestFocus();
+                    _entry.requestFocusInWindow();
                 }
             }
         });
@@ -291,7 +291,7 @@ public class ChatPanel
         _entry.setEnabled(true);
         _send.setEnabled(true);
         if (_focus) {
-            _entry.requestFocus();
+            _entry.requestFocusInWindow();
         }
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: PuzzlePanel.java,v 1.9 2004/10/29 00:48:37 eric Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -171,7 +171,7 @@ public abstract class PuzzlePanel extends JPanel
         // enable or disable the key manager appropriately
         _ctx.getKeyboardManager().setEnabled(puzgrabs);
         if (puzgrabs) {
-            getBoardView().requestFocus();
+            getBoardView().requestFocusInWindow();
         }
     }
 

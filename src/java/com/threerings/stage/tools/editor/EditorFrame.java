@@ -513,7 +513,7 @@ public class EditorFrame extends ManagedJFrame
             // event queue to flush before we can transfer focus
             EventQueue.invokeLater(new Runnable() {
                 public void run () {
-                    _sceneInfoPanel.requestFocus();
+                    _sceneInfoPanel.requestFocusInWindow();
                 }
             });
         }

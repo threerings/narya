@@ -97,7 +97,7 @@ public class PortalDialog extends JInternalFrame
 
 	// request the keyboard focus so that the destination scene
 	// name can be typed immediately
-	_portalText.requestFocus();
+	_portalText.requestFocusInWindow();
     }
 
     /**

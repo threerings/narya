@@ -1,5 +1,5 @@
 //
-// $Id: KeyDispatcher.java,v 1.3 2004/09/30 23:35:13 ray Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -106,7 +106,7 @@ public class KeyDispatcher
         // and request to give the new component the focus since that's a
         // sensible thing to do as it's aiming to nab all key events
         // henceforth
-        comp.requestFocus();
+        comp.requestFocusInWindow();
     }
 
     /**
@@ -161,7 +161,7 @@ public class KeyDispatcher
                     !isTypableTarget(target)) {
                     // focus our grabby component, and redirect this
                     // key event there
-                    _curChatGrabber.requestFocus();
+                    _curChatGrabber.requestFocusInWindow();
                     KeyboardFocusManager.getCurrentKeyboardFocusManager().
                         redispatchEvent(_curChatGrabber, e);
                     return true;

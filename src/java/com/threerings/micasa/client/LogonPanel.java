@@ -1,5 +1,5 @@
 //
-// $Id: LogonPanel.java,v 1.11 2004/08/27 02:12:49 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -131,14 +131,14 @@ public class LogonPanel extends JPanel
         _ctx.getClient().addClientObserver(this);
 
         // start with focus in the username field
-        _username.requestFocus();
+        _username.requestFocusInWindow();
     }
 
     public void actionPerformed (ActionEvent e)
     {
 	String cmd = e.getActionCommand();
 	if (cmd.equals("skipToPassword")) {
-            _password.requestFocus();
+            _password.requestFocusInWindow();
 
         } else if (cmd.equals("logon")) {
             logon();

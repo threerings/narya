@@ -137,7 +137,7 @@ public class ObjectEditorDialog extends JInternalFrame
 	// select the text edit field and focus it
 	_action.setCaretPosition(0);
 	_action.moveCaretPosition(atext.length());
-	_action.requestFocus();
+	_action.requestFocusInWindow();
     }
 
     protected Object[] computeZations (String[] zations, int index)
