@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.25 2003/03/31 22:54:09 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.26 2003/04/03 22:16:51 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -300,6 +300,9 @@ public class SpotSceneDirector extends BasicDirector
             // our cluster didn't change, we can stop now
             return;
         }
+
+        Log.info("Cluster change? " +
+                 (_clobj == null ? -1 : _clobj.getOid()) + " -> " + cloid);
 
         // clear out any old cluster object
         clearCluster();
