@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.16 2002/04/28 01:19:11 mdb Exp $
+// $Id: ImageManager.java,v 1.17 2002/05/29 18:45:00 mdb Exp $
 
 package com.threerings.media;
 
@@ -8,8 +8,9 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 
-import java.io.InputStream;
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -82,7 +83,9 @@ public class ImageManager
         throws IOException
     {
         try {
-            return _loader.loadImage(_rmgr.getResource(path));
+            InputStream imgin = _rmgr.getResource(path);
+            BufferedInputStream bin = new BufferedInputStream(imgin);
+            return _loader.loadImage(bin);
         } catch (IllegalArgumentException iae) {
             String errmsg = "Error loading image [path=" + path + "]";
             throw new NestableIOException(errmsg, iae);
