@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.18 2001/10/18 18:40:18 mdb Exp $
+// $Id: Client.java,v 1.19 2001/10/25 23:36:06 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -19,6 +19,10 @@ import com.threerings.presents.net.Credentials;
  */
 public class Client
 {
+    /** The default port on which the server listens for client
+     * connections. */
+    public static final int DEFAULT_SERVER_PORT = 4007;
+
     /**
      * This is used by the client to allow dobj event dispatching to take
      * place along side the activities of the rest of the application

@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.11 2001/10/11 04:07:53 mdb Exp $
+// $Id: ConnectionManager.java,v 1.12 2001/10/25 23:36:06 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -38,7 +38,7 @@ public class ConnectionManager extends LoopingThread
     public ConnectionManager (Config config, AuthManager authmgr)
         throws IOException
     {
-        _port = config.getValue(CM_PORT_KEY, DEFAULT_CM_PORT);
+        _port = config.getValue(CM_PORT_KEY, Client.DEFAULT_SERVER_PORT);
 
         // keep a handle on our authentication manager
         _authmgr = authmgr;
@@ -323,9 +323,6 @@ public class ConnectionManager extends LoopingThread
     /** The config key for our listening port. */
     protected static final String CM_PORT_KEY =
         PresentsServer.CONFIG_KEY + ".conmgr_port";
-
-    /** The default port on which we listen for connections. */
-    protected static final int DEFAULT_CM_PORT = 4007;
 
     /**
      * How long we wait for network events before checking our running
