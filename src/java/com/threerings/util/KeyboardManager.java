@@ -1,5 +1,5 @@
 //
-// $Id: KeyboardManager.java,v 1.11 2002/10/09 08:17:02 mdb Exp $
+// $Id: KeyboardManager.java,v 1.12 2002/11/02 00:59:00 shaper Exp $
 
 package com.threerings.util;
 
@@ -8,20 +8,21 @@ import java.awt.KeyboardFocusManager;
 import java.awt.Window;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 
 import java.util.Iterator;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 import com.samskivert.swing.Controller;
-import com.samskivert.swing.event.AncestorAdapter;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
+import com.samskivert.util.ObserverList;
 
 /**
  * The keyboard manager observes keyboard actions on a particular
@@ -31,53 +32,130 @@ import com.samskivert.util.IntervalManager;
  * rather than depending on the system-specific key repeat delay/rate.
  */
 public class KeyboardManager
+    implements KeyEventDispatcher, AncestorListener, WindowFocusListener
 {
     /**
-     * Constructs a keyboard manager.
+     * An interface to be implemented by those that care to be notified
+     * whenever an event (either a key press or a key release) occurs for
+     * any key while the keyboard manager is active.  We use this custom
+     * interface rather than the more standard {@link
+     * java.awt.event.KeyListener} interface so that we needn't create key
+     * pressed and released event objects each time a (potentially
+     * artificially-generated) event occurs.
+     */
+    public interface KeyObserver
+    {
+        /**
+         * Called whenever a key event occurs for a particular key. 
+         */
+        public void handleKeyEvent (int id, int keyCode, long timestamp);
+    }
+
+    /**
+     * Constructs a keyboard manager that is initially disabled.  The
+     * keyboard manager should not be enabled until it has been supplied
+     * with a target component and translator via {@link #setTarget}.
+     */
+    public KeyboardManager ()
+    {
+        // capture low-level keyboard events via the keyboard focus manager
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().
+            addKeyEventDispatcher(this);
+    }
+
+    /**
+     * Resets the keyboard manager, clearing any target and key translator
+     * in use and disabling the keyboard manager if it is currently
+     * active.
+     */
+    public void reset ()
+    {
+        setEnabled(false);
+        _target = null;
+        _xlate = null;
+        _focus = false;
+    }
+
+    /**
+     * Initializes the keyboard manager with the supplied target component
+     * and key translator and disables the keyboard manager if it is
+     * currently active.
      *
      * @param target the component whose keyboard events are to be observed.
      * @param xlate the key translator used to map keyboard events to
      * controller action commands.
      */
-    public KeyboardManager (JComponent target, KeyTranslator xlate)
+    public void setTarget (JComponent target, KeyTranslator xlate)
     {
+        setEnabled(false);
+
         // save off references
         _target = target;
         _xlate = xlate;
-
-        // listen to ancestor events so that we can cease our business if
-        // we lose the focus
-        target.addAncestorListener(new AncestorAdapter() {
-            public void ancestorAdded (AncestorEvent e) {
-                KeyboardManager.this.gainedFocus();
-                if (_wadapter == null) {
-                    addWindowListener();
-                }
-            }
-            public void ancestorRemoved (AncestorEvent e) {
-                KeyboardManager.this.lostFocus();
-            }
-        });
-
-        // capture low-level keyboard events via the keyboard focus manager
-        KeyboardFocusManager keymgr =
-            KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        keymgr.addKeyEventDispatcher(new KeyEventDispatcher() {
-            public boolean dispatchKeyEvent (KeyEvent e) {
-                return KeyboardManager.this.dispatchKeyEvent(e);
-            }
-        });
     }
 
     /**
-     * Sets whether the keyboard manager accepts keyboard input.
+     * Registers a key observer that will be notified of all key events
+     * while the keyboard manager is active.
+     */
+    public void registerKeyObserver (KeyObserver obs)
+    {
+        _observers.add(obs);
+    }
+
+    /**
+     * Removes the supplied key observer from the list of observers to be
+     * notified of all key events while the keyboard manager is active.
+     */
+    public void removeKeyObserver (KeyObserver obs)
+    {
+        _observers.remove(obs);
+    }
+
+    /**
+     * Sets whether the keyboard manager processes keyboard input.
      */
     public void setEnabled (boolean enabled)
     {
-        // release all keys if we were enabled and are soon to not be
-        if (!enabled && _enabled) {
-            releaseAllKeys();
+        // report incorrect usage
+        if (enabled && _target == null) {
+            Log.warning("Attempt to enable uninitialized keyboard manager!");
+            Thread.dumpStack();
+            return;
         }
+
+        // ignore NOOPs
+        if (enabled == _enabled) {
+            return;
+        }
+
+        if (!enabled) {
+            // clear out any previous management we were engaged in
+            releaseAllKeys();
+            _keys.clear();
+            if (_window != null) {
+                _window.removeWindowFocusListener(this);
+                _window = null;
+            }
+            _target.removeAncestorListener(this);
+
+        } else {
+            // listen to ancestor events so that we can cease our business
+            // if we lose the focus
+            _target.addAncestorListener(this);
+
+            // if we're already showing, listen to window focus events,
+            // else we have to wait until the target is added since it
+            // doesn't currently have a window
+            if (_target.isShowing()) {
+                _window = SwingUtilities.getWindowAncestor(_target);
+                if (_window != null) {
+                    _window.addWindowFocusListener(this);
+                }
+            }            
+        }
+
+        // save off our new enabled state
         _enabled = enabled;
     }
 
@@ -106,40 +184,10 @@ public class KeyboardManager
      */
     public void releaseAllKeys ()
     {
+        long now = System.currentTimeMillis();
         Iterator iter = _keys.elements();
         while (iter.hasNext()) {
-            ((KeyInfo)iter.next()).release();
-        }
-    }
-
-    /**
-     * Called when the {@link KeyboardFocusManager} has a key event for us
-     * to scrutinize.  Returns whether we've handled the key event.
-     */
-    protected boolean dispatchKeyEvent (KeyEvent e)
-    {
-        // bail if we're not enabled, we haven't the focus, or we're not
-        // showing on-screen
-        if (!_enabled || !_focus || !_target.isShowing()) {
-            return false;
-        }
-
-        // handle key press and release events
-        switch (e.getID()) {
-        case KeyEvent.KEY_PRESSED:
-            KeyboardManager.this.keyPressed(e);
-            return true;
-
-        case KeyEvent.KEY_RELEASED:
-            KeyboardManager.this.keyReleased(e);
-            return true;
-
-        case KeyEvent.KEY_TYPED:
-            // silently absorb key typed events
-            return true;
-
-        default:
-            return false;
+            ((KeyInfo)iter.next()).release(now);
         }
     }
 
@@ -162,27 +210,38 @@ public class KeyboardManager
         _focus = false;
     }
 
-    /**
-     * Adds a window focus event listener to the target component's window
-     * so that the keyboard manager can enabled and disable handling of
-     * keyboard events appropriately.
-     */
-    protected void addWindowListener ()
+    // documentation inherited from interface KeyEventDispatcher
+    public boolean dispatchKeyEvent (KeyEvent e)
     {
-        _wadapter = new WindowAdapter() {
-            public void windowGainedFocus (WindowEvent e) {
-                KeyboardManager.this.gainedFocus();
-            }
-            public void windowLostFocus (WindowEvent e) {
-                KeyboardManager.this.lostFocus();
-            }
-        };
+        // bail if we're not enabled, we haven't the focus, or we're not
+        // showing on-screen
+        if (!_enabled || !_focus || !_target.isShowing()) {
+            return false;
+        }
 
-        Window window = SwingUtilities.getWindowAncestor(_target);
-        window.addWindowFocusListener(_wadapter);
+        // handle key press and release events
+        switch (e.getID()) {
+        case KeyEvent.KEY_PRESSED:
+            keyPressed(e);
+            return true;
+
+        case KeyEvent.KEY_RELEASED:
+            keyReleased(e);
+            return true;
+
+        case KeyEvent.KEY_TYPED:
+            // silently absorb key typed events
+            return true;
+
+        default:
+            return false;
+        }
     }
 
-    // documentation inherited
+    /**
+     * Called when Swing notifies us that a key has been pressed while the
+     * keyboard manager is active.
+     */
     protected void keyPressed (KeyEvent e)
     {
         logKey("keyPressed", e);
@@ -198,11 +257,17 @@ public class KeyboardManager
             }
 
             // remember the last time this key was pressed
-            info.setPressTime(System.currentTimeMillis());
+            info.setPressTime(e.getWhen());
         }
+
+        // notify any key observers of the key press
+        notifyObservers(KeyEvent.KEY_PRESSED, e.getKeyCode(), e.getWhen());
     }
 
-    // documentation inherited
+    /**
+     * Called when Swing notifies us that a key has been released while
+     * the keyboard manager is active.
+     */
     protected void keyReleased (KeyEvent e)
     {
         logKey("keyReleased", e);
@@ -211,8 +276,26 @@ public class KeyboardManager
         KeyInfo info = (KeyInfo)_keys.get(e.getKeyCode());
         if (info != null) {
             // remember the last time we received a key release
-            info.setReleaseTime(System.currentTimeMillis());
+            info.setReleaseTime(e.getWhen());
         }
+
+        // notify any key observers of the key release
+        notifyObservers(KeyEvent.KEY_RELEASED, e.getKeyCode(), e.getWhen());
+    }
+
+    /**
+     * Notifies all registered key observers of the supplied key event.
+     * This method provides a thread-safe manner in which to notify the
+     * observers, which is necessary since the {@link KeyInfo} objects do
+     * various antics from the interval manager thread whilst we may do
+     * other notification from the AWT thread when normal key events are
+     * handled.
+     */
+    protected synchronized void notifyObservers (
+        int id, int keyCode, long timestamp)
+    {
+        _keyOp.init(id, keyCode, timestamp);
+        _observers.apply(_keyOp);
     }
 
     /**
@@ -224,6 +307,46 @@ public class KeyboardManager
             int keyCode = e.getKeyCode();
             Log.info(msg + " [key=" + KeyEvent.getKeyText(keyCode) + "].");
         }
+    }
+
+    // documentation inherited from interface AncestorListener
+    public void ancestorAdded (AncestorEvent e)
+    {
+        gainedFocus();
+
+        if (_window == null) {
+            _window = SwingUtilities.getWindowAncestor(_target);
+            _window.addWindowFocusListener(this);
+        }
+    }
+
+    // documentation inherited from interface AncestorListener
+    public void ancestorMoved (AncestorEvent e)
+    {
+        // nothing for now
+    }
+
+    // documentation inherited from interface AncestorListener
+    public void ancestorRemoved (AncestorEvent e)
+    {
+        lostFocus();
+
+        if (_window != null) {
+            _window.removeWindowFocusListener(this);
+            _window = null;
+        }
+    }
+
+    // documentation inherited from interface WindowFocusListener
+    public void windowGainedFocus (WindowEvent e)
+    {
+        gainedFocus();
+    }
+
+    // documentation inherited from interface WindowFocusListener
+    public void windowLostFocus (WindowEvent e)
+    {
+        lostFocus();
     }
 
     protected class KeyInfo implements Interval
@@ -257,7 +380,7 @@ public class KeyboardManager
 
                 if (_pressCommand != null) {
                     // post the initial key press command
-                    Controller.postAction(_target, _pressCommand);
+                    postPress(time);
                 }
 //             }
         }
@@ -267,7 +390,7 @@ public class KeyboardManager
          */
         public synchronized void setReleaseTime (long time)
         {
-            release();
+            release(time);
 //             _lastRelease = time;
 
 //             // handle key release events received so quickly after the key
@@ -293,7 +416,7 @@ public class KeyboardManager
 //                     Log.warning("Insta-releasing key due to equal key " +
 //                                 "press/release times [key=" + _keyText + "].");
 //                 }
-//                 release();
+//                 release(time);
 //             }
         }
 
@@ -301,7 +424,7 @@ public class KeyboardManager
          * Releases the key if pressed and cancels any active key repeat
          * interval.
          */
-        public synchronized void release ()
+        public synchronized void release (long timestamp)
         {
             // bail if we're not currently pressed
 //             if (_iid == -1) {
@@ -326,7 +449,7 @@ public class KeyboardManager
 
             if (_releaseCommand != null) {
                 // post the key release command
-                Controller.postAction(_target, _releaseCommand);
+                postRelease(timestamp);
             }
         }
 
@@ -363,12 +486,12 @@ public class KeyboardManager
 
                     } else {
                         // we know the key was released, so cease repeating
-                        release();
+                        release(now);
                     }
 
                 } else if (_pressCommand != null) {
                     // post the key press command again
-                    Controller.postAction(_target, _pressCommand);
+                    postPress(now);
                 }
 
             } else if (id == _siid) {
@@ -393,18 +516,36 @@ public class KeyboardManager
                 // provide the last word on whether the key was released
                 if ((_lastRelease != _lastPress) &&
                     deltaRelease >= _repeatDelay) {
-                    release();
+                    release(now);
 
                 } else if (_pressCommand != null) {
                     // post the key command again
-                    Controller.postAction(_target, _pressCommand);
+                    postPress(now);
                 }
             }
         }
 
         /**
-         * Returns a string representation of the key info object.
+         * Posts the press command for this key and notifies all key
+         * observers of the key press.
          */
+        protected void postPress (long timestamp)
+        {
+            notifyObservers(KeyEvent.KEY_PRESSED, _keyCode, timestamp);
+            Controller.postAction(_target, _pressCommand);
+        }
+
+        /**
+         * Posts the release command for this key and notifies all key
+         * observers of the key release.
+         */
+        protected void postRelease (long timestamp)
+        {
+            notifyObservers(KeyEvent.KEY_RELEASED, _keyCode, timestamp);
+            Controller.postAction(_target, _releaseCommand);
+        }
+
+        /** Returns a string representation of the key info object. */
         public String toString ()
         {
             return "[key=" + _keyText + "]";
@@ -438,6 +579,34 @@ public class KeyboardManager
         protected int _keyCode;
     }
 
+    /** An observer operation to notify observers of a key event. */
+    protected static class KeyObserverOp implements ObserverList.ObserverOp
+    {
+        /** Initialized the operation with its parameters. */
+        public void init (int id, int keyCode, long timestamp)
+        {
+            _id = id;
+            _keyCode = keyCode;
+            _timestamp = timestamp;
+        }
+
+        // documentation inherited from interface ObserverList.ObserverOp
+        public boolean apply (Object observer)
+        {
+            ((KeyObserver)observer).handleKeyEvent(_id, _keyCode, _timestamp);
+            return true;
+        }
+
+        /** The key event id. */
+        protected int _id;
+
+        /** The key code. */
+        protected int _keyCode;
+
+        /** The key event timestamp. */
+        protected long _timestamp;
+    }
+
     /** Whether to output debugging info for individual key events. */
     protected static final boolean DEBUG_EVENTS = false;
 
@@ -464,10 +633,11 @@ public class KeyboardManager
     protected boolean _focus = false;
 
     /** Whether the keyboard manager is accepting keyboard input. */
-    protected boolean _enabled = true;
+    protected boolean _enabled;
 
-    /** The window focus event listener. */
-    protected WindowAdapter _wadapter;
+    /** The window containing our target component whose focus events we
+     * care to observe, or null if we're not observing a window. */
+    protected Window _window;
 
     /** The component that receives keyboard events and that we associate
      * with posted controller commands. */
@@ -475,4 +645,11 @@ public class KeyboardManager
 
     /** The translator that maps keyboard events to controller commands. */
     protected KeyTranslator _xlate;
+
+    /** The list of key observers. */
+    protected ObserverList _observers =
+        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
+
+    /** The operation used to notify observers of actual key events. */
+    protected KeyObserverOp _keyOp = new KeyObserverOp();
 }
