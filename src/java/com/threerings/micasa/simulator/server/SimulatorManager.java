@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorManager.java,v 1.17 2004/08/27 02:12:54 mdb Exp $
+// $Id: SimulatorManager.java,v 1.18 2004/10/22 19:27:54 ray Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -135,7 +135,7 @@ public class SimulatorManager
 
             for (int ii = 1; ii < _playerCount; ii++) {
                 // mark all simulants as AI players
-                _gmgr.setAI(ii, skill);
+                _gmgr.setAI(ii, skill, (byte) 0);
             }
 
             // resolve the simulant body objects

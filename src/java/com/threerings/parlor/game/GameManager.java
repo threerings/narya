@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.75 2004/08/27 02:20:14 mdb Exp $
+// $Id: GameManager.java,v 1.76 2004/10/22 19:27:54 ray Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -227,7 +227,7 @@ public class GameManager extends PlaceManager
 
         if (_AIs != null) {
             // clear out the player's entry in the AI list
-            _AIs[pidx] = -1;
+            _AIs[pidx] = null;
         }
 
         // decrement the number of players in the game
@@ -262,23 +262,22 @@ public class GameManager extends PlaceManager
      * @param pidx the player index of the AI.
      * @param skill the skill level, from 0 to 100 inclusive.
      */
-    public void setAI (final int pidx, final byte skill)
+    public void setAI (final int pidx, final byte skill, final byte personality)
     {
         if (_AIs == null) {
             // create and initialize the AI skill level array
-            _AIs = new byte[getPlayerSlots()];
-            Arrays.fill(_AIs, (byte)-1);
+            _AIs = new AI[getPlayerSlots()];
             // set up a delegate op for AI ticking
             _tickAIOp = new TickAIDelegateOp();
         }
 
         // save off the AI's skill level
-        _AIs[pidx] = skill;
+        _AIs[pidx] = new AI(skill, personality);
 
         // let the delegates know that the player's been made an AI
         applyToDelegates(new DelegateOp() {
             public void apply (PlaceManagerDelegate delegate) {
-                ((GameManagerDelegate)delegate).setAI(pidx, skill);
+                ((GameManagerDelegate)delegate).setAI(pidx, skill, personality);
             }
         });
     }
@@ -330,7 +329,7 @@ public class GameManager extends PlaceManager
      */
     public boolean isAI (int pidx)
     {
-        return (_AIs != null && _AIs[pidx] != -1);
+        return (_AIs != null && _AIs[pidx] != null);
     }
 
     /**
@@ -669,9 +668,8 @@ public class GameManager extends PlaceManager
     protected void tickAIs ()
     {
         for (int ii = 0; ii < _AIs.length; ii++) {
-            byte level = _AIs[ii];
-            if (level != -1) {
-                tickAI(ii, level);
+            if (_AIs[ii] != null) {
+                tickAI(ii, _AIs[ii]);
             }
         }
     }
@@ -679,9 +677,9 @@ public class GameManager extends PlaceManager
     /**
      * Called by tickAIs to tick each AI in the game.
      */
-    protected void tickAI (int pidx, byte level)
+    protected void tickAI (int pidx, AI ai)
     {
-        _tickAIOp.setAI(pidx, level);
+        _tickAIOp.setAI(pidx, ai);
         applyToDelegates(_tickAIOp);
     }
 
@@ -868,7 +866,7 @@ public class GameManager extends PlaceManager
     {
         return (!_gameobj.isOccupiedPlayer(pidx) ||  // unoccupied slot
                 _playerOids[pidx] != 0 ||            // player is ready
-                (_AIs != null && _AIs[pidx] != -1)); // player is AI
+                isAI(pidx));                         // player is AI
     }
 
     // documentation inherited from interface
@@ -970,17 +968,17 @@ public class GameManager extends PlaceManager
     protected class TickAIDelegateOp implements DelegateOp
     {
         public void apply (PlaceManagerDelegate delegate) {
-            ((GameManagerDelegate) delegate).tickAI(_pidx, _level);
+            ((GameManagerDelegate) delegate).tickAI(_pidx, _ai);
         }
 
-        public void setAI (int pidx, byte level)
+        public void setAI (int pidx, AI ai)
         {
             _pidx = pidx;
-            _level = level;
+            _ai = ai;
         }
 
         protected int _pidx;
-        protected byte _level;
+        protected AI _ai;
     }
 
     /**
@@ -1006,7 +1004,7 @@ public class GameManager extends PlaceManager
 
     /** If AIs are present, contains their skill levels, or -1 at human
      * player indexes. */
-    protected byte[] _AIs;
+    protected AI[] _AIs;
 
     /** If non-null, contains bundles and messages that should be sent as
      * system messages once the game has started. */

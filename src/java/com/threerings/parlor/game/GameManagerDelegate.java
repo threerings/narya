@@ -1,5 +1,5 @@
 //
-// $Id: GameManagerDelegate.java,v 1.8 2004/08/27 02:20:14 mdb Exp $
+// $Id: GameManagerDelegate.java,v 1.9 2004/10/22 19:27:54 ray Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -59,7 +59,7 @@ public class GameManagerDelegate extends PlaceManagerDelegate
      * @param pidx the player index to fake some gameplay for.
      * @param skill the base skill level of the AI (0 - 100 inclusive).
      */
-    public void tickAI (int pidx, byte skill)
+    public void tickAI (int pidx, AI ai)
     {
     }
 
@@ -90,7 +90,7 @@ public class GameManagerDelegate extends PlaceManagerDelegate
      * Called when the specified player has been set as an AI with the
      * given skill level (ranging from 0 to 100 inclusive.)
      */
-    public void setAI (int pidx, byte skill)
+    public void setAI (int pidx, byte skill, byte personality)
     {
     }
 }
