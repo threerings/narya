@@ -1,5 +1,5 @@
 //
-// $Id: AuthResponseData.java,v 1.4 2001/05/30 23:58:31 mdb Exp $
+// $Id: AuthResponseData.java,v 1.5 2001/07/19 05:56:20 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -22,6 +22,12 @@ public class AuthResponseData extends DObject
      * failed.
      */
     public String code;
+
+    /** The oid of this client's associated distributed object. */
+    public int clientOid;
+
+    /** The oid to which to send invocation requests. */
+    public int invOid;
 
     public String toString ()
     {

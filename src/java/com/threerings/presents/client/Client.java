@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.6 2001/06/11 17:44:03 mdb Exp $
+// $Id: Client.java,v 1.7 2001/07/19 05:56:20 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -139,6 +139,31 @@ public class Client
     public DObjectManager getDObjectManager ()
     {
         return (_comm != null) ? _comm.getDObjectManager() : null;
+    }
+
+    /**
+     * Every client has an associated <code>ClientObject</code> instance.
+     *
+     * @return the oid of the client object or -1 if we are not currently
+     * connected to the server.
+     */
+    public int getClientOid ()
+    {
+        return (_comm != null) ? _comm.getClientOid() : -1;
+    }
+
+    /**
+     * Returns the invocation manager associated with this session. This
+     * reference is only valid for the duration of the session and a new
+     * reference must be obtained if the client disconnects and reconnects
+     * to the server.
+     *
+     * @return the invocation manager in effect or null if we have no
+     * established connection to the server.
+     */
+    public InvocationManager getInvocationManager ()
+    {
+        return (_comm != null) ? _comm.getInvocationManager() : null;
     }
 
     /**

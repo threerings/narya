@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.11 2001/06/13 05:17:55 mdb Exp $
+// $Id: DObject.java,v 1.12 2001/07/19 05:56:20 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -233,6 +233,19 @@ public class DObject
     public void setOid (int oid)
     {
         _oid = oid;
+    }
+
+    /**
+     * Called by derived instances when an attribute setter method was
+     * called.
+     */
+    protected void requestAttributeChange (String name, Object value)
+    {
+        // generate an attribute changed event
+        AttributeChangedEvent event = new AttributeChangedEvent(
+            _oid, name, value);
+        // and dispatch it to our dobjmgr
+        _mgr.postEvent(event);
     }
 
     protected int _oid;
