@@ -1,5 +1,5 @@
 //
-// $Id: FrameRepaintManager.java,v 1.6 2002/05/04 03:09:46 mdb Exp $
+// $Id: FrameRepaintManager.java,v 1.7 2002/05/04 05:13:54 mdb Exp $
 
 package com.threerings.media;
 
@@ -15,6 +15,7 @@ import java.awt.Window;
 import javax.swing.CellRendererPane;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
 
@@ -292,18 +293,25 @@ public class FrameRepaintManager extends RepaintManager
                     break;
                 }
 
-                if (!(c instanceof JComponent)) {
-                    root = c;
-                    break;
-                }
+                if (c instanceof JComponent) {
+                    // make a note of the first opaque parent we find
+                    if (ocomp == null && ((JComponent)c).isOpaque()) {
+                        ocomp = c;
+                        // we need to obtain the opaque parent's coordinates
+                        // in the root coordinate system for when we repaint
+                        _cbounds.setBounds(
+                            0, 0, ocomp.getWidth(), ocomp.getHeight());
+                    }
 
-                // make a note of the first opaque parent we find
-                if (ocomp == null && ((JComponent)c).isOpaque()) {
-                    ocomp = c;
-                    // we need to obtain the opaque parent's coordinates
-                    // in the root coordinate system for when we repaint
-                    _cbounds.setBounds(
-                        0, 0, ocomp.getWidth(), ocomp.getHeight());
+                } else {
+                    // oh god the hackery. apparently the fscking
+                    // JEditorPane wraps a heavy weight component around
+                    // every swing component it uses when doing forms
+                    Component tp = c.getParent();
+                    if (!(tp instanceof JEditorPane)) {
+                        root = c;
+                        break;
+                    }
                 }
 
                 // translate the coordinates into this component's
@@ -345,8 +353,10 @@ public class FrameRepaintManager extends RepaintManager
                     Log.info("Repainting old-school " +
                              "[comp=" + toString(comp) +
                              ", ocomp=" + toString(ocomp) +
+                             ", root=" + toString(root) +
                              ", bounds=" + StringUtil.toString(_cbounds) +
                              "].");
+                    dumpHierarchy(comp);
                 }
 
                 // otherwise, repaint with standard swing double buffers
@@ -377,10 +387,21 @@ public class FrameRepaintManager extends RepaintManager
     /**
      * Used to dump a component when debugging.
      */
-    protected String toString (Component comp)
+    protected static String toString (Component comp)
     {
         return comp.getClass().getName() +
             StringUtil.toString(comp.getBounds());
+    }
+
+    /**
+     * Dumps the containment hierarchy for the supplied component.
+     */
+    protected static void dumpHierarchy (Component comp)
+    {
+        for (String indent = ""; comp != null; indent += " ") {
+            Log.info(indent + toString(comp));
+            comp = comp.getParent();
+        }
     }
 
     /** The managed frame. */
