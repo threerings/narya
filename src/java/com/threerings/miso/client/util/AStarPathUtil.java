@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.19 2002/06/22 00:49:15 ray Exp $
+// $Id: AStarPathUtil.java,v 1.20 2002/09/13 00:51:19 ray Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -254,7 +254,8 @@ class AStarInfo
      */
     protected boolean isCoordinateValid (int x, int y)
     {
-	return (x >= 0 && y >= 0 && x < tilewid && y < tilehei);
+	return (x >= 0 && y >= 0 && x < tilewid && y < tilehei &&
+               (scene.getBaseTile(x, y) != null));
     }
 
     /**
