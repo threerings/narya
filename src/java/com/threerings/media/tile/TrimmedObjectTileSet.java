@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedObjectTileSet.java,v 1.1 2002/06/21 18:53:13 mdb Exp $
+// $Id: TrimmedObjectTileSet.java,v 1.2 2003/01/12 01:19:58 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -68,6 +68,9 @@ public class TrimmedObjectTileSet extends TileSet
         final TrimmedObjectTileSet tset = new TrimmedObjectTileSet();
         tset.setName(source.getName());
         int tcount = source.getTileCount();
+
+//         System.out.println("Trimming object tile set " +
+//                            "[source=" + source + "].");
 
         // create our metrics arrays
         tset._bounds = new Rectangle[tcount];
