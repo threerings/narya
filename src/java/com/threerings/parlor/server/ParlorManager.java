@@ -1,5 +1,5 @@
 //
-// $Id: ParlorManager.java,v 1.12 2001/10/19 22:02:36 mdb Exp $
+// $Id: ParlorManager.java,v 1.13 2001/10/23 02:22:17 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -240,10 +240,20 @@ public class ParlorManager
             // create a brand spanking new table
             Table table = new Table(placeOid, config);
 
-            // and stick it into the table lobby object
+            // stick the creator into position zero
+            String error = table.setOccupant(0, creator.username);
+            if (error != null) {
+                Log.warning("Unable to add creator to position zero of " +
+                            "table!? [table=" + table +
+                            ", creator=" + creator + "].");
+                // bail out now and abort the table creation process
+                throw new ServiceFailedException(error);
+            }
+
+            // stick the table into the table lobby object
             tlobj.addToTables(table);
 
-            // also stick the table into our tables table
+            // also stick it into our tables table
             _tables.put(table.getTableId(), table);
 
             // finally let the caller know what the new table id is
@@ -373,8 +383,7 @@ public class ParlorManager
                 CrowdServer.omgr.getObject(table.lobbyOid);
             if (tlobj == null) {
                 Log.warning("Can't update in-play table as lobby's gone " +
-                            "missing [table=" + table +
-                            ", gameOid=" + plobj.getOid() + "].");
+                            "missing [table=" + table + "].");
                 return;
             }
             tlobj.updateTables(table);

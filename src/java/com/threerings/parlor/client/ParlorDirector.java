@@ -1,5 +1,5 @@
 //
-// $Id: ParlorDirector.java,v 1.12 2001/10/22 23:56:25 mdb Exp $
+// $Id: ParlorDirector.java,v 1.13 2001/10/23 02:22:16 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -375,22 +375,6 @@ public class ParlorDirector
                         "[invite=" + invite + ", reason=" + reason + "].");
             Log.logStackTrace(e);
         }
-    }
-
-    public void handleTableCreated (int invid, int tableId)
-    {
-    }
-
-    public void handleCreateFailed (int invid, String reason)
-    {
-    }
-
-    public void handleTableJoined (int invid, int tableId)
-    {
-    }
-
-    public void handleJoinFailed (int invid, String reason)
-    {
     }
 
     /**

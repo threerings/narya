@@ -1,5 +1,5 @@
 //
-// $Id: ParlorService.java,v 1.7 2001/10/11 21:08:21 mdb Exp $
+// $Id: ParlorService.java,v 1.8 2001/10/23 02:22:16 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -102,5 +102,58 @@ public class ParlorService implements ParlorCodes
         Log.info("Sending invitation cancellation " +
                  "[inviteId=" + inviteId + "].");
         return invdir.invoke(MODULE_NAME, CANCEL_INVITE_ID, args, rsptarget);
+    }
+
+    /**
+     * You probably don't want to call this directly, but want to call
+     * {@link TableManager#createTable}. Requests that a new table be
+     * created.
+     *
+     * @param client a connected, operational client instance.
+     * @param lobbyOid the oid of the lobby that will contain the newly
+     * created table.
+     * @param config the game config for the game to be matchmade by the
+     * table.
+     * @param rsptarget the object reference that will receive and process
+     * the response.
+     *
+     * @return the invocation request id of the generated request.
+     */
+    public static int createTable (
+        Client client, int lobbyOid, GameConfig config, Object rsptarget)
+    {
+        InvocationDirector invdir = client.getInvocationDirector();
+        Object[] args = new Object[] { new Integer(lobbyOid), config };
+        Log.info("Sending table creation request " +
+                 "[lobbyOid=" + lobbyOid + ", config=" + config + "].");
+        return invdir.invoke(
+            MODULE_NAME, CREATE_TABLE_REQUEST, args, rsptarget);
+    }
+
+    /**
+     * You probably don't want to call this directly, but want to call
+     * {@link TableManager#joinTable}. Requests that the current user
+     * be added to the specified table at the specified position.
+     *
+     * @param client a connected, operational client instance.
+     * @param tableId the unique id of the table to which this user wishes
+     * to be added.
+     * @param position the position at the table to which this user desires
+     * to be added.
+     * @param rsptarget the object reference that will receive and process
+     * the response.
+     *
+     * @return the invocation request id of the generated request.
+     */
+    public static int joinTable (
+        Client client, int tableId, int position, Object rsptarget)
+    {
+        InvocationDirector invdir = client.getInvocationDirector();
+        Object[] args = new Object[] { new Integer(tableId),
+                                       new Integer(position) };
+        Log.info("Sending join table request " +
+                 "[tableId=" + tableId + ", position=" + position + "].");
+        return invdir.invoke(
+            MODULE_NAME, JOIN_TABLE_REQUEST, args, rsptarget);
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: Table.java,v 1.3 2001/10/22 23:56:01 mdb Exp $
+// $Id: Table.java,v 1.4 2001/10/23 02:22:16 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -179,6 +179,19 @@ public class Table
         occupants = (String[])ValueMarshaller.readFrom(in);
         config = (GameConfig)ValueMarshaller.readFrom(in);
         _tconfig = (TableConfig)config;
+    }
+
+    /**
+     * Returns true if this table is equal to the supplied object (which
+     * must be a table with the same table id).
+     */
+    public boolean equals (Object other)
+    {
+        if (other != null && other instanceof Table) {
+            return ((Table)other).tableId.equals(tableId);
+        } else {
+            return false;
+        }
     }
 
     /**

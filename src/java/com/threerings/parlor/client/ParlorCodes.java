@@ -1,5 +1,5 @@
 //
-// $Id: ParlorCodes.java,v 1.7 2001/10/19 22:02:36 mdb Exp $
+// $Id: ParlorCodes.java,v 1.8 2001/10/23 02:22:16 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -64,25 +64,20 @@ public interface ParlorCodes extends InvocationCodes
 
     /** The response identifier for a table created response. This is
      * mapped by the invocation services to a call to {@link
-     * ParlorDirector#handleTableCreated}. */
+     * TableManager#handleTableCreated}. */
     public static final String TABLE_CREATED_RESPONSE = "TableCreated";
 
     /** The response identifier for a create failed response. This is
      * mapped by the invocation services to a call to {@link
-     * ParlorDirector#handleCreateFailed}. */
+     * TableManager#handleCreateFailed}. */
     public static final String CREATE_FAILED_RESPONSE = "CreateFailed";
 
     /** The message identifier for a join table request. */
     public static final String JOIN_TABLE_REQUEST = "JoinTable";
 
-    /** The response identifier for a table joined response. This is
-     * mapped by the invocation services to a call to {@link
-     * ParlorDirector#handleTableJoined}. */
-    public static final String TABLE_JOINED_RESPONSE = "TableJoined";
-
     /** The response identifier for a join failed response. This is mapped
      * by the invocation services to a call to {@link
-     * ParlorDirector#handleJoinFailed}. */
+     * TableManager#handleJoinFailed}. */
     public static final String JOIN_FAILED_RESPONSE = "JoinFailed";
 
     /** An error code returned when a user requests to join a table that
