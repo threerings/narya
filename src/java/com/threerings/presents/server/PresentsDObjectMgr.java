@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.23 2002/02/09 07:50:37 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.24 2002/03/20 03:23:00 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -40,6 +40,17 @@ public class PresentsDObjectMgr implements RootDObjectManager
         dummy.setOid(0);
         dummy.setManager(this);
         _objects.put(0, new DObject());
+    }
+
+    /**
+     * Sets up an access controller that will be provided to any
+     * distributed objects created on the server. The controllers can
+     * subsequently be overridden if desired, but a default controller is
+     * useful for implementing basic access control policies.
+     */
+    public void setDefaultAccessController (AccessController controller)
+    {
+        _defaultController = controller;
     }
 
     // inherit documentation from the interface
@@ -492,6 +503,8 @@ public class PresentsDObjectMgr implements RootDObjectManager
                 // initialize this object
                 obj.setOid(oid);
                 obj.setManager(PresentsDObjectMgr.this);
+                obj.setAccessController(_defaultController);
+
                 // insert it into the table
                 _objects.put(oid, obj);
 
@@ -684,6 +697,10 @@ public class PresentsDObjectMgr implements RootDObjectManager
 
     /** Used to track oid list references of distributed objects. */
     protected HashIntMap _refs = new HashIntMap();
+
+    /** The default access controller to use when creating distributed
+     * objects. */
+    protected AccessController _defaultController;
 
     /** The default size of an oid list refs vector. */
     protected static final int DEFREFVEC_SIZE = 4;
