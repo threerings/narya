@@ -1,5 +1,5 @@
 //
-// $Id: Handler.java,v 1.4 2003/05/07 05:31:09 mdb Exp $
+// $Id: Handler.java,v 1.5 2003/07/09 18:44:52 ray Exp $
 
 package com.threerings.resource;
 
@@ -9,7 +9,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
-import java.net.URLStreamHandlerFactory;
+
+import com.samskivert.net.AttachableURLFactory;
 
 /**
  * This class is not used directly, except by a registering ResourceManager
@@ -35,18 +36,10 @@ public class Handler extends URLStreamHandler
 
         // There are two ways to do this.
         // Method 1, which is the only one that seems to work under
-        // Java Web Start, is to register a factory. This is kind of
-        // scary because there can only be one factory.
-        URL.setURLStreamHandlerFactory(new URLStreamHandlerFactory() {
-            public URLStreamHandler createURLStreamHandler (String protocol)
-            {
-                if (protocol.equalsIgnoreCase("resource")) {
-                    return new Handler();
-                }
-                return null;
-            }
-        });
-
+        // Java Web Start, is to register a factory.
+        // This *used* to be scary to me, because you could only have one
+        // factory, but now we have the attachable factory!
+        AttachableURLFactory.attachHandler("resource", Handler.class);
 
         // Method 2 seems like a better idea but doesn't work under
         // Java Web Start. We add on a property that registers this
