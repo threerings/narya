@@ -149,3 +149,116 @@ Presents Notes -*- outline -*-
 ** BEEP!
 - Look into replacing low-level network protocol with BEEP (and rolling
   our performance enhancements into BEEP's implementation if necessary)
+
+* 7/18/2002
+** PRMI (Presents remote method invocation)
+- PRMI ends up looking a lot like RMI with a few critical differences:
+
+  + it uses the same message passing infrastructure as the distributed
+    object system to accomplish its calls and responses
+
+  + it requires asynchronous response delivery (return values from
+    remotely invoked methods are prohibited)
+
+- It all starts with an interface that defines the remotely callable
+  methods and remotely callable response interfaces:
+
+  public interface LocationService extends InvocationService
+  {
+      /**
+       * Used to communicate responses to {@link #moveTo} requests.
+       */
+      public interface MoveListener extends InvocationListener
+      {
+          /**
+           * Called in response to a successful {@link #moveTo} request.
+           */
+          public void moveSucceeded (PlaceConfig config);
+      }
+
+      /**
+       * Requests that this client's body be moved to the specified
+       * location.
+       *
+       * @param placeId the object id of the place object to which the
+       * body should be moved.
+       * @param listener the listener that will be informed of success or
+       * failure.
+       */
+      public void moveTo (int placeId, MoveListener listener)
+          throws InvocationException;
+  }
+
+  Note again that remotely callable methods cannot return values.
+  Responses must be communicated asynchronously via listener parameters.
+
+  The InvocationListener interface provides a standard method for handling
+  request failure:
+
+  public InvocationListener
+  {
+      public void requestFailed (InvocationException cause)
+  }
+
+  This will be used to report unexpected failure and can also be used to
+  report expected failures by the remotely callable method implementations
+  if they so desire. This is accomplished by their throwing exceptions
+  that extend InvocationException. Non-InvocationException exceptions
+  thrown by the remotely callable methods will be wrapped in an
+  InvocationException and then passed on to the appropriate listener.
+
+  For methods that declare multiple result listeners (a design choice that
+  is not recommended), the first listener in the argument list will be the
+  one to which caught exceptions are delivered.
+
+- From the interface, marshaller implementations are generated for the
+  service interface and all listener interfaces contained therein:
+
+    public class LocationMarshaller implements LocationService
+    {
+        // ...
+
+        public int marshallerId;
+
+        public void moveTo (int placeId, MoveListener listener)
+        {
+            try {
+                if (_provider != null) {
+                    // this is a local request, dispatch it directly
+                    _provider.moveTo(placeId, listener);
+                } else {
+                    // pass the request to the invocation services for
+                    // dispatch over the network
+                }
+
+            } catch (InvocationException ie) {
+                if (listener != null) {
+                    listener.requestFailed(ie);
+                }
+            }
+        }
+
+        protected transient LocationService _provider;
+    }
+
+    An InvocationMarshaller is constructed on the server and passed at
+    construct time a InvocationService implementation that will provide
+    the actual implementation of the service. The marshaller will then
+    register itself with the invocation services to receive an invocation
+    object id which will be used to identify that marshaller in client
+    JVMs.
+
+    The InvocationMarshaller instance can then be passed around the
+    distributed object system as any other object. If it is used on the
+    server, the methods will be passed directly through to the
+    implementation. If it is used on the client, it will marshall the
+    request parameters and send them over the network to the server --
+    where they will be dispatched to the implementation -- any response
+    from which will be communicated back through InvocationListener
+    proxies which marshall the response and deliver it to the calling
+    client, which then unpacks the response and delivers it to the
+    original InvocationListener.
+
+- Notification services? Client provides "marshaller" in ClientObject,
+  server calls down to client through said marshaller object. How to
+  register implementations on the client end?
