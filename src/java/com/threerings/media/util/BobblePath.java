@@ -1,5 +1,5 @@
 //
-// $Id: BobblePath.java,v 1.3 2003/01/17 22:57:08 mdb Exp $
+// $Id: BobblePath.java,v 1.4 2003/01/17 23:19:20 ray Exp $
 
 package com.threerings.media.util;
 
@@ -95,8 +95,9 @@ public class BobblePath implements Path
     {
         // see if we need to stop
         if (_stopTime <= tickStamp) {
+            boolean updated = updatePositionTo(pable, _sx, _sy);
             pable.pathCompleted(tickStamp);
-            return updatePositionTo(pable, _sx, _sy);
+            return updated;
         }
 
         // see if it's time to move..
@@ -134,7 +135,8 @@ public class BobblePath implements Path
     // documentation inherited from interface
     public void wasRemoved (Pathable pable)
     {
-        // nothing doing
+        // reset the pathable to its initial location
+        pable.setLocation(_sx, _sy);
     }
 
     /**
