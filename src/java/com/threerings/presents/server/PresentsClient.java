@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.37 2002/09/18 01:10:27 shaper Exp $
+// $Id: PresentsClient.java,v 1.38 2002/09/19 23:36:59 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -20,6 +20,7 @@ import com.threerings.presents.dobj.Subscriber;
 
 import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.BootstrapNotification;
+import com.threerings.presents.net.Credentials;
 import com.threerings.presents.net.EventNotification;
 import com.threerings.presents.net.UpstreamMessage;
 
@@ -54,6 +55,32 @@ public class PresentsClient
     implements Subscriber, EventListener, MessageHandler,
                ClientResolutionListener
 {
+    /** Used by {@link #setUsername} to report success or failure. */
+    public static interface UserChangeListener
+    {
+        /** Called when the new client object has been resolved and the
+         * new client object reported to the client, but the old one has
+         * not yet been destroyed. Any events delivered on this callback
+         * to the old client object will be delivered. */
+        public void changeReported (ClientObject newObj);
+
+        /** Called when the user change is completed, the old client
+         * object is destroyed and all updates are committed. */
+        public void changeCompleted (ClientObject newObj);
+
+        /** Called if some failure occurs during the user change
+         * process. */
+        public void changeFailed (Exception cause);
+    }
+
+    /**
+     * Returns the credentials used to authenticate this client.
+     */
+    public Credentials getCredentials ()
+    {
+        return _creds;
+    }
+
     /**
      * Returns the username with which this client instance is associated.
      */
@@ -79,17 +106,58 @@ public class PresentsClient
      * services when the user logs on, but anything else that has had its
      * grubby mits on the username will be left to its own devices, hence
      * the care that must be exercised when using this method.
+     *
+     * @param ucl an entity that will (optionally) be notified when the
+     * username conversion process is complete.
      */
-    public void setUsername (String username)
+    public void setUsername (String username, final UserChangeListener ucl)
     {
-        // remap the client object in the client manager
-        if (_cmgr.remapClient(_username, username)) {
-            // change our internal business
-            _username = username;
-        } else {
-            Log.warning("Unable to remap username [client=" + this +
-                        ", newname=" + username + "].");
-        }
+        ClientResolutionListener clr = new ClientResolutionListener() {
+            public void clientResolved (String username, ClientObject clobj) {
+                // let the client know that the rug has been yanked out
+                // from under their ass
+                Object[] args = new Object[] { new Integer(clobj.getOid()) };
+                _clobj.postMessage(ClientObject.CLOBJ_CHANGED, args);
+
+                // let the caller know that we've got some new business
+                if (ucl != null) {
+                    ucl.changeReported(clobj);
+                }
+
+                // release our old client object
+                _cmgr.releaseClientObject(_username);
+
+                // unmap the old client object; this will destroy it and
+                // clear out our username mapping
+                _cmgr.unmapClientObject(_username);
+
+                // update our internal fields
+                _username = username;
+                _clobj = clobj;
+
+                // lock our new client object
+                _cmgr.lockClientObject(_username);
+
+                // let our listener know we're groovy
+                if (ucl != null) {
+                    ucl.changeCompleted(_clobj);
+                }
+            }
+
+            public void resolutionFailed (String username, Exception reason) {
+                Log.warning("Unable to resolve new client object " +
+                            "[oldname=" + _username + ", newname=" + username +
+                            ", reason=" + reason + "].");
+
+                // let our listener know we're hosed
+                if (ucl != null) {
+                    ucl.changeFailed(reason);
+                }
+            }
+        };
+
+        // resolve the new client object
+        _cmgr.resolveClientObject(username, clr);
     }
 
     /**
@@ -105,14 +173,34 @@ public class PresentsClient
      * connection instance and client object and begins a client session.
      */
     protected void startSession (
-        ClientManager cmgr, String username, Connection conn)
+        ClientManager cmgr, Credentials creds, Connection conn)
     {
         _cmgr = cmgr;
-        _username = username;
+        _creds = creds;
         setConnection(conn);
 
+        // obtain our starting username
+        assignStartingUsername();
+
+        // obtain a lock for our username->client object mapping while we
+        // have an active session
+        cmgr.lockClientObject(_username);
+
         // resolve our client object before we get fully underway
-        cmgr.resolveClientObject(username, this);
+        cmgr.resolveClientObject(_username, this);
+    }
+
+    /**
+     * This is factored out to allow derived classes to use a different
+     * starting username than the one supplied in the user's credentials.
+     * Generally one only wants to munge the starting username if the user
+     * will subsequently choose a "screen name" and it is desirable to
+     * avoid collision between the authentication user namespace and the
+     * screen namespace.
+     */
+    protected void assignStartingUsername ()
+    {
+        _username = _creds.getUsername();
     }
 
     // documentation inherited from interface
@@ -306,6 +394,9 @@ public class PresentsClient
         // about inability to forward the object destroyed event we're
         // about to generate
         clearSubscrips();
+
+        // release our locked client object
+        _cmgr.releaseClientObject(_username);
 
         // then let the client manager know what's up (it will take care
         // of destroying our client object for us)
@@ -616,6 +707,7 @@ public class PresentsClient
     }
 
     protected ClientManager _cmgr;
+    protected Credentials _creds;
     protected String _username;
     protected Connection _conn;
     protected ClientObject _clobj;

@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.21 2002/08/14 19:07:54 mdb Exp $
+// $Id: InvocationDirector.java,v 1.22 2002/09/19 23:36:59 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -20,10 +20,12 @@ import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
+import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.EventListener;
 import com.threerings.presents.dobj.InvocationNotificationEvent;
 import com.threerings.presents.dobj.InvocationRequestEvent;
 import com.threerings.presents.dobj.InvocationResponseEvent;
+import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
 
@@ -41,25 +43,22 @@ public class InvocationDirector
      * manager will send and receive events.
      * @param cloid the oid of the object on which invocation
      * notifications as well as invocation responses will be received.
-     * @param initListener a result listener that will be notified when
-     * the invocation director is up and running (meaning it has
-     * subscribed successfully to the client object and is ready to
-     * process invocation requests); or when initialization has failed.
+     * @param client a reference to the client for whom we're doing our
+     * business.
      */
-    public void init (DObjectManager omgr, final int cloid,
-                      final ResultListener initListener)
+    public void init (DObjectManager omgr, final int cloid, Client client)
     {
-        // keep this for later
+        // keep these for later
         _omgr = omgr;
+        _client = client;
 
         // add ourselves as a subscriber to the client object
         _omgr.subscribeToObject(cloid, new Subscriber() {
-            public void objectAvailable (DObject object)
-            {
+            public void objectAvailable (DObject object) {
                 // keep a handle on this bad boy
                 _clobj = (ClientObject)object;
 
-                // add ourselves as a message listener
+                // add ourselves as an event listener
                 _clobj.addListener(InvocationDirector.this);
 
                 // assign a mapping to already registered receivers
@@ -67,16 +66,16 @@ public class InvocationDirector
 
                 // let the client know that we're ready to go now that
                 // we've got our subscription to the client object
-                initListener.requestCompleted(object);
+                _client.gotClientObject(_clobj);
             }
 
-            public void requestFailed (int oid, ObjectAccessException cause)
-            {
+            public void requestFailed (int oid, ObjectAccessException cause) {
                 // aiya! we were unable to subscribe to the client object.
                 // we're hosed, hosed, hosed
                 Log.warning("Invocation director unable to subscribe to " +
-                            "client object [cloid=" + cloid + "]!");
-                initListener.requestFailed(cause);
+                            "client object [cloid=" + cloid +
+                            ", cause=" + cause + "]!");
+                _client.getClientObjectFailed(cause);
             }
         });
     }
@@ -215,6 +214,13 @@ public class InvocationDirector
                 (InvocationNotificationEvent)event;
             handleInvocationNotification(
                 ine.getReceiverId(), ine.getMethodId(), ine.getArgs());
+
+        } else if (event instanceof MessageEvent) {
+            MessageEvent mevt = (MessageEvent)event;
+            if (mevt.getName().equals(ClientObject.CLOBJ_CHANGED)) {
+                handleClientObjectChanged(
+                    ((Integer)mevt.getArgs()[0]).intValue());
+            }
         }
     }
 
@@ -283,6 +289,49 @@ public class InvocationDirector
     }
 
     /**
+     * Called when the server has informed us that our previous client
+     * object is going the way of the Dodo because we're changing screen
+     * names. We subscribe to the new object and report to the client once
+     * we've got our hands on it.
+     */
+    protected void handleClientObjectChanged (int newCloid)
+    {
+        // subscribe to the new client object
+        _omgr.subscribeToObject(newCloid, new Subscriber() {
+            public void objectAvailable (DObject object) {
+                // grab a reference to our old receiver registrations
+                DSet receivers = _clobj.receivers;
+
+                // replace the client object
+                _clobj = (ClientObject)object;
+
+                // add ourselves as an event listener
+                _clobj.addListener(InvocationDirector.this);
+
+                // reregister our receivers
+                try {
+                    _clobj.startTransaction();
+                    Iterator iter = receivers.entries();
+                    while (iter.hasNext()) {
+                        _clobj.addToReceivers((Registration)iter.next());
+                    }
+                } finally {
+                    _clobj.commitTransaction();
+                }
+
+                // and report the switcheroo back to the client
+                _client.clientObjectDidChange(_clobj);
+            }
+
+            public void requestFailed (int oid, ObjectAccessException cause) {
+                Log.warning("Aiya! Unable to subscribe to changed " +
+                            "client object [cloid=" + oid +
+                            ", cause=" + cause + "].");
+            }
+        });
+    }
+
+        /**
      * Used to generate monotonically increasing invocation request ids.
      */
     protected synchronized short nextRequestId ()
@@ -300,6 +349,9 @@ public class InvocationDirector
 
     /** The distributed object manager with which we interact. */
     protected DObjectManager _omgr;
+
+    /** The client for whom we're working. */
+    protected Client _client;
 
     /** Our client object; invocation responses and notifications are
      * received on this object. */

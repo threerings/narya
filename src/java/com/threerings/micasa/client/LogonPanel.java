@@ -1,5 +1,5 @@
 //
-// $Id: LogonPanel.java,v 1.7 2002/07/17 18:11:02 mdb Exp $
+// $Id: LogonPanel.java,v 1.8 2002/09/19 23:36:59 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -154,6 +154,12 @@ public class LogonPanel extends JPanel
         }
         _status.append(_msgs.xlate(msg) + "\n");
         setLogonEnabled(true);
+    }
+
+    // documentation inherited from interface
+    public void clientObjectDidChange (Client client)
+    {
+        // nothing we can do here...
     }
 
     // documentation inherited from interface

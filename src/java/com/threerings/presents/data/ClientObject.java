@@ -1,5 +1,5 @@
 //
-// $Id: ClientObject.java,v 1.3 2002/08/14 19:07:54 mdb Exp $
+// $Id: ClientObject.java,v 1.4 2002/09/19 23:36:59 mdb Exp $
 
 package com.threerings.presents.data;
 
@@ -16,6 +16,10 @@ public class ClientObject extends DObject
 {
     /** The field name of the <code>receivers</code> field. */
     public static final String RECEIVERS = "receivers";
+
+    /** The name of a message event delivered to the client when they
+     * switch usernames (and therefore user objects). */
+    public static final String CLOBJ_CHANGED = "!clobj_changed!";
 
     /** Used to publish all invocation service receivers registered on
      * this client. */

@@ -1,5 +1,5 @@
 //
-// $Id: ClientAdapter.java,v 1.3 2001/10/11 04:07:52 mdb Exp $
+// $Id: ClientAdapter.java,v 1.4 2002/09/19 23:36:59 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -21,6 +21,11 @@ public class ClientAdapter implements ClientObserver
 
     // documentation inherited
     public void clientFailedToLogon (Client client, Exception cause)
+    {
+    }
+
+    // documentation inherited from interface
+    public void clientObjectDidChange (Client client)
     {
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.28 2002/08/14 19:07:54 mdb Exp $
+// $Id: Client.java,v 1.29 2002/09/19 23:36:59 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -333,25 +333,48 @@ public class Client
     protected void clockDeltaEstablished ()
     {
         // initialize our invocation director
-        ResultListener rl = new ResultListener() {
-            public void requestCompleted (Object result) {
-                // keep this around
-                _clobj = (ClientObject)result;
-                // let the client know that logon has now fully succeeded
-                notifyObservers(Client.CLIENT_DID_LOGON, null);
-            }
-
-            public void requestFailed (Exception cause) {
-                // pass the buck onto the listeners
-                notifyObservers(Client.CLIENT_FAILED_TO_LOGON, cause);
-            }
-        };
-        _invdir.init(_comm.getDObjectManager(), _cloid, rl);
+        _invdir.init(_comm.getDObjectManager(), _cloid, this);
 
         // we can't quite call initialization completed at this point
         // because we need for the invocation director to fully initialize
         // (which requires a round trip to the server) before turning the
         // client loose to do things like request invocation services
+    }
+
+    /**
+     * Called by the invocation director when it successfully subscribes
+     * to the client object immediately following logon.
+     */
+    protected void gotClientObject (ClientObject clobj)
+    {
+        // keep this around
+        _clobj = clobj;
+
+        // let the client know that logon has now fully succeeded
+        notifyObservers(Client.CLIENT_DID_LOGON, null);
+    }
+
+    /**
+     * Called by the invocation director if it fails to subscribe to the
+     * client object after logon.
+     */
+    protected void getClientObjectFailed (Exception cause)
+    {
+        // pass the buck onto the listeners
+        notifyObservers(Client.CLIENT_FAILED_TO_LOGON, cause);
+    }
+
+    /**
+     * Called by the invocation director when it discovers that the client
+     * object has changed.
+     */
+    protected void clientObjectDidChange (ClientObject clobj)
+    {
+        // slip the new client object into the business
+        _clobj = clobj;
+
+        // report to our observers
+        notifyObservers(Client.CLIENT_OBJECT_CHANGED, null);
     }
 
     boolean notifyObservers (int code, Exception cause)
@@ -365,8 +388,11 @@ public class Client
             }
         };
 
-        // we need to run immediately if this is WILL_LOGOFF
-        if (code == CLIENT_WILL_LOGOFF) {
+        // we need to run immediately if this is WILL_LOGOFF or if we have
+        // no invoker (which currently only happens in some really obscure
+        // circumstances where we're using a Client instance on the server
+        // so that we can sort of pretend to be a real client)
+        if (code == CLIENT_WILL_LOGOFF || _invoker == null) {
             unit.run();
             return noty.getRejected();
 
@@ -475,6 +501,12 @@ public class Client
                 }
                 break;
 
+            case CLIENT_OBJECT_CHANGED:
+                if (obs instanceof ClientObserver) {
+                    ((ClientObserver)obs).clientObjectDidChange(Client.this);
+                }
+                break;
+
             case CLIENT_CONNECTION_FAILED:
                 if (obs instanceof ClientObserver) {
                     ((ClientObserver)obs).clientConnectionFailed(
@@ -554,7 +586,8 @@ public class Client
     // client observer codes
     static final int CLIENT_DID_LOGON = 0;
     static final int CLIENT_FAILED_TO_LOGON = 1;
-    static final int CLIENT_CONNECTION_FAILED = 2;
-    static final int CLIENT_WILL_LOGOFF = 3;
-    static final int CLIENT_DID_LOGOFF = 4;
+    static final int CLIENT_OBJECT_CHANGED = 2;
+    static final int CLIENT_CONNECTION_FAILED = 3;
+    static final int CLIENT_WILL_LOGOFF = 4;
+    static final int CLIENT_DID_LOGOFF = 5;
 }

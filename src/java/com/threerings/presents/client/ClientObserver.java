@@ -1,5 +1,5 @@
 //
-// $Id: ClientObserver.java,v 1.5 2002/05/16 18:17:27 shaper Exp $
+// $Id: ClientObserver.java,v 1.6 2002/09/19 23:36:59 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -42,6 +42,14 @@ public interface ClientObserver extends SessionObserver
      * provided will indicate the cause of the failure.
      */
     public void clientFailedToLogon (Client client, Exception cause);
+
+    /**
+     * For systems that allow switching screen names after logon, this
+     * method is called whenever a screen name change takes place to
+     * report that the client object has been replaced to potential
+     * client-side subscribers.
+     */
+    public void clientObjectDidChange (Client client);
 
     /**
      * Called when the connection to the server went away for some

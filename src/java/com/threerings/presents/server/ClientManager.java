@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.22 2002/09/16 23:34:25 mdb Exp $
+// $Id: ClientManager.java,v 1.23 2002/09/19 23:36:59 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -86,12 +86,12 @@ public class ClientManager implements ConnectionObserver
 
     /**
      * Returns the client instance that manages the client session for the
-     * specified username or null if that client is not currently
+     * specified credentials or null if that client is not currently
      * connected to the server.
      */
-    public PresentsClient getClient (String username)
+    public PresentsClient getClient (Credentials creds)
     {
-        return (PresentsClient)_usermap.get(username);
+        return (PresentsClient)_usermap.get(creds);
     }
 
     /**
@@ -101,7 +101,17 @@ public class ClientManager implements ConnectionObserver
      */
     public ClientObject getClientObject (String username)
     {
-        return (ClientObject)_objmap.get(username);
+        return (ClientObject)_objmap.get(toKey(username));
+    }
+
+    /**
+     * We convert usernames to lower case in the username to client object
+     * mapping so that we can pass arbitrarily cased usernames (like those
+     * that might be typed in by a "user") straight on through.
+     */
+    protected final String toKey (String username)
+    {
+        return username.toLowerCase();
     }
 
     /**
@@ -115,14 +125,15 @@ public class ClientManager implements ConnectionObserver
         String username, ClientResolutionListener listener)
     {
         // look to see if the client object is already resolved
-        ClientObject clobj = (ClientObject)_objmap.get(username);
+        String key = toKey(username);
+        ClientObject clobj = (ClientObject)_objmap.get(key);
         if (clobj != null) {
             listener.clientResolved(username, clobj);
             return;
         }
 
         // look to see if it's currently being resolved
-        ClientResolver clr = (ClientResolver)_penders.get(username);
+        ClientResolver clr = (ClientResolver)_penders.get(key);
         if (clr != null) {
             // throw this guy onto the bandwagon
             clr.addResolutionListener(listener);
@@ -154,10 +165,11 @@ public class ClientManager implements ConnectionObserver
         String username, ClientObject clobj)
     {
         // stuff the object into the mapping table
-        _objmap.put(username, clobj);
+        String key = toKey(username);
+        _objmap.put(key, clobj);
 
         // and remove the resolution listener
-        _penders.remove(username);
+        _penders.remove(key);
     }
 
     /**
@@ -172,11 +184,12 @@ public class ClientManager implements ConnectionObserver
     {
         // we only remove the mapping if there's not a session in progress
         // (which is indicated by an entry in the locks table)
-        if (_locks.contains(username)) {
+        String key = toKey(username);
+        if (_locks.contains(key)) {
             return;
         }
 
-        ClientObject clobj = (ClientObject)_objmap.remove(username);
+        ClientObject clobj = (ClientObject)_objmap.remove(key);
         if (clobj != null) {
             PresentsServer.omgr.destroyObject(clobj.getOid());
         } else {
@@ -186,75 +199,37 @@ public class ClientManager implements ConnectionObserver
     }
 
     /**
-     * Remaps a client from its old username to the specified new
-     * username. The client must end its session using the new username.
-     * This most likely shouldn't be called anywhere except from {@link
-     * PresentsClient#setUsername}.
-     *
-     * @return true if the remapping succeeded, false if it failed.
-     */
-    protected synchronized boolean remapClient (
-        String oldname, String newname)
-    {
-        // make sure they are already mapped
-        PresentsClient client = (PresentsClient)_usermap.remove(oldname);
-        if (client == null) {
-            Log.warning("Aiya! Can't remap non-existent user " +
-                        "[oldname=" + oldname + ", newname=" + newname + "].");
-            return false;
-        }
-
-        // map them under their new name
-        _usermap.put(newname, client);
-
-        // release their old lock and create a lock for their new name
-        releaseClient(oldname);
-        lockClient(newname);
-
-        // update their client object mapping
-        ClientObject clobj = (ClientObject)_objmap.remove(oldname);
-        if (clobj == null) {
-            Log.warning("Aiya! Unable to unmap old client object when " +
-                        "remapping user [oldname=" + oldname +
-                        ", newname=" + newname + "]. Hoping for the best.");
-        } else {
-            _objmap.put(newname, clobj);
-        }
-
-        return true;
-    }
-
-    /**
      * When a client object becomes part of an active session, this method
      * should be called to ensure that it is not unloaded by any entities
      * that temporarily resolve and release the object. This is called
      * automatically when a real user starts a session by establishing a
      * network connection with the server. If a client session is managed
      * via some other mechanism (bots managed by the server, for example),
-     * this method and its corresponding {@link #releaseClient} should be
-     * called at the beginning and end of the faked client session
-     * respectively.
+     * this method and its corresponding {@link #releaseClientObject}
+     * should be called at the beginning and end of the faked client
+     * session respectively.
      */
-    public synchronized void lockClient (String username)
+    public synchronized void lockClientObject (String username)
     {
-        if (_locks.contains(username)) {
+        String key = toKey(username);
+        if (_locks.contains(key)) {
             Log.warning("Requested to lock already locked user " +
                         "[username=" + username + "].");
             Thread.dumpStack();
 
         } else {
-            _locks.add(username);
+            _locks.add(key);
         }
     }
 
     /**
      * Releases a client object when their session has ended.
      *
-     * @see #lockClient
+     * @see #lockClientObject
      */
-    public synchronized void releaseClient (String username)
+    public synchronized void releaseClientObject (String username)
     {
-        if (!_locks.remove(username)) {
+        if (!_locks.remove(toKey(username))) {
             Log.warning("Requested to unlock a user that was not locked " +
                         "[username=" + username + "].");
             Thread.dumpStack();
@@ -268,8 +243,8 @@ public class ClientManager implements ConnectionObserver
         Credentials creds = req.getCredentials();
         String username = creds.getUsername();
 
-        // see if there's a client already registered with this username
-        PresentsClient client = (PresentsClient)_usermap.get(username);
+        // see if a client is already registered with these credentials
+        PresentsClient client = (PresentsClient)_usermap.get(creds);
 
         if (client != null) {
             Log.info("Session resumed [username=" + username +
@@ -283,13 +258,10 @@ public class ClientManager implements ConnectionObserver
             try {
                 // create a client and start up its session
                 client = (PresentsClient)_clientClass.newInstance();
-                client.startSession(this, username, conn);
-
-                // lock this client for the duration of this session
-                lockClient(username);
+                client.startSession(this, creds, conn);
 
                 // map their client instance
-                _usermap.put(username, client);
+                _usermap.put(creds, client);
 
             } catch (Exception e) {
                 Log.warning("Failed to instantiate client instance to " +
@@ -350,9 +322,11 @@ public class ClientManager implements ConnectionObserver
      */
     synchronized void clientDidEndSession (PresentsClient client)
     {
+        Credentials creds = client.getCredentials();
         String username = client.getUsername();
+
         // remove the client from the username map
-        PresentsClient rc = (PresentsClient)_usermap.remove(username);
+        PresentsClient rc = (PresentsClient)_usermap.remove(creds);
 
         // sanity check just because we can
         if (rc == null) {
@@ -372,9 +346,7 @@ public class ClientManager implements ConnectionObserver
             Log.info("Ending session [client=" + client + "].");
         }
 
-        // release the client session
-        releaseClient(username);
-        // and unmap (and destroy) their client object
+        // unmap (and destroy) the client object
         unmapClientObject(username);
     }
 
