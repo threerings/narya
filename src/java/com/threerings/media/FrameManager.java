@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.44 2003/07/29 00:41:40 mdb Exp $
+// $Id: FrameManager.java,v 1.45 2003/08/08 21:41:10 mdb Exp $
 
 package com.threerings.media;
 
@@ -107,7 +107,17 @@ public abstract class FrameManager
      */
     public static FrameManager newInstance (JFrame frame)
     {
-        return newInstance(frame, new SystemMediaTimer());
+        // first try creating a PerfTimer which is the best if we're using
+        // JDK1.4.2
+        MediaTimer timer = null;
+        try {
+            timer = (MediaTimer)Class.forName(PERF_TIMER).newInstance();
+        } catch (Exception e) {
+            Log.info("Can't use PerfTimer (" + e + ") reverting to " +
+                     "System.currentTimeMillis() based timer.");
+            timer = new SystemMediaTimer();
+        }
+        return newInstance(frame, timer);
     }
 
     /**
@@ -685,6 +695,8 @@ public abstract class FrameManager
     {
         public void run ()
         {
+            Log.info("Frame manager ticker running " +
+                     "[sleepGran=" + _sleepGranularity.getValue() + "].");
             while (_running) {
                 long start = 0L;
                 if (MediaPanel._perfDebug.getValue()) {
@@ -846,8 +858,12 @@ public abstract class FrameManager
         new RuntimeAdjust.IntAdjust(
             "The number of milliseconds slept before checking to see if " +
             "it's time to queue up a new frame tick.", "narya.media.sleep_gran",
-            MediaPrefs.config, 7);
+            MediaPrefs.config, RunAnywhere.isWindows() ? 10 : 7);
 
     /** Whether to enable AWT event debugging for the frame. */
     protected static final boolean DEBUG_EVENTS = false;
+
+    /** The name of the high-performance timer class we attempt to load. */
+    protected static final String PERF_TIMER =
+        "com.threerings.media.timer.PerfTimer";
 }
