@@ -1,5 +1,5 @@
 //
-// $Id: SessionObserver.java,v 1.2 2002/09/20 00:54:39 mdb Exp $
+// $Id: SessionObserver.java,v 1.3 2002/10/27 22:19:21 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -7,11 +7,6 @@ package com.threerings.presents.client;
  * A session observer is registered with the client instance to be
  * notified when the client establishes and ends their session with the
  * server.
- *
- * <p> These callbacks happen on the client thread and should therefore
- * not be used to perform any complex action or do much more than relay
- * the signal to some other thread (like the AWT thread) to act more fully
- * on the notice.
  *
  * @see ClientObserver
  */

@@ -1,5 +1,5 @@
 //
-// $Id: ClientObserver.java,v 1.7 2002/09/20 00:54:39 mdb Exp $
+// $Id: ClientObserver.java,v 1.8 2002/10/27 22:19:21 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -28,11 +28,6 @@ package com.threerings.presents.client;
  * observers know that we lost our connection to the
  * server. <code>clientDidLogoff</code> will be called immediately
  * afterwards as a normal logoff procedure is effected.
- *
- * <p> These callbacks happen on the client thread and should therefore
- * not be used to perform any complex action or do much more than relay
- * the signal to some other thread (like the AWT thread) to act more fully
- * on the notice.
  */
 public interface ClientObserver extends SessionObserver
 {
