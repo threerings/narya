@@ -1,9 +1,12 @@
 //
-// $Id: ObjectTile.java,v 1.5 2001/12/18 08:37:54 mdb Exp $
+// $Id: ObjectTile.java,v 1.6 2002/01/31 02:08:52 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
+
+import com.threerings.media.Log;
 
 /**
  * An object tile extends the base tile to provide support for objects
@@ -91,6 +94,29 @@ public class ObjectTile extends Tile
     {
         _originX = x;
         _originY = y;
+    }
+
+    /**
+     * Returns true if the object tile's bounds contain the specified
+     * point, and if there is a non-transparent pixel in the tile image at
+     * the specified point, false if not.
+     *
+     * @param x the x offset into the object tile's bounds to test.
+     * @param y the y offset into the object tile's bounds to test.
+     */
+    public boolean hitTest (int x, int y)
+    {
+        if (_image instanceof BufferedImage) {
+            BufferedImage bimage = (BufferedImage)_image;
+            int argb = bimage.getRGB(x, y);
+            // it's only a hit if the pixel is non-transparent
+            return (argb >> 24) != 0;
+
+        } else {
+            Log.warning("Can't check for transparent pixel " +
+                        "[image=" + _image + "].");
+            return true;
+        }
     }
 
     // documentation inherited
