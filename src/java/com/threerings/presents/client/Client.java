@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.4 2001/05/30 23:58:31 mdb Exp $
+// $Id: Client.java,v 1.5 2001/06/09 23:39:03 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -7,24 +7,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.threerings.cocktail.cher.Log;
+import com.threerings.cocktail.cher.dobj.DObjectManager;
 import com.threerings.cocktail.cher.net.Credentials;
 import com.threerings.cocktail.cher.net.Registry;
 
 /**
  * Through the client object, a connection to the system is established
  * and maintained. The client object maintains two separate threads (a
- * reader and a writer) through which all network traffic is managed.
+ * reader and a writer) by which all network traffic is managed.
  */
 public class Client
 {
     /**
-     * Constructs a client object with the supplied credentials. These
-     * creds will be used to authenticate with any server to which this
-     * client attempts to connect.
+     * This is used by the client to allow dobj event dispatching to take
+     * place along side the activities of the rest of the application
+     * (usually this means running dobj events on the AWT thread).
      */
-    public Client (Credentials creds)
+    public static interface Invoker
+    {
+        /**
+         * Requests that the supplied runnable be queued up for invocation
+         * on the main event dispatching thread of the application.
+         */
+        public void invokeLater (Runnable run);
+    }
+
+    /**
+     * Constructs a client object with the supplied credentials and
+     * invoker. The creds will be used to authenticate with any server to
+     * which this client attempts to connect. The invoker is used to
+     * operate the distributed object event dispatch mechanism. To allow
+     * the dobj event dispatch to coexist with threads like the AWT
+     * thread, the client will request that the invoker queue up a
+     * runnable whenever there are distributed object events that need to
+     * be processed. The invoker can then queue that runnable up on the
+     * AWT thread if it is so inclined to make life simpler for the rest
+     * of the application.
+     */
+    public Client (Credentials creds, Invoker invoker)
     {
         _creds = creds;
+        _invoker = invoker;
     }
 
     /**
@@ -70,6 +93,15 @@ public class Client
     }
 
     /**
+     * Returns the invoker in use by this client. This can be used to
+     * queue up event dispatching stints.
+     */
+    public Invoker getInvoker ()
+    {
+        return _invoker;
+    }
+
+    /**
      * Returns the hostname of the server to which this client is
      * currently configured to connect.
      */
@@ -94,6 +126,20 @@ public class Client
     public Credentials getCredentials ()
     {
         return _creds;
+    }
+
+    /**
+     * Returns the distributed object manager associated with this
+     * session. This reference is only valid for the duration of the
+     * session and a new reference must be obtained if the client
+     * disconnects and reconnects to the server.
+     *
+     * @return the dobjmgr in effect or null if we have no established
+     * connection to the server.
+     */
+    public DObjectManager getDObjectManager ()
+    {
+        return (_comm != null) ? _comm.getDObjectManager() : null;
     }
 
     /**
@@ -180,6 +226,8 @@ public class Client
     }
 
     protected Credentials _creds;
+    protected Invoker _invoker;
+
     protected String _hostname;
     protected int _port;
 

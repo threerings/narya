@@ -1,5 +1,5 @@
 //
-// $Id: FailureResponse.java,v 1.3 2001/06/02 01:30:37 mdb Exp $
+// $Id: FailureResponse.java,v 1.4 2001/06/09 23:39:04 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -10,7 +10,7 @@ import java.io.DataOutputStream;
 public class FailureResponse extends DownstreamMessage
 {
     /** The code for a logoff notification. */
-    public static final short TYPE = TYPE_BASE + 3;
+    public static final short TYPE = TYPE_BASE + 4;
 
     /**
      * Zero argument constructor used when unserializing an instance.

@@ -1,5 +1,5 @@
 //
-// $Id: EventNotification.java,v 1.5 2001/06/02 01:30:37 mdb Exp $
+// $Id: EventNotification.java,v 1.6 2001/06/09 23:39:04 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -33,6 +33,11 @@ public class EventNotification extends DownstreamMessage
     public short getType ()
     {
         return TYPE;
+    }
+
+    public DEvent getEvent ()
+    {
+        return _event;
     }
 
     public void writeTo (DataOutputStream out)

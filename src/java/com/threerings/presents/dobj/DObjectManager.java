@@ -1,5 +1,5 @@
 //
-// $Id: DObjectManager.java,v 1.4 2001/06/05 22:44:31 mdb Exp $
+// $Id: DObjectManager.java,v 1.5 2001/06/09 23:39:04 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -48,25 +48,6 @@ public interface DObjectManager
      * @see Subscriber.requestFailed
      */
     public void subscribeToObject (int oid, Subscriber target);
-
-    /**
-     * Fetches an up-to-date copy of the specified distributed object and
-     * makes it available to the subscriber for a one-time access. The
-     * subscriber will not be added to the object's subscriber list and
-     * will not be notified of updates to the object and the object
-     * represents a snapshot in time which, it should be acknowledged,
-     * could be out of date by the time it reaches the subscriber. If the
-     * object cannot be fetched for some reason, the subscriber will be
-     * notified via <code>requestFailed</code>.
-     *
-     * @param oid The object id of the distributed object of which a
-     * snapshot is desired.
-     * @param target The subscriber that will receive the snapshot.
-     *
-     * @see Subscriber.objectAvailable
-     * @see Subscriber.requestFailed
-     */
-    public void fetchObject (int oid, Subscriber target);
 
     /**
      * Requests that the specified subscriber be unsubscribed from the

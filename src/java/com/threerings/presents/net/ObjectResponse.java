@@ -1,5 +1,5 @@
 //
-// $Id: ObjectResponse.java,v 1.6 2001/06/02 01:30:37 mdb Exp $
+// $Id: ObjectResponse.java,v 1.7 2001/06/09 23:39:04 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -12,7 +12,7 @@ import com.threerings.cocktail.cher.dobj.net.DObjectFactory;
 
 public class ObjectResponse extends DownstreamMessage
 {
-    /** The code for an event notification. */
+    /** The code for an object repsonse. */
     public static final short TYPE = TYPE_BASE + 2;
 
     /**
@@ -24,7 +24,7 @@ public class ObjectResponse extends DownstreamMessage
     }
 
     /**
-     * Constructs an object response with supplied distributed object.
+     * Constructs an object response with the supplied distributed object.
      */
     public ObjectResponse (DObject dobj)
     {
@@ -34,6 +34,11 @@ public class ObjectResponse extends DownstreamMessage
     public short getType ()
     {
         return TYPE;
+    }
+
+    public DObject getObject ()
+    {
+        return _dobj;
     }
 
     public void writeTo (DataOutputStream out)

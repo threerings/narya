@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.4 2001/06/05 22:50:08 mdb Exp $
+// $Id: ClientManager.java,v 1.5 2001/06/09 23:39:04 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -56,6 +56,9 @@ public class ClientManager implements ConnectionObserver
             client = new Client(this, username, conn);
             _usermap.put(username, conn);
         }
+
+        // map this connection to this client
+        _conmap.put(conn, client);
     }
 
     /**
@@ -71,7 +74,7 @@ public class ClientManager implements ConnectionObserver
         void connectionFailed (Connection conn, IOException fault)
     {
         // remove the client from the connection map
-        Client client = (Client)_connmap.remove(conn);
+        Client client = (Client)_conmap.remove(conn);
         if (client != null) {
             Log.info("Unmapped failed client [client=" + client +
                      ", conn=" + conn + ", fault=" + fault + "].");
@@ -92,7 +95,7 @@ public class ClientManager implements ConnectionObserver
     public synchronized void connectionClosed (Connection conn)
     {
         // remove the client from the connection map
-        Client client = (Client)_connmap.remove(conn);
+        Client client = (Client)_conmap.remove(conn);
         if (client != null) {
             Log.info("Unmapped client [client=" + client +
                      ", conn=" + conn + "].");
@@ -125,5 +128,5 @@ public class ClientManager implements ConnectionObserver
     }
 
     protected HashMap _usermap = new HashMap();
-    protected HashMap _connmap = new HashMap();
+    protected HashMap _conmap = new HashMap();
 }

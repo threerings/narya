@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.4 2001/06/05 22:44:31 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.5 2001/06/09 23:39:04 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -32,7 +32,8 @@ public class CherDObjectMgr implements DObjectManager
         // we create a dummy object to live as oid zero and we'll use that
         // for some internal event trickery
         DObject dummy = new DObject();
-        dummy.init(0, this);
+        dummy.setOid(0);
+        dummy.setManager(this);
         _objects.put(0, new DObject());
     }
 
@@ -50,14 +51,6 @@ public class CherDObjectMgr implements DObjectManager
         // queue up an access object event
         postEvent(new AccessObjectEvent(oid, target,
                                         AccessObjectEvent.SUBSCRIBE));
-    }
-
-    // inherit documentation from the interface
-    public void fetchObject (int oid, Subscriber target)
-    {
-        // queue up an access object event
-        postEvent(new AccessObjectEvent(oid, target,
-                                        AccessObjectEvent.FETCH));
     }
 
     // inherit documentation from the interface
@@ -192,9 +185,13 @@ public class CherDObjectMgr implements DObjectManager
                 DObject obj = (DObject)_class.newInstance();
 
                 // initialize this object
-                obj.init(oid, CherDObjectMgr.this);
+                obj.setOid(oid);
+                obj.setManager(CherDObjectMgr.this);
                 // insert it into the table
                 _objects.put(oid, obj);
+
+                Log.info("Created object [oid=" + oid +
+                         ", obj=" + obj + "].");
 
                 if (_target != null) {
                     // add the subscriber to this object's subscriber list
@@ -239,8 +236,7 @@ public class CherDObjectMgr implements DObjectManager
     protected class AccessObjectEvent extends DEvent
     {
         public static final int SUBSCRIBE = 0;
-        public static final int FETCH = 1;
-        public static final int UNSUBSCRIBE = 2;
+        public static final int UNSUBSCRIBE = 1;
 
         public AccessObjectEvent (int oid, Subscriber target,
                                   int action)
@@ -278,10 +274,8 @@ public class CherDObjectMgr implements DObjectManager
                 return false;
             }
 
-            // if they wanted to subscribe, do so
-            if (_action == SUBSCRIBE) {
-                obj.addSubscriber(_target);
-            }
+            // subscribe 'em
+            obj.addSubscriber(_target);
 
             // let them know that things are groovy
             _target.objectAvailable(obj);

@@ -1,12 +1,12 @@
 //
-// $Id: PongResponse.java,v 1.3 2001/06/05 21:53:45 mdb Exp $
+// $Id: PongResponse.java,v 1.4 2001/06/09 23:39:04 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
 public class PongResponse extends DownstreamMessage
 {
     /** The code for a pong response. */
-    public static final short TYPE = TYPE_BASE + 4;
+    public static final short TYPE = TYPE_BASE + 5;
 
     /**
      * Zero argument constructor used when unserializing an instance.

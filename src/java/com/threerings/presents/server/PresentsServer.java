@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.4 2001/06/01 22:12:03 mdb Exp $
+// $Id: PresentsServer.java,v 1.5 2001/06/09 23:39:04 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -7,6 +7,8 @@ import com.threerings.cocktail.cher.Log;
 import com.threerings.cocktail.cher.dobj.DObjectManager;
 import com.threerings.cocktail.cher.server.net.AuthManager;
 import com.threerings.cocktail.cher.server.net.ConnectionManager;
+
+import com.threerings.cocktail.cher.server.test.TestObject;
 
 /**
  * The cher server provides a central point of access to the various
@@ -40,6 +42,9 @@ public class CherServer
             clmgr = new ClientManager(conmgr);
             // create our distributed object manager
             omgr = new CherDObjectMgr();
+
+            // create an object for testing
+            omgr.createObject(TestObject.class, null, false);
 
         } catch (Exception e) {
             Log.warning("Unable to initialize server.");

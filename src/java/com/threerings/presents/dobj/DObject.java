@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.8 2001/06/01 20:35:39 mdb Exp $
+// $Id: DObject.java,v 1.9 2001/06/09 23:39:04 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -74,20 +74,6 @@ import java.util.ArrayList;
 public class DObject
 {
     /**
-     * Initializes this distributed object with the supplied object id and
-     * distributed object manager. This is called by the distributed
-     * object manager when an object is created and registered with the
-     * system. Don't call this function yourself.
-     *
-     * @see DObjectManager.createObject
-     */
-    public void init (int oid, DObjectManager mgr)
-    {
-        _oid = oid;
-        _mgr = mgr;
-    }
-
-    /**
      * Returns the object id of this object. All objects in the system
      * have a unique object id.
      */
@@ -97,15 +83,13 @@ public class DObject
     }
 
     /**
-     * Adds the supplied subscriber to the subscriber list for this
-     * object. This is done automatically when an object is requested for
-     * subscription by the distributed object manager, thus this function
-     * should not be called directly except in circumstances where one
-     * subscriber has already obtained a subscription to an object and
-     * wishes to include a subordinate subscriber in on the fun.
+     * Don't call this function! Go through the distributed object manager
+     * instead to ensure that everything is done on the proper thread.
+     * This function can only safely be called directly when you know you
+     * are operating on the omgr thread (you are in the middle of a call
+     * to <code>objectAvailable</code> or <code>handleEvent</code>).
      *
-     * <p> If the specified subscriber is already subscribed to this
-     * object, they will not be added to the list a second time.
+     * @see DObjectManager.subscribeToObject
      */
     public void addSubscriber (Subscriber sub)
     {
@@ -115,12 +99,13 @@ public class DObject
     }
 
     /**
-     * Removes the specified subscriber from the subscriber list for this
-     * object. This is done automatically when a subscriber returns false
-     * from <code>handleEvent</code>, but can also be done directly
-     * through a call to <code>removeSubscriber</code>. If the specified
-     * subscriber is not currently on the list of subscribers for this
-     * object, nothing happens.
+     * Don't call this function! Go through the distributed object manager
+     * instead to ensure that everything is done on the proper thread.
+     * This function can only safely be called directly when you know you
+     * are operating on the omgr thread (you are in the middle of a call
+     * to <code>objectAvailable</code> or <code>handleEvent</code>).
+     *
+     * @see DObjectManager.unsubscribeFromObject
      */
     public void removeSubscriber (Subscriber sub)
     {
@@ -129,13 +114,12 @@ public class DObject
 
     /**
      * Checks to ensure that the specified subscriber has access to this
-     * object. This will be called before satisfying any fetch or
-     * subscription request. By default objects are accessible to all
-     * subscriber, but certain objects may wish to implement more fine
-     * grained access control.
+     * object. This will be called before satisfying a subscription
+     * request. By default objects are accessible to all subscribers, but
+     * certain objects may wish to implement more fine grained access
+     * control.
      *
-     * @param sub the subscriber that will fetch or subscribe to this
-     * object.
+     * @param sub the subscriber that will subscribe to this object.
      *
      * @return true if the subscriber has access to the object, false if
      * they do not.
@@ -199,6 +183,30 @@ public class DObject
                 ", value=" + value + ", error=" + e + "].";
             throw new ObjectAccessException(errmsg);
         }
+    }
+
+    /**
+     * Don't call this function! It initializes this distributed object
+     * with the supplied distributed object manager. This is called by the
+     * distributed object manager when an object is created and registered
+     * with the system.
+     *
+     * @see DObjectManager.createObject
+     */
+    public void setManager (DObjectManager mgr)
+    {
+        _mgr = mgr;
+    }
+
+    /**
+     * Don't call this function. It is called by the distributed object
+     * manager when an object is created and registered with the system.
+     *
+     * @see DObjectManager.createObject
+     */
+    public void setOid (int oid)
+    {
+        _oid = oid;
     }
 
     protected int _oid;

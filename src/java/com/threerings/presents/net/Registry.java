@@ -1,5 +1,5 @@
 //
-// $Id: Registry.java,v 1.4 2001/06/05 21:53:45 mdb Exp $
+// $Id: Registry.java,v 1.5 2001/06/09 23:39:04 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -25,8 +25,6 @@ public class Registry
                                          AuthRequest.class);
         TypedObjectFactory.registerClass(SubscribeRequest.TYPE,
                                          SubscribeRequest.class);
-        TypedObjectFactory.registerClass(FetchRequest.TYPE,
-                                         FetchRequest.class);
         TypedObjectFactory.registerClass(UnsubscribeRequest.TYPE,
                                          UnsubscribeRequest.class);
         TypedObjectFactory.registerClass(ForwardEventRequest.TYPE,

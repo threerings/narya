@@ -1,5 +1,5 @@
 //
-// $Id: DObjectFactory.java,v 1.3 2001/05/30 23:58:31 mdb Exp $
+// $Id: DObjectFactory.java,v 1.4 2001/06/09 23:39:04 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj.net;
 
@@ -32,6 +32,8 @@ public class DObjectFactory
         Marshaller marsh = getMarshaller(clazz);
         // then write the class of the object to the stream
         out.writeUTF(clazz.getName());
+        // write out the oid
+        out.writeInt(dobj.getOid());
         // then use the marshaller to write the object itself
         marsh.writeTo(out, dobj);
     }
@@ -46,6 +48,7 @@ public class DObjectFactory
             // read in the class name and create an instance of that class
             Class clazz = Class.forName(in.readUTF());
             DObject dobj = (DObject)clazz.newInstance();
+            dobj.setOid(in.readInt()); // read and set the oid
             Log.info("Unmarshalling object: " + dobj);
 
             // look up the marshaller for that class

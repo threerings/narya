@@ -1,5 +1,5 @@
 //
-// $Id: Subscriber.java,v 1.3 2001/06/02 01:30:37 mdb Exp $
+// $Id: Subscriber.java,v 1.4 2001/06/09 23:39:04 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -22,17 +22,15 @@ public interface Subscriber
      * should not attempt to modify the object.
      *
      * @see DObjectManager.subscribeToObject
-     * @see DObjectManager.fetchObject
      */
     public void objectAvailable (DObject object);
 
     /**
-     * Called when a subscription or fetch request has failed. The nature
-     * of the failure will be communicated via the supplied
+     * Called when a subscription request has failed. The nature of the
+     * failure will be communicated via the supplied
      * <code>ObjectAccessException</code>.
      *
      * @see DObjectManager.subscribeToObject
-     * @see DObjectManager.fetchObject
      */
     public void requestFailed (int oid, ObjectAccessException cause);
 

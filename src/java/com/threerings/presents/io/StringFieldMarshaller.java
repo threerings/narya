@@ -1,5 +1,5 @@
 //
-// $Id: StringFieldMarshaller.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
+// $Id: StringFieldMarshaller.java,v 1.3 2001/06/09 23:39:04 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj.net;
 
@@ -18,7 +18,12 @@ public class StringFieldMarshaller implements FieldMarshaller
     public void writeTo (DataOutputStream out, Field field, DObject dobj)
         throws IOException, IllegalAccessException
     {
-        out.writeUTF((String)field.get(dobj));
+        String value = (String)field.get(dobj);
+        // we convert null strings to empty strings
+        if (value == null) {
+            value = "";
+        }
+        out.writeUTF(value);
     }
 
     public void readFrom (DataInputStream in, Field field, DObject dobj)

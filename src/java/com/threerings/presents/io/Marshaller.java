@@ -1,5 +1,5 @@
 //
-// $Id: Marshaller.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
+// $Id: Marshaller.java,v 1.3 2001/06/09 23:39:04 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj.net;
 
@@ -7,7 +7,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Comparator;
 
 import com.threerings.cocktail.cher.Log;
@@ -24,7 +27,24 @@ public class Marshaller
     public Marshaller (Class clazz)
     {
         // we introspect on the class and cache the public data members
-        _fields = clazz.getFields();
+        Field[] fields = clazz.getFields();
+        ArrayList flist = new ArrayList();
+
+        // we only want non-static, non-final fields
+        for (int i = 0; i < fields.length; i++) {
+            int mods = fields[i].getModifiers();
+            if ((mods & Modifier.PUBLIC) == 0 ||
+                (mods & Modifier.STATIC) != 0 ||
+                (mods & Modifier.FINAL) != 0) {
+                continue;
+            }
+            flist.add(fields[i]);
+        }
+
+        // create an array of the fields we want
+        _fields = new Field[flist.size()];
+        flist.toArray(_fields);
+
         // sort the fields so that they are written and read in the same
         // order on all VMs
         Arrays.sort(_fields, FIELD_COMP);
@@ -83,6 +103,7 @@ public class Marshaller
                 String errmsg = "Unable to unmarshall dobj field " +
                     "[field=" + _fields[i].getName() +
                     ", dobj=" + dobj  + "].";
+                Log.logStackTrace(iae);
                 throw new ObjectStreamException(errmsg);
             }
         }

@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.6 2001/05/30 23:58:31 mdb Exp $
+// $Id: Communicator.java,v 1.7 2001/06/09 23:39:03 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -11,6 +11,7 @@ import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 
 import com.threerings.cocktail.cher.Log;
+import com.threerings.cocktail.cher.dobj.DObjectManager;
 import com.threerings.cocktail.cher.io.*;
 import com.threerings.cocktail.cher.io.ObjectStreamException;
 import com.threerings.cocktail.cher.net.*;
@@ -48,6 +49,17 @@ public class Communicator
     public Communicator (Client client)
     {
         _client = client;
+    }
+
+    /**
+     * Returns the distributed object manager in effect for this session.
+     * This instance is only valid while the client is connected to the
+     * server. If we become disconnected and have to reconnect, a new omgr
+     * instance should be obtained.
+     */
+    public DObjectManager getDObjectManager ()
+    {
+        return _omgr;
     }
 
     /**
@@ -144,6 +156,9 @@ public class Communicator
 
         // extract bootstrap information
 
+        // create our distributed object manager
+        _omgr = new ClientDObjectMgr(this, _client);
+
         // create a new writer thread and start it up
         if (_writer != null) {
             throw new RuntimeException("Writer already started!?");
@@ -173,6 +188,23 @@ public class Communicator
         _client.notifyObservers(Client.CLIENT_CONNECTION_FAILED, ioe);
 
         // and request that we go through the motions of logging off
+        logoff();
+    }
+
+    /**
+     * Callback called by the reader if the server closes the other end of
+     * the connection.
+     */
+    protected synchronized void connectionClosed ()
+    {
+        // make sure the socket isn't already closed down (meaning we've
+        // already dealt with the closed connection)
+        if (_socket == null) {
+            return;
+        }
+
+        Log.info("Connection closed.");
+        // now do the whole logoff thing
         logoff();
     }
 
@@ -239,6 +271,8 @@ public class Communicator
     protected void processMessage (DownstreamMessage msg)
     {
         Log.info("Process msg: " + msg);
+        // post this message to the dobjmgr queue
+        _omgr.processMessage(msg);
     }
 
     /**
@@ -342,8 +376,10 @@ public class Communicator
                 Log.info("Reader thread woken up in time to die.");
 
             } catch (EOFException eofe) {
-                Log.info("Connection closed by peer.");
-                // nothing left for us to do
+                // let the communicator know that our connection was
+                // closed
+                connectionClosed();
+                // and shut ourselves down
                 shutdown();
 
             } catch (IOException ioe) {
@@ -443,4 +479,6 @@ public class Communicator
     /** We use this to frame our downstream messages. */
     protected FramedInputStream _fin;
     protected DataInputStream _din;
+
+    protected ClientDObjectMgr _omgr;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.2 2001/06/05 22:44:31 mdb Exp $
+// $Id: PresentsClient.java,v 1.3 2001/06/09 23:39:04 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -193,21 +193,6 @@ public class Client implements Subscriber, MessageHandler
     }
 
     /**
-     * Processes fetch requests.
-     */
-    protected static class FetchDispatcher implements MessageDispatcher
-    {
-        public void dispatch (Client client, UpstreamMessage msg)
-        {
-            FetchRequest req = (FetchRequest)msg;
-            Log.info("Fetching [client=" + client +
-                     ", oid=" + req.getOid() + "].");
-            // forward the fetch request to the omgr for processing
-            CherServer.omgr.fetchObject(req.getOid(), client);
-        }
-    }
-
-    /**
      * Processes unsubscribe requests.
      */
     protected static class UnsubscribeDispatcher implements MessageDispatcher
@@ -287,7 +272,6 @@ public class Client implements Subscriber, MessageHandler
     // register our message dispatchers
     static {
         _disps.put(SubscribeRequest.class, new SubscribeDispatcher());
-        _disps.put(FetchRequest.class, new FetchDispatcher());
         _disps.put(UnsubscribeRequest.class, new UnsubscribeDispatcher());
         _disps.put(ForwardEventRequest.class, new ForwardEventDispatcher());
         _disps.put(PingRequest.class, new PingDispatcher());
