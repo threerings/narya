@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.3 2001/07/30 15:38:52 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.4 2001/07/31 01:38:28 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -13,7 +13,7 @@ import com.threerings.miso.Log;
 import com.threerings.miso.viewer.util.ViewerContext;
 import com.threerings.miso.scene.*;
 import com.threerings.miso.scene.xml.XMLFileSceneRepository;
-import com.threerings.miso.sprite.SpriteManager;
+import com.threerings.miso.sprite.*;
 
 /**
  * The SceneViewPanel class is responsible for managing a SceneView,
@@ -25,9 +25,12 @@ public class SceneViewPanel extends JPanel
     /**
      * Construct the panel and initialize it with a context.
      */
-    public SceneViewPanel (ViewerContext ctx, SpriteManager spritemgr)
+    public SceneViewPanel (ViewerContext ctx, SpriteManager spritemgr,
+                           Sprite sprite)
     {
 	_ctx = ctx;
+
+        _sprite = sprite;
 
         // construct the view object
         _view = new IsoSceneView(_ctx.getTileManager(), spritemgr);
@@ -77,7 +80,6 @@ public class SceneViewPanel extends JPanel
     {
 	super.paint(g);
 	_view.paint(g);
-        Log.info("paint()");
     }
 
     /** MouseListener interface methods */
@@ -93,7 +95,10 @@ public class SceneViewPanel extends JPanel
 
     public void mousePressed (MouseEvent e)
     {
-        Log.info("mousePressed [x=" + e.getX() + ", y=" + e.getY() + "].");
+        int x = e.getX(), y = e.getY();
+        Log.info("mousePressed [x=" + x + ", y=" + y + "].");
+        _sprite.setDestination(x, y);
+        ((EditableSceneView)_view).setHighlightedTile(x, y);
     }
 
     public void mouseReleased (MouseEvent e) { }
@@ -113,6 +118,8 @@ public class SceneViewPanel extends JPanel
 
     /** The default scene to load and display. */
     protected static final String DEF_SCENE = "rsrc/scenes/default.xml";
+
+    protected Sprite _sprite;
 
     /** The context object. */
     protected ViewerContext _ctx;

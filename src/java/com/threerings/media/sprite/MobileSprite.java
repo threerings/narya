@@ -1,8 +1,9 @@
 //
-// $Id: MobileSprite.java,v 1.1 2001/07/30 15:38:52 shaper Exp $
+// $Id: MobileSprite.java,v 1.2 2001/07/31 01:38:28 shaper Exp $
 
 package com.threerings.miso.sprite;
 
+import com.threerings.miso.Log;
 import com.threerings.miso.tile.Tile;
 import com.threerings.miso.tile.TileManager;
 
@@ -58,6 +59,47 @@ public class MobileSprite extends Sprite
         return tiles;
     }
 
+    /**
+     * Alter the sprite's direction to reflect the direction the
+     * destination point lies in before calling the superclass's
+     * <code>setDestination</code> method.
+     *
+     * @param x the destination x-position.
+     * @param y the destination y-position.
+     */
+    public void setDestination (int x, int y)
+    {
+        // update the sprite tiles to reflect the direction
+        setTiles(_charTiles[_dir = getDirection(x, y)]);
+
+        // call superclass to effect the beginnings of the move
+        super.setDestination(x, y);
+
+        if (_state == STATE_MOVING) {
+            setAnimationDelay(0);
+        }
+    }
+
+    /**
+     * Return the directional constant corresponding to the direction
+     * the specified point is in from the sprite.
+     */
+    protected int getDirection (int x, int y)
+    {
+        if (x >= this.x - DIR_BUFFER && x <= this.x + DIR_BUFFER) {
+            return (y < this.y) ? DIR_NORTH : DIR_SOUTH;
+
+        } else if (y >= this.y - DIR_BUFFER && y <= this.y + DIR_BUFFER) {
+            return (x >= this.x) ? DIR_EAST : DIR_WEST;
+
+        } else if (x > this.x) {
+            return (y < this.y) ? DIR_NORTHEAST : DIR_SOUTHEAST;
+
+        } else {
+            return (y < this.y) ? DIR_NORTHWEST : DIR_SOUTHWEST;
+        }
+    }
+
     /** The number of distinct directions the character may face. */
     protected static final int NUM_DIRECTIONS = 8;
 
@@ -73,6 +115,12 @@ public class MobileSprite extends Sprite
 
     /** The number of frames of animation for each direction. */
     protected static final int NUM_DIR_FRAMES = 8;
+
+    /**
+     * The buffer space in pixels allowed for horizontal or vertical
+     * selection of movement north/south or east/west, respectively.
+     */ 
+    protected static final int DIR_BUFFER = 20;
 
     /** The animation frames for the sprite facing each direction. */
     protected Tile[][] _charTiles;

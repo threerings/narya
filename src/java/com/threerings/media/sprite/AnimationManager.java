@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.1 2001/07/28 01:50:07 shaper Exp $
+// $Id: AnimationManager.java,v 1.2 2001/07/31 01:38:28 shaper Exp $
 
 package com.threerings.miso.sprite;
 
@@ -28,7 +28,11 @@ public class AnimationManager
         Interval refresher = new Interval() {
             public void intervalExpired (int id, Object arg)
             {
+                // refresh the display
                 _target.repaint();
+
+                // call tick on all sprites
+                _spritemgr.tick();
             }
         };
 

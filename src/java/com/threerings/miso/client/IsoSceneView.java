@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.18 2001/07/30 15:38:52 shaper Exp $
+// $Id: IsoSceneView.java,v 1.19 2001/07/31 01:38:28 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -71,7 +71,7 @@ public class IsoSceneView implements EditableSceneView
         paintHighlightedTile(gfx, _htile.x, _htile.y);
 
         // draw lines illustrating tracking of the mouse position
-	paintMouseLines(gfx);
+  	paintMouseLines(gfx);
 
 	// restore the original clipping region
 	gfx.setClip(oldclip);

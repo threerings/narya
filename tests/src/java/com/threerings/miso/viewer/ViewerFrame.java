@@ -1,5 +1,5 @@
 //
-// $Id: ViewerFrame.java,v 1.3 2001/07/30 15:38:52 shaper Exp $
+// $Id: ViewerFrame.java,v 1.4 2001/07/31 01:38:28 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -40,12 +40,13 @@ class ViewerFrame extends JFrame implements WindowListener
         SpriteManager spritemgr = new SpriteManager();
         TileManager tilemgr = _ctx.getTileManager();
 
-	// set up the scene view panel with a default scene
-        SceneViewPanel svpanel = new SceneViewPanel(_ctx, spritemgr);
-
         // add the test character sprite to the sprite manager
         MobileSprite ms = new MobileSprite(300, 300, tilemgr, TSID_CHAR);
+        //ms.setAnimationDelay(10);
         spritemgr.addSprite(ms);
+
+	// set up the scene view panel with a default scene
+        SceneViewPanel svpanel = new SceneViewPanel(_ctx, spritemgr, ms);
 
         // create the animation manager for this panel
         AnimationManager animmgr = new AnimationManager(spritemgr, svpanel);

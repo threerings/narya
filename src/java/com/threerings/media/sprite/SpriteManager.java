@@ -1,10 +1,12 @@
 //
-// $Id: SpriteManager.java,v 1.2 2001/07/30 15:38:52 shaper Exp $
+// $Id: SpriteManager.java,v 1.3 2001/07/31 01:38:28 shaper Exp $
 
 package com.threerings.miso.sprite;
 
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+
+import com.threerings.miso.Log;
 
 /**
  * The SpriteManager manages the sprites running about in the game.
@@ -52,6 +54,20 @@ public class SpriteManager
             if (sprite.inside(x, y, width, height)) {
                 sprite.paint(gfx);
             }
+        }
+    }
+
+    /**
+     * Call <code>Sprite.tick()</code> on all sprite objects to give
+     * them a chance to move themselves about, change their display
+     * image, and so forth.
+     */
+    public void tick ()
+    {
+        int size = _sprites.size();
+        for (int ii = 0; ii < size; ii++) {
+            Sprite sprite = (Sprite)_sprites.get(ii);
+            sprite.tick();
         }
     }
 
