@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.22 2002/10/21 20:56:21 mdb Exp $
+// $Id: ConnectionManager.java,v 1.23 2002/10/29 23:51:26 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -54,8 +54,12 @@ public class ConnectionManager extends LoopingThread
         _litem = new SelectItem(_listener, Selectable.ACCEPT_READY);
         // when an ACCEPT_READY event happens, we do this:
         _litem.obj = new NetEventHandler() {
-            public void handleEvent (Selectable item, short events) {
+            public void handleEvent (
+                long when, Selectable item, short events) {
                 acceptConnection();
+            }
+            public void checkIdle (long now) {
+                // we're never idle
             }
         };
         _selset.add(_litem);
@@ -168,6 +172,8 @@ public class ConnectionManager extends LoopingThread
      */
     protected void iterate ()
     {
+        long iterStamp = System.currentTimeMillis();
+
         // close any connections that have been queued up to die
         Connection dconn;
         while ((dconn = (Connection)_deathq.getNonBlocking()) != null) {
@@ -177,6 +183,14 @@ public class ConnectionManager extends LoopingThread
             if (!dconn.isClosed()) {
                 dconn.close();
             }
+        }
+
+        // close any connections that have seen no network traffic for too
+        // long
+        int ccount = _selset.size();
+        for (int ii = 0; ii < ccount; ii++) {
+            ((NetEventHandler)_selset.elementAt(ii).getObj()).
+                checkIdle(iterStamp);
         }
 
         // send any messages that are waiting on the outgoing queue
@@ -221,7 +235,7 @@ public class ConnectionManager extends LoopingThread
             // connections network traffic from here on out
             try {
                 RunningConnection rconn =
-                    new RunningConnection(this, conn.getSocket());
+                    new RunningConnection(this, conn.getSocket(), iterStamp);
                 // we need to keep using the same object input and output
                 // streams from the beginning of the session because they
                 // have contextual state that needs to be preserved
@@ -252,7 +266,8 @@ public class ConnectionManager extends LoopingThread
             try {
                 SelectItem item = active[i];
                 NetEventHandler handler = (NetEventHandler)item.obj;
-                handler.handleEvent(item.getSelectable(), item.revents);
+                handler.handleEvent(
+                    iterStamp, item.getSelectable(), item.revents);
 
             } catch (Exception e) {
                 Log.warning("Error processing network data.");

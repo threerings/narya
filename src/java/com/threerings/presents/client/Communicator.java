@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.21 2002/07/23 05:52:48 mdb Exp $
+// $Id: Communicator.java,v 1.22 2002/10/29 23:51:26 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -13,6 +13,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 import com.samskivert.io.NestableIOException;
+import com.samskivert.util.Interval;
+import com.samskivert.util.IntervalManager;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 
@@ -84,6 +86,16 @@ public class Communicator
         // start up the writer thread if everything went successfully
         _reader = new Reader();
         _reader.start();
+
+        // register an interval to send pings when appropriate
+        _piid = IntervalManager.register(new Interval() {
+            public void intervalExpired (int id, Object arg) {
+                if (checkNeedsPing()) {
+                    Log.info("Upstream idle, sending ping.");
+                    postMessage(new PingRequest());
+                }
+            }
+        }, 5000L, null, true);
     }
 
     /**
@@ -97,6 +109,11 @@ public class Communicator
         // this business
         if (_socket == null) {
             return;
+        }
+
+        // stop our ping interval
+        if (_piid != -1) {
+            IntervalManager.remove(_piid);
         }
 
         // post a logoff message
@@ -263,6 +280,28 @@ public class Communicator
 
         // then write the framed message to actual output stream
         _fout.writeFrameAndReset(_out);
+
+        // make a note of our most recent write time
+        updateWriteStamp();
+    }
+
+    /**
+     * Makes a note of the time at which we last communicated with the
+     * server.
+     */
+    protected synchronized void updateWriteStamp ()
+    {
+        _lastWrite = System.currentTimeMillis();
+    }
+
+    /**
+     * Checks to see if we need to send a ping to the server because we
+     * haven't communicated in sufficiently long.
+     */
+    protected synchronized boolean checkNeedsPing ()
+    {
+        long now = System.currentTimeMillis();
+        return (now - _lastWrite > PingRequest.PING_INTERVAL);
     }
 
     /**
@@ -506,6 +545,9 @@ public class Communicator
     protected InputStream _in;
     protected OutputStream _out;
     protected Queue _msgq = new Queue();
+
+    protected int _piid;
+    protected long _lastWrite;
 
     /** We use this to frame our upstream messages. */
     protected FramingOutputStream _fout;

@@ -1,5 +1,5 @@
 //
-// $Id: AuthingConnection.java,v 1.7 2002/09/24 00:50:27 mdb Exp $
+// $Id: AuthingConnection.java,v 1.8 2002/10/29 23:51:26 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -16,8 +16,8 @@ import com.threerings.presents.net.UpstreamMessage;
  * The authing connection manages the client connection until
  * authentication has completed (for better or for worse).
  */
-public class AuthingConnection
-    extends Connection implements MessageHandler
+public class AuthingConnection extends Connection
+    implements MessageHandler
 {
     /**
      * Creates a new authing connection object that will manage the
@@ -27,7 +27,8 @@ public class AuthingConnection
                               NonblockingSocket socket)
         throws IOException
     {
-        super(cmgr, socket);
+        super(cmgr, socket, System.currentTimeMillis());
+
         // we are our own message handler
         setMessageHandler(this);
     }

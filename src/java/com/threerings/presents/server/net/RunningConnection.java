@@ -1,5 +1,5 @@
 //
-// $Id: RunningConnection.java,v 1.7 2002/09/24 00:50:27 mdb Exp $
+// $Id: RunningConnection.java,v 1.8 2002/10/29 23:51:26 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -20,10 +20,11 @@ public class RunningConnection extends Connection
      * client socket.
      */
     public RunningConnection (ConnectionManager cmgr,
-                              NonblockingSocket socket)
+                              NonblockingSocket socket,
+                              long createStamp)
         throws IOException
     {
-        super(cmgr, socket);
+        super(cmgr, socket, createStamp);
     }
 
     /**

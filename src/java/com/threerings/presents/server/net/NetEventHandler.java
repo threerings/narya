@@ -1,5 +1,5 @@
 //
-// $Id: NetEventHandler.java,v 1.3 2001/10/11 04:07:53 mdb Exp $
+// $Id: NetEventHandler.java,v 1.4 2002/10/29 23:51:26 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -23,5 +23,11 @@ public interface NetEventHandler
      * The <code>events</code> parameter indicates which event or events
      * have occurred.
      */
-    public void handleEvent (Selectable source, short events);
+    public void handleEvent (long when, Selectable source, short events);
+
+    /**
+     * Called to ensure that this selectable has not been idle for longer
+     * than is possible in happily operating circumstances.
+     */
+    public void checkIdle (long now);
 }

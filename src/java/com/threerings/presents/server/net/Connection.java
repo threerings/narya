@@ -1,5 +1,5 @@
 //
-// $Id: Connection.java,v 1.9 2002/10/26 02:37:59 shaper Exp $
+// $Id: Connection.java,v 1.10 2002/10/29 23:51:26 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -7,6 +7,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.SocketTimeoutException;
 
 import ninja2.core.io_core.nbio.*;
 
@@ -19,6 +20,7 @@ import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.net.DownstreamMessage;
+import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.UpstreamMessage;
 
 /**
@@ -36,14 +38,15 @@ public abstract class Connection implements NetEventHandler
      * @param cmgr The connection manager with which this connection is
      * associated.
      * @param socket The socket from which we'll be reading messages.
-     * @param fout The framing output stream via which we'll write
-     * serialized messages to the client.
+     * @param createStamp The time at which this connection was created.
      */
-    public Connection (ConnectionManager cmgr, NonblockingSocket socket)
+    public Connection (ConnectionManager cmgr, NonblockingSocket socket,
+                       long createStamp)
         throws IOException
     {
         _cmgr = cmgr;
         _socket = socket;
+        _lastEvent = createStamp;
 
         // create a select item that will allow us to be incorporated into
         // the main event polling loop
@@ -210,8 +213,11 @@ public abstract class Connection implements NetEventHandler
     /**
      * Called when our client socket has data available for reading.
      */
-    public void handleEvent (Selectable source, short events)
+    public void handleEvent (long when, Selectable source, short events)
     {
+        // make a note that we received an event as of this time
+        _lastEvent = when;
+
         try {
             // we're lazy about creating our input streams because we may
             // be inheriting them from our authing connection and we don't
@@ -248,6 +254,21 @@ public abstract class Connection implements NetEventHandler
         }
     }
 
+    // documentation inherited from interface
+    public void checkIdle (long now)
+    {
+        long idleMillis = now - _lastEvent;
+        if (idleMillis < PingRequest.PING_INTERVAL + LATENCY_GRACE) {
+            return;
+        }
+        if (isClosed()) {
+            return;
+        }
+        Log.info("Disconncecting idle client [conn=" + this +
+                 ", idle=" + idleMillis + "ms].");
+        handleFailure(new SocketTimeoutException("Idle too long"));
+    }
+
     /**
      * Posts a downstream message for delivery to this connection. The
      * message will be delivered by the conmgr thread as soon as it gets
@@ -263,6 +284,8 @@ public abstract class Connection implements NetEventHandler
     protected NonblockingSocket _socket;
     protected SelectItem _selitem;
 
+    protected long _lastEvent;
+
     protected InputStream _in;
     protected FramedInputStream _fin;
     protected ObjectInputStream _oin;
@@ -271,4 +294,9 @@ public abstract class Connection implements NetEventHandler
     protected ObjectOutputStream _oout;
 
     protected MessageHandler _handler;
+
+    /** The number of milliseconds beyond the ping interval that we allow
+     * a client's network connection to be idle before we forcibly
+     * disconnect them. */
+    protected static final long LATENCY_GRACE = 30 * 1000L;
 }

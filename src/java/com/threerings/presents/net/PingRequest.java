@@ -1,5 +1,5 @@
 //
-// $Id: PingRequest.java,v 1.7 2002/07/23 05:52:48 mdb Exp $
+// $Id: PingRequest.java,v 1.8 2002/10/29 23:51:26 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -10,6 +10,11 @@ import com.threerings.io.ObjectOutputStream;
 
 public class PingRequest extends UpstreamMessage
 {
+    /** The number of milliseconds of idle upstream that are allowed to
+     * elapse before the client sends a ping message to the server to let
+     * it know that we're still alive. */
+    public static final long PING_INTERVAL = 60 * 1000L;
+
     /**
      * Zero argument constructor used when unserializing an instance.
      */

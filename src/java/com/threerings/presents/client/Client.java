@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.32 2002/10/21 18:04:56 mdb Exp $
+// $Id: Client.java,v 1.33 2002/10/29 23:51:26 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -224,8 +224,9 @@ public class Client
     {
         InvocationService isvc = getService(sclass);
         if (isvc == null) {
-            throw new RuntimeException(sclass.getName() + " isn't available. " +
-                                       "I can't bear to go on.");
+            throw new RuntimeException(
+                sclass.getName() + " isn't available. " +
+                "I can't bear to go on.");
         }
         return isvc;
     }
