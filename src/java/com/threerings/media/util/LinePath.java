@@ -1,5 +1,5 @@
 //
-// $Id: LinePath.java,v 1.7 2002/06/12 00:49:15 mdb Exp $
+// $Id: LinePath.java,v 1.8 2002/06/12 01:11:55 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -136,8 +136,8 @@ public class LinePath implements Path
                                         long duration, Point pos)
     {
         float pct = (float)elapsed / duration;
-        int travx = Math.round((end.x - start.x) * pct);
-        int travy = Math.round((end.y - start.y) * pct);
+        int travx = (int)((end.x - start.x) * pct);
+        int travy = (int)((end.y - start.y) * pct);
         pos.setLocation(start.x + travx, start.y + travy);
     }
 
