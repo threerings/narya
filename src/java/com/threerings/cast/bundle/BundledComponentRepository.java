@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.31 2004/07/03 03:25:48 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.32 2004/07/03 03:41:21 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -100,7 +100,7 @@ public class BundledComponentRepository
             }
 
             // now go back and load up all of the component information
-            for (int i = 0; i < rbundles.length; i++) {
+            for (int i = 0; i < rcount; i++) {
                 HashIntMap comps = null;
                 comps = (HashIntMap)BundleUtil.loadObject(
                     rbundles[i], BundleUtil.COMPONENTS_PATH, true);
