@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.22 2004/08/27 02:12:32 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -135,7 +135,8 @@ public class SpeakProvider
         // rather than as a mode for a user message so that we don't
         // have to do this validation here. Or not.
         if ((mode == BROADCAST_MODE) ||
-            !_validator.isValidSpeaker(_speakObj, caller)) {
+            (_validator != null &&
+             !_validator.isValidSpeaker(_speakObj, caller))) {
             Log.warning("Refusing invalid speak request " +
                         "[caller=" + caller.who() +
                         ", speakObj=" + _speakObj.which() +
