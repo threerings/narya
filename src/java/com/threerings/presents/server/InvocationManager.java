@@ -1,5 +1,5 @@
 //
-// $Id: InvocationManager.java,v 1.17 2003/10/26 02:44:01 eric Exp $
+// $Id: InvocationManager.java,v 1.18 2003/10/26 02:45:19 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -194,7 +194,7 @@ public class InvocationManager
             Log.warning("Received invocation request for which we have " +
                         "no registered dispatcher [code=" + invCode +
                         ", methId=" + methodId +
-                        ", args=" + StringUtil.toString(args) + ", marsh= " +
+                        ", args=" + StringUtil.toString(args) + ", marsh=" +
                         _recentRegServices.get(new Integer(invCode)) + "].");
             return;
         }
