@@ -1,5 +1,5 @@
 //
-// $Id: EntryAddedEvent.java,v 1.12 2004/08/27 02:20:20 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -84,10 +84,7 @@ public class EntryAddedEvent extends NamedEvent
         throws ObjectAccessException
     {
         if (!_alreadyApplied) {
-            DSet set = (DSet)target.getAttribute(_name);
-            if (!set.add(_entry)) {
-                Log.warning("Duplicate entryAdd: " + this);
-            }
+            ((DSet)target.getAttribute(_name)).add(_entry);
         }
         return true;
     }
