@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.13 2002/06/21 03:43:59 mdb Exp $
+// $Id: FrameManager.java,v 1.14 2002/06/25 01:43:29 mdb Exp $
 
 package com.threerings.media;
 
@@ -281,7 +281,7 @@ public class FrameManager
 
             // repaint any widgets that have declared there need to be
             // repainted since the last tick
-            _remgr.paintComponents(_bgfx);
+            _remgr.paintComponents(_bgfx, this);
 
             // we cache our frame's graphics object so that we can avoid
             // instantiating a new one on every tick
@@ -300,11 +300,28 @@ public class FrameManager
     }
 
     /**
+     * Renders all components in all {@link JLayeredPane} layers that
+     * intersect the supplied bounds.
+     */
+    protected void renderLayers (Graphics g, Component pcomp, Rectangle bounds, 
+                                 boolean[] clipped)
+    {
+        JLayeredPane lpane =
+            JLayeredPane.getLayeredPaneAbove(pcomp);
+        if (lpane != null) {
+            renderLayer(g, bounds, lpane, clipped, JLayeredPane.PALETTE_LAYER);
+            renderLayer(g, bounds, lpane, clipped, JLayeredPane.MODAL_LAYER);
+            renderLayer(g, bounds, lpane, clipped, JLayeredPane.POPUP_LAYER);
+            renderLayer(g, bounds, lpane, clipped, JLayeredPane.DRAG_LAYER);
+        }
+    }
+
+    /**
      * Renders all components in the specified layer of the supplied
      * layered pane that intersect the supplied bounds.
      */
-    protected void renderLayer (Graphics g, Rectangle bounds,
-                                JLayeredPane pane, Integer layer)
+    protected void renderLayer (Graphics g, Rectangle bounds, JLayeredPane pane,
+                                boolean[] clipped, Integer layer)
     {
         // stop now if there are no components in that layer
         int ccount = pane.getComponentCountInLayer(layer.intValue());
@@ -321,6 +338,15 @@ public class FrameManager
             if (!_lbounds.intersects(bounds)) {
                 continue;
             }
+
+            // if the clipping region has not yet been set during this
+            // render pass, the time has come to do so
+            if (!_clipped[0]) {
+                g.setClip(bounds);
+                _clipped[0] = true;
+            }
+
+            // translate into the components coordinate system and render
             g.translate(_lbounds.x, _lbounds.y);
             comp.paint(g);
             g.translate(-_lbounds.x, -_lbounds.y);
@@ -494,14 +520,13 @@ public class FrameManager
             // get the bounds of this component
             pcomp.getBounds(_bounds);
 
-            // the bounds adjustment we're about to call will add
-            // in the components initial bounds offsets, so we
-            // remove them here
+            // the bounds adjustment we're about to call will add in the
+            // components initial bounds offsets, so we remove them here
             _bounds.setLocation(0, 0);
 
-            // convert them into top-level coordinates; also note
-            // that if this component does not have a valid or
-            // visible root, we don't want to paint it either
+            // convert them into top-level coordinates; also note that if
+            // this component does not have a valid or visible root, we
+            // don't want to paint it either
             if (getRoot(pcomp, _bounds) == null) {
                 return true;
             }
@@ -524,15 +549,10 @@ public class FrameManager
                 Log.logStackTrace(t);
             }
 
-            // render any components in our layered pane that are
-            // not in the default layer (the clipping rectangle is
-            // still set appropriately)
-            JLayeredPane lpane =
-                JLayeredPane.getLayeredPaneAbove(pcomp);
-            renderLayer(_g, _bounds, lpane, JLayeredPane.PALETTE_LAYER);
-            renderLayer(_g, _bounds, lpane, JLayeredPane.MODAL_LAYER);
-            renderLayer(_g, _bounds, lpane, JLayeredPane.POPUP_LAYER);
-            renderLayer(_g, _bounds, lpane, JLayeredPane.DRAG_LAYER);
+            // render any components in our layered pane that are not in
+            // the default layer
+            _clipped[0] = false;
+            renderLayers(_g, pcomp, _bounds, _clipped);
 
             return true;
         }
@@ -577,6 +597,10 @@ public class FrameManager
     /** Used to avoid creating rectangles when rendering layered
      * components. */
     protected Rectangle _lbounds = new Rectangle();
+
+    /** Used to lazily set the clip when painting popups and other
+     * "layered" components. */
+    protected boolean[] _clipped = new boolean[1];
 
     /** Used to queue up a call to {@link #tick} on the AWT thread. */
     protected Runnable _callTick = new Runnable () {

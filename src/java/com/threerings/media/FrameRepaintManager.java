@@ -1,5 +1,5 @@
 //
-// $Id: FrameRepaintManager.java,v 1.8 2002/06/10 21:31:56 shaper Exp $
+// $Id: FrameRepaintManager.java,v 1.9 2002/06/25 01:43:29 mdb Exp $
 
 package com.threerings.media;
 
@@ -202,7 +202,7 @@ public class FrameRepaintManager extends RepaintManager
     /**
      * Paints the components that have become dirty since the last tick.
      */
-    public void paintComponents (Graphics g)
+    public void paintComponents (Graphics g, FrameManager fmgr)
     {
         // swap out our hashmap
         synchronized (this) {
@@ -357,6 +357,10 @@ public class FrameRepaintManager extends RepaintManager
                 }
                 g.translate(-_cbounds.x, -_cbounds.y);
 
+                // we also need to repaint any components in this layer
+                // that are above our freshly repainted component
+                fmgr.renderLayers(g, ocomp, _cbounds, _clipped);
+
             } else if (root != null) {
                 if (DEBUG) {
                     Log.info("Repainting old-school " +
@@ -428,6 +432,9 @@ public class FrameRepaintManager extends RepaintManager
 
     /** Used to compute dirty components' bounds. */
     protected Rectangle _cbounds = new Rectangle();
+
+    /** Used when rendering "layered" components. */
+    protected boolean[] _clipped = new boolean[] { true };
 
     /** We debug so much that we have to make it easy to enable and
      * disable debug logging. Yay! */
