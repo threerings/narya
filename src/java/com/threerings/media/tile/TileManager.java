@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.36 2004/08/27 02:12:41 mdb Exp $
+// $Id: TileManager.java,v 1.37 2004/10/28 17:49:02 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -194,7 +194,7 @@ public class TileManager
      * @see TileUtil#getFQTileId
      */
     public Tile getTile (int fqTileId)
-	throws NoSuchTileSetException, NoSuchTileException
+	throws NoSuchTileSetException
     {
         return getTile(TileUtil.getTileSetId(fqTileId),
                        TileUtil.getTileIndex(fqTileId), null);
@@ -207,7 +207,7 @@ public class TileManager
      * @see TileUtil#getFQTileId
      */
     public Tile getTile (int fqTileId, TileSet.Colorizer rizer)
-	throws NoSuchTileSetException, NoSuchTileException
+	throws NoSuchTileSetException
     {
         return getTile(TileUtil.getTileSetId(fqTileId),
                        TileUtil.getTileIndex(fqTileId), rizer);
@@ -223,7 +223,7 @@ public class TileManager
      * @return the tile object.
      */
     public Tile getTile (int tileSetId, int tileIndex, TileSet.Colorizer rizer)
-	throws NoSuchTileSetException, NoSuchTileException
+	throws NoSuchTileSetException
     {
         TileSet set = getTileSet(tileSetId);
         return set.getTile(tileIndex, rizer);

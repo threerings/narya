@@ -1,5 +1,5 @@
 //
-// $Id: SceneObject.java,v 1.11 2004/08/27 02:20:06 mdb Exp $
+// $Id: SceneObject.java,v 1.12 2004/10/28 17:49:02 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -32,7 +32,6 @@ import java.awt.Rectangle;
 import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.TileUtil;
@@ -256,9 +255,6 @@ public class SceneObject
                 tsid, tidx, panel.getColorizer(info));
             computeInfo(panel.getSceneMetrics());
 
-        } catch (NoSuchTileException nste) {
-            Log.warning("Scene contains non-existent object tile " +
-                        "[info=" + info + "].");
         } catch (NoSuchTileSetException te) {
             Log.warning("Scene contains non-existent object tileset " +
                         "[info=" + info + "].");

@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingScene.java,v 1.15 2004/08/27 02:21:01 mdb Exp $
+// $Id: ScrollingScene.java,v 1.16 2004/10/28 17:49:02 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -28,7 +28,6 @@ import java.util.Random;
 
 import com.samskivert.io.PersistenceException;
 
-import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileSetRepository;
@@ -46,7 +45,7 @@ import com.threerings.miso.data.ObjectInfo;
 public class ScrollingScene extends MisoSceneModel
 {
     public ScrollingScene (MisoContext ctx)
-        throws NoSuchTileSetException, NoSuchTileException, PersistenceException
+        throws NoSuchTileSetException, PersistenceException
     {
         // locate the water tileset
         TileSetRepository tsrepo = ctx.getTileManager().getTileSetRepository();

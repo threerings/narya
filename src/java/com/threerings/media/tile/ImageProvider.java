@@ -1,5 +1,5 @@
 //
-// $Id: ImageProvider.java,v 1.4 2004/08/27 02:12:41 mdb Exp $
+// $Id: ImageProvider.java,v 1.5 2004/10/28 17:49:02 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -25,6 +25,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import com.threerings.media.image.Colorization;
+import com.threerings.media.image.ImageManager;
 import com.threerings.media.image.Mirage;
 
 /**

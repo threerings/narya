@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.61 2004/08/27 02:12:41 mdb Exp $
+// $Id: TileSet.java,v 1.62 2004/10/28 17:49:02 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -34,6 +34,8 @@ import com.samskivert.util.Throttle;
 import com.threerings.media.Log;
 import com.threerings.media.image.Colorization;
 import com.threerings.media.image.Mirage;
+import com.threerings.media.image.ImageUtil;
+import com.threerings.media.image.BufferedMirage;
 
 /**
  * A tileset stores information on a single logical set of tiles. It
@@ -154,7 +156,6 @@ public abstract class TileSet
      * <code>Colorizer</code> argument.
      */
     public Tile getTile (int tileIndex)
-        throws NoSuchTileException
     {
         return getTile(tileIndex, _zations);
     }
@@ -173,14 +174,9 @@ public abstract class TileSet
      * known not to be recolorizable is valid.
      *
      * @return the tile object.
-     *
-     * @exception NoSuchTileException thrown if the specified tile index
-     * is out of range for this tileset.
      */
     public Tile getTile (int tileIndex, Colorizer rizer)
-        throws NoSuchTileException
     {
-        checkTileIndex(tileIndex);
         return getTile(tileIndex, getColorizations(tileIndex, rizer));
     }
 
@@ -197,9 +193,6 @@ public abstract class TileSet
      * to returning it. These may be null for uncolorized images.
      *
      * @return the tile object.
-     *
-     * @exception NoSuchTileException thrown if the specified tile index
-     * is out of range for this tileset.
      */
     public Tile getTile (int tileIndex, Colorization[] zations)
     {
@@ -241,7 +234,6 @@ public abstract class TileSet
      * that is desired is access to the underlying image.
      */
     public Mirage getTileMirage (int tileIndex)
-        throws NoSuchTileException
     {
         return getTileMirage(tileIndex, getColorizations(tileIndex, null));
     }
@@ -254,15 +246,22 @@ public abstract class TileSet
      * that is desired is access to the underlying image.
      */
     public Mirage getTileMirage (int tileIndex, Colorization[] zations)
-        throws NoSuchTileException
     {
-        checkTileIndex(tileIndex);
         Rectangle bounds = computeTileBounds(tileIndex);
-        if (_improv == null) {
-            Log.warning("Aiya! Tile set missing image provider " +
-                        "[path=" + _imagePath + "].");
+        Mirage mirage = null;
+        if (checkTileIndex(tileIndex)) {
+            if (_improv == null) {
+                Log.warning("Aiya! Tile set missing image provider " +
+                            "[path=" + _imagePath + "].");
+            } else {
+                mirage = _improv.getTileImage(_imagePath, bounds, zations);
+            }
         }
-        return _improv.getTileImage(_imagePath, bounds, zations);
+        if (mirage == null) {
+            mirage = new BufferedMirage(
+                ImageUtil.createErrorImage(bounds.width, bounds.height));
+        }
+        return mirage;
     }
 
     /**
@@ -285,16 +284,22 @@ public abstract class TileSet
      * processing and prepare the subsequent image for display onscreen.
      */
     public BufferedImage getRawTileImage (int tileIndex)
-        throws NoSuchTileException
     {
-        checkTileIndex(tileIndex);
         Rectangle bounds = computeTileBounds(tileIndex);
-        BufferedImage timg = getRawTileSetImage();
-        if (timg == null) {
-            throw new IllegalStateException("Missing source image " + this);
+        BufferedImage img = null;
+        if (checkTileIndex(tileIndex)) {
+            BufferedImage timg = getRawTileSetImage();
+            if (timg != null) {
+                img = timg.getSubimage(bounds.x, bounds.y,
+                                       bounds.width, bounds.height);
+            } else {
+                Log.warning("Missing source image " + this);
+            }
         }
-        return timg.getSubimage(bounds.x, bounds.y,
-                                bounds.width, bounds.height);
+        if (img == null) {
+            img = ImageUtil.createErrorImage(bounds.width, bounds.height);
+        }
+        return img;
     }
 
     /**
@@ -312,14 +317,16 @@ public abstract class TileSet
     /**
      * Used to ensure that the specified tile index is valid.
      */
-    protected void checkTileIndex (int tileIndex)
-        throws NoSuchTileException
+    protected boolean checkTileIndex (int tileIndex)
     {
-	// bail if there's no such tile
         int tcount = getTileCount();
-	if (tileIndex < 0 || tileIndex >= tcount) {
-	    throw new NoSuchTileException(this, tileIndex);
-	}
+	if (tileIndex >= 0 && tileIndex < tcount) {
+            return true;
+        } else {
+            Log.warning("Requested invalid tile [tset=" + this +
+                        ", index=" + tileIndex + "].");
+            return false;
+        }
     }
 
     /**

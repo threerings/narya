@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.25 2004/08/27 02:20:06 mdb Exp $
+// $Id: SceneBlock.java,v 1.26 2004/10/28 17:49:02 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -33,7 +33,6 @@ import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.geom.GeomUtil;
-import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.TileSet;
@@ -301,8 +300,6 @@ public class SceneBlock
             errmsg = "Scene contains non-base tile in base layer";
         } catch (NoSuchTileSetException nste) {
             errmsg = "Scene contains non-existent tileset";
-        } catch (NoSuchTileException nste) {
-            errmsg = "Scene contains non-existent tile";
         }
 
         if (errmsg != null) {

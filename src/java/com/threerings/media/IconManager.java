@@ -1,5 +1,5 @@
 //
-// $Id: IconManager.java,v 1.7 2004/08/27 02:12:37 mdb Exp $
+// $Id: IconManager.java,v 1.8 2004/10/28 17:49:02 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -34,7 +34,6 @@ import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.TileIcon;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.TileSet;
@@ -145,10 +144,6 @@ public class IconManager
 
             // fetch the appropriate image and create an image icon
             return new TileIcon(set.getTile(index));
-
-        } catch (NoSuchTileException nste) {
-            Log.warning("Unable to load icon [iconSet=" + iconSet +
-                        ", index=" + index + "]. Image index out of bounds.");
 
         } catch (Exception e) {
             Log.warning("Unable to load icon [iconSet=" + iconSet +

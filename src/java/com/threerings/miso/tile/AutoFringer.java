@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.29 2004/08/27 02:20:07 mdb Exp $
+// $Id: AutoFringer.java,v 1.30 2004/10/28 17:49:02 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -34,7 +34,6 @@ import com.threerings.media.image.BufferedMirage;
 import com.threerings.media.image.ImageManager;
 import com.threerings.media.image.ImageUtil;
 
-import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileManager;
@@ -157,9 +156,6 @@ public class AutoFringer
                 try {
                     ftimg = getTileImage(ftimg, fringers[ii].baseset,
                                          indexes[jj], masks, hashValue);
-                } catch (NoSuchTileException nste) {
-                    Log.warning("Autofringer couldn't find a needed tile " +
-                                "[error=" + nste + "].");
                 } catch (NoSuchTileSetException nstse) {
                     Log.warning("Autofringer couldn't find a needed tileset " +
                                 "[error=" + nstse + "].");
@@ -176,7 +172,7 @@ public class AutoFringer
     protected BufferedImage getTileImage (
         BufferedImage ftimg, int baseset, int index,
         HashMap masks, int hashValue)
-        throws NoSuchTileException, NoSuchTileSetException
+        throws NoSuchTileSetException
     {
         FringeConfiguration.FringeTileSetRecord tsr =
             _fringeconf.getFringe(baseset, hashValue);

@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.35 2004/10/18 21:39:18 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.36 2004/10/28 17:49:01 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -48,7 +48,6 @@ import com.threerings.media.image.ImageDataProvider;
 import com.threerings.media.image.ImageManager;
 
 import com.threerings.media.tile.IMImageProvider;
-import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TrimmedTile;
@@ -479,13 +478,7 @@ public class BundledComponentRepository
         protected Tile getTile (int orient, int index)
         {
             int tileIndex = _orients.get(orient) * _fcount + index;
-            try {
-                return _set.getTile(tileIndex);
-            } catch (NoSuchTileException nste) {
-                Log.warning("Can't extract action frame [set=" + _set +
-                            ", orient=" + orient + ", index=" + index + "].");
-                return null;
-            }
+            return _set.getTile(tileIndex);
         }
 
         /** The tileset from which we obtain our frame images. */
