@@ -1,5 +1,5 @@
 //
-// $Id: FrameRepaintManager.java,v 1.7 2002/05/04 05:13:54 mdb Exp $
+// $Id: FrameRepaintManager.java,v 1.8 2002/06/10 21:31:56 shaper Exp $
 
 package com.threerings.media;
 
@@ -345,7 +345,16 @@ public class FrameRepaintManager extends RepaintManager
 
                 g.setClip(drect);
                 g.translate(_cbounds.x, _cbounds.y);
-                ocomp.paint(g);
+                try {
+                    // some components are ill-behaved and may throw an
+                    // exception while painting themselves, and so we
+                    // needs must deal with these fellows gracefully
+                    ocomp.paint(g);
+                } catch (Exception e) {
+                    Log.warning("Exception while painting component " +
+                                "[comp=" + ocomp + ", e=" + e + "].");
+                    Log.logStackTrace(e);
+                }
                 g.translate(-_cbounds.x, -_cbounds.y);
 
             } else if (root != null) {
