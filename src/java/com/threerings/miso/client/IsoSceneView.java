@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.29 2001/08/08 03:19:38 shaper Exp $
+// $Id: IsoSceneView.java,v 1.30 2001/08/08 21:24:20 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -132,8 +132,8 @@ public class IsoSceneView implements EditableSceneView
     {
 	int numDrawn = 0;
 
-	for (int xx = 0; xx < Scene.TILE_WIDTH; xx++) {
-	    for (int yy = 0; yy < Scene.TILE_HEIGHT; yy++) {
+	for (int yy = 0; yy < Scene.TILE_HEIGHT; yy++) {
+	    for (int xx = 0; xx < Scene.TILE_WIDTH; xx++) {
 
 		// skip this tile if it's not marked dirty
 		if (!_dirty[xx][yy]) continue;
