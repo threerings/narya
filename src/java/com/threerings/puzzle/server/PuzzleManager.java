@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleManager.java,v 1.16 2004/10/21 02:54:44 mdb Exp $
+// $Id: PuzzleManager.java,v 1.17 2004/10/28 19:29:59 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -525,22 +525,23 @@ public abstract class PuzzleManager extends GameManager
 
         for (int ii = 0, pos = 0; ii < size; ii++) {
             int gevent = gevents[ii];
+            Board cboard = (states == null) ? null : states[ii];
 
             // if we have state syncing enabled, make sure the board is
             // correct before applying the event
-            if (before && (states != null)) {
-                compareBoards(pidx, states[ii], gevent, before);
+            if (before && (cboard != null)) {
+                compareBoards(pidx, cboard, gevent, before);
             }
 
             // apply the event to the player's board
-            if (!applyProgressEvent(pidx, gevent)) {
+            if (!applyProgressEvent(pidx, gevent, cboard)) {
                 Log.warning("Unknown event [puzzle=" + where() +
                     ", pidx=" + pidx + ", event=" + gevent + "].");
             }
 
             // maybe we are comparing boards afterwards
-            if (!before && (states != null)) {
-                compareBoards(pidx, states[ii], gevent, before);
+            if (!before && (cboard != null)) {
+                compareBoards(pidx, cboard, gevent, before);
             }
         }
     }
@@ -594,9 +595,14 @@ public abstract class PuzzleManager extends GameManager
      * their game-specific event application antics. They should first
      * perform a call to super() to see if the event is handled there.
      *
+     * @param pidx the player index that submitted the progress event.
+     * @param gevent the progress event itself.
+     * @param cboard a snapshot of the board on the client iff the client has
+     * board syncing enabled (which is only enabled when debugging).
+     *
      * @return true to indicate that the event was handled.
      */
-    protected boolean applyProgressEvent (int pidx, int gevent)
+    protected boolean applyProgressEvent (int pidx, int gevent, Board cboard)
     {
         return false;
     }
