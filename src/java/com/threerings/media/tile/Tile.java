@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.15 2001/10/12 00:38:15 shaper Exp $
+// $Id: Tile.java,v 1.16 2001/10/22 18:11:25 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -66,7 +66,6 @@ public class Tile
 	StringBuffer buf = new StringBuffer();
 	buf.append("[tsid=").append(tsid);
 	buf.append(", tid=").append(tid);
-	buf.append(", img=").append(img);
 	return buf.append("]").toString();
     }
 }
