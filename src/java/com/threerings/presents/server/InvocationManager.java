@@ -1,10 +1,12 @@
 //
-// $Id: InvocationManager.java,v 1.15 2002/10/27 22:24:59 mdb Exp $
+// $Id: InvocationManager.java,v 1.16 2003/10/26 02:33:43 eric Exp $
 
 package com.threerings.presents.server;
 
 import java.util.ArrayList;
+
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.Streamable;
@@ -108,7 +110,9 @@ public class InvocationManager
             bootlist.add(marsh);
         }
 
-//         Log.info("Registered service [marsh=" + marsh + "].");
+        _recentRegServices.put(new Integer(invCode), marsh);
+
+//        Log.info("Registered service [marsh=" + marsh + "].");
         return marsh;
     }
 
@@ -190,6 +194,8 @@ public class InvocationManager
                         "no registered dispatcher [code=" + invCode +
                         ", methId=" + methodId +
                         ", args=" + StringUtil.toString(args) + "].");
+            Log.warning("Marsheller for unregistered dispatcher [march=" +
+                        _recentRegServices.get(new Integer(invCode)) + "].");
             return;
         }
 
@@ -246,6 +252,10 @@ public class InvocationManager
     {
         return _invCode++;
     }
+
+    // debugging action...
+    protected static final LRUHashMap _recentRegServices =
+        new LRUHashMap(10000);
 
     /** The distributed object manager with which we're working. */
     protected RootDObjectManager _omgr;
