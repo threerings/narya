@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.25 2002/11/13 06:42:54 mdb Exp $
+// $Id: ImageManager.java,v 1.26 2002/11/20 02:15:05 mdb Exp $
 
 package com.threerings.media;
 
@@ -9,6 +9,7 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -23,7 +24,6 @@ import com.samskivert.io.NestableIOException;
 
 import com.threerings.media.Log;
 import com.threerings.media.util.ImageUtil;
-import com.threerings.resource.ResourceBundle;
 import com.threerings.resource.ResourceManager;
 
 /**
@@ -189,24 +189,12 @@ public class ImageManager
     protected InputStream getImageSource (String rset, String path)
         throws IOException
     {
-        // grab the resource bundles in the specified resource set
-        ResourceBundle[] bundles = _rmgr.getResourceSet(rset);
-        if (bundles == null) {
+        try {
+            return _rmgr.getResource(rset, path);
+        } catch (FileNotFoundException fnfe) {
+            Log.warning(fnfe.getMessage());
             return null;
         }
-
-        // look for the image in any of the bundles
-        int size = bundles.length;
-        for (int ii = 0; ii < size; ii++) {
-            InputStream imgin = bundles[ii].getResource(path);
-            if (imgin != null) {
-//                 Log.info("Found image [rset=" + rset +
-//                          ", bundle=" + bundles[ii].getSource().getPath() +
-//                          ", path=" + path + "].");
-                return imgin;
-            }
-        }
-        return null;
     }
 
     /**
