@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.71 2004/02/25 14:43:17 mdb Exp $
+// $Id: SoundManager.java,v 1.72 2004/02/26 18:42:51 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -374,9 +374,9 @@ public class SoundManager
     {
         synchronized (_queue) {
             if (_queue.size() < MAX_QUEUE_SIZE) {
-//                 if (_verbose.getValue()) {
+                if (_verbose.getValue()) {
                     Log.info("Sound request [key=" + skey.key + "].");
-//                 }
+                }
                 _queue.append(PLAY);
                 _queue.append(skey);
 
@@ -430,9 +430,9 @@ public class SoundManager
     protected void playSound (SoundKey key)
     {
         if (key.isExpired()) {
-//            if (_verbose.getValue()) {
+            if (_verbose.getValue()) {
                 Log.info("Sound expired [key=" + key.key + "].");
-//            }
+            }
             return;
         }
 
@@ -1078,9 +1078,9 @@ public class SoundManager
             int count = 0;
             byte[] data = new byte[LINEBUF_SIZE];
 
-//             if (_verbose.getValue()) {
+            if (_verbose.getValue()) {
                 Log.info("Sound playing [key=" + _key.key + "].");
-//             }
+            }
             while (_valid && count != -1) {
                 try {
                     count = _stream.read(data, 0, data.length);
