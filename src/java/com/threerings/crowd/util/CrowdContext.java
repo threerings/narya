@@ -1,11 +1,11 @@
 //
-// $Id: CrowdContext.java,v 1.6 2001/10/11 04:07:51 mdb Exp $
+// $Id: CrowdContext.java,v 1.7 2002/04/15 14:38:45 shaper Exp $
 
 package com.threerings.crowd.util;
 
 import com.threerings.presents.util.PresentsContext;
 import com.threerings.crowd.client.LocationDirector;
-import com.threerings.crowd.client.OccupantManager;
+import com.threerings.crowd.client.OccupantDirector;
 import com.threerings.crowd.client.PlaceView;
 
 /**
@@ -20,9 +20,9 @@ public interface CrowdContext extends PresentsContext
     public LocationDirector getLocationDirector ();
 
     /**
-     * Returns a reference to the occupant manager.
+     * Returns a reference to the occupant director.
      */
-    public OccupantManager getOccupantManager ();
+    public OccupantDirector getOccupantDirector ();
 
     /**
      * When the client enters a new place, the location director creates a

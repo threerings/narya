@@ -1,5 +1,5 @@
 //
-// $Id: OccupantManager.java,v 1.11 2002/03/18 23:21:25 mdb Exp $
+// $Id: OccupantDirector.java,v 1.1 2002/04/15 14:38:45 shaper Exp $
 
 package com.threerings.crowd.client;
 
@@ -15,8 +15,8 @@ import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
 
 /**
- * The occupant manager listens for occupants of places to enter and exit,
- * and dispatches notices to interested parties about these events.
+ * The occupant director listens for occupants of places to enter and
+ * exit, and dispatches notices to interested parties about these events.
  *
  * <p> It will eventually provide a framework for keeping track of
  * occupant information in a network efficient manner. The idea being that
@@ -35,13 +35,13 @@ import com.threerings.crowd.util.CrowdContext;
  * can update non-static occupant data rather than permanently using
  * what's in the cache.
  */
-public class OccupantManager
+public class OccupantDirector
     implements LocationObserver, SetListener
 {
     /**
-     * Constructs a new occupant manager with the supplied context.
+     * Constructs a new occupant director with the supplied context.
      */
-    public OccupantManager (CrowdContext ctx)
+    public OccupantDirector (CrowdContext ctx)
     {
         // register ourselves as a location observer
         ctx.getLocationDirector().addLocationObserver(this);

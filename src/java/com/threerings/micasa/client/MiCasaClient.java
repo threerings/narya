@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaClient.java,v 1.11 2002/03/28 22:32:31 mdb Exp $
+// $Id: MiCasaClient.java,v 1.12 2002/04/15 14:38:45 shaper Exp $
 
 package com.threerings.micasa.client;
 
@@ -15,7 +15,7 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.DObjectManager;
 
 import com.threerings.crowd.client.LocationDirector;
-import com.threerings.crowd.client.OccupantManager;
+import com.threerings.crowd.client.OccupantDirector;
 import com.threerings.crowd.client.PlaceView;
 
 import com.threerings.parlor.client.ParlorDirector;
@@ -99,7 +99,7 @@ public class MiCasaClient
 
         // create our managers and directors
         _locdir = new LocationDirector(_ctx);
-        _occmgr = new OccupantManager(_ctx);
+        _occdir = new OccupantDirector(_ctx);
         _pardtr = new ParlorDirector(_ctx);
         _msgmgr = new MessageManager(MESSAGE_MANAGER_PREFIX);
     }
@@ -142,9 +142,9 @@ public class MiCasaClient
             return _locdir;
         }
 
-        public OccupantManager getOccupantManager ()
+        public OccupantDirector getOccupantDirector ()
         {
-            return _occmgr;
+            return _occdir;
         }
 
         public ParlorDirector getParlorDirector ()
@@ -174,7 +174,7 @@ public class MiCasaClient
 
     protected Client _client;
     protected LocationDirector _locdir;
-    protected OccupantManager _occmgr;
+    protected OccupantDirector _occdir;
     protected ParlorDirector _pardtr;
     protected MessageManager _msgmgr;
 

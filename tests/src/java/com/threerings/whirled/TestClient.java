@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.11 2002/03/28 22:32:34 mdb Exp $
+// $Id: TestClient.java,v 1.12 2002/04/15 14:38:46 shaper Exp $
 
 package com.threerings.whirled;
 
@@ -29,7 +29,7 @@ public class TestClient
         // create the handles for our various services
         _client = new Client(creds, this);
         _screp = new DummyClientSceneRepository();
-        _occmgr = new OccupantManager(_ctx);
+        _occdir = new OccupantDirector(_ctx);
         _locdir = new LocationDirector(_ctx);
         _scdir = new SceneDirector(
             _ctx, _locdir, _screp, new DefaultDisplaySceneFactory());
@@ -139,9 +139,9 @@ public class TestClient
             return _locdir;
         }
 
-        public OccupantManager getOccupantManager ()
+        public OccupantDirector getOccupantDirector ()
         {
-            return _occmgr;
+            return _occdir;
         }
 
         public void setPlaceView (PlaceView view)
@@ -158,7 +158,7 @@ public class TestClient
     protected Client _client;
     protected LocationDirector _locdir;
     protected SceneDirector _scdir;
-    protected OccupantManager _occmgr;
+    protected OccupantDirector _occdir;
     protected SceneRepository _screp;
     protected WhirledContext _ctx;
 

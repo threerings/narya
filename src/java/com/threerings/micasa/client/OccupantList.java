@@ -1,5 +1,5 @@
 //
-// $Id: OccupantList.java,v 1.5 2002/03/18 23:21:26 mdb Exp $
+// $Id: OccupantList.java,v 1.6 2002/04/15 14:38:45 shaper Exp $
 
 package com.threerings.micasa.client;
 
@@ -35,7 +35,7 @@ public class OccupantList
         _ctx = ctx;
 
         // register ourselves as an occupant observer
-        _ctx.getOccupantManager().addOccupantObserver(this);
+        _ctx.getOccupantDirector().addOccupantObserver(this);
     }
 
     // documentation inherited

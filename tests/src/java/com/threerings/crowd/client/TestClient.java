@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.9 2002/03/28 22:32:33 mdb Exp $
+// $Id: TestClient.java,v 1.10 2002/04/15 14:38:45 shaper Exp $
 
 package com.threerings.crowd.client;
 
@@ -23,7 +23,7 @@ public class TestClient
         // create the handles on our various services
         _client = new Client(creds, this);
         _locdir = new LocationDirector(_ctx);
-        _occmgr = new OccupantManager(_ctx);
+        _occdir = new OccupantDirector(_ctx);
 
         // we want to know about logon/logoff
         _client.addClientObserver(this);
@@ -109,9 +109,9 @@ public class TestClient
             return _locdir;
         }
 
-        public OccupantManager getOccupantManager ()
+        public OccupantDirector getOccupantDirector ()
         {
-            return _occmgr;
+            return _occdir;
         }
 
         public void setPlaceView (PlaceView view)
@@ -122,7 +122,7 @@ public class TestClient
 
     protected Client _client;
     protected LocationDirector _locdir;
-    protected OccupantManager _occmgr;
+    protected OccupantDirector _occdir;
     protected CrowdContext _ctx;
 
     protected Queue _queue = new Queue();

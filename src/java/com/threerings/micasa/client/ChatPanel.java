@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.12 2002/02/26 05:48:11 mdb Exp $
+// $Id: ChatPanel.java,v 1.13 2002/04/15 14:38:45 shaper Exp $
 
 package com.threerings.micasa.client;
 
@@ -59,7 +59,7 @@ public class ChatPanel
         _chatdtr.addChatDisplay(this);
 
         // register as an occupant observer
-        _ctx.getOccupantManager().addOccupantObserver(this);
+        _ctx.getOccupantDirector().addOccupantObserver(this);
 
         GroupLayout gl = new VGroupLayout(GroupLayout.STRETCH);
 	gl.setOffAxisPolicy(GroupLayout.STRETCH);

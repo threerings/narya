@@ -1,5 +1,5 @@
 //
-// $Id: SimpleClient.java,v 1.3 2002/03/28 22:32:32 mdb Exp $
+// $Id: SimpleClient.java,v 1.4 2002/04/15 14:38:45 shaper Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -15,7 +15,7 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.DObjectManager;
 
 import com.threerings.crowd.client.LocationDirector;
-import com.threerings.crowd.client.OccupantManager;
+import com.threerings.crowd.client.OccupantDirector;
 import com.threerings.crowd.client.PlaceView;
 
 import com.threerings.parlor.client.ParlorDirector;
@@ -38,7 +38,7 @@ public class SimpleClient
 
         // create our managers and directors
         _locdir = new LocationDirector(_ctx);
-        _occmgr = new OccupantManager(_ctx);
+        _occdir = new OccupantDirector(_ctx);
         _pardtr = new ParlorDirector(_ctx);
 
         // for test purposes, hardcode the server info
@@ -95,9 +95,9 @@ public class SimpleClient
             return _locdir;
         }
 
-        public OccupantManager getOccupantManager ()
+        public OccupantDirector getOccupantDirector ()
         {
-            return _occmgr;
+            return _occdir;
         }
 
         public ParlorDirector getParlorDirector ()
@@ -117,7 +117,7 @@ public class SimpleClient
 
     protected Client _client;
     protected LocationDirector _locdir;
-    protected OccupantManager _occmgr;
+    protected OccupantDirector _occdir;
     protected ParlorDirector _pardtr;
 }
 
