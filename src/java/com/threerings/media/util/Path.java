@@ -1,5 +1,5 @@
 //
-// $Id: Path.java,v 1.1 2001/09/13 19:10:26 mdb Exp $
+// $Id: Path.java,v 1.2 2001/12/16 08:05:46 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -37,6 +37,18 @@ public interface Path
      * path determined that the sprite should not move at this time.
      */
     public boolean updatePosition (Sprite sprite, long timestamp);
+
+    /**
+     * Sets the velocity of this sprite in pixels per millisecond. The
+     * velocity is measured as pixels traversed along the path that the
+     * sprite is traveling rather than in the x or y directions
+     * individually.  Note that the sprite velocity should not be changed
+     * while a path is being traversed; doing so may result in the sprite
+     * position changing unexpectedly.
+     *
+     * @param velocity the sprite velocity in pixels per millisecond.
+     */
+    public void setVelocity (float velocity);
 
     /**
      * Paint this path on the screen (used for debugging purposes only).

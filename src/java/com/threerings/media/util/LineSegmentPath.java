@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.12 2001/10/24 00:55:08 shaper Exp $
+// $Id: LineSegmentPath.java,v 1.13 2001/12/16 08:05:46 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -66,16 +66,7 @@ public class LineSegmentPath implements Path
         return _nodes.size();
     }
 
-    /**
-     * Sets the velocity of this sprite in pixels per millisecond. The
-     * velocity is measured as pixels traversed along the path that
-     * the sprite is traveling rather than in the x or y directions
-     * individually.  Note that the sprite velocity should not be
-     * changed while a path is being traversed; doing so may result in
-     * the sprite position changing unexpectedly.
-     *
-     * @param velocity the sprite velocity in pixels per millisecond.
-     */
+    // documentation inherited
     public void setVelocity (float velocity)
     {
         _vel = velocity;
