@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.8 2002/02/18 06:05:58 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.9 2002/02/19 01:23:56 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -7,14 +7,19 @@ import java.awt.AWTException;
 import java.awt.BufferCapabilities;
 import java.awt.Canvas;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Graphics;
+import java.awt.GraphicsConfiguration;
 import java.awt.ImageCapabilities;
 import java.awt.Rectangle;
 
 import java.awt.image.BufferStrategy;
+import java.awt.image.VolatileImage;
 
 import java.util.List;
+
+import com.samskivert.util.Histogram;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.media.Log;
 import com.threerings.media.sprite.SpriteManager;
@@ -33,9 +38,7 @@ import com.threerings.media.sprite.SpriteManager;
  * deactivate and reactivate the underlying animation manager.
  *
  * <p> Sub-classes should override {@link #render} to draw their
- * panel-specific contents, and may choose to override {@link
- * #invalidateRects} and {@link #invalidateRect} to optimize their
- * internal rendering.
+ * panel-specific contents.
  */
 public class AnimatedPanel extends Canvas implements AnimatedView
 {
@@ -133,30 +136,8 @@ public class AnimatedPanel extends Canvas implements AnimatedView
         paint(g);
     }
 
-    /**
-     * Renders the panel to the given graphics object.  Sub-classes
-     * should override this method to paint their panel-specific
-     * contents.
-     */
-    protected void render (Graphics2D gfx)
-    {
-        // nothing for now
-    }
-
     // documentation inherited
-    public void invalidateRects (List rects)
-    {
-        // nothing for now
-    }
-
-    // documentation inherited
-    public void invalidateRect (Rectangle rect)
-    {
-        // nothing for now
-    }
-
-    // documentation inherited
-    public void paintImmediately (int invalidRectCount)
+    public void paintImmediately (List invalidRects)
     {
         // no use in painting if we're not showing or if we've not yet
         // been validated
@@ -164,12 +145,19 @@ public class AnimatedPanel extends Canvas implements AnimatedView
             return;
         }
 
-        if (_strategy == null) {
-            // create and obtain a reference to the buffer strategy
-            createBufferStrategy(BUFFER_COUNT);
-            _strategy = getBufferStrategy();
-            Log.info("Created buffer strategy [strategy=" + _strategy + "].");
-        }
+        // track how long it was since we were last painted
+        long now = System.currentTimeMillis();
+//         if (_last != 0) {
+//             int delta = (int)(now-_last);
+//             _histo.addValue(delta);
+
+//             // dump the histogram every ten seconds
+//             if (_last % (10*1000) < 50) {
+//                 Log.info("Render histogram.");
+//                 Log.info(StringUtil.toMatrixString(_histo.getBuckets(), 10, 3));
+//             }
+//         }
+//         _last = now;
 
         // if scrolling is enabled, determine the scrolling delta to be
         // used and do the business
@@ -177,7 +165,7 @@ public class AnimatedPanel extends Canvas implements AnimatedView
         if (_stime != 0) {
             // compute the total distance scrolled since we started (to
             // avoid rounding errors)
-            long now = System.currentTimeMillis();
+            // long now = System.currentTimeMillis();
 
             // determine how many pixels further along we've moved and
             // make a note of our latest position
@@ -199,30 +187,72 @@ public class AnimatedPanel extends Canvas implements AnimatedView
 
         // if we didn't scroll and have no invalid rects, there's no need
         // to repaint anything
-        if (invalidRectCount == 0 && dx == 0 && dy == 0) {
+        if (invalidRects.size() == 0 && dx == 0 && dy == 0) {
             return;
         }
 
-        // render the panel
-        Graphics g = null;
-        try {
-            g = _strategy.getDrawGraphics();
+        // create our off-screen buffer if necessary
+        GraphicsConfiguration gc = getGraphicsConfiguration();
+        if (_backimg == null) {
+            createBackBuffer(gc);
+        }
 
-            // if we're scrolling, do the deed
-            if (_stime != 0) {
-                Dimension size = getSize();
-                g.copyArea(0, 0, size.width, size.height, -dx, -dy);
+        // render into our back buffer
+        do {
+            // make sure our back buffer hasn't disappeared
+            int valres = _backimg.validate(gc);
+
+            // if we've changed resolutions, recreate the buffer
+            if (valres == VolatileImage.IMAGE_INCOMPATIBLE) {
+                Log.info("Back buffer incompatible, recreating.");
+                createBackBuffer(gc);
             }
 
-            // now do our actual rendering
-            render((Graphics2D)g);
+            Graphics g = null;
+            try {
+                g = _backimg.getGraphics();
 
-        } finally {
-            if (g != null) {
+                // if the image wasn't A-OK, we need to rerender the whole
+                // business rather than just the dirty parts
+                if (valres != VolatileImage.IMAGE_OK) {
+                    invalidRects.clear();
+                    invalidRects.add(new Rectangle(
+                                         0, 0, getWidth(), getHeight()));
+                    Log.info("Lost back buffer, redrawing.");
+
+                } else if (_stime != 0) {
+                    // if it was OK, we may need to do some scrolling
+                    Dimension size = getSize();
+                    g.copyArea(0, 0, size.width, size.height, -dx, -dy);
+                }
+
+                // now do our actual rendering
+                render((Graphics2D)g, invalidRects);
+
+            } finally {
                 g.dispose();
             }
-        }
-        _strategy.show();
+
+            // draw the back buffer to the screen
+            try {
+                g = getGraphics();
+
+                // iterate through the invalid rectangles, copying those
+                // areas from the back buffer to the display
+                int isize = invalidRects.size();
+                for (int i = 0; i < isize; i++) {
+                    Rectangle rect = (Rectangle)invalidRects.get(i);
+                    g.setClip(rect);
+                    g.drawImage(_backimg, 0, 0, null);
+                }
+
+            } finally {
+                if (g != null) {
+                    g.dispose();
+                }
+            }
+
+        } while (_backimg.contentsLost());
     }
 
     /**
@@ -237,40 +267,30 @@ public class AnimatedPanel extends Canvas implements AnimatedView
         // nothing to do here
     }
 
-    // documentation inherited
-    public void createBufferStrategy (int numBuffers)
+    /**
+     * Requests that the supplied list of invalid rectangles be redrawn in
+     * the supplied graphics context.  Sub-classes should override this
+     * method to do the actual rendering for their display.
+     */
+    protected void render (Graphics2D gfx, List invalidRects)
     {
-        // explicitly avoid trying to create a page-flipping strategy, as
-        // page-flipping seems to result in artifacts in certain
-        // conditions, and the buffer strategy's volatile images are
-        // irretrievably lost when the panel is hidden.
+        // nothing for now
+    }
 
-        // try an accelerated blitting strategy
-        BufferCapabilities bufferCaps = new BufferCapabilities(
-            new ImageCapabilities(true), new ImageCapabilities(true), null);
-        try {
-            createBufferStrategy(numBuffers, bufferCaps);
-            Log.info("Created accelerated blitting strategy.");
-            return;
-        } catch (AWTException e) {
-            // failed, fall through to the next potential strategy
-        }
-
-        // try an un-accelerated blitting strategy
-        bufferCaps = new BufferCapabilities(
-            new ImageCapabilities(false), new ImageCapabilities(false), null);
-        try {
-            createBufferStrategy(numBuffers, bufferCaps);
-        } catch (AWTException e) {
-            throw new InternalError("Could not create a buffer strategy");
-        }
+    /**
+     * Creates the off-screen buffer used to perform double buffered
+     * rendering of the animated panel.
+     */
+    protected void createBackBuffer (GraphicsConfiguration gc)
+    {
+        _backimg = gc.createCompatibleVolatileImage(getWidth(), getHeight());
     }
 
     /** The animation manager we use in this panel. */
     protected AnimationManager _animmgr;
 
-    /** The buffer strategy used for optimal animation rendering. */
-    protected BufferStrategy _strategy;
+    /** The image used to render off-screen. */
+    protected VolatileImage _backimg;
 
     /** The scrolling velocity in milliseconds per pixel. */
     protected int _msppx, _msppy;
@@ -281,6 +301,12 @@ public class AnimatedPanel extends Canvas implements AnimatedView
     /** Used to determine how many pixels we've scrolled since the
      * scrolling velocity was last set. */
     protected int _lastx, _lasty;
+
+    /** The last time we were rendered. */
+    protected long _last;
+
+    /** A histogram for tracking how frequently we're rendered. */
+    protected Histogram _histo = new Histogram(0, 1, 100);
 
     /** The number of buffers to use when rendering. */
     protected static final int BUFFER_COUNT = 2;

@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedView.java,v 1.2 2002/02/17 23:39:32 mdb Exp $
+// $Id: AnimatedView.java,v 1.3 2002/02/19 01:23:56 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -15,31 +15,13 @@ import java.util.List;
 public interface AnimatedView
 {
     /**
-     * Invalidate a list of rectangles in screen pixel coordinates in the
-     * scene view for later repainting.
-     *
-     * @param rects the list of {@link java.awt.Rectangle} objects.
-     */
-    public void invalidateRects (List rects);
-
-    /**
-     * Invalidates a rectangle in screen pixel coordinates in the scene
-     * view for later repainting.
-     *
-     * @param rect the {@link java.awt.Rectangle} to dirty.
-     */
-    public void invalidateRect (Rectangle rect);
-
-    /**
      * Requests that the animated view paint itself immediately (that it
      * complete the painting process before returning from this function).
      * This will only be called on the AWT thread and when it is safe to
      * paint.
      *
-     * @param invalidRectCount the number of invalide regions that
-     * motivated the animation manager to repaint the animated view (which
-     * could be zero if the view is scrolling and otherwise has no dirty
-     * regions)
+     * @param invalidRects the list of rectangles that have been
+     * invalidated since the last call to this method.
      */
-    public void paintImmediately (int invalidRectCount);
+    public void paintImmediately (List invalidRects);
 }

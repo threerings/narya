@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.6 2002/02/18 06:05:59 mdb Exp $
+// $Id: AnimationManager.java,v 1.7 2002/02/19 01:23:56 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -294,15 +294,11 @@ public class AnimationManager
         // that this will also clear out the contents of our internal
         // dirty rectangle list.
         List rects = mergeDirtyRects(_dirty);
-        int rcount = rects.size();
 
         // invalidate screen-rects dirtied by sprites and/or animations
-	if (rcount > 0 || _scrollvel > 0) {
-	    // pass the dirty-rects on to the scene view
-	    _view.invalidateRects(rects);
-
-	    // refresh the display
-            _view.paintImmediately(rcount);
+	if (rects.size() > 0 || _scrollvel > 0) {
+	    // pass the dirty-rects on to the animated view and repaint
+            _view.paintImmediately(rects);
 	}
 
         // remove any finished animations
@@ -316,6 +312,7 @@ public class AnimationManager
             // request for at least one more tick since we started
             // this tick, so we want to queue up another tick
             // immediately
+            // Log.info("Queueing immediate tick.");
             queueTick();
         }
     }
