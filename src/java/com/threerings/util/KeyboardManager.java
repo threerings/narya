@@ -1,7 +1,7 @@
 //
-// $Id: KeyboardManager.java,v 1.7 2002/01/18 23:12:09 shaper Exp $
+// $Id: KeyboardManager.java,v 1.8 2002/01/18 23:32:14 shaper Exp $
 
-package com.threerings.yohoho.puzzle.util;
+package com.threerings.util;
 
 import java.awt.Component;
 import java.awt.KeyEventDispatcher;
@@ -16,8 +16,6 @@ import com.samskivert.swing.Controller;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
-
-import com.threerings.yohoho.Log;
 
 /**
  * The keyboard manager observes keyboard actions on a particular

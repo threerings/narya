@@ -1,7 +1,7 @@
 //
-// $Id: KeyTranslatorImpl.java,v 1.2 2001/12/12 18:09:20 shaper Exp $
+// $Id: KeyTranslatorImpl.java,v 1.3 2002/01/18 23:32:14 shaper Exp $
 
-package com.threerings.yohoho.puzzle.util;
+package com.threerings.util;
 
 import java.util.Iterator;
 

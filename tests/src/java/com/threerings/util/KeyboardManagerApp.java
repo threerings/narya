@@ -1,7 +1,7 @@
 //
-// $Id: KeyboardManagerApp.java,v 1.1 2002/01/12 02:31:16 shaper Exp $
+// $Id: KeyboardManagerApp.java,v 1.2 2002/01/18 23:32:15 shaper Exp $
 
-package com.threerings.yohoho.puzzle.util;
+package com.threerings.util;
 
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -11,7 +11,7 @@ import java.awt.event.KeyListener;
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.ControllerProvider;
 
-import com.threerings.yohoho.Log;
+import com.threerings.util.Log;
 
 public class KeyboardManagerApp
 {
