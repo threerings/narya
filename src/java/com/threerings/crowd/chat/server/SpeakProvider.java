@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.11 2003/06/14 01:55:42 eric Exp $
+// $Id: SpeakProvider.java,v 1.12 2003/06/14 06:23:41 mdb Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -211,7 +211,9 @@ public class SpeakProvider
 
         // if this is a user message; add it to the heard history of all
         // users that can "hear" it
-        if (msg instanceof UserMessage && speakObj instanceof SpeakObject) {
+        if (!(msg instanceof UserMessage)) {
+            return;
+        } else if (speakObj instanceof SpeakObject) {
             _messageMapper.message = (UserMessage)msg;
             ((SpeakObject)speakObj).applyToListeners(_messageMapper);
             _messageMapper.message = null;
