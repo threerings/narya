@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.java,v 1.6 2002/08/14 19:07:53 mdb Exp $
+// $Id: GameObject.java,v 1.7 2002/09/18 04:01:29 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -72,6 +72,15 @@ public class GameObject extends PlaceObject
     {
         return (players == null) ? -1 : 
             ListUtil.indexOfEqual(players, username);
+    }
+
+    /**
+     * Returns whether the game is in play.  A game that is not in play
+     * could either be awaiting players, ended, or cancelled.
+     */
+    public boolean isInPlay ()
+    {
+        return (state == IN_PLAY);
     }
 
     /**

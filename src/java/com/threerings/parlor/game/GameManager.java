@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.40 2002/09/06 22:52:27 shaper Exp $
+// $Id: GameManager.java,v 1.41 2002/09/18 04:01:29 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -236,14 +236,6 @@ public class GameManager extends PlaceManager
     }
 
     /**
-     * Returns whether the game is over.
-     */
-    public boolean isGameOver ()
-    {
-        return (_gameobj.state == GameObject.GAME_OVER);
-    }
-
-    /**
      * Returns the unique round identifier for the current round.
      */
     public int getRoundId ()
@@ -344,8 +336,8 @@ public class GameManager extends PlaceManager
         Log.info("Game room empty. Going away. " +
                  "[gameOid=" + _gameobj.getOid() + "].");
 
-        // cancel the game if it wasn't over.
-        if (_gameobj.state != GameObject.GAME_OVER) {
+        // cancel the game if it was in play
+        if (_gameobj.state == GameObject.IN_PLAY) {
             _gameobj.setState(GameObject.CANCELLED);
         }
 
@@ -485,6 +477,12 @@ public class GameManager extends PlaceManager
      */
     public void endGame ()
     {
+        if (_gameobj.state != GameObject.IN_PLAY) {
+            Log.debug("Refusing to end game that was not in play " +
+                      "[game=" + _gameobj.which() + "].");
+            return;
+        }
+
         // figure out who won...
 
         // transition to the game over state
