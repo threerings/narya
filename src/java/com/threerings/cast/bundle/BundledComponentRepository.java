@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.5 2001/12/17 03:33:41 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.6 2002/02/18 00:06:57 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -222,8 +222,8 @@ public class BundledComponentRepository
             }
 
             // construct the appropriate image path for the component
-            String path = component.componentClass.name + File.separator +
-                component.name + File.separator + action +
+            String path = component.componentClass.name + "/" +
+                component.name + "/" + action +
                 BundleUtil.IMAGE_EXTENSION;
 
             // clone the tileset with this new image path
