@@ -1,5 +1,5 @@
 //
-// $Id: CardGameController.java,v 1.3 2004/10/15 03:09:46 andrzej Exp $
+// $Id: CardGameController.java,v 1.4 2004/10/15 18:20:28 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -54,7 +54,7 @@ public abstract class CardGameController extends GameController
     // Documentation inherited
     public void messageReceived (MessageEvent event)
     {   
-        if(event.getName().equals(TAKE_HAND)) {
+        if (event.getName().equals(TAKE_HAND)) {
             handDealt((Hand)event.getArgs()[0]);
         }
     }

@@ -1,5 +1,5 @@
 //
-// $Id: CardPanel.java,v 1.3 2004/10/15 03:09:46 andrzej Exp $
+// $Id: CardPanel.java,v 1.4 2004/10/15 18:20:28 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -103,18 +103,18 @@ public abstract class CardPanel extends VirtualMediaPanel
                     
                 _spritemgr.getHitSprites(al, me.getX(), me.getY());
                     
-                if(al.size() > 0) {
+                if (al.size() > 0) {
                     Iterator it = al.iterator();
                     int highestLayer = Integer.MIN_VALUE;
                     CardSprite highestSprite = null;
                         
-                    while(it.hasNext()) {
+                    while (it.hasNext()) {
                         Sprite sprite = (Sprite)it.next();
                             
-                        if(sprite instanceof CardSprite) {
+                        if (sprite instanceof CardSprite) {
                             CardSprite cs = (CardSprite)sprite;
                                 
-                            if(cs.getRenderOrder() > highestLayer) {
+                            if (cs.getRenderOrder() > highestLayer) {
                                 highestLayer = cs.getRenderOrder();
                                 highestSprite = cs;
                             }
@@ -123,7 +123,7 @@ public abstract class CardPanel extends VirtualMediaPanel
                         
                     _activeCardSprite = highestSprite;
                        
-                    if(_activeCardSprite != null) {
+                    if (_activeCardSprite != null) {
                         _handleX = _activeCardSprite.getX() - me.getX();
                         _handleY = _activeCardSprite.getY() - me.getY();
                             
@@ -135,14 +135,14 @@ public abstract class CardPanel extends VirtualMediaPanel
                 }
             }  
             public void mouseReleased (MouseEvent me) {
-                if(_activeCardSprite != null && _hasBeenDragged) {
+                if (_activeCardSprite != null && _hasBeenDragged) {
                     _activeCardSprite.queueNotification(
                         new CardSpriteDraggedOp(_activeCardSprite, me)
                     );
                 }
             }
             public void mouseClicked (MouseEvent me) {
-                if(_activeCardSprite != null) {
+                if (_activeCardSprite != null) {
                     _activeCardSprite.queueNotification(
                         new CardSpriteClickedOp(_activeCardSprite, me)
                     );
@@ -155,7 +155,7 @@ public abstract class CardPanel extends VirtualMediaPanel
         MouseMotionAdapter mma = new MouseMotionAdapter() {
             public void mouseDragged (MouseEvent me)
             {
-                if(_activeCardSprite != null &&
+                if (_activeCardSprite != null &&
                    _activeCardSprite.isDraggable()) {
                     _activeCardSprite.setLocation(
                         me.getX() + _handleX,

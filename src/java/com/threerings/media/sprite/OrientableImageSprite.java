@@ -1,5 +1,5 @@
 //
-// $Id: OrientableImageSprite.java,v 1.4 2004/10/15 03:09:46 andrzej Exp $
+// $Id: OrientableImageSprite.java,v 1.5 2004/10/15 18:20:28 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -75,7 +75,7 @@ public class OrientableImageSprite extends ImageSprite
     {
         double theta;
         
-        switch(_orient) {
+        switch (_orient) {
             case NORTH:
             default:
                 theta = 0.0;
@@ -181,7 +181,7 @@ public class OrientableImageSprite extends ImageSprite
         
         graphics.transform(getRotationTransform());
         
-        if(_frames != null) {
+        if (_frames != null) {
             _frames.paintFrame(
                 graphics, 
                 _frameIdx, 
