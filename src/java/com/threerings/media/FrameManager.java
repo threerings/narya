@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.17 2002/10/09 06:31:38 mdb Exp $
+// $Id: FrameManager.java,v 1.18 2002/10/26 20:31:15 mdb Exp $
 
 package com.threerings.media;
 
@@ -77,6 +77,13 @@ import com.threerings.media.util.PerformanceObserver;
  * this organization tends to be preferable to an organization where the
  * AWT and frame threads are separate and must tread lightly so as not to
  * collide.
+ *
+ * <p> Note: the way that <code>JScrollPane</code> goes about improving
+ * performance when scrolling complicated contents cannot work with active
+ * rendering. If you use a <code>JScrollPane</code> in an application that
+ * uses the frame manager, you should either use the provided {@link
+ * SafeScrollPane} or set your scroll panes' viewports to
+ * <code>SIMPLE_SCROLL_MODE</code>.
  */
 public class FrameManager
     implements PerformanceObserver
