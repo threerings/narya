@@ -89,12 +89,14 @@
     <delete dir="${deploy.dir}"/>
   </target>
 
-  <!-- build the java class files -->
+  <!-- build the java class files and native libraries -->
   <target name="compile" depends="prepare">
     <javac srcdir="src/java" destdir="${classes.dir}"
            debug="on" optimize="{$build.optimize}" deprecation="on">
       <classpath refid="classpath"/>
     </javac>
+    <exec dir="src/java/com/threerings/util/keybd/i686-Linux" 
+     executable="make"/>
   </target>
 
   <!-- build the javadoc documentation -->
