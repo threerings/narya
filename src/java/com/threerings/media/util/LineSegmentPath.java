@@ -1,10 +1,12 @@
 //
-// $Id: LineSegmentPath.java,v 1.6 2001/08/14 22:54:45 mdb Exp $
+// $Id: LineSegmentPath.java,v 1.7 2001/08/21 21:18:42 mdb Exp $
 
 package com.threerings.media.sprite;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
+import java.util.Iterator;
+
+import com.samskivert.util.StringUtil;
 
 /**
  * The <code>Path</code> class represents the path a sprite follows
@@ -89,9 +91,9 @@ public class Path
     /**
      * Return an enumeration of the PathNode objects in this path. 
      */
-    public Enumeration elements ()
+    public Iterator elements ()
     {
-        return new Enumerator(_nodes);
+        return _nodes.iterator();
     }
 
     /**
@@ -102,29 +104,9 @@ public class Path
         return _nodes.size();
     }
 
-    /**
-     * Internal class that provides enumeration functionality for the path.
-     */
-    class Enumerator implements Enumeration
+    public String toString ()
     {
-        public Enumerator (ArrayList nodes)
-        {
-            _nodes = nodes;
-            _idx = 0;
-        }
-
-        public boolean hasMoreElements()
-        {
-            return (_idx < _nodes.size());
-        }
-
-        public Object nextElement ()
-        {
-            return (_idx >= _nodes.size()) ? null : _nodes.get(_idx++);
-        }
-
-        protected ArrayList _nodes;
-        protected int _idx;
+        return StringUtil.toString(_nodes.iterator());
     }
 
     /** The nodes that make up the path. */

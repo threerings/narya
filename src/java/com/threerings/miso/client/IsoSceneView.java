@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.50 2001/08/16 23:14:21 mdb Exp $
+// $Id: IsoSceneView.java,v 1.51 2001/08/21 21:18:42 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -582,7 +582,7 @@ public class IsoSceneView implements EditableSceneView
 
 	// calculate tile coordinates for start and end position
 	Point stpos = new Point();
-	IsoUtil.screenToTile(_model, sprite.x, sprite.y, stpos);
+	IsoUtil.screenToTile(_model, sprite.getX(), sprite.getY(), stpos);
 	int tbx = IsoUtil.fullToTile(fpos.x);
 	int tby = IsoUtil.fullToTile(fpos.y);
 
@@ -599,7 +599,7 @@ public class IsoSceneView implements EditableSceneView
 	// to second tile, and penultimate to ultimate tile.
 
 	// construct path with starting screen position
-        Path path = new Path(sprite.x, sprite.y);
+        Path path = new Path(sprite.getX(), sprite.getY());
 
 	// add all nodes on the calculated path
 	Point nspos = new Point();
@@ -633,7 +633,7 @@ public class IsoSceneView implements EditableSceneView
 	if (prev == stpos) {
 	    // if our destination is within our origination tile,
 	    // direction is based on fine coordinates
-	    dir = IsoUtil.getDirection(_model, sprite.x, sprite.y,
+	    dir = IsoUtil.getDirection(_model, sprite.getX(), sprite.getY(),
 				       spos.x, spos.y);
 	} else {
 	    // else it's based on the last tile we traversed

@@ -1,10 +1,10 @@
 //
-// $Id: Sprite.java,v 1.14 2001/08/21 19:40:30 mdb Exp $
+// $Id: Sprite.java,v 1.15 2001/08/21 21:18:42 mdb Exp $
 
 package com.threerings.media.sprite;
 
 import java.awt.*;
-import java.util.Enumeration;
+import java.util.Iterator;
 
 import com.threerings.media.Log;
 import com.threerings.media.util.MathUtil;
@@ -16,12 +16,6 @@ import com.threerings.media.util.MathUtil;
  */
 public class Sprite
 {
-    /** The sprite's x-position in pixel coordinates. */
-    public int x;
-
-    /** The sprite's y-position in pixel coordinates. */
-    public int y;
-
     /**
      * Construct a sprite object.
      *
@@ -48,6 +42,22 @@ public class Sprite
     }
 
     /**
+     * Returns the sprite's x position in screen coordinates.
+     */
+    public int getX ()
+    {
+        return _x;
+    }
+
+    /**
+     * Returns the sprite's y position in screen coordinates.
+     */
+    public int getY ()
+    {
+        return _y;
+    }
+
+    /**
      * Moves the sprite to the specified location. The location specified
      * will be used as the center of the bottom edge of the sprite.
      */
@@ -56,8 +66,8 @@ public class Sprite
         // invalidate our current position
         invalidate();
         // move ourselves
-        this.x = x;
-        this.y = y;
+        _x = x;
+        _y = y;
         // we need to update our draw position which is based on the size
         // of our current frame
         updateDrawPosition();
@@ -70,8 +80,8 @@ public class Sprite
      */
     protected void init (int x, int y, MultiFrameImage frames)
     {
-        this.x = x;
-        this.y = y;
+        _x = x;
+        _y = y;
 
         updateDrawPosition();
 
@@ -137,7 +147,7 @@ public class Sprite
      */
     public boolean inside (Polygon bounds)
     {
-        return bounds.contains(this.x, this.y);
+        return bounds.contains(_x, _y);
     }
 
     /**
@@ -216,7 +226,7 @@ public class Sprite
 
 	// skip the first node since it's our starting position.
         // perhaps someday we'll do something with this.
-        _path.nextElement();
+        _path.next();
 
         // start our meandering
         moveAlongPath();
@@ -227,29 +237,29 @@ public class Sprite
      */
     protected void moveAlongPath ()
     {
-        // grab the next node in our path
-        _dest = (PathNode)_path.nextElement();
-
         // if no more nodes remain, clear out our path and bail
-        if (_dest == null) {
+        if (!_path.hasNext()) {
 	    stop();
             return;
         }
 
+        // grab the next node in our path
+        _dest = (PathNode)_path.next();
+
 	// if we're already here, move on to the next node
-	if (x == _dest.loc.x && y == _dest.loc.y) {
+	if (_x == _dest.loc.x && _y == _dest.loc.y) {
 	    moveAlongPath();
 	    return;
 	}
 
         // determine the horizontal/vertical move increments
-        float dist = MathUtil.distance(x, y, _dest.loc.x, _dest.loc.y);
-        _incx = (float)(_dest.loc.x - x) / (dist / _vel.x);
-        _incy = (float)(_dest.loc.y - y) / (dist / _vel.y);
+        float dist = MathUtil.distance(_x, _y, _dest.loc.x, _dest.loc.y);
+        _incx = (float)(_dest.loc.x - _x) / (dist / _vel.x);
+        _incy = (float)(_dest.loc.y - _y) / (dist / _vel.y);
 
         // init position data used to track fractional pixels
-        _movex = x;
-        _movey = y;
+        _movex = _x;
+        _movey = _y;
     }
 
     /**
@@ -303,16 +313,18 @@ public class Sprite
 	invalidate();
 
         // move the sprite incrementally toward its goal
-        x = (int)(_movex += _incx);
-        y = (int)(_movey += _incy);
+        _x = (int)(_movex += _incx);
+        _y = (int)(_movey += _incy);
 
         // stop moving once we've reached our destination
-        if (_incx > 0 && x > _dest.loc.x || _incx < 0 && x < _dest.loc.x ||
-            _incy > 0 && y > _dest.loc.y || _incy < 0 && y < _dest.loc.y) {
+        if (_incx > 0 && _x > _dest.loc.x ||
+            _incx < 0 && _x < _dest.loc.x ||
+            _incy > 0 && _y > _dest.loc.y ||
+            _incy < 0 && _y < _dest.loc.y) {
 
             // make sure we stop exactly where desired
-            x = _dest.loc.x;
-            y = _dest.loc.y;
+            _x = _dest.loc.x;
+            _y = _dest.loc.y;
 
             // move further along the path if necessary
             moveAlongPath();
@@ -332,12 +344,12 @@ public class Sprite
     protected void updateDrawPosition ()
     {
         if (_frame == null) {
-            _drawx = x;
-            _drawy = y;
+            _drawx = _x;
+            _drawy = _y;
 
         } else {
-            _drawx = x - (_frame.getWidth(null) / 2);
-            _drawy = y - _frame.getHeight(null);
+            _drawx = _x - (_frame.getWidth(null) / 2);
+            _drawy = _y - _frame.getHeight(null);
         }
     }
 
@@ -347,8 +359,8 @@ public class Sprite
     public String toString ()
     {
         StringBuffer buf = new StringBuffer();
-        buf.append("[x=").append(x);
-        buf.append(", y=").append(y);
+        buf.append("[x=").append(_x);
+        buf.append(", y=").append(_y);
         buf.append(", fidx=").append(_frameIdx);
         return buf.append("]").toString();
     }
@@ -365,11 +377,14 @@ public class Sprite
     /** The current frame index to render. */
     protected int _frameIdx;
 
+    /** The location of the sprite in pixel coordinates. */
+    protected int _x, _y;
+
     /** The coordinates at which the frame image is drawn. */
     protected int _drawx, _drawy;
 
     /** The PathNode objects describing the path the sprite is following. */
-    protected Enumeration _path;
+    protected Iterator _path;
 
     /** When moving, the sprite's destination path node. */
     protected PathNode _dest;
