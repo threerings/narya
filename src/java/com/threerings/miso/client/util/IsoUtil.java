@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.43 2003/01/31 23:10:45 mdb Exp $
+// $Id: IsoUtil.java,v 1.44 2003/02/04 03:11:13 mdb Exp $
 
 package com.threerings.miso.client.util;
 
@@ -442,6 +442,17 @@ public class IsoUtil
         spos.y = tspos.y + ppos.y;
 
         return spos;
+    }
+
+    /**
+     * Converts the given fine coordinate to a full coordinate (a tile
+     * coordinate plus a fine coordinate remainder). The fine coordinate
+     * is assumed to be relative to tile <code>(0, 0)</code>.
+     */
+    public static int fineToFull (IsoSceneViewModel model, int fine)
+    {
+        return (fine / model.finegran) * FULL_TILE_FACTOR +
+            (fine % model.finegran);
     }
 
     /**
