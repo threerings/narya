@@ -126,6 +126,7 @@ public class TimeUtil
         case MILLISECOND: return 1000;
         case SECOND: case MINUTE: return 60;
         case HOUR: return 24;
+        case DAY: return Integer.MAX_VALUE;
         default: return -1;
         }
     }
