@@ -49,6 +49,7 @@
     <junit printsummary="no" haltonfailure="yes" fork="${junit.fork}">
       <classpath refid="classpath"/>
       <sysproperty key="test_dir" value="${test.dir}"/>
+      <sysproperty key="application.root" value="${test.dir}"/>
       <formatter type="brief" usefile="false"/>
       <batchtest>
         <fileset dir="${src.dir}">
