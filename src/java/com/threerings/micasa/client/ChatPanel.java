@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.2 2001/10/09 17:47:33 mdb Exp $
+// $Id: ChatPanel.java,v 1.3 2001/10/09 19:23:26 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -65,18 +65,6 @@ public class ChatPanel
         epanel.add(_send, GroupLayout.FIXED);
         add(epanel, GroupLayout.FIXED);
 
-        // add a logoff button
-        gl = new HGroupLayout(GroupLayout.NONE);
-        gl.setJustification(GroupLayout.RIGHT);
-        JPanel bpanel = new JPanel(gl);
-
-        JButton logoff = new JButton("Logoff");
-        logoff.addActionListener(this);
-        logoff.setActionCommand("logoff");
-        bpanel.add(logoff, GroupLayout.FIXED);
-
-        add(bpanel, GroupLayout.FIXED);
-
         // focus the chat input field by default
         _entry.requestFocus();
     }
@@ -104,10 +92,6 @@ public class ChatPanel
 	String cmd = e.getActionCommand();
 	if (cmd.equals("send")) {
             sendText();
-
-        } else if (cmd.equals("logoff")) {
-            // request that we logoff
-            _ctx.getClient().logoff(true);
 
 	} else {
 	    System.out.println("Unknown action event: " + cmd);

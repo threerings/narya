@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.5 2001/10/09 18:20:08 mdb Exp $
+// $Id: ClientController.java,v 1.6 2001/10/09 19:23:26 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -55,7 +55,15 @@ public class ClientController
     // documentation inherited
     public boolean handleAction (ActionEvent action)
     {
-        Log.info("Got action: " + action);
+	String cmd = action.getActionCommand();
+
+        if (cmd.equals("logoff")) {
+            // request that we logoff
+            _ctx.getClient().logoff(true);
+            return true;
+        }
+
+        Log.info("Unhandled action: " + action);
         return false;
     }
 
