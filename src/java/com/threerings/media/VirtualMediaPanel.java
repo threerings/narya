@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.5 2002/06/20 00:58:36 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.6 2002/06/20 07:49:44 mdb Exp $
 
 package com.threerings.media;
 
@@ -58,10 +58,34 @@ public class VirtualMediaPanel extends MediaPanel
      * the pathable always remains in the center of the view. The virtual
      * coordinates will be adjusted after every tick to center the view on
      * the sprite.
+     *
+     * @param pable the pathable to follow.
      */
     public void setFollowsPathable (Pathable pable)
     {
+        _fmode = CENTER_ON_PATHABLE;
         _fpath = pable;
+    }
+
+    /**
+     * Instructs the view to scroll to ensure that the specified pathable
+     * is always inside the visible bounds of the view.
+     */
+    public void setEnclosesPathable (Pathable pable)
+    {
+        _fmode = ENCLOSE_PATHABLE;
+        _fpath = pable;
+    }
+
+    /**
+     * Clears out the pathable that was being enclosed or followed due to
+     * a previous call to {@link #setFollowsPathable} or {@link
+     * #setEnclosesPathable}.
+     */
+    public void clearPathable ()
+    {
+        _fpath = null;
+        _fmode = -1;
     }
 
     /**
@@ -125,11 +149,9 @@ public class VirtualMediaPanel extends MediaPanel
 
         int width = getWidth(), height = getHeight();
 
-        // if we're following a pathable, adjust our view coordinates such
-        // that the pathable is at the center of the view
-        if (_fpath != null) {
-            setViewLocation(_fpath.getX() - width/2, _fpath.getY() - height/2);
-        }
+        // adjusts our view location to track any pathable we might be
+        // tracking
+        trackPathable();
 
         // if we have a new target location, we'll need to generate dirty
         // regions for the area exposed by the scrolling
@@ -166,6 +188,51 @@ public class VirtualMediaPanel extends MediaPanel
         }
     }
 
+    /**
+     * Implements the standard pathable tracking support. Derived classes
+     * may wish to override this if they desire custom tracking
+     * functionality.
+     */
+    protected void trackPathable ()
+    {
+        // if we're tracking a pathable, adjust our view coordinates
+        if (_fpath == null) {
+            return;
+        }
+
+        int width = getWidth(), height = getHeight();
+        int nx = _tx, ny = _ty;
+
+        // figure out where to move
+        switch (_fmode) {
+        case CENTER_ON_PATHABLE:
+            nx = _fpath.getX() - width/2;
+            ny = _fpath.getY() - height/2;
+            break;
+
+        case ENCLOSE_PATHABLE:
+            Rectangle bounds = _fpath.getBounds();
+            if (nx > bounds.x) {
+                nx = bounds.x;
+            } else if (nx + width < bounds.x + bounds.width) {
+                nx = bounds.x + bounds.width - width;
+            }
+            if (ny > bounds.y) {
+                ny = bounds.y;
+            } else if (ny + height < bounds.y + bounds.height) {
+                ny = bounds.y + bounds.height - height;
+            }
+            break;
+
+        default:
+            Log.warning("Eh? Set to invalid pathable mode " +
+                        "[mode=" + _fmode + "].");
+            break;
+        }
+
+        setViewLocation(nx, ny);
+    }
+
     // documentation inherited
     protected void paint (Graphics2D gfx, Rectangle[] dirty)
     {
@@ -174,6 +241,11 @@ public class VirtualMediaPanel extends MediaPanel
             int width = getWidth(), height = getHeight();
             int cx = (_dx > 0) ? _dx : 0;
             int cy = (_dy > 0) ? _dy : 0;
+
+            // set the clip to the bounds of the component (we can't
+            // assume the clip is anything sensible upon entry to paint()
+            // because the frame manager expects us to set our own clip)
+            gfx.setClip(0, 0, width, height);
 
             // on windows, attempting to call copyArea() on a translated
             // graphics context results in boochness; so we have to
@@ -229,10 +301,22 @@ public class VirtualMediaPanel extends MediaPanel
     /** A region of interest which we'll try to keep visible. */
     protected Rectangle _interest;
 
+    /** The mode we're using when following a pathable. */
+    protected int _fmode = -1;
+
     /** The pathable being followed. */
     protected Pathable _fpath;
 
     /** We need to know our absolute coordinates in order to work around
      * the Windows copyArea() bug. */
     protected Rectangle _abounds = new Rectangle();
+
+    /** The code for the pathable following mode wherein we keep the view
+     * centered on the pathable's location. */
+    protected static final int CENTER_ON_PATHABLE = 0;
+
+    /** The code for the pathable following mode wherein we ensure that
+     * the marked pathable is always kept within the visible bounds of the
+     * view. */
+    protected static final int ENCLOSE_PATHABLE = 1;
 }
