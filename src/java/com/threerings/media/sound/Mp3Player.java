@@ -1,7 +1,7 @@
 //
-// $Id: Mp3Player.java,v 1.3 2002/11/26 02:39:40 ray Exp $
+// $Id: Mp3Player.java,v 1.4 2003/01/08 04:09:02 mdb Exp $
 
-package com.threerings.media;
+package com.threerings.media.sound;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -19,6 +19,7 @@ import javax.sound.sampled.SourceDataLine;
 
 import org.apache.commons.io.StreamUtils;
 
+import com.threerings.media.Log;
 import com.threerings.resource.ResourceManager;
 
 /**

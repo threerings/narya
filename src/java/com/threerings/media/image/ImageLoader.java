@@ -1,7 +1,7 @@
 //
-// $Id: ImageLoader.java,v 1.1 2001/12/07 01:33:29 mdb Exp $
+// $Id: ImageLoader.java,v 1.2 2003/01/08 04:09:02 mdb Exp $
 
-package com.threerings.media;
+package com.threerings.media.image;
 
 import java.awt.Image;
 import java.io.IOException;

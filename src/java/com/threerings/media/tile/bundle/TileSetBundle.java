@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundle.java,v 1.11 2002/10/08 21:59:09 mdb Exp $
+// $Id: TileSetBundle.java,v 1.12 2003/01/08 04:09:02 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -19,9 +19,10 @@ import java.util.Iterator;
 import com.samskivert.util.HashIntMap;
 
 import com.threerings.resource.ResourceBundle;
-import com.threerings.media.ImageManager;
-import com.threerings.media.tile.TileSet;
+
+import com.threerings.media.image.ImageManager;
 import com.threerings.media.tile.ImageProvider;
+import com.threerings.media.tile.TileSet;
 
 /**
  * A tileset bundle is used to load up tilesets by id from a persistent

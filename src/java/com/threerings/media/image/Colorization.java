@@ -1,7 +1,7 @@
 //
-// $Id: Colorization.java,v 1.5 2002/05/06 23:23:08 mdb Exp $
+// $Id: Colorization.java,v 1.6 2003/01/08 04:09:02 mdb Exp $
 
-package com.threerings.media.util;
+package com.threerings.media.image;
 
 import java.awt.Color;
 

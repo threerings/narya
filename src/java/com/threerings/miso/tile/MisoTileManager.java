@@ -1,5 +1,5 @@
 //
-// $Id: MisoTileManager.java,v 1.2 2002/04/06 01:56:39 mdb Exp $
+// $Id: MisoTileManager.java,v 1.3 2003/01/08 04:09:03 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -9,7 +9,7 @@ import java.io.InputStream;
 import com.threerings.resource.ResourceManager;
 import com.threerings.util.CompiledConfig;
 
-import com.threerings.media.ImageManager;
+import com.threerings.media.image.ImageManager;
 import com.threerings.media.tile.TileManager;
 
 import com.threerings.miso.Log;

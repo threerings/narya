@@ -1,12 +1,12 @@
 //
-// $Id: SingleFrameImageImpl.java,v 1.3 2002/09/17 19:11:13 mdb Exp $
+// $Id: SingleFrameImageImpl.java,v 1.4 2003/01/08 04:09:03 mdb Exp $
 
 package com.threerings.media.util;
 
 import java.awt.Graphics;
 import java.awt.Image;
 
-import com.threerings.media.util.ImageUtil;
+import com.threerings.media.image.ImageUtil;
 
 /**
  * The single frame image class is a basic implementation of the {@link

@@ -1,5 +1,5 @@
 //
-// $Id: TileSetTrimmer.java,v 1.4 2002/09/11 19:17:55 shaper Exp $
+// $Id: TileSetTrimmer.java,v 1.5 2003/01/08 04:09:03 mdb Exp $
 
 package com.threerings.media.tile.util;
 
@@ -19,10 +19,10 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.media.Log;
 
+import com.threerings.media.image.ImageUtil;
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileSet;
-import com.threerings.media.util.ImageUtil;
 
 /**
  * Contains routines for trimming the images from an existing tileset

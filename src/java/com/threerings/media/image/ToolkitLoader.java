@@ -1,7 +1,7 @@
 //
-// $Id: ToolkitLoader.java,v 1.2 2002/04/01 16:49:26 mdb Exp $
+// $Id: ToolkitLoader.java,v 1.3 2003/01/08 04:09:02 mdb Exp $
 
-package com.threerings.media;
+package com.threerings.media.image;
 
 import java.awt.Component;
 import java.awt.Image;

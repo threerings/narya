@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.21 2003/01/07 07:55:58 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.22 2003/01/08 04:09:02 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -28,16 +28,16 @@ import org.apache.commons.collections.Predicate;
 import com.threerings.resource.ResourceBundle;
 import com.threerings.resource.ResourceManager;
 
-import com.threerings.media.ImageManager;
-import com.threerings.media.util.Colorization;
-import com.threerings.media.util.ImageUtil;
-import com.threerings.media.util.MultiFrameImage;
+import com.threerings.media.image.Colorization;
+import com.threerings.media.image.ImageManager;
+import com.threerings.media.image.ImageUtil;
 
 import com.threerings.media.tile.ImageProvider;
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TrimmedTile;
+import com.threerings.media.util.MultiFrameImage;
 
 import com.threerings.util.DirectionCodes;
 

@@ -1,7 +1,7 @@
 //
-// $Id: SoundManager.java,v 1.41 2002/12/12 19:00:25 mdb Exp $
+// $Id: SoundManager.java,v 1.42 2003/01/08 04:09:02 mdb Exp $
 
-package com.threerings.media;
+package com.threerings.media.sound;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

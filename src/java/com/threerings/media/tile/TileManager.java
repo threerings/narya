@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.25 2002/10/17 17:42:53 mdb Exp $
+// $Id: TileManager.java,v 1.26 2003/01/08 04:09:02 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -10,7 +10,7 @@ import com.samskivert.io.PersistenceException;
 import com.samskivert.util.HashIntMap;
 
 import com.threerings.media.Log;
-import com.threerings.media.ImageManager;
+import com.threerings.media.image.ImageManager;
 
 /**
  * The tile manager provides a simplified interface for retrieving and

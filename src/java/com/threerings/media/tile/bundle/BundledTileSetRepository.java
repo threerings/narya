@@ -1,5 +1,5 @@
 //
-// $Id: BundledTileSetRepository.java,v 1.7 2002/10/16 23:23:32 shaper Exp $
+// $Id: BundledTileSetRepository.java,v 1.8 2003/01/08 04:09:02 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -16,7 +16,7 @@ import com.threerings.resource.ResourceBundle;
 import com.threerings.resource.ResourceManager;
 
 import com.threerings.media.Log;
-import com.threerings.media.ImageManager;
+import com.threerings.media.image.ImageManager;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileSetRepository;

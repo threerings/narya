@@ -1,7 +1,7 @@
 //
-// $Id: ModPlayer.java,v 1.5 2002/11/26 02:39:40 ray Exp $
+// $Id: ModPlayer.java,v 1.6 2003/01/08 04:09:02 mdb Exp $
 
-package com.threerings.media;
+package com.threerings.media.sound;
 
 import java.io.DataInputStream;
 import java.io.InputStream;

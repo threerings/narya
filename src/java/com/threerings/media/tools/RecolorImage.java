@@ -1,5 +1,5 @@
 //
-// $Id: RecolorImage.java,v 1.2 2002/03/08 01:38:12 mdb Exp $
+// $Id: RecolorImage.java,v 1.3 2003/01/08 04:09:03 mdb Exp $
 
 package com.threerings.media.tools;
 
@@ -32,7 +32,7 @@ import com.samskivert.swing.VGroupLayout;
 import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.media.Log;
-import com.threerings.media.util.ImageUtil;
+import com.threerings.media.image.ImageUtil;
 
 /**
  * Tests the image recoloring code.

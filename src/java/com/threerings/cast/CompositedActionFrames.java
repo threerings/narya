@@ -1,5 +1,5 @@
 //
-// $Id: CompositedActionFrames.java,v 1.10 2002/12/16 03:08:39 mdb Exp $
+// $Id: CompositedActionFrames.java,v 1.11 2003/01/08 04:09:02 mdb Exp $
 
 package com.threerings.cast;
 
@@ -11,8 +11,8 @@ import java.util.Comparator;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.media.util.Colorization;
-import com.threerings.media.util.ImageUtil;
+import com.threerings.media.image.Colorization;
+import com.threerings.media.image.ImageUtil;
 import com.threerings.media.util.MultiFrameImage;
 
 import com.threerings.cast.CharacterComponent;

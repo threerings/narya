@@ -1,7 +1,7 @@
 //
-// $Id: ImageManager.java,v 1.32 2003/01/07 07:55:24 mdb Exp $
+// $Id: ImageManager.java,v 1.33 2003/01/08 04:09:02 mdb Exp $
 
-package com.threerings.media;
+package com.threerings.media.image;
 
 import java.awt.Component;
 import java.awt.Graphics2D;
@@ -13,19 +13,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.util.Iterator;
-
-import javax.imageio.ImageReader;
-
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.MemoryCacheImageInputStream;
-
 import com.samskivert.io.NestableIOException;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.Throttle;
 
 import com.threerings.media.Log;
-import com.threerings.media.util.ImageUtil;
 import com.threerings.resource.ResourceManager;
 
 /**

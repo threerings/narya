@@ -1,7 +1,7 @@
 //
-// $Id: Sounds.java,v 1.3 2002/11/27 00:08:36 ray Exp $
+// $Id: Sounds.java,v 1.4 2003/01/08 04:09:02 mdb Exp $
 
-package com.threerings.media;
+package com.threerings.media.sound;
 
 import java.io.File;
 

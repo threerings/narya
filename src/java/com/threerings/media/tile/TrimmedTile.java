@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedTile.java,v 1.3 2002/06/19 23:28:14 mdb Exp $
+// $Id: TrimmedTile.java,v 1.4 2003/01/08 04:09:02 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -12,7 +12,7 @@ import java.awt.image.BufferedImage;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.media.util.ImageUtil;
+import com.threerings.media.image.ImageUtil;
 
 /**
  * Behaves just like a regular tile, but contains a "trimmed" image which

@@ -1,5 +1,5 @@
 //
-// $Id: DumpBundle.java,v 1.7 2002/07/19 20:13:04 shaper Exp $
+// $Id: DumpBundle.java,v 1.8 2003/01/08 04:09:02 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -9,7 +9,7 @@ import java.util.Iterator;
 import com.threerings.resource.ResourceManager;
 import com.threerings.resource.ResourceBundle;
 
-import com.threerings.media.ImageManager;
+import com.threerings.media.image.ImageManager;
 
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.bundle.BundleUtil;

@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.24 2002/09/23 21:52:43 mdb Exp $
+// $Id: Tile.java,v 1.25 2003/01/08 04:09:02 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -12,7 +12,7 @@ import java.awt.image.BufferedImage;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.Log;
-import com.threerings.media.util.ImageUtil;
+import com.threerings.media.image.ImageUtil;
 
 /**
  * A tile represents a single square in a single layer in a scene.

@@ -1,14 +1,10 @@
 //
-// $Id: ObjectTile.java,v 1.11 2002/06/25 01:19:08 mdb Exp $
+// $Id: ObjectTile.java,v 1.12 2003/01/08 04:09:02 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Image;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-
-import com.threerings.media.Log;
-import com.threerings.media.util.ImageUtil;
 
 /**
  * An object tile extends the base tile to provide support for objects

@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.28 2002/12/23 20:33:19 mdb Exp $
+// $Id: CharacterManager.java,v 1.29 2003/01/08 04:09:02 mdb Exp $
 
 package com.threerings.cast;
 
@@ -11,7 +11,7 @@ import com.samskivert.util.StringUtil;
 import com.samskivert.util.Throttle;
 import com.samskivert.util.Tuple;
 
-import com.threerings.media.util.Colorization;
+import com.threerings.media.image.Colorization;
 import com.threerings.util.DirectionCodes;
 
 import com.threerings.cast.CompositedActionFrames.ComponentFrames;

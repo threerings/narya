@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSet.java,v 1.7 2002/05/06 18:08:32 mdb Exp $
+// $Id: ObjectTileSet.java,v 1.8 2003/01/08 04:09:02 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -8,7 +8,7 @@ import java.awt.Rectangle;
 import java.util.Arrays;
 
 import com.samskivert.util.StringUtil;
-import com.threerings.media.ImageManager;
+import com.threerings.media.image.ImageManager;
 
 /**
  * The object tileset supports the specification of object information for

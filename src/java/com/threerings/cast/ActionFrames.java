@@ -1,12 +1,12 @@
 //
-// $Id: ActionFrames.java,v 1.7 2002/12/07 02:04:31 shaper Exp $
+// $Id: ActionFrames.java,v 1.8 2003/01/08 04:09:02 mdb Exp $
 
 package com.threerings.cast;
 
 import java.awt.Graphics;
 import java.awt.Image;
 
-import com.threerings.media.util.Colorization;
+import com.threerings.media.image.Colorization;
 import com.threerings.util.DirectionCodes;
 
 /**

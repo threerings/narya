@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.14 2002/12/07 02:30:37 shaper Exp $
+// $Id: AutoFringer.java,v 1.15 2003/01/08 04:09:03 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -26,7 +26,7 @@ import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileUtil;
 import com.threerings.media.tile.UniformTileSet;
 
-import com.threerings.media.util.ImageUtil;
+import com.threerings.media.image.ImageUtil;
 
 import com.threerings.miso.scene.MisoSceneModel;
 

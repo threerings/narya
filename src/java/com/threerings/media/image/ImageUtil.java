@@ -1,7 +1,7 @@
 //
-// $Id: ImageUtil.java,v 1.19 2002/12/07 02:04:32 shaper Exp $
+// $Id: ImageUtil.java,v 1.20 2003/01/08 04:09:02 mdb Exp $
 
-package com.threerings.media.util;
+package com.threerings.media.image;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;

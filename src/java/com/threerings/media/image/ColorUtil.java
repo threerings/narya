@@ -1,7 +1,7 @@
 //
-// $Id: ColorUtil.java,v 1.3 2002/07/18 23:14:02 ray Exp $
+// $Id: ColorUtil.java,v 1.4 2003/01/08 04:09:02 mdb Exp $
 
-package com.threerings.media.util;
+package com.threerings.media.image;
 
 import java.awt.Color;
 
