@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.35 2002/06/26 23:53:07 mdb Exp $
+// $Id: IsoUtil.java,v 1.36 2002/06/27 01:27:13 ray Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -374,7 +374,7 @@ public class IsoUtil
         // now determine which of the four tiles our point occupies
         int dx = sx - ox, dy = sy - oy;
 
-        if (Math.round(model.slopeY * dx + model.tilehei) < dy) {
+        if (Math.round(model.slopeY * dx + model.tilehei) <= dy) {
             tpos.x += 1;
         }
 
