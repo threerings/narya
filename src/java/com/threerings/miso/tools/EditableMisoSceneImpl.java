@@ -1,8 +1,9 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.12 2002/04/06 01:52:34 mdb Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.13 2002/04/06 02:08:21 ray Exp $
 
 package com.threerings.miso.scene.tools;
 
+import java.awt.Rectangle;
 import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
@@ -12,6 +13,9 @@ import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
 
+import com.threerings.miso.Log;
+
+import com.threerings.miso.tile.AutoFringer;
 import com.threerings.miso.tile.BaseTile;
 import com.threerings.miso.tile.MisoTileManager;
 
@@ -40,6 +44,7 @@ public class EditableMisoSceneImpl
         throws NoSuchTileException, NoSuchTileSetException
     {
         super(model, tmgr);
+        _fringer = tmgr.getAutoFringer();
         unpackObjectLayer();
     }
 
@@ -78,11 +83,22 @@ public class EditableMisoSceneImpl
     }
 
     // documentation inherited
+    public void setBaseTiles (Rectangle r, BaseTile tile, int fqTileId)
+    {
+        for (int x = r.x; x < r.width; x++) {
+            for (int y = r.y; y < r.height; y++) {
+                _base.setTile(x, y, tile);
+                _model.baseTileIds[_model.width*y + x] = fqTileId;
+            }
+        }
+
+        _fringer.fringe(_model, _fringe, r);
+    }
+
+    // documentation inherited
     public void setBaseTile (int x, int y, BaseTile tile, int fqTileId)
     {
-        _base.setTile(x, y, tile);
-        // update the model as well
-        _model.baseTileIds[_model.width*y + x] = fqTileId;
+        setBaseTiles(new Rectangle(x, y, 1, 1), tile, fqTileId);
     }
 
     // documentation inherited
@@ -217,4 +233,7 @@ public class EditableMisoSceneImpl
 
     /** The fully qualified tile id of the default base tile. */
     protected int _defaultBaseTileId;
+
+    /** The autofringer. */
+    protected AutoFringer _fringer;
 }

@@ -1,7 +1,9 @@
 //
-// $Id: EditableMisoScene.java,v 1.12 2002/04/06 01:55:28 ray Exp $
+// $Id: EditableMisoScene.java,v 1.13 2002/04/06 02:08:21 ray Exp $
 
 package com.threerings.miso.scene.tools;
+
+import java.awt.Rectangle;
 
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
