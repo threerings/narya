@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.27 2002/11/05 02:17:56 mdb Exp $
+// $Id: PresentsServer.java,v 1.28 2002/11/06 06:18:17 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -232,5 +232,5 @@ public class PresentsServer
     protected static ArrayList _reporters = new ArrayList();
 
     /** The frequency with which we generate "state of server" reports. */
-    protected static final long REPORT_INTERVAL = 5 * 60 * 1000L;
+    protected static final long REPORT_INTERVAL = 15 * 60 * 1000L;
 }
