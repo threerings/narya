@@ -1,5 +1,5 @@
 //
-// $Id: ClientObserver.java,v 1.4 2002/03/11 19:51:25 mdb Exp $
+// $Id: ClientObserver.java,v 1.5 2002/05/16 18:17:27 shaper Exp $
 
 package com.threerings.presents.client;
 
@@ -51,7 +51,7 @@ public interface ClientObserver extends SessionObserver
     public void clientConnectionFailed (Client client, Exception cause);
 
     /**
-     * Called when an abortable logoff requrest is made. If the observer
+     * Called when an abortable logoff request is made. If the observer
      * returns false from this method, the client will abort the logoff
      * request.
      */
