@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.36 2003/09/24 23:54:59 mdb Exp $
+// $Id: ResourceManager.java,v 1.37 2003/10/27 11:43:26 mdb Exp $
 
 package com.threerings.resource;
 
@@ -352,7 +352,7 @@ public class ResourceManager
      */
     public boolean checkDynamicBundle (String path)
     {
-        return createResourceBundle(DYNAMIC_BUNDLE_SET, path).isUnpacked();
+        return createResourceBundle(_dnset, path).isUnpacked();
     }
 
     /**
@@ -370,8 +370,10 @@ public class ResourceManager
             return;
         }
 
-        final ResourceBundle bundle = createResourceBundle(
-            DYNAMIC_BUNDLE_SET, path);
+        // note our dynamic bundle set
+        _dnset = DYNAMIC_BUNDLE_SET + StringUtil.md5hex(_drurl.toString());
+
+        final ResourceBundle bundle = createResourceBundle(_dnset, path);
         if (bundle.isUnpacked()) {
             if (bundle.sourceIsReady()) {
                 listener.requestCompleted(bundle);
@@ -859,6 +861,10 @@ public class ResourceManager
 
     /** The url via which we download our dynamically generated bundles. */
     protected URL _drurl;
+
+    /** The resource set we use for dynamic resources from a particular
+     * dynamic bundle URL. */
+    protected String _dnset;
 
     /** The prefix we prepend to resource paths before attempting to load
      * them from the classpath. */
