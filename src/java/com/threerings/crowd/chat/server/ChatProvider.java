@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.16 2002/10/31 23:27:16 mdb Exp $
+// $Id: ChatProvider.java,v 1.17 2002/11/01 00:57:50 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -94,7 +94,7 @@ public class ChatProvider
         BodyObject body = (BodyObject)caller;
 
         // make sure the requesting user has broadcast privileges
-        if (CrowdServer.actrl.checkAccess(body, BROADCAST_TOKEN)) {
+        if (!CrowdServer.actrl.checkAccess(body, BROADCAST_TOKEN)) {
             throw new InvocationException(ACCESS_DENIED);
         }
 
