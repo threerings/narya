@@ -29,6 +29,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 
+import java.security.Permission;
+
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 
@@ -106,6 +108,15 @@ public class Handler extends URLStreamHandler
                     connect();
                 }
                 return _stream;
+            }
+
+            // documentation inherited
+            public Permission getPermission ()
+                throws IOException
+            {
+                // We allow anything in the resource bundle to be loaded
+                // without any permission restrictions.
+                return null;
             }
 
             protected InputStream _stream;
