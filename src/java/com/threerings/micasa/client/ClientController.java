@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.8 2001/10/18 01:40:40 mdb Exp $
+// $Id: ClientController.java,v 1.9 2001/10/25 23:02:57 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -9,8 +9,6 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.dobj.*;
 import com.threerings.presents.client.*;
-import com.threerings.presents.net.Credentials;
-import com.threerings.presents.net.UsernamePasswordCreds;
 
 import com.threerings.crowd.client.*;
 import com.threerings.crowd.data.*;
@@ -42,17 +40,6 @@ public class ClientController
         // create the logon panel and display it
         _logonPanel = new LogonPanel(_ctx);
 //          _frame.setPanel(_logonPanel);
-
-        // configure the client with some credentials and logon
-        String username = System.getProperty("username");
-        if (username == null) {
-            username =
-                "bob" + ((int)(Math.random() * Integer.MAX_VALUE) % 500);
-        }
-        Credentials creds = new UsernamePasswordCreds(username, "test");
-        Client client = _ctx.getClient();
-        client.setCredentials(creds);
-        client.logon();
     }
 
     // documentation inherited
@@ -82,7 +69,13 @@ public class ClientController
         int moveOid = -1;
 
         // hacky hack
-        String jumpOidStr = System.getProperty("jumpoid");
+        String jumpOidStr = null;
+        try {
+            jumpOidStr = System.getProperty("jumpoid");
+        } catch (SecurityException se) {
+            Log.info("Not checking for jumpOid as we're in an applet.");
+        }
+
         if (jumpOidStr != null) {
             try {
                 moveOid = Integer.parseInt(jumpOidStr);
