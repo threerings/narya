@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.29 2002/12/04 23:21:25 mdb Exp $
+// $Id: FrameManager.java,v 1.30 2002/12/08 02:49:12 mdb Exp $
 
 package com.threerings.media;
 
@@ -7,6 +7,7 @@ import java.applet.Applet;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Frame;
@@ -34,6 +35,7 @@ import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.RepaintManager;
 
+import com.samskivert.swing.Label;
 import com.samskivert.util.DebugChords;
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
@@ -97,6 +99,15 @@ import com.threerings.media.timer.SystemMediaTimer;
  */
 public class FrameManager
 {
+    /** {@link FrameParticipant}s can implement this interface and be
+     * added to the performance display. */
+    public static interface PerformanceProvider
+    {
+        /** Returns a string that will be appended to the debug
+         * performance display drawn on top of the frame. */
+        public void getPerformanceStatus (StringBuffer buf);
+    }
+
     /**
      * Creates a frame manager that will use a {@link SystemMediaTimer} to
      * obtain timing information, which is available on every platform,
@@ -157,7 +168,12 @@ public class FrameManager
      */
     public void registerFrameParticipant (FrameParticipant participant)
     {
-        _participants.add(participant);
+        if (_participants.contains(participant)) {
+            Log.warning("Ingoring already registered participant " +
+                        participant + ".");
+        } else {
+            _participants.add(participant);
+        }
     }
 
     /**
@@ -176,26 +192,6 @@ public class FrameManager
     public long getTimeStamp ()
     {
         return _timer.getElapsedMillis();
-    }
-
-    /**
-     * Returns the frequency with which the frame manager is attempting to
-     * call {@link #tick}.
-     */
-    public float getAttemptedFramesPerSecond ()
-    {
-        return _fps[0];
-    }
-
-    /**
-     * Returns the frequency with which the frame manager is able to call
-     * {@link #tick} given that frames must be dropped if the previous
-     * call to {@link #tick} has not finished when the time comes for the
-     * next call.
-     */
-    public float getAchievedFramesPerSecond ()
-    {
-        return _fps[1];
     }
 
     /**
@@ -266,14 +262,17 @@ public class FrameManager
             Log.logStackTrace(t);
         }
 
-        if (_displayFPS) {
-            // handle frames per second status updates
-            tickFramesPerSecondView();
+        if (_displayPerf) {
+            startPerformanceStatusTick();
         }
 
         // tick all of our frame participants
         _participantTickOp.setTickStamp(tickStamp);
         _participants.apply(_participantTickOp);
+
+        if (_displayPerf) {
+            finishPerformanceStatusTick();
+        }
     }
 
     /**
@@ -324,12 +323,21 @@ public class FrameManager
 
             // paint our frame participants (which want to be handled
             // specially)
+            _bgfx.setFont(_saveFont);
             _participantPaintOp.setGraphics(_bgfx);
             _participants.apply(_participantPaintOp);
 
             // repaint any widgets that have declared they need to be
             // repainted since the last tick
+            _bgfx.setFont(_saveFont);
             _remgr.paintComponents(_bgfx, this);
+            _saveFont = _bgfx.getFont();
+
+            if (_displayPerf && _perfLabel != null) {
+                // render the current performance status
+                _bgfx.setClip(null);
+                _perfLabel.render((Graphics2D)_bgfx, FPS_X, FPS_Y);
+            }
 
             // we cache our frame's graphics object so that we can avoid
             // instantiating a new one on every tick
@@ -337,11 +345,6 @@ public class FrameManager
                 _fgfx = _frame.getGraphics();
             }
             _fgfx.drawImage(_backimg, 0, 0, null);
-
-            if (_displayFPS) {
-                // render the current frames per second status
-                renderFramesPerSecondView();
-            }
 
 //             _bufstrat.show();
 
@@ -353,57 +356,53 @@ public class FrameManager
     }
 
     /**
-     * If frame rate display is enabled, this method is called every frame
-     * to update the frame rate display and dirty things as necessary.
+     * If frame rate display is enabled, builds beginning of performance
+     * status display.
      */
-    protected void tickFramesPerSecondView ()
+    protected void startPerformanceStatusTick ()
     {
-        // we can't do anything unless we've got our main image
-        if (_bgfx == null) {
-            return;
-        }
+        if (_perfTicks++ % 100 == 0) {
+            _perfStatus = new StringBuffer();
+            _perfStatus.append("[FPS: ");
+            _perfStatus.append(Math.round(_fps[1])).append("/");
+            _perfStatus.append(Math.round(_fps[0]));
 
-        // update our attained and achieved framerate information
-        int ofpsatt = _fpsatt, ofpsach = _fpsach;
-        _fpsatt = Math.round(getAttemptedFramesPerSecond());
-        _fpsach = Math.round(getAchievedFramesPerSecond());
-
-        if (ofpsatt != _fpsatt || ofpsach != _fpsach) {
-            // build the string we'll render when the time comes
-            _fpsinfo = "[FPS: " + _fpsach + " / " + _fpsatt + "]";
-
-            if (_fpsmetrics == null) {
-                // grab the font metrics used to determine string dimensions
-                _fpsmetrics = _bgfx.getFontMetrics(_fpsfont);
+            if (_perfLabel == null) {
+                _perfLabel = new Label(
+                    "", Label.OUTLINE, Color.white, Color.black,
+                    new Font("Arial", Font.PLAIN, 10));
             }
-
-            // dirty the rectangle in which we'll be doing our business
-            int swid = _fpsmetrics.stringWidth(_fpsinfo);
-            int fhei = _fpsmetrics.getHeight();
-            JComponent comp = (JComponent)((JFrame)_frame).getRootPane();
-            _remgr.addDirtyRegion(comp, FPS_X, FPS_Y, swid, fhei);
         }
     }
 
     /**
-     * If frame rate display is enabled, this method is called every frame
-     * to render the current frames per second information to the frame
-     * buffer.
+     * If frame rate display is enabled, prepares to render new
+     * performance status if it has changed.
      */
-    protected void renderFramesPerSecondView ()
+    protected void finishPerformanceStatusTick ()
     {
-        // bail if we've not got the frame buffer or our font metrics
-        if (_fgfx == null || _fpsmetrics == null) {
+        if (_perfStatus == null) {
+            return;
+        }
+        _perfStatus.append("]");
+        _perfLabel.setText(_perfStatus.toString());
+        _perfStatus = null;
+
+        if (_bgfx == null) {
             return;
         }
 
-        // render the business
-        _fgfx.setColor(Color.white);
-        Font ofont = _fgfx.getFont();
-        _fgfx.setFont(_fpsfont);
-        int fhei = _fpsmetrics.getHeight();
-        _fgfx.drawString(_fpsinfo, FPS_X, FPS_Y + fhei);
-        _fgfx.setFont(ofont);
+        // dirty our previous bounds
+        JComponent comp = (JComponent)((JFrame)_frame).getRootPane();
+        Dimension lsize = _perfLabel.getSize();
+        _remgr.addDirtyRegion(comp, FPS_X, FPS_Y, lsize.width, lsize.height);
+
+        // re-layout our status label
+        _perfLabel.layout((Graphics2D)_bgfx);
+
+        // dirty our new bounds
+        lsize = _perfLabel.getSize();
+        _remgr.addDirtyRegion(comp, FPS_X, FPS_Y, lsize.width, lsize.height);
     }
 
     /**
@@ -485,6 +484,7 @@ public class FrameManager
         // fill the back buffer with white
         _bgfx = _backimg.getGraphics();
         _bgfx.fillRect(0, 0, width, height);
+        _saveFont = _bgfx.getFont();
 
         // clear out our frame graphics in case that became invalid for
         // the same reasons our back buffer became invalid
@@ -536,6 +536,15 @@ public class FrameManager
                 long start = 0L;
                 if (HANG_DEBUG) {
                     start = System.currentTimeMillis();
+                }
+
+                // if this frame participant is a performance provider,
+                // let the add their business to the performance status
+                if ((_perfStatus != null) &&
+                    (observer instanceof PerformanceProvider)) {
+                    _perfStatus.append(", ");
+                    ((PerformanceProvider)
+                     observer).getPerformanceStatus(_perfStatus);
                 }
 
                 ((FrameParticipant)observer).tick(_tickStamp);
@@ -651,63 +660,6 @@ public class FrameManager
         protected Rectangle _bounds = new Rectangle();
     }
 
-    /** The frame into which we do our rendering. */
-    protected Frame _frame;
-
-    /** Used to obtain timing measurements. */
-    protected MediaTimer _timer;
-
-    /** Our custom repaint manager. */
-    protected FrameRepaintManager _remgr;
-
-//     /** The buffer strategy used to do our rendering. */
-//     protected BufferStrategy _bufstrat;
-
-    /** The image used to render off-screen. */
-    protected VolatileImage _backimg;
-
-    /** The number of milliseconds per frame (14 by default, which gives
-     * an fps of ~71). */
-    protected long _millisPerFrame = 14;
-
-    /** Used to track big delays in calls to our tick method. */
-    protected long _lastTickStamp;
-
-    /** The timer that dispatches our frame ticks. */
-    protected Timer _ticker;
-
-    /** Used to track and report frames per second. */
-    protected float[] _fps = new float[2];
-
-    /** The graphics object from our back buffer. */
-    protected Graphics _bgfx;
-
-    /** The graphics object from our frame. */
-    protected Graphics _fgfx;
-
-    /** Used to avoid creating rectangles when rendering layered
-     * components. */
-    protected Rectangle _lbounds = new Rectangle();
-
-    /** Used to lazily set the clip when painting popups and other
-     * "layered" components. */
-    protected boolean[] _clipped = new boolean[1];
-
-    /** The font metrics used when rendering frames per second status. */
-    protected FontMetrics _fpsmetrics;
-
-    /** The frames per second status info string. */
-    protected String _fpsinfo = "";
-
-    /** The last frames per second information displayed. */
-    protected int _fpsatt = -1, _fpsach = -1;
-
-    /** The font used to render the frames per second status. */
-    protected Font _fpsfont = new Font("Arial", Font.PLAIN, 10);
-
-    /** Whether the frame rate display is enabled. */
-    protected boolean _displayFPS;
-
     /** Used to effect periodic calls to {@link #tick}. */
     protected TimerTask _callTick = new TimerTask () {
         public void run ()
@@ -765,6 +717,64 @@ public class FrameManager
         protected long _lastTick;
     };
 
+    /** The frame into which we do our rendering. */
+    protected Frame _frame;
+
+    /** Used to obtain timing measurements. */
+    protected MediaTimer _timer;
+
+    /** Our custom repaint manager. */
+    protected FrameRepaintManager _remgr;
+
+//     /** The buffer strategy used to do our rendering. */
+//     protected BufferStrategy _bufstrat;
+
+    /** The image used to render off-screen. */
+    protected VolatileImage _backimg;
+
+    /** The number of milliseconds per frame (14 by default, which gives
+     * an fps of ~71). */
+    protected long _millisPerFrame = 14;
+
+    /** Used to track big delays in calls to our tick method. */
+    protected long _lastTickStamp;
+
+    /** The timer that dispatches our frame ticks. */
+    protected Timer _ticker;
+
+    /** Used to track and report frames per second. */
+    protected float[] _fps = new float[2];
+
+    /** The graphics object from our back buffer. */
+    protected Graphics _bgfx;
+
+    /** The graphics object from our frame. */
+    protected Graphics _fgfx;
+
+    /** We try to preserve the font in between renders in case other
+     * things mess with it. */
+    protected Font _saveFont;
+
+    /** Used to avoid creating rectangles when rendering layered
+     * components. */
+    protected Rectangle _lbounds = new Rectangle();
+
+    /** Used to lazily set the clip when painting popups and other
+     * "layered" components. */
+    protected boolean[] _clipped = new boolean[1];
+
+    /** The label used to render peformance status. */
+    protected Label _perfLabel;
+
+    /** Used to build the performance status text. */
+    protected StringBuffer _perfStatus;
+
+    /** Used when reporting performance status. */
+    protected int _perfTicks;
+
+    /** Whether the performance status display is enabled. */
+    protected boolean _displayPerf;
+
     /** The entites that are ticked each frame. */
     protected ObserverList _participants =
         new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
@@ -796,9 +806,9 @@ public class FrameManager
     /** A debug hook that allows toggling the frame rate display. */
     protected DebugChords.Hook FPS_DISPLAY_HOOK = new DebugChords.Hook() {
         public void invoke () {
-            _displayFPS = !_displayFPS;
-            Log.info("Toggling frame rate display " +
-                     "[enabled=" + _displayFPS + "].");
+            _displayPerf = !_displayPerf;
+            Log.info((_displayPerf ? "Enabling" : "Disabling") +
+                     " performance status display.");
         }
     };
 
