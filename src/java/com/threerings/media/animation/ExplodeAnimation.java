@@ -1,9 +1,11 @@
 //
-// $Id: ExplodeAnimation.java,v 1.9 2002/05/09 04:42:10 shaper Exp $
+// $Id: ExplodeAnimation.java,v 1.10 2002/07/31 23:33:46 shaper Exp $
 
 package com.threerings.media.animation;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
@@ -11,13 +13,14 @@ import java.awt.Shape;
 
 import com.samskivert.util.StringUtil;
 
+import com.threerings.media.Log;
 import com.threerings.util.RandomUtil;
 
-import com.threerings.media.Log;
-
 /**
- * An animation that displays an object exploding into chunks.  The
- * animation ends when all chunks have exited the animation bounds.
+ * An animation that displays an object exploding into chunks, fading out
+ * as they fly apart.  The animation ends when all chunks have exited the
+ * animation bounds, or when the given delay time (if any is specified)
+ * has elapsed.
  */
 public class ExplodeAnimation extends Animation
 {
@@ -155,6 +158,12 @@ public class ExplodeAnimation extends Animation
         // figure out the distance the chunks have travelled
         long msecs = timestamp - _start;
 
+        if (_info.delay != -1) {
+            // calculate the alpha level with which to render the chunks
+            float pctdone = msecs / (float)_info.delay;
+            _alpha = Math.max(0.1f, Math.min(1.0f, 1.0f - pctdone));
+        }
+
         // move all chunks and check whether any remain to be animated
         int inside = 0;
         for (int ii = 0; ii < _chunkcount; ii++) {
@@ -194,6 +203,15 @@ public class ExplodeAnimation extends Animation
     public void paint (Graphics2D gfx)
     {
         Shape oclip = gfx.getClip();
+        Composite ocomp = null;
+
+        if (_info.delay != -1) {
+            // set the alpha composite to reflect the current fade-out
+            ocomp = gfx.getComposite();
+            gfx.setComposite(
+                AlphaComposite.getInstance(AlphaComposite.SRC_OVER, _alpha));
+        }
+
         for (int ii = 0; ii < _chunkcount; ii++) {
             // get the chunk location on-screen
             int x = _cpos[ii] >> 16;
@@ -229,6 +247,11 @@ public class ExplodeAnimation extends Animation
             gfx.rotate(-_angle);
             gfx.translate(-tx, -ty);
             gfx.setClip(oclip);
+        }
+
+        if (_info.delay != -1) {
+            // restore the original composite
+            gfx.setComposite(ocomp);
         }
     }
 
@@ -283,4 +306,7 @@ public class ExplodeAnimation extends Animation
 
     /** The starting animation time. */
     protected long _start;
+
+    /** The percent alpha with which to render the chunks. */
+    protected float _alpha;
 }
