@@ -1,5 +1,5 @@
 //
-// $Id: RegionManager.java,v 1.7 2002/10/30 00:26:53 mdb Exp $
+// $Id: RegionManager.java,v 1.8 2002/11/07 21:45:20 mdb Exp $
 
 package com.threerings.media;
 
@@ -47,6 +47,17 @@ public class RegionManager
      */
     public void addDirtyRegion (Rectangle rect)
     {
+        // make sure we're on what we believe to be the AWT thread
+        Thread current = Thread.currentThread();
+        if (_awtThread == null) {
+            // grab the first thread we see and call it the AWT
+            _awtThread = current;
+        } else if (_awtThread != current) {
+            Log.warning("Oi! Region dirtied from non-AWT thread " +
+                        "[rect=" + rect + "].");
+            Thread.dumpStack();
+        }
+
         // sanity check
         if (rect == null) {
             Log.warning("Attempt to dirty a null rect!?");
@@ -98,7 +109,7 @@ public class RegionManager
     {
         ArrayList merged = new ArrayList();
 
-        for (int ii=_dirty.size() - 1; ii >= 0; ii--) {
+        for (int ii = _dirty.size() - 1; ii >= 0; ii--) {
             // pop the next rectangle from the dirty list
             Rectangle mr = (Rectangle)_dirty.remove(ii);
 
@@ -125,4 +136,7 @@ public class RegionManager
 
     /** A list of dirty rectangles. */
     protected ArrayList _dirty = new ArrayList();
+
+    /** Used for debugging thread sketchiness. */
+    protected Thread _awtThread;
 }
