@@ -1,8 +1,11 @@
 //
-// $Id: ScrollingScene.java,v 1.6 2002/04/27 04:57:37 mdb Exp $
+// $Id: ScrollingScene.java,v 1.7 2002/04/27 23:07:58 mdb Exp $
 
 package com.threerings.miso.scene;
 
+import java.awt.Point;
+
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -68,13 +71,19 @@ public class ScrollingScene implements DisplayMisoScene
     }
 
     // documentation inherited from interface
-    public ObjectTile getObjectTile (int x, int y)
+    public Iterator getObjectTiles ()
+    {
+        return Collections.EMPTY_LIST.iterator();
+    }
+
+    // documentation inherited from interface
+    public Point getObjectCoords (ObjectTile tile)
     {
         return null;
     }
 
     // documentation inherited from interface
-    public String getObjectAction (int column, int row)
+    public String getObjectAction (ObjectTile tile)
     {
         return null;
     }
