@@ -1,5 +1,5 @@
 //
-// $Id: SwissArmyTileSet.java,v 1.5 2001/12/07 01:33:29 mdb Exp $
+// $Id: SwissArmyTileSet.java,v 1.6 2002/01/17 23:43:14 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -132,6 +132,8 @@ public class SwissArmyTileSet extends TileSet
     {
         Image tsimg = getTilesetImage();
         if (tsimg == null) {
+            // FIXME: we should really be returning a blank image of the
+            // appropriate width and height here rather than null
             return null;
         }
 
