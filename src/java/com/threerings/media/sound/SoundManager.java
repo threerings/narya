@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.34 2002/11/27 21:41:53 ray Exp $
+// $Id: SoundManager.java,v 1.35 2002/11/29 21:22:46 ray Exp $
 
 package com.threerings.media;
 
@@ -881,7 +881,10 @@ public class SoundManager
             // instances of longer sounds reporting that they're not active
             // while they're still playing, and so the next sound
             // is significantly delayed. That sucks.
-            //if (_line.isActive()) {
+            //
+            // Nov 29: drain() definitely hoses things.
+            // Mike just had 14 threads stuck in drain(). Back off.
+            if (_line.isActive()) {
 //                Log.info("Waiting for drain (" + hashCode() + ", active=" +
 //                    _line.isActive() + ", running=" + _line.isRunning()+
 //                    ") : " + incDrainers());
@@ -890,7 +893,7 @@ public class SoundManager
                 _line.drain();
 
 //                Log.info("drained: (" + hashCode() + ") :" + decDrainers());
-            //}
+            }
 
             // clear it out so that we can wait for more.
             _stream = null;
