@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.29 2002/04/09 17:02:50 ray Exp $
+// $Id: IsoUtil.java,v 1.30 2002/04/16 17:20:09 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -281,6 +281,42 @@ public class IsoUtil
                 return NORTH;
             }
             return (by < ay) ? NORTHEAST : NORTHWEST;
+        }
+    }
+
+    /**
+     * Given two points in screen (cartesian) coordinates, return the
+     * isometrically projected compass direction that point B lies in from
+     * point A.
+     *
+     * @param ax the x-position of point A.
+     * @param ay the y-position of point A.
+     * @param bx the x-position of point B.
+     * @param by the y-position of point B.
+     *
+     * @return the direction specified as one of the <code>Sprite</code>
+     * class's direction constants, or <code>DirectionCodes.NONE</code> if
+     * point B is equivalent to point A.
+     */
+    public static int getProjectedIsoDirection (int ax, int ay, int bx, int by)
+    {
+        if (bx > ax) {
+            if (by == ay) {
+                return SOUTHEAST;
+            }
+            return (by < ay) ? EAST : SOUTH;
+
+        } else if (bx == ax) {
+            if (by == ay) {
+                return DirectionCodes.NONE;
+            }
+            return (by < ay) ? NORTHEAST : SOUTHWEST;
+
+        } else {  // bx < ax
+            if (by == ay) {
+                return NORTHWEST;
+            }
+            return (by < ay) ? NORTH : WEST;
         }
     }
 
