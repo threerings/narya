@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.49 2003/04/28 17:38:06 mdb Exp $
+// $Id: TileSet.java,v 1.50 2003/05/02 23:32:10 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -201,40 +201,6 @@ public abstract class TileSet
     }
 
     /**
-     * Returns colorizations for the specified tile image. The default is
-     * to return any colorizations associated with the tileset via a call
-     * to {@link #clone(Colorization[])}, however derived classes may have
-     * dynamic colorization policies that look up colorization assignments
-     * from the supplied colorizer.
-     */
-    protected Colorization[] getColorizations (int tileIndex, Colorizer rizer)
-    {
-        return _zations;
-    }
-
-    /**
-     * Returns the entire, raw, uncut, unprepared tileset source image.
-     */
-    public BufferedImage getTileSetImage ()
-    {
-        return _improv.getTileSetImage(_imagePath, _zations);
-    }
-
-    /**
-     * Returns the raw (unprepared) image that would be used by the tile
-     * at the specified index.
-     */
-    public BufferedImage getTileImage (int tileIndex)
-        throws NoSuchTileException
-    {
-        checkTileIndex(tileIndex);
-        Rectangle bounds = computeTileBounds(tileIndex);
-        BufferedImage timg = getTileSetImage();
-        return timg.getSubimage(bounds.x, bounds.y,
-                                bounds.width, bounds.height);
-    }
-
-    /**
      * Returns a prepared version of the image that would be used by the
      * tile at the specified index. Because tilesets are often used simply
      * to provide access to a collection of uniform images, this method is
@@ -264,6 +230,47 @@ public abstract class TileSet
                         "[path=" + _imagePath + "].");
         }
         return _improv.getTileImage(_imagePath, bounds, zations);
+    }
+
+    /**
+     * Returns the entire, raw, uncut, unprepared tileset source image.
+     * Don't use this method unless you know what you're doing! This image
+     * should not be rendered directly to the screen, you should obtain a
+     * tile ({@link #getTile}), or a tile mirage ({@link #getTileMirage}).
+     */
+    public BufferedImage getRawTileSetImage ()
+    {
+        return _improv.getTileSetImage(_imagePath, _zations);
+    }
+
+    /**
+     * Returns the raw (unprepared) image that would be used by the tile
+     * at the specified index. Don't use this method unless you know what
+     * you're doing! If you're going to be painting this image onto the
+     * screen directly, use {@link #getTileMirage} because that prepares
+     * the image for display. Only use this if you're going to do further
+     * processing and prepare the subsequent image for display onscreen.
+     */
+    public BufferedImage getRawTileImage (int tileIndex)
+        throws NoSuchTileException
+    {
+        checkTileIndex(tileIndex);
+        Rectangle bounds = computeTileBounds(tileIndex);
+        BufferedImage timg = getRawTileSetImage();
+        return timg.getSubimage(bounds.x, bounds.y,
+                                bounds.width, bounds.height);
+    }
+
+    /**
+     * Returns colorizations for the specified tile image. The default is
+     * to return any colorizations associated with the tileset via a call
+     * to {@link #clone(Colorization[])}, however derived classes may have
+     * dynamic colorization policies that look up colorization assignments
+     * from the supplied colorizer.
+     */
+    protected Colorization[] getColorizations (int tileIndex, Colorizer rizer)
+    {
+        return _zations;
     }
 
     /**
