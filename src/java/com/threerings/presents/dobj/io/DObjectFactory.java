@@ -1,5 +1,5 @@
 //
-// $Id: DObjectFactory.java,v 1.8 2001/10/11 04:07:52 mdb Exp $
+// $Id: DObjectFactory.java,v 1.9 2001/10/16 16:44:20 mdb Exp $
 
 package com.threerings.presents.dobj.io;
 
@@ -59,8 +59,8 @@ public class DObjectFactory
             return dobj;
 
         } catch (Exception e) {
-            String errmsg = "Unable to unserialize dobj: " + e;
-            throw new ObjectStreamException(errmsg);
+            String errmsg = "Failure unserializing dobj";
+            throw new ObjectStreamException(errmsg, e);
         }
     }
 

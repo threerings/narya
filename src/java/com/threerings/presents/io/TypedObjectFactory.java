@@ -1,5 +1,5 @@
 //
-// $Id: TypedObjectFactory.java,v 1.7 2001/10/11 04:07:52 mdb Exp $
+// $Id: TypedObjectFactory.java,v 1.8 2001/10/16 16:44:20 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -86,13 +86,9 @@ public class TypedObjectFactory
         try {
             return (TypedObject)clazz.newInstance();
         } catch (Throwable t) {
-            Log.warning("Typed object error: " + t);
-            Log.logStackTrace(t);
-
             String errmsg = "Unable to instantiate typed object " +
-                "[class=" + clazz.getName() +
-                ", error=" + t.getMessage() + "].";
-            throw new ObjectStreamException(errmsg);
+                "[class=" + clazz.getName() + "]";
+            throw new ObjectStreamException(errmsg, t);
         }
     }
 
