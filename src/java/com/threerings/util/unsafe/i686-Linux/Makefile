@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.2 2004/10/20 03:27:22 mdb Exp $
+# $Id: Makefile,v 1.3 2004/10/20 03:30:47 mdb Exp $
 
 #
 # Executable definitions
@@ -41,5 +41,4 @@ ${TARGET}: com_threerings_util_unsafe_Unsafe.c
 	    ${LIBRARIES} ${LIBRARIES_PATH} -shared
 
 clean:
-	-${RM} *.o
-	-${RM} ${TARGET}
+	-${RM} -f *.o ${TARGET}

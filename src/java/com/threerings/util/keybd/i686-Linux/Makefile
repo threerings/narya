@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.6 2004/10/20 03:28:48 mdb Exp $
+# $Id: Makefile,v 1.7 2004/10/20 03:30:46 mdb Exp $
 
 #
 # Executable definitions
@@ -41,5 +41,4 @@ ${TARGET}: com_threerings_util_keybd_Keyboard.c
 	    ${LIBRARIES} ${LIBRARIES_PATH} -shared
 
 clean:
-	-${RM} *.o
-	-${RM} ${TARGET}
+	-${RM} -f *.o ${TARGET}
