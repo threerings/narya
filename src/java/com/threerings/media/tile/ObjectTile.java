@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTile.java,v 1.4 2001/11/18 04:09:21 mdb Exp $
+// $Id: ObjectTile.java,v 1.5 2001/12/18 08:37:54 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -49,19 +49,48 @@ public class ObjectTile extends Tile
     }
 
     /**
-     * Sets the object footprint width in tile units.
+     * Sets the object footprint in tile units.
      */
-    public void setBaseWidth (int baseWidth)
+    public void setBase (int width, int height)
     {
-        _baseWidth = baseWidth;
+        _baseWidth = width;
+        _baseHeight = height;
     }
 
     /**
-     * Sets the object footprint height in tile units.
+     * Returns the x offset into the tile image of the origin (which will
+     * be aligned with the bottom center of the origin tile) or -1 if the
+     * origin is not explicitly specified and should be computed from the
+     * image size and tile footprint.
      */
-    public void setBaseHeight (int baseHeight)
+    public int getOriginX ()
     {
-        _baseHeight = baseHeight;
+        return _originX;
+    }
+
+    /**
+     * Returns the y offset into the tile image of the origin (which will
+     * be aligned with the bottom center of the origin tile) or -1 if the
+     * origin is not explicitly specified and should be computed from the
+     * image size and tile footprint.
+     */
+    public int getOriginY ()
+    {
+        return _originY;
+    }
+
+    /**
+     * Sets the offset in pixels to the origin in the tile image. The
+     * object will be rendered such that its origin is at the bottom
+     * center of its origin tile. If no origin is specified, the bottom of
+     * the image is aligned with the bottom of the origin tile and the
+     * left side of the image is aligned with the left edge of the
+     * left-most base tile.
+     */
+    public void setOrigin (int x, int y)
+    {
+        _originX = x;
+        _originY = y;
     }
 
     // documentation inherited
@@ -70,8 +99,21 @@ public class ObjectTile extends Tile
         super.toString(buf);
         buf.append(", baseWidth=").append(_baseWidth);
         buf.append(", baseHeight=").append(_baseHeight);
+        buf.append(", originX=").append(_originX);
+        buf.append(", originY=").append(_originY);
     }
 
-    /** The object footprint dimensions in unit tile units. */
-    protected int _baseWidth, _baseHeight;
+    /** The object footprint width in unit tile units. */
+    protected int _baseWidth = 1;
+
+    /** The object footprint height in unit tile units. */
+    protected int _baseHeight = 1;
+
+    /** The x offset into the tile image of the origin or -1 if the origin
+     * should be calculated based on the footprint. */
+    protected int _originX = -1;
+
+    /** The y offset into the tile image of the origin or -1 if the origin
+     * should be calculated based on the footprint. */
+    protected int _originY = -1;
 }

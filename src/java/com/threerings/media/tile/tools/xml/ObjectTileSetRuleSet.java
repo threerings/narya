@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSetRuleSet.java,v 1.2 2001/11/29 22:10:28 mdb Exp $
+// $Id: ObjectTileSetRuleSet.java,v 1.3 2001/12/18 08:37:54 mdb Exp $
 
 package com.threerings.media.tools.tile.xml;
 
@@ -63,6 +63,26 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
                 {
                     int[] heights = StringUtil.parseIntArray(bodyText);
                     ((ObjectTileSet)target).setObjectHeights(heights);
+                }
+            });
+
+        digester.addRule(
+            _prefix + TILESET_PATH + "/xOrigins",
+            new CallMethodSpecialRule(digester) {
+                public void parseAndSet (String bodyText, Object target)
+                {
+                    int[] xorigins = StringUtil.parseIntArray(bodyText);
+                    ((ObjectTileSet)target).setXOrigins(xorigins);
+                }
+            });
+
+        digester.addRule(
+            _prefix + TILESET_PATH + "/yOrigins",
+            new CallMethodSpecialRule(digester) {
+                public void parseAndSet (String bodyText, Object target)
+                {
+                    int[] yorigins = StringUtil.parseIntArray(bodyText);
+                    ((ObjectTileSet)target).setYOrigins(yorigins);
                 }
             });
     }

@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSet.java,v 1.5 2001/11/29 23:07:12 mdb Exp $
+// $Id: ObjectTileSet.java,v 1.6 2001/12/18 08:37:54 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -18,29 +18,6 @@ import com.threerings.media.ImageManager;
  */
 public class ObjectTileSet extends SwissArmyTileSet
 {
-    /**
-     * Adds object data for the tile at the specified index.
-     *
-     * @param tileIndex the tile for which we are adding object data.
-     * @param objWidth the width of the object in tile units.
-     * @param objHeight the height of the object in tile units.
-     */
-    public void addObjectData (int tileIndex, int objWidth, int objHeight)
-    {
-        // create our objects arrays if we've not already got them
-        if (_owidths == null) {
-            _owidths = new int[getTileCount()];
-            _oheights = new int[_owidths.length];
-            // initialize the default tile dimensions to one unit
-            Arrays.fill(_owidths, 1);
-            Arrays.fill(_oheights, 1);
-        }
-
-        // now fill in the appropriate slot
-        _owidths[tileIndex] = objWidth;
-        _oheights[tileIndex] = objHeight;
-    }
-
     /**
      * Sets the widths (in unit tile count) of the objects in this
      * tileset. This must be accompanied by a call to {@link
@@ -61,12 +38,30 @@ public class ObjectTileSet extends SwissArmyTileSet
         _oheights = objectHeights;
     }
 
+    /**
+     * Sets the x offset in pixels to the image origin.
+     */
+    public void setXOrigins (int[] xorigins)
+    {
+        _xorigins = xorigins;
+    }
+
+    /**
+     * Sets the y offset in pixels to the image origin.
+     */
+    public void setYOrigins (int[] yorigins)
+    {
+        _yorigins = yorigins;
+    }
+
     // documentation inherited
     protected void toString (StringBuffer buf)
     {
         super.toString(buf);
 	buf.append(", owidths=").append(StringUtil.toString(_owidths));
 	buf.append(", oheights=").append(StringUtil.toString(_oheights));
+	buf.append(", xorigins=").append(StringUtil.toString(_xorigins));
+	buf.append(", yorigins=").append(StringUtil.toString(_yorigins));
     }
 
     /**
@@ -84,7 +79,14 @@ public class ObjectTileSet extends SwissArmyTileSet
             hei = _oheights[tileIndex];
         }
 
-        return new ObjectTile(image, wid, hei);
+        ObjectTile tile = new ObjectTile(image, wid, hei);
+
+        if (_xorigins != null) {
+            tile.setOrigin(_xorigins[tileIndex], _yorigins[tileIndex]);
+        }
+
+        return tile;
+            
     }
 
     /** The width (in tile units) of our object tiles. */
@@ -92,4 +94,10 @@ public class ObjectTileSet extends SwissArmyTileSet
 
     /** The height (in tile units) of our object tiles. */
     protected int[] _oheights;
+
+    /** The x offset in pixels to the origin of the tile images. */
+    protected int[] _xorigins;
+
+    /** The y offset in pixels to the origin of the tile images. */
+    protected int[] _yorigins;
 }
