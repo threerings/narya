@@ -18,3 +18,5 @@ that lobbies can be created/destroyed on the fly.
 Sort out a different way for lobbies to get configuration information than
 being passed a properties file that was extracted from the server
 configuration. We'll want inheritance and all that.
+
+Make sure chat box remains focused for games where that's feasible...
