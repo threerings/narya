@@ -1,5 +1,5 @@
 //
-// $Id: LinePath.java,v 1.9 2002/06/18 22:25:33 mdb Exp $
+// $Id: LinePath.java,v 1.10 2002/09/17 03:59:05 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -11,13 +11,12 @@ import java.awt.Point;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.Log;
-import com.threerings.media.util.MathUtil;
 
 /**
  * The line path is used to cause a pathable to go from point A to point B
  * in a certain number of milliseconds.
  */
-public class LinePath implements Path
+public class LinePath extends TimedPath
 {
     /**
      * Constructs a line path between the two specified points that will
@@ -34,29 +33,9 @@ public class LinePath implements Path
      */
     public LinePath (Point source, Point dest, long duration)
     {
-        // sanity check some things
-        if (duration <= 0) {
-            String errmsg = "Requested path with illegal duration (<=0) " +
-                "[duration=" + duration + "]";
-            throw new IllegalArgumentException(errmsg);
-        }
-
+        super(duration);
         _source = source;
         _dest = dest;
-        _duration = duration;
-    }
-
-    // documentation inherited
-    public void init (Pathable pable, long timestamp)
-    {
-        // give the pable a chance to perform any starting antics
-        pable.pathBeginning();
-
-        // make a note of when we started
-        _startStamp = timestamp;
-
-        // update our position to the start of the path
-        tick(pable, timestamp);
     }
 
     // documentation inherited
@@ -84,12 +63,6 @@ public class LinePath implements Path
     }
 
     // documentation inherited
-    public void fastForward (long timeDelta)
-    {
-        _startStamp += timeDelta;
-    }
-
-    // documentation inherited
     public void paint (Graphics2D gfx)
     {
 	gfx.setColor(Color.red);
@@ -97,11 +70,11 @@ public class LinePath implements Path
     }
 
     // documentation inherited
-    public String toString ()
+    protected void toString (StringBuffer buf)
     {
-        return "[src=" + StringUtil.toString(_source) +
-            ", dest=" + StringUtil.toString(_dest) +
-            ", duration=" + _duration + "ms]";
+        super.toString(buf);
+        buf.append(", src=").append(StringUtil.toString(_source));
+        buf.append(", dest=").append(StringUtil.toString(_dest));
     }
 
     /**
@@ -125,10 +98,4 @@ public class LinePath implements Path
     /** A temporary point used when computing our position along the
      * path. */
     protected Point _tpos = new Point();
-
-    /** The time at which we started along the path. */
-    protected long _startStamp;
-
-    /** The duration that we're to spend following the path. */
-    protected long _duration;
 }
