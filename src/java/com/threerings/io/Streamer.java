@@ -1,9 +1,10 @@
 //
-// $Id: Streamer.java,v 1.2 2002/12/02 22:10:10 mdb Exp $
+// $Id: Streamer.java,v 1.3 2002/12/20 23:27:12 mdb Exp $
 
 package com.threerings.io;
 
 import java.lang.NoSuchMethodException;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -340,34 +341,18 @@ public class Streamer
             return;
         }
 
-        // reflect on all the public fields
-        Field[] fields = target.getFields();
+        // reflect on all the object's fields
         ArrayList flist = new ArrayList();
-        int fcount = fields.length;
-        for (int ii = 0; ii < fcount; ii++) {
-            Field field = fields[ii];
-            int mods = field.getModifiers();
-            // skip static, transient and non-public fields
-            if (((mods & Modifier.STATIC) != 0) ||
-                ((mods & Modifier.PUBLIC) == 0) ||
-                ((mods & Modifier.TRANSIENT) != 0)) {
-                continue;
-            }
-            // otherwise add the field to the list
-            flist.add(field);
-        }
-
-        // convert the list of fields into an array
-        fcount = flist.size();
-        _fields = new Field[fcount];
-        flist.toArray(_fields);
+        getFields(target, flist);
+        int fcount = flist.size();
+        _fields = (Field[])flist.toArray(new Field[fcount]);
 
         // obtain field marshallers for all of our fields
         _marshallers = new FieldMarshaller[fcount];
         for (int ii = 0; ii < fcount; ii++) {
             _marshallers[ii] = FieldMarshaller.getFieldMarshaller(_fields[ii]);
 //             Log.info("Using " + _marshallers[ii] + " for " +
-//                      _fields[ii].getName() + ".");
+//                      _target.getName() + "." + _fields[ii].getName() + ".");
         }
 
         // look up the reader and writer methods
@@ -380,6 +365,37 @@ public class Streamer
             _writer = target.getMethod(WRITER_METHOD_NAME, WRITER_ARGS);
         } catch (NoSuchMethodException nsme) {
             // nothing to worry about, we just don't have one
+        }
+    }
+
+    /**
+     * Obtains all non-transient, non-static fields of the specified class
+     * and its parent classes.
+     */
+    protected void getFields (Class clazz, ArrayList flist)
+    {
+        // first reflect on our parent's fields if it has such
+        Class pclazz = clazz.getSuperclass();
+        if (!pclazz.equals(Object.class)) {
+            getFields(pclazz, flist);
+        }
+
+        // then reflect on our own declared fields
+        Field[] fields = clazz.getDeclaredFields();
+
+        // override the default accessibility check for the fields
+        AccessibleObject.setAccessible(fields, true);
+
+        int fcount = fields.length;
+        for (int ii = 0; ii < fcount; ii++) {
+            Field field = fields[ii];
+            int mods = field.getModifiers();
+            // skip static and transient fields
+            if (((mods & Modifier.STATIC) != 0) ||
+                ((mods & Modifier.TRANSIENT) != 0)) {
+                continue;
+            }
+            flist.add(field);
         }
     }
 
