@@ -1,5 +1,5 @@
 //
-// $Id: CompoundEvent.java,v 1.2 2002/02/21 00:59:29 mdb Exp $
+// $Id: CompoundEvent.java,v 1.3 2002/03/20 03:29:21 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -91,6 +91,19 @@ public class CompoundEvent extends TypedEvent
         clearParticipants();
         // clear our event queue in case someone holds onto us
         _events.clear();
+    }
+
+    /**
+     * We need to propagate our source oid to our constituent events.
+     */
+    public void setSourceOid (int sourceOid)
+    {
+        super.setSourceOid(sourceOid);
+
+        int ecount = _events.size();
+        for (int i = 0; i < ecount; i++) {
+            ((DEvent)_events.get(i)).setSourceOid(sourceOid);
+        }
     }
 
     /**
