@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.20 2002/05/17 19:06:23 ray Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.21 2002/09/12 21:10:31 mdb Exp $
 
 package com.threerings.miso.scene.tools;
 
@@ -38,12 +38,8 @@ public class EditableMisoSceneImpl
      *
      * @param model the scene data that we'll be displaying.
      * @param tmgr the tile manager from which to load our tiles.
-     *
-     * @exception NoSuchTileException thrown if the model references a
-     * tile which is not available via the supplied tile manager.
      */
     public EditableMisoSceneImpl (MisoSceneModel model, MisoTileManager tmgr)
-        throws NoSuchTileException, NoSuchTileSetException
     {
         super(model, tmgr);
     }

@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.58 2002/05/17 19:06:23 ray Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.59 2002/09/12 21:10:31 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -15,6 +15,7 @@ import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
+import com.threerings.media.tile.TileException;
 import com.threerings.media.tile.TileLayer;
 
 import com.threerings.miso.Log;
@@ -36,12 +37,8 @@ public class DisplayMisoSceneImpl
      *
      * @param model the scene data that we'll be displaying.
      * @param tmgr the tile manager from which to load our tiles.
-     *
-     * @exception NoSuchTileException thrown if the model references a
-     * tile which is not available via the supplied tile manager.
      */
     public DisplayMisoSceneImpl (MisoSceneModel model, MisoTileManager tmgr)
-        throws NoSuchTileException, NoSuchTileSetException
     {
         this(model);
         setTileManager(tmgr);
@@ -54,9 +51,6 @@ public class DisplayMisoSceneImpl
      * #setTileManager}.
      *
      * @param model the scene data that we'll be displaying.
-     *
-     * @exception NoSuchTileException thrown if the model references a
-     * tile which is not available via the supplied tile manager.
      */
     public DisplayMisoSceneImpl (MisoSceneModel model)
     {
@@ -84,12 +78,8 @@ public class DisplayMisoSceneImpl
     /**
      * Provides this display miso scene with a tile manager from which it
      * can load up all of its tiles.
-     *
-     * @exception NoSuchTileException thrown if the model references a
-     * tile which is not available via the supplied tile manager.
      */
     public void setTileManager (MisoTileManager tmgr)
-        throws NoSuchTileException, NoSuchTileSetException
     {
         _tmgr = tmgr;
         _fringer = tmgr.getAutoFringer();
@@ -98,12 +88,8 @@ public class DisplayMisoSceneImpl
 
     /**
      * Populates the tile layers with tiles from the tile manager.
-     *
-     * @exception NoSuchTileException thrown if the model references a
-     * tile which is not available via the supplied tile manager.
      */
     protected void populateLayers ()
-        throws NoSuchTileException, NoSuchTileSetException
     {
         int swid = _base.getWidth();
         int shei = _base.getHeight();
@@ -127,8 +113,16 @@ public class DisplayMisoSceneImpl
                     // map to a base tile as provided by the repository,
                     // so we just cast it to a base tile and know that all
                     // is well
-                    BaseTile mtile = (BaseTile)_tmgr.getTile(tsid, tid);
-                    _base.setTile(column, row, mtile);
+                    try {
+                        BaseTile mtile = (BaseTile)_tmgr.getTile(tsid, tid);
+                        _base.setTile(column, row, mtile);
+                    } catch (NoSuchTileSetException nste) {
+                        Log.warning("Scene contains non-existent tileset " +
+                                    "[tsid=" + tsid + ", tid=" + tid + "].");
+                    } catch (NoSuchTileException nste) {
+                        Log.warning("Scene contains non-existent tile " +
+                                    "[tsid=" + tsid + ", tid=" + tid + "].");
+                    }
                 }
             }
         }
@@ -148,7 +142,14 @@ public class DisplayMisoSceneImpl
             int fqTid = _model.objectTileIds[ii+2];
             int tsid = (fqTid >> 16) & 0xFFFF;
             int tid = (fqTid & 0xFFFF);
-            expandObject(col, row, tsid, tid, fqTid, action);
+            try {
+                expandObject(col, row, tsid, tid, fqTid, action);
+            } catch (TileException te) {
+                Log.warning("Scene contains non-existent object tile " +
+                            "[tsid=" + tsid + ", tid=" + tid +
+                            ", col=" + col + ", row=" + row +
+                            ", action=" + action + "].");
+            }
         }
     }
 
