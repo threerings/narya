@@ -1,10 +1,10 @@
 //
-// $Id: TestProvider.java,v 1.9 2001/11/08 02:07:36 mdb Exp $
+// $Id: TestProvider.java,v 1.10 2001/11/08 02:57:03 mdb Exp $
 
 package com.threerings.presents.server;
 
 import com.threerings.presents.Log;
-import com.threerings.presents.client.test.TestService;
+import com.threerings.presents.client.TestService;
 import com.threerings.presents.data.ClientObject;
 
 /**

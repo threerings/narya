@@ -1,5 +1,5 @@
 //
-// $Id: DummyClientSceneRepository.java,v 1.3 2001/11/08 02:07:36 mdb Exp $
+// $Id: DummyClientSceneRepository.java,v 1.4 2001/11/08 02:57:14 mdb Exp $
 
 package com.threerings.whirled;
 
@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.client.persist.SceneRepository;
+import com.threerings.whirled.data.DummyScene;
 import com.threerings.whirled.data.Scene;
 import com.threerings.whirled.util.NoSuchSceneException;
 
