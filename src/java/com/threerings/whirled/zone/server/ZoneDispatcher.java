@@ -1,5 +1,5 @@
 //
-// $Id: ZoneDispatcher.java,v 1.3 2003/02/12 07:23:32 mdb Exp $
+// $Id: ZoneDispatcher.java,v 1.4 2003/03/26 01:35:41 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -53,6 +53,4 @@ public class ZoneDispatcher extends InvocationDispatcher
             super.dispatchRequest(source, methodId, args);
         }
     }
-
-    // Generated on 15:03:19 02/08/03.
 }

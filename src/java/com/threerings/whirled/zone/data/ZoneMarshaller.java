@@ -1,5 +1,5 @@
 //
-// $Id: ZoneMarshaller.java,v 1.3 2003/02/12 07:23:32 mdb Exp $
+// $Id: ZoneMarshaller.java,v 1.4 2003/03/26 01:35:41 mdb Exp $
 
 package com.threerings.whirled.zone.data;
 
@@ -101,5 +101,4 @@ public class ZoneMarshaller extends InvocationMarshaller
         });
     }
 
-    // Generated on 15:03:19 02/08/03.
 }
