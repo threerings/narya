@@ -1,5 +1,5 @@
 //
-// $Id: SceneManager.java,v 1.15 2004/02/25 14:50:28 mdb Exp $
+// $Id: SceneManager.java,v 1.16 2004/05/19 22:04:45 ray Exp $
 
 package com.threerings.whirled.server;
 
@@ -86,8 +86,13 @@ public class SceneManager extends PlaceManager
     {
         super.didStartup();
 
-        // let the scene registry know that we're up and running
-        _screg.sceneManagerDidStart(this);
+        // Wait until us and all of our subclasses have completely finished
+        // running didStartup prior to registering the scene as being ready.
+        PresentsServer.omgr.postUnit(new Runnable() {
+            public void run () {
+                _screg.sceneManagerDidStart(SceneManager.this);
+            }
+        });
     }
 
     /**
