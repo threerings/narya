@@ -1,5 +1,5 @@
 //
-// $Id: DEventUtil.java,v 1.1 2001/06/01 19:56:13 mdb Exp $
+// $Id: DEventUtil.java,v 1.2 2001/06/01 20:35:39 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -56,7 +56,7 @@ public class DEventUtil
     protected static String setterName (String name)
     {
         StringBuffer sname = new StringBuffer();
-        sname.append("get");
+        sname.append("set");
         sname.append(Character.toUpperCase(name.charAt(0)));
         sname.append(name.substring(1));
         return sname.toString();

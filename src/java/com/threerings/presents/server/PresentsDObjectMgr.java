@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.1 2001/06/01 19:56:13 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.2 2001/06/01 20:35:39 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -24,6 +24,18 @@ import com.threerings.cocktail.cher.util.IntMap;
  */
 public class CherDObjectMgr implements DObjectManager
 {
+    /**
+     * Creates the dobjmgr and prepares it for operation.
+     */
+    public CherDObjectMgr ()
+    {
+        // we create a dummy object to live as oid zero and we'll use that
+        // for some internal event trickery
+        DObject dummy = new DObject();
+        dummy.init(0, this);
+        _objects.put(0, new DObject());
+    }
+
     // inherit documentation from the interface
     public void createObject (Class dclass, Subscriber target,
                               boolean subscribe)
@@ -51,18 +63,6 @@ public class CherDObjectMgr implements DObjectManager
     {
         // just append it to the queue
         _evqueue.append(event);
-    }
-
-    /**
-     * Initializes the dobjmgr and prepares it for operation.
-     */
-    public void init ()
-    {
-        // we create a dummy object to live as oid zero and we'll use that
-        // for some internal event trickery
-        DObject dummy = new DObject();
-        dummy.init(0, this);
-        _objects.put(0, new DObject());
     }
 
     /**
@@ -104,6 +104,7 @@ public class CherDObjectMgr implements DObjectManager
             } catch (Exception e) {
                 Log.warning("Failure applying event [event=" + event +
                             ", target=" + target + ", error=" + e + "].");
+                Log.logStackTrace(e);
                 continue;
             }
 
@@ -128,9 +129,10 @@ public class CherDObjectMgr implements DObjectManager
     public void shutdown ()
     {
         _running = false;
+
         // stick a bogus object on the event queue to ensure that the mgr
         // wakes up and smells the coffee
-        _evqueue.append(this);
+        _evqueue.append(new ShutdownEvent());
     }
 
     protected synchronized boolean isRunning ()
@@ -268,5 +270,20 @@ public class CherDObjectMgr implements DObjectManager
         protected int _oid;
         protected Subscriber _target;
         protected boolean _subscribe;
+    }
+
+    protected class ShutdownEvent extends DEvent
+    {
+        public ShutdownEvent ()
+        {
+            super(0); // target the bogus object
+        }
+
+        public boolean applyToObject (DObject target)
+            throws ObjectAccessException
+        {
+            // nothing doing!
+            return false;
+        }
     }
 }

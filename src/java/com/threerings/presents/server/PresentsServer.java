@@ -1,9 +1,10 @@
 //
-// $Id: PresentsServer.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
+// $Id: PresentsServer.java,v 1.3 2001/06/01 20:35:39 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
 import com.threerings.cocktail.cher.Log;
+import com.threerings.cocktail.cher.dobj.DObjectManager;
 import com.threerings.cocktail.cher.server.net.AuthManager;
 import com.threerings.cocktail.cher.server.net.ConnectionManager;
 
@@ -19,6 +20,9 @@ public class CherServer
     /** The manager of network connections. */
     public static ConnectionManager cmgr;
 
+    /** The distributed object manager. */
+    public static DObjectManager omgr;
+
     /**
      * Initializes all of the server services and prepares for operation.
      */
@@ -29,6 +33,8 @@ public class CherServer
             authmgr = new AuthManager(new DummyAuthenticator());
             // create our connection manager
             cmgr = new ConnectionManager(authmgr);
+            // create our distributed object manager
+            omgr = new CherDObjectMgr();
 
         } catch (Exception e) {
             Log.warning("Unable to initialize server.");
@@ -40,25 +46,19 @@ public class CherServer
      * Starts up all of the server services and enters the main server
      * event loop.
      */
-    public static void start ()
+    public static void run ()
     {
         // start up the auth manager
         authmgr.start();
         // start up the connection manager
         cmgr.start();
-
-        // for now, just block because we've nothing to do
-        try {
-            synchronized (CherServer.class) {
-                CherServer.class.wait();
-            }
-        } catch (InterruptedException ie) {
-        }
+        // invoke the dobjmgr event loop
+        ((CherDObjectMgr)omgr).run();
     }
 
     public static void main (String[] args)
     {
         init();
-        start();
+        run();
     }
 }

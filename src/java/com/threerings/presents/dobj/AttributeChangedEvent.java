@@ -1,5 +1,5 @@
 //
-// $Id: AttributeChangedEvent.java,v 1.2 2001/06/01 19:56:13 mdb Exp $
+// $Id: AttributeChangedEvent.java,v 1.3 2001/06/01 20:35:39 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -101,16 +101,15 @@ public class AttributeChangedEvent extends DEvent
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
-        // look up the setter for this object
-        Method setter = DEventUtil.getSetter(target.getClass(), _name);
-
-        try {
-            setter.invoke(target, new Object[] { _value });
-        } catch (Exception e) {
-            throw new ObjectAccessException("Reflection error: " + e);
-        }
-
+        // pass the new value on to the object
+        target.setAttribute(_name, _value);
         return true;
+    }
+
+    public String toString ()
+    {
+        return "[CHANGE:targetOid=" + _toid + ", name=" + _name +
+            ", value=" + _value + "]";
     }
 
     protected String _name;

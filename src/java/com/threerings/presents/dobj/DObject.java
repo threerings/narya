@@ -1,8 +1,9 @@
 //
-// $Id: DObject.java,v 1.7 2001/06/01 19:56:13 mdb Exp $
+// $Id: DObject.java,v 1.8 2001/06/01 20:35:39 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 /**
@@ -177,6 +178,26 @@ public class DObject
                 // subscriber list
                 _subscribers.remove(i--);
             }
+        }
+    }
+
+    /**
+     * Sets the named attribute to the specified value. This is only used
+     * by the internals of the event dispatch mechanism and should not be
+     * called directly by users. Use the generated attribute setter
+     * methods instead.
+     */
+    public void setAttribute (String name, Object value)
+        throws ObjectAccessException
+    {
+        try {
+            Field field = getClass().getField(name);
+            field.set(this, value);
+
+        } catch (Exception e) {
+            String errmsg = "Attribute setting failure [name=" + name +
+                ", value=" + value + ", error=" + e + "].";
+            throw new ObjectAccessException(errmsg);
         }
     }
 
