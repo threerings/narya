@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.5 2003/04/21 17:08:56 mdb Exp $
+// $Id: SceneBlock.java,v 1.6 2003/04/22 01:57:20 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -186,15 +186,27 @@ public class SceneBlock
      * Adds the supplied object to this block. Coverage is not computed
      * for the added object, a subsequent call to {@link #update} will be
      * needed.
+     *
+     * @return true if the object was added, false if it was not because
+     * another object of the same type already occupies that location.
      */
-    public void addObject (ObjectInfo info)
+    public boolean addObject (ObjectInfo info)
     {
+        // make sure we don't already have this same object at these
+        // coordinates
+        for (int ii = 0; ii < _objects.length; ii++) {
+            if (_objects[ii].info.equals(info)) {
+                return false;
+            }
+        }
+
         _objects = (SceneObject[])
             ArrayUtil.append(_objects, new SceneObject(_panel, info));
 
         // clear out our neighbors array so that the subsequent update
         // causes us to recompute our coverage
         Arrays.fill(_neighbors, null);
+        return true;
     }
 
     /**
