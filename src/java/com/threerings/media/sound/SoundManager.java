@@ -319,6 +319,9 @@ public class SoundManager
                 synchronized (_queue) {
                     _freeSpoolers++;
                     key = (SoundKey) _queue.get(MAX_WAIT_TIME);
+                    if (_verbose.getValue()) {
+                        Log.info("Spooler got key [" + key + "].");
+                    }
                     _freeSpoolers--;
 
                     if (key == null || key.cmd == DIE) {
