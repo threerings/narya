@@ -1,5 +1,5 @@
 //
-// $Id: ParlorCodes.java,v 1.6 2001/10/19 02:04:29 mdb Exp $
+// $Id: ParlorCodes.java,v 1.7 2001/10/19 22:02:36 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -84,4 +84,18 @@ public interface ParlorCodes extends InvocationCodes
      * by the invocation services to a call to {@link
      * ParlorDirector#handleJoinFailed}. */
     public static final String JOIN_FAILED_RESPONSE = "JoinFailed";
+
+    /** An error code returned when a user requests to join a table that
+     * doesn't exist. */
+    public static final String NO_SUCH_TABLE = "m.no_such_table";
+
+    /** An error code returned when a user requests to join a table at a
+     * position that is not valid. */
+    public static final String INVALID_TABLE_POSITION =
+        "m.invalid_table_position";
+
+    /** An error code returned when a user requests to join a table in a
+     * position that is already occupied. */
+    public static final String TABLE_POSITION_OCCUPIED =
+        "m.table_position_occupied";
 }

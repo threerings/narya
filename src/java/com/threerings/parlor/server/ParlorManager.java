@@ -1,19 +1,26 @@
 //
-// $Id: ParlorManager.java,v 1.11 2001/10/19 02:04:29 mdb Exp $
+// $Id: ParlorManager.java,v 1.12 2001/10/19 22:02:36 mdb Exp $
 
 package com.threerings.parlor.server;
 
+import java.util.HashMap;
+
 import com.samskivert.util.Config;
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.ServiceFailedException;
 
 import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.CrowdServer;
+import com.threerings.crowd.server.PlaceManager;
+import com.threerings.crowd.server.PlaceRegistry;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.client.ParlorCodes;
+import com.threerings.parlor.data.Table;
 import com.threerings.parlor.data.TableConfig;
 import com.threerings.parlor.data.TableLobbyObject;
 import com.threerings.parlor.game.GameConfig;
@@ -27,7 +34,7 @@ import com.threerings.parlor.game.GameManager;
  * game.
  */
 public class ParlorManager
-    implements ParlorCodes
+    implements ParlorCodes, PlaceRegistry.CreationObserver
 {
     /**
      * Initializes the parlor manager. This should be called by the server
@@ -179,7 +186,7 @@ public class ParlorManager
             // started up (which is done by the place registry once the
             // game object creation has completed)
             GameManager gmgr = (GameManager)
-                CrowdServer.plreg.createPlace(invite.config);
+                CrowdServer.plreg.createPlace(invite.config, null);
 
             // provide the game manager with some initialization info
             String[] players = new String[] {
@@ -216,7 +223,38 @@ public class ParlorManager
                             GameConfig config)
         throws ServiceFailedException
     {
-        return -1;
+        // fetch the place object in which we'll be creating a table
+        try {
+            TableLobbyObject tlobj = (TableLobbyObject)
+                CrowdServer.omgr.getObject(placeOid);
+
+            // make sure the game config implements TableConfig
+            if (!(config instanceof TableConfig)) {
+                Log.warning("Requested to matchmake a non-table game " +
+                            "using the table services [creator=" + creator +
+                            ", ploid=" + placeOid +
+                            ", config=" + config + "].");
+                throw new ServiceFailedException(INTERNAL_ERROR);
+            }
+
+            // create a brand spanking new table
+            Table table = new Table(placeOid, config);
+
+            // and stick it into the table lobby object
+            tlobj.addToTables(table);
+
+            // also stick the table into our tables table
+            _tables.put(table.getTableId(), table);
+
+            // finally let the caller know what the new table id is
+            return table.getTableId();
+
+        } catch (ClassCastException cce) {
+            Log.warning("Requested to create table in non-table-lobby " +
+                        "[creator=" + creator + ", ploid=" + placeOid +
+                        ", config=" + config + ", cce=" + cce + "].");
+            throw new ServiceFailedException(INTERNAL_ERROR);
+        }
     }
 
     /**
@@ -243,6 +281,104 @@ public class ParlorManager
     public void joinTable (BodyObject joiner, int tableId, int position)
         throws ServiceFailedException
     {
+        // look the table up
+        Table table = (Table)_tables.get(tableId);
+        if (table == null) {
+            throw new ServiceFailedException(NO_SUCH_TABLE);
+        }
+
+        // make sure the lobby for this table is still around
+        TableLobbyObject tlobj = (TableLobbyObject)
+            CrowdServer.omgr.getObject(table.lobbyOid);
+        if (tlobj == null) {
+            Log.warning("User tried to join table whose lobby has " +
+                        "disappeared [table=" + table +
+                        ", joiner=" + joiner + "].");
+            throw new ServiceFailedException(INTERNAL_ERROR);
+        }
+
+        // request that the user be added to the table at that position
+        String error = table.setOccupant(position, joiner.username);
+        // if that failed, report the error
+        if (error != null) {
+            throw new ServiceFailedException(error);
+        }
+
+        // determine whether or not it's time to start the game
+        if (table.readyToStart()) {
+            // create the game manager
+            GameManager gmgr = 
+                createGameManager(table.config, table.getPlayers());
+
+            // and map this table to this game manager so that we can
+            // update the table with the game in progress once it's
+            // created
+            _pendingTables.put(gmgr, table);
+        }
+
+        // update the table in the lobby
+        tlobj.updateTables(table);
+    }
+
+    /**
+     * Called when we're ready to create a game (either an invitation has
+     * been accepted or a table is ready to start. If there is a problem
+     * creating the game manager, it will be reported in the logs.
+     *
+     * @return a reference to the newly created game manager or null if
+     * something choked during the creation or initialization process.
+     */
+    protected GameManager createGameManager (
+        GameConfig config, String[] players)
+    {
+        GameManager gmgr = null;
+
+        try {
+            Log.info("Creating game manager [config=" + config + "].");
+
+            // create the game manager and begin it's initialization
+            // process. the game manager will take care of notifying the
+            // players that the game has been created once it has been
+            // started up (which is done by the place registry once the
+            // game object creation has completed)
+            gmgr = (GameManager)CrowdServer.plreg.createPlace(config, this);
+
+            // provide the game manager with some initialization info
+            gmgr.setPlayers(players);
+
+        } catch (Exception e) {
+            Log.warning("Unable to create game manager [config=" + config +
+                        ", players=" + StringUtil.toString(players) + "].");
+            Log.logStackTrace(e);
+        }
+
+        return gmgr;
+    }
+
+    /**
+     * Called by the place registry when the game object has been created
+     * and provided to the game manager. We use this to map game object
+     * oids back to table records when we create games from tables.
+     */
+    public void placeCreated (PlaceObject plobj, PlaceManager pmgr)
+    {
+        // see if this place manager is associated with a table
+        Table table = (Table)_pendingTables.get(pmgr);
+        if (table != null) {
+            // update the table with the newly created game object
+            table.gameOid = plobj.getOid();
+
+            // and then update the lobby object that contains the table
+            TableLobbyObject tlobj = (TableLobbyObject)
+                CrowdServer.omgr.getObject(table.lobbyOid);
+            if (tlobj == null) {
+                Log.warning("Can't update in-play table as lobby's gone " +
+                            "missing [table=" + table +
+                            ", gameOid=" + plobj.getOid() + "].");
+                return;
+            }
+            tlobj.updateTables(table);
+        }
     }
 
     /**
@@ -292,6 +428,13 @@ public class ParlorManager
 
     /** The table of pending invitations. */
     protected HashIntMap _invites = new HashIntMap();
+
+    /** The table of pending tables. */
+    protected HashIntMap _tables = new HashIntMap();
+
+    /** A table of tables that have games that have been created but not
+     * yet started. */
+    protected HashMap _pendingTables = new HashMap();
 
     /** A counter used to generate unique identifiers for invitation
      * records. */
