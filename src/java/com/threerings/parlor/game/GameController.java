@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.22 2003/08/16 00:28:43 mdb Exp $
+// $Id: GameController.java,v 1.23 2003/11/25 22:35:10 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -184,6 +184,11 @@ public abstract class GameController extends PlaceController
      */
     protected void gameDidStart ()
     {
+        if (_gobj == null) {
+            Log.info("Received gameDidStart() after leaving game room.");
+            return;
+        }
+
         // clear out our game over flag
         setGameOver(false);
 
