@@ -1,12 +1,12 @@
 //
-// $Id: UniformTileSet.java,v 1.6 2002/01/17 23:43:14 mdb Exp $
+// $Id: UniformTileSet.java,v 1.7 2002/02/24 02:20:44 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Image;
 
 import com.threerings.media.Log;
-import com.threerings.media.ImageUtil;
+import com.threerings.media.util.ImageUtil;
 
 /**
  * A uniform tileset is one that is composed of tiles that are all the

@@ -1,13 +1,13 @@
 //
-// $Id: TileUtil.java,v 1.7 2002/01/18 17:48:11 shaper Exp $
+// $Id: TileUtil.java,v 1.8 2002/02/24 02:20:43 mdb Exp $
 
 package com.threerings.cast.util;
 
 import java.awt.Image;
 
-import com.threerings.media.ImageUtil;
 import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.sprite.Sprite;
+import com.threerings.media.util.ImageUtil;
 
 import com.threerings.cast.Log;
 

@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.24 2002/01/18 17:48:11 shaper Exp $
+// $Id: TileSet.java,v 1.25 2002/02/24 02:20:44 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -9,8 +9,8 @@ import java.awt.Transparency;
 import java.io.IOException;
 import java.io.Serializable;
 
-import com.threerings.media.ImageUtil;
 import com.threerings.media.Log;
+import com.threerings.media.util.ImageUtil;
 
 /**
  * A tileset stores information on a single logical set of tiles. It

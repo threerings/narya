@@ -1,7 +1,7 @@
 //
-// $Id: ImageUtil.java,v 1.3 2002/01/18 17:55:43 shaper Exp $
+// $Id: ImageUtil.java,v 1.4 2002/02/24 02:20:44 mdb Exp $
 
-package com.threerings.media;
+package com.threerings.media.util;
 
 import java.awt.Image;
 import java.awt.Graphics;

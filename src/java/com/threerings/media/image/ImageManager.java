@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.12 2002/01/18 17:55:43 shaper Exp $
+// $Id: ImageManager.java,v 1.13 2002/02/24 02:20:43 mdb Exp $
 
 package com.threerings.media;
 
@@ -22,6 +22,7 @@ import javax.imageio.stream.MemoryCacheImageInputStream;
 
 import com.threerings.resource.ResourceManager;
 import com.threerings.media.Log;
+import com.threerings.media.util.ImageUtil;
 
 /**
  * Provides a single point of access for image retrieval and caching.
