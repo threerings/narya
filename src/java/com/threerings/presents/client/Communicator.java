@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.28 2003/04/10 22:02:59 mdb Exp $
+// $Id: Communicator.java,v 1.29 2003/06/05 00:26:16 ray Exp $
 
 package com.threerings.presents.client;
 
@@ -120,10 +120,7 @@ public class Communicator
             return;
         }
 
-        // stop our ping interval
-        if (_piid != -1) {
-            IntervalManager.remove(_piid);
-        }
+        stopPingInterval();
 
         // post a logoff message
         postMessage(new LogoffRequest());
@@ -235,6 +232,9 @@ public class Communicator
         // clear out our reader reference
         _reader = null;
 
+        // in case we haven't already done it.
+        stopPingInterval();
+
         if (_writer == null) {
             // there's no writer during authentication, so we may be
             // responsible for closing the socket channel
@@ -344,6 +344,17 @@ public class Communicator
     {
         long now = System.currentTimeMillis();
         return (now - _lastWrite > PingRequest.PING_INTERVAL);
+    }
+
+    /**
+     * Stops our ping interval.
+     */
+    protected void stopPingInterval ()
+    {
+        if (_piid != -1) {
+            IntervalManager.remove(_piid);
+            _piid = -1;
+        }
     }
 
     /**
