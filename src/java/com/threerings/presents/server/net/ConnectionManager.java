@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.16 2002/03/05 05:33:25 mdb Exp $
+// $Id: ConnectionManager.java,v 1.17 2002/03/05 06:15:23 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -322,8 +322,6 @@ public class ConnectionManager extends LoopingThread
      */
     void connectionClosed (Connection conn)
     {
-        Log.info("Removing closed connection: " + conn);
-
         // remove this connection from the select set
         _selset.remove(conn.getSelectItem());
 
