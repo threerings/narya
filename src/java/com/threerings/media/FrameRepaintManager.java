@@ -1,5 +1,5 @@
 //
-// $Id: FrameRepaintManager.java,v 1.2 2002/04/27 02:33:14 mdb Exp $
+// $Id: FrameRepaintManager.java,v 1.3 2002/04/27 18:59:55 mdb Exp $
 
 package com.threerings.media;
 
@@ -209,7 +209,47 @@ public class FrameRepaintManager extends RepaintManager
             // get the root component, adjust the clipping (dirty)
             // rectangle and obtain the bounds of the client in absolute
             // coordinates
-            Component root = getRoot(comp, drect, _cbounds);
+            Component root = null, ocomp = null;
+
+            // start with the component's untranslated bounds
+            _cbounds.setBounds(0, 0, comp.getWidth(), comp.getHeight());
+
+            // climb up the parent heirarchy, looking for the first opaque
+            // parent as well as the root component
+            for (Component c = comp; c != null; c = c.getParent()) {
+                if (!c.isVisible() || c.getPeer() == null) {
+                    break;
+                }
+
+                if (!(c instanceof JComponent)) {
+                    root = c;
+                    break;
+                }
+
+                // make a note of the first opaque parent we find
+                if (ocomp == null && ((JComponent)c).isOpaque()) {
+                    ocomp = c;
+                }
+
+                // translate the coordinates into this component's
+                // coordinate system
+                drect.x += c.getX();
+                drect.y += c.getY();
+                _cbounds.x += c.getX();
+                _cbounds.y += c.getY();
+
+                // clip the dirty region to the bounds of this component
+                SwingUtilities.computeIntersection(
+                    c.getX(), c.getY(), c.getWidth(), c.getHeight(), drect);
+            }
+
+            // make sure we found an opaque parent
+            if (ocomp == null) {
+                Log.warning("Found no opaque parent for dirty component?! " +
+                            "[comp=" + comp + "].");
+                // go ahead and paint the component directly
+                ocomp = comp;
+            }
 
             // if this component is rooted in our frame, repaint it into
             // the supplied graphics instance
@@ -219,7 +259,7 @@ public class FrameRepaintManager extends RepaintManager
 //                          ", drect=" + StringUtil.toString(drect) + "].");
                 g.setClip(drect);
                 g.translate(_cbounds.x, _cbounds.y);
-                comp.paint(g);
+                ocomp.paint(g);
                 g.translate(-_cbounds.x, -_cbounds.y);
 
             } else if (root != null) {
@@ -259,41 +299,6 @@ public class FrameRepaintManager extends RepaintManager
     protected Component getRoot (JComponent comp, Rectangle dirty,
                                  Rectangle bounds)
     {
-        boolean debug = false;
-
-        // start with the component's untranslated bounds
-        bounds.setBounds(0, 0, comp.getWidth(), comp.getHeight());
-
-	for (Component c = comp; c != null; c = c.getParent()) {
-	    if (!c.isVisible() || c.getPeer() == null) {
-		return null;
-	    }
-
-            if (!(c instanceof JComponent)) {
-		return c;
-	    }
-
-            if (debug) {
-                Log.info("Adjusting " + c.getClass().getName() + " " +
-                         c.getX() + ", " + c.getY() + ".");
-            }
-
-            // adjust our coordinates
-            dirty.x += c.getX();
-            dirty.y += c.getY();
-            bounds.x += c.getX();
-            bounds.y += c.getY();
-
-            if (debug) {
-                Log.info("Intersecting " + c.getBounds() + " and " +
-                         dirty + ".");
-            }
-            SwingUtilities.computeIntersection(
-                c.getX(), c.getY(), c.getWidth(), c.getHeight(), dirty);
-            if (debug) {
-                Log.info("Intersected " + dirty + ".");
-            }
-	}
 
         return null;
     }
