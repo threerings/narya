@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.25 2002/04/02 01:05:49 mdb Exp $
+// $Id: IsoUtil.java,v 1.26 2002/04/09 03:12:43 ray Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -472,7 +472,6 @@ public class IsoUtil
         poly.addPoint(spos.x + model.tilehwid, spos.y);
         poly.addPoint(spos.x + model.tilewid, spos.y + model.tilehhei);
         poly.addPoint(spos.x + model.tilehwid, spos.y + model.tilehei);
-        poly.addPoint(spos.x, spos.y + model.tilehhei);
 
         return poly;
     }
