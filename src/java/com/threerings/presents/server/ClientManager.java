@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.15 2002/04/18 00:44:50 shaper Exp $
+// $Id: ClientManager.java,v 1.16 2002/04/18 20:46:43 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -81,6 +81,16 @@ public class ClientManager implements ConnectionObserver
     public Iterator enumerateClientObjects ()
     {
         return _objmap.values().iterator();
+    }
+
+    /**
+     * Returns the client instance that manages the client session for the
+     * specified username or null if that client is not currently
+     * connected to the server.
+     */
+    public PresentsClient getClient (String username)
+    {
+        return (PresentsClient)_usermap.get(username);
     }
 
     /**
