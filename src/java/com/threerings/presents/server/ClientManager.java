@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.32 2003/07/22 02:50:49 mdb Exp $
+// $Id: ClientManager.java,v 1.33 2003/08/20 19:30:52 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -321,7 +321,7 @@ public class ClientManager
             // and let the client know things went haywire
             client.connectionFailed(fault);
 
-        } else {
+        } else if (!(conn instanceof AuthingConnection)) {
             Log.info("Unmapped connection failed? [conn=" + conn +
                      ", fault=" + fault + "].");
             Thread.dumpStack();
