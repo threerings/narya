@@ -1,5 +1,5 @@
 //
-// $Id: GameManagerDelegate.java,v 1.6 2002/10/27 23:54:32 shaper Exp $
+// $Id: GameManagerDelegate.java,v 1.7 2002/11/26 09:12:10 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -65,15 +65,6 @@ public class GameManagerDelegate extends PlaceManagerDelegate
      * override this if they need to perform some pre-reset activities.
      */
     public void gameWillReset ()
-    {
-    }
-
-    /**
-     * Called after the game has been reset.  Derived classes can override
-     * this to put whatever wheels they might need into motion now that
-     * the game is reset.
-     */
-    public void gameDidReset ()
     {
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.54 2002/11/05 02:24:42 mdb Exp $
+// $Id: GameManager.java,v 1.55 2002/11/26 09:12:10 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -7,12 +7,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import com.samskivert.util.IntervalManager;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.MessageEvent;
+import com.threerings.presents.server.util.SafeInterval;
 
 import com.threerings.crowd.chat.SpeakProvider;
 
@@ -20,7 +22,6 @@ import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.crowd.server.PlaceManager;
-import com.threerings.crowd.server.CrowdServer;
 import com.threerings.crowd.server.CrowdServer;
 import com.threerings.crowd.server.PlaceManagerDelegate;
 
@@ -382,6 +383,15 @@ public class GameManager extends PlaceManager
             // deliver a game ready notification to the player
             ParlorSender.gameIsReady(bobj, _gameobj.getOid());
         }
+
+        // start up a no-show timer unless this is a party game
+        if (!_gameconfig.isPartyGame()) {
+            IntervalManager.register(new SafeInterval(CrowdServer.omgr) {
+                public void run () {
+                    checkForNoShows();
+                }
+            }, NOSHOW_DELAY, null, false);
+        }
     }
 
     // documentation inherited
@@ -439,6 +449,40 @@ public class GameManager extends PlaceManager
     }
 
     /**
+     * Called after the no-show delay has expired following the delivery
+     * of notifications to all players that the game is ready.
+     * <em>Note:</em> this is not called for party games. Those games have
+     * a human who decides when to start the game.
+     */
+    protected void checkForNoShows ()
+    {
+        // nothing to worry about if we're already started
+        if (_gameobj.state != GameObject.AWAITING_PLAYERS) {
+            return;
+        }
+
+        // if there's no one in the room, go ahead and clear it out
+        if (_plobj.occupants.size() == 0) {
+            Log.info("Cancelling total no-show " +
+                     "[game=" + _gameobj.which() + "].");
+            placeBecameEmpty();
+
+        } else {
+            handlePartialNoShow();
+        }
+    }
+
+    /**
+     * This is called when some, but not all, players failed to show up
+     * for a game. The default implementation simply cancels the game.
+     */
+    protected void handlePartialNoShow ()
+    {
+        // cancel the game
+        _gameobj.setState(GameObject.CANCELLED);
+    }
+
+    /**
      * This is called when the game is ready to start (all players
      * involved have delivered their "am ready" notifications). It calls
      * {@link #gameWillStart}, sets the necessary wheels in motion and
@@ -475,9 +519,7 @@ public class GameManager extends PlaceManager
         // transition the game to started
         _gameobj.setState(GameObject.IN_PLAY);
 
-        // do post-start processing
-        gameDidStart();
-
+        // when our events are applied, we'll call gameDidStart()
         return true;
     }
 
@@ -647,25 +689,20 @@ public class GameManager extends PlaceManager
     /**
      * Called when the game is to be reset to its starting state in
      * preparation for a new game without actually ending the current
-     * game. It calls {@link #gameWillReset} and {@link #gameDidReset}.
-     * The standard game start processing ({@link #gameWillStart} and
-     * {@link #gameDidStart}) will also be called (in between the calls to
-     * will and did reset). Derived classes should override one or both of
-     * the calldown functions (rather than this function) if they need to
-     * do things before or after the game resets.
+     * game. It calls {@link #gameWillReset} followed by the standard game
+     * start processing ({@link #gameWillStart} and {@link
+     * #gameDidStart}). Derived classes should override these calldown
+     * functions (rather than this function) if they need to do things
+     * before or after the game resets.
      */
     public void resetGame ()
     {
         // let the derived class do its pre-reset stuff
         gameWillReset();
-
         // do the standard game start processing
         gameWillStart();
+        // transition to in-play which will trigger a call to gameDidStart()
         _gameobj.setState(GameObject.IN_PLAY);
-        gameDidStart();
-
-        // let the derived class do its post-reset stuff
-        gameDidReset();
     }
 
     /**
@@ -680,22 +717,6 @@ public class GameManager extends PlaceManager
         applyToDelegates(new DelegateOp() {
             public void apply (PlaceManagerDelegate delegate) {
                 ((GameManagerDelegate)delegate).gameWillReset();
-            }
-        });
-    }
-
-    /**
-     * Called after the game has been reset.  Derived classes can override
-     * this to put whatever wheels they might need into motion now that
-     * the game is reset, but should be sure to call
-     * <code>super.gameDidReset()</code>.
-     */
-    protected void gameDidReset ()
-    {
-        // let our delegates do their business
-        applyToDelegates(new DelegateOp() {
-            public void apply (PlaceManagerDelegate delegate) {
-                ((GameManagerDelegate)delegate).gameDidReset();
             }
         });
     }
@@ -794,6 +815,10 @@ public class GameManager extends PlaceManager
     {
         if (event.getName().equals(GameObject.STATE)) {
             switch (event.getIntValue()) {
+            case GameObject.IN_PLAY:
+                gameDidStart();
+                break;
+
             case GameObject.CANCELLED:
                 // fall through to GAME_OVER case
             case GameObject.GAME_OVER:
@@ -845,4 +870,8 @@ public class GameManager extends PlaceManager
 
     /** Our delegate operator to tick AIs. */
     protected TickAIDelegateOp _tickAIOp;
+
+    /** We give players 30 seconds to turn up in a puzzle and after that,
+     * they're considered a no show. */
+    protected static final long NOSHOW_DELAY = 30 * 1000L;
 }
