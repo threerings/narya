@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.9 2001/08/21 19:40:30 mdb Exp $
+// $Id: SpriteManager.java,v 1.10 2001/08/22 02:14:57 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -19,7 +19,7 @@ public class SpriteManager
     public SpriteManager ()
     {
         _sprites = new ArrayList();
-        _dirty = new ArrayList();
+        _dirty = new DirtyRectList();
     }
 
     /**
@@ -30,6 +30,35 @@ public class SpriteManager
     public void addDirtyRect (Rectangle rect)
     {
         _dirty.add(rect);
+    }
+
+    /**
+     * When an animated view processes its dirty rectangles, it may
+     * require an expansion of the dirty region which may in turn require
+     * the invalidation of more sprites than were originally invalid. In
+     * such cases, the animated view can call back to the sprite manager,
+     * asking it to append the rectangles of the sprites that intersect a
+     * particular region to the dirty rectangle list that it's processing.
+     * A sprite's rectangle will only be appended if it's not already in
+     * the list.
+     *
+     * @param rects the dirty rectangle list being processed by the
+     * animated view.
+     * @param bounds the bounds the intersection of which we have
+     * interest.
+     */
+    public void invalidateIntersectingSprites (
+        DirtyRectList rects, Polygon bounds)
+    {
+        int size = _sprites.size();
+        for (int ii = 0; ii < size; ii++) {
+            Sprite sprite = (Sprite)_sprites.get(ii);
+            if (sprite.intersects(bounds)) {
+                if (rects.appendDirtyRect(sprite.getRenderedBounds())) {
+                    Log.info("Expanded for: " + sprite);
+                }
+            }
+        }
     }
 
     /**
@@ -70,10 +99,10 @@ public class SpriteManager
      *
      * @return the list of dirty rects.
      */
-    public ArrayList getDirtyRects ()
+    public DirtyRectList getDirtyRects ()
     {
         // create a copy of the dirty rectangles
-        ArrayList dirty = (ArrayList)_dirty.clone();
+        DirtyRectList dirty = (DirtyRectList)_dirty.clone();
 
         // clear out the list
         _dirty.clear();
@@ -83,8 +112,8 @@ public class SpriteManager
     }
 
     /**
-     * Render the sprites residing within the given polygon to the
-     * given graphics context.
+     * Render the sprites residing within the given polygon to the given
+     * graphics context.
      *
      * @param gfx the graphics context.
      * @param bounds the bounding polygon.
@@ -136,5 +165,5 @@ public class SpriteManager
     protected ArrayList _sprites;
 
     /** The dirty rectangles created by sprites. */
-    protected ArrayList _dirty;
+    protected DirtyRectList _dirty;
 }

@@ -1,10 +1,7 @@
 //
-// $Id: AnimatedView.java,v 1.2 2001/08/21 20:02:39 mdb Exp $
+// $Id: AnimatedView.java,v 1.3 2001/08/22 02:14:57 mdb Exp $
 
 package com.threerings.media.sprite;
-
-import java.awt.Graphics;
-import java.util.List;
 
 /**
  * A view that wishes to interact with the animation manager needs to
@@ -20,7 +17,7 @@ public interface AnimatedView
      *
      * @param rects the list of {@link java.awt.Rectangle} objects.
      */
-    public void invalidateRects (List rects);
+    public void invalidateRects (DirtyRectList rects);
 
     /**
      * Requests that the animated view paint itself immediately (that it

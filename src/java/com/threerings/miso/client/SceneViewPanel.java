@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.10 2001/08/21 21:18:21 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.11 2001/08/22 02:14:57 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -7,8 +7,7 @@ import java.awt.*;
 import java.util.List;
 import javax.swing.JPanel;
 
-import com.threerings.media.sprite.AnimatedView;
-import com.threerings.media.sprite.SpriteManager;
+import com.threerings.media.sprite.*;
 import com.threerings.media.tile.TileManager;
 
 /**
@@ -68,7 +67,7 @@ public class SceneViewPanel
     }
 
     // documentation inherited
-    public void invalidateRects (List rects)
+    public void invalidateRects (DirtyRectList rects)
     {
         // pass the invalid rects on to our scene view
         _view.invalidateRects(rects);
@@ -98,6 +97,9 @@ public class SceneViewPanel
     public void paintComponent (Graphics g)
     {
 	render(g);
+
+//          Rectangle bounds = getBounds();
+//          g.drawRect(bounds.x, bounds.y, bounds.width-1, bounds.height-1);
     }
 
     protected void createOffscreen ()
@@ -113,7 +115,9 @@ public class SceneViewPanel
      */
     public Dimension getPreferredSize ()
     {
-	return (_smodel == null) ? super.getPreferredSize() : _smodel.bounds;
+        Dimension psize = (_smodel == null) ?
+            super.getPreferredSize() : _smodel.bounds;
+	return psize;
     }
 
     /** Tile width in pixels. */

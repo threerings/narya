@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.15 2001/08/21 21:18:42 mdb Exp $
+// $Id: Sprite.java,v 1.16 2001/08/22 02:14:57 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -70,7 +70,7 @@ public class Sprite
         _y = y;
         // we need to update our draw position which is based on the size
         // of our current frame
-        updateDrawPosition();
+        updateRenderOrigin();
         // invalidate our new position
         invalidate();
     }
@@ -83,7 +83,7 @@ public class Sprite
         _x = x;
         _y = y;
 
-        updateDrawPosition();
+        updateRenderOrigin();
 
 	// set default velocity
 	_vel = new Point(1, 1);
@@ -94,7 +94,6 @@ public class Sprite
         _numTicks = 0;
 
         setFrames(frames);
-
         invalidate();
     }        
 
@@ -114,7 +113,7 @@ public class Sprite
      */
     public void paint (Graphics2D gfx)
     {
-        gfx.drawImage(_frame, _drawx, _drawy, null);
+        gfx.drawImage(_frame, _rbounds.x, _rbounds.y, null);
     }
 
     /**
@@ -151,6 +150,19 @@ public class Sprite
     }
 
     /**
+     * Returns whether the sprite's drawn rectangle intersects the given
+     * polygon in pixel coordinates.
+     *
+     * @param bounds the bounding polygon.
+     *
+     * @return whether the sprite intersects polygon.
+     */
+    public boolean intersects (Polygon bounds)
+    {
+        return bounds.intersects(_rbounds);
+    }
+
+    /**
      * Set the number of ticks to wait before switching to the next image
      * in the array of images used to display the sprite.
      *
@@ -168,11 +180,30 @@ public class Sprite
      */
     public void setFrames (MultiFrameImage frames)
     {
-        if (frames == null) return;
+        if (frames == null) {
+            Log.warning("Someone set up us the null frames! " +
+                        "[sprite=" + this + "].");
+            return;
+        }
 
         _frames = frames;
         _frame = _frames.getFrame(_frameIdx);
-        updateDrawPosition();
+
+        // determine our drawing offsets and rendered rectangle size
+        if (_frame == null) {
+            _rxoff = 0;
+            _ryoff = 0;
+            _rbounds.width = 0;
+            _rbounds.height = 0;
+
+        } else {
+            _rbounds.width = _frame.getWidth(null);
+            _rbounds.height = _frame.getHeight(null);
+            _rxoff = -(_rbounds.width / 2);
+            _ryoff = -_rbounds.height;
+        }
+
+        updateRenderOrigin();
         invalidate();
     }
 
@@ -263,6 +294,15 @@ public class Sprite
     }
 
     /**
+     * Returns the bounds that will be drawn upon when this sprite is
+     * rendered.
+     */
+    public Rectangle getRenderedBounds ()
+    {
+        return _rbounds;
+    }
+
+    /**
      * Invalidate the sprite's display rectangle for later repainting.
      */
     public void invalidate ()
@@ -270,10 +310,7 @@ public class Sprite
         if (_frame == null) return;
 
         if (_spritemgr != null) {
-            Rectangle dirty = new Rectangle(
-                _drawx, _drawy,
-                _frame.getWidth(null), _frame.getHeight(null));
-            _spritemgr.addDirtyRect(dirty);
+            _spritemgr.addDirtyRect(getRenderedBounds());
 
         } else {
             Log.warning("Was invalidated but have no sprite manager " +
@@ -331,7 +368,7 @@ public class Sprite
         }
 
 	// update the draw coordinates to reflect our new position
-        updateDrawPosition();
+        updateRenderOrigin();
 
 	// dirty our rectangle in the new position
 	invalidate();
@@ -341,16 +378,13 @@ public class Sprite
      * Update the coordinates at which the sprite image is drawn to
      * reflect the sprite's current position.
      */
-    protected void updateDrawPosition ()
+    protected void updateRenderOrigin ()
     {
-        if (_frame == null) {
-            _drawx = _x;
-            _drawy = _y;
-
-        } else {
-            _drawx = _x - (_frame.getWidth(null) / 2);
-            _drawy = _y - _frame.getHeight(null);
-        }
+        // our render origin differs from our location. our location is
+        // the center of the bottom edge of our rendered rectangle, but
+        // our render origin is the upper left
+        _rbounds.x = _x + _rxoff;
+        _rbounds.y = _y + _ryoff;
     }
 
     /**
@@ -380,8 +414,11 @@ public class Sprite
     /** The location of the sprite in pixel coordinates. */
     protected int _x, _y;
 
-    /** The coordinates at which the frame image is drawn. */
-    protected int _drawx, _drawy;
+    /** The offsets from our location to our rendered origin. */
+    protected int _rxoff, _ryoff;
+
+    /** Our rendered bounds in pixel coordinates. */
+    protected Rectangle _rbounds = new Rectangle();
 
     /** The PathNode objects describing the path the sprite is following. */
     protected Iterator _path;

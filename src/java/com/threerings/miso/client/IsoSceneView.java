@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.51 2001/08/21 21:18:42 mdb Exp $
+// $Id: IsoSceneView.java,v 1.52 2001/08/22 02:14:57 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -46,6 +46,16 @@ public class IsoSceneView implements EditableSceneView
         // get the font used to render tile coordinates
 	_font = new Font("Arial", Font.PLAIN, 7);
 
+        // create our polygon arrays and create polygons for each of the
+        // tiles. we use these repeatedly, so we go ahead and make 'em all
+        // up front
+        _polys = new Polygon[MisoScene.TILE_WIDTH][MisoScene.TILE_HEIGHT];
+	for (int xx = 0; xx < MisoScene.TILE_WIDTH; xx++) {
+	    for (int yy = 0; yy < MisoScene.TILE_HEIGHT; yy++) {
+		_polys[xx][yy] = IsoUtil.getTilePolygon(_model, xx, yy);
+	    }
+	}
+
         // create the array used to mark dirty tiles
         _dirty = new boolean[MisoScene.TILE_WIDTH][MisoScene.TILE_HEIGHT];
 
@@ -81,7 +91,7 @@ public class IsoSceneView implements EditableSceneView
 	    renderSceneInvalid(gfx);
 
 	    // draw frames of dirty tiles and rectangles
-	    //drawDirtyRegions(gfx);
+	    // drawDirtyRegions(gfx);
 
 	    // clear out the dirty tiles and rectangles
 	    clearDirtyRegions();
@@ -123,7 +133,7 @@ public class IsoSceneView implements EditableSceneView
 	for (int xx = 0; xx < MisoScene.TILE_WIDTH; xx++) {
 	    for (int yy = 0; yy < MisoScene.TILE_HEIGHT; yy++) {
 		if (_dirty[xx][yy]) {
-		    gfx.draw(IsoUtil.getTilePolygon(_model, xx, yy));
+		    gfx.draw(_polys[xx][yy]);
 		}
 	    }
 	}
@@ -153,7 +163,7 @@ public class IsoSceneView implements EditableSceneView
 		if (!_dirty[xx][yy]) continue;
 
 		// get the tile's screen position
-		Polygon poly = IsoUtil.getTilePolygon(_model, xx, yy);
+		Polygon poly = _polys[xx][yy];
 
 		// draw all layers at this tile position
 		for (int kk = 0; kk < MisoScene.NUM_LAYERS; kk++) {
@@ -224,8 +234,7 @@ public class IsoSceneView implements EditableSceneView
 
                     // draw all sprites residing in the current tile
                     // TODO: simplify other tile positioning here to use poly
-                    _spritemgr.renderSprites(
-			gfx, IsoUtil.getTilePolygon(_model, tx, ty));
+                    _spritemgr.renderSprites(gfx, _polys[tx][ty]);
                 }
 
 		// draw tile coordinates in each tile
@@ -296,7 +305,7 @@ public class IsoSceneView implements EditableSceneView
 	    gfx.setColor(Color.green);
 
 	    // draw the tile outline
-	    gfx.draw(IsoUtil.getTilePolygon(_model, _htile.x, _htile.y));
+	    gfx.draw(_polys[_htile.x][_htile.y]);
 
 	    // restore the original stroke
 	    gfx.setStroke(ostroke);
@@ -409,14 +418,16 @@ public class IsoSceneView implements EditableSceneView
      *
      * @param rects the list of Rectangle objects.
      */
-    public void invalidateRects (List rects)
+    public void invalidateRects (DirtyRectList rects)
     {
-        int size = rects.size();
-        for (int ii = 0; ii < size; ii++) {
+        // we specifically need to allow the dirty rects list to grow
+        // while we're iterating over it, so we're sure to call
+        // rects.size() each time through the loop
+        for (int ii = 0; ii < rects.size(); ii++) {
             Rectangle r = (Rectangle)rects.get(ii);
 
 	    // dirty the tiles impacted by this rectangle
-	    invalidateScreenRect(r.x, r.y, r.width, r.height);
+	    invalidateScreenRect(rects, r.x, r.y, r.width, r.height);
 
 	    // save the rectangle for potential display later
 	    _dirtyRects.add(r);
@@ -427,12 +438,16 @@ public class IsoSceneView implements EditableSceneView
      * Invalidate the specified rectangle in screen pixel coordinates
      * in the view.
      *
+     * @param rects the dirty rectangle list that we're processing because
+     * we may have to add dirty rectangles to it when invalidating this
+     * particular rect.
      * @param x the rectangle x-position.
      * @param y the rectangle y-position.
      * @param width the rectangle width.
      * @param height the rectangle height.
      */
-    public void invalidateScreenRect (int x, int y, int width, int height)
+    public void invalidateScreenRect (
+        DirtyRectList rects, int x, int y, int width, int height)
     {
 	// note that corner tiles may be included unnecessarily, but
 	// checking to determine whether they're actually needed
@@ -460,7 +475,7 @@ public class IsoSceneView implements EditableSceneView
 	if (y < (screenY + _model.tilehhei)) {
 	    ty--;
 	    for (int ii = 0; ii < numh; ii++) {
-		addDirtyTile(tx++, ty--);
+		addDirtyTile(rects, tx++, ty--);
 	    }
 	}
 
@@ -499,7 +514,7 @@ public class IsoSceneView implements EditableSceneView
 
 	    // add all tiles in the row to the dirty set
 	    for (int jj = 0; jj < length; jj++) {
-		addDirtyTile(tx++, ty--);
+		addDirtyTile(rects, tx++, ty--);
 	    }
 
 	    // step along the x- or y-axis appropriately
@@ -517,7 +532,7 @@ public class IsoSceneView implements EditableSceneView
 	}
     }
 
-    protected void addDirtyTile (int x, int y)
+    protected void addDirtyTile (DirtyRectList rects, int x, int y)
     {
 	// constrain x-coordinate to a valid range
 	if (x < 0) {
@@ -539,6 +554,10 @@ public class IsoSceneView implements EditableSceneView
 	// mark the tile dirty
 	_numDirty++;
 	_dirty[x][y] = true;
+
+        // and add the dirty rectangles of any sprites that we've just
+        // inadvertently touched by dirtying this tile
+        _spritemgr.invalidateIntersectingSprites(rects, _polys[x][y]);
     }
 
     public void setScene (MisoScene scene)
@@ -696,6 +715,9 @@ public class IsoSceneView implements EditableSceneView
 
     /** The font to draw tile coordinates. */
     protected Font _font;
+
+    /** Polygon instances for all of our tiles. */
+    protected Polygon _polys[][];
 
     /** The dirty tiles that need to be re-painted. */
     protected boolean _dirty[][];

@@ -1,11 +1,12 @@
 //
-// $Id: SceneView.java,v 1.14 2001/08/21 20:02:39 mdb Exp $
+// $Id: SceneView.java,v 1.15 2001/08/22 02:14:57 mdb Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.Graphics;
 import java.util.List;
 
+import com.threerings.media.sprite.DirtyRectList;
 import com.threerings.media.sprite.Path;
 import com.threerings.media.tile.Tile;
 
@@ -22,7 +23,7 @@ public interface SceneView
      *
      * @param rects the list of {@link java.awt.Rectangle} objects.
      */
-    public void invalidateRects (List rects);
+    public void invalidateRects (DirtyRectList rects);
 
     /**
      * Render the scene to the given graphics context.

@@ -1,10 +1,9 @@
 //
-// $Id: AnimationManager.java,v 1.13 2001/08/21 20:02:39 mdb Exp $
+// $Id: AnimationManager.java,v 1.14 2001/08/22 02:14:57 mdb Exp $
 
 package com.threerings.media.sprite;
 
 import java.awt.Graphics;
-import java.util.ArrayList;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
@@ -108,7 +107,7 @@ public class AnimationManager implements Interval, PerformanceObserver
         _spritemgr.tick();
 
         // invalidate screen-rects dirtied by sprites
-        ArrayList rects = _spritemgr.getDirtyRects();
+        DirtyRectList rects = _spritemgr.getDirtyRects();
 	if (rects.size() > 0) {
 	    // pass the dirty-rects on to the scene view
 	    _view.invalidateRects(rects);
