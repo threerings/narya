@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.8 2001/12/16 06:10:33 shaper Exp $
+// $Id: DirtyItemList.java,v 1.9 2002/01/31 01:04:54 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -68,6 +68,10 @@ public class DirtyItemList
         // get items sorted by increasing origin x-coordinate
         DirtyItem[] xitems = new DirtyItem[size];
         _items.toArray(xitems);
+        // if we've only got one item, bail out now
+        if (xitems.length < 2) {
+            return xitems;
+        }
         Arrays.sort(xitems, ORIGIN_X_COMP);
 
         if (DEBUG_SORT) {
