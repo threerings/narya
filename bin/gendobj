@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: gendobj,v 1.3 2002/02/08 23:32:16 mdb Exp $
+# $Id: gendobj,v 1.4 2002/02/08 23:53:58 mdb Exp $
 #
 # gendobj is used to generate DObject source file definitons basded on
 # abbreviated declarations. Because DObject fields all have standard
@@ -11,11 +11,13 @@
 use strict;
 use Getopt::Long;
 
-my $usage = "Usage: $0 <dobj_decl_files>\n";
+my $usage = "Usage: $0 [--verbose] [--force] <dobj_decl_files>\n";
 
 # get our options
 my $verbose;
-GetOptions("verbose" => \$verbose);
+my $force;
+GetOptions("verbose" => \$verbose,
+           "force" => \$force);
 
 die $usage unless (@ARGV);
 
@@ -23,16 +25,28 @@ my $source;
 while ($source = shift) {
     # massage the source file name into the destination file name
     my $dest = $source;
-    $dest =~ s/.dobj$/.java/g;
+    $dest =~ s/.dobj$/.java/;
     if ($dest !~ /.java$/) {
         warn "Unable to infer target file name from original: $source\n";
         next;
     }
 
+    # if the destination file already exists, slurp the existing CVS $Id: gendobj,v 1.4 2002/02/08 23:53:58 mdb Exp $
+    # information out of it so that we can slip that into the new one
+    my $idstr;
+    if (-f $dest && open(IN, "$dest")) {
+        while (<IN>) {
+            if (/(\$Id: gendobj,v 1.4 2002/02/08 23:53:58 mdb Exp $)/) {
+                $idstr = $1;
+            }
+        }
+        close(IN);
+    }
+
     # if the destination file is newer than the source file, do nothing
     my $dmtime = (stat($dest))[9];
     my $smtime = (stat($source))[9];
-    if ((defined $dmtime) && ($dmtime > $smtime)) {
+    if (!$force && (defined $dmtime) && ($dmtime > $smtime)) {
         warn "Skipping $source as source is newer.\n" if ($verbose);
         next;
     }
@@ -51,6 +65,9 @@ while ($source = shift) {
     my $mode = "preamble";
 
     while (<IN>) {
+        # swap in the parsed $Id: gendobj,v 1.4 2002/02/08 23:53:58 mdb Exp $ str if we have one
+        $_ =~ s/(\$Id: gendobj,v 1.4 2002/02/08 23:53:58 mdb Exp $)/$idstr/ if (defined $idstr);
+
         if ($mode eq "preamble") {
             # look to see if we're transitioning from the preamble to the
             # class declaration
