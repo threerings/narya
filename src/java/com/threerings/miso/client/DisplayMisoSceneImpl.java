@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.11 2001/07/24 16:10:19 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.12 2001/07/24 19:15:51 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -16,6 +16,24 @@ import java.io.*;
  */
 public class Scene
 {
+    /** The base layer id. */
+    public static final int LAYER_BASE = 0;
+
+    /** The object layer id. */
+    public static final int LAYER_OBJECT = 1;
+
+    /** The total number of layers. */
+    public static final int NUM_LAYERS = 2;
+
+    /** The latest scene file format version. */
+    public static final short VERSION = 1;
+
+    /** The scene width in tiles. */
+    public static final int TILE_WIDTH = 55;
+
+    /** The scene height in tiles. */
+    public static final int TILE_HEIGHT = 55;
+
     /** String translations of each tile layer name. */
     public static final String[] XLATE_LAYERS = { "Base", "Object" };
 
@@ -32,8 +50,10 @@ public class Scene
     {
 	_tilemgr = tilemgr;
 	_name = DEF_SCENE_NAME;
-	tiles = new Tile[TILE_WIDTH][TILE_HEIGHT][NUM_LAYERS];
+        _hotspots = new Point[0];
+        _exits = new ExitPoint[0];
 
+	tiles = new Tile[TILE_WIDTH][TILE_HEIGHT][NUM_LAYERS];
 	Tile tile = _tilemgr.getTile(DEF_TSID, DEF_TID);
 	for (int xx = 0; xx < TILE_WIDTH; xx++) {
 	    for (int yy = 0; yy < TILE_HEIGHT; yy++) {
@@ -71,9 +91,9 @@ public class Scene
     }
 
     /**
-     * Return the scene exit points array.
+     * Return the scene exits array.
      */
-    public ExitPoint[] getExits ()
+    public ExitPoint[] getExitPoints ()
     {
         return _exits;
     }
@@ -96,44 +116,6 @@ public class Scene
 
 	return numTiles;
     }
-
-    public static int getNumLayers ()
-    {
-        return NUM_LAYERS;
-    }
-
-    public static int getVersion ()
-    {
-        return VERSION;
-    }
-
-    public static int getTileWidth ()
-    {
-        return TILE_WIDTH;
-    }
-
-    public static int getTileHeight ()
-    {
-        return TILE_HEIGHT;
-    }
-
-    /** The latest scene file format version. */
-    protected static final short VERSION = 1;
-
-    /** The scene width in tiles. */
-    protected static final int TILE_WIDTH = 55;
-
-    /** The scene height in tiles. */
-    protected static final int TILE_HEIGHT = 55;
-
-    /** The base layer id. */
-    protected static final int LAYER_BASE = 0;
-
-    /** The object layer id. */
-    protected static final int LAYER_OBJECT = 1;
-
-    /** The total number of layers. */
-    protected static final int NUM_LAYERS = 2;
 
     /** The default scene name. */
     protected static final String DEF_SCENE_NAME = "Untitled Scene";

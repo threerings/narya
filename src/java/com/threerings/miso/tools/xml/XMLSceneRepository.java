@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneRepository.java,v 1.1 2001/07/24 16:10:19 shaper Exp $
+// $Id: XMLSceneRepository.java,v 1.2 2001/07/24 19:15:51 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -31,6 +31,8 @@ public class XMLFileSceneRepository extends SceneRepositoryImpl
     {
         super.init(config, tilemgr);
         _root = _config.getValue(CONFIG_ROOT, DEF_ROOT);
+        _parser = new XMLSceneParser();
+        _writer = new XMLSceneWriter();
     }
 
     /**

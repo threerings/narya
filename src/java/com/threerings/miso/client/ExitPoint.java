@@ -1,5 +1,5 @@
 //
-// $Id: ExitPoint.java,v 1.3 2001/07/23 18:52:51 shaper Exp $
+// $Id: ExitPoint.java,v 1.4 2001/07/24 19:15:51 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -14,4 +14,7 @@ public class ExitPoint
 
     /** The scene id this exit transitions to. */
     public short sid;
+
+    /** The scene name this exit transitions to. */
+    public String name;
 }
