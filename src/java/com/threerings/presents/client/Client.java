@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.25 2002/05/28 22:07:13 mdb Exp $
+// $Id: Client.java,v 1.26 2002/05/28 22:54:43 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -216,17 +216,6 @@ public class Client
     }
 
     /**
-     * Converts a server tick stamp (which is the number of milliseconds
-     * since the server started up) to an absolute client timestamp.
-     */
-    public long fromServerTicks (int ticks)
-    {
-        // we already have our adjusted server start stamp, so we just add
-        // the milliseconds since that time to get absolute time
-        return _serverStartStamp + ticks;
-    }
-
-    /**
      * Returns true if we are logged on, false if we're not.
      */
     public synchronized boolean loggedOn ()
@@ -387,9 +376,6 @@ public class Client
         // extract bootstrap information
         _cloid = data.clientOid;
 
-        // keep track of our server start time
-        _serverStartStamp = data.serverStartStamp;
-
         // send a few pings to the server to establish the clock offset
         // between this client and server standard time
         establishClockDelta();
@@ -412,8 +398,6 @@ public class Client
             // we're either done with our calculations, so we can grab the
             // time delta and finish our business...
             _serverDelta = _dcalc.getTimeDelta();
-            // adjust our server start stamp into client time
-            _serverStartStamp += _serverDelta;
             // free up our delta calculator
             _dcalc = null;
             // let the client continue with its initialization
