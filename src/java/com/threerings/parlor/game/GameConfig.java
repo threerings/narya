@@ -1,5 +1,5 @@
 //
-// $Id: GameConfig.java,v 1.14 2003/02/12 05:34:53 mdb Exp $
+// $Id: GameConfig.java,v 1.15 2003/03/20 19:50:35 ray Exp $
 
 package com.threerings.parlor.game;
 
@@ -47,9 +47,10 @@ public abstract class GameConfig extends PlaceConfig
      */
     public boolean equals (Object other)
     {
-        if (other instanceof GameConfig) {
-            GameConfig go = (GameConfig)other;
-            return go.rated == rated;
+        // make sure they're of the same class
+        if (other.getClass() == this.getClass()) {
+            GameConfig that = (GameConfig) other;
+            return this.rated == that.rated;
 
         } else {
             return false;
@@ -64,6 +65,6 @@ public abstract class GameConfig extends PlaceConfig
     public int hashCode ()
     {
         // look ma, it's so sophisticated!
-        return (rated ? 1 : 0);
+        return getClass().hashCode() + (rated ? 1 : 0);
     }
 }
