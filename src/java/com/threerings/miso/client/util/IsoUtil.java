@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.26 2002/04/09 03:12:43 ray Exp $
+// $Id: IsoUtil.java,v 1.27 2002/04/09 04:36:06 ray Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -472,6 +472,52 @@ public class IsoUtil
         poly.addPoint(spos.x + model.tilehwid, spos.y);
         poly.addPoint(spos.x + model.tilewid, spos.y + model.tilehhei);
         poly.addPoint(spos.x + model.tilehwid, spos.y + model.tilehei);
+
+        return poly;
+    }
+
+    public static Polygon getMultiTilePolygon (IsoSceneViewModel model,
+                                               Point sp1, Point sp2)
+    {
+        Point temp;
+        Point[] p = new Point[4];
+        for (int ii=0; ii < p.length; ii++) {
+            p[ii] = new Point();
+        }
+
+        // randomly assign all tile combinations to these points
+        IsoUtil.tileToScreen(model, sp1.x, sp1.y, p[0]);
+        IsoUtil.tileToScreen(model, sp2.x, sp2.y, p[1]);
+        IsoUtil.tileToScreen(model, sp1.x, sp2.y, p[2]);
+        IsoUtil.tileToScreen(model, sp2.x, sp1.y, p[3]);
+
+        // let's put the minimum X in spot 0.
+        for (int ii=1; ii < 4; ii++) {
+            if (p[0].x > p[ii].x) {
+                temp = p[0]; p[0] = p[ii]; p[ii] = temp;
+            }
+        }
+
+        // and the minimum Y in spot 1.
+        for (int ii=2; ii < 4; ii++) {
+            if (p[1].y > p[ii].y) {
+                temp = p[1]; p[1] = p[ii]; p[ii] = temp;
+            }
+        }
+
+        // and the maximum X in spot 2.
+        if (p[2].x < p[3].x) {
+            temp = p[2]; p[2] = p[3]; p[3] = temp;
+        }
+
+        // and of course the maximum Y ends up in spot 3.
+
+        // now make the polygon! Whoo!
+        Polygon poly = new SmartPolygon();
+        poly.addPoint(p[0].x, p[0].y + model.tilehhei);
+        poly.addPoint(p[1].x + model.tilehwid, p[1].y);
+        poly.addPoint(p[2].x + model.tilewid, p[2].y + model.tilehhei);
+        poly.addPoint(p[3].x + model.tilehwid, p[3].y + model.tilehei);
 
         return poly;
     }
