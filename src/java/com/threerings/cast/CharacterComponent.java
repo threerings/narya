@@ -1,9 +1,10 @@
 //
-// $Id: CharacterComponent.java,v 1.1 2001/10/26 01:17:21 shaper Exp $
+// $Id: CharacterComponent.java,v 1.2 2001/10/30 16:16:01 shaper Exp $
 
 package com.threerings.cast;
 
 import com.threerings.media.sprite.MultiFrameImage;
+import com.threerings.media.sprite.Sprite;
 
 /**
  * The character component represents a single component that can be
@@ -17,14 +18,16 @@ public class CharacterComponent
     /**
      * Constructs a character component.
      */
-    public CharacterComponent (ComponentType type, int cid,
-                               ComponentFrames frames)
+    public CharacterComponent (
+        ComponentType type, ComponentClass cclass, int cid,
+        ComponentFrames frames)
     {
         _type = type;
+        _cclass = cclass;
         _cid = cid;
         _frames = frames;
     }
-                               
+
     /**
      * Returns the unique component identifier.
      */
@@ -42,8 +45,7 @@ public class CharacterComponent
     }
 
     /**
-     * Returns the {@link ComponentType} object describing the base
-     * component type information associated with this component.
+     * Returns the component type associated with this component.
      */
     public ComponentType getType ()
     {
@@ -51,11 +53,20 @@ public class CharacterComponent
     }
 
     /**
+     * Returns the component class associated with this component.
+     */
+    public ComponentClass getComponentClass ()
+    {
+        return _cclass;
+    }
+
+    /**
      * Returns a string representation of this character component.
      */
     public String toString ()
     {
-        return "[cid=" + _cid + ", type=" + _type + "]";
+        return "[cid=" + _cid + ", clid=" + _cclass.clid +
+            ", type=" + _type + "]";
     }
 
     /**
@@ -70,6 +81,15 @@ public class CharacterComponent
 
         /** The walking animations in each orientation. */
         public MultiFrameImage walk[];
+
+        /**
+         * Constructs a component frames object.
+         */
+        public ComponentFrames ()
+        {
+            stand = new MultiFrameImage[Sprite.NUM_DIRECTIONS];
+            walk = new MultiFrameImage[Sprite.NUM_DIRECTIONS];
+        }
     }
 
     /** The unique character component identifier. */
@@ -77,6 +97,9 @@ public class CharacterComponent
 
     /** The animation frames. */
     protected ComponentFrames _frames;
+
+    /** The component class. */
+    protected ComponentClass _cclass;
 
     /** The character component type. */
     protected ComponentType _type;

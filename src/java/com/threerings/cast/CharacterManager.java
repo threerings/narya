@@ -1,15 +1,14 @@
 //
-// $Id: CharacterManager.java,v 1.5 2001/10/26 01:17:21 shaper Exp $
+// $Id: CharacterManager.java,v 1.6 2001/10/30 16:16:01 shaper Exp $
 
 package com.threerings.cast;
 
-import java.awt.Point;
-import java.io.IOException;
+import java.util.*;
 
-import com.threerings.media.tile.TileManager;
+import com.samskivert.util.CollectionUtil;
 
 import com.threerings.cast.Log;
-import com.threerings.cast.TileUtil;
+import com.threerings.cast.CharacterComponent.ComponentFrames;
 
 /**
  * The character manager provides facilities for constructing sprites
@@ -20,11 +19,13 @@ public class CharacterManager
     /**
      * Constructs the character manager.
      */
-    public CharacterManager (TileManager tilemgr, ComponentRepository repo)
+    public CharacterManager (ComponentRepository repo)
     {
-        // save off our objects
-        _tilemgr = tilemgr;
+        // keep this around
         _repo = repo;
+
+        // determine component class render order
+        _renderRank = getRenderRank();
     }
 
     /**
@@ -36,49 +37,79 @@ public class CharacterManager
      */
     public CharacterSprite getCharacter (CharacterDescriptor desc)
     {
-        // get the list of component ids
+        long start = System.currentTimeMillis();
+
+        // get the array of component ids of each class
         int components[] = desc.getComponents();
 
-        // TODO: here is where we'd iterate through all components
-        // building up the full composite image of the sprite in each
-        // orientation, standing and walking.  we punt for now, but
-        // we'll revisit this soon enough.
-        if (components.length == 0 || components.length > 1) {
+        if (components.length == 0) {
             Log.warning("Invalid number of components " +
-                        " [size=" + components.length + "].");
+                        "[size=" + components.length + "].");
             return null;
         }
 
-        CharacterComponent comp;
-        try {
-            // as noted above, no compositing for now.  note that when
-            // we do composite, we probably will want to make sure all
-            // components share a compatible component type.
-            comp = _repo.getComponent(components[0]);
-        } catch (Exception e) {
-            Log.warning("Exception retrieving character component " +
-                        "[e=" + e + "].");
+        // create the composite character image
+        ComponentFrames frames = createCompositeFrames(desc);
+        if (frames == null) {
             return null;
         }
 
         // instantiate the character sprite
-        CharacterSprite sprite;
-        try {
-            sprite = (CharacterSprite)_charClass.newInstance();
-        } catch (Exception e) {
-            Log.warning("Failed to instantiate character sprite " +
-                        "[e=" + e + "].");
-            Log.logStackTrace(e);
+        CharacterSprite sprite = createSprite();
+        if (sprite == null) {
             return null;
         }
 
         // populate the character sprite with its attributes
-        ComponentType ctype = comp.getType();
-        sprite.setFrames(comp.getFrames());
+        ComponentType ctype = desc.getType();
+        sprite.setFrames(frames);
         sprite.setFrameRate(ctype.fps);
         sprite.setOrigin(ctype.origin.x, ctype.origin.y);
 
+        long end = System.currentTimeMillis();
+        Log.info("Generated character sprite [ms=" + (end - start) + "].");
+
         return sprite;
+    }
+
+    /**
+     * Returns an iterator over the {@link ComponentType} objects
+     * representing all available character component type
+     * identifiers.
+     */
+    public Iterator enumerateComponentTypes ()
+    {
+        return _repo.enumerateComponentTypes();
+    }
+
+    /**
+     * Returns an iterator over the <code>Integer</code> objects
+     * representing all available character component identifiers for
+     * the given character component type identifier.
+     */
+    public Iterator enumerateComponentsByType (int ctid)
+    {
+        return _repo.enumerateComponentsByType(ctid);
+    }
+
+    /**
+     * Returns an iterator over the {@link ComponentClass} objects
+     * representing all available character component class
+     * identifiers.
+     */
+    public Iterator enumerateComponentClasses ()
+    {
+        return _repo.enumerateComponentClasses();
+    }
+
+    /**
+     * Returns an iterator over the <code>Integer</code> objects
+     * representing all available character component identifiers for
+     * the given character component type and class identifiers.
+     */
+    public Iterator enumerateComponentsByClass (int ctid, int clid)
+    {
+        return _repo.enumerateComponentsByClass(ctid, clid);
     }
 
     /**
@@ -99,8 +130,77 @@ public class CharacterManager
         _charClass = charClass;
     }
 
-    /** The tile manager. */
-    protected TileManager _tilemgr;
+    /**
+     * Returns a {@link CharacterComponent.ComponentFrames} object
+     * containing the fully composited images detailed in the given
+     * character descriptor.
+     */
+    protected ComponentFrames createCompositeFrames (CharacterDescriptor desc)
+    {
+        int components[] = desc.getComponents();
+        ComponentFrames frames = null;
+
+        for (int ii = 0; ii < _renderRank.length; ii++) {
+            try {
+                int clidx = _renderRank[ii].clid;
+
+                // get the component to render
+                CharacterComponent c = _repo.getComponent(components[clidx]);
+
+                // TODO: fix this to deal with frames of varying dimensions
+                if (frames == null) {
+                    int fcount = desc.getType().frameCount;
+                    frames = TileUtil.createBlankFrames(c.getFrames(), fcount);
+                }
+
+                // render the frames onto the composite frames
+                TileUtil.compositeFrames(frames, c.getFrames());
+
+            } catch (NoSuchComponentException nsce) {
+                Log.warning("Exception compositing character components " +
+                            "[nsce=" + nsce + "].");
+                return null;
+            }
+        }
+
+        return frames;
+    }
+
+    /**
+     * Returns a new {@link CharacterSprite} of the character class
+     * specified for use by this character manager.
+     */
+    protected CharacterSprite createSprite ()
+    {
+        try {
+            return (CharacterSprite)_charClass.newInstance();
+        } catch (Exception e) {
+            Log.warning("Failed to instantiate character sprite " +
+                        "[e=" + e + "].");
+            Log.logStackTrace(e);
+            return null;
+        }
+    }
+
+    /**
+     * Returns an array of {@link ComponentClass} objects sorted into
+     * the appropriate rendering order as specified by each component
+     * class object.
+     */
+    protected ComponentClass[] getRenderRank ()
+    {
+        ArrayList classes = new ArrayList();
+        CollectionUtil.addAll(classes, _repo.enumerateComponentClasses());
+
+        ComponentClass rank[] = new ComponentClass[classes.size()];
+        classes.toArray(rank);
+        Arrays.sort(rank, ComponentClass.RENDER_COMP);
+
+        return rank;
+    }
+
+    /** The order in which to render component classes. */
+    protected ComponentClass _renderRank[];
 
     /** The component repository. */
     protected ComponentRepository _repo;

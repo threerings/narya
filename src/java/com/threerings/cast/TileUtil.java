@@ -1,9 +1,10 @@
 //
-// $Id: TileUtil.java,v 1.2 2001/10/26 01:40:22 mdb Exp $
+// $Id: TileUtil.java,v 1.3 2001/10/30 16:16:01 shaper Exp $
 
 package com.threerings.cast;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 import com.threerings.media.sprite.*;
 import com.threerings.media.tile.*;
@@ -16,6 +17,46 @@ import com.threerings.cast.CharacterComponent.ComponentFrames;
  */ 
 public class TileUtil
 {
+    /**
+     * Renders each of the given <code>src</code> component frames
+     * into the corresponding frames of <code>dest</code>.
+     */
+    public static void compositeFrames (
+        ComponentFrames dest, ComponentFrames src)
+    {
+        for (int ii = 0; ii < Sprite.NUM_DIRECTIONS; ii++) {
+            // composite the standing frames
+            compositeFrames(dest.stand[ii], src.stand[ii]);
+
+            // composite the walking frames
+            compositeFrames(dest.walk[ii], src.walk[ii]);
+        }
+    }
+
+    /**
+     * Constructs and returns a new {@link
+     * CharacterComponent.ComponentFrames} object with empty images
+     * for all of its frames.
+     */
+    public static ComponentFrames createBlankFrames (
+        ComponentFrames src, int frameCount)
+    {
+        ComponentFrames frames = new ComponentFrames();
+
+        // for now, just use the first frame from the source image to
+        // get the width and height for all of the blank frames
+        Image img = src.walk[0].getFrame(0);
+        int wid = img.getWidth(null), hei = img.getHeight(null);
+
+        // allocate the blank frame images
+        for (int ii = 0; ii < Sprite.NUM_DIRECTIONS; ii++) {
+            frames.stand[ii] = new BlankFrameImage(wid, hei, 1);
+            frames.walk[ii] = new BlankFrameImage(wid, hei, frameCount);
+        }
+
+        return frames;
+    }
+
     /**
      * Returns a {@link CharacterComponent.ComponentFrames} object
      * containing the frames of animation used to render the sprite while
@@ -33,8 +74,6 @@ public class TileUtil
         TileManager tilemgr, int tsid, int frameCount)
     {
         ComponentFrames frames = new ComponentFrames();
-        frames.walk = new MultiFrameImage[Sprite.NUM_DIRECTIONS];
-        frames.stand = new MultiFrameImage[Sprite.NUM_DIRECTIONS];
 
 	try {
 	    for (int ii = 0; ii < Sprite.NUM_DIRECTIONS; ii++) {
@@ -62,5 +101,62 @@ public class TileUtil
 	}
 
         return frames;
+    }
+
+    /**
+     * Renders each of the given <code>src</code> frames into the
+     * corresponding frames of <code>dest</code>.
+     */
+    protected static void compositeFrames (
+        MultiFrameImage dest, MultiFrameImage src)
+    {
+        int dsize = dest.getFrameCount(), ssize = src.getFrameCount();
+        if (dsize != ssize) {
+            Log.warning("Can't composite multi frame images " +
+                        "with differing frame counts " +
+                        "[dest=" + dsize + ", src=" + ssize + "].");
+            return;
+        }
+
+        for (int ii = 0; ii < dsize; ii++) {
+            Image dimg = dest.getFrame(ii);
+            Image simg = src.getFrame(ii);
+            dimg.getGraphics().drawImage(simg, 0, 0, null);
+        }
+    }
+
+    /**
+     * An implementation of the {@link MultiFrameImage} interface that
+     * initializes itself to contain a specified number of blank
+     * frames of the requested dimensions.
+     */
+    protected static class BlankFrameImage implements MultiFrameImage
+    {
+        /**
+         * Constructs a blank frame image.
+         */
+        public BlankFrameImage (int width, int height, int frameCount)
+        {
+            _imgs = new Image[frameCount];
+            for (int ii = 0; ii < frameCount; ii++) {
+                _imgs[ii] = new BufferedImage(
+                    width, height, BufferedImage.TYPE_INT_ARGB);
+            }
+        }
+
+        // documentation inherited
+        public int getFrameCount ()
+        {
+            return _imgs.length;
+        }
+
+        // documentation inherited
+        public Image getFrame (int index)
+        {
+            return _imgs[index];
+        }
+
+        /** The frame images. */
+        protected Image _imgs[];
     }
 }

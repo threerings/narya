@@ -1,5 +1,5 @@
 //
-// $Id: MisoUtil.java,v 1.10 2001/10/26 01:17:22 shaper Exp $
+// $Id: MisoUtil.java,v 1.11 2001/10/30 16:16:01 shaper Exp $
 
 package com.threerings.miso.util;
 
@@ -44,6 +44,41 @@ public class MisoUtil
     }
 
     /**
+     * Creates a <code>Config</code> object that contains
+     * configuration parameters for miso.
+     */
+    public static Config createConfig ()
+    {
+        return createConfig(null, null);
+    }
+
+    /**
+     * Creates a <code>Config</code> object that contains
+     * configuration parameters for miso.  If <code>key</code> and
+     * <code>path</code> are non-<code>null</code>, the properties in
+     * the given file will additionally be bound to the specified
+     * config key namespace.
+     */
+    public static Config createConfig (String key, String path)
+    {
+	Config config = new Config();
+	try {
+            // load the miso config info
+	    bindProperties(config);
+
+            if (key != null && path != null) {
+                // load the application-specific config info
+                config.bindProperties(key, path);
+            }
+
+	} catch (IOException ioe) {
+	    Log.warning("Error loading config information [e=" + ioe + "].");
+	}
+
+	return config;
+    }
+
+    /**
      * Creates a <code>CharacterManager</code> object.
      *
      * @param config the <code>Config</code> object.
@@ -57,7 +92,7 @@ public class MisoUtil
     {
         XMLFileComponentRepository crepo =
             new XMLFileComponentRepository(config, tilemgr); 
-        CharacterManager charmgr = new CharacterManager(tilemgr, crepo);
+        CharacterManager charmgr = new CharacterManager(crepo);
         charmgr.setCharacterClass(MisoCharacterSprite.class);
         return charmgr;
     }

@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.4 2001/10/26 01:17:21 shaper Exp $
+// $Id: DirtyItemList.java,v 1.5 2001/10/30 16:16:01 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -142,7 +142,9 @@ public class DirtyItemList extends ArrayList
 
         public String toString ()
         {
-            return "[obj=" + obj + ", ox=" + ox + ", oy=" + oy + "]";
+            return "[obj=" + obj + ", ox=" + ox + ", oy=" + oy +
+                ", lx=" + lx + ", ly=" + ly + ", rx=" + rx +
+                ", ry=" + ry + "]";
         }
     }
 
@@ -163,28 +165,36 @@ public class DirtyItemList extends ArrayList
             DirtyItem db = (DirtyItem)b;
 
             if (da.ox == db.ox &&
-                da.oy == db.oy &&
-                (da.obj instanceof MisoCharacterSprite) &&
-                (db.obj instanceof MisoCharacterSprite)) {
-                // we're comparing two sprites co-existing on the same
-                // tile, so study their fine coordinates to determine
-                // rendering order
-                MisoCharacterSprite as = (MisoCharacterSprite)da.obj;
-                MisoCharacterSprite bs = (MisoCharacterSprite)db.obj;
+                da.oy == db.oy) {
 
-                int ahei = as.getFineX() + as.getFineY();
-                int bhei = bs.getFineX() + bs.getFineY();
+                if (da.equals(db)) {
+                    // render level is equal if we're the same sprite
+                    // or an object at the same location
+                    return 0;
+                }
 
-                if (ahei < bhei) {
-                    // item b is in front of item a
-                    return -1;
-                } else if (ahei > bhei) {
-                    // item a is in front of item b
-                    return 1;
-                } else {
-                    // if they're at the same vertical row of
-                    // intra-tile tiles, just use something consistent
-                    return as.hashCode() - bs.hashCode();
+                if ((da.obj instanceof MisoCharacterSprite) &&
+                    (db.obj instanceof MisoCharacterSprite)) {
+                    // we're comparing two sprites co-existing on the same
+                    // tile, so study their fine coordinates to determine
+                    // rendering order
+                    MisoCharacterSprite as = (MisoCharacterSprite)da.obj;
+                    MisoCharacterSprite bs = (MisoCharacterSprite)db.obj;
+
+                    int ahei = as.getFineX() + as.getFineY();
+                    int bhei = bs.getFineX() + bs.getFineY();
+
+                    if (ahei < bhei) {
+                        // item b is in front of item a
+                        return -1;
+                    } else if (ahei > bhei) {
+                        // item a is in front of item b
+                        return 1;
+                    } else {
+                        // if they're at the same vertical row of
+                        // intra-tile tiles, just use something consistent
+                        return as.hashCode() - bs.hashCode();
+                    }
                 }
             }
 
@@ -192,10 +202,10 @@ public class DirtyItemList extends ArrayList
                 da.ry > db.oy) {
                 // item a is in front of item b
                 return 1;
-            } else {
-                // item b is in front of item a
-                return -1;
             }
+
+            // item b is in front of item a
+            return -1;
         }
 
         public boolean equals (Object obj)

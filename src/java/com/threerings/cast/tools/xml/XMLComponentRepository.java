@@ -1,13 +1,15 @@
 //
-// $Id: XMLComponentRepository.java,v 1.1 2001/10/26 01:17:22 shaper Exp $
+// $Id: XMLComponentRepository.java,v 1.2 2001/10/30 16:16:01 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Iterator;
 
 import com.samskivert.util.Config;
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.Tuple;
 
 import com.threerings.cast.*;
 import com.threerings.cast.CharacterComponent.ComponentFrames;
@@ -35,8 +37,8 @@ public class XMLFileComponentRepository implements ComponentRepository
         // load component types and components
         String file = config.getValue(COMPFILE_KEY, DEFAULT_COMPFILE);
         try {
-            new XMLComponentParser().loadComponents(
-                file, _types, _components);
+            XMLComponentParser p = new XMLComponentParser();
+            p.loadComponents(file, _types, _classes, _components);
         } catch (IOException ioe) {
             Log.warning("Exception loading component descriptions " +
                         "[ioe=" + ioe + "].");
@@ -45,59 +47,77 @@ public class XMLFileComponentRepository implements ComponentRepository
 
     // documentation inherited
     public CharacterComponent getComponent (int cid)
-        throws NoSuchComponentException, NoSuchComponentTypeException
+        throws NoSuchComponentException
     {
-        // get the component type id
-        Integer ctid = (Integer)_components.get(cid);
-        if (ctid == null) {
+        // get the component information
+        Tuple cinfo = (Tuple)_components.get(cid);
+        if (cinfo == null) {
             throw new NoSuchComponentException(cid);
         }
 
         // get the component type
-        ComponentType type = (ComponentType)_types.get(ctid.intValue());
-        if (type == null) {
-            throw new NoSuchComponentTypeException(ctid.intValue());
-        }
+        int ctid = ((Integer)cinfo.left).intValue();
+        ComponentType type = (ComponentType)_types.get(ctid);
+
+        // get the component class
+        int clid = ((Integer)cinfo.right).intValue();
+        ComponentClass cclass = (ComponentClass)_classes.get(clid);
 
         // get the character animation images
         ComponentFrames frames = TileUtil.getComponentFrames(
             _tilemgr, cid, type.frameCount);
 
         // create the component
-        return new CharacterComponent(type, cid, frames);
-    }
-
-    // documentation inherited
-    public Iterator enumerateComponents (int ctid)
-        throws NoSuchComponentTypeException
-    {
-        return new ComponentTypeIterator(ctid);
+        return new CharacterComponent(type, cclass, cid, frames);
     }
 
     // documentation inherited
     public Iterator enumerateComponentTypes ()
     {
-        return _types.keys();
+        return Collections.unmodifiableMap(_types).values().iterator();
+    }
+
+    // documentation inherited
+    public Iterator enumerateComponentsByType (int ctid)
+    {
+        return new ComponentIterator(ctid);
+    }
+
+    // documentation inherited
+    public Iterator enumerateComponentClasses ()
+    {
+        return Collections.unmodifiableMap(_classes).values().iterator();
+    }
+
+    // documentation inherited
+    public Iterator enumerateComponentsByClass (int ctid, int clid)
+    {
+        return new ComponentIterator(ctid, clid);
     }
 
     /**
-     * Iterates over all components of a specified component type in
-     * the component hashtable.
+     * Iterates over all components of a specified component type, and
+     * optionally a specified component class, in the component
+     * hashtable.
      */
-    protected class ComponentTypeIterator implements Iterator
+    protected class ComponentIterator implements Iterator
     {
-        public ComponentTypeIterator (int ctid)
-            throws NoSuchComponentTypeException
+        /**
+         * Constructs an iterator that iterates over all components of
+         * the specified component type.
+         */
+        public ComponentIterator (int ctid)
         {
-            _ctid = ctid;
-            _iter = _components.keys();
-            advance();
+            init(ctid, -1);
+        }
 
-            // make sure we have at least one component of the
-            // specified type
-            if (_next == null) {
-                throw new NoSuchComponentTypeException(ctid);
-            }
+        /**
+         * Constructs an iterator that iterates over all components of
+         * the specified component type and class.
+         */
+        public ComponentIterator (int ctid, int clid)
+        {
+            init(ctid, clid);
         }
 
         public boolean hasNext ()
@@ -117,12 +137,25 @@ public class XMLFileComponentRepository implements ComponentRepository
             throw new UnsupportedOperationException();
         }
 
+        protected void init (int ctid, int clid)
+        {
+            _ctid = ctid;
+            _clid = clid;
+            _iter = _components.keys();
+            advance();
+        }
+
         protected void advance ()
         {
             while (_iter.hasNext()) {
-                CharacterComponent c = (CharacterComponent)_iter.next();
-                if (c.getType().ctid == _ctid) {
-                    _next = c;
+                Integer cid = (Integer)_iter.next();
+
+                Tuple c = (Tuple)_components.get(cid);
+                int ctid = ((Integer)c.left).intValue();
+                int clid = ((Integer)c.right).intValue();
+                if (ctid == _ctid &&
+                    (_clid == -1 || (clid == _clid))) {
+                    _next = cid;
                     return;
                 }
             }
@@ -132,11 +165,15 @@ public class XMLFileComponentRepository implements ComponentRepository
         /** The component type id we're enumerating over. */
         protected int _ctid;
 
+        /** The component class id required for inclusion in the
+         * iterator, or -1 for all classes. */
+        protected int _clid;
+
         /** The next character component of the component type id
          * associated with this iterator, or null if no more exist. */
         protected Object _next;
 
-        /** Iterator over the components in the repository. */
+        /** The iterator over all components in the repository. */
         protected Iterator _iter;
     }
 
@@ -150,6 +187,9 @@ public class XMLFileComponentRepository implements ComponentRepository
 
     /** The hashtable of component types. */
     protected HashIntMap _types = new HashIntMap();
+
+    /** The hashtable of component classes. */
+    protected HashIntMap _classes = new HashIntMap();
 
     /** The hashtable of character components. */
     protected HashIntMap _components = new HashIntMap();

@@ -1,13 +1,16 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.24 2001/10/27 01:35:21 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.25 2001/10/30 16:16:01 shaper Exp $
 
 package com.threerings.miso.viewer;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import javax.swing.JPanel;
 
+import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.Config;
 
 import com.threerings.cast.*;
@@ -47,8 +50,12 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         CharacterManager charmgr = MisoUtil.createCharacterManager(
             ctx.getConfig(), ctx.getTileManager());
 
+        // create the character descriptors
+        _descUser = createCharacterDescriptor(charmgr);
+        _descDecoy = createCharacterDescriptor(charmgr);
+
         // create the manipulable sprite
-        _sprite = createSprite(spritemgr, charmgr, TSID_CHAR_USER);
+        _sprite = createSprite(spritemgr, charmgr, _descUser);
 
         // create the decoy sprites
         createDecoys(spritemgr, charmgr);
@@ -67,10 +74,9 @@ public class ViewerSceneViewPanel extends SceneViewPanel
      * Creates a new sprite.
      */
     protected MisoCharacterSprite createSprite (
-        SpriteManager spritemgr, CharacterManager charmgr, int tsid)
+        SpriteManager spritemgr, CharacterManager charmgr,
+        CharacterDescriptor desc)
     {
-        int dummy[] = { tsid };
-        CharacterDescriptor desc = new CharacterDescriptor(dummy);
         MisoCharacterSprite s =
             (MisoCharacterSprite)charmgr.getCharacter(desc);
         if (s != null) {
@@ -91,7 +97,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     {
         _decoys = new MisoCharacterSprite[NUM_DECOYS];
         for (int ii = 0; ii < NUM_DECOYS; ii++) {
-            _decoys[ii] = createSprite(spritemgr, charmgr, TSID_CHAR);
+            _decoys[ii] = createSprite(spritemgr, charmgr, _descDecoy);
             if (_decoys[ii] != null) {
                 createRandomPath(_decoys[ii]);
             }
@@ -179,6 +185,42 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         } while (!createPath(s, x, y));
     }
 
+    /**
+     * Returns a new {@link CharacterDescriptor} suitable for use in
+     * creating character sprites via {@link
+     * CharacterManager#getCharacter}.
+     */
+    protected CharacterDescriptor
+        createCharacterDescriptor (CharacterManager charmgr)
+    {
+        // get the base component type (always the first type for now).
+        // TODO: change this to retrieve component type by name
+        Iterator iter = charmgr.enumerateComponentTypes();
+        ComponentType ctype = (ComponentType)iter.next();
+
+        // get all available classes
+        ArrayList classes = new ArrayList();
+        CollectionUtil.addAll(classes, charmgr.enumerateComponentClasses());
+
+        // select the components
+        int size = classes.size();
+        int components[] = new int[size];
+        for (int ii = 0; ii < size; ii++) {
+            ComponentClass cclass = (ComponentClass)classes.get(ii);
+
+            // get the components available for this class
+            ArrayList choices = new ArrayList();
+            iter = charmgr.enumerateComponentsByClass(ctype.ctid, cclass.clid);
+            CollectionUtil.addAll(choices, iter);
+
+            // choose a random component
+            int idx = RandomUtil.getInt(choices.size());
+            components[cclass.clid] = ((Integer)choices.get(idx)).intValue();
+        }
+
+        return new CharacterDescriptor(ctype, components);
+    }
+
     // documentation inherited
     public void handleEvent (SpriteEvent event)
     {
@@ -193,13 +235,13 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     }
 
     /** The number of decoy characters milling about. */
-    protected static final int NUM_DECOYS = 2;
+    protected static final int NUM_DECOYS = 10;
 
-    /** The tileset id for the decoy character tiles. */
-    protected static final int TSID_CHAR = 1011;
+    /** The character descriptor for the user character. */
+    protected CharacterDescriptor _descUser;
 
-    /** The tileset id for the user character tiles. */
-    protected static final int TSID_CHAR_USER = 1012;
+    /** The character descriptor for the decoy characters. */
+    protected CharacterDescriptor _descDecoy;
 
     /** The animation manager. */
     protected AnimationManager _animmgr;

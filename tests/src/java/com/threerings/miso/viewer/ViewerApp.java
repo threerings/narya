@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.9 2001/10/17 22:16:04 shaper Exp $
+// $Id: ViewerApp.java,v 1.10 2001/10/30 16:16:01 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -32,7 +32,8 @@ public class ViewerApp
   	SwingUtil.centerWindow(_frame);
 
 	// create the handles on our various services
-	_config = createConfig();
+	_config = MisoUtil.createConfig(
+            ViewerModel.CONFIG_KEY, "rsrc/config/miso/viewer");
 	_model = createModel(_config, args);
 	_tilemgr = MisoUtil.createTileManager(_config, _frame);
 	_screpo = MisoUtil.createSceneRepository(_config, _tilemgr);
@@ -42,28 +43,6 @@ public class ViewerApp
 
     	// initialize the frame with the now-prepared context
 	((ViewerFrame)_frame).init(_ctx);
-    }
-
-    /**
-     * Create the config object that contains configuration parameters
-     * for the application and other utilized packages.
-     */
-    protected Config createConfig ()
-    {
-	Config config = new Config();
-	try {
-            // load the miso config info
-	    MisoUtil.bindProperties(config);
-
-            // load the viewer-specific config info
-            config.bindProperties(
-		ViewerModel.CONFIG_KEY, "rsrc/config/miso/viewer");
-
-	} catch (IOException ioe) {
-	    Log.warning("Error loading config information [e=" + ioe + "].");
-	}
-
-	return config;
     }
 
     protected ViewerModel createModel (Config config, String args[])
