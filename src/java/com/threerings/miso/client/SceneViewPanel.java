@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.2 2001/08/06 18:57:39 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.3 2001/08/08 00:10:50 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -44,11 +44,19 @@ public class SceneViewPanel extends JPanel
     }
 
     /**
+     * Get the scene managed by the panel.
+     */
+    public SceneView getSceneView ()
+    {
+	return _view;
+    }
+
+    /**
      * Render the panel and the scene view to the given graphics object.
      */
     public void paintComponent (Graphics g)
     {
-	super.paintComponent(g);
+//	super.paintComponent(g);
 	_view.paint(g);
     }
 

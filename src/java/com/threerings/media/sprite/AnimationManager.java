@@ -1,8 +1,9 @@
 //
-// $Id: AnimationManager.java,v 1.8 2001/08/07 18:29:18 shaper Exp $
+// $Id: AnimationManager.java,v 1.9 2001/08/08 00:10:50 shaper Exp $
 
 package com.threerings.miso.sprite;
 
+import java.awt.Graphics;
 import java.util.ArrayList;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
@@ -84,6 +85,13 @@ public class AnimationManager implements Interval, PerformanceObserver
         return false;
     }
 
+    /**
+     * The <code>IntervalManager</code> calls this method as often as
+     * we've requested to obtain our desired frame rate.  Since we'd
+     * like to avoid messy thread-synchronization between the AWT
+     * thread and other threads, here we just add the tick task to the
+     * AWT thread for later execution.
+     */
     public void intervalExpired (int id, Object arg)
     {
         if (requestTick()) {
@@ -92,6 +100,10 @@ public class AnimationManager implements Interval, PerformanceObserver
         }
     }
 
+    /**
+     * The <code>tick</code> method handles updating sprites and
+     * repainting the target display.
+     */
     protected void tick ()
     {
         // call tick on all sprites
@@ -104,8 +116,27 @@ public class AnimationManager implements Interval, PerformanceObserver
 	    // pass the dirty-rects on to the scene view
 	    _view.invalidateRects(rects);
 
-	    // refresh the display
-	    _target.paintImmediately(_target.getBounds());
+	    // refresh the display.
+
+	    // since we know the target panel is always opaque and not
+	    // dependent on swing's double-buffering, we bypass the
+	    // antics that <code>paintImmediately()</code> performs in
+	    // the interest of better performance and grab the
+	    // target's graphics object straightaway.
+
+	    Graphics g = null;
+	    try {
+	        Graphics pcg = _target.getGraphics();
+		g = pcg.create();
+		pcg.dispose();
+	    } catch(NullPointerException e) {
+		g = null;
+		e.printStackTrace();
+	    }
+
+	    if (g != null) {
+		_target.paint(g);
+	    }
 	}
 
 	// update refresh-rate information
@@ -129,7 +160,7 @@ public class AnimationManager implements Interval, PerformanceObserver
     protected Runnable _ticker;
 
     /** The desired number of refresh operations per second. */
-    protected static final int FRAME_RATE = 20;
+    protected static final int FRAME_RATE = 40;
 
     /** The milliseconds to sleep to obtain desired frame rate. */
     protected static final long REFRESH_INTERVAL = 1000 / FRAME_RATE;

@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.27 2001/08/07 18:29:17 shaper Exp $
+// $Id: IsoSceneView.java,v 1.28 2001/08/08 00:10:50 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -61,10 +61,19 @@ public class IsoSceneView implements EditableSceneView
   	Shape oldclip = gfx.getClip();
   	gfx.setClip(0, 0, _model.bounds.width, _model.bounds.height);
 
-	// draw the full scene into the offscreen image buffer
-	//renderSceneInvalid(gfx);
-        renderScene(gfx);
-	drawDirtyRects(gfx);
+	if (_dirty.size() == 0) {
+	    // render the full scene
+	    renderScene(gfx);
+
+	} else {
+	    // render only dirty tiles
+	    renderSceneInvalid(gfx);
+
+	    // draw frames of dirty tiles and rectangles
+	    drawDirtyRegions(gfx);
+
+	    clearDirtyRegions();
+	}
 
         // draw an outline around the highlighted tile
         paintHighlightedTile(gfx, _htile.x, _htile.y);
@@ -76,13 +85,19 @@ public class IsoSceneView implements EditableSceneView
 	gfx.setClip(oldclip);
     }
 
-    protected void drawDirtyRects (Graphics2D gfx)
+    protected void clearDirtyRegions ()
+    {
+	_dirty.clear();
+	_dirtyRects.clear();
+    }
+
+    protected void drawDirtyRegions (Graphics2D gfx)
     {
 	// draw the dirty tiles
 	gfx.setColor(Color.cyan);
 	int size = _dirty.size();
 	for (int ii = 0; ii < size; ii++) {
-	    int dinfo[] = (int[])_dirty.remove(0);
+	    int dinfo[] = (int[])_dirty.get(ii);
 	    gfx.draw(getTilePolygon(dinfo[0], dinfo[1]));
 	}
 
@@ -90,7 +105,7 @@ public class IsoSceneView implements EditableSceneView
 	gfx.setColor(Color.red);
 	size = _dirtyRects.size();
 	for (int ii = 0; ii < size; ii++) {
-	    Rectangle rect = (Rectangle)_dirtyRects.remove(0);
+	    Rectangle rect = (Rectangle)_dirtyRects.get(ii);
 	    gfx.draw(rect);
 	}
     }
@@ -102,13 +117,11 @@ public class IsoSceneView implements EditableSceneView
      */
     protected void renderSceneInvalid (Graphics2D gfx)
     {
-        Log.info("renderSceneInvalid.");
-
         int size = _dirty.size();
         for (int ii = 0; ii < size; ii++) {
 
             // retrieve the next dirty tile coordinates
-            int[] dinfo = (int[])_dirty.remove(0);
+            int[] dinfo = (int[])_dirty.get(ii);
             int tx = dinfo[0], ty = dinfo[1];
 
             // get the tile's screen position
@@ -423,6 +436,11 @@ public class IsoSceneView implements EditableSceneView
     public void setScene (Scene scene)
     {
 	_scene = scene;
+    }
+
+    public boolean getShowCoordinates ()
+    {
+	return _model.showCoords;
     }
 
     public void setShowCoordinates (boolean show)
