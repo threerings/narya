@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.40 2004/02/21 00:04:40 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.41 2004/02/21 00:22:30 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -188,6 +188,10 @@ public class PresentsDObjectMgr
                 } catch (Exception e) {
                     Log.warning("Execution unit failed [unit=" + unit + "].");
                     Log.logStackTrace(e);
+                } catch (OutOfMemoryError oome) {
+                    handleFatalError(oome);
+                } catch (StackOverflowError soe) {
+                    handleFatalError(soe);
                 }
 
             } else if (unit instanceof CompoundEvent) {
@@ -324,21 +328,27 @@ public class PresentsDObjectMgr
             Log.logStackTrace(e);
 
         } catch (OutOfMemoryError oome) {
-            Log.logStackTrace(oome);
-            if (_fatalThrottle.throttleOp()) {
-                throw oome;
-            }
+            handleFatalError(oome);
 
         } catch (StackOverflowError soe) {
-            Log.logStackTrace(soe);
-            if (_fatalThrottle.throttleOp()) {
-                throw soe;
-            }
+            handleFatalError(soe);
         }
 
         // track the number of events dispatched
         ++_eventCount;
         return true;
+    }
+
+    /**
+     * Attempts to recover from fatal errors but rethrows if things are
+     * freaking out too frequently.
+     */
+    protected void handleFatalError (Error error)
+    {
+        if (_fatalThrottle.throttleOp()) {
+            throw error;
+        }
+        Log.logStackTrace(error);
     }
 
     /**
