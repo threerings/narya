@@ -59,15 +59,35 @@ public class EditorApp implements Runnable
     /**
      * Construct and initialize the EditorApp object.
      */
-    public EditorApp (final String target)
+    public EditorApp (String[] args)
         throws IOException
     {
+        final String target = (args.length > 0) ? args[0] : null;
+
+        if (System.getProperty("no_log_redir") != null) {
+            Log.info("Logging to console only.");
+
+        } else {
+            String dlog = localDataDir("editor.log");
+            try {
+                PrintStream logOut = new PrintStream(
+                    new BufferedOutputStream(new FileOutputStream(dlog)));
+                System.setOut(logOut);
+                System.setErr(logOut);
+                Log.info("Opened debug log '" + dlog + "'.");
+
+            } catch (IOException ioe) {
+                Log.warning("Failed to open debug log [path=" + dlog +
+                            ", error=" + ioe + "].");
+            }
+        }
+
         // we need to use heavy-weight popup menus so that they can overly
         // our non-lightweight Miso view
         JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 
         // create and size the main application frame
-	_frame = new EditorFrame();
+	_frame = createEditorFrame();
 
         // create our frame manager
         _framemgr = FrameManager.newInstance(_frame);
@@ -213,33 +233,18 @@ public class EditorApp implements Runnable
         _framemgr.start();
     }
 
+    protected EditorFrame createEditorFrame ()
+    {
+        return new EditorFrame();
+    }
+
     /**
      * Instantiate the application object and start it running.
      */
     public static void main (String[] args)
     {
-        String target = (args.length > 0) ? args[0] : null;
-
-        if (System.getProperty("no_log_redir") != null) {
-            Log.info("Logging to console only.");
-
-        } else {
-            String dlog = localDataDir("editor.log");
-            try {
-                PrintStream logOut = new PrintStream(
-                    new BufferedOutputStream(new FileOutputStream(dlog)));
-                System.setOut(logOut);
-                System.setErr(logOut);
-                Log.info("Opened debug log '" + dlog + "'.");
-
-            } catch (IOException ioe) {
-                Log.warning("Failed to open debug log [path=" + dlog +
-                            ", error=" + ioe + "].");
-            }
-        }
-
         try {
-            EditorApp app = new EditorApp(target);
+            EditorApp app = new EditorApp(args);
             // start up the UI on the AWT thread to avoid deadlocks
             EventQueue.invokeLater(app);
 

@@ -164,22 +164,7 @@ public class EditorFrame extends ManagedJFrame
 
         // create the "File" menu
         JMenu menuFile = new JMenu("File");
-        menuFile.setMnemonic(KeyEvent.VK_F);
-        accel = KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK);
-        MenuUtil.addMenuItem(menuFile, "New", KeyEvent.VK_N, accel,
-                             this, "handleNew");
-        accel = KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK);
-        MenuUtil.addMenuItem(menuFile, "Open", KeyEvent.VK_O, accel,
-                             this, "handleOpen");
-        //addMenuItem(menuFile, "Close", KeyEvent.VK_C);
-        accel = KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK);
-        MenuUtil.addMenuItem(menuFile, "Save", KeyEvent.VK_S, accel,
-                             this, "handleSave");
-        MenuUtil.addMenuItem(menuFile, "Save As", KeyEvent.VK_A, null,
-                             this, "handleSaveAs");
-        accel = KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK);
-        MenuUtil.addMenuItem(menuFile, "Quit", KeyEvent.VK_Q, accel,
-                             this, "handleQuit");
+        createFileMenu(menuFile);
 
         // create the "Edit" menu
 //         JMenu menuEdit = new JMenu("Edit");
@@ -193,17 +178,7 @@ public class EditorFrame extends ManagedJFrame
 
         // create the "Actions" menu
         JMenu menuActions = new JMenu("Actions");
-        MenuUtil.addMenuItem(menuActions, "Load (reload) test tiles", this,
-            "handleTestTiles");
-        menuActions.setMnemonic(KeyEvent.VK_A);
-
-        accel = KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK);
-        MenuUtil.addMenuItem(menuActions, "Make default base tile",
-                             KeyEvent.VK_M, accel, this, "handleSetDefBase");
-
-        accel = KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK);
-        MenuUtil.addMenuItem(menuActions, "Update mini view",
-                             KeyEvent.VK_M, accel, this, "updateMiniView");
+        createActionsMenu(menuActions);
 
         // create the "Settings" menu
         JMenu menuSettings = new JMenu("Settings");
@@ -222,6 +197,41 @@ public class EditorFrame extends ManagedJFrame
 
         // add the menu bar to the frame
         setJMenuBar(bar);
+    }
+
+    protected void createFileMenu (JMenu menuFile)
+    {
+        menuFile.setMnemonic(KeyEvent.VK_F);
+        accel = KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK);
+        MenuUtil.addMenuItem(menuFile, "New", KeyEvent.VK_N, accel,
+                             this, "handleNew");
+        accel = KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK);
+        MenuUtil.addMenuItem(menuFile, "Open", KeyEvent.VK_O, accel,
+                             this, "handleOpen");
+        //addMenuItem(menuFile, "Close", KeyEvent.VK_C);
+        accel = KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK);
+        MenuUtil.addMenuItem(menuFile, "Save", KeyEvent.VK_S, accel,
+                             this, "handleSave");
+        MenuUtil.addMenuItem(menuFile, "Save As", KeyEvent.VK_A, null,
+                             this, "handleSaveAs");
+        accel = KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK);
+        MenuUtil.addMenuItem(menuFile, "Quit", KeyEvent.VK_Q, accel,
+                             this, "handleQuit");
+    }
+
+    protected void createActionsMenu (JMenu menuActions)
+    {
+        MenuUtil.addMenuItem(menuActions, "Load (reload) test tiles", this,
+            "handleTestTiles");
+        menuActions.setMnemonic(KeyEvent.VK_A);
+
+        accel = KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK);
+        MenuUtil.addMenuItem(menuActions, "Make default base tile",
+                             KeyEvent.VK_M, accel, this, "handleSetDefBase");
+
+        accel = KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK);
+        MenuUtil.addMenuItem(menuActions, "Update mini view",
+                             KeyEvent.VK_M, accel, this, "updateMiniView");
     }
 
     protected void setScene (StageScene scene)
