@@ -1,5 +1,5 @@
 //
-// $Id: ChatDisplay.java,v 1.13 2002/07/26 20:35:01 ray Exp $
+// $Id: ChatDisplay.java,v 1.14 2002/08/14 00:48:57 shaper Exp $
 
 package com.threerings.crowd.chat;
 
@@ -11,7 +11,13 @@ package com.threerings.crowd.chat;
 public interface ChatDisplay
 {
     /**
-     * Called to display a message.
+     * Called to clear the chat display.
+     */
+    public void clear ();
+
+    /**
+     * Called to display a chat message.
+     *
      * @see ChatMessage
      */ 
     public void displayMessage (ChatMessage msg);

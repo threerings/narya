@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.31 2002/07/27 01:58:57 ray Exp $
+// $Id: ChatDirector.java,v 1.32 2002/08/14 00:48:57 shaper Exp $
 
 package com.threerings.crowd.chat;
 
@@ -23,7 +23,7 @@ import com.threerings.crowd.util.CrowdContext;
 
 /**
  * The chat director is the client side coordinator of all chat related
- * services. It handles both place constrainted chat as well as direct
+ * services. It handles both place constrained chat as well as direct
  * messaging.
  */
 public class ChatDirector
@@ -31,13 +31,13 @@ public class ChatDirector
                ChatCodes
 {
     /**
-     * An interface that can receive information about the 6 most recent
-     * users that we've been chatting with.
+     * An interface that can receive information about the {@link
+     * #MAX_CHATTERS} most recent users that we've been chatting with.
      */
     public static interface ChatterObserver
     {
         /**
-         * The list of chatters has been changed.
+         * Called when the list of chatters has been changed.
          */
         public void chattersUpdated (Iterator chatternames);
     }
@@ -94,9 +94,9 @@ public class ChatDirector
     }
 
     /**
-     * Add the specified chat validator to the list of validators.
-     * All chat requests will be validated with all validators before
-     * they may be accepted.
+     * Adds the specified chat validator to the list of validators.  All
+     * chat requests will be validated with all validators before they may
+     * be accepted.
      */
     public void addChatValidator (ChatValidator validator)
     {
@@ -112,8 +112,8 @@ public class ChatDirector
     }
 
     /**
-     * Add an Observer that is watching the Chatters list, and update
-     * it immediately.
+     * Adds an observer that watches the chatters list, and updates it
+     * immediately.
      */
     public void addChatterObserver (ChatterObserver co)
     {
@@ -122,7 +122,7 @@ public class ChatDirector
     }
 
     /**
-     * Remove a Chatters list observer.
+     * Removes an observer from the list of chatter observers.
      */
     public void removeChatterObserver (ChatterObserver co)
     {
@@ -130,7 +130,7 @@ public class ChatDirector
     }
 
     /**
-     * Add a chatter to our list of recent chatters.
+     * Adds a chatter to our list of recent chatters.
      */
     protected void addChatter (String name)
     {
@@ -143,10 +143,20 @@ public class ChatDirector
             }
 
             for (Iterator iter = _chatterObservers.iterator();
-                iter.hasNext(); ) {
+                 iter.hasNext(); ) {
                 ChatterObserver co = (ChatterObserver) iter.next();
                 co.chattersUpdated(_chatters.listIterator());
             }
+        }
+    }
+
+    /**
+     * Requests that all chat displays clear their contents.
+     */
+    public void clearDisplays ()
+    {
+        for (Iterator iter = _displays.iterator(); iter.hasNext(); ) {
+            ((ChatDisplay) iter.next()).clear();
         }
     }
 
@@ -183,7 +193,7 @@ public class ChatDirector
     }
 
     /**
-     * Display the feedback message, translated with the default bundle.
+     * Displays a feedback message translated with the default bundle.
      */
     public void displayFeedbackMessage (String message)
     {
@@ -191,7 +201,7 @@ public class ChatDirector
     }
 
     /**
-     * Display a feedback message.
+     * Displays a feedback message.
      */
     public void displayFeedbackMessage (String bundle, String message)
     {
@@ -199,7 +209,7 @@ public class ChatDirector
     }
 
     /**
-     * Display a feedback message.
+     * Displays a feedback message.
      */
     public void displayFeedbackMessage (String bundle, String message,
         String localtype)
@@ -331,11 +341,12 @@ public class ChatDirector
     {
         String name = event.getName();
         if (name.equals(ChatService.SPEAK_NOTIFICATION)) {
-            handleSpeakMessage(getLocalType(event.getTargetOid()),
-                event.getArgs());
+            handleSpeakMessage(
+                getLocalType(event.getTargetOid()), event.getArgs());
+
         } else if (name.equals(ChatService.SYSTEM_NOTIFICATION)) {
-            handleSystemMessage(getLocalType(event.getTargetOid()),
-                event.getArgs());
+            handleSystemMessage(
+                getLocalType(event.getTargetOid()), event.getArgs());
         }
     }
 
@@ -345,12 +356,14 @@ public class ChatDirector
      */
     public void handleTellNotification (String source, String message)
     {
+        // bail if the speaker is blocked
         if (isBlocked(source)) {
             return;
         }
 
-        dispatchMessage(new UserMessage(message, ChatCodes.TELL_CHAT_TYPE,
-            source, ChatCodes.DEFAULT_MODE));
+        UserMessage um = new UserMessage(
+            message, ChatCodes.TELL_CHAT_TYPE, source, ChatCodes.DEFAULT_MODE);
+        dispatchMessage(um);
         addChatter(source);
     }
 
@@ -384,8 +397,8 @@ public class ChatDirector
 
         // pass this on to our chat displays
         String target = (String)tup.left, message = (String)tup.right;
-        displayFeedbackMessage(_bundle,
-            MessageBundle.tcompose("m.told_format", target, message));
+        displayFeedbackMessage(
+            _bundle, MessageBundle.tcompose("m.told_format", target, message));
         addChatter(target);
     }
 
@@ -407,9 +420,8 @@ public class ChatDirector
 
         // pass this on to our chat displays
         String target = (String)tup.left;
-
-        displayFeedbackMessage(_bundle,
-            MessageBundle.compose("m.tell_failed", target, reason));
+        displayFeedbackMessage(
+            _bundle, MessageBundle.compose("m.tell_failed", target, reason));
     }
 
     /**
@@ -424,6 +436,7 @@ public class ChatDirector
     protected void handleSpeakMessage (String localtype, Object[] args)
     {
         String speaker = (String)args[0];
+        // bail if the speaker is blocked
         if (isBlocked(speaker)) {
             return;
         }
@@ -461,16 +474,16 @@ public class ChatDirector
     }
 
     /**
-     * Translate the specified message using the specified bundle.
+     * Translates the specified message using the specified bundle.
      */
     protected String xlate (String bundle, String message)
     {
         if (bundle != null && _msgmgr != null) {
             MessageBundle msgb = _msgmgr.getBundle(bundle);
             if (msgb == null) {
-                Log.warning("No message bundle available to translate " +
-                    "message [bundle=" + bundle + ", message=" +
-                    message + "].");
+                Log.warning(
+                    "No message bundle available to translate message " +
+                    "[bundle=" + bundle + ", message=" + message + "].");
             } else {
                 message = msgb.xlate(message);
             }
@@ -479,7 +492,7 @@ public class ChatDirector
     }
 
     /**
-     * Dispatch the provided message to our ChatDisplays.
+     * Dispatches the provided message to our chat displays.
      */
     protected void dispatchMessage (ChatMessage msg)
     {
@@ -499,8 +512,7 @@ public class ChatDirector
     }
 
     /**
-     * Do an internal check to see if we can distribute chat from the
-     * specified user.
+     * Returns whether chat from the specified user is to be distributed.
      */
     protected boolean isBlocked (String username)
     {

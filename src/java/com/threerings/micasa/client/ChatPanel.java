@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.18 2002/07/26 20:35:01 ray Exp $
+// $Id: ChatPanel.java,v 1.19 2002/08/14 00:48:57 shaper Exp $
 
 package com.threerings.micasa.client;
 
@@ -218,6 +218,12 @@ public class ChatPanel
 
         // clear out the input because we sent a request
         _entry.setText("");
+    }
+
+    // documentation inherited from interface ChatDisplay
+    public void clear ()
+    {
+        _text.setText("");
     }
 
     // documentation inherited from interface ChatDisplay
