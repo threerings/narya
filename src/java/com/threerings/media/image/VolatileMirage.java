@@ -1,11 +1,10 @@
 //
-// $Id: VolatileMirage.java,v 1.2 2003/01/14 00:59:55 mdb Exp $
+// $Id: VolatileMirage.java,v 1.3 2003/01/14 04:18:25 mdb Exp $
 
 package com.threerings.media.image;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
@@ -105,10 +104,9 @@ public abstract class VolatileMirage implements Mirage
         }
 
         // create a new, compatible, volatile image
-        GraphicsConfiguration gc = _imgr.getGraphicsConfiguration();
-//         _image = gc.createCompatibleVolatileImage(
-//             _bounds.width, _bounds.height);
-        _image = gc.createCompatibleImage(
+//         _image = _imgr.createVolatileImage(
+//             _bounds.width, _bounds.height, getTransparency());
+        _image = _imgr.createImage(
             _bounds.width, _bounds.height, getTransparency());
 
         // render our source image into the volatile image
