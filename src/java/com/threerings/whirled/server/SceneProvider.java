@@ -1,5 +1,5 @@
 //
-// $Id: SceneProvider.java,v 1.15 2003/02/12 07:23:31 mdb Exp $
+// $Id: SceneProvider.java,v 1.16 2003/04/17 19:17:07 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -85,7 +85,7 @@ public class SceneProvider
 
     /**
      * Moves the supplied body into the supplied (already resolved) scene
-     * and informs the supplied listener if the move is successfuly.
+     * and informs the supplied listener if the move is successful.
      *
      * @exception InvocationException thrown if a failure occurs
      * attempting to move the user into the place associated with the

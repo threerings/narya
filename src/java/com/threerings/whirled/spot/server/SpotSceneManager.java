@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.39 2003/03/30 19:45:58 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.40 2003/04/17 19:17:07 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -94,6 +94,18 @@ public class SpotSceneManager extends SceneManager
         return null;
     }
 
+    /**
+     * This is called to let this scene manager know that the user is
+     * about to traverse the specified portal. The default implementation
+     * relocates the user to the location associated with the portal. It
+     * is still possible that the traversal will fail, so don't do
+     * anything too crazy.
+     */
+    public void willTraversePortal (BodyObject body, Portal portal)
+    {
+        updateLocation(body, portal.getLocation());
+    }
+
     // documentation inherited
     protected void didStartup ()
     {
@@ -153,8 +165,18 @@ public class SpotSceneManager extends SceneManager
 
         // create a scene location for them located on the entrance portal
         // but facing the opposite direction
-        _ssobj.addToOccupantLocs(
-            new SceneLocation(entry.getOppLocation(), body.getOid()));
+        _ssobj.addToOccupantLocs(computeEnteringLocation(body, entry));
+    }
+
+    /**
+     * Called when the supplied body is entering our scene via the
+     * specified portal. The default location is the one associated with
+     * the portal, but derived classes may wish to adjust this.
+     */
+    protected SceneLocation computeEnteringLocation (
+        BodyObject body, Portal entry)
+    {
+        return new SceneLocation(entry.getOppLocation(), body.getOid());
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.17 2003/03/26 02:06:06 mdb Exp $
+// $Id: SpotProvider.java,v 1.18 2003/04/17 19:17:07 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -64,9 +64,9 @@ public class SpotProvider
         final SceneMoveListener flistener = listener;
 
         // obtain the source scene
-        SpotSceneManager smgr = (SpotSceneManager)
+        final SpotSceneManager srcmgr = (SpotSceneManager)
             _screg.getSceneManager(sceneId);
-        if (smgr == null) {
+        if (srcmgr == null) {
             Log.warning("Traverse portal missing source scene " +
                         "[user=" + fsource.who() + ", sceneId=" + sceneId +
                         ", portalId=" + portalId + "].");
@@ -74,11 +74,11 @@ public class SpotProvider
         }
 
         // obtain the destination scene and location id
-        SpotScene rss = (SpotScene)smgr.getScene();
+        SpotScene rss = (SpotScene)srcmgr.getScene();
         final Portal fdest = rss.getPortal(portalId);
 
         // give the source scene manager a chance to do access control
-        String errmsg = smgr.mayTraversePortal(fsource, fdest);
+        String errmsg = srcmgr.mayTraversePortal(fsource, fdest);
         if (errmsg != null) {
             throw new InvocationException(errmsg);
         }
@@ -86,7 +86,7 @@ public class SpotProvider
         // make sure this portal has valid info
         if (fdest == null || !fdest.isValid()) {
             Log.warning("Traverse portal with invalid portal " +
-                        "[user=" + fsource.who() + ", scene=" + smgr.where() +
+                        "[user=" + fsource.who() + ", scene=" + srcmgr.where() +
                         ", pid=" + portalId + ", portal=" + fdest +
                         ", portals=" + StringUtil.toString(rss.getPortals()) +
                         "].");
@@ -97,6 +97,10 @@ public class SpotProvider
         SceneRegistry.ResolutionListener rl =
             new SceneRegistry.ResolutionListener() {
                 public void sceneWasResolved (SceneManager scmgr) {
+                    // let the source manager know that this guy is
+                    // departing via the specified portal
+                    srcmgr.willTraversePortal(fsource, fdest);
+
                     SpotSceneManager sscmgr = (SpotSceneManager)scmgr;
                     finishTraversePortalRequest(
                         fsource, sscmgr, fsceneVer, fdest, flistener);
@@ -119,20 +123,21 @@ public class SpotProvider
      * to have been loaded into the server.
      */
     protected void finishTraversePortalRequest (
-        BodyObject source, SpotSceneManager scmgr, int sceneVer,
+        BodyObject source, SpotSceneManager destmgr, int sceneVer,
         Portal dest, SceneMoveListener listener)
     {
         // let the destination scene manager know that we're coming in
-        scmgr.mapEnteringBody(source, dest.targetPortalId);
+        destmgr.mapEnteringBody(source, dest.targetPortalId);
 
         try {
             // move to the place object associated with this scene
-            _screg.sceneprov.effectSceneMove(source, scmgr, sceneVer, listener);
+            _screg.sceneprov.effectSceneMove(
+                source, destmgr, sceneVer, listener);
         } catch (InvocationException sfe) {
             listener.requestFailed(sfe.getMessage());
             // and let the destination scene manager know that we're no
             // longer coming in
-            scmgr.clearEnteringBody(source);
+            destmgr.clearEnteringBody(source);
         }
     }
 
