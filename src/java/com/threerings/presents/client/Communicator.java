@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.10 2001/07/19 07:48:25 mdb Exp $
+// $Id: Communicator.java,v 1.11 2001/07/25 00:26:44 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -340,7 +340,7 @@ public class Communicator
             Log.info("Got auth response: " + data);
             
             // if the auth request failed, we want to let the communicator
-            // know by throwing a login exception
+            // know by throwing a logon exception
             if (!data.code.equals(Codes.SUCCESS)) {
                 throw new LogonException(data.code);
             }

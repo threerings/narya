@@ -52,7 +52,7 @@ has to be registered in a single place, since it pretty much does anyway.
 * Client detail:
   + Supply credentials (username, password)
   + Establishes, maintains connection: 
-    login (connect), logout (disconnect)
+    logon (connect), logout (disconnect)
   + Creates, manages client-side DObjectManager
 
 * Events in the client will be dispatched on the AWT thread
