@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneWriter.java,v 1.1 2001/11/29 06:36:28 mdb Exp $
+// $Id: SpotSceneWriter.java,v 1.2 2001/11/29 06:38:35 mdb Exp $
 
 package com.threerings.whirled.tools.spot.xml;
 
@@ -16,7 +16,7 @@ import com.threerings.whirled.spot.data.SpotSceneModel;
 public class SpotSceneWriter extends SceneWriter
 {
     /**
-     * Writes the data for the supplied {@link SceneModel} to the XML
+     * Writes the data for the supplied {@link SpotSceneModel} to the XML
      * writer supplied. The writer will already be configured with the
      * appropriate indentation level so that this writer can simply output
      * its elements and allow the calling code to determine where in the
