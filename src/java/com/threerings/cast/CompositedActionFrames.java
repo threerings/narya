@@ -1,5 +1,5 @@
 //
-// $Id: CompositedActionFrames.java,v 1.5 2002/06/19 23:31:57 mdb Exp $
+// $Id: CompositedActionFrames.java,v 1.6 2002/06/20 18:31:03 mdb Exp $
 
 package com.threerings.cast;
 
@@ -29,7 +29,14 @@ public class CompositedActionFrames
      */
     public CompositedActionFrames (ActionFrames[] sources)
     {
+        // sanity check
+        if (sources == null || sources.length == 0) {
+            String errmsg = "Requested to composite invalid set of source " +
+                "frames! [sources=" + StringUtil.toString(sources) + "].";
+            throw new RuntimeException(errmsg);
+        }
         _sources = sources;
+
         // the sources must all have the same frame count, and each
         // orientation must also have the same frame count, so we just use
         // the count from the first source and first orientation
