@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -83,7 +83,7 @@ public class SpotDispatcher extends InvocationDispatcher
         case SpotMarshaller.TRAVERSE_PORTAL:
             ((SpotProvider)provider).traversePortal(
                 source,
-                ((Integer)args[0]).intValue(), ((Integer)args[1]).intValue(), (SceneService.SceneMoveListener)args[2]
+                ((Integer)args[0]).intValue(), ((Integer)args[1]).intValue(), ((Integer)args[2]).intValue(), (SceneService.SceneMoveListener)args[3]
             );
             return;
 

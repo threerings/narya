@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -81,12 +81,12 @@ public class SpotMarshaller extends InvocationMarshaller
     public static final int TRAVERSE_PORTAL = 4;
 
     // documentation inherited from interface
-    public void traversePortal (Client arg1, int arg2, int arg3, SceneService.SceneMoveListener arg4)
+    public void traversePortal (Client arg1, int arg2, int arg3, int arg4, SceneService.SceneMoveListener arg5)
     {
-        SceneMarshaller.SceneMoveMarshaller listener4 = new SceneMarshaller.SceneMoveMarshaller();
-        listener4.listener = arg4;
+        SceneMarshaller.SceneMoveMarshaller listener5 = new SceneMarshaller.SceneMoveMarshaller();
+        listener5.listener = arg5;
         sendRequest(arg1, TRAVERSE_PORTAL, new Object[] {
-            new Integer(arg2), new Integer(arg3), listener4
+            new Integer(arg2), new Integer(arg3), new Integer(arg4), listener5
         });
     }
 

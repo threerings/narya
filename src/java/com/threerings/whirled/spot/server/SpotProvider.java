@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.25 2004/08/27 02:20:47 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -77,11 +77,18 @@ public class SpotProvider
     /**
      * Processes a {@link SpotService#traversePortal} request.
      */
-    public void traversePortal (ClientObject caller, int portalId,
+    public void traversePortal (ClientObject caller, int sceneId, int portalId,
                                 int destSceneVer, SceneMoveListener listener)
         throws InvocationException
     {
-        int sceneId = getCallerSceneId(caller);
+        // le sanity check
+        int cSceneId = getCallerSceneId(caller);
+        if (cSceneId != sceneId) {
+            Log.info("Ignoring stale traverse portal request " +
+                     "[caller=" + caller.who() + ", oSceneId=" + sceneId +
+                     ", portalId=" + portalId + ", cSceneId=" + cSceneId + "].");
+            return;
+        }
 
         // avoid cluttering up the method declaration with final keywords
         final BodyObject fsource = (BodyObject)caller;

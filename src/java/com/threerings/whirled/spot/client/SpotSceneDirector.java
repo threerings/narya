@@ -43,6 +43,7 @@ import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.whirled.client.SceneDirector;
 import com.threerings.whirled.data.SceneModel;
+import com.threerings.whirled.data.ScenedBodyObject;
 import com.threerings.whirled.util.WhirledContext;
 
 import com.threerings.whirled.spot.Log;
@@ -133,6 +134,18 @@ public class SpotSceneDirector extends BasicDirector
             return false;
         }
 
+        // sanity check the server's notion of what scene we're in with
+        // our notion of it
+        int sceneId = _scdir.getScene().getId();
+        ScenedBodyObject sbobj = (ScenedBodyObject)
+            _ctx.getClient().getClientObject();
+        if (sceneId != sbobj.getSceneId()) {
+            Log.warning("Client and server differ in opinion of what scene " +
+                        "we're in [sSceneId=" + sbobj.getSceneId() +
+                        ", cSceneId=" + sceneId + "].");
+            return false;
+        }
+
         // find the portal they're talking about
         Portal dest = scene.getPortal(portalId);
         if (dest == null) {
@@ -159,8 +172,10 @@ public class SpotSceneDirector extends BasicDirector
         }
 
         // issue a traversePortal request
-        Log.info("Issuing traversePortal(" + dest + ", " + sceneVer + ").");
-        _sservice.traversePortal(_ctx.getClient(), portalId, sceneVer, _scdir);
+        Log.info("Issuing traversePortal(" +
+                 sceneId + ", " + dest + ", " + sceneVer + ").");
+        _sservice.traversePortal(
+            _ctx.getClient(), sceneId, portalId, sceneVer, _scdir);
         return true;
     }
 

@@ -38,12 +38,14 @@ public interface SpotService extends InvocationService
     /**
      * Requests to traverse the specified portal.
      *
+     * @param sceneId the player's current scene which is used to sanity
+     * check things when the request actually arrives.
      * @param portalId the portal to be traversed.
      * @param destSceneVer the version of the destination scene data that
      * the client has in its local repository.
      */
     public void traversePortal (
-        Client client, int portalId, int destSceneVer,
+        Client client, int sceneId, int portalId, int destSceneVer,
         SceneMoveListener listener);
 
     /**
