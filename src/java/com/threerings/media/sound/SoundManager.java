@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.64 2003/07/12 03:59:54 mdb Exp $
+// $Id: SoundManager.java,v 1.65 2003/07/28 05:32:04 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -32,8 +32,6 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
-
-import javax.swing.Timer;
 
 import org.apache.commons.io.StreamUtils;
 import org.apache.commons.lang.Constant;
@@ -1103,7 +1101,7 @@ public class SoundManager
         protected static final long MAX_WAIT_TIME = 30000L;
 
         /** The maximum number of spoolers we'll allow. This is a lot. */
-        protected static final int MAX_SPOOLERS = 24;
+        protected static final int MAX_SPOOLERS = 10;
 
         /** The time we sleep if it's not safe to drain. */
         protected static final long NO_DRAIN_SLEEP_TIME = 3000L;
