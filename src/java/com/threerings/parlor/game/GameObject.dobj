@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.dobj,v 1.14 2002/09/20 04:53:42 mdb Exp $
+// $Id: GameObject.dobj,v 1.15 2002/10/15 23:07:23 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -43,11 +43,29 @@ public class GameObject extends PlaceObject
     /** Indicates whether or not this game is rated. */
     public boolean isRated;
 
-    /** The username of the players involved in this game. */
+    /** The usernames of the players involved in this game. */
     public String[] players;
 
     /** The unique round identifier for the current round. */
     public int roundId;
+
+    /** The player index of the creating player if this is a party game. */
+    public int creator;
+
+    /**
+     * Returns the number of players in the game.
+     */
+    protected int getPlayerCount ()
+    {
+        int count = 0;
+        int size = players.length;
+        for (int ii = 0; ii < size; ii++) {
+            if (players[ii] != null) {
+                count++;
+            }
+        }
+        return count;
+    }
 
     /**
      * Returns the player index of the given user in the game, or 
@@ -55,8 +73,13 @@ public class GameObject extends PlaceObject
      */
     public int getPlayerIndex (String username)
     {
-        return (players == null) ? -1 : 
-            ListUtil.indexOfEqual(players, username);
+        int size = (players == null) ? 0 : players.length;
+        for (int ii = 0; ii < size; ii++) {
+            if (players[ii] != null && players[ii].equals(username)) {
+                return ii;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -66,5 +89,13 @@ public class GameObject extends PlaceObject
     public boolean isInPlay ()
     {
         return (state == IN_PLAY);
+    }
+
+    /**
+     * Returns whether the given player index in the game is occupied.
+     */
+    public boolean isOccupiedPlayer (int index)
+    {
+        return (players[index] != null);
     }
 }

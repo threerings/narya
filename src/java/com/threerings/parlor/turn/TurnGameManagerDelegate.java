@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameManagerDelegate.java,v 1.7 2002/08/07 21:17:50 shaper Exp $
+// $Id: TurnGameManagerDelegate.java,v 1.8 2002/10/15 23:07:23 shaper Exp $
 
 package com.threerings.parlor.turn;
 
@@ -8,7 +8,7 @@ import com.threerings.crowd.data.PlaceObject;
 import com.threerings.parlor.Log;
 import com.threerings.parlor.game.GameManager;
 import com.threerings.parlor.game.GameManagerDelegate;
-import com.threerings.parlor.util.MathUtil;
+import com.threerings.util.RandomUtil;
 
 /**
  * Performs the server-side turn-based game processing for a turn based
@@ -36,17 +36,12 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
      * game object.
      *
      * @return the index into the players array of the current turn holder
-     * or -1 if there is no current turn holder.
+     * or <code>-1</code> if there is no current turn holder.
      */
     public int getTurnHolderIndex ()
     {
         String holder = _turnGame.getTurnHolder();
-        for (int i = 0; i < _tgmgr.getPlayerCount(); i++) {
-            if (_tgmgr.getPlayerName(i).equals(holder)) {
-                return i;
-            }
-        }
-        return -1;
+        return _tgmgr.getPlayerIndex(_turnGame.getTurnHolder());
     }
 
     /**
@@ -64,10 +59,18 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
     public void startTurn ()
     {
         // sanity check
-        if (_turnIdx < 0 || _turnIdx >= _tgmgr.getPlayerCount()) {
+        if (_turnIdx < 0 || _turnIdx >= _turnGame.getPlayers().length) {
             Log.warning("startTurn() called with invalid turn index " +
                         "[turnIdx=" + _turnIdx + "].");
             // abort, abort
+            return;
+        }
+
+        // get the player name and sanity-check again
+        String name = _tgmgr.getPlayerName(_turnIdx);
+        if (name == null) {
+            Log.warning("startTurn() called with invalid player " +
+                        "[turnIdx=" + _turnIdx + "].");
             return;
         }
 
@@ -75,7 +78,7 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
         _tgmgr.turnWillStart();
 
         // and set the turn indicator accordingly
-        _turnGame.setTurnHolder(_tgmgr.getPlayerName(_turnIdx));
+        _turnGame.setTurnHolder(name);
 
         // do post-start processing
         _tgmgr.turnDidStart();
@@ -89,19 +92,19 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
      *
      * <p> If the next turn should not be started immediately after this
      * turn, the game manager should arrange for {@link
-     * #setNextTurnHolder} to set the {@link #_turnIdx} field to -1 which
-     * will cause us not to start the next turn. It can then call {@link
-     * GameManager#endGame} if the game is over or do whatever else it
-     * needs to do outside the context of the turn flow.  To start things
-     * back up again it would set {@link #_turnIdx} to the next turn
-     * holder and call {@link #startTurn} itself.
+     * #setNextTurnHolder} to set the {@link #_turnIdx} field to
+     * <code>-1</code> which will cause us not to start the next turn. It
+     * can then call {@link GameManager#endGame} if the game is over or do
+     * whatever else it needs to do outside the context of the turn flow.
+     * To start things back up again it would set {@link #_turnIdx} to the
+     * next turn holder and call {@link #startTurn} itself.
      */
     public void endTurn ()
     {
         // let the manager know that the turn is over
         _tgmgr.turnDidEnd();
 
-        // figure out whose up next
+        // figure out who's up next
         setNextTurnHolder();
 
         // and start the next turn if desired
@@ -137,9 +140,10 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
      */
     protected void setFirstTurnHolder ()
     {
-        // TODO: sort out a better random number generator and make it
-        // available via the parlor services
-        _turnIdx = MathUtil.random(_tgmgr.getPlayerCount());
+        int size = _turnGame.getPlayers().length;
+        do {
+            _turnIdx = RandomUtil.getInt(size);
+        } while (_tgmgr.getPlayerName(_turnIdx) == null);
     }
 
     /**
@@ -151,8 +155,17 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
      */
     protected void setNextTurnHolder ()
     {
-        // next!
-        _turnIdx = (_turnIdx + 1) % _tgmgr.getPlayerCount();
+        // stick with the current player if they're the only participant
+        if (_tgmgr.getPlayerCount() == 1) {
+            return;
+        }
+
+        // find the next occupied player slot
+        int size = _turnGame.getPlayers().length;
+        int oturnIdx = _turnIdx;
+        do {
+            _turnIdx = (_turnIdx + 1) % size;
+        } while (_tgmgr.getPlayerName(_turnIdx) == null);
     }
 
     /** The game manager for which we are delegating. */
@@ -161,7 +174,7 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
     /** A reference to our game object. */
     protected TurnGameObject _turnGame;
 
-    /** The offset into the _players array of the current turn holder or
-     * -1 if it's no one's turn. */
+    /** The player index of the current turn holder or <code>-1</code> if
+     * it's no one's turn. */
     protected int _turnIdx = -1;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameManager.java,v 1.7 2002/08/06 23:23:39 shaper Exp $
+// $Id: TurnGameManager.java,v 1.8 2002/10/15 23:07:23 shaper Exp $
 
 package com.threerings.parlor.turn;
 
@@ -33,6 +33,12 @@ public interface TurnGameManager
      * implementing this method.
      */
     public String getPlayerName (int index);
+
+    /**
+     * Extending {@link GameManager} should automatically handle
+     * implementing this method.
+     */
+    public int getPlayerIndex (String username);
 
     /**
      * Extending {@link GameManager} should automatically handle

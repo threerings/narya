@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.java,v 1.9 2002/09/20 04:53:42 mdb Exp $
+// $Id: GameObject.java,v 1.10 2002/10/15 23:07:23 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -35,6 +35,9 @@ public class GameObject extends PlaceObject
     /** The field name of the <code>roundId</code> field. */
     public static final String ROUND_ID = "roundId";
 
+    /** The field name of the <code>creator</code> field. */
+    public static final String CREATOR = "creator";
+
     /** A game state constant indicating that the game has not yet started
      * and is still awaiting the arrival of all of the players. */
     public static final int AWAITING_PLAYERS = 0;
@@ -58,11 +61,29 @@ public class GameObject extends PlaceObject
     /** Indicates whether or not this game is rated. */
     public boolean isRated;
 
-    /** The username of the players involved in this game. */
+    /** The usernames of the players involved in this game. */
     public String[] players;
 
     /** The unique round identifier for the current round. */
     public int roundId;
+
+    /** The player index of the creating player if this is a party game. */
+    public int creator;
+
+    /**
+     * Returns the number of players in the game.
+     */
+    protected int getPlayerCount ()
+    {
+        int count = 0;
+        int size = players.length;
+        for (int ii = 0; ii < size; ii++) {
+            if (players[ii] != null) {
+                count++;
+            }
+        }
+        return count;
+    }
 
     /**
      * Returns the player index of the given user in the game, or 
@@ -70,8 +91,13 @@ public class GameObject extends PlaceObject
      */
     public int getPlayerIndex (String username)
     {
-        return (players == null) ? -1 : 
-            ListUtil.indexOfEqual(players, username);
+        int size = (players == null) ? 0 : players.length;
+        for (int ii = 0; ii < size; ii++) {
+            if (players[ii] != null && players[ii].equals(username)) {
+                return ii;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -81,6 +107,14 @@ public class GameObject extends PlaceObject
     public boolean isInPlay ()
     {
         return (state == IN_PLAY);
+    }
+
+    /**
+     * Returns whether the given player index in the game is occupied.
+     */
+    public boolean isOccupiedPlayer (int index)
+    {
+        return (players[index] != null);
     }
 
     /**
@@ -165,5 +199,19 @@ public class GameObject extends PlaceObject
     {
         this.roundId = roundId;
         requestAttributeChange(ROUND_ID, new Integer(roundId));
+    }
+
+    /**
+     * Requests that the <code>creator</code> field be set to the specified
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public void setCreator (int creator)
+    {
+        this.creator = creator;
+        requestAttributeChange(CREATOR, new Integer(creator));
     }
 }

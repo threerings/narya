@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameControllerDelegate.java,v 1.3 2002/08/07 21:16:08 shaper Exp $
+// $Id: TurnGameControllerDelegate.java,v 1.4 2002/10/15 23:07:23 shaper Exp $
 
 package com.threerings.parlor.turn;
 
@@ -59,13 +59,7 @@ public class TurnGameControllerDelegate extends GameControllerDelegate
      */
     public int getTurnHolderIndex ()
     {
-        String holder = _turnGame.getTurnHolder();
-        for (int i = 0; i < _gameObj.players.length; i++) {
-            if (_gameObj.players[i].equals(holder)) {
-                return i;
-            }
-        }
-        return -1;
+        return _gameObj.getPlayerIndex(_turnGame.getTurnHolder());
     }
 
     // documentation inherited

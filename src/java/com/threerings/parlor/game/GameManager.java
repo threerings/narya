@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.47 2002/10/07 18:42:21 mdb Exp $
+// $Id: GameManager.java,v 1.48 2002/10/15 23:07:23 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import com.samskivert.util.ArrayUtil;
-import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.data.ClientObject;
@@ -49,52 +47,70 @@ public class GameManager extends PlaceManager
 
         // save off a casted reference to our config
         _gameconfig = (GameConfig)_config;
-
-        // keep this around for now, we'll need it later
-        _players = _gameconfig.players;
-
-        // instantiate a player oid array which we'll fill in later
-        _playerOids = new int[_players.length];
     }
 
     /**
-     * Adds the given player to the game.  This should only be called
-     * before the game is started, and is most likely to be used to add
-     * players to party games.
+     * Adds the given player to the game at the first available player
+     * index.  This should only be called before the game is started, and
+     * is most likely to be used to add players to party games.
      *
      * @param player the username of the player to add to this game.
+     * @return the player index at which the player was added, or
+     * <code>-1</code> if the player could not be added to the game.
      */
-    public void addPlayer (String player)
+    public int addPlayer (String player)
     {
-        // append the player to the player list
-        int pcount = _players.length;
-        int npcount = pcount + 1;
-        String[] nplayers = new String[npcount];
-        System.arraycopy(_players, 0, nplayers, 0, pcount);
-        nplayers[pcount] = player;
-        _players = nplayers;
-
-        // expand the player oids list
-        int[] nplayerOids = new int[npcount];
-        System.arraycopy(_playerOids, 0, nplayerOids, 0, pcount);
-        _playerOids = nplayerOids;
-
-        if (_AIs != null) {
-            // expand the AI list
-            byte[] nAIs = new byte[npcount];
-            System.arraycopy(_AIs, 0, nAIs, 0, pcount);
-            _AIs = nAIs;
+        // make sure we've space to add another player
+        int size = _gameobj.players.length;
+        if (_playerCount == size) {
+            Log.warning("Attempt to add player to full game " +
+                        "[game=" + _gameobj.which() + ", player=" + player +
+                        ", players=" + StringUtil.toString(_gameobj.players) +
+                        "].");
+            return -1;
         }
 
-        // set the new players list in the game object
-        _gameobj.setPlayers(_players);
+        // determine the first available player index
+        int pidx = -1;
+        for (int ii = 0; ii < size; ii++) {
+            if (!_gameobj.isOccupiedPlayer(ii)) {
+                pidx = ii;
+                break;
+            }
+        }
+
+        // sanity-check the player index
+        if (pidx == -1) {
+            Log.warning("Couldn't find free player index for player who " +
+                        "ought to be addable?! [game=" + _gameobj.which() +
+                        ", player=" + player +
+                        ", players=" + StringUtil.toString(_gameobj.players) +
+                        "].");
+            return -1;
+        }
+
+        // fill in the player's information
+        _gameobj.setPlayersAt(player, pidx);
+
+        // increment the number of players in the game
+        _playerCount++;
 
         // deliver a game ready notification to the player
         BodyObject bobj = CrowdServer.lookupBody(player);
-        ParlorSender.gameIsReady(bobj, _gameobj.getOid());
+        if (bobj == null) {
+            Log.warning("Newly added player's body object went away before " +
+                        "game ready notification could be sent " +
+                        "[game=" + _gameobj.which() + ", player=" + player +
+                        ", players=" + StringUtil.toString(_gameobj.players) +
+                        "].");
+        } else {
+            ParlorSender.gameIsReady(bobj, _gameobj.getOid());
+        }
 
         // let derived classes do what they like
-        playerWasAdded(player, pcount);
+        playerWasAdded(player, pidx);
+
+        return pidx;
     }
 
     /**
@@ -116,34 +132,41 @@ public class GameManager extends PlaceManager
      * early-on if they realize they'd rather not play for some reason.
      *
      * @param player the username of the player to remove from this game.
+     * @return true if the player was successfully removed, false if not.
      */
-    public void removePlayer (String player)
+    public boolean removePlayer (String player)
     {
         // get the player's index in the player list
-        int pidx = ListUtil.indexOfEqual(_players, player);
+        int pidx = _gameobj.getPlayerIndex(player);
+
+        // sanity-check the player index
         if (pidx == -1) {
             Log.warning("Attempt to remove non-player from players list " +
                         "[game=" + _gameobj.which() +
-                        ", player=" + player + "].");
-            return;
+                        ", player=" + player +
+                        ", players=" + StringUtil.toString(_gameobj.players) +
+                        "].");
+            return false;
         }
 
         // remove the player from the players list
-        _players = ArrayUtil.splice(_players, pidx, 1);
+        _gameobj.setPlayersAt(null, pidx);
 
-        // remove the player slot from the player oid list
-        _playerOids = ArrayUtil.splice(_playerOids, pidx, 1);
+        // clear out the player's entry in the player oid list
+        _playerOids[pidx] = 0;
 
         if (_AIs != null) {
-            // remove the player slot from the AI list
-            _AIs = ArrayUtil.splice(_AIs, pidx, 1);
+            // clear out the player's entry in the AI list
+            _AIs[pidx] = -1;
         }
 
-        // set the new players list in the game object
-        _gameobj.setPlayers(_players);
+        // decrement the number of players in the game
+        _playerCount--;
 
         // let derived classes do what they like
         playerWasRemoved(player, pidx);
+
+        return true;
     }
 
     /**
@@ -173,7 +196,7 @@ public class GameManager extends PlaceManager
     {
         if (_AIs == null) {
             // create and initialize the AI skill level array
-            _AIs = new byte[_players.length];
+            _AIs = new byte[_gameobj.players.length];
             Arrays.fill(_AIs, (byte)-1);
             // set up a delegate op for AI ticking
             _tickAIOp = new TickAIDelegateOp();
@@ -195,7 +218,16 @@ public class GameManager extends PlaceManager
      */
     public String getPlayerName (int index)
     {
-        return _players[index];
+        return _gameobj.players[index];
+    }
+
+    /**
+     * Returns the player index of the given user in the game, or 
+     * <code>-1</code> if the player is not involved in the game.
+     */
+    public int getPlayerIndex (String username)
+    {
+        return _gameobj.getPlayerIndex(username);
     }
 
     /**
@@ -211,7 +243,7 @@ public class GameManager extends PlaceManager
      */
     public int getPlayerCount ()
     {
-        return _players.length;
+        return _playerCount;
     }
 
     /**
@@ -272,28 +304,41 @@ public class GameManager extends PlaceManager
     // documentation inherited
     protected void didStartup ()
     {
-        super.didStartup();
-
         // obtain a casted reference to our game object
         _gameobj = (GameObject)_plobj;
 
         // stick the players into the game object
-        _gameobj.setPlayers(_players);
+        _gameobj.setPlayers(_gameconfig.players);
+
+        // save off the number of players so that we needn't repeatedly
+        // iterate through the player name array server-side unnecessarily
+        _playerCount = _gameobj.getPlayerCount();
+
+        // instantiate a player oid array which we'll fill in later
+        int size = _gameobj.players.length;
+        _playerOids = new int[size];
 
         // create and fill in our game service object
         GameMarshaller service = (GameMarshaller)
             _invmgr.registerDispatcher(new GameDispatcher(this), false);
         _gameobj.setGameService(service);
 
+        // give delegates a chance to do their thing
+        super.didStartup();
+
         // let the players of this game know that we're ready to roll (if
         // we have a specific set of players)
-        int pcount = (_players != null) ? _players.length : 0;
-        for (int ii = 0; ii < pcount; ii++) {
-            BodyObject bobj = CrowdServer.lookupBody(_players[ii]);
+        for (int ii = 0; ii < size; ii++) {
+            // skip non-existent players
+            if (!_gameobj.isOccupiedPlayer(ii)) {
+                continue;
+            }
+
+            BodyObject bobj = CrowdServer.lookupBody(_gameobj.players[ii]);
             if (bobj == null) {
                 Log.warning("Unable to deliver game ready to non-existent " +
                             "player [game=" + _gameobj.which() +
-                            ", player=" + _players[ii] + "].");
+                            ", player=" + _gameobj.players[ii] + "].");
                 continue;
             }
 
@@ -315,6 +360,9 @@ public class GameManager extends PlaceManager
     protected void bodyLeft (int bodyOid)
     {
         super.bodyLeft(bodyOid);
+
+        // TODO: if this is a party game not yet in play and the creator
+        // left, choose a new creator if at least one player still remains
 
         // deal with disappearing players
     }
@@ -378,7 +426,7 @@ public class GameManager extends PlaceManager
         if (!allPlayersReady()) {
             Log.warning("Requested to start a game that is still " +
                         "awaiting players [game=" + _gameobj.which() +
-                        ", pnames=" + StringUtil.toString(_players) +
+                        ", pnames=" + StringUtil.toString(_gameobj.players) +
                         ", poids=" + StringUtil.toString(_playerOids) + "].");
             return false;
         }
@@ -594,9 +642,11 @@ public class GameManager extends PlaceManager
      */
     protected boolean allPlayersReady ()
     {
-        for (int ii = 0; ii < _players.length; ii++) {
-            if ((_playerOids[ii] == 0) &&
-                ((_AIs == null) || (_AIs[ii] == -1))) {
+        int pcount = _gameobj.players.length;
+        for (int ii = 0; ii < pcount; ii++) {
+            if (_gameobj.isOccupiedPlayer(ii) &&
+                (_playerOids[ii] == 0) &&
+                (_AIs == null || _AIs[ii] == -1)) {
                 return false;
             }
         }
@@ -616,9 +666,11 @@ public class GameManager extends PlaceManager
 
         // make sure the caller is the creating player
         BodyObject plobj = (BodyObject)caller;
-        if (!plobj.username.equals(_players[0])) {
+        int pidx = _gameobj.getPlayerIndex(plobj.username);
+        if (pidx != _gameobj.creator) {
             Log.warning("Attempt to start party game by non-creating player " +
                         "[game=" + _gameobj.which() +
+                        ", creator=" + getPlayerName(_gameobj.creator) +
                         ", caller=" + caller + "].");
             return;
         }
@@ -686,8 +738,8 @@ public class GameManager extends PlaceManager
     /** A reference to our game object. */
     protected GameObject _gameobj;
 
-    /** The usernames of the players of this game. */
-    protected String[] _players;
+    /** The number of players in the game. */
+    protected int _playerCount;
 
     /** The oids of our player and AI body objects. */
     protected int[] _playerOids;
