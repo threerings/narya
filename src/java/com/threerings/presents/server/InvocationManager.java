@@ -1,5 +1,5 @@
 //
-// $Id: InvocationManager.java,v 1.2 2001/07/19 07:09:16 mdb Exp $
+// $Id: InvocationManager.java,v 1.3 2001/07/19 07:48:25 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -80,7 +80,7 @@ public class InvocationManager
             return true;
         }
 
-        // make sure the name is proper just for sanities sake
+        // make sure the name is proper just for sanity's sake
         MessageEvent mevt = (MessageEvent)event;
         if (!mevt.getName().equals(InvocationObject.MESSAGE_NAME)) {
             return true;

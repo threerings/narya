@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.6 2001/07/19 07:17:46 mdb Exp $
+// $Id: PresentsClient.java,v 1.7 2001/07/19 07:48:25 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -107,6 +107,8 @@ public class Client implements Subscriber, MessageHandler
      */
     protected void sendBootstrap ()
     {
+        Log.info("Sending bootstrap [client=" + this + "].");
+
         // create and populate our bootstrap data
         BootstrapData data = createBootstrapData();
         populateBootstrapData(data);

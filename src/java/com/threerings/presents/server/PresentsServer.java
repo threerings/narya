@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.6 2001/07/19 07:09:16 mdb Exp $
+// $Id: PresentsServer.java,v 1.7 2001/07/19 07:48:25 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -9,6 +9,8 @@ import com.threerings.cocktail.cher.server.net.AuthManager;
 import com.threerings.cocktail.cher.server.net.ConnectionManager;
 
 import com.threerings.cocktail.cher.server.test.TestObject;
+import com.threerings.cocktail.cher.server.test.TestProvider;
+import com.threerings.cocktail.cher.client.test.TestService;
 
 /**
  * The cher server provides a central point of access to the various
@@ -50,6 +52,9 @@ public class CherServer
 
             // create an object for testing
             omgr.createObject(TestObject.class, null, false);
+
+            // register our test provider
+            invmgr.registerProvider(TestService.MODULE, new TestProvider());
 
         } catch (Exception e) {
             Log.warning("Unable to initialize server.");

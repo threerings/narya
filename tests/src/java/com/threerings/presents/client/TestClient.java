@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.4 2001/06/13 05:17:55 mdb Exp $
+// $Id: TestClient.java,v 1.5 2001/07/19 07:48:25 mdb Exp $
 
 package com.threerings.cocktail.cher.client.test;
 
@@ -37,7 +37,9 @@ public class TestClient
     {
         Log.info("Client did logon [client=" + client + "].");
         // try subscribing to a test object
-        client.getDObjectManager().subscribeToObject(1, this);
+        client.getDObjectManager().subscribeToObject(2, this);
+        // issue a test invocation request
+        TestService.test(client, "foo", 1, this);
     }
 
     public void clientFailedToLogon (Client client, Exception cause)
@@ -83,6 +85,11 @@ public class TestClient
         ((TestObject)target).setBar("rofl!");
         // unsubscribe to the object to make sure we don't get the event
         return false;
+    }
+
+    public void handleTestSucceeded (String response)
+    {
+        Log.info("Got test response [rsp=" + response + "].");
     }
 
     public static void main (String[] args)

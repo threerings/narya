@@ -1,5 +1,5 @@
 //
-// $Id: TypedObjectRegistry.java,v 1.1 2001/06/11 17:44:04 mdb Exp $
+// $Id: TypedObjectRegistry.java,v 1.2 2001/07/19 07:48:25 mdb Exp $
 
 package com.threerings.cocktail.cher.io;
 
@@ -36,6 +36,8 @@ public class TypedObjectRegistry
         // register our downstream message classes
         TypedObjectFactory.registerClass(AuthResponse.TYPE,
                                          AuthResponse.class);
+        TypedObjectFactory.registerClass(BootstrapNotification.TYPE,
+                                         BootstrapNotification.class);
         TypedObjectFactory.registerClass(EventNotification.TYPE,
                                          EventNotification.class);
         TypedObjectFactory.registerClass(ObjectResponse.TYPE,
@@ -54,5 +56,7 @@ public class TypedObjectRegistry
                                          AttributeChangedEvent.class);
         TypedObjectFactory.registerClass(AttributesChangedEvent.TYPE,
                                          AttributesChangedEvent.class);
+        TypedObjectFactory.registerClass(MessageEvent.TYPE,
+                                         MessageEvent.class);
     }
 }

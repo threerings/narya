@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.9 2001/07/19 07:09:16 mdb Exp $
+// $Id: Communicator.java,v 1.10 2001/07/19 07:48:25 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -163,8 +163,8 @@ public class Communicator
         _writer = new Writer();
         _writer.start();
 
-        // let the client know that logon succeeded
-        _client.notifyObservers(Client.CLIENT_DID_LOGON, null);
+        // wait for the bootstrap notification before we claim that we're
+        // actually logged on
     }
 
     /**
@@ -365,6 +365,7 @@ public class Communicator
 
             } catch (ObjectStreamException ose) {
                 Log.warning("Error decoding message: " + ose);
+                Log.logStackTrace(ose);
 
             } catch (InterruptedIOException iioe) {
                 // somebody set up us the bomb! we've been interrupted

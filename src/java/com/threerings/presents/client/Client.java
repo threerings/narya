@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.8 2001/07/19 07:09:16 mdb Exp $
+// $Id: Client.java,v 1.9 2001/07/19 07:48:25 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -253,6 +253,9 @@ public class Client
 
         // create our invocation manager
         _invmgr = new InvocationManager(this, data.invOid);
+
+        // let the client know that logon has now fully succeeded
+        notifyObservers(Client.CLIENT_DID_LOGON, null);
     }
 
     protected Credentials _creds;
