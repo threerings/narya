@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.55 2002/04/27 18:41:14 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.56 2002/04/28 01:37:02 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -142,10 +142,6 @@ public class DisplayMisoSceneImpl
         }
 
         // create object tile instances for our objects
-        _objects = new ArrayList();
-        _coords = new HashMap();
-        _actions = new HashMap();
-
         for (int ii = 0; ii < ocount; ii+= 3) {
             int col = _model.objectTileIds[ii];
             int row = _model.objectTileIds[ii+1];
@@ -279,11 +275,11 @@ public class DisplayMisoSceneImpl
     protected TileLayer _fringe;
 
     /** The object tiles. */
-    protected ArrayList _objects;
+    protected ArrayList _objects = new ArrayList();
 
     /** A map from object tile to coordinate records. */
-    protected HashMap _coords;
+    protected HashMap _coords = new HashMap();
 
     /** A map from object tile to action string. */
-    protected HashMap _actions;
+    protected HashMap _actions = new HashMap();
 }
