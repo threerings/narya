@@ -1,9 +1,9 @@
 //
-// $Id: DummySceneRepository.java,v 1.2 2001/08/14 06:51:07 mdb Exp $
+// $Id: DummySceneRepository.java,v 1.3 2001/09/21 03:15:02 mdb Exp $
 
 package com.threerings.whirled.server.test;
 
-import java.io.IOException;
+import com.samskivert.io.PersistenceException;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.data.Scene;
@@ -19,7 +19,7 @@ public class DummySceneRepository implements SceneRepository
 {
     // documentation inherited
     public Scene loadScene (int sceneId)
-        throws IOException, NoSuchSceneException
+        throws PersistenceException, NoSuchSceneException
     {
         Log.info("Creating dummy scene [id=" + sceneId + "].");
         return new DummyScene(sceneId);
@@ -27,7 +27,7 @@ public class DummySceneRepository implements SceneRepository
 
     // documentation inherited
     public void updateScene (Scene scene)
-        throws IOException
+        throws PersistenceException
     {
         // nothing doing
     }
