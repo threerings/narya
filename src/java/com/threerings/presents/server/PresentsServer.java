@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.38 2003/08/13 22:46:13 mdb Exp $
+// $Id: PresentsServer.java,v 1.39 2004/02/25 14:45:16 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -14,7 +14,6 @@ import com.threerings.util.signal.SignalManager;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.client.Client;
-import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.server.net.ConnectionManager;
 import com.threerings.presents.server.util.SafeInterval;
 import com.threerings.presents.util.Invoker;

@@ -1,11 +1,10 @@
 //
-// $Id: SimpleServer.java,v 1.6 2002/08/15 23:21:45 mdb Exp $
+// $Id: SimpleServer.java,v 1.7 2004/02/25 14:43:37 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
 import com.samskivert.util.ResultListener;
 
-import com.threerings.crowd.data.BodyObject;
 import com.threerings.micasa.server.MiCasaServer;
 
 /**

@@ -1,23 +1,19 @@
 //
-// $Id: TileSetBundle.java,v 1.14 2003/04/27 06:35:09 mdb Exp $
+// $Id: TileSetBundle.java,v 1.15 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
 import java.awt.image.BufferedImage;
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-
 import java.util.Iterator;
+
 import javax.imageio.ImageIO;
 
 import com.samskivert.util.HashIntMap;
-
 import com.threerings.resource.ResourceBundle;
 
 import com.threerings.media.image.FastImageIO;

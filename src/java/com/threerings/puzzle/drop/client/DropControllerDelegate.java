@@ -1,5 +1,5 @@
 //
-// $Id: DropControllerDelegate.java,v 1.2 2003/12/31 01:26:23 ray Exp $
+// $Id: DropControllerDelegate.java,v 1.3 2004/02/25 14:48:44 mdb Exp $
 
 package com.threerings.puzzle.drop.client;
 
@@ -11,13 +11,10 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 
 import com.samskivert.util.IntListUtil;
-import com.samskivert.util.StringUtil;
-import com.threerings.util.DirectionUtil;
 
 import com.threerings.media.FrameParticipant;
 import com.threerings.media.animation.Animation;
 import com.threerings.media.animation.AnimationAdapter;
-import com.threerings.media.sprite.Sprite;
 
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.util.CrowdContext;
@@ -36,7 +33,6 @@ import com.threerings.puzzle.drop.data.DropCodes;
 import com.threerings.puzzle.drop.data.DropConfig;
 import com.threerings.puzzle.drop.data.DropLogic;
 import com.threerings.puzzle.drop.data.DropPieceCodes;
-import com.threerings.puzzle.drop.util.DropBoardUtil;
 import com.threerings.puzzle.drop.util.DropPieceProvider;
 import com.threerings.puzzle.drop.util.PieceDropLogic;
 import com.threerings.puzzle.drop.util.PieceDropper.PieceDropInfo;

@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.69 2003/11/24 18:09:03 mdb Exp $
+// $Id: GameManager.java,v 1.70 2004/02/25 14:44:54 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -13,13 +13,11 @@ import com.samskivert.util.StringUtil;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
-import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.server.util.SafeInterval;
 
 import com.threerings.crowd.chat.server.SpeakProvider;
 
 import com.threerings.crowd.data.BodyObject;
-import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.crowd.server.PlaceManager;
 import com.threerings.crowd.server.CrowdServer;

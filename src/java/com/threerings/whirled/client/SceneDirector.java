@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.25 2003/10/03 20:41:31 mdb Exp $
+// $Id: SceneDirector.java,v 1.26 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -9,13 +9,9 @@ import com.samskivert.util.ResultListener;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
-import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.ObjectAccessException;
 
 import com.threerings.crowd.client.LocationDirector;
-import com.threerings.crowd.client.LocationObserver;
 import com.threerings.crowd.data.PlaceConfig;
-import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.client.persist.SceneRepository;

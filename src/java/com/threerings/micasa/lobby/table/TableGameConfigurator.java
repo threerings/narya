@@ -1,18 +1,13 @@
 //
-// $Id: TableGameConfigurator.java,v 1.1 2002/07/25 23:20:22 mdb Exp $
+// $Id: TableGameConfigurator.java,v 1.2 2004/02/25 14:43:37 mdb Exp $
 
 package com.threerings.micasa.lobby.table;
 
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-
-import com.samskivert.swing.HGroupLayout;
-import com.samskivert.swing.VGroupLayout;
 import com.samskivert.swing.SimpleSlider;
+import com.samskivert.swing.VGroupLayout;
 
 import com.threerings.parlor.client.GameConfigurator;
 import com.threerings.parlor.data.TableConfig;
-import com.threerings.parlor.util.ParlorContext;
 
 /**
  * Extends the basic game configurator with elements to support the

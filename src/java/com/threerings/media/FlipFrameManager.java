@@ -1,5 +1,5 @@
 //
-// $Id: FlipFrameManager.java,v 1.4 2003/05/05 01:41:57 mdb Exp $
+// $Id: FlipFrameManager.java,v 1.5 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media;
 
@@ -9,10 +9,6 @@ import java.awt.Graphics2D;
 import java.awt.ImageCapabilities;
 import java.awt.Rectangle;
 import java.awt.image.BufferStrategy;
-
-import javax.swing.JFrame;
-
-import com.threerings.media.timer.MediaTimer;
 
 /**
  * A {@link FrameManager} extension that uses a flip-buffer (via {@link

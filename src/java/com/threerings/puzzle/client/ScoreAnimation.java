@@ -1,20 +1,16 @@
 //
-// $Id: ScoreAnimation.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: ScoreAnimation.java,v 1.2 2004/02/25 14:48:44 mdb Exp $
 
 package com.threerings.puzzle.client;
 
 import java.awt.AlphaComposite;
-import java.awt.Color;
 import java.awt.Composite;
-import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import com.samskivert.swing.Label;
 
 import com.threerings.media.animation.Animation;
-
-import com.threerings.puzzle.Log;
 
 public class ScoreAnimation extends Animation
 {

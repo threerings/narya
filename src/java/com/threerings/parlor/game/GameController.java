@@ -1,15 +1,12 @@
 //
-// $Id: GameController.java,v 1.23 2003/11/25 22:35:10 mdb Exp $
+// $Id: GameController.java,v 1.24 2004/02/25 14:44:54 mdb Exp $
 
 package com.threerings.parlor.game;
 
 import java.awt.event.ActionEvent;
 
-import com.samskivert.swing.Controller;
-
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
-import com.threerings.presents.dobj.MessageEvent;
 
 import com.threerings.crowd.client.PlaceController;
 import com.threerings.crowd.client.PlaceControllerDelegate;

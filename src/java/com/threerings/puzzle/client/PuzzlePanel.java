@@ -1,18 +1,15 @@
 //
-// $Id: PuzzlePanel.java,v 1.2 2003/11/26 17:46:06 mdb Exp $
+// $Id: PuzzlePanel.java,v 1.3 2004/02/25 14:48:44 mdb Exp $
 
 package com.threerings.puzzle.client;
 
 import java.awt.BorderLayout;
-import java.awt.Graphics;
-import java.io.IOException;
 import javax.swing.JPanel;
 
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.ControllerProvider;
 import com.samskivert.swing.util.SwingUtil;
 
-import com.threerings.media.image.Mirage;
 import com.threerings.util.KeyTranslator;
 import com.threerings.util.RobotPlayer;
 
@@ -20,11 +17,9 @@ import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.puzzle.Log;
-import com.threerings.puzzle.data.BoardSummary;
 import com.threerings.puzzle.data.PuzzleCodes;
 import com.threerings.puzzle.data.PuzzleConfig;
 import com.threerings.puzzle.data.PuzzleGameCodes;
-import com.threerings.puzzle.data.PuzzleObject;
 import com.threerings.puzzle.util.PuzzleContext;
 
 /**

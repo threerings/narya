@@ -1,5 +1,5 @@
 //
-// $Id: ExplodeAnimation.java,v 1.14 2003/01/13 22:49:46 mdb Exp $
+// $Id: ExplodeAnimation.java,v 1.15 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -13,7 +13,6 @@ import java.awt.Shape;
 import com.samskivert.util.StringUtil;
 import com.threerings.util.RandomUtil;
 
-import com.threerings.media.Log;
 import com.threerings.media.image.Mirage;
 
 /**

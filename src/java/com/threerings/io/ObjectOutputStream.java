@@ -1,5 +1,5 @@
 //
-// $Id: ObjectOutputStream.java,v 1.1 2002/07/23 05:42:34 mdb Exp $
+// $Id: ObjectOutputStream.java,v 1.2 2004/02/25 14:42:46 mdb Exp $
 
 package com.threerings.io;
 
@@ -7,8 +7,6 @@ import java.io.OutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
-
-import com.threerings.presents.Log;
 
 /**
  * Used to write {@link Streamable} objects to an {@link OutputStream}.

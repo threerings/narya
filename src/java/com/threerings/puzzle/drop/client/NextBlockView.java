@@ -1,16 +1,13 @@
 //
-// $Id: NextBlockView.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: NextBlockView.java,v 1.2 2004/02/25 14:48:44 mdb Exp $
 
 package com.threerings.puzzle.drop.client;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 
 import javax.swing.JComponent;
-import javax.swing.border.Border;
 
 import com.threerings.media.image.Mirage;
 import com.threerings.util.DirectionCodes;

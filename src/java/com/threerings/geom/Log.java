@@ -1,5 +1,5 @@
 //
-// $Id: Log.java,v 1.1 2003/04/28 20:27:52 mdb Exp $
+// $Id: Log.java,v 1.2 2004/02/25 14:42:30 mdb Exp $
 
 package com.threerings.geom;
 
@@ -40,6 +40,6 @@ public class Log
 
     public static int getLevel ()
     {
-        return log.getLevel(PACKAGE);
+        return com.samskivert.util.Log.getLevel(PACKAGE);
     }
 }

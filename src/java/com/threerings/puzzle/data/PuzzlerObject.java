@@ -1,9 +1,7 @@
 //
-// $Id: PuzzlerObject.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: PuzzlerObject.java,v 1.2 2004/02/25 14:48:44 mdb Exp $
 
 package com.threerings.puzzle.data;
-
-import com.threerings.crowd.data.BodyObject;
 
 /**
  * An interface that must be implemented by {@link BodyObject} derivations

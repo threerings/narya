@@ -1,26 +1,20 @@
 //
-// $Id: Mp3Player.java,v 1.4 2003/01/08 04:09:02 mdb Exp $
+// $Id: Mp3Player.java,v 1.5 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.sound;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine.Info;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
-import org.apache.commons.io.StreamUtils;
-
 import com.threerings.media.Log;
-import com.threerings.resource.ResourceManager;
 
 /**
  * Plays mp3 files. Depends on three external jar files that aren't even

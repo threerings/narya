@@ -1,13 +1,11 @@
 //
-// $Id: RunningConnection.java,v 1.11 2002/12/22 19:13:38 mdb Exp $
+// $Id: RunningConnection.java,v 1.12 2004/02/25 14:45:16 mdb Exp $
 
 package com.threerings.presents.server.net;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-
-import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.net.UpstreamMessage;
 

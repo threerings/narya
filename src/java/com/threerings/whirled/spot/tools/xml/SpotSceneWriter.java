@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneWriter.java,v 1.7 2003/02/12 07:23:31 mdb Exp $
+// $Id: SpotSceneWriter.java,v 1.8 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.spot.tools.xml;
 
@@ -9,7 +9,6 @@ import org.xml.sax.helpers.AttributesImpl;
 import com.megginson.sax.DataWriter;
 import com.threerings.tools.xml.NestableWriter;
 
-import com.threerings.whirled.spot.data.Portal;
 import com.threerings.whirled.spot.data.SpotSceneModel;
 import com.threerings.whirled.spot.tools.EditablePortal;
 

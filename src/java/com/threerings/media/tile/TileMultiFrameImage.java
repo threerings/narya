@@ -1,11 +1,10 @@
 //
-// $Id: TileMultiFrameImage.java,v 1.2 2003/01/13 22:49:46 mdb Exp $
+// $Id: TileMultiFrameImage.java,v 1.3 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Graphics2D;
 
-import com.threerings.media.Log;
 import com.threerings.media.util.MultiFrameImage;
 
 /**

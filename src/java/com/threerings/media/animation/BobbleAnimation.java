@@ -1,16 +1,13 @@
 //
-// $Id: BobbleAnimation.java,v 1.6 2003/01/13 22:49:46 mdb Exp $
+// $Id: BobbleAnimation.java,v 1.7 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.animation;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-import com.threerings.util.RandomUtil;
-
-import com.threerings.media.Log;
 import com.threerings.media.image.Mirage;
+import com.threerings.util.RandomUtil;
 
 /**
  * An animation that bobbles an image around within a specific horizontal

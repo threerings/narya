@@ -1,22 +1,18 @@
 //
-// $Id: ModPlayer.java,v 1.6 2003/01/08 04:09:02 mdb Exp $
+// $Id: ModPlayer.java,v 1.7 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.sound;
 
 import java.io.DataInputStream;
 import java.io.InputStream;
-import java.io.IOException;
 
 import micromod.MicroMod;
 import micromod.Module;
 import micromod.ModuleLoader;
 import micromod.output.JavaSoundOutputDevice;
 import micromod.output.OutputDeviceException;
-import micromod.output.PCM16StreamOutputDevice;
 import micromod.output.converters.SS16LEAudioFormatConverter;
 import micromod.resamplers.LinearResampler;
-
-import com.threerings.resource.ResourceManager;
 
 /**
  * A player that plays .mod format music.

@@ -1,26 +1,17 @@
 //
-// $Id: DirtyItemList.java,v 1.28 2003/04/28 23:33:43 mdb Exp $
+// $Id: DirtyItemList.java,v 1.29 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.client;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Polygon;
-import java.awt.Rectangle;
-import java.awt.Shape;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 
 import com.samskivert.util.SortableArrayList;
-import com.samskivert.util.StringUtil;
 
 import com.threerings.media.Log;
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.tile.ObjectTile;
-
-import com.threerings.miso.MisoPrefs;
 
 /**
  * The dirty item list keeps track of dirty sprites and object tiles

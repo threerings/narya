@@ -1,9 +1,7 @@
 //
-// $Id: Sounds.java,v 1.4 2003/01/08 04:09:02 mdb Exp $
+// $Id: Sounds.java,v 1.5 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.sound;
-
-import java.io.File;
 
 /**
  * A base class for sound repository classes. These would extend this

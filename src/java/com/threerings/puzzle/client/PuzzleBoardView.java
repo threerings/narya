@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleBoardView.java,v 1.6 2003/12/10 03:32:07 mdb Exp $
+// $Id: PuzzleBoardView.java,v 1.7 2004/02/25 14:48:44 mdb Exp $
 
 package com.threerings.puzzle.client;
 
@@ -7,9 +7,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Graphics;
 import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 
@@ -24,7 +22,6 @@ import com.threerings.media.animation.Animation;
 import com.threerings.media.animation.AnimationAdapter;
 import com.threerings.media.image.Mirage;
 import com.threerings.media.sprite.Sprite;
-import com.threerings.media.sprite.SpriteManager;
 
 import com.threerings.puzzle.Log;
 import com.threerings.puzzle.data.Board;

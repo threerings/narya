@@ -1,12 +1,11 @@
 //
-// $Id: WhirledServer.java,v 1.16 2003/02/12 07:23:31 mdb Exp $
+// $Id: WhirledServer.java,v 1.17 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.server;
 
 import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.whirled.Log;
-import com.threerings.whirled.server.persist.DummySceneRepository;
 import com.threerings.whirled.server.persist.SceneRepository;
 import com.threerings.whirled.util.SceneFactory;
 

@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.3 2003/12/05 02:39:12 mdb Exp $
+// $Id: PuzzleController.java,v 1.4 2004/02/25 14:48:44 mdb Exp $
 
 package com.threerings.puzzle.client;
 
@@ -12,42 +12,25 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 
-import javax.swing.JButton;
-
-import com.samskivert.swing.GroupLayout;
-import com.samskivert.swing.event.CommandEvent;
 import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.ObserverList;
-import com.samskivert.util.StringUtil;
-
-import com.threerings.io.Streamable;
-import com.threerings.util.MessageBundle;
-import com.threerings.util.StreamableArrayList;
 
 import com.threerings.media.FrameParticipant;
 import com.threerings.media.sound.SoundCodes;
 
-import com.threerings.presents.client.InvocationReceiver;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.ElementUpdateListener;
 import com.threerings.presents.dobj.ElementUpdatedEvent;
 
-import com.threerings.crowd.client.OccupantDirector;
 import com.threerings.crowd.client.PlaceControllerDelegate;
-import com.threerings.crowd.data.BodyObject;
-import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.parlor.game.GameController;
-import com.threerings.parlor.game.GameObject;
 
 import com.threerings.puzzle.Log;
 import com.threerings.puzzle.data.Board;
-import com.threerings.puzzle.data.BoardSummary;
 import com.threerings.puzzle.data.PuzzleCodes;
 import com.threerings.puzzle.data.PuzzleConfig;
 import com.threerings.puzzle.data.PuzzleObject;
@@ -547,7 +530,7 @@ public abstract class PuzzleController extends GameController
         canClear[0] = (_pview.getActionCount() == 0);
         if (!canClear[0]) {
             _pview.dumpActors();
-            _pview.DEBUG_ACTION = true;
+            PuzzleBoardView.DEBUG_ACTION = true;
         }
 
         // let our delegates do their business
@@ -587,7 +570,7 @@ public abstract class PuzzleController extends GameController
 
         // make a note that we've cleared the action
         _astate = ACTION_CLEARED;
-        _pview.DEBUG_ACTION = false;
+        PuzzleBoardView.DEBUG_ACTION = false;
 
         // let our delegates do their business
         applyToDelegates(PuzzleControllerDelegate.class, new DelegateOp() {

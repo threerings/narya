@@ -1,16 +1,12 @@
 //
-// $Id: Connection.java,v 1.17 2004/02/21 00:51:02 mdb Exp $
+// $Id: Connection.java,v 1.18 2004/02/25 14:45:16 mdb Exp $
 
 package com.threerings.presents.server.net;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import java.net.InetAddress;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 

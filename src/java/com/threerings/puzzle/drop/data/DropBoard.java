@@ -1,21 +1,17 @@
 //
-// $Id: DropBoard.java,v 1.3 2003/12/31 01:26:23 ray Exp $
+// $Id: DropBoard.java,v 1.4 2004/02/25 14:48:44 mdb Exp $
 
 package com.threerings.puzzle.drop.data;
 
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import java.util.Arrays;
-
 import org.apache.commons.lang.Strings;
 
-import com.threerings.util.DirectionCodes;
 import com.threerings.util.DirectionUtil;
 
 import com.threerings.puzzle.Log;
 import com.threerings.puzzle.data.Board;
-import com.threerings.puzzle.drop.client.DropControllerDelegate;
 import com.threerings.puzzle.drop.data.DropPieceCodes;
 import com.threerings.puzzle.drop.util.DropBoardUtil;
 

@@ -1,25 +1,19 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.24 2004/02/05 18:53:00 eric Exp $
+// $Id: VirtualMediaPanel.java,v 1.25 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media;
 
-import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.event.MouseEvent;
 
 import javax.swing.SwingUtilities;
 
 import com.samskivert.util.RunAnywhere;
-import com.samskivert.util.StringUtil;
 
 import com.threerings.media.image.ImageUtil;
 import com.threerings.media.image.Mirage;
 import com.threerings.media.util.MathUtil;
-import com.threerings.media.util.Path;
 import com.threerings.media.util.Pathable;
 
 /**

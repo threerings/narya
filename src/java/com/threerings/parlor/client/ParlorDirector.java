@@ -1,10 +1,9 @@
 //
-// $Id: ParlorDirector.java,v 1.18 2002/12/12 23:55:31 shaper Exp $
+// $Id: ParlorDirector.java,v 1.19 2004/02/25 14:44:54 mdb Exp $
 
 package com.threerings.parlor.client;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import com.samskivert.util.HashIntMap;
 
 import com.threerings.presents.client.BasicDirector;

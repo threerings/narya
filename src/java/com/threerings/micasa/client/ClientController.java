@@ -1,11 +1,10 @@
 //
-// $Id: ClientController.java,v 1.16 2002/09/20 00:54:39 mdb Exp $
+// $Id: ClientController.java,v 1.17 2004/02/25 14:43:37 mdb Exp $
 
 package com.threerings.micasa.client;
 
 import java.awt.event.ActionEvent;
 import com.samskivert.swing.Controller;
-import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.SessionObserver;

@@ -1,10 +1,9 @@
 //
-// $Id: SafeInterval.java,v 1.2 2003/11/12 23:37:47 mdb Exp $
+// $Id: SafeInterval.java,v 1.3 2004/02/25 14:45:16 mdb Exp $
 
 package com.threerings.presents.client.util;
 
 import com.samskivert.util.Interval;
-import com.samskivert.util.IntervalManager;
 
 import com.threerings.presents.client.Client;
 

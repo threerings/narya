@@ -1,16 +1,13 @@
 //
-// $Id: FringeConfiguration.java,v 1.15 2003/05/29 01:58:06 ray Exp $
+// $Id: FringeConfiguration.java,v 1.16 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.tile;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Random;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
-
-import com.threerings.miso.Log;
 
 /**
  * Used to manage data about which base tilesets fringe on which others

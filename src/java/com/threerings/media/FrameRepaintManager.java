@@ -1,12 +1,11 @@
 //
-// $Id: FrameRepaintManager.java,v 1.19 2003/04/26 17:56:26 mdb Exp $
+// $Id: FrameRepaintManager.java,v 1.20 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media;
 
 import java.applet.Applet;
 
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.Graphics;
@@ -15,7 +14,6 @@ import java.awt.Rectangle;
 import java.awt.Window;
 
 import javax.swing.CellRendererPane;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;

@@ -1,5 +1,5 @@
 //
-// $Id: DropSprite.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: DropSprite.java,v 1.2 2004/02/25 14:48:44 mdb Exp $
 
 package com.threerings.puzzle.drop.client;
 
@@ -13,9 +13,6 @@ import com.threerings.util.DirectionUtil;
 
 import com.threerings.media.image.Mirage;
 import com.threerings.media.sprite.Sprite;
-import com.threerings.media.tile.TileManager;
-
-import com.threerings.puzzle.Log;
 
 /**
  * The drop sprite is a sprite that displays one or more pieces falling

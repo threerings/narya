@@ -1,5 +1,5 @@
 //
-// $Id: TableDirector.java,v 1.9 2002/10/27 22:23:14 mdb Exp $
+// $Id: TableDirector.java,v 1.10 2004/02/25 14:44:54 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -18,7 +18,6 @@ import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.data.Table;
-import com.threerings.parlor.data.TableLobbyObject;
 import com.threerings.parlor.game.GameConfig;
 import com.threerings.parlor.util.ParlorContext;
 

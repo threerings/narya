@@ -1,5 +1,5 @@
 //
-// $Id: SceneObjectTip.java,v 1.4 2004/01/11 08:26:18 mdb Exp $
+// $Id: SceneObjectTip.java,v 1.5 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -11,15 +11,12 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import java.util.Collection;
-import java.util.Comparator;
 
 import javax.swing.Icon;
 import javax.swing.UIManager;
 
 import com.samskivert.swing.Label;
 import com.samskivert.swing.LabelSausage;
-import com.samskivert.swing.LabelStyleConstants;
-import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.SortableArrayList;
 

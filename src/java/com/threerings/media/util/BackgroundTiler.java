@@ -1,10 +1,9 @@
 //
-// $Id: BackgroundTiler.java,v 1.7 2003/11/19 18:27:10 mdb Exp $
+// $Id: BackgroundTiler.java,v 1.8 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.util;
 
 import java.awt.Graphics;
-import java.awt.Shape;
 import java.awt.image.BufferedImage;
 
 import com.threerings.media.Log;

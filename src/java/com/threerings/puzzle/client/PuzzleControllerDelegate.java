@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleControllerDelegate.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: PuzzleControllerDelegate.java,v 1.2 2004/02/25 14:48:44 mdb Exp $
 
 package com.threerings.puzzle.client;
 
@@ -8,7 +8,6 @@ import com.threerings.crowd.data.PlaceObject;
 import com.threerings.parlor.game.GameControllerDelegate;
 
 import com.threerings.puzzle.data.Board;
-import com.threerings.puzzle.data.BoardSummary;
 import com.threerings.puzzle.data.PuzzleCodes;
 import com.threerings.puzzle.data.PuzzleGameCodes;
 import com.threerings.puzzle.data.PuzzleObject;

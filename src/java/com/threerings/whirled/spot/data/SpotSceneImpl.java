@@ -1,12 +1,11 @@
 //
-// $Id: SpotSceneImpl.java,v 1.2 2003/06/11 04:14:11 mdb Exp $
+// $Id: SpotSceneImpl.java,v 1.3 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
 import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
-import com.samskivert.util.ListUtil;
 
 import com.threerings.whirled.spot.Log;
 

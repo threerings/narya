@@ -1,5 +1,5 @@
 //
-// $Id: VolatileMirage.java,v 1.4 2003/01/17 02:30:21 mdb Exp $
+// $Id: VolatileMirage.java,v 1.5 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -7,7 +7,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.awt.image.VolatileImage;
 
 import com.samskivert.util.StringUtil;
 

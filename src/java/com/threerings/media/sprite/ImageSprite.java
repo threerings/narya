@@ -1,20 +1,11 @@
 //
-// $Id: ImageSprite.java,v 1.18 2003/06/24 02:25:10 ray Exp $
+// $Id: ImageSprite.java,v 1.19 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.sprite;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Composite;
-
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import com.threerings.media.Log;
 import com.threerings.media.image.Mirage;
 import com.threerings.media.util.MultiFrameImage;
 import com.threerings.media.util.SingleFrameImageImpl;

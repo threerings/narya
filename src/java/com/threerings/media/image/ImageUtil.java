@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.33 2003/06/23 17:59:04 mdb Exp $
+// $Id: ImageUtil.java,v 1.34 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -11,7 +11,6 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.HeadlessException;
-import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Transparency;
@@ -23,16 +22,10 @@ import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 
-import java.awt.geom.Area;
-
 import java.util.Arrays;
 import java.util.Iterator;
 
 import com.samskivert.swing.Label;
-import com.samskivert.util.ArrayUtil;
-import com.samskivert.util.StringUtil;
-
-import com.threerings.media.Log;
 
 /**
  * Image related utility functions.

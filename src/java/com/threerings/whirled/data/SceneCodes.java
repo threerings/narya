@@ -1,10 +1,9 @@
 //
-// $Id: SceneCodes.java,v 1.4 2003/06/11 04:14:11 mdb Exp $
+// $Id: SceneCodes.java,v 1.5 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.data;
 
 import com.threerings.crowd.data.LocationCodes;
-import com.threerings.whirled.client.SceneDirector;
 
 /**
  * Contains codes used by the scene invocation services.

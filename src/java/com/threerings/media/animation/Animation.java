@@ -1,12 +1,11 @@
 //
-// $Id: Animation.java,v 1.10 2003/04/30 00:45:02 mdb Exp $
+// $Id: Animation.java,v 1.11 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.animation;
 
 import java.awt.Rectangle;
 
 import com.threerings.media.AbstractMedia;
-import com.threerings.media.Log;
 
 /**
  * The animation class is an abstract class that should be extended to

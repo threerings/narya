@@ -1,5 +1,5 @@
 //
-// $Id: DropBoardView.java,v 1.2 2003/11/26 02:07:45 mdb Exp $
+// $Id: DropBoardView.java,v 1.3 2004/02/25 14:48:44 mdb Exp $
 
 package com.threerings.puzzle.drop.client;
 
@@ -8,16 +8,12 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Shape;
 
 import java.util.Iterator;
-
-import com.samskivert.swing.Label;
 
 import com.threerings.media.image.Mirage;
 import com.threerings.media.sprite.Sprite;
 
-import com.threerings.puzzle.Log;
 import com.threerings.puzzle.client.PuzzleBoardView;
 import com.threerings.puzzle.client.ScoreAnimation;
 import com.threerings.puzzle.data.Board;

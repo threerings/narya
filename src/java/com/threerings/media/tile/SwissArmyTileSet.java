@@ -1,5 +1,5 @@
 //
-// $Id: SwissArmyTileSet.java,v 1.10 2003/01/15 09:11:37 mdb Exp $
+// $Id: SwissArmyTileSet.java,v 1.11 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 
 import com.samskivert.util.StringUtil;
-
-import com.threerings.media.Log;
 
 /**
  * The swiss army tileset supports a diverse variety of tiles in the

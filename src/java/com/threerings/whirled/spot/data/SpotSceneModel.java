@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneModel.java,v 1.9 2003/02/12 07:23:31 mdb Exp $
+// $Id: SpotSceneModel.java,v 1.10 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -7,7 +7,6 @@ import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.ListUtil;
 
 import com.threerings.io.SimpleStreamableObject;
-import com.threerings.util.DirectionUtil;
 
 import com.threerings.whirled.data.AuxModel;
 import com.threerings.whirled.data.SceneModel;

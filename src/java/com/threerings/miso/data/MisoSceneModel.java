@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneModel.java,v 1.18 2003/04/25 22:26:25 mdb Exp $
+// $Id: MisoSceneModel.java,v 1.19 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -7,8 +7,6 @@ import java.awt.Rectangle;
 import java.util.Random;
 
 import com.threerings.io.SimpleStreamableObject;
-
-import com.threerings.media.tile.TileUtil;
 
 import com.threerings.miso.util.ObjectSet;
 

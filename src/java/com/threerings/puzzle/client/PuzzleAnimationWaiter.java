@@ -1,11 +1,10 @@
 //
-// $Id: PuzzleAnimationWaiter.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: PuzzleAnimationWaiter.java,v 1.2 2004/02/25 14:48:44 mdb Exp $
 
 package com.threerings.puzzle.client;
 
 import com.threerings.media.animation.AnimationWaiter;
 
-import com.threerings.puzzle.Log;
 import com.threerings.puzzle.data.PuzzleObject;
 
 /**

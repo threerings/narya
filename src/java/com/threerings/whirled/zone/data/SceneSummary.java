@@ -1,14 +1,12 @@
 //
-// $Id: SceneSummary.java,v 1.6 2003/07/22 07:29:11 mdb Exp $
+// $Id: SceneSummary.java,v 1.7 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.zone.data;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.util.DirectionCodes;
-import com.threerings.util.DirectionUtil;
-
 import com.threerings.io.Streamable;
+import com.threerings.util.DirectionUtil;
 
 /**
  * The scene summary class is used to provide info about the connected

@@ -1,20 +1,16 @@
 //
-// $Id: ObjectTileSetRuleSet.java,v 1.9 2003/03/03 20:41:50 ray Exp $
+// $Id: ObjectTileSetRuleSet.java,v 1.10 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.tile.tools.xml;
 
-import java.awt.Dimension;
-import java.awt.Point;
-
-import org.xml.sax.Attributes;
 import org.apache.commons.digester.Digester;
 
 import com.samskivert.util.StringUtil;
 import com.samskivert.xml.CallMethodSpecialRule;
-import com.threerings.util.DirectionUtil;
 
-import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.ObjectTileSet;
+
+import com.threerings.util.DirectionUtil;
 
 /**
  * Parses {@link ObjectTileSet} instances from a tileset description. An

@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfigurationParser.java,v 1.8 2002/05/07 00:05:02 mdb Exp $
+// $Id: FringeConfigurationParser.java,v 1.9 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.tile.tools.xml;
 
@@ -7,7 +7,6 @@ import java.io.Serializable;
 
 import org.xml.sax.Attributes;
 import org.apache.commons.digester.Digester;
-import org.apache.commons.digester.Rule;
 
 import com.samskivert.util.StringUtil;
 import com.samskivert.xml.SetPropertyFieldsRule;

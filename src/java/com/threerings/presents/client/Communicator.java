@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.33 2003/08/08 20:20:39 mdb Exp $
+// $Id: Communicator.java,v 1.34 2004/02/25 14:45:16 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -28,11 +28,7 @@ import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.net.DownstreamMessage;
-import com.threerings.presents.net.ForwardEventRequest;
 import com.threerings.presents.net.LogoffRequest;
-import com.threerings.presents.net.PingRequest;
-import com.threerings.presents.net.SubscribeRequest;
-import com.threerings.presents.net.UnsubscribeRequest;
 import com.threerings.presents.net.UpstreamMessage;
 
 /**

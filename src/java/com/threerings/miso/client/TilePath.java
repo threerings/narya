@@ -1,5 +1,5 @@
 //
-// $Id: TilePath.java,v 1.17 2003/05/16 00:26:18 mdb Exp $
+// $Id: TilePath.java,v 1.18 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -11,9 +11,7 @@ import com.threerings.util.DirectionCodes;
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.util.LineSegmentPath;
 import com.threerings.media.util.MathUtil;
-import com.threerings.media.util.PathNode;
 
-import com.threerings.miso.Log;
 import com.threerings.miso.util.MisoSceneMetrics;
 import com.threerings.miso.util.MisoUtil;
 

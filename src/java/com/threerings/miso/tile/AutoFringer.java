@@ -1,24 +1,20 @@
 //
-// $Id: AutoFringer.java,v 1.27 2003/11/12 23:13:45 ray Exp $
+// $Id: AutoFringer.java,v 1.28 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.tile;
 
 import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 
 import com.samskivert.util.CheapIntMap;
 import com.samskivert.util.QuickSort;
-import com.samskivert.util.StringUtil;
 
-import com.threerings.media.Log;
 import com.threerings.media.image.BufferedMirage;
+import com.threerings.media.image.ImageManager;
+import com.threerings.media.image.ImageUtil;
 
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
@@ -26,12 +22,7 @@ import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.TileSet;
 
-import com.threerings.media.image.ImageUtil;
-
-import com.threerings.media.image.BackedVolatileMirage;
-import com.threerings.media.image.ImageManager;
-import com.threerings.media.image.Mirage;
-
+import com.threerings.miso.Log;
 import com.threerings.miso.data.MisoSceneModel;
 import com.threerings.miso.util.MisoUtil;
 

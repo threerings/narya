@@ -1,10 +1,9 @@
 //
-// $Id: SceneRegistry.java,v 1.21 2003/11/24 21:06:36 mdb Exp $
+// $Id: SceneRegistry.java,v 1.22 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.server;
 
 import java.util.ArrayList;
-import java.util.Properties;
 
 import com.samskivert.util.HashIntMap;
 import com.threerings.presents.util.Invoker;
@@ -13,12 +12,10 @@ import com.threerings.presents.server.InvocationManager;
 
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.server.CrowdServer;
-import com.threerings.crowd.server.PlaceManager;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.data.Scene;
 import com.threerings.whirled.data.SceneModel;
-import com.threerings.whirled.data.SceneObject;
 import com.threerings.whirled.server.persist.SceneRepository;
 import com.threerings.whirled.util.SceneFactory;
 import com.threerings.whirled.util.UpdateList;

@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneParser.java,v 1.2 2003/05/14 21:34:01 ray Exp $
+// $Id: SparseMisoSceneParser.java,v 1.3 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.tools.xml;
 
@@ -11,7 +11,6 @@ import org.apache.commons.digester.Digester;
 
 import com.samskivert.io.StreamUtil;
 import com.samskivert.util.StringUtil;
-import com.threerings.tools.xml.NestableRuleSet;
 
 import com.threerings.miso.data.SparseMisoSceneModel;
 

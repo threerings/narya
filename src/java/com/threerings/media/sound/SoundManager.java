@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.70 2004/02/24 08:08:25 ray Exp $
+// $Id: SoundManager.java,v 1.71 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.sound;
 
@@ -20,16 +20,10 @@ import java.util.LinkedList;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.DataLine.Info;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.FloatControl.Type;
 import javax.sound.sampled.Line;
-import javax.sound.sampled.LineEvent;
-import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -42,7 +36,6 @@ import com.samskivert.util.IntervalManager;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.Queue;
 import com.samskivert.util.RuntimeAdjust;
-import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.resource.ResourceManager;

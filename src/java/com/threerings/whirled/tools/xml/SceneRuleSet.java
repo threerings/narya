@@ -1,11 +1,10 @@
 //
-// $Id: SceneRuleSet.java,v 1.3 2003/02/12 07:23:31 mdb Exp $
+// $Id: SceneRuleSet.java,v 1.4 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.tools.xml;
 
 import org.apache.commons.digester.Digester;
 
-import com.samskivert.util.StringUtil;
 import com.samskivert.xml.SetPropertyFieldsRule;
 
 import com.threerings.tools.xml.NestableRuleSet;

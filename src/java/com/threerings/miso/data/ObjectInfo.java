@@ -1,5 +1,5 @@
 //
-// $Id: ObjectInfo.java,v 1.4 2003/07/12 04:16:10 mdb Exp $
+// $Id: ObjectInfo.java,v 1.5 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -60,7 +60,7 @@ public class ObjectInfo extends SimpleStreamableObject
         this.sx = other.sx;
         this.sy = other.sy;
         this.sorient = other.sorient;
-        this.zations = zations;
+        this.zations = other.zations;
     }
 
     /**

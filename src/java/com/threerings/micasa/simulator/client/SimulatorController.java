@@ -1,11 +1,10 @@
 //
-// $Id: SimulatorController.java,v 1.1 2002/11/12 19:54:05 shaper Exp $
+// $Id: SimulatorController.java,v 1.2 2004/02/25 14:43:37 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
 import java.awt.event.ActionEvent;
 import com.samskivert.swing.Controller;
-import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.SessionObserver;

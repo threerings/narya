@@ -1,9 +1,7 @@
 //
-// $Id: SystemMediaTimer.java,v 1.4 2003/08/08 21:41:28 mdb Exp $
+// $Id: SystemMediaTimer.java,v 1.5 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.timer;
-
-import com.threerings.media.Log;
 
 /**
  * Implements the {@link MediaTimer} interface using {@link

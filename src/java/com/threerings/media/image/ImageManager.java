@@ -1,21 +1,17 @@
 //
-// $Id: ImageManager.java,v 1.58 2003/07/28 04:06:14 mdb Exp $
+// $Id: ImageManager.java,v 1.59 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.image;
 
 import java.awt.Component;
-import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
-import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +22,6 @@ import java.util.Iterator;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 
-import com.samskivert.io.NestableIOException;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;

@@ -1,20 +1,17 @@
 //
-// $Id: TrimmedObjectTileSet.java,v 1.13 2003/05/31 00:56:38 mdb Exp $
+// $Id: TrimmedObjectTileSet.java,v 1.14 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Rectangle;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.media.Log;
-import com.threerings.media.image.Mirage;
-import com.threerings.media.tile.util.TileSetTrimmer;
 import com.threerings.media.image.Colorization;
+import com.threerings.media.tile.util.TileSetTrimmer;
 
 /**
  * An object tileset in which the objects have been trimmed to the

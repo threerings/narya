@@ -1,11 +1,9 @@
 //
-// $Id: TileSetBundlerTask.java,v 1.7 2003/04/27 06:33:40 mdb Exp $
+// $Id: TileSetBundlerTask.java,v 1.8 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
 import java.io.File;
-import java.io.IOException;
-
 import java.util.ArrayList;
 
 import org.apache.tools.ant.BuildException;

@@ -1,9 +1,7 @@
 //
-// $Id: PuzzleProvider.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: PuzzleProvider.java,v 1.2 2004/02/25 14:48:44 mdb Exp $
 
 package com.threerings.puzzle.server;
-
-import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.client.InvocationService.InvocationListener;
 import com.threerings.presents.data.ClientObject;
@@ -12,7 +10,6 @@ import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.data.BodyObject;
-import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.PlaceManager;
@@ -22,8 +19,6 @@ import com.threerings.parlor.game.GameManager;
 
 import com.threerings.puzzle.Log;
 import com.threerings.puzzle.client.PuzzleService.EnterPuzzleListener;
-import com.threerings.puzzle.data.Board;
-import com.threerings.puzzle.data.BoardSummary;
 import com.threerings.puzzle.data.PuzzleCodes;
 import com.threerings.puzzle.data.PuzzleObject;
 import com.threerings.puzzle.data.PuzzlerObject;

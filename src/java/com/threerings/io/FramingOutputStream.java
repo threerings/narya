@@ -1,10 +1,8 @@
 //
-// $Id: FramingOutputStream.java,v 1.3 2002/11/18 18:51:33 mdb Exp $
+// $Id: FramingOutputStream.java,v 1.4 2004/02/25 14:42:46 mdb Exp $
 
 package com.threerings.io;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 
 import java.nio.BufferOverflowException;

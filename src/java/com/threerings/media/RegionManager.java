@@ -1,5 +1,5 @@
 //
-// $Id: RegionManager.java,v 1.11 2004/02/03 07:32:41 ray Exp $
+// $Id: RegionManager.java,v 1.12 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media;
 
@@ -7,7 +7,6 @@ import java.awt.EventQueue;
 import java.awt.Rectangle;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.samskivert.util.StringUtil;
 

@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaClient.java,v 1.17 2003/11/24 17:51:56 mdb Exp $
+// $Id: MiCasaClient.java,v 1.18 2004/02/25 14:43:37 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -21,7 +21,6 @@ import com.threerings.crowd.client.PlaceView;
 
 import com.threerings.parlor.client.ParlorDirector;
 
-import com.threerings.micasa.Log;
 import com.threerings.micasa.util.MiCasaContext;
 
 /**

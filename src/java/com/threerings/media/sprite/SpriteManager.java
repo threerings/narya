@@ -1,18 +1,15 @@
 //
-// $Id: SpriteManager.java,v 1.41 2003/04/30 00:44:36 mdb Exp $
+// $Id: SpriteManager.java,v 1.42 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.sprite;
 
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.Shape;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import com.threerings.media.AbstractMediaManager;
-import com.threerings.media.Log;
 import com.threerings.media.RegionManager;
 
 /**

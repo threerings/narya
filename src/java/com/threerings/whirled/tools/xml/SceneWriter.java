@@ -1,5 +1,5 @@
 //
-// $Id: SceneWriter.java,v 1.4 2003/02/12 07:23:32 mdb Exp $
+// $Id: SceneWriter.java,v 1.5 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.tools.xml;
 
@@ -7,13 +7,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 import com.megginson.sax.DataWriter;
-import com.samskivert.util.StringUtil;
 import com.threerings.tools.xml.NestableWriter;
 
 import com.threerings.whirled.Log;

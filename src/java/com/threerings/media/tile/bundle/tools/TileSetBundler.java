@@ -1,12 +1,9 @@
 //
-// $Id: TileSetBundler.java,v 1.18 2003/06/18 00:34:47 ray Exp $
+// $Id: TileSetBundler.java,v 1.19 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -15,28 +12,23 @@ import java.io.ObjectOutputStream;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.Deflater;
 
-import org.xml.sax.SAXException;
+import javax.imageio.ImageIO;
 
 import org.apache.commons.digester.Digester;
-import org.apache.commons.digester.Rule;
-import org.apache.commons.digester.RuleSetBase;
-
 import org.apache.commons.io.StreamUtils;
+import org.xml.sax.SAXException;
 
 import com.samskivert.io.NestableIOException;
 import com.samskivert.io.PersistenceException;
 
 import com.threerings.media.Log;
-import com.threerings.media.image.Colorization;
 import com.threerings.media.image.FastImageIO;
 import com.threerings.media.image.ImageUtil;
-import com.threerings.media.image.Mirage;
 
 import com.threerings.media.tile.ImageProvider;
 import com.threerings.media.tile.ObjectTileSet;
@@ -45,7 +37,6 @@ import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileSetIDBroker;
 import com.threerings.media.tile.TrimmedObjectTileSet;
 import com.threerings.media.tile.UniformTileSet;
-
 import com.threerings.media.tile.bundle.BundleUtil;
 import com.threerings.media.tile.bundle.TileSetBundle;
 import com.threerings.media.tile.tools.xml.TileSetRuleSet;

@@ -1,9 +1,7 @@
 //
-// $Id: VirtualMisoSceneModel.java,v 1.3 2003/04/19 22:40:34 mdb Exp $
+// $Id: VirtualMisoSceneModel.java,v 1.4 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.data;
-
-import java.awt.Rectangle;
 
 /**
  * A convenient base class for "virtual" scenes which do not allow editing

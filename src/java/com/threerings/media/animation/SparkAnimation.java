@@ -1,5 +1,5 @@
 //
-// $Id: SparkAnimation.java,v 1.2 2003/01/13 22:49:46 mdb Exp $
+// $Id: SparkAnimation.java,v 1.3 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -7,8 +7,6 @@ import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-
-import java.util.Arrays;
 
 import com.threerings.util.RandomUtil;
 

@@ -1,17 +1,12 @@
 //
-// $Id: FrameManager.java,v 1.49 2003/12/19 18:31:11 mdb Exp $
+// $Id: FrameManager.java,v 1.50 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media;
 
 import java.applet.Applet;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.GraphicsDevice;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
@@ -25,15 +20,12 @@ import java.awt.event.WindowListener;
 
 import java.awt.EventQueue;
 
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.RepaintManager;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
-import com.samskivert.swing.Label;
-import com.samskivert.util.DebugChords;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.RuntimeAdjust;

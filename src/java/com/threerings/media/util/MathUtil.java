@@ -1,9 +1,7 @@
 //
-// $Id: MathUtil.java,v 1.9 2003/04/19 22:28:28 mdb Exp $
+// $Id: MathUtil.java,v 1.10 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.util;
-
-import com.threerings.media.Log;
 
 import java.awt.Point;
 

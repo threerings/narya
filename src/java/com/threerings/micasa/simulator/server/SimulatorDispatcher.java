@@ -1,12 +1,10 @@
 //
-// $Id: SimulatorDispatcher.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+// $Id: SimulatorDispatcher.java,v 1.3 2004/02/25 14:43:37 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
-import com.threerings.micasa.simulator.client.SimulatorService;
 import com.threerings.micasa.simulator.data.SimulatorMarshaller;
 import com.threerings.parlor.game.GameConfig;
-import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
@@ -16,7 +14,7 @@ import com.threerings.presents.server.InvocationException;
  * Dispatches requests to the {@link SimulatorProvider}.
  *
  * <p> Generated from <code>
- * $Id: SimulatorDispatcher.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+ * $Id: SimulatorDispatcher.java,v 1.3 2004/02/25 14:43:37 mdb Exp $
  * </code>
  */
 public class SimulatorDispatcher extends InvocationDispatcher

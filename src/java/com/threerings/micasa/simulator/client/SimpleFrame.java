@@ -1,14 +1,11 @@
 //
-// $Id: SimpleFrame.java,v 1.3 2002/07/12 03:49:37 mdb Exp $
+// $Id: SimpleFrame.java,v 1.4 2004/02/25 14:43:37 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
-import java.awt.BorderLayout;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 import com.samskivert.swing.Controller;
-import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.micasa.client.MiCasaFrame;
 

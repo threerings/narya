@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.65 2003/11/24 21:58:36 mdb Exp $
+// $Id: Sprite.java,v 1.66 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -11,7 +11,6 @@ import com.samskivert.util.ObserverList;
 import com.threerings.util.DirectionCodes;
 
 import com.threerings.media.AbstractMedia;
-import com.threerings.media.Log;
 import com.threerings.media.util.Path;
 import com.threerings.media.util.Pathable;
 

@@ -1,26 +1,14 @@
 //
-// $Id: TileManager.java,v 1.34 2003/06/18 05:48:45 mdb Exp $
+// $Id: TileManager.java,v 1.35 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.tile;
 
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import com.samskivert.io.PersistenceException;
-import com.samskivert.util.HashIntMap;
-import com.samskivert.util.IntTuple;
-import com.samskivert.util.LRUHashMap;
-
-import com.threerings.media.image.Colorization;
-import com.threerings.media.image.ImageDataProvider;
-import com.threerings.media.image.ImageManager;
-import com.threerings.media.image.Mirage;
 
 import com.threerings.media.Log;
-import com.threerings.media.tile.TileUtil;
+import com.threerings.media.image.ImageManager;
 
 /**
  * The tile manager provides a simplified interface for retrieving and

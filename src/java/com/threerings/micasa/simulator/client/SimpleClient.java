@@ -1,5 +1,5 @@
 //
-// $Id: SimpleClient.java,v 1.10 2003/12/10 03:31:41 mdb Exp $
+// $Id: SimpleClient.java,v 1.11 2004/02/25 14:43:37 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -24,9 +24,7 @@ import com.threerings.crowd.client.PlaceView;
 import com.threerings.parlor.client.ParlorDirector;
 import com.threerings.parlor.util.ParlorContext;
 
-import com.threerings.micasa.Log;
 import com.threerings.micasa.client.MiCasaFrame;
-import com.threerings.micasa.simulator.data.SimulatorInfo;
 import com.threerings.micasa.util.MiCasaContext;
 
 public class SimpleClient

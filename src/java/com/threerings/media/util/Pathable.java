@@ -1,10 +1,9 @@
 //
-// $Id: Pathable.java,v 1.5 2002/12/04 02:45:09 shaper Exp $
+// $Id: Pathable.java,v 1.6 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.util;
 
 import java.awt.Rectangle;
-import com.threerings.util.DirectionCodes;
 
 /**
  * Used in conjunction with a {@link Path}.

@@ -1,25 +1,18 @@
 //
-// $Id: TileSetTrimmer.java,v 1.8 2003/05/02 23:32:37 mdb Exp $
+// $Id: TileSetTrimmer.java,v 1.9 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.tile.util;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.awt.image.RasterFormatException;
 import java.awt.image.WritableRaster;
-
-import com.samskivert.util.StringUtil;
-
-import com.threerings.media.Log;
+import java.io.IOException;
+import java.io.OutputStream;
 
 import com.threerings.media.image.FastImageIO;
 import com.threerings.media.image.ImageUtil;
-import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileSet;
 
 /**

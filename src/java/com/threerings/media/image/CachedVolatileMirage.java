@@ -1,5 +1,5 @@
 //
-// $Id: CachedVolatileMirage.java,v 1.3 2003/04/11 18:48:05 mdb Exp $
+// $Id: CachedVolatileMirage.java,v 1.4 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -9,7 +9,6 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
 import com.threerings.media.Log;
-import com.samskivert.util.StringUtil;
 
 /**
  * A mirage implementation which allows the image to be maintained in

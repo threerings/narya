@@ -1,5 +1,5 @@
 //
-// $Id: LogonPanel.java,v 1.8 2002/09/19 23:36:59 mdb Exp $
+// $Id: LogonPanel.java,v 1.9 2004/02/25 14:43:37 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -8,7 +8,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;

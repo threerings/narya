@@ -1,5 +1,5 @@
 //
-// $Id: RecolorImage.java,v 1.4 2004/02/22 18:55:26 ray Exp $
+// $Id: RecolorImage.java,v 1.5 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.tools;
 
@@ -12,10 +12,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-import javax.imageio.ImageIO;
-
 import java.io.File;
 import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -31,7 +31,6 @@ import com.samskivert.swing.HGroupLayout;
 import com.samskivert.swing.VGroupLayout;
 import com.samskivert.swing.util.SwingUtil;
 
-import com.threerings.media.Log;
 import com.threerings.media.image.ImageUtil;
 
 /**

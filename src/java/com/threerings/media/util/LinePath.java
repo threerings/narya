@@ -1,16 +1,13 @@
 //
-// $Id: LinePath.java,v 1.12 2003/05/16 02:22:19 ray Exp $
+// $Id: LinePath.java,v 1.13 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.util;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Graphics;
 import java.awt.Point;
 
 import com.samskivert.util.StringUtil;
-
-import com.threerings.media.Log;
 
 /**
  * The line path is used to cause a pathable to go from point A to point B

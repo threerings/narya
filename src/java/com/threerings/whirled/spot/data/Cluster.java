@@ -1,5 +1,5 @@
 //
-// $Id: Cluster.java,v 1.6 2003/03/27 15:57:47 mdb Exp $
+// $Id: Cluster.java,v 1.7 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -7,7 +7,6 @@ import java.awt.Rectangle;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.io.SimpleStreamableObject;
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.dobj.DSet;

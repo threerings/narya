@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.22 2003/11/24 18:17:41 mdb Exp $
+// $Id: SpotProvider.java,v 1.23 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -8,17 +8,13 @@ import com.samskivert.util.StringUtil;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.InvocationException;
-import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.chat.server.CommunicationAuthorizer;
 import com.threerings.crowd.data.BodyObject;
-import com.threerings.crowd.data.PlaceConfig;
-import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.PlaceRegistry;
 
 import com.threerings.whirled.client.SceneService.SceneMoveListener;
-import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.data.ScenedBodyObject;
 import com.threerings.whirled.server.SceneManager;
 import com.threerings.whirled.server.SceneRegistry;

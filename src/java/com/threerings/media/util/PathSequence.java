@@ -1,10 +1,9 @@
 //
-// $Id: PathSequence.java,v 1.3 2003/09/25 21:07:20 mdb Exp $
+// $Id: PathSequence.java,v 1.4 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.util;
 
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 
 import java.util.ArrayList;
 import java.util.List;

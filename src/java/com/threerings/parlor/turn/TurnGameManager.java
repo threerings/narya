@@ -1,9 +1,7 @@
 //
-// $Id: TurnGameManager.java,v 1.8 2002/10/15 23:07:23 shaper Exp $
+// $Id: TurnGameManager.java,v 1.9 2004/02/25 14:44:54 mdb Exp $
 
 package com.threerings.parlor.turn;
-
-import com.threerings.parlor.game.GameManager;
 
 /**
  * A game manager that wishes to make use of the turn game services should

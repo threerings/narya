@@ -1,10 +1,7 @@
 //
-// $Id: MisoSceneMetrics.java,v 1.4 2003/05/12 02:04:16 mdb Exp $
+// $Id: MisoSceneMetrics.java,v 1.5 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.util;
-
-import java.awt.Point;
-import java.awt.Rectangle;
 
 /**
  * Contains information on the configuration of a particular isometric

@@ -1,5 +1,5 @@
 //
-// $Id: BackFrameManager.java,v 1.6 2003/11/25 19:42:54 mdb Exp $
+// $Id: BackFrameManager.java,v 1.7 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media;
 
@@ -7,11 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Rectangle;
 import java.awt.image.VolatileImage;
-import javax.swing.JFrame;
-
-import com.samskivert.util.StringUtil;
-
-import com.threerings.media.timer.MediaTimer;
 
 /**
  * A {@link FrameManager} extension that uses a volatile off-screen image

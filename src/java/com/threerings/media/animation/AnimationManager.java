@@ -1,12 +1,11 @@
 //
-// $Id: AnimationManager.java,v 1.16 2003/04/30 00:45:02 mdb Exp $
+// $Id: AnimationManager.java,v 1.17 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.animation;
 
 import com.samskivert.util.ObserverList;
 
 import com.threerings.media.AbstractMediaManager;
-import com.threerings.media.Log;
 import com.threerings.media.RegionManager;
 
 /**

@@ -1,25 +1,19 @@
 //
-// $Id: TileSet.java,v 1.58 2003/07/28 04:06:14 mdb Exp $
+// $Id: TileSet.java,v 1.59 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.tile;
 
-import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
-
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 
-import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Throttle;
-import com.samskivert.util.Tuple;
 
 import com.threerings.media.Log;
-import com.threerings.media.MediaPrefs;
 import com.threerings.media.image.Colorization;
 import com.threerings.media.image.Mirage;
 

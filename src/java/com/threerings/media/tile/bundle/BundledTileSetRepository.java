@@ -1,24 +1,18 @@
 //
-// $Id: BundledTileSetRepository.java,v 1.13 2003/06/19 01:12:32 ray Exp $
+// $Id: BundledTileSetRepository.java,v 1.14 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
-import java.io.IOException;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.util.HashIntMap;
-
 import com.threerings.resource.ResourceBundle;
 import com.threerings.resource.ResourceManager;
 
 import com.threerings.media.Log;
-import com.threerings.media.image.ImageDataProvider;
 import com.threerings.media.image.ImageManager;
-
 import com.threerings.media.tile.IMImageProvider;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.TileSet;

@@ -1,15 +1,11 @@
 //
-// $Id: Client.java,v 1.47 2003/12/19 18:30:23 mdb Exp $
+// $Id: Client.java,v 1.48 2004/02/25 14:45:16 mdb Exp $
 
 package com.threerings.presents.client;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
 import com.samskivert.util.ObserverList;
-import com.samskivert.util.ResultListener;
 import com.samskivert.util.RunAnywhere;
 
 import com.threerings.presents.Log;

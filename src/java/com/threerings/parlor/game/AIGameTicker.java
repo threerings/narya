@@ -1,12 +1,11 @@
 //
-// $Id: AIGameTicker.java,v 1.4 2003/06/21 15:32:29 mdb Exp $
+// $Id: AIGameTicker.java,v 1.5 2004/02/25 14:44:54 mdb Exp $
 
 package com.threerings.parlor.game;
 
 import java.util.Iterator;
 import java.util.HashSet;
 
-import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
 
 import com.threerings.presents.server.util.SafeInterval;

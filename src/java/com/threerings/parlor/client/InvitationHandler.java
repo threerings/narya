@@ -1,9 +1,7 @@
 //
-// $Id: InvitationHandler.java,v 1.3 2002/08/14 19:07:52 mdb Exp $
+// $Id: InvitationHandler.java,v 1.4 2004/02/25 14:44:54 mdb Exp $
 
 package com.threerings.parlor.client;
-
-import com.threerings.parlor.game.GameConfig;
 
 /**
  * A client entity that wishes to handle invitations received by other

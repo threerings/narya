@@ -1,5 +1,5 @@
 //
-// $Id: SimpleMisoSceneParser.java,v 1.1 2003/04/17 19:21:16 mdb Exp $
+// $Id: SimpleMisoSceneParser.java,v 1.2 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.tools.xml;
 
@@ -10,7 +10,6 @@ import org.xml.sax.SAXException;
 import org.apache.commons.digester.Digester;
 
 import com.samskivert.util.StringUtil;
-import com.threerings.tools.xml.NestableRuleSet;
 
 import com.threerings.miso.data.SimpleMisoSceneModel;
 

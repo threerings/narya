@@ -1,42 +1,35 @@
 //
-// $Id: TableListView.java,v 1.6 2003/01/11 01:03:02 shaper Exp $
+// $Id: TableListView.java,v 1.7 2004/02/25 14:43:37 mdb Exp $
 
 package com.threerings.micasa.lobby.table;
 
-import java.util.Iterator;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Iterator;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JTabbedPane;
-
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import com.samskivert.swing.HGroupLayout;
 import com.samskivert.swing.VGroupLayout;
 import com.samskivert.swing.util.SwingUtil;
 
-import com.threerings.crowd.client.PlaceView;
-import com.threerings.crowd.data.PlaceObject;
+import com.threerings.micasa.Log;
+import com.threerings.micasa.lobby.LobbyConfig;
+import com.threerings.micasa.util.MiCasaContext;
 
 import com.threerings.parlor.client.GameConfigurator;
 import com.threerings.parlor.client.SeatednessObserver;
 import com.threerings.parlor.client.TableDirector;
 import com.threerings.parlor.client.TableObserver;
 import com.threerings.parlor.data.Table;
-import com.threerings.parlor.data.TableConfig;
 import com.threerings.parlor.game.GameConfig;
 
-import com.threerings.micasa.Log;
-import com.threerings.micasa.lobby.LobbyConfig;
-import com.threerings.micasa.util.MiCasaContext;
+import com.threerings.crowd.client.PlaceView;
+import com.threerings.crowd.data.PlaceObject;
 
 /**
  * A view that displays the tables in a table lobby. It displays two

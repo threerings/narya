@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.32 2003/07/29 18:48:11 mdb Exp $
+// $Id: InvocationDirector.java,v 1.33 2004/02/25 14:45:16 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
-import com.samskivert.util.ResultListener;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.Log;
@@ -15,7 +14,6 @@ import com.threerings.presents.client.InvocationReceiver.Registration;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller.ListenerMarshaller;
-import com.threerings.presents.data.InvocationMarshaller;
 
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;

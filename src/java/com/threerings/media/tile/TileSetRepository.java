@@ -1,12 +1,11 @@
 //
-// $Id: TileSetRepository.java,v 1.5 2003/06/18 05:48:45 mdb Exp $
+// $Id: TileSetRepository.java,v 1.6 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.util.Iterator;
-import com.samskivert.io.PersistenceException;
 
-import com.threerings.media.image.ImageDataProvider;
+import com.samskivert.io.PersistenceException;
 
 /**
  * The tileset repository interface should be implemented by classes that

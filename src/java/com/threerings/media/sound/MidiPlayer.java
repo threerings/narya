@@ -1,19 +1,15 @@
 //
-// $Id: MidiPlayer.java,v 1.4 2003/01/08 04:09:02 mdb Exp $
+// $Id: MidiPlayer.java,v 1.5 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.sound;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 
-import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
-import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
-import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.Receiver;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
 

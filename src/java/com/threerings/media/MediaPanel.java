@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.40 2003/08/08 21:43:05 mdb Exp $
+// $Id: MediaPanel.java,v 1.41 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media;
 
@@ -13,7 +13,6 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 
 import javax.swing.JComponent;
-import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
 import javax.swing.event.AncestorEvent;
 

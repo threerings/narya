@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.3 2004/01/12 05:52:05 mdb Exp $
+// $Id: AStarPathUtil.java,v 1.4 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.util;
 
@@ -9,9 +9,6 @@ import java.util.*;
 import com.samskivert.util.HashIntMap;
 
 import com.threerings.media.util.MathUtil;
-
-import com.threerings.miso.Log;
-import com.threerings.miso.tile.BaseTile;
 
 /**
  * The <code>AStarPathUtil</code> class provides a facility for

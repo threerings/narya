@@ -1,13 +1,11 @@
 //
-// $Id: UniformTileSetRuleSet.java,v 1.8 2003/05/13 21:33:58 ray Exp $
+// $Id: UniformTileSetRuleSet.java,v 1.9 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.tile.tools.xml;
 
-import org.xml.sax.Attributes;
 import org.apache.commons.digester.Digester;
 
 import com.threerings.media.Log;
-import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.UniformTileSet;
 
 /**

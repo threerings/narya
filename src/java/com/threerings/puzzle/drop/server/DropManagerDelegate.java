@@ -1,31 +1,21 @@
 //
-// $Id: DropManagerDelegate.java,v 1.2 2003/11/26 03:17:16 mdb Exp $
+// $Id: DropManagerDelegate.java,v 1.3 2004/02/25 14:48:44 mdb Exp $
 
 package com.threerings.puzzle.drop.server;
-
-import java.util.List;
-
-import com.threerings.util.MessageBundle;
 
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 
-import com.threerings.parlor.game.GameManager;
-
 import com.threerings.puzzle.Log;
 import com.threerings.puzzle.data.Board;
-import com.threerings.puzzle.data.BoardSummary;
 import com.threerings.puzzle.data.PuzzleCodes;
-import com.threerings.puzzle.data.PuzzleObject;
 import com.threerings.puzzle.server.PuzzleManager;
 import com.threerings.puzzle.server.PuzzleManagerDelegate;
 
 import com.threerings.puzzle.drop.data.DropBoard;
-import com.threerings.puzzle.drop.data.DropBoardSummary;
 import com.threerings.puzzle.drop.data.DropCodes;
 import com.threerings.puzzle.drop.data.DropConfig;
 import com.threerings.puzzle.drop.data.DropLogic;
-import com.threerings.puzzle.drop.util.DropPieceProvider;
 import com.threerings.puzzle.drop.util.PieceDropLogic;
 import com.threerings.puzzle.drop.util.PieceDropper;
 

@@ -1,10 +1,9 @@
 //
-// $Id: Location.java,v 1.7 2003/03/25 19:28:58 mdb Exp $
+// $Id: Location.java,v 1.8 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
 import com.threerings.io.SimpleStreamableObject;
-import com.threerings.util.DirectionCodes;
 import com.threerings.util.DirectionUtil;
 
 /**

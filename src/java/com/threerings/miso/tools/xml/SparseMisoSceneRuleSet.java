@@ -1,15 +1,13 @@
 //
-// $Id: SparseMisoSceneRuleSet.java,v 1.2 2003/04/21 17:08:57 mdb Exp $
+// $Id: SparseMisoSceneRuleSet.java,v 1.3 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.tools.xml;
 
-import java.util.ArrayList;
 import org.xml.sax.Attributes;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 
-import com.samskivert.xml.CallMethodSpecialRule;
 import com.samskivert.xml.SetFieldRule;
 import com.samskivert.xml.SetPropertyFieldsRule;
 

@@ -1,5 +1,5 @@
 //
-// $Id: LabelSprite.java,v 1.4 2002/10/08 21:03:37 ray Exp $
+// $Id: LabelSprite.java,v 1.5 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -7,8 +7,6 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 
 import com.samskivert.swing.Label;
-
-import com.threerings.media.Log;
 
 /**
  * A sprite that uses a label to render itself.  Assumes that the label

@@ -1,14 +1,11 @@
 //
-// $Id: FieldMarshaller.java,v 1.6 2004/02/03 15:02:13 mdb Exp $
+// $Id: FieldMarshaller.java,v 1.7 2004/02/25 14:42:46 mdb Exp $
 
 package com.threerings.io;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.HashMap;
-
-import com.threerings.presents.Log;
 
 /**
  * Used to read and write a single field of a {@link Streamable} instance.

@@ -1,13 +1,11 @@
 //
-// $Id: DirectionalEdge.java,v 1.5 2002/06/15 02:13:11 shaper Exp $
+// $Id: DirectionalEdge.java,v 1.6 2004/02/25 14:44:33 mdb Exp $
 
 package com.threerings.nodemap.direction;
 
 import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.awt.Stroke;
-
-import com.threerings.util.DirectionCodes;
 
 import com.threerings.nodemap.Edge;
 import com.threerings.nodemap.Node;

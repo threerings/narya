@@ -1,5 +1,5 @@
 //
-// $Id: SceneProvider.java,v 1.18 2003/10/25 00:10:35 mdb Exp $
+// $Id: SceneProvider.java,v 1.19 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -9,7 +9,6 @@ import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceConfig;
-import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.LocationProvider;
 
 import com.threerings.whirled.Log;

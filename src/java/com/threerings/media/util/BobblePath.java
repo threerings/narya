@@ -1,12 +1,10 @@
 //
-// $Id: BobblePath.java,v 1.4 2003/01/17 23:19:20 ray Exp $
+// $Id: BobblePath.java,v 1.5 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.util;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-
-import com.threerings.media.Log;
 
 import com.threerings.util.RandomUtil;
 

@@ -1,11 +1,10 @@
 //
-// $Id: ParlorReceiver.java,v 1.1 2002/08/14 19:07:52 mdb Exp $
+// $Id: ParlorReceiver.java,v 1.2 2004/02/25 14:44:54 mdb Exp $
 
 package com.threerings.parlor.client;
 
 import com.threerings.presents.client.InvocationReceiver;
 
-import com.threerings.parlor.data.ParlorCodes;
 import com.threerings.parlor.game.GameConfig;
 
 /**

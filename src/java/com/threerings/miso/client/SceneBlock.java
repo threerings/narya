@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.23 2003/11/12 23:13:45 ray Exp $
+// $Id: SceneBlock.java,v 1.24 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -18,8 +18,6 @@ import com.threerings.geom.GeomUtil;
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.ObjectTile;
-import com.threerings.media.tile.Tile;
-import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.util.MathUtil;
 

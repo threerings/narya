@@ -1,9 +1,8 @@
 //
-// $Id: SpotSceneDirector.java,v 1.32 2003/09/16 21:26:14 ray Exp $
+// $Id: SpotSceneDirector.java,v 1.33 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
-import java.util.Iterator;
 import com.samskivert.util.ResultListener;
 import com.samskivert.util.StringUtil;
 

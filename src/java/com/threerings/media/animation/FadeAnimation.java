@@ -1,10 +1,9 @@
 //
-// $Id: FadeAnimation.java,v 1.6 2003/01/13 22:49:46 mdb Exp $
+// $Id: FadeAnimation.java,v 1.7 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.animation;
 
 import java.awt.AlphaComposite;
-import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;

@@ -1,11 +1,9 @@
 //
-// $Id: LobbyMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+// $Id: LobbyMarshaller.java,v 1.3 2004/02/25 14:43:37 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
 import com.threerings.micasa.lobby.LobbyService;
-import com.threerings.micasa.lobby.LobbyService.CategoriesListener;
-import com.threerings.micasa.lobby.LobbyService.LobbiesListener;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
@@ -19,7 +17,7 @@ import java.util.List;
  * to the requesting client.
  *
  * <p> Generated from <code>
- * $Id: LobbyMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+ * $Id: LobbyMarshaller.java,v 1.3 2004/02/25 14:43:37 mdb Exp $
  * </code>
  */
 public class LobbyMarshaller extends InvocationMarshaller

@@ -1,5 +1,5 @@
 //
-// $Id: ElementUpdatedEvent.java,v 1.7 2003/05/01 02:05:51 ray Exp $
+// $Id: ElementUpdatedEvent.java,v 1.8 2004/02/25 14:45:16 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -7,8 +7,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 
 import com.samskivert.util.StringUtil;
-
-import com.threerings.presents.Log;
 
 /**
  * An element updated event is dispatched when an element of an array

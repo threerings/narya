@@ -1,5 +1,5 @@
 //
-// $Id: Invitation.java,v 1.1 2002/08/14 19:07:52 mdb Exp $
+// $Id: Invitation.java,v 1.2 2004/02/25 14:44:54 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -104,7 +104,7 @@ public class Invitation
     public void inviteReceived (int inviteId)
     {
         // fill in our invitation id
-        inviteId = inviteId;
+        this.inviteId = inviteId;
 
         // if the invitation was cancelled before we heard back about
         // it, we need to send off a cancellation request now

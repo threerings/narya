@@ -1,5 +1,5 @@
 //
-// $Id: LobbySelector.java,v 1.5 2002/08/14 19:07:49 mdb Exp $
+// $Id: LobbySelector.java,v 1.6 2004/02/25 14:43:37 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -10,10 +10,6 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
-import javax.swing.event.AncestorEvent;
-
-import com.samskivert.swing.event.AncestorAdapter;
-import com.samskivert.util.StringUtil;
 
 import com.threerings.crowd.data.PlaceObject;
 

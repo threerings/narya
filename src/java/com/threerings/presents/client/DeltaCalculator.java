@@ -1,10 +1,9 @@
 //
-// $Id: DeltaCalculator.java,v 1.4 2003/09/25 15:57:38 mdb Exp $
+// $Id: DeltaCalculator.java,v 1.5 2004/02/25 14:45:16 mdb Exp $
 
 package com.threerings.presents.client;
 
 import java.util.Arrays;
-import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.net.PingRequest;

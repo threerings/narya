@@ -1,11 +1,9 @@
 //
-// $Id: DropBoardUtil.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: DropBoardUtil.java,v 1.2 2004/02/25 14:48:44 mdb Exp $
 
 package com.threerings.puzzle.drop.util;
 
 import com.threerings.util.DirectionCodes;
-
-import com.threerings.puzzle.drop.data.DropBoard;
 
 public class DropBoardUtil
     implements DirectionCodes

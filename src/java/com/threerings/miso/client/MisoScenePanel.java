@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.58 2004/02/22 18:55:26 ray Exp $
+// $Id: MisoScenePanel.java,v 1.59 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -9,7 +9,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Composite;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -46,7 +45,6 @@ import com.threerings.media.sprite.Sprite;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.TileSet;
-import com.threerings.media.tile.TileUtil;
 import com.threerings.media.util.MathUtil;
 import com.threerings.media.util.Path;
 
@@ -60,7 +58,6 @@ import com.threerings.miso.util.AStarPathUtil;
 import com.threerings.miso.util.MisoContext;
 import com.threerings.miso.util.MisoSceneMetrics;
 import com.threerings.miso.util.MisoUtil;
-import com.threerings.miso.util.ObjectSet;
 
 /**
  * Renders a Miso scene for all to see.

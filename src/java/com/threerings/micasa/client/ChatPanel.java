@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.25 2003/06/04 02:50:19 ray Exp $
+// $Id: ChatPanel.java,v 1.26 2004/02/25 14:43:37 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -19,7 +19,6 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
 import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -31,8 +30,6 @@ import com.samskivert.swing.GroupLayout;
 import com.samskivert.swing.HGroupLayout;
 import com.samskivert.swing.VGroupLayout;
 import com.samskivert.swing.event.AncestorAdapter;
-
-import com.threerings.util.MessageBundle;
 
 import com.threerings.crowd.chat.client.ChatDirector;
 import com.threerings.crowd.chat.client.ChatDisplay;

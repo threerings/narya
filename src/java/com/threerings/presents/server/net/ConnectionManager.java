@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.37 2003/10/26 05:18:13 mdb Exp $
+// $Id: ConnectionManager.java,v 1.38 2004/02/25 14:45:16 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -13,7 +13,6 @@ import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 
 import java.net.InetSocketAddress;
-import java.net.SocketException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +25,6 @@ import com.threerings.io.FramingOutputStream;
 import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.presents.Log;
-import com.threerings.presents.client.Client;
 
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;

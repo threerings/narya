@@ -1,9 +1,7 @@
 //
-// $Id: TurnGameController.java,v 1.4 2002/02/13 03:21:28 mdb Exp $
+// $Id: TurnGameController.java,v 1.5 2004/02/25 14:44:54 mdb Exp $
 
 package com.threerings.parlor.turn;
-
-import com.threerings.parlor.game.GameController;
 
 /**
  * Games that wish to make use of the turn game services should have their

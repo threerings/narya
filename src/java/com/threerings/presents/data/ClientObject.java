@@ -1,12 +1,10 @@
 //
-// $Id: ClientObject.java,v 1.7 2003/04/30 22:45:57 mdb Exp $
+// $Id: ClientObject.java,v 1.8 2004/02/25 14:45:16 mdb Exp $
 
 package com.threerings.presents.data;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
-
-import com.threerings.presents.Log;
 
 /**
  * Every client in the system has an associated client object to which

@@ -1,11 +1,9 @@
 //
-// $Id: SimulatorServer.java,v 1.7 2002/06/10 19:16:41 shaper Exp $
+// $Id: SimulatorServer.java,v 1.8 2004/02/25 14:43:37 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
 import com.samskivert.util.ResultListener;
-
-import com.threerings.crowd.data.BodyObject;
 
 /**
  * The simulator manager needs a mechanism for faking body object

@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParser.java,v 1.7 2002/03/28 00:56:20 mdb Exp $
+// $Id: XMLTileSetParser.java,v 1.8 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.tile.tools.xml;
 
@@ -8,14 +8,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.xml.sax.SAXException;
-
 import org.apache.commons.digester.Digester;
-import org.apache.commons.digester.Rule;
+import org.xml.sax.SAXException;
 
 import com.samskivert.util.ConfigUtil;
 import com.samskivert.xml.ValidatedSetNextRule;

@@ -1,14 +1,11 @@
 //
-// $Id: GeomUtil.java,v 1.6 2003/11/15 00:17:59 mdb Exp $
+// $Id: GeomUtil.java,v 1.7 2004/02/25 14:42:30 mdb Exp $
 
 package com.threerings.geom;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-
-import com.samskivert.util.StringUtil;
 
 /**
  * General geometry utilites.

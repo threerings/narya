@@ -1,11 +1,10 @@
 //
-// $Id: NodeMap.java,v 1.8 2002/06/15 01:59:43 shaper Exp $
+// $Id: NodeMap.java,v 1.9 2004/02/25 14:44:33 mdb Exp $
 
 package com.threerings.nodemap;
 
 import java.awt.*;
 import java.util.*;
-import javax.swing.JComponent;
 
 import com.samskivert.swing.ToolTipManager;
 import com.samskivert.swing.ToolTipProvider;

@@ -1,10 +1,9 @@
 //
-// $Id: GameConfig.java,v 1.15 2003/03/20 19:50:35 ray Exp $
+// $Id: GameConfig.java,v 1.16 2004/02/25 14:44:54 mdb Exp $
 
 package com.threerings.parlor.game;
 
 import com.threerings.crowd.data.PlaceConfig;
-import com.threerings.parlor.client.GameConfigurator;
 
 /**
  * The game config class encapsulates the configuration information for a

@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMedia.java,v 1.9 2003/04/30 00:43:54 mdb Exp $
+// $Id: AbstractMedia.java,v 1.10 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media;
 
@@ -11,8 +11,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-
-import java.util.ArrayList;
 
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.StringUtil;

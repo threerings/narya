@@ -1,12 +1,11 @@
 //
-// $Id: GameMarshaller.java,v 1.3 2002/09/06 22:52:27 shaper Exp $
+// $Id: GameMarshaller.java,v 1.4 2004/02/25 14:44:54 mdb Exp $
 
 package com.threerings.parlor.game;
 
 import com.threerings.parlor.game.GameService;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
-import com.threerings.presents.dobj.InvocationResponseEvent;
 
 /**
  * Provides the implementation of the {@link GameService} interface

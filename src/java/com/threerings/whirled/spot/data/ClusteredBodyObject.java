@@ -1,9 +1,8 @@
 //
-// $Id: ClusteredBodyObject.java,v 1.2 2003/05/06 00:21:59 mdb Exp $
+// $Id: ClusteredBodyObject.java,v 1.3 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
-import com.threerings.crowd.data.BodyObject;
 import com.threerings.whirled.data.ScenedBodyObject;
 
 /**

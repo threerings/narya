@@ -1,5 +1,5 @@
 //
-// $Id: SceneManager.java,v 1.14 2003/06/11 04:14:11 mdb Exp $
+// $Id: SceneManager.java,v 1.15 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -11,7 +11,6 @@ import com.threerings.presents.util.Invoker;
 import com.threerings.whirled.Log;
 import com.threerings.whirled.data.Scene;
 import com.threerings.whirled.data.SceneCodes;
-import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.data.SceneUpdate;
 import com.threerings.whirled.server.WhirledServer;
 import com.threerings.whirled.util.UpdateList;

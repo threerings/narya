@@ -1,23 +1,17 @@
 //
-// $Id: MisoUtil.java,v 1.22 2003/05/29 01:58:06 ray Exp $
+// $Id: MisoUtil.java,v 1.23 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.util;
 
 import java.awt.Point;
 import java.awt.Polygon;
-import java.awt.Rectangle;
 
 import com.samskivert.swing.SmartPolygon;
-import com.samskivert.util.StringUtil;
-
-import com.threerings.media.sprite.Sprite;
-import com.threerings.media.util.MathUtil;
 
 import com.threerings.util.DirectionCodes;
 import com.threerings.util.DirectionUtil;
 
-import com.threerings.miso.Log;
-import com.threerings.miso.MisoConfig;
+import com.threerings.media.util.MathUtil;
 
 /**
  * Miscellaneous isometric-display-related utility routines.

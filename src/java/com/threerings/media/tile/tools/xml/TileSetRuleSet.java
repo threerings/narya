@@ -1,16 +1,12 @@
 //
-// $Id: TileSetRuleSet.java,v 1.6 2002/02/05 20:29:10 mdb Exp $
+// $Id: TileSetRuleSet.java,v 1.7 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.tile.tools.xml;
 
-import org.xml.sax.Attributes;
-
 import org.apache.commons.digester.Digester;
-import org.apache.commons.digester.Rule;
 import org.apache.commons.digester.RuleSetBase;
 
 import com.samskivert.util.StringUtil;
-import com.samskivert.xml.ValidatedSetNextRule;
 import com.samskivert.xml.ValidatedSetNextRule.Validator;
 
 import com.threerings.media.Log;

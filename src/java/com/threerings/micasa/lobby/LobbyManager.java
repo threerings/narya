@@ -1,12 +1,11 @@
 //
-// $Id: LobbyManager.java,v 1.6 2003/06/03 21:41:33 ray Exp $
+// $Id: LobbyManager.java,v 1.7 2004/02/25 14:43:37 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
 import java.util.Properties;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.server.PlaceManager;
 import com.threerings.micasa.Log;
 

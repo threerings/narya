@@ -1,12 +1,11 @@
 //
-// $Id: DObject.java,v 1.71 2003/12/11 18:36:32 mdb Exp $
+// $Id: DObject.java,v 1.72 2004/02/25 14:45:16 mdb Exp $
 
 package com.threerings.presents.dobj;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;

@@ -1,15 +1,12 @@
 //
-// $Id: SpotSceneManager.java,v 1.49 2003/12/11 22:50:55 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.50 2004/02/25 14:50:28 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
-import java.awt.Point;
 import java.util.Iterator;
 
-import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.IntIntMap;
-import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.Subscriber;
@@ -31,7 +28,6 @@ import com.threerings.whirled.spot.data.Portal;
 import com.threerings.whirled.spot.data.SceneLocation;
 import com.threerings.whirled.spot.data.SpotCodes;
 import com.threerings.whirled.spot.data.SpotScene;
-import com.threerings.whirled.spot.data.SpotSceneModel;
 import com.threerings.whirled.spot.data.SpotSceneObject;
 
 /**

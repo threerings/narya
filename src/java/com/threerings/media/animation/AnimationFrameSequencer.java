@@ -1,9 +1,7 @@
 //
-// $Id: AnimationFrameSequencer.java,v 1.6 2003/04/30 00:45:02 mdb Exp $
+// $Id: AnimationFrameSequencer.java,v 1.7 2004/02/25 14:43:17 mdb Exp $
 
 package com.threerings.media.animation;
-
-import java.util.Arrays;
 
 import com.samskivert.util.ObserverList;
 

@@ -1,11 +1,9 @@
 //
-// $Id: DropBlockSprite.java,v 1.2 2003/12/31 01:26:23 ray Exp $
+// $Id: DropBlockSprite.java,v 1.3 2004/02/25 14:48:44 mdb Exp $
 
 package com.threerings.puzzle.drop.client;
 
 import java.awt.Rectangle;
-
-import com.threerings.puzzle.Log;
 
 /**
  * The drop block sprite represents a block of multiple pieces that can be

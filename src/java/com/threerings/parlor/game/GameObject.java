@@ -1,9 +1,8 @@
 //
-// $Id: GameObject.java,v 1.16 2003/05/26 23:46:46 mdb Exp $
+// $Id: GameObject.java,v 1.17 2004/02/25 14:44:54 mdb Exp $
 
 package com.threerings.parlor.game;
 
-import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.crowd.data.PlaceObject;

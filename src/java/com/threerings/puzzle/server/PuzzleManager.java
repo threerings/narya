@@ -1,38 +1,28 @@
 //
-// $Id: PuzzleManager.java,v 1.6 2004/01/30 23:03:22 ray Exp $
+// $Id: PuzzleManager.java,v 1.7 2004/02/25 14:48:44 mdb Exp $
 
 package com.threerings.puzzle.server;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 
 import com.samskivert.util.IntListUtil;
-import com.samskivert.util.IntTuple;
 import com.samskivert.util.IntervalManager;
-import com.samskivert.util.ResultListener;
 import com.samskivert.util.StringUtil;
-import com.samskivert.util.Tuple;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.OidList;
 import com.threerings.presents.server.util.SafeInterval;
 
 import com.threerings.crowd.data.BodyObject;
-import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.server.CrowdServer;
 import com.threerings.crowd.server.PlaceManagerDelegate;
 
 import com.threerings.parlor.game.GameManager;
-import com.threerings.parlor.game.GameObject;
-import com.threerings.parlor.game.PartyGameConfig;
 
 import com.threerings.util.MessageBundle;
 import com.threerings.util.RandomUtil;
-import com.threerings.util.StreamableArrayList;
 
 import com.threerings.puzzle.Log;
 import com.threerings.puzzle.data.Board;

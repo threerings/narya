@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneModel.java,v 1.10 2004/01/11 12:21:17 mdb Exp $
+// $Id: SparseMisoSceneModel.java,v 1.11 2004/02/25 14:43:57 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.samskivert.util.ArrayUtil;
-import com.samskivert.util.IntListUtil;
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 

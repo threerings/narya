@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorManager.java,v 1.14 2002/10/15 22:47:48 shaper Exp $
+// $Id: SimulatorManager.java,v 1.15 2004/02/25 14:43:37 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -10,7 +10,6 @@ import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.ClientResolutionListener;
 import com.threerings.presents.server.InvocationManager;
-import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceObject;
