@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.4 2001/05/29 03:27:59 mdb Exp $
+// $Id: Communicator.java,v 1.5 2001/05/30 23:51:39 mdb Exp $
 
 package com.samskivert.cocktail.cher.client;
 
@@ -7,6 +7,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.InetAddress;
 
+import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 
 import com.samskivert.cocktail.cher.Log;
@@ -38,7 +39,7 @@ import com.samskivert.cocktail.cher.util.Codes;
  * - write loop
  * </pre>
  */
-class Communicator
+public class Communicator
 {
     /**
      * Creates a new communicator instance which is associated with the
@@ -246,52 +247,25 @@ class Communicator
      * things, but the general flow of the reader thread is encapsulated
      * in this class.
      */
-    protected class Reader extends Thread
+    protected class Reader extends LoopingThread
     {
-        public void run ()
+        protected void willStart ()
         {
+            // first we connect and authenticate with the server
             try {
-                // first we connect and authenticate with the server
-                try {
-                    // connect to the server
-                    connect();
+                // connect to the server
+                connect();
 
-                    // then authenticate
-                    logon();
+                // then authenticate
+                logon();
 
-                } catch (Exception e) {
-                    Log.info("Logon failed: " + e);
-                    Log.logStackTrace(e);
-                    // let the observers know that we've failed
-                    _client.notifyObservers(Client.CLIENT_FAILED_TO_LOGON, e);
-                    // and terminate our communicator thread
-                    return;
-                }
-
-                // now that we're authenticated, we manage the reading
-                // half of things by continuously reading messages from
-                // the socket and processing them
-                listen();
-
-            } finally {
-                // let the communicator know when we finally go away
-                readerDidExit();
-            }
-        }
-
-        /**
-         * Informs the reader thread that it's no longer running. The next
-         * time through the read loop, it will exit.
-         */
-        public synchronized void shutdown ()
-        {
-            _running = false;
-
-            // if we are not the reader thread, then we want to interrupt
-            // the reader thread as it may be blocked listening to the
-            // socket
-            if (Thread.currentThread() != this) {
-                interrupt();
+            } catch (Exception e) {
+                Log.info("Logon failed: " + e);
+                Log.logStackTrace(e);
+                // let the observers know that we've failed
+                _client.notifyObservers(Client.CLIENT_FAILED_TO_LOGON, e);
+                // and terminate our communicator thread
+                shutdown();
             }
         }
 
@@ -329,8 +303,10 @@ class Communicator
             sendMessage(req);
 
             // now wait for the auth response
+            Log.info("Waiting for auth response.");
             AuthResponse rsp = (AuthResponse)receiveMessage();
             AuthResponseData data = rsp.getData();
+            Log.info("Got auth response: " + data);
             
             // if the auth request failed, we want to let the communicator
             // know by throwing a login exception
@@ -342,59 +318,59 @@ class Communicator
             logonSucceeded(data);
         }
 
-        protected void listen ()
+        // now that we're authenticated, we manage the reading
+        // half of things by continuously reading messages from
+        // the socket and processing them
+        protected void iterate ()
         {
             DownstreamMessage msg = null;
 
-            while (isRunning()) {
-                try {
-                    // read the next message from the socket
-                    msg = receiveMessage();
+            try {
+                // read the next message from the socket
+                msg = receiveMessage();
 
-                    // process the message
-                    processMessage(msg);
+                // process the message
+                processMessage(msg);
 
-                } catch (ObjectStreamException ose) {
-                    Log.warning("Error decoding message: " + ose);
-                    // move on to the next message
+            } catch (ObjectStreamException ose) {
+                Log.warning("Error decoding message: " + ose);
 
-                } catch (InterruptedIOException iioe) {
-                    // somebody set up us the bomb! we've been interrupted
-                    // which means that we're being shut down, so we
-                    // simply fall through and isRunning() will return
-                    // false next time through the loop
-                    Log.info("Reader thread woken up in time to die.");
+            } catch (InterruptedIOException iioe) {
+                // somebody set up us the bomb! we've been interrupted
+                // which means that we're being shut down, so we just
+                // report it and return from iterate() like a good monkey
+                Log.info("Reader thread woken up in time to die.");
 
-                } catch (EOFException eofe) {
-                    Log.info("Connection closed by peer.");
-                    // nothing left for us to do
-                    shutdown();
+            } catch (EOFException eofe) {
+                Log.info("Connection closed by peer.");
+                // nothing left for us to do
+                shutdown();
 
-                } catch (IOException ioe) {
-                    // let the communicator know that our connection
-                    // failed
-                    connectionFailed(ioe);
-                    // and shut ourselves down
-                    shutdown();
+            } catch (IOException ioe) {
+                // let the communicator know that our connection failed
+                connectionFailed(ioe);
+                // and shut ourselves down
+                shutdown();
 
-                } catch (Exception e) {
-                    Log.warning("Error processing message [msg=" + msg +
-                                ", error=" + e + "].");
-                    // move on to the next message
-                }
+            } catch (Exception e) {
+                Log.warning("Error processing message [msg=" + msg +
+                            ", error=" + e + "].");
             }
         }
 
-        /**
-         * Must access _running via this member function to ensure that we
-         * are Chapter 17 compliant.
-         */
-        protected synchronized boolean isRunning ()
+        protected void didShutdown ()
         {
-            return _running;
+            // let the communicator know when we finally go away
+            readerDidExit();
         }
 
-        protected boolean _running = true;
+        protected void kick ()
+        {
+            // we want to interrupt the reader thread as it may be blocked
+            // listening to the socket; this is only called if the reader
+            // thread doesn't shut itself down
+            interrupt();
+        }
     }
 
     /**
@@ -402,63 +378,44 @@ class Communicator
      * to the <code>Communicator</code> class to do things, but the
      * general flow of the writer thread is encapsulated in this class.
      */
-    protected class Writer extends Thread
+    protected class Writer extends LoopingThread
     {
-        public void run ()
+        protected void iterate ()
         {
+            // fetch the next message from the queue
+            UpstreamMessage msg = (UpstreamMessage)_msgq.get();
+
+            // if this is a termination message, we're being
+            // requested to exit, so we want to bail now rather
+            // than continuing
+            if (msg instanceof TerminationMessage) {
+                return;
+            }
+
             try {
-                while (isRunning()) {
-                    // fetch the next message from the queue
-                    UpstreamMessage msg = (UpstreamMessage)_msgq.get();
+                // write the message out the socket
+                sendMessage(msg);
 
-                    // if this is a termination message, we're being
-                    // requested to exit, so we want to bail now rather
-                    // than continuing
-                    if (msg instanceof TerminationMessage) {
-                        break;
-                    }
-
-                    try {
-                        // write the message out the socket
-                        sendMessage(msg);
-
-                    } catch (IOException ioe) {
-                        // let the communicator know if we have any
-                        // problems
-                        connectionFailed(ioe);
-                        // and bail
-                        shutdown();
-                    }
-                }
-
-            } finally {
-                writerDidExit();
+            } catch (IOException ioe) {
+                // let the communicator know if we have any
+                // problems
+                connectionFailed(ioe);
+                // and bail
+                shutdown();
             }
         }
 
-        /**
-         * Informs the writer thread that it's no longer running. The next
-         * time through the write loop, it will exit.
-         */
-        public synchronized void shutdown ()
+        protected void didShutdown ()
         {
-            _running = false;
+            writerDidExit();
+        }
 
+        protected void kick ()
+        {
             // post a bogus message to the outgoing queue to ensure that
             // the writer thread notices that it's time to go
             postMessage(new TerminationMessage());
         }
-
-        /**
-         * Must access _running via this member function to ensure that we
-         * are Chapter 17 compliant.
-         */
-        protected synchronized boolean isRunning ()
-        {
-            return _running;
-        }
-
-        protected boolean _running = true;
     }
 
     /** This is used to terminate the writer thread. */
