@@ -21,3 +21,30 @@ streams on either end to efficiently transport serializables. They will
 need to be reset when the client loses connection. Check to see if
 Serializable support already does this (in which case we can just use it
 directly).
+
+* 6/18/2002
+** Hot tileset action
+! Refactor ObjectTileSet so that it doesn't have to extends
+  SwissArmyTileSet, but instead the object information can be supplied as
+  augmentation to a SwissArmyTileSet or a TrimmedTileSet
+
+- Make component bundling stuff use a short path name for the component
+  action tile image since we have to put it into the serialized tileset
+  instance anyway.
+
+** Image vs. BufferedImage
+- Sort out the whole Image vs. BufferedImage fiasco in the media package.
+  We're casting Image objects to BufferedImage objects willy nilly and we
+  should rearrange things so that we're usually passing around
+  BufferedImage objects until the time comes to convert them for display
+  on the screen.
+
+* 6/19/2002
+** Virtual media stuff
+X Add "keepPathableVisible" or somesuch which like setFollowsPathable will
+  scroll the screen but will only do so to keep the pathable in the
+  visible bounds rather than centered.
+
+* 6/21/2002
+** Parlor enhancements
+- Support rematches and "best two out of three" style play
