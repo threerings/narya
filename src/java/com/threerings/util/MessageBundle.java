@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.15 2002/11/10 03:14:45 mdb Exp $
+// $Id: MessageBundle.java,v 1.16 2002/11/12 08:18:03 mdb Exp $
 
 package com.threerings.util;
 
@@ -85,6 +85,7 @@ public class MessageBundle
             if (reportMissing) {
                 Log.warning("Missing translation message " +
                             "[bundle=" + _path + ", key=" + key + "].");
+                Thread.dumpStack();
             }
         }
         return null;
