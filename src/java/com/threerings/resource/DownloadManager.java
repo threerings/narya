@@ -1,5 +1,5 @@
 //
-// $Id: DownloadManager.java,v 1.3 2002/07/22 20:45:22 shaper Exp $
+// $Id: DownloadManager.java,v 1.4 2002/09/30 09:36:22 shaper Exp $
 
 package com.threerings.resource;
 
@@ -44,8 +44,11 @@ public class DownloadManager
          *
          * @param percent the percent completion, in terms of total file
          * size, of the download request.
+         * @param remaining the estimated download time remaining in
+         * seconds, or <code>-1</code> if the time can not yet be
+         * determined.
          */
-        public void downloadProgress (int percent);
+        public void downloadProgress (int percent, long remaining);
 
         /**
          * Called if a failure occurs while checking for an update or
@@ -243,12 +246,16 @@ public class DownloadManager
         // download all stale files
         size = fetch.size();
         long currentSize = 0;
+        long start = System.currentTimeMillis();
+        long bytesPerSecond = 0;
         boolean complete = false;
         for (int ii = 0; ii < size; ii++) {
             DownloadDescriptor desc = (DownloadDescriptor)fetch.get(ii);
             try {
-                complete = processDownload(desc, obs, currentSize, totalSize);
+                complete = processDownload(
+                    desc, obs, currentSize, totalSize, start, bytesPerSecond);
                 currentSize += desc.fileSize;
+                bytesPerSecond = calculateXferRate(currentSize, start);
 
             } catch (IOException ioe) {
                 obs.downloadFailed(desc, ioe);
@@ -261,7 +268,7 @@ public class DownloadManager
         // make sure to always let the observer know that we've wrapped up
         // by reporting 100% completion
         if (!complete) {
-            obs.downloadProgress(100);
+            obs.downloadProgress(100, 0L);
         }
     }
 
@@ -271,7 +278,7 @@ public class DownloadManager
      */
     protected boolean processDownload (
         DownloadDescriptor desc, DownloadObserver obs, long currentSize,
-        long totalSize)
+        long totalSize, long start, long bytesPerSecond)
         throws IOException
     {
         // download the resource bundle from the specified URL
@@ -288,7 +295,6 @@ public class DownloadManager
         while ((read = in.read(_buffer)) != -1) {
             // write it out to our local copy
             out.write(_buffer, 0, read);
-
             // report our progress to the download observer as a
             // percentage of the total file data to be transferred
             currentSize += read;
@@ -299,7 +305,10 @@ public class DownloadManager
             // file to ensure that any action the observer may take with
             // respect to the downloaded files can be safely undertaken
             if (!complete) {
-                obs.downloadProgress(pctdone);
+                bytesPerSecond = calculateXferRate(currentSize, start);
+                long remaining = (bytesPerSecond == 0) ? -1 :
+                    (totalSize - currentSize) / bytesPerSecond;
+                obs.downloadProgress(pctdone, remaining);
             }
         }
 
@@ -319,10 +328,21 @@ public class DownloadManager
         if (complete) {
             // let the observer know we're finished now that we've
             // finished all of our work with the file
-            obs.downloadProgress(100);
+            obs.downloadProgress(100, 0L);
         }
 
         return complete;
+    }
+
+    /**
+     * Returns the current transfer rate in bytes per second based on
+     * transferring the specified quantity of data starting at the given
+     * time.
+     */
+    protected long calculateXferRate (long size, long start)
+    {
+        long secs = (System.currentTimeMillis() - start) / 1000L;
+        return (secs == 0) ? 0 : (size / secs);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.15 2002/07/22 23:19:23 shaper Exp $
+// $Id: ResourceManager.java,v 1.16 2002/09/30 09:36:22 shaper Exp $
 
 package com.threerings.resource;
 
@@ -92,8 +92,13 @@ public class ResourceManager
          * completion of the overall bundle downloading task.  The caller
          * is guaranteed to get at least one call reporting 100%
          * completion.
+         *
+         * @param percent the percent completion of the download.
+         * @param remaining the estimated download time remaining in
+         * seconds, or <code>-1</code> if the time can not yet be
+         * determined.
          */
-        public void downloadProgress (int percent);
+        public void downloadProgress (int percent, long remaining);
 
         /**
          * Called if a failure occurs while checking for an update or
@@ -221,7 +226,7 @@ public class ResourceManager
                 // nothing for now
             }
 
-            public void downloadProgress (int percent) {
+            public void downloadProgress (int percent, long remaining) {
                 if (percent == 100) {
                     synchronized (lock) {
                         // wake things up as the download is finished
@@ -268,8 +273,8 @@ public class ResourceManager
                 obs.checkingForUpdate();
             }
 
-            public void downloadProgress (int percent) {
-                obs.downloadProgress(percent);
+            public void downloadProgress (int percent, long remaining) {
+                obs.downloadProgress(percent, remaining);
             }
 
             public void downloadFailed (DownloadDescriptor desc, Exception e) {
