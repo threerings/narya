@@ -32,7 +32,8 @@
        service declarations -->
   <target name="genservice"> 
     <taskdef name="service"
-             classname="com.threerings.presents.tools.GenServiceTask"/>
+             classname="com.threerings.presents.tools.GenServiceTask"
+             classpathref="classpath"/>
     <!-- make sure the service class files are all compiled -->
     <javac srcdir="src/java" destdir="${classes.dir}"
            debug="on" optimize="${build.optimize}" deprecation="on">
@@ -41,7 +42,7 @@
       <exclude name="**/InvocationService.java"/>
     </javac>
     <!-- now generate the associated files -->
-    <service header="lib/SOURCE_HEADER">
+    <service header="lib/SOURCE_HEADER" classpathref="classpath">
       <fileset dir="src/java" includes="**/*Service.java"
         excludes="**/InvocationService.java"/>
     </service>
