@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.7 2001/08/04 00:36:33 shaper Exp $
+// $Id: Sprite.java,v 1.8 2001/08/07 18:29:18 shaper Exp $
 
 package com.threerings.miso.sprite;
 
@@ -187,8 +187,10 @@ public class Sprite
         Rectangle dirty = new Rectangle(
             _drawx, _drawy, _curTile.width, _curTile.height);
 
-//          Log.info("Sprite invalidate [x=" + dirty.x + ", y=" + dirty.y +
-//                   ", width=" + dirty.width + ", height=" + dirty.height + "].");
+//  	Log.info("Sprite invalidate [x=" + x + ", y=" + y +
+//  		 ", dx=" + dirty.x + ", dy=" + dirty.y +
+//  		 ", dwidth=" + dirty.width +
+//  		 ", dheight=" + dirty.height + "].");
 
         _spritemgr.addDirtyRect(dirty);
     }
@@ -221,6 +223,9 @@ public class Sprite
      */
     protected void handleMove ()
     {
+	// dirty our rectangle since we're going to move
+	invalidate();
+
         // move the sprite incrementally toward its goal
         x = (int)(_movex += _incx);
         y = (int)(_movey += _incy);
@@ -233,14 +238,15 @@ public class Sprite
             x = _dest.loc.x;
             y = _dest.loc.y;
 
-            // dirty our rectangle since we've moved
-            invalidate();
-
             // move further along the path if necessary
             moveAlongPath();
         }
 
+	// update the draw coordinates to reflect our new position
         updateDrawPosition();
+
+	// dirty our rectangle in the new position
+	invalidate();
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.26 2001/08/06 18:57:39 shaper Exp $
+// $Id: IsoSceneView.java,v 1.27 2001/08/07 18:29:17 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -39,8 +39,9 @@ public class IsoSceneView implements EditableSceneView
         // get the font used to render tile coordinates
 	_font = new Font("Arial", Font.PLAIN, 7);
 
-        // create the list of dirty rectangles
+        // create the lists of dirty tiles and rectangles
         _dirty = new ArrayList();
+	_dirtyRects = new ArrayList();
     }
 
     /**
@@ -63,6 +64,7 @@ public class IsoSceneView implements EditableSceneView
 	// draw the full scene into the offscreen image buffer
 	//renderSceneInvalid(gfx);
         renderScene(gfx);
+	drawDirtyRects(gfx);
 
         // draw an outline around the highlighted tile
         paintHighlightedTile(gfx, _htile.x, _htile.y);
@@ -72,6 +74,25 @@ public class IsoSceneView implements EditableSceneView
 
 	// restore the original clipping region
 	gfx.setClip(oldclip);
+    }
+
+    protected void drawDirtyRects (Graphics2D gfx)
+    {
+	// draw the dirty tiles
+	gfx.setColor(Color.cyan);
+	int size = _dirty.size();
+	for (int ii = 0; ii < size; ii++) {
+	    int dinfo[] = (int[])_dirty.remove(0);
+	    gfx.draw(getTilePolygon(dinfo[0], dinfo[1]));
+	}
+
+	// draw the dirty rectangles
+	gfx.setColor(Color.red);
+	size = _dirtyRects.size();
+	for (int ii = 0; ii < size; ii++) {
+	    Rectangle rect = (Rectangle)_dirtyRects.remove(0);
+	    gfx.draw(rect);
+	}
     }
 
     /**
@@ -208,12 +229,13 @@ public class IsoSceneView implements EditableSceneView
      */
     protected void paintMouseLines (Graphics2D gfx)
     {
-        Point[] lx = _model.lineX, ly = _model.lineY;
+        Point[] lx = _model.lineX;
 
 	// draw the baseline x-axis line
 	gfx.setColor(Color.red);
 	gfx.drawLine(lx[0].x, lx[0].y, lx[1].x, lx[1].y);
 
+	/*
 	// draw line from last mouse pos to baseline
 	gfx.setColor(Color.yellow);
 	gfx.drawLine(ly[0].x, ly[0].y, ly[1].x, ly[1].y);
@@ -223,6 +245,7 @@ public class IsoSceneView implements EditableSceneView
 	gfx.fillRect(ly[0].x, ly[0].y, 2, 2);
 	gfx.setColor(Color.red);
 	gfx.drawRect(ly[0].x - 1, ly[0].y - 1, 3, 3);
+	*/
     }
 
     /**
@@ -247,11 +270,11 @@ public class IsoSceneView implements EditableSceneView
 
         // draw x-coordinate
         String str = "" + x;
-        gfx.drawString(str, sx + cx - fm.stringWidth(str), sy + cy);
+        gfx.drawString(str, sx + cx - (fm.stringWidth(str)/2), sy + cy);
 
         // draw y-coordinate
         str = "" + y;
-        gfx.drawString(str, sx + cx - fm.stringWidth(str), sy + cy + fhei);
+        gfx.drawString(str, sx + cx - (fm.stringWidth(str)/2), sy + cy + fhei);
     }
 
     /**
@@ -290,8 +313,13 @@ public class IsoSceneView implements EditableSceneView
         int size = rects.size();
         for (int ii = 0; ii < size; ii++) {
             Rectangle r = (Rectangle)rects.get(ii);
-            invalidateScreenRect(r.x, r.y, r.width, r.height);
-        }
+
+	    // dirty the tiles impacted by this rectangle
+	    invalidateScreenRect(r.x, r.y, r.width, r.height);
+
+	    // save the rectangle for potential display later
+	    _dirtyRects.add(r);
+	}
     }
 
     /**
@@ -305,15 +333,91 @@ public class IsoSceneView implements EditableSceneView
      */
     public void invalidateScreenRect (int x, int y, int width, int height)
     {
+	// TODO: fix boundary conditions, store contiguous dirty tile
+	// row segments rather than individual tiles, use specialized
+	// data structure rather than allocating int[] every time.
+
+	// note that corner tiles may be included unnecessarily, but
+	// checking to determine whether they're actually needed
+	// complicates the code with likely-insufficient benefit
+
+	// determine the top-left tile impacted by this rect
         Point tpos = new Point();
         IsoUtil.screenToTile(_model, x, y, tpos);
 
-//          Log.info("invalidateScreenRect: mapped rect to tile " +
-//                   "[tx=" + tpos.x + ", ty=" + tpos.y +
-//                   ", x=" + x + ", y=" + y + ", width=" + width +
-//                   ", height=" + height + "].");
+	// determine screen coordinates for top-left tile
+	Point topleft = new Point();
+	IsoUtil.tileToScreen(_model, tpos.x, tpos.y, topleft);
 
-        _dirty.add(new int[] { tpos.x, tpos.y });
+	// determine number of horizontal and vertical tiles for rect
+	int numh = (int)Math.ceil((float)width / (float)_model.tilewid);
+	int numv = (int)Math.ceil((float)height / (float)_model.tilehhei);
+
+	// set up iterating variables
+	int tx = tpos.x, ty = tpos.y, mx = tpos.x, my = tpos.y;;
+
+	// set the starting screen y-position
+	int screenY = topleft.y;
+
+	// add top row if rect may overlap
+	if (y < (screenY + _model.tilehhei)) {
+	    ty--;
+	    for (int ii = 0; ii < numh; ii++) {
+		_dirty.add(new int[] { tx++, ty-- });
+	    }
+	}
+
+	// add rows to the bottom if rect may overlap
+	int ypos = screenY + (numv * _model.tilehhei);
+	if ((y + height) > ypos) {
+	    numv += ((y + height) > (ypos + _model.tilehhei)) ? 2 : 1;
+	}
+
+	// add dirty tiles from each affected row
+	boolean isodd = false;
+	for (int ii = 0; ii < numv; ii++) {
+
+	    // set up iterating variables for this row
+	    tx = mx;
+	    ty = my;
+	    int length = numh;
+
+	    // set the starting screen x-position
+	    int screenX = topleft.x;
+	    if (isodd) {
+		screenX -= _model.tilehwid;
+	    }
+
+	    // skip leftmost tile if rect doesn't overlap
+  	    if (x > screenX + _model.tilewid) {
+  		tx++;
+  		ty--;
+		screenX += _model.tilewid;
+  	    }
+
+	    // add to the right edge if rect may overlap
+	    if (x + width > (screenX + (length * _model.tilewid))) {
+		length++;
+	    }
+
+	    // add all tiles in the row to the dirty set
+	    for (int jj = 0; jj < length; jj++) {
+		_dirty.add(new int[] { tx++, ty-- });
+	    }
+
+	    // step along the x- or y-axis appropriately
+	    if (isodd) {
+		mx++;
+	    } else {
+		my++;
+	    }
+
+	    // increment the screen y-position
+	    screenY += _model.tilehhei;
+
+	    // toggle whether we're drawing an odd-numbered row
+	    isodd = !isodd;
+	}
     }
 
     public void setScene (Scene scene)
@@ -369,6 +473,9 @@ public class IsoSceneView implements EditableSceneView
 
     /** The dirty tile row segments that need to be re-painted. */
     protected ArrayList _dirty;
+
+    /** The dirty rectangles that need to be re-painted. */
+    protected ArrayList _dirtyRects;
 
     /** The scene model data. */
     protected IsoSceneModel _model;

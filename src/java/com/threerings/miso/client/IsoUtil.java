@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.1 2001/08/03 22:23:47 shaper Exp $
+// $Id: IsoUtil.java,v 1.2 2001/08/07 18:29:17 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -110,25 +110,21 @@ public class IsoUtil
     public static void screenToTile (
 	IsoSceneModel model, int sx, int sy, Point tpos)
     {
-        Point[] lx = model.lineX, ly = model.lineY;
-
 	// calculate line parallel to the y-axis (from mouse pos to x-axis)
-	ly[0].setLocation(sx, sy);
 	int bY = (int)(sy - (model.slopeY * sx));
 
 	// determine intersection of x- and y-axis lines
-	ly[1].x = (int)((bY - (model.bX + model.origin.y)) /
-                        (model.slopeX - model.slopeY));
-	ly[1].y = (int)((model.slopeY * ly[1].x) + bY);
+	int crossx = (int)((bY - (model.bX + model.origin.y)) /
+			   (model.slopeX - model.slopeY));
+	int crossy = (int)((model.slopeY * crossx) + bY);
 
 	// determine distance of mouse pos along the x axis
-	int xdist = (int) MathUtil.distance(
-            lx[0].x, lx[0].y, ly[1].x, ly[1].y);
+	int xdist = (int)MathUtil.distance(
+	    model.origin.x, model.origin.y, crossx, crossy);
 	tpos.x = (int)(xdist / model.tilelen);
 
 	// determine distance of mouse pos along the y-axis
-	int ydist = (int) MathUtil.distance(
-            ly[0].x, ly[0].y, ly[1].x, ly[1].y);
+	int ydist = (int)MathUtil.distance(sx, sy, crossx, crossy);
 	tpos.y = (int)(ydist / model.tilelen);
     }
 

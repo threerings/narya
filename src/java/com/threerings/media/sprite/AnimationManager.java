@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.7 2001/08/06 18:57:39 shaper Exp $
+// $Id: AnimationManager.java,v 1.8 2001/08/07 18:29:18 shaper Exp $
 
 package com.threerings.miso.sprite;
 
@@ -99,13 +99,17 @@ public class AnimationManager implements Interval, PerformanceObserver
 
         // invalidate screen-rects dirtied by sprites
         ArrayList rects = _spritemgr.getDirtyRects();
-        _view.invalidateRects(rects);
 
-        // update frame-rate information
-        PerformanceMonitor.tick(AnimationManager.this, "refresh");
+	if (rects.size() > 0) {
+	    // pass the dirty-rects on to the scene view
+	    _view.invalidateRects(rects);
 
-        // refresh the display
-        _target.paintImmediately(_target.getBounds());
+	    // refresh the display
+	    _target.paintImmediately(_target.getBounds());
+	}
+
+	// update refresh-rate information
+	//PerformanceMonitor.tick(AnimationManager.this, "refresh");
 
         if (finishedTick()) {
             // finishedTick returning true means there's been a

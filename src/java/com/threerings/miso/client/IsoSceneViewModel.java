@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.3 2001/08/03 22:23:47 shaper Exp $
+// $Id: IsoSceneViewModel.java,v 1.4 2001/08/07 18:29:17 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -44,8 +44,8 @@ public class IsoSceneModel
     /** The slope of the x- and y-axis lines. */
     public float slopeX, slopeY;
 
-    /** The last calculated x- and y-axis mouse position tracking lines. */
-    public Point lineX[], lineY[];
+    /** The x-axis line. */
+    public Point lineX[];
 
     /** The length between fine coordinates in pixels. */
     public float finelen;
@@ -160,10 +160,8 @@ public class IsoSceneModel
 
         // create the x- and y-axis lines
 	lineX = new Point[2];
-	lineY = new Point[2];
 	for (int ii = 0; ii < 2; ii++) {
 	    lineX[ii] = new Point();
-	    lineY[ii] = new Point();
 	}
 
         // determine the starting point

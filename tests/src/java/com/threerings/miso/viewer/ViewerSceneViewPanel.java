@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.2 2001/08/06 18:57:39 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.3 2001/08/07 18:29:18 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -39,6 +39,10 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 
         // load up the initial scene
         prepareStartingScene();
+
+	((EditableSceneView)_view).setShowCoordinates(true);
+
+	PerformanceMonitor.register(this, "paint", 1000);
     }
 
     /**
@@ -61,6 +65,12 @@ public class ViewerSceneViewPanel extends SceneViewPanel
             Log.warning("Exception loading scene [fname=" + fname +
                         ", ioe=" + ioe + "].");
         }
+    }
+
+    public void paintComponent (Graphics g)
+    {
+	super.paintComponent(g);
+	PerformanceMonitor.tick(this, "paint");
     }
 
     public void checkpoint (String name, int ticks)
