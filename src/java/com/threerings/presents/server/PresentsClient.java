@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.55 2003/04/10 18:12:16 mdb Exp $
+// $Id: PresentsClient.java,v 1.56 2003/05/24 01:50:33 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -655,7 +655,13 @@ public class PresentsClient
     // documentation inherited from interface
     public void eventReceived (DEvent event)
     {
-        postMessage(new EventNotification(event));
+        if (event instanceof PresentsDObjectMgr.AccessObjectEvent) {
+            Log.warning("Ignoring event that shouldn't be forwarded " +
+                        event + ".");
+            Thread.dumpStack();
+        } else {
+            postMessage(new EventNotification(event));
+        }
     }
 
     /** Queues a message for delivery to the client. */
