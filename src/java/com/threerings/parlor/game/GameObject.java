@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.java,v 1.13 2002/10/29 02:09:03 shaper Exp $
+// $Id: GameObject.java,v 1.14 2003/01/13 18:36:18 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -164,6 +164,13 @@ public class GameObject extends PlaceObject
             }
         }
         return -1;
+    }
+
+    // documentation inherited
+    protected void which (StringBuffer buf)
+    {
+        super.which(buf);
+        StringUtil.toString(buf, players);
     }
 
     /**
