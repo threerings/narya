@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.22 2002/06/19 08:26:22 mdb Exp $
+// $Id: Tile.java,v 1.23 2002/09/13 20:27:05 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -7,10 +7,11 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Shape;
-
 import java.awt.image.BufferedImage;
 
 import com.samskivert.util.StringUtil;
+
+import com.threerings.media.Log;
 import com.threerings.media.util.ImageUtil;
 
 /**
@@ -38,8 +39,17 @@ public class Tile implements Cloneable
     protected void createSubImage ()
     {
         if (_image instanceof BufferedImage) {
-            _subimage = ImageUtil.getSubimage(_image, _bounds.x, _bounds.y,
-                                              _bounds.width, _bounds.height);
+            try {
+                _subimage = ImageUtil.getSubimage(
+                    _image, _bounds.x, _bounds.y,
+                    _bounds.width, _bounds.height);
+            } catch (RuntimeException rte) {
+                Log.warning("Failure creating subimage [src=" + _image +
+                            ", bounds=" + StringUtil.toString(_bounds) +
+                            ", error=" + rte + "].");
+                throw rte;
+            }
+
         } else {
             String errmsg = "Can't obtain tile image [tile=" + this + "].";
             throw new RuntimeException(errmsg);
