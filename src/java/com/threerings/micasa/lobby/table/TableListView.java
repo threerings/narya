@@ -1,5 +1,5 @@
 //
-// $Id: TableListView.java,v 1.5 2002/07/25 23:20:22 mdb Exp $
+// $Id: TableListView.java,v 1.6 2003/01/11 01:03:02 shaper Exp $
 
 package com.threerings.micasa.lobby.table;
 
@@ -21,6 +21,7 @@ import javax.swing.event.ChangeListener;
 
 import com.samskivert.swing.HGroupLayout;
 import com.samskivert.swing.VGroupLayout;
+import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.data.PlaceObject;
@@ -158,8 +159,7 @@ public class TableListView extends JPanel
         // appropriate list
         JPanel panel = table.inPlay() ? _playList : _matchList;
         panel.add(new TableItem(_ctx, _tdtr, table));
-        panel.revalidate();
-        panel.repaint();
+        SwingUtil.refresh(panel);
     }
 
     // documentation inherited
@@ -182,11 +182,9 @@ public class TableListView extends JPanel
         // list if it just transitioned
         if (table.gameOid != -1 && item.getParent() == _matchList) {
             _matchList.remove(item);
-            _matchList.revalidate();
-            _matchList.repaint();
+            SwingUtil.refresh(_matchList);
             _playList.add(item);
-            _playList.revalidate();
-            _playList.repaint();
+            SwingUtil.refresh(_playList);
         }
     }
 
@@ -206,8 +204,7 @@ public class TableListView extends JPanel
         // remove this item from the user interface
         JPanel panel = (JPanel)item.getParent();
         panel.remove(item);
-        panel.revalidate();
-        panel.repaint();
+        SwingUtil.refresh(panel);
 
         // let the little fellow know that we gave him the boot
         item.tableRemoved();

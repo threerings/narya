@@ -1,5 +1,5 @@
 //
-// $Id: ObjectEditorPanel.java,v 1.1 2002/06/07 06:22:24 mdb Exp $
+// $Id: ObjectEditorPanel.java,v 1.2 2003/01/11 01:03:01 shaper Exp $
 
 package com.threerings.admin.client;
 
@@ -9,9 +9,10 @@ import java.lang.reflect.Modifier;
 import javax.swing.BorderFactory;
 import javax.swing.event.AncestorEvent;
 
-import com.samskivert.swing.VGroupLayout;
 import com.samskivert.swing.ScrollablePanel;
+import com.samskivert.swing.VGroupLayout;
 import com.samskivert.swing.event.AncestorAdapter;
+import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
@@ -102,8 +103,7 @@ public class ObjectEditorPanel extends ScrollablePanel
             Log.warning("Unable to introspect DObject!? " + se);
         }
 
-        revalidate();
-        repaint();
+        SwingUtil.refresh(this);
     }
 
     // documentation inherited from interface
