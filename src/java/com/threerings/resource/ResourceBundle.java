@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.21 2003/08/11 20:34:21 mdb Exp $
+// $Id: ResourceBundle.java,v 1.22 2003/08/15 23:58:02 mdb Exp $
 
 package com.threerings.resource;
 
@@ -75,8 +75,8 @@ public class ResourceBundle
      */
     public boolean isUnpacked ()
     {
-        return (_source.exists() && (_unpacked != null) &&
-            (_unpacked.lastModified() == _source.lastModified()));
+        return (_source.exists() && _unpacked != null &&
+                _unpacked.lastModified() == _source.lastModified());
     }
 
     /**
