@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.18 2003/05/02 23:49:57 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.19 2003/05/08 04:52:24 ray Exp $
 
 package com.threerings.media;
 
@@ -16,6 +16,9 @@ import javax.swing.SwingUtilities;
 import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.media.image.ImageUtil;
+import com.threerings.media.image.Mirage;
+import com.threerings.media.util.MathUtil;
 import com.threerings.media.util.Path;
 import com.threerings.media.util.Pathable;
 
@@ -36,6 +39,14 @@ public class VirtualMediaPanel extends MediaPanel
     public VirtualMediaPanel (FrameManager framemgr)
     {
         super(framemgr);
+    }
+
+    /**
+     * Set a background image to tile the background of the media panel.
+     */
+    public void setBackground (Mirage background)
+    {
+        _background = background;
     }
 
     /**
@@ -358,6 +369,22 @@ public class VirtualMediaPanel extends MediaPanel
         return Math.min(Math.max(tx, 0), vlen-len);
     }
 
+    // documentation inherited
+    protected void paintBehind (Graphics2D gfx, Rectangle dirtyRect)
+    {
+        // if we have a background image specified, tile it!
+        if (_background != null) {
+            // make sure it's aligned
+            int iw = _background.getWidth();
+            int ih = _background.getHeight();
+            int lowx = iw * MathUtil.floorDiv(dirtyRect.x, iw);
+            int lowy = ih * MathUtil.floorDiv(dirtyRect.y, ih);
+            ImageUtil.tileImage(gfx, _background, lowx, lowy,
+                dirtyRect.width + (dirtyRect.x - lowx),
+                dirtyRect.height + (dirtyRect.y - lowy));
+        }
+    }
+
     /** Our viewport bounds in virtual coordinates. */
     protected Rectangle _vbounds = new Rectangle();
 
@@ -366,6 +393,9 @@ public class VirtualMediaPanel extends MediaPanel
 
     /** Our scroll offsets. */
     protected int _dx, _dy;
+
+    /** Our tiling background image. */
+    protected Mirage _background;
 
     /** A region of interest which we'll try to keep visible. */
     protected Rectangle _interest;
