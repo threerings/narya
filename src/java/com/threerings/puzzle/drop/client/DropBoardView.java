@@ -1,5 +1,5 @@
 //
-// $Id: DropBoardView.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: DropBoardView.java,v 1.2 2003/11/26 02:07:45 mdb Exp $
 
 package com.threerings.puzzle.drop.client;
 
@@ -17,14 +17,12 @@ import com.samskivert.swing.Label;
 import com.threerings.media.image.Mirage;
 import com.threerings.media.sprite.Sprite;
 
-import com.threerings.yohoho.client.YoUI;
-import com.threerings.puzzle.util.PuzzleContext;
-
 import com.threerings.puzzle.Log;
 import com.threerings.puzzle.client.PuzzleBoardView;
 import com.threerings.puzzle.client.ScoreAnimation;
 import com.threerings.puzzle.data.Board;
 import com.threerings.puzzle.data.PuzzleConfig;
+import com.threerings.puzzle.util.PuzzleContext;
 
 import com.threerings.puzzle.drop.data.DropBoard;
 import com.threerings.puzzle.drop.data.DropConfig;

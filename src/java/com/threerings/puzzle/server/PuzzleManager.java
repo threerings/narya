@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleManager.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: PuzzleManager.java,v 1.2 2003/11/26 02:07:45 mdb Exp $
 
 package com.threerings.puzzle.server;
 
@@ -23,6 +23,7 @@ import com.threerings.presents.server.util.SafeInterval;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
+import com.threerings.crowd.server.CrowdServer;
 import com.threerings.crowd.server.PlaceManagerDelegate;
 
 import com.threerings.parlor.game.GameManager;
@@ -32,13 +33,6 @@ import com.threerings.parlor.game.PartyGameConfig;
 import com.threerings.util.MessageBundle;
 import com.threerings.util.RandomUtil;
 import com.threerings.util.StreamableArrayList;
-
-import com.threerings.yohoho.data.ActivityCodes;
-import com.threerings.yohoho.data.YoOccupantInfo;
-import com.threerings.crowd.data.BodyObject;
-import com.threerings.yohoho.server.PirateManager;
-import com.threerings.yohoho.server.YoSceneManager;
-import com.threerings.yohoho.server.YoServer;
 
 import com.threerings.puzzle.Log;
 import com.threerings.puzzle.data.Board;
@@ -75,11 +69,11 @@ public abstract class PuzzleManager extends GameManager
         // if we have their oid, use that
         int ploid = _playerOids[playerIdx];
         if (ploid > 0) {
-            return (BodyObject)YoServer.omgr.getObject(ploid);
+            return (BodyObject)CrowdServer.omgr.getObject(ploid);
         }
         // otherwise look them up by name
         String name = getPlayerName(playerIdx);
-        return (name == null) ? null : (BodyObject)YoServer.lookupBody(name);
+        return (name == null) ? null : CrowdServer.lookupBody(name);
     }
 
     /**
@@ -266,11 +260,12 @@ public abstract class PuzzleManager extends GameManager
         if (_uiid == -1 && statusInterval > 0) {
             // register the status update interval to address subsequent
             // periodic updates
-            _uiid = IntervalManager.register(new SafeInterval(YoServer.omgr) {
-                public void run () {
-                    sendStatusUpdate();
-                }
-            }, statusInterval, null, true);
+            _uiid = IntervalManager.register(
+                new SafeInterval(CrowdServer.omgr) {
+                    public void run () {
+                        sendStatusUpdate();
+                    }
+                }, statusInterval, null, true);
         }
     }
 
@@ -437,7 +432,7 @@ public abstract class PuzzleManager extends GameManager
 
         // now send a message event to each room
         for (int ii=0, nn = places.size(); ii < nn; ii++) {
-            DObject place = YoServer.omgr.getObject(places.get(ii));
+            DObject place = CrowdServer.omgr.getObject(places.get(ii));
             if (place != null) {
                 place.postMessage(WINNERS_AND_LOSERS, args);
             }
@@ -453,7 +448,7 @@ public abstract class PuzzleManager extends GameManager
         OidList knocky = new OidList(1);
         knocky.add(user.getOid());
 
-        DObject place = YoServer.omgr.getObject(user.location);
+        DObject place = CrowdServer.omgr.getObject(user.location);
         if (place != null) {
             place.postMessage(PLAYER_KNOCKED_OUT, new Object[] { knocky });
         }
@@ -473,9 +468,6 @@ public abstract class PuzzleManager extends GameManager
 
         // clear out our service registration
         _invmgr.clearDispatcher(_puzobj.puzzleGameService);
-
-        // clear out our status indicator
-        YoServer.status.removeFromPuzzles(new Integer(_puzobj.getOid()));
     }
 
     /**
@@ -593,7 +585,7 @@ public abstract class PuzzleManager extends GameManager
 
         if (_puzobj.state != PuzzleObject.GAME_OVER) {
             // inform remaining users that the user left
-            BodyObject user = (BodyObject)YoServer.omgr.getObject(bodyOid);
+            BodyObject user = (BodyObject)CrowdServer.omgr.getObject(bodyOid);
             if (user != null) {
                 systemMessage(MessageBundle.tcompose(
                                   "m.user_left", user.username));
