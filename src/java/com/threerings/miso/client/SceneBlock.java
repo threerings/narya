@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.15 2003/05/12 02:03:31 mdb Exp $
+// $Id: SceneBlock.java,v 1.16 2003/05/23 19:35:11 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -50,6 +50,15 @@ public class SceneBlock
             panel.getSceneMetrics(), tx, ty, width, height);
 
         // the rest of our resolution will happen in resolve()
+    }
+
+    /**
+     * Makes a note that this block was considered to be visible at the
+     * time it was created. This is purely for debugging purposes.
+     */
+    public void setVisiBlock (boolean visi)
+    {
+        _visi = visi;
     }
 
     /**
@@ -337,7 +346,8 @@ public class SceneBlock
         int by = MathUtil.floorDiv(_bounds.y, _bounds.height);
         return StringUtil.coordsToString(bx, by) + ":" +
             StringUtil.toString(_bounds) + ":" +
-            ((_objects == null) ? 0 : _objects.length);
+            ((_objects == null) ? 0 : _objects.length) +
+            (_visi ? ":v" : ":i");
     }
 
     /**
@@ -459,6 +469,9 @@ public class SceneBlock
 
     /** Our neighbors in the eight cardinal directions. */
     protected SceneBlock[] _neighbors = new SceneBlock[DX.length];
+
+    /** A debug flag indicating whether we were visible at creation. */
+    protected boolean _visi;
 
     // used to link up to our neighbors
     protected static final int[] DX = { -1, -1,  0,  1, 1, 1, 0, -1 };

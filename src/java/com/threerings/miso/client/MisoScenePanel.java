@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.37 2003/05/22 16:10:54 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.38 2003/05/23 19:35:11 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -606,7 +606,8 @@ public class MisoScenePanel extends VirtualMediaPanel
                 _delayRepaint = mightDelayPaint;
                 Log.info("Delaying repaint... " +
                          "[need=" + _visiBlocks.size() +
-                         ", of=" + _pendingBlocks + "].");
+                         ", of=" + _pendingBlocks +
+                         ", view=" + StringUtil.toString(_vbounds) + "].");
             }
         }
     }
@@ -695,6 +696,7 @@ public class MisoScenePanel extends VirtualMediaPanel
                     _metrics.blockwid, _metrics.blockhei);
                 boolean visible =
                     block.getFootprint().getBounds().intersects(_vibounds);
+                block.setVisiBlock(visible);
                 _blocks.put(bkey, block);
 
                 // queue the block up to be resolved
@@ -742,8 +744,9 @@ public class MisoScenePanel extends VirtualMediaPanel
                            // we go extra on the height because objects
                            // below can influence fairly high up
                            _vbounds.height+3*infbory);
-        _vibounds.setBounds(_vbounds.x, _vbounds.y,
-                            _vbounds.width, _vbounds.height+infbory);
+        _vibounds.setBounds(_vbounds.x-_vbounds.width/4, _vbounds.y,
+                            _vbounds.width+_vbounds.width/2,
+                            _vbounds.height+infbory);
     }
 
     /**
@@ -799,14 +802,16 @@ public class MisoScenePanel extends VirtualMediaPanel
         }
         --_pendingBlocks;
         if (_pendingBlocks == 0) {
-            Log.info("Finished resolving pending blocks.");
+            Log.info("Finished resolving pending blocks " +
+                     "[view=" + StringUtil.toString(_vbounds) + "].");
         }
 
         // once all the visible pending blocks have completed their
         // resolution, recompute our visible object set and show ourselves
         if (_visiBlocks.remove(block) && _visiBlocks.size() == 0) {
             recomputeVisible();
-            Log.info("Restoring repaint... [left=" + _pendingBlocks + "].");
+            Log.info("Restoring repaint... [left=" + _pendingBlocks +
+                     ", view=" + StringUtil.toString(_vbounds) + "].");
             _delayRepaint = false;
             _remgr.invalidateRegion(_vbounds);
         }

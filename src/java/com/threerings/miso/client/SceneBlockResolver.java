@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlockResolver.java,v 1.7 2003/05/22 22:18:27 mdb Exp $
+// $Id: SceneBlockResolver.java,v 1.8 2003/05/23 19:35:11 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -87,12 +87,13 @@ public class SceneBlockResolver extends LoopingThread
             }
 
             // queue it up on the AWT thread to complete its resolution
+            final boolean report = (_queue.size() == 0);
             EventQueue.invokeLater(new Runnable() {
                 public void run () {
                     // let the block's panel know that it is resolved
                     block.wasResolved();
                     // report statistics
-                    if (_queue.size() == 0) {
+                    if (report) {
                         Log.info("Resolution histogram " +
                                  _histo.summarize() + ".");
                     }
