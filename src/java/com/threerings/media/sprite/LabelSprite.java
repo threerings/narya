@@ -1,5 +1,5 @@
 //
-// $Id: LabelSprite.java,v 1.6 2004/08/27 02:12:41 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -27,9 +27,10 @@ import java.awt.Graphics2D;
 import com.samskivert.swing.Label;
 
 /**
- * A sprite that uses a label to render itself.  Assumes that the label
- * has been previously laid out (see {@link Label#layout}).  The label
- * should not be altered after the sprite is created.
+ * A sprite that uses a label to render itself.  If the label has not been
+ * previously laid out (see {@link Label#layout}) it will be done when the
+ * sprite is added to a media panel.  The label should not be altered
+ * after the sprite is created.
  */
 public class LabelSprite extends Sprite
 {
@@ -54,6 +55,11 @@ public class LabelSprite extends Sprite
     protected void init ()
     {
         super.init();
+
+        // if our label is not yet laid out, do the deed
+        if (!_label.isLaidOut()) {
+            _label.layout(_mgr.getMediaPanel());
+        }
 
         // size the bounds to fit our label
         Dimension size = _label.getSize();
