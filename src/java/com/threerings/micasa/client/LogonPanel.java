@@ -1,5 +1,5 @@
 //
-// $Id: LogonPanel.java,v 1.6 2002/07/16 05:42:53 mdb Exp $
+// $Id: LogonPanel.java,v 1.7 2002/07/17 18:11:02 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -182,7 +182,8 @@ public class LogonPanel extends JPanel
 
         String server = _ctx.getClient().getHostname();
         int port = _ctx.getClient().getPort();
-        String msg = MessageBundle.tcompose("m.logging_on", server, String.valueOf(port));
+        String msg = MessageBundle.tcompose("m.logging_on",
+                                            server, String.valueOf(port));
         _status.append(_msgs.xlate(msg) + "\n");
 
         // configure the client with some credentials and logon
