@@ -1,5 +1,5 @@
 //
-// $Id: SimpleMisoSceneModel.java,v 1.3 2003/04/17 19:21:16 mdb Exp $
+// $Id: SimpleMisoSceneModel.java,v 1.4 2003/04/18 22:59:18 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -85,7 +85,7 @@ public class SimpleMisoSceneModel extends MisoSceneModel
     }
 
     // documentation inherited
-    public boolean setBaseTile (int col, int row, int fqBaseTileId)
+    public boolean setBaseTile (int fqBaseTileId, int col, int row)
     {
         int index = getIndex(col, row);
         if (index == -1) {
