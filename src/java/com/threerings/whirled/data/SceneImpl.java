@@ -1,10 +1,11 @@
 //
-// $Id: SceneImpl.java,v 1.1 2003/02/12 07:23:31 mdb Exp $
+// $Id: SceneImpl.java,v 1.2 2003/06/11 04:14:11 mdb Exp $
 
 package com.threerings.whirled.data;
 
 import com.threerings.crowd.data.PlaceConfig;
-import com.threerings.whirled.data.SceneModel;
+
+import com.threerings.whirled.Log;
 
 /**
  * An implementation of the {@link Scene} interface.
@@ -70,6 +71,20 @@ public class SceneImpl implements Scene
     public void setVersion (int version)
     {
         _model.version = version;
+    }
+
+    // documentation inherited from interface
+    public void updateReceived (SceneUpdate update)
+    {
+        try {
+            // validate and apply the update
+            update.validate(_model);
+            update.apply(_model);
+        } catch (Exception e) {
+            Log.warning("Error applying update [scene=" + this +
+                        ", update=" + update + "].");
+            Log.logStackTrace(e);
+        }
     }
 
     // documentation inherited from interface

@@ -1,5 +1,5 @@
 //
-// $Id: UpdateList.java,v 1.1 2003/02/12 07:23:32 mdb Exp $
+// $Id: UpdateList.java,v 1.2 2003/06/11 04:14:11 mdb Exp $
 
 package com.threerings.whirled.util;
 
@@ -61,7 +61,7 @@ public class UpdateList
      */
     public SceneUpdate[] getUpdates (int fromVersion)
     {
-        if (fromVersion < _minVersion) {
+        if (_minVersion == -1 || fromVersion < _minVersion) {
             return null;
         }
 

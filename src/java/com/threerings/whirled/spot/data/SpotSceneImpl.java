@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneImpl.java,v 1.1 2003/02/12 07:23:31 mdb Exp $
+// $Id: SpotSceneImpl.java,v 1.2 2003/06/11 04:14:11 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -23,7 +23,12 @@ public class SpotSceneImpl
     public SpotSceneImpl (SpotSceneModel smodel)
     {
         _smodel = smodel;
+        readPortals();
+    }
 
+    protected void readPortals ()
+    {
+        _portals.clear();
         for (int ii = 0, ll = _smodel.portals.length; ii < ll; ii++) {
             Portal port = _smodel.portals[ii];
             _portals.put(port.portalId, port);
@@ -108,6 +113,15 @@ public class SpotSceneImpl
     public void setDefaultEntrance (Portal portal)
     {
         _smodel.defaultEntranceId = (portal == null) ? -1 : portal.portalId;
+    }
+
+    /**
+     * This should be called if a scene update was received that caused
+     * our underlying scene model to change.
+     */
+    public void updateReceived ()
+    {
+        readPortals();
     }
 
     /** A casted reference to our scene model. */

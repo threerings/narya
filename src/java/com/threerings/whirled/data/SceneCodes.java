@@ -1,5 +1,5 @@
 //
-// $Id: SceneCodes.java,v 1.3 2002/08/14 19:07:57 mdb Exp $
+// $Id: SceneCodes.java,v 1.4 2003/06/11 04:14:11 mdb Exp $
 
 package com.threerings.whirled.data;
 
@@ -11,4 +11,6 @@ import com.threerings.whirled.client.SceneDirector;
  */
 public interface SceneCodes extends LocationCodes
 {
+    /** The message identifier for scene update messages. */
+    public static final String SCENE_UPDATE = "scene_update";
 }

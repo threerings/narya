@@ -1,5 +1,5 @@
 //
-// $Id: Scene.java,v 1.8 2003/02/12 07:23:31 mdb Exp $
+// $Id: Scene.java,v 1.9 2003/06/11 04:14:11 mdb Exp $
 
 package com.threerings.whirled.data;
 
@@ -49,6 +49,14 @@ public interface Scene
      * Sets this scene's version number.
      */
     public void setVersion (int version);
+
+    /**
+     * Called to inform the scene that an update has been received while
+     * the scene was resolved and active. The update should be applied to
+     * the underlying scene model and any derivative data should be
+     * appropriately updated.
+     */
+    public void updateReceived (SceneUpdate update);
 
     /**
      * Returns the scene model from which this scene was created.
