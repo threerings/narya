@@ -1,5 +1,5 @@
 //
-// $Id: FrameRepaintManager.java,v 1.21 2004/08/27 02:12:37 mdb Exp $
+// $Id: FrameRepaintManager.java,v 1.22 2004/10/23 17:21:54 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -123,7 +123,7 @@ public class FrameRepaintManager extends RepaintManager
 
         // add the invalid component to our list and we'll validate it on
         // the next frame
-        if (!ListUtil.contains(_invalid, vroot)) {
+        if (!ListUtil.containsRef(_invalid, vroot)) {
             if (DEBUG) {
                 Log.info("Invalidating " + toString(vroot) + ".");
             }

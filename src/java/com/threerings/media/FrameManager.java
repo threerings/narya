@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.52 2004/10/15 22:21:38 mdb Exp $
+// $Id: FrameManager.java,v 1.53 2004/10/23 17:21:54 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -302,7 +302,7 @@ public abstract class FrameManager
      */
     public boolean isRegisteredFrameParticipant (FrameParticipant participant)
     {
-        return ListUtil.contains(_participants, participant);
+        return ListUtil.containsRef(_participants, participant);
     }
 
     /**
