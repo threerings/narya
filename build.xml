@@ -10,6 +10,7 @@
   <property name="build.compiler" value="jikes"/>
   <property name="build.optimize" value="off"/>
   <property name="deploy.dir"     value="dist"/>
+  <property name="savedoc.dir"    value="docs"/>
 
   <!-- derived properties -->  
   <property name="dist.jar"       value="${app.name}.jar"/>
@@ -72,6 +73,15 @@
     </javadoc>
     <copy todir="${javadoc.home}">
       <fileset dir="src/java" includes="**/*.png"/>
+    </copy>
+  </target>
+
+  <!-- builds the javadocs and stuffs them in a directory where they won't
+       be blown away when we do "clean" next time -->
+  <target name="savedoc" depends="javadoc">
+    <delete dir="${savedoc.dir}/api"/>
+    <copy todir="${savedoc.dir}/api">
+      <fileset dir="${javadoc.home}" includes="**/*"/>
     </copy>
   </target>
 
