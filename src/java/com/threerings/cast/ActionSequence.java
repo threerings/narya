@@ -1,5 +1,5 @@
 //
-// $Id: ActionSequence.java,v 1.2 2001/11/27 08:09:34 mdb Exp $
+// $Id: ActionSequence.java,v 1.3 2002/03/27 21:51:33 mdb Exp $
 
 package com.threerings.cast;
 
@@ -19,7 +19,7 @@ public class ActionSequence implements Serializable
     public String name;
 
     /** The number of frames per second to show when animating. */
-    public int framesPerSecond;
+    public float framesPerSecond;
 
     /** The position of the character's base for this sequence. */
     public Point origin = new Point();
