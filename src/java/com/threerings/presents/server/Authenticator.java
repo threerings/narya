@@ -64,20 +64,26 @@ public abstract class Authenticator
      * authentication if it succeeded.
      */
     protected void connectionWasAuthenticated (
-        AuthingConnection conn, AuthResponse rsp)
+        final AuthingConnection conn, final AuthResponse rsp)
     {
-        // now ship the response back
-        conn.postMessage(rsp);
+        // make double plus extra sure we're on the omgr thread
+        PresentsServer.omgr.postRunnable(new Runnable() {
+            public void run () {
+                // stuff a reference to the auth response into the
+                // connection so that we have access to it later in the
+                // authentication process
+                conn.setAuthResponse(rsp);
 
-        // stuff a reference to the auth response into the connection so
-        // that we have access to it later in the authentication process
-        conn.setAuthResponse(rsp);
+                // send the response back to the client
+                conn.postMessage(rsp);
 
-        // if the authentication request was granted, let the connection
-        // manager know that we just authed
-        if (AuthResponseData.SUCCESS.equals(rsp.getData().code)) {
-            _conmgr.connectionDidAuthenticate(conn);
-        }
+                // if the authentication request was granted, let the
+                // connection manager know that we just authed
+                if (AuthResponseData.SUCCESS.equals(rsp.getData().code)) {
+                    _conmgr.connectionDidAuthenticate(conn);
+                }
+            }
+        });
     }
 
     /** The connection manager with which we're working. */
