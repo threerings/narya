@@ -1,10 +1,12 @@
 //
-// $Id: AuthingConnection.java,v 1.8 2002/10/29 23:51:26 mdb Exp $
+// $Id: AuthingConnection.java,v 1.9 2002/11/18 18:53:10 mdb Exp $
 
 package com.threerings.presents.server.net;
 
 import java.io.IOException;
-import ninja2.core.io_core.nbio.NonblockingSocket;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
+
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.Log;
@@ -23,11 +25,11 @@ public class AuthingConnection extends Connection
      * Creates a new authing connection object that will manage the
      * authentication process for the suppled client socket.
      */
-    public AuthingConnection (ConnectionManager cmgr,
-                              NonblockingSocket socket)
+    public AuthingConnection (ConnectionManager cmgr, SelectionKey selkey,
+                              SocketChannel channel)
         throws IOException
     {
-        super(cmgr, socket, System.currentTimeMillis());
+        super(cmgr, selkey, channel, System.currentTimeMillis());
 
         // we are our own message handler
         setMessageHandler(this);
@@ -80,10 +82,13 @@ public class AuthingConnection extends Connection
         _authrsp = authrsp;
     }
 
+    /**
+     * Generates a string representation of this instance.
+     */
     public String toString ()
     {
         return "[mode=AUTHING, addr=" +
-            StringUtil.toString(_socket.getInetAddress()) + "]";
+            StringUtil.toString(_channel.socket().getInetAddress()) + "]";
     }
 
     protected AuthRequest _authreq;

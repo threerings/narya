@@ -1,10 +1,12 @@
 //
-// $Id: RunningConnection.java,v 1.8 2002/10/29 23:51:26 mdb Exp $
+// $Id: RunningConnection.java,v 1.9 2002/11/18 18:53:10 mdb Exp $
 
 package com.threerings.presents.server.net;
 
 import java.io.IOException;
-import ninja2.core.io_core.nbio.NonblockingSocket;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
+
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.net.UpstreamMessage;
@@ -19,12 +21,11 @@ public class RunningConnection extends Connection
      * Constructs a new running connection object to manage the supplied
      * client socket.
      */
-    public RunningConnection (ConnectionManager cmgr,
-                              NonblockingSocket socket,
-                              long createStamp)
+    public RunningConnection (ConnectionManager cmgr, SelectionKey selkey,
+                              SocketChannel channel, long createStamp)
         throws IOException
     {
-        super(cmgr, socket, createStamp);
+        super(cmgr, selkey, channel, createStamp);
     }
 
     /**
@@ -36,12 +37,9 @@ public class RunningConnection extends Connection
 
     public String toString ()
     {
-        if (_socket != null) {
-            return "[mode=RUNNING, id=" + (hashCode() % 1000) +
-                ", addr=" + StringUtil.toString(_socket.getInetAddress()) + "]";
-        } else {
-            return "[mode=RUNNING, id=" + (hashCode() % 1000) +
-                ", addr=<disconnected>]";
-        }
+        String addr = (_channel == null) ? "<disconnected>" :
+            StringUtil.toString(_channel.socket().getInetAddress());
+        return "[mode=RUNNING, id=" + (hashCode() % 1000) +
+            ", addr=" + addr + "]";
     }
 }

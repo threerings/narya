@@ -1,16 +1,15 @@
 //
-// $Id: Communicator.java,v 1.24 2002/10/31 18:44:34 mdb Exp $
+// $Id: Communicator.java,v 1.25 2002/11/18 18:53:10 mdb Exp $
 
 package com.threerings.presents.client;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InterruptedIOException;
-import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 
 import java.net.InetAddress;
-import java.net.Socket;
 
 import com.samskivert.io.NestableIOException;
 import com.samskivert.util.Interval;
@@ -26,6 +25,7 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.presents.Log;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.net.*;
+import java.net.InetSocketAddress;
 
 /**
  * The client performs all network I/O on separate threads (one for
@@ -106,7 +106,7 @@ public class Communicator
     {
         // if our socket is already closed, we've already taken care of
         // this business
-        if (_socket == null) {
+        if (_channel == null) {
             return;
         }
 
@@ -186,7 +186,7 @@ public class Communicator
     {
         // make sure the socket isn't already closed down (meaning we've
         // already dealt with the failed connection)
-        if (_socket == null) {
+        if (_channel == null) {
             return;
         }
 
@@ -208,7 +208,7 @@ public class Communicator
     {
         // make sure the socket isn't already closed down (meaning we've
         // already dealt with the closed connection)
-        if (_socket == null) {
+        if (_channel == null) {
             return;
         }
 
@@ -246,11 +246,11 @@ public class Communicator
         // our socket and let the client know that the logoff process has
         // completed
         try {
-            _socket.close();
-        } catch (IOException cle) {
-            Log.warning("Error closing failed socket: " + cle);
+            _channel.close();
+        } catch (IOException ioe) {
+            Log.warning("Error closing failed socket: " + ioe);
         }
-        _socket = null;
+        _channel = null;
 
         // clear these out because they are probably large and in charge
         _oin = null;
@@ -278,7 +278,20 @@ public class Communicator
         _oout.flush();
 
         // then write the framed message to actual output stream
-        _fout.writeFrameAndReset(_out);
+        try {
+            ByteBuffer buffer = _fout.frameAndReturnBuffer();
+            int wrote = _channel.write(buffer);
+            if (wrote != buffer.limit()) {
+                Log.warning("Aiya! Couldn't write entire message [msg=" + msg +
+                            ", size=" + buffer.limit() +
+                            ", wrote=" + wrote + "].");
+//             } else {
+//                 Log.info("Wrote " + wrote + " bytes.");
+            }
+
+        } finally {
+            _fout.resetFrame();
+        }
 
         // make a note of our most recent write time
         updateWriteStamp();
@@ -315,7 +328,7 @@ public class Communicator
         // which case we simply call it again because we can't do anything
         // until it has a whole frame; it will throw an exception if it
         // hits EOF or if something goes awry)
-        while (!_fin.readFrame(_in));
+        while (!_fin.readFrame(_channel));
 
         try {
             DownstreamMessage msg = (DownstreamMessage)_oin.readObject();
@@ -359,6 +372,7 @@ public class Communicator
 
             } catch (Exception e) {
                 Log.debug("Logon failed: " + e);
+                Log.logStackTrace(e);
                 // let the observers know that we've failed
                 _client.notifyObservers(Client.CLIENT_FAILED_TO_LOGON, e);
                 // and terminate our communicator thread
@@ -370,7 +384,7 @@ public class Communicator
             throws IOException
         {
             // if we're already connected, we freak out
-            if (_socket != null) {
+            if (_channel != null) {
                 throw new IOException("Already connected.");
             }
 
@@ -379,13 +393,9 @@ public class Communicator
             int port = _client.getPort();
 
             // establish a socket connection to said server
-            Log.debug("Connecting to server [host=" + host +
-                      ", port=" + port + "].");
-            _socket = new Socket(host, port);
-
-            // get a handle on our input and output streams
-            _in = _socket.getInputStream();
-            _out = _socket.getOutputStream();
+            Log.debug("Connecting [host=" + host + ", port=" + port + "].");
+            _channel = SocketChannel.open(new InetSocketAddress(host, port));
+            _channel.configureBlocking(true);
 
             // our messages are framed (preceded by their length), so we
             // use these helper streams to manage the framing
@@ -477,7 +487,7 @@ public class Communicator
             // we want to interrupt the reader thread as it may be blocked
             // listening to the socket; this is only called if the reader
             // thread doesn't shut itself down
-            interrupt();
+//             interrupt();
         }
     }
 
@@ -541,9 +551,7 @@ public class Communicator
     protected Reader _reader;
     protected Writer _writer;
 
-    protected Socket _socket;
-    protected InputStream _in;
-    protected OutputStream _out;
+    protected SocketChannel _channel;
     protected Queue _msgq = new Queue();
 
     protected int _piid;

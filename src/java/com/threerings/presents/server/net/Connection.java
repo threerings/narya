@@ -1,5 +1,5 @@
 //
-// $Id: Connection.java,v 1.12 2002/11/06 21:05:13 shaper Exp $
+// $Id: Connection.java,v 1.13 2002/11/18 18:53:10 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -7,9 +7,11 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.SocketTimeoutException;
 
-import ninja2.core.io_core.nbio.*;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 
 import com.samskivert.io.NestableIOException;
 
@@ -37,24 +39,20 @@ public abstract class Connection implements NetEventHandler
      *
      * @param cmgr The connection manager with which this connection is
      * associated.
-     * @param socket The socket from which we'll be reading messages.
+     * @param selkey the key used by the NIO code to track this
+     * connection.
+     * @param channel The socket channel from which we'll be reading
+     * messages.
      * @param createStamp The time at which this connection was created.
      */
-    public Connection (ConnectionManager cmgr, NonblockingSocket socket,
-                       long createStamp)
+    public Connection (ConnectionManager cmgr, SelectionKey selkey,
+                       SocketChannel channel, long createStamp)
         throws IOException
     {
         _cmgr = cmgr;
-        _socket = socket;
+        _selkey = selkey;
+        _channel = channel;
         _lastEvent = createStamp;
-
-        // create a select item that will allow us to be incorporated into
-        // the main event polling loop
-        _selitem = new SelectItem(_socket, this, Selectable.READ_READY);
-
-        // get a handle on our socket streams
-        _in = _socket.getInputStream();
-        _out = _socket.getOutputStream();
     }
 
     /**
@@ -68,20 +66,20 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
-     * Returns the select item associated with this connection.
+     * Returns the selection key associated with our socket channel.
      */
-    public SelectItem getSelectItem ()
+    public SelectionKey getSelectionKey ()
     {
-        return _selitem;
+        return _selkey;
     }
 
     /**
      * Returns the non-blocking socket object used to construct this
      * connection.
      */
-    public NonblockingSocket getSocket ()
+    public SocketChannel getChannel ()
     {
-        return _socket;
+        return _channel;
     }
 
     /**
@@ -89,7 +87,7 @@ public abstract class Connection implements NetEventHandler
      */
     public boolean isClosed ()
     {
-        return (_socket == null);
+        return (_channel == null);
     }
 
     /**
@@ -131,15 +129,6 @@ public abstract class Connection implements NetEventHandler
 
         // and close our socket
         closeSocket();
-    }
-
-    /**
-     * Returns the output stream associated with this connection. This
-     * should only be used by the connection manager.
-     */
-    protected OutputStream getOutputStream ()
-    {
-        return _out;
     }
 
     /**
@@ -197,23 +186,26 @@ public abstract class Connection implements NetEventHandler
      */
     protected void closeSocket ()
     {
-        if (_socket != null) {
+        if (_channel != null) {
+            Log.debug("Closing channel " + this + ".");
+
             try {
-                _socket.close();
+                _channel.close();
             } catch (IOException ioe) {
                 Log.warning("Error closing connection [conn=" + this +
                             ", error=" + ioe + "].");
             }
 
-            // clear out our socket reference to prevent repeat closings
-            _socket = null;
+            // clear out our references to prevent repeat closings
+            _selkey = null;
+            _channel = null;
         }
     }
 
     /**
      * Called when our client socket has data available for reading.
      */
-    public int handleEvent (long when, Selectable source, short events)
+    public int handleEvent (long when)
     {
         // make a note that we received an event as of this time
         _lastEvent = when;
@@ -228,8 +220,9 @@ public abstract class Connection implements NetEventHandler
                 _oin = new ObjectInputStream(_fin);
             }
 
-            // read the available data and see if we have a whole frame
-            if (_fin.readFrame(_in)) {
+            // there may be more than one frame in the buffer, so we keep
+            // reading them until we run out of data
+            while (_fin.readFrame(_channel)) {
                 // make a note of how many bytes are in this frame
                 // (including the frame length bytes which aren't reported
                 // in available())
@@ -246,14 +239,14 @@ public abstract class Connection implements NetEventHandler
 
         } catch (ClassNotFoundException cnfe) {
             Log.warning("Error reading message from socket " +
-                        "[socket=" + _socket + ", error=" + cnfe + "].");
+                        "[channel=" + _channel + ", error=" + cnfe + "].");
             // deal with the failure
             handleFailure(new NestableIOException(
                               "Unable to decode incoming message.", cnfe));
 
         } catch (IOException ioe) {
             Log.warning("Error reading message from socket " +
-                        "[socket=" + _socket + ", error=" + ioe + "].");
+                        "[channel=" + _channel + ", error=" + ioe + "].");
             // deal with the failure
             handleFailure(ioe);
         }
@@ -262,18 +255,18 @@ public abstract class Connection implements NetEventHandler
     }
 
     // documentation inherited from interface
-    public void checkIdle (long now)
+    public boolean checkIdle (long now)
     {
         long idleMillis = now - _lastEvent;
         if (idleMillis < PingRequest.PING_INTERVAL + LATENCY_GRACE) {
-            return;
+            return false;
         }
         if (isClosed()) {
-            return;
+            return false;
         }
-        Log.info("Disconnecting idle client [conn=" + this +
+        Log.info("Disconnecting non-communicative client [conn=" + this +
                  ", idle=" + idleMillis + "ms].");
-        handleFailure(new SocketTimeoutException("Idle too long"));
+        return true;
     }
 
     /**
@@ -288,16 +281,14 @@ public abstract class Connection implements NetEventHandler
     }
 
     protected ConnectionManager _cmgr;
-    protected NonblockingSocket _socket;
-    protected SelectItem _selitem;
+    protected SelectionKey _selkey;
+    protected SocketChannel _channel;
 
     protected long _lastEvent;
 
-    protected InputStream _in;
     protected FramedInputStream _fin;
     protected ObjectInputStream _oin;
 
-    protected OutputStream _out;
     protected ObjectOutputStream _oout;
 
     protected MessageHandler _handler;

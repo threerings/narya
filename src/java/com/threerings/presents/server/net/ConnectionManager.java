@@ -1,13 +1,26 @@
 //
-// $Id: ConnectionManager.java,v 1.24 2002/11/05 02:17:56 mdb Exp $
+// $Id: ConnectionManager.java,v 1.25 2002/11/18 18:53:10 mdb Exp $
 
 package com.threerings.presents.server.net;
 
 import java.io.IOException;
-import java.net.SocketException;
-import java.util.ArrayList;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectableChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.channels.spi.SelectorProvider;
 
-import ninja2.core.io_core.nbio.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketException;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
+
 import com.samskivert.util.*;
 
 import com.threerings.io.FramingOutputStream;
@@ -41,34 +54,42 @@ public class ConnectionManager extends LoopingThread
         throws IOException
     {
         _port = port;
-        _selset = new SelectSet();
+        _selector = SelectorProvider.provider().openSelector();
 
         // register as a "state of server" reporter
         PresentsServer.registerReporter(this);
 
         try {
             // create our listening socket and add it to the select set
-            _listener = new NonblockingServerSocket(_port);
-        } catch (SocketException se) {
+            _listener = ServerSocketChannel.open();
+            _listener.configureBlocking(false);
+
+            InetAddress lh = InetAddress.getLocalHost();
+            InetSocketAddress isa = new InetSocketAddress(lh, _port);
+            _listener.socket().bind(isa);
+            Log.info("Server listening on " + isa + ".");
+
+        } catch (IOException ioe) {
             Log.warning("Failure creating listen socket " +
                         "[port=" + _port + "].");
-            throw se;
+            throw ioe;
         }
 
-        _litem = new SelectItem(_listener, Selectable.ACCEPT_READY);
-        // when an ACCEPT_READY event happens, we do this:
-        _litem.obj = new NetEventHandler() {
-            public int handleEvent (long when, Selectable item, short events) {
+        // register our listening socket and map its select key to a net
+        // event handler that will accept new connections
+        SelectionKey lkey =
+            _listener.register(_selector, SelectionKey.OP_ACCEPT);
+        _handlers.put(lkey, new NetEventHandler() {
+            public int handleEvent (long when) {
                 acceptConnection();
                 // there's no easy way to measure bytes read when
                 // accepting a connection, so we claim nothing
                 return 0;
             }
-            public void checkIdle (long now) {
-                // we're never idle
+            public boolean checkIdle (long now) {
+                return false; // we're never idle
             }
-        };
-        _selset.add(_litem);
+        });
 
         // we'll use this for sending messages to clients
         _framer = new FramingOutputStream();
@@ -217,18 +238,22 @@ public class ConnectionManager extends LoopingThread
             }
         }
 
-        // close any connections that have seen no network traffic for too
-        // long
-        int ccount = _selset.size();
-        for (int ii = 0; ii < ccount; ii++) {
-            ((NetEventHandler)_selset.elementAt(ii).getObj()).
-                checkIdle(iterStamp);
+        // close connections that have had no network traffic for too long
+        Iterator hiter = _handlers.values().iterator();
+        while (hiter.hasNext()) {
+            NetEventHandler handler = (NetEventHandler)hiter.next();
+            if (handler.checkIdle(iterStamp)) {
+                // this will queue the connection up for closure on our
+                // next tick
+                closeConnection(((Connection)handler));
+            }
         }
 
         // send any messages that are waiting on the outgoing queue
         Tuple tup;
         while ((tup = (Tuple)_outq.getNonBlocking()) != null) {
             Connection conn = (Connection)tup.left;
+
             // if the connection to which this message is destined is
             // closed, drop the message and move along quietly; this is
             // perfectly legal, a user can logoff whenever they like, even
@@ -249,10 +274,27 @@ public class ConnectionManager extends LoopingThread
                 oout.flush();
 
                 // then write framed message to real output stream
-                int out = _framer.writeFrameAndReset(conn.getOutputStream());
-                synchronized (this) {
-                    _bytesOut += out;
-                    _msgsOut++;
+                try {
+                    ByteBuffer buffer = _framer.frameAndReturnBuffer();
+                    int wrote = conn.getChannel().write(buffer);
+                    if (wrote != buffer.limit()) {
+                        Log.warning("Aiya! Failed to write complete message " +
+                                    "[conn=" + conn + ", wrote=" + wrote +
+                                    ", needed=" + buffer.limit() + "].");
+                        // TODO: give them the boot
+//                     } else {
+//                         Log.info("Sent [msg=" + outmsg +
+//                                  ", size=" + wrote + "].");
+                    }
+
+                    int out = buffer.limit();
+                    synchronized (this) {
+                        _bytesOut += wrote;
+                        _msgsOut++;
+                    }
+
+                } finally {
+                    _framer.resetFrame();
                 }
 
             } catch (IOException ioe) {
@@ -264,20 +306,21 @@ public class ConnectionManager extends LoopingThread
         // check for connections that have completed authentication
         AuthingConnection conn;
         while ((conn = (AuthingConnection)_authq.getNonBlocking()) != null) {
-            // remove the old connection from the select set
-            _selset.remove(conn.getSelectItem());
-
-            // construct a new running connection to handle this
-            // connections network traffic from here on out
             try {
-                RunningConnection rconn =
-                    new RunningConnection(this, conn.getSocket(), iterStamp);
+                // construct a new running connection to handle this
+                // connections network traffic from here on out
+                SelectionKey selkey = conn.getSelectionKey();
+                RunningConnection rconn = new RunningConnection(
+                    this, selkey, conn.getChannel(), iterStamp);
+
                 // we need to keep using the same object input and output
                 // streams from the beginning of the session because they
                 // have contextual state that needs to be preserved
                 rconn.inheritStreams(conn);
-                // wire this connection up to receive network events
-                _selset.add(rconn.getSelectItem());
+
+                // replace the mapping in the handlers table from the old
+                // connection with the new one
+                _handlers.put(selkey, rconn);
 
                 // and let our observers know about our new connection
                 notifyObservers(CONNECTION_ESTABLISHED, rconn,
@@ -290,20 +333,47 @@ public class ConnectionManager extends LoopingThread
             }
         }
 
-        // check for incoming network events
-        int ecount = _selset.select(SELECT_LOOP_TIME);
-        if (ecount == 0) {
+        Set ready = null;
+        try {
+            // check for incoming network events
+//             Log.debug("Selecting from " +
+//                       StringUtil.toString(_selector.keys()) + " (" +
+//                       SELECT_LOOP_TIME + ").");
+            int ecount = _selector.select(SELECT_LOOP_TIME);
+            ready = _selector.selectedKeys();
+            if (ecount == 0) {
+                if (ready.size() == 0) {
+                    return;
+                } else {
+                    Log.warning("select() returned no selected sockets, " +
+                                "but there are " + ready.size() +
+                                " in the ready set.");
+                }
+            }
+
+        } catch (IOException ioe) {
+            Log.warning("Failure select()ing [ioe=" + ioe + "].");
             return;
         }
 
         // process those events
-        SelectItem[] active = _selset.getEvents();
-        for (int i = 0; i < active.length; i++) {
+//         Log.info("Ready set " + StringUtil.toString(ready) + ".");
+        Iterator siter = ready.iterator();
+        while (siter.hasNext()) {
+            SelectionKey selkey = (SelectionKey)siter.next();
             try {
-                SelectItem item = active[i];
-                NetEventHandler handler = (NetEventHandler)item.obj;
-                int got = handler.handleEvent(
-                    iterStamp, item.getSelectable(), item.revents);
+                NetEventHandler handler = (NetEventHandler)
+                    _handlers.get(selkey);
+                if (handler == null) {
+                    Log.warning("Received network event but have no " +
+                                "registered handler [selkey=" + selkey + "].");
+                    continue;
+                }
+
+//                 Log.info("Got event [selkey=" + selkey +
+//                          ", handler=" + handler + "].");
+
+                int got = handler.handleEvent(iterStamp);
                 if (got != 0) {
                     synchronized (this) {
                         _bytesIn += got;
@@ -319,6 +389,7 @@ public class ConnectionManager extends LoopingThread
                 Log.logStackTrace(e);
             }
         }
+        ready.clear();
     }
 
     // documentation inherited
@@ -341,34 +412,48 @@ public class ConnectionManager extends LoopingThread
      */
     protected void acceptConnection ()
     {
-        NonblockingSocket socket = null;
+        SocketChannel channel = null;
 
         try {
-            socket = _listener.nbAccept();
-            if (socket == null) {
+            channel = _listener.accept();
+            if (channel == null) {
                 // in theory this shouldn't happen because we got an
                 // ACCEPT_READY event, but better safe than sorry
-                // Log.info("Psych! Got ACCEPT_READY, but no connection.");
+                Log.info("Psych! Got ACCEPT_READY, but no connection.");
                 return;
             }
 
-            // create a new authing connection object to manage the
-            // authentication of this client connection
-            AuthingConnection acon = new AuthingConnection(this, socket);
+            if (!(channel instanceof SelectableChannel)) {
+                Log.warning("Provided with un-selectable socket as " +
+                            "result of accept(), can't cope " +
+                            "[channel=" + channel + "].");
+                // stick a fork in the socket
+                channel.socket().close();
+                return;
+            }
 
-            // wire this connection into the select set
-            _selset.add(acon.getSelectItem());
+            Log.debug("Accepted connection " + channel + ".");
+
+            // create a new authing connection object to manage the
+            // authentication of this client connection and register it
+            // with our selection set
+            SelectableChannel selchan = (SelectableChannel)channel;
+            selchan.configureBlocking(false);
+            SelectionKey selkey = selchan.register(
+                _selector, SelectionKey.OP_READ);
+            _handlers.put(selkey, new AuthingConnection(this, selkey, channel));
+            return;
 
         } catch (IOException ioe) {
             Log.warning("Failure accepting new connection: " + ioe);
+        }
 
-            // make sure we don't leak a socket if something went awry
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException ioe2) {
-                    Log.warning("Failed closing aborted connection: " + ioe2);
-                }
+        // make sure we don't leak a socket if something went awry
+        if (channel != null) {
+            try {
+                channel.socket().close();
+            } catch (IOException ioe) {
+                Log.warning("Failed closing aborted connection: " + ioe);
             }
         }
     }
@@ -395,8 +480,9 @@ public class ConnectionManager extends LoopingThread
      */
     void connectionFailed (Connection conn, IOException ioe)
     {
-        // remove this connection from the select set
-        _selset.remove(conn.getSelectItem());
+        // remove this connection from our mapping (it is automatically
+        // removed from the Selector when the socket is closed)
+        _handlers.remove(conn.getSelectionKey());
 
         // let our observers know what's up
         notifyObservers(CONNECTION_FAILED, conn, ioe, null);
@@ -407,8 +493,9 @@ public class ConnectionManager extends LoopingThread
      */
     void connectionClosed (Connection conn)
     {
-        // remove this connection from the select set
-        _selset.remove(conn.getSelectItem());
+        // remove this connection from our mapping (it is automatically
+        // removed from the Selector when the socket is closed)
+        _handlers.remove(conn.getSelectionKey());
 
         // let our observers know what's up
         notifyObservers(CONNECTION_CLOSED, conn, null, null);
@@ -416,10 +503,11 @@ public class ConnectionManager extends LoopingThread
 
     protected int _port;
     protected Authenticator _author;
-    protected SelectSet _selset;
+    protected Selector _selector;
+    protected ServerSocketChannel _listener;
 
-    protected NonblockingServerSocket _listener;
-    protected SelectItem _litem;
+    /** Maps selection keys to network event handlers. */
+    protected HashMap _handlers = new HashMap();
 
     protected Queue _deathq = new Queue();
     protected Queue _authq = new Queue();
@@ -437,12 +525,12 @@ public class ConnectionManager extends LoopingThread
 
     /**
      * How long we wait for network events before checking our running
-     * flag to see if we should still be running.
+     * flag to see if we should still be running. We don't want to loop
+     * too tightly, but we need to make sure we don't sit around listening
+     * for incoming network events too long when there are outgoing
+     * messages in the queue.
      */
-    // protected static final int SELECT_LOOP_TIME = 30 * 1000;
-
-    // while we're testing, use a short loop time
-    protected static final int SELECT_LOOP_TIME = 10;
+    protected static final int SELECT_LOOP_TIME = 100;
 
     // codes for notifyObservers()
     protected static final int CONNECTION_ESTABLISHED = 0;
