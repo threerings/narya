@@ -1,15 +1,15 @@
 //
-// $Id: MapFileTileSetIDBroker.java,v 1.5 2002/06/04 02:50:02 mdb Exp $
+// $Id: MapFileTileSetIDBroker.java,v 1.6 2002/09/23 18:53:01 mdb Exp $
 
 package com.threerings.media.tile.tools;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,12 +36,15 @@ public class MapFileTileSetIDBroker implements TileSetIDBroker
 
         // load up our map data
         try {
-            FileInputStream fin = new FileInputStream(mapfile);
-            ObjectInputStream oin = new ObjectInputStream(fin);
-            _nextTileSetID = oin.readInt();
+            BufferedReader bin = new BufferedReader(new FileReader(mapfile));
+            // read in our metadata
+            _nextTileSetID = readInt(bin);
             _storedTileSetID = _nextTileSetID;
-            _map = (HashMap)oin.readObject();
-            oin.close();
+            // read in our mappings
+            _map = new HashMap();
+            readMapFile(bin, _map);
+
+            bin.close();
 
         } catch (FileNotFoundException fnfe) {
             // create a blank map if our map file doesn't exist
@@ -51,6 +54,17 @@ public class MapFileTileSetIDBroker implements TileSetIDBroker
             // other errors are more fatal
             String errmsg = "Failure reading map file.";
             throw new PersistenceException(errmsg, e);
+        }
+    }
+
+    protected int readInt (BufferedReader bin)
+        throws IOException
+    {
+        String line = bin.readLine();
+        try {
+            return Integer.parseInt(line);
+        } catch (NumberFormatException nfe) {
+            throw new IOException("Expected number, got '" + line + "'");
         }
     }
 
@@ -83,16 +97,61 @@ public class MapFileTileSetIDBroker implements TileSetIDBroker
         }
 
         try {
-            FileOutputStream fout = new FileOutputStream(_mapfile);
-            ObjectOutputStream oout = new ObjectOutputStream(fout);
-            oout.writeInt(_nextTileSetID);
-            oout.writeObject(_map);
-            oout.close();
+            BufferedWriter bout = new BufferedWriter(new FileWriter(_mapfile));
+            // write out our metadata
+            String tline = "" + _nextTileSetID;
+            bout.write(tline, 0, tline.length());
+            bout.newLine();
+            // write out our mappings
+            writeMapFile(bout, _map);
+            bout.close();
 
         } catch (IOException ioe) {
             String errmsg = "Failure writing map file.";
             throw new PersistenceException(errmsg, ioe);
         }
+    }
+
+    /**
+     * Reads in a mapping from strings to integers, which should have been
+     * written via {@link #writeMapFile}.
+     */
+    public static void readMapFile (BufferedReader bin, HashMap map)
+        throws IOException
+    {
+        String line;
+        while ((line = bin.readLine()) != null) {
+            int eidx = line.indexOf(SEP_STR);
+            if (eidx == -1) {
+                throw new IOException("Malformed line, no '" + SEP_STR +
+                                      "': '" + line + "'");
+            }
+            try {
+                String code = line.substring(eidx+SEP_STR.length());
+                map.put(line.substring(0, eidx), Integer.valueOf(code));
+            } catch (NumberFormatException nfe) {
+                String errmsg = "Malformed line, invalid code: '" + line + "'";
+                throw new IOException(errmsg);
+            }
+        }
+    }
+
+    /**
+     * Writes out a mapping from strings to integers in a manner that can
+     * be read back in via {@link #readMapFile}.
+     */
+    public static void writeMapFile (BufferedWriter bout, HashMap map)
+        throws IOException
+    {
+        Iterator iter = map.keySet().iterator();
+        while (iter.hasNext()) {
+            String key = (String)iter.next();
+            Integer value = (Integer)map.get(key);
+            String line = key + SEP_STR + value;
+            bout.write(line, 0, line.length());
+            bout.newLine();
+        }
+        bout.flush();
     }
 
     /**
@@ -135,4 +194,8 @@ public class MapFileTileSetIDBroker implements TileSetIDBroker
 
     /** Our mapping from tileset names to ids. */
     protected HashMap _map;
+
+    /** The character we use to separate tileset name from code in the map
+     * file. */
+    protected static final String SEP_STR = " := ";
 }

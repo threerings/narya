@@ -1,5 +1,5 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.13 2002/09/12 21:11:16 mdb Exp $
+// $Id: ComponentBundlerTask.java,v 1.14 2002/09/23 18:53:01 mdb Exp $
 
 package com.threerings.cast.bundle.tools;
 
@@ -7,13 +7,14 @@ import java.awt.Image;
 import javax.imageio.ImageIO;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
@@ -358,10 +359,9 @@ public class ComponentBundlerTask extends Task
         HashMapIDBroker broker = new HashMapIDBroker();
 
         try {
-            FileInputStream fin = new FileInputStream(mapfile);
-            DataInputStream din =
-                new DataInputStream(new BufferedInputStream(fin));
-            broker.readFrom(din);
+            BufferedReader bin = new BufferedReader(new FileReader(mapfile));
+            broker.readFrom(bin);
+            bin.close();
 
         } catch (FileNotFoundException fnfe) {
             // if the file doesn't yet exist, start with a blank broker
@@ -389,11 +389,9 @@ public class ComponentBundlerTask extends Task
         }
 
         try {
-            FileOutputStream fout = new FileOutputStream(mapfile);
-            DataOutputStream dout =
-                new DataOutputStream(new BufferedOutputStream(fout));
-            hbroker.writeTo(dout);
-            dout.close();
+            BufferedWriter bout = new BufferedWriter(new FileWriter(mapfile));
+            hbroker.writeTo(bout);
+            bout.close();
         } catch (IOException ioe) {
             throw new BuildException("Unable to store component ID map " +
                                      "[mapfile=" + mapfile + "]", ioe);
@@ -426,44 +424,70 @@ public class ComponentBundlerTask extends Task
             return _nextCID != _startCID;
         }
 
-        public void writeTo (DataOutputStream dout)
+        public void writeTo (BufferedWriter bout)
             throws IOException
         {
-            // write out the size of the table
-            dout.writeInt(size());
+            // write out our most recently assigned component id
+            String cidline = "" + _nextCID;
+            bout.write(cidline, 0, cidline.length());
+            bout.newLine();
+
             // write out the keys and values
             Iterator keys = keySet().iterator();
             while (keys.hasNext()) {
                 Tuple key = (Tuple)keys.next();
                 Integer value = (Integer)get(key);
-                dout.writeUTF((String)key.left);
-                dout.writeUTF((String)key.right);
-                dout.writeInt(value.intValue());
+                String line = key.left + SEP_STR + key.right + SEP_STR + value;
+                bout.write(line, 0, line.length());
+                bout.newLine();
             }
-            // write out our most recently assigned component id
-            dout.writeInt(_nextCID);
         }
 
-        public void readFrom (DataInputStream din)
+        public void readFrom (BufferedReader bin)
             throws IOException
         {
-            // figure out how many keys and values we'll be reading
-            int size = din.readInt();
-            // and read them on in
-            for (int i = 0; i < size; i++) {
-                String cclass = din.readUTF();
-                String cname = din.readUTF();
-                int value = din.readInt();
-                put(new Tuple(cclass, cname), new Integer(value));
-            }
             // read in our most recently assigned component id
-            _nextCID = din.readInt();
+            _nextCID = readInt(bin);
             // keep track of this so that we can tell if we were modified
             _startCID = _nextCID;
+
+            // now read in our keys and values
+            String line;
+            while ((line = bin.readLine()) != null) {
+                String orig = line;
+                int sidx = line.indexOf(SEP_STR);
+                if (sidx == -1) {
+                    throw new IOException("Malformed line '" + orig + "'");
+                }
+                String cclass = line.substring(0, sidx);
+                line = line.substring(sidx + SEP_STR.length());
+                sidx = line.indexOf(SEP_STR);
+                if (sidx == -1) {
+                    throw new IOException("Malformed line '" + orig + "'");
+                }
+                String cname = line.substring(0, sidx);
+                line = line.substring(sidx + SEP_STR.length());
+                try {
+                    put(new Tuple(cclass, cname), Integer.valueOf(line));
+                } catch (NumberFormatException nfe) {
+                    String err = "Malformed line, invalid code '" + orig + "'";
+                    throw new IOException(err);
+                }
+            }
+        }
+
+        protected int readInt (BufferedReader bin)
+            throws IOException
+        {
+            String line = bin.readLine();
+            try {
+                return Integer.parseInt(line);
+            } catch (NumberFormatException nfe) {
+                throw new IOException("Expected number, got '" + line + "'");
+            }
         }
 
         protected int _nextCID = 0;
-
         protected int _startCID = 0;
     }
 
@@ -481,4 +505,7 @@ public class ComponentBundlerTask extends Task
 
     /** A list of filesets that contain tile images. */
     protected ArrayList _filesets = new ArrayList();
+
+    /** Used to separate keys and values in the map file. */
+    protected static final String SEP_STR = " := ";
 }
