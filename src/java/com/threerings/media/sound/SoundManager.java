@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.48 2003/03/13 18:35:03 mdb Exp $
+// $Id: SoundManager.java,v 1.49 2003/03/17 05:28:26 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -1064,9 +1064,6 @@ public class SoundManager
      * that locking clips doesn't booch up an otherwise normal caching
      * agenda. */
     protected HashMap _lockedClips = new HashMap();
-
-    /** The clips that are currently active. */
-    protected ArrayList _activeClips = new ArrayList();
 
     /** The stack of songs that we're playing. */
     protected LinkedList _musicStack = new LinkedList();
