@@ -1,7 +1,9 @@
 //
-// $Id: ScrollingScene.java,v 1.1 2002/02/17 23:48:38 mdb Exp $
+// $Id: ScrollingScene.java,v 1.2 2002/02/19 20:02:16 mdb Exp $
 
 package com.threerings.miso.scene;
+
+import java.util.Random;
 
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
@@ -20,16 +22,19 @@ public class ScrollingScene implements DisplayMisoScene
         throws NoSuchTileSetException, NoSuchTileException
     {
         // grab our four repeating tiles
-        _tiles[0] = (BaseTile)ctx.getTileManager().getTile(11, 0);
-        _tiles[1] = (BaseTile)ctx.getTileManager().getTile(12, 0);
-        _tiles[2] = (BaseTile)ctx.getTileManager().getTile(13, 0);
-        _tiles[3] = (BaseTile)ctx.getTileManager().getTile(14, 0);
+        _tiles[0] = (BaseTile)ctx.getTileManager().getTile(15, 0);
+        _tiles[1] = (BaseTile)ctx.getTileManager().getTile(15, 1);
+        _tiles[2] = (BaseTile)ctx.getTileManager().getTile(15, 2);
+        _tiles[3] = (BaseTile)ctx.getTileManager().getTile(15, 3);
+        _tiles[4] = (BaseTile)ctx.getTileManager().getTile(15, 4);
     }
 
     // documentation inherited from interface
     public BaseTile getBaseTile (int x, int y)
     {
-        int tidx = 2 * (Math.abs(x) % 2) + Math.abs(y) % 2;
+        long seed = ((x^y) ^ multiplier) & mask;
+        long hash = (seed * multiplier + addend) & mask;
+        int tidx = (int)((hash >> 10) % 5);
         return _tiles[tidx];
     }
 
@@ -51,5 +56,10 @@ public class ScrollingScene implements DisplayMisoScene
         return null;
     }
 
-    protected BaseTile[] _tiles = new BaseTile[4];
+    protected BaseTile[] _tiles = new BaseTile[5];
+    protected Random _rand = new Random();
+
+    protected final static long multiplier = 0x5DEECE66DL;
+    protected final static long addend = 0xBL;
+    protected final static long mask = (1L << 48) - 1;
 }
