@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.76 2001/12/12 19:53:11 mdb Exp $
+// $Id: IsoSceneView.java,v 1.77 2001/12/14 23:31:04 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -343,12 +343,12 @@ public class IsoSceneView implements SceneView
                     int sx = bounds.x, sy = bounds.y;
 
                     // draw x-coordinate
-                    String str = "" + xx;
+                    String str = String.valueOf(xx);
                     int xpos = sx + cx - (fm.stringWidth(str) / 2);
                     gfx.drawString(str, xpos, sy + cy);
 
                     // draw y-coordinate
-                    str = "" + yy;
+                    str = String.valueOf(yy);
                     xpos = sx + cx - (fm.stringWidth(str) / 2);
                     gfx.drawString(str, xpos, sy + cy + fhei);
                 }
