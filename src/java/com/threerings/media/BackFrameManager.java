@@ -1,5 +1,5 @@
 //
-// $Id: BackFrameManager.java,v 1.4 2003/05/02 18:03:17 mdb Exp $
+// $Id: BackFrameManager.java,v 1.5 2003/05/02 18:46:42 mdb Exp $
 
 package com.threerings.media;
 
@@ -46,11 +46,15 @@ public class BackFrameManager extends FrameManager
             // if the image wasn't A-OK, we need to rerender the whole
             // business rather than just the dirty parts
             if (valres != VolatileImage.IMAGE_OK) {
-                Log.info("Lost back buffer, redrawing.");
-                // apparently we have to recreate our volatile image even
-                // if it doesn't indicate that it's incompatible; three
-                // cheers for Sun!
-                createBackBuffer(gc);
+                Log.info("Lost back buffer, redrawing " + valres);
+                if (_bgfx != null) {
+                    _bgfx.dispose();
+                }
+                _bgfx = (Graphics2D)_backimg.getGraphics();
+                if (_fgfx != null) {
+                    _fgfx.dispose();
+                    _fgfx = null;
+                }
                 incremental = false;
             }
 
