@@ -54,9 +54,10 @@ public abstract class FadeAnimation extends Animation
     // documentation inherited
     public void tick (long timestamp)
     {
-        _effect.tick(timestamp);
-        _finished = _effect.finished();
-        invalidate();
+        if (_effect.tick(timestamp)) {
+            _finished = _effect.finished();
+            invalidate();
+        }
     }
 
     // documentation inherited

@@ -52,18 +52,24 @@ public class FadeEffect
             (_alpha >= _target) : (_alpha <= _target);
     }
 
-    public void tick (long tickStamp)
+    public boolean tick (long tickStamp)
     {
         // figure out the current alpha
         long msecs = tickStamp - _initStamp;
-        _alpha = _startAlpha + (msecs * _step);
-        if (_alpha < 0.0f) {
-            _alpha = 0.0f;
-        } else if (_alpha > 1.0f) {
-            _alpha = 1.0f;
+        float alpha = _startAlpha + (msecs * _step);
+        if (alpha < 0.0f) {
+            alpha = 0.0f;
+        } else if (alpha > 1.0f) {
+            alpha = 1.0f;
         }
 
-        _comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, _alpha);
+        if (_alpha != alpha) {
+            _alpha = alpha;
+            _comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, _alpha);
+            return true;
+        }
+
+        return false;
     }
 
     public void beforePaint (Graphics2D gfx)
