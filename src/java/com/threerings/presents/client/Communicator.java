@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.19 2002/05/27 01:37:07 mdb Exp $
+// $Id: Communicator.java,v 1.20 2002/07/12 03:49:02 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -165,7 +165,7 @@ public class Communicator
             return;
         }
 
-        Log.debug("Connection failed: " + ioe);
+        Log.info("Connection failed: " + ioe);
 
         // let the client know that things went south
         _client.notifyObservers(Client.CLIENT_CONNECTION_FAILED, ioe);
