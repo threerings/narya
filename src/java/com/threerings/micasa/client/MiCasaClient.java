@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaClient.java,v 1.4 2001/10/17 23:29:18 mdb Exp $
+// $Id: MiCasaClient.java,v 1.5 2001/10/18 18:39:40 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -59,7 +59,12 @@ public class MiCasaClient
         // log off when they close the window
         _frame.addWindowListener(new WindowAdapter() {
             public void windowClosing (WindowEvent evt) {
-                _client.logoff(true);
+                // if we're logged on, log off
+                if (_client.loggedOn()) {
+                    _client.logoff(true);
+                } else {
+                    System.exit(0);
+                }
             }
         });
 
