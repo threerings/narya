@@ -1,5 +1,5 @@
 //
-// $Id: InvocationManager.java,v 1.12 2002/08/14 19:07:56 mdb Exp $
+// $Id: InvocationManager.java,v 1.13 2002/09/06 01:49:23 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -212,7 +212,7 @@ public class InvocationManager
             } else {
                 Log.warning("Service request failed but we've got no " +
                             "listener to inform of the failure " +
-                            "[clientOid=" + clientOid + ", code=" + invCode +
+                            "[caller=" + source.who() + ", code=" + invCode +
                             ", dispatcher=" + disp + ", methodId=" + methodId +
                             ", args=" + StringUtil.toString(args) +
                             ", error=" + ie + "].");
@@ -220,7 +220,7 @@ public class InvocationManager
 
         } catch (Throwable t) {
             Log.warning("Dispatcher choked [disp=" + disp +
-                        ", methId=" + methodId +
+                        ", caller=" + source.who() + ", methId=" + methodId +
                         ", args=" + StringUtil.toString(args) + "].");
             Log.logStackTrace(t);
         }
