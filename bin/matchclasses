@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: matchclasses,v 1.8 2003/07/24 23:51:50 mdb Exp $
+# $Id: matchclasses,v 1.9 2003/07/28 04:07:52 mdb Exp $
 #
 # A script which inspects a hierarchy of classes and generates lists of
 # classes that match specified criterion. The criterion are that a class
@@ -89,7 +89,7 @@ while (@gclasses) {
     my @cargs = splice(@gclasses, 0, min($ccount, 100));
     my $carg = "'" . join("' '", @cargs) . "'";
 
-    # print "javap -classpath $classpath $carg\n";
+    # print STDERR "javap -classpath $classpath $carg\n";
 
     if (!open(JAVAP, "javap -classpath $classpath $carg|")) {
         warn "Can't inspect $carg: $!\n";
@@ -163,7 +163,7 @@ foreach $class (@classes) {
 foreach $class (sort keys %matches) {
     print defined $orig{$class} ?  "$orig{$class}\n" :  "$class\n";
 }
-# print join("\n", ) . "\n";
+# print STDERR join("\n", ) . "\n";
 
 # Guess what this does.
 sub min {
@@ -174,11 +174,11 @@ sub min {
 # Matches a class declaration on the supplied line
 sub match_class {
     my ($line) = @_;
-    # print "Matching $line\n";
+    # print STDERR "Matching $line\n";
     if ($line !~ m:[a-z ]*(class|interface) ([A-Za-z0-9.\$]+):) {
         return undef;
     }
-    # print "Matched $2\n";
+    # print STDERR "Matched $2\n";
     my $class = clean_class($2);
     $class =~ s: ::g;
     return $class;
