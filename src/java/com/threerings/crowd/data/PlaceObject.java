@@ -1,7 +1,9 @@
 //
-// $Id: PlaceObject.java,v 1.8 2002/09/13 00:20:43 mdb Exp $
+// $Id: PlaceObject.java,v 1.9 2002/10/09 06:33:48 mdb Exp $
 
 package com.threerings.crowd.data;
+
+import java.util.Iterator;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
@@ -41,6 +43,24 @@ public class PlaceObject extends DObject
 
     /** Used to generate speak requests on this place object. */
     public SpeakMarshaller speakService;
+
+    /**
+     * Looks up a user's occupant info by name.
+     *
+     * @return the occupant info record for the named user or null if no
+     * user in the room has that username.
+     */
+    public OccupantInfo getOccupantInfo (String username)
+    {
+        Iterator iter = occupantInfo.entries();
+        while (iter.hasNext()) {
+            OccupantInfo info = (OccupantInfo)iter.next();
+            if (info.username.equals(username)) {
+                return info;
+            }
+        }
+        return null;
+    }
 
     /**
      * Requests that the specified oid be added to the
