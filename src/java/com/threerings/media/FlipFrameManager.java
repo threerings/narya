@@ -1,5 +1,5 @@
 //
-// $Id: FlipFrameManager.java,v 1.2 2003/05/01 22:06:52 mdb Exp $
+// $Id: FlipFrameManager.java,v 1.3 2003/05/02 23:54:56 mdb Exp $
 
 package com.threerings.media;
 
@@ -35,28 +35,37 @@ public class FlipFrameManager extends FrameManager
         boolean incremental = true;
 
         do {
-            Graphics2D gfx = (Graphics2D)_bufstrat.getDrawGraphics();
+            Graphics2D gfx = null;
+            try {
+                gfx = (Graphics2D)_bufstrat.getDrawGraphics();
 
-            // dirty everything if we're not incrementally rendering
-            if (!incremental) {
-                Log.info("Doing non-incremental render; contents lost.");
-                _frame.getRootPane().revalidate();
-                _frame.getRootPane().repaint();
+                // dirty everything if we're not incrementally rendering
+                if (!incremental) {
+                    Log.info("Doing non-incremental render; contents lost " +
+                             "[lost=" + _bufstrat.contentsLost() +
+                             ", rest=" + _bufstrat.contentsRestored() + "].");
+                    _frame.getRootPane().revalidate();
+                    _frame.getRootPane().repaint();
+                }
+
+                // request to paint our participants and components and bail
+                // if they paint nothing
+                if (!paint(gfx)) {
+                    return;
+                }
+
+                // flip our buffer to visible
+                _bufstrat.show();
+
+                // if we loop through a second time, we'll need to rerender
+                // everything
+                incremental = false;
+
+            } finally {
+                if (gfx != null) {
+                    gfx.dispose();
+                }
             }
-
-            // request to paint our participants and components and bail
-            // if they paint nothing
-            if (!paint(gfx)) {
-                return;
-            }
-
-            // flip our buffer to visible
-            _bufstrat.show();
-
-            // if we loop through a second time, we'll need to rerender
-            // everything
-            incremental = false;
-
         } while (_bufstrat.contentsLost());
     }
 
