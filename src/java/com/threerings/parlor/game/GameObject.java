@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.java,v 1.3 2002/02/20 23:35:42 mdb Exp $
+// $Id: GameObject.java,v 1.4 2002/06/12 07:59:19 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -27,6 +27,9 @@ public class GameObject extends PlaceObject
     /** The field name of the <code>players</code> field. */
     public static final String PLAYERS = "players";
 
+    /** The field name of the <code>roundId</code> field. */
+    public static final String ROUND_ID = "roundId";
+
     /** A game state constant indicating that the game has not yet started
      * and is still awaiting the arrival of all of the players. */
     public static final int AWAITING_PLAYERS = 0;
@@ -49,6 +52,9 @@ public class GameObject extends PlaceObject
 
     /** The username of the players involved in this game. */
     public String[] players;
+
+    /** The unique round identifier for the current round. */
+    public int roundId;
 
     /**
      * Requests that the <code>state</code> field be set to the specified
@@ -90,5 +96,33 @@ public class GameObject extends PlaceObject
     {
         this.players = players;
         requestAttributeChange(PLAYERS, players);
+    }
+
+    /**
+     * Requests that the <code>index</code>th element of
+     * <code>players</code> field be set to the specified value. The local
+     * value will be updated immediately and an event will be propagated
+     * through the system to notify all listeners that the attribute did
+     * change. Proxied copies of this object (on clients) will apply the
+     * value change when they received the attribute changed notification.
+     */
+    public void setPlayersAt (String value, int index)
+    {
+        this.players[index] = value;
+        requestElementUpdate(PLAYERS, value, index);
+    }
+
+    /**
+     * Requests that the <code>roundId</code> field be set to the specified
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public void setRoundId (int roundId)
+    {
+        this.roundId = roundId;
+        requestAttributeChange(ROUND_ID, new Integer(roundId));
     }
 }

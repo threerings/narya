@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.15 2002/06/03 21:08:57 shaper Exp $
+// $Id: GameController.java,v 1.16 2002/06/12 07:59:18 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -123,9 +123,6 @@ public abstract class GameController extends PlaceController
 
         // end the game until we receive a new board
         setGameOver(true);
-
-        // increment the round identifier
-        _roundId++;
     }
 
     /**
@@ -133,7 +130,7 @@ public abstract class GameController extends PlaceController
      */
     public int getRoundId ()
     {
-        return _roundId;
+        return _gobj.roundId;
     }
 
     /**
@@ -240,9 +237,6 @@ public abstract class GameController extends PlaceController
     /** A reference to the game object for the game that we're
      * controlling. */
     protected GameObject _gobj;
-
-    /** The unique round identifier for the current round. */
-    protected int _roundId;
 
     /** A local flag overriding the game over state for situations where
      * the client knows the game is over before the server has

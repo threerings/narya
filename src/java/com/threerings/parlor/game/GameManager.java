@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.33 2002/06/06 22:13:56 ray Exp $
+// $Id: GameManager.java,v 1.34 2002/06/12 07:59:19 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -116,7 +116,7 @@ public class GameManager extends PlaceManager
      */
     public int getRoundId ()
     {
-        return _roundId;
+        return _gameobj.roundId;
     }
 
     /**
@@ -375,7 +375,7 @@ public class GameManager extends PlaceManager
         gameWillReset();
 
         // increment the round identifier
-        _roundId++;
+        _gameobj.setRoundId(_gameobj.roundId + 1);
 
         // do the standard game start processing
         gameWillStart();
@@ -495,9 +495,6 @@ public class GameManager extends PlaceManager
 
     /** The oids of our player and AI body objects. */
     protected int[] _playerOids;
-
-    /** The unique round identifier for the current round. */
-    protected int _roundId;
 
     /** If AIs are present, contains their skill levels, or -1 at human
      * player indexes. */
