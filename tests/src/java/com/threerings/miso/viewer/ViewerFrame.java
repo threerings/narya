@@ -1,5 +1,5 @@
 //
-// $Id: ViewerFrame.java,v 1.32 2002/04/06 04:53:05 mdb Exp $
+// $Id: ViewerFrame.java,v 1.33 2002/04/27 02:34:29 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -9,6 +9,10 @@ import java.awt.Component;
 import java.awt.GraphicsConfiguration;
 
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+
+import com.samskivert.swing.util.MenuUtil;
 
 /**
  * The viewer frame is the main application window.
@@ -30,6 +34,18 @@ public class ViewerFrame extends JFrame
         // set the frame and content panel background to black
         setBackground(Color.black);
         getContentPane().setBackground(Color.black);
+
+        // create the "Settings" menu
+        JMenu menuSettings = new JMenu("Settings");
+        MenuUtil.addMenuItem(
+            menuSettings, "Preferences", this, "handlePreferences");
+
+        // create the menu bar
+        JMenuBar bar = new JMenuBar();
+        bar.add(menuSettings);
+
+        // add the menu bar to the frame
+        setJMenuBar(bar);
     }
 
     /**

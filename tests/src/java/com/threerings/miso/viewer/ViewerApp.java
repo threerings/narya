@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.30 2002/04/23 01:19:04 mdb Exp $
+// $Id: ViewerApp.java,v 1.31 2002/04/27 02:34:28 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -8,6 +8,8 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.io.IOException;
+
+import javax.swing.JPopupMenu;
 
 import com.samskivert.swing.util.SwingUtil;
 
@@ -44,6 +46,9 @@ public class ViewerApp
             System.err.println("Usage: ViewerApp scene_file.xml");
             System.exit(-1);
         }
+
+        Log.info("Turning off popups.");
+        JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 
         // get the graphics environment
         GraphicsEnvironment env =
