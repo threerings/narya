@@ -34,6 +34,7 @@ import com.samskivert.io.NestableIOException;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 import com.samskivert.util.RuntimeAdjust;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.io.FramedInputStream;
 import com.threerings.io.FramingOutputStream;
@@ -315,7 +316,8 @@ public class Communicator
         try {
             ByteBuffer buffer = _fout.frameAndReturnBuffer();
             if (buffer.limit() > 4096) {
-                Log.info("Whoa, writin' a big one [msg=" + msg +
+                String txt = StringUtil.truncate(String.valueOf(msg), 80, "...");
+                Log.info("Whoa, writin' a big one [msg=" + txt +
                          ", size=" + buffer.limit() + "].");
             }
             int wrote = _channel.write(buffer);
