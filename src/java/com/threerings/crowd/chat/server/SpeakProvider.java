@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.17 2003/09/24 21:39:42 mdb Exp $
+// $Id: SpeakProvider.java,v 1.18 2003/12/09 21:01:43 mdb Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -251,6 +251,12 @@ public class SpeakProvider
      */
     public static void sendMessage (DObject speakObj, ChatMessage msg)
     {
+        if (speakObj == null) {
+            Log.warning("Dropping speak message, no speak obj '" + msg + "'.");
+            Thread.dumpStack();
+            return;
+        }
+
         // post the message to the relevant object
         speakObj.postMessage(CHAT_NOTIFICATION, new Object[] { msg });
 
