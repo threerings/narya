@@ -1,16 +1,14 @@
 //
-// $Id: ViewerFrame.java,v 1.30 2002/02/19 01:27:34 mdb Exp $
+// $Id: ViewerFrame.java,v 1.31 2002/02/19 07:42:51 mdb Exp $
 
 package com.threerings.miso.viewer;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GraphicsConfiguration;
 
 import javax.swing.JFrame;
-
-import com.samskivert.swing.GroupLayout;
-import com.samskivert.swing.VGroupLayout;
 
 /**
  * The viewer frame is the main application window.
@@ -30,12 +28,6 @@ public class ViewerFrame extends JFrame
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        // center the scene view within the frame
-        GroupLayout gl = new VGroupLayout();
-        gl.setJustification(GroupLayout.CENTER);
-        gl.setOffAxisJustification(GroupLayout.CENTER);
-        getContentPane().setLayout(gl);
-
         // set the frame and content panel background to black
         setBackground(Color.black);
         getContentPane().setBackground(Color.black);
@@ -53,7 +45,7 @@ public class ViewerFrame extends JFrame
 
         // now add the new one
         _panel = panel;
-	getContentPane().add(_panel);
+	getContentPane().add(_panel, BorderLayout.CENTER);
     }
 
     protected Component _panel;
