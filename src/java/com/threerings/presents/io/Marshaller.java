@@ -1,5 +1,5 @@
 //
-// $Id: Marshaller.java,v 1.5 2001/10/11 04:07:52 mdb Exp $
+// $Id: Marshaller.java,v 1.6 2002/02/01 22:35:06 mdb Exp $
 
 package com.threerings.presents.dobj.io;
 
@@ -30,11 +30,12 @@ public class Marshaller
         Field[] fields = clazz.getFields();
         ArrayList flist = new ArrayList();
 
-        // we only want non-static, non-final fields
+        // we only want non-static, non-final, non-transient fields
         for (int i = 0; i < fields.length; i++) {
             int mods = fields[i].getModifiers();
             if ((mods & Modifier.PUBLIC) == 0 ||
                 (mods & Modifier.STATIC) != 0 ||
+                (mods & Modifier.TRANSIENT) != 0 ||
                 (mods & Modifier.FINAL) != 0) {
                 continue;
             }
