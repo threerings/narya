@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: gendobj,v 1.4 2002/02/08 23:53:58 mdb Exp $
+# $Id: gendobj,v 1.5 2002/02/08 23:59:36 mdb Exp $
 #
 # gendobj is used to generate DObject source file definitons basded on
 # abbreviated declarations. Because DObject fields all have standard
@@ -31,12 +31,12 @@ while ($source = shift) {
         next;
     }
 
-    # if the destination file already exists, slurp the existing CVS $Id: gendobj,v 1.4 2002/02/08 23:53:58 mdb Exp $
+    # if the destination file already exists, slurp the existing CVS Id
     # information out of it so that we can slip that into the new one
     my $idstr;
     if (-f $dest && open(IN, "$dest")) {
         while (<IN>) {
-            if (/(\$Id: gendobj,v 1.4 2002/02/08 23:53:58 mdb Exp $)/) {
+            if (/(\$[I][d]: .*\$)/) {
                 $idstr = $1;
             }
         }
@@ -65,8 +65,8 @@ while ($source = shift) {
     my $mode = "preamble";
 
     while (<IN>) {
-        # swap in the parsed $Id: gendobj,v 1.4 2002/02/08 23:53:58 mdb Exp $ str if we have one
-        $_ =~ s/(\$Id: gendobj,v 1.4 2002/02/08 23:53:58 mdb Exp $)/$idstr/ if (defined $idstr);
+        # swap in the parsed Id string if we have one
+        $_ =~ s/(\$[I][d]: .*\$)/$idstr/ if (defined $idstr);
 
         if ($mode eq "preamble") {
             # look to see if we're transitioning from the preamble to the
