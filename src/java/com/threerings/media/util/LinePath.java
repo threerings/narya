@@ -1,5 +1,5 @@
 //
-// $Id: LinePath.java,v 1.5 2002/06/11 00:03:30 mdb Exp $
+// $Id: LinePath.java,v 1.6 2002/06/11 02:39:14 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -79,19 +79,12 @@ public class LinePath implements Path
         }
 
         // determine where we should be along the path
-        float pct = (timestamp - _startStamp) / (float)_duration;
-        int travx = Math.round((_dest.x - _source.x) * pct);
-        int travy = Math.round((_dest.y - _source.y) * pct);
-        int nx = _source.x + travx, ny = _source.y + travy;
-
-//         Log.info("Updated pathable [duration=" + _duration + ", pct=" + pct +
-//                  ", travx=" + travx + ", travy=" + travy +
-//                  ", newx=" + nx + ", newy=" + ny + "].");
+        long elapsed = timestamp - _startStamp;
+        computePosition(_source, _dest, elapsed, _duration, _tpos);
 
         // only update the pathable's location if it actually moved
-        int cx = pable.getX(), cy = pable.getY();
-        if (cx != nx || cy != ny) {
-            pable.setLocation(nx, ny);
+        if (pable.getX() != _tpos.x || pable.getY() != _tpos.y) {
+            pable.setLocation(_tpos.x, _tpos.y);
             return true;
         }
 
@@ -119,8 +112,27 @@ public class LinePath implements Path
             ", duration=" + _duration + "ms]";
     }
 
+    /**
+     * Computes the position of an entity along the path defined by the
+     * supplied start and end points assuming that it must finish the path
+     * in the specified duration (in millis) and has been traveling the
+     * path for the specified number of elapsed milliseconds.
+     */
+    public static void computePosition (Point start, Point end, long elapsed,
+                                        long duration, Point pos)
+    {
+        float pct = (float)elapsed / duration;
+        int travx = Math.round((end.x - start.x) * pct);
+        int travy = Math.round((end.y - start.y) * pct);
+        pos.setLocation(start.x + travx, start.y + travy);
+    }
+
     /** Our source and destination points. */
     protected Point _source, _dest;
+
+    /** A temporary point used when computing our position along the
+     * path. */
+    protected Point _tpos = new Point();
 
     /** The time at which we started along the path. */
     protected long _startStamp;
