@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: configpp,v 1.1 2002/10/08 18:46:02 mdb Exp $
+# $Id: configpp,v 1.2 2003/07/31 22:38:25 mdb Exp $
 #
 # Preprocesses a configuration file (a .dop file, for instance), executing
 # any include directives located in the file.
@@ -8,7 +8,17 @@
 use File::Basename;
 
 my %files = ();
-my $file = shift or die "Usage: $0 file\n";
+my $file = shift or die "Usage: $0 file [key=value key=value...]\n";
+
+my %subs;
+while ($pair = shift) {
+    if ($pair =~ m/(\S+)=(\S+)/) {
+        $subs{$1} = $2;
+    } else {
+        warn "Unable to parse substitution '$pair'.\n";
+    }
+}
+my $scount = keys %subs;
 
 # change into the directory occupied by the file
 chdir(dirname($file));
@@ -33,6 +43,17 @@ sub read_file {
         if (m/^.include \"([^\"]*)\"/) {
             # process the inclusion
             read_file($1, $path);
+
+        } elsif ($scount > 0 && m/\@[\S]+\@/) {
+            # handle any substitutions
+            while (m/\@([-A-Za-z_.]+)\@/) {
+                my $key = $1;
+                my $value = $subs{$key};
+                $value = $key unless (defined $value);
+                $_ =~ s/\@$key\@/$value/;
+            }
+            print $_;
+
         } else {
             print $_;
         }
