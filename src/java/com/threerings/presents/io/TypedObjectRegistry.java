@@ -1,5 +1,5 @@
 //
-// $Id: TypedObjectRegistry.java,v 1.7 2001/10/11 04:07:52 mdb Exp $
+// $Id: TypedObjectRegistry.java,v 1.8 2001/10/23 20:22:47 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -70,5 +70,7 @@ public class TypedObjectRegistry
                                          ElementAddedEvent.class);
         TypedObjectFactory.registerClass(ElementRemovedEvent.TYPE,
                                          ElementRemovedEvent.class);
+        TypedObjectFactory.registerClass(ElementUpdatedEvent.TYPE,
+                                         ElementUpdatedEvent.class);
     }
 }
