@@ -1,5 +1,5 @@
 //
-// $Id: GameProvider.java,v 1.1 2002/08/14 19:07:53 mdb Exp $
+// $Id: GameProvider.java,v 1.2 2002/09/06 22:52:27 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -17,4 +17,10 @@ public interface GameProvider extends InvocationProvider
      * service request.
      */
     public void playerReady (ClientObject caller);
+
+    /**
+     * Called when the client has sent a {@link
+     * GameService#startPartyGame} service request.
+     */
+    public void startPartyGame (ClientObject caller);
 }

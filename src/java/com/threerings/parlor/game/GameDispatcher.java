@@ -1,5 +1,5 @@
 //
-// $Id: GameDispatcher.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+// $Id: GameDispatcher.java,v 1.3 2002/09/06 22:52:27 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -13,10 +13,6 @@ import com.threerings.presents.server.InvocationException;
 
 /**
  * Dispatches requests to the {@link GameProvider}.
- *
- * <p> Generated from <code>
- * $Id: GameDispatcher.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
- * </code>
  */
 public class GameDispatcher extends InvocationDispatcher
 {
@@ -48,8 +44,17 @@ public class GameDispatcher extends InvocationDispatcher
             );
             return;
 
+        case GameMarshaller.START_PARTY_GAME:
+            ((GameProvider)provider).startPartyGame(
+                source
+                
+            );
+            return;
+
         default:
             super.dispatchRequest(source, methodId, args);
         }
     }
+
+    // Generated on 12:49:14 09/06/02.
 }

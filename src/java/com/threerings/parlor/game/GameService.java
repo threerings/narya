@@ -1,5 +1,5 @@
 //
-// $Id: GameService.java,v 1.1 2002/08/14 19:07:53 mdb Exp $
+// $Id: GameService.java,v 1.2 2002/09/06 22:52:27 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -17,4 +17,12 @@ public interface GameService extends InvocationService
      * room and ready to play.
      */
     public void playerReady (Client client);
+
+    /**
+     * Asks the game manager to start the party game.  This should only be
+     * called for party games, and then only by the creating player after
+     * any other game-specific starting prerequisites (e.g., a required
+     * number of players) have been fulfilled.
+     */
+    public void startPartyGame (Client client);
 }

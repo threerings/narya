@@ -1,11 +1,14 @@
 //
-// $Id: GameManager.java,v 1.39 2002/08/21 05:22:41 mdb Exp $
+// $Id: GameManager.java,v 1.40 2002/09/06 22:52:27 shaper Exp $
 
 package com.threerings.parlor.game;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+
+import com.samskivert.util.ArrayUtil;
+import com.samskivert.util.ListUtil;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AttributeChangeListener;
@@ -38,10 +41,125 @@ import com.threerings.parlor.server.ParlorSender;
 public class GameManager extends PlaceManager
     implements ParlorCodes, GameProvider, AttributeChangeListener
 {
+    // documentation inherited
+    protected void didInit ()
+    {
+        super.didInit();
+
+        // save off a casted reference to our config
+        _gameconfig = (GameConfig)_config;
+    }
+
+    /**
+     * Adds the given player to the game.  This should only be called
+     * before the game is started, and is most likely to be used to add
+     * players to party games.
+     *
+     * @param player the username of the player to add to this game.
+     */
+    public void addPlayer (String player)
+    {
+        // append the player to the player list
+        int pcount = _players.length;
+        int npcount = pcount + 1;
+        String[] nplayers = new String[npcount];
+        System.arraycopy(_players, 0, nplayers, 0, pcount);
+        nplayers[pcount] = player;
+        _players = nplayers;
+
+        // expand the player oids list
+        int[] nplayerOids = new int[npcount];
+        System.arraycopy(_playerOids, 0, nplayerOids, 0, pcount);
+        _playerOids = nplayerOids;
+
+        if (_AIs != null) {
+            // expand the AI list
+            byte[] nAIs = new byte[npcount];
+            System.arraycopy(_AIs, 0, nAIs, 0, pcount);
+            _AIs = nAIs;
+        }
+
+        // set the new players list in the game object
+        _gameobj.setPlayers(_players);
+
+        // deliver a game ready notification to the player
+        BodyObject bobj = CrowdServer.lookupBody(player);
+        ParlorSender.gameIsReady(bobj, _gameobj.getOid());
+
+        // let derived classes do what they like
+        playerWasAdded(player, pcount);
+    }
+
+    /**
+     * Called when a player was added to the game.  Derived classes may
+     * override this method to perform any game-specific actions they
+     * desire, but should be sure to call
+     * <code>super.playerWasAdded()</code>.
+     *
+     * @param player the username of the player added to the game.
+     * @param pidx the player index of the player added to the game.
+     */
+    protected void playerWasAdded (String player, int pidx)
+    {
+    }
+
+    /**
+     * Removes the given player from the game.  This is most likely to be
+     * used to allow players involved in a party game to leave the game
+     * early-on if they realize they'd rather not play for some reason.
+     *
+     * @param player the username of the player to remove from this game.
+     */
+    public void removePlayer (String player)
+    {
+        // get the player's index in the player list
+        int pidx = ListUtil.indexOfEqual(_players, player);
+        if (pidx == -1) {
+            Log.warning("Attempt to remove non-player from players list " +
+                        "[gameOid=" + _gameobj.getOid() +
+                        ", player=" + player + "].");
+            return;
+        }
+
+        // remove the player from the players list
+        _players = ArrayUtil.splice(_players, pidx, 1);
+
+        // remove the player slot from the player oid list
+        _playerOids = ArrayUtil.splice(_playerOids, pidx, 1);
+
+        if (_AIs != null) {
+            // remove the player slot from the AI list
+            _AIs = ArrayUtil.splice(_AIs, pidx, 1);
+        }
+
+        // set the new players list in the game object
+        _gameobj.setPlayers(_players);
+
+        // let derived classes do what they like
+        playerWasRemoved(player, pidx);
+    }
+
+    /**
+     * Called when a player was removed from the game.  Derived classes
+     * may override this method to perform any game-specific actions they
+     * desire, but should be sure to call
+     * <code>super.playerWasRemoved()</code>.
+     *
+     * @param player the username of the player removed from the game.
+     * @param pidx the player index of the player before they were removed
+     * from the game.
+     */
+    protected void playerWasRemoved (String player, int pidx)
+    {
+    }
+
     /**
      * Provides the game manager with a list of the usernames of all
-     * players in the game. This happens before startup and before the
-     * game object has been created.
+     * players in the game.  This happens before startup and before the
+     * game object has been created.  Note that party games may
+     * subsequently add or remove players via {@link #addPlayer} and
+     * {@link #removePlayer}, and so should be sure to handle a changing
+     * player list gracefully.
      *
      * @param players the usernames of all of the players in this game or
      * a zero-length array if the game has no specific set of players.
@@ -192,13 +310,14 @@ public class GameManager extends PlaceManager
         // we have a specific set of players)
         if (_players != null) {
             int gameOid = _gameobj.getOid();
-            for (int i = 0; i < _players.length; i++) {
-                BodyObject bobj = CrowdServer.lookupBody(_players[i]);
+            int pcount = _players.length;
+            for (int ii = 0; ii < pcount; ii++) {
+                BodyObject bobj = CrowdServer.lookupBody(_players[ii]);
                 if (bobj == null) {
                     Log.warning("Unable to deliver game ready to " +
                                 "non-existent player " +
                                 "[gameOid=" + gameOid +
-                                ", player=" + _players[i] + "].");
+                                ", player=" + _players[ii] + "].");
                     continue;
                 }
 
@@ -242,8 +361,10 @@ public class GameManager extends PlaceManager
      */
     protected void playersAllHere ()
     {
-        // start up the game (if we haven't already)
-        if (_gameobj.state == GameObject.AWAITING_PLAYERS) {
+        // start up the game if we're not a party game and if we haven't
+        // already done so
+        if (!_gameconfig.isPartyGame() &&
+            _gameobj.state == GameObject.AWAITING_PLAYERS) {
             startGame();
         }
     }
@@ -308,7 +429,7 @@ public class GameManager extends PlaceManager
      * Called after the game start notification was dispatched.  Derived
      * classes can override this to put whatever wheels they might need
      * into motion now that the game is started (if anything other than
-     * transitioning the game to <code>IN_PLAY</code> is necessary).
+     * transitioning the game to {@link GameObject#IN_PLAY} is necessary).
      */
     protected void gameDidStart ()
     {
@@ -335,11 +456,12 @@ public class GameManager extends PlaceManager
     }
 
     /**
-     * Called by the AIGameTicker if we're registered as an AI game.
+     * Called by the {@link AIGameTicker} if we're registered as an AI
+     * game.
      */
     protected void tickAIs ()
     {
-        for (int ii=0; ii < _AIs.length; ii++) {
+        for (int ii = 0; ii < _AIs.length; ii++) {
             byte level = _AIs[ii];
             if (level != -1) {
                 tickAI(ii, level);
@@ -359,7 +481,7 @@ public class GameManager extends PlaceManager
     /**
      * Called when the game is known to be over. This will call some
      * calldown functions to determine the winner of the game and then
-     * transition the game to the <code>GAME_OVER</code> state.
+     * transition the game to the {@link GameObject#GAME_OVER} state.
      */
     public void endGame ()
     {
@@ -375,13 +497,13 @@ public class GameManager extends PlaceManager
     }
 
     /**
-     * Called after the game has transitioned to the
-     * <code>GAME_OVER</code> state. Derived classes should override this
+     * Called after the game has transitioned to the {@link
+     * GameObject#GAME_OVER} state. Derived classes should override this
      * to perform any post-game activities.
      */
     protected void gameDidEnd ()
     {
-        // remove ourselves from the AIticker, if applicable
+        // remove ourselves from the AI ticker, if applicable
         if (_AIs != null) {
             AIGameTicker.unregisterAIGame(this);
         }
@@ -489,6 +611,49 @@ public class GameManager extends PlaceManager
         return true;
     }
 
+    // documentation inherited from interface
+    public void startPartyGame (ClientObject caller)
+    {
+        // make sure this is a party game
+        if (!_gameconfig.isPartyGame()) {
+            Log.warning("Attempt to player-start a non-party game " +
+                        "[gameOid=" + _gameobj.getOid() +
+                        ", caller=" + caller + "].");
+            return;
+        }
+
+        // make sure the caller is the creating player
+        BodyObject plobj = (BodyObject)caller;
+        if (!plobj.username.equals(_players[0])) {
+            Log.warning("Attempt to start party game by non-creating player " +
+                        "[gameOid=" + _gameobj.getOid() +
+                        ", caller=" + caller + "].");
+            return;
+        }
+
+        // make sure the game is ready to go
+        if (!canStartPartyGame()) {
+            Log.warning("Attempt to start party game that can't yet begin " +
+                        "[gameOid=" + _gameobj.getOid() +
+                        ", caller=" + caller + "].");
+            return;
+        }
+
+        // start things up
+        startGame();
+    }
+
+    /**
+     * Returns whether this party game is all set to begin.  The default
+     * implementation returns true.  Derived classes that implement a
+     * party game should override this method to enforce any prerequisites
+     * (such as a minimum number of players) as appropriate.
+     */
+    protected boolean canStartPartyGame ()
+    {
+        return true;
+    }
+
     // documentation inherited
     public void attributeChanged (AttributeChangedEvent event)
     {
@@ -523,6 +688,9 @@ public class GameManager extends PlaceManager
         protected byte _level;
     }
 
+    /** A reference to our game config. */
+    protected GameConfig _gameconfig;
+
     /** A reference to our game object. */
     protected GameObject _gameobj;
 
@@ -536,8 +704,8 @@ public class GameManager extends PlaceManager
      * player indexes. */
     protected byte[] _AIs;
 
-    /** If non-null, contains bundles and messages that should be sent
-     * as system messages once the game has started. */
+    /** If non-null, contains bundles and messages that should be sent as
+     * system messages once the game has started. */
     protected ArrayList _startmsgs;
 
     /** Our delegate operator to tick AIs. */
