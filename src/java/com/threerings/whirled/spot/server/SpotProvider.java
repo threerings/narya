@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.19 2003/07/18 01:58:38 eric Exp $
+// $Id: SpotProvider.java,v 1.20 2003/08/13 00:11:03 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -155,12 +155,18 @@ public class SpotProvider
     /**
      * Processes a {@link SpotService#changeLocation} request.
      */
-    public void changeLocation (ClientObject caller, Location loc,
+    public void changeLocation (ClientObject caller, int sceneId, Location loc,
                                 SpotService.ConfirmListener listener)
         throws InvocationException
     {
-        int sceneId = getCallerSceneId(caller);
         BodyObject source = (BodyObject)caller;
+        int cSceneId = getCallerSceneId(caller);
+        if (cSceneId != sceneId) {
+            Log.warning("Rejecting changeLocation for invalid scene " +
+                        "[user=" + source.who() + ", insid=" + cSceneId +
+                        ", wantsid=" + sceneId + ", loc=" + loc + "].");
+            throw new InvocationException(INVALID_LOCATION);
+        }
 
         // look up the scene manager for the specified scene
         SpotSceneManager smgr = (SpotSceneManager)

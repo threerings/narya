@@ -1,5 +1,5 @@
 //
-// $Id: SpotDispatcher.java,v 1.4 2003/03/26 02:06:06 mdb Exp $
+// $Id: SpotDispatcher.java,v 1.5 2003/08/13 00:11:03 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -51,7 +51,7 @@ public class SpotDispatcher extends InvocationDispatcher
         case SpotMarshaller.CHANGE_LOCATION:
             ((SpotProvider)provider).changeLocation(
                 source,
-                (Location)args[0], (ConfirmListener)args[1]
+                ((Integer)args[0]).intValue(), (Location)args[1], (ConfirmListener)args[2]
             );
             return;
 

@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.30 2003/06/03 21:41:33 ray Exp $
+// $Id: SpotSceneDirector.java,v 1.31 2003/08/13 00:11:03 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -176,10 +176,12 @@ public class SpotSceneDirector extends BasicDirector
             return;
         }
 
-        Log.info("Sending changeLocation request " + loc + ".");
+        int sceneId = _scdir.getScene().getId();
+        Log.info("Sending changeLocation request [scid=" + sceneId +
+                 ", loc=" + loc + "].");
 
         _pendingLoc = (Location)loc.clone();
-        _sservice.changeLocation(_ctx.getClient(), loc, new ConfirmListener() {
+        ConfirmListener clist = new ConfirmListener() {
             public void requestProcessed () {
                 _location = _pendingLoc;
                 _pendingLoc = null;
@@ -194,7 +196,8 @@ public class SpotSceneDirector extends BasicDirector
                     listener.requestFailed(new Exception(reason));
                 }
             }
-        });
+        };
+        _sservice.changeLocation(_ctx.getClient(), sceneId, loc, clist);
     }
 
     /**

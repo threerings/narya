@@ -1,5 +1,5 @@
 //
-// $Id: SpotMarshaller.java,v 1.4 2003/03/26 02:06:06 mdb Exp $
+// $Id: SpotMarshaller.java,v 1.5 2003/08/13 00:11:03 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -39,12 +39,12 @@ public class SpotMarshaller extends InvocationMarshaller
     public static final int CHANGE_LOCATION = 2;
 
     // documentation inherited from interface
-    public void changeLocation (Client arg1, Location arg2, ConfirmListener arg3)
+    public void changeLocation (Client arg1, int arg2, Location arg3, ConfirmListener arg4)
     {
-        ConfirmMarshaller listener3 = new ConfirmMarshaller();
-        listener3.listener = arg3;
+        ConfirmMarshaller listener4 = new ConfirmMarshaller();
+        listener4.listener = arg4;
         sendRequest(arg1, CHANGE_LOCATION, new Object[] {
-            arg2, listener3
+            new Integer(arg2), arg3, listener4
         });
     }
 

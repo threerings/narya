@@ -1,5 +1,5 @@
 //
-// $Id: SpotService.java,v 1.15 2003/03/27 00:10:08 mdb Exp $
+// $Id: SpotService.java,v 1.16 2003/08/13 00:11:03 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -33,9 +33,10 @@ public interface SpotService extends InvocationService
      * location. The user will be removed from any cluster from which they
      * are an occupant.
      *
+     * @param sceneId the id of the scene in which to change location.
      * @param loc the location to which to move.
      */
-    public void changeLocation (Client client, Location loc,
+    public void changeLocation (Client client, int sceneId, Location loc,
                                 ConfirmListener listener);
 
     /**
