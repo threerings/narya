@@ -1,5 +1,5 @@
 //
-// $Id: EntryRemovedEvent.java,v 1.6 2001/10/12 00:03:03 mdb Exp $
+// $Id: EntryRemovedEvent.java,v 1.7 2002/02/01 23:32:37 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -7,7 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import com.threerings.presents.dobj.io.ValueMarshaller;
+import com.threerings.presents.io.ValueMarshaller;
 
 /**
  * An element removed event is dispatched when an element is removed from

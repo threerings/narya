@@ -1,7 +1,7 @@
 //
-// $Id: ValueMarshaller.java,v 1.7 2002/01/23 18:01:19 mdb Exp $
+// $Id: ValueMarshaller.java,v 1.8 2002/02/01 23:32:37 mdb Exp $
 
-package com.threerings.presents.dobj.io;
+package com.threerings.presents.io;
 
 import java.io.*;
 import java.lang.reflect.Array;

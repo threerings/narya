@@ -1,7 +1,7 @@
 //
-// $Id: FieldMarshallerRegistry.java,v 1.10 2001/10/17 02:56:51 mdb Exp $
+// $Id: FieldMarshallerRegistry.java,v 1.11 2002/02/01 23:32:37 mdb Exp $
 
-package com.threerings.presents.dobj.io;
+package com.threerings.presents.io;
 
 import java.lang.reflect.Field;
 import java.util.Hashtable;

@@ -1,5 +1,5 @@
 //
-// $Id: Table.java,v 1.6 2001/10/23 23:47:02 mdb Exp $
+// $Id: Table.java,v 1.7 2002/02/01 23:32:37 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -10,7 +10,7 @@ import java.io.DataOutputStream;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.dobj.DSet;
-import com.threerings.presents.dobj.io.ValueMarshaller;
+import com.threerings.presents.io.ValueMarshaller;
 
 import com.threerings.parlor.client.ParlorCodes;
 import com.threerings.parlor.game.GameConfig;

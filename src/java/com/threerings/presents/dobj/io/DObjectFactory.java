@@ -1,5 +1,5 @@
 //
-// $Id: DObjectFactory.java,v 1.10 2002/02/01 23:26:49 mdb Exp $
+// $Id: DObjectFactory.java,v 1.11 2002/02/01 23:32:37 mdb Exp $
 
 package com.threerings.presents.dobj.io;
 
@@ -9,6 +9,7 @@ import java.io.DataOutputStream;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.io.Marshaller;
 import com.threerings.presents.io.ObjectStreamException;
 
 /**

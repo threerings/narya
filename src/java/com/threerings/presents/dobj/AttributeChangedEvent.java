@@ -1,5 +1,5 @@
 //
-// $Id: AttributeChangedEvent.java,v 1.10 2001/10/12 00:03:03 mdb Exp $
+// $Id: AttributeChangedEvent.java,v 1.11 2002/02/01 23:32:37 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -8,7 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
-import com.threerings.presents.dobj.io.ValueMarshaller;
+import com.threerings.presents.io.ValueMarshaller;
 
 /**
  * An attribute changed event is dispatched when a single attribute of a

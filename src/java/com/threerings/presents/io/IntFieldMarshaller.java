@@ -1,7 +1,7 @@
 //
-// $Id: IntFieldMarshaller.java,v 1.5 2002/02/01 23:26:49 mdb Exp $
+// $Id: IntFieldMarshaller.java,v 1.6 2002/02/01 23:32:37 mdb Exp $
 
-package com.threerings.presents.dobj.io;
+package com.threerings.presents.io;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
