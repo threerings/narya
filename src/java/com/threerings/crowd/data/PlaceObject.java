@@ -1,5 +1,5 @@
 //
-// $Id: PlaceObject.java,v 1.11 2003/04/30 22:45:57 mdb Exp $
+// $Id: PlaceObject.java,v 1.12 2003/06/03 21:41:33 ray Exp $
 
 package com.threerings.crowd.data;
 
@@ -9,7 +9,7 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.OidList;
 
-import com.threerings.crowd.chat.SpeakMarshaller;
+import com.threerings.crowd.chat.data.SpeakMarshaller;
 
 public class PlaceObject extends DObject
 {

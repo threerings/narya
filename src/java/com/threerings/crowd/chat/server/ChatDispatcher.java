@@ -1,11 +1,11 @@
 //
-// $Id: ChatDispatcher.java,v 1.4 2002/10/31 23:27:16 mdb Exp $
+// $Id: ChatDispatcher.java,v 1.5 2003/06/03 21:41:33 ray Exp $
 
-package com.threerings.crowd.chat;
+package com.threerings.crowd.chat.server;
 
-import com.threerings.crowd.chat.ChatMarshaller;
-import com.threerings.crowd.chat.ChatService;
-import com.threerings.crowd.chat.ChatService.TellListener;
+import com.threerings.crowd.chat.client.ChatService;
+import com.threerings.crowd.chat.client.ChatService.TellListener;
+import com.threerings.crowd.chat.data.ChatMarshaller;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService.InvocationListener;
 import com.threerings.presents.data.ClientObject;
@@ -57,6 +57,4 @@ public class ChatDispatcher extends InvocationDispatcher
             super.dispatchRequest(source, methodId, args);
         }
     }
-
-    // Generated on 13:40:31 10/31/02.
 }

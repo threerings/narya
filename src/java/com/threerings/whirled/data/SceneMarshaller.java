@@ -1,5 +1,5 @@
 //
-// $Id: SceneMarshaller.java,v 1.3 2003/02/12 07:23:31 mdb Exp $
+// $Id: SceneMarshaller.java,v 1.4 2003/06/03 21:41:33 ray Exp $
 
 package com.threerings.whirled.data;
 
@@ -100,5 +100,4 @@ public class SceneMarshaller extends InvocationMarshaller
         });
     }
 
-    // Generated on 14:44:07 02/08/03.
 }

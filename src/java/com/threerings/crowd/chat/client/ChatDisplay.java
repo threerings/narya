@@ -1,7 +1,9 @@
 //
-// $Id: ChatDisplay.java,v 1.16 2002/11/08 07:28:23 ray Exp $
+// $Id: ChatDisplay.java,v 1.17 2003/06/03 21:41:33 ray Exp $
 
-package com.threerings.crowd.chat;
+package com.threerings.crowd.chat.client;
+
+import com.threerings.crowd.chat.data.ChatMessage;
 
 /**
  * A chat display provides a means by which chat messages can be

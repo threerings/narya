@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.40 2003/04/17 19:17:07 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.41 2003/06/03 21:41:33 ray Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -16,7 +16,7 @@ import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.server.InvocationException;
 
-import com.threerings.crowd.chat.SpeakProvider;
+import com.threerings.crowd.chat.server.SpeakProvider;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.server.CrowdServer;

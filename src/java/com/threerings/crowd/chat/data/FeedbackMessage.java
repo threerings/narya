@@ -1,7 +1,7 @@
 //
-// $Id: FeedbackMessage.java,v 1.1 2002/07/26 20:35:01 ray Exp $
+// $Id: FeedbackMessage.java,v 1.2 2003/06/03 21:41:33 ray Exp $
 
-package com.threerings.crowd.chat;
+package com.threerings.crowd.chat.data;
 
 /**
  * A ChatMessage to indicate to the user that an action they took
@@ -9,6 +9,10 @@ package com.threerings.crowd.chat;
  */
 public class FeedbackMessage extends ChatMessage
 {
+    public FeedbackMessage ()
+    {
+    }
+
     /**
      * Construct a FeedbackMessage.
      */

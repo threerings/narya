@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.22 2002/11/08 07:28:23 ray Exp $
+// $Id: ChatPanel.java,v 1.23 2003/06/03 21:41:33 ray Exp $
 
 package com.threerings.micasa.client;
 
@@ -34,13 +34,14 @@ import com.samskivert.swing.event.AncestorAdapter;
 
 import com.threerings.util.MessageBundle;
 
-import com.threerings.crowd.chat.ChatCodes;
-import com.threerings.crowd.chat.ChatDirector;
-import com.threerings.crowd.chat.ChatDisplay;
-import com.threerings.crowd.chat.ChatMessage;
-import com.threerings.crowd.chat.FeedbackMessage;
-import com.threerings.crowd.chat.SystemMessage;
-import com.threerings.crowd.chat.UserMessage;
+import com.threerings.crowd.chat.client.ChatDirector;
+import com.threerings.crowd.chat.client.ChatDisplay;
+import com.threerings.crowd.chat.data.ChatCodes;
+import com.threerings.crowd.chat.data.ChatMessage;
+import com.threerings.crowd.chat.data.FeedbackMessage;
+import com.threerings.crowd.chat.data.SystemMessage;
+import com.threerings.crowd.chat.data.UserMessage;
+
 import com.threerings.crowd.client.OccupantObserver;
 import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.data.OccupantInfo;
@@ -231,7 +232,7 @@ public class ChatPanel
     {
         if (message instanceof UserMessage) {
             UserMessage msg = (UserMessage) message;
-            if (msg.localtype == ChatCodes.TELL_CHAT_TYPE) {
+            if (msg.localtype == ChatCodes.USER_CHAT_TYPE) {
                 append("[" + msg.speaker + " whispers] ", _nameStyle);
                 append(msg.message + "\n", _msgStyle);
             } else {

@@ -1,5 +1,5 @@
 //
-// $Id: BodyDispatcher.java,v 1.1 2002/11/01 00:39:18 shaper Exp $
+// $Id: BodyDispatcher.java,v 1.2 2003/06/03 21:41:33 ray Exp $
 
 package com.threerings.crowd.server;
 
@@ -48,6 +48,4 @@ public class BodyDispatcher extends InvocationDispatcher
             super.dispatchRequest(source, methodId, args);
         }
     }
-
-    // Generated on 15:58:33 10/31/02.
 }

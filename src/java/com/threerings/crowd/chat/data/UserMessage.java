@@ -1,7 +1,7 @@
 //
-// $Id: UserMessage.java,v 1.1 2002/07/26 20:35:01 ray Exp $
+// $Id: UserMessage.java,v 1.2 2003/06/03 21:41:33 ray Exp $
 
-package com.threerings.crowd.chat;
+package com.threerings.crowd.chat.data;
 
 /**
  * A ChatMessage representing a message that came from another user.
@@ -15,12 +15,19 @@ public class UserMessage extends ChatMessage
     public byte mode;
 
     /**
+     * For unserialization.
+     */
+    public UserMessage ()
+    {
+    }
+
+    /**
      * Construct a user message.
      */
-    public UserMessage (String message, String localtype,
+    public UserMessage (String message, String bundle,
                         String speaker, byte mode)
     {
-        super(message, localtype);
+        super(message, bundle);
         this.speaker = speaker;
         this.mode = mode;
     }

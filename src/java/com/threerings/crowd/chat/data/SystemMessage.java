@@ -1,7 +1,7 @@
 //
-// $Id: SystemMessage.java,v 1.1 2002/07/26 20:35:01 ray Exp $
+// $Id: SystemMessage.java,v 1.2 2003/06/03 21:41:33 ray Exp $
 
-package com.threerings.crowd.chat;
+package com.threerings.crowd.chat.data;
 
 /**
  * A ChatMessage that represents a message that came from the server
@@ -9,11 +9,15 @@ package com.threerings.crowd.chat;
  */
 public class SystemMessage extends ChatMessage
 {
+    public SystemMessage ()
+    {
+    }
+
     /**
      * Construct a SystemMessage.
      */
-    public SystemMessage (String message, String localtype)
+    public SystemMessage (String message, String bundle)
     {
-        super(message, localtype);
+        super(message, bundle);
     }
 }

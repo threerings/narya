@@ -1,10 +1,10 @@
 //
-// $Id: SpeakDispatcher.java,v 1.2 2002/08/20 19:38:13 mdb Exp $
+// $Id: SpeakDispatcher.java,v 1.3 2003/06/03 21:41:33 ray Exp $
 
-package com.threerings.crowd.chat;
+package com.threerings.crowd.chat.server;
 
-import com.threerings.crowd.chat.SpeakMarshaller;
-import com.threerings.crowd.chat.SpeakService;
+import com.threerings.crowd.chat.client.SpeakService;
+import com.threerings.crowd.chat.data.SpeakMarshaller;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
@@ -13,10 +13,6 @@ import com.threerings.presents.server.InvocationException;
 
 /**
  * Dispatches requests to the {@link SpeakProvider}.
- *
- * <p> Generated from <code>
- * $Id: SpeakDispatcher.java,v 1.2 2002/08/20 19:38:13 mdb Exp $
- * </code>
  */
 public class SpeakDispatcher extends InvocationDispatcher
 {

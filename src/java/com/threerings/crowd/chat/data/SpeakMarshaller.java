@@ -1,9 +1,9 @@
 //
-// $Id: SpeakMarshaller.java,v 1.2 2002/08/20 19:38:13 mdb Exp $
+// $Id: SpeakMarshaller.java,v 1.3 2003/06/03 21:41:33 ray Exp $
 
-package com.threerings.crowd.chat;
+package com.threerings.crowd.chat.data;
 
-import com.threerings.crowd.chat.SpeakService;
+import com.threerings.crowd.chat.client.SpeakService;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
@@ -14,10 +14,6 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
- *
- * <p> Generated from <code>
- * $Id: SpeakMarshaller.java,v 1.2 2002/08/20 19:38:13 mdb Exp $
- * </code>
  */
 public class SpeakMarshaller extends InvocationMarshaller
     implements SpeakService
@@ -33,5 +29,4 @@ public class SpeakMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 12:33:01 08/20/02.
 }

@@ -1,7 +1,7 @@
 //
-// $Id: ChatValidator.java,v 1.1 2002/06/19 23:12:48 ray Exp $
+// $Id: ChatValidator.java,v 1.2 2003/06/03 21:41:33 ray Exp $
 
-package com.threerings.crowd.chat;
+package com.threerings.crowd.chat.client;
 
 /**
  * A chat validator validates chat messages before they are sent to the

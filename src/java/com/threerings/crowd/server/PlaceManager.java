@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.44 2003/03/25 01:12:29 mdb Exp $
+// $Id: PlaceManager.java,v 1.45 2003/06/03 21:41:33 ray Exp $
 
 package com.threerings.crowd.server;
 
@@ -34,9 +34,9 @@ import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 
-import com.threerings.crowd.chat.SpeakDispatcher;
-import com.threerings.crowd.chat.SpeakMarshaller;
-import com.threerings.crowd.chat.SpeakProvider;
+import com.threerings.crowd.chat.data.SpeakMarshaller;
+import com.threerings.crowd.chat.server.SpeakDispatcher;
+import com.threerings.crowd.chat.server.SpeakProvider;
 
 /**
  * The place manager is the server-side entity that handles all

@@ -1,7 +1,7 @@
 //
-// $Id: ChatDirector.java,v 1.43 2003/01/21 01:08:36 mdb Exp $
+// $Id: ChatDirector.java,v 1.44 2003/06/03 21:41:33 ray Exp $
 
-package com.threerings.crowd.chat;
+package com.threerings.crowd.chat.client;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -11,6 +11,7 @@ import com.samskivert.util.ObserverList;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.MessageListener;
@@ -24,13 +25,20 @@ import com.threerings.crowd.client.LocationObserver;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
 
+import com.threerings.crowd.chat.data.ChatCodes;
+import com.threerings.crowd.chat.data.ChatMessage;
+import com.threerings.crowd.chat.data.FeedbackMessage;
+import com.threerings.crowd.chat.data.SystemMessage;
+import com.threerings.crowd.chat.data.TellFeedbackMessage;
+import com.threerings.crowd.chat.data.UserMessage;
+
 /**
  * The chat director is the client side coordinator of all chat related
  * services. It handles both place constrained chat as well as direct
  * messaging.
  */
 public class ChatDirector extends BasicDirector
-    implements ChatCodes, LocationObserver, MessageListener, ChatReceiver
+    implements ChatCodes, LocationObserver, MessageListener
 {
     /**
      * An interface to receive information about the {@link #MAX_CHATTERS}
@@ -70,10 +78,6 @@ public class ChatDirector extends BasicDirector
         _ctx = ctx;
         _msgmgr = msgmgr;
         _bundle = bundle;
-
-        // register for chat notifications
-        _ctx.getClient().getInvocationDirector().registerReceiver(
-            new ChatDecoder(this));
 
         // register ourselves as a location observer
         _ctx.getLocationDirector().addLocationObserver(this);
@@ -234,7 +238,9 @@ public class ChatDirector extends BasicDirector
     public void displaySystemMessage (
         String bundle, String message, String localtype)
     {
-        dispatchMessage(new SystemMessage(xlate(bundle, message), localtype));
+        SystemMessage msg = new SystemMessage();
+        msg.setClientInfo(xlate(bundle, message), localtype);
+        dispatchMessage(msg);
     }
 
     /**
@@ -259,7 +265,9 @@ public class ChatDirector extends BasicDirector
     public void displayFeedbackMessage (String bundle, String message,
         String localtype)
     {
-        dispatchMessage(new FeedbackMessage(xlate(bundle, message), localtype));
+        FeedbackMessage msg = new FeedbackMessage();
+        msg.setClientInfo(xlate(bundle, message), localtype);
+        dispatchMessage(msg);
     }
 
     /**
@@ -322,7 +330,7 @@ public class ChatDirector extends BasicDirector
     public void requestBroadcast (String message)
     {
         _cservice.broadcast(
-            _ctx.getClient(), message, new ChatService.InvocationListener () {
+            _ctx.getClient(), message, new ChatService.InvocationListener() {
                 public void requestFailed (String reason) {
                     displayFeedbackMessage(
                         _bundle, MessageBundle.compose(
@@ -351,19 +359,18 @@ public class ChatDirector extends BasicDirector
         // create a listener that will report success or failure
         ChatService.TellListener listener = new ChatService.TellListener() {
             public void tellSucceeded () {
-                String msg = MessageBundle.tcompose(
-                    "m.told_format", target, message);
-                displayFeedbackMessage(_bundle, msg);
+                dispatchMessage(new TellFeedbackMessage(
+                    xlate(_bundle, MessageBundle.tcompose(
+                    "m.told_format", target, message))));
                 addChatter(target);
             }
 
             public void tellSucceededIdle (long idletime) {
-                String msg = MessageBundle.compose(
+                dispatchMessage(new TellFeedbackMessage(
+                    xlate(_bundle, MessageBundle.compose(
                     "m.told_idle_format", MessageBundle.taint(target),
                     MessageBundle.taint(message),
-                    TimeUtil.getTimeOrderString(idletime, TimeUtil.MINUTE));
-
-                displayFeedbackMessage(_bundle, msg);
+                    TimeUtil.getTimeOrderString(idletime, TimeUtil.MINUTE)))));
                 addChatter(target);
             }
 
@@ -439,69 +446,29 @@ public class ChatDirector extends BasicDirector
     // documentation inherited
     public void messageReceived (MessageEvent event)
     {
-        String name = event.getName();
-        if (name.equals(SPEAK_NOTIFICATION)) {
-            handleSpeakMessage(
-                getLocalType(event.getTargetOid()), event.getArgs());
+        if (CHAT_NOTIFICATION.equals(event.getName())) {
+            ChatMessage msg = (ChatMessage) event.getArgs()[0];
+            String localtype = getLocalType(event.getTargetOid());
 
-        } else if (name.equals(SYSTEM_NOTIFICATION)) {
-            Object[] args = event.getArgs();
-            displaySystemMessage((String)args[0], (String)args[1],
-                                 getLocalType(event.getTargetOid()));
+            // if the message came from a user, make sure we want to hear it
+            if (msg instanceof UserMessage) {
+                String speaker = ((UserMessage) msg).speaker;
+                if (isBlocked(speaker)) {
+                    // ack! block that message
+                    return;
+
+                } else if (USER_CHAT_TYPE.equals(localtype)) {
+                    // if it was a tell, add the speaker as a chatter
+                    addChatter(speaker);
+                }
+            }
+
+            // initialize the client-specific fields of the message
+            msg.setClientInfo(xlate(msg.bundle, msg.message), localtype);
+
+            // and send it off!
+            dispatchMessage(msg);
         }
-    }
-
-    // documentation inherited from interface
-    public void receivedTell (String speaker, String bundle, String message)
-    {
-        // ignore messages from blocked users
-        if (isBlocked(speaker)) {
-            return;
-        }
-
-        // if the message need be translated, do so
-        if (bundle != null) {
-            message = xlate(bundle, message);
-        }
-
-        UserMessage um = new UserMessage(
-            message, ChatCodes.TELL_CHAT_TYPE, speaker, ChatCodes.DEFAULT_MODE);
-        dispatchMessage(um);
-        addChatter(speaker);
-    }
-
-    /**
-     * Called when a speak message is received on the place object or one
-     * of our auxiliary chat objects.
-     *
-     * @param type {@link ChatCodes#PLACE_CHAT_TYPE} if the message was
-     * received on the place object or the type associated with the
-     * auxiliary chat object on which the message was received.
-     * @param args the arguments provided with the speak notification.
-     */
-    protected void handleSpeakMessage (String localtype, Object[] args)
-    {
-        String speaker = (String)args[0];
-        // bail if the speaker is blocked
-        if (isBlocked(speaker)) {
-            return;
-        }
-
-        String message;
-        byte mode;
-
-        // determine whether this speak message originated from another
-        // client or from a server entity
-        if (args.length == 3) {
-            message = (String)args[1];
-            mode = ((Byte) args[2]).byteValue();
-
-        } else {
-            message = xlate((String) args[1], (String) args[2]);
-            mode = ((Byte) args[3]).byteValue();
-        }
-
-        dispatchMessage(new UserMessage(message, localtype, speaker, mode));
     }
 
     /**
@@ -558,9 +525,22 @@ public class ChatDirector extends BasicDirector
     }
 
     // documentation inherited
+    public void clientDidLogon (Client client)
+    {
+        super.clientDidLogon(client);
+
+        // listen on the client object for tells
+        addAuxiliarySource(_clobj = client.getClientObject(), USER_CHAT_TYPE);
+    }
+
+    // documentation inherited
     public void clientObjectDidChange (Client client)
     {
         super.clientObjectDidChange(client);
+
+        // change what we're listening to for tells
+        removeAuxiliarySource(_clobj);
+        addAuxiliarySource(_clobj = client.getClientObject(), USER_CHAT_TYPE);
 
         clearDisplays();
     }
@@ -569,6 +549,10 @@ public class ChatDirector extends BasicDirector
     public void clientDidLogoff (Client client)
     {
         super.clientDidLogoff(client);
+
+        // stop listening to it for tells
+        removeAuxiliarySource(_clobj);
+        _clobj = null;
 
         clearDisplays();
 
@@ -622,6 +606,9 @@ public class ChatDirector extends BasicDirector
         protected boolean _valid;
     }
 
+    /**
+     * An observer op used to dispatch ChatMessages on the client.
+     */
     protected static class DisplayMessageOp implements ObserverList.ObserverOp
     {
         public void setMessage (ChatMessage message)
@@ -652,6 +639,9 @@ public class ChatDirector extends BasicDirector
 
     /** The place object that we currently occupy. */
     protected PlaceObject _place;
+
+    /** The client object that we're listening to for tells. */
+    protected ClientObject _clobj;
 
     /** A list of registered chat displays. */
     protected ObserverList _displays =

@@ -1,5 +1,5 @@
 //
-// $Id: CrowdServer.java,v 1.17 2002/11/01 21:33:49 shaper Exp $
+// $Id: CrowdServer.java,v 1.18 2003/06/03 21:41:33 ray Exp $
 
 package com.threerings.crowd.server;
 
@@ -8,7 +8,7 @@ import java.util.Iterator;
 import com.threerings.presents.server.PresentsServer;
 
 import com.threerings.crowd.Log;
-import com.threerings.crowd.chat.ChatProvider;
+import com.threerings.crowd.chat.server.ChatProvider;
 import com.threerings.crowd.data.BodyObject;
 
 /**

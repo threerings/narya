@@ -1,7 +1,7 @@
 //
-// $Id: ChatCodes.java,v 1.15 2003/03/30 02:53:05 mdb Exp $
+// $Id: ChatCodes.java,v 1.16 2003/06/03 21:41:33 ray Exp $
 
-package com.threerings.crowd.chat;
+package com.threerings.crowd.chat.data;
 
 import com.threerings.presents.data.InvocationCodes;
 
@@ -10,6 +10,9 @@ import com.threerings.presents.data.InvocationCodes;
  */
 public interface ChatCodes extends InvocationCodes
 {
+    /** The message identifier for a chat notification message. */
+    public static final String CHAT_NOTIFICATION = "chat";
+
     /** The chat localtype code for chat messages delivered on the place
      * object currently occupied by the client. This is the only type of
      * chat message that will be delivered unless the chat director is
@@ -17,14 +20,8 @@ public interface ChatCodes extends InvocationCodes
      * ChatDirector#addAuxiliarySource}. */
     public static final String PLACE_CHAT_TYPE = "placeChat";
 
-    /** The message identifier for a speak notification message. */
-    public static final String SPEAK_NOTIFICATION = "spknot";
-
-    /** The message identifier for a system notification message. */
-    public static final String SYSTEM_NOTIFICATION = "sysnot";
-
-    /** The chat localtype for tells. */
-    public static final String TELL_CHAT_TYPE = "tellChat";
+    /** The chat localtype for messages received on the user object. */
+    public static final String USER_CHAT_TYPE = "userChat";
 
     /** The default mode used by {@link SpeakService#speak} requests. */
     public static final byte DEFAULT_MODE = 0;

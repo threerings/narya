@@ -1,7 +1,7 @@
 //
-// $Id: MuteDirector.java,v 1.7 2003/04/08 02:49:43 ray Exp $
+// $Id: MuteDirector.java,v 1.8 2003/06/03 21:41:33 ray Exp $
 
-package com.threerings.crowd.chat;
+package com.threerings.crowd.chat.client;
 
 import java.util.HashSet;
 

@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.63 2003/05/26 21:27:18 mdb Exp $
+// $Id: GameManager.java,v 1.64 2003/06/03 21:41:33 ray Exp $
 
 package com.threerings.parlor.game;
 
@@ -16,7 +16,7 @@ import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.server.util.SafeInterval;
 
-import com.threerings.crowd.chat.SpeakProvider;
+import com.threerings.crowd.chat.server.SpeakProvider;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceObject;

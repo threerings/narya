@@ -1,7 +1,7 @@
 //
-// $Id: ChatService.java,v 1.10 2002/10/31 23:27:16 mdb Exp $
+// $Id: ChatService.java,v 1.11 2003/06/03 21:41:33 ray Exp $
 
-package com.threerings.crowd.chat;
+package com.threerings.crowd.chat.client;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;

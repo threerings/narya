@@ -1,9 +1,9 @@
 //
-// $Id: SpotCodes.java,v 1.6 2003/03/27 16:45:30 mdb Exp $
+// $Id: SpotCodes.java,v 1.7 2003/06/03 21:41:33 ray Exp $
 
 package com.threerings.whirled.spot.data;
 
-import com.threerings.crowd.chat.ChatCodes;
+import com.threerings.crowd.chat.data.ChatCodes;
 
 import com.threerings.whirled.data.SceneCodes;
 import com.threerings.whirled.spot.client.SpotSceneDirector;

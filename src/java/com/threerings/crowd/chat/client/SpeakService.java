@@ -1,7 +1,7 @@
 //
-// $Id: SpeakService.java,v 1.1 2002/08/14 19:07:49 mdb Exp $
+// $Id: SpeakService.java,v 1.2 2003/06/03 21:41:33 ray Exp $
 
-package com.threerings.crowd.chat;
+package com.threerings.crowd.chat.client;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;

@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.29 2003/05/06 00:21:59 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.30 2003/06/03 21:41:33 ray Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -18,8 +18,8 @@ import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
 
-import com.threerings.crowd.chat.ChatCodes;
-import com.threerings.crowd.chat.ChatDirector;
+import com.threerings.crowd.chat.client.ChatDirector;
+import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.client.LocationAdapter;
 import com.threerings.crowd.client.LocationDirector;
 import com.threerings.crowd.data.PlaceObject;

@@ -1,7 +1,7 @@
 //
-// $Id: ChatProvider.java,v 1.18 2002/11/01 01:01:27 mdb Exp $
+// $Id: ChatProvider.java,v 1.19 2003/06/03 21:41:33 ray Exp $
 
-package com.threerings.crowd.chat;
+package com.threerings.crowd.chat.server;
 
 import java.util.Iterator;
 
@@ -23,7 +23,9 @@ import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.CrowdServer;
 
-import com.threerings.crowd.chat.ChatService.TellListener;
+import com.threerings.crowd.chat.client.ChatService.TellListener;
+import com.threerings.crowd.chat.data.ChatCodes;
+import com.threerings.crowd.chat.data.UserMessage;
 
 /**
  * The chat provider handles the server side of the chat-related
@@ -123,7 +125,8 @@ public class ChatProvider
     public static void sendTellMessage (
         BodyObject target, String speaker, String bundle, String message)
     {
-        ChatSender.sendTell(target, speaker, bundle, message);
+        SpeakProvider.sendMessage(target,
+            new UserMessage(message, bundle, speaker, DEFAULT_MODE));
     }
 
     /** The distributed object manager used by the chat services. */
