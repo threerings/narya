@@ -1,5 +1,5 @@
 //
-// $Id: ZoneService.java,v 1.3 2002/04/15 16:28:04 shaper Exp $
+// $Id: ZoneService.java,v 1.4 2002/04/16 17:36:17 mdb Exp $
 
 package com.threerings.whirled.zone.client;
 
@@ -23,9 +23,11 @@ public class ZoneService implements ZoneCodes
      * @param sceneId the scene id to which we want to move.
      * @param sceneVers the version number of the scene object that we
      * have in our local repository.
+     * @param rsptarget the object that will receive the callback when the
+     * request succeeds or fails.
      */
     public static void moveTo (Client client, int zoneId, int sceneId,
-                               int sceneVers, ZoneDirector rsptarget)
+                               int sceneVers, Object rsptarget)
     {
         InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] {
