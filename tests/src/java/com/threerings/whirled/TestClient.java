@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.1 2001/08/14 06:51:07 mdb Exp $
+// $Id: TestClient.java,v 1.2 2001/08/20 22:10:49 mdb Exp $
 
 package com.threerings.whirled.client.test;
 
@@ -11,8 +11,7 @@ import com.threerings.cocktail.cher.dobj.DObjectManager;
 import com.threerings.cocktail.cher.net.*;
 
 import com.threerings.cocktail.party.Log;
-import com.threerings.cocktail.party.client.LocationManager;
-import com.threerings.cocktail.party.client.LocationObserver;
+import com.threerings.cocktail.party.client.*;
 import com.threerings.cocktail.party.data.PlaceObject;
 
 import com.threerings.whirled.client.SceneManager;
@@ -31,6 +30,7 @@ public class TestClient
         _config = new Config();
         _client = new Client(creds, this);
         _screp = new DummySceneRepository();
+        _occmgr = new OccupantManager(_ctx);
         _scmgr = new SceneManager(_ctx, _screp);
 
         // we want to know about logon/logoff
@@ -143,6 +143,11 @@ public class TestClient
             return _scmgr;
         }
 
+        public OccupantManager getOccupantManager ()
+        {
+            return _occmgr;
+        }
+
         public SceneManager getSceneManager ()
         {
             return _scmgr;
@@ -152,6 +157,7 @@ public class TestClient
     protected Config _config;
     protected Client _client;
     protected SceneManager _scmgr;
+    protected OccupantManager _occmgr;
     protected SceneRepository _screp;
     protected WhirledContext _ctx;
 

@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.2 2001/07/23 21:14:27 mdb Exp $
+// $Id: TestClient.java,v 1.3 2001/08/20 22:10:49 mdb Exp $
 
 package com.threerings.cocktail.party.client.test;
 
@@ -11,7 +11,7 @@ import com.threerings.cocktail.cher.dobj.DObjectManager;
 import com.threerings.cocktail.cher.net.*;
 
 import com.threerings.cocktail.party.Log;
-import com.threerings.cocktail.party.client.LocationManager;
+import com.threerings.cocktail.party.client.*;
 import com.threerings.cocktail.party.util.PartyContext;
 
 public class TestClient
@@ -26,6 +26,7 @@ public class TestClient
         _config = new Config();
         _client = new Client(creds, this);
         _locmgr = new LocationManager(_ctx);
+        _occmgr = new OccupantManager(_ctx);
 
         // we want to know about logon/logoff
         _client.addObserver(this);
@@ -115,11 +116,17 @@ public class TestClient
         {
             return _locmgr;
         }
+
+        public OccupantManager getOccupantManager ()
+        {
+            return _occmgr;
+        }
     }
 
     protected Config _config;
     protected Client _client;
     protected LocationManager _locmgr;
+    protected OccupantManager _occmgr;
     protected PartyContext _ctx;
 
     protected Queue _queue = new Queue();
