@@ -1,11 +1,12 @@
 //
-// $Id: Node.java,v 1.1 2001/08/20 22:56:55 shaper Exp $
+// $Id: Node.java,v 1.2 2001/08/23 00:22:30 shaper Exp $
 
 package com.threerings.nodemap;
 
-import java.awt.Graphics;
-import java.awt.Point;
+import java.awt.*;
 import java.util.*;
+
+import com.samskivert.swing.util.SwingUtil;
 
 /**
  * The node class represents a single node in a directed graph of nodes.
@@ -128,6 +129,34 @@ public abstract class Node
 	for (int ii = 0; ii < size; ii++) {
 	    ((Edge)_edges.get(ii)).paint(g);
 	}
+    }
+
+    /**
+     * Render a tool tip for this node to the given graphics context.
+     * By default, the tool tip is a yellow box containing the node's
+     * name.
+     *
+     * @param g the graphics context.
+     */
+    public void paintToolTip (Graphics g)
+    {
+	// calculate tool tip position and dimensions
+	FontMetrics fm = g.getFontMetrics(g.getFont());
+
+	int wid = fm.stringWidth(_name) + 10;
+	int hei = fm.getAscent() + 4;
+
+	int xpos = _pos.x + ((_width - wid) / 2);
+	int ypos = _pos.y + ((_height - hei) / 2);
+
+	// draw the yellow box
+	g.setColor(Color.yellow);
+	g.fillRect(xpos, ypos, wid, hei);
+	g.setColor(Color.black);
+	g.drawRect(xpos, ypos, wid, hei);
+
+	// draw the node name
+	SwingUtil.drawStringCentered(g, _name, xpos, ypos, wid, hei);
     }
 
     /**

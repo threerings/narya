@@ -1,10 +1,13 @@
 //
-// $Id: NodeMap.java,v 1.1 2001/08/20 22:56:55 shaper Exp $
+// $Id: NodeMap.java,v 1.2 2001/08/23 00:22:30 shaper Exp $
 
 package com.threerings.nodemap;
 
 import java.awt.*;
 import java.util.*;
+import javax.swing.JComponent;
+
+import com.samskivert.swing.ToolTipManager;
 
 /**
  * The node map class represents a directed graph of nodes comprised
@@ -102,6 +105,11 @@ public class NodeMap
 	    g.drawRect(pos.x, pos.y, wid, hei);
 	}
 
+	// draw the tool tip, if any
+	if (_tip != null) {
+	    _tip.paintToolTip(g);
+	}
+
 	// restore original origin
 	g.translate(_minx, _miny);
     }
@@ -186,10 +194,16 @@ public class NodeMap
     {
 	Node enternode = null;
 
+	// tell the tip manager that the mouse moved
+	if (_tipmgr != null) {
+	    _tipmgr.handleMouseMoved();
+	}
+
 	// translate coordinates to node map origin
 	x += _minx;
 	y += _miny;
 
+	// check whether we've entered a node
 	int size = _nodes.size();
 	for (int ii = 0; ii < size; ii++) {
 	    Node n = (Node)_nodes.get(ii);
@@ -209,11 +223,19 @@ public class NodeMap
 	// exit the last node, if any
 	if (_lastnode != null) {
 	    _lastnode.handleMouseExited();
+
+	    if (_tipmgr != null) {
+		_tipmgr.handleMouseExited(_lastnode);
+	    }
 	}
 
 	// enter the new node, if any
 	if (enternode != null) {
 	    enternode.handleMouseEntered();
+
+	    if (_tipmgr != null) {
+		_tipmgr.handleMouseEntered(enternode);
+	    }
 	}
 
 	// update the last node entered
@@ -244,11 +266,44 @@ public class NodeMap
 		Point pos = n.getPosition();
 		n.handleMouseClicked(x - pos.x, y - pos.y);
 
+		// let the tool tip manager know about the click
+		if (_tipmgr != null) {
+		    _tipmgr.handleMouseClicked(n);
+		}
+
 		// nodes can't overlap for now, so we're done
 		return;
 	    }
 	}
     }
+
+    /**
+     * Set the node whose tool tip should be displayed when the node
+     * map is rendered.
+     *
+     * @param node the tool tip node.
+     */
+    public void setToolTipNode (Node node)
+    {
+	_tip = node;
+    }
+
+    /**
+     * Set the tool tip manager that the node map should notify of
+     * node enter, exit, and clicked events.
+     *
+     * @param tipmgr the tool tip manager.
+     */
+    public void setToolTipManager (ToolTipManager tipmgr)
+    {
+	_tipmgr = tipmgr;
+    }
+
+    /** The node whose tool tip is currently displayed. */
+    protected Node _tip;
+
+    /** The tool tip manager. */
+    protected ToolTipManager _tipmgr;
 
     /** The layout manager. */
     protected LayoutManager _lmgr;
