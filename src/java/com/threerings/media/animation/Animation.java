@@ -1,5 +1,5 @@
 //
-// $Id: Animation.java,v 1.14 2004/09/10 22:16:54 eric Exp $
+// $Id: Animation.java,v 1.15 2004/11/11 23:51:40 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -60,6 +60,30 @@ public abstract class Animation extends AbstractMedia
     public void reset ()
     {
         _finished = false;
+    }
+
+    // documentation inherited
+    public void setLocation (int x, int y)
+    {
+        // start with our current bounds
+        Rectangle dirty = new Rectangle(_bounds);
+
+        // move ourselves
+        super.setLocation(x, y);
+
+        // grow the dirty rectangle to incorporate our new bounds and pass
+        // the dirty region to our region manager
+        if (_mgr != null) {
+            // if our new bounds intersect our old bounds, grow a single
+            // dirty rectangle to incorporate them both
+            if (_bounds.intersects(dirty)) {
+                dirty.add(_bounds);
+            } else {
+                // otherwise invalidate our new bounds separately
+                _mgr.getRegionManager().invalidateRegion(_bounds);
+            }
+            _mgr.getRegionManager().addDirtyRegion(dirty);
+        }
     }
 
     // documentation inherited
