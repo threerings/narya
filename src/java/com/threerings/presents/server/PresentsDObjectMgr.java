@@ -79,7 +79,17 @@ public class PresentsDObjectMgr
      */
     public void setDefaultAccessController (AccessController controller)
     {
+        AccessController oldDefault = _defaultController;
         _defaultController = controller;
+
+        // switch all objects from the old default (null, usually)
+        // to the new default
+        for (Iterator itr = _objects.elements(); itr.hasNext(); ) {
+            DObject obj = (DObject) itr.next();
+            if (oldDefault == obj.getAccessController()) {
+                obj.setAccessController(controller);
+            }
+        }
     }
 
     // documentation inherited from interface
