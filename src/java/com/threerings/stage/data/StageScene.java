@@ -162,6 +162,12 @@ public class StageScene extends SceneImpl
     }
 
     // documentation inherited from interface
+    public short getNextPortalId ()
+    {
+        return _sdelegate.getNextPortalId();
+    }
+
+    // documentation inherited from interface
     public Portal getDefaultEntrance ()
     {
         return _sdelegate.getDefaultEntrance();

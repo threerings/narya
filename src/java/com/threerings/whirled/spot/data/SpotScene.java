@@ -1,5 +1,5 @@
 //
-// $Id: SpotScene.java,v 1.2 2004/08/27 02:20:46 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -46,6 +46,12 @@ public interface SpotScene
     public Iterator getPortals ();
 
     /**
+     * Returns the portal id that should be assigned to the next portal
+     * added to this scene.
+     */
+    public short getNextPortalId ();
+
+    /**
      * Returns the portal that represents the default entrance to this
      * scene. If a body enters the scene at logon time rather than
      * entering from some other scene, this is the portal at which they
@@ -55,8 +61,9 @@ public interface SpotScene
 
     /**
      * Adds a portal to this scene, immediately making the requisite
-     * modifications to the underlying scene model. A portal id will be
-     * assigned to the portal by this method.
+     * modifications to the underlying scene model. The portal id should
+     * have already been assigned using the value obtained from {@link
+     * #getNextPortalId}.
      */
     public void addPortal (Portal portal);
 

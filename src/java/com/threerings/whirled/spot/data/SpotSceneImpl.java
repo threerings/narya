@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneImpl.java,v 1.4 2004/08/27 02:20:46 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -79,6 +79,18 @@ public class SpotSceneImpl
     }
 
     // documentation inherited from interface
+    public short getNextPortalId ()
+    {
+        // compute a new portal id for our friend the portal
+        for (short ii = 1; ii < MAX_PORTAL_ID; ii++) {
+            if (!_portals.containsKey(ii)) {
+                return ii;
+            }
+        }
+        return (short)-1;
+    }
+
+    // documentation inherited from interface
     public Portal getDefaultEntrance ()
     {
         return getPortal(_smodel.defaultEntranceId);
@@ -87,21 +99,13 @@ public class SpotSceneImpl
     // documentation inherited from interface
     public void addPortal (Portal portal)
     {
-        // compute a new portal id for our friend the portal
-        portal.portalId = 0;
-        for (short ii = 1; ii < MAX_PORTAL_ID; ii++) {
-            if (!_portals.containsKey(ii)) {
-                portal.portalId = ii;
-                break;
-            }
-        }
-        if (portal.portalId == 0) {
-            Log.warning("Unable to assign id to new portal " +
-                        "[scene=" + this + "].");
+        if (portal.portalId <= 0) {
+            Log.warning("Refusing to add zero-id portal " +
+                        "[scene=" + this + ", portal=" + portal + "].");
             return;
         }
 
-        // add this beyotch to our model
+        // add it to our model
         _smodel.addPortal(portal);
 
         // and slap it into our table

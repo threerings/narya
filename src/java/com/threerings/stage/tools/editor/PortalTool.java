@@ -119,6 +119,7 @@ public class PortalTool extends MouseInputAdapter
         _portal.name = name;
 
         // add the portal to the scene and pop up the editor dialog
+        _portal.portalId = _scene.getNextPortalId();
         _scene.addPortal(_portal);
         _panel.editPortal(_portal);
     }
