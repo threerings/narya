@@ -1,4 +1,4 @@
-Cher Mk3 Design -*- outline -*-
+Cher Design -*- outline -*-
 
 * Why Cher?
 The basic function of this layer is to allow the sharing (Cher-ing) of
@@ -6,8 +6,102 @@ information among different nodes in the network. Plus, I don't think Cher
 has ever had a software system named after her and it's high time. Imagine
 Cher as the social lubricant that allows the party goers to communicate.
 
-* A note on thread-safety
+* Overview
+The Cher layer implements the distributed object services described in the
+Cocktail design document. It does this within the context of an extensible
+client/server application framework. Cher provides services that can be
+integrated into your distributed application to share information between
+a set of clients and entities operating on the server.
 
+* Invocation services
+To facilitate the client invoking code on the server (in a
+request/response arrangement) and the server invoking code on the client
+(in an asynchronous notification arrangement), the invocation services are
+provided.
+
+We make use of reflection to make the invocation services feel a bit like
+remote procedure calls. All invocation traffic is managed by the
+invocation manager, part of which resides on the client and part on the
+server.
+
+There are three classes involved when fully using the services. They are
+the service class, the provider class and the receiver class.
+
+** Service class
+The service class provides the client-side API to the request/response
+component. For example:
+
+public class ChatService
+{
+    public void requestTell (String username, String message, 
+                             Object rsptarget);
+}
+
+The tell() implementation would wrap the arguments up and pass them off to
+the invocation manager for delivery to the server. If provided, the
+response target object will receive a callback when the response comes in
+from the server. The callback will come in the form of a call to a
+reflected method on that object. The exact name of the method depends on
+the implementation of the provider class which runs on the server.
+
+** Provider class
+The provider class implements the server-end of the service and is
+registered with the invocation manager on the server to handle a
+particular class of invocations. Continuing with our example:
+
+public class ChatProvider
+{
+    public void handleTellRequest (int invid, String username, String message);
+}
+
+The handleTellRequest() function will process the request and then
+generate a response which is passed on to the invocation manager for
+delivery to the client. The response will be named and the name of the
+response will dictate the method that is invoked on the response target
+object. The arguments that go along with the name must correspond to the
+signature of that method. For example:
+
+    invmgr.respond(invid, "TellFailed", new Object[] { "m.no_such_user" });
+
+will result in:
+
+    public void handleTellFailed (String reason);
+
+being called on the response target object. Because the response target
+method is looked up only by name, all responses using the same name must
+use the argument signature and the response target object may only have
+one method with that particular name and its signature must match exactly
+the signature dictated by the arguments.
+
+** Receiver class
+For asynchronous messages from the server to the client, there exists the
+receiver class. The receiver is registered with the client invocation
+manager to handle messages of a particular type (much like the provider
+class is registered on the server) which is identified by a string name.
+
+The receiver class provides methods named like so:
+
+public class ChatReceiver
+{
+    public void handleTellNotification (String from, String msg);
+}
+
+where the arguments to the method again correlate with the arguments in
+the invocation message.
+
+The server wrapper that generates the corresponding invocation message for
+delivery to the client will likely also reside in the ChatProvider class
+already described. For example:
+
+public class ChatProvider
+{
+    public void sendTell (BodyObject to, String from, String msg);
+}
+
+This function will simply wrap up the arguments and pass them to the
+invocation manager for delivery to the appropriate client.
+
+* A note on thread-safety
 Distributed objects are designed only to be accessed from one thread. On
 the server, there is a distributed object dispatch thread on which 95% of
 all activity takes place anyway. It would be questionable to require that
@@ -35,7 +129,6 @@ need to fetch values from a distributed object after another thread has
 already started, you'll just have to rethink your approach.
 
 * Client components
-
 ** DObjectManager
 Manages object proxies; converts value change requests into events,
 forwards them via the iomgr; dispatches events on incoming queue; reaps
@@ -66,7 +159,6 @@ connection + authentication (logon) and disconnection (logoff); provides
 access to omgr and client dobj
 
 * Server components
-
 ** Connection Manager
 Listens on accepting socket; creates and manages connection objects;
 informs connection observer of state changes; handles all network traffic
