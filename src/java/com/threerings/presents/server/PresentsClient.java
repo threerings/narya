@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.31 2002/05/28 21:56:38 mdb Exp $
+// $Id: PresentsClient.java,v 1.32 2002/05/31 07:33:33 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -557,7 +557,6 @@ public class PresentsClient
     {
         public void dispatch (PresentsClient client, UpstreamMessage msg)
         {
-            Log.info("Received client ping [client=" + client + "].");
             // send a pong response
             Connection conn = client.getConnection();
             if (conn != null) {
