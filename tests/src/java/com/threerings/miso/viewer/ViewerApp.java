@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.31 2002/04/27 02:34:28 mdb Exp $
+// $Id: ViewerApp.java,v 1.32 2002/04/27 05:15:17 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -118,7 +118,8 @@ public class ViewerApp
 
         } else {
             Log.warning("Full-screen exclusive mode not available.");
-            _frame.pack();
+            // _frame.pack();
+            _frame.setSize(600, 400);
             SwingUtil.centerWindow(_frame);
         }
     }
