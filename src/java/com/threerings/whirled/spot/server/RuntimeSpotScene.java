@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeSpotScene.java,v 1.4 2002/04/17 00:20:56 mdb Exp $
+// $Id: RuntimeSpotScene.java,v 1.5 2003/02/04 03:12:07 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -61,6 +61,15 @@ public interface RuntimeSpotScene extends RuntimeScene
      * is not a portal.
      */
     public int getTargetLocationId (int locationId);
+
+    /**
+     * Adds a portal to this runtime scene, immediately making the
+     * requisite modifications to the underlying scene model.
+     *
+     * @return the location id assigned to the newly created portal.
+     */
+    public int addPortal (int locX, int locY, int orient,
+                          int targetSceneId, int targetLocId);
 
     /**
      * Returns a reference to the underlying model.

@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeSpotSceneImpl.java,v 1.5 2002/12/11 23:06:24 shaper Exp $
+// $Id: RuntimeSpotSceneImpl.java,v 1.6 2003/02/04 03:12:07 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -89,6 +89,43 @@ public class RuntimeSpotSceneImpl extends RuntimeSceneImpl
     {
         int pidx = getPortalIndex(locationId);
         return (pidx == -1) ? -1 : _model.targetLocIds[pidx];
+    }
+
+    // make or may not make it into the public interface
+    public int addLocation (int locX, int locY, int orient, int cluster)
+    {
+        // compute the highest location id already used in the scene and
+        // add one to it for our new location id
+        int nlocid = Math.max(
+            IntListUtil.getMaxValue(_model.locationIds), 0) + 1;
+
+        // expand the necessary arrays
+        _model.locationIds = IntListUtil.append(_model.locationIds, nlocid);
+        _model.locationX = IntListUtil.append(_model.locationX, locX);
+        _model.locationY = IntListUtil.append(_model.locationY, locY);
+        _model.locationOrients =
+            IntListUtil.append(_model.locationOrients, orient);
+        _model.locationClusters =
+            IntListUtil.append(_model.locationOrients, cluster);
+
+        return nlocid;
+    }
+
+    // documentation inherited from interface
+    public int addPortal (int locX, int locY, int orient,
+                          int targetSceneId, int targetLocId)
+    {
+        // add the location information for this portal
+        int nlocid = addLocation(locX, locY, orient, 0);
+
+        // expand the necessary portal arrays
+        _model.neighborIds =
+            IntListUtil.append(_model.neighborIds, targetSceneId);
+        _model.portalIds = IntListUtil.append(_model.portalIds, nlocid);
+        _model.targetLocIds =
+            IntListUtil.append(_model.targetLocIds, targetLocId);
+
+        return nlocid;
     }
 
     // documentation inherited from interface
