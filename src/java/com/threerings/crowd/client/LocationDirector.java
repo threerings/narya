@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.13 2001/10/18 01:40:04 mdb Exp $
+// $Id: LocationDirector.java,v 1.14 2001/10/24 03:10:30 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -90,6 +90,24 @@ public class LocationDirector
 
         // issue a moveTo request
         LocationService.moveTo(_ctx.getClient(), placeId, this);
+    }
+
+    /**
+     * Requests to move to the room that we last occupied, if such a room
+     * exists.
+     *
+     * @return true if we had a previous room and we requested to move to
+     * it, false if we had no previous room.
+     */
+    public boolean moveBack ()
+    {
+        if (_previousPlaceId == -1) {
+            return false;
+
+        } else {
+            moveTo(_previousPlaceId);
+            return true;
+        }
     }
 
     /**
