@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.31 2003/01/15 02:36:59 mdb Exp $
+// $Id: CharacterManager.java,v 1.32 2003/01/17 02:28:32 mdb Exp $
 
 package com.threerings.cast;
 
@@ -45,8 +45,12 @@ public class CharacterManager
 
         // create our in-memory action cache
         int acsize = _cacheSize.getValue();
-        Log.debug("Creating action cache [size=" + acsize + "].");
-        _frames = new LRUHashMap(acsize);
+        Log.debug("Creating action cache [size=" + acsize + "k].");
+        _frames = new LRUHashMap(acsize*1024, new LRUHashMap.ItemSizer() {
+            public int computeSize (Object value) {
+                return (int)((ActionFrames)value).getEstimatedMemoryUsage();
+            }
+        });
         _frames.setTracking(true); // TODO
     }
 
@@ -281,7 +285,7 @@ public class CharacterManager
      * framework. */
     protected static RuntimeAdjust.IntAdjust _cacheSize =
         new RuntimeAdjust.IntAdjust(
-            "Size (in actions) of the character manager LRU action " +
-            "cache [requires reboot]", "narya.cast.action_cache_size",
-            CastPrefs.config, 30);
+            "Size (in kb of memory used) of the character manager LRU " +
+            "action cache [requires restart]", "narya.cast.action_cache_size",
+            CastPrefs.config, 2*1024);
 }

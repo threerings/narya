@@ -1,5 +1,5 @@
 //
-// $Id: CompositedActionFrames.java,v 1.13 2003/01/13 23:53:04 mdb Exp $
+// $Id: CompositedActionFrames.java,v 1.14 2003/01/17 02:28:32 mdb Exp $
 
 package com.threerings.cast;
 
@@ -146,8 +146,7 @@ public class CompositedActionFrames
                 if (mirage == null) {
                     continue;
                 }
-                // TODO: do the right thing here
-                size += (mirage.getWidth() * mirage.getHeight() * 4);
+                size += mirage.getEstimatedMemoryUsage();
             }
         }
         return size;
