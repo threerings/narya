@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.33 2002/06/25 17:31:17 mdb Exp $
+// $Id: SpriteManager.java,v 1.34 2002/06/26 02:36:50 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -8,8 +8,9 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -96,6 +97,16 @@ public class SpriteManager
         _sprites.add(sprite);
         // and invalidate the sprite's original position
         sprite.invalidate();
+    }
+
+    /**
+     * Returns a list of all sprites registered with the sprite manager.
+     * The returned list is immutable, sprites should be added or removed
+     * using {@link addSprite} or {@link removeSprite}.
+     */
+    public List getSprites ()
+    {
+        return Collections.unmodifiableList(_sprites);
     }
 
     /**
