@@ -1,7 +1,9 @@
 //
-// $Id: RuntimeSpotSceneImpl.java,v 1.3 2002/04/17 00:16:34 mdb Exp $
+// $Id: RuntimeSpotSceneImpl.java,v 1.4 2002/06/20 22:13:39 mdb Exp $
 
 package com.threerings.whirled.spot.server;
+
+import com.samskivert.util.IntListUtil;
 
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.whirled.server.RuntimeSceneImpl;
@@ -53,13 +55,7 @@ public class RuntimeSpotSceneImpl extends RuntimeSceneImpl
     // documentation inherited
     public int getLocationIndex (int locationId)
     {
-        int lcount = _model.locationIds.length;
-        for (int i = 0; i < lcount; i++) {
-            if (_model.locationIds[i] == locationId) {
-                return i;
-            }
-        }
-        return -1;
+        return IntListUtil.indexOf(_model.locationIds, locationId);
     }
 
     // documentation inherited
