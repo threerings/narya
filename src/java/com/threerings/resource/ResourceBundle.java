@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.14 2003/05/14 20:46:25 mdb Exp $
+// $Id: ResourceBundle.java,v 1.15 2003/05/20 16:29:36 mdb Exp $
 
 package com.threerings.resource;
 
@@ -111,7 +111,7 @@ public class ResourceBundle
 
         // compute the path to our temporary file
         String tpath = StringUtil.md5hex(_source.getPath() + "%" + path);
-        File tfile = new File(_tmpdir, tpath);
+        File tfile = new File(getCacheDir(), tpath);
         if (tfile.exists() && (tfile.lastModified() > _sourceLastMod)) {
 //             System.out.println("Using cached " + _source.getPath() +
 //                                ":" + path);
@@ -208,7 +208,37 @@ public class ResourceBundle
      */
     public static File getCacheDir ()
     {
+        if (_tmpdir == null) {
+            String tmpdir = System.getProperty("java.io.tmpdir");
+            if (tmpdir == null) {
+                Log.info("No system defined temp directory. Faking it.");
+                tmpdir = System.getProperty("user.home");
+            }
+            setCacheDir(new File(tmpdir, ".narcache"));
+        }
         return _tmpdir;
+    }
+
+    /**
+     * Specifies the directory in which our temporary resource files
+     * should be stored.
+     */
+    public static void setCacheDir (File tmpdir)
+    {
+        String rando = Long.toHexString((long)(Math.random() * Long.MAX_VALUE));
+        _tmpdir = new File(tmpdir, rando);
+        if (!_tmpdir.exists()) {
+            Log.info("Creating narya temp cache directory '" + _tmpdir + "'.");
+            _tmpdir.mkdirs();
+        }
+
+        // add a hook to blow away the temp directory when we exit
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run () {
+                Log.info("Clearing narya temp cache '" + _tmpdir + "'.");
+                FileUtil.recursiveDelete(_tmpdir);
+            }
+        });
     }
 
     /** The file from which we construct our jar file. */
@@ -226,26 +256,4 @@ public class ResourceBundle
 
     /** A directory in which we temporarily unpack our resource files. */
     protected static File _tmpdir;
-
-    static {
-        String tmpdir = System.getProperty("java.io.tmpdir");
-        if (tmpdir == null) {
-            Log.info("No system defined temp directory. Faking it.");
-            tmpdir = System.getProperty("user.home");
-        }
-        long rando = (long)(Math.random() * Long.MAX_VALUE);
-        _tmpdir = new File(tmpdir, ".narcache" + File.separator + rando);
-        if (!_tmpdir.exists()) {
-            Log.info("Creating narya temp cache directory '" + _tmpdir + "'.");
-            _tmpdir.mkdirs();
-        }
-
-        // add a hook to blow away the temp directory when we exit
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run () {
-                Log.info("Clearing narya temp cache '" + _tmpdir + "'.");
-                FileUtil.recursiveDelete(_tmpdir);
-            }
-        });
-    }
 }
