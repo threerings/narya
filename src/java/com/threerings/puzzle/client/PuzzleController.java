@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.2 2003/12/05 02:00:48 mdb Exp $
+// $Id: PuzzleController.java,v 1.3 2003/12/05 02:39:12 mdb Exp $
 
 package com.threerings.puzzle.client;
 
@@ -31,6 +31,7 @@ import com.threerings.media.FrameParticipant;
 import com.threerings.media.sound.SoundCodes;
 
 import com.threerings.presents.client.InvocationReceiver;
+import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.ElementUpdateListener;
 import com.threerings.presents.dobj.ElementUpdatedEvent;
@@ -858,20 +859,6 @@ public abstract class PuzzleController extends GameController
             // send the update progress request
             _puzobj.puzzleGameService.updateProgress(
                 _ctx.getClient(), _puzobj.roundId, events);
-        }
-    }
-
-    // documentation inherited
-    public void attributeChanged (AttributeChangedEvent event)
-    {
-        super.attributeChanged(event);
-
-        String name = event.getName();
-        if (name.equals(PuzzleObject.DIFFICULTY)) {
-            difficultyChanged(_puzobj.difficulty);
-
-        } else if (name.equals(PuzzleObject.SEED)) {
-            generateNewBoard();
         }
     }
 
