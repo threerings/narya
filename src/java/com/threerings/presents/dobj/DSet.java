@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.10 2001/10/12 20:11:00 mdb Exp $
+// $Id: DSet.java,v 1.11 2001/10/16 16:43:20 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -103,6 +103,14 @@ public class DSet
                         "[eclass=" + _elementType + "].");
             return null;
         }
+    }
+
+    /**
+     * Returns the number of elements in this set.
+     */
+    public int size ()
+    {
+        return _size;
     }
 
     /**
@@ -219,7 +227,9 @@ public class DSet
         }
 
         // expand the array if necessary
-        expand(index);
+        if (index >= _elements.length) {
+            expand(index);
+        }
 
         // insert the item
         _elements[index] = elem;
@@ -328,7 +338,7 @@ public class DSet
         _size = in.readInt();
 
         // make sure we can fit _size elements
-        expand(_size-1);
+        expand(_size);
 
         for (int i = 0; i < _size; i++) {
             Element elem = newElement();
@@ -372,17 +382,30 @@ public class DSet
 
     protected void expand (int index)
     {
-        int elength = _elements.length;
+        // sanity check
+        if (index < 0) {
+            Log.warning("Requested to expand to accomodate bogus index! " +
+                        "[index=" + index + "].");
+            Thread.dumpStack();
+            index = 0;
+        }
 
         // increase our length in powers of two until we're big enough
-        int tlength = elength*2;
+        int tlength = _elements.length;
         while (index >= tlength) {
             tlength *= 2;
         }
 
+        // further sanity checks
+        if (tlength > 4096) {
+            Log.warning("Requested to expand to questionably large size " +
+                        "[index=" + index + ", tlength=" + tlength + "].");
+            Thread.dumpStack();
+        }
+
         // create a new array and copy our data into it
         Element[] elems = new Element[tlength];
-        System.arraycopy(_elements, 0, elems, 0, elength);
+        System.arraycopy(_elements, 0, elems, 0, _elements.length);
         _elements = elems;
     }
 
