@@ -113,6 +113,18 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
+     * Instructs us to execute the specified runnable when the connection
+     * manager thread exits. <em>Note:</em> this will be executed on the
+     * connection manager thread, so don't do anything dangerous. Only one
+     * action may be specified and it may be cleared by calling this
+     * method with null.
+     */
+    public synchronized void setShutdownAction (Runnable onExit)
+    {
+        _onExit = onExit;
+    }
+
+    /**
      * Returns our current runtime statistics. When the stats are fetched
      * the counters are rolled to the next bucket. 60 buckets are tracked.
      * <em>Note:</em> don't call this method <em>too</em> frequently (more
@@ -534,7 +546,16 @@ public class ConnectionManager extends LoopingThread
     // documentation inherited
     protected void didShutdown ()
     {
-        Log.info("Connection Manager thread exited.");
+        Runnable onExit = null;
+        synchronized (this) {
+            onExit = _onExit;
+        }
+        if (onExit != null) {
+            Log.info("Connection Manager thread exited (running onExit).");
+            onExit.run();
+        } else {
+            Log.info("Connection Manager thread exited.");
+        }
     }
 
     /**
@@ -753,6 +774,9 @@ public class ConnectionManager extends LoopingThread
 
     /** Our current runtime stats. */
     protected ConMgrStats _stats;
+
+    /** A runnable to execute when the connection manager thread exits. */
+    protected Runnable _onExit;
 
     /** Used to create an overflow queue on the first partial write. */
     protected PartialWriteHandler _oflowHandler = new PartialWriteHandler() {
