@@ -1,8 +1,9 @@
 //
-// $Id: TileSet.java,v 1.27 2002/05/06 23:23:27 mdb Exp $
+// $Id: TileSet.java,v 1.28 2002/05/09 18:43:32 mdb Exp $
 
 package com.threerings.media.tile;
 
+import java.awt.Color;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Transparency;
@@ -236,6 +237,13 @@ public abstract class TileSet
         try {
             _tilesetImg = _improv.loadImage(_imagePath);
 
+            // HACKOLA: if we're a vessel tileset, colorize ourselves
+            if (_name != null && (this instanceof ObjectTileSet) &&
+                _name.indexOf("Vessel") != -1) {
+                _tilesetImg = ImageUtil.recolorImage(
+                    (BufferedImage)_tilesetImg, ZATIONS);
+            }
+
         } catch (IOException ioe) {
             Log.warning("Failed to retrieve tileset image " +
                         "[name=" + _name + ", path=" + _imagePath +
@@ -280,4 +288,14 @@ public abstract class TileSet
      * because it should be accessed via {@link #getTilesetImage} even by
      * derived classes. */
     private transient Image _tilesetImg;
+
+    /** Temporary HACKOLA. */
+    protected static Colorization[] ZATIONS = new Colorization[] {
+        new Colorization(-1, new Color(0x8A1A76),
+                         new float[] { .1f, .3f, 0.6f },
+                         new float[] { -.85f, .3f, 0f }),
+        new Colorization(-1, new Color(0x2A864E),
+                         new float[] { .1f, .3f, 0.6f },
+                         new float[] { .71f, 0f, .07f }),
+    };
 }
