@@ -1,9 +1,10 @@
 //
-// $Id: SpotSceneManager.java,v 1.6 2002/04/30 17:27:30 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.7 2002/06/12 07:05:55 ray Exp $
 
 package com.threerings.whirled.spot.server;
 
 import com.samskivert.util.IntIntMap;
+import com.samskivert.util.IntListUtil;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.Subscriber;
@@ -18,6 +19,7 @@ import com.threerings.whirled.server.SceneManager;
 import com.threerings.whirled.spot.Log;
 import com.threerings.whirled.spot.data.SpotCodes;
 import com.threerings.whirled.spot.data.SpotOccupantInfo;
+import com.threerings.whirled.spot.data.SpotSceneModel;
 
 /**
  * Handles the movement of bodies between locations in the scene and
@@ -83,6 +85,13 @@ public class SpotSceneManager extends SceneManager
         // create an array in which to track the occupants of each
         // location
         _locationOccs = new int[_sscene.getLocationCount()];
+
+        _isPortal = new boolean[_sscene.getLocationCount()];
+        SpotSceneModel model = _sscene.getModel();
+        for (int ii=0; ii < model.locationIds.length; ii++) {
+            _isPortal[ii] = IntListUtil.contains(model.portalIds,
+                                                 model.locationIds[ii]);
+        }
     }
 
     /**
@@ -152,8 +161,10 @@ public class SpotSceneManager extends SceneManager
             }
         }
 
-        // stick our new friend into that location
-        _locationOccs[locidx] = bodyOid;
+        // stick our new friend into that location, if it's not a portal
+        if (!_isPortal[locidx]) {
+            _locationOccs[locidx] = bodyOid;
+        }
         // update their occupant info
         soi.locationId = locationId;
         // and broadcast the update to the place
@@ -219,20 +230,6 @@ public class SpotSceneManager extends SceneManager
     }
 
     /**
-     * Returns the location index of the location occupied by the
-     * specified body oid or -1 if they occupy no location.
-     */
-    protected int getLocationIndex (int bodyOid)
-    {
-        for (int i = 0; i < _locationOccs.length; i++) {
-            if (_locationOccs[i] == bodyOid) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /**
      * We need our own extended occupant info to keep track of what
      * location each occupant occupies.
      */
@@ -249,6 +246,9 @@ public class SpotSceneManager extends SceneManager
 
     /** Oids of the bodies that occupy each of our locations. */
     protected int[] _locationOccs;
+
+    /** Tracks if each location is a portal. */
+    protected boolean[] _isPortal;
 
     /** A table of mappings from body oids to entry location ids for
      * bodies that are entering our scene. */
