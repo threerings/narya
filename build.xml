@@ -23,8 +23,16 @@
     <fileset dir="${java.libraries}" includes="**/*.jar"/>
   </path>
 
+  <!-- generates .java files for all .dobj files -->
+  <target name="gendobj">
+    <apply executable="bin/gendobj" failonerror="true">
+      <srcfile/>
+      <fileset dir="src/java" includes="**/*.dobj"/>
+    </apply>
+  </target>
+
   <!-- prepares the application directories -->
-  <target name="prepare">
+  <target name="prepare" depends="gendobj">
     <mkdir dir="${deploy.dir}"/>
     <mkdir dir="${deploy.dir}/classes"/>
     <mkdir dir="${deploy.dir}/classes/rsrc"/>
