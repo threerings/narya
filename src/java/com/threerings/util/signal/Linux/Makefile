@@ -1,5 +1,5 @@
 #
-# $Id$
+# $Id: Makefile 3328 2005-02-03 01:16:12Z mdb $
 
 #
 # Executable definitions
@@ -14,7 +14,7 @@ MKDIR=mkdir
 
 ROOT=../../../../../../..
 LIBRARIES_PATH=
-OSINCDIR!=uname -s | tr 'A-Z' 'a-z'
+OSINCDIR:=$(shell uname -s | tr 'A-Z' 'a-z')
 
 #
 # Parameter and file definitions
