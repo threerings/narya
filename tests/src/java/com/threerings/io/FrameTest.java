@@ -1,37 +1,44 @@
 //
-// $Id: FrameTest.java,v 1.4 2001/11/08 02:07:36 mdb Exp $
+// $Id: FrameTest.java,v 1.5 2001/11/08 02:21:23 mdb Exp $
 
 package com.threerings.presents.io;
 
 import java.io.*;
 
-public class FrameTest
+import junit.framework.Test;
+import junit.framework.TestCase;
+
+import com.samskivert.test.TestUtil;
+
+public class FrameTest extends TestCase
 {
-    public static void writeFrames (OutputStream out)
+    public FrameTest ()
+    {
+        super(FrameTest.class.getName());
+    }
+
+    public void writeFrames (OutputStream out)
         throws IOException
     {
         FramingOutputStream fout = new FramingOutputStream();
         DataOutputStream dout = new DataOutputStream(fout);
 
         // create a few frames and write them to the output stream
-        dout.writeUTF("This is a test.");
-        dout.writeUTF("This is only a test.");
-        dout.writeUTF("If this were not a test, there would be " +
-                      "meaningful data in this frame and someone " +
-                      "would probably be enjoying themselves.");
+        dout.writeUTF(STRING1);
+        dout.writeUTF(STRING2);
+        dout.writeUTF(STRING3);
         fout.writeFrameAndReset(out);
 
-        dout.writeUTF("Now is the time for all good men to come to the " +
-                      "aid of their country.");
-        dout.writeUTF("Every good boy deserves fudge.");
-        dout.writeUTF("The quick brown fox jumped over the lazy cow.");
+        dout.writeUTF(STRING4);
+        dout.writeUTF(STRING5);
+        dout.writeUTF(STRING6);
         fout.writeFrameAndReset(out);
 
-        dout.writeUTF("Third time is the charm.");
+        dout.writeUTF(STRING7);
         fout.writeFrameAndReset(out);
     }
 
-    public static void readFrames (InputStream in)
+    public void readFrames (InputStream in)
         throws IOException
     {
         FramedInputStream fin = new FramedInputStream();
@@ -39,25 +46,25 @@ public class FrameTest
 
         // read the first frame
         fin.readFrame(in);
-        System.out.println(din.readUTF());
-        System.out.println(din.readUTF());
-        System.out.println(din.readUTF());
-        System.out.println("This should be -1: " + fin.read());
+        assert("string1", STRING1.equals(din.readUTF()));
+        assert("string2", STRING2.equals(din.readUTF()));
+        assert("string3", STRING3.equals(din.readUTF()));
+        assert("hit eof", fin.read() == -1);
 
         // read the second frame
         fin.readFrame(in);
-        System.out.println(din.readUTF());
-        System.out.println(din.readUTF());
-        System.out.println(din.readUTF());
-        System.out.println("This should be -1: " + fin.read());
+        assert("string4", STRING4.equals(din.readUTF()));
+        assert("string5", STRING5.equals(din.readUTF()));
+        assert("string6", STRING6.equals(din.readUTF()));
+        assert("hit eof", fin.read() == -1);
 
         // read the third frame
         fin.readFrame(in);
-        System.out.println(din.readUTF());
-        System.out.println("This should be -1: " + fin.read());
+        assert("string7", STRING7.equals(din.readUTF()));
+        assert("hit eof", fin.read() == -1);
     }
 
-    public static void main (String[] args)
+    public void runTest ()
     {
         try {
             ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -71,4 +78,24 @@ public class FrameTest
             ioe.printStackTrace(System.err);
         }
     }
+
+    public static Test suite ()
+    {
+        return new FrameTest();
+    }
+
+    protected static final String STRING1 = "This is a test.";
+    protected static final String STRING2 = "This is only a test.";
+    protected static final String STRING3 =
+        "If this were not a test, there would be meaningful data in " +
+        "this frame and someone would probably be enjoying themselves.";
+
+    protected static final String STRING4 =
+        "Now is the time for all good men to come to the aid of " +
+        "their country.";
+    protected static final String STRING5 = "Every good boy deserves fudge.";
+    protected static final String STRING6 =
+        "The quick brown fox jumped over the lazy dog.";
+
+    protected static final String STRING7 = "Third time is the charm.";
 }
