@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.30 2002/07/27 01:34:47 ray Exp $
+// $Id: ChatDirector.java,v 1.31 2002/07/27 01:58:57 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -68,8 +68,10 @@ public class ChatDirector
      */
     public void setMuteDirector (MuteDirector muter)
     {
-        _muter = muter;
-        addChatValidator(_muter);
+        if (_muter == null) {
+            _muter = muter;
+            _muter.setChatDirector(this);
+        }
     }
 
     /**
@@ -178,6 +180,14 @@ public class ChatDirector
         String bundle, String message, String localtype)
     {
         dispatchMessage(new SystemMessage(xlate(bundle, message), localtype));
+    }
+
+    /**
+     * Display the feedback message, translated with the default bundle.
+     */
+    public void displayFeedbackMessage (String message)
+    {
+        displayFeedbackMessage(_bundle, message);
     }
 
     /**

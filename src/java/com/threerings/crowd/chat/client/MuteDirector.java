@@ -1,5 +1,5 @@
 //
-// $Id: MuteDirector.java,v 1.1 2002/06/28 04:09:39 ray Exp $
+// $Id: MuteDirector.java,v 1.2 2002/07/27 01:58:57 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -21,6 +21,18 @@ public class MuteDirector
     public MuteDirector (CrowdContext ctx)
     {
         // nothing to initialize right now
+    }
+
+    /**
+     * Set the required ChatDirector.
+     */
+    public void setChatDirector (ChatDirector chatdir)
+    {
+        if (_chatdir == null) {
+            _chatdir = chatdir;
+            _chatdir.addChatValidator(this);
+            _chatdir.setMuteDirector(this);
+        }
     }
 
     /**
@@ -53,12 +65,15 @@ public class MuteDirector
     public boolean validateTell (String target, String msg)
     {
         if (isMuted(target)) {
-            // TODO: give user feedback on why the TELL is cancelled
+            _chatdir.displayFeedbackMessage("m.no_tell_mute");
             return false;
         }
 
         return true; // let it go through..
     }
+
+    /** The chat director that we're working hard for. */
+    protected ChatDirector _chatdir;
 
     /** The mutelist. */
     protected HashSet _mutelist = new HashSet();
