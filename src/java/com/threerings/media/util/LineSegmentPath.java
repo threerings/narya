@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.28 2003/02/12 05:27:57 mdb Exp $
+// $Id: LineSegmentPath.java,v 1.29 2003/03/30 02:19:56 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -251,6 +251,11 @@ public class LineSegmentPath
     protected boolean headToNextNode (
         Pathable pable, long startstamp, long now)
     {
+        if (_niter == null) {
+            throw new IllegalStateException(
+                "headToNextNode() called before init()");
+        }
+
         // check to see if we've completed our path
         if (!_niter.hasNext()) {
             // move the pathable to the location of our last destination
