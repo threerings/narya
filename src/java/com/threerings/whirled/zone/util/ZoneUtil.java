@@ -1,5 +1,5 @@
 //
-// $Id: ZoneUtil.java,v 1.2 2002/01/29 02:05:49 mdb Exp $
+// $Id: ZoneUtil.java,v 1.3 2003/01/18 22:45:16 mdb Exp $
 
 package com.threerings.whirled.zone.util;
 
@@ -35,5 +35,14 @@ public class ZoneUtil
     public static int zoneId (int qualifiedZoneId)
     {
         return (0x00FFFFFF & qualifiedZoneId);
+    }
+
+    /**
+     * Returns an easier to read representation of the supplied qualified
+     * zone id: <code>type:id</code>.
+     */
+    public static String toString (int qualifiedZoneId)
+    {
+        return zoneType(qualifiedZoneId) + ":" + zoneId(qualifiedZoneId);
     }
 }
