@@ -1,0 +1,57 @@
+//
+// $Id: decoder.tmpl,v 1.1 2002/08/11 05:53:13 mdb Exp $
+
+package [% package %];
+
+[% FOREACH import = imports -%]
+import [% import %];
+[% END -%]
+
+/**
+ * Dispatches calls to a {@link [% name %]Receiver} instance.
+ */
+public class [% name %]Decoder extends InvocationDecoder
+{
+    /** The id used to identify this notification receiver. */
+    public static final short RECEIVER_ID = [% receiver_id %];
+
+[% FOREACH method = methods -%]
+    /** The method id used to dispatch {@link [% name %]Receiver#[% method.mname %]}
+     * notifications. */
+    public static final int [% method.mcode %] = [% method.mcodeval %];
+
+[% END -%]
+    /**
+     * Creates a decoder that may be registered to dispatch invocation
+     * service notifications to the specified receiver.
+     */
+    public [% name %]Decoder ([% name %]Receiver receiver)
+    {
+        this.receiver = receiver;
+    }
+
+    // documentation inherited
+    public int getReceiverId ()
+    {
+        return RECEIVER_ID;
+    }
+
+    // documentation inherited
+    public void dispatchNotification (int methodId, Object[] args)
+    {
+        switch (methodId) {
+[% FOREACH method = methods -%]
+        case [% method.mcode %]:
+            (([% name %]Receiver)receiver).[% method.mname %](
+                [% method.unwrapped_args %]
+            );
+            return;
+
+[% END -%]
+        default:
+            super.dispatchNotification(methodId, args);
+        }
+    }
+
+    // Generated on [% genstamp %].
+}
