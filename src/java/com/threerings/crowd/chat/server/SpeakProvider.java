@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.9 2003/06/14 00:59:24 mdb Exp $
+// $Id: SpeakProvider.java,v 1.10 2003/06/14 01:18:27 mdb Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -209,10 +209,10 @@ public class SpeakProvider
         // post the message to the relevant object
         speakObj.postMessage(CHAT_NOTIFICATION, new Object[] { msg });
 
-        // determine to whom this message will be delivered and register
-        // the message with all parties
-        if (speakObj instanceof SpeakObject) {
-            _messageMapper.message = msg;
+        // if this is a user message; add it to the heard history of all
+        // users that can "hear" it
+        if (msg instanceof UserMessage && speakObj instanceof SpeakObject) {
+            _messageMapper.message = (UserMessage)msg;
             ((SpeakObject)speakObj).applyToListeners(_messageMapper);
             _messageMapper.message = null;
         } else {
@@ -246,12 +246,23 @@ public class SpeakProvider
      * message. If {@link ChatMessage#timestamp} is not already filled in,
      * it will be.
      */
-    protected static void noteMessage (String username, ChatMessage msg)
+    protected static void noteMessage (String username, UserMessage msg)
     {
+        // fill in the message's time stamp if necessary
         if (msg.timestamp == 0L) {
             msg.timestamp = System.currentTimeMillis();
         }
-        getHistoryList(username).add(msg);
+
+        // add the message to this user's chat history
+        ArrayList history = getHistoryList(username);
+        history.add(msg);
+
+        // if the history is big enough, potentially prune it (we always
+        // prune when asked for the history, so this is just to balance
+        // memory usage with CPU expense)
+        if (history.size() > 15) {
+            pruneHistory(msg.timestamp, history);
+        }
         // Log.info("Noted that " + username + " heard " + msg + ".");
     }
 
@@ -277,6 +288,8 @@ public class SpeakProvider
             if (now - msg.timestamp > HISTORY_EXPIRATION) {
                 Log.info("Expiring from history " + msg + ".");
                 history.remove(ii);
+            } else {
+                break; // stop when we get to the first valid message
             }
         }
     }
@@ -284,7 +297,7 @@ public class SpeakProvider
     /** Used to note the recipients of a chat message. */
     protected static class MessageMapper implements SpeakObject.ListenerOp
     {
-        public ChatMessage message;
+        public UserMessage message;
 
         public void apply (int bodyOid) {
             DObject dobj = CrowdServer.omgr.getObject(bodyOid);
