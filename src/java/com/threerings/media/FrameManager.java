@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.51 2004/08/27 02:12:37 mdb Exp $
+// $Id: FrameManager.java,v 1.52 2004/10/15 22:21:38 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -44,7 +44,7 @@ import javax.swing.RepaintManager;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
-import com.samskivert.util.ObserverList;
+import com.samskivert.util.ListUtil;
 import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
@@ -288,7 +288,13 @@ public abstract class FrameManager
      */
     public void registerFrameParticipant (FrameParticipant participant)
     {
-        _participants.add(participant);
+        Object[] nparts = ListUtil.testAndAdd(_participants, participant);
+        if (nparts == null) {
+            Log.warning("Refusing to add duplicate frame participant! " +
+                        participant);
+        } else {
+            _participants = nparts;
+        }
     }
 
     /**
@@ -296,7 +302,7 @@ public abstract class FrameManager
      */
     public boolean isRegisteredFrameParticipant (FrameParticipant participant)
     {
-        return _participants.contains(participant);
+        return ListUtil.contains(_participants, participant);
     }
 
     /**
@@ -304,7 +310,7 @@ public abstract class FrameManager
      */
     public void removeFrameParticipant (FrameParticipant participant)
     {
-        _participants.remove(participant);
+        ListUtil.clear(_participants, participant);
     }
 
     /**
@@ -394,7 +400,7 @@ public abstract class FrameManager
     {
         long start = 0L, paint = 0L;
         if (MediaPanel._perfDebug.getValue()) {
-            start = paint = System.currentTimeMillis();
+            start = paint = _timer.getElapsedMicros();
         }
         // if our frame is not showing (or is impossibly sized), don't try
         // rendering anything
@@ -402,14 +408,14 @@ public abstract class FrameManager
             _frame.getWidth() > 0 && _frame.getHeight() > 0) {
             // tick our participants
             tickParticipants(tickStamp);
-            paint = System.currentTimeMillis();
+            paint = _timer.getElapsedMicros();
             // repaint our participants and components
             paint(tickStamp);
         }
         if (MediaPanel._perfDebug.getValue()) {
-            long end = System.currentTimeMillis();
-            getPerfMetrics()[1].record((int)(paint-start));
-            getPerfMetrics()[2].record((int)(end-paint));
+            long end = _timer.getElapsedMicros();
+            getPerfMetrics()[1].record((int)(paint-start)/100);
+            getPerfMetrics()[2].record((int)(end-paint)/100);
         }
     }
 
@@ -434,8 +440,34 @@ public abstract class FrameManager
         }
 
         // tick all of our frame participants
-        _participantTickOp.setTickStamp(tickStamp);
-        _participants.apply(_participantTickOp);
+        for (int ii = 0; ii < _participants.length; ii++) {
+            FrameParticipant part = (FrameParticipant)_participants[ii];
+            if (part == null) {
+                continue;
+            }
+
+            try {
+                long start = 0L;
+                if (HANG_DEBUG) {
+                    start = System.currentTimeMillis();
+                }
+
+                part.tick(tickStamp);
+
+                if (HANG_DEBUG) {
+                    long delay = (System.currentTimeMillis() - start);
+                    if (delay > HANG_GAP) {
+                        Log.info("Whoa nelly! Ticker took a long time " +
+                                 "[part=" + part + ", time=" + delay + "ms].");
+                    }
+                }
+
+            } catch (Throwable t) {
+                Log.warning("Frame participant choked during tick " +
+                            "[part=" + StringUtil.safeToString(part) + "].");
+                Log.logStackTrace(t);
+            }
+        }
     }
 
     /**
@@ -455,16 +487,76 @@ public abstract class FrameManager
     {
         // paint our frame participants (which want to be handled
         // specially)
-        _participantPaintOp.init(gfx);
-        _participants.apply(_participantPaintOp);
-        boolean ppart = _participantPaintOp.paintedSomething();
+        int painted = 0;
+        for (int ii = 0; ii < _participants.length; ii++) {
+            FrameParticipant part = (FrameParticipant)_participants[ii];
+            if (part == null) {
+                continue;
+            }
+
+            Component pcomp = part.getComponent();
+            if (pcomp == null || !part.needsPaint()) {
+                continue;
+            }
+
+            long start = 0L;
+            if (HANG_DEBUG) {
+                start = System.currentTimeMillis();
+            }
+
+            // get the bounds of this component
+            pcomp.getBounds(_tbounds);
+
+            // the bounds adjustment we're about to call will add in the
+            // components initial bounds offsets, so we remove them here
+            _tbounds.setLocation(0, 0);
+
+            // convert them into top-level coordinates; also note that if
+            // this component does not have a valid or visible root, we
+            // don't want to paint it either
+            if (getRoot(pcomp, _tbounds) == null) {
+                continue;
+            }
+
+            try {
+                // render this participant; we don't set the clip because
+                // frame participants are expected to handle clipping
+                // themselves; otherwise we might pointlessly set the clip
+                // here, creating a few Rectangle objects in the process,
+                // only to have the frame participant immediately set the
+                // clip to something more sensible
+                gfx.translate(_tbounds.x, _tbounds.y);
+                pcomp.paint(gfx);
+                gfx.translate(-_tbounds.x, -_tbounds.y);
+                painted++;
+
+            } catch (Throwable t) {
+                String ptos = StringUtil.safeToString(part);
+                Log.warning("Frame participant choked during paint " +
+                            "[part=" + ptos + "].");
+                Log.logStackTrace(t);
+            }
+
+            // render any components in our layered pane that are not in
+            // the default layer
+            _clipped[0] = false;
+            renderLayers(gfx, pcomp, _tbounds, _clipped);
+
+            if (HANG_DEBUG) {
+                long delay = (System.currentTimeMillis() - start);
+                if (delay > HANG_GAP) {
+                    Log.warning("Whoa nelly! Painter took a long time " +
+                                "[part=" + part + ", time=" + delay + "ms].");
+                }
+            }
+        }
 
         // repaint any widgets that have declared they need to be
         // repainted since the last tick
         boolean pcomp = _remgr.paintComponents(gfx, this);
 
         // let the caller know if anybody painted anything
-        return (ppart || pcomp);
+        return ((painted > 0) || pcomp);
     }
 
     /**
@@ -508,9 +600,9 @@ public abstract class FrameManager
         Component[] comps = pane.getComponentsInLayer(layer.intValue());
         for (int ii = 0; ii < ccount; ii++) {
             Component comp = comps[ii];
-            _lbounds.setBounds(0, 0, comp.getWidth(), comp.getHeight());
-            getRoot(comp, _lbounds);
-            if (!_lbounds.intersects(bounds)) {
+            _tbounds.setBounds(0, 0, comp.getWidth(), comp.getHeight());
+            getRoot(comp, _tbounds);
+            if (!_tbounds.intersects(bounds)) {
                 continue;
             }
 
@@ -522,9 +614,9 @@ public abstract class FrameManager
             }
 
             // translate into the components coordinate system and render
-            g.translate(_lbounds.x, _lbounds.y);
+            g.translate(_tbounds.x, _tbounds.y);
             comp.paint(g);
-            g.translate(-_lbounds.x, -_lbounds.y);
+            g.translate(-_tbounds.x, -_tbounds.y);
         }
     }
 
@@ -556,158 +648,6 @@ public abstract class FrameManager
         return null;
     }
 
-    /**
-     * An observer operation that calls {@link FrameParticipant#tick} with
-     * a specified tick stamp for all {@link FrameParticipant} objects in
-     * the observer list to which this operation is applied.
-     */
-    protected class ParticipantTickOp
-        implements ObserverList.ObserverOp
-    {
-        /**
-         * Sets the tick stamp to be applied to the participants.
-         */
-        public void setTickStamp (long tickStamp)
-        {
-            _tickStamp = tickStamp;
-        }
-
-        // documentation inherited
-        public boolean apply (Object observer)
-        {
-            try {
-                long start = 0L;
-                if (HANG_DEBUG) {
-                    start = System.currentTimeMillis();
-                }
-
-                ((FrameParticipant)observer).tick(_tickStamp);
-
-                if (HANG_DEBUG) {
-                    long delay = (System.currentTimeMillis() - start);
-                    if (delay > HANG_GAP) {
-                        Log.info("Whoa nelly! Ticker took a long time " +
-                                 "[part=" + observer +
-                                 ", time=" + delay + "ms].");
-                    }
-                }
-
-            } catch (Throwable t) {
-                Log.warning("Frame participant choked during tick " +
-                            "[part=" +
-                            StringUtil.safeToString(observer) + "].");
-                Log.logStackTrace(t);
-            }
-            return true;
-        }
-
-        /** The tick stamp to be applied to each frame participant. */
-        protected long _tickStamp;
-    }
-
-    /**
-     * An observer operation that paints the components associated with
-     * all {@link FrameParticipant} objects in the observer list to which
-     * this operation is applied.
-     */
-    protected class ParticipantPaintOp
-        implements ObserverList.ObserverOp
-    {
-        /**
-         * Sets the graphics context to which the frame participants
-         * render themselves.
-         */
-        public void init (Graphics2D g)
-        {
-            _g = g;
-            _painted = 0;
-        }
-
-        /**
-         * Returns true if we painted at least one component in our last
-         * application.
-         */
-        public boolean paintedSomething ()
-        {
-            return (_painted > 0);
-        }
-
-        // documentation inherited
-        public boolean apply (Object observer)
-        {
-            FrameParticipant part = (FrameParticipant)observer;
-            Component pcomp = part.getComponent();
-            if (pcomp == null || !part.needsPaint()) {
-                return true;
-            }
-
-            long start = 0L;
-            if (HANG_DEBUG) {
-                start = System.currentTimeMillis();
-            }
-
-            // get the bounds of this component
-            pcomp.getBounds(_bounds);
-
-            // the bounds adjustment we're about to call will add in the
-            // components initial bounds offsets, so we remove them here
-            _bounds.setLocation(0, 0);
-
-            // convert them into top-level coordinates; also note that if
-            // this component does not have a valid or visible root, we
-            // don't want to paint it either
-            if (getRoot(pcomp, _bounds) == null) {
-                return true;
-            }
-
-            try {
-                // render this participant; we don't set the clip because
-                // frame participants are expected to handle clipping
-                // themselves; otherwise we might pointlessly set the clip
-                // here, creating a few Rectangle objects in the process,
-                // only to have the frame participant immediately set the
-                // clip to something more sensible
-                _g.translate(_bounds.x, _bounds.y);
-                pcomp.paint(_g);
-                _g.translate(-_bounds.x, -_bounds.y);
-                _painted++;
-
-            } catch (Throwable t) {
-                String ptos = StringUtil.safeToString(part);
-                Log.warning("Frame participant choked during paint " +
-                            "[part=" + ptos + "].");
-                Log.logStackTrace(t);
-            }
-
-            // render any components in our layered pane that are not in
-            // the default layer
-            _clipped[0] = false;
-            renderLayers(_g, pcomp, _bounds, _clipped);
-
-            if (HANG_DEBUG) {
-                long delay = (System.currentTimeMillis() - start);
-                if (delay > HANG_GAP) {
-                    Log.warning("Whoa nelly! Painter took a long time " +
-                                "[part=" + observer +
-                                ", time=" + delay + "ms].");
-                }
-            }
-
-            return true;
-        }
-
-        /** The graphics context to which the participants render. */
-        protected Graphics2D _g;
-
-        /** The number of participants that were actually painted. */
-        protected int _painted;
-
-        /** A handy rectangle that we reuse time and again to avoid having
-         * to instantiate a new rectangle in the midst of the core
-         * rendering loop. */
-        protected Rectangle _bounds = new Rectangle();
-    }
-
     /** Used to effect periodic calls to {@link #tick}. */
     protected class Ticker extends Thread
     {
@@ -718,13 +658,17 @@ public abstract class FrameManager
             while (_running) {
                 long start = 0L;
                 if (MediaPanel._perfDebug.getValue()) {
-                    start = _timer.getElapsedMillis();
+                    start = _timer.getElapsedMicros();
                 }
                 Unsafe.sleep(_sleepGranularity.getValue());
 
-                long woke = _timer.getElapsedMillis();
+                long woke = _timer.getElapsedMicros();
                 if (start > 0L) {
-                    getPerfMetrics()[0].record((int)(woke-start));
+                    getPerfMetrics()[0].record((int)(woke-start)/100);
+                    int elapsed = (int)(woke-start);
+                    if (elapsed > _sleepGranularity.getValue()*1500) {
+                        Log.warning("Long tick [elapsed=" + elapsed + "us].");
+                    }
                 }
 
                 // work around sketchy bug on WinXP that causes the clock
@@ -736,7 +680,7 @@ public abstract class FrameManager
                     _lastAttempt = woke;
                 }
 
-                if (woke - _lastAttempt >= _millisPerFrame) {
+                if (woke - _lastAttempt >= _millisPerFrame * 1000) {
                     _lastAttempt = woke;
                     if (testAndSet()) {
                         EventQueue.invokeLater(_awtTicker);
@@ -829,24 +773,15 @@ public abstract class FrameManager
     /** Used to track performance metrics. */
     protected TrailingAverage[] _metrics;
 
-    /** Used to avoid creating rectangles when rendering layered
-     * components. */
-    protected Rectangle _lbounds = new Rectangle();
+    /** A temporary bounds rectangle used to avoid lots of object creation. */
+    protected Rectangle _tbounds = new Rectangle();
 
     /** Used to lazily set the clip when painting popups and other
      * "layered" components. */
     protected boolean[] _clipped = new boolean[1];
 
     /** The entites that are ticked each frame. */
-    protected ObserverList _participants =
-        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
-
-    /** The observer operation applied to all frame participants each tick. */
-    protected ParticipantTickOp _participantTickOp = new ParticipantTickOp();
-
-    /** The observer operation applied to all frame participants each time
-     * the frame is rendered. */
-    protected ParticipantPaintOp _participantPaintOp = new ParticipantPaintOp();
+    protected Object[] _participants = new Object[4];
 
     /** If we don't get ticked for 500ms, that's worth complaining about. */
     protected static final long BIG_GAP = 500L;
