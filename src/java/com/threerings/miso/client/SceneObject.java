@@ -1,5 +1,5 @@
 //
-// $Id: SceneObject.java,v 1.4 2003/04/19 22:40:34 mdb Exp $
+// $Id: SceneObject.java,v 1.5 2003/04/24 21:12:10 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -53,7 +53,7 @@ public class SceneObject
         try {
             tile = (ObjectTile)panel.getTileManager().getTile(
                 tsid, tidx, panel.getColorizer(info));
-            relocateObject(panel.getSceneMetrics(), info.x, info.y);
+            computeInfo(panel.getSceneMetrics());
 
         } catch (NoSuchTileException nste) {
             Log.warning("Scene contains non-existent object tile " +
@@ -71,7 +71,7 @@ public class SceneObject
     {
         this.info = info;
         this.tile = tile;
-        relocateObject(panel.getSceneMetrics(), info.x, info.y);
+        computeInfo(panel.getSceneMetrics());
     }
 
     /**
@@ -184,8 +184,19 @@ public class SceneObject
      */
     public void relocateObject (MisoSceneMetrics metrics, int tx, int ty)
     {
-        info.x = tx; info.y = ty;
+//         Log.info("Relocating object " + this + " to " +
+//                  StringUtil.coordsToString(tx, ty));
+        info.x = tx;
+        info.y = ty;
+        computeInfo(metrics);
+    }
 
+    /**
+     * Computes our screen bounds, tile footprint and other useful cached
+     * metrics.
+     */
+    protected void computeInfo (MisoSceneMetrics metrics)
+    {
         // start with the screen coordinates of our origin tile
         Point tpos = MisoUtil.tileToScreen(
             metrics, info.x, info.y, new Point());
