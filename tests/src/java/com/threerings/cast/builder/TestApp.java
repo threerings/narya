@@ -1,5 +1,5 @@
 //
-// $Id: TestApp.java,v 1.8 2001/11/29 22:01:59 mdb Exp $
+// $Id: TestApp.java,v 1.9 2001/11/30 02:35:37 mdb Exp $
 
 package com.threerings.cast.builder;
 
@@ -10,6 +10,7 @@ import com.samskivert.util.Config;
 import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.resource.ResourceManager;
+import com.threerings.media.ImageManager;
 
 import com.threerings.cast.Log;
 import com.threerings.cast.CharacterManager;
@@ -33,8 +34,10 @@ public class TestApp
         MisoUtil.bindProperties(_config);
 
         ResourceManager rmgr = new ResourceManager(null, "rsrc");
+        ImageManager imgr = new ImageManager(rmgr);
+
         ComponentRepository crepo =
-            new BundledComponentRepository(rmgr, "components");
+            new BundledComponentRepository(rmgr, imgr, "components");
         CharacterManager charmgr = new CharacterManager(crepo);
         charmgr.setCharacterClass(MisoCharacterSprite.class);
 

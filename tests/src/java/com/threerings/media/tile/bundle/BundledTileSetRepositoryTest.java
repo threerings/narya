@@ -1,10 +1,11 @@
 //
-// $Id: BundledTileSetRepositoryTest.java,v 1.2 2001/11/29 21:55:40 mdb Exp $
+// $Id: BundledTileSetRepositoryTest.java,v 1.3 2001/11/30 02:35:37 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
 import java.util.Iterator;
 import com.threerings.resource.ResourceManager;
+import com.threerings.media.ImageManager;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -20,8 +21,9 @@ public class BundledTileSetRepositoryTest extends TestCase
     {
         try {
             ResourceManager rmgr = new ResourceManager(null, "rsrc");
+            ImageManager imgr = new ImageManager(rmgr);
             BundledTileSetRepository repo =
-                new BundledTileSetRepository(rmgr, "tilesets");
+                new BundledTileSetRepository(rmgr, imgr, "tilesets");
             Iterator sets = repo.enumerateTileSets();
             while (sets.hasNext()) {
                 System.out.println(sets.next());

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.18 2001/11/29 20:31:53 mdb Exp $
+// $Id: ViewerApp.java,v 1.19 2001/11/30 02:35:37 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -9,6 +9,7 @@ import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.Config;
 
 import com.threerings.resource.ResourceManager;
+import com.threerings.media.ImageManager;
 
 import com.threerings.media.sprite.SpriteManager;
 import com.threerings.media.tile.TileManager;
@@ -43,10 +44,11 @@ public class ViewerApp
 
         // we don't need to configure anything
         _config = new Config();
-        _rsrcmgr = new ResourceManager(null, "rsrc");
-	_tilemgr = new TileManager(_rsrcmgr);
+        ResourceManager rmgr = new ResourceManager(null, "rsrc");
+        ImageManager imgr = new ImageManager(rmgr);
+	_tilemgr = new TileManager(imgr);
         _tilemgr.setTileSetRepository(
-            new BundledTileSetRepository(_rsrcmgr, "tilesets"));
+            new BundledTileSetRepository(rmgr, imgr, "tilesets"));
 
         // bind our miso properties
         MisoUtil.bindProperties(_config);
@@ -57,7 +59,7 @@ public class ViewerApp
         // create the various managers
         SpriteManager spritemgr = new SpriteManager();
         BundledComponentRepository crepo =
-            new BundledComponentRepository(_rsrcmgr, "components");
+            new BundledComponentRepository(rmgr, imgr, "components");
         CharacterManager charmgr = new CharacterManager(crepo);
 
         // create and size the main application frame
@@ -129,9 +131,6 @@ public class ViewerApp
 
     /** The config object. */
     protected Config _config;
-
-    /** The resource manager. */
-    protected ResourceManager _rsrcmgr;
 
     /** The tile manager object. */
     protected TileManager _tilemgr;
