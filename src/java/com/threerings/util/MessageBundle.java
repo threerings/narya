@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.22 2003/12/11 06:34:43 mdb Exp $
+// $Id: MessageBundle.java,v 1.23 2004/01/25 13:23:09 mdb Exp $
 
 package com.threerings.util;
 
@@ -74,23 +74,26 @@ public class MessageBundle
             if (_bundle != null) {
                 return _bundle.getString(key);
             }
-
         } catch (MissingResourceException mre) {
-            // if we have a parent, try getting the string from them
-            if (_parent != null) {
-                String value = _parent.getResourceString(key, false);
-                if (value != null) {
-                    return value;
-                }
-                // if we didn't find it in our parent, we want to fall
-                // through and report missing appropriately
-            }
-            if (reportMissing) {
-                Log.warning("Missing translation message " +
-                            "[bundle=" + _path + ", key=" + key + "].");
-                Thread.dumpStack();
-            }
+            // fall through and try the parent
         }
+
+        // if we have a parent, try getting the string from them
+        if (_parent != null) {
+            String value = _parent.getResourceString(key, false);
+            if (value != null) {
+                return value;
+            }
+            // if we didn't find it in our parent, we want to fall
+            // through and report missing appropriately
+        }
+
+        if (reportMissing) {
+            Log.warning("Missing translation message " +
+                        "[bundle=" + _path + ", key=" + key + "].");
+            Thread.dumpStack();
+        }
+
         return null;
     }
 
