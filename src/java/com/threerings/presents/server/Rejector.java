@@ -1,5 +1,5 @@
 //
-// $Id: Rejector.java,v 1.1 2004/10/13 01:02:19 mdb Exp $
+// $Id: Rejector.java,v 1.2 2004/10/13 01:09:14 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -54,12 +54,10 @@ public class Rejector extends PresentsServer
      */
     protected class RejectingAuthenticator extends Authenticator
     {
-        /**
-         * Accept all authentication requests.
-         */
+        /** Reject all authentication requests. */
         public void authenticateConnection (AuthingConnection conn)
         {
-            Log.info("Accepting request: " + conn.getAuthRequest());
+            Log.info("Rejecting request: " + conn.getAuthRequest());
             AuthResponseData rdata = new AuthResponseData();
             rdata.code = _errmsg;
             connectionWasAuthenticated(conn, new AuthResponse(rdata));
