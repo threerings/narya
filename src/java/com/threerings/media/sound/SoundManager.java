@@ -260,7 +260,8 @@ public class SoundManager
         boolean queued = enqueue(skey, true);
         if (queued) {
             if (_verbose.getValue()) {
-                Log.info("Sound request [key=" + skey.key + "].");
+                Log.info("Sound request [key=" + skey.key +
+                    ", age=" + skey.getAge() + "].");
             }
 
         } else /* if (_verbose.getValue()) */ {
@@ -499,7 +500,7 @@ public class SoundManager
 
             data = (byte[][]) _clipCache.get(key);
             if (verbose && data != null) {
-                Log.info("clip loaded from cache [" + key + "].");
+                Log.info("Clip loaded from cache [key=" + key.key + "].");
             }
 
             // see if it's in the locked cache (we first look in the regular
@@ -508,7 +509,7 @@ public class SoundManager
             if (data == null) {
                 data = (byte[][]) _lockedClips.get(key);
                 if (verbose && data != null) {
-                    Log.info("clip loaded from lock [" + key + "].");
+                    Log.info("Clip loaded from lock [key=" + key.key + "].");
                 }
             }
 
@@ -534,7 +535,8 @@ public class SoundManager
                         data[ii] = loadClipData(bundle, names[ii]);
                     }
                     if (verbose) {
-                        Log.info("clip loaded from rscmgr [" + key + "].");
+                        Log.info("Clip loaded from rsrcmgr [key=" + key.key +
+                            "].");
                     }
                 }
 
@@ -752,6 +754,12 @@ public class SoundManager
         public boolean isExpired ()
         {
             return (stamp + MAX_SOUND_DELAY < System.currentTimeMillis());
+        }
+
+        // for debugging
+        public long getAge ()
+        {
+            return System.currentTimeMillis() - stamp;
         }
 
         // documentation inherited
