@@ -1,11 +1,12 @@
 //
-// $Id: ZoneSummary.java,v 1.4 2002/07/23 05:54:53 mdb Exp $
+// $Id: ZoneSummary.java,v 1.5 2004/05/18 11:04:08 mdb Exp $
 
 package com.threerings.whirled.zone.data;
 
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.SimpleStreamableObject;
+import com.threerings.util.Name;
 
 /**
  * The zone summary contains information on a zone, including its name and
@@ -18,7 +19,7 @@ public class ZoneSummary extends SimpleStreamableObject
     public int zoneId;
 
     /** The name of the zone. */
-    public String name;
+    public Name name;
 
     /** The summary information for all of the scenes in the zone. */
     public SceneSummary[] scenes;
