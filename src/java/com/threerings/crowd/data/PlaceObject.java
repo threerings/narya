@@ -1,5 +1,5 @@
 //
-// $Id: PlaceObject.java,v 1.1 2002/02/08 23:10:36 mdb Exp $
+// $Id: PlaceObject.java,v 1.2 2002/02/08 23:54:25 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -69,5 +69,16 @@ public class PlaceObject extends DObject
     public void updateOccupantInfo (DSet.Element elem)
     {
         requestElementUpdate(OCCUPANT_INFO, elem);
+    }
+
+    /**
+     * Requests that the <code>occupantInfo</code> field be set to the
+     * specified value. Generally one only adds, updates and removes
+     * elements of a distributed set, but certain situations call for a
+     * complete replacement of the set value.
+     */
+    public void setOccupantInfo (DSet value)
+    {
+        requestAttributeChange(OCCUPANT_INFO, value);
     }
 }
