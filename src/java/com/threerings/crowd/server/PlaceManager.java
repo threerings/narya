@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.35 2002/09/13 05:11:59 mdb Exp $
+// $Id: PlaceManager.java,v 1.36 2002/09/20 04:53:14 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -218,6 +218,9 @@ public class PlaceManager
     {
         // destroy the object and everything will follow from that
         CrowdServer.omgr.destroyObject(_plobj.getOid());
+
+        // clear out our services
+        _invmgr.clearDispatcher(_plobj.speakService);
     }
 
     /**
