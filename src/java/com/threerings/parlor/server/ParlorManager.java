@@ -1,5 +1,5 @@
 //
-// $Id: ParlorManager.java,v 1.4 2001/10/02 21:52:33 mdb Exp $
+// $Id: ParlorManager.java,v 1.5 2001/10/03 03:45:16 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -66,6 +66,9 @@ public class ParlorManager
                        GameConfig config)
         throws ServiceFailedException
     {
+//          Log.info("Received invitation request [inviter=" + inviter +
+//                   ", invitee=" + invitee + ", config=" + config + "].");
+
         // here we should check to make sure the invitee hasn't muted the
         // inviter, and that the inviter isn't shunned and all that other
         // access control type stuff
@@ -165,12 +168,24 @@ public class ParlorManager
     protected void processAcceptedInvitation (Invitation invite)
     {
         try {
-            // create the game manager and begin it's initialization
-            // process. the game manager will take care of notifying the
-            // players that the game has been created
             Class gmclass =
                 Class.forName(invite.config.getManagerClassName());
-            PartyServer.plreg.createPlace(gmclass);
+
+//              Log.info("Creating game manager [invite=" + invite +
+//                       ", class=" + gmclass.getName() + "].");
+
+            // create the game manager and begin it's initialization
+            // process. the game manager will take care of notifying the
+            // players that the game has been created once it has been
+            // started up (which is done by the place registry once the
+            // game object creation has completed)
+            GameManager gmgr = (GameManager)
+                PartyServer.plreg.createPlace(gmclass);
+
+            // provide the game manager with some initialization info
+            String[] players = new String[] {
+                invite.invitee.username, invite.inviter.username };
+            gmgr.init(invite.config, players);
 
         } catch (Exception e) {
             Log.warning("Unable to create game manager [invite=" + invite +
