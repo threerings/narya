@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.19 2002/10/09 06:33:00 mdb Exp $
+// $Id: MediaPanel.java,v 1.20 2002/10/25 21:15:27 mdb Exp $
 
 package com.threerings.media;
 
@@ -238,7 +238,6 @@ public class MediaPanel extends JComponent
             // Swing may have repainted our parent over us and expect that
             // we're going to paint ourselves on top of whatever it just
             // painted, so we go ahead and paint now to avoid flashing
-            // return;
 
         } else {
             _tickPaintPending = false;
