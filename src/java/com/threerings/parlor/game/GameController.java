@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.10 2002/04/14 00:26:05 mdb Exp $
+// $Id: GameController.java,v 1.11 2002/04/14 02:33:16 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -164,6 +164,9 @@ public abstract class GameController extends PlaceController
      */
     protected void gameDidStart ()
     {
+        // clear out our game over flag
+        setGameOver(false);
+
         // let our delegates do their business
         applyToDelegates(new DelegateOp() {
             public void apply (PlaceControllerDelegate delegate) {
