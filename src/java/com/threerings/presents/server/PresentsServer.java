@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.33 2003/03/31 02:10:37 mdb Exp $
+// $Id: PresentsServer.java,v 1.34 2003/03/31 04:11:01 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -231,7 +231,12 @@ public class PresentsServer
     {
         // shut down the connection manager (this will cease all network
         // activity but not actually close the connections)
-        conmgr.shutdown();
+        if (conmgr.isRunning()) {
+            conmgr.shutdown();
+        } else {
+            Log.warning("Refusing repeat shutdown request.");
+            return;
+        }
 
         // shut down all shutdown participants
         _downers.apply(new ObserverList.ObserverOp() {
