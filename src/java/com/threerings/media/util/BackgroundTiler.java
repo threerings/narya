@@ -1,5 +1,5 @@
 //
-// $Id: BackgroundTiler.java,v 1.5 2002/10/22 02:05:42 shaper Exp $
+// $Id: BackgroundTiler.java,v 1.6 2003/11/14 19:39:52 ray Exp $
 
 package com.threerings.media.util;
 
@@ -29,18 +29,19 @@ public class BackgroundTiler
         }
 
         // compute some values
-        _width = src.getWidth(null);
-        _w3 = _width/3;
-        _cw3 = _width-2*_w3;
-        _height = src.getHeight(null);
-        _h3 = _height/3;
-        _ch3 = _height-2*_h3;
+        int width = src.getWidth(null);
+        int height = src.getHeight(null);
+
+        _w3 = width/3;
+        _cw3 = width-2*_w3;
+        _h3 = height/3;
+        _ch3 = height-2*_h3;
 
         // make sure the image suits our minimum useful dimensions
         if (_w3 <= 0 || _cw3 <= 0 || _h3 <= 0 || _ch3 <= 0) {
             Log.warning("Backgrounder given source image of insufficient " +
                         "size for tiling " +
-                        "[width=" + _width + ", height=" + _height + "].");
+                        "[width=" + width + ", height=" + height + "].");
             return;
         }
 
@@ -52,7 +53,7 @@ public class BackgroundTiler
             _tiles[3*i] = src.getSubimage(0, sy[i], _w3, thei[i]);
             _tiles[3*i+1] = src.getSubimage(_w3, sy[i], _cw3, thei[i]);
             _tiles[3*i+2] =
-                src.getSubimage(_width-_w3, sy[i], _w3, thei[i]);
+                src.getSubimage(width-_w3, sy[i], _w3, thei[i]);
         }
     }
 
@@ -68,99 +69,25 @@ public class BackgroundTiler
             return;
         }
 
-        int rwid = width-2*_w3, rhei = height-2*_h3, cy = y;
-        Shape oclip = g.getClip();
+        int rwid = width-2*_w3, rhei = height-2*_h3;
 
-        // tile the top row
-        paintRow(0, g, x, cy, width);
-        cy += _h3;
+        g.drawImage(_tiles[0], x, y, _w3, _h3, null);
+        g.drawImage(_tiles[1], x + _w3, y, rwid, _h3, null);
+        g.drawImage(_tiles[2], x + _w3 + rwid, y, _w3, _h3, null);
 
-        // tile the (complete) intermediate rows
-        int ycount = rhei/_ch3;
-        for (int row = 0; row < ycount; row++) {
-            paintRow(1, g, x, cy, width);
-            cy += _ch3;
-        }
+        y += _h3;
+        g.drawImage(_tiles[3], x, y, _w3, rhei, null);
+        g.drawImage(_tiles[4], x + _w3, y, rwid, rhei, null);
+        g.drawImage(_tiles[5], x + _w3 + rwid, y, _w3, rhei, null);
 
-        // set the clip and paint the clipped intermediate row (if we
-        // didn't tile evenly in the vertical direction)
-        int yextra = (rhei - ycount * _ch3);
-        if (yextra > 0) {
-            g.clipRect(x, cy, width, yextra);
-            paintRow(1, g, x, cy, width);
-            g.setClip(oclip);
-        }
-
-        // tile the last row
-        int lasty = y + height - _h3;
-        paintRow(2, g, x, lasty, width);
-
-        // now, set the clipping rectangle and render the horizontal tiles
-        // that we missed the first time around because we want to clip
-        // only once instead of once per row
-        int xcount = rwid/_cw3;
-        int xextra = (rwid - xcount * _cw3);
-        int xoff = x + width - _w3 - xextra;
-        if (xextra < width) {
-            cy = y; // start back at the top
-            g.clipRect(xoff, y, xextra, height);
-            g.drawImage(_tiles[1], xoff, cy, null);
-            cy += _h3;
-            for (int row = 0; row < ycount; row++) {
-                g.drawImage(_tiles[4], xoff, cy, null);
-                cy += _ch3;
-            }
-            g.drawImage(_tiles[7], xoff, lasty, null);
-        }
-
-        // finally, clip the tiny region where the xextra and yextra rects
-        // intersect and paint that last niggling bit (we value
-        // correctness, so we're doing things properly)
-        if (xextra > 0 && yextra > 0) {
-            // we know the clip is still set from the xextra render, so we
-            // just restrict it once again to the yextra region and the
-            // intersection will happen automatically
-            g.clipRect(x, cy, width, yextra);
-            g.drawImage(_tiles[4], xoff, lasty - yextra, null);
-        }
-
-        // phew, we're done
-        g.setClip(oclip);
-    }
-
-    /**
-     * Used by {@link #paint} to render rows.
-     */
-    protected void paintRow (int srow, Graphics g, int x, int y, int width)
-    {
-        int xcount = (width-2*_w3)/_cw3;
-        int tidx = 3*srow;
-
-        // draw the first image in the row
-        int cx = x;
-        g.drawImage(_tiles[tidx++], cx, y, null);
-        cx += _w3;
-
-        // draw the (complete) tiled middle images
-        for (int ii = 0; ii < xcount; ii++) {
-            g.drawImage(_tiles[tidx], cx, y, null);
-            cx += _cw3;
-        }
-
-        // we'll render the last (incomplete) tiled image in a final
-        // cleanup render so that we only have to set the clipping region
-        // once
-
-        // draw the end image
-        cx = x+width-_w3;
-        g.drawImage(_tiles[++tidx], cx, y, null);
+        y += rhei;
+        g.drawImage(_tiles[6], x, y, _w3, _h3, null);
+        g.drawImage(_tiles[7], x + _w3, y, rwid, _h3, null);
+        g.drawImage(_tiles[8], x + _w3 + rwid, y, _w3, _h3, null);
     }
 
     /** Our nine sub-divided images. */
     protected BufferedImage[] _tiles;
-
-    /** The width/height of our source image. */
-    protected int _width, _height;
 
     /** One third of width/height of our source image. */
     protected int _w3, _h3;
@@ -168,3 +95,79 @@ public class BackgroundTiler
     /** The size of the center chunk of our subdivided images. */
     protected int _cw3, _ch3;
 }
+
+
+// Below is an alternate implementation that uses only the source image
+// without chopping it up. It ends up running very slightly slower, that
+// may be because the documentation for the version of drawImage used below
+// states that scaled instances will not be cached, that the scaling will
+// happen each time on the fly. On the other hand, maybe that's a good thing.
+// I like it better because it doesn't have to have 9 separate images and
+// because it does the render in a loop, which is good fun.
+
+//public class BackgroundTiler
+//{
+//    /**
+//     * Creates a background tiler with the specified source image.
+//     */
+//    public BackgroundTiler (BufferedImage src)
+//    {
+//        // make sure we were given the goods
+//        if (src == null) {
+//            Log.info("Backgrounder given null source image. Coping.");
+//            return;
+//        }
+//
+//        _src = src;
+//
+//        // compute some values
+//        int width = src.getWidth(null);
+//        int height = src.getHeight(null);
+//
+//        _w3 = width/3;
+//        _cw3 = width-2*_w3;
+//        _h3 = height/3;
+//        _ch3 = height-2*_h3;
+//
+//        _sx = new int[] { 0, _w3, width - _w3, width };
+//        _sy = new int[] { 0, _h3, height - _h3, height };
+//        _dx = new int[4];
+//        _dy = new int[4];
+//    }
+//
+//    /**
+//     * Fills the requested region with the background defined by our
+//     * source image.
+//     */
+//    public void paint (Graphics g, int x, int y, int width, int height)
+//    {
+//        _dx[0] = x;
+//        _dx[1] = x + _w3;
+//        _dx[2] = x + width - _w3;
+//        _dx[3] = x + width;
+//
+//        _dy[0] = y;
+//        _dy[1] = y + _h3;
+//        _dy[2] = y + height - _h3;
+//        _dy[3] = y + height;
+//
+//        for (int jj=0; jj < 3; jj++) {
+//            for (int ii=0; ii < 3; ii++) {
+//                g.drawImage(_src, _dx[ii], _dy[jj], _dx[ii + 1], _dy[jj + 1],
+//                    _sx[ii], _sy[jj], _sx[ii + 1], _sy[jj + 1], null);
+//            }
+//        }
+//    }
+//
+//    /** Our source image. */
+//    protected BufferedImage _src;
+//
+//    /** Coordinates. */
+//    protected int[] _sx, _sy, _dx, _dy;
+//
+//    /** One third of width/height of our source image. */
+//    protected int _w3, _h3;
+//
+//    /** The size of the center chunk of our subdivided images. */
+//    protected int _cw3, _ch3;
+//}
