@@ -1,11 +1,13 @@
 //
-// $Id: FieldEditor.java,v 1.2 2002/06/07 17:34:37 mdb Exp $
+// $Id: FieldEditor.java,v 1.3 2002/06/07 18:48:41 mdb Exp $
 
 package com.threerings.admin.client;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.lang.reflect.Field;
 
 import javax.swing.BorderFactory;
@@ -28,7 +30,7 @@ import com.threerings.admin.Log;
  * Used to display and edit a particular distributed object field.
  */
 public class FieldEditor extends JPanel
-    implements AttributeChangeListener, ActionListener
+    implements AttributeChangeListener, ActionListener, FocusListener
 {
     public FieldEditor (PresentsContext ctx, Field field, DObject object)
     {
@@ -39,49 +41,50 @@ public class FieldEditor extends JPanel
         // create our interface elements
         setLayout(new HGroupLayout(HGroupLayout.STRETCH));
 
-        // set up our default border
-        updateBorder(false);
-
         // a label to display the field name
-        add(_label = new JLabel(_field.getName()), HGroupLayout.FIXED);
+        add(_label = new JLabel(_field.getName()));
 
         // and a text entry field to display the field value
         add(_value = new JTextField());
         _value.addActionListener(this);
 
+        // set up our default border
+        updateBorder(false);
+
         // listen while we're shown and not when we're not
         addAncestorListener(new AncestorAdapter () {
             public void ancestorAdded (AncestorEvent event) {
                 _object.addListener(FieldEditor.this);
-                readValue();
+                _value.setText(readValue());
             }
             public void ancestorRemoved (AncestorEvent event) {
                 _object.removeListener(FieldEditor.this);
             }
         });
+
+        // we want to let the user know if they remove focus from a text
+        // box without changing a field that it's not saved
+        _value.addFocusListener(this);
     }
 
     // documentation inherited from interface
     public void attributeChanged (AttributeChangedEvent event)
     {
-        readValue();
+        _value.setText(readValue());
+        updateBorder(false);
     }
 
     /**
-     * Reads the value from the distributed object field and updates the
-     * editor field appropriately.
+     * Reads the value from the distributed object field and returns it.
      */
-    protected void readValue ()
+    protected String readValue ()
     {
-        String value = "";
         try {
-            value = String.valueOf(_field.get(_object));
-            updateBorder(false);
+            return String.valueOf(_field.get(_object));
         } catch (IllegalAccessException iae) {
-            value = "<error>";
             updateBorder(true);
+            return "<error>";
         }
-        _value.setText(String.valueOf(value));
     }
 
     // documentation inherited from interface
@@ -110,6 +113,21 @@ public class FieldEditor extends JPanel
         }
     }
 
+    // documentation inherited from interface
+    public void focusGained (FocusEvent event)
+    {
+        // nothing doing
+    }
+
+    // documentation inherited from interface
+    public void focusLost (FocusEvent event)
+    {
+        // make sure the value is not changed, if it is, set a modified
+        // border
+        String value = readValue();
+        updateBorder(!value.equals(_value.getText()));
+    }
+
     /**
      * Sets the appropriate border on this field editor based on whether
      * or not the field is modified.
@@ -117,9 +135,10 @@ public class FieldEditor extends JPanel
     protected void updateBorder (boolean modified)
     {
         if (modified) {
-            setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, Color.red));
+            _value.setBorder(BorderFactory.createMatteBorder(
+                                 2, 2, 2, 2, Color.red));
         } else {
-            setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+            _value.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         }
     }
 
