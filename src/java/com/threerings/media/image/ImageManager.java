@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.19 2002/09/23 23:30:23 mdb Exp $
+// $Id: ImageManager.java,v 1.20 2002/09/25 07:15:16 mdb Exp $
 
 package com.threerings.media;
 
@@ -69,7 +69,13 @@ public class ImageManager
 
 	// Log.info("Loading image into cache [path=" + path + "].");
         img = createImage(_rmgr.getResource(path));
-        _imgs.put(path, img);
+        if (img != null) {
+            _imgs.put(path, img);
+        } else {
+            Log.warning("Unable to load image [path=" + path + "].");
+            // fake it so that we don't crap out
+            img = ImageUtil.createImage(1, 1);
+        }
         return img;
     }
 
@@ -127,6 +133,11 @@ public class ImageManager
      */
     public Image createImage (Image src)
     {
+        // not to freak out if we get this far and have no image
+        if (src == null) {
+            return null;
+        }
+
         int swidth = src.getWidth(null);
         int sheight = src.getHeight(null);
         BufferedImage dest = null;
