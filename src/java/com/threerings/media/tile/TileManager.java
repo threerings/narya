@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.30 2003/02/28 02:03:43 mdb Exp $
+// $Id: TileManager.java,v 1.31 2003/04/01 02:16:28 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -198,7 +198,20 @@ public class TileManager
 	throws NoSuchTileSetException, NoSuchTileException
     {
         return getTile(TileUtil.getTileSetId(fqTileId),
-                       TileUtil.getTileIndex(fqTileId));
+                       TileUtil.getTileIndex(fqTileId), null);
+    }
+
+    /**
+     * Returns the {@link Tile} object with the specified fully qualified
+     * tile id. The supplied colorizer will be used to recolor the tile.
+     *
+     * @see TileUtil#getFQTileId
+     */
+    public Tile getTile (int fqTileId, TileSet.Colorizer rizer)
+	throws NoSuchTileSetException, NoSuchTileException
+    {
+        return getTile(TileUtil.getTileSetId(fqTileId),
+                       TileUtil.getTileIndex(fqTileId), rizer);
     }
 
     /**
@@ -210,28 +223,11 @@ public class TileManager
      *
      * @return the tile object.
      */
-    public Tile getTile (int tileSetId, int tileIndex)
+    public Tile getTile (int tileSetId, int tileIndex, TileSet.Colorizer rizer)
 	throws NoSuchTileSetException, NoSuchTileException
     {
         TileSet set = getTileSet(tileSetId);
-        return set.getTile(tileIndex);
-    }
-
-    /**
-     * Returns the {@link Tile} object from the specified tileset at the
-     * specified index with the specified colorizations applied to it.
-     *
-     * @param tileSetId the tileset id.
-     * @param tileIndex the index of the tile to be retrieved.
-     * @param zations colorizations to be applied to the tile image.
-     *
-     * @return the tile object.
-     */
-    public Tile getTile (int tileSetId, int tileIndex, Colorization[] zations)
-	throws NoSuchTileSetException, NoSuchTileException
-    {
-        TileSet set = getTileSet(tileSetId);
-        return set.getTile(tileIndex);
+        return set.getTile(tileIndex, rizer);
     }
 
     /** The entity through which we decode and cache images. */

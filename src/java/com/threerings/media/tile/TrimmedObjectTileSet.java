@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedObjectTileSet.java,v 1.9 2003/03/26 00:18:55 mdb Exp $
+// $Id: TrimmedObjectTileSet.java,v 1.10 2003/04/01 02:16:28 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -14,6 +14,7 @@ import com.samskivert.util.StringUtil;
 import com.threerings.media.Log;
 import com.threerings.media.image.Mirage;
 import com.threerings.media.tile.util.TileSetTrimmer;
+import com.threerings.media.image.Colorization;
 
 /**
  * An object tileset in which the objects have been trimmed to the
@@ -78,6 +79,19 @@ public class TrimmedObjectTileSet extends TileSet
     protected Rectangle computeTileBounds (int tileIndex)
     {
         return _bounds[tileIndex];
+    }
+
+    // documentation inherited
+    protected Colorization[] getColorizations (int tileIndex, Colorizer rizer)
+    {
+        Colorization[] zations = null;
+        if (rizer != null && _zations != null) {
+            zations = new Colorization[_zations.length];
+            for (int ii = 0; ii < _zations.length; ii++) {
+                zations[ii] = rizer.getColorization(_zations[ii]);
+            }
+        }
+        return zations;
     }
 
     // documentation inherited

@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.43 2003/02/04 21:38:46 mdb Exp $
+// $Id: TileSet.java,v 1.44 2003/04/01 02:16:28 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
+import java.util.Arrays;
 
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.RuntimeAdjust;
@@ -37,6 +38,16 @@ import com.threerings.media.image.Mirage;
 public abstract class TileSet
     implements Cloneable, Serializable
 {
+    /** Used to assign colorizations to tiles that require them. */
+    public static interface Colorizer
+    {
+        /**
+         * Returns the colorization to be used for the specified named
+         * colorization class.
+         */
+        public Colorization getColorization (String zation);
+    }
+
     /**
      * Configures this tileset with an image provider that it can use to
      * load its tileset image. This will be called automatically when the
@@ -45,12 +56,6 @@ public abstract class TileSet
     public void setImageProvider (ImageProvider improv)
     {
         _improv = improv;
-
-        // HACKOLA: if we're a vessel tileset, colorize ourselves
-        if (_name != null && (this instanceof TrimmedObjectTileSet) &&
-            _name.indexOf("Vessel") != -1) {
-            _zations = ZATIONS;
-        }
     }
 
     /**
@@ -126,6 +131,16 @@ public abstract class TileSet
     }
 
     /**
+     * Equivalent to {@link# getTile(int,Colorizer)} with a null
+     * <code>Colorizer</code> argument.
+     */
+    public Tile getTile (int tileIndex)
+        throws NoSuchTileException
+    {
+        return getTile(tileIndex, null);
+    }
+
+    /**
      * Creates a {@link Tile} object from this tileset corresponding to
      * the specified tile id and returns that tile. A null tile will never
      * be returned, but one with an error image may be returned if a
@@ -134,13 +149,16 @@ public abstract class TileSet
      * @param tileIndex the index of the tile in the tileset. Tile indexes
      * start with zero as the upper left tile and increase by one as the
      * tiles move left to right and top to bottom over the source image.
+     * @param rizer an entity that will be used to obtain colorizations
+     * for tilesets that are recolorizable. Passing null if the tileset is
+     * known not to be recolorizable is valid.
      *
      * @return the tile object.
      *
      * @exception NoSuchTileException thrown if the specified tile index
      * is out of range for this tileset.
      */
-    public Tile getTile (int tileIndex)
+    public Tile getTile (int tileIndex, Colorizer rizer)
         throws NoSuchTileException
     {
         checkTileIndex(tileIndex);
@@ -156,17 +174,28 @@ public abstract class TileSet
             });
         }
 
-        // fetch and cache the tile
-        Tuple key = new Tuple(this, new Integer(tileIndex));
+        Colorization[] zations = getColorizations(tileIndex, rizer);
+        TileKey key = new TileKey(this, tileIndex, zations);
         Tile tile = (Tile)_tiles.get(key);
         if (tile == null) {
-            // create and initialize the tile object
-            tile = createTile(tileIndex, getTileMirage(tileIndex));
+            tile = createTile(tileIndex, getTileMirage(tileIndex, zations));
             initTile(tile);
             _tiles.put(key, tile);
         }
 
         return tile;
+    }
+
+    /**
+     * Returns colorizations for the specified tile image. The default is
+     * to return any colorizations associated with the tileset via a call
+     * to {@link #clone(Colorization[])}, however derived classes may have
+     * dynamic colorization policies that look up colorization assignments
+     * from the supplied colorizer.
+     */
+    protected Colorization[] getColorizations (int tileIndex, Colorizer rizer)
+    {
+        return _zations;
     }
 
     /**
@@ -201,13 +230,26 @@ public abstract class TileSet
     public Mirage getTileMirage (int tileIndex)
         throws NoSuchTileException
     {
+        return getTileMirage(tileIndex, getColorizations(tileIndex, null));
+    }
+
+    /**
+     * Returns a prepared version of the image that would be used by the
+     * tile at the specified index. Because tilesets are often used simply
+     * to provide access to a collection of uniform images, this method is
+     * provided to bypass the creation of a {@link Tile} object when all
+     * that is desired is access to the underlying image.
+     */
+    public Mirage getTileMirage (int tileIndex, Colorization[] zations)
+        throws NoSuchTileException
+    {
         checkTileIndex(tileIndex);
         Rectangle bounds = computeTileBounds(tileIndex);
         if (_improv == null) {
             Log.warning("Aiya! Tile set missing image provider " +
                         "[path=" + _imagePath + "].");
         }
-        return _improv.getTileImage(_imagePath, bounds, _zations);
+        return _improv.getTileImage(_imagePath, bounds, zations);
     }
 
     /**
@@ -282,6 +324,49 @@ public abstract class TileSet
 	buf.append(", tileCount=").append(getTileCount());
     }
 
+    /** Used when caching tiles. */
+    protected static class TileKey
+    {
+        /**
+         * Creates a new tile key.
+         */
+        public TileKey (TileSet tileSet, int tileIndex, Colorization[] zations)
+        {
+            _tset = tileSet;
+            _tidx = tileIndex;
+            _zations = zations;
+        }
+
+        // documentation inherited
+        public boolean equals (Object other)
+        {
+            if (other instanceof TileKey) {
+                TileKey okey = (TileKey)other;
+                return (_tset == okey._tset && _tidx == okey._tidx &&
+                        Arrays.equals(_zations, okey._zations));
+            } else {
+                return false;
+            }
+        }
+
+        // documentation inherited
+        public int hashCode ()
+        {
+            int code = _tset.hashCode() ^ _tidx;
+            int zcount = (_zations == null) ? 0 : _zations.length;
+            for (int ii = 0; ii < zcount; ii++) {
+                if (_zations[ii] != null) {
+                    code ^= _zations[ii].hashCode();
+                }
+            }
+            return code;
+        }
+
+        protected TileSet _tset;
+        protected int _tidx;
+        protected Colorization[] _zations;
+    }
+
     /** The path to the file containing the tile images. */
     protected String _imagePath;
 
@@ -297,16 +382,6 @@ public abstract class TileSet
     /** Increase this value when object's serialized state is impacted by
      * a class change (modification of fields, inheritance). */
     private static final long serialVersionUID = 1;
-
-    /** Temporary HACKOLA. */
-    protected static Colorization[] ZATIONS = new Colorization[] {
-        new Colorization(-1, new Color(0x8A1A76),
-                         new float[] { .1f, .3f, 0.6f },
-                         new float[] { -.85f, .3f, 0f }),
-        new Colorization(-1, new Color(0x2A864E),
-                         new float[] { .1f, .3f, 0.6f },
-                         new float[] { .71f, 0f, .07f }),
-    };
 
     /** A weak cache of our tiles. */
     protected static LRUHashMap _tiles;

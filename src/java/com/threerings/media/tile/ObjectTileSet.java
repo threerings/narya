@@ -1,11 +1,12 @@
 //
-// $Id: ObjectTileSet.java,v 1.14 2003/02/06 06:23:05 mdb Exp $
+// $Id: ObjectTileSet.java,v 1.15 2003/04/01 02:16:28 mdb Exp $
 
 package com.threerings.media.tile;
 
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.image.Mirage;
+import com.threerings.media.image.Colorization;
 
 /**
  * The object tileset supports the specification of object information for
@@ -143,6 +144,19 @@ public class ObjectTileSet extends SwissArmyTileSet
 	buf.append(", xspots=").append(StringUtil.toString(_xspots));
 	buf.append(", yspots=").append(StringUtil.toString(_yspots));
 	buf.append(", sorients=").append(StringUtil.toString(_sorients));
+    }
+
+    // documentation inherited
+    protected Colorization[] getColorizations (int tileIndex, Colorizer rizer)
+    {
+        Colorization[] zations = null;
+        if (rizer != null && _zations != null) {
+            zations = new Colorization[_zations.length];
+            for (int ii = 0; ii < _zations.length; ii++) {
+                zations[ii] = rizer.getColorization(_zations[ii]);
+            }
+        }
+        return zations;
     }
 
     /**
