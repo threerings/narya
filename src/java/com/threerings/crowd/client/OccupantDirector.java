@@ -1,5 +1,5 @@
 //
-// $Id: OccupantDirector.java,v 1.4 2002/10/27 02:03:13 shaper Exp $
+// $Id: OccupantDirector.java,v 1.5 2002/10/27 21:58:18 shaper Exp $
 
 package com.threerings.crowd.client;
 
@@ -173,8 +173,6 @@ public class OccupantDirector
         if (!event.getName().equals(PlaceObject.OCCUPANT_INFO)) {
             return;
         }
-
-        Log.info("entryUpdated [event=" + event + "].");
 
         final OccupantInfo info = (OccupantInfo)event.getEntry();
         int bodyOid = info.getBodyOid();
