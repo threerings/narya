@@ -52,6 +52,11 @@ public class FadeEffect
             (_alpha >= _target) : (_alpha <= _target);
     }
 
+    public float getAlpha ()
+    {
+        return _alpha;
+    }
+
     public boolean tick (long tickStamp)
     {
         // figure out the current alpha
