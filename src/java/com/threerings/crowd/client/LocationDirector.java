@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.27 2002/11/03 01:15:36 mdb Exp $
+// $Id: LocationDirector.java,v 1.28 2003/01/09 00:26:56 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -182,6 +182,18 @@ public class LocationDirector extends BasicDirector
                 return true;
             }
         });
+
+        // if we're actually going somewhere, let the controller know that
+        // we might be leaving
+        if (_controller != null) {
+            try {
+                _controller.mayLeavePlace(_plobj);
+            } catch (Exception e) {
+                Log.warning("Place controller choked in " +
+                            "didLeavePlace [plobj=" + _plobj + "].");
+                Log.logStackTrace(e);
+            }
+        }
 
         // if we have a result listener, let it know if we failed
         // or keep it for later if we're still going
