@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.78 2004/08/27 02:20:20 mdb Exp $
+// $Id: DObject.java,v 1.79 2004/10/23 17:36:32 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -164,7 +164,7 @@ public class DObject extends TrackedObject
     public void addSubscriber (Subscriber sub)
     {
         // only add the subscriber if they're not already there
-        Object[] subs = ListUtil.testAndAdd(_subs, sub);
+        Object[] subs = ListUtil.testAndAddRef(_subs, sub);
         if (subs != null) {
 //             Log.info("Adding subscriber " + which() + ": " + sub + ".");
             _subs = subs;
@@ -188,7 +188,7 @@ public class DObject extends TrackedObject
      */
     public void removeSubscriber (Subscriber sub)
     {
-        if (ListUtil.clear(_subs, sub) != null) {
+        if (ListUtil.clearRef(_subs, sub) != null) {
             // if we removed something, check to see if we just removed
             // the last subscriber from our list; we also want to be sure
             // that we're still active otherwise there's no need to notify
@@ -233,7 +233,7 @@ public class DObject extends TrackedObject
     public void addListener (ChangeListener listener)
     {
         // only add the listener if they're not already there
-        Object[] els = ListUtil.testAndAdd(_listeners, listener);
+        Object[] els = ListUtil.testAndAddRef(_listeners, listener);
         if (els != null) {
             _listeners = els;
         } else {
@@ -251,7 +251,7 @@ public class DObject extends TrackedObject
      */
     public void removeListener (ChangeListener listener)
     {
-        ListUtil.clear(_listeners, listener);
+        ListUtil.clearRef(_listeners, listener);
     }
 
     /**
@@ -341,7 +341,7 @@ public class DObject extends TrackedObject
     {
         // check for the existence of the lock in the list and add it if
         // it's not already there
-        Object[] list = ListUtil.testAndAddEqual(_locks, name);
+        Object[] list = ListUtil.testAndAdd(_locks, name);
         if (list == null) {
             // a null list means the object was already in the list
             return false;
@@ -378,7 +378,7 @@ public class DObject extends TrackedObject
     protected void clearLock (String name)
     {
         // clear the lock from the list
-        if (ListUtil.clearEqual(_locks, name) == null) {
+        if (ListUtil.clear(_locks, name) == null) {
             // complain if we didn't find the lock
             Log.info("Unable to clear non-existent lock [lock=" + name +
                      ", dobj=" + this + "].");

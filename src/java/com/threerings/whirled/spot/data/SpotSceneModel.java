@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneModel.java,v 1.12 2004/08/27 02:20:46 mdb Exp $
+// $Id: SpotSceneModel.java,v 1.13 2004/10/23 17:36:32 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -59,7 +59,7 @@ public class SpotSceneModel extends TrackedStreamableObject
      */
     public void removePortal (Portal portal)
     {
-        int pidx = ListUtil.indexOfEqual(portals, portal);
+        int pidx = ListUtil.indexOf(portals, portal);
         if (pidx != -1) {
             portals = (Portal[])ArrayUtil.splice(portals, pidx, 1);
         }

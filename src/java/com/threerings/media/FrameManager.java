@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.53 2004/10/23 17:21:54 mdb Exp $
+// $Id: FrameManager.java,v 1.54 2004/10/23 17:36:32 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -288,7 +288,7 @@ public abstract class FrameManager
      */
     public void registerFrameParticipant (FrameParticipant participant)
     {
-        Object[] nparts = ListUtil.testAndAdd(_participants, participant);
+        Object[] nparts = ListUtil.testAndAddRef(_participants, participant);
         if (nparts == null) {
             Log.warning("Refusing to add duplicate frame participant! " +
                         participant);
@@ -310,7 +310,7 @@ public abstract class FrameManager
      */
     public void removeFrameParticipant (FrameParticipant participant)
     {
-        ListUtil.clear(_participants, participant);
+        ListUtil.clearRef(_participants, participant);
     }
 
     /**
