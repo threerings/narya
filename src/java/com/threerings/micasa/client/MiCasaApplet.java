@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaApplet.java,v 1.3 2001/10/25 23:29:00 mdb Exp $
+// $Id: MiCasaApplet.java,v 1.4 2001/10/25 23:43:02 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -31,16 +31,14 @@ public class MiCasaApplet extends Applet
             // create our client instance
             _client = new MiCasaClient(_frame);
 
-            String username = getParameter("username");
-            if (username == null) {
-                throw new IOException("Missing username parameter.");
-            }
-            String authkey = getParameter("authkey");
-            if (authkey == null) {
-                throw new IOException("Missing authkey parameter.");
-            }
+            String username = requireParameter("username");
+            String authkey = requireParameter("authkey");
+            String server = getCodeBase().getHost();
 
             Client client = _client.getContext().getClient();
+
+            // indicate which server to which we should connect
+            client.setServer(server, Client.DEFAULT_SERVER_PORT);
 
             // create and set our credentials
             client.setCredentials(
@@ -58,6 +56,16 @@ public class MiCasaApplet extends Applet
             Log.warning("Unable to create client.");
             Log.logStackTrace(ioe);
         }
+    }
+
+    protected String requireParameter (String name)
+        throws IOException
+    {
+        String value = getParameter(name);
+        if (value == null) {
+            throw new IOException("Applet missing '" + name + "' parameter.");
+        }
+        return value;
     }
 
     /**
