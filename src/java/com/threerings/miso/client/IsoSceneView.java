@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.37 2001/08/10 01:31:25 shaper Exp $
+// $Id: IsoSceneView.java,v 1.38 2001/08/10 21:17:07 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -64,8 +64,8 @@ public class IsoSceneView implements EditableSceneView
 
 	// clip the drawing region to our desired bounds since we
 	// currently draw tiles willy-nilly in undesirable areas.
-  	Shape oldclip = gfx.getClip();
-  	gfx.setClip(0, 0, _model.bounds.width, _model.bounds.height);
+    	Shape oldclip = gfx.getClip();
+    	gfx.setClip(0, 0, _model.bounds.width, _model.bounds.height);
 
 	if (_numDirty == 0) {
 	    // render the full scene
@@ -82,11 +82,13 @@ public class IsoSceneView implements EditableSceneView
 	    clearDirtyRegions();
 	}
 
-        // draw an outline around the highlighted tile
-        paintHighlightedTile(gfx, _htile.x, _htile.y);
+	// draw marks at each location
+	if (_model.showLocs) {
+	    paintLocations(gfx);
+	}
 
-	// draw an outline around the highlighted full coordinate
-	paintHighlightedFull(gfx, _hfull.x, _hfull.y);
+        // draw highlighted tiles and full coordinates
+	paintHighlights(gfx);
 
 	// restore the original clipping region
 	gfx.setClip(oldclip);
@@ -160,6 +162,11 @@ public class IsoSceneView implements EditableSceneView
 
 		// draw all sprites residing in the current tile
 		_spritemgr.renderSprites(gfx, poly);
+
+		// paint the tile coordinate if desired
+  		if (_model.showCoords) {
+                    paintCoords(gfx, xx, yy, poly.xpoints[0], poly.ypoints[0]);
+                }
 
 		// bail early if we know we've drawn all dirty tiles
 		if (++numDrawn == _numDirty) break;
@@ -262,44 +269,86 @@ public class IsoSceneView implements EditableSceneView
     }
 
     /**
-     * Paint a highlight around the specified tile.
+     * Paint highlights around any highlighted tiles and fine coordinates.
      *
      * @param gfx the graphics context.
-     * @param x the tile x-position coordinate.
-     * @param y the tile y-position coordinate.
      */
-    protected void paintHighlightedTile (Graphics2D gfx, int x, int y)
+    protected void paintHighlights (Graphics2D gfx)
     {
-	if (x == -1 || y == -1) return;
+	// paint the highlighted tile
+	if (_htile.x != -1 && _htile.y != -1) {
+	    // set the desired stroke and color
+	    Stroke ostroke = gfx.getStroke();
+	    gfx.setStroke(_hstroke);
+	    gfx.setColor(Color.green);
 
-        // set the desired stroke and color
-	Stroke ostroke = gfx.getStroke();
-	gfx.setStroke(HLT_STROKE);
-	gfx.setColor(HLT_COLOR);
+	    // draw the tile outline
+	    gfx.draw(IsoUtil.getTilePolygon(_model, _htile.x, _htile.y));
 
-        // draw the tile outline
-        gfx.draw(IsoUtil.getTilePolygon(_model, x, y));
+	    // restore the original stroke
+	    gfx.setStroke(ostroke);
+	}
 
-        // restore the original stroke
-	gfx.setStroke(ostroke);
+	// paint the highlighted full coordinate
+	if (_hfull.x != -1 && _hfull.y != -1) {
+	    Point spos = new Point();
+	    IsoUtil.fullToScreen(_model, _hfull.x, _hfull.y, spos);
+
+	    // set the desired stroke and color
+	    Stroke ostroke = gfx.getStroke();
+	    gfx.setStroke(_hstroke);
+
+	    // draw a red circle at the coordinate
+	    gfx.setColor(Color.red);
+	    gfx.draw(new Ellipse2D.Float(spos.x - 1, spos.y - 1, 3, 3));
+
+	    // restore the original stroke
+	    gfx.setStroke(ostroke);
+	}
     }
 
     /**
-     * Paint a highlight around the specified full coordinate.
+     * Paint rectangular demarcations at all locations in the scene,
+     * with each location's cluster index, if any, along the right
+     * side of its rectangle.
      *
      * @param gfx the graphics context.
-     * @param x the full x-position coordinate.
-     * @param y the full y-position coordinate.
      */
-    protected void paintHighlightedFull (Graphics2D gfx, int x, int y)
+    protected void paintLocations (Graphics2D gfx)
     {
-	if (x == -1 || y == -1) return;
+	ArrayList locations = _scene.getLocations();
+	int size = locations.size();
+	for (int ii = 0; ii < size; ii++) {
 
-	Point spos = new Point();
-	IsoUtil.fullToScreen(_model, x, y, spos);
+	    // retrieve the location
+	    Location loc = (Location)locations.get(ii);
 
-	gfx.setColor(Color.red);
-	gfx.draw(new Ellipse2D.Float(spos.x, spos.y, 3, 3));
+	    // get the cluster index this location is in, if any
+	    int clusteridx = _scene.getClusterIndex(loc);
+
+	    Point spos = new Point();
+	    IsoUtil.fullToScreen(_model, loc.x, loc.y, spos);
+
+	    int cx = spos.x, cy = spos.y;
+
+	    // outline the location in multiple colors to make sure
+	    // it's visible atop the unknown smorgasbord of potential tiles
+	    gfx.setColor(Color.yellow);
+	    gfx.fillRect(cx - 1, cy - 1, 3, 3);
+
+	    gfx.setColor(Color.red);
+	    gfx.drawRect(cx - 2, cy - 2, 4, 4);
+
+	    gfx.setColor(Color.green);
+	    gfx.drawRect(cx - 3, cy - 3, 6, 6);
+
+	    if (clusteridx != -1) {
+		// draw the cluster index number on the right side
+		gfx.setFont(_font);
+		gfx.setColor(Color.white);
+		gfx.drawString("" + clusteridx, cx + 5, cy + 3);
+	    }
+	}
     }
 
     public void setHighlightedTile (int sx, int sy)
@@ -447,16 +496,6 @@ public class IsoSceneView implements EditableSceneView
 	_scene = scene;
     }
 
-    public boolean getShowCoordinates ()
-    {
-	return _model.showCoords;
-    }
-
-    public void setShowCoordinates (boolean show)
-    {
-	_model.showCoords = show;
-    }
-
     public void setTile (int x, int y, int lnum, Tile tile)
     {
 	Point tpos = new Point();
@@ -511,11 +550,8 @@ public class IsoSceneView implements EditableSceneView
 	return (_scene == null) ? 0 : _scene.getNumClusters();
     }
 
-    /** The color to draw the highlighted tile. */
-    protected static final Color HLT_COLOR = Color.green;
-
-    /** The stroke object used to draw the highlighted tile. */
-    protected static final Stroke HLT_STROKE = new BasicStroke(3);
+    /** The stroke object used to draw highlighted tiles and coordinates. */
+    protected BasicStroke _hstroke = new BasicStroke(3);
 
     /** The currently highlighted tile. */
     protected Point _htile;

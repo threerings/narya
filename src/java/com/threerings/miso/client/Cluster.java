@@ -1,9 +1,11 @@
 //
-// $Id: Cluster.java,v 1.1 2001/08/10 01:31:25 shaper Exp $
+// $Id: Cluster.java,v 1.2 2001/08/10 21:17:07 shaper Exp $
 
 package com.threerings.miso.scene;
 
 import java.util.ArrayList;
+
+import com.samskivert.util.StringUtil;
 
 /**
  * A <code>Cluster</code> is a gathering of <code>Location</code> objects
@@ -70,6 +72,14 @@ public class Cluster
     public ArrayList getLocations ()
     {
 	return _locations;
+    }
+
+    /**
+     * Return a string representation of this object.
+     */
+    public String toString ()
+    {
+	return StringUtil.toString(_locations);
     }
 
     /** The list of locations in this cluster. */

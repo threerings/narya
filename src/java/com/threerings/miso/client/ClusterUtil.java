@@ -1,5 +1,5 @@
 //
-// $Id: ClusterUtil.java,v 1.1 2001/08/10 01:31:25 shaper Exp $
+// $Id: ClusterUtil.java,v 1.2 2001/08/10 21:17:07 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -15,8 +15,26 @@ import com.threerings.miso.Log;
 public class ClusterUtil
 {
     /**
+     * Return the cluster index number the given location is in, or -1
+     * if the location is not in any cluster.
+     *
+     * @param clusters the cluster list.
+     * @param loc the location.
+     */
+    public static int getClusterIndex (ArrayList clusters, Location loc)
+    {
+	int size = clusters.size();
+	for (int ii = 0; ii < size; ii++) {
+	    Cluster cluster = (Cluster)clusters.get(ii);
+	    if (cluster.contains(loc)) return ii;
+	}
+	return -1;
+    }
+
+    /**
      * Remove the given location from its cluster, if any.
      *
+     * @param clusters the cluster list.
      * @param loc the location.
      */
     public static void remove (ArrayList clusters, Location loc)
@@ -52,7 +70,7 @@ public class ClusterUtil
      * in the group, in which case a new cluster object will be created
      * that initially contains only the given location.
      *
-     * @param clusters the list of clusters.
+     * @param clusters the cluster list.
      * @param loc the location.
      * @param clusteridx the cluster index, or -1 to remove the location
      *                   from any cluster.

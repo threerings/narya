@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneWriter.java,v 1.6 2001/08/10 01:31:25 shaper Exp $
+// $Id: XMLSceneWriter.java,v 1.7 2001/08/10 21:17:07 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -97,7 +97,7 @@ public class XMLSceneWriter extends DataWriter
 
 	    int clustersize = clusterlocs.size();
 	    for (int jj = 0; jj < clustersize; jj++) {
-		buf.append(locs.indexOf(clusterlocs.get(jj))).append(",");
+		buf.append(locs.indexOf(clusterlocs.get(jj)));
 		if (jj < clustersize - 1) buf.append(",");
 	    }
 

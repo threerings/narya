@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.5 2001/08/08 22:29:39 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.6 2001/08/10 21:17:07 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -39,8 +39,6 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 
         // load up the initial scene
         prepareStartingScene();
-
-	//((EditableSceneView)_view).setShowCoordinates(true);
 
 	PerformanceMonitor.register(this, "paint", 1000);
     }

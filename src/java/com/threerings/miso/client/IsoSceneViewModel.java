@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.5 2001/08/08 22:29:39 shaper Exp $
+// $Id: IsoSceneViewModel.java,v 1.6 2001/08/10 21:17:07 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -62,6 +62,9 @@ public class IsoSceneModel
     /** Whether tile coordinates should be drawn. */
     public boolean showCoords;
 
+    /** Whether locations in the scene should be drawn. */
+    public boolean showLocs;
+
     /**
      * Construct an IsoSceneModel with reasonable default values.
      */
@@ -72,6 +75,7 @@ public class IsoSceneModel
         setBounds(600, 600);
         setOrigin(bounds.width / 2, -(9 * tilehei));
         showCoords = false;
+	showLocs = false;
     }
 
     /**
@@ -84,6 +88,42 @@ public class IsoSceneModel
     public void setFineGranularity (int gran)
     {
 	finegran = gran;
+    }
+
+    /**
+     * Return whether locations in the scene are currently drawn.
+     */
+    public boolean getShowLocations ()
+    {
+	return showLocs;
+    }
+
+    /**
+     * Set whether locations in the scene should be drawn.
+     *
+     * @param show whether to show locations.
+     */
+    public void setShowLocations (boolean show)
+    {
+	showLocs = show;
+    }
+
+    /**
+     * Return whether coordinates are currently drawn for each tile.
+     */
+    public boolean getShowCoordinates ()
+    {
+	return showCoords;
+    }
+
+    /**
+     * Set whether coordinates should be drawn for each tile.
+     *
+     * @param show whether to show coordinates.
+     */
+    public void setShowCoordinates (boolean show)
+    {
+	showCoords = show;
     }
 
     /**

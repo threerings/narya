@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.21 2001/08/10 01:31:25 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.22 2001/08/10 21:17:07 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -104,11 +104,19 @@ public class Scene
         this.tiles = tiles;
     }
 
+    /**
+     * Return the cluster index number the given location is in, or -1
+     * if the location is not in any cluster.
+     *
+     * @param loc the location.
+     */
+    public int getClusterIndex (Location loc)
+    {
+	return ClusterUtil.getClusterIndex(_clusters, loc);
+    }
+
     public void updateLocation (int x, int y, int orient, int clusteridx)
     {
-	Log.info("updateLocation [x=" + x + ", y=" + y +
-		 ", orient=" + orient + ", clusteridx=" + clusteridx + "].");
-
 	// look the location up in our existing location list
 	int size = _locations.size();
 	Location loc = null;
