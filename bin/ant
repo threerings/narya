@@ -1,22 +1,35 @@
 #!/bin/sh
 #
-# $Id: ant,v 1.1 2002/02/05 21:39:22 mdb Exp $
+# $Id: ant,v 1.2 2002/04/14 01:32:21 mdb Exp $
 #
 # Invokes our desired version of ant with all of our jar files in the
 # classpath.
 
 BINDIR=`dirname $0`
-ANT_OPTS="-Dbuild.compiler=jikes"
+ANT_COMPILER="-Dbuild.compiler=jikes"
+
+# process our arguments
+while [ ! -z "$1" ]; do
+    case "$1" in
+    -Dbuild.compiler=*)
+        ANT_COMPILER="$1"
+        ;;
+    -D*)
+        ANT_OPTS="$ANT_OPTS $1"
+        ;;
+    -d)
+        ANT_OPTS="$ANT_OPTS -Dbuild.optimize=off"
+        ;;
+    *)
+        ARGS="$ARGS $1"
+        ;;
+    esac
+    shift
+done
 
 # Load default settings from config file (if it exists)
 if [ -f "$HOME/.antrc" ]; then
   . "$HOME/.antrc"
-fi
-
-# determine whether or not we want optimization off
-if [ "$1" == "-d" ]; then
-    shift
-    ANT_OPTS="$ANT_OPTS -Dbuild.optimize=off"
 fi
 
 # add all JAR files in JAVA_LIBS to CLASSPATH
@@ -35,5 +48,5 @@ else
 fi
 export CLASSPATH
 
-$JAVA_HOME/bin/java $ANT_OPTS -Dant.home=/usr/share/ant \
-	org.apache.tools.ant.Main $@
+$JAVA_HOME/bin/java $ANT_COMPILER $ANT_OPTS -Dant.home=/usr/share/ant \
+	org.apache.tools.ant.Main $ARGS
