@@ -1,7 +1,9 @@
 //
-// $Id: TimedPath.java,v 1.3 2003/01/17 22:57:08 mdb Exp $
+// $Id: TimedPath.java,v 1.4 2003/12/15 20:06:09 mdb Exp $
 
 package com.threerings.media.util;
+
+import com.threerings.media.Log;
 
 /**
  * A base class for path implementations that endeavor to move their
@@ -17,9 +19,10 @@ public abstract class TimedPath implements Path
     {
         // sanity check some things
         if (duration <= 0) {
-            String errmsg = "Requested path with illegal duration (<=0) " +
-                "[duration=" + duration + "]";
-            throw new IllegalArgumentException(errmsg);
+            Log.warning("Requested path with illegal duration (<=0) " +
+                        "[duration=" + duration + "]");
+            Thread.dumpStack();
+            duration = 1; // assume something short but non-zero
         }
 
         _duration = duration;
