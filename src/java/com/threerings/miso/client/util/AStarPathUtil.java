@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.13 2002/02/17 08:01:15 mdb Exp $
+// $Id: AStarPathUtil.java,v 1.14 2002/05/17 19:07:47 ray Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -197,8 +197,11 @@ public class AStarPathUtil
      */
     protected static boolean isTraversable (AStarInfo info, int x, int y)
     {
-        return (isCoordinateValid(info, x, y) &&
-                info.trav.canTraverse(info.scene.getBaseTile(x, y)));
+        if (isCoordinateValid(info, x, y)) {
+            BaseTile tile = info.scene.getBaseTile(x, y);
+            return (tile != null) && info.trav.canTraverse(tile);
+        }
+        return false;
     }
 
     /**
