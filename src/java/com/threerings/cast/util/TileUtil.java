@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.2 2001/11/08 03:04:44 mdb Exp $
+// $Id: TileUtil.java,v 1.3 2001/11/18 04:09:21 mdb Exp $
 
 package com.threerings.cast.util;
 
@@ -91,7 +91,7 @@ public class TileUtil
                     Image imgs[] = new Image[frameCount];
                     for (int jj = 0; jj < frameCount; jj++) {
                         int idx = (dir * frameCount) + jj;
-                        imgs[jj] = tset.getTile(idx).img;
+                        imgs[jj] = tset.getTileImage(idx);
                     }
 
                     // create the multi frame image

@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.1 2001/10/11 00:41:26 shaper Exp $
+// $Id: TileUtil.java,v 1.2 2001/11/18 04:09:21 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -14,33 +14,36 @@ public class TileUtil
 {
     /**
      * Returns the image associated with the given tile from the given
-     * tile manager, or null if an error occurred.  Any exceptions
-     * that occur are logged.
+     * tile manager, or null if an error occurred.  Any exceptions that
+     * occur are logged.
+     *
+     * @param tilemgr the tile manager via which the tile should be
+     * fetched.
+     * @param tileSetId the id of the tileset from which to fetch the
+     * tile.
+     * @param tileIndex the index of the tile to be fetched.
      */
-    public static Image getTileImage (TileManager tilemgr, int tsid, int tid)
+    public static Image getTileImage (
+        TileManager tilemgr, int tileSetId, int tileIndex)
     {
 	try {
-	    Tile tile = tilemgr.getTile(tsid, tid);
-	    return tile.img;
+            TileSet set = tilemgr.getTileSet(tileSetId);
+            return set.getTileImage(tileIndex);
 
 	} catch (TileException te) {
-	    Log.warning("Exception retrieving tile image [te=" + te + "].");
+	    Log.warning("Error retrieving tile image [error=" + te + "].");
 	    return null;
 	}
     }
 
     /**
-     * Returns the given tile from the given tile manager, or null if
-     * an error occurred.  Any exceptions that occur are logged.
+     * Generates a fully-qualified tileid given the supplied tileset id
+     * and tile index. This fully-qualified id can be used to fetch the
+     * tile from the tileset repository which knows about the supplied
+     * tileset id.
      */
-    public static Tile getTile (TileManager tilemgr, int tsid, int tid)
+    public static int getFQTileId (int tileSetId, int tileIndex)
     {
-	try {
-	    return tilemgr.getTile(tsid, tid);
-
-	} catch (TileException te) {
-	    Log.warning("Exception retrieving tile [te=" + te + "].");
-	    return null;
-	}
+        return (tileSetId << 16) | tileIndex;
     }
 }

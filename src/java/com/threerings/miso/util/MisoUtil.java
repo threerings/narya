@@ -1,25 +1,11 @@
 //
-// $Id: MisoUtil.java,v 1.14 2001/11/08 03:04:45 mdb Exp $
+// $Id: MisoUtil.java,v 1.15 2001/11/18 04:09:23 mdb Exp $
 
 package com.threerings.miso.util;
 
-import java.awt.Frame;
-import java.io.*;
-import java.net.URL;
-import java.net.MalformedURLException;
-
-import com.samskivert.util.*;
-
-import com.threerings.cast.CharacterManager;
-
-import com.threerings.media.ImageManager;
-import com.threerings.media.tile.*;
-
+import java.io.IOException;
+import com.samskivert.util.Config;
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.*;
-import com.threerings.miso.scene.xml.XMLComponentRepository;
-import com.threerings.miso.scene.xml.XMLSceneRepository;
-import com.threerings.miso.tile.*;
 
 /**
  * The miso util class provides miscellaneous routines for
@@ -75,107 +61,4 @@ public class MisoUtil
 
 	return config;
     }
-
-    /**
-     * Creates a <code>CharacterManager</code> object.
-     *
-     * @param config the <code>Config</code> object.
-     * @param imgmgr the <code>ImageManager</code> object.
-     *
-     * @return the new character manager object or null if an error
-     * occurred.
-     */
-    public static CharacterManager createCharacterManager (
-        Config config, ImageManager imgmgr)
-    {
-        XMLComponentRepository crepo =
-            new XMLComponentRepository(config, imgmgr);
-        CharacterManager charmgr = new CharacterManager(crepo);
-        charmgr.setCharacterClass(MisoCharacterSprite.class);
-        return charmgr;
-    }
-
-    /**
-     * Creates an <code>XMLSceneRepository</code> object, reading
-     * the name of the class to instantiate from the config object.
-     *
-     * @param config the <code>Config</code> object.
-     *
-     * @return the new scene repository object or null if an error
-     * occurred.
-     */
-    public static XMLSceneRepository createSceneRepository (
-        Config config, TileManager tilemgr)
-    {
-	try {
-            XMLSceneRepository scenerepo = (XMLSceneRepository)
-                config.instantiateValue(SCENEREPO_KEY, DEF_SCENEREPO);
-            scenerepo.init(config, tilemgr);
-            return scenerepo;
-
-	} catch (Exception e) {
-	    Log.warning("Failed to instantiate scene repository " +
-                        "[e=" + e + "].");
-	    return null;
-	}
-    }
-
-    /**
-     * Creates a <code>TileManager</code> object.
-     *
-     * @param config the <code>Config</code> object.
-     * @param imgmgr the <code>ImageManager</code> object.
-     *
-     * @return the new tile manager object or null if an error occurred.
-     */
-    public static TileManager createTileManager (
-        Config config, ImageManager imgmgr)
-    {
-	TileSetRepository tsrepo = createTileSetRepository(config, imgmgr);
-	TileManager tilemgr = new TileManager(imgmgr);
-        tilemgr.setTileSetRepository(tsrepo);
-	return tilemgr;
-    }
-
-    /**
-     * Creates a <code>TileSetRepository</code> object, reading the
-     * class name to instantiate from the config object.
-     *
-     * @param config the <code>Config</code> object.
-     * @param imgmgr the <code>ImageManager</code> object from which
-     * images are obtained.
-     *
-     * @return the new tile set repository or null if an error
-     * occurred.
-     */
-    protected static TileSetRepository createTileSetRepository (
-        Config config, ImageManager imgmgr)
-    {
-	TileSetRepository tsrepo = null;
-	try {
-	    tsrepo = (TileSetRepository)config.instantiateValue(
-                TILESETREPO_KEY, DEF_TILESETREPO);
-	    tsrepo.init(config, imgmgr);
-
-	} catch (Exception e) {
-	    Log.warning("Failed to instantiate tile set repository " +
-			"[e=" + e + "].");
-	}
-	return tsrepo;
-    }
-
-    /** The default scene repository class name. */
-    protected static final String DEF_SCENEREPO =
-        XMLSceneRepository.class.getName();
-
-    /** The default tile set repository class name. */
-    protected static final String DEF_TILESETREPO =
-        XMLTileSetRepository.class.getName();
-
-    /** The config key for the scene repository class. */
-    protected static final String SCENEREPO_KEY = CONFIG_KEY + ".scenerepo";
-
-    /** The config key for the tile set repository class. */
-    protected static final String TILESETREPO_KEY =
-        CONFIG_KEY + ".tilesetrepo";
 }

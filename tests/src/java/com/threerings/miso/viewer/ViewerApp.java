@@ -1,23 +1,20 @@
 //
-// $Id: ViewerApp.java,v 1.14 2001/11/08 02:58:24 mdb Exp $
+// $Id: ViewerApp.java,v 1.15 2001/11/18 04:09:20 mdb Exp $
 
 package com.threerings.miso.viewer;
 
-import java.awt.Frame;
 import java.io.IOException;
 
 import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.Config;
 
 import com.threerings.resource.ResourceManager;
-
-import com.threerings.media.ImageManager;
+import com.threerings.media.sprite.SpriteManager;
 import com.threerings.media.tile.TileManager;
+import com.threerings.cast.CharacterManager;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.xml.XMLSceneRepository;
-import com.threerings.miso.util.MisoUtil;
-import com.threerings.miso.viewer.util.ViewerContext;
+import com.threerings.miso.util.MisoContext;
 
 /**
  * The ViewerApp is a scene viewing application that allows for trying
@@ -30,71 +27,47 @@ public class ViewerApp
      */
     public ViewerApp (String[] args)
     {
+        // we don't need to configure anything
+        _config = new Config();
+        _rsrcmgr = new ResourceManager("rsrc");
+	_tilemgr = new TileManager(_rsrcmgr);
+
+	// create the context object
+	MisoContext ctx = new ContextImpl();
+
+        // create the various managers
+        SpriteManager spritemgr = new SpriteManager();
+//         XMLComponentRepository crepo = new XMLComponentRepository(
+//             ctx.getConfig(), ctx.getImageManager());
+        CharacterManager charmgr = new CharacterManager(null);
+
         // create and size the main application frame
 	_frame = new ViewerFrame();
 	_frame.setSize(WIDTH, HEIGHT);
-  	SwingUtil.centerWindow(_frame);
 
-	// create the handles on our various services
-	_config = MisoUtil.createConfig(
-            ViewerModel.CONFIG_KEY, "rsrc/config/miso/viewer");
-	_model = createModel(_config, args);
-        _rsrcmgr = new ResourceManager("rsrc");
-        _imgmgr = new ImageManager(_rsrcmgr, _frame);
-	_tilemgr = MisoUtil.createTileManager(_config, _imgmgr);
-	_screpo = MisoUtil.createSceneRepository(_config, _tilemgr);
+        // create our scene view panel
+        _panel = new ViewerSceneViewPanel(ctx, spritemgr, charmgr);
+        _frame.setPanel(_panel);
 
-	// create the context object
-	_ctx = new ViewerContextImpl();
-
-    	// initialize the frame with the now-prepared context
-	((ViewerFrame)_frame).init(_ctx);
-    }
-
-    protected ViewerModel createModel (Config config, String args[])
-    {
-	ViewerModel model = new ViewerModel(config);
-	if (args.length >= 1) {
-	    model.scenefile = args[0];
-	}
-	return model;
+        // determine whether or not the user specified a scene to be
+        // displayed or if we'll be using the default
     }
 
     /**
-     * The implementation of the ViewerContext interface that provides
+     * The implementation of the MisoContext interface that provides
      * handles to the config and manager objects that offer commonly used
      * services.
      */
-    protected class ViewerContextImpl implements ViewerContext
+    protected class ContextImpl implements MisoContext
     {
 	public Config getConfig ()
 	{
 	    return _config;
 	}
 
-        public ImageManager getImageManager ()
-        {
-            return _imgmgr;
-        }
-
 	public TileManager getTileManager ()
 	{
 	    return _tilemgr;
-	}
-
-        public ResourceManager getResourceManager ()
-        {
-            return _rsrcmgr;
-        }
-
-        public XMLSceneRepository getSceneRepository ()
-        {
-            return _screpo;
-        }
-
-	public ViewerModel getViewerModel ()
-	{
-	    return _model;
 	}
     }
 
@@ -104,6 +77,7 @@ public class ViewerApp
     public void run ()
     {
         _frame.pack();
+  	SwingUtil.centerWindow(_frame);
         _frame.show();
     }
 
@@ -126,21 +100,15 @@ public class ViewerApp
     /** The resource manager. */
     protected ResourceManager _rsrcmgr;
 
-    /** The scene repository. */
-    protected XMLSceneRepository _screpo;
-
     /** The tile manager object. */
     protected TileManager _tilemgr;
 
-    /** The image manager object. */
-    protected ImageManager _imgmgr;
-
-    /** The viewer data model. */
-    protected ViewerModel _model;
-
-    /** The context object. */
-    protected ViewerContext _ctx;
-
     /** The main application window. */
-    protected Frame _frame;
+    protected ViewerFrame _frame;
+
+    /** The main panel. */
+    protected ViewerSceneViewPanel _panel;
+
+    /** The default scene to load and display. */
+    protected static final String DEF_SCENE = "rsrc/scenes/default.xml";
 }

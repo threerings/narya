@@ -1,16 +1,17 @@
 //
-// $Id: TileManager.java,v 1.20 2001/11/08 03:04:44 mdb Exp $
+// $Id: TileManager.java,v 1.21 2001/11/18 04:09:21 mdb Exp $
 
 package com.threerings.media.tile;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
+import com.samskivert.io.PersistenceException;
 import com.samskivert.util.HashIntMap;
 
+import com.threerings.resource.ResourceManager;
 import com.threerings.media.Log;
-import com.threerings.media.ImageManager;
 
 /**
  * The tile manager provides a simplified interface for retrieving and
@@ -37,16 +38,16 @@ import com.threerings.media.ImageManager;
  * The tile creation process is not hugely expensive, but does involve
  * extracting the tile image from the larger tileset image.
  */
-public class TileManager
+public class TileManager implements ImageProvider
 {
     /**
      * Creates a tile manager and provides it with a reference to the
-     * image manager from which it will load its tileset images.
+     * resource manager from which it will load tileset image data.
      */
-    public TileManager (ImageManager imgmgr)
+    public TileManager (ResourceManager rmgr)
     {
         // keep this guy around for later
-        _imgmgr = imgmgr;
+        _rmgr = rmgr;
     }
 
     /**
@@ -56,16 +57,22 @@ public class TileManager
     public TileSet loadTileSet (
         String imgPath, int count, int width, int height)
     {
-        return new UniformTileSet(_imgmgr, imgPath, count, width, height);
+        UniformTileSet uts = new UniformTileSet();
+        uts.setImageProvider(this);
+        uts.setImagePath(imgPath);
+        uts.setTileCount(count);
+        uts.setWidth(width);
+        uts.setHeight(height);
+        return uts;
     }
 
     /**
      * Sets the tileset repository that will be used by the tile manager
      * when tiles are requested by tileset id.
      */
-    public void setTileSetRepository (TileSetRepository tsrepo)
+    public void setTileSetRepository (TileSetRepository setrep)
     {
-        _tsrepo = tsrepo;
+        _setrep = setrep;
     }
 
     /**
@@ -73,54 +80,73 @@ public class TileManager
      */
     public TileSetRepository getTileSetRepository ()
     {
-	return _tsrepo;
+	return _setrep;
     }
 
     /**
-     * Returns the {@link Tile} object for the specified tileset and
-     * tile id, or null if an error occurred.
+     * Returns the tileset with the specified id. Tilesets are fetched
+     * from the tileset repository supplied via {@link
+     * #setTileSetRepository}, and are subsequently cached.
      *
-     * @param tsid the tileset id.
-     * @param tid the tile id.
+     * @param tileSetId the unique identifier for the desired tileset.
      *
-     * @return the tile object, or null if an error occurred.
+     * @exception NoSuchTileSetException thrown if no tileset exists with
+     * the specified id or if an underlying error occurs with the tileset
+     * repository's persistence mechanism.
      */
-    public Tile getTile (int tsid, int tid)
-	throws NoSuchTileSetException, NoSuchTileException
+    public TileSet getTileSet (int tileSetId)
+        throws NoSuchTileSetException
     {
         // make sure we have a repository configured
-        if (_tsrepo == null) {
-            throw new NoSuchTileSetException(tsid);
+        if (_setrep == null) {
+            throw new NoSuchTileSetException(tileSetId);
         }
 
-	// the fully unique tile id is the conjoined tile set and tile id
-	int utid = (tsid << 16) | tid;
+        try {
+            TileSet set = (TileSet)_cache.get(tileSetId);
+            if (set == null) {
+                set = _setrep.getTileSet(tileSetId);
+                _cache.put(tileSetId, set);
+            }
+            return set;
 
-	// look the tile up in our hash
-	Tile tile = (Tile) _tiles.get(utid);
-	if (tile != null) {
-  	    // Log.info("Retrieved tile from cache [tsid=" + tsid +
-	    // ", tid=" + tid + "].");
-	    return tile;
-	}
-
-	// retrieve the tile from the tileset
-	tile = _tsrepo.getTileSet(tsid).getTile(tid);
-	if (tile != null) {
-	    // Log.info("Loaded tile into cache [tsid=" + tsid +
-	    // ", tid=" + tid + "].");
-	    _tiles.put(utid, tile);
-	}
-
-	return tile;
+        } catch (PersistenceException pe) {
+            Log.warning("Unable to load tileset [id=" + tileSetId +
+                        ", error=" + pe + "].");
+            throw new NoSuchTileSetException(tileSetId);
+        }
     }
 
-    /** The entity through which we load images. */
-    protected ImageManager _imgmgr;
+    /**
+     * Returns the {@link Tile} object from the specified tileset at the
+     * specified index.
+     *
+     * @param tileSetId the tileset id.
+     * @param tileIndex the index of the tile to be retrieved.
+     *
+     * @return the tile object.
+     */
+    public Tile getTile (int tileSetId, int tileIndex)
+	throws NoSuchTileSetException, NoSuchTileException
+    {
+        TileSet set = getTileSet(tileSetId);
+        return set.getTile(tileIndex);
+    }
 
-    /** Cache of tiles that have been requested thus far. */
-    protected HashIntMap _tiles = new HashIntMap();
+    // documentation inherited
+    public BufferedImage loadImage (String path)
+        throws IOException
+    {
+        // load up the image data from the resource manager
+        return ImageIO.read(_rmgr.getResource(path));
+    }
+
+    /** The entity through which we load image data. */
+    protected ResourceManager _rmgr;
+
+    /** Cache of tilesets that have been requested thus far. */
+    protected HashIntMap _cache = new HashIntMap();
 
     /** The tile set repository. */
-    protected TileSetRepository _tsrepo;
+    protected TileSetRepository _setrep;
 }

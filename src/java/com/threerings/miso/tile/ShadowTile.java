@@ -1,5 +1,5 @@
 //
-// $Id: ShadowTile.java,v 1.2 2001/10/17 22:22:03 shaper Exp $
+// $Id: ShadowTile.java,v 1.3 2001/11/18 04:09:22 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -7,10 +7,9 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 
 /**
- * The shadow tile extends miso tile to provide an always-impassable
- * tile that has no display image.  Shadow tiles are intended for
- * placement in the footprint of {@link
- * com.threerings.media.tile.ObjectTile} objects.
+ * The shadow tile extends miso tile to provide an always-impassable tile
+ * that has no display image.  Shadow tiles are intended for placement in
+ * the footprint of {@link com.threerings.media.tile.ObjectTile} objects.
  */
 public class ShadowTile extends MisoTile
 {
@@ -22,14 +21,14 @@ public class ShadowTile extends MisoTile
      */
     public ShadowTile (int x, int y)
     {
-        super(SHADOW_TSID, SHADOW_TID);
+        super(null);
 
         // save the coordinates of our parent object tile
         ox = x;
         oy = y;
 
         // shadow tiles are always impassable
-        passable = false;
+        _passable = false;
     }
 
     // documentation inherited
@@ -37,10 +36,4 @@ public class ShadowTile extends MisoTile
     {
         // paint nothing as we're naught but a measly shadow of a tile
     }
-
-    /** The shadow tile set id. */
-    protected static final int SHADOW_TSID = -1;
-
-    /** The shadow tile id. */
-    protected static final int SHADOW_TID = -1;
 }

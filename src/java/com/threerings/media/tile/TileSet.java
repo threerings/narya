@@ -1,14 +1,15 @@
 //
-// $Id: TileSet.java,v 1.19 2001/11/08 03:04:44 mdb Exp $
+// $Id: TileSet.java,v 1.20 2001/11/18 04:09:21 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Image;
-import java.awt.Point;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+
+import java.io.IOException;
+import java.io.Serializable;
 
 import com.threerings.media.Log;
-import com.threerings.media.ImageManager;
 
 /**
  * A tileset stores information on a single logical set of tiles. It
@@ -21,35 +22,22 @@ import com.threerings.media.ImageManager;
  * the tile number, assuming the tile at the top-left of the image is tile
  * id zero and tiles are numbered, in ascending order, left to right, top
  * to bottom.
+ *
+ * <p> This class is serializable and will be serialized, so derived
+ * classes should be sure to mark non-persistent fields as
+ * <code>transient</code>.
  */
-public abstract class TileSet implements Cloneable
+public abstract class TileSet
+    implements Cloneable, Serializable
 {
     /**
-     * Provides the basic information needed to load a tileset image to
-     * the tileset base class.
-     *
-     * @param imgmgr an image manager from which the tileset image can be
-     * loaded.
-     * @param imgPath the path to the tileset image.
-     * @param name the name of the tileset (optional, can be null).
-     * @param tsid the unique integer identifier of the tileset (optional,
-     * can be zero if the tileset is not to be loaded by id).
+     * Configures this tileset with an image provider that it can use to
+     * load its tileset image. This will be called automatically when the
+     * tileset is fetched via the {@link TileManager}.
      */
-    public TileSet (ImageManager imgmgr, String imgPath,
-                    String name, int tsid)
+    public void setImageProvider (ImageProvider improv)
     {
-        _imgmgr = imgmgr;
-        _imgPath = imgPath;
-        _name = name;
-        _tsid = tsid;
-    }
-
-    /**
-     * Returns the tileset identifier.
-     */
-    public int getId ()
-    {
-	return _tsid;
+        _improv = improv;
     }
 
     /**
@@ -61,75 +49,140 @@ public abstract class TileSet implements Cloneable
     }
 
     /**
+     * Specifies the tileset name.
+     */
+    public void setName (String name)
+    {
+        _name = name;
+    }
+
+    /**
+     * Sets the path to the image that will be used by this tileset. This
+     * must be called before the first call to {@link #getTile}.
+     */
+    public void setImagePath (String imagePath)
+    {
+        _imagePath = imagePath;
+
+        // clear out any reference to a loaded image
+        _tilesetImg = null;
+    }
+
+    /**
      * Returns the number of tiles in the tileset.
      */
     public abstract int getTileCount ();
 
     /**
-     * Sets the image file to be used as the source for the tile
-     * images produced by this tileset.
-     */
-    public void setImageFile (String imgPath)
-    {
-        _imgPath = imgPath;
-        _tilesetImg = null;
-    }
-
-    /**
      * Returns a new tileset that is a clone of this tileset with the
-     * image file updated to reference the given file name. Useful for
+     * image path updated to reference the given path. Useful for
      * configuring a single tileset and then generating additional
      * tilesets with new images with the same configuration.
      */
-    public TileSet clone (String imgPath)
+    public TileSet clone (String imagePath)
         throws CloneNotSupportedException
     {
         TileSet dup = (TileSet)clone();
-        dup.setImageFile(imgPath);
+        dup.setImagePath(imagePath);
         return dup;
     }
 
     /**
-     * Creates a @link Tile} object from this tileset corresponding to the
-     * specified tile id and returns that tile, or null if an error
-     * occurred.
+     * Creates a {@link Tile} object from this tileset corresponding to
+     * the specified tile id and returns that tile. A null tile will never
+     * be returned, but one with an error image may be returned if a
+     * problem occurs loading the underlying tileset image.
      *
-     * @param tileId the tile identifier. Tile identifiers start with zero
-     * as the upper left tile and increase by one as the tiles move left
-     * to right and top to bottom over the source image.
+     * @param tileIndex the index of the tile in the tileset. Tile indexes
+     * start with zero as the upper left tile and increase by one as the
+     * tiles move left to right and top to bottom over the source image.
      *
-     * @return the tile object, or null if an error occurred.
+     * @return the tile object.
      *
-     * @exception NoSuchTileException thrown if the specified tile id is
-     * out of range for this tileset.
+     * @exception NoSuchTileException thrown if the specified tile index
+     * is out of range for this tileset.
      */
-    public Tile getTile (int tileId)
+    public Tile getTile (int tileIndex)
         throws NoSuchTileException
     {
 	// bail if there's no such tile
-	if (tileId < 0 || tileId > (getTileCount() - 1)) {
-	    throw new NoSuchTileException(tileId);
+	if (tileIndex < 0 || tileIndex >= getTileCount()) {
+	    throw new NoSuchTileException(tileIndex);
 	}
 
-	// create and populate the tile object
-	Tile tile = createTile(tileId);
+	// create and initialize the tile object
+	Tile tile = createTile(tileIndex, checkedGet(tileIndex));
+        initTile(tile);
+        return tile;
+    }
+
+    /**
+     * Returns the tile image at the specified index. In some cases, a
+     * tile object is not desired or required, and so this method can be
+     * used to fetch the image directly. A null tile image will never be
+     * returned, but an error image may be returned if a problem occurs
+     * loading the underlying tileset image.
+     *
+     * @param tileIndex the index of the image in the tileset.
+     *
+     * @return the tile image.
+     *
+     * @exception NoSuchTileException thrown if the specified tile index
+     * is out of range for this tileset.
+     */
+    public Image getTileImage (int tileIndex)
+        throws NoSuchTileException
+    {
+	// bail if there's no such tile
+	if (tileIndex < 0 || tileIndex >= getTileCount()) {
+	    throw new NoSuchTileException(tileIndex);
+	}
 
 	// retrieve the tile image
-	tile.img = getTileImage(tile.tid);
-	if (tile.img == null) {
-	    Log.warning("Null tile image [tile=" + tile + "].");
-            return null;
+        return checkedGet(tileIndex);
+    }
+
+    // used to ensure TileSet derivations adhere to the extractTileImage()
+    // policy of not returning null
+    private Image checkedGet (int tileIndex)
+        throws NoSuchTileException
+    {
+        Image image = extractTileImage(tileIndex);
+	if (image == null) {
+            String errmsg = "TileSet implementation violated return " +
+                "policy for TileSet.extractTileImage().";
+            throw new RuntimeException(errmsg);
 	}
+        return image;
+    }
 
-	// populate the tile's dimensions
-        BufferedImage bimg = (BufferedImage)tile.img;
-	tile.height = (short)bimg.getHeight();
-        tile.width = (short)bimg.getWidth();
+    /**
+     * Extracts the image corresponding to the specified tile from the
+     * tileset image.
+     *
+     * @param tileIndex the index of the tile to be retrieved.
+     *
+     * @return the tile image. This should not return null in cases of
+     * failure, but should instead call {@link #createErrorImage} to
+     * return a valid image.
+     */
+    protected abstract Image extractTileImage (int tileIndex);
 
-	// allow sub-classes to fill in their tile information
-	populateTile(tile);
-
-	return tile;
+    /**
+     * Creates a blank image to be used in failure situations. If {@link
+     * #extractTileImage} is unable to return the actual tile image
+     * (because the tileset image could not be loaded or for some other
+     * reason), it should not return null. Instead it should return an
+     * error image created with this method.
+     *
+     * @param width the width of the error image in pixels.
+     * @param height the height of the error image in pixels.
+     */
+    protected Image createErrorImage (int width, int height)
+    {
+        // return a blank image for now
+        return new BufferedImage(width, height,
+                                 BufferedImage.TYPE_BYTE_INDEXED);
     }
 
     /**
@@ -137,35 +190,25 @@ public abstract class TileSet implements Cloneable
      * tile-specific information. Derived classes can override this method
      * to create their own sub-class of {@link Tile}.
      *
-     * @param tileId the tile id for the new tile.
+     * @param tileIndex the index of the tile being created.
+     * @param image the tile image.
      *
      * @return the new tile object.
      */
-    protected Tile createTile (int tileId)
+    protected Tile createTile (int tileIndex, Image image)
     {
         // construct a basic tile
-	return new Tile(_tsid, tileId);
+	return new Tile(image);
     }
 
     /**
-     * Returns the image corresponding to the specified tile within this
-     * tileset.
+     * Initializes the supplied tile. Derived classes can override this
+     * method to add in their own tile information, but should be sure to
+     * call <code>super.initTile()</code>.
      *
-     * @param tileId the index of the tile to be retrieved.
-     *
-     * @return the tile image.
+     * @param tile the tile to initialize.
      */
-    protected abstract Image getTileImage (int tileId);
-
-    /**
-     * Populates the given tile object with its detailed tile
-     * information.  Derived classes can override this method to add
-     * in their own tile information, but should be sure to call
-     * <code>super.populateTile()</code>.
-     *
-     * @param tile the tile to populate.
-     */
-    protected void populateTile (Tile tile)
+    protected void initTile (Tile tile)
     {
 	// nothing for now
     }
@@ -177,17 +220,21 @@ public abstract class TileSet implements Cloneable
      * @return the tileset image or null if an error occurred loading the
      * image.
      */
-    protected Image getTilesetImage ()
+    protected BufferedImage getTilesetImage ()
     {
         // return it straight away if it's already loaded
 	if (_tilesetImg != null) {
             return _tilesetImg;
         }
 
-        // load up the tileset image via the image manager
-        if ((_tilesetImg = _imgmgr.getImage(_imgPath)) == null) {
+        // load up the tileset image via the image provider
+        try {
+            _tilesetImg = _improv.loadImage(_imagePath);
+
+        } catch (IOException ioe) {
             Log.warning("Failed to retrieve tileset image " +
-                        "[tsid=" + _tsid + ", path=" + _imgPath + "].");
+                        "[name=" + _name + ", path=" + _imagePath +
+                        ", error=" + ioe + "].");
 	}
 
         return _tilesetImg;
@@ -211,25 +258,21 @@ public abstract class TileSet implements Cloneable
     protected void toString (StringBuffer buf)
     {
         buf.append("name=").append(_name);
-	buf.append(", tsid=").append(_tsid);
-	buf.append(", path=").append(_imgPath);
+	buf.append(", path=").append(_imagePath);
 	buf.append(", tileCount=").append(getTileCount());
     }
 
-    /** The default image manager for retrieving tile images. */
-    protected ImageManager _imgmgr;
+    /** The entity from which we obtain our tile image. */
+    protected transient ImageProvider _improv;
 
     /** The path to the file containing the tile images. */
-    protected String _imgPath;
+    protected String _imagePath;
 
     /** The tileset name. */
     protected String _name;
 
-    /** The tileset unique identifier. */
-    protected int _tsid;
-
     /** The image containing all tile images for this set. This is private
      * because it should be accessed via {@link #getTilesetImage} even by
      * derived classes. */
-    private Image _tilesetImg;
+    private transient BufferedImage _tilesetImg;
 }

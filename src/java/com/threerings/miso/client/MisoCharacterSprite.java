@@ -1,5 +1,5 @@
 //
-// $Id: MisoCharacterSprite.java,v 1.1 2001/10/26 01:17:21 shaper Exp $
+// $Id: MisoCharacterSprite.java,v 1.2 2001/11/18 04:09:22 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -24,7 +24,7 @@ public class MisoCharacterSprite
     public boolean canTraverse (MisoTile tile)
     {
 	// by default, passability is solely the province of the tile
-	return tile.passable;
+	return tile.isPassable();
     }
 
     /**

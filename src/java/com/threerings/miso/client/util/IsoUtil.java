@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.14 2001/10/26 01:17:21 shaper Exp $
+// $Id: IsoUtil.java,v 1.15 2001/11/18 04:09:22 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -54,15 +54,15 @@ public class IsoUtil
         IsoSceneViewModel model, Polygon root, ObjectTile tile)
     {
 	Rectangle bounds = root.getBounds();
-        int sx = bounds.x - ((tile.baseWidth - 1) * model.tilehwid);
-        int sy = bounds.y - tile.height + model.tilehei;
+        int sx = bounds.x - ((tile.getBaseWidth() - 1) * model.tilehwid);
+        int sy = bounds.y - tile.getHeight() + model.tilehei;
 
         Polygon boundsPoly = new Polygon();
         int rx = sx, ry = sy;
 
         // right point
-        rx = sx + tile.width;
-        ry = bounds.y - ((tile.baseHeight - 2) * model.tilehhei);
+        rx = sx + tile.getWidth();
+        ry = bounds.y - ((tile.getBaseHeight() - 2) * model.tilehhei);
         boundsPoly.addPoint(rx, ry);
 
         // bottom-middle point
@@ -72,17 +72,17 @@ public class IsoUtil
 
         // left point
         rx = sx;
-        ry = bounds.y - ((tile.baseWidth - 2) * model.tilehhei);
+        ry = bounds.y - ((tile.getBaseWidth() - 2) * model.tilehhei);
         boundsPoly.addPoint(rx, ry);
 
         // top-middle point
-        rx += (tile.baseHeight * model.tilehwid);
-        ry -= (tile.baseHeight * model.tilehhei);
+        rx += (tile.getBaseHeight() * model.tilehwid);
+        ry -= (tile.getBaseHeight() * model.tilehhei);
         boundsPoly.addPoint(rx, ry);
 
         // right point
-        rx = sx + tile.width;
-        ry = bounds.y - ((tile.baseHeight - 2) * model.tilehhei);
+        rx = sx + tile.getWidth();
+        ry = bounds.y - ((tile.getBaseHeight() - 2) * model.tilehhei);
         boundsPoly.addPoint(rx, ry);
 
         return boundsPoly;
@@ -104,8 +104,8 @@ public class IsoUtil
         IsoSceneViewModel model, Polygon root, ObjectTile tile)
     {
 	Rectangle bounds = root.getBounds();
-        int sx = bounds.x - ((tile.baseWidth - 1) * model.tilehwid);
-        int sy = bounds.y - tile.height + model.tilehei;
+        int sx = bounds.x - ((tile.getBaseWidth() - 1) * model.tilehwid);
+        int sy = bounds.y - tile.getHeight() + model.tilehei;
 
         Polygon boundsPoly = new Polygon();
         int rx = sx, ry = sy;
@@ -114,11 +114,11 @@ public class IsoUtil
         boundsPoly.addPoint(rx, ry);
 
         // top-right point
-        rx = sx + tile.width;
+        rx = sx + tile.getWidth();
         boundsPoly.addPoint(rx, ry);
 
         // bottom-right point
-        ry = bounds.y - ((tile.baseHeight - 2) * model.tilehhei);
+        ry = bounds.y - ((tile.getBaseHeight() - 2) * model.tilehhei);
         boundsPoly.addPoint(rx, ry);
 
         // bottom-middle point
@@ -128,7 +128,7 @@ public class IsoUtil
 
         // bottom-left point
         rx = sx;
-        ry = bounds.y - ((tile.baseWidth - 2) * model.tilehhei);
+        ry = bounds.y - ((tile.getBaseWidth() - 2) * model.tilehhei);
         boundsPoly.addPoint(rx, ry);
 
         // top-left point

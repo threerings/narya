@@ -1,7 +1,7 @@
 //
-// $Id: ComponentPanel.java,v 1.4 2001/11/02 15:39:07 shaper Exp $
+// $Id: ComponentPanel.java,v 1.5 2001/11/18 04:09:21 mdb Exp $
 
-package com.threerings.cast.builder;
+package com.threerings.cast.tools.builder;
 
 import java.util.List;
 import java.util.Map;

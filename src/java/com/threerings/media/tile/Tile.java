@@ -1,65 +1,62 @@
 //
-// $Id: Tile.java,v 1.17 2001/11/01 01:40:42 shaper Exp $
+// $Id: Tile.java,v 1.18 2001/11/18 04:09:21 mdb Exp $
 
 package com.threerings.media.tile;
 
-import java.awt.*;
+import java.awt.Image;
+import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.Rectangle;
 
 /**
  * A tile represents a single square in a single layer in a scene.
  */
 public class Tile
 {
-    /** The tile image. */
-    public Image img;
-
-    /** The tile set identifier. */
-    public short tsid;
-
-    /** The tile identifier within the set. */
-    public short tid;
-
-    /** The tile width in pixels. */
-    public short width;
-
-    /** The tile height in pixels. */
-    public short height;
-
     /**
-     * Construct a new tile with the specified identifiers.  Intended
-     * only for use by the <code>TileSet</code>.  Do not call this
-     * method.
-     *
-     * @see TileSet#getTile
+     * Constructs a tile with the specified image.
      */
-    public Tile (int tsid, int tid)
+    public Tile (Image image)
     {
-	this.tsid = (short) tsid;
-	this.tid = (short) tid;
+        _image = image;
     }
 
     /**
-     * Returns the fully qualified tile id for this tile. The fully
-     * qualified id contains both the tile set identifier and the tile
-     * identifier.
+     * Returns the width of this tile.
      */
-    public int getTileId ()
+    public int getWidth ()
     {
-        return ((int)tsid << 16) | tid;
+        return _image.getWidth(null);
     }
 
     /**
-     * Render the tile image at the top-left corner of the given shape
-     * in the given graphics context.
+     * Returns the height of this tile.
+     */
+    public int getHeight ()
+    {
+        return _image.getHeight(null);
+    }
+
+    /**
+     * Returns this tile's image.
+     */
+    public Image getImage ()
+    {
+        return _image;
+    }
+
+    /**
+     * Render the tile image at the top-left corner of the given shape in
+     * the given graphics context.
      */
     public void paint (Graphics2D gfx, Shape dest)
     {
 	Rectangle bounds = dest.getBounds();
-	gfx.drawImage(img, bounds.x, bounds.y, null);
+	gfx.drawImage(_image, bounds.x, bounds.y, null);
     }
 
     /**
-     * Return a string representation of the tile information.
+     * Return a string representation of this tile.
      */
     public String toString ()
     {
@@ -76,7 +73,9 @@ public class Tile
      */
     public void toString (StringBuffer buf)
     {
-	buf.append("tsid=").append(tsid);
-	buf.append(", tid=").append(tid);
+	buf.append("image=").append(_image);
     }
+
+    /** Our tile image. */
+    protected Image _image;
 }

@@ -1,24 +1,40 @@
 //
-// $Id: IsoSceneView.java,v 1.71 2001/10/27 01:37:37 shaper Exp $
+// $Id: IsoSceneView.java,v 1.72 2001/11/18 04:09:22 mdb Exp $
 
 package com.threerings.miso.scene;
 
-import java.awt.*;
-import java.awt.geom.*;
-import java.awt.image.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Polygon;
+import java.awt.Shape;
+import java.awt.Stroke;
+import java.awt.Rectangle;
+import java.awt.FontMetrics;
+import java.awt.Point;
+import java.awt.Font;
+import java.awt.BasicStroke;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.*;
 
 import com.samskivert.util.HashIntMap;
 
-import com.threerings.media.sprite.*;
-import com.threerings.media.tile.Tile;
+import com.threerings.media.sprite.DirtyRectList;
+import com.threerings.media.sprite.Path;
+import com.threerings.media.sprite.SpriteManager;
+
 import com.threerings.media.tile.ObjectTile;
+import com.threerings.media.tile.ObjectTileLayer;
+import com.threerings.media.tile.Tile;
+import com.threerings.media.tile.TileLayer;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.DirtyItemList.DirtyItem;
-import com.threerings.miso.scene.util.*;
+import com.threerings.miso.scene.util.AStarPathUtil;
+import com.threerings.miso.scene.util.IsoUtil;
+import com.threerings.miso.tile.MisoTileLayer;
 
 /**
  * The iso scene view provides an isometric view of a particular
@@ -54,7 +70,7 @@ public class IsoSceneView implements SceneView
     }
 
     // documentation inherited
-    public void setScene (MisoScene scene)
+    public void setScene (DisplayMisoScene scene)
     {
         _scene = scene;
 
@@ -106,11 +122,6 @@ public class IsoSceneView implements SceneView
 	    _spritemgr.renderSpritePaths(gfx);
 	}
 
-	// draw marks at each location
-	if (_model.showLocs) {
-	    paintLocations(gfx);
-	}
-
         // paint any extra goodies
 	paintExtras(gfx);
 
@@ -145,8 +156,7 @@ public class IsoSceneView implements SceneView
     {
 	_dirtyRects.clear();
         _dirtyItems.clear();
-
-	_numDirty = 0;
+        _numDirty = 0;
 	for (int xx = 0; xx < _model.scenewid; xx++) {
 	    for (int yy = 0; yy < _model.scenehei; yy++) {
 		_dirty[xx][yy] = false;
@@ -207,25 +217,23 @@ public class IsoSceneView implements SceneView
      */
     protected void renderTiles (Graphics2D gfx)
     {
-        Tile[][][] tiles = _scene.getTiles();
+        MisoTileLayer base = _scene.getBaseLayer();
+        TileLayer fringe = _scene.getFringeLayer();
 
         // render the base and fringe layers
-	for (int yy = 0; yy < _model.scenehei; yy++) {
-	    for (int xx = 0; xx < _model.scenewid; xx++) {
-		if (_dirty[xx][yy]) {
+	for (int yy = 0; yy < base.getHeight(); yy++) {
+	    for (int xx = 0; xx < base.getWidth(); xx++) {
+		if (!_dirty[xx][yy]) {
+                    continue;
+                }
 
-                    // draw both layers at this tile position
-                    for (int kk = MisoScene.LAYER_BASE;
-                         kk <= MisoScene.LAYER_FRINGE; kk++) {
-
-                        // get the tile at these coordinates and layer
-                        Tile tile = tiles[kk][xx][yy];
-                        if (tile != null) {
-                            // draw the tile image
-                            tile.paint(gfx, _polys[xx][yy]);
-                        }
-                    }
-
+                // draw the base and fringe tile images
+                Tile tile;
+                if ((tile = base.getTile(yy, xx)) != null) {
+                    tile.paint(gfx, _polys[xx][yy]);
+                }
+                if ((tile = fringe.getTile(yy, xx)) != null) {
+                    tile.paint(gfx, _polys[xx][yy]);
                 }
 	    }
 	}
@@ -251,8 +259,8 @@ public class IsoSceneView implements SceneView
     }
 
     /**
-     * Generates and stores bounding polygons for all object tiles in
-     * the scene for later use while rendering.
+     * Generates and stores bounding polygons for all object tiles in the
+     * scene for later use while rendering.
      */
     protected void initAllObjectBounds ()
     {
@@ -260,10 +268,10 @@ public class IsoSceneView implements SceneView
         _objpolys.clear();
 
         // generate bounding polygons for all objects
-        ObjectTile[][] tiles = _scene.getObjectLayer();
-        for (int xx = 0; xx < _model.scenewid; xx++) {
-            for (int yy = 0; yy < _model.scenehei; yy++) {
-                ObjectTile tile = tiles[xx][yy];
+        ObjectTileLayer tiles = _scene.getObjectLayer();
+        for (int yy = 0; yy < tiles.getHeight(); yy++) {
+            for (int xx = 0; xx < tiles.getWidth(); xx++) {
+                ObjectTile tile = tiles.getTile(yy, xx);
                 if (tile != null) {
                     generateObjectBounds(tile, xx, yy);
                 }
@@ -343,47 +351,47 @@ public class IsoSceneView implements SceneView
         }
     }
 
-    /**
-     * Paint demarcations at all locations in the scene, with each
-     * location's cluster index, if any, along the right side of its
-     * rectangle.
-     *
-     * @param gfx the graphics context.
-     */
-    protected void paintLocations (Graphics2D gfx)
-    {
-	List locations = _scene.getLocations();
-	int size = locations.size();
+//     /**
+//      * Paint demarcations at all locations in the scene, with each
+//      * location's cluster index, if any, along the right side of its
+//      * rectangle.
+//      *
+//      * @param gfx the graphics context.
+//      */
+//     protected void paintLocations (Graphics2D gfx)
+//     {
+// 	List locations = _scene.getLocations();
+// 	int size = locations.size();
 
-	for (int ii = 0; ii < size; ii++) {
-	    // retrieve the location
-	    Location loc = (Location)locations.get(ii);
+// 	for (int ii = 0; ii < size; ii++) {
+// 	    // retrieve the location
+// 	    Location loc = (Location)locations.get(ii);
 
-	    // get the cluster index this location is in, if any
-	    int clusteridx = MisoSceneUtil.getClusterIndex(_scene, loc);
+// 	    // get the cluster index this location is in, if any
+// 	    int clusteridx = MisoSceneUtil.getClusterIndex(_scene, loc);
 
-            // get the location's center coordinate
-	    Point spos = new Point();
-	    IsoUtil.fullToScreen(_model, loc.x, loc.y, spos);
-	    int cx = spos.x, cy = spos.y;
+//             // get the location's center coordinate
+// 	    Point spos = new Point();
+// 	    IsoUtil.fullToScreen(_model, loc.x, loc.y, spos);
+// 	    int cx = spos.x, cy = spos.y;
 
-            // paint the location
-            loc.paint(gfx, cx, cy);
+//             // paint the location
+//             loc.paint(gfx, cx, cy);
 
-	    if (clusteridx != -1) {
-		// draw the cluster index number on the right side
-		gfx.setFont(_font);
-		gfx.setColor(Color.white);
-		gfx.drawString(String.valueOf(clusteridx), cx + 5, cy + 3);
-	    }
+// 	    if (clusteridx != -1) {
+// 		// draw the cluster index number on the right side
+// 		gfx.setFont(_font);
+// 		gfx.setColor(Color.white);
+// 		gfx.drawString(String.valueOf(clusteridx), cx + 5, cy + 3);
+// 	    }
 
-            // highlight the location if it's the default entrance
-            if (_scene.getEntrance() == loc) {
-                gfx.setColor(Color.cyan);
-                gfx.drawRect(spos.x - 5, spos.y - 5, 10, 10);
-            }
-        }
-    }
+//             // highlight the location if it's the default entrance
+//             if (_scene.getEntrance() == loc) {
+//                 gfx.setColor(Color.cyan);
+//                 gfx.drawRect(spos.x - 5, spos.y - 5, 10, 10);
+//             }
+//         }
+//     }
 
     // documentation inherited
     public void invalidateRects (DirtyRectList rects)
@@ -555,7 +563,7 @@ public class IsoSceneView implements SceneView
         }
 
         // add any objects impacted by the dirty rectangle
-        ObjectTile tiles[][] = _scene.getObjectLayer();
+        ObjectTileLayer tiles = _scene.getObjectLayer();
         Iterator iter = _objpolys.keys();
         while (iter.hasNext()) {
             // get the object's coordinates and bounding polygon
@@ -563,13 +571,11 @@ public class IsoSceneView implements SceneView
             Polygon poly = (Polygon)_objpolys.get(coord);
 
             if (poly.intersects(r)) {
-
                 // get the dirty portion of the object
                 Rectangle drect = poly.getBounds().intersection(r);
-
                 int tx = coord >> 16, ty = coord & 0x0000FFFF;
                 _dirtyItems.appendDirtyObject(
-                    tiles[tx][ty], poly, tx, ty, drect);
+                    tiles.getTile(ty, tx), poly, tx, ty, drect);
                 // Log.info("Dirtied item: Object(" + tx + ", " +
                 // ty + ")");
             }
@@ -628,8 +634,8 @@ public class IsoSceneView implements SceneView
     /** The scene view model data. */
     protected IsoSceneViewModel _model;
 
-    /** The scene object to be displayed. */
-    protected MisoScene _scene;
+    /** The scene to be displayed. */
+    protected DisplayMisoScene _scene;
 
     /** The sprite manager. */
     protected SpriteManager _spritemgr;

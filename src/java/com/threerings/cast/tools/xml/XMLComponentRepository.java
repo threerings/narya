@@ -1,7 +1,7 @@
 //
-// $Id: XMLComponentRepository.java,v 1.6 2001/11/02 15:37:51 shaper Exp $
+// $Id: XMLComponentRepository.java,v 1.7 2001/11/18 04:09:21 mdb Exp $
 
-package com.threerings.miso.scene.xml;
+package com.threerings.cast.tools.xml;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -29,12 +29,12 @@ public class XMLComponentRepository implements ComponentRepository
     /**
      * Constructs an xml component repository.
      */
-    public XMLComponentRepository (Config config, ImageManager imgmgr)
+    public XMLComponentRepository (Config config)
     {
         // load component types and components
         String file = config.getValue(COMPONENTS_KEY, DEFAULT_COMPONENTS);
         try {
-            XMLComponentParser p = new XMLComponentParser(imgmgr);
+            XMLComponentParser p = new XMLComponentParser();
             p.loadComponents(file, _actions, _classes, _components);
             _imagedir = p.getImageDir();
 

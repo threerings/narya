@@ -1,7 +1,7 @@
 //
-// $Id: TestFrame.java,v 1.2 2001/11/08 02:07:36 mdb Exp $
+// $Id: TestFrame.java,v 1.3 2001/11/18 04:09:20 mdb Exp $
 
-package com.threerings.cast.builder;
+package com.threerings.cast.tools.builder;
 
 import javax.swing.JFrame;
 

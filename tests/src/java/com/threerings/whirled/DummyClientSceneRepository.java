@@ -1,5 +1,5 @@
 //
-// $Id: DummyClientSceneRepository.java,v 1.4 2001/11/08 02:57:14 mdb Exp $
+// $Id: DummyClientSceneRepository.java,v 1.5 2001/11/18 04:09:21 mdb Exp $
 
 package com.threerings.whirled;
 
@@ -7,8 +7,7 @@ import java.io.IOException;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.client.persist.SceneRepository;
-import com.threerings.whirled.data.DummyScene;
-import com.threerings.whirled.data.Scene;
+import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.util.NoSuchSceneException;
 
 /**
@@ -19,15 +18,15 @@ import com.threerings.whirled.util.NoSuchSceneException;
 public class DummyClientSceneRepository implements SceneRepository
 {
     // documentation inherited
-    public Scene loadScene (int sceneId)
+    public SceneModel loadSceneModel (int sceneId)
         throws IOException, NoSuchSceneException
     {
-        Log.info("Creating dummy scene [id=" + sceneId + "].");
-        return new DummyScene(sceneId);
+        Log.info("Creating dummy scene model [id=" + sceneId + "].");
+        return new SceneModel();
     }
 
     // documentation inherited
-    public void updateScene (Scene scene)
+    public void updateSceneModel (SceneModel scene)
         throws IOException
     {
         // nothing doing

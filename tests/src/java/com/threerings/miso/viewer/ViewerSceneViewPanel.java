@@ -1,13 +1,11 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.30 2001/11/08 02:58:24 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.31 2001/11/18 04:09:21 mdb Exp $
 
 package com.threerings.miso.viewer;
 
 import java.awt.*;
-import java.awt.event.*;
-import java.io.IOException;
-import java.io.InputStream;
-import javax.swing.JPanel;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import com.samskivert.util.Config;
 
@@ -15,19 +13,22 @@ import com.threerings.cast.CharacterDescriptor;
 import com.threerings.cast.CharacterManager;
 import com.threerings.cast.util.CastUtil;
 
-import com.threerings.media.ImageManager;
-import com.threerings.media.sprite.*;
-import com.threerings.media.tile.TileManager;
+import com.threerings.media.sprite.AnimationManager;
+import com.threerings.media.sprite.LineSegmentPath;
+import com.threerings.media.sprite.PathCompletedEvent;
+import com.threerings.media.sprite.SpriteEvent;
+import com.threerings.media.sprite.SpriteManager;
+import com.threerings.media.sprite.SpriteObserver;
+
 import com.threerings.media.util.RandomUtil;
 import com.threerings.media.util.PerformanceMonitor;
 import com.threerings.media.util.PerformanceObserver;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.*;
-import com.threerings.miso.scene.xml.XMLSceneRepository;
+import com.threerings.miso.scene.MisoCharacterSprite;
+import com.threerings.miso.scene.SceneViewPanel;
 import com.threerings.miso.scene.util.IsoUtil;
-import com.threerings.miso.util.*;
-import com.threerings.miso.viewer.util.ViewerContext;
+import com.threerings.miso.util.MisoContext;
 
 public class ViewerSceneViewPanel extends SceneViewPanel
     implements PerformanceObserver, SpriteObserver
@@ -35,21 +36,16 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     /**
      * Construct the panel and initialize it with a context.
      */
-    public ViewerSceneViewPanel (ViewerContext ctx, SpriteManager spritemgr)
+    public ViewerSceneViewPanel (MisoContext ctx, SpriteManager spritemgr,
+                                 CharacterManager charmgr)
     {
 	super(ctx.getConfig(), spritemgr);
-
-	_ctx = ctx;
 
         // create an animation manager for this panel
   	_animmgr = new AnimationManager(spritemgr, this);
 
-        // load up the initial scene
-        prepareStartingScene();
-
-        // construct the character manager from which we obtain sprites
-        CharacterManager charmgr = MisoUtil.createCharacterManager(
-            ctx.getConfig(), ctx.getImageManager());
+        // configure the character manager from which we obtain sprites
+        charmgr.setCharacterClass(MisoCharacterSprite.class);
 
         // create the character descriptors
         _descUser = CastUtil.getRandomDescriptor(charmgr);
@@ -105,24 +101,6 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         }
     }
 
-    /**
-     * Load and set up the starting scene for display.
-     */
-    protected void prepareStartingScene ()
-    {
-	ViewerModel model = _ctx.getViewerModel();
-        try {
-	    XMLSceneRepository screpo = _ctx.getSceneRepository();
-            InputStream scin = _ctx.getResourceManager().
-                getResource(model.scenefile);
-            _view.setScene(screpo.loadScene(scin));
-
-        } catch (IOException ioe) {
-            Log.warning("Exception loading scene [fname=" + model.scenefile +
-                        ", ioe=" + ioe + "].");
-        }
-    }
-
     // documentation inherited
     public void paintComponent (Graphics g)
     {
@@ -162,14 +140,14 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     protected boolean createPath (MisoCharacterSprite s, int x, int y)
     {
         // get the path from here to there
-        Path path = _view.getPath(s, x, y);
+        LineSegmentPath path = (LineSegmentPath)_view.getPath(s, x, y);
 	if (path == null) {
 	    s.cancelMove();
 	    return false;
 	}
 
         // start the sprite moving along the path
-	((LineSegmentPath)path).setVelocity(100f/1000f);
+	path.setVelocity(100f/1000f);
 	s.move(path);
         return true;
     }
@@ -218,7 +196,4 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 
     /** The test sprites that meander about aimlessly. */
     protected MisoCharacterSprite _decoys[];
-
-    /** The context object. */
-    protected ViewerContext _ctx;
 }

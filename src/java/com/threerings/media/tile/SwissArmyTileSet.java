@@ -1,10 +1,17 @@
 //
-// $Id: SwissArmyTileSet.java,v 1.1 2001/11/08 03:04:44 mdb Exp $
+// $Id: SwissArmyTileSet.java,v 1.2 2001/11/18 04:09:21 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Dimension;
+import java.awt.image.BufferedImage;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
+import com.samskivert.util.StringUtil;
 
 import com.threerings.media.Log;
 import com.threerings.media.ImageManager;
@@ -18,63 +25,88 @@ import com.threerings.media.ImageManager;
  */
 public class SwissArmyTileSet extends TileSet
 {
-    /**
-     * The full monty. Constructs a swiss army tile set object with the
-     * full panoply of parameters, specifying everything under the sun.
-     * Each row in the tileset image must contain tiles of the same width
-     * and height, but those values can vary from row to row. Each row can
-     * contain an arbitrary number of tiles. The tiles can be offset from
-     * the upper left of the image and can have a uniform horizontal and
-     * vertical distance between each tile (horizontal doesn't have to be
-     * the same as vertical but all horizontal distances must be the same,
-     * for example).
-     *
-     * @param imgmgr an image manager from which the tileset image can be
-     * loaded.
-     * @param imgPath the path to the tileset image.
-     * @param name the name of the tileset (optional, can be null).
-     * @param tsid the unique integer identifier of the tileset (optional,
-     * can be zero if the tileset is not to be loaded by id).
-     * @param tileCount an array containing the number of tiles in each
-     * row.
-     * @param rowWidth an array containing the width of the tiles in each
-     * row.
-     * @param rowHeight an array containing the height of the tiles in
-     * each row.
-     * @param offsetPos the offset to the upper left of the first tile.
-     * @param gapDist the number of pixels (x for horizontally and y for
-     * vertically) in between each tile in the tileset image.
-     */
-    public SwissArmyTileSet (
-        ImageManager imgmgr, String imgPath, String name, int tsid,
-        int tileCount[], int rowWidth[], int rowHeight[],
-        Point offsetPos, Point gapDist)
-    {
-        super(imgmgr, imgPath, name, tsid);
-
-        // keep these around
-        _tileCount = tileCount;
-        _rowWidth = rowWidth;
-        _rowHeight = rowHeight;
-        _offsetPos = offsetPos;
-        _gapDist = gapDist;
-
-        // compute our number of tiles
-        for (int i = 0; i < tileCount.length; i++) {
-            _numTiles += tileCount[i];
-        }
-    }
-
     // documentation inherited
     public int getTileCount ()
     {
 	return _numTiles;
     }
 
-    // documentation inherited
-    protected Image getTileImage (int tileId)
+    /**
+     * Sets the tile counts which are the number of tiles in each row of
+     * the tileset image. Each row can have an arbitrary number of tiles.
+     */
+    public void setTileCounts (int[] tileCounts)
     {
-        Image tsimg = getTilesetImage();
+        _tileCounts = tileCounts;
+
+        // compute our total tile count
+        computeTileCount();
+    }
+
+    /**
+     * Computes our total tile count from the individual counts for each
+     * row.
+     */
+    protected void computeTileCount ()
+    {
+        // compute our number of tiles
+        for (int i = 0; i < _tileCounts.length; i++) {
+            _numTiles += _tileCounts[i];
+        }
+    }
+
+    /**
+     * Sets the tile widths for each row. Each row can have tiles of a
+     * different width.
+     */
+    public void setWidths (int[] widths)
+    {
+        _widths = widths;
+    }
+
+    /**
+     * Sets the tile heights for each row. Each row can have tiles of a
+     * different height.
+     */
+    public void setHeights (int[] heights)
+    {
+        _heights = heights;
+    }
+
+    /**
+     * Sets the offset in pixels of the upper left corner of the first
+     * tile in the first row. If the tileset image has a border, this can
+     * be set to account for it.
+     */
+    public void setOffsetPos (Point offsetPos)
+    {
+        _offsetPos = offsetPos;
+    }
+
+    /**
+     * Sets the size of the gap between tiles (in pixels). If the tiles
+     * have space between them, this can be set to account for it.
+     */
+    public void setGapSize (Dimension gapSize)
+    {
+        _gapSize = gapSize;
+    }
+
+    // documentation inherited
+    protected void toString (StringBuffer buf)
+    {
+        super.toString(buf);
+	buf.append(", widths=").append(StringUtil.toString(_widths));
+	buf.append(", heights=").append(StringUtil.toString(_heights));
+	buf.append(", tileCounts=").append(StringUtil.toString(_tileCounts));
+	buf.append(", offsetPos=").append(StringUtil.toString(_offsetPos));
+	buf.append(", gapSize=").append(StringUtil.toString(_gapSize));
+    }
+
+    // documentation inherited
+    protected Image extractTileImage (int tileId)
+    {
+        BufferedImage tsimg = getTilesetImage();
         if (tsimg == null) {
             return null;
         }
@@ -87,37 +119,45 @@ public class SwissArmyTileSet extends TileSet
         tx = _offsetPos.x;
         ty = _offsetPos.y;
 
-	while ((tcount += _tileCount[ridx]) < tileId + 1) {
+	while ((tcount += _tileCounts[ridx]) < tileId + 1) {
             // increment tile image position by row height and gap distance
-	    ty += (_rowHeight[ridx++] + _gapDist.y);
+	    ty += (_heights[ridx++] + _gapSize.height);
 	}
 
         // determine the horizontal index of this tile in the row
-	int xidx = tileId - (tcount - _tileCount[ridx]);
+	int xidx = tileId - (tcount - _tileCounts[ridx]);
 
         // final image x-position is based on tile width and gap distance
-        tx += (xidx * (_rowWidth[ridx] + _gapDist.x));
+        tx += (xidx * (_widths[ridx] + _gapSize.width));
 
 	// Log.info("Retrieving tile image [tileId=" + tileId + ", ridx=" +
 	// ridx + ", xidx=" + xidx + ", tx=" + tx +
 	// ", ty=" + ty + "].");
 
 	// crop the tile-sized image chunk from the full image
-	return _imgmgr.getImageCropped(
-            tsimg, tx, ty, _rowWidth[ridx], _rowHeight[ridx]);
+	return tsimg.getSubimage(tx, ty, _widths[ridx], _heights[ridx]);
+    }
+
+    private void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
+    {
+        in.defaultReadObject();
+
+        // compute our total tile count
+        computeTileCount();
     }
 
     /** The number of tiles in each row. */
-    protected int[] _tileCount;
+    protected int[] _tileCounts;
 
     /** The number of tiles in the tileset. */
     protected int _numTiles;
 
     /** The width of the tiles in each row in pixels. */
-    protected int[] _rowWidth;
+    protected int[] _widths;
 
     /** The height of the tiles in each row in pixels. */
-    protected int[] _rowHeight;
+    protected int[] _heights;
 
     /** The offset distance (x, y) in pixels from the top-left of the
      * image to the start of the first tile image.  */
@@ -125,5 +165,5 @@ public class SwissArmyTileSet extends TileSet
 
     /** The distance (x, y) in pixels between each tile in each row
      * horizontally, and between each row of tiles vertically.  */
-    protected Point _gapDist = new Point();
+    protected Dimension _gapSize = new Dimension();
 }

@@ -1,10 +1,10 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.17 2001/10/22 23:55:14 mdb Exp $
+// $Id: IsoSceneViewModel.java,v 1.18 2001/11/18 04:09:22 mdb Exp $
 
 package com.threerings.miso.scene;
 
-import java.awt.Rectangle;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import com.samskivert.util.Config;
@@ -14,9 +14,8 @@ import com.threerings.miso.scene.util.IsoUtil;
 import com.threerings.miso.util.MisoUtil;
 
 /**
- * The iso scene view model provides a holding place for the myriad
- * parameters and bits of data that describe the details of an isometric
- * view of a scene.
+ * Provides a holding place for the myriad parameters and bits of data
+ * that describe the details of an isometric view of a scene.
  *
  * <p> The member data are public to facilitate speedy referencing by the
  * {@link IsoSceneView} class.  The model should only be modified through
@@ -56,7 +55,7 @@ public class IsoSceneViewModel
     public float slopeX, slopeY;
 
     /** The x-axis line. */
-    public Point lineX[];
+    public Point[] lineX;
 
     /** The length between fine coordinates in pixels. */
     public float finelen;
@@ -69,9 +68,6 @@ public class IsoSceneViewModel
 
     /** Whether tile coordinates should be drawn. */
     public boolean showCoords;
-
-    /** Whether locations in the scene should be drawn. */
-    public boolean showLocs;
 
     /** Whether sprite paths should be drawn. */
     public boolean showPaths;
@@ -106,7 +102,6 @@ public class IsoSceneViewModel
 
 	// set our various flags
         showCoords = config.getValue(SHOW_COORDS_KEY, DEF_SHOW_COORDS);
-	showLocs = config.getValue(SHOW_COORDS_KEY, DEF_SHOW_COORDS);
 	showPaths = config.getValue(SHOW_PATHS_KEY, DEF_SHOW_PATHS);
     }
 
@@ -156,15 +151,6 @@ public class IsoSceneViewModel
         return (isCoordinateValid(tx, ty) &&
                 fx >= 0 && fx < finegran &&
                 fy >= 0 && fy < finegran);
-    }
-
-    /**
-     * Toggle whether locations in the scene should be drawn.
-     */
-    public void toggleShowLocations ()
-    {
-	showLocs = !showLocs;
-        notifyListeners(IsoSceneViewModelListener.SHOW_LOCATIONS_CHANGED);
     }
 
     /**
@@ -275,10 +261,6 @@ public class IsoSceneViewModel
     protected static final String SHOW_COORDS_KEY =
 	MisoUtil.CONFIG_KEY + ".show_coords";
 
-    /** The config key for whether to show locations. */
-    protected static final String SHOW_LOCS_KEY =
-	MisoUtil.CONFIG_KEY + ".show_locs";
-
     /** The config key for whether to show sprite paths. */
     protected static final String SHOW_PATHS_KEY =
 	MisoUtil.CONFIG_KEY + ".show_paths";
@@ -293,7 +275,6 @@ public class IsoSceneViewModel
     protected static final int DEF_SCENE_HEIGHT = 22;
     protected static final int DEF_OFFSET_Y = -5;
     protected static final boolean DEF_SHOW_COORDS = false;
-    protected static final boolean DEF_SHOW_LOCS = false;
     protected static final boolean DEF_SHOW_PATHS = false;
 
     /** The model listeners. */

@@ -1,5 +1,5 @@
 //
-// $Id: SceneView.java,v 1.18 2001/10/26 01:17:21 shaper Exp $
+// $Id: SceneView.java,v 1.19 2001/11/18 04:09:22 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -36,7 +36,7 @@ public interface SceneView
      *
      * @param scene the scene to render in the view.
      */
-    public void setScene (MisoScene scene);
+    public void setScene (DisplayMisoScene scene);
 
     /**
      * Returns a {@link Path} object detailing a valid path for the

@@ -1,7 +1,7 @@
 //
-// $Id: ClassEditor.java,v 1.1 2001/11/02 01:10:28 shaper Exp $
+// $Id: ClassEditor.java,v 1.2 2001/11/18 04:09:21 mdb Exp $
 
-package com.threerings.cast.builder;
+package com.threerings.cast.tools.builder;
 
 import java.util.List;
 

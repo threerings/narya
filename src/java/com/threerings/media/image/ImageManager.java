@@ -1,101 +1,54 @@
 //
-// $Id: ImageManager.java,v 1.6 2001/11/02 01:08:52 shaper Exp $
+// $Id: ImageManager.java,v 1.7 2001/11/18 04:09:21 mdb Exp $
 
 package com.threerings.media;
 
-import java.awt.*;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Hashtable;
+import java.util.HashMap;
+
+import javax.imageio.ImageIO;
 
 import com.threerings.resource.ResourceManager;
-
 import com.threerings.media.Log;
 
 /**
- * The ImageManager class provides a single point of access for image
- * retrieval and caching.
- *
- * <p> <b>Note:</b> The ImageManager must be constructed with a root
- * AWT component, in the interest of allowing for proper preparation
- * of images for optimal storage and eventual display.
+ * Provides a single point of access for image retrieval and caching.
  */
 public class ImageManager
 {
     /**
-     * Construct an ImageManager object with the ResourceManager from
-     * which it will obtain its data, and a root component to which
-     * images will be rendered.
+     * Construct an image manager with the specified {@link
+     * ResourceManager} from which it will obtain its data.
      */
-    public ImageManager (ResourceManager rmgr, Component root)
+    public ImageManager (ResourceManager rmgr)
     {
 	_rmgr = rmgr;
-	_root = root;
-	_tk = root.getToolkit();
     }
 
     /**
-     * Load the image from the specified filename and cache it for
-     * faster retrieval henceforth.
+     * Loads the image via the resource manager using the specified path
+     * and caches it for faster retrieval henceforth.
      */
-    public Image getImage (String fname)
+    public BufferedImage getImage (String path)
+        throws IOException
     {
-	if (_root == null) {
-	    Log.warning("Attempt to get image without valid root component.");
-	    return null;
-	}
-
-	Image img = (Image)_imgs.get(fname);
+	BufferedImage img = (BufferedImage)_imgs.get(path);
 	if (img != null) {
-	    // Log.info("Retrieved image from cache [fname=" + fname + "].");
+	    // Log.info("Retrieved image from cache [path=" + path + "].");
 	    return img;
 	}
 
-	// Log.info("Loading image into cache [fname=" + fname + "].");
-
-	try {
-	    byte[] data = _rmgr.getResourceAsBytes(fname);
-	    img = _tk.createImage(data);
-	    MediaTracker tracker = new MediaTracker(_root);
-	    tracker.addImage(img, 0);
-
-	    tracker.waitForID(0);
-	    if (tracker.isErrorAny()) {
-		Log.warning("Error loading image [fname=" + fname + "].");
-		return null;
-
-	    } else {
-		_imgs.put(fname, img);
-	    }
-
-	} catch (IOException ioe) {
-	    Log.warning("Exception loading image [ioe=" + ioe + "].");
-
-	} catch (InterruptedException ie) {
-	    Log.warning("Interrupted loading image [ie=" + ie + "].");
-	}
-
-	return img;
+	// Log.info("Loading image into cache [path=" + path + "].");
+        img = ImageIO.read(_rmgr.getResource(path));
+        _imgs.put(path, img);
+        return img;
     }
 
-    /**
-     * Creates a new image representing the specified rectangular
-     * section cropped from the specified full image object.
-     */
-    public Image getImageCropped (Image fullImg, int x, int y,
-				  int width, int height)
-    {
-	BufferedImage img =
-	    new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-
-	Graphics2D gfx = img.createGraphics();
-	gfx.drawImage(fullImg, -x, -y, null);
-
-	return img;
-    }
-
+    /** A reference to the resource manager via which we load image data
+     * by default. */
     protected ResourceManager _rmgr;
-    protected Component _root;
-    protected Hashtable _imgs = new Hashtable();
-    protected Toolkit _tk = Toolkit.getDefaultToolkit();
+
+    /** A cache of loaded images. */
+    protected HashMap _imgs = new HashMap();
 }

@@ -1,81 +1,36 @@
 //
-// $Id: BaseTileSet.java,v 1.5 2001/11/08 03:04:45 mdb Exp $
+// $Id: BaseTileSet.java,v 1.6 2001/11/18 04:09:22 mdb Exp $
 
 package com.threerings.miso.tile;
 
-import java.awt.Point;
+import java.awt.Image;
 
-import com.samskivert.util.HashIntMap;
-
-import com.threerings.media.ImageManager;
-import com.threerings.media.tile.*;
-
-import com.threerings.miso.scene.MisoScene;
+import com.threerings.media.tile.Tile;
+import com.threerings.media.tile.SwissArmyTileSet;
 
 /**
  * The miso tile set extends the swiss army tile set to add support for
  * tile passability. Passability is used to determine whether {@link
  * com.threerings.miso.scene.Traverser} objects can traverse a particular
- * tile in a {@link MisoScene}.
+ * tile in a scene.
  */
 public class MisoTileSet extends SwissArmyTileSet
 {
     /**
-     * Constructs a Miso tileset with the swiss army tile set
-     * configuration information and additional information about tile
-     * passability.
-     *
-     * @param layer the layer to which this tileset is assigned.
-     * @param passable info on each tile indicating whether or not the
-     * tile is passable (can be walked on by sprites).
-     *
-     * @see SwissArmyTileSet#SwissArmyTileSet
+     * Sets the passability information for the tiles in this tileset.
+     * Each entry in the array corresponds to the tile at that tile index.
      */
-    public MisoTileSet (
-        ImageManager imgmgr, String imgFile, String name, int tsid,
-        int[] tileCount, int[] rowWidth, int[] rowHeight,
-        Point offsetPos, Point gapDist, int layer, int[] passable)
+    public void setPassability (boolean[] passable)
     {
-        super(imgmgr, imgFile, name, tsid, tileCount,
-              rowWidth, rowHeight, offsetPos, gapDist);
-
-        _layer = layer;
         _passable = passable;
     }
 
     // documentation inherited
-    public Tile createTile (int tid)
+    public Tile createTile (Image image, int tileIndex)
     {
-	// only create miso tiles for the base layer
-	if (_layer != MisoScene.LAYER_BASE) {
-	    return super.createTile(tid);
-	}
-
-	return new MisoTile(_tsid, tid);
+	return new MisoTile(image, _passable[tileIndex]);
     }
-
-    // documentation inherited
-    protected void populateTile (Tile tile)
-    {
-	super.populateTile(tile);
-
-	if (tile instanceof MisoTile) {
-	    // set the tile's passability, defaulting to passable if this
-	    // tileset has no passability specified
-	    ((MisoTile)tile).passable =
-		(_passable == null || (_passable[tile.tid] == 1));
-	}
-    }
-
-    // documentation inherited
-    public int getLayerIndex ()
-    {
-        return _layer;
-    }
-
-    /** The miso scene layer the tiles are intended for. */
-    protected int _layer;
 
     /** Whether each tile is passable. */
-    protected int _passable[];
+    protected boolean[] _passable;
 }

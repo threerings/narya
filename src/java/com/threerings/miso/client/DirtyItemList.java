@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.5 2001/10/30 16:16:01 shaper Exp $
+// $Id: DirtyItemList.java,v 1.6 2001/11/18 04:09:22 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -93,8 +93,8 @@ public class DirtyItemList extends ArrayList
             ly = ry = oy;
             if (obj instanceof ObjectTile) {
                 ObjectTile tile = (ObjectTile)obj;
-                lx -= (tile.baseWidth - 1);
-                ry -= (tile.baseHeight - 1);
+                lx -= (tile.getBaseWidth() - 1);
+                ry -= (tile.getBaseHeight() - 1);
             }
         }
 

@@ -1,7 +1,7 @@
 //
-// $Id: BuilderPanel.java,v 1.3 2001/11/02 01:10:28 shaper Exp $
+// $Id: BuilderPanel.java,v 1.4 2001/11/18 04:09:21 mdb Exp $
 
-package com.threerings.cast.builder;
+package com.threerings.cast.tools.builder;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

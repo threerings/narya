@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.7 2001/11/08 02:07:36 mdb Exp $
+// $Id: TestClient.java,v 1.8 2001/11/18 04:09:21 mdb Exp $
 
 package com.threerings.whirled;
 
@@ -15,6 +15,7 @@ import com.threerings.crowd.client.*;
 import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.whirled.client.SceneDirector;
+import com.threerings.whirled.client.DefaultDisplaySceneFactory;
 import com.threerings.whirled.client.persist.SceneRepository;
 import com.threerings.whirled.util.WhirledContext;
 
@@ -31,7 +32,8 @@ public class TestClient
         _client = new Client(creds, this);
         _screp = new DummyClientSceneRepository();
         _occmgr = new OccupantManager(_ctx);
-        _scdir = new SceneDirector(_ctx, _screp);
+        _scdir = new SceneDirector(
+            _ctx, _screp, new DefaultDisplaySceneFactory());
 
         // we want to know about logon/logoff
         _client.addObserver(this);

@@ -1,5 +1,5 @@
 //
-// $Id: CastUtil.java,v 1.1 2001/11/02 15:28:20 shaper Exp $
+// $Id: CastUtil.java,v 1.2 2001/11/18 04:09:21 mdb Exp $
 
 package com.threerings.cast.util;
 
@@ -7,10 +7,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.samskivert.util.CollectionUtil;
-
 import com.threerings.media.util.RandomUtil;
 
-import com.threerings.cast.*;
+import com.threerings.cast.CharacterDescriptor;
+import com.threerings.cast.CharacterManager;
+import com.threerings.cast.ComponentClass;
 
 /**
  * Miscellaneous cast utility routines.
@@ -18,11 +19,11 @@ import com.threerings.cast.*;
 public class CastUtil
 {
     /**
-     * Returns a new character descriptor populated with a random set
-     * of components.
+     * Returns a new character descriptor populated with a random set of
+     * components.
      */
-    public static CharacterDescriptor
-        getRandomDescriptor (CharacterManager charmgr)
+    public static CharacterDescriptor getRandomDescriptor (
+        CharacterManager charmgr)
     {
         // get all available classes
         ArrayList classes = new ArrayList();

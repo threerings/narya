@@ -1,41 +1,36 @@
 //
-// $Id: XMLComponentParser.java,v 1.3 2001/11/01 01:40:42 shaper Exp $
+// $Id: XMLComponentParser.java,v 1.4 2001/11/18 04:09:21 mdb Exp $
 
-package com.threerings.cast;
+package com.threerings.cast.tools.xml;
 
 import java.awt.Point;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import org.xml.sax.*;
 
 import com.samskivert.util.*;
 import com.samskivert.xml.SimpleParser;
 
-import com.threerings.media.ImageManager;
-import com.threerings.media.tile.*;
+import com.threerings.media.tile.TileSet;
+import com.threerings.media.tile.xml.XMLTileSetParser;
 
 import com.threerings.cast.Log;
+import com.threerings.cast.ActionSequence;
+import com.threerings.cast.ComponentClass;
+import com.threerings.cast.CharacterComponent;
 
 /**
  * Parses an XML character component description file and populates
- * hashtables with {@link ActionSequence}, {@link ComponentClass}, and
- * the information necessary to construct {@link CharacterComponent}
- * objects.
+ * hashtables with {@link ActionSequence}, {@link ComponentClass}, and the
+ * information necessary to construct {@link CharacterComponent} objects.
  *
  * <p> Does not currently perform validation on the input XML stream,
  * though the parsing code assumes the XML document is well-formed.
  */
 public class XMLComponentParser extends SimpleParser
 {
-    /**
-     * Constructs an xml component parser.
-     */
-    public XMLComponentParser (ImageManager imgmgr)
-    {
-        _imgmgr = imgmgr;
-    }
-
     // documentation inherited
     public void startElement (
         String uri, String localName, String qName, Attributes attributes)
@@ -106,7 +101,7 @@ public class XMLComponentParser extends SimpleParser
         }
 
         // parse the tile set description file
-        XMLTileSetParser p = new XMLTileSetParser(_imgmgr);
+        XMLTileSetParser p = new XMLTileSetParser();
         try {
             p.loadTileSets(path, _tilesets);
         } catch (IOException e) {
@@ -127,11 +122,12 @@ public class XMLComponentParser extends SimpleParser
         as.name = attrs.getValue("name");
         as.fileid = attrs.getValue("fileid");
 
-        int tsid = parseInt(attrs.getValue("tsid"));
-        as.tileset = (TileSet)_tilesets.get(tsid);
+        String tileset = attrs.getValue("tileset");
+        as.tileset = (TileSet)_tilesets.get(tileset);
         if (as.tileset == null) {
             Log.warning("Action sequence references non-existent " +
-                        "tile set [asid=" + as.asid + ", tsid=" + tsid + "].");
+                        "tile set [asid=" + as.asid +
+                        ", tileset=" + tileset + "].");
         }
 
         as.fps = parseInt(attrs.getValue("fps"));
@@ -240,7 +236,7 @@ public class XMLComponentParser extends SimpleParser
     protected String _imagedir;
 
     /** The hashtable of component tile sets. */
-    protected HashIntMap _tilesets = new HashIntMap();
+    protected HashMap _tilesets = new HashMap();
 
     /** The hashtable of action sequences gathered while parsing. */
     protected HashIntMap _actions;
@@ -250,7 +246,4 @@ public class XMLComponentParser extends SimpleParser
 
     /** The hashtable of character components gathered while parsing. */
     protected HashIntMap _components;
-
-    /** The image manager. */
-    protected ImageManager _imgmgr;
 }

@@ -1,7 +1,7 @@
 //
-// $Id: TestApp.java,v 1.4 2001/11/08 02:58:23 mdb Exp $
+// $Id: TestApp.java,v 1.5 2001/11/18 04:09:20 mdb Exp $
 
-package com.threerings.cast.builder;
+package com.threerings.cast.tools.builder;
 
 import java.io.IOException;
 import javax.swing.JFrame;
@@ -10,11 +10,12 @@ import com.samskivert.util.Config;
 import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.resource.ResourceManager;
-import com.threerings.media.ImageManager;
 
 import com.threerings.cast.Log;
 import com.threerings.cast.CharacterManager;
+import com.threerings.cast.ComponentRepository;
 
+import com.threerings.miso.scene.MisoCharacterSprite;
 import com.threerings.miso.util.MisoUtil;
 
 public class TestApp
@@ -29,10 +30,11 @@ public class TestApp
         _config = MisoUtil.createConfig();
 
         ResourceManager rsrcmgr = new ResourceManager("rsrc");
-	_imgmgr = new ImageManager(rsrcmgr, _frame);
 
-        CharacterManager charmgr =
-            MisoUtil.createCharacterManager(_config, _imgmgr);
+        // TBD: sort out component repository
+        ComponentRepository crepo = null;
+        CharacterManager charmgr = new CharacterManager(crepo);
+        charmgr.setCharacterClass(MisoCharacterSprite.class);
 
         // initialize the frame
         ((TestFrame)_frame).init(charmgr);
@@ -55,7 +57,4 @@ public class TestApp
 
     /** The config object. */
     protected Config _config;
-
-    /** The image manager object. */
-    protected ImageManager _imgmgr;
 }
