@@ -1,9 +1,11 @@
 //
-// $Id: BaseTileSet.java,v 1.7 2001/11/27 22:17:42 mdb Exp $
+// $Id: BaseTileSet.java,v 1.8 2001/11/29 00:17:32 mdb Exp $
 
 package com.threerings.miso.tile;
 
 import java.awt.Image;
+
+import com.samskivert.util.StringUtil;
 
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.SwissArmyTileSet;
@@ -26,9 +28,16 @@ public class BaseTileSet extends SwissArmyTileSet
     }
 
     // documentation inherited
-    public Tile createTile (Image image, int tileIndex)
+    protected Tile createTile (int tileIndex, Image image)
     {
 	return new BaseTile(image, _passable[tileIndex]);
+    }
+
+    // documentation inherited
+    protected void toString (StringBuffer buf)
+    {
+        super.toString(buf);
+	buf.append(", passable=").append(StringUtil.toString(_passable));
     }
 
     /** Whether each tile is passable. */
