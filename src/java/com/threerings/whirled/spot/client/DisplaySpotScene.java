@@ -1,7 +1,9 @@
 //
-// $Id: DisplaySpotScene.java,v 1.2 2001/11/29 00:16:11 mdb Exp $
+// $Id: DisplaySpotScene.java,v 1.3 2001/12/05 08:45:05 mdb Exp $
 
 package com.threerings.whirled.spot.client;
+
+import java.util.List;
 
 import com.threerings.whirled.client.DisplayScene;
 
@@ -21,13 +23,13 @@ public interface DisplaySpotScene extends DisplayScene
     public int getDefaultEntranceId ();
 
     /**
-     * Returns an array of the locations in this scene (including portals
+     * Returns a list of the locations in this scene (including portals
      * which will be instances of {@link Portal}).
      */
-    public Location[] getLocations ();
+    public List getLocations ();
 
     /**
-     * Returns an array of the portals in this scene.
+     * Returns a list of the portals in this scene.
      */
-    public Portal[] getPortals ();
+    public List getPortals ();
 }

@@ -1,10 +1,10 @@
 //
-// $Id: EditableSpotSceneImpl.java,v 1.6 2001/12/05 07:38:54 mdb Exp $
+// $Id: EditableSpotSceneImpl.java,v 1.7 2001/12/05 08:45:06 mdb Exp $
 
 package com.threerings.whirled.tools.spot;
 
 import java.util.ArrayList;
-import com.samskivert.util.ListUtil;
+import java.util.List;
 
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.whirled.tools.EditableSceneModel;
@@ -34,43 +34,9 @@ import com.threerings.whirled.spot.Log;
  *
  * @see com.threerings.whirled.tools.EditableScene
  */
-public class EditableSpotSceneImpl
-    extends DisplaySpotSceneImpl
+public class EditableSpotSceneImpl extends EditableSceneImpl
     implements EditableSpotScene
 {
-    /**
-     * Creates an instance that will obtain data from the supplied scene
-     * model and update it when changes are made.
-     */
-    public EditableSpotSceneImpl (EditableSpotSceneModel model)
-    {
-        super(model.spotSceneModel, null);
-
-        // keep track of this
-        _emodel = model;
-
-        // Java doesn't support multiple inheritance (we'll let the reader
-        // decide whether or not that's unfortunate), so we have to
-        // instantiate an EditableSceneImpl delegate to handle the
-        // extensions to DisplayScene provided by EditableScene because
-        // we're extending from the DisplaySceneImpl class chain
-        _edelegate = new EditableSceneImpl(model);
-
-        // go through and finish populating our editable portals
-        for (int i = 0; i < _portals.length; i++) {
-            EditablePortal port = (EditablePortal)_portals[i];
-            port.name = _emodel.portalNames[i];
-            port.targetSceneName = (String)_emodel.neighborNames.get(i);
-            port.targetPortalName = _emodel.targetPortalNames[i];
-        }
-    }
-
-    // documentation inherited
-    protected Portal createPortal ()
-    {
-        return new EditablePortal();
-    }
-
     /**
      * Creates an instance that will create and use a blank scene model.
      */
@@ -79,64 +45,76 @@ public class EditableSpotSceneImpl
         this(EditableSpotSceneModel.blankSpotSceneModel());
     }
 
-    // documentation inherited
-    public void setId (int sceneId)
+    /**
+     * Creates an instance that will obtain data from the supplied scene
+     * model and update it when changes are made.
+     */
+    public EditableSpotSceneImpl (EditableSpotSceneModel model)
     {
-        _edelegate.setId(sceneId);
+        this(model, new DisplaySpotSceneImpl(model.spotSceneModel, null));
+    }
+
+    /**
+     * Creates an instance that will obtain data from the supplied scene
+     * model and update it when changes are made. It will delegate to the
+     * supplied display spot scene instead of creating its own delegate.
+     */
+    public EditableSpotSceneImpl (
+        EditableSpotSceneModel model, DisplaySpotSceneImpl delegate)
+    {
+        super(model, delegate);
+
+        // keep track of these
+        _model = model.spotSceneModel;
+        _emodel = model;
+        _delegate = delegate;
+
+        // go through and replace the plain portals with editable portals
+        // (oh the machinations we have to go through for the lack of
+        // multiple inheritance)
+        List portals = _delegate.getPortals();
+        for (int i = 0; i < portals.size(); i++) {
+            EditablePortal port = dupePortal((Portal)portals.get(i));;
+            port.name = _emodel.portalNames[i];
+            port.targetSceneName = (String)_emodel.neighborNames.get(i);
+            port.targetPortalName = _emodel.targetPortalNames[i];
+            portals.set(i, port);
+        }
+    }
+
+    /**
+     * Constructs an editable portal with the same configuration as the
+     * supplied regular portal.
+     */
+    protected EditablePortal dupePortal (Portal source)
+    {
+        EditablePortal port = new EditablePortal();
+        port.locationId = source.locationId;
+        port.x = source.x;
+        port.y = source.y;
+        port.orientation = source.orientation;
+        port.clusterIndex = source.clusterIndex;
+        port.targetSceneId = source.targetSceneId;
+        port.targetLocId = source.targetLocId;
+        return port;
     }
 
     // documentation inherited
-    public void setVersion (int version)
+    public int getDefaultEntranceId ()
     {
-        _edelegate.setVersion(version);
+        return _delegate.getDefaultEntranceId();
     }
 
     // documentation inherited
-    public void setNeighborIds (int[] neighborIds)
+    public List getLocations ()
     {
-        String errmsg = "Neighbor IDs can't be set directly in the " +
-            "EditableSpotScene because we need to know the associated " +
-            "location information to go along with our neighbor connections.";
-        throw new RuntimeException(errmsg);
+        return _delegate.getLocations();
     }
 
     // documentation inherited
-    public String getName ()
+    public List getPortals ()
     {
-        return _edelegate.getName();
-    }
-
-    // documentation inherited
-    public void setName (String name)
-    {
-        _edelegate.setName(name);
-    }
-
-    // documentation inherited
-    public ArrayList getNeighborNames ()
-    {
-        String errmsg = "Neighbor names can't be fetched directly from the " +
-            "EditableSpotScene because we need to know the associated " +
-            "location information to go along with our neighbor connections.";
-        throw new RuntimeException(errmsg);
-    }
-
-    // documentation inherited
-    public void addNeighbor (String neighborName)
-    {
-        String errmsg = "Neighbors can't be added directly in the " +
-            "EditableSpotScene because we need to know the associated " +
-            "location information to go along with our neighbor connections.";
-        throw new RuntimeException(errmsg);
-    }
-
-    // documentation inherited
-    public boolean removeNeighbor (String neighborName)
-    {
-        String errmsg = "Neighbors can't be removed directly in the " +
-            "EditableSpotScene because we need to know the associated " +
-            "location information to go along with our neighbor connections.";
-        throw new RuntimeException(errmsg);
+        return _delegate.getPortals();
     }
 
     // documentation inherited
@@ -148,31 +126,15 @@ public class EditableSpotSceneImpl
     // documentation inherited
     public void addLocation (Location loc)
     {
-        // add the location to the end of the location array
-        int lcount = _locations.length;
-        Location[] nlocs = new Location[lcount+1];
-        System.arraycopy(_locations, 0, nlocs, 0, lcount);
-        nlocs[lcount] = loc;
-        _locations = nlocs;
+        // add the location to the end of the location list
+        _delegate.getLocations().add(loc);
     }
 
     // documentation inherited
     public void removeLocation (Location loc)
     {
-        // obtain the index of this location
-        int lidx = ListUtil.indexOfEqual(_locations, loc);
-        if (lidx == -1) {
-            Log.warning("Can't remove location that isn't in our array " +
-                        "[loc=" + loc + "].");
-
-        } else {
-            // create a new array minus this location
-            int lcount = _locations.length;
-            Location[] nlocs = new Location[lcount-1];
-            System.arraycopy(_locations, 0, nlocs, 0, lidx);
-            System.arraycopy(_locations, lidx+1, nlocs, lidx, lcount-lidx-1);
-            _locations = nlocs;
-        }
+        // remove the location from the list
+        _delegate.getLocations().remove(loc);
     }
 
     // documentation inherited
@@ -181,41 +143,18 @@ public class EditableSpotSceneImpl
         // add it to the locations lists as well
         addLocation(eport);
 
-        // now add it to the end of the _portals array
-        int pcount = _portals.length;
-        Portal[] nports = new Portal[pcount+1];
-        System.arraycopy(_portals, 0, nports, 0, pcount);
-        nports[pcount] = eport;
-        _portals = nports;
+        // now add it to the end of the _portals list
+        _delegate.getPortals().add(eport);
     }
 
     // documentation inherited
     public void removePortal (EditablePortal eport)
     {
-        // remove it from the locations array
+        // remove it from the locations list
         removeLocation(eport);
 
-        // and remove it from the portals array
-        int pidx = ListUtil.indexOfEqual(_portals, eport);
-        if (pidx == -1) {
-            Log.warning("Can't remove portal that isn't in our array " +
-                        "[port=" + eport + "].");
-
-        } else {
-            // create a new array minus this portal
-            int pcount = _portals.length;
-            Portal[] nports = new Portal[pcount-1];
-            System.arraycopy(_portals, 0, nports, 0, pidx);
-            System.arraycopy(_portals, pidx+1, nports, pidx, pcount-pidx-1);
-            _portals = nports;
-        }
-    }
-
-    // documentation inherited
-    public EditableSceneModel getSceneModel ()
-    {
-        flushToModel();
-        return _edelegate.getSceneModel();
+        // and remove it from the portals list
+        _delegate.getPortals().remove(eport);
     }
 
     // documentation inherited
@@ -232,8 +171,10 @@ public class EditableSpotSceneImpl
      */
     protected void flushToModel ()
     {
+        List locations = _delegate.getLocations();
+
         // flush the locations
-        int lcount = _locations.length;
+        int lcount = locations.size();
         _model.locationIds = new int[lcount];
         _model.locationX = new int[lcount];
         _model.locationY = new int[lcount];
@@ -241,7 +182,7 @@ public class EditableSpotSceneImpl
         _model.locationClusters = new int[lcount];
 
         for (int i = 0; i < lcount; i++) {
-            Location loc = _locations[i];
+            Location loc = (Location)locations.get(i);
             _model.locationIds[i] = loc.locationId;
             _model.locationX[i] = loc.x;
             _model.locationY[i] = loc.y;
@@ -250,7 +191,8 @@ public class EditableSpotSceneImpl
         }
 
         // flush the portals
-        int pcount = _portals.length;
+        List portals = _delegate.getPortals();
+        int pcount = portals.size();
         _model.portalIds = new int[pcount];
         _model.neighborIds = new int[pcount];
         _model.targetLocIds = new int[pcount];
@@ -259,7 +201,7 @@ public class EditableSpotSceneImpl
         _emodel.targetPortalNames = new String[pcount];
 
         for (int i = 0; i < pcount; i++) {
-            EditablePortal port = (EditablePortal)_portals[i];
+            EditablePortal port = (EditablePortal)portals.get(i);
             _model.portalIds[i] = port.locationId;
             _model.neighborIds[i] = port.targetSceneId;
             _model.targetLocIds[i] = port.targetLocId;
@@ -269,15 +211,12 @@ public class EditableSpotSceneImpl
         }
     }
 
+    /** Our spot scene model. */
+    protected SpotSceneModel _model;
+
     /** Our editable spot scene model. */
     protected EditableSpotSceneModel _emodel;
 
-    /** We have to delegate some methods to this guy. */
-    protected EditableSceneImpl _edelegate;
-
-    /** A list of the editable locations (and portals) in this scene. */
-    protected ArrayList _elocations = new ArrayList();
-
-    /** A list of just the editable portals in this scene. */
-    protected ArrayList _eportals = new ArrayList();
+    /** Our display spot scene delegate. */
+    protected DisplaySpotSceneImpl _delegate;
 }

@@ -1,7 +1,9 @@
 //
-// $Id: SpotSceneWriter.java,v 1.3 2001/12/05 04:45:13 mdb Exp $
+// $Id: SpotSceneWriter.java,v 1.4 2001/12/05 08:45:06 mdb Exp $
 
 package com.threerings.whirled.tools.spot.xml;
+
+import java.util.Iterator;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -41,9 +43,9 @@ public class SpotSceneWriter extends SceneWriter
         EditableSpotScene sscene = (EditableSpotScene)scene;
 
         // write out the location info
-        Location[] locs = sscene.getLocations();
-        for (int i = 0; i < locs.length; i++) {
-            Location loc = locs[i];
+        Iterator iter = sscene.getLocations().iterator();
+        while (iter.hasNext()) {
+            Location loc = (Location)iter.next();
             // skip portals as we'll get those on the next run
             if (loc instanceof EditablePortal) {
                 continue;
@@ -57,9 +59,9 @@ public class SpotSceneWriter extends SceneWriter
         }
 
         // write out the portal info
-        Portal[] ports = sscene.getPortals();
-        for (int i = 0; i < ports.length; i++) {
-            EditablePortal port = (EditablePortal)ports[i];
+        iter = sscene.getPortals().iterator();
+        while (iter.hasNext()) {
+            EditablePortal port = (EditablePortal)iter.next();
             AttributesImpl attrs = new AttributesImpl();
             addSharedAttrs(attrs, port);
             attrs.addAttribute("", "targetSceneName", "", "",

@@ -1,7 +1,10 @@
 //
-// $Id: DisplaySpotSceneImpl.java,v 1.3 2001/12/05 03:38:09 mdb Exp $
+// $Id: DisplaySpotSceneImpl.java,v 1.4 2001/12/05 08:45:05 mdb Exp $
 
 package com.threerings.whirled.spot.client;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.whirled.client.DisplaySceneImpl;
@@ -30,8 +33,8 @@ public class DisplaySpotSceneImpl extends DisplaySceneImpl
         // sort out our locations and portals
         int lcount = model.locationIds.length;
         int pcount = model.portalIds.length;
-        _portals = new Portal[pcount];
-        _locations = new Location[lcount - pcount];
+        _portals = new ArrayList(pcount);
+        _locations = new ArrayList(lcount - pcount);
 
         // because the portals ids are in the same order as the location
         // ids, we can parse them in one pass
@@ -43,27 +46,20 @@ public class DisplaySpotSceneImpl extends DisplaySceneImpl
 
             if (model.locationIds[i] == pid) {
                 // add this portal to the portals array
-                _portals[pidx] = createPortal();
-                populatePortal(model, _portals[pidx], i, pidx);
-                loc = _portals[pidx];
+                Portal port = new Portal();
+                populatePortal(model, port, i, pidx);
+                _portals.add(port);;
+                loc = port;
                 pidx++;
 
             } else {
-                loc = createLocation();
+                loc = new Location();
                 populateLocation(model, loc, i);
             }
 
             // everything goes into the locations array
-            _locations[i] = loc;
+            _locations.add(loc);
         }
-    }
-
-    /**
-     * Returns a new location instance.
-     */
-    protected Location createLocation ()
-    {
-        return new Location();
     }
 
     /**
@@ -82,14 +78,6 @@ public class DisplaySpotSceneImpl extends DisplaySceneImpl
         loc.y = model.locationY[lidx];
         loc.orientation = model.locationOrients[lidx];
         loc.clusterIndex = model.locationClusters[lidx];
-    }
-
-    /**
-     * Returns a new portal instance.
-     */
-    protected Portal createPortal ()
-    {
-        return new Portal();
     }
 
     /**
@@ -119,13 +107,13 @@ public class DisplaySpotSceneImpl extends DisplaySceneImpl
     }
 
     // documentation inherited
-    public Location[] getLocations ()
+    public List getLocations ()
     {
         return _locations;
     }
 
     // documentation inherited
-    public Portal[] getPortals ()
+    public List getPortals ()
     {
         return _portals;
     }
@@ -133,9 +121,9 @@ public class DisplaySpotSceneImpl extends DisplaySceneImpl
     /** The data that makes up our scene. */
     protected SpotSceneModel _model;
 
-    /** An array of the locations (and portals) in this scene. */
-    protected Location[] _locations;
+    /** A list of the locations (and portals) in this scene. */
+    protected ArrayList _locations;
 
-    /** An array of just the portals in this scene. */
-    protected Portal[] _portals;
+    /** A list of just the portals in this scene. */
+    protected ArrayList _portals;
 }
