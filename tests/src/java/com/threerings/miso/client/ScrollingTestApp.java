@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.11 2002/04/23 01:19:04 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.12 2002/04/27 04:57:37 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -96,7 +96,7 @@ public class ScrollingTestApp
             protected void viewFinishedScrolling () {
                 // keep scrolling for a spell
                 if (++_sidx < DX.length) {
-                    setScrolling(DX[_sidx], DY[_sidx], 10000l);
+                    setScrolling(DX[_sidx], DY[_sidx], 3000l);
                 }
             }
             protected int _sidx = -1;
@@ -119,7 +119,7 @@ public class ScrollingTestApp
             if (s != null) {
                 s.setRestingAction("sailing");
                 s.setActionSequence("sailing");
-                s.setLocation(160 - s.getWidth()/2, 144 + s.getHeight()/2);
+                s.setLocation(160, 144);
                 _panel.addSprite(s);
             }
 

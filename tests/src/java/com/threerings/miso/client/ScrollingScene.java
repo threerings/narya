@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingScene.java,v 1.5 2002/04/23 01:19:04 mdb Exp $
+// $Id: ScrollingScene.java,v 1.6 2002/04/27 04:57:37 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -16,6 +16,7 @@ import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileSetRepository;
 
 import com.threerings.miso.tile.BaseTile;
+import com.threerings.miso.tile.BaseTileSet;
 import com.threerings.miso.util.MisoContext;
 
 /**
@@ -33,7 +34,8 @@ public class ScrollingScene implements DisplayMisoScene
         while (iter.hasNext()) {
             TileSet tset = (TileSet)iter.next();
             // yay for built-in regex support!
-            if (tset.getName().matches(".*[Ww]ater.*")) {
+            if (tset.getName().matches(".*[Ww]ater.*") &&
+                tset instanceof BaseTileSet) {
                 wtset = tset;
                 break;
             }
