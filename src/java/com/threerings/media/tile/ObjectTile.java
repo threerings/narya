@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTile.java,v 1.8 2002/05/16 01:49:38 ray Exp $
+// $Id: ObjectTile.java,v 1.9 2002/05/16 01:53:36 ray Exp $
 
 package com.threerings.media.tile;
 
@@ -109,7 +109,6 @@ public class ObjectTile extends Tile
      */
     public boolean hitTest (int x, int y)
     {
-        Log.info("hit test " + x + ", " + y + " (" + ImageUtil.hitTest(_image, x, y));
         return ImageUtil.hitTest(_image, x, y);
     }
 
