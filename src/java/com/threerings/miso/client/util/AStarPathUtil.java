@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.12 2002/02/07 20:02:53 mdb Exp $
+// $Id: AStarPathUtil.java,v 1.13 2002/02/17 08:01:15 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -9,9 +9,9 @@ import java.util.*;
 import com.threerings.media.util.MathUtil;
 
 import com.threerings.miso.Log;
+import com.threerings.miso.scene.DisplayMisoScene;
 import com.threerings.miso.scene.Traverser;
 import com.threerings.miso.tile.BaseTile;
-import com.threerings.miso.tile.BaseTileLayer;
 
 /**
  * The <code>AStarPathUtil</code> class provides a facility for
@@ -26,15 +26,14 @@ public class AStarPathUtil
 {
     /**
      * Return a list of <code>Point</code> objects representing a path
-     * from coordinates <code>(ax, by)</code> to
-     * <code>(bx, by)</code>, inclusive, determined by performing an
-     * A* search in the given array of tiles.  Assumes the starting
-     * and destination nodes are traversable by the specified
-     * traverser.
+     * from coordinates <code>(ax, by)</code> to <code>(bx, by)</code>,
+     * inclusive, determined by performing an A* search in the given
+     * scene's base tile layer. Assumes the starting and destination nodes
+     * are traversable by the specified traverser.
      *
-     * @param tiles the tile array.
-     * @param tilewid the tile array width.
-     * @param tilehei the tile array height.
+     * @param scene the scene in which a path is to be computed.
+     * @param tilewid the scene width in tiles.
+     * @param tilehei the scene height in tiles.
      * @param trav the traverser to follow the path.
      * @param ax the starting x-position in tile coordinates.
      * @param ay the starting y-position in tile coordinates.
@@ -44,10 +43,10 @@ public class AStarPathUtil
      * @return the list of points in the path.
      */
     public static List getPath (
-	BaseTileLayer tiles, int tilewid, int tilehei, Traverser trav,
+	DisplayMisoScene scene, int tilewid, int tilehei, Traverser trav,
 	int ax, int ay, int bx, int by)
     {
-	AStarInfo info = new AStarInfo(tiles, tilewid, tilehei, trav, bx, by);
+	AStarInfo info = new AStarInfo(scene, tilewid, tilehei, trav, bx, by);
 
 	// set up the starting node
 	AStarNode s = getNode(info, ax, ay);
@@ -199,7 +198,7 @@ public class AStarPathUtil
     protected static boolean isTraversable (AStarInfo info, int x, int y)
     {
         return (isCoordinateValid(info, x, y) &&
-                info.trav.canTraverse(info.tiles.getTile(x, y)));
+                info.trav.canTraverse(info.scene.getBaseTile(x, y)));
     }
 
     /**
@@ -253,8 +252,8 @@ public class AStarPathUtil
  */
 class AStarInfo
 {
-    /** The tile layer being traversed. */
-    public BaseTileLayer tiles;
+    /** The scene whose base tile layer is being traversed. */
+    public DisplayMisoScene scene;
 
     /** The tile array dimensions. */
     public int tilewid, tilehei;
@@ -275,11 +274,11 @@ class AStarInfo
     public int destx, desty;
 
     public AStarInfo (
-	BaseTileLayer tiles, int tilewid, int tilehei, Traverser trav,
+	DisplayMisoScene scene, int tilewid, int tilehei, Traverser trav,
 	int destx, int desty)
     {
 	// save off references
-	this.tiles = tiles;
+	this.scene = scene;
 	this.tilewid = tilewid;
 	this.tilehei = tilehei;
 	this.trav = trav;

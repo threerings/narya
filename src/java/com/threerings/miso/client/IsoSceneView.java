@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.94 2002/02/17 07:30:45 mdb Exp $
+// $Id: IsoSceneView.java,v 1.95 2002/02/17 08:01:15 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -27,15 +27,12 @@ import com.threerings.media.sprite.Path;
 import com.threerings.media.sprite.SpriteManager;
 
 import com.threerings.media.tile.ObjectTile;
-import com.threerings.media.tile.ObjectTileLayer;
 import com.threerings.media.tile.Tile;
-import com.threerings.media.tile.TileLayer;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.DirtyItemList.DirtyItem;
 import com.threerings.miso.scene.util.AStarPathUtil;
 import com.threerings.miso.scene.util.IsoUtil;
-import com.threerings.miso.tile.BaseTileLayer;
 
 /**
  * The iso scene view provides an isometric view of a particular
@@ -301,22 +298,19 @@ public class IsoSceneView implements SceneView
      */
     protected void renderTiles (Graphics2D gfx)
     {
-        BaseTileLayer base = _scene.getBaseLayer();
-        TileLayer fringe = _scene.getFringeLayer();
-
         // render the base and fringe layers
-	for (int yy = 0; yy < base.getHeight(); yy++) {
-	    for (int xx = 0; xx < base.getWidth(); xx++) {
+	for (int yy = 0; yy < _model.scenehei; yy++) {
+	    for (int xx = 0; xx < _model.scenewid; xx++) {
 		if (!_dirty[xx][yy]) {
                     continue;
                 }
 
                 // draw the base and fringe tile images
                 Tile tile;
-                if ((tile = base.getTile(xx, yy)) != null) {
+                if ((tile = _scene.getBaseTile(xx, yy)) != null) {
                     tile.paint(gfx, getTilePoly(xx, yy));
                 }
-                if ((tile = fringe.getTile(xx, yy)) != null) {
+                if ((tile = _scene.getFringeTile(xx, yy)) != null) {
                     tile.paint(gfx, getTilePoly(xx, yy));
                 }
 
@@ -367,24 +361,45 @@ public class IsoSceneView implements SceneView
         _objects.clear();
 
         // generate metric records for all objects
-        ObjectTileLayer tiles = _scene.getObjectLayer();
-        for (int yy = 0; yy < tiles.getHeight(); yy++) {
-            for (int xx = 0; xx < tiles.getWidth(); xx++) {
-                ObjectTile tile = tiles.getTile(xx, yy);
-                if (tile == null) {
-                    continue;
+        for (int yy = 0; yy < _model.scenehei; yy++) {
+            for (int xx = 0; xx < _model.scenewid; xx++) {
+                ObjectTile tile = _scene.getObjectTile(xx, yy);
+                if (tile != null) {
+                    generateObjectMetrics(tile, xx, yy);
                 }
+            }
+        }
+    }
 
-                // create a metrics record for this object
-                ObjectMetrics metrics = new ObjectMetrics();
-                metrics.tile = tile;
-                metrics.x = xx;
-                metrics.y = yy;
-                metrics.bounds = IsoUtil.getObjectBounds(
-                    _model, getTilePoly(xx, yy), tile);
+    /**
+     * Generates object tile metrics for the supplied object tile and adds
+     * them to the list.
+     */
+    protected void generateObjectMetrics (ObjectTile tile, int x, int y)
+    {
+        // create a metrics record for this object
+        ObjectMetrics metrics = new ObjectMetrics();
+        metrics.tile = tile;
+        metrics.x = x;
+        metrics.y = y;
+        metrics.bounds = IsoUtil.getObjectBounds(
+            _model, getTilePoly(x, y), tile);
 
-                // and add it to the list
-                _objects.add(metrics);
+        // and add it to the list
+        _objects.add(metrics);
+    }
+
+    /**
+     * Clears out the object metrics for the object at the specified tile
+     * coordinates.
+     */
+    protected void clearObjectMetrics (int x, int y)
+    {
+        for (int i = 0; i < _objects.size(); i++) {
+            ObjectMetrics metrics = (ObjectMetrics)_objects.get(i);
+            if (metrics.x == x && metrics.y == y) {
+                _objects.remove(i);
+                return;
             }
         }
     }
@@ -661,7 +676,7 @@ public class IsoSceneView implements SceneView
 
         // get a reasonable tile path through the scene
 	List points = AStarPathUtil.getPath(
-            _scene.getBaseLayer(), _model.scenewid, _model.scenehei,
+            _scene, _model.scenewid, _model.scenehei,
             sprite, sprite.getTileX(), sprite.getTileY(), dest.x, dest.y);
 
 	// construct a path object to guide the sprite on its merry way

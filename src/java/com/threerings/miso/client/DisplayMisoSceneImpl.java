@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.50 2002/02/06 17:13:06 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.51 2002/02/17 08:01:15 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -172,21 +172,21 @@ public class DisplayMisoSceneImpl
     }
 
     // documentation inherited
-    public BaseTileLayer getBaseLayer ()
+    public BaseTile getBaseTile (int x, int y)
     {
-        return _base;
+        return _base.getTile(x, y);
     }
 
     // documentation inherited
-    public TileLayer getFringeLayer ()
+    public Tile getFringeTile (int x, int y)
     {
-        return _fringe;
+        return _fringe.getTile(x, y);
     }
 
     // documentation inherited
-    public ObjectTileLayer getObjectLayer ()
+    public ObjectTile getObjectTile (int x, int y)
     {
-        return _object;
+        return _object.getTile(x, y);
     }
 
     // documentation inherited from interface
