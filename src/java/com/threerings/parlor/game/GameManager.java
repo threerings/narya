@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.2 2001/10/02 21:52:33 mdb Exp $
+// $Id: GameManager.java,v 1.3 2001/10/03 03:44:27 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -7,6 +7,7 @@ import com.threerings.cocktail.party.data.BodyObject;
 import com.threerings.cocktail.party.server.PlaceManager;
 import com.threerings.cocktail.party.server.PartyServer;
 
+import com.threerings.parlor.Log;
 import com.threerings.parlor.client.ParlorCodes;
 import com.threerings.parlor.data.GameConfig;
 import com.threerings.parlor.data.GameObject;
@@ -37,6 +38,11 @@ public class GameManager
         // keep this info for later
         _config = config;
         _players = players;
+    }
+
+    protected Class getPlaceObjectClass ()
+    {
+        return GameObject.class;
     }
 
     // documentation inherited
