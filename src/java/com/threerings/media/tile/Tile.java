@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.19 2002/05/06 18:08:32 mdb Exp $
+// $Id: Tile.java,v 1.20 2002/06/18 22:19:56 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -30,6 +30,7 @@ public class Tile implements Cloneable
     {
         _image = image;
         _bounds = bounds;
+        _subimage = getImage();
     }
 
     /**
@@ -54,20 +55,11 @@ public class Tile implements Cloneable
      */
     public void paint (Graphics gfx, int x, int y)
     {
-        Shape oclip = gfx.getClip();
-        gfx.clipRect(x, y, getWidth(), getHeight());
-	gfx.drawImage(_image, x - _bounds.x, y - _bounds.y, null);
-        gfx.setClip(oclip);
-    }
-
-    /**
-     * Render the tile image at the top-left corner of the given shape in
-     * the given graphics context.
-     */
-    public void paint (Graphics gfx, Shape dest)
-    {
-	Rectangle bounds = dest.getBounds();
-        paint(gfx, bounds.x, bounds.y);
+//         Shape oclip = gfx.getClip();
+//         gfx.clipRect(x, y, getWidth(), getHeight());
+//         gfx.drawImage(_image, x - _bounds.x, y - _bounds.y, null);
+//         gfx.setClip(oclip);
+        gfx.drawImage(_subimage, x, y, null);
     }
 
     /**
@@ -134,6 +126,9 @@ public class Tile implements Cloneable
 
     /** Our tileset image. */
     protected Image _image;
+
+    /** Our cropped tileset image. */
+    protected Image _subimage;
 
     /** The bounds of the tile image within the tileset image. */
     protected Rectangle _bounds;
