@@ -1,5 +1,5 @@
 //
-// $Id: DirectionUtil.java,v 1.7 2002/07/02 23:15:53 shaper Exp $
+// $Id: DirectionUtil.java,v 1.8 2003/02/12 07:22:04 mdb Exp $
 
 package com.threerings.util;
 
@@ -105,6 +105,14 @@ public class DirectionUtil implements DirectionCodes
             direction = FINE_CCW_ROTATE[direction];
         }
         return direction;
+    }
+
+    /**
+     * Returns the opposite of the specified direction.
+     */
+    public static int getOpposite (int direction)
+    {
+        return rotateCW(direction, FINE_CW_ROTATE.length/2);
     }
 
     /**
