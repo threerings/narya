@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.21 2002/02/18 00:37:55 mdb Exp $
+// $Id: IsoSceneViewModel.java,v 1.22 2002/02/18 06:06:14 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -119,7 +119,8 @@ public class IsoSceneViewModel
      * coordinates.
      * @param svwid the width in tiles of the viewport.
      * @param svhei the height in tiles of the viewport.
-     * @param offy the offset of the top of the viewport in tile count.
+     * @param offy the offset of the origin (in tiles) from the top of the
+     * viewport.
      */
     public IsoSceneViewModel (int scenewid, int scenehei,
                               int tilewid, int tilehei, int finegran,
