@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.19 2003/06/03 21:41:33 ray Exp $
+// $Id: ChatProvider.java,v 1.20 2003/06/14 00:55:19 mdb Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -125,8 +125,12 @@ public class ChatProvider
     public static void sendTellMessage (
         BodyObject target, String speaker, String bundle, String message)
     {
-        SpeakProvider.sendMessage(target,
-            new UserMessage(message, bundle, speaker, DEFAULT_MODE));
+        UserMessage msg =
+            new UserMessage(message, bundle, speaker, DEFAULT_MODE);
+        SpeakProvider.sendMessage(target, msg);
+
+        // note that the teller "heard" what they said
+        SpeakProvider.noteMessage(speaker, msg);
     }
 
     /** The distributed object manager used by the chat services. */

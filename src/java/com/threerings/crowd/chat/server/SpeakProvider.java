@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.7 2003/06/14 00:47:16 mdb Exp $
+// $Id: SpeakProvider.java,v 1.8 2003/06/14 00:55:19 mdb Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -219,12 +219,6 @@ public class SpeakProvider
             Log.info("Unable to note listeners [dclass=" + speakObj.getClass() +
                      ", msg=" + msg + "].");
         }
-
-        // if this is a user message, note the message in their history as
-        // well
-        if (msg instanceof UserMessage) {
-            noteMessage(((UserMessage)msg).speaker, msg);
-        }
     }
 
     /**
@@ -243,7 +237,7 @@ public class SpeakProvider
      */
     public static void clearHistory (String username)
     {
-        Log.info("Clearing history for " + username + ".");
+        // Log.info("Clearing history for " + username + ".");
         _histories.remove(username);
     }
 
@@ -258,6 +252,7 @@ public class SpeakProvider
             msg.timestamp = System.currentTimeMillis();
         }
         getHistoryList(username).add(msg);
+        // Log.info("Noted that " + username + " heard " + msg + ".");
     }
 
     /**
