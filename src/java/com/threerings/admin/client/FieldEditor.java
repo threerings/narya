@@ -1,5 +1,5 @@
 //
-// $Id: FieldEditor.java,v 1.9 2004/02/25 14:39:14 mdb Exp $
+// $Id: FieldEditor.java,v 1.10 2004/04/05 23:44:28 eric Exp $
 
 package com.threerings.admin.client;
 
@@ -140,7 +140,10 @@ public class FieldEditor extends JPanel
 
         } else if (_field.getType().equals(INT_ARRAY_PROTO.getClass())) {
             value = StringUtil.parseIntArray(_value.getText());
-
+            
+        } else if (_field.getType().equals(FLOAT_ARRAY_PROTO.getClass())) {
+            value = StringUtil.parseFloatArray(_value.getText());
+            
         } else if (_field.getType().equals(Boolean.TYPE)) {
             value = new Boolean(_value.getText().equalsIgnoreCase("true"));
 
@@ -200,4 +203,5 @@ public class FieldEditor extends JPanel
 
     protected static final String[] STRING_ARRAY_PROTO = new String[0];
     protected static final int[] INT_ARRAY_PROTO = new int[0];
+    protected static final float[] FLOAT_ARRAY_PROTO = new float[0];
 }
