@@ -1,5 +1,5 @@
 //
-// $Id: TilePath.java,v 1.14 2003/04/17 19:21:16 mdb Exp $
+// $Id: TilePath.java,v 1.15 2003/04/27 03:53:41 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -10,6 +10,7 @@ import com.threerings.util.DirectionCodes;
 
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.util.LineSegmentPath;
+import com.threerings.media.util.MathUtil;
 import com.threerings.media.util.PathNode;
 import com.threerings.media.util.Pathable;
 
@@ -45,6 +46,15 @@ public class TilePath extends LineSegmentPath
 
         // set up the path nodes
         createPath(sprite, tiles, destx, desty);
+    }
+
+    /**
+     * Returns the estimated number of millis that we'll be traveling
+     * along this path.
+     */
+    public long getEstimTravelTime ()
+    {
+        return (long)(_estimPixels / _vel);
     }
 
     // documentation inherited
@@ -169,6 +179,12 @@ public class TilePath extends LineSegmentPath
      */
     protected void addNode (int tx, int ty, int x, int y, int dir)
     {
+        if (_last == null) {
+            _last = new Point();
+        } else {
+            _estimPixels += MathUtil.distance(_last.x, _last.y, x, y);
+        }
+        _last.setLocation(x, y);
         _nodes.add(new TilePathNode(tx, ty, x, y, dir));
     }
 
@@ -177,6 +193,12 @@ public class TilePath extends LineSegmentPath
 
     /** The destination tile path node. */
     protected TilePathNode _dest;
+
+    /** Used to compute estimated travel time. */
+    protected Point _last;
+
+    /** Estimated pixels traveled. */
+    protected int _estimPixels;
 
     /** The scene metrics. */
     protected MisoSceneMetrics _metrics;
