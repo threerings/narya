@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneModel.java,v 1.8 2003/05/22 22:18:02 mdb Exp $
+// $Id: SparseMisoSceneModel.java,v 1.9 2003/05/27 19:04:29 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -30,7 +30,7 @@ public class SparseMisoSceneModel extends MisoSceneModel
     public static interface ObjectVisitor
     {
         /** Called for each object in the scene, interesting and not. */
-        public void visit (int tileId, int x, int y);
+        public void visit (ObjectInfo info);
     }
 
     /** Contains information on a section of this scene. This is only
@@ -261,11 +261,14 @@ public class SparseMisoSceneModel extends MisoSceneModel
             Section sect = (Section)iter.next();
             for (int oo = 0; oo < sect.objectInfo.length; oo++) {
                 ObjectInfo oinfo = sect.objectInfo[oo];
-                visitor.visit(oinfo.tileId, oinfo.x, oinfo.y);
+                visitor.visit(oinfo);
             }
+            ObjectInfo info = new ObjectInfo();
             for (int oo = 0; oo < sect.objectTileIds.length; oo++) {
-                visitor.visit(sect.objectTileIds[oo],
-                              sect.objectXs[oo], sect.objectYs[oo]);
+                info.tileId = sect.objectTileIds[oo];
+                info.x = sect.objectXs[oo];
+                info.y = sect.objectYs[oo];
+                visitor.visit(info);
             }
         }
     }
