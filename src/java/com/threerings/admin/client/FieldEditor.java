@@ -173,10 +173,7 @@ public class FieldEditor extends JPanel
         // submit an attribute changed event with the new value
         if (value != null) {
             try {
-                AttributeChangedEvent ace = new AttributeChangedEvent(
-                    _object.getOid(), _field.getName(), value,
-                    _object.getAttribute(_field.getName()));
-                _ctx.getDObjectManager().postEvent(ace);
+                _object.changeAttribute(_field.getName(), value);
             } catch (ObjectAccessException oae) {
                 Log.warning("Failed to update field " + _field.getName() +
                             ": "+ oae);
