@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.53 2003/01/13 22:57:46 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.54 2003/01/13 23:56:28 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -173,7 +173,6 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         // start the sprite moving along the path
 	path.setVelocity(100f/1000f);
 	s.move(path);
-        System.out.println("moving " + s + " on " + path);
         return true;
     }
 
@@ -205,7 +204,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     }
 
     /** The number of decoy characters milling about. */
-    protected static final int NUM_DECOYS = 0;
+    protected static final int NUM_DECOYS = 100;
 
     /** The character descriptor for the user character. */
     protected CharacterDescriptor _descUser;
