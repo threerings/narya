@@ -52,15 +52,21 @@ if (defined $libpath) {
 }
 
 # put everything in our class path
-my $classpath = "-classpath $jlib:$root/dist/classes";
+my $classpath = "-classpath $root/dist/classes";
 
-# any zip or jar files in our lib/ directory get added to the class path
-if (opendir(DIR, "$root/lib")) {
-    foreach $lib (grep { /.(zip|jar)/ && -f "$root/lib/$_" } readdir(DIR)) {
-	$classpath .= ":$root/lib/$lib";
+# add zip and jar files from our lib/ directory and the system lib/ directory
+my @dirs = ( "$root/lib", "/usr/share/java" );
+foreach $dir (@dirs) {
+    if (opendir(DIR, $dir)) {
+        foreach $lib (grep { /.(zip|jar)/ && -f "$dir/$_" } readdir(DIR)) {
+            $classpath .= ":$dir/$lib";
+        }
+        closedir DIR;
     }
-    closedir DIR;
 }
+
+# finally add the standard classes
+$classpath = "$classpath:$jlib";
 
 # specify our application root (the resource manager needs this)
 my $rootarg = "-Dapplication.root=$root";
