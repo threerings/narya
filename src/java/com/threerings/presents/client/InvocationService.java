@@ -1,5 +1,5 @@
 //
-// $Id: InvocationService.java,v 1.1 2002/08/14 19:07:54 mdb Exp $
+// $Id: InvocationService.java,v 1.2 2003/03/04 01:26:30 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -82,5 +82,29 @@ public interface InvocationService
          * define more specific failure callbacks.
          */
         public void requestFailed (String cause);
+    }
+
+    /**
+     * Extends the {@link InvocationListener} with a basic success
+     * callback.
+     */
+    public static interface ConfirmListener extends InvocationListener
+    {
+        /**
+         * Indicates that the request was successfully processed.
+         */
+        public void requestProcessed ();
+    }
+
+    /**
+     * Extends the {@link InvocationListener} with a basic success
+     * callback that delivers a result object.
+     */
+    public static interface ResultListener extends InvocationListener
+    {
+        /**
+         * Indicates that the request was successfully processed.
+         */
+        public void requestProcessed (Object result);
     }
 }
