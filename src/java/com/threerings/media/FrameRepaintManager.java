@@ -1,5 +1,5 @@
 //
-// $Id: FrameRepaintManager.java,v 1.11 2002/08/20 19:01:08 mdb Exp $
+// $Id: FrameRepaintManager.java,v 1.12 2002/10/09 02:35:20 mdb Exp $
 
 package com.threerings.media;
 
@@ -17,6 +17,7 @@ import javax.swing.CellRendererPane;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
+import javax.swing.JTextField;
 import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
 
@@ -65,8 +66,13 @@ public class FrameRepaintManager extends RepaintManager
                 continue;
             }
 
-            // if we find our validate root, we can stop looking
-            if (((JComponent)c).isValidateRoot()) {
+            // if we find our validate root, we can stop looking; NOTE:
+            // JTextField incorrectly claims to be a validate root thereby
+            // fucking up the program something serious; we jovially
+            // ignore it's claims here and restore order to the universe;
+            // see bug #403550 for more fallout from Sun's fuckup
+            if (!(c instanceof JTextField) &&
+                ((JComponent)c).isValidateRoot()) {
                 vroot = c;
                 break;
             }
