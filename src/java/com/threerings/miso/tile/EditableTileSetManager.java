@@ -1,27 +1,14 @@
 //
-// $Id: EditableTileSetManager.java,v 1.1 2001/07/14 00:02:47 shaper Exp $
+// $Id: EditableTileSetManager.java,v 1.2 2001/07/16 18:59:31 shaper Exp $
 
 package com.threerings.cocktail.miso.tile;
 
 import com.samskivert.util.Config;
-import com.samskivert.util.IntMap;
 
-public class EditableTileSetManager implements TileSetManager
+public class EditableTileSetManager extends TileSetManagerImpl
 {
     public EditableTileSetManager (Config config)
     {
-	_config = config;
+	super(config);
     }
-
-    public TileSet getTileSet (int tsid)
-    {
-	TileSet tset = (TileSet)_tilesets.get(tsid);
-	if (tset != null) return tset;
-
-	_tilesets.put(tsid, tset = new TileSet(_config, tsid));
-	return tset;
-    }
-
-    protected Config _config;
-    protected IntMap _tilesets = new IntMap();
 }

@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.3 2001/07/16 00:45:07 shaper Exp $
+// $Id: TileSet.java,v 1.4 2001/07/16 18:59:31 shaper Exp $
 
 package com.threerings.cocktail.miso.tile;
 
@@ -44,6 +44,25 @@ public class TileSet
 	// get the row height and tile count for each row
 	_rowHeight = config.getValue(PREFIX + CONF_ROWHEIGHT, (int[])null);
 	_tileCount = config.getValue(PREFIX + CONF_TILECOUNT, (int[])null);
+
+	// determine the total number of tiles in the set
+	for (int ii = 0; ii < _tileCount.length; ii++)
+	    _numTiles += _tileCount[ii];
+    }
+
+    public int getId ()
+    {
+	return _tsid;
+    }
+
+    public String getName ()
+    {
+	return _name;
+    }
+
+    public int getNumTiles ()
+    {
+	return _numTiles;
     }
 
     /**
@@ -64,7 +83,7 @@ public class TileSet
 	// find the row number containing the sought-after tile
 	int ridx, tcount, ty, tx;
 	ridx = tcount = ty = tx = 0;
-	while ((tcount += _tileCount[ridx]) < tid) {
+	while ((tcount += _tileCount[ridx]) < tid + 1) {
 	    ty += _rowHeight[ridx++];
 	}
 
@@ -72,9 +91,9 @@ public class TileSet
 	int xidx = tid - (tcount - _tileCount[ridx]);
 	tx = Tile.WIDTH * xidx;
 
-	Log.info("Retrieving tile image [tid=" + tid + ", ridx=" +
-		 ridx + ", xidx=" + xidx + ", tx=" + tx +
-		 ", ty=" + ty + "].");
+//    	Log.info("Retrieving tile image [tid=" + tid + ", ridx=" +
+//    		 ridx + ", xidx=" + xidx + ", tx=" + tx +
+//    		 ", ty=" + ty + "].");
 
 	// crop the tile-sized image chunk from the full image
 	return ImageManager.getImageCropped(_imgTiles, tx, ty,
@@ -91,6 +110,7 @@ public class TileSet
 	buf.append("[name=").append(_name);
 	buf.append(", file=").append(_file);
 	buf.append(", tsid=").append(_tsid);
+	buf.append(", numtiles=").append(_numTiles);
 
 	buf.append(", rowheight={");
 	for (int ii = 0; ii < _rowHeight.length; ii++) {
@@ -119,6 +139,7 @@ public class TileSet
     protected int _tsid;         // the tileset unique identifier
     protected int _rowHeight[];  // the height of each row in pixels
     protected int _tileCount[];  // the number of tiles in each row
+    protected int _numTiles;     // the total number of tiles
 
     protected Image _imgTiles;
 }

@@ -1,13 +1,14 @@
 //
-// $Id: CompiledTileSetManager.java,v 1.1 2001/07/12 22:38:03 shaper Exp $
+// $Id: CompiledTileSetManager.java,v 1.2 2001/07/16 18:59:31 shaper Exp $
 
 package com.threerings.cocktail.miso.tile;
 
-public class CompiledTileSetManager implements TileSetManager
+import com.samskivert.util.Config;
+
+public class CompiledTileSetManager extends TileSetManagerImpl
 {
-    public TileSet getTileSet (int tsid)
+    public CompiledTileSetManager (Config config)
     {
-	// TBD
-	return null;
+	super(config);
     }
 }
