@@ -1,5 +1,5 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- $Id: bundle.xml,v 1.3 2002/02/07 06:56:26 mdb Exp $ -->
+<!-- $Id: bundle.xml,v 1.4 2002/04/06 22:17:09 ray Exp $ -->
 
 <!-- Ground tile bundle tileset descriptions. -->
 <bundle>
@@ -51,6 +51,20 @@
       <heights>48, 48, 48, 48, 48</heights>
       <widths>64, 64, 64, 64, 64</widths>
       <tileCounts>8, 8, 8, 8, 8</tileCounts>
+    </tileset>
+
+    <tileset name="Seawater_fringe">
+      <imagePath>seafringe.png</imagePath>
+      <heights>48</heights>
+      <widths>64</widths>
+      <tileCounts>17</tileCounts>
+    </tileset>
+
+    <tileset name="generic_fringe">
+      <imagePath>fringemask.png</imagePath>
+      <heights>48</heights>
+      <widths>64</widths>
+      <tileCounts>17</tileCounts>
     </tileset>
   </fringe>
 </bundle>
