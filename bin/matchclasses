@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: matchclasses,v 1.5 2003/07/24 23:19:26 mdb Exp $
+# $Id: matchclasses,v 1.6 2003/07/24 23:40:16 mdb Exp $
 #
 # A script which inspects a hierarchy of classes and generates lists of
 # classes that match specified criterion. The criterion are that a class
@@ -98,7 +98,7 @@ while (@gclasses) {
 
     # look for a line that identifies a class or interface
     while (<JAVAP>) {
-        next unless (/ class / || / interface /);
+        next unless (/class/ || /interface/);
 
         chomp;
         my $goods = $_;
@@ -122,11 +122,8 @@ while (@gclasses) {
 
         # last is the class name
         my $class;
-        if ($goods =~ s: class ([A-Za-z0-9.\$]+)::g) {
-            $class = clean_class($1);
-            $class =~ s: ::g;
-        } elsif ($goods =~ s: interface ([A-Za-z0-9.\$]+)::g) {
-            $class = $1;
+        if ($goods =~ s:(class|interface) ([A-Za-z0-9.\$]+)::g) {
+            $class = clean_class($2);
             $class =~ s: ::g;
         }
 
