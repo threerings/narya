@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.42 2004/08/27 02:20:23 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -168,6 +168,7 @@ public class PresentsServer
     public boolean signalReceived (int signo)
     {
         // this is called when we receive a ctrl-c
+        Log.info("Shutdown initiated by received signal (" + signo + ")");
         queueShutdown();
         return true;
     }
