@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.18 2001/09/05 21:51:43 shaper Exp $
+// $Id: Sprite.java,v 1.19 2001/09/07 23:01:53 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -335,7 +335,7 @@ public class Sprite
     {
         if (!_path.hasNext()) {
 	    // inform observers that we've finished our path
-	    notifyObservers(SpriteObserver.FINISHED_PATH, _path);
+	    notifyObservers(SpriteEvent.FINISHED_PATH, _path);
 	    // clear out our path and bail
 	    stop();
             return;
@@ -343,7 +343,7 @@ public class Sprite
 
 	if (_dest != null) {
 	    // inform observers that we've finished a path node
-	    notifyObservers(SpriteObserver.FINISHED_PATH_NODE, _dest);
+	    notifyObservers(SpriteEvent.FINISHED_PATH_NODE, _dest);
 	}
 
         // grab the next node in our path
@@ -492,11 +492,8 @@ public class Sprite
     {
 	if (_observers == null) return;
 
-	int size = _observers.size();
-	for (int ii = 0; ii < size; ii++) {
-	    SpriteObserver obs = (SpriteObserver)_observers.get(ii);
-	    obs.spriteChanged(this, eventCode, arg);
-	}
+	SpriteEvent evt = new SpriteEvent(this, eventCode, arg);
+	_spritemgr.notifySpriteObservers(_observers, evt);
     }
 
     /**

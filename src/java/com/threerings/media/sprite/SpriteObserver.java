@@ -1,5 +1,5 @@
 //
-// $Id: SpriteObserver.java,v 1.1 2001/09/05 00:40:33 shaper Exp $
+// $Id: SpriteObserver.java,v 1.2 2001/09/07 23:01:53 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -16,27 +16,7 @@ public interface SpriteObserver
      * sprite.
      *
      * @param sprite the involved sprite.
-     * @param eventCode the type of sprite event.
-     * @param arg the argument associated with the event.
+     * @param event the sprite event.
      */
-    public void spriteChanged (Sprite sprite, int eventCode, Object arg);
-
-    /**
-     * Event code noting that the sprite completed a path node.  The
-     * argument to the event is the {@link PathNode} completed.
-     */
-    public static final int FINISHED_PATH_NODE = 0;
-
-    /**
-     * Event code noting that the sprite completed its entire path.
-     * The argument to the event is the {@link Path} completed.
-     */
-    public static final int FINISHED_PATH = 1;
-
-    /**
-     * Event code noting that the sprite collided with another
-     * sprite.  The argument to the event is the {@link Sprite} the
-     * observed sprite collided with.
-     */
-    public static final int COLLIDED_SPRITE = 2;
+    public void spriteChanged (SpriteEvent event);
 }

@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.11 2001/09/05 00:40:33 shaper Exp $
+// $Id: SpriteManager.java,v 1.12 2001/09/07 23:01:53 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -20,6 +20,7 @@ public class SpriteManager
     public SpriteManager ()
     {
         _sprites = new ArrayList();
+	_notify = new ArrayList();
         _dirty = new DirtyRectList();
     }
 
@@ -163,6 +164,14 @@ public class SpriteManager
 
 	// notify sprite observers of any collisions
 	handleCollisions();
+
+	// notify sprite observers of any sprite events.  note that we
+	// explicitly queue up events while ticking and checking for
+	// collisions, and we only notify observers once we're
+	// finished with all of those antics so that any actions the
+	// observers may take, such as sprite removal, won't screw us
+	// up elsewhere.
+	handleSpriteEvents();
     }
 
     /**
@@ -175,9 +184,9 @@ public class SpriteManager
         int size = _sprites.size();
 	for (int ii = 0; ii < size; ii++) {
             Sprite sprite = (Sprite)_sprites.get(ii);
-            sprite.tick();
+	    sprite.tick();
         }
-    }	
+    }
 
     /**
      * Sort the sprite list in order of ascending x-coordinate.
@@ -201,40 +210,23 @@ public class SpriteManager
     {
 	// gather a list of all sprite collisions
 	int size = _sprites.size();
-	ArrayList collisions = new ArrayList();
 	for (int ii = 0; ii < size; ii++) {
             Sprite sprite = (Sprite)_sprites.get(ii);
-	    checkCollisions(ii, size, sprite, collisions);
-	}
-
-	// observers are notified of sprite collisions after all
-	// collision-detection is performed so that modifications to
-	// the sprite, e.g. location or velocity, won't impact the
-	// validity of our checking.
-	int csize = collisions.size();
-	for (int ii = 0; ii < csize; ii++) {
-	    Tuple tup = (Tuple)collisions.get(ii);
-	    Sprite a = (Sprite)tup.left, b = (Sprite)tup.right;
-
-	    // inform sprite observers for both sprites of the collision
-	    a.notifyObservers(SpriteObserver.COLLIDED_SPRITE, b);
-	    b.notifyObservers(SpriteObserver.COLLIDED_SPRITE, a);
+	    checkCollisions(ii, size, sprite);
 	}
     }
 
     /**
      * Check a sprite for collision with any other sprites in the
-     * sprite list.  The sprites involved in a collision are added to
-     * the <code>collisions</code> list of {@link Tuple} objects.
+     * sprite list and notify the sprite observers associated with any
+     * sprites that do indeed collide.
      *
      * @param idx the starting sprite index.
      * @param size the total number of sprites.
      * @param sprite the sprite to check against other sprites for
      * collisions.
-     * @param collisions the list of collisions gathered so far.
      */
-    protected void checkCollisions (int idx, int size, Sprite sprite,
-				    ArrayList collisions)
+    protected void checkCollisions (int idx, int size, Sprite sprite)
     {
 	// TODO: make this handle quickly moving objects that may pass
 	// through each other.
@@ -254,9 +246,6 @@ public class SpriteManager
 	    Sprite other = (Sprite)_sprites.get(ii);
 	    Rectangle obounds = other.getBounds();
 
-//  	    Log.info("Checking collision [bounds=" + bounds +
-//  		     ", obounds=" + obounds + "].");
-
 	    if (obounds.x > edgeX) {
 		// since sprites are stored in the list sorted by
 		// ascending x-position, we know this sprite and any
@@ -267,9 +256,45 @@ public class SpriteManager
 	    }
 
 	    if (obounds.intersects(bounds)) {
-		collisions.add(new Tuple(sprite, other));
+		sprite.notifyObservers(SpriteEvent.COLLIDED_SPRITE, other);
+		other.notifyObservers(SpriteEvent.COLLIDED_SPRITE, sprite);
 	    }
 	}
+    }
+
+    /**
+     * Notify all sprite observers of any sprite events that took
+     * place during our most recent <code>tick()</code>.
+     */
+    protected void handleSpriteEvents ()
+    {
+	int size = _notify.size();
+	for (int ii = 0; ii < size; ii++) {
+	    Tuple tup = (Tuple)_notify.remove(0);
+	    ArrayList observers = (ArrayList)tup.left;
+	    SpriteEvent evt = (SpriteEvent)tup.right;
+
+	    int osize = observers.size();
+	    for (int jj = 0; jj < osize; jj++) {
+		SpriteObserver obs = (SpriteObserver)observers.get(jj);
+		obs.spriteChanged(evt);
+	    }
+	}
+    }
+
+    /**
+     * Called by {@link Sprite#notifyObservers} to note that the
+     * sprite's observers should be informed of a sprite event once
+     * the current <code>tick()</code> is complete.
+     *
+     * @param observers the list of sprite observers.
+     * @param event the sprite event to notify the observers of.
+     */
+    protected void notifySpriteObservers (ArrayList observers,
+					  SpriteEvent event)
+    {
+	// throw it on the list of events for later
+	_notify.add(new Tuple(observers, event));
     }
 
     /** The comparator used to sort sprites by horizontal position. */
@@ -280,6 +305,9 @@ public class SpriteManager
 
     /** The dirty rectangles created by sprites. */
     protected DirtyRectList _dirty;
+
+    /** The list of pending sprite notifications. */
+    protected ArrayList _notify;
 
     protected static class SpriteComparator implements Comparator
     {
