@@ -122,3 +122,6 @@ accepting and delivering an invitation.
 How to prune stale invitations since invitations are not set up to be tied
 to a location (in which case we could use occupant added/removed to
 trigger invite cleanup)?
+
+Add MessageHandler validators so that turn based games can easily reject
+message events from non-turn-holders.
