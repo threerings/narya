@@ -1,34 +1,40 @@
 //
-// $Id: FrameManager.java,v 1.27 2002/12/04 01:25:17 mdb Exp $
+// $Id: FrameManager.java,v 1.28 2002/12/04 22:07:28 shaper Exp $
 
 package com.threerings.media;
 
 import java.applet.Applet;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Frame;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Window;
+
+import java.awt.event.KeyEvent;
 
 import java.awt.image.BufferStrategy;
 import java.awt.image.VolatileImage;
 
 import java.awt.EventQueue;
 
-import javax.swing.JComponent;
-import javax.swing.JLayeredPane;
-import javax.swing.RepaintManager;
-
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
+import javax.swing.RepaintManager;
+
+import com.samskivert.util.DebugChords;
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
 import com.samskivert.util.ObserverList;
@@ -96,7 +102,7 @@ public class FrameManager
      * obtain timing information, which is available on every platform,
      * but returns inaccurate time stamps on many platforms.
      *
-     * @see #FrameManager(Frame)
+     * @see #FrameManager(Frame, MediaTimer)
      */
     public FrameManager (Frame frame)
     {
@@ -125,6 +131,10 @@ public class FrameManager
         // turn off double buffering for the whole business because we
         // handle repaints
         _remgr.setDoubleBufferingEnabled(false);
+
+        // register a debug hook to toggle the frame rate display
+        DebugChords.registerHook(
+            FPS_DISPLAY_MODMASK, FPS_DISPLAY_KEYCODE, FPS_DISPLAY_HOOK);
     }
 
     /**
@@ -256,10 +266,15 @@ public class FrameManager
             Log.logStackTrace(t);
         }
 
+        if (_displayFPS) {
+            // handle frames per second status updates
+            tickFramesPerSecondView();
+        }
+
         // tick all of our frame participants
         _participantTickOp.setTickStamp(tickStamp);
         _participants.apply(_participantTickOp);
-    }        
+    }
 
     /**
      * Called once per frame to invoke {@link Component#paint} on all of
@@ -312,7 +327,7 @@ public class FrameManager
             _participantPaintOp.setGraphics(_bgfx);
             _participants.apply(_participantPaintOp);
 
-            // repaint any widgets that have declared there need to be
+            // repaint any widgets that have declared they need to be
             // repainted since the last tick
             _remgr.paintComponents(_bgfx, this);
 
@@ -323,6 +338,11 @@ public class FrameManager
             }
             _fgfx.drawImage(_backimg, 0, 0, null);
 
+            if (_displayFPS) {
+                // render the current frames per second status
+                renderFramesPerSecondView();
+            }
+
 //             _bufstrat.show();
 
             // if we loop through a second time, we'll need to rerender
@@ -330,6 +350,60 @@ public class FrameManager
             incremental = false;
 
         } while (_backimg.contentsLost());
+    }
+
+    /**
+     * If frame rate display is enabled, this method is called every frame
+     * to update the frame rate display and dirty things as necessary.
+     */
+    protected void tickFramesPerSecondView ()
+    {
+        // we can't do anything unless we've got our main image
+        if (_bgfx == null) {
+            return;
+        }
+
+        // update our attained and achieved framerate information
+        int ofpsatt = _fpsatt, ofpsach = _fpsach;
+        _fpsatt = Math.round(getAttemptedFramesPerSecond());
+        _fpsach = Math.round(getAchievedFramesPerSecond());
+
+        if (ofpsatt != _fpsatt || ofpsach != _fpsach) {
+            // build the string we'll render when the time comes
+            _fpsinfo = "[FPS: " + _fpsach + " / " + _fpsatt + "]";
+
+            if (_fpsmetrics == null) {
+                // grab the font metrics used to determine string dimensions
+                _fpsmetrics = _bgfx.getFontMetrics(_fpsfont);
+            }
+
+            // dirty the rectangle in which we'll be doing our business
+            int swid = _fpsmetrics.stringWidth(_fpsinfo);
+            int fhei = _fpsmetrics.getHeight();
+            JComponent comp = (JComponent)((JFrame)_frame).getRootPane();
+            _remgr.addDirtyRegion(comp, FPS_X, FPS_Y, swid, fhei);
+        }
+    }
+
+    /**
+     * If frame rate display is enabled, this method is called every frame
+     * to render the current frames per second information to the frame
+     * buffer.
+     */
+    protected void renderFramesPerSecondView ()
+    {
+        // bail if we've not got the frame buffer or our font metrics
+        if (_fgfx == null || _fpsmetrics == null) {
+            return;
+        }
+
+        // render the business
+        _fgfx.setColor(Color.white);
+        Font ofont = _fgfx.getFont();
+        _fgfx.setFont(_fpsfont);
+        int fhei = _fpsmetrics.getHeight();
+        _fgfx.drawString(_fpsinfo, FPS_X, FPS_Y + fhei);
+        _fgfx.setFont(ofont);
     }
 
     /**
@@ -619,6 +693,21 @@ public class FrameManager
      * "layered" components. */
     protected boolean[] _clipped = new boolean[1];
 
+    /** The font metrics used when rendering frames per second status. */
+    protected FontMetrics _fpsmetrics;
+
+    /** The frames per second status info string. */
+    protected String _fpsinfo = "";
+
+    /** The last frames per second information displayed. */
+    protected int _fpsatt = -1, _fpsach = -1;
+
+    /** The font used to render the frames per second status. */
+    protected Font _fpsfont = new Font("Arial", Font.PLAIN, 10);
+
+    /** Whether the frame rate display is enabled. */
+    protected boolean _displayFPS;
+
     /** Used to effect periodic calls to {@link #tick}. */
     protected TimerTask _callTick = new TimerTask () {
         public void run ()
@@ -704,4 +793,26 @@ public class FrameManager
     /** Enable this to log warnings when ticking or painting takes too
      * long. */
     protected static final boolean HANG_DEBUG = false;
+
+    /** The x-coordinate at which the frames per second is rendered. */
+    protected static final int FPS_X = 5;
+
+    /** The y-coordinate at which the frames per second is rendered. */
+    protected static final int FPS_Y = 27;
+
+    /** A debug hook that allows toggling the frame rate display. */
+    protected DebugChords.Hook FPS_DISPLAY_HOOK = new DebugChords.Hook() {
+        public void invoke () {
+            _displayFPS = !_displayFPS;
+            Log.info("Toggling frame rate display " +
+                     "[enabled=" + _displayFPS + "].");
+        }
+    };
+
+    /** The modifiers for our frame rate display debug hook (Alt+Shift). */
+    protected static int FPS_DISPLAY_MODMASK =
+        KeyEvent.ALT_DOWN_MASK|KeyEvent.SHIFT_DOWN_MASK;
+
+    /** The key code for our frame rate display debug hook (f). */
+    protected static int FPS_DISPLAY_KEYCODE = KeyEvent.VK_F;
 }
