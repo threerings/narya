@@ -1,5 +1,5 @@
 //
-// $Id: WhirledServer.java,v 1.13 2002/03/28 22:32:33 mdb Exp $
+// $Id: WhirledServer.java,v 1.14 2002/04/08 18:36:42 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -63,6 +63,7 @@ public class WhirledServer extends CrowdServer
         throws Exception
     {
         String dbmap = WhirledConfig.config.getValue(DBMAP_KEY, DEF_DBMAP);
+        Log.info("Configuring db connections via '" + dbmap + "'.");
         return new StaticConnectionProvider(dbmap);
     }
 
