@@ -1,5 +1,5 @@
 //
-// $Id: Location.java,v 1.6 2001/09/13 19:10:26 mdb Exp $
+// $Id: Location.java,v 1.7 2001/09/28 01:25:26 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -15,6 +15,9 @@ import com.threerings.media.sprite.Sprite;
  */
 public class Location
 {
+    /** The unique identifier for this location. */
+    public int id = -1;
+
     /** The location position in full coordinates. */
     public int x, y;
 
@@ -66,7 +69,8 @@ public class Location
      */
     protected void toString (StringBuffer buf)
     {
-	buf.append("x=").append(x);
+	buf.append("id=").append(id);
+	buf.append(", x=").append(x);
 	buf.append(", y=").append(y);
         buf.append(", orient=").append(orient);
     }
