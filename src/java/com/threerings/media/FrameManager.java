@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.24 2002/12/03 19:28:04 mdb Exp $
+// $Id: FrameManager.java,v 1.25 2002/12/03 19:29:35 mdb Exp $
 
 package com.threerings.media;
 
@@ -36,9 +36,6 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.media.timer.MediaTimer;
 import com.threerings.media.timer.SystemMediaTimer;
-
-import com.threerings.media.util.PerformanceMonitor;
-import com.threerings.media.util.PerformanceObserver;
 
 /**
  * Provides a central point from which the computation for each "frame" or
@@ -93,7 +90,6 @@ import com.threerings.media.util.PerformanceObserver;
  * <code>SIMPLE_SCROLL_MODE</code>.
  */
 public class FrameManager
-    implements PerformanceObserver
 {
     /**
      * Creates a frame manager that will use a {@link SystemMediaTimer} to
@@ -129,9 +125,6 @@ public class FrameManager
         // turn off double buffering for the whole business because we
         // handle repaints
         _remgr.setDoubleBufferingEnabled(false);
-
-        // register with the performance monitor
-        PerformanceMonitor.register(this, "frame-rate", 1000l);
     }
 
     /**
@@ -221,9 +214,6 @@ public class FrameManager
             // repaint our participants
             paintParticipants(tickStamp);
         }
-
-//         // note that we've done a frame
-//         PerformanceMonitor.tick(this, "frame-rate");
     }
 
     /**
