@@ -1,5 +1,5 @@
 //
-// $Id: MisoScene.java,v 1.2 2003/02/20 00:40:13 ray Exp $
+// $Id: MisoScene.java,v 1.3 2003/02/24 18:40:41 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -68,7 +68,10 @@ public interface MisoScene
     public boolean removeObject (ObjectInfo info);
 
     /**
-     * Returns the scene model used by this scene.
+     * Returns the scene model used by this scene. This is an expensive
+     * operation as it must recreate the scene model from the (possibly
+     * changed) runtime data. Thus it should not be called in a normal
+     * client display and is provided mainly for scene editors and such.
      */
     public MisoSceneModel getSceneModel ();
 }

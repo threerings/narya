@@ -1,5 +1,5 @@
 //
-// $Id: SimpleMisoSceneImpl.java,v 1.1 2003/02/12 05:39:15 mdb Exp $
+// $Id: SimpleMisoSceneImpl.java,v 1.2 2003/02/24 18:40:41 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -38,7 +38,10 @@ public class SimpleMisoSceneImpl
 
         // create display object infos for our interesting objects
         for (int ii = 0, ll = _model.objectInfo.length; ii < ll; ii++) {
-            _objects.add(createObjectInfo(_model.objectInfo[ii]));
+            // replace the object info in our model with the possibly
+            // expanded derived class
+            _model.objectInfo[ii] = createObjectInfo(_model.objectInfo[ii]);
+            _objects.add(_model.objectInfo[ii]);
         }
     }
 
@@ -80,7 +83,6 @@ public class SimpleMisoSceneImpl
     public ObjectInfo addObject (int fqTileId, int x, int y)
     {
         ObjectInfo info = createObjectInfo(fqTileId, x, y);
-        _model.addObject(info);
         _objects.add(info);
         return info;
     }
@@ -88,13 +90,40 @@ public class SimpleMisoSceneImpl
     // documentation inherited from interface
     public boolean removeObject (ObjectInfo info)
     {
-        _model.removeObject(info);
         return _objects.remove(info);
     }
 
     // documentation inherited from interface
     public MisoSceneModel getSceneModel ()
     {
+        // flush our objects list back to the arrays so that we pick up
+        // any changes made since we created the list from the model
+        int plain = 0, ocount = _objects.size();
+        for (int ii = 0; ii < ocount; ii++) {
+            ObjectInfo info = (ObjectInfo)_objects.get(ii);
+            if (!info.isInteresting()) {
+                plain++;
+            }
+        }
+
+        // create new arrays of the appropriate size
+        _model.objectInfo = new ObjectInfo[ocount-plain];
+        _model.objectTileIds = new int[plain];
+        _model.objectXs = new short[plain];
+        _model.objectYs = new short[plain];
+
+        // populate those arrays appropriately
+        for (int cc = 0, pp = 0, ii = 0; cc < ocount; cc++) {
+            ObjectInfo info = (ObjectInfo)_objects.get(cc);
+            if (info.isInteresting()) {
+                _model.objectInfo[ii++] = info;
+            } else {
+                _model.objectTileIds[pp] = info.tileId;
+                _model.objectXs[pp] = (short)info.x;
+                _model.objectYs[pp++] = (short)info.y;
+            }
+        }
+
         return _model;
     }
 
