@@ -1,5 +1,5 @@
 //
-// $Id: ObjectResponse.java,v 1.3 2001/05/29 03:28:50 mdb Exp $
+// $Id: ObjectResponse.java,v 1.4 2001/05/30 00:16:00 mdb Exp $
 
 package com.samskivert.cocktail.cher.net;
 
@@ -8,7 +8,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
 import com.samskivert.cocktail.cher.dobj.DObject;
-import com.samskivert.cocktail.cher.dobj.DObjectFactory;
+import com.samskivert.cocktail.cher.dobj.net.DObjectFactory;
 
 public class ObjectResponse extends DownstreamMessage
 {

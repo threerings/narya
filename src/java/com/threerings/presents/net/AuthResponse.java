@@ -1,5 +1,5 @@
 //
-// $Id: AuthResponse.java,v 1.3 2001/05/29 03:27:59 mdb Exp $
+// $Id: AuthResponse.java,v 1.4 2001/05/30 00:16:00 mdb Exp $
 
 package com.samskivert.cocktail.cher.net;
 
@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.samskivert.cocktail.cher.dobj.DObjectFactory;
+import com.samskivert.cocktail.cher.dobj.net.DObjectFactory;
 
 /**
  * The auth response communicates authentication success or failure as

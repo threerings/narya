@@ -1,5 +1,5 @@
 //
-// $Id: AuthResponseData.java,v 1.2 2001/05/29 03:27:59 mdb Exp $
+// $Id: AuthResponseData.java,v 1.3 2001/05/30 00:16:00 mdb Exp $
 
 package com.samskivert.cocktail.cher.net;
 
@@ -23,17 +23,8 @@ public class AuthResponseData extends DObject
      */
     public String code;
 
-    public void writeTo (DataOutputStream out)
-        throws IOException
+    public String toString ()
     {
-        super.writeTo(out);
-        out.writeUTF(code);
-    }
-
-    public void readFrom (DataInputStream in)
-        throws IOException
-    {
-        super.readFrom(in);
-        code = in.readUTF();
+        return "[code=" + code + "]";
     }
 }
