@@ -1,5 +1,5 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- $Id: actions.xml,v 1.5 2002/03/05 07:09:59 mdb Exp $ -->
+<!-- $Id: actions.xml,v 1.6 2002/03/15 01:06:54 mdb Exp $ -->
 
 <!-- test component action definitions -->
 <actions>
@@ -22,6 +22,102 @@
       <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
       <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
       <tileCounts>6, 6, 6, 6, 6, 6, 6, 6</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+    </tileset>
+  </action>
+
+  <action name="behind_back">
+    <framesPerSecond>5</framesPerSecond>
+    <origin>50,112</origin>
+    <tileset>
+      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
+      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
+      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+    </tileset>
+  </action>
+
+  <action name="brandishing">
+    <framesPerSecond>5</framesPerSecond>
+    <origin>50,112</origin>
+    <tileset>
+      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
+      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
+      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+    </tileset>
+  </action>
+
+  <action name="crossed_arms">
+    <framesPerSecond>5</framesPerSecond>
+    <origin>50,112</origin>
+    <tileset>
+      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
+      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
+      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+    </tileset>
+  </action>
+
+  <action name="defeat">
+    <framesPerSecond>5</framesPerSecond>
+    <origin>50,112</origin>
+    <tileset>
+      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
+      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
+      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+    </tileset>
+  </action>
+
+  <action name="drinking">
+    <framesPerSecond>5</framesPerSecond>
+    <origin>50,112</origin>
+    <tileset>
+      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
+      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
+      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+    </tileset>
+  </action>
+
+  <action name="on_hips">
+    <framesPerSecond>5</framesPerSecond>
+    <origin>50,112</origin>
+    <tileset>
+      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
+      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
+      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+    </tileset>
+  </action>
+
+  <action name="standing_two">
+    <framesPerSecond>5</framesPerSecond>
+    <origin>50,112</origin>
+    <tileset>
+      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
+      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
+      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
+    </tileset>
+  </action>
+
+  <action name="victory">
+    <framesPerSecond>5</framesPerSecond>
+    <origin>50,112</origin>
+    <tileset>
+      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
+      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
+      <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
       <offsetPos>0, 0</offsetPos>
       <gapSize>0, 0</gapSize>
     </tileset>
