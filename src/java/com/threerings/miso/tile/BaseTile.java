@@ -1,9 +1,11 @@
 //
-// $Id: BaseTile.java,v 1.5 2002/02/07 02:58:46 shaper Exp $
+// $Id: BaseTile.java,v 1.6 2002/05/06 18:08:32 mdb Exp $
 
 package com.threerings.miso.tile;
 
 import java.awt.Image;
+import java.awt.Rectangle;
+
 import com.threerings.media.tile.Tile;
 
 /**
@@ -17,17 +19,17 @@ public class BaseTile extends Tile
      * Constructs a new base tile with the specified image. Passability
      * will be assumed to be true.
      */
-    public BaseTile (Image image)
+    public BaseTile (Image image, Rectangle bounds)
     {
-        super(image);
+        this(image, bounds, true);
     }
 
     /**
      * Constructs a new base tile with the specified passability.
      */
-    public BaseTile (Image image, boolean passable)
+    public BaseTile (Image image, Rectangle bounds, boolean passable)
     {
-	super(image);
+	super(image, bounds);
 	_passable = passable;
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.10 2002/05/04 19:38:14 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.11 2002/05/06 18:08:31 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -27,17 +27,18 @@ import com.threerings.resource.ResourceBundle;
 import com.threerings.resource.ResourceManager;
 
 import com.threerings.media.ImageManager;
+import com.threerings.media.util.Colorization;
 import com.threerings.media.util.ImageUtil;
 
 import com.threerings.media.tile.ImageProvider;
-import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.NoSuchTileException;
+import com.threerings.media.tile.Tile;
+import com.threerings.media.tile.TileSet;
 
 import com.threerings.util.DirectionCodes;
 
 import com.threerings.cast.ActionFrames;
 import com.threerings.cast.CharacterComponent;
-import com.threerings.cast.Colorization;
 import com.threerings.cast.ComponentClass;
 import com.threerings.cast.ComponentRepository;
 import com.threerings.cast.FrameProvider;
@@ -311,31 +312,31 @@ public class BundledComponentRepository
         // documentation inherited from interface
         public int getWidth (int index)
         {
-            Image img = getImage(index);
-            return (img == null) ? 0 : img.getWidth(null);
+            Tile tile = getTile(index);
+            return (tile == null) ? 0 : tile.getWidth();
         }
 
         // documentation inherited from interface
         public int getHeight (int index)
         {
-            Image img = getImage(index);
-            return (img == null) ? 0 : img.getHeight(null);
+            Tile tile = getTile(index);
+            return (tile == null) ? 0 : tile.getHeight();
         }
 
         // documentation inherited from interface
         public void paintFrame (Graphics g, int index, int x, int y)
         {
-            Image img = getImage(index);
-            if (img != null) {
-                g.drawImage(img, x, y, null);
+            Tile tile = getTile(index);
+            if (tile != null) {
+                tile.paint(g, x, y);
             }
         }
 
         // documentation inherited from interface
         public boolean hitTest (int index, int x, int y)
         {
-            Image img = getImage(index);
-            return (img != null) ? ImageUtil.hitTest(img, x, y) : false;
+            Tile tile = getTile(index);
+            return (tile != null) ? tile.hitTest(x, y) : false;
         }
 
         // documentation inherited from interface
@@ -345,38 +346,22 @@ public class BundledComponentRepository
         }
 
         // documentation inherited from interface
-        public void paintColoredFrame (
-            Graphics g, int index, int x, int y, Colorization[] zations)
+        public ActionFrames cloneColorized (Colorization[] zations)
         {
-            BufferedImage img = (BufferedImage)getImage(index);
-            if (img == null) {
-                return;
-            }
-
-            // create a recolored image with which to render
-            if (zations != null) {
-                int zcount = zations.length;
-                Colorization cz;
-                for (int zz = 0; zz < zcount; zz++) {
-                    if ((cz = zations[zz]) == null) {
-                        continue;
-                    }
-                    img = ImageUtil.recolorImage(
-                        img, cz.rootColor, cz.range, cz.offsets);
-                }
-            }
-
-            g.drawImage(img, x, y, null);
+            TileSet zset = _set.cloneColorized(zations);
+            TileSetFrameImage cframes = new TileSetFrameImage(zset);
+            cframes.setOrientation(_orient);
+            return cframes;
         }
 
         /**
-         * Fetches the requested tile image.
+         * Fetches the requested tile.
          */
-        protected Image getImage (int index)
+        protected Tile getTile (int index)
         {
             int tileIndex = _orient * getFrameCount() + index;
             try {
-                return _set.getTile(tileIndex).getImage();
+                return _set.getTile(tileIndex);
             } catch (NoSuchTileException nste) {
                 Log.warning("Can't extract action frame [set=" + _set +
                             ", orient=" + _orient + ", index=" + index + "].");

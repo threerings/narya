@@ -1,14 +1,14 @@
 //
-// $Id: Colorization.java,v 1.3 2002/03/10 22:30:46 mdb Exp $
+// $Id: Colorization.java,v 1.4 2002/05/06 18:08:32 mdb Exp $
 
-package com.threerings.cast;
+package com.threerings.media.util;
 
 import java.awt.Color;
+
 import com.samskivert.util.StringUtil;
-import com.threerings.media.util.ImageUtil;
 
 /**
- * Used to support colorization of character component images.
+ * Used to support recoloring images.
  */
 public class Colorization
 {

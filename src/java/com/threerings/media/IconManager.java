@@ -1,5 +1,5 @@
 //
-// $Id: IconManager.java,v 1.1 2002/02/03 22:43:54 mdb Exp $
+// $Id: IconManager.java,v 1.2 2002/05/06 18:08:32 mdb Exp $
 
 package com.threerings.media;
 
@@ -10,15 +10,14 @@ import java.util.Properties;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
-import java.awt.Image;
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 
 import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.tile.NoSuchTileException;
+import com.threerings.media.tile.TileIcon;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.TileSet;
 
@@ -42,7 +41,7 @@ import com.threerings.media.tile.TileSet;
  * A user could then request an <code>arrows</code> icon like so:
  *
  * <pre>
- * ImageIcon icon = iconmgr.getIcon("arrows", 2);
+ * Icon icon = iconmgr.getIcon("arrows", 2);
  * </pre>
  */
 public class IconManager
@@ -113,7 +112,7 @@ public class IconManager
             }
 
             // fetch the appropriate image and create an image icon
-            return new ImageIcon(set.getTileImage(index));
+            return new TileIcon(set.getTile(index));
 
         } catch (NoSuchTileException nste) {
             Log.warning("Unable to load icon [iconSet=" + iconSet +

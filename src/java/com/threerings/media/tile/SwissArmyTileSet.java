@@ -1,11 +1,12 @@
 //
-// $Id: SwissArmyTileSet.java,v 1.7 2002/02/24 02:20:44 mdb Exp $
+// $Id: SwissArmyTileSet.java,v 1.8 2002/05/06 18:08:32 mdb Exp $
 
 package com.threerings.media.tile;
 
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.Dimension;
+import java.awt.Rectangle;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -13,7 +14,6 @@ import java.io.ObjectInputStream;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.Log;
-import com.threerings.media.util.ImageUtil;
 
 /**
  * The swiss army tileset supports a diverse variety of tiles in the
@@ -128,15 +128,8 @@ public class SwissArmyTileSet extends TileSet
     }
 
     // documentation inherited
-    protected Image extractTileImage (int tileIndex)
+    protected Rectangle computeTileBounds (int tileIndex, Image tilesetImage)
     {
-        Image tsimg = getTilesetImage();
-        if (tsimg == null) {
-            // FIXME: we should really be returning a blank image of the
-            // appropriate width and height here rather than null
-            return null;
-        }
-
 	// find the row number containing the sought-after tile
 	int ridx, tcount, ty, tx;
 	ridx = tcount = 0;
@@ -156,13 +149,12 @@ public class SwissArmyTileSet extends TileSet
         // final image x-position is based on tile width and gap distance
         tx += (xidx * (_widths[ridx] + _gapSize.width));
 
-// 	Log.info("Retrieving tile image [tileIndex=" + tileIndex +
+// 	Log.info("Computed tile bounds [tileIndex=" + tileIndex +
 //                  ", ridx=" + ridx + ", xidx=" + xidx +
 //                  ", tx=" + tx + ", ty=" + ty + "].");
 
 	// crop the tile-sized image chunk from the full image
-	return ImageUtil.getSubimage(
-            tsimg, tx, ty, _widths[ridx], _heights[ridx]);
+        return new Rectangle(tx, ty, _widths[ridx], _heights[ridx]);
     }
 
     private void readObject (ObjectInputStream in)

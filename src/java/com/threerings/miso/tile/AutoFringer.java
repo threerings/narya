@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.10 2002/05/03 04:12:48 mdb Exp $
+// $Id: AutoFringer.java,v 1.11 2002/05/06 18:08:32 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -147,8 +147,8 @@ public class AutoFringer
     /**
      * Compose a FringeTile out of the various fringe images needed.
      */
-    protected Tile composeFringeTile (FringerRec[] fringers, HashMap masks,
-                                      Random rando)
+    protected Tile composeFringeTile (
+        FringerRec[] fringers, HashMap masks, Random rando)
     {
         // sort the array so that higher priority fringers get drawn first
         QuickSort.sort(fringers);
@@ -191,7 +191,6 @@ public class AutoFringer
     {
         FringeConfiguration.FringeTileSetRecord tsr =
             _fringeconf.getRandomFringe(baseset, rando);
-
         int fringeset = tsr.fringe_tsid;
 
         if (!tsr.mask) {
@@ -208,7 +207,6 @@ public class AutoFringer
             img = ImageUtil.composeMaskedImage(
                 (BufferedImage) _tmgr.getTile(fringeset, index).getImage(),
                 (BufferedImage) _tmgr.getTile(baseset, 0).getImage());
-
             masks.put(maskkey, img);
         }
 

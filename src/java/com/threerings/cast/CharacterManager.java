@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.19 2002/05/04 19:38:13 mdb Exp $
+// $Id: CharacterManager.java,v 1.20 2002/05/06 18:08:31 mdb Exp $
 
 package com.threerings.cast;
 
@@ -9,12 +9,13 @@ import java.util.HashMap;
 
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
+
 import org.apache.commons.collections.LRUMap;
 
+import com.threerings.media.util.Colorization;
 import com.threerings.util.DirectionCodes;
 
 import com.threerings.cast.Log;
-import com.threerings.cast.util.TileUtil;
 
 /**
  * The character manager provides facilities for constructing sprites that
@@ -212,19 +213,20 @@ public class CharacterManager
         // sort them into the proper rendering order
         Arrays.sort(components);
 
-        // create an array with the action frames for each component
+        // create colorized versions of all of the source action frames
         ActionFrames[] sources = new ActionFrames[ccount];
-        zations = new Colorization[ccount][];
         for (int ii = 0; ii < ccount; ii++) {
-            sources[ii] = components[ii].component.getFrames(action);
+            ActionFrames source = components[ii].component.getFrames(action);
             if (zations != null) {
-                zations[ii] = components[ii].zations;
+                sources[ii] = source.cloneColorized(components[ii].zations);
+            } else {
+                sources[ii] = source;
             }
         }
 
         // use those to create an entity that will lazily composite things
         // together as they are needed
-        return new CompositedActionFrames(action, sources, zations);
+        return new CompositedActionFrames(sources);
     }
 
     /** Used when compositing component frame images. */

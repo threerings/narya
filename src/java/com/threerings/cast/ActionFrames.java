@@ -1,5 +1,5 @@
 //
-// $Id: ActionFrames.java,v 1.1 2002/05/04 19:38:13 mdb Exp $
+// $Id: ActionFrames.java,v 1.2 2002/05/06 18:08:31 mdb Exp $
 
 package com.threerings.cast;
 
@@ -7,6 +7,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 
 import com.threerings.media.sprite.MultiFrameImage;
+import com.threerings.media.util.Colorization;
 import com.threerings.util.DirectionCodes;
 
 /**
@@ -23,10 +24,8 @@ public interface ActionFrames extends MultiFrameImage
     public void setOrientation (int orient);
 
     /**
-     * Renders the specified frame at the specified offset applying the
-     * supplied colorizations in the process. Note, the colorizations
-     * should not be applied to the source image, only the rendered copy.
+     * Creates a clone of these action frames which will have the supplied
+     * colorizations applied to the frame images.
      */
-    public void paintColoredFrame (
-        Graphics g, int index, int x, int y, Colorization[] zations);
+    public ActionFrames cloneColorized (Colorization[] zations);
 }

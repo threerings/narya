@@ -1,9 +1,10 @@
 //
-// $Id: ObjectTile.java,v 1.6 2002/01/31 02:08:52 mdb Exp $
+// $Id: ObjectTile.java,v 1.7 2002/05/06 18:08:32 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import com.threerings.media.Log;
@@ -19,18 +20,19 @@ public class ObjectTile extends Tile
      * Constructs a new object tile with the specified image. The base
      * width and height should be set before using this tile.
      */
-    public ObjectTile (Image image)
+    public ObjectTile (Image image, Rectangle bounds)
     {
-        super(image);
+        super(image, bounds);
     }
 
     /**
      * Constructs a new object tile with the specified base width and
      * height.
      */
-    public ObjectTile (Image image, int baseWidth, int baseHeight)
+    public ObjectTile (Image image, Rectangle bounds,
+                       int baseWidth, int baseHeight)
     {
-	super(image);
+	super(image, bounds);
 	_baseWidth = baseWidth;
 	_baseHeight = baseHeight;
     }

@@ -1,9 +1,10 @@
 //
-// $Id: UniformTileSet.java,v 1.7 2002/02/24 02:20:44 mdb Exp $
+// $Id: UniformTileSet.java,v 1.8 2002/05/06 18:08:32 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Image;
+import java.awt.Rectangle;
 
 import com.threerings.media.Log;
 import com.threerings.media.util.ImageUtil;
@@ -64,24 +65,33 @@ public class UniformTileSet extends TileSet
         return _height;
     }
 
-    // documentation inherited
-    protected Image extractTileImage (int tileId)
+    /**
+     * Returns the image that would be used by the tile at the specified
+     * index. Because the uniform tileset is often used simply to provide
+     * access to a collection of uniform images, this method is provided
+     * to bypass the creation of a {@link Tile} object when all that is
+     * desired is access to the underlying image.
+     */
+    public Image getTileImage (int tileIndex)
     {
         Image tsimg = getTilesetImage();
         if (tsimg == null) {
-            // FIXME: we should really be returning a blank image of the
-            // appropriate width and height here rather than null
             return null;
         }
+        Rectangle tb = computeTileBounds(tileIndex, tsimg);
+        return ImageUtil.getSubimage(tsimg, tb.x, tb.y, tb.width, tb.height);
+    }
 
+    // documentation inherited
+    protected Rectangle computeTileBounds (int tileIndex, Image tilesetImage)
+    {
         // figure out from whence to crop the tile
-        int tilesPerRow = tsimg.getWidth(null) / _width;
-        int row = tileId / tilesPerRow;
-        int col = tileId % tilesPerRow;
+        int tilesPerRow = tilesetImage.getWidth(null) / _width;
+        int row = tileIndex / tilesPerRow;
+        int col = tileIndex % tilesPerRow;
 
 	// crop the tile-sized image chunk from the full image
-	return ImageUtil.getSubimage(
-            tsimg, _width*col, _height*row, _width, _height);
+        return new Rectangle(_width*col, _height*row, _width, _height);
     }
 
     // documentation inherited

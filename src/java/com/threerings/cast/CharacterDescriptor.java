@@ -1,10 +1,11 @@
 //
-// $Id: CharacterDescriptor.java,v 1.6 2002/03/10 22:31:06 mdb Exp $
+// $Id: CharacterDescriptor.java,v 1.7 2002/05/06 18:08:31 mdb Exp $
 
 package com.threerings.cast;
 
 import java.util.Arrays;
 import com.samskivert.util.StringUtil;
+import com.threerings.media.util.Colorization;
 
 /**
  * The character descriptor object details the components that are

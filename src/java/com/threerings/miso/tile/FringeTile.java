@@ -1,5 +1,5 @@
 //
-// $Id: FringeTile.java,v 1.1 2002/04/06 03:41:58 ray Exp $
+// $Id: FringeTile.java,v 1.2 2002/05/06 18:08:32 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -21,7 +21,8 @@ public class FringeTile extends Tile
      */
     public FringeTile (Image img)
     {
-        super(img);
+        super(img, new Rectangle(
+                  0, 0, img.getWidth(null), img.getHeight(null)));
     }
 
     /**
@@ -36,13 +37,10 @@ public class FringeTile extends Tile
     }
 
     // documentation inherited
-    public void paint (Graphics2D gfx, Shape dest)
+    public void paint (Graphics2D gfx, int x, int y)
     {
-        Rectangle bounds = dest.getBounds();
-        int x = bounds.x;
-        int y = bounds.y;
-
         gfx.drawImage(_image, x, y, null);
+
         if (_extras != null) {
             int size = _extras.size();
             for (int ii=0; ii < size; ii++) {

@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.23 2001/12/07 01:33:29 mdb Exp $
+// $Id: TileManager.java,v 1.24 2002/05/06 18:08:32 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -56,7 +56,7 @@ public class TileManager implements ImageProvider
      * Loads up a tileset from the specified image with the specified
      * metadata parameters.
      */
-    public TileSet loadTileSet (
+    public UniformTileSet loadTileSet (
         String imgPath, int count, int width, int height)
     {
         UniformTileSet uts = new UniformTileSet();

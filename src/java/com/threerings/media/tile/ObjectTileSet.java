@@ -1,9 +1,10 @@
 //
-// $Id: ObjectTileSet.java,v 1.6 2001/12/18 08:37:54 mdb Exp $
+// $Id: ObjectTileSet.java,v 1.7 2002/05/06 18:08:32 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.util.Arrays;
 
 import com.samskivert.util.StringUtil;
@@ -68,7 +69,7 @@ public class ObjectTileSet extends SwissArmyTileSet
      * Creates instances of {@link ObjectTile}, which can span more than a
      * single tile's space in a display.
      */
-    protected Tile createTile (int tileIndex, Image image)
+    protected Tile createTile (int tileIndex, Image tilesetImage)
     {
         // default object dimensions to (1, 1)
         int wid = 1, hei = 1;
@@ -79,7 +80,8 @@ public class ObjectTileSet extends SwissArmyTileSet
             hei = _oheights[tileIndex];
         }
 
-        ObjectTile tile = new ObjectTile(image, wid, hei);
+        Rectangle bounds = computeTileBounds(tileIndex, tilesetImage);
+        ObjectTile tile = new ObjectTile(tilesetImage, bounds, wid, hei);
 
         if (_xorigins != null) {
             tile.setOrigin(_xorigins[tileIndex], _yorigins[tileIndex]);

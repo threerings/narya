@@ -1,15 +1,20 @@
 //
-// $Id: TileSet.java,v 1.25 2002/02/24 02:20:44 mdb Exp $
+// $Id: TileSet.java,v 1.26 2002/05/06 18:08:32 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.Transparency;
+import java.awt.image.BufferedImage;
 
 import java.io.IOException;
 import java.io.Serializable;
 
+import com.samskivert.util.StringUtil;
+
 import com.threerings.media.Log;
+import com.threerings.media.util.Colorization;
 import com.threerings.media.util.ImageUtil;
 
 /**
@@ -83,6 +88,55 @@ public abstract class TileSet
     public abstract int getTileCount ();
 
     /**
+     * Creates a copy of this tileset with the supplied colorizations
+     * applied to its source image.
+     */
+    public TileSet cloneColorized (Colorization[] zations)
+    {
+        TileSet tset = null;
+        try {
+            tset = (TileSet)clone();
+        } catch (CloneNotSupportedException cnse) {
+            Log.warning("Unable to clone tileset prior to colorization " +
+                        "[tset=" + this +
+                        ", zations=" + StringUtil.toString(zations) +
+                        ", error=" + cnse + "].");
+            return null;
+        }
+
+        // make sure the tileset was able to load its image
+        Image timg = tset.getTilesetImage();
+        if (timg == null) {
+            Log.warning("Failed to load tileset image in preparation " +
+                        "for colorization [tset=" + tset + "].");
+            // return the uncolorized tileset since it has no freaking
+            // source image anyway
+            return tset;
+
+        } else if (!(timg instanceof BufferedImage)) {
+            Log.warning("Can't recolor tileset with non-buffered " +
+                        "image source [source=" + timg + "].");
+            return tset;
+        }
+
+        // create the recolored image
+        BufferedImage btimg = (BufferedImage)timg;
+        int zcount = zations.length;
+        Colorization cz;
+        for (int zz = 0; zz < zcount; zz++) {
+            if ((cz = zations[zz]) == null) {
+                continue;
+            }
+            btimg = ImageUtil.recolorImage(btimg, cz);
+        }
+
+        // stuff the recolored image back into the new tileset
+        tset._tilesetImg = btimg;
+
+        return tset;
+    }
+
+    /**
      * Returns a new tileset that is a clone of this tileset with the
      * image path updated to reference the given path. Useful for
      * configuring a single tileset and then generating additional
@@ -119,93 +173,47 @@ public abstract class TileSet
 	    throw new NoSuchTileException(tileIndex);
 	}
 
+        // get our tileset image
+        Image tsimg = getTilesetImage();
+        if (tsimg == null) {
+            // we already logged an error, so we can just freak out
+            throw new NoSuchTileException(tileIndex);
+        }
+
 	// create and initialize the tile object
-	Tile tile = createTile(tileIndex, checkedGet(tileIndex));
+	Tile tile = createTile(tileIndex, tsimg);
         initTile(tile);
         return tile;
     }
 
     /**
-     * Returns the tile image at the specified index. In some cases, a
-     * tile object is not desired or required, and so this method can be
-     * used to fetch the image directly. A null tile image will never be
-     * returned, but an error image may be returned if a problem occurs
-     * loading the underlying tileset image.
+     * Computes and returns the bounds for the specified tile based on the
+     * mechanism used by the derived class to do such things. The width
+     * and height of the bounds should be the size of the tile image and
+     * the x and y offset should be the offset in the tileset image for
+     * the image data of the specified tile.
      *
-     * @param tileIndex the index of the image in the tileset.
-     *
-     * @return the tile image.
-     *
-     * @exception NoSuchTileException thrown if the specified tile index
-     * is out of range for this tileset.
+     * @param tileIndex the index of the tile whose bounds are to be
+     * computed.
+     * @param tilesetImage the tileset image that contains the imagery for
+     * the tile in question.
      */
-    public Image getTileImage (int tileIndex)
-        throws NoSuchTileException
-    {
-	// bail if there's no such tile
-	if (tileIndex < 0 || tileIndex >= getTileCount()) {
-	    throw new NoSuchTileException(tileIndex);
-	}
-
-	// retrieve the tile image
-        return checkedGet(tileIndex);
-    }
-
-    // used to ensure TileSet derivations adhere to the extractTileImage()
-    // policy of not returning null
-    private Image checkedGet (int tileIndex)
-    {
-        Image image = extractTileImage(tileIndex);
-	if (image == null) {
-            String errmsg = "TileSet implementation violated return " +
-                "policy for TileSet.extractTileImage().";
-            throw new RuntimeException(errmsg);
-	}
-        return image;
-    }
+    protected abstract Rectangle computeTileBounds (
+        int tileIndex, Image tilesetImage);
 
     /**
-     * Extracts the image corresponding to the specified tile from the
-     * tileset image.
+     * Creates a tile for the specified tile index.
      *
-     * @param tileIndex the index of the tile to be retrieved.
+     * @param tileIndex the index of the tile to be created.
+     * @param tilesetImage the tileset image that contains the imagery for
+     * the tile to be created.
      *
-     * @return the tile image. This should not return null in cases of
-     * failure, but should instead call {@link #createErrorImage} to
-     * return a valid image.
+     * @return a configured tile.
      */
-    protected abstract Image extractTileImage (int tileIndex);
-
-    /**
-     * Creates a blank image to be used in failure situations. If {@link
-     * #extractTileImage} is unable to return the actual tile image
-     * (because the tileset image could not be loaded or for some other
-     * reason), it should not return null. Instead it should return an
-     * error image created with this method.
-     *
-     * @param width the width of the error image in pixels.
-     * @param height the height of the error image in pixels.
-     */
-    protected Image createErrorImage (int width, int height)
+    protected Tile createTile (int tileIndex, Image tilesetImage)
     {
-        // return a blank image for now
-        return ImageUtil.createImage(width, height, Transparency.OPAQUE);
-    }
-
-    /**
-     * Construct and return a new tile object for further population with
-     * tile-specific information. Derived classes can override this method
-     * to create their own sub-class of {@link Tile}.
-     *
-     * @param tileIndex the index of the tile being created.
-     * @param image the tile image.
-     *
-     * @return the new tile object.
-     */
-    protected Tile createTile (int tileIndex, Image image)
-    {
-        // construct a basic tile
-	return new Tile(image);
+        return new Tile(tilesetImage,
+                        computeTileBounds(tileIndex, tilesetImage));
     }
 
     /**
@@ -269,14 +277,14 @@ public abstract class TileSet
 	buf.append(", tileCount=").append(getTileCount());
     }
 
-    /** The entity from which we obtain our tile image. */
-    protected transient ImageProvider _improv;
-
     /** The path to the file containing the tile images. */
     protected String _imagePath;
 
     /** The tileset name. */
     protected String _name;
+
+    /** The entity from which we obtain our tile image. */
+    protected transient ImageProvider _improv;
 
     /** The image containing all tile images for this set. This is private
      * because it should be accessed via {@link #getTilesetImage} even by

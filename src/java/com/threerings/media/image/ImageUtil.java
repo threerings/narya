@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.12 2002/05/04 21:36:32 ray Exp $
+// $Id: ImageUtil.java,v 1.13 2002/05/06 18:08:32 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -170,6 +170,18 @@ public class ImageUtil
     }
 
     /**
+     * Recolors the supplied image as in {@link
+     * #recolorImage(BufferedImage,Color,float[],float[])} obtaining the
+     * recoloring parameters from the supplied {@link Colorization}
+     * instance.
+     */
+    public static BufferedImage recolorImage (
+        BufferedImage image, Colorization cz)
+    {
+        return recolorImage(image, cz.rootColor, cz.range, cz.offsets);
+    }
+
+    /**
      * Adjusts the supplied color by the specified offests, taking the
      * appropriate measures for hue (wrapping it around) and saturation
      * and value (clipping).
@@ -245,11 +257,11 @@ public class ImageUtil
     }
 
     /**
-     * Create an image using the alpha channel from the first Image
-     * and the RGB values from the second.
+     * Create an image using the alpha channel from the first and the RGB
+     * values from the second.
      */
-    public static BufferedImage composeMaskedImage (BufferedImage mask,
-                                                    BufferedImage base)
+    public static BufferedImage composeMaskedImage (
+        BufferedImage mask, BufferedImage base)
     {
         int wid = base.getWidth(null);
         int hei = base.getHeight(null);
@@ -257,8 +269,8 @@ public class ImageUtil
         Raster maskdata = mask.getData();
         Raster basedata = base.getData();
 
-        WritableRaster target = basedata.createCompatibleWritableRaster(
-            wid, hei);
+        WritableRaster target =
+            basedata.createCompatibleWritableRaster(wid, hei);
 
         // copy the alpha from the mask image
         int[] adata = maskdata.getSamples(0, 0, wid, hei, 3, (int[]) null);

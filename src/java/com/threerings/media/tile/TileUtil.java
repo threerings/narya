@@ -1,9 +1,7 @@
 //
-// $Id: TileUtil.java,v 1.2 2001/11/18 04:09:21 mdb Exp $
+// $Id: TileUtil.java,v 1.3 2002/05/06 18:08:32 mdb Exp $
 
 package com.threerings.media.tile;
-
-import java.awt.Image;
 
 import com.threerings.media.Log;
 
@@ -23,15 +21,16 @@ public class TileUtil
      * tile.
      * @param tileIndex the index of the tile to be fetched.
      */
-    public static Image getTileImage (
+    public static Tile getTile (
         TileManager tilemgr, int tileSetId, int tileIndex)
     {
 	try {
             TileSet set = tilemgr.getTileSet(tileSetId);
-            return set.getTileImage(tileIndex);
+            return set.getTile(tileIndex);
 
 	} catch (TileException te) {
-	    Log.warning("Error retrieving tile image [error=" + te + "].");
+	    Log.warning("Error retrieving tile [tsid=" + tileSetId +
+                        ", tidx=" + tileIndex + ", error=" + te + "].");
 	    return null;
 	}
     }
