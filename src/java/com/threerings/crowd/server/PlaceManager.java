@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.30 2002/05/24 05:58:55 mdb Exp $
+// $Id: PlaceManager.java,v 1.31 2002/06/20 22:12:22 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -215,10 +215,22 @@ public class PlaceManager
 
         } catch (Exception e) {
             Log.warning("Failure building occupant info " +
-                        "[body=" + body + "].");
+                        "[where=" + where() + ", body=" + body + "].");
             Log.logStackTrace(e);
             return null;
         }
+    }
+
+    /**
+     * Returns a string that can be used in log messages to identify the
+     * place as sensibly as possible to the developer who has to puzzle
+     * over log output trying to figure out what's going on. Derived place
+     * managers can override this and augment the default value (which is
+     * simply the place object id) with useful identifying information.
+     */
+    protected String where ()
+    {
+        return String.valueOf(_plobj.getOid());
     }
 
     /**
@@ -239,8 +251,7 @@ public class PlaceManager
      */
     protected void bodyEntered (final int bodyOid)
     {
-        Log.debug("Body entered [ploid=" + _plobj.getOid() +
-                  ", oid=" + bodyOid + "].");
+        Log.debug("Body entered [where=" + where() + ", oid=" + bodyOid + "].");
 
         // let our delegates know what's up
         applyToDelegates(new DelegateOp() {
@@ -255,8 +266,7 @@ public class PlaceManager
      */
     protected void bodyLeft (final int bodyOid)
     {
-        Log.debug("Body left [ploid=" + _plobj.getOid() +
-                  ", oid=" + bodyOid + "].");
+        Log.debug("Body left [where=" + where() + ", oid=" + bodyOid + "].");
 
         // if their occupant info hasn't been removed (which may be the
         // case if they logged off rather than left via a MoveTo request),
