@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.8 2002/04/08 19:41:52 ray Exp $
+// $Id: AutoFringer.java,v 1.9 2002/04/09 18:05:07 ray Exp $
 
 package com.threerings.miso.tile;
 
@@ -47,10 +47,11 @@ public class AutoFringer
     /**
      * Automatically fringe the entire scene.
      */
-    public void fringe (MisoSceneModel scene, TileLayer fringelayer)
+    public void fringe (MisoSceneModel scene, TileLayer fringelayer, long seed)
     {
+        Random rando = new Random(seed);
         fringe(scene, fringelayer,
-               new Rectangle(0, 0, scene.width, scene.height));
+               new Rectangle(0, 0, scene.width, scene.height), rando);
     }
 
     /**
@@ -59,7 +60,7 @@ public class AutoFringer
      * and insert into the fringe TileLayer.
      */
     public void fringe (MisoSceneModel scene, TileLayer fringelayer,
-                        Rectangle r) 
+                        Rectangle r, Random rando) 
     {
         // create a hash to cache our masks
         HashMap maskcache = new HashMap();
@@ -70,7 +71,7 @@ public class AutoFringer
         for (int row = Math.max(r.y - 1, 0); row < lastrow; row++) {
             for (int col = Math.max(r.x - 1, 0); col < lastcol; col++) {
                 fringelayer.setTile(col, row,
-                                    getFringeTile(scene, row, col, maskcache));
+                    getFringeTile(scene, row, col, maskcache, rando));
             }
         }
 
@@ -82,7 +83,7 @@ public class AutoFringer
      * location.
      */
     protected Tile getFringeTile (MisoSceneModel scene, int row, int col,
-                                  HashMap masks)
+                                  HashMap masks, Random rando)
     {
         HashIntMap fringers = new HashIntMap();
         int hei = scene.height;
@@ -132,13 +133,14 @@ public class AutoFringer
             frecs[ii] = (FringerRec) iter.next();
         }
 
-        return composeFringeTile(frecs, masks);
+        return composeFringeTile(frecs, masks, rando);
     }
 
     /**
      * Compose a FringeTile out of the various fringe images needed.
      */
-    protected Tile composeFringeTile (FringerRec[] fringers, HashMap masks)
+    protected Tile composeFringeTile (FringerRec[] fringers, HashMap masks,
+                                      Random rando)
     {
         // sort the array so that higher priority fringers get drawn first
         QuickSort.sort(fringers);
@@ -151,7 +153,7 @@ public class AutoFringer
 
                 try {
                     Image fimg = getTileImage(fringers[ii].baseset,
-                                              indexes[jj], masks);
+                                              indexes[jj], masks, rando);
 
                     if (tile == null) {
                         tile = new FringeTile(fimg);
@@ -175,7 +177,8 @@ public class AutoFringer
     /**
      * Retrieve or compose an image for the specified fringe.
      */
-    protected Image getTileImage (int baseset, int index, HashMap masks)
+    protected Image getTileImage (int baseset, int index,
+                                  HashMap masks, Random rando)
         throws NoSuchTileException, NoSuchTileSetException
     {
         FringeConfiguration.FringeTileSetRecord tsr =
@@ -363,9 +366,4 @@ public class AutoFringer
 
     /** Our fringe configuration. */
     protected FringeConfiguration _fringeconf;
-
-    /** Our random # generator. */
-    // this may change.. or we may seed it before we do any scene
-    // with a number deterministicly generated from that scene
-    protected Random rando = new Random();
 }
