@@ -1,10 +1,12 @@
 //
-// $Id: RunningConnection.java,v 1.6 2002/07/10 01:22:17 mdb Exp $
+// $Id: RunningConnection.java,v 1.7 2002/09/24 00:50:27 mdb Exp $
 
 package com.threerings.presents.server.net;
 
 import java.io.IOException;
 import ninja2.core.io_core.nbio.NonblockingSocket;
+import com.samskivert.util.StringUtil;
+
 import com.threerings.presents.net.UpstreamMessage;
 
 /**
@@ -35,7 +37,7 @@ public class RunningConnection extends Connection
     {
         if (_socket != null) {
             return "[mode=RUNNING, id=" + (hashCode() % 1000) +
-                ", addr=" + _socket.getInetAddress() + "]";
+                ", addr=" + StringUtil.toString(_socket.getInetAddress()) + "]";
         } else {
             return "[mode=RUNNING, id=" + (hashCode() % 1000) +
                 ", addr=<disconnected>]";

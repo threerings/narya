@@ -1,10 +1,11 @@
 //
-// $Id: AuthingConnection.java,v 1.6 2002/03/05 03:19:18 mdb Exp $
+// $Id: AuthingConnection.java,v 1.7 2002/09/24 00:50:27 mdb Exp $
 
 package com.threerings.presents.server.net;
 
 import java.io.IOException;
 import ninja2.core.io_core.nbio.NonblockingSocket;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.net.AuthRequest;
@@ -80,7 +81,8 @@ public class AuthingConnection
 
     public String toString ()
     {
-        return "[mode=AUTHING, addr=" + _socket.getInetAddress() + "]";
+        return "[mode=AUTHING, addr=" +
+            StringUtil.toString(_socket.getInetAddress()) + "]";
     }
 
     protected AuthRequest _authreq;
