@@ -1,5 +1,5 @@
 //
-// $Id: ModeUtil.java,v 1.4 2002/10/15 21:01:39 ray Exp $
+// $Id: ModeUtil.java,v 1.5 2002/12/13 04:37:27 shaper Exp $
 
 package com.threerings.media.util;
 
@@ -66,5 +66,16 @@ public class ModeUtil
         }
 
         return (mset.size() > 0) ? (DisplayMode)mset.first() : null;
+    }
+
+    /**
+     * Returns a string representation of the supplied display mode.
+     */
+    public static String toString (DisplayMode mode)
+    {
+        return "[width=" + mode.getWidth() +
+            ", height=" + mode.getHeight() +
+            ", depth=" + mode.getBitDepth() +
+            ", refresh=" + mode.getRefreshRate() + "]";
     }
 }
