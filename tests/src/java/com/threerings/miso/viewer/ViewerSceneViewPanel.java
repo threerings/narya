@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.41 2002/02/18 00:43:24 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.42 2002/02/19 01:27:48 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import java.util.List;
 import com.samskivert.util.Config;
 
 import com.threerings.cast.CharacterDescriptor;
@@ -122,9 +123,9 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     }
 
     // documentation inherited
-    public void render (Graphics2D g)
+    public void render (Graphics2D g, List invalidRects)
     {
-	super.render(g);
+	super.render(g, invalidRects);
 	PerformanceMonitor.tick(this, "paint");
     }
 
