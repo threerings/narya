@@ -1,5 +1,5 @@
 //
-// $Id: SceneSummary.java,v 1.2 2001/12/17 00:58:04 mdb Exp $
+// $Id: SceneSummary.java,v 1.3 2001/12/17 03:38:50 mdb Exp $
 
 package com.threerings.whirled.zone.data;
 
@@ -8,6 +8,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import com.samskivert.util.StringUtil;
+
+import com.threerings.util.DirectionCodes;
+import com.threerings.util.DirectionUtil;
+
 import com.threerings.presents.io.Streamable;
 import com.threerings.presents.io.StreamableUtil;
 
@@ -28,6 +32,10 @@ public class SceneSummary implements Streamable
     /** The ids of the scenes to which this scene is connected via
      * portals. */
     public int[] neighbors;
+
+    /** The compass directions in which each of the neighbors lay. The
+     * direction constants are as defined in {@link DirectionCodes}. */
+    public int[] neighborDirs;
 
     /**
      * Returns the population of this scene summary instance. This is
@@ -54,6 +62,7 @@ public class SceneSummary implements Streamable
         out.writeInt(sceneId);
         out.writeUTF(name);
         StreamableUtil.writeInts(out, neighbors);
+        StreamableUtil.writeInts(out, neighborDirs);
         out.writeInt(_population);
     }
 
@@ -64,6 +73,7 @@ public class SceneSummary implements Streamable
         sceneId = in.readInt();
         name = in.readUTF();
         neighbors = StreamableUtil.readInts(in);
+        neighborDirs = StreamableUtil.readInts(in);
         _population = in.readInt();
     }
 
@@ -73,7 +83,8 @@ public class SceneSummary implements Streamable
     public String toString ()
     {
         return "[sceneId=" + sceneId + ", name=" + name +
-            ", neighbors=" + StringUtil.toString(neighbors) + "]";
+            ", neighbors=" + StringUtil.toString(neighbors) +
+            ", neighborDirs=" + DirectionUtil.toString(neighborDirs) + "]";
     }
 
     /** The number of people currently occupying this scene. */
