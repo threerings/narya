@@ -1,5 +1,5 @@
 //
-// $Id: DEvent.java,v 1.7 2001/10/12 00:03:03 mdb Exp $
+// $Id: DEvent.java,v 1.8 2001/11/18 04:27:56 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -67,8 +67,8 @@ public abstract class DEvent
      * Events with associated listener interfaces should implement this
      * function and notify the supplied listener if it implements their
      * event listening interface. For example, the {@link
-     * AttributeChangedEvent} will notify listeners that implement
-     * {@AttributeChangeListener}.
+     * AttributeChangedEvent} will notify listeners that implement {@link
+     * AttributeChangeListener}.
      */
     protected void notifyListener (Object listener)
     {

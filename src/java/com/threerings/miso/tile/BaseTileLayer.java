@@ -1,5 +1,5 @@
 //
-// $Id: BaseTileLayer.java,v 1.1 2001/11/18 04:09:22 mdb Exp $
+// $Id: BaseTileLayer.java,v 1.2 2001/11/18 04:27:56 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -10,9 +10,10 @@ package com.threerings.miso.tile;
  * compiler should inline, and prevents the caller from having to do the
  * indexing multiplication by hand every time.
  *
- * <p> This is equivalent to {@link TileLayer} except that it contains
- * {@link MisoTile} instances. For efficiency's sake, we don't extend
- * that class but instead provide a direct implementation.
+ * <p> This is equivalent to {@link com.threerings.media.tile.TileLayer}
+ * except that it contains {@link MisoTile} instances. For efficiency's
+ * sake, we don't extend that class but instead provide a direct
+ * implementation.
  */
 public final class MisoTileLayer
 {

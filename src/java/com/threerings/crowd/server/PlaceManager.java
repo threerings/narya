@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.23 2001/10/26 01:40:22 mdb Exp $
+// $Id: PlaceManager.java,v 1.24 2001/11/18 04:27:56 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -39,6 +39,21 @@ import com.threerings.crowd.data.*;
 public class PlaceManager
     implements MessageListener, OidListListener, ObjectDeathListener
 {
+    /**
+     * An interface used to allow the registration of standard message
+     * handlers to be invoked by the place manager when particular types
+     * of message events are received.
+     */
+    public static interface MessageHandler
+    {
+        /**
+         * Invokes this message handler on the supplied event.
+         *
+         * @param event the message event received.
+         */
+        public void handleEvent (MessageEvent event);
+    }
+
     /**
      * Returns a reference to our place configuration object.
      */
@@ -334,21 +349,6 @@ public class PlaceManager
     {
         buf.append("place=").append(_plobj);
         buf.append(", config=").append(_config);
-    }
-
-    /**
-     * An interface used to allow the registration of standard message
-     * handlers to be invoked by the place manager when particular types
-     * of message events are received.
-     */
-    protected static interface MessageHandler
-    {
-        /**
-         * Invokes this message handler on the supplied event.
-         *
-         * @param event the message event received.
-         */
-        public void handleEvent (MessageEvent event);
     }
 
     /** A reference to the place object that we manage. */

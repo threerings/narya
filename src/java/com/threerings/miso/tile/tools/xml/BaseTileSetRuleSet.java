@@ -1,5 +1,5 @@
 //
-// $Id: BaseTileSetRuleSet.java,v 1.1 2001/11/18 04:09:23 mdb Exp $
+// $Id: BaseTileSetRuleSet.java,v 1.2 2001/11/18 04:27:56 mdb Exp $
 
 package com.threerings.media.tile.xml;
 
@@ -31,7 +31,7 @@ public class MisoTileSetRuleSet extends SwissArmyTileSetRuleSet
     /**
      * Constructs a uniform tileset rule set that will match tilesets with
      * the specified prefix. See the documentation for {@link
-     * TileSetRuleSet#TileSetruleSet} for more info on matching.
+     * TileSetRuleSet#TileSetRuleSet} for more info on matching.
      */
     public MisoTileSetRuleSet (String prefix)
     {

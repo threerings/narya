@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneRuleSet.java,v 1.1 2001/11/18 04:09:22 mdb Exp $
+// $Id: MisoSceneRuleSet.java,v 1.2 2001/11/18 04:27:56 mdb Exp $
 
 package com.threerings.media.tile.xml;
 
@@ -13,7 +13,7 @@ import com.threerings.miso.scene.MisoSceneModel;
 /**
  * Used to parse a {@link MisoSceneModel} from XML.
  */
-public abstract class MisoSceneRuleSet extends RuleSetBase
+public class MisoSceneRuleSet extends RuleSetBase
 {
     /**
      * Constructs a miso scene rule set which will match scenes with the

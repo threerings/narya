@@ -1,5 +1,5 @@
 //
-// $Id: UniformTileSetRuleSet.java,v 1.1 2001/11/18 04:09:22 mdb Exp $
+// $Id: UniformTileSetRuleSet.java,v 1.2 2001/11/18 04:27:56 mdb Exp $
 
 package com.threerings.media.tile.xml;
 
@@ -30,7 +30,7 @@ public class UniformTileSetRuleSet extends TileSetRuleSet
     /**
      * Constructs a uniform tileset rule set that will match tilesets with
      * the specified prefix. See the documentation for {@link
-     * TileSetRuleSet#TileSetruleSet} for more info on matching.
+     * TileSetRuleSet#TileSetRuleSet} for more info on matching.
      */
     public UniformTileSetRuleSet (String prefix)
     {

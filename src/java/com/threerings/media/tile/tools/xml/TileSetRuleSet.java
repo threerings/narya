@@ -1,5 +1,5 @@
 //
-// $Id: TileSetRuleSet.java,v 1.1 2001/11/18 04:09:22 mdb Exp $
+// $Id: TileSetRuleSet.java,v 1.2 2001/11/18 04:27:56 mdb Exp $
 
 package com.threerings.media.tile.xml;
 
@@ -74,11 +74,11 @@ public abstract class TileSetRuleSet extends RuleSetBase
      * When a &lt;tileset&gt; element is encountered, this method is
      * called to create a new instance of {@link TileSet}. Though the
      * attributes are supplied (in case an attribute is needed to
-     * determine which derived instance of {@link TileSet} to create, this
-     * method should not configure the created tileset object. It should
-     * instead rely on the set properties rule that will be executed after
-     * this object is created or to custom set property rules registered
-     * in {@link #addDigesterRules}.
+     * determine which derived instance of {@link TileSet} to create),
+     * this method should not configure the created tileset object. It
+     * should instead rely on the set properties rule that will be
+     * executed after this object is created or to custom set property
+     * rules registered in {@link #addRuleInstances}.
      */
     protected abstract TileSet createTileSet (Attributes attributes);
 
