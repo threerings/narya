@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleCodes.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: PuzzleCodes.java,v 1.2 2004/07/17 00:24:31 ray Exp $
 
 package com.threerings.puzzle.data;
 
@@ -40,11 +40,13 @@ public interface PuzzleCodes extends InvocationCodes
 
     /** An error code sent when a user requests to enter a new puzzle but
      * they are in the middle of moving somewhere already. */
-    public static final String ENTER_IN_PROGRESS = "m.enter_in_progress";
+    public static final String ENTER_IN_PROGRESS = MessageBundle.qualify(
+        PUZZLE_MESSAGE_BUNDLE, "m.enter_in_progress");
 
     /** An error code sent when a user requests to enter a puzzle, but
      * they are already in it. */
-    public static final String ALREADY_IN_PUZZLE = "m.already_in_puzzle";
+    public static final String ALREADY_IN_PUZZLE = MessageBundle.qualify(
+        PUZZLE_MESSAGE_BUNDLE, "m.already_in_puzzle");
 
     /** Whether to enable debug logging and assertions for puzzles. Note
      * that enabling this may result in the server or client exiting
