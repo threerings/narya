@@ -1,5 +1,5 @@
 //
-// $Id: SimpleClient.java,v 1.12 2004/08/27 02:12:52 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -39,6 +39,8 @@ import com.threerings.crowd.client.LocationDirector;
 import com.threerings.crowd.client.OccupantDirector;
 import com.threerings.crowd.client.PlaceView;
 
+import com.threerings.crowd.chat.client.ChatDirector;
+
 import com.threerings.parlor.client.ParlorDirector;
 import com.threerings.parlor.util.ParlorContext;
 
@@ -62,6 +64,7 @@ public class SimpleClient
         _locdir = new LocationDirector(_ctx);
         _occdir = new OccupantDirector(_ctx);
         _pardtr = new ParlorDirector(_ctx);
+        _chatdir = new ChatDirector(_ctx, _msgmgr, null);
 
         // keep this for later
         _frame = frame;
@@ -146,6 +149,11 @@ public class SimpleClient
             return _pardtr;
         }
 
+        public ChatDirector getChatDirector ()
+        {
+            return _chatdir;
+        }
+
         public void setPlaceView (PlaceView view)
         {
             // stick the place view into our frame
@@ -177,5 +185,6 @@ public class SimpleClient
     protected LocationDirector _locdir;
     protected OccupantDirector _occdir;
     protected ParlorDirector _pardtr;
+    protected ChatDirector _chatdir;
 }
 

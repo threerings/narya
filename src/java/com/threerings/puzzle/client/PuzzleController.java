@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.20 2004/11/12 20:03:35 ray Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -258,9 +258,6 @@ public abstract class PuzzleController extends GameController
     {
         super.willEnterPlace(plobj);
 
-        // register the puzzle object's chat
-        _pctx.getChatDirector().addAuxiliarySource(plobj, PUZZLE_CHAT_TYPE);
-
         // get a casted reference to our puzzle object
         _puzobj = (PuzzleObject)plobj;
         _puzobj.addListener(_kolist);
@@ -298,9 +295,6 @@ public abstract class PuzzleController extends GameController
         // clean up and clear out
         clearAction();
 
-        // unregister the puzzle object's chat
-        _pctx.getChatDirector().removeAuxiliarySource(plobj);
-
         // stop listening to key events..
         _pctx.getKeyDispatcher().removeGlobalKeyListener(_globalKeyListener);
 
@@ -332,14 +326,6 @@ public abstract class PuzzleController extends GameController
     protected boolean startActionImmediately ()
     {
         return true;
-    }
-
-    /**
-     * A way for controllers to display a puzzle-related system message.
-     */
-    public void systemMessage (String bundle, String msg)
-    {
-        _pctx.getChatDirector().displayInfo(bundle, msg, PUZZLE_CHAT_TYPE);
     }
 
     // documentation inherited

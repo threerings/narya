@@ -31,4 +31,7 @@ public interface GameCodes extends InvocationCodes
     /** The name of the message event to a placeObject that reports
      * the winners and losers of a game. */
     public static final String WINNERS_AND_LOSERS = "winnersAndLosers";
+
+    /** A chat type for chatting on the game object. */
+    public static final String GAME_CHAT_TYPE = "gameChat";
 }

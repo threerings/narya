@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaClient.java,v 1.19 2004/08/27 02:12:49 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -36,6 +36,8 @@ import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.crowd.client.LocationDirector;
 import com.threerings.crowd.client.OccupantDirector;
 import com.threerings.crowd.client.PlaceView;
+
+import com.threerings.crowd.chat.client.ChatDirector;
 
 import com.threerings.parlor.client.ParlorDirector;
 
@@ -123,6 +125,7 @@ public class MiCasaClient
         _occdir = new OccupantDirector(_ctx);
         _pardtr = new ParlorDirector(_ctx);
         _msgmgr = new MessageManager(MESSAGE_MANAGER_PREFIX);
+        _chatdir = new ChatDirector(_ctx, _msgmgr, null);
     }
 
     // documentation inherited
@@ -173,6 +176,11 @@ public class MiCasaClient
             return _occdir;
         }
 
+        public ChatDirector getChatDirector ()
+        {
+            return _chatdir;
+        }
+
         public ParlorDirector getParlorDirector ()
         {
             return _pardtr;
@@ -207,6 +215,7 @@ public class MiCasaClient
     protected Client _client;
     protected LocationDirector _locdir;
     protected OccupantDirector _occdir;
+    protected ChatDirector _chatdir;
     protected ParlorDirector _pardtr;
     protected MessageManager _msgmgr;
 

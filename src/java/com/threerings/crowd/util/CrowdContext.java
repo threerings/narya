@@ -1,5 +1,5 @@
 //
-// $Id: CrowdContext.java,v 1.9 2004/08/27 02:12:34 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -26,6 +26,8 @@ import com.threerings.crowd.client.LocationDirector;
 import com.threerings.crowd.client.OccupantDirector;
 import com.threerings.crowd.client.PlaceView;
 
+import com.threerings.crowd.chat.client.ChatDirector;
+
 /**
  * The crowd context provides access to the various managers, etc. that
  * are needed by the crowd client code.
@@ -41,6 +43,11 @@ public interface CrowdContext extends PresentsContext
      * Returns a reference to the occupant director.
      */
     public OccupantDirector getOccupantDirector ();
+
+    /**
+     * Provides access to the chat director.
+     */
+    public ChatDirector getChatDirector ();
 
     /**
      * When the client enters a new place, the location director creates a

@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleContext.java,v 1.5 2004/08/27 02:20:33 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -29,7 +29,6 @@ import com.threerings.util.Name;
 import com.threerings.media.FrameManager;
 import com.threerings.media.sound.SoundManager;
 
-import com.threerings.crowd.chat.client.ChatDirector;
 import com.threerings.parlor.util.ParlorContext;
 
 /**
@@ -66,9 +65,4 @@ public interface PuzzleContext extends ParlorContext
      * Provides access to the sound manager.
      */
     public SoundManager getSoundManager ();
-
-    /**
-     * Provides access to the chat director.
-     */
-    public ChatDirector getChatDirector ();
 }

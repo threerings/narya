@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleCodes.java,v 1.6 2004/10/28 19:20:27 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -30,9 +30,6 @@ public interface PuzzleCodes extends InvocationCodes
 {
     /** The message bundle identifier for general puzzle messages. */
     public static final String PUZZLE_MESSAGE_BUNDLE = "puzzle.general";
-
-    /** The ID for puzzle chat. */
-    public static final String PUZZLE_CHAT_TYPE = "puzzleChat";
 
     /** The default puzzle difficulty level. */
     public static final int DEFAULT_DIFFICULTY = 2;

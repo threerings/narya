@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.25 2004/08/27 02:20:14 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -82,6 +82,9 @@ public abstract class GameController extends PlaceController
         // obtain a casted reference
         _gobj = (GameObject)plobj;
 
+        _ctx.getChatDirector().addAuxiliarySource(
+            _gobj, GameCodes.GAME_CHAT_TYPE);
+
         // and add ourselves as a listener
         _gobj.addListener(this);
 
@@ -106,6 +109,8 @@ public abstract class GameController extends PlaceController
     public void didLeavePlace (PlaceObject plobj)
     {
         super.didLeavePlace(plobj);
+
+        _ctx.getChatDirector().removeAuxiliarySource(_gobj);
 
         // unlisten to the game object
         _gobj.removeListener(this);
@@ -166,6 +171,15 @@ public abstract class GameController extends PlaceController
     public boolean handleAction (ActionEvent action)
     {
         return super.handleAction(action);
+    }
+
+    /**
+     * A way for controllers to display a game-related system message.
+     */
+    public void systemMessage (String bundle, String msg)
+    {
+        _ctx.getChatDirector().displayInfo(
+            bundle, msg, GameCodes.GAME_CHAT_TYPE);
     }
 
     // documentation inherited
