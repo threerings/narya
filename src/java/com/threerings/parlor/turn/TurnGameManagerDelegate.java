@@ -1,14 +1,16 @@
 //
-// $Id: TurnGameManagerDelegate.java,v 1.8 2002/10/15 23:07:23 shaper Exp $
+// $Id: TurnGameManagerDelegate.java,v 1.9 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.turn;
+
+import com.threerings.util.Name;
+import com.threerings.util.RandomUtil;
 
 import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.game.GameManager;
 import com.threerings.parlor.game.GameManagerDelegate;
-import com.threerings.util.RandomUtil;
 
 /**
  * Performs the server-side turn-based game processing for a turn based
@@ -40,7 +42,6 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
      */
     public int getTurnHolderIndex ()
     {
-        String holder = _turnGame.getTurnHolder();
         return _tgmgr.getPlayerIndex(_turnGame.getTurnHolder());
     }
 
@@ -67,7 +68,7 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
         }
 
         // get the player name and sanity-check again
-        String name = _tgmgr.getPlayerName(_turnIdx);
+        Name name = _tgmgr.getPlayerName(_turnIdx);
         if (name == null) {
             Log.warning("startTurn() called with invalid player " +
                         "[turnIdx=" + _turnIdx + "].");

@@ -1,9 +1,11 @@
 //
-// $Id: OccupantInfo.java,v 1.11 2002/10/30 00:42:37 mdb Exp $
+// $Id: OccupantInfo.java,v 1.12 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.crowd.data;
 
 import com.threerings.io.SimpleStreamableObject;
+import com.threerings.util.Name;
+
 import com.threerings.presents.dobj.DSet;
 
 /**
@@ -43,7 +45,7 @@ public class OccupantInfo extends SimpleStreamableObject
     public Integer bodyOid;
 
     /** The username of this occupant. */
-    public String username;
+    public Name username;
 
     /** The status of this occupant. */
     public byte status = ACTIVE;

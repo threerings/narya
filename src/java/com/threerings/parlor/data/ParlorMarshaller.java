@@ -1,5 +1,5 @@
 //
-// $Id: ParlorMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+// $Id: ParlorMarshaller.java,v 1.3 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -11,6 +11,7 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService.InvocationListener;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
+import com.threerings.util.Name;
 
 /**
  * Provides the implementation of the {@link ParlorService} interface
@@ -18,10 +19,6 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
- *
- * <p> Generated from <code>
- * $Id: ParlorMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
- * </code>
  */
 public class ParlorMarshaller extends InvocationMarshaller
     implements ParlorService
@@ -92,7 +89,7 @@ public class ParlorMarshaller extends InvocationMarshaller
     public static final int INVITE = 1;
 
     // documentation inherited from interface
-    public void invite (Client arg1, String arg2, GameConfig arg3, InviteListener arg4)
+    public void invite (Client arg1, Name arg2, GameConfig arg3, InviteListener arg4)
     {
         InviteMarshaller listener4 = new InviteMarshaller();
         listener4.listener = arg4;
@@ -166,5 +163,4 @@ public class ParlorMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 12:33:04 08/20/02.
 }

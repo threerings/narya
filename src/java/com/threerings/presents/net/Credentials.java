@@ -1,9 +1,10 @@
 //
-// $Id: Credentials.java,v 1.12 2004/01/31 12:16:12 mdb Exp $
+// $Id: Credentials.java,v 1.13 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.presents.net;
 
 import com.threerings.io.Streamable;
+import com.threerings.util.Name;
 
 /**
  * Credentials are supplied by the client implementation and sent along to
@@ -24,7 +25,7 @@ public abstract class Credentials implements Streamable
     /**
      * Constructs a credentials instance with the specified username.
      */
-    public Credentials (String username)
+    public Credentials (Name username)
     {
         _username = username;
     }
@@ -37,7 +38,7 @@ public abstract class Credentials implements Streamable
     {
     }
 
-    public String getUsername ()
+    public Name getUsername ()
     {
         return _username;
     }
@@ -77,5 +78,5 @@ public abstract class Credentials implements Streamable
         buf.append("username=").append(_username);
     }
 
-    protected String _username;
+    protected Name _username;
 }

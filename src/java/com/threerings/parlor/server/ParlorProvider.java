@@ -1,7 +1,9 @@
 //
-// $Id: ParlorProvider.java,v 1.13 2002/08/14 19:07:54 mdb Exp $
+// $Id: ParlorProvider.java,v 1.14 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.server;
+
+import com.threerings.util.Name;
 
 import com.threerings.presents.client.InvocationService.InvocationListener;
 import com.threerings.presents.data.ClientObject;
@@ -44,7 +46,7 @@ public class ParlorProvider
      * Processes a request from the client to invite another user to play
      * a game.
      */
-    public void invite (ClientObject caller, String invitee,
+    public void invite (ClientObject caller, Name invitee,
                         GameConfig config, InviteListener listener)
         throws InvocationException
     {

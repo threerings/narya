@@ -1,7 +1,9 @@
 //
-// $Id: Invitation.java,v 1.2 2004/02/25 14:44:54 mdb Exp $
+// $Id: Invitation.java,v 1.3 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.client;
+
+import com.threerings.util.Name;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.data.ParlorCodes;
@@ -21,14 +23,14 @@ public class Invitation
     public int inviteId = -1;
 
     /** The name of the other user involved in this invitation. */
-    public String opponent;
+    public Name opponent;
 
     /** The configuration of the game to be created. */
     public GameConfig config;
 
     /** Constructs a new invitation record. */
     public Invitation (ParlorContext ctx, ParlorService pservice,
-                       String opponent, GameConfig config,
+                       Name opponent, GameConfig config,
                        InvitationResponseObserver observer)
     {
         _ctx = ctx;

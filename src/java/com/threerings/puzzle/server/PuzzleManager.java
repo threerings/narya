@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleManager.java,v 1.7 2004/02/25 14:48:44 mdb Exp $
+// $Id: PuzzleManager.java,v 1.8 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.puzzle.server;
 
@@ -22,6 +22,7 @@ import com.threerings.crowd.server.PlaceManagerDelegate;
 import com.threerings.parlor.game.GameManager;
 
 import com.threerings.util.MessageBundle;
+import com.threerings.util.Name;
 import com.threerings.util.RandomUtil;
 
 import com.threerings.puzzle.Log;
@@ -62,7 +63,7 @@ public abstract class PuzzleManager extends GameManager
             return (BodyObject)CrowdServer.omgr.getObject(ploid);
         }
         // otherwise look them up by name
-        String name = getPlayerName(playerIdx);
+        Name name = getPlayerName(playerIdx);
         return (name == null) ? null : CrowdServer.lookupBody(name);
     }
 

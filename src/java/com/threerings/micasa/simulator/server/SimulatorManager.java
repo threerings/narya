@@ -1,9 +1,11 @@
 //
-// $Id: SimulatorManager.java,v 1.15 2004/02/25 14:43:37 mdb Exp $
+// $Id: SimulatorManager.java,v 1.16 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
 import java.util.ArrayList;
+
+import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.RootDObjectManager;
@@ -82,10 +84,10 @@ public class SimulatorManager
                 // once the game object creation has completed)
 
                 // configure the game config with the player names
-                config.players = new String[_playerCount];
+                config.players = new Name[_playerCount];
                 config.players[0] = _source.username;
                 for (int ii = 1; ii < _playerCount; ii++) {
-                    config.players[ii] = "simulant" + ii;
+                    config.players[ii] = new Name("simulant" + ii);
                 }
 
                 // we needn't hang around and wait for game object
@@ -121,7 +123,7 @@ public class SimulatorManager
             // resolve the simulant body objects
             ClientResolutionListener listener = new ClientResolutionListener()
             {
-                public void clientResolved (String username, ClientObject clobj)
+                public void clientResolved (Name username, ClientObject clobj)
                 {
                     // hold onto the body object for later game creation
                     _sims.add(clobj);
@@ -132,7 +134,7 @@ public class SimulatorManager
                     }
                 }
 
-                public void resolutionFailed (String username, Exception cause)
+                public void resolutionFailed (Name username, Exception cause)
                 {
                     Log.warning("Unable to create simulant body object " +
                                 "[error=" + cause + "].");
@@ -141,7 +143,7 @@ public class SimulatorManager
 
             // resolve client objects for all of our simulants
             for (int ii = 1; ii < _playerCount; ii++) {
-                String username = "simulant" + ii;
+                Name username = new Name("simulant" + ii);
                 _clmgr.resolveClientObject(username, listener);
             }
         }

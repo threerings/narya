@@ -1,5 +1,5 @@
 //
-// $Id: ParlorSender.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+// $Id: ParlorSender.java,v 1.3 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -8,14 +8,11 @@ import com.threerings.parlor.client.ParlorReceiver;
 import com.threerings.parlor.game.GameConfig;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationSender;
+import com.threerings.util.Name;
 
 /**
  * Used to issue notifications to a {@link ParlorReceiver} instance on a
  * client.
- *
- * <p> Generated from <code>
- * $Id: ParlorSender.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
- * </code>
  */
 public class ParlorSender extends InvocationSender
 {
@@ -36,7 +33,7 @@ public class ParlorSender extends InvocationSender
      * ParlorReceiver#receivedInvite} on a client.
      */
     public static void sendInvite (
-        ClientObject target, int arg1, String arg2, GameConfig arg3)
+        ClientObject target, int arg1, Name arg2, GameConfig arg3)
     {
         sendNotification(
             target, ParlorDecoder.RECEIVER_CODE, ParlorDecoder.RECEIVED_INVITE,
@@ -67,5 +64,4 @@ public class ParlorSender extends InvocationSender
             new Object[] { new Integer(arg1) });
     }
 
-    // Generated on 12:37:00 08/20/02.
 }

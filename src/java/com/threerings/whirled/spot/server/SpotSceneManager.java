@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.50 2004/02/25 14:50:28 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.51 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.IntIntMap;
+import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.Subscriber;
@@ -368,7 +369,7 @@ public class SpotSceneManager extends SceneManager
      * request.
      */
     protected void handleClusterSpeakRequest (
-        int sourceOid, String source, String bundle, String message, byte mode)
+        int sourceOid, Name source, String bundle, String message, byte mode)
     {
         ClusterRecord clrec = getCluster(sourceOid);
         if (clrec == null) {

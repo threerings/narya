@@ -1,11 +1,13 @@
 //
-// $Id: MiCasaApplet.java,v 1.7 2002/08/14 19:07:49 mdb Exp $
+// $Id: MiCasaApplet.java,v 1.8 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.micasa.client;
 
 import java.applet.Applet;
 import java.io.IOException;
+
 import com.samskivert.swing.util.SwingUtil;
+import com.threerings.util.Name;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientAdapter;
@@ -32,7 +34,7 @@ public class MiCasaApplet extends Applet
             _client = new MiCasaClient();
             _client.init(_frame);
 
-            String username = requireParameter("username");
+            Name username = new Name(requireParameter("username"));
             String authkey = requireParameter("authkey");
             String server = getCodeBase().getHost();
 

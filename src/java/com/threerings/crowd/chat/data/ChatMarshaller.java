@@ -1,12 +1,15 @@
 //
-// $Id: ChatMarshaller.java,v 1.7 2004/02/25 14:41:47 mdb Exp $
+// $Id: ChatMarshaller.java,v 1.8 2004/03/06 11:29:18 mdb Exp $
 
 package com.threerings.crowd.chat.data;
 
 import com.threerings.crowd.chat.client.ChatService;
+import com.threerings.crowd.chat.client.ChatService.TellListener;
 import com.threerings.presents.client.Client;
+import com.threerings.presents.client.InvocationService.InvocationListener;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
+import com.threerings.util.Name;
 
 /**
  * Provides the implementation of the {@link ChatService} interface
@@ -53,7 +56,7 @@ public class ChatMarshaller extends InvocationMarshaller
     public static final int TELL = 1;
 
     // documentation inherited from interface
-    public void tell (Client arg1, String arg2, String arg3, TellListener arg4)
+    public void tell (Client arg1, Name arg2, String arg3, TellListener arg4)
     {
         TellMarshaller listener4 = new TellMarshaller();
         listener4.listener = arg4;

@@ -1,9 +1,10 @@
 //
-// $Id: GameConfig.java,v 1.16 2004/02/25 14:44:54 mdb Exp $
+// $Id: GameConfig.java,v 1.17 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.game;
 
 import com.threerings.crowd.data.PlaceConfig;
+import com.threerings.util.Name;
 
 /**
  * The game config class encapsulates the configuration information for a
@@ -26,7 +27,7 @@ public abstract class GameConfig extends PlaceConfig
 {
     /** The usernames of the players involved in this game, or an empty
      * array if such information is not needed by this particular game. */
-    public String[] players = new String[0];
+    public Name[] players = new Name[0];
 
     /** Indicates whether or not this game is rated. */
     public boolean rated = true;

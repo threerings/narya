@@ -1,5 +1,5 @@
 //
-// $Id: LogonPanel.java,v 1.9 2004/02/25 14:43:37 mdb Exp $
+// $Id: LogonPanel.java,v 1.10 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -21,6 +21,7 @@ import com.samskivert.swing.HGroupLayout;
 import com.samskivert.swing.VGroupLayout;
 
 import com.threerings.util.MessageBundle;
+import com.threerings.util.Name;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientObserver;
@@ -182,7 +183,7 @@ public class LogonPanel extends JPanel
         // disable further logon attempts until we hear back
         setLogonEnabled(false);
 
-        String username = _username.getText().trim();
+        Name username = new Name(_username.getText().trim());
         String password = new String(_password.getPassword()).trim();
 
         String server = _ctx.getClient().getHostname();

@@ -1,10 +1,12 @@
 //
-// $Id: ParlorDirector.java,v 1.19 2004/02/25 14:44:54 mdb Exp $
+// $Id: ParlorDirector.java,v 1.20 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.client;
 
 import java.util.ArrayList;
+
 import com.samskivert.util.HashIntMap;
+import com.threerings.util.Name;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
@@ -87,7 +89,7 @@ public class ParlorDirector extends BasicDirector
      * @return an invitation object that can be used to manage the
      * outstanding invitation.
      */
-    public Invitation invite (String invitee, GameConfig config,
+    public Invitation invite (Name invitee, GameConfig config,
                               InvitationResponseObserver observer)
     {
         // create the invitation record
@@ -134,8 +136,7 @@ public class ParlorDirector extends BasicDirector
     }
 
     // documentation inherited from interface
-    public void receivedInvite (
-        int remoteId, String inviter, GameConfig config)
+    public void receivedInvite (int remoteId, Name inviter, GameConfig config)
     {
         // create an invitation record for this invitation
         Invitation invite = new Invitation(

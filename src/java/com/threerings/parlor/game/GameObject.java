@@ -1,9 +1,11 @@
 //
-// $Id: GameObject.java,v 1.17 2004/02/25 14:44:54 mdb Exp $
+// $Id: GameObject.java,v 1.18 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.game;
 
+import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
+import com.threerings.util.Name;
 
 import com.threerings.crowd.data.PlaceObject;
 
@@ -64,7 +66,7 @@ public class GameObject extends PlaceObject
     public boolean isRated;
 
     /** The usernames of the players involved in this game. */
-    public String[] players;
+    public Name[] players;
 
     /** Whether each player in the game is a winner, or <code>null</code>
      * if the game is not yet over. */
@@ -95,7 +97,7 @@ public class GameObject extends PlaceObject
      * Returns the player index of the given user in the game, or 
      * <code>-1</code> if the player is not involved in the game.
      */
-    public int getPlayerIndex (String username)
+    public int getPlayerIndex (Name username)
     {
         int size = (players == null) ? 0 : players.length;
         for (int ii = 0; ii < size; ii++) {
@@ -223,7 +225,7 @@ public class GameObject extends PlaceObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setPlayers (String[] players)
+    public void setPlayers (Name[] players)
     {
         requestAttributeChange(PLAYERS, players);
         this.players = players;
@@ -237,7 +239,7 @@ public class GameObject extends PlaceObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    public void setPlayersAt (String value, int index)
+    public void setPlayersAt (Name value, int index)
     {
         requestElementUpdate(PLAYERS, value, index);
         this.players[index] = value;

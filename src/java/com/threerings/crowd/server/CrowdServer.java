@@ -1,9 +1,11 @@
 //
-// $Id: CrowdServer.java,v 1.18 2003/06/03 21:41:33 ray Exp $
+// $Id: CrowdServer.java,v 1.19 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.crowd.server;
 
 import java.util.Iterator;
+
+import com.threerings.util.Name;
 
 import com.threerings.presents.server.PresentsServer;
 
@@ -86,7 +88,7 @@ public class CrowdServer extends PresentsServer
      * active users on the server. This should only be called from the
      * dobjmgr thread.
      */
-    public static BodyObject lookupBody (String username)
+    public static BodyObject lookupBody (Name username)
     {
         return (BodyObject)clmgr.getClientObject(username);
     }

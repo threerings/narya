@@ -1,9 +1,11 @@
 //
-// $Id: PlaceObject.java,v 1.15 2003/07/11 00:47:33 mdb Exp $
+// $Id: PlaceObject.java,v 1.16 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.crowd.data;
 
 import java.util.Iterator;
+
+import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
@@ -68,7 +70,7 @@ public class PlaceObject extends DObject
      * @return the occupant info record for the named user or null if no
      * user in the room has that username.
      */
-    public OccupantInfo getOccupantInfo (String username)
+    public OccupantInfo getOccupantInfo (Name username)
     {
         try {
             Iterator iter = occupantInfo.entries();

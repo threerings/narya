@@ -1,9 +1,10 @@
 //
-// $Id: Table.java,v 1.16 2003/03/27 23:45:04 mdb Exp $
+// $Id: Table.java,v 1.17 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.data;
 
 import com.samskivert.util.StringUtil;
+import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DSet;
 
@@ -30,7 +31,7 @@ public class Table
 
     /** An array of the usernames of the occupants of this table (some
      * slots may not be filled). */
-    public String[] occupants;
+    public Name[] occupants;
 
     /** The body oids of the occupants of this table. (This is not
      * propagated to remote instances.) */
@@ -64,7 +65,7 @@ public class Table
         this.config = config;
 
         // make room for the maximum number of players
-        occupants = new String[_tconfig.getMaximumPlayers()];
+        occupants = new Name[_tconfig.getMaximumPlayers()];
         bodyOids = new int[occupants.length];
     }
 
@@ -90,21 +91,21 @@ public class Table
      * the players in the game, sized properly and with each player in the
      * appropriate position.
      */
-    public String[] getPlayers ()
+    public Name[] getPlayers ()
     {
         // count up the players
         int pcount = 0;
         for (int i = 0; i < occupants.length; i++) {
-            if (!StringUtil.blank(occupants[i])) {
+            if (occupants[i] != null) {
                 pcount++;
             }
         }
 
         // create and populate the players array
-        String[] players = new String[pcount];
+        Name[] players = new Name[pcount];
         pcount = 0;
         for (int i = 0; i < occupants.length; i++) {
-            if (!StringUtil.blank(occupants[i])) {
+            if (occupants[i] != null) {
                 players[pcount++] = occupants[i];
             }
         }
@@ -124,7 +125,7 @@ public class Table
      * code explaining the failure if the user was not able to be seated
      * at that position.
      */
-    public String setOccupant (int position, String username, int bodyOid)
+    public String setOccupant (int position, Name username, int bodyOid)
     {
         // find out how many positions we have for occupation
         int maxpos = _tconfig.getDesiredPlayers();
@@ -139,7 +140,7 @@ public class Table
         }
 
         // make sure the requested position is not already occupied
-        if (!StringUtil.blank(occupants[position])) {
+        if (occupants[position] != null) {
             return TABLE_POSITION_OCCUPIED;
         }
 
@@ -157,11 +158,11 @@ public class Table
      * removed, false if the user was never seated at the table in the
      * first place.
      */
-    public boolean clearOccupant (String username)
+    public boolean clearOccupant (Name username)
     {
         for (int i = 0; i < occupants.length; i++) {
             if (username.equals(occupants[i])) {
-                occupants[i] = "";
+                occupants[i] = null;
                 bodyOids[i] = 0;
                 return true;
             }
@@ -181,7 +182,7 @@ public class Table
     {
         for (int i = 0; i < bodyOids.length; i++) {
             if (bodyOid == bodyOids[i]) {
-                occupants[i] = "";
+                occupants[i] = null;
                 bodyOids[i] = 0;
                 return true;
             }
@@ -198,7 +199,7 @@ public class Table
         // make sure at least the minimum number of players are here
         int want = _tconfig.getMinimumPlayers(), have = 0;
         for (int i = 0; i < occupants.length; i++) {
-            if (!StringUtil.blank(occupants[i])) {
+            if (occupants[i] != null) {
                 if (++have == want) {
                     return true;
                 }
@@ -218,10 +219,8 @@ public class Table
             need = _tconfig.getMaximumPlayers();
         }
         for (int i = 0; i < occupants.length; i++) {
-            if (StringUtil.blank(occupants[i])) {
-                if (--need == 0) {
-                    return true;
-                }
+            if (occupants[i] != null && --need == 0) {
+                return true;
             }
         }
         return false;
@@ -233,7 +232,7 @@ public class Table
     public boolean isEmpty ()
     {
         for (int i = 0; i < occupants.length; i++) {
-            if (!StringUtil.blank(occupants[i])) {
+            if (occupants[i] != null) {
                 return false;
             }
         }

@@ -1,7 +1,9 @@
 //
-// $Id: UsernamePasswordCreds.java,v 1.12 2004/01/31 12:16:12 mdb Exp $
+// $Id: UsernamePasswordCreds.java,v 1.13 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.presents.net;
+
+import com.threerings.util.Name;
 
 public class UsernamePasswordCreds extends Credentials
 {
@@ -16,7 +18,7 @@ public class UsernamePasswordCreds extends Credentials
     /**
      * Construct credentials with the supplied username and password.
      */
-    public UsernamePasswordCreds (String username, String password)
+    public UsernamePasswordCreds (Name username, String password)
     {
         super(username);
         _password = password;

@@ -1,5 +1,5 @@
 //
-// $Id: OccupantDirector.java,v 1.6 2002/10/27 23:30:56 shaper Exp $
+// $Id: OccupantDirector.java,v 1.7 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.ObserverList;
+import com.threerings.util.Name;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
@@ -88,7 +89,7 @@ public class OccupantDirector extends BasicDirector
      * the currently occupied place. Returns null if no occupant info
      * exists with the specified username.
      */
-    public OccupantInfo getOccupantInfo (String username)
+    public OccupantInfo getOccupantInfo (Name username)
     {
         // make sure we're somewhere
         if (_place == null) {

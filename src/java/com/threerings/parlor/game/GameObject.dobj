@@ -1,10 +1,11 @@
 //
-// $Id: GameObject.dobj,v 1.20 2003/05/26 23:46:46 mdb Exp $
+// $Id: GameObject.dobj,v 1.21 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.game;
 
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
+import com.threerings.util.Name;
 
 import com.threerings.crowd.data.PlaceObject;
 
@@ -44,7 +45,7 @@ public class GameObject extends PlaceObject
     public boolean isRated;
 
     /** The usernames of the players involved in this game. */
-    public String[] players;
+    public Name[] players;
 
     /** Whether each player in the game is a winner, or <code>null</code>
      * if the game is not yet over. */
@@ -75,7 +76,7 @@ public class GameObject extends PlaceObject
      * Returns the player index of the given user in the game, or 
      * <code>-1</code> if the player is not involved in the game.
      */
-    public int getPlayerIndex (String username)
+    public int getPlayerIndex (Name username)
     {
         int size = (players == null) ? 0 : players.length;
         for (int ii = 0; ii < size; ii++) {

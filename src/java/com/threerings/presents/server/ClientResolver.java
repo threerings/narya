@@ -1,9 +1,11 @@
 //
-// $Id: ClientResolver.java,v 1.3 2002/11/26 08:52:53 mdb Exp $
+// $Id: ClientResolver.java,v 1.4 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.presents.server;
 
 import java.util.ArrayList;
+
+import com.threerings.util.Name;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
@@ -27,7 +29,7 @@ public class ClientResolver extends Invoker.Unit
      *
      * @param username the username of the user to be resolved.
      */
-    public void init (String username)
+    public void init (Name username)
     {
         _username = username;
     }
@@ -151,7 +153,7 @@ public class ClientResolver extends Invoker.Unit
     }
 
     /** The name of the user whose client object is being resolved. */
-    protected String _username;
+    protected Name _username;
 
     /** The entities to notify of success or failure. */
     protected ArrayList _listeners = new ArrayList();

@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.35 2004/02/21 01:00:23 ray Exp $
+// $Id: ClientManager.java,v 1.36 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -11,6 +11,8 @@ import java.util.Iterator;
 
 import com.samskivert.util.IntervalManager;
 import com.samskivert.util.StringUtil;
+
+import com.threerings.util.Name;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
@@ -143,9 +145,9 @@ public class ClientManager
      * specified authentication username or null if that client is not
      * currently connected to the server.
      */
-    public PresentsClient getClient (String authUsername)
+    public PresentsClient getClient (Name authUsername)
     {
-        return (PresentsClient)_usermap.get(authUsername.toLowerCase());
+        return (PresentsClient)_usermap.get(authUsername);
     }
 
     /**
@@ -153,26 +155,16 @@ public class ClientManager
      * This will return null unless the client object is resolved for some
      * reason (like they are logged on).
      */
-    public ClientObject getClientObject (String username)
+    public ClientObject getClientObject (Name username)
     {
-        return (ClientObject)_objmap.get(toKey(username));
-    }
-
-    /**
-     * We convert usernames to lower case in the username to client object
-     * mapping so that we can pass arbitrarily cased usernames (like those
-     * that might be typed in by a "user") straight on through.
-     */
-    protected final String toKey (String username)
-    {
-        return username.toLowerCase();
+        return (ClientObject)_objmap.get(username);
     }
 
     /**
      * Resolves the specified client, applies the supplied client
      * operation to them and releases the client.
      */
-    public void applyToClient (String username, ClientOp clop)
+    public void applyToClient (Name username, ClientOp clop)
     {
         resolveClientObject(username, new ClientOpResolver(clop));
     }
@@ -187,11 +179,10 @@ public class ClientManager
      * when the caller is finished with the client object.
      */
     public synchronized void resolveClientObject (
-        String username, ClientResolutionListener listener)
+        Name username, ClientResolutionListener listener)
     {
         // look to see if the client object is already resolved
-        String key = toKey(username);
-        ClientObject clobj = (ClientObject)_objmap.get(key);
+        ClientObject clobj = (ClientObject)_objmap.get(username);
         if (clobj != null) {
             clobj.reference();
             listener.clientResolved(username, clobj);
@@ -199,7 +190,7 @@ public class ClientManager
         }
 
         // look to see if it's currently being resolved
-        ClientResolver clr = (ClientResolver)_penders.get(key);
+        ClientResolver clr = (ClientResolver)_penders.get(username);
         if (clr != null) {
             // throw this guy onto the bandwagon
             clr.addResolutionListener(listener);
@@ -228,14 +219,13 @@ public class ClientManager
      * resolved.
      */
     protected synchronized void mapClientObject (
-        String username, ClientObject clobj)
+        Name username, ClientObject clobj)
     {
         // stuff the object into the mapping table
-        String key = toKey(username);
-        _objmap.put(key, clobj);
+        _objmap.put(username, clobj);
 
         // and remove the resolution listener
-        _penders.remove(key);
+        _penders.remove(username);
     }
 
     /**
@@ -243,10 +233,9 @@ public class ClientManager
      * #resolveClientObject}. If this caller is the last reference, the
      * object will be flushed and destroyed.
      */
-    public void releaseClientObject (String username)
+    public void releaseClientObject (Name username)
     {
-        String key = toKey(username);
-        ClientObject clobj = (ClientObject)_objmap.get(key);
+        ClientObject clobj = (ClientObject)_objmap.get(username);
         if (clobj == null) {
             Log.warning("Requested to release unmapped client object " +
                         "[username=" + username + "].");
@@ -263,7 +252,7 @@ public class ClientManager
         Log.debug("Destroying client " + clobj.who() + ".");
 
         // we're all clear to go; remove the mapping
-        _objmap.remove(key);
+        _objmap.remove(username);
 
         // and destroy the object itself
         PresentsServer.omgr.destroyObject(clobj.getOid());
@@ -274,7 +263,7 @@ public class ClientManager
         Connection conn, AuthRequest req, AuthResponse rsp)
     {
         Credentials creds = req.getCredentials();
-        String username = creds.getUsername().toLowerCase();
+        Name username = creds.getUsername();
 
         // see if a client is already registered with these credentials
         PresentsClient client = getClient(username);
@@ -378,12 +367,10 @@ public class ClientManager
      */
     synchronized void clientDidEndSession (PresentsClient client)
     {
-        Credentials creds = client.getCredentials();
-        String username = client.getUsername();
-
         // remove the client from the username map
+        Credentials creds = client.getCredentials();
         PresentsClient rc = (PresentsClient)
-            _usermap.remove(creds.getUsername().toLowerCase());
+            _usermap.remove(creds.getUsername());
 
         // sanity check just because we can
         if (rc == null) {
@@ -440,7 +427,7 @@ public class ClientManager
         }
 
         // documentation inherited from interface
-        public void clientResolved (String username, ClientObject clobj)
+        public void clientResolved (Name username, ClientObject clobj)
         {
             try {
                 _clop.apply(clobj);
@@ -456,7 +443,7 @@ public class ClientManager
         }
 
         // documentation inherited from interface
-        public void resolutionFailed (String username, Exception reason)
+        public void resolutionFailed (Name username, Exception reason)
         {
             _clop.resolutionFailed(reason);
         }

@@ -1,7 +1,9 @@
 //
-// $Id: ParlorReceiver.java,v 1.2 2004/02/25 14:44:54 mdb Exp $
+// $Id: ParlorReceiver.java,v 1.3 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.client;
+
+import com.threerings.util.Name;
 
 import com.threerings.presents.client.InvocationReceiver;
 
@@ -34,8 +36,7 @@ public interface ParlorReceiver extends InvocationReceiver
      * @param config the configuration information for the game to which
      * we've been invited.
      */
-    public void receivedInvite (
-        int remoteId, String inviter, GameConfig config);
+    public void receivedInvite (int remoteId, Name inviter, GameConfig config);
 
     /**
      * Called by the invocation services when another user has responded
@@ -52,8 +53,7 @@ public interface ParlorReceiver extends InvocationReceiver
      * provided). In the case of a countered invitation, a new game config
      * object with the modified game configuration.
      */
-    public void receivedInviteResponse (
-        int remoteId, int code, Object arg);
+    public void receivedInviteResponse (int remoteId, int code, Object arg);
 
     /**
      * Called by the invocation services when an outstanding invitation

@@ -1,15 +1,18 @@
 //
-// $Id: ChatDispatcher.java,v 1.7 2004/02/25 14:41:47 mdb Exp $
+// $Id: ChatDispatcher.java,v 1.8 2004/03/06 11:29:18 mdb Exp $
 
 package com.threerings.crowd.chat.server;
 
+import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.client.ChatService.TellListener;
 import com.threerings.crowd.chat.data.ChatMarshaller;
+import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService.InvocationListener;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
+import com.threerings.util.Name;
 
 /**
  * Dispatches requests to the {@link ChatProvider}.
@@ -40,7 +43,7 @@ public class ChatDispatcher extends InvocationDispatcher
         case ChatMarshaller.TELL:
             ((ChatProvider)provider).tell(
                 source,
-                (String)args[0], (String)args[1], (TellListener)args[2]
+                (Name)args[0], (String)args[1], (TellListener)args[2]
             );
             return;
 

@@ -1,7 +1,9 @@
 //
-// $Id: LobbyController.java,v 1.9 2002/08/14 19:07:49 mdb Exp $
+// $Id: LobbyController.java,v 1.10 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.micasa.lobby;
+
+import com.threerings.util.Name;
 
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
@@ -48,7 +50,8 @@ public class LobbyController extends PlaceController
                 // create a game config object
                 try {
                     GameConfig config = _config.getGameConfig();
-                    _ctx.getParlorDirector().invite(invitee, config, this);
+                    _ctx.getParlorDirector().invite(
+                        new Name(invitee), config, this);
                 } catch (Exception e) {
                     Log.warning("Error instantiating game config.");
                     Log.logStackTrace(e);

@@ -1,7 +1,9 @@
 //
-// $Id: SpeakObject.java,v 1.2 2003/06/14 00:59:24 mdb Exp $
+// $Id: SpeakObject.java,v 1.3 2004/03/06 11:29:18 mdb Exp $
 
 package com.threerings.crowd.chat.data;
+
+import com.threerings.util.Name;
 
 /**
  * Provides a mechanism by which the speak service can identify chat
@@ -17,7 +19,7 @@ public interface SpeakObject
         public void apply (int bodyOid);
 
         /** Call this method if you can provide usernames directly. */
-        public void apply (String username);
+        public void apply (Name username);
     }
 
     /**

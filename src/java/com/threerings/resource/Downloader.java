@@ -1,5 +1,5 @@
 //
-// $Id: Downloader.java,v 1.2 2003/08/05 07:03:34 mdb Exp $
+// $Id: Downloader.java,v 1.3 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.resource;
 
@@ -111,6 +111,10 @@ public abstract class Downloader
         InputStream in = ucon.getInputStream();
         FileOutputStream out = new FileOutputStream(destFile);
         int read;
+
+        // TODO: look to see if we have a download info file containing
+        // info on potentially partially downloaded data; if so, use a
+        // "Range: bytes=HAVE-" header.
 
         // read in the file data
         while ((read = in.read(buffer)) != -1) {

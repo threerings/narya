@@ -1,7 +1,9 @@
 //
-// $Id: PuzzleProvider.java,v 1.2 2004/02/25 14:48:44 mdb Exp $
+// $Id: PuzzleProvider.java,v 1.3 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.puzzle.server;
+
+import com.threerings.util.Name;
 
 import com.threerings.presents.client.InvocationService.InvocationListener;
 import com.threerings.presents.data.ClientObject;
@@ -54,7 +56,7 @@ public class PuzzleProvider
 
         try {
             // just this fellow will be playing
-            config.players = new String[] { user.username };
+            config.players = new Name[] { user.username };
 
             // create the game manager and begin its initialization
             // process

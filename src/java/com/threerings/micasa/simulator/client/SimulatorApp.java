@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorApp.java,v 1.15 2004/02/22 18:55:26 ray Exp $
+// $Id: SimulatorApp.java,v 1.16 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -11,9 +11,10 @@ import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
 import com.samskivert.util.ResultListener;
 
+import com.threerings.util.Name;
+
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientAdapter;
-import com.threerings.presents.net.Credentials;
 import com.threerings.presents.net.UsernamePasswordCreds;
 
 import com.threerings.micasa.Log;
@@ -139,8 +140,8 @@ public class SimulatorApp
         }
 
         // create and set our credentials
-        Credentials creds = new UsernamePasswordCreds(username, password);
-        client.setCredentials(creds);
+        client.setCredentials(
+            new UsernamePasswordCreds(new Name(username), password));
 
         // this is a bit of a hack, but we need to give the server long
         // enough to fully initialize and start listening on its socket

@@ -1,7 +1,9 @@
 //
-// $Id: BodyObject.java,v 1.8 2003/09/18 17:53:48 mdb Exp $
+// $Id: BodyObject.java,v 1.9 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.crowd.data;
+
+import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.crowd.chat.data.SpeakObject;
@@ -28,7 +30,7 @@ public class BodyObject extends ClientObject
     /**
      * The username associated with this body object.
      */
-    public String username;
+    public Name username;
 
     /**
      * The oid of the place currently occupied by this body or -1 if they
@@ -62,7 +64,7 @@ public class BodyObject extends ClientObject
     // documentation inherited
     public String who ()
     {
-        StringBuffer buf = new StringBuffer(username);
+        StringBuffer buf = new StringBuffer(username.toString());
         buf.append(" (").append(getOid());
         if (status != OccupantInfo.ACTIVE) {
             buf.append(" ").append(OccupantInfo.X_STATUS[status]);
@@ -78,7 +80,7 @@ public class BodyObject extends ClientObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setUsername (String username)
+    public void setUsername (Name username)
     {
         requestAttributeChange(USERNAME, username);
         this.username = username;

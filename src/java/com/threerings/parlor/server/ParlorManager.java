@@ -1,9 +1,10 @@
 //
-// $Id: ParlorManager.java,v 1.20 2002/10/06 00:53:15 mdb Exp $
+// $Id: ParlorManager.java,v 1.21 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.server;
 
 import com.samskivert.util.HashIntMap;
+import com.threerings.util.Name;
 
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
@@ -183,7 +184,7 @@ public class ParlorManager
             Log.info("Creating game manager [invite=" + invite + "].");
 
             // configure the game config with the player info
-            invite.config.players = new String[] {
+            invite.config.players = new Name[] {
                 invite.invitee.username, invite.inviter.username };
 
             // create the game manager and begin it's initialization

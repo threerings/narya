@@ -1,5 +1,5 @@
 //
-// $Id: MuteDirector.java,v 1.10 2003/09/15 21:11:40 ray Exp $
+// $Id: MuteDirector.java,v 1.11 2004/03/06 11:29:18 mdb Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -8,6 +8,7 @@ import java.util.HashSet;
 import com.samskivert.util.ObserverList;
 
 import com.threerings.util.MessageBundle;
+import com.threerings.util.Name;
 
 import com.threerings.crowd.util.CrowdContext;
 
@@ -31,7 +32,7 @@ public class MuteDirector extends BasicDirector
         /**
          * The specified player was added or removed from the mutelist.
          */
-        public void muteChanged (String playername, boolean nowMuted);
+        public void muteChanged (Name playername, boolean nowMuted);
     }
 
     /**
@@ -45,7 +46,7 @@ public class MuteDirector extends BasicDirector
     /**
      * Set up the mute director with the specified list of initial mutees.
      */
-    public MuteDirector (CrowdContext ctx, String[] list)
+    public MuteDirector (CrowdContext ctx, Name[] list)
     {
         this(ctx);
 
@@ -84,7 +85,7 @@ public class MuteDirector extends BasicDirector
     /**
      * Check to see if the specified user is muted.
      */
-    public boolean isMuted (String username)
+    public boolean isMuted (Name username)
     {
         return _mutelist.contains(username);
     }
@@ -92,7 +93,7 @@ public class MuteDirector extends BasicDirector
     /**
      * Mute or unmute the specified user.
      */
-    public void setMuted (String username, boolean mute)
+    public void setMuted (Name username, boolean mute)
     {
         if (mute ? _mutelist.add(username) : _mutelist.remove(username)) {
             _chatdir.displayFeedback(null, MessageBundle.tcompose(
@@ -107,13 +108,13 @@ public class MuteDirector extends BasicDirector
      * This list may be out of date immediately upon returning from this
      * method.
      */
-    public String[] getMuted ()
+    public Name[] getMuted ()
     {
-        return (String[]) _mutelist.toArray(new String[_mutelist.size()]);
+        return (Name[]) _mutelist.toArray(new Name[_mutelist.size()]);
     }
 
     // documentation inherited from interface ChatFilter
-    public String filter (String msg, String otherUser, boolean outgoing)
+    public String filter (String msg, Name otherUser, boolean outgoing)
     {
         // we are only concerned with filtering things going to or coming
         // from muted users
@@ -132,7 +133,7 @@ public class MuteDirector extends BasicDirector
     /**
      * Notify our observers of a change in the mutelist.
      */
-    protected void notifyObservers (final String username, final boolean muted)
+    protected void notifyObservers (final Name username, final boolean muted)
     {
         _observers.apply(new ObserverList.ObserverOp() {
             public boolean apply (Object observer) {

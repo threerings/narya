@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.70 2004/02/25 14:44:54 mdb Exp $
+// $Id: GameManager.java,v 1.71 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -9,6 +9,7 @@ import java.util.Iterator;
 
 import com.samskivert.util.IntervalManager;
 import com.samskivert.util.StringUtil;
+import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AttributeChangeListener;
@@ -18,9 +19,8 @@ import com.threerings.presents.server.util.SafeInterval;
 import com.threerings.crowd.chat.server.SpeakProvider;
 
 import com.threerings.crowd.data.BodyObject;
-
-import com.threerings.crowd.server.PlaceManager;
 import com.threerings.crowd.server.CrowdServer;
+import com.threerings.crowd.server.PlaceManager;
 import com.threerings.crowd.server.PlaceManagerDelegate;
 
 import com.threerings.parlor.Log;
@@ -79,7 +79,7 @@ public class GameManager extends PlaceManager
      * @return the player index at which the player was added, or
      * <code>-1</code> if the player could not be added to the game.
      */
-    public int addPlayer (String player)
+    public int addPlayer (Name player)
     {
         // determine the first available player index
         int pidx = -1;
@@ -112,7 +112,7 @@ public class GameManager extends PlaceManager
      * @param pidx the player index at which the player is to be added.
      * @return true if the player was added successfully, false if not.
      */
-    public boolean addPlayerAt (String player, int pidx)
+    public boolean addPlayerAt (Name player, int pidx)
     {
         // make sure the specified player index is valid
         if (pidx < 0 || pidx >= getPlayerSlots()) {
@@ -173,7 +173,7 @@ public class GameManager extends PlaceManager
      * @param player the username of the player added to the game.
      * @param pidx the player index of the player added to the game.
      */
-    protected void playerWasAdded (String player, int pidx)
+    protected void playerWasAdded (Name player, int pidx)
     {
     }
 
@@ -185,7 +185,7 @@ public class GameManager extends PlaceManager
      * @param player the username of the player to remove from this game.
      * @return true if the player was successfully removed, false if not.
      */
-    public boolean removePlayer (String player)
+    public boolean removePlayer (Name player)
     {
         // get the player's index in the player list
         int pidx = _gameobj.getPlayerIndex(player);
@@ -230,7 +230,7 @@ public class GameManager extends PlaceManager
      * @param pidx the player index of the player before they were removed
      * from the game.
      */
-    protected void playerWasRemoved (String player, int pidx)
+    protected void playerWasRemoved (Name player, int pidx)
     {
     }
 
@@ -265,18 +265,19 @@ public class GameManager extends PlaceManager
     }
 
     /**
-     * Returns the name of the player with the specified index.
+     * Returns the name of the player with the specified index or null if
+     * no player exists at that index.
      */
-    public String getPlayerName (int index)
+    public Name getPlayerName (int index)
     {
-        return (_gameobj == null) ? "" : _gameobj.players[index];
+        return (_gameobj == null) ? null : _gameobj.players[index];
     }
 
     /**
      * Returns the player index of the given user in the game, or 
      * <code>-1</code> if the player is not involved in the game.
      */
-    public int getPlayerIndex (String username)
+    public int getPlayerIndex (Name username)
     {
         return (_gameobj == null) ? -1 : _gameobj.getPlayerIndex(username);
     }

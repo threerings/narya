@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.64 2004/02/22 18:52:33 ray Exp $
+// $Id: PresentsClient.java,v 1.65 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -10,6 +10,7 @@ import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Throttle;
+import com.threerings.util.Name;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
@@ -113,7 +114,7 @@ public class PresentsClient
     /**
      * Returns the username with which this client instance is associated.
      */
-    public String getUsername ()
+    public Name getUsername ()
     {
         return _username;
     }
@@ -149,10 +150,10 @@ public class PresentsClient
      * @param ucl an entity that will (optionally) be notified when the
      * username conversion process is complete.
      */
-    public void setUsername (String username, final UserChangeListener ucl)
+    public void setUsername (Name username, final UserChangeListener ucl)
     {
         ClientResolutionListener clr = new ClientResolutionListener() {
-            public void clientResolved (String username, ClientObject clobj) {
+            public void clientResolved (Name username, ClientObject clobj) {
                 // if they old client object is gone by now, they ended
                 // their session while we were switching, so freak out
                 if (_clobj == null) {
@@ -195,7 +196,7 @@ public class PresentsClient
                 }
             }
 
-            public void resolutionFailed (String username, Exception reason) {
+            public void resolutionFailed (Name username, Exception reason) {
                 Log.warning("Unable to resolve new client object " +
                             "[oldname=" + _username + ", newname=" + username +
                             ", reason=" + reason + "].");
@@ -274,7 +275,7 @@ public class PresentsClient
     }
 
     // documentation inherited from interface
-    public void clientResolved (String username, ClientObject clobj)
+    public void clientResolved (Name username, ClientObject clobj)
     {
         // we'll be keeping this bad boy
         _clobj = clobj;
@@ -285,7 +286,7 @@ public class PresentsClient
     }
 
     // documentation inherited from interface
-    public void resolutionFailed (String username, Exception reason)
+    public void resolutionFailed (Name username, Exception reason)
     {
         // urk; nothing to do but complain and get the f**k out of dodge
         Log.warning("Unable to resolve client [username=" + username + "].");
@@ -863,7 +864,7 @@ public class PresentsClient
 
     protected ClientManager _cmgr;
     protected Credentials _creds;
-    protected String _username;
+    protected Name _username;
     protected Connection _conn;
     protected ClientObject _clobj;
     protected HashIntMap _subscrips = new HashIntMap();

@@ -1,5 +1,5 @@
 //
-// $Id: ParlorDispatcher.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+// $Id: ParlorDispatcher.java,v 1.3 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -14,13 +14,10 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
+import com.threerings.util.Name;
 
 /**
  * Dispatches requests to the {@link ParlorProvider}.
- *
- * <p> Generated from <code>
- * $Id: ParlorDispatcher.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
- * </code>
  */
 public class ParlorDispatcher extends InvocationDispatcher
 {
@@ -48,7 +45,7 @@ public class ParlorDispatcher extends InvocationDispatcher
         case ParlorMarshaller.INVITE:
             ((ParlorProvider)provider).invite(
                 source,
-                (String)args[0], (GameConfig)args[1], (InviteListener)args[2]
+                (Name)args[0], (GameConfig)args[1], (InviteListener)args[2]
             );
             return;
 

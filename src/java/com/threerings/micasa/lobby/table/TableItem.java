@@ -1,5 +1,5 @@
 //
-// $Id: TableItem.java,v 1.3 2001/10/24 01:26:54 mdb Exp $
+// $Id: TableItem.java,v 1.4 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.micasa.lobby.table;
 
@@ -16,7 +16,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import com.samskivert.util.StringUtil;
+import com.threerings.util.Name;
 
 import com.threerings.crowd.data.BodyObject;
 
@@ -137,7 +137,7 @@ public class TableItem
         // now enable and label the buttons accordingly
         int slength = _seats.length;
         for (int i = 0; i < slength; i++) {
-            if (StringUtil.blank(table.occupants[i])) {
+            if (table.occupants[i] == null) {
                 _seats[i].setText(JOIN_LABEL);
                 _seats[i].setEnabled(!isSeated);
                 _seats[i].setActionCommand("join");
@@ -149,7 +149,7 @@ public class TableItem
                 _seats[i].setActionCommand("leave");
 
             } else {
-                _seats[i].setText(table.occupants[i]);
+                _seats[i].setText(table.occupants[i].toString());
                 _seats[i].setEnabled(false);
             }
         }
@@ -220,7 +220,7 @@ public class TableItem
     protected MiCasaContext _ctx;
 
     /** Our username. */
-    protected String _self;
+    protected Name _self;
 
     /** A reference to our table director. */
     protected TableDirector _tdtr;

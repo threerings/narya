@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.19 2004/02/25 14:41:47 mdb Exp $
+// $Id: SpeakProvider.java,v 1.20 2004/03/06 11:29:18 mdb Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.samskivert.util.ObserverList;
+import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
@@ -55,7 +56,7 @@ public class SpeakProvider
         /**
          * Called for each player that hears a particular chat message.
          */
-        public void messageDelivered (String hearer, UserMessage message);
+        public void messageDelivered (Name hearer, UserMessage message);
     }
 
     /**
@@ -144,7 +145,7 @@ public class SpeakProvider
      * "faking" a chat message.
      * @param message the text of the speak message.
      */
-    public static void sendSpeak (DObject speakObj, String speaker,
+    public static void sendSpeak (DObject speakObj, Name speaker,
                                   String bundle, String message)
     {
         sendSpeak(speakObj, speaker, bundle, message, ChatCodes.DEFAULT_MODE);
@@ -167,7 +168,7 @@ public class SpeakProvider
      * @param mode the mode of the message, see {@link
      * ChatCodes#DEFAULT_MODE}.
      */
-    public static void sendSpeak (DObject speakObj, String speaker,
+    public static void sendSpeak (DObject speakObj, Name speaker,
                                   String bundle, String message, byte mode)
     {
         sendMessage(speakObj, new UserMessage(message, bundle, speaker, mode));
@@ -277,7 +278,7 @@ public class SpeakProvider
      * Returns a list of {@link ChatMessage} objects to which this user
      * has been privy in the recent past.
      */
-    public static ArrayList getChatHistory (String username)
+    public static ArrayList getChatHistory (Name username)
     {
         HistoryList history = getHistoryList(username);
         pruneHistory(System.currentTimeMillis(), history);
@@ -287,7 +288,7 @@ public class SpeakProvider
     /**
      * Called to clear the chat history for the specified user.
      */
-    public static void clearHistory (String username)
+    public static void clearHistory (Name username)
     {
         // Log.info("Clearing history for " + username + ".");
         _histories.remove(username);
@@ -298,7 +299,7 @@ public class SpeakProvider
      * message. If {@link ChatMessage#timestamp} is not already filled in,
      * it will be.
      */
-    protected static void noteMessage (String username, UserMessage msg)
+    protected static void noteMessage (Name username, UserMessage msg)
     {
         // fill in the message's time stamp if necessary
         if (msg.timestamp == 0L) {
@@ -325,7 +326,7 @@ public class SpeakProvider
     /**
      * Returns this user's chat history, creating one if necessary.
      */
-    protected static HistoryList getHistoryList (String username)
+    protected static HistoryList getHistoryList (Name username)
     {
         HistoryList history = (HistoryList)_histories.get(username);
         if (history == null) {
@@ -361,7 +362,7 @@ public class SpeakProvider
             }
         }
 
-        public void apply (String username) {
+        public void apply (Name username) {
             noteMessage(username, message);
         }
     }
@@ -378,7 +379,7 @@ public class SpeakProvider
     /** Used to notify our {@link MessageObserver}s. */
     protected static class MessageObserverOp implements ObserverList.ObserverOp
     {
-        public void init (String hearer, UserMessage message) {
+        public void init (Name hearer, UserMessage message) {
             _hearer = hearer;
             _message = message;
         }
@@ -388,7 +389,7 @@ public class SpeakProvider
             return true;
         }
 
-        protected String _hearer;
+        protected Name _hearer;
         protected UserMessage _message;
     }
 

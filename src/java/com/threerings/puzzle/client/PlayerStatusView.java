@@ -1,9 +1,11 @@
 //
-// $Id: PlayerStatusView.java,v 1.2 2004/02/25 14:48:44 mdb Exp $
+// $Id: PlayerStatusView.java,v 1.3 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.puzzle.client;
 
 import javax.swing.JPanel;
+
+import com.threerings.util.Name;
 
 import com.threerings.parlor.game.GameObject;
 
@@ -84,7 +86,7 @@ public class PlayerStatusView extends JPanel
     protected GameObject _gameobj;
 
     /** The player name. */
-    protected String _username;
+    protected Name _username;
 
     /** The player index. */
     protected int _pidx;

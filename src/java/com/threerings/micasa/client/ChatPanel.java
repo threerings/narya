@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.26 2004/02/25 14:43:37 mdb Exp $
+// $Id: ChatPanel.java,v 1.27 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -30,6 +30,8 @@ import com.samskivert.swing.GroupLayout;
 import com.samskivert.swing.HGroupLayout;
 import com.samskivert.swing.VGroupLayout;
 import com.samskivert.swing.event.AncestorAdapter;
+
+import com.threerings.util.Name;
 
 import com.threerings.crowd.chat.client.ChatDirector;
 import com.threerings.crowd.chat.client.ChatDisplay;
@@ -202,7 +204,7 @@ public class ChatPanel
             String message = text.substring(uidx + username.length()).trim();
 
             // request to send this text as a tell message
-            _chatdtr.requestTell(username, message, null);
+            _chatdtr.requestTell(new Name(username), message, null);
 
         } else if (text.startsWith("/clear")) {
             // clear the chat box

@@ -1,7 +1,9 @@
 //
-// $Id: ParlorService.java,v 1.14 2002/10/27 18:49:51 mdb Exp $
+// $Id: ParlorService.java,v 1.15 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.client;
+
+import com.threerings.util.Name;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
@@ -41,7 +43,7 @@ public interface ParlorService extends InvocationService
      * configuration of the game to be created.
      * @param listener will receive and process the response.
      */
-    public void invite (Client client, String invitee, GameConfig config,
+    public void invite (Client client, Name invitee, GameConfig config,
                         InviteListener listener);
 
     /**

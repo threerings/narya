@@ -1,7 +1,9 @@
 //
-// $Id: ChatService.java,v 1.12 2003/09/18 17:53:48 mdb Exp $
+// $Id: ChatService.java,v 1.13 2004/03/06 11:29:18 mdb Exp $
 
 package com.threerings.crowd.chat.client;
+
+import com.threerings.util.Name;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
@@ -41,7 +43,7 @@ public interface ChatService extends InvocationService
      * @param message the contents of the message.
      * @param listener the reference that will receive the tell response.
      */
-    public void tell (Client client, String target, String message,
+    public void tell (Client client, Name target, String message,
                       TellListener listener);
 
     /**

@@ -1,9 +1,10 @@
 //
-// $Id: SpotProvider.java,v 1.23 2004/02/25 14:50:28 mdb Exp $
+// $Id: SpotProvider.java,v 1.24 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
 import com.samskivert.util.StringUtil;
+import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.RootDObjectManager;
@@ -253,7 +254,7 @@ public class SpotProvider
      * @param message the text of the chat message.
      */
     public void sendClusterChatMessage (
-        int sceneId, int speakerOid, String speaker,
+        int sceneId, int speakerOid, Name speaker,
         String bundle, String message, byte mode)
     {
         // look up the scene manager for the specified scene

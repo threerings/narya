@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.57 2004/02/25 14:41:47 mdb Exp $
+// $Id: ChatDirector.java,v 1.58 2004/03/06 11:29:18 mdb Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -20,6 +20,7 @@ import com.threerings.presents.dobj.MessageListener;
 
 import com.threerings.util.MessageBundle;
 import com.threerings.util.MessageManager;
+import com.threerings.util.Name;
 import com.threerings.util.TimeUtil;
 
 import com.threerings.crowd.Log;
@@ -63,7 +64,7 @@ public class ChatDirector extends BasicDirector
         /**
          * Returns whether the username may be added to the chatters list.
          */
-        public boolean isChatterValid (String username);
+        public boolean isChatterValid (Name username);
     }
 
     /**
@@ -152,7 +153,7 @@ public class ChatDirector extends BasicDirector
     /**
      * Adds a chatter to our list of recent chatters.
      */
-    protected void addChatter (String name)
+    protected void addChatter (Name name)
     {
         // check to see if the chatter validator approves..
         if ((_chatterValidator != null) &&
@@ -351,8 +352,8 @@ public class ChatDirector extends BasicDirector
      * @param rl an optional result listener if you'd like to be notified
      * of success or failure.
      */
-    public void requestTell (
-        final String target, String msg, final ResultListener rl)
+    public void requestTell (final Name target, String msg,
+                             final ResultListener rl)
     {
         // make sure they can say what they want to say
         final String message = filter(msg, target, true);
@@ -502,13 +503,13 @@ public class ChatDirector extends BasicDirector
             // if the message came from a user, make sure we want to hear it
             if (msg instanceof UserMessage) {
                 UserMessage umsg = (UserMessage)msg;
-                String speaker = umsg.speaker;
-                message = filter(message, speaker, false);
-                if (message == null) {
+                Name speaker = umsg.speaker;
+                if ((message = filter(message, speaker, false)) == null) {
                     return;
+                }
 
-                } else if (USER_CHAT_TYPE.equals(localtype) &&
-                           umsg.mode == ChatCodes.DEFAULT_MODE) {
+                if (USER_CHAT_TYPE.equals(localtype) &&
+                    umsg.mode == ChatCodes.DEFAULT_MODE) {
                     // if it was a tell, add the speaker as a chatter
                     addChatter(speaker);
 
@@ -529,7 +530,7 @@ public class ChatDirector extends BasicDirector
 
             // if we auto-responded, report as much
             if (autoResponse != null) {
-                String teller = ((UserMessage) msg).speaker;
+                Name teller = ((UserMessage) msg).speaker;
                 String amsg = MessageBundle.tcompose(
                     "m.auto_responded", teller, autoResponse);
                 displayFeedback(_bundle, amsg);
@@ -630,7 +631,7 @@ public class ChatDirector extends BasicDirector
     /**
      * Run a message through all the currently registered filters.
      */
-    public String filter (String msg, String otherUser, boolean outgoing)
+    public String filter (String msg, Name otherUser, boolean outgoing)
     {
         _filterMessageOp.setMessage(msg, otherUser, outgoing);
         _filters.apply(_filterMessageOp);
@@ -643,7 +644,7 @@ public class ChatDirector extends BasicDirector
      */
     protected static class FilterMessageOp implements ObserverList.ObserverOp
     {
-        public void setMessage (String msg, String otherUser, boolean outgoing)
+        public void setMessage (String msg, Name otherUser, boolean outgoing)
         {
             _msg = msg;
             _otherUser = otherUser;
@@ -663,7 +664,7 @@ public class ChatDirector extends BasicDirector
             return _msg;
         }
 
-        protected String _otherUser;
+        protected Name _otherUser;
         protected String _msg;
         protected boolean _out;
     }

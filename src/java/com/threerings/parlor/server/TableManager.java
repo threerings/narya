@@ -1,5 +1,5 @@
 //
-// $Id: TableManager.java,v 1.9 2003/03/27 23:45:04 mdb Exp $
+// $Id: TableManager.java,v 1.10 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -8,6 +8,7 @@ import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
+import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.ObjectAddedEvent;
 import com.threerings.presents.dobj.ObjectDeathListener;
@@ -254,8 +255,7 @@ public class TableManager
      * @return a reference to the newly created game manager or null if
      * something choked during the creation or initialization process.
      */
-    protected GameManager createGameManager (
-        GameConfig config, String[] players)
+    protected GameManager createGameManager (GameConfig config, Name[] players)
     {
         GameManager gmgr = null;
 

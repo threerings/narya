@@ -1,13 +1,14 @@
 //
-// $Id: MiCasaApp.java,v 1.12 2004/02/22 18:55:26 ray Exp $
+// $Id: MiCasaApp.java,v 1.13 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.micasa.client;
 
 import java.io.IOException;
+
 import com.samskivert.swing.util.SwingUtil;
+import com.threerings.util.Name;
 
 import com.threerings.presents.client.Client;
-import com.threerings.presents.net.Credentials;
 import com.threerings.presents.net.UsernamePasswordCreds;
 
 import com.threerings.micasa.Log;
@@ -75,8 +76,8 @@ public class MiCasaApp
         String password = getProperty("password");
         if (username != null && password != null) {
             // create and set our credentials
-            Credentials creds = new UsernamePasswordCreds(username, password);
-            client.setCredentials(creds);
+            client.setCredentials(
+                new UsernamePasswordCreds(new Name(username), password));
             client.logon();
         }
     }

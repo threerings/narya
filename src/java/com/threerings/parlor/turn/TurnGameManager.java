@@ -1,7 +1,9 @@
 //
-// $Id: TurnGameManager.java,v 1.9 2004/02/25 14:44:54 mdb Exp $
+// $Id: TurnGameManager.java,v 1.10 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.turn;
+
+import com.threerings.util.Name;
 
 /**
  * A game manager that wishes to make use of the turn game services should
@@ -30,13 +32,13 @@ public interface TurnGameManager
      * Extending {@link GameManager} should automatically handle
      * implementing this method.
      */
-    public String getPlayerName (int index);
+    public Name getPlayerName (int index);
 
     /**
      * Extending {@link GameManager} should automatically handle
      * implementing this method.
      */
-    public int getPlayerIndex (String username);
+    public int getPlayerIndex (Name username);
 
     /**
      * Extending {@link GameManager} should automatically handle

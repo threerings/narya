@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.26 2004/02/25 14:41:47 mdb Exp $
+// $Id: ChatProvider.java,v 1.27 2004/03/06 11:29:18 mdb Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import com.samskivert.util.StringUtil;
 import com.threerings.util.MessageBundle;
+import com.threerings.util.Name;
 import com.threerings.util.TimeUtil;
 
 import com.threerings.presents.client.InvocationService.InvocationListener;
@@ -84,7 +85,7 @@ public class ChatProvider
      * Processes a request from a client to deliver a tell message to
      * another client.
      */
-    public void tell (ClientObject caller, String target, String message,
+    public void tell (ClientObject caller, Name target, String message,
                       TellListener listener)
         throws InvocationException
     {
@@ -177,7 +178,7 @@ public class ChatProvider
      * @param message the text of the chat message.
      */
     public static void sendTellMessage (
-        BodyObject target, String speaker, String bundle, String message)
+        BodyObject target, Name speaker, String bundle, String message)
     {
         UserMessage msg =
             new UserMessage(message, bundle, speaker, DEFAULT_MODE);

@@ -1,18 +1,15 @@
 //
-// $Id: ParlorDecoder.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+// $Id: ParlorDecoder.java,v 1.3 2004/03/06 11:29:19 mdb Exp $
 
 package com.threerings.parlor.client;
 
 import com.threerings.parlor.client.ParlorReceiver;
 import com.threerings.parlor.game.GameConfig;
 import com.threerings.presents.client.InvocationDecoder;
+import com.threerings.util.Name;
 
 /**
  * Dispatches calls to a {@link ParlorReceiver} instance.
- *
- * <p> Generated from <code>
- * $Id: ParlorDecoder.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
- * </code>
  */
 public class ParlorDecoder extends InvocationDecoder
 {
@@ -62,7 +59,7 @@ public class ParlorDecoder extends InvocationDecoder
 
         case RECEIVED_INVITE:
             ((ParlorReceiver)receiver).receivedInvite(
-                ((Integer)args[0]).intValue(), (String)args[1], (GameConfig)args[2]
+                ((Integer)args[0]).intValue(), (Name)args[1], (GameConfig)args[2]
             );
             return;
 
@@ -82,6 +79,4 @@ public class ParlorDecoder extends InvocationDecoder
             super.dispatchNotification(methodId, args);
         }
     }
-
-    // Generated on 12:37:00 08/20/02.
 }
