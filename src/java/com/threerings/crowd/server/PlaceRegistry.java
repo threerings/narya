@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.24 2002/10/06 03:31:16 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.25 2002/10/31 21:32:15 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -142,7 +142,7 @@ public class PlaceRegistry
      * should only be accessed on the dobjmgr thread and shouldn't be kept
      * around across event dispatches.
      */
-    public Iterator getPlaces ()
+    public Iterator enumeratePlaces ()
     {
         final Iterator enum = _pmgrs.elements();
         return new Iterator() {
@@ -169,7 +169,7 @@ public class PlaceRegistry
      * This should only be accessed on the dobjmgr thread and shouldn't be
      * kept around across event dispatches.
      */
-    public Iterator getPlaceManagers ()
+    public Iterator enumeratePlaceManagers ()
     {
         return _pmgrs.elements();
     }
