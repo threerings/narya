@@ -1,5 +1,5 @@
 //
-// $Id: CharacterDescriptor.java,v 1.4 2001/11/27 08:09:34 mdb Exp $
+// $Id: CharacterDescriptor.java,v 1.5 2002/03/08 07:50:32 mdb Exp $
 
 package com.threerings.cast;
 
@@ -13,11 +13,19 @@ import com.samskivert.util.StringUtil;
 public class CharacterDescriptor
 {
     /**
-     * Constructs the character descriptor. 
+     * Constructs a character descriptor.
+     *
+     * @param components the component ids of the individual components
+     * that make up this character.
+     * @param zations the colorizations to apply to each of the character
+     * component images when compositing actions (an array of
+     * colorizations for each component). This can be null if image
+     * recolorization is not desired.
      */
-    public CharacterDescriptor (int[] components)
+    public CharacterDescriptor (int[] components, Colorization[][] zations)
     {
         _components = components;
+        _zations = zations;
     }
 
     /**
@@ -27,6 +35,16 @@ public class CharacterDescriptor
     public int[] getComponentIds ()
     {
         return _components;
+    }
+
+    /**
+     * Returns an array of colorization arrays to be applied to the
+     * components when compositing action images (one array per
+     * component).
+     */
+    public Colorization[][] getColorizations ()
+    {
+        return _zations;
     }
 
     /**
@@ -46,12 +64,34 @@ public class CharacterDescriptor
      */
     public boolean equals (Object other)
     {
-        if (other instanceof CharacterDescriptor) {
-            return Arrays.equals(_components,
-                                 ((CharacterDescriptor)other)._components);
-        } else {
+        if (!(other instanceof CharacterDescriptor)) {
             return false;
         }
+
+        // both the component ids and the colorizations must be equal
+        CharacterDescriptor odesc = (CharacterDescriptor)other;
+        if (!Arrays.equals(_components, odesc._components)) {
+            return false;
+        }
+
+        // if neither has colorizations, we're clear
+        Colorization[][] zations = odesc._zations;
+        if (zations == null && _zations == null) {
+            return true;
+        }
+
+        // otherwise, all of the colorizations must be equal as well
+        int zlength = _zations.length;
+        if (zlength != zations.length) {
+            return false;
+        }
+        for (int i = 0; i < zlength; i++) {
+            if (!Arrays.equals(_zations[i], zations[i])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -59,9 +99,13 @@ public class CharacterDescriptor
      */
     public String toString ()
     {
-        return "[cids=" + StringUtil.toString(_components) + "]";
+        return "[cids=" + StringUtil.toString(_components) +
+            ", colors=" + StringUtil.toString(_zations) + "]";
     }
 
     /** The component identifiers comprising the character. */
     protected int[] _components;
+
+    /** The colorizations to apply when compositing this character. */
+    protected Colorization[][] _zations;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.14 2002/02/10 00:05:36 shaper Exp $
+// $Id: CharacterManager.java,v 1.15 2002/03/08 07:50:32 mdb Exp $
 
 package com.threerings.cast;
 
@@ -178,23 +178,51 @@ public class CharacterManager
     {
         MultiFrameImage[] frames = new MultiFrameImage[Sprite.DIRECTION_COUNT];
 
-        // obtain the necessary components
         int[] cids = descrip.getComponentIds();
         int ccount = cids.length;
-        CharacterComponent[] components = new CharacterComponent[ccount];
+        Colorization[][] zations = descrip.getColorizations();
+
+        // obtain the necessary components
+        ColorizedComponent[] components = new ColorizedComponent[ccount];
         for (int i = 0; i < ccount; i++) {
-            components[i] = _crepo.getComponent(cids[i]);
+            ColorizedComponent cc = new ColorizedComponent();
+            cc.component = _crepo.getComponent(cids[i]);
+            if (zations != null) {
+                cc.zations = zations[i];
+            }
+            components[i] = cc;
         }
 
         // sort them into the proper rendering order
-        Arrays.sort(components, ComponentClass.RENDER_COMP);
+        Arrays.sort(components);
 
-        // now composite the component frames, one atop the next
+        // now composite the component frames, one atop the next; using
+        // the colorizations if we have them
         for (int i = 0; i < ccount; i++) {
-            TileUtil.compositeFrames(frames, components[i].getFrames(action));
+            ColorizedComponent cc = components[i];
+            TileUtil.compositeFrames(
+                frames, cc.component.getFrames(action), cc.zations);
         }
 
         return frames;
+    }
+
+    /** Used when compositing component frame images. */
+    protected static final class ColorizedComponent implements Comparable
+    {
+        /** The component to be colorized. */
+        public CharacterComponent component;
+
+        /** The colorizations to apply. */
+        public Colorization[] zations;
+
+        /** Sorts by render order. */
+        public int compareTo (Object o)
+        {
+            ColorizedComponent co = (ColorizedComponent)o;
+            return (component.componentClass.renderPriority -
+                    co.component.componentClass.renderPriority);
+        }
     }
 
     /** The component repository. */

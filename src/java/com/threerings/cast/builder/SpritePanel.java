@@ -1,5 +1,5 @@
 //
-// $Id: SpritePanel.java,v 1.10 2002/01/11 16:17:33 shaper Exp $
+// $Id: SpritePanel.java,v 1.11 2002/03/08 07:50:32 mdb Exp $
 
 package com.threerings.cast.builder;
 
@@ -89,7 +89,7 @@ public class SpritePanel
     protected void generateSprite ()
     {
         int components[] = _model.getSelectedComponents();
-        CharacterDescriptor desc = new CharacterDescriptor(components);
+        CharacterDescriptor desc = new CharacterDescriptor(components, null);
         CharacterSprite sprite = _charmgr.getCharacter(desc);
         setSprite(sprite);
     }

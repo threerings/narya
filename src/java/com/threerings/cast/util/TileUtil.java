@@ -1,15 +1,17 @@
 //
-// $Id: TileUtil.java,v 1.8 2002/02/24 02:20:43 mdb Exp $
+// $Id: TileUtil.java,v 1.9 2002/03/08 07:50:32 mdb Exp $
 
 package com.threerings.cast.util;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.util.ImageUtil;
 
 import com.threerings.cast.Log;
+import com.threerings.cast.Colorization;
 
 /**
  * Miscellaneous tile-related utility functions.
@@ -19,13 +21,16 @@ public class TileUtil
     /**
      * Renders each of the given <code>src</code> component frames into
      * the corresponding frames of <code>dest</code>, allocating blank
-     * image frames for <code>dest</code> if none yet exist.
+     * image frames for <code>dest</code> if none yet exist. If
+     * <code>zations</code> is not null, the provided list of
+     * colorizations will be applied as well.
      *
      * @throws IllegalArgumentException if the frame count of the source
      * and destination images don't match.
      */
     public static void compositeFrames (
-        MultiFrameImage[] dest, MultiFrameImage[] src)
+        MultiFrameImage[] dest, MultiFrameImage[] src,
+        Colorization[] zations)
     {
         for (int orient = 0; orient < Sprite.DIRECTION_COUNT; orient++) {
             MultiFrameImage sframes = src[orient];
@@ -48,7 +53,18 @@ public class TileUtil
             // slap the images together
             for (int ii = 0; ii < dsize; ii++) {
                 Image dimg = dframes.getFrame(ii);
-                Image simg = sframes.getFrame(ii);
+                BufferedImage simg = (BufferedImage)sframes.getFrame(ii);
+
+                // recolor the source image
+                if (zations != null) {
+                    for (int i = 0; i < zations.length; i++) {
+                        Colorization cz = zations[i];
+                        simg = ImageUtil.recolorImage(
+                            simg, cz.rootColor, cz.range, cz.offsets);
+                    }
+                }
+
+                // now splat the recolored image onto the target
                 dimg.getGraphics().drawImage(simg, 0, 0, null);
             }
         }
