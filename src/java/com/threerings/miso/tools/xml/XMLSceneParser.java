@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.8 2001/08/10 01:31:25 shaper Exp $
+// $Id: XMLSceneParser.java,v 1.9 2001/08/13 05:42:36 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -236,15 +236,20 @@ public class XMLSceneParser extends DefaultHandler
         // make sure we have an appropriate number of values
         if ((vals.length % 2) != 0) return null;
 
-	// read in all of the exits and add to the list
-	ArrayList list = new ArrayList();
+	// read in all of the exits
+	ArrayList exits = new ArrayList();
 	for (int ii = 0; ii < vals.length; ii += 2) {
-	    Exit exit = new Exit(
-		(Location)locs.get(getInt(vals[ii])), vals[ii+1]);
-	    list.add(exit);
+	    int locidx = getInt(vals[ii]);
+
+	    // create the exit and add to the list
+	    Exit exit = new Exit((Location)locs.get(locidx), vals[ii+1]);
+	    exits.add(exit);
+
+	    // upgrade the corresponding location in the location list
+	    locs.set(locidx, exit);
 	}
 
-        return list;
+        return exits;
     }
 
     /**

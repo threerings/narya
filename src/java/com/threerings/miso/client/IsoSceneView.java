@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.40 2001/08/11 00:00:13 shaper Exp $
+// $Id: IsoSceneView.java,v 1.41 2001/08/13 05:42:36 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -346,7 +346,8 @@ public class IsoSceneView implements EditableSceneView
 	    gfx.rotate(rot);
 
 	    // draw the triangle
-	    gfx.setColor(Color.yellow);
+	    Color fcol = (loc instanceof Exit) ? Color.green : Color.yellow;
+	    gfx.setColor(fcol);
 	    gfx.fill(tri);
 
 	    // outline the triangle in black
@@ -557,6 +558,16 @@ public class IsoSceneView implements EditableSceneView
     public void updateLocation (Location loc, int clusteridx)
     {
 	_scene.updateLocation(loc, clusteridx);
+    }
+
+    public void addExit (Exit exit)
+    {
+	_scene.addExit(exit);
+    }
+
+    public void removeLocation (Location loc)
+    {
+	_scene.removeLocation(loc);
     }
 
     public Location createLocation (int sx, int sy)

@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.24 2001/08/11 00:00:13 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.25 2001/08/13 05:42:36 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -125,23 +125,36 @@ public class Scene
      */
     public void updateLocation (Location loc, int clusteridx)
     {
-	// look the location up in our existing location list
-	int size = _locations.size();
-	for (int ii = 0; ii < size; ii++) {
-	    Location tloc = (Location)_locations.get(ii);
-
-	    if (tloc == loc) {
-		// if we found it, just update the cluster contents
-		ClusterUtil.regroup(_clusters, tloc, clusteridx);
-		return;
-	    }
+	// add the location if it's not already present
+	if (!_locations.contains(loc)) {
+	    _locations.add(loc);
 	}
 
-	// else we didn't find it, so hold on to the sucker
-	_locations.add(loc);
-
-	// and update the cluster contents
+	// update the cluster contents
 	ClusterUtil.regroup(_clusters, loc, clusteridx);
+    }
+
+    /**
+     * Add the specified exit to the scene.  Adds the exit to the
+     * location list as well if it's not already present and removes
+     * it from any cluster it may reside in.
+     *
+     * @param exit the exit.
+     */
+    public void addExit (Exit exit)
+    {
+	// make sure it's in the location list and absent from any cluster
+	updateLocation(exit, -1);
+
+	// don't allow adding an exit more than once
+	if (_exits.contains(exit)) {
+	    Log.warning("Attempt to add already-existing exit " +
+			"[exit=" + exit + "].");
+	    return;
+	}
+
+	// add it to the list
+	_exits.add(exit);
     }
 
     /**
@@ -161,6 +174,29 @@ public class Scene
 	    if (loc.x == x && loc.y == y) return loc;
 	}
 	return null;
+    }
+
+    /**
+     * Remove the given location object from the location list, and
+     * from any containing cluster.  If the location is an exit, it
+     * is removed from the exit list as well.
+     *
+     * @param loc the location object.
+     */
+    public void removeLocation (Location loc)
+    {
+	// remove from the location list
+	if (!_locations.remove(loc)) {
+	    // we didn't know about it, so it can't be in a cluster or
+	    // the exit list
+	    return;
+	}
+
+	// remove from any possible cluster
+	ClusterUtil.remove(_clusters, loc);
+
+	// remove from any possible existence on the exit list
+	_exits.remove(loc);
     }
 
     /**
