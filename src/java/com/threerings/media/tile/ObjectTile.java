@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTile.java,v 1.9 2002/05/16 01:53:36 ray Exp $
+// $Id: ObjectTile.java,v 1.10 2002/06/21 18:52:36 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -65,9 +65,10 @@ public class ObjectTile extends Tile
 
     /**
      * Returns the x offset into the tile image of the origin (which will
-     * be aligned with the bottom center of the origin tile) or -1 if the
-     * origin is not explicitly specified and should be computed from the
-     * image size and tile footprint.
+     * be aligned with the bottom center of the origin tile) or
+     * <code>Integer.MIN_VALUE</code> if the origin is not explicitly
+     * specified and should be computed from the image size and tile
+     * footprint.
      */
     public int getOriginX ()
     {
@@ -76,9 +77,10 @@ public class ObjectTile extends Tile
 
     /**
      * Returns the y offset into the tile image of the origin (which will
-     * be aligned with the bottom center of the origin tile) or -1 if the
-     * origin is not explicitly specified and should be computed from the
-     * image size and tile footprint.
+     * be aligned with the bottom center of the origin tile) or
+     * <code>Integer.MIN_VALUE</code> if the origin is not explicitly
+     * specified and should be computed from the image size and tile
+     * footprint.
      */
     public int getOriginY ()
     {
@@ -86,12 +88,12 @@ public class ObjectTile extends Tile
     }
 
     /**
-     * Sets the offset in pixels to the origin in the tile image. The
-     * object will be rendered such that its origin is at the bottom
-     * center of its origin tile. If no origin is specified, the bottom of
-     * the image is aligned with the bottom of the origin tile and the
-     * left side of the image is aligned with the left edge of the
-     * left-most base tile.
+     * Sets the offset in pixels from the origin of the tile image to the
+     * origin of the object. The object will be rendered such that its
+     * origin is at the bottom center of its origin tile. If no origin is
+     * specified, the bottom of the image is aligned with the bottom of
+     * the origin tile and the left side of the image is aligned with the
+     * left edge of the left-most base tile.
      */
     public void setOrigin (int x, int y)
     {
@@ -128,11 +130,13 @@ public class ObjectTile extends Tile
     /** The object footprint height in unit tile units. */
     protected int _baseHeight = 1;
 
-    /** The x offset into the tile image of the origin or -1 if the origin
-     * should be calculated based on the footprint. */
-    protected int _originX = -1;
+    /** The x offset from the origin of the tile image to the object's
+     * origin or MIN_VALUE if the origin should be calculated based on the
+     * footprint. */
+    protected int _originX = Integer.MIN_VALUE;
 
-    /** The y offset into the tile image of the origin or -1 if the origin
-     * should be calculated based on the footprint. */
-    protected int _originY = -1;
+    /** The y offset from the origin of the tile image to the object's
+     * origin or MIN_VALUE if the origin should be calculated based on the
+     * footprint. */
+    protected int _originY = Integer.MIN_VALUE;
 }

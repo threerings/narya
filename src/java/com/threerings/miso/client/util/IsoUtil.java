@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.33 2002/06/18 22:38:12 mdb Exp $
+// $Id: IsoUtil.java,v 1.34 2002/06/21 18:52:36 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -169,8 +169,10 @@ public class IsoUtil
         // if the tile has an origin, use that, otherwise compute the
         // origin based on the tile footprint
         int tox = tile.getOriginX(), toy = tile.getOriginY();
-        if (tox == -1 || toy == -1) {
+        if (tox == Integer.MIN_VALUE) {
             tox = tile.getBaseWidth() * model.tilehwid;
+        }
+        if (toy == Integer.MIN_VALUE) {
             toy = tile.getHeight();
         }
 
