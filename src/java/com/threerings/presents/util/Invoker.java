@@ -1,13 +1,19 @@
 //
-// $Id: Invoker.java,v 1.6 2003/03/31 04:11:24 mdb Exp $
+// $Id: Invoker.java,v 1.7 2003/04/10 21:04:55 mdb Exp $
 
 package com.threerings.presents.util;
 
+import java.util.HashMap;
+import java.util.Iterator;
+
+import com.samskivert.util.Histogram;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.server.PresentsDObjectMgr;
+import com.threerings.presents.server.PresentsServer.Reporter;
 import com.threerings.presents.server.PresentsServer;
 
 /**
@@ -30,6 +36,7 @@ import com.threerings.presents.server.PresentsServer;
  * invoker is desirable.
  */
 public class Invoker extends LoopingThread
+    implements Reporter
 {
     /**
      * The unit encapsulates a unit of executable code that will be run on
@@ -89,6 +96,9 @@ public class Invoker extends LoopingThread
     {
         super("presents.Invoker");
         _omgr = omgr;
+        if (PERF_TRACK) {
+            PresentsServer.registerReporter(this);
+        }
     }
 
     /**
@@ -109,11 +119,30 @@ public class Invoker extends LoopingThread
 
         // if it's a unit, we invoke it
         if (unit instanceof Runnable) {
+            long start;
+            if (PERF_TRACK) {
+                start = System.currentTimeMillis();
+                _unitsRun++;
+            }
+
             try {
                 if (((Unit)unit).invoke()) {
                     // if it returned true, we post it to the dobjmgr
                     // thread to invoke the result processing
-                    PresentsServer.omgr.postUnit((Runnable)unit);
+                    _omgr.postUnit((Runnable)unit);
+                }
+
+                // track some performance metrics
+                if (PERF_TRACK) {
+                    long duration = System.currentTimeMillis() - start;
+                    Object key = unit.getClass();
+
+                    Histogram histo = (Histogram)_tracker.get(key);
+                    if (histo == null) {
+                        // track in buckets of 50ms up to 500ms
+                        _tracker.put(key, histo = new Histogram(0, 50, 10));
+                    }
+                    histo.addValue((int)duration);
                 }
 
             } catch (Exception e) {
@@ -137,9 +166,34 @@ public class Invoker extends LoopingThread
         _queue.append(new Integer(0));
     }
 
+    // documentation inherited from interface
+    public void appendReport (StringBuffer buffer, long now, long sinceLast)
+    {
+        buffer.append("* presents.util.Invoker:");
+        buffer.append("- Units executed: ").append(_unitsRun).append("\n");
+        _unitsRun = 0;
+        for (Iterator iter = _tracker.keySet().iterator(); iter.hasNext(); ) {
+            Class key = (Class)iter.next();
+            Histogram histo = (Histogram)_tracker.get(key);
+            buffer.append("  ");
+            buffer.append(StringUtil.shortClassName(key)).append(": ");
+            buffer.append(histo.summarize()).append("\n");
+            histo.clear();
+        }
+    }
+
     /** The invoker's queue of units to be executed. */
     protected Queue _queue = new Queue();
 
     /** The object manager with which we're working. */
     protected PresentsDObjectMgr _omgr;
+
+    /** Tracks the counts of invocations by unit's class. */
+    protected HashMap _tracker = new HashMap();
+
+    /** The total number of invoker units run since the last report. */
+    protected int _unitsRun;
+
+    /** Whether or not to track invoker unit performance. */
+    protected static final boolean PERF_TRACK = true;
 }
