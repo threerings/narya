@@ -1,13 +1,17 @@
 //
-// $Id: OccupantDirector.java,v 1.3 2002/10/27 01:25:08 mdb Exp $
+// $Id: OccupantDirector.java,v 1.4 2002/10/27 02:03:13 shaper Exp $
 
 package com.threerings.crowd.client;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
-import com.threerings.presents.dobj.*;
+import com.samskivert.util.ObserverList;
+
+import com.threerings.presents.dobj.EntryAddedEvent;
+import com.threerings.presents.dobj.EntryRemovedEvent;
+import com.threerings.presents.dobj.EntryUpdatedEvent;
+import com.threerings.presents.dobj.SetListener;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.data.OccupantInfo;
@@ -147,15 +151,17 @@ public class OccupantDirector
         }
 
         // put the info in our cache for use when we get a left event
-        OccupantInfo info = (OccupantInfo)event.getEntry();
+        final OccupantInfo info = (OccupantInfo)event.getEntry();
         int bodyOid = info.getBodyOid();
         _ocache.put(bodyOid, info);
 
         // now let the occupant observers know what's up
-        for (int i = 0; i < _observers.size(); i++) {
-            OccupantObserver obs = (OccupantObserver)_observers.get(i);
-            obs.occupantEntered(info);
-        }
+        _observers.apply(new ObserverList.ObserverOp() {
+            public boolean apply (Object observer) {
+                ((OccupantObserver)observer).occupantEntered(info);
+                return true;
+            }
+        });
     }
 
     /**
@@ -168,12 +174,14 @@ public class OccupantDirector
             return;
         }
 
-        OccupantInfo info = (OccupantInfo)event.getEntry();
+        Log.info("entryUpdated [event=" + event + "].");
+
+        final OccupantInfo info = (OccupantInfo)event.getEntry();
         int bodyOid = info.getBodyOid();
 
         // grab the old info to give observers a chance to figure out what
         // changed
-        OccupantInfo oinfo = (OccupantInfo)_ocache.get(bodyOid);
+        final OccupantInfo oinfo = (OccupantInfo)_ocache.get(bodyOid);
         if (oinfo == null) {
             Log.warning("Urk! Occupant updated for whom we we have no " +
                         "prior info record [info=" + info + "].");
@@ -183,10 +191,12 @@ public class OccupantDirector
         _ocache.put(bodyOid, info);
 
         // now let the occupant observers know what's up
-        for (int i = 0; i < _observers.size(); i++) {
-            OccupantObserver obs = (OccupantObserver)_observers.get(i);
-            obs.occupantUpdated(oinfo, info);
-        }
+        _observers.apply(new ObserverList.ObserverOp() {
+            public boolean apply (Object observer) {
+                ((OccupantObserver)observer).occupantUpdated(oinfo, info);
+                return true;
+            }
+        });
     }
 
     /**
@@ -201,7 +211,7 @@ public class OccupantDirector
 
         int bodyOid = ((Integer)event.getKey()).intValue();
         // see if we have an occupant object for this body
-        OccupantInfo info = (OccupantInfo)_ocache.get(bodyOid);
+        final OccupantInfo info = (OccupantInfo)_ocache.get(bodyOid);
         if (info == null) {
             Log.warning("Occupant removed but no cached info for them? " +
                         "[boid=" + bodyOid + ", place=" + _place + "].");
@@ -209,13 +219,22 @@ public class OccupantDirector
         }
 
         // let the occupant observers know what's up
-        for (int i = 0; i < _observers.size(); i++) {
-            OccupantObserver obs = (OccupantObserver)_observers.get(i);
-            obs.occupantLeft(info);
-        }
+        _observers.apply(new ObserverList.ObserverOp() {
+            public boolean apply (Object observer) {
+                ((OccupantObserver)observer).occupantLeft(info);
+                return true;
+            }
+        });
     }
 
-    protected ArrayList _observers = new ArrayList();
+    /** The occupant observers to keep abreast of occupant antics. */
+    protected ObserverList _observers =
+        new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
+
+    /** The user's current location. */
     protected PlaceObject _place;
+
+    /** A cache of the occupant info for all users in our current
+     * location. */
     protected HashIntMap _ocache = new HashIntMap();
 }
