@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.23 2001/08/02 20:43:03 shaper Exp $
+// $Id: IsoSceneView.java,v 1.24 2001/08/03 22:23:47 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -7,20 +7,19 @@ import com.threerings.miso.Log;
 import com.threerings.miso.sprite.*;
 import com.threerings.miso.tile.Tile;
 import com.threerings.miso.tile.TileManager;
-import com.threerings.miso.util.MathUtil;
 
 import java.awt.*;
 import java.awt.image.*;
 import java.util.ArrayList;
 
 /**
- * The IsoSceneView provides an isometric graphics view of a
+ * The <code>IsoSceneView</code> provides an isometric view of a
  * particular scene.
  */
 public class IsoSceneView implements EditableSceneView
 {
     /**
-     * Construct an IsoSceneView object.
+     * Construct an <code>IsoSceneView</code> object.
      *
      * @param tilemgr the tile manager.
      * @param spritemgr the sprite manager.
@@ -125,7 +124,7 @@ public class IsoSceneView implements EditableSceneView
     {
         // get the top-left screen coordinate for the tile
         Point spos = new Point();
-        tileToScreen(x, y, spos);
+        IsoUtil.tileToScreen(_model, x, y, spos);
 
         // create a polygon framing the tile
         Polygon poly = new Polygon();
@@ -279,7 +278,7 @@ public class IsoSceneView implements EditableSceneView
 
     public void setHighlightedTile (int sx, int sy)
     {
-        screenToTile(sx, sy, _htile);
+        IsoUtil.screenToTile(_model, sx, sy, _htile);
     }
 
     /**
@@ -308,7 +307,7 @@ public class IsoSceneView implements EditableSceneView
     public void invalidateScreenRect (int x, int y, int width, int height)
     {
         Point tpos = new Point();
-        screenToTile(x, y, tpos);
+        IsoUtil.screenToTile(_model, x, y, tpos);
 
 //          Log.info("invalidateScreenRect: mapped rect to tile " +
 //                   "[tx=" + tpos.x + ", ty=" + tpos.y +
@@ -316,54 +315,6 @@ public class IsoSceneView implements EditableSceneView
 //                   ", height=" + height + "].");
 
         _dirty.add(new int[] { tpos.x, tpos.y });
-    }
-
-    /**
-     * Convert the given screen-based pixel coordinates to their
-     * corresponding tile-based coordinates.  Converted coordinates
-     * are placed in the given point object.
-     *
-     * @param sx the screen x-position pixel coordinate.
-     * @param sy the screen y-position pixel coordinate.
-     * @param tpos the point object to place coordinates in.
-     */
-    protected void screenToTile (int sx, int sy, Point tpos)
-    {
-        Point[] lx = _model.lineX, ly = _model.lineY;
-
-	// calculate line parallel to the y-axis (from mouse pos to x-axis)
-	ly[0].setLocation(sx, sy);
-	int bY = (int)(sy - (_model.slopeY * sx));
-
-	// determine intersection of x- and y-axis lines
-	ly[1].x = (int)((bY - (_model.bX + _model.origin.y)) /
-                        (_model.slopeX - _model.slopeY));
-	ly[1].y = (int)((_model.slopeY * ly[1].x) + bY);
-
-	// determine distance of mouse pos along the x axis
-	int xdist = (int) MathUtil.distance(
-            lx[0].x, lx[0].y, ly[1].x, ly[1].y);
-	tpos.x = (int)(xdist / _model.tilelen);
-
-	// determine distance of mouse pos along the y-axis
-	int ydist = (int) MathUtil.distance(
-            ly[0].x, ly[0].y, ly[1].x, ly[1].y);
-	tpos.y = (int)(ydist / _model.tilelen);
-    }
-
-    /**
-     * Convert the given tile-based coordinates to their corresponding
-     * screen-based pixel coordinates.  Converted coordinates are
-     * placed in the given point object.
-     *
-     * @param x the tile x-position coordinate.
-     * @param y the tile y-position coordinate.
-     * @param spos the point object to place coordinates in.
-     */
-    protected void tileToScreen (int x, int y, Point spos)
-    {
-        spos.x = _model.origin.x + ((x - y - 1) * _model.tilehwid);
-        spos.y = _model.origin.y + ((x + y) * _model.tilehhei);
     }
 
     public void setScene (Scene scene)
@@ -379,7 +330,7 @@ public class IsoSceneView implements EditableSceneView
     public void setTile (int x, int y, int lnum, Tile tile)
     {
 	Point tpos = new Point();
-        screenToTile(x, y, tpos);
+        IsoUtil.screenToTile(_model, x, y, tpos);
 	_scene.tiles[tpos.x][tpos.y][lnum] = tile;
     }
 
@@ -399,7 +350,8 @@ public class IsoSceneView implements EditableSceneView
 
         // create path from current loc to destination
         Path path = new Path(sprite.x, sprite.y);
-        path.addNode(x, y, Path.DIR_NORTH);
+	int dir = IsoUtil.getDirection(_model, sprite.x, sprite.y, x, y);
+        path.addNode(x, y, dir);
 
         return path;
     }

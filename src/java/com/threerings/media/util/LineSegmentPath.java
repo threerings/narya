@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.3 2001/08/02 21:02:56 shaper Exp $
+// $Id: LineSegmentPath.java,v 1.4 2001/08/03 22:23:47 shaper Exp $
 
 package com.threerings.miso.sprite;
 
@@ -19,14 +19,15 @@ public class Path
     public static final int NUM_DIRECTIONS = 8;
 
     /** Direction constants. */
-    public static final int DIR_SOUTH = 0;
-    public static final int DIR_SOUTHWEST = 1;
-    public static final int DIR_WEST = 2;
-    public static final int DIR_NORTHWEST = 3;
-    public static final int DIR_NORTH = 4;
-    public static final int DIR_NORTHEAST = 5;
-    public static final int DIR_EAST = 6;
-    public static final int DIR_SOUTHEAST = 7;
+    public static final int DIR_NONE = -1;
+    public static final int DIR_SOUTHWEST = 0;
+    public static final int DIR_WEST = 1;
+    public static final int DIR_NORTHWEST = 2;
+    public static final int DIR_NORTH = 3;
+    public static final int DIR_NORTHEAST = 4;
+    public static final int DIR_EAST = 5;
+    public static final int DIR_SOUTHEAST = 6;
+    public static final int DIR_SOUTH = 7;
 
     /**
      * Construct a <code>Path</code> object.

@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.2 2001/08/02 05:08:23 shaper Exp $
+// $Id: IsoSceneViewModel.java,v 1.3 2001/08/03 22:23:47 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -23,6 +23,9 @@ public class IsoSceneModel
     /** Tile dimensions and half-dimensions in the view. */
     public int tilewid, tilehei, tilehwid, tilehhei;
 
+    /** Number of fine coordinates on each axis within a tile. */
+    public int finegran;
+
     /** The bounds dimensions for the view. */
     public Dimension bounds;
 
@@ -44,6 +47,15 @@ public class IsoSceneModel
     /** The last calculated x- and y-axis mouse position tracking lines. */
     public Point lineX[], lineY[];
 
+    /** The length between fine coordinates in pixels. */
+    public float finelen;
+
+    /** The y-intercept of the x-axis line within a tile. */
+    public float fineBX;
+
+    /** The slope of the x- and y-axis lines within a tile. */
+    public float fineSlopeX, fineSlopeY;
+
     /** Whether tile coordinates should be drawn. */
     public boolean showCoords;
 
@@ -53,9 +65,22 @@ public class IsoSceneModel
     public IsoSceneModel ()
     {
         setTileDimensions(32, 16);
+	setFineGranularity(4);
         setBounds(600, 600);
         setOrigin(bounds.width / 2, -(9 * tilehei));
         showCoords = false;
+    }
+
+    /**
+     * Set the number of fine coordinates within a tile.  The
+     * granularity determines the number of coordinates on both the x-
+     * and y-axis.
+     *
+     * @param gran the number of fine coordinates on each axis.
+     */
+    public void setFineGranularity (int gran)
+    {
+	finegran = gran;
     }
 
     /**
@@ -124,12 +149,15 @@ public class IsoSceneModel
     }
 
     /**
-     * Pre-calculate the x-axis line (from tile origin to right end of
-     * x-axis) for later use in converting screen coordinates to tile
-     * coordinates.
+     * Pre-calculate the x-axis lines for later use in converting
+     * screen coordinates to tile coordinates and tile-based pixel
+     * coordinates to fine coordinates.
      */
     public void calculateXAxis ()
     {
+	// first calculate scene-based x-axis line for conversion from
+	// screen to tile coordinates
+
         // create the x- and y-axis lines
 	lineX = new Point[2];
 	lineY = new Point[2];
@@ -145,5 +173,16 @@ public class IsoSceneModel
         // determine the ending point
 	lineX[1].x = lineX[0].x + (tilehwid * Scene.TILE_WIDTH);
 	lineX[1].y = lineX[0].y + (int)((slopeX * lineX[1].x) + bX);
+
+	// next calculate tile-based x-axis line for conversion from
+	// tile-based pixel to fine coordinates
+
+	// calculate the edge length separating each fine coordinate
+	finelen = tilelen / (float)finegran;
+
+	// calculate the x-axis line
+	fineSlopeX = (float)tilehei / (float)tilewid;
+	fineBX = -(fineSlopeX * (float)tilehwid);
+	fineSlopeY = -fineSlopeX;
     }
 }
