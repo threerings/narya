@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.67 2001/10/24 00:55:08 shaper Exp $
+// $Id: IsoSceneView.java,v 1.68 2001/10/24 01:33:47 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -72,7 +72,7 @@ public class IsoSceneView implements SceneView
     public void paint (Graphics g)
     {
 	if (_scene == null) {
-            Log.info("Scene view painted with null scene.");
+            Log.warning("Scene view painted with null scene.");
             return;
         }
 
@@ -241,35 +241,9 @@ public class IsoSceneView implements SceneView
         // sort the dirty sprites and objects visually back-to-front
         DirtyItem items[] = _dirtyItems.sort();
 
-        // merge all dirty rectangles for each item into a single
-        // rectangle before painting
-        Rectangle dirtyRect = new Rectangle();
-        DirtyItem cur = null, last = null;
+        // render each item clipping to its dirty rectangle
         for (int ii = 0; ii < items.length; ii++) {
-            cur = items[ii];
-
-            if (last == null || !cur.equals(last)) {
-
-                if (last != null) {
-                    // paint the item with its full dirty rectangle
-                    // Log.info("Painting dirty item [item=" + last + "].");
-                    last.paint(gfx, dirtyRect);
-                }
-
-                // update the current dirty item
-                last = cur;
-                dirtyRect.setBounds(cur.dirtyRect);
-
-            } else {
-                // expand the item's dirty rectangle
-                dirtyRect.add(cur.dirtyRect);
-            }
-        }
-
-        if (cur != null) {
-            // paint the final dirty item
-            cur.paint(gfx, dirtyRect);
-            // Log.info("Painting dirty item [item=" + cur + "].");
+            items[ii].paint(gfx, items[ii].dirtyRect);
         }
     }
 
