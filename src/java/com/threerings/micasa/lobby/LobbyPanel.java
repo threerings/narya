@@ -1,5 +1,5 @@
 //
-// $Id: LobbyPanel.java,v 1.3 2001/10/09 18:20:08 mdb Exp $
+// $Id: LobbyPanel.java,v 1.4 2001/10/09 19:24:54 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -27,7 +27,7 @@ public class LobbyPanel
     public LobbyPanel (MiCasaContext ctx)
     {
         // we want a five pixel border around everything
-  	setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    	setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         // create our primary layout which divides the display in two
         // horizontally
@@ -49,6 +49,9 @@ public class LobbyPanel
         _main.add(label, GroupLayout.FIXED);
         _main.add(new ChatPanel(ctx));
 
+        // now add the main panel into the mix
+        add(_main);
+
         // create our sidebar panel
         gl = new VGroupLayout(GroupLayout.STRETCH);
         gl.setOffAxisPolicy(GroupLayout.STRETCH);
@@ -67,6 +70,11 @@ public class LobbyPanel
         sidePanel.add(label, GroupLayout.FIXED);
         _occupants = new OccupantList(ctx);
         sidePanel.add(_occupants);
+
+        JButton logoff = new JButton("Logoff");
+        logoff.addActionListener(Controller.DISPATCHER);
+        logoff.setActionCommand("logoff");
+        sidePanel.add(logoff, GroupLayout.FIXED);
 
         // add our sidebar panel into the mix
         add(sidePanel, GroupLayout.FIXED);
