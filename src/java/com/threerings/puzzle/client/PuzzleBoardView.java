@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleBoardView.java,v 1.5 2003/12/05 05:15:03 mdb Exp $
+// $Id: PuzzleBoardView.java,v 1.6 2003/12/10 03:32:07 mdb Exp $
 
 package com.threerings.puzzle.client;
 
@@ -459,6 +459,9 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
     static {
         // create the puzzle fonts
         Font ofont = UIManager.getFont("Label.serifFont");
+        if (ofont == null) {
+            ofont = new Font("Helvetica", Font.PLAIN, 16);
+        }
         ofont = ofont.deriveFont((float)FONT_SIZES[0]);
         _fonts = new Font[FONT_SIZES.length];
         for (int ii = 0; ii < _fonts.length; ii++) {
