@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.25 2002/02/02 01:09:53 mdb Exp $
+// $Id: ViewerApp.java,v 1.26 2002/02/18 00:43:24 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -15,7 +15,6 @@ import com.samskivert.util.Config;
 import com.threerings.resource.ResourceManager;
 import com.threerings.media.ImageManager;
 
-import com.threerings.media.sprite.SpriteManager;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.bundle.BundledTileSetRepository;
 
@@ -84,14 +83,13 @@ public class ViewerApp
 	MisoContext ctx = new ContextImpl();
 
         // create the various managers
-        SpriteManager spritemgr = new SpriteManager();
         BundledComponentRepository crepo =
             new BundledComponentRepository(rmgr, imgr, "components");
         CharacterManager charmgr = new CharacterManager(crepo);
         charmgr.setCharacterClass(MisoCharacterSprite.class);
 
         // create our scene view panel
-        _panel = new ViewerSceneViewPanel(ctx, spritemgr, charmgr, crepo);
+        _panel = new ViewerSceneViewPanel(ctx, charmgr, crepo);
         _frame.setPanel(_panel);
 
         // load up the scene specified by the user

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.40 2002/02/17 23:48:27 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.41 2002/02/18 00:43:24 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -28,6 +28,7 @@ import com.threerings.media.util.PerformanceObserver;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.DisplayMisoScene;
+import com.threerings.miso.scene.IsoSceneViewModel;
 import com.threerings.miso.scene.MisoCharacterSprite;
 import com.threerings.miso.scene.SceneViewPanel;
 import com.threerings.miso.scene.util.IsoUtil;
@@ -39,21 +40,21 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     /**
      * Construct the panel and initialize it with a context.
      */
-    public ViewerSceneViewPanel (MisoContext ctx, SpriteManager spritemgr,
+    public ViewerSceneViewPanel (MisoContext ctx,
                                  CharacterManager charmgr,
                                  ComponentRepository crepo)
     {
-	super(ctx.getConfig(), spritemgr);
+	super(new IsoSceneViewModel(ctx.getConfig()));
 
         // create the character descriptors
         _descUser = CastUtil.getRandomDescriptor(crepo);
         _descDecoy = CastUtil.getRandomDescriptor(crepo);
 
         // create the manipulable sprite
-        _sprite = createSprite(spritemgr, charmgr, _descUser);
+        _sprite = createSprite(_spritemgr, charmgr, _descUser);
 
         // create the decoy sprites
-        createDecoys(spritemgr, charmgr);
+        createDecoys(_spritemgr, charmgr);
 
         // listen to the desired events
 	addMouseListener(new MouseAdapter() {

@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.1 2002/02/17 23:48:38 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.2 2002/02/18 00:43:23 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -20,7 +20,6 @@ import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.bundle.BundledTileSetRepository;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.SceneViewPanel;
 import com.threerings.miso.util.MisoContext;
 import com.threerings.miso.util.MisoUtil;
 
@@ -75,7 +74,7 @@ public class ScrollingTestApp
         SpriteManager spritemgr = new SpriteManager();
 
         // create our scene view panel
-        _panel = new SceneViewPanel(_config, spritemgr);
+        _panel = new SceneViewPanel(new IsoSceneViewModel(_config));
         _frame.setPanel(_panel);
 
         // set the scene to our scrolling scene
