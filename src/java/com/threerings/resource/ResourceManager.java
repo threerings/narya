@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.20 2003/01/16 22:50:29 mdb Exp $
+// $Id: ResourceManager.java,v 1.21 2003/01/18 19:56:45 mdb Exp $
 
 package com.threerings.resource;
 
@@ -18,6 +18,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -249,6 +250,7 @@ public class ResourceManager
                         // wake things up as the download is finished
                         lock.notify();
                     }
+                    bundlesDownloaded();
                 }
             }
 
@@ -295,6 +297,9 @@ public class ResourceManager
             }
 
             public void downloadProgress (int percent, long remaining) {
+                if (percent == 100) {
+                    bundlesDownloaded();
+                }
                 obs.downloadProgress(percent, remaining);
             }
 
@@ -302,6 +307,22 @@ public class ResourceManager
                 obs.downloadFailed(e);
             }
         });
+    }
+
+    /**
+     * Called when our resource bundle downloads have completed.
+     */
+    protected void bundlesDownloaded ()
+    {
+        // let our bundles know that it's ok for them to access their
+        // resource files
+        Iterator iter = _sets.values().iterator();
+        while (iter.hasNext()) {
+            ResourceBundle[] bundles = (ResourceBundle[])iter.next();
+            for (int ii = 0; ii < bundles.length; ii++) {
+                bundles[ii].sourceIsReady();
+            }
+        }
     }
 
     /**

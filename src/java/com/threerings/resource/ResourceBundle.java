@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.7 2003/01/14 02:51:40 mdb Exp $
+// $Id: ResourceBundle.java,v 1.8 2003/01/18 19:56:45 mdb Exp $
 
 package com.threerings.resource;
 
@@ -32,7 +32,6 @@ public class ResourceBundle
     public ResourceBundle (File source)
     {
         _source = source;
-        _sourceLastMod = source.lastModified();
     }
 
     /**
@@ -42,6 +41,16 @@ public class ResourceBundle
     public File getSource ()
     {
         return _source;
+    }
+
+    /**
+     * Called by the resource manager once it has ensured that our
+     * resource jar file is up to date and ready for reading.
+     */
+    public void sourceIsReady ()
+    {
+        // make a note of our source's last modification time
+        _sourceLastMod = _source.lastModified();
     }
 
     /**
@@ -79,7 +88,9 @@ public class ResourceBundle
     public File getResourceFile (String path)
         throws IOException
     {
-        resolveJarFile();
+        if (resolveJarFile()) {
+            return null;
+        }
 
         // compute the path to our temporary file
         String tpath = StringUtil.md5hex(_source.getPath() + "%" + path);
@@ -93,6 +104,7 @@ public class ResourceBundle
         // make sure said resource exists in the first place
         JarEntry entry = _jarSource.getJarEntry(path);
         if (entry == null) {
+//             Log.info("Couldn't locate " + path + " in " + _jarSource + ".");
             return null;
         }
 
@@ -116,7 +128,9 @@ public class ResourceBundle
     public boolean containsResource (String path)
     {
         try {
-            resolveJarFile();
+            if (resolveJarFile()) {
+                return false;
+            }
             return (_jarSource.getJarEntry(path) != null);
         } catch (IOException ioe) {
             return false;
@@ -143,14 +157,25 @@ public class ResourceBundle
      * antics until and unless doing so is required, and because the
      * resource manager would like to be able to create bundles before the
      * associated files have been fully downloaded.
+     *
+     * @return true if the jar file could not yet be resolved because we
+     * haven't yet heard from the resource manager that it is ready for us
+     * to access, false if all is cool.
      */
-    protected void resolveJarFile ()
+    protected boolean resolveJarFile ()
         throws IOException
     {
+        // if we don't yet have our resource bundle's last mod time, we
+        // have not yet been notified that it is ready
+        if (_sourceLastMod == 0) {
+            return true;
+        }
+
         try {
             if (_jarSource == null) {
                 _jarSource = new JarFile(_source);
             }
+            return false;
 
         } catch (IOException ioe) {
             throw new NestableIOException(
