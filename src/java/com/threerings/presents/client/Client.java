@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.30 2002/09/20 00:54:39 mdb Exp $
+// $Id: Client.java,v 1.31 2002/10/08 22:00:27 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -574,10 +574,6 @@ public class Client
     /** The difference between the server clock and the client clock
      * (estimated immediately after logging on). */
     protected long _serverDelta;
-
-    /** The time from which server ticks are computed (converted into
-     * client time. */
-    protected long _serverStartStamp;
 
     /** Used when establishing our clock delta between the client and
      * server. */
