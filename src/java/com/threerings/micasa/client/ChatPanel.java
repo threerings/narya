@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.11 2001/12/17 01:06:35 mdb Exp $
+// $Id: ChatPanel.java,v 1.12 2002/02/26 05:48:11 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -32,6 +32,8 @@ import com.samskivert.swing.HGroupLayout;
 import com.samskivert.swing.VGroupLayout;
 import com.samskivert.swing.event.AncestorAdapter;
 
+import com.threerings.util.MessageBundle;
+
 import com.threerings.crowd.chat.ChatCodes;
 import com.threerings.crowd.chat.ChatDirector;
 import com.threerings.crowd.chat.ChatDisplay;
@@ -39,15 +41,15 @@ import com.threerings.crowd.client.OccupantObserver;
 import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
-import com.threerings.crowd.util.CrowdContext;
 
 import com.threerings.micasa.Log;
+import com.threerings.micasa.util.MiCasaContext;
 
 public class ChatPanel
     extends JPanel
     implements ActionListener, ChatDisplay, OccupantObserver, PlaceView
 {
-    public ChatPanel (CrowdContext ctx)
+    public ChatPanel (MiCasaContext ctx)
     {
         // keep this around for later
         _ctx = ctx;
@@ -241,8 +243,19 @@ public class ChatPanel
     }
 
     // documentation inherited
-    public void displaySystemMessage (String type, String message)
+    public void displaySystemMessage (
+        String type, String bundle, String message)
     {
+        // translate the message
+        MessageBundle msgb = _ctx.getMessageManager().getBundle(bundle);
+        if (msgb == null) {
+            Log.warning("No message bundle available to translate message " +
+                        "[type=" + type + ", bundle=" + bundle +
+                        ", message=" + message + "].");
+        } else {
+            message = msgb.xlate(message);
+        }
+
         // stick a newline on the message
         message = message + "\n";
 
@@ -324,7 +337,7 @@ public class ChatPanel
         return size;
     }
 
-    protected CrowdContext _ctx;
+    protected MiCasaContext _ctx;
     protected ChatDirector _chatdtr;
 
     protected boolean _focus = true;

@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaClient.java,v 1.9 2002/01/19 04:15:25 mdb Exp $
+// $Id: MiCasaClient.java,v 1.10 2002/02/26 05:48:11 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -10,6 +10,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import com.samskivert.util.Config;
+
+import com.threerings.util.MessageManager;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.DObjectManager;
@@ -102,6 +104,7 @@ public class MiCasaClient
         _locdir = new LocationDirector(_ctx);
         _occmgr = new OccupantManager(_ctx);
         _pardtr = new ParlorDirector(_ctx);
+        _msgmgr = new MessageManager(MESSAGE_MANAGER_PREFIX);
     }
 
     // documentation inherited
@@ -167,6 +170,11 @@ public class MiCasaClient
         {
             return _frame;
         }
+
+        public MessageManager getMessageManager ()
+        {
+            return _msgmgr;
+        }
     }
 
     protected MiCasaContext _ctx;
@@ -177,4 +185,9 @@ public class MiCasaClient
     protected LocationDirector _locdir;
     protected OccupantManager _occmgr;
     protected ParlorDirector _pardtr;
+    protected MessageManager _msgmgr;
+
+    /** The prefix prepended to localization bundle names before looking
+     * them up in the classpath. */
+    protected static final String MESSAGE_MANAGER_PREFIX = "rsrc.messages";
 }
