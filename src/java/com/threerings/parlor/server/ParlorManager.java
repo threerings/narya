@@ -1,5 +1,5 @@
 //
-// $Id: ParlorManager.java,v 1.6 2001/10/06 00:25:29 mdb Exp $
+// $Id: ParlorManager.java,v 1.7 2001/10/09 20:20:35 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -168,8 +168,7 @@ public class ParlorManager
     protected void processAcceptedInvitation (Invitation invite)
     {
         try {
-//              Log.info("Creating game manager [invite=" + invite +
-//                       ", class=" + gmclass.getName() + "].");
+            Log.info("Creating game manager [invite=" + invite + "].");
 
             // create the game manager and begin it's initialization
             // process. the game manager will take care of notifying the
