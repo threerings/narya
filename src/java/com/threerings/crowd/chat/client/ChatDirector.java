@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.39 2002/11/08 07:28:23 ray Exp $
+// $Id: ChatDirector.java,v 1.40 2002/11/13 01:29:41 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -96,6 +96,11 @@ public class ChatDirector extends BasicDirector
      */
     public void addChatDisplay (ChatDisplay display)
     {
+        if (_displays.contains(display)) {
+            Log.warning("Tried to add ChatDisplay more than once!");
+            Log.logStackTrace(new Exception());
+            return;
+        }
         _displays.add(display);
     }
 
