@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.39 2003/04/30 06:42:50 mdb Exp $
+// $Id: FrameManager.java,v 1.40 2003/05/02 15:09:57 mdb Exp $
 
 package com.threerings.media;
 
@@ -681,7 +681,12 @@ public abstract class FrameManager
                     start = _timer.getElapsedMillis();
                 }
                 try {
-                    Thread.sleep(_sleepGranularity.getValue());
+                    int sleepGran = _sleepGranularity.getValue();
+                    if (sleepGran > 0) {
+                        Thread.sleep(sleepGran);
+                    } else {
+                        Thread.yield();
+                    }
                 } catch (InterruptedException ie) {
                     Log.warning("Ticker thread interrupted.");
                 }
