@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.2 2003/05/16 00:49:44 mdb Exp $
+// $Id: AStarPathUtil.java,v 1.3 2004/01/12 05:52:05 mdb Exp $
 
 package com.threerings.miso.util;
 
@@ -58,11 +58,15 @@ public class AStarPathUtil
      * @param ay the starting y-position in tile coordinates.
      * @param bx the ending x-position in tile coordinates.
      * @param by the ending y-position in tile coordinates.
+     * @param partial if true, a partial path will be returned that gets
+     * us as close as we can to the goal in the event that a complete path
+     * cannot be located.
      *
      * @return the list of points in the path.
      */
     public static List getPath (TraversalPred tpred, Object trav,
-                                int longest, int ax, int ay, int bx, int by)
+                                int longest, int ax, int ay, int bx, int by,
+                                boolean partial)
     {
 	Info info = new Info(tpred, trav, longest, bx, by);
 
@@ -76,6 +80,10 @@ public class AStarPathUtil
 	info.open.add(s);
         _considered = 1;
 
+        // track the best path
+        float bestdist = Float.MAX_VALUE;
+        Node bestpath = null;
+
 	// while there are more nodes on the open list
 	while (info.open.size() > 0) {
 
@@ -87,7 +95,13 @@ public class AStarPathUtil
 	    if (n.x == bx && n.y == by) {
 		// construct and return the acceptable path
 		return getNodePath(n);
-	    }
+	    } else if (partial) {
+                float pathdist = MathUtil.distance(n.x, n.y, bx, by);
+                if (pathdist < bestdist) {
+                    bestdist = pathdist;
+                    bestpath = n;
+                }
+            }
 
 	    // consider each successor of the node
 	    considerStep(info, n, n.x - 1, n.y - 1, DIAGONAL_COST);
@@ -102,6 +116,11 @@ public class AStarPathUtil
 	    // push the node on the closed list
 	    info.closed.add(n);
 	}
+
+        // return the best path we could find if we were asked to do so
+        if (bestpath != null) {
+            return getNodePath(bestpath);
+        }
 
 	// no path found
 	return null;
