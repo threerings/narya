@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.29 2002/11/26 02:39:40 ray Exp $
+// $Id: SoundManager.java,v 1.30 2002/11/26 02:46:52 ray Exp $
 
 package com.threerings.media;
 
@@ -632,7 +632,7 @@ public class SoundManager
                 return name.startsWith(namePrefix);
             }
         });
-        if (list != null) {
+        if ((list != null) && (list.length > 0)) {
             try {
                 return new FileInputStream(list[0]);
             } catch (Exception e) {
