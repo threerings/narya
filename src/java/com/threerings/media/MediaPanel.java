@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.31 2003/04/01 03:38:03 mdb Exp $
+// $Id: MediaPanel.java,v 1.32 2003/04/15 00:39:20 mdb Exp $
 
 package com.threerings.media;
 
@@ -158,7 +158,8 @@ public class MediaPanel extends JComponent
     }
 
     /**
-     * Adds an animation to this panel.
+     * Adds an animation to this panel. Animations are automatically
+     * removed when they finish.
      */
     public void addAnimation (Animation anim)
     {
@@ -166,9 +167,11 @@ public class MediaPanel extends JComponent
     }
 
     /**
-     * Removes an animation from this panel.
+     * Aborts a currently running animation and removes it from this
+     * panel. Animations are normally automatically removed when they
+     * finish.
      */
-    public void removeAnimation (Animation anim)
+    public void abortAnimation (Animation anim)
     {
         _animmgr.unregisterAnimation(anim);
     }
