@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.11 2002/06/11 00:52:37 mdb Exp $
+// $Id: MediaPanel.java,v 1.12 2002/06/11 21:40:52 mdb Exp $
 
 package com.threerings.media;
 
@@ -129,48 +129,18 @@ public class MediaPanel extends JComponent
      */
     public void setPath (Path path)
     {
-        Dimension vsize = getViewSize();
-        _porigin.setLocation(vsize.width/2, vsize.height/2);
-        _pathable = new Pathable() {
-            // documentation inherited from interface
-            public int getX () {
-                return _porigin.x;
-            }
-
-            // documentation inherited from interface
-            public int getY () {
-                return _porigin.y;
-            }
-
-            // documentation inherited from interface
-            public void setLocation (int x, int y) {
-                // make a note of the scrolling that we'll need to do to
-                // actually follow this path
-                _dx = x - _porigin.x;
-                _dy = y - _porigin.y;
-
-                // update our origin
-                _porigin.x = x;
-                _porigin.y = y;
-            }
-
-            // documentation inherited from interface
-            public void setOrientation (int orient) {
-                MediaPanel.this.setOrientation(orient);
-            }
-
-            // documentation inherited from interface
-            public void pathBeginning () {
-                MediaPanel.this.pathBeginning();
-            }
-
-            // documentation inherited from interface
-            public void pathCompleted () {
-                MediaPanel.this.pathCompleted();
-            }
-        };
+        _pathable = createPathable();
         _path = path;
         _path.init(_pathable, System.currentTimeMillis());
+    }
+
+    /**
+     * Creates a pathable that will be used to scroll the view along a
+     * path.
+     */
+    protected Pathable createPathable ()
+    {
+        return new PanelPathable();
     }
 
     /**
@@ -356,42 +326,8 @@ public class MediaPanel extends JComponent
         int width = getWidth(), height = getHeight();
         _dx = 0; _dy = 0;
 
-        // if scrolling is enabled, determine the scrolling delta to be
-        // used and do the business
-        if (_ttime != 0) {
-            // if we've blown past our allotted time, we want to scroll
-            // the rest of the way
-            if (tickStamp > _ttime) {
-                _dx = _scrollx;
-                _dy = _scrolly;
-
-//                 Log.info("Scrolling rest [dx=" + _dx + ", dy=" + _dy + "].");
-
-            } else {
-                // otherwise figure out how many milliseconds have gone by
-                // since we last scrolled and scroll the requisite amount
-                float dt = (float)(tickStamp - _last);
-                float rt = (float)(_ttime - _last);
-
-                // our delta is the remaining distance multiplied by the
-                // time delta divided by the remaining time
-                _dx = Math.round((float)(_scrollx * dt) / rt);
-                _dy = Math.round((float)(_scrolly * dt) / rt);
-
-//                 Log.info("Scrolling delta [dt=" + dt + ", rt=" + rt +
-//                          ", dx=" + _dx + ", dy=" + _dy +
-//                          ", leftx=" + (_scrollx-_dx) +
-//                          ", lefty=" + (_scrolly-_dy) + "].");
-            }
-
-            // otherwise, if we're following a path, give that a chance to
-            // scroll us along
-        } else if (_path != null) {
-            // this will update our _dx and _dy if the path wishes us to
-            // scroll
-            _path.tick(_pathable, tickStamp);
-        }
-
+        // figure out if we should be scrolling and by how much
+        computeScrollDeltas(tickStamp);
 
         // and add invalid rectangles for the exposed areas
         if (_dx > 0) {
@@ -421,10 +357,6 @@ public class MediaPanel extends JComponent
             // keep track of the last time we scrolled
             _last = tickStamp;
 
-            // subtract our scrolled deltas from the distance remaining
-            _scrollx -= _dx;
-            _scrolly -= _dy;
-
             // if we've reached our desired position, finish the job; if
             // we're being scrolled by a path, the path will let us know
             // when we're done (via pathCompleted()) and that will trigger
@@ -442,6 +374,69 @@ public class MediaPanel extends JComponent
         // make a note that the next paint will correspond to a call to
         // tick()
         _tickPaintPending = true;
+    }
+
+    /**
+     * Called at the beginning of each tick, this method determines
+     * whether or not the view should be scrolled because of standard
+     * methods. These methods include a call to {@link #setScrolling} or a
+     * call to {@link #setPath} which causes the view to follow a path. A
+     * derived class could override this method to compute custom scroll
+     * deltas, which it would supply via a call to {@link
+     * #setScrollDeltas} at some point during the execution of the
+     * overridden method.
+     */
+    protected void computeScrollDeltas (long tickStamp)
+    {
+        // if scrolling is enabled, determine the scrolling delta to be
+        // used and do the business
+        if (_ttime != 0) {
+            // if we've blown past our allotted time, we want to scroll
+            // the rest of the way
+            if (tickStamp > _ttime) {
+                setScrollDeltas(_scrollx, _scrolly);
+
+//                 Log.info("Scrolling rest [dx=" + _dx + ", dy=" + _dy + "].");
+
+            } else {
+                // otherwise figure out how many milliseconds have gone by
+                // since we last scrolled and scroll the requisite amount
+                float dt = (float)(tickStamp - _last);
+                float rt = (float)(_ttime - _last);
+
+                // our delta is the remaining distance multiplied by the
+                // time delta divided by the remaining time
+                setScrollDeltas(Math.round((float)(_scrollx * dt) / rt),
+                                Math.round((float)(_scrolly * dt) / rt));
+
+//                 Log.info("Scrolling delta [dt=" + dt + ", rt=" + rt +
+//                          ", dx=" + _dx + ", dy=" + _dy +
+//                          ", leftx=" + (_scrollx-_dx) +
+//                          ", lefty=" + (_scrolly-_dy) + "].");
+            }
+
+            // subtract our scrolled deltas from the distance remaining
+            _scrollx -= _dx;
+            _scrolly -= _dy;
+
+            // otherwise, if we're following a path, give that a chance to
+            // scroll us along
+        } else if (_path != null) {
+            // this will update our _dx and _dy if the path wishes us to
+            // scroll
+            _path.tick(_pathable, tickStamp);
+        }
+    }
+
+    /**
+     * This can be called by derived classes during the beginning of the
+     * tick to instruct the view to scroll by the specified amount on the
+     * tick in question.
+     */
+    protected void setScrollDeltas (int dx, int dy)
+    {
+        _dx = dx;
+        _dy = dy;
     }
 
     /**
@@ -527,8 +522,8 @@ public class MediaPanel extends JComponent
 
 //         if (_path != null) {
 //             Dimension vsize = getViewSize();
-//             int ox = _porigin.x - vsize.width/2;
-//             int oy = _porigin.y - vsize.height/2;
+//             int ox = _pathable.getX() - vsize.width/2;
+//             int oy = _pathable.getY() - vsize.height/2;
 //             gfx.translate(-ox, -oy);
 //             _path.paint(gfx);
 //             gfx.translate(ox, oy);
@@ -635,6 +630,56 @@ public class MediaPanel extends JComponent
         return getSize();
     }
 
+    /**
+     * Used when causing the view to follow a path.
+     */
+    protected class PanelPathable implements Pathable
+    {
+        public PanelPathable ()
+        {
+            Dimension vsize = getViewSize();
+            _porigin = new Point(vsize.width/2, vsize.height/2);
+        }
+
+        // documentation inherited from interface
+        public int getX () {
+            return _porigin.x;
+        }
+
+        // documentation inherited from interface
+        public int getY () {
+            return _porigin.y;
+        }
+
+        // documentation inherited from interface
+        public void setLocation (int x, int y) {
+            // make a note of the scrolling that we'll need to do to
+            // actually follow this path
+            setScrollDeltas(x - _porigin.x, y - _porigin.y);
+
+            // update our origin
+            _porigin.x = x;
+            _porigin.y = y;
+        }
+
+        // documentation inherited from interface
+        public void setOrientation (int orient) {
+            MediaPanel.this.setOrientation(orient);
+        }
+
+        // documentation inherited from interface
+        public void pathBeginning () {
+            MediaPanel.this.pathBeginning();
+        }
+
+        // documentation inherited from interface
+        public void pathCompleted () {
+            MediaPanel.this.pathCompleted();
+        }
+
+        protected Point _porigin;
+    }
+
     /** The frame manager with whom we register. */
     protected FrameManager _framemgr;
 
@@ -670,9 +715,6 @@ public class MediaPanel extends JComponent
 
     /** The pathable we use to follow the path. */
     protected Pathable _pathable;
-
-    /** The origin of the view as represented to the path. */
-    protected Point _porigin = new Point();
 
     /** Used to correlate tick()s with paint()s. */
     protected boolean _tickPaintPending = false;
