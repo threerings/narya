@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.45 2003/08/08 21:41:10 mdb Exp $
+// $Id: FrameManager.java,v 1.46 2003/08/08 23:55:06 mdb Exp $
 
 package com.threerings.media;
 
@@ -112,8 +112,8 @@ public abstract class FrameManager
         MediaTimer timer = null;
         try {
             timer = (MediaTimer)Class.forName(PERF_TIMER).newInstance();
-        } catch (Exception e) {
-            Log.info("Can't use PerfTimer (" + e + ") reverting to " +
+        } catch (Throwable t) {
+            Log.info("Can't use PerfTimer (" + t + ") reverting to " +
                      "System.currentTimeMillis() based timer.");
             timer = new SystemMediaTimer();
         }
