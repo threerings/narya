@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.28 2002/04/19 21:16:42 ray Exp $
+// $Id: GameManager.java,v 1.29 2002/04/19 21:40:38 ray Exp $
 
 package com.threerings.parlor.game;
 
@@ -85,9 +85,6 @@ public class GameManager extends PlaceManager
 
             // set up a delegate op for AI ticking
             _tickAIOp = new TickAIDelegateOp();
-
-            // and register ourselves to receive AI ticks
-            AIGameTicker.registerAIGame(this);
         }
 
         _AIs[pidx] = skill;
@@ -139,17 +136,6 @@ public class GameManager extends PlaceManager
                 CrowdServer.invmgr.sendNotification(
                     bobj.getOid(), MODULE_NAME, GAME_READY_NOTIFICATION, args);
             }
-        }
-    }
-
-    // documentation inherited
-    public void shutdown ()
-    {
-        super.shutdown();
-
-        // also remove ourselves from the AIticker, if applicable
-        if (_AIs != null) {
-            AIGameTicker.unregisterAIGame(this);
         }
     }
 
@@ -250,6 +236,11 @@ public class GameManager extends PlaceManager
                 ((GameManagerDelegate)delegate).gameDidStart();
             }
         });
+
+        // and register ourselves to receive AI ticks
+        if (_AIs != null) {
+            AIGameTicker.registerAIGame(this);
+        }
     }
 
     /**
@@ -299,6 +290,11 @@ public class GameManager extends PlaceManager
      */
     protected void gameDidEnd ()
     {
+        // remove ourselves from the AIticker, if applicable
+        if (_AIs != null) {
+            AIGameTicker.unregisterAIGame(this);
+        }
+
         // let our delegates do their business
         applyToDelegates(new DelegateOp() {
             public void apply (PlaceManagerDelegate delegate) {
@@ -369,6 +365,8 @@ public class GameManager extends PlaceManager
     {
         if (event.getName().equals(GameObject.STATE)) {
             switch (event.getIntValue()) {
+            case GameObject.CANCELLED:
+                // fall through to GAME_OVER case
             case GameObject.GAME_OVER:
                 // now we do our end of game processing
                 gameDidEnd();
@@ -410,6 +408,9 @@ public class GameManager extends PlaceManager
         }
     }
 
+    /**
+     * A helper operation to distribute AI ticks to our delegates.
+     */
     protected class TickAIDelegateOp implements DelegateOp
     {
         public void apply (PlaceManagerDelegate delegate) {

@@ -1,5 +1,5 @@
 //
-// $Id: GameManagerDelegate.java,v 1.3 2002/04/19 21:16:42 ray Exp $
+// $Id: GameManagerDelegate.java,v 1.4 2002/04/19 21:40:38 ray Exp $
 
 package com.threerings.parlor.game;
 
@@ -35,7 +35,8 @@ public class GameManagerDelegate extends PlaceManagerDelegate
     }
 
     /**
-     * Called by the manager when we should do some AI.
+     * Called by the manager when we should do some AI. Only called while
+     * the game is IN_PLAY.
      *
      * @param pidx the player index to fake some gameplay for.
      * @param skill the base skill level of the AI (0 - 100 inclusive).
