@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.38 2003/05/08 05:46:45 mdb Exp $
+// $Id: MediaPanel.java,v 1.39 2003/08/08 21:39:29 mdb Exp $
 
 package com.threerings.media;
 
@@ -534,7 +534,7 @@ public class MediaPanel extends JComponent
             protected void adjusted (boolean newValue) {
                 // clear out some things if we're turned off
                 if (!newValue) {
-                    _perfRect = null;
+                    _perfLabel = null;
                 }
             }
         };
