@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.9 2001/07/19 19:30:14 mdb Exp $
+// $Id: PresentsClient.java,v 1.10 2001/07/23 21:13:56 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -29,10 +29,10 @@ import com.threerings.cocktail.cher.server.net.*;
 public class Client implements Subscriber, MessageHandler
 {
     /**
-     * Constructs a new client instance bound to the specified username
-     * and initially associated with the specified connection instance.
+     * Initializes this client instance with the specified username and
+     * connection instance.
      */
-    public Client (ClientManager cmgr, String username, Connection conn)
+    public void init (ClientManager cmgr, String username, Connection conn)
     {
         _cmgr = cmgr;
         _username = username;
@@ -60,7 +60,8 @@ public class Client implements Subscriber, MessageHandler
                 return false;
             }
         };
-        CherServer.omgr.createObject(ClientObject.class, sub, false);
+        Class clobjClass = _cmgr.getClientObjectClass();
+        CherServer.omgr.createObject(clobjClass, sub, false);
     }
 
     /**

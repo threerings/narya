@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.5 2001/06/09 23:39:04 mdb Exp $
+// $Id: ClientManager.java,v 1.6 2001/07/23 21:13:56 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import com.threerings.cocktail.cher.Log;
+import com.threerings.cocktail.cher.data.ClientObject;
 import com.threerings.cocktail.cher.net.Credentials;
 import com.threerings.cocktail.cher.server.net.*;
 
@@ -27,6 +28,59 @@ public class ClientManager implements ConnectionObserver
     {
         // register ourselves as a connection observer
         conmgr.addConnectionObserver(this);
+    }
+
+    /**
+     * Instructs the client manager to construct instances of this derived
+     * class of <code>Client</code> to managed newly accepted client
+     * connections.
+     *
+     * @see Client
+     */
+    public void setClientClass (Class clientClass)
+    {
+        // sanity check
+        if (!Client.class.isAssignableFrom(clientClass)) {
+            Log.warning("Requested to use client class that does not " +
+                        "derive from Client " +
+                        "[class=" + clientClass.getName() + "].");
+            return;
+        }
+
+        // make a note of it
+        _clientClass = clientClass;
+    }
+
+    /**
+     * Instructs the client to create an instance of this
+     * <code>ClientObject</code> derived class when creating the
+     * distributed object that corresponds to a particular client session.
+     *
+     * @see com.threerings.cocktail.cher.data.ClientObject
+     */
+    public void setClientObjectClass (Class clobjClass)
+    {
+        // sanity check
+        if (!ClientObject.class.isAssignableFrom(clobjClass)) {
+            Log.warning("Requested to use client object class that does " +
+                        "not derive from ClientObject " +
+                        "[class=" + clobjClass.getName() + "].");
+            return;
+        }
+
+        // make a note of it
+        _clobjClass = clobjClass;
+    }
+
+    /**
+     * Returns the class that should be used when creating a distributed
+     * object to accompany a particular client session. In general, this
+     * is only used by the <code>Client</code> object when it is setting
+     * up a client's session for the first time.
+     */
+    public Class getClientObjectClass ()
+    {
+        return _clobjClass;
     }
 
     /**
@@ -53,8 +107,16 @@ public class ClientManager implements ConnectionObserver
             Log.info("Session initiated [username=" + username +
                      ", conn=" + conn + "].");
             // create a new client and stick'em in the table
-            client = new Client(this, username, conn);
-            _usermap.put(username, conn);
+            try {
+                client = (Client)_clientClass.newInstance();
+                client.init(this, username, conn);
+                _usermap.put(username, conn);
+            } catch (Exception e) {
+                Log.warning("Failed to instantiate client instance to " +
+                            "manage new client connection " +
+                            "[conn=" + conn + "].");
+                Log.logStackTrace(e);
+            }
         }
 
         // map this connection to this client
@@ -129,4 +191,7 @@ public class ClientManager implements ConnectionObserver
 
     protected HashMap _usermap = new HashMap();
     protected HashMap _conmap = new HashMap();
+
+    protected Class _clientClass = Client.class;
+    protected Class _clobjClass = ClientObject.class;
 }
