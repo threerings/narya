@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.34 2003/03/25 23:05:58 mdb Exp $
+// $Id: FrameManager.java,v 1.35 2003/03/25 23:06:51 mdb Exp $
 
 package com.threerings.media;
 
@@ -468,7 +468,8 @@ public class FrameManager
         if (_fgfx == null) {
             _fgfx = _frame.getGraphics();
         }
-        Log.info("Restoring from back buffer " + StringUtil.toString(dirty) + ".");
+//         Log.info("Restoring from back buffer " +
+//                  StringUtil.toString(dirty) + ".");
         _fgfx.setClip(dirty);
         _fgfx.drawImage(_backimg, 0, 0, null);
         _fgfx.setClip(null);
