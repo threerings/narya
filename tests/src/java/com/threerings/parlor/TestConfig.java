@@ -39,6 +39,11 @@ public class TestConfig extends GameConfig
         return TestController.class;
     }
 
+    public String getBundleName ()
+    {
+        return "test";
+    }
+
     public String getManagerClassName ()
     {
         return "com.threerings.parlor.test.TestManager";

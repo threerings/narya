@@ -1,5 +1,5 @@
 //
-// $Id: DOMTest.java,v 1.11 2004/08/27 02:21:04 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -24,6 +24,7 @@ package com.threerings.presents.server;
 import junit.framework.Test;
 import junit.framework.TestCase;
 
+import com.threerings.presents.data.TestObject;
 import com.threerings.presents.dobj.*;
 
 /**

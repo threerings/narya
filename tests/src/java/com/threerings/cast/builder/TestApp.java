@@ -1,5 +1,5 @@
 //
-// $Id: TestApp.java,v 1.18 2004/08/27 02:20:54 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -44,7 +44,7 @@ public class TestApp
 
         ResourceManager rmgr = new ResourceManager("rsrc");
         rmgr.initBundles(
-            null, "config/resource/manager.properties", null, null);
+            null, "config/resource/manager.properties", null);
         ImageManager imgr = new ImageManager(rmgr, _frame);
 
         ComponentRepository crepo =

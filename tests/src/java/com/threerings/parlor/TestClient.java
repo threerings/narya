@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.13 2004/08/27 02:21:02 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,66 +21,38 @@
 
 package com.threerings.parlor;
 
-import com.samskivert.util.Config;
-import com.samskivert.util.Queue;
+import com.threerings.util.Name;
 
 import com.threerings.presents.client.*;
-import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.net.*;
 
-import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.client.*;
+import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.util.CrowdContext;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.client.*;
 import com.threerings.parlor.game.*;
 import com.threerings.parlor.util.ParlorContext;
 
-public class TestClient
-    implements Client.Invoker, ClientObserver, InvitationHandler,
-               InvitationResponseObserver
+public class TestClient extends com.threerings.crowd.client.TestClient
+    implements InvitationHandler, InvitationResponseObserver
 {
-    public TestClient (Credentials creds)
+    public TestClient (String username)
     {
-        // create our context
-        _ctx = new ParlorContextImpl();
+        super(username);
 
         // create the handles on our various services
-        _client = new Client(creds, this);
-        _locdir = new LocationDirector(_ctx);
-        _occdir = new OccupantDirector(_ctx);
         _pardtr = new ParlorDirector(_ctx);
 
         // register ourselves as the invitation handler
         _pardtr.setInvitationHandler(this);
-
-        // we want to know about logon/logoff
-        _client.addClientObserver(this);
-
-        // for test purposes, hardcode the server info
-        _client.setServer("localhost", 4007);
-    }
-
-    public void run ()
-    {
-        // log on
-        _client.logon();
-
-        // loop over our queue, running the runnables
-        while (true) {
-            Runnable run = (Runnable)_queue.get();
-            run.run();
-        }
-    }
-
-    public void invokeLater (Runnable run)
-    {
-        // queue it on up
-        _queue.append(run);
     }
 
     public void clientDidLogon (Client client)
     {
+        // we intentionally don't call super()
+
         Log.info("Client did logon [client=" + client + "].");
 
         // get a casted reference to our body object
@@ -90,37 +62,8 @@ public class TestClient
         if (_body.username.equals("inviter")) {
             // send the invitation
             TestConfig config = new TestConfig();
-            _pardtr.invite("invitee", config, this);
+            _pardtr.invite(new Name("invitee"), config, this);
         }
-    }
-
-    public void clientObjectDidChange (Client client)
-    {
-        Log.info("Client object did change [client=" + client + "].");
-    }
-
-    public void clientFailedToLogon (Client client, Exception cause)
-    {
-        Log.info("Client failed to logon [client=" + client +
-                 ", cause=" + cause + "].");
-    }
-
-    public void clientConnectionFailed (Client client, Exception cause)
-    {
-        Log.info("Client connection failed [client=" + client +
-                 ", cause=" + cause + "].");
-    }
-
-    public boolean clientWillLogoff (Client client)
-    {
-        Log.info("Client will logoff [client=" + client + "].");
-        return true;
-    }
-
-    public void clientDidLogoff (Client client)
-    {
-        Log.info("Client did logoff [client=" + client + "].");
-        System.exit(0);
     }
 
     public void invitationReceived (Invitation invite)
@@ -153,67 +96,31 @@ public class TestClient
                  ", config=" + config + "].");
     }
 
+    protected CrowdContext createContext ()
+    {
+        return (_ctx = new ParlorContextImpl());
+    }
+
     public static void main (String[] args)
     {
-        String username = System.getProperty("username", "test");
-        UsernamePasswordCreds creds =
-            new UsernamePasswordCreds(username, "test");
         // create our test client
-        TestClient tclient = new TestClient(creds);
+        TestClient tclient = new TestClient(
+            System.getProperty("username", "test"));
         // start it running
         tclient.run();
     }
 
-    protected class ParlorContextImpl implements ParlorContext
+    protected class ParlorContextImpl
+        extends com.threerings.crowd.client.TestClient.CrowdContextImpl
+        implements ParlorContext
     {
-        public Config getConfig ()
-        {
-            return null;
-        }
-
-        public Client getClient ()
-        {
-            return _client;
-        }
-
-        public DObjectManager getDObjectManager ()
-        {
-            return _client.getDObjectManager();
-        }
-
-        public LocationDirector getLocationDirector ()
-        {
-            return _locdir;
-        }
-
-        public OccupantDirector getOccupantDirector ()
-        {
-            return _occdir;
-        }
-
-        public void setPlaceView (PlaceView view)
-        {
-            // nothing to do because we don't create views
-        }
-
-        public void clearPlaceView (PlaceView view)
-        {
-            // nothing to do because we don't create views
-        }
-
         public ParlorDirector getParlorDirector ()
         {
             return _pardtr;
         }
     }
 
-    protected Client _client;
-    protected LocationDirector _locdir;
-    protected OccupantDirector _occdir;
-    protected ParlorDirector _pardtr;
     protected ParlorContext _ctx;
-
+    protected ParlorDirector _pardtr;
     protected BodyObject _body;
-
-    protected Queue _queue = new Queue();
 }

@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.16 2004/08/27 02:21:02 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,17 +22,20 @@
 package com.threerings.presents.client;
 
 import com.samskivert.util.Queue;
+import com.samskivert.util.RunQueue;
+
+import com.threerings.util.Name;
 
 import com.threerings.presents.Log;
+import com.threerings.presents.data.TestObject;
 import com.threerings.presents.dobj.*;
 import com.threerings.presents.net.*;
-import com.threerings.presents.server.TestObject;
 
 /**
  * A standalone test client.
  */
 public class TestClient
-    implements Client.Invoker, SessionObserver, Subscriber, EventListener,
+    implements RunQueue, SessionObserver, Subscriber, EventListener,
                TestService.TestFuncListener, TestService.TestOidListener,
                TestReceiver
 {
@@ -41,14 +44,21 @@ public class TestClient
         _client = client;
     }
 
-    public void invokeLater (Runnable run)
+    public void postRunnable (Runnable run)
     {
         // queue it on up
         _queue.append(run);
     }
 
+    public boolean isDispatchThread ()
+    {
+        return _main == Thread.currentThread();
+    }
+
     public void run ()
     {
+        _main = Thread.currentThread();
+
         // loop over our queue, running the runnables
         while (true) {
             Runnable run = (Runnable)_queue.get();
@@ -140,7 +150,7 @@ public class TestClient
     {
         TestClient tclient = new TestClient();
         UsernamePasswordCreds creds =
-            new UsernamePasswordCreds("test", "test");
+            new UsernamePasswordCreds(new Name("test"), "test");
         Client client = new Client(creds, tclient);
         tclient.setClient(client);
         client.addClientObserver(tclient);
@@ -150,6 +160,7 @@ public class TestClient
         tclient.run();
     }
 
+    protected Thread _main;
     protected Queue _queue = new Queue();
     protected Client _client;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepositoryTest.java,v 1.10 2004/08/27 02:20:55 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -42,7 +42,7 @@ public class BundledComponentRepositoryTest extends TestCase
         try {
             ResourceManager rmgr = new ResourceManager("rsrc");
             rmgr.initBundles(
-                null, "config/resource/manager.properties", null, null);
+                null, "config/resource/manager.properties", null);
             ImageManager imgr = new ImageManager(rmgr, null);
             BundledComponentRepository repo =
                 new BundledComponentRepository(rmgr, imgr, "components");

@@ -1,5 +1,5 @@
 //
-// $Id: BundledTileSetRepositoryTest.java,v 1.10 2004/08/27 02:20:58 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -41,7 +41,7 @@ public class BundledTileSetRepositoryTest extends TestCase
         try {
             ResourceManager rmgr = new ResourceManager("rsrc");
             rmgr.initBundles(
-                null, "config/resource/manager.properties", null, null);
+                null, "config/resource/manager.properties", null);
             BundledTileSetRepository repo = new BundledTileSetRepository(
                 rmgr, new ImageManager(rmgr, null), "tilesets");
             Iterator sets = repo.enumerateTileSets();

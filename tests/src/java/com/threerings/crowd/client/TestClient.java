@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.14 2004/08/27 02:20:55 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -23,26 +23,33 @@ package com.threerings.crowd.client;
 
 import com.samskivert.util.Config;
 import com.samskivert.util.Queue;
+import com.samskivert.util.RunQueue;
+
+import com.threerings.util.MessageManager;
+import com.threerings.util.Name;
 
 import com.threerings.presents.client.*;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.net.*;
 
 import com.threerings.crowd.Log;
+import com.threerings.crowd.chat.client.ChatDirector;
 import com.threerings.crowd.util.CrowdContext;
 
 public class TestClient
-    implements Client.Invoker, ClientObserver
+    implements RunQueue, ClientObserver
 {
-    public TestClient (Credentials creds)
+    public TestClient (String username)
     {
         // create our context
-        _ctx = new CrowdContextImpl();
+        _ctx = createContext();
 
         // create the handles on our various services
-        _client = new Client(creds, this);
+        _client = new Client(
+            new UsernamePasswordCreds(new Name(username), "test"), this);
         _locdir = new LocationDirector(_ctx);
         _occdir = new OccupantDirector(_ctx);
+        _chatdir = new ChatDirector(_ctx, new MessageManager("rsrc"), "global");
 
         // we want to know about logon/logoff
         _client.addClientObserver(this);
@@ -53,6 +60,8 @@ public class TestClient
 
     public void run ()
     {
+        _main = Thread.currentThread();
+
         // log on
         _client.logon();
 
@@ -63,10 +72,15 @@ public class TestClient
         }
     }
 
-    public void invokeLater (Runnable run)
+    public void postRunnable (Runnable run)
     {
         // queue it on up
         _queue.append(run);
+    }
+
+    public boolean isDispatchThread ()
+    {
+        return _main == Thread.currentThread();
     }
 
     public void clientDidLogon (Client client)
@@ -106,12 +120,15 @@ public class TestClient
         System.exit(0);
     }
 
+    protected CrowdContext createContext ()
+    {
+        return new CrowdContextImpl();
+    }
+
     public static void main (String[] args)
     {
-        UsernamePasswordCreds creds =
-            new UsernamePasswordCreds("test", "test");
         // create our test client
-        TestClient tclient = new TestClient(creds);
+        TestClient tclient = new TestClient("test");
         // start it running
         tclient.run();
     }
@@ -143,6 +160,11 @@ public class TestClient
             return _occdir;
         }
 
+        public ChatDirector getChatDirector ()
+        {
+            return _chatdir;
+        }
+
         public void setPlaceView (PlaceView view)
         {
             // nothing to do because we don't create views
@@ -155,9 +177,12 @@ public class TestClient
     }
 
     protected Client _client;
-    protected LocationDirector _locdir;
-    protected OccupantDirector _occdir;
     protected CrowdContext _ctx;
 
+    protected LocationDirector _locdir;
+    protected OccupantDirector _occdir;
+    protected ChatDirector _chatdir;
+
+    protected Thread _main;
     protected Queue _queue = new Queue();
 }

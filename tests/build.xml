@@ -4,10 +4,6 @@
   <!-- things you may want to change -->
   <property name="junit.fork"     value="true"/>
 
-  <!-- we want to access the environment -->
-  <property environment="env"/>
-  <property name="java.libraries" value="${env.JAVA_LIBS}"/>
-
   <!-- things you probably don't want to change -->
   <property name="test.dir"   value="."/>
   <property name="src.dir"    value="src/java"/>
@@ -22,15 +18,25 @@
   <path id="classpath">
     <pathelement location="${classes.dir}"/>
     <pathelement location="${narya.classes.dir}"/>
-    <fileset dir="${java.libraries}" includes="**/*.jar"/>
+    <fileset dir="../lib" includes="**/*.jar"/>
   </path>
 
-  <!-- generates .java files for all .dobj files -->
-  <target name="gendobj">
-    <apply executable="../bin/gendobj" failonerror="true">
-      <srcfile/>
-      <fileset dir="src/java" includes="**/*.dobj"/>
-    </apply>
+  <!-- generates additional methods for distributed object classes -->
+  <target name="gendobj" depends="prepare"> 
+    <taskdef name="dobj"
+             classname="com.threerings.presents.tools.GenDObjectTask"
+             classpathref="classpath"/>
+    <!-- make sure the dobject class files are all compiled -->
+    <javac srcdir="src/java" destdir="${classes.dir}"
+           debug="on" optimize="${build.optimize}" deprecation="on"
+           source="1.4" target="1.4">
+      <classpath refid="classpath"/>
+      <include name="**/*Object.java"/>
+    </javac>
+    <!-- now generate the associated files -->
+    <dobj classpathref="classpath">
+      <fileset dir="src/java" includes="**/*Object.java"/>
+    </dobj>
   </target>
 
   <!-- generates marshaller and dispatcher classes for all invocation
@@ -60,7 +66,7 @@
   </target>
 
   <!-- prepares the application directories -->
-  <target name="prepare" depends="gendobj">
+  <target name="prepare">
     <mkdir dir="${deploy.dir}"/>
     <mkdir dir="${classes.dir}"/>
     <copy todir="${classes.dir}">

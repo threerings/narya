@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.25 2004/08/27 02:21:01 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -93,7 +93,7 @@ public class ScrollingTestApp
         // we don't need to configure anything
         ResourceManager rmgr = new ResourceManager("rsrc");
         rmgr.initBundles(
-            null, "config/resource/manager.properties", null, null);
+            null, "config/resource/manager.properties", null);
         ImageManager imgr = new ImageManager(rmgr, _frame);
 	_tilemgr = new MisoTileManager(rmgr, imgr);
         _tilemgr.setTileSetRepository(
