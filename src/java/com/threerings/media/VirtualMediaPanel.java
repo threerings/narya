@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.25 2004/02/25 14:43:17 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.26 2004/03/28 00:36:39 ray Exp $
 
 package com.threerings.media;
 
@@ -359,17 +359,6 @@ public class VirtualMediaPanel extends MediaPanel
     {
         SwingUtilities.computeIntersection(
             _vbounds.x, _vbounds.y, getWidth(), getHeight(), dirty);
-    }
-
-    /**
-     * Used to compute our viewport offsets.
-     */
-    protected int centerWithInterest (int len, int vlen, int ix, int ilen)
-    {
-        // start out by centering on the region of interest
-        int tx = (ix - (len - ilen)/2);
-        // make sure that didn't push us off of the screen
-        return Math.min(Math.max(tx, 0), vlen-len);
     }
 
     // documentation inherited
