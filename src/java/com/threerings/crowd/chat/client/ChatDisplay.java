@@ -1,5 +1,5 @@
 //
-// $Id: ChatDisplay.java,v 1.4 2001/10/18 23:55:24 mdb Exp $
+// $Id: ChatDisplay.java,v 1.5 2001/12/16 21:46:46 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -17,10 +17,15 @@ public interface ChatDisplay
      * method after the speak message is accepted by the server and
      * broadcast to everyone in the place.
      *
+     * @param type {@link ChatCodes.PLACE_CHAT_TYPE} for a speak message
+     * delivered via the place object, or for messages delivered via an
+     * auxilliary chat object, the type code provided when that auxilliary
+     * object was registered.
      * @param speaker the username of the speaker.
      * @param message the text of the message.
      */
-    public void displaySpeakMessage (String speaker, String message);
+    public void displaySpeakMessage (
+        String type, String speaker, String message);
 
     /**
      * Called to display a tell message. A tell message is one that is
@@ -39,9 +44,13 @@ public interface ChatDisplay
      * server and should be displayed visually differently from speak
      * messages.
      *
+     * @param type {@link ChatCodes.PLACE_CHAT_TYPE} for a speak message
+     * delivered via the place object, or for messages delivered via an
+     * auxilliary chat object, the type code provided when that auxilliary
+     * object was registered.
      * @param message the text of the message.
      */
-    public void displaySystemMessage (String message);
+    public void displaySystemMessage (String type, String message);
 
     /**
      * Called in response to a chat request (either speak or tell) that

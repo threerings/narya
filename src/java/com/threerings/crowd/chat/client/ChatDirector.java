@@ -1,9 +1,10 @@
 //
-// $Id: ChatDirector.java,v 1.13 2001/12/16 21:02:57 mdb Exp $
+// $Id: ChatDirector.java,v 1.14 2001/12/16 21:46:46 mdb Exp $
 
 package com.threerings.crowd.chat;
 
 import java.util.ArrayList;
+import com.samskivert.util.HashIntMap;
 
 import com.threerings.presents.client.*;
 import com.threerings.presents.dobj.*;
@@ -117,9 +118,10 @@ public class ChatDirector
      * to this object and will remain subscribed to it for as long as it
      * remains in effect as an auxilliary chat source.
      */
-    public void addAuxilliarySource (DObject source)
+    public void addAuxilliarySource (String type, DObject source)
     {
         source.addListener(this);
+        _auxes.put(source.getOid(), type);
     }
 
     /**
@@ -128,6 +130,7 @@ public class ChatDirector
     public void removeAuxilliarySource (DObject source)
     {
         source.removeListener(this);
+        _auxes.remove(source.getOid());
     }
 
     // documentation inherited
@@ -161,9 +164,9 @@ public class ChatDirector
     {
         String name = event.getName();
         if (name.equals(ChatService.SPEAK_NOTIFICATION)) {
-            handleSpeakMessage(event.getArgs());
+            handleSpeakMessage(getType(event.getTargetOid()), event.getArgs());
         } else if (name.equals(ChatService.SYSTEM_NOTIFICATION)) {
-            handleSystemMessage(event.getArgs());
+            handleSystemMessage(getType(event.getTargetOid()), event.getArgs());
         }
     }
 
@@ -209,7 +212,16 @@ public class ChatDirector
         }
     }
 
-    protected void handleSpeakMessage (Object[] args)
+    /**
+     * Called when a speak message is received on the place object or one
+     * of our auxilliary chat objects.
+     *
+     * @param type {@link ChatCodes#PLACE_CHAT_TYPE} if the message was
+     * received on the place object or the type associated with the
+     * auxilliary chat object on which the message was received.
+     * @param args the arguments provided with the speak notification.
+     */
+    protected void handleSpeakMessage (String type, Object[] args)
     {
         String speaker = (String)args[0];
         String message = (String)args[1];
@@ -217,22 +229,51 @@ public class ChatDirector
         // pass this on to our chat displays
         for (int i = 0; i < _displays.size(); i++) {
             ChatDisplay display = (ChatDisplay)_displays.get(i);
-            display.displaySpeakMessage(speaker, message);
+            display.displaySpeakMessage(type, speaker, message);
         }
     }
 
-    protected void handleSystemMessage (Object[] args)
+    /**
+     * Called when a system message is delivered on one of our chat
+     * objects.
+     *
+     * @param type {@link ChatCodes#PLACE_CHAT_TYPE} if the message was
+     * received on the place object or the type associated with the
+     * auxilliary chat object on which the message was received.
+     * @param args the arguments provided with the system message
+     * notification.
+     */
+    protected void handleSystemMessage (String type, Object[] args)
     {
         String message = (String)args[0];
 
         // pass this on to our chat displays
         for (int i = 0; i < _displays.size(); i++) {
             ChatDisplay display = (ChatDisplay)_displays.get(i);
-            display.displaySystemMessage(message);
+            display.displaySystemMessage(type, message);
         }
     }
 
+    /**
+     * Looks up and returns the message type associated with the specified
+     * oid.
+     */
+    protected String getType (int oid)
+    {
+        String type = (String)_auxes.get(oid);
+        return (type == null) ? PLACE_CHAT_TYPE : type;
+    }
+
+    /** Our active chat context. */
     protected CrowdContext _ctx;
+
+    /** The place object that we currently occupy. */
     protected PlaceObject _place;
+
+    /** A list of registered chat displays. */
     protected ArrayList _displays = new ArrayList();
+
+    /** A mapping from auxilliary chat objects to the types under which
+     * they are registered. */
+    protected HashIntMap _auxes = new HashIntMap();
 }
