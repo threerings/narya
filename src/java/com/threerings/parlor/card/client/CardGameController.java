@@ -33,21 +33,15 @@ import com.threerings.parlor.game.GameController;
  * accepting dealt hands.
  */
 public abstract class CardGameController extends GameController
-                                         implements CardCodes
+    implements CardCodes, CardReceiver
 {
     // Documentation inherited.
     public void willEnterPlace (PlaceObject plobj)
     {
         super.willEnterPlace(plobj);
         
-        CardReceiver cgr = new CardReceiver() {
-            public void receivedHand (Hand hand) {
-                handDealt(hand);
-            }
-        };
-        
         _ctx.getClient().getInvocationDirector().registerReceiver(
-            new CardDecoder(cgr));
+            new CardDecoder(this));
     }
     
     // Documentation inherited.
@@ -60,10 +54,11 @@ public abstract class CardGameController extends GameController
     }
     
     /**
-     * Called when the server deals the client a new hand of cards.
+     * Called when the server deals the client a new hand of cards.  Default
+     * implementation does nothing.
      *
      * @param hand the hand dealt to the user
      */
-    protected void handDealt (Hand hand)
+    public void receivedHand (Hand hand)
     {}
 }
