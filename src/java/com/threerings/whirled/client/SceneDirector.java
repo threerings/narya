@@ -1,11 +1,13 @@
 //
-// $Id: SceneDirector.java,v 1.12 2002/04/18 14:08:47 shaper Exp $
+// $Id: SceneDirector.java,v 1.13 2002/05/22 21:48:44 shaper Exp $
 
 package com.threerings.whirled.client;
 
 import java.io.IOException;
 import com.samskivert.util.HashIntMap;
 
+import com.threerings.presents.client.Client;
+import com.threerings.presents.client.SessionObserver;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
 
@@ -34,7 +36,7 @@ import com.threerings.whirled.util.WhirledContext;
  * LocationObserver#locationChangeFailed}.
  */
 public class SceneDirector
-    implements SceneCodes, LocationDirector.FailureHandler
+    implements SceneCodes, SessionObserver, LocationDirector.FailureHandler
 {
     /**
      * Creates a new scene director with the specified context.
@@ -59,6 +61,10 @@ public class SceneDirector
         // set ourselves up as a failure handler with the location
         // director because we need to do special processing
         _locdir.setFailureHandler(this);
+
+        // register ourselves as a client observer so that we can clear
+        // out our scene when the client logs off
+        _ctx.getClient().addClientObserver(this);
     }
 
     /**
@@ -303,6 +309,18 @@ public class SceneDirector
         if (model == null) {
             return;
         }
+    }
+
+    // documentation inherited from interface
+    public void clientDidLogon (Client client)
+    {
+        // nothing for now
+    }
+
+    // documentation inherited from interface
+    public void clientDidLogoff (Client client)
+    {
+        clearScene();
     }
 
     /** Access to general client services. */
