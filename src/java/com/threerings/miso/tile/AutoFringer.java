@@ -1,24 +1,25 @@
 //
-// $Id: AutoFringer.java,v 1.2 2002/04/06 02:07:13 ray Exp $
+// $Id: AutoFringer.java,v 1.3 2002/04/06 03:43:24 ray Exp $
 
 package com.threerings.miso.tile;
 
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.util.Random;
-
-import com.samskivert.util.HashIntMap;
+import java.util.HashMap;
 
 import com.threerings.media.Log;
 
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
-import com.threerings.media.tile.MaskedUniformTileSet;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileLayer;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileUtil;
 import com.threerings.media.tile.UniformTileSet;
+
+import com.threerings.media.util.ImageUtil;
 
 import com.threerings.miso.scene.MisoSceneModel;
 
@@ -55,7 +56,7 @@ public class AutoFringer
               // int startx, int starty, int width, int height)
     {
         // create a hash to cache our masks
-        HashIntMap maskcache = new HashIntMap();
+        HashMap maskcache = new HashMap();
 
         int lastrow = Math.min(r.y + r.height + 1, scene.height);
         int lastcol = Math.min(r.x + r.width + 1, scene.width);
@@ -77,7 +78,7 @@ public class AutoFringer
      * (0 for no fringe)
      */
     protected Tile getFringeTile (MisoSceneModel scene, int row, int col,
-                                  HashIntMap masks)
+                                  HashMap masks)
     {
         int hei = scene.height;
         int wid = scene.width;
@@ -150,7 +151,7 @@ public class AutoFringer
         }
     }
 
-    protected Tile getTile (int baseset, int index, HashIntMap masks)
+    protected Tile getTile (int baseset, int index, HashMap masks)
         throws NoSuchTileException, NoSuchTileSetException
     {
         FringeConfiguration.FringeTileSetRecord tsr =
@@ -164,17 +165,20 @@ public class AutoFringer
         }
 
         // otherwise, it's a mask.. look for it in the cache..
-        int maskkey = (baseset << 16) + fringeset;
+        Long maskkey = new Long(
+            (((long) baseset) << 32) + (fringeset << 16) + index);
 
-        TileSet tset = (TileSet) masks.get(maskkey);
-        if (tset == null) {
-            tset = new MaskedUniformTileSet(_tmgr.getTile(baseset, 0),
-                                            _tmgr.getTileSet(fringeset));
-            masks.put(maskkey, tset);
-            Log.debug("created cached set");
+        Tile t = (Tile) masks.get(maskkey);
+        if (t == null) {
+            t = new FringeTile(ImageUtil.composeMaskedImage(
+                (BufferedImage) _tmgr.getTile(fringeset, index).getImage(),
+                (BufferedImage) _tmgr.getTile(baseset, 0).getImage()));
+
+            masks.put(maskkey, t);
+            Log.debug("created cached fringe image");
         }
 
-        return tset.getTile(index);
+        return t;
     }
 
     // fringe bits
