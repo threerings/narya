@@ -1,11 +1,10 @@
 //
-// $Id: SpriteManager.java,v 1.18 2002/01/22 18:58:52 shaper Exp $
+// $Id: SpriteManager.java,v 1.19 2002/01/22 20:09:02 shaper Exp $
 
 package com.threerings.media.sprite;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
@@ -100,13 +99,13 @@ public class SpriteManager
     }
 
     /**
-     * Render the sprites residing within the given polygon to the given
+     * Render the sprites residing within the given shape to the given
      * graphics context.
      *
      * @param gfx the graphics context.
-     * @param bounds the bounding polygon.
+     * @param bounds the bounding shape.
      */
-    public void renderSprites (Graphics2D gfx, Polygon bounds)
+    public void renderSprites (Graphics2D gfx, Shape bounds)
     {
         // TODO: optimize to store sprites based on quadrants they're
         // in (or somesuch), and sorted, so that we can more quickly
