@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# $Id: preflist,v 1.1 2002/10/08 18:46:02 mdb Exp $
+#
+
+# Fucking ant. This simple script exists so that I can prefix a list of
+# jar files with a directory and stick them all on the same line so that
+# they can be passed on the command line to scripts that need a list of
+# jar files.
+
+LIBDIR=$1
+JARLIST=$2
+
+if [ -z "$LIBDIR" -o -z "$JARLIST" ]; then
+    echo "Usage: $0 libdir jarsfile"
+    exit -1
+fi
+
+awk "{ print \"$LIBDIR/\" \$1 }" < $JARLIST | xargs

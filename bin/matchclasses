@@ -1,0 +1,250 @@
+#!/usr/bin/perl -w
+#
+# $Id: matchclasses,v 1.1 2002/10/08 18:46:02 mdb Exp $
+#
+# A script which inspects a hierarchy of classes and generates lists of
+# classes that match specified criterion. The criterion are that a class
+# or one if its parent classes extend a certain class or implement a
+# certain interface.
+
+use strict;
+use Getopt::Long;
+
+my $usage = "Usage: $0 [--verbose] [--prefix prefix] [--prune regexp]xN" .
+    "[--implements interface]xN [--extends class --extends]xN jar_file ...\n";
+
+# get our options
+my $debug;
+my $verbose;
+my $prefix = "";
+my @tifaces = ();
+my @tclasses = ();
+my @prunes = ();
+GetOptions("debug" => \$debug,
+           "verbose" => \$verbose,
+           "prefix=s" => \$prefix,
+           "prune=s" => \@prunes,
+           "implements=s" => \@tifaces,
+           "extends=s" => \@tclasses);
+
+# create a classpath with all supplied jar files
+my $classpath = join(":", @ARGV);
+
+# enumerate all of the java classes in the supplied jar files
+my %orig = ();
+my @classes = ();
+my $jar;
+foreach $jar (@ARGV) {
+    if (!open(JAR, "jar tvf $jar|")) {
+        warn "Can't list contents of '$jar': $!\n";
+        next;
+    }
+
+    while (<JAR>) {
+        if (/\.class$/) {
+            chomp;
+            $_ =~ s:.* ([^ ]+\.class)$:$1:;
+            $_ =~ s:\.class$::g;
+            $_ =~ s:/:.:g;
+
+            # keerist. for some reason javap insists that named inner
+            # classes be referenced as Parent.Inner but anonymous inner
+            # classes be referenced as Parent$Inner, but fucking DashO
+            # wants them all as Parent$Inner, so we keep a mapping which
+            # we use to report the $ version when generating our output
+            my $orig = $_;
+            if ($_ =~ s:\$([^0-9]):.$1:g) {
+                $orig{$_} = $orig;
+            }
+
+            # make sure it matches our prefix
+            next unless ($_ =~ /^$prefix/);
+
+            # make sure it doesn't match any prunes
+            my $matched = 0;
+            my $prune;
+            foreach $prune (@prunes) {
+                if ($_ =~ /$prune/) {
+                    $matched = 1;
+                    last;
+                }
+            }
+            next if ($matched != 0);
+
+            print STDERR "Including $_\n" if $verbose;
+            push @classes, $_;
+        }
+    }
+    close(JAR);
+}
+
+# run javap on all of these classes and calculate the inheritence and
+# interface implementation metadata
+my %ptable = ();
+my %itable = ();
+my @gclasses = @classes;
+while (@gclasses) {
+    # roll off twenty classes or so at a time
+    my $ccount = @gclasses;
+    my @cargs = splice(@gclasses, 0, min($ccount, 100));
+    my $carg = "'" . join("' '", @cargs) . "'";
+
+    # print "javap -classpath $classpath $carg\n";
+
+    if (!open(JAVAP, "javap -classpath $classpath $carg|")) {
+        warn "Can't inspect $carg: $!\n";
+        next;
+    }
+
+    # look for a line that identifies a class or interface
+    while (<JAVAP>) {
+        next unless (/ class / || / interface /);
+
+        chomp;
+        my $goods = $_;
+
+        # strip off the close brace
+        $goods =~ s: .$::g;
+
+        # interfaces are now at the end of the line
+        my @ifaces;
+        if ($goods =~ s: implements (.*)$::g) {
+            my $idefs = $1;
+            $idefs =~ s:\s+$::g;
+            $idefs =~ s:\. :\$:g;
+            $idefs =~ s:\$([^0-9]):.$1:g;
+            @ifaces = split(/, /, $idefs);
+        }
+
+        # now the parent class or parent interfaces are at the end
+        my @parents;
+        if ($goods =~ s: extends (.*)$::g) {
+            my $pdefs = $1;
+            $pdefs =~ s:\s+$::g;
+            $pdefs =~ s:\. :\$:g;
+            $pdefs =~ s:\$([^0-9]):.$1:g;
+            @parents = split(/, /, $pdefs);
+        }
+
+        # last is the class name
+        my $class;
+        if ($goods =~ s: class (.*)$::g) {
+            $class = $1;
+            $class =~ s: ::g;
+        } elsif ($goods =~ s: interface (.*)$::g) {
+            $class = $1;
+            $class =~ s: ::g;
+        }
+
+        if (!defined $class) {
+            warn "Hrm, failed to parse '$_'.\n";
+            next;
+        }
+
+        if (@ifaces) {
+            $itable{$class} = \@ifaces;
+            print STDERR "-> $class I[" . join(":", @ifaces) . "]\n"
+                if ($debug);
+        }
+
+        if (@parents) {
+            $ptable{$class} = \@parents;
+            print STDERR "-> $class E[" . join(":", @parents) . "]\n"
+                if ($debug);
+        }
+    }
+    close(JAVAP);
+}
+
+my %matches = ();
+# now blow through the classes looking for matches
+my $class;
+foreach $class (@classes) {
+    # check for an interface match
+    my $tiface;
+    foreach $tiface (@tifaces) {
+        print STDERR "Checking $class implements $tiface\n" if ($debug);
+        if (implements($class, $tiface)) {
+            print STDERR "$class implements $tiface\n" if ($verbose);
+            $matches{$class} = 1;
+        }
+    }
+    # check for a class match
+    my $tclass;
+    foreach $tclass (@tclasses) {
+        print STDERR "Checking $class extends $tclass\n" if ($debug);
+        if (extends($class, $tclass)) {
+            print STDERR "$class extends $tclass\n" if ($verbose);
+            $matches{$class} = 1;
+        }
+    }
+}
+
+# print out the results
+foreach $class (sort keys %matches) {
+    if (defined $orig{$class}) {
+        print "$orig{$class}\n";
+    } else {
+        print "$class\n";
+    }
+}
+# print join("\n", ) . "\n";
+
+# Guess what this does.
+sub min {
+    my ($a, $b) = @_;
+    return ($a < $b) ? $a : $b;
+}
+
+# Reports whether or not the specified class is an instanceof the
+# specified target interface.
+sub implements {
+    my ($class, $target) = @_;
+
+    # scan up this classes parent hierarchy looking to see if it or any
+    # parent class implements the specified interface (or a derived
+    # interface)
+    my $crecord = $ptable{$class};
+    if (defined $crecord) {
+        # check the interfaces implemented by this class
+        my $irecord = $itable{$class};
+        if (defined $irecord) {
+            my $iface;
+            foreach $iface (@{$irecord}) {
+                if ($iface eq $target || extends($iface, $target)) {
+                    return 1;
+                }
+            }
+        }
+
+        # check our parents
+        my $pclass;
+        foreach $pclass (@{$crecord}) {
+            if (implements($pclass, $target)) {
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+# Reports whether or not the specified class is an instanceof the
+# specified target class.
+sub extends {
+    my ($class, $target) = @_;
+
+    # look to see if any of our parent classes extend the target class
+    # (recursing as necessary up the hierarchy)
+    my $crecord = $ptable{$class};
+    if (defined $crecord) {
+        my $pclass;
+        foreach $pclass (@{$crecord}) {
+            if ($target eq $pclass || extends($pclass, $target)) {
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}

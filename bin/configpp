@@ -1,0 +1,42 @@
+#!/usr/bin/perl -w
+#
+# $Id: configpp,v 1.1 2002/10/08 18:46:02 mdb Exp $
+#
+# Preprocesses a configuration file (a .dop file, for instance), executing
+# any include directives located in the file.
+
+use File::Basename;
+
+my %files = ();
+my $file = shift or die "Usage: $0 file\n";
+
+# change into the directory occupied by the file
+chdir(dirname($file));
+$file = basename($file);
+
+# process this file
+read_file($file, "");
+
+sub read_file {
+    my ($path, $parent) = @_;
+
+    # do circular reference checking
+    if (defined $files{$path}) {
+        die "Detected circular inclusion [file=$parent, incl=$path].\n";
+    }
+    $files{$path} = 1;
+
+    # read the file
+    my $FILE;
+    open($FILE, "$path") or die "Can't read include file '$path': $!\n";
+    while (<$FILE>) {
+        if (m/^.include \"([^\"]*)\"/) {
+            # process the inclusion
+            read_file($1, $path);
+        } else {
+            print $_;
+        }
+    }
+    close($FILE);
+    undef $files{$path};
+}
