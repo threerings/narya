@@ -29,9 +29,34 @@
 
   <!-- generates .java files for all .dobj files -->
   <target name="gendobj">
-    <apply executable="bin/gendobj" failonerror="true">
-      <srcfile/>
+    <apply executable="bin/gendobj" failonerror="true" parallel="true">
       <fileset dir="src/java" includes="**/*.dobj"/>
+    </apply>
+  </target>
+
+  <!-- generates marshaller and dispatcher classes for all invocation
+       service declarations -->
+  <target name="genservice">
+    <apply executable="bin/genservice" failonerror="true" parallel="true">
+      <arg value="--classpath"/>
+      <arg value="${classes.dir}"/>
+      <arg value="--sourcedir"/>
+      <arg value="src/java"/>
+      <fileset dir="src/java" includes="**/*Service.java"
+        excludes="**/InvocationService.java"/>
+    </apply>
+  </target>
+
+  <!-- generates sender and decoder classes for all invocation
+       receiver declarations -->
+  <target name="genreceiver">
+    <apply executable="bin/genreceiver" failonerror="true" parallel="true">
+      <arg value="--classpath"/>
+      <arg value="${classes.dir}"/>
+      <arg value="--sourcedir"/>
+      <arg value="src/java"/>
+      <fileset dir="src/java" includes="**/*Receiver.java"
+        excludes="**/InvocationReceiver.java"/>
     </apply>
   </target>
 
