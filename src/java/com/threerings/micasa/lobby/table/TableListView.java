@@ -1,5 +1,5 @@
 //
-// $Id: TableListView.java,v 1.4 2002/03/18 23:21:26 mdb Exp $
+// $Id: TableListView.java,v 1.5 2002/07/25 23:20:22 mdb Exp $
 
 package com.threerings.micasa.lobby.table;
 
@@ -25,9 +25,10 @@ import com.samskivert.swing.VGroupLayout;
 import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.data.PlaceObject;
 
+import com.threerings.parlor.client.GameConfigurator;
+import com.threerings.parlor.client.SeatednessObserver;
 import com.threerings.parlor.client.TableDirector;
 import com.threerings.parlor.client.TableObserver;
-import com.threerings.parlor.client.SeatednessObserver;
 import com.threerings.parlor.data.Table;
 import com.threerings.parlor.data.TableConfig;
 import com.threerings.parlor.game.GameConfig;
@@ -43,10 +44,8 @@ import com.threerings.micasa.util.MiCasaContext;
  * the matchmaking process. UI mechanisms for creating and joining tables
  * are also provided.
  */
-public class TableListView
-    extends JPanel
-    implements PlaceView, TableObserver, ActionListener, SeatednessObserver,
-               ChangeListener
+public class TableListView extends JPanel
+    implements PlaceView, TableObserver, ActionListener, SeatednessObserver
 {
     /**
      * Creates a new table list view, suitable for providing the user
@@ -82,32 +81,33 @@ public class TableListView
     	_matchList.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         panel.add(new JScrollPane(_matchList));
 
-        // create a prototype game config to configure our slider
+        // create our configurator interface
+        GameConfig gconfig = null;
         try {
-            TableConfig tconfig = (TableConfig)config.getGameConfig();
-            JPanel cpanel =
-                new JPanel(new HGroupLayout(HGroupLayout.STRETCH));
-            cpanel.add(new JLabel("Seats:"), HGroupLayout.FIXED);
-
-            int min = tconfig.getMinimumPlayers();
-            _pslide = new JSlider(JSlider.HORIZONTAL, min,
-                                  tconfig.getMaximumPlayers(), min);
-            _pslide.addChangeListener(this);
-            cpanel.add(_pslide);
-
-            _pcount = new JLabel(Integer.toString(min));
-            cpanel.add(_pcount, HGroupLayout.FIXED);
+            gconfig = config.getGameConfig();
+            Class cclass = gconfig.getConfiguratorClass();
+            if (cclass != null) {
+                // create and initialize the configurator interface
+                _figger = (GameConfigurator)cclass.newInstance();
+                _figger.init(_ctx);
+                // give it the game config
+                _figger.setGameConfig(gconfig);
+                // and add the whole business to the main UI
+                panel.add(_figger, VGroupLayout.FIXED);
+            }
 
             _create = new JButton("Create table");
             _create.addActionListener(this);
-            cpanel.add(_create, HGroupLayout.FIXED);
-
-            panel.add(cpanel, VGroupLayout.FIXED);
+            panel.add(_create, VGroupLayout.FIXED);
 
         } catch (Exception e) {
-            Log.warning("Unable to obtain prototype game config to " +
-                        "configure matchmaking interface.");
+            Log.warning("Unable to create configurator interface " +
+                        "[config=" + gconfig + "].");
             Log.logStackTrace(e);
+
+            // stick something in the UI to let them know we're hosed
+            panel.add(new JLabel("Aiya! Can't create tables. " +
+                                 "Configuration borked."), VGroupLayout.FIXED);
         }
 
         add(panel);
@@ -216,24 +216,9 @@ public class TableListView
     // documentation inherited
     public void actionPerformed (ActionEvent event)
     {
-        // the create table button was clicked. pass the word on to the
-        // table director
-        GameConfig config = null;
-        try {
-            config = _config.getGameConfig();
-        } catch (Exception e) {
-            Log.warning("Unable to resolve game config class " +
-                        "[lconfig=" + _config + ", error=" + e + "].");
-            return;
-        }
-
-        if (config instanceof TableConfig) {
-            // set the desired number of players
-            ((TableConfig)config).setDesiredPlayers(_pslide.getValue());
-        }
-
-        // and create a table with these values
-        _tdtr.createTable(config);
+        // the create table button was clicked. use the game config as
+        // configured by the configurator to create a table
+        _tdtr.createTable(_figger.getGameConfig());
     }
 
     // documentation inherited
@@ -241,15 +226,6 @@ public class TableListView
     {
         // update the create table button
         _create.setEnabled(!isSeated);
-    }
-
-    // documentation inherited
-    public void stateChanged (ChangeEvent e)
-    {
-        JSlider source = (JSlider)e.getSource();
-        if (!source.getValueIsAdjusting()) {
-            _pcount.setText(Integer.toString(source.getValue()));
-        }
     }
 
     /**
@@ -296,11 +272,11 @@ public class TableListView
     /** The list of tables that are in play. */
     protected JPanel _playList;
 
+    /** The interface used to configure a table before creating it. */
+    protected GameConfigurator _figger;
+
     /** Our create table button. */
     protected JButton _create;
-
-    /** Our number of players slider. */
-    protected JSlider _pslide;
 
     /** Our number of players indicator. */
     protected JLabel _pcount;

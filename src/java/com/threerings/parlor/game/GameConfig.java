@@ -1,9 +1,10 @@
 //
-// $Id: GameConfig.java,v 1.10 2002/07/23 05:54:52 mdb Exp $
+// $Id: GameConfig.java,v 1.11 2002/07/25 23:20:22 mdb Exp $
 
 package com.threerings.parlor.game;
 
 import com.threerings.crowd.data.PlaceConfig;
+import com.threerings.parlor.client.GameConfigurator;
 
 /**
  * The game config class encapsulates the configuration information for a
@@ -26,6 +27,14 @@ public abstract class GameConfig extends PlaceConfig
 {
     /** Indicates whether or not this game is rated. */
     public boolean rated = true;
+
+    /**
+     * Returns the class that should be used to create a user interface
+     * that can be used to configure this instance prior to starting the
+     * game. The configurator class must derive from {@link
+     * GameConfigurator}.
+     */
+    public abstract Class getConfiguratorClass ();
 
     /**
      * Returns true if this game config object is equal to the supplied
