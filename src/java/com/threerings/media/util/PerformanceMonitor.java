@@ -1,33 +1,32 @@
 //
-// $Id: PerformanceMonitor.java,v 1.2 2001/08/13 15:00:24 shaper Exp $
+// $Id: PerformanceMonitor.java,v 1.3 2001/10/25 22:08:29 mdb Exp $
 
-package com.threerings.miso.util;
+package com.threerings.media.util;
 
 import java.util.HashMap;
 
-import com.threerings.miso.Log;
+import com.threerings.media.Log;
 
 /**
- * The <code>PerformanceMonitor</code> class provides a simple
- * mechanism for monitoring the number of times an action takes place
- * within a certain time period.
+ * Provides a simple mechanism for monitoring the number of times an
+ * action takes place within a certain time period.
  *
- * <p> The action being tracked should be registered with a suitable
- * name via <code>register()</code>, and <code>tick()</code> should be
- * called each time the action is performed.
+ * <p> The action being tracked should be registered with a suitable name
+ * via {@link #register}, and {@link #tick} should be called each time the
+ * action is performed.
  *
- * <p> Whenever <code>tick()</code> is called and the checkpoint time
- * interval has elapsed since the last checkpoint (if any), the
- * observer will be notified to that effect by a call to
- * <code>PerformanceObserver.checkpoint()</code>.
+ * <p> Whenever {@link #tick} is called and the checkpoint time interval
+ * has elapsed since the last checkpoint (if any), the observer will be
+ * notified to that effect by a call to {@link
+ * PerformanceObserver#checkpoint}.
  *
  * <p> Note that this is <em>not</em> intended to be used as an
  * industrial-strength profiling or performance monitoring tool.  The
  * checkpoint time interval granularity is in milliseconds, not
- * microseconds, and the observer's <code>checkpoint()</code> method
- * will never be called until/unless a subsequent call to
- * <code>tick()</code> is made after the requested number of
- * milliseconds have passed since the last checkpoint.
+ * microseconds, and the observer's <code>checkpoint()</code> method will
+ * never be called until/unless a subsequent call to {@link #tick} is made
+ * after the requested number of milliseconds have passed since the last
+ * checkpoint.
  */
 public class PerformanceMonitor
 {

@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.16 2001/09/13 19:10:26 mdb Exp $
+// $Id: AnimationManager.java,v 1.17 2001/10/25 22:08:28 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -12,8 +12,8 @@ import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
 
 import com.threerings.media.Log;
-import com.threerings.miso.util.PerformanceMonitor;
-import com.threerings.miso.util.PerformanceObserver;
+import com.threerings.media.util.PerformanceMonitor;
+import com.threerings.media.util.PerformanceObserver;
 
 /**
  * The AnimationManager handles the regular refreshing of the scene

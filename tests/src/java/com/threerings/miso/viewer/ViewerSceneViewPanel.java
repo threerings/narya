@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.21 2001/10/24 00:55:08 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.22 2001/10/25 22:08:29 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -12,6 +12,8 @@ import com.samskivert.util.Config;
 
 import com.threerings.media.sprite.*;
 import com.threerings.media.util.RandomUtil;
+import com.threerings.media.util.PerformanceMonitor;
+import com.threerings.media.util.PerformanceObserver;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;

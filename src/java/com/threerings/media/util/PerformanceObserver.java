@@ -1,19 +1,18 @@
 //
-// $Id: PerformanceObserver.java,v 1.1 2001/08/02 00:42:02 shaper Exp $
+// $Id: PerformanceObserver.java,v 1.2 2001/10/25 22:08:29 mdb Exp $
 
-package com.threerings.miso.util;
+package com.threerings.media.util;
 
 /**
- * The <code>PerformanceObserver</code> interface should be
- * implemented by classes that wish to register actions to be
- * monitored by the <code>PerformanceMonitor</code> class.
+ * This interface should be implemented by classes that wish to register
+ * actions to be monitored by the {@link PerformanceMonitor} class.
  */
 public interface PerformanceObserver
 {
     /**
-     * This method is called by the <code>PerformanceMonitor</code>
-     * class whenever an action's requested time interval between
-     * checkpoints has expired.
+     * This method is called by the {@link PerformanceMonitor} class
+     * whenever an action's requested time interval between checkpoints
+     * has expired.
      *
      * @param name the action name.
      * @param ticks the ticks since the last checkpoint.
