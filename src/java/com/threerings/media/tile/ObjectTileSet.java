@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSet.java,v 1.18 2004/08/27 02:12:41 mdb Exp $
+// $Id: ObjectTileSet.java,v 1.19 2004/08/30 22:09:29 ray Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -33,6 +33,7 @@ import com.threerings.media.image.Colorization;
  * @see ObjectTile
  */
 public class ObjectTileSet extends SwissArmyTileSet
+    implements RecolorableTileSet
 {
     /**
      * Sets the widths (in unit tile count) of the objects in this
@@ -139,10 +140,7 @@ public class ObjectTileSet extends SwissArmyTileSet
         return (_sorients == null) ? 0 : _sorients[tileIdx];
     }
 
-    /**
-     * Returns the colorization classes that should be used to recolor
-     * objects in this tileset.
-     */
+    // documentation inherited from interface RecolorableTileSet
     public String[] getColorizations ()
     {
         return _zations;

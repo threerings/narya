@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedObjectTileSet.java,v 1.15 2004/08/27 02:12:41 mdb Exp $
+// $Id: TrimmedObjectTileSet.java,v 1.16 2004/08/30 22:09:29 ray Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -39,6 +39,7 @@ import com.threerings.media.tile.util.TileSetTrimmer;
  * interchangeable (and more memory efficient).
  */
 public class TrimmedObjectTileSet extends TileSet
+    implements RecolorableTileSet
 {
     // documentation inherited
     public int getTileCount ()
@@ -74,10 +75,7 @@ public class TrimmedObjectTileSet extends TileSet
         return (_bits == null) ? -1 : _bits[tileIdx].sorient;
     }
 
-    /**
-     * Returns the colorization classes that should be used to recolor
-     * objects in this tileset.
-     */
+    // documentation inherited from interface RecolorableTileSet
     public String[] getColorizations ()
     {
         return _zations;
