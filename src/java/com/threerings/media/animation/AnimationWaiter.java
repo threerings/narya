@@ -1,5 +1,5 @@
 //
-// $Id: AnimationWaiter.java,v 1.1 2002/05/21 17:59:11 shaper Exp $
+// $Id: AnimationWaiter.java,v 1.2 2002/08/23 23:18:14 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -20,6 +20,18 @@ public abstract class AnimationWaiter
     {
         anim.addAnimationObserver(this);
         _animCount++;
+    }
+
+    /**
+     * Adds the supplied animations to the animation waiter for
+     * observation.
+     */
+    public void addAnimations (Animation[] anims)
+    {
+        int acount = anims.length;
+        for (int ii = 0; ii < acount; ii++) {
+            addAnimation(anims[ii]);
+        }
     }
 
     // documentation inherited
