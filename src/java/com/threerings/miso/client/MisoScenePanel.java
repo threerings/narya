@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.63 2004/09/09 00:09:22 ray Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -289,8 +289,8 @@ public class MisoScenePanel extends VirtualMediaPanel
             _metrics, sprite.getX(), sprite.getY(), new Point());
         Point dest = MisoUtil.screenToTile(_metrics, x, y, new Point());
 
-        // TODO: compute this value from the screen size or something
-        int longestPath = 20;
+        // compute our longest path from the screen size
+        int longestPath = 3 * (getWidth() / _metrics.tilewid);
 
         // get a reasonable tile path through the scene
         long start = System.currentTimeMillis();
