@@ -1,11 +1,13 @@
 //
-// $Id: ParlorDirector.java,v 1.4 2001/10/01 22:17:34 mdb Exp $
+// $Id: ParlorDirector.java,v 1.5 2001/10/02 02:09:06 mdb Exp $
 
 package com.threerings.parlor.client;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import com.samskivert.util.HashIntMap;
+
+import com.threerings.cocktail.cher.client.InvocationReceiver;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.data.GameConfig;
@@ -19,7 +21,7 @@ import com.threerings.parlor.util.ParlorContext;
  * that started.
  */
 public class ParlorDirector
-    implements ParlorCodes
+    implements ParlorCodes, InvocationReceiver
 {
     /**
      * Constructs a parlor director and provides it with the parlor

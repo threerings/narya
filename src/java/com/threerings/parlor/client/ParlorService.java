@@ -1,10 +1,10 @@
 //
-// $Id: ParlorService.java,v 1.4 2001/10/01 22:17:34 mdb Exp $
+// $Id: ParlorService.java,v 1.5 2001/10/02 02:09:06 mdb Exp $
 
 package com.threerings.parlor.client;
 
 import com.threerings.cocktail.cher.client.Client;
-import com.threerings.cocktail.cher.client.InvocationManager;
+import com.threerings.cocktail.cher.client.InvocationDirector;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.data.GameConfig;
@@ -40,11 +40,11 @@ public class ParlorService implements ParlorCodes
     public static int invite (Client client, String invitee,
                               GameConfig config, Object rsptarget)
     {
-        InvocationManager invmgr = client.getInvocationManager();
+        InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] { invitee, config };
         Log.info("Sending invite request [to=" + invitee +
                  ", cfg=" + config + "].");
-        return invmgr.invoke(MODULE_NAME, INVITE_ID, args, rsptarget);
+        return invdir.invoke(MODULE_NAME, INVITE_ID, args, rsptarget);
     }
 
     /**
@@ -71,14 +71,14 @@ public class ParlorService implements ParlorCodes
     public static int respond (Client client, int inviteId, int code,
                                Object arg, Object rsptarget)
     {
-        InvocationManager invmgr = client.getInvocationManager();
+        InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] {
             new Integer(inviteId), new Integer(code), null };
         // we can't have a null argument so we use the empty string
         args[2] = (arg == null) ? "" : arg;
         Log.info("Sending invitation response [inviteId=" + inviteId +
                  ", code=" + code + ", arg=" + arg + "].");
-        return invmgr.invoke(
+        return invdir.invoke(
             MODULE_NAME, RESPOND_INVITE_ID, args, rsptarget);
     }
 
@@ -97,10 +97,10 @@ public class ParlorService implements ParlorCodes
      */
     public static int cancel (Client client, int inviteId, Object rsptarget)
     {
-        InvocationManager invmgr = client.getInvocationManager();
+        InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] { new Integer(inviteId) };
         Log.info("Sending invitation cancellation " +
                  "[inviteId=" + inviteId + "].");
-        return invmgr.invoke(MODULE_NAME, CANCEL_INVITE_ID, args, rsptarget);
+        return invdir.invoke(MODULE_NAME, CANCEL_INVITE_ID, args, rsptarget);
     }
 }

@@ -1,9 +1,10 @@
 //
-// $Id: ParlorProvider.java,v 1.3 2001/10/01 22:17:34 mdb Exp $
+// $Id: ParlorProvider.java,v 1.4 2001/10/02 02:09:06 mdb Exp $
 
 package com.threerings.parlor.server;
 
 import com.threerings.cocktail.cher.server.InvocationProvider;
+import com.threerings.cocktail.cher.server.ServiceFailedException;
 import com.threerings.cocktail.party.data.BodyObject;
 import com.threerings.cocktail.party.server.PartyServer;
 
@@ -42,21 +43,22 @@ public class ParlorProvider
         String rsp = null;
 
         // ensure that the invitee is online at present
-        BodyObject target = PartyServer.lookupBody(invitee);
-        if (target == null) {
-            rsp = "m.not_online\t" + invitee;
+        try {
+            BodyObject target = PartyServer.lookupBody(invitee);
+            if (target == null) {
+                throw new ServiceFailedException(INVITEE_NOT_ONLINE);
+            }
 
-        } else {
-            // if they are, submit the invite request to the parlor
-            // manager
-            rsp = _pmgr.invite(source, target, config);
-        }
+            // submit the invite request to the parlor manager
+            int inviteId = _pmgr.invite(source, target, config);
+            sendResponse(source, invid, INVITE_RECEIVED_RESPONSE,
+                         new Integer(inviteId));
 
-        // now send the response
-        if (rsp.equals(SUCCESS)) {
-            sendResponse(source, invid, "InviteReceived");
-        } else {
-            sendResponse(source, invid, "InviteReceived");
+        } catch (ServiceFailedException sfe) {
+            // the exception message is the code indicating the reason
+            // for the invitation rejection
+            sendResponse(source, invid, INVITE_FAILED_RESPONSE,
+                         sfe.getMessage());
         }
     }
 
@@ -67,6 +69,8 @@ public class ParlorProvider
     public void handleRepsondInviteRequest (
         BodyObject source, int invid, int inviteId, int code, Object arg)
     {
+        // pass this on to the parlor manager
+        _pmgr.respondToInvite(source, inviteId, code, arg);
     }
 
     /**
@@ -76,6 +80,8 @@ public class ParlorProvider
     public void handleCancelInviteRequest (
         BodyObject source, int invid, int inviteId)
     {
+        // pass this on to the parlor manager
+        _pmgr.cancelInvite(source, inviteId);
     }
 
     /** A reference to the parlor manager we're working with. */
