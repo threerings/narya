@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfigurationParser.java,v 1.9 2004/02/25 14:43:57 mdb Exp $
+// $Id: FringeConfigurationParser.java,v 1.10 2004/07/13 16:34:49 mdb Exp $
 
 package com.threerings.miso.tile.tools.xml;
 
@@ -43,33 +43,30 @@ public class FringeConfigurationParser extends CompiledConfigParser
     {
         // configure top-level constraints
         String prefix = "fringe";
-        digest.addRule(prefix, new SetPropertyFieldsRule(digest));
+        digest.addRule(prefix, new SetPropertyFieldsRule());
 
         // create and configure fringe config instances
         prefix += "/base";
         digest.addObjectCreate(prefix, FringeRecord.class.getName());
 
-        // you'd better match parens if you have any hope of wading
-        // in these waters
-        digest.addRule(prefix,
-            new ValidatedSetNextRule(digest, "addFringeRecord",
-                new ValidatedSetNextRule.Validator () {
-                    public boolean isValid (Object target) {
-                        if (((FringeRecord) target).isValid()) {
-                            return true;
-                        } else {
-                            Log.warning("A FringeRecord was not added " +
-                                        "because it was improperly specified " +
-                                        "[record=" + target + "].");
-                            return false;
-                        }
-                    }
-                }) {
-
-            // parse the fringe record, converting tileset names to tileset
-            // ids
+        ValidatedSetNextRule.Validator val;
+        val = new ValidatedSetNextRule.Validator() {
+            public boolean isValid (Object target) {
+                if (((FringeRecord) target).isValid()) {
+                    return true;
+                } else {
+                    Log.warning("A FringeRecord was not added because it was " +
+                                "improperly specified [rec=" + target + "].");
+                    return false;
+                }
+            }
+        };
+        ValidatedSetNextRule vrule;
+        vrule = new ValidatedSetNextRule("addFringeRecord", val) {
+            // parse the fringe record, converting tileset names to
+            // tileset ids
             public void begin (Attributes attrs)
-            throws Exception
+                throws Exception
             {
                 FringeRecord frec = (FringeRecord) digester.peek();
 
@@ -96,27 +93,29 @@ public class FringeConfigurationParser extends CompiledConfigParser
                     }
                 }
             }
-        });
+        };
+        digest.addRule(prefix, vrule);
 
         // create the tileset records in each fringe record
         prefix += "/tileset";
         digest.addObjectCreate(prefix, FringeTileSetRecord.class.getName());
-        digest.addRule(prefix, new ValidatedSetNextRule(digest, "addTileset",
-            new ValidatedSetNextRule.Validator() {
-                public boolean isValid (Object target) {
-                    if (((FringeTileSetRecord) target).isValid()) {
-                        return true;
-                    } else {
-                        Log.warning("A FringeTileSetRecord was not added " +
-                            "because it was improperly specified.");
-                        return false;
-                    }
+
+        val = new ValidatedSetNextRule.Validator() {
+            public boolean isValid (Object target) {
+                if (((FringeTileSetRecord) target).isValid()) {
+                    return true;
+                } else {
+                    Log.warning("A FringeTileSetRecord was not added because " +
+                                "it was improperly specified " +
+                                "[rec=" + target + "].");
+                    return false;
                 }
-            }) {
-                
+            }
+        };
+        vrule = new ValidatedSetNextRule("addTileset", val) {
             // parse the fringe tilesetrecord, converting tileset names to ids
             public void begin (Attributes attrs)
-            throws Exception
+                throws Exception
             {
                 FringeTileSetRecord f = (FringeTileSetRecord) digester.peek();
 
@@ -143,7 +142,8 @@ public class FringeConfigurationParser extends CompiledConfigParser
                     }
                 }
             }
-        });
+        };
+        digest.addRule(prefix, vrule);
     }
 
     protected TileSetIDBroker _idBroker;

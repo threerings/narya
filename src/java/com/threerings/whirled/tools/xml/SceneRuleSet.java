@@ -1,5 +1,5 @@
 //
-// $Id: SceneRuleSet.java,v 1.4 2004/02/25 14:50:28 mdb Exp $
+// $Id: SceneRuleSet.java,v 1.5 2004/07/13 16:34:49 mdb Exp $
 
 package com.threerings.whirled.tools.xml;
 
@@ -28,7 +28,7 @@ public class SceneRuleSet implements NestableRuleSet
         digester.addObjectCreate(prefix, getSceneClass().getName());
 
         // set up rules to parse and set our fields
-        digester.addRule(prefix, new SetPropertyFieldsRule(digester));
+        digester.addRule(prefix, new SetPropertyFieldsRule());
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneRuleSet.java,v 1.3 2004/02/25 14:43:57 mdb Exp $
+// $Id: SparseMisoSceneRuleSet.java,v 1.4 2004/07/13 16:34:49 mdb Exp $
 
 package com.threerings.miso.tools.xml;
 
@@ -33,29 +33,28 @@ public class SparseMisoSceneRuleSet implements NestableRuleSet
     {
         // this creates the appropriate instance when we encounter our
         // prefix tag
-        dig.addRule(prefix, new Rule(dig) {
-            public void begin (Attributes attributes) throws Exception {
+        dig.addRule(prefix, new Rule() {
+            public void begin (String namespace, String name,
+                               Attributes attributes) throws Exception {
                 digester.push(createMisoSceneModel());
             }
-            public void end () throws Exception {
+            public void end (String namespace, String name) throws Exception {
                 digester.pop();
             }
         });
 
         // set up rules to parse and set our fields
-        dig.addRule(prefix + "/swidth", new SetFieldRule(dig, "swidth"));
-        dig.addRule(prefix + "/sheight", new SetFieldRule(dig, "sheight"));
-        dig.addRule(prefix + "/defTileSet",
-                    new SetFieldRule(dig, "defTileSet"));
+        dig.addRule(prefix + "/swidth", new SetFieldRule("swidth"));
+        dig.addRule(prefix + "/sheight", new SetFieldRule("sheight"));
+        dig.addRule(prefix + "/defTileSet", new SetFieldRule("defTileSet"));
 
         String sprefix = prefix + "/sections/section";
         dig.addObjectCreate(sprefix, Section.class.getName());
-        dig.addRule(sprefix, new SetPropertyFieldsRule(dig));
-        dig.addRule(sprefix + "/base", new SetFieldRule(dig, "baseTileIds"));
+        dig.addRule(sprefix, new SetPropertyFieldsRule());
+        dig.addRule(sprefix + "/base", new SetFieldRule("baseTileIds"));
         dig.addObjectCreate(sprefix + "/objects/object",
                             ObjectInfo.class.getName());
-        dig.addRule(sprefix + "/objects/object",
-                    new SetPropertyFieldsRule(dig));
+        dig.addRule(sprefix + "/objects/object", new SetPropertyFieldsRule());
         dig.addSetNext(sprefix + "/objects/object", "addObject",
                        ObjectInfo.class.getName());
         dig.addSetNext(sprefix, "setSection", Section.class.getName());

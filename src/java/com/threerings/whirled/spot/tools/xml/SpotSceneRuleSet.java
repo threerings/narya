@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneRuleSet.java,v 1.4 2003/02/12 07:23:31 mdb Exp $
+// $Id: SpotSceneRuleSet.java,v 1.5 2004/07/13 16:34:49 mdb Exp $
 
 package com.threerings.whirled.spot.tools.xml;
 
@@ -28,13 +28,12 @@ public class SpotSceneRuleSet implements NestableRuleSet
         digester.addObjectCreate(prefix, SpotSceneModel.class.getName());
 
         // set up rules to parse and set our fields
-        digester.addRule(prefix, new SetPropertyFieldsRule(digester));
+        digester.addRule(prefix, new SetPropertyFieldsRule());
 
         // create EditablePortal instances when we see <portal>
         digester.addObjectCreate(prefix + "/portal",
                                  EditablePortal.class.getName());
-        digester.addRule(prefix + "/portal",
-                         new SetPropertyFieldsRule(digester));
+        digester.addRule(prefix + "/portal", new SetPropertyFieldsRule());
         digester.addSetNext(prefix + "/portal", "addPortal",
                             Portal.class.getName());
     }

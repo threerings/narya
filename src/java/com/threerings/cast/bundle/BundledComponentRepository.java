@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.32 2004/07/03 03:41:21 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.33 2004/07/13 16:34:49 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -18,7 +18,7 @@ import com.samskivert.util.HashIntMap;
 import com.samskivert.util.IntIntMap;
 import com.samskivert.util.Tuple;
 
-import org.apache.commons.collections.FilterIterator;
+import org.apache.commons.collections.iterators.FilterIterator;
 import org.apache.commons.collections.Predicate;
 
 import com.threerings.resource.ResourceBundle;

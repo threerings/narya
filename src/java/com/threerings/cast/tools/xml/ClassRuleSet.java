@@ -1,5 +1,5 @@
 //
-// $Id: ClassRuleSet.java,v 1.2 2002/12/16 03:08:39 mdb Exp $
+// $Id: ClassRuleSet.java,v 1.3 2004/07/13 16:34:49 mdb Exp $
 
 package com.threerings.cast.tools.xml;
 
@@ -56,13 +56,12 @@ public class ClassRuleSet extends RuleSetBase
                                  ComponentClass.class.getName());
 
         // grab the attributes from the <class> tag
-        digester.addRule(_prefix + CLASS_PATH,
-                         new SetPropertyFieldsRule(digester));
+        digester.addRule(_prefix + CLASS_PATH, new SetPropertyFieldsRule());
 
         // parse render priority overrides
         String opath = _prefix + CLASS_PATH + "/override";
         digester.addObjectCreate(opath, PriorityOverride.class.getName());
-        SetPropertyFieldsRule rule = new SetPropertyFieldsRule(digester);
+        SetPropertyFieldsRule rule = new SetPropertyFieldsRule();
         rule.addFieldParser("orients", new FieldParser() {
             public Object parse (String text) {
                 String[] orients = StringUtil.parseStringArray(text);

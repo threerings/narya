@@ -1,5 +1,5 @@
 //
-// $Id: SimpleMisoSceneRuleSet.java,v 1.1 2003/02/12 07:21:50 mdb Exp $
+// $Id: SimpleMisoSceneRuleSet.java,v 1.2 2004/07/13 16:34:49 mdb Exp $
 
 package com.threerings.miso.tools.xml;
 
@@ -34,21 +34,22 @@ public class SimpleMisoSceneRuleSet implements NestableRuleSet
     {
         // this creates the appropriate instance when we encounter our
         // prefix tag
-        dig.addRule(prefix, new Rule(dig) {
-            public void begin (Attributes attributes) throws Exception {
+        dig.addRule(prefix, new Rule() {
+            public void begin (String namespace, String name,
+                               Attributes attributes) throws Exception {
                 digester.push(createMisoSceneModel());
             }
-            public void end () throws Exception {
+            public void end (String namespace, String name) throws Exception {
                 digester.pop();
             }
         });
 
         // set up rules to parse and set our fields
-        dig.addRule(prefix + "/width", new SetFieldRule(dig, "width"));
-        dig.addRule(prefix + "/height", new SetFieldRule(dig, "height"));
-        dig.addRule(prefix + "/viewwidth", new SetFieldRule(dig, "vwidth"));
-        dig.addRule(prefix + "/viewheight", new SetFieldRule(dig, "vheight"));
-        dig.addRule(prefix + "/base", new SetFieldRule(dig, "baseTileIds"));
+        dig.addRule(prefix + "/width", new SetFieldRule("width"));
+        dig.addRule(prefix + "/height", new SetFieldRule("height"));
+        dig.addRule(prefix + "/viewwidth", new SetFieldRule("vwidth"));
+        dig.addRule(prefix + "/viewheight", new SetFieldRule("vheight"));
+        dig.addRule(prefix + "/base", new SetFieldRule("baseTileIds"));
 
         dig.addObjectCreate(prefix + "/objects", ArrayList.class.getName());
         dig.addObjectCreate(prefix + "/objects/object",
@@ -56,10 +57,9 @@ public class SimpleMisoSceneRuleSet implements NestableRuleSet
         dig.addSetNext(prefix + "/objects/object", "add",
                        Object.class.getName());
 
-        dig.addRule(prefix + "/objects/object",
-                    new SetPropertyFieldsRule(dig));
+        dig.addRule(prefix + "/objects/object", new SetPropertyFieldsRule());
 
-        dig.addRule(prefix + "/objects", new CallMethodSpecialRule(dig) {
+        dig.addRule(prefix + "/objects", new CallMethodSpecialRule() {
             public void parseAndSet (String bodyText, Object target)
                 throws Exception
             {

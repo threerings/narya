@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.72 2004/02/26 18:42:51 ray Exp $
+// $Id: SoundManager.java,v 1.73 2004/07/13 16:34:49 mdb Exp $
 
 package com.threerings.media.sound;
 
@@ -27,8 +27,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import org.apache.commons.io.StreamUtils;
-import org.apache.commons.lang.Constant;
+import org.apache.commons.io.IOUtils;
 
 import com.samskivert.util.Config;
 import com.samskivert.util.Interval;
@@ -735,7 +734,7 @@ public class SoundManager
             InputStream stream = getTestClip(key);
             if (stream != null) {
                 data = new byte[1][];
-                data[0] = StreamUtils.streamAsBytes(stream, BUFFER_SIZE);
+                data[0] = IOUtils.toByteArray(stream);
 
             } else { 
                 // otherwise, randomize between all available sounds
@@ -855,7 +854,7 @@ public class SoundManager
             }
         }
 
-        return StreamUtils.streamAsBytes(clipin, BUFFER_SIZE);
+        return IOUtils.toByteArray(clipin);
     }
 
     protected Config getConfig (SoundKey key)
@@ -1271,13 +1270,13 @@ public class SoundManager
     protected HashMap _configs = new HashMap();
 
     /** Signals to the queue to do different things. */
-    protected Constant PLAY = new Constant("PLAY");
-    protected Constant PLAYMUSIC = new Constant("PLAYMUSIC");
-    protected Constant STOPMUSIC = new Constant("STOPMUSIC");
-    protected Constant UPDATE_MUSIC_VOL = new Constant("UPDATE_MUSIC_VOL");
-    protected Constant LOCK = new Constant("LOCK");
-    protected Constant UNLOCK = new Constant("UNLOCK");
-    protected Constant DIE = new Constant("DIE");
+    protected String PLAY = new String("PLAY");
+    protected String PLAYMUSIC = new String("PLAYMUSIC");
+    protected String STOPMUSIC = new String("STOPMUSIC");
+    protected String UPDATE_MUSIC_VOL = new String("UPDATE_MUSIC_VOL");
+    protected String LOCK = new String("LOCK");
+    protected String UNLOCK = new String("UNLOCK");
+    protected String DIE = new String("DIE");
 
     /** A pref that specifies a directory for us to get test sounds from. */
     protected static RuntimeAdjust.FileAdjust _testDir =
@@ -1297,9 +1296,6 @@ public class SoundManager
 
     /** The queue size at which we start to ignore requests to play sounds. */
     protected static final int MAX_QUEUE_SIZE = 25;
-
-    /** The buffer size in bytes used when reading audio file data. */
-    protected static final int BUFFER_SIZE = 1024 * 16;
 
     /** Used to disable sound entirely. */
     protected static final boolean SOUND_ENABLED = true;

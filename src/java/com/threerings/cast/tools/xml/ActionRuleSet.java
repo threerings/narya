@@ -1,5 +1,5 @@
 //
-// $Id: ActionRuleSet.java,v 1.2 2002/06/26 23:53:07 mdb Exp $
+// $Id: ActionRuleSet.java,v 1.3 2004/07/13 16:34:49 mdb Exp $
 
 package com.threerings.cast.tools.xml;
 
@@ -60,14 +60,13 @@ public class ActionRuleSet extends RuleSetBase
                                  ActionSequence.class.getName());
 
         // grab the name attribute from the <action> tag
-        digester.addRule(_prefix + ACTION_PATH,
-                         new SetPropertyFieldsRule(digester));
+        digester.addRule(_prefix + ACTION_PATH, new SetPropertyFieldsRule());
 
         // grab the other attributes from their respective tags
         digester.addRule(_prefix + ACTION_PATH + "/framesPerSecond",
-                         new SetFieldRule(digester, "framesPerSecond"));
+                         new SetFieldRule("framesPerSecond"));
 
-        CallMethodSpecialRule origin = new CallMethodSpecialRule(digester) {
+        CallMethodSpecialRule origin = new CallMethodSpecialRule() {
             public void parseAndSet (String bodyText, Object target)
                 throws Exception {
                 int[] coords = StringUtil.parseIntArray(bodyText);
@@ -82,7 +81,7 @@ public class ActionRuleSet extends RuleSetBase
         };
         digester.addRule(_prefix + ACTION_PATH + "/origin", origin);
 
-        CallMethodSpecialRule orient = new CallMethodSpecialRule(digester) {
+        CallMethodSpecialRule orient = new CallMethodSpecialRule() {
             public void parseAndSet (String bodyText, Object target)
                 throws Exception {
                 ActionSequence seq = ((ActionSequence)target);

@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParser.java,v 1.8 2004/02/25 14:43:17 mdb Exp $
+// $Id: XMLTileSetParser.java,v 1.9 2004/07/13 16:34:49 mdb Exp $
 
 package com.threerings.media.tile.tools.xml;
 
@@ -58,8 +58,7 @@ public class XMLTileSetParser
         // add a set next rule which will put tilesets with this prefix
         // into the array list that'll be on the top of the stack
         _digester.addRule(prefix + TileSetRuleSet.TILESET_PATH,
-                          new ValidatedSetNextRule(_digester, 
-                                                   "add", Object.class,
+                          new ValidatedSetNextRule("add", Object.class,
                                                    ruleset));
     }
 

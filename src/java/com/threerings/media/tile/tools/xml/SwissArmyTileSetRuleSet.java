@@ -1,5 +1,5 @@
 //
-// $Id: SwissArmyTileSetRuleSet.java,v 1.10 2004/02/25 14:43:17 mdb Exp $
+// $Id: SwissArmyTileSetRuleSet.java,v 1.11 2004/07/13 16:34:49 mdb Exp $
 
 package com.threerings.media.tile.tools.xml;
 
@@ -42,8 +42,7 @@ public class SwissArmyTileSetRuleSet extends TileSetRuleSet
         super.addRuleInstances(digester);
 
         digester.addRule(
-            _prefix + TILESET_PATH + "/widths",
-            new CallMethodSpecialRule(digester) {
+            _prefix + TILESET_PATH + "/widths", new CallMethodSpecialRule() {
                 public void parseAndSet (String bodyText, Object target)
                 {
                     int[] widths = StringUtil.parseIntArray(bodyText);
@@ -52,8 +51,7 @@ public class SwissArmyTileSetRuleSet extends TileSetRuleSet
             });
 
         digester.addRule(
-            _prefix + TILESET_PATH + "/heights",
-            new CallMethodSpecialRule(digester) {
+            _prefix + TILESET_PATH + "/heights", new CallMethodSpecialRule() {
                 public void parseAndSet (String bodyText, Object target)
                 {
                     int[] heights = StringUtil.parseIntArray(bodyText);
@@ -63,7 +61,7 @@ public class SwissArmyTileSetRuleSet extends TileSetRuleSet
 
         digester.addRule(
             _prefix + TILESET_PATH + "/tileCounts",
-            new CallMethodSpecialRule(digester) {
+            new CallMethodSpecialRule() {
                 public void parseAndSet (String bodyText, Object target)
                 {
                     int[] tileCounts = StringUtil.parseIntArray(bodyText);
@@ -72,8 +70,7 @@ public class SwissArmyTileSetRuleSet extends TileSetRuleSet
             });
 
         digester.addRule(
-            _prefix + TILESET_PATH + "/offsetPos",
-            new CallMethodSpecialRule(digester) {
+            _prefix + TILESET_PATH + "/offsetPos", new CallMethodSpecialRule() {
                 public void parseAndSet (String bodyText, Object target)
                 {
                     int[] values = StringUtil.parseIntArray(bodyText);
@@ -88,8 +85,7 @@ public class SwissArmyTileSetRuleSet extends TileSetRuleSet
             });
 
         digester.addRule(
-            _prefix + TILESET_PATH + "/gapSize",
-            new CallMethodSpecialRule(digester) {
+            _prefix + TILESET_PATH + "/gapSize", new CallMethodSpecialRule() {
                 public void parseAndSet (String bodyText, Object target)
                 {
                     int[] values = StringUtil.parseIntArray(bodyText);

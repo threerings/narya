@@ -1,5 +1,5 @@
 //
-// $Id: ColorPositoryParser.java,v 1.1 2003/01/31 23:10:45 mdb Exp $
+// $Id: ColorPositoryParser.java,v 1.2 2004/07/13 16:34:49 mdb Exp $
 
 package com.threerings.media.image.tools.xml;
 
@@ -34,13 +34,14 @@ public class ColorPositoryParser extends CompiledConfigParser
         // create and configure class record instances
         String prefix = "colors/class";
         digest.addObjectCreate(prefix, ClassRecord.class.getName());
-        digest.addRule(prefix, new SetPropertyFieldsRule(digest));
+        digest.addRule(prefix, new SetPropertyFieldsRule());
         digest.addSetNext(prefix, "addClass", ClassRecord.class.getName());
 
         // create and configure color record instances
         prefix += "/color";
-        digest.addRule(prefix, new Rule(digest) {
-            public void begin (Attributes attributes) throws Exception {
+        digest.addRule(prefix, new Rule() {
+            public void begin (String namespace, String name,
+                               Attributes attributes) throws Exception {
                 // we want to inherit settings from the color class when
                 // creating the record, so we do some custom stuff
                 ColorRecord record = new ColorRecord();
@@ -49,11 +50,11 @@ public class ColorPositoryParser extends CompiledConfigParser
                 digester.push(record);
             }
 
-            public void end () throws Exception {
+            public void end (String namespace, String name) throws Exception {
                 digester.pop();
             }
         });
-        digest.addRule(prefix, new SetPropertyFieldsRule(digest));
+        digest.addRule(prefix, new SetPropertyFieldsRule());
         digest.addSetNext(prefix, "addColor", ColorRecord.class.getName());
     }
 }

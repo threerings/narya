@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSetRuleSet.java,v 1.10 2004/02/25 14:43:17 mdb Exp $
+// $Id: ObjectTileSetRuleSet.java,v 1.11 2004/07/13 16:34:49 mdb Exp $
 
 package com.threerings.media.tile.tools.xml;
 
@@ -47,7 +47,7 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
 
         digester.addRule(
             _prefix + TILESET_PATH + "/objectWidths",
-            new CallMethodSpecialRule(digester) {
+            new CallMethodSpecialRule() {
                 public void parseAndSet (String bodyText, Object target)
                 {
                     int[] widths = StringUtil.parseIntArray(bodyText);
@@ -57,7 +57,7 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
 
         digester.addRule(
             _prefix + TILESET_PATH + "/objectHeights",
-            new CallMethodSpecialRule(digester) {
+            new CallMethodSpecialRule() {
                 public void parseAndSet (String bodyText, Object target)
                 {
                     int[] heights = StringUtil.parseIntArray(bodyText);
@@ -66,8 +66,7 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
             });
 
         digester.addRule(
-            _prefix + TILESET_PATH + "/xOrigins",
-            new CallMethodSpecialRule(digester) {
+            _prefix + TILESET_PATH + "/xOrigins", new CallMethodSpecialRule() {
                 public void parseAndSet (String bodyText, Object target)
                 {
                     int[] xorigins = StringUtil.parseIntArray(bodyText);
@@ -76,8 +75,7 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
             });
 
         digester.addRule(
-            _prefix + TILESET_PATH + "/yOrigins",
-            new CallMethodSpecialRule(digester) {
+            _prefix + TILESET_PATH + "/yOrigins", new CallMethodSpecialRule() {
                 public void parseAndSet (String bodyText, Object target)
                 {
                     int[] yorigins = StringUtil.parseIntArray(bodyText);
@@ -87,7 +85,7 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
 
         digester.addRule(
             _prefix + TILESET_PATH + "/priorities",
-            new CallMethodSpecialRule(digester) {
+            new CallMethodSpecialRule() {
                 public void parseAndSet (String bodyText, Object target)
                 {
                     byte[] prios = StringUtil.parseByteArray(bodyText);
@@ -96,8 +94,7 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
             });
 
         digester.addRule(
-            _prefix + TILESET_PATH + "/zations",
-            new CallMethodSpecialRule(digester) {
+            _prefix + TILESET_PATH + "/zations", new CallMethodSpecialRule() {
                 public void parseAndSet (String bodyText, Object target)
                 {
                     String[] zations = StringUtil.parseStringArray(bodyText);
@@ -106,8 +103,7 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
             });
 
         digester.addRule(
-            _prefix + TILESET_PATH + "/xspots",
-            new CallMethodSpecialRule(digester) {
+            _prefix + TILESET_PATH + "/xspots", new CallMethodSpecialRule() {
                 public void parseAndSet (String bodyText, Object target)
                 {
                     short[] xspots = StringUtil.parseShortArray(bodyText);
@@ -116,8 +112,7 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
             });
 
         digester.addRule(
-            _prefix + TILESET_PATH + "/yspots",
-            new CallMethodSpecialRule(digester) {
+            _prefix + TILESET_PATH + "/yspots", new CallMethodSpecialRule() {
                 public void parseAndSet (String bodyText, Object target)
                 {
                     short[] yspots = StringUtil.parseShortArray(bodyText);
@@ -126,8 +121,7 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
             });
 
         digester.addRule(
-            _prefix + TILESET_PATH + "/sorients",
-            new CallMethodSpecialRule(digester) {
+            _prefix + TILESET_PATH + "/sorients", new CallMethodSpecialRule() {
                 public void parseAndSet (String bodyText, Object target)
                 {
                     ObjectTileSet set = (ObjectTileSet)target;

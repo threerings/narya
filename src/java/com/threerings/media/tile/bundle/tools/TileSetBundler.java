@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundler.java,v 1.19 2004/02/25 14:43:17 mdb Exp $
+// $Id: TileSetBundler.java,v 1.20 2004/07/13 16:34:49 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -20,7 +20,7 @@ import java.util.zip.Deflater;
 import javax.imageio.ImageIO;
 
 import org.apache.commons.digester.Digester;
-import org.apache.commons.io.StreamUtils;
+import org.apache.commons.io.CopyUtils;
 import org.xml.sax.SAXException;
 
 import com.samskivert.io.NestableIOException;
@@ -400,7 +400,7 @@ public class TileSetBundler
                         } else {
                             jar.putNextEntry(new JarEntry(imagePath));
                             FileInputStream imgin = new FileInputStream(ifile);
-                            StreamUtils.pipe(imgin, jar);
+                            CopyUtils.copy(imgin, jar);
                         }
                     } catch (Exception e) {
                         throw new NestableIOException(

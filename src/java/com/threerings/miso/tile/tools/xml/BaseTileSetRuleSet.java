@@ -1,5 +1,5 @@
 //
-// $Id: BaseTileSetRuleSet.java,v 1.10 2004/02/25 14:43:57 mdb Exp $
+// $Id: BaseTileSetRuleSet.java,v 1.11 2004/07/13 16:34:49 mdb Exp $
 
 package com.threerings.miso.tile.tools.xml;
 
@@ -28,8 +28,7 @@ public class BaseTileSetRuleSet extends SwissArmyTileSetRuleSet
         super.addRuleInstances(digester);
 
         digester.addRule(
-            _prefix + TILESET_PATH + "/passable",
-            new CallMethodSpecialRule(digester) {
+            _prefix + TILESET_PATH + "/passable", new CallMethodSpecialRule() {
                 public void parseAndSet (String bodyText, Object target)
                 {
                     int[] values = StringUtil.parseIntArray(bodyText);

@@ -1,12 +1,12 @@
 //
-// $Id: DropBoard.java,v 1.4 2004/02/25 14:48:44 mdb Exp $
+// $Id: DropBoard.java,v 1.5 2004/07/13 16:34:49 mdb Exp $
 
 package com.threerings.puzzle.drop.data;
 
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import org.apache.commons.lang.Strings;
+import org.apache.commons.lang.StringUtils;
 
 import com.threerings.util.DirectionUtil;
 
@@ -513,7 +513,7 @@ public abstract class DropBoard extends Board
                         str += "|" + formatPiece(opiece);
                     }
                 }
-                buf.append(Strings.rightPad(str, padwid));
+                buf.append(StringUtils.rightPad(str, padwid));
 	    }
 	    Log.warning(buf.toString());
 	}
