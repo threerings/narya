@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.java,v 1.11 2002/10/16 00:19:23 shaper Exp $
+// $Id: GameObject.java,v 1.12 2002/10/27 23:54:32 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -32,6 +32,9 @@ public class GameObject extends PlaceObject
     /** The field name of the <code>players</code> field. */
     public static final String PLAYERS = "players";
 
+    /** The field name of the <code>winners</code> field. */
+    public static final String WINNERS = "winners";
+
     /** The field name of the <code>roundId</code> field. */
     public static final String ROUND_ID = "roundId";
 
@@ -63,6 +66,10 @@ public class GameObject extends PlaceObject
 
     /** The usernames of the players involved in this game. */
     public String[] players;
+
+    /** Whether each player in the game is a winner, or <code>null</code>
+     * if the game is not yet over. */
+    public boolean[] winners;
 
     /** The unique round identifier for the current round. */
     public int roundId;
@@ -185,6 +192,34 @@ public class GameObject extends PlaceObject
     {
         this.players[index] = value;
         requestElementUpdate(PLAYERS, value, index);
+    }
+
+    /**
+     * Requests that the <code>winners</code> field be set to the specified
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public void setWinners (boolean[] winners)
+    {
+        this.winners = winners;
+        requestAttributeChange(WINNERS, winners);
+    }
+
+    /**
+     * Requests that the <code>index</code>th element of
+     * <code>winners</code> field be set to the specified value. The local
+     * value will be updated immediately and an event will be propagated
+     * through the system to notify all listeners that the attribute did
+     * change. Proxied copies of this object (on clients) will apply the
+     * value change when they received the attribute changed notification.
+     */
+    public void setWinnersAt (boolean value, int index)
+    {
+        this.winners[index] = value;
+        requestElementUpdate(WINNERS, new Boolean(value), index);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: GameManagerDelegate.java,v 1.5 2002/06/19 23:41:25 shaper Exp $
+// $Id: GameManagerDelegate.java,v 1.6 2002/10/27 23:54:32 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -42,6 +42,13 @@ public class GameManagerDelegate extends PlaceManagerDelegate
      * @param skill the base skill level of the AI (0 - 100 inclusive).
      */
     public void tickAI (int pidx, byte skill)
+    {
+    }
+
+    /**
+     * Called by the game manager when the game is about to end.
+     */
+    public void gameWillEnd ()
     {
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.dobj,v 1.16 2002/10/16 00:19:23 shaper Exp $
+// $Id: GameObject.dobj,v 1.17 2002/10/27 23:54:32 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -45,6 +45,10 @@ public class GameObject extends PlaceObject
 
     /** The usernames of the players involved in this game. */
     public String[] players;
+
+    /** Whether each player in the game is a winner, or <code>null</code>
+     * if the game is not yet over. */
+    public boolean[] winners;
 
     /** The unique round identifier for the current round. */
     public int roundId;

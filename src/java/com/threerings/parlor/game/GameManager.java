@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.51 2002/10/24 19:05:46 mdb Exp $
+// $Id: GameManager.java,v 1.52 2002/10/27 23:54:32 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -484,7 +484,8 @@ public class GameManager extends PlaceManager
      * Called when the game is about to start, but before the game start
      * notification has been delivered to the players. Derived classes
      * should override this if they need to perform some pre-start
-     * activities.
+     * activities, but should be sure to call
+     * <code>super.gameWillStart()</code>.
      */
     protected void gameWillStart ()
     {
@@ -503,7 +504,8 @@ public class GameManager extends PlaceManager
      * Called after the game start notification was dispatched.  Derived
      * classes can override this to put whatever wheels they might need
      * into motion now that the game is started (if anything other than
-     * transitioning the game to {@link GameObject#IN_PLAY} is necessary).
+     * transitioning the game to {@link GameObject#IN_PLAY} is necessary),
+     * but should be sure to call <code>super.gameDidStart()</code>.
      */
     protected void gameDidStart ()
     {
@@ -565,10 +567,23 @@ public class GameManager extends PlaceManager
             return;
         }
 
-        // figure out who won...
+        try {
+            _gameobj.startTransaction();
 
-        // transition to the game over state
-        _gameobj.setState(GameObject.GAME_OVER);
+            // let the derived class do its pre-end stuff
+            gameWillEnd();
+
+            // determine winners and set them in the game object
+            boolean[] winners = new boolean[getPlayerSlots()];
+            assignWinners(winners);
+            _gameobj.setWinners(winners);
+
+            // transition to the game over state
+            _gameobj.setState(GameObject.GAME_OVER);
+
+        } finally {
+            _gameobj.commitTransaction();
+        }
 
         // wait until we hear the game state transition on the game object
         // to invoke our game over code so that we can be sure that any
@@ -577,9 +592,39 @@ public class GameManager extends PlaceManager
     }
 
     /**
+     * Assigns the final winning status for each player to their respect
+     * player index in the supplied array.  This will be called by {@link
+     * #endGame} when the game is over.  The default implementation marks
+     * no players as winners.  Derived classes should override this method
+     * in order to customize the winning conditions.
+     */
+    protected void assignWinners (boolean[] winners)
+    {
+        Arrays.fill(winners, false);
+    }
+
+    /**
+     * Called when the game is about to end, but before the game end
+     * notification has been delivered to the players.  Derived classes
+     * should override this if they need to perform some pre-end
+     * activities, but should be sure to call
+     * <code>super.gameWillEnd()</code>.
+     */
+    protected void gameWillEnd ()
+    {
+        // let our delegates do their business
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                ((GameManagerDelegate)delegate).gameWillEnd();
+            }
+        });
+    }
+
+    /**
      * Called after the game has transitioned to the {@link
      * GameObject#GAME_OVER} state. Derived classes should override this
-     * to perform any post-game activities.
+     * to perform any post-game activities, but should be sure to call
+     * <code>super.gameDidEnd()</code>.
      */
     protected void gameDidEnd ()
     {
@@ -641,7 +686,8 @@ public class GameManager extends PlaceManager
     /**
      * Called after the game has been reset.  Derived classes can override
      * this to put whatever wheels they might need into motion now that
-     * the game is reset.
+     * the game is reset, but should be sure to call
+     * <code>super.gameDidReset()</code>.
      */
     protected void gameDidReset ()
     {
