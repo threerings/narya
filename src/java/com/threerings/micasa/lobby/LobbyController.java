@@ -1,5 +1,5 @@
 //
-// $Id: LobbyController.java,v 1.8 2001/10/25 23:42:33 mdb Exp $
+// $Id: LobbyController.java,v 1.9 2002/08/14 19:07:49 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -15,8 +15,7 @@ import com.threerings.parlor.game.GameConfig;
 import com.threerings.micasa.Log;
 import com.threerings.micasa.util.MiCasaContext;
 
-public class LobbyController
-    extends PlaceController
+public class LobbyController extends PlaceController
     implements InvitationHandler, InvitationResponseObserver
 {
     public void init (CrowdContext ctx, PlaceConfig config)
@@ -61,35 +60,38 @@ public class LobbyController
         }
     }
 
-    public void invitationReceived (int inviteId, String inviter,
-                                    GameConfig config)
+    // documentation inherited from interface
+    public void invitationReceived (Invitation invite)
     {
-        Log.info("Invitation received [inviteId=" + inviteId +
-                 ", inviter=" + inviter + ", config=" + config + "].");
+        Log.info("Invitation received [invite=" + invite + "].");
 
         // accept the invitation. we're game...
-        _ctx.getParlorDirector().accept(inviteId);
+        invite.accept();
     }
 
-    public void invitationCancelled (int inviteId)
+    // documentation inherited from interface
+    public void invitationCancelled (Invitation invite)
     {
-        Log.info("Invitation cancelled [inviteId=" + inviteId + "].");
+        Log.info("Invitation cancelled " + invite + ".");
     }
 
-    public void invitationAccepted (int inviteId)
+    // documentation inherited from interface
+    public void invitationAccepted (Invitation invite)
     {
-        Log.info("Invitation accepted [inviteId=" + inviteId + "].");
+        Log.info("Invitation accepted " + invite + ".");
     }
 
-    public void invitationRefused (int inviteId, String message)
+    // documentation inherited from interface
+    public void invitationRefused (Invitation invite, String message)
     {
-        Log.info("Invitation refused [inviteId=" + inviteId +
+        Log.info("Invitation refused [invite=" + invite +
                  ", message=" + message + "].");
     }
 
-    public void invitationCountered (int inviteId, GameConfig config)
+    // documentation inherited from interface
+    public void invitationCountered (Invitation invite, GameConfig config)
     {
-        Log.info("Invitation countered [inviteId=" + inviteId +
+        Log.info("Invitation countered [invite=" + invite +
                  ", config=" + config + "].");
     }
 

@@ -1,27 +1,33 @@
 //
-// $Id: ParlorService.java,v 1.12 2002/04/15 16:28:02 shaper Exp $
+// $Id: ParlorService.java,v 1.13 2002/08/14 19:07:52 mdb Exp $
 
 package com.threerings.parlor.client;
 
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationDirector;
+import com.threerings.presents.client.InvocationService;
 
-import com.threerings.parlor.Log;
-import com.threerings.parlor.data.ParlorCodes;
 import com.threerings.parlor.game.GameConfig;
 
 /**
- * This class provides an interface to the various parlor services that
- * are directly invokable by the client (by means of the invocation
- * services). Presently these services are limited to the various
- * matchmaking mechanisms. It is unlikely that client code will want to
- * make direct use of this class, instead they would make use of the
- * programmatic interface provided by the {@link ParlorDirector}.
- *
- * @see ParlorDirector
+ * Provides an interface to the various parlor invocation services.
+ * Presently these services are limited to the various matchmaking
+ * mechanisms. It is unlikely that client code will want to make direct
+ * use of this class, instead they would make use of the programmatic
+ * interface provided by the {@link ParlorDirector}.
  */
-public class ParlorService implements ParlorCodes
+public interface ParlorService extends InvocationService
 {
+    /**
+     * Used to communicate responses to {@link #invite} requests.
+     */
+    public static interface InviteListener extends InvocationListener
+    {
+        /**
+         * Called in response to a successful {@link #invite} request.
+         */
+        public void inviteReceived (int inviteId);
+    }
+
     /**
      * You probably don't want to call this directly, but want to generate
      * your invitation request via {@link ParlorDirector#invite}. Requests
@@ -33,18 +39,10 @@ public class ParlorService implements ParlorCodes
      * @param invitee the username of the user to be invited.
      * @param config a game config object detailing the type and
      * configuration of the game to be created.
-     * @param rsptgt the object reference that will receive and process
-     * the response.
-     *
-     * @return the invocation request id of the generated request.
+     * @param listener will receive and process the response.
      */
-    public static int invite (Client client, String invitee,
-                              GameConfig config, Object rsptgt)
-    {
-        InvocationDirector invdir = client.getInvocationDirector();
-        Object[] args = new Object[] { invitee, config };
-        return invdir.invoke(MODULE_NAME, INVITE_ID, args, rsptgt);
-    }
+    public void invite (Client client, String invitee, GameConfig config,
+                        InviteListener listener);
 
     /**
      * You probably don't want to call this directly, but want to call one
@@ -62,21 +60,10 @@ public class ParlorService implements ParlorCodes
      * the case of an invitation refusal or an updated game configuration
      * object in the case of a counter-invitation, or null in the case of
      * an accepted invitation).
-     * @param rsptgt the object reference that will receive and process
-     * the response.
-     *
-     * @return the invocation request id of the generated request.
+     * @param listener will receive and process the response.
      */
-    public static int respond (Client client, int inviteId, int code,
-                               Object arg, Object rsptgt)
-    {
-        InvocationDirector invdir = client.getInvocationDirector();
-        Object[] args = new Object[] {
-            new Integer(inviteId), new Integer(code), null };
-        // we can't have a null argument so we use the empty string
-        args[2] = (arg == null) ? "" : arg;
-        return invdir.invoke(MODULE_NAME, RESPOND_INVITE_ID, args, rsptgt);
-    }
+    public void respond (Client client, int inviteId, int code, Object arg,
+                         InvocationListener listener);
 
     /**
      * You probably don't want to call this directly, but want to call
@@ -86,16 +73,18 @@ public class ParlorService implements ParlorCodes
      * @param client a connected, operational client instance.
      * @param inviteId the unique id previously assigned by the server to
      * this invitation.
-     * @param rsptgt the object reference that will receive and process
-     * the response.
-     *
-     * @return the invocation request id of the generated request.
+     * @param listener will receive and process the response.
      */
-    public static int cancel (Client client, int inviteId, Object rsptgt)
+    public void cancel (Client client, int inviteId,
+                        InvocationListener listener);
+
+    /**
+     * Used to communicate responses to {@link #createTable}, {@link
+     * #joinTable}, and {@link #leaveTable} requests.
+     */
+    public static interface TableListener extends InvocationListener
     {
-        InvocationDirector invdir = client.getInvocationDirector();
-        Object[] args = new Object[] { new Integer(inviteId) };
-        return invdir.invoke(MODULE_NAME, CANCEL_INVITE_ID, args, rsptgt);
+        public void tableCreated (int tableId);
     }
 
     /**
@@ -108,18 +97,10 @@ public class ParlorService implements ParlorCodes
      * created table.
      * @param config the game config for the game to be matchmade by the
      * table.
-     * @param rsptgt the object reference that will receive and process
-     * the response.
-     *
-     * @return the invocation request id of the generated request.
+     * @param listener will receive and process the response.
      */
-    public static int createTable (
-        Client client, int lobbyOid, GameConfig config, Object rsptgt)
-    {
-        InvocationDirector invdir = client.getInvocationDirector();
-        Object[] args = new Object[] { new Integer(lobbyOid), config };
-        return invdir.invoke(MODULE_NAME, CREATE_TABLE_REQUEST, args, rsptgt);
-    }
+    public void createTable (Client client, int lobbyOid, GameConfig config,
+                             TableListener listener);
 
     /**
      * You probably don't want to call this directly, but want to call
@@ -132,41 +113,22 @@ public class ParlorService implements ParlorCodes
      * to be added.
      * @param position the position at the table to which this user desires
      * to be added.
-     * @param rsptgt the object reference that will receive and process
-     * the response.
-     *
-     * @return the invocation request id of the generated request.
+     * @param listener will receive and process the response.
      */
-    public static int joinTable (Client client, int lobbyOid, int tableId,
-                                 int position, Object rsptgt)
-    {
-        InvocationDirector invdir = client.getInvocationDirector();
-        Object[] args = new Object[] { new Integer(lobbyOid),
-                                       new Integer(tableId),
-                                       new Integer(position) };
-        return invdir.invoke(MODULE_NAME, JOIN_TABLE_REQUEST, args, rsptgt);
-    }
+    public void joinTable (Client client, int lobbyOid, int tableId,
+                           int position, InvocationListener listener);
 
     /**
      * You probably don't want to call this directly, but want to call
-     * {@link TableDirector#leaveTable}. Requests that the current user
-     * be removed from the specified table.
+     * {@link TableDirector#leaveTable}. Requests that the current user be
+     * removed from the specified table.
      *
      * @param client a connected, operational client instance.
      * @param lobbyOid the oid of the lobby that contains the table.
      * @param tableId the unique id of the table from which this user
      * wishes to be removed.
-     * @param rsptgt the object reference that will receive and process
-     * the response.
-     *
-     * @return the invocation request id of the generated request.
+     * @param listener will receive and process the response.
      */
-    public static int leaveTable (
-        Client client, int lobbyOid, int tableId, Object rsptgt)
-    {
-        InvocationDirector invdir = client.getInvocationDirector();
-        Object[] args = new Object[] { new Integer(lobbyOid),
-                                       new Integer(tableId) };
-        return invdir.invoke(MODULE_NAME, LEAVE_TABLE_REQUEST, args, rsptgt);
-    }
+    public void leaveTable (Client client, int lobbyOid, int tableId,
+                            InvocationListener listener);
 }

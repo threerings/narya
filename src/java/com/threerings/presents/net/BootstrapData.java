@@ -1,9 +1,10 @@
 //
-// $Id: BootstrapData.java,v 1.6 2002/05/28 22:54:43 mdb Exp $
+// $Id: BootstrapData.java,v 1.7 2002/08/14 19:07:56 mdb Exp $
 
 package com.threerings.presents.net;
 
 import com.threerings.presents.dobj.DObject;
+import com.threerings.util.StreamableArrayList;
 
 /**
  * A <code>BootstrapData</code> object is communicated back to the client
@@ -16,6 +17,6 @@ public class BootstrapData extends DObject
     /** The oid of this client's associated distributed object. */
     public int clientOid;
 
-    /** The oid to which to send invocation requests. */
-    public int invOid;
+    /** A list of handles to invocation services. */
+    public StreamableArrayList services;
 }

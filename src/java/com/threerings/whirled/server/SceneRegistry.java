@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.15 2002/05/26 02:24:46 mdb Exp $
+// $Id: SceneRegistry.java,v 1.16 2002/08/14 19:07:57 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -37,6 +37,9 @@ import com.threerings.whirled.server.persist.SceneRepository;
  */
 public class SceneRegistry
 {
+    /** Used to provide scene-related server-side services. */
+    public SceneProvider sceneprov;
+
     /**
      * Constructs a scene registry, instructing it to load and store
      * scenes using the supplied scene repository.
@@ -50,8 +53,8 @@ public class SceneRegistry
         _scfact = new DefaultRuntimeSceneFactory();
 
         // create/register a scene provider with the invocation services
-        SceneProvider provider = new SceneProvider(invmgr, this);
-        invmgr.registerProvider(SceneProvider.MODULE_NAME, provider);
+        sceneprov = new SceneProvider(CrowdServer.plreg.locprov, this);
+        invmgr.registerDispatcher(new SceneDispatcher(sceneprov), true);
     }
 
     /**

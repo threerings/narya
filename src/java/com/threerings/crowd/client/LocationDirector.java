@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.24 2002/06/14 01:40:16 ray Exp $
+// $Id: LocationDirector.java,v 1.25 2002/08/14 19:07:49 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -10,9 +10,9 @@ import com.samskivert.util.ObserverList;
 import com.samskivert.util.ObserverList.ObserverOp;
 import com.samskivert.util.ResultListener;
 
+import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationReceiver;
-import com.threerings.presents.client.SessionObserver;
+
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.ObjectAccessException;
@@ -32,8 +32,9 @@ import com.threerings.crowd.util.CrowdContext;
  * provides a mechanism for ratifying a request to move to a new place
  * before actually issuing the request.
  */
-public class LocationDirector
-    implements LocationCodes, SessionObserver, Subscriber, InvocationReceiver
+public class LocationDirector extends BasicDirector
+    implements LocationCodes, Subscriber, LocationReceiver,
+               LocationService.MoveListener
 {
     /**
      * Used to recover from a moveTo request that was accepted but
@@ -55,15 +56,14 @@ public class LocationDirector
      */
     public LocationDirector (CrowdContext ctx)
     {
+        super(ctx);
+
         // keep this around for later
         _ctx = ctx;
 
-        // register ourselves as a client observer
-        ctx.getClient().addClientObserver(this);
-
         // register for location notifications
         _ctx.getClient().getInvocationDirector().registerReceiver(
-            MODULE_NAME, this);
+            new LocationDecoder(this));
     }
 
     /**
@@ -137,7 +137,7 @@ public class LocationDirector
         _pendingPlaceId = placeId;
 
         // issue a moveTo request
-        LocationService.moveTo(_ctx.getClient(), placeId, this);
+        _lservice.moveTo(_ctx.getClient(), placeId, this);
         return true;
     }
 
@@ -314,7 +314,9 @@ public class LocationDirector
     // documentation inherited from interface
     public void clientDidLogon (Client client)
     {
-        // get a copy of our body object
+        super.clientDidLogon(client);
+
+        // subscribe to our body object
         Subscriber sub = new Subscriber() {
             public void objectAvailable (DObject object)
             {
@@ -332,6 +334,14 @@ public class LocationDirector
         client.getDObjectManager().subscribeToObject(cloid, sub);
     }
 
+    // documentation inherited
+    protected void fetchServices (Client client)
+    {
+        // obtain our service handle
+        _lservice = (LocationService)
+            client.requireService(LocationService.class);
+    }
+
     protected void gotBodyObject (BodyObject clobj)
     {
         // check to see if we are already in a location, in which case
@@ -341,17 +351,19 @@ public class LocationDirector
     // documentation inherited from interface
     public void clientDidLogoff (Client client)
     {
+        super.clientDidLogoff(client);
+
         // clear ourselves out and inform observers of our departure
         didLeavePlace();
 
         // let our observers know that we're no longer in a location
         _observers.apply(_didChangeOp);
+
+        _lservice = null;
     }
 
-    /**
-     * Called in response to a successful <code>moveTo</code> request.
-     */
-    public void handleMoveSucceeded (int invid, PlaceConfig config)
+    // documentation inherited from interface
+    public void moveSucceeded (PlaceConfig config)
     {
         // handle the successful move
         didMoveTo(_pendingPlaceId, config);
@@ -360,10 +372,8 @@ public class LocationDirector
         _pendingPlaceId = -1;
     }
 
-    /**
-     * Called in response to a failed <code>moveTo</code> request.
-     */
-    public void handleMoveFailed (int invid, String reason)
+    // documentation inherited from interface
+    public void requestFailed (String reason)
     {
         // clear out our pending request oid
         int placeId = _pendingPlaceId;
@@ -376,13 +386,8 @@ public class LocationDirector
         notifyFailure(placeId, reason);
     }
 
-    /**
-     * Called when the server has decided to forcibly move us to another
-     * room. The server first ejects us from our previous room and then
-     * sends us a notification with our new location. We then turn around
-     * and issue a standard moveTo request.
-     */
-    public void handleMoveNotification (int placeId)
+    // documentation inherited from interface
+    public void forcedMove (int placeId)
     {
         Log.info("Moving at request of server [placeId=" + placeId + "].");
 
@@ -492,6 +497,9 @@ public class LocationDirector
 
     /** The context through which we access needed services. */
     protected CrowdContext _ctx;
+
+    /** Provides access to location services. */
+    protected LocationService _lservice;
 
     /** Our location observer list. */
     protected ObserverList _observers =

@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.6 2002/05/17 21:22:46 shaper Exp $
+// $Id: ClientController.java,v 1.7 2002/08/14 19:07:50 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -73,8 +73,11 @@ public class ClientController extends Controller
             config = (GameConfig)
                 Class.forName(_info.gameConfigClass).newInstance();
 
-            // send the game creation request
-            SimulatorDirector.createGame(
+            // get the simulator service and use it to request that our
+            // game be created
+            SimulatorService sservice = (SimulatorService)
+                client.requireService(SimulatorService.class);
+            sservice.createGame(
                 client, config, _info.simClass, _info.playerCount);
 
             // our work here is done, as the location manager will move us

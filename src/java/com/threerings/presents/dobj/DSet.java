@@ -1,11 +1,13 @@
 //
-// $Id: DSet.java,v 1.17 2002/07/23 05:52:48 mdb Exp $
+// $Id: DSet.java,v 1.18 2002/08/14 19:07:55 mdb Exp $
 
 package com.threerings.presents.dobj;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.Iterator;
 
+import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.ObjectInputStream;
@@ -45,7 +47,7 @@ public class DSet
          * its uniqueness in the set. See the {@link DSet} class
          * documentation for further information.
          */
-        public Object getKey ();
+        public Comparable getKey ();
     }
 
     /**
@@ -61,17 +63,8 @@ public class DSet
      */
     public DSet (Iterator source)
     {
-        for (int index = 0; source.hasNext(); index++) {
-            Entry elem = (Entry)source.next();
-
-            // expand the array if necessary
-            if (index >= _entries.length) {
-                expand(index);
-            }
-
-            // insert the item
-            _entries[index] = elem;
-            _size++;
+        while (source.hasNext()) {
+            add((Entry)source.next());
         }
     }
 
@@ -140,37 +133,16 @@ public class DSet
     public Iterator entries ()
     {
         return new Iterator() {
-            public boolean hasNext ()
-            {
-                // we need to scan to the next entry the first time
-                if (_index < 0) {
-                    scanToNext();
-                }
-                return (_index < _entries.length);
+            public boolean hasNext () {
+                return (_index < _size);
             }
-
-            public Object next ()
-            {
-                Object val = _entries[_index];
-                scanToNext();
-                return val;
+            public Object next () {
+                return _entries[_index++];
             }
-
-            public void remove ()
-            {
+            public void remove () {
                 throw new UnsupportedOperationException();
             }
-
-            protected void scanToNext ()
-            {
-                for (_index++; _index < _entries.length; _index++) {
-                    if (_entries[_index] != null) {
-                        return;
-                    }
-                }
-            }
-
-            int _index = -1;
+            protected int _index = 0;
         };
     }
 
@@ -185,32 +157,44 @@ public class DSet
      */
     protected boolean add (Entry elem)
     {
-        Object key = elem.getKey();
+        // determine where we'll be adding the new element
+        int eidx = ArrayUtil.binarySearch(
+            _entries, 0, _size, elem, ENTRY_COMP);
+
+        // if the element is already in the set, bail now
+        if (eidx >= 0) {
+            return false;
+        }
+
+        // convert the index into happy positive land
+        eidx = (eidx+1)*-1;
+
+        // expand our entries array if necessary
         int elength = _entries.length;
-        int index = elength;
-
-        // scan the array looking for a slot and/or the entry already in
-        // the set
-        for (int i = 0; i < elength; i++) {
-            Entry el = _entries[i];
-            // the array may be sparse
-            if (el == null) {
-                if (index == elength) {
-                    index = i;
-                }
-            } else if (el.getKey().equals(key)) {
-                return false;
+        if (_size == elength-1) {
+            // sanity check
+            if (elength > 2048) {
+                Log.warning("Requested to expand to questionably large size " +
+                            "[length=" + elength + "].");
+                Thread.dumpStack();
             }
+
+            // create a new array and copy our data into it
+            Entry[] elems = new Entry[elength*2];
+            System.arraycopy(_entries, 0, elems, 0, elength);
+            _entries = elems;
         }
 
-        // expand the array if necessary
-        if (index >= _entries.length) {
-            expand(index);
+        // if the entry doesn't go at the end, shift the elements down to
+        // accomodate it
+        if (eidx < _size) {
+            System.arraycopy(_entries, eidx, _entries, eidx+1, _size-eidx);
         }
 
-        // insert the item
-        _entries[index] = elem;
+        // stuff the entry into the array and note that we're bigger
+        _entries[eidx] = elem;
         _size++;
+
         return true;
     }
 
@@ -239,17 +223,20 @@ public class DSet
      */
     protected boolean removeKey (Object key)
     {
-        // scan the array looking for a matching entry
-        int elength = _entries.length;
-        for (int i = 0; i < elength; i++) {
-            Entry el = _entries[i];
-            if (el != null && el.getKey().equals(key)) {
-                _entries[i] = null;
-                _size--;
-                return true;
-            }
+        // look up this entry's position in our set
+        int eidx = ArrayUtil.binarySearch(
+            _entries, 0, _size, key, ENTRY_COMP);
+
+        // if we found it, remove it
+        if (eidx >= 0) {
+            // shift the remaining elements down
+            System.arraycopy(_entries, eidx+1, _entries, eidx, _size-eidx-1);
+            _entries[--_size] = null;
+            return true;
+
+        } else {
+            return false;
         }
-        return false;
     }
 
     /**
@@ -264,19 +251,17 @@ public class DSet
      */
     protected boolean update (Entry elem)
     {
-        Object key = elem.getKey();
+        // look up this entry's position in our set
+        int eidx = ArrayUtil.binarySearch(
+            _entries, 0, _size, elem, ENTRY_COMP);
 
-        // scan the array looking for a matching entry
-        int elength = _entries.length;
-        for (int i = 0; i < elength; i++) {
-            Entry el = _entries[i];
-            if (el != null && el.getKey().equals(key)) {
-                _entries[i] = elem;
-                return true;
-            }
+        // if we found it, update it
+        if (eidx >= 0) {
+            _entries[eidx] = elem;
+            return true;
+        } else {
+            return false;
         }
-
-        return false;
     }
 
     /**
@@ -340,35 +325,6 @@ public class DSet
         return buf.toString();
     }
 
-    protected void expand (int index)
-    {
-        // sanity check
-        if (index < 0 || index > Short.MAX_VALUE) {
-            Log.warning("Requested to expand to accomodate bogus index! " +
-                        "[index=" + index + "].");
-            Thread.dumpStack();
-            index = 0;
-        }
-
-        // increase our length in powers of two until we're big enough
-        int tlength = _entries.length;
-        while (index >= tlength) {
-            tlength *= 2;
-        }
-
-        // further sanity checks
-        if (tlength > 4096) {
-            Log.warning("Requested to expand to questionably large size " +
-                        "[index=" + index + ", tlength=" + tlength + "].");
-            Thread.dumpStack();
-        }
-
-        // create a new array and copy our data into it
-        Entry[] elems = new Entry[tlength];
-        System.arraycopy(_entries, 0, elems, 0, _entries.length);
-        _entries = elems;
-    }
-
     /** The entries of the set (in a sparse array). */
     protected Entry[] _entries = new Entry[INITIAL_CAPACITY];
 
@@ -377,4 +333,21 @@ public class DSet
 
     /** The default capacity of a set instance. */
     protected static final int INITIAL_CAPACITY = 2;
+
+    /** Used for lookups and to keep the set contents sorted on
+     * insertions. */
+    protected static Comparator ENTRY_COMP = new Comparator() {
+        public int compare (Object o1, Object o2) {
+            Comparable c1 = (o1 instanceof Entry) ?
+                ((Entry)o1).getKey() : (Comparable)o1;
+            Comparable c2 = (o2 instanceof Entry) ?
+                ((Entry)o2).getKey() : (Comparable)o2;
+            return c1.compareTo(c2);
+        }
+
+        public boolean equals (Object obj) {
+            // we don't care about comparing comparators
+            return (obj == this);
+        }
+    };
 }

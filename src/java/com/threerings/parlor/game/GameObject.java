@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.java,v 1.5 2002/08/09 23:34:10 shaper Exp $
+// $Id: GameObject.java,v 1.6 2002/08/14 19:07:53 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -20,6 +20,9 @@ import com.threerings.crowd.data.PlaceObject;
  */
 public class GameObject extends PlaceObject
 {
+    /** The field name of the <code>service</code> field. */
+    public static final String SERVICE = "service";
+
     /** The field name of the <code>state</code> field. */
     public static final String STATE = "state";
 
@@ -45,6 +48,9 @@ public class GameObject extends PlaceObject
     /** A game state constant indicating that the game was cancelled. */
     public static final int CANCELLED = GAME_OVER+3;
 
+    /** Provides general game invocation services. */
+    public GameMarshaller service;
+
     /** The game state, one of {@link #AWAITING_PLAYERS}, {@link #IN_PLAY},
      * {@link #GAME_OVER}, or {@link #CANCELLED}. */
     public int state;
@@ -66,6 +72,20 @@ public class GameObject extends PlaceObject
     {
         return (players == null) ? -1 : 
             ListUtil.indexOfEqual(players, username);
+    }
+
+    /**
+     * Requests that the <code>service</code> field be set to the specified
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public void setService (GameMarshaller service)
+    {
+        this.service = service;
+        requestAttributeChange(SERVICE, service);
     }
 
     /**

@@ -1,15 +1,20 @@
 //
-// $Id: LobbyRegistry.java,v 1.9 2002/05/21 04:46:44 mdb Exp $
+// $Id: LobbyRegistry.java,v 1.10 2002/08/14 19:07:49 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
 import java.util.*;
 import com.samskivert.util.*;
+import com.threerings.util.StreamableArrayList;
 
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationManager;
+
 import com.threerings.crowd.data.BodyObject;
 
 import com.threerings.micasa.Log;
+import com.threerings.micasa.lobby.LobbyService.CategoriesListener;
+import com.threerings.micasa.lobby.LobbyService.LobbiesListener;
 import com.threerings.micasa.server.MiCasaConfig;
 import com.threerings.micasa.server.MiCasaServer;
 
@@ -64,7 +69,8 @@ import com.threerings.micasa.server.MiCasaServer;
  * sense, the client will be able to use them to search for lobbies
  * containing games of similar types using the provided facilities.
  */
-public class LobbyRegistry implements LobbyCodes
+public class LobbyRegistry
+    implements LobbyProvider
 {
     /**
      * Initializes the registry. It will use the supplied configuration
@@ -75,9 +81,8 @@ public class LobbyRegistry implements LobbyCodes
      */
     public void init (InvocationManager invmgr)
     {
-        // register our invocation service handler
-        LobbyProvider provider = new LobbyProvider(this);
-        invmgr.registerProvider(MODULE_NAME, provider);
+        // register ourselves as an invocation service handler
+        invmgr.registerDispatcher(new LobbyDispatcher(this), true);
 
         // create our lobby managers
         String[] lmgrs = null;
@@ -176,6 +181,30 @@ public class LobbyRegistry implements LobbyCodes
             cats[i] = (String)iter.next();
         }
         return cats;
+    }
+
+    /**
+     * Processes a request by the client to obtain a list of the lobby
+     * categories available on this server.
+     */
+    public void getCategories (ClientObject caller, CategoriesListener listener)
+    {
+        listener.gotCategories(getCategories((BodyObject)caller));
+    }
+
+    /**
+     * Processes a request by the client to obtain a list of lobbies
+     * matching the supplied category string.
+     */
+    public void getLobbies (ClientObject caller, String category,
+                            LobbiesListener listener)
+    {
+        StreamableArrayList target = new StreamableArrayList();
+        ArrayList list = (ArrayList)_lobbies.get(category);
+        if (list != null) {
+            target.addAll(list);
+        }
+        listener.gotLobbies(target);
     }
 
     /**

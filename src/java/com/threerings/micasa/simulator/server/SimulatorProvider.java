@@ -1,9 +1,11 @@
 //
-// $Id: SimulatorProvider.java,v 1.1 2001/12/19 09:32:02 shaper Exp $
+// $Id: SimulatorProvider.java,v 1.2 2002/08/14 19:07:51 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationProvider;
+
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.parlor.game.GameConfig;
 
@@ -14,7 +16,7 @@ import com.threerings.micasa.Log;
  * side, passing them off to the {@link SimulatorManager}.
  */
 public class SimulatorProvider
-    extends InvocationProvider
+    implements InvocationProvider
 {
     /**
      * Constructs a simulator provider.
@@ -27,15 +29,14 @@ public class SimulatorProvider
     /**
      * Processes a request from the client to create a new game.
      */
-    public void handleCreateGameRequest (
-        BodyObject source, int invid, GameConfig config,
-        String simClass, int playerCount)
+    public void createGame (ClientObject caller, GameConfig config,
+                            String simClass, int playerCount)
     {
-        Log.info("handleCreateGameRequest [source=" + source +
+        Log.info("handleCreateGameRequest [caller=" + caller +
                  ", config=" + config + ", simClass=" + simClass +
                  ", playerCount=" + playerCount + "].");
 
-        _simmgr.createGame(source, config, simClass, playerCount);
+        _simmgr.createGame((BodyObject)caller, config, simClass, playerCount);
     }
 
     /** The simulator manager. */

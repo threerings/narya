@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.20 2002/04/15 16:28:01 shaper Exp $
+// $Id: PlaceRegistry.java,v 1.21 2002/08/14 19:07:49 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -43,17 +43,23 @@ public class PlaceRegistry
         public void placeCreated (PlaceObject place, PlaceManager pmgr);
     }
 
+    /** The location provider used by the place registry to provide
+     * location-related invocation services. */
+    public LocationProvider locprov;
+
     /**
      * Creates and initializes the place registry; called by the server
      * during its initialization phase.
      */
     public PlaceRegistry (InvocationManager invmgr, RootDObjectManager omgr)
     {
-        // we'll need this later
-        _omgr = omgr;
+        // create and register our location provider
+        locprov = new LocationProvider(invmgr, omgr, this);
+        invmgr.registerDispatcher(new LocationDispatcher(locprov), true);
 
-        // register the location provider
-        LocationProvider.init(invmgr, omgr, this);
+        // we'll need these later
+        _omgr = omgr;
+        _invmgr = invmgr;
     }
 
     /**
@@ -86,7 +92,7 @@ public class PlaceRegistry
             // create a place manager for this place
             PlaceManager pmgr = (PlaceManager)pmgrClass.newInstance();
             // let the pmgr know about us and its configuration
-            pmgr.init(this, config, _omgr);
+            pmgr.init(this, _invmgr, _omgr, config);
 
             // stick the manager on the creation queue because we know
             // we'll get our calls to objectAvailable()/requestFailed() in
@@ -220,6 +226,9 @@ public class PlaceRegistry
                      ", ploid=" + ploid + "].");
         }
     }
+
+    /** The invocation manager with which we operate. */
+    protected InvocationManager _invmgr;
 
     /** The distributed object manager with which we operate. */
     protected RootDObjectManager _omgr;

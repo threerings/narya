@@ -1,11 +1,14 @@
 //
-// $Id: SpotSceneDirector.java,v 1.17 2002/07/26 20:35:02 ray Exp $
+// $Id: SpotSceneDirector.java,v 1.18 2002/08/14 19:07:57 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
 import java.util.Iterator;
 import com.samskivert.util.ResultListener;
 import com.samskivert.util.StringUtil;
+
+import com.threerings.presents.client.BasicDirector;
+import com.threerings.presents.client.Client;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
@@ -31,8 +34,8 @@ import com.threerings.whirled.spot.data.SpotCodes;
  * Extends the standard scene director with facilities to move between
  * locations within a scene.
  */
-public class SpotSceneDirector
-    implements SpotCodes, Subscriber
+public class SpotSceneDirector extends BasicDirector
+    implements SpotCodes, Subscriber, SpotService.ChangeLocListener
 {
     /**
      * This is used to communicate back to the caller of {@link
@@ -64,6 +67,8 @@ public class SpotSceneDirector
     public SpotSceneDirector (WhirledContext ctx, LocationDirector locdir,
                               SceneDirector scdir)
     {
+        super(ctx);
+
         _ctx = ctx;
         _scdir = scdir;
 
@@ -149,7 +154,7 @@ public class SpotSceneDirector
         }
 
         // issue a traversePortal request
-        SpotService.traversePortal(
+        _sservice.traversePortal(
             _ctx.getClient(), scene.getId(), portalId, sceneVer, _scdir);
         return true;
     }
@@ -193,9 +198,9 @@ public class SpotSceneDirector
         // make a note that we're changing to this location
         _pendingLocId = locationId;
         _changeObserver = obs;
+
         // and send the location change request
-        SpotService.changeLoc(_ctx.getClient(), scene.getId(),
-                              locationId, this);
+        _sservice.changeLoc(_ctx.getClient(), scene.getId(), locationId, this);
     }
 
     /**
@@ -243,15 +248,19 @@ public class SpotSceneDirector
         }
 
         // we're all clear to go
-        SpotService.clusterSpeak(
-            _ctx.getClient(), scene.getId(), _locationId, message, mode, this);
+        _sservice.clusterSpeak(_ctx.getClient(), scene.getId(), _locationId,
+                               message, mode);
         return true;
     }
 
-    /**
-     * Called in response to a successful <code>changeLoc</code> request.
-     */
-    public void handleChangeLocSucceeded (int invid, int clusterOid)
+    // documentation inherited
+    protected void fetchServices (Client client)
+    {
+        _sservice = (SpotService)client.requireService(SpotService.class);
+    }
+
+    // documentation inherited from interface
+    public void changeLocSucceeded (int clusterOid)
     {
         ChangeObserver obs = _changeObserver;
         _locationId = _pendingLocId;
@@ -285,10 +294,8 @@ public class SpotSceneDirector
         }
     }
 
-    /**
-     * Called in response to a failed <code>changeLoc</code> request.
-     */
-    public void handleChangeLocFailed (int invid, String reason)
+    // documentation inherited from interface
+    public void requestFailed (String reason)
     {
         ChangeObserver obs = _changeObserver;
         int locId = _pendingLocId;
@@ -342,6 +349,9 @@ public class SpotSceneDirector
 
     /** The active client context. */
     protected WhirledContext _ctx;
+
+    /** Access to spot scene services. */
+    protected SpotService _sservice;
 
     /** The scene director with which we are cooperating. */
     protected SceneDirector _scdir;

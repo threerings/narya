@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.31 2002/06/20 22:12:22 mdb Exp $
+// $Id: PlaceManager.java,v 1.32 2002/08/14 19:07:49 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
+import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.server.InvocationManager;
+
+import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.MessageListener;
@@ -21,6 +25,10 @@ import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
+
+import com.threerings.crowd.chat.SpeakDispatcher;
+import com.threerings.crowd.chat.SpeakMarshaller;
+import com.threerings.crowd.chat.SpeakProvider;
 
 /**
  * The place manager is the server-side entity that handles all
@@ -42,7 +50,8 @@ import com.threerings.crowd.data.PlaceObject;
  * listeners.
  */
 public class PlaceManager
-    implements MessageListener, OidListListener, ObjectDeathListener
+    implements MessageListener, OidListListener, ObjectDeathListener,
+               SpeakProvider.SpeakerValidator
 {
     /**
      * An interface used to allow the registration of standard message
@@ -99,11 +108,13 @@ public class PlaceManager
      * Called by the place registry after creating this place manager.
      */
     public void init (
-        PlaceRegistry registry, PlaceConfig config, DObjectManager omgr)
+        PlaceRegistry registry, InvocationManager invmgr,
+        DObjectManager omgr, PlaceConfig config)
     {
         _registry = registry;
-        _config = config;
+        _invmgr = invmgr;
         _omgr = omgr;
+        _config = config;
 
         // let derived classes do initialization stuff
         didInit();
@@ -134,6 +145,13 @@ public class PlaceManager
     {
         // keep track of this
         _plobj = plobj;
+
+        // create and register a speaker service instance that clients can
+        // use to speak in this place
+        SpeakMarshaller speakService =
+            (SpeakMarshaller)_invmgr.registerDispatcher(
+                new SpeakDispatcher(new SpeakProvider(_plobj, this)), false);
+        plobj.setSpeakService(speakService);
 
         // we'll need to hear about place object events
         plobj.addListener(this);
@@ -379,6 +397,13 @@ public class PlaceManager
         didShutdown();
     }
 
+    // documentation inherited from interface
+    public boolean isValidSpeaker (DObject speakObj, ClientObject speaker)
+    {
+        // only allow people in the room to speak
+        return _plobj.occupants.contains(speaker.getOid());
+    }
+
     /**
      * Generates a string representation of this manager. Does so in a way
      * that makes it easier for derived classes to add to the string
@@ -438,6 +463,13 @@ public class PlaceManager
         }
     }
 
+    /** A reference to the place registry with which we're registered. */
+    protected PlaceRegistry _registry;
+
+    /** The invocation manager with whom we register our game invocation
+     * services. */
+    protected InvocationManager _invmgr;
+
     /** A distributed object manager for doing dobj stuff. */
     protected DObjectManager _omgr;
 
@@ -446,9 +478,6 @@ public class PlaceManager
 
     /** A reference to the configuration for our place. */
     protected PlaceConfig _config;
-
-    /** A reference to the place registry with which we're registered. */
-    protected PlaceRegistry _registry;
 
     /** Message handlers are used to process message events. */
     protected HashMap _msghandlers;

@@ -1,5 +1,5 @@
 //
-// $Id: ConfigEditorPanel.java,v 1.3 2002/07/09 21:13:20 ray Exp $
+// $Id: ConfigEditorPanel.java,v 1.4 2002/08/14 19:07:48 mdb Exp $
 
 package com.threerings.admin.client;
 
@@ -20,6 +20,7 @@ import com.threerings.admin.Log;
  * displays their fields in a tree widget to be viewed and edited.
  */
 public class ConfigEditorPanel extends JTabbedPane
+    implements AdminService.ConfigInfoListener
 {
     /**
      * Constructs an editor panel which will use the supplied context to
@@ -39,8 +40,11 @@ public class ConfigEditorPanel extends JTabbedPane
         // if we have no children, ship off a getConfigInfo request to
         // find out what config objects are available for editing
         if (getComponentCount() == 0) {
+            // locate our admin service and use it to make a request
+            AdminService service = (AdminService)
+                _ctx.getClient().requireService(AdminService.class);
             Log.info("Sending get config info.");
-            AdminService.getConfigInfo(_ctx.getClient(), this);
+            service.getConfigInfo(_ctx.getClient(), this);
         }
     }
 
@@ -48,7 +52,7 @@ public class ConfigEditorPanel extends JTabbedPane
      * Called in response to our getConfigInfo server-side service
      * request.
      */
-    public void handleConfigInfo (int invid, String[] keys, int[] oids)
+    public void gotConfigInfo (String[] keys, int[] oids)
     {
         Log.info("Got config info: " + StringUtil.toString(keys));
         // create object editor panels for each of the categories
@@ -58,6 +62,12 @@ public class ConfigEditorPanel extends JTabbedPane
             SafeScrollPane scrolly = new SafeScrollPane(panel);
             addTab(keys[ii], scrolly);
         }
+    }
+
+    // documentation inherited from interface
+    public void requestFailed (String reason)
+    {
+        Log.warning("Failed to get config info [reason=" + reason + "].");
     }
 
     /**

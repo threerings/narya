@@ -1,15 +1,15 @@
 //
-// $Id: TestReceiver.java,v 1.5 2001/11/08 02:07:36 mdb Exp $
+// $Id: TestReceiver.java,v 1.6 2002/08/14 19:07:59 mdb Exp $
 
 package com.threerings.presents.client;
 
-import com.threerings.presents.Log;
-
-public class TestReceiver implements InvocationReceiver
+/**
+ * A test of the invocation notification services.
+ */
+public interface TestReceiver extends InvocationReceiver
 {
-    public void handleTestNotification (int invid, int one, String two)
-    {
-        Log.info("Received tell notification [invid=" + invid +
-                 ", one=" + one + ", two=" + two + "].");
-    }
+    /**
+     * Dispatches a test notification.
+     */
+    public void receivedTest (int one, String two);
 }

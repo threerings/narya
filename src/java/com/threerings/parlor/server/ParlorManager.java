@@ -1,15 +1,15 @@
 //
-// $Id: ParlorManager.java,v 1.18 2002/04/15 16:28:02 shaper Exp $
+// $Id: ParlorManager.java,v 1.19 2002/08/14 19:07:54 mdb Exp $
 
 package com.threerings.parlor.server;
 
 import com.samskivert.util.HashIntMap;
 
+import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
-import com.threerings.presents.server.ServiceFailedException;
 
 import com.threerings.crowd.data.BodyObject;
-import com.threerings.crowd.server.CrowdServer;
+import com.threerings.crowd.server.PlaceRegistry;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.data.ParlorCodes;
@@ -26,6 +26,9 @@ import com.threerings.parlor.game.GameManager;
 public class ParlorManager
     implements ParlorCodes
 {
+    /** Provides the server-side implementation of the parlor services. */
+    public ParlorProvider parprov;
+
     /**
      * Initializes the parlor manager. This should be called by the server
      * that is making use of the parlor services on the single instance of
@@ -33,15 +36,17 @@ public class ParlorManager
      *
      * @param invmgr a reference to the invocation manager in use by this
      * server.
+     * @param plreg a reference to the place registry to be used by the
+     * parlor manager when creating game places.
      */
-    public void init (InvocationManager invmgr)
+    public void init (InvocationManager invmgr, PlaceRegistry plreg)
     {
-        // register our invocation provider
-        ParlorProvider pprov = new ParlorProvider(this);
-        invmgr.registerProvider(MODULE_NAME, pprov);
+        // create and register our invocation provider
+        parprov = new ParlorProvider(this);
+        invmgr.registerDispatcher(new ParlorDispatcher(parprov), true);
 
-        // keep this around for later
-        _invmgr = invmgr;
+        // keep this for later
+        _plreg = plreg;
     }
 
     /**
@@ -56,14 +61,14 @@ public class ParlorManager
      * @return the invitation identifier for the newly created invitation
      * record.
      *
-     * @exception ServiceFailedException thrown if the invitation was not
+     * @exception InvocationException thrown if the invitation was not
      * able to be processed for some reason (like the invited player has
      * requested not to be disturbed). The explanation will be provided in
      * the message data of the exception.
      */
     public int invite (BodyObject inviter, BodyObject invitee,
                        GameConfig config)
-        throws ServiceFailedException
+        throws InvocationException
     {
 //          Log.info("Received invitation request [inviter=" + inviter +
 //                   ", invitee=" + invitee + ", config=" + config + "].");
@@ -79,10 +84,8 @@ public class ParlorManager
         _invites.put(invite.inviteId, invite);
 
         // deliver an invite notification to the invitee
-        Object[] args = new Object[] {
-            new Integer(invite.inviteId), inviter.username, config };
-        _invmgr.sendNotification(
-            invitee.getOid(), MODULE_NAME, INVITE_ID, args);
+        ParlorSender.sendInvite(invitee, invite.inviteId,
+                                inviter.username, config);
 
         // and let the caller know the invite id we assigned
         return invite.inviteId;
@@ -126,10 +129,8 @@ public class ParlorManager
 
         // let the other user know that a response was made to this
         // invitation
-        Object[] args = new Object[] {
-            new Integer(invite.inviteId), new Integer(code), arg };
-        _invmgr.sendNotification(
-            invite.inviter.getOid(), MODULE_NAME, RESPOND_INVITE_ID, args);
+        ParlorSender.sendInviteResponse(
+            invite.inviter, invite.inviteId, code, arg);
 
         switch (code) {
         case INVITATION_ACCEPTED:
@@ -187,7 +188,7 @@ public class ParlorManager
             // started up (which is done by the place registry once the
             // game object creation has completed)
             GameManager gmgr = (GameManager)
-                CrowdServer.plreg.createPlace(invite.config, null);
+                _plreg.createPlace(invite.config, null);
 
             // provide the game manager with the player list
             gmgr.setPlayers(new String[] {
@@ -242,8 +243,8 @@ public class ParlorManager
         }
     }
 
-    /** A reference to the invocation manager in operation on this server. */
-    protected InvocationManager _invmgr;
+    /** The place registry with which we operate. */
+    protected PlaceRegistry _plreg;
 
     /** The table of pending invitations. */
     protected HashIntMap _invites = new HashIntMap();

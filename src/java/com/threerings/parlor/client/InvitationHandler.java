@@ -1,5 +1,5 @@
 //
-// $Id: InvitationHandler.java,v 1.2 2001/10/11 21:08:21 mdb Exp $
+// $Id: InvitationHandler.java,v 1.3 2002/08/14 19:07:52 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -16,18 +16,14 @@ public interface InvitationHandler
     /**
      * Called when an invitation is received from another player.
      *
-     * @param inviteId this invitation's unique id.
-     * @param inviter the username of the user that sent the invitation.
-     * @param config the configuration of the game to which we are being
-     * invited.
+     * @param invite the received invitation.
      */
-    public void invitationReceived (int inviteId, String inviter,
-                                    GameConfig config);
+    public void invitationReceived (Invitation invite);
 
     /**
      * Called when an invitation is cancelled by the inviting player.
      *
-     * @param inviteId this invitation's unique id.
+     * @param invite the cancelled invitation.
      */
-    public void invitationCancelled (int inviteId);
+    public void invitationCancelled (Invitation invite);
 }

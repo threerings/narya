@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.32 2002/08/14 00:48:57 shaper Exp $
+// $Id: ChatDirector.java,v 1.33 2002/08/14 19:07:49 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import com.samskivert.util.HashIntMap;
-import com.samskivert.util.Tuple;
 
 import com.threerings.presents.client.*;
 import com.threerings.presents.dobj.*;
@@ -26,9 +25,8 @@ import com.threerings.crowd.util.CrowdContext;
  * services. It handles both place constrained chat as well as direct
  * messaging.
  */
-public class ChatDirector
-    implements LocationObserver, MessageListener, InvocationReceiver,
-               ChatCodes
+public class ChatDirector extends BasicDirector
+    implements ChatCodes, LocationObserver, MessageListener, ChatReceiver
 {
     /**
      * An interface that can receive information about the {@link
@@ -50,6 +48,8 @@ public class ChatDirector
      */
     public ChatDirector (CrowdContext ctx, MessageManager msgmgr, String bundle)
     {
+        super(ctx);
+
         // keep the context around
         _ctx = ctx;
         _msgmgr = msgmgr;
@@ -57,7 +57,7 @@ public class ChatDirector
 
         // register for chat notifications
         _ctx.getClient().getInvocationDirector().registerReceiver(
-            MODULE_NAME, this);
+            new ChatDecoder(this));
 
         // register ourselves as a location observer
         _ctx.getLocationDirector().addLocationObserver(this);
@@ -218,41 +218,55 @@ public class ChatDirector
     }
 
     /**
-     * Requests that a speak message be generated and delivered to all
-     * users that occupy the place object that we currently occupy.
-     *
-     * @param message the contents of the speak message.
-     *
-     * @return an id which can be used to coordinate this speak request
-     * with the response that will be delivered to all active chat
-     * displays when it arrives, or -1 if we were unable to make the
-     * request because we are not currently in a place.
+     * Dispatches a {@link #requestSpeak(SpeakService,String,byte)} on the
+     * place object that we currently occupy.
      */
-    public int requestSpeak (String message)
+    public void requestSpeak (String message)
+    {
+        requestSpeak(message, DEFAULT_MODE);
+    }
+
+    /**
+     * Dispatches a {@link #requestSpeak(SpeakService,String,byte)} on the
+     * place object that we currently occupy.
+     */
+    public void requestSpeak (String message, byte mode)
     {
         // make sure we're currently in a place
         if (_place == null) {
-            return -1;
-        }
-
-        // make sure they can say what they want to say
-        for (Iterator iter = _validators.iterator(); iter.hasNext(); ) {
-            if (!((ChatValidator) iter.next()).validateSpeak(message)) {
-                return -1;
-            }
+            return;
         }
 
         // dispatch a speak request on the active place object
-        int reqid =
-            _ctx.getClient().getInvocationDirector().nextInvocationId();
-        Object[] args = new Object[] { new Integer(reqid), message };
-        MessageEvent mevt = new MessageEvent(
-            _place.getOid(), SPEAK_REQUEST, args);
-        _ctx.getDObjectManager().postEvent(mevt);
-        // TODO: when this gets changed such that we actually validate
-        // this on the server, we have to make sure that the
-        // user is not on a portal before we allow the 'shout' to go through
-        return reqid;
+        requestSpeak(_place.speakService, message, mode);
+    }
+
+    /**
+     * Requests that a speak message with the specified mode be generated
+     * and delivered via the supplied speak service instance (which will
+     * be associated with a particular "speak object"). The message will
+     * first be validated by all registered {@link ChatValidator}s (and
+     * possibly vetoed) before being dispatched.
+     *
+     * @param speakService the speak service to use when generating the
+     * speak request.
+     * @param message the contents of the speak message.
+     * @param mode a speech mode that will be interpreted by the {@link
+     * ChatDisplay} implementations that eventually display this speak
+     * message.
+     */
+    public void requestSpeak (
+        SpeakService speakService, String message, byte mode)
+    {
+        // make sure they can say what they want to say
+        for (Iterator iter = _validators.iterator(); iter.hasNext(); ) {
+            if (!((ChatValidator) iter.next()).validateSpeak(message)) {
+                return;
+            }
+        }
+
+        // dispatch a speak request using the supplied speak service
+        speakService.speak(_ctx.getClient(), message, mode);
     }
 
     /**
@@ -262,26 +276,34 @@ public class ChatDirector
      * @param target the username of the user to which the tell message
      * should be delivered.
      * @param message the contents of the tell message.
-     *
-     * @return an id which can be used to coordinate this request with the
-     * tell response that will be delivered to all active chat displays
-     * when it arrives.
      */
-    public int requestTell (String target, String message)
+    public void requestTell (final String target, final String message)
     {
         // make sure they can say what they want to say
         for (Iterator iter = _validators.iterator(); iter.hasNext(); ) {
             if (!((ChatValidator) iter.next()).validateTell(
                     target, message)) {
-                return -1;
+                return;
             }
         }
 
-        int invid = ChatService.tell(_ctx.getClient(), target, message, this);
-        // cache the tell info for use when reporting success or failure
-        // to our various chat displays
-        _tells.put(invid, new Tuple(target, message));
-        return invid;
+        // create a listener that will report success or failure
+        ChatService.TellListener listener = new ChatService.TellListener() {
+            public void tellSucceeded () {
+                String msg = MessageBundle.tcompose(
+                    "m.told_format", target, message);
+                displayFeedbackMessage(_bundle, msg);
+                addChatter(target);
+            }
+
+            public void requestFailed (String reason) {
+                String msg =
+                    MessageBundle.compose("m.tell_failed", target, reason);
+                displayFeedbackMessage(_bundle, msg);
+            }
+        };
+
+        _cservice.tell(_ctx.getClient(), target, message, listener);
     }
 
     /**
@@ -306,6 +328,13 @@ public class ChatDirector
     {
         source.removeListener(this);
         _auxes.remove(source.getOid());
+    }
+
+    // documentation inherited from interface
+    protected void fetchServices (Client client)
+    {
+        // get a handle on our chat service
+        _cservice = (ChatService)client.requireService(ChatService.class);
     }
 
     // documentation inherited
@@ -340,88 +369,33 @@ public class ChatDirector
     public void messageReceived (MessageEvent event)
     {
         String name = event.getName();
-        if (name.equals(ChatService.SPEAK_NOTIFICATION)) {
+        if (name.equals(SPEAK_NOTIFICATION)) {
             handleSpeakMessage(
                 getLocalType(event.getTargetOid()), event.getArgs());
 
-        } else if (name.equals(ChatService.SYSTEM_NOTIFICATION)) {
+        } else if (name.equals(SYSTEM_NOTIFICATION)) {
             handleSystemMessage(
                 getLocalType(event.getTargetOid()), event.getArgs());
         }
     }
 
-    /**
-     * Called by the invocation director when another client has requested
-     * a tell message be delivered to this client.
-     */
-    public void handleTellNotification (String source, String message)
+    // documentation inherited from interface
+    public void receivedTell (String speaker, String bundle, String message)
     {
-        // bail if the speaker is blocked
-        if (isBlocked(source)) {
+        // ignore messages from blocked users
+        if (isBlocked(speaker)) {
             return;
+        }
+
+        // if the message need be translated, do so
+        if (bundle != null) {
+            message = xlate(bundle, message);
         }
 
         UserMessage um = new UserMessage(
-            message, ChatCodes.TELL_CHAT_TYPE, source, ChatCodes.DEFAULT_MODE);
+            message, ChatCodes.TELL_CHAT_TYPE, speaker, ChatCodes.DEFAULT_MODE);
         dispatchMessage(um);
-        addChatter(source);
-    }
-
-    /**
-     * Called by the invocation director when an entity on the server has
-     * requested that we deliver a tell notification to this
-     * client. Because the server generated the notification, displays
-     * will want to translate the message itself using the supplied bundle
-     * identifier.
-     */
-    public void handleTellNotification (
-        String source, String bundle, String message)
-    {
-        handleTellNotification(source, xlate(bundle, message));
-    }
-
-    /**
-     * Called in response to a tell request that succeeded.
-     *
-     * @param invid the invocation id of the tell request.
-     */
-    public void handleTellSucceeded (int invid)
-    {
-        // remove the tell info for the successful request
-        Tuple tup = (Tuple)_tells.remove(invid);
-        if (tup == null) {
-            Log.warning("Notified of successful tell request but no " +
-                        "tell info available [invid=" + invid + "].");
-            return;
-        }
-
-        // pass this on to our chat displays
-        String target = (String)tup.left, message = (String)tup.right;
-        displayFeedbackMessage(
-            _bundle, MessageBundle.tcompose("m.told_format", target, message));
-        addChatter(target);
-    }
-
-    /**
-     * Called in response to a tell request that failed.
-     *
-     * @param invid the invocation id of the tell request.
-     * @param reason the code that describes the reason for failure.
-     */
-    public void handleTellFailed (int invid, String reason)
-    {
-        // remove the tell info for the failed request
-        Tuple tup = (Tuple)_tells.remove(invid);
-        if (tup == null) {
-            Log.warning("Notified of failed tell request but no " +
-                        "tell info available [invid=" + invid + "].");
-            return;
-        }
-
-        // pass this on to our chat displays
-        String target = (String)tup.left;
-        displayFeedbackMessage(
-            _bundle, MessageBundle.compose("m.tell_failed", target, reason));
+        addChatter(speaker);
     }
 
     /**
@@ -519,8 +493,19 @@ public class ChatDirector
         return (_muter != null) && _muter.isMuted(username);
     }
 
+    /**
+     * Used to assign unique ids to all speak requests.
+     */
+    protected synchronized int nextRequestId ()
+    {
+        return _requestId++;
+    }
+
     /** Our active chat context. */
     protected CrowdContext _ctx;
+
+    /** Provides access to chat-related server-side services. */
+    protected ChatService _cservice;
 
     /** The message manager. */
     protected MessageManager _msgmgr;
@@ -544,15 +529,14 @@ public class ChatDirector
     /** An optionally present mutelist director. */
     protected MuteDirector _muter;
 
-    /** A cache of the target and message text associated with outstanding
-     * tell chat requests. */
-    protected HashIntMap _tells = new HashIntMap();
-
     /** Usernames of users we've recently chatted with. */
     protected LinkedList _chatters = new LinkedList();
 
     /** Observers that are watching our chatters list. */
     protected ArrayList _chatterObservers = new ArrayList();
+
+    /** Used by {@link #nextRequestId}. */
+    protected int _requestId;
 
     /** The maximum number of chatter usernames to track. */
     protected static final int MAX_CHATTERS = 6;

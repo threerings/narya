@@ -1,16 +1,20 @@
 //
-// $Id: ParlorProvider.java,v 1.12 2002/04/17 18:26:30 mdb Exp $
+// $Id: ParlorProvider.java,v 1.13 2002/08/14 19:07:54 mdb Exp $
 
 package com.threerings.parlor.server;
 
+import com.threerings.presents.client.InvocationService.InvocationListener;
+import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
-import com.threerings.presents.server.ServiceFailedException;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.server.CrowdServer;
 import com.threerings.crowd.server.PlaceManager;
 
 import com.threerings.parlor.Log;
+import com.threerings.parlor.client.ParlorService.InviteListener;
+import com.threerings.parlor.client.ParlorService.TableListener;
 import com.threerings.parlor.data.ParlorCodes;
 import com.threerings.parlor.game.GameConfig;
 
@@ -20,7 +24,7 @@ import com.threerings.parlor.game.GameConfig;
  * Primarily these are the matchmaking mechanisms.
  */
 public class ParlorProvider
-    extends InvocationProvider implements ParlorCodes
+    implements InvocationProvider, ParlorCodes
 {
     /**
      * Constructs a parlor provider instance which will be used to handle
@@ -40,82 +44,79 @@ public class ParlorProvider
      * Processes a request from the client to invite another user to play
      * a game.
      */
-    public void handleInviteRequest (
-        BodyObject source, int invid, String invitee, GameConfig config)
-        throws ServiceFailedException
+    public void invite (ClientObject caller, String invitee,
+                        GameConfig config, InviteListener listener)
+        throws InvocationException
     {
 //          Log.info("Handling invite request [source=" + source +
-//                   ", invid=" + invid + ", invitee=" + invitee +
-//                   ", config=" + config + "].");
+//                   ", invitee=" + invitee + ", config=" + config + "].");
 
+        BodyObject source = (BodyObject)caller;
         String rsp = null;
 
         // ensure that the invitee is online at present
         BodyObject target = CrowdServer.lookupBody(invitee);
         if (target == null) {
-            throw new ServiceFailedException(INVITEE_NOT_ONLINE);
+            throw new InvocationException(INVITEE_NOT_ONLINE);
         }
 
         // submit the invite request to the parlor manager
         int inviteId = _pmgr.invite(source, target, config);
-        sendResponse(source, invid, INVITE_RECEIVED_RESPONSE,
-                     new Integer(inviteId));
+        listener.inviteReceived(inviteId);
     }
 
     /**
      * Processes a request from the client to respond to an outstanding
      * invitation by accepting, refusing, or countering it.
      */
-    public void handleRespondInviteRequest (
-        BodyObject source, int invid, int inviteId, int code, Object arg)
+    public void respond (ClientObject caller, int inviteId, int code,
+                         Object arg, InvocationListener listener)
     {
         // pass this on to the parlor manager
-        _pmgr.respondToInvite(source, inviteId, code, arg);
+        _pmgr.respondToInvite((BodyObject)caller, inviteId, code, arg);
     }
 
     /**
      * Processes a request from the client to cancel an outstanding
      * invitation.
      */
-    public void handleCancelInviteRequest (
-        BodyObject source, int invid, int inviteId)
+    public void cancel (ClientObject caller, int inviteId,
+                        InvocationListener listener)
     {
         // pass this on to the parlor manager
-        _pmgr.cancelInvite(source, inviteId);
+        _pmgr.cancelInvite((BodyObject)caller, inviteId);
     }
 
     /**
      * Processes a request from the client to create a new table.
      */
-    public void handleCreateTableRequest (
-        BodyObject source, int invid, int lobbyOid, GameConfig config)
-        throws ServiceFailedException
+    public void createTable (ClientObject caller, int lobbyOid,
+                             GameConfig config, TableListener listener)
+        throws InvocationException
     {
-        Log.info("Handling create table request [source=" + source +
-                 ", invid=" + invid + ", lobbyOid=" + lobbyOid +
-                 ", config=" + config + "].");
+        Log.info("Handling create table request [caller=" + caller +
+                 ", lobbyOid=" + lobbyOid + ", config=" + config + "].");
 
         // pass the creation request on to the table manager
         TableManager tmgr = getTableManager(lobbyOid);
-        int tableId = tmgr.createTable(source, config);
-        sendResponse(source, invid, TABLE_CREATED_RESPONSE,
-                     new Integer(tableId));
+        int tableId = tmgr.createTable((BodyObject)caller, config);
+        listener.tableCreated(tableId);
     }
 
     /**
      * Processes a request from the client to join an existing table.
      */
-    public void handleJoinTableRequest (
-        BodyObject source, int invid, int lobbyOid, int tableId, int position)
-        throws ServiceFailedException
+    public void joinTable (ClientObject caller, int lobbyOid, int tableId,
+                           int position, InvocationListener listener)
+        throws InvocationException
     {
-        Log.info("Handling join table request [source=" + source +
-                 ", invid=" + invid + ", lobbyOid=" + lobbyOid +
-                 ", tableId=" + tableId + ", position=" + position + "].");
+        Log.info("Handling join table request [caller=" + caller +
+                 ", lobbyOid=" + lobbyOid + ", tableId=" + tableId +
+                 ", position=" + position + "].");
 
         // pass the join request on to the table manager
         TableManager tmgr = getTableManager(lobbyOid);
-        tmgr.joinTable(source, tableId, position);
+        tmgr.joinTable((BodyObject)caller, tableId, position);
 
         // there is normally no success response. the client will see
         // themselves show up in the table that they joined
@@ -124,17 +125,16 @@ public class ParlorProvider
     /**
      * Processes a request from the client to leave an existing table.
      */
-    public void handleLeaveTableRequest (
-        BodyObject source, int invid, int lobbyOid, int tableId)
-        throws ServiceFailedException
+    public void leaveTable (ClientObject caller, int lobbyOid, int tableId,
+                            InvocationListener listener)
+        throws InvocationException
     {
-        Log.info("Handling leave table request [source=" + source +
-                 ", invid=" + invid + ", lobbyOid=" + lobbyOid +
-                 ", tableId=" + tableId + "].");
+        Log.info("Handling leave table request [caller=" + caller +
+                 ", lobbyOid=" + lobbyOid + ", tableId=" + tableId + "].");
 
         // pass the join request on to the table manager
         TableManager tmgr = getTableManager(lobbyOid);
-        tmgr.leaveTable(source, tableId);
+        tmgr.leaveTable((BodyObject)caller, tableId);
 
         // there is normally no success response. the client will see
         // themselves removed from the table they just left
@@ -145,25 +145,25 @@ public class ParlorProvider
      * casts it to a table lobby manager and obtains the associated table
      * manager reference.
      *
-     * @exception ServiceFailedException thrown if something goes wrong
+     * @exception InvocationException thrown if something goes wrong
      * along the way like no place manager exists or the place manager
      * that does exist doesn't implement table lobby manager.
      */
     protected TableManager getTableManager (int lobbyOid)
-        throws ServiceFailedException
+        throws InvocationException
     {
         PlaceManager plmgr = CrowdServer.plreg.getPlaceManager(lobbyOid);
         if (plmgr == null) {
             Log.warning("No place manager exists from which to obtain " +
                         "table manager reference [ploid=" + lobbyOid + "].");
-            throw new ServiceFailedException(INTERNAL_ERROR);
+            throw new InvocationException(INTERNAL_ERROR);
         }
 
         // sanity check
         if (!(plmgr instanceof TableManagerProvider)) {
             Log.warning("Place manager not a table lobby manager " +
                         "[plmgr=" + plmgr + "].");
-            throw new ServiceFailedException(INTERNAL_ERROR);
+            throw new InvocationException(INTERNAL_ERROR);
         }
 
         return ((TableManagerProvider)plmgr).getTableManager();

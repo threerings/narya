@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.23 2002/07/25 20:24:02 mdb Exp $
+// $Id: PresentsServer.java,v 1.24 2002/08/14 19:07:56 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -66,57 +66,57 @@ public class PresentsServer
         // initialize the time base services
         TimeBaseProvider.init(invmgr, omgr);
 
-        // register our invocation service providers
-        registerProviders(PresentsConfig.getProviders());
+//         // register our invocation service providers
+//         registerProviders(PresentsConfig.getProviders());
     }
 
-    /**
-     * Registers invocation service providers as parsed from a
-     * configuration file. Each string in the array should contain an
-     * expression of the form:
-     *
-     * <pre>
-     * module = provider fully-qualified class name
-     * </pre>
-     *
-     * A comma separated list of these can be specified in the
-     * configuration file and loaded into a string array easily. These
-     * providers will be instantiated and registered with the invocation
-     * manager.
-     */
-    protected void registerProviders (String[] providers)
-    {
-        // ignore null arrays to make life easier for the caller
-        if (providers == null) {
-            return;
-        }
+//     /**
+//      * Registers invocation service providers as parsed from a
+//      * configuration file. Each string in the array should contain an
+//      * expression of the form:
+//      *
+//      * <pre>
+//      * module = provider fully-qualified class name
+//      * </pre>
+//      *
+//      * A comma separated list of these can be specified in the
+//      * configuration file and loaded into a string array easily. These
+//      * providers will be instantiated and registered with the invocation
+//      * manager.
+//      */
+//     protected void registerProviders (String[] providers)
+//     {
+//         // ignore null arrays to make life easier for the caller
+//         if (providers == null) {
+//             return;
+//         }
 
-        for (int i = 0; i < providers.length; i++) {
-            int eidx = providers[i].indexOf("=");
-            if (eidx == -1) {
-                Log.warning("Ignoring bogus provider declaration " +
-                            "[decl=" + providers[i] + "].");
-                continue;
-            }
+//         for (int i = 0; i < providers.length; i++) {
+//             int eidx = providers[i].indexOf("=");
+//             if (eidx == -1) {
+//                 Log.warning("Ignoring bogus provider declaration " +
+//                             "[decl=" + providers[i] + "].");
+//                 continue;
+//             }
 
-            String module = providers[i].substring(0, eidx).trim();
-            String pname = providers[i].substring(eidx+1).trim();
+//             String module = providers[i].substring(0, eidx).trim();
+//             String pname = providers[i].substring(eidx+1).trim();
 
-            // instantiate the provider class and register it
-            try {
-                Class pclass = Class.forName(pname);
-                InvocationProvider provider = (InvocationProvider)
-                    pclass.newInstance();
-                invmgr.registerProvider(module, provider);
-                Log.info("Registered provider [module=" + module +
-                         ", provider=" + pname + "].");
+//             // instantiate the provider class and register it
+//             try {
+//                 Class pclass = Class.forName(pname);
+//                 InvocationProvider provider = (InvocationProvider)
+//                     pclass.newInstance();
+//                 invmgr.registerProvider(module, provider);
+//                 Log.info("Registered provider [module=" + module +
+//                          ", provider=" + pname + "].");
 
-            } catch (Exception e) {
-                Log.warning("Unable to register provider [module=" + module +
-                            ", provider=" + pname + ", error=" + e + "].");
-            }
-        }
-    }
+//             } catch (Exception e) {
+//                 Log.warning("Unable to register provider [module=" + module +
+//                             ", provider=" + pname + ", error=" + e + "].");
+//             }
+//         }
+//     }
 
     /**
      * Starts up all of the server services and enters the main server

@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.15 2002/07/22 22:54:04 ray Exp $
+// $Id: SpotSceneManager.java,v 1.16 2002/08/14 19:07:58 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -10,9 +10,9 @@ import com.samskivert.util.StringUtil;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.dobj.ObjectAccessException;
-import com.threerings.presents.server.ServiceFailedException;
+import com.threerings.presents.server.InvocationException;
 
-import com.threerings.crowd.chat.ChatProvider;
+import com.threerings.crowd.chat.SpeakProvider;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.whirled.server.SceneManager;
@@ -82,13 +82,13 @@ public class SpotSceneManager extends SceneManager
 
         // now that we have our scene, we create chat objects for each of
         // the clusters in the scene
-        _clusterOids = new int[_sscene.getClusterCount()];
+        _clusterObjs = new DObject[_sscene.getClusterCount()];
 
         // create a subscriber that will grab the oids when we hear back
         // about object creation
         Subscriber sub = new Subscriber() {
             public void objectAvailable (DObject object) {
-                _clusterOids[_index++] = object.getOid();
+                _clusterObjs[_index++] = object;
             }
 
             public void requestFailed (int oid, ObjectAccessException cause) {
@@ -103,7 +103,7 @@ public class SpotSceneManager extends SceneManager
         };
 
         // now issue the object creation requests
-        for (int i = 0; i < _clusterOids.length; i++) {
+        for (int i = 0; i < _clusterObjs.length; i++) {
             _omgr.createObject(DObject.class, sub);
         }
 
@@ -148,12 +148,12 @@ public class SpotSceneManager extends SceneManager
      * which this location belongs or -1 if the location is not part of a
      * cluster.
      *
-     * @exception ServiceFailedException thrown with a reason code
-     * explaining the location change failure if there is a problem
-     * processing the location change request.
+     * @exception InvocationException thrown with a reason code explaining
+     * the location change failure if there is a problem processing the
+     * location change request.
      */
     protected int handleChangeLocRequest (BodyObject source, int locationId)
-        throws ServiceFailedException
+        throws InvocationException
     {
         // make sure no one is already in the requested location
         int locidx = _sscene.getLocationIndex(locationId);
@@ -161,14 +161,14 @@ public class SpotSceneManager extends SceneManager
             Log.warning("Ignoring request to move to non-existent location " +
                         "[where=" + where() + ", user=" + source.who() +
                         ", locId=" + locationId + "].");
-            throw new ServiceFailedException(LOCATION_OCCUPIED);
+            throw new InvocationException(LOCATION_OCCUPIED);
 
         } else if (_locationOccs[locidx] > 0) {
             Log.info("Ignoring request to move to occupied location " +
                      "[where=" + where() + ", user=" + source.who() +
                      ", locId=" + locationId +
                      ", occupantOid=" + _locationOccs[locidx] + "].");
-            throw new ServiceFailedException(LOCATION_OCCUPIED);
+            throw new InvocationException(LOCATION_OCCUPIED);
         }
 
         // make sure they have an occupant info object in the place
@@ -179,7 +179,7 @@ public class SpotSceneManager extends SceneManager
             Log.warning("Aiya! Can't update non-existent occupant info " +
                         "with new location [where=" + where() +
                         ", body=" + source.who() + "].");
-            throw new ServiceFailedException(INTERNAL_ERROR);
+            throw new InvocationException(INTERNAL_ERROR);
         }
 
         // clear out any location they previously occupied
@@ -209,7 +209,7 @@ public class SpotSceneManager extends SceneManager
 
         // figure out the cluster chat oid
         int clusterIdx = _sscene.getClusterIndex(locidx);
-        return (clusterIdx == -1) ? -1 : _clusterOids[clusterIdx];
+        return (clusterIdx == -1) ? -1 : _clusterObjs[clusterIdx].getOid();
     }
 
     /**
@@ -241,10 +241,9 @@ public class SpotSceneManager extends SceneManager
         }
 
         // all is well, generate a chat notification
-        int clusterOid = _clusterOids[clusterIndex];
-        if (clusterOid > 0) {
-            ChatProvider.sendChatMessage(
-                clusterOid, source, bundle, message, mode);
+        DObject clusterObj = _clusterObjs[clusterIndex];
+        if (clusterObj != null) {
+            SpeakProvider.sendSpeak(clusterObj, source, bundle, message, mode);
 
         } else {
             Log.warning("Have no cluster object for CCREQ " +
@@ -297,8 +296,8 @@ public class SpotSceneManager extends SceneManager
     /** A casted reference to our runtime scene instance. */
     protected RuntimeSpotScene _sscene;
 
-    /** Oids of the cluster chat objects. */
-    protected int[] _clusterOids;
+    /** Our cluster chat objects. */
+    protected DObject[] _clusterObjs;
 
     /** Oids of the bodies that occupy each of our locations. */
     protected int[] _locationOccs;

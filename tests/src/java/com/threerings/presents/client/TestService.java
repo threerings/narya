@@ -1,30 +1,31 @@
 //
-// $Id: TestService.java,v 1.5 2001/11/08 02:07:36 mdb Exp $
+// $Id: TestService.java,v 1.6 2002/08/14 19:07:59 mdb Exp $
 
 package com.threerings.presents.client;
-
-import com.threerings.presents.Log;
 
 /**
  * A test of the invocation services.
  */
-public class TestService
+public interface TestService extends InvocationService
 {
-    public static final String MODULE = "test";
-
-    public static void test (
-        Client client, String one, int two, Object rsptarget)
+    /** Used to dispatch responses to {@link #test} requests. */
+    public static interface TestFuncListener extends InvocationListener
     {
-        InvocationDirector invdir = client.getInvocationDirector();
-        Object[] args = new Object[] { one, new Integer(two) };
-        invdir.invoke(MODULE, "Test", args, rsptarget);
-        Log.info("Sent test request [one=" + one + ", two=" + two + "].");
+        /** Informs listener of successful {@link #test} request. */
+        public void testSucceeded (String one, int two);
     }
 
-    public static void getTestOid (Client client, Object rsptarget)
+    /** Issues a test request. */
+    public void test (
+        Client client, String one, int two, TestFuncListener listener);
+
+    /** Used to dispatch responses to {@link #getTestOid} requests. */
+    public static interface TestOidListener extends InvocationListener
     {
-        InvocationDirector invdir = client.getInvocationDirector();
-        Object[] args = new Object[0];
-        invdir.invoke(MODULE, "GetTestOid", args, rsptarget);
+        /** Communicates test oid to listener. */
+        public void gotTestOid (int testOid);
     }
+
+    /** Issues a request for the test oid. */
+    public void getTestOid (Client client, TestOidListener listener);
 }

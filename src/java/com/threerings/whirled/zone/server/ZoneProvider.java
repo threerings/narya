@@ -1,11 +1,11 @@
 //
-// $Id: ZoneProvider.java,v 1.9 2002/05/26 02:29:13 mdb Exp $
+// $Id: ZoneProvider.java,v 1.10 2002/08/14 19:07:58 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
-import com.threerings.presents.server.InvocationManager;
+import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
-import com.threerings.presents.server.ServiceFailedException;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceConfig;
@@ -17,6 +17,7 @@ import com.threerings.whirled.server.SceneRegistry;
 import com.threerings.whirled.server.SceneManager;
 
 import com.threerings.whirled.zone.Log;
+import com.threerings.whirled.zone.client.ZoneService.ZoneMoveListener;
 import com.threerings.whirled.zone.data.ZoneCodes;
 import com.threerings.whirled.zone.data.ZoneSummary;
 import com.threerings.whirled.zone.data.ZonedBodyObject;
@@ -26,7 +27,7 @@ import com.threerings.whirled.zone.data.ZonedBodyObject;
  * from zone to zone.
  */
 public class ZoneProvider
-    extends InvocationProvider implements ZoneCodes
+    implements ZoneCodes, InvocationProvider
 {
     /**
      * Constructs a zone provider that will interoperate with the supplied
@@ -34,10 +35,10 @@ public class ZoneProvider
      * constructed and registered by the {@link ZoneRegistry}, which a
      * zone-using system must create and initialize in their server.
      */
-    public ZoneProvider (
-        InvocationManager invmgr, ZoneRegistry zonereg, SceneRegistry screg)
+    public ZoneProvider (LocationProvider locprov, ZoneRegistry zonereg,
+                         SceneRegistry screg)
     {
-        _invmgr = invmgr;
+        _locprov = locprov;
         _zonereg = zonereg;
         _screg = screg;
     }
@@ -45,45 +46,45 @@ public class ZoneProvider
     /**
      * Processes a request from a client to move to a scene in a new zone.
      *
-     * @param source the user requesting the move.
+     * @param caller the user requesting the move.
      * @param invid the invocation id of the request.
      * @param zoneId the qualified zone id of the new zone.
      * @param sceneId the identifier of the new scene.
-     * @param sceneVew the version of the scene model currently held by
+     * @param sceneVer the version of the scene model currently held by
      * the client.
+     * @param listener the entity to inform of success or failure.
      */
-    public void handleMoveToRequest (BodyObject source, int invid,
-                                     int zoneId, int sceneId, int sceneVer)
+    public void moveTo (ClientObject caller, int zoneId, int sceneId,
+                        int sceneVer, ZoneMoveListener listener)
+        throws InvocationException
     {
+        // avoid cluttering up the method declaration with final keywords
+        final BodyObject fsource = (BodyObject)caller;
+        final int fsceneId = sceneId;
+        final int fsceneVer = sceneVer;
+        final ZoneMoveListener flistener = listener;
+
         // look up the zone manager for the zone
         ZoneManager zmgr = _zonereg.getZoneManager(zoneId);
         if (zmgr == null) {
             Log.warning("Requested to enter a zone for which we have no " +
-                        "manager [user=" + source +
+                        "manager [user=" + fsource.who() +
                         ", zoneId=" + zoneId + "].");
-            sendResponse(source, invid, MOVE_FAILED_RESPONSE, NO_SUCH_ZONE);
-            return;
+            throw new InvocationException(NO_SUCH_ZONE);
         }
-
-        // avoid cluttering up the method declaration with final keywords
-        final BodyObject fsource = source;
-        final int finvid = invid;
-        final int fsceneId = sceneId;
-        final int fsceneVer = sceneVer;
 
         // resolve the zone!
         ZoneManager.ResolutionListener zl = new ZoneManager.ResolutionListener()
         {
             public void zoneWasResolved (ZoneSummary summary) {
-                continueMoveToRequest(fsource, finvid, summary,
-                                      fsceneId, fsceneVer);
+                continueMoveTo(
+                    fsource, summary, fsceneId, fsceneVer, flistener);
             }
 
             public void zoneFailedToResolve (int zoneId, Exception reason) {
                 Log.warning("Unable to resolve zone [zoneId=" + zoneId +
                             ", reason=" + reason + "].");
-                sendResponse(fsource, finvid,
-                             MOVE_FAILED_RESPONSE, NO_SUCH_ZONE);
+                flistener.requestFailed(NO_SUCH_ZONE);
             }
         };
         zmgr.resolveZone(zoneId, zl);
@@ -92,21 +93,21 @@ public class ZoneProvider
     /**
      * This is called after we have resolved our zone.
      */
-    protected void continueMoveToRequest (
-        BodyObject source, int invid, ZoneSummary summary,
-        int sceneId, int sceneVer)
+    protected void continueMoveTo (
+        BodyObject source, ZoneSummary summary, int sceneId, int sceneVer,
+        ZoneMoveListener listener)
     {
         // avoid cluttering up the method declaration with final keywords
         final BodyObject fsource = source;
-        final int finvid = invid;
         final ZoneSummary fsum = summary;
         final int fsceneVer = sceneVer;
+        final ZoneMoveListener flistener = listener;
 
         // give the zone manager a chance to veto the request
         ZoneManager zmgr = _zonereg.getZoneManager(summary.zoneId);
         String errmsg = zmgr.ratifyBodyEntry(source, summary.zoneId);
         if (errmsg != null) {
-            sendResponse(fsource, finvid, MOVE_FAILED_RESPONSE, errmsg);
+            listener.requestFailed(errmsg);
             return;
         }
 
@@ -116,15 +117,14 @@ public class ZoneProvider
             new SceneRegistry.ResolutionListener()
         {
             public void sceneWasResolved (SceneManager scmgr) {
-                finishMoveToRequest(fsource, finvid, fsum, scmgr, fsceneVer);
+                finishMoveTo(fsource, fsum, scmgr, fsceneVer, flistener);
             }
 
             public void sceneFailedToResolve (int sceneId, Exception reason) {
                 Log.warning("Unable to resolve scene [sceneid=" + sceneId +
                             ", reason=" + reason + "].");
                 // pretend like the scene doesn't exist to the client
-                sendResponse(fsource, finvid,
-                             MOVE_FAILED_RESPONSE, NO_SUCH_PLACE);
+                flistener.requestFailed(NO_SUCH_PLACE);
             }
         };
 
@@ -137,9 +137,9 @@ public class ZoneProvider
      * This is called after the scene to which we are moving is guaranteed
      * to have been loaded into the server.
      */
-    protected void finishMoveToRequest (
-        BodyObject source, int invid, ZoneSummary summary,
-        SceneManager scmgr, int sceneVersion)
+    protected void finishMoveTo (
+        BodyObject source, ZoneSummary summary, SceneManager scmgr,
+        int sceneVersion, ZoneMoveListener listener)
     {
         // move to the place object associated with this scene
         PlaceObject plobj = scmgr.getPlaceObject();
@@ -147,7 +147,7 @@ public class ZoneProvider
 
         try {
             // try doing the actual move
-            PlaceConfig config = LocationProvider.moveTo(source, ploid);
+            PlaceConfig config = _locprov.moveTo(source, ploid);
 
             // now that we've finally moved, we can update the user object
             // with the new zone id
@@ -157,23 +157,19 @@ public class ZoneProvider
             SceneModel model = scmgr.getSceneModel();
             if (sceneVersion < model.version) {
                 // then send the moveTo response
-                sendResponse(source, invid, MOVE_SUCCEEDED_PLUS_UPDATE_RESPONSE,
-                             new Object[] { new Integer(ploid), config,
-                                            summary, model });
+                listener.moveSucceededPlusUpdate(ploid, config, summary, model);
 
             } else {
                 // then send the moveTo response
-                sendResponse(source, invid, MOVE_SUCCEEDED_RESPONSE,
-                             new Integer(ploid), config, summary);
+                listener.moveSucceeded(ploid, config, summary);
             }
 
             // let the zone manager know that someone just came on in
             ZoneManager zmgr = _zonereg.getZoneManager(summary.zoneId);
             zmgr.bodyDidEnterZone(source, summary.zoneId);
 
-        } catch (ServiceFailedException sfe) {
-            sendResponse(source, invid,
-                         MOVE_FAILED_RESPONSE, sfe.getMessage());
+        } catch (InvocationException ie) {
+            listener.requestFailed(ie.getMessage());
         }
     }
 
@@ -182,23 +178,21 @@ public class ZoneProvider
      * request to move to the specified new zone and scene. This is the
      * zone-equivalent to {@link LocationProvider#moveBody}.
      */
-    public static void moveBody (BodyObject source, int zoneId, int sceneId)
+    public void moveBody (BodyObject source, int zoneId, int sceneId)
     {
         // first remove them from their old place
-        LocationProvider.leaveOccupiedPlace(source);
+        _locprov.leaveOccupiedPlace(source);
 
-        // then send a move notification
-        _invmgr.sendNotification(
-            source.getOid(), MODULE_NAME, MOVE_NOTIFICATION,
-            new Object[] { new Integer(zoneId), new Integer(sceneId) });
+        // then send a forced move notification
+        ZoneSender.forcedMove(source, zoneId, sceneId);
     }
 
-    /** The invocation manager with which we interact. */
-    protected static InvocationManager _invmgr;
+    /** The entity that handles basic location changes. */
+    protected LocationProvider _locprov;
 
     /** The zone registry with which we communicate. */
-    protected static ZoneRegistry _zonereg;
+    protected ZoneRegistry _zonereg;
 
     /** The scene registry with which we communicate. */
-    protected static SceneRegistry _screg;
+    protected SceneRegistry _screg;
 }

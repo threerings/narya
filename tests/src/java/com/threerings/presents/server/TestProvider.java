@@ -1,36 +1,38 @@
 //
-// $Id: TestProvider.java,v 1.10 2001/11/08 02:57:03 mdb Exp $
+// $Id: TestProvider.java,v 1.11 2002/08/14 19:08:00 mdb Exp $
 
 package com.threerings.presents.server;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.client.TestService;
+import com.threerings.presents.client.TestService.TestFuncListener;
+import com.threerings.presents.client.TestService.TestOidListener;
 import com.threerings.presents.data.ClientObject;
 
 /**
  * A test of the invocation services.
  */
-public class TestProvider extends InvocationProvider
+public class TestProvider implements InvocationProvider
 {
-    public void handleTestRequest (
-        ClientObject source, int invid, String one, int two)
+    public void test (
+        ClientObject caller, String one, int two, TestFuncListener listener)
     {
         Log.info("Test request [one=" + one + ", two=" + two + "].");
 
         // issue a test notification just for kicks
-        Object[] args = new Object[] { new Integer(1), "two" };
-        PresentsServer.invmgr.sendNotification(
-            source.getOid(), TestService.MODULE, "Test", args);
+        TestSender.sendTest(caller, 1, "two");
 
         // and issue a response to this invocation request
-        sendResponse(source, invid, "TestSucceeded", one, new Integer(two));
+        listener.testSucceeded(one, two);
     }
 
-    public void handleGetTestOidRequest (ClientObject source, int invid)
+    public void getTestOid (ClientObject caller, TestOidListener listener)
     {
-        Log.info("Handling get test oid [src=" + source.getOid() +
-                 ", invid=" + invid + "].");
-        int oid = TestServer.testobj.getOid();
-        sendResponse(source, invid, "GotTestOid", new Integer(oid));
+        Log.info("Handling get test oid [src=" + caller + "].");
+
+        // issue a test notification just for kicks
+        TestSender.sendTest(caller, 1, "two");
+
+        listener.gotTestOid(TestServer.testobj.getOid());
     }
 }

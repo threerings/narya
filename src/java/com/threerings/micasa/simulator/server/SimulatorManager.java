@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorManager.java,v 1.11 2002/07/02 21:14:23 shaper Exp $
+// $Id: SimulatorManager.java,v 1.12 2002/08/14 19:07:51 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -14,25 +14,21 @@ import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceObject;
-import com.threerings.crowd.server.LocationProvider;
 import com.threerings.crowd.server.PlaceManager;
-import com.threerings.crowd.server.PlaceRegistry;
 import com.threerings.crowd.server.PlaceRegistry.CreationObserver;
+import com.threerings.crowd.server.PlaceRegistry;
 
 import com.threerings.parlor.game.GameConfig;
 import com.threerings.parlor.game.GameManager;
 import com.threerings.parlor.game.GameObject;
 
 import com.threerings.micasa.Log;
-import com.threerings.micasa.simulator.client.Simulant;
-import com.threerings.micasa.simulator.data.SimulatorCodes;
 
 /**
  * The simulator manager is responsible for handling the simulator
  * services on the server side.
  */
 public class SimulatorManager
-    implements SimulatorCodes
 {
     /**
      * Initializes the simulator manager manager. This should be called by
@@ -48,7 +44,7 @@ public class SimulatorManager
     {
         // register our simulator provider
         SimulatorProvider sprov = new SimulatorProvider(this);
-        invmgr.registerProvider(MODULE_NAME, sprov);
+        invmgr.registerDispatcher(new SimulatorDispatcher(sprov), true);
 
         // keep these for later
         _plreg = plreg;
@@ -172,7 +168,7 @@ public class SimulatorManager
 
                 // give the simulant its body
                 BodyObject bobj = (BodyObject)_sims.get(ii - 1);
-                sim.init(bobj, _config, _omgr);
+                sim.init(bobj, _config, _gmgr, _omgr);
 
                 // give the simulant a chance to engage in place antics
                 sim.willEnterPlace(_gobj);
@@ -180,7 +176,7 @@ public class SimulatorManager
                 // move the simulant into the game room since they have no
                 // location director to move them automagically
                 try {
-                    LocationProvider.moveTo(bobj, _gobj.getOid());
+                    _plreg.locprov.moveTo(bobj, _gobj.getOid());
                 } catch (Exception e) {
                     Log.warning("Failed to move simulant into room " +
                                 "[e=" + e + "].");

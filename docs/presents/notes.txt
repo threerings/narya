@@ -306,7 +306,7 @@ Presents Notes -*- outline -*-
       public ChatDirector (PresentsContext ctx)
       {
           InvocationDirector invdir = ctx.getClient().getInvocationDirector();
-          invdir.registerReceiver(new ChatDispatcher(this));
+          invdir.registerReceiver(new ChatDecoder(this));
       }
 
       // documentation inherited from interface
@@ -316,7 +316,7 @@ Presents Notes -*- outline -*-
       }
   }
 
-  The dispatcher class referenced above is generated from the interface
+  The decoder class referenced above is generated from the interface
   specification and is responsible for converting notification events into
   the appropriate method calls on the receiver implementation with which
   it is constructed.
@@ -354,3 +354,7 @@ Presents Notes -*- outline -*-
   "received" are converted to start with "send". If the interface method
   does not start with "received" its name will not be changed in the
   sender class definition.
+
+* 8/13/2002
+** True Names
+Invocation -> Remote? That'd be a hairy pain...

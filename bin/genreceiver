@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: genreceiver,v 1.1 2002/08/11 05:53:13 mdb Exp $
+# $Id: genreceiver,v 1.2 2002/08/14 19:07:48 mdb Exp $
 #
 # This script is used to generate invocation receiver marshaller and
 # unmarshaller classes based on receiver interface definitions.
@@ -10,6 +10,7 @@ use Getopt::Long;
 use Template;
 use File::Basename;
 use POSIX qw(strftime);
+use MD5;
 
 # use Dumpvalue;
 
@@ -84,14 +85,14 @@ while ($srcfile = shift) {
 
     open(JPO, "$jpcmd|") or die "$script: Can't invoke '$jpcmd': $!\n";
     while (<JPO>) {
-        if (/^public interface (\S+) extends (\S+)/) {
+        if (/^public interface (\S+) extends ([^, ]+)/) {
             $ifcname = $1;
             $imports{$ifcname} = 1;
             my $sname = $2;
 
             # if this interface does not extend InvocationReceiver, we
             # don't want to do nothin'
-            die "$script: Receiver interface does not extend " .
+            die "$script: $ifcname does not extend " .
                 "InvocationReceiver\n (extends $sname).\n"
                 if ($sname ne $ISVC_CNAME);
 
@@ -156,7 +157,8 @@ while ($srcfile = shift) {
 
     # create a template processor
     my $ttconfig = {
-        RELATIVE => 1
+        RELATIVE => 1,
+        ABSOLUTE => 1,
         };
     my $tt = Template->new($ttconfig);
     my $genstamp = strftime("%T %D", localtime);
@@ -207,7 +209,7 @@ while ($srcfile = shift) {
     my @dimportsl = sort keys %dimports;
     my %ddata = ( "imports" => \@dimportsl,
                   "name" => $svcname,
-                  "receiver_id" => 0, # TODO: do something here
+                  "receiver_code" => MD5->hexhash($ifcname),
                   "package" => $dcdrpkg,
                   "methods" => \@methods,
                   "genstamp" => $genstamp,
@@ -232,8 +234,12 @@ sub grab_imports {
         # skip primitive types
         next unless ($class =~ m/\./);
 
+        # trim array delimiters
+        my $tclass = $class;
+        $tclass =~ s:[\[\]]::g;
+
         # stuff the class into our import table
-        $imports{$class} = 1;
+        $imports{$tclass} = 1;
     }
 }
 

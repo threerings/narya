@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaApplet.java,v 1.6 2002/02/09 20:47:11 mdb Exp $
+// $Id: MiCasaApplet.java,v 1.7 2002/08/14 19:07:49 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -93,7 +93,7 @@ public class MiCasaApplet extends Applet
             // hide the frame and log off
             _frame.setVisible(false);
             Client client = _client.getContext().getClient();
-            if (client.loggedOn()) {
+            if (client.isLoggedOn()) {
                 client.logoff(false);
             }
         }

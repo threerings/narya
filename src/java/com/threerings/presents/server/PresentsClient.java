@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.34 2002/07/23 05:52:49 mdb Exp $
+// $Id: PresentsClient.java,v 1.35 2002/08/14 19:07:56 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -324,8 +324,8 @@ public class PresentsClient
         // give them the client object id
         data.clientOid = _clobj.getOid();
 
-        // give them the invocation oid
-        data.invOid = PresentsServer.invmgr.getOid();
+        // fill in the list of bootstrap services
+        data.services = PresentsServer.invmgr.bootlist;
     }
 
     /**

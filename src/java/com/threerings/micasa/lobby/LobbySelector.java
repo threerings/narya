@@ -1,5 +1,5 @@
 //
-// $Id: LobbySelector.java,v 1.4 2001/12/14 16:07:30 shaper Exp $
+// $Id: LobbySelector.java,v 1.5 2002/08/14 19:07:49 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -18,8 +18,6 @@ import com.samskivert.util.StringUtil;
 import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.micasa.Log;
-import com.threerings.micasa.lobby.Lobby;
-import com.threerings.micasa.lobby.LobbyService;
 import com.threerings.micasa.util.MiCasaContext;
 
 /**
@@ -28,8 +26,9 @@ import com.threerings.micasa.util.MiCasaContext;
  * displays a list of the lobbies that are available in that category.  If
  * a lobby is double-clicked, it moves the client into that lobby room.
  */
-public class LobbySelector
-    extends JPanel implements ActionListener
+public class LobbySelector extends JPanel
+    implements ActionListener, LobbyService.CategoriesListener,
+               LobbyService.LobbiesListener
 {
     /**
      * Constructs a new lobby selector component. It will wait until it is
@@ -64,16 +63,18 @@ public class LobbySelector
         };
         _loblist.addMouseListener(ml);
         add(_loblist, BorderLayout.CENTER);
+    }
 
-        // we'll need to know when we are made visible because we'll want
-        // to issue a request for our categories when that happens
-        addAncestorListener(new AncestorAdapter () {
-            public void ancestorAdded (AncestorEvent evt) {
-                // issue a get categories request to get the category list
-                LobbyService.getCategories(
-                    _ctx.getClient(), LobbySelector.this);
-            }
-        });
+    // documentation inherited
+    public void addNotify ()
+    {
+        super.addNotify();
+
+        // get a handle on our lobby service instance
+        _lservice = (LobbyService)
+            _ctx.getClient().requireService(LobbyService.class);
+        // and use them to look up the lobby categories
+        _lservice.getCategories(_ctx.getClient(), this);
     }
 
     /**
@@ -90,11 +91,8 @@ public class LobbySelector
         }
     }
 
-    /**
-     * Called in response to a {@link LobbyService#getCategories}
-     * invocation service request.
-     */
-    public void handleGotCategories (int invid, String[] categories)
+    // documentation inherited from interface
+    public void gotCategories (String[] categories)
     {
         // append these to our "unselected" item
         for (int i = 0; i < categories.length; i++) {
@@ -102,11 +100,8 @@ public class LobbySelector
         }
     }
 
-    /**
-     * Called in response to a {@link LobbyService#getLobbies} invocation
-     * service request.
-     */
-    public void handleGotLobbies (int invid, List lobbies)
+    // documentation inherited from interface
+    public void gotLobbies (List lobbies)
     {
         // create a list model for this category
         DefaultListModel model = new DefaultListModel();
@@ -130,16 +125,13 @@ public class LobbySelector
         _pendingCategory = null;
     }
 
-    /**
-     * Called in response to a lobby invocation request when the request
-     * failed.
-     */
-    public void handleRequestFailed (int invid, String reason)
+    // documentation inherited from interface
+    public void requestFailed (String reason)
     {
-        Log.info("Request failed [invid=" + invid +
-                 ", reason=" + reason + "].");
+        Log.info("Request failed [reason=" + reason + "].");
 
-        // clear out our pending category indicator
+        // clear out our pending category indicator in case this was a
+        // failed getLobbies() request
         _pendingCategory = null;
     }
 
@@ -158,7 +150,7 @@ public class LobbySelector
             // make a note that we're loading up this category
             _pendingCategory = category;
             // issue a request to load up the lobbies in this category
-            LobbyService.getLobbies(_ctx.getClient(), category, this);
+            _lservice.getLobbies(_ctx.getClient(), category, this);
 
         } else {
             Log.info("Ignoring category select request because " +
@@ -201,6 +193,8 @@ public class LobbySelector
     }
 
     protected MiCasaContext _ctx;
+    protected LobbyService _lservice;
+
     protected JComboBox _combo;
     protected JList _loblist;
 

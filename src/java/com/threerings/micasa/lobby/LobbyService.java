@@ -1,40 +1,54 @@
 //
-// $Id: LobbyService.java,v 1.3 2002/05/15 23:54:34 mdb Exp $
+// $Id: LobbyService.java,v 1.4 2002/08/14 19:07:49 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
-import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationDirector;
+import java.util.List;
 
-import com.threerings.micasa.Log;
+import com.threerings.presents.client.Client;
+import com.threerings.presents.client.InvocationService;
 
 /**
- * This class provides an interface to the various parlor services that
- * are directly invokable by the client (by means of the invocation
- * services).
+ * Provides an interface to the various parlor services that are directly
+ * invokable by the client (by means of the invocation services).
  */
-public class LobbyService
-    implements LobbyCodes
+public interface LobbyService extends InvocationService
 {
+    /**
+     * Used to communicate the results of a {@link #getCategories}
+     * request.
+     */
+    public static interface CategoriesListener extends InvocationListener
+    {
+        /**
+         * Supplies the listener with the results of a {@link
+         * #getCategories} request.
+         */
+        public void gotCategories (String[] categories);
+    }
+
+    /**
+     * Used to communicate the results of a {@link #getLobbies}
+     * request.
+     */
+    public static interface LobbiesListener extends InvocationListener
+    {
+        /**
+         * Supplies the listener with the results of a {@link
+         * #getLobbies} request.
+         */
+        public void gotLobbies (List lobbies);
+    }
+
     /**
      * Requests the list of lobby cateogories that are available on this
      * server.
      *
      * @param client a connected, operational client instance.
-     * @param rsptarget the object reference that will receive and process
-     * the response. The response will come in the form of a method call
-     * to <code>handleGotCategories</code> or
-     * <code>handleRequestFailed</code>.
-     *
-     * @return the invocation request id of the generated request.
+     * @param listener the listener that will receive and process the
+     * response.
      */
-    public static int getCategories (Client client, Object rsptarget)
-    {
-        InvocationDirector invdir = client.getInvocationDirector();
-        Log.debug("Sending get categories.");
-        return invdir.invoke(
-            MODULE_NAME, GET_CATEGORIES_REQUEST, null, rsptarget);
-    }
+    public void getCategories (Client client, CategoriesListener listener);
 
     /**
      * Requests information on all active lobbies that match the specified
@@ -43,20 +57,9 @@ public class LobbyService
      * @param client a connected, operational client instance.
      * @param category the category of game for which a list of lobbies is
      * desired.
-     * @param rsptarget the object reference that will receive and process
-     * the response. The response will come in the form of a method call
-     * to <code>handleLobbyList</code> or
-     * <code>handleRequestFailed</code>.
-     *
-     * @return the invocation request id of the generated request.
+     * @param listener the listener that will receive and process the
+     * response.
      */
-    public static int getLobbies (
-        Client client, String category, Object rsptarget)
-    {
-        InvocationDirector invdir = client.getInvocationDirector();
-        Object[] args = new Object[] { category };
-        Log.debug("Sending get lobbies [category=" + category + "].");
-        return invdir.invoke(
-            MODULE_NAME, GET_LOBBIES_REQUEST, args, rsptarget);
-    }
+    public void getLobbies (Client client, String category,
+                            LobbiesListener listener);
 }

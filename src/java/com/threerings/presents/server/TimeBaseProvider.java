@@ -1,5 +1,5 @@
 //
-// $Id: TimeBaseProvider.java,v 1.1 2002/05/28 23:14:06 mdb Exp $
+// $Id: TimeBaseProvider.java,v 1.2 2002/08/14 19:07:56 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -7,6 +7,8 @@ import java.util.HashMap;
 import com.samskivert.util.ResultListener;
 
 import com.threerings.presents.Log;
+import com.threerings.presents.client.TimeBaseService.GotTimeBaseListener;
+
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.TimeBaseCodes;
 import com.threerings.presents.data.TimeBaseObject;
@@ -22,8 +24,8 @@ import com.threerings.presents.dobj.Subscriber;
  * network which are expanded based on a shared base time into full time
  * stamps.
  */
-public class TimeBaseProvider extends InvocationProvider
-    implements TimeBaseCodes
+public class TimeBaseProvider
+    implements InvocationProvider, TimeBaseCodes
 {
     /**
      * Registers the time provider with the appropriate managers. Called
@@ -35,8 +37,9 @@ public class TimeBaseProvider extends InvocationProvider
         _invmgr = invmgr;
         _omgr = omgr;
 
-        // register an invocation provider instance
-        _invmgr.registerProvider(MODULE_NAME, new TimeBaseProvider());
+        // register a provider instance
+        invmgr.registerDispatcher(
+            new TimeBaseDispatcher(new TimeBaseProvider()), true);
     }
 
     /**
@@ -81,18 +84,17 @@ public class TimeBaseProvider extends InvocationProvider
      * Processes a request from a client to fetch the oid of the specified
      * time object.
      */
-    public void handleGetTimeOidRequest (
-        ClientObject source, int invid, String timeBase)
-        throws ServiceFailedException
+    public void getTimeOid (
+        ClientObject source, String timeBase, GotTimeBaseListener listener)
+        throws InvocationException
     {
         // look up the time base object in question
         TimeBaseObject time = getTimeBase(timeBase);
         if (time == null) {
-            throw new ServiceFailedException(NO_SUCH_TIME_BASE);
+            throw new InvocationException(NO_SUCH_TIME_BASE);
         }
         // and send the response
-        sendResponse(source, invid, TIME_OID_RESPONSE,
-                     new Integer(time.getOid()));
+        listener.gotTimeOid(time.getOid());
     }
 
     /** Used to keep track of our time base objects. */

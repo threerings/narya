@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: genservice,v 1.2 2002/08/11 05:53:29 mdb Exp $
+# $Id: genservice,v 1.3 2002/08/14 19:07:48 mdb Exp $
 #
 # This script is used to generate invocation service marshaller and
 # unmarshaller classes based on invocation service interface definitions.
@@ -87,14 +87,14 @@ while ($srcfile = shift) {
 
     open(JPO, "$jpcmd|") or die "$script: Can't invoke '$jpcmd': $!\n";
     while (<JPO>) {
-        if (/^public interface (\S+) extends (\S+)/) {
+        if (/^public interface (\S+) extends ([^, ]+)/) {
             $ifcname = $1;
             $imports{$ifcname} = 1;
             my $sname = $2;
 
             # if this interface does not extend InvocationService, we
             # don't want to do nothin'
-            die "$script: Service interface does not extend " .
+            die "$script: $ifcname does not extend " .
                 "InvocationService\n (extends $sname).\n"
                 if ($sname ne $ISVC_CNAME);
 
@@ -203,7 +203,8 @@ while ($srcfile = shift) {
 
     # create a template processor
     my $ttconfig = {
-        RELATIVE => 1
+        RELATIVE => 1,
+        ABSOLUTE => 1,
         };
     my $tt = Template->new($ttconfig);
     my $genstamp = strftime("%T %D", localtime);
@@ -284,16 +285,20 @@ sub grab_imports {
         # skip primitive types
         next unless ($class =~ m/\./);
 
+        # trim array delimiters
+        my $tclass = $class;
+        $tclass =~ s:[\[\]]::g;
+
         # stuff the class into our import table
-        $imports{$class} = 1;
+        $imports{$tclass} = 1;
 
         # if this class is a listener and not in the same package as the
         # service class we're currently processing, we need to import its
         # marshaller as well
-        if ($class =~ m/Listener$/ &&
-            $class !~ m/^$spackage/ &&
-            $class !~ $ISVC_CNAME) {
-            my $mclass = $class;
+        if ($tclass =~ m/Listener$/ &&
+            $tclass !~ m/^$spackage/ &&
+            $tclass !~ $ISVC_CNAME) {
+            my $mclass = $tclass;
             $mclass =~ s:\.client\.:.data.:g;
             $mclass =~ s:Listener:Marshaller:g;
             $mclass =~ s:Service:Marshaller:g;

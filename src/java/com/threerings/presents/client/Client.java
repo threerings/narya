@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.27 2002/06/04 16:34:24 mdb Exp $
+// $Id: Client.java,v 1.28 2002/08/14 19:07:54 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -197,6 +197,40 @@ public class Client
     }
 
     /**
+     * Returns the first bootstrap service that could be located that
+     * implements the supplied {@link InvocationService} derivation.
+     * <code>null</code> is returned if no such service could be found.
+     */
+    public InvocationService getService (Class sclass)
+    {
+        int scount = _bstrap.services.size();
+        for (int ii = 0; ii < scount; ii++) {
+            InvocationService service = (InvocationService)
+                _bstrap.services.get(ii);
+            if (sclass.isInstance(service)) {
+                return service;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Like {@link #getService} except that a {@link RuntimeException} is
+     * thrown if the service is not available. Useful to avoid redundant
+     * error checking when you know that the shit will hit the fan if a
+     * particular invocation service is not available.
+     */
+    public InvocationService requireService (Class sclass)
+    {
+        InvocationService isvc = getService(sclass);
+        if (isvc == null) {
+            throw new RuntimeException(sclass.getName() + " isn't available. " +
+                                       "I can't bear to go on.");
+        }
+        return isvc;
+    }
+
+    /**
      * Returns a reference to the bootstrap data provided to this client
      * at logon time.
      */
@@ -219,7 +253,7 @@ public class Client
     /**
      * Returns true if we are logged on, false if we're not.
      */
-    public synchronized boolean loggedOn ()
+    public synchronized boolean isLoggedOn ()
     {
         // if we have a communicator, we're logged on
         return (_comm != null);
@@ -312,7 +346,7 @@ public class Client
                 notifyObservers(Client.CLIENT_FAILED_TO_LOGON, cause);
             }
         };
-        _invdir.init(_comm.getDObjectManager(), _cloid, _bstrap.invOid, rl);
+        _invdir.init(_comm.getDObjectManager(), _cloid, rl);
 
         // we can't quite call initialization completed at this point
         // because we need for the invocation director to fully initialize
@@ -356,6 +390,8 @@ public class Client
             public void run () {
                 // clear out our communicator reference
                 _comm = null;
+                // and let our invocation director know we're logged off
+                _invdir.cleanup();
             }
         });
     }

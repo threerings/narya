@@ -1,22 +1,20 @@
 //
-// $Id: AdminProvider.java,v 1.1 2002/06/07 06:22:24 mdb Exp $
+// $Id: AdminProvider.java,v 1.2 2002/08/14 19:07:48 mdb Exp $
 
 package com.threerings.admin.server;
 
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
-import com.threerings.presents.server.ServiceFailedException;
-
-import com.threerings.crowd.data.BodyObject;
 
 import com.threerings.admin.Log;
-import com.threerings.admin.data.AdminCodes;
+import com.threerings.admin.client.AdminService;
 
 /**
- * Provides the server-side interface to various administrator services.
+ * Provides the server-side implementation of various administrator
+ * services.
  */
-public class AdminProvider extends InvocationProvider
-    implements AdminCodes
+public class AdminProvider implements InvocationProvider
 {
     /**
      * Constructs an admin provider and registers it with the invocation
@@ -25,15 +23,15 @@ public class AdminProvider extends InvocationProvider
      */
     public static void init (InvocationManager invmgr)
     {
-        invmgr.registerProvider(MODULE_NAME, new AdminProvider());
+        invmgr.registerDispatcher(
+            new AdminDispatcher(new AdminProvider()), true);
     }
 
     /**
-     * Processes a request from a client to obtain the configuration keys
-     * and oids for all registered configuration objects.
+     * Handles a request for the list of config objects.
      */
-    public void handleGetConfigInfoRequest (BodyObject source, int invid)
-        throws ServiceFailedException
+    public void getConfigInfo (
+        ClientObject caller, AdminService.ConfigInfoListener listener)
     {
         // we don't have to validate the request because the user can't do
         // anything with the keys or oids unless they're an admin (we put
@@ -46,6 +44,6 @@ public class AdminProvider extends InvocationProvider
         for (int ii = 0; ii < keys.length; ii++) {
             oids[ii] = ConfObjRegistry.getObject(keys[ii]).getOid();
         }
-        sendResponse(source, invid, CONFIG_INFO_RESPONSE, keys, oids);
+        listener.gotConfigInfo(keys, oids);
     }
 }

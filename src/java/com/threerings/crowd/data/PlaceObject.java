@@ -1,9 +1,13 @@
 //
-// $Id: PlaceObject.java,v 1.6 2002/04/15 14:35:31 shaper Exp $
+// $Id: PlaceObject.java,v 1.7 2002/08/14 19:07:49 mdb Exp $
 
 package com.threerings.crowd.data;
 
-import com.threerings.presents.dobj.*;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.DSet;
+import com.threerings.presents.dobj.OidList;
+
+import com.threerings.crowd.chat.SpeakMarshaller;
 
 public class PlaceObject extends DObject
 {
@@ -12,6 +16,9 @@ public class PlaceObject extends DObject
 
     /** The field name of the <code>occupantInfo</code> field. */
     public static final String OCCUPANT_INFO = "occupantInfo";
+
+    /** The field name of the <code>speakService</code> field. */
+    public static final String SPEAK_SERVICE = "speakService";
 
     /**
      * Tracks the oid of the body objects of all of the occupants of this
@@ -25,6 +32,9 @@ public class PlaceObject extends DObject
      * to be known by everyone in the place.
      */
     public DSet occupantInfo = new DSet();
+
+    /** Used to generate speak requests on this place object. */
+    public SpeakMarshaller speakService;
 
     /**
      * Requests that the specified oid be added to the
@@ -90,5 +100,19 @@ public class PlaceObject extends DObject
     {
         this.occupantInfo = occupantInfo;
         requestAttributeChange(OCCUPANT_INFO, occupantInfo);
+    }
+
+    /**
+     * Requests that the <code>speakService</code> field be set to the specified
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public void setSpeakService (SpeakMarshaller speakService)
+    {
+        this.speakService = speakService;
+        requestAttributeChange(SPEAK_SERVICE, speakService);
     }
 }

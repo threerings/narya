@@ -1,36 +1,70 @@
 //
-// $Id: InvocationReceiver.java,v 1.4 2001/10/11 04:07:52 mdb Exp $
+// $Id: InvocationReceiver.java,v 1.5 2002/08/14 19:07:54 mdb Exp $
 
 package com.threerings.presents.client;
 
+import com.threerings.presents.dobj.DSet;
+
 /**
- * Classes registered to process invocation notifications should implement
- * the invocation receiver interface and register themselves with the
- * invocation director. Because the invocation notification procedures are
- * looked up using reflection, there are no methods to implement in the
- * receiver interface, but it serves as a useful point for documentation
- * and as a useful indicator that the class in question is serving as an
- * invocation receiver.
+ * Invocation notification receipt interfaces should be defined as
+ * extending this interface. Actual notification receivers will implement
+ * the requisite receiver interface definition and register themselves
+ * with the {@link InvocationDirector} using the generated {@link
+ * InvocationDispatcher} class specific to the notification receiver
+ * interface in question. For example:
  *
- * <p> Invocation notifications are identified by a module name and a
- * procedure name. The module name identifies which invocation receiver
- * instance will receive the notification. Receivers are registered with
- * the invocation director as handling all notification procedures for a
- * particular module. The notification procedure name is used to construct
- * a method name which is then reflected and invoked.
- *
- * <p> The name construction is as follows: a notification message
- * requesting the invocation of a procedure named <code>Tell</code> will
- * result in a method named <code>handleTellNotification</code> being
- * invoked on the invocation receiver instance. The signature of that
- * method is defined by the arguments supplied with the invocation
- * notification message.  These arguments must always be of the same type
- * and must exactly match the signature of the implementing method (with
- * the standard reflection argument type conversion process taken into
- * account).
+ * <pre>
+ * public class FooDirector implements FooReceiver
+ * {
+ *     public FooDirector (PresentsContext ctx)
+ *     {
+ *         InvocationDirector idir = ctx.getClient().getInvocationDirector();
+ *         idir.registerReceiver(new FooDispatcher(this));
+ *     }
+ * }
+ * </pre>
  *
  * @see InvocationDirector#registerReceiver
  */
 public interface InvocationReceiver
 {
+    /**
+     * Used to maintain a registry of invocation receivers that can be
+     * used to convert (large) hash codes into (small) registration
+     * numbers.
+     */
+    public static class Registration implements DSet.Entry
+    {
+        /** The unique hash code associated with this invocation receiver
+         * class. */
+        public String receiverCode;
+
+        /** The unique id assigned to this invocation receiver class at
+         * registration time. */
+        public short receiverId;
+
+        /** Creates and initializes a registration instance. */
+        public Registration (String receiverCode, short receiverId)
+        {
+            this.receiverCode = receiverCode;
+            this.receiverId = receiverId;
+        }
+
+        /** Creates a blank instance suitable for unserialization. */
+        public Registration ()
+        {
+        }
+
+        // documentation inherited from interface
+        public Comparable getKey ()
+        {
+            return receiverCode;
+        }
+
+        /** Generates a string representation of this instance. */
+        public String toString ()
+        {
+            return "[" + receiverCode + " => " + receiverId + "]";
+        }
+    }
 }

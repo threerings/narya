@@ -18,9 +18,11 @@
   <property name="tbundle.dir" value="rsrc/bundles/tiles"/>
 
   <!-- declare our classpath -->
+  <property name="classes.dir" value="${deploy.dir}/classes"/>
+  <property name="narya.classes.dir" value="../${deploy.dir}/classes"/>
   <path id="classpath">
-    <pathelement location="${deploy.dir}/classes"/>
-    <pathelement location="../${deploy.dir}/classes"/>
+    <pathelement location="${classes.dir}"/>
+    <pathelement location="${narya.classes.dir}"/>
     <fileset dir="../lib" includes="**/*.jar"/>
     <fileset dir="${java.libraries}" includes="**/*.jar"/>
   </path>
@@ -33,14 +35,40 @@
     </apply>
   </target>
 
+  <!-- generates marshaller and dispatcher classes for all invocation
+       service declarations -->
+  <target name="genservice">
+    <apply executable="../bin/genservice" failonerror="true" parallel="true">
+      <arg value="--classpath"/>
+      <arg value="${classes.dir}:${narya.classes.dir}"/>
+      <arg value="--sourcedir"/>
+      <arg value="src/java"/>
+      <fileset dir="src/java" includes="**/*Service.java"
+        excludes="**/InvocationService.java"/>
+    </apply>
+  </target>
+
+  <!-- generates sender and decoder classes for all invocation
+       receiver declarations -->
+  <target name="genreceiver">
+    <apply executable="../bin/genreceiver" failonerror="true" parallel="true">
+      <arg value="--classpath"/>
+      <arg value="${classes.dir}:${narya.classes.dir}"/>
+      <arg value="--sourcedir"/>
+      <arg value="src/java"/>
+      <fileset dir="src/java" includes="**/*Receiver.java"
+        excludes="**/InvocationReceiver.java"/>
+    </apply>
+  </target>
+
   <!-- prepares the application directories -->
   <target name="prepare" depends="gendobj">
     <mkdir dir="${deploy.dir}"/>
-    <mkdir dir="${deploy.dir}/classes"/>
-    <copy todir="${deploy.dir}/classes">
+    <mkdir dir="${classes.dir}"/>
+    <copy todir="${classes.dir}">
       <fileset dir="${src.dir}" includes="**/*.properties"/>
     </copy>
-    <copy todir="${deploy.dir}/classes/rsrc">
+    <copy todir="${classes.dir}/rsrc">
       <fileset dir="rsrc" includes="**/*"/>
     </copy>
   </target>
@@ -52,7 +80,7 @@
 
   <!-- build the java class files -->
   <target name="compile" depends="prepare">
-    <javac srcdir="${src.dir}" destdir="${deploy.dir}/classes"
+    <javac srcdir="${src.dir}" destdir="${classes.dir}"
       debug="on" optimize="off" deprecation="off">
       <classpath refid="classpath"/>
     </javac>

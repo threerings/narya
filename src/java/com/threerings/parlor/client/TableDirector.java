@@ -1,13 +1,16 @@
 //
-// $Id: TableDirector.java,v 1.7 2002/04/17 18:26:29 mdb Exp $
+// $Id: TableDirector.java,v 1.8 2002/08/14 19:07:52 mdb Exp $
 
 package com.threerings.parlor.client;
 
 import java.util.ArrayList;
 
+import com.threerings.presents.client.BasicDirector;
+import com.threerings.presents.client.Client;
+
 import com.threerings.presents.dobj.EntryAddedEvent;
-import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.EntryRemovedEvent;
+import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.SetListener;
 
 import com.threerings.crowd.data.BodyObject;
@@ -37,8 +40,8 @@ import com.threerings.parlor.util.ParlorContext;
  * lobby in which the table matchmaking takes place implements the {@link
  * TableLobbyObject} interface.
  */
-public class TableDirector
-    implements SetListener
+public class TableDirector extends BasicDirector
+    implements SetListener, ParlorService.TableListener
 {
     /**
      * Creates a new table director to manage tables with the specified
@@ -54,6 +57,8 @@ public class TableDirector
     public TableDirector (
         ParlorContext ctx, String tableField, TableObserver observer)
     {
+        super(ctx);
+
         // keep track of this stuff
         _ctx = ctx;
         _tableField = tableField;
@@ -140,8 +145,7 @@ public class TableDirector
         }
 
         // go ahead and issue the create request
-        ParlorService.createTable(
-            _ctx.getClient(), _lobby.getOid(), config, this);
+        _pservice.createTable(_ctx.getClient(), _lobby.getOid(), config, this);
     }
 
     /**
@@ -166,8 +170,8 @@ public class TableDirector
         }
 
         // issue the join request
-        ParlorService.joinTable(
-            _ctx.getClient(), _lobby.getOid(), tableId, position, this);
+        _pservice.joinTable(_ctx.getClient(), _lobby.getOid(), tableId,
+                            position, this);
     }
 
     /**
@@ -185,8 +189,14 @@ public class TableDirector
         }
 
         // issue the leave request
-        ParlorService.leaveTable(
-            _ctx.getClient(), _lobby.getOid(), tableId, this);
+        _pservice.leaveTable(_ctx.getClient(), _lobby.getOid(), tableId, this);
+    }
+
+    // documentation inherited
+    protected void fetchServices (Client client)
+    {
+        // get a handle on our parlor services
+        _pservice = (ParlorService)client.requireService(ParlorService.class);
     }
 
     // documentation inherited
@@ -234,52 +244,17 @@ public class TableDirector
         }
     }
 
-    /**
-     * Called by the invocation services when a table creation request was
-     * received by the server and the table was successfully created.
-     *
-     * @param invid the invocation id of the invitation request.
-     */
-    public void handleTableCreated (int invid, int tableId)
+    // documentation inherited from interface
+    public void tableCreated (int tableId)
     {
         // nothing much to do here
         Log.info("Table creation succeeded [tableId=" + tableId + "].");
     }
 
-    /**
-     * Called by the invocation services when a table creation request
-     * failed or was rejected for some reason.
-     *
-     * @param invid the invocation id of the creation request.
-     * @param reason a reason code explaining the failure.
-     */
-    public void handleCreateTableFailed (int invid, String reason)
+    // documentation inherited from interface
+    public void requestFailed (String reason)
     {
         Log.warning("Table creation failed [reason=" + reason + "].");
-    }
-
-    /**
-     * Called by the invocation services when a join table request failed
-     * or was rejected for some reason.
-     *
-     * @param invid the invocation id of the join request.
-     * @param reason a reason code explaining the failure.
-     */
-    public void handleJoinTableFailed (int invid, String reason)
-    {
-        Log.warning("Join table failed [reason=" + reason + "].");
-    }
-
-    /**
-     * Called by the invocation services when a leave table request failed
-     * or was rejected for some reason.
-     *
-     * @param invid the invocation id of the leave request.
-     * @param reason a reason code explaining the failure.
-     */
-    public void handleLeaveTableFailed (int invid, String reason)
-    {
-        Log.warning("Leave table failed [reason=" + reason + "].");
     }
 
     /**
@@ -337,6 +312,9 @@ public class TableDirector
 
     /** A context by which we can access necessary client services. */
     protected ParlorContext _ctx;
+
+    /** Parlor server-side services. */
+    protected ParlorService _pservice;
 
     /** The place object in which we're currently managing tables. */
     protected PlaceObject _lobby;

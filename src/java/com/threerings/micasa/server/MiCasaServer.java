@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaServer.java,v 1.5 2002/03/28 22:32:32 mdb Exp $
+// $Id: MiCasaServer.java,v 1.6 2002/08/14 19:07:49 mdb Exp $
 
 package com.threerings.micasa.server;
 
@@ -40,7 +40,7 @@ public class MiCasaServer extends CrowdServer
         clmgr.setClientClass(MiCasaClient.class);
 
         // initialize our parlor manager
-        parmgr.init(invmgr);
+        parmgr.init(invmgr, plreg);
 
         // initialize the lobby registry
         lobreg.init(invmgr);

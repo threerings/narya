@@ -1,5 +1,5 @@
 //
-// $Id: TestServer.java,v 1.8 2002/03/28 22:32:33 mdb Exp $
+// $Id: TestServer.java,v 1.9 2002/08/14 19:08:01 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -14,6 +14,9 @@ public class TestServer extends PresentsServer
         throws Exception
     {
         super.init();
+
+        // register our test provider
+        invmgr.registerDispatcher(new TestDispatcher(new TestProvider()), true);
 
         // create a test object
         Subscriber sub = new Subscriber()

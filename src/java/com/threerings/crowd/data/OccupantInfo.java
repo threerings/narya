@@ -1,5 +1,5 @@
 //
-// $Id: OccupantInfo.java,v 1.8 2002/07/23 05:54:52 mdb Exp $
+// $Id: OccupantInfo.java,v 1.9 2002/08/14 19:07:49 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -40,7 +40,7 @@ public class OccupantInfo extends SimpleStreamableObject
     }
 
     // documentation inherited
-    public Object getKey ()
+    public Comparable getKey ()
     {
         return bodyOid;
     }

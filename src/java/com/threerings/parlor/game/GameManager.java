@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.37 2002/06/19 23:41:25 shaper Exp $
+// $Id: GameManager.java,v 1.38 2002/08/14 19:07:53 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -7,11 +7,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.MessageEvent;
 
-import com.threerings.crowd.chat.ChatProvider;
+import com.threerings.crowd.chat.SpeakProvider;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceObject;
@@ -23,6 +24,7 @@ import com.threerings.crowd.server.PlaceManagerDelegate;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.data.ParlorCodes;
+import com.threerings.parlor.server.ParlorSender;
 
 /**
  * The game manager handles the server side management of a game. It
@@ -34,34 +36,15 @@ import com.threerings.parlor.data.ParlorCodes;
  * bodies in that location.
  */
 public class GameManager extends PlaceManager
-    implements ParlorCodes, GameCodes, AttributeChangeListener
+    implements ParlorCodes, GameProvider, AttributeChangeListener
 {
-    // documentation inherited
-    protected Class getPlaceObjectClass ()
-    {
-        return GameObject.class;
-    }
-
-    // documentation inherited
-    protected void didInit ()
-    {
-        super.didInit();
-
-        // cast our configuration object (do we need to do this?)
-        _gconfig = (GameConfig)_config;
-
-        // register our message handlers
-        MessageHandler handler = new PlayerReadyHandler();
-        registerMessageHandler(PLAYER_READY_NOTIFICATION, handler);
-    }
-
     /**
-     * Initializes the game manager with the supplied game configuration
-     * object. This happens before startup and before the game object has
-     * been created.
+     * Provides the game manager with a list of the usernames of all
+     * players in the game. This happens before startup and before the
+     * game object has been created.
      *
      * @param players the usernames of all of the players in this game or
-     * null if the game has no specific set of players.
+     * a zero-length array if the game has no specific set of players.
      */
     public void setPlayers (String[] players)
     {
@@ -167,8 +150,9 @@ public class GameManager extends PlaceManager
     public void systemMessage (
         String msgbundle, String msg, boolean waitForStart)
     {
-        if (waitForStart && ((_gameobj == null) ||
-                             (_gameobj.state == GameObject.AWAITING_PLAYERS))) {
+        if (waitForStart &&
+            ((_gameobj == null) ||
+             (_gameobj.state == GameObject.AWAITING_PLAYERS))) {
             // queue up the message.
             if (_startmsgs == null) {
                 _startmsgs = new ArrayList();
@@ -179,7 +163,13 @@ public class GameManager extends PlaceManager
         }
 
         // otherwise, just deliver the message
-        ChatProvider.sendSystemMessage(_gameobj.getOid(), msgbundle, msg);
+        SpeakProvider.sendSystemSpeak(_gameobj, msgbundle, msg);
+    }
+
+    // documentation inherited
+    protected Class getPlaceObjectClass ()
+    {
+        return GameObject.class;
     }
 
     // documentation inherited
@@ -193,24 +183,27 @@ public class GameManager extends PlaceManager
         // stick the players into the game object
         _gameobj.setPlayers(_players);
 
+        // create and fill in our game service object
+        GameMarshaller service = (GameMarshaller)
+            _invmgr.registerDispatcher(new GameDispatcher(this), false);
+        _gameobj.setService(service);
+
         // let the players of this game know that we're ready to roll (if
         // we have a specific set of players)
         if (_players != null) {
-            Object[] args = new Object[] {
-                new Integer(_gameobj.getOid()) };
+            int gameOid = _gameobj.getOid();
             for (int i = 0; i < _players.length; i++) {
                 BodyObject bobj = CrowdServer.lookupBody(_players[i]);
                 if (bobj == null) {
                     Log.warning("Unable to deliver game ready to " +
                                 "non-existent player " +
-                                "[gameOid=" + _gameobj.getOid() +
+                                "[gameOid=" + gameOid +
                                 ", player=" + _players[i] + "].");
                     continue;
                 }
 
                 // deliver a game ready notification to the player
-                CrowdServer.invmgr.sendNotification(
-                    bobj.getOid(), MODULE_NAME, GAME_READY_NOTIFICATION, args);
+                ParlorSender.gameIsReady(bobj, gameOid);
             }
         }
     }
@@ -448,6 +441,35 @@ public class GameManager extends PlaceManager
         });
     }
 
+    // documentation inherited from interface
+    public void playerReady (ClientObject caller)
+    {
+        BodyObject plobj = (BodyObject)caller;
+
+        // make a note of this player's oid
+        int pidx = _gameobj.getPlayerIndex(plobj.username);
+        if (pidx == -1) {
+            Log.warning("Received playerReady() from non-player? " +
+                        "[caller=" + caller + "].");
+            return;
+        }
+        _playerOids[pidx] = plobj.getOid();
+
+        // and check to see if we're all set
+        boolean allSet = true;
+        for (int ii = 0; ii < _players.length; ii++) {
+            if ((_playerOids[ii] == 0) &&
+                ((_AIs == null) || (_AIs[ii] == -1))) {
+                allSet = false;
+            }
+        }
+
+        // if everyone is now ready to go, make a note of it
+        if (allSet) {
+            playersAllHere();
+        }
+    }
+
     // documentation inherited
     public void attributeChanged (AttributeChangedEvent event)
     {
@@ -459,39 +481,6 @@ public class GameManager extends PlaceManager
                 // now we do our end of game processing
                 gameDidEnd();
                 break;
-            }
-        }
-    }
-
-    /** Handles player ready notifications. */
-    protected class PlayerReadyHandler implements MessageHandler
-    {
-        public void handleEvent (MessageEvent event, PlaceManager pmgr)
-        {
-            int cloid = event.getSourceOid();
-            BodyObject body = (BodyObject)CrowdServer.omgr.getObject(cloid);
-            if (body == null) {
-                Log.warning("Player sent am ready notification and then " +
-                            "disappeared [event=" + event + "].");
-                return;
-            }
-
-            // make a note of this player's oid and check to see if we're
-            // all set at the same time
-            boolean allSet = true;
-            for (int i = 0; i < _players.length; i++) {
-                if (_players[i].equals(body.username)) {
-                    _playerOids[i] = body.getOid();
-                }
-                if ((_playerOids[i] == 0) &&
-                    ((_AIs == null) || (_AIs[i] == -1))) {
-                    allSet = false;
-                }
-            }
-
-            // if everyone is now ready to go, make a note of it
-            if (allSet) {
-                playersAllHere();
             }
         }
     }
@@ -514,9 +503,6 @@ public class GameManager extends PlaceManager
         protected int _pidx;
         protected byte _level;
     }
-
-    /** A reference to our game configuration. */
-    protected GameConfig _gconfig;
 
     /** A reference to our game object. */
     protected GameObject _gameobj;

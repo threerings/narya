@@ -1,5 +1,5 @@
 //
-// $Id: TableManager.java,v 1.6 2002/07/23 05:54:52 mdb Exp $
+// $Id: TableManager.java,v 1.7 2002/08/14 19:07:54 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -14,7 +14,7 @@ import com.threerings.presents.dobj.ObjectDeathListener;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.ObjectRemovedEvent;
 import com.threerings.presents.dobj.OidListListener;
-import com.threerings.presents.server.ServiceFailedException;
+import com.threerings.presents.server.InvocationException;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceObject;
@@ -69,12 +69,12 @@ public class TableManager
      *
      * @return the id of the newly created table.
      *
-     * @exception ServiceFailedException thrown if the table creation was
+     * @exception InvocationException thrown if the table creation was
      * not able processed for some reason. The explanation will be
      * provided in the message data of the exception.
      */
     public int createTable (BodyObject creator, GameConfig config)
-        throws ServiceFailedException
+        throws InvocationException
     {
         // make sure the game config implements TableConfig
         if (!(config instanceof TableConfig)) {
@@ -82,7 +82,7 @@ public class TableManager
                         "using the table services [creator=" + creator +
                         ", lobby=" + _plobj.getOid() +
                         ", config=" + config + "].");
-            throw new ServiceFailedException(INTERNAL_ERROR);
+            throw new InvocationException(INTERNAL_ERROR);
         }
 
         // make sure the creator is an occupant of the lobby in which
@@ -91,7 +91,7 @@ public class TableManager
             Log.warning("Requested to create a table in a lobby not " +
                         "occupied by the creator [creator=" + creator +
                         ", loboid=" + _plobj.getOid() + "].");
-            throw new ServiceFailedException(INTERNAL_ERROR);
+            throw new InvocationException(INTERNAL_ERROR);
         }
 
         // create a brand spanking new table
@@ -105,7 +105,7 @@ public class TableManager
                         "table!? [table=" + table + ", creator=" + creator +
                         ", error=" + error + "].");
             // bail out now and abort the table creation process
-            throw new ServiceFailedException(error);
+            throw new InvocationException(error);
         }
 
         // stick the table into the table lobby object
@@ -126,7 +126,7 @@ public class TableManager
      * the specified position. If the user successfully joins the table,
      * the function will return normally. If they are not able to join for
      * some reason (the slot is already full, etc.), a {@link
-     * ServiceFailedException} will be thrown with a message code that
+     * InvocationException} will be thrown with a message code that
      * describes the reason for failure. If the user does successfully
      * join, they will be added to the table entry in the tables set in
      * the place object that is hosting the table.
@@ -136,17 +136,17 @@ public class TableManager
      * @param tableId the id of the table to be joined.
      * @param position the position at which to join the table.
      *
-     * @exception ServiceFailedException thrown if the joining was not
-     * able processed for some reason. The explanation will be provided in
-     * the message data of the exception.
+     * @exception InvocationException thrown if the joining was not able
+     * processed for some reason. The explanation will be provided in the
+     * message data of the exception.
      */
     public void joinTable (BodyObject joiner, int tableId, int position)
-        throws ServiceFailedException
+        throws InvocationException
     {
         // look the table up
         Table table = (Table)_tables.get(tableId);
         if (table == null) {
-            throw new ServiceFailedException(NO_SUCH_TABLE);
+            throw new InvocationException(NO_SUCH_TABLE);
         }
 
         // request that the user be added to the table at that position
@@ -154,7 +154,7 @@ public class TableManager
             table.setOccupant(position, joiner.username, joiner.getOid());
         // if that failed, report the error
         if (error != null) {
-            throw new ServiceFailedException(error);
+            throw new InvocationException(error);
         }
 
         // determine whether or not it's time to start the game
@@ -188,29 +188,29 @@ public class TableManager
      * table. If the user successfully leaves the table, the function will
      * return normally. If they are not able to leave for some reason
      * (they aren't sitting at the table, etc.), a {@link
-     * ServiceFailedException} will be thrown with a message code that
+     * InvocationException} will be thrown with a message code that
      * describes the reason for failure.
      *
      * @param leaver the body object of the user that wishes to leave the
      * table.
      * @param tableId the id of the table to be left.
      *
-     * @exception ServiceFailedException thrown if the leaving was not
-     * able processed for some reason. The explanation will be provided in
-     * the message data of the exception.
+     * @exception InvocationException thrown if the leaving was not able
+     * processed for some reason. The explanation will be provided in the
+     * message data of the exception.
      */
     public void leaveTable (BodyObject leaver, int tableId)
-        throws ServiceFailedException
+        throws InvocationException
     {
         // look the table up
         Table table = (Table)_tables.get(tableId);
         if (table == null) {
-            throw new ServiceFailedException(NO_SUCH_TABLE);
+            throw new InvocationException(NO_SUCH_TABLE);
         }
 
         // request that the user be removed from the table
         if (!table.clearOccupant(leaver.username)) {
-            throw new ServiceFailedException(NOT_AT_TABLE);
+            throw new InvocationException(NOT_AT_TABLE);
         }
 
         // remove the mapping from this user to the table

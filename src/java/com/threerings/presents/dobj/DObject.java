@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.46 2002/07/23 05:52:48 mdb Exp $
+// $Id: DObject.java,v 1.47 2002/08/14 19:07:55 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -471,6 +471,14 @@ public class DObject implements Streamable
     public void setOid (int oid)
     {
         _oid = oid;
+    }
+
+    /**
+     * Generates a concise string representation of this object.
+     */
+    public String which ()
+    {
+        return "[" + getClass().getName() + " " + getOid() + "]";
     }
 
     /**

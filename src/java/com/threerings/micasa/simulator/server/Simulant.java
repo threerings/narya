@@ -1,7 +1,7 @@
 //
-// $Id: Simulant.java,v 1.3 2002/02/05 22:11:51 mdb Exp $
+// $Id: Simulant.java,v 1.4 2002/08/14 19:07:51 mdb Exp $
 
-package com.threerings.micasa.simulator.client;
+package com.threerings.micasa.simulator.server;
 
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.MessageEvent;
@@ -9,19 +9,21 @@ import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceObject;
 
-import com.threerings.parlor.game.GameCodes;
 import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.GameManager;
 
-public abstract class Simulant implements GameCodes
+public abstract class Simulant
 {
     /**
      * Initializes the simulant with a body object and the game config for
      * the game they'll be engaged in.
      */
-    public void init (BodyObject self, GameConfig config, DObjectManager omgr)
+    public void init (BodyObject self, GameConfig config,
+                      GameManager gmgr, DObjectManager omgr)
     {
         _self = self;
         _config = config;
+        _gmgr = gmgr;
         _omgr = omgr;
     }
 
@@ -37,9 +39,7 @@ public abstract class Simulant implements GameCodes
     public void willEnterPlace (PlaceObject plobj)
     {
         // let the game manager know that the simulant's ready
-        MessageEvent mevt = new MessageEvent(
-            plobj.getOid(), PLAYER_READY_NOTIFICATION, null);
-        postEvent(mevt);
+        _gmgr.playerReady(_self);
     }
 
     /**
@@ -58,6 +58,9 @@ public abstract class Simulant implements GameCodes
 
     /** The game config object. */
     protected GameConfig _config;
+
+    /** The game manager for the game we're playing. */
+    protected GameManager _gmgr;
 
     /** Our body object. */
     protected BodyObject _self;

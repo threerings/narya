@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.13 2002/02/09 20:47:11 mdb Exp $
+// $Id: TestClient.java,v 1.14 2002/08/14 19:07:59 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -14,7 +14,9 @@ import com.threerings.presents.server.TestObject;
  * A standalone test client.
  */
 public class TestClient
-    implements Client.Invoker, ClientObserver, Subscriber, EventListener
+    implements Client.Invoker, SessionObserver, Subscriber, EventListener,
+               TestService.TestFuncListener, TestService.TestOidListener,
+               TestReceiver
 {
     public void setClient (Client client)
     {
@@ -39,29 +41,15 @@ public class TestClient
     public void clientDidLogon (Client client)
     {
         Log.info("Client did logon [client=" + client + "].");
-        // register our test notification receiver
-        client.getInvocationDirector().registerReceiver(TestService.MODULE,
-                                                        new TestReceiver());
+
+        // register ourselves as a test notification receiver
+        client.getInvocationDirector().registerReceiver(
+            new TestDecoder(this));
+
         // get the test object id
-        TestService.getTestOid(client, this);
-    }
-
-    public void clientFailedToLogon (Client client, Exception cause)
-    {
-        Log.info("Client failed to logon [client=" + client +
-                 ", cause=" + cause + "].");
-    }
-
-    public void clientConnectionFailed (Client client, Exception cause)
-    {
-        Log.info("Client connection failed [client=" + client +
-                 ", cause=" + cause + "].");
-    }
-
-    public boolean clientWillLogoff (Client client)
-    {
-        Log.info("Client will logoff [client=" + client + "].");
-        return true;
+        TestService service = (TestService)
+            client.requireService(TestService.class);
+        service.getTestOid(client, this);
     }
 
     public void clientDidLogoff (Client client)
@@ -99,15 +87,30 @@ public class TestClient
         }
     }
 
-    public void handleTestSucceeded (int invid, String one, int two)
+    // documentation inherited from interface
+    public void testSucceeded (String one, int two)
     {
         Log.info("Got test response [one=" + one + ", two=" + two + "].");
     }
 
-    public void handleGotTestOid (int invid, int oid)
+    // documentation inherited from interface
+    public void gotTestOid (int testOid)
     {
         // subscribe to the test object
-        _client.getDObjectManager().subscribeToObject(oid, this);
+        _client.getDObjectManager().subscribeToObject(testOid, this);
+    }
+
+    // documentation inherited from interface
+    public void requestFailed (String reason)
+    {
+        Log.info("Urk! Request failed [reason=" + reason + "].");
+    }
+
+    // documentation inherited from interface
+    public void receivedTest (int one, String two)
+    {
+        Log.info("Received test notification [one=" + one +
+                 ", two=" + two + "].");
     }
 
     public static void main (String[] args)

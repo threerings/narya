@@ -1,11 +1,13 @@
 //
-// $Id: ZoneRegistry.java,v 1.7 2002/05/26 02:24:46 mdb Exp $
+// $Id: ZoneRegistry.java,v 1.8 2002/08/14 19:07:58 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
 import com.samskivert.util.HashIntMap;
 
 import com.threerings.presents.server.InvocationManager;
+
+import com.threerings.crowd.server.PlaceRegistry;
 import com.threerings.whirled.server.SceneRegistry;
 
 import com.threerings.whirled.zone.Log;
@@ -17,15 +19,19 @@ import com.threerings.whirled.zone.util.ZoneUtil;
  */
 public class ZoneRegistry
 {
+    /** Implements the server-side of the zone-related services. */
+    public ZoneProvider zoneprov;
+
     /**
      * Creates a zone manager with the supplied configuration.
      */
-    public ZoneRegistry (InvocationManager invmgr, SceneRegistry screg)
+    public ZoneRegistry (InvocationManager invmgr, PlaceRegistry plreg,
+                         SceneRegistry screg)
     {
         // create a zone provider and register it with the invocation
         // services
-        ZoneProvider provider = new ZoneProvider(invmgr, this, screg);
-        invmgr.registerProvider(ZoneProvider.MODULE_NAME, provider);
+        zoneprov = new ZoneProvider(plreg.locprov, this, screg);
+        invmgr.registerDispatcher(new ZoneDispatcher(zoneprov), true);
     }
 
     /**

@@ -1,19 +1,30 @@
 //
-// $Id: InvocationManager.java,v 1.11 2002/04/17 18:20:04 mdb Exp $
+// $Id: InvocationManager.java,v 1.12 2002/08/14 19:07:56 mdb Exp $
 
 package com.threerings.presents.server;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-
+import java.util.ArrayList;
+import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.io.Streamable;
+import com.threerings.util.StreamableArrayList;
+
 import com.threerings.presents.Log;
-import com.threerings.presents.dobj.*;
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.InvocationMarshaller.ListenerMarshaller;
+import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.data.InvocationObject;
-import com.threerings.presents.util.ClassUtil;
+
+import com.threerings.presents.dobj.DEvent;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.EventListener;
+import com.threerings.presents.dobj.InvocationRequestEvent;
+import com.threerings.presents.dobj.MessageEvent;
+import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.RootDObjectManager;
+import com.threerings.presents.dobj.Subscriber;
+import com.threerings.presents.dobj.Subscriber;
 
 /**
  * The invocation services provide client to server invocations (service
@@ -23,11 +34,12 @@ import com.threerings.presents.util.ClassUtil;
  * invoke code on the client.
  *
  * <p> Invocations are like remote procedure calls in that they are named
- * and take arguments. They are simple in that the arguments can only be
- * of a small set of supported types (the set of distributed object field
- * types) and there is no special facility provided for referencing
- * non-local objects (it is assumed that the distributed object facility
- * will already be in use for any objects that should be shared).
+ * and take arguments. All arguments must be {@link Streamable} objects,
+ * primitive types, or String objects. All arguments are passed by value
+ * (by serializing and unserializing the arguments); there is no special
+ * facility provided for referencing non-local objects (it is assumed that
+ * the distributed object facility will already be in use for any objects
+ * that should be shared).
  *
  * <p> The server invocation manager listens for invocation requests from
  * the client and passes them on to the invocation provider registered for
@@ -36,9 +48,19 @@ import com.threerings.presents.util.ClassUtil;
  * the client.
  */
 public class InvocationManager
-    implements Subscriber, MessageListener
+    implements Subscriber, EventListener
 {
-    public InvocationManager (DObjectManager omgr)
+    /** The list of services that are to be provided to clients at boot
+     * time. Don't mess with this list! */
+    public StreamableArrayList bootlist = new StreamableArrayList();
+
+    /**
+     * Constructs an invocation manager which will use the supplied
+     * distributed object manager to operate its invocation
+     * services. Generally only one invocation manager should be
+     * operational in a particular system.
+     */
+    public InvocationManager (RootDObjectManager omgr)
     {
         _omgr = omgr;
 
@@ -52,45 +74,42 @@ public class InvocationManager
     }
 
     /**
-     * Registers the supplied invocation provider instance as the handler
-     * for all invocation requests for the specified module.
-     */
-    public void registerProvider (String module, InvocationProvider provider)
-    {
-        _providers.put(module, provider);
-    }
-
-    /**
-     * Delivers an invocation notification to the specified client. The
-     * <code>module</code> argument selects which
-     * <code>InvocationReceiver</code> will be invoked and the
-     * <code>procedure</code> argument indicates which method will be
-     * invoked on that receiver.
+     * Registers the supplied invocation dispatcher, returning a
+     * marshaller that can be used to send requests to the provider for
+     * whom the dispatcher is proxying.
      *
-     * <p> The method is constructed as follows: a procedure name of
-     * <code>Tell</code> will result in a method call to
-     * <code>handleTellNotification</code>. The arguments provided with
-     * the notification define the necessary signature of that method,
-     * according to the argument conversion rules defined by the
-     * reflection services (<code>Integer</code> is converted to
-     * <code>int</code>, etc.).
+     * @param dispatcher the dispatcher to be registered.
+     * @param bootstrap if true, the service instance will be added to the
+     * list of invocation service objects provided to the client in the
+     * bootstrap data.
      */
-    public void sendNotification (
-        int cloid, String module, String procedure, Object[] args)
+    public InvocationMarshaller registerDispatcher (
+        InvocationDispatcher dispatcher, boolean bootstrap)
     {
-        // package up the arguments
-        int alength = (args != null) ? args.length : 0;
-        Object[] nargs = new Object[alength + 2];
-        nargs[0] = module;
-        nargs[1] = procedure;
-        if (args != null) {
-            System.arraycopy(args, 0, nargs, 2, alength);
+        // get the next invocation code
+        int invCode = nextInvCode();
+
+        // create the marshaller and initialize it
+        InvocationMarshaller marsh = dispatcher.createMarshaller();
+        marsh.init(_invoid, invCode);
+
+        // if we haven't yet finished our own initialization, we need to
+        // throw this dispatcher on a queue so that we can fill in its
+        // invocation oid when we know what it should be
+        if (_invoid == -1) {
+            _lateInitQueue.add(marsh);
         }
 
-        // construct a message event and deliver it
-        MessageEvent nevt = new MessageEvent(
-            cloid, InvocationObject.NOTIFICATION_NAME, nargs);
-        PresentsServer.omgr.postEvent(nevt);
+        // register the dispatcher
+        _dispatchers.put(invCode, dispatcher);
+
+        // if it's a bootstrap service, slap it in the list
+        if (bootstrap) {
+            bootlist.add(marsh);
+        }
+
+//         Log.info("Registered service [marsh=" + marsh + "].");
+        return marsh;
     }
 
     public void objectAvailable (DObject object)
@@ -100,6 +119,15 @@ public class InvocationManager
 
         // add ourselves as a message listener
         object.addListener(this);
+
+        // let any early registered marshallers know about our invoid
+        while (_lateInitQueue.size() > 0) {
+            InvocationMarshaller marsh = (InvocationMarshaller)
+                _lateInitQueue.remove(0);
+            marsh.setInvocationOid(_invoid);
+        }
+
+//         Log.info("Created invocation service object [oid=" + _invoid + "].");
     }
 
     public void requestFailed (int oid, ObjectAccessException cause)
@@ -111,85 +139,118 @@ public class InvocationManager
         _invoid = -1;
     }
 
-    public void messageReceived (MessageEvent event)
+    // documentation inherited from interface
+    public void eventReceived (DEvent event)
     {
-        // make sure the name is proper just for sanity's sake
-        if (!event.getName().equals(InvocationObject.REQUEST_NAME)) {
-            return;
-        }
+//         Log.info("Event received " + event + ".");
 
-        // we've got an invocation request, so we process it
-        Object[] args = event.getArgs();
-        String module = (String)args[0];
-        String procedure = (String)args[1];
-        Integer invid = (Integer)args[2];
-
-        // locate a provider for this module
-        InvocationProvider provider =
-            (InvocationProvider)_providers.get(module);
-        if (provider == null) {
-            Log.warning("No provider registered for invocation request " +
-                        "[evt=" + event + "].");
-            return;
-        }
-
-        // prune the method arguments from the full message arguments
-        Object[] margs = new Object[args.length-1];
-        int cloid = event.getSourceOid();
-        ClientObject source = (ClientObject)
-            PresentsServer.omgr.getObject(cloid);
-        // make sure the client is still around
-        if (source == null) {
-            Log.warning("Client no longer around for invocation provider " +
-                        "request [module=" + module +
-                        ", proc=" + procedure + ", cloid=" + cloid + "].");
-            return;
-        }
-        margs[0] = source;
-        System.arraycopy(args, 2, margs, 1, args.length-2);
-
-        // look up the method that will handle this procedure
-        String mname = "handle" + procedure + "Request";
-        Method procmeth = ClassUtil.getMethod(mname, provider, _methcache);
-        if (procmeth == null) {
-            Log.warning("Unable to resolve provider procedure " +
-                        "[provider=" + provider.getClass().getName() +
-                        ", method=" + mname + "].");
-            return;
-        }
-
-        // and invoke it
-        try {
-            procmeth.invoke(provider, margs);
-
-        } catch (InvocationTargetException ite) {
-            Throwable te = ite.getTargetException();
-            if (te instanceof ServiceFailedException) {
-                // automatically generate a <foo>Failed response
-                provider.sendResponse(source, invid.intValue(),
-                                      procedure + FAILED_SUFFIX,
-                                      te.getMessage());
-
-            } else {
-                Log.warning("Invocation procedure failed " +
-                            "[provider=" + provider +
-                            ", method=" + procmeth +
-                            ", args=" + StringUtil.toString(margs) + "].");
-                Log.logStackTrace(te);
-            }
-
-        } catch (Exception e) {
-            Log.warning("Error invoking invocation procedure " +
-                        "[provider=" + provider +
-                        ", method=" + procmeth + "].");
-            Log.logStackTrace(e);
+        if (event instanceof InvocationRequestEvent) {
+            InvocationRequestEvent ire = (InvocationRequestEvent)event;
+            dispatchRequest(ire.getSourceOid(), ire.getInvCode(),
+                            ire.getMethodId(), ire.getArgs());
         }
     }
 
-    protected DObjectManager _omgr;
-    protected int _invoid;
-    protected HashMap _providers = new HashMap();
-    protected HashMap _methcache = new HashMap();
+    /**
+     * Called when we receive an invocation request message. Dispatches
+     * the request to the appropriate invocation provider via the
+     * registered invocation dispatcher.
+     */
+    protected void dispatchRequest (
+        int clientOid, int invCode, int methodId, Object[] args)
+    {
+        // make sure the client is still around
+        ClientObject source = (ClientObject)_omgr.getObject(clientOid);
+        if (source == null) {
+            Log.warning("Client no longer around for invocation " +
+                        "request [clientOid=" + clientOid +
+                        ", code=" + invCode + ", methId=" + methodId +
+                        ", args=" + StringUtil.toString(args) + "].");
+            return;
+        }
+
+        // look up the dispatcher
+        InvocationDispatcher disp = (InvocationDispatcher)
+            _dispatchers.get(invCode);
+        if (disp == null) {
+            Log.warning("Received invocation request for which we have " +
+                        "no registered dispatcher [code=" + invCode +
+                        ", methId=" + methodId +
+                        ", args=" + StringUtil.toString(args) + "].");
+            return;
+        }
+
+        // scan the args, initializing any listeners and keeping track of
+        // the "primary" listener
+        ListenerMarshaller rlist = null;
+        int acount = args.length;
+        for (int ii = 0; ii < acount; ii++) {
+            Object arg = args[ii];
+            if (arg instanceof ListenerMarshaller) {
+                ListenerMarshaller list = (ListenerMarshaller)arg;
+                list.omgr = _omgr;
+                // keep track of the listener we'll inform if anything
+                // goes horribly awry
+                if (rlist == null) {
+                    rlist = list;
+                }
+            }
+        }
+
+//         Log.info("Dispatching invreq [caller=" + source.who() +
+//                  ", methId=" + methodId +
+//                  ", args=" + StringUtil.toString(args) + "].");
+
+        // dispatch the request
+        try {
+            disp.dispatchRequest(source, methodId, args);
+
+        } catch (InvocationException ie) {
+            if (rlist != null) {
+                rlist.requestFailed(ie.getMessage());
+
+            } else {
+                Log.warning("Service request failed but we've got no " +
+                            "listener to inform of the failure " +
+                            "[clientOid=" + clientOid + ", code=" + invCode +
+                            ", dispatcher=" + disp + ", methodId=" + methodId +
+                            ", args=" + StringUtil.toString(args) +
+                            ", error=" + ie + "].");
+            }
+
+        } catch (Throwable t) {
+            Log.warning("Dispatcher choked [disp=" + disp +
+                        ", methId=" + methodId +
+                        ", args=" + StringUtil.toString(args) + "].");
+            Log.logStackTrace(t);
+        }
+    }
+
+    /**
+     * Used to generate monotonically increasing provider ids.
+     */
+    protected synchronized int nextInvCode ()
+    {
+        return _invCode++;
+    }
+
+    /** The distributed object manager with which we're working. */
+    protected RootDObjectManager _omgr;
+
+    /** The object id of the object on which we receive invocation service
+     * requests. */
+    protected int _invoid = -1;
+
+    /** Used to generate monotonically increasing provider ids. */
+    protected int _invCode;
+
+    /** A table of invocation dispatchers each mapped by a unique code. */
+    protected HashIntMap _dispatchers = new HashIntMap();
+
+    /** Used to keep track of marshallers registered before we had our
+     * invocation object so that we can fill their invocation id in
+     * belatedly. */
+    protected ArrayList _lateInitQueue = new ArrayList();
 
     /** The text that is appended to the procedure name when automatically
      * generating a failure response. */

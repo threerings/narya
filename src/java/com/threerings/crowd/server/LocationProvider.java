@@ -1,16 +1,19 @@
 //
-// $Id: LocationProvider.java,v 1.15 2002/06/20 22:38:58 mdb Exp $
+// $Id: LocationProvider.java,v 1.16 2002/08/14 19:07:49 mdb Exp $
 
 package com.threerings.crowd.server;
 
-import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.RootDObjectManager;
 
+import com.threerings.presents.data.ClientObject;
+
+import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
-import com.threerings.presents.server.ServiceFailedException;
 
 import com.threerings.crowd.Log;
+import com.threerings.crowd.client.LocationService;
+
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.LocationCodes;
 import com.threerings.crowd.data.OccupantInfo;
@@ -20,42 +23,38 @@ import com.threerings.crowd.data.PlaceObject;
 /**
  * This class provides the server end of the location services.
  */
-public class LocationProvider extends InvocationProvider
-    implements LocationCodes
+public class LocationProvider
+    implements LocationCodes, InvocationProvider
 {
     /**
-     * Constructs a location provider and registers it with the invocation
-     * manager to handle location services. This is done automatically by
-     * the {@link PlaceRegistry}.
+     * Creates a location provider and prepares it for operation.
      */
-    public static void init (
-        InvocationManager invmgr, RootDObjectManager omgr, PlaceRegistry plreg)
+    public LocationProvider (InvocationManager invmgr, RootDObjectManager omgr,
+                             PlaceRegistry plreg)
     {
         // we'll need these later
         _invmgr = invmgr;
         _omgr = omgr;
         _plreg = plreg;
-
-        // register a location provider instance
-        invmgr.registerProvider(MODULE_NAME, new LocationProvider());
     }
 
     /**
-     * Processes a request from a client to move to a new place.
+     * Requests that this client's body be moved to the specified
+     * location.
+     *
+     * @param caller the client object of the client that invoked this
+     * remotely callable method.
+     * @param placeId the object id of the place object to which the body
+     * should be moved.
+     * @param listener the listener that will be informed of success or
+     * failure.
      */
-    public void handleMoveToRequest (
-        BodyObject source, int invid, int placeId)
+    public void moveTo (ClientObject caller, int placeId,
+                        LocationService.MoveListener listener)
+        throws InvocationException
     {
-        try {
-            // do the move
-            PlaceConfig config = moveTo(source, placeId);
-            // and send the response
-            sendResponse(source, invid, MOVE_SUCCEEDED_RESPONSE, config);
-
-        } catch (ServiceFailedException sfe) {
-            sendResponse(source, invid, MOVE_FAILED_RESPONSE,
-                         sfe.getMessage());
-        }
+        // do the move and send the response
+        listener.moveSucceeded(moveTo((BodyObject)caller, placeId));
     }
 
     /**
@@ -68,8 +67,8 @@ public class LocationProvider extends InvocationProvider
      * successful for some reason (which will be communicated as an error
      * code in the exception's message data).
      */
-    public static PlaceConfig moveTo (BodyObject source, int placeId)
-        throws ServiceFailedException
+    public PlaceConfig moveTo (BodyObject source, int placeId)
+        throws InvocationException
     {
         int bodoid = source.getOid();
 
@@ -78,7 +77,7 @@ public class LocationProvider extends InvocationProvider
         if (pmgr == null) {
             Log.info("Requested to move to non-existent place " +
                      "[source=" + source + ", place=" + placeId + "].");
-            throw new ServiceFailedException(NO_SUCH_PLACE);
+            throw new InvocationException(NO_SUCH_PLACE);
         }
 
         // if they're already in the location they're asking to move to,
@@ -97,25 +96,16 @@ public class LocationProvider extends InvocationProvider
             if (!source.acquireLock("moveToLock")) {
                 // if we're still locked, a previous moveTo request hasn't
                 // been fully processed
-                throw new ServiceFailedException(MOVE_IN_PROGRESS);
+                throw new InvocationException(MOVE_IN_PROGRESS);
             }
 
             PlaceObject place = pmgr.getPlaceObject();
             try {
+                place.startTransaction();
                 source.startTransaction();
 
                 // remove them from any previous location
                 leaveOccupiedPlace(source);
-
-                // set the body's new location
-                source.setLocation(place.getOid());
-
-            } finally {
-                source.commitTransaction();
-            }
-
-            try {
-                place.startTransaction();
 
                 // generate a new occupant info record and add it to the
                 // target location
@@ -124,11 +114,15 @@ public class LocationProvider extends InvocationProvider
                     place.addToOccupantInfo(info);
                 }
 
+                // set the body's new location
+                source.setLocation(place.getOid());
+
                 // add the body oid to the place object's occupant list
                 place.addToOccupants(bodoid);
 
             } finally {
                 place.commitTransaction();
+                source.commitTransaction();
             }
 
         } finally {
@@ -144,7 +138,7 @@ public class LocationProvider extends InvocationProvider
      * Removes the specified body from the place object they currently
      * occupy. Does nothing if the body is not currently in a place.
      */
-    public static void leaveOccupiedPlace (BodyObject source)
+    public void leaveOccupiedPlace (BodyObject source)
     {
         int oldloc = source.location;
         int bodoid = source.getOid();
@@ -200,18 +194,16 @@ public class LocationProvider extends InvocationProvider
         // first remove them from their old place
         leaveOccupiedPlace(source);
 
-        // then send a move notification
-        _invmgr.sendNotification(
-            source.getOid(), MODULE_NAME, MOVE_NOTIFICATION,
-            new Object[] { new Integer(placeId) });
+        // then send a forced move notification
+        LocationSender.forcedMove(source, placeId);
     }
 
     /** The invocation manager with which we interoperate. */
-    protected static InvocationManager _invmgr;
+    protected InvocationManager _invmgr;
 
     /** The distributed object manager with which we interoperate. */
-    protected static RootDObjectManager _omgr;
+    protected RootDObjectManager _omgr;
 
     /** The place registry with which we interoperate. */
-    protected static PlaceRegistry _plreg;
+    protected PlaceRegistry _plreg;
 }

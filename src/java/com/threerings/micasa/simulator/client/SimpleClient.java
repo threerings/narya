@@ -1,5 +1,5 @@
 //
-// $Id: SimpleClient.java,v 1.6 2002/07/15 03:09:29 mdb Exp $
+// $Id: SimpleClient.java,v 1.7 2002/08/14 19:07:50 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -53,7 +53,7 @@ public class SimpleClient
         _frame.getFrame().addWindowListener(new WindowAdapter() {
             public void windowClosing (WindowEvent evt) {
                 // if we're logged on, log off
-                if (_client.loggedOn()) {
+                if (_client.isLoggedOn()) {
                     _client.logoff(true);
                 }
             }

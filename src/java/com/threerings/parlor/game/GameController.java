@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.17 2002/06/18 02:35:10 shaper Exp $
+// $Id: GameController.java,v 1.18 2002/08/14 19:07:53 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -31,7 +31,7 @@ import com.threerings.parlor.util.ParlorContext;
  * distributed object events.
  */
 public abstract class GameController extends PlaceController
-    implements AttributeChangeListener, GameCodes
+    implements AttributeChangeListener
 {
     /**
      * Initializes this game controller with the game configuration that
@@ -70,10 +70,16 @@ public abstract class GameController extends PlaceController
         // and add ourselves as a listener
         _gobj.addListener(this);
 
-        // finally let the game manager know that we're ready to roll
-        MessageEvent mevt = new MessageEvent(
-            _gobj.getOid(), PLAYER_READY_NOTIFICATION, null);
-        _ctx.getDObjectManager().postEvent(mevt);
+        // we don't want to claim to be finished until any derived classes
+        // that overrode this method have executed, so we'll queue up a
+        // runnable here that will let the game manager know that we're
+        // ready on the next pass through the distributed event loop
+        _ctx.getClient().getInvoker().invokeLater(new Runnable() {
+            public void run () {
+                // finally let the game manager know that we're ready to roll
+                _gobj.service.playerReady(_ctx.getClient());
+            }
+        });
     }
 
     /**

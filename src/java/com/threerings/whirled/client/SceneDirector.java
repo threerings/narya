@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.19 2002/06/14 01:40:16 ray Exp $
+// $Id: SceneDirector.java,v 1.20 2002/08/14 19:07:57 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -7,9 +7,8 @@ import java.io.IOException;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.ResultListener;
 
+import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationReceiver;
-import com.threerings.presents.client.SessionObserver;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
 
@@ -37,9 +36,9 @@ import com.threerings.whirled.util.WhirledContext;
  * LocationObserver#locationMayChange} and {@link
  * LocationObserver#locationChangeFailed}.
  */
-public class SceneDirector
-    implements SceneCodes, SessionObserver, LocationDirector.FailureHandler,
-               InvocationReceiver
+public class SceneDirector extends BasicDirector
+    implements SceneCodes, LocationDirector.FailureHandler,
+               SceneReceiver, SceneService.SceneMoveListener
 {
     /**
      * Creates a new scene director with the specified context.
@@ -55,6 +54,8 @@ public class SceneDirector
     public SceneDirector (WhirledContext ctx, LocationDirector locdir,
                           SceneRepository screp, DisplaySceneFactory dsfact)
     {
+        super(ctx);
+
         // we'll need these for later
         _ctx = ctx;
         _locdir = locdir;
@@ -65,13 +66,9 @@ public class SceneDirector
         // director because we need to do special processing
         _locdir.setFailureHandler(this);
 
-        // register ourselves as a client observer so that we can clear
-        // out our scene when the client logs off
-        _ctx.getClient().addClientObserver(this);
-
         // register for scene notifications
         _ctx.getClient().getInvocationDirector().registerReceiver(
-            MODULE_NAME, this);
+            new SceneDecoder(this));
     }
 
     /**
@@ -115,7 +112,7 @@ public class SceneDirector
         }
 
         // issue a moveTo request
-        SceneService.moveTo(_ctx.getClient(), sceneId, sceneVers, this);
+        _sservice.moveTo(_ctx.getClient(), sceneId, sceneVers, this);
         return true;
     }
 
@@ -176,11 +173,8 @@ public class SceneDirector
         return _pendingModel;
     }
 
-    /**
-     * Called in response to a successful <code>moveTo</code> request.
-     */
-    public void handleMoveSucceeded (
-        int invid, int placeId, PlaceConfig config)
+    // documentation inherited from interface
+    public void moveSucceeded (int placeId, PlaceConfig config)
     {
         // our move request was successful, deal with subscribing to our
         // new place object
@@ -214,13 +208,9 @@ public class SceneDirector
         _scene = _dsfact.createScene(_model, config);
     }
 
-    /**
-     * Called in response to a successful <code>moveTo</code> request when
-     * our cached scene was out of date and the server determined that we
-     * needed an updated copy.
-     */
-    public void handleMoveSucceededPlusUpdate (
-        int invid, int placeId, PlaceConfig config, SceneModel model)
+    // documentation inherited from interface
+    public void moveSucceededPlusUpdate (
+        int placeId, PlaceConfig config, SceneModel model)
     {
         // update the model in the repository
         try {
@@ -237,13 +227,11 @@ public class SceneDirector
         _scache.put(model.sceneId, model);
 
         // and pass through to the normal move succeeded handler
-        handleMoveSucceeded(invid, placeId, config);
+        moveSucceeded(placeId, config);
     }
 
-    /**
-     * Called in response to a failed <code>moveTo</code> request.
-     */
-    public void handleMoveFailed (int invid, String reason)
+    // documentation inherited from interface
+    public void requestFailed (String reason)
     {
         // clear out our pending request oid
         int sceneId = _pendingSceneId;
@@ -266,13 +254,8 @@ public class SceneDirector
         clearScene();
     }
 
-    /**
-     * Called when the server has decided to forcibly move us to another
-     * scene. The server first ejects us from our previous scene and then
-     * sends us a notification with our new location. We then turn around
-     * and issue a standard moveTo request.
-     */
-    public void handleMoveNotification (int sceneId)
+    // documentation inherited from interface
+    public void forcedMove (int sceneId)
     {
         Log.info("Moving at request of server [sceneId=" + sceneId + "].");
 
@@ -361,19 +344,25 @@ public class SceneDirector
     }
 
     // documentation inherited from interface
-    public void clientDidLogon (Client client)
+    public void clientDidLogoff (Client client)
     {
-        // nothing for now
+        super.clientDidLogoff(client);
+
+        clearScene();
     }
 
     // documentation inherited from interface
-    public void clientDidLogoff (Client client)
+    protected void fetchServices (Client client)
     {
-        clearScene();
+        // get a handle on our scene service
+        _sservice = (SceneService)client.requireService(SceneService.class);
     }
 
     /** Access to general client services. */
     protected WhirledContext _ctx;
+
+    /** Access to our scene services. */
+    protected SceneService _sservice;
 
     /** The client's active location director. */
     protected LocationDirector _locdir;

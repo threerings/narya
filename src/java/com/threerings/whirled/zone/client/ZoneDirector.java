@@ -1,5 +1,5 @@
 //
-// $Id: ZoneDirector.java,v 1.8 2002/06/14 01:40:16 ray Exp $
+// $Id: ZoneDirector.java,v 1.9 2002/08/14 19:07:58 mdb Exp $
 
 package com.threerings.whirled.zone.client;
 
@@ -7,7 +7,9 @@ import java.util.ArrayList;
 
 import com.samskivert.util.ResultListener;
 
-import com.threerings.presents.client.InvocationReceiver;
+import com.threerings.presents.client.BasicDirector;
+import com.threerings.presents.client.Client;
+
 import com.threerings.crowd.data.PlaceConfig;
 
 import com.threerings.whirled.client.SceneDirector;
@@ -15,7 +17,6 @@ import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.util.WhirledContext;
 
 import com.threerings.whirled.zone.Log;
-import com.threerings.whirled.zone.data.ZoneCodes;
 import com.threerings.whirled.zone.data.ZoneSummary;
 
 /**
@@ -27,8 +28,8 @@ import com.threerings.whirled.zone.data.ZoneSummary;
  * summary which provides information on the zone which can be used to
  * generate an overview map or similar.
  */
-public class ZoneDirector
-    implements InvocationReceiver, ZoneCodes
+public class ZoneDirector extends BasicDirector
+    implements ZoneReceiver, ZoneService.ZoneMoveListener
 {
     /**
      * Constructs a zone director with the supplied context, and delegate
@@ -38,12 +39,13 @@ public class ZoneDirector
      */
     public ZoneDirector (WhirledContext ctx, SceneDirector scdir)
     {
+        super(ctx);
         _ctx = ctx;
         _scdir = scdir;
 
         // register for zone notifications
         _ctx.getClient().getInvocationDirector().registerReceiver(
-            MODULE_NAME, this);
+            new ZoneDecoder(this));
     }
 
     /**
@@ -116,41 +118,46 @@ public class ZoneDirector
         }
 
         // issue a moveTo request
-        ZoneService.moveTo(_ctx.getClient(), zoneId, sceneId, sceneVers, this);
+        _zservice.moveTo(_ctx.getClient(), zoneId, sceneId, sceneVers, this);
         return true;
     }
 
+    // documentation inherited
+    protected void fetchServices (Client client)
+    {
+        _zservice = (ZoneService)client.requireService(ZoneService.class);
+    }
+
     /**
-     * Called in response to a successful zoned <code>moveTo</code>
+     * Called in response to a successful {@link ZoneService#moveTo}
      * request.
      */
-    public void handleMoveSucceeded (
-        int invid, int placeId, PlaceConfig config, ZoneSummary summary)
+    public void moveSucceeded (
+        int placeId, PlaceConfig config, ZoneSummary summary)
     {
         // keep track of the summary
         _summary = summary;
 
         // pass the rest off to the standard scene transition code
-        _scdir.handleMoveSucceeded(invid, placeId, config);
+        _scdir.moveSucceeded(placeId, config);
 
         // and let the zone observers know what's up
         notifyObservers(summary);
     }
 
     /**
-     * Called in response to a successful zoned <code>moveTo</code>
+     * Called in response to a successful {@link ZoneService#moveTo}
      * request when our cached scene was out of date and the server
      * determined that we needed an updated copy.
      */
-    public void handleMoveSucceededPlusUpdate (
-        int invid, int placeId, PlaceConfig config, ZoneSummary summary,
-        SceneModel model)
+    public void moveSucceededPlusUpdate (
+        int placeId, PlaceConfig config, ZoneSummary summary, SceneModel model)
     {
         // keep track of the summary
         _summary = summary;
 
         // pass the rest off to the standard scene transition code
-        _scdir.handleMoveSucceededPlusUpdate(invid, placeId, config, model);
+        _scdir.moveSucceededPlusUpdate(placeId, config, model);
 
         // and let the zone observers know what's up
         notifyObservers(summary);
@@ -159,22 +166,17 @@ public class ZoneDirector
     /**
      * Called in response to a failed zoned <code>moveTo</code> request.
      */
-    public void handleMoveFailed (int invid, String reason)
+    public void requestFailed (String reason)
     {
         // let the scene director cope
-        _scdir.handleMoveFailed(invid, reason);
+        _scdir.requestFailed(reason);
 
         // and let the observers know what's up
         notifyObservers(reason);
     }
 
-    /**
-     * Called when the server has decided to forcibly move us to another
-     * zone and scene. The server first ejects us from our previous scene
-     * and then sends us a notification with our new location. We then
-     * turn around and issue a standard moveTo request.
-     */
-    public void handleMoveNotification (int zoneId, int sceneId)
+    // documentation inherited from interface
+    public void forcedMove (int zoneId, int sceneId)
     {
         Log.info("Moving at request of server [zoneId=" + zoneId +
                  ", sceneId=" + sceneId + "].");
@@ -217,6 +219,9 @@ public class ZoneDirector
 
     /** A reference to the scene director with which we coordinate. */
     protected SceneDirector _scdir;
+
+    /** Provides access to zone services. */
+    protected ZoneService _zservice;
 
     /** A reference to the zone summary for the currently occupied
      * zone. */

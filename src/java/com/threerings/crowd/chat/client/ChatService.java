@@ -1,22 +1,31 @@
 //
-// $Id: ChatService.java,v 1.7 2002/05/15 23:54:34 mdb Exp $
+// $Id: ChatService.java,v 1.8 2002/08/14 19:07:49 mdb Exp $
 
 package com.threerings.crowd.chat;
 
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationDirector;
-import com.threerings.crowd.Log;
+import com.threerings.presents.client.InvocationService;
 
 /**
  * The chat services provide a mechanism by which the client can broadcast
  * chat messages to all clients that are subscribed to a particular place
  * object or directly to a particular client. These services should not be
- * used directly, but instead should be accessed via the chat director.
- *
- * @see ChatDirector
+ * used directly, but instead should be accessed via the {@link
+ * ChatDirector}.
  */
-public class ChatService implements ChatCodes
+public interface ChatService extends InvocationService
 {
+    /**
+     * Used to communicate the response to a {@link #tell} request.
+     */
+    public static interface TellListener extends InvocationListener
+    {
+        /**
+         * Communicates the response to a {@link #tell} request.
+         */
+        public void tellSucceeded ();
+    }
+
     /**
      * Requests that a tell message be delivered to the user with username
      * equal to <code>target</code>.
@@ -25,18 +34,8 @@ public class ChatService implements ChatCodes
      * @param target the username of the user to which the tell message
      * should be delivered.
      * @param message the contents of the message.
-     * @param rsptarget the chat director reference that will receive the
-     * tell response.
-     *
-     * @return the invocation request id of the generated tell request.
+     * @param listener the reference that will receive the tell response.
      */
-    public static int tell (Client client, String target, String message,
-                            ChatDirector rsptarget)
-    {
-        InvocationDirector invdir = client.getInvocationDirector();
-        Object[] args = new Object[] { target, message };
-        Log.debug("Sending tell request [tgt=" + target +
-                  ", msg=" + message + "].");
-        return invdir.invoke(MODULE_NAME, TELL_REQUEST, args, rsptarget);
-    }
+    public void tell (Client client, String target, String message,
+                      TellListener listener);
 }

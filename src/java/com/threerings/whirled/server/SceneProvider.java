@@ -1,11 +1,11 @@
 //
-// $Id: SceneProvider.java,v 1.10 2002/05/26 02:29:13 mdb Exp $
+// $Id: SceneProvider.java,v 1.11 2002/08/14 19:07:57 mdb Exp $
 
 package com.threerings.whirled.server;
 
-import com.threerings.presents.server.InvocationManager;
+import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
-import com.threerings.presents.server.ServiceFailedException;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceConfig;
@@ -13,6 +13,7 @@ import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.LocationProvider;
 
 import com.threerings.whirled.Log;
+import com.threerings.whirled.client.SceneService.SceneMoveListener;
 import com.threerings.whirled.data.SceneCodes;
 import com.threerings.whirled.data.SceneModel;
 
@@ -20,29 +21,26 @@ import com.threerings.whirled.data.SceneModel;
  * The scene provider handles the server side of the scene related
  * invocation services (e.g. moving from scene to scene).
  */
-public class SceneProvider extends InvocationProvider
-    implements SceneCodes
+public class SceneProvider
+    implements InvocationProvider, SceneCodes
 {
     /**
      * Constructs a scene provider that will interact with the supplied
      * scene registry.
      */
-    public SceneProvider (InvocationManager invmgr, SceneRegistry screg)
+    public SceneProvider (LocationProvider locprov, SceneRegistry screg)
     {
-        _invmgr = invmgr;
+        _locprov = locprov;
         _screg = screg;
     }
 
     /**
      * Processes a request from a client to move to a new scene.
      */
-    public void handleMoveToRequest (BodyObject source, int invid,
-                                     int sceneId, int sceneVersion)
+    public void moveTo (ClientObject caller, int sceneId,
+                        final int sceneVer, final SceneMoveListener listener)
     {
-        // avoid cluttering up the method declaration with final keywords
-        final BodyObject fsource = source;
-        final int finvid = invid;
-        final int fsceneVer = sceneVersion;
+        final BodyObject source = (BodyObject)caller;
 
         // create a callback object that will handle the resolution or
         // failed resolution of the scene
@@ -51,7 +49,7 @@ public class SceneProvider extends InvocationProvider
         {
             public void sceneWasResolved (SceneManager scmgr)
             {
-                finishMoveToRequest(fsource, finvid, scmgr, fsceneVer);
+                finishMoveToRequest(source, scmgr, sceneVer, listener);
             }
 
             public void sceneFailedToResolve (
@@ -60,8 +58,7 @@ public class SceneProvider extends InvocationProvider
                 Log.warning("Unable to resolve scene [sceneid=" + rsceneId +
                             ", reason=" + reason + "].");
                 // pretend like the scene doesn't exist to the client
-                sendResponse(fsource, finvid, MOVE_FAILED_RESPONSE,
-                             NO_SUCH_PLACE);
+                listener.requestFailed(NO_SUCH_PLACE);
             }
         };
 
@@ -74,8 +71,9 @@ public class SceneProvider extends InvocationProvider
      * This is called after the scene to which we are moving is guaranteed
      * to have been loaded into the server.
      */
-    protected void finishMoveToRequest (BodyObject source, int invid,
-                                        SceneManager scmgr, int sceneVersion)
+    protected void finishMoveToRequest (
+        BodyObject source, SceneManager scmgr, int sceneVersion,
+        SceneMoveListener listener)
     {
         // move to the place object associated with this scene
         PlaceObject plobj = scmgr.getPlaceObject();
@@ -83,23 +81,18 @@ public class SceneProvider extends InvocationProvider
 
         try {
             // try doing the actual move
-            PlaceConfig config = LocationProvider.moveTo(source, ploid);
+            PlaceConfig config = _locprov.moveTo(source, ploid);
 
             // check to see if they need a newer version of the scene data
             SceneModel model = scmgr.getSceneModel();
             if (sceneVersion < model.version) {
-                // then send the moveTo response
-                sendResponse(source, invid, MOVE_SUCCEEDED_PLUS_UPDATE_RESPONSE,
-                             new Integer(ploid), config, model);
-
+                listener.moveSucceededPlusUpdate(ploid, config, model);
             } else {
-                // then send the moveTo response
-                sendResponse(source, invid, MOVE_SUCCEEDED_RESPONSE,
-                             new Integer(ploid), config);
+                listener.moveSucceeded(ploid, config);
             }
 
-        } catch (ServiceFailedException sfe) {
-            sendResponse(source, invid, MOVE_FAILED_RESPONSE, sfe.getMessage());
+        } catch (InvocationException sfe) {
+            listener.requestFailed(sfe.getMessage());
         }
     }
 
@@ -108,20 +101,18 @@ public class SceneProvider extends InvocationProvider
      * request to move to the specified new scene. This is the
      * scene-equivalent to {@link LocationProvider#moveBody}.
      */
-    public static void moveBody (BodyObject source, int sceneId)
+    public void moveBody (BodyObject source, int sceneId)
     {
         // first remove them from their old place
-        LocationProvider.leaveOccupiedPlace(source);
+        _locprov.leaveOccupiedPlace(source);
 
-        // then send a move notification
-        _invmgr.sendNotification(
-            source.getOid(), MODULE_NAME, MOVE_NOTIFICATION,
-            new Object[] { new Integer(sceneId) });
+        // then send a forced move notification
+        SceneSender.forcedMove(source, sceneId);
     }
 
-    /** The invocation manager with which we interact. */
-    protected static InvocationManager _invmgr;
+    /** The location provider we use to handle low-level location stuff. */
+    protected LocationProvider _locprov;
 
     /** The scene registry with which we interact. */
-    protected static SceneRegistry _screg;
+    protected SceneRegistry _screg;
 }
