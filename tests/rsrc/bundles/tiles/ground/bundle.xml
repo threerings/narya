@@ -1,10 +1,10 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- $Id: bundle.xml,v 1.4 2002/04/06 22:17:09 ray Exp $ -->
+<!-- $Id: bundle.xml,v 1.5 2002/04/27 05:16:01 mdb Exp $ -->
 
 <!-- Ground tile bundle tileset descriptions. -->
 <bundle>
   <base>
-    <tileset name="Cobble">
+    <tileset name="Outdoors/Cobble">
       <imagePath>cobble.png</imagePath>
       <heights>48</heights>
       <widths>64</widths>
@@ -12,7 +12,7 @@
       <passable>1, 1, 1</passable>
     </tileset>
 
-    <tileset name="Dirt">
+    <tileset name="Outdoors/Dirt">
       <imagePath>dirt.png</imagePath>
       <heights>48</heights>
       <widths>64</widths>
@@ -20,7 +20,7 @@
       <passable>1, 1, 1</passable>
     </tileset>
 
-    <tileset name="Sand">
+    <tileset name="Outdoors/Sand">
       <imagePath>sand.png</imagePath>
       <heights>48</heights>
       <widths>64</widths>
@@ -28,7 +28,7 @@
       <passable>1, 1, 1</passable>
     </tileset>
 
-    <tileset name="Wood Planks">
+    <tileset name="Outdoors/Wood Planks">
       <imagePath>woodplanks.png</imagePath>
       <heights>48</heights>
       <widths>64</widths>
@@ -36,7 +36,7 @@
       <passable>1, 1, 1</passable>
     </tileset>
 
-    <tileset name="Seawater">
+    <tileset name="Outdoors/Seawater">
       <imagePath>seawater.png</imagePath>
       <heights>48</heights>
       <widths>64</widths>
@@ -53,14 +53,14 @@
       <tileCounts>8, 8, 8, 8, 8</tileCounts>
     </tileset>
 
-    <tileset name="Seawater_fringe">
+    <tileset name="Seawater fringe">
       <imagePath>seafringe.png</imagePath>
       <heights>48</heights>
       <widths>64</widths>
       <tileCounts>17</tileCounts>
     </tileset>
 
-    <tileset name="generic_fringe">
+    <tileset name="Generic fringe">
       <imagePath>fringemask.png</imagePath>
       <heights>48</heights>
       <widths>64</widths>

@@ -1,5 +1,5 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- $Id: fringeconf.xml,v 1.1 2002/04/06 22:14:38 ray Exp $ -->
+<!-- $Id: fringeconf.xml,v 1.2 2002/04/27 05:16:01 mdb Exp $ -->
 
 <!-- If a base tileset is defined in this file, it will be fringed over
      another base if and only if
@@ -17,25 +17,23 @@
    The values tell what kind of fringe is at that index.
 
 -->
-<fringe tiles="8, 56, 32, 14, 224,       2, 131, 128, 227, 143,
-               248, 62, 251, 239, 191,   254, 255">
-
+<fringe>
   <!-- Seawater fringes on most things. -->
-  <base name="Seawater" priority="20">
-    <tileset name="Seawater_fringe" mask="false"/>
-    <tileset name="generic_fringe" mask="true"/>
+  <base name="Outdoors/Seawater" priority="20">
+    <tileset name="Seawater fringe" mask="false"/>
+    <tileset name="Generic fringe" mask="true"/>
   </base>
 
   <!-- Cobble should fringe on things like dirt and grass. -->
-  <base name="Cobble" priority="10">
-     <tileset name="generic_fringe" mask="true"/>
+  <base name="Outdoors/Cobble" priority="10">
+     <tileset name="Generic fringe" mask="true"/>
   </base>
 
-  <base name="Sand" priority="5">
-     <tileset name="generic_fringe" mask="true"/>
+  <base name="Outdoors/Sand" priority="5">
+     <tileset name="Generic fringe" mask="true"/>
   </base>
 
   <!-- Wood does not fringe nor should be fringed upon. -->
-  <base name="Wood Planks" priority="100">
+  <base name="Outdoors/Wood Planks" priority="100">
   </base>
 </fringe>
