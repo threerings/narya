@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.14 2001/07/23 18:52:51 shaper Exp $
+// $Id: IsoSceneView.java,v 1.15 2001/07/25 17:38:15 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -156,6 +156,7 @@ public class IsoSceneView implements EditableSceneView
 
 	Stroke ostroke = gfx.getStroke();
 	gfx.setStroke(_hstroke);
+
 	gfx.setColor(_hcolor);
 
 	gfx.drawLine(x, y + Tile.HALF_HEIGHT,
