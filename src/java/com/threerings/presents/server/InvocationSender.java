@@ -1,5 +1,5 @@
 //
-// $Id: InvocationSender.java,v 1.2 2002/09/18 18:40:20 mdb Exp $
+// $Id: InvocationSender.java,v 1.3 2003/01/02 22:08:30 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -30,6 +30,7 @@ public abstract class InvocationSender
                         "service notification [clobj=" + target.who() +
                         ", code=" + receiverCode + ", methId=" + methodId +
                         ", args=" + StringUtil.toString(args) + "].");
+            Thread.dumpStack();
 
         } else {
 //             Log.info("Sending notification [target=" + target +
