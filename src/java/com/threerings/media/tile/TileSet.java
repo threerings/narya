@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.20 2001/11/18 04:09:21 mdb Exp $
+// $Id: TileSet.java,v 1.21 2001/11/21 02:42:15 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -66,6 +66,14 @@ public abstract class TileSet
 
         // clear out any reference to a loaded image
         _tilesetImg = null;
+    }
+
+    /**
+     * Returns the path to the composite image used by this tileset.
+     */
+    public String getImagePath ()
+    {
+        return _imagePath;
     }
 
     /**

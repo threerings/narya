@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.15 2001/11/18 04:09:20 mdb Exp $
+// $Id: ViewerApp.java,v 1.16 2001/11/21 02:42:16 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -29,7 +29,7 @@ public class ViewerApp
     {
         // we don't need to configure anything
         _config = new Config();
-        _rsrcmgr = new ResourceManager("rsrc");
+        _rsrcmgr = new ResourceManager(null, "rsrc");
 	_tilemgr = new TileManager(_rsrcmgr);
 
 	// create the context object

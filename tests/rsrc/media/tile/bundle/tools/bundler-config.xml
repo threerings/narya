@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<!-- test configuration for the tileset bundler -->
+<bundler-config>
+  <mapping>
+    <path>bundle/uniform</path>
+    <ruleset>com.threerings.media.tools.tile.xml.UniformTileSetRuleSet</ruleset>
+  </mapping>
+  <mapping>
+    <path>bundle/swissarmy</path>
+    <ruleset>
+      com.threerings.media.tools.tile.xml.SwissArmyTileSetRuleSet
+    </ruleset>
+  </mapping>
+  <!--
+  <mapping>
+    <path>bundle/object</path>
+    <ruleset>com.threerings.media.tools.tile.xml.ObjectTileSetRuleSet</ruleset>
+  </mapping>
+  -->
+</bundler-config>

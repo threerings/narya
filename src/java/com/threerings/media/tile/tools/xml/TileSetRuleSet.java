@@ -1,5 +1,5 @@
 //
-// $Id: TileSetRuleSet.java,v 1.3 2001/11/20 04:15:44 mdb Exp $
+// $Id: TileSetRuleSet.java,v 1.4 2001/11/21 02:42:15 mdb Exp $
 
 package com.threerings.media.tools.tile.xml;
 
@@ -18,9 +18,15 @@ import com.threerings.media.tile.TileSet;
  */
 public abstract class TileSetRuleSet extends RuleSetBase
 {
+    /** The component of the digester path that is appended by the tileset
+     * rule set to match a tileset. This is appended to whatever prefix is
+     * provided to the tileset rule set to obtain the complete XML path to
+     * a matched tileset. */
+    public static final String TILESET_PATH = "/tileset";
+
     /**
-     * Constructs a tileset rule set which will match tilesets with the
-     * supplied prefix. For example, passing a prefix of
+     * Instructs the tileset rule set to match tilesets with the supplied
+     * prefix. For example, passing a prefix of
      * <code>tilesets.objectsets</code> will match tilesets in the
      * following XML file:
      *
@@ -33,19 +39,12 @@ public abstract class TileSetRuleSet extends RuleSetBase
      *   &lt;/objectsets&gt;
      * &lt;/tilesets&gt;
      * </pre>
+     *
+     * This must be called before adding the ruleset to a digester.
      */
-    public TileSetRuleSet (String prefix)
+    public void setPrefix (String prefix)
     {
         _prefix = prefix;
-    }
-
-    /**
-     * Called by the {@link XMLTileSetParser} to initialize this tileset
-     * rule set with the necessary back references to operate properly.
-     */
-    protected void init (XMLTileSetParser parser)
-    {
-        _parser = parser;
     }
 
     /**
@@ -59,62 +58,23 @@ public abstract class TileSetRuleSet extends RuleSetBase
     {
         // this creates the appropriate instance when we encounter a
         // <tileset> tag
-        digester.addRule(_prefix + "/tileset",
-                         new TileSetCreateRule(digester));
+        digester.addObjectCreate(_prefix + TILESET_PATH,
+                                 getTileSetClass().getName());
 
         // grab the name attribute from the <tileset> tag
-        digester.addSetProperties(_prefix + "/tileset");
+        digester.addSetProperties(_prefix + TILESET_PATH);
 
         // grab the image path from an element
         digester.addCallMethod(
-            _prefix + "/tileset/imagePath", "setImagePath", 0);
+            _prefix + TILESET_PATH + "/imagePath", "setImagePath", 0);
     }
 
     /**
-     * When a &lt;tileset&gt; element is encountered, this method is
-     * called to create a new instance of {@link TileSet}. Though the
-     * attributes are supplied (in case an attribute is needed to
-     * determine which derived instance of {@link TileSet} to create),
-     * this method should not configure the created tileset object. It
-     * should instead rely on the set properties rule that will be
-     * executed after this object is created or to custom set property
-     * rules registered in {@link #addRuleInstances}.
+     * A tileset rule set will create tilesets of a particular class,
+     * which must be provided by the derived class via this method.
      */
-    protected abstract TileSet createTileSet (Attributes attributes);
-
-    /**
-     * Used to process a &lt;tileset&gt; element.
-     */
-    protected class TileSetCreateRule extends Rule
-    {
-        public TileSetCreateRule (Digester digester)
-        {
-            super(digester);
-        }
-
-        public void begin (Attributes attributes)
-            throws Exception
-        {
-            // pass the torch to the XML parser to create the tileset
-            TileSet set = createTileSet(attributes);
-            // then push it onto the stack
-            digester.push(set);
-        }
-
-        public void end ()
-            throws Exception
-        {
-            // pop the tileset off of the stack
-            TileSet set = (TileSet)digester.pop();
-            // and stick it into our tileset map
-            _parser._tilesets.put(set.getName(), set);
-        }
-    }
+    protected abstract Class getTileSetClass ();
 
     /** The prefix at which me match our tilesets. */
     protected String _prefix;
-
-    /** A reference to the XMLTileSetParser on whose behalf we are
-     * parsing. */
-    protected XMLTileSetParser _parser;
 }

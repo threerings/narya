@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+
+<!-- test tileset bundle -->
+<bundle>
+  <uniform>
+    <tileset name="Node Icons">
+      <imagePath>node-icons.png</imagePath>
+      <width>16</width>
+      <height>16</height>
+      <tileCount>8</tileCount>
+    </tileset>
+  </uniform>
+
+  <swissarmy>
+    <tileset name="Fringe">
+      <imagePath>fringe.png</imagePath>
+      <heights>48, 48, 48, 48, 48</heights>
+      <widths>64, 64, 64, 64, 64</widths>
+      <tileCounts>8, 8, 8, 8, 8</tileCounts>
+    </tileset>
+  </swissarmy>
+
+  <object>
+    <tileset name="Building">
+      <imagePath>building.png</imagePath>
+      <heights>293</heights>
+      <widths>224</widths>
+      <tileCounts>4</tileCounts>
+      <offsetPos>2, 2</offsetPos>
+      <gapDist>4, 0</gapDist>
+      <objects>
+        <object tid="0" width="4" height="3"/>
+        <object tid="1" width="3" height="4"/>
+        <object tid="2" width="4" height="3"/>
+        <object tid="3" width="3" height="4"/>
+      </objects>
+    </tileset>
+  </object>
+</bundle>

@@ -1,5 +1,5 @@
 //
-// $Id: BaseTileSetRuleSet.java,v 1.3 2001/11/20 04:15:44 mdb Exp $
+// $Id: BaseTileSetRuleSet.java,v 1.4 2001/11/21 02:42:15 mdb Exp $
 
 package com.threerings.miso.tools.tile.xml;
 
@@ -28,16 +28,6 @@ import com.threerings.miso.tile.MisoTileSet;
  */
 public class MisoTileSetRuleSet extends SwissArmyTileSetRuleSet
 {
-    /**
-     * Constructs a uniform tileset rule set that will match tilesets with
-     * the specified prefix. See the documentation for {@link
-     * TileSetRuleSet#TileSetRuleSet} for more info on matching.
-     */
-    public MisoTileSetRuleSet (String prefix)
-    {
-        super(prefix);
-    }
-
     // documentation inherited
     public void addRuleInstances (Digester digester)
     {

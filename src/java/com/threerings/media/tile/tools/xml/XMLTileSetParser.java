@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParser.java,v 1.2 2001/11/20 04:15:44 mdb Exp $
+// $Id: XMLTileSetParser.java,v 1.3 2001/11/21 02:42:15 mdb Exp $
 
 package com.threerings.media.tools.tile.xml;
 
@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileNotFoundException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.xml.sax.SAXException;
@@ -17,12 +18,13 @@ import org.apache.commons.digester.Rule;
 import com.samskivert.util.ConfigUtil;
 
 import com.threerings.media.Log;
+import com.threerings.media.tile.TileSet;
 
 /**
- * Parse an XML tileset description file and construct tileset objects
- * for each valid description.  Does not currently perform validation
- * on the input XML stream, though the parsing code assumes the XML
- * document is well-formed.
+ * Parse an XML tileset description file and construct tileset objects for
+ * each valid description.  Does not currently perform validation on the
+ * input XML stream, though the parsing code assumes the XML document is
+ * well-formed.
  */
 public class XMLTileSetParser
 {
@@ -33,38 +35,45 @@ public class XMLTileSetParser
     {
         // create our digester
         _digester = new Digester();
-        // _digester.setDebug(10);
     }
 
     /**
      * Adds a ruleset to be used when parsing tiles. This should be an
-     * instance of a class derived from {@link TileSetRuleSet} which was
-     * constructed to match a particular kind of tile at a particular
-     * point in the XML hierarchy. For example:
+     * instance of a class derived from {@link TileSetRuleSet}. The prefix
+     * will be used to configure the ruleset so that it matches elements
+     * at a particular point in the XML hierarchy. For example:
      *
      * <pre>
-     * _parser.addRuleSet(new UniformTileSetRuleSet("tilesets"));
+     * _parser.addRuleSet("tilesets", new UniformTileSetRuleSet());
      * </pre>
      */
-    public void addRuleSet (TileSetRuleSet ruleset)
+    public void addRuleSet (String prefix, TileSetRuleSet ruleset)
     {
-        // provide a reference to ourselves to the ruleset
-        ruleset.init(this);
+        // configure the ruleset with the appropriate prefix
+        ruleset.setPrefix(prefix);
 
         // and have it set itself up with the digester
         _digester.addRuleSet(ruleset);
+
+        // add a set next rule which will put tilesets with this prefix
+        // into the array list that'll be on the top of the stack
+        _digester.addSetNext(prefix + TileSetRuleSet.TILESET_PATH,
+                             "add", "java.lang.Object");
     }
 
     /**
      * Loads all of the tilesets specified in the supplied XML tileset
      * description file and places them into the supplied hashmap indexed
-     * by tileset name.
+     * by tileset name. This method is not reentrant, so don't go calling
+     * it from multiple threads.
      */
     public void loadTileSets (String path, HashMap tilesets)
         throws IOException
     {
-        // save off the tileset hashtable
-        _tilesets = tilesets;
+        // stick an array list on the top of the stack for collecting
+        // parsed tilesets
+        ArrayList setlist = new ArrayList();
+        _digester.push(setlist);
 
         // get an input stream for this XML file
         InputStream is = ConfigUtil.getStream(path);
@@ -84,13 +93,23 @@ public class XMLTileSetParser
                         "[error=" + saxe + "].");
             Log.logStackTrace(saxe);
         }
+
+        // stick the tilesets from the list into the hashtable
+        for (int i = 0; i < setlist.size(); i++) {
+            TileSet set = (TileSet)setlist.get(i);
+            if (set.getName() == null) {
+                Log.warning("Tileset did not receive name during " +
+                            "parsing process [set=" + set + "].");
+            } else {
+                tilesets.put(set.getName(), set);
+            }
+        }
+        // and clear out the list for next time
+        setlist.clear();
     }
 
     /** Our XML digester. */
     protected Digester _digester;
-
-    /** The tilesets constructed thus far. */
-    protected HashMap _tilesets;
 
     /** Default tileset name. */
     protected static final String DEF_NAME = "Untitled";

@@ -1,5 +1,5 @@
 //
-// $Id: UniformTileSetRuleSet.java,v 1.3 2001/11/20 04:15:44 mdb Exp $
+// $Id: UniformTileSetRuleSet.java,v 1.4 2001/11/21 02:42:15 mdb Exp $
 
 package com.threerings.media.tools.tile.xml;
 
@@ -27,36 +27,25 @@ import com.threerings.media.tile.UniformTileSet;
  */
 public class UniformTileSetRuleSet extends TileSetRuleSet
 {
-    /**
-     * Constructs a uniform tileset rule set that will match tilesets with
-     * the specified prefix. See the documentation for {@link
-     * TileSetRuleSet#TileSetRuleSet} for more info on matching.
-     */
-    public UniformTileSetRuleSet (String prefix)
-    {
-        super(prefix);
-    }
-
     // documentation inherited
     public void addRuleInstances (Digester digester)
     {
         super.addRuleInstances(digester);
 
         digester.addCallMethod(
-            _prefix + "/tileset/width", "setWidth", 0,
+            _prefix + TILESET_PATH + "/width", "setWidth", 0,
             new Class[] { java.lang.Integer.TYPE });
         digester.addCallMethod(
-            _prefix + "/tileset/height", "setHeight", 0,
+            _prefix + TILESET_PATH + "/height", "setHeight", 0,
             new Class[] { java.lang.Integer.TYPE });
         digester.addCallMethod(
-            _prefix + "/tileset/tileCount", "setTileCount", 0,
+            _prefix + TILESET_PATH + "/tileCount", "setTileCount", 0,
             new Class[] { java.lang.Integer.TYPE });
     }
 
     // documentation inherited
-    protected TileSet createTileSet (Attributes attributes)
+    protected Class getTileSetClass ()
     {
-        // we use uniform tilesets
-        return new UniformTileSet();
+        return UniformTileSet.class;
     }
 }

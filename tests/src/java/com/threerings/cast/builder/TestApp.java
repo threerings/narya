@@ -1,5 +1,5 @@
 //
-// $Id: TestApp.java,v 1.5 2001/11/18 04:09:20 mdb Exp $
+// $Id: TestApp.java,v 1.6 2001/11/21 02:42:16 mdb Exp $
 
 package com.threerings.cast.tools.builder;
 
@@ -29,7 +29,7 @@ public class TestApp
         // create the handles on our various services
         _config = MisoUtil.createConfig();
 
-        ResourceManager rsrcmgr = new ResourceManager("rsrc");
+        ResourceManager rsrcmgr = new ResourceManager(null, "rsrc");
 
         // TBD: sort out component repository
         ComponentRepository crepo = null;

@@ -1,5 +1,5 @@
 //
-// $Id: BundledTileSetRepository.java,v 1.1 2001/11/20 03:47:38 mdb Exp $
+// $Id: BundledTileSetRepository.java,v 1.2 2001/11/21 02:42:15 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -59,13 +59,10 @@ public class BundledTileSetRepository
                 InputStream tbin = rbundles[i].getResource(METADATA_PATH);
                 ObjectInputStream oin = new ObjectInputStream(
                     new BufferedInputStream(tbin));
-                TileSetBundle[] tsb = (TileSetBundle[])oin.readObject();
-
-                // add these to the big fat list and initialize them
-                for (int t = 0; t < tsb.length; t++) {
-                    tsb[t].init(rbundles[i]);
-                    tbundles.add(tsb[t]);
-                }
+                TileSetBundle tsb = (TileSetBundle)oin.readObject();
+                // initialize the bundle and add it to the list
+                tsb.init(rbundles[i]);
+                tbundles.add(tsb);
 
             } catch (Exception e) {
                 Log.warning("Unable to load tileset bundles from resource " +
