@@ -1,5 +1,5 @@
 //
-// $Id: LobbyConfig.java,v 1.8 2004/08/27 02:12:50 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -64,7 +64,7 @@ public class LobbyConfig extends PlaceConfig
     public GameConfig getGameConfig ()
         throws Exception
     {
-        return (GameConfig)Class.forName(_gameConfigClass).newInstance();
+        return (GameConfig)_loader.loadClass(_gameConfigClass).newInstance();
     }
 
     /**
