@@ -102,7 +102,7 @@ public class ColorPository implements Serializable
         {
             // Check if the string is itself a number
             try {
-                byte id = Byte.parseByte(name);
+                int id = Integer.parseInt(name);
                 if (colors.containsKey(id)) {
                     return id;
                 }
