@@ -1,5 +1,5 @@
 /*
- * $Id: com_threerings_util_keybd_Keyboard.c,v 1.1 2003/01/12 00:26:39 shaper Exp $
+ * $Id: com_threerings_util_keybd_Keyboard.c,v 1.2 2003/01/23 19:00:44 mdb Exp $
  */
 
 #include <stdio.h>
@@ -12,7 +12,20 @@
 
 /* prototype definitions */
 Display* getXDisplay (JNIEnv* env);
-void throwRuntimeException (JNIEnv* env, char* message);
+
+JNIEXPORT jboolean JNICALL
+Java_com_threerings_util_keybd_Keyboard_init (
+    JNIEnv* env, jclass class, jboolean enabled)
+{
+    Display* display = getXDisplay(env);
+    if (display == NULL) {
+        /* If we are unable to open a display, we can't function. */
+        return JNI_FALSE;
+    } else {
+        XCloseDisplay(display);
+        return JNI_TRUE;
+    }
+}
 
 JNIEXPORT void JNICALL
 Java_com_threerings_util_keybd_Keyboard_setKeyRepeat (
@@ -66,27 +79,9 @@ getXDisplay (JNIEnv* env)
         char message[MESSAGE_LENGTH];
         snprintf(message, MESSAGE_LENGTH,
                  "Unable to open display [display=%s].\n", XDisplayName(disp));
-        throwRuntimeException(env, message);
         return NULL;
     }
 
     /* printf("Opened display [disp=%s].\n", XDisplayName(disp)); */
     return dpy;
-}
-
-/*
- * Throws a runtime exception with the supplied message.
- */
-void
-throwRuntimeException (JNIEnv* env, char* message)
-{
-    jclass eclass = (*env)->FindClass(env, "java/lang/RuntimeException");
-    if (eclass == 0) {
-        /* unable to find the exception class */
-        fprintf(stderr, "Can't get runtime exception class?! [message=%s].\n",
-                message);
-        return;
-    }
-
-    (*env)->ThrowNew(env, eclass, message);
 }

@@ -1,5 +1,5 @@
 //
-// $Id: Keyboard.java,v 1.1 2003/01/12 00:26:39 shaper Exp $
+// $Id: Keyboard.java,v 1.2 2003/01/23 19:00:44 mdb Exp $
 
 package com.threerings.util.keybd;
 
@@ -38,14 +38,23 @@ public class Keyboard
         return _haveLib;
     }
 
+    /**
+     * Initializes the library and returns true if it successfully did so.
+     */
+    protected static native boolean init ();
+
     /** Whether the keyboard native library was successfully loaded. */
     protected static boolean _haveLib;
 
     static {
         try {
             System.loadLibrary("keybd");
-            _haveLib = true;
-            Log.info("Loaded native keyboard library.");
+            _haveLib = init();
+            if (_haveLib) {
+                Log.info("Loaded native keyboard library.");
+            } else {
+                Log.info("Native keyboard library initialization failed.");
+            }
 
         } catch (UnsatisfiedLinkError e) {
             Log.warning("Failed to load native keyboard library " +
