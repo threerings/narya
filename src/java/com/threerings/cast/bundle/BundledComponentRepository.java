@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.25 2003/01/20 19:37:58 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.26 2003/04/27 06:35:28 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -17,9 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import javax.imageio.stream.FileImageInputStream;
-import javax.imageio.stream.ImageInputStream;
-
 import com.samskivert.io.NestableIOException;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.IntIntMap;
@@ -32,6 +29,7 @@ import com.threerings.resource.ResourceBundle;
 import com.threerings.resource.ResourceManager;
 
 import com.threerings.media.image.Colorization;
+import com.threerings.media.image.FastImageIO;
 import com.threerings.media.image.ImageDataProvider;
 import com.threerings.media.image.ImageManager;
 import com.threerings.media.image.ImageUtil;
@@ -269,9 +267,9 @@ public class BundledComponentRepository
         }
 
         // documentation inherited from interface
-        public ImageInputStream loadImageData (String path) throws IOException
+        public BufferedImage loadImage (String path) throws IOException
         {
-            return new FileImageInputStream(_bundle.getResourceFile(path));
+            return FastImageIO.read(_bundle.getResourceFile(path));
         }
 
         // documentation inherited
