@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.28 2002/03/05 05:33:25 mdb Exp $
+// $Id: PresentsClient.java,v 1.29 2002/03/05 06:15:43 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -173,6 +173,11 @@ public class PresentsClient
         // a connection, that is)
         Connection conn = getConnection();
         if (conn != null) {
+            // go ahead and clear out our connection now to prevent
+            // funniness
+            setConnection(null);
+            // have the connection manager close our connection when it is
+            // next convenient
             PresentsServer.conmgr.closeConnection(conn);
         }
 
@@ -268,6 +273,11 @@ public class PresentsClient
      */
     protected void sessionDidEnd ()
     {
+        // clear out our subscriptions so that we don't get a complaint
+        // about inability to forward the object destroyed event we're
+        // about to generate
+        clearSubscrips();
+
         // then let the client manager know what's up
         _cmgr.clientDidEndSession(this);
 
