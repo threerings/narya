@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.11 2002/10/30 00:27:37 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.12 2002/10/30 09:34:08 shaper Exp $
 
 package com.threerings.media;
 
@@ -182,10 +182,10 @@ public class VirtualMediaPanel extends MediaPanel
             // determine how far we'll be moving on this tick
             _dx = _nx - _tx; _dy = _ny - _ty;
 
-            Log.info("Scrolling into place [n=(" + _nx + ", " + _ny +
-                     "), t=(" + _tx + ", " + _ty +
-                     "), d=(" + _dx + ", " + _dy +
-                     "), width=" + width + ", height=" + height + "].");
+//             Log.info("Scrolling into place [n=(" + _nx + ", " + _ny +
+//                      "), t=(" + _tx + ", " + _ty +
+//                      "), d=(" + _dx + ", " + _dy +
+//                      "), width=" + width + ", height=" + height + "].");
 
             // these are used to prevent the vertical strip from
             // overlapping the horizontal strip
