@@ -1,5 +1,5 @@
 //
-// $Id: PuzzlePanel.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: PuzzlePanel.java,v 1.2 2003/11/26 17:46:06 mdb Exp $
 
 package com.threerings.puzzle.client;
 
@@ -48,10 +48,6 @@ public abstract class PuzzlePanel extends JPanel
         _xlate = getKeyTranslator();
         _ctx.getKeyboardManager().setTarget(this, _xlate);
 
-        // leave the keyboard manager disabled to start, and set things up
-        // for chatting
-        setPuzzleGrabsKeys(false);
-
         // configure the puzzle panel
         setLayout(new BorderLayout());
 
@@ -59,10 +55,20 @@ public abstract class PuzzlePanel extends JPanel
         _bview = createBoardView(ctx);
 
         // create the puzzle board panel
-        _bpanel = createBoardPanel();
+        _bpanel = createBoardPanel(ctx);
 
         // add the board panel
         add(_bpanel, BorderLayout.CENTER);
+    }
+
+    // documentation inherited
+    public void addNotify ()
+    {
+        super.addNotify();
+
+        // leave the keyboard manager disabled to start, and set things up
+        // for chatting
+        setPuzzleGrabsKeys(false);
     }
 
     /**
@@ -184,7 +190,7 @@ public abstract class PuzzlePanel extends JPanel
      * derived panel is responsible for making sure that the board view is
      * present in the board panel.
      */
-    protected abstract JPanel createBoardPanel ();
+    protected abstract JPanel createBoardPanel (PuzzleContext ctx);
 
     /**
      * Returns a key translator with the desired key to controller command

@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleManager.java,v 1.2 2003/11/26 02:07:45 mdb Exp $
+// $Id: PuzzleManager.java,v 1.3 2003/11/26 17:46:06 mdb Exp $
 
 package com.threerings.puzzle.server;
 
@@ -163,6 +163,17 @@ public abstract class PuzzleManager extends GameManager
             // people in his/her room
             reportPlayerKnockedOut(pidx);
         }
+    }
+
+    /**
+     * Returns whether game conclusion antics such as rating updates
+     * should be performed when an in-play game is ended.  Derived classes
+     * may wish to override this method to customize the conditions under
+     * which the game is concluded.
+     */
+    public boolean shouldConcludeGame ()
+    {
+        return (_puzobj.state == PuzzleObject.GAME_OVER);
     }
 
     /**
@@ -407,6 +418,13 @@ public abstract class PuzzleManager extends GameManager
         // send along one final status update
         sendStatusUpdate();
 
+        // report the winners and losers if appropriate
+        int winnerCount = _puzobj.getWinnerCount();
+        boolean draw = (winnerCount == getPlayerCount());
+        if (shouldConcludeGame() && winnerCount > 0 && !draw) {
+            reportWinnersAndLosers();
+        }
+
         super.gameDidEnd();
     }
 
@@ -468,17 +486,6 @@ public abstract class PuzzleManager extends GameManager
 
         // clear out our service registration
         _invmgr.clearDispatcher(_puzobj.puzzleGameService);
-    }
-
-    /**
-     * Returns whether game conclusion antics such as rating updates
-     * should be performed when an in-play game is ended.  Derived classes
-     * may wish to override this method to customize the conditions under
-     * which the game is concluded.
-     */
-    protected boolean shouldConcludeGame ()
-    {
-        return (_puzobj.state == PuzzleObject.GAME_OVER);
     }
 
     /**
