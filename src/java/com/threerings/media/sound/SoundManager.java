@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.31 2002/11/26 18:54:39 ray Exp $
+// $Id: SoundManager.java,v 1.32 2002/11/26 21:14:11 ray Exp $
 
 package com.threerings.media;
 
@@ -589,6 +589,11 @@ public class SoundManager
     protected byte[] getClipData (SoundKey key)
         throws IOException, UnsupportedAudioFileException
     {
+        // if we're testing, clear all non-locked sounds every time
+        if (_testDir != null) {
+            _clipCache.clear();
+        }
+
         byte[][] data = (byte[][]) _clipCache.get(key);
         if (data == null) {
 
@@ -615,12 +620,7 @@ public class SoundManager
                 }
             }
 
-            // TODO: be more sophisticated and allow locked sounds (as long
-            // as they're locked) to be put in the cache
-            // for now- nothing is cached when we're testing
-            if (_testDir == null) {
-                _clipCache.put(key, data);
-            }
+            _clipCache.put(key, data);
         }
 
         return data[RandomUtil.getInt(data.length)];
