@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.11 2001/07/20 03:50:35 shaper Exp $
+// $Id: IsoSceneView.java,v 1.12 2001/07/20 07:09:56 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -45,11 +45,16 @@ public class IsoSceneView implements SceneView
     {
 	Graphics2D gfx = (Graphics2D)g;
 
-//  	gfx.setColor(Color.red);
-//  	gfx.fillRect(0, 0, _bounds.width, _bounds.height);
+	// clip the drawing region to our desired bounds since we
+	// currently draw tiles willy-nilly in undesirable areas.
+  	Shape oldclip = gfx.getClip();
+  	gfx.setClip(0, 0, _bounds.width, _bounds.height);
 
 	// draw the full scene into the offscreen image buffer
 	renderScene(gfx);
+
+	// restore the original clipping region
+	gfx.setClip(oldclip);
     }
 
     protected void renderScene (Graphics2D gfx)
@@ -57,7 +62,7 @@ public class IsoSceneView implements SceneView
 	int mx = 1;
 	int my = 0;
 
-	int screenY = Tile.HALF_HEIGHT;
+	int screenY = DEF_CENTER_Y;
 
 	for (int ii = 0; ii < TILE_RENDER_ROWS; ii++) {
 	    // determine starting tile coordinates
@@ -68,7 +73,7 @@ public class IsoSceneView implements SceneView
 	    int length = (ty - tx) + 1;
 
 	    // determine starting screen x-position
-	    int screenX = DEF_CENTER_X - ((length - 1) * Tile.HALF_WIDTH);
+	    int screenX = DEF_CENTER_X - ((length) * Tile.HALF_WIDTH);
 
 	    for (int jj = 0; jj < length; jj++) {
 
@@ -109,7 +114,7 @@ public class IsoSceneView implements SceneView
 	    if ((++my) > Scene.TILE_HEIGHT - 1) my = Scene.TILE_HEIGHT - 1;
 	}
 
-	paintMouseLines(gfx);
+//	paintMouseLines(gfx);
     }
 
     protected void paintMouseLines (Graphics2D gfx)
@@ -188,13 +193,13 @@ public class IsoSceneView implements SceneView
         float mX, mY;
 	int bX, bY;
 
-	// calculate the x-axis line (from tile origin to end of visible axis)
+	// calculate the x-axis line (from tile origin to right end of x-axis)
 	mX = 0.5f;
 	_lineX[0].x = DEF_CENTER_X;
 	bX = (int)-(mX * _lineX[0].x);
-	_lineX[0].y = 0;
-	_lineX[1].x = _bounds.width;
-	_lineX[1].y = (int)((mX * _lineX[1].x) + bX);
+	_lineX[0].y = DEF_CENTER_Y;
+	_lineX[1].x = _lineX[0].x + (Tile.HALF_WIDTH * Scene.TILE_WIDTH);
+	_lineX[1].y = _lineX[0].y + (int)((mX * _lineX[1].x) + bX);
 
 	// calculate line parallel to the y-axis (from mouse pos to x-axis)
 	_lineY[0].x = x;
@@ -203,14 +208,14 @@ public class IsoSceneView implements SceneView
 	bY = (int)(_lineY[0].y - (mY * _lineY[0].x));
 
 	// determine intersection of x- and y-axis lines
-	_lineY[1].x = (int)((bY - bX) / (mX - mY));
+	_lineY[1].x = (int)((bY - (bX + DEF_CENTER_Y)) / (mX - mY));
 	_lineY[1].y = (int)((mY * _lineY[1].x) + bY);
 
 	// determine distance of mouse pos along the x axis
 	int xdist = (int)
 	    MathUtil.distance(_lineX[0].x, _lineX[0].y,
 			      _lineY[1].x, _lineY[1].y);
-	tpos.x = (int)((xdist - Tile.EDGE_LENGTH) / Tile.EDGE_LENGTH);
+	tpos.x = (int)(xdist / Tile.EDGE_LENGTH);
 
 	// determine distance of mouse pos along the y-axis
 	int ydist = (int)
@@ -218,9 +223,9 @@ public class IsoSceneView implements SceneView
 			      _lineY[1].x, _lineY[1].y);
 	tpos.y = (int)(ydist / Tile.EDGE_LENGTH);
 
-	//Log.info("[mX="+mX+", bX="+bX+", mY="+mY+", bY="+bY+"]");
-	//Log.info("x-axis=" + MathUtil.lineToString(_lineX[0], _lineX[1]));
-	//Log.info("y-axis=" + MathUtil.lineToString(_lineY[0], _lineY[1]));
+//  	Log.info("[mX="+mX+", bX="+bX+", mY="+mY+", bY="+bY+"]");
+//  	Log.info("x-axis=" + MathUtil.lineToString(_lineX[0], _lineX[1]));
+//  	Log.info("y-axis=" + MathUtil.lineToString(_lineY[0], _lineY[1]));
 
 	return tpos;
     }
@@ -242,8 +247,8 @@ public class IsoSceneView implements SceneView
     }
 
     // default dimensions of the scene view
-    protected static final int DEF_BOUNDS_WIDTH = 600;
-    protected static final int DEF_BOUNDS_HEIGHT = 600;
+    protected static final int DEF_BOUNDS_WIDTH = 18 * Tile.WIDTH;
+    protected static final int DEF_BOUNDS_HEIGHT = 37 * Tile.HEIGHT;
 
     // total number of tile rows to render the full view
     protected static final int TILE_RENDER_ROWS =
@@ -251,6 +256,7 @@ public class IsoSceneView implements SceneView
 
     // starting x/y-positions to render the view
     protected static final int DEF_CENTER_X = DEF_BOUNDS_WIDTH / 2;
+    protected static final int DEF_CENTER_Y = -(9 * Tile.HEIGHT);
 
     protected Point _lineX[], _lineY[];
 
