@@ -1,5 +1,5 @@
 //
-// $Id: KeyboardManager.java,v 1.18 2003/01/17 01:33:34 shaper Exp $
+// $Id: KeyboardManager.java,v 1.19 2003/05/03 00:12:12 mdb Exp $
 
 package com.threerings.util;
 
@@ -23,6 +23,7 @@ import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
 import com.samskivert.util.ObserverList;
+import com.samskivert.util.RunAnywhere;
 
 import com.threerings.util.keybd.Keyboard;
 
@@ -286,11 +287,12 @@ public class KeyboardManager
             }
 
             // remember the last time this key was pressed
-            info.setPressTime(e.getWhen());
+            info.setPressTime(RunAnywhere.getWhen(e));
         }
 
         // notify any key observers of the key press
-        notifyObservers(KeyEvent.KEY_PRESSED, e.getKeyCode(), e.getWhen());
+        notifyObservers(KeyEvent.KEY_PRESSED, e.getKeyCode(),
+                        RunAnywhere.getWhen(e));
 
         return hasCommand;
     }
@@ -309,11 +311,12 @@ public class KeyboardManager
         KeyInfo info = (KeyInfo)_keys.get(e.getKeyCode());
         if (info != null) {
             // remember the last time we received a key release
-            info.setReleaseTime(e.getWhen());
+            info.setReleaseTime(RunAnywhere.getWhen(e));
         }
 
         // notify any key observers of the key release
-        notifyObservers(KeyEvent.KEY_RELEASED, e.getKeyCode(), e.getWhen());
+        notifyObservers(KeyEvent.KEY_RELEASED, e.getKeyCode(),
+                        RunAnywhere.getWhen(e));
 
         return (info != null);
     }
