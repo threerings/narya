@@ -1,5 +1,5 @@
 //
-// $Id: GameConfig.java,v 1.19 2004/10/22 17:50:03 andrzej Exp $
+// $Id: GameConfig.java,v 1.20 2004/10/22 18:50:51 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -98,16 +98,13 @@ public abstract class GameConfig extends PlaceConfig implements Cloneable
         return getClass().hashCode() + (rated ? 1 : 0);
     }
     
-    /**
-     * Returns a clone of this game config.
-     */
-    public GameConfig getClone ()
+    // documentation inherited
+    public Object clone ()
     {
         try {
-            return (GameConfig)clone();
+            return super.clone();
         } catch (CloneNotSupportedException cnse) {
-            // something has gone horribly awry
-            return null;
+            throw new RuntimeException("clone() failed: " + cnse);
         }
     }
 }
