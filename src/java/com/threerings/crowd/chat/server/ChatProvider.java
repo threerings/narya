@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.28 2004/06/15 22:03:51 ray Exp $
+// $Id: ChatProvider.java,v 1.29 2004/06/17 18:28:58 ray Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -142,7 +142,7 @@ public class ChatProvider
             throw new InvocationException(AccessControl.LACK_ACCESS);
         }
 
-        broadcast(body.username, null, message);
+        broadcast(body.username, null, message, false);
     }
 
     /**
@@ -152,15 +152,22 @@ public class ChatProvider
      * as a system message.
      * @param bundle the bundle, or null if the message needs no translation.
      * @param msg the content of the message to broadcast.
+     * @param attention if true, the message is sent as ATTENTION level,
+     * otherwise as INFO. Ignored if from is non-null.
      */
-    public static void broadcast (Name from, String bundle, String msg)
+    public static void broadcast (Name from, String bundle, String msg,
+                                  boolean attention)
     {
         Iterator iter = CrowdServer.plreg.enumeratePlaces();
         while (iter.hasNext()) {
             PlaceObject plobj = (PlaceObject)iter.next();
             if (plobj.shouldBroadcast()) {
                 if (from == null) {
-                    SpeakProvider.sendInfo(plobj, bundle, msg);
+                    if (attention) {
+                        SpeakProvider.sendAttention(plobj, bundle, msg);
+                    } else {
+                        SpeakProvider.sendInfo(plobj, bundle, msg);
+                    }
 
                 } else {
                     SpeakProvider.sendSpeak(plobj, from, bundle, msg,
