@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.7 2001/12/16 21:47:37 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.8 2001/12/16 21:59:25 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -183,15 +183,18 @@ public class SpotSceneDirector
     /**
      * Sends a chat message to the other users in the cluster to which the
      * location that we currently occupy belongs.
+     *
+     * @return true if a cluster speak message was delivered, false if we
+     * are not in a valid cluster and refused to deliver the request.
      */
-    public void requestClusterSpeak (String message)
+    public boolean requestClusterSpeak (String message)
     {
         // make sure we're currently in a scene
         DisplaySpotScene scene = (DisplaySpotScene)_scdir.getScene();
         if (scene == null) {
             Log.warning("Requested to speak to cluster, but we're not " +
                         "currently in any scene [message=" + message + "].");
-            return;
+            return false;
         }
 
         // make sure we're in a location
@@ -199,19 +202,20 @@ public class SpotSceneDirector
         if (loc == null) {
             Log.info("Ignoring cluster speak as we're not in a valid " +
                      "location [locId=" + _locationId + "].");
-            return;
+            return false;
         }
 
         // make sure the location has an associated cluster
         if (loc.clusterIndex == -1) {
             Log.info("Ignoring cluster speak as our location has no " +
                      "cluster [loc=" + loc + "].");
-            return;
+            return false;
         }
 
         // we're all clear to go
         SpotService.clusterSpeak(
             _ctx.getClient(), scene.getId(), _locationId, message, this);
+        return true;
     }
 
     /**
