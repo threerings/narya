@@ -1,5 +1,5 @@
 //
-// $Id: ZoneDirector.java,v 1.9 2002/08/14 19:07:58 mdb Exp $
+// $Id: ZoneDirector.java,v 1.10 2002/10/27 21:24:58 mdb Exp $
 
 package com.threerings.whirled.zone.client;
 
@@ -126,6 +126,16 @@ public class ZoneDirector extends BasicDirector
     protected void fetchServices (Client client)
     {
         _zservice = (ZoneService)client.requireService(ZoneService.class);
+    }
+
+    // documentation inherited
+    public void clientDidLogoff (Client client)
+    {
+        super.clientDidLogoff(client);
+
+        // clear out our business
+        _zservice = null;
+        _summary = null;
     }
 
     /**

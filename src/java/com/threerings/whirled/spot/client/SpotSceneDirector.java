@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.18 2002/08/14 19:07:57 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.19 2002/10/27 21:24:58 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -257,6 +257,19 @@ public class SpotSceneDirector extends BasicDirector
     protected void fetchServices (Client client)
     {
         _sservice = (SpotService)client.requireService(SpotService.class);
+    }
+
+    // documentation inherited
+    public void clientDidLogoff (Client client)
+    {
+        super.clientDidLogoff(client);
+
+        // clear out our business
+        _locationId = -1;
+        _pendingLocId = -1;
+        _changeObserver = null;
+        _clobj = null;
+        _sservice = null;
     }
 
     // documentation inherited from interface

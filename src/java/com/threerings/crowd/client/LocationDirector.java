@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.25 2002/08/14 19:07:49 mdb Exp $
+// $Id: LocationDirector.java,v 1.26 2002/10/27 21:24:58 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -334,6 +334,25 @@ public class LocationDirector extends BasicDirector
         client.getDObjectManager().subscribeToObject(cloid, sub);
     }
 
+    // documentation inherited from interface
+    public void clientDidLogoff (Client client)
+    {
+        super.clientDidLogoff(client);
+
+        // clear ourselves out and inform observers of our departure
+        didLeavePlace();
+
+        // let our observers know that we're no longer in a location
+        _observers.apply(_didChangeOp);
+
+        // clear out everything else (it's possible that we were logged
+        // off in the middle of a change location request)
+        _pendingPlaceId = -1;
+        _previousPlaceId = -1;
+        _lastRequestTime = 0L;
+        _lservice = null;
+    }
+
     // documentation inherited
     protected void fetchServices (Client client)
     {
@@ -346,20 +365,6 @@ public class LocationDirector extends BasicDirector
     {
         // check to see if we are already in a location, in which case
         // we'll want to be going there straight away
-    }
-
-    // documentation inherited from interface
-    public void clientDidLogoff (Client client)
-    {
-        super.clientDidLogoff(client);
-
-        // clear ourselves out and inform observers of our departure
-        didLeavePlace();
-
-        // let our observers know that we're no longer in a location
-        _observers.apply(_didChangeOp);
-
-        _lservice = null;
     }
 
     // documentation inherited from interface

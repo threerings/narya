@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.20 2002/08/14 19:07:57 mdb Exp $
+// $Id: SceneDirector.java,v 1.21 2002/10/27 21:24:58 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -348,7 +348,12 @@ public class SceneDirector extends BasicDirector
     {
         super.clientDidLogoff(client);
 
+        // clear out our business
         clearScene();
+        _pendingSceneId = -1;
+        releaseSceneModel(_pendingModel);
+        _previousSceneId = -1;
+        _sservice = null;
     }
 
     // documentation inherited from interface
