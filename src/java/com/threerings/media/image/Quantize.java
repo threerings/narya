@@ -1,5 +1,5 @@
 //
-// $Id: Quantize.java,v 1.1 2003/05/29 03:02:38 ray Exp $
+// $Id: Quantize.java,v 1.2 2003/05/29 03:08:37 ray Exp $
 package com.threerings.media.image;
 
 /*
@@ -21,6 +21,7 @@ package com.threerings.media.image;
  * The following modifications were added to the original code:
  * - Made it work with image data with transparent pixels.
  * - Clarified documentation of the main method.
+ * - Changed the 'QUICK' constant to false for better quantization.
  *
  * <p><p>
  *
