@@ -1,5 +1,5 @@
 //
-// $Id: IntegerFieldMarshaller.java,v 1.1 2002/04/17 22:45:32 mdb Exp $
+// $Id: IntegerFieldMarshaller.java,v 1.2 2002/07/17 23:05:28 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -10,8 +10,11 @@ import java.lang.reflect.Field;
 
 public class IntegerFieldMarshaller implements FieldMarshaller
 {
-    /** This is the sort of field that we marshall. */
-    public Integer prototype;
+    /** Returns the sort of field that we marshall. */
+    public Class getFieldType ()
+    {
+        return Integer.class;
+    }
 
     public void writeTo (DataOutputStream out, Field field, Object obj)
         throws IOException, IllegalAccessException

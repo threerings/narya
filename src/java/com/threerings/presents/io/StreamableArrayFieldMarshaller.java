@@ -1,5 +1,5 @@
 //
-// $Id: StreamableArrayFieldMarshaller.java,v 1.1 2002/03/20 22:58:26 mdb Exp $
+// $Id: StreamableArrayFieldMarshaller.java,v 1.2 2002/07/17 23:05:28 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -14,6 +14,12 @@ import com.threerings.presents.io.Streamable;
 
 public class StreamableArrayFieldMarshaller implements FieldMarshaller
 {
+    /** Returns the sort of field that we marshall. */
+    public Class getFieldType ()
+    {
+        return (new Streamable[0]).getClass();
+    }
+
     public void writeTo (DataOutputStream out, Field field, Object obj)
         throws IOException, IllegalAccessException
     {

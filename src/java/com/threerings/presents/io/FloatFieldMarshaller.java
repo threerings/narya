@@ -1,5 +1,5 @@
 //
-// $Id: FloatFieldMarshaller.java,v 1.6 2002/02/01 23:32:37 mdb Exp $
+// $Id: FloatFieldMarshaller.java,v 1.7 2002/07/17 23:05:28 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -10,8 +10,11 @@ import java.lang.reflect.Field;
 
 public class FloatFieldMarshaller implements FieldMarshaller
 {
-    /** This is the sort of field that we marshall. */
-    public float prototype;
+    /** Returns the sort of field that we marshall. */
+    public Class getFieldType ()
+    {
+        return Float.TYPE;
+    }
 
     public void writeTo (DataOutputStream out, Field field, Object obj)
         throws IOException, IllegalAccessException

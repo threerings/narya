@@ -1,5 +1,5 @@
 //
-// $Id: FieldMarshallerRegistry.java,v 1.15 2002/04/17 22:45:32 mdb Exp $
+// $Id: FieldMarshallerRegistry.java,v 1.16 2002/07/17 23:05:28 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -62,8 +62,8 @@ public class FieldMarshallerRegistry
     protected static void registerMarshaller (Class clazz)
     {
         try {
-            _registry.put(clazz.getField("prototype").getType(),
-                          clazz.newInstance());
+            FieldMarshaller fm = (FieldMarshaller)clazz.newInstance();
+            _registry.put(fm.getFieldType(), fm);
         } catch (Exception e) {
             Log.warning("Unable to register field marshaller " +
                         "[class=" + clazz.getName() + "].");
