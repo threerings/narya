@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.34 2002/02/04 00:50:11 mdb Exp $
+// $Id: DObject.java,v 1.35 2002/02/04 00:51:15 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -540,7 +540,7 @@ public class DObject
             _mgr.postEvent(event);
 
         } catch (ObjectAccessException oae) {
-            Log.warning("Unable to request elementAdd [name=" + name +
+            Log.warning("Unable to request elementUpdate [name=" + name +
                         ", elem=" + elem + ", error=" + oae + "].");
         }
     }
