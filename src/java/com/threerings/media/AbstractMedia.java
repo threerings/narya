@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMedia.java,v 1.3 2002/11/13 23:59:11 mdb Exp $
+// $Id: AbstractMedia.java,v 1.4 2002/11/14 00:07:35 ray Exp $
 
 package com.threerings.media;
 
@@ -89,8 +89,7 @@ public abstract class AbstractMedia
     // documentation inherited from interface Shape
     public Rectangle2D getBounds2D ()
     {
-        return new Rectangle2D.Float(_bounds.x, _bounds.y,
-                                     _bounds.width, _bounds.height);
+        return _bounds;
     }
 
     // documentation inherited from interface Shape
