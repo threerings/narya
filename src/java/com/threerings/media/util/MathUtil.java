@@ -1,5 +1,5 @@
 //
-// $Id: MathUtil.java,v 1.6 2002/10/26 20:31:06 mdb Exp $
+// $Id: MathUtil.java,v 1.7 2002/10/26 23:21:19 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -63,6 +63,6 @@ public class MathUtil
      */
     public static int sign (int value)
     {
-        return (value == 0) ? 1 : value/value;
+        return (value < 0) ? -1 : 1;
     }
 }
