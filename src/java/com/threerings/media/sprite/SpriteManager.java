@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.44 2004/10/30 04:33:08 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -96,6 +96,30 @@ public class SpriteManager extends AbstractMediaManager
         }
     }
 
+    /**
+     * Finds the sprite with the highest render order that hits the
+     * specified pixel.
+     *
+     * @param x the x (screen) coordinate to be checked
+     * @param y the y (screen) coordinate to be checked
+     * @return the highest sprite hit
+     */
+    public Sprite getHighestHitSprite (int x, int y)
+    {
+        int size = _media.size(),
+            highestLayer = Integer.MIN_VALUE;
+        Sprite highestSprite = null;
+        for (int ii = 0; ii < size; ii++) {
+            Sprite sprite = (Sprite)_media.get(ii);
+            if (sprite.hitTest(x, y) &&
+                sprite.getRenderOrder() > highestLayer) {
+                highestSprite = sprite;
+                highestLayer = sprite.getRenderOrder();
+            }
+        }
+        return highestSprite;
+    }
+    
     /**
      * Add a sprite to the set of sprites managed by this manager.
      *

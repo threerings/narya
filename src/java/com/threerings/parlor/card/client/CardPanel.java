@@ -28,9 +28,6 @@ import java.util.Iterator;
 
 import javax.swing.event.MouseInputAdapter;
 
-import com.samskivert.swing.Controller;
-import com.samskivert.swing.event.CommandEvent;
-
 import com.samskivert.util.ObserverList;
 
 import com.threerings.media.FrameManager;
@@ -146,98 +143,54 @@ public abstract class CardPanel extends VirtualMediaPanel
         
         MouseInputAdapter mia = new MouseInputAdapter() {
             public void mousePressed (MouseEvent me) {
-                if (_activeSprite != null && !isManaged(_activeSprite)) {
-                    _activeSprite = null;
-                } else if (_activeSprite instanceof CardSprite) {
-                    _handleX = _activeSprite.getX() - me.getX();
-                    _handleY = _activeSprite.getY() - me.getY();
-                            
+                if (_activeCardSprite != null) {
+                    _handleX = _activeCardSprite.getX() - me.getX();
+                    _handleY = _activeCardSprite.getY() - me.getY();        
                     _hasBeenDragged = false;
-                } else if (_activeSprite instanceof ButtonSprite) {
-                    ButtonSprite bs = (ButtonSprite)_activeSprite;
-                    if(bs.isEnabled()) {
-                        bs.setPressed(true);
-                    }
                 }
-            }  
+            }
             public void mouseReleased (MouseEvent me) {
-                if (_activeSprite != null && !isManaged(_activeSprite)) {
-                    _activeSprite = null;
-                } else if (_activeSprite instanceof CardSprite &&
-                    _hasBeenDragged) {
-                    _activeSprite.queueNotification(
-                        new CardSpriteDraggedOp((CardSprite)_activeSprite, me)
+                if (_activeCardSprite != null && _hasBeenDragged) {
+                    _activeCardSprite.queueNotification(
+                        new CardSpriteDraggedOp(_activeCardSprite, me)
                     );
-                } else if (_activeSprite instanceof ButtonSprite) {
-                    ButtonSprite bs = (ButtonSprite)_activeSprite;
-                    if (bs.isPressed()) {
-                        CommandEvent ce = new CommandEvent(CardPanel.this,
-                            bs.getActionCommand(), bs.getCommandArgument(),
-                            me.getWhen(), me.getModifiers());
-                        Controller.postAction(ce);
-                        bs.setPressed(false);
-                    }
                 }
             }
             public void mouseClicked (MouseEvent me) {
-                if (_activeSprite != null && !isManaged(_activeSprite)) {
-                    _activeSprite = null;
-                } else if (_activeSprite instanceof CardSprite) {
-                    _activeSprite.queueNotification(
-                        new CardSpriteClickedOp((CardSprite)_activeSprite, me)
+                if (_activeCardSprite != null) {
+                    _activeCardSprite.queueNotification(
+                        new CardSpriteClickedOp(_activeCardSprite, me)
                     );
                 }
             }
             public void mouseMoved (MouseEvent me)
             {
-                Sprite newActiveSprite = null;
-                
-                ArrayList al = new ArrayList();
+                Sprite newHighestHit = _spritemgr.getHighestHitSprite(
+                    me.getX(), me.getY());
                     
-                _spritemgr.getHitSprites(al, me.getX(), me.getY());
-                    
-                if (al.size() > 0) {
-                    Iterator it = al.iterator();
-                    int highestLayer = Integer.MIN_VALUE;
-                    Sprite highestSprite = null;
-                        
-                    while (it.hasNext()) {
-                        Sprite sprite = (Sprite)it.next();
-                            
-                        if (sprite.getRenderOrder() > highestLayer) {
-                            highestLayer = sprite.getRenderOrder();
-                            highestSprite = sprite;
-                        }
-                    }
-                        
-                    newActiveSprite = highestSprite;
-                }
+                CardSprite newActiveCardSprite =
+                    (newHighestHit instanceof CardSprite ? 
+                        (CardSprite)newHighestHit : null);
                 
-                if (newActiveSprite != _activeSprite) {
-                    if (_activeSprite instanceof CardSprite && 
-                        isManaged(_activeSprite)) {
-                        _activeSprite.queueNotification(
-                            new CardSpriteExitedOp((CardSprite)_activeSprite,
-                                me)
-                        );
-                    } else if (_activeSprite instanceof ButtonSprite && 
-                        isManaged(_activeSprite)) {
-                        ((ButtonSprite)_activeSprite).setPressed(false);
-                    }
-                    if (newActiveSprite instanceof CardSprite) {
-                        newActiveSprite.queueNotification(
-                            new CardSpriteEnteredOp(
-                                (CardSprite)newActiveSprite, me)
+                if (_activeCardSprite != newActiveCardSprite) {
+                    if (_activeCardSprite != null) {
+                        _activeCardSprite.queueNotification(
+                            new CardSpriteExitedOp(_activeCardSprite, me)
                         );
                     }
-                    _activeSprite = newActiveSprite;
+                    _activeCardSprite = newActiveCardSprite;
+                    if (_activeCardSprite != null) {
+                        _activeCardSprite.queueNotification(
+                            new CardSpriteEnteredOp(_activeCardSprite, me)
+                        );
+                    }
                 }
             }
             public void mouseDragged (MouseEvent me)
             {
-                if (_activeSprite instanceof CardSprite &&
-                    ((CardSprite)_activeSprite).isDraggable()) {
-                    _activeSprite.setLocation(
+                if (_activeCardSprite != null &&
+                    _activeCardSprite.isDraggable()) {
+                    _activeCardSprite.setLocation(
                         me.getX() + _handleX,
                         me.getY() + _handleY
                     ); 
@@ -247,7 +200,7 @@ public abstract class CardPanel extends VirtualMediaPanel
                 }
             }
         };
-            
+        
         addMouseListener(mia);
         addMouseMotionListener(mia);
     }
@@ -267,9 +220,8 @@ public abstract class CardPanel extends VirtualMediaPanel
      */
     public abstract Mirage getCardImage (Card card);
     
-    
-    /** The last sprite pressed. */
-    protected Sprite _activeSprite;
+    /** The active card sprite. */
+    protected CardSprite _activeCardSprite;
     
     /** The location of the cursor in the active sprite. */
     protected int _handleX, _handleY;

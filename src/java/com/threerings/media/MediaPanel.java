@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.46 2004/10/29 17:10:46 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -30,14 +30,19 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
+import java.awt.event.MouseEvent;
+
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.event.AncestorEvent;
+import javax.swing.event.MouseInputAdapter;
 
 import java.util.Arrays;
 
+import com.samskivert.swing.Controller;
 import com.samskivert.swing.Label;
 import com.samskivert.swing.event.AncestorAdapter;
+import com.samskivert.swing.event.CommandEvent;
 import com.samskivert.util.IntListUtil;
 import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
@@ -47,6 +52,7 @@ import com.threerings.media.timer.MediaTimer;
 import com.threerings.media.animation.Animation;
 import com.threerings.media.animation.AnimationManager;
 
+import com.threerings.media.sprite.ButtonSprite;
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.sprite.SpriteManager;
 
@@ -178,6 +184,15 @@ public class MediaPanel extends JComponent
     public void addSprite (Sprite sprite)
     {
         _spritemgr.addSprite(sprite);
+        
+        if (sprite instanceof ButtonSprite &&
+            _buttonSpriteCount++ == 0) {
+            if (_buttonHandler == null) {
+                _buttonHandler = new ButtonHandler();
+            }
+            addMouseListener(_buttonHandler);
+            addMouseMotionListener(_buttonHandler);
+        }
     }
 
     /**
@@ -194,6 +209,13 @@ public class MediaPanel extends JComponent
     public void removeSprite (Sprite sprite)
     {
         _spritemgr.removeSprite(sprite);
+        
+        if (sprite instanceof ButtonSprite &&
+            --_buttonSpriteCount == 0)
+        {
+            removeMouseListener(_buttonHandler);
+            removeMouseMotionListener(_buttonHandler);
+        }
     }
 
     /**
@@ -585,6 +607,52 @@ public class MediaPanel extends JComponent
     /** Used to keep metrics. */
     protected float _dirtyPerTick;
 
+    /** Handles button manipulation. */
+    protected class ButtonHandler extends MouseInputAdapter
+    {
+        public void mousePressed (MouseEvent me)
+        {
+            Sprite highestHit = _spritemgr.getHighestHitSprite(
+                me.getX(), me.getY());
+           
+            if (highestHit instanceof ButtonSprite &&
+                ((ButtonSprite)highestHit).isEnabled()) {
+                _activeButton = (ButtonSprite)highestHit;
+                _activeButton.setPressed(true);
+            }
+        }
+        
+        public void mouseReleased (MouseEvent me)
+        {
+            if (_activeButton != null) {
+                CommandEvent ce = new CommandEvent(MediaPanel.this,
+                    _activeButton.getActionCommand(),
+                    _activeButton.getCommandArgument(),
+                    me.getWhen(), me.getModifiers());
+                Controller.postAction(ce);
+                _activeButton.setPressed(false);
+                _activeButton = null;
+            }
+        }
+                
+        public void mouseDragged (MouseEvent me)
+        {
+            if (_activeButton != null &&
+                !_activeButton.contains(me.getX(), me.getY())) {
+                _activeButton.setPressed(false);
+                _activeButton = null;
+            }
+        }
+        
+        protected ButtonSprite _activeButton;
+    }
+    
+    /** The active button handler, or null for none. */
+    protected ButtonHandler _buttonHandler;
+    
+    /** The number of button sprites being managed. */
+    protected int _buttonSpriteCount;
+    
     // used to render performance metrics
     protected String _perfStatus = "";
     protected Label _perfLabel;

@@ -19,7 +19,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.card.client;
+package com.threerings.media.sprite;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -28,10 +28,6 @@ import java.awt.Shape;
 
 import com.samskivert.swing.Label;
 import com.samskivert.swing.util.SwingUtil;
-
-import com.threerings.media.sprite.Sprite;
-
-import com.threerings.parlor.card.Log;
 
 /**
  * A sprite that acts as a button.
