@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.30 2002/04/16 17:20:09 mdb Exp $
+// $Id: IsoUtil.java,v 1.31 2002/05/24 20:15:04 ray Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -264,24 +264,29 @@ public class IsoUtil
      */
     public static int getIsoDirection (int ax, int ay, int bx, int by)
     {
-        if (bx > ax) {
-            if (by == ay) {
-                return SOUTH;
-            }
-            return (by < ay) ? SOUTHEAST : SOUTHWEST;
-
-        } else if (bx == ax) {
+        // head off a div by 0 at the pass..
+        if (bx == ax) {
             if (by == ay) {
                 return DirectionCodes.NONE;
             }
             return (by < ay) ? EAST : WEST;
-
-        } else {  // bx < ax
-            if (by == ay) {
-                return NORTH;
-            }
-            return (by < ay) ? NORTHEAST : NORTHWEST;
         }
+
+        // figure direction base on the slope of the line
+        float slope = ((float) (ay - by)) / ((float) Math.abs(ax - bx));
+        if (slope > 2f) {
+            return EAST;
+        }
+        if (slope > .5f) {
+            return (bx < ax) ? NORTHEAST : SOUTHEAST;
+        }
+        if (slope > -.5f) {
+            return (bx < ax) ? NORTH : SOUTH;
+        }
+        if (slope > -2f) {
+            return (bx < ax) ? NORTHWEST : SOUTHWEST;
+        }
+        return WEST;
     }
 
     /**
@@ -300,24 +305,12 @@ public class IsoUtil
      */
     public static int getProjectedIsoDirection (int ax, int ay, int bx, int by)
     {
-        if (bx > ax) {
-            if (by == ay) {
-                return SOUTHEAST;
-            }
-            return (by < ay) ? EAST : SOUTH;
-
-        } else if (bx == ax) {
-            if (by == ay) {
-                return DirectionCodes.NONE;
-            }
-            return (by < ay) ? NORTHEAST : SOUTHWEST;
-
-        } else {  // bx < ax
-            if (by == ay) {
-                return NORTHWEST;
-            }
-            return (by < ay) ? NORTH : WEST;
+        int dir = getIsoDirection(ax, ay, bx, by);
+        if (dir != DirectionCodes.NONE) {
+            // offset the direction by -1, ie change SOUTHWEST to SOUTH
+            dir = (dir + 7) % 8;
         }
+        return nonproj;
     }
 
     /**
