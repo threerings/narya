@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.12 2002/02/04 00:50:11 mdb Exp $
+// $Id: DSet.java,v 1.13 2002/02/04 01:34:59 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -61,6 +61,53 @@ public class DSet
     public DSet (Class elementType)
     {
         setElementType(elementType);
+    }
+
+    /**
+     * Creates a distributed set and populates it with values from the
+     * supplied iterator. This should be done before the set is unleashed
+     * into the wild distributed object world because no associated
+     * element added events will be generated. Additionally, this
+     * operation does not check for duplicates when adding elements, so
+     * one should be sure that the iterator contains only unique elements.
+     *
+     * @param elementType the type of elements that will be stored in this
+     * set. <em>Only</em> elements of this <em>exact</em> type may be
+     * stored in the set.
+     * @param source an iterator from which we will initially populate the
+     * set.
+     */
+    public DSet (Class elementType, Iterator source)
+    {
+        this(source);
+        setElementType(elementType);
+    }
+
+    /**
+     * Creates a distributed set and populates it with values from the
+     * supplied iterator. This should be done before the set is unleashed
+     * into the wild distributed object world because no associated
+     * element added events will be generated. Additionally, this
+     * operation does not check for duplicates when adding elements, so
+     * one should be sure that the iterator contains only unique elements.
+     *
+     * @param source an iterator from which we will initially populate the
+     * set.
+     */
+    public DSet (Iterator source)
+    {
+        for (int index = 0; source.hasNext(); index++) {
+            Element elem = (Element)source.next();
+
+            // expand the array if necessary
+            if (index >= _elements.length) {
+                expand(index);
+            }
+
+            // insert the item
+            _elements[index] = elem;
+            _size++;
+        }
     }
 
     /**
