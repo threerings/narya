@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.11 2001/10/17 02:48:57 mdb Exp $
+// $Id: GameManager.java,v 1.12 2001/10/18 02:19:54 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -80,6 +80,14 @@ public class GameManager
                 new Integer(_gameobj.getOid()) };
             for (int i = 0; i < _players.length; i++) {
                 BodyObject bobj = CrowdServer.lookupBody(_players[i]);
+                if (bobj == null) {
+                    Log.warning("Unable to deliver game ready to " +
+                                "non-existent player " +
+                                "[gameOid=" + _gameobj.getOid() +
+                                ", player=" + _players[i] + "].");
+                    continue;
+                }
+
                 // deliver a game ready notification to the player
                 CrowdServer.invmgr.sendNotification(
                     bobj.getOid(), MODULE_NAME, GAME_READY_NOTIFICATION, args);
