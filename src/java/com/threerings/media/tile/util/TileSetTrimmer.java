@@ -1,5 +1,5 @@
 //
-// $Id: TileSetTrimmer.java,v 1.6 2003/01/13 22:49:47 mdb Exp $
+// $Id: TileSetTrimmer.java,v 1.7 2003/04/27 06:38:15 mdb Exp $
 
 package com.threerings.media.tile.util;
 
@@ -13,12 +13,11 @@ import java.awt.image.Raster;
 import java.awt.image.RasterFormatException;
 import java.awt.image.WritableRaster;
 
-import javax.imageio.ImageIO;
-
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.Log;
 
+import com.threerings.media.image.FastImageIO;
 import com.threerings.media.image.ImageUtil;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileSet;
@@ -131,6 +130,6 @@ public class TileSetTrimmer
         }
 
         // write out trimmed image
-        ImageIO.write(image, "png", destImage);
+        FastImageIO.write(image, destImage);
     }
 }
