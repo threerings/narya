@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.13 2001/10/19 22:02:20 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.14 2001/10/24 00:37:24 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -10,7 +10,11 @@ import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Tuple;
 import com.samskivert.util.Queue;
 
-import com.threerings.presents.dobj.*;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.ObjectDeathListener;
+import com.threerings.presents.dobj.ObjectDestroyedEvent;
+import com.threerings.presents.dobj.Subscriber;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.data.PlaceConfig;
@@ -22,7 +26,8 @@ import com.threerings.crowd.data.PlaceObject;
  * instantiating and initializing a place manager to manage newly created
  * places.
  */
-public class PlaceRegistry implements Subscriber
+public class PlaceRegistry
+    implements Subscriber, ObjectDeathListener
 {
     /**
      * Used to receive a callback when the place object associated with a
@@ -85,8 +90,7 @@ public class PlaceRegistry implements Subscriber
             _createq.append(new Tuple(pmgr, observer));
 
             // and request to create the place object
-            CrowdServer.omgr.createObject(
-                pmgr.getPlaceObjectClass(), this, false);
+            CrowdServer.omgr.createObject(pmgr.getPlaceObjectClass(), this);
 
             return pmgr;
 
@@ -143,16 +147,7 @@ public class PlaceRegistry implements Subscriber
         return _pmgrs.elements();
     }
 
-    /**
-     * Unregisters the place from the registry. Called by the place
-     * manager when a place object that it was managing is destroyed.
-     */
-    public void placeWasDestroyed (int oid)
-    {
-        // remove the place manager from the table
-        _pmgrs.remove(oid);
-    }
-
+    // documentation inherited
     public void objectAvailable (DObject object)
     {
         // pop the next place manager off of the queue and let it know
@@ -175,6 +170,10 @@ public class PlaceRegistry implements Subscriber
         CreationObserver observer = (CreationObserver)tuple.right;
         PlaceObject plobj = (PlaceObject)object;
 
+        // add ourselves as a destruction listener so that we can clean up
+        // after the place manager when it goes away
+        plobj.addListener(this);
+
         // stick the manager into our table
         _pmgrs.put(plobj.getOid(), pmgr);
 
@@ -188,6 +187,7 @@ public class PlaceRegistry implements Subscriber
         }
     }
 
+    // documentation inherited
     public void requestFailed (int oid, ObjectAccessException cause)
     {
         // pop a place manager off the queue since it is queued up to
@@ -203,6 +203,38 @@ public class PlaceRegistry implements Subscriber
                     ", cause=" + cause + "].");
     }
 
+    // documentation inherited
+    public void objectDestroyed (ObjectDestroyedEvent event)
+    {
+        // the place object went away, so we unmap our place manager
+        int placeOid = event.getTargetOid();
+        PlaceManager pmgr = (PlaceManager)_pmgrs.remove(placeOid);
+        if (pmgr == null) {
+            Log.warning("Heard about destruction of object for which " +
+                        "no place manager was registered? " +
+                        "[oid=" + placeOid + "].");
+        } else {
+            // let our derived classes know what's up
+            placeWasDestroyed(pmgr);
+        }
+    }
+
+    /**
+     * Called when the place registry has unmapped a place manager because
+     * its associated place object was destroyed. Derived classes may wish
+     * to override this method if they are interested in place (and place
+     * manager) destruction.
+     *
+     * @param pmgr a reference to the place manager that was managing the
+     * destroyed place.
+     */
+    protected void placeWasDestroyed (PlaceManager pmgr)
+    {
+    }
+
+    /** A queue of place managers waiting for their place objects. */
     protected Queue _createq = new Queue();
+
+    /** A mapping from place object id to place manager. */
     protected HashIntMap _pmgrs = new HashIntMap();
 }
