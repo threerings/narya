@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.23 2002/06/19 23:12:48 ray Exp $
+// $Id: ChatDirector.java,v 1.24 2002/06/28 04:09:39 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -40,6 +40,15 @@ public class ChatDirector
 
         // register ourselves as a location observer
         _ctx.getLocationDirector().addLocationObserver(this);
+    }
+
+    /**
+     * Sets the mute director, if one is desired.
+     */
+    public void setMuteDirector (MuteDirector muter)
+    {
+        _muter = muter;
+        addChatValidator(_muter);
     }
 
     /**
@@ -243,6 +252,10 @@ public class ChatDirector
      */
     public void handleTellNotification (String source, String message)
     {
+        if (isBlocked(source)) {
+            return;
+        }
+
         // pass this on to our chat displays
         for (int i = 0; i < _displays.size(); i++) {
             ChatDisplay display = (ChatDisplay)_displays.get(i);
@@ -308,6 +321,10 @@ public class ChatDirector
     protected void handleSpeakMessage (String type, Object[] args)
     {
         String speaker = (String)args[0];
+        if (isBlocked(speaker)) {
+            return;
+        }
+
         String bundle = null;
         String message = null;
 
@@ -354,6 +371,15 @@ public class ChatDirector
         return (type == null) ? PLACE_CHAT_TYPE : type;
     }
 
+    /**
+     * Do an internal check to see if we can distribute chat from the
+     * specified user.
+     */
+    protected boolean isBlocked (String username)
+    {
+        return (_muter != null) && _muter.isMuted(username);
+    }
+
     /** Our active chat context. */
     protected CrowdContext _ctx;
 
@@ -369,4 +395,7 @@ public class ChatDirector
     /** A mapping from auxiliary chat objects to the types under which
      * they are registered. */
     protected HashIntMap _auxes = new HashIntMap();
+
+    /** An optionally present mutelist director. */
+    protected MuteDirector _muter;
 }
