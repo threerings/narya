@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.9 2002/02/19 01:23:56 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.10 2002/02/19 01:42:28 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -208,6 +208,7 @@ public class AnimatedPanel extends Canvas implements AnimatedView
                 createBackBuffer(gc);
             }
 
+            int width = getWidth(), height = getHeight();
             Graphics g = null;
             try {
                 g = _backimg.getGraphics();
@@ -216,14 +217,8 @@ public class AnimatedPanel extends Canvas implements AnimatedView
                 // business rather than just the dirty parts
                 if (valres != VolatileImage.IMAGE_OK) {
                     invalidRects.clear();
-                    invalidRects.add(new Rectangle(
-                                         0, 0, getWidth(), getHeight()));
+                    invalidRects.add(new Rectangle(0, 0, width, height));
                     Log.info("Lost back buffer, redrawing.");
-
-                } else if (_stime != 0) {
-                    // if it was OK, we may need to do some scrolling
-                    Dimension size = getSize();
-                    g.copyArea(0, 0, size.width, size.height, -dx, -dy);
                 }
 
                 // now do our actual rendering
@@ -236,6 +231,26 @@ public class AnimatedPanel extends Canvas implements AnimatedView
             // draw the back buffer to the screen
             try {
                 g = getGraphics();
+
+                // do any scrolling that we need to do
+                if (_stime != 0) {
+                    // if it was OK, we may need to do some scrolling
+                    g.copyArea(0, 0, width, height, -dx, -dy);
+
+                    // and add invalid rectangles for the exposed areas
+                    if (dx > 0) {
+                        invalidRects.add(
+                            new Rectangle(width - dx, 0, dx, height));
+                    } else if (dx < 0) {
+                        invalidRects.add(new Rectangle(0, 0, dx, height));
+                    }
+                    if (dy > 0) {
+                        invalidRects.add(
+                            new Rectangle(0, height - dy, width, dy));
+                    } else if (dy < 0) {
+                        invalidRects.add(new Rectangle(0, 0, width, dy));
+                    }
+                }
 
                 // iterate through the invalid rectangles, copying those
                 // areas from the back buffer to the display
