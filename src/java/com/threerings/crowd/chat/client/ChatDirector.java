@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.33 2002/08/14 19:07:49 mdb Exp $
+// $Id: ChatDirector.java,v 1.34 2002/10/27 22:34:11 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -58,6 +58,9 @@ public class ChatDirector extends BasicDirector
         // register for chat notifications
         _ctx.getClient().getInvocationDirector().registerReceiver(
             new ChatDecoder(this));
+
+        // watch the session, clear displays when the user logs off.
+        _ctx.getClient().addClientObserver(this);
 
         // register ourselves as a location observer
         _ctx.getLocationDirector().addLocationObserver(this);
@@ -155,8 +158,18 @@ public class ChatDirector extends BasicDirector
      */
     public void clearDisplays ()
     {
-        for (Iterator iter = _displays.iterator(); iter.hasNext(); ) {
-            ((ChatDisplay) iter.next()).clear();
+        clearDisplays(false);
+    }
+
+    /**
+     * Request that all chat displays clear their contents.
+     *
+     * @param force if false, a display may choose to ignore the clear.
+     */
+    protected void clearDisplays (boolean force)
+    {
+        for (int ii=0, nn=_displays.size(); ii < nn; ii++) {
+            ((ChatDisplay) _displays.get(ii)).clear(force);
         }
     }
 
@@ -499,6 +512,22 @@ public class ChatDirector extends BasicDirector
     protected synchronized int nextRequestId ()
     {
         return _requestId++;
+    }
+
+    // documentation inherited
+    public void clientObjectDidChange (Client client)
+    {
+        super.clientObjectDidChange(client);
+
+        clearDisplays(true);
+    }
+
+    // documentation inherited
+    public void clientDidLogoff (Client client)
+    {
+        super.clientDidLogoff(client);
+
+        clearDisplays(true);
     }
 
     /** Our active chat context. */
