@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.26 2003/04/27 06:35:28 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.27 2003/04/27 06:43:51 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -303,9 +303,9 @@ public class BundledComponentRepository
                 return new TileSetFrameImage(aset, actseq);
 
             } catch (Exception e) {
-                Log.warning("Error loading tileset for action " +
-                            "[action=" + action + ", component=" + component +
-                            ", error=" + e + "].");
+                Log.warning("Error loading tileset for action '" + action +
+                            "' " + component + ".");
+                Log.logStackTrace(e);
                 return null;
             }
         }
