@@ -1,5 +1,5 @@
 //
-// $Id: ImageSprite.java,v 1.12 2002/09/17 19:11:13 mdb Exp $
+// $Id: ImageSprite.java,v 1.13 2002/09/17 19:14:59 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -17,6 +17,7 @@ import java.util.Iterator;
 
 import com.threerings.media.Log;
 import com.threerings.media.util.MultiFrameImage;
+import com.threerings.media.util.SingleFrameImageImpl;
 
 /**
  * Extends the sprite class to support rendering the sprite with one or
@@ -53,14 +54,12 @@ public class ImageSprite extends Sprite
      */
     public ImageSprite ()
     {
-        this(null);
+        this((MultiFrameImage)null);
     }
 
     /**
      * Constructs an image sprite.
      *
-     * @param x the sprite x-position in pixels.
-     * @param y the sprite y-position in pixels.
      * @param frames the multi-frame image used to display the sprite.
      */
     public ImageSprite (MultiFrameImage frames)
@@ -70,6 +69,15 @@ public class ImageSprite extends Sprite
         _frameIdx = 0;
         _animMode = NO_ANIMATION;
         _frameDelay = 1000L/DEFAULT_FRAME_RATE;
+    }
+
+    /**
+     * Constructs an image sprite that will display the supplied single
+     * image when rendering itself.
+     */
+    public ImageSprite (Image image)
+    {
+        this(new SingleFrameImageImpl(image));
     }
 
     // documentation inherited
