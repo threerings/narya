@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.13 2002/02/10 04:19:34 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.14 2002/05/28 21:56:38 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -134,7 +134,7 @@ public class ClientDObjectMgr
                 notifyFailure(oid);
 
             } else if (obj instanceof PongResponse) {
-                Log.info("Got pong.");
+                _client.gotPong((PongResponse)obj);
 
             } else if (obj instanceof ObjectAction) {
                 ObjectAction act = (ObjectAction)obj;

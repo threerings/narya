@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.22 2002/04/10 06:08:59 mdb Exp $
+// $Id: Client.java,v 1.23 2002/05/28 21:56:38 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -13,6 +13,8 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.Credentials;
+import com.threerings.presents.net.PingRequest;
+import com.threerings.presents.net.PongResponse;
 
 /**
  * Through the client object, a connection to the system is established
@@ -203,6 +205,28 @@ public class Client
     }
 
     /**
+     * Converts a server time stamp to a value comparable to client clock
+     * readings.
+     */
+    public long fromServerTime (long stamp)
+    {
+        // when we calcuated our time delta, we did it such that: C - S =
+        // dT, thus to convert server to client time we do: C = S + dT
+        return stamp + _serverDelta;
+    }
+
+    /**
+     * Converts a server tick stamp (which is the number of milliseconds
+     * since the server started up) to an absolute client timestamp.
+     */
+    public long fromServerTicks (int ticks)
+    {
+        // we already have our adjusted server start stamp, so we just add
+        // the milliseconds since that time to get absolute time
+        return _serverStartStamp + ticks;
+    }
+
+    /**
      * Returns true if we are logged on, false if we're not.
      */
     public synchronized boolean loggedOn ()
@@ -263,6 +287,50 @@ public class Client
         return true;
     }
 
+    /**
+     * Called during initialization to initiate a sequence of ping/pong
+     * messages which will be used to determine (with "good enough"
+     * accuracy) the difference between the client clock and the server
+     * clock so that we can later interpret server timestamps.
+     */
+    protected void establishClockDelta ()
+    {
+        // create a new delta calculator and start the process
+        _dcalc = new DeltaCalculator();
+        PingRequest req = new PingRequest();
+        _comm.postMessage(req);
+        _dcalc.sentPing(req);
+        Log.info("Sent ping.");
+    }
+
+    /**
+     * This is called when we've completed the process of pinging the
+     * server a few times to establish our clock delta.
+     */
+    protected void clockDeltaEstablished ()
+    {
+        // initialize our invocation director
+        ResultListener rl = new ResultListener() {
+            public void requestCompleted (Object result) {
+                // keep this around
+                _clobj = (ClientObject)result;
+                // let the client know that logon has now fully succeeded
+                notifyObservers(Client.CLIENT_DID_LOGON, null);
+            }
+
+            public void requestFailed (Exception cause) {
+                // pass the buck onto the listeners
+                notifyObservers(Client.CLIENT_FAILED_TO_LOGON, cause);
+            }
+        };
+        _invdir.init(_comm.getDObjectManager(), _cloid, _bstrap.invOid, rl);
+
+        // we can't quite call initialization completed at this point
+        // because we need for the invocation director to fully initialize
+        // (which requires a round trip to the server) before turning the
+        // client loose to do things like request invocation services
+    }
+
     boolean notifyObservers (int code, Exception cause)
     {
         boolean rejected = false;
@@ -320,33 +388,65 @@ public class Client
         // extract bootstrap information
         _cloid = data.clientOid;
 
-        // initialize our invocation director
-        ResultListener rl = new ResultListener() {
-            public void requestCompleted (Object result) {
-                // keep this around
-                _clobj = (ClientObject)result;
-                // let the client know that logon has now fully succeeded
-                notifyObservers(Client.CLIENT_DID_LOGON, null);
-            }
+        // keep track of our server start time
+        _serverStartStamp = data.serverStartStamp;
 
-            public void requestFailed (Exception cause) {
-                // pass the buck onto the listeners
-                notifyObservers(Client.CLIENT_FAILED_TO_LOGON, cause);
-            }
-        };
-        _invdir.init(_comm.getDObjectManager(), _cloid, data.invOid, rl);
-
-        // we can't quite call initialization completed at this point
-        // because we need for the invocation director to fully initialize
-        // (which requires a round trip to the server) before turning the
-        // client loose to do things like request invocation services
+        // send a few pings to the server to establish the clock offset
+        // between this client and server standard time
+        establishClockDelta();
     }
 
+    /**
+     * Called when we receive a pong packet. We may be in the process of
+     * calculating the client/server time differential, or we may have
+     * already done that at which point we ignore pongs.
+     */
+    void gotPong (PongResponse pong)
+    {
+        Log.info("Got pong."); 
+
+        // if we're not calculating our client/server time delta, then we
+        // don't need to do anything with the pong
+        if (_dcalc == null) {
+            return;
+        }
+
+        // if we are calculating, we'll either be sending another ping...
+        if (_dcalc.gotPong(pong)) {
+            PingRequest req = new PingRequest();
+            _comm.postMessage(req);
+            _dcalc.sentPing(req);
+
+        } else {
+            // ...or we're done so we can grab the time delta and finish
+            // our business
+            _serverDelta = _dcalc.getTimeDelta();
+            // adjust our server start stamp into client time
+            _serverStartStamp += _serverDelta;
+            // free up our delta calculator
+            _dcalc = null;
+            // let the client continue with its initialization
+            clockDeltaEstablished();
+        }
+    }
+
+    /** The credentials we used to authenticate with the server. */
     protected Credentials _creds;
+
+    /** An entity that gives us the ability to process events on the main
+     * client thread (which is also the AWT thread). */
     protected Invoker _invoker;
+
+    /** Our client distribted object id. */
+    protected int _cloid;
+
+    /** Our client distributed object. */
     protected ClientObject _clobj;
 
+    /** The game server host. */
     protected String _hostname;
+
+    /** The port on which we connect to the game server. */
     protected int _port;
 
     /** Our list of client observers. */
@@ -355,9 +455,23 @@ public class Client
     /** The entity that manages our network communications. */
     protected Communicator _comm;
 
+    /** General startup information provided by the server. */
     protected BootstrapData _bstrap;
-    protected int _cloid;
+
+    /** Manages invocation services. */
     protected InvocationDirector _invdir = new InvocationDirector();
+
+    /** The difference between the server clock and the client clock
+     * (estimated immediately after logging on). */
+    protected long _serverDelta;
+
+    /** The time from which server ticks are computed (converted into
+     * client time. */
+    protected long _serverStartStamp;
+
+    /** Used when establishing our clock delta between the client and
+     * server. */
+    protected DeltaCalculator _dcalc;
 
     // client observer codes
     static final int CLIENT_DID_LOGON = 0;

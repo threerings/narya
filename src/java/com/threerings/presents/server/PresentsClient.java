@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.30 2002/04/26 02:32:27 mdb Exp $
+// $Id: PresentsClient.java,v 1.31 2002/05/28 21:56:38 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -561,7 +561,8 @@ public class PresentsClient
             // send a pong response
             Connection conn = client.getConnection();
             if (conn != null) {
-                conn.postMessage(new PongResponse());
+                PingRequest req = (PingRequest)msg;
+                conn.postMessage(new PongResponse(req.getUnpackStamp()));
             } else {
                 Log.info("Dropped pong response [client=" + client + "].");
             }

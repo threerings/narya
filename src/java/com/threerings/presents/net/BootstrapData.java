@@ -1,5 +1,5 @@
 //
-// $Id: BootstrapData.java,v 1.4 2002/02/04 01:47:20 mdb Exp $
+// $Id: BootstrapData.java,v 1.5 2002/05/28 21:56:38 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -18,4 +18,7 @@ public class BootstrapData extends DObject
 
     /** The oid to which to send invocation requests. */
     public int invOid;
+
+    /** The time from which server ticks are incrementing. */
+    public long serverStartStamp;
 }
