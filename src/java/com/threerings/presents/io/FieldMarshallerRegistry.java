@@ -1,5 +1,5 @@
 //
-// $Id: FieldMarshallerRegistry.java,v 1.13 2002/02/07 05:27:07 mdb Exp $
+// $Id: FieldMarshallerRegistry.java,v 1.14 2002/03/20 22:58:26 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -34,6 +34,9 @@ public class FieldMarshallerRegistry
         if (marsh == null) {
             if (Streamable.class.isAssignableFrom(clazz)) {
                 marsh = _streamableMarsh;
+                _registry.put(clazz, marsh);
+            } else if (STREAMARRAY_CLASS.isAssignableFrom(clazz)) {
+                marsh = _streamarrayMarsh;
                 _registry.put(clazz, marsh);
             }
         }
@@ -74,6 +77,14 @@ public class FieldMarshallerRegistry
     /** Used for marshalling instances of {@link Streamable}. */
     protected static FieldMarshaller _streamableMarsh =
         new StreamableFieldMarshaller();
+
+    /** Used for marshalling arrays of {@link Streamable}. */
+    protected static FieldMarshaller _streamarrayMarsh =
+        new StreamableArrayFieldMarshaller();
+
+    /** Used to identify streamable array instances. */
+    protected static final Class STREAMARRAY_CLASS =
+        (new Streamable[0]).getClass();
 
     static {
         // register our field marshallers

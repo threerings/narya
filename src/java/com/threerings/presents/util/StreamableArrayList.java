@@ -1,5 +1,5 @@
 //
-// $Id: StreamableArrayList.java,v 1.3 2002/03/20 19:07:15 mdb Exp $
+// $Id: StreamableArrayList.java,v 1.4 2002/03/20 22:58:26 mdb Exp $
 
 package com.threerings.presents.util;
 
@@ -10,15 +10,18 @@ import java.io.DataOutputStream;
 import java.util.ArrayList;
 import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.io.Streamable;
+import com.threerings.presents.io.StreamableUtil;
 
 /**
  * Provides a means by which an ordered collection of streamable instances
- * (all of the exact same class) can be delivered over the network. A
- * streamable array list can be supplied anywhere that a distributed
- * object value can be supplied, but bear in mind that once the list is
- * created, it's elements cannot be changed without rebroadcasting the
- * entire list. It is not like a {@link DSet} which allows individual
- * elements to be added or removed.
+ * (of potentially heterogenous derived classes) can be delivered over the
+ * network. A streamable array list can be supplied anywhere that a
+ * distributed object value can be supplied, but bear in mind that once
+ * the list is created, it's elements cannot be changed without
+ * rebroadcasting the entire list. It is not like a {@link DSet} which
+ * allows individual elements to be added or removed, or
+ * <code>Streamable[]</code> distributed object fields for which elements
+ * can be individually updated.
  */
 public class StreamableArrayList
     extends ArrayList implements Streamable
@@ -27,48 +30,22 @@ public class StreamableArrayList
     public void writeTo (DataOutputStream out)
         throws IOException
     {
-        int count = size();
-        out.writeInt(count);
-
-        // only write element info if we have elements
-        if (count > 0) {
-            Streamable first = (Streamable)get(0);
-            // write out the classname of our elements
-            out.writeUTF(first.getClass().getName());
-
-            // now write out our elements
-            for (int i = 0; i < count; i++) {
-                Streamable s = (Streamable)get(i);
-                s.writeTo(out);
-            }
-        }
+        // convert ourselves into an array and use streamable util to
+        // write it out
+        Streamable[] values = new Streamable[size()];
+        toArray(values);
+        StreamableUtil.writeStreamables(out, values);
     }
 
     // documentation inherited
     public void readFrom (DataInputStream in)
         throws IOException
     {
-        // read in our element count
-        int count = in.readInt();
-
-        // only read in elements if we have some
-        if (count > 0) {
-            // read in the element class and load it up
-            String cname = in.readUTF();
-            try {
-                Class clazz = Class.forName(cname);
-
-                // now read in the elements
-                for (int i = 0; i < count; i++) {
-                    Streamable s = (Streamable)clazz.newInstance();
-                    s.readFrom(in);
-                    add(s);
-                }
-
-            } catch (Exception e) {
-                throw new IOException("Error reading streamable " +
-                                      "[class=" + cname + ", err=" + e + "]");
-            }
+        // use streamable util to read in our values
+        Streamable[] values = StreamableUtil.readStreamables(in);
+        int vcount = values.length;
+        for (int i = 0; i < vcount; i++) {
+            add(values[i]);
         }
     }
 }
