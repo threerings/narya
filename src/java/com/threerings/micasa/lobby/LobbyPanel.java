@@ -1,36 +1,56 @@
 //
-// $Id: LobbyPanel.java,v 1.1 2001/10/03 23:24:09 mdb Exp $
+// $Id: LobbyPanel.java,v 1.2 2001/10/04 23:41:44 mdb Exp $
 
 package com.threerings.micasa.client;
 
 import javax.swing.*;
 import com.samskivert.swing.*;
+import com.threerings.micasa.util.MiCasaContext;
 
 /**
- * The main panel is the top level component in the UI. It encloses the
- * primary user interface display and the sidebar displays. The sidebar
- * contains a navigation display, a management display (where various
- * management panels can be added), and the chat interface.
+ * The lobby panel is used to display the interface for the lobbies. It
+ * contains a lobby selection mechanism, a chat interface and a user
+ * interface for whatever matchmaking mechanism is appropriate for a
+ * particular lobby.
  */
-public class MainPanel extends JPanel
+public class LobbyPanel extends JPanel
 {
-    public MainPanel ()
+    /**
+     * Constructs a new lobby panel and the associated user interface
+     * elements.
+     */
+    public LobbyPanel (MiCasaContext ctx)
     {
+        // we want a five pixel border around everything
+  	setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        // create our primary layout which divides the display in two
+        // horizontally
         GroupLayout gl = new HGroupLayout(GroupLayout.STRETCH);
         gl.setOffAxisPolicy(GroupLayout.STRETCH);
         gl.setJustification(GroupLayout.RIGHT);
-        gl.setGap(0);
         setLayout(gl);
 
         // create our sidebar panel
         gl = new VGroupLayout(GroupLayout.STRETCH);
         gl.setOffAxisPolicy(GroupLayout.STRETCH);
         _sidePanel = new JPanel(gl);
-  	_sidePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        // stick some stuff in our sidebar for now
-        JLabel label = new JLabel("Sidebar views");
+        // the sidebar contains a lobby selector...
+        JLabel label = new JLabel("Select a lobby...");
         _sidePanel.add(label, GroupLayout.FIXED);
+        LobbySelector selector = new LobbySelector(ctx);
+        _sidePanel.add(selector);
+
+        // ...a lobby info display...
+
+        // and an occupants list
+        label = new JLabel("Occupants");
+        _sidePanel.add(label, GroupLayout.FIXED);
+        OccupantList occupants = new OccupantList(ctx);
+        _sidePanel.add(occupants);
+
+        // add our sidebar panel into the mix
         add(_sidePanel, GroupLayout.FIXED);
     }
 
@@ -58,29 +78,9 @@ public class MainPanel extends JPanel
         validate();
     }
 
-    /**
-     * Sets the navigation view. This is the small map-like view in the
-     * upper right corner of the display.
-     */
-    public void setNavigation (JPanel view)
-    {
-        // remove the old view
-        if (_navView != null) {
-            _sidePanel.remove(_navView);
-        }
-
-        // add the new one
-        _navView = view;
-        _sidePanel.add(_navView);
-        _sidePanel.validate();
-    }
-
     /** The sidebar panel. */
     protected JPanel _sidePanel;
 
     /** The primary view. */
     protected JPanel _primView;
-
-    /** The navigation view. */
-    protected JPanel _navView;
 }

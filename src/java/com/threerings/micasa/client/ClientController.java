@@ -1,10 +1,11 @@
 //
-// $Id: ClientController.java,v 1.1 2001/10/03 23:24:09 mdb Exp $
+// $Id: ClientController.java,v 1.2 2001/10/04 23:41:44 mdb Exp $
 
 package com.threerings.micasa.client;
 
 import java.awt.event.ActionEvent;
 import com.samskivert.swing.Controller;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.cocktail.cher.dobj.*;
 import com.threerings.cocktail.cher.client.*;
@@ -13,10 +14,12 @@ import com.threerings.cocktail.cher.net.UsernamePasswordCreds;
 
 import com.threerings.cocktail.party.client.*;
 import com.threerings.cocktail.party.data.*;
+import com.threerings.cocktail.party.util.PlaceViewUtil;
 
 import com.threerings.media.sprite.SpriteManager;
 
 import com.threerings.micasa.Log;
+import com.threerings.micasa.lobby.LobbyService;
 import com.threerings.micasa.util.MiCasaContext;
 
 /**
@@ -49,12 +52,8 @@ public class ClientController
         // we also want to know about occupant changes
         _ctx.getOccupantManager().addOccupantObserver(this);
 
-        // create our main panel which we'll use once we're logged on
-        _mainPanel = new MainPanel();
-
-        // create the chat ui
-        ChatPanel panel = new ChatPanel(_ctx);
-        _mainPanel.setNavigation(panel);
+        // create our lobby panel which we'll use once we're logged on
+        _lobbyPanel = new LobbyPanel(ctx);
 
         // create the logon panel and display it
         _logonPanel = new LogonPanel(_ctx);
@@ -89,7 +88,7 @@ public class ClientController
 
         // we're logged on, so we lose the login panel and move to our
         // primary display
-        _frame.setPanel(_mainPanel);
+        _frame.setPanel(_lobbyPanel);
     }
 
     // documentation inherited
@@ -132,12 +131,19 @@ public class ClientController
     {
         Log.info("Moved to new location [place=" + place + "].");
 
-        // we wants to subscribe to the location
+        // clean up after the old place
         if (_place != null) {
             _place.removeSubscriber(this);
+            PlaceViewUtil.dispatchDidLeavePlace(_frame, _place);
         }
-        place.addSubscriber(this);
+
         _place = place;
+
+        // and enter the new place with bells on
+        if (_place != null) {
+            _place.addSubscriber(this);
+            PlaceViewUtil.dispatchWillEnterPlace(_frame, _place);
+        }
     }
 
     // documentation inherited
@@ -185,5 +191,5 @@ public class ClientController
 
     // our panels
     protected LogonPanel _logonPanel;
-    protected MainPanel _mainPanel;
+    protected LobbyPanel _lobbyPanel;
 }

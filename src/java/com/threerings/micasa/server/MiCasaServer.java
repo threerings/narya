@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaServer.java,v 1.1 2001/10/03 23:24:09 mdb Exp $
+// $Id: MiCasaServer.java,v 1.2 2001/10/04 23:41:44 mdb Exp $
 
 package com.threerings.micasa.server;
 
@@ -11,6 +11,7 @@ import com.threerings.cocktail.party.server.PartyServer;
 import com.threerings.parlor.server.ParlorManager;
 
 import com.threerings.micasa.Log;
+import com.threerings.micasa.lobby.LobbyRegistry;
 
 /**
  * This class is the main entry point and general organizer of everything
@@ -27,6 +28,9 @@ public class MiCasaServer extends PartyServer
     /** The parlor manager in operation on this server. */
     public static ParlorManager parmgr = new ParlorManager();
 
+    /** The lobby registry operating on this server. */
+    public static LobbyRegistry lobreg = new LobbyRegistry();
+
     /**
      * Initializes all of the server services and prepares for operation.
      */
@@ -41,6 +45,9 @@ public class MiCasaServer extends PartyServer
 
         // initialize our parlor manager
         parmgr.init(config, invmgr);
+
+        // initialize the lobby registry
+        lobreg.init(config, invmgr);
 
         // create our connection provider
         String dbmap = config.getValue(DBMAP_KEY, DEF_DBMAP);

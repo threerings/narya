@@ -1,9 +1,10 @@
 //
-// $Id: LobbyProvider.java,v 1.1 2001/10/04 00:29:07 mdb Exp $
+// $Id: LobbyProvider.java,v 1.2 2001/10/04 23:41:44 mdb Exp $
 
-package com.threerings.micasa.lobdy;
+package com.threerings.micasa.lobby;
 
 import com.threerings.cocktail.cher.server.InvocationProvider;
+import com.threerings.cocktail.cher.util.StreamableArrayList;
 import com.threerings.cocktail.party.data.BodyObject;
 
 /**
@@ -27,12 +28,28 @@ public class LobbyProvider
     }
 
     /**
+     * Processes a request by the client to obtain a list of the lobby
+     * categories available on this server.
+     */
+    public void handleGetCategoriesRequest (
+        BodyObject source, int invid)
+    {
+        String[] cats = _lobreg.getCategories(source);
+        // we have to cast the array to an object to avoid having the
+        // compiler pick the version of sendResponse that takes Object[]
+        sendResponse(source, invid, GOT_CATEGORIES_RESPONSE, (Object)cats);
+    }
+
+    /**
      * Processes a request by the client to obtain a list of lobbies
-     * matching the supplied pattern string.
+     * matching the supplied category string.
      */
     public void handleGetLobbiesRequest (
-        BodyObject source, int invid, String pattern)
+        BodyObject source, int invid, String category)
     {
+        StreamableArrayList list = new StreamableArrayList();
+        _lobreg.getLobbies(source, category, list);
+        sendResponse(source, invid, GOT_LOBBIES_RESPONSE, list);
     }
 
     /** A reference to the lobby registry. */

@@ -1,9 +1,10 @@
 //
-// $Id: LobbyManager.java,v 1.1 2001/10/04 00:29:07 mdb Exp $
+// $Id: LobbyManager.java,v 1.2 2001/10/04 23:41:44 mdb Exp $
 
-package com.threerings.micasa.lobdy;
+package com.threerings.micasa.lobby;
 
 import java.util.Properties;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.cocktail.party.server.PlaceManager;
 import com.threerings.micasa.Log;
@@ -18,14 +19,55 @@ public class LobbyManager extends PlaceManager
      *
      * @exception Exception thrown if a configuration error is detected.
      */
-    public void init (Properties config)
+    public void init (LobbyRegistry lobreg, Properties config)
         throws Exception
     {
-        Log.info("Lobby manager initialized.");
+        // look up some configuration parameters
+        _gameIdent = getConfigValue(config, "ugi");
+        _name = getConfigValue(config, "name");
+
+        // keep this for later
+        _lobreg = lobreg;
+
+        Log.info("Lobby manager initialized [ident=" + _gameIdent +
+                 ", name=" + _name + "].");
     }
 
+    /** Looks up a configuration property in the supplied properties
+     * object and throws an exception if it's not found. */
+    protected String getConfigValue (Properties config, String key)
+        throws Exception
+    {
+        String value = config.getProperty(key);
+        if (StringUtil.blank(value)) {
+            throw new Exception("Missing '" + key + "' definition in " +
+                                "lobby configuration.");
+        }
+        return value;
+    }
+
+    // documentation inherited
     protected Class getPlaceObjectClass ()
     {
         return LobbyObject.class;
     }
+
+    // documentation inherited
+    protected void didStartup ()
+    {
+        super.didStartup();
+
+        // let the lobby registry know that we're up and running
+        _lobreg.lobbyReady(_plobj.getOid(), _gameIdent, _name);
+    }
+
+    /** The universal game identifier for the game matchmade by this
+     * lobby. */
+    protected String _gameIdent;
+
+    /** The human readable name of this lobby. */
+    protected String _name;
+
+    /** A reference to the lobby registry. */
+    protected LobbyRegistry _lobreg;
 }
