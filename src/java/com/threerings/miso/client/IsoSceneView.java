@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.62 2001/10/17 23:39:06 shaper Exp $
+// $Id: IsoSceneView.java,v 1.63 2001/10/18 20:25:46 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -122,8 +122,9 @@ public class IsoSceneView implements SceneView
      * A function where derived classes can paint extra stuff while we've
      * got the clipping region set up.
      */
-    protected void paintExtras (Graphics2D g)
+    protected void paintExtras (Graphics2D gfx)
     {
+        // nothing for now
     }
 
     /**
@@ -266,11 +267,19 @@ public class IsoSceneView implements SceneView
     {
         // create the bounding polygon for this object
         int key = getCoordinateKey(x, y);
-        Polygon bounds = IsoUtil.getObjectBounds(_model, _polys[x][y], tile);
 
         // save it off in the object bounds hashtable
-        _objpolys.put(key, bounds);
+        _objpolys.put(key, newObjectBounds(tile, x, y));
     }
+
+    /**
+     * Creates and returns a new polygon bounding the given object
+     * tile positioned at the given scene coordinates.
+     */
+    protected Polygon newObjectBounds (ObjectTile tile, int x, int y)
+    {
+        return IsoUtil.getObjectBounds(_model, _polys[x][y], tile);
+    }        
 
     /**
      * Returns a unique integer key corresponding to the given
