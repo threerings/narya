@@ -1,0 +1,4 @@
+#!/bin/sh
+
+bindir=`dirname $0`
+$bindir/runjava $* com.threerings.cocktail.cher.server.test.TestServer
