@@ -1,5 +1,5 @@
 //
-// $Id: CharacterDescriptor.java,v 1.5 2002/03/08 07:50:32 mdb Exp $
+// $Id: CharacterDescriptor.java,v 1.6 2002/03/10 22:31:06 mdb Exp $
 
 package com.threerings.cast;
 
@@ -19,8 +19,9 @@ public class CharacterDescriptor
      * that make up this character.
      * @param zations the colorizations to apply to each of the character
      * component images when compositing actions (an array of
-     * colorizations for each component). This can be null if image
-     * recolorization is not desired.
+     * colorizations for each component, elements of which can be null to
+     * make it easier to support per-component specialized colorizations).
+     * This can be null if image recolorization is not desired.
      */
     public CharacterDescriptor (int[] components, Colorization[][] zations)
     {
