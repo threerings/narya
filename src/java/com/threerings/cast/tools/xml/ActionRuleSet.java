@@ -1,5 +1,5 @@
 //
-// $Id: ActionRuleSet.java,v 1.1 2001/11/27 08:09:35 mdb Exp $
+// $Id: ActionRuleSet.java,v 1.2 2002/06/26 23:53:07 mdb Exp $
 
 package com.threerings.cast.tools.xml;
 
@@ -11,6 +11,9 @@ import com.samskivert.util.StringUtil;
 import com.samskivert.xml.CallMethodSpecialRule;
 import com.samskivert.xml.SetFieldRule;
 import com.samskivert.xml.SetPropertyFieldsRule;
+
+import com.threerings.util.DirectionCodes;
+import com.threerings.util.DirectionUtil;
 
 import com.threerings.cast.ActionSequence;
 
@@ -78,6 +81,47 @@ public class ActionRuleSet extends RuleSetBase
             }
         };
         digester.addRule(_prefix + ACTION_PATH + "/origin", origin);
+
+        CallMethodSpecialRule orient = new CallMethodSpecialRule(digester) {
+            public void parseAndSet (String bodyText, Object target)
+                throws Exception {
+                ActionSequence seq = ((ActionSequence)target);
+                String[] ostrs = StringUtil.parseStringArray(bodyText);
+                seq.orients = new int[ostrs.length];
+                for (int ii = 0; ii < ostrs.length; ii++) {
+                    int orient = DirectionUtil.fromShortString(ostrs[ii]);
+                    if (orient != DirectionCodes.NONE) {
+                        seq.orients[ii] = orient;
+                    } else {
+                        String errmsg = "Invalid orientation specification " +
+                            "[index=" + ii + ", orient=" + ostrs[ii] + "].";
+                        throw new Exception(errmsg);
+                    }
+                }
+            }
+        };
+        digester.addRule(_prefix + ACTION_PATH + "/orients", orient);
+    }
+
+    /**
+     * Validates that all necessary fields have been parsed and set in
+     * this action sequence object and are valid.
+     *
+     * @return null if the sequence is valid, a string explaining the
+     * invalidity if it is not.
+     */
+    public static String validate (ActionSequence seq)
+    {
+        if (StringUtil.blank(seq.name)) {
+            return "Missing 'name' definition.";
+        }
+        if (seq.framesPerSecond == 0) {
+            return "Missing 'framesPerSecond' definition.";
+        }
+        if (seq.orients == null) {
+            return "Missing 'orients' definition.";
+        }
+        return null;
     }
 
     /** The prefix at which me match our actions. */

@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.14 2002/06/19 23:31:57 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.15 2002/06/26 23:53:06 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -19,6 +19,7 @@ import java.util.Iterator;
 
 import com.samskivert.io.NestableIOException;
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.IntIntMap;
 import com.samskivert.util.Tuple;
 
 import org.apache.commons.collections.FilterIterator;
@@ -307,6 +308,22 @@ public class BundledComponentRepository
         {
             _set = set;
             _actseq = actseq;
+
+            // compute these now to avoid pointless recomputation later
+            _ocount = actseq.orients.length;
+            _fcount = set.getTileCount() / _ocount;
+
+            // create our mapping from orientation to animation sequence
+            // index
+            for (int ii = 0; ii < _ocount; ii++) {
+                _orients.put(actseq.orients[ii], ii);
+            }
+        }
+
+        // documentation inherited from interface
+        public int getOrientationCount ()
+        {
+            return _ocount;
         }
 
         // documentation inherited from interface
@@ -316,7 +333,7 @@ public class BundledComponentRepository
                 // documentation inherited
                 public int getFrameCount ()
                 {
-                    return _set.getTileCount() / DIRECTION_COUNT;
+                    return _fcount;
                 }
 
                 // documentation inherited from interface
@@ -388,8 +405,7 @@ public class BundledComponentRepository
          */
         protected Tile getTile (int orient, int index)
         {
-            int fcount = _set.getTileCount() / DIRECTION_COUNT;
-            int tileIndex = orient * fcount + index;
+            int tileIndex = _orients.get(orient) * _fcount + index;
             try {
                 return _set.getTile(tileIndex);
             } catch (NoSuchTileException nste) {
@@ -404,6 +420,13 @@ public class BundledComponentRepository
 
         /** The action sequence for which we're providing frame images. */
         protected ActionSequence _actseq;
+
+        /** Frame and orientation counts. */
+        protected int _fcount, _ocount;
+
+        /** A mapping from orientation code to animation sequence
+         * index. */
+        protected IntIntMap _orients = new IntIntMap();
     }
 
     /** We use the image manager to decode and cache images. */

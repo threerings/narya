@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.34 2002/06/21 18:52:36 mdb Exp $
+// $Id: IsoUtil.java,v 1.35 2002/06/26 23:53:07 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -14,6 +14,7 @@ import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.util.MathUtil;
 
 import com.threerings.util.DirectionCodes;
+import com.threerings.util.DirectionUtil;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.IsoSceneViewModel;
@@ -228,7 +229,9 @@ public class IsoUtil
 
         // compare tile coordinates to determine direction
         int dir = getIsoDirection(tax, tay, tbx, tby);
-        if (dir != DirectionCodes.NONE) return dir;
+        if (dir != DirectionCodes.NONE) {
+            return dir;
+        }
 
         // destination point is in the same tile as the
         // origination point, so consider fine coordinates
@@ -248,9 +251,11 @@ public class IsoUtil
     }
 
     /**
-     * Given two points in an isometric coordinate system, return the
-     * compass direction that point B lies in from point A.  This method
-     * is used to determine direction for both tile coordinates and fine
+     * Given two points in an isometric coordinate system (in which {@link
+     * NORTH} is in the direction of the negative x-axis and {@link WEST}
+     * in the direction of the negative y-axis), return the compass
+     * direction that point B lies in from point A.  This method is used
+     * to determine direction for both tile coordinates and fine
      * coordinates within a tile, since the coordinate systems are the
      * same.
      *
@@ -291,9 +296,8 @@ public class IsoUtil
     }
 
     /**
-     * Given two points in screen (cartesian) coordinates, return the
-     * isometrically projected compass direction that point B lies in from
-     * point A.
+     * Given two points in screen coordinates, return the isometrically
+     * projected compass direction that point B lies in from point A.
      *
      * @param ax the x-position of point A.
      * @param ay the y-position of point A.
@@ -306,10 +310,20 @@ public class IsoUtil
      */
     public static int getProjectedIsoDirection (int ax, int ay, int bx, int by)
     {
-        int dir = getIsoDirection(ax, ay, bx, by);
+        return toIsoDirection(DirectionUtil.getDirection(ax, ay, bx, by));
+    }
+
+    /**
+     * Converts a non-isometric orientation (where north points toward the
+     * top of the screen) to an isometric orientation where north points
+     * toward the upper-left corner of the screen.
+     */
+    public static int toIsoDirection (int dir)
+    {
         if (dir != DirectionCodes.NONE) {
-            // offset the direction by -1, ie change SOUTHWEST to SOUTH
-            dir = (dir + 7) % 8;
+            // rotate the direction clockwise (ie. change SOUTHEAST to
+            // SOUTH)
+            dir = DirectionUtil.rotateCW(dir, 2);
         }
         return dir;
     }

@@ -1,5 +1,5 @@
 //
-// $Id: MetadataBundlerTask.java,v 1.2 2002/02/05 20:29:09 mdb Exp $
+// $Id: MetadataBundlerTask.java,v 1.3 2002/06/26 23:53:07 mdb Exp $
 
 package com.threerings.cast.bundle.tools;
 
@@ -169,6 +169,14 @@ public class MetadataBundlerTask extends Task
         for (int i = 0; i < setlist.size(); i++) {
             TileSet set = (TileSet)setlist.get(i);
             ActionSequence act = (ActionSequence)actlist.get(i);
+            // make sure nothing was missing in the action sequence
+            // definition parsed from XML
+            String errmsg = ActionRuleSet.validate(act);
+            if (errmsg != null) {
+                errmsg = "Action sequence invalid [seq=" + act +
+                    ", error=" + errmsg + "].";
+                throw new BuildException(errmsg);
+            }
             actmap.put(act.name, act);
             setmap.put(act.name, set);
         }

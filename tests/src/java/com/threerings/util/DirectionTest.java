@@ -1,5 +1,5 @@
 //
-// $Id: DirectionTest.java,v 1.1 2002/06/26 02:54:56 mdb Exp $
+// $Id: DirectionTest.java,v 1.2 2002/06/26 23:53:07 mdb Exp $
 
 package com.threerings.util;
 
@@ -34,6 +34,12 @@ public class DirectionTest extends TestCase
         }
 //         System.out.println(DirectionUtil.toShortString(orient));
         assertTrue("CCW rotate", orient == NORTH);
+
+//         for (double theta = -Math.PI; theta <= Math.PI; theta += Math.PI/1000) {
+//             orient = DirectionUtil.getFineDirection(theta);
+//             System.out.println(Math.toDegrees(theta) + " => " +
+//                                DirectionUtil.toShortString(orient));
+//         }
     }
 
     public static Test suite ()

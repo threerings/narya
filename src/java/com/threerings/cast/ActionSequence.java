@@ -1,5 +1,5 @@
 //
-// $Id: ActionSequence.java,v 1.3 2002/03/27 21:51:33 mdb Exp $
+// $Id: ActionSequence.java,v 1.4 2002/06/26 23:53:06 mdb Exp $
 
 package com.threerings.cast;
 
@@ -24,12 +24,17 @@ public class ActionSequence implements Serializable
     /** The position of the character's base for this sequence. */
     public Point origin = new Point();
 
+    /** Orientation codes for the orientations available for this
+     * action. */
+    public int[] orients;
+
     /**
      * Returns a string representation of this action sequence.
      */
     public String toString ()
     {
         return "[name=" + name + ", framesPerSecond=" + framesPerSecond +
-            ", origin=" + origin + "]";
+            ", origin=" + origin +
+            ", orients=" + (orients == null ? 0 : orients.length) + "]";
     }
 }

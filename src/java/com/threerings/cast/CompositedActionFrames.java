@@ -1,5 +1,5 @@
 //
-// $Id: CompositedActionFrames.java,v 1.6 2002/06/20 18:31:03 mdb Exp $
+// $Id: CompositedActionFrames.java,v 1.7 2002/06/26 23:53:06 mdb Exp $
 
 package com.threerings.cast;
 
@@ -37,12 +37,19 @@ public class CompositedActionFrames
         }
         _sources = sources;
 
-        // the sources must all have the same frame count, and each
+        // the sources must all have the same orientation count, and each
         // orientation must also have the same frame count, so we just use
-        // the count from the first source and first orientation
+        // the counts from the first source and orientation
+        _orientCount = _sources[0].getOrientationCount();
         _frameCount = _sources[0].getFrames(NORTH).getFrameCount();
-        _images = new Image[DIRECTION_COUNT][_frameCount];
-        _bounds = new Rectangle[DIRECTION_COUNT][_frameCount];
+        _images = new Image[_orientCount][_frameCount];
+        _bounds = new Rectangle[_orientCount][_frameCount];
+    }
+
+    // documentation inherited from interface
+    public int getOrientationCount ()
+    {
+        return _orientCount;
     }
 
     // documentation inherited from interface
@@ -197,6 +204,9 @@ public class CompositedActionFrames
 
         return dest;
     }
+
+    /** The number of orientations. */
+    protected int _orientCount;
 
     /** The number of frames in each orientation. */
     protected int _frameCount;

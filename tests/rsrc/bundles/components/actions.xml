@@ -1,8 +1,9 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- $Id: actions.xml,v 1.8 2002/06/26 21:56:35 mdb Exp $ -->
+<!-- $Id: actions.xml,v 1.9 2002/06/26 23:53:07 mdb Exp $ -->
 
 <!-- test component action definitions -->
 <actions>
+  <!-- these are isometrically offset (SOUTH became SOUTHWEST, etc.) -->
   <action name="standing">
     <framesPerSecond>5</framesPerSecond>
     <origin>50,112</origin>
@@ -42,11 +43,12 @@
     </tileset>
   </action>
 
+  <!-- these are not isometrically offset -->
   <action name="sailing">
     <framesPerSecond>8</framesPerSecond>
     <origin>87,80</origin>
     <orients>
-      SW, W, NW, N, NE, E, SE, S, WSW, WNW, NNW, NNE, ENE, ESE, SSE, SSW
+      S, SSW, SW, WSW, W, WNW, NW, NNW, N, NNE, NE, ENE, E, ESE, SE, SSE
     </orients>
     <tileset>
       <widths>168, 168, 168, 168, 168, 168, 168, 168</widths>
@@ -61,7 +63,7 @@
     <framesPerSecond>8</framesPerSecond>
     <origin>42,34</origin>
     <orients>
-      SW, W, NW, N, NE, E, SE, S, WSW, WNW, NNW, NNE, ENE, ESE, SSE, SSW
+      S, SSW, SW, WSW, W, WNW, NW, NNW, N, NNE, NE, ENE, E, ESE, SE, SSE
     </orients>
     <tileset>
       <widths>84, 84, 84, 84, 84, 84, 84, 84</widths>

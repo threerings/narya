@@ -1,5 +1,5 @@
 //
-// $Id: ActionFrames.java,v 1.4 2002/06/19 23:31:57 mdb Exp $
+// $Id: ActionFrames.java,v 1.5 2002/06/26 23:53:06 mdb Exp $
 
 package com.threerings.cast;
 
@@ -17,6 +17,12 @@ import com.threerings.util.DirectionCodes;
  */
 public interface ActionFrames
 {
+    /**
+     * Returns the number of orientations available in this set of action
+     * frames.
+     */
+    public int getOrientationCount ();
+
     /**
      * Returns the multi-frame image that comprises the frames for the
      * specified orientation.

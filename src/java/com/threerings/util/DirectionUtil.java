@@ -1,5 +1,5 @@
 //
-// $Id: DirectionUtil.java,v 1.5 2002/06/26 02:54:56 mdb Exp $
+// $Id: DirectionUtil.java,v 1.6 2002/06/26 23:53:07 mdb Exp $
 
 package com.threerings.util;
 
@@ -35,6 +35,36 @@ public class DirectionUtil implements DirectionCodes
     {
         return ((direction >= 0) && (direction < FINE_DIRECTION_COUNT)) ?
             SHORT_DIR_STRINGS[direction] : "?";
+    }
+
+    /**
+     * Returns the direction code that corresponds to the supplied string
+     * or {@link NONE} if the string does not correspond to a known
+     * direction code.
+     */
+    public static int fromString (String dirstr)
+    {
+        for (int ii = 0; ii < FINE_DIRECTION_COUNT; ii++) {
+            if (DIR_STRINGS[ii].equals(dirstr)) {
+                return ii;
+            }
+        }
+        return NONE;
+    }
+
+    /**
+     * Returns the direction code that corresponds to the supplied short
+     * string or {@link NONE} if the string does not correspond to a known
+     * direction code.
+     */
+    public static int fromShortString (String dirstr)
+    {
+        for (int ii = 0; ii < FINE_DIRECTION_COUNT; ii++) {
+            if (SHORT_DIR_STRINGS[ii].equals(dirstr)) {
+                return ii;
+            }
+        }
+        return NONE;
     }
 
     /**
@@ -100,7 +130,19 @@ public class DirectionUtil implements DirectionCodes
      */
     public static int getDirection (int ax, int ay, int bx, int by)
     {
-        double theta = Math.atan2(by-ay, bx-ax);
+        return getDirection(Math.atan2(by-ay, bx-ax));
+    }
+
+    /**
+     * Returns which of the eight compass directions is associated with
+     * the specified angle theta. <em>Note:</em> that the angle supplied
+     * is assumed to increase clockwise around the origin (which screen
+     * angles do) rather than counter-clockwise around the origin (which
+     * cartesian angles do) and <code>NORTH</code> is considered to point
+     * toward the top of the screen.
+     */
+    public static int getDirection (double theta)
+    {
         theta = ((theta + Math.PI) * 4) / Math.PI;
         return (int)(Math.round(theta) + WEST) % 8;
     }
@@ -128,7 +170,19 @@ public class DirectionUtil implements DirectionCodes
      */
     public static int getFineDirection (int ax, int ay, int bx, int by)
     {
-        double theta = Math.atan2(by-ay, bx-ax);
+        return getFineDirection(Math.atan2(by-ay, bx-ax));
+    }
+
+    /**
+     * Returns which of the sixteen compass directions is associated with
+     * the specified angle theta. <em>Note:</em> that the angle supplied
+     * is assumed to increase clockwise around the origin (which screen
+     * angles do) rather than counter-clockwise around the origin (which
+     * cartesian angles do) and <code>NORTH</code> is considered to point
+     * toward the top of the screen.
+     */
+    public static int getFineDirection (double theta)
+    {
         theta = ((theta + Math.PI) * 8) / Math.PI;
         return ANGLE_MAP[(int)Math.round(theta) % FINE_DIRECTION_COUNT];
     }
