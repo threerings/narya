@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.42 2003/01/20 20:28:51 mdb Exp $
+// $Id: CharacterSprite.java,v 1.43 2003/02/14 21:24:13 mdb Exp $
 
 package com.threerings.cast;
 
@@ -184,7 +184,11 @@ public class CharacterSprite extends ImageSprite
     protected final void compositeActionFrames ()
     {
         if (_frames == null) {
-            setFrames(_aframes.getFrames(_orient));
+            if (_aframes == null) {
+                Log.warning("Have no action frames! " + _aframes + ".");
+            } else {
+                setFrames(_aframes.getFrames(_orient));
+            }
         }
     }
 
@@ -236,8 +240,12 @@ public class CharacterSprite extends ImageSprite
         super.accomodateFrame(frameIdx, width, height);
 
         // we now need to update the render offset for this frame
-        _oxoff = _aframes.getXOrigin(_orient, frameIdx);
-        _oyoff = _aframes.getYOrigin(_orient, frameIdx);
+        if (_aframes == null) {
+            Log.warning("Have no action frames! " + _aframes + ".");
+        } else {
+            _oxoff = _aframes.getXOrigin(_orient, frameIdx);
+            _oyoff = _aframes.getYOrigin(_orient, frameIdx);
+        }
 
         // and cause those changes to be reflected in our bounds
         updateRenderOrigin();
