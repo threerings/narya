@@ -1,5 +1,5 @@
 //
-// $Id: PathNode.java,v 1.1 2001/08/02 00:42:02 shaper Exp $
+// $Id: PathNode.java,v 1.2 2001/08/02 20:43:03 shaper Exp $
 
 package com.threerings.miso.sprite;
 
@@ -27,5 +27,17 @@ public class PathNode
     {
         loc = new Point(x, y);
         this.dir = dir;
+    }
+
+    /**
+     * Return a string representation of this path node.
+     */
+    public String toString ()
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append("[x=").append(loc.x);
+        buf.append(", y=").append(loc.y);
+        buf.append(", dir=").append(dir);
+        return buf.append("]").toString();
     }
 }

@@ -1,13 +1,15 @@
 //
-// $Id: SceneView.java,v 1.8 2001/08/02 00:42:02 shaper Exp $
+// $Id: SceneView.java,v 1.9 2001/08/02 20:43:03 shaper Exp $
 
 package com.threerings.miso.scene;
-
-import com.threerings.miso.tile.Tile;
 
 import java.awt.Component;
 import java.awt.Graphics;
 import java.util.ArrayList;
+
+import com.threerings.miso.sprite.Path;
+import com.threerings.miso.sprite.Sprite;
+import com.threerings.miso.tile.Tile;
 
 /**
  * The SceneView interface provides an interface to be implemented by
@@ -37,4 +39,17 @@ public interface SceneView
      * @param rects the list of <code>java.awt.Rectangle</code> objects.
      */
     public void invalidateRects (ArrayList rects);
+
+    /**
+     * Return a Path object detailing a valid path for the given
+     * sprite to take in the scene to get from its current position to
+     * the destination position.
+     *
+     * @param sprite the sprite to move.
+     * @param x the destination x-position in pixel coordinates.
+     * @param y the destination y-position in pixel coordinates.
+     *
+     * @return the sprite's path or null if no valid path exists.
+     */
+    public Path getPath (Sprite sprite, int x, int y);
 }

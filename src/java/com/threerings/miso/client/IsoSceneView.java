@@ -1,10 +1,10 @@
 //
-// $Id: IsoSceneView.java,v 1.22 2001/08/02 18:58:59 shaper Exp $
+// $Id: IsoSceneView.java,v 1.23 2001/08/02 20:43:03 shaper Exp $
 
 package com.threerings.miso.scene;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.sprite.SpriteManager;
+import com.threerings.miso.sprite.*;
 import com.threerings.miso.tile.Tile;
 import com.threerings.miso.tile.TileManager;
 import com.threerings.miso.util.MathUtil;
@@ -69,6 +69,9 @@ public class IsoSceneView implements EditableSceneView
         // draw lines illustrating tracking of the mouse position
   	//paintMouseLines(gfx);
 
+        gfx.setColor(Color.yellow);
+        gfx.drawRect(0, 0, _model.bounds.width - 1, _model.bounds.height - 1);
+
 	// restore the original clipping region
 	gfx.setClip(oldclip);
     }
@@ -89,11 +92,11 @@ public class IsoSceneView implements EditableSceneView
             int[] dinfo = (int[])_dirty.remove(0);
             int tx = dinfo[0], ty = dinfo[1];
 
+            // get the tile's screen position
+            Polygon poly = getTilePolygon(tx, ty);
+
             // draw all layers at this tile position
             for (int kk = 0; kk < Scene.NUM_LAYERS; kk++) {
-
-                // get the tile's screen position
-                Polygon poly = getTilePolygon(tx, ty);
 
                 // get the tile at these coordinates and layer
                 Tile tile = _scene.tiles[tx][ty][kk];
@@ -108,7 +111,7 @@ public class IsoSceneView implements EditableSceneView
             }
 
             // draw all sprites residing in the current tile
-            _spritemgr.renderSprites(gfx, getTilePolygon(tx, ty));
+            _spritemgr.renderSprites(gfx, poly);
         }
     }
 
@@ -384,6 +387,21 @@ public class IsoSceneView implements EditableSceneView
     {
         _model = model;
         _model.calculateXAxis();
+    }
+
+    public Path getPath (Sprite sprite, int x, int y)
+    {
+        // make sure the destination point is within our bounds
+        if (x < 0 || x >= _model.bounds.width ||
+            y < 0 || y >= _model.bounds.height) {
+            return null;
+        }
+
+        // create path from current loc to destination
+        Path path = new Path(sprite.x, sprite.y);
+        path.addNode(x, y, Path.DIR_NORTH);
+
+        return path;
     }
 
     /** The color to draw the highlighted tile. */

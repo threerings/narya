@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.6 2001/08/02 18:59:00 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.7 2001/08/02 20:43:03 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -18,8 +18,9 @@ import com.threerings.miso.util.PerformanceMonitor;
 import com.threerings.miso.util.PerformanceObserver;
 
 /**
- * The SceneViewPanel class is responsible for managing a SceneView,
- * rendering it to the screen, and handling view-related UI events.
+ * The <code>SceneViewPanel</code> class is responsible for managing a
+ * <code>SceneView</code>, rendering it to the screen, and handling
+ * view-related UI events.
  */
 public class SceneViewPanel extends JPanel
     implements MouseListener, MouseMotionListener, PerformanceObserver
@@ -53,7 +54,7 @@ public class SceneViewPanel extends JPanel
         // load up the initial scene
         prepareStartingScene();
 
-        setDoubleBuffered(false);
+        //setDoubleBuffered(false);
 
         PerformanceMonitor.register(this, "paint", 1000);
     }
@@ -100,9 +101,6 @@ public class SceneViewPanel extends JPanel
 
 	_view.paint(g);
 
-        g.setColor(Color.yellow);
-        g.drawRect(0, 0, 600, 600);
-
         PerformanceMonitor.tick(this, "paint");
     }
 
@@ -113,34 +111,30 @@ public class SceneViewPanel extends JPanel
 
     /** MouseListener interface methods */
 
-    public void mouseClicked (MouseEvent e)
-    {
-        Log.info("mouseClicked [x=" + e.getX() + ", y=" + e.getY() + "].");
-    }
-
-    public void mouseEntered (MouseEvent e) { }
-
-    public void mouseExited (MouseEvent e) { }
-
     public void mousePressed (MouseEvent e)
     {
         int x = e.getX(), y = e.getY();
         Log.info("mousePressed [x=" + x + ", y=" + y + "].");
-        _sprite.setDestination(x, y);
+
+        // get the path from here to there
+        Path path = _view.getPath(_sprite, x, y);
+        if (path != null) {
+            _sprite.move(path);
+        }
+
+        // hackily highlight the tile that was clicked on for happy testing
         ((EditableSceneView)_view).setHighlightedTile(x, y);
     }
 
+    public void mouseClicked (MouseEvent e) { }
+    public void mouseEntered (MouseEvent e) { }
+    public void mouseExited (MouseEvent e) { }
     public void mouseReleased (MouseEvent e) { }
 
     /** MouseMotionListener interface methods */
 
-    public void mouseMoved (MouseEvent e)
-    {
-    }
-
-    public void mouseDragged (MouseEvent e)
-    {
-    }
+    public void mouseMoved (MouseEvent e) { }
+    public void mouseDragged (MouseEvent e) { }
 
     /** The config key to obtain the default scene filename. */
     protected static final String CFG_SCENE = "miso-viewer.default_scene";
@@ -148,6 +142,7 @@ public class SceneViewPanel extends JPanel
     /** The default scene to load and display. */
     protected static final String DEF_SCENE = "rsrc/scenes/default.xml";
 
+    /** The sprite we're manipulating within the view. */
     protected Sprite _sprite;
 
     /** The context object. */

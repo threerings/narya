@@ -1,9 +1,10 @@
 //
-// $Id: Sprite.java,v 1.5 2001/08/02 18:59:00 shaper Exp $
+// $Id: Sprite.java,v 1.6 2001/08/02 20:43:03 shaper Exp $
 
 package com.threerings.miso.sprite;
 
 import java.awt.*;
+import java.util.Enumeration;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.tile.Tile;
@@ -62,13 +63,10 @@ public class Sprite
         updateDrawPosition();
 
         _curFrame = 0;
-        _animDelay = -1;
+        _animDelay = ANIM_NONE;
         _numTicks = 0;
 
         setTiles(_tiles);
-
-        _dest = new Point();
-        _state = STATE_NONE;
 
         invalidate();
     }        
@@ -124,30 +122,53 @@ public class Sprite
     }
 
     /**
-     * Set the destination of the sprite in pixel coordinates.
+     * Set the sprite's active path and start moving it along its
+     * merry way.  If the sprite is already moving along a previous
+     * path the old path will be lost and the new path will begin to
+     * be traversed.
      *
-     * @param x the destination x-position.
-     * @param y the destination y-position.
+     * @param path the path to follow.
      */
-    public void setDestination (int x, int y)
+    public void move (Path path)
     {
-        // bail if we're already there
-        if (x == this.x && y == this.y) return;
+        // make sure following the path is a sensible thing to do
+        if (path == null || path.size() < 2) return;
 
-        // note our destination
-        _dest.setLocation(x, y);
+        // save an enumeration of the path nodes
+        _path = path.elements();
+
+        // skip the first node since it's our starting position.
+        // perhaps someday we'll do something with this.
+        _path.nextElement();
+
+        // start our meandering
+        moveAlongPath();
+    }
+
+    /**
+     * Start the sprite moving toward the next node in its path.
+     */
+    protected void moveAlongPath ()
+    {
+        // grab the next node in our path
+        _dest = (PathNode)_path.nextElement();
+
+        // if no more nodes remain, clear out our path and bail
+        if (_dest == null) {
+            _path = null;
+            return;
+        }
+
+        Log.info("moveAlongPath [dest=" + _dest + "].");
 
         // determine the horizontal/vertical move increments
-        float dist = MathUtil.distance(this.x, this.y, x, y);
-        _incx = (float)(x - this.x) / dist;
-        _incy = (float)(y - this.y) / dist;
+        float dist = MathUtil.distance(x, y, _dest.loc.x, _dest.loc.y);
+        _incx = (float)(_dest.loc.x - x) / dist;
+        _incy = (float)(_dest.loc.y - y) / dist;
 
         // init position data used to track fractional pixels
-        _movex = this.x;
-        _movey = this.y;
-
-        // and that we're moving toward it
-        _state = STATE_MOVING;
+        _movex = x;
+        _movey = y;
     }
 
     /**
@@ -157,13 +178,10 @@ public class Sprite
     {
         if (_curTile == null) return;
 
-        int xpos = x - (_curTile.width / 2);
-        int ypos = y - _curTile.height;
+        Rectangle dirty = new Rectangle(
+            _drawx, _drawy, _curTile.width, _curTile.height);
 
-        Rectangle dirty =
-            new Rectangle(xpos, ypos, _curTile.width, _curTile.height);
-
-//          Log.info("Sprite dirtying rect [x=" + dirty.x + ", y=" + dirty.y +
+//          Log.info("Sprite invalidate [x=" + dirty.x + ", y=" + dirty.y +
 //                   ", width=" + dirty.width + ", height=" + dirty.height + "].");
 
         _spritemgr.addDirtyRect(dirty);
@@ -176,38 +194,47 @@ public class Sprite
     public void tick ()
     {
         // increment the display tile if performing tile animation
-        if (_animDelay != -1 && (_numTicks++ == _animDelay)) {
+        if (_animDelay != ANIM_NONE && (_numTicks++ == _animDelay)) {
             _numTicks = 0;
             if (++_curFrame > _tiles.length - 1) _curFrame = 0;
             _curTile = _tiles[_curFrame];
+
+            // dirty our rectangle since we've altered our display tile
             invalidate();
         }
 
-        switch (_state) {
-        case STATE_MOVING:
-            // move the sprite incrementally toward its goal
-            x = (int)(_movex += _incx);
-            y = (int)(_movey += _incy);
-
-            // stop moving once we've reached our destination
-            if (_incx > 0 && x > _dest.x || _incx < 0 && x < _dest.x ||
-                _incy > 0 && y > _dest.y || _incy < 0 && y < _dest.y) {
-
-                // make sure we stop exactly where desired
-                x = _dest.x;
-                y = _dest.y;
-
-                // invalidate the sprite in its new location
-                invalidate();
-
-                // note our stoppage
-                _animDelay = -1;
-                _state = STATE_NONE;
-            }
-
-            updateDrawPosition();
-            break;
+        // move the sprite along toward its destination, if any 
+        if (_dest != null) {
+            handleMove();
         }
+    }
+
+    /**
+     * Actually move the sprite's position toward its destination one
+     * display increment.
+     */
+    protected void handleMove ()
+    {
+        // move the sprite incrementally toward its goal
+        x = (int)(_movex += _incx);
+        y = (int)(_movey += _incy);
+
+        // stop moving once we've reached our destination
+        if (_incx > 0 && x > _dest.loc.x || _incx < 0 && x < _dest.loc.x ||
+            _incy > 0 && y > _dest.loc.y || _incy < 0 && y < _dest.loc.y) {
+
+            // make sure we stop exactly where desired
+            x = _dest.loc.x;
+            y = _dest.loc.y;
+
+            // dirty our rectangle since we've moved
+            invalidate();
+
+            // move further along the path if necessary
+            moveAlongPath();
+        }
+
+        updateDrawPosition();
     }
 
     /**
@@ -238,9 +265,8 @@ public class Sprite
         return buf.append("]").toString();
     }
 
-    /** State constants. */
-    protected static final int STATE_NONE = 0;
-    protected static final int STATE_MOVING = 1;
+    /** Value used to denote that no tile animation is desired. */
+    protected static final int ANIM_NONE = -1;
 
     /** The tiles used to render the sprite. */
     protected Tile[] _tiles;
@@ -254,11 +280,11 @@ public class Sprite
     /** The coordinates at which the tile image is drawn. */
     protected int _drawx, _drawy;
 
-    /** The sprite's current state. */
-    protected int _state;
+    /** The PathNode objects describing the path the sprite is following. */
+    protected Enumeration _path;
 
-    /** When moving, the sprite's destination coordinates. */
-    protected Point _dest;
+    /** When moving, the sprite's destination path node. */
+    protected PathNode _dest;
 
     /** When moving, the sprite position including fractional pixels. */ 
     protected float _movex, _movey;
