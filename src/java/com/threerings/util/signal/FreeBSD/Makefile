@@ -25,7 +25,7 @@ INSTALL_PATH=${ROOT}/dist/lib/${OSDIR}
 
 INCLUDES=-I.. -I${JAVA_HOME}/include -I${JAVA_HOME}/include/${OSINCDIR}
 LIBRARIES=
-TARGET=${OSDIR}/libsignal.so
+TARGET=libsignal.so
 
 #
 # Target definitions
@@ -38,7 +38,6 @@ install: ${TARGET}
 
 ${TARGET}: com_threerings_util_signal_SignalManager.c
 	@echo "Compiling SignalManager.c
-	@mkdir -p ${OSDIR}
 	@${CC} ${INCLUDES} -c com_threerings_util_signal_SignalManager.c \
 	    -o com_threerings_util_signal_SignalManager.o
 	@echo Creating libsignal.so
