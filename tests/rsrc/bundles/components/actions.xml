@@ -1,14 +1,14 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- $Id: actions.xml,v 1.4 2002/02/19 22:10:30 mdb Exp $ -->
+<!-- $Id: actions.xml,v 1.5 2002/03/05 07:09:59 mdb Exp $ -->
 
 <!-- test component action definitions -->
 <actions>
   <action name="standing">
-    <framesPerSecond>8</framesPerSecond>
-    <origin>43,106</origin>
+    <framesPerSecond>5</framesPerSecond>
+    <origin>50,112</origin>
     <tileset>
-      <heights>124, 124, 124, 124, 124, 124, 124, 124</heights>
-      <widths>94, 94, 94, 94, 94, 94, 94, 94</widths>
+      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
+      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
       <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
       <offsetPos>0, 0</offsetPos>
       <gapSize>0, 0</gapSize>
@@ -16,11 +16,11 @@
   </action>
 
   <action name="walking">
-    <framesPerSecond>8</framesPerSecond>
-    <origin>43,106</origin>
+    <framesPerSecond>5</framesPerSecond>
+    <origin>50,112</origin>
     <tileset>
-      <heights>124, 124, 124, 124, 124, 124, 124, 124</heights>
-      <widths>94, 94, 94, 94, 94, 94, 94, 94</widths>
+      <heights>160, 160, 160, 160, 160, 160, 160, 160</heights>
+      <widths>100, 100, 100, 100, 100, 100, 100, 100</widths>
       <tileCounts>6, 6, 6, 6, 6, 6, 6, 6</tileCounts>
       <offsetPos>0, 0</offsetPos>
       <gapSize>0, 0</gapSize>
