@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundler.java,v 1.15 2003/04/27 06:34:43 mdb Exp $
+// $Id: TileSetBundler.java,v 1.16 2003/05/13 21:33:58 ray Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -367,7 +367,6 @@ public class TileSetBundler
                         ets.setName(set.getName());
                         ets.setWidth(50);
                         ets.setHeight(50);
-                        ets.setTileCount(1);
                         ets.setImagePath(imagePath);
                         bundle.addTileSet(tileSetId, ets);
                         // and write an error image to the jar file

@@ -1,5 +1,5 @@
 //
-// $Id: DumpBundle.java,v 1.9 2003/01/13 22:49:47 mdb Exp $
+// $Id: DumpBundle.java,v 1.10 2003/05/13 21:33:58 ray Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -52,7 +52,7 @@ public class DumpBundle
                     TileSet set = tsb.getTileSet(tsid.intValue());
                     System.out.println(tsid + " => " + set);
                     if (dumpTiles) {
-                        for (int t = 0; t < set.getTileCount(); t++) {
+                        for (int t = 0, nn = set.getTileCount(); t < nn; t++) {
                             System.out.println("  " + t + " => " +
                                                set.getTile(t));
                         }

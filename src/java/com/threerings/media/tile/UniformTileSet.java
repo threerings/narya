@@ -1,5 +1,5 @@
 //
-// $Id: UniformTileSet.java,v 1.13 2003/05/02 23:32:56 mdb Exp $
+// $Id: UniformTileSet.java,v 1.14 2003/05/13 21:33:58 ray Exp $
 
 package com.threerings.media.tile;
 
@@ -18,16 +18,10 @@ public class UniformTileSet extends TileSet
     // documentation inherited
     public int getTileCount ()
     {
-        return _count;
-    }
-
-    /**
-     * Specifies the number of tiles that will be found in the tileset
-     * image managed by this tileset.
-     */
-    public void setTileCount (int tileCount)
-    {
-        _count = tileCount;
+        BufferedImage tsimg = getRawTileSetImage();
+        int perRow = tsimg.getWidth() / _width;
+        int perCol = tsimg.getHeight() / _height;
+        return perRow * perCol;
     }
 
     /**
@@ -89,9 +83,6 @@ public class UniformTileSet extends TileSet
 	buf.append(", width=").append(_width);
 	buf.append(", height=").append(_height);
     }
-
-    /** The total number of tiles in this tileset. */
-    protected int _count;
 
     /** The width (in pixels) of the tiles in this tileset. */
     protected int _width;

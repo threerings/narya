@@ -1,5 +1,5 @@
 //
-// $Id: IconManager.java,v 1.5 2002/12/07 02:13:00 shaper Exp $
+// $Id: IconManager.java,v 1.6 2003/05/13 21:33:58 ray Exp $
 
 package com.threerings.media;
 
@@ -32,10 +32,10 @@ import com.threerings.media.tile.TileSet;
  *
  * <pre>
  * arrows.path = /rsrc/media/icons/arrows.png
- * arrows.metrics = 4, 20, 20  # 4 icons that are 20x20
+ * arrows.metrics = 20, 25  # icons that are 20 pixels wide and 25 pixels tall
  *
  * smileys.path = /rsrc/media/icons/smileys.png
- * smileys.metrics = 10, 16, 16  # 16 icons that are 16x16
+ * smileys.metrics = 16, 16  # icons that are 16 pixels square
  * </pre>
  *
  * A user could then request an <code>arrows</code> icon like so:
@@ -107,7 +107,7 @@ public class IconManager
                 }
 
                 int[] metrics = StringUtil.parseIntArray(metstr);
-                if (metrics == null || metrics.length != 3) {
+                if (metrics == null || metrics.length != 2) {
                     throw new Exception("Invalid icon set metrics " +
                                         "[metrics=" + metstr + "]");
                 }
@@ -115,10 +115,10 @@ public class IconManager
                 // load up the tileset
                 if (_rsrcSet == null) {
                     set = _tilemgr.loadTileSet(
-                        path, metrics[0], metrics[1], metrics[2]);
+                        path, metrics[0], metrics[1]);
                 } else {
                     set = _tilemgr.loadTileSet(
-                        _rsrcSet, path, metrics[0], metrics[1], metrics[2]);
+                        _rsrcSet, path, metrics[0], metrics[1]);
                 }
 
                 // cache it

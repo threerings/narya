@@ -1,5 +1,5 @@
 //
-// $Id: UniformTileSetRuleSet.java,v 1.7 2002/02/05 20:29:10 mdb Exp $
+// $Id: UniformTileSetRuleSet.java,v 1.8 2003/05/13 21:33:58 ray Exp $
 
 package com.threerings.media.tile.tools.xml;
 
@@ -21,8 +21,6 @@ import com.threerings.media.tile.UniformTileSet;
  *   &lt;width&gt;64&lt;/width&gt;
  *   &lt;!-- the height of each tile in pixels --&gt;
  *   &lt;height&gt;48&lt;/height&gt;
- *   &lt;!-- the total number of tiles in the set --&gt;
- *   &lt;tileCount&gt;16&lt;/tileCount&gt;
  * &lt;/tileset&gt;
  * </pre>
  */
@@ -38,9 +36,6 @@ public class UniformTileSetRuleSet extends TileSetRuleSet
             new Class[] { java.lang.Integer.TYPE });
         digester.addCallMethod(
             _prefix + TILESET_PATH + "/height", "setHeight", 0,
-            new Class[] { java.lang.Integer.TYPE });
-        digester.addCallMethod(
-            _prefix + TILESET_PATH + "/tileCount", "setTileCount", 0,
             new Class[] { java.lang.Integer.TYPE });
     }
 
@@ -60,13 +55,6 @@ public class UniformTileSetRuleSet extends TileSetRuleSet
         // check for a <height> element
         if (set.getHeight() == 0) {
             Log.warning("Tile set definition missing valid <height> " +
-                        "element [set=" + set + "].");
-            valid = false;
-        }
-
-        // check for a <tileCount> element
-        if (set.getTileCount() == 0) {
-            Log.warning("Tile set definition missing valid <tileCount> " +
                         "element [set=" + set + "].");
             valid = false;
         }

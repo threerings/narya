@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.32 2003/05/05 22:34:48 ray Exp $
+// $Id: TileManager.java,v 1.33 2003/05/13 21:33:58 ray Exp $
 
 package com.threerings.media.tile;
 
@@ -57,10 +57,9 @@ public class TileManager
      * Loads up a tileset from the specified image with the specified
      * metadata parameters.
      */
-    public UniformTileSet loadTileSet (
-        String imgPath, int count, int width, int height)
+    public UniformTileSet loadTileSet (String imgPath, int width, int height)
     {
-        return loadCachedTileSet("", imgPath, count, width, height);
+        return loadCachedTileSet("", imgPath, width, height);
     }
 
     /**
@@ -68,20 +67,20 @@ public class TileManager
      * specified resource set) with the specified metadata parameters.
      */
     public UniformTileSet loadTileSet (
-        String rset, String imgPath, int count, int width, int height)
+        String rset, String imgPath, int width, int height)
     {
         return loadTileSet(
-            getImageProvider(rset), rset, imgPath, count, width, height);
+            getImageProvider(rset), rset, imgPath, width, height);
     }
 
     /**
      */
     public UniformTileSet loadTileSet (
         ImageProvider improv, String improvKey, String imgPath,
-        int count, int width, int height)
+        int width, int height)
     {
         UniformTileSet uts = loadCachedTileSet(
-            improvKey, imgPath, count, width, height);
+            improvKey, imgPath, width, height);
         uts.setImageProvider(improv);
         return uts;
     }
@@ -99,7 +98,7 @@ public class TileManager
      * Used to load and cache tilesets loaded via {@link #loadTileSet}.
      */
     protected UniformTileSet loadCachedTileSet (
-        String bundle, String imgPath, int count, int width, int height)
+        String bundle, String imgPath, int width, int height)
     {
         String key = bundle + "::" + imgPath;
         UniformTileSet uts = (UniformTileSet)_handcache.get(key);
@@ -107,7 +106,6 @@ public class TileManager
             uts = new UniformTileSet();
             uts.setImageProvider(_defaultProvider);
             uts.setImagePath(imgPath);
-            uts.setTileCount(count);
             uts.setWidth(width);
             uts.setHeight(height);
             _handcache.put(key, uts);
