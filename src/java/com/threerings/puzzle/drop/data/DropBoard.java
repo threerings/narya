@@ -1,5 +1,5 @@
 //
-// $Id: DropBoard.java,v 1.9 2004/10/20 00:16:39 mdb Exp $
+// $Id: DropBoard.java,v 1.10 2004/10/28 17:59:11 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -31,7 +31,7 @@ import com.threerings.util.DirectionUtil;
 
 import com.threerings.puzzle.Log;
 import com.threerings.puzzle.data.Board;
-import com.threerings.puzzle.drop.data.DropPieceCodes;
+import com.threerings.puzzle.drop.client.DropControllerDelegate;
 import com.threerings.puzzle.drop.util.DropBoardUtil;
 
 /**
@@ -220,8 +220,8 @@ public class DropBoard extends Board
      * block is allowed to occupy space off the top of the board as long
      * as it is within the horizontal board bounds.
      *
-     * @param x the left coordinate of the block.
-     * @param y the bottom coordinate of the block.
+     * @param col the left coordinate of the block.
+     * @param row the bottom coordinate of the block.
      * @param wid the width of the block.
      * @param hei the height of the block.
      */
@@ -272,7 +272,6 @@ public class DropBoard extends Board
         boolean canPopup)
     {
         int px = cols[0], py = rows[0];
-        int epx = cols[1], epy = rows[1];
 
 //         Log.info("Starting rotation [px=" + px + ", py=" + py +
 //                  ", orient=" + orient + ", pctdone=" + pctdone + "].");
@@ -352,7 +351,6 @@ public class DropBoard extends Board
      * distance on the x- and y-axes, or <code>null</code> if the move is
      * not valid.  Note that only the final block position is checked.
      *
-     * @param board the board the piece is moving within.
      * @param col the leftmost column of the block.
      * @param row the bottommost row of the block.
      * @param wid the width of the block.
@@ -500,7 +498,7 @@ public class DropBoard extends Board
      * or {@link #VERTICAL}.
      * @param col the starting column of the segment.
      * @param row the starting row of the segment.
-     * @param piece the piece to set in the segment.
+     * @param pieces the pieces to set in the segment.
      */
     public void setSegment (int dir, int col, int row, int[] pieces)
     {
