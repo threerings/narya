@@ -1,9 +1,8 @@
 //
-// $Id: XMLSceneWriter.java,v 1.16 2001/10/17 22:18:22 shaper Exp $
+// $Id: XMLSceneWriter.java,v 1.17 2001/10/22 18:21:42 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
-import java.awt.Point;
 import java.io.*;
 import java.util.List;
 

@@ -1,9 +1,8 @@
 //
-// $Id: XMLSceneParser.java,v 1.21 2001/10/17 22:21:22 shaper Exp $
+// $Id: XMLSceneParser.java,v 1.22 2001/10/22 18:21:41 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
-import java.awt.Point;
 import java.io.*;
 import java.util.ArrayList;
 

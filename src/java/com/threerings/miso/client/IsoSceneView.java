@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.64 2001/10/19 23:26:31 shaper Exp $
+// $Id: IsoSceneView.java,v 1.65 2001/10/22 18:21:41 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -78,10 +78,9 @@ public class IsoSceneView implements SceneView
 
 	Graphics2D gfx = (Graphics2D)g;
 
-	// clip the drawing region to our desired bounds since we
-	// currently draw tiles willy-nilly in undesirable areas.
+	// clip everything to the overall scene view bounds
     	Shape oldclip = gfx.getClip();
-    	gfx.setClip(0, 0, _model.bounds.width, _model.bounds.height);
+    	gfx.setClip(_model.bounds);
 
 	if (_numDirty == 0) {
             // invalidate the entire screen
@@ -134,8 +133,7 @@ public class IsoSceneView implements SceneView
     protected void invalidate ()
     {
         DirtyRectList rects = new DirtyRectList();
-        rects.add(new Rectangle(
-            0, 0, _model.bounds.width,_model.bounds.height));
+        rects.add(_model.bounds);
         invalidateRects(rects);
     }
 
@@ -172,12 +170,23 @@ public class IsoSceneView implements SceneView
 	}
 
 	// draw the dirty rectangles
+        Stroke ostroke = gfx.getStroke();
+        gfx.setStroke(DIRTY_RECT_STROKE);
 	gfx.setColor(Color.red);
 	int size = _dirtyRects.size();
 	for (int ii = 0; ii < size; ii++) {
 	    Rectangle rect = (Rectangle)_dirtyRects.get(ii);
 	    gfx.draw(rect);
 	}
+        gfx.setStroke(ostroke);
+
+        // draw the dirty item rectangles
+        gfx.setColor(Color.yellow);
+        size = _dirtyItems.size();
+        for (int ii = 0; ii < size; ii++) {
+            Rectangle rect = ((DirtyItem)_dirtyItems.get(ii)).dirtyRect;
+            gfx.draw(rect);
+        }
     }
 
     /**
@@ -236,9 +245,36 @@ public class IsoSceneView implements SceneView
         // save original clipping region
         Shape clip = gfx.getClip();
 
-        // render dirty sprites and objects
+        // merge all dirty rectangles for each item into a single
+        // rectangle before painting
+        Rectangle dirtyRect = new Rectangle();
+        DirtyItem cur = null, last = null;
         for (int ii = 0; ii < size; ii++) {
-            items[ii].paint(gfx);
+            cur = items[ii];
+
+            if (last == null ||
+                (cur.x != last.x || cur.y != last.y)) {
+
+                if (last != null) {
+                    // paint the item with its full dirty rectangle
+                    // Log.info("Painting dirty item [item=" + last + "].");
+                    last.paint(gfx, dirtyRect);
+                }
+
+                // update the current dirty item
+                last = cur;
+                dirtyRect.setBounds(cur.dirtyRect);
+
+            } else {
+                // expand the item's dirty rectangle
+                dirtyRect.add(cur.dirtyRect);
+            }
+        }
+
+        if (cur != null) {
+            // paint the final dirty item
+            cur.paint(gfx, dirtyRect);
+            // Log.info("Painting dirty item [item=" + cur + "].");
         }
 
         // restore original clipping region
@@ -317,10 +353,11 @@ public class IsoSceneView implements SceneView
 
         for (int yy = 0; yy < _model.scenehei; yy++) {
             for (int xx = 0; xx < _model.scenewid; xx++) {
-                if (_dirty[xx][yy]) {
+                // get the top-left screen coordinates of the tile
+                Rectangle bounds = _polys[xx][yy].getBounds();
 
-                    // get the top-left screen coordinates of the tile
-                    Rectangle bounds = _polys[xx][yy].getBounds();
+                // only draw coordinates if the tile is on-screen
+                if (bounds.intersects(_model.bounds)) {
                     int sx = bounds.x, sy = bounds.y;
 
                     // draw x-coordinate
@@ -332,7 +369,6 @@ public class IsoSceneView implements SceneView
                     str = "" + yy;
                     xpos = sx + cx - (fm.stringWidth(str) / 2);
                     gfx.drawString(str, xpos, sy + cy + fhei);
-
                 }
             }
         }
@@ -405,10 +441,8 @@ public class IsoSceneView implements SceneView
     // documentation inherited
     public void invalidateRects (DirtyRectList rects)
     {
-        // we specifically need to allow the dirty rects list to grow
-        // while we're iterating over it, so we're sure to call
-        // rects.size() each time through the loop
-        for (int ii = 0; ii < rects.size(); ii++) {
+        int size = rects.size();
+        for (int ii = 0; ii < size; ii++) {
             Rectangle r = (Rectangle)rects.get(ii);
 
 	    // dirty the tiles impacted by this rectangle
@@ -423,14 +457,17 @@ public class IsoSceneView implements SceneView
     }
 
     /**
-     * Invalidate the specified rectangle in screen pixel coordinates
-     * in the view.
+     * Invalidates the given rectangle in screen pixel coordinates in
+     * the view.  Returns a rectangle that bounds all tiles that were
+     * dirtied.
      *
      * @param rect the dirty rectangle.
      */
     public Rectangle invalidateScreenRect (Rectangle r)
     {
-        Rectangle tileBounds = new Rectangle();
+        // initialize the rectangle bounding all tiles dirtied by the
+        // invalidated rectangle
+        Rectangle tileBounds = new Rectangle(-1, -1, 0, 0);
 
 	// note that corner tiles may be included unnecessarily, but
 	// checking to determine whether they're actually needed
@@ -524,22 +561,17 @@ public class IsoSceneView implements SceneView
      */
     protected void addDirtyTile (Rectangle tileBounds, int x, int y)
     {
-	// constrain x-coordinate to a valid range
-	if (x < 0) {
-	    x = 0;
-	} else if (x >= _model.scenewid) {
-	    x = _model.scenewid - 1;
-	}
-
-	// constrain y-coordinate to a valid range
-	if (y < 0) {
-	    y = 0;
-	} else if (y >= _model.scenehei) {
-	    y = _model.scenehei - 1;
-	}
+        if (!_model.isCoordinateValid(x, y)) {
+            return;
+        }
 
         // expand the tile bounds rectangle to include this tile
-        tileBounds.add(_polys[x][y].getBounds());
+        Rectangle bounds = _polys[x][y].getBounds();
+        if (tileBounds.x == -1) {
+            tileBounds.setBounds(bounds);
+        } else {
+            tileBounds.add(bounds);
+        }
 
 	// do nothing if the tile's already dirty
 	if (_dirty[x][y]) {
@@ -603,10 +635,7 @@ public class IsoSceneView implements SceneView
     public Path getPath (AmbulatorySprite sprite, int x, int y)
     {
         // make sure the destination point is within our bounds
-        if (x < 0 ||
-            x >= _model.bounds.width ||
-            y < 0 ||
-            y >= _model.bounds.height) {
+        if (!_model.bounds.contains(x, y)) {
             return null;
         }
 
@@ -620,7 +649,11 @@ public class IsoSceneView implements SceneView
 	int tbx = IsoUtil.fullToTile(fpos.x);
 	int tby = IsoUtil.fullToTile(fpos.y);
 
-	// get a reasonable path from start to end
+        // Log.info("Seeking path [sx=" + stpos.x + ", sy=" + stpos.y +
+        // ", dx=" + tbx + ", dy=" + tby + " ,fdx=" + fpos.x +
+        // ", fdy=" + fpos.y + "].");
+
+        // get a reasonable path from start to end
 	List tilepath = AStarPathUtil.getPath(
             _scene.getBaseLayer(), _model.scenewid, _model.scenehei,
             sprite, stpos.x, stpos.y, tbx, tby);
@@ -679,6 +712,9 @@ public class IsoSceneView implements SceneView
 
         return path;
     }
+
+    /** The stroke used to draw dirty rectangles. */
+    protected static final Stroke DIRTY_RECT_STROKE = new BasicStroke(2);
 
     /** The font to draw tile coordinates. */
     protected Font _font = new Font("Arial", Font.PLAIN, 7);

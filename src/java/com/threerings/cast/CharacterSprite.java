@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.12 2001/10/15 23:53:43 shaper Exp $
+// $Id: CharacterSprite.java,v 1.13 2001/10/22 18:21:41 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -43,6 +43,32 @@ public class AmbulatorySprite extends Sprite implements Traverser
 
         // update the sprite frames to reflect the direction
         setFrames(_anims[_orient]);
+    }
+
+    /**
+     * Sets the origin coordinates representing the "base" of the
+     * sprite, which in most cases corresponds to the center of the
+     * bottom of the sprite image.
+     */
+    public void setOrigin (int x, int y)
+    {
+        _xorigin = x;
+        _yorigin = y;
+
+        updateRenderOffset();
+        updateRenderOrigin();
+    }
+
+    // documentation inherited
+    protected void updateRenderOffset ()
+    {
+        super.updateRenderOffset();
+
+        if (_frame != null) {
+            // our location is based on the character origin coordinates
+            _rxoff = -_xorigin;
+            _ryoff = -_yorigin;
+        }
     }
 
     // documentation inherited
@@ -91,4 +117,7 @@ public class AmbulatorySprite extends Sprite implements Traverser
 
     /** The animation frames for the sprite facing each direction. */
     protected MultiFrameImage[] _anims;
+
+    /** The origin of the sprite. */
+    protected int _xorigin, _yorigin;
 }

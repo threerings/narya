@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.18 2001/10/19 23:26:31 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.19 2001/10/22 18:21:41 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -89,7 +89,7 @@ public class SceneViewPanel extends AnimatedPanel
     public Dimension getPreferredSize ()
     {
         Dimension psize = (_scenemodel == null) ?
-            super.getPreferredSize() : _scenemodel.bounds;
+            super.getPreferredSize() : _scenemodel.bounds.getSize();
 	return psize;
     }
 

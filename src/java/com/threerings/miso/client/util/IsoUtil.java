@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.11 2001/10/19 23:26:31 shaper Exp $
+// $Id: IsoUtil.java,v 1.12 2001/10/22 18:21:41 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -417,6 +417,13 @@ public class IsoUtil
             int comp = getRightOverlap(da, db);
             if (comp != 0) {
                 return comp;
+            }
+
+            // check whether right edge of b overlaps with left edge of a
+            comp = getRightOverlap(db, da);
+            if (comp != 0) {
+                // reverse ordering per reversed overlap check
+                return (comp == -1) ? 1 : -1;
             }
 
             // determine ordering based purely on coordinates

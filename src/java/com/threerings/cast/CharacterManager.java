@@ -1,8 +1,9 @@
 //
-// $Id: CharacterManager.java,v 1.1 2001/10/15 23:53:43 shaper Exp $
+// $Id: CharacterManager.java,v 1.2 2001/10/22 18:21:41 shaper Exp $
 
 package com.threerings.miso.scene;
 
+import java.awt.Point;
 import java.io.IOException;
 
 import com.samskivert.util.Config;
@@ -59,6 +60,7 @@ public class CharacterManager
 
         AmbulatorySprite sprite = new AmbulatorySprite(0, 0, anims);
         sprite.setFrameRate(info.frameRate);
+        sprite.setOrigin(info.origin.x, info.origin.y);
 
         return sprite;
     }
@@ -87,11 +89,12 @@ public class CharacterManager
         public int tsid;
         public int frameCount;
         public int frameRate;
+        public Point origin = new Point();
 
         public String toString ()
         {
             return "[tsid=" + tsid + ", frameCount=" + frameCount +
-                   ", frameRate=" + frameRate + "]";
+                ", frameRate=" + frameRate + ", origin=" + origin + "]";
         }
     }
 }

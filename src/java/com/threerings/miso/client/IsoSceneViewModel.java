@@ -1,9 +1,9 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.15 2001/10/18 21:01:44 shaper Exp $
+// $Id: IsoSceneViewModel.java,v 1.16 2001/10/22 18:21:41 shaper Exp $
 
 package com.threerings.miso.scene;
 
-import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.Point;
 import java.util.ArrayList;
 
@@ -37,8 +37,8 @@ public class IsoSceneViewModel
     /** Scene dimensions in tile count. */
     public int scenewid, scenehei;
 
-    /** The bounds dimensions for the view. */
-    public Dimension bounds;
+    /** The bounds of the view in screen pixel coordinates. */
+    public Rectangle bounds;
 
     /** The position in pixels at which tile (0, 0) is drawn. */ 
     public Point origin;
@@ -98,7 +98,7 @@ public class IsoSceneViewModel
 	// set the desired scene view bounds
 	int svwid = config.getValue(SCENE_VWIDTH_KEY, DEF_SCENE_VWIDTH);
 	int svhei = config.getValue(SCENE_VHEIGHT_KEY, DEF_SCENE_VHEIGHT);
-	bounds = new Dimension(svwid * tilewid, svhei * tilehei);
+	bounds = new Rectangle(0, 0, svwid * tilewid, svhei * tilehei);
 
 	// set the scene display origin
 	int offy = config.getValue(SCENE_OFFSET_Y_KEY, DEF_OFFSET_Y);
@@ -139,7 +139,7 @@ public class IsoSceneViewModel
      * Returns whether the given tile coordinate is a valid coordinate
      * within the scene.
      */
-    public boolean isValidCoordinate (int x, int y)
+    public boolean isCoordinateValid (int x, int y)
     {
         return (x >= 0 && x < scenewid &&
                 y >= 0 && y < scenehei);
@@ -149,11 +149,11 @@ public class IsoSceneViewModel
      * Returns whether the given full coordinate is a valid coordinate
      * within the scene.
      */
-    public boolean isValidFullCoordinate (int x, int y)
+    public boolean isFullCoordinateValid (int x, int y)
     {
         int tx = IsoUtil.fullToTile(x), ty = IsoUtil.fullToTile(y);
         int fx = IsoUtil.fullToFine(x), fy = IsoUtil.fullToFine(y);
-        return (isValidCoordinate(tx, ty) &&
+        return (isCoordinateValid(tx, ty) &&
                 fx >= 0 && fx < finegran &&
                 fy >= 0 && fy < finegran);
     }
