@@ -54,7 +54,7 @@ if (defined $libpath) {
 }
 
 # put everything in our class path
-my $classpath = "-classpath $jlib:$root/dist/classes:$root/tests/dist/classes";
+my $classpath = "-classpath $root/tests/dist/classes:$root/dist/classes:$jlib";
 
 # any zip or jar files in our lib/ directory get added to the class path
 if (opendir(DIR, "$root/lib")) {
