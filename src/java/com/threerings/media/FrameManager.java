@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.6 2002/04/28 02:49:32 mdb Exp $
+// $Id: FrameManager.java,v 1.7 2002/05/03 04:16:41 mdb Exp $
 
 package com.threerings.media;
 
@@ -22,6 +22,7 @@ import java.awt.image.VolatileImage;
 import java.awt.EventQueue;
 
 import javax.swing.JComponent;
+import javax.swing.JLayeredPane;
 import javax.swing.RepaintManager;
 
 import java.util.ArrayList;
@@ -291,10 +292,6 @@ public class FrameManager
                     _frame.update(g);
                 }
 
-                // repaint any widgets that have declared there need to be
-                // repainted since the last tick
-                _remgr.paintComponents(g);
-
                 // paint our frame participants (which want to be handled
                 // specially)
                 int pcount = _participants.size();
@@ -334,7 +331,21 @@ public class FrameManager
                                     "[part=" + ptos + "].");
                         Log.logStackTrace(t);
                     }
+
+                    // render any components in our layered pane that are
+                    // not in the default layer (the clipping rectangle is
+                    // still set appropriately)
+                    JLayeredPane lpane =
+                        JLayeredPane.getLayeredPaneAbove(pcomp);
+                    renderLayer(g, bounds, lpane, JLayeredPane.PALETTE_LAYER);
+                    renderLayer(g, bounds, lpane, JLayeredPane.MODAL_LAYER);
+                    renderLayer(g, bounds, lpane, JLayeredPane.POPUP_LAYER);
+                    renderLayer(g, bounds, lpane, JLayeredPane.DRAG_LAYER);
                 }
+
+                // repaint any widgets that have declared there need to be
+                // repainted since the last tick
+                _remgr.paintComponents(g);
 
                 fg.drawImage(_backimg, 0, 0, null);
 //                 _bufstrat.show();
@@ -353,6 +364,34 @@ public class FrameManager
             incremental = false;
 
         } while (_backimg.contentsLost());
+    }
+
+    /**
+     * Renders all components in the specified layer of the supplied
+     * layered pane that intersect the supplied bounds.
+     */
+    protected void renderLayer (Graphics g, Rectangle bounds,
+                                JLayeredPane pane, Integer layer)
+    {
+        // stop now if there are no components in that layer
+        int ccount = pane.getComponentCountInLayer(layer.intValue());
+        if (ccount == 0) {
+            return;
+        }
+
+        // render them up
+        Component[] comps = pane.getComponentsInLayer(layer.intValue());
+        for (int ii = 0; ii < ccount; ii++) {
+            Component comp = comps[ii];
+            _lbounds.setBounds(0, 0, comp.getWidth(), comp.getHeight());
+            getRoot(comp, _lbounds);
+            if (!_lbounds.intersects(bounds)) {
+                continue;
+            }
+            g.translate(_lbounds.x, _lbounds.y);
+            comp.paint(g);
+            g.translate(-_lbounds.x, -_lbounds.y);
+        }
     }
 
     // documentation inherited
@@ -477,6 +516,10 @@ public class FrameManager
 
     /** Used to queue up a tick. */
     protected Ticker _ticker;
+
+    /** Used to avoid creating rectangles when rendering layered
+     * components. */
+    protected Rectangle _lbounds = new Rectangle();
 
     /** Used to queue up a call to {@link #tick} on the AWT thread. */
     protected Runnable _callTick = new Runnable () {
