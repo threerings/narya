@@ -1,7 +1,7 @@
 //
-// $Id: EditableSpotSceneImpl.java,v 1.1 2001/11/13 02:25:36 mdb Exp $
+// $Id: EditableSpotSceneImpl.java,v 1.2 2001/11/20 04:18:11 mdb Exp $
 
-package com.threerings.whirled.spot.tools;
+package com.threerings.whirled.tools.spot;
 
 import com.samskivert.util.ListUtil;
 
