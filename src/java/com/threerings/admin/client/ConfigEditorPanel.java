@@ -1,15 +1,15 @@
 //
-// $Id: ConfigEditorPanel.java,v 1.1 2002/06/07 06:22:24 mdb Exp $
+// $Id: ConfigEditorPanel.java,v 1.2 2002/07/09 17:49:12 ray Exp $
 
 package com.threerings.admin.client;
 
 import javax.swing.JTabbedPane;
 import javax.swing.event.AncestorEvent;
 
+import com.samskivert.swing.SafeScrollPane;
 import com.samskivert.swing.event.AncestorAdapter;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.media.SafeScrollPane;
 import com.threerings.presents.util.PresentsContext;
 
 import com.threerings.admin.Log;
