@@ -1,5 +1,5 @@
 //
-// $Id: ZoneProvider.java,v 1.1 2001/12/04 00:31:58 mdb Exp $
+// $Id: ZoneProvider.java,v 1.2 2001/12/04 01:06:33 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -30,9 +30,9 @@ public class ZoneProvider
 {
     /**
      * Constructs a zone provider that will interoperate with the supplied
-     * zone and scene registries. A system that wishes to use the zone
-     * services must instantiate a zone provider and register it with the
-     * invocation services.
+     * zone and scene registries. The zone provider will automatically be
+     * constructed and registered by the {@link ZoneRegistry}, which a
+     * zone-using system must create and initialize in their server.
      */
     public ZoneProvider (ZoneRegistry zonereg, SceneRegistry screg)
     {
