@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.38 2003/05/23 19:35:11 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.39 2003/05/28 18:15:26 ray Exp $
 
 package com.threerings.miso.client;
 
@@ -899,7 +899,7 @@ public class MisoScenePanel extends VirtualMediaPanel
     /**
      * Compute the tips for any objects in the scene.
      */
-    protected void computeTips ()
+    public void computeTips ()
     {
         // clear any old tips
         _tips.clear();
