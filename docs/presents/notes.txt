@@ -381,3 +381,23 @@ X genservice + genreceiver need to slurp and replace "Id"
 - Generate field code rather than name for all DObject classes; send code
   over wire; somehow map code to Field instance for setting value (this
   could be problematic)
+
+* 11/14/2002
+** Possible eventual optimizations
+- Have the connection manager maintain a pool of buffers into which
+  network data is read, when a connection receives the start of a new
+  message, it grabs a buffer and uses it until it has read its entire
+  message at which point it releases the buffer back into the pool;
+  otherwise we have a buffer assigned to each connection whether it needs
+  it or not and if they grow to, say, 4k per client connection, we could
+  easily get up to multiple megabytes of memory dedicated to input buffers
+
+- Have PresentClient subscribe to objects through a proxy which serializes
+  messages to be dispatched to multiple clients immediately and uses the
+  same buffer to deliver the message to all subscribed clients (currently
+  the message is serialized once for each client before network delivery
+  and the serialization is done by the conmgr thread at send time;
+  ungood). Hrm, on second thought, we may not be able to do that because
+  each client connection maintains its own custom
+  ObjectOutputStream/ObjectInputStream pair which may not be in the same
+  state as another client's. Dooh!
