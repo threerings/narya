@@ -1,10 +1,12 @@
 //
-// $Id: UniformTileSet.java,v 1.14 2003/05/13 21:33:58 ray Exp $
+// $Id: UniformTileSet.java,v 1.15 2004/08/17 00:48:40 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+
+import com.threerings.geom.GeomUtil;
 
 /**
  * A uniform tileset is one that is composed of tiles that are all the
@@ -60,20 +62,8 @@ public class UniformTileSet extends TileSet
     protected Rectangle computeTileBounds (int tileIndex)
     {
         BufferedImage tsimg = getRawTileSetImage();
-
-        // figure out from whence to crop the tile
-        int tilesPerRow = tsimg.getWidth() / _width;
-
-        // if we got a bogus image, return bogus tile bounds
-        if (tilesPerRow == 0) {
-            return new Rectangle(0, 0, tsimg.getWidth(), tsimg.getHeight());
-        }
-
-        int row = tileIndex / tilesPerRow;
-        int col = tileIndex % tilesPerRow;
-
-	// crop the tile-sized image chunk from the full image
-        return new Rectangle(_width*col, _height*row, _width, _height);
+        return GeomUtil.getTile(tsimg.getWidth(), tsimg.getHeight(),
+                                _width, _height, tileIndex);
     }
 
     // documentation inherited

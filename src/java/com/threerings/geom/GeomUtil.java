@@ -1,5 +1,5 @@
 //
-// $Id: GeomUtil.java,v 1.7 2004/02/25 14:42:30 mdb Exp $
+// $Id: GeomUtil.java,v 1.8 2004/08/17 00:48:40 mdb Exp $
 
 package com.threerings.geom;
 
@@ -206,5 +206,28 @@ public class GeomUtil
             source.add(target);
         }
         return source;
+    }
+
+    /**
+     * Returns the rectangle containing the specified tile in the supplied
+     * larger rectangle. Tiles go from left to right, top to bottom.
+     */
+    public static Rectangle getTile (
+        int width, int height, int tileWidth, int tileHeight, int tileIndex)
+    {
+        // figure out from whence to crop the tile
+        int tilesPerRow = width / tileWidth;
+
+        // if we got a bogus region, return bogus tile bounds
+        if (tilesPerRow == 0) {
+            return new Rectangle(0, 0, width, height);
+        }
+
+        int row = tileIndex / tilesPerRow;
+        int col = tileIndex % tilesPerRow;
+
+	// crop the tile-sized image chunk from the full image
+        return new Rectangle(
+            tileWidth*col, tileHeight*row, tileWidth, tileHeight);
     }
 }
