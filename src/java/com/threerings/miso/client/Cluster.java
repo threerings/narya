@@ -1,8 +1,9 @@
 //
-// $Id: Cluster.java,v 1.2 2001/08/10 21:17:07 shaper Exp $
+// $Id: Cluster.java,v 1.3 2001/09/28 01:24:54 mdb Exp $
 
 package com.threerings.miso.scene;
 
+import java.util.List;
 import java.util.ArrayList;
 
 import com.samskivert.util.StringUtil;
@@ -69,7 +70,7 @@ public class Cluster
     /**
      * Return the list of locations that the cluster is made up of.
      */
-    public ArrayList getLocations ()
+    public List getLocations ()
     {
 	return _locations;
     }
