@@ -1,5 +1,5 @@
 //
-// $Id: Invoker.java,v 1.10 2003/08/18 21:38:07 mdb Exp $
+// $Id: Invoker.java,v 1.11 2003/09/24 17:10:49 mdb Exp $
 
 package com.threerings.presents.util;
 
@@ -134,13 +134,18 @@ public class Invoker extends LoopingThread
             if (PERF_TRACK) {
                 long duration = System.currentTimeMillis() - start;
                 Object key = unit.getClass();
-
                 Histogram histo = (Histogram)_tracker.get(key);
                 if (histo == null) {
                     // track in buckets of 50ms up to 500ms
                     _tracker.put(key, histo = new Histogram(0, 50, 10));
                 }
                 histo.addValue((int)duration);
+
+                // report long runners
+                if (duration > 500L) {
+                    Log.warning("Invoker unit ran long [class=" + key +
+                                ", duration=" + duration + "].");
+                }
             }
 
         } catch (Exception e) {
