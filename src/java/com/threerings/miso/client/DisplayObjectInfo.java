@@ -1,5 +1,5 @@
 //
-// $Id: DisplayObjectInfo.java,v 1.4 2002/10/16 01:53:57 ray Exp $
+// $Id: DisplayObjectInfo.java,v 1.5 2002/11/28 03:41:58 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -27,7 +27,8 @@ public class SceneObject
      * action. */
     public String action;
 
-    /** The object's bounding rectangle. */
+    /** The object's bounding rectangle. This will be filled in
+     * automatically by the Miso scene view when the object is used. */
     public Rectangle bounds;
 
     /**
