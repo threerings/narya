@@ -1,5 +1,5 @@
 //
-// $Id: ConMgrStats.java,v 1.2 2004/08/04 02:36:56 mdb Exp $
+// $Id: ConMgrStats.java,v 1.3 2004/08/04 03:30:12 mdb Exp $
 
 package com.threerings.presents.data;
 
@@ -41,7 +41,7 @@ public class ConMgrStats implements Streamable
      * previous contents. */
     public void increment ()
     {
-        current++;
+        current = (current + 1) % authQueueSize.length;
         authQueueSize[current] = 0;
         deathQueueSize[current] = 0;
         outQueueSize[current] = 0;
