@@ -1,5 +1,5 @@
 //
-// $Id: TableDirector.java,v 1.4 2001/10/23 23:47:02 mdb Exp $
+// $Id: TableDirector.java,v 1.5 2001/10/23 23:52:01 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -25,23 +25,23 @@ import com.threerings.parlor.util.ParlorContext;
  * standard hierarchy of place controllers that deal with place-related
  * functionality on the client. Thus, instead of forcing places that
  * expect to have tables to extend a <code>TableLobbyController</code> or
- * something similar, we instead provide the table manager which can be
+ * something similar, we instead provide the table director which can be
  * instantiated by the place controller (or specific table related views)
  * to handle the table matchmaking services.
  *
  * <p> Entites that do so, will need to implement the {@link
- * TableObserver} interface so that the table manager can notify them when
- * table related things happen.
+ * TableObserver} interface so that the table director can notify them
+ * when table related things happen.
  *
  * <p> The table services expect that the place object being used as a
  * lobby in which the table matchmaking takes place implements the {@link
  * TableLobbyObject} interface.
  */
-public class TableManager
+public class TableDirector
     implements SetListener
 {
     /**
-     * Creates a new table manager to manage tables with the specified
+     * Creates a new table director to manage tables with the specified
      * observer which will receive callbacks when interesting table
      * related things happen.
      *
@@ -51,7 +51,7 @@ public class TableManager
      * @param observer the entity that will receive callbacks when things
      * happen to the tables.
      */
-    public TableManager (
+    public TableDirector (
         ParlorContext ctx, String tableField, TableObserver observer)
     {
         // keep track of this stuff
@@ -61,7 +61,7 @@ public class TableManager
     }
 
     /**
-     * This must be called by the entity that uses the table manager when
+     * This must be called by the entity that uses the table director when
      * the using entity prepares to enter and display a place. It is
      * assumed that the client is already subscribed to the provided place
      * object.
@@ -76,7 +76,7 @@ public class TableManager
     }
 
     /**
-     * This must be called by the entity that uses the table manager when
+     * This must be called by the entity that uses the table director when
      * the using entity has left and is done displaying a place.
      */
     public void didLeavePlace (PlaceObject place)

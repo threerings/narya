@@ -1,5 +1,5 @@
 //
-// $Id: TableListView.java,v 1.1 2001/10/23 20:24:10 mdb Exp $
+// $Id: TableListView.java,v 1.2 2001/10/23 23:52:01 mdb Exp $
 
 package com.threerings.micasa.lobby.table;
 
@@ -25,7 +25,7 @@ import com.samskivert.swing.VGroupLayout;
 import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.data.PlaceObject;
 
-import com.threerings.parlor.client.TableManager;
+import com.threerings.parlor.client.TableDirector;
 import com.threerings.parlor.client.TableObserver;
 import com.threerings.parlor.client.SeatednessObserver;
 import com.threerings.parlor.data.Table;
@@ -58,11 +58,11 @@ public class TableListView
         _config = config;
         _ctx = ctx;
 
-        // create our table manager
-        _tmgr = new TableManager(ctx, TableLobbyObject.TABLES, this);
+        // create our table director
+        _tdtr = new TableDirector(ctx, TableLobbyObject.TABLES, this);
 
         // add ourselves as a seatedness observer
-        _tmgr.addSeatednessObserver(this);
+        _tdtr.addSeatednessObserver(this);
 
         // set up a layout manager
 	HGroupLayout gl = new HGroupLayout(HGroupLayout.STRETCH);
@@ -126,8 +126,8 @@ public class TableListView
     // documentation inherited
     public void willEnterPlace (PlaceObject place)
     {
-        // pass the good word on to our table manager
-        _tmgr.willEnterPlace(place);
+        // pass the good word on to our table director
+        _tdtr.willEnterPlace(place);
 
         // iterate over the tables already active in this lobby and put
         // them in their respective lists
@@ -141,8 +141,8 @@ public class TableListView
     // documentation inherited
     public void didLeavePlace (PlaceObject place)
     {
-        // pass the good word on to our table manager
-        _tmgr.didLeavePlace(place);
+        // pass the good word on to our table director
+        _tdtr.didLeavePlace(place);
 
         // clear out our table lists
         _matchList.removeAll();
@@ -157,7 +157,7 @@ public class TableListView
         // create a table item for this table and insert it into the
         // appropriate list
         JPanel panel = table.inPlay() ? _playList : _matchList;
-        panel.add(new TableItem(_ctx, _tmgr, table));
+        panel.add(new TableItem(_ctx, _tdtr, table));
         panel.revalidate();
         panel.repaint();
     }
@@ -217,7 +217,7 @@ public class TableListView
     public void actionPerformed (ActionEvent event)
     {
         // the create table button was clicked. pass the word on to the
-        // table manager
+        // table director
         GameConfig config = null;
         try {
             config = _config.getGameConfig();
@@ -233,7 +233,7 @@ public class TableListView
         }
 
         // and create a table with these values
-        _tmgr.createTable(config);
+        _tdtr.createTable(config);
     }
 
     // documentation inherited
@@ -287,8 +287,8 @@ public class TableListView
      * doing table-style matchmaking. */
     protected LobbyConfig _config;
 
-    /** A reference to our table manager. */
-    protected TableManager _tmgr;
+    /** A reference to our table director. */
+    protected TableDirector _tdtr;
 
     /** The list of tables currently being matchmade. */
     protected JPanel _matchList;

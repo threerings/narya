@@ -1,5 +1,5 @@
 //
-// $Id: TableItem.java,v 1.1 2001/10/23 20:24:10 mdb Exp $
+// $Id: TableItem.java,v 1.2 2001/10/23 23:52:01 mdb Exp $
 
 package com.threerings.micasa.lobby.table;
 
@@ -20,7 +20,7 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.crowd.data.BodyObject;
 
-import com.threerings.parlor.client.TableManager;
+import com.threerings.parlor.client.TableDirector;
 import com.threerings.parlor.client.SeatednessObserver;
 import com.threerings.parlor.data.Table;
 import com.threerings.parlor.data.TableConfig;
@@ -43,13 +43,13 @@ public class TableItem
      * Creates a new table item to display and interact with the supplied
      * table.
      */
-    public TableItem (MiCasaContext ctx, TableManager tmgr, Table table)
+    public TableItem (MiCasaContext ctx, TableDirector tdtr, Table table)
     {
         // keep track of these
-        _tmgr = tmgr;
+        _tdtr = tdtr;
 
         // add ourselves as a seatedness observer
-        _tmgr.addSeatednessObserver(this);
+        _tdtr.addSeatednessObserver(this);
 
         // figure out who we are
         _self = ((BodyObject)ctx.getClient().getClientObject()).username;
@@ -122,7 +122,7 @@ public class TableItem
         this.table = table;
 
         // first look to see if we're already sitting at a table
-        boolean isSeated = _tmgr.isSeated();
+        boolean isSeated = _tdtr.isSeated();
 
         // now enable and label the buttons accordingly
         int slength = _seats.length;
@@ -152,7 +152,7 @@ public class TableItem
     public void tableRemoved ()
     {
         // no more observy
-        _tmgr.removeSeatednessObserver(this);
+        _tdtr.removeSeatednessObserver(this);
     }
 
     // documentation inherited
@@ -174,12 +174,12 @@ public class TableItem
                             "click came from [event=" + event + "].");
             } else {
                 // otherwise, request to join the table at this position
-                _tmgr.joinTable(table.getTableId(), position);
+                _tdtr.joinTable(table.getTableId(), position);
             }
 
         } else {
             // if we're not joining, we're leaving
-            _tmgr.leaveTable(table.getTableId());
+            _tdtr.leaveTable(table.getTableId());
         }
     }
 
@@ -193,8 +193,8 @@ public class TableItem
     /** Our username. */
     protected String _self;
 
-    /** A reference to our table manager. */
-    protected TableManager _tmgr;
+    /** A reference to our table director. */
+    protected TableDirector _tdtr;
 
     /** A casted reference to our table config object. */
     protected TableConfig _tconfig;
