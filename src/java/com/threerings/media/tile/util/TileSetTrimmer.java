@@ -1,5 +1,5 @@
 //
-// $Id: TileSetTrimmer.java,v 1.1 2002/06/19 08:29:59 mdb Exp $
+// $Id: TileSetTrimmer.java,v 1.2 2002/06/21 18:09:37 mdb Exp $
 
 package com.threerings.media.tile.util;
 
@@ -21,18 +21,45 @@ import com.threerings.media.Log;
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileSet;
-import com.threerings.media.tile.TrimmedTileSet;
 import com.threerings.media.util.ImageUtil;
 
 /**
- * Contains routines for generating a trimmed tileset from an existing
- * tileset. Both a {@link TrimmedTileSet} instance and the associated
- * trimmed image are created.
+ * Contains routines for trimming the images from an existing tileset
+ * which means that each tile is converted to an image that contains the
+ * smallest rectangular region of the original image that contains all
+ * non-transparent pixels. These trimmed images are then written out to a
+ * single image, packed together left to right.
  */
 public class TileSetTrimmer
 {
     /**
-     * Generates a {@link TrimmedTileSet} from the supplied source
+     * Used to communicate the metrics of the trimmed tiles back to the
+     * caller so that they can do what they like with them.
+     */
+    public static interface TrimMetricsReceiver
+    {
+        /**
+         * Called for each trimmed tile.
+         *
+         * @param tileIndex the index of the tile in the original tileset.
+         * @param imageX the x offset into the newly created tileset image
+         * of the trimmed image data.
+         * @param imageY the y offset into the newly created tileset image
+         * of the trimmed image data.
+         * @param trimX the x offset into the untrimmed tile image where
+         * the trimmed data begins.
+         * @param trimY the y offset into the untrimmed tile image where
+         * the trimmed data begins.
+         * @param trimWidth the width of the trimmed tile image.
+         * @param trimHeight the height of the trimmed tile image.
+         */
+        public void trimmedTile (int tileIndex, int imageX, int imageY,
+                                 int trimX, int trimY,
+                                 int trimWidth, int trimHeight);
+    }
+
+    /**
+     * Generates a trimmed tileset image from the supplied source
      * tileset. The source tileset must be configured with an image
      * provider so that the tile images can be obtained. The tile images
      * will be trimmed and a new tileset image generated and written to
@@ -41,18 +68,15 @@ public class TileSetTrimmer
      * @param source the source tileset.
      * @param destImage an output stream to which the new trimmed image
      * will be written.
+     * @param tmr a callback object that will be used to inform the caller
+     * of the trimmed tile metrics.
      */
-    public static TrimmedTileSet trimTileSet (
-        TileSet source, OutputStream destImage)
+    public static void trimTileSet (
+        TileSet source, OutputStream destImage, TrimMetricsReceiver tmr)
         throws IOException
     {
         int tcount = source.getTileCount();
         BufferedImage[] timgs = new BufferedImage[tcount];
-
-        // these will contain the width and height of the untrimmed tile,
-        // but the x and y offset of the trimmed tile image in the
-        // supplied tileset source image
-        Rectangle[] obounds = new Rectangle[tcount];
 
         // these will contain the bounds of the trimmed image in the
         // coordinate system defined by the untrimmed image
@@ -71,24 +95,17 @@ public class TileSetTrimmer
             }
 
             // figure out how tightly we can trim it
-            obounds[ii] = new Rectangle(
-                0, 0, timgs[ii].getWidth(), timgs[ii].getHeight());
             tbounds[ii] = new Rectangle();
             ImageUtil.computeTrimmedBounds(timgs[ii], tbounds[ii]);
 
-            // assign it a location in the trimmed tile image
-            obounds[ii].x = nextx;
-            nextx += tbounds[ii].width;
+            // let our caller know what we did
+            tmr.trimmedTile(ii, nextx, 0, tbounds[ii].x, tbounds[ii].y,
+                            tbounds[ii].width, tbounds[ii].height);
+
+            // adjust the new tileset image dimensions
             maxy = Math.max(maxy, tbounds[ii].height);
+            nextx += tbounds[ii].width;
         }
-
-        // create our tileset object
-        TrimmedTileSet ttset = new TrimmedTileSet();
-        ttset.setTileMetrics(obounds, tbounds);
-
-//         Log.info("Trimming [obounds=" + StringUtil.toString(obounds) +
-//                  ", tbounds=" + StringUtil.toString(tbounds) +
-//                  ", nwidth=" + nextx + ", nheight=" + maxy + "].");
 
         // create the new tileset image
         BufferedImage image = ImageUtil.createCompatibleImage(
@@ -107,8 +124,5 @@ public class TileSetTrimmer
 
         // write out trimmed image
         ImageIO.write(image, "png", destImage);
-
-        // we're good to go
-        return ttset;
     }
 }

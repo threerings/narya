@@ -1,5 +1,5 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.9 2002/06/19 08:33:14 mdb Exp $
+// $Id: ComponentBundlerTask.java,v 1.10 2002/06/21 18:09:37 mdb Exp $
 
 package com.threerings.cast.bundle.tools;
 
@@ -43,7 +43,6 @@ import com.threerings.media.tile.ImageProvider;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TrimmedTileSet;
 import com.threerings.media.tile.tools.xml.SwissArmyTileSetRuleSet;
-import com.threerings.media.tile.util.TileSetTrimmer;
 
 import com.threerings.cast.ComponentIDBroker;
 import com.threerings.cast.bundle.BundleUtil;
@@ -183,7 +182,7 @@ public class ComponentBundlerTask extends Task
                         }
                     });
                     TrimmedTileSet tset =
-                        TileSetTrimmer.trimTileSet(aset, jout);
+                        TrimmedTileSet.trimTileSet(aset, jout);
                     tset.setImagePath(ipath);
                     tset.setName(aset.getName());
 
