@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.9 2002/08/08 20:58:32 shaper Exp $
+// $Id: VirtualMediaPanel.java,v 1.10 2002/09/16 23:34:55 mdb Exp $
 
 package com.threerings.media;
 
@@ -252,6 +252,9 @@ public class VirtualMediaPanel extends MediaPanel
                         "[mode=" + _fmode + "].");
             break;
         }
+
+//         Log.info("Tracking pathable [mode=" + _fmode +
+//                  ", pable=" + _fpath + ", nx=" + nx + ", ny=" + ny + "].");
 
         setViewLocation(nx, ny);
     }
