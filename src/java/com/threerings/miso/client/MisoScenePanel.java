@@ -63,6 +63,7 @@ import com.threerings.media.sprite.Sprite;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.TileSet;
+import com.threerings.media.util.AStarPathUtil;
 import com.threerings.media.util.MathUtil;
 import com.threerings.media.util.Path;
 
@@ -72,7 +73,6 @@ import com.threerings.miso.client.DirtyItemList.DirtyItem;
 import com.threerings.miso.data.MisoSceneModel;
 import com.threerings.miso.data.ObjectInfo;
 import com.threerings.miso.tile.BaseTile;
-import com.threerings.miso.util.AStarPathUtil;
 import com.threerings.miso.util.MisoContext;
 import com.threerings.miso.util.MisoSceneMetrics;
 import com.threerings.miso.util.MisoUtil;

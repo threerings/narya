@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.5 2004/08/27 02:20:10 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -19,7 +19,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.miso.util;
+package com.threerings.media.util;
 
 import java.awt.Point;
 import java.util.*;
@@ -52,6 +52,44 @@ public class AStarPathUtil
         public boolean canTraverse (Object traverser, int x, int y);
     }
 
+    /**
+     * Considers all the possible steps the piece in question can take.
+     */
+    public static class Stepper
+    {
+        public void init (Info info, Node n)
+        {
+            _info = info;
+            _node = n;
+        }
+
+        /**
+         * Should call {@link #considerStep} in turn on all possible steps
+         * from the specified coordinates. No checking must be done as to
+         * whether the step is legal, that will be handled later. Just
+         * enumerate all possible steps.
+         */
+        public void considerSteps (int x, int y)
+        {
+	    considerStep(x - 1, y - 1, DIAGONAL_COST);
+	    considerStep(x, y - 1, ADJACENT_COST);
+	    considerStep(x + 1, y - 1, DIAGONAL_COST);
+	    considerStep(x - 1, y, ADJACENT_COST);
+	    considerStep(x + 1, y, ADJACENT_COST);
+	    considerStep(x - 1, y + 1, DIAGONAL_COST);
+	    considerStep(x, y + 1, ADJACENT_COST);
+	    considerStep(x + 1, y + 1, DIAGONAL_COST);
+        }
+
+        protected void considerStep (int x, int y, int cost)
+        {
+            AStarPathUtil.considerStep(_info, _node, x, y, cost);
+        }
+
+        protected Info _info;
+        protected Node _node;
+    }
+
     /** The standard cost to move between nodes. */
     public static final int ADJACENT_COST = 10;
 
@@ -67,6 +105,7 @@ public class AStarPathUtil
      * are traversable by the specified traverser.
      *
      * @param tpred lets us know what tiles are traversible.
+     * @param stepper enumerates the possible steps.
      * @param trav the traverser to follow the path.
      * @param longest the longest allowable path in tile traversals.
      * @param ax the starting x-position in tile coordinates.
@@ -79,9 +118,9 @@ public class AStarPathUtil
      *
      * @return the list of points in the path.
      */
-    public static List getPath (TraversalPred tpred, Object trav,
-                                int longest, int ax, int ay, int bx, int by,
-                                boolean partial)
+    public static List getPath (TraversalPred tpred, Stepper stepper,
+                                Object trav, int longest, int ax, int ay,
+                                int bx, int by, boolean partial)
     {
 	Info info = new Info(tpred, trav, longest, bx, by);
 
@@ -119,14 +158,8 @@ public class AStarPathUtil
             }
 
 	    // consider each successor of the node
-	    considerStep(info, n, n.x - 1, n.y - 1, DIAGONAL_COST);
-	    considerStep(info, n, n.x, n.y - 1, ADJACENT_COST);
-	    considerStep(info, n, n.x + 1, n.y - 1, DIAGONAL_COST);
-	    considerStep(info, n, n.x - 1, n.y, ADJACENT_COST);
-	    considerStep(info, n, n.x + 1, n.y, ADJACENT_COST);
-	    considerStep(info, n, n.x - 1, n.y + 1, DIAGONAL_COST);
-	    considerStep(info, n, n.x, n.y + 1, ADJACENT_COST);
-	    considerStep(info, n, n.x + 1, n.y + 1, DIAGONAL_COST);
+            stepper.init(info, n);
+            stepper.considerSteps(n.x, n.y);
 
 	    // push the node on the closed list
 	    info.closed.add(n);
@@ -139,6 +172,16 @@ public class AStarPathUtil
 
 	// no path found
 	return null;
+    }
+
+    /**
+     * Gets a path with the default stepper which assumes the piece can
+     * move one in any of the eight cardinal directions.
+     */
+    public static List getPath (TraversalPred tpred, Object trav, int longest,
+                                int ax, int ay, int bx, int by, boolean partial)
+    {
+        return getPath(tpred, new Stepper(), longest, ax, ay, bx, by, partial);
     }
 
     /**
