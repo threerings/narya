@@ -1,5 +1,5 @@
 //
-// $Id: ChatDispatcher.java,v 1.9 2004/08/27 02:12:32 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,10 +22,9 @@
 package com.threerings.crowd.chat.server;
 
 import com.threerings.crowd.chat.client.ChatService;
-import com.threerings.crowd.chat.client.ChatService.TellListener;
 import com.threerings.crowd.chat.data.ChatMarshaller;
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService.InvocationListener;
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
@@ -61,14 +60,14 @@ public class ChatDispatcher extends InvocationDispatcher
         case ChatMarshaller.TELL:
             ((ChatProvider)provider).tell(
                 source,
-                (Name)args[0], (String)args[1], (TellListener)args[2]
+                (Name)args[0], (String)args[1], (ChatService.TellListener)args[2]
             );
             return;
 
         case ChatMarshaller.BROADCAST:
             ((ChatProvider)provider).broadcast(
                 source,
-                (String)args[0], (InvocationListener)args[1]
+                (String)args[0], (InvocationService.InvocationListener)args[1]
             );
             return;
 

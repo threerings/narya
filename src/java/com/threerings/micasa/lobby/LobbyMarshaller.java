@@ -1,5 +1,5 @@
 //
-// $Id: LobbyMarshaller.java,v 1.5 2004/08/27 02:12:50 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,8 +22,6 @@
 package com.threerings.micasa.lobby;
 
 import com.threerings.micasa.lobby.LobbyService;
-import com.threerings.micasa.lobby.LobbyService.CategoriesListener;
-import com.threerings.micasa.lobby.LobbyService.LobbiesListener;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
@@ -39,37 +37,6 @@ import java.util.List;
 public class LobbyMarshaller extends InvocationMarshaller
     implements LobbyService
 {
-    // documentation inherited
-    public static class LobbiesMarshaller extends ListenerMarshaller
-        implements LobbiesListener
-    {
-        /** The method id used to dispatch {@link #gotLobbies}
-         * responses. */
-        public static final int GOT_LOBBIES = 1;
-
-        // documentation inherited from interface
-        public void gotLobbies (List arg1)
-        {
-            omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, GOT_LOBBIES,
-                               new Object[] { arg1 }));
-        }
-
-        // documentation inherited
-        public void dispatchResponse (int methodId, Object[] args)
-        {
-            switch (methodId) {
-            case GOT_LOBBIES:
-                ((LobbiesListener)listener).gotLobbies(
-                    (List)args[0]);
-                return;
-
-            default:
-                super.dispatchResponse(methodId, args);
-            }
-        }
-    }
-
     // documentation inherited
     public static class CategoriesMarshaller extends ListenerMarshaller
         implements CategoriesListener
@@ -101,13 +68,44 @@ public class LobbyMarshaller extends InvocationMarshaller
         }
     }
 
+    // documentation inherited
+    public static class LobbiesMarshaller extends ListenerMarshaller
+        implements LobbiesListener
+    {
+        /** The method id used to dispatch {@link #gotLobbies}
+         * responses. */
+        public static final int GOT_LOBBIES = 1;
+
+        // documentation inherited from interface
+        public void gotLobbies (List arg1)
+        {
+            omgr.postEvent(new InvocationResponseEvent(
+                               callerOid, requestId, GOT_LOBBIES,
+                               new Object[] { arg1 }));
+        }
+
+        // documentation inherited
+        public void dispatchResponse (int methodId, Object[] args)
+        {
+            switch (methodId) {
+            case GOT_LOBBIES:
+                ((LobbiesListener)listener).gotLobbies(
+                    (List)args[0]);
+                return;
+
+            default:
+                super.dispatchResponse(methodId, args);
+            }
+        }
+    }
+
     /** The method id used to dispatch {@link #getCategories} requests. */
     public static final int GET_CATEGORIES = 1;
 
     // documentation inherited from interface
-    public void getCategories (Client arg1, CategoriesListener arg2)
+    public void getCategories (Client arg1, LobbyService.CategoriesListener arg2)
     {
-        CategoriesMarshaller listener2 = new CategoriesMarshaller();
+        LobbyMarshaller.CategoriesMarshaller listener2 = new LobbyMarshaller.CategoriesMarshaller();
         listener2.listener = arg2;
         sendRequest(arg1, GET_CATEGORIES, new Object[] {
             listener2
@@ -118,9 +116,9 @@ public class LobbyMarshaller extends InvocationMarshaller
     public static final int GET_LOBBIES = 2;
 
     // documentation inherited from interface
-    public void getLobbies (Client arg1, String arg2, LobbiesListener arg3)
+    public void getLobbies (Client arg1, String arg2, LobbyService.LobbiesListener arg3)
     {
-        LobbiesMarshaller listener3 = new LobbiesMarshaller();
+        LobbyMarshaller.LobbiesMarshaller listener3 = new LobbyMarshaller.LobbiesMarshaller();
         listener3.listener = arg3;
         sendRequest(arg1, GET_LOBBIES, new Object[] {
             arg2, listener3

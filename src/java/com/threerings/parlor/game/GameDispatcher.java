@@ -1,5 +1,5 @@
 //
-// $Id: GameDispatcher.java,v 1.5 2004/08/27 02:20:14 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -57,15 +57,13 @@ public class GameDispatcher extends InvocationDispatcher
         switch (methodId) {
         case GameMarshaller.PLAYER_READY:
             ((GameProvider)provider).playerReady(
-                source
-                
+                source                
             );
             return;
 
         case GameMarshaller.START_PARTY_GAME:
             ((GameProvider)provider).startPartyGame(
-                source
-                
+                source                
             );
             return;
 

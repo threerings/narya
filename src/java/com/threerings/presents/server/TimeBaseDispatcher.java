@@ -1,5 +1,5 @@
 //
-// $Id: TimeBaseDispatcher.java,v 1.4 2004/08/27 02:20:23 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,9 +21,7 @@
 
 package com.threerings.presents.server;
 
-import com.threerings.presents.client.Client;
 import com.threerings.presents.client.TimeBaseService;
-import com.threerings.presents.client.TimeBaseService.GotTimeBaseListener;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.data.TimeBaseMarshaller;
@@ -59,7 +57,7 @@ public class TimeBaseDispatcher extends InvocationDispatcher
         case TimeBaseMarshaller.GET_TIME_OID:
             ((TimeBaseProvider)provider).getTimeOid(
                 source,
-                (String)args[0], (GotTimeBaseListener)args[1]
+                (String)args[0], (TimeBaseService.GotTimeBaseListener)args[1]
             );
             return;
 

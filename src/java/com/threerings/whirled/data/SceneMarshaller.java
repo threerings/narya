@@ -1,5 +1,5 @@
 //
-// $Id: SceneMarshaller.java,v 1.5 2004/08/27 02:20:42 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -26,7 +26,6 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 import com.threerings.whirled.client.SceneService;
-import com.threerings.whirled.client.SceneService.SceneMoveListener;
 import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.data.SceneUpdate;
 
@@ -109,9 +108,9 @@ public class SceneMarshaller extends InvocationMarshaller
     public static final int MOVE_TO = 1;
 
     // documentation inherited from interface
-    public void moveTo (Client arg1, int arg2, int arg3, SceneMoveListener arg4)
+    public void moveTo (Client arg1, int arg2, int arg3, SceneService.SceneMoveListener arg4)
     {
-        SceneMoveMarshaller listener4 = new SceneMoveMarshaller();
+        SceneMarshaller.SceneMoveMarshaller listener4 = new SceneMarshaller.SceneMoveMarshaller();
         listener4.listener = arg4;
         sendRequest(arg1, MOVE_TO, new Object[] {
             new Integer(arg2), new Integer(arg3), listener4

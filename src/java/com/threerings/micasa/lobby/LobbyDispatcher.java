@@ -1,5 +1,5 @@
 //
-// $Id: LobbyDispatcher.java,v 1.5 2004/08/27 02:12:50 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -23,8 +23,6 @@ package com.threerings.micasa.lobby;
 
 import com.threerings.micasa.lobby.LobbyMarshaller;
 import com.threerings.micasa.lobby.LobbyService;
-import com.threerings.micasa.lobby.LobbyService.CategoriesListener;
-import com.threerings.micasa.lobby.LobbyService.LobbiesListener;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
@@ -61,14 +59,14 @@ public class LobbyDispatcher extends InvocationDispatcher
         case LobbyMarshaller.GET_CATEGORIES:
             ((LobbyProvider)provider).getCategories(
                 source,
-                (CategoriesListener)args[0]
+                (LobbyService.CategoriesListener)args[0]
             );
             return;
 
         case LobbyMarshaller.GET_LOBBIES:
             ((LobbyProvider)provider).getLobbies(
                 source,
-                (String)args[0], (LobbiesListener)args[1]
+                (String)args[0], (LobbyService.LobbiesListener)args[1]
             );
             return;
 

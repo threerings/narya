@@ -1,5 +1,5 @@
 //
-// $Id: SpotMarshaller.java,v 1.6 2004/08/27 02:20:46 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,11 +22,11 @@
 package com.threerings.whirled.spot.data;
 
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService.ConfirmListener;
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
-import com.threerings.whirled.client.SceneService.SceneMoveListener;
-import com.threerings.whirled.data.SceneMarshaller.SceneMoveMarshaller;
+import com.threerings.whirled.client.SceneService;
+import com.threerings.whirled.data.SceneMarshaller;
 import com.threerings.whirled.spot.client.SpotService;
 import com.threerings.whirled.spot.data.Location;
 
@@ -44,9 +44,9 @@ public class SpotMarshaller extends InvocationMarshaller
     public static final int TRAVERSE_PORTAL = 1;
 
     // documentation inherited from interface
-    public void traversePortal (Client arg1, int arg2, int arg3, SceneMoveListener arg4)
+    public void traversePortal (Client arg1, int arg2, int arg3, SceneService.SceneMoveListener arg4)
     {
-        SceneMoveMarshaller listener4 = new SceneMoveMarshaller();
+        SceneMarshaller.SceneMoveMarshaller listener4 = new SceneMarshaller.SceneMoveMarshaller();
         listener4.listener = arg4;
         sendRequest(arg1, TRAVERSE_PORTAL, new Object[] {
             new Integer(arg2), new Integer(arg3), listener4
@@ -57,9 +57,9 @@ public class SpotMarshaller extends InvocationMarshaller
     public static final int CHANGE_LOCATION = 2;
 
     // documentation inherited from interface
-    public void changeLocation (Client arg1, int arg2, Location arg3, ConfirmListener arg4)
+    public void changeLocation (Client arg1, int arg2, Location arg3, InvocationService.ConfirmListener arg4)
     {
-        ConfirmMarshaller listener4 = new ConfirmMarshaller();
+        InvocationMarshaller.ConfirmMarshaller listener4 = new InvocationMarshaller.ConfirmMarshaller();
         listener4.listener = arg4;
         sendRequest(arg1, CHANGE_LOCATION, new Object[] {
             new Integer(arg2), arg3, listener4
@@ -70,9 +70,9 @@ public class SpotMarshaller extends InvocationMarshaller
     public static final int JOIN_CLUSTER = 3;
 
     // documentation inherited from interface
-    public void joinCluster (Client arg1, int arg2, ConfirmListener arg3)
+    public void joinCluster (Client arg1, int arg2, InvocationService.ConfirmListener arg3)
     {
-        ConfirmMarshaller listener3 = new ConfirmMarshaller();
+        InvocationMarshaller.ConfirmMarshaller listener3 = new InvocationMarshaller.ConfirmMarshaller();
         listener3.listener = arg3;
         sendRequest(arg1, JOIN_CLUSTER, new Object[] {
             new Integer(arg2), listener3

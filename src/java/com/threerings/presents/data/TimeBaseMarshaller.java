@@ -1,5 +1,5 @@
 //
-// $Id: TimeBaseMarshaller.java,v 1.4 2004/08/27 02:20:19 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -23,7 +23,6 @@ package com.threerings.presents.data;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.TimeBaseService;
-import com.threerings.presents.client.TimeBaseService.GotTimeBaseListener;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 
@@ -72,9 +71,9 @@ public class TimeBaseMarshaller extends InvocationMarshaller
     public static final int GET_TIME_OID = 1;
 
     // documentation inherited from interface
-    public void getTimeOid (Client arg1, String arg2, GotTimeBaseListener arg3)
+    public void getTimeOid (Client arg1, String arg2, TimeBaseService.GotTimeBaseListener arg3)
     {
-        GotTimeBaseMarshaller listener3 = new GotTimeBaseMarshaller();
+        TimeBaseMarshaller.GotTimeBaseMarshaller listener3 = new TimeBaseMarshaller.GotTimeBaseMarshaller();
         listener3.listener = arg3;
         sendRequest(arg1, GET_TIME_OID, new Object[] {
             arg2, listener3

@@ -1,5 +1,5 @@
 //
-// $Id: AdminDispatcher.java,v 1.5 2004/08/27 02:12:24 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,7 +22,6 @@
 package com.threerings.admin.server;
 
 import com.threerings.admin.client.AdminService;
-import com.threerings.admin.client.AdminService.ConfigInfoListener;
 import com.threerings.admin.data.AdminMarshaller;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ClientObject;
@@ -59,7 +58,7 @@ public class AdminDispatcher extends InvocationDispatcher
         case AdminMarshaller.GET_CONFIG_INFO:
             ((AdminProvider)provider).getConfigInfo(
                 source,
-                (ConfigInfoListener)args[0]
+                (AdminService.ConfigInfoListener)args[0]
             );
             return;
 

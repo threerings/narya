@@ -1,5 +1,5 @@
 //
-// $Id: ChatMarshaller.java,v 1.9 2004/08/27 02:12:31 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,9 +22,8 @@
 package com.threerings.crowd.chat.data;
 
 import com.threerings.crowd.chat.client.ChatService;
-import com.threerings.crowd.chat.client.ChatService.TellListener;
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService.InvocationListener;
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 import com.threerings.util.Name;
@@ -74,9 +73,9 @@ public class ChatMarshaller extends InvocationMarshaller
     public static final int TELL = 1;
 
     // documentation inherited from interface
-    public void tell (Client arg1, Name arg2, String arg3, TellListener arg4)
+    public void tell (Client arg1, Name arg2, String arg3, ChatService.TellListener arg4)
     {
-        TellMarshaller listener4 = new TellMarshaller();
+        ChatMarshaller.TellMarshaller listener4 = new ChatMarshaller.TellMarshaller();
         listener4.listener = arg4;
         sendRequest(arg1, TELL, new Object[] {
             arg2, arg3, listener4
@@ -87,7 +86,7 @@ public class ChatMarshaller extends InvocationMarshaller
     public static final int BROADCAST = 2;
 
     // documentation inherited from interface
-    public void broadcast (Client arg1, String arg2, InvocationListener arg3)
+    public void broadcast (Client arg1, String arg2, InvocationService.InvocationListener arg3)
     {
         ListenerMarshaller listener3 = new ListenerMarshaller();
         listener3.listener = arg3;

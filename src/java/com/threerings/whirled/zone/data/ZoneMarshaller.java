@@ -1,5 +1,5 @@
 //
-// $Id: ZoneMarshaller.java,v 1.5 2004/08/27 02:20:51 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -28,7 +28,6 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
 import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.data.SceneUpdate;
 import com.threerings.whirled.zone.client.ZoneService;
-import com.threerings.whirled.zone.client.ZoneService.ZoneMoveListener;
 import com.threerings.whirled.zone.data.ZoneSummary;
 
 /**
@@ -110,9 +109,9 @@ public class ZoneMarshaller extends InvocationMarshaller
     public static final int MOVE_TO = 1;
 
     // documentation inherited from interface
-    public void moveTo (Client arg1, int arg2, int arg3, int arg4, ZoneMoveListener arg5)
+    public void moveTo (Client arg1, int arg2, int arg3, int arg4, ZoneService.ZoneMoveListener arg5)
     {
-        ZoneMoveMarshaller listener5 = new ZoneMoveMarshaller();
+        ZoneMarshaller.ZoneMoveMarshaller listener5 = new ZoneMarshaller.ZoneMoveMarshaller();
         listener5.listener = arg5;
         sendRequest(arg1, MOVE_TO, new Object[] {
             new Integer(arg2), new Integer(arg3), new Integer(arg4), listener5

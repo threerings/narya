@@ -1,5 +1,5 @@
 //
-// $Id: AdminMarshaller.java,v 1.5 2004/08/27 02:12:24 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,7 +22,6 @@
 package com.threerings.admin.data;
 
 import com.threerings.admin.client.AdminService;
-import com.threerings.admin.client.AdminService.ConfigInfoListener;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
@@ -72,9 +71,9 @@ public class AdminMarshaller extends InvocationMarshaller
     public static final int GET_CONFIG_INFO = 1;
 
     // documentation inherited from interface
-    public void getConfigInfo (Client arg1, ConfigInfoListener arg2)
+    public void getConfigInfo (Client arg1, AdminService.ConfigInfoListener arg2)
     {
-        ConfigInfoMarshaller listener2 = new ConfigInfoMarshaller();
+        AdminMarshaller.ConfigInfoMarshaller listener2 = new AdminMarshaller.ConfigInfoMarshaller();
         listener2.listener = arg2;
         sendRequest(arg1, GET_CONFIG_INFO, new Object[] {
             listener2

@@ -1,12 +1,30 @@
 //
 // $Id$
+//
+// Narya library - tools for developing networked games
+// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// http://www.threerings.net/code/narya/
+//
+// This library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU Lesser General Public License as published
+// by the Free Software Foundation; either version 2.1 of the License, or
+// (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.parlor.card.data;
 
 import com.threerings.parlor.card.client.CardGameService;
 import com.threerings.parlor.card.data.Card;
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService.ConfirmListener;
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 
@@ -24,9 +42,9 @@ public class CardGameMarshaller extends InvocationMarshaller
     public static final int SEND_CARDS_TO_PLAYER = 1;
 
     // documentation inherited from interface
-    public void sendCardsToPlayer (Client arg1, int arg2, Card[] arg3, ConfirmListener arg4)
+    public void sendCardsToPlayer (Client arg1, int arg2, Card[] arg3, InvocationService.ConfirmListener arg4)
     {
-        ConfirmMarshaller listener4 = new ConfirmMarshaller();
+        InvocationMarshaller.ConfirmMarshaller listener4 = new InvocationMarshaller.ConfirmMarshaller();
         listener4.listener = arg4;
         sendRequest(arg1, SEND_CARDS_TO_PLAYER, new Object[] {
             new Integer(arg2), arg3, listener4

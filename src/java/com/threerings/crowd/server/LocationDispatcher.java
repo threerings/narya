@@ -1,5 +1,5 @@
 //
-// $Id: LocationDispatcher.java,v 1.5 2004/08/27 02:12:34 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,7 +22,6 @@
 package com.threerings.crowd.server;
 
 import com.threerings.crowd.client.LocationService;
-import com.threerings.crowd.client.LocationService.MoveListener;
 import com.threerings.crowd.data.LocationMarshaller;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.presents.client.Client;
@@ -60,7 +59,7 @@ public class LocationDispatcher extends InvocationDispatcher
         case LocationMarshaller.MOVE_TO:
             ((LocationProvider)provider).moveTo(
                 source,
-                ((Integer)args[0]).intValue(), (MoveListener)args[1]
+                ((Integer)args[0]).intValue(), (LocationService.MoveListener)args[1]
             );
             return;
 

@@ -1,5 +1,5 @@
 //
-// $Id: LocationMarshaller.java,v 1.5 2004/08/27 02:12:33 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,7 +22,6 @@
 package com.threerings.crowd.data;
 
 import com.threerings.crowd.client.LocationService;
-import com.threerings.crowd.client.LocationService.MoveListener;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
@@ -73,9 +72,9 @@ public class LocationMarshaller extends InvocationMarshaller
     public static final int MOVE_TO = 1;
 
     // documentation inherited from interface
-    public void moveTo (Client arg1, int arg2, MoveListener arg3)
+    public void moveTo (Client arg1, int arg2, LocationService.MoveListener arg3)
     {
-        MoveMarshaller listener3 = new MoveMarshaller();
+        LocationMarshaller.MoveMarshaller listener3 = new LocationMarshaller.MoveMarshaller();
         listener3.listener = arg3;
         sendRequest(arg1, MOVE_TO, new Object[] {
             new Integer(arg2), listener3

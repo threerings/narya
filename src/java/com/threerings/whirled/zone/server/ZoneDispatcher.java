@@ -1,5 +1,5 @@
 //
-// $Id: ZoneDispatcher.java,v 1.5 2004/08/27 02:20:51 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -30,7 +30,6 @@ import com.threerings.presents.server.InvocationException;
 import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.data.SceneUpdate;
 import com.threerings.whirled.zone.client.ZoneService;
-import com.threerings.whirled.zone.client.ZoneService.ZoneMoveListener;
 import com.threerings.whirled.zone.data.ZoneMarshaller;
 import com.threerings.whirled.zone.data.ZoneSummary;
 
@@ -63,7 +62,7 @@ public class ZoneDispatcher extends InvocationDispatcher
         case ZoneMarshaller.MOVE_TO:
             ((ZoneProvider)provider).moveTo(
                 source,
-                ((Integer)args[0]).intValue(), ((Integer)args[1]).intValue(), ((Integer)args[2]).intValue(), (ZoneMoveListener)args[3]
+                ((Integer)args[0]).intValue(), ((Integer)args[1]).intValue(), ((Integer)args[2]).intValue(), (ZoneService.ZoneMoveListener)args[3]
             );
             return;
 

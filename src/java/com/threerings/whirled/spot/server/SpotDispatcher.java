@@ -1,5 +1,5 @@
 //
-// $Id: SpotDispatcher.java,v 1.6 2004/08/27 02:20:47 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,13 +22,13 @@
 package com.threerings.whirled.spot.server;
 
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService.ConfirmListener;
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
-import com.threerings.whirled.client.SceneService.SceneMoveListener;
-import com.threerings.whirled.data.SceneMarshaller.SceneMoveMarshaller;
+import com.threerings.whirled.client.SceneService;
+import com.threerings.whirled.data.SceneMarshaller;
 import com.threerings.whirled.spot.client.SpotService;
 import com.threerings.whirled.spot.data.Location;
 import com.threerings.whirled.spot.data.SpotMarshaller;
@@ -62,21 +62,21 @@ public class SpotDispatcher extends InvocationDispatcher
         case SpotMarshaller.TRAVERSE_PORTAL:
             ((SpotProvider)provider).traversePortal(
                 source,
-                ((Integer)args[0]).intValue(), ((Integer)args[1]).intValue(), (SceneMoveListener)args[2]
+                ((Integer)args[0]).intValue(), ((Integer)args[1]).intValue(), (SceneService.SceneMoveListener)args[2]
             );
             return;
 
         case SpotMarshaller.CHANGE_LOCATION:
             ((SpotProvider)provider).changeLocation(
                 source,
-                ((Integer)args[0]).intValue(), (Location)args[1], (ConfirmListener)args[2]
+                ((Integer)args[0]).intValue(), (Location)args[1], (InvocationService.ConfirmListener)args[2]
             );
             return;
 
         case SpotMarshaller.JOIN_CLUSTER:
             ((SpotProvider)provider).joinCluster(
                 source,
-                ((Integer)args[0]).intValue(), (ConfirmListener)args[1]
+                ((Integer)args[0]).intValue(), (InvocationService.ConfirmListener)args[1]
             );
             return;
 
