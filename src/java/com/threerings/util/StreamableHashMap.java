@@ -1,5 +1,5 @@
 //
-// $Id: StreamableHashMap.java,v 1.2 2003/05/27 22:54:36 ray Exp $
+// $Id: StreamableHashMap.java,v 1.3 2003/05/28 01:18:41 mdb Exp $
 
 package com.threerings.util;
 
@@ -19,6 +19,7 @@ import com.threerings.io.Streamable;
  * @see Streamable
  */
 public class StreamableHashMap extends HashMap
+    implements Streamable
 {
     /**
      * Constructs an empty hash map with the specified number of hash
