@@ -1,5 +1,5 @@
 //
-// $Id: SafeSubscriber.java,v 1.3 2003/12/11 18:47:43 mdb Exp $
+// $Id: SafeSubscriber.java,v 1.4 2003/12/15 17:12:11 mdb Exp $
 
 package com.threerings.presents.util;
 
@@ -38,6 +38,15 @@ public class SafeSubscriber
 
         _oid = oid;
         _subscriber = subscriber;
+    }
+
+    /**
+     * Returns true if we are currently subscribed to our object (or in
+     * the process of obtaining a subscription).
+     */
+    public boolean isActive ()
+    {
+        return _active;
     }
 
     /**
