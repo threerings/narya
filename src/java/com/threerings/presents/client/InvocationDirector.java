@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.31 2003/07/25 20:51:08 mdb Exp $
+// $Id: InvocationDirector.java,v 1.32 2003/07/29 18:48:11 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -144,8 +144,9 @@ public class InvocationDirector
                             "id to code mapping [code=" + receiverCode + "].");
             } else {
                 Object decoder = _receivers.remove(rreg.receiverId);
-                Log.info("Cleared receiver " +
-                         StringUtil.shortClassName(decoder) + " " + rreg + ".");
+//                 Log.info("Cleared receiver " +
+//                          StringUtil.shortClassName(decoder) +
+//                          " " + rreg + ".");
             }
             _clobj.removeFromReceivers(receiverCode);
         }
@@ -163,8 +164,8 @@ public class InvocationDirector
         _clobj.addToReceivers(reg);
         // and map the receiver in our receivers table
         _receivers.put(reg.receiverId, decoder);
-        Log.info("Registered receiver " + StringUtil.shortClassName(decoder) +
-                 " " + reg + ".");
+//         Log.info("Registered receiver " +
+//                  StringUtil.shortClassName(decoder) + " " + reg + ".");
     }
 
     /**
@@ -217,7 +218,7 @@ public class InvocationDirector
         // server-side entities only sort of pretending to be a client
         event.setSourceOid(_clobj.getOid());
 
-        Log.debug("Sending invreq " + event + ".");
+//         Log.info("Sending invreq " + event + ".");
 
         // now dispatch the event
         _omgr.postEvent(event);
@@ -385,7 +386,7 @@ public class InvocationDirector
             while (iter.hasNext()) {
                 ListenerMarshaller lm = (ListenerMarshaller)iter.next();
                 if (now - lm.mapStamp > LISTENER_MAX_AGE) {
-                    Log.debug("Flushing marshaller " + lm + ".");
+//                     Log.info("Flushing marshaller " + lm + ".");
                     iter.remove();
                 }
             }
