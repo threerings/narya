@@ -1,10 +1,18 @@
 //
-// $Id: MisoTileManager.java,v 1.1 2002/04/06 01:46:56 mdb Exp $
+// $Id: MisoTileManager.java,v 1.2 2002/04/06 01:56:39 mdb Exp $
 
 package com.threerings.miso.tile;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import com.threerings.resource.ResourceManager;
+import com.threerings.util.CompiledConfig;
+
 import com.threerings.media.ImageManager;
 import com.threerings.media.tile.TileManager;
+
+import com.threerings.miso.Log;
 
 /**
  * Extends the basic tile manager and provides support for automatically
@@ -19,24 +27,24 @@ public class MisoTileManager extends TileManager
      * @param imgr the image manager via which the tile manager will
      * decode and cache images.
      */
-    public MisoTileManager (ImageManager imgr)
+    public MisoTileManager (ResourceManager rmgr, ImageManager imgr)
     {
         super(imgr);
-    }
 
-    /**
-     * Sets the tileset repository that will be used by the tile manager
-     * when tiles are requested by tileset id. The miso tile manager
-     * requires a miso tileset repository which provides it with
-     * information about fringe configuration in addition to the tilesets.
-     */
-    public void setMisoTileSetRepository (MisoTileSetRepository setrep)
-    {
-        setTileSetRepository(setrep);
+        // look for a fringe configuration in the appropriate place
+        try {
+            InputStream in = rmgr.getResource(FRINGE_CONFIG_PATH);
+            FringeConfiguration config = (FringeConfiguration)
+                CompiledConfig.loadConfig(in);
 
-        // now that we have a miso tileset repository, we can create our
-        // auto fringer
-        _fringer = new AutoFringer(setrep.getFringeConfiguration(), this);
+            // if we've found it, create our auto fringer with it
+            _fringer = new AutoFringer(config, this);
+
+        } catch (IOException ioe) {
+            Log.warning("Unable to load fringe configuration " +
+                        "[path=" + FRINGE_CONFIG_PATH +
+                        ", error=" + ioe + "].");
+        }
     }
 
     /**
@@ -52,4 +60,9 @@ public class MisoTileManager extends TileManager
 
     /** The entity that performs the automatic fringe layer generation. */
     protected AutoFringer _fringer;
+
+    /** The path (in the classpath) to the serialized fringe
+     * configuration. */
+    protected static final String FRINGE_CONFIG_PATH =
+        "config/miso/tile/fringeconf.dat";
 }
