@@ -1,5 +1,5 @@
 //
-// $Id: InvocationManager.java,v 1.6 2001/08/11 00:05:58 mdb Exp $
+// $Id: InvocationManager.java,v 1.7 2001/08/14 06:47:38 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -162,8 +162,9 @@ public class InvocationManager
             procmeth.invoke(provider, margs);
         } catch (Exception e) {
             Log.warning("Error invoking invocation procedure " +
-                        "[provider=" + provider + ", method=" + procmeth +
-                        ", error=" + e + "].");
+                        "[provider=" + provider +
+                        ", method=" + procmeth + "].");
+            Log.logStackTrace(e);
         }
 
         return true;
