@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.56 2002/12/20 23:41:26 mdb Exp $
+// $Id: DObject.java,v 1.57 2003/01/13 18:38:05 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -516,7 +516,18 @@ public class DObject implements Streamable
      */
     public String which ()
     {
-        return "[" + getClass().getName() + " " + getOid() + "]";
+        StringBuffer buf = new StringBuffer();
+        which(buf);
+        return buf.toString();
+    }
+
+    /**
+     * Used to briefly describe this distributed object.
+     */
+    protected void which (StringBuffer buf)
+    {
+        buf.append(StringUtil.shortClassName(this));
+        buf.append(":").append(_oid);
     }
 
     /**
