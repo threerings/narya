@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.12 2003/04/26 02:16:18 mdb Exp $
+// $Id: SceneBlock.java,v 1.13 2003/04/28 20:27:35 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -11,6 +11,7 @@ import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.geom.GeomUtil;
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.Tile;
@@ -66,6 +67,7 @@ public class SceneBlock
 
         // start with the bounds of the footprint polygon
         Rectangle sbounds = new Rectangle(_footprint.getBounds());
+        Rectangle obounds = null;
 
         // resolve our base tiles
         MisoSceneModel model = _panel.getSceneModel();
@@ -98,6 +100,7 @@ public class SceneBlock
         for (int ii = 0; ii < _objects.length; ii++) {
             _objects[ii] = new SceneObject(_panel, set.get(ii));
             sbounds.add(_objects[ii].bounds);
+            obounds = GeomUtil.grow(obounds, _objects[ii].bounds);
         }
 
         // resolve our default tileset
@@ -114,6 +117,7 @@ public class SceneBlock
         // this both marks us as resolved and makes all our other updated
         // fields visible
         synchronized (this) {
+            _obounds = obounds;
             _sbounds = sbounds;
         }
 
@@ -153,6 +157,16 @@ public class SceneBlock
     public Rectangle getScreenBounds ()
     {
         return _sbounds;
+    }
+
+    /**
+     * Returns the bounds of the screen coordinate rectangle that contains
+     * all pixels that are drawn on by all objects (but not base tiles) in
+     * this block.
+     */
+    public Rectangle getObjectBounds ()
+    {
+        return _obounds;
     }
 
     /**
@@ -418,6 +432,9 @@ public class SceneBlock
 
     /** The bounds (in screen coords) of all images rendered by this block. */
     protected Rectangle _sbounds;
+
+    /** The bounds (in screen coords) of all objects rendered by this block. */
+    protected Rectangle _obounds;
 
     /** A polygon bounding the footprint of this block. */
     protected Polygon _footprint;
