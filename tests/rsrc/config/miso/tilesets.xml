@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: tilesets.xml,v 1.12 2001/08/30 01:15:19 shaper Exp $ -->
+<!-- $Id: tilesets.xml,v 1.13 2001/08/30 19:15:10 shaper Exp $ -->
 
 <!-- Initial test tileset description data. -->
 
@@ -92,6 +92,16 @@
     <rowheight>22</rowheight>
     <rowwidth>20</rowwidth>
     <tilecount>5</tilecount>
+  </tileset>
+
+  <tileset>
+    <name>Building</name>
+    <tsid>1009</tsid>
+    <imagefile>media/miso/tiles/building.png</imagefile>
+    <rowheight>240</rowheight>
+    <rowwidth>64</rowwidth>
+    <tilecount>6</tilecount>
+    <passable>0, 0, 0, 0, 0, 0</passable>
   </tileset>
 
 </tilesetgroup>
