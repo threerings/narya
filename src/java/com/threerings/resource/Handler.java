@@ -69,6 +69,18 @@ public class Handler extends URLStreamHandler
     }
 
     // documentation inherited
+    protected int hashCode (URL url)
+    {
+        return String.valueOf(url).hashCode();
+    }
+
+    // documentation inherited
+    protected boolean equals (URL u1, URL u2)
+    {
+        return String.valueOf(u1).equals(String.valueOf(u2));
+    }
+
+    // documentation inherited
     protected URLConnection openConnection (URL url)
         throws IOException
     {
