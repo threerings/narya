@@ -1,5 +1,5 @@
 //
-// $Id: CrowdClient.java,v 1.16 2002/11/05 05:48:18 mdb Exp $
+// $Id: CrowdClient.java,v 1.17 2002/11/26 02:46:01 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -38,5 +38,18 @@ public class CrowdClient extends PresentsClient
         BodyObject bobj = (BodyObject)_clobj;
         BodyProvider.updateOccupantStatus(
             bobj, bobj.location, OccupantInfo.ACTIVE);
+    }
+
+    // documentation inherited
+    protected void sessionDidEnd ()
+    {
+        // clear out our location so that anyone listening for such things
+        // will know that we've left
+        if (_clobj != null) {
+            BodyObject bobj = (BodyObject)_clobj;
+            bobj.setLocation(-1);
+        }
+
+        super.sessionDidEnd();
     }
 }
