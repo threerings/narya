@@ -1,5 +1,5 @@
 //
-// $Id: PuzzlePanel.java,v 1.8 2004/10/28 19:20:04 mdb Exp $
+// $Id: PuzzlePanel.java,v 1.9 2004/10/29 00:48:37 eric Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -155,7 +155,7 @@ public abstract class PuzzlePanel extends JPanel
     {
         // create a robot player if necessary
         if (_robot == null) {
-            _robot = new RobotPlayer(this, _xlate);
+            _robot = createRobotPlayer();
         }
         setPuzzleGrabsKeys(!isrobot);
         _robot.setRobotDelay(200L);
@@ -196,6 +196,16 @@ public abstract class PuzzlePanel extends JPanel
         if (isRobotTesting() && _controller.getPlayerIndex() == 0) {
             setRobotPlayer(false);
         }
+    }
+
+    /**
+     * Creates a robot player using the default RobotPlayer.  Derived
+     * classes can override to make use of more advanced robots adapted to
+     * specific puzzles.
+     */
+    protected RobotPlayer createRobotPlayer ()
+    {
+        return new RobotPlayer(this, _xlate);
     }
 
     /**
