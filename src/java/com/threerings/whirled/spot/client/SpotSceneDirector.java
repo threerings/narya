@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.27 2003/04/04 05:44:47 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.28 2003/04/07 21:50:04 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -127,6 +127,8 @@ public class SpotSceneDirector extends BasicDirector
 
         // prepare to move to this scene (sets up pending data)
         if (!_scdir.prepareMoveTo(dest.targetSceneId, rl)) {
+            Log.info("Portal traversal vetoed by scene director " +
+                     "[portalId=" + portalId + "].");
             return false;
         }
 
@@ -174,7 +176,7 @@ public class SpotSceneDirector extends BasicDirector
             return;
         }
 
-        Log.info("Changing location [loc=" + loc + "].");
+        Log.info("Sending changeLocation request " + loc + ".");
 
         _pendingLoc = (Location)loc.clone();
         _sservice.changeLocation(_ctx.getClient(), loc, new ConfirmListener() {
