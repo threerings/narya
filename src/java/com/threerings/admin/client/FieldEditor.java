@@ -1,5 +1,5 @@
 //
-// $Id: FieldEditor.java,v 1.10 2004/04/05 23:44:28 eric Exp $
+// $Id: FieldEditor.java,v 1.11 2004/06/15 03:25:19 ray Exp $
 
 package com.threerings.admin.client;
 
@@ -94,62 +94,59 @@ public class FieldEditor extends JPanel
         }
     }
 
-    // documentation inherited from interface
-    public void actionPerformed (ActionEvent event)
+    /**
+     * Parse the value.
+     */
+    protected Object parseValue (String text)
+        throws Exception
     {
-        Object value = null;
-
         // parse the new value
         if (_field.getType().equals(Integer.class) ||
             _field.getType().equals(Integer.TYPE)) {
-            try {
-                value = new Integer(_value.getText());
-            } catch (NumberFormatException nfe) {
-                updateBorder(true);
-            }
+            return new Integer(text);
 
         } else if (_field.getType().equals(Long.class) ||
                    _field.getType().equals(Long.TYPE)) {
-            try {
-                value = new Long(_value.getText());
-            } catch (NumberFormatException nfe) {
-                updateBorder(true);
-            }
+            return new Long(text);
 
         } else if (_field.getType().equals(Float.class) ||
                    _field.getType().equals(Float.TYPE)) {
-            try {
-                value = new Float(_value.getText());
-            } catch (NumberFormatException nfe) {
-                updateBorder(true);
-            }
+            return new Float(text);
 
         } else if (_field.getType().equals(Double.class) ||
                    _field.getType().equals(Double.TYPE)) {
-            try {
-                value = new Double(_value.getText());
-            } catch (NumberFormatException nfe) {
-                updateBorder(true);
-            }
+            return new Double(text);
 
         } else if (_field.getType().equals(String.class)) {
-            value = _value.getText();
+            return text;
 
         } else if (_field.getType().equals(STRING_ARRAY_PROTO.getClass())) {
-            value = StringUtil.parseStringArray(_value.getText());
+            return StringUtil.parseStringArray(_value.getText());
 
         } else if (_field.getType().equals(INT_ARRAY_PROTO.getClass())) {
-            value = StringUtil.parseIntArray(_value.getText());
+            return StringUtil.parseIntArray(_value.getText());
             
         } else if (_field.getType().equals(FLOAT_ARRAY_PROTO.getClass())) {
-            value = StringUtil.parseFloatArray(_value.getText());
+            return StringUtil.parseFloatArray(_value.getText());
             
         } else if (_field.getType().equals(Boolean.TYPE)) {
-            value = new Boolean(_value.getText().equalsIgnoreCase("true"));
+            return new Boolean(_value.getText().equalsIgnoreCase("true"));
 
         } else {
             Log.warning("Unknown field type '" + _field.getName() + "': " +
                         _field.getType().getName() + ".");
+            return null;
+        }
+    }
+
+    // documentation inherited from interface
+    public void actionPerformed (ActionEvent event)
+    {
+        Object value = null;
+        try {
+            value = parseValue(_value.getText());
+        } catch (Exception e) {
+            updateBorder(true);
         }
 
         // submit an attribute changed event with the new value
