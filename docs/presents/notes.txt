@@ -26,6 +26,10 @@ Maybe make AuthResponseData a Streamable instead of a DObject.
 Have the LocationRegistry register the LocationProvider rather than doing
 it via a config file. Perhaps lose the config file element altogether.
 
+Think about Subscriber business and whether or not DObject needs a list of
+subscribers or if there's a better way to handle removedLastSubscriber()
+on the client side and not taint the server side with all dat crap.
+
 * Server-side event concentrator
 The client objects will not subscribe directly, but will subscribe through
 the concentrator so that, at least, it can create a single
