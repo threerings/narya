@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.4 2002/02/28 23:16:42 mdb Exp $
+// $Id: MessageBundle.java,v 1.5 2002/03/01 17:10:30 shaper Exp $
 
 package com.threerings.util;
 
@@ -251,6 +251,38 @@ public class MessageBundle
         return compose(key, new String[] { arg1, arg2, arg3 });
     }
 
+    /**
+     * A convenience method for calling {@link #compose(String,String[])}
+     * with a single argument that will be automatically (see {@link
+     * #taint}).
+     */
+    public static String tcompose (String key, String arg)
+    {
+        return compose(key, new String[] { taint(arg) });
+    }
+
+    /**
+     * A convenience method for calling {@link #compose(String,String[])}
+     * with two arguments that will be automatically tainted (see {@link
+     * #taint}).
+     */
+    public static String tcompose (String key, String arg1, String arg2)
+    {
+        return compose(key, new String[] { taint(arg1), taint(arg2) });
+    }
+
+    /**
+     * A convenience method for calling {@link #compose(String,String[])}
+     * with three arguments that will be automatically tainted (see {@link
+     * #taint}).
+     */
+    public static String tcompose (
+        String key, String arg1, String arg2, String arg3)
+    {
+        return compose(key, new String[] {
+            taint(arg1), taint(arg2), taint(arg3) });
+    }
+    
     /** The path that identifies the resource bundle we are using to
      * obtain our messages. */
     protected String _path;
