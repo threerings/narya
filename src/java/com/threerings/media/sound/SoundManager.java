@@ -450,9 +450,12 @@ public class SoundManager
 
             AudioInputStream stream = AudioSystem.getAudioInputStream(
                 new ByteArrayInputStream(data));
-            AudioFormat format = stream.getFormat();
+            if (key.cmd == LOOP) {
+                stream.mark(data.length);
+            }
 
             // open the sound line
+            AudioFormat format = stream.getFormat();
             line = (SourceDataLine) AudioSystem.getLine(
                 new DataLine.Info(SourceDataLine.class, format));
             line.open(format, LINEBUF_SIZE);
