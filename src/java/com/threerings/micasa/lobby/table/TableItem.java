@@ -1,5 +1,5 @@
 //
-// $Id: TableItem.java,v 1.2 2001/10/23 23:52:01 mdb Exp $
+// $Id: TableItem.java,v 1.3 2001/10/24 01:26:54 mdb Exp $
 
 package com.threerings.micasa.lobby.table;
 
@@ -47,6 +47,7 @@ public class TableItem
     {
         // keep track of these
         _tdtr = tdtr;
+        _ctx = ctx;
 
         // add ourselves as a seatedness observer
         _tdtr.addSeatednessObserver(this);
@@ -105,6 +106,15 @@ public class TableItem
 
             // and add the button with the configured constraints
             add(_seats[i], gbc);
+
+            // if we just added the first button, add the "go" button
+            // right after it
+            if (i == 0) {
+                _goButton = new JButton("Go");
+                _goButton.setActionCommand("go");
+                _goButton.addActionListener(this);
+                add(_goButton, gbc);
+            }
         }
 
         // and update ourselves based on the contents of the occupants
@@ -143,6 +153,9 @@ public class TableItem
                 _seats[i].setEnabled(false);
             }
         }
+
+        // show or hide our "go" button appropriately
+        _goButton.setVisible(table.gameOid != -1);
     }
 
     /**
@@ -158,7 +171,8 @@ public class TableItem
     // documentation inherited
     public void actionPerformed (ActionEvent event)
     {
-        if (event.getActionCommand().equals("join")) {
+        String cmd = event.getActionCommand();
+        if (cmd.equals("join")) {
             // figure out what position this button is in
             int position = -1;
             for (int i = 0; i < _seats.length; i++) {
@@ -177,9 +191,16 @@ public class TableItem
                 _tdtr.joinTable(table.getTableId(), position);
             }
 
-        } else {
+        } else if (cmd.equals("leave")) {
             // if we're not joining, we're leaving
             _tdtr.leaveTable(table.getTableId());
+
+        } else if (cmd.equals("go")) {
+            // they want to see the game... so go there
+            _ctx.getLocationDirector().moveTo(table.gameOid);
+
+        } else {
+            Log.warning("Received unknown action [event=" + event + "].");
         }
     }
 
@@ -188,7 +209,15 @@ public class TableItem
     {
         // just update ourselves
         tableUpdated(table);
+
+        // enable or disable the go button based on our seatedness
+        if (_goButton.isVisible()) {
+            _goButton.setEnabled(!isSeated);
+        }
     }
+
+    /** A reference to our context. */
+    protected MiCasaContext _ctx;
 
     /** Our username. */
     protected String _self;
@@ -201,6 +230,10 @@ public class TableItem
 
     /** We have a button for each "seat" at the table. */
     protected JButton[] _seats;
+
+    /** We have a button for going to games that are already in
+     * progress. */
+    protected JButton _goButton;
 
     /** The text shown for seats at which the user can join. */
     protected static final String JOIN_LABEL = "<join>";
