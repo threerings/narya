@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.15 2003/05/20 16:29:36 mdb Exp $
+// $Id: ResourceBundle.java,v 1.16 2003/05/27 07:52:45 mdb Exp $
 
 package com.threerings.resource;
 
@@ -11,10 +11,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import com.samskivert.io.NestableIOException;
+import com.samskivert.io.StreamUtil;
 import com.samskivert.util.FileUtil;
 import com.samskivert.util.StringUtil;
 
@@ -32,7 +34,7 @@ public class ResourceBundle
      */
     public ResourceBundle (File source)
     {
-        this(source, false);
+        this(source, false, false);
     }
 
     /**
@@ -41,10 +43,17 @@ public class ResourceBundle
      * @param source a file object that references our source jar file.
      * @param delay if true, the bundle will wait until someone calls
      * {@link #sourceIsReady} before allowing access to its resources.
+     * @param unpack if true the bundle will unpack itself into a
+     * temporary directory
      */
-    public ResourceBundle (File source, boolean delay)
+    public ResourceBundle (File source, boolean delay, boolean unpack)
     {
         _source = source;
+        if (unpack) {
+            String root = stripSuffix(source.getPath());
+            _unpacked = new File(root + ".stamp");
+            _cache = new File(root);
+        }
 
         if (!delay) {
             sourceIsReady();
@@ -68,6 +77,92 @@ public class ResourceBundle
     {
         // make a note of our source's last modification time
         _sourceLastMod = _source.lastModified();
+
+        // if we are unpacking files, the time to do so is now
+        if (_unpacked != null && _unpacked.lastModified() != _sourceLastMod) {
+            boolean resolved = false;
+            try {
+                resolved = !resolveJarFile();
+            } catch (IOException ioe) {
+                Log.warning("Failure resolving jar file '" + _source +
+                            "': " + ioe + ".");
+            }
+            if (!resolved) {
+                String errmsg = "Source ready but failed to resolve jar " +
+                    "[source=" + _source + "]";
+                throw new IllegalStateException(errmsg);
+            }
+
+            Log.info("Unpacking into " + _cache + "...");
+            if (!_cache.exists()) {
+                if (!_cache.mkdir()) {
+                    Log.warning("Failed to create bundle cache directory '" +
+                                _cache + "'.");
+                    // we are hopelessly fucked
+                    return;
+                }
+            } else {
+                FileUtil.recursiveClean(_cache);
+            }
+
+            boolean failure = false;
+            Enumeration entries = _jarSource.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = (JarEntry)entries.nextElement();
+                File efile = new File(_cache, entry.getName());
+
+                // if we're unpacking a normal jar file, it will have
+                // special path entries that allow us to create our
+                // directories first
+                if (entry.isDirectory()) {
+                    if (!efile.exists() && !efile.mkdir()) {
+                        Log.warning("Failed to create bundle entry path '" +
+                                    efile + "'.");
+                        failure = true;
+                    }
+                    continue;
+                }
+
+                // but some do not, so we want to ensure that our
+                // directories exist prior to getting down and funky
+                File parent = new File(efile.getParent());
+                if (!parent.exists() && !parent.mkdirs()) {
+                    Log.warning("Failed to create bundle entry parent '" +
+                                parent + "'.");
+                    failure = true;
+                    continue;
+                }
+
+                BufferedOutputStream fout = null;
+                InputStream jin = null;
+                try {
+                    fout = new BufferedOutputStream(
+                        new FileOutputStream(efile));
+                    jin = _jarSource.getInputStream(entry);
+                    StreamUtils.pipe(jin, fout);
+                } catch (IOException ioe) {
+                    Log.warning("Failure unpacking " + efile + ": " + ioe);
+                    failure = true;
+                } finally {
+                    StreamUtil.close(jin);
+                    StreamUtil.close(fout);
+                }
+            }
+
+            // if everything unpacked smoothly, create our unpack stamp
+            if (!failure) {
+                try {
+                    _unpacked.createNewFile();
+                    if (!_unpacked.setLastModified(_sourceLastMod)) {
+                        Log.warning("Failed to set last mod on stamp file '" +
+                                    _unpacked + "'.");
+                    }
+                } catch (IOException ioe) {
+                    Log.warning("Failure creating stamp file '" + _unpacked +
+                                "': " + ioe + ".");
+                }
+            }
+        }
     }
 
     /**
@@ -109,15 +204,6 @@ public class ResourceBundle
             return null;
         }
 
-        // compute the path to our temporary file
-        String tpath = StringUtil.md5hex(_source.getPath() + "%" + path);
-        File tfile = new File(getCacheDir(), tpath);
-        if (tfile.exists() && (tfile.lastModified() > _sourceLastMod)) {
-//             System.out.println("Using cached " + _source.getPath() +
-//                                ":" + path);
-            return tfile;
-        }
-
         // make sure said resource exists in the first place
         JarEntry entry = _jarSource.getJarEntry(path);
         if (entry == null) {
@@ -125,7 +211,18 @@ public class ResourceBundle
             return null;
         }
 
-//         System.out.println("Unpacking " + path);
+        // if we have been unpacked, return our unpacked file
+        if (_cache != null) {
+            return new File(_cache, path);
+        }
+
+        // otherwise, we unpack resources as needed into a temp directory
+        String tpath = StringUtil.md5hex(_source.getPath() + "%" + path);
+        File tfile = new File(getCacheDir(), tpath);
+        if (tfile.exists() && (tfile.lastModified() > _sourceLastMod)) {
+            return tfile;
+        }
+
         // copy the resource into the temporary file
         BufferedOutputStream fout =
             new BufferedOutputStream(new FileOutputStream(tfile));
@@ -241,15 +338,29 @@ public class ResourceBundle
         });
     }
 
+    /** Strips the .jar off of jar file paths. */
+    protected static String stripSuffix (String path)
+    {
+        if (path.endsWith(".jar")) {
+            return path.substring(0, path.length()-4);
+        } else {
+            // we have to change the path somehow
+            return path + "-cache";
+        }
+    }
+
     /** The file from which we construct our jar file. */
     protected File _source;
 
     /** The last modified time of our source jar file. */
     protected long _sourceLastMod;
 
-    /** The directory into which our contents are unpacked, if we are
-     * unpacked. */
-    protected File _unpackDir;
+    /** A file whose timestamp indicates whether or not our existing jar
+     * file has been unpacked. */
+    protected File _unpacked;
+
+    /** A directory into which we unpack files from our bundle. */
+    protected File _cache;
 
     /** The jar file from which we load resources. */
     protected JarFile _jarSource;

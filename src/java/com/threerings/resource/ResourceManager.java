@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.28 2003/05/05 18:02:37 mdb Exp $
+// $Id: ResourceManager.java,v 1.29 2003/05/27 07:52:45 mdb Exp $
 
 package com.threerings.resource;
 
@@ -113,6 +113,13 @@ public class ResourceManager
          * determined.
          */
         public void downloadProgress (int percent, long remaining);
+
+        /**
+         * Called following the call to {@link #dowloadProgress} of 100
+         * percent completion to indicate that we have validated and
+         * unpacked our bundles and are fully ready to go.
+         */
+        public void downloadComplete ();
 
         /**
          * Called if a failure occurs while checking for an update or
@@ -282,12 +289,17 @@ public class ResourceManager
             }
 
             public void downloadProgress (int percent, long remaining) {
-                if (percent == 100) {
-                    bundlesDownloaded();
-                    synchronized (lock) {
-                        // wake things up as the download is finished
-                        lock.notify();
-                    }
+                // nothing for now
+            }
+
+            public void postDownloadHook () {
+                bundlesDownloaded();
+            }
+
+            public void downloadComplete () {
+                synchronized (lock) {
+                    // wake things up as the download is finished
+                    lock.notify();
                 }
             }
 
@@ -334,10 +346,15 @@ public class ResourceManager
             }
 
             public void downloadProgress (int percent, long remaining) {
-                if (percent == 100) {
-                    bundlesDownloaded();
-                }
                 obs.downloadProgress(percent, remaining);
+            }
+
+            public void postDownloadHook () {
+                bundlesDownloaded();
+            }
+
+            public void downloadComplete () {
+                obs.downloadComplete();
             }
 
             public void downloadFailed (DownloadDescriptor desc, Exception e) {
@@ -492,7 +509,7 @@ public class ResourceManager
 
                 // finally, add the file that will be cached to the set as
                 // a resource bundle
-                set.add(new ResourceBundle(cfile, true));
+                set.add(new ResourceBundle(cfile, true, true));
 
             } catch (MalformedURLException mue) {
                 Log.warning("Unable to create URL for resource " +
