@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.44 2002/11/05 05:47:36 mdb Exp $
+// $Id: PresentsClient.java,v 1.45 2002/11/26 02:14:25 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -154,19 +154,12 @@ public class PresentsClient
                 // call down to any derived classes
                 clientObjectWillChange(_clobj, clobj);
 
-                // release our old client object
+                // release our old client object; this will destroy it
                 _cmgr.releaseClientObject(_username);
-
-                // unmap the old client object; this will destroy it and
-                // clear out our username mapping
-                _cmgr.unmapClientObject(_username);
 
                 // update our internal fields
                 _username = username;
                 _clobj = clobj;
-
-                // lock our new client object
-                _cmgr.lockClientObject(_username);
 
                 // call down to any derived classes
                 clientObjectDidChange(_clobj);
@@ -233,10 +226,6 @@ public class PresentsClient
 
         // obtain our starting username
         assignStartingUsername();
-
-        // obtain a lock for our username->client object mapping while we
-        // have an active session
-        cmgr.lockClientObject(_username);
 
         // resolve our client object before we get fully underway
         cmgr.resolveClientObject(_username, this);
@@ -448,11 +437,10 @@ public class PresentsClient
         // about to generate
         clearSubscrips();
 
-        // release our locked client object
+        // release (and destroy) our client object
         _cmgr.releaseClientObject(_username);
 
-        // then let the client manager know what's up (it will take care
-        // of destroying our client object for us)
+        // let the client manager know that we're audi 5000
         _cmgr.clientDidEndSession(this);
 
         // clear out the client object so that we know the session is over

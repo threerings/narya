@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.26 2002/11/05 02:17:56 mdb Exp $
+// $Id: ClientManager.java,v 1.27 2002/11/26 02:14:25 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -135,7 +135,9 @@ public class ClientManager
      * If the client object is already resolved, the request will be
      * processed immediately, otherwise the appropriate client object will
      * be instantiated and populated by the registered client resolver
-     * (which may involve talking to databases).
+     * (which may involve talking to databases). <em>Note:</em> this
+     * <b>must</b> be paired with a call to {@link #releaseClientObject}
+     * when the caller is finished with the client object.
      */
     public synchronized void resolveClientObject (
         String username, ClientResolutionListener listener)
@@ -144,6 +146,7 @@ public class ClientManager
         String key = toKey(username);
         ClientObject clobj = (ClientObject)_objmap.get(key);
         if (clobj != null) {
+            clobj.reference();
             listener.clientResolved(username, clobj);
             return;
         }
@@ -189,67 +192,34 @@ public class ClientManager
     }
 
     /**
-     * If an entity resolves a client object outside the scope of a normal
-     * client session, it should call this to unmap the client object when
-     * it's finished. This won't actually unmap the client if someone came
-     * along and started a session for that client in the meanwhile, but
-     * if it does unmap the client it will also destroy the client object
-     * (finishing the job, as it were).
+     * Releases a client object that was obtained via a call to {@link
+     * #resolveClientObject}. If this caller is the last reference, the
+     * object will be flushed and destroyed.
      */
-    public synchronized void unmapClientObject (String username)
+    public void releaseClientObject (String username)
     {
-        // we only remove the mapping if there's not a session in progress
-        // (which is indicated by an entry in the locks table)
         String key = toKey(username);
-        if (_locks.contains(key)) {
+        ClientObject clobj = (ClientObject)_objmap.get(key);
+        if (clobj == null) {
+            Log.warning("Requested to release unmapped client object " +
+                        "[username=" + username + "].");
+            Thread.dumpStack();
             return;
         }
 
-        ClientObject clobj = (ClientObject)_objmap.remove(key);
-        if (clobj != null) {
-            PresentsServer.omgr.destroyObject(clobj.getOid());
-        } else {
-            Log.warning("Requested to unmap non-existent client object " +
-                        "[username=" + username + "].");
+        // decrement the reference count and stop here if there are
+        // remaining references
+        if (clobj.release()) {
+            return;
         }
-    }
 
-    /**
-     * When a client object becomes part of an active session, this method
-     * should be called to ensure that it is not unloaded by any entities
-     * that temporarily resolve and release the object. This is called
-     * automatically when a real user starts a session by establishing a
-     * network connection with the server. If a client session is managed
-     * via some other mechanism (bots managed by the server, for example),
-     * this method and its corresponding {@link #releaseClientObject}
-     * should be called at the beginning and end of the faked client
-     * session respectively.
-     */
-    public synchronized void lockClientObject (String username)
-    {
-        String key = toKey(username);
-        if (_locks.contains(key)) {
-            Log.warning("Requested to lock already locked user " +
-                        "[username=" + username + "].");
-            Thread.dumpStack();
+        Log.debug("Destroying client " + clobj.who() + ".");
 
-        } else {
-            _locks.add(key);
-        }
-    }
+        // we're all clear to go; remove the mapping
+        _objmap.remove(key);
 
-    /**
-     * Releases a client object when their session has ended.
-     *
-     * @see #lockClientObject
-     */
-    public synchronized void releaseClientObject (String username)
-    {
-        if (!_locks.remove(toKey(username))) {
-            Log.warning("Requested to unlock a user that was not locked " +
-                        "[username=" + username + "].");
-            Thread.dumpStack();
-        }
+        // and destroy the object itself
+        PresentsServer.omgr.destroyObject(clobj.getOid());
     }
 
     // documentation inherited
@@ -355,21 +325,12 @@ public class ClientManager
         if (rc == null) {
             Log.warning("Unregistered client ended session " + client + ".");
             Thread.dumpStack();
-
-            // if they weren't in the username mapping, bail out now
-            // because the subsequent unmappings would just fail if we
-            // tried to do them for an unmapped client
-            return;
-
         } else if (rc != client) {
             Log.warning("Different clients with same username!? " +
                         "[c1=" + rc + ", c2=" + client + "].");
         } else {
             Log.info("Ending session " + client + ".");
         }
-
-        // unmap (and destroy) the client object
-        unmapClientObject(username);
     }
 
     /**

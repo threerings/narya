@@ -1,5 +1,5 @@
 //
-// $Id: ClientResolver.java,v 1.1 2002/03/05 05:33:25 mdb Exp $
+// $Id: ClientResolver.java,v 1.2 2002/11/26 02:14:25 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -99,6 +99,8 @@ public class ClientResolver extends Invoker.Unit
                 ClientResolutionListener crl = (ClientResolutionListener)
                     _listeners.get(i);
                 try {
+                    // add a reference for each listener
+                    _clobj.reference();
                     crl.clientResolved(_username, _clobj);
                 } catch (Exception e) {
                     Log.warning("Client resolution listener choked during " +
