@@ -1,5 +1,5 @@
 //
-// $Id: ZoneProvider.java,v 1.6 2002/04/15 16:28:05 shaper Exp $
+// $Id: ZoneProvider.java,v 1.7 2002/05/03 00:00:17 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -59,12 +59,6 @@ public class ZoneProvider
                         "manager [user=" + source +
                         ", zoneId=" + zoneId + "].");
             sendResponse(source, invid, MOVE_FAILED_RESPONSE, NO_SUCH_ZONE);
-            return;
-        }
-
-        // make sure they're not already in that zone
-        if (((ZonedBodyObject)source).getZoneId() == zoneId) {
-            sendResponse(source, invid, MOVE_FAILED_RESPONSE, ALREADY_THERE);
             return;
         }
 
