@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.32 2001/08/16 23:14:21 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.33 2001/08/29 19:50:46 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -38,12 +38,6 @@ public class MisoScene implements Scene
     /** The latest scene file format version. */
     public static final short VERSION = 1;
 
-    /** The scene width in tiles. */
-    public static final int TILE_WIDTH = 22;
-
-    /** The scene height in tiles. */
-    public static final int TILE_HEIGHT = 22;
-
     /** String translations of each tile layer name. */
     public static final String[] XLATE_LAYERS = { "Base", "Fringe", "Object" };
 
@@ -58,12 +52,15 @@ public class MisoScene implements Scene
      * initialized to contain tiles of the specified default tileset and
      * tile id.
      *
+     * @param model the iso scene view model.
      * @param tilemgr the tile manager.
      * @param deftsid the default tileset id.
      * @param deftid the default tile id.
      */
-    public MisoScene (TileManager tilemgr, int deftsid, int deftid)
+    public MisoScene (IsoSceneViewModel model, TileManager tilemgr,
+		      int deftsid, int deftid)
     {
+	_model = model;
 	_tilemgr = tilemgr;
 
 	_sid = SID_INVALID;
@@ -73,10 +70,10 @@ public class MisoScene implements Scene
 	_clusters = new ArrayList();
         _portals = new ArrayList();
 
-	tiles = new Tile[TILE_WIDTH][TILE_HEIGHT][NUM_LAYERS];
+	tiles = new Tile[_model.scenewid][_model.scenehei][NUM_LAYERS];
 	_deftile = _tilemgr.getTile(deftsid, deftid);
-	for (int xx = 0; xx < TILE_WIDTH; xx++) {
-	    for (int yy = 0; yy < TILE_HEIGHT; yy++) {
+	for (int xx = 0; xx < _model.scenewid; xx++) {
+	    for (int yy = 0; yy < _model.scenehei; yy++) {
 		for (int ii = 0; ii < NUM_LAYERS; ii++) {
 		    if (ii == LAYER_BASE) {
 			tiles[xx][yy][ii] = _deftile;
@@ -89,17 +86,20 @@ public class MisoScene implements Scene
     /**
      * Construct a new miso scene object with the given values.
      *
+     * @param model the iso scene view model.
      * @param tilemgr the tile manager.
      * @param name the scene name.
      * @param locations the locations.
      * @param portals the portals.
      * @param tiles the tiles comprising the scene.
      */
-    public MisoScene (
-        TileManager tilemgr, String name, ArrayList locations,
-        ArrayList clusters, ArrayList portals, Tile tiles[][][])
+    public MisoScene (IsoSceneViewModel model, TileManager tilemgr,
+		      String name, ArrayList locations,
+		      ArrayList clusters, ArrayList portals,
+		      Tile tiles[][][])
     {
-        _tilemgr = tilemgr;
+	_model = model;
+	_tilemgr = tilemgr;
         _sid = SID_INVALID;
         _name = name;
         _locations = locations;
@@ -303,13 +303,16 @@ public class MisoScene implements Scene
      */
     public int getNumLayerTiles (int lnum)
     {
-	if (lnum == LAYER_BASE) return TILE_WIDTH * TILE_HEIGHT;
+	if (lnum == LAYER_BASE) {
+	    return _model.scenewid * _model.scenehei;
+	}
 
 	int numTiles = 0;
-
-	for (int xx = 0; xx < TILE_WIDTH; xx++) {
-	    for (int yy = 0; yy < TILE_HEIGHT; yy++) {
-		if (tiles[xx][yy] != null) numTiles++;
+	for (int xx = 0; xx < _model.scenewid; xx++) {
+	    for (int yy = 0; yy < _model.scenehei; yy++) {
+		if (tiles[xx][yy] != null) {
+		    numTiles++;
+		}
 	    }
 	}
 
@@ -361,6 +364,9 @@ public class MisoScene implements Scene
 
     /** The default tile for the base layer in the scene. */
     protected Tile _deftile;
+
+    /** The iso scene view data model. */
+    protected IsoSceneViewModel _model;
 
     /** The tile manager. */
     protected TileManager _tilemgr;

@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.14 2001/08/16 23:14:21 mdb Exp $
+// $Id: XMLSceneParser.java,v 1.15 2001/08/29 19:50:46 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -27,8 +27,9 @@ import com.threerings.miso.scene.*;
  */
 public class XMLSceneParser extends DefaultHandler
 {
-    public XMLSceneParser (TileManager tilemgr)
+    public XMLSceneParser (IsoSceneViewModel model, TileManager tilemgr)
     {
+	_model = model;
         _tilemgr = tilemgr;
     }
 
@@ -119,7 +120,7 @@ public class XMLSceneParser extends DefaultHandler
         int[] vals = StringUtil.parseIntArray(data);
 
         // make sure we have a suitable number of tiles
-        int validLen = MisoScene.TILE_WIDTH * 2;
+        int validLen = _model.scenewid * 2;
         if (vals.length != validLen) {
             Log.warning(
                 "Invalid number of tiles in full row data set, skipping set " +
@@ -311,6 +312,9 @@ public class XMLSceneParser extends DefaultHandler
     /** The XML element tag currently being processed. */
     protected String _tag;
 
+    /** The iso scene view data model. */
+    protected IsoSceneViewModel _model;
+
     /** The tile manager object for use in constructing scenes. */
     protected TileManager _tilemgr;
 
@@ -354,7 +358,7 @@ public class XMLSceneParser extends DefaultHandler
 
 	public SceneInfo ()
 	{
-	    int width = MisoScene.TILE_WIDTH, height = MisoScene.TILE_HEIGHT;
+	    int width = _model.scenewid, height = _model.scenehei;
 	    tiles = new Tile[width][height][MisoScene.NUM_LAYERS];
 	    clusters = new ArrayList();
 	}
@@ -362,7 +366,7 @@ public class XMLSceneParser extends DefaultHandler
 	public void constructScene (TileManager tilemgr)
 	{
 	    scene = new MisoScene(
-                tilemgr, name, locations, clusters, portals, tiles);
+                _model, tilemgr, name, locations, clusters, portals, tiles);
 	}
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneWriter.java,v 1.11 2001/08/16 23:14:21 mdb Exp $
+// $Id: XMLSceneWriter.java,v 1.12 2001/08/29 19:50:46 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -30,8 +30,9 @@ public class XMLSceneWriter extends DataWriter
     /**
      * Construct an XMLSceneWriter object.
      */
-    public XMLSceneWriter ()
+    public XMLSceneWriter (IsoSceneViewModel model)
     {
+	_model = model;
         setIndentStep(2);
     }
 
@@ -122,7 +123,7 @@ public class XMLSceneWriter extends DataWriter
         attrs.addAttribute("", "lnum", "", "CDATA", "" + lnum);
 
         startElement("", "layer", "", attrs);
-        for (int yy = 0; yy < MisoScene.TILE_HEIGHT; yy++) {
+        for (int yy = 0; yy < _model.scenehei; yy++) {
             if (lnum == MisoScene.LAYER_BASE) {
                 writeTileRowData(scene, yy, lnum);
             } else {
@@ -239,8 +240,7 @@ public class XMLSceneWriter extends DataWriter
         attrs.addAttribute("", "rownum", "", "CDATA", "" + rownum);
 
         // output the full row data element
-        String data = getTileData(scene, rownum, lnum, 0,
-                                  MisoScene.TILE_WIDTH);
+        String data = getTileData(scene, rownum, lnum, 0, _model.scenewid);
         dataElement("", "row", "", attrs, data);
     }
 
@@ -266,7 +266,7 @@ public class XMLSceneWriter extends DataWriter
         MisoScene scene, int rownum, int lnum, int info[])
     {
         int start = -1, len = 0;
-        for (int xx = info[0]; xx < MisoScene.TILE_WIDTH; xx++) {
+        for (int xx = info[0]; xx < _model.scenewid; xx++) {
             Tile tile = scene.tiles[xx][rownum][lnum];
             if (tile == null) {
                 if (start == -1) continue;
@@ -320,4 +320,7 @@ public class XMLSceneWriter extends DataWriter
             info[0] = info[0] + info[1];
         }
     }
+
+    /** The iso scene view data model. */
+    protected IsoSceneViewModel _model;
 }

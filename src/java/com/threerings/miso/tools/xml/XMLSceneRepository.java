@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneRepository.java,v 1.10 2001/08/29 18:41:46 shaper Exp $
+// $Id: XMLSceneRepository.java,v 1.11 2001/08/29 19:50:46 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import com.samskivert.util.Config;
 import com.threerings.media.tile.TileManager;
 import com.threerings.miso.Log;
+import com.threerings.miso.scene.IsoSceneViewModel;
 import com.threerings.miso.scene.MisoScene;
 import com.threerings.miso.util.MisoUtil;
 
@@ -38,9 +39,12 @@ public class XMLFileSceneRepository
 	_root = System.getProperty("root", "");
         _sceneRoot = _config.getValue(SCENEROOT_KEY, DEF_SCENEROOT);
 
-	// create the parser and writer objects
-        _parser = new XMLSceneParser(_tilemgr);
-        _writer = new XMLSceneWriter();
+	// create an iso scene view model detailing scene dimensions
+	_model = new IsoSceneViewModel(config);
+
+	// construct the scene parser and writer objects for later use
+        _parser = new XMLSceneParser(_model, _tilemgr);
+        _writer = new XMLSceneWriter(_model);
     }
 
     /**
@@ -94,6 +98,9 @@ public class XMLFileSceneRepository
 
     /** The root scene directory path. */
     protected String _sceneRoot;
+
+    /** The iso scene view data model. */
+    protected IsoSceneViewModel _model;
 
     /** The parser object for reading scenes from files. */
     protected XMLSceneParser _parser;

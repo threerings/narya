@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.52 2001/08/22 02:14:57 mdb Exp $
+// $Id: IsoSceneView.java,v 1.53 2001/08/29 19:50:46 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -49,15 +49,15 @@ public class IsoSceneView implements EditableSceneView
         // create our polygon arrays and create polygons for each of the
         // tiles. we use these repeatedly, so we go ahead and make 'em all
         // up front
-        _polys = new Polygon[MisoScene.TILE_WIDTH][MisoScene.TILE_HEIGHT];
-	for (int xx = 0; xx < MisoScene.TILE_WIDTH; xx++) {
-	    for (int yy = 0; yy < MisoScene.TILE_HEIGHT; yy++) {
+        _polys = new Polygon[model.scenewid][model.scenehei];
+	for (int xx = 0; xx < model.scenewid; xx++) {
+	    for (int yy = 0; yy < model.scenehei; yy++) {
 		_polys[xx][yy] = IsoUtil.getTilePolygon(_model, xx, yy);
 	    }
 	}
 
         // create the array used to mark dirty tiles
-        _dirty = new boolean[MisoScene.TILE_WIDTH][MisoScene.TILE_HEIGHT];
+        _dirty = new boolean[model.scenewid][model.tilehei];
 
 	// create the list of dirty rectangles
 	_dirtyRects = new ArrayList();
@@ -119,8 +119,8 @@ public class IsoSceneView implements EditableSceneView
 	_dirtyRects.clear();
 
 	_numDirty = 0;
-	for (int xx = 0; xx < MisoScene.TILE_WIDTH; xx++) {
-	    for (int yy = 0; yy < MisoScene.TILE_HEIGHT; yy++) {
+	for (int xx = 0; xx < _model.scenewid; xx++) {
+	    for (int yy = 0; yy < _model.scenehei; yy++) {
 		_dirty[xx][yy] = false;
 	    }
 	}
@@ -130,8 +130,8 @@ public class IsoSceneView implements EditableSceneView
     {
 	// draw the dirty tiles
 	gfx.setColor(Color.cyan);
-	for (int xx = 0; xx < MisoScene.TILE_WIDTH; xx++) {
-	    for (int yy = 0; yy < MisoScene.TILE_HEIGHT; yy++) {
+	for (int xx = 0; xx < _model.scenewid; xx++) {
+	    for (int yy = 0; yy < _model.scenehei; yy++) {
 		if (_dirty[xx][yy]) {
 		    gfx.draw(_polys[xx][yy]);
 		}
@@ -156,8 +156,8 @@ public class IsoSceneView implements EditableSceneView
     {
 	int numDrawn = 0;
 
-	for (int yy = 0; yy < MisoScene.TILE_HEIGHT; yy++) {
-	    for (int xx = 0; xx < MisoScene.TILE_WIDTH; xx++) {
+	for (int yy = 0; yy < _model.scenehei; yy++) {
+	    for (int xx = 0; xx < _model.scenewid; xx++) {
 
 		// skip this tile if it's not marked dirty
 		if (!_dirty[xx][yy]) continue;
@@ -209,7 +209,7 @@ public class IsoSceneView implements EditableSceneView
 
 	for (int ii = 0; ii < _model.tilerows; ii++) {
 	    // determine starting tile coordinates
-	    int tx = (ii < MisoScene.TILE_HEIGHT) ? 0 : mx++;
+	    int tx = (ii < _model.scenehei) ? 0 : mx++;
 	    int ty = my;
 
 	    // determine number of tiles in this row
@@ -255,8 +255,8 @@ public class IsoSceneView implements EditableSceneView
 	    screenY += _model.tilehhei;
 
 	    // advance starting y-axis coordinate unless we've hit bottom
-	    if ((++my) > MisoScene.TILE_HEIGHT - 1) {
-                my = MisoScene.TILE_HEIGHT - 1;
+	    if ((++my) > _model.scenehei - 1) {
+                my = _model.scenehei - 1;
             }
 	}
     }
@@ -537,15 +537,15 @@ public class IsoSceneView implements EditableSceneView
 	// constrain x-coordinate to a valid range
 	if (x < 0) {
 	    x = 0;
-	} else if (x >= MisoScene.TILE_WIDTH) {
-	    x = MisoScene.TILE_WIDTH - 1;
+	} else if (x >= _model.scenewid) {
+	    x = _model.scenewid - 1;
 	}
 
 	// constrain y-coordinate to a valid range
 	if (y < 0) {
 	    y = 0;
-	} else if (y >= MisoScene.TILE_HEIGHT) {
-	    y = MisoScene.TILE_HEIGHT - 1;
+	} else if (y >= _model.scenehei) {
+	    y = _model.scenehei - 1;
 	}
 
 	// do nothing if the tile's already dirty
@@ -608,7 +608,7 @@ public class IsoSceneView implements EditableSceneView
 	// get a reasonable path from start to end
 	List tilepath =
 	    AStarPathUtil.getPath(
-		_scene.tiles, MisoScene.TILE_WIDTH, MisoScene.TILE_HEIGHT,
+		_scene.tiles, _model.scenewid, _model.scenehei,
 		sprite, stpos.x, stpos.y, tbx, tby);
 	if (tilepath == null) {
 	    return null;

@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.10 2001/08/29 18:41:46 shaper Exp $
+// $Id: IsoSceneViewModel.java,v 1.11 2001/08/29 19:50:46 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -30,6 +30,9 @@ public class IsoSceneViewModel
 
     /** Number of fine coordinates on each axis within a tile. */
     public int finegran;
+
+    /** Scene dimensions in tile count. */
+    public int scenewid, scenehei;
 
     /** The bounds dimensions for the view. */
     public Dimension bounds;
@@ -78,18 +81,25 @@ public class IsoSceneViewModel
      */
     public IsoSceneViewModel (Config config)
     {
-	// set tile dimensions
+	// set the scene tile dimensions
+	scenewid = config.getValue(SCENE_WIDTH_KEY, DEF_SCENE_WIDTH);
+	scenehei = config.getValue(SCENE_HEIGHT_KEY, DEF_SCENE_HEIGHT);
+
+	// get the tile dimensions
 	int twid = config.getValue(TILE_WIDTH_KEY, DEF_TILE_WIDTH);
 	int thei = config.getValue(TILE_HEIGHT_KEY, DEF_TILE_HEIGHT);
+
+	// set tile dimensions and pre-calculate related member data
+	// based on now-known tile and scene dimensions
         setTileDimensions(twid, thei);
 
 	// set the fine coordinate granularity
 	setFineGranularity(config.getValue(FINE_GRAN_KEY, DEF_FINE_GRAN));
 
 	// set the desired scene view bounds
-	int swid = config.getValue(SCENE_WIDTH_KEY, DEF_SCENE_WIDTH);
-	int shei = config.getValue(SCENE_HEIGHT_KEY, DEF_SCENE_HEIGHT);
-	setBounds(swid * twid, shei * thei);
+	int svwid = config.getValue(SCENE_VWIDTH_KEY, DEF_SCENE_VWIDTH);
+	int svhei = config.getValue(SCENE_VHEIGHT_KEY, DEF_SCENE_VHEIGHT);
+	setBounds(svwid * twid, svhei * thei);
 
 	// set the scene display origin
 	int offy = config.getValue(SCENE_OFFSET_Y_KEY, DEF_OFFSET_Y);
@@ -182,7 +192,7 @@ public class IsoSceneViewModel
             (tilehwid * tilehwid) + (tilehhei * tilehhei));
 
         // calculate the number of tile rows to render
-        tilerows = (MisoScene.TILE_WIDTH * MisoScene.TILE_HEIGHT) - 1;
+        tilerows = (scenewid * scenehei) - 1;
 
         // calculate the slope of the x- and y-axis lines
         slopeX = (float)tilehei / (float)tilewid;
@@ -245,7 +255,7 @@ public class IsoSceneViewModel
 	bX = (int)-(slopeX * origin.x);
 
         // determine the ending point
-	lineX[1].x = lineX[0].x + (tilehwid * MisoScene.TILE_WIDTH);
+	lineX[1].x = lineX[0].x + (tilehwid * scenewid);
 	lineX[1].y = lineX[0].y + (int)((slopeX * lineX[1].x) + bX);
 
 	// calculate tile-based x-axis line for conversion from
@@ -276,6 +286,14 @@ public class IsoSceneViewModel
     protected static final String FINE_GRAN_KEY =
 	MisoUtil.CONFIG_KEY + ".fine_granularity";
 
+    /** The config key for scene view width in tile count. */
+    protected static final String SCENE_VWIDTH_KEY =
+	MisoUtil.CONFIG_KEY + ".scene_view_width";
+
+    /** The config key for scene view height in tile count. */
+    protected static final String SCENE_VHEIGHT_KEY =
+	MisoUtil.CONFIG_KEY + ".scene_view_height";
+
     /** The config key for scene width in tile count. */
     protected static final String SCENE_WIDTH_KEY =
 	MisoUtil.CONFIG_KEY + ".scene_width";
@@ -301,12 +319,14 @@ public class IsoSceneViewModel
 	MisoUtil.CONFIG_KEY + ".show_paths";
 
     /** Default scene view parameters. */
-    protected static final int DEF_TILE_WIDTH = 32;
-    protected static final int DEF_TILE_HEIGHT = 16;
+    protected static final int DEF_TILE_WIDTH = 64;
+    protected static final int DEF_TILE_HEIGHT = 48;
     protected static final int DEF_FINE_GRAN = 4;
-    protected static final int DEF_SCENE_WIDTH = 20;
-    protected static final int DEF_SCENE_HEIGHT = 20;
-    protected static final int DEF_OFFSET_Y = 9;
+    protected static final int DEF_SCENE_VWIDTH = 10;
+    protected static final int DEF_SCENE_VHEIGHT = 12;
+    protected static final int DEF_SCENE_WIDTH = 22;
+    protected static final int DEF_SCENE_HEIGHT = 22;
+    protected static final int DEF_OFFSET_Y = -5;
     protected static final boolean DEF_SHOW_COORDS = false;
     protected static final boolean DEF_SHOW_LOCS = false;
     protected static final boolean DEF_SHOW_PATHS = false;
