@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.3 2002/04/06 03:43:24 ray Exp $
+// $Id: AutoFringer.java,v 1.4 2002/04/06 03:52:28 ray Exp $
 
 package com.threerings.miso.tile;
 
@@ -48,12 +48,12 @@ public class AutoFringer
     }
 
     /**
-     * Automatically generate fringe information for the specified rectangular
-     * region AND THE TILES THEY INFLUENCE and insert into the fringe TileLayer.
+     * Automatically generate fringe information for the specified
+     * rectangular region <strong>and the tiles they influence</strong>
+     * and insert into the fringe TileLayer.
      */
     public void fringe (MisoSceneModel scene, TileLayer fringelayer,
                         Rectangle r) 
-              // int startx, int starty, int width, int height)
     {
         // create a hash to cache our masks
         HashMap maskcache = new HashMap();
@@ -72,10 +72,8 @@ public class AutoFringer
     }
 
     /**
-     * The actual computation of fringe for a specified location.
-     *
-     * @return a fully qualified fringe tileid for the specified location
-     * (0 for no fringe)
+     * Compute and return the fringe Tile to be inserted at the specified
+     * location.
      */
     protected Tile getFringeTile (MisoSceneModel scene, int row, int col,
                                   HashMap masks)
