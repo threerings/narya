@@ -1,5 +1,5 @@
 //
-// $Id: MathUtil.java,v 1.7 2002/10/26 23:21:19 mdb Exp $
+// $Id: MathUtil.java,v 1.8 2003/04/12 02:06:35 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -13,6 +13,17 @@ import java.awt.Point;
  */
 public class MathUtil
 {
+    /**
+     * Bounds the supplied value within the specified range.
+     *
+     * @return low if value < low, high if value > high and value
+     * otherwise.
+     */
+    public static int bound (int low, int value, int high)
+    {
+        return Math.min(high, Math.max(low, value));
+    }
+
     /**
      * Return the distance between the given points.
      */
