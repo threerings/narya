@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.13 2002/10/01 04:44:40 shaper Exp $
+// $Id: TestClient.java,v 1.14 2002/11/12 22:55:15 shaper Exp $
 
 package com.threerings.whirled;
 
@@ -150,6 +150,11 @@ public class TestClient
         }
 
         public void setPlaceView (PlaceView view)
+        {
+            // nothing to do because we don't create views
+        }
+
+        public void clearPlaceView (PlaceView view)
         {
             // nothing to do because we don't create views
         }
