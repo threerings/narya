@@ -111,7 +111,7 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
                 PuzzleCodes.PUZZLE_MESSAGE_BUNDLE).xlate(pmsg);
             _pauseLabel = new Label(pmsg, Label.BOLD | Label.OUTLINE,
                                     Color.WHITE, Color.BLACK,
-                                    _fonts[_fonts.length - 2]);
+                                    _fonts[getPauseFont()]);
             _pauseLabel.setTargetWidth(_bounds.width);
             _pauseLabel.layout(this);
         } else {
@@ -316,6 +316,14 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
         return fontSize;
     }
 
+    /**
+     * Returns the puzzle font to use for the pause message.
+     */
+    public int getPauseFont ()
+    {
+        return FONT_SIZES.length - 2;
+    }
+    
     /**
      * Returns the number of different puzzle font sizes so that those who
      * care to choose a font size out of the range of possible sizes can
