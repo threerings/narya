@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.80 2001/12/16 08:31:17 mdb Exp $
+// $Id: IsoSceneView.java,v 1.81 2001/12/18 08:38:33 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -366,48 +366,6 @@ public class IsoSceneView implements SceneView
             }
         }
     }
-
-//     /**
-//      * Paint demarcations at all locations in the scene, with each
-//      * location's cluster index, if any, along the right side of its
-//      * rectangle.
-//      *
-//      * @param gfx the graphics context.
-//      */
-//     protected void paintLocations (Graphics2D gfx)
-//     {
-// 	List locations = _scene.getLocations();
-// 	int size = locations.size();
-
-// 	for (int ii = 0; ii < size; ii++) {
-// 	    // retrieve the location
-// 	    Location loc = (Location)locations.get(ii);
-
-// 	    // get the cluster index this location is in, if any
-// 	    int clusteridx = MisoSceneUtil.getClusterIndex(_scene, loc);
-
-//             // get the location's center coordinate
-// 	    Point spos = new Point();
-// 	    IsoUtil.fullToScreen(_model, loc.x, loc.y, spos);
-// 	    int cx = spos.x, cy = spos.y;
-
-//             // paint the location
-//             loc.paint(gfx, cx, cy);
-
-// 	    if (clusteridx != -1) {
-// 		// draw the cluster index number on the right side
-// 		gfx.setFont(_font);
-// 		gfx.setColor(Color.white);
-// 		gfx.drawString(String.valueOf(clusteridx), cx + 5, cy + 3);
-// 	    }
-
-//             // highlight the location if it's the default entrance
-//             if (_scene.getEntrance() == loc) {
-//                 gfx.setColor(Color.cyan);
-//                 gfx.drawRect(spos.x - 5, spos.y - 5, 10, 10);
-//             }
-//         }
-//     }
 
     // documentation inherited
     public void invalidateRects (DirtyRectList rects)
