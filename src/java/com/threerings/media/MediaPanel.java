@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.5 2002/04/27 22:40:09 mdb Exp $
+// $Id: MediaPanel.java,v 1.6 2002/05/07 00:53:56 mdb Exp $
 
 package com.threerings.media;
 
@@ -152,6 +152,20 @@ public class MediaPanel extends JComponent
     }
 
     /**
+     * Configures a region of interest which will be displayed in the
+     * center of the viewport in situations where the media panel's actual
+     * size is smaller than its view size.
+     *
+     * @param region the region of interest or null if there is to be no
+     * region of interest (in which case the view will simply be
+     * centered).
+     */
+    public void setRegionOfInterest (Rectangle region)
+    {
+        _interest = region;
+    }
+
+    /**
      * Returns a reference to the region manager that is used to
      * accumulate dirty regions each frame.
      */
@@ -199,11 +213,37 @@ public class MediaPanel extends JComponent
 
         // figure out our viewport offsets
         Dimension size = getSize(), vsize = getViewSize();
-        _tx = (vsize.width - size.width)/2;
-        _ty = (vsize.height - size.height)/2;
+
+        // we need to compute one dimension at a time to make things work;
+        // if we have a region of interest (and our actual size is smaller
+        // than our view size), use that to compute our offset
+        if (_interest != null && size.width < vsize.width) {
+            _tx = centerWithInterest(size.width, vsize.width,
+                                     _interest.x, _interest.width);
+        } else {
+            // otherwise just center the display
+            _tx = (vsize.width - size.width)/2;
+        }
+        if (_interest != null && size.height < vsize.height) {
+            _ty = centerWithInterest(size.height, vsize.height,
+                                     _interest.y, _interest.height);
+        } else {
+            _ty = (vsize.height - size.height)/2;
+        }
 
 //         Log.info("Size: " + size + ", vsize: " + vsize +
 //                  ", tx: " + _tx + ", ty: " + _ty + ".");
+    }
+
+    /**
+     * Used to compute our viewport offsets.
+     */
+    protected int centerWithInterest (int len, int vlen, int ix, int ilen)
+    {
+        // start out by centering on the region of interest
+        int tx = (ix - (len - ilen)/2);
+        // make sure that didn't push us off of the screen
+        return Math.min(Math.max(tx, 0), vlen-len);
     }
 
     // documentation inherited
@@ -491,6 +531,9 @@ public class MediaPanel extends JComponent
 
     /** Used to accumulate and merge dirty regions on each tick. */
     protected RegionManager _remgr;
+
+    /** A region of interest which we'll try to keep visible. */
+    protected Rectangle _interest;
 
     /** Our viewport offsets. */
     protected int _tx, _ty;
