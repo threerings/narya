@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.16 2002/08/23 20:22:09 mdb Exp $
+// $Id: FrameManager.java,v 1.17 2002/10/09 06:31:38 mdb Exp $
 
 package com.threerings.media;
 
@@ -195,7 +195,7 @@ public class FrameManager
         long remaining = _millisPerFrame - duration;
 
         // note that we've done a frame
-        PerformanceMonitor.tick(this, "frame-rate");
+//         PerformanceMonitor.tick(this, "frame-rate");
 
         // if we have no time remaining, queue up another tick immediately
         if (remaining <= 0) {
@@ -356,7 +356,7 @@ public class FrameManager
     // documentation inherited
     public void checkpoint (String name, int ticks)
     {
-//         Log.info("Frames in last second: " + ticks);
+        Log.info("Frames in last second: " + ticks);
     }
 
     /**
@@ -578,9 +578,9 @@ public class FrameManager
     /** The image used to render off-screen. */
     protected VolatileImage _backimg;
 
-    /** The number of milliseconds per frame (33 by default, which gives
-     * an fps of 30). */
-    protected long _millisPerFrame = 33;
+    /** The number of milliseconds per frame (12 by default, which gives
+     * an fps of 80). */
+    protected long _millisPerFrame = 12;
 
     /** The time at which we started the most recent "frame". */
     protected long _frameStart;
