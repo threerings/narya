@@ -1,5 +1,5 @@
 //
-// $Id: HTTPDownloader.java,v 1.3 2004/02/25 14:52:16 mdb Exp $
+// $Id: HTTPDownloader.java,v 1.4 2004/06/17 03:02:55 mdb Exp $
 
 package com.threerings.resource;
 
@@ -32,12 +32,12 @@ public class HTTPDownloader extends Downloader
         }
 
         // read size and last modified information from the HEAD response
-        long fileSize = ucon.getContentLength();
+        _contentLength = ucon.getContentLength();
         _desc.lastModified = ucon.getLastModified();
 
-        if (compareWithLocal(fileSize, _desc.lastModified)) {
+        if (compareWithLocal(_contentLength, _desc.lastModified)) {
             // increment the total file size to be fetched
-            info.totalSize += fileSize;
+            info.totalSize += _contentLength;
             Log.debug("Resource deemed stale [url=" + _desc.sourceURL + "].");
             return true;
         } else {
