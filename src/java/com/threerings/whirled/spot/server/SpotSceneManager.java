@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.16 2002/08/14 19:07:58 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.17 2002/08/20 18:21:45 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -69,9 +69,20 @@ public class SpotSceneManager extends SceneManager
             _sscene.getModel(), _locationOccs, preferClusters);
         if (locId != -1) {
             // mark the location as pending
+//             Log.info("Earmarked location [scene=" + where() +
+//                      ", locId=" + locId + "].");
             _locationOccs[_sscene.getLocationIndex(locId)] = -1;
         }
         return locId;
+    }
+
+    /**
+     * Returns true if the location in question is occupied by another
+     * body (or reserved for someone who's on their way).
+     */
+    public boolean isLocationOccupied (int locId)
+    {
+        return (_locationOccs[_sscene.getLocationIndex(locId)] != 0);
     }
 
     // documentation inherited
