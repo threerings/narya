@@ -1,5 +1,5 @@
 //
-// $Id: BaseTileSet.java,v 1.8 2001/11/29 00:17:32 mdb Exp $
+// $Id: BaseTileSet.java,v 1.9 2001/11/29 21:58:49 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -25,6 +25,14 @@ public class BaseTileSet extends SwissArmyTileSet
     public void setPassability (boolean[] passable)
     {
         _passable = passable;
+    }
+
+    /**
+     * Returns the passability information for the tiles in this tileset.
+     */
+    public boolean[] getPassability ()
+    {
+        return _passable;
     }
 
     // documentation inherited

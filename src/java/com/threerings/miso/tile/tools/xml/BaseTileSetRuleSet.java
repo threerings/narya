@@ -1,5 +1,5 @@
 //
-// $Id: BaseTileSetRuleSet.java,v 1.6 2001/11/29 00:18:33 mdb Exp $
+// $Id: BaseTileSetRuleSet.java,v 1.7 2001/11/29 21:58:49 mdb Exp $
 
 package com.threerings.miso.tools.tile.xml;
 
@@ -11,6 +11,8 @@ import com.samskivert.xml.CallMethodSpecialRule;
 
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tools.tile.xml.SwissArmyTileSetRuleSet;
+
+import com.threerings.miso.Log;
 import com.threerings.miso.tile.BaseTileSet;
 
 /**
@@ -41,6 +43,22 @@ public class BaseTileSetRuleSet extends SwissArmyTileSetRuleSet
                     starget.setPassability(passable);
                 }
             });
+    }
+
+    // documentation inherited
+    public boolean isValid (Object target)
+    {
+        BaseTileSet set = (BaseTileSet)target;
+        boolean valid = super.isValid(target);
+
+        // check for a <passable> element
+        if (set.getPassability() == null) {
+            Log.warning("Tile set definition missing valid <passable> " +
+                        "element [set=" + set + "].");
+            valid = false;
+        }
+
+        return valid;
     }
 
     // documentation inherited
