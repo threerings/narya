@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.2 2001/12/14 01:51:46 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.3 2001/12/14 23:12:39 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -14,6 +14,7 @@ import com.threerings.whirled.util.WhirledContext;
 
 import com.threerings.whirled.spot.Log;
 import com.threerings.whirled.spot.data.Location;
+import com.threerings.whirled.spot.data.Portal;
 
 /**
  * Extends the standard scene director with facilities to move between
@@ -53,6 +54,59 @@ public class SpotSceneDirector extends SceneDirector
         WhirledContext ctx, SceneRepository screp, DisplaySceneFactory dsfact)
     {
         super(ctx, screp, dsfact);
+    }
+
+    /**
+     * Requests that this client move to the location specified by the
+     * supplied portal id. A request will be made and when the response is
+     * received, the location observers will be notified of success or
+     * failure.
+     */
+    public void traversePortal (int portalId)
+    {
+        // look up the destination scene and location
+        if (_scene == null) {
+            Log.warning("Requested to traverse portal when we have " +
+                        "no scene [portalId=" + portalId + "].");
+            return;
+        }
+
+        // find the portal they're talking about
+        int targetSceneId = -1, targetLocId = -1;
+        DisplaySpotScene ds = (DisplaySpotScene)_scene;
+        Iterator portals = ds.getPortals().iterator();
+        while (portals.hasNext()) {
+            Portal portal = (Portal)portals.next();
+            if (portal.locationId == portalId) {
+                targetSceneId = portal.targetSceneId;
+                targetLocId = portal.targetLocId;
+            }
+        }
+
+        // make sure we found the portal
+        if (targetSceneId == -1) {
+            Log.warning("Requested to traverse non-existent portal " +
+                        "[portalId=" + portalId +
+                        ", portals=" +
+                        StringUtil.toString(ds.getPortals().iterator()) + "].");
+        }
+
+        // prepare to move to this scene (sets up pending data)
+        if (!prepareMoveTo(targetSceneId)) {
+            return;
+        }
+
+        // check the version of our cached copy of the scene to which
+        // we're requesting to move; if we were unable to load it, assume
+        // a cached version of zero
+        int sceneVer = 0;
+        if (_pendingModel != null) {
+            sceneVer = _pendingModel.version;
+        }
+
+        // issue a traversePortal request
+        SpotService.traversePortal(
+            _ctx.getClient(), _sceneId, portalId, sceneVer, this);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: SceneProvider.java,v 1.5 2001/11/12 20:56:56 mdb Exp $
+// $Id: SceneProvider.java,v 1.6 2001/12/14 23:12:38 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -19,8 +19,8 @@ import com.threerings.whirled.data.SceneModel;
  * The scene provider handles the server side of the scene related
  * invocation services (e.g. moving from scene to scene).
  */
-public class SceneProvider
-    extends InvocationProvider implements SceneCodes
+public class SceneProvider extends InvocationProvider
+    implements SceneCodes
 {
     /**
      * Processes a request from a client to move to a new scene.
@@ -88,8 +88,7 @@ public class SceneProvider
             }
 
         } catch (ServiceFailedException sfe) {
-            sendResponse(source, invid, MOVE_FAILED_RESPONSE,
-                         sfe.getMessage());
+            sendResponse(source, invid, MOVE_FAILED_RESPONSE, sfe.getMessage());
         }
     }
 }
