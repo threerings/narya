@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.44 2004/08/27 02:12:37 mdb Exp $
+// $Id: MediaPanel.java,v 1.45 2004/09/18 23:50:20 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -97,6 +97,23 @@ public class MediaPanel extends JComponent
                 _framemgr.removeFrameParticipant(MediaPanel.this);
             }
         });
+    }
+
+    /**
+     * Returns a reference to the animation manager used by this media
+     * panel.
+     */
+    public AnimationManager getAnimationManager ()
+    {
+        return _animmgr;
+    }
+
+    /**
+     * Returns a reference to the sprite manager used by this media panel.
+     */
+    public SpriteManager getSpriteManager ()
+    {
+        return _spritemgr;
     }
 
     /**
