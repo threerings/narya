@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.38 2003/04/17 19:21:17 mdb Exp $
+// $Id: ViewerApp.java,v 1.39 2003/04/26 17:56:26 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -63,7 +63,7 @@ public class ViewerApp
 
         // create the window
 	_frame = new ViewerFrame(gc);
-        _framemgr = new FrameManager(_frame);
+        _framemgr = FrameManager.newInstance(_frame);
 
         // we don't need to configure anything
         ResourceManager rmgr = new ResourceManager("rsrc");

@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.22 2003/04/25 15:52:25 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.23 2003/04/26 17:56:26 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -76,7 +76,7 @@ public class ScrollingTestApp
 	_frame = new ScrollingFrame(gc);
 
         // set up our frame manager
-        _framemgr = new FrameManager(_frame);
+        _framemgr = FrameManager.newInstance(_frame);
 
         // we don't need to configure anything
         ResourceManager rmgr = new ResourceManager("rsrc");

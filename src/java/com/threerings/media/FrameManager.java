@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.36 2003/04/19 01:04:29 mdb Exp $
+// $Id: FrameManager.java,v 1.37 2003/04/26 17:56:25 mdb Exp $
 
 package com.threerings.media;
 
@@ -11,10 +11,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.Graphics;
-import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
-import java.awt.Image;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
@@ -26,14 +23,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
-import java.awt.image.BufferStrategy;
-import java.awt.image.VolatileImage;
-
 import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 
 import java.util.Date;
 import java.util.Timer;
@@ -43,12 +33,13 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.RepaintManager;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 import com.samskivert.swing.Label;
 import com.samskivert.util.DebugChords;
-import com.samskivert.util.Interval;
-import com.samskivert.util.IntervalManager;
 import com.samskivert.util.ObserverList;
+import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.timer.MediaTimer;
@@ -106,7 +97,7 @@ import com.threerings.media.timer.SystemMediaTimer;
  * SafeScrollPane} or set your scroll panes' viewports to
  * <code>SIMPLE_SCROLL_MODE</code>.
  */
-public class FrameManager
+public abstract class FrameManager
 {
     /** {@link FrameParticipant}s can implement this interface and be
      * added to the performance display. */
@@ -122,11 +113,11 @@ public class FrameManager
      * obtain timing information, which is available on every platform,
      * but returns inaccurate time stamps on many platforms.
      *
-     * @see #FrameManager(JFrame, MediaTimer)
+     * @see #newInstance(JFrame, MediaTimer)
      */
-    public FrameManager (JFrame frame)
+    public static FrameManager newInstance (JFrame frame)
     {
-        this(frame, new SystemMediaTimer());
+        return newInstance(frame, new SystemMediaTimer());
     }
 
     /**
@@ -138,7 +129,24 @@ public class FrameManager
      *
      * @see GraphicsDevice#setFullScreenWindow
      */
-    public FrameManager (JFrame frame, MediaTimer timer)
+    public static FrameManager newInstance (JFrame frame, MediaTimer timer)
+    {
+        FrameManager fmgr;
+        if (_useFlip.getValue()) {
+            Log.info("Creating flip frame manager.");
+            fmgr = new FlipFrameManager();
+        } else {
+            Log.info("Creating back frame manager.");
+            fmgr = new BackFrameManager();
+        }
+        fmgr.init(frame, timer);
+        return fmgr;
+    }
+
+    /**
+     * Initializes this frame manager and prepares it for operation.
+     */
+    protected void init (JFrame frame, MediaTimer timer)
     {
         _frame = frame;
         if (frame instanceof ManagedJFrame) {
@@ -338,8 +346,8 @@ public class FrameManager
             _frame.getWidth() > 0 && _frame.getHeight() > 0) {
             // tick our participants
             tickParticipants(tickStamp);
-            // repaint our participants
-            paintParticipants(tickStamp);
+            // repaint our participants and components
+            paint(tickStamp);
         }
     }
 
@@ -378,103 +386,46 @@ public class FrameManager
 
     /**
      * Called once per frame to invoke {@link Component#paint} on all of
-     * our frame participants' components.
+     * our frame participants' components and all dirty components managed
+     * by our {@link FrameRepaintManager}.
      */
-    protected void paintParticipants (long tickStamp)
+    protected abstract void paint (long tickStamp);
+
+    /**
+     * Paints our frame participants and any dirty components via the
+     * repaint manager.
+     *
+     * @return true if anything was painted, false if not.
+     */
+    protected boolean paint (Graphics2D gfx)
     {
-//         // create our buffer strategy if we don't already have one
-//         if (_bufstrat == null) {
-//             _frame.createBufferStrategy(2);
-//             _bufstrat = _frame.getBufferStrategy();
-//         }
+        // paint our frame participants (which want to be handled
+        // specially)
+        _participantPaintOp.init(gfx);
+        _participants.apply(_participantPaintOp);
+        boolean ppart = _participantPaintOp.paintedSomething();
 
-        // start out assuming we can do an incremental render
-        boolean incremental = true;
+        // repaint any widgets that have declared they need to be
+        // repainted since the last tick
+        boolean pcomp = _remgr.paintComponents(gfx, this);
 
-        do {
-            GraphicsConfiguration gc = _frame.getGraphicsConfiguration();
-
-            // create our off-screen buffer if necessary
-            if (_backimg == null || _backimg.getWidth() != _frame.getWidth() ||
-                _backimg.getHeight() != _frame.getHeight()) {
-                createBackBuffer(gc);
-            }
-
-            // make sure our back buffer hasn't disappeared
-            int valres = _backimg.validate(gc);
-
-            // if we've changed resolutions, recreate the buffer
-            if (valres == VolatileImage.IMAGE_INCOMPATIBLE) {
-//                 Log.info("Back buffer incompatible, recreating.");
-                createBackBuffer(gc);
-            }
-
-            // if the image wasn't A-OK, we need to rerender the whole
-            // business rather than just the dirty parts
-            if (valres != VolatileImage.IMAGE_OK) {
-//                 Log.info("Lost back buffer, redrawing.");
-                incremental = false;
-            }
-
-//             g = _bufstrat.getDrawGraphics();
-
-            // dirty everything if we're not incrementally rendering
-            if (!incremental) {
-                _frame.update(_bgfx);
-            }
-
-            // paint our frame participants (which want to be handled
-            // specially)
-            _participantPaintOp.init(_bgfx);
-            _participants.apply(_participantPaintOp);
-            boolean ppart = _participantPaintOp.paintedSomething();
-
-            // repaint any widgets that have declared they need to be
-            // repainted since the last tick
-            boolean pcomp = _remgr.paintComponents(_bgfx, this);
-
-            // if we didn't paint anything, get the fork out of dodge
-            if (!(ppart || pcomp)) {
-                return;
-            }
-
+        if (ppart || pcomp) {
             if (_displayPerf && _perfLabel != null) {
                 // render the current performance status
-                _bgfx.setClip(null);
-                _perfLabel.render((Graphics2D)_bgfx, FPS_X, FPS_Y);
+                gfx.setClip(null);
+                _perfLabel.render(gfx, FPS_X, FPS_Y);
             }
+        }
 
-            // we cache our frame's graphics object so that we can avoid
-            // instantiating a new one on every tick
-            if (_fgfx == null) {
-                _fgfx = _frame.getGraphics();
-            }
-            _fgfx.drawImage(_backimg, 0, 0, null);
-
-//             _bufstrat.show();
-
-            // if we loop through a second time, we'll need to rerender
-            // everything
-            incremental = false;
-
-        } while (_backimg.contentsLost());
+        // let the caller know if anybody painted anything
+        return (ppart || pcomp);
     }
 
     /**
      * Called by the {@link ManagedJFrame} when our window was hidden and
      * reexposed.
      */
-    protected void restoreFromBack (Rectangle dirty)
-    {
-        if (_fgfx == null) {
-            _fgfx = _frame.getGraphics();
-        }
-//         Log.info("Restoring from back buffer " +
-//                  StringUtil.toString(dirty) + ".");
-        _fgfx.setClip(dirty);
-        _fgfx.drawImage(_backimg, 0, 0, null);
-        _fgfx.setClip(null);
-    }
+    protected abstract void restoreFromBack (Rectangle dirty);
 
     /**
      * If frame rate display is enabled, builds beginning of performance
@@ -509,17 +460,15 @@ public class FrameManager
         _perfLabel.setText(_perfStatus.toString());
         _perfStatus = null;
 
-        if (_bgfx == null) {
-            return;
-        }
-
         // dirty our previous bounds
         JComponent comp = (JComponent)_frame.getRootPane();
         Dimension lsize = _perfLabel.getSize();
         _remgr.addDirtyRegion(comp, FPS_X, FPS_Y, lsize.width, lsize.height);
 
         // re-layout our status label
-        _perfLabel.layout((Graphics2D)_bgfx);
+        Graphics2D gfx = (Graphics2D)_frame.getGraphics();
+        _perfLabel.layout(gfx);
+        gfx.dispose();
 
         // dirty our new bounds
         lsize = _perfLabel.getSize();
@@ -530,8 +479,8 @@ public class FrameManager
      * Renders all components in all {@link JLayeredPane} layers that
      * intersect the supplied bounds.
      */
-    protected void renderLayers (Graphics g, Component pcomp, Rectangle bounds, 
-                                 boolean[] clipped)
+    protected void renderLayers (Graphics2D g, Component pcomp,
+                                 Rectangle bounds, boolean[] clipped)
     {
         JLayeredPane lpane =
             JLayeredPane.getLayeredPaneAbove(pcomp);
@@ -547,8 +496,9 @@ public class FrameManager
      * Renders all components in the specified layer of the supplied
      * layered pane that intersect the supplied bounds.
      */
-    protected void renderLayer (Graphics g, Rectangle bounds, JLayeredPane pane,
-                                boolean[] clipped, Integer layer)
+    protected void renderLayer (Graphics2D g, Rectangle bounds,
+                                JLayeredPane pane, boolean[] clipped,
+                                Integer layer)
     {
         // stop now if there are no components in that layer
         int ccount = pane.getComponentCountInLayer(layer.intValue());
@@ -584,36 +534,6 @@ public class FrameManager
     public void checkpoint (String name, int ticks)
     {
         Log.info("Frames in last second: " + ticks);
-    }
-
-    /**
-     * Creates the off-screen buffer used to perform double buffered
-     * rendering of the animated panel.
-     */
-    protected void createBackBuffer (GraphicsConfiguration gc)
-    {
-        // if we have an old image, clear it out
-        if (_backimg != null) {
-            _backimg.flush();
-            _bgfx.dispose();
-        }
-
-        // create the offscreen buffer
-        int width = _frame.getWidth(), height = _frame.getHeight();
-        _backimg = gc.createCompatibleVolatileImage(width, height);
-
-        // fill the back buffer with white
-        _bgfx = _backimg.getGraphics();
-        _bgfx.fillRect(0, 0, width, height);
-
-        // clear out our frame graphics in case that became invalid for
-        // the same reasons our back buffer became invalid
-        if (_fgfx != null) {
-            _fgfx.dispose();
-            _fgfx = null;
-        }
-
-//         Log.info("Created back buffer [" + width + "x" + height + "].");
     }
 
     /**
@@ -708,7 +628,7 @@ public class FrameManager
          * Sets the graphics context to which the frame participants
          * render themselves.
          */
-        public void init (Graphics g)
+        public void init (Graphics2D g)
         {
             _g = g;
             _painted = 0;
@@ -788,7 +708,7 @@ public class FrameManager
         }
 
         /** The graphics context to which the participants render. */
-        protected Graphics _g;
+        protected Graphics2D _g;
 
         /** The number of participants that were actually painted. */
         protected int _painted;
@@ -865,12 +785,6 @@ public class FrameManager
     /** Our custom repaint manager. */
     protected FrameRepaintManager _remgr;
 
-//     /** The buffer strategy used to do our rendering. */
-//     protected BufferStrategy _bufstrat;
-
-    /** The image used to render off-screen. */
-    protected VolatileImage _backimg;
-
     /** The number of milliseconds per frame (14 by default, which gives
      * an fps of ~71). */
     protected long _millisPerFrame = 14;
@@ -883,12 +797,6 @@ public class FrameManager
 
     /** Used to track and report frames per second. */
     protected float[] _fps = new float[2];
-
-    /** The graphics object from our back buffer. */
-    protected Graphics _bgfx;
-
-    /** The graphics object from our frame. */
-    protected Graphics _fgfx;
 
     /** Used to avoid creating rectangles when rendering layered
      * components. */
@@ -937,6 +845,14 @@ public class FrameManager
 
     /** The y-coordinate at which the frames per second is rendered. */
     protected static final int FPS_Y = 27;
+
+    /** A debug hook that toggles debug rendering of sprite paths. */
+    protected static RuntimeAdjust.BooleanAdjust _useFlip =
+        new RuntimeAdjust.BooleanAdjust(
+            "When active a flip-buffer will be used to manage our " +
+            "rendering, otherwise a volatile back buffer is used " +
+            "[requires restart]", "narya.media.frame",
+            MediaPrefs.config, false);
 
     /** A debug hook that allows toggling the frame rate display. */
     protected DebugChords.Hook FPS_DISPLAY_HOOK = new DebugChords.Hook() {

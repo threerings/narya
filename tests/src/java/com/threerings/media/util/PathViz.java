@@ -1,5 +1,5 @@
 //
-// $Id: PathViz.java,v 1.2 2002/09/18 20:09:55 mdb Exp $
+// $Id: PathViz.java,v 1.3 2003/04/26 17:56:26 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -57,7 +57,7 @@ public class PathViz extends MediaPanel
     public static void main (String[] args)
     {
         ManagedJFrame frame = new ManagedJFrame("Path viz");
-        FrameManager fmgr = new FrameManager(frame);
+        FrameManager fmgr = FrameManager.newInstance(frame);
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setContentPane(new PathViz(fmgr));

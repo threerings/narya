@@ -1,5 +1,5 @@
 //
-// $Id: FrameRepaintManager.java,v 1.18 2003/04/02 03:59:17 mdb Exp $
+// $Id: FrameRepaintManager.java,v 1.19 2003/04/26 17:56:26 mdb Exp $
 
 package com.threerings.media;
 
@@ -8,6 +8,7 @@ import java.applet.Applet;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
@@ -384,7 +385,7 @@ public class FrameRepaintManager extends RepaintManager
 
                 // we also need to repaint any components in this layer
                 // that are above our freshly repainted component
-                fmgr.renderLayers(g, ocomp, _cbounds, _clipped);
+                fmgr.renderLayers((Graphics2D)g, ocomp, _cbounds, _clipped);
 
             } else if (root != null) {
                 if (DEBUG) {
