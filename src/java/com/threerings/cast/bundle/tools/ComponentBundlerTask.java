@@ -1,5 +1,5 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.3 2002/02/05 20:29:09 mdb Exp $
+// $Id: ComponentBundlerTask.java,v 1.4 2002/02/06 19:33:36 shaper Exp $
 
 package com.threerings.cast.bundle.tools;
 
@@ -205,7 +205,8 @@ public class ComponentBundlerTask extends Task
             broker = new HashMapIDBroker();
 
         } catch (Exception e) {
-            throw new BuildException("Error loading component ID map.", e);
+            throw new BuildException("Error loading component ID map " +
+                                     "[mapfile=" + mapfile + "].", e);
         }
 
         return broker;
@@ -224,7 +225,8 @@ public class ComponentBundlerTask extends Task
             oout.writeObject(broker);
             oout.close();
         } catch (IOException ioe) {
-            throw new BuildException("Unable to store component ID map.", ioe);
+            throw new BuildException("Unable to store component ID map " +
+                                     "[mapfile=" + mapfile + "].", ioe);
         }
     }
 
