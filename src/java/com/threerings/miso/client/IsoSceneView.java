@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.75 2001/11/29 23:35:37 mdb Exp $
+// $Id: IsoSceneView.java,v 1.76 2001/12/12 19:53:11 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -568,21 +568,23 @@ public class IsoSceneView implements SceneView
         }
 
         // add any objects impacted by the dirty rectangle
-        ObjectTileLayer tiles = _scene.getObjectLayer();
-        Iterator iter = _objpolys.keys();
-        while (iter.hasNext()) {
-            // get the object's coordinates and bounding polygon
-            int coord = ((Integer)iter.next()).intValue();
-            Polygon poly = (Polygon)_objpolys.get(coord);
+        if (_scene != null) {
+            ObjectTileLayer tiles = _scene.getObjectLayer();
+            Iterator iter = _objpolys.keys();
+            while (iter.hasNext()) {
+                // get the object's coordinates and bounding polygon
+                int coord = ((Integer)iter.next()).intValue();
+                Polygon poly = (Polygon)_objpolys.get(coord);
 
-            if (poly.intersects(r)) {
-                // get the dirty portion of the object
-                Rectangle drect = poly.getBounds().intersection(r);
-                int tx = coord >> 16, ty = coord & 0x0000FFFF;
-                _dirtyItems.appendDirtyObject(
-                    tiles.getTile(tx, ty), poly, tx, ty, drect);
-                // Log.info("Dirtied item: Object(" + tx + ", " +
-                // ty + ")");
+                if (poly.intersects(r)) {
+                    // get the dirty portion of the object
+                    Rectangle drect = poly.getBounds().intersection(r);
+                    int tx = coord >> 16, ty = coord & 0x0000FFFF;
+                    _dirtyItems.appendDirtyObject(
+                        tiles.getTile(tx, ty), poly, tx, ty, drect);
+                    // Log.info("Dirtied item: Object(" + tx + ", " +
+                    // ty + ")");
+                }
             }
         }
     }
