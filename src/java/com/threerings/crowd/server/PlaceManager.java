@@ -1,8 +1,9 @@
 //
-// $Id: PlaceManager.java,v 1.5 2001/08/01 20:37:35 mdb Exp $
+// $Id: PlaceManager.java,v 1.6 2001/08/03 02:14:41 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 import com.threerings.cocktail.cher.dobj.*;
@@ -31,7 +32,7 @@ import com.threerings.cocktail.party.data.PlaceObject;
  * protected void didShutdown ()
  * </pre>
  *
- * as well as through additions to <code>handlEvent</code>.
+ * as well as through additions to <code>handleEvent</code>.
  */
 public class PlaceManager implements Subscriber
 {
@@ -76,6 +77,23 @@ public class PlaceManager implements Subscriber
     }
 
     /**
+     * Registers a particular message handler instance to be used when
+     * processing message events with the specified name.
+     *
+     * @param name the message name of the message events that should be
+     * handled by this handler.
+     * @param handler the handler to be registered.
+     */
+    public void registerMessageHandler (String name, MessageHandler handler)
+    {
+        // create our handler map if necessary
+        if (_msghandlers == null) {
+            _msghandlers = new HashMap();
+        }
+        _msghandlers.put(name, handler);
+    }
+
+    /**
      * Returns the place object managed by this place manager.
      */
     public PlaceObject getPlaceObject ()
@@ -99,7 +117,34 @@ public class PlaceManager implements Subscriber
      */
     public boolean handleEvent (DEvent event, DObject target)
     {
+        // if this is a message event, see if we have a handler for it
+        if (event instanceof MessageEvent) {
+            MessageEvent mevt = (MessageEvent)event;
+            MessageHandler handler = (MessageHandler)
+                _msghandlers.get(mevt.getName());
+            if (handler != null) {
+                handler.handleEvent(mevt, (PlaceObject)target);
+            }
+        }
+
         return true;
+    }
+
+    /**
+     * An interface used to allow the registration of standard message
+     * handlers to be invoked by the place manager when particular types
+     * of message events are received.
+     */
+    protected static interface MessageHandler
+    {
+        /**
+         * Invokes this message handler on the supplied event.
+         *
+         * @param event the message event received.
+         * @param target the place object on which the message event was
+         * received.
+         */
+        public void handleEvent (MessageEvent event, PlaceObject target);
     }
 
     /** A reference to the place object that we manage. */
@@ -110,4 +155,7 @@ public class PlaceManager implements Subscriber
 
     /** The configuration provided for this place manager. */
     protected Properties _config;
+
+    /** Message handlers are used to process message events. */
+    protected HashMap _msghandlers;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.2 2001/08/02 23:47:21 mdb Exp $
+// $Id: ChatDirector.java,v 1.3 2001/08/03 02:14:41 mdb Exp $
 
 package com.threerings.cocktail.party.chat;
 
@@ -61,11 +61,23 @@ public class ChatManager
      *
      * @return an id which can be used to coordinate this speak request
      * with the response that will be delivered to all active chat
-     * displays when it arrives.
+     * displays when it arrives, or -1 if we were unable to make the
+     * request because we are not currently in a place.
      */
     public int requestSpeak (String message)
     {
-        return -1;
+        // make sure we're currently in a place
+        if (_place == null) {
+            return -1;
+        }
+
+        // dispatch a speak request on the active place object
+        int reqid = _ctx.getClient().getInvocationManager().nextInvocationId();
+        Object[] args = new Object[] { new Integer(reqid), message };
+        MessageEvent mevt = new MessageEvent(
+            _place.getOid(), ChatService.SPEAK_REQUEST, args);
+        _ctx.getDObjectManager().postEvent(mevt);
+        return reqid;
     }
 
     /**
@@ -139,6 +151,12 @@ public class ChatManager
     {
         String speaker = (String)args[0];
         String message = (String)args[1];
+
+        // pass this on to our chat displays
+        for (int i = 0; i < _displays.size(); i++) {
+            ChatDisplay display = (ChatDisplay)_displays.get(i);
+            display.displaySpeakMessage(speaker, message);
+        }
     }
 
     protected PartyContext _ctx;

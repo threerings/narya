@@ -1,5 +1,5 @@
 //
-// $Id: BodyObject.dobj,v 1.1 2001/07/20 20:07:37 mdb Exp $
+// $Id: BodyObject.dobj,v 1.2 2001/08/03 02:14:41 mdb Exp $
 
 package com.threerings.cocktail.party.data;
 
@@ -7,4 +7,16 @@ import com.threerings.cocktail.cher.data.ClientObject;
 
 public class BodyObject extends ClientObject
 {
+    /** The field name of the <code>username</code> field. */
+    public static final String USERNAME = "username";
+
+    /**
+     * The username associated with this body object.
+     */
+    public String username;
+
+    public void setUsername (String username)
+    {
+        requestAttributeChange(USERNAME, username);
+    }
 }
