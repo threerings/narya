@@ -1,5 +1,5 @@
 //
-// $Id: ValueMarshaller.java,v 1.8 2002/02/01 23:32:37 mdb Exp $
+// $Id: ValueMarshaller.java,v 1.9 2002/02/05 09:35:59 shaper Exp $
 
 package com.threerings.presents.io;
 
@@ -87,21 +87,22 @@ public class ValueMarshaller
     // test these suckers out
     public static void main (String[] args)
     {
-        Object[] values = new Object[14];
-        values[0] = new Byte((byte)1);
-        values[1] = new Short((short)2);
-        values[2] = new Integer(3);
-        values[3] = new Long(4l);
-        values[4] = new Float(5.0f);
-        values[5] = new Double(6.0);
-        values[6] = "this is a string";
-        values[7] = new byte[] { 0, 1, 2, 3 };
-        values[8] = new short[] { 0, 1, 2, 3 };
-        values[9] = new int[] { 0, 1, 2, 3 };
-        values[10] = new long[] { 0, 1, 2, 3 };
-        values[11] = new float[] { 0.0f, 1.0f, 2.0f, 3.0f };
-        values[12] = new double[] { 0.0, 1.0, 2.0, 3.0 };
-        values[13] = new String[] { "one", "two", "three", "four" };
+        Object[] values = new Object[15];
+        values[0] = new Boolean(true);
+        values[1] = new Byte((byte)1);
+        values[2] = new Short((short)2);
+        values[3] = new Integer(3);
+        values[4] = new Long(4l);
+        values[5] = new Float(5.0f);
+        values[6] = new Double(6.0);
+        values[7] = "this is a string";
+        values[8] = new byte[] { 0, 1, 2, 3 };
+        values[9] = new short[] { 0, 1, 2, 3 };
+        values[10] = new int[] { 0, 1, 2, 3 };
+        values[11] = new long[] { 0, 1, 2, 3 };
+        values[12] = new float[] { 0.0f, 1.0f, 2.0f, 3.0f };
+        values[13] = new double[] { 0.0, 1.0, 2.0, 3.0 };
+        values[14] = new String[] { "one", "two", "three", "four" };
 
         File file = new File("test.dat");
 
@@ -158,11 +159,31 @@ public class ValueMarshaller
             throws IOException;
     }
 
+    protected static class BooleanMarshaller extends Marshaller
+    {
+        public BooleanMarshaller ()
+        {
+            super((byte)1);
+        }
+
+        public void writeValue (DataOutputStream out, Object value)
+            throws IOException
+        {
+            out.writeBoolean(((Boolean)value).booleanValue());
+        }
+
+        public Object readValue (DataInputStream in)
+            throws IOException
+        {
+            return new Boolean(in.readBoolean());
+        }
+    }
+
     protected static class ByteMarshaller extends Marshaller
     {
         public ByteMarshaller ()
         {
-            super((byte)1);
+            super((byte)2);
         }
 
         public void writeValue (DataOutputStream out, Object value)
@@ -182,7 +203,7 @@ public class ValueMarshaller
     {
         public ShortMarshaller ()
         {
-            super((byte)2);
+            super((byte)3);
         }
 
         public void writeValue (DataOutputStream out, Object value)
@@ -202,7 +223,7 @@ public class ValueMarshaller
     {
         public IntegerMarshaller ()
         {
-            super((byte)3);
+            super((byte)4);
         }
 
         public void writeValue (DataOutputStream out, Object value)
@@ -222,7 +243,7 @@ public class ValueMarshaller
     {
         public LongMarshaller ()
         {
-            super((byte)4);
+            super((byte)5);
         }
 
         public void writeValue (DataOutputStream out, Object value)
@@ -242,7 +263,7 @@ public class ValueMarshaller
     {
         public FloatMarshaller ()
         {
-            super((byte)5);
+            super((byte)6);
         }
 
         public void writeValue (DataOutputStream out, Object value)
@@ -262,7 +283,7 @@ public class ValueMarshaller
     {
         public DoubleMarshaller ()
         {
-            super((byte)6);
+            super((byte)7);
         }
 
         public void writeValue (DataOutputStream out, Object value)
@@ -282,7 +303,7 @@ public class ValueMarshaller
     {
         public StringMarshaller ()
         {
-            super((byte)7);
+            super((byte)8);
         }
 
         public void writeValue (DataOutputStream out, Object value)
@@ -302,7 +323,7 @@ public class ValueMarshaller
     {
         public ByteArrayMarshaller ()
         {
-            super((byte)8);
+            super((byte)9);
         }
 
         public void writeValue (DataOutputStream out, Object value)
@@ -330,7 +351,7 @@ public class ValueMarshaller
     {
         public ShortArrayMarshaller ()
         {
-            super((byte)9);
+            super((byte)10);
         }
 
         public void writeValue (DataOutputStream out, Object value)
@@ -358,7 +379,7 @@ public class ValueMarshaller
     {
         public IntegerArrayMarshaller ()
         {
-            super((byte)10);
+            super((byte)11);
         }
 
         public void writeValue (DataOutputStream out, Object value)
@@ -386,7 +407,7 @@ public class ValueMarshaller
     {
         public LongArrayMarshaller ()
         {
-            super((byte)11);
+            super((byte)12);
         }
 
         public void writeValue (DataOutputStream out, Object value)
@@ -414,7 +435,7 @@ public class ValueMarshaller
     {
         public FloatArrayMarshaller ()
         {
-            super((byte)12);
+            super((byte)13);
         }
 
         public void writeValue (DataOutputStream out, Object value)
@@ -442,7 +463,7 @@ public class ValueMarshaller
     {
         public DoubleArrayMarshaller ()
         {
-            super((byte)13);
+            super((byte)14);
         }
 
         public void writeValue (DataOutputStream out, Object value)
@@ -470,7 +491,7 @@ public class ValueMarshaller
     {
         public StringArrayMarshaller ()
         {
-            super((byte)14);
+            super((byte)15);
         }
 
         public void writeValue (DataOutputStream out, Object value)
@@ -498,7 +519,7 @@ public class ValueMarshaller
     {
         public StreamableMarshaller ()
         {
-            super((byte)15);
+            super((byte)16);
         }
 
         public void writeValue (DataOutputStream out, Object value)
@@ -529,7 +550,7 @@ public class ValueMarshaller
     {
         public StreamableArrayMarshaller ()
         {
-            super((byte)16);
+            super((byte)17);
         }
 
         public void writeValue (DataOutputStream out, Object value)
@@ -577,6 +598,7 @@ public class ValueMarshaller
         (new Streamable[0]).getClass();
 
     protected static Class[] _classes = {
+        Boolean.class,
         Byte.class,
         Short.class,
         Integer.class,
@@ -596,6 +618,7 @@ public class ValueMarshaller
     };
 
     protected static Marshaller[] _marshallers = {
+        new BooleanMarshaller(),
         new ByteMarshaller(),
         new ShortMarshaller(),
         new IntegerMarshaller(),
