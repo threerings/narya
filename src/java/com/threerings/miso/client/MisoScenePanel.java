@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.18 2003/04/28 18:12:09 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.19 2003/04/28 20:28:45 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -656,20 +656,17 @@ public class MisoScenePanel extends VirtualMediaPanel
      */
     protected void blockResolved (SceneBlock block)
     {
+        Rectangle sbounds = block.getScreenBounds();
+        if (!_delayRepaint && sbounds != null && sbounds.intersects(_vbounds)) {
+            Log.warning("Block visible during resolution " + block + ".");
+        }
+
         // once all the pending blocks have completed their resolution,
         // recompute our visible object set
         if (--_pendingBlocks == 0) {
             recomputeVisible();
             _delayRepaint = false;
             _remgr.invalidateRegion(_vbounds);
-        }
-
-        // if this block has objects that intersect our visible bounds
-        // (zoiks!) then repaint
-        Rectangle sbounds = block.getScreenBounds();
-        if (sbounds != null && sbounds.intersects(_vbounds)) {
-//             Log.info("Eek, block came into view during resolution " +
-//                      block + ".");
         }
     }
 
