@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.31 2002/12/07 02:04:32 shaper Exp $
+// $Id: ImageManager.java,v 1.32 2003/01/07 07:55:24 mdb Exp $
 
 package com.threerings.media;
 
@@ -99,6 +99,17 @@ public class ImageManager
         } catch (IOException ioe) {
             Log.warning("Failure loading image [rset=" + rset +
                         ", path=" + path + ", error=" + ioe + "].");
+
+        } finally {
+            if (imgin != null) {
+                try {
+                    imgin.close();
+                } catch (IOException ioe) {
+                    Log.warning("Failure closing image input stream " +
+                                "[rset=" + rset + ", path=" + path +
+                                ", error=" + ioe + "].");
+                }
+            }
         }
 
         // Log.info("Loading image into cache [path=" + path + "].");
@@ -129,11 +140,24 @@ public class ImageManager
 	    return img;
 	}
 
+        InputStream imgin = null;
         try {
-            img = createImage(_rmgr.getResource(path));
+            imgin = _rmgr.getResource(path);
+            img = createImage(imgin);
+
         } catch (IOException ioe) {
             Log.warning("Failure loading image [path=" + path +
                         ", error=" + ioe + "].");
+
+        } finally {
+            if (imgin != null) {
+                try {
+                    imgin.close();
+                } catch (IOException ioe) {
+                    Log.warning("Failure closing image input stream " +
+                                "[path=" + path + ", error=" + ioe + "].");
+                }
+            }
         }
 
         // Log.info("Loading image into cache [path=" + path + "].");
@@ -173,13 +197,19 @@ public class ImageManager
     public Image loadImage (String path)
         throws IOException
     {
+        InputStream imgin = null;
         try {
-            InputStream imgin = _rmgr.getResource(path);
-            BufferedInputStream bin = new BufferedInputStream(imgin);
-            return _loader.loadImage(bin);
+            imgin = _rmgr.getResource(path);
+            return _loader.loadImage(new BufferedInputStream(imgin));
+
         } catch (IllegalArgumentException iae) {
             String errmsg = "Error loading image [path=" + path + "]";
             throw new NestableIOException(errmsg, iae);
+
+        } finally {
+            if (imgin != null) {
+                imgin.close();
+            }
         }
     }
 
@@ -192,16 +222,20 @@ public class ImageManager
     public Image loadImage (String rset, String path)
         throws IOException
     {
-        InputStream imgin = _rmgr.getResource(rset, path);
-
-        // load up the image
+        InputStream imgin = null;
         try {
-            BufferedInputStream bin = new BufferedInputStream(imgin);
-            return _loader.loadImage(bin);
+            imgin = _rmgr.getResource(rset, path);
+            return _loader.loadImage(new BufferedInputStream(imgin));
+
         } catch (Throwable t) {
             String errmsg = "Error loading image " +
                 "[rset=" + rset + ", path=" + path + "]";
             throw new NestableIOException(errmsg, t);
+
+        } finally {
+            if (imgin != null) {
+                imgin.close();
+            }
         }
     }
 
@@ -215,7 +249,7 @@ public class ImageManager
         throws IOException
     {
         try {
-            return _loader.loadImage(source);
+            return _loader.loadImage(new BufferedInputStream(source));
         } catch (IllegalArgumentException iae) {
             String errmsg = "Error loading image";
             throw new NestableIOException(errmsg, iae);
