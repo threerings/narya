@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.43 2004/06/29 03:22:22 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.44 2004/07/03 07:16:56 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -400,6 +400,7 @@ public class PresentsDObjectMgr
 
         // inactivate the object
         target.setManager(null);
+        target.setOid(-1);
 
         // deal with any remaining oid lists that reference this object
         Reference[] refs = (Reference[])_refs.remove(oid);

@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.73 2004/06/03 18:15:03 ray Exp $
+// $Id: DObject.java,v 1.74 2004/07/03 07:16:56 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -582,9 +582,21 @@ public class DObject implements Streamable
      * <code>DObjectManager.createObject</code> it will be active until
      * such time as it is destroyed.
      */
-    public boolean isActive ()
+    public final boolean isActive ()
     {
         return _omgr != null;
+    }
+
+    /**
+     * Returns true if this object was once active but has now been
+     * destroyed and removed from the distributed object system.
+     * <em>Note:</em> this is not the opposite of {@link #isActive} which
+     * does not distinguish between pre-initialization and
+     * post-destruction.
+     */
+    public final boolean isDestroyed ()
+    {
+        return (_oid == -1);
     }
 
     /**
@@ -691,8 +703,15 @@ public class DObject implements Streamable
      */
     public void startTransaction ()
     {
-        if (_tevent != null) {
+        // sanity check
+        if (isDestroyed()) {
+            String errmsg = "Refusing to start transaction on destroyed " +
+                "object [dobj=" + this + "]";
+            throw new IllegalArgumentException(errmsg);
+
+        } else if (_tevent != null) {
             _tcount++;
+
         } else {
             _tevent = new CompoundEvent(this, _omgr);
         }
