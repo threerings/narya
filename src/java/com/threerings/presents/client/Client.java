@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.43 2003/09/30 22:18:18 mdb Exp $
+// $Id: Client.java,v 1.44 2003/12/03 23:38:58 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -251,6 +251,9 @@ public class Client
      */
     public InvocationService getService (Class sclass)
     {
+        if (_bstrap == null) {
+            return null;
+        }
         int scount = _bstrap.services.size();
         for (int ii = 0; ii < scount; ii++) {
             InvocationService service = (InvocationService)
