@@ -1,5 +1,5 @@
 //
-// $Id: Marshaller.java,v 1.8 2002/02/01 23:32:37 mdb Exp $
+// $Id: Marshaller.java,v 1.9 2002/02/02 01:07:20 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -175,7 +175,7 @@ public class Marshaller
 
     /** A table of instantiated marshallers for our various marshalled
      * classes. */
-    protected static HashMap _marshcache;
+    protected static HashMap _marshcache = new HashMap();
 
     /** We use this to sort the fields into a predictable order. */
     protected static final FieldComparator FIELD_COMP = new FieldComparator();
