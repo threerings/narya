@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.13 2001/08/08 21:56:47 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.14 2001/08/11 01:00:26 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -85,6 +85,19 @@ public class CherDObjectMgr implements DObjectManager
     }
 
     /**
+     * Posts a self-contained unit of code that should be run on the
+     * distributed object manager thread at the next available
+     * opportunity. The code will be queued up with the rest of the events
+     * and invoked in turn. Like event processing code, the code should
+     * not take long to complete and should <em>definitely</em> not block.
+     */
+    public void postUnit (Runnable unit)
+    {
+        // just append it to the queue
+        _evqueue.append(unit);
+    }
+
+    /**
      * Returns the object in the object table with the specified oid or
      * null if no object has that oid. Be sure only to call this function
      * from the dobjmgr thread and not to do anything funny with the
@@ -107,8 +120,24 @@ public class CherDObjectMgr implements DObjectManager
         Log.info("DOMGR running.");
 
         while (isRunning()) {
-            // pop the next event off the queue
-            DEvent event = (DEvent)_evqueue.get();
+            // pop the next unit off the queue
+            Object unit = _evqueue.get();
+
+            // if this is a runnable, it's just an executable unit that
+            // should be invoked
+            if (unit instanceof Runnable) {
+                try {
+                    ((Runnable)unit).run();
+                } catch (Exception e) {
+                    Log.warning("Execution unit failed [unit=" + unit + "].");
+                    Log.logStackTrace(e);
+                }
+                continue;
+            }
+
+            // otherwise it's an event, so we do more complicated
+            // processing
+            DEvent event = (DEvent)unit;
 
             // look up the target object
             DObject target = (DObject)_objects.get(event.getTargetOid());
