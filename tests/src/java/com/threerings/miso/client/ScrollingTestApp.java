@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.12 2002/04/27 04:57:37 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.13 2002/05/31 07:34:23 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -8,6 +8,7 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
+import java.awt.Point;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -24,6 +25,7 @@ import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.sprite.MultiFrameImageImpl;
 
 import com.threerings.media.tile.bundle.BundledTileSetRepository;
+import com.threerings.media.util.LinePath;
 
 import com.threerings.cast.CharacterComponent;
 import com.threerings.cast.CharacterDescriptor;
@@ -96,14 +98,18 @@ public class ScrollingTestApp
             protected void viewFinishedScrolling () {
                 // keep scrolling for a spell
                 if (++_sidx < DX.length) {
-                    setScrolling(DX[_sidx], DY[_sidx], 3000l);
+                    LinePath path = new LinePath(_foo.x, _foo.y,
+                                                 _foo.x + DX[_sidx],
+                                                 _foo.y + DY[_sidx], 3000l);
+                    setPath(path, _foo);
                 }
             }
+            protected Point _foo = new Point();
             protected int _sidx = -1;
             protected final int[] DX = { 0, 1000, -1000, 1000, 2000 };
             protected final int[] DY = { 1000, 0, 1000, -1000, 1000 };
         };
-        _panel.setScrolling(0, 1000, 10000l);
+        _panel.setScrolling(0, 1000, 3000l);
         _frame.setPanel(_panel);
 
         // create our "ship" sprite
