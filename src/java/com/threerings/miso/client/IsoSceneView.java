@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.9 2001/07/19 23:11:27 shaper Exp $
+// $Id: IsoSceneView.java,v 1.10 2001/07/20 00:35:09 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -20,7 +20,7 @@ public class IsoSceneView implements SceneView
     public IsoSceneView (TileManager tmgr)
     {
 	_tmgr = tmgr;
-	
+
 	_bounds = new Rectangle(0, 0, DEF_BOUNDS_WIDTH, DEF_BOUNDS_HEIGHT);
 
 	_htile = new Point();
@@ -37,6 +37,8 @@ public class IsoSceneView implements SceneView
 	    _lineX[ii] = new Point();
 	    _lineY[ii] = new Point();
 	}
+
+	_showCoords = false;
     }
 
     public void paint (Graphics g)
@@ -81,7 +83,7 @@ public class IsoSceneView implements SceneView
 		gfx.drawImage(tile.img, screenX, ypos, null);
 
 		// draw tile coordinates in each tile
-  		paintCoords(gfx, tx, ty, screenX, screenY);
+  		if (_showCoords) paintCoords(gfx, tx, ty, screenX, screenY);
 
 		// draw an outline around the highlighted tile
 		if (tx == _htile.x && ty == _htile.y) {
@@ -225,6 +227,11 @@ public class IsoSceneView implements SceneView
 	_scene = scene;
     }
 
+    public void setShowCoordinates (boolean show)
+    {
+	_showCoords = show;
+    }
+
     public void setTile (int x, int y, int lnum, Tile tile)
     {
 	Point tpos = screenToTile(x, y);
@@ -251,6 +258,8 @@ public class IsoSceneView implements SceneView
     protected Stroke _hstroke;
 
     protected Font _font;
+
+    protected boolean _showCoords;
 
     protected Scene _scene;
     protected TileManager _tmgr;

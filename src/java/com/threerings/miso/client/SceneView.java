@@ -1,5 +1,5 @@
 //
-// $Id: SceneView.java,v 1.5 2001/07/19 00:22:02 shaper Exp $
+// $Id: SceneView.java,v 1.6 2001/07/20 00:35:09 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -29,6 +29,11 @@ public interface SceneView
      * Set the scene that we're rendering.
      */
     public void setScene (Scene scene);
+
+    /**
+     * Set whether coordinates should be drawn for each tile.
+     */
+    public void setShowCoordinates (boolean show);
 
     /**
      * Set the tile at the specified location and layer in the scene.
