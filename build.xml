@@ -109,11 +109,11 @@
   <!-- build the native libraries -->
   <target name="ncompile" depends="prepare">
     <exec dir="src/java/com/threerings/util/keybd/i686-Linux" 
-     executable="make"/>
+     executable="make"><arg line="install"/></exec>
     <exec dir="src/java/com/threerings/util/signal/i686-Linux" 
-     executable="make"/>
+     executable="make"><arg line="install"/></exec>
     <exec dir="src/java/com/threerings/util/unsafe/i686-Linux" 
-     executable="make"/>
+     executable="make"><arg line="install"/></exec>
   </target>
 
   <!-- build the javadoc documentation -->
