@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.22 2002/06/14 01:19:16 mdb Exp $
+// $Id: LocationDirector.java,v 1.23 2002/06/14 01:24:48 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -96,13 +96,17 @@ public class LocationDirector
      * Requests that this client be moved to the specified place. A
      * request will be made and when the response is received, the
      * location observers will be notified of success or failure.
+     *
+     * @return true if the move to request was issued, false if it was
+     * rejected by a location observer or because we have another request
+     * outstanding.
      */
-    public void moveTo (int placeId)
+    public boolean moveTo (int placeId)
     {
         // first check to see if our observers are happy with this move
         // request
         if (!mayMoveTo(placeId)) {
-            return;
+            return false;
         }
 
         // we need to call this both to mark that we're issuing a move
@@ -119,7 +123,7 @@ public class LocationDirector
                 Log.warning("Refusing moveTo; We have a request outstanding " +
                             "[ppid=" + _pendingPlaceId +
                             ", npid=" + placeId + "].");
-                return;
+                return false;
 
             } else {
                 Log.warning("Overriding stale moveTo request " +
@@ -133,6 +137,7 @@ public class LocationDirector
 
         // issue a moveTo request
         LocationService.moveTo(_ctx.getClient(), placeId, this);
+        return true;
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: ZoneDirector.java,v 1.6 2002/05/26 02:35:02 mdb Exp $
+// $Id: ZoneDirector.java,v 1.7 2002/06/14 01:24:49 mdb Exp $
 
 package com.threerings.whirled.zone.client;
 
@@ -76,36 +76,36 @@ public class ZoneDirector
      * zone. A request will be made and when the response is received, the
      * location observers will be notified of success or failure.
      */
-    public void moveTo (int zoneId, int sceneId)
+    public boolean moveTo (int zoneId, int sceneId)
     {
         // if the requested zone is the same as our current zone, we just
         // want a regular old moveTo request
         if (_summary != null && zoneId == _summary.zoneId) {
-            _scdir.moveTo(sceneId);
-
-        } else { // otherwise, we make a zoned moveTo request
-            // prepare to move to this scene (sets up pending data)
-            if (!_scdir.prepareMoveTo(sceneId)) {
-                return;
-            }
-
-            // let our zone observers know that we're attempting to switch
-            // zones
-            notifyObservers(new Integer(zoneId));
-
-            // check the version of our cached copy of the scene to which
-            // we're requesting to move; if we were unable to load it, assume
-            // a cached version of zero
-            int sceneVers = 0;
-            SceneModel pendingModel = _scdir.getPendingModel();
-            if (pendingModel != null) {
-                sceneVers = pendingModel.version;
-            }
-
-            // issue a moveTo request
-            ZoneService.moveTo(_ctx.getClient(), zoneId,
-                               sceneId, sceneVers, this);
+            return _scdir.moveTo(sceneId);
         }
+
+        // otherwise, we make a zoned moveTo request; prepare to move to
+        // this scene (sets up pending data)
+        if (!_scdir.prepareMoveTo(sceneId)) {
+            return false;
+        }
+
+        // let our zone observers know that we're attempting to switch
+        // zones
+        notifyObservers(new Integer(zoneId));
+
+        // check the version of our cached copy of the scene to which
+        // we're requesting to move; if we were unable to load it, assume
+        // a cached version of zero
+        int sceneVers = 0;
+        SceneModel pendingModel = _scdir.getPendingModel();
+        if (pendingModel != null) {
+            sceneVers = pendingModel.version;
+        }
+
+        // issue a moveTo request
+        ZoneService.moveTo(_ctx.getClient(), zoneId, sceneId, sceneVers, this);
+        return true;
     }
 
     /**

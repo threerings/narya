@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.17 2002/06/14 01:19:16 mdb Exp $
+// $Id: SceneDirector.java,v 1.18 2002/06/14 01:24:49 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -86,19 +86,23 @@ public class SceneDirector
      * Requests that this client move the specified scene. A request will
      * be made and when the response is received, the location observers
      * will be notified of success or failure.
+     *
+     * @return true if the move to request was issued, false if it was
+     * rejected by a location observer or because we have another request
+     * outstanding.
      */
-    public void moveTo (int sceneId)
+    public boolean moveTo (int sceneId)
     {
         // sanity-check the destination scene id
         if (sceneId == _sceneId) {
             Log.warning("Refusing request to move to the same scene " +
                         "[sceneId=" + sceneId + "].");
-            return;
+            return false;
         }
 
         // prepare to move to this scene (sets up pending data)
         if (!prepareMoveTo(sceneId)) {
-            return;
+            return false;
         }
 
         // check the version of our cached copy of the scene to which
@@ -111,6 +115,7 @@ public class SceneDirector
 
         // issue a moveTo request
         SceneService.moveTo(_ctx.getClient(), sceneId, sceneVers, this);
+        return true;
     }
 
     /**
