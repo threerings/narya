@@ -1,5 +1,5 @@
 //
-// $Id: FieldMarshaller.java,v 1.2 2002/10/27 18:49:51 mdb Exp $
+// $Id: FieldMarshaller.java,v 1.3 2002/12/20 23:27:52 mdb Exp $
 
 package com.threerings.io;
 
@@ -105,8 +105,8 @@ public abstract class FieldMarshaller
         // create our table
         _marshallers = new HashMap();
 
-        // create a marshaller for streamable instances
-        _marshallers.put(Streamable.class, new FieldMarshaller() {
+        // create a generic marshaller for streamable instances
+        FieldMarshaller gmarsh = new FieldMarshaller() {
             public void readField (
                 Field field, Object target, ObjectInputStream in)
                 throws Exception {
@@ -117,7 +117,15 @@ public abstract class FieldMarshaller
                 throws Exception {
                 out.writeObject(field.get(source));
             }
-        });
+        };
+        _marshallers.put(Streamable.class, gmarsh);
+
+        // use the same generic marshaller for fields declared to by type
+        // Object with the expectation that they will contain only
+        // primitive types or Streamables; the runtime will fail
+        // informatively if the user attempts to store non-Streamable
+        // objects in that field
+        _marshallers.put(Object.class, gmarsh);
 
         // create marshallers for the primitive types
         _marshallers.put(Boolean.TYPE, new FieldMarshaller() {
