@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleManager.java,v 1.13 2004/08/27 02:20:32 mdb Exp $
+// $Id: PuzzleManager.java,v 1.14 2004/09/01 20:35:06 ray Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -447,13 +447,20 @@ public abstract class PuzzleManager extends GameManager
         sendStatusUpdate();
 
         // report the winners and losers if appropriate
-        int winnerCount = _puzobj.getWinnerCount();
-        boolean draw = (winnerCount == _puzobj.getPlayerCount());
-        if (shouldConcludeGame() && winnerCount > 0 && !draw) {
+        if (shouldConcludeGame() && !isDraw()) {
             reportWinnersAndLosers();
         }
 
         super.gameDidEnd();
+    }
+
+    /**
+     * Is the game a draw?
+     */
+    protected boolean isDraw ()
+    {
+        int winnerCount = _puzobj.getWinnerCount();
+        return winnerCount > 0 && (winnerCount == _puzobj.getPlayerCount());
     }
 
     /**
