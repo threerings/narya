@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.19 2002/04/11 01:41:04 mdb Exp $
+// $Id: InvocationDirector.java,v 1.20 2002/04/16 21:37:23 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -57,6 +57,7 @@ public class InvocationDirector
     {
         _omgr = omgr;
         _imoid = imoid;
+        _cloid = cloid;
 
         // add ourselves as a subscriber to the client object
         _omgr.subscribeToObject(cloid, new Subscriber() {
@@ -132,6 +133,12 @@ public class InvocationDirector
         if (rsptarget != null) {
             _targets.put(invid, rsptarget);
         }
+
+        // because invocation directors are used on the server, we set the
+        // source oid here so that invocation requests are properly
+        // attributed to the right client object when created by
+        // server-side entities only sort of pretending to be a client
+        event.setSourceOid(_cloid);
 
         // and finally ship off the invocation message
         _omgr.postEvent(event);
@@ -291,6 +298,7 @@ public class InvocationDirector
 
     protected DObjectManager _omgr;
     protected int _imoid;
+    protected int _cloid;
 
     protected int _invocationId;
     protected HashIntMap _targets = new HashIntMap();
