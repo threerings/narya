@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.30 2003/03/30 21:04:18 mdb Exp $
+// $Id: ClientManager.java,v 1.31 2003/03/30 21:27:23 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -68,13 +68,17 @@ public class ClientManager
             }
         }, CLIENT_FLUSH_INTERVAL, null, true);
 
-        // register as a "state of server" reporter
+        // register as a "state of server" reporter and a shutdowner
         PresentsServer.registerReporter(this);
+        PresentsServer.registerShutdowner(this);
     }
 
     // documentation inherited from interface
     public void shutdown ()
     {
+        Log.info("Client manager shutting down " +
+                 "[ccount=" + _usermap.size() + "].");
+
         // inform all of our clients that they are being shut down
         for (Iterator iter = _usermap.values().iterator(); iter.hasNext(); ) {
             PresentsClient pc = (PresentsClient)iter.next();
