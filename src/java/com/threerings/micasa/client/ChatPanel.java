@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.29 2004/11/15 01:47:52 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -285,8 +285,6 @@ public class ChatPanel
 
     public void willEnterPlace (PlaceObject place)
     {
-        Log.info("We be here: " + place);
-
         // enable our chat input elements since we're now somewhere that
         // we can chat
         _entry.setEnabled(true);
