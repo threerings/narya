@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.8 2002/09/20 00:54:39 mdb Exp $
+// $Id: ClientController.java,v 1.9 2002/11/12 01:42:28 shaper Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -7,11 +7,10 @@ import java.awt.event.ActionEvent;
 import com.samskivert.swing.Controller;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.dobj.*;
-import com.threerings.presents.client.*;
+import com.threerings.presents.client.Client;
+import com.threerings.presents.client.SessionObserver;
 
-import com.threerings.crowd.client.*;
-import com.threerings.crowd.data.*;
+import com.threerings.crowd.data.BodyObject;
 
 import com.threerings.parlor.game.GameConfig;
 import com.threerings.parlor.util.ParlorContext;
@@ -67,6 +66,12 @@ public class ClientController extends Controller
         // keep the body object around for stuff
         _body = (BodyObject)client.getClientObject();
 
+        // have at it
+        createGame(client);
+    }
+
+    public void createGame (Client client)
+    {
         GameConfig config = null;
         try {
             // create the game config object

@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorApp.java,v 1.11 2002/07/15 03:09:29 mdb Exp $
+// $Id: SimulatorApp.java,v 1.12 2002/11/12 01:42:28 shaper Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -41,8 +41,7 @@ public class SimulatorApp
         _client = createSimulatorClient(_frame);
 
         // set up the top-level client controller
-        Controller ctrl = new ClientController(
-            _client.getParlorContext(), _frame, siminfo);
+        Controller ctrl = createController(siminfo);
         _frame.setController(ctrl);
 
         // create the server
@@ -82,6 +81,12 @@ public class SimulatorApp
         throws Exception
     {
         return new SimpleClient(_frame);
+    }
+
+    protected ClientController createController (SimulatorInfo siminfo)
+    {
+        return new ClientController(
+            _client.getParlorContext(), _frame, siminfo);
     }
 
     public void run ()
