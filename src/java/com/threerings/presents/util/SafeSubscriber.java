@@ -1,5 +1,5 @@
 //
-// $Id: SafeSubscriber.java,v 1.1 2003/12/11 18:36:55 mdb Exp $
+// $Id: SafeSubscriber.java,v 1.2 2003/12/11 18:46:02 mdb Exp $
 
 package com.threerings.presents.util;
 
@@ -88,9 +88,15 @@ public class SafeSubscriber
     public void unsubscribe (DObjectManager omgr)
     {
         if (!_active) {
-            Log.warning("Unactive safesub asked to unsubscribe " + this + ".");
+            // we may be non-active and have no object which could mean
+            // that subscription failed; in which case we don't want to
+            // complain about anything, just quietly ignore the
+            // unsubscribe request
+            if (_object == null && !_pending) {
+                return;
+            }
+            Log.warning("Inactive safesub asked to unsubscribe " + this + ".");
             Thread.dumpStack();
-            // but go ahead anyway in case we are subscribed
         }
 
         // note that we no longer desire to be subscribed
