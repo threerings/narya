@@ -1,5 +1,5 @@
 //
-// $Id: ConfObjRegistry.java,v 1.4 2003/01/22 01:40:32 mdb Exp $
+// $Id: ConfObjRegistry.java,v 1.5 2003/01/22 01:42:51 mdb Exp $
 
 package com.threerings.admin.server;
 
@@ -172,6 +172,10 @@ public class ConfObjRegistry
                 } else if (type.equals(Long.TYPE)) {
                     long defval = field.getLong(confObj);
                     field.setLong(confObj, config.getValue(key, defval));
+
+                } else if (type.equals(Float.TYPE)) {
+                    float defval = field.getFloat(confObj);
+                    field.setFloat(confObj, config.getValue(key, defval));
 
                 } else if (type.equals(String.class)) {
                     String defval = (String)field.get(confObj);
