@@ -1,5 +1,5 @@
 //
-// $Id: Animation.java,v 1.7 2002/09/17 20:06:58 mdb Exp $
+// $Id: Animation.java,v 1.8 2002/09/20 21:28:20 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -40,8 +40,16 @@ public abstract class Animation
     /**
      * Sets the render order associated with this animation.  Animations
      * can be rendered in two layers; those with negative render order and
-     * those with positive render order.  Someday animations will be
-     * rendered in each layer according to render order.
+     * those with positive render order. In the same layer, animations
+     * will be rendered according to their render order's cardinal value
+     * (least to greatest). Those with the same render order value will be
+     * rendered in arbitrary order.
+     *
+     * <p> This must be set <em>before</em> the animation is handed to the
+     * {@link AnimationManager} and must not change while the {@link
+     * AnimationManager} is managing the animation. If you wish to change
+     * the render order, remove the animation from the manager, change the
+     * order and add it back again.
      */
     public void setRenderOrder (int value)
     {

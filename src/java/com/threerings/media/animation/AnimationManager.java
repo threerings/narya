@@ -1,12 +1,14 @@
 //
-// $Id: AnimationManager.java,v 1.12 2002/08/15 20:56:08 shaper Exp $
+// $Id: AnimationManager.java,v 1.13 2002/09/20 21:28:20 mdb Exp $
 
 package com.threerings.media.animation;
 
 import java.awt.Graphics2D;
 import java.awt.Shape;
 
-import java.util.ArrayList;
+import java.util.Comparator;
+
+import com.samskivert.util.SortableArrayList;
 
 import com.threerings.media.Log;
 import com.threerings.media.MediaConstants;
@@ -42,7 +44,7 @@ public class AnimationManager
         }
 
         anim.setAnimationManager(this);
-        _anims.add(anim);
+        _anims.insertSorted(anim, RENDER_ORDER);
     }
 
     /**
@@ -129,6 +131,7 @@ public class AnimationManager
      */
     public void renderAnimations (Graphics2D gfx, int layer, Shape clip)
     {
+        // now paint them
         int size = _anims.size();
         for (int ii = 0; ii < size; ii++) {
             Animation anim = (Animation)_anims.get(ii);
@@ -153,5 +156,16 @@ public class AnimationManager
     protected RegionManager _remgr;
 
     /** The list of animations. */
-    protected ArrayList _anims = new ArrayList();
+    protected SortableArrayList _anims = new SortableArrayList();
+
+    /** Used to sort animations prior to painting. */
+    protected static final Comparator RENDER_ORDER = new Comparator() {
+        public int compare (Object o1, Object o2) {
+            return (((Animation)o1)._renderOrder -
+                    ((Animation)o2)._renderOrder);
+        }
+        public boolean equals (Object obj) {
+            return this == obj;
+        }
+    };
 }
