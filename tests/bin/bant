@@ -1,13 +1,13 @@
 #!/bin/sh
 #
-# $Id: bant,v 1.2 2001/11/29 00:19:35 mdb Exp $
+# $Id: bant,v 1.3 2002/02/05 20:27:34 mdb Exp $
 #
 # Invokes ant with the necessary classpath to build the bundles.
 
 BINDIR=`dirname $0`
 
 # add all JAR files in /usr/share/ant/lib/ to CLASSPATH
-SYSTEMCP=`echo /usr/share/java/*.jar | tr ' ' ':'`
+SYSTEMCP=`echo $JAVA_LIBS/*.jar | tr ' ' ':'`
 # add all JAR files in /usr/share/ant/lib/ to CLASSPATH
 PROJECTCP=`echo $BINDIR/../../lib/*.jar | tr ' ' ':'`
 # also add narya.jar
