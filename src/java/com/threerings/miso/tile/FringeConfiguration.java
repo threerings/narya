@@ -1,10 +1,11 @@
 //
-// $Id: FringeConfiguration.java,v 1.5 2002/04/05 01:45:53 ray Exp $
+// $Id: FringeConfiguration.java,v 1.6 2002/04/06 01:34:12 ray Exp $
 
 package com.threerings.miso.scene;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Random;
 
 import com.samskivert.util.HashIntMap;
 
@@ -127,16 +128,15 @@ public class FringeConfiguration implements Serializable
     }
 
     /**
-     * Get the tileset id of the fringe for the specified basesetid.
-     * We don't error check anything because you should be doing the right
-     * thing here.
+     * Get a random FringeTileSetRecord from amongst the ones
+     * listed for the specified base tileset.
      */
-    public int getFringeTileSetID (int basesetid)
+    public FringeTileSetRecord getRandomFringe (int baseset, Random rando)
     {
-        FringeRecord f = (FringeRecord) _frecs.get(basesetid);
+        FringeRecord f = (FringeRecord) _frecs.get(baseset);
 
-        // for now we just return the 1st tilesetid... no randomization
-        return ((FringeTileSetRecord) f.tilesets.get(0)).fringe_tsid;
+        int size = f.tilesets.size();
+        return (FringeTileSetRecord) f.tilesets.get(rando.nextInt(size));
     }
 
     /** The mapping from base tileset id to fringerecord. */
