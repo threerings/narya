@@ -7,8 +7,6 @@
 
   <!-- configuration parameters -->
   <property name="app.name"       value="narya"/>
-  <property name="build.compiler" value="jikes"/>
-  <property name="build.optimize" value="off"/>
   <property name="deploy.dir"     value="dist"/>
   <property name="savedoc.dir"    value="docs"/>
 
@@ -116,9 +114,11 @@
     <javadoc sourcepath="src/java"
              packagenames="com.threerings.*"
              destdir="${javadoc.home}"
-             additionalparam="-breakiterator">
+             additionalparam="-breakiterator"
+             link="http://dev.threerings.net/devel/docs/narya/">
       <classpath refid="classpath"/>
       <link href="http://java.sun.com/j2se/1.4/docs/api/"/>
+      <link href="http://dev.threerings.net/devel/docs/samskivert/"/>
     </javadoc>
     <copy todir="${javadoc.home}">
       <fileset dir="src/java" includes="**/*.png"/>
