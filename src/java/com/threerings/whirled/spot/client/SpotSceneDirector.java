@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.24 2003/03/27 17:24:55 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.25 2003/03/31 22:54:09 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -75,6 +75,15 @@ public class SpotSceneDirector extends BasicDirector
     public void setChatDirector (ChatDirector chatdir)
     {
         _chatdir = chatdir;
+    }
+
+    /**
+     * Returns our current location unless we have a location change
+     * pending, in which case our pending location is returned.
+     */
+    public Location getIntendedLocation ()
+    {
+        return (_pendingLoc != null) ? _pendingLoc : _location;
     }
 
     /**
