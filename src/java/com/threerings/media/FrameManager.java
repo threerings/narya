@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.5 2002/04/27 22:39:45 mdb Exp $
+// $Id: FrameManager.java,v 1.6 2002/04/28 02:49:32 mdb Exp $
 
 package com.threerings.media;
 
@@ -252,14 +252,17 @@ public class FrameManager
 //             _bufstrat = _frame.getBufferStrategy();
 //         }
 
-        // create our off-screen buffer if necessary
-        GraphicsConfiguration gc = _frame.getGraphicsConfiguration();
-        if (_backimg == null) {
-            createBackBuffer(gc);
-        }
+        // start out assuming we can do an incremental render
+        boolean incremental = true;
 
-        // render into our back buffer
         do {
+            GraphicsConfiguration gc = _frame.getGraphicsConfiguration();
+
+            // create our off-screen buffer if necessary
+            if (_backimg == null) {
+                createBackBuffer(gc);
+            }
+
             // make sure our back buffer hasn't disappeared
             int valres = _backimg.validate(gc);
 
@@ -269,6 +272,13 @@ public class FrameManager
                 createBackBuffer(gc);
             }
 
+            // if the image wasn't A-OK, we need to rerender the whole
+            // business rather than just the dirty parts
+            if (valres != VolatileImage.IMAGE_OK) {
+                Log.info("Lost back buffer, redrawing.");
+                incremental = false;
+            }
+
             Rectangle bounds = new Rectangle();
             Graphics g = null, fg = null;
             try {
@@ -276,10 +286,9 @@ public class FrameManager
                 fg = _frame.getGraphics();
 //                 g = _bufstrat.getDrawGraphics();
 
-                // if the image wasn't A-OK, we need to rerender the
-                // whole business rather than just the dirty parts
-                if (valres != VolatileImage.IMAGE_OK) {
-                    Log.info("Lost back buffer, redrawing.");
+                // dirty everything if we're not incrementally rendering
+                if (!incremental) {
+                    _frame.update(g);
                 }
 
                 // repaint any widgets that have declared there need to be
@@ -338,6 +347,10 @@ public class FrameManager
                     fg.dispose();
                 }
             }
+
+            // if we loop through a second time, we'll need to rerender
+            // everything
+            incremental = false;
 
         } while (_backimg.contentsLost());
     }
