@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.9 2002/04/29 01:12:54 mdb Exp $
+// $Id: ImageUtil.java,v 1.10 2002/04/30 02:14:13 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -213,6 +213,32 @@ public class ImageUtil
         if (extra > 0) {
             Shape oclip = g.getClip();
             g.clipRect(x, y, extra, iheight);
+            g.drawImage(image, x, y, null);
+            g.setClip(oclip);
+        }
+    }
+
+    /**
+     * Paints multiple copies of the supplied image using the supplied
+     * graphics context such that the requested height is filled with the
+     * image.
+     */
+    public static void tileImageDown (Graphics g, Image image,
+                                      int x, int y, int height)
+    {
+        int iwidth = image.getWidth(null), iheight = image.getHeight(null);
+        int tcount = height/iheight, extra = height % iheight;
+
+        // draw the full copies of the image
+        for (int ii = 0; ii < tcount; ii++) {
+            g.drawImage(image, x, y, null);
+            y += iheight;
+        }
+
+        // clip the final blit
+        if (extra > 0) {
+            Shape oclip = g.getClip();
+            g.clipRect(x, y, iwidth, extra);
             g.drawImage(image, x, y, null);
             g.setClip(oclip);
         }
