@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.20 2001/11/18 04:09:22 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.21 2001/11/29 20:33:16 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -26,14 +26,14 @@ public class SceneViewPanel extends AnimatedPanel
     public SceneViewPanel (Config config, SpriteManager spritemgr)
     {
         // create the data model for the scene view
-        _scenemodel = new IsoSceneViewModel(config);
+        _viewmodel = new IsoSceneViewModel(config);
 
         // listen to the iso scene view model to receive notice when
         // the scene display has changed and needs must be repainted
-        _scenemodel.addListener(this);
+        _viewmodel.addListener(this);
 
 	// create the scene view
-        _view = newSceneView(spritemgr, _scenemodel);
+        _view = newSceneView(spritemgr, _viewmodel);
     }
 
     /**
@@ -41,7 +41,7 @@ public class SceneViewPanel extends AnimatedPanel
      */
     public IsoSceneViewModel getModel ()
     {
-        return _scenemodel;
+        return _viewmodel;
     }
 
     /**
@@ -88,8 +88,8 @@ public class SceneViewPanel extends AnimatedPanel
      */
     public Dimension getPreferredSize ()
     {
-        Dimension psize = (_scenemodel == null) ?
-            super.getPreferredSize() : _scenemodel.bounds.getSize();
+        Dimension psize = (_viewmodel == null) ?
+            super.getPreferredSize() : _viewmodel.bounds.getSize();
 	return psize;
     }
 
@@ -101,7 +101,7 @@ public class SceneViewPanel extends AnimatedPanel
     }
 
     /** The scene view data model. */
-    protected IsoSceneViewModel _scenemodel;
+    protected IsoSceneViewModel _viewmodel;
 
     /** The scene view we're managing. */
     protected SceneView _view;
