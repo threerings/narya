@@ -10,6 +10,10 @@ pre {
   font-family: Courier New, monospace
 }
 
+code {
+  font-family: Courier New, monospace
+}
+
 /* Headings */
 h1 { font-size: 145% }
 
