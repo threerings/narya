@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.37 2002/02/20 03:13:57 mdb Exp $
+// $Id: Sprite.java,v 1.38 2002/03/04 22:47:06 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -198,7 +198,11 @@ public class Sprite implements DirectionCodes
      */
     public void paint (Graphics2D gfx)
     {
-        gfx.drawImage(_frame, _bounds.x, _bounds.y, null);
+        if (_frame != null) {
+            gfx.drawImage(_frame, _bounds.x, _bounds.y, null);
+        } else {
+            gfx.draw(_bounds);
+        }
     }
 
     /**
@@ -435,6 +439,11 @@ public class Sprite implements DirectionCodes
      */
     public void tick (long timestamp)
     {
+        // if we have no frames, we're hosulated (to use a Greenwell term)
+        if (_frames == null) {
+            return;
+        }
+
         int fcount = _frames.getFrameCount();
         boolean moved = false;
 

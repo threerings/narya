@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.21 2002/02/19 22:09:08 mdb Exp $
+// $Id: CharacterSprite.java,v 1.22 2002/03/04 22:47:06 mdb Exp $
 
 package com.threerings.cast;
 
@@ -71,7 +71,7 @@ public class CharacterSprite
             setFrames(_frames[_orient]);
 
         } catch (NoSuchComponentException nsce) {
-            Log.warning("Character sprite referneces non-existent " +
+            Log.warning("Character sprite references non-existent " +
                         "component [sprite=" + this + ", err=" + nsce + "].");
         }
     }
@@ -82,7 +82,9 @@ public class CharacterSprite
         super.setOrientation(orient);
 
         // update the sprite frames to reflect the direction
-        setFrames(_frames[orient]);
+        if (_frames != null) {
+            setFrames(_frames[orient]);
+        }
     }
 
     /**
