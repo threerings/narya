@@ -222,7 +222,7 @@ public class VirtualMediaPanel extends MediaPanel
         // regions for the area exposed by the scrolling
         if (_nx != _vbounds.x || _ny != _vbounds.y) {
             // determine how far we'll be moving on this tick
-            _dx = _nx - _vbounds.x; _dy = _ny - _vbounds.y;
+            int dx = _nx - _vbounds.x, dy = _ny - _vbounds.y;
 
 //             Log.info("Scrolling into place [n=(" + _nx + ", " + _ny +
 //                      "), t=(" + _vbounds.x + ", " + _vbounds.y +
@@ -235,22 +235,25 @@ public class VirtualMediaPanel extends MediaPanel
             if (RunAnywhere.isMacOS()) {
                 _remgr.invalidateRegion(_nx, _ny, width, height);
             } else {
+                _dx = dx;
+                _dy = dy;
+
                 // these are used to prevent the vertical strip from
                 // overlapping the horizontal strip
                 int sy = _ny, shei = height;
 
                 // and add invalid rectangles for the exposed areas
-                if (_dy > 0) {
-                    shei = Math.max(shei - _dy, 0);
-                    _remgr.invalidateRegion(_nx, _ny + height - _dy, width, _dy);
-                } else if (_dy < 0) {
-                    sy -= _dy;
-                    _remgr.invalidateRegion(_nx, _ny, width, -_dy);
+                if (dy > 0) {
+                    shei = Math.max(shei - dy, 0);
+                    _remgr.invalidateRegion(_nx, _ny + height - dy, width, dy);
+                } else if (dy < 0) {
+                    sy -= dy;
+                    _remgr.invalidateRegion(_nx, _ny, width, -dy);
                 }
-                if (_dx > 0) {
-                    _remgr.invalidateRegion(_nx + width - _dx, sy, _dx, shei);
-                } else if (_dx < 0) {
-                    _remgr.invalidateRegion(_nx, sy, -_dx, shei);
+                if (dx > 0) {
+                    _remgr.invalidateRegion(_nx + width - dx, sy, dx, shei);
+                } else if (dx < 0) {
+                    _remgr.invalidateRegion(_nx, sy, -dx, shei);
                 }
             }
 
@@ -261,7 +264,7 @@ public class VirtualMediaPanel extends MediaPanel
             _vbounds.x = _nx; _vbounds.y = _ny;
 
             // let derived classes react if they so desire
-            viewLocationDidChange(_dx, _dy);
+            viewLocationDidChange(dx, dy);
         }
     }
 
