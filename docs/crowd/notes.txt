@@ -3,3 +3,6 @@ Party Notes -*- outline -*-
 * TODO
 Wire up PlaceRegistry code to remove registrations when place objects are
 destroyed.
+
+Flesh out the mechanism for passing config information to place managers.
+Make it easy to build an inheriting chain of configuration properties.

@@ -1,7 +1,9 @@
 //
-// $Id: PlaceManager.java,v 1.4 2001/08/01 17:00:58 mdb Exp $
+// $Id: PlaceManager.java,v 1.5 2001/08/01 20:37:35 mdb Exp $
 
 package com.threerings.cocktail.party.server;
+
+import java.util.Properties;
 
 import com.threerings.cocktail.cher.dobj.*;
 import com.threerings.cocktail.party.data.PlaceObject;
@@ -35,12 +37,13 @@ public class PlaceManager implements Subscriber
 {
     /**
      * Called by the place registry after creating this place manager.
-     * Initialization is followed by startup which happens when the place
-     * object that this manager will manage is available.
+     * Initialization is followed by startup which will happen when the
+     * place object to be managed is available.
      */
-    public void init (PlaceRegistry registry)
+    public void init (PlaceRegistry registry, Properties config)
     {
         _registry = registry;
+        _config = config;
     }
 
     /**
@@ -104,4 +107,7 @@ public class PlaceManager implements Subscriber
 
     /** A reference to the place registry with which we're registered. */
     protected PlaceRegistry _registry;
+
+    /** The configuration provided for this place manager. */
+    protected Properties _config;
 }

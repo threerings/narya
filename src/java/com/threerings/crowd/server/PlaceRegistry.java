@@ -1,9 +1,11 @@
 //
-// $Id: PlaceRegistry.java,v 1.2 2001/08/01 17:00:59 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.3 2001/08/01 20:37:35 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
 import java.util.Enumeration;
+import java.util.Properties;
+
 import com.samskivert.util.Config;
 import com.samskivert.util.Queue;
 
@@ -31,6 +33,41 @@ public class PlaceRegistry implements Subscriber
 
     /**
      * Creates and registers a new place along with a manager to manage
+     * that place. The place object class and place manager class are
+     * determined from the configuration information provided in the
+     * supplied properties instance.
+     *
+     * @param config the configuration information for this place manager.
+     *
+     * @see PlaceConfig#PLACEOBJ_CLASS
+     * @see PlaceConfig#PLACEMGR_CLASS
+     */
+    public void createPlace (Properties config)
+    {
+        String pobjcl = config.getProperty(PlaceConfig.PLACEOBJ_CLASS);
+        if (pobjcl == null) {
+            Log.warning("No place object classname specified in " +
+                        "place config [config=" + config + "].");
+            return;
+        }
+
+        String pmgrcl = config.getProperty(PlaceConfig.PLACEMGR_CLASS);
+        if (pobjcl == null) {
+            Log.warning("No place manager classname specified in " +
+                        "place config [config=" + config + "].");
+            return;
+        }
+
+        try {
+            createPlace(Class.forName(pobjcl), Class.forName(pmgrcl), config);
+        } catch (Exception e) {
+            Log.warning("Unable to instantiate place object or " +
+                        "manager class [error=" + e + "].");
+        }
+    }
+
+    /**
+     * Creates and registers a new place along with a manager to manage
      * that place. The registry takes care of tracking the creation of the
      * object and informing the manager when it is created.
      *
@@ -38,14 +75,16 @@ public class PlaceRegistry implements Subscriber
      * should be instantiated to create the place object.
      * @param pmgrClass the <code>PlaceManager</code> derived class that
      * should be instantiated to manage the place.
+     * @param config the configuration information for this place manager.
      */
-    public void createPlace (Class pobjClass, Class pmgrClass)
+    public void createPlace (Class pobjClass, Class pmgrClass,
+                             Properties config)
     {
         // create a place manager for this place
         try {
             PlaceManager pmgr = (PlaceManager)pmgrClass.newInstance();
             // let the pmgr know about us
-            pmgr.init(this);
+            pmgr.init(this, config);
             // stick the manager on the creation queue because we know
             // we'll get our calls to objectAvailable()/requestFailed() in
             // the order that we call createObject()
