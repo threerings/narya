@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.6 2003/04/22 01:57:20 mdb Exp $
+// $Id: SceneBlock.java,v 1.7 2003/04/23 00:37:46 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -16,6 +16,7 @@ import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.TileSet;
+import com.threerings.media.util.MathUtil;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.data.MisoSceneModel;
@@ -300,15 +301,15 @@ public class SceneBlock
     /** Computes the key of our neighbor. */
     protected final int neighborKey (int dx, int dy)
     {
-        return ((short)(_bounds.x/_bounds.width+dx) << 16 |
-                (short)(_bounds.y/_bounds.height+dy));
+        return ((short)(MathUtil.floorDiv(_bounds.x, _bounds.width)+dx) << 16 |
+                (short)(MathUtil.floorDiv(_bounds.y, _bounds.height)+dy));
     }
 
     /** Computes the key for the block that holds the specified tile. */
     protected final int blockKey (int tx, int ty)
     {
-        return ((short)(tx/_bounds.width) << 16 |
-                (short)(ty/_bounds.height));
+        return ((short)MathUtil.floorDiv(tx, _bounds.width) << 16 |
+                (short)MathUtil.floorDiv(ty, _bounds.height));
     }
 
     /**
@@ -316,19 +317,11 @@ public class SceneBlock
      */
     protected void setCovered (HashIntMap blocks, SceneObject scobj)
     {
-        int endx = Math.max(0, (scobj.info.x - scobj.tile.getBaseWidth() + 1));
-        int endy = Math.max(0, (scobj.info.y - scobj.tile.getBaseHeight() + 1));
+        int endx = scobj.info.x - scobj.tile.getBaseWidth() + 1;
+        int endy = scobj.info.y - scobj.tile.getBaseHeight() + 1;
 
         for (int xx = scobj.info.x; xx >= endx; xx--) {
-            if ((xx < 0) || (xx >= Short.MAX_VALUE)) {
-                continue;
-            }
-
             for (int yy = scobj.info.y; yy >= endy; yy--) {
-                if ((yy < 0) || (yy >= Short.MAX_VALUE)) {
-                    continue;
-                }
-
                 SceneBlock block = (SceneBlock)blocks.get(blockKey(xx, yy));
                 if (block != null) {
                     block.setCovered(xx, yy);
