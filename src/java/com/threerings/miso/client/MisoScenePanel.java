@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.28 2003/05/12 02:03:31 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.29 2003/05/15 18:24:01 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -511,18 +511,29 @@ public class MisoScenePanel extends VirtualMediaPanel
     // documentation inherited
     public boolean canTraverse (Object traverser, int tx, int ty)
     {
-        // if the tile is not on-screen, no traversy
-        MisoUtil.tileToScreen(_metrics, tx, ty, _tcoords);
-        _trect.setLocation(_tcoords);
-        _trect.width = _metrics.tilewid;
-        _trect.height = _metrics.tilehei;
-        if (!_vbounds.intersects(_trect)) {
-            return false;
+        // if the tile is not on-screen, we may want to refuse traversal
+        if (!allowOffScreenTraversal()) {
+            MisoUtil.tileToScreen(_metrics, tx, ty, _tcoords);
+            _trect.setLocation(_tcoords);
+            _trect.width = _metrics.tilewid;
+            _trect.height = _metrics.tilehei;
+            if (!_vbounds.intersects(_trect)) {
+                return false;
+            }
         }
 
-        // if it is on screen, check the tile traversability
+        // otherwise, check the tile traversability
         SceneBlock block = getBlock(tx, ty);
         return (block == null) ? false : block.canTraverse(traverser, tx, ty);
+    }
+
+    /**
+     * Derived classes can control whether or not we allow paths to be
+     * computed that take the client off-screen.
+     */
+    protected boolean allowOffScreenTraversal ()
+    {
+        return true;
     }
 
     // documentation inherited from interface
