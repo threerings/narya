@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.20 2003/09/25 00:26:16 mdb Exp $
+// $Id: SceneRegistry.java,v 1.21 2003/11/24 21:06:36 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -90,6 +90,17 @@ public class SceneRegistry
     public SceneRepository getSceneRepository ()
     {
         return _screp;
+    }
+
+    /**
+     * Returns {@link SceneManager#where} for the specified scene or
+     * <code>null:sceneId</code> if no scene manager exists for that
+     * scene.
+     */
+    public String where (int sceneId)
+    {
+        SceneManager scmgr = getSceneManager(sceneId);
+        return (scmgr == null) ? ("null:" + sceneId) : scmgr.where();
     }
 
     /**
