@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleManager.java,v 1.10 2004/06/22 14:26:10 mdb Exp $
+// $Id: PuzzleManager.java,v 1.11 2004/06/22 15:35:10 mdb Exp $
 
 package com.threerings.puzzle.server;
 
@@ -242,16 +242,16 @@ public abstract class PuzzleManager extends GameManager
         // start everyone out with reasonable last progress stamps
         Arrays.fill(_lastProgress, System.currentTimeMillis());
 
+        // compute the starting difficulty (this has to happen before we
+        // set the seed because that triggers the generation of the boards
+        // on the client)
+        _puzobj.setDifficulty(computeDifficulty());
+
         // initialize the seed that goes out with this round
         _puzobj.setSeed(RandomUtil.rand.nextLong());
 
         // initialize the player status
         _puzobj.setPlayerStatus(new int[size]);
-
-        // compute the starting difficulty
-        _puzobj.setDifficulty(computeDifficulty());
-        Log.info("Computed difficulty [game=" + _puzobj.which() +
-                 ", difficulty=" + _puzobj.difficulty + "].");
 
         // initialize the player boards
         initBoards();
