@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.38 2002/08/14 19:07:53 mdb Exp $
+// $Id: GameManager.java,v 1.39 2002/08/21 05:22:41 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -255,14 +255,25 @@ public class GameManager extends PlaceManager
      * then calls {@link #gameDidStart}.  Derived classes should override
      * one or both of the calldown functions (rather than this function)
      * if they need to do things before or after the game starts.
+     *
+     * @return true if the game was started, false if it could not be
+     * started because it was already in play or because all players have
+     * not yet reported in.
      */
-    public void startGame ()
+    public boolean startGame ()
     {
         // complain if we're already started
         if (_gameobj.state == GameObject.IN_PLAY) {
             Log.warning("Requested to start an already in-play game " +
                         "[game=" + _gameobj + "].");
-            return;
+            return false;
+        }
+
+        // make sure everyone has turned up
+        if (!allPlayersReady()) {
+            Log.warning("Requested to start a game that is still " +
+                        "awaiting players [game=" + _gameobj + "].");
+            return false;
         }
 
         // let the derived class do its pre-start stuff
@@ -273,6 +284,8 @@ public class GameManager extends PlaceManager
 
         // do post-start processing
         gameDidStart();
+
+        return true;
     }
 
     /**
@@ -455,19 +468,25 @@ public class GameManager extends PlaceManager
         }
         _playerOids[pidx] = plobj.getOid();
 
-        // and check to see if we're all set
-        boolean allSet = true;
+        // if everyone is now ready to go, get things underway
+        if (allPlayersReady()) {
+            playersAllHere();
+        }
+    }
+
+    /**
+     * Returns true if all (non-AI) players have delivered their {@link
+     * #playerReady} notifications, false if they have not.
+     */
+    protected boolean allPlayersReady ()
+    {
         for (int ii = 0; ii < _players.length; ii++) {
             if ((_playerOids[ii] == 0) &&
                 ((_AIs == null) || (_AIs[ii] == -1))) {
-                allSet = false;
+                return false;
             }
         }
-
-        // if everyone is now ready to go, make a note of it
-        if (allSet) {
-            playersAllHere();
-        }
+        return true;
     }
 
     // documentation inherited
