@@ -48,3 +48,8 @@ X Add "keepPathableVisible" or somesuch which like setFollowsPathable will
 * 6/21/2002
 ** Parlor enhancements
 - Support rematches and "best two out of three" style play
+
+* 7/24/2002
+** Cast enhancements
+- Eventually make BundledComponentRepository use ImageManager cache on the
+  images it loads in ResourceBundleProvider.loadImage

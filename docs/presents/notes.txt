@@ -152,7 +152,7 @@ Presents Notes -*- outline -*-
 
 * 7/18/2002
 ** PRMI (Presents remote method invocation)
-- PRMI ends up looking a lot like RMI with a few critical differences:
+- PRMI ends up looking somewhat like RMI with a few critical differences:
 
   + it uses the same message passing infrastructure as the distributed
     object system to accomplish its calls and responses
@@ -168,7 +168,7 @@ Presents Notes -*- outline -*-
       /**
        * Used to communicate responses to {@link #moveTo} requests.
        */
-      public interface MoveListener extends InvocationListener
+      public static interface MoveListener extends InvocationListener
       {
           /**
            * Called in response to a successful {@link #moveTo} request.
@@ -196,7 +196,7 @@ Presents Notes -*- outline -*-
 
   public InvocationListener
   {
-      public void requestFailed (InvocationException cause)
+      public void requestFailed (InvocationException cause);
   }
 
   This will be used to report unexpected failure and can also be used to
@@ -275,3 +275,82 @@ Presents Notes -*- outline -*-
   register implementations on the client end?
 
 - Possible to integrate useful general purpose security?
+
+* 8/6/2002
+** PRMI notification services
+- An interface is defined for the notification services:
+
+  /**
+   * Used to communicate asynchronous tell messages to the client.
+   */
+  public interface ChatReceiver extends InvocationReceiver
+  {
+      /**
+       * Called when another user has sent us a tell message.
+       *
+       * @param source the username of the teller.
+       * @param message the text of the tell message.
+       */
+      public void receivedTell (String source, String message);
+  }
+
+  An entity on the client implements this interface and registers with the
+  invocation director as the recipient for such invocation notifications
+  like so:
+
+  /**
+   * Coordinates chat related functionality on the client.
+   */
+  public class ChatDirector implements ChatReceiver
+  {
+      public ChatDirector (PresentsContext ctx)
+      {
+          InvocationDirector invdir = ctx.getClient().getInvocationDirector();
+          invdir.registerReceiver(new ChatDispatcher(this));
+      }
+
+      // documentation inherited from interface
+      public void receivedTell (String source, String message)
+      {
+          // deal with notification...
+      }
+  }
+
+  The dispatcher class referenced above is generated from the interface
+  specification and is responsible for converting notification events into
+  the appropriate method calls on the receiver implementation with which
+  it is constructed.
+
+  [Note: should only one receiver be allowed or should a list of receivers
+  be allowed, each receiving the notification when appropriate?]
+
+  A sender class is generated from the interface specification for use on
+  the server:
+
+  /**
+   * Provides facilities for delivering notifications as defined by the
+   * {@link ChatReceiver} interface.
+   */
+  public class ChatSender extends InvocationSender
+  {
+      /**
+       * Dispatches a {@link ChatReceiver#receivedTell} notification to
+       * the specified client.
+       */
+      public static void sendTell (
+          ClientObject target, String source, String message)
+      {
+          // code to marshall the parameters and dispatch an event to the
+          // target client...
+      }
+  }
+
+  Server code can then simply call the ChatSender.sendTell() method with
+  the appropriate client object to dispatch the associated notification to
+  that client.
+
+  Notice that the ChatReceiver.receivedTell method was renamed to
+  ChatSender.sendTell in the sender class. Methods starting with
+  "received" are converted to start with "send". If the interface method
+  does not start with "received" its name will not be changed in the
+  sender class definition.
