@@ -226,7 +226,7 @@ public class VirtualMediaPanel extends MediaPanel
 
 //             Log.info("Scrolling into place [n=(" + _nx + ", " + _ny +
 //                      "), t=(" + _vbounds.x + ", " + _vbounds.y +
-//                      "), d=(" + _dx + ", " + _dy +
+//                      "), d=(" + dx + ", " + dy +
 //                      "), width=" + width + ", height=" + height + "].");
 
 
