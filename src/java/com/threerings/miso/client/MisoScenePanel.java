@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.3 2003/04/18 23:19:13 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.4 2003/04/19 00:25:13 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -259,7 +259,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         } else if (_hobject instanceof SceneObject) {
             handleObjectPressed((SceneObject)_hobject, e.getX(), e.getY());
         } else {
-            handleMousePressed(_hobject, e.getX(), e.getY());
+            handleMousePressed(_hobject, e);
         }
     }
 
@@ -340,7 +340,7 @@ public class MisoScenePanel extends VirtualMediaPanel
      *
      * @return true if the mouse press was handled, false if not.
      */
-    protected boolean handleMousePressed (Object hobject, int mx, int my)
+    protected boolean handleMousePressed (Object hobject, MouseEvent event)
     {
         return false;
     }
