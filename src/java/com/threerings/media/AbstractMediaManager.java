@@ -1,20 +1,17 @@
 //
-// $Id: AbstractMediaManager.java,v 1.8 2003/04/15 21:27:22 mdb Exp $
+// $Id: AbstractMediaManager.java,v 1.9 2003/04/30 00:43:54 mdb Exp $
 
 package com.threerings.media;
 
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.Shape;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 
-import com.samskivert.util.ListUtil;
+import com.samskivert.util.ObserverList.ObserverOp;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.SortableArrayList;
-import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
 
 /**
@@ -208,30 +205,25 @@ public abstract class AbstractMediaManager
     }
 
     /**
-     * Queues the event for dispatching after we've ticked all
-     * the media.
+     * Queues the notification for dispatching after we've ticked all the
+     * media.
      */
-    public void queueNotification (ObserverList observers, Object event)
+    public void queueNotification (ObserverList observers, ObserverOp event)
     {
         _notify.add(new Tuple(observers, event));
     }
 
     /**
-     * Dispatches all queued events.
+     * Dispatches all queued media notifications.
      */
     protected void dispatchNotifications ()
     {
-        for (int ii=0, nn=_notify.size(); ii < nn; ii++) {
-            Tuple tuple = (Tuple)_notify.remove(0);
-            dispatchEvent((ObserverList)tuple.left, tuple.right);
+        for (int ii = 0, nn = _notify.size(); ii < nn; ii++) {
+            Tuple tuple = (Tuple)_notify.get(ii);
+            ((ObserverList)tuple.left).apply((ObserverOp)tuple.right);
         }
+        _notify.clear();
     }
-
-    /**
-     * Dispatches the specified event to the specified observers.
-     */
-    protected abstract void dispatchEvent (
-        ObserverList observers, Object event);
 
     /** The region manager. */
     protected RegionManager _remgr;

@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMedia.java,v 1.8 2003/01/18 22:25:21 mdb Exp $
+// $Id: AbstractMedia.java,v 1.9 2003/04/30 00:43:54 mdb Exp $
 
 package com.threerings.media;
 
@@ -167,6 +167,22 @@ public abstract class AbstractMedia
     public int getRenderOrder ()
     {
         return _renderOrder;
+    }
+
+    /**
+     * Queues the supplied notification up to be dispatched to this
+     * abstract media's observers.
+     */
+    public void queueNotification (ObserverList.ObserverOp amop)
+    {
+        if (_observers != null) {
+            if (_mgr != null) {
+                _mgr.queueNotification(_observers, amop);
+            } else {
+                Log.warning("Have no manager, dropping notification " +
+                            "[media=" + this + ", op=" + amop + "].");
+            }
+        }
     }
 
     /**
