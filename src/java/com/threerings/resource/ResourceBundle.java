@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.18 2003/06/19 01:12:59 ray Exp $
+// $Id: ResourceBundle.java,v 1.19 2003/07/14 22:18:18 ray Exp $
 
 package com.threerings.resource;
 
@@ -293,7 +293,7 @@ public class ResourceBundle
     {
         // if we don't yet have our resource bundle's last mod time, we
         // have not yet been notified that it is ready
-        if (_sourceLastMod == 0) {
+        if (_sourceLastMod == -1) {
             return true;
         }
 
@@ -365,7 +365,7 @@ public class ResourceBundle
     protected File _source;
 
     /** The last modified time of our source jar file. */
-    protected long _sourceLastMod;
+    protected long _sourceLastMod = -1;
 
     /** A file whose timestamp indicates whether or not our existing jar
      * file has been unpacked. */
