@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.14 2002/11/01 00:01:37 mdb Exp $
+// $Id: MessageBundle.java,v 1.15 2002/11/10 03:14:45 mdb Exp $
 
 package com.threerings.util;
 
@@ -178,7 +178,13 @@ public class MessageBundle
             String[] args = StringUtil.split(argstr, "|");
             // unescape and translate the arguments
             for (int i = 0; i < args.length; i++) {
-                args[i] = xlate(unescape(args[i]));
+                // if the argument is tainted, do no further translation
+                // (it might contain |s or other fun stuff)
+                if (args[i].startsWith(TAINT_CHAR)) {
+                    args[i] = unescape(args[i].substring(1));
+                } else {
+                    args[i] = xlate(unescape(args[i]));
+                }
             }
             return get(key, args);
         }
