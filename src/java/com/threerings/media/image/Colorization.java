@@ -1,9 +1,10 @@
 //
-// $Id: Colorization.java,v 1.2 2002/03/08 21:16:07 mdb Exp $
+// $Id: Colorization.java,v 1.3 2002/03/10 22:30:46 mdb Exp $
 
 package com.threerings.cast;
 
 import java.awt.Color;
+import com.samskivert.util.StringUtil;
 import com.threerings.media.util.ImageUtil;
 
 /**
@@ -11,9 +12,9 @@ import com.threerings.media.util.ImageUtil;
  */
 public class Colorization
 {
-    /** Every colorization must have a unique name that can be used to
+    /** Every colorization must have a unique id that can be used to
      * compare a particular colorization record with another. */
-    public String name;
+    public int colorizationId;
 
     /** The root color for the colorization. */
     public Color rootColor;
@@ -26,12 +27,12 @@ public class Colorization
     public float[] offsets;
 
     /**
-     * Constructs a colorization record with the specified name.
+     * Constructs a colorization record with the specified identifier.
      */
-    public Colorization (String name, Color rootColor,
+    public Colorization (int colorizationId, Color rootColor,
                          float[] range, float[] offsets)
     {
-        this.name = name;
+        this.colorizationId = colorizationId;
         this.rootColor = rootColor;
         this.range = range;
         this.offsets = offsets;
@@ -48,12 +49,12 @@ public class Colorization
     }
 
     /**
-     * Compares this colorization to another based on name.
+     * Compares this colorization to another based on id.
      */
     public boolean equals (Object other)
     {
         if (other instanceof Colorization) {
-            return ((Colorization)other).name.equals(name);
+            return ((Colorization)other).colorizationId == colorizationId;
         } else {
             return false;
         }
@@ -64,6 +65,14 @@ public class Colorization
      */
     public String toString ()
     {
-        return name;
+        return String.valueOf(colorizationId);
+    }
+
+    /**
+     * Returns a long string representation of this colorization.
+     */
+    public String toVerboseString ()
+    {
+        return StringUtil.fieldsToString(this);
     }
 }
