@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleBoardView.java,v 1.4 2003/11/26 23:06:05 mdb Exp $
+// $Id: PuzzleBoardView.java,v 1.5 2003/12/05 05:15:03 mdb Exp $
 
 package com.threerings.puzzle.client;
 
@@ -288,6 +288,17 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
     }
 
     /**
+     * Returns the puzzle font of the specified size.
+     *
+     * @param size the desired font size; a value between 0 and {@link
+     * #getPuzzleFontCount} - 1.
+     */
+    public static Font getPuzzleFont (int size)
+    {
+        return _fonts[size];
+    }
+
+    /**
      * Positions the supplied animation so as to avoid any active
      * animations previously registered with this method, and adds the
      * animation to the list of animations to be avoided by any future
@@ -376,17 +387,6 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
      * game-specific business.
      */
     protected abstract void renderBoard (Graphics2D gfx, Rectangle dirty);
-
-    /**
-     * Returns the puzzle font of the specified size.
-     *
-     * @param size the desired font size; a value between 0 and {@link
-     * #getPuzzleFontCount} - 1.
-     */
-    protected static Font getPuzzleFont (int size)
-    {
-        return _fonts[size];
-    }
 
     /** Our client context. */
     protected PuzzleContext _ctx;
