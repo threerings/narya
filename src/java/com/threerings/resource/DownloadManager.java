@@ -1,5 +1,5 @@
 //
-// $Id: DownloadManager.java,v 1.12 2003/08/09 00:31:14 mdb Exp $
+// $Id: DownloadManager.java,v 1.13 2003/10/23 20:31:28 ray Exp $
 
 package com.threerings.resource;
 
@@ -264,6 +264,7 @@ public class DownloadManager
 
         // download all stale files
         size = fetch.size();
+        DownloadDescriptor fdesc = null;
         pinfo.start = System.currentTimeMillis();
         for (int ii = 0; ii < size; ii++) {
             Downloader loader = (Downloader)fetch.get(ii);
@@ -273,14 +274,11 @@ public class DownloadManager
                 notifyFailed(obs, loader.getDescriptor(), ioe);
                 if (fragile) {
                     return;
+                } else {
+                    continue; // skip the postDownload for that bundle.
                 }
             }
-        }
 
-        // now go through and do the post-download phase
-        DownloadDescriptor fdesc = null;
-        for (int ii = 0; ii < size; ii++) {
-            Downloader loader = (Downloader)fetch.get(ii);
             try {
                 loader.postDownload(this, obs, pinfo);
             } catch (IOException ioe) {
