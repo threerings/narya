@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.48 2003/09/22 23:59:39 mdb Exp $
+// $Id: PlaceManager.java,v 1.49 2004/01/11 17:43:12 ray Exp $
 
 package com.threerings.crowd.server;
 
@@ -459,7 +459,7 @@ public class PlaceManager
                 public void run () {
                     if (_iid == _shutdownId) {
                         _shutdownId = -1;
-                        Log.info("Unloading idle place '" + where () + "'.");
+                        Log.debug("Unloading idle place '" + where () + "'.");
                         shutdown();
                     }
                 }
