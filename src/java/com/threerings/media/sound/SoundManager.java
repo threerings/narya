@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.25 2002/11/22 19:21:12 ray Exp $
+// $Id: SoundManager.java,v 1.26 2002/11/23 02:09:36 ray Exp $
 
 package com.threerings.media;
 
@@ -30,6 +30,7 @@ import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.Mixer;
+import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import javax.swing.Timer;
@@ -134,18 +135,11 @@ public class SoundManager
                         } else if (UNLOCK == command) {
                             _clipCache.unlock(key);
 
-                        } else if (FLUSH == command) {
-                            flushResources(false);
-                            // and re-start the resource freer timer
-                            // to do it again in 3 seconds
-                            _resourceFreer.restart();
-
                         } else if (UPDATE_MUSIC_VOL == command) {
                             updateMusicVolume();
 
                         } else if (DIE == command) {
-                            _resourceFreer.stop();
-                            flushResources(true);
+                            // TODO: clean up more stuff.
                             shutdownMusic();
                         }
                     } catch (Exception e) {
@@ -159,9 +153,6 @@ public class SoundManager
 
         _player.setDaemon(true);
         _player.start();
-
-        _resourceFreer.setRepeats(false);
-        _resourceFreer.start();
     }
 
     /**
@@ -329,25 +320,17 @@ public class SoundManager
      */
     protected void playSound (SoundKey key)
     {
-        // see if we can restart a previously used sound that's still
-        // hanging out.
-        if (restartSound(key)) {
-            return;
-        }
-
         try {
             // get the sound data from our LRU cache
-            ClipInfo info = getClipData(key);
-            if (info == null) {
+            byte[] data = getClipData(key);
+            if (data == null) {
                 return; // borked!
             }
 
-            Clip clip = (Clip) AudioSystem.getLine(info.info);
-            clip.open(info.stream);
+            AudioInputStream stream = AudioSystem.getAudioInputStream(
+                new ByteArrayInputStream(data));
 
-            SoundRecord rec = new SoundRecord(key, clip);
-            rec.start(_clipVol);
-            _activeClips.add(rec);
+            LineSpooler.play(stream, _clipVol);
 
         } catch (IOException ioe) {
             Log.warning("Error loading sound file [key=" + key +
@@ -364,30 +347,10 @@ public class SoundManager
     }
 
     /**
-     * Attempt to reuse a clip that's already been loaded.
-     */
-    protected boolean restartSound (SoundKey key)
-    {
-        long now = System.currentTimeMillis();
-
-        // we just go through all the sounds. There'll be 32 max, so fuckit.
-        for (int ii=0, nn=_activeClips.size(); ii < nn; ii++) {
-            SoundRecord rec = (SoundRecord) _activeClips.get(ii);
-            if (rec.key.equals(key) && rec.isStoppedSince(now)) {
-                rec.restart(_clipVol);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Play a song from the specified path.
      */
     protected void playMusic (MusicInfo info)
     {
-        Log.info("Playing: " + info);
         // stop whatever's currently playing
         if (_musicPlayer != null) {
             _musicPlayer.stop();
@@ -502,14 +465,11 @@ public class SoundManager
      */
     protected void stopMusic (SoundKey key)
     {
-        Log.info("Stopping: " + key);
         if (! _musicStack.isEmpty()) {
             MusicInfo current = (MusicInfo) _musicStack.getFirst();
 
             // if we're currently playing this song..
             if (key.equals(current)) {
-                Log.info("is top song!");
-
                 // stop it
                 _musicPlayer.stop();
 
@@ -517,6 +477,7 @@ public class SoundManager
                 _musicStack.removeFirst();
                 // start playing the next..
                 playTopMusic();
+                return;
 
             } else {
                 // we aren't currently playing this song. Simply remove.
@@ -560,48 +521,19 @@ public class SoundManager
     }
 
     /**
-     * Called occaisionally to flush sound resources.
-     *
-     * @param force if true, shutdown and free all sounds, no matter what.
-     * If false, frees sounds that haven't been used since EXPIRE_TIME
-     * ago.
-     */
-    protected void flushResources (boolean force)
-    {
-        long then = System.currentTimeMillis() - EXPIRE_TIME;
-
-        for (Iterator iter=_activeClips.iterator(); iter.hasNext(); ) {
-            SoundRecord rec = (SoundRecord) iter.next();
-            if (force || rec.isStoppedSince(then)) {
-                iter.remove();
-                rec.close();
-            }
-        }
-    }
-
-    /**
      * Get the audio data for the specified path.
      */
-    protected ClipInfo getClipData (SoundKey key)
+    protected byte[] getClipData (SoundKey key)
         throws IOException, UnsupportedAudioFileException
     {
-        ClipInfo info = (ClipInfo) _clipCache.get(key);
-        if (info != null) {
-            // we are re-using an old stream, make sure to rewind it.
-            info.stream.reset();
-
-        } else {
-            // set it up and put it in the cache
-            AudioInputStream stream = AudioSystem.getAudioInputStream(
-                new ByteArrayInputStream(StreamUtils.streamAsBytes(
-                _rmgr.getResource(key.set, key.path), BUFFER_SIZE)));
-            DataLine.Info dinfo = new DataLine.Info(
-                Clip.class, stream.getFormat());
-            info = new ClipInfo(dinfo, stream);
-            _clipCache.put(key, info);
+        byte[] data = (byte[]) _clipCache.get(key);
+        if (data == null) {
+            data = StreamUtils.streamAsBytes(
+                _rmgr.getResource(key.set, key.path), BUFFER_SIZE);
+            _clipCache.put(key, data);
         }
 
-        return info;
+        return data;
     }
 
 //    /**
@@ -651,162 +583,187 @@ public class SoundManager
     }
 
     /**
-     * A record to help us manage the use of sound resources.
-     * We don't free the resources associated with a clip immediately, because
-     * it may be played again shortly.
+     * Handles the playing of sound clip data.
      */
-    protected static class SoundRecord
-        implements LineListener
+    protected static class LineSpooler extends Thread
     {
-        public SoundKey key;
-
         /**
-         * Construct a SoundRecord.
+         * Attempt to play the specified sound.
          */
-        public SoundRecord (SoundKey key, Clip clip)
+        public static void play (AudioInputStream stream, float volume)
+            throws LineUnavailableException
         {
-            this.key = key;
-            _clip = clip;
+            AudioFormat format = stream.getFormat();
+            LineSpooler spooler;
 
-            // The mess:
-            // If we restart a sample, we get two stop events, one immediately
-            // and one later on.
-            // We can't just ignore the first in that case, because once
-            // a sample is restarted it seems to not return true
-            // for isRunning() (maybe because it's already been reset?)
-            // but will continue to generate stop events each time it
-            // is started.
-            //
-            // So- we can't depend on capturing stop events to know
-            // when a sound is done playing. Instead we just add the length
-            // of the sound to the current time. We fall back on the
-            // LineListener method if the clip length is unavailable.
-            //
-            // The good news is that just adding the length is in many
-            // ways a better system. I don't feel confident in doing
-            // that right now because I don't know if any sounds
-            // will ever return NOT_SPECIFIED.
+            for (int ii=0, nn=_available.size(); ii < nn; ii++) {
+                spooler = (LineSpooler) _available.get(ii);
 
-            long length = _clip.getMicrosecondLength();
-            if (length == AudioSystem.NOT_SPECIFIED) {
-                Log.info("Length of AudioClip not specified, falling back " +
-                        "to listening for stop events.");
-                _clip.addLineListener(this);
-                _length = AudioSystem.NOT_SPECIFIED;
+                // we have this thread remove the spooler if it's dead
+                // so that we avoid deadlock conditions
+                if (spooler.isDead()) {
+                    _available.remove(ii--);
+                    nn--;
 
-            } else {
-                // convert microseconds to milliseconds, round up.
-                _length = (length / 1000L) + 1;
+                } else if (spooler.checkPlay(format, stream, volume)) {
+                    return;
+                }
             }
-        }
 
-        /**
-         * Start playing the sound.
-         */
-        public void start (float volume)
-        {
-            adjustVolume(_clip, volume);
-            _clip.start();
-            didStart();
-        }
-
-        /**
-         * Restart the sound from the beginning.
-         */
-        public void restart (float volume)
-        {
-            // this only gets called after the sound has stopped, so
-            // simply rewind and replay.
-            _clip.setFramePosition(0);
-            start(volume);
-        }
-
-        /**
-         * Stop playing the sound.
-         */
-        public void stop ()
-        {
-            _clip.stop();
-            didStop();
-        }
-
-        /**
-         * Close down this SoundRecord and free the resources associated
-         * with the clip.
-         */
-        public void close ()
-        {
-            if (areListening()) {
-                _clip.removeLineListener(this);
+            if (_available.size() >= MAX_SPOOLERS) {
+                throw new LineUnavailableException("Exceeded maximum number " +
+                    "of narya sound spoolers.");
             }
-            if (_clip.isRunning()) {
-                _clip.stop();
+
+            spooler = new LineSpooler(format);
+            _available.add(spooler);
+            spooler.checkPlay(format, stream, volume);
+            spooler.start();
+        }
+
+        /**
+         * Private constructor.
+         */
+        private LineSpooler (AudioFormat format)
+            throws LineUnavailableException
+        {
+            super("narya SoundManager LineSpooler");
+            _format = format;
+
+            _line = (SourceDataLine) AudioSystem.getLine(new DataLine.Info(
+                SourceDataLine.class, _format));
+            _line.open(_format);
+            _line.start();
+        }
+
+        /**
+         * Has this line been closed?
+         */
+        protected boolean isDead ()
+        {
+            return !_valid;
+        }
+
+        /**
+         * Check-and-set method to see if we can play and to start
+         * doing so if we can.
+         */
+        protected synchronized boolean checkPlay (
+            AudioFormat format, AudioInputStream stream, float volume)
+        {
+            if (_valid && (_stream == null) && _format.matches(format)) {
+                _stream = stream;
+                SoundManager.adjustVolume(_line, volume);
+                notify();
+                return true;
             }
-            _clip.close();
 
-            // make sure nobody uses this SoundRecord again
-            _clip = null;
+            return false;
         }
 
         /**
-         * Indicate that we've started playback of this sound.
+         * @return true if we have sound data to play.
          */
-        protected void didStart ()
+        protected synchronized boolean waitForData ()
         {
-            if (areListening()) {
-                // clear out the stamp so that we can't possibly be reaped
-                // and since we're listening, we'll eventually call didStop()
-                _stamp = Long.MAX_VALUE;
-
-            } else {
-                _stamp = System.currentTimeMillis() + _length;
+            if (_stream == null) {
+                try {
+                    wait(MAX_WAIT_TIME);
+                } catch (InterruptedException ie) {
+                    // ignore.
+                }
+                if (_stream == null) {
+                    _valid = false;
+                    return false;
+                }
             }
+
+            return true;
         }
 
         /**
-         * Indicate that we've stopped playback.
+         * Main loop for the LineSpooler.
          */
-        protected void didStop ()
+        public void run ()
         {
-            // no matter what, when we stop, we stop
-            _stamp = System.currentTimeMillis();
-        }
-
-        /**
-         * Has this SoundRecord been stopped since before the specified time?
-         */
-        public boolean isStoppedSince (long then)
-        {
-            return (_stamp < then);
-        }
-
-        // documentation inherited from interface LineListener
-        public void update (LineEvent event)
-        {
-            // this only gets run if we actually need to listen for the
-            // stop events.
-            if (event.getType() == LineEvent.Type.STOP) {
-                didStop();
+            while (waitForData()) {
+                playStream();
             }
+
+            _line.close();
         }
 
         /**
-         * Are we registered as a LineListener on our clip?
+         * Play the current stream.
          */
-        private final boolean areListening ()
+        protected void playStream ()
         {
-            return _length == AudioSystem.NOT_SPECIFIED;
+            int count = 0;
+            byte[] data = new byte[BUFFER_SIZE];
+
+            while (count != -1) {
+                try {
+                    count = _stream.read(data, 0, data.length);
+                } catch (IOException e) {
+                    // this shouldn't ever ever happen
+                    Log.warning("Error reading clip data! [e=" + e + "].");
+                    _stream = null;
+                    return;
+                }
+
+                if (count >= 0) {
+                    _line.write(data, 0, count);
+                }
+            }
+
+            if (_line.isActive()) {
+//                Log.info("Waiting for drain (" + hashCode() + ", active=" +
+//                    _line.isActive() + ", running=" + _line.isRunning()+
+//                    ") : " + incDrainers());
+
+                // wait for it to play all the way
+                _line.drain();
+
+//                Log.info("drained: (" + hashCode() + ") :" + decDrainers());
+            }
+
+            // clear it out so that we can wait for more.
+            _stream = null;
         }
 
-        /** The timestamp of the moment this clip last stopped playing. */
-        protected long _stamp;
+//        protected static final synchronized int incDrainers ()
+//        {
+//            return ++drainers;
+//        }
+//
+//        protected static final synchronized int decDrainers ()
+//        {
+//            return --drainers;
+//        }
+//        static int drainers = 0;
 
-        /** The length of the clip, in milliseconds, or
-         * AudioSystem.NOT_SPECIFIED if unknown. */
-        protected long _length;
+        /** The format that our line was opened with. */
+        protected AudioFormat _format;
 
-        /** The clip we're wrapping. */
-        protected Clip _clip;
+        /** The stream we're currently spooling out. */
+        protected AudioInputStream _stream;
+
+        /** The line that we spool to. */
+        protected SourceDataLine _line;
+
+        /** Are we still active and usable for spooling sounds, or should
+         * we be removed. */
+        protected boolean _valid = true;
+
+        /** The list of all the currently instantiated spoolers. */
+        protected static ArrayList _available = new ArrayList();
+
+        /** The maximum time a spooler will wait for a stream before
+         * deciding to shut down. */
+        protected static final long MAX_WAIT_TIME = 30000L;
+
+        /** The maximum number of spoolers we'll allow. This is a lot. */
+        protected static final int MAX_SPOOLERS = 24;
     }
 
     /**
@@ -849,24 +806,6 @@ public class SoundManager
     }
 
     /**
-     * A wee helper class that holds clip information in our cache.
-     */
-    protected static class ClipInfo
-    {
-        /** The information needed to construct a clip from the stream. */
-        public DataLine.Info info;
-
-        /** The data to be used to make the clip. */
-        public AudioInputStream stream;
-
-        public ClipInfo (DataLine.Info info, AudioInputStream stream)
-        {
-            this.info = info;
-            this.stream = stream;
-        }
-    }
-
-    /**
      * A class that tracks the information about our playing music files.
      */
     protected static class MusicInfo extends SoundKey
@@ -880,19 +819,6 @@ public class SoundManager
             this.loops = loops;
         }
     }
-
-    /**
-     * Every 3 seconds we look for sounds that haven't been used for 4 and
-     * free them up.
-     */
-    protected Timer _resourceFreer = new Timer(3000, 
-        new ActionListener() {
-            public void actionPerformed (ActionEvent e)
-            {
-                // request a sweep by the main thread
-                _queue.append(FLUSH);
-            }
-        });
 
     /** The resource manager from which we obtain audio files. */
     protected ResourceManager _rmgr;
@@ -928,16 +854,11 @@ public class SoundManager
     protected Object UPDATE_MUSIC_VOL = new Object();
     protected Object LOCK = new Object();
     protected Object UNLOCK = new Object();
-    protected Object FLUSH = new Object();
     protected Object DIE = new Object();
 
     /** The queue size at which we start to ignore requests to play sounds. */
-    protected static final int MAX_QUEUE_SIZE = 100;
+    protected static final int MAX_QUEUE_SIZE = 25;
 
     /** The buffer size in bytes used when reading audio file data. */
-    protected static final int BUFFER_SIZE = 2048;
-
-    /** How long a clip may linger after stopping before we clear
-     * its resources. */
-    protected static final long EXPIRE_TIME = 4000L;
+    protected static final int BUFFER_SIZE = 8192;
 }
