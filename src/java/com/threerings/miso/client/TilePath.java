@@ -1,5 +1,5 @@
 //
-// $Id: TilePath.java,v 1.16 2003/05/16 00:22:22 mdb Exp $
+// $Id: TilePath.java,v 1.17 2003/05/16 00:26:18 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -11,6 +11,7 @@ import com.threerings.util.DirectionCodes;
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.util.LineSegmentPath;
 import com.threerings.media.util.MathUtil;
+import com.threerings.media.util.PathNode;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.util.MisoSceneMetrics;
@@ -45,10 +46,9 @@ public class TilePath extends LineSegmentPath
 	MisoUtil.screenToFull(metrics, destx, desty, fpos);
 
         // add the starting path node
-        Point ipos = new Point();
         int sx = sprite.getX(), sy = sprite.getY();
-        MisoUtil.screenToTile(metrics, sx, sy, ipos);
-        addNode(ipos.x, ipos.y, sx, sy, NORTH);
+        Point ipos = MisoUtil.screenToTile(metrics, sx, sy, new Point());
+        addNode(sx, sy, NORTH);
 
 	// TODO: make more visually appealing path segments from start to
 	// second tile, and penultimate to ultimate tile
@@ -70,7 +70,7 @@ public class TilePath extends LineSegmentPath
             // of each tile in the path for now
             int dsx = spos.x + metrics.tilehwid;
             int dsy = spos.y + metrics.tilehhei;
-            addNode(next.x, next.y, dsx, dsy, dir);
+            addNode(dsx, dsy, dir);
 
             prev = next;
         }
@@ -96,7 +96,7 @@ public class TilePath extends LineSegmentPath
         }
 
     	// add the final destination path node
-	addNode(tdestx, tdesty, spos.x, spos.y, dir);
+	addNode(spos.x, spos.y, dir);
     }
 
     /**
@@ -108,25 +108,16 @@ public class TilePath extends LineSegmentPath
         return (long)(_estimPixels / _vel);
     }
 
-    /**
-     * Add a node to the path with the specified destination
-     * coordinates and facing direction.
-     *
-     * @param tx the tile x-position.
-     * @param ty the tile y-position.
-     * @param x the x-position.
-     * @param y the y-position.
-     * @param dir the facing direction.
-     */
-    protected void addNode (int tx, int ty, int x, int y, int dir)
+    // documentation inherited
+    public void addNode (int x, int y, int dir)
     {
+        super.addNode(x, y, dir);
         if (_last == null) {
             _last = new Point();
         } else {
             _estimPixels += MathUtil.distance(_last.x, _last.y, x, y);
         }
         _last.setLocation(x, y);
-        _nodes.add(new TilePathNode(tx, ty, x, y, dir));
     }
 
     /** Used to compute estimated travel time. */
