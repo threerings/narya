@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.55 2003/01/31 23:11:07 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.56 2003/02/12 07:24:08 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -92,7 +92,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         CharacterSprite s = charmgr.getCharacter(desc);
         if (s != null) {
             // start 'em out standing
-            s.setActionSequence(CharacterSprite.STANDING, false);
+            s.setActionSequence(CharacterSprite.STANDING);
             s.setLocation(300, 300);
             s.addSpriteObserver(this);
             spritemgr.addSprite(s);

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerFrame.java,v 1.33 2002/04/27 02:34:29 mdb Exp $
+// $Id: ViewerFrame.java,v 1.34 2003/02/12 07:24:08 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -7,6 +7,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GraphicsConfiguration;
+import java.awt.event.ActionEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -61,6 +62,14 @@ public class ViewerFrame extends JFrame
         // now add the new one
         _panel = panel;
 	getContentPane().add(_panel, BorderLayout.CENTER);
+    }
+
+    /**
+     * Dummy callback method.
+     */
+    public void handlePreferences (ActionEvent event)
+    {
+        System.err.println("Nothing doing!");
     }
 
     protected Component _panel;

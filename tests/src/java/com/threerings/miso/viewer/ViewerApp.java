@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.36 2003/01/31 23:11:07 mdb Exp $
+// $Id: ViewerApp.java,v 1.37 2003/02/12 07:24:08 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -21,10 +21,10 @@ import com.threerings.cast.CharacterManager;
 import com.threerings.cast.bundle.BundledComponentRepository;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.client.DisplayMisoSceneImpl;
-import com.threerings.miso.data.MisoSceneModel;
+import com.threerings.miso.client.SimpleDisplayMisoSceneImpl;
+import com.threerings.miso.data.SimpleMisoSceneModel;
 import com.threerings.miso.tile.MisoTileManager;
-import com.threerings.miso.tools.xml.MisoSceneParser;
+import com.threerings.miso.tools.xml.SimpleMisoSceneParser;
 import com.threerings.miso.util.MisoContext;
 
 /**
@@ -88,14 +88,14 @@ public class ViewerApp
 
         // load up the scene specified by the user
         try {
-            MisoSceneParser parser = new MisoSceneParser("miso");
-            MisoSceneModel model = parser.parseScene(args[0]);
-            if (model != null) {
-                _panel.setScene(new DisplayMisoSceneImpl(model, _tilemgr));
-            } else {
+            SimpleMisoSceneParser parser = new SimpleMisoSceneParser("miso");
+            SimpleMisoSceneModel model = parser.parseScene(args[0]);
+            if (model == null) {
                 Log.warning("No miso scene found in scene file " +
                             "[path=" + args[0] + "].");
+                System.exit(-1);
             }
+            _panel.setScene(new SimpleDisplayMisoSceneImpl(model, _tilemgr));
 
         } catch (Exception e) {
             Log.warning("Unable to parse scene [path=" + args[0] + "].");
@@ -165,7 +165,4 @@ public class ViewerApp
 
     /** The main panel. */
     protected ViewerSceneViewPanel _panel;
-
-    /** The default scene to load and display. */
-    protected static final String DEF_SCENE = "rsrc/scenes/default.xml";
 }

@@ -1,5 +1,5 @@
 //
-// $Id: CharSpriteViz.java,v 1.3 2003/01/13 22:57:45 mdb Exp $
+// $Id: CharSpriteViz.java,v 1.4 2003/02/12 07:24:07 mdb Exp $
 
 package com.threerings.cast;
 
@@ -40,7 +40,7 @@ public class CharSpriteViz extends JPanel
         // put the sprite in the appropriate action mode
         _sprite.setRestingAction(action);
         _sprite.setFollowingPathAction(action);
-        _sprite.setActionSequence(action, false);
+        _sprite.setActionSequence(action);
 
         addMouseMotionListener(this);
     }

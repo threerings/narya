@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.14 2002/11/12 22:55:15 shaper Exp $
+// $Id: TestClient.java,v 1.15 2003/02/12 07:24:08 mdb Exp $
 
 package com.threerings.whirled;
 
@@ -11,11 +11,15 @@ import com.threerings.presents.net.*;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.client.*;
+import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.whirled.client.SceneDirector;
-import com.threerings.whirled.client.DefaultDisplaySceneFactory;
 import com.threerings.whirled.client.persist.SceneRepository;
+import com.threerings.whirled.data.Scene;
+import com.threerings.whirled.data.SceneImpl;
+import com.threerings.whirled.data.SceneModel;
+import com.threerings.whirled.util.SceneFactory;
 import com.threerings.whirled.util.WhirledContext;
 
 public class TestClient
@@ -31,8 +35,13 @@ public class TestClient
         _screp = new DummyClientSceneRepository();
         _occdir = new OccupantDirector(_ctx);
         _locdir = new LocationDirector(_ctx);
-        _scdir = new SceneDirector(
-            _ctx, _locdir, _screp, new DefaultDisplaySceneFactory());
+
+        SceneFactory sfact = new SceneFactory() {
+            public Scene createScene (SceneModel model, PlaceConfig config) {
+                return new SceneImpl(model, config);
+            }
+        };
+        _scdir = new SceneDirector(_ctx, _locdir, _screp, sfact);
 
         // we want to know about logon/logoff
         _client.addClientObserver(this);

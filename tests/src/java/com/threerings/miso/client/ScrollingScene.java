@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingScene.java,v 1.11 2003/01/31 23:11:07 mdb Exp $
+// $Id: ScrollingScene.java,v 1.12 2003/02/12 07:24:07 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -26,7 +26,7 @@ import com.threerings.miso.util.MisoContext;
 /**
  * Provides an infinite array of tiles in which to scroll.
  */
-public class ScrollingScene implements DisplayMisoScene
+public class ScrollingScene extends VirtualDisplayMisoSceneImpl
 {
     public ScrollingScene (MisoContext ctx)
         throws NoSuchTileSetException, NoSuchTileException, PersistenceException
@@ -34,20 +34,24 @@ public class ScrollingScene implements DisplayMisoScene
         // locate the water tileset
         TileSetRepository tsrepo = ctx.getTileManager().getTileSetRepository();
         Iterator iter = tsrepo.enumerateTileSets();
-        TileSet wtset = null;
+        String tsname = null;
         while (iter.hasNext()) {
             TileSet tset = (TileSet)iter.next();
             // yay for built-in regex support!
             if (tset.getName().matches(".*[Ww]ater.*") &&
                 tset instanceof BaseTileSet) {
-                wtset = tset;
+                tsname = tset.getName();
                 break;
             }
         }
 
-        if (wtset == null) {
+        if (tsname == null) {
             throw new RuntimeException("Unable to locate water tileset.");
         }
+
+        // now we look the tileset up by name so that it is properly
+        // initialized and all that business
+        TileSet wtset = ctx.getTileManager().getTileSet(tsname);
 
         // grab our four repeating tiles
         _tiles = new BaseTile[wtset.getTileCount()];
@@ -63,24 +67,6 @@ public class ScrollingScene implements DisplayMisoScene
         long hash = (seed * multiplier + addend) & mask;
         int tidx = (int)((hash >> 10) % _tiles.length);
         return _tiles[tidx];
-    }
-
-    // documentation inherited from interface
-    public Tile getFringeTile (int x, int y)
-    {
-        return null;
-    }
-
-    // documentation inherited from interface
-    public void getSceneObjects (Rectangle region, ObjectSet set)
-    {
-        // nothing for now
-    }
-
-    // documentation inherited from interface
-    public boolean canTraverse (Object trav, int x, int y)
-    {
-        return true;
     }
 
     protected BaseTile[] _tiles;

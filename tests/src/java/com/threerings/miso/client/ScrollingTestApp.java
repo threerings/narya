@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.19 2003/01/31 23:11:07 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.20 2003/02/12 07:24:07 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -113,7 +113,7 @@ public class ScrollingTestApp
             if (_ship != null) {
                 _ship.setFollowingPathAction("sailing");
                 _ship.setRestingAction("sailing");
-                _ship.setActionSequence("sailing", true);
+                _ship.setActionSequence("sailing");
                 _ship.setLocation(_panel.getModel().bounds.width/2,
                                   _panel.getModel().bounds.height/2);
                 _panel.addSprite(_ship);
@@ -146,15 +146,6 @@ public class ScrollingTestApp
         int x = _ship.getX(), y = _ship.getY();
         _ship.move(new LinePath(x, y, x, y + 1000, 3000l));
 
-        // set the scene to our scrolling scene
-        try {
-            _panel.setScene(new ScrollingScene(ctx));
-
-        } catch (Exception e) {
-            Log.warning("Error creating scene: " + e);
-            Log.logStackTrace(e);
-        }
-
         // size and position the window, entering full-screen exclusive
         // mode if available
         if (gd.isFullScreenSupported()) {
@@ -167,6 +158,13 @@ public class ScrollingTestApp
             // _frame.pack();
             _frame.setSize(200, 300);
             SwingUtil.centerWindow(_frame);
+        }
+
+        try {
+            _panel.setScene(new ScrollingScene(ctx));
+        } catch (Exception e) {
+            Log.warning("Error creating scene: " + e);
+            Log.logStackTrace(e);
         }
     }
 

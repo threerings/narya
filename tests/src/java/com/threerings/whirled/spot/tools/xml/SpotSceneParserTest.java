@@ -1,14 +1,14 @@
 //
-// $Id: SpotSceneParserTest.java,v 1.3 2002/02/09 07:50:04 mdb Exp $
+// $Id: SpotSceneParserTest.java,v 1.4 2003/02/12 07:24:08 mdb Exp $
 
-package com.threerings.whirled.tools.spot.xml;
+package com.threerings.whirled.spot.tools.xml;
 
 import com.samskivert.test.TestUtil;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 
-import com.threerings.whirled.tools.spot.EditableSpotScene;
+import com.threerings.whirled.spot.data.SpotScene;
 
 public class SpotSceneParserTest extends TestCase
 {
@@ -22,8 +22,8 @@ public class SpotSceneParserTest extends TestCase
         try {
             SpotSceneParser parser = new SpotSceneParser("scene");
             String tspath = TestUtil.getResourcePath(TEST_SCENE_PATH);
-            EditableSpotScene scene = parser.parseScene(tspath);
-            // System.out.println("Parsed " + scene.getSpotSceneModel() + ".");
+            SpotScene scene = parser.parseScene(tspath);
+            System.out.println("Parsed " + scene + ".");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -43,5 +43,5 @@ public class SpotSceneParserTest extends TestCase
     }
 
     protected static final String TEST_SCENE_PATH =
-        "rsrc/whirled/tools/spot/xml/scene.xml";
+        "rsrc/whirled/spot/tools/xml/scene.xml";
 }
