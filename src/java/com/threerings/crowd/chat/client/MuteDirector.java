@@ -1,5 +1,5 @@
 //
-// $Id: MuteDirector.java,v 1.11 2004/03/06 11:29:18 mdb Exp $
+// $Id: MuteDirector.java,v 1.12 2004/08/19 20:59:06 ray Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -141,15 +141,6 @@ public class MuteDirector extends BasicDirector
                 return true;
             }
         });
-    }
-
-    // documentation inherited
-    public void clientDidLogoff (Client client)
-    {
-        super.clientDidLogoff(client);
-
-        // clear the mutelist, don't notify..
-        _mutelist.clear();
     }
 
     /** The chat director that we're working hard for. */
