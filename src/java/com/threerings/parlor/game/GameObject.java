@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.java,v 1.15 2003/04/30 22:45:57 mdb Exp $
+// $Id: GameObject.java,v 1.16 2003/05/26 23:46:46 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -171,6 +171,7 @@ public class GameObject extends PlaceObject
     {
         super.which(buf);
         StringUtil.toString(buf, players);
+        buf.append(":").append(state);
     }
 
     /**
