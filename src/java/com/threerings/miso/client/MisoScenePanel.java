@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.34 2003/05/21 00:28:22 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.35 2003/05/21 15:27:45 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -604,6 +604,9 @@ public class MisoScenePanel extends VirtualMediaPanel
             _ulpos.setLocation(_tcoords);
             if (rethink() > 0) {
                 _delayRepaint = mightDelayPaint;
+                Log.info("Delaying repaint... " +
+                         "[need=" + _visiBlocks.size() +
+                         ", of=" + _pendingBlocks + "].");
             }
         }
     }
@@ -712,7 +715,7 @@ public class MisoScenePanel extends VirtualMediaPanel
 
         Log.debug("Rethunk [pending=" + _pendingBlocks +
                   ", visible=" + _visiBlocks.size() + "].");
-        return _pendingBlocks;
+        return _visiBlocks.size();
     }
 
     /**
@@ -802,6 +805,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         // resolution, recompute our visible object set and show ourselves
         if (_visiBlocks.remove(block) && _visiBlocks.size() == 0) {
             recomputeVisible();
+            Log.info("Restoring repaint... [left=" + _pendingBlocks + "].");
             _delayRepaint = false;
             _remgr.invalidateRegion(_vbounds);
         }
