@@ -1,5 +1,5 @@
 //
-// $Id: CrowdServer.java,v 1.2 2001/08/01 03:22:54 mdb Exp $
+// $Id: CrowdServer.java,v 1.3 2001/08/02 01:47:56 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -20,7 +20,7 @@ public class PartyServer extends CherServer
     public static final String CONFIG_KEY = "party";
 
     /** The place registry. */
-    public PlaceRegistry plreg;
+    public static PlaceRegistry plreg;
 
     /**
      * Initializes all of the server services and prepares for operation.
