@@ -1,5 +1,5 @@
 //
-// $Id: ColorPository.java,v 1.4 2003/06/23 18:06:57 mdb Exp $
+// $Id: ColorPository.java,v 1.5 2003/11/22 19:57:16 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -81,6 +81,13 @@ public class ColorPository implements Serializable
                 }
                 _starters = (ColorRecord[])
                     list.toArray(new ColorRecord[list.size()]);
+            }
+
+            // sanity check
+            if (_starters.length < 1) {
+                Log.warning("Requested random starting color from " +
+                            "colorless component class " + this + "].");
+                return null;
             }
 
             // return a random entry from the array
