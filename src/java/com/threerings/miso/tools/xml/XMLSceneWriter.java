@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneWriter.java,v 1.2 2001/07/24 19:15:51 shaper Exp $
+// $Id: XMLSceneWriter.java,v 1.3 2001/07/24 20:12:18 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -65,7 +65,7 @@ public class XMLSceneWriter extends DataWriter
 
         } catch (SAXException saxe) {
             Log.warning("Exception writing scene to file " +
-                        "[scene=" + scene + ", [fname=" + fname +
+                        "[scene=" + scene + ", fname=" + fname +
                         ", saxe=" + saxe + "].");
         }
     }
