@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.3 2001/08/02 00:42:02 shaper Exp $
+// $Id: AnimationManager.java,v 1.4 2001/08/02 18:59:00 shaper Exp $
 
 package com.threerings.miso.sprite;
 
@@ -57,7 +57,7 @@ public class AnimationManager implements Interval, PerformanceObserver
 
     public void checkpoint (String name, int ticks)
     {
-        Log.info(name + "[ticks=" + ticks + "].");
+        Log.info(name + " [ticks=" + ticks + "].");
     }
 
     /** The desired number of refresh operations per second. */

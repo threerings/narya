@@ -1,10 +1,9 @@
 //
-// $Id: SpriteManager.java,v 1.4 2001/08/02 00:42:02 shaper Exp $
+// $Id: SpriteManager.java,v 1.5 2001/08/02 18:59:00 shaper Exp $
 
 package com.threerings.miso.sprite;
 
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.ArrayList;
 
 import com.threerings.miso.Log;
@@ -76,17 +75,13 @@ public class SpriteManager
     }
 
     /**
-     * Render the sprites residing within the specified pixel bounds
-     * to the given graphics context.
+     * Render the sprites residing within the given polygon to the
+     * given graphics context.
      *
      * @param gfx the graphics context.
-     * @param x the bounds x-position.
-     * @param y the bounds y-position.
-     * @param width the bounds width.
-     * @param height the bounds height.
+     * @param bounds the bounding polygon.
      */
-    public void renderSprites (
-        Graphics2D gfx, int x, int y, int width, int height)
+    public void renderSprites (Graphics2D gfx, Polygon bounds)
     {
         // TODO: optimize to store sprites based on quadrants they're
         // in (or somesuch), and sorted, so that we can more quickly
@@ -95,7 +90,7 @@ public class SpriteManager
         int size = _sprites.size();
         for (int ii = 0; ii < size; ii++) {
             Sprite sprite = (Sprite)_sprites.get(ii);
-            if (sprite.inside(x, y, width, height)) {
+            if (sprite.inside(bounds)) {
                 sprite.paint(gfx);
             }
         }

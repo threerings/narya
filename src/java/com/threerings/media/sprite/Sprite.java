@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.4 2001/08/02 00:42:02 shaper Exp $
+// $Id: Sprite.java,v 1.5 2001/08/02 18:59:00 shaper Exp $
 
 package com.threerings.miso.sprite;
 
@@ -59,6 +59,8 @@ public class Sprite
         this.x = x;
         this.y = y;
 
+        updateDrawPosition();
+
         _curFrame = 0;
         _animDelay = -1;
         _numTicks = 0;
@@ -73,44 +75,26 @@ public class Sprite
 
     /**
      * Paint the sprite to the specified graphics context.
+     *
+     * @param gfx the graphics context.
      */
     public void paint (Graphics2D gfx)
     {
-        int xpos = x - (_curTile.width / 2);
-        int ypos = y - _curTile.height;
-        gfx.drawImage(_curTile.img, xpos, ypos, null);
-//          Log.info("Sprite painting image [x=" + xpos + ", y=" + ypos + "].");
+        gfx.drawImage(_curTile.img, _drawx, _drawy, null);
+//          Log.info("Sprite painting image [sprite=" + this + "].");
     }
 
     /**
-     * Returns whether the sprite is inside the given rectangle in
+     * Returns whether the sprite is inside the given polygon in
      * pixel coordinates.
      *
-     * @param x the rectangle x coordinate.
-     * @param y the rectangle y coordinate.
-     * @param width the rectangle width.
-     * @param height the rectangle height.
+     * @param bounds the bounding polygon.
      *
-     * @return true if the sprite is inside the rectangle, false if not.
+     * @return whether the sprite is inside the polygon.
      */
-    public boolean inside (int x, int y, int width, int height)
+    public boolean inside (Polygon bounds)
     {
-        // note that we consider the current tile for sprite
-        // width/height, and since the tile may change we're at the
-        // mercy of the tile creators to make sure all tiles for a
-        // given sprite are the same width.
-
-        // we might want to check this when tiles are set for the
-        // sprite, or require that the sprite width/height be
-        // specified separately when the sprite is created.  or
-        // perhaps we'd like to be able to have sprites with variable
-        // width?  i can't think why.
-
-        return (this.x >= x && this.x < (x + width) &&
-                this.y >= y && this.y < (y + height));
-
-//          return (this.x >= x && this.x + _curTile.width < (x + width) &&
-//                  this.y >= y && this.y + _curTile.height < (y + height));
+        return bounds.contains(this.x, this.y);
     }
 
     /**
@@ -131,11 +115,12 @@ public class Sprite
      */
     public void setTiles (Tile[] tiles)
     {
+        if (tiles == null) return;
+
         _tiles = tiles;
-        if (_tiles != null) {
-            _curTile = _tiles[_curFrame];
-            invalidate();
-        }
+        _curTile = _tiles[_curFrame];
+        updateDrawPosition();
+        invalidate();
     }
 
     /**
@@ -215,12 +200,42 @@ public class Sprite
                 // invalidate the sprite in its new location
                 invalidate();
 
-                // and note our stoppage
+                // note our stoppage
                 _animDelay = -1;
                 _state = STATE_NONE;
             }
+
+            updateDrawPosition();
             break;
         }
+    }
+
+    /**
+     * Update the coordinates at which the sprite image is drawn to
+     * reflect the sprite's current position.
+     */
+    protected void updateDrawPosition ()
+    {
+        if (_curTile == null) {
+            _drawx = x;
+            _drawy = y;
+            return;
+        }
+
+        _drawx = x - (_curTile.width / 2);
+        _drawy = y - _curTile.height;
+    }
+
+    /**
+     * Return a string representation of the sprite.
+     */
+    public String toString ()
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append("[x=").append(x);
+        buf.append(", y=").append(y);
+        buf.append(", curframe=").append(_curFrame);
+        return buf.append("]").toString();
     }
 
     /** State constants. */
@@ -236,19 +251,22 @@ public class Sprite
     /** The current tile index to render. */
     protected int _curFrame;
 
-    /** The sprite's destination coordinates. */
-    protected Point _dest;
+    /** The coordinates at which the tile image is drawn. */
+    protected int _drawx, _drawy;
 
     /** The sprite's current state. */
     protected int _state;
 
-    /** The sprite position with fractional pixels while moving. */ 
+    /** When moving, the sprite's destination coordinates. */
+    protected Point _dest;
+
+    /** When moving, the sprite position including fractional pixels. */ 
     protected float _movex, _movey;
 
-    /** The distance to move the sprite per tick in fractional pixels. */
+    /** When moving, the distance to move per tick in fractional pixels. */
     protected float _incx, _incy;
 
-    /** The number of ticks to wait before proceeding to the next tile. */
+    /** The number of ticks to wait before rendering with the next tile. */
     protected int _animDelay;
 
     /** The number of ticks since the last tile animation. */

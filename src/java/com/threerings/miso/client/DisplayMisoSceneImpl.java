@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.15 2001/08/02 01:19:47 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.16 2001/08/02 18:58:59 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -31,10 +31,10 @@ public class Scene
     public static final short VERSION = 1;
 
     /** The scene width in tiles. */
-    public static final int TILE_WIDTH = 55;
+    public static final int TILE_WIDTH = 22;
 
     /** The scene height in tiles. */
-    public static final int TILE_HEIGHT = 55;
+    public static final int TILE_HEIGHT = 22;
 
     /** String translations of each tile layer name. */
     public static final String[] XLATE_LAYERS = { "Base", "Object" };

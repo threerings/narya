@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.5 2001/08/02 00:42:02 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.6 2001/08/02 18:59:00 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -35,8 +35,12 @@ public class SceneViewPanel extends JPanel
         _sprite = sprite;
 
         // construct the view object
-        _view = new IsoSceneView(_ctx.getTileManager(), spritemgr,
-                                 new IsoSceneModel());
+        IsoSceneModel smodel = new IsoSceneModel();
+        smodel.setTileDimensions(64, 48);
+        smodel.setBounds((10 * 64), (12 * 48));
+        smodel.setOrigin(320, -(5 * 48));
+
+        _view = new IsoSceneView(_ctx.getTileManager(), spritemgr, smodel);
 
         // create an animation manager for this panel
         AnimationManager animmgr =
@@ -65,7 +69,7 @@ public class SceneViewPanel extends JPanel
 
         // get the starting scene filename
         Config config = _ctx.getConfig();
-        String fname = config.getValue(CONF_SCENE, (String)DEF_SCENE);
+        String fname = config.getValue(CFG_SCENE, DEF_SCENE);
 
         try {
             // load and set up the scene
@@ -104,7 +108,7 @@ public class SceneViewPanel extends JPanel
 
     public void checkpoint (String name, int ticks)
     {
-        Log.info(name + "[ticks=" + ticks + "].");
+        Log.info(name + " [ticks=" + ticks + "].");
     }
 
     /** MouseListener interface methods */
@@ -139,7 +143,7 @@ public class SceneViewPanel extends JPanel
     }
 
     /** The config key to obtain the default scene filename. */
-    protected static final String CONF_SCENE = "miso-viewer.default_scene";
+    protected static final String CFG_SCENE = "miso-viewer.default_scene";
 
     /** The default scene to load and display. */
     protected static final String DEF_SCENE = "rsrc/scenes/default.xml";

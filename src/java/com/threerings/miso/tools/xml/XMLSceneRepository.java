@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneRepository.java,v 1.3 2001/07/24 22:52:02 shaper Exp $
+// $Id: XMLSceneRepository.java,v 1.4 2001/08/02 18:59:00 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -30,7 +30,7 @@ public class XMLFileSceneRepository extends SceneRepositoryImpl
     public void init (Config config, TileManager tilemgr)
     {
         super.init(config, tilemgr);
-        _root = _config.getValue(CONFIG_ROOT, DEF_ROOT);
+        _root = _config.getValue(CFG_ROOT, DEF_ROOT);
         _parser = new XMLSceneParser(_tilemgr);
         _writer = new XMLSceneWriter();
     }
@@ -60,7 +60,7 @@ public class XMLFileSceneRepository extends SceneRepositoryImpl
     }
 
     /** The config key for the root scene directory. */
-    protected static final String CONFIG_ROOT = "miso.sceneroot";
+    protected static final String CFG_ROOT = "miso.sceneroot";
 
     /** The default root scene directory path. */
     protected static final String DEF_ROOT = "rsrc/scenes";

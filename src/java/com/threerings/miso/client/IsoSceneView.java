@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.21 2001/08/02 05:08:23 shaper Exp $
+// $Id: IsoSceneView.java,v 1.22 2001/08/02 18:58:59 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -80,30 +80,59 @@ public class IsoSceneView implements EditableSceneView
      */
     protected void renderSceneInvalid (Graphics2D gfx)
     {
-        Point spos = new Point();
-
         Log.info("renderSceneInvalid.");
 
         int size = _dirty.size();
         for (int ii = 0; ii < size; ii++) {
+
+            // retrieve the next dirty tile coordinates
             int[] dinfo = (int[])_dirty.remove(0);
+            int tx = dinfo[0], ty = dinfo[1];
 
-            tileToScreen(dinfo[0], dinfo[1], spos);
+            // draw all layers at this tile position
+            for (int kk = 0; kk < Scene.NUM_LAYERS; kk++) {
 
-            Log.info("renderSceneInvalid [tx=" + dinfo[0] +
-                     ", ty=" + dinfo[1] + ", x=" + spos.x +
-                     ", y=" + spos.y + "].");
+                // get the tile's screen position
+                Polygon poly = getTilePolygon(tx, ty);
 
-            Tile tile = _scene.tiles[dinfo[0]][dinfo[1]][0];
-            if (tile == null) continue;
+                // get the tile at these coordinates and layer
+                Tile tile = _scene.tiles[tx][ty][kk];
+                if (tile == null) continue;
 
-            int ypos = spos.y - (tile.height - _model.tilehei);
-            gfx.drawImage(tile.img, spos.x, ypos, null);
+                // offset the image y-position by the tile-specific height
+                int ypos = poly.ypoints[0] - _model.tilehhei -
+                    (tile.height - _model.tilehei);
+
+                // draw the tile image
+                gfx.drawImage(tile.img, poly.xpoints[0], ypos, null);
+            }
 
             // draw all sprites residing in the current tile
-            _spritemgr.renderSprites(
-                gfx, spos.x, spos.y, _model.tilewid, _model.tilehei);
+            _spritemgr.renderSprites(gfx, getTilePolygon(tx, ty));
         }
+    }
+
+    /**
+     * Return a polygon framing the specified tile.
+     *
+     * @param x the tile x-position coordinate.
+     * @param y the tile y-position coordinate.
+     */
+    protected Polygon getTilePolygon (int x, int y)
+    {
+        // get the top-left screen coordinate for the tile
+        Point spos = new Point();
+        tileToScreen(x, y, spos);
+
+        // create a polygon framing the tile
+        Polygon poly = new Polygon();
+        poly.addPoint(spos.x, spos.y + _model.tilehhei);
+        poly.addPoint(spos.x + _model.tilehwid, spos.y);
+        poly.addPoint(spos.x + _model.tilewid, spos.y + _model.tilehhei);
+        poly.addPoint(spos.x + _model.tilehwid, spos.y + _model.tilehei);
+        poly.addPoint(spos.x, spos.y + _model.tilehhei);
+
+        return poly;
     }
 
     /**
@@ -142,12 +171,11 @@ public class IsoSceneView implements EditableSceneView
 
 		    // draw the tile image at the appropriate screen position
 		    gfx.drawImage(tile.img, screenX, ypos, null);
-                }
 
-                // draw all sprites residing in the current line of tiles
-                _spritemgr.renderSprites(
-                    gfx, screenX, screenY, (length * _model.tilewid),
-                    _model.tilehei);
+                    // draw all sprites residing in the current tile
+                    // TODO: simplify other tile positioning here to use poly
+                    _spritemgr.renderSprites(gfx, getTilePolygon(tx, ty));
+                }
 
 		// draw tile coordinates in each tile
   		if (_model.showCoords) {
@@ -226,8 +254,7 @@ public class IsoSceneView implements EditableSceneView
     }
 
     /**
-     * Paint a highlight around the tile at screen pixel coordinates
-     * (sx, sy).
+     * Paint a highlight around the specified tile.
      *
      * @param gfx the graphics context.
      * @param x the tile x-position coordinate.
@@ -235,35 +262,18 @@ public class IsoSceneView implements EditableSceneView
      */
     protected void paintHighlightedTile (Graphics2D gfx, int x, int y)
     {
-        Point spos = new Point();
-        tileToScreen(x, y, spos);
-
         // set the desired stroke and color
 	Stroke ostroke = gfx.getStroke();
 	gfx.setStroke(HLT_STROKE);
 	gfx.setColor(HLT_COLOR);
 
         // draw the tile outline
-	gfx.drawLine(spos.x, spos.y + _model.tilehhei,
-		     spos.x + _model.tilehwid, spos.y);
-	gfx.drawLine(spos.x + _model.tilehwid, spos.y,
-		     spos.x + _model.tilewid, spos.y + _model.tilehhei);
-	gfx.drawLine(spos.x + _model.tilewid, spos.y + _model.tilehhei,
-		     spos.x + _model.tilehwid, spos.y + _model.tilehei);
-	gfx.drawLine(spos.x + _model.tilehwid, spos.y + _model.tilehei,
-		     spos.x, spos.y + _model.tilehhei);
+        gfx.draw(getTilePolygon(x, y));
 
         // restore the original stroke
 	gfx.setStroke(ostroke);
     }
 
-    /**
-     * Highlight the tile at the specified pixel coordinates the next
-     * time the scene is re-rendered.
-     *
-     * @param sx the screen x-position pixel coordinate.
-     * @param sy the screen y-position pixel coordinate.
-     */
     public void setHighlightedTile (int sx, int sy)
     {
         screenToTile(sx, sy, _htile);
