@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.8 2001/10/11 04:07:52 mdb Exp $
+// $Id: DSet.java,v 1.9 2001/10/12 00:29:34 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -38,7 +38,7 @@ import com.threerings.presents.io.Streamable;
  * removal event to save network bandwidth. Lastly, the object returned by
  * <code>getKey()</code> must be a valid distributed object type.
  */
-public class DSet
+public class DSet implements Streamable
 {
     /**
      * Elements of the set must implement this interface.
