@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.9 2002/02/26 05:28:02 mdb Exp $
+// $Id: ResourceManager.java,v 1.10 2002/03/15 02:18:18 mdb Exp $
 
 package com.threerings.resource;
 
@@ -196,9 +196,14 @@ public class ResourceManager
         // already have it
         if (_cachePath == null) {
             try {
-                String dir = System.getProperty("user.home");
-                _cachePath = (dir + File.separator +
-                              CACHE_PATH + File.separator);
+                // first check for an explicitly specified cache directory
+                String dir = System.getProperty("rsrc_cache_dir");
+                // if that's null, try putting it into their home directory
+                if (dir == null) {
+                    dir = System.getProperty("user.home") +
+                        File.separator + CACHE_PATH;
+                }
+                _cachePath = (dir + File.separator);
             } catch (SecurityException se) {
                 Log.info("Can't obtain user.home system property. Probably " +
                          "won't be able to create our cache directory " +
