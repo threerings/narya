@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.12 2001/10/12 00:03:02 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.13 2001/10/19 22:02:20 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import com.samskivert.util.Config;
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.Tuple;
 import com.samskivert.util.Queue;
 
 import com.threerings.presents.dobj.*;
@@ -23,6 +24,21 @@ import com.threerings.crowd.data.PlaceObject;
  */
 public class PlaceRegistry implements Subscriber
 {
+    /**
+     * Used to receive a callback when the place object associated with a
+     * place manager (created via {@link PlaceRegistry#createPlace}) is
+     * created.
+     */
+    public static interface CreationObserver
+    {
+        /**
+         * Called when the place object is created and after it is
+         * provided to the place manager that will be handling management
+         * of the place.
+         */
+        public void placeCreated (PlaceObject place, PlaceManager pmgr);
+    }
+
     /**
      * Creates and initializes the place registry; called by the server
      * during its initialization phase.
@@ -41,6 +57,9 @@ public class PlaceRegistry implements Subscriber
      * created. The {@link PlaceManager} derived class that should be
      * instantiated to manage the place will be determined from the config
      * object.
+     * @param observer an observer that will be notified when the place
+     * object creation has completed (called after the place object is
+     * provided to the place manager).
      *
      * @return a reference to the place manager that will manage the new
      * place object.
@@ -48,7 +67,8 @@ public class PlaceRegistry implements Subscriber
      * @exception InstantiationException thrown if an error occurs trying
      * to instantiate and initialize the place manager.
      */
-    public PlaceManager createPlace (PlaceConfig config)
+    public PlaceManager createPlace (
+        PlaceConfig config, CreationObserver observer)
         throws InstantiationException
     {
         try {
@@ -62,7 +82,7 @@ public class PlaceRegistry implements Subscriber
             // stick the manager on the creation queue because we know
             // we'll get our calls to objectAvailable()/requestFailed() in
             // the order that we call createObject()
-            _createq.append(pmgr);
+            _createq.append(new Tuple(pmgr, observer));
 
             // and request to create the place object
             CrowdServer.omgr.createObject(
@@ -137,8 +157,8 @@ public class PlaceRegistry implements Subscriber
     {
         // pop the next place manager off of the queue and let it know
         // that everything went swimmingly
-        PlaceManager pmgr = (PlaceManager)_createq.getNonBlocking();
-        if (pmgr == null) {
+        Tuple tuple = (Tuple)_createq.getNonBlocking();
+        if (tuple == null) {
             Log.warning("Place created but no manager queued up to hear " +
                         "about it!? [pobj=" + object + "].");
             return;
@@ -151,11 +171,21 @@ public class PlaceRegistry implements Subscriber
             return;
         }
 
+        PlaceManager pmgr = (PlaceManager)tuple.left;
+        CreationObserver observer = (CreationObserver)tuple.right;
+        PlaceObject plobj = (PlaceObject)object;
+
         // stick the manager into our table
-        _pmgrs.put(object.getOid(), pmgr);
+        _pmgrs.put(plobj.getOid(), pmgr);
 
         // start the place manager up with the newly created place object
-        pmgr.startup((PlaceObject)object);
+        pmgr.startup(plobj);
+
+        // inform the creation observer that the place object was created
+        // and provided to the manager
+        if (observer != null) {
+            observer.placeCreated(plobj, pmgr);
+        }
     }
 
     public void requestFailed (int oid, ObjectAccessException cause)
