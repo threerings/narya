@@ -1,10 +1,12 @@
 //
-// $Id: AnimationSequencer.java,v 1.1 2002/09/30 06:30:47 shaper Exp $
+// $Id: AnimationSequencer.java,v 1.2 2002/11/05 20:53:53 mdb Exp $
 
 package com.threerings.media.animation;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+
+import java.util.ArrayList;
 
 import com.threerings.media.Log;
 
@@ -16,68 +18,105 @@ import com.threerings.media.Log;
 public abstract class AnimationSequencer extends Animation
 {
     /**
-     * Constructs an animation sequencer that adds each of the supplied
-     * animations after regular intervals of the specified time.  Note
-     * that the first animation will be added immediately.
+     * Constructs an animation sequencer with the expectation that
+     * animations will be added via subsequent calls to {@link
+     * #addAnimation}.
      */
-    public AnimationSequencer (Animation[] anims, long delta)
+    public AnimationSequencer ()
     {
         super(new Rectangle());
-
-        // save things off
-        _anims = anims;
-        _sdelta = delta;
     }
 
     /**
-     * Constructs an animation sequencer that adds each of the supplied
-     * animations after the time specified for each animation has elapsed.
-     * Note that the first animation will be added immediately, though
-     * (for ease of coding and array indexing) it should have a slot in
-     * the <code>delta</code> array despite the fact that the value
-     * therein will be ignored.
+     * Adds the supplied animation to the sequence with the given
+     * parameters.  Note that this cannot be called after the animation
+     * sequence has begun executing without endangering your sanity and
+     * the robustness of your code.
+     *
+     * @param anim the animation to be sequenced, or null if the
+     * completion action should be run immediately when this animation is
+     * ready to fired.
+     * @param delta the number of milliseconds following the start of the last
+     * animation currently in the sequence that this animation should be
+     * started; or -1 which means that this animation should be started
+     * when the last animation has completed.
+     * @param completionAction a runnable to be executed when this
+     * animation completes.
      */
-    public AnimationSequencer (Animation[] anims, long[] delta)
+    public void addAnimation (
+        Animation anim, long delta, Runnable completionAction)
     {
-        super(new Rectangle());
+        if (_finished) {
+            throw new IllegalStateException("Ack! Animation added when we were finished.");
+        }
+        AnimRecord arec = new AnimRecord(anim, delta, completionAction);
+        if (delta == -1) {
+            int size = _anims.size();
+            if (size == 0) {
+                // if there's no predecessor then this guy has nobody to
+                // wait for, so we run him immediately
+                arec.delta = 0;
+            } else {
+                ((AnimRecord)_anims.get(size - 1)).dependent = arec;
+            }
+        }
+        _anims.add(arec);
+        _animsLeft++;
+    }
 
-        // save things off
-        _anims = anims;
-        _delta = delta;
+    /**
+     * Clears out the animations being managed by this sequencer.
+     */
+    public void clear ()
+    {
+        _anims.clear();
+        _animsLeft = 0;
+        _lastidx = -1;
+        _lastStamp = 0;
+    }
+
+    /**
+     * Returns the number of animations being managed by this sequencer.
+     */
+    public int getAnimationCount ()
+    {
+        return _anims.size();
     }
 
     // documentation inherited
     public void tick (long tickStamp)
     {
-        if (_start == 0) {
-            // initialize our starting time
-            _start = tickStamp;
+        if (_lastStamp == 0) {
+            _lastStamp = tickStamp;
         }
 
-        // TODO: revamp the below to keep track of the mark time for the
-        // next animation to be added rather than recalculating it every
-        // time we're ticked
-
         // add all animations whose time has come
-        int acount = _anims.length;
-        long mark = _start;
-        for (int ii = 0; ii < acount; ii++) {
-            // calculate the time at which this animation is to be added
-            long delta = (_delta == null) ? _sdelta : _delta[ii];
-            // add in the delta for this animation, or if it's the first
-            // animation, we add it straightaway and ignore its delta
-            mark += ((ii == 0) ? 0 : delta);
+        int acount = _anims.size();
+        for (int ii = _lastidx + 1; ii < acount; ii++) {
+            AnimRecord arec = (AnimRecord)_anims.get(ii);
 
-            if (_lastidx >= ii) {
-                // we've already added this animation, so move on to the next
-                continue;
-
-            } else if (tickStamp >= mark) {
-                // add the animation
-                // Log.info("Adding animation [ii=" + ii +
-                // ", tickStamp=" + tickStamp + ", mark=" + mark + "].");
-                addAnimation(ii, _anims[ii], tickStamp);
+            if (arec.readyToFire(tickStamp, _lastStamp)) {
+                // note that we've advanced to the next animation
                 _lastidx = ii;
+                _lastStamp = tickStamp;
+
+                // Log.info("Adding animation [ii=" + ii +
+                // ", tickStamp=" + tickStamp + "].");
+                if (arec.anim != null) {
+                    addAnimation(ii, arec.anim, tickStamp);
+                    arec.anim.addAnimationObserver(arec);
+
+                } else if (arec.completionAction != null) {
+                    try {
+                        arec.completionAction.run();
+                    } catch (Throwable t) {
+                        Log.logStackTrace(t);
+                    }
+
+                    // if our last "animation" is not an animation at all,
+                    // we need to finish now
+                    animationDone();
+                }
 
             } else {
                 // it's not time to add this animation, and so all
@@ -85,9 +124,11 @@ public abstract class AnimationSequencer extends Animation
                 break;
             }
         }
+    }
 
-        // we're finished when we've added the last animation
-        _finished = (_lastidx == acount - 1);
+    protected void animationDone ()
+    {
+        _finished = (--_animsLeft == 0);
     }
 
     /**
@@ -115,23 +156,66 @@ public abstract class AnimationSequencer extends Animation
     // documentation inherited
     public void fastForward (long timeDelta)
     {
-        _start += timeDelta;
+        _lastStamp += timeDelta;
     }
 
-    /** The animations to be added in sequence. */
-    protected Animation[] _anims;
+    protected class AnimRecord
+        implements AnimationObserver
+    {
+        public Animation anim;
+        public long delta;
+        public Runnable completionAction;
+        public AnimRecord dependent;
 
-    /** The time deltas in milliseconds between adding each animation, if
-     * the time deltas were specified on a per-animation basis. */
-    protected long[] _delta;
+        public AnimRecord (
+            Animation anim, long delta, Runnable completionAction)
+        {
+            this.anim = anim;
+            this.delta = delta;
+            this.completionAction = completionAction;
+        }
 
-    /** The single time delta in milliseconds between adding each
-     * animation, if a single time delta was given for all animations. */
-    protected long _sdelta;
+        public boolean readyToFire (long now, long lastStamp)
+        {
+            return (delta != -1) && (lastStamp + delta >= now);
+        }
 
-    /** The time at which the sequencer animation started its business. */
-    protected long _start;
+        public void handleEvent (AnimationEvent event)
+        {
+            if (event instanceof AnimationCompletedEvent) {
+                // if the next animation is triggered on the completion of
+                // this animation, fiddle its delta so that it will claim
+                // to be ready to fire
+                if (dependent != null) {
+                    dependent.delta = event.getWhen() - _lastStamp;
+                    // kids, don't try this at home; we call tick()
+                    // immediately so that this dependent animation and
+                    // any simultaneous subsequent animations are fired
+                    // immediately rather than waiting for the next call
+                    // to tick
+                    tick(event.getWhen());
+                }
+
+                // call the completion action, if there is one
+                if (completionAction != null) {
+                    completionAction.run();
+                }
+
+                // make a note that this animation is complete
+                animationDone();
+            }
+        }
+    }
+
+    /** The animation records detailing the animations to be sequenced. */
+    protected ArrayList _anims = new ArrayList();
+
+    /** The number of animations remaining to be finished. */
+    protected int _animsLeft;
 
     /** The index of the last animation that was added. */
     protected int _lastidx = -1;
+
+    /** The timestamp at which we added the last animation. */
+    protected long _lastStamp;
 }
