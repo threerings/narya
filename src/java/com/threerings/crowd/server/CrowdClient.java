@@ -1,5 +1,5 @@
 //
-// $Id: CrowdClient.java,v 1.13 2002/10/30 00:42:37 mdb Exp $
+// $Id: CrowdClient.java,v 1.14 2002/10/30 00:47:19 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -25,7 +25,8 @@ public class CrowdClient extends PresentsClient
         if (_clobj != null) {
             // note that the user's disconnected
             BodyObject bobj = (BodyObject)_clobj;
-            updateOccupantStatus(bobj, OccupantInfo.DISCONNECTED);
+            updateOccupantStatus(
+                bobj, bobj.location, OccupantInfo.DISCONNECTED);
         }
     }
 
@@ -36,14 +37,15 @@ public class CrowdClient extends PresentsClient
 
         // note that the user's active once more
         BodyObject bobj = (BodyObject)_clobj;
-        updateOccupantStatus(bobj, OccupantInfo.ACTIVE);
+        updateOccupantStatus(bobj, bobj.location, OccupantInfo.ACTIVE);
     }
 
     /**
      * Updates the connection status for the given body object's occupant
      * info in the specified location.
      */
-    protected void updateOccupantStatus (BodyObject body, byte status)
+    protected void updateOccupantStatus (
+        BodyObject body, int locationId, byte status)
     {
         // no need to NOOP
         if (body.status == status) {
@@ -54,9 +56,10 @@ public class CrowdClient extends PresentsClient
         body.setStatus(status);
         body.statusTime = System.currentTimeMillis();
 
-        // get the place object for the location occupied by the user
+        // get the place object for the specified location (which is, in
+        // theory, occupied by this user)
         PlaceObject plobj = (PlaceObject)
-            CrowdServer.omgr.getObject(body.location);
+            CrowdServer.omgr.getObject(locationId);
         if (plobj == null) {
             return;
         }
