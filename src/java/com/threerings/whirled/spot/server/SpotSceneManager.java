@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.22 2003/01/18 22:52:38 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.23 2003/01/18 22:59:17 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -208,7 +208,8 @@ public class SpotSceneManager extends SceneManager
         if (soi == null) {
             Log.warning("Aiya! Can't update non-existent occupant info " +
                         "with new location [where=" + where() +
-                        ", body=" + source.who() + "].");
+                        ", body=" + source.who() + ":" + source.location +
+                        ", newLocId=" + locationId + "].");
             throw new InvocationException(INTERNAL_ERROR);
         }
 
