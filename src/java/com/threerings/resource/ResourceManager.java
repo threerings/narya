@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.44 2004/07/14 14:06:46 mdb Exp $
+// $Id: ResourceManager.java,v 1.45 2004/07/14 20:31:33 ray Exp $
 
 package com.threerings.resource;
 
@@ -223,22 +223,47 @@ public class ResourceManager
             resolveResourceSet(setName, config.getProperty(key), dlist);
         }
 
-        // if there's no observer, we'll need to block the caller
+        // if an observer was passed in, then we do not need to block
+        // the caller
+        final boolean[] shouldWait = new boolean[] { false };
         if (initObs == null) {
-            initObs = BLOCKER;
+            // if there's no observer, we'll need to block the caller
+            shouldWait[0] = true;
+            initObs = new InitObserver() {
+                public void progress (int percent, long remaining) {
+                    if (percent >= 100) {
+                        synchronized (this) {
+                            // turn off shouldWait, in case we reached
+                            // 100% progress before the calling thread even
+                            // gets a chance to get to the blocking code, below
+                            shouldWait[0] = false;
+                            notify();
+                        }
+                    }
+                }
+                public void initializationFailed (Exception e) {
+                    synchronized (this) {
+                        shouldWait[0] = false;
+                        notify();
+                    }
+                }
+            };
         }
 
         // start a thread to unpack our bundles
         Unpacker unpack = new Unpacker(dlist, initObs);
         unpack.start();
 
-        if (initObs == BLOCKER) {
-            try {
-                synchronized (BLOCKER) {
-                    initObs.wait();
+        if (shouldWait[0]) {
+            synchronized (initObs) {
+                if (shouldWait[0]) {
+                    try {
+                        initObs.wait();
+                    } catch (InterruptedException ie) {
+                        Log.warning("Interrupted while waiting for bundles " +
+                                    "to unpack.");
+                    }
                 }
-            } catch (InterruptedException ie) {
-                Log.warning("Interrupted while waiting for bundles to unpack.");
             }
         }
     }
@@ -561,16 +586,4 @@ public class ResourceManager
 
     /** The name of the default resource set. */
     protected static final String DEFAULT_RESOURCE_SET = "default";
-
-    /** Used to block observerless bundle unpacking. */
-    protected static InitObserver BLOCKER = new InitObserver() {
-        public void progress (int percent, long remaining) {
-            if (percent >= 100) {
-                synchronized (this) { notify(); }
-            }
-        }
-        public void initializationFailed (Exception e) {
-            synchronized (this) { notify(); }
-        }
-    };
 }
