@@ -1,7 +1,12 @@
 //
-// $Id: ClientManager.java,v 1.33 2003/08/20 19:30:52 mdb Exp $
+// $Id: ClientManager.java,v 1.34 2004/02/13 19:10:54 ray Exp $
 
 package com.threerings.presents.server;
+
+// imports for hackery TODO: remove
+import java.util.Date;
+import com.samskivert.util.Tuple;
+// end: hackery imports
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -251,6 +256,25 @@ public class ClientManager
             Log.warning("Requested to release unmapped client object " +
                         "[username=" + username + "].");
             Thread.dumpStack();
+
+            // hackery. TODO: remove!
+            if (isIntro(username)) {
+                Tuple t = (Tuple) _hackyStacks.remove(username);
+                if (t == null) {
+                    Log.warning("There was no previous request to free this " +
+                        "intro pirate?");
+                } else {
+                    String timestamp = (String) t.left;
+                    StackTraceElement[] trace =
+                        (StackTraceElement[]) t.right;
+                    Throwable walden = new Throwable();
+                    walden.setStackTrace(trace);
+                    Log.warning("Last release happened at " + timestamp);
+                    Log.logStackTrace(walden);
+                }
+            }
+            // end: hackery
+
             return;
         }
 
@@ -260,6 +284,14 @@ public class ClientManager
             return;
         }
 
+        // hackery. TODO: remove
+        if (isIntro(username)) {
+            Throwable walden = new Throwable();
+            Tuple t = new Tuple(new Date().toString(), walden.getStackTrace());
+            _hackyStacks.put(username, t);
+        }
+        // end: hackery
+
         Log.debug("Destroying client " + clobj.who() + ".");
 
         // we're all clear to go; remove the mapping
@@ -268,6 +300,23 @@ public class ClientManager
         // and destroy the object itself
         PresentsServer.omgr.destroyObject(clobj.getOid());
     }
+
+
+    // HACKERY to track some stuff down
+    // TODO: remove!
+    protected boolean isIntro (String username)
+    {
+        return username.startsWith("Intro ") ||
+               username.startsWith("Sensei ") ||
+               username.startsWith("Captain ") ||
+               username.startsWith("Weathered ") ||
+               username.startsWith("Aged ") ||
+               username.startsWith("Wise ");
+    }
+
+    protected HashMap _hackyStacks = new HashMap();
+    // END: HACKERY
+
 
     // documentation inherited
     public synchronized void connectionEstablished (
