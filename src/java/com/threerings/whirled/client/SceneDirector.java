@@ -23,7 +23,7 @@ package com.threerings.whirled.client;
 
 import java.io.IOException;
 
-import com.samskivert.util.HashIntMap;
+import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.ResultListener;
 import com.samskivert.util.StringUtil;
 
@@ -100,6 +100,7 @@ public class SceneDirector extends BasicDirector
     public void setSceneRepository (SceneRepository screp)
     {
         _screp = screp;
+        _scache.clear();
     }
 
     /**
@@ -328,7 +329,7 @@ public class SceneDirector extends BasicDirector
         }
 
         // update our scene cache
-        _scache.put(model.sceneId, model);
+        _scache.put(new Integer(model.sceneId), model);
 
         // and pass through to the normal move succeeded handler
         moveSucceeded(placeId, config);
@@ -413,13 +414,14 @@ public class SceneDirector extends BasicDirector
     protected SceneModel loadSceneModel (int sceneId)
     {
         // first look in the model cache
-        SceneModel model = (SceneModel)_scache.get(sceneId);
+        Integer key = new Integer(sceneId);
+        SceneModel model = (SceneModel)_scache.get(key);
 
         // load from the repository if it's not cached
         if (model == null) {
             try {
                 model = _screp.loadSceneModel(sceneId);
-                _scache.put(sceneId, model);
+                _scache.put(key, model);
 
             } catch (NoSuchSceneException nsse) {
                 // nothing special here, just fall through and return null
@@ -454,6 +456,7 @@ public class SceneDirector extends BasicDirector
 
         // clear out our business
         clearScene();
+        _scache.clear();
         _pendingSceneId = -1;
         releaseSceneModel(_pendingModel);
         _previousSceneId = -1;
@@ -483,7 +486,7 @@ public class SceneDirector extends BasicDirector
     protected SceneFactory _fact;
 
     /** A cache of scene model information. */
-    protected HashIntMap _scache = new HashIntMap();
+    protected LRUHashMap _scache = new LRUHashMap(5);
 
     /** The display scene object for the scene we currently occupy. */
     protected Scene _scene;
