@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.46 2003/12/13 02:56:29 mdb Exp $
+// $Id: Client.java,v 1.47 2003/12/19 18:30:23 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -412,7 +412,6 @@ public class Client
         } else if (now - _comm.getLastWrite() > PingRequest.PING_INTERVAL) {
             // if we haven't sent anything over the network in a while, we
             // ping the server to let it know that we're still alive
-            Log.info("Client idle, PINGing.");
             _comm.postMessage(new PingRequest());
 
         } else if (now - _lastSync > CLOCK_SYNC_INTERVAL) {
