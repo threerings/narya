@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.24 2003/05/02 15:13:20 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.25 2003/05/02 18:09:56 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -624,7 +624,7 @@ public class MisoScenePanel extends VirtualMediaPanel
             key.x = block.getBounds().x;
             key.y = block.getBounds().y;
             if (!_rethinkOp.blocks.contains(key)) {
-//                 Log.info("Flushing block " + block + ".");
+                Log.debug("Flushing block " + block + ".");
                 iter.remove();
             }
         }
@@ -639,7 +639,6 @@ public class MisoScenePanel extends VirtualMediaPanel
                     this, origin.x, origin.y,
                     _metrics.blockwid, _metrics.blockhei);
                 _blocks.put(bkey, block);
-//                 Log.info("Created new block " + block + ".");
 
                 // queue the block up to be resolved
                 _pendingBlocks++;
