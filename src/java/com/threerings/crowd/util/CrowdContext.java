@@ -1,10 +1,10 @@
 //
-// $Id: CrowdContext.java,v 1.3 2001/08/20 21:45:37 mdb Exp $
+// $Id: CrowdContext.java,v 1.4 2001/10/01 22:14:55 mdb Exp $
 
 package com.threerings.cocktail.party.util;
 
 import com.threerings.cocktail.cher.util.CherContext;
-import com.threerings.cocktail.party.client.LocationManager;
+import com.threerings.cocktail.party.client.LocationDirector;
 import com.threerings.cocktail.party.client.OccupantManager;
 
 /**
@@ -14,9 +14,9 @@ import com.threerings.cocktail.party.client.OccupantManager;
 public interface PartyContext extends CherContext
 {
     /**
-     * Returns a reference to the location manager.
+     * Returns a reference to the location director.
      */
-    public LocationManager getLocationManager ();
+    public LocationDirector getLocationDirector ();
 
     /**
      * Returns a reference to the occupant manager.

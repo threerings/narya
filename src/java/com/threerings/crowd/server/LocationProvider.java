@@ -1,20 +1,21 @@
 //
-// $Id: LocationProvider.java,v 1.7 2001/08/20 20:54:57 mdb Exp $
+// $Id: LocationProvider.java,v 1.8 2001/10/01 22:14:55 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
 import com.threerings.cocktail.cher.dobj.DObject;
 import com.threerings.cocktail.cher.server.InvocationProvider;
-import com.threerings.cocktail.cher.util.Codes;
 
 import com.threerings.cocktail.party.Log;
+import com.threerings.cocktail.party.client.LocationCodes;
 import com.threerings.cocktail.party.data.*;
 import com.threerings.cocktail.party.server.PartyServer;
 
 /**
  * This class provides the server end of the location services.
  */
-public class LocationProvider extends InvocationProvider
+public class LocationProvider
+    extends InvocationProvider implements LocationCodes
 {
     /**
      * Processes a request from a client to move to a new place.
@@ -26,10 +27,10 @@ public class LocationProvider extends InvocationProvider
         String rcode = moveTo(source, placeId);
 
         // send the response
-        if (rcode.equals(Codes.SUCCESS)) {
-            sendResponse(source, invid, "MoveSucceeded");
+        if (rcode.equals(SUCCESS)) {
+            sendResponse(source, invid, MOVE_SUCCEEDED_RESPONSE);
         } else {
-            sendResponse(source, invid, "MoveFailed", rcode);
+            sendResponse(source, invid, MOVE_FAILED_RESPONSE, rcode);
         }
     }
 
@@ -37,8 +38,8 @@ public class LocationProvider extends InvocationProvider
      * Moves the specified body from whatever location they currently
      * occupy to the location identified by the supplied place id.
      *
-     * @return the string <code>Codes.SUCCESS</code> if the move was
-     * successful or a reason code for failure if not.
+     * @return the string <code>SUCCESS</code> if the move was successful
+     * or a reason code for failure if not.
      */
     public static String moveTo (BodyObject source, int placeId)
     {
@@ -49,7 +50,7 @@ public class LocationProvider extends InvocationProvider
         if (pmgr == null) {
             Log.info("Requested to move to non-existent place " +
                      "[source=" + source + ", place=" + placeId + "].");
-            return "m.no_such_place";
+            return NO_SUCH_PLACE;
         }
 
         // acquire a lock on the body object to ensure that rapid fire
@@ -57,13 +58,13 @@ public class LocationProvider extends InvocationProvider
         if (!source.acquireLock("moveToLock")) {
             // if we're still locked, a previous moveTo request hasn't
             // been fully processed
-            return "m.move_in_progress";
+            return MOVE_IN_PROGRESS;
         }
 
         // make sure they're not already in the location they're asking to
         // move to
         if (source.location == placeId) {
-            return "m.already_there";
+            return ALREADY_THERE;
         }
 
         // find out if they were previously in some other location
@@ -111,6 +112,6 @@ public class LocationProvider extends InvocationProvider
         // once all these events are processed
         source.releaseLock("moveToLock");
 
-        return Codes.SUCCESS;
+        return SUCCESS;
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ChatDisplay.java,v 1.1 2001/08/02 23:46:47 mdb Exp $
+// $Id: ChatDisplay.java,v 1.2 2001/10/01 22:14:55 mdb Exp $
 
 package com.threerings.cocktail.party.chat;
 
@@ -36,10 +36,9 @@ public interface ChatDisplay
      * Called in response to a chat request (either speak or tell) that
      * originated on this client. The request id supplied will match the
      * one returned when the request was generated and the status will
-     * either indicate success (by being equal to
-     * <code>Codes.SUCCESS</code>) or failure (in which case it will
-     * contain a message failure code which can be converted into a
-     * displayable string).
+     * either indicate success (by being equal to <code>SUCCESS</code>) or
+     * failure (in which case it will contain a message failure code which
+     * can be converted into a displayable string).
      *
      * <p> A chat display should track outstanding chat requests so that
      * it can properly handle the response when it arrives.
@@ -49,8 +48,8 @@ public interface ChatDisplay
      * @param status the message code indicating whether the chat request
      * was successful or not.
      *
-     * @see ChatManager#requestSpeak
-     * @see ChatManager#requestTell
+     * @see ChatDirector#requestSpeak
+     * @see ChatDirector#requestTell
      */
     public void handleResponse (int reqid, String status);
 }

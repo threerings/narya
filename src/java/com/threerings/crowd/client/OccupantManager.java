@@ -1,5 +1,5 @@
 //
-// $Id: OccupantManager.java,v 1.3 2001/08/21 19:37:08 mdb Exp $
+// $Id: OccupantManager.java,v 1.4 2001/10/01 22:14:55 mdb Exp $
 
 package com.threerings.cocktail.party.client;
 
@@ -44,7 +44,7 @@ public class OccupantManager
     public OccupantManager (PartyContext ctx)
     {
         // register ourselves as a location observer
-        ctx.getLocationManager().addLocationObserver(this);
+        ctx.getLocationDirector().addLocationObserver(this);
     }
 
     /**

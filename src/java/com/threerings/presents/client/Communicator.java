@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.13 2001/08/07 20:38:58 mdb Exp $
+// $Id: Communicator.java,v 1.14 2001/10/01 22:14:54 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -15,7 +15,6 @@ import com.threerings.cocktail.cher.dobj.DObjectManager;
 import com.threerings.cocktail.cher.io.*;
 import com.threerings.cocktail.cher.io.ObjectStreamException;
 import com.threerings.cocktail.cher.net.*;
-import com.threerings.cocktail.cher.util.Codes;
 
 /**
  * The client performs all network I/O on separate threads (one for
@@ -340,7 +339,7 @@ public class Communicator
             
             // if the auth request failed, we want to let the communicator
             // know by throwing a logon exception
-            if (!data.code.equals(Codes.SUCCESS)) {
+            if (!data.code.equals(AuthResponseData.SUCCESS)) {
                 throw new LogonException(data.code);
             }
 

@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.6 2001/08/22 00:08:39 mdb Exp $
+// $Id: ChatDirector.java,v 1.7 2001/10/01 22:14:55 mdb Exp $
 
 package com.threerings.cocktail.party.chat;
 
@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 import com.threerings.cocktail.cher.client.*;
 import com.threerings.cocktail.cher.dobj.*;
-import com.threerings.cocktail.cher.util.Codes;
 
 import com.threerings.cocktail.party.Log;
 import com.threerings.cocktail.party.client.LocationObserver;
@@ -15,20 +14,20 @@ import com.threerings.cocktail.party.data.PlaceObject;
 import com.threerings.cocktail.party.util.PartyContext;
 
 /**
- * The chat manager is the client side coordinator of all chat related
+ * The chat director is the client side coordinator of all chat related
  * services. It handles both place constrainted chat as well as direct
  * messaging.
  */
-public class ChatManager
-    implements LocationObserver, Subscriber, InvocationReceiver
+public class ChatDirector
+    implements LocationObserver, Subscriber, InvocationReceiver, ChatCodes
 {
     /**
-     * Creates a chat manager and initializes it with the supplied
-     * context. The chat manager will register itself as a location
+     * Creates a chat director and initializes it with the supplied
+     * context. The chat director will register itself as a location
      * observer so that it can automatically process place constrained
      * chat.
      */
-    public ChatManager (PartyContext ctx)
+    public ChatDirector (PartyContext ctx)
     {
         // keep the context around
         _ctx = ctx;
@@ -39,12 +38,12 @@ public class ChatManager
             public void clientDidLogon (Client client)
             {
                 client.getInvocationManager().registerReceiver(
-                    ChatService.MODULE, ChatManager.this);
+                    MODULE_NAME, ChatDirector.this);
             }
         });
 
         // register ourselves as a location observer
-        _ctx.getLocationManager().addLocationObserver(this);
+        _ctx.getLocationDirector().addLocationObserver(this);
     }
 
     /**
@@ -183,7 +182,7 @@ public class ChatManager
         // pass this on to our chat displays
         for (int i = 0; i < _displays.size(); i++) {
             ChatDisplay display = (ChatDisplay)_displays.get(i);
-            display.handleResponse(invid, Codes.SUCCESS);
+            display.handleResponse(invid, SUCCESS);
         }
     }
 

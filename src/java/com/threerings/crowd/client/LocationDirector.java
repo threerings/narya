@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.8 2001/08/14 06:49:28 mdb Exp $
+// $Id: LocationDirector.java,v 1.9 2001/10/01 22:14:55 mdb Exp $
 
 package com.threerings.cocktail.party.client;
 
@@ -15,16 +15,16 @@ import com.threerings.cocktail.party.data.PlaceObject;
 import com.threerings.cocktail.party.util.PartyContext;
 
 /**
- * The location manager provides a means by which entities on the client
+ * The location director provides a means by which entities on the client
  * can request to move from place to place and can be notified if other
  * entities have caused the client to move to a new place. It also
  * provides a mechanism for ratifying a request to move to a new place
  * before actually issuing the request.
  */
-public class LocationManager
+public class LocationDirector
     implements ClientObserver, Subscriber
 {
-    public LocationManager (PartyContext ctx)
+    public LocationDirector (PartyContext ctx)
     {
         // keep this around for later
         _ctx = ctx;
@@ -123,7 +123,7 @@ public class LocationManager
      * This can be called by derived classes that need to coopt the moving
      * process to extend it in some way or other. In such situations, they
      * will be responsible for receiving the successful move response and
-     * they should let the location manager know that the move has been
+     * they should let the location director know that the move has been
      * effected.
      *
      * @param placeId the place oid of our new location.
@@ -172,7 +172,7 @@ public class LocationManager
 
             public void requestFailed (int oid, ObjectAccessException cause)
             {
-                Log.warning("Location manager unable to fetch body " +
+                Log.warning("Location director unable to fetch body " +
                             "object; all has gone horribly wrong" +
                             "[cause=" + cause + "].");
             }

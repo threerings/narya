@@ -1,5 +1,5 @@
 //
-// $Id: AuthResponseData.java,v 1.6 2001/07/19 07:09:16 mdb Exp $
+// $Id: AuthResponseData.java,v 1.7 2001/10/01 22:14:55 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -13,14 +13,18 @@ import com.threerings.cocktail.cher.dobj.DObject;
  */
 public class AuthResponseData extends DObject
 {
+    /** The constant used to indicate a successful authentication. */
+    public static final String SUCCESS = "success";
+
     /**
-     * Either the string "success" or a reason code for why authentication
-     * failed.
+     * Either the {@link #SUCCESS} constant or a reason code indicating
+     * why the authentication failed.
      */
     public String code;
 
-    public String toString ()
+    // documentation inherited
+    protected void toString (StringBuffer buf)
     {
-        return "[code=" + code + "]";
+        buf.append(", code=").append(code);
     }
 }

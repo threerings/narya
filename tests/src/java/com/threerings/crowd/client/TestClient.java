@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.3 2001/08/20 22:10:49 mdb Exp $
+// $Id: TestClient.java,v 1.4 2001/10/01 22:14:55 mdb Exp $
 
 package com.threerings.cocktail.party.client.test;
 
@@ -25,7 +25,7 @@ public class TestClient
         // create the handles on our various services
         _config = new Config();
         _client = new Client(creds, this);
-        _locmgr = new LocationManager(_ctx);
+        _locdir = new LocationDirector(_ctx);
         _occmgr = new OccupantManager(_ctx);
 
         // we want to know about logon/logoff
@@ -58,7 +58,7 @@ public class TestClient
         Log.info("Client did logon [client=" + client + "].");
 
         // request to move to a place
-        _ctx.getLocationManager().moveTo(15);
+        _ctx.getLocationDirector().moveTo(15);
     }
 
     public void clientFailedToLogon (Client client, Exception cause)
@@ -112,9 +112,9 @@ public class TestClient
             return _client.getDObjectManager();
         }
 
-        public LocationManager getLocationManager ()
+        public LocationDirector getLocationDirector ()
         {
-            return _locmgr;
+            return _locdir;
         }
 
         public OccupantManager getOccupantManager ()
@@ -125,7 +125,7 @@ public class TestClient
 
     protected Config _config;
     protected Client _client;
-    protected LocationManager _locmgr;
+    protected LocationDirector _locdir;
     protected OccupantManager _occmgr;
     protected PartyContext _ctx;
 
