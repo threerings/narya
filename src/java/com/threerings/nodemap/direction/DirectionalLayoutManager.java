@@ -1,5 +1,5 @@
 //
-// $Id: DirectionalLayoutManager.java,v 1.2 2001/08/23 23:44:12 shaper Exp $
+// $Id: DirectionalLayoutManager.java,v 1.3 2001/09/28 00:46:54 shaper Exp $
 
 package com.threerings.nodemap.direction;
 
@@ -10,11 +10,17 @@ import com.threerings.nodemap.*;
 /**
  * The directional layout manager lays nodes out according to the
  * eight cardinal directions as specified in the {@link Directions}
- * class.  The nodes must be connected with {@link DirectionalEdge}
- * edges.
+ * class.  The nodes must be fully connected in both directions with
+ * {@link DirectionalEdge} edges.
  */
 public class DirectionalLayoutManager implements LayoutManager
 {
+    /**
+     * Construct a directional layout manager that lays out nodes
+     * connected by edges that are <code>edgelen</code> pixels long.
+     *
+     * @param edgelen the length of the edges in pixels.
+     */
     public DirectionalLayoutManager (int edgelen)
     {
 	_edgelen = edgelen;

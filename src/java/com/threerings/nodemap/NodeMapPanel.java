@@ -1,5 +1,5 @@
 //
-// $Id: NodeMapPanel.java,v 1.3 2001/08/28 23:50:45 shaper Exp $
+// $Id: NodeMapPanel.java,v 1.4 2001/09/28 00:46:54 shaper Exp $
 
 package com.threerings.nodemap;
 
@@ -12,22 +12,53 @@ import com.samskivert.swing.ToolTipObserver;
 import com.samskivert.swing.ToolTipProvider;
 
 /**
- * The node map panel handles display of a node map and passes Swing
- * UI events on to the appropriate node map event handling methods.
+ * The node map panel handles display of a node map and passes user
+ * interface events on to the appropriate node map event handling
+ * methods.
  */
 public class NodeMapPanel extends JPanel
     implements MouseListener, MouseMotionListener, ToolTipObserver
 {
+    /**
+     * Construct a node map panel.
+     */
+    public NodeMapPanel ()
+    {
+	init();
+    }
+
+    /**
+     * Construct a node map panel that displays the given node map.
+     *
+     * @param map the node map to display.
+     */
     public NodeMapPanel (NodeMap map)
+    {
+	init();
+	setNodeMap(map);
+    }
+
+    /**
+     * Initialize the node map panel.
+     */
+    protected void init ()
+    {
+	// listen to our mouse events
+	addMouseListener(this);
+	addMouseMotionListener(this);
+    }
+
+    /**
+     * Set the node map displayed by this panel.
+     *
+     * @param map the node map to display.
+     */
+    public void setNodeMap (NodeMap map)
     {
 	_map = map;
 
 	// create the tool tip manager and inform the node map
 	_map.setToolTipManager(new ToolTipManager(this));
-
-	// listen to our mouse events
-	addMouseListener(this);
-	addMouseMotionListener(this);
     }
 
     public void paintComponent (Graphics g)
