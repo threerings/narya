@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.46 2003/02/12 01:44:44 ray Exp $
+// $Id: SoundManager.java,v 1.47 2003/03/12 00:28:05 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -829,7 +829,7 @@ public class SoundManager
 
             _line = (SourceDataLine) AudioSystem.getLine(new DataLine.Info(
                 SourceDataLine.class, _format));
-            _line.open(_format);
+            _line.open(_format, _outBufSize.getValue());
             _line.start();
         }
 
@@ -1094,6 +1094,11 @@ public class SoundManager
             "Test sound directory", "narya.media.sound.test_dir",
             MediaPrefs.config, true, "");
 
+    protected static RuntimeAdjust.IntAdjust _outBufSize =
+        new RuntimeAdjust.IntAdjust(
+            "Sound output buffer size", "narya.media.sound.outbufsize",
+            MediaPrefs.config, 8192);
+
     /** Music action constants. */
     protected static final int NONE = 0;
     protected static final int START = 1;
@@ -1103,7 +1108,7 @@ public class SoundManager
     protected static final int MAX_QUEUE_SIZE = 25;
 
     /** The buffer size in bytes used when reading audio file data. */
-    protected static final int BUFFER_SIZE = 1024 * 24;
+    protected static final int BUFFER_SIZE = 1024 * 16;
 
     /** Used to disable sound entirely. */
     protected static final boolean SOUND_ENABLED = true;
