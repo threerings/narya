@@ -1,5 +1,5 @@
 //
-// $Id: ObjectEditorPanel.java,v 1.3 2004/03/04 02:43:48 eric Exp $
+// $Id: ObjectEditorPanel.java,v 1.4 2004/03/06 12:00:39 mdb Exp $
 
 package com.threerings.admin.client;
 
@@ -21,6 +21,7 @@ import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.util.PresentsContext;
 
 import com.threerings.admin.Log;
+import com.threerings.admin.data.ConfigObject;
 
 /**
  * Used to edit the distributed object fields of a particular
@@ -96,12 +97,7 @@ public class ObjectEditorPanel extends ScrollablePanel
                 // if the field is anything but a plain old public field,
                 // we don't want to edit it
                 if (fields[ii].getModifiers() == Modifier.PUBLIC) {
-                    JPanel panel = _object.getCustomEditor(_ctx,
-                                                           fields[ii].getName());
-                    if (panel == null) {
-                        panel = new FieldEditor(_ctx, fields[ii], _object);
-                    }
-                    add(panel);
+                    add(_object.getEditor(_ctx, fields[ii]));
                 }
             }
 

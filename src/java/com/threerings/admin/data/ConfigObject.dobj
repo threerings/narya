@@ -1,12 +1,15 @@
 //
-// $Id: ConfigObject.dobj,v 1.1 2004/03/04 02:42:31 eric Exp $
+// $Id: ConfigObject.dobj,v 1.2 2004/03/06 12:00:39 mdb Exp $
 
-package com.threerings.admin.client;
+package com.threerings.admin.data;
 
+import java.lang.reflect.Field;
 import javax.swing.JPanel;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.util.PresentsContext;
+
+import com.threerings.admin.client.FieldEditor;
 
 /**
  * Base class for runtime config distributed objects.  Used to allow
@@ -15,10 +18,10 @@ import com.threerings.presents.util.PresentsContext;
 public class ConfigObject extends DObject
 {
     /**
-     * Returns a custom editor panel for the specified field.
+     * Returns the editor panel for the specified field.
      */
-    public JPanel getCustomEditor (PresentsContext ctx, String fieldName)
+    public JPanel getEditor (PresentsContext ctx, Field field)
     {
-        return null;
+        return new FieldEditor(ctx, field, this);
     }
 }
