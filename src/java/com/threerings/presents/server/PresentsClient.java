@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.43 2002/10/31 21:03:57 mdb Exp $
+// $Id: PresentsClient.java,v 1.44 2002/11/05 05:47:36 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -388,7 +388,7 @@ public class PresentsClient
      * Clears out the tracked client subscriptions. Called when the client
      * goes away and shouldn't be called otherwise.
      */
-    protected synchronized void clearSubscrips ()
+    protected void clearSubscrips ()
     {
         Iterator enum = _subscrips.elements();
         while (enum.hasNext()) {
@@ -526,9 +526,22 @@ public class PresentsClient
         // queued up before the connection went away)
         PresentsServer.omgr.postUnit(new Runnable() {
             public void run () {
-                clearSubscrips();
+                sessionConnectionClosed();
             }
         });
+    }
+
+    /**
+     * Called on the dobjmgr thread when the connection associated with
+     * this session has been closed and unmapped. If the user logged off
+     * before closing their connection, this will be preceded by a call to
+     * {@link #sessionDidEnd}.
+     */
+    protected void sessionConnectionClosed ()
+    {
+        // clear out our dobj subscriptions in case they weren't cleared
+        // by a call to sessionDidEnd
+        clearSubscrips();
     }
 
     /**
