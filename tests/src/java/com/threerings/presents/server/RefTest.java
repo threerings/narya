@@ -1,7 +1,10 @@
 //
-// $Id: RefTest.java,v 1.5 2001/11/08 02:07:36 mdb Exp $
+// $Id: RefTest.java,v 1.6 2001/11/08 05:40:07 mdb Exp $
 
 package com.threerings.presents.server;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.dobj.*;
@@ -10,13 +13,12 @@ import com.threerings.presents.dobj.*;
  * Tests the oid list reference tracking code.
  */
 public class RefTest
-    implements Runnable, Subscriber, EventListener
+    extends TestCase
+    implements Subscriber, EventListener
 {
-    public void run ()
+    public RefTest ()
     {
-        // create two test objects
-        PresentsServer.omgr.createObject(TestObject.class, this);
-        PresentsServer.omgr.createObject(TestObject.class, this);
+        super(RefTest.class.getName());
     }
 
     public void objectAvailable (DObject object)
@@ -39,7 +41,7 @@ public class RefTest
 
     public void requestFailed (int oid, ObjectAccessException cause)
     {
-        Log.warning("Ack. Unable to create object [cause=" + cause + "].");
+        fail("Ack. Unable to create object [cause=" + cause + "].");
     }
 
     public void eventReceived (DEvent event)
@@ -51,23 +53,51 @@ public class RefTest
         // target object to see if the reference is cleaned up
         if (event instanceof ObjectAddedEvent &&
             toid == _objtwo.getOid()) {
-            Log.info("Destroying object two " + _objtwo + ".");
+            // Log.info("Destroying object two " + _objtwo + ".");
             _objtwo.destroy();
 
         } else if (event instanceof ObjectDestroyedEvent) {
             if (toid == _objtwo.getOid()) {
-                Log.info("List won't yet be empty: " + _objone.list);
+                // Log.info("List won't yet be empty: " + _objone.list);
+                assert("List not empty", _objone.list.size() > 0);
             } else {
-                Log.info("Other object destroyed.");
+                // Log.info("Other object destroyed.");
                 // go bye bye
                 PresentsServer.shutdown();
             }
 
         } else if (event instanceof ObjectRemovedEvent) {
-            Log.info("List should be empty: " + _objone.list);
+            // Log.info("List should be empty: " + _objone.list);
+            assert("List empty", _objone.list.size() == 0);
             // finally destroy the other object to complete the circle
             _objone.destroy();
         }
+    }
+
+    public void runTest ()
+    {
+        PresentsServer server = new TestPresentsServer();
+        try {
+            // initialize the server
+            server.init();
+
+            // create two test objects
+            PresentsServer.omgr.createObject(TestObject.class, this);
+            PresentsServer.omgr.createObject(TestObject.class, this);
+
+            // start the server to running (this method call won't return
+            // until the server is shut down)
+            server.run();
+
+        } catch (Exception e) {
+            Log.warning("Unable to initialize server.");
+            Log.logStackTrace(e);
+        }
+    }
+
+    public static Test suite ()
+    {
+        return new RefTest();
     }
 
     protected TestObject _objone;

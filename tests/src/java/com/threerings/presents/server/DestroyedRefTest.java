@@ -1,7 +1,10 @@
 //
-// $Id: DestroyedRefTest.java,v 1.5 2001/11/08 02:07:36 mdb Exp $
+// $Id: DestroyedRefTest.java,v 1.6 2001/11/08 05:40:07 mdb Exp $
 
 package com.threerings.presents.server;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.dobj.*;
@@ -11,13 +14,12 @@ import com.threerings.presents.dobj.*;
  * an oid list.
  */
 public class DestroyedRefTest
-    implements Runnable, Subscriber, EventListener
+    extends TestCase
+    implements Subscriber, EventListener
 {
-    public void run ()
+    public DestroyedRefTest ()
     {
-        // create two test objects
-        PresentsServer.omgr.createObject(TestObject.class, this);
-        PresentsServer.omgr.createObject(TestObject.class, this);
+        super(DestroyedRefTest.class.getName());
     }
 
     public void objectAvailable (DObject object)
@@ -35,6 +37,7 @@ public class DestroyedRefTest
             // add object one to object two twice in a row to make sure
             // repeated adds don't result in the object being listed twice
             _objtwo.addToList(_objone.getOid());
+            Log.info("The following addToList() should be ignored.");
             _objtwo.addToList(_objone.getOid());
 
             // now that we have both objects, try to set up the reference.
@@ -50,7 +53,7 @@ public class DestroyedRefTest
 
     public void requestFailed (int oid, ObjectAccessException cause)
     {
-        Log.warning("Ack. Unable to create object [cause=" + cause + "].");
+        fail("Ack. Unable to create object [cause=" + cause + "].");
     }
 
     public void eventReceived (DEvent event)
@@ -63,15 +66,42 @@ public class DestroyedRefTest
 
         } else if (event instanceof ObjectAddedEvent &&
                    toid == _objtwo.getOid()) {
-            Log.info("list should contain only one oid: " + _objtwo.list);
+            assert("list should contain only one oid",
+                   _objtwo.list.size() == 1);
 
         } else if (event instanceof AttributeChangedEvent) {
             // go bye bye
             PresentsServer.shutdown();
 
         } else {
-            Log.info("Got unexpected event: " + event);
+            fail("Got unexpected event: " + event);
         }
+    }
+
+    public void runTest ()
+    {
+        PresentsServer server = new TestPresentsServer();
+        try {
+            // initialize the server
+            server.init();
+
+            // create two test objects
+            PresentsServer.omgr.createObject(TestObject.class, this);
+            PresentsServer.omgr.createObject(TestObject.class, this);
+
+            // start the server to running (this method call won't return
+            // until the server is shut down)
+            server.run();
+
+        } catch (Exception e) {
+            Log.warning("Unable to initialize server.");
+            Log.logStackTrace(e);
+        }
+    }
+
+    public static Test suite ()
+    {
+        return new DestroyedRefTest();
     }
 
     protected TestObject _objone;
