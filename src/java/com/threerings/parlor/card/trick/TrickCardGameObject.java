@@ -1,5 +1,5 @@
 //
-// $Id: TrickCardGameObject.java,v 1.1 2004/10/13 02:03:26 andrzej Exp $
+// $Id: TrickCardGameObject.java,v 1.2 2004/10/15 00:14:23 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -34,21 +34,21 @@ public interface TrickCardGameObject extends TurnGameObject
      *
      * @return the name of the playingHand field
      */
-    public String getPlayingHandFieldName();
+    public String getPlayingHandFieldName ();
     
     /**
      * Checks whether the users are currently playing a hand.
      *
      * @return true if the users are playing a hand, false otherwise
      */
-    public boolean getPlayingHand();
+    public boolean getPlayingHand ();
     
     /**
      * Brings the gameplay in or out of a hand.
      *
      * @param playingHand true to enter a hand, false to leave one
      */
-    public void setPlayingHand(boolean playingHand);
+    public void setPlayingHand (boolean playingHand);
     
     /**
      * Returns the name of the field that signals whether or not the users
@@ -56,19 +56,19 @@ public interface TrickCardGameObject extends TurnGameObject
      *
      * @return the name of the playingTrick field
      */
-    public String getPlayingTrickFieldName();
+    public String getPlayingTrickFieldName ();
     
     /**
      * Checks whether the users are currently playing a trick.
      *
      * @return true if the users are playing a trick, false otherwise
      */
-    public boolean getPlayingTrick();
+    public boolean getPlayingTrick ();
     
     /**
      * Brings the gameplay in or out of a trick.
      *
      * @param playingTrick true to enter a trick, false to leave one
      */
-    public void setPlayingTrick(boolean playingTrick);
+    public void setPlayingTrick (boolean playingTrick);
 }

@@ -1,5 +1,5 @@
 //
-// $Id: Card.java,v 1.2 2004/10/13 19:29:12 andrzej Exp $
+// $Id: Card.java,v 1.3 2004/10/15 00:14:23 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -38,7 +38,7 @@ public class Card implements CardCodes,
     /**
      * No-arg constructor for deserialization.
      */
-    public Card()
+    public Card ()
     {}
     
     /**
@@ -47,9 +47,9 @@ public class Card implements CardCodes,
      *
      * @return the value of the card
      */
-    public int getNumber()
+    public int getNumber ()
     {
-        return number;
+        return (_value >> 2);
     }
     
     /**
@@ -58,9 +58,9 @@ public class Card implements CardCodes,
      *
      * @return the suit of the card
      */
-    public int getSuit()
+    public int getSuit ()
     {
-        return suit;
+        return (_value & 0x03);
     }
     
     /**
@@ -68,8 +68,10 @@ public class Card implements CardCodes,
      *
      * @return true if the card is a number card, false otherwise
      */
-    public boolean isNumber()
+    public boolean isNumber ()
     {
+        int number = getNumber();
+        
         return number >= 2 && number <= 10;
     }
     
@@ -78,8 +80,10 @@ public class Card implements CardCodes,
      *
      * @return true if the card is a face card, false otherwise
      */
-    public boolean isFace()
+    public boolean isFace ()
     {
+        int number = getNumber();
+        
         return number == KING || number == QUEEN || number == JACK;
     }
     
@@ -88,9 +92,9 @@ public class Card implements CardCodes,
      *
      * @return true if the card is an ace, false otherwise
      */
-    public boolean isAce()
+    public boolean isAce ()
     {
-        return number == ACE;
+        return getNumber() == ACE;
     }
     
     /**
@@ -98,9 +102,9 @@ public class Card implements CardCodes,
      *
      * @return true if the card is a joker, false otherwise
      */
-    public boolean isJoker()
+    public boolean isJoker ()
     {
-        return number == JOKER;
+        return getNumber() == JOKER;
     }
     
     /**
@@ -109,48 +113,24 @@ public class Card implements CardCodes,
      *
      * @return true if this card is valid, false if not
      */
-    public boolean isValid()
+    public boolean isValid ()
     {
+        int number = getNumber(), suit = getSuit();
+        
         return number == JOKER || 
                (number >= 2 && number <= ACE &&
                 suit >= HEARTS && suit <= SPADES);
     }
     
-    /**
-     * Writes this object to the specified output stream.
-     *
-     * @param oos the output stream
-     */
-    public void writeObject(ObjectOutputStream oos)
-                throws IOException
+    // Documentation inherited.
+    public Comparable getKey ()
     {
-        oos.defaultWriteObject();
+        if(_key == null)
+        {
+            _key = new Byte(_value);
+        }
         
-        oos.writeInt(number);
-        oos.writeInt(suit);
-    }
-    
-    /**
-     * Reads this object from the specified input stream.
-     *
-     * @param ois the input stream
-     */
-    public void readObject(ObjectInputStream ois)
-                throws IOException,
-                       ClassNotFoundException
-    {
-        ois.defaultReadObject();
-        
-        number = ois.readInt();
-        suit = ois.readInt();
-        
-        key = new Integer((number << 2) | suit);
-    }
-    
-    // documentation inherited
-    public Comparable getKey()
-    {
-        return key;
+        return _key;
     }
     
     /**
@@ -158,9 +138,9 @@ public class Card implements CardCodes,
      *
      * @return this card's hash code
      */
-    public int hashCode()
+    public int hashCode ()
     {
-        return key.intValue();
+        return _value;
     }
     
     /**
@@ -169,12 +149,11 @@ public class Card implements CardCodes,
      * @param other the other card to compare
      * @return true if the cards are equal, false otherwise
      */
-    public boolean equals(Object other)
+    public boolean equals (Object other)
     {
         if(other instanceof Card)
         {
-            return number == ((Card)other).number &&
-                   suit == ((Card)other).suit;
+            return _value == ((Card)other)._value;
         }
         else
         {
@@ -183,65 +162,49 @@ public class Card implements CardCodes,
     }
     
     /**
-     * Returns a string representation of a given number.
-     *
-     * @param number the number to represent
-     * @return the string representation
-     */
-    public static String numberToString(int number)
-    {
-        switch(number)
-        {
-            case 2: return "Two";
-            case 3: return "Three";
-            case 4: return "Four";
-            case 5: return "Five";
-            case 6: return "Six";
-            case 7: return "Seven";
-            case 8: return "Eight";
-            case 9: return "Nine";
-            case 10: return "Ten";
-            case JACK: return "Jack";
-            case QUEEN: return "Queen";
-            case KING: return "King";
-            case ACE: return "Ace";
-            case JOKER: return "Joker";
-            default: return "???";
-        }
-    }
-    
-    /**
-     * Returns a string representation of a particular suit.
-     *
-     * @param suit the suit to represent
-     * @return the string representation
-     */
-    public static String suitToString(int suit)
-    {
-        switch(suit)
-        {
-            case HEARTS: return "Hearts";
-            case DIAMONDS: return "Diamonds";
-            case CLUBS: return "Clubs";
-            case SPADES: return "Spades";
-            default: return "???";
-        }
-    }
-    
-    /**
      * Returns a string representation of this card.
      *
      * @return a description of this card
      */
-    public String toString()
+    public String toString ()
     {
+        int number = getNumber();
+        
         if(number == JOKER)
         {
-            return "Joker";
+            return "Jk";
         }
         else
         {
-            return numberToString(number) + " of " + suitToString(suit);
+            StringBuffer sb = new StringBuffer();
+            
+            if(number >= 2 && number <= 9)
+            {
+                sb.append(Integer.toString(number));
+            }
+            else
+            {
+                switch(number)
+                {
+                    case 10: sb.append('T'); break;
+                    case JACK: sb.append('J'); break;
+                    case QUEEN: sb.append('Q'); break;
+                    case KING: sb.append('K'); break;
+                    case ACE: sb.append('A'); break;
+                    default: sb.append('?'); break;
+                }
+            }
+            
+            switch(getSuit())
+            {
+                case HEARTS: sb.append('h'); break;
+                case DIAMONDS: sb.append('d'); break;
+                case CLUBS: sb.append('c'); break;
+                case SPADES: sb.append('s'); break;
+                default: sb.append('?'); break;
+            }
+            
+            return sb.toString();
         }
     }
     
@@ -251,21 +214,15 @@ public class Card implements CardCodes,
      * @param number the number of the card
      * @param suit the suit of the card
      */
-    Card(int number, int suit)
+    Card (int number, int suit)
     {
-        this.number = number;
-        this.suit = suit;
-        
-        key = new Integer((number << 2) | suit);
+        _value = (byte)((number << 2) | suit);
     }
     
     
     /** The number of the card. */
-    private int number;
-    
-    /** The suit of the card. */
-    private int suit;
+    protected byte _value;
     
     /** The comparison key. */
-    private Integer key;
+    protected transient Byte _key;
 }

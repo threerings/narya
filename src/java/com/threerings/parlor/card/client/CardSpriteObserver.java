@@ -1,5 +1,5 @@
 //
-// $Id: CardSpriteObserver.java,v 1.1 2004/10/13 02:03:26 andrzej Exp $
+// $Id: CardSpriteObserver.java,v 1.2 2004/10/15 00:14:23 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,7 +21,7 @@
 
 package com.threerings.parlor.card.client;
 
-import java.awt.event.*;
+import java.awt.event.MouseEvent;
 
 /**
  * Observer interface for (draggable) card sprites.
@@ -34,7 +34,7 @@ public interface CardSpriteObserver
      * @param sprite the dragged sprite
      * @param me the mouse event associated with the drag
      */
-    public void cardSpriteClicked(CardSprite sprite, MouseEvent me);
+    public void cardSpriteClicked (CardSprite sprite, MouseEvent me);
     
     /**
      * Notifies the observer that the user dragged a card sprite to a new
@@ -43,5 +43,5 @@ public interface CardSpriteObserver
      * @param sprite the dragged sprite
      * @param me the mouse event associated with the drag
      */
-    public void cardSpriteDragged(CardSprite sprite, MouseEvent me);
+    public void cardSpriteDragged (CardSprite sprite, MouseEvent me);
 }

@@ -1,5 +1,5 @@
 //
-// $Id: TrickCardGameManager.java,v 1.1 2004/10/13 02:03:26 andrzej Exp $
+// $Id: TrickCardGameManager.java,v 1.2 2004/10/15 00:14:23 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -32,30 +32,30 @@ public interface TrickCardGameManager extends TurnGameManager
     /**
      * Notifies the manager that a hand is about to start.
      */
-    public void handWillStart();
+    public void handWillStart ();
     
     /**
      * Notifies the manager that a hand just started.
      */
-    public void handDidStart();
+    public void handDidStart ();
     
     /**
      * Notifies the manager that a hand has ended.
      */
-    public void handDidEnd();
+    public void handDidEnd ();
     
     /**
      * Notifies the manager that a trick is about to start.
      */
-    public void trickWillStart();
+    public void trickWillStart ();
     
     /**
      * Notifies the manager that a trick just started.
      */
-    public void trickDidStart();
+    public void trickDidStart ();
     
     /**
      * Notifies the manager that a trick has ended.
      */
-    public void trickDidEnd();
+    public void trickDidEnd ();
 }

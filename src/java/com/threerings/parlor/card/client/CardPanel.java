@@ -1,5 +1,5 @@
 //
-// $Id: CardPanel.java,v 1.1 2004/10/13 02:03:26 andrzej Exp $
+// $Id: CardPanel.java,v 1.2 2004/10/15 00:14:23 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -52,18 +52,18 @@ public abstract class CardPanel extends VirtualMediaPanel
     /** Calls CardSpriteObserver.cardSpriteClicked. */ 
     protected static class CardSpriteClickedOp implements ObserverList.ObserverOp
     {
-        protected CardSprite sprite;
-        protected MouseEvent me;
+        protected CardSprite _sprite;
+        protected MouseEvent _me;
         
-        public CardSpriteClickedOp(CardSprite sprite, MouseEvent me)
+        public CardSpriteClickedOp (CardSprite sprite, MouseEvent me)
         {
-            this.sprite = sprite;
-            this.me = me;
+            _sprite = sprite;
+            _me = me;
         }
         
-        public boolean apply(Object observer)
+        public boolean apply (Object observer)
         {
-            ((CardSpriteObserver)observer).cardSpriteClicked(sprite, me);
+            ((CardSpriteObserver)observer).cardSpriteClicked(_sprite, _me);
             return true;
         }
     }
@@ -71,18 +71,18 @@ public abstract class CardPanel extends VirtualMediaPanel
     /** Calls CardSpriteObserver.cardSpriteDragged. */
     protected static class CardSpriteDraggedOp implements ObserverList.ObserverOp
     {
-        protected CardSprite sprite;
-        protected MouseEvent me;
+        protected CardSprite _sprite;
+        protected MouseEvent _me;
         
-        public CardSpriteDraggedOp(CardSprite sprite, MouseEvent me)
+        public CardSpriteDraggedOp (CardSprite sprite, MouseEvent me)
         {
-            this.sprite = sprite;
-            this.me = me;
+            _sprite = sprite;
+            _me = me;
         }
         
-        public boolean apply(Object observer)
+        public boolean apply (Object observer)
         {
-            ((CardSpriteObserver)observer).cardSpriteDragged(sprite, me);
+            ((CardSpriteObserver)observer).cardSpriteDragged(_sprite, _me);
             return true;
         }
     }
@@ -93,14 +93,14 @@ public abstract class CardPanel extends VirtualMediaPanel
      *
      * @param frameManager the frame manager
      */
-    public CardPanel(FrameManager frameManager)
+    public CardPanel (FrameManager frameManager)
     {
         super(frameManager);
         
         addMouseListener(
             new MouseAdapter()
             {
-                public void mousePressed(MouseEvent me)
+                public void mousePressed (MouseEvent me)
                 {
                     ArrayList al = new ArrayList();
                     
@@ -128,38 +128,38 @@ public abstract class CardPanel extends VirtualMediaPanel
                             }
                         }
                         
-                        activeCardSprite = highestSprite;
+                        _activeCardSprite = highestSprite;
                         
-                        if(activeCardSprite != null)
+                        if(_activeCardSprite != null)
                         {
-                            handleX = activeCardSprite.getX() - me.getX();
-                            handleY = activeCardSprite.getY() - me.getY();
+                            _handleX = _activeCardSprite.getX() - me.getX();
+                            _handleY = _activeCardSprite.getY() - me.getY();
                             
-                            hasBeenDragged = false;
+                            _hasBeenDragged = false;
                         }
                     }
                     else
                     {
-                        activeCardSprite = null;
+                        _activeCardSprite = null;
                     }
                 }
                 
-                public void mouseReleased(MouseEvent me)
+                public void mouseReleased (MouseEvent me)
                 {
-                    if(activeCardSprite != null && hasBeenDragged)
+                    if(_activeCardSprite != null && _hasBeenDragged)
                     {
-                        activeCardSprite.queueNotification(
-                            new CardSpriteDraggedOp(activeCardSprite, me)
+                        _activeCardSprite.queueNotification(
+                            new CardSpriteDraggedOp(_activeCardSprite, me)
                         );
                     }
                 }
                 
-                public void mouseClicked(MouseEvent me)
+                public void mouseClicked (MouseEvent me)
                 {
-                    if(activeCardSprite != null)
+                    if(_activeCardSprite != null)
                     {
-                        activeCardSprite.queueNotification(
-                            new CardSpriteClickedOp(activeCardSprite, me)
+                        _activeCardSprite.queueNotification(
+                            new CardSpriteClickedOp(_activeCardSprite, me)
                         );
                     }
                 }
@@ -169,17 +169,17 @@ public abstract class CardPanel extends VirtualMediaPanel
         addMouseMotionListener(
             new MouseMotionAdapter()
             {
-                public void mouseDragged(MouseEvent me)
+                public void mouseDragged (MouseEvent me)
                 {
-                    if(activeCardSprite != null &&
-                       activeCardSprite.isDraggable())
+                    if(_activeCardSprite != null &&
+                       _activeCardSprite.isDraggable())
                     {
-                        activeCardSprite.setLocation(
-                            me.getX() + handleX,
-                            me.getY() + handleY
+                        _activeCardSprite.setLocation(
+                            me.getX() + _handleX,
+                            me.getY() + _handleY
                         );
                         
-                        hasBeenDragged = true;
+                        _hasBeenDragged = true;
                     }
                 }
             }
@@ -191,7 +191,7 @@ public abstract class CardPanel extends VirtualMediaPanel
      *
      * @return the card back image
      */
-    public abstract Mirage getCardBackImage();
+    public abstract Mirage getCardBackImage ();
     
     /**
      * Returns the image for the front of the specified card.
@@ -199,15 +199,15 @@ public abstract class CardPanel extends VirtualMediaPanel
      * @param card the desired card
      * @return the card front image
      */
-    public abstract Mirage getCardImage(Card card);
+    public abstract Mirage getCardImage (Card card);
     
     
     /** The last card sprite pressed. */
-    private CardSprite activeCardSprite;
+    protected CardSprite _activeCardSprite;
     
     /** The location of the cursor in the active sprite. */
-    private int handleX, handleY;
+    protected int _handleX, _handleY;
     
     /** Whether or not the active sprite has been dragged. */
-    private boolean hasBeenDragged;
+    protected boolean _hasBeenDragged;
 }

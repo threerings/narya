@@ -1,5 +1,5 @@
 //
-// $Id: TrickCardGameControllerDelegate.java,v 1.1 2004/10/13 02:03:26 andrzej Exp $
+// $Id: TrickCardGameControllerDelegate.java,v 1.2 2004/10/15 00:14:23 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -31,16 +31,12 @@ import com.threerings.presents.dobj.AttributeChangedEvent;
  */
 public class TrickCardGameControllerDelegate extends TurnGameControllerDelegate
 {
-    /** The trick card game controller. */
-    protected TrickCardGameController _tcgctrl;
-    
-    
     /**
      * Constructor.
      *
      * @param controller the game controller
      */
-    public TrickCardGameControllerDelegate(TrickCardGameController controller)
+    public TrickCardGameControllerDelegate (TrickCardGameController controller)
     {
         super(controller);
         
@@ -48,7 +44,7 @@ public class TrickCardGameControllerDelegate extends TurnGameControllerDelegate
     }
     
     // Documentation inherited
-    public void attributeChanged(AttributeChangedEvent ace)
+    public void attributeChanged (AttributeChangedEvent ace)
     {
         super.attributeChanged(ace);
         
@@ -63,4 +59,8 @@ public class TrickCardGameControllerDelegate extends TurnGameControllerDelegate
             _tcgctrl.playingTrickDidChange(tcgObj.getPlayingTrick());
         }
     }
+    
+    
+    /** The trick card game controller. */
+    protected TrickCardGameController _tcgctrl;
 }

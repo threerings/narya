@@ -1,5 +1,5 @@
 //
-// $Id: CardSprite.java,v 1.1 2004/10/13 02:03:26 andrzej Exp $
+// $Id: CardSprite.java,v 1.2 2004/10/15 00:14:23 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -32,26 +32,13 @@ import com.threerings.parlor.card.data.Card;
  */
 public class CardSprite extends OrientableImageSprite
 {
-    /** The panel responsible for the sprite. */
-    protected CardPanel _panel;
-    
-    /** The depicted card. */
-    protected Card _card;
-    
-    /** Whether or not the card is facing up. */
-    protected boolean _facingUp;
-    
-    /** Whether or not the user can drag the card around the board. */
-    protected boolean _draggable;
-    
-    
     /**
      * Creates a new upward-facing card sprite.
      *
      * @param panel the panel responsible for the sprite
      * @param card the card to depict
      */
-    public CardSprite(CardPanel panel, Card card)
+    public CardSprite (CardPanel panel, Card card)
     {
         _panel = panel;
         _card = card;
@@ -67,7 +54,7 @@ public class CardSprite extends OrientableImageSprite
      * @param card the card to depict
      * @param facingUp whether or not the card should be facing up
      */
-    public CardSprite(CardPanel panel, Card card, boolean facingUp)
+    public CardSprite (CardPanel panel, Card card, boolean facingUp)
     {
         _panel = panel;
         _card = card;
@@ -81,7 +68,7 @@ public class CardSprite extends OrientableImageSprite
      *
      * @param card the new card
      */
-    public void setCard(Card card)
+    public void setCard (Card card)
     {
         _card = card;
         
@@ -93,7 +80,7 @@ public class CardSprite extends OrientableImageSprite
      *
      * @return the current card
      */
-    public Card getCard()
+    public Card getCard ()
     {
         return _card; 
     }
@@ -103,7 +90,7 @@ public class CardSprite extends OrientableImageSprite
      *
      * @param facingUp whether or not the card should be facing up
      */
-    public void setFacingUp(boolean facingUp)
+    public void setFacingUp (boolean facingUp)
     {
         _facingUp = facingUp;
         
@@ -115,7 +102,7 @@ public class CardSprite extends OrientableImageSprite
      *
      * @return true if the card is facing up, false if facing down
      */
-    public boolean isFacingUp()
+    public boolean isFacingUp ()
     {
         return _facingUp;
     }
@@ -125,7 +112,7 @@ public class CardSprite extends OrientableImageSprite
      *
      * @param draggable whether or not the user can drag the card
      */
-    public void setDraggable(boolean draggable)
+    public void setDraggable (boolean draggable)
     {
         _draggable = draggable;
     }
@@ -135,7 +122,7 @@ public class CardSprite extends OrientableImageSprite
      *
      * @return true if the user can drag the card, false if not
      */
-    public boolean isDraggable()
+    public boolean isDraggable ()
     {
         return _draggable;
     }
@@ -143,8 +130,21 @@ public class CardSprite extends OrientableImageSprite
     /**
      * Updates the mirage according to the current state.
      */
-    private void updateMirage()
+    private void updateMirage ()
     {
         setMirage(_facingUp ? _panel.getCardImage(_card) : _panel.getCardBackImage());
     }
+    
+    
+    /** The panel responsible for the sprite. */
+    protected CardPanel _panel;
+    
+    /** The depicted card. */
+    protected Card _card;
+    
+    /** Whether or not the card is facing up. */
+    protected boolean _facingUp;
+    
+    /** Whether or not the user can drag the card around the board. */
+    protected boolean _draggable;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: OrientableImageSprite.java,v 1.1 2004/10/13 02:03:44 andrzej Exp $
+// $Id: OrientableImageSprite.java,v 1.2 2004/10/15 00:14:23 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,9 +21,11 @@
 
 package com.threerings.media.sprite;
 
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 
-import java.awt.geom.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 
 import java.awt.image.*;
 
@@ -40,7 +42,7 @@ public class OrientableImageSprite extends ImageSprite
     /**
      * Creates a new orientable image sprite.
      */
-    public OrientableImageSprite()
+    public OrientableImageSprite ()
     {}
     
     /**
@@ -48,7 +50,7 @@ public class OrientableImageSprite extends ImageSprite
      *
      * @param image the image to render
      */
-    public OrientableImageSprite(Mirage image)
+    public OrientableImageSprite (Mirage image)
     {
         super(image);
     }
@@ -58,7 +60,7 @@ public class OrientableImageSprite extends ImageSprite
      *
      * @param frames the frames to render
      */
-    public OrientableImageSprite(MultiFrameImage frames)
+    public OrientableImageSprite (MultiFrameImage frames)
     {
         super(frames);
     }
@@ -69,7 +71,7 @@ public class OrientableImageSprite extends ImageSprite
      *
      * @return the newly computed rotation transform
      */ 
-    private AffineTransform getRotationTransform()
+    private AffineTransform getRotationTransform ()
     {
         double theta;
         
@@ -149,7 +151,7 @@ public class OrientableImageSprite extends ImageSprite
     }
     
     // Documentation inherited.
-    protected void accomodateFrame(int frameIdx, int width, int height)
+    protected void accomodateFrame (int frameIdx, int width, int height)
     {
         Area area = new Area(
             new Rectangle(
@@ -166,7 +168,7 @@ public class OrientableImageSprite extends ImageSprite
     }
     
     // Documentation inherited.
-    public void setOrientation(int orient)
+    public void setOrientation (int orient)
     {
         super.setOrientation(orient);
         
@@ -174,14 +176,13 @@ public class OrientableImageSprite extends ImageSprite
     }
     
     // Documentation inherited.
-    public void paint(Graphics2D graphics)
+    public void paint (Graphics2D graphics)
     {
         AffineTransform at = graphics.getTransform();
         
         graphics.transform(getRotationTransform());
         
-        if(_frames != null)
-        {
+        if(_frames != null) {
             _frames.paintFrame(
                 graphics, 
                 _frameIdx, 
@@ -189,8 +190,7 @@ public class OrientableImageSprite extends ImageSprite
                 _oy - _oyoff
             );
         }
-        else
-        {
+        else {
             super.paint(graphics);
         }
         

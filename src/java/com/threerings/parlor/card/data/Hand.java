@@ -1,5 +1,5 @@
 //
-// $Id: Hand.java,v 1.1 2004/10/13 02:03:26 andrzej Exp $
+// $Id: Hand.java,v 1.2 2004/10/15 00:14:23 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,7 +21,7 @@
 
 package com.threerings.parlor.card.data;
 
-import java.util.*;
+import java.util.Iterator;
 
 import com.threerings.io.Streamable;
 
@@ -40,7 +40,7 @@ public class Hand implements CardCodes,
     /**
      * Default constructor creates an empty hand.
      */
-    public Hand()
+    public Hand ()
     {
         cards = new StreamableArrayList();
     }
@@ -51,7 +51,7 @@ public class Hand implements CardCodes,
      * @param suit the suit of interest
      * @return the number of cards in the specified suit
      */
-    public int getSuitMemberCount(int suit)
+    public int getSuitMemberCount (int suit)
     {
         int members = 0;
         
@@ -73,7 +73,7 @@ public class Hand implements CardCodes,
      *
      * @return a description of this hand
      */
-    public String toString()
+    public String toString ()
     {
         return "[cards=" + cards.toString() + "]";
     }

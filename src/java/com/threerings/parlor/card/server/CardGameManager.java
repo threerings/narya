@@ -1,5 +1,5 @@
 //
-// $Id: CardGameManager.java,v 1.2 2004/10/13 19:29:12 andrzej Exp $
+// $Id: CardGameManager.java,v 1.3 2004/10/15 00:14:23 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -48,7 +48,7 @@ public class CardGameManager extends GameManager
      * @return the hand dealt to the player, or null if the deal
      * was canceled because the deck did not contain enough cards
      */
-    public Hand dealHand(Deck deck, int size, int playerIndex)
+    public Hand dealHand (Deck deck, int size, int playerIndex)
     {
         if(deck.cards.size() < size)
         {
@@ -80,7 +80,7 @@ public class CardGameManager extends GameManager
      * the deal was canceled because the deck did not contain enough
      * cards
      */
-    public Hand[] dealHands(Deck deck, int size)
+    public Hand[] dealHands (Deck deck, int size)
     {
         if(deck.cards.size() < size * _playerCount)
         {

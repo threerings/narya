@@ -1,5 +1,5 @@
 //
-// $Id: TrickCardGameManagerDelegate.java,v 1.1 2004/10/13 02:03:26 andrzej Exp $
+// $Id: TrickCardGameManagerDelegate.java,v 1.2 2004/10/15 00:14:23 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -32,20 +32,13 @@ import com.threerings.parlor.turn.TurnGameManagerDelegate;
  * Spades and Hearts.
  */
 public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
-{
-    /** The trick card game manager. */
-    protected TrickCardGameManager _tcgmgr;
-    
-    /** The game object. */
-    protected TrickCardGameObject _trickCardGame;
-    
-    
+{   
     /**
      * Constructor.
      *
      * @param manager the game manager
      */
-    public TrickCardGameManagerDelegate(TrickCardGameManager manager)
+    public TrickCardGameManagerDelegate (TrickCardGameManager manager)
     {
         super(manager);
         
@@ -53,7 +46,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     }
     
     // Documentation inherited.
-    public void setFirstTurnHolder()
+    public void setFirstTurnHolder ()
     {
         if(_trickCardGame.getPlayingHand() && _trickCardGame.getPlayingTrick())
         {
@@ -66,7 +59,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     }
     
     // Documentation inherited.
-    public void setNextTurnHolder()
+    public void setNextTurnHolder ()
     {
         if(_trickCardGame.getPlayingHand() && _trickCardGame.getPlayingTrick())
         {
@@ -79,7 +72,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     }
     
     // Documentation inherited.
-    public void didStartup(PlaceObject plobj)
+    public void didStartup (PlaceObject plobj)
     {
         super.didStartup(plobj);
         
@@ -89,7 +82,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     /**
      * Starts a hand of cards.
      */
-    public void startHand()
+    public void startHand ()
     {
         _tcgmgr.handWillStart();
         
@@ -101,7 +94,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     /**
      * Ends a hand of cards.
      */
-    public void endHand()
+    public void endHand ()
     {
         _trickCardGame.setPlayingHand(false);
         
@@ -111,7 +104,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     /**
      * Starts a trick.
      */
-    public void startTrick()
+    public void startTrick ()
     {
         _tcgmgr.trickWillStart();
         
@@ -123,10 +116,17 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     /**
      * Ends a trick.
      */
-    public void endTrick()
+    public void endTrick ()
     {
         _trickCardGame.setPlayingTrick(false);
         
         _tcgmgr.trickDidEnd();
     }
+    
+    
+    /** The trick card game manager. */
+    protected TrickCardGameManager _tcgmgr;
+    
+    /** The game object. */
+    protected TrickCardGameObject _trickCardGame;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: Deck.java,v 1.1 2004/10/13 02:03:26 andrzej Exp $
+// $Id: Deck.java,v 1.2 2004/10/15 00:14:23 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -41,7 +41,7 @@ public class Deck implements CardCodes,
      * Default constructor creates an unshuffled deck of cards without
      * jokers.
      */
-    public Deck()
+    public Deck ()
     {
         cards = new StreamableArrayList();
         
@@ -54,7 +54,7 @@ public class Deck implements CardCodes,
      * @param includeJokers whether or not to include the two jokers
      * in the deck
      */
-    public Deck(boolean includeJokers)
+    public Deck (boolean includeJokers)
     {
         cards = new StreamableArrayList();
         
@@ -68,7 +68,7 @@ public class Deck implements CardCodes,
      * @param includeJokers whether or not to include the two jokers
      * in the deck
      */
-    public void reset(boolean includeJokers)
+    public void reset (boolean includeJokers)
     {
         cards.clear();
         
@@ -90,7 +90,7 @@ public class Deck implements CardCodes,
     /**
      * Shuffles the deck.
      */
-    public void shuffle()
+    public void shuffle ()
     {
         Collections.shuffle(cards);
     }
@@ -102,7 +102,7 @@ public class Deck implements CardCodes,
      * @return the newly created and populated hand, or null
      * if there are not enough cards in the deck to deal the hand
      */
-    public Hand dealHand(int size)
+    public Hand dealHand (int size)
     {
         if(cards.size() < size)
         {
@@ -127,7 +127,7 @@ public class Deck implements CardCodes,
      *
      * @param hand the hand of cards to return
      */
-    public void returnHand(Hand hand)
+    public void returnHand (Hand hand)
     {
         cards.addAll(hand.cards);
         hand.cards.clear();
@@ -138,7 +138,7 @@ public class Deck implements CardCodes,
      *
      * @return a description of this deck
      */
-    public String toString()
+    public String toString ()
     {
         return "[cards=" + cards.toString() + "]";
     }

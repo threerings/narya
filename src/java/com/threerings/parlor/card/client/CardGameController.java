@@ -1,5 +1,5 @@
 //
-// $Id: CardGameController.java,v 1.1 2004/10/13 02:03:26 andrzej Exp $
+// $Id: CardGameController.java,v 1.2 2004/10/15 00:14:23 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -44,7 +44,7 @@ public abstract class CardGameController extends GameController
                                                     CardCodes
 {
     // Documentation inhertied
-    public void init(CrowdContext context, PlaceConfig config)
+    public void init (CrowdContext context, PlaceConfig config)
     {
         super.init(context, config);
         
@@ -52,7 +52,7 @@ public abstract class CardGameController extends GameController
     }
     
     // Documentation inherited
-    public void messageReceived(MessageEvent event)
+    public void messageReceived (MessageEvent event)
     {   
         if(event.getName().equals(TAKE_HAND))
         {
@@ -65,6 +65,6 @@ public abstract class CardGameController extends GameController
      *
      * @param hand the hand dealt to the user
      */
-    protected void handDealt(Hand hand)
+    protected void handDealt (Hand hand)
     {}
 }
