@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.23 2002/05/28 21:56:38 mdb Exp $
+// $Id: Client.java,v 1.24 2002/05/28 22:06:05 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -411,15 +411,9 @@ public class Client
             return;
         }
 
-        // if we are calculating, we'll either be sending another ping...
         if (_dcalc.gotPong(pong)) {
-            PingRequest req = new PingRequest();
-            _comm.postMessage(req);
-            _dcalc.sentPing(req);
-
-        } else {
-            // ...or we're done so we can grab the time delta and finish
-            // our business
+            // we're either done with our calculations, so we can grab the
+            // time delta and finish our business...
             _serverDelta = _dcalc.getTimeDelta();
             // adjust our server start stamp into client time
             _serverStartStamp += _serverDelta;
@@ -427,6 +421,12 @@ public class Client
             _dcalc = null;
             // let the client continue with its initialization
             clockDeltaEstablished();
+
+        } else {
+            // ...or we'll either be sending another ping
+            PingRequest req = new PingRequest();
+            _comm.postMessage(req);
+            _dcalc.sentPing(req);
         }
     }
 
