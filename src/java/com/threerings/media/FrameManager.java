@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.43 2003/05/19 03:01:13 mdb Exp $
+// $Id: FrameManager.java,v 1.44 2003/07/29 00:41:40 mdb Exp $
 
 package com.threerings.media;
 
@@ -696,6 +696,16 @@ public abstract class FrameManager
                 if (start > 0L) {
                     getPerfMetrics()[0].record((int)(woke-start));
                 }
+
+                // work around sketchy bug on WinXP that causes the clock
+                // to leap into the past from time to time
+                if (woke < _lastAttempt) {
+                    Log.warning("Zoiks! We've leapt into the past, coping " +
+                                "as best we can [dt=" +
+                                (woke - _lastAttempt) + "].");
+                    _lastAttempt = woke;
+                }
+
                 if (woke - _lastAttempt >= _millisPerFrame) {
                     _lastAttempt = woke;
                     if (testAndSet()) {
