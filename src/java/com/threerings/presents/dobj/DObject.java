@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.74 2004/07/03 07:16:56 mdb Exp $
+// $Id: DObject.java,v 1.75 2004/07/07 03:10:24 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -588,18 +588,6 @@ public class DObject implements Streamable
     }
 
     /**
-     * Returns true if this object was once active but has now been
-     * destroyed and removed from the distributed object system.
-     * <em>Note:</em> this is not the opposite of {@link #isActive} which
-     * does not distinguish between pre-initialization and
-     * post-destruction.
-     */
-    public final boolean isDestroyed ()
-    {
-        return (_oid == -1);
-    }
-
-    /**
      * Don't call this function! It initializes this distributed object
      * with the supplied distributed object manager. This is called by the
      * distributed object manager when an object is created and registered
@@ -704,8 +692,8 @@ public class DObject implements Streamable
     public void startTransaction ()
     {
         // sanity check
-        if (isDestroyed()) {
-            String errmsg = "Refusing to start transaction on destroyed " +
+        if (isActive()) {
+            String errmsg = "Refusing to start transaction on inactive " +
                 "object [dobj=" + this + "]";
             throw new IllegalArgumentException(errmsg);
 
