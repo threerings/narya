@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfigurationParser.java,v 1.1 2002/04/03 22:52:44 ray Exp $
+// $Id: FringeConfigurationParser.java,v 1.2 2002/04/04 04:06:57 ray Exp $
 
 package com.threerings.miso.scene.tools.xml;
 
@@ -42,8 +42,27 @@ public class FringeConfigurationParser extends CompiledConfigParser
     protected void addRules (Digester digest)
     {
         // configure top-level constraints
-        String prefix = "fringes";
-        digest.addRule(prefix, new SetPropertyFieldsRule(digest));
+        String prefix = "fringe";
+        digest.addRule(prefix, new Rule(digest) {
+            // parse the bits
+            public void begin (Attributes attrs)
+            throws Exception
+            {
+                FringeConfiguration fc = (FringeConfiguration) digester.peek();
+
+                for (int ii=0; ii < attrs.getLength(); ii++) {
+                    String name = attrs.getLocalName(ii);
+                    if (StringUtil.blank(name)) {
+                        name = attrs.getQName(ii);
+                    }
+                    String value = attrs.getValue(ii);
+
+                    if ("tiles".equals(name)) {
+                        fc.setTiles(StringUtil.parseIntArray(value));
+                    }
+                }
+            }
+        });
 
         // create and configure fringe config instances
         prefix += "/base";

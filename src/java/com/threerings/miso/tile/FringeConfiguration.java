@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfiguration.java,v 1.1 2002/04/03 22:52:44 ray Exp $
+// $Id: FringeConfiguration.java,v 1.2 2002/04/04 04:06:57 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -60,6 +60,25 @@ public class FringeConfiguration implements Serializable
     }
 
     /**
+     * During parsing we get an int[] representing the fringes we have
+     * defined.
+     */
+    public void setTiles (int[] tiles)
+    {
+        // create an array of all possible tiles and set them all to invalid
+        _bits = new int[256];
+        for (int ii=0; ii < 256; ii++) {
+            _bits[ii] = -1;
+        }
+
+        // fill in the fringebit configurations we have tiles for with the
+        // index of the tiles
+        for (int ii=0; ii < tiles.length; ii++) {
+            _bits[tiles[ii]] = ii;
+        }
+    }
+
+    /**
      * Does the first tileset fringe upon the second?
      */
     public boolean fringesOn (int first, int second)
@@ -85,6 +104,32 @@ public class FringeConfiguration implements Serializable
         return false;
     }
 
+    /**
+     * Return the tile index of any fringing tileset that should be used
+     * if the following fringebits are turned on.
+     * @return -1 if not defined
+     */
+    public int getTileIndexFromFringeBits (int bits)
+    {
+        return _bits[bits];
+    }
+
+    /**
+     * Get the tileset id of the fringe for the specified basesetid.
+     * We don't error check anything because you should be doing the right
+     * thing here.
+     */
+    public int getFringeTileSetID (int basesetid)
+    {
+        FringeRecord f = (FringeRecord) _frecs.get(basesetid);
+
+        // for now we just return the 1st tilesetid... no randomization
+        return ((FringeTileSetRecord) f.tilesets.get(0)).fringe_tsid;
+    }
+
     /** The mapping from base tileset id to fringerecord. */
     protected HashIntMap _frecs = new HashIntMap();
+
+    /** An array that matches fringebits to fringe tile indexes. */
+    protected int[] _bits;
 }
