@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.104 2002/03/26 23:35:01 ray Exp $
+// $Id: IsoSceneView.java,v 1.105 2002/04/02 01:06:46 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -695,13 +695,13 @@ public class IsoSceneView implements SceneView
             Iterator iter = _objects.iterator();
             while (iter.hasNext()) {
                 ObjectMetrics metrics = (ObjectMetrics)iter.next();
-                Polygon poly = metrics.bounds;
-                if (!poly.intersects(r)) {
+                Rectangle obounds = metrics.bounds;
+                if (!obounds.intersects(r)) {
                     continue;
                 }
 
                 // get the dirty portion of the object
-                Rectangle drect = poly.getBounds().intersection(r);
+                Rectangle drect = obounds.intersection(r);
                 int tx = metrics.x, ty = metrics.y;
 
                 // compute the footprint if we're rendering those
@@ -714,7 +714,7 @@ public class IsoSceneView implements SceneView
                 // add the intersected section of the object to the dirty
                 // items list
                 _dirtyItems.appendDirtyObject(
-                    metrics.tile, poly, foot, tx, ty, drect);
+                    metrics.tile, obounds, foot, tx, ty, drect);
                 // Log.info("Dirtied item: Object(" + tx + ", " + ty + ")");
             }
         }
@@ -920,8 +920,8 @@ public class IsoSceneView implements SceneView
         /** A reference to the object tile itself. */
         public ObjectTile tile;
 
-        /** The object's bounding polygon. */
-        public Polygon bounds;
+        /** The object's bounding rectangle. */
+        public Rectangle bounds;
     }
 
     /** The sprite manager. */
