@@ -1,5 +1,5 @@
 //
-// $Id: FieldEditor.java,v 1.12 2004/08/27 02:12:23 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -146,6 +146,9 @@ public class FieldEditor extends JPanel
             
         } else if (_field.getType().equals(FLOAT_ARRAY_PROTO.getClass())) {
             return StringUtil.parseFloatArray(_value.getText());
+
+        } else if (_field.getType().equals(LONG_ARRAY_PROTO.getClass())) {
+            return StringUtil.parseLongArray(_value.getText());
             
         } else if (_field.getType().equals(Boolean.TYPE)) {
             return new Boolean(_value.getText().equalsIgnoreCase("true"));
@@ -219,4 +222,5 @@ public class FieldEditor extends JPanel
     protected static final String[] STRING_ARRAY_PROTO = new String[0];
     protected static final int[] INT_ARRAY_PROTO = new int[0];
     protected static final float[] FLOAT_ARRAY_PROTO = new float[0];
+    protected static final long[] LONG_ARRAY_PROTO = new long[0];
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ConfObjRegistry.java,v 1.12 2004/09/29 04:04:20 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -197,6 +197,8 @@ public class ConfObjRegistry
                 config.setValue(key, (int[])value);
             } else if (value instanceof String[]) {
                 config.setValue(key, (String[])value);
+            } else if (value instanceof long[]) {
+                config.setValue(key, (long[]) value);
             } else if (value instanceof DSet) {
                 serializeAttribute(event.getName());
             } else {
@@ -251,6 +253,10 @@ public class ConfObjRegistry
 
                 } else if (type.equals(STRING_ARRAY_PROTO.getClass())) {
                     String[] defval = (String[])field.get(confObj);
+                    field.set(confObj, config.getValue(key, defval));
+
+                } else if (type.equals(LONG_ARRAY_PROTO.getClass())) {
+                    long[] defval = (long[])field.get(confObj);
                     field.set(confObj, config.getValue(key, defval));
 
                 } else if (Streamable.class.isAssignableFrom(type)) {
@@ -359,6 +365,7 @@ public class ConfObjRegistry
         protected static final int[] INT_ARRAY_PROTO = new int[0];
         protected static final float[] FLOAT_ARRAY_PROTO = new float[0];
         protected static final String[] STRING_ARRAY_PROTO = new String[0];
+        protected static final long[] LONG_ARRAY_PROTO = new long[0];
     }
 
     /** A mapping from identifying key to config object. */
