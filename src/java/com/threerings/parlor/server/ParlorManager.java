@@ -1,5 +1,5 @@
 //
-// $Id: ParlorManager.java,v 1.19 2002/08/14 19:07:54 mdb Exp $
+// $Id: ParlorManager.java,v 1.20 2002/10/06 00:53:15 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -182,6 +182,10 @@ public class ParlorManager
         try {
             Log.info("Creating game manager [invite=" + invite + "].");
 
+            // configure the game config with the player info
+            invite.config.players = new String[] {
+                invite.invitee.username, invite.inviter.username };
+
             // create the game manager and begin it's initialization
             // process. the game manager will take care of notifying the
             // players that the game has been created once it has been
@@ -189,10 +193,6 @@ public class ParlorManager
             // game object creation has completed)
             GameManager gmgr = (GameManager)
                 _plreg.createPlace(invite.config, null);
-
-            // provide the game manager with the player list
-            gmgr.setPlayers(new String[] {
-                invite.invitee.username, invite.inviter.username });
 
         } catch (Exception e) {
             Log.warning("Unable to create game manager [invite=" + invite +

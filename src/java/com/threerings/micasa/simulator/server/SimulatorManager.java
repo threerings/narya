@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorManager.java,v 1.12 2002/08/14 19:07:51 mdb Exp $
+// $Id: SimulatorManager.java,v 1.13 2002/10/06 00:53:15 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -90,18 +90,17 @@ public class SimulatorManager
                 // been started up (which is done by the place registry
                 // once the game object creation has completed)
 
+                // configure the game config with the player names
+                config.players = new String[_playerCount];
+                config.players[0] = _source.username;
+                for (int ii = 1; ii < _playerCount; ii++) {
+                    config.players[ii] = "simulant" + ii;
+                }
+
                 // we needn't hang around and wait for game object
                 // creation if it's just us
                 CreationObserver obs = (_playerCount == 1) ? null : this;
                 _gmgr = (GameManager)_plreg.createPlace(config, obs);
-
-                // give the game manager the player names
-                String[] names = new String[_playerCount];
-                names[0] = _source.username;
-                for (int ii = 1; ii < _playerCount; ii++) {
-                    names[ii] = "simulant" + ii;
-                }
-                _gmgr.setPlayers(names);
 
                 for (int ii = 1; ii < _playerCount; ii++) {
                     // mark all simulants as AI players

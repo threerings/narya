@@ -1,5 +1,5 @@
 //
-// $Id: TableManager.java,v 1.7 2002/08/14 19:07:54 mdb Exp $
+// $Id: TableManager.java,v 1.8 2002/10/06 00:53:15 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -262,15 +262,15 @@ public class TableManager
         try {
             Log.info("Creating game manager [config=" + config + "].");
 
+            // configure the game config with the players array
+            config.players = players;
+
             // create the game manager and begin it's initialization
             // process. the game manager will take care of notifying the
             // players that the game has been created once it has been
             // started up (which is done by the place registry once the
             // game object creation has completed)
             gmgr = (GameManager)CrowdServer.plreg.createPlace(config, this);
-
-            // provide the game manager with some initialization info
-            gmgr.setPlayers(players);
 
         } catch (Exception e) {
             Log.warning("Unable to create game manager [config=" + config +

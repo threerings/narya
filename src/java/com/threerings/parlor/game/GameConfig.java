@@ -1,5 +1,5 @@
 //
-// $Id: GameConfig.java,v 1.12 2002/09/06 22:52:27 shaper Exp $
+// $Id: GameConfig.java,v 1.13 2002/10/06 00:53:15 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -25,6 +25,10 @@ import com.threerings.parlor.client.GameConfigurator;
  */
 public abstract class GameConfig extends PlaceConfig
 {
+    /** The usernames of the players involved in this game, or an empty
+     * array if such information is not needed by this particular game. */
+    public String[] players = new String[0];
+
     /** Indicates whether or not this game is rated. */
     public boolean rated = true;
 

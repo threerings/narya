@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.45 2002/10/06 00:44:16 mdb Exp $
+// $Id: GameManager.java,v 1.46 2002/10/06 00:53:15 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -48,6 +48,12 @@ public class GameManager extends PlaceManager
 
         // save off a casted reference to our config
         _gameconfig = (GameConfig)_config;
+
+        // keep this around for now, we'll need it later
+        _players = _gameconfig.players;
+
+        // instantiate a player oid array which we'll fill in later
+        _playerOids = new int[_players.length];
     }
 
     /**
@@ -151,26 +157,6 @@ public class GameManager extends PlaceManager
      */
     protected void playerWasRemoved (String player, int pidx)
     {
-    }
-
-    /**
-     * Provides the game manager with a list of the usernames of all
-     * players in the game.  This happens before startup and before the
-     * game object has been created.  Note that party games may
-     * subsequently add or remove players via {@link #addPlayer} and
-     * {@link #removePlayer}, and so should be sure to handle a changing
-     * player list gracefully.
-     *
-     * @param players the usernames of all of the players in this game or
-     * a zero-length array if the game has no specific set of players.
-     */
-    public void setPlayers (String[] players)
-    {
-        // keep this around for now, we'll need it later
-        _players = players;
-
-        // instantiate a player oid array which we'll fill in later
-        _playerOids = new int[players.length];
     }
 
     /**
