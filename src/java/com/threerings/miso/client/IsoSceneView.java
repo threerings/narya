@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.108 2002/04/27 23:07:41 mdb Exp $
+// $Id: IsoSceneView.java,v 1.109 2002/05/30 22:21:51 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -78,9 +78,11 @@ public class IsoSceneView implements SceneView
         _model = model;
         _remgr = remgr;
 
-        // create our polygon arrays, these will be populated with the
-        // tile polygons as they are requested
-        _polys = new HashIntMap();
+        // create a cache which will be populated with the tile polygons
+        // as they are requested. We manually adjust the size/load factor
+        // to optimize memory usage (because we happen to know things
+        // hash weirdly because of the way we make the keys.
+        _polys = new HashIntMap(model.scenewid, (float) model.scenehei);
 
         // create the array used to mark dirty tiles
         _dirty = new boolean[model.scenewid][model.tilehei];
