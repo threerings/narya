@@ -1,5 +1,5 @@
 //
-// $Id: AnimationFrameSequencer.java,v 1.3 2002/11/05 20:51:50 mdb Exp $
+// $Id: AnimationFrameSequencer.java,v 1.4 2003/04/14 17:16:23 ray Exp $
 
 package com.threerings.media.animation;
 
@@ -37,8 +37,7 @@ public interface AnimationFrameSequencer extends FrameSequencer
         {
             _length = sequence.length;
             _sequence = sequence;
-            _delays = new long[_length];
-            Arrays.fill(_delays, msPerFrame);
+            setDelay(msPerFrame);
             _marks = new boolean[_length];
             _loop = loop;
         }
@@ -70,6 +69,15 @@ public interface AnimationFrameSequencer extends FrameSequencer
             _loop = loop;
         }
 
+        /**
+         * Set the delay to use.
+         */
+        public void setDelay (long msPerFrame)
+        {
+            _delays = null;
+            _delay = msPerFrame;
+        }
+
         // documentation inherited from interface
         public void init (MultiFrameImage source)
         {
@@ -94,12 +102,20 @@ public interface AnimationFrameSequencer extends FrameSequencer
             _animation = anim;
         }
 
+        /**
+         * Set the length of the sequence we are to use.
+         */
+        public void setLength (int len)
+        {
+            _length = len;
+        }
+
         // documentation inherited from interface
         public int tick (long tickStamp)
         {
             // obtain our starting timestamp if we don't already have one
             if (_nextStamp == 0L) {
-                _nextStamp = tickStamp + _delays[_curIdx];
+                _nextStamp = tickStamp + getDelay(_curIdx);
                 // we might need to notify on the first frame
                 checkNotify(tickStamp);
             }
@@ -116,7 +132,7 @@ public interface AnimationFrameSequencer extends FrameSequencer
                     }
                 }
                 checkNotify(tickStamp);
-                _nextStamp += _delays[_curIdx];
+                _nextStamp += getDelay(_curIdx);
             }
 
             // return the right frame
@@ -128,6 +144,14 @@ public interface AnimationFrameSequencer extends FrameSequencer
         {
             // this method should be called "unpause"
             _nextStamp += timeDelta;
+        }
+
+        /**
+         * Get the delay to use for the specified frame.
+         */
+        protected final long getDelay (int index)
+        {
+            return (_delays == null) ? _delay : _delays[index];
         }
 
         /**
@@ -153,6 +177,9 @@ public interface AnimationFrameSequencer extends FrameSequencer
 
         /** The corresponding delay for each frame, in ms. */
         protected long[] _delays;
+
+        /** Or a single delay for all frames. */
+        protected long _delay;
 
         /** Whether to send a FrameReachedEvent on a sequence index. */
         protected boolean[] _marks;
