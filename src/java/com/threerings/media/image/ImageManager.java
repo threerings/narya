@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.22 2002/10/17 17:42:20 mdb Exp $
+// $Id: ImageManager.java,v 1.23 2002/10/25 00:44:16 shaper Exp $
 
 package com.threerings.media;
 
@@ -192,8 +192,7 @@ public class ImageManager
         // grab the resource bundles in the specified resource set
         ResourceBundle[] bundles = _rmgr.getResourceSet(rset);
         if (bundles == null) {
-            throw new IOException("No such resource set " +
-                                  "[rset=" + rset + ", path=" + path + "].");
+            return null;
         }
 
         // look for the image in any of the bundles
