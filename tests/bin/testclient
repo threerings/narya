@@ -1,4 +1,4 @@
 #!/bin/sh
 
 bindir=`dirname $0`
-$bindir/runjava com.threerings.whirled.client.test.TestClient $*
+$bindir/runjava com.threerings.parlor.test.TestClient $*
