@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedTileSet.java,v 1.2 2002/06/21 18:09:34 mdb Exp $
+// $Id: TrimmedTileSet.java,v 1.3 2002/06/21 18:44:27 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -38,14 +38,18 @@ public class TrimmedTileSet extends TileSet
     }
 
     /**
-     * Creates a trimmed tileset from the supplied source tileset. See
-     * {@link TileSetTrimmer#trimTileSet} for further information.
+     * Creates a trimmed tileset from the supplied source tileset. The
+     * image path must be set by hand to the appropriate path based on
+     * where the image data that is written to the <code>destImage</code>
+     * parameter is actually stored on the file system. See {@link
+     * TileSetTrimmer#trimTileSet} for further information.
      */
     public static TrimmedTileSet trimTileSet (
         TileSet source, OutputStream destImage)
         throws IOException
     {
         final TrimmedTileSet tset = new TrimmedTileSet();
+        tset.setName(source.getName());
         int tcount = source.getTileCount();
 
         // grab the dimensions of the original tiles

@@ -1,5 +1,5 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.10 2002/06/21 18:09:37 mdb Exp $
+// $Id: ComponentBundlerTask.java,v 1.11 2002/06/21 18:44:28 mdb Exp $
 
 package com.threerings.cast.bundle.tools;
 
@@ -184,7 +184,6 @@ public class ComponentBundlerTask extends Task
                     TrimmedTileSet tset =
                         TrimmedTileSet.trimTileSet(aset, jout);
                     tset.setImagePath(ipath);
-                    tset.setName(aset.getName());
 
                     // also write our trimmed tileset to the jar file
                     String tpath = composePath(
