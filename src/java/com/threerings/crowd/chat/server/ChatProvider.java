@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.27 2004/03/06 11:29:18 mdb Exp $
+// $Id: ChatProvider.java,v 1.28 2004/06/15 22:03:51 ray Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -142,12 +142,30 @@ public class ChatProvider
             throw new InvocationException(AccessControl.LACK_ACCESS);
         }
 
+        broadcast(body.username, null, message);
+    }
+
+    /**
+     * Broadcast the specified message to all places in the game.
+     *
+     * @param from the user the broadcast is from, or null to send the message
+     * as a system message.
+     * @param bundle the bundle, or null if the message needs no translation.
+     * @param msg the content of the message to broadcast.
+     */
+    public static void broadcast (Name from, String bundle, String msg)
+    {
         Iterator iter = CrowdServer.plreg.enumeratePlaces();
         while (iter.hasNext()) {
             PlaceObject plobj = (PlaceObject)iter.next();
             if (plobj.shouldBroadcast()) {
-                SpeakProvider.sendSpeak(plobj, body.username, null,
-                                        message, BROADCAST_MODE);
+                if (from == null) {
+                    SpeakProvider.sendInfo(plobj, bundle, msg);
+
+                } else {
+                    SpeakProvider.sendSpeak(plobj, from, bundle, msg,
+                                            BROADCAST_MODE);
+                }
             }
         }
     }
