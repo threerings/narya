@@ -1,5 +1,5 @@
 //
-// $Id: PerformanceMonitor.java,v 1.3 2001/10/25 22:08:29 mdb Exp $
+// $Id: PerformanceMonitor.java,v 1.4 2002/04/23 01:16:28 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -135,9 +135,10 @@ class PerformanceAction
         _numTicks++;
 
         long now = System.currentTimeMillis();
-        if ((now - _lastDelta) >= _delta) {
+        long passed = now - _lastDelta;
+        if (passed >= _delta) {
             // update the last checkpoint time
-            _lastDelta = now;
+            _lastDelta = now + (passed - _delta);
 
             // notify our observer of the checkpoint
             _obs.checkpoint(_name, _numTicks);

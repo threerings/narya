@@ -1,5 +1,5 @@
 //
-// $Id: Path.java,v 1.3 2002/04/15 23:09:10 mdb Exp $
+// $Id: Path.java,v 1.4 2002/04/23 01:16:28 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -24,7 +24,7 @@ public interface Path
      * Called once to let the path prepare itself for the process of
      * animating the supplied sprite.
      */
-    public void init (Sprite sprite, long timestamp);
+    public void init (Sprite sprite, long tickStamp);
 
     /**
      * Called to request that this path update the position of the
@@ -33,10 +33,13 @@ public interface Path
      * of the sprite along the path based on the time elapsed since the
      * sprite began down the path.
      *
+     * @param sprite the sprite whose position should be updated.
+     * @param tickStamp the timestamp associated with this frame.
+     *
      * @return true if the sprite's position was updated, false if the
      * path determined that the sprite should not move at this time.
      */
-    public boolean updatePosition (Sprite sprite, long timestamp);
+    public boolean updatePosition (Sprite sprite, long tickStamp);
 
     /**
      * Sets the velocity of this sprite in pixels per millisecond. The

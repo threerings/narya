@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.28 2002/04/15 23:10:24 mdb Exp $
+// $Id: SpriteManager.java,v 1.29 2002/04/23 01:16:28 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -19,29 +19,23 @@ import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.Tuple;
 
 import com.threerings.media.Log;
+import com.threerings.media.MediaConstants;
+import com.threerings.media.RegionManager;
 
 /**
  * The sprite manager manages the sprites running about in the game.
  */
 public class SpriteManager
+    implements MediaConstants
 {
-    /** Constant for the front layer of sprites. */
-    public static final int FRONT = 0;
-
-    /** Constant for the back layer of sprites. */
-    public static final int BACK = 1;
-
-    /** Constant for all layers of sprites. */
-    public static final int ALL = 2;
-
     /**
-     * Construct and initialize the SpriteManager object.
+     * Construct and initialize the sprite manager.
      */
-    public SpriteManager ()
+    public SpriteManager (RegionManager remgr)
     {
         _sprites = new SortableArrayList();
 	_notify = new ArrayList();
-        _dirty = new ArrayList();
+        _remgr = remgr;
     }
 
     /**
@@ -49,31 +43,16 @@ public class SpriteManager
      * the specified offsets. It can update the positions of its sprites
      * if they are tracking the scrolled view, or generate dirty regions
      * for the sprites that remain in place (meaning they move relative to
-     * the scrolling view). Regions invalidated by the scrolled sprites
-     * should be appended to the supplied invalid rectangles list.
+     * the scrolling view).
      */
-    public void viewWillScroll (int dx, int dy, List invalidRects)
+    public void viewWillScroll (int dx, int dy)
     {
         // let the sprites know that the view is scrolling
         int size = _sprites.size();
         for (int i = 0; i < size; i++) {
             Sprite sprite = (Sprite)_sprites.get(i);
-            Rectangle dirty = sprite.viewWillScroll(dx, dy);
-            if (dirty != null) {
-                invalidRects.add(dirty);
-            }
+            sprite.viewWillScroll(dx, dy);
         }
-    }
-
-    /**
-     * Add a rectangle to the dirty rectangle list.
-     *
-     * @param rect the rectangle to add.
-     */
-    public void addDirtyRect (Rectangle rect)
-    {
-        // translate the rectangle according to our viewport offset
-        _dirty.add(rect);
     }
 
     /**
@@ -153,20 +132,29 @@ public class SpriteManager
     }
 
     /**
-     * Render the sprites residing within the given shape and layer to the
-     * given graphics context.
+     * Provides access to the region manager that the sprite manager is
+     * using to collect invalid regions every frame. This should generally
+     * only be used by sprites that want to invalidate themselves.
+     */
+    public RegionManager getRegionManager ()
+    {
+        return _remgr;
+    }
+
+    /**
+     * Render to the given graphics context the sprites intersecting the
+     * given shape and residing in the specified layer.
      *
-     * @param gfx the graphics context.
-     * @param bounds the bounding shape.
      * @param layer the layer to render; one of {@link #FRONT}, {@link
      * #BACK}, or {@link #ALL}.  The front layer contains all sprites with
      * a positive render order; the back layer contains all sprites with a
      * negative render order; all, both.
+     * @param bounds the bounding shape.
      */
-    public void renderSprites (Graphics2D gfx, Shape bounds, int layer)
+    public void renderSprites (Graphics2D gfx, int layer, Shape bounds)
     {
-        // TODO: optimize to store sprites based on quadrants they're
-        // in (or somesuch), and sorted, so that we can more quickly
+        // TODO: optimize to store sprites based on quadrants they're in
+        // (or somesuch), and sorted, so that we can more quickly
         // determine which sprites to draw.
 
         int size = _sprites.size();
@@ -197,14 +185,14 @@ public class SpriteManager
     }
 
     /**
-     * Called periodically by the tick tasks put on the AWT event queue by
-     * the {@link com.threerings.media.animation.AnimationManager}.
-     * Handles moving about of sprites and reporting of sprite collisions.
+     * Must be called every frame so that the sprites can be properly
+     * updated. Normally a sprite manager is used in conjunction with an
+     * animated panel which case this is called automatically.
      */
-    public void tick (long timestamp, List rects)
+    public void tick (long tickStamp)
     {
 	// tick all sprites
-	tickSprites(timestamp);
+	tickSprites(tickStamp);
 
 	// re-sort the sprite list to account for potential new positions
 	_sprites.sort(SPRITE_COMP);
@@ -219,26 +207,19 @@ public class SpriteManager
 	// observers may take, such as sprite removal, won't screw us
 	// up elsewhere.
 	handleSpriteEvents();
-
-        // add all generated dirty rectangles to the passed-in dirty
-        // rectangle list
-        CollectionUtil.addAll(rects, _dirty.iterator());
-
-        // clear out our internal dirty rectangle list
-        _dirty.clear();
     }
 
     /**
-     * Call <code>tick()</code> on all sprite objects to give them a
+     * Call {@link Sprite#tick} on all sprite objects to give them a
      * chance to move themselves about, change their display image,
-     * and so forth.
+     * generate dirty regions and so forth.
      */
-    protected void tickSprites (long timestamp)
+    protected void tickSprites (long tickStamp)
     {
         int size = _sprites.size();
 	for (int ii = 0; ii < size; ii++) {
             Sprite sprite = (Sprite)_sprites.get(ii);
-	    sprite.tick(timestamp);
+	    sprite.tick(tickStamp);
         }
     }
 
@@ -302,8 +283,8 @@ public class SpriteManager
     }
 
     /**
-     * Notify all sprite observers of any sprite events that took
-     * place during our most recent <code>tick()</code>.
+     * Notify all sprite observers of any sprite events that took place
+     * during our most recent <code>tick()</code>.
      */
     protected void handleSpriteEvents ()
     {
@@ -336,18 +317,19 @@ public class SpriteManager
 	_notify.add(new Tuple(observers, event));
     }
 
-    /** The comparator used to sort sprites by horizontal position. */
-    protected static final Comparator SPRITE_COMP = new SpriteComparator();
-
     /** The sprite objects we're managing. */
     protected SortableArrayList _sprites;
-
-    /** The dirty rectangles created by sprites. */
-    protected ArrayList _dirty;
 
     /** The list of pending sprite notifications. */
     protected ArrayList _notify;
 
+    /** Used to accumulate dirty regions. */
+    protected RegionManager _remgr;
+
+    /** The comparator used to sort sprites by horizontal position. */
+    protected static final Comparator SPRITE_COMP = new SpriteComparator();
+
+    /** Used to sort sprites. */
     protected static class SpriteComparator implements Comparator
     {
 	public int compare (Object o1, Object o2)

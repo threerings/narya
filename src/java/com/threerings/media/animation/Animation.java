@@ -1,5 +1,5 @@
 //
-// $Id: Animation.java,v 1.4 2002/03/16 03:11:23 shaper Exp $
+// $Id: Animation.java,v 1.5 2002/04/23 01:16:28 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -8,12 +8,14 @@ import java.awt.Rectangle;
 
 import java.util.ArrayList;
 
+import com.samskivert.util.StringUtil;
+
 import com.threerings.media.Log;
 
 /**
  * The animation class is an abstract class that should be extended to
- * provide animation functionality for use with the {@link
- * AnimationManager} and an {@link AnimatedView}.
+ * provide animation functionality. It is generally used in conjunction
+ * with an {@link AnimationManager}.
  */
 public abstract class Animation
 {
@@ -47,41 +49,47 @@ public abstract class Animation
     }
 
     /**
-     * Called by the {@link AnimationManager} to allow the animation to
-     * render itself to the given graphics context.
+     * Returns a rectangle containing all pixels rendered by this
+     * animation.
      */
-    public abstract void paint (Graphics2D gfx);
+    public Rectangle getBounds ()
+    {
+        return _bounds;
+    }
 
     /**
      * Called periodically by the {@link AnimationManager} to give the
      * animation a chance to do its thing.
+     *
+     * @param tickStamp the system time for this tick.
      */
-    public abstract void tick (long timestamp);
+    public abstract void tick (long tickStamp);
 
     /**
-     * Invalidates the animation's bounds for later re-rendering by the
-     * {@link AnimationManager}.
+     * Called by the {@link AnimationManager} to request that the
+     * animation render itself with the given graphics context. The
+     * animation may wish to inspect the clipping region that has been set
+     * on the graphics context to render itself more efficiently. This
+     * method will only be called after it has been established that this
+     * animation's bounds intersect the clipping region.
      */
-    public void invalidate ()
-    {
-        _animmgr.addDirtyRect(new Rectangle(_bounds));
-    }
+    public abstract void paint (Graphics2D gfx);
 
     /**
-     * Invalidates the specified rectangle for later re-rendering by the
-     * {@link AnimationManager}.
-     */
-    public void invalidate (int x, int y, int width, int height)
-    {
-        _animmgr.addDirtyRect(new Rectangle(x, y, width, height));
-    }
-
-    /**
-     * Returns whether the animation has finished all of its business.
+     * Returns true if the animation has finished all of its business,
+     * false if not.
      */
     public boolean isFinished ()
     {
         return _finished;
+    }
+
+    /**
+     * Invalidates the bounds of this animation.
+     */
+    public void invalidate ()
+    {
+        _animmgr.getRegionManager().invalidateRegion(_bounds);
     }
 
     /**
@@ -115,8 +123,8 @@ public abstract class Animation
     }
 
     /**
-     * Notifies any animation observers that the given animation is
-     * finished.
+     * Notifies any animation observers that the given animation event has
+     * occurred.
      */
     public void notifyObservers (AnimationEvent e)
     {
@@ -138,26 +146,26 @@ public abstract class Animation
     }
 
     /**
+     * Called automatically when an animation is added to an animation
+     * manager for management.
+     */
+    protected void setAnimationManager (AnimationManager animmgr)
+    {
+        _animmgr = animmgr;
+    }
+
+    /**
      * This should be overridden by derived classes (which should be sure
      * to call <code>super.toString()</code>) to append the derived class
      * specific animation information to the string buffer.
      */
     protected void toString (StringBuffer buf)
     {
-        buf.append("bounds=").append(_bounds);
+        buf.append("bounds=").append(StringUtil.toString(_bounds));
     }
 
-    /**
-     * Called by the animation manager when an animation is added to said
-     * manager for management.
-     *
-     * @param animmgr the animation manager.
-     * @param view the animated view.
-     */
-    protected void setAnimationManager (AnimationManager animmgr)
-    {
-        _animmgr = animmgr;
-    }
+    /** Our animation manager. */
+    protected AnimationManager _animmgr;
 
     /** Whether the animation is finished. */
     protected boolean _finished = false;
@@ -170,7 +178,4 @@ public abstract class Animation
 
     /** The list of animation observers. */
     protected ArrayList _observers;
-
-    /** The animation manager. */
-    protected AnimationManager _animmgr;
 }

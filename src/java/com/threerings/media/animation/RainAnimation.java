@@ -1,5 +1,5 @@
 //
-// $Id: RainAnimation.java,v 1.2 2002/04/15 18:18:20 mdb Exp $
+// $Id: RainAnimation.java,v 1.3 2002/04/23 01:16:28 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -62,7 +62,6 @@ public class RainAnimation extends Animation
     public void tick (long timestamp)
     {
         _finished = (timestamp >= _end);
-        _animmgr.addDirtyRect(new Rectangle(_bounds));
 
         // calculate the latest raindrop locations
         for (int ii = 0; ii < _count; ii++) {
@@ -70,6 +69,8 @@ public class RainAnimation extends Animation
             int y = RandomUtil.getInt(_bounds.height);
             _drops[ii] = (x << 16 | y);
         }
+
+        invalidate();
     }
 
     // documentation inherited

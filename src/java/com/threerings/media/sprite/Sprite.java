@@ -1,15 +1,13 @@
 //
-// $Id: Sprite.java,v 1.41 2002/04/16 02:28:50 mdb Exp $
+// $Id: Sprite.java,v 1.42 2002/04/23 01:16:28 mdb Exp $
 
 package com.threerings.media.sprite;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.image.BufferedImage;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import com.threerings.util.DirectionCodes;
 
@@ -17,7 +15,7 @@ import com.threerings.media.Log;
 
 /**
  * The sprite class represents a single moveable object in an animated
- * view.  A sprite has a position and orientation within the view, and can
+ * view. A sprite has a position and orientation within the view, and can
  * be moved along a path.
  */
 public abstract class Sprite
@@ -182,8 +180,8 @@ public abstract class Sprite
      */
     public void setLocation (int x, int y)
     {
-        // create a starting dirty rectangle with our current position
-        Rectangle dirty = new Rectangle(_bounds);
+        // dirty our current bounds
+        invalidate();
 
         // move ourselves
         _x = x;
@@ -193,19 +191,8 @@ public abstract class Sprite
         // size of our current bounds
         updateRenderOrigin();
 
-        if (dirty.intersects(_bounds)) {
-            // grow the dirty rectangle to reflect our new location
-            dirty.add(_bounds);
-
-        } else {
-            // dirty the our new bounds rectangle separately from the old
-            // to avoid potentially creating a large dirty rectangle if
-            // the sprite warps from place to place
-            invalidate(null);
-        }
-
-        // invalidate the potentially-grown starting dirty rectangle
-        invalidate(dirty);
+        // dirty our new bounds
+        invalidate();
     }
 
     /**
@@ -328,24 +315,8 @@ public abstract class Sprite
      */
     public void invalidate ()
     {
-        invalidate(null);
-    }
-
-    /**
-     * Invalidate the given display rectangle for later repainting.
-     * Passing <code>null</code> will simply invalidate the sprite's
-     * entire rendered bounds.  Note that the given rectangle may be
-     * destructively modified at some later time, e.g., by {@link
-     * com.threerings.media.animation.AnimationManager#mergeDirtyRects}.
-     */
-    protected void invalidate (Rectangle r)
-    {
         if (_spritemgr != null) {
-            _spritemgr.addDirtyRect((r != null) ? r : new Rectangle(_bounds));
-
-        } else {
-            // Log.warning("Was invalidated but have no sprite manager " +
-            // this + ".");
+            _spritemgr.getRegionManager().invalidateRegion(_bounds);
         }
     }
 
@@ -357,11 +328,11 @@ public abstract class Sprite
      * the timestamp information to compute elapsed progress if it wishes
      * to handle heavy loads gracefully.
      */
-    public void tick (long timestamp)
+    public void tick (long tickStamp)
     {
         // if we've a path, move the sprite along toward its destination
         if (_path != null) {
-            _path.updatePosition(this, timestamp);
+            _path.updatePosition(this, tickStamp);
         }
     }
 
@@ -411,13 +382,12 @@ public abstract class Sprite
 
     /**
      * Called by the sprite manager to let us know that the view we occupy
-     * is scrolling by the specified amount.
-     *
-     * @return a dirty rectangle that will be added to the list of
-     * rectangles dirtied by the scrolling or null if the sprite scrolled
-     * along with the view and didn't create any dirty region.
+     * is scrolling by the specified amount. A sprite anchored to the view
+     * will simply update its coordinates; a fixed sprite will remain in
+     * the same position but invalidate its bounds and its scrolled
+     * bounds.
      */
-    protected Rectangle viewWillScroll (int dx, int dy)
+    protected void viewWillScroll (int dx, int dy)
     {
         if (_scrollsWithView) {
             // update our coordinates
@@ -431,12 +401,9 @@ public abstract class Sprite
                 _path.viewWillScroll(dx, dy);
             }
 
-            return null;
-
         } else {
-            // if we're not scrolling, then we need to dirty our bounds
-            // and the part of our bounds that were just scrolled out from
-            // under us
+            // if we're not scrolling, we need to dirty our bounds and the
+            // part that was just scrolled out from under us
             Rectangle dirty = new Rectangle(_bounds);
 
             // expand the rectangle to contain the scrolled regions
@@ -449,7 +416,8 @@ public abstract class Sprite
             }
             dirty.add(ex, ey);
 
-            return dirty;
+            // give the dirty rectangle to the region manager
+            _spritemgr.getRegionManager().addDirtyRegion(dirty);
         }
     }
 

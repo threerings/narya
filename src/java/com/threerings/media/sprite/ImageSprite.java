@@ -1,5 +1,5 @@
 //
-// $Id: ImageSprite.java,v 1.3 2002/04/17 15:52:49 mdb Exp $
+// $Id: ImageSprite.java,v 1.4 2002/04/23 01:16:28 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -175,8 +175,10 @@ public class ImageSprite extends Sprite
         updateRenderOffset();
         updateRenderOrigin();
 
-        // now invalidate the dirtied region
-        invalidate(dirty);
+        // give the dirty rectangle to the region manager
+        if (_spritemgr != null) {
+            _spritemgr.getRegionManager().addDirtyRegion(dirty);
+        }
     }
 
     /**
@@ -249,14 +251,6 @@ public class ImageSprite extends Sprite
             _frame = _frames.getFrame(_frameIdx);
             // dirty our rectangle since we've altered our display image
             invalidate();
-        }
-    }
-
-    // documentation inherited
-    protected void invalidate (Rectangle r)
-    {
-        if (_frame != null) {
-            super.invalidate(r);
         }
     }
 
