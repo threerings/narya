@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.46 2003/08/08 23:55:06 mdb Exp $
+// $Id: FrameManager.java,v 1.47 2003/11/03 22:19:51 mdb Exp $
 
 package com.threerings.media;
 
@@ -279,6 +279,14 @@ public abstract class FrameManager
     public void registerFrameParticipant (FrameParticipant participant)
     {
         _participants.add(participant);
+    }
+
+    /**
+     * Returns true if the specified participant is registered.
+     */
+    public boolean isRegisteredFrameParticipant (FrameParticipant participant)
+    {
+        return _participants.contains(participant);
     }
 
     /**
