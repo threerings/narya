@@ -1,5 +1,5 @@
 //
-// $Id: CardPanel.java,v 1.6 2004/11/02 01:44:32 andrzej Exp $
+// $Id: CardPanel.java,v 1.7 2004/11/02 02:40:27 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -244,8 +244,6 @@ public abstract class CardPanel extends VirtualMediaPanel
             }
             public void mouseDragged (MouseEvent me)
             {
-                mouseMoved(me);
-                
                 if (_activeSprite instanceof CardSprite &&
                     ((CardSprite)_activeSprite).isDraggable()) {
                     _activeSprite.setLocation(
@@ -253,6 +251,8 @@ public abstract class CardPanel extends VirtualMediaPanel
                         me.getY() + _handleY
                     ); 
                     _hasBeenDragged = true;
+                } else {
+                    mouseMoved(me);
                 }
             }
         };
