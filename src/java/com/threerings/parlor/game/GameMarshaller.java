@@ -1,11 +1,12 @@
 //
-// $Id: GameMarshaller.java,v 1.4 2004/02/25 14:44:54 mdb Exp $
+// $Id: GameMarshaller.java,v 1.5 2004/06/22 13:55:25 mdb Exp $
 
 package com.threerings.parlor.game;
 
 import com.threerings.parlor.game.GameService;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
+import com.threerings.presents.dobj.InvocationResponseEvent;
 
 /**
  * Provides the implementation of the {@link GameService} interface
@@ -39,5 +40,4 @@ public class GameMarshaller extends InvocationMarshaller
         });
     }
 
-    // Generated on 12:49:14 09/06/02.
 }

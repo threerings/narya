@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorMarshaller.java,v 1.3 2004/02/25 14:43:37 mdb Exp $
+// $Id: SimulatorMarshaller.java,v 1.4 2004/06/22 13:55:25 mdb Exp $
 
 package com.threerings.micasa.simulator.data;
 
@@ -7,6 +7,7 @@ import com.threerings.micasa.simulator.client.SimulatorService;
 import com.threerings.parlor.game.GameConfig;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
+import com.threerings.presents.dobj.InvocationResponseEvent;
 
 /**
  * Provides the implementation of the {@link SimulatorService} interface
@@ -14,10 +15,6 @@ import com.threerings.presents.data.InvocationMarshaller;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
- *
- * <p> Generated from <code>
- * $Id: SimulatorMarshaller.java,v 1.3 2004/02/25 14:43:37 mdb Exp $
- * </code>
  */
 public class SimulatorMarshaller extends InvocationMarshaller
     implements SimulatorService
@@ -33,5 +30,4 @@ public class SimulatorMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 12:33:03 08/20/02.
 }

@@ -1,9 +1,11 @@
 //
-// $Id: LobbyMarshaller.java,v 1.3 2004/02/25 14:43:37 mdb Exp $
+// $Id: LobbyMarshaller.java,v 1.4 2004/06/22 13:55:25 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
 import com.threerings.micasa.lobby.LobbyService;
+import com.threerings.micasa.lobby.LobbyService.CategoriesListener;
+import com.threerings.micasa.lobby.LobbyService.LobbiesListener;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
@@ -15,10 +17,6 @@ import java.util.List;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
- *
- * <p> Generated from <code>
- * $Id: LobbyMarshaller.java,v 1.3 2004/02/25 14:43:37 mdb Exp $
- * </code>
  */
 public class LobbyMarshaller extends InvocationMarshaller
     implements LobbyService
@@ -111,5 +109,4 @@ public class LobbyMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 12:33:03 08/20/02.
 }

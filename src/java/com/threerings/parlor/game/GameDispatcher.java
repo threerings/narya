@@ -1,5 +1,5 @@
 //
-// $Id: GameDispatcher.java,v 1.3 2002/09/06 22:52:27 shaper Exp $
+// $Id: GameDispatcher.java,v 1.4 2004/06/22 13:55:25 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -55,6 +55,4 @@ public class GameDispatcher extends InvocationDispatcher
             super.dispatchRequest(source, methodId, args);
         }
     }
-
-    // Generated on 12:49:14 09/06/02.
 }

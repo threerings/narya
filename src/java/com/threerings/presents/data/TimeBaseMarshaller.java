@@ -1,5 +1,5 @@
 //
-// $Id: TimeBaseMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+// $Id: TimeBaseMarshaller.java,v 1.3 2004/06/22 13:55:25 mdb Exp $
 
 package com.threerings.presents.data;
 
@@ -15,10 +15,6 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
- *
- * <p> Generated from <code>
- * $Id: TimeBaseMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
- * </code>
  */
 public class TimeBaseMarshaller extends InvocationMarshaller
     implements TimeBaseService
@@ -67,5 +63,4 @@ public class TimeBaseMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 12:33:05 08/20/02.
 }

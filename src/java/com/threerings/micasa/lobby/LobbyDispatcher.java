@@ -1,22 +1,21 @@
 //
-// $Id: LobbyDispatcher.java,v 1.3 2004/02/25 14:43:37 mdb Exp $
+// $Id: LobbyDispatcher.java,v 1.4 2004/06/22 13:55:25 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
+import com.threerings.micasa.lobby.LobbyMarshaller;
+import com.threerings.micasa.lobby.LobbyService;
 import com.threerings.micasa.lobby.LobbyService.CategoriesListener;
 import com.threerings.micasa.lobby.LobbyService.LobbiesListener;
-
+import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
+import java.util.List;
 
 /**
  * Dispatches requests to the {@link LobbyProvider}.
- *
- * <p> Generated from <code>
- * $Id: LobbyDispatcher.java,v 1.3 2004/02/25 14:43:37 mdb Exp $
- * </code>
  */
 public class LobbyDispatcher extends InvocationDispatcher
 {

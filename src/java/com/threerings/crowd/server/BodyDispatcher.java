@@ -1,9 +1,11 @@
 //
-// $Id: BodyDispatcher.java,v 1.3 2004/02/25 14:41:47 mdb Exp $
+// $Id: BodyDispatcher.java,v 1.4 2004/06/22 13:57:44 mdb Exp $
 
 package com.threerings.crowd.server;
 
+import com.threerings.crowd.client.BodyService;
 import com.threerings.crowd.data.BodyMarshaller;
+import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
