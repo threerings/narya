@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleCodes.java,v 1.4 2004/10/21 02:54:44 mdb Exp $
+// $Id: PuzzleCodes.java,v 1.5 2004/10/21 19:49:22 eric Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -48,7 +48,7 @@ public interface PuzzleCodes extends InvocationCodes
 
     /** Enable this flag to have the client send a copy of its board state
      * with every event to the server for checking. */
-    public static final boolean SYNC_BOARD_STATE = true;
+    public static final boolean SYNC_BOARD_STATE = false;
 
     /** Whether to enable debug logging and assertions for puzzles. Note
      * that enabling this may result in the server or client exiting
