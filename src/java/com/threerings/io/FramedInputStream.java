@@ -1,5 +1,5 @@
 //
-// $Id: FramedInputStream.java,v 1.6 2003/07/09 05:13:34 mdb Exp $
+// $Id: FramedInputStream.java,v 1.7 2003/08/09 03:19:05 mdb Exp $
 
 package com.threerings.io;
 
@@ -107,8 +107,6 @@ public class FramedInputStream extends InputStream
             // additionally, if the buffer happened to be exactly as long
             // as we needed, we need to break as well
             if ((_length > 0) && (_have >= _length)) {
-                System.err.println("Phew, we would have been screwed in " +
-                                   "the previous release (" + _length + ").");
                 break;
             }
 
