@@ -292,11 +292,13 @@ public class SoundManager
 
         // and if we need a new thread, add it
         if (add) {
-            new Thread("narya SoundManager line spooler") {
+            Thread spooler = new Thread("narya SoundManager line spooler") {
                 public void run () {
                     spoolerRun();
                 }
-            }.start();
+            };
+            spooler.setDaemon(true);
+            spooler.start();
         }
 
         return queued;
