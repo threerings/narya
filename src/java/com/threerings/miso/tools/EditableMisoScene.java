@@ -1,7 +1,9 @@
 //
-// $Id: EditableMisoScene.java,v 1.3 2001/10/13 01:08:59 shaper Exp $
+// $Id: EditableMisoScene.java,v 1.4 2001/10/17 22:21:22 shaper Exp $
 
 package com.threerings.miso.scene;
+
+import com.threerings.media.tile.Tile;
 
 import com.threerings.miso.tile.MisoTile;
 
@@ -29,6 +31,11 @@ public interface EditableMisoScene
      * Updates the scene's default tile.
      */
     public void setDefaultTile (MisoTile tile);
+
+    /**
+     * Updates the specified tile in the scene.
+     */
+    public void setTile (int lnum, int x, int y, Tile tile);
 
     /**
      * Set the default entrance portal for this scene.

@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneGroupParser.java,v 1.6 2001/10/15 23:53:43 shaper Exp $
+// $Id: XMLSceneGroupParser.java,v 1.7 2001/10/17 22:21:22 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -40,7 +40,7 @@ public class XMLSceneGroupParser extends SimpleParser
 	} else if (qName.equals("portal")) {
 	    // pull out the portal data
 	    String src = attributes.getValue("src");
-	    String destScene = attributes.getValue("destScene");
+	    String destScene = attributes.getValue("destscene");
 	    String dest = attributes.getValue("dest");
 
 	    // construct a new portal info object

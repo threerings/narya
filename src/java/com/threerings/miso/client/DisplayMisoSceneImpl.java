@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.40 2001/10/13 01:08:59 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.41 2001/10/17 22:21:22 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -54,13 +54,10 @@ public class MisoSceneImpl implements EditableMisoScene
      * initialized to contain tiles of the specified default tileset and
      * tile id.
      *
-     * <em>Note:</em> Be sure to call {@link #prepareAllObjectTiles}
-     * before the scene is first used so that the base layer will be
-     * properly populated with shadow tiles in the footprint of all
-     * object tiles.  Similarly, any addition of tiles to or removal
-     * of tiles from the object layer of the scene should be followed
-     * by a call to {@link #prepareObjectTile} or {@link
-     * #unprepareObjectTile}, respectively.
+     * <em>Note:</em> Be sure to call {@link
+     * #generateAllObjectShadows} before the scene is first used so
+     * that the base layer will be properly populated with shadow
+     * tiles in the footprint of all object tiles.
      *
      * @param model the iso scene view model.
      * @param deftile the default tile.
@@ -92,6 +89,26 @@ public class MisoSceneImpl implements EditableMisoScene
     public void setDefaultTile (MisoTile tile)
     {
         _deftile = tile;
+    }
+
+    // documentation inherited
+    public void setTile (int lnum, int x, int y, Tile tile)
+    {
+        // if the tile being replaced is an object tile, clear out its
+        // shadow tiles
+        Tile otile = tiles[lnum][x][y];
+        if (otile instanceof ObjectTile) {
+            removeObjectShadow(x, y);
+        }
+
+        // place the new tile
+        tiles[lnum][x][y] = tile;
+
+        // if the tile being placed is an object tile, create the
+        // shadow tiles that lie in its footprint
+        if (tile instanceof ObjectTile) {
+            generateObjectShadow(x, y);
+        }
     }
 
     // documentation inherited
@@ -293,12 +310,12 @@ public class MisoSceneImpl implements EditableMisoScene
      * fully populated, but before the scene is used in any other
      * meaningful capacity.
      */
-    public void prepareAllObjectTiles ()
+    public void generateAllObjectShadows ()
     {
         for (int xx = 0; xx < _model.scenewid; xx++) {
             for (int yy = 0; yy < _model.scenehei; yy++) {
                 if (objectTiles[xx][yy] != null) {
-                    prepareObjectTile(xx, yy);
+                    generateObjectShadow(xx, yy);
                 }
             }
         }
@@ -312,9 +329,9 @@ public class MisoSceneImpl implements EditableMisoScene
      * @param x the tile x-coordinate.
      * @param y the tile y-coordinate.
      */
-    public void prepareObjectTile (int x, int y)
+    protected void generateObjectShadow (int x, int y)
     {
-        setObjectTileFootprint(x, y, ShadowTile.TILE);
+        setObjectTileFootprint(x, y, new ShadowTile(x, y));
     }
 
     /**
@@ -325,7 +342,7 @@ public class MisoSceneImpl implements EditableMisoScene
      * @param x the tile x-coordinate.
      * @param y the tile y-coordinate.
      */
-    public void unprepareObjectTile (int x, int y)
+    protected void removeObjectShadow (int x, int y)
     {
         setObjectTileFootprint(x, y, _deftile);
     }

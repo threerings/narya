@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.20 2001/10/15 23:53:43 shaper Exp $
+// $Id: XMLSceneParser.java,v 1.21 2001/10/17 22:21:22 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -258,7 +258,7 @@ public class XMLSceneParser extends SimpleParser
 	_info = new SceneInfo();
         parseFile(fname);
         // place shadow tiles for any objects in the scene
-        _info.scene.prepareAllObjectTiles();
+        _info.scene.generateAllObjectShadows();
         // return the final scene object
         return _info.scene;
     }

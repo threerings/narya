@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.15 2001/10/11 00:41:27 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.16 2001/10/17 22:21:22 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -8,6 +8,7 @@ import java.util.List;
 import javax.swing.*;
 
 import com.samskivert.util.Config;
+
 import com.threerings.media.sprite.*;
 import com.threerings.miso.util.MisoUtil;
 
@@ -16,11 +17,10 @@ import com.threerings.miso.util.MisoUtil;
  * SceneView}, rendering it to the screen, and handling view-related
  * UI events.
  */
-public class SceneViewPanel
-    extends JPanel implements AnimatedView
+public class SceneViewPanel extends AnimatedPanel
 {
     /**
-     * Construct the panel and initialize it with a context.
+     * Constructs the scene view panel.
      */
     public SceneViewPanel (Config config, SpriteManager spritemgr)
     {
@@ -29,10 +29,6 @@ public class SceneViewPanel
 
 	// create the scene view
         _view = newSceneView(spritemgr, _smodel);
-
-	// set our attributes for optimal display performance
-        setDoubleBuffered(false);
-        setOpaque(true);
     }
 
     /**
@@ -45,7 +41,7 @@ public class SceneViewPanel
     }
 
     /**
-     * Set the scene managed by the panel.
+     * Sets the scene managed by the panel.
      */
     public void setScene (MisoScene scene)
     {
@@ -53,24 +49,17 @@ public class SceneViewPanel
     }
 
     /**
-     * Get the scene managed by the panel.
+     * Gets the scene managed by the panel.
      */
     public SceneView getSceneView ()
     {
 	return _view;
     }
 
-    /**
-     * Render the panel and the scene view to the given graphics object.
-     */
-    public void render (Graphics g)
+    // documentation inherited
+    protected void render (Graphics g)
     {
-	if (_offimg == null) {
-	    createOffscreen();
-	}
-
-	_view.paint(_offg);
-	g.drawImage(_offimg, 0, 0, null);
+        _view.paint(g);
     }
 
     // documentation inherited
@@ -81,48 +70,7 @@ public class SceneViewPanel
     }
 
     /**
-     * Paints this panel immediately. Since we know that we are always
-     * opaque and not dependent on Swing's double-buffering, we bypass the
-     * antics that <code>JComponent.paintImmediately()</code> performs in
-     * the interest of better performance.
-     */
-    public void paintImmediately ()
-    {
-        Graphics g = null;
-
-        try {
-            Graphics pcg = getGraphics();
-            g = pcg.create();
-            pcg.dispose();
-            paint(g);
-
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public JComponent getComponent ()
-    {
-	return this;
-    }
-
-    public void paintComponent (Graphics g)
-    {
-	render(g);
-
-//          Rectangle bounds = getBounds();
-//          g.drawRect(bounds.x, bounds.y, bounds.width-1, bounds.height-1);
-    }
-
-    protected void createOffscreen ()
-    {
-	Rectangle bounds = getBounds();
-	_offimg = createImage(bounds.width, bounds.height);
-	_offg = _offimg.getGraphics();
-    }
-
-    /**
-     * Return the desired size for the panel based on the requested
+     * Returns the desired size for the panel based on the requested
      * and calculated bounds of the scene view.
      */
     public Dimension getPreferredSize ()
@@ -131,12 +79,6 @@ public class SceneViewPanel
             super.getPreferredSize() : _smodel.bounds;
 	return psize;
     }
-
-    /** The offscreen image used for double-buffering. */
-    protected Image _offimg;
-
-    /** The graphics context for the offscreen image. */
-    protected Graphics _offg;
 
     /** The scene view data model. */
     protected IsoSceneViewModel _smodel;

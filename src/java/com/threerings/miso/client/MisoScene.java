@@ -1,5 +1,5 @@
 //
-// $Id: MisoScene.java,v 1.5 2001/10/11 00:41:27 shaper Exp $
+// $Id: MisoScene.java,v 1.6 2001/10/17 22:21:22 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.ObjectTile;
+
 import com.threerings.miso.tile.MisoTile;
 
 /**
@@ -43,26 +44,35 @@ public interface MisoScene
 
     /**
      * Returns an array of the tile layers that comprise the scene.
+     * The array returned by this method should <em>not</em> be
+     * modified.
      */
     public Tile[][][] getTiles ();
 
     /**
-     * Returns the tile layer for the specified layer index.
+     * Returns the tile layer for the specified layer index.  The
+     * array returned by this method should <em>not</em> be modified.
      */
     public Tile[][] getTiles (int lnum);
 
     /**
      * Returns the tiles that comprise the base layer of this scene.
+     * The array returned by this method should <em>not</em> be
+     * modified.
      */
     public MisoTile[][] getBaseLayer ();
 
     /**
      * Returns the tiles that comprise the fringe layer of this scene.
+     * The array returned by this method should <em>not</em> be
+     * modified.
      */
     public Tile[][] getFringeLayer ();
 
     /**
      * Returns the tiles that comprise the object layer of this scene.
+     * The array returned by this method should <em>not</em> be
+     * modified.
      */
     public ObjectTile[][] getObjectLayer ();
 
