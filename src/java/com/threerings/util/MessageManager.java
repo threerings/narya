@@ -1,5 +1,5 @@
 //
-// $Id: MessageManager.java,v 1.2 2002/04/30 17:45:27 mdb Exp $
+// $Id: MessageManager.java,v 1.3 2002/05/01 02:45:00 mdb Exp $
 
 package com.threerings.util;
 
@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+
+import com.samskivert.util.StringUtil;
 
 /**
  * The message manager provides a thin wrapper around Java's built-in
@@ -89,10 +91,32 @@ public class MessageManager
                         "[path=" + fqpath + ", locale=" + _locale + "].");
         }
 
-        // create our message bundle, cache it and return it (if we
+        // if the resource bundle contains a special resource, we'll
+        // interpret that as a derivation of MessageBundle to instantiate
+        // for handling that class
+        String mbclass = null;
+        if (rbundle != null) {
+            mbclass = rbundle.getString(MBUNDLE_CLASS_KEY);
+        }
+        if (!StringUtil.blank(mbclass)) {
+            try {
+                bundle = (MessageBundle)Class.forName(mbclass).newInstance();
+            } catch (Throwable t) {
+                Log.warning("Failure instantiating custom message bundle " +
+                            "[mbclass=" + mbclass + ", error=" + t + "].");
+            }
+        }
+
+        // if there was no custom class, or we failed to instantiate the
+        // custom class, use a standard message bundle
+        if (bundle == null) {
+            bundle = new MessageBundle();
+        }
+
+        // initialize our message bundle, cache it and return it (if we
         // couldn't resolve the bundle, the message bundle will cope with
         // it's null resource bundle)
-        bundle = new MessageBundle(path, rbundle);
+        bundle.init(path, rbundle);
         _cache.put(path, bundle);
         return bundle;
     }
@@ -105,4 +129,8 @@ public class MessageManager
 
     /** A cache of instantiated message bundles. */
     protected HashMap _cache = new HashMap();
+
+    /** A key that can contain the classname of a custom message bundle
+     * class to be used to handle messages for a particular bundle. */
+    protected static final String MBUNDLE_CLASS_KEY = "msgbundle_class";
 }

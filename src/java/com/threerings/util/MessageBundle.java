@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.8 2002/04/30 17:45:27 mdb Exp $
+// $Id: MessageBundle.java,v 1.9 2002/05/01 02:45:00 mdb Exp $
 
 package com.threerings.util;
 
@@ -19,11 +19,11 @@ import com.samskivert.util.StringUtil;
 public class MessageBundle
 {
     /**
-     * Constructs a message bundle which will obtain localized messages
+     * Initializes the message bundle which will obtain localized messages
      * from the supplied resource bundle. The path is provided purely for
      * reporting purposes.
      */
-    public MessageBundle (String path, ResourceBundle bundle)
+    public void init (String path, ResourceBundle bundle)
     {
         _path = path;
         _bundle = bundle;
