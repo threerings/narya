@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundleTest.java,v 1.3 2002/11/12 22:56:18 shaper Exp $
+// $Id: MessageBundleTest.java,v 1.4 2002/12/23 19:08:57 mdb Exp $
 
 package com.threerings.util;
 
@@ -24,7 +24,7 @@ public class MessageBundleTest extends TestCase
             String path = "rsrc.i18n.messages";
             ResourceBundle rbundle = ResourceBundle.getBundle(path);
             MessageBundle bundle = new MessageBundle();
-            bundle.init("test", rbundle, null);
+            bundle.init(null, "test", rbundle, null);
 
             String key1 = MessageBundle.compose("m.foo",
                                                 MessageBundle.taint("bar"),
