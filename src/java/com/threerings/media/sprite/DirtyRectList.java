@@ -1,10 +1,12 @@
 //
-// $Id: DirtyRectList.java,v 1.2 2001/10/13 01:08:59 shaper Exp $
+// $Id: DirtyRectList.java,v 1.3 2001/12/16 08:05:20 mdb Exp $
 
 package com.threerings.media.sprite;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
+
+import com.samskivert.util.StringUtil;
 
 /**
  * The dirty rect list is used to maintain a list of dirty rectangles. It
@@ -30,5 +32,10 @@ public class DirtyRectList extends ArrayList
             add(rect);
             return true;
         }
+    }
+
+    public String toString ()
+    {
+        return StringUtil.toString(iterator());
     }
 }
