@@ -1,11 +1,10 @@
 //
-// $Id: XMLTileSetParser.java,v 1.19 2001/10/22 18:11:59 shaper Exp $
+// $Id: XMLTileSetParser.java,v 1.20 2001/11/01 01:40:42 shaper Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Point;
 import java.io.*;
-import java.util.List;
 
 import org.xml.sax.*;
 
@@ -13,6 +12,7 @@ import com.samskivert.util.*;
 import com.samskivert.xml.SimpleParser;
 
 import com.threerings.media.Log;
+import com.threerings.media.ImageManager;
 
 /**
  * Parse an XML tileset description file and construct tileset objects
@@ -20,39 +20,45 @@ import com.threerings.media.Log;
  * on the input XML stream, though the parsing code assumes the XML
  * document is well-formed.
  */
-public class XMLTileSetParser extends SimpleParser
+public class XMLTileSetParser
+    extends SimpleParser
     implements TileSetParser
 {
+    /**
+     * Constructs an xml tile set parser.
+     */
+    public XMLTileSetParser (ImageManager imgmgr)
+    {
+        _imgmgr = imgmgr;
+    }
 
     // documentation inherited
     public void startElement (
         String uri, String localName, String qName, Attributes attributes)
     {
 	if (qName.equals("tileset")) {
-            // construct the new tile set
-            _tset = createTileSet();
-
-            // note whether it contains object tiles
+            // note whether the tile set contains object tiles
             String str = attributes.getValue("layer");
-            _tset.isObjectSet =
+            _info.isObjectSet =
                 (str != null && str.toLowerCase().equals(LAYER_OBJECT));
 
             // get the tile set id
-	    _tset.tsid = parseInt(attributes.getValue("tsid"));
+	    _info.tsid = parseInt(attributes.getValue("tsid"));
 
             // get the tile set name
 	    str = attributes.getValue("name");
-	    _tset.name = (str == null) ? DEF_NAME : str;
+	    _info.name = (str == null) ? DEF_NAME : str;
 
 	} else if (qName.equals("object")) {
-	    // TODO: should we bother checking to make sure we only
-	    // see <object> tags while within an <objects> tag?
+            // get the object info
 	    int tid = parseInt(attributes.getValue("tid"));
 	    int wid = parseInt(attributes.getValue("width"));
 	    int hei = parseInt(attributes.getValue("height"));
 
-	    // add the object info to the tileset object hashtable
-	    _tset.addObjectInfo(tid, new int[] { wid, hei });
+            if (_info.objects == null) {
+                _info.objects = new HashIntMap();
+            }
+            _info.objects.put(tid, new int[] { wid, hei });
 	}
     }
 
@@ -61,38 +67,44 @@ public class XMLTileSetParser extends SimpleParser
         String uri, String localName, String qName, String data)
     {
 	if (qName.equals("imagefile")) {
-	    _tset.imgFile = data;
+	    _info.imgFile = data;
 
 	} else if (qName.equals("rowwidth")) {
-	    _tset.rowWidth = StringUtil.parseIntArray(data);
+	    _info.rowWidth = StringUtil.parseIntArray(data);
 
 	} else if (qName.equals("rowheight")) {
-	    _tset.rowHeight = StringUtil.parseIntArray(data);
+	    _info.rowHeight = StringUtil.parseIntArray(data);
 
 	} else if (qName.equals("tilecount")) {
-	    _tset.tileCount = StringUtil.parseIntArray(data);
+	    _info.tileCount = StringUtil.parseIntArray(data);
 
 	    // calculate the total number of tiles in the tileset
-	    for (int ii = 0; ii < _tset.tileCount.length; ii++) {
-		_tset.numTiles += _tset.tileCount[ii];
+	    for (int ii = 0; ii < _info.tileCount.length; ii++) {
+		_info.numTiles += _info.tileCount[ii];
 	    }
 
 	} else if (qName.equals("offsetpos")) {
-            parsePoint(data, _tset.offsetPos);
+            parsePoint(data, _info.offsetPos);
 
         } else if (qName.equals("gapdist")) {
-            parsePoint(data, _tset.gapDist);
+            parsePoint(data, _info.gapDist);
 
         } else if (qName.equals("tileset")) {
-	    // add the fully-read tileset to the list of tilesets
-	    _tilesets.add(_tset);
+            // construct the tile set
+            TileSet tset = createTileSet();
+            Log.info("Parsed tileset [tset=" + tset + "].");
+            // clear the tile set info gathered while parsing
+            _info = new TileSetInfo();
+	    // add the tileset to the hashtable
+	    _tilesets.put(tset.getId(), tset);
 	}
     }
 
     // documentation inherited
-    public void loadTileSets (String fname, List tilesets) throws IOException
+    public void loadTileSets (String fname, HashIntMap tilesets)
+        throws IOException
     {
-        // save off tileset list for reference while parsing
+        // save off the tileset hashtable
         _tilesets = tilesets;
 
 	try {
@@ -100,6 +112,7 @@ public class XMLTileSetParser extends SimpleParser
         } catch (IOException ioe) {
             Log.warning("Exception parsing tile set descriptions " +
                         "[ioe=" + ioe + "].");
+            Log.logStackTrace(ioe);
         }
     }
 
@@ -114,9 +127,12 @@ public class XMLTileSetParser extends SimpleParser
      * may override this method to create their own sub-classes of the
      * <code>TileSet</code> object.
      */
-    protected TileSetImpl createTileSet ()
+    protected TileSet createTileSet ()
     {
-        return new TileSetImpl();
+        return new TileSet(
+            _imgmgr, _info.tsid, _info.name, _info.imgFile, _info.tileCount,
+            _info.rowWidth, _info.rowHeight, _info.numTiles, _info.offsetPos,
+            _info.gapDist, _info.isObjectSet, _info.objects);
     }
 
     /**
@@ -133,6 +149,24 @@ public class XMLTileSetParser extends SimpleParser
         point.setLocation(vals[0], vals[1]);
     }
 
+    /**
+     * A class to hold the tile set information gathered while
+     * parsing.  See the {@link TileSet} class for documentation on
+     * the various parameters.
+     */
+    protected static class TileSetInfo
+    {
+        public int tsid;
+        public String name;
+        public String imgFile;
+        public int tileCount[], rowWidth[], rowHeight[];
+        public int numTiles;
+        public Point offsetPos = new Point();
+        public Point gapDist = new Point();
+        public boolean isObjectSet;
+        public HashIntMap objects;
+    }
+
     /** Default tileset name. */
     protected static final String DEF_NAME = "Untitled";
 
@@ -140,8 +174,11 @@ public class XMLTileSetParser extends SimpleParser
     protected static final String LAYER_OBJECT = "object";
 
     /** The tilesets constructed thus far. */
-    protected List _tilesets;
+    protected HashIntMap _tilesets;
 
-    /** The tile set populated while parsing. */
-    protected TileSetImpl _tset;
+    /** The tile set info populated while parsing. */
+    protected TileSetInfo _info = new TileSetInfo();
+
+    /** The image manager. */
+    protected ImageManager _imgmgr;
 }

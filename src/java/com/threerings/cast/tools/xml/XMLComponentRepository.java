@@ -1,5 +1,5 @@
 //
-// $Id: XMLComponentRepository.java,v 1.2 2001/10/30 16:16:01 shaper Exp $
+// $Id: XMLComponentRepository.java,v 1.3 2001/11/01 01:40:42 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -12,8 +12,8 @@ import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Tuple;
 
 import com.threerings.cast.*;
-import com.threerings.cast.CharacterComponent.ComponentFrames;
 
+import com.threerings.media.ImageManager;
 import com.threerings.media.tile.TileManager;
 
 import com.threerings.miso.Log;
@@ -29,16 +29,15 @@ public class XMLFileComponentRepository implements ComponentRepository
     /**
      * Constructs an xml file component repository.
      */
-    public XMLFileComponentRepository (Config config, TileManager tilemgr)
+    public XMLFileComponentRepository (Config config, ImageManager imgmgr)
     {
-        // save off our objects
-        _tilemgr = tilemgr;
-
         // load component types and components
-        String file = config.getValue(COMPFILE_KEY, DEFAULT_COMPFILE);
+        String file = config.getValue(COMPONENTS_KEY, DEFAULT_COMPONENTS);
         try {
-            XMLComponentParser p = new XMLComponentParser();
-            p.loadComponents(file, _types, _classes, _components);
+            XMLComponentParser p = new XMLComponentParser(imgmgr);
+            p.loadComponents(file, _actions, _classes, _components);
+            _imagedir = p.getImageDir();
+
         } catch (IOException ioe) {
             Log.warning("Exception loading component descriptions " +
                         "[ioe=" + ioe + "].");
@@ -50,37 +49,15 @@ public class XMLFileComponentRepository implements ComponentRepository
         throws NoSuchComponentException
     {
         // get the component information
-        Tuple cinfo = (Tuple)_components.get(cid);
-        if (cinfo == null) {
+        CharacterComponent c = (CharacterComponent)_components.get(cid);
+        if (c == null) {
             throw new NoSuchComponentException(cid);
         }
 
-        // get the component type
-        int ctid = ((Integer)cinfo.left).intValue();
-        ComponentType type = (ComponentType)_types.get(ctid);
+        // get the character animation frames
+        c.setFrames(TileUtil.getComponentFrames(_imagedir, c));
 
-        // get the component class
-        int clid = ((Integer)cinfo.right).intValue();
-        ComponentClass cclass = (ComponentClass)_classes.get(clid);
-
-        // get the character animation images
-        ComponentFrames frames = TileUtil.getComponentFrames(
-            _tilemgr, cid, type.frameCount);
-
-        // create the component
-        return new CharacterComponent(type, cclass, cid, frames);
-    }
-
-    // documentation inherited
-    public Iterator enumerateComponentTypes ()
-    {
-        return Collections.unmodifiableMap(_types).values().iterator();
-    }
-
-    // documentation inherited
-    public Iterator enumerateComponentsByType (int ctid)
-    {
-        return new ComponentIterator(ctid);
+        return c;
     }
 
     // documentation inherited
@@ -90,9 +67,9 @@ public class XMLFileComponentRepository implements ComponentRepository
     }
 
     // documentation inherited
-    public Iterator enumerateComponentsByClass (int ctid, int clid)
+    public Iterator enumerateComponentsByClass (int clid)
     {
-        return new ComponentIterator(ctid, clid);
+        return new ComponentIterator(clid);
     }
 
     /**
@@ -104,20 +81,13 @@ public class XMLFileComponentRepository implements ComponentRepository
     {
         /**
          * Constructs an iterator that iterates over all components of
-         * the specified component type.
+         * the specified component class.
          */
-        public ComponentIterator (int ctid)
+        public ComponentIterator (int clid)
         {
-            init(ctid, -1);
-        }
-
-        /**
-         * Constructs an iterator that iterates over all components of
-         * the specified component type and class.
-         */
-        public ComponentIterator (int ctid, int clid)
-        {
-            init(ctid, clid);
+            _clid = clid;
+            _iter = _components.keys();
+            advance();
         }
 
         public boolean hasNext ()
@@ -137,24 +107,14 @@ public class XMLFileComponentRepository implements ComponentRepository
             throw new UnsupportedOperationException();
         }
 
-        protected void init (int ctid, int clid)
-        {
-            _ctid = ctid;
-            _clid = clid;
-            _iter = _components.keys();
-            advance();
-        }
-
         protected void advance ()
         {
             while (_iter.hasNext()) {
                 Integer cid = (Integer)_iter.next();
 
-                Tuple c = (Tuple)_components.get(cid);
-                int ctid = ((Integer)c.left).intValue();
-                int clid = ((Integer)c.right).intValue();
-                if (ctid == _ctid &&
-                    (_clid == -1 || (clid == _clid))) {
+                CharacterComponent c =
+                    (CharacterComponent)_components.get(cid);
+                if (c.getComponentClass().clid == _clid) {
                     _next = cid;
                     return;
                 }
@@ -162,15 +122,11 @@ public class XMLFileComponentRepository implements ComponentRepository
             _next = null;
         }
 
-        /** The component type id we're enumerating over. */
-        protected int _ctid;
-
-        /** The component class id required for inclusion in the
-         * iterator, or -1 for all classes. */
+        /** The component class id for inclusion in the iterator. */
         protected int _clid;
 
-        /** The next character component of the component type id
-         * associated with this iterator, or null if no more exist. */
+        /** The next character component associated with this
+         * iterator, or null if no more exist. */
         protected Object _next;
 
         /** The iterator over all components in the repository. */
@@ -178,22 +134,22 @@ public class XMLFileComponentRepository implements ComponentRepository
     }
 
     /** The config key for the character description file. */
-    protected static final String COMPFILE_KEY =
+    protected static final String COMPONENTS_KEY =
         MisoUtil.CONFIG_KEY + ".components";
 
     /** The default character description file. */
-    protected static final String DEFAULT_COMPFILE =
+    protected static final String DEFAULT_COMPONENTS =
         "rsrc/config/miso/components.xml";
 
+    /** The image directory containing the component image files. */
+    protected String _imagedir;
+
     /** The hashtable of component types. */
-    protected HashIntMap _types = new HashIntMap();
+    protected HashIntMap _actions = new HashIntMap();
 
     /** The hashtable of component classes. */
     protected HashIntMap _classes = new HashIntMap();
 
     /** The hashtable of character components. */
     protected HashIntMap _components = new HashIntMap();
-
-    /** The tile manager. */
-    protected TileManager _tilemgr;
 }

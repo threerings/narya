@@ -1,5 +1,5 @@
 //
-// $Id: BuilderPanel.java,v 1.1 2001/10/30 16:16:01 shaper Exp $
+// $Id: BuilderPanel.java,v 1.2 2001/11/01 01:40:42 shaper Exp $
 
 package com.threerings.cast.builder;
 
@@ -37,8 +37,7 @@ public class BuilderPanel extends JPanel implements ActionListener
 
         // create the component selection and sprite display panels
         JPanel sub = new JPanel(gl);
-        ComponentType ctype = getComponentType();
-        sub.add(_comppanel = new ComponentPanel(_charmgr, ctype));
+        sub.add(_comppanel = new ComponentPanel(_charmgr));
         sub.add(_spritepanel = new SpritePanel());
 
         add(sub);
@@ -60,15 +59,6 @@ public class BuilderPanel extends JPanel implements ActionListener
         } else {
 	    Log.warning("Unknown action command [cmd=" + cmd + "].");
         }
-    }
-
-    protected ComponentType getComponentType ()
-    {
-        ComponentType ctype = null;
-        Iterator types = _charmgr.enumerateComponentTypes();
-        // for now, fixedly choose the first component type
-        // TODO: fix this hack
-        return (ComponentType)types.next();
     }
 
     /** The component panel that displays components available for

@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.16 2001/10/26 01:17:21 shaper Exp $
+// $Id: CharacterSprite.java,v 1.17 2001/11/01 01:40:42 shaper Exp $
 
 package com.threerings.cast;
 
@@ -8,7 +8,6 @@ import java.awt.Point;
 import com.threerings.media.sprite.*;
 
 import com.threerings.cast.Log;
-import com.threerings.cast.CharacterComponent.ComponentFrames;
 
 /**
  * A character sprite is a sprite that animates itself while walking
@@ -26,26 +25,41 @@ public class CharacterSprite extends Sprite
     }
 
     /**
-     * Sets the walking and standing frames of animation used to
-     * display this character.
+     * Sets the action sequences available for this character sprite
+     * and the animation frames that go along with each action.
+     * Resets the character's currently selected action sequence to
+     * the standing sequence.
      */
-    public void setFrames (ComponentFrames frames)
+    public void setAnimations (ActionSequence[] seqs,
+                               MultiFrameImage anims[][])
     {
-        _anims = frames;
-        setFrames(_anims.walk[_orient]);
+        _seqs = seqs;
+        _anims = anims;
+        setActionSequence(WALKING);
+    }
+
+    /**
+     * Sets the action sequence used when rendering the character,
+     * from the set of available sequences.
+     */
+    public void setActionSequence (int seqidx)
+    {
+        // save off the action sequence index
+        _seqidx = seqidx;
+
+        // update the sprite render attributes
+        ActionSequence seq = _seqs[_seqidx];
+        setFrames(_anims[_seqidx][_orient]);
+        setFrameRate(seq.fps);
+        setOrigin(seq.origin.x, seq.origin.y);
     }
 
     // documentation inherited
     public void setOrientation (int orient)
     {
         super.setOrientation(orient);
-
         // update the sprite frames to reflect the direction
-        if (_path == null) {
-            setFrames(_anims.stand[_orient]);
-        } else {
-            setFrames(_anims.walk[_orient]);
-        }
+        setActionSequence((_path == null) ? STANDING : WALKING);
     }
 
     /**
@@ -104,14 +118,25 @@ public class CharacterSprite extends Sprite
     protected void halt ()
     {
         // come to a halt looking settled and at peace
-        setFrames(_anims.stand[_orient]);
-
+        setActionSequence(STANDING);
         // disable walking animation
         setAnimationMode(NO_ANIMATION);
     }
 
-    /** The standing and walking animations for the sprite. */
-    protected ComponentFrames _anims;
+    /** The action sequence constant for standing. */ 
+    protected static final int STANDING = 0;
+
+    /** The action sequence constant for walking. */ 
+    protected static final int WALKING = 1;
+
+    /** The currently selected action sequence. */
+    protected int _seqidx;
+
+    /** The available action sequences. */
+    protected ActionSequence _seqs[];
+
+    /** The animation frames for each action sequence and orientation. */
+    protected MultiFrameImage _anims[][];
 
     /** The origin of the sprite. */
     protected int _xorigin, _yorigin;

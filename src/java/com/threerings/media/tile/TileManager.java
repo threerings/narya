@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.18 2001/10/11 00:41:26 shaper Exp $
+// $Id: TileManager.java,v 1.19 2001/11/01 01:40:42 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -14,19 +14,17 @@ import com.threerings.media.Log;
 /**
  * The tile manager provides a simplified interface for retrieving and
  * caching tiles.
- *
- * @see TileSetManager
  */
 public class TileManager
 {
     /**
-     * Initialize the tile manager.
+     * Initializes the tile manager.
      *
-     * @param tilesetmgr the tileset manager.
+     * @param tilesetrepo the tile set repository.
      */
-    public TileManager (TileSetManager tilesetmgr)
+    public TileManager (TileSetRepository tsrepo)
     {
-	_tilesetmgr = tilesetmgr;
+	_tsrepo = tsrepo;
     }
 
     /**
@@ -53,7 +51,7 @@ public class TileManager
 	}
 
 	// retrieve the tile from the tileset
-	tile = _tilesetmgr.getTile(tsid, tid);
+	tile = _tsrepo.getTileSet(tsid).getTile(tid);
 	if (tile != null) {
 	    // Log.info("Loaded tile into cache [tsid=" + tsid +
 	    // ", tid=" + tid + "].");
@@ -64,16 +62,16 @@ public class TileManager
     }
 
     /**
-     * Returns the tile set manager used by this tile manager.
+     * Returns the tile set repository used by this tile manager.
      */
-    public TileSetManager getTileSetManager ()
+    public TileSetRepository getTileSetRepository ()
     {
-	return _tilesetmgr;
+	return _tsrepo;
     }
 
     /** Cache of tiles that have been requested thus far. */
     protected HashIntMap _tiles = new HashIntMap();
 
-    /** The tileset manager. */
-    protected TileSetManager _tilesetmgr;
+    /** The tile set repository. */
+    protected TileSetRepository _tsrepo;
 }

@@ -1,7 +1,9 @@
 //
-// $Id: CharacterComponent.java,v 1.2 2001/10/30 16:16:01 shaper Exp $
+// $Id: CharacterComponent.java,v 1.3 2001/11/01 01:40:42 shaper Exp $
 
 package com.threerings.cast;
+
+import com.samskivert.util.StringUtil;
 
 import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.sprite.Sprite;
@@ -19,13 +21,12 @@ public class CharacterComponent
      * Constructs a character component.
      */
     public CharacterComponent (
-        ComponentType type, ComponentClass cclass, int cid,
-        ComponentFrames frames)
+        int cid, String fileid, ActionSequence seqs[], ComponentClass cclass)
     {
-        _type = type;
-        _cclass = cclass;
         _cid = cid;
-        _frames = frames;
+        _fileid = fileid;
+        _seqs = seqs;
+        _cclass = cclass;
     }
 
     /**
@@ -37,19 +38,27 @@ public class CharacterComponent
     }
 
     /**
+     * Returns the action sequences for this component.
+     */
+    public ActionSequence[] getActionSequences ()
+    {
+        return _seqs;
+    }
+
+    /**
      * Returns the display frames used to display this component.
      */
-    public ComponentFrames getFrames ()
+    public MultiFrameImage[][] getFrames ()
     {
         return _frames;
     }
 
     /**
-     * Returns the component type associated with this component.
+     * Returns the file id.
      */
-    public ComponentType getType ()
+    public String getFileId ()
     {
-        return _type;
+        return _fileid;
     }
 
     /**
@@ -61,46 +70,34 @@ public class CharacterComponent
     }
 
     /**
+     * Sets the frames used to render this component.
+     */
+    public void setFrames (MultiFrameImage frames[][])
+    {
+        _frames = frames;
+    }
+
+    /**
      * Returns a string representation of this character component.
      */
     public String toString ()
     {
         return "[cid=" + _cid + ", clid=" + _cclass.clid +
-            ", type=" + _type + "]";
-    }
-
-    /**
-     * A class to hold the standing and walking frames of animation
-     * that comprise a {@link CharacterComponent} object's various
-     * display images.
-     */
-    public static class ComponentFrames
-    {
-        /** The standing animations in each orientation. */
-        public MultiFrameImage stand[];
-
-        /** The walking animations in each orientation. */
-        public MultiFrameImage walk[];
-
-        /**
-         * Constructs a component frames object.
-         */
-        public ComponentFrames ()
-        {
-            stand = new MultiFrameImage[Sprite.NUM_DIRECTIONS];
-            walk = new MultiFrameImage[Sprite.NUM_DIRECTIONS];
-        }
+            ", seqs=" + StringUtil.toString(_seqs) + "]";
     }
 
     /** The unique character component identifier. */
     protected int _cid;
 
-    /** The animation frames. */
-    protected ComponentFrames _frames;
+    /** The file id specifier for the tile set image file name. */
+    protected String _fileid;
+
+    /** The animation frames for each action sequence and orientation. */
+    protected MultiFrameImage _frames[][];
 
     /** The component class. */
     protected ComponentClass _cclass;
 
-    /** The character component type. */
-    protected ComponentType _type;
+    /** The character action sequences. */
+    protected ActionSequence _seqs[];
 }

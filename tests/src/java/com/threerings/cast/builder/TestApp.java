@@ -1,5 +1,5 @@
 //
-// $Id: TestApp.java,v 1.1 2001/10/30 16:16:01 shaper Exp $
+// $Id: TestApp.java,v 1.2 2001/11/01 01:40:42 shaper Exp $
 
 package com.threerings.cast.builder.test;
 
@@ -11,9 +11,9 @@ import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.cast.Log;
 import com.threerings.cast.CharacterManager;
-import com.threerings.media.tile.TileManager;
 
-import com.threerings.miso.util.MisoContext;
+import com.threerings.media.ImageManager;
+
 import com.threerings.miso.util.MisoUtil;
 
 public class TestApp
@@ -26,13 +26,10 @@ public class TestApp
 
         // create the handles on our various services
         _config = MisoUtil.createConfig();
-	_tilemgr = MisoUtil.createTileManager(_config, _frame);
+	_imgmgr = MisoUtil.createImageManager(_frame);
 
         CharacterManager charmgr =
-            MisoUtil.createCharacterManager(_config, _tilemgr);
-
-        // create the context object
-        _ctx = new TestContextImpl();
+            MisoUtil.createCharacterManager(_config, _imgmgr);
 
         // initialize the frame
         ((TestFrame)_frame).init(charmgr);
@@ -50,28 +47,12 @@ public class TestApp
         app.run();
     }
 
-    protected class TestContextImpl implements MisoContext
-    {
-	public Config getConfig ()
-	{
-	    return _config;
-	}
-
-	public TileManager getTileManager ()
-	{
-	    return _tilemgr;
-	}
-    }
-
     /** The test frame. */
     protected JFrame _frame;
-
-    /** The test context. */
-    protected MisoContext _ctx;
 
     /** The config object. */
     protected Config _config;
 
-    /** The tile manager object. */
-    protected TileManager _tilemgr;
+    /** The image manager object. */
+    protected ImageManager _imgmgr;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.16 2001/10/22 18:11:25 shaper Exp $
+// $Id: Tile.java,v 1.17 2001/11/01 01:40:42 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -64,8 +64,19 @@ public class Tile
     public String toString ()
     {
 	StringBuffer buf = new StringBuffer();
-	buf.append("[tsid=").append(tsid);
-	buf.append(", tid=").append(tid);
+        buf.append("[");
+        toString(buf);
 	return buf.append("]").toString();
+    }
+
+    /**
+     * This should be overridden by derived classes (which should be sure
+     * to call <code>super.toString()</code>) to append the derived class
+     * specific tile information to the string buffer.
+     */
+    public void toString (StringBuffer buf)
+    {
+	buf.append("tsid=").append(tsid);
+	buf.append(", tid=").append(tid);
     }
 }

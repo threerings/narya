@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.10 2001/10/30 16:16:01 shaper Exp $
+// $Id: ViewerApp.java,v 1.11 2001/11/01 01:40:43 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -8,6 +8,8 @@ import java.io.IOException;
 
 import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.Config;
+
+import com.threerings.media.ImageManager;
 import com.threerings.media.tile.TileManager;
 
 import com.threerings.miso.Log;
@@ -35,7 +37,8 @@ public class ViewerApp
 	_config = MisoUtil.createConfig(
             ViewerModel.CONFIG_KEY, "rsrc/config/miso/viewer");
 	_model = createModel(_config, args);
-	_tilemgr = MisoUtil.createTileManager(_config, _frame);
+        ImageManager imgmgr = MisoUtil.createImageManager(_frame);
+	_tilemgr = MisoUtil.createTileManager(_config, imgmgr);
 	_screpo = MisoUtil.createSceneRepository(_config, _tilemgr);
 
 	// create the context object

@@ -1,13 +1,15 @@
 //
-// $Id: ViewerFrame.java,v 1.25 2001/10/25 16:33:20 shaper Exp $
+// $Id: ViewerFrame.java,v 1.26 2001/11/01 01:40:43 shaper Exp $
 
 package com.threerings.miso.viewer;
 
 import javax.swing.JFrame;
 
+import com.threerings.media.ImageManager;
 import com.threerings.media.sprite.SpriteManager;
 
 import com.threerings.miso.Log;
+import com.threerings.miso.util.MisoUtil;
 import com.threerings.miso.viewer.util.ViewerContext;
 
 /**
@@ -28,10 +30,11 @@ public class ViewerFrame extends JFrame
      */
     public void init (ViewerContext ctx)
     {
-        // create the sprite manager
+        // create the various managers
+        ImageManager imgmgr = MisoUtil.createImageManager(this);
         SpriteManager spritemgr = new SpriteManager();
 
         // add the main panel to the frame
-	getContentPane().add(new ViewerSceneViewPanel(ctx, spritemgr));
+	getContentPane().add(new ViewerSceneViewPanel(ctx, imgmgr, spritemgr));
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: MisoUtil.java,v 1.11 2001/10/30 16:16:01 shaper Exp $
+// $Id: MisoUtil.java,v 1.12 2001/11/01 01:40:42 shaper Exp $
 
 package com.threerings.miso.util;
 
@@ -82,16 +82,16 @@ public class MisoUtil
      * Creates a <code>CharacterManager</code> object.
      *
      * @param config the <code>Config</code> object.
-     * @param tilemgr the tile manager.
+     * @param imgmgr the <code>ImageManager</code> object.
      *
      * @return the new character manager object or null if an error
      * occurred.
      */
     public static CharacterManager createCharacterManager (
-        Config config, TileManager tilemgr)
+        Config config, ImageManager imgmgr)
     {
         XMLFileComponentRepository crepo =
-            new XMLFileComponentRepository(config, tilemgr); 
+            new XMLFileComponentRepository(config, imgmgr);
         CharacterManager charmgr = new CharacterManager(crepo);
         charmgr.setCharacterClass(MisoCharacterSprite.class);
         return charmgr;
@@ -123,19 +123,31 @@ public class MisoUtil
     }
 
     /**
-     * Creates a <code>TileManager</code> object.
+     * Creates an <code>ImageManager</code> object.
      *
-     * @param config the <code>Config</code> object.
      * @param frame the root frame to which images will be rendered.
      *
      * @return the new tile manager object or null if an error occurred.
      */
-    public static TileManager createTileManager (Config config, Frame frame)
+    public static ImageManager createImageManager (Frame frame)
     {
 	ResourceManager rmgr = createResourceManager();
-	ImageManager imgmgr = new ImageManager(rmgr, frame);
-	TileSetManager tilesetmgr = createTileSetManager(config, imgmgr);
-	TileManager tilemgr = new TileManager(tilesetmgr);
+	return new ImageManager(rmgr, frame);
+    }
+
+    /**
+     * Creates a <code>TileManager</code> object.
+     *
+     * @param config the <code>Config</code> object.
+     * @param imgmgr the <code>ImageManager</code> object.
+     *
+     * @return the new tile manager object or null if an error occurred.
+     */
+    public static TileManager createTileManager (
+        Config config, ImageManager imgmgr)
+    {
+	TileSetRepository tsrepo = createTileSetRepository(config, imgmgr);
+	TileManager tilemgr = new TileManager(tsrepo);
 	return tilemgr;
     }
 
@@ -150,43 +162,44 @@ public class MisoUtil
     }	
 
     /**
-     * Creates a <code>TileSetManager</code> object, reading the class
-     * name to instantiate from the config object.
+     * Creates a <code>TileSetRepository</code> object, reading the
+     * class name to instantiate from the config object.
      *
      * @param config the <code>Config</code> object.
      * @param imgmgr the <code>ImageManager</code> object from which
      * images are obtained.
      *
-     * @return the new tileset manager object or null if an error occurred.
+     * @return the new tile set repository or null if an error
+     * occurred.
      */
-    protected static TileSetManager createTileSetManager (
+    protected static TileSetRepository createTileSetRepository (
         Config config, ImageManager imgmgr)
     {
-	TileSetManagerImpl tilesetmgr = null;
+	TileSetRepository tsrepo = null;
 	try {
-	    tilesetmgr = (TileSetManagerImpl)
-		config.instantiateValue(TILESETMGR_KEY, DEF_TILESETMGR);
-	    tilesetmgr.init(config, imgmgr);
+	    tsrepo = (TileSetRepository)config.instantiateValue(
+                TILESETREPO_KEY, DEF_TILESETREPO);
+	    tsrepo.init(config, imgmgr);
 
 	} catch (Exception e) {
-	    Log.warning("Failed to instantiate tileset manager " +
+	    Log.warning("Failed to instantiate tile set repository " +
 			"[e=" + e + "].");
 	}
-
-	return tilesetmgr;
+	return tsrepo;
     }
 
     /** The default scene repository class name. */
     protected static final String DEF_SCENEREPO =
         XMLFileSceneRepository.class.getName();
 
-    /** The default tileset manager class name. */
-    protected static final String DEF_TILESETMGR =
-        EditableTileSetManager.class.getName();
+    /** The default tile set repository class name. */
+    protected static final String DEF_TILESETREPO =
+        XMLFileTileSetRepository.class.getName();
 
     /** The config key for the scene repository class. */
     protected static final String SCENEREPO_KEY = CONFIG_KEY + ".scenerepo";
 
-    /** The config key for the tileset manager class. */
-    protected static final String TILESETMGR_KEY = CONFIG_KEY + ".tilesetmgr";
+    /** The config key for the tile set repository class. */
+    protected static final String TILESETREPO_KEY =
+        CONFIG_KEY + ".tilesetrepo";
 }

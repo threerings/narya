@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.25 2001/10/30 16:16:01 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.26 2001/11/01 01:40:43 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -15,6 +15,7 @@ import com.samskivert.util.Config;
 
 import com.threerings.cast.*;
 
+import com.threerings.media.ImageManager;
 import com.threerings.media.sprite.*;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.util.RandomUtil;
@@ -34,7 +35,8 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     /**
      * Construct the panel and initialize it with a context.
      */
-    public ViewerSceneViewPanel (ViewerContext ctx, SpriteManager spritemgr)
+    public ViewerSceneViewPanel (ViewerContext ctx, ImageManager imgmgr,
+                                 SpriteManager spritemgr)
     {
 	super(ctx.getConfig(), spritemgr);
 
@@ -47,8 +49,8 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         prepareStartingScene();
 
         // construct the character manager from which we obtain sprites
-        CharacterManager charmgr = MisoUtil.createCharacterManager(
-            ctx.getConfig(), ctx.getTileManager());
+        CharacterManager charmgr =
+            MisoUtil.createCharacterManager(ctx.getConfig(), imgmgr);
 
         // create the character descriptors
         _descUser = createCharacterDescriptor(charmgr);
@@ -193,11 +195,6 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     protected CharacterDescriptor
         createCharacterDescriptor (CharacterManager charmgr)
     {
-        // get the base component type (always the first type for now).
-        // TODO: change this to retrieve component type by name
-        Iterator iter = charmgr.enumerateComponentTypes();
-        ComponentType ctype = (ComponentType)iter.next();
-
         // get all available classes
         ArrayList classes = new ArrayList();
         CollectionUtil.addAll(classes, charmgr.enumerateComponentClasses());
@@ -210,7 +207,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 
             // get the components available for this class
             ArrayList choices = new ArrayList();
-            iter = charmgr.enumerateComponentsByClass(ctype.ctid, cclass.clid);
+            Iterator iter = charmgr.enumerateComponentsByClass(cclass.clid);
             CollectionUtil.addAll(choices, iter);
 
             // choose a random component
@@ -218,7 +215,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
             components[cclass.clid] = ((Integer)choices.get(idx)).intValue();
         }
 
-        return new CharacterDescriptor(ctype, components);
+        return new CharacterDescriptor(components);
     }
 
     // documentation inherited

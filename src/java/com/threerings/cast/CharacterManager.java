@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.6 2001/10/30 16:16:01 shaper Exp $
+// $Id: CharacterManager.java,v 1.7 2001/11/01 01:40:42 shaper Exp $
 
 package com.threerings.cast;
 
@@ -8,7 +8,9 @@ import java.util.*;
 import com.samskivert.util.CollectionUtil;
 
 import com.threerings.cast.Log;
-import com.threerings.cast.CharacterComponent.ComponentFrames;
+
+import com.threerings.media.sprite.MultiFrameImage;
+import com.threerings.media.sprite.Sprite;
 
 /**
  * The character manager provides facilities for constructing sprites
@@ -40,16 +42,17 @@ public class CharacterManager
         long start = System.currentTimeMillis();
 
         // get the array of component ids of each class
-        int components[] = desc.getComponents();
-
+        CharacterComponent components[] = getComponents(desc.getComponents());
         if (components.length == 0) {
-            Log.warning("Invalid number of components " +
-                        "[size=" + components.length + "].");
+            Log.warning("No character components in descriptor.");
             return null;
         }
+        // assume all components support the same set of action sequences
+        ActionSequence seqs[] = components[0].getActionSequences();
 
         // create the composite character image
-        ComponentFrames frames = createCompositeFrames(desc);
+        MultiFrameImage frames[][] =
+            createCompositeFrames(seqs.length, components);
         if (frames == null) {
             return null;
         }
@@ -61,10 +64,7 @@ public class CharacterManager
         }
 
         // populate the character sprite with its attributes
-        ComponentType ctype = desc.getType();
-        sprite.setFrames(frames);
-        sprite.setFrameRate(ctype.fps);
-        sprite.setOrigin(ctype.origin.x, ctype.origin.y);
+        sprite.setAnimations(seqs, frames);
 
         long end = System.currentTimeMillis();
         Log.info("Generated character sprite [ms=" + (end - start) + "].");
@@ -73,29 +73,8 @@ public class CharacterManager
     }
 
     /**
-     * Returns an iterator over the {@link ComponentType} objects
-     * representing all available character component type
-     * identifiers.
-     */
-    public Iterator enumerateComponentTypes ()
-    {
-        return _repo.enumerateComponentTypes();
-    }
-
-    /**
-     * Returns an iterator over the <code>Integer</code> objects
-     * representing all available character component identifiers for
-     * the given character component type identifier.
-     */
-    public Iterator enumerateComponentsByType (int ctid)
-    {
-        return _repo.enumerateComponentsByType(ctid);
-    }
-
-    /**
      * Returns an iterator over the {@link ComponentClass} objects
-     * representing all available character component class
-     * identifiers.
+     * representing all available character component classes.
      */
     public Iterator enumerateComponentClasses ()
     {
@@ -105,11 +84,11 @@ public class CharacterManager
     /**
      * Returns an iterator over the <code>Integer</code> objects
      * representing all available character component identifiers for
-     * the given character component type and class identifiers.
+     * the given character component class identifier.
      */
-    public Iterator enumerateComponentsByClass (int ctid, int clid)
+    public Iterator enumerateComponentsByClass (int clid)
     {
-        return _repo.enumerateComponentsByClass(ctid, clid);
+        return _repo.enumerateComponentsByClass(clid);
     }
 
     /**
@@ -131,44 +110,52 @@ public class CharacterManager
     }
 
     /**
-     * Returns a {@link CharacterComponent.ComponentFrames} object
-     * containing the fully composited images detailed in the given
-     * character descriptor.
+     * Returns an array of the character component objects specified
+     * in the given array of component ids.
      */
-    protected ComponentFrames createCompositeFrames (CharacterDescriptor desc)
+    protected CharacterComponent[] getComponents (int cids[])
     {
-        int components[] = desc.getComponents();
-        ComponentFrames frames = null;
+        int size = cids.length;
+        CharacterComponent components[] = new CharacterComponent[size];
 
-        for (int ii = 0; ii < _renderRank.length; ii++) {
-            try {
-                int clidx = _renderRank[ii].clid;
-
-                // get the component to render
-                CharacterComponent c = _repo.getComponent(components[clidx]);
-
-                // TODO: fix this to deal with frames of varying dimensions
-                if (frames == null) {
-                    int fcount = desc.getType().frameCount;
-                    frames = TileUtil.createBlankFrames(c.getFrames(), fcount);
-                }
-
-                // render the frames onto the composite frames
-                TileUtil.compositeFrames(frames, c.getFrames());
-
-            } catch (NoSuchComponentException nsce) {
-                Log.warning("Exception compositing character components " +
-                            "[nsce=" + nsce + "].");
-                return null;
+        try {
+            for (int ii = 0; ii < size; ii++) {
+                components[ii] = _repo.getComponent(cids[ii]);
             }
+
+        } catch (NoSuchComponentException nsce) {
+            Log.warning("Exception retrieving character component " +
+                        "[nsce=" + nsce + "].");
+            return null;
+        }
+
+        return components;
+    }
+
+    /**
+     * Returns an array of multi frame images containing the fully
+     * composited images for the given action sequences and
+     * components.
+     */
+    protected MultiFrameImage[][] createCompositeFrames (
+        int seqCount, CharacterComponent components[])
+    {
+        MultiFrameImage frames[][] =
+            new MultiFrameImage[seqCount][Sprite.NUM_DIRECTIONS];
+
+        // render all component frames one atop another
+        for (int ii = 0; ii < _renderRank.length; ii++) {
+            int clidx = _renderRank[ii].clid;
+            Log.info("Compositing component [c=" + components[clidx] + "].");
+            TileUtil.compositeFrames(frames, components[clidx].getFrames());
         }
 
         return frames;
     }
 
     /**
-     * Returns a new {@link CharacterSprite} of the character class
-     * specified for use by this character manager.
+     * Returns a new instance of the {@link CharacterSprite}-derived
+     * class specified for use by this character manager.
      */
     protected CharacterSprite createSprite ()
     {

@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.3 2001/10/30 16:16:01 shaper Exp $
+// $Id: TileUtil.java,v 1.4 2001/11/01 01:40:42 shaper Exp $
 
 package com.threerings.cast;
 
@@ -10,7 +10,6 @@ import com.threerings.media.sprite.*;
 import com.threerings.media.tile.*;
 
 import com.threerings.cast.Log;
-import com.threerings.cast.CharacterComponent.ComponentFrames;
 
 /**
  * Miscellaneous tile-related utility functions.
@@ -19,79 +18,84 @@ public class TileUtil
 {
     /**
      * Renders each of the given <code>src</code> component frames
-     * into the corresponding frames of <code>dest</code>.
+     * into the corresponding frames of <code>dest</code>, allocating
+     * blank image frames for <code>dest</code> if none yet exist.
      */
     public static void compositeFrames (
-        ComponentFrames dest, ComponentFrames src)
+        MultiFrameImage[][] dest, MultiFrameImage[][] src)
     {
-        for (int ii = 0; ii < Sprite.NUM_DIRECTIONS; ii++) {
-            // composite the standing frames
-            compositeFrames(dest.stand[ii], src.stand[ii]);
+        for (int ii = 0; ii < dest.length; ii++) {
+            for (int orient = 0; orient < Sprite.NUM_DIRECTIONS; orient++) {
+                // create blank destination frames if needed
+                if (dest[ii][orient] == null) {
+                    dest[ii][orient] = createBlankFrames(src[ii][orient]);
+                }
 
-            // composite the walking frames
-            compositeFrames(dest.walk[ii], src.walk[ii]);
+                // slap the images together
+                compositeFrames(dest[ii][orient], src[ii][orient]);
+            }
         }
     }
 
     /**
-     * Constructs and returns a new {@link
-     * CharacterComponent.ComponentFrames} object with empty images
-     * for all of its frames.
+     * Returns a new {@link MultiFrameImage} that has empty images in
+     * all frames.  The number of frames in the resulting multi frame
+     * image is the same as the frame count for <code>src</code>.
      */
-    public static ComponentFrames createBlankFrames (
-        ComponentFrames src, int frameCount)
+    public static MultiFrameImage createBlankFrames (MultiFrameImage src)
     {
-        ComponentFrames frames = new ComponentFrames();
-
-        // for now, just use the first frame from the source image to
-        // get the width and height for all of the blank frames
-        Image img = src.walk[0].getFrame(0);
+        // TODO: for now, just use the first frame from the source to
+        // get the width and height for all of the blank frames.  fix
+        // this hack soon.
+        Image img = src.getFrame(0);
         int wid = img.getWidth(null), hei = img.getHeight(null);
-
-        // allocate the blank frame images
-        for (int ii = 0; ii < Sprite.NUM_DIRECTIONS; ii++) {
-            frames.stand[ii] = new BlankFrameImage(wid, hei, 1);
-            frames.walk[ii] = new BlankFrameImage(wid, hei, frameCount);
-        }
-
-        return frames;
+        return new BlankFrameImage(wid, hei, src.getFrameCount());
     }
 
     /**
-     * Returns a {@link CharacterComponent.ComponentFrames} object
-     * containing the frames of animation used to render the sprite while
-     * standing or walking in each of the directions it may face.  The
-     * tileset id referenced must contain
-     * <code>Sprite.NUM_DIRECTIONS</code> rows of tiles, with each row
-     * containing first the single standing tile, followed by
-     * <code>frameCount</code> tiles describing the walking animation.
-     *
-     * @param tilemgr the tile manager to retrieve tiles from.
-     * @param tsid the tileset id containing the sprite tiles.
-     * @param frameCount the number of walking frames of animation.
+     * Returns a two-dimensional array of multi frame images
+     * containing the frames of animation used to render the sprite
+     * while standing or walking in each of the directions it may
+     * face.
      */
-    public static ComponentFrames getComponentFrames (
-        TileManager tilemgr, int tsid, int frameCount)
+    public static MultiFrameImage[][] getComponentFrames (
+        String imagedir, CharacterComponent c)
     {
-        ComponentFrames frames = new ComponentFrames();
+        ActionSequence seqs[] = c.getActionSequences();
+        MultiFrameImage frames[][] =
+            new MultiFrameImage[seqs.length][Sprite.NUM_DIRECTIONS];
 
 	try {
-	    for (int ii = 0; ii < Sprite.NUM_DIRECTIONS; ii++) {
+            for (int ii = 0; ii < seqs.length; ii++) {
+                ActionSequence as = seqs[ii];
 
-                Image walkimgs[] = new Image[frameCount];
-                int rowcount = frameCount + 1;
-		for (int jj = 0; jj < rowcount; jj++) {
-		    int idx = (ii * rowcount) + jj;
+                // get the tile set containing the component tiles for
+                // this action sequence
+                String file = getImageFile(imagedir, as, c);
+                TileSet tset = null;
 
-                    Image img = tilemgr.getTile(tsid, idx).img;
-                    if (jj == 0) {
-                        frames.stand[ii] = new SingleFrameImageImpl(img);
-                    } else {
-                        walkimgs[jj - 1] = img;
+                try {
+                    tset = as.tileset.clone(file);
+                } catch (CloneNotSupportedException e) {
+                    Log.warning("Failed to clone tile set " +
+                                "[tset=" + as.tileset + "].");
+                    return null;
+                }
+
+                // get the number of frames of animation
+                int frameCount = tset.getNumTiles() / Sprite.NUM_DIRECTIONS;
+
+                for (int dir = 0; dir < Sprite.NUM_DIRECTIONS; dir++) {
+                    // retrieve all images for the sequence and direction
+                    Image imgs[] = new Image[frameCount];
+                    for (int jj = 0; jj < frameCount; jj++) {
+                        int idx = (dir * frameCount) + jj;
+                        imgs[jj] = tset.getTile(idx).img;
                     }
-		}
 
-                frames.walk[ii] = new MultiFrameImageImpl(walkimgs);
+                    // create the multi frame image
+                    frames[ii][dir] = new MultiFrameImageImpl(imgs);
+                }
 	    }
 
 	} catch (TileException te) {
@@ -104,6 +108,15 @@ public class TileUtil
     }
 
     /**
+     * Returns the file path for the given action sequence and component. 
+     */
+    protected static String getImageFile (
+        String imagedir, ActionSequence as, CharacterComponent c)
+    {
+        return imagedir + as.fileid + "_" + c.getFileId() + IMAGE_SUFFIX;
+    }
+
+    /**
      * Renders each of the given <code>src</code> frames into the
      * corresponding frames of <code>dest</code>.
      */
@@ -112,9 +125,9 @@ public class TileUtil
     {
         int dsize = dest.getFrameCount(), ssize = src.getFrameCount();
         if (dsize != ssize) {
-            Log.warning("Can't composite multi frame images " +
-                        "with differing frame counts " +
-                        "[dest=" + dsize + ", src=" + ssize + "].");
+            Log.warning(
+                "Can't composite images with differing frame counts " +
+                "[dest=" + dsize + ", src=" + ssize + "].");
             return;
         }
 
@@ -159,4 +172,7 @@ public class TileUtil
         /** The frame images. */
         protected Image _imgs[];
     }
+
+    /** The image file name suffix appended to component image file names. */
+    protected static final String IMAGE_SUFFIX = ".png";
 }

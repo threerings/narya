@@ -1,5 +1,5 @@
 //
-// $Id: ComponentPanel.java,v 1.1 2001/10/30 16:16:01 shaper Exp $
+// $Id: ComponentPanel.java,v 1.2 2001/11/01 01:40:42 shaper Exp $
 
 package com.threerings.cast.builder;
 
@@ -27,11 +27,8 @@ public class ComponentPanel extends JPanel
     /**
      * Constructs the component panel.
      */
-    public ComponentPanel (CharacterManager charmgr, ComponentType type)
+    public ComponentPanel (CharacterManager charmgr)
     {
-        // save off references
-        _type = type;
-
         // retrieve component classes and relevant components
         gatherComponentInfo(charmgr);
 
@@ -60,7 +57,7 @@ public class ComponentPanel extends JPanel
             comps[cclass.clid] = ce.getSelectedComponent();
         }
 
-        return new CharacterDescriptor(_type, comps);
+        return new CharacterDescriptor(comps);
     }
 
     /**
@@ -75,9 +72,8 @@ public class ComponentPanel extends JPanel
 
         for (int ii = 0; ii < _classes.size(); ii++) {
             // get the list of components available for this class
-            int ctid = _type.ctid;
             int clid = ((ComponentClass)_classes.get(ii)).clid;
-            Iterator comps = charmgr.enumerateComponentsByClass(ctid, clid);
+            Iterator comps = charmgr.enumerateComponentsByClass(clid);
 
             while (comps.hasNext()) {
                 Integer cid = (Integer)comps.next();
@@ -111,9 +107,6 @@ public class ComponentPanel extends JPanel
             add(e);
         }
     }
-
-    /** The component type associated with the character components. */
-    protected ComponentType _type;
 
     /** The list of all available component classes. */
     protected ArrayList _classes = new ArrayList();

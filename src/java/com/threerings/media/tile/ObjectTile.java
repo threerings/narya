@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTile.java,v 1.2 2001/10/12 00:38:15 shaper Exp $
+// $Id: ObjectTile.java,v 1.3 2001/11/01 01:40:42 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -26,5 +26,13 @@ public class ObjectTile extends Tile
 
 	this.baseWidth = baseWidth;
 	this.baseHeight = baseHeight;
+    }
+
+    // documentation inherited
+    public void toString (StringBuffer buf)
+    {
+        super.toString(buf);
+        buf.append(", baseWidth=").append(baseWidth);
+        buf.append(", baseHeight=").append(baseHeight);
     }
 }
