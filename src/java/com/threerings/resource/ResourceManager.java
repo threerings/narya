@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.25 2003/04/27 03:27:33 mdb Exp $
+// $Id: ResourceManager.java,v 1.26 2003/05/03 00:45:36 ray Exp $
 
 package com.threerings.resource;
 
@@ -171,6 +171,29 @@ public class ResourceManager
                      "won't be able to create our cache directory " +
                      "either. [error=" + se + "].");
         }
+
+        // Add a hook to blow away the temp directory when we exit
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run ()
+            {
+                File dir = ResourceBundle.getCacheDir();
+                Log.info("Deleting narya temp cache directory '" + dir + "'.");
+                recursiveDelete(dir);
+            }
+
+            protected void recursiveDelete (File file)
+            {
+                if (file.isDirectory()) {
+                    File[] files = file.listFiles();
+                    for (int ii = 0; ii < files.length; ii++) {
+                        recursiveDelete(files[ii]);
+                    }
+                }
+                if (!file.delete()) {
+                    Log.warning("Failed to delete " + file + ".");
+                }
+            }
+        });
     }
 
     /**
