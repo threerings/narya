@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.11 2001/08/15 22:06:21 shaper Exp $
+// $Id: Sprite.java,v 1.12 2001/08/15 22:48:41 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -63,6 +63,10 @@ public class Sprite
 
         updateDrawPosition();
 
+	// set default velocity
+	_vel = new Point(1, 1);
+
+	// initialize frame animation member data
         _frameIdx = 0;
         _animDelay = ANIM_NONE;
         _numTicks = 0;
@@ -142,6 +146,17 @@ public class Sprite
     }
 
     /**
+     * Set the sprite's velocity when walking.
+     *
+     * @param vx the x-axis velocity.
+     * @param vy the y-axis velocity.
+     */
+    public void setVelocity (int vx, int vy)
+    {
+	_vel.setLocation(vx, vy);
+    }
+
+    /**
      * Stop the sprite from any movement along a path it may be
      * engaged in.
      */
@@ -210,8 +225,8 @@ public class Sprite
 
         // determine the horizontal/vertical move increments
         float dist = MathUtil.distance(x, y, _dest.loc.x, _dest.loc.y);
-        _incx = (float)(_dest.loc.x - x) / dist;
-        _incy = (float)(_dest.loc.y - y) / dist;
+        _incx = (float)(_dest.loc.x - x) / (dist / _vel.x);
+        _incy = (float)(_dest.loc.y - y) / (dist / _vel.y);
 
         // init position data used to track fractional pixels
         _movex = x;
@@ -348,6 +363,9 @@ public class Sprite
 
     /** When moving, the full path the sprite is traversing. */
     protected Path _fullpath;
+
+    /** The sprite velocity when walking. */
+    protected Point _vel;
 
     /** The sprite manager. */
     protected SpriteManager _spritemgr;
