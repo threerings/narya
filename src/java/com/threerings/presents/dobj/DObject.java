@@ -1,13 +1,15 @@
 //
-// $Id: DObject.java,v 1.67 2003/09/23 17:16:46 mdb Exp $
+// $Id: DObject.java,v 1.68 2003/09/24 20:33:06 mdb Exp $
 
 package com.threerings.presents.dobj;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
@@ -104,9 +106,12 @@ public class DObject implements Streamable
 {
     public DObject ()
     {
-        // introspect our fields into a sorted array
-        _fields = getClass().getFields();
-        Arrays.sort(_fields, FIELD_COMP);
+        _fields = (Field[])_ftable.get(getClass());
+        if (_fields == null) {
+            _fields = getClass().getFields();
+            Arrays.sort(_fields, FIELD_COMP);
+            _ftable.put(getClass(), _fields);
+        }
     }
 
     /**
@@ -921,6 +926,10 @@ public class DObject implements Streamable
     /** Indicates whether we want to be destroyed when our last subscriber
      * is removed. */
     protected transient boolean _deathWish = false;
+
+    /** Maintains a mapping of sorted field arrays for each distributed
+     * object class. */
+    protected static HashMap _ftable = new HashMap();
 
     /** Used to sort and search {@link #_fields}. */
     protected static final Comparator FIELD_COMP = new Comparator() {
