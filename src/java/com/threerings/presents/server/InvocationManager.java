@@ -1,5 +1,5 @@
 //
-// $Id: InvocationManager.java,v 1.16 2003/10/26 02:33:43 eric Exp $
+// $Id: InvocationManager.java,v 1.17 2003/10/26 02:44:01 eric Exp $
 
 package com.threerings.presents.server;
 
@@ -110,7 +110,8 @@ public class InvocationManager
             bootlist.add(marsh);
         }
 
-        _recentRegServices.put(new Integer(invCode), marsh);
+        _recentRegServices.put(new Integer(invCode),
+                               marsh.getClass().getName());
 
 //        Log.info("Registered service [marsh=" + marsh + "].");
         return marsh;
@@ -193,8 +194,7 @@ public class InvocationManager
             Log.warning("Received invocation request for which we have " +
                         "no registered dispatcher [code=" + invCode +
                         ", methId=" + methodId +
-                        ", args=" + StringUtil.toString(args) + "].");
-            Log.warning("Marsheller for unregistered dispatcher [march=" +
+                        ", args=" + StringUtil.toString(args) + ", marsh= " +
                         _recentRegServices.get(new Integer(invCode)) + "].");
             return;
         }
