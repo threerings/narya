@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.25 2003/01/21 22:10:41 mdb Exp $
+// $Id: InvocationDirector.java,v 1.26 2003/07/11 03:02:46 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -151,8 +151,8 @@ public class InvocationDirector
         _clobj.addToReceivers(reg);
         // and map the receiver in our receivers table
         _receivers.put(reg.receiverId, decoder);
-        Log.debug("Registered receiver " + StringUtil.shortClassName(decoder) +
-                  " " + reg + ".");
+        Log.info("Registered receiver " + StringUtil.shortClassName(decoder) +
+                 " " + reg + ".");
     }
 
     /**
