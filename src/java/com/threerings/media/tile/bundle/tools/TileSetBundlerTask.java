@@ -1,13 +1,17 @@
 //
-// $Id: TileSetBundlerTask.java,v 1.2 2002/02/05 20:29:09 mdb Exp $
+// $Id: TileSetBundlerTask.java,v 1.3 2002/04/03 22:21:35 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
 import java.io.File;
 import java.io.IOException;
 
+import java.util.ArrayList;
+
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
+import org.apache.tools.ant.types.FileSet;
 
 import com.threerings.media.tile.tools.MapFileTileSetIDBroker;
 
@@ -26,15 +30,6 @@ public class TileSetBundlerTask extends Task
     }
 
     /**
-     * Sets the path to the bundle defintion file that we'll use to create
-     * our tileset bundle.
-     */
-    public void setBundledef (File bundledef)
-    {
-        _bundledef = bundledef;
-    }
-
-    /**
      * Sets the path to the tileset id mapping file we'll use when
      * creating the bundle.
      */
@@ -44,11 +39,11 @@ public class TileSetBundlerTask extends Task
     }
 
     /**
-     * Sets the path to the bundle file that we'll be creating.
+     * Adds a nested &lt;fileset&gt; element.
      */
-    public void setTarget (File target)
+    public void addFileset (FileSet set)
     {
-        _target = target;
+        _filesets.add(set);
     }
 
     /**
@@ -59,12 +54,8 @@ public class TileSetBundlerTask extends Task
         // make sure everything was set up properly
         ensureSet(_config, "Must specify the path to the bundler config " +
                   "file via the 'config' attribute.");
-        ensureSet(_bundledef, "Must specify the path to the bundle " +
-                  "definition file via the 'bundledef' attribute.");
         ensureSet(_mapfile, "Must specify the path to the tileset id map " +
                   "file via the 'mapfile' attribute.");
-        ensureSet(_target, "Must specify the path to the target bundle " +
-                  "file via the 'target' attribute.");
 
         try {
             // create a tileset bundler
@@ -74,8 +65,34 @@ public class TileSetBundlerTask extends Task
             MapFileTileSetIDBroker broker =
                 new MapFileTileSetIDBroker(_mapfile);
 
-            // create the bundle
-            bundler.createBundle(broker, _bundledef, _target);
+            // deal with the filesets
+            for (int i = 0; i < _filesets.size(); i++) {
+                FileSet fs = (FileSet)_filesets.get(i);
+                DirectoryScanner ds = fs.getDirectoryScanner(project);
+                File fromDir = fs.getDir(project);
+                String[] srcFiles = ds.getIncludedFiles();
+
+                for (int f = 0; f < srcFiles.length; f++) {
+                    File cfile = new File(fromDir, srcFiles[f]);
+
+                    // figure out the bundle file based on the definition
+                    // file
+                    String cpath = cfile.getPath();
+                    if (!cpath.endsWith(".xml")) {
+                        System.err.println("Can't infer bundle name from " +
+                                           "bundle config name " +
+                                           "[path=" + cpath + "].\n" +
+                                           "Config file should end with .xml.");
+                        continue;
+                    }
+                    String bpath =
+                        cpath.substring(0, cpath.length()-4) + ".jar";
+                    File bfile = new File(bpath);
+
+                    // create the bundle
+                    bundler.createBundle(broker, cfile, bfile);
+                }
+            }
 
             // commit changes to the tileset id mapping
             broker.commit();
@@ -96,7 +113,8 @@ public class TileSetBundlerTask extends Task
     }
 
     protected File _config;
-    protected File _bundledef;
     protected File _mapfile;
-    protected File _target;
+
+    /** A list of filesets that contain tileset bundle definitions. */
+    protected ArrayList _filesets = new ArrayList();
 }
