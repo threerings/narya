@@ -1,9 +1,9 @@
 //
-// $Id: ChatCodes.java,v 1.6 2002/02/28 23:16:42 mdb Exp $
+// $Id: ChatCodes.java,v 1.7 2002/04/15 16:28:01 shaper Exp $
 
 package com.threerings.crowd.chat;
 
-import com.threerings.presents.client.InvocationCodes;
+import com.threerings.presents.data.InvocationCodes;
 
 /**
  * Contains codes used by the chat invocation services.

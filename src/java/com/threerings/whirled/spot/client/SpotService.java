@@ -1,5 +1,5 @@
 //
-// $Id: SpotService.java,v 1.4 2001/12/16 21:02:18 mdb Exp $
+// $Id: SpotService.java,v 1.5 2002/04/15 16:28:03 shaper Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -9,6 +9,7 @@ import com.threerings.presents.client.InvocationDirector;
 import com.threerings.whirled.client.SceneDirector;
 
 import com.threerings.whirled.spot.Log;
+import com.threerings.whirled.spot.data.SpotCodes;
 
 /**
  * Provides a mechanism by which the client can request to move between

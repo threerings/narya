@@ -1,9 +1,9 @@
 //
-// $Id: LobbyCodes.java,v 1.3 2001/10/11 04:13:33 mdb Exp $
+// $Id: LobbyCodes.java,v 1.4 2002/04/15 16:28:02 shaper Exp $
 
 package com.threerings.micasa.lobby;
 
-import com.threerings.presents.client.InvocationCodes;
+import com.threerings.presents.data.InvocationCodes;
 
 /**
  * Contains codes used by the lobby invocation services.

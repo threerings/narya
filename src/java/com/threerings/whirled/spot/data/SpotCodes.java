@@ -1,10 +1,10 @@
 //
-// $Id: SpotCodes.java,v 1.5 2002/02/03 08:22:38 shaper Exp $
+// $Id: SpotCodes.java,v 1.1 2002/04/15 16:28:03 shaper Exp $
 
-package com.threerings.whirled.spot.client;
+package com.threerings.whirled.spot.data;
 
 import com.threerings.crowd.chat.ChatCodes;
-import com.threerings.whirled.client.SceneCodes;
+import com.threerings.whirled.data.SceneCodes;
 
 /**
  * Contains codes used by the Spot invocation services.

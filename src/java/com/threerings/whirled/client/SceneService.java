@@ -1,5 +1,5 @@
 //
-// $Id: SceneService.java,v 1.5 2001/10/11 04:07:54 mdb Exp $
+// $Id: SceneService.java,v 1.6 2002/04/15 16:28:03 shaper Exp $
 
 package com.threerings.whirled.client;
 
@@ -7,6 +7,7 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationDirector;
 
 import com.threerings.whirled.Log;
+import com.threerings.whirled.data.SceneCodes;
 
 /**
  * The scene service class provides the client interface to the scene

@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.19 2002/03/28 22:32:31 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.20 2002/04/15 16:28:01 shaper Exp $
 
 package com.threerings.crowd.server;
 
@@ -16,7 +16,6 @@ import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.server.InvocationManager;
 
 import com.threerings.crowd.Log;
-import com.threerings.crowd.client.LocationCodes;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 

@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.4 2001/12/16 21:02:18 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.5 2002/04/15 16:28:03 shaper Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -16,7 +16,7 @@ import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.whirled.server.SceneManager;
 
 import com.threerings.whirled.spot.Log;
-import com.threerings.whirled.spot.client.SpotCodes;
+import com.threerings.whirled.spot.data.SpotCodes;
 import com.threerings.whirled.spot.data.SpotOccupantInfo;
 
 /**

@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.10 2001/12/16 05:18:20 mdb Exp $
+// $Id: SceneDirector.java,v 1.11 2002/04/15 16:28:03 shaper Exp $
 
 package com.threerings.whirled.client;
 
@@ -16,6 +16,7 @@ import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.client.persist.SceneRepository;
+import com.threerings.whirled.data.SceneCodes;
 import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.util.NoSuchSceneException;
 import com.threerings.whirled.util.WhirledContext;

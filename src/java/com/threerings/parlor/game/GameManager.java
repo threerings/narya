@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.24 2002/04/14 00:26:05 mdb Exp $
+// $Id: GameManager.java,v 1.25 2002/04/15 16:28:02 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -16,7 +16,7 @@ import com.threerings.crowd.server.CrowdServer;
 import com.threerings.crowd.server.PlaceManagerDelegate;
 
 import com.threerings.parlor.Log;
-import com.threerings.parlor.client.ParlorCodes;
+import com.threerings.parlor.data.ParlorCodes;
 
 /**
  * The game manager handles the server side management of a game. It

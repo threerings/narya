@@ -1,9 +1,9 @@
 //
-// $Id: SceneCodes.java,v 1.3 2001/11/12 20:56:55 mdb Exp $
+// $Id: SceneCodes.java,v 1.1 2002/04/15 16:28:03 shaper Exp $
 
-package com.threerings.whirled.client;
+package com.threerings.whirled.data;
 
-import com.threerings.crowd.client.LocationCodes;
+import com.threerings.crowd.data.LocationCodes;
 
 /**
  * Contains codes used by the scene invocation services.

@@ -1,9 +1,9 @@
 //
-// $Id: ZoneCodes.java,v 1.1 2001/12/04 00:31:58 mdb Exp $
+// $Id: ZoneCodes.java,v 1.1 2002/04/15 16:28:04 shaper Exp $
 
-package com.threerings.whirled.zone.client;
+package com.threerings.whirled.zone.data;
 
-import com.threerings.whirled.client.SceneCodes;
+import com.threerings.whirled.data.SceneCodes;
 
 /**
  * Contains codes used by the zone services.

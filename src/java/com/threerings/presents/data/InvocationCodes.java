@@ -1,7 +1,7 @@
 //
-// $Id: InvocationCodes.java,v 1.4 2002/01/22 02:50:36 mdb Exp $
+// $Id: InvocationCodes.java,v 1.1 2002/04/15 16:28:03 shaper Exp $
 
-package com.threerings.presents.client;
+package com.threerings.presents.data;
 
 /**
  * The invocation codes interface provides codes that are commonly used by

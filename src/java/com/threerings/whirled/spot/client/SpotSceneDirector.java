@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.10 2002/02/03 08:22:38 shaper Exp $
+// $Id: SpotSceneDirector.java,v 1.11 2002/04/15 16:28:03 shaper Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -23,6 +23,7 @@ import com.threerings.whirled.util.WhirledContext;
 import com.threerings.whirled.spot.Log;
 import com.threerings.whirled.spot.data.Location;
 import com.threerings.whirled.spot.data.Portal;
+import com.threerings.whirled.spot.data.SpotCodes;
 
 /**
  * Extends the standard scene director with facilities to move between

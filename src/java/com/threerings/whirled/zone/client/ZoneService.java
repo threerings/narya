@@ -1,5 +1,5 @@
 //
-// $Id: ZoneService.java,v 1.2 2001/12/17 00:56:19 mdb Exp $
+// $Id: ZoneService.java,v 1.3 2002/04/15 16:28:04 shaper Exp $
 
 package com.threerings.whirled.zone.client;
 
@@ -7,6 +7,7 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationDirector;
 
 import com.threerings.whirled.zone.Log;
+import com.threerings.whirled.zone.data.ZoneCodes;
 
 /**
  * The zone service class provides the client interface to the zone

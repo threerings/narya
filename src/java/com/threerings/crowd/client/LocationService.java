@@ -1,11 +1,12 @@
 //
-// $Id: LocationService.java,v 1.4 2001/10/11 04:07:51 mdb Exp $
+// $Id: LocationService.java,v 1.5 2002/04/15 16:28:01 shaper Exp $
 
 package com.threerings.crowd.client;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationDirector;
 import com.threerings.crowd.Log;
+import com.threerings.crowd.data.LocationCodes;
 
 /**
  * The location services provide a mechanism by which the client can

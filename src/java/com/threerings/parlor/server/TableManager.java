@@ -1,5 +1,5 @@
 //
-// $Id: TableManager.java,v 1.4 2001/10/26 01:40:22 mdb Exp $
+// $Id: TableManager.java,v 1.5 2002/04/15 16:28:02 shaper Exp $
 
 package com.threerings.parlor.server;
 
@@ -23,7 +23,7 @@ import com.threerings.crowd.server.PlaceManager;
 import com.threerings.crowd.server.PlaceRegistry;
 
 import com.threerings.parlor.Log;
-import com.threerings.parlor.client.ParlorCodes;
+import com.threerings.parlor.data.ParlorCodes;
 import com.threerings.parlor.data.Table;
 import com.threerings.parlor.data.TableConfig;
 import com.threerings.parlor.data.TableLobbyObject;

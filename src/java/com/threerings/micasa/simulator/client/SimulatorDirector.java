@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorDirector.java,v 1.1 2001/12/19 09:32:02 shaper Exp $
+// $Id: SimulatorDirector.java,v 1.2 2002/04/15 16:28:02 shaper Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -7,6 +7,8 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationDirector;
 
 import com.threerings.parlor.game.GameConfig;
+
+import com.threerings.micasa.simulator.data.SimulatorCodes;
 
 public class SimulatorDirector implements SimulatorCodes
 {

@@ -1,7 +1,7 @@
 //
-// $Id: SimulatorCodes.java,v 1.1 2001/12/19 09:32:02 shaper Exp $
+// $Id: SimulatorCodes.java,v 1.1 2002/04/15 16:28:02 shaper Exp $
 
-package com.threerings.micasa.simulator.client;
+package com.threerings.micasa.simulator.data;
 
 public interface SimulatorCodes
 {

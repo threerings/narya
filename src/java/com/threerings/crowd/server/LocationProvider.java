@@ -1,5 +1,5 @@
 //
-// $Id: LocationProvider.java,v 1.11 2001/12/04 01:02:59 mdb Exp $
+// $Id: LocationProvider.java,v 1.12 2002/04/15 16:28:01 shaper Exp $
 
 package com.threerings.crowd.server;
 
@@ -11,8 +11,11 @@ import com.threerings.presents.server.InvocationProvider;
 import com.threerings.presents.server.ServiceFailedException;
 
 import com.threerings.crowd.Log;
-import com.threerings.crowd.client.LocationCodes;
-import com.threerings.crowd.data.*;
+import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.LocationCodes;
+import com.threerings.crowd.data.OccupantInfo;
+import com.threerings.crowd.data.PlaceConfig;
+import com.threerings.crowd.data.PlaceObject;
 
 /**
  * This class provides the server end of the location services.

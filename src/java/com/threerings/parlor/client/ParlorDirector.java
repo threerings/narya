@@ -1,5 +1,5 @@
 //
-// $Id: ParlorDirector.java,v 1.14 2002/02/09 11:23:49 mdb Exp $
+// $Id: ParlorDirector.java,v 1.15 2002/04/15 16:28:02 shaper Exp $
 
 package com.threerings.parlor.client;
 
@@ -10,6 +10,7 @@ import com.samskivert.util.HashIntMap;
 import com.threerings.presents.client.InvocationReceiver;
 
 import com.threerings.parlor.Log;
+import com.threerings.parlor.data.ParlorCodes;
 import com.threerings.parlor.game.GameConfig;
 import com.threerings.parlor.util.ParlorContext;
 

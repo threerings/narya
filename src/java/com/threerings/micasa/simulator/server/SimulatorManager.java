@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorManager.java,v 1.9 2002/03/28 22:32:32 mdb Exp $
+// $Id: SimulatorManager.java,v 1.10 2002/04/15 16:28:02 shaper Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -25,7 +25,7 @@ import com.threerings.parlor.game.GameObject;
 
 import com.threerings.micasa.Log;
 import com.threerings.micasa.simulator.client.Simulant;
-import com.threerings.micasa.simulator.client.SimulatorCodes;
+import com.threerings.micasa.simulator.data.SimulatorCodes;
 
 /**
  * The simulator manager is responsible for handling the simulator

@@ -1,5 +1,5 @@
 //
-// $Id: ZoneProvider.java,v 1.5 2002/02/07 03:26:58 mdb Exp $
+// $Id: ZoneProvider.java,v 1.6 2002/04/15 16:28:05 shaper Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -16,7 +16,7 @@ import com.threerings.whirled.server.SceneRegistry;
 import com.threerings.whirled.server.SceneManager;
 
 import com.threerings.whirled.zone.Log;
-import com.threerings.whirled.zone.client.ZoneCodes;
+import com.threerings.whirled.zone.data.ZoneCodes;
 import com.threerings.whirled.zone.data.ZoneSummary;
 import com.threerings.whirled.zone.data.ZonedBodyObject;
 

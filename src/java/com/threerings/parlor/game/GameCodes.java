@@ -1,9 +1,9 @@
 //
-// $Id: GameCodes.java,v 1.3 2001/10/11 21:08:21 mdb Exp $
+// $Id: GameCodes.java,v 1.4 2002/04/15 16:28:02 shaper Exp $
 
 package com.threerings.parlor.game;
 
-import com.threerings.presents.client.InvocationCodes;
+import com.threerings.presents.data.InvocationCodes;
 
 /**
  * Contains codes used by the game services.
