@@ -1,5 +1,5 @@
 //
-// $Id: PlaceObject.java,v 1.12 2003/06/03 21:41:33 ray Exp $
+// $Id: PlaceObject.java,v 1.13 2003/06/14 00:55:40 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -10,8 +10,10 @@ import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.OidList;
 
 import com.threerings.crowd.chat.data.SpeakMarshaller;
+import com.threerings.crowd.chat.data.SpeakObject;
 
 public class PlaceObject extends DObject
+    implements SpeakObject
 {
     /** The field name of the <code>occupants</code> field. */
     public static final String OCCUPANTS = "occupants";
@@ -60,6 +62,14 @@ public class PlaceObject extends DObject
             }
         }
         return null;
+    }
+
+    // documentation inherited
+    public void applyToListeners (ListenerOp op)
+    {
+        for (int ii = 0, ll = occupants.size(); ii < ll; ii++) {
+            op.apply(occupants.get(ii));
+        }
     }
 
     /**

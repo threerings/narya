@@ -1,11 +1,17 @@
 //
-// $Id: BodyObject.dobj,v 1.11 2002/10/30 00:42:37 mdb Exp $
+// $Id: BodyObject.dobj,v 1.12 2003/06/14 00:55:40 mdb Exp $
 
 package com.threerings.crowd.data;
 
 import com.threerings.presents.data.ClientObject;
+import com.threerings.crowd.chat.data.SpeakObject;
 
+/**
+ * The basic user object class for Crowd users. Bodies have a username, a
+ * location and a status.
+ */
 public class BodyObject extends ClientObject
+    implements SpeakObject
 {
     /**
      * The username associated with this body object.
@@ -28,6 +34,12 @@ public class BodyObject extends ClientObject
      * is only available on the server.
      */
     public transient long statusTime;
+
+    // documentation inherited
+    public void applyToListeners (ListenerOp op)
+    {
+        op.apply(getOid());
+    }
 
     // documentation inherited
     public String who ()
