@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.21 2003/02/12 05:34:53 mdb Exp $
+// $Id: GameController.java,v 1.22 2003/08/16 00:28:43 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -74,9 +74,11 @@ public abstract class GameController extends PlaceController
         // that overrode this method have executed, so we'll queue up a
         // runnable here that will let the game manager know that we're
         // ready on the next pass through the distributed event loop
+        Log.info("Entering game " + _gobj.which() + ".");
         _ctx.getClient().getInvoker().invokeLater(new Runnable() {
             public void run () {
                 // finally let the game manager know that we're ready to roll
+                Log.info("Reporting ready " + _gobj.which() + ".");
                 _gobj.gameService.playerReady(_ctx.getClient());
             }
         });
