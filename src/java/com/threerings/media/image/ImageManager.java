@@ -1,5 +1,6 @@
+
 //
-// $Id: ImageManager.java,v 1.20 2002/09/25 07:15:16 mdb Exp $
+// $Id: ImageManager.java,v 1.21 2002/10/16 15:57:12 shaper Exp $
 
 package com.threerings.media;
 
@@ -13,8 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 import javax.imageio.ImageReader;
 
@@ -23,9 +22,10 @@ import javax.imageio.stream.MemoryCacheImageInputStream;
 
 import com.samskivert.io.NestableIOException;
 
-import com.threerings.resource.ResourceManager;
 import com.threerings.media.Log;
 import com.threerings.media.util.ImageUtil;
+import com.threerings.resource.ResourceBundle;
+import com.threerings.resource.ResourceManager;
 
 /**
  * Provides a single point of access for image retrieval and caching.
@@ -94,6 +94,46 @@ public class ImageManager
             return _loader.loadImage(bin);
         } catch (IllegalArgumentException iae) {
             String errmsg = "Error loading image [path=" + path + "]";
+            throw new NestableIOException(errmsg, iae);
+        }
+    }
+
+    /**
+     * Loads the image from the given resource set using the specified
+     * path. Does no caching and does not convert the image for optimized
+     * display on the target graphics configuration. Instead the original
+     * image as returned by the image loader is returned.
+     */
+    public Image loadImage (String rset, String path)
+        throws IOException
+    {
+        // grab the resource bundles in the specified resource set
+        ResourceBundle[] bundles = _rmgr.getResourceSet(rset);
+        if (bundles == null) {
+            throw new IOException("Failed to load image due to unknown " +
+                                  "resource set " +
+                                  "[rset=" + rset + ", path=" + path + "].");
+        }
+
+        // look for the image in any of the bundles
+        int size = bundles.length;
+        InputStream imgin = null;
+        for (int ii = 0; (ii < size) && (imgin == null); ii++) {
+            imgin = bundles[ii].getResource(path);
+        }
+        if (imgin == null) {
+            throw new IOException("Failed to load image that couldn't be " +
+                                  "found in resource set " +
+                                  "[rset=" + rset + ", path=" + path + "].");
+        }
+
+        // load up the image
+        try {
+            BufferedInputStream bin = new BufferedInputStream(imgin);
+            return _loader.loadImage(bin);
+        } catch (IllegalArgumentException iae) {
+            String errmsg = "Error loading image " +
+                "[rset=" + rset + ", path=" + path + "]";
             throw new NestableIOException(errmsg, iae);
         }
     }
