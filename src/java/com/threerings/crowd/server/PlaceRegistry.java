@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.15 2001/10/24 00:57:39 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.16 2001/11/07 10:47:55 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -202,12 +202,16 @@ public class PlaceRegistry
      */
     protected void unmapPlaceManager (PlaceManager pmgr)
     {
+        int ploid = pmgr.getPlaceObject().getOid();
         // remove it from the table
-        if (_pmgrs.remove(pmgr.getPlaceObject().getOid()) == null) {
+        if (_pmgrs.remove(ploid) == null) {
             Log.warning("Requested to unmap unmapped place manager " +
                         "[pmgr=" + pmgr + "].");
+
         } else {
-            Log.info("Unmapped place manager " + pmgr + ".");
+            Log.info("Unmapped place manager " +
+                     "[class=" + pmgr.getClass().getName() +
+                     ", ploid=" + ploid + "].");
         }
     }
 
