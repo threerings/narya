@@ -1,5 +1,5 @@
 //
-// $Id: UniformTileSet.java,v 1.11 2003/01/13 22:49:46 mdb Exp $
+// $Id: UniformTileSet.java,v 1.12 2003/01/18 03:53:31 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -69,6 +69,12 @@ public class UniformTileSet extends TileSet
 
         // figure out from whence to crop the tile
         int tilesPerRow = tsimg.getWidth() / _width;
+
+        // if we got a bogus image, return bogus tile bounds
+        if (tilesPerRow == 0) {
+            return new Rectangle(0, 0, tsimg.getWidth(), tsimg.getHeight());
+        }
+
         int row = tileIndex / tilesPerRow;
         int col = tileIndex % tilesPerRow;
 
