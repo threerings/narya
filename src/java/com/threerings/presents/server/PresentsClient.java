@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.42 2002/10/26 02:40:30 shaper Exp $
+// $Id: PresentsClient.java,v 1.43 2002/10/31 21:03:57 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -79,6 +79,33 @@ public class PresentsClient
     public Credentials getCredentials ()
     {
         return _creds;
+    }
+
+    /**
+     * Returns true if this client has been disconnected for sufficiently
+     * long that its session should be forcibly ended.
+     */
+    public boolean checkExpired (long now)
+    {
+        return (getConnection() == null && (now - _networkStamp > FLUSH_TIME));
+    }
+
+    /**
+     * Returns the time at which this client started their network
+     * session.
+     */
+    public long getSessionStamp ()
+    {
+        return _sessionStamp;
+    }
+
+    /**
+     * Returns the time at which this client most recently connected or
+     * disconnected.
+     */
+    public long getNetworkStamp ()
+    {
+        return _networkStamp;
     }
 
     /**
@@ -213,6 +240,9 @@ public class PresentsClient
 
         // resolve our client object before we get fully underway
         cmgr.resolveClientObject(_username, this);
+
+        // make a note of our session start time
+        _sessionStamp = System.currentTimeMillis();
     }
 
     /**
@@ -527,6 +557,9 @@ public class PresentsClient
         if (_conn != null) {
             _conn.setMessageHandler(this);
         }
+
+        // make a note that our network status changed
+        _networkStamp = System.currentTimeMillis();
     }
 
     /**
@@ -739,6 +772,17 @@ public class PresentsClient
     protected HashIntMap _subscrips = new HashIntMap();
 
     protected static HashMap _disps = new HashMap();
+
+    /** The time at which this client started their session. */
+    protected long _sessionStamp;
+
+    /** The time at which this client most recently connected or
+     * disconnected. */
+    protected long _networkStamp;
+
+    /** The amount of time after disconnection a user is allowed before
+     * their session is forcibly ended. */
+    protected static final long FLUSH_TIME = 7 * 60 * 1000L;
 
     // register our message dispatchers
     static {
