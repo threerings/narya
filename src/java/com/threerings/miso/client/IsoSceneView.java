@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.114 2002/06/22 01:00:32 ray Exp $
+// $Id: IsoSceneView.java,v 1.115 2002/06/25 01:20:07 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -568,7 +568,7 @@ public class IsoSceneView implements SceneView
         while (iter.hasNext()) {
             ObjectMetrics metrics = (ObjectMetrics)iter.next();
             Rectangle pbounds = metrics.bounds;
-            // skip polys that don't contain the point
+            // skip bounding rects that don't contain the point
             if (!pbounds.contains(x, y)) {
                 continue;
             }
