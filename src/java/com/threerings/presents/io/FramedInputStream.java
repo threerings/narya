@@ -1,5 +1,5 @@
 //
-// $Id: FramedInputStream.java,v 1.4 2001/05/30 23:58:31 mdb Exp $
+// $Id: FramedInputStream.java,v 1.5 2001/08/03 03:10:15 mdb Exp $
 
 package com.threerings.cocktail.cher.io;
 
@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.samskivert.util.StringUtil;
+
+import com.threerings.cocktail.cher.Log;
 
 /**
  * The framed input stream reads input that was framed by a framing output
@@ -66,16 +68,13 @@ public class FramedInputStream extends InputStream
         // we're not halfway through reading a frame and that we can start
         // anew.
         if (_count == _length) {
-            // clear out any prior data
-            _pos = 0;
-            _count = 0;
-
             // read in the frame length
             int got = source.read(_header, 0, HEADER_SIZE);
             if (got < 0) {
                 throw new EOFException();
 
             } else if (got == 0) {
+                Log.info("Woke up to read data, but there ain't none. Sigh.");
                 return false;
 
             } else if (got < HEADER_SIZE) {
@@ -84,6 +83,11 @@ public class FramedInputStream extends InputStream
                     " bytes, got " + got + " bytes.";
                 throw new RuntimeException(errmsg);
             }
+
+            // now that we've read our new frame length, we can clear out
+            // any prior data
+            _pos = 0;
+            _count = 0;
 
             // decode the frame length
             _length = (_header[0] << 24) & 0xFF;
@@ -99,7 +103,7 @@ public class FramedInputStream extends InputStream
         }
 
         // read the data into the buffer
-        int got = source.read(_buffer, _count, _length);
+        int got = source.read(_buffer, _count, _length-_count);
         if (got < 0) {
             throw new EOFException();
         }
