@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepositoryTest.java,v 1.1 2001/11/27 08:06:57 mdb Exp $
+// $Id: BundledComponentRepositoryTest.java,v 1.2 2001/11/29 21:55:25 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -8,9 +8,17 @@ import com.samskivert.util.StringUtil;
 import com.threerings.resource.ResourceManager;
 import com.threerings.cast.ComponentClass;
 
-public class BundledComponentRepositoryTest
+import junit.framework.Test;
+import junit.framework.TestCase;
+
+public class BundledComponentRepositoryTest extends TestCase
 {
-    public static void main (String[] args)
+    public BundledComponentRepositoryTest ()
+    {
+        super(BundledComponentRepositoryTest.class.getName());
+    }
+
+    public void runTest ()
     {
         try {
             ResourceManager rmgr = new ResourceManager(null, "rsrc");
@@ -36,6 +44,19 @@ public class BundledComponentRepositoryTest
 
         } catch (Exception e) {
             e.printStackTrace();
+            fail();
         }
+    }
+
+    public static void main (String[] args)
+    {
+        BundledComponentRepositoryTest test =
+            new BundledComponentRepositoryTest();
+        test.runTest();
+    }
+
+    public static Test suite ()
+    {
+        return new BundledComponentRepositoryTest();
     }
 }

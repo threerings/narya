@@ -1,19 +1,27 @@
 //
-// $Id: BundledTileSetRepositoryTest.java,v 1.1 2001/11/21 02:42:16 mdb Exp $
+// $Id: BundledTileSetRepositoryTest.java,v 1.2 2001/11/29 21:55:40 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
 import java.util.Iterator;
 import com.threerings.resource.ResourceManager;
 
-public class BundledTileSetRepositoryTest
+import junit.framework.Test;
+import junit.framework.TestCase;
+
+public class BundledTileSetRepositoryTest extends TestCase
 {
-    public static void main (String[] args)
+    public BundledTileSetRepositoryTest ()
+    {
+        super(BundledTileSetRepositoryTest.class.getName());
+    }
+
+    public void runTest ()
     {
         try {
             ResourceManager rmgr = new ResourceManager(null, "rsrc");
             BundledTileSetRepository repo =
-                new BundledTileSetRepository(rmgr, "bundle_test");
+                new BundledTileSetRepository(rmgr, "tilesets");
             Iterator sets = repo.enumerateTileSets();
             while (sets.hasNext()) {
                 System.out.println(sets.next());
@@ -22,5 +30,17 @@ public class BundledTileSetRepositoryTest
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static Test suite ()
+    {
+        return new BundledTileSetRepositoryTest();
+    }
+
+    public static void main (String[] args)
+    {
+        BundledTileSetRepositoryTest test =
+            new BundledTileSetRepositoryTest();
+        test.runTest();
     }
 }
