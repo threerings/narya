@@ -1,5 +1,5 @@
 //
-// $Id: Marshaller.java,v 1.9 2002/02/02 01:07:20 mdb Exp $
+// $Id: Marshaller.java,v 1.10 2002/02/19 03:30:40 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -120,7 +120,7 @@ public class Marshaller
                 String errmsg = "Unable to marshall obj field " +
                     "[field=" + _fields[i].getName() +
                     ", obj=" + obj  + "].";
-                throw new ObjectStreamException(errmsg);
+                throw new ObjectStreamException(errmsg, iae);
             }
         }
     }
@@ -145,7 +145,7 @@ public class Marshaller
                     "[field=" + _fields[i].getName() +
                     ", obj=" + obj  + "].";
                 Log.logStackTrace(iae);
-                throw new ObjectStreamException(errmsg);
+                throw new ObjectStreamException(errmsg, iae);
             }
         }
     }
