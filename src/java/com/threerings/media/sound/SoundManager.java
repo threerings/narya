@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.68 2004/02/04 19:04:46 ray Exp $
+// $Id: SoundManager.java,v 1.69 2004/02/12 04:14:21 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -1090,16 +1090,18 @@ public class SoundManager
             // There is a major bug with using drain() under linux. It often
             // causes the thread to just loop forever inside the native
             // implementation of drain(), and we're screwed.
-            if (!RunAnywhere.isLinux()) {
-                _line.drain();
-
-            } else {
+            // UPDATE- it seems that it happens under windows as well sometimes
+            // so I am now just disabling drain.
+            if (true || RunAnywhere.isLinux()) {
                 // we instead attempt to sleep long enough such that
                 // everything should be drained.
                 try {
                     Thread.sleep(NO_DRAIN_SLEEP_TIME);
                 } catch (InterruptedException ie) {
                 }
+
+            } else {
+                _line.drain();
             }
 
             // clear it out so that we can wait for more.
