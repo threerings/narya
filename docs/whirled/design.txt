@@ -46,3 +46,15 @@ We need some mechanism for the scene registry to know which SceneManager
 derived class to instantiate. Probably something like
 Scene.getManagerClassName() which can be implemented by an application
 when it creates its Scene implementation.
+
+* Zone Management
+The scene universe can be divided into zones.
+
+Zones contain a set of scenes and are traversed by a special mechanism
+(separate from scene to scene traversal).
+
+Zones provide scene summary for the scenes in the zone which can be used
+on the client to generate a map of the zone.
+
+Zones are identified by an integer of which the upper 8 bits is a zone
+type identifier and the lower 24 bits are the zone identifier.
