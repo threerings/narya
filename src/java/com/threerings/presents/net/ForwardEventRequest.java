@@ -1,5 +1,5 @@
 //
-// $Id: ForwardEventRequest.java,v 1.5 2001/06/05 21:29:51 mdb Exp $
+// $Id: ForwardEventRequest.java,v 1.6 2001/06/05 22:44:31 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -33,6 +33,14 @@ public class ForwardEventRequest extends UpstreamMessage
     public short getType ()
     {
         return TYPE;
+    }
+
+    /**
+     * Returns the event that we wish to have forwarded.
+     */
+    public DEvent getEvent ()
+    {
+        return _event;
     }
 
     public void writeTo (DataOutputStream out)

@@ -1,5 +1,5 @@
 //
-// $Id: FetchRequest.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
+// $Id: FetchRequest.java,v 1.3 2001/06/05 22:44:31 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -32,6 +32,14 @@ public class FetchRequest extends UpstreamMessage
     public short getType ()
     {
         return TYPE;
+    }
+
+    /**
+     * Returns the oid of the object we desire to fetch.
+     */
+    public int getOid ()
+    {
+        return _oid;
     }
 
     public void writeTo (DataOutputStream out)

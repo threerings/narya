@@ -1,5 +1,5 @@
 //
-// $Id: DObjectManager.java,v 1.3 2001/06/01 07:12:13 mdb Exp $
+// $Id: DObjectManager.java,v 1.4 2001/06/05 22:44:31 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -67,6 +67,16 @@ public interface DObjectManager
      * @see Subscriber.requestFailed
      */
     public void fetchObject (int oid, Subscriber target);
+
+    /**
+     * Requests that the specified subscriber be unsubscribed from the
+     * object identified by the supplied object id.
+     *
+     * @param oid The object id of the distributed object from which
+     * unsubscription is desired.
+     * @param target The subscriber to be unsubscribed.
+     */
+    public void unsubscribeFromObject (int oid, Subscriber target);
 
     /**
      * Posts a distributed object event into the system. Instead of

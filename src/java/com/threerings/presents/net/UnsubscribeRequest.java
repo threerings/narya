@@ -1,5 +1,5 @@
 //
-// $Id: UnsubscribeRequest.java,v 1.3 2001/06/05 21:29:51 mdb Exp $
+// $Id: UnsubscribeRequest.java,v 1.4 2001/06/05 22:44:31 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -32,6 +32,14 @@ public class UnsubscribeRequest extends UpstreamMessage
     public short getType ()
     {
         return TYPE;
+    }
+
+    /**
+     * Returns the oid of the object from which we are unsubscribing.
+     */
+    public int getOid ()
+    {
+        return _oid;
     }
 
     public void writeTo (DataOutputStream out)

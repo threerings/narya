@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.2 2001/06/02 01:30:37 mdb Exp $
+// $Id: ClientManager.java,v 1.3 2001/06/05 22:44:31 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -42,15 +42,19 @@ public class ClientManager implements ConnectionObserver
         String username = creds.getUsername();
 
         // see if there's a client already registered with this username
-        Client client = (Client)_clients.get(username);
+        Client client = (Client)_usermap.get(username);
 
         if (client != null) {
             Log.info("Session resumed [username=" + username +
                      ", conn=" + conn + "].");
+            client.resumeSession(conn);
 
         } else {
             Log.info("Session initiated [username=" + username +
                      ", conn=" + conn + "].");
+            // create a new client and stick'em in the table
+            client = new Client(this, username, conn);
+            _usermap.put(username, conn);
         }
     }
 
@@ -66,7 +70,18 @@ public class ClientManager implements ConnectionObserver
     public synchronized
         void connectionFailed (Connection conn, IOException fault)
     {
-        Log.info("Connection failed: " + conn + ": " + fault);
+        // remove the client from the connection map
+        Client client = (Client)_connmap.remove(conn);
+        if (client != null) {
+            Log.info("Unmapped failed client [client=" + client +
+                     ", conn=" + conn + ", fault=" + fault + "].");
+            // let the client know things went haywire
+            client.connectionFailed(fault);
+
+        } else {
+            Log.info("Unmapped connection failed? [conn=" + conn +
+                     ", fault=" + fault + "].");
+        }
     }
 
     /**
@@ -76,8 +91,24 @@ public class ClientManager implements ConnectionObserver
      */
     public synchronized void connectionClosed (Connection conn)
     {
-        Log.info("Connection closed: " + conn);
+        // remove the client from the connection map
+        Client client = (Client)_connmap.remove(conn);
+        if (client != null) {
+            Log.info("Unmapped client [client=" + client +
+                     ", conn=" + conn + "].");
+        } else {
+            Log.info("Closed unmapped connection? [conn=" + conn + "].");
+        }
     }
 
-    protected HashMap _clients = new HashMap();
+    /**
+     * Called by the client instance when the client requests a logoff.
+     * This is called from the conmgr thread.
+     */
+    synchronized void clientDidEndSession (Client client)
+    {
+    }
+
+    protected HashMap _usermap = new HashMap();
+    protected HashMap _connmap = new HashMap();
 }

@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.3 2001/06/02 01:30:37 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.4 2001/06/05 22:44:31 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -48,14 +48,24 @@ public class CherDObjectMgr implements DObjectManager
     public void subscribeToObject (int oid, Subscriber target)
     {
         // queue up an access object event
-        postEvent(new AccessObjectEvent(oid, target, true));
+        postEvent(new AccessObjectEvent(oid, target,
+                                        AccessObjectEvent.SUBSCRIBE));
     }
 
     // inherit documentation from the interface
     public void fetchObject (int oid, Subscriber target)
     {
         // queue up an access object event
-        postEvent(new AccessObjectEvent(oid, target, false));
+        postEvent(new AccessObjectEvent(oid, target,
+                                        AccessObjectEvent.FETCH));
+    }
+
+    // inherit documentation from the interface
+    public void unsubscribeFromObject (int oid, Subscriber target)
+    {
+        // queue up an access object event
+        postEvent(new AccessObjectEvent(oid, target,
+                                        AccessObjectEvent.UNSUBSCRIBE));
     }
 
     // inherit documentation from the interface
@@ -228,13 +238,17 @@ public class CherDObjectMgr implements DObjectManager
      */
     protected class AccessObjectEvent extends DEvent
     {
+        public static final int SUBSCRIBE = 0;
+        public static final int FETCH = 1;
+        public static final int UNSUBSCRIBE = 2;
+
         public AccessObjectEvent (int oid, Subscriber target,
-                                  boolean subscribe)
+                                  int action)
         {
             super(0); // target the bogus object
             _oid = oid;
             _target = target;
-            _subscribe = subscribe;
+            _action = action;
         }
 
         public boolean applyToObject (DObject target)
@@ -242,6 +256,14 @@ public class CherDObjectMgr implements DObjectManager
         {
             // look up the target object
             DObject obj = (DObject)_objects.get(_oid);
+
+            // if we're unsubscribing, take care of that and get on out
+            if (_action == UNSUBSCRIBE) {
+                if (obj != null) {
+                    obj.removeSubscriber(_target);
+                }
+                return false;
+            }
 
             // if it don't exist, let them know
             if (obj == null) {
@@ -257,7 +279,7 @@ public class CherDObjectMgr implements DObjectManager
             }
 
             // if they wanted to subscribe, do so
-            if (_subscribe) {
+            if (_action == SUBSCRIBE) {
                 obj.addSubscriber(_target);
             }
 
@@ -271,7 +293,7 @@ public class CherDObjectMgr implements DObjectManager
 
         protected int _oid;
         protected Subscriber _target;
-        protected boolean _subscribe;
+        protected int _action;
     }
 
     protected class ShutdownEvent extends DEvent
