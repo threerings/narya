@@ -1,5 +1,5 @@
 //
-// $Id: TableDirector.java,v 1.6 2002/03/18 23:21:26 mdb Exp $
+// $Id: TableDirector.java,v 1.7 2002/04/17 18:26:29 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -253,7 +253,7 @@ public class TableDirector
      * @param invid the invocation id of the creation request.
      * @param reason a reason code explaining the failure.
      */
-    public void handleCreateFailed (int invid, String reason)
+    public void handleCreateTableFailed (int invid, String reason)
     {
         Log.warning("Table creation failed [reason=" + reason + "].");
     }
@@ -265,7 +265,7 @@ public class TableDirector
      * @param invid the invocation id of the join request.
      * @param reason a reason code explaining the failure.
      */
-    public void handleJoinFailed (int invid, String reason)
+    public void handleJoinTableFailed (int invid, String reason)
     {
         Log.warning("Join table failed [reason=" + reason + "].");
     }
@@ -277,7 +277,7 @@ public class TableDirector
      * @param invid the invocation id of the leave request.
      * @param reason a reason code explaining the failure.
      */
-    public void handleLeaveFailed (int invid, String reason)
+    public void handleLeaveTableFailed (int invid, String reason)
     {
         Log.warning("Leave table failed [reason=" + reason + "].");
     }

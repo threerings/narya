@@ -1,5 +1,5 @@
 //
-// $Id: ParlorCodes.java,v 1.2 2002/04/15 18:06:20 mdb Exp $
+// $Id: ParlorCodes.java,v 1.3 2002/04/17 18:26:29 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -30,11 +30,6 @@ public interface ParlorCodes extends InvocationCodes
      * mapped by the invocation services to a call to {@link
      * ParlorDirector#handleInviteReceived}. */
     public static final String INVITE_RECEIVED_RESPONSE = "InviteReceived";
-
-    /** The response identifier for a rejceted invite request. This is
-     * mapped by the invocation services to a call to {@link
-     * ParlorDirector#handleInviteFailed}. */
-    public static final String INVITE_FAILED_RESPONSE = "InviteFailed";
 
     /** The message identifier for an invitation cancellation request or
      * notification. The notification is mapped by the invocation services
@@ -70,26 +65,11 @@ public interface ParlorCodes extends InvocationCodes
      * TableDirector#handleTableCreated}. */
     public static final String TABLE_CREATED_RESPONSE = "TableCreated";
 
-    /** The response identifier for a create failed response. This is
-     * mapped by the invocation services to a call to {@link
-     * TableDirector#handleCreateFailed}. */
-    public static final String CREATE_FAILED_RESPONSE = "CreateFailed";
-
     /** The message identifier for a join table request. */
     public static final String JOIN_TABLE_REQUEST = "JoinTable";
 
-    /** The response identifier for a join failed response. This is mapped
-     * by the invocation services to a call to {@link
-     * TableDirector#handleJoinFailed}. */
-    public static final String JOIN_FAILED_RESPONSE = "JoinFailed";
-
     /** The message identifier for a leave table request. */
     public static final String LEAVE_TABLE_REQUEST = "LeaveTable";
-
-    /** The response identifier for a leave failed response. This is
-     * mapped by the invocation services to a call to {@link
-     * TableDirector#handleLeaveFailed}. */
-    public static final String LEAVE_FAILED_RESPONSE = "LeaveFailed";
 
     /** An error code returned when a user requests to join a table that
      * doesn't exist. */

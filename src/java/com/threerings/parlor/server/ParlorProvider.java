@@ -1,5 +1,5 @@
 //
-// $Id: ParlorProvider.java,v 1.11 2002/04/15 16:28:02 shaper Exp $
+// $Id: ParlorProvider.java,v 1.12 2002/04/17 18:26:30 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -42,6 +42,7 @@ public class ParlorProvider
      */
     public void handleInviteRequest (
         BodyObject source, int invid, String invitee, GameConfig config)
+        throws ServiceFailedException
     {
 //          Log.info("Handling invite request [source=" + source +
 //                   ", invid=" + invid + ", invitee=" + invitee +
@@ -50,23 +51,15 @@ public class ParlorProvider
         String rsp = null;
 
         // ensure that the invitee is online at present
-        try {
-            BodyObject target = CrowdServer.lookupBody(invitee);
-            if (target == null) {
-                throw new ServiceFailedException(INVITEE_NOT_ONLINE);
-            }
-
-            // submit the invite request to the parlor manager
-            int inviteId = _pmgr.invite(source, target, config);
-            sendResponse(source, invid, INVITE_RECEIVED_RESPONSE,
-                         new Integer(inviteId));
-
-        } catch (ServiceFailedException sfe) {
-            // the exception message is the code indicating the reason
-            // for the invitation rejection
-            sendResponse(source, invid, INVITE_FAILED_RESPONSE,
-                         sfe.getMessage());
+        BodyObject target = CrowdServer.lookupBody(invitee);
+        if (target == null) {
+            throw new ServiceFailedException(INVITEE_NOT_ONLINE);
         }
+
+        // submit the invite request to the parlor manager
+        int inviteId = _pmgr.invite(source, target, config);
+        sendResponse(source, invid, INVITE_RECEIVED_RESPONSE,
+                     new Integer(inviteId));
     }
 
     /**
@@ -96,24 +89,17 @@ public class ParlorProvider
      */
     public void handleCreateTableRequest (
         BodyObject source, int invid, int lobbyOid, GameConfig config)
+        throws ServiceFailedException
     {
         Log.info("Handling create table request [source=" + source +
                  ", invid=" + invid + ", lobbyOid=" + lobbyOid +
                  ", config=" + config + "].");
 
-        try {
-            // pass the creation request on to the table manager
-            TableManager tmgr = getTableManager(lobbyOid);
-            int tableId = tmgr.createTable(source, config);
-            sendResponse(source, invid, TABLE_CREATED_RESPONSE,
-                         new Integer(tableId));
-
-        } catch (ServiceFailedException sfe) {
-            // the exception message is the code indicating the reason for
-            // the creation rejection
-            sendResponse(source, invid, CREATE_FAILED_RESPONSE,
-                         sfe.getMessage());
-        }
+        // pass the creation request on to the table manager
+        TableManager tmgr = getTableManager(lobbyOid);
+        int tableId = tmgr.createTable(source, config);
+        sendResponse(source, invid, TABLE_CREATED_RESPONSE,
+                     new Integer(tableId));
     }
 
     /**
@@ -121,24 +107,18 @@ public class ParlorProvider
      */
     public void handleJoinTableRequest (
         BodyObject source, int invid, int lobbyOid, int tableId, int position)
+        throws ServiceFailedException
     {
         Log.info("Handling join table request [source=" + source +
                  ", invid=" + invid + ", lobbyOid=" + lobbyOid +
                  ", tableId=" + tableId + ", position=" + position + "].");
 
-        try {
-            // pass the join request on to the table manager
-            TableManager tmgr = getTableManager(lobbyOid);
-            tmgr.joinTable(source, tableId, position);
-            // there is normally no response. the client will see
-            // themselves show up in the table that they joined
+        // pass the join request on to the table manager
+        TableManager tmgr = getTableManager(lobbyOid);
+        tmgr.joinTable(source, tableId, position);
 
-        } catch (ServiceFailedException sfe) {
-            // the exception message is the code indicating the reason for
-            // the creation rejection
-            sendResponse(source, invid, JOIN_FAILED_RESPONSE,
-                         sfe.getMessage());
-        }
+        // there is normally no success response. the client will see
+        // themselves show up in the table that they joined
     }
 
     /**
@@ -146,24 +126,18 @@ public class ParlorProvider
      */
     public void handleLeaveTableRequest (
         BodyObject source, int invid, int lobbyOid, int tableId)
+        throws ServiceFailedException
     {
         Log.info("Handling leave table request [source=" + source +
                  ", invid=" + invid + ", lobbyOid=" + lobbyOid +
                  ", tableId=" + tableId + "].");
 
-        try {
-            // pass the join request on to the table manager
-            TableManager tmgr = getTableManager(lobbyOid);
-            tmgr.leaveTable(source, tableId);
-            // there is normally no response. the client will see
-            // themselves removed from the table they just left
+        // pass the join request on to the table manager
+        TableManager tmgr = getTableManager(lobbyOid);
+        tmgr.leaveTable(source, tableId);
 
-        } catch (ServiceFailedException sfe) {
-            // the exception message is the code indicating the reason for
-            // the creation rejection
-            sendResponse(source, invid, LEAVE_FAILED_RESPONSE,
-                         sfe.getMessage());
-        }
+        // there is normally no success response. the client will see
+        // themselves removed from the table they just left
     }
 
     /**
