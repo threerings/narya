@@ -1,5 +1,5 @@
 //
-// $Id: ElementUpdatedEvent.java,v 1.5 2003/04/30 22:32:04 mdb Exp $
+// $Id: ElementUpdatedEvent.java,v 1.6 2003/04/30 22:38:49 ray Exp $
 
 package com.threerings.presents.dobj;
 
@@ -176,5 +176,5 @@ public class ElementUpdatedEvent extends NamedEvent
 
     protected Object _value;
     protected int _index;
-    protected transient Object _oldValue;
+    protected transient Object _oldValue = UNSET_OLD_VALUE;
 }
