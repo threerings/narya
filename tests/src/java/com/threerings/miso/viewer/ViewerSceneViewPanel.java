@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.8 2001/08/02 23:12:19 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.1 2001/08/04 01:41:02 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -14,38 +14,25 @@ import com.threerings.miso.viewer.util.ViewerContext;
 import com.threerings.miso.scene.*;
 import com.threerings.miso.scene.xml.XMLFileSceneRepository;
 import com.threerings.miso.sprite.*;
-import com.threerings.miso.util.PerformanceMonitor;
-import com.threerings.miso.util.PerformanceObserver;
+import com.threerings.miso.util.*;
 
-/**
- * The <code>SceneViewPanel</code> class is responsible for managing a
- * <code>SceneView</code>, rendering it to the screen, and handling
- * view-related UI events.
- */
-public class SceneViewPanel extends JPanel
+public class ViewerSceneViewPanel extends SceneViewPanel
     implements MouseListener, MouseMotionListener, PerformanceObserver
 {
     /**
      * Construct the panel and initialize it with a context.
      */
-    public SceneViewPanel (ViewerContext ctx, SpriteManager spritemgr,
-                           Sprite sprite)
+    public ViewerSceneViewPanel (
+	ViewerContext ctx, SpriteManager spritemgr, Sprite sprite)
     {
+	super(ctx.getTileManager(), spritemgr);
+
 	_ctx = ctx;
-
         _sprite = sprite;
-
-        // construct the view object
-        IsoSceneModel smodel = new IsoSceneModel();
-        smodel.setTileDimensions(64, 48);
-        smodel.setBounds((10 * 64), (12 * 48));
-        smodel.setOrigin(320, -(5 * 48));
-
-        _view = new IsoSceneView(_ctx.getTileManager(), spritemgr, smodel);
 
         // create an animation manager for this panel
         AnimationManager animmgr =
-            new AnimationManager(spritemgr, this, _view);
+	    new AnimationManager(spritemgr, this, _view);
 
         // listen to the desired events
 	addMouseListener(this);
@@ -53,9 +40,6 @@ public class SceneViewPanel extends JPanel
 
         // load up the initial scene
         prepareStartingScene();
-
-        setDoubleBuffered(false);
-        setOpaque(true);
 
         PerformanceMonitor.register(this, "paint", 1000);
     }
@@ -80,29 +64,6 @@ public class SceneViewPanel extends JPanel
             Log.warning("Exception loading scene [fname=" + fname +
                         ", ioe=" + ioe + "].");
         }
-    }
-
-    /**
-     * Set the scene managed by the panel.
-     */
-    public void setScene (Scene scene)
-    {
-	_view.setScene(scene);
-    }
-
-    /**
-     * Render the panel and the scene view to the given graphics object.
-     */
-    public void paintComponent (Graphics g)
-    {
-        Rectangle bounds = getBounds();
-
-//          Log.info("SceneViewPanel: paint [width=" + bounds.width +
-//                   ", height=" + bounds.height + "].");
-
-	_view.paint(g);
-
-        PerformanceMonitor.tick(this, "paint");
     }
 
     public void checkpoint (String name, int ticks)
@@ -148,7 +109,4 @@ public class SceneViewPanel extends JPanel
 
     /** The context object. */
     protected ViewerContext _ctx;
-
-    /** The scene view we're managing. */
-    protected SceneView _view;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.5 2001/08/02 23:12:19 shaper Exp $
+// $Id: AnimationManager.java,v 1.6 2001/08/04 01:41:02 shaper Exp $
 
 package com.threerings.miso.sprite;
 
@@ -82,7 +82,7 @@ public class AnimationManager implements Interval, PerformanceObserver
         _view.invalidateRects(rects);
 
         // update frame-rate information
-        PerformanceMonitor.tick(AnimationManager.this, "refresh");
+        //PerformanceMonitor.tick(AnimationManager.this, "refresh");
 
         // refresh the display
         _target.paintImmediately(_target.getBounds());

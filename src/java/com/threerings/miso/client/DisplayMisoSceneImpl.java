@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.16 2001/08/02 18:58:59 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.17 2001/08/04 01:41:02 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -22,10 +22,13 @@ public class Scene
     public static final int LAYER_BASE = 0;
 
     /** The object layer id. */
-    public static final int LAYER_OBJECT = 1;
+    public static final int LAYER_FRINGE = 1;
+
+    /** The object layer id. */
+    public static final int LAYER_OBJECT = 2;
 
     /** The total number of layers. */
-    public static final int NUM_LAYERS = 2;
+    public static final int NUM_LAYERS = 3;
 
     /** The latest scene file format version. */
     public static final short VERSION = 1;
@@ -37,7 +40,7 @@ public class Scene
     public static final int TILE_HEIGHT = 22;
 
     /** String translations of each tile layer name. */
-    public static final String[] XLATE_LAYERS = { "Base", "Object" };
+    public static final String[] XLATE_LAYERS = { "Base", "Fringe", "Object" };
 
     /** Scene id to denote an unset or otherwise invalid scene id. */
     public static final short SID_INVALID = -1;

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerFrame.java,v 1.6 2001/08/02 21:02:57 shaper Exp $
+// $Id: ViewerFrame.java,v 1.7 2001/08/04 01:41:02 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -25,7 +25,6 @@ class ViewerFrame extends JFrame implements WindowListener
     public ViewerFrame ()
     {
 	super("Scene Viewer");
-
         addWindowListener(this);
     }
 
@@ -45,8 +44,16 @@ class ViewerFrame extends JFrame implements WindowListener
             new AmbulatorySprite(spritemgr, 300, 300, tilemgr, TSID_CHAR);
         spritemgr.addSprite(sprite);
 
+	// create a top-level panel to manage everything
+	JPanel top = new JPanel();
+	GroupLayout gl = new HGroupLayout(GroupLayout.STRETCH);
+	gl.setOffAxisPolicy(GroupLayout.STRETCH);
+	top.setLayout(gl);
+
 	// set up the scene view panel with a default scene
-        SceneViewPanel svpanel = new SceneViewPanel(_ctx, spritemgr, sprite);
+        ViewerSceneViewPanel svpanel =
+	    new ViewerSceneViewPanel(_ctx, spritemgr, sprite);
+	top.add(svpanel, GroupLayout.FIXED);
 
 	// add the scene view panel
 	getContentPane().add(svpanel, BorderLayout.CENTER);
@@ -69,7 +76,7 @@ class ViewerFrame extends JFrame implements WindowListener
     protected static final int TSID_CHAR = 1003;
 
     /** The panel displaying the scene. */
-    SceneViewPanel _svpanel;
+    ViewerSceneViewPanel _svpanel;
 
     /** The context object. */
     protected ViewerContext _ctx;
