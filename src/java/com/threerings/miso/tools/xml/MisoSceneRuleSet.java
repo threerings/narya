@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneRuleSet.java,v 1.10 2002/09/23 23:07:11 mdb Exp $
+// $Id: MisoSceneRuleSet.java,v 1.11 2002/09/23 23:53:33 mdb Exp $
 
 package com.threerings.miso.scene.tools.xml;
 
@@ -77,6 +77,11 @@ public class MisoSceneRuleSet extends RuleSetBase
                 if (model.objectTileIds.length > 0 &&
                     model.objectActions.length == 0) {
                     model.objectActions = new String[1];
+                }
+
+                // create our object priorities if we don't have 'em
+                if (model.objectPrios == null) {
+                    model.objectPrios = new byte[model.objectActions.length];
                 }
             }
         });
