@@ -1,5 +1,5 @@
 //
-// $Id: ArcPath.java,v 1.1 2002/09/17 04:00:37 mdb Exp $
+// $Id: ArcPath.java,v 1.2 2002/11/27 23:48:24 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -44,7 +44,8 @@ public class ArcPath extends TimedPath
      * @param duration the number of milliseconds during which to effect
      * the animation.
      * @param orient an orientation code indicating how the pathable
-     * should be oriented when following the path.
+     * should be oriented when following the path, either {@link #NORMAL},
+     * or {@link #FINE}.
      */
     public ArcPath (Point start, double xradius, double yradius,
                     double sangle, double delta, long duration,
@@ -61,6 +62,20 @@ public class ArcPath extends TimedPath
         _center = new Point(
             (int)(start.x - Math.round(Math.cos(sangle) * xradius)),
             (int)(start.y - Math.round(Math.sin(sangle) * yradius)));
+    }
+
+    /**
+     * Sets the offset that is applied to the pathable whenever it is
+     * oriented. This offset is in clockwise units whose granularity is
+     * specified by the {@link #NORMAL} or {@link #FINE} setting supplied
+     * to the path at construct time. The intent here is to allow arc
+     * paths to be applied that don't orient the pathable in the direction
+     * they are traveling but instead in some fixed offset from that
+     * direction.
+     */
+    public void setOrientOffset (int offset)
+    {
+        _orientOffset = offset;
     }
 
     // documentation inherited
@@ -89,8 +104,17 @@ public class ArcPath extends TimedPath
         int orient;
         switch (_orient) {
         default:
-        case NORMAL: orient = DirectionUtil.getDirection(theta); break;
-        case FINE: orient = DirectionUtil.getFineDirection(theta); break;
+        case NORMAL:
+            orient = DirectionUtil.getDirection(theta);
+            // adjust it appropriately
+            orient = DirectionUtil.rotateCW(orient, 2*_orientOffset);
+            break;
+
+        case FINE:
+            orient = DirectionUtil.getFineDirection(theta);
+            // adjust it appropriately
+            orient = DirectionUtil.rotateCW(orient, _orientOffset);
+            break;
         }
 
         // update the pathable's location if it moved
@@ -165,6 +189,9 @@ public class ArcPath extends TimedPath
 
     /** The method to be used to orient the pathable. */
     protected int _orient;
+
+    /** An orientation offset used when orienting our pathable. */
+    protected int _orientOffset = 0;
 
     /** A temporary point used when computing our position along the
      * path. */
