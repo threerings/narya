@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.12 2002/06/11 21:40:52 mdb Exp $
+// $Id: MediaPanel.java,v 1.13 2002/06/12 00:51:24 mdb Exp $
 
 package com.threerings.media;
 
@@ -604,7 +604,10 @@ public class MediaPanel extends JComponent
      */
     protected void viewWillScroll (int dx, int dy, long tickStamp)
     {
-        // nothing to do here
+        // if we have a path, let it know that we're scrolling
+        if (_path != null) {
+            _path.viewWillScroll(dx, dy);
+        }
     }
 
     /**
