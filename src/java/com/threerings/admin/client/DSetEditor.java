@@ -1,5 +1,5 @@
 //
-// $Id: DSetEditor.java,v 1.9 2004/11/04 00:38:12 ray Exp $
+// $Id: DSetEditor.java,v 1.10 2004/11/06 01:59:24 ray Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -161,7 +161,7 @@ public class DSetEditor extends JPanel
         if (event.getName().equals(_setName)) {
             DSet.Entry entry = event.getEntry();
             int index = _keys.insertSorted(entry.getKey());
-            _table.insertData(entry, index);
+            _table.insertDatum(entry, index);
         }
     }
 
@@ -172,7 +172,7 @@ public class DSetEditor extends JPanel
             Comparable key = event.getKey();
             int index = _keys.indexOf(key);
             _keys.remove(index);
-            _table.removeData(index);
+            _table.removeDatum(index);
         }
     }
 
@@ -182,7 +182,7 @@ public class DSetEditor extends JPanel
         if (event.getName().equals(_setName)) {
             DSet.Entry entry = event.getEntry();
             int index = _keys.indexOf(entry.getKey());
-            _table.updateData(entry, index);
+            _table.updateDatum(entry, index);
         }
     }
 
