@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.47 2002/06/18 22:25:33 mdb Exp $
+// $Id: Sprite.java,v 1.48 2002/06/19 23:30:06 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -53,8 +53,6 @@ public abstract class Sprite
     protected void init (SpriteManager spritemgr)
     {
         _spritemgr = spritemgr;
-
-        updateRenderOrigin();
     }
 
     /**
@@ -354,16 +352,6 @@ public abstract class Sprite
     }
 
     /**
-     * Updates the sprite's render offset which is used to determine
-     * where to place the top-left corner of the render bounds.
-     */
-    protected void updateRenderOffset ()
-    {
-        _rxoff = 0;
-        _ryoff = 0;
-    }
-
-    /**
      * Update the coordinates at which the sprite image is drawn to
      * reflect the sprite's current position.
      */
@@ -431,6 +419,8 @@ public abstract class Sprite
     {
         buf.append("x=").append(_x);
         buf.append(", y=").append(_y);
+        buf.append(", rxoff=").append(_rxoff);
+        buf.append(", ryoff=").append(_ryoff);
     }
 
     /** The sprite manager. */
@@ -439,7 +429,9 @@ public abstract class Sprite
     /** The location of the sprite in pixel coordinates. */
     protected int _x, _y;
 
-    /** The offsets from our location to our rendered origin. */
+    /** The offsets from our location to our rendered origin. Derived
+     * classes may wish to set these values if the sprite's upper left
+     * corner should not be coincident with its location.  */
     protected int _rxoff, _ryoff;
 
     /** Our rendered bounds in pixel coordinates. */

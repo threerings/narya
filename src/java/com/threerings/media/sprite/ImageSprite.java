@@ -1,7 +1,11 @@
 //
-// $Id: ImageSprite.java,v 1.7 2002/06/05 23:38:18 ray Exp $
+// $Id: ImageSprite.java,v 1.8 2002/06/19 23:30:06 mdb Exp $
 
 package com.threerings.media.sprite;
+
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Composite;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -83,7 +87,7 @@ public class ImageSprite extends Sprite
         super.init(spritemgr);
 
         // now that we have our spritemanager, we can initialize our frames
-        initFrames();
+        setFrameIndex(0, true);
     }
 
     /**
@@ -154,28 +158,37 @@ public class ImageSprite extends Sprite
 
         // set and init our frames
         _frames = frames;
-        initFrames();
+        setFrameIndex(0, true);
     }
 
     /**
-     * Initialize our frames.
+     * Instructs the sprite to display the specified frame index.
      */
-    protected void initFrames ()
+    protected void setFrameIndex (int frameIdx, boolean forceUpdate)
     {
+        // make sure we're displaying a valid frame
+        frameIdx = (frameIdx % _frames.getFrameCount());
+
+        // if this is the same frame we're already displaying and we're
+        // not being forced to update, we can stop now
+        if (frameIdx == _frameIdx && !forceUpdate) {
+            return;
+        } else {
+            _frameIdx = frameIdx;
+        }
+
         // start with our old bounds
         Rectangle dirty = new Rectangle(_bounds);
-
-        _frameIdx %= _frames.getFrameCount();
 
         // determine our drawing offsets and rendered rectangle size
         accomodateFrame(_frames.getWidth(_frameIdx),
                         _frames.getHeight(_frameIdx));
 
+        // account for any new render offsets
+        updateRenderOrigin();
+
         // add our new bounds
         dirty.add(_bounds);
-
-        updateRenderOffset();
-        updateRenderOrigin();
 
         // give the dirty rectangle to the region manager
         if (_spritemgr != null) {
@@ -200,7 +213,16 @@ public class ImageSprite extends Sprite
     public void paint (Graphics2D gfx)
     {
         if (_frames != null) {
+//             // DEBUG: fill our background with an alpha'd rectangle
+//             Composite ocomp = gfx.getComposite();
+//             gfx.setComposite(ALPHA_BOUNDS);
+//             gfx.setColor(Color.blue);
+//             gfx.fill(_bounds);
+//             gfx.setComposite(ocomp);
+
+            // render our frame
             _frames.paintFrame(gfx, _frameIdx, _bounds.x, _bounds.y);
+
         } else {
             super.paint(gfx);
         }
@@ -241,12 +263,9 @@ public class ImageSprite extends Sprite
             break;
         }
 
-        // only update the sprite if our frame index changed
-        if (nfidx != _frameIdx) {
-            _frameIdx = nfidx;
-            // dirty our rectangle since we've altered our display image
-            invalidate();
-        }
+        // update our frame (which will do nothing if this is the same as
+        // our existing frame index)
+        setFrameIndex(nfidx, false);
     }
 
     // documentation inherited
@@ -267,4 +286,8 @@ public class ImageSprite extends Sprite
 
     /** For how many milliseconds to display an animation frame. */
     protected long _frameDelay;
+
+//     /** DEBUG: The alpha level used when rendering our bounds. */
+//     protected static final Composite ALPHA_BOUNDS =
+//         AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2f);
 }
