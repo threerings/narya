@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.1 2001/08/02 23:46:47 mdb Exp $
+// $Id: ChatDirector.java,v 1.2 2001/08/02 23:47:21 mdb Exp $
 
 package com.threerings.cocktail.party.chat;
 
@@ -65,6 +65,7 @@ public class ChatManager
      */
     public int requestSpeak (String message)
     {
+        return -1;
     }
 
     /**
