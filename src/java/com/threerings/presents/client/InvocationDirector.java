@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.5 2001/08/03 02:12:12 mdb Exp $
+// $Id: InvocationDirector.java,v 1.6 2001/08/04 02:54:01 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -63,16 +63,23 @@ public class InvocationManager
      * caller invoked a procedure named <code>Switch</code>, the response
      * may be delivered via a call to the <code>handleSwitchSuccess</code>
      * method on the response target object. The signature of that method
-     * would be defined by the arguments provided in the response message.
+     * would be defined by the arguments provided in the response message
+     * with the addition of a first argument which is the invocation
+     * identifier for this particular request (that is also returned by
+     * this function).
      *
      * @param module the name of the invocation module to use.
      * @param procedure the name of the procedure within that module.
      * @param args the arguments of the invocation.
      * @param rsptarget the object that will receive the response, or null
      * if no response is desired.
+     *
+     * @return a unique identifier associated with this invocation
+     * request. This identifier will be passed as the first argument to
+     * the response function.
      */
-    public void invoke (String module, String procedure, Object[] args,
-                        Object rsptarget)
+    public int invoke (String module, String procedure, Object[] args,
+                       Object rsptarget)
     {
         int invid = nextInvocationId();
 
@@ -96,6 +103,8 @@ public class InvocationManager
 
         // and finally ship off the invocation message
         _omgr.postEvent(event);
+
+        return invid;
     }
 
     /**
@@ -159,9 +168,10 @@ public class InvocationManager
             return;
         }
 
-        // prune the method arguments from the full message arguments
-        Object[] rargs = new Object[args.length-2];
-        System.arraycopy(args, 2, rargs, 0, rargs.length);
+        // prune the invocation id and method arguments from the full
+        // message arguments
+        Object[] rargs = new Object[args.length-1];
+        System.arraycopy(args, 1, rargs, 0, rargs.length);
 
         // and invoke the response method
         String mname = "handle" + name;
