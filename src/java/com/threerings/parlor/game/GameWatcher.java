@@ -1,5 +1,5 @@
 //
-// $Id: GameWatcher.java,v 1.1 2002/12/16 05:06:58 shaper Exp $
+// $Id: GameWatcher.java,v 1.2 2002/12/16 05:31:00 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -35,10 +35,12 @@ public abstract class GameWatcher
             // if we transitioned to a non-in-play state, the game has
             // completed
             if (!_gameobj.isInPlay()) {
-                gameDidEnd(_gameobj);
-                // clean up
-                _gameobj.removeListener(this);
-                _gameobj = null;
+                try {
+                    gameDidEnd(_gameobj);
+                } finally {
+                    _gameobj.removeListener(this);
+                    _gameobj = null;
+                }
             }
         }
     }
