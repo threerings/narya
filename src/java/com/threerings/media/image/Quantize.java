@@ -1,5 +1,5 @@
 //
-// $Id: Quantize.java,v 1.2 2003/05/29 03:08:37 ray Exp $
+// $Id: Quantize.java,v 1.3 2003/06/04 05:56:58 ray Exp $
 package com.threerings.media.image;
 
 /*
@@ -483,9 +483,7 @@ public class Quantize {
          * the index of this node's mean color in the color map.
          */
         void assignment() {
-            colormap = new int[colors + (hasTrans ? 1 : 0)];
-            int transColor = colors;
-
+            colormap = new int[colors];
             colors = 0;
             root.colormap();
   
@@ -495,6 +493,8 @@ public class Quantize {
             int height = pixels[0].length;
 
             Search search = new Search();
+
+            int transPad = hasTrans ? 1 : 0;
             
             // convert to indexed color
             for (int x = width; x-- > 0; ) {
@@ -502,7 +502,7 @@ public class Quantize {
                     int pixel = pixels[x][y];
                     int alpha = (pixel >> 24) & 0xFF;
                     if (alpha != 255) {
-                        pixels[x][y] = transColor; // transparent
+                        pixels[x][y] = 0; // transparent
                         continue;
                     }
                     int red   = (pixel >> 16) & 0xFF;
@@ -525,14 +525,21 @@ public class Quantize {
                         // if QUICK is set, just use that
                         // node. Strictly speaking, this isn't
                         // necessarily best match.
-                        pixels[x][y] = node.color_number;
+                        pixels[x][y] = node.color_number + transPad;
                     } else {
                         // Find the closest color.
                         search.distance = Integer.MAX_VALUE;
                         node.parent.closestColor(red, green, blue, search);
-                        pixels[x][y] = search.color_number;
+                        pixels[x][y] = search.color_number + transPad;
                     }
                 }
+            }
+
+            // expand the colormap by one to account for the transparent
+            if (hasTrans) {
+                int[] newcmap = new int[colormap.length + 1];
+                System.arraycopy(colormap, 0, newcmap, 1, colormap.length);
+                colormap = newcmap;
             }
         }
 
