@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.20 2002/04/15 17:46:41 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.21 2002/04/18 22:38:24 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -233,12 +233,12 @@ public class AnimatedPanel extends JComponent
 
         // track how long it was since we were last painted
         long now = System.currentTimeMillis();
-//         if (_last != 0) {
-//             int delta = (int)(now-_last);
+//         if (_paint != 0) {
+//             int delta = (int)(now-_paint);
 //             _histo.addValue(delta);
 
 //             // dump the histogram every ten seconds
-//             if (_last % (10*1000) < 50) {
+//             if (_paint % (10*1000) < 50) {
 //                 Log.info("Render histogram.");
 //                 Log.info(StringUtil.toMatrixString(_histo.getBuckets(), 10, 3));
 //             }
@@ -256,7 +256,7 @@ public class AnimatedPanel extends JComponent
                 dx = _scrollx;
                 dy = _scrolly;
 
-                Log.info("Scrolling rest [dx=" + dx + ", dy=" + dy + "].");
+//                 Log.info("Scrolling rest [dx=" + dx + ", dy=" + dy + "].");
 
             } else {
                 // otherwise figure out how many milliseconds have gone by
@@ -306,19 +306,21 @@ public class AnimatedPanel extends JComponent
                 // let our derived classes do whatever they need to do to
                 // prepare to be scrolled
                 viewWillScroll(dx, dy, now, invalidRects);
-            }
 
-            // subtract our scrolled deltas from the time remaining
-            _scrollx -= dx;
-            _scrolly -= dy;
-            if (_scrollx == 0 && _scrolly == 0) {
-                _ttime = 0;
-                viewFinishedScrolling();
+                // keep track of the last time we scrolled
+                _last = now;
+
+                // subtract our scrolled deltas from the distance remaining
+                _scrollx -= dx;
+                _scrolly -= dy;
+
+                // if we've reached our desired position, finish the job
+                if (_scrollx == 0 && _scrolly == 0) {
+                    _ttime = 0;
+                    viewFinishedScrolling();
+                }
             }
         }
-
-        // keep track of the last time we rendered
-        _last = now;
 
         // if we didn't scroll and have no invalid rects, there's no need
         // to repaint anything
@@ -437,7 +439,7 @@ public class AnimatedPanel extends JComponent
      */
     protected void viewFinishedScrolling ()
     {
-        Log.info("viewFinishedScrolling");
+//         Log.info("viewFinishedScrolling");
     }
 
     /**
