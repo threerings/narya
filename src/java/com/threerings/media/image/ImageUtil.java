@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.22 2003/01/13 22:49:46 mdb Exp $
+// $Id: ImageUtil.java,v 1.23 2003/01/14 02:50:34 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -34,74 +34,6 @@ import com.threerings.media.Log;
  */
 public class ImageUtil
 {
-    /**
-     * Extracts a subimage from the supplied image with the specified
-     * dimensions. If the supplied image is an instance of {@link
-     * BufferedImage}, then the subimage will simply reference the main
-     * image. If it is not, the subimage will be created and the data will
-     * be rendered into the newly created image.
-     *
-     * @param source the source image.
-     * @param x the left coordinate of the sub-image.
-     * @param y the top coordinate of the sub-image.
-     * @param width the sub-image width.
-     * @param height the sub-image height.
-     *
-     * @return the desired subimage.
-     */
-    public static Image getSubimage (
-        Image source, int x, int y, int width, int height)
-    {
-        if (source instanceof BufferedImage) {
-            return ((BufferedImage)source).getSubimage(x, y, width, height);
-
-        } else {
-            BufferedImage target = createImage(width, height);
-            Graphics g = target.getGraphics();
-            g.drawImage(source, 0, 0, width, height,
-                        x, y, x+width, y+height, null);
-            g.dispose();
-            return target;
-        }
-    }
-
-    /**
-     * Creates a new blank image with the given dimensions and
-     * transparency set to {@link Transparency#BITMASK}.  The format of
-     * the created image is compatible with the graphics configuration of
-     * the default screen device, such that no format conversion will be
-     * necessary when rendering the image to that device.
-     *
-     * @param width the desired image width.
-     * @param height the desired image height.
-     *
-     * @return the blank image.
-     */
-    public static BufferedImage createImage (int width, int height)
-    {
-        return createImage(width, height, Transparency.BITMASK);
-    }
-
-    /**
-     * Creates a new blank image with the given dimensions and
-     * transparency.  The format of the created image is compatible with
-     * the graphics configuration of the default screen device, such that
-     * no format conversion will be necessary when rendering the image to
-     * that device.
-     *
-     * @param width the desired image width.
-     * @param height the desired image height.
-     * @param transparency the desired image transparency; one of the
-     * constants in {@link java.awt.Transparency}.
-     *
-     * @return the blank image.
-     */
-    public static BufferedImage createImage (
-        int width, int height, int transparency)
-    {
-        return getDefGC().createCompatibleImage(width, height, transparency);
-    }
-
     /**
      * Creates a new buffered image with the same sample model and color
      * model as the source image but with the new width and height.
@@ -257,9 +189,9 @@ public class ImageUtil
      * traced with the given color and thickness.
      */
     public static BufferedImage createTracedImage (
-        BufferedImage src, Color tcolor, int thickness)
+        ImageManager imgr, BufferedImage src, Color tcolor, int thickness)
     {
-        return createTracedImage(src, tcolor, thickness, 1.0f, 1.0f);
+        return createTracedImage(imgr, src, tcolor, thickness, 1.0f, 1.0f);
     }
 
     /**
@@ -267,7 +199,7 @@ public class ImageUtil
      * traced with the given color, thickness and alpha transparency.
      */
     public static BufferedImage createTracedImage (
-        BufferedImage src, Color tcolor, int thickness,
+        ImageManager imgr, BufferedImage src, Color tcolor, int thickness,
         float startAlpha, float endAlpha)
     {
         Raster srcdata = src.getData(); 
@@ -279,7 +211,8 @@ public class ImageUtil
 
         // create the destination image
         int wid = src.getWidth(null), hei = src.getHeight(null);
-        BufferedImage dest = createImage(wid, hei, Transparency.TRANSLUCENT);
+        BufferedImage dest = imgr.createImage(
+            wid, hei, Transparency.TRANSLUCENT);
 
         // prepare various bits of working data
         int srcTrans = src.getColorModel().getTransparency();
@@ -407,7 +340,7 @@ public class ImageUtil
      * values from the second.
      */
     public static BufferedImage composeMaskedImage (
-        BufferedImage mask, BufferedImage base)
+        ImageManager imgr, BufferedImage mask, BufferedImage base)
     {
         int wid = base.getWidth(null);
         int hei = base.getHeight(null);
@@ -436,7 +369,8 @@ public class ImageUtil
         } else {
             // otherwise composite them by rendering them with an alpha
             // rule
-            BufferedImage target = createImage(wid, hei);
+            BufferedImage target = imgr.createImage(
+                wid, hei, Transparency.TRANSLUCENT);
             Graphics2D g2 = target.createGraphics();
             try {
                 g2.drawImage(mask, 0, 0, null);
@@ -456,7 +390,7 @@ public class ImageUtil
      * clear.
      */
     public static BufferedImage composeMaskedImage (
-        Shape mask, BufferedImage base)
+        ImageManager imgr, Shape mask, BufferedImage base)
     {
         int wid = base.getWidth();
         int hei = base.getHeight();
@@ -473,7 +407,8 @@ public class ImageUtil
         //  But it's something to consider)
 
         // composite them by rendering them with an alpha rule
-        BufferedImage target = createImage(wid, hei);
+        BufferedImage target = imgr.createImage(
+            wid, hei, Transparency.TRANSLUCENT);
         Graphics2D g2 = target.createGraphics();
         try {
             g2.setColor(Color.BLACK); // whatever, really
