@@ -1,0 +1,22 @@
+//
+// $Id: GameObject.dobj,v 1.1 2001/10/01 02:56:35 mdb Exp $
+
+package com.threerings.parlor.data;
+
+import com.threerings.cocktail.party.data.PlaceObject;
+
+/**
+ * A game object hosts the shared data associated with a game played by
+ * one or more players. The game object extends the place object so that
+ * the game can act as a place where players actually go when playing the
+ * game. Only very basic information is maintained in the base game
+ * object. It serves as the base for a hierarchy of game object
+ * derivatives that handle basic gameplay for a suite of different game
+ * types (ie. turn based games, party games, board games, card games,
+ * etc.).
+ */
+public class GameObject extends PlaceObject
+{
+    /** Indicates whether or not this game is rated. */
+    public boolean isRated;
+}
