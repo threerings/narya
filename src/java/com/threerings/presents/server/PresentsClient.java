@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.47 2002/12/05 16:20:45 mdb Exp $
+// $Id: PresentsClient.java,v 1.48 2002/12/15 18:32:19 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -290,6 +290,19 @@ public class PresentsClient
 
         // start using the new connection
         setConnection(conn);
+
+        // if a client connects, drops the connection and reconnects
+        // within the span of a very short period of time, we'll find
+        // ourselves in resumeSession() before their client object was
+        // resolved from the initial connection; in such a case, we can
+        // simply bail out here and let the original session establishment
+        // code take care of initializing this resumed session
+        if (_clobj == null) {
+            Log.warning("Rapid-fire reconnect caused us to arrive in " +
+                        "resumeSession() before the original session " +
+                        "resolved its client object? " + this + ".");
+            return;
+        }
 
         // we need to get onto the distributed object thread so that we
         // can finalize the resumption of the session. we do so by
