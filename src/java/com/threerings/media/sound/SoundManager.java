@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.2 2002/07/24 21:39:43 shaper Exp $
+// $Id: SoundManager.java,v 1.3 2002/07/26 00:16:47 ray Exp $
 
 package com.threerings.media;
 
@@ -49,17 +49,30 @@ public class SoundManager
         // create a thread to manage the sound queue
         _player = new Thread() {
             public void run () {
-                while (true) {
+                while (Thread.currentThread() == _player) {
                     // wait for a sound
                     _clips.waitForItem();
 
                     // play the sound
-                    playSound((String)_clips.get());
+                    Object o = _clips.get();
+                    if (o instanceof String) {
+                        playSound((String) o);
+                    }
                 }
+                Log.debug("SoundManager exit.");
             }
         };
         _player.setDaemon(true);
         _player.start();
+    }
+
+    /**
+     * Shut the damn thing off.
+     */
+    public void shutdown ()
+    {
+        _player = null;
+        _clips.append(this); // signal death
     }
 
     /**
@@ -108,6 +121,10 @@ public class SoundManager
                 clip.open(ais);
                 clip.start();
             }
+
+        } catch (LineUnavailableException lue) {
+            Log.warning("Sound unavailable, fuck it...");
+            shutdown();
 
         } catch (Exception e) {
             Log.warning("Failed to play sound [path=" + path +
