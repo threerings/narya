@@ -1,5 +1,5 @@
 //
-// $Id: PuzzlePanel.java,v 1.6 2004/10/28 18:37:49 mdb Exp $
+// $Id: PuzzlePanel.java,v 1.7 2004/10/28 18:53:26 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -182,7 +182,7 @@ public abstract class PuzzlePanel extends JPanel
     {
         // make the first player a robot player
 
-        if (_robotTest.getValue() && _controller.getPlayerIndex() == 0) {
+        if (isRobotTesting() && _controller.getPlayerIndex() == 0) {
             setRobotPlayer(true);
         }
     }
@@ -193,7 +193,7 @@ public abstract class PuzzlePanel extends JPanel
     public void clearAction ()
     {
         // deactivate the robot player
-        if (_robotTest.getValue() && _controller.getPlayerIndex() == 0) {
+        if (isRobotTesting() && _controller.getPlayerIndex() == 0) {
             setRobotPlayer(false);
         }
     }
@@ -245,6 +245,12 @@ public abstract class PuzzlePanel extends JPanel
     public Controller getController ()
     {
         return _controller;
+    }
+
+    /** Returns true if the robot tester is activated. */
+    public static boolean isRobotTesting ()
+    {
+        return _robotTest.getValue();
     }
 
     /** Our puzzle context. */
