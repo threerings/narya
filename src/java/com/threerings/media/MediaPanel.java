@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.7 2002/05/17 21:11:34 mdb Exp $
+// $Id: MediaPanel.java,v 1.8 2002/05/22 01:56:25 shaper Exp $
 
 package com.threerings.media;
 
@@ -130,16 +130,11 @@ public class MediaPanel extends JComponent
             return;
         }
 
-        if (paused) {
-            // stop listening to the frame tick
-            _framemgr.removeFrameParticipant(this);
+        if (_paused = paused) {
             // make a note of our pause time
             _pauseTime = System.currentTimeMillis();
 
         } else {
-            // start listening to the frame tick once again
-            _framemgr.registerFrameParticipant(this);
-
             // let the animation and sprite managers know that we just
             // warped into the future
             long delta = System.currentTimeMillis() - _pauseTime;
@@ -258,6 +253,11 @@ public class MediaPanel extends JComponent
     // documentation inherited from interface
     public void tick (long tickStamp)
     {
+        // bail if ticking is currently disabled
+        if (_paused) {
+            return;
+        }
+
         int width = getWidth(), height = getHeight();
 
         // if scrolling is enabled, determine the scrolling delta to be
@@ -554,6 +554,9 @@ public class MediaPanel extends JComponent
 
     /** Used to correlate tick()s with paint()s. */
     protected boolean _tickPaintPending = false;
+
+    /** Whether we're currently paused. */
+    protected boolean _paused;
 
     /** Used to track the clock time at which we were paused. */
     protected long _pauseTime;
