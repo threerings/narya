@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.4 2004/02/25 14:48:44 mdb Exp $
+// $Id: PuzzleController.java,v 1.5 2004/04/14 00:36:49 ray Exp $
 
 package com.threerings.puzzle.client;
 
@@ -153,10 +153,10 @@ public abstract class PuzzleController extends GameController
         // if we're moving focus to chat..
         if (chatting) {
             // ...enable "click to unchat" mode in the puzzle board view
-            _panel.getBoardView().addMouseListener(new MouseAdapter() {
+            _panel.addMouseListener(new MouseAdapter() {
                 public void mousePressed (MouseEvent event) {
                     setChatting(false);
-                    _panel.getBoardView().removeMouseListener(this);
+                    _panel.removeMouseListener(this);
                 }
             });
         }
