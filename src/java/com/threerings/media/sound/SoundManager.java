@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.58 2003/04/06 04:36:01 mdb Exp $
+// $Id: SoundManager.java,v 1.59 2003/04/08 01:46:16 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -467,6 +467,13 @@ public class SoundManager
         String music = names[RandomUtil.getInt(names.length)];
 
         Class playerClass = getMusicPlayerClass(music);
+
+        // if we don't have a player for this song, play the next song
+        if (playerClass == null) {
+            _musicStack.removeFirst();
+            playTopMusic();
+            return;
+        }
 
         // shutdown the old player if we're switching music types
         if (! playerClass.isInstance(_musicPlayer)) {
