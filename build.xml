@@ -120,7 +120,8 @@
   <target name="javadoc" depends="prepare">
     <javadoc packagenames="com.threerings.*" destdir="${javadoc.home}"
              additionalparam="-breakiterator -quiet"
-             link="http://www.threerings.net/code/narya/narya/docs/api">
+             link="http://www.threerings.net/code/narya/narya/docs/api"
+             stylesheetfile="docs/stylesheet.css">
       <classpath refid="classpath"/>
       <link href="http://java.sun.com/j2se/1.4/docs/api/"/>
       <link href="http://samskivert.com/code/samskivert/samskivert/docs/api"/>

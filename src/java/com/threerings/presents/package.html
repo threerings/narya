@@ -1,0 +1,321 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+  <head>
+    <!-- $Id: package.html 617 2001-11-13 00:12:20Z mdb $ -->
+  </head>
+
+  <body bgcolor="white">
+
+    Defines a framework for distributing information between multiple
+    separate applications (over a network) and for coordinating control
+    flow between those applications in the form of remote procedure call
+    services. The normal configuration of the Presents system is
+    client/server; generally with many clients connecting to a single
+    server. All information transfer takes place through the server using
+    the distributed object system documented below.
+
+    <p> <em>A note to the reader:</em> the Presents system is a complex
+    one and though a great deal of code is provided in explaining the
+    services it provides, it is not the intent that one should start from
+    only these examples and build a working system. A better approach is
+    to read through this documentation to come to an understanding of the
+    concepts and mechanisms that define the system and then take a look at
+    some working sample code which is provided in the <code>tests</code>
+    directory of this distribution.
+
+    <h3>Distributed Objects</h3>
+
+    The Presents services allow applications to access and update shared
+    information through a mechanism known as distributed objects.
+    Distributed objects are maintainedon the server and clients
+    "subscribe" to the objects and are provided with proxy copies which
+    are updated by a stream of events sent by the server when any state
+    changes in the objects.
+
+    <p> Clients cannot modify their proxy distributed objects directly,
+    instead they make use of setter methods which package up the requested
+    change into an event and send that event to the server for processing.
+    After performing access control checks, the server will apply the
+    event to the primary distributed object instance and then dispatch
+    that event to all subscribed clients. Those clients (including the
+    original change requesting client) then apply the event to their proxy
+    copy of the object and in this way all clients maintain an up to date
+    copy of the object's data.
+
+    <p align="center"> <img src="images/dobject.png">
+
+    <h4>Defining an object</h4>
+
+    A distributed object is defined just like a regular Java object and is
+    then run through a post-processor which inserts methods and constants
+    into the object definition which are needed by the distributed object
+    system. Here is a distributed object as originally defined:
+
+    <pre class="example">
+    public class CageObject extends DObject
+    {
+        /** The number of monkeys in the cage. */
+        public int monkeys;
+
+        /** The name of the owner of this cage. */
+        public String owner;
+    }</pre>
+
+    This class definition is then run through a post-processor which turns
+    it into the following:
+
+    <pre class="example">
+    public class CageObject extends DObject
+    {
+        <b>// AUTO-GENERATED: FIELDS START
+        /** The field name of the <code>monkeys</code> field. */
+        public static final String MONKEYS = "monkeys";
+
+        /** The field name of the <code>owner</code> field. */
+        public static final String OWNER = "owner";
+        // AUTO-GENERATED: FIELDS END</b>
+
+        /** The number of monkeys in the cage. */
+        public int monkeys;
+
+        /** The name of the owner of this cage. */
+        public String owner;
+
+        <b>// AUTO-GENERATED: METHODS START
+        /**
+         * Requests that the <code>monkeys</code> field be set to the
+         * specified value. The local value will be updated immediately and an
+         * event will be propagated through the system to notify all listeners
+         * that the attribute did change. Proxied copies of this object (on
+         * clients) will apply the value change when they received the
+         * attribute changed notification.
+         */
+        public void setMonkeys (int value)
+        {
+            int ovalue = this.monkeys;
+            requestAttributeChange(
+                EVEN_BASE, new Integer(value), new Integer(ovalue));
+            this.monkeys = value;
+        }
+
+        /**
+         * Requests that the <code>owner</code> field be set to the
+         * specified value. The local value will be updated immediately and an
+         * event will be propagated through the system to notify all listeners
+         * that the attribute did change. Proxied copies of this object (on
+         * clients) will apply the value change when they received the
+         * attribute changed notification.
+         */
+        public void setOwner (String value)
+        {
+            String ovalue = this.owner;
+            requestAttributeChange(
+                ODD_BASE, value, ovalue);
+            this.owner = value;
+        }
+        // AUTO-GENERATED: METHODS END</b>
+    }</pre>
+
+    The contents of the methods are not too important, the main things to
+    note are that setter methods for the two attributes (fields in a
+    distributed object are referred to as <i>attributes</i> in this
+    documentation and elsewhere in the system) were generated and
+    constants were defined that will be used to identify which attribute
+    changed if we choose to inspect an event notifying us of such a
+    change.
+
+    <h4>Creating an object</h4>
+
+    Generally, some entity on the server will choose to create a new
+    instance of a distributed object. Rather than simply instantiate the
+    object directly, one must create the object through the {@link
+    com.threerings.presents.dobj.DObjectManager}:
+
+    <pre class="example">
+    public class ServerEntity implements Subscriber {
+        public void init (DObjectManager omgr) {
+            omgr.createObject(CageObject.class, this);
+        }
+
+        // inherited from interface Subscriber
+        public void objectAvailable (DObject object) {
+            // yay! we created our object
+            _object = (CageObject)object;
+        }
+
+        // inherited from interface Subscriber
+        public void requestFailed (int oid, ObjectAccessException cause) {
+            // oh the humanity, we failed to create our object; in
+            // general this would only happen if we did something silly like
+            // passed in a DObject class that didn't extend DObject
+        }
+
+        protected CageObject _object;
+    }</pre>
+
+    You'll notice that we provide an instance of a <code>Subscriber</code>
+    when creating our object. This subscriber instance is in fact
+    subscribed to the newly created object in the same manner as is
+    described below for all additional subscribers to the object. It is
+    possible to instruct an object to automatically destroy itself when
+    all subscribers have unsubscribed. (See {@link
+    com.threerings.presents.dobj.DObject}.setDestroyOnLastSubscriberRemoved()).
+
+    <h4>Subscribing to an object</h4>
+
+    <p> The client obtains a proxy of the object by a process called
+    subscription, which is accomplished via {@link
+    com.threerings.presents.dobj.DObjectManager}.subscribeToObject():
+
+    <pre class="example">
+    public class ObjectUser implements Subscriber {
+        public void init (Client client, int objectId) {
+            client.getDObjectManager().subscribeToObject(objectId, this);
+        }
+
+        // inherited from interface Subscriber
+        public void objectAvailable (DObject object) {
+            // yay! we got our object
+            _object = (CageObject)object;
+        }
+
+        // inherited from interface Subscriber
+        public void requestFailed (int oid, ObjectAccessException cause) {
+            // oh the humanity, we failed to subscribe
+        }
+
+        protected CageObject _object;
+    }</pre>
+
+    <p> Later a client would relinquish its subscription to the object
+    using a similar mechanism:
+
+    <pre class="example">
+    public class ObjectUser implements Subscriber {
+        // ...
+        public void shutdown (Client client) {
+            client.getDObjectManager().unsubscribeFromObject(
+                _object.getOid(), this);
+            _object = null;
+        }
+        // ...
+    }</pre>
+
+    However, this is a fine time to point out the dangers of working in an
+    asynchronous distributed environment. There is no guarantee that your
+    object subscription request will be completed before the client
+    decides to call shutdown() on its <code>ObjectUser</code>. Thus, in
+    the previous code, we would get a null pointer exception, and even
+    worse, we would remain subscribed to the object even though we didn't
+    want to be. To avoid these sorts of problems, the {@link
+    com.threerings.presents.util.SafeSubscriber} class is provided:
+
+    <pre class="example">
+    public class ObjectUser implements Subscriber {
+        public void init (Client client, int objectId) {
+            <b>_safesub = new SafeSubscriber(objectId, this);
+            _safesub.subcribe(client.getDObjectManager());</b>
+        }
+
+        // inherited from interface Subscriber
+        public void objectAvailable (DObject object) {
+            // yay! we got our object
+            _object = object;
+        }
+
+        // inherited from interface Subscriber
+        public void requestFailed (int oid, ObjectAccessException cause) {
+            // oh the humanity, we failed to subscribe
+        }
+
+        public void shutdown (Client client) {
+            <b>_safesub.unsubscribe(client.getDObjectManager());</b>
+            _object = null;
+        }
+
+        <b>protected SafeSubscriber _safesub;</b>
+        protected DObject _object;
+    }</pre>
+
+    The safe subscriber will pass the object availability on to your
+    subscriber and when the time comes to unsubscribe, it will cope with
+    the case where the original subscription was not fully processed and
+    stick around long enough to ensure that once it is, the request to
+    unsubscribe is also dispatched. It will also cope with a request to
+    <code>unsubscribe()</code> even if the original subscription request
+    failed.
+
+    <h3>Listeners</h3>
+
+    Once a client has subscribed to a distributed object, all events
+    pertaining to that object will be delivered to the client. Frequently,
+    it is useful to respond dynamically to changes in distributed object
+    values and this is accomplished using listeners. A client can register
+    any number of listeners on an object and when the object is finally
+    unsubscribed from and garbage collected, the listener registrations
+    all go away as well.
+
+    <p> The basic listener is the {@link
+    com.threerings.presents.dobj.AttributeChangeListener} which is
+    informed of all simple attribute changes (setting a primitive field to
+    a new value is called an attribute change in this distributed object
+    system). We return to our trusty example:
+
+    <pre class="example">
+    public class ObjectUser
+        implements Subscriber, <b>AttributeChangeListener</b> {
+        // ...
+        public void init (Client client, int objectId) {
+            _safesub = new SafeSubscriber(_subscriber, objectId);
+            _safesub.subcribe(client.getDObjectManager());
+        }
+
+        // inherited from interface Subscriber
+        public void objectAvailable (DObject object) {
+            // yay! we got our object
+            _object = object;
+            <b>_object.addListener(this);</b>
+        }
+
+        // inherited from interface Subscriber
+        public void requestFailed (int oid, ObjectAccessException cause) {
+            // oh the humanity, we failed to subscribe
+        }
+
+        <b>// inherited from interface AttributeChangeListener
+        public void attributeChanged (AttributeChangedEvent event)
+        {
+            System.out.println("Wow! The " + event.getName() +
+                               " field changed to " + event.getValue() + ".");
+        }</b>
+
+        public void shutdown (Client client) {
+            _safesub.unsubscribe(client.getDObjectManager());
+            <b>if (_object != null) {
+                 // removing our listener not necessary as we are
+                 // unsubscribing, but it's a good habit to develop as
+                 // frequently listeners will come and go during the
+                 // lifetime of an object subscription
+                _object.removeListener(this);
+                _object = null;
+            }</b>
+        }
+
+        protected SafeSubscriber _safesub;
+        protected DObject _object;
+    }</pre>
+
+    It is useful to note that listeners are notified of a changed
+    attribute <b>after</b> the change has been applied to the object. The
+    previous value of the attribute is available through the {@link
+    com.threerings.presents.dobj.AttributeChangedEvent#getOldValue}
+    method, though in spite of many years of experience using this system
+    in a variety of circumstances, we have rarely found that we cared to
+    know the previous value.
+
+    <h3>Distributed collections</h3>
+
+    <h3>Invocation Services</h3>
+
+  </body>
+</html>
