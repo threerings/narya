@@ -1,5 +1,5 @@
 //
-// $Id: DownloadManager.java,v 1.10 2003/08/05 23:34:01 mdb Exp $
+// $Id: DownloadManager.java,v 1.11 2003/08/08 17:45:00 mdb Exp $
 
 package com.threerings.resource;
 
@@ -133,7 +133,8 @@ public class DownloadManager
             if (protocol.equals("file")) {
                 return new FileDownloader();
             } else if (protocol.equals("http")) {
-                return new JNLPDownloader();
+                return VERSIONING ? (Downloader)new JNLPDownloader() :
+                    (Downloader)new HTTPDownloader();
             } else {
                 throw new IOException(
                     "Unknown source file protocol " +
@@ -276,21 +277,33 @@ public class DownloadManager
         }
 
         // now go through and do the post-download phase
+        IOException failure = null;
+        DownloadDescriptor fdesc = null;
         for (int ii = 0; ii < size; ii++) {
             Downloader loader = (Downloader)fetch.get(ii);
             try {
                 loader.postDownload(this, obs, pinfo);
             } catch (IOException ioe) {
-                notifyFailed(obs, loader.getDescriptor(), ioe);
-                if (fragile) {
-                    return;
-                }
+                // we want to try to apply as many of the patches as we
+                // can, so we don't fail entirely here, just keep track of
+                // the last failure and report that when we're done
+                fdesc = loader.getDescriptor();
+                failure = ioe;
+                Log.warning("Downloader failed in postDownload hook " +
+                            "[desc=" + fdesc + "].");
+                Log.logStackTrace(ioe);
             }
         }
 
-        // make sure to always let the observer know that we've wrapped up
-        // by reporting 100% completion
-        notifyProgress(obs, 100, 0L);
+        // if we had any failure, go ahead and report it now
+        if (failure != null) {
+            notifyFailed(obs, fdesc, failure);
+
+        } else {
+            // make sure to always let the observer know that we've
+            // wrapped up by reporting 100% completion
+            notifyProgress(obs, 100, 0L);
+        }
     }
 
     /** Helper function. */
