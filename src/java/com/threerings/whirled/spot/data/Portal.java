@@ -1,5 +1,5 @@
 //
-// $Id: Portal.java,v 1.1 2001/11/13 02:25:35 mdb Exp $
+// $Id: Portal.java,v 1.2 2001/11/29 00:16:31 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -26,6 +26,11 @@ public class Portal extends Location
     /** The location identifier of the location at which a body will enter
      * the target scene when they "use" this portal. */
     public int targetLocationId;
+
+    /** During the offline scene creation process, a portal will have a
+     * huamn readable name. This is not serialized or transmitted over the
+     * wire. */
+    public String name;
 
     /**
      * Constructs a portal with the supplied values.
