@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.30 2002/06/01 21:21:20 ray Exp $
+// $Id: GameManager.java,v 1.31 2002/06/01 23:14:53 ray Exp $
 
 package com.threerings.parlor.game;
 
@@ -88,16 +88,6 @@ public class GameManager extends PlaceManager
         }
 
         _AIs[pidx] = skill;
-    }
-
-    /**
-     * Sets whether this game is to be rated.  All games are unrated by
-     * default.
-     */
-    // TODO: obsolete this method? It's used by SailingVessel in the yocode.
-    public void setRateGame (boolean rated)
-    {
-        _gconfig.rated = rated;
     }
 
     /**
