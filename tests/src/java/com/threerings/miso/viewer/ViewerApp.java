@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.16 2001/11/21 02:42:16 mdb Exp $
+// $Id: ViewerApp.java,v 1.17 2001/11/27 08:49:58 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -12,9 +12,11 @@ import com.threerings.resource.ResourceManager;
 import com.threerings.media.sprite.SpriteManager;
 import com.threerings.media.tile.TileManager;
 import com.threerings.cast.CharacterManager;
+import com.threerings.cast.bundle.BundledComponentRepository;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.util.MisoContext;
+import com.threerings.miso.util.MisoUtil;
 
 /**
  * The ViewerApp is a scene viewing application that allows for trying
@@ -26,27 +28,31 @@ public class ViewerApp
      * Construct and initialize the ViewerApp object.
      */
     public ViewerApp (String[] args)
+        throws IOException
     {
         // we don't need to configure anything
         _config = new Config();
         _rsrcmgr = new ResourceManager(null, "rsrc");
 	_tilemgr = new TileManager(_rsrcmgr);
 
+        // bind our miso properties
+        MisoUtil.bindProperties(_config);
+
 	// create the context object
 	MisoContext ctx = new ContextImpl();
 
         // create the various managers
         SpriteManager spritemgr = new SpriteManager();
-//         XMLComponentRepository crepo = new XMLComponentRepository(
-//             ctx.getConfig(), ctx.getImageManager());
-        CharacterManager charmgr = new CharacterManager(null);
+        BundledComponentRepository crepo =
+            new BundledComponentRepository(_rsrcmgr, "components");
+        CharacterManager charmgr = new CharacterManager(crepo);
 
         // create and size the main application frame
 	_frame = new ViewerFrame();
 	_frame.setSize(WIDTH, HEIGHT);
 
         // create our scene view panel
-        _panel = new ViewerSceneViewPanel(ctx, spritemgr, charmgr);
+        _panel = new ViewerSceneViewPanel(ctx, spritemgr, charmgr, crepo);
         _frame.setPanel(_panel);
 
         // determine whether or not the user specified a scene to be
@@ -86,8 +92,13 @@ public class ViewerApp
      */
     public static void main (String[] args)
     {
-	ViewerApp app = new ViewerApp(args);
-        app.run();
+        try {
+            ViewerApp app = new ViewerApp(args);
+            app.run();
+        } catch (IOException ioe) {
+            System.err.println("Error initializing viewer app.");
+            ioe.printStackTrace();
+        }
     }
 
     /** The desired width and height for the main application window. */
