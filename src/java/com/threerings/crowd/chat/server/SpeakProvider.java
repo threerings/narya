@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.13 2003/06/24 05:19:57 mdb Exp $
+// $Id: SpeakProvider.java,v 1.14 2003/07/14 23:46:03 ray Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -285,19 +285,14 @@ public class SpeakProvider
      */
     protected static void pruneHistory (long now, HistoryList history)
     {
-        int prunepos = -1;
-        for (int ii = 0, ll = history.size(); ii < ll; ii++) {
-            ChatMessage msg = (ChatMessage)history.get(ii);
-            if (now - msg.timestamp > HISTORY_EXPIRATION) {
-                // Log.info("Expiring from history " + msg + ".");
-                prunepos = ii;
-            } else {
+        int prunepos = 0;
+        for (int ll = history.size(); prunepos < ll; prunepos++) {
+            ChatMessage msg = (ChatMessage)history.get(prunepos);
+            if (now - msg.timestamp < HISTORY_EXPIRATION) {
                 break; // stop when we get to the first valid message
             }
         }
-        if (prunepos >= 0) {
-            history.remove(0, prunepos+1);
-        }
+        history.remove(0, prunepos);
     }
 
     /** Used to note the recipients of a chat message. */
