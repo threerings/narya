@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaClient.java,v 1.8 2002/01/19 04:02:11 mdb Exp $
+// $Id: MiCasaClient.java,v 1.9 2002/01/19 04:15:25 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -117,6 +117,16 @@ public class MiCasaClient
      */
     protected class MiCasaContextImpl implements MiCasaContext
     {
+        /**
+         * Apparently the default constructor has default access, rather
+         * than protected access, even though this class is declared to be
+         * protected. Why, I don't know, but we need to be able to extend
+         * this class elsewhere, so we need this.
+         */
+        protected MiCasaContextImpl ()
+        {
+        }
+
         public Config getConfig ()
         {
             return _config;
