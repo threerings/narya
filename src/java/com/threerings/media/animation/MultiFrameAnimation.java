@@ -1,5 +1,5 @@
 //
-// $Id: MultiFrameAnimation.java,v 1.3 2002/09/17 22:06:26 ray Exp $
+// $Id: MultiFrameAnimation.java,v 1.4 2002/09/17 22:18:42 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -61,8 +61,9 @@ public class MultiFrameAnimation extends Animation
     {
         super.reset();
 
-        // reset ourselves to a frame number that indicates that we're starting
-        setFrameIndex(-1);
+        // set the frame number to -1 so that we don't ignore the
+        // transition to frame zero on the first call to tick()
+        _fidx = -1;
 
         // reset our frame sequencer
         _seeker.init(_frames);
@@ -90,15 +91,14 @@ public class MultiFrameAnimation extends Animation
     protected void setFrameIndex (int fidx)
     {
         _fidx = fidx;
-        int frame = Math.max(0, _fidx);
-        _bounds.width = _frames.getWidth(frame);
-        _bounds.height = _frames.getHeight(frame);
+        _bounds.width = _frames.getWidth(_fidx);
+        _bounds.height = _frames.getHeight(_fidx);
     }
 
     // documentation inherited
     public void paint (Graphics2D gfx)
     {
-        _frames.paintFrame(gfx, Math.max(0, _fidx), _bounds.x, _bounds.y);
+        _frames.paintFrame(gfx, _fidx, _bounds.x, _bounds.y);
     }
 
     // documentation inherited
