@@ -1,29 +1,29 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- $Id: actions.xml,v 1.2 2001/11/27 22:11:43 mdb Exp $ -->
+<!-- $Id: actions.xml,v 1.3 2002/02/14 01:11:11 mdb Exp $ -->
 
 <!-- test component action definitions -->
 <actions>
   <action name="standing">
-    <framesPerSecond>5</framesPerSecond>
-    <origin>47,80</origin>
+    <framesPerSecond>8</framesPerSecond>
+    <origin>43,106</origin>
     <tileset>
-      <heights>94, 94, 94, 94, 94, 94, 94, 94</heights>
+      <heights>124, 124, 124, 124, 124, 124, 124, 124</heights>
       <widths>94, 94, 94, 94, 94, 94, 94, 94</widths>
       <tileCounts>1, 1, 1, 1, 1, 1, 1, 1</tileCounts>
-      <offsetPos>1, 1</offsetPos>
-      <gapSize>39, 18</gapSize>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
     </tileset>
   </action>
 
   <action name="walking">
-    <framesPerSecond>5</framesPerSecond>
-    <origin>47,80</origin>
+    <framesPerSecond>8</framesPerSecond>
+    <origin>43,106</origin>
     <tileset>
-      <heights>94, 94, 94, 94, 94, 94, 94, 94</heights>
+      <heights>124, 124, 124, 124, 124, 124, 124, 124</heights>
       <widths>94, 94, 94, 94, 94, 94, 94, 94</widths>
       <tileCounts>6, 6, 6, 6, 6, 6, 6, 6</tileCounts>
-      <offsetPos>1, 1</offsetPos>
-      <gapSize>39, 18</gapSize>
+      <offsetPos>0, 0</offsetPos>
+      <gapSize>0, 0</gapSize>
     </tileset>
   </action>
 </actions>
