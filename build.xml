@@ -37,9 +37,14 @@
   <!-- build the javadoc documentation -->
   <target name="javadoc" depends="prepare">
     <javadoc sourcepath="src/java"
-             packagenames="robodj.*"
-             classpath="${deploy.home}/classes"
-             destdir="${javadoc.home}"/>
+             packagenames="com.samskivert.*"
+             destdir="${javadoc.home}">
+      <classpath>
+        <fileset dir="${java.libraries}" includes="**/*.jar"/>
+        <fileset dir="lib" includes="**/*.jar"/>
+        <pathelement location="${deploy.home}/classes"/>
+      </classpath>
+    </javadoc>
   </target>
 
   <!-- the default target is to rebuild everything -->
