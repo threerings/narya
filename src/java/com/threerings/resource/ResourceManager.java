@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.23 2003/02/12 18:11:33 mdb Exp $
+// $Id: ResourceManager.java,v 1.24 2003/04/24 07:23:47 ray Exp $
 
 package com.threerings.resource;
 
@@ -148,6 +148,10 @@ public class ResourceManager
 
         // use the classloader that loaded us
         _loader = getClass().getClassLoader();
+
+        // set up a URL handler so that things can be loaded via
+        // urls with the 'resource' protocol
+        Handler.registerHandler(this);
     }
 
     /**
