@@ -1,10 +1,12 @@
 //
-// $Id: SpotService.java,v 1.2 2001/12/14 23:12:39 mdb Exp $
+// $Id: SpotService.java,v 1.3 2001/12/16 05:18:20 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationDirector;
+
+import com.threerings.whirled.client.SceneDirector;
 
 import com.threerings.whirled.spot.Log;
 
@@ -21,7 +23,7 @@ public class SpotService implements SpotCodes
      */
     public static void traversePortal (
         Client client, int sceneId, int portalId, int sceneVer,
-        SpotSceneDirector rsptarget)
+        SceneDirector rsptarget)
     {
         InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] {

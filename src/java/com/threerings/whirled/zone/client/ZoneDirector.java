@@ -1,21 +1,18 @@
 //
-// $Id: ZoneDirector.java,v 1.1 2001/12/04 00:31:58 mdb Exp $
+// $Id: ZoneDirector.java,v 1.2 2001/12/16 05:18:20 mdb Exp $
 
 package com.threerings.whirled.zone.client;
 
 import com.threerings.crowd.data.PlaceConfig;
 
-import com.threerings.whirled.client.DisplaySceneFactory;
 import com.threerings.whirled.client.SceneDirector;
-import com.threerings.whirled.client.persist.SceneRepository;
-
 import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.util.WhirledContext;
 
 import com.threerings.whirled.zone.data.ZoneSummary;
 
 /**
- * The zone director extends the scene director with the notion of zones.
+ * The zone director augments the scene services with the notion of zones.
  * Zones are self-contained, connected groups of scenes. The normal scene
  * director services can be used to move from scene to scene, but moving
  * to a new zone requires a special move request which can be accomplished
@@ -23,17 +20,18 @@ import com.threerings.whirled.zone.data.ZoneSummary;
  * summary which provides information on the zone which can be used to
  * generate an overview map or similar.
  */
-public class ZoneDirector extends SceneDirector
+public class ZoneDirector
 {
     /**
-     * Constructs a zone director with the supplied context, repository
-     * and scene factory. A zone director is required on the client side
-     * for systems that wish to use the zone services.
+     * Constructs a zone director with the supplied context, and delegate
+     * scene director (which the zone director will coordinate with when
+     * moving from scene to scene). A zone director is required on the
+     * client side for systems that wish to use the zone services.
      */
-    public ZoneDirector (WhirledContext ctx, SceneRepository screp,
-                         DisplaySceneFactory dsfact)
+    public ZoneDirector (WhirledContext ctx, SceneDirector scdir)
     {
-        super(ctx, screp, dsfact);
+        _ctx = ctx;
+        _scdir = scdir;
     }
 
     /**
@@ -56,11 +54,11 @@ public class ZoneDirector extends SceneDirector
         // if the requested zone is the same as our current zone, we just
         // want a regular old moveTo request
         if (_summary != null && zoneId == _summary.zoneId) {
-            moveTo(sceneId);
+            _scdir.moveTo(sceneId);
 
         } else { // otherwise, we make a zoned moveTo request
             // prepare to move to this scene (sets up pending data)
-            if (!prepareMoveTo(sceneId)) {
+            if (!_scdir.prepareMoveTo(sceneId)) {
                 return;
             }
 
@@ -68,8 +66,9 @@ public class ZoneDirector extends SceneDirector
             // we're requesting to move; if we were unable to load it, assume
             // a cached version of zero
             int sceneVers = 0;
-            if (_pendingModel != null) {
-                sceneVers = _pendingModel.version;
+            SceneModel pendingModel = _scdir.getPendingModel();
+            if (pendingModel != null) {
+                sceneVers = pendingModel.version;
             }
 
             // issue a moveTo request
@@ -89,7 +88,7 @@ public class ZoneDirector extends SceneDirector
         _summary = summary;
 
         // and pass the rest off to the standard scene transition code
-        handleMoveSucceeded(invid, placeId, config);
+        _scdir.handleMoveSucceeded(invid, placeId, config);
     }
 
     /**
@@ -105,8 +104,22 @@ public class ZoneDirector extends SceneDirector
         _summary = summary;
 
         // and pass the rest off to the standard scene transition code
-        handleMoveSucceededPlusUpdate(invid, placeId, config, model);
+        _scdir.handleMoveSucceededPlusUpdate(invid, placeId, config, model);
     }
+
+    /**
+     * Called in response to a failed zoned <code>moveTo</code> request.
+     */
+    public void handleMoveFailed (int invid, String reason)
+    {
+        _scdir.handleMoveFailed(invid, reason);
+    }
+
+    /** A reference to the active client context. */
+    protected WhirledContext _ctx;
+
+    /** A reference to the scene director with which we coordinate. */
+    protected SceneDirector _scdir;
 
     /** A reference to the zone summary for the currently occupied
      * zone. */

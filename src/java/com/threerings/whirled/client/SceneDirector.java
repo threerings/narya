@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.9 2001/12/14 01:51:45 mdb Exp $
+// $Id: SceneDirector.java,v 1.10 2001/12/16 05:18:20 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -24,7 +24,7 @@ import com.threerings.whirled.util.WhirledContext;
  * The scene director is the client's interface to all things scene
  * related. It interfaces with the scene repository to ensure that scene
  * objects are available when the client enters a particular scene. It
- * handles moving from scene to scene (it extends and replaces the {@link
+ * handles moving from scene to scene (it coordinates with the {@link
  * LocationDirector} in order to do this).
  *
  * <p> Note that when the scene director is in use instead of the location
@@ -33,26 +33,31 @@ import com.threerings.whirled.util.WhirledContext;
  * LocationObserver#locationChangeFailed}.
  */
 public class SceneDirector
-    extends LocationDirector implements SceneCodes
+    implements SceneCodes, LocationDirector.FailureHandler
 {
     /**
      * Creates a new scene director with the specified context.
      *
      * @param ctx the active client context.
+     * @param locdir the location director in use on the client, with
+     * which the scene director will coordinate when changing location.
      * @param screp the entity from which the scene director will load
      * scene data from the local client scene storage.
      * @param dsfact the factory that knows which derivation of {@link
      * DisplayScene} to create for the current system.
      */
-    public SceneDirector (WhirledContext ctx, SceneRepository screp,
-                          DisplaySceneFactory dsfact)
+    public SceneDirector (WhirledContext ctx, LocationDirector locdir,
+                          SceneRepository screp, DisplaySceneFactory dsfact)
     {
-        super(ctx);
-
         // we'll need these for later
         _ctx = ctx;
+        _locdir = locdir;
         _screp = screp;
         _dsfact = dsfact;
+
+        // set ourselves up as a failure handler with the location
+        // director because we need to do special processing
+        _locdir.setFailureHandler(this);
     }
 
     /**
@@ -91,13 +96,14 @@ public class SceneDirector
     /**
      * Prepares to move to the requested scene. The location observers are
      * asked to ratify the move and our pending scene mode is loaded from
-     * the scene repository.
+     * the scene repository. This can be called by cooperating directors
+     * that need to coopt the moveTo process.
      */
-    protected boolean prepareMoveTo (int sceneId)
+    public boolean prepareMoveTo (int sceneId)
     {
         // first check to see if our observers are happy with this move
         // request
-        if (!mayMoveTo(sceneId)) {
+        if (!_locdir.mayMoveTo(sceneId)) {
             return false;
         }
 
@@ -126,6 +132,18 @@ public class SceneDirector
     }
 
     /**
+     * Returns the model loaded in preparation for a scene
+     * transition. This is made available only for cooperating directors
+     * which may need to coopt the scene transition process. The pending
+     * model is only valid immediately following a call to {@link
+     * #prepareMoveTo}.
+     */
+    public SceneModel getPendingModel ()
+    {
+        return _pendingModel;
+    }
+
+    /**
      * Called in response to a successful <code>moveTo</code> request.
      */
     public void handleMoveSucceeded (
@@ -133,7 +151,7 @@ public class SceneDirector
     {
         // our move request was successful, deal with subscribing to our
         // new place object
-        didMoveTo(placeId, config);
+        _locdir.didMoveTo(placeId, config);
 
         // since we're committed to moving to the new scene, we'll
         // parallelize and go ahead and load up the new scene now rather
@@ -199,14 +217,14 @@ public class SceneDirector
         _pendingSceneId = -1;
 
         // let our observers know that something has gone horribly awry
-        notifyFailure(sceneId, reason);
+        _locdir.failedToMoveTo(sceneId, reason);
     }
 
     /**
      * Called when something breaks down in the process of performing a
      * <code>moveTo</code> request.
      */
-    protected void recoverFailedMove (int placeId)
+    public void recoverFailedMove (int placeId)
     {
         // we'll need this momentarily
         int sceneId = _sceneId;
@@ -281,6 +299,9 @@ public class SceneDirector
 
     /** Access to general client services. */
     protected WhirledContext _ctx;
+
+    /** The client's active location director. */
+    protected LocationDirector _locdir;
 
     /** The entity via which we load scene data. */
     protected SceneRepository _screp;

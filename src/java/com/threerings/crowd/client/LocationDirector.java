@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.15 2001/12/13 06:34:40 mdb Exp $
+// $Id: LocationDirector.java,v 1.16 2001/12/16 05:18:20 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -23,6 +23,24 @@ import com.threerings.crowd.util.CrowdContext;
 public class LocationDirector
     implements ClientObserver, Subscriber
 {
+    /**
+     * Used to recover from a moveTo request that was accepted but
+     * resulted in a failed attempt to fetch the place object to which we
+     * were moving.
+     */
+    public static interface FailureHandler
+    {
+        /**
+         * Should instruct the client to move to the last known working
+         * location (as well as clean up after the failed moveTo request).
+         */
+        public void recoverFailedMove (int placeId);
+    }
+
+    /**
+     * Constructs a location director which will configure itself for
+     * operation using the supplied context.
+     */
     public LocationDirector (CrowdContext ctx)
     {
         // keep this around for later
@@ -111,18 +129,18 @@ public class LocationDirector
     }
 
     /**
-     * This can be called by derived classes that need to coopt the moving
-     * process to extend it in some way or other. In such situations, they
-     * should call this method before moving to a new location to check to
-     * be sure that all of the registered location observers are amenable
-     * to a location change.
+     * This can be called by cooperating directors that need to coopt the
+     * moving process to extend it in some way or other. In such
+     * situations, they should call this method before moving to a new
+     * location to check to be sure that all of the registered location
+     * observers are amenable to a location change.
      *
      * @param placeId the place oid of our tentative new location.
      *
      * @return true if everyone is happy with the move, false if it was
      * vetoed by one of the location observers.
      */
-    protected boolean mayMoveTo (int placeId)
+    public boolean mayMoveTo (int placeId)
     {
         for (int i = 0; i < _observers.size(); i++) {
             LocationObserver obs = (LocationObserver)_observers.get(i);
@@ -137,16 +155,16 @@ public class LocationDirector
     }
 
     /**
-     * This can be called by derived classes that need to coopt the moving
-     * process to extend it in some way or other. In such situations, they
-     * will be responsible for receiving the successful move response and
-     * they should let the location director know that the move has been
-     * effected.
+     * This can be called by cooperating directors that need to coopt the
+     * moving process to extend it in some way or other. In such
+     * situations, they will be responsible for receiving the successful
+     * move response and they should let the location director know that
+     * the move has been effected.
      *
      * @param placeId the place oid of our new location.
      * @param config the configuration information for the new place.
      */
-    protected void didMoveTo (int placeId, PlaceConfig config)
+    public void didMoveTo (int placeId, PlaceConfig config)
     {
         DObjectManager omgr = _ctx.getDObjectManager();
 
@@ -191,15 +209,15 @@ public class LocationDirector
     }
 
     /**
-     * This can be called by derived classes that need to coopt the moving
-     * process to extend it in some way or other. If the coopted move
-     * request fails, this failure can be propagated to the location
+     * This can be called by cooperating directors that need to coopt the
+     * moving process to extend it in some way or other. If the coopted
+     * move request fails, this failure can be propagated to the location
      * observers if appropriate.
      *
      * @param placeId the place oid to which we failed to move.
      * @param reason the reason code given for failure.
      */
-    protected void failedToMoveTo (int placeId, String reason)
+    public void failedToMoveTo (int placeId, String reason)
     {
         // let our observers know what's up
         notifyFailure(placeId, reason);
@@ -281,6 +299,10 @@ public class LocationDirector
         notifyFailure(placeId, reason);
     }
 
+    /**
+     * Called when we receive the place object to which we subscribed
+     * after a successful moveTo request.
+     */
     public void objectAvailable (DObject object)
     {
         // yay, we have our new place object
@@ -304,6 +326,12 @@ public class LocationDirector
         }
     }
 
+    /**
+     * Called if we are unable to subscribe to the place object that was
+     * provided to us with our successful moveTo request. This is
+     * generally a bad scene and we do our best to recover by going back
+     * to the previously known location.
+     */
     public void requestFailed (int oid, ObjectAccessException cause)
     {
         // aiya! we were unable to fetch our new place object; something
@@ -324,24 +352,40 @@ public class LocationDirector
         // does whatever's necessary
 
         // try to return to our previous location
-        recoverFailedMove(placeId);
+        if (_failureHandler != null) {
+            _failureHandler.recoverFailedMove(placeId);
+
+        } else {
+            // if we were previously somewhere (and that somewhere isn't
+            // where we just tried to go), try going back to that happy
+            // place
+            if (_previousPlaceId != -1 && _previousPlaceId != placeId) {
+                moveTo(_previousPlaceId);
+            }
+        }
     }
 
     /**
-     * If a <code>moveTo</code> request fails because we are unable to
-     * fetch our new place object, we need to do something to recover. By
-     * default that means attempting to return to the last location we
-     * occupied, but derived classes may need to do things differently.
-     *
-     * @param placeId the place id that we tried to move to but that
-     * failed.
+     * Sets the failure handler which will recover from place object
+     * fetching failures. In the event that we are unable to fetch our
+     * place object after making a successful moveTo request, we attempt
+     * to rectify the failure by moving back to the last known working
+     * location. Because entites that cooperate with the location director
+     * may need to become involved in this failure recovery, we provide
+     * this interface whereby they can interject themseves into the
+     * failure recovery process and do their own failure recovery.
      */
-    protected void recoverFailedMove (int placeId)
+    public void setFailureHandler (FailureHandler handler)
     {
-        // if we were previously somewhere (and that somewhere isn't where
-        // we just tried to go), try going back to that happy place
-        if (_previousPlaceId != -1 && _previousPlaceId != placeId) {
-            moveTo(_previousPlaceId);
+        if (_failureHandler != null) {
+            Log.warning("Requested to set failure handler, but we've " +
+                        "already got one. The conflicting entities will " +
+                        "likely need to perform more sophisticated " +
+                        "coordination to deal with failures. " +
+                        "[old=" + _failureHandler + ", new=" + handler + "].");
+
+        } else {
+            _failureHandler = handler;
         }
     }
 
@@ -376,4 +420,8 @@ public class LocationDirector
 
     /** The oid of the place we previously occupied. */
     protected int _previousPlaceId = -1;
+
+    /** The entity that deals when we fail to subscribe to a place
+     * object. */
+    protected FailureHandler _failureHandler;
 }

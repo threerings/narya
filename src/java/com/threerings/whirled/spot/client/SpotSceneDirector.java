@@ -1,15 +1,13 @@
 //
-// $Id: SpotSceneDirector.java,v 1.3 2001/12/14 23:12:39 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.4 2001/12/16 05:18:20 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
 import java.util.Iterator;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.whirled.client.DisplayScene;
-import com.threerings.whirled.client.DisplaySceneFactory;
 import com.threerings.whirled.client.SceneDirector;
-import com.threerings.whirled.client.persist.SceneRepository;
+import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.util.WhirledContext;
 
 import com.threerings.whirled.spot.Log;
@@ -20,7 +18,7 @@ import com.threerings.whirled.spot.data.Portal;
  * Extends the standard scene director with facilities to move between
  * locations within a scene.
  */
-public class SpotSceneDirector extends SceneDirector
+public class SpotSceneDirector
     implements SpotCodes
 {
     /**
@@ -42,18 +40,16 @@ public class SpotSceneDirector extends SceneDirector
     }
 
     /**
-     * Creates a new spot scene director with the specified context.
+     * Creates a new spot scene director with the specified context and
+     * which will cooperate with the supplied scene director.
      *
      * @param ctx the active client context.
-     * @param screp the entity from which the scene director will load
-     * scene data from the local client scene storage.
-     * @param dsfact the factory that knows which derivation of {@link
-     * DisplayScene} to create for the current system.
+     * @param scdir the scene director with which we will be cooperating.
      */
-    public SpotSceneDirector (
-        WhirledContext ctx, SceneRepository screp, DisplaySceneFactory dsfact)
+    public SpotSceneDirector (WhirledContext ctx, SceneDirector scdir)
     {
-        super(ctx, screp, dsfact);
+        _ctx = ctx;
+        _scdir = scdir;
     }
 
     /**
@@ -65,7 +61,8 @@ public class SpotSceneDirector extends SceneDirector
     public void traversePortal (int portalId)
     {
         // look up the destination scene and location
-        if (_scene == null) {
+        DisplaySpotScene scene = (DisplaySpotScene)_scdir.getScene();
+        if (scene == null) {
             Log.warning("Requested to traverse portal when we have " +
                         "no scene [portalId=" + portalId + "].");
             return;
@@ -73,8 +70,7 @@ public class SpotSceneDirector extends SceneDirector
 
         // find the portal they're talking about
         int targetSceneId = -1, targetLocId = -1;
-        DisplaySpotScene ds = (DisplaySpotScene)_scene;
-        Iterator portals = ds.getPortals().iterator();
+        Iterator portals = scene.getPortals().iterator();
         while (portals.hasNext()) {
             Portal portal = (Portal)portals.next();
             if (portal.locationId == portalId) {
@@ -85,14 +81,14 @@ public class SpotSceneDirector extends SceneDirector
 
         // make sure we found the portal
         if (targetSceneId == -1) {
+            portals = scene.getPortals().iterator();
             Log.warning("Requested to traverse non-existent portal " +
                         "[portalId=" + portalId +
-                        ", portals=" +
-                        StringUtil.toString(ds.getPortals().iterator()) + "].");
+                        ", portals=" + StringUtil.toString(portals) + "].");
         }
 
         // prepare to move to this scene (sets up pending data)
-        if (!prepareMoveTo(targetSceneId)) {
+        if (!_scdir.prepareMoveTo(targetSceneId)) {
             return;
         }
 
@@ -100,13 +96,14 @@ public class SpotSceneDirector extends SceneDirector
         // we're requesting to move; if we were unable to load it, assume
         // a cached version of zero
         int sceneVer = 0;
-        if (_pendingModel != null) {
-            sceneVer = _pendingModel.version;
+        SceneModel pendingModel = _scdir.getPendingModel();
+        if (pendingModel != null) {
+            sceneVer = pendingModel.version;
         }
 
         // issue a traversePortal request
         SpotService.traversePortal(
-            _ctx.getClient(), _sceneId, portalId, sceneVer, this);
+            _ctx.getClient(), scene.getId(), portalId, sceneVer, _scdir);
     }
 
     /**
@@ -127,7 +124,8 @@ public class SpotSceneDirector extends SceneDirector
         }
 
         // make sure we're currently in a scene
-        if (_sceneId == -1) {
+        DisplaySpotScene scene = (DisplaySpotScene)_scdir.getScene();
+        if (scene == null) {
             Log.warning("Requested to change locations, but we're not " +
                         "currently in any scene [locId=" + locationId + "].");
             return;
@@ -135,8 +133,7 @@ public class SpotSceneDirector extends SceneDirector
 
         // make sure the specified location is in the current scene
         int locidx = -1;
-        DisplaySpotScene sscene = (DisplaySpotScene)_scene;
-        Iterator locs = sscene.getLocations().iterator();
+        Iterator locs = scene.getLocations().iterator();
         for (int i = 0; locs.hasNext(); i++) {
             Location loc = (Location)locs.next();
             if (loc.locationId == locationId) {
@@ -147,7 +144,7 @@ public class SpotSceneDirector extends SceneDirector
         if (locidx == -1) {
             Log.warning("Requested to change to a location that's not " +
                         "in the current scene [locs=" + StringUtil.toString(
-                            sscene.getLocations().iterator()) +
+                            scene.getLocations().iterator()) +
                         ", locId=" + locationId + "].");
             return;
         }
@@ -156,7 +153,8 @@ public class SpotSceneDirector extends SceneDirector
         _pendingLocId = locationId;
         _changeObserver = obs;
         // and send the location change request
-        SpotService.changeLoc(_ctx.getClient(), _sceneId, locationId, this);
+        SpotService.changeLoc(_ctx.getClient(), scene.getId(),
+                              locationId, this);
     }
 
     /**
@@ -194,6 +192,12 @@ public class SpotSceneDirector extends SceneDirector
             obs.locationChangeFailed(locId, reason);
         }
     }
+
+    /** The active client context. */
+    protected WhirledContext _ctx;
+
+    /** The scene director with which we are cooperating. */
+    protected SceneDirector _scdir;
 
     /** The location id on which we have an outstanding change location
      * request. */
