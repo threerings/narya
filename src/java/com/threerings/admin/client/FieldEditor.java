@@ -1,5 +1,5 @@
 //
-// $Id: FieldEditor.java,v 1.3 2002/06/07 18:48:41 mdb Exp $
+// $Id: FieldEditor.java,v 1.4 2002/09/23 01:31:49 mdb Exp $
 
 package com.threerings.admin.client;
 
@@ -51,20 +51,27 @@ public class FieldEditor extends JPanel
         // set up our default border
         updateBorder(false);
 
-        // listen while we're shown and not when we're not
-        addAncestorListener(new AncestorAdapter () {
-            public void ancestorAdded (AncestorEvent event) {
-                _object.addListener(FieldEditor.this);
-                _value.setText(readValue());
-            }
-            public void ancestorRemoved (AncestorEvent event) {
-                _object.removeListener(FieldEditor.this);
-            }
-        });
-
         // we want to let the user know if they remove focus from a text
         // box without changing a field that it's not saved
         _value.addFocusListener(this);
+    }
+
+    // documentation inherited
+    public void addNotify ()
+    {
+        super.addNotify();
+
+        // listen to the object while we're visible
+        _object.addListener(FieldEditor.this);
+        _value.setText(readValue());
+    }
+
+    public void removeNotify ()
+    {
+        super.removeNotify();
+
+        // stop listening when we're hidden
+        _object.removeListener(FieldEditor.this);
     }
 
     // documentation inherited from interface
@@ -103,6 +110,9 @@ public class FieldEditor extends JPanel
 
         } else if (_field.getType().equals(String.class)) {
             value = _value.getText();
+
+        } else if (_field.getType().equals(Boolean.TYPE)) {
+            value = new Boolean(_value.getText().equalsIgnoreCase("true"));
         }
 
         // submit an attribute changed event with the new value
