@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.12 2003/04/28 18:21:47 mdb Exp $
+// $Id: ResourceBundle.java,v 1.13 2003/05/05 18:02:37 mdb Exp $
 
 package com.threerings.resource;
 
@@ -15,6 +15,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import com.samskivert.io.NestableIOException;
+import com.samskivert.util.FileUtil;
 import com.samskivert.util.StringUtil;
 
 import org.apache.commons.io.StreamUtils;
@@ -238,5 +239,13 @@ public class ResourceBundle
             Log.info("Creating narya temp cache directory '" + _tmpdir + "'.");
             _tmpdir.mkdirs();
         }
+
+        // add a hook to blow away the temp directory when we exit
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run () {
+                Log.info("Clearing narya temp cache '" + _tmpdir + "'.");
+                FileUtil.recursiveDelete(_tmpdir);
+            }
+        });
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.27 2003/05/03 00:51:13 ray Exp $
+// $Id: ResourceManager.java,v 1.28 2003/05/05 18:02:37 mdb Exp $
 
 package com.threerings.resource;
 
@@ -27,7 +27,6 @@ import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 
-import com.samskivert.util.FileUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.resource.DownloadManager.DownloadDescriptor;
@@ -172,16 +171,6 @@ public class ResourceManager
                      "won't be able to create our cache directory " +
                      "either. [error=" + se + "].");
         }
-
-        // Add a hook to blow away the temp directory when we exit
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run ()
-            {
-                File dir = ResourceBundle.getCacheDir();
-                Log.info("Deleting narya temp cache directory '" + dir + "'.");
-                FileUtil.recursiveDelete(dir);
-            }
-        });
     }
 
     /**
