@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorServer.java,v 1.3 2001/12/20 01:11:18 shaper Exp $
+// $Id: SimulatorServer.java,v 1.4 2002/02/05 20:27:07 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -27,7 +27,7 @@ public class SimulatorServer extends CrowdServer
         super.init();
 
         // initialize the manager
-        simmgr.init(config, invmgr);
+        simmgr.init(config, invmgr, plreg, clmgr, omgr);
 
         Log.info("Simulator server initialized.");
     }

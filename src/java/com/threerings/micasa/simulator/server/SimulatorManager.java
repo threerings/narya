@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorManager.java,v 1.4 2001/12/20 01:11:18 shaper Exp $
+// $Id: SimulatorManager.java,v 1.5 2002/02/05 20:27:07 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -10,6 +10,9 @@ import com.samskivert.util.Config;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
+import com.threerings.presents.dobj.RootDObjectManager;
+
+import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 
@@ -44,11 +47,18 @@ public class SimulatorManager
      * @param invmgr a reference to the invocation manager in use by this
      * server.
      */
-    public void init (Config config, InvocationManager invmgr)
+    public void init (Config config, InvocationManager invmgr,
+                      PlaceRegistry plreg, ClientManager clmgr,
+                      RootDObjectManager omgr)
     {
         // register our simulator provider
         SimulatorProvider sprov = new SimulatorProvider(this);
         invmgr.registerProvider(MODULE_NAME, sprov);
+
+        // keep these for later
+        _plreg = plreg;
+        _clmgr = clmgr;
+        _omgr = omgr;
     }
 
     /**
@@ -61,7 +71,7 @@ public class SimulatorManager
         new CreateGameTask(source, config, simClass, playerCount);
     }
 
-    public static class CreateGameTask implements CreationObserver
+    public class CreateGameTask implements CreationObserver
     {
         public CreateGameTask (
             BodyObject source, GameConfig config, String simClass,
@@ -83,8 +93,7 @@ public class SimulatorManager
                 // we needn't hang around and wait for game object
                 // creation if it's just us
                 CreationObserver obs = (_playerCount == 1) ? null : this;
-                _gmgr = (GameManager)
-                    SimulatorServer.plreg.createPlace(config, obs);
+                _gmgr = (GameManager)_plreg.createPlace(config, obs);
 
                 // give the game manager the player names
                 String[] names = new String[_playerCount];
@@ -136,9 +145,9 @@ public class SimulatorManager
             };
 
             // fire off simulant body object creation requests
-            Class simobjClass = SimulatorServer.clmgr.getClientObjectClass();
+            Class simobjClass = _clmgr.getClientObjectClass();
             for (int ii = 1; ii < _playerCount; ii++) {
-                SimulatorServer.omgr.createObject(simobjClass, sub);
+                _omgr.createObject(simobjClass, sub);
             }
         }
 
@@ -200,4 +209,9 @@ public class SimulatorManager
         /** The body object of the player requesting the game creation. */
         protected BodyObject _source;
     }
+
+    // needed for general operation
+    protected PlaceRegistry _plreg;
+    protected ClientManager _clmgr;
+    protected RootDObjectManager _omgr;
 }
