@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleManager.java,v 1.9 2004/06/22 14:08:58 mdb Exp $
+// $Id: PuzzleManager.java,v 1.10 2004/06/22 14:26:10 mdb Exp $
 
 package com.threerings.puzzle.server;
 
@@ -798,9 +798,6 @@ public abstract class PuzzleManager extends GameManager
     /** Used to track the last time we received a progress event from each
      * player in this puzzle. */
     protected long[] _lastProgress;
-
-    /** The experience points granted to a player on puzzle completion. */
-    protected static final int EXPERIENCE = 10;
 
     /** The percentile cutoffs for performance levels. Above the last one
      * is "incredible". These could be defined in {@link PuzzleCodes}, but
