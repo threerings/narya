@@ -1,5 +1,5 @@
 //
-// $Id: BundledTileSetRepository.java,v 1.10 2003/01/14 02:52:04 mdb Exp $
+// $Id: BundledTileSetRepository.java,v 1.11 2003/04/01 19:33:07 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -84,9 +84,10 @@ public class BundledTileSetRepository
                 // initialize it and add it to the list
                 tsb.init(rbundles[i]);
                 tbundles.add(tsb);
-                
+
             } catch (Exception e) {
-                Log.warning("Unable to load tileset bundle from resource " +
+                Log.warning("Unable to load tileset bundle '" +
+                            BundleUtil.METADATA_PATH + "' from resource " +
                             "bundle [rbundle=" + rbundles[i] +
                             ", error=" + e + "].");
                 Log.logStackTrace(e);
