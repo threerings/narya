@@ -1,12 +1,11 @@
 //
-// $Id: ResourceBundle.java,v 1.25 2003/10/29 23:09:48 mdb Exp $
+// $Id: ResourceBundle.java,v 1.26 2004/02/25 14:49:39 mdb Exp $
 
 package com.threerings.resource;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,20 +1,12 @@
 //
-// $Id: DownloadManager.java,v 1.14 2003/10/29 22:31:55 mdb Exp $
+// $Id: DownloadManager.java,v 1.15 2004/02/25 14:49:39 mdb Exp $
 
 package com.threerings.resource;
 
 import java.awt.EventQueue;
-
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
-
 import java.util.ArrayList;
 import java.util.List;
 

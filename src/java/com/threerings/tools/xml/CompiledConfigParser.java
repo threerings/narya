@@ -1,5 +1,5 @@
 //
-// $Id: CompiledConfigParser.java,v 1.3 2002/04/02 01:55:26 mdb Exp $
+// $Id: CompiledConfigParser.java,v 1.4 2004/02/25 14:49:56 mdb Exp $
 
 package com.threerings.tools.xml;
 
@@ -10,9 +10,6 @@ import java.io.Serializable;
 
 import org.xml.sax.SAXException;
 import org.apache.commons.digester.Digester;
-
-import com.threerings.util.CompiledConfig;
-import com.threerings.tools.CompiledConfigTask;
 
 /**
  * An abstract base implementation of a parser that is used to compile

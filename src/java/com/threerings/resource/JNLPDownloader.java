@@ -1,5 +1,5 @@
 //
-// $Id: JNLPDownloader.java,v 1.15 2003/12/18 18:32:34 mdb Exp $
+// $Id: JNLPDownloader.java,v 1.16 2004/02/25 14:49:39 mdb Exp $
 
 package com.threerings.resource;
 
@@ -11,13 +11,11 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 
 import com.sun.javaws.cache.Patcher;
 import com.sun.javaws.jardiff.JarDiffPatcher;
@@ -25,7 +23,6 @@ import com.sun.javaws.jardiff.JarDiffPatcher;
 import com.samskivert.io.StreamUtil;
 import com.samskivert.util.FileUtil;
 import com.samskivert.util.StringUtil;
-import com.threerings.util.RandomUtil;
 
 import com.threerings.resource.DownloadManager.DownloadDescriptor;
 import com.threerings.resource.DownloadManager.DownloadObserver;

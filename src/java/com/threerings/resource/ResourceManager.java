@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.39 2003/10/29 23:09:48 mdb Exp $
+// $Id: ResourceManager.java,v 1.40 2004/02/25 14:49:39 mdb Exp $
 
 package com.threerings.resource;
 
@@ -8,14 +8,11 @@ import java.awt.EventQueue;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
