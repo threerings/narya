@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.39 2004/02/09 02:13:35 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.40 2004/02/21 00:04:40 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -15,6 +15,7 @@ import com.samskivert.util.Histogram;
 import com.samskivert.util.Queue;
 import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.Throttle;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.dobj.*;
@@ -321,6 +322,18 @@ public class PresentsDObjectMgr
             Log.warning("Failure processing event [event=" + event +
                         ", target=" + target + "].");
             Log.logStackTrace(e);
+
+        } catch (OutOfMemoryError oome) {
+            Log.logStackTrace(oome);
+            if (_fatalThrottle.throttleOp()) {
+                throw oome;
+            }
+
+        } catch (StackOverflowError soe) {
+            Log.logStackTrace(soe);
+            if (_fatalThrottle.throttleOp()) {
+                throw soe;
+            }
         }
 
         // track the number of events dispatched
@@ -902,6 +915,11 @@ public class PresentsDObjectMgr
 
     /** The last time at which we generated a report. */
     protected long _lastReportStamp;
+
+    /** Track fatal errors so that we can stick a fork in ourselves if
+     * things get too far out of hand. More than 30 fatal errors in the
+     * span of a minute and we throw in the towel. */
+    protected Throttle _fatalThrottle = new Throttle(30, 60*1000L);
 
     /** Used to track oid list references of distributed objects. */
     protected HashIntMap _refs = new HashIntMap();
