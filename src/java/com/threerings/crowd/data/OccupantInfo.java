@@ -1,13 +1,10 @@
 //
-// $Id: OccupantInfo.java,v 1.6 2002/03/18 23:21:26 mdb Exp $
+// $Id: OccupantInfo.java,v 1.7 2002/04/17 22:19:40 mdb Exp $
 
 package com.threerings.crowd.data;
 
-import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-
 import com.threerings.presents.dobj.DSet;
+import com.threerings.presents.io.SimpleStreamableObject;
 
 /**
  * The occupant info object contains all of the information about an
@@ -26,8 +23,13 @@ import com.threerings.presents.dobj.DSet;
  * that if derived classes add non-primitive attributes, they are
  * responsible for adding the code to clone those attributes when a clone
  * is requested.
+ *
+ * <p> Note also that this class extends {@link SimpleStreamableObject}
+ * which means that public data members will automatically be serialized,
+ * but if any non-public or data members are added, code must be added to
+ * serialize them when this object is streamed.
  */
-public class OccupantInfo
+public class OccupantInfo extends SimpleStreamableObject
     implements DSet.Entry, Cloneable
 {
     /** The body object id of this occupant (and our entry key). */
@@ -58,44 +60,5 @@ public class OccupantInfo
         } catch (CloneNotSupportedException cnse) {
             throw new RuntimeException("WTF? " + cnse);
         }
-    }
-
-    // documentation inherited
-    public void writeTo (DataOutputStream out)
-        throws IOException
-    {
-        out.writeInt(bodyOid.intValue());
-        out.writeUTF(username);
-    }
-
-    // documentation inherited
-    public void readFrom (DataInputStream in)
-        throws IOException
-    {
-        bodyOid = new Integer(in.readInt());
-        username = in.readUTF();
-    }
-
-    /**
-     * Called to generate a string representation of this occupant info
-     * object. This calls the overridable {@link #toString(StringBuffer)}
-     * to generate that representation in a derived class friendly manner.
-     */
-    public String toString ()
-    {
-        StringBuffer buf = new StringBuffer("[");
-        toString(buf);
-        return buf.append("]").toString();
-    }
-
-    /**
-     * Derived classes should override this and append their extra
-     * occupant info to the buffer. They should of course not to forget to
-     * call super.
-     */
-    protected void toString (StringBuffer buf)
-    {
-        buf.append("boid=").append(bodyOid);
-        buf.append(", username=").append(username);
     }
 }
