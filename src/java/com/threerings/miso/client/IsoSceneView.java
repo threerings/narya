@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.54 2001/09/13 19:10:26 mdb Exp $
+// $Id: IsoSceneView.java,v 1.55 2001/09/21 02:30:35 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -17,12 +17,13 @@ import com.threerings.media.tile.TileManager;
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.util.AStarPathUtil;
 import com.threerings.miso.scene.util.IsoUtil;
+import com.threerings.miso.scene.util.MisoSceneUtil;
 
 /**
  * The <code>IsoSceneView</code> provides an isometric view of a
  * particular scene.
  */
-public class IsoSceneView implements EditableSceneView
+public class IsoSceneView implements SceneView
 {
     /**
      * Construct an <code>IsoSceneView</code> object.
@@ -38,10 +39,6 @@ public class IsoSceneView implements EditableSceneView
         _spritemgr = spritemgr;
 
         setModel(model);
-
-        // initialize the highlighted objects
-	_htile = new Point(-1, -1);
-	_hfull = new Point(-1, -1);
 
         // get the font used to render tile coordinates
 	_font = new Font("Arial", Font.PLAIN, 7);
@@ -65,6 +62,12 @@ public class IsoSceneView implements EditableSceneView
 	clearDirtyRegions();
     }
 
+    // documentation inherited
+    public void setScene (MisoScene scene)
+    {
+        _scene = scene;
+    }
+
     /**
      * Paint the scene view and any highlighted tiles to the given
      * graphics context.
@@ -73,7 +76,9 @@ public class IsoSceneView implements EditableSceneView
      */
     public void paint (Graphics g)
     {
-	if (_scene == null) return;
+	if (_scene == null) {
+            return;
+        }
 
 	Graphics2D gfx = (Graphics2D)g;
 
@@ -107,11 +112,19 @@ public class IsoSceneView implements EditableSceneView
 	    paintLocations(gfx);
 	}
 
-        // draw highlighted tiles and full coordinates
-	paintHighlights(gfx);
+        // paint any extra goodies
+	paintExtras(gfx);
 
 	// restore the original clipping region
 	gfx.setClip(oldclip);
+    }
+
+    /**
+     * A function where derived classes can paint extra stuff while we've
+     * got the clipping region set up.
+     */
+    protected void paintExtras (Graphics2D g)
+    {
     }
 
     protected void clearDirtyRegions ()
@@ -155,6 +168,7 @@ public class IsoSceneView implements EditableSceneView
     protected void renderSceneInvalid (Graphics2D gfx)
     {
 	int numDrawn = 0;
+        Tile[][][] tiles = _scene.getTiles();
 
 	for (int yy = 0; yy < _model.scenehei; yy++) {
 	    for (int xx = 0; xx < _model.scenewid; xx++) {
@@ -169,7 +183,7 @@ public class IsoSceneView implements EditableSceneView
 		for (int kk = 0; kk < MisoScene.NUM_LAYERS; kk++) {
 
 		    // get the tile at these coordinates and layer
-		    Tile tile = _scene.tiles[xx][yy][kk];
+		    Tile tile = tiles[xx][yy][kk];
 		    if (tile == null) continue;
 
 		    // offset the image y-position by the tile-specific height
@@ -202,6 +216,7 @@ public class IsoSceneView implements EditableSceneView
      */
     protected void renderScene (Graphics2D gfx)
     {
+        Tile[][][] tiles = _scene.getTiles();
 	int mx = 1;
 	int my = 0;
 
@@ -222,7 +237,7 @@ public class IsoSceneView implements EditableSceneView
 
 		for (int kk = 0; kk < MisoScene.NUM_LAYERS; kk++) {
 		    // grab the tile we're rendering
-		    Tile tile = _scene.tiles[tx][ty][kk];
+		    Tile tile = tiles[tx][ty][kk];
 		    if (tile == null) continue;
 
 		    // determine screen y-position, accounting for
@@ -291,45 +306,6 @@ public class IsoSceneView implements EditableSceneView
     }
 
     /**
-     * Paint highlights around any highlighted tiles and fine coordinates.
-     *
-     * @param gfx the graphics context.
-     */
-    protected void paintHighlights (Graphics2D gfx)
-    {
-	// paint the highlighted tile
-	if (_htile.x != -1 && _htile.y != -1) {
-	    // set the desired stroke and color
-	    Stroke ostroke = gfx.getStroke();
-	    gfx.setStroke(_hstroke);
-	    gfx.setColor(Color.green);
-
-	    // draw the tile outline
-	    gfx.draw(_polys[_htile.x][_htile.y]);
-
-	    // restore the original stroke
-	    gfx.setStroke(ostroke);
-	}
-
-	// paint the highlighted full coordinate
-	if (_hfull.x != -1 && _hfull.y != -1) {
-	    Point spos = new Point();
-	    IsoUtil.fullToScreen(_model, _hfull.x, _hfull.y, spos);
-
-	    // set the desired stroke and color
-	    Stroke ostroke = gfx.getStroke();
-	    gfx.setStroke(_hstroke);
-
-	    // draw a red circle at the coordinate
-	    gfx.setColor(Color.red);
-	    gfx.draw(new Ellipse2D.Float(spos.x - 1, spos.y - 1, 3, 3));
-
-	    // restore the original stroke
-	    gfx.setStroke(ostroke);
-	}
-    }
-
-    /**
      * Paint demarcations at all locations in the scene, with each
      * location's cluster index, if any, along the right side of its
      * rectangle.
@@ -338,8 +314,8 @@ public class IsoSceneView implements EditableSceneView
      */
     protected void paintLocations (Graphics2D gfx)
     {
-	ArrayList locations = _scene.getLocations();
-	int size = locations.size();
+	Location[] locations = _scene.getLocations();
+	int size = locations.length;
 
 	// create the location triangle
 	Polygon tri = new Polygon();
@@ -350,10 +326,10 @@ public class IsoSceneView implements EditableSceneView
 	for (int ii = 0; ii < size; ii++) {
 
 	    // retrieve the location
-	    Location loc = (Location)locations.get(ii);
+	    Location loc = locations[ii];
 
 	    // get the cluster index this location is in, if any
-	    int clusteridx = _scene.getClusterIndex(loc);
+	    int clusteridx = MisoSceneUtil.getClusterIndex(_scene, loc);
 
 	    Point spos = new Point();
 	    IsoUtil.fullToScreen(_model, loc.x, loc.y, spos);
@@ -391,26 +367,6 @@ public class IsoSceneView implements EditableSceneView
 		gfx.drawString("" + clusteridx, cx + 5, cy + 3);
 	    }
 	}
-    }
-
-    public void setHighlightedTile (int sx, int sy)
-    {
-	if (sx == -1 && sy == -1) {
-	    _htile.setLocation(-1, -1);
-	    return;
-	}
-
-        IsoUtil.screenToTile(_model, sx, sy, _htile);
-    }
-
-    public void setHighlightedFull (int x, int y)
-    {
-	if (x == -1 && y == -1) {
-	    _hfull.setLocation(-1, -1);
-	    return;
-	}
-
-	IsoUtil.screenToFull(_model, x, y, _hfull);
     }
 
     /**
@@ -560,27 +516,6 @@ public class IsoSceneView implements EditableSceneView
         _spritemgr.invalidateIntersectingSprites(rects, _polys[x][y]);
     }
 
-    public void setScene (MisoScene scene)
-    {
-	_scene = scene;
-    }
-
-    public void setTile (int x, int y, int lnum, Tile tile)
-    {
-	Point tpos = new Point();
-        IsoUtil.screenToTile(_model, x, y, tpos);
-	_scene.tiles[tpos.x][tpos.y][lnum] = tile;
-    }
-
-    public void deleteTile (int x, int y, int lnum)
-    {
-	Point tpos = new Point();
-        IsoUtil.screenToTile(_model, x, y, tpos);
-
-	Tile tile = (lnum == 0) ? _scene.getDefaultTile() : null;
-	_scene.tiles[tpos.x][tpos.y][lnum] = tile;
-    }
-
     public void setModel (IsoSceneViewModel model)
     {
         _model = model;
@@ -608,7 +543,7 @@ public class IsoSceneView implements EditableSceneView
 	// get a reasonable path from start to end
 	List tilepath =
 	    AStarPathUtil.getPath(
-		_scene.tiles, _model.scenewid, _model.scenehei,
+		_scene.getTiles(), _model.scenewid, _model.scenehei,
 		sprite, stpos.x, stpos.y, tbx, tby);
 	if (tilepath == null) {
 	    return null;
@@ -665,54 +600,6 @@ public class IsoSceneView implements EditableSceneView
 
         return path;
     }
-
-    public void updateLocation (Location loc, int clusteridx)
-    {
-	_scene.updateLocation(loc, clusteridx);
-    }
-
-    public void addPortal (Portal portal)
-    {
-	_scene.addPortal(portal);
-    }
-
-    public void removeLocation (Location loc)
-    {
-	_scene.removeLocation(loc);
-    }
-
-    public Location createLocation (int sx, int sy)
-    {
-	Point fpos = new Point();
-	IsoUtil.screenToFull(_model, sx, sy, fpos);
-	return new Location(fpos.x, fpos.y);
-    }
-
-    public Location getLocation (int sx, int sy)
-    {
-	Point fpos = new Point();
-	IsoUtil.screenToFull(_model, sx, sy, fpos);
-	return _scene.getLocation(fpos.x, fpos.y);
-    }
-
-    public int getClusterIndex (Location loc)
-    {
-	return _scene.getClusterIndex(loc);
-    }
-
-    public int getNumClusters ()
-    {
-	return (_scene == null) ? 0 : _scene.getNumClusters();
-    }
-
-    /** The stroke object used to draw highlighted tiles and coordinates. */
-    protected BasicStroke _hstroke = new BasicStroke(3);
-
-    /** The currently highlighted tile. */
-    protected Point _htile;
-
-    /** The currently highlighted full coordinate. */
-    protected Point _hfull;
 
     /** The font to draw tile coordinates. */
     protected Font _font;

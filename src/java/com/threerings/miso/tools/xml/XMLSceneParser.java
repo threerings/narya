@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.15 2001/08/29 19:50:46 shaper Exp $
+// $Id: XMLSceneParser.java,v 1.16 2001/09/21 02:30:35 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -60,12 +60,12 @@ public class XMLSceneParser extends DefaultHandler
 
 	} else if (qName.equals("version")) {
             int version = getInt(_chars.toString());
-            if (version < 0 || version > MisoScene.VERSION) {
+            if (version < 0 || version > XMLSceneVersion.VERSION) {
                 Log.warning(
                     "Unrecognized scene file format version, will attempt " + 
                     "to continue parsing file but your mileage may vary " +
                     "[fname=" + _fname + ", version=" + version +
-                    ", known_version=" + MisoScene.VERSION + "].");
+                    ", known_version=" + XMLSceneVersion.VERSION + "].");
             }
 
 	} else if (qName.equals("locations")) {
@@ -280,7 +280,7 @@ public class XMLSceneParser extends DefaultHandler
      *
      * @return the scene object, or null if an error occurred.
      */
-    public MisoScene loadScene (String fname) throws IOException
+    public EditableMisoScene loadScene (String fname) throws IOException
     {
         _fname = fname;
 
@@ -354,7 +354,7 @@ public class XMLSceneParser extends DefaultHandler
 	public int colstart;
 
 	/** The scene object constructed once all scene info is parsed. */
-	public MisoScene scene;
+	public EditableMisoScene scene;
 
 	public SceneInfo ()
 	{
@@ -365,7 +365,7 @@ public class XMLSceneParser extends DefaultHandler
 
 	public void constructScene (TileManager tilemgr)
 	{
-	    scene = new MisoScene(
+	    scene = new MisoSceneImpl(
                 _model, tilemgr, name, locations, clusters, portals, tiles);
 	}
     }

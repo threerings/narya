@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneRepository.java,v 1.11 2001/08/29 19:50:46 shaper Exp $
+// $Id: XMLSceneRepository.java,v 1.12 2001/09/21 02:30:35 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -12,6 +12,7 @@ import com.threerings.media.tile.TileManager;
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.IsoSceneViewModel;
 import com.threerings.miso.scene.MisoScene;
+import com.threerings.miso.scene.EditableMisoScene;
 import com.threerings.miso.util.MisoUtil;
 
 /**
@@ -63,7 +64,7 @@ public class XMLFileSceneRepository
      * @param fname the full pathname to the file.
      * @return the scene object.
      */
-    public MisoScene loadScene (String fname) throws IOException
+    public EditableMisoScene loadScene (String fname) throws IOException
     {
 	String path = getScenePath() + fname;
 	Log.info("Loading scene [path=" + path + "].");

@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneWriter.java,v 1.12 2001/08/29 19:50:46 shaper Exp $
+// $Id: XMLSceneWriter.java,v 1.13 2001/09/21 02:30:35 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -7,9 +7,10 @@ import java.awt.Point;
 import java.io.*;
 import java.util.ArrayList;
 
+import com.samskivert.util.ListUtil;
+
 import org.xml.sax.*;
 import org.xml.sax.helpers.AttributesImpl;
-
 import com.megginson.sax.DataWriter;
 
 import com.threerings.media.tile.Tile;
@@ -52,7 +53,7 @@ public class XMLSceneWriter extends DataWriter
             startElement("scene");
 
             dataElement("name", scene.getName());
-            dataElement("version", "" + MisoScene.VERSION);
+            dataElement("version", "" + XMLSceneVersion.VERSION);
             dataElement("locations", getLocationData(scene));
 
 	    startElement("clusters");
@@ -86,21 +87,22 @@ public class XMLSceneWriter extends DataWriter
      */
     protected void writeClusters (MisoScene scene) throws SAXException
     {
-	ArrayList clusters = scene.getClusters();
-	ArrayList locs = scene.getLocations();
+	Cluster[] clusters = scene.getClusters();
+	Location[] locs = scene.getLocations();
 
-	int size = clusters.size();
+	int size = clusters.length;
 	for (int ii = 0; ii < size; ii++) {
-
-	    StringBuffer buf = new StringBuffer();
-
-	    Cluster cluster = (Cluster)clusters.get(ii);
+	    Cluster cluster = clusters[ii];
 	    ArrayList clusterlocs = cluster.getLocations();
 
+	    StringBuffer buf = new StringBuffer();
 	    int clustersize = clusterlocs.size();
 	    for (int jj = 0; jj < clustersize; jj++) {
-		buf.append(locs.indexOf(clusterlocs.get(jj)));
-		if (jj < clustersize - 1) buf.append(",");
+                Location cloc = (Location)clusterlocs.get(jj);
+		buf.append(ListUtil.indexOfEqual(locs, cloc));
+		if (jj < clustersize - 1) {
+                    buf.append(",");
+                }
 	    }
 
 	    dataElement("cluster", buf.toString());
@@ -144,16 +146,18 @@ public class XMLSceneWriter extends DataWriter
      */
     protected String getPortalData (MisoScene scene)
     {
-	ArrayList locs = scene.getLocations();
-	ArrayList portals = scene.getPortals();
+	Location[] locs = scene.getLocations();
+	Portal[] portals = scene.getPortals();
 
         StringBuffer buf = new StringBuffer();
-	int size = portals.size();
+	int size = portals.length;
         for (int ii = 0; ii < size; ii++) {
-	    Portal portal = (Portal)portals.get(ii);
-	    buf.append(locs.indexOf(portal)).append(",");
+	    Portal portal = portals[ii];
+	    buf.append(ListUtil.indexOfEqual(locs, portal)).append(",");
 	    buf.append(portal.name);
-            if (ii < size - 1) buf.append(",");
+            if (ii < size - 1) {
+                buf.append(",");
+            }
         }
 
         return buf.toString();
@@ -168,16 +172,18 @@ public class XMLSceneWriter extends DataWriter
      */
     protected String getLocationData (MisoScene scene)
     {
-	ArrayList locs = scene.getLocations();
+	Location[] locs = scene.getLocations();
 
         StringBuffer buf = new StringBuffer();
-	int size = locs.size();
+	int size = locs.length;
         for (int ii = 0; ii < size; ii++) {
-	    Location loc = (Location)locs.get(ii);
+	    Location loc = locs[ii];
 	    buf.append(loc.x).append(",");
 	    buf.append(loc.y).append(",");
 	    buf.append(loc.orient);
-            if (ii < size - 1) buf.append(",");
+            if (ii < size - 1) {
+                buf.append(",");
+            }
         }
 
         return buf.toString();
@@ -201,10 +207,11 @@ public class XMLSceneWriter extends DataWriter
                                   int colstart, int len)
     {
         StringBuffer buf = new StringBuffer();
+        Tile[][][] tiles = scene.getTiles();
 
         int numtiles = colstart + len;
         for (int ii = colstart; ii < numtiles; ii++) {
-            Tile tile = scene.tiles[ii][rownum][lnum];
+            Tile tile = tiles[ii][rownum][lnum];
             if (tile == null) {
                 Log.warning("Null tile [x=" + ii + ", rownum=" + rownum +
                             ", lnum=" + lnum + "].");
@@ -213,7 +220,9 @@ public class XMLSceneWriter extends DataWriter
 
             buf.append(tile.tsid).append(",");
             buf.append(tile.tid);
-            if (ii != numtiles - 1) buf.append(",");
+            if (ii != numtiles - 1) {
+                buf.append(",");
+            }
         }
 
         return buf.toString();
@@ -265,15 +274,21 @@ public class XMLSceneWriter extends DataWriter
     protected boolean getSparseColumn (
         MisoScene scene, int rownum, int lnum, int info[])
     {
+        Tile[][][] tiles = scene.getTiles();
         int start = -1, len = 0;
         for (int xx = info[0]; xx < _model.scenewid; xx++) {
-            Tile tile = scene.tiles[xx][rownum][lnum];
+            Tile tile = tiles[xx][rownum][lnum];
             if (tile == null) {
-                if (start == -1) continue;
-                else break;
+                if (start == -1) {
+                    continue;
+                } else {
+                    break;
+                }
             }
 
-            if (start == -1) start = xx;
+            if (start == -1) {
+                start = xx;
+            }
             len++;
         }
 

@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneGroupParser.java,v 1.3 2001/08/21 01:15:16 shaper Exp $
+// $Id: XMLSceneGroupParser.java,v 1.4 2001/09/21 02:30:35 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -14,6 +14,7 @@ import com.samskivert.util.*;
 import com.samskivert.xml.XMLUtil;
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;
+import com.threerings.miso.scene.util.MisoSceneUtil;
 import com.threerings.whirled.data.Scene;
 
 /**
@@ -228,7 +229,7 @@ public class XMLSceneGroupParser extends DefaultHandler
 	protected void resolvePortal (SceneInfo sinfo, PortalInfo pinfo)
 	{
 	    // get the source portal object
-	    Portal src = sinfo.scene.getPortal(pinfo.src);
+	    Portal src = MisoSceneUtil.getPortal(sinfo.scene, pinfo.src);
 	    if (src == null) {
 		Log.warning("Missing source portal [scene=" + sinfo.name +
 			    ", pinfo=" + pinfo + "].");
@@ -244,7 +245,7 @@ public class XMLSceneGroupParser extends DefaultHandler
 	    }
 
 	    // get the destination portal object
-	    Portal dest = destScene.getPortal(pinfo.dest);
+	    Portal dest = MisoSceneUtil.getPortal(destScene, pinfo.dest);
 	    if (dest == null) {
 		Log.warning("Missing destination portal [scene=" + sinfo.name +
 			    ", pinfo=" + pinfo + "].");
@@ -262,7 +263,8 @@ public class XMLSceneGroupParser extends DefaultHandler
 	 */
 	protected void resolveEntrance (SceneInfo sinfo)
 	{
-	    Portal entrance = sinfo.scene.getPortal(sinfo.entrance);
+	    Portal entrance = MisoSceneUtil.getPortal(
+                sinfo.scene, sinfo.entrance);
 	    if (entrance == null) {
 		Log.warning( "Missing entrance portal [scene=" + sinfo.name +
 			     ", entrance=" + sinfo.entrance + "].");
@@ -289,12 +291,12 @@ public class XMLSceneGroupParser extends DefaultHandler
 		SceneInfo sinfo = (SceneInfo)sceneinfo.get(ii);
 
 		// get the portals in the scene
-		List portals = sinfo.scene.getPortals();
+		Portal[] portals = sinfo.scene.getPortals();
 
 		// check each portal to make sure it has a valid destination
-		int psize = portals.size();
+		int psize = portals.length;
 		for (int jj = 0; jj < size; jj++) {
-		    Portal portal = (Portal)portals.get(jj);
+		    Portal portal = portals[jj];
 		    if (!portal.hasDestination()) {
 			Log.warning("Unbound portal [scene=" + sinfo.name +
 				    ", portal=" + portal + "].");
@@ -322,7 +324,7 @@ public class XMLSceneGroupParser extends DefaultHandler
 	public ArrayList portals;
 
 	/** The scene object obtained from the scene repository. */
-	public MisoScene scene;
+	public MisoSceneImpl scene;
 
 	public SceneInfo (String src)
 	{

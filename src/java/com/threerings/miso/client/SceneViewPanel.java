@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.13 2001/08/29 18:41:46 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.14 2001/09/21 02:30:35 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -30,11 +30,20 @@ public class SceneViewPanel
         _smodel = new IsoSceneViewModel(config);
 
 	// create the scene view
-        _view = new IsoSceneView(tilemgr, spritemgr, _smodel);
+        _view = newSceneView(tilemgr, spritemgr, _smodel);
 
 	// set our attributes for optimal display performance
         setDoubleBuffered(false);
         setOpaque(true);
+    }
+
+    /**
+     * Constructs the underlying scene view implementation.
+     */
+    protected IsoSceneView newSceneView (
+        TileManager tmgr, SpriteManager smgr, IsoSceneViewModel model)
+    {
+        return new IsoSceneView(tmgr, smgr, model);
     }
 
     /**

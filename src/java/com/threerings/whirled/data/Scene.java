@@ -1,5 +1,5 @@
 //
-// $Id: Scene.java,v 1.3 2001/09/21 00:21:40 mdb Exp $
+// $Id: Scene.java,v 1.4 2001/09/21 02:30:35 mdb Exp $
 
 package com.threerings.whirled.data;
 
@@ -9,6 +9,9 @@ package com.threerings.whirled.data;
  */
 public interface Scene
 {
+    /** Scene id to denote an unset or otherwise invalid scene id. */
+    public static final int SID_INVALID = -1;
+
     /**
      * Returns the scene's unique identifier.
      */

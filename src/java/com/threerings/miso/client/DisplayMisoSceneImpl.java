@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.34 2001/09/21 00:21:40 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.35 2001/09/21 02:30:35 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -21,32 +21,8 @@ import com.threerings.miso.scene.util.ClusterUtil;
  * screen for game play. For instance, one scene might display a portion
  * of a street with several buildings scattered about on the periphery.
  */
-public class MisoScene implements Scene
+public class MisoSceneImpl implements EditableMisoScene
 {
-    /** The base layer id. */
-    public static final int LAYER_BASE = 0;
-
-    /** The fringe layer id. */
-    public static final int LAYER_FRINGE = 1;
-
-    /** The object layer id. */
-    public static final int LAYER_OBJECT = 2;
-
-    /** The total number of layers. */
-    public static final int NUM_LAYERS = 3;
-
-    /** The latest scene file format version. */
-    public static final short VERSION = 1;
-
-    /** String translations of each tile layer name. */
-    public static final String[] XLATE_LAYERS = { "Base", "Fringe", "Object" };
-
-    /** Scene id to denote an unset or otherwise invalid scene id. */
-    public static final int SID_INVALID = -1;
-
-    /** The tiles comprising the scene. */
-    public Tile tiles[][][];
-
     /**
      * Construct a new miso scene object. The base layer tiles are
      * initialized to contain tiles of the specified default tileset and
@@ -57,8 +33,8 @@ public class MisoScene implements Scene
      * @param deftsid the default tileset id.
      * @param deftid the default tile id.
      */
-    public MisoScene (IsoSceneViewModel model, TileManager tilemgr,
-		      int deftsid, int deftid)
+    public MisoSceneImpl (IsoSceneViewModel model, TileManager tilemgr,
+                          int deftsid, int deftid)
     {
 	_model = model;
 	_tilemgr = tilemgr;
@@ -70,13 +46,13 @@ public class MisoScene implements Scene
 	_clusters = new ArrayList();
         _portals = new ArrayList();
 
-	tiles = new Tile[_model.scenewid][_model.scenehei][NUM_LAYERS];
+	_tiles = new Tile[_model.scenewid][_model.scenehei][NUM_LAYERS];
 	_deftile = _tilemgr.getTile(deftsid, deftid);
 	for (int xx = 0; xx < _model.scenewid; xx++) {
 	    for (int yy = 0; yy < _model.scenehei; yy++) {
 		for (int ii = 0; ii < NUM_LAYERS; ii++) {
 		    if (ii == LAYER_BASE) {
-			tiles[xx][yy][ii] = _deftile;
+			_tiles[xx][yy][ii] = _deftile;
 		    }
 		}
 	    }
@@ -84,7 +60,7 @@ public class MisoScene implements Scene
     }
 
     /**
-     * Construct a new miso scene object with the given values.
+     * Construct a new Miso scene object with the given values.
      *
      * @param model the iso scene view model.
      * @param tilemgr the tile manager.
@@ -93,10 +69,10 @@ public class MisoScene implements Scene
      * @param portals the portals.
      * @param tiles the tiles comprising the scene.
      */
-    public MisoScene (IsoSceneViewModel model, TileManager tilemgr,
-		      String name, ArrayList locations,
-		      ArrayList clusters, ArrayList portals,
-		      Tile tiles[][][])
+    public MisoSceneImpl (IsoSceneViewModel model, TileManager tilemgr,
+                          String name, ArrayList locations,
+                          ArrayList clusters, ArrayList portals,
+                          Tile[][][] tiles)
     {
 	_model = model;
 	_tilemgr = tilemgr;
@@ -105,7 +81,7 @@ public class MisoScene implements Scene
         _locations = locations;
 	_clusters = clusters;
         _portals = portals;
-        this.tiles = tiles;
+        _tiles = tiles;
     }
 
     // documentation inherited
@@ -133,87 +109,58 @@ public class MisoScene implements Scene
         return null;
     }
 
-    /**
-     * Return the default tile for the base layer of the scene.
-     */
+    // documentation inherited
+    public Tile[][][] getTiles ()
+    {
+        return _tiles;
+    }
+
+    // documentation inherited
     public Tile getDefaultTile ()
     {
 	return _deftile;
     }
 
-    /**
-     * Return the scene locations list.
-     */
-    public ArrayList getLocations ()
+    // documentation inherited
+    public Location[] getLocations ()
     {
-        return _locations;
+        Location[] locs = new Location[_locations.size()];
+        _locations.toArray(locs);
+        return locs;
     }
 
-    /**
-     * Return the cluster list.
-     */
-    public ArrayList getClusters ()
+    // documentation inherited
+    public Cluster[] getClusters ()
     {
-	return _clusters;
+        Cluster[] clusters = new Cluster[_clusters.size()];
+        _clusters.toArray(clusters);
+        return clusters;
     }
 
-    /**
-     * Return the scene portals list.
-     */
-    public ArrayList getPortals ()
+    // documentation inherited
+    public Portal[] getPortals ()
     {
-        return _portals;
+        Portal[] portals = new Portal[_portals.size()];
+        _portals.toArray(portals);
+        return portals;
     }
 
-    /**
-     * Set the default entrance portal for this scene.
-     *
-     * @param entrance the entrance portal.
-     */
+    // documentation inherited
+    public Portal getEntrance ()
+    {
+        return _entrance;
+    }
+
+    // documentation inherited
+    public void setName (String name)
+    {
+        _name = name;
+    }
+
+    // documentation inherited
     public void setEntrance (Portal entrance)
     {
 	_entrance = entrance;
-    }
-
-    /**
-     * Return the number of clusters in the scene.
-     */
-    public int getNumClusters ()
-    {
-	return _clusters.size();
-    }
-
-    /**
-     * Return the number of actual (non-null) tiles present in the
-     * specified tile layer for this scene.
-     */
-    public int getNumLayerTiles (int lnum)
-    {
-	if (lnum == LAYER_BASE) {
-	    return _model.scenewid * _model.scenehei;
-	}
-
-	int numTiles = 0;
-	for (int xx = 0; xx < _model.scenewid; xx++) {
-	    for (int yy = 0; yy < _model.scenehei; yy++) {
-		if (tiles[xx][yy] != null) {
-		    numTiles++;
-		}
-	    }
-	}
-
-	return numTiles;
-    }
-
-    /**
-     * Return the cluster index number the given location is in, or -1
-     * if the location is not in any cluster.
-     *
-     * @param loc the location.
-     */
-    public int getClusterIndex (Location loc)
-    {
-	return ClusterUtil.getClusterIndex(_clusters, loc);
     }
 
     /**
@@ -259,28 +206,9 @@ public class MisoScene implements Scene
     }
 
     /**
-     * Return the location object at the given full coordinates, or
-     * null if no location is currently present at that location.
-     *
-     * @param x the full x-position coordinate.
-     * @param y the full y-position coordinate.
-     *
-     * @return the location object.
-     */
-    public Location getLocation (int x, int y)
-    {
-	int size = _locations.size();
-	for (int ii = 0; ii < size; ii++) {
-	    Location loc = (Location)_locations.get(ii);
-	    if (loc.x == x && loc.y == y) return loc;
-	}
-	return null;
-    }
-
-    /**
-     * Remove the given location object from the location list, and
-     * from any containing cluster.  If the location is a portal, it
-     * is removed from the portal list as well.
+     * Remove the given location object from the location list, and from
+     * any containing cluster.  If the location is a portal, it is removed
+     * from the portal list as well.
      *
      * @param loc the location object.
      */
@@ -301,25 +229,7 @@ public class MisoScene implements Scene
     }
 
     /**
-     * Return the portal with the given name, or null if the portal
-     * isn't found in the portal list.
-     *
-     * @param name the portal name.
-     *
-     * @return the portal object.
-     */
-    public Portal getPortal (String name)
-    {
-	int size = _portals.size();
-	for (int ii = 0; ii < size; ii++) {
-	    Portal portal = (Portal)_portals.get(ii);
-	    if (portal.name.equals(name)) return portal;
-	}
-	return null;
-    }
-
-    /**
-     * Return a string representation of this Scene object.
+     * Return a string representation of this Miso scene object.
      */
     public String toString ()
     {
@@ -340,6 +250,9 @@ public class MisoScene implements Scene
 
     /** The unique scene id. */
     protected int _sid;
+
+    /** The tiles comprising the scene. */
+    public Tile[][][] _tiles;
 
     /** The default entrance portal. */
     protected Portal _entrance;
