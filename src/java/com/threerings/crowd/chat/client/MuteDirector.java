@@ -1,5 +1,5 @@
 //
-// $Id: MuteDirector.java,v 1.5 2002/12/12 23:54:27 shaper Exp $
+// $Id: MuteDirector.java,v 1.6 2003/03/20 00:46:34 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -38,6 +38,18 @@ public class MuteDirector extends BasicDirector
     public MuteDirector (CrowdContext ctx)
     {
         super(ctx);
+    }
+
+    /**
+     * Set up the mute director with the specified list of initial mutees.
+     */
+    public MuteDirector (CrowdContext ctx, String[] list)
+    {
+        this(ctx);
+
+        for (int ii=0, nn=list.length; ii < nn; ii++) {
+            _mutelist.add(list[ii]);
+        }
     }
 
     /**
@@ -84,6 +96,17 @@ public class MuteDirector extends BasicDirector
         if (mute ? _mutelist.add(username) : _mutelist.remove(username)) {
             notifyObservers(username, mute);
         }
+    }
+
+    /**
+     * @return a list of the currently muted players.
+     *
+     * This list may be out of date immediately upon returning from this
+     * method.
+     */
+    public String[] getMuted ()
+    {
+        return (String[]) _mutelist.toArray(new String[_mutelist.size()]);
     }
 
     // documentation inherited from interface ChatValidator
