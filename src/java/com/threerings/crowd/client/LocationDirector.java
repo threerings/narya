@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.12 2001/10/12 00:03:02 mdb Exp $
+// $Id: LocationDirector.java,v 1.13 2001/10/18 01:40:04 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -254,6 +254,9 @@ public class LocationDirector
         // clear out our pending request oid
         int placeId = _pendingPlaceId;
         _pendingPlaceId = -1;
+
+        Log.info("moveTo failed [pid=" + placeId +
+                 ", reason=" + reason + "].");
 
         // let our observers know that something has gone horribly awry
         notifyFailure(placeId, reason);
