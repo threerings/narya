@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.20 2001/09/13 19:10:26 mdb Exp $
+// $Id: Sprite.java,v 1.21 2001/09/13 19:36:20 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -323,7 +323,7 @@ public class Sprite
     protected void pathCompleted ()
     {
         // inform observers that we've finished our path
-        notifyObservers(SpriteEvent.FINISHED_PATH, _path);
+        notifyObservers(new PathCompletedEvent(this, _path));
 
         // we no longer want to keep a reference to this path
 	_path = null;
@@ -444,14 +444,14 @@ public class Sprite
      * @param eventCode the type of sprite event.
      * @param arg the argument associated with the event.
      */
-    protected void notifyObservers (int eventCode, Object arg)
+    protected void notifyObservers (SpriteEvent event)
     {
-	if (_observers == null) {
-            return;
+	if (_observers != null) {
+            // we pass this notification off to the sprite manager so that
+            // it can dispatch all of the notifications at once after all
+            // ticking has been completed
+            _spritemgr.notifySpriteObservers(_observers, event);
         }
-
-	SpriteEvent evt = new SpriteEvent(this, eventCode, arg);
-	_spritemgr.notifySpriteObservers(_observers, evt);
     }
 
     /**

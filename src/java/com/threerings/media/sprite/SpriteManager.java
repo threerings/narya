@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.13 2001/09/13 19:10:26 mdb Exp $
+// $Id: SpriteManager.java,v 1.14 2001/09/13 19:36:20 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -256,8 +256,7 @@ public class SpriteManager
 	    }
 
 	    if (obounds.intersects(bounds)) {
-		sprite.notifyObservers(SpriteEvent.COLLIDED_SPRITE, other);
-		other.notifyObservers(SpriteEvent.COLLIDED_SPRITE, sprite);
+		sprite.notifyObservers(new CollisionEvent(sprite, other));
 	    }
 	}
     }
@@ -277,7 +276,7 @@ public class SpriteManager
 	    int osize = observers.size();
 	    for (int jj = 0; jj < osize; jj++) {
 		SpriteObserver obs = (SpriteObserver)observers.get(jj);
-		obs.spriteChanged(evt);
+		obs.handleEvent(evt);
 	    }
 	}
     }
