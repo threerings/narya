@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.26 2003/04/03 22:16:51 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.27 2003/04/04 05:44:47 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -295,14 +295,11 @@ public class SpotSceneDirector extends BasicDirector
     public void attributeChanged (AttributeChangedEvent event)
     {
         int cloid = _self.getClusterOid();
-        if ((_clobj == null && cloid == -1) ||
+        if ((_clobj == null && cloid <= 0) ||
             (_clobj != null && cloid == _clobj.getOid())) {
             // our cluster didn't change, we can stop now
             return;
         }
-
-        Log.info("Cluster change? " +
-                 (_clobj == null ? -1 : _clobj.getOid()) + " -> " + cloid);
 
         // clear out any old cluster object
         clearCluster();
