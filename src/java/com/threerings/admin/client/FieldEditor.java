@@ -1,5 +1,5 @@
 //
-// $Id: FieldEditor.java,v 1.7 2003/06/25 03:13:56 mdb Exp $
+// $Id: FieldEditor.java,v 1.8 2003/10/27 05:34:19 mdb Exp $
 
 package com.threerings.admin.client;
 
@@ -18,6 +18,7 @@ import javax.swing.event.AncestorEvent;
 
 import com.samskivert.swing.HGroupLayout;
 import com.samskivert.swing.event.AncestorAdapter;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
@@ -88,7 +89,7 @@ public class FieldEditor extends JPanel
     protected String readValue ()
     {
         try {
-            return String.valueOf(_field.get(_object));
+            return StringUtil.toString(_field.get(_object), "", "");
         } catch (IllegalAccessException iae) {
             updateBorder(true);
             return "<error>";
@@ -135,6 +136,12 @@ public class FieldEditor extends JPanel
 
         } else if (_field.getType().equals(String.class)) {
             value = _value.getText();
+
+        } else if (_field.getType().equals(STRING_ARRAY_PROTO.getClass())) {
+            value = StringUtil.parseStringArray(_value.getText());
+
+        } else if (_field.getType().equals(INT_ARRAY_PROTO.getClass())) {
+            value = StringUtil.parseIntArray(_value.getText());
 
         } else if (_field.getType().equals(Boolean.TYPE)) {
             value = new Boolean(_value.getText().equalsIgnoreCase("true"));
@@ -192,4 +199,7 @@ public class FieldEditor extends JPanel
     protected DObject _object;
     protected JLabel _label;
     protected JTextField _value;
+
+    protected static final String[] STRING_ARRAY_PROTO = new String[0];
+    protected static final int[] INT_ARRAY_PROTO = new int[0];
 }
