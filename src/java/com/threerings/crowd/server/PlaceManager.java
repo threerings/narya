@@ -1,12 +1,16 @@
 //
-// $Id: PlaceManager.java,v 1.20 2001/10/24 00:38:01 mdb Exp $
+// $Id: PlaceManager.java,v 1.21 2001/10/24 00:57:39 mdb Exp $
 
 package com.threerings.crowd.server;
 
 import java.util.HashMap;
 import java.util.Properties;
 
-import com.threerings.presents.dobj.*;
+import com.threerings.presents.dobj.MessageListener;
+import com.threerings.presents.dobj.MessageEvent;
+import com.threerings.presents.dobj.OidListListener;
+import com.threerings.presents.dobj.ObjectAddedEvent;
+import com.threerings.presents.dobj.ObjectRemovedEvent;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.data.*;
@@ -26,9 +30,9 @@ import com.threerings.crowd.data.*;
  * basis for place-based access control.
  *
  * <p> A derived class is expected to handle initialization, cleanup and
- * operational functionality via the calldown functions {@link
- * #didStartup}, {@link #willShutdown}, and {@link #didShutdown} as well
- * as through event listeners.
+ * operational functionality via the calldown functions {@link #didInit},
+ * {@link #didStartup}, and {@link #didShutdown} as well as through event
+ * listeners.
  */
 public class PlaceManager
     implements MessageListener, OidListListener
@@ -119,14 +123,22 @@ public class PlaceManager
     {
     }
 
-    // not called at present but will eventually be part of the shutdown
-    // and cleanup process
-    protected void willShutdown ()
+    /**
+     * Causes the place object being managed by this place manager to be
+     * destroyed and the place manager to shut down.
+     */
+    public void shutdown ()
     {
+        // destroy the object and everything will follow from that
+        CrowdServer.omgr.destroyObject(_plobj.getOid());
     }
 
-    // not called at present but will eventually be part of the shutdown
-    // and cleanup process
+    /**
+     * Called when this place has been destroyed and the place manager has
+     * shut down (via a call to {@link #shutdown}). Derived classes can
+     * override this method and perform any necessary shutdown time
+     * processing.
+     */
     protected void didShutdown ()
     {
     }
@@ -280,6 +292,19 @@ public class PlaceManager
         if (event.getName().equals(PlaceObject.OCCUPANTS)) {
             bodyLeft(event.getOid());
         }
+    }
+
+    /**
+     * Handles place destruction. We shut ourselves down and ask the place
+     * registry to unmap us.
+     */
+    public void objectDestroyed (ObjectDestroyedEvent event)
+    {
+        // unregister ourselves
+        _registry.unmapPlaceManager(this);
+
+        // let our derived classes shut themselves down
+        didShutdown();
     }
 
     /**
