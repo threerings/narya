@@ -1,8 +1,9 @@
 //
-// $Id: ResourceManager.java,v 1.18 2002/11/20 02:00:36 mdb Exp $
+// $Id: ResourceManager.java,v 1.19 2003/01/13 22:50:36 mdb Exp $
 
 package com.threerings.resource;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -20,6 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
+
+import javax.imageio.stream.FileImageInputStream;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.MemoryCacheImageInputStream;
 
 import com.samskivert.util.StringUtil;
 
@@ -487,6 +492,40 @@ public class ResourceManager
     }
 
     /**
+     * Fetches the specified resource as an {@link ImageInputStream} and
+     * one that takes advantage, if possible, of caching of unpacked
+     * resources on the local filesystem.
+     *
+     * @exception FileNotFoundException thrown if the resource could not
+     * be located in any of the bundles in the specified set, or if the
+     * specified set does not exist.
+     * @exception IOException thrown if a problem occurs locating or
+     * reading the resource.
+     */
+    public ImageInputStream getImageResource (String path)
+        throws IOException
+    {
+        // first look for this resource in our default resource bundle
+        for (int i = 0; i < _default.length; i++) {
+            File file = _default[i].getResourceFile(path);
+            if (file != null) {
+                return new FileImageInputStream(file);
+            }
+        }
+
+        // if we didn't find anything, try the classloader
+        String rpath = _rootPath + path;
+        InputStream in = _loader.getResourceAsStream(rpath);
+        if (in != null) {
+            return new MemoryCacheImageInputStream(new BufferedInputStream(in));
+        }
+
+        // if we still haven't found it, we throw an exception
+        String errmsg = "Unable to locate image resource [path=" + path + "]";
+        throw new FileNotFoundException(errmsg);
+    }
+
+    /**
      * Returns an input stream from which the requested resource can be
      * loaded. <em>Note:</em> this performs a linear search of all of the
      * bundles in the set and returns the first resource found with the
@@ -518,13 +557,52 @@ public class ResourceManager
             if (instr != null) {
 //                 Log.info("Found resource [rset=" + rset +
 //                          ", bundle=" + bundles[ii].getSource().getPath() +
-//                          ", path=" + path + "].");
+//                          ", path=" + path + ", in=" + instr + "].");
                 return instr;
             }
         }
 
         throw new FileNotFoundException(
             "Unable to locate resource [set=" + rset + ", path=" + path + "]");
+    }
+
+    /**
+     * Fetches the specified resource as an {@link ImageInputStream} and
+     * one that takes advantage, if possible, of caching of unpacked
+     * resources on the local filesystem.
+     *
+     * @exception FileNotFoundException thrown if the resource could not
+     * be located in any of the bundles in the specified set, or if the
+     * specified set does not exist.
+     * @exception IOException thrown if a problem occurs locating or
+     * reading the resource.
+     */
+    public ImageInputStream getImageResource (String rset, String path)
+        throws IOException
+    {
+        // grab the resource bundles in the specified resource set
+        ResourceBundle[] bundles = getResourceSet(rset);
+        if (bundles == null) {
+            throw new FileNotFoundException(
+                "Unable to locate image resource [set=" + rset +
+                ", path=" + path + "]");
+        }
+
+        // look for the resource in any of the bundles
+        int size = bundles.length;
+        for (int ii = 0; ii < size; ii++) {
+            File file = bundles[ii].getResourceFile(path);
+            if (file != null) {
+//                 Log.info("Found image resource [rset=" + rset +
+//                          ", bundle=" + bundles[ii].getSource() +
+//                          ", path=" + path + ", file=" + file + "].");
+                return new FileImageInputStream(file);
+            }
+        }
+
+        String errmsg = "Unable to locate image resource [set=" + rset +
+            ", path=" + path + "]";
+        throw new FileNotFoundException(errmsg);
     }
 
     /**

@@ -1,9 +1,13 @@
 //
-// $Id: ResourceBundle.java,v 1.4 2002/08/19 23:31:48 mdb Exp $
+// $Id: ResourceBundle.java,v 1.5 2003/01/13 22:50:36 mdb Exp $
 
 package com.threerings.resource;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -11,6 +15,9 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import com.samskivert.io.NestableIOException;
+import com.samskivert.util.StringUtil;
+
+import org.apache.commons.io.StreamUtils;
 
 /**
  * A resource bundle provides access to the resources in a jar file.
@@ -52,15 +59,52 @@ public class ResourceBundle
     public InputStream getResource (String path)
         throws IOException
     {
+        // unpack our resources into a temp directory so that we can load
+        // them quickly and the file system can cache them sensibly
+        File rfile = getResourceFile(path);
+        return (rfile == null) ? null : new FileInputStream(rfile);
+    }
+
+    /**
+     * Returns a file from which the specified resource can be loaded.
+     * This method will unpack the resource into a temporary directory and
+     * return a reference to that file.
+     *
+     * @param path the path to the resource in this jar file.
+     *
+     * @return a file from which the resource can be loaded or null if no
+     * such resource exists.
+     */
+    public File getResourceFile (String path)
+        throws IOException
+    {
         resolveJarFile();
-        // TBD: determine whether or not we need to convert the path into
-        // a platform-dependent path if we're on Windows
-        JarEntry entry = _jarSource.getJarEntry(path);
-        InputStream stream = null;
-        if (entry != null) {
-            stream = _jarSource.getInputStream(entry);
+
+        // compute the path to our temporary file
+        String tpath = StringUtil.md5hex(_source.getPath() + "%" + path);
+        File tfile = new File(_tmpdir, tpath);
+        if (tfile.exists()) {
+            return tfile;
         }
-        return stream;
+
+        // make sure said resource exists in the first place
+        JarEntry entry = _jarSource.getJarEntry(path);
+        if (entry == null) {
+            return null;
+        }
+
+        // clean up our unpacked files when the JVM exits
+//         tfile.deleteOnExit();
+
+        // copy the resource into the temporary file
+        BufferedOutputStream fout =
+            new BufferedOutputStream(new FileOutputStream(tfile));
+        InputStream jin = _jarSource.getInputStream(entry);
+        StreamUtils.pipe(jin, fout);
+        jin.close();
+        fout.close();
+
+        return tfile;
     }
 
     /**
@@ -117,6 +161,26 @@ public class ResourceBundle
     /** The file from which we construct our jar file. */
     protected File _source;
 
+    /** The directory into which our contents are unpacked, if we are
+     * unpacked. */
+    protected File _unpackDir;
+
     /** The jar file from which we load resources. */
     protected JarFile _jarSource;
+
+    /** A directory in which we temporarily unpack our resource files. */
+    protected static File _tmpdir;
+
+    static {
+        String tmpdir = System.getProperty("java.io.tmpdir");
+        if (tmpdir == null) {
+            Log.info("No system defined temp directory. Faking it.");
+            tmpdir = System.getProperty("user.dir");
+        }
+        _tmpdir = new File(tmpdir, ".narcache");
+        if (!_tmpdir.exists()) {
+            Log.info("Creating narya temp cache directory '" + _tmpdir + "'.");
+            _tmpdir.mkdir();
+        }
+    }
 }
