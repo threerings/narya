@@ -1,8 +1,10 @@
 //
-// $Id: GameManager.java,v 1.14 2001/10/24 01:00:54 mdb Exp $
+// $Id: GameManager.java,v 1.15 2001/11/07 03:21:42 mdb Exp $
 
 package com.threerings.parlor.game;
 
+import com.threerings.presents.dobj.AttributeChangeListener;
+import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.MessageEvent;
 
 import com.threerings.crowd.data.BodyObject;
@@ -24,7 +26,8 @@ import com.threerings.parlor.client.ParlorCodes;
  * bodies in that location.
  */
 public class GameManager
-    extends PlaceManager implements ParlorCodes, GameCodes
+    extends PlaceManager
+    implements ParlorCodes, GameCodes, AttributeChangeListener
 {
     // documentation inherited
     protected Class getPlaceObjectClass ()
@@ -132,8 +135,10 @@ public class GameManager
         // transition the game to started
         _gameobj.setState(GameObject.IN_PLAY);
 
-        // and let the derived class do its post-start stuff
-        gameDidStart();
+        // wait until we hear the game state transition on the game object
+        // to invoke our game did start code so that we can be sure that
+        // any events dispatched on the game object prior to or during the
+        // call to startGame() have been dispatched
     }
 
     /**
@@ -147,10 +152,10 @@ public class GameManager
     }
 
     /**
-     * Called right after the game start notification was delivered.
-     * Derived classes should override this to perform whatever
-     * machinations are necessary to start the game in motion (if anything
-     * other than issuing the game start notification is necessary).
+     * Called after the game start notification was dispatched.  Derived
+     * classes can override this to put whatever wheels they might need
+     * into motion now that the game is started (if anything other than
+     * issuing the game start notification is necessary).
      */
     protected void gameDidStart ()
     {
@@ -168,8 +173,10 @@ public class GameManager
         // transition to the game over state
         _gameobj.setState(GameObject.GAME_OVER);
 
-        // do our post-game stuff
-        gameDidEnd();
+        // wait until we hear the game state transition on the game object
+        // to invoke our game over code so that we can be sure that any
+        // final events dispatched on the game object prior to the call to
+        // endGame() have been dispatched
     }
 
     /**
@@ -180,6 +187,24 @@ public class GameManager
     protected void gameDidEnd ()
     {
         // calculate ratings and all that...
+    }
+
+    // documentation inherited
+    public void attributeChanged (AttributeChangedEvent event)
+    {
+        if (event.getName().equals(GameObject.STATE)) {
+            switch (event.getIntValue()) {
+            case GameObject.IN_PLAY:
+                // now we do our start of game processing
+                gameDidStart();
+                break;
+
+            case GameObject.GAME_OVER:
+                // now we do our end of game processing
+                gameDidEnd();
+                break;
+            }
+        }
     }
 
     /** Handles player ready notifications. */
