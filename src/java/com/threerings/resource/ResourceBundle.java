@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.16 2003/05/27 07:52:45 mdb Exp $
+// $Id: ResourceBundle.java,v 1.17 2003/06/18 16:54:17 mdb Exp $
 
 package com.threerings.resource;
 
@@ -294,9 +294,11 @@ public class ResourceBundle
             return false;
 
         } catch (IOException ioe) {
+            Log.warning("Failure creating jar file '" + _source + "'.");
+            Log.logStackTrace(ioe);
             throw new NestableIOException(
-                "Failed to resolve resource bundle jar file " +
-                "[file=" + _source + "]", ioe);
+                "Failed to resolve resource bundle jar file '" +
+                _source + "'", ioe);
         }
     }
 
