@@ -1,5 +1,5 @@
 //
-// $Id: SimpleFrame.java,v 1.1 2002/01/16 02:59:08 mdb Exp $
+// $Id: SimpleFrame.java,v 1.2 2002/07/10 02:02:59 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.samskivert.swing.Controller;
+import com.samskivert.swing.util.SwingUtil;
 
 /**
  * Contains the user interface for the Simulator client application.
@@ -38,8 +39,9 @@ public class SimpleFrame
         getContentPane().removeAll();
 	// add the new one
 	getContentPane().add(panel, BorderLayout.CENTER);
-        // swing doesn't properly repaint after adding/removing children
-        validate();
+        // adjust ourselves to fit this lovely new child
+        pack();
+        SwingUtil.centerWindow(this);
     }
 
     /**
