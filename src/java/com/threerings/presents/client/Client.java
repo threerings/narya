@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.36 2003/01/28 04:24:16 mdb Exp $
+// $Id: Client.java,v 1.37 2003/03/11 04:43:14 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -182,6 +182,25 @@ public class Client
     public DObjectManager getDObjectManager ()
     {
         return (_comm != null) ? _comm.getDObjectManager() : null;
+    }
+
+    /**
+     * Instructs the distributed object manager associated with this
+     * client to allow objects of the specified class to linger around the
+     * specified number of milliseconds after their last subscriber has
+     * been removed before the client finally removes its object proxy and
+     * flushes the object. Normally, objects are flushed immediately
+     * following the removal of their last subscriber.
+     *
+     * <p><em>Note:</em> the delay will be applied to derived classes as
+     * well as exact matches. <em>Note also:</em> this method cannot be
+     * called until after the client has established a connection with the
+     * server and the distributed object manager is available.
+     */
+    public void registerFlushDelay (Class objclass, long delay)
+    {
+        ClientDObjectMgr omgr = (ClientDObjectMgr)getDObjectManager();
+        omgr.registerFlushDelay(objclass, delay);
     }
 
     /**

@@ -1,11 +1,12 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.21 2003/03/10 18:29:54 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.22 2003/03/11 04:43:14 mdb Exp $
 
 package com.threerings.presents.client;
 
 import java.awt.event.KeyEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,8 +14,10 @@ import com.samskivert.util.DebugChords;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Queue;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.IntervalManager;
 
 import com.threerings.presents.Log;
+import com.threerings.presents.client.util.SafeInterval;
 import com.threerings.presents.dobj.*;
 import com.threerings.presents.net.*;
 
@@ -45,6 +48,13 @@ public class ClientDObjectMgr
         // distributed object table
         DebugChords.registerHook(
             DUMP_OTABLE_MODMASK, DUMP_OTABLE_KEYCODE, DUMP_OTABLE_HOOK);
+
+        // register a flush interval
+        IntervalManager.register(new SafeInterval(client) {
+            public void run () {
+                flushObjects();
+            }
+        }, FLUSH_INTERVAL, null, true);
     }
 
     // documentation inherited from interface
@@ -98,16 +108,33 @@ public class ClientDObjectMgr
     // inherit documentation from the interface
     public void removedLastSubscriber (DObject obj)
     {
-        // move this object into the dead pool so that we don't claim to
-        // have it around anymore; once our unsubscribe message is
-        // processed, it'll be 86ed
-        int ooid = obj.getOid();
-        _ocache.remove(ooid);
-        _dead.put(ooid, obj);
+        // if this object has a registered flush delay, don't can it just
+        // yet, just slip it onto the flush queue
+        Class oclass = obj.getClass();
+        for (Iterator iter = _delays.keySet().iterator(); iter.hasNext(); ) {
+            Class dclass = (Class)iter.next();
+            if (dclass.isAssignableFrom(oclass)) {
+                long expire =  System.currentTimeMillis() +
+                    ((Long)_delays.get(dclass)).longValue();
+                _flushes.put(obj.getOid(), new FlushRecord(obj, expire));
+//                 Log.info("Flushing " + obj.getOid() + " at " +
+//                          new java.util.Date(expire));
+                return;
+            }
+        }
 
-        // ship off an unsubscribe message to the server; we'll remove the
-        // object from our table when we get the unsub ack
-        _comm.postMessage(new UnsubscribeRequest(ooid));
+        // if we didn't find a delay registration, flush immediately
+        flushObject(obj);
+    }
+
+    /**
+     * Registers an object flush delay.
+     *
+     * @see Client#registerFlushDelay
+     */
+    public void registerFlushDelay (Class objclass, long delay)
+    {
+        _delays.put(objclass, new Long(delay));
     }
 
     /**
@@ -285,6 +312,10 @@ public class ClientDObjectMgr
         // first see if we've already got the object in our table
         DObject obj = (DObject)_ocache.get(oid);
         if (obj != null) {
+            // clear the object out of the flush table if it's in there
+            if (_flushes.remove(oid) != null) {
+//                 Log.info("Resurrected " + oid + ".");
+            }
             // add the subscriber and call them back straight away
             obj.addSubscriber(target);
             target.objectAvailable(obj);
@@ -328,6 +359,42 @@ public class ClientDObjectMgr
     }
 
     /**
+     * Flushes a distributed object subscription, issuing an unsubscribe
+     * request to the server.
+     */
+    protected void flushObject (DObject obj)
+    {
+        // move this object into the dead pool so that we don't claim to
+        // have it around anymore; once our unsubscribe message is
+        // processed, it'll be 86ed
+        int ooid = obj.getOid();
+        _ocache.remove(ooid);
+        _dead.put(ooid, obj);
+
+        // ship off an unsubscribe message to the server; we'll remove the
+        // object from our table when we get the unsub ack
+        _comm.postMessage(new UnsubscribeRequest(ooid));
+    }
+
+    /**
+     * Called periodically to flush any objects that have been lingering
+     * due to a previously enacted flush delay.
+     */
+    protected void flushObjects ()
+    {
+        long now = System.currentTimeMillis();
+        for (Iterator iter = _flushes.keySet().iterator(); iter.hasNext(); ) {
+            int oid = ((Integer)iter.next()).intValue();
+            FlushRecord rec = (FlushRecord)_flushes.get(oid);
+            if (rec.expire <= now) {
+                iter.remove();
+                flushObject(rec.object);
+//                 Log.info("Flushed object " + oid + ".");
+            }
+        }
+    }
+
+    /**
      * The object action is used to queue up a subscribe or unsubscribe
      * request.
      */
@@ -366,6 +433,22 @@ public class ClientDObjectMgr
         }
     }
 
+    /** Used to manage pending object flushes. */
+    protected static final class FlushRecord
+    {
+        /** The object to be flushed. */
+        public DObject object;
+
+        /** The time at which we flush it. */
+        public long expire;
+
+        public FlushRecord (DObject object, long expire)
+        {
+            this.object = object;
+            this.expire = expire;
+        }
+    }
+
     /** A reference to the communicator that sends and receives messages
      * for this client. */
     protected Communicator _comm;
@@ -384,6 +467,12 @@ public class ClientDObjectMgr
 
     /** Pending object subscriptions. */
     protected HashIntMap _penders = new HashIntMap();
+
+    /** A mapping from distributed object class to flush delay. */
+    protected HashMap _delays = new HashMap();
+
+    /** A set of objects waiting to be flushed. */
+    protected HashIntMap _flushes = new HashIntMap();
 
     /** A debug hook that allows the dumping of all objects in the object
      * table out to the log. */
@@ -404,4 +493,7 @@ public class ClientDObjectMgr
 
     /** The key code for our dump table debug hook (o). */
     protected static int DUMP_OTABLE_KEYCODE = KeyEvent.VK_O;
+
+    /** Flush expired objects every 30 seconds. */
+    protected static final long FLUSH_INTERVAL = 30 * 1000L;
 }
