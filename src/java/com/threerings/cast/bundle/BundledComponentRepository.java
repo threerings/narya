@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.16 2002/07/24 22:24:05 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.17 2002/08/13 23:09:25 shaper Exp $
 
 package com.threerings.cast.bundle;
 
@@ -281,7 +281,7 @@ public class BundledComponentRepository
                 TileSet aset = null;
                 aset = (TileSet)BundleUtil.loadObject(_bundle, path);
                 if (aset == null) {
-                    Log.info("Falling back to default [path=" + path + "].");
+                    Log.debug("Falling back to default [path=" + path + "].");
                     // try loading the default tileset
                     path = root + ActionSequence.DEFAULT_SEQUENCE +
                         BundleUtil.TILESET_EXTENSION;
