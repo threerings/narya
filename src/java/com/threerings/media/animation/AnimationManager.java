@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.5 2002/02/17 23:38:18 mdb Exp $
+// $Id: AnimationManager.java,v 1.6 2002/02/18 06:05:59 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -189,8 +189,13 @@ public class AnimationManager
         // start out assuming that we can refresh for every pixel
         _refreshInterval = _scrollvel;
 
-        // if the interval is too quick, bump it up a bit
-        if (_refreshInterval < lowerTarget) {
+        // if they've disabled scrolling, go back to the default refresh
+        // interval
+        if (_scrollvel == 0) {
+            _refreshInterval = DEFAULT_REFRESH_INTERVAL;
+
+            // if the interval is too quick, bump it up a bit
+        } else if (_refreshInterval < lowerTarget) {
             // keep adding a pixel at a time until we're above our minimum
             // refresh interval
             while (_refreshInterval < lowerTarget) {

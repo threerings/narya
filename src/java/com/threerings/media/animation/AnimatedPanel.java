@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.7 2002/02/17 23:40:43 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.8 2002/02/18 06:05:58 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -84,7 +84,8 @@ public class AnimatedPanel extends Canvas implements AnimatedView
 
     /**
      * Instructs the view to begin scrolling with the specified velocities
-     * in milliseconds per pixel.
+     * in milliseconds per pixel. A setting of zero indicates that
+     * scrolling should be deactivated in that direction.
      */
     public void setScrolling (int msppx, int msppy)
     {
@@ -98,12 +99,21 @@ public class AnimatedPanel extends Canvas implements AnimatedView
         if (msppx == 0 && msppy == 0) {
             _stime = 0;
             _animmgr.setScrolling(0);
+
         } else {
             _stime = System.currentTimeMillis();
+
             // set our scrolling speed to the (absolute value of the)
-            // lower of the two velocities
-            int scrollvel = Math.min(Math.abs(_msppx), Math.abs(_msppy));
-            _animmgr.setScrolling(scrollvel);
+            // lower of the two velocities (but not to zero if either one
+            // is zero)
+            if (_msppx == 0) {
+                _animmgr.setScrolling(msppy);
+            } else if (_msppy == 0) {
+                _animmgr.setScrolling(msppx);
+            } else {
+                _animmgr.setScrolling(
+                    Math.min(Math.abs(msppx), Math.abs(msppy)));
+            }
         }
     }
 
@@ -168,16 +178,19 @@ public class AnimatedPanel extends Canvas implements AnimatedView
             // compute the total distance scrolled since we started (to
             // avoid rounding errors)
             long now = System.currentTimeMillis();
-            int xdist = (int)((now - _stime) / _msppx);
-            int ydist = (int)((now - _stime) / _msppy);
 
-            // determine how many pixels further along we've moved
-            dx = (xdist - _lastx);
-            dy = (ydist - _lasty);
-
+            // determine how many pixels further along we've moved and
             // make a note of our latest position
-            _lastx = xdist;
-            _lasty = ydist;
+            if (_msppx != 0) {
+                int xdist = (int)((now - _stime) / _msppx);
+                dx = (xdist - _lastx);
+                _lastx = xdist;
+            }
+            if (_msppy != 0) {
+                int ydist = (int)((now - _stime) / _msppy);
+                dy = (ydist - _lasty);
+                _lasty = ydist;
+            }
 
             // let our derived classes do whatever they need to do to
             // prepare to be scrolled
