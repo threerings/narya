@@ -1,5 +1,5 @@
 //
-// $Id: DSetEditor.java,v 1.7 2004/09/29 04:04:20 mdb Exp $
+// $Id: DSetEditor.java,v 1.8 2004/10/26 21:05:27 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -190,6 +190,8 @@ public class DSetEditor extends JPanel
     public void attributeChanged (AttributeChangedEvent event)
     {
         if (event.getName().equals(_setName)) {
+            // the whole set changed so we need to refetch it from the object
+            _set = _setter.getSet(_setName);
             refreshData();
         }
     }
