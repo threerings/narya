@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.12 2001/10/18 02:19:54 mdb Exp $
+// $Id: GameManager.java,v 1.13 2001/10/18 18:39:10 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -198,8 +198,9 @@ public class GameManager
                 }
             }
 
-            // if everyone is now ready to go, start up the game
-            if (allSet) {
+            // if everyone is now ready to go, start up the game (if we
+            // haven't already)
+            if (allSet && _gameobj.state == GameObject.AWAITING_PLAYERS) {
                 startGame();
             }
         }
