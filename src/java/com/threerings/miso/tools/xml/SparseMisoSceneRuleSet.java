@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneRuleSet.java,v 1.1 2003/04/19 22:40:34 mdb Exp $
+// $Id: SparseMisoSceneRuleSet.java,v 1.2 2003/04/21 17:08:57 mdb Exp $
 
 package com.threerings.miso.tools.xml;
 
@@ -47,6 +47,8 @@ public class SparseMisoSceneRuleSet implements NestableRuleSet
         // set up rules to parse and set our fields
         dig.addRule(prefix + "/swidth", new SetFieldRule(dig, "swidth"));
         dig.addRule(prefix + "/sheight", new SetFieldRule(dig, "sheight"));
+        dig.addRule(prefix + "/defTileSet",
+                    new SetFieldRule(dig, "defTileSet"));
 
         String sprefix = prefix + "/sections/section";
         dig.addObjectCreate(sprefix, Section.class.getName());

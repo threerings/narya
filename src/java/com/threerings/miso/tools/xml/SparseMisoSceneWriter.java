@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneWriter.java,v 1.1 2003/04/19 22:40:34 mdb Exp $
+// $Id: SparseMisoSceneWriter.java,v 1.2 2003/04/21 17:08:57 mdb Exp $
 
 package com.threerings.miso.tools.xml;
 
@@ -45,6 +45,7 @@ public class SparseMisoSceneWriter implements NestableWriter
     {
         writer.dataElement("swidth", Integer.toString(model.swidth));
         writer.dataElement("sheight", Integer.toString(model.sheight));
+        writer.dataElement("defTileSet", Integer.toString(model.defTileSet));
 
         writer.startElement("sections");
         for (Iterator iter = model.getSections(); iter.hasNext(); ) {

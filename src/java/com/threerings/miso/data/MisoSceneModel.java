@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneModel.java,v 1.16 2003/04/19 22:40:34 mdb Exp $
+// $Id: MisoSceneModel.java,v 1.17 2003/04/21 17:08:57 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -51,6 +51,15 @@ public abstract class MisoSceneModel extends SimpleStreamableObject
      * scene and the tile was not saved, true otherwise.
      */
     public abstract boolean setBaseTile (int fqTileId, int x, int y);
+
+    /**
+     * Scene models can return a default tileset to be used when no base
+     * tile data exists for a particular tile.
+     */
+    public int getDefaultBaseTileSet ()
+    {
+        return 0;
+    }
 
     /**
      * Populates the supplied object set with info on all objects whose

@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneModel.java,v 1.3 2003/04/20 00:05:14 mdb Exp $
+// $Id: SparseMisoSceneModel.java,v 1.4 2003/04/21 17:08:57 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -173,6 +173,9 @@ public class SparseMisoSceneModel extends MisoSceneModel
     /** The dimensions of a section of our scene. */
     public short swidth, sheight;
 
+    /** The tileset to use when we have no tile data. */
+    public int defTileSet = 8;
+
     /**
      * Creates a scene model with the specified bounds.
      *
@@ -236,6 +239,12 @@ public class SparseMisoSceneModel extends MisoSceneModel
     {
         getSection(col, row, true).setBaseTile(col, row, fqBaseTileId);
         return true;
+    }
+
+    // documentation inherited
+    public int getDefaultBaseTileSet ()
+    {
+        return defTileSet;
     }
 
     // documentation inherited

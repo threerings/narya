@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.4 2003/04/19 02:01:08 mdb Exp $
+// $Id: SceneBlock.java,v 1.5 2003/04/21 17:08:56 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -77,6 +77,17 @@ public class SceneBlock
         for (int ii = 0; ii < _objects.length; ii++) {
             _objects[ii] = new SceneObject(panel, set.get(ii));
         }
+
+        // resolve our default tileset
+        int bsetid = model.getDefaultBaseTileSet();
+        try {
+            if (bsetid > 0) {
+                _defset = _panel.getTileManager().getTileSet(bsetid);
+            }
+        } catch (Exception e) {
+            Log.warning("Unable to fetch default base tileset [tsid=" + bsetid +
+                        ", error=" + e + "].");
+        }
     }
 
     /**
@@ -110,7 +121,14 @@ public class SceneBlock
      */
     public BaseTile getBaseTile (int tx, int ty)
     {
-        return _base[index(tx, ty)];
+        BaseTile tile = _base[index(tx, ty)];
+        if (tile == null && _defset != null) {
+            long seed = ((tx^ty) ^ multiplier) & mask;
+            long hash = (seed * multiplier + addend) & mask;
+            int tidx = (int)((hash >> 10) % _defset.getTileCount());
+            tile = (BaseTile)_defset.getTile(tidx);
+        }
+        return tile;
     }
 
     /**
@@ -326,6 +344,9 @@ public class SceneBlock
     /** A polygon bounding the footprint of this block. */
     protected Polygon _footprint;
 
+    /** Used to return a tile where we have none. */
+    protected TileSet _defset;
+
     /** Our base tiles. */
     protected BaseTile[] _base;
 
@@ -344,4 +365,9 @@ public class SceneBlock
     // used to link up to our neighbors
     protected static final int[] DX = { -1, -1,  0,  1, 1, 1, 0, -1 };
     protected static final int[] DY = {  0, -1, -1, -1, 0, 1, 1,  1 };
+
+    // for mapping tile coordinates to a pseudo-random tile
+    protected final static long multiplier = 0x5DEECE66DL;
+    protected final static long addend = 0xBL;
+    protected final static long mask = (1L << 48) - 1;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.9 2003/04/19 22:40:34 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.10 2003/04/21 17:08:56 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -678,7 +678,8 @@ public class MisoScenePanel extends VirtualMediaPanel
         // recompute our object tips
         computeTips();
 
-//         Log.info("Computed " + _vizobjs.size() + " visible objects.");
+//         Log.info("Computed " + _vizobjs.size() + " visible objects from " +
+//                  _blocks.size() + " blocks.");
     }
 
     /**
