@@ -1,5 +1,5 @@
 //
-// $Id: PlaceController.java,v 1.1 2001/10/05 23:57:26 mdb Exp $
+// $Id: PlaceController.java,v 1.2 2001/10/06 00:24:46 mdb Exp $
 
 package com.threerings.cocktail.party.client;
 
@@ -53,7 +53,7 @@ public abstract class PlaceController
      * This is called by the location director once the place object has
      * been fetched. The place controller will dispatch the place object
      * to the user interface hierarchy via {@link
-     * PlaceViewUtil.dispatchWillEnterPlace}. Derived classes can override
+     * PlaceViewUtil#dispatchWillEnterPlace}. Derived classes can override
      * this and perform any other starting up that they need to do
      */
     public void willEnterPlace (PlaceObject plobj)
