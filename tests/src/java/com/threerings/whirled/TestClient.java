@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.8 2001/11/18 04:09:21 mdb Exp $
+// $Id: TestClient.java,v 1.9 2001/12/17 03:36:36 mdb Exp $
 
 package com.threerings.whirled;
 
@@ -32,14 +32,15 @@ public class TestClient
         _client = new Client(creds, this);
         _screp = new DummyClientSceneRepository();
         _occmgr = new OccupantManager(_ctx);
+        _locdir = new LocationDirector(_ctx);
         _scdir = new SceneDirector(
-            _ctx, _screp, new DefaultDisplaySceneFactory());
+            _ctx, _locdir, _screp, new DefaultDisplaySceneFactory());
 
         // we want to know about logon/logoff
         _client.addObserver(this);
 
         // we want to know about location changes
-        _scdir.addLocationObserver(this);
+        _locdir.addLocationObserver(this);
 
         // for test purposes, hardcode the server info
         _client.setServer("localhost", 4007);
@@ -142,7 +143,7 @@ public class TestClient
 
         public LocationDirector getLocationDirector ()
         {
-            return _scdir;
+            return _locdir;
         }
 
         public OccupantManager getOccupantManager ()
@@ -163,6 +164,7 @@ public class TestClient
 
     protected Config _config;
     protected Client _client;
+    protected LocationDirector _locdir;
     protected SceneDirector _scdir;
     protected OccupantManager _occmgr;
     protected SceneRepository _screp;
