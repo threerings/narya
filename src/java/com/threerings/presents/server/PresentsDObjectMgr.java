@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.19 2001/10/24 00:36:40 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.20 2001/12/04 01:01:54 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -25,7 +25,7 @@ import com.threerings.presents.dobj.*;
  * application main thread which won't return until the manager has been
  * requested to shut down.
  */
-public class PresentsDObjectMgr implements DObjectManager
+public class PresentsDObjectMgr implements RootDObjectManager
 {
     /**
      * Creates the dobjmgr and prepares it for operation.
