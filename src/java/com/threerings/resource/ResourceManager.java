@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.19 2003/01/13 22:50:36 mdb Exp $
+// $Id: ResourceManager.java,v 1.20 2003/01/16 22:50:29 mdb Exp $
 
 package com.threerings.resource;
 
@@ -86,6 +86,14 @@ public class ResourceManager
      */
     public interface BundleDownloadObserver
     {
+        /**
+         * If this method returns true the download observer callbacks
+         * will be called on the AWT thread, allowing the observer to do
+         * things like safely update user interfaces, etc. If false, it
+         * will be called on a special download thread.
+         */
+        public boolean notifyOnAWTThread ();
+
         /**
          * Called when the resource manager is about to check for an
          * update of any of our resource sets.
@@ -227,6 +235,10 @@ public class ResourceManager
 
         // create the observer that will notify us when all is finished
         DownloadObserver obs = new DownloadObserver() {
+            public boolean notifyOnAWTThread () {
+                return false;
+            }
+
             public void resolvingDownloads () {
                 // nothing for now
             }
@@ -274,6 +286,10 @@ public class ResourceManager
     {
         // pass the descriptors on to the download manager
         dlmgr.download(dlist, true, new DownloadObserver() {
+            public boolean notifyOnAWTThread () {
+                return obs.notifyOnAWTThread();
+            }
+
             public void resolvingDownloads () {
                 obs.checkingForUpdate();
             }

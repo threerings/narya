@@ -1,7 +1,9 @@
 //
-// $Id: DownloadManager.java,v 1.5 2002/10/08 23:42:21 shaper Exp $
+// $Id: DownloadManager.java,v 1.6 2003/01/16 22:50:29 mdb Exp $
 
 package com.threerings.resource;
+
+import java.awt.EventQueue;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,6 +33,14 @@ public class DownloadManager
      */
     public interface DownloadObserver
     {
+        /**
+         * If this method returns true the download observer callbacks
+         * will be called on the AWT thread, allowing the observer to do
+         * things like safely update user interfaces, etc. If false, it
+         * will be called on the download thread.
+         */
+        public boolean notifyOnAWTThread ();
+
         /**
          * Called when the download manager is about to check all
          * downloads to see whether they are in need of an update.
@@ -173,11 +183,19 @@ public class DownloadManager
      * Processes a single download request.
      */
     protected void processDownloadRequest (
-        List descriptors, DownloadObserver obs, boolean fragile)
+        List descriptors, final DownloadObserver obs, boolean fragile)
     {
         // let the observer know that we're about to resolve all files to
         // be downloaded
-        obs.resolvingDownloads();
+        if (obs.notifyOnAWTThread()) {
+            EventQueue.invokeLater(new Runnable() {
+                public void run () {
+                    obs.resolvingDownloads();
+                }
+            });
+        } else {
+            obs.resolvingDownloads();
+        }
 
         // check the size and last-modified information for each file to
         // ascertain whether our local copy needs to be refreshed
@@ -235,8 +253,8 @@ public class DownloadManager
                               "[url=" + desc.sourceURL + "].");
                 }
 
-            } catch (IOException ioe) {
-                obs.downloadFailed(null, ioe);
+            } catch (final IOException ioe) {
+                notifyFailed(obs, null, ioe);
                 if (fragile) {
                     return;
                 }
@@ -251,7 +269,7 @@ public class DownloadManager
             try {
                 processDownload(desc, obs, pinfo);
             } catch (IOException ioe) {
-                obs.downloadFailed(desc, ioe);
+                notifyFailed(obs, desc, ioe);
                 if (fragile) {
                     return;
                 }
@@ -261,7 +279,38 @@ public class DownloadManager
         // make sure to always let the observer know that we've wrapped up
         // by reporting 100% completion
         if (!pinfo.complete) {
-            obs.downloadProgress(100, 0L);
+            notifyProgress(obs, 100, 0L);
+        }
+    }
+
+    /** Helper function. */
+    protected void notifyProgress (final DownloadObserver obs,
+                                   final int progress, final long remaining)
+    {
+        if (obs.notifyOnAWTThread()) {
+            EventQueue.invokeLater(new Runnable() {
+                public void run () {
+                    obs.downloadProgress(progress, remaining);
+                }
+            });
+        } else {
+            obs.downloadProgress(progress, remaining);
+        }
+    }
+
+    /** Helper function. */
+    protected void notifyFailed (final DownloadObserver obs,
+                                 final DownloadDescriptor desc,
+                                 final Exception e)
+    {
+        if (obs.notifyOnAWTThread()) {
+            EventQueue.invokeLater(new Runnable() {
+                public void run () {
+                    obs.downloadFailed(desc, e);
+                }
+            });
+        } else {
+            obs.downloadFailed(desc, e);
         }
     }
 
@@ -305,7 +354,7 @@ public class DownloadManager
                 if ((now - pinfo.lastUpdate) >= UPDATE_DELAY) {
                     pinfo.lastUpdate = now;
                     long remaining = pinfo.getXferTimeRemaining();
-                    obs.downloadProgress(pctdone, remaining);
+                    notifyProgress(obs, pctdone, remaining);
                 }
             }
         }
@@ -326,7 +375,7 @@ public class DownloadManager
         if (pinfo.complete) {
             // let the observer know we're finished now that we've
             // finished all of our work with the file
-            obs.downloadProgress(100, 0L);
+            notifyProgress(obs, 100, 0L);
         }
     }
 
