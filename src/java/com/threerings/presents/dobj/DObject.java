@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.47 2002/08/14 19:07:55 mdb Exp $
+// $Id: DObject.java,v 1.48 2002/09/13 06:41:34 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -439,6 +439,27 @@ public class DObject implements Streamable
     }
 
     /**
+     * Posts a message event on this distrubuted object.
+     */
+    public void postMessage (String name, Object[] args)
+    {
+        postEvent(new MessageEvent(_oid, name, args));
+    }
+
+    /**
+     * Posts the specified event either to our dobject manager or to the
+     * compound event for which we are currently transacting.
+     */
+    public void postEvent (DEvent event)
+    {
+        if (_tevent != null) {
+            _tevent.postEvent(event);
+        } else {
+            _omgr.postEvent(event);
+        }
+    }
+
+    /**
      * Returns true if this object is active and registered with the
      * distributed object system. If an object is created via
      * <code>DObjectManager.createObject</code> it will be active until
@@ -494,19 +515,6 @@ public class DObject implements Streamable
         buf.insert(0, _oid);
         buf.insert(0, "[oid=");
         return buf.append("]").toString();
-    }
-
-    /**
-     * Posts the specified event either to our dobject manager or to the
-     * compound event for which we are currently transacting.
-     */
-    public void postEvent (DEvent event)
-    {
-        if (_tevent != null) {
-            _tevent.postEvent(event);
-        } else {
-            _omgr.postEvent(event);
-        }
     }
 
     /**
