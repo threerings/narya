@@ -1,5 +1,5 @@
 //
-// $Id: FrameRepaintManager.java,v 1.12 2002/10/09 02:35:20 mdb Exp $
+// $Id: FrameRepaintManager.java,v 1.13 2002/10/10 00:09:07 mdb Exp $
 
 package com.threerings.media;
 
@@ -51,6 +51,9 @@ public class FrameRepaintManager extends RepaintManager
     public synchronized void addInvalidComponent (JComponent comp) 
     {
         Component vroot = null;
+        if (DEBUG) {
+            Log.info("Maybe invalidating " + toString(comp) + ".");
+        }
 
         // locate the validation root for this component
         for (Component c = comp; c != null; c = c.getParent()) {
@@ -102,6 +105,9 @@ public class FrameRepaintManager extends RepaintManager
         // add the invalid component to our list and we'll validate it on
         // the next frame
         if (!ListUtil.contains(_invalid, vroot)) {
+            if (DEBUG) {
+                Log.info("Invalidating " + toString(vroot) + ".");
+            }
             _invalid = ListUtil.add(_invalid, vroot);
         }
     }
