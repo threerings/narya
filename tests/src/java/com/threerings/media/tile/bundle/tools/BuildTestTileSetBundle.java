@@ -1,5 +1,5 @@
 //
-// $Id: BuildTestTileSetBundle.java,v 1.1 2001/11/21 02:42:16 mdb Exp $
+// $Id: BuildTestTileSetBundle.java,v 1.2 2001/11/29 20:30:47 mdb Exp $
 
 package com.threerings.media.tools.tile.bundle;
 
@@ -70,5 +70,5 @@ public class TileSetBundlerTest
         "media/tools/tile/bundle/bundle.xml";
 
     protected static final String TARGET_PATH =
-        "media/tools/tile/bundle.jar";
+        "media/tools/tile/bundle/bundle.jar";
 }
