@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.16 2001/09/17 05:18:21 mdb Exp $
+// $Id: TileManager.java,v 1.17 2001/09/28 00:44:31 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -12,16 +12,15 @@ import com.samskivert.util.HashIntMap;
 import com.threerings.media.Log;
 
 /**
- * The <code>TileManager</code> class provides a simplified interface
- * for retrieving and caching tiles.
+ * The tile manager provides a simplified interface for retrieving and
+ * caching tiles.
  *
  * @see TileSetManager
  */
 public class TileManager
 {
     /**
-     * Initialize the tile manager with the given
-     * <code>TileSetManager</code> object.
+     * Initialize the tile manager.
      *
      * @param tilesetmgr the tileset manager.
      */
@@ -31,13 +30,13 @@ public class TileManager
     }
 
     /**
-     * Return the <code>Tile</code> object for the specified tileset
-     * and tile id.
+     * Returns the {@link Tile} object for the specified tileset and
+     * tile id, or null if an error occurred.
      *
      * @param tsid the tileset id.
      * @param tid the tile id.
      *
-     * @return the tile object.
+     * @return the tile object, or null if an error occurred.
      */
     public Tile getTile (int tsid, int tid)
     {
@@ -47,22 +46,24 @@ public class TileManager
 	// look the tile up in our hash
 	Tile tile = (Tile) _tiles.get(utid);
 	if (tile != null) {
-//  	    Log.info("Retrieved tile from cache [tsid=" + tsid +
-//  		     ", tid=" + tid + "].");
+  	    // Log.info("Retrieved tile from cache [tsid=" + tsid +
+	    // ", tid=" + tid + "].");
 	    return tile;
 	}
 
 	// retrieve the tile from the tileset
 	tile = _tilesetmgr.getTile(tsid, tid);
-	_tiles.put(utid, tile);
-
-//  	Log.info("Loaded tile into cache [tsid="+tsid+", tid="+tid+"].");
+	if (tile != null) {
+	    // Log.info("Loaded tile into cache [tsid=" + tsid +
+	    // ", tid=" + tid + "].");
+	    _tiles.put(utid, tile);
+	}
 
 	return tile;
     }
 
     /**
-     * Return the TileSetManager that the TileManager is using.
+     * Returns the tile set manager used by this tile manager.
      */
     public TileSetManager getTileSetManager ()
     {
