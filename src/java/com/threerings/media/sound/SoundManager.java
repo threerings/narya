@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.14 2002/11/15 20:52:31 ray Exp $
+// $Id: SoundManager.java,v 1.15 2002/11/15 21:38:31 ray Exp $
 
 package com.threerings.media;
 
@@ -154,6 +154,7 @@ public class SoundManager
                         } else if (DIE == command) {
                             _resourceFreer.stop();
                             flushResources(true);
+                            shutdownMidi();
                         }
                     } catch (Exception e) {
                         Log.warning("Captured exception in SoundManager loop.");
@@ -440,9 +441,9 @@ public class SoundManager
 
             if (_midiStack.isEmpty()) {
                 // no more to play? Stop and shutdown.
+                _sequencer.removeMetaEventListener(this);
                 _sequencer.stop();
                 _sequencer.close();
-                _sequencer.removeMetaEventListener(this);
                 _sequencer = null;
                 _midiChannels = null;
 
@@ -450,6 +451,22 @@ public class SoundManager
                 // play the next one on the stack (will also stop this one)
                 playSequence((String) _midiStack.removeFirst());
             }
+        }
+    }
+
+    /**
+     * Stop playing and shutdown the midi system.
+     */
+    protected void shutdownMidi ()
+    {
+        // remove all songs but the currently playing
+        while (_midiStack.size() > 1) {
+            _midiStack.removeLast();
+        }
+
+        // then stop the currently playing
+        if (! _midiStack.isEmpty()) {
+            stopSequence((String) _midiStack.getFirst());
         }
     }
 
@@ -463,10 +480,8 @@ public class SoundManager
 
         } else {
             int setting = (int) (_musicVol * 127.0);
-            Log.info("setting musicvol: " + setting +
-                     ", chans=" + _midiChannels.length);
             for (int ii=0; ii < _midiChannels.length; ii++) {
-                _midiChannels[ii].controlChange(7, (int) (_musicVol * 127));
+                _midiChannels[ii].controlChange(7, setting);
             }
         }
     }
@@ -720,9 +735,9 @@ public class SoundManager
         /**
          * Use the gain control to implement volume.
          */
-        protected void adjustVolume (float volume)
+        protected void adjustVolume (float vol)
         {
-            FloatControl vol = (FloatControl) 
+            FloatControl control = (FloatControl) 
                 _clip.getControl(FloatControl.Type.MASTER_GAIN);
 
             // the only problem is that gain is specified in decibals,
@@ -730,14 +745,14 @@ public class SoundManager
             // Since we want max volume to leave the sample unchanged, our
             // maximum volume translates into a 0db gain.
             float gain;
-            if (volume == 0f) {
-                gain = vol.getMinimum();
+            if (vol == 0f) {
+                gain = control.getMinimum();
             } else {
-                gain = (float) ((Math.log(volume) / Math.log(10.0)) * 20.0);
+                gain = (float) ((Math.log(vol) / Math.log(10.0)) * 20.0);
             }
 
-            vol.setValue(gain);
-            Log.info("Set gain: " + gain);
+            control.setValue(gain);
+            //Log.info("Set gain: " + gain);
         }
 
         /** The timestamp of the moment this clip last stopped playing. */
