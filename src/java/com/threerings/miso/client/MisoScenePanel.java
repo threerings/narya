@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.10 2003/04/21 17:08:56 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.11 2003/04/21 17:56:55 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -43,6 +43,7 @@ import com.threerings.media.sprite.Sprite;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.TileSet;
+import com.threerings.media.tile.TileUtil;
 import com.threerings.media.util.MathUtil;
 import com.threerings.media.util.Path;
 
@@ -641,10 +642,8 @@ public class MisoScenePanel extends VirtualMediaPanel
             }
         }
 
-        // if anything changed, we recompute our visible object set
-        if (changed) {
-            recomputeVisible();
-        }
+        // recompute our visible object set
+        recomputeVisible();
     }
 
     /**
@@ -680,6 +679,14 @@ public class MisoScenePanel extends VirtualMediaPanel
 
 //         Log.info("Computed " + _vizobjs.size() + " visible objects from " +
 //                  _blocks.size() + " blocks.");
+
+//         Log.info(StringUtil.listToString(_vizobjs, new StringUtil.Formatter() {
+//             public String toString (Object object) {
+//                 SceneObject scobj = (SceneObject)object;
+//                 return (TileUtil.getTileSetId(scobj.info.tileId) + ":" +
+//                         TileUtil.getTileIndex(scobj.info.tileId));
+//             }
+//         }));
     }
 
     /**
