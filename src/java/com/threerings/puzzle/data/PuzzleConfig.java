@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleConfig.java,v 1.5 2004/10/28 19:20:27 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -29,11 +29,6 @@ import com.threerings.parlor.game.GameConfig;
 public abstract class PuzzleConfig extends GameConfig
     implements Cloneable
 {
-    /**
-     * Returns the puzzle rating type.
-     */
-    public abstract byte getRatingTypeId ();
-
     /**
      * Constructs a blank puzzle config.
      */

@@ -1,5 +1,5 @@
 //
-// $Id: GameConfig.java,v 1.20 2004/10/22 18:50:51 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -50,6 +50,11 @@ public abstract class GameConfig extends PlaceConfig implements Cloneable
     /** Indicates whether or not this game is rated. */
     public boolean rated = true;
 
+    /**
+     * Returns the game rating type.
+     */
+    public abstract byte getRatingTypeId ();
+    
     /**
      * Returns a translatable label describing this game.
      */
