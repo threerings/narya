@@ -80,4 +80,14 @@
     </cbundle>
   </target>
 
+  <!-- test the tileset bundling process -->
+  <target name="tsbundles" description="Build tileset bundles.">
+    <taskdef name="tilebundle"
+      classname="com.threerings.media.tools.tile.bundle.TileSetBundlerTask"/>
+    <tilebundle config="${tbundle.dir}/bundler-config.xml"
+      mapfile="${tbundle.dir}/tilesets.map"
+      bundledef="${tbundle.dir}/ground/bundle.xml"
+      target="${tbundle.dir}/ground/bundle.jar"/>
+  </target>
+
 </project>
