@@ -31,6 +31,8 @@ import com.threerings.util.RandomUtil;
 import com.threerings.media.animation.Animation;
 import com.threerings.media.image.Mirage;
 
+import com.threerings.media.Log;
+
 /**
  * Displays a set of spark images originating from a specified position
  * and flying outward in random directions, fading out as they go, for a
