@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.1 2001/10/24 00:55:08 shaper Exp $
+// $Id: DirtyItemList.java,v 1.2 2001/10/25 01:42:49 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -17,9 +17,6 @@ import com.threerings.media.Log;
  */
 public class DirtyItemList extends ArrayList
 {
-    /** The dirty item comparator used to sort dirty items back to front. */
-    public static final Comparator DIRTY_COMP = new DirtyItemComparator();
-
     /**
      * Appends the dirty sprite at the given coordinates to the dirty
      * item list.
@@ -48,7 +45,7 @@ public class DirtyItemList extends ArrayList
     {
         DirtyItem items[] = new DirtyItem[size()];
         toArray(items);
-        Arrays.sort(items, DirtyItemList.DIRTY_COMP);
+        Arrays.sort(items, DIRTY_COMP);
         return items;
     }
 
@@ -59,9 +56,22 @@ public class DirtyItemList extends ArrayList
      */
     public class DirtyItem
     {
+        /** The dirtied object; one of either a sprite or an object tile. */
         public Object obj;
+
+        /** The bounds of the dirty item if it's an object tile. */
         public Shape bounds;
-        public int x, y;
+
+        /** The origin tile coordinates. */
+        public int ox, oy;
+
+        /** The leftmost tile coordinates. */
+        public int lx, ly;
+
+        /** The rightmost tile coordinates. */
+        public int rx, ry;
+
+        /** The dirty rectangle. */
         public Rectangle dirtyRect;
 
         /**
@@ -72,9 +82,20 @@ public class DirtyItemList extends ArrayList
         {
             this.obj = obj;
             this.bounds = bounds;
-            this.x = x;
-            this.y = y;
+            this.ox = x;
+            this.oy = y;
             this.dirtyRect = dirtyRect;
+
+            // calculate the item's leftmost and rightmost tiles.
+            // note that sprites occupy only a single tile, so
+            // leftmost and rightmost tiles are equivalent
+            lx = rx = ox;
+            ly = ry = oy;
+            if (obj instanceof ObjectTile) {
+                ObjectTile tile = (ObjectTile)obj;
+                lx -= (tile.baseWidth - 1);
+                ry -= (tile.baseHeight - 1);
+            }
         }
 
         /**
@@ -114,17 +135,19 @@ public class DirtyItemList extends ArrayList
             }
 
             // object-to-object or object-to-sprite are distinguished
-            // simply by tile coordinate since they can never occupy
-            // the same tile
-            return (x == b.x && y == b.y);
+            // simply by origin tile coordinate since they can never
+            // occupy the same tile
+            return (ox == b.ox && oy == b.oy);
         }
 
         public String toString ()
         {
-            return "[obj=" + obj + ", x=" + x + ", y=" + y +
-                ", drect=" + dirtyRect + "]";
+            return "[obj=" + obj + ", ox=" + ox + ", oy=" + oy + "]";
         }
     }
+
+    /** The dirty item comparator used to sort dirty items back to front. */
+    protected static final Comparator DIRTY_COMP = new DirtyItemComparator();
 
     /**
      * A comparator class for use in sorting the dirty sprites and
@@ -132,15 +155,15 @@ public class DirtyItemList extends ArrayList
      * suitable for rendering in the isometric view with proper visual
      * results.
      */
-    public static class DirtyItemComparator implements Comparator
+    protected static class DirtyItemComparator implements Comparator
     {
         public int compare (Object a, Object b)
         {
             DirtyItem da = (DirtyItem)a;
             DirtyItem db = (DirtyItem)b;
 
-            if (da.x == db.x &&
-                da.y == db.y &&
+            if (da.ox == db.ox &&
+                da.oy == db.oy &&
                 da.obj != db.obj) {
                 // we're comparing two sprites co-existing on the same
                 // tile, so study their fine coordinates to determine
@@ -148,12 +171,14 @@ public class DirtyItemList extends ArrayList
                 AmbulatorySprite as = (AmbulatorySprite)da.obj;
                 AmbulatorySprite bs = (AmbulatorySprite)db.obj;
 
-                int aloc = as.getFineX() + as.getFineY();
-                int bloc = bs.getFineX() + bs.getFineY();
+                int ahei = as.getFineX() + as.getFineY();
+                int bhei = bs.getFineX() + bs.getFineY();
 
-                if (aloc < bloc) {
+                if (ahei < bhei) {
+                    // item b is in front of item a
                     return -1;
-                } else if (aloc > bloc) {
+                } else if (ahei > bhei) {
+                    // item a is in front of item b
                     return 1;
                 } else {
                     // if they're at the same vertical row of
@@ -162,73 +187,19 @@ public class DirtyItemList extends ArrayList
                 }
             }
 
-            // check whether right edge of a overlaps with left edge of b
-            int comp = getRightOverlap(da, db);
-            if (comp != 0) {
-                return comp;
-            }
-
-            // check whether right edge of b overlaps with left edge of a
-            comp = getRightOverlap(db, da);
-            if (comp != 0) {
-                // reverse ordering per reversed overlap check
-                return (comp == -1) ? 1 : -1;
-            }
-
-            // determine ordering based purely on coordinates
-            if (da.x <= db.x && da.y <= db.y) {
+            if (da.lx > db.ox ||
+                da.ry > db.oy) {
+                // item a is in front of item b
+                return 1;
+            } else {
+                // item b is in front of item a
                 return -1;
             }
-
-            return 1;
         }
 
         public boolean equals (Object obj)
         {
 	    return (obj == this);
-        }
-
-        /**
-         * Checks the right edge of <code>da</code> to see whether it
-         * overlaps with the left edge of <code>db</code>.
-         *
-         * @return -1 if <code>da</code> should be rendered behind
-         * <code>db</code>, 0 if the right edge of <code>da</code>
-         * does not overlap with <code>db</code>, and 1 if
-         * <code>da</code> should be rendered in front of
-         * <code>db</code>.
-         */
-        protected int getRightOverlap (DirtyItem da, DirtyItem db)
-        {
-            int ax = da.x, bx = db.x;
-            int ay = da.y, by = db.y;
-
-            // get da's rightmost corner coordinate
-            if (da.obj instanceof ObjectTile) {
-                ay -= (((ObjectTile)da.obj).baseHeight - 1);
-            }
-
-            // get db's leftmost corner coordinate
-            if (db.obj instanceof ObjectTile) {
-                bx -= (((ObjectTile)db.obj).baseWidth - 1);
-            }
-
-            if (ax < bx && ay > by) {
-                // we most certainly don't overlap
-                return 0;
-            }
-
-            // calculate inequality constant for db's leftmost corner
-            int k = (bx + by);
-
-            // we need to determine whether to render da in front of
-            // db, so we check whether da's rightmost corner is above
-            // or below db's leftmost corner.
-            if (ay <= k - ax) {
-                return -1;
-            } else {
-                return 1;
-            }
         }
     }
 }
