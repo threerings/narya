@@ -1158,7 +1158,7 @@ public class SoundManager
 
         /** The maximum time a spooler will wait for a stream before
          * deciding to shut down. */
-        protected static final long MAX_WAIT_TIME = 30000L;
+        protected static final long MAX_WAIT_TIME = 1000L;
 
         /** The maximum number of spoolers we'll allow. This is a lot. */
         protected static final int MAX_SPOOLERS = 12;
