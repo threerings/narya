@@ -1,5 +1,5 @@
 //
-// $Id: SceneController.java,v 1.2 2003/06/11 04:14:11 mdb Exp $
+// $Id: SceneController.java,v 1.3 2003/06/11 17:06:42 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -26,7 +26,7 @@ public abstract class SceneController extends PlaceController
     public void init (CrowdContext ctx, PlaceConfig config)
     {
         super.init(ctx, config);
-        _ctx = (WhirledContext)ctx;
+        _wctx = (WhirledContext)ctx;
     }
 
     // documentation inherited
@@ -52,7 +52,7 @@ public abstract class SceneController extends PlaceController
     protected void sceneUpdated (SceneUpdate update)
     {
         // apply the update to the scene
-        _ctx.getSceneDirector().getScene().updateReceived(update);
+        _wctx.getSceneDirector().getScene().updateReceived(update);
 
         // we don't persistify these updates in this circumstance, but
         // next time we come to this scene we'll redownload the update and
@@ -69,5 +69,5 @@ public abstract class SceneController extends PlaceController
         }
     };
 
-    protected WhirledContext _ctx;
+    protected WhirledContext _wctx;
 }
