@@ -1,5 +1,5 @@
 //
-// $Id: KeyboardManager.java,v 1.9 2002/01/19 01:19:56 shaper Exp $
+// $Id: KeyboardManager.java,v 1.10 2002/01/19 06:07:20 shaper Exp $
 
 package com.threerings.util;
 
@@ -50,7 +50,6 @@ public class KeyboardManager
         target.addAncestorListener(new AncestorAdapter() {
             public void ancestorAdded (AncestorEvent e) {
                 KeyboardManager.this.gainedFocus();
-                // add the window focus listener if it's not yet present
                 if (_wadapter == null) {
                     addWindowListener();
                 }
@@ -119,8 +118,9 @@ public class KeyboardManager
      */
     protected boolean dispatchKeyEvent (KeyEvent e)
     {
-        // bail if we're not enabled or we haven't the focus
-        if (!_enabled || !_focus) {
+        // bail if we're not enabled, we haven't the focus, or we're not
+        // showing on-screen
+        if (!_enabled || !_focus || !_target.isShowing()) {
             return false;
         }
 
@@ -132,6 +132,10 @@ public class KeyboardManager
 
         case KeyEvent.KEY_RELEASED:
             KeyboardManager.this.keyReleased(e);
+            return true;
+
+        case KeyEvent.KEY_TYPED:
+            // silently absorb key typed events
             return true;
 
         default:
@@ -454,7 +458,7 @@ public class KeyboardManager
     protected HashIntMap _keys = new HashIntMap();
 
     /** Whether the keyboard manager currently has the keyboard focus. */
-    protected boolean _focus = true;
+    protected boolean _focus = false;
 
     /** Whether the keyboard manager is accepting keyboard input. */
     protected boolean _enabled = true;
