@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.20 2003/04/28 21:02:54 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.21 2003/04/28 21:10:19 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -530,12 +530,12 @@ public class MisoScenePanel extends VirtualMediaPanel
             setViewLocation(_nx+dx, _ny+dy);
             _rsize.setSize(width, height);
 
-            // make a note that we should not repaint until we get all of
-            // our blocks
-            _delayRepaint = true;
-
             // ...and force a rethink
-            rethink();
+            if (rethink() > 0) {
+                // make a note that we should not repaint until we get all
+                // of our blocks
+                _delayRepaint = true;
+            }
         }
     }
 
@@ -589,8 +589,10 @@ public class MisoScenePanel extends VirtualMediaPanel
      * <li> Flush any blocks that are no longer influential.
      * <li> Recompute the list of potentially visible scene objects.
      * </ul>
+     *
+     * @return the count of blocks pending after this rethink.
      */
-    protected void rethink ()
+    protected int rethink ()
     {
         // recompute our "area of influence"
         computeInfluentialBounds();
@@ -601,7 +603,7 @@ public class MisoScenePanel extends VirtualMediaPanel
 
         // not to worry if we presently have no scene model
         if (_model == null) {
-            return;
+            return 0;
         }
 
         // compute the intersecting set of blocks
@@ -642,6 +644,8 @@ public class MisoScenePanel extends VirtualMediaPanel
 
         // recompute our visible object set
         recomputeVisible();
+
+        return _pendingBlocks;
     }
 
     /**
