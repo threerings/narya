@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.15 2003/07/18 01:58:38 eric Exp $
+// $Id: SpeakProvider.java,v 1.16 2003/09/11 16:36:39 mdb Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -48,6 +48,18 @@ public class SpeakProvider
     }
 
     /**
+     * An interface used to notify external systems whenever a chat
+     * message is spoken by one user and heard by another.
+     */
+    public static interface MessageObserver
+    {
+        /**
+         * Called for each player that hears a particular chat message.
+         */
+        public void messageDelivered (String hearer, UserMessage message);
+    }
+
+    /**
      * Creates a speak provider that will provide speech on the supplied
      * distributed object.
      *
@@ -71,7 +83,25 @@ public class SpeakProvider
     {
         _comAuth = comAuth;
     }
-    
+
+    /**
+     * Registers a {@link MessageObserver} to be notified whenever a
+     * user-originated chat message is heard by another user.
+     */
+    public static void registerMessageObserver (MessageObserver obs)
+    {
+        _messageObs.add(obs);
+    }
+
+    /**
+     * Removes a registration made previously with {@link
+     * #registerMessageObserver}.
+     */
+    public static void removeMessageObserver (MessageObserver obs)
+    {
+        _messageObs.remove(obs);
+    }
+
     /**
      * Handles a {@link SpeakService#speak} request.
      */
@@ -281,6 +311,10 @@ public class SpeakProvider
             pruneHistory(msg.timestamp, history);
         }
         // Log.info("Noted that " + username + " heard " + msg + ".");
+
+        // notify any message observers
+        _messageOp.init(username, msg);
+        _messageObs.apply(_messageOp);
     }
 
     /**
@@ -336,6 +370,23 @@ public class SpeakProvider
         }
     }
 
+    /** Used to notify our {@link MessageObserver}s. */
+    protected static class MessageObserverOp implements ObserverList.ObserverOp
+    {
+        public void init (String hearer, UserMessage message) {
+            _hearer = hearer;
+            _message = message;
+        }
+
+        public boolean apply (Object observer) {
+            ((MessageObserver)observer).messageDelivered(_hearer, _message);
+            return true;
+        }
+
+        protected String _hearer;
+        protected UserMessage _message;
+    }
+
     /** Our speech object. */
     protected DObject _speakObj;
 
@@ -353,6 +404,13 @@ public class SpeakProvider
 
     /** Used to note the recipients of a chat message. */
     protected static MessageMapper _messageMapper = new MessageMapper();
+
+    /** A list of {@link MessageObserver}s. */
+    protected static ObserverList _messageObs = new ObserverList(
+        ObserverList.FAST_UNSAFE_NOTIFY);
+
+    /** Used to notify our {@link MessageObserver}s. */
+    protected static MessageObserverOp _messageOp = new MessageObserverOp();
 
     /** The amount of time before chat history becomes... history. */
     protected static final long HISTORY_EXPIRATION = 5L * 60L * 1000L;
