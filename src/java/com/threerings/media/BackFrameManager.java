@@ -1,5 +1,5 @@
 //
-// $Id: BackFrameManager.java,v 1.5 2003/05/02 18:46:42 mdb Exp $
+// $Id: BackFrameManager.java,v 1.6 2003/11/25 19:42:54 mdb Exp $
 
 package com.threerings.media;
 
@@ -46,7 +46,7 @@ public class BackFrameManager extends FrameManager
             // if the image wasn't A-OK, we need to rerender the whole
             // business rather than just the dirty parts
             if (valres != VolatileImage.IMAGE_OK) {
-                Log.info("Lost back buffer, redrawing " + valres);
+                // Log.info("Lost back buffer, redrawing " + valres);
                 if (_bgfx != null) {
                     _bgfx.dispose();
                 }
