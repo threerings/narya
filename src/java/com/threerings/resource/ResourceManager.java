@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.3 2001/11/20 00:21:41 mdb Exp $
+// $Id: ResourceManager.java,v 1.4 2001/11/20 00:23:32 mdb Exp $
 
 package com.threerings.resource;
 
@@ -263,6 +263,18 @@ public class ResourceManager
         // if we still haven't found it, we throw an exception
         String errmsg = "Unable to locate resource [path=" + path + "]";
         throw new FileNotFoundException(errmsg);
+    }
+
+    /**
+     * Returns a reference to the resource set with the specified name, or
+     * null if no set exists with that name. Services that wish to load
+     * their own resources can allow the resource manager to load up a
+     * resource set for them, from which they can easily load their
+     * resources.
+     */
+    public ResourceBundle[] getResourceSet (String name)
+    {
+        return (ResourceBundle[])_sets.get(name);
     }
 
     /** The classloader we use for classpath-based resource loading. */
