@@ -1,5 +1,5 @@
 //
-// $Id: ObjectSet.java,v 1.2 2003/04/22 01:57:44 mdb Exp $
+// $Id: ObjectSet.java,v 1.3 2003/06/12 05:24:08 mdb Exp $
 
 package com.threerings.miso.util;
 
@@ -102,6 +102,16 @@ public class ObjectSet
     {
         _size = 0;
         Arrays.fill(_objs, null);
+    }
+
+    /**
+     * Converts the contents of this object set to an array.
+     */
+    public ObjectInfo[] toArray ()
+    {
+        ObjectInfo[] info = new ObjectInfo[_size];
+        System.arraycopy(_objs, 0, info, 0, _size);
+        return info;
     }
 
     /**
