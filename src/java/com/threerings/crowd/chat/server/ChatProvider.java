@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.30 2004/08/27 02:12:32 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -30,6 +30,7 @@ import com.threerings.util.TimeUtil;
 
 import com.threerings.presents.client.InvocationService.InvocationListener;
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
 
 import com.threerings.presents.server.InvocationException;
@@ -84,6 +85,18 @@ public class ChatProvider
         CommunicationAuthorizer comAuth)
     {
         _comAuth = comAuth;
+    }
+
+    /**
+     * Set an object to which all broadcasts should be sent, rather
+     * than iterating over the place objects and sending to each of them.
+     *
+     * @param object an object to send all broadcasts, or null to send to
+     * each place object instead.
+     */
+    public static void setAlternateBroadcastObject (DObject object)
+    {
+        _broadcastObject = object;
     }
 
     /**
@@ -176,22 +189,36 @@ public class ChatProvider
     public static void broadcast (Name from, String bundle, String msg,
                                   boolean attention)
     {
-        Iterator iter = CrowdServer.plreg.enumeratePlaces();
-        while (iter.hasNext()) {
-            PlaceObject plobj = (PlaceObject)iter.next();
-            if (plobj.shouldBroadcast()) {
-                if (from == null) {
-                    if (attention) {
-                        SpeakProvider.sendAttention(plobj, bundle, msg);
-                    } else {
-                        SpeakProvider.sendInfo(plobj, bundle, msg);
-                    }
+        if (_broadcastObject != null) {
+            broadcastTo(_broadcastObject, from, bundle, msg, attention);
 
-                } else {
-                    SpeakProvider.sendSpeak(plobj, from, bundle, msg,
-                                            BROADCAST_MODE);
+        } else {
+            Iterator iter = CrowdServer.plreg.enumeratePlaces();
+            while (iter.hasNext()) {
+                PlaceObject plobj = (PlaceObject)iter.next();
+                if (plobj.shouldBroadcast()) {
+                    broadcastTo(plobj, from, bundle, msg, attention);
                 }
             }
+        }
+    }
+
+    /**
+     * Direct a broadcast to the specified object.
+     */
+    protected static void broadcastTo (DObject object,
+        Name from, String bundle, String msg, boolean attention)
+    {
+        if (from == null) {
+            if (attention) {
+                SpeakProvider.sendAttention(object, bundle, msg);
+            } else {
+                SpeakProvider.sendInfo(object, bundle, msg);
+            }
+
+        } else {
+            SpeakProvider.sendSpeak(object, from, bundle, msg,
+                                    BROADCAST_MODE);
         }
     }
 
@@ -239,4 +266,7 @@ public class ChatProvider
 
     /** The entity that will authorize our chatters. */
     protected static CommunicationAuthorizer _comAuth;
+
+    /** An alternative object to which broadcasts should be sent. */
+    protected static DObject _broadcastObject;
 }
