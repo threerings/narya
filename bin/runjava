@@ -62,8 +62,8 @@ if (opendir(DIR, "$root/lib")) {
     closedir DIR;
 }
 
-# specify our server root (this is for server code)
-my $rootarg = "-Droot=$root";
+# specify our application root (the resource manager needs this)
+my $rootarg = "-Dapplication.root=$root";
 
 my $pid_file = undef;
 my $i = 0;
@@ -86,7 +86,7 @@ for ($i = 0; $i < @ARGV; $i++) {
 	$i -= 1; # decrement i so that things stay in sync
 
     } elsif ($arg eq "-r") {
-        $rootarg = "-Droot=" . $ARGV[$i+1];
+        $rootarg = "-DDapplication.root=" . $ARGV[$i+1];
         splice(@ARGV, $i, 2);
 	$i -= 1; # decrement i so that things stay in sync
     }
