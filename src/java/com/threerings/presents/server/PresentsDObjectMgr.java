@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.32 2003/05/22 17:23:53 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.33 2003/06/12 22:10:07 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -918,7 +918,7 @@ public class PresentsDObjectMgr
     protected HashMap _profiles = new HashMap();
 
     /** Indicates whether or not profiling is enabled. */
-    protected static final boolean UNIT_PROFILING = false;
+    protected static final boolean UNIT_PROFILING = true;
 
     /** Check whether we should generate a report every 100 events. */
     protected static final long REPORT_CHECK_PERIOD = 100;
