@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.37 2003/08/16 04:14:56 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.38 2004/02/09 02:08:28 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -7,6 +7,8 @@ import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+
+import sun.misc.Perf;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Histogram;
@@ -173,8 +175,8 @@ public class PresentsDObjectMgr
             // pop the next unit off the queue
             Object unit = _evqueue.get();
             long start = 0L;
-            if (UNIT_PROFILING) {
-                start = System.currentTimeMillis();
+            if (_eventCount % UNIT_PROFILING_INTERVAL == 0) {
+                start = _timer.highResCounter();
             }
 
             // if this is a runnable, it's just an executable unit that
@@ -194,11 +196,14 @@ public class PresentsDObjectMgr
                 processEvent((DEvent)unit);
             }
 
-            if (UNIT_PROFILING) {
-                long elapsed = System.currentTimeMillis() - start;
+            if (start != 0L) {
+                long elapsed = _timer.highResCounter() - start;
+
+                // convert the elapsed time to microseconds
+                elapsed = elapsed * 1000000 / _timer.highResFrequency();
 
                 // report excessively long units
-                if (elapsed > 500) {
+                if (elapsed > 500000) {
                     Log.warning("Unit '" + StringUtil.safeToString(unit) +
                                 " [" + StringUtil.shortClassName(unit) +
                                 "]' ran for " + elapsed + "ms.");
@@ -338,15 +343,10 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Dumps collected profiling information to the system log. Does
-     * nothing if unit profiling is not enabled.
+     * Dumps collected profiling information to the system log.
      */
     public void dumpUnitProfiles ()
     {
-        if (!UNIT_PROFILING) {
-            return;
-        }
-
         Iterator iter = _profiles.keySet().iterator();
         while (iter.hasNext()) {
             String cname = (String)iter.next();
@@ -858,34 +858,20 @@ public class PresentsDObjectMgr
     {
         public void record (long start, long elapsed)
         {
-            if (start - _lastRecorded > RECENT_INTERVAL) {
-                _recentElapsed = 0L;
-                _recentCount = 0;
-            }
-
-            _recentElapsed += elapsed;
-            _recentCount++;
             _totalElapsed += elapsed;
-            _lastRecorded = start;
             _histo.addValue((int)elapsed);
         }
 
         public String toString ()
         {
             int count = _histo.size();
-            return "r:" + _recentElapsed + " t:" + _totalElapsed +
-                " c:" + count + " ra:" + (_recentElapsed/_recentCount) +
-                " ta:" + (_totalElapsed/count) +
-                " h:" + StringUtil.toString(_histo.getBuckets());
+            return "(" + _totalElapsed + "us/" + count + " = " +
+                (_totalElapsed/count) + "us avg) " +
+                StringUtil.toString(_histo.getBuckets());
         }
 
-        protected long _lastRecorded;
-        protected int _recentCount;
-        protected long _recentElapsed;
         protected long _totalElapsed;
-        protected Histogram _histo = new Histogram(0, 50, 10);
-
-        protected static final long RECENT_INTERVAL = 5 * 60 * 1000L;
+        protected Histogram _histo = new Histogram(0, 20000, 10);
     }
 
     /** A flag indicating that the event dispatcher is still running. */
@@ -921,11 +907,14 @@ public class PresentsDObjectMgr
      * should not be called from the event dispatch thread. */
     protected Thread _dobjThread;
 
+    /** Used during unit profiling for timing values. */
+    protected Perf _timer = Perf.getPerf();
+
     /** Used to profile our events and runnable units. */
     protected HashMap _profiles = new HashMap();
 
-    /** Indicates whether or not profiling is enabled. */
-    protected static final boolean UNIT_PROFILING = true;
+    /** The frequency with which we take a profiling sample. */
+    protected static final int UNIT_PROFILING_INTERVAL = 100;
 
     /** Check whether we should generate a report every 100 events. */
     protected static final long REPORT_CHECK_PERIOD = 100;
