@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.22 2003/04/28 21:46:33 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.23 2003/04/30 20:48:51 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -971,7 +971,7 @@ public class MisoScenePanel extends VirtualMediaPanel
      */
     protected void paintBits (Graphics2D gfx, int layer, Rectangle dirty)
     {
-        _animmgr.renderMedia(gfx, layer, dirty);
+        _animmgr.paint(gfx, layer, dirty);
     }
 
     /**
