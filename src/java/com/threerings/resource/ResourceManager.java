@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.34 2003/08/09 05:51:12 mdb Exp $
+// $Id: ResourceManager.java,v 1.35 2003/08/15 23:23:05 mdb Exp $
 
 package com.threerings.resource;
 
@@ -264,25 +264,7 @@ public class ResourceManager
                         ", error=" + mue + "].");
         }
 
-        // now attempt to locate the dynamic resource URL
-        try {
-            String dynResURL = System.getProperty("dyn_rsrc_url");
-            if (dynResURL != null) {
-                // make sure there's a slash at the end of the URL
-                if (!dynResURL.endsWith("/")) {
-                    dynResURL += "/";
-                }
-                try {
-                    _drurl = new URL(dynResURL);
-                } catch (MalformedURLException mue) {
-                    Log.warning("Invalid dynamic resource URL " +
-                                "[url=" + dynResURL + ", error=" + mue + "].");
-                }
-            }
-        } catch (SecurityException se) {
-        }
-
-        // if no dynamic resource URL was specified, use the normal
+        // if no dynamic resource URL has been specified, use the normal
         // resource URL in its stead
         if (_drurl == null) {
             _drurl = _rurl;
@@ -312,6 +294,26 @@ public class ResourceManager
             downloadBlocking(dlmgr, dlist);
         } else {
             downloadNonBlocking(dlmgr, dlist, downloadObs);
+        }
+    }
+
+    /**
+     * Configures the resource manager with a custom dynamic resource
+     * URL. If it is not thusly configured, it will use the normal
+     * resource URL for dynamic resources.
+     */
+    public void setDynamicResourceURL (String dynResURL)
+    {
+        // make sure there's a slash at the end of the URL
+        if (!dynResURL.endsWith("/")) {
+            dynResURL += "/";
+        }
+
+        try {
+            _drurl = new URL(dynResURL);
+        } catch (MalformedURLException mue) {
+            Log.warning("Invalid dynamic resource URL " +
+                        "[url=" + dynResURL + ", error=" + mue + "].");
         }
     }
 
