@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.36 2001/09/28 01:31:32 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.37 2001/09/28 01:46:10 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -100,8 +100,7 @@ public class MisoSceneImpl implements EditableMisoScene
     // documentation inherited
     public int getVersion ()
     {
-        // fake it for now
-        return 1;
+        return _version;
     }
 
     // documentation inherited
@@ -144,6 +143,18 @@ public class MisoSceneImpl implements EditableMisoScene
     public Portal getEntrance ()
     {
         return _entrance;
+    }
+
+    // documentation inherited
+    public void setId (int sceneId)
+    {
+        _sid = sceneId;
+    }
+
+    // documentation inherited
+    public void setVersion (int version)
+    {
+        _version = version;
     }
 
     // documentation inherited
@@ -245,6 +256,9 @@ public class MisoSceneImpl implements EditableMisoScene
 
     /** The unique scene id. */
     protected int _sid;
+
+    /** The scene version. */
+    protected int _version;
 
     /** The tiles comprising the scene. */
     public Tile[][][] _tiles;
