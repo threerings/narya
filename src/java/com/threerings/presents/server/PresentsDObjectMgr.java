@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.24 2002/03/20 03:23:00 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.25 2002/07/17 01:54:33 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -431,7 +431,8 @@ public class PresentsDObjectMgr implements RootDObjectManager
 
         // look for the matching reference
         for (int i = 0; i < refs.length; i++) {
-            if (refs[i].equals(toid, field)) {
+            Reference ref = refs[i];
+            if (ref != null && ref.equals(toid, field)) {
 //                  Log.info("Removed reference " + refs[i] + ".");
                 refs[i] = null;
                 return true;
