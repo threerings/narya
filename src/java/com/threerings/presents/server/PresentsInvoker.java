@@ -65,12 +65,14 @@ public class PresentsInvoker extends Invoker
         buffer.append("- Units executed: ").append(_unitsRun).append("\n");
         _unitsRun = 0;
         for (Iterator iter = _tracker.keySet().iterator(); iter.hasNext(); ) {
-            Class key = (Class)iter.next();
-            Histogram histo = (Histogram)_tracker.get(key);
-            buffer.append("  ");
-            buffer.append(StringUtil.shortClassName(key)).append(": ");
-            buffer.append(histo.summarize()).append("\n");
-            histo.clear();
+            Object key = iter.next();
+            UnitProfile profile = (UnitProfile)_tracker.get(key);
+            if (key instanceof Class) {
+                key = StringUtil.shortClassName((Class)key);
+            }
+            buffer.append("  ").append(key).append(" ");
+            buffer.append(profile).append("\n");
+            profile.clear();
         }
     }
 
