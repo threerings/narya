@@ -1,5 +1,5 @@
 //
-// $Id: AnimationSequencer.java,v 1.9 2002/11/05 23:56:35 mdb Exp $
+// $Id: AnimationSequencer.java,v 1.10 2002/11/06 00:05:16 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -195,6 +195,7 @@ public abstract class AnimationSequencer extends Animation
 
         public void fireCompletion (long when)
         {
+//             Log.info("Completing " + this + " at " + (when%100000) + ".");
             // call the completion action, if there is one
             if (_completionAction != null) {
                 try {
@@ -219,6 +220,14 @@ public abstract class AnimationSequencer extends Animation
             if (event instanceof AnimationCompletedEvent) {
                 fireCompletion(event.getWhen());
             }
+        }
+
+        public String toString ()
+        {
+            return "[anim=" + ((_anim == null) ? "<none>" :
+                               _anim.getClass().getName()) +
+                ", action=" + (_completionAction != null) +
+                ", delta=" + _delta + ", trigger=" + (_trigger != null) + "]";
         }
 
         protected Animation _anim;
