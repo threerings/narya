@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.42 2002/02/19 01:27:48 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.43 2002/03/27 20:31:11 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -48,8 +48,8 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 	super(new IsoSceneViewModel(ctx.getConfig()));
 
         // create the character descriptors
-        _descUser = CastUtil.getRandomDescriptor(crepo);
-        _descDecoy = CastUtil.getRandomDescriptor(crepo);
+        _descUser = CastUtil.getRandomDescriptor("male", crepo);
+        _descDecoy = CastUtil.getRandomDescriptor("male", crepo);
 
         // create the manipulable sprite
         _sprite = createSprite(_spritemgr, charmgr, _descUser);

@@ -1,5 +1,5 @@
 //
-// $Id: CastUtil.java,v 1.6 2002/03/08 22:37:50 mdb Exp $
+// $Id: CastUtil.java,v 1.7 2002/03/27 20:31:11 mdb Exp $
 
 package com.threerings.cast.util;
 
@@ -7,12 +7,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.samskivert.util.CollectionUtil;
+import com.samskivert.util.StringUtil;
 import com.threerings.media.util.RandomUtil;
 
 import com.threerings.cast.CharacterDescriptor;
 import com.threerings.cast.CharacterManager;
 import com.threerings.cast.ComponentClass;
 import com.threerings.cast.ComponentRepository;
+import com.threerings.cast.Log;
 
 /**
  * Miscellaneous cast utility routines.
@@ -24,12 +26,19 @@ public class CastUtil
      * components.
      */
     public static CharacterDescriptor getRandomDescriptor (
-        ComponentRepository crepo)
+        String gender, ComponentRepository crepo)
     {
         // get all available classes
         ArrayList classes = new ArrayList();
         for (int i = 0; i < CLASSES.length; i++) {
-            classes.add(crepo.getComponentClass(CLASSES[i]));
+            String cname = gender + "/" + CLASSES[i];
+            ComponentClass cclass = crepo.getComponentClass(cname);
+            if (cclass == null) {
+                Log.warning("Missing definition for component class " +
+                            "[class=" + cname + "].");
+            } else {
+                classes.add(cclass);
+            }
         }
 
         // select the components
