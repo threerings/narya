@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.23 2002/09/19 23:36:59 mdb Exp $
+// $Id: ClientManager.java,v 1.24 2002/09/24 00:51:01 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -247,7 +247,7 @@ public class ClientManager implements ConnectionObserver
         PresentsClient client = (PresentsClient)_usermap.get(creds);
 
         if (client != null) {
-            Log.info("Session resumed [username=" + username +
+            Log.info("Resuming session [username=" + username +
                      ", conn=" + conn + "].");
             client.resumeSession(conn);
 
@@ -265,8 +265,7 @@ public class ClientManager implements ConnectionObserver
 
             } catch (Exception e) {
                 Log.warning("Failed to instantiate client instance to " +
-                            "manage new client connection " +
-                            "[conn=" + conn + "].");
+                            "manage new client connection '" + conn + "'.");
                 Log.logStackTrace(e);
             }
         }
@@ -276,15 +275,14 @@ public class ClientManager implements ConnectionObserver
     }
 
     // documentation inherited
-    public synchronized
-        void connectionFailed (Connection conn, IOException fault)
+    public synchronized void connectionFailed (
+        Connection conn, IOException fault)
     {
         // remove the client from the connection map
         PresentsClient client = (PresentsClient)_conmap.remove(conn);
         if (client != null) {
             Log.info("Unmapped failed client [client=" + client +
                      ", conn=" + conn + ", fault=" + fault + "].");
-            Log.logStackTrace(fault);
             // let the client know the connection went away
             client.wasUnmapped();
             // and let the client know things went haywire
@@ -303,16 +301,14 @@ public class ClientManager implements ConnectionObserver
         // remove the client from the connection map
         PresentsClient client = (PresentsClient)_conmap.remove(conn);
         if (client != null) {
-            Log.info("Unmapped client [client=" + client +
-                     ", conn=" + conn + "].");
+            Log.debug("Unmapped client [client=" + client +
+                      ", conn=" + conn + "].");
             // let the client know the connection went away
             client.wasUnmapped();
 
         } else {
-            // TODO: possibly remove this log message, can this happen
-            // normally?
-            Log.info("Closed unmapped connection? [conn=" + conn + "].");
-            Thread.dumpStack();
+            Log.info("Closed unmapped connection '" + conn + "'. " +
+                     "Client probably not yet authenticated.");
         }
     }
 
@@ -330,8 +326,7 @@ public class ClientManager implements ConnectionObserver
 
         // sanity check just because we can
         if (rc == null) {
-            Log.warning("Unregistered client ended session " +
-                        "[client=" + client + "].");
+            Log.warning("Unregistered client ended session " + client + ".");
             Thread.dumpStack();
 
             // if they weren't in the username mapping, bail out now
@@ -343,7 +338,7 @@ public class ClientManager implements ConnectionObserver
             Log.warning("Different clients with same username!? " +
                         "[c1=" + rc + ", c2=" + client + "].");
         } else {
-            Log.info("Ending session [client=" + client + "].");
+            Log.info("Ending session " + client + ".");
         }
 
         // unmap (and destroy) the client object

@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.39 2002/09/20 20:42:37 mdb Exp $
+// $Id: PresentsClient.java,v 1.40 2002/09/24 00:50:45 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -302,7 +302,7 @@ public class PresentsClient
         // already got our client object
         sendBootstrap();
 
-        Log.info("Session resumed [client=" + this + "].");
+        Log.info("Session resumed " + this + ".");
     }
 
     /**
@@ -435,7 +435,7 @@ public class PresentsClient
      */
     protected void sendBootstrap ()
     {
-        Log.info("Sending bootstrap [client=" + this + "].");
+        Log.info("Sending bootstrap " + this + ".");
 
         // create and populate our bootstrap data
         BootstrapData data = createBootstrapData();
@@ -705,7 +705,7 @@ public class PresentsClient
                 PingRequest req = (PingRequest)msg;
                 conn.postMessage(new PongResponse(req.getUnpackStamp()));
             } else {
-                Log.info("Dropped pong response [client=" + client + "].");
+                Log.info("Dropped pong response " + client + ".");
             }
         }
     }
@@ -717,8 +717,7 @@ public class PresentsClient
     {
         public void dispatch (final PresentsClient client, UpstreamMessage msg)
         {
-            Log.info("Client requested logoff " +
-                     "[client=" + client + "].");
+            Log.debug("Client requested logoff " + client + ".");
 
             // queue up a runnable on the object manager thread where we
             // can safely end the session
