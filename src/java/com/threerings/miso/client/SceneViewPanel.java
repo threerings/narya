@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.26 2002/01/31 01:07:02 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.27 2002/02/12 08:53:59 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -106,9 +106,62 @@ public class SceneViewPanel extends AnimatedPanel
     }
 
     // documentation inherited
+    public void validate ()
+    {
+        super.validate();
+
+        // figure out our translations
+        Dimension size = getSize();
+        _tx = (_viewmodel.bounds.width - size.width)/2;
+        _ty = (_viewmodel.bounds.height - size.height)/2;
+    }
+
+    /**
+     * We overload this to translate mouse events into the proper
+     * coordinates before they are dispatched to any of the mouse
+     * listeners.
+     */
+    protected void processMouseEvent (MouseEvent event)
+    {
+        event.translatePoint(_tx, _ty);
+        super.processMouseEvent(event);
+    }
+
+    /**
+     * We overload this to translate mouse events into the proper
+     * coordinates before they are dispatched to any of the mouse
+     * listeners.
+     */
+    protected void processMouseMotionEvent (MouseEvent event)
+    {
+        event.translatePoint(_tx, _ty);
+        super.processMouseMotionEvent(event);
+    }
+
+    // documentation inherited
     protected void render (Graphics2D gfx)
     {
+        // translate into happy space
+        gfx.translate(-_tx, -_ty);
+
+        // render the view
         _view.paint(gfx);
+
+        // give derived classes a chance to render on top of the view
+        renderOnView(gfx);
+
+        // translate back out of happy space
+        gfx.translate(_tx, _ty);
+    }
+
+    /**
+     * Provides an opportunity for derived classes to render things while
+     * under the influence of the proper coordinate translations. This is
+     * called after the view is rendered, so things drawn here appear on
+     * top of the scene view.
+     */
+    protected void renderOnView (Graphics2D gfx)
+    {
     }
 
     // documentation inherited
@@ -150,4 +203,7 @@ public class SceneViewPanel extends AnimatedPanel
 
     /** A reference to the active sprite manager. */
     protected SpriteManager _spritemgr;
+
+    /** Our rendering translation. */
+    protected int _tx, _ty;
 }
