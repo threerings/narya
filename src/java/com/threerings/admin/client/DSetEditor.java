@@ -1,5 +1,5 @@
 //
-// $Id: DSetEditor.java,v 1.8 2004/10/26 21:05:27 mdb Exp $
+// $Id: DSetEditor.java,v 1.9 2004/11/04 00:38:12 ray Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -52,7 +52,7 @@ import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.SetListener;
 
 /**
- * Allows simple editing of DSets withing a distributed object.
+ * Allows simple editing of DSets within a distributed object.
  */
 public class DSetEditor extends JPanel
     implements AttributeChangeListener, SetListener, ActionListener
