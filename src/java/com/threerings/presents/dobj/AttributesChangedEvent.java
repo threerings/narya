@@ -1,5 +1,5 @@
 //
-// $Id: AttributesChangedEvent.java,v 1.1 2001/06/01 07:12:13 mdb Exp $
+// $Id: AttributesChangedEvent.java,v 1.2 2001/06/02 01:30:37 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -137,6 +137,19 @@ public class AttributesChangedEvent extends DEvent
     public double getDoubleValue (int index)
     {
         return ((Double)_values[index]).doubleValue();
+    }
+
+    /**
+     * Applies this attribute change to the object.
+     */
+    public boolean applyToObject (DObject target)
+        throws ObjectAccessException
+    {
+        // pass the new values on to the object
+        for (int i = 0; i < _count; i++) {
+            target.setAttribute(_names[i], _values[i]);
+        }
+        return true;
     }
 
     protected int _count;

@@ -1,5 +1,5 @@
 //
-// $Id: UsernamePasswordCreds.java,v 1.4 2001/05/30 23:58:31 mdb Exp $
+// $Id: UsernamePasswordCreds.java,v 1.5 2001/06/02 01:30:37 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -24,7 +24,7 @@ public class UsernamePasswordCreds extends Credentials
      */
     public UsernamePasswordCreds (String username, String password)
     {
-        _username = username;
+        super(username);
         _password = password;
     }
 
@@ -33,11 +33,15 @@ public class UsernamePasswordCreds extends Credentials
         return TYPE;
     }
 
+    public String getPassword ()
+    {
+        return _password;
+    }
+
     public void writeTo (DataOutputStream out)
         throws IOException
     {
         super.writeTo(out);
-        out.writeUTF(_username);
         out.writeUTF(_password);
     }
 
@@ -45,10 +49,13 @@ public class UsernamePasswordCreds extends Credentials
         throws IOException
     {
         super.readFrom(in);
-        _username = in.readUTF();
         _password = in.readUTF();
     }
 
-    protected String _username;
+    public String toString ()
+    {
+        return "[username=" + _username + ", password=" + _password + "]";
+    }
+
     protected String _password;
 }

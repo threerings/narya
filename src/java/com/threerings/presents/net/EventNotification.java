@@ -1,5 +1,5 @@
 //
-// $Id: EventNotification.java,v 1.4 2001/05/30 23:59:16 mdb Exp $
+// $Id: EventNotification.java,v 1.5 2001/06/02 01:30:37 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.threerings.cocktail.cher.dobj.Event;
+import com.threerings.cocktail.cher.dobj.DEvent;
 
 public class EventNotification extends DownstreamMessage
 {
@@ -25,7 +25,7 @@ public class EventNotification extends DownstreamMessage
     /**
      * Constructs an event notification for the supplied event.
      */
-    public EventNotification (Event event)
+    public EventNotification (DEvent event)
     {
         _event = event;
     }
@@ -50,5 +50,5 @@ public class EventNotification extends DownstreamMessage
     }
 
     /** The event which we are forwarding. */
-    protected Event _event;
+    protected DEvent _event;
 }

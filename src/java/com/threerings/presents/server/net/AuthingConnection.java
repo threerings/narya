@@ -1,5 +1,5 @@
 //
-// $Id: AuthingConnection.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
+// $Id: AuthingConnection.java,v 1.3 2001/06/02 01:30:37 mdb Exp $
 
 package com.threerings.cocktail.cher.server.net;
 
@@ -14,7 +14,8 @@ import com.threerings.cocktail.cher.net.AuthRequest;
  * The authing connection manages the client connection until
  * authentication has completed (for better or for worse).
  */
-public class AuthingConnection extends Connection
+public class AuthingConnection
+    extends Connection implements MessageHandler
 {
     /**
      * Creates a new authing connection object that will manage the
@@ -25,6 +26,8 @@ public class AuthingConnection extends Connection
         throws IOException
     {
         super(cmgr, socket);
+        // we are our own message handler
+        setMessageHandler(this);
     }
 
     /**
@@ -53,6 +56,11 @@ public class AuthingConnection extends Connection
     public AuthRequest getAuthRequest ()
     {
         return _authreq;
+    }
+
+    public String toString ()
+    {
+        return "[mode=AUTHING, addr=" + _socket.getInetAddress() + "]";
     }
 
     protected int _state = AWAITING_AUTH_REQUEST;

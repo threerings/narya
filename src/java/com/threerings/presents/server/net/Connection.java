@@ -1,5 +1,5 @@
 //
-// $Id: Connection.java,v 1.3 2001/06/01 22:12:03 mdb Exp $
+// $Id: Connection.java,v 1.4 2001/06/02 01:30:37 mdb Exp $
 
 package com.threerings.cocktail.cher.server.net;
 
@@ -46,6 +46,16 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
+     * Instructs the connection to pass parsed messages on to this handler
+     * for processing. This should be done before the connection is turned
+     * loose to process messages.
+     */
+    public void setMessageHandler (MessageHandler handler)
+    {
+        _handler = handler;
+    }
+
+    /**
      * Returns the select item associated with this connection.
      */
     public SelectItem getSelectItem ()
@@ -72,6 +82,33 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
+     * Closes this connection and unregisters it from the connection
+     * manager. This should only be called from the conmgr thread.
+     */
+    public void close ()
+    {
+        // we shouldn't be closed twice
+        if (_socket == null) {
+            Log.warning("Attempted to re-close connection.");
+            return;
+        }
+
+        // unregister from the select set
+        _cmgr.connectionClosed(this);
+
+        // close our socket
+        try {
+            _socket.close();
+        } catch (IOException ioe) {
+            Log.warning("Error closing connection [conn=" + this +
+                        ", error=" + ioe + "].");
+        }
+
+        // clear out our socket reference to prevent repeat closings
+        _socket = null;
+    }
+
+    /**
      * Called when our client socket has data available for reading.
      */
     public void handleEvent (Selectable source, short events)
@@ -80,8 +117,8 @@ public abstract class Connection implements NetEventHandler
             // read the available data and see if we have a whole frame
             if (_fin.readFrame(_in)) {
                 // parse the message and pass it on
-                handleMessage((UpstreamMessage)
-                              TypedObjectFactory.readFrom(_din));
+                _handler.handleMessage((UpstreamMessage)
+                                       TypedObjectFactory.readFrom(_din));
             }
 
         } catch (EOFException eofe) {
@@ -95,12 +132,6 @@ public abstract class Connection implements NetEventHandler
             _cmgr.connectionFailed(this, ioe);
         }
     }
-
-    /**
-     * Called when a complete message has been parsed from incoming
-     * network data.
-     */
-    public abstract void handleMessage (UpstreamMessage msg);
 
     /**
      * Posts a downstream message for delivery to this connection. The
@@ -121,4 +152,6 @@ public abstract class Connection implements NetEventHandler
     protected OutputStream _out;
     protected FramedInputStream _fin;
     protected DataInputStream _din;
+
+    protected MessageHandler _handler;
 }

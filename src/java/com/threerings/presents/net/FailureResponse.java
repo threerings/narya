@@ -1,5 +1,5 @@
 //
-// $Id: FailureResponse.java,v 1.2 2001/05/30 23:58:31 mdb Exp $
+// $Id: FailureResponse.java,v 1.3 2001/06/02 01:30:37 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -21,12 +21,12 @@ public class FailureResponse extends DownstreamMessage
     }
 
     /**
-     * Constructs a failure response that is associated with the specified
-     * upstream message id.
+     * Constructs a failure response in response to a request for the
+     * specified oid.
      */
-    public FailureResponse (short messageId)
+    public FailureResponse (int oid)
     {
-        this.messageId = messageId;
+        _oid = oid;
     }
 
     public short getType ()
@@ -34,17 +34,24 @@ public class FailureResponse extends DownstreamMessage
         return TYPE;
     }
 
+    public int getOid ()
+    {
+        return _oid;
+    }
+
     public void writeTo (DataOutputStream out)
         throws IOException
     {
         super.writeTo(out);
-        out.writeShort(messageId);
+        out.writeInt(_oid);
     }
 
     public void readFrom (DataInputStream in)
         throws IOException
     {
         super.readFrom(in);
-        messageId = in.readShort();
+        _oid = in.readInt();
     }
+
+    protected int _oid;
 }

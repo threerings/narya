@@ -1,5 +1,5 @@
 //
-// $Id: Credentials.java,v 1.4 2001/05/30 23:58:31 mdb Exp $
+// $Id: Credentials.java,v 1.5 2001/06/02 01:30:37 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -14,8 +14,11 @@ import com.threerings.cocktail.cher.io.TypedObjectFactory;
  * Credentials are supplied by the client implementation and sent along to
  * the server during the authentication process. To provide support for a
  * variety of authentication methods, the credentials class is meant to be
- * subclassed for the particular method (ie. username + password) in use
- * in a given system.
+ * subclassed for the particular method (ie. password, auth digest, etc.)
+ * in use in a given system.
+ *
+ * <p> All credentials must provide a username as the username is used to
+ * associate network connections with sessions.
  *
  * <p> All derived classes should provide a no argument constructor so
  * that they can be instantiated prior to reconstruction from a data input
@@ -30,6 +33,27 @@ public abstract class Credentials implements TypedObject
     public static final short TYPE_BASE = 300;
 
     /**
+     * Constructs a credentials instance with the specified username.
+     */
+    public Credentials (String username)
+    {
+        _username = username;
+    }
+
+    /**
+     * Constructs a blank credentials instance in preparation for
+     * unserializing from the network.
+     */
+    public Credentials ()
+    {
+    }
+
+    public String getUsername ()
+    {
+        return _username;
+    }
+
+    /**
      * Derived classes should override this function to write their fields
      * out to the supplied data output stream. They <em>must</em> be sure
      * to first call <code>super.writeTo()</code>.
@@ -37,7 +61,7 @@ public abstract class Credentials implements TypedObject
     public void writeTo (DataOutputStream out)
         throws IOException
     {
-        // we don't do anything here, but we may want to some day
+        out.writeUTF(_username);
     }
 
     /**
@@ -48,6 +72,8 @@ public abstract class Credentials implements TypedObject
     public void readFrom (DataInputStream in)
         throws IOException
     {
-        // we don't do anything here, but we may want to some day
+        _username = in.readUTF();
     }
+
+    protected String _username;
 }

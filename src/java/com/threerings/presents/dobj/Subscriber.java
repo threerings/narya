@@ -1,5 +1,5 @@
 //
-// $Id: Subscriber.java,v 1.2 2001/06/01 05:17:16 mdb Exp $
+// $Id: Subscriber.java,v 1.3 2001/06/02 01:30:37 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -34,7 +34,7 @@ public interface Subscriber
      * @see DObjectManager.subscribeToObject
      * @see DObjectManager.fetchObject
      */
-    public void requestFailed (ObjectAccessException cause);
+    public void requestFailed (int oid, ObjectAccessException cause);
 
     /**
      * Called when an event has been dispatched on an object. The event

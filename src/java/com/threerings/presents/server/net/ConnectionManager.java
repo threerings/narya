@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.3 2001/06/01 22:12:03 mdb Exp $
+// $Id: ConnectionManager.java,v 1.4 2001/06/02 01:30:37 mdb Exp $
 
 package com.threerings.cocktail.cher.server.net;
 
@@ -15,6 +15,7 @@ import com.samskivert.util.Queue;
 import com.threerings.cocktail.cher.Log;
 import com.threerings.cocktail.cher.io.FramingOutputStream;
 import com.threerings.cocktail.cher.io.TypedObjectFactory;
+import com.threerings.cocktail.cher.net.Credentials;
 import com.threerings.cocktail.cher.net.DownstreamMessage;
 import com.threerings.cocktail.cher.net.Registry;
 
@@ -102,8 +103,7 @@ public class ConnectionManager extends LoopingThread
      * Notifies the connection observers of a connection event. Used
      * internally.
      */
-    protected void notifyObservers (int code, Connection conn,
-                                    IOException cause)
+    protected void notifyObservers (int code, Connection conn, Object arg)
     {
         synchronized (_observers) {
             for (int i = 0; i < _observers.size(); i++) {
@@ -111,10 +111,10 @@ public class ConnectionManager extends LoopingThread
                     (ConnectionObserver)_observers.get(i);
                 switch (code) {
                 case CONNECTION_ESTABLISHED:
-                    obs.connectionEstablished(conn);
+                    obs.connectionEstablished(conn, (Credentials)arg);
                     break;
                 case CONNECTION_FAILED:
-                    obs.connectionFailed(conn, cause);
+                    obs.connectionFailed(conn, (IOException)arg);
                     break;
                 case CONNECTION_CLOSED:
                     obs.connectionClosed(conn);
@@ -154,8 +154,8 @@ public class ConnectionManager extends LoopingThread
         }
 
         // check for connections that have completed authentication
-        Connection conn;
-        while ((conn = (Connection)_authq.getNonBlocking()) != null) {
+        AuthingConnection conn;
+        while ((conn = (AuthingConnection)_authq.getNonBlocking()) != null) {
             // remove the old connection from the select set
             _selset.remove(conn.getSelectItem());
 
@@ -168,7 +168,8 @@ public class ConnectionManager extends LoopingThread
                 _selset.add(rconn.getSelectItem());
 
                 // and let our observers know about our new connection
-                notifyObservers(CONNECTION_ESTABLISHED, rconn, null);
+                notifyObservers(CONNECTION_ESTABLISHED, rconn,
+                                conn.getAuthRequest().getCredentials());
 
             } catch (IOException ioe) {
                 Log.warning("Failure upgrading authing connection to " +

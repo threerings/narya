@@ -1,5 +1,5 @@
 //
-// $Id: ObjectResponse.java,v 1.5 2001/05/30 23:58:31 mdb Exp $
+// $Id: ObjectResponse.java,v 1.6 2001/06/02 01:30:37 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -24,12 +24,10 @@ public class ObjectResponse extends DownstreamMessage
     }
 
     /**
-     * Constructs an object response with supplied distributed object that
-     * is associated with the specified upstream message id.
+     * Constructs an object response with supplied distributed object.
      */
-    public ObjectResponse (short messageId, DObject dobj)
+    public ObjectResponse (DObject dobj)
     {
-        this.messageId = messageId;
         _dobj = dobj;
     }
 
@@ -42,7 +40,6 @@ public class ObjectResponse extends DownstreamMessage
         throws IOException
     {
         super.writeTo(out);
-        out.writeShort(messageId);
         DObjectFactory.writeTo(out, _dobj);
     }
 
@@ -50,7 +47,6 @@ public class ObjectResponse extends DownstreamMessage
         throws IOException
     {
         super.readFrom(in);
-        messageId = in.readShort();
         _dobj = (DObject)DObjectFactory.readFrom(in);
     }
 

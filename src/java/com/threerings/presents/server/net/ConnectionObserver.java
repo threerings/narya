@@ -1,9 +1,10 @@
 //
-// $Id: ConnectionObserver.java,v 1.3 2001/06/01 22:12:03 mdb Exp $
+// $Id: ConnectionObserver.java,v 1.4 2001/06/02 01:30:37 mdb Exp $
 
 package com.threerings.cocktail.cher.server.net;
 
 import java.io.IOException;
+import com.threerings.cocktail.cher.net.Credentials;
 
 /**
  * A connection observer can be registered with the connection manager to
@@ -23,8 +24,10 @@ public interface ConnectionObserver
      * the connection observer.
      *
      * @param conn The newly established connection.
+     * @param creds The credentials with which this connection
+     * (successfully) authenticated.
      */
-    public void connectionEstablished (Connection conn);
+    public void connectionEstablished (Connection conn, Credentials creds);
 
     /**
      * Called if a connection fails for any reason. If a connection fails,

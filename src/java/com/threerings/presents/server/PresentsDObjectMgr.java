@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.2 2001/06/01 20:35:39 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.3 2001/06/02 01:30:37 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -175,10 +175,11 @@ public class CherDObjectMgr implements DObjectManager
         public boolean applyToObject (DObject target)
             throws ObjectAccessException
         {
+            int oid = getNextOid();
+
             try {
                 // create a new instance of this object
                 DObject obj = (DObject)_class.newInstance();
-                int oid = getNextOid();
 
                 // initialize this object
                 obj.init(oid, CherDObjectMgr.this);
@@ -205,7 +206,8 @@ public class CherDObjectMgr implements DObjectManager
                 // let the subscriber know shit be fucked
                 if (_target != null) {
                     String errmsg = "Object instantiation failed: " + e;
-                    _target.requestFailed(new ObjectAccessException(errmsg));
+                    _target.requestFailed(
+                        oid, new ObjectAccessException(errmsg));
                 }
             }
 
@@ -243,14 +245,14 @@ public class CherDObjectMgr implements DObjectManager
 
             // if it don't exist, let them know
             if (obj == null) {
-                _target.requestFailed(new NoSuchObjectException(_oid));
+                _target.requestFailed(_oid, new NoSuchObjectException(_oid));
                 return false;
             }
 
             // check permissions
             if (!obj.checkPermissions(_target)) {
                 String errmsg = "m.access_denied\t" + _oid;
-                _target.requestFailed(new ObjectAccessException(errmsg));
+                _target.requestFailed(_oid, new ObjectAccessException(errmsg));
                 return false;
             }
 
