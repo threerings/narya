@@ -69,7 +69,7 @@ public abstract class InvocationTask extends Task
     }
 
     /** Used to keep track of invocation service methods. */
-    public class ServiceMethod implements Comparable<ServiceMethod>
+    public class ServiceMethod implements Comparable
     {
         public Method method;
 
@@ -154,9 +154,9 @@ public abstract class InvocationTask extends Task
             return (method.getParameterTypes().length > 1);
         }
 
-        public int compareTo (ServiceMethod other)
+        public int compareTo (Object other)
         {
-            return getCode().compareTo(other.getCode());
+            return getCode().compareTo(((ServiceMethod)other).getCode());
         }
 
         public String getUnwrappedArgList (boolean listenerMode)

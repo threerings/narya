@@ -36,7 +36,8 @@
              classpathref="classpath"/>
     <!-- make sure the service class files are all compiled -->
     <javac srcdir="src/java" destdir="${classes.dir}"
-           debug="on" optimize="${build.optimize}" deprecation="on">
+           debug="on" optimize="${build.optimize}" deprecation="on"
+           source="1.4" target="1.4">
       <classpath refid="classpath"/>
       <include name="**/*Service.java"/>
       <exclude name="**/InvocationService.java"/>
@@ -84,7 +85,8 @@
   <!-- build the java class files -->
   <target name="compile" depends="prepare">
     <javac srcdir="src/java" destdir="${classes.dir}"
-           debug="on" optimize="{$build.optimize}" deprecation="on">
+           debug="on" optimize="{$build.optimize}" deprecation="on"
+           source="1.4" target="1.4">
       <classpath refid="classpath"/>
       <exclude name="**/OggPlayer.java"/>
       <exclude name="**/ModPlayer.java"/>

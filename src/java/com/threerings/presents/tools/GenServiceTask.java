@@ -35,7 +35,7 @@ import com.threerings.presents.server.InvocationException;
 public class GenServiceTask extends InvocationTask
 {
     /** Used to keep track of custom InvocationListener derivations. */
-    public class ServiceListener implements Comparable<ServiceListener>
+    public class ServiceListener implements Comparable
     {
         public Class listener;
 
@@ -57,9 +57,9 @@ public class GenServiceTask extends InvocationTask
             methods.sort();
         }
 
-        public int compareTo (ServiceListener other)
+        public int compareTo (Object other)
         {
-            return getName().compareTo(other.getName());
+            return getName().compareTo(((ServiceListener)other).getName());
         }
 
         public boolean equals (Object other)
