@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.10 2002/05/01 03:39:13 ray Exp $
+// $Id: MessageBundle.java,v 1.11 2002/05/08 21:15:26 shaper Exp $
 
 package com.threerings.util;
 
@@ -258,8 +258,8 @@ public class MessageBundle
 
     /**
      * A convenience method for calling {@link #compose(String,String[])}
-     * with a single argument that will be automatically (see {@link
-     * #taint}).
+     * with a single argument that will be automatically tainted (see
+     * {@link #taint}).
      */
     public static String tcompose (String key, String arg)
     {
