@@ -1,10 +1,7 @@
 //
-// $Id: SoundManager.java,v 1.27 2002/11/23 03:24:26 ray Exp $
+// $Id: SoundManager.java,v 1.28 2002/11/25 20:02:31 ray Exp $
 
 package com.threerings.media;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -37,7 +34,7 @@ import javax.swing.Timer;
 
 import org.apache.commons.io.StreamUtils;
 
-import com.samskivert.util.CollectionUtil;
+import com.samskivert.util.Config;
 import com.samskivert.util.LockableLRUHashMap;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.Queue;
@@ -139,7 +136,7 @@ public class SoundManager
                             updateMusicVolume();
 
                         } else if (DIE == command) {
-                            // TODO: clean up more stuff.
+                            LineSpooler.shutdown();
                             shutdownMusic();
                         }
                     } catch (Exception e) {
@@ -540,8 +537,12 @@ public class SoundManager
         playTopMusic();
     }
 
+    /**
+     * Shutdown the music subsystem.
+     */
     protected void shutdownMusic ()
     {
+        _musicStack.clear();
         if (_musicPlayer != null) {
             _musicPlayer.stop();
             _musicPlayer.shutdown();
@@ -625,13 +626,13 @@ public class SoundManager
             AudioFormat format = stream.getFormat();
             LineSpooler spooler;
 
-            for (int ii=0, nn=_available.size(); ii < nn; ii++) {
-                spooler = (LineSpooler) _available.get(ii);
+            for (int ii=0, nn=_openSpoolers.size(); ii < nn; ii++) {
+                spooler = (LineSpooler) _openSpoolers.get(ii);
 
                 // we have this thread remove the spooler if it's dead
                 // so that we avoid deadlock conditions
                 if (spooler.isDead()) {
-                    _available.remove(ii--);
+                    _openSpoolers.remove(ii--);
                     nn--;
 
                 } else if (spooler.checkPlay(format, stream, volume)) {
@@ -639,15 +640,31 @@ public class SoundManager
                 }
             }
 
-            if (_available.size() >= MAX_SPOOLERS) {
+            if (_openSpoolers.size() >= MAX_SPOOLERS) {
                 throw new LineUnavailableException("Exceeded maximum number " +
                     "of narya sound spoolers.");
             }
 
             spooler = new LineSpooler(format);
-            _available.add(spooler);
+            _openSpoolers.add(spooler);
             spooler.checkPlay(format, stream, volume);
             spooler.start();
+        }
+
+        /**
+         * Shutdown the linespooler subsystem.
+         */
+        public static void shutdown ()
+        {
+            // this is all that is needed, after 30 seconds each spooler
+            for (int ii=0, nn=_openSpoolers.size(); ii < nn; ii++) {
+                // this will stop playback now
+                ((LineSpooler) _openSpoolers.get(ii)).setDead();
+            }
+            // and this will remove all the spoolers. They'll still be
+            // around while they drain their lines and then wait 30 seconds
+            // to die...
+            _openSpoolers.clear();
         }
 
         /**
@@ -663,6 +680,14 @@ public class SoundManager
                 SourceDataLine.class, _format));
             _line.open(_format);
             _line.start();
+        }
+
+        /**
+         * Set this line to dead.
+         */
+        protected void setDead ()
+        {
+            _valid = false;
         }
 
         /**
@@ -702,7 +727,7 @@ public class SoundManager
                     // ignore.
                 }
                 if (_stream == null) {
-                    _valid = false;
+                    setDead(); // we waited 30 seconds and never got a sound.
                     return false;
                 }
             }
@@ -730,11 +755,12 @@ public class SoundManager
             int count = 0;
             byte[] data = new byte[BUFFER_SIZE];
 
-            while (count != -1) {
+            while (_valid && count != -1) {
                 try {
                     count = _stream.read(data, 0, data.length);
                 } catch (IOException e) {
-                    // this shouldn't ever ever happen
+                    // this shouldn't ever ever happen because the stream
+                    // we're given is from a reliable source
                     Log.warning("Error reading clip data! [e=" + e + "].");
                     _stream = null;
                     return;
@@ -791,7 +817,7 @@ public class SoundManager
         protected boolean _valid = true;
 
         /** The list of all the currently instantiated spoolers. */
-        protected static ArrayList _available = new ArrayList();
+        protected static ArrayList _openSpoolers = new ArrayList();
 
         /** The maximum time a spooler will wait for a stream before
          * deciding to shut down. */
