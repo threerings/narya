@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.29 2002/06/19 08:27:06 mdb Exp $
+// $Id: TileSet.java,v 1.30 2002/09/17 20:38:42 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -164,6 +164,16 @@ public abstract class TileSet
 	    throw new NoSuchTileException(tileIndex);
 	}
 
+        // create our tile cache array if necessary
+        if (_tiles == null) {
+            _tiles = new Tile[getTileCount()];
+        }
+
+        // return the cached tile if possible
+        if (_tiles[tileIndex] != null) {
+            return _tiles[tileIndex];
+        }
+
         // get our tileset image
         Image tsimg = getTileSetImage();
         if (tsimg == null) {
@@ -171,9 +181,11 @@ public abstract class TileSet
             throw new NoSuchTileException(tileIndex);
         }
 
-	// create and initialize the tile object
-	Tile tile = createTile(tileIndex, tsimg);
+	// create, initialize and cache the tile object
+        Tile tile = createTile(tileIndex, tsimg);
         initTile(tile);
+        _tiles[tileIndex] = tile;
+
         return tile;
     }
 
@@ -281,6 +293,10 @@ public abstract class TileSet
 
     /** The tileset name. */
     protected String _name;
+
+    /** A sparse array containing the tiles that have been requested from
+     * this tileset. */
+    protected Tile[] _tiles;
 
     /** The entity from which we obtain our tile image. */
     protected transient ImageProvider _improv;
