@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.14 2001/10/24 03:10:30 mdb Exp $
+// $Id: LocationDirector.java,v 1.15 2001/12/13 06:34:40 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -173,15 +173,16 @@ public class LocationDirector
         _previousPlaceId = _placeId;
         _placeId = placeId;
 
+        Class cclass = config.getControllerClass();
         try {
             // start up a new place controller to manage the new place
-            Class cclass = config.getControllerClass();
             _controller = (PlaceController)cclass.newInstance();
             _controller.init(_ctx, config);
 
         } catch (Exception e) {
             Log.warning("Error creating or initializing place controller " +
-                        "[config=" + config + "].");
+                        "[cclass=" + cclass.getName() +
+                        ", config=" + config + "].");
             Log.logStackTrace(e);
         }
 
@@ -286,12 +287,14 @@ public class LocationDirector
         _plobj = (PlaceObject)object;
 
         // let the place controller know that we're ready to roll
-        try {
-            _controller.willEnterPlace(_plobj);
-        } catch (Exception e) {
-            Log.warning("Controller choked in willEnterPlace " +
-                        "[place=" + _plobj + "].");
-            Log.logStackTrace(e);
+        if (_controller != null) {
+            try {
+                _controller.willEnterPlace(_plobj);
+            } catch (Exception e) {
+                Log.warning("Controller choked in willEnterPlace " +
+                            "[place=" + _plobj + "].");
+                Log.logStackTrace(e);
+            }
         }
 
         // let our observers know that all is well on the western front
