@@ -32,6 +32,8 @@ import com.threerings.media.AbstractMedia;
 import com.threerings.media.util.Path;
 import com.threerings.media.util.Pathable;
 
+import com.threerings.media.Log;
+
 /**
  * The sprite class represents a single moveable object in an animated
  * view. A sprite has a position and orientation within the view, and can
