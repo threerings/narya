@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneWriter.java,v 1.5 2001/12/07 05:11:25 mdb Exp $
+// $Id: SpotSceneWriter.java,v 1.6 2001/12/07 05:14:57 mdb Exp $
 
 package com.threerings.whirled.tools.spot.xml;
 
@@ -65,15 +65,22 @@ public class SpotSceneWriter extends SceneWriter
             EditablePortal port = (EditablePortal)iter.next();
             AttributesImpl attrs = new AttributesImpl();
             addSharedAttrs(attrs, port);
-            if (port.targetSceneName != null) {
-                attrs.addAttribute("", "targetSceneName", "", "",
-                                   port.targetSceneName);
-            }
-            if (port.targetPortalName != null) {
-                attrs.addAttribute("", "targetPortalName", "", "",
-                                   port.targetPortalName);
-            }
+            maybeAddAttr(attrs, "name", port.name);
+            maybeAddAttr(attrs, "targetSceneName", port.targetSceneName);
+            maybeAddAttr(attrs, "targetPortalName", port.targetPortalName);
             writer.emptyElement("", "portal", "", attrs);
+        }
+    }
+
+    /**
+     * Adds the supplied attribute to the attributes object iff the value
+     * is non-null.
+     */
+    protected void maybeAddAttr (
+        AttributesImpl attrs, String name, String value)
+    {
+        if (value != null) {
+            attrs.addAttribute("", name, "", "", value);
         }
     }
 
