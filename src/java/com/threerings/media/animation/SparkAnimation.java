@@ -1,5 +1,5 @@
 //
-// $Id: SparkAnimation.java,v 1.4 2004/08/27 02:12:38 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -50,21 +50,23 @@ public class SparkAnimation extends Animation
      * @param minyvel the minimum starting y-velocity of the sparks.
      * @param xvel the maximum x-velocity of the sparks.
      * @param yvel the maximum y-velocity of the sparks.
-     * @param g the gravitational acceleration, or 0 if none is desired.
+     * @param xacc the x axis acceleration, or 0 if none is desired.
+     * @param yacc the y axis acceleration, or 0 if none is desired.
      * @param images the spark images to be animated.
      * @param delay the duration of the animation in milliseconds.
      */
     public SparkAnimation (Rectangle bounds, int x, int y, int jog,
                            float minxvel, float minyvel,
                            float xvel, float yvel,
-                           float g, Mirage[] images, long delay)
+                           float xacc, float yacc,
+                           Mirage[] images, long delay)
     {
         super(bounds);
 
         // save things off
         _ox = x;
         _oy = y;
-        _g = g;
+        _yacc = yacc;
         _images = images;
         _delay = delay;
 
@@ -91,7 +93,7 @@ public class SparkAnimation extends Animation
             // acceleration, make the y-axis velocity negative; else,
             // choose to move up or down at random.
             _syvel[ii] = (Math.max(RandomUtil.getFloat(yvel), minyvel)) *
-                ((g != 0) ? -1.0f : getDirectionMult());
+                ((_yacc != 0) ? -1.0f : getDirectionMult());
         }
 
         _alpha = 1.0f;
@@ -134,7 +136,7 @@ public class SparkAnimation extends Animation
             // determine the travel distance
             int xtrav = (int)(_sxvel[ii] * msecs);
             int ytrav = (int)
-                ((_syvel[ii] * msecs) + (0.5f * _g * (msecs * msecs)));
+                ((_syvel[ii] * msecs) + (0.5f * _yacc * (msecs * msecs)));
 
             // update the position
             _xpos[ii] = _ox + xtrav;
@@ -179,8 +181,11 @@ public class SparkAnimation extends Animation
     /** The number of images we're animating. */
     protected int _icount;
 
-    /** The gravitational acceleration in pixels per millisecond. */
-    protected float _g;
+    /** The x axis acceleration in pixels per millisecond. */
+    protected float _xacc;
+
+    /** The y axis acceleration in pixels per millisecond. */
+    protected float _yacc;
 
     /** The starting x-axis velocity of each chunk. */
     protected float[] _sxvel;
