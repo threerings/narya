@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.8 2002/11/02 01:49:20 ray Exp $
+// $Id: SoundManager.java,v 1.9 2002/11/05 21:02:03 ray Exp $
 
 package com.threerings.media;
 
@@ -44,9 +44,8 @@ import com.threerings.media.Log;
 // TODO:
 // - volume for different sound types
 //   Clip.getControl(FloatControl.Type.VOLUME);
-// - either a limit to the queue length, or a way to put items
-//   in the queue with a timestamp, and if they're processed after that
-//   time, we cut them out.
+// - maybe a way to put items in the queue with a timestamp,
+//   and if they're processed after that time, we cut them out.
 // - looping a sound
 public class SoundManager
 {
@@ -110,7 +109,7 @@ public class SoundManager
                         flushResources(false);
                         // and re-start the resource freer timer to do
                         // it again in 3 seconds
-                        _resourceFreer.start();
+                        _resourceFreer.restart();
 
                     // see if we got the die signal
                     } else if (o == DIE) {
@@ -124,6 +123,8 @@ public class SoundManager
 
         _player.setDaemon(true);
         _player.start();
+
+        _resourceFreer.setRepeats(false);
         _resourceFreer.start();
     }
 
@@ -176,7 +177,15 @@ public class SoundManager
     {
         if (_player != null && isEnabled(type)) {
 //            Log.info("Queueing sound [path=" + path + "].");
-            _queue.append(path);
+            synchronized (_queue) {
+                if (_queue.size() < MAX_SOUNDS_ENQUEUED) {
+                    _queue.append(path);
+                } else {
+                    Log.warning("SoundManager not playing sound because " +
+                        "too many sounds in queue [path=" + path +
+                        ", type=" + type + "].");
+                }
+            }
         }
     }
 
@@ -439,11 +448,7 @@ public class SoundManager
         new ActionListener() {
             public void actionPerformed (ActionEvent e)
             {
-                // stop the timer so we don't queue up loads of FLUSH
-                // requests when the main thread is bogged down.
-                _resourceFreer.stop();
-
-                // and request a sweep by the main thread
+                // request a sweep by the main thread
                 _queue.append(FLUSH);
             }
         });
@@ -471,6 +476,9 @@ public class SoundManager
 
     /** Signals to the queue to do different things. */
     protected Object FLUSH = new Object(), DIE = new Object();
+
+    /** The maximum number of sounds we'll allow to be enqueued. */
+    protected static final int MAX_SOUNDS_ENQUEUED = 25;
 
     /** The buffer size in bytes used when reading audio file data. */
     protected static final int BUFFER_SIZE = 2048;
