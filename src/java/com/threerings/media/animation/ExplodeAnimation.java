@@ -1,5 +1,5 @@
 //
-// $Id: ExplodeAnimation.java,v 1.12 2002/08/19 21:08:51 shaper Exp $
+// $Id: ExplodeAnimation.java,v 1.13 2002/10/01 04:24:34 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -139,27 +139,26 @@ public class ExplodeAnimation extends Animation
         _angle = 0.0f;
     }
 
-    /**
-     * Sets the animation starting time.
-     */
-    public void setStartTime (long timestamp)
-    {
-        _start = timestamp;
-        if (_info.delay != -1) {
-            _end = _start + _info.delay;
-        }
-    }
-
     // documentation inherited
     public void fastForward (long timeDelta)
     {
-        _start += timeDelta;
-        _end += timeDelta;
+        if (_start > 0) {
+            _start += timeDelta;
+            _end += timeDelta;
+        }
     }
 
     // documentation inherited
     public void tick (long timestamp)
     {
+        if (_start == 0) {
+            // initialize our starting time
+            _start = timestamp;
+            if (_info.delay != -1) {
+                _end = _start + _info.delay;
+            }
+        }
+
         // figure out the distance the chunks have travelled
         long msecs = timestamp - _start;
 
