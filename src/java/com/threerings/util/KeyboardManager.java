@@ -1,9 +1,11 @@
           //
-// $Id: KeyboardManager.java,v 1.5 2001/12/19 23:33:02 shaper Exp $
+// $Id: KeyboardManager.java,v 1.6 2002/01/12 02:37:57 shaper Exp $
 
 package com.threerings.yohoho.puzzle.util;
 
 import java.awt.Component;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
@@ -56,6 +58,19 @@ public class KeyboardManager
                 releaseAllKeys();
             }
         });
+
+        if (DEBUG_EVENTS) {
+            // listen to and report on lower-level incoming keyboard
+            // events at the keyboard focus manager level
+            KeyboardFocusManager keymgr =
+                KeyboardFocusManager.getCurrentKeyboardFocusManager();
+            keymgr.addKeyEventDispatcher(new KeyEventDispatcher() {
+                public boolean dispatchKeyEvent (KeyEvent e) {
+                    Log.info("dispatchKeyEvent [e=" + e + "].");
+                    return false;
+                }
+            });
+        }
     }
 
     /**
@@ -197,6 +212,32 @@ public class KeyboardManager
         public synchronized void setReleaseTime (long time)
         {
             _lastRelease = time;
+
+            // handle key release events received so quickly after the key
+            // press event that the press/release times are exactly equal
+            // and, in intervalExpired(), we would therefore be unable to
+            // distinguish between the key being initially pressed and the
+            // actual true key release that's taken place.
+
+            // the only case I can think of that might result in this
+            // happening is if the event manager class queues up a key
+            // press and release event succession while other code is
+            // executing, and when it comes time for it to dispatch the
+            // events in its queue it manages to dispatch both of them to
+            // us really-lickety-split.  one would still think at least a
+            // few milliseconds should pass between the press and release,
+            // but in any case, we arguably ought to be watching for and
+            // handling this case for posterity even though it would seem
+            // unlikely or impossible, and so, now we do, which is a good
+            // thing since it appears this does in fact happen, and not so
+            // infrequently.
+            if (_lastPress == _lastRelease) {
+                if (DEBUG_EVENTS) {
+                    Log.warning("Insta-releasing key due to equal key " +
+                                "press/release times [key=" + _keyText + "].");
+                }
+                release();
+            }
         }
 
         /**
