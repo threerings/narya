@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.12 2002/06/19 00:52:34 mdb Exp $
+// $Id: FrameManager.java,v 1.13 2002/06/21 03:43:59 mdb Exp $
 
 package com.threerings.media;
 
@@ -215,10 +215,6 @@ public class FrameManager
      */
     protected void tickParticipants (long tickStamp)
     {
-        // tick all of our frame participants
-        _participantTickOp.setTickStamp(tickStamp);
-        _participants.apply(_participantTickOp);
-
         // validate any invalid components
         try {
             _remgr.validateComponents();
@@ -226,6 +222,10 @@ public class FrameManager
             Log.warning("Failure validating components.");
             Log.logStackTrace(t);
         }
+
+        // tick all of our frame participants
+        _participantTickOp.setTickStamp(tickStamp);
+        _participants.apply(_participantTickOp);
     }        
 
     /**
