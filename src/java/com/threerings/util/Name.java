@@ -1,5 +1,5 @@
 //
-// $Id: Name.java,v 1.1 2004/03/06 14:55:03 mdb Exp $
+// $Id: Name.java,v 1.2 2004/04/06 17:42:49 ray Exp $
 
 package com.threerings.util;
 
@@ -117,7 +117,10 @@ public class Name extends SimpleStreamableObject
     protected String normalize (String name)
     {
         name = name.toLowerCase();
-        name = _compactor.matcher(name).replaceAll("");
+        // Originally we removed whitespace as part of normalization, but
+        // that ran aground when a player was named "Badbob" and an npp
+        // was named "Bad Bob". -RG
+        //name = _compactor.matcher(name).replaceAll("");
         return name;
     }
 
@@ -128,5 +131,5 @@ public class Name extends SimpleStreamableObject
     protected transient String _normal;
 
     /** Used to strip spaces from names. */
-    protected static Pattern _compactor = Pattern.compile("\\s");
+    //protected static Pattern _compactor = Pattern.compile("\\s");
 }
