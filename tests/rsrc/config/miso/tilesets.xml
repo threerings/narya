@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: tilesets.xml,v 1.3 2001/07/19 23:46:54 shaper Exp $ -->
+<!-- $Id: tilesets.xml,v 1.4 2001/07/28 01:26:24 shaper Exp $ -->
 
 <!-- Initial test tileset description data. -->
 
@@ -11,6 +11,7 @@
     <tsid>1000</tsid>
     <imagefile>media/miso/tiles-base.png</imagefile>
     <rowheight>16, 16</rowheight>
+    <rowwidth>32, 32</rowwidth>
     <tilecount>10, 10</tilecount>
   </tileset>
 
@@ -19,6 +20,7 @@
     <tsid>1001</tsid>
     <imagefile>media/miso/tiles-wall.png</imagefile>
     <rowheight>45, 45</rowheight>
+    <rowwidth>32, 32</rowwidth>
     <tilecount>3, 3</tilecount>
   </tileset>
 
@@ -27,7 +29,19 @@
     <tsid>1002</tsid>
     <imagefile>media/miso/tiles-icons.png</imagefile>
     <rowheight>20, 49</rowheight>
+    <rowwidth>32, 32</rowwidth>
     <tilecount>9, 2</tilecount>
+  </tileset>
+
+  <tileset>
+    <name>Character</name>
+    <tsid>1003</tsid>
+    <imagefile>media/miso/tiles-character.png</imagefile>
+    <rowheight>94, 94, 94, 94, 94, 94, 94, 94</rowheight>
+    <rowwidth>94, 94, 94, 94, 94, 94, 94, 94</rowwidth>
+    <tilecount>8, 8, 8, 8, 8, 8, 8, 8</tilecount>
+    <offsetpos>52, 51</offsetpos>
+    <gapdist>39, 18</gapdist>
   </tileset>
 
 </tilesetgroup>
