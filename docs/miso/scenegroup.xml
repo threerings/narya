@@ -1,0 +1,21 @@
+<?xml version="1.0" standalone="yes"?>
+
+<!-- $Id: scenegroup.xml,v 1.1 2001/08/16 23:32:40 shaper Exp $ -->
+
+<!-- A simple sample scene group description file. -->
+
+<scenegroup>
+
+  <scene src="rsrc/scenes/townsquare.xml">
+    <name>Town Square</name>
+    <entrance>South</entrance>
+    <portal src="South" destScene="Harbour" dest="North"/>
+  </scene>
+
+  <scene src="rsrc/scenes/harbour.xml">
+    <name>Harbour</name>
+    <entrance>West</entrance>
+    <portal src="North" destScene="Town Square" dest="South"/>
+  </scene>
+
+</scenegroup>
