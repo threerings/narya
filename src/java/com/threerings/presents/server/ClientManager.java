@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.36 2004/03/06 11:29:19 mdb Exp $
+// $Id: ClientManager.java,v 1.37 2004/05/10 17:45:27 ray Exp $
 
 package com.threerings.presents.server;
 
@@ -409,10 +409,16 @@ public class ClientManager
 
         if (victims != null) {
             for (int ii = 0; ii < victims.size(); ii++) {
-                PresentsClient client = (PresentsClient)victims.get(ii);
-                Log.info("Client expired, ending session [client=" + client +
-                         ", dtime=" + (now-client.getNetworkStamp()) + "ms].");
-                client.endSession();
+                try {
+                    PresentsClient client = (PresentsClient)victims.get(ii);
+                    Log.info("Client expired, ending session " +
+                        "[client=" + client +
+                        ", dtime=" + (now-client.getNetworkStamp()) + "ms].");
+                    client.endSession();
+                } catch (Exception e) {
+                    Log.warning("Choke while flushing clients.");
+                    Log.logStackTrace(e);
+                }
             }
         }
     }
