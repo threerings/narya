@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.15 2001/09/05 00:45:27 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.16 2001/10/01 22:18:24 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -81,9 +81,6 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         // get the path from here to there
         Path path = _view.getPath(_sprite, x, y);
 	_sprite.move(path);
-
-        // hackily highlight the tile that was clicked on for happy testing
-        ((EditableSceneView)_view).setHighlightedFull(x, y);
     }
 
     public void mouseClicked (MouseEvent e) { }
