@@ -1,5 +1,5 @@
 //
-// $Id: SystemMediaTimer.java,v 1.3 2003/07/29 00:41:40 mdb Exp $
+// $Id: SystemMediaTimer.java,v 1.4 2003/08/08 21:41:28 mdb Exp $
 
 package com.threerings.media.timer;
 
@@ -13,6 +13,11 @@ import com.threerings.media.Log;
  * inaccurate on different platforms. See <a
  * href="http://developer.java.sun.com/developer/bugParade/bugs/4486109.html">
  * bug report 4486109</a> for more information.
+ *
+ * <p> <em>Also note:</em> clock drift on Windows XP is especially
+ * pronounced and is exacerbated by the fact that WinXP periodically
+ * resyncs the system clock with the hardware clock, causing discontinuous
+ * jumps in the progression of time (usually backwards in time).
  */
 public class SystemMediaTimer implements MediaTimer
 {
