@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.33 2002/02/19 07:41:55 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.34 2002/02/19 19:58:19 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -13,12 +13,13 @@ import java.awt.event.MouseMotionAdapter;
 
 import java.util.List;
 
-import com.threerings.media.animation.AnimationManager;
 import com.threerings.media.animation.AnimatedPanel;
+import com.threerings.media.animation.AnimationManager;
 import com.threerings.media.sprite.SpriteManager;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.util.MisoUtil;
+import com.threerings.miso.scene.util.IsoUtil;
 
 /**
  * The scene view panel is responsible for managing a {@link
@@ -33,12 +34,6 @@ public class SceneViewPanel extends AnimatedPanel
      */
     public SceneViewPanel (IsoSceneViewModel model)
     {
-        // create a sprite manager
-        _spritemgr = new SpriteManager();
-
-        // configure our animation manager with the sprite manager
-        _animmgr.setSpriteManager(_spritemgr);
-
         // create the data model for the scene view
         _viewmodel = model;
 
@@ -103,6 +98,18 @@ public class SceneViewPanel extends AnimatedPanel
     public SceneView getSceneView ()
     {
 	return _view;
+    }
+
+    /**
+     * Adds the supplied sprite to the scene.
+     */
+    public void addSprite (MisoCharacterSprite sprite)
+    {
+        // set up the sprite's tile coordinates
+        IsoUtil.setSpriteSceneLocation(_viewmodel, sprite);
+
+        // and add it to the sprite manager
+        _spritemgr.addSprite(sprite);
     }
 
     // documentation inherited
@@ -214,9 +221,6 @@ public class SceneViewPanel extends AnimatedPanel
 
     /** The scene view we're managing. */
     protected SceneView _view;
-
-    /** A reference to the active sprite manager. */
-    protected SpriteManager _spritemgr;
 
     /** Our rendering translation. */
     protected int _tx, _ty;
