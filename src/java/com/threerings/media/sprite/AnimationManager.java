@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.18 2001/12/14 16:08:00 shaper Exp $
+// $Id: AnimationManager.java,v 1.19 2001/12/16 05:43:00 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -61,8 +61,7 @@ public class AnimationManager
 
         // create a ticker for queueing up tick requests on the AWT thread
         _ticker = new Runnable() {
-            public void run ()
-            {
+            public void run () {
                 tick();
             }
         };
@@ -140,7 +139,7 @@ public class AnimationManager
 	}
 
 	// update refresh-rate information
-	//PerformanceMonitor.tick(AnimationManager.this, "refresh");
+	// PerformanceMonitor.tick(AnimationManager.this, "refresh");
 
         if (finishedTick()) {
             // finishedTick returning true means there's been a
@@ -151,6 +150,7 @@ public class AnimationManager
         }
     }
 
+    // documentation inherited
     public void checkpoint (String name, int ticks)
     {
         Log.info(name + " [ticks=" + ticks + "].");
