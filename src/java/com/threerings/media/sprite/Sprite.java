@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.23 2001/09/17 23:55:45 shaper Exp $
+// $Id: Sprite.java,v 1.24 2001/10/12 00:36:03 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -328,6 +328,14 @@ public class Sprite
     }
 
     /**
+     * Called by the active path when it begins.
+     */
+    protected void pathBeginning ()
+    {
+        // nothing for now
+    }
+
+    /**
      * Called by the active path when it has completed.
      */
     protected void pathCompleted ()
@@ -377,7 +385,6 @@ public class Sprite
     public void tick (long timestamp)
     {
         int fcount = _frames.getFrameCount();
-        int nfidx = _frameIdx;
         boolean moved = false;
 
         // move the sprite along toward its destination, if any 
@@ -386,13 +393,14 @@ public class Sprite
         }
 
         // increment the display image if performing image animation
+        int nfidx = _frameIdx;
         switch (_animMode) {
         case NO_ANIMATION:
             // nothing doing
             break;
 
         case TIME_BASED:
-            _frameIdx = (int)((timestamp/_frameDelay) % fcount);
+            nfidx = (int)((timestamp/_frameDelay) % fcount);
             break;
 
         case MOVEMENT_CUED:

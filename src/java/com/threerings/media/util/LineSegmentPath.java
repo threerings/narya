@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.10 2001/09/17 23:55:45 shaper Exp $
+// $Id: LineSegmentPath.java,v 1.11 2001/10/12 00:36:03 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -111,6 +111,9 @@ public class LineSegmentPath implements Path
     // documentation inherited
     public void init (Sprite sprite, long timestamp)
     {
+        // give the sprite a chance to perform any starting antics
+        sprite.pathBeginning();
+
         // if we have only one node then let the sprite know that we're
         // done straight away
         if (size() < 2) {
