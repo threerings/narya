@@ -1,7 +1,9 @@
 //
-// $Id: Traverser.java,v 1.1 2001/08/15 02:30:27 shaper Exp $
+// $Id: Traverser.java,v 1.2 2001/08/16 23:14:21 mdb Exp $
 
-package com.threerings.miso.tile;
+package com.threerings.miso.scene;
+
+import com.threerings.media.tile.Tile;
 
 /**
  * The <code>Traverser</code> interface should be implemented by

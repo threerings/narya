@@ -1,14 +1,14 @@
 //
-// $Id: TileSet.java,v 1.13 2001/08/13 19:54:39 shaper Exp $
+// $Id: TileSet.java,v 1.14 2001/08/16 23:14:20 mdb Exp $
 
-package com.threerings.miso.tile;
+package com.threerings.media.tile;
 
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.*;
 
 import com.samskivert.util.StringUtil;
-import com.threerings.miso.Log;
+import com.threerings.media.Log;
 import com.threerings.media.ImageManager;
 
 /**

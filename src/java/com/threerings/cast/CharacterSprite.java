@@ -1,12 +1,12 @@
 //
-// $Id: CharacterSprite.java,v 1.6 2001/08/15 22:06:21 shaper Exp $
+// $Id: CharacterSprite.java,v 1.7 2001/08/16 23:14:21 mdb Exp $
 
 package com.threerings.miso.scene;
 
 import com.threerings.media.sprite.*;
+import com.threerings.media.tile.Tile;
+
 import com.threerings.miso.Log;
-import com.threerings.miso.tile.Tile;
-import com.threerings.miso.tile.Traverser;
 
 /**
  * An <code>AmbulatorySprite</code> is a sprite that can face in one of

@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneWriter.java,v 1.10 2001/08/16 18:05:17 shaper Exp $
+// $Id: XMLSceneWriter.java,v 1.11 2001/08/16 23:14:21 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -12,9 +12,10 @@ import org.xml.sax.helpers.AttributesImpl;
 
 import com.megginson.sax.DataWriter;
 
+import com.threerings.media.tile.Tile;
+
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;
-import com.threerings.miso.tile.Tile;
 
 /**
  * The <code>XMLSceneWriter</code> writes a {@link

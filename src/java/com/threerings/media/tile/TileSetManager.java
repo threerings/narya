@@ -1,7 +1,7 @@
 //
-// $Id: TileSetManager.java,v 1.11 2001/08/13 19:54:39 shaper Exp $
+// $Id: TileSetManager.java,v 1.12 2001/08/16 23:14:20 mdb Exp $
 
-package com.threerings.miso.tile;
+package com.threerings.media.tile;
 
 import com.threerings.media.ImageManager;
 

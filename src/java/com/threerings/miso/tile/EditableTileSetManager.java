@@ -1,5 +1,5 @@
 //
-// $Id: EditableTileSetManager.java,v 1.8 2001/07/23 22:31:48 shaper Exp $
+// $Id: EditableTileSetManager.java,v 1.9 2001/08/16 23:14:21 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -7,8 +7,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.samskivert.util.Config;
-import com.threerings.miso.Log;
+
 import com.threerings.media.ImageManager;
+import com.threerings.media.tile.*;
+
+import com.threerings.miso.Log;
 
 /**
  * Extends general tileset manager functionality to allow reading

@@ -1,15 +1,15 @@
 //
-// $Id: TileManager.java,v 1.14 2001/08/13 19:54:39 shaper Exp $
+// $Id: TileManager.java,v 1.15 2001/08/16 23:14:20 mdb Exp $
 
-package com.threerings.miso.tile;
-
-import com.threerings.miso.Log;
-
-import com.samskivert.util.IntMap;
+package com.threerings.media.tile;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+
+import com.samskivert.util.IntMap;
+
+import com.threerings.media.Log;
 
 /**
  * The <code>TileManager</code> class provides a simplified interface

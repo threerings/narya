@@ -1,7 +1,7 @@
 //
-// $Id: Tile.java,v 1.10 2001/08/15 02:30:27 shaper Exp $
+// $Id: Tile.java,v 1.11 2001/08/16 23:14:20 mdb Exp $
 
-package com.threerings.miso.tile;
+package com.threerings.media.tile;
 
 import java.awt.Image;
 

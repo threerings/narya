@@ -1,5 +1,5 @@
 //
-// $Id: MisoUtil.java,v 1.7 2001/08/15 02:13:51 mdb Exp $
+// $Id: MisoUtil.java,v 1.8 2001/08/16 23:14:21 mdb Exp $
 
 package com.threerings.miso.util;
 
@@ -9,12 +9,14 @@ import java.net.URL;
 import java.net.MalformedURLException;
 
 import com.samskivert.util.*;
+import com.threerings.resource.ResourceManager;
 import com.threerings.media.ImageManager;
+import com.threerings.media.tile.*;
+
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;
 import com.threerings.miso.scene.xml.XMLFileSceneRepository;
 import com.threerings.miso.tile.*;
-import com.threerings.resource.ResourceManager;
 
 /**
  * MisoUtil provides miscellaneous routines for applications or other
@@ -71,7 +73,6 @@ public class MisoUtil
 	ImageManager imgmgr = new ImageManager(rmgr, frame);
 	TileSetManager tilesetmgr = createTileSetManager(config, imgmgr);
 	TileManager tilemgr = new TileManager(tilesetmgr);
-
 	return tilemgr;
     }
 

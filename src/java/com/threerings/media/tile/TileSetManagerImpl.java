@@ -1,5 +1,5 @@
 //
-// $Id: TileSetManagerImpl.java,v 1.9 2001/08/13 19:54:39 shaper Exp $
+// $Id: TileSetManagerImpl.java,v 1.10 2001/08/16 23:14:21 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -10,6 +10,8 @@ import java.util.Enumeration;
 
 import com.samskivert.util.*;
 import com.threerings.media.ImageManager;
+import com.threerings.media.tile.*;
+
 import com.threerings.miso.Log;
 
 public abstract class TileSetManagerImpl implements TileSetManager

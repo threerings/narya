@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneRepository.java,v 1.8 2001/08/15 02:13:36 mdb Exp $
+// $Id: XMLSceneRepository.java,v 1.9 2001/08/16 23:14:21 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -8,9 +8,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.samskivert.util.Config;
+import com.threerings.media.tile.TileManager;
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.MisoScene;
-import com.threerings.miso.tile.TileManager;
 
 /**
  * The <code>XMLFileSceneRepository</code> provides a mechanism for

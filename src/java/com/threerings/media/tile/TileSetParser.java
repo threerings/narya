@@ -1,7 +1,7 @@
 //
-// $Id: TileSetParser.java,v 1.4 2001/07/23 22:31:48 shaper Exp $
+// $Id: TileSetParser.java,v 1.5 2001/08/16 23:14:20 mdb Exp $
 
-package com.threerings.miso.tile;
+package com.threerings.media.tile;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -1,15 +1,16 @@
 //
-// $Id: AStarPathUtil.java,v 1.2 2001/08/15 22:06:21 shaper Exp $
+// $Id: AStarPathUtil.java,v 1.3 2001/08/16 23:14:21 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
 import java.awt.Point;
 import java.util.*;
 
-import com.threerings.miso.Log;
-import com.threerings.miso.tile.Tile;
-import com.threerings.miso.tile.Traverser;
+import com.threerings.media.tile.Tile;
 import com.threerings.media.util.MathUtil;
+
+import com.threerings.miso.Log;
+import com.threerings.miso.scene.Traverser;
 
 /**
  * The <code>AStarPathUtil</code> class provides a facility for

@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.13 2001/08/16 20:14:06 shaper Exp $
+// $Id: XMLSceneParser.java,v 1.14 2001/08/16 23:14:21 mdb Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -13,9 +13,10 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import com.samskivert.util.*;
 import com.samskivert.xml.XMLUtil;
+import com.threerings.media.tile.*;
+
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;
-import com.threerings.miso.tile.*;
 
 /**
  * Parse an XML scene description file and construct a scene object.

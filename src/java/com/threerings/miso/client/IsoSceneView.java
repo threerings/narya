@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.49 2001/08/16 18:05:16 shaper Exp $
+// $Id: IsoSceneView.java,v 1.50 2001/08/16 23:14:21 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.ArrayList;
 
 import com.threerings.media.sprite.*;
+import com.threerings.media.tile.Tile;
+import com.threerings.media.tile.TileManager;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.tile.Tile;
-import com.threerings.miso.tile.TileManager;
 import com.threerings.miso.scene.util.AStarPathUtil;
 import com.threerings.miso.scene.util.IsoUtil;
 

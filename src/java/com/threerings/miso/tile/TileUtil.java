@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.2 2001/08/15 02:30:27 shaper Exp $
+// $Id: TileUtil.java,v 1.3 2001/08/16 23:14:21 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -7,6 +7,8 @@ import java.awt.Image;
 
 import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.sprite.Path;
+import com.threerings.media.tile.*;
+
 import com.threerings.miso.scene.AmbulatorySprite;
 
 /**

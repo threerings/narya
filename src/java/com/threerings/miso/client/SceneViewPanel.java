@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.7 2001/08/15 22:16:43 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.8 2001/08/16 23:14:21 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -7,7 +7,7 @@ import java.awt.*;
 import javax.swing.JPanel;
 
 import com.threerings.media.sprite.SpriteManager;
-import com.threerings.miso.tile.TileManager;
+import com.threerings.media.tile.TileManager;
 
 /**
  * The <code>SceneViewPanel</code> class is responsible for managing a

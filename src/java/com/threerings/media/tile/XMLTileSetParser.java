@@ -1,7 +1,7 @@
 //
-// $Id: XMLTileSetParser.java,v 1.12 2001/08/16 20:14:06 shaper Exp $
+// $Id: XMLTileSetParser.java,v 1.13 2001/08/16 23:14:20 mdb Exp $
 
-package com.threerings.miso.tile;
+package com.threerings.media.tile;
 
 import java.awt.Point;
 import java.io.*;
@@ -13,7 +13,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import com.samskivert.util.*;
 import com.samskivert.xml.XMLUtil;
-import com.threerings.miso.Log;
+import com.threerings.media.Log;
 
 /**
  * Parse an XML tileset description file and construct tileset objects
