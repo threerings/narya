@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.32 2001/12/17 03:32:52 mdb Exp $
+// $Id: Sprite.java,v 1.33 2001/12/19 07:43:09 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -31,10 +31,10 @@ public class Sprite implements DirectionCodes
 
     /**
      * Constructs a sprite without any associated frames and with a
-     * default initial location of <code>(0, 0)</code>.  The sprite
-     * should be populated with a set of frames used to display it via
-     * a subsequent call to {@link #setFrames}, and its location
-     * can be updated with {@link #setLocation}.
+     * default initial location of <code>(0, 0)</code>.  The sprite should
+     * be populated with a set of frames used to display it via a
+     * subsequent call to {@link #setFrames}, and its location can be
+     * updated with {@link #setLocation}.
      */
     public Sprite ()
     {
@@ -43,8 +43,8 @@ public class Sprite implements DirectionCodes
 
     /**
      * Constructs a sprite without any associated frames. The sprite
-     * should be populated with a set of frames used to display it via
-     * a subsequent call to {@link #setFrames}.
+     * should be populated with a set of frames used to display it via a
+     * subsequent call to {@link #setFrames}.
      *
      * @param x the sprite x-position in pixels.
      * @param y the sprite y-position in pixels.
@@ -213,8 +213,17 @@ public class Sprite implements DirectionCodes
     }
 
     /**
-     * Returns whether the sprite is inside the given shape in
-     * pixel coordinates.
+     * Returns true if the sprite's bounds contain the specified point,
+     * false if not.
+     */
+    public boolean contains (int x, int y)
+    {
+        return _bounds.contains(x, y);
+    }
+
+    /**
+     * Returns whether the sprite is inside the given shape in pixel
+     * coordinates.
      */
     public boolean inside (Shape shape)
     {
@@ -293,10 +302,18 @@ public class Sprite implements DirectionCodes
     }
 
     /**
-     * Set the sprite's active path and start moving it along its
-     * merry way.  If the sprite is already moving along a previous
-     * path the old path will be lost and the new path will begin to
-     * be traversed.
+     * Returns true if this sprite is currently following a path, false if
+     * it is not.
+     */
+    public boolean isMoving ()
+    {
+        return (_path != null);
+    }
+
+    /**
+     * Set the sprite's active path and start moving it along its merry
+     * way.  If the sprite is already moving along a previous path the old
+     * path will be lost and the new path will begin to be traversed.
      *
      * @param path the path to follow.
      */
