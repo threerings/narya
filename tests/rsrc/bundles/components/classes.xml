@@ -1,8 +1,13 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- $Id: classes.xml,v 1.1 2001/11/27 08:06:57 mdb Exp $ -->
+<!-- $Id: classes.xml,v 1.2 2001/11/27 20:05:52 mdb Exp $ -->
 
 <!-- test component class definitions -->
 <classes>
-  <class name="hat" renderPriority="1"/>
-  <class name="torso" renderPriority="0"/>
+  <class name="legs" renderPriority="0"/>
+  <class name="feet" renderPriority="1"/>
+  <class name="hands" renderPriority="2"/>
+  <class name="torso" renderPriority="3"/>
+  <class name="head" renderPriority="4"/>
+  <class name="hair" renderPriority="5"/>
+  <class name="hat" renderPriority="6"/>
 </classes>
