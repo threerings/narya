@@ -210,19 +210,23 @@
     </viztool>
   </target>
 
-  <!-- creates a tarball for source distribution -->
+  <!-- creates a tarball and zipfile for source distribution -->
   <target name="distrib">
-     <echo message="Building ${lib.version} distribution..."/>
      <echo message="You may want to stop and run 'ant savedoc' first."/>
-     <jar destfile="narya-${lib.version}.jar">
+     <echo message="Building ${lib.version} tar.gz distribution..."/>
+     <tar destfile="narya-${lib.version}.tar.gz" compression="gzip"
+          basedir=".." includes="narya/**"
+          excludes="**/CVS, narya/dist/**, narya/code/**, narya/narya-*.*"/>
+     <echo message="Building ${lib.version} zip distribution..."/>
+     <zip destfile="narya-${lib.version}.zip">
        <fileset dir="..">
-         <exclude name="**/CVS"/>
          <include name="narya/**"/>
+         <exclude name="**/CVS"/>
          <exclude name="narya/dist/**"/>
          <exclude name="narya/code/**"/>
-         <exclude name="narya/*.jar"/>
+         <exclude name="narya/narya-*.*"/>
        </fileset>
-     </jar>
+     </zip>
   </target>
 
 </project>
