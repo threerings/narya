@@ -1,8 +1,10 @@
 //
-// $Id: DirtyItemList.java,v 1.1 2001/10/13 01:08:59 shaper Exp $
+// $Id: DirtyItemList.java,v 1.2 2001/10/17 22:13:53 shaper Exp $
 
 package com.threerings.media.sprite;
 
+import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.util.*;
 
 import com.threerings.media.sprite.Sprite;
@@ -20,22 +22,32 @@ import com.threerings.media.Log;
 public class DirtyItemList extends ArrayList
 {
     /**
-     * Append the dirty item at the given coordinates to the dirty
-     * item list.
+     * Appends the dirty sprite at the given coordinates to the dirty
+     * item list if no item already exists at those coordinates.
+     * Returns whether the item was added to the list.
      */
-    public boolean appendDirtyItem (Object item, int x, int y)
+    public boolean appendDirtySprite (Sprite sprite, int x, int y)
     {
-        // only allow appending sprites and object tiles
-        if (!(item instanceof Sprite) && !(item instanceof ObjectTile)) {
-            return false;
-        }
-
-        // only add the item if there are no existing items
         if (!contains(x, y)) {
-            add(new DirtyItem(item, x, y));
+            add(new DirtyItem(sprite, null, x, y));
             return true;
         }
 
+        return false;
+    }
+
+    /**
+     * Appends the dirty object tile at the given coordinates to the
+     * dirty item list if no item already exists at those coordinates.
+     * Returns whether the item was added to the list.
+     */
+    public boolean appendDirtyObject (
+        ObjectTile tile, Shape bounds, int x, int y)
+    {
+        if (!contains(x, y)) {
+            add(new DirtyItem(tile, bounds, x, y));
+            return true;
+        }
         return false;
     }
 
@@ -78,13 +90,25 @@ public class DirtyItemList extends ArrayList
     public class DirtyItem
     {
         public Object obj;
+        public Shape bounds;
         public int x, y;
 
-        public DirtyItem (Object obj, int x, int y)
+        public DirtyItem (Object obj, Shape bounds, int x, int y)
         {
             this.obj = obj;
+            this.bounds = bounds;
             this.x = x;
             this.y = y;
+        }
+
+        public void paint (Graphics2D gfx)
+        {
+            if (obj instanceof Sprite) {
+                ((Sprite)obj).paint(gfx);
+
+            } else {
+                ((ObjectTile)obj).paint(gfx, bounds);
+            }
         }
     }
 }
