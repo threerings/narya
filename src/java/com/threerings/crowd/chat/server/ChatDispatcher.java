@@ -1,5 +1,5 @@
 //
-// $Id: ChatDispatcher.java,v 1.2 2002/08/20 19:38:13 mdb Exp $
+// $Id: ChatDispatcher.java,v 1.3 2002/10/30 01:47:12 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -14,10 +14,6 @@ import com.threerings.presents.server.InvocationException;
 
 /**
  * Dispatches requests to the {@link ChatProvider}.
- *
- * <p> Generated from <code>
- * $Id: ChatDispatcher.java,v 1.2 2002/08/20 19:38:13 mdb Exp $
- * </code>
  */
 public class ChatDispatcher extends InvocationDispatcher
 {
@@ -53,4 +49,6 @@ public class ChatDispatcher extends InvocationDispatcher
             super.dispatchRequest(source, methodId, args);
         }
     }
+
+    // Generated on 17:55:05 10/29/02.
 }

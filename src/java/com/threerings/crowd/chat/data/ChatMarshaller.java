@@ -1,5 +1,5 @@
 //
-// $Id: ChatMarshaller.java,v 1.2 2002/08/20 19:38:13 mdb Exp $
+// $Id: ChatMarshaller.java,v 1.3 2002/10/30 01:47:12 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -15,10 +15,6 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
- *
- * <p> Generated from <code>
- * $Id: ChatMarshaller.java,v 1.2 2002/08/20 19:38:13 mdb Exp $
- * </code>
  */
 public class ChatMarshaller extends InvocationMarshaller
     implements ChatService
@@ -39,6 +35,18 @@ public class ChatMarshaller extends InvocationMarshaller
                                new Object[] {  }));
         }
 
+        /** The method id used to dispatch {@link #tellSucceededIdle}
+         * responses. */
+        public static final int TELL_SUCCEEDED_IDLE = 2;
+
+        // documentation inherited from interface
+        public void tellSucceededIdle (long arg1)
+        {
+            omgr.postEvent(new InvocationResponseEvent(
+                               callerOid, requestId, TELL_SUCCEEDED_IDLE,
+                               new Object[] { new Long(arg1) }));
+        }
+
         // documentation inherited
         public void dispatchResponse (int methodId, Object[] args)
         {
@@ -46,6 +54,11 @@ public class ChatMarshaller extends InvocationMarshaller
             case TELL_SUCCEEDED:
                 ((TellListener)listener).tellSucceeded(
                     );
+                return;
+
+            case TELL_SUCCEEDED_IDLE:
+                ((TellListener)listener).tellSucceededIdle(
+                    ((Long)args[0]).longValue());
                 return;
 
             default:
@@ -67,5 +80,5 @@ public class ChatMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 12:33:02 08/20/02.
+    // Generated on 17:55:05 10/29/02.
 }

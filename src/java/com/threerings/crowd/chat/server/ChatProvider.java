@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.13 2002/08/14 19:07:49 mdb Exp $
+// $Id: ChatProvider.java,v 1.14 2002/10/30 01:47:12 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -13,9 +13,13 @@ import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.crowd.chat.ChatService.TellListener;
+
+import com.threerings.util.MessageBundle;
+import com.threerings.util.TimeUtil;
 
 /**
  * The chat provider handles the server side of the chat-related
@@ -51,12 +55,26 @@ public class ChatProvider
             throw new InvocationException(USER_NOT_ONLINE);
         }
 
+        if (tobj.status == OccupantInfo.DISCONNECTED) {
+            throw new InvocationException(MessageBundle.compose(
+                USER_DISCONNECTED, TimeUtil.getTimeOrderString(
+                System.currentTimeMillis() - tobj.statusTime,
+                TimeUtil.MINUTE)));
+        }
+
         // deliver a tell notification to the target player
         BodyObject source = (BodyObject)caller;
         sendTellMessage(tobj, source.username, null, message);
 
         // let the teller know it went ok
-        listener.tellSucceeded();
+        if (tobj.status == OccupantInfo.IDLE) {
+            listener.tellSucceededIdle(
+                System.currentTimeMillis() - tobj.statusTime);
+
+        } else {
+            // normal success
+            listener.tellSucceeded();
+        }
     }
 
     /**

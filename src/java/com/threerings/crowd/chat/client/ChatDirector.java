@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.35 2002/10/28 00:22:38 ray Exp $
+// $Id: ChatDirector.java,v 1.36 2002/10/30 01:47:12 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -14,6 +14,7 @@ import com.threerings.presents.dobj.*;
 
 import com.threerings.util.MessageBundle;
 import com.threerings.util.MessageManager;
+import com.threerings.util.TimeUtil;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.client.LocationObserver;
@@ -312,6 +313,16 @@ public class ChatDirector extends BasicDirector
             public void tellSucceeded () {
                 String msg = MessageBundle.tcompose(
                     "m.told_format", target, message);
+                displayFeedbackMessage(_bundle, msg);
+                addChatter(target);
+            }
+
+            public void tellSucceededIdle (long idletime) {
+                String msg = MessageBundle.compose(
+                    "m.told_idle_format", MessageBundle.taint(target),
+                    MessageBundle.taint(message),
+                    TimeUtil.getTimeOrderString(idletime, TimeUtil.MINUTE));
+
                 displayFeedbackMessage(_bundle, msg);
                 addChatter(target);
             }

@@ -1,5 +1,5 @@
 //
-// $Id: ChatService.java,v 1.8 2002/08/14 19:07:49 mdb Exp $
+// $Id: ChatService.java,v 1.9 2002/10/30 01:47:12 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -24,6 +24,13 @@ public interface ChatService extends InvocationService
          * Communicates the response to a {@link #tell} request.
          */
         public void tellSucceeded ();
+
+        /**
+         * Communicates the response to a {@link #tell} request.
+         *
+         * @param idletime, the number of ms the tellee has been idle.
+         */
+        public void tellSucceededIdle (long idletime);
     }
 
     /**

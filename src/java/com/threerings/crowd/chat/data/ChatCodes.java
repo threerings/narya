@@ -1,5 +1,5 @@
 //
-// $Id: ChatCodes.java,v 1.11 2002/08/14 19:07:49 mdb Exp $
+// $Id: ChatCodes.java,v 1.12 2002/10/30 01:47:12 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -41,4 +41,8 @@ public interface ChatCodes extends InvocationCodes
     /** An error code delivered when the user targeted for a tell
      * notification is not online. */
     public static final String USER_NOT_ONLINE = "m.user_not_online";
+
+    /** An error code delivered when the user targeted for a tell
+     * notification is disconnected. */
+    public static final String USER_DISCONNECTED = "m.user_disconnected";
 }
