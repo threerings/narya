@@ -1,5 +1,5 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.16 2002/09/27 19:02:15 mdb Exp $
+// $Id: ComponentBundlerTask.java,v 1.17 2003/01/07 00:59:21 mdb Exp $
 
 package com.threerings.cast.bundle.tools;
 
@@ -129,6 +129,16 @@ public class ComponentBundlerTask extends Task
         // load up our component ID broker
         ComponentIDBroker broker = loadBroker(_mapfile);
 
+        // check to see if any of the source files are newer than the
+        // target file
+        ArrayList sources = (ArrayList)_filesets.clone();
+        sources.add(_mapfile);
+        sources.add(_actionDef);
+        if (!outOfDate(sources, _target)) {
+            System.out.println(_target.getPath() + " is up to date.");
+            return;
+        }
+
         System.out.println("Generating " + _target.getPath() + "...");
 
         try {
@@ -231,6 +241,50 @@ public class ComponentBundlerTask extends Task
 
         // save our updated component ID broker
         saveBroker(_mapfile, broker);
+    }
+
+    protected boolean outOfDate (ArrayList sources, File target)
+    {
+        for (int ii = 0; ii < sources.size(); ii++) {
+            if (outOfDate(sources.get(ii), target)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected boolean outOfDate (Object source, File target)
+    {
+        if (source instanceof FileSet) {
+            FileSet fs = (FileSet)source;
+            DirectoryScanner ds = fs.getDirectoryScanner(getProject());
+            File fromDir = fs.getDir(getProject());
+            String[] srcFiles = ds.getIncludedFiles();
+            for (int f = 0; f < srcFiles.length; f++) {
+                File cfile = new File(fromDir, srcFiles[f]);
+                if (newer(cfile, target)) {
+                    return true;
+                }
+            }
+            return false;
+
+        } else if (source instanceof File) {
+            return newer((File)source, target);
+
+        } else {
+            System.err.println("Can't compare " + source +
+                               " to " + target + ".");
+            return true;
+        }
+    }
+
+    /**
+     * Returns true if <code>source</code> is newer than
+     * <code>target</code>.
+     */
+    protected boolean newer (File source, File target)
+    {
+        return source.lastModified() > target.lastModified();
     }
 
     /**
