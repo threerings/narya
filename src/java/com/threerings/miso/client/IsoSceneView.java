@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.118 2002/09/05 02:21:54 shaper Exp $
+// $Id: IsoSceneView.java,v 1.119 2002/09/18 02:32:57 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -17,8 +17,6 @@ import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import com.samskivert.util.StringUtil;
@@ -162,34 +160,27 @@ public class IsoSceneView implements SceneView
      */
     protected void paintHighlights (Graphics2D gfx, Rectangle clip)
     {
-        // if we're not highlighting object tiles, bail now
+        // if we're not highlighting anything, bail now
         if (_hmode == HIGHLIGHT_NEVER) {
             return;
         }
 
         Polygon hpoly = null;
 
-        // if the highlighted object is an object tile, we want to
-        // highlight that
-        if (_hobject instanceof ObjectTile) {
-            ObjectTile otile = (ObjectTile)_hobject;
-            // if we're only highlighting objects with actions, make sure
-            // this one has an action
-            String action = _scene.getObjectAction(otile);
-            if (_hmode != HIGHLIGHT_WITH_ACTION || !StringUtil.blank(action)) {
-                hpoly = IsoUtil.getObjectFootprint(
-                    _model, _hcoords.x, _hcoords.y, otile);
+        // if we have a hover object, do some business
+        if (_hobject != null && _hobject instanceof SceneObject) {
+            SceneObject scobj = (SceneObject)_hobject;
+            if (scobj.action != null || _hmode == HIGHLIGHT_ALWAYS) {
+                hpoly = IsoUtil.getObjectFootprint(_model, scobj);
             }
         }
 
-        // if we have no highlight object, but we're in HIGHLIGHT_ALL,
-        // then paint the bounds of the highlighted base tile
-        if (hpoly == null && _hmode == HIGHLIGHT_ALL &&
-            _hcoords.x != -1 && _hcoords.y != -1) {
+        // if we had no valid hover object, but we're in HIGHLIGHT_ALWAYS,
+        // go for the tile outline
+        if (hpoly == null && _hmode == HIGHLIGHT_ALWAYS) {
             hpoly = IsoUtil.getTilePolygon(_model, _hcoords.x, _hcoords.y);
         }
 
-        // if we've determined that there's something to highlight
         if (hpoly != null) {
             // set the desired stroke and color
             Stroke ostroke = gfx.getStroke();
@@ -394,26 +385,24 @@ public class IsoSceneView implements SceneView
         }
 
         // add any objects impacted by the dirty rectangle
-        Iterator iter = _objects.iterator();
-        while (iter.hasNext()) {
-            ObjectMetrics metrics = (ObjectMetrics)iter.next();
-            Rectangle obounds = metrics.bounds;
-            if (!obounds.intersects(clip)) {
+        int ocount = _objects.size();
+        for (int ii = 0; ii < ocount; ii++) {
+            SceneObject scobj = (SceneObject)_objects.get(ii);
+            if (!scobj.bounds.intersects(clip)) {
                 continue;
             }
 
             // compute the footprint if we're rendering those
             Polygon foot = null;
             if (_model.showFootprints) {
-                foot = IsoUtil.getObjectFootprint(
-                    _model, metrics.x, metrics.y, metrics.tile);
+                foot = IsoUtil.getObjectFootprint(_model, scobj);
             }
 
             // add the object to the dirty items list
-            _dirtyItems.appendDirtyObject(
-                metrics.tile, obounds, foot, metrics.x, metrics.y);
+            _dirtyItems.appendDirtyObject(scobj, foot);
+
             // Log.info("Dirtied item: Object(" +
-            // metrics.x + ", " + metrics.y + ")");
+            // scobj.x + ", " + scobj.y + ")");
         }
 
 //         Log.info("renderDirtyItems [items=" + _dirtyItems.size() + "].");
@@ -434,44 +423,26 @@ public class IsoSceneView implements SceneView
         _objects.clear();
 
         // generate metric records for all objects
-        Iterator oiter = _scene.getObjectTiles();
-        while (oiter.hasNext()) {
-            ObjectTile tile = (ObjectTile)oiter.next();
-            Point coords = _scene.getObjectCoords(tile);
-            generateObjectMetrics(tile, coords.x, coords.y);
-        }
-    }
-
-    /**
-     * Generates object tile metrics for the supplied object tile and adds
-     * them to the list.
-     */
-    protected void generateObjectMetrics (ObjectTile tile, int x, int y)
-    {
-        // create a metrics record for this object
-        ObjectMetrics metrics = new ObjectMetrics();
-        metrics.tile = tile;
-        metrics.x = x;
-        metrics.y = y;
-        metrics.bounds = IsoUtil.getObjectBounds(_model, x, y, tile);
-
-        // and add it to the list
-        _objects.add(metrics);
-    }
-
-    /**
-     * Clears out the object metrics for the specified object.
-     */
-    protected void clearObjectMetrics (ObjectTile tile)
-    {
-        int ocount = _objects.size();
+        int ocount = _scene.getObjectCount();
         for (int ii = 0; ii < ocount; ii++) {
-            ObjectMetrics metrics = (ObjectMetrics)_objects.get(ii);
-            if (metrics.tile == tile) {
-                _objects.remove(ii);
-                return;
-            }
+            createSceneObject(_scene.getObjectCoords(ii).x,
+                              _scene.getObjectCoords(ii).y,
+                              _scene.getObjectTile(ii), ii,
+                              _scene.getObjectAction(ii));
         }
+    }
+
+    /**
+     * Creates a new scene object and adds it to the list.
+     */
+    protected void createSceneObject (
+        int x, int y, ObjectTile tile, int index, String action)
+    {
+        SceneObject scobj = new SceneObject(x, y, tile);
+        scobj.index = index;
+        scobj.action = action;
+        scobj.bounds = IsoUtil.getObjectBounds(_model, scobj);
+        _objects.add(scobj);
     }
 
     // documentation inherited
@@ -513,10 +484,11 @@ public class IsoSceneView implements SceneView
         int x = e.getX(), y = e.getY();
         boolean repaint = false;
 
-        // update the base tile coordinates that the mouse is over (if
-        // it's also over an object tile, we'll override these values)
+        // update the mouse's tile coordinates
+        boolean newtile = updateTileCoords(x, y, _hcoords);
+        // if we're highlighting base tiles, we may need to repaint
         if (_hmode == HIGHLIGHT_ALL) {
-            repaint = (updateTileCoords(x, y, _hcoords) || repaint);
+            repaint = (newtile || repaint);
         }
 
         // compute the list of objects over which the mouse is hovering
@@ -544,19 +516,14 @@ public class IsoSceneView implements SceneView
         if (icount > 0) {
             DirtyItem item = (DirtyItem)_hitList.get(icount-1);
             hobject = item.obj;
-
-            // if this is an object tile, we need to update the hcoords
-            if (hobject instanceof ObjectTile) {
-                _hcoords.x = item.ox;
-                _hcoords.y = item.oy;
-            }
         }
 
         // if this hover object is different than before, we'll need to be
-        // repainted
+        // repainted unless we're not highlighting anything
         if (hobject != _hobject) {
-            repaint = hoverObjectWillChange(hobject) || repaint;
+            repaint |= (_hmode != HIGHLIGHT_NEVER);
             _hobject = hobject;
+//             Log.info("New hover object [ho=" + _hobject + "].");
         }
 
         // clear out the hitlists
@@ -567,24 +534,6 @@ public class IsoSceneView implements SceneView
     }
 
     /**
-     * Called to inform that the hover object, _hobject, has changed.
-     * When overriding this method, be sure not to short-circuit any
-     * calls to super() unless you mean to.
-     *
-     * @return true if we need to repaint.
-     */
-    protected boolean hoverObjectWillChange (Object newhobject)
-    {
-        // we need to repaint if we're highlighting objects, but if
-        // we're only highlighting objects with actions, we only need
-        // to repaint if the object has an action
-        return (_hmode == HIGHLIGHT_WITH_ACTION)
-            ?  ((newhobject instanceof ObjectTile) &&
-                (_scene.getObjectAction((ObjectTile)newhobject) != null))
-            : (_hmode != HIGHLIGHT_NEVER);
-    }
-
-    /**
      * Adds to the supplied dirty item list, all of the object tiles that
      * are hit by the specified point (meaning the point is contained
      * within their bounds and intersects a non-transparent pixel in the
@@ -592,10 +541,10 @@ public class IsoSceneView implements SceneView
      */
     protected void getHitObjects (DirtyItemList list, int x, int y)
     {
-        Iterator iter = _objects.iterator();
-        while (iter.hasNext()) {
-            ObjectMetrics metrics = (ObjectMetrics)iter.next();
-            Rectangle pbounds = metrics.bounds;
+        int ocount = _objects.size();
+        for (int ii = 0; ii < ocount; ii++) {
+            SceneObject scobj = (SceneObject)_objects.get(ii);
+            Rectangle pbounds = scobj.bounds;
             // skip bounding rects that don't contain the point
             if (!pbounds.contains(x, y)) {
                 continue;
@@ -603,13 +552,12 @@ public class IsoSceneView implements SceneView
 
             // now check that the pixel in the tile image is
             // non-transparent at that point
-            if (!metrics.tile.hitTest(x - pbounds.x, y - pbounds.y)) {
+            if (!scobj.tile.hitTest(x - pbounds.x, y - pbounds.y)) {
                 continue;
             }
 
             // we've passed the test, add the object to the list
-            list.appendDirtyObject(metrics.tile, metrics.bounds, null,
-                                   metrics.x, metrics.y);
+            list.appendDirtyObject(scobj, null);
         }
     }
 
@@ -629,28 +577,11 @@ public class IsoSceneView implements SceneView
 
     /**
      * Returns the tile coordinates of the tile over which the mouse is
-     * hovering (which are the origin coordinates in the case of an object
-     * tile).
+     * hovering.
      */
     public Point getHoverCoords ()
     {
         return _hcoords;
-    }
-
-    /**
-     * Returns the bounds of the given object in the scene in screen
-     * coordinates, or <code>null</code> if there is no such object.
-     */
-    public Rectangle getObjectTileBounds (int x, int y, ObjectTile tile)
-    {
-        Iterator iter = _objects.iterator();
-        while (iter.hasNext()) {
-            ObjectMetrics metrics = (ObjectMetrics)iter.next();
-            if (metrics.tile == tile && metrics.x == x && metrics.y == y) {
-                return metrics.bounds;
-            }
-        }
-        return null;
     }
 
     /**
@@ -675,22 +606,6 @@ public class IsoSceneView implements SceneView
         } else {
             return false;
         }
-    }
-
-    /**
-     * A class used to cache necessary information on all object tiles in
-     * the scene.
-     */
-    protected static class ObjectMetrics
-    {
-        /** The x and y tile coordinates of the object. */
-        public int x, y;
-
-        /** A reference to the object tile itself. */
-        public ObjectTile tile;
-
-        /** The object's bounding rectangle. */
-        public Rectangle bounds;
     }
 
     /** The sprite manager. */
@@ -731,12 +646,11 @@ public class IsoSceneView implements SceneView
     /** The highlight mode. */
     protected int _hmode = HIGHLIGHT_NEVER;
 
-    /** The coordinates of the currently highlighted base or object
-     * tile. */
-    protected Point _hcoords = new Point(-1, -1);
-
-    /** The object that the mouse is currently hovering over. */
+    /** Info on the object that the mouse is currently hovering over. */
     protected Object _hobject;
+
+    /** Used to track the tile coordinates over which the mouse is hovering. */
+    protected Point _hcoords = new Point();
 
     /** The font to draw tile coordinates. */
     protected Font _font = new Font("Arial", Font.PLAIN, 7);

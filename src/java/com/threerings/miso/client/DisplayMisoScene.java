@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoScene.java,v 1.5 2002/04/27 18:41:14 mdb Exp $
+// $Id: DisplayMisoScene.java,v 1.6 2002/09/18 02:32:57 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -29,26 +29,29 @@ public interface DisplayMisoScene
     public Tile getFringeTile (int x, int y);
 
     /**
-     * Returns an iterator over all object tiles in this scene.
+     * Returns the number of object tiles in the scene.
      */
-    public Iterator getObjectTiles ();
+    public int getObjectCount ();
+
+    /**
+     * Returns the object tile with the specified index.
+     */
+    public ObjectTile getObjectTile (int index);
 
     /**
      * Returns the tile coordinates for the specified object tile.
      *
-     * @param tile the tile for which coordinates are to be fetched; this
-     * tile must have been obtained from a call to {@link
-     * #getObjectTiles}.
+     * @param index the index of the object tile for which coordinates are
+     * desired.
      */
-    public Point getObjectCoords (ObjectTile tile);
+    public Point getObjectCoords (int index);
 
     /**
      * Returns the action associated with the specified object tile. Null
      * is returned if the object tile does not have an associated action.
      *
-     * @param tile the tile for which the action is to be fetched; this
-     * tile must have been obtained from a call to {@link
-     * #getObjectTiles}.
+     * @param index the index of the object for which the action is
+     * desired.
      */
-    public String getObjectAction (ObjectTile tile);
+    public String getObjectAction (int index);
 }

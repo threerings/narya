@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.59 2002/09/12 21:10:31 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.60 2002/09/18 02:32:57 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -157,31 +157,32 @@ public class DisplayMisoSceneImpl
      * Called to expand each object read from the model into an actual
      * object tile instance with the appropriate additional data.
      *
-     * @return the newly created object tile (which will have been put
-     * into all the appropriate lists and tables).
+     * @return the object info record for the newly created object tile
+     * (which will have been put into all the appropriate lists and
+     * tables).
      */
-    protected ObjectTile expandObject (
+    protected ObjectInfo expandObject (
         int col, int row, int tsid, int tid, int fqTid, String action)
         throws NoSuchTileException, NoSuchTileSetException
     {
-        // create the object tile and stick it in the list
-        ObjectTile otile = (ObjectTile)_tmgr.getTile(tsid, tid);
-        _objects.add(otile);
-        _coords.put(otile, new Point(col, row));
-
-        // stick the action in the actions table if there is one
+        // create and initialize an object info record for this object
+        ObjectInfo oinfo = createObjectInfo();
+        oinfo.object = (ObjectTile)_tmgr.getTile(tsid, tid);
+        oinfo.coords = new Point(col, row);
         if (!StringUtil.blank(action)) {
-            _actions.put(otile, action);
+            oinfo.action = action;
         }
 
         // generate a "shadow" for this object tile by toggling the
         // "covered" flag on in all base tiles below it (to prevent
         // sprites from walking on those tiles)
-        setObjectTileFootprint(otile, col, row, true);
+        setObjectTileFootprint(oinfo.object, col, row, true);
 
-        // return the object tile so that derived classes have easy access
-        // to it
-        return otile;
+        // add the info record to the list
+        _objects.add(oinfo);
+
+        // return the object info so that derived classes may access it
+        return oinfo;
     }
 
     // documentation inherited from interface
@@ -197,21 +198,27 @@ public class DisplayMisoSceneImpl
     }
 
     // documentation inherited from interface
-    public Iterator getObjectTiles ()
+    public int getObjectCount ()
     {
-        return _objects.iterator();
+        return _objects.size();
     }
 
     // documentation inherited from interface
-    public Point getObjectCoords (ObjectTile tile)
+    public ObjectTile getObjectTile (int index)
     {
-        return (Point)_coords.get(tile);
+        return ((ObjectInfo)_objects.get(index)).object;
     }
 
     // documentation inherited from interface
-    public String getObjectAction (ObjectTile tile)
+    public Point getObjectCoords (int index)
     {
-        return (String)_actions.get(tile);
+        return ((ObjectInfo)_objects.get(index)).coords;
+    }
+
+    // documentation inherited from interface
+    public String getObjectAction (int index)
+    {
+        return ((ObjectInfo)_objects.get(index)).action;
     }
 
     /**
@@ -223,6 +230,33 @@ public class DisplayMisoSceneImpl
         buf.append("[width=").append(_base.getWidth());
         buf.append(", height=").append(_base.getHeight());
         return buf.append("]").toString();
+    }
+
+    /**
+     * Creates an object info. This allows derived classes to extend the
+     * object info record.
+     */
+    protected ObjectInfo createObjectInfo ()
+    {
+        return new ObjectInfo();
+    }
+
+    /**
+     * Locates the object info record for the object tile at the specified
+     * location. Two of the same kind of object tile cannot exist at the
+     * same location.
+     */
+    protected ObjectInfo getObjectInfo (ObjectTile tile, int x, int y)
+    {
+        int ocount = _objects.size();
+        for (int ii = 0; ii < ocount; ii++) {
+            ObjectInfo info = (ObjectInfo)_objects.get(ii);
+            if (info.object == tile &&
+                info.coords.x == x && info.coords.y == y) {
+                return info;
+            }
+        }
+        return null;
     }
 
     /**
@@ -274,18 +308,21 @@ public class DisplayMisoSceneImpl
     /** The fringe layer of tiles. */
     protected TileLayer _fringe;
 
-    /** The object tiles. */
+    /** The object info records. */
     protected ArrayList _objects = new ArrayList();
-
-    /** A map from object tile to coordinate records. */
-    protected HashMap _coords = new HashMap();
-
-    /** A map from object tile to action string. */
-    protected HashMap _actions = new HashMap();
 
     /** The autofringer. */
     protected AutoFringer _fringer;
 
     /** A random number generator for filling random base tiles and fringes. */
     protected Random _rando = new Random();
+
+    /** Used to report information on objects in this scene. */
+    protected static class ObjectInfo
+    {
+        public ObjectInfo () {}
+        public ObjectTile object;
+        public Point coords;
+        public String action;
+    }
 }

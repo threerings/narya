@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.12 2002/07/08 21:41:30 mdb Exp $
+// $Id: DirtyItemList.java,v 1.13 2002/09/18 02:32:57 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -17,6 +17,7 @@ import com.samskivert.util.StringUtil;
 import com.threerings.media.Log;
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.tile.ObjectTile;
+import com.threerings.miso.scene.util.IsoUtil;
 
 /**
  * The dirty item list keeps track of dirty sprites and object tiles
@@ -43,18 +44,14 @@ public class DirtyItemList
      * Appends the dirty object tile at the given coordinates to the dirty
      * item list.
      *
-     * @param tile the object tile that is dirty.
-     * @param bounds the bounds of this object tile.
+     * @param scene the scene object that is dirty.
      * @param footprint the footprint of the object tile if it should be
      * rendered, null otherwise.
-     * @param tx the object tile's x tile position.
-     * @param ty the object tile's y tile position.
      */
-    public void appendDirtyObject (
-        ObjectTile tile, Rectangle bounds, Shape footprint, int tx, int ty)
+    public void appendDirtyObject (SceneObject scobj, Shape footprint)
     {
         DirtyItem item = getDirtyItem();
-        item.init(tile, bounds, footprint, tx, ty);
+        item.init(scobj, scobj.bounds, footprint, scobj.x, scobj.y);
         _items.add(item);
     }
 
@@ -237,8 +234,8 @@ public class DirtyItemList
             // rightmost tiles are equivalent
             lx = rx = ox;
             ly = ry = oy;
-            if (obj instanceof ObjectTile) {
-                ObjectTile tile = (ObjectTile)obj;
+            if (obj instanceof SceneObject) {
+                ObjectTile tile = ((SceneObject)obj).tile;
                 lx -= (tile.getBaseWidth() - 1);
                 ry -= (tile.getBaseHeight() - 1);
             }
@@ -261,7 +258,7 @@ public class DirtyItemList
             if (obj instanceof Sprite) {
                 ((Sprite)obj).paint(gfx);
             } else {
-                ((ObjectTile)obj).paint(gfx, bounds.x, bounds.y);
+                ((SceneObject)obj).tile.paint(gfx, bounds.x, bounds.y);
             }
         }
 
@@ -286,14 +283,19 @@ public class DirtyItemList
 
             // sprites are equivalent if they're the same sprite
             DirtyItem b = (DirtyItem)other;
-            if ((obj instanceof Sprite) && (b.obj instanceof Sprite)) {
-                return (obj == b.obj);
-            }
+            return obj.equals(b.obj);
+//             if ((obj instanceof Sprite) && (b.obj instanceof Sprite)) {
+//                 return (obj == b.obj);
+//             }
 
-            // object-to-object or object-to-sprite are distinguished
-            // simply by origin tile coordinate since they can never
-            // occupy the same tile
-            return (ox == b.ox && oy == b.oy);
+//             // objects are equivalent if they are the same object
+//             if ((obj instanceof SceneObject) && (b.obj instanceof SceneObject)) {
+//                 return (obj == b.obj);
+//             }
+
+//             // object-to-sprite are distinguished simply by origin tile
+//             // coordinate since they can never occupy the same tile
+//             return (ox == b.ox && oy == b.oy);
         }
 
         /**
@@ -522,9 +524,22 @@ public class DirtyItemList
                 }
             }
 
-            // establish a consistent ordering between objects.  see the
-            // diagram at "narya/docs/miso/render_sort_diagram.png" for
-            // more information.
+            // if the two objects are scene objects and they overlap, we
+            // compare them solely based on the order in which they were
+            // added to the scene; this allows the scene creator to avoid
+            // all sorts of sticky business wherein the render order
+            // between two overlapping objects cannot be determined
+            if ((da.obj instanceof SceneObject) &&
+                (db.obj instanceof SceneObject)) {
+                SceneObject soa = (SceneObject)da.obj;
+                SceneObject sob = (SceneObject)db.obj;
+                if (IsoUtil.objectFootprintsOverlap(soa, sob)) {
+                    return (soa.index - sob.index);
+                }
+            }
+
+            // otherwise use a consistent ordering for non-overlappers;
+            // see narya/docs/miso/render_sort_diagram.png for more info
             if (da.lx > db.ox) {
                 return 1;
             } else if (da.ry > db.oy) {

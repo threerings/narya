@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.21 2002/09/12 21:10:31 mdb Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.22 2002/09/18 02:32:57 mdb Exp $
 
 package com.threerings.miso.scene.tools;
 
@@ -110,22 +110,26 @@ public class EditableMisoSceneImpl
     }
 
     // documentation inherited
-    public void addObjectTile (ObjectTile tile, int x, int y, int fqTileId)
+    public int addObjectTile (ObjectTile tile, int x, int y, int fqTileId)
     {
-        // add the tile to the list
-        _objects.add(tile);
-        _coords.put(tile, new Point(x, y));
-        _objectTileIds.put(tile, new Integer(fqTileId));
+        // create an object info record and add it to the list
+        EditableObjectInfo info = (EditableObjectInfo)createObjectInfo();
+        info.object = tile;
+        info.coords = new Point(x, y);
+        info.fqTileId = fqTileId;
+        _objects.add(info);
 
         // toggle the "covered" flag on in all base tiles below this
         // object tile
         setObjectTileFootprint(tile, x, y, true);
+
+        return _objects.size()-1;
     }
 
     // documentation inherited from interface
-    public void setObjectAction (ObjectTile tile, String action)
+    public void setObjectAction (int index, String action)
     {
-        _actions.put(tile, action);
+        ((ObjectInfo)_objects.get(index)).action = action;
     }
 
     // documentation inherited
@@ -137,25 +141,20 @@ public class EditableMisoSceneImpl
     }
 
     // documentation inherited
-    public void removeObjectTile (ObjectTile tile)
+    public void removeObjectTile (int index)
     {
-        // remove the tile from the list and tables
-        _objects.remove(tile);
-        _actions.remove(tile);
-        _objectTileIds.remove(tile);
+        ObjectInfo info = (ObjectInfo)_objects.remove(index);
 
-        Point p = (Point)_coords.remove(tile);
-        if (p != null) {
-            // toggle the "covered" flag off on the base tiles in this
-            // object tile's footprint
-            setObjectTileFootprint(tile, p.x, p.y, false);
-        }
+        // toggle the "covered" flag off on the base tiles in this object
+        // tile's footprint
+        setObjectTileFootprint(
+            info.object, info.coords.x, info.coords.y, false);
     }
 
     // documentation inherited from interface
-    public void clearObjectAction (ObjectTile tile)
+    public void clearObjectAction (int index)
     {
-        _actions.remove(tile);
+        ((ObjectInfo)_objects.get(index)).action = null;
     }
 
     // documentation inherited
@@ -171,12 +170,11 @@ public class EditableMisoSceneImpl
             String[] actions = new String[ocount];
 
             for (int ii = 0; ii < ocount; ii++) {
-                ObjectTile tile = (ObjectTile)_objects.get(ii);
-                Point coords = (Point)_coords.get(tile);
-                otids[3*ii] = coords.x;
-                otids[3*ii+1] = coords.y;
-                otids[3*ii+2] = ((Integer)_objectTileIds.get(tile)).intValue();
-                actions[ii] = (String)_actions.get(tile);
+                EditableObjectInfo info = (EditableObjectInfo)_objects.get(ii);
+                otids[3*ii] = info.coords.x;
+                otids[3*ii+1] = info.coords.y;
+                otids[3*ii+2] = info.fqTileId;
+                actions[ii] = info.action;
             }
 
             // stuff the new arrays into the model
@@ -189,30 +187,32 @@ public class EditableMisoSceneImpl
     }
 
     // documentation inherited
-    protected ObjectTile expandObject (
+    protected ObjectInfo createObjectInfo ()
+    {
+        return new EditableObjectInfo();
+    }
+
+    // documentation inherited
+    protected ObjectInfo expandObject (
         int col, int row, int tsid, int tid, int fqTid, String action)
         throws NoSuchTileException, NoSuchTileSetException
     {
         // do the actual object creation
-        ObjectTile tile = super.expandObject(
-            col, row, tsid, tid, fqTid, action);
-
-        // make sure our array is created (we have to do this specially
-        // here because this method is called before our constructor is
-        // called; yay Java!)
-        if (_objectTileIds == null) {
-            _objectTileIds = new HashMap();
-        }
+        EditableObjectInfo info = (EditableObjectInfo)
+            super.expandObject(col, row, tsid, tid, fqTid, action);
 
         // we need this to track object layer mods
-        _objectTileIds.put(tile, new Integer(fqTid));
+        info.fqTileId = fqTid;
 
         // pass on the objecty goodness
-        return tile;
+        return info;
     }
 
-    /** Where we keep track of object tile ids. */
-    protected HashMap _objectTileIds = new HashMap();
+    /** Used to report information on objects in this scene. */
+    protected static class EditableObjectInfo extends ObjectInfo
+    {
+        public int fqTileId;
+    }
 
     /** The default tileset with which to fill the base layer. */
     protected BaseTileSet _defaultBaseTileSet;

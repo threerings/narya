@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.38 2002/07/08 21:41:30 mdb Exp $
+// $Id: IsoUtil.java,v 1.39 2002/09/18 02:32:57 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -10,7 +10,6 @@ import java.awt.Rectangle;
 import com.samskivert.swing.SmartPolygon;
 
 import com.threerings.media.sprite.Sprite;
-import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.util.MathUtil;
 
 import com.threerings.util.DirectionCodes;
@@ -19,6 +18,7 @@ import com.threerings.util.DirectionUtil;
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.IsoSceneViewModel;
 import com.threerings.miso.scene.MisoCharacterSprite;
+import com.threerings.miso.scene.SceneObject;
 
 /**
  * The <code>IsoUtil</code> class is a holding place for miscellaneous
@@ -58,12 +58,12 @@ public class IsoUtil
      * @return the bounding polygon.
      */
     public static Polygon getObjectFootprint (
-        IsoSceneViewModel model, int tx, int ty, ObjectTile tile)
+        IsoSceneViewModel model, SceneObject scobj)
     {
         Polygon boundsPoly = new SmartPolygon();
-        Point tpos = tileToScreen(model, tx, ty, new Point());
+        Point tpos = tileToScreen(model, scobj.x, scobj.y, new Point());
 
-        int bwid = tile.getBaseWidth(), bhei = tile.getBaseHeight();
+        int bwid = scobj.tile.getBaseWidth(), bhei = scobj.tile.getBaseHeight();
         int oox = tpos.x + model.tilehwid, ooy = tpos.y + model.tilehei;
         int rx = oox, ry = ooy;
 
@@ -104,16 +104,16 @@ public class IsoUtil
      * @return the bounding polygon.
      */
     public static Polygon getTightObjectBounds (
-        IsoSceneViewModel model, int tx, int ty, ObjectTile tile)
+        IsoSceneViewModel model, SceneObject scobj)
     {
-        Point tpos = tileToScreen(model, tx, ty, new Point());
+        Point tpos = tileToScreen(model, scobj.x, scobj.y, new Point());
 
         // if the tile has an origin, use that, otherwise compute the
         // origin based on the tile footprint
-        int tox = tile.getOriginX(), toy = tile.getOriginY();
+        int tox = scobj.tile.getOriginX(), toy = scobj.tile.getOriginY();
         if (tox == -1 || toy == -1) {
-            tox = tile.getBaseWidth() * model.tilehwid;
-            toy = tile.getHeight();
+            tox = scobj.tile.getBaseWidth() * model.tilehwid;
+            toy = scobj.tile.getHeight();
         }
 
         float slope = (float)model.tilehei / (float)model.tilewid;
@@ -127,7 +127,7 @@ public class IsoUtil
         boundsPoly.addPoint(rx, ry);
 
         // top-right point
-        rx = sx + tile.getWidth();
+        rx = sx + scobj.tile.getWidth();
         boundsPoly.addPoint(rx, ry);
 
         // bottom-right point
@@ -161,24 +161,25 @@ public class IsoUtil
      * @return the bounding rectangle.
      */
     public static Rectangle getObjectBounds (
-        IsoSceneViewModel model, int tx, int ty, ObjectTile tile)
+        IsoSceneViewModel model, SceneObject scobj)
     {
-        Point tpos = tileToScreen(model, tx, ty, new Point());
+        Point tpos = tileToScreen(model, scobj.x, scobj.y, new Point());
 
         // if the tile has an origin, use that, otherwise compute the
         // origin based on the tile footprint
-        int tox = tile.getOriginX(), toy = tile.getOriginY();
+        int tox = scobj.tile.getOriginX(), toy = scobj.tile.getOriginY();
         if (tox == Integer.MIN_VALUE) {
-            tox = tile.getBaseWidth() * model.tilehwid;
+            tox = scobj.tile.getBaseWidth() * model.tilehwid;
         }
         if (toy == Integer.MIN_VALUE) {
-            toy = tile.getHeight();
+            toy = scobj.tile.getHeight();
         }
 
         int oox = tpos.x + model.tilehwid, ooy = tpos.y + model.tilehei;
         int sx = oox - tox, sy =  ooy - toy;
 
-        return new Rectangle(sx, sy, tile.getWidth(), tile.getHeight());
+        return new Rectangle(
+            sx, sy, scobj.tile.getWidth(), scobj.tile.getHeight());
     }
 
     /**
@@ -186,13 +187,12 @@ public class IsoUtil
      * the objects occupy the specified coordinates, false if not.
      */
     public static boolean objectFootprintsOverlap (
-        ObjectTile tile1, int x1, int y1,
-        ObjectTile tile2, int x2, int y2)
+        SceneObject so1, SceneObject so2)
     {
-        return (x2 > x1 - tile1.getBaseWidth() &&
-                x1 > x2 - tile2.getBaseWidth() &&
-                y2 > y1 - tile1.getBaseHeight() &&
-                y1 > y2 - tile2.getBaseHeight());
+        return (so2.x > so1.x - so1.tile.getBaseWidth() &&
+                so1.x > so2.x - so2.tile.getBaseWidth() &&
+                so2.y > so1.y - so1.tile.getBaseHeight() &&
+                so1.y > so2.y - so2.tile.getBaseHeight());
     }
 
     /**

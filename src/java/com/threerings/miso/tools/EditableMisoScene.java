@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoScene.java,v 1.16 2002/05/17 19:06:23 ray Exp $
+// $Id: EditableMisoScene.java,v 1.17 2002/09/18 02:32:57 mdb Exp $
 
 package com.threerings.miso.scene.tools;
 
@@ -66,13 +66,15 @@ public interface EditableMisoScene
      * @param tile the tile to set.
      * @param fqTileId the fully-qualified tile id (@see
      * TileUtil#getFQTileId}) of the new default base tile.
+     *
+     * @return the new object's index in the object list.
      */
-    public void addObjectTile (ObjectTile tile, int x, int y, int fqTileId);
+    public int addObjectTile (ObjectTile tile, int x, int y, int fqTileId);
 
     /**
      * Sets the action string for the specified object tile.
      */
-    public void setObjectAction (ObjectTile tile, String action);
+    public void setObjectAction (int index, String action);
 
     /**
      * Clears out the tile at the specified location in the base layer.
@@ -80,14 +82,15 @@ public interface EditableMisoScene
     public void clearBaseTile (int x, int y);
 
     /**
-     * Clears out the specified tile from the object list.
+     * Clears out the specified object tile at the specified coordinates
+     * from the object list.
      */
-    public void removeObjectTile (ObjectTile tile);
+    public void removeObjectTile (int index);
 
     /**
      * Clears the action string for the specified object tile.
      */
-    public void clearObjectAction (ObjectTile tile);
+    public void clearObjectAction (int index);
 
     /**
      * Returns a reference to the miso scene model that reflects the

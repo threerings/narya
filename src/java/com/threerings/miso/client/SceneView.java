@@ -1,10 +1,11 @@
 //
-// $Id: SceneView.java,v 1.29 2002/06/18 22:38:12 mdb Exp $
+// $Id: SceneView.java,v 1.30 2002/09/18 02:32:57 mdb Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
@@ -71,8 +72,10 @@ public interface SceneView
     public void mouseExited (MouseEvent e);
 
     /**
-     * Returns the object (sprite or object tile) over which the mouse is
-     * currently hovering.
+     * Returns information about the object over which the mouse is
+     * currently hovering (either a {@link SceneObject} or a {@link
+     * MisoCharacterSprite}), or null if the mouse is not hovering over
+     * anything of interest.
      */
     public Object getHoverObject ();
 }
