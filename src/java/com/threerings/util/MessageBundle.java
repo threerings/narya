@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.6 2002/03/27 07:09:04 shaper Exp $
+// $Id: MessageBundle.java,v 1.7 2002/03/27 21:52:41 mdb Exp $
 
 package com.threerings.util;
 
@@ -290,13 +290,14 @@ public class MessageBundle
      */
     public static String tcompose (String key, String[] args)
     {
-        String[] targs = new String[args.length];
-        for (int ii = 0; ii < args.length; ii++) {
+        int acount = args.length;
+        String[] targs = new String[acount];
+        for (int ii = 0; ii < acount; ii++) {
             targs[ii] = taint(args[ii]);
         }
         return compose(key, targs);
     }
-    
+
     /** The path that identifies the resource bundle we are using to
      * obtain our messages. */
     protected String _path;
