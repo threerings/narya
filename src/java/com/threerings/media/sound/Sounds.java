@@ -1,5 +1,5 @@
 //
-// $Id: Sounds.java,v 1.2 2002/11/26 02:39:40 ray Exp $
+// $Id: Sounds.java,v 1.3 2002/11/27 00:08:36 ray Exp $
 
 package com.threerings.media;
 
@@ -28,7 +28,6 @@ public class Sounds
      */
     protected static String getPackagePath (Class clazz)
     {
-        return clazz.getPackage().getName().replace('.', File.separatorChar) +
-            File.separator;
+        return clazz.getPackage().getName().replace('.', '/') + "/";
     }
 }
