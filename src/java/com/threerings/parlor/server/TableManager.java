@@ -1,5 +1,5 @@
 //
-// $Id: TableManager.java,v 1.1 2001/10/23 23:47:02 mdb Exp $
+// $Id: TableManager.java,v 1.2 2001/10/24 01:14:38 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -10,6 +10,8 @@ import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.dobj.ObjectAddedEvent;
+import com.threerings.presents.dobj.ObjectDeathListener;
+import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.ObjectRemovedEvent;
 import com.threerings.presents.dobj.OidListListener;
 import com.threerings.presents.server.ServiceFailedException;
@@ -238,63 +240,6 @@ public class TableManager
         _tlobj.removeFromTables(table.tableId);
     }
 
-    // documentation inherited
-    public void objectAdded (ObjectAddedEvent event)
-    {
-        // nothing doing
-    }
-
-    // documentation inherited
-    public void objectRemoved (ObjectRemovedEvent event)
-    {
-        Log.info("Object removed: " + event);
-
-        // if an occupant departed, see if they are in a pending table
-        if (!event.getName().equals(PlaceObject.OCCUPANTS)) {
-            return;
-        }
-
-        // look up the table to which this occupant is mapped
-        int bodyOid = event.getOid();
-        Table pender = (Table)_boidMap.remove(bodyOid);
-        if (pender == null) {
-            return;
-        }
-
-        // remove this occupant from the table
-        if (!pender.clearOccupant(bodyOid)) {
-            Log.warning("Attempt to remove body from mapped table failed " +
-                        "[table=" + pender + ", bodyOid=" + bodyOid + "].");
-            return;
-        }
-
-        // either update or delete the table depending on whether or not
-        // we just removed the last occupant
-        if (pender.isEmpty()) {
-            purgeTable(pender);
-        } else {
-            _tlobj.updateTables(pender);
-        }
-    }
-
-    /**
-     * Called by the place registry when the game object has been created
-     * and provided to the game manager. We use this to map game object
-     * oids back to table records when we create games from tables.
-     */
-    public void placeCreated (PlaceObject plobj, PlaceManager pmgr)
-    {
-        // see if this place manager is associated with a table
-        Table table = (Table)_pendingTables.remove(pmgr);
-        if (table != null) {
-            // update the table with the newly created game object
-            table.gameOid = plobj.getOid();
-
-            // and then update the lobby object that contains the table
-            _tlobj.updateTables(table);
-        }
-    }
-
     /**
      * Called when we're ready to create a game (either an invitation has
      * been accepted or a table is ready to start. If there is a problem
@@ -328,6 +273,89 @@ public class TableManager
         }
 
         return gmgr;
+    }
+
+    /**
+     * Called by the place registry when the game object has been created
+     * and provided to the game manager. We use this to map game object
+     * oids back to table records when we create games from tables.
+     */
+    public void placeCreated (PlaceObject plobj, PlaceManager pmgr)
+    {
+        // see if this place manager is associated with a table
+        Table table = (Table)_pendingTables.remove(pmgr);
+        if (table != null) {
+            // update the table with the newly created game object
+            table.gameOid = plobj.getOid();
+
+            // add an object death listener to unmap the table when the
+            // game finally goes away
+            plobj.addListener(new ObjectDeathListener() {
+                public void objectDestroyed (ObjectDestroyedEvent event) {
+                    unmapTable(event.getTargetOid());
+                }
+            });
+
+            // and then update the lobby object that contains the table
+            _tlobj.updateTables(table);
+        }
+    }
+
+    /**
+     * Called when a game created from a table managed by this table
+     * manager was destroyed. We remove the associated table.
+     */
+    protected void unmapTable (int gameOid)
+    {
+        // look through our tables table for a table with a matching game
+        Iterator iter = _tables.values().iterator();
+        while (iter.hasNext()) {
+            Table table = (Table)iter.next();
+            if (table.gameOid == gameOid) {
+                purgeTable(table);
+                return; // all done
+            }
+        }
+
+        Log.warning("Requested to unmap table that wasn't mapped " +
+                    "[gameOid=" + gameOid + "].");
+    }
+
+    // documentation inherited
+    public void objectAdded (ObjectAddedEvent event)
+    {
+        // nothing doing
+    }
+
+    // documentation inherited
+    public void objectRemoved (ObjectRemovedEvent event)
+    {
+        // if an occupant departed, see if they are in a pending table
+        if (!event.getName().equals(PlaceObject.OCCUPANTS)) {
+            return;
+        }
+
+        // look up the table to which this occupant is mapped
+        int bodyOid = event.getOid();
+        Table pender = (Table)_boidMap.remove(bodyOid);
+        if (pender == null) {
+            return;
+        }
+
+        // remove this occupant from the table
+        if (!pender.clearOccupant(bodyOid)) {
+            Log.warning("Attempt to remove body from mapped table failed " +
+                        "[table=" + pender + ", bodyOid=" + bodyOid + "].");
+            return;
+        }
+
+        // either update or delete the table depending on whether or not
+        // we just removed the last occupant
+        if (pender.isEmpty()) {
+            purgeTable(pender);
+        } else {
+            _tlobj.updateTables(pender);
+        }
     }
 
     /** A reference to the place object in which we're managing tables. */
