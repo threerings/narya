@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.41 2004/08/04 02:36:56 mdb Exp $
+// $Id: ConnectionManager.java,v 1.42 2004/08/04 03:32:18 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -56,12 +56,7 @@ public class ConnectionManager extends LoopingThread
 
         // create our stats record
         _stats = new ConMgrStats();
-        _stats.outQueueSize = new int[60];
-        _stats.overQueueSize = new int[60];
-        _stats.bytesIn = new int[60];
-        _stats.bytesOut = new int[60];
-        _stats.msgsIn = new int[60];
-        _stats.msgsOut = new int[60];
+        _stats.init();
 
         // register as a "state of server" reporter
         PresentsServer.registerReporter(this);

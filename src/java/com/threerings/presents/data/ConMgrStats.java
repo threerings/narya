@@ -1,5 +1,5 @@
 //
-// $Id: ConMgrStats.java,v 1.3 2004/08/04 03:30:12 mdb Exp $
+// $Id: ConMgrStats.java,v 1.4 2004/08/04 03:32:17 mdb Exp $
 
 package com.threerings.presents.data;
 
@@ -36,6 +36,19 @@ public class ConMgrStats implements Streamable
 
     /** The number of messages written. */
     public int[] msgsOut;
+
+    /** Creates our historical arrays. */
+    public void init ()
+    {
+        authQueueSize = new int[60];
+        deathQueueSize = new int[60];
+        outQueueSize = new int[60];
+        overQueueSize = new int[60];
+        bytesIn = new int[60];
+        bytesOut = new int[60];
+        msgsIn = new int[60];
+        msgsOut = new int[60];
+    }
 
     /** Advances the currently accumulating bucket and clears its
      * previous contents. */
