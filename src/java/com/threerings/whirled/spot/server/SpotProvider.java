@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.18 2003/04/17 19:17:07 mdb Exp $
+// $Id: SpotProvider.java,v 1.19 2003/07/18 01:58:38 eric Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -11,6 +11,7 @@ import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 
+import com.threerings.crowd.chat.server.CommunicationAuthorizer;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
@@ -46,6 +47,16 @@ public class SpotProvider
         _plreg = plreg;
         _screg = screg;
         _omgr = omgr;
+    }
+
+    /**
+     * Set the authorizer we will use to see if the user is allowed to
+     * perform various chatting actions.
+     */
+    public static void setCommunicationAuthorizer (
+        CommunicationAuthorizer comAuth)
+    {
+        _comAuth = comAuth;
     }
 
     /**
@@ -201,6 +212,11 @@ public class SpotProvider
     public void clusterSpeak (ClientObject caller, String message, byte mode)
         throws InvocationException
     {
+        // make sure the caller is authorized to perform this action
+        if ((_comAuth != null) && (!_comAuth.authorized(caller))) {
+            return;
+        }
+
         BodyObject source = (BodyObject)caller;
         sendClusterChatMessage(getCallerSceneId(caller), source.getOid(),
                                source.username, null, message, mode);
@@ -269,4 +285,7 @@ public class SpotProvider
 
     /** The object manager we use to do dobject stuff. */
     protected RootDObjectManager _omgr;
+
+    /** The entity that will authorize our speaker. */
+    protected static CommunicationAuthorizer _comAuth;
 }

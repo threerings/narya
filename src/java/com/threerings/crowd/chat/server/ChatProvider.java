@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.23 2003/07/01 21:53:02 mdb Exp $
+// $Id: ChatProvider.java,v 1.24 2003/07/18 01:58:38 eric Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -58,6 +58,16 @@ public class ChatProvider
     }
 
     /**
+     * Set the authorizer we will use to see if the user is allowed to
+     * perform various chatting actions.
+     */
+    public static void setCommunicationAuthorizer (
+        CommunicationAuthorizer comAuth)
+    {
+        _comAuth = comAuth;
+    }
+
+    /**
      * Initializes the chat services and registers a chat provider with
      * the invocation manager.
      */
@@ -78,6 +88,11 @@ public class ChatProvider
                       TellListener listener)
         throws InvocationException
     {
+        // make sure the caller is authorized to perform this action
+        if ((_comAuth != null) && (!_comAuth.authorized(caller))) {
+            return;
+        }
+
         // make sure the target user is online
         BodyObject tobj = CrowdServer.lookupBody(target);
         if (tobj == null) {
@@ -165,4 +180,7 @@ public class ChatProvider
 
     /** Reference to our auto responder object. */
     protected static TellAutoResponder _autoRespond;
+
+    /** The entity that will authorize our chatters. */
+    protected static CommunicationAuthorizer _comAuth;
 }

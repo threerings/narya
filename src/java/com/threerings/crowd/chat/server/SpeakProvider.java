@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.14 2003/07/14 23:46:03 ray Exp $
+// $Id: SpeakProvider.java,v 1.15 2003/07/18 01:58:38 eric Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -63,10 +63,25 @@ public class SpeakProvider
     }
 
     /**
+     * Set the authorizer we will use to see if the user is allowed to
+     * perform various speaking actions.
+     */
+    public static void setCommunicationAuthorizer (
+        CommunicationAuthorizer comAuth)
+    {
+        _comAuth = comAuth;
+    }
+    
+    /**
      * Handles a {@link SpeakService#speak} request.
      */
     public void speak (ClientObject caller, String message, byte mode)
     {
+        // make sure the caller is authorized to perform this action
+        if ((_comAuth != null) && (!_comAuth.authorized(caller))) {
+            return;
+        }
+
         // ensure that the speaker is valid
         // TODO: broadcast should be handled more like a system message
         // rather than as a mode for a user message so that we don't
@@ -327,6 +342,9 @@ public class SpeakProvider
     /** The entity that will validate our speakers. */
     protected SpeakerValidator _validator;
 
+    /** The entity that will authorize our speakers. */
+    protected static CommunicationAuthorizer _comAuth;
+    
     /** Recent chat history for the server. */
     protected static HashMap _histories = new HashMap();
 
