@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.8 2003/04/23 00:45:24 mdb Exp $
+// $Id: SceneBlock.java,v 1.9 2003/04/24 21:27:23 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -148,6 +148,7 @@ public class SceneBlock
     public void updateBaseTile (int fqTileId, int tx, int ty)
     {
         String errmsg = null;
+        int tidx = index(tx, ty);
 
         // this is a bit magical: we pass the fully qualified tile id to
         // the tile manager which loads up from the configured tileset
@@ -155,8 +156,15 @@ public class SceneBlock
         // BaseTileSet) and then extracts the appropriate base tile (the
         // index of which is also in the fqTileId)
         try {
-            _base[index(tx, ty)] = (BaseTile)
-                _panel.getTileManager().getTile(fqTileId);
+            if (fqTileId <= 0) {
+                _base[tidx] = null;
+            } else {
+                _base[tidx] = (BaseTile)
+                    _panel.getTileManager().getTile(fqTileId);
+            }
+            // clear out the fringe (it must be recomputed by the caller)
+            _fringe[tidx] = null;
+
         } catch (ClassCastException cce) {
             errmsg = "Scene contains non-base tile in base layer";
         } catch (NoSuchTileSetException nste) {
