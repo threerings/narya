@@ -1,7 +1,9 @@
 //
-// $Id: Cluster.java,v 1.4 2003/03/26 02:37:08 mdb Exp $
+// $Id: Cluster.java,v 1.5 2003/03/26 23:42:41 mdb Exp $
 
 package com.threerings.whirled.spot.data;
+
+import java.awt.Rectangle;
 
 import com.threerings.io.SimpleStreamableObject;
 import com.threerings.presents.dobj.DSet;
@@ -18,6 +20,14 @@ public class Cluster extends SimpleStreamableObject
 
     /** The bounds of the cluster in the scene. */
     public int x, y, width, height;
+
+    /**
+     * Returns the "footprint" of this cluster in tile coordinates.
+     */
+    public Rectangle getFootprint ()
+    {
+        return new Rectangle(x, y, width, height);
+    }
 
     // documentation inherited
     public Comparable getKey ()
