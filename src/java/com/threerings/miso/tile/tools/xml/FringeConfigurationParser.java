@@ -1,7 +1,7 @@
 //
-// $Id: FringeConfigurationParser.java,v 1.5 2002/04/05 23:18:36 ray Exp $
+// $Id: FringeConfigurationParser.java,v 1.6 2002/04/06 01:38:32 mdb Exp $
 
-package com.threerings.miso.scene.tools.xml;
+package com.threerings.miso.tile.tools.xml;
 
 import java.io.Serializable;
 
@@ -14,12 +14,12 @@ import com.samskivert.xml.ValidatedSetNextRule;
 
 import com.threerings.tools.xml.CompiledConfigParser;
 
-import com.threerings.miso.Log;
-import com.threerings.miso.scene.FringeConfiguration;
-import com.threerings.miso.scene.FringeConfiguration.FringeRecord;
-import com.threerings.miso.scene.FringeConfiguration.FringeTileSetRecord;
-
 import com.threerings.media.tile.TileSetIDBroker;
+
+import com.threerings.miso.Log;
+import com.threerings.miso.tile.FringeConfiguration.FringeRecord;
+import com.threerings.miso.tile.FringeConfiguration.FringeTileSetRecord;
+import com.threerings.miso.tile.FringeConfiguration;
 
 /**
  * Parses fringe config definitions.

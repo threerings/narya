@@ -1,7 +1,7 @@
 //
-// $Id: CompileFringeConfigurationTask.java,v 1.1 2002/04/03 22:52:44 ray Exp $
+// $Id: CompileFringeConfigurationTask.java,v 1.2 2002/04/06 01:38:32 mdb Exp $
 
-package com.threerings.miso.scene.tools;
+package com.threerings.miso.tile.tools;
 
 import java.io.File;
 import java.io.Serializable;
@@ -11,9 +11,11 @@ import org.apache.tools.ant.Task;
 
 import com.samskivert.io.PersistenceException;
 
-import com.threerings.miso.scene.tools.xml.FringeConfigurationParser;
-import com.threerings.media.tile.tools.MapFileTileSetIDBroker;
 import com.threerings.util.CompiledConfig;
+
+import com.threerings.media.tile.tools.MapFileTileSetIDBroker;
+
+import com.threerings.miso.tile.tools.xml.FringeConfigurationParser;
 
 /**
  * Compile fringe configuration.

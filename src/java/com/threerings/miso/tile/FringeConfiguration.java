@@ -1,7 +1,7 @@
 //
-// $Id: FringeConfiguration.java,v 1.6 2002/04/06 01:34:12 ray Exp $
+// $Id: FringeConfiguration.java,v 1.7 2002/04/06 01:38:32 mdb Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.miso.tile;
 
 import java.io.Serializable;
 import java.util.ArrayList;
