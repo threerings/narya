@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneWriter.java,v 1.7 2001/08/10 21:17:07 shaper Exp $
+// $Id: XMLSceneWriter.java,v 1.8 2001/08/11 00:01:40 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -149,7 +149,7 @@ public class XMLSceneWriter extends DataWriter
 	int size = exits.size();
         for (int ii = 0; ii < size; ii++) {
 	    Exit exit = (Exit)exits.get(ii);
-	    buf.append(locs.indexOf(exit.loc)).append(",");
+	    buf.append(locs.indexOf(exit)).append(",");
 	    buf.append(exit.name);
             if (ii < size - 1) buf.append(",");
         }
