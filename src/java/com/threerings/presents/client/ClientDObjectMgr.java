@@ -184,7 +184,7 @@ public class ClientDObjectMgr
             // do the proper thing depending on the object
             if (obj instanceof BootstrapNotification) {
                 BootstrapData data = ((BootstrapNotification)obj).getData();
-                _client.gotBootstrap(data);
+                _client.gotBootstrap(data, this);
 
             } else if (obj instanceof EventNotification) {
                 DEvent evt = ((EventNotification)obj).getEvent();

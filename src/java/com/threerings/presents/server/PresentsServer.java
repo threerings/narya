@@ -109,7 +109,7 @@ public class PresentsServer
         SignalManager.registerSignalHandler(SignalManager.SIGINT, this);
 
         // create our distributed object manager
-        omgr = new PresentsDObjectMgr();
+        omgr = createDObjectManager();
 
         // create and start up our invoker
         invoker = new PresentsInvoker(omgr);
@@ -134,6 +134,14 @@ public class PresentsServer
                 generateReport(System.currentTimeMillis());
             }
         }.schedule(REPORT_INTERVAL, true);
+    }
+
+    /**
+     * Creates the distributed object manager to be used on this server.
+     */
+    protected PresentsDObjectMgr createDObjectManager ()
+    {
+        return new PresentsDObjectMgr();
     }
 
     /**

@@ -196,59 +196,66 @@ public class PresentsDObjectMgr
         }
 
         while (isRunning()) {
-            // pop the next unit off the queue
-            Object unit = _evqueue.get();
-            long start = 0L;
-            if (_eventCount % UNIT_PROFILING_INTERVAL == 0) {
-                start = _timer.highResCounter();
-            }
-
-            try {
-                if (unit instanceof Runnable) {
-                    // if this is a runnable, it's just an executable unit
-                    // that should be invoked
-                    ((Runnable)unit).run();
-
-                } else if (unit instanceof CompoundEvent) {
-                    processCompoundEvent((CompoundEvent)unit);
-
-                } else {
-                    processEvent((DEvent)unit);
-                }
-
-            } catch (Exception e) {
-                Log.warning("Execution unit failed [unit=" + unit + "].");
-                Log.logStackTrace(e);
-            } catch (OutOfMemoryError oome) {
-                handleFatalError(unit, oome);
-            } catch (StackOverflowError soe) {
-                handleFatalError(unit, soe);
-            }
-
-            if (start != 0L) {
-                long elapsed = _timer.highResCounter() - start;
-
-                // convert the elapsed time to microseconds
-                elapsed = elapsed * 1000000 / _timer.highResFrequency();
-
-                // report excessively long units
-                if (elapsed > 500000) {
-                    Log.warning("Unit '" + StringUtil.safeToString(unit) +
-                                " [" + StringUtil.shortClassName(unit) +
-                                "]' ran for " + elapsed + "ms.");
-                }
-
-                // record the time spent processing this unit
-                String cname = StringUtil.shortClassName(unit);
-                UnitProfile uprof = (UnitProfile)_profiles.get(cname);
-                if (uprof == null) {
-                    _profiles.put(cname, uprof = new UnitProfile());
-                }
-                uprof.record(start, elapsed);
-            }
+            // pop the next unit off the queue and process it
+            processUnit(_evqueue.get());
         }
 
         Log.info("DOMGR exited.");
+    }
+
+    /**
+     * Processes a single unit from the queue.
+     */
+    protected void processUnit (Object unit)
+    {
+        long start = 0L;
+        if (_eventCount % UNIT_PROFILING_INTERVAL == 0) {
+            start = _timer.highResCounter();
+        }
+
+        try {
+            if (unit instanceof Runnable) {
+                // if this is a runnable, it's just an executable unit
+                // that should be invoked
+                ((Runnable)unit).run();
+
+            } else if (unit instanceof CompoundEvent) {
+                processCompoundEvent((CompoundEvent)unit);
+
+            } else {
+                processEvent((DEvent)unit);
+            }
+
+        } catch (Exception e) {
+            Log.warning("Execution unit failed [unit=" + unit + "].");
+            Log.logStackTrace(e);
+        } catch (OutOfMemoryError oome) {
+            handleFatalError(unit, oome);
+        } catch (StackOverflowError soe) {
+            handleFatalError(unit, soe);
+        }
+
+        if (start != 0L) {
+            long elapsed = _timer.highResCounter() - start;
+
+            // convert the elapsed time to microseconds
+            elapsed = elapsed * 1000000 / _timer.highResFrequency();
+
+            // report excessively long units
+            if (elapsed > 500000) {
+                Log.warning("Unit '" + StringUtil.safeToString(unit) +
+                            " [" + StringUtil.shortClassName(unit) +
+                            "]' ran for " + elapsed + "ms.");
+            }
+
+            // record the time spent processing this unit
+            String cname = StringUtil.shortClassName(unit);
+            UnitProfile uprof = (UnitProfile)_profiles.get(cname);
+            if (uprof == null) {
+                _profiles.put(cname, uprof = new UnitProfile());
+            }
+            uprof.record(start, elapsed);
+        }
     }
 
     /**

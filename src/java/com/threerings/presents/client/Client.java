@@ -208,7 +208,7 @@ public class Client
      */
     public DObjectManager getDObjectManager ()
     {
-        return (_comm != null) ? _comm.getDObjectManager() : null;
+        return _omgr;
     }
 
     /**
@@ -409,6 +409,37 @@ public class Client
     }
 
     /**
+     * Called by the {@link ClientDObjectMgr} when our bootstrap
+     * notification arrives. If the client and server are being run in
+     * "merged" mode in a single JVM, this is how the client is configured
+     * with the server's distributed object manager and provided with
+     * bootstrap data.
+     */
+    public void gotBootstrap (BootstrapData data, DObjectManager omgr)
+    {
+        Log.debug("Got bootstrap " + data + ".");
+
+        // keep these around for interested parties
+        _bstrap = data;
+        _omgr = omgr;
+
+        // extract bootstrap information
+        _cloid = data.clientOid;
+
+        // initialize our invocation director
+        _invdir.init(omgr, _cloid, this);
+
+        // send a few pings to the server to establish the clock offset
+        // between this client and server standard time
+        establishClockDelta(System.currentTimeMillis());
+
+        // we can't quite call initialization completed at this point
+        // because we need for the invocation director to fully initialize
+        // (which requires a round trip to the server) before turning the
+        // client loose to do things like request invocation services
+    }
+
+    /**
      * Called every five seconds; ensures that we ping the server if we
      * haven't communicated in a long while and periodically resyncs the
      * client and server clock deltas.
@@ -452,12 +483,14 @@ public class Client
      */
     protected void establishClockDelta (long now)
     {
-        // create a new delta calculator and start the process
-        _dcalc = new DeltaCalculator();
-        PingRequest req = new PingRequest();
-        _comm.postMessage(req);
-        _dcalc.sentPing(req);
-        _lastSync = now;
+        if (_comm != null) {
+            // create a new delta calculator and start the process
+            _dcalc = new DeltaCalculator();
+            PingRequest req = new PingRequest();
+            _comm.postMessage(req);
+            _dcalc.sentPing(req);
+            _lastSync = now;
+        }
     }
 
     /**
@@ -535,38 +568,13 @@ public class Client
             public void run () {
                 // clear out our references
                 _comm = null;
+                _omgr = null;
                 _clobj = null;
                 _cloid = -1;
                 // and let our invocation director know we're logged off
                 _invdir.cleanup();
             }
         });
-    }
-
-    /**
-     * Called by the omgr when a bootstrap notification arrives.
-     */
-    void gotBootstrap (BootstrapData data)
-    {
-        Log.debug("Got bootstrap " + data + ".");
-
-        // keep this around for interested parties
-        _bstrap = data;
-
-        // extract bootstrap information
-        _cloid = data.clientOid;
-
-        // initialize our invocation director
-        _invdir.init(_comm.getDObjectManager(), _cloid, this);
-
-        // send a few pings to the server to establish the clock offset
-        // between this client and server standard time
-        establishClockDelta(System.currentTimeMillis());
-
-        // we can't quite call initialization completed at this point
-        // because we need for the invocation director to fully initialize
-        // (which requires a round trip to the server) before turning the
-        // client loose to do things like request invocation services
     }
 
     /**
@@ -669,6 +677,9 @@ public class Client
     /** An entity that gives us the ability to process events on the main
      * client thread (which is also the AWT thread). */
     protected RunQueue _runQueue;
+
+    /** The distributed object manager we're using during this session. */
+    protected DObjectManager _omgr;
 
     /** The data associated with our authentication response. */
     protected AuthResponseData _authData;

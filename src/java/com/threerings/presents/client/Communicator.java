@@ -84,16 +84,6 @@ public class Communicator
     }
 
     /**
-     * Returns the distributed object manager in effect for this session.
-     * This instance is only valid while the client is connected to the
-     * server.
-     */
-    public DObjectManager getDObjectManager ()
-    {
-        return _omgr;
-    }
-
-    /**
      * Logs on to the server and initiates our full-duplex message
      * exchange.
      */
