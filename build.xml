@@ -32,7 +32,7 @@
   <!-- build the java class files -->
   <target name="compile" depends="prepare">
     <javac srcdir="src/java" destdir="${deploy.dir}/classes"
-           debug="on" optimize="off" deprecation="off">
+           debug="on" optimize="on" deprecation="off">
       <classpath>
         <fileset dir="${java.libraries}" includes="**/*.jar"/>
         <fileset dir="lib" includes="**/*.jar"/>
