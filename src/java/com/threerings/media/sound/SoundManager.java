@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.16 2002/11/16 00:13:47 ray Exp $
+// $Id: SoundManager.java,v 1.17 2002/11/16 03:17:41 ray Exp $
 
 package com.threerings.media;
 
@@ -46,6 +46,7 @@ import javax.swing.Timer;
 import org.apache.commons.io.StreamUtils;
 
 import com.samskivert.util.LockableLRUHashMap;
+import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.Queue;
 
 import com.threerings.resource.ResourceManager;
@@ -57,9 +58,6 @@ import com.threerings.media.Log;
  */
 // TODO:
 //   - fade music out when stopped?
-//   - redo volume stuff so that there is SFX and music volume, and then
-//   sounds can be turned on/off by SoundType
-//   - sounds only seem to loop once. WTF?
 public class SoundManager
     implements MetaEventListener
 {
@@ -106,6 +104,7 @@ public class SoundManager
             public void run () {
                 Object command = null;
                 String path = null;
+                MidiInfo midiInfo = null;
 
                 while (amRunning()) {
                     try {
@@ -116,12 +115,14 @@ public class SoundManager
 
                             // some commands have an additional argument.
                             if ((PLAY == command) ||
-                                (PLAYMUSIC == command) ||
                                 (STOPMUSIC == command) ||
                                 (LOCK == command) ||
                                 (UNLOCK == command)) {
 
                                 path = (String) _queue.get();
+
+                            } else if (PLAYMUSIC == command) {
+                                midiInfo = (MidiInfo) _queue.get();
                             }
                         }
 
@@ -130,7 +131,7 @@ public class SoundManager
                             playSound(path);
 
                         } else if (PLAYMUSIC == command) {
-                            playSequence(path);
+                            playSequence(midiInfo);
 
                         } else if (STOPMUSIC == command) {
                             stopSequence(path);
@@ -301,14 +302,21 @@ public class SoundManager
     }
 
     /**
-     * Start playing the specified music, stopping any currently played
-     * music.
+     * Start playing the specified music repeatedly.
      */
     public void pushMusic (String path)
     {
+        pushMusic(path, -1);
+    }
+
+    /**
+     * Start playing music for the specified number of loops.
+     */
+    public void pushMusic (String path, int numloops)
+    {
         synchronized (_queue) {
             _queue.append(PLAYMUSIC);
-            _queue.append(path);
+            _queue.append(new MidiInfo(path, numloops));
         }
     }
 
@@ -336,13 +344,13 @@ public class SoundManager
             return;
         }
 
-        // get the sound data from our LRU cache
-        ClipInfo info = getClipData(path);
-        if (info == null) {
-            return; // borked!
-        }
-
         try {
+            // get the sound data from our LRU cache
+            ClipInfo info = getClipData(path);
+            if (info == null) {
+                return; // borked!
+            }
+
             Clip clip = (Clip) AudioSystem.getLine(info.info);
             clip.open(info.stream);
 
@@ -353,6 +361,10 @@ public class SoundManager
         } catch (IOException ioe) {
             Log.warning("Error loading sound file [path=" + path +
                 ", e=" + ioe + "].");
+
+        } catch (UnsupportedAudioFileException uafe) {
+            Log.warning("Unsupported sound format [path=" + path + ", e=" +
+                uafe + "].");
 
         } catch (LineUnavailableException lue) {
             Log.warning("Line not available to play sound [path=" + path +
@@ -382,7 +394,7 @@ public class SoundManager
     /**
      * Play a sequence from the specified path.
      */
-    protected void playSequence (String path)
+    protected void playSequence (MidiInfo info)
     {
         if (_sequencer == null) {
             try {
@@ -401,21 +413,81 @@ public class SoundManager
             }
         }
 
-        // stop the existing song
-        _sequencer.stop();
+        stopCurrentSong(false);
+        _midiStack.addFirst(info);
+        playTopSong();
+    }
+
+    /**
+     * Start the specified sequence.
+     */
+    protected void playTopSong ()
+    {
+        if (_midiStack.isEmpty()) {
+            return;
+        }
+
+        MidiInfo info = (MidiInfo) _midiStack.getFirst();
 
         // start the new one
         try {
-            _sequencer.setSequence(getResource(path));
+            _sequencer.setSequence(getMidiData(info.path));
+            if (info.msPosition != -1) {
+                // TODO: this doesn't work correctly
+                _sequencer.setTickPosition(info.tickPosition);
+                _sequencer.setMicrosecondPosition(info.msPosition);
+                info.msPosition = -1;
+            }
             _sequencer.start();
-            _midiStack.addFirst(path);
-            updateMusicVolume();
+            //updateMusicVolume();
+            //Log.info("Now playing : " + info.path);
 
         } catch (InvalidMidiDataException imda) {
-            Log.warning("Invalid midi data, not playing [path=" + path + "].");
+            Log.warning("Invalid midi data, not playing [path=" +
+                info.path + "].");
 
         } catch (IOException ioe) {
             Log.warning("ioe=" + ioe);
+        }
+    }
+
+    /**
+     * Stop whatever song is currently playing and deal with the
+     * MidiInfo associated with it.
+     */
+    protected void stopCurrentSong (boolean wasStopped)
+    {
+        if (_midiStack.isEmpty()) {
+            return;
+        }
+
+        // stop the existing song
+        if (!wasStopped) {
+            // TODO: fade?
+            _stoppingSong = true;
+            _sequencer.stop();
+        }
+
+        // see what was playing
+        MidiInfo current = (MidiInfo) _midiStack.getFirst();
+
+        switch (current.loops) {
+        default:
+            current.loops--;
+            break;
+
+        case 1:
+            // sorry charlie
+            _midiStack.removeFirst();
+            break;
+
+        case -1:
+            // save info...
+            // TODO: this doesn't seem to work, and is out-n-out broken
+            // if we use the tickPos
+            current.msPosition = _sequencer.getMicrosecondPosition();
+            current.tickPosition = _sequencer.getTickPosition();
+            break;
         }
     }
 
@@ -424,28 +496,33 @@ public class SoundManager
      */
     protected void stopSequence (String path)
     {
-        if (_midiStack.isEmpty()) {
-            return;
-        }
+        if (! _midiStack.isEmpty()) {
+            MidiInfo current = (MidiInfo) _midiStack.getFirst();
 
-        // if we're currently playing this song..
-        if (path.equals(_midiStack.getFirst())) {
-            // remove it from the stack
-            _midiStack.removeFirst();
-
-            if (_midiStack.isEmpty()) {
-                // no more to play? Stop and shutdown.
-                _sequencer.removeMetaEventListener(this);
+            // if we're currently playing this song..
+            if (path.equals(current.path)) {
+                // stop it
+                _stoppingSong = true;
                 _sequencer.stop();
-                _sequencer.close();
-                _sequencer = null;
-                _midiChannels = null;
+                // remove it from the stack
+                _midiStack.removeFirst();
+                // start playing the next..
+                playTopSong();
 
             } else {
-                // play the next one on the stack (will also stop this one)
-                playSequence((String) _midiStack.removeFirst());
+                // we aren't currently playing this song. Simply remove.
+                for (Iterator iter=_midiStack.iterator(); iter.hasNext(); ) {
+                    if (path.equals(((MidiInfo) iter.next()).path)) {
+                        iter.remove();
+                        return;
+                    }
+                }
+
             }
         }
+
+        Log.debug("Sequence stopped that wasn't in the stack anymore " +
+            "[path=" + path + "].");
     }
 
     /**
@@ -453,15 +530,12 @@ public class SoundManager
      */
     protected void shutdownMidi ()
     {
-        // remove all songs but the currently playing
-        while (_midiStack.size() > 1) {
-            _midiStack.removeLast();
-        }
-
-        // then stop the currently playing
-        if (! _midiStack.isEmpty()) {
-            stopSequence((String) _midiStack.getFirst());
-        }
+        _sequencer.removeMetaEventListener(this);
+        stopCurrentSong(false);
+        _sequencer.close();
+        _sequencer = null;
+        _midiChannels = null;
+        _midiStack.clear();
     }
 
     /**
@@ -487,8 +561,13 @@ public class SoundManager
 //                    new String(msg.getData()));
 
         if (msg.getType() == MIDI_END_OF_TRACK) {
-            // loop that puppy
-            playSequence((String) _midiStack.removeFirst());
+
+            if (_stoppingSong) {
+                _stoppingSong = false;
+            } else {
+                stopCurrentSong(true);
+                playTopSong();
+            }
         }
     }
 
@@ -516,38 +595,45 @@ public class SoundManager
      * Get the audio data for the specified path.
      */
     protected ClipInfo getClipData (String path)
+        throws IOException, UnsupportedAudioFileException
     {
         ClipInfo info = (ClipInfo) _clipCache.get(path);
         if (info != null) {
             // we are re-using an old stream, make sure to rewind it.
-            try {
-                info.stream.reset();
-            } catch (IOException ioe) {
-                Log.warning("Couldn't reset audio stream! " + 
-                    "(this shouldn't happen)");
-            }
-            return info;
-        }
+            info.stream.reset();
 
-        try {
+        } else {
+            // set it up and put it in the cache
             AudioInputStream stream = AudioSystem.getAudioInputStream(
                 getResource(path));
             DataLine.Info dinfo = new DataLine.Info(
                 Clip.class, stream.getFormat());
             info = new ClipInfo(dinfo, stream);
             _clipCache.put(path, info);
-
-        } catch (UnsupportedAudioFileException uafe) {
-            Log.warning("Unsupported sound format [path=" + path + ", e=" +
-                uafe + "].");
-
-        } catch (IOException ioe) {
-            Log.warning("Error loading sound file [path=" + path + ", e=" + 
-                ioe + "].");
         }
 
         return info;
     }
+
+    /**
+     * Get the midi data for the specified path.
+     */
+    protected InputStream getMidiData (String path)
+        throws IOException
+    {
+        InputStream stream = (InputStream) _midiCache.get(path);
+        if (stream != null) {
+            // reset the stream for the new user
+            stream.reset();
+
+        } else {
+            stream = getResource(path);
+            _midiCache.put(path, stream);
+        }
+
+        return stream;
+    }
+
 
     /**
      * Get the data specified by the path from the resource bundle.
@@ -784,6 +870,28 @@ public class SoundManager
     }
 
     /**
+     * A class that tracks the information about our playing midi files.
+     */
+    protected static class MidiInfo
+    {
+        /** The path, duh. */
+        public String path;
+
+        /** How many times to loop, or -1 for forever. */
+        public int loops;
+
+        /** The position of big loopers, or -1 if none. */
+        public long tickPosition = -1;
+        public long msPosition = -1;
+
+        public MidiInfo (String path, int loops)
+        {
+            this.path = path;
+            this.loops = loops;
+        }
+    }
+
+    /**
      * Every 3 seconds we look for sounds that haven't been used for 4 and
      * free them up.
      */
@@ -804,12 +912,19 @@ public class SoundManager
 
     /** The queue of sound clips to be played. */
     protected Queue _queue = new Queue();
+    
+    /** So that we ignore the stopped meta event when we stop a song
+     * ourselves. */
+    protected boolean _stoppingSong = false;
 
     /** Volume levels for both sound clips and music. */
     protected float _clipVol = 1f, _musicVol = 1f;
     
     /** The cache of recent audio clips . */
     protected LockableLRUHashMap _clipCache = new LockableLRUHashMap(10);
+
+    /** The cache of recent midi sequences. */
+    protected LRUHashMap _midiCache = new LRUHashMap(4);
 
     /** The clips that are currently active. */
     protected ArrayList _activeClips = new ArrayList();
