@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.60 2003/01/17 22:57:08 mdb Exp $
+// $Id: Sprite.java,v 1.61 2003/01/18 03:15:14 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -347,9 +347,8 @@ public abstract class Sprite extends AbstractMedia
      */
     protected void notifyObservers (SpriteEvent event)
     {
-	if (_observers != null) {
-            _mgr.queueNotification(_observers, event);
-        }
+        // dispatch it immediately
+        ((SpriteManager)_mgr).dispatchEvent(_observers, event);
     }
 
     // documentation inherited
