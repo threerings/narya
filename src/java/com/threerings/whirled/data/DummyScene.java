@@ -1,10 +1,9 @@
 //
-// $Id: DummyScene.java,v 1.6 2001/11/08 02:07:36 mdb Exp $
+// $Id: DummyScene.java,v 1.7 2001/11/08 02:59:17 mdb Exp $
 
-package com.threerings.whirled;
+package com.threerings.whirled.data;
 
 import com.threerings.crowd.data.PlaceConfig;
-import com.threerings.whirled.data.Scene;
 
 public class DummyScene implements Scene
 {
@@ -35,7 +34,7 @@ public class DummyScene implements Scene
 
     public PlaceConfig getPlaceConfig ()
     {
-        return new TestConfig();
+        return null;
     }
 
     protected int _sceneId;

@@ -1,5 +1,5 @@
 //
-// $Id: WhirledServer.java,v 1.7 2001/10/11 04:07:54 mdb Exp $
+// $Id: WhirledServer.java,v 1.8 2001/11/08 02:59:17 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -11,7 +11,7 @@ import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.server.persist.SceneRepository;
-import com.threerings.whirled.test.DummySceneRepository;
+import com.threerings.whirled.server.persist.DummySceneRepository;
 
 /**
  * The whirled server extends the crowd server and provides access to
