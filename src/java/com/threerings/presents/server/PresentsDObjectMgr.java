@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.38 2004/02/09 02:08:28 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.39 2004/02/09 02:13:35 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -609,8 +609,7 @@ public class PresentsDObjectMgr
         // summarize the objects in our dobject table
         HashMap ccount = new HashMap();
         SortableArrayList clist = new SortableArrayList();
-        Iterator iter = _objects.values().iterator();
-        while (iter.hasNext()) {
+        for (Iterator iter = _objects.values().iterator(); iter.hasNext(); ) {
             DObject obj = (DObject)iter.next();
             String clazz = obj.getClass().getName();
             int[] count = (int[])ccount.get(clazz);
@@ -631,6 +630,15 @@ public class PresentsDObjectMgr
             String clazz = (String)clist.get(ii);
             int count = ((int[])ccount.get(clazz))[0];
             report.append("  ").append(clazz).append(": ").append(count);
+            report.append("\n");
+        }
+
+        report.append("- Unit profiles: ").append(_profiles.size());
+        report.append("\n");
+        for (Iterator iter = _profiles.keySet().iterator(); iter.hasNext(); ) {
+            String cname = (String)iter.next();
+            UnitProfile uprof = (UnitProfile)_profiles.get(cname);
+            report.append("  ").append(cname).append(" ").append(uprof);
             report.append("\n");
         }
     }
@@ -865,8 +873,8 @@ public class PresentsDObjectMgr
         public String toString ()
         {
             int count = _histo.size();
-            return "(" + _totalElapsed + "us/" + count + " = " +
-                (_totalElapsed/count) + "us avg) " +
+            return _totalElapsed + "us/" + count + " = " +
+                (_totalElapsed/count) + "us avg " +
                 StringUtil.toString(_histo.getBuckets());
         }
 
@@ -915,13 +923,6 @@ public class PresentsDObjectMgr
 
     /** The frequency with which we take a profiling sample. */
     protected static final int UNIT_PROFILING_INTERVAL = 100;
-
-    /** Check whether we should generate a report every 100 events. */
-    protected static final long REPORT_CHECK_PERIOD = 100;
-
-    /** Generate a report no more frequently than once per five
-     * minutes. */
-    protected static final long REPORT_PERIOD = 5 * 60 * 1000L;
 
     /** The default size of an oid list refs vector. */
     protected static final int DEFREFVEC_SIZE = 4;
