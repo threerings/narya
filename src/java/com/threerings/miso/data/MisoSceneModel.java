@@ -1,11 +1,14 @@
 //
-// $Id: MisoSceneModel.java,v 1.4 2001/12/12 02:47:17 mdb Exp $
+// $Id: MisoSceneModel.java,v 1.5 2002/01/30 18:28:32 mdb Exp $
 
 package com.threerings.miso.scene;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 import com.samskivert.util.StringUtil;
 
@@ -35,25 +38,43 @@ public class MisoSceneModel
      * the object layer in (x, y, tile id) format. */
     public int[] objectTileIds;
 
+    /** The action strings associated with the object tiles in the order
+     * that the tiles are specified in the {@link #objectTileIds} array.
+     * Elements of this array may be null but will be converted to the
+     * empty string during serialization. */
+    public String[] objectActions;
+
     // documentation inherited
     public void writeTo (DataOutputStream out)
         throws IOException
     {
-        out.writeInt(width);
-        out.writeInt(height);
-
-        // write out the base and fringe layers
         int tcount = width*height;
-        for (int i = 0; i < tcount; i++) {
-            out.writeInt(baseTileIds[i]);
-            out.writeInt(fringeTileIds[i]);
-        }
-
-        // write out the object layer
         int otc = objectTileIds.length;
-        out.writeInt(otc);
-        for (int i = 0; i < otc; i++) {
-            out.writeInt(objectTileIds[i]);
+
+        // write everything into a ByteBuffer, viewed as an IntBuffer and
+        // then write the bytes from those operations out to the output
+        // stream
+        ByteBuffer bbuf = ByteBuffer.allocate(8*tcount + 4*otc + 4*3);
+        IntBuffer ibuf = bbuf.asIntBuffer();
+
+        // insert the dimensions
+        ibuf.put(width);
+        ibuf.put(height);
+        ibuf.put(otc);
+
+        // insert the layer data
+        ibuf.put(baseTileIds);
+        ibuf.put(fringeTileIds);
+        ibuf.put(objectTileIds);
+
+        // now write the binary data out to the output stream
+        out.write(bbuf.array());
+
+        // next write out the object action strings
+        int acount = otc/3;
+        for (int i = 0; i < acount; i++) {
+            String action = objectActions[i];
+            out.writeUTF((action == null) ? "" : action);
         }
     }
 
@@ -61,23 +82,36 @@ public class MisoSceneModel
     public void readFrom (DataInputStream in)
         throws IOException
     {
+        // we can read these directly because the byte order of the byte
+        // buffer we created to write out the data is big endian which is
+        // what the data input stream expects
         width = in.readInt();
         height = in.readInt();
+        int otc = in.readInt();
 
-        // read in the base and fringe layers
+        // read in the base layer
         int tcount = width*height;
         baseTileIds = new int[tcount];
-        fringeTileIds = new int[tcount];
         for (int i = 0; i < tcount; i++) {
             baseTileIds[i] = in.readInt();
+        }
+
+        // read in the fringe layer
+        fringeTileIds = new int[tcount];
+        for (int i = 0; i < tcount; i++) {
             fringeTileIds[i] = in.readInt();
         }
 
         // read in the object layer
-        int otc = in.readInt();
         objectTileIds = new int[otc];
         for (int i = 0; i < otc; i++) {
             objectTileIds[i] = in.readInt();
+        }
+
+        // read in the object action strings
+        objectActions = new String[otc/3];
+        for (int i = 0; i < otc/3; i++) {
+            objectActions[i] = in.readUTF();
         }
     }
 
@@ -89,7 +123,8 @@ public class MisoSceneModel
         return "[width=" + width + ", height=" + height +
             ", baseTileIds=" + StringUtil.toString(baseTileIds) +
             ", fringeTileIds=" + StringUtil.toString(fringeTileIds) +
-            ", objectTileIds=" + StringUtil.toString(objectTileIds) + "]";
+            ", objectTileIds=" + StringUtil.toString(objectTileIds) +
+            ", objectActions=" + StringUtil.toString(objectActions) + "]";
     }
 
     /**
@@ -102,6 +137,7 @@ public class MisoSceneModel
         model.baseTileIds = (int[])baseTileIds.clone();
         model.fringeTileIds = (int[])fringeTileIds.clone();
         model.objectTileIds = (int[])objectTileIds.clone();
+        model.objectActions = (String[])objectActions.clone();
         return model;
     }
 
@@ -138,5 +174,6 @@ public class MisoSceneModel
         model.baseTileIds = new int[width*height];
         model.fringeTileIds = new int[width*height];
         model.objectTileIds = new int[0];
+        model.objectActions = new String[0];
     }
 }

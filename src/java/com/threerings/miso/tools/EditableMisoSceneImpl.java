@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.6 2001/12/05 07:29:06 mdb Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.7 2002/01/30 18:28:32 mdb Exp $
 
 package com.threerings.miso.tools.scene;
 
@@ -109,6 +109,12 @@ public class EditableMisoSceneImpl
         // the default tiles
     }
 
+    // documentation inherited from interface
+    public void setObjectAction (int x, int y, String action)
+    {
+        _actions.put(objectKey(x, y), action);
+    }
+
     // documentation inherited
     public void clearBaseTile (int x, int y)
     {
@@ -137,6 +143,14 @@ public class EditableMisoSceneImpl
         }
         // clear it out in our non-sparse array
         _objectTileIds[_model.width*y + x] = 0;
+        // clear out any action for this tile as well
+        _actions.remove(objectKey(x, y));
+    }
+
+    // documentation inherited from interface
+    public void clearObjectAction (int x, int y)
+    {
+        _actions.remove(objectKey(x, y));
     }
 
     // documentation inherited
@@ -155,9 +169,10 @@ public class EditableMisoSceneImpl
             }
         }
 
-        // now create and populate the new tileid array
+        // now create and populate the new tileid and actions arrays
         int[] otids = new int[otileCount*3];
-        int otidx = 0;
+        String[] actions = new String[otileCount];
+        int otidx = 0, actidx = 0;
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 int tsid = _objectTileIds[_model.width*r + c];
@@ -167,11 +182,13 @@ public class EditableMisoSceneImpl
                 otids[otidx++] = c;
                 otids[otidx++] = r;
                 otids[otidx++] = tsid;
+                actions[actidx++] = (String)_actions.get(objectKey(c, r));
             }
         }
 
-        // stuff the new array into the model
+        // stuff the new arrays into the model
         _model.objectTileIds = otids;
+        _model.objectActions = actions;
 
         // and we're ready to roll
         return _model;

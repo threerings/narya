@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoScene.java,v 1.9 2001/12/05 07:29:06 mdb Exp $
+// $Id: EditableMisoScene.java,v 1.10 2002/01/30 18:28:32 mdb Exp $
 
 package com.threerings.miso.tools.scene;
 
@@ -78,6 +78,14 @@ public interface EditableMisoScene
     public void setObjectTile (int x, int y, ObjectTile tile, int fqTileId);
 
     /**
+     * Sets the action string for the object tile at the specified
+     * coordinates. It may be assumed by the implementation that an object
+     * tile exists in the scene at the specified coordinates, thus callers
+     * should be sure only to call this method accordingly.
+     */
+    public void setObjectAction (int x, int y, String action);
+
+    /**
      * Clears out the tile at the specified location in the base layer.
      */
     public void clearBaseTile (int x, int y);
@@ -91,6 +99,14 @@ public interface EditableMisoScene
      * Clears out the tile at the specified location in the object layer.
      */
     public void clearObjectTile (int x, int y);
+
+    /**
+     * Clears the action string for the object tile at the specified
+     * coordinates. It may be assumed by the implementation that an object
+     * tile exists in the scene at the specified coordinates, thus callers
+     * should be sure only to call this method accordingly.
+     */
+    public void clearObjectAction (int x, int y);
 
     /**
      * Returns a reference to the miso scene model that reflects the

@@ -1,7 +1,10 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.48 2001/12/05 07:29:06 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.49 2002/01/30 18:28:32 mdb Exp $
 
 package com.threerings.miso.scene;
+
+import com.samskivert.util.HashIntMap;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
@@ -73,6 +76,19 @@ public class DisplayMisoSceneImpl
         _base = new BaseTileLayer(new BaseTile[swid*shei], swid, shei);
         _fringe = new TileLayer(new Tile[swid*shei], swid, shei);
         _object = new ObjectTileLayer(new ObjectTile[swid*shei], swid, shei);
+
+        // create a mapping for the action strings and populate it
+        _actions = new HashIntMap();
+        for (int i = 0; i < model.objectActions.length; i++) {
+            String action = model.objectActions[i];
+            // skip null or blank actions
+            if (StringUtil.blank(action)) {
+                continue;
+            }
+            // the key is the composite of the column and row
+            _actions.put(objectKey(model.objectTileIds[3*i],
+                                   model.objectTileIds[3*i+1]), action);
+        }
     }
 
     /**
@@ -175,6 +191,16 @@ public class DisplayMisoSceneImpl
         return _object;
     }
 
+    // documentation inherited from interface
+    public String getObjectAction (int column, int row)
+    {
+        if (_actions != null) {
+            return (String)_actions.get(objectKey(column, row));
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Return a string representation of this Miso scene object.
      */
@@ -211,6 +237,15 @@ public class DisplayMisoSceneImpl
         // ", sy=" + y + ", ex=" + endx + ", ey=" + endy + "].");
     }
 
+    /**
+     * Computes the action table key for the object at the specified
+     * column and row.
+     */
+    protected static int objectKey (int column, int row)
+    {
+        return (column << 15) + row;
+    }
+
     /** The tile manager from which we load tiles. */
     protected TileManager _tmgr;
 
@@ -225,4 +260,7 @@ public class DisplayMisoSceneImpl
 
     /** The object layer of tiles. */
     protected ObjectTileLayer _object;
+
+    /** A map from object tile coordinates to action string. */
+    protected HashIntMap _actions;
 }

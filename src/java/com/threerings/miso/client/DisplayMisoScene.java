@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoScene.java,v 1.2 2001/11/27 22:17:42 mdb Exp $
+// $Id: DisplayMisoScene.java,v 1.3 2002/01/30 18:28:32 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -32,4 +32,12 @@ public interface DisplayMisoScene
      * This layer is read-only and not to be modified.
      */
     public ObjectTileLayer getObjectLayer ();
+
+    /**
+     * Returns the action associated with the object tile at the specified
+     * column and row. Null is returned if no object tile exists at that
+     * column and row or if the object tile that does exist does not have
+     * an associated action.
+     */
+    public String getObjectAction (int column, int row);
 }

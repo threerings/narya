@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneRuleSet.java,v 1.4 2001/11/29 19:31:12 mdb Exp $
+// $Id: MisoSceneRuleSet.java,v 1.5 2002/01/30 18:28:32 mdb Exp $
 
 package com.threerings.miso.tools.scene.xml;
 
@@ -56,6 +56,8 @@ public class MisoSceneRuleSet extends RuleSetBase
                          new SetFieldRule(digester, "fringeTileIds"));
         digester.addRule(_prefix + "/object",
                          new SetFieldRule(digester, "objectTileIds"));
+        digester.addRule(_prefix + "/actions",
+                         new SetFieldRule(digester, "objectActions"));
     }
 
     /** The prefix at which me match our scenes. */
