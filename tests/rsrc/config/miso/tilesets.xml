@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: tilesets.xml,v 1.8 2001/08/13 19:54:39 shaper Exp $ -->
+<!-- $Id: tilesets.xml,v 1.9 2001/08/21 22:34:01 mdb Exp $ -->
 
 <!-- Initial test tileset description data. -->
 
@@ -34,9 +34,31 @@
   </tileset>
 
   <tileset>
-    <name>Character</name>
+    <name>Red Character</name>
     <tsid>1003</tsid>
     <imagefile>media/miso/tiles/character.png</imagefile>
+    <rowheight>94, 94, 94, 94, 94, 94, 94, 94</rowheight>
+    <rowwidth>94, 94, 94, 94, 94, 94, 94, 94</rowwidth>
+    <tilecount>8, 8, 8, 8, 8, 8, 8, 8</tilecount>
+    <offsetpos>52, 51</offsetpos>
+    <gapdist>39, 18</gapdist>
+  </tileset>
+
+  <tileset>
+    <name>Yellow Character</name>
+    <tsid>1005</tsid>
+    <imagefile>media/miso/tiles/character-yellow.png</imagefile>
+    <rowheight>94, 94, 94, 94, 94, 94, 94, 94</rowheight>
+    <rowwidth>94, 94, 94, 94, 94, 94, 94, 94</rowwidth>
+    <tilecount>8, 8, 8, 8, 8, 8, 8, 8</tilecount>
+    <offsetpos>52, 51</offsetpos>
+    <gapdist>39, 18</gapdist>
+  </tileset>
+
+  <tileset>
+    <name>Black Character</name>
+    <tsid>1006</tsid>
+    <imagefile>media/miso/tiles/character-black.png</imagefile>
     <rowheight>94, 94, 94, 94, 94, 94, 94, 94</rowheight>
     <rowwidth>94, 94, 94, 94, 94, 94, 94, 94</rowwidth>
     <tilecount>8, 8, 8, 8, 8, 8, 8, 8</tilecount>
