@@ -1,5 +1,5 @@
 //
-// $Id: ComponentClass.java,v 1.4 2002/08/19 22:58:15 mdb Exp $
+// $Id: ComponentClass.java,v 1.5 2002/10/15 21:01:39 ray Exp $
 
 package com.threerings.cast;
 
@@ -71,12 +71,6 @@ public class ComponentClass implements Serializable
             CharacterComponent cb = (CharacterComponent)b;
             return (ca.componentClass.renderPriority -
                     cb.componentClass.renderPriority);
-        }
-
-        // documentation inherited
-        public boolean equals (Object obj)
-        {
-	    return (obj == this);
         }
     }
 

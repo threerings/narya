@@ -1,5 +1,5 @@
 //
-// $Id: ModeUtil.java,v 1.3 2002/05/09 18:43:56 mdb Exp $
+// $Id: ModeUtil.java,v 1.4 2002/10/15 21:01:39 ray Exp $
 
 package com.threerings.media.util;
 
@@ -51,10 +51,6 @@ public class ModeUtil
 
                 // for same bitrates, prefer higher refresh rates
                 return rr2 - rr1;
-            }
-
-            public boolean equals (Object obj) {
-                return this == obj;
             }
         };
 

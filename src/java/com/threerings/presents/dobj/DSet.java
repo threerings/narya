@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.20 2002/10/06 20:24:53 mdb Exp $
+// $Id: DSet.java,v 1.21 2002/10/15 21:01:39 ray Exp $
 
 package com.threerings.presents.dobj;
 
@@ -347,11 +347,6 @@ public class DSet
             Comparable c2 = (o2 instanceof Entry) ?
                 ((Entry)o2).getKey() : (Comparable)o2;
             return c1.compareTo(c2);
-        }
-
-        public boolean equals (Object obj) {
-            // we don't care about comparing comparators
-            return (obj == this);
         }
     };
 }

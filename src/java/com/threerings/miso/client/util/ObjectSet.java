@@ -1,5 +1,5 @@
 //
-// $Id: ObjectSet.java,v 1.1 2002/09/23 21:53:23 mdb Exp $
+// $Id: ObjectSet.java,v 1.2 2002/10/15 21:01:39 ray Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -119,10 +119,6 @@ public class ObjectSet
     protected static final Comparator SCOBJ_COMP = new Comparator() {
         public int compare (Object o1, Object o2) {
             return o1.hashCode() - o2.hashCode();
-        }
-
-        public boolean equals (Object other) {
-            return this == other;
         }
     };
 

@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.15 2002/09/26 23:35:10 mdb Exp $
+// $Id: DirtyItemList.java,v 1.16 2002/10/15 21:01:39 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -337,12 +337,6 @@ public class DirtyItemList
             DirtyItem da = (DirtyItem)a;
             DirtyItem db = (DirtyItem)b;
             return (_axis == X_AXIS) ? (da.ox - db.ox) : (da.oy - db.oy);
-        }
-
-        // documentation inherited
-        public boolean equals (Object obj)
-        {
-	    return (obj == this);
         }
 
         /** The axis this comparator sorts on. */
