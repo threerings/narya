@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTile.java,v 1.7 2002/05/06 18:08:32 mdb Exp $
+// $Id: ObjectTile.java,v 1.8 2002/05/16 01:49:38 ray Exp $
 
 package com.threerings.media.tile;
 
@@ -8,6 +8,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import com.threerings.media.Log;
+import com.threerings.media.util.ImageUtil;
 
 /**
  * An object tile extends the base tile to provide support for objects
@@ -108,17 +109,8 @@ public class ObjectTile extends Tile
      */
     public boolean hitTest (int x, int y)
     {
-        if (_image instanceof BufferedImage) {
-            BufferedImage bimage = (BufferedImage)_image;
-            int argb = bimage.getRGB(x, y);
-            // it's only a hit if the pixel is non-transparent
-            return (argb >> 24) != 0;
-
-        } else {
-            Log.warning("Can't check for transparent pixel " +
-                        "[image=" + _image + "].");
-            return true;
-        }
+        Log.info("hit test " + x + ", " + y + " (" + ImageUtil.hitTest(_image, x, y));
+        return ImageUtil.hitTest(_image, x, y);
     }
 
     // documentation inherited
