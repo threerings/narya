@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.2 2003/04/18 18:32:24 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.3 2003/04/18 23:19:13 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -249,12 +249,6 @@ public class MisoScenePanel extends VirtualMediaPanel
     // documentation inherited from interface
     public void mousePressed (MouseEvent e)
     {
-        // if this was not the first button, treat it as a cancellation of
-        // whatever might be going on
-        if (e.getButton() != MouseEvent.BUTTON1) {
-            return;
-        }
-
         // ignore mouse presses if we're not responsive
         if (!isResponsive()) {
             return;
@@ -811,10 +805,13 @@ public class MisoScenePanel extends VirtualMediaPanel
         for (int ii = 0, ll = _vizobjs.size(); ii < ll; ii++) {
             SceneObject scobj = (SceneObject)_vizobjs.get(ii);
             Rectangle pbounds = scobj.bounds;
-            // skip actionless objects and those whose bounding rects
-            // don't contain the point
-            if (StringUtil.blank(scobj.info.action) ||
-                !pbounds.contains(x, y)) {
+            if (!pbounds.contains(x, y)) {
+                continue;
+            }
+
+            // skip actionless objects if we're configured to do so
+            if (skipActionlessObjects() &&
+                StringUtil.blank(scobj.info.action)) {
                 continue;
             }
 
@@ -827,6 +824,15 @@ public class MisoScenePanel extends VirtualMediaPanel
             // we've passed the test, add the object to the list
             list.appendDirtyObject(scobj);
         }
+    }
+
+    /**
+     * Indicates whether or not actionless objects are allowed to be the
+     * hover object. By default, they are not.
+     */
+    protected boolean skipActionlessObjects ()
+    {
+        return true;
     }
 
     /**
