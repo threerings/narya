@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.67 2004/08/27 02:20:23 mdb Exp $
+// $Id: PresentsClient.java,v 1.68 2004/09/15 18:21:26 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -402,7 +402,12 @@ public class PresentsClient
         // first place, in which case we have to cope as best we can
         if (_clobj != null) {
             // and clean up after ourselves
-            sessionDidEnd();
+            try {
+                sessionDidEnd();
+            } catch (Exception e) {
+                Log.warning("Choked in sessionDidEnd [client=" + this + "].");
+                Log.logStackTrace(e);
+            }
 
             // release (and destroy) our client object
             _cmgr.releaseClientObject(_username);

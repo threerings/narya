@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.38 2004/08/27 02:20:23 mdb Exp $
+// $Id: ClientManager.java,v 1.39 2004/09/15 18:21:26 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -427,14 +427,15 @@ public class ClientManager
 
         if (victims != null) {
             for (int ii = 0; ii < victims.size(); ii++) {
+                PresentsClient client = (PresentsClient)victims.get(ii);
                 try {
-                    PresentsClient client = (PresentsClient)victims.get(ii);
                     Log.info("Client expired, ending session " +
                         "[client=" + client +
                         ", dtime=" + (now-client.getNetworkStamp()) + "ms].");
                     client.endSession();
                 } catch (Exception e) {
-                    Log.warning("Choke while flushing clients.");
+                    Log.warning("Choke while flushing client " +
+                                "[victim=" + client + "].");
                     Log.logStackTrace(e);
                 }
             }
