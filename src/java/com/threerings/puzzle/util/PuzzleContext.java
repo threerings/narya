@@ -1,10 +1,11 @@
 //
-// $Id: PuzzleContext.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: PuzzleContext.java,v 1.2 2003/11/26 02:11:34 mdb Exp $
 
 package com.threerings.puzzle.util;
 
 import com.threerings.util.KeyDispatcher;
 import com.threerings.util.KeyboardManager;
+import com.threerings.util.MessageManager;
 
 import com.threerings.media.FrameManager;
 import com.threerings.media.sound.SoundManager;
@@ -20,6 +21,11 @@ public interface PuzzleContext
      * Returns the username of the local user.
      */
     public String getUsername ();
+
+    /**
+     * Returns a reference to the message manager used by the client.
+     */
+    public MessageManager getMessageManager ();
 
     /**
      * Provides access to the frame manager.

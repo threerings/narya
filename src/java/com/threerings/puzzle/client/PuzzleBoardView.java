@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleBoardView.java,v 1.2 2003/11/26 02:07:45 mdb Exp $
+// $Id: PuzzleBoardView.java,v 1.3 2003/11/26 02:11:34 mdb Exp $
 
 package com.threerings.puzzle.client;
 
@@ -26,11 +26,9 @@ import com.threerings.media.image.Mirage;
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.sprite.SpriteManager;
 
-// import com.threerings.yohoho.client.YoUI;
-
 import com.threerings.puzzle.Log;
-import com.threerings.puzzle.client.ScoreAnimation;
 import com.threerings.puzzle.data.Board;
+import com.threerings.puzzle.data.PuzzleCodes;
 import com.threerings.puzzle.data.PuzzleConfig;
 import com.threerings.puzzle.util.PuzzleContext;
 
@@ -92,17 +90,19 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
      */
     public void setPaused (boolean paused)
     {
-//         if (paused) {
-//             _pauseLabel = new Label(
-//                 YoUI.puzzle.getBundle().get(_pctrl.getPauseString()),
-//                 Label.BOLD | Label.OUTLINE, Color.WHITE, Color.BLACK,
-//                 _fonts[_fonts.length - 2]);
-//             _pauseLabel.setTargetWidth(_bounds.width);
-//             _pauseLabel.layout(this);
-//         } else {
-//             _pauseLabel = null;
-//         }
-//         repaint();
+        if (paused) {
+            String pmsg = _pctrl.getPauseString();
+            pmsg = _ctx.getMessageManager().getBundle(
+                PuzzleCodes.PUZZLE_MESSAGE_BUNDLE).xlate(pmsg);
+            _pauseLabel = new Label(pmsg, Label.BOLD | Label.OUTLINE,
+                                    Color.WHITE, Color.BLACK,
+                                    _fonts[_fonts.length - 2]);
+            _pauseLabel.setTargetWidth(_bounds.width);
+            _pauseLabel.layout(this);
+        } else {
+            _pauseLabel = null;
+        }
+        repaint();
     }
 
     /**
