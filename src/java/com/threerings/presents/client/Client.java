@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.5 2001/06/09 23:39:03 mdb Exp $
+// $Id: Client.java,v 1.6 2001/06/11 17:44:03 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -9,7 +9,6 @@ import java.util.List;
 import com.threerings.cocktail.cher.Log;
 import com.threerings.cocktail.cher.dobj.DObjectManager;
 import com.threerings.cocktail.cher.net.Credentials;
-import com.threerings.cocktail.cher.net.Registry;
 
 /**
  * Through the client object, a connection to the system is established
@@ -243,9 +242,4 @@ public class Client
     static final int CLIENT_CONNECTION_FAILED = 2;
     static final int CLIENT_WILL_LOGOFF = 3;
     static final int CLIENT_DID_LOGOFF = 4;
-
-    // register our shared objects
-    static {
-        Registry.registerTypedObjects();
-    }
 }

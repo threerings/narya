@@ -1,9 +1,13 @@
 //
-// $Id: AttributeChangedEvent.java,v 1.3 2001/06/01 20:35:39 mdb Exp $
+// $Id: AttributeChangedEvent.java,v 1.4 2001/06/11 17:44:04 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
+
 import com.threerings.cocktail.cher.Log;
 
 /**
@@ -13,8 +17,11 @@ import com.threerings.cocktail.cher.Log;
  *
  * @see DObjectManager.postEvent
  */
-public class AttributeChangedEvent extends DEvent
+public class AttributeChangedEvent extends TypedEvent
 {
+    /** The typed object code for this event. */
+    public static final short TYPE = TYPE_BASE + 1;
+
     /**
      * Constructs a new attribute changed event on the specified target
      * object with the supplied attribute name and value.
@@ -104,6 +111,27 @@ public class AttributeChangedEvent extends DEvent
         // pass the new value on to the object
         target.setAttribute(_name, _value);
         return true;
+    }
+
+    public short getType ()
+    {
+        return TYPE;
+    }
+
+    public void writeTo (DataOutputStream out)
+        throws IOException
+    {
+        super.writeTo(out);
+        out.writeUTF(_name);
+        // out.write...(_value);
+    }
+
+    public void readFrom (DataInputStream in)
+        throws IOException
+    {
+        super.readFrom(in);
+        _name = in.readUTF();
+        // _value = in.read...
     }
 
     public String toString ()

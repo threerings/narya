@@ -1,5 +1,5 @@
 //
-// $Id: TypedObjectFactory.java,v 1.4 2001/05/30 23:58:31 mdb Exp $
+// $Id: TypedObjectFactory.java,v 1.5 2001/06/11 17:44:04 mdb Exp $
 
 package com.threerings.cocktail.cher.io;
 
@@ -92,4 +92,9 @@ public class TypedObjectFactory
 
     /** Our type to class mapping table. */
     protected static HashMap _classes = new HashMap();
+
+    // register our typed object
+    static {
+        TypedObjectRegistry.registerTypedObjects();
+    }
 }

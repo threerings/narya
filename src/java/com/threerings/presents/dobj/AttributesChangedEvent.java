@@ -1,7 +1,11 @@
 //
-// $Id: AttributesChangedEvent.java,v 1.2 2001/06/02 01:30:37 mdb Exp $
+// $Id: AttributesChangedEvent.java,v 1.3 2001/06/11 17:44:04 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * An attribute<em>s</em> changed event is dispatched when multiple
@@ -10,8 +14,11 @@ package com.threerings.cocktail.cher.dobj;
  *
  * @see DObjectManager.postEvent
  */
-public class AttributesChangedEvent extends DEvent
+public class AttributesChangedEvent extends TypedEvent
 {
+    /** The typed object code for this event. */
+    public static final short TYPE = TYPE_BASE + 2;
+
     /**
      * Constructs a new attribute changed event on the specified target
      * object with the supplied attribute name and value.
@@ -150,6 +157,35 @@ public class AttributesChangedEvent extends DEvent
             target.setAttribute(_names[i], _values[i]);
         }
         return true;
+    }
+
+    public short getType ()
+    {
+        return TYPE;
+    }
+
+    public void writeTo (DataOutputStream out)
+        throws IOException
+    {
+        super.writeTo(out);
+        out.writeInt(_count);
+        for (int i = 0; i < _count; i++) {
+            out.writeUTF(_names[i]);
+            // out.write...(_values[i]);
+        }
+    }
+
+    public void readFrom (DataInputStream in)
+        throws IOException
+    {
+        super.readFrom(in);
+        _count = in.readInt();
+        _names = new String[_count];
+        _values = new Object[_count];
+        for (int i = 0; i < _count; i++) {
+            _names[i] = in.readUTF();
+            // _values[i] = ...
+        }
     }
 
     protected int _count;

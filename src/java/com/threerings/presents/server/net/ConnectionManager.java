@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.4 2001/06/02 01:30:37 mdb Exp $
+// $Id: ConnectionManager.java,v 1.5 2001/06/11 17:44:04 mdb Exp $
 
 package com.threerings.cocktail.cher.server.net;
 
@@ -17,7 +17,6 @@ import com.threerings.cocktail.cher.io.FramingOutputStream;
 import com.threerings.cocktail.cher.io.TypedObjectFactory;
 import com.threerings.cocktail.cher.net.Credentials;
 import com.threerings.cocktail.cher.net.DownstreamMessage;
-import com.threerings.cocktail.cher.net.Registry;
 
 /**
  * The connection manager manages the socket on which connections are
@@ -322,9 +321,4 @@ public class ConnectionManager extends LoopingThread
     protected static final int CONNECTION_ESTABLISHED = 0;
     protected static final int CONNECTION_FAILED = 1;
     protected static final int CONNECTION_CLOSED = 2;
-
-    // register our shared objects
-    static {
-        Registry.registerTypedObjects();
-    }
 }

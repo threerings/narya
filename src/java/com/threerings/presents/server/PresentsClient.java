@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.3 2001/06/09 23:39:04 mdb Exp $
+// $Id: PresentsClient.java,v 1.4 2001/06/11 17:44:04 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -155,7 +155,10 @@ public class Client implements Subscriber, MessageHandler
         // forward the event to the client
         Connection conn = getConnection();
         if (conn != null) {
-            conn.postMessage(new EventNotification(event));
+            // only typed events will be forwarded to the client, so we
+            // need not worry that a non-typed event would make it here
+            TypedEvent tevent = (TypedEvent)event;
+            conn.postMessage(new EventNotification(tevent));
         } else {
             Log.info("Dropped event forward notification " +
                      "[client=" + this + ", event=" + event + "].");

@@ -1,18 +1,17 @@
 //
-// $Id: Registry.java,v 1.5 2001/06/09 23:39:04 mdb Exp $
+// $Id: TypedObjectRegistry.java,v 1.1 2001/06/11 17:44:04 mdb Exp $
 
-package com.threerings.cocktail.cher.net;
+package com.threerings.cocktail.cher.io;
 
-import com.threerings.cocktail.cher.dobj.DObject;
-import com.threerings.cocktail.cher.io.TypedObject;
-import com.threerings.cocktail.cher.io.TypedObjectFactory;
+import com.threerings.cocktail.cher.dobj.*;
+import com.threerings.cocktail.cher.net.*;
 
 /**
  * The registry provides a single place where all typed objects that are
  * exchanged between the client and the server can be registered with the
  * typed object factory.
  */
-public class Registry
+public class TypedObjectRegistry
 {
     /**
      * Must be called once by the client and the server to ensure that all
@@ -50,5 +49,10 @@ public class Registry
         TypedObjectFactory.registerClass(UsernamePasswordCreds.TYPE,
                                          UsernamePasswordCreds.class);
 
+        // register our event classes
+        TypedObjectFactory.registerClass(AttributeChangedEvent.TYPE,
+                                         AttributeChangedEvent.class);
+        TypedObjectFactory.registerClass(AttributesChangedEvent.TYPE,
+                                         AttributesChangedEvent.class);
     }
 }

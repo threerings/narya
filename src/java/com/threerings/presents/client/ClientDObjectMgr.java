@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.1 2001/06/09 23:39:03 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.2 2001/06/11 17:44:04 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -69,8 +69,13 @@ public class ClientDObjectMgr
     // inherit documentation from the interface
     public void postEvent (DEvent event)
     {
+        // we can cast the event to a typed event because only typed
+        // events will be kicking around on the client; bare DEvent
+        // instances are only used for internal messages on the server
+        TypedEvent tevent = (TypedEvent)event;
+
         // send a forward event request to the server
-        _comm.postMessage(new ForwardEventRequest(event));
+        _comm.postMessage(new ForwardEventRequest(tevent));
     }
 
     /**

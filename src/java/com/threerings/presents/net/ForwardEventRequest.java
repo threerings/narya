@@ -1,5 +1,5 @@
 //
-// $Id: ForwardEventRequest.java,v 1.6 2001/06/05 22:44:31 mdb Exp $
+// $Id: ForwardEventRequest.java,v 1.7 2001/06/11 17:44:04 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -7,7 +7,8 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.threerings.cocktail.cher.dobj.DEvent;
+import com.threerings.cocktail.cher.dobj.TypedEvent;
+import com.threerings.cocktail.cher.io.TypedObjectFactory;
 
 public class ForwardEventRequest extends UpstreamMessage
 {
@@ -25,7 +26,7 @@ public class ForwardEventRequest extends UpstreamMessage
     /**
      * Constructs a forward event request for the supplied event.
      */
-    public ForwardEventRequest (DEvent event)
+    public ForwardEventRequest (TypedEvent event)
     {
         _event = event;
     }
@@ -38,7 +39,7 @@ public class ForwardEventRequest extends UpstreamMessage
     /**
      * Returns the event that we wish to have forwarded.
      */
-    public DEvent getEvent ()
+    public TypedEvent getEvent ()
     {
         return _event;
     }
@@ -47,16 +48,18 @@ public class ForwardEventRequest extends UpstreamMessage
         throws IOException
     {
         super.writeTo(out);
-        // _event.writeTo(out);
+        // write the event out to the stream
+        TypedObjectFactory.writeTo(out, _event);
     }
 
     public void readFrom (DataInputStream in)
         throws IOException
     {
         super.readFrom(in);
-        // _event = EventFactory.readFrom(in);
+        // read the event in from the stream
+        _event = (TypedEvent)TypedObjectFactory.readFrom(in);
     }
 
     /** The event which we are forwarding. */
-    protected DEvent _event;
+    protected TypedEvent _event;
 }
