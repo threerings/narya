@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.26 2003/02/18 19:50:34 mdb Exp $
+// $Id: DSet.java,v 1.27 2003/03/26 00:16:03 ray Exp $
 
 package com.threerings.presents.dobj;
 
@@ -171,7 +171,7 @@ public class DSet
      * size to contain all of the elements of this set will be created and
      * returned.
      */
-    public Object toArray (Object[] array)
+    public Object[] toArray (Object[] array)
     {
         if (array == null) {
             array = new Object[size()];
