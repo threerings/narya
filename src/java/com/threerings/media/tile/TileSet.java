@@ -1,14 +1,15 @@
 //
-// $Id: TileSet.java,v 1.23 2001/12/07 01:33:29 mdb Exp $
+// $Id: TileSet.java,v 1.24 2002/01/18 17:48:11 shaper Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Image;
-import java.awt.image.BufferedImage;
+import java.awt.Transparency;
 
 import java.io.IOException;
 import java.io.Serializable;
 
+import com.threerings.media.ImageUtil;
 import com.threerings.media.Log;
 
 /**
@@ -188,8 +189,7 @@ public abstract class TileSet
     protected Image createErrorImage (int width, int height)
     {
         // return a blank image for now
-        return new BufferedImage(width, height,
-                                 BufferedImage.TYPE_BYTE_INDEXED);
+        return ImageUtil.createImage(width, height, Transparency.OPAQUE);
     }
 
     /**

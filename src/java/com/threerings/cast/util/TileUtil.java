@@ -1,17 +1,15 @@
 //
-// $Id: TileUtil.java,v 1.6 2001/12/17 03:33:41 mdb Exp $
+// $Id: TileUtil.java,v 1.7 2002/01/18 17:48:11 shaper Exp $
 
 package com.threerings.cast.util;
 
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 
+import com.threerings.media.ImageUtil;
 import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.sprite.Sprite;
-// import com.threerings.media.tile.*;
 
 import com.threerings.cast.Log;
-// import com.threerings.cast.*;
 
 /**
  * Miscellaneous tile-related utility functions.
@@ -73,9 +71,8 @@ public class TileUtil
             _images = new Image[frameCount];
             for (int i = 0; i < frameCount; i++) {
                 Image img = template.getFrame(i);
-                _images[i] = new BufferedImage(img.getWidth(null),
-                                               img.getHeight(null),
-                                               BufferedImage.TYPE_INT_ARGB);
+                _images[i] = ImageUtil.createImage(
+                    img.getWidth(null), img.getHeight(null));
             }
         }
 
