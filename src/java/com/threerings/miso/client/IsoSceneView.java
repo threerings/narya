@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.122 2002/10/16 01:55:22 ray Exp $
+// $Id: IsoSceneView.java,v 1.123 2002/10/17 02:12:42 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -466,6 +466,15 @@ public class IsoSceneView implements SceneView
         // nothing by default
     }
 
+    /**
+     * A place for subclasses to react to the hover object changing.
+     * One of the supplied arguments may be null.
+     */
+    protected void hoverObjectChanged (Object oldHover, Object newHover)
+    {
+        // nothing by default
+    }
+
     // documentation inherited
     public Path getPath (MisoCharacterSprite sprite, int x, int y)
     {
@@ -552,6 +561,7 @@ public class IsoSceneView implements SceneView
                 }
             }
 
+            hoverObjectChanged(_hobject, hobject);
             // set the new 
             _hobject = hobject;
 
