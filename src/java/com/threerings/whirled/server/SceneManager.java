@@ -1,5 +1,5 @@
 //
-// $Id: SceneManager.java,v 1.12 2003/02/12 07:23:31 mdb Exp $
+// $Id: SceneManager.java,v 1.13 2003/06/11 02:48:07 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -30,6 +30,14 @@ public class SceneManager extends PlaceManager
     public Scene getScene ()
     {
         return _scene;
+    }
+
+    /**
+     * Returns {@link UpdateList#getUpdates} for this scene's updates.
+     */
+    public SceneUpdate[] getUpdates (int fromVersion)
+    {
+        return _updates.getUpdates(fromVersion);
     }
 
     /**
@@ -125,6 +133,8 @@ public class SceneManager extends PlaceManager
                 return false;
             }
         });
+
+        // TODO: broadcast the update to all occupants of the scene
     }
 
     // documentation inherited

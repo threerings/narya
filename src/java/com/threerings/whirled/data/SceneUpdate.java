@@ -1,8 +1,9 @@
 //
-// $Id: SceneUpdate.java,v 1.1 2003/02/12 07:23:31 mdb Exp $
+// $Id: SceneUpdate.java,v 1.2 2003/06/11 02:48:07 mdb Exp $
 
 package com.threerings.whirled.data;
 
+import com.samskivert.util.StringUtil;
 import com.threerings.io.Streamable;
 
 import com.threerings.whirled.Log;
@@ -12,18 +13,18 @@ import com.threerings.whirled.Log;
  * be stored persistently and sent to clients to update their own local
  * copies of scenes.
  */
-public abstract class SceneUpdate
+public class SceneUpdate
     implements Streamable, Cloneable
 {
     /**
-     * Creates a scene update that will operate on a scene with the
-     * specified target scene and version number.
+     * Initializes this scene update such that it will operate on a scene
+     * with the specified target scene and version number.
      *
      * @param targetId the id of the scene on which we are to operate.
      * @param targetVersion the version of the scene on which we are to
      * operate.
      */
-    public SceneUpdate (int targetId, int targetVersion)
+    public void init (int targetId, int targetVersion)
     {
         _targetId = targetId;
         _targetVersion = targetVersion;
@@ -72,7 +73,7 @@ public abstract class SceneUpdate
     /**
      * Applies this update to the specified scene model. Derived classes
      * will want to override this method and apply updates of their own,
-     * being sure to call <code>super.applyToScene</code>.
+     * being sure to call <code>super.apply</code>.
      */
     public void apply (SceneModel model)
     {
@@ -104,6 +105,8 @@ public abstract class SceneUpdate
     {
         buf.append("sceneId=").append(_targetId);
         buf.append(", version=").append(_targetVersion);
+        buf.append(", ");
+        StringUtil.fieldsToString(buf, this);
     }
 
     /** The version number of the scene on which we operate. */

@@ -1,5 +1,5 @@
 //
-// $Id: ZoneProvider.java,v 1.14 2003/02/12 07:23:32 mdb Exp $
+// $Id: ZoneProvider.java,v 1.15 2003/06/11 02:48:07 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -13,6 +13,7 @@ import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.LocationProvider;
 
 import com.threerings.whirled.data.SceneModel;
+import com.threerings.whirled.data.SceneUpdate;
 import com.threerings.whirled.data.ScenedBodyObject;
 import com.threerings.whirled.server.SceneManager;
 import com.threerings.whirled.server.SceneRegistry;
@@ -163,8 +164,14 @@ public class ZoneProvider
             // check to see if they need a newer version of the scene data
             SceneModel model = scmgr.getScene().getSceneModel();
             if (sceneVersion < model.version) {
-                // then send the moveTo response
-                listener.moveSucceededWithScene(ploid, config, summary, model);
+                SceneUpdate[] updates = scmgr.getUpdates(sceneVersion);
+                if (updates != null) {
+                    listener.moveSucceededWithUpdates(
+                        ploid, config, summary, updates);
+                } else {
+                    listener.moveSucceededWithScene(
+                        ploid, config, summary, model);
+                }
 
             } else {
                 // then send the moveTo response
