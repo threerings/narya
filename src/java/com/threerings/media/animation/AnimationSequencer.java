@@ -1,5 +1,5 @@
 //
-// $Id: AnimationSequencer.java,v 1.3 2002/11/05 21:12:55 mdb Exp $
+// $Id: AnimationSequencer.java,v 1.4 2002/11/05 21:17:32 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -93,33 +93,21 @@ public abstract class AnimationSequencer extends Animation
         // add all animations whose time has come
         while (_queued.size() > 0) {
             AnimRecord arec = (AnimRecord)_queued.get(0);
-
-            if (arec.readyToFire(tickStamp, _lastStamp)) {
-                // remove it from the queued list and put it on the
-                // running list
-                _queued.remove(0);
-                _running.add(arec);
-
-                // note that we've advanced to the next animation
-                _lastStamp = tickStamp;
-
-//                 Log.info("Adding animation [anim=" + arec.anim +
-//                          ", tickStamp=" + tickStamp + "].");
-                if (arec.anim != null) {
-                    addAnimation(arec.anim, tickStamp);
-                    arec.anim.addAnimationObserver(arec);
-
-                } else {
-                    // since there's no animation, we need to fire this
-                    // record's animation completion routine immediately
-                    arec.fireCompletion(tickStamp);
-                }
-
-            } else {
-                // it's not time to add this animation, and so all
-                // subsequent animations must surely wait as well
+            if (!arec.readyToFire(tickStamp, _lastStamp)) {
+                // if it's not time to add this animation, all subsequent
+                // animations must surely wait as well
                 break;
             }
+
+            // remove it from queued and put it on the running list
+            _queued.remove(0);
+            _running.add(arec);
+
+            // note that we've advanced to the next animation
+            _lastStamp = tickStamp;
+
+            // fire in the hole!
+            arec.fire(tickStamp);
         }
 
         // we're done when both lists are empty
@@ -154,14 +142,13 @@ public abstract class AnimationSequencer extends Animation
     protected class AnimRecord
         implements AnimationObserver
     {
-        public Animation anim;
         public long delta;
         public AnimRecord dependent;
 
         public AnimRecord (
             Animation anim, long delta, Runnable completionAction)
         {
-            this.anim = anim;
+            _anim = anim;
             this.delta = delta;
             _completionAction = completionAction;
         }
@@ -169,6 +156,24 @@ public abstract class AnimationSequencer extends Animation
         public boolean readyToFire (long now, long lastStamp)
         {
             return (delta != -1) && (lastStamp + delta >= now);
+        }
+
+        public void fire (long when)
+        {
+//             Log.info("Firing animation [anim=" + anim +
+//                      ", tickStamp=" + tickStamp + "].");
+
+            // if we have an animation, start it up and await its
+            // completion
+            if (_anim != null) {
+                addAnimation(_anim, when);
+                _anim.addAnimationObserver(this);
+
+            } else {
+                // since there's no animation, we need to fire our
+                // completion routine immediately
+                fireCompletion(when);
+            }
         }
 
         public void fireCompletion (long when)
@@ -208,6 +213,7 @@ public abstract class AnimationSequencer extends Animation
             }
         }
 
+        protected Animation _anim;
         protected Runnable _completionAction;
     }
 
