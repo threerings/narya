@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.15 2001/11/07 03:21:42 mdb Exp $
+// $Id: GameManager.java,v 1.16 2001/11/07 10:44:02 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -112,7 +112,8 @@ public class GameManager
      */
     protected void placeBecameEmpty ()
     {
-        Log.info("Game room empty. Going away. [game=" + _gameobj + "].");
+        Log.info("Game room empty. Going away. " +
+                 "[gameOid=" + _gameobj.getOid() + "].");
 
         // shut down the place (which will destroy the game object and
         // clean up after everything)
