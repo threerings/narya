@@ -10,7 +10,10 @@ import java.awt.Image;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Transparency;
+
+import java.awt.image.BufferedImage;
 
 import com.threerings.media.image.Mirage;
 import com.threerings.media.sprite.Sprite;
@@ -43,10 +46,11 @@ public class ScaleAnimation extends Animation
     public ScaleAnimation (Mirage image, Point center,
                            float startScale, float endScale, int duration)
     {
-        super(getBounds(image, center, Math.max(startScale, endScale)));
+        super(getBounds(Math.max(startScale, endScale), center, image));
 
         // Save inputted variables
         _image = image;
+        _bufferedImage = _image.getSnapshot();
         _center = new Point(center);
         _startScale = startScale;
         _endScale = endScale;
@@ -68,15 +72,40 @@ public class ScaleAnimation extends Animation
      * if it exists at all, so we have to trick it with this function.
      *
      * Oh, and this function computes how big the bounding box needs
-     * to be.
+     * to be to bound the inputted image scaled to the inputted size
+     * centered around the inputted center poitn.
      */
-    public static Rectangle getBounds (Mirage image, Point center, float scale)
+    public static Rectangle getBounds (float scale, Point center, Mirage image)
     {
-        int width  = (int) (image.getWidth() * scale);
-        int height = (int) (image.getWidth() * scale);
+        Point size = getSize(scale, image);
+        Point corner = getCorner(center, size);
+        return new Rectangle(corner.x, corner.y, size.x, size.y);
+    }
 
-        return new Rectangle(center.x - width/2, center.y - height/2,
-                             width, height);
+    /**
+     * Compute the bounds to use to render the animation's image
+     * right now.
+     */
+    public Rectangle getBounds ()
+    {
+        return getBounds(_scale, _center, _image);
+    }
+
+    /** Computes the width and height to which an image should be scaled. */
+    public static Point getSize (float scale, Mirage image)
+    {
+        int width  = Math.max(0, Math.round(image.getWidth()  * scale));
+        int height = Math.max(0, Math.round(image.getHeight() * scale));
+        return new Point(width, height);
+    }
+
+    /**
+     * Computes the upper left corner where the image should be drawn,
+     * given the center and dimensions to which the image should be scaled.
+     */
+    public static Point getCorner (Point center, Point size)
+    {
+        return new Point(center.x - size.x/2, center.y - size.y/2);
     }
 
     // documentation inherited
@@ -104,56 +133,38 @@ public class ScaleAnimation extends Animation
     // documentation inherited
     public void paint (Graphics2D gfx)
     {
-        //XXX Write this
-        /*
-        // TODO: recreate our off image if the sprite bounds changed; we
-        // also need to change the bounds of our animation which might
-        // require some jockeying (especially if we shrink)
-        if (_offimg == null) {
-            _offimg = gfx.getDeviceConfiguration().createCompatibleImage(
-                _bounds.width, _bounds.height, Transparency.TRANSLUCENT);
+        // Compute the bounding box to render this image
+        Rectangle bounds = getBounds();
+
+        // Paint nothing if the image was scaled to nothing
+        if (bounds.width <= 0 || bounds.height <= 0) {
+            return;
         }
 
-        // create a mask image with our sprite and the appropriate color
-        Graphics2D ogfx = (Graphics2D)_offimg.getGraphics();
-        try {
-            ogfx.setColor(_color);
-            ogfx.fillRect(0, 0, _bounds.width, _bounds.height);
-            ogfx.setComposite(AlphaComposite.DstAtop);
-            ogfx.translate(-_sprite.getX(), -_sprite.getY());
-            _sprite.paint(ogfx);
-        } finally {
-            ogfx.dispose();
-        }
+        // Smooth out the image scaling
+        // 
+        // FIXME: Should this be turned off when the painting is done?
+        gfx.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                             RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
-        Composite ocomp = null;
-        Composite ncomp = AlphaComposite.getInstance(
-            AlphaComposite.SRC_OVER, _alpha/1000f);
-
-        // if we're fading the sprite in on the way up, set our alpha
-        // composite before we render the sprite
-        if (_fadeIn && _upfunc != null) {
-            ocomp = gfx.getComposite();
-            gfx.setComposite(ncomp);
-        }
-
-        // next render the sprite
-        _sprite.paint(gfx);
-
-        // if we're not fading in, we still need to alpha the white bits
-        if (ocomp == null) {
-            ocomp = gfx.getComposite();
-            gfx.setComposite(ncomp);
-        }
-
-        // now alpha composite our mask atop the sprite
-        gfx.drawImage(_offimg, _sprite.getX(), _sprite.getY(), null);
-        gfx.setComposite(ocomp);
-        */
+        // Paint the image scaled to this location
+        gfx.drawImage(_bufferedImage,
+                      bounds.x,
+                      bounds.y,
+                      bounds.x + bounds.width,
+                      bounds.y + bounds.height,
+                      0,
+                      0,
+                      _bufferedImage.getWidth(),
+                      _bufferedImage.getHeight(),
+                      null);
     }
 
     /** The image to scale. */
     protected Mirage _image;
+
+    /** The image converted to a format Graphics2D likes, and cached. */
+    protected BufferedImage _bufferedImage;
 
     /** The center pixel to render the image around. */
     protected Point _center;
