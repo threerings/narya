@@ -1,5 +1,5 @@
 //
-// $Id: InvocationManager.java,v 1.21 2004/07/03 07:19:46 mdb Exp $
+// $Id: InvocationManager.java,v 1.22 2004/07/03 07:24:39 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -193,11 +193,11 @@ public class InvocationManager
         InvocationDispatcher disp = (InvocationDispatcher)
             _dispatchers.get(invCode);
         if (disp == null) {
-            Log.warning("Received invocation request for which we have " +
-                        "no registered dispatcher [code=" + invCode +
-                        ", methId=" + methodId +
-                        ", args=" + StringUtil.toString(args) + ", marsh=" +
-                        _recentRegServices.get(new Integer(invCode)) + "].");
+            Log.info("Received invocation request but dispatcher " +
+                     "registration was already cleared [code=" + invCode +
+                     ", methId=" + methodId +
+                     ", args=" + StringUtil.toString(args) + ", marsh=" +
+                     _recentRegServices.get(new Integer(invCode)) + "].");
             return;
         }
 
