@@ -1,10 +1,12 @@
 //
-// $Id: ComponentClass.java,v 1.5 2002/10/15 21:01:39 ray Exp $
+// $Id: ComponentClass.java,v 1.6 2002/11/20 02:21:10 mdb Exp $
 
 package com.threerings.cast;
 
 import java.io.Serializable;
 import java.util.Comparator;
+
+import com.samskivert.util.ArrayIntSet;
 
 /**
  * Denotes a class of components to which {@link CharacterComponent}
@@ -14,6 +16,21 @@ import java.util.Comparator;
  */
 public class ComponentClass implements Serializable
 {
+    /** Used to effect custom render orders for particular actions,
+     * orientations, etc. */
+    public static class PriorityOverride
+    {
+        /** The overridden render priority value. */
+        public int renderPriority;
+
+        /** The action, if any, for which this override is appropriate. */
+        public String action;
+
+        /** The orientations, if any, for which this override is
+         * appropriate. */
+        public ArrayIntSet orients;
+    }
+
     /** The comparator used to sort component class objects in render
      * priority order. */
     public static final Comparator RENDER_COMP = new RenderComparator();
@@ -23,6 +40,15 @@ public class ComponentClass implements Serializable
 
     /** The render priority. */
     public int renderPriority;
+
+    /**
+     * Returns the render priority appropriate for the specified action
+     * and orientation.
+     */
+    public int getRenderPriority (String action, int orientation)
+    {
+        return -1;
+    }
 
     /**
      * Classes with the same name are the same.
