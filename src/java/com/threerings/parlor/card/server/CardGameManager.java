@@ -29,7 +29,9 @@ import com.threerings.parlor.card.data.Hand;
 
 import com.threerings.parlor.game.GameManager;
 
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.MessageEvent;
+import com.threerings.presents.server.PresentsServer;
 
 /**
  * A manager class for card games.  Handles common functions like dealing
@@ -56,13 +58,9 @@ public class CardGameManager extends GameManager
         else {
             Hand hand = deck.dealHand(size);
             
-            _omgr.postEvent(
-                new MessageEvent(
-                    _playerOids[playerIndex],
-                    TAKE_HAND, 
-                    new Object[] { hand }
-                )
-            );
+            CardSender.sendHand(
+                (ClientObject)PresentsServer.omgr.getObject(
+                    _playerOids[playerIndex]), hand);
             
             return hand;
         }

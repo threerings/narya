@@ -1,5 +1,5 @@
 //
-// $Id: CardGameController.java,v 1.4 2004/10/15 18:20:28 andrzej Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,42 +21,42 @@
 
 package com.threerings.parlor.card.client;
 
-import com.threerings.crowd.data.PlaceConfig;
-
-import com.threerings.crowd.util.CrowdContext;
-
-import com.threerings.parlor.card.Log;
+import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.parlor.card.data.CardCodes;
 import com.threerings.parlor.card.data.Hand;
 
 import com.threerings.parlor.game.GameController;
 
-import com.threerings.presents.dobj.MessageEvent;
-import com.threerings.presents.dobj.MessageListener;
-
 /**
  * A controller class for card games.  Handles common functions like
  * accepting dealt hands.
  */
 public abstract class CardGameController extends GameController
-                                         implements MessageListener,
-                                                    CardCodes
+                                         implements CardCodes
 {
-    // Documentation inhertied
-    public void init (CrowdContext context, PlaceConfig config)
+    // Documentation inherited.
+    public void willEnterPlace (PlaceObject plobj)
     {
-        super.init(context, config);
+        super.willEnterPlace(plobj);
         
-        _ctx.getClient().getClientObject().addListener(this);
+        CardReceiver cgr = new CardReceiver() {
+            public void receivedHand (Hand hand) {
+                handDealt(hand);
+            }
+        };
+        
+        _ctx.getClient().getInvocationDirector().registerReceiver(
+            new CardDecoder(cgr));
     }
     
-    // Documentation inherited
-    public void messageReceived (MessageEvent event)
-    {   
-        if (event.getName().equals(TAKE_HAND)) {
-            handDealt((Hand)event.getArgs()[0]);
-        }
+    // Documentation inherited.
+    public void didLeavePlace (PlaceObject plobj)
+    {
+        super.didLeavePlace(plobj);
+        
+        _ctx.getClient().getInvocationDirector().unregisterReceiver(
+            CardDecoder.RECEIVER_CODE);
     }
     
     /**

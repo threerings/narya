@@ -1,5 +1,5 @@
 //
-// $Id: CardCodes.java,v 1.3 2004/11/01 22:10:21 andrzej Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -57,7 +57,4 @@ public interface CardCodes extends InvocationCodes
     
     /** The number of the black joker. */
     public static final int BLACK_JOKER = 16;
-    
-    /** A message that carries a Hand of cards to a player. */
-    public static final String TAKE_HAND = "take_hand";
 }
