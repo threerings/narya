@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.50 2003/03/17 18:50:18 ray Exp $
+// $Id: SoundManager.java,v 1.51 2003/03/22 18:14:00 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -90,11 +90,15 @@ public class SoundManager
 
     /**
      * Constructs a sound manager.
+     *
+     * @param defaultClipPath The pathname of a sound clip to use as a
+     * fallback if another sound clip cannot be located.
      */
-    public SoundManager (ResourceManager rmgr)
+    public SoundManager (ResourceManager rmgr, String defaultClipPath)
     {
         // save things off
         _rmgr = rmgr;
+        _defaultClipPath = defaultClipPath;
 
         if (!SOUND_ENABLED) return;
 
@@ -664,14 +668,7 @@ public class SoundManager
                 data = new byte[names.length][];
                 String bundle = c.getValue("bundle", (String)null);
                 for (int ii=0; ii < names.length; ii++) {
-                    InputStream clipin = null;
-                    try {
-                        clipin = _rmgr.getResource(bundle, names[ii]);
-                    } catch (FileNotFoundException fnfe) {
-                        // try from the classpath
-                        clipin = _rmgr.getResource(names[ii]);
-                    }
-                    data[ii] = StreamUtils.streamAsBytes(clipin, BUFFER_SIZE);
+                    data[ii] = loadClipData(bundle, names[ii]);
                 }
             }
 
@@ -705,6 +702,43 @@ public class SoundManager
             }
         }
         return null;
+    }
+
+    /**
+     * Read the data from the resource manager.
+     */
+    protected byte[] loadClipData (String bundle, String path)
+        throws IOException
+    {
+        InputStream clipin = null;
+        try {
+            clipin = _rmgr.getResource(bundle, path);
+        } catch (FileNotFoundException fnfe) {
+            // try from the classpath
+            try {
+                clipin = _rmgr.getResource(path);
+            } catch (FileNotFoundException fnfe2) {
+                Log.warning("Could not locate sound data [bundle=" + bundle +
+                    ", path=" + path + "].");
+                if (_defaultClipPath != null) {
+                    try {
+                        clipin = _rmgr.getResource(_defaultClipPath);
+                    } catch (FileNotFoundException fnfe3) {
+                        Log.warning("Additionally, the default fallback " +
+                            "sound could not be located [path=" +
+                            _defaultClipPath + "].");
+                    }
+                } else {
+                    Log.warning("No fallback default sound specified!");
+                }
+                // if we couldn't load the default, rethrow
+                if (clipin == null) {
+                    throw fnfe2;
+                }
+            }
+        }
+
+        return StreamUtils.streamAsBytes(clipin, BUFFER_SIZE);
     }
 
     protected Config getConfig (SoundKey key)
@@ -1042,6 +1076,9 @@ public class SoundManager
             this.loops = loops;
         }
     }
+
+    /** The path of the default sound to use for missing sounds. */
+    protected String _defaultClipPath;
 
     /** The resource manager from which we obtain audio files. */
     protected ResourceManager _rmgr;
