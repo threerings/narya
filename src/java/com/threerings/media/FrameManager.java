@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.28 2002/12/04 22:07:28 shaper Exp $
+// $Id: FrameManager.java,v 1.29 2002/12/04 23:21:25 mdb Exp $
 
 package com.threerings.media;
 
@@ -734,10 +734,6 @@ public class FrameManager
                 long time = (elapsed - _lastTick);
                 _fps[0] = _tries * 1000f / time;
                 _fps[1] = _ticks * 1000f / time;
-                if (REPORT_FRAME_RATE) {
-                    Log.info("Frame manager stats [tries/sec=" + _fps[0] +
-                             ", ticks/sec=" + _fps[1] + "].");
-                }
                 _lastTick = elapsed;
                 _ticks = _tries = 0;
             }
@@ -767,9 +763,6 @@ public class FrameManager
 
         /** Used to compute metrics. */
         protected long _lastTick;
-
-        /** Toggles whether or not metrics are reported. */
-        protected static final boolean REPORT_FRAME_RATE = true;
     };
 
     /** The entites that are ticked each frame. */
