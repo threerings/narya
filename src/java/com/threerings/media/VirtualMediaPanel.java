@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.27 2004/08/27 02:12:37 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.28 2004/10/29 19:33:16 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,6 +21,7 @@
 
 package com.threerings.media;
 
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
