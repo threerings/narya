@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.46 2003/06/20 21:50:56 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.47 2003/06/23 20:16:07 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -36,6 +36,7 @@ import java.util.List;
 
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.RadialMenu;
+import com.samskivert.swing.event.CommandEvent;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
@@ -398,10 +399,14 @@ public class MisoScenePanel extends VirtualMediaPanel
         _activeMenu = menu;
         _activeMenu.addActionListener(new ActionListener() {
             public void actionPerformed (ActionEvent e) {
-                SceneObjectActionEvent event = new SceneObjectActionEvent(
-                    e.getSource(), e.getID(), e.getActionCommand(),
-                    e.getModifiers(), scobj);
-                fireObjectAction(handler, scobj, event);
+                if (e instanceof CommandEvent) {
+                    fireObjectAction(handler, scobj, e);
+                } else {
+                    SceneObjectActionEvent event = new SceneObjectActionEvent(
+                        e.getSource(), e.getID(), e.getActionCommand(),
+                        e.getModifiers(), scobj);
+                    fireObjectAction(handler, scobj, event);
+                }
             }
         });
         _activeMenu.activate(this, mbounds, scobj);
