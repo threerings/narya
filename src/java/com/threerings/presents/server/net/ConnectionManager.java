@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.32 2003/08/09 05:00:01 mdb Exp $
+// $Id: ConnectionManager.java,v 1.33 2003/08/20 00:47:39 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -275,6 +275,10 @@ public class ConnectionManager extends LoopingThread
             // all other messages in their queue have gone out
             OverflowQueue oqueue = (OverflowQueue)_oflowqs.get(conn);
             if (oqueue != null) {
+                if (oqueue.size() > 500) {
+                    Log.warning("Aiya, big overflow queue for " + conn +
+                                " [size=" + oqueue.size() + "].");
+                }
                 oqueue.add(tup.right);
                 continue;
             }
