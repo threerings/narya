@@ -1,8 +1,9 @@
 //
-// $Id: AutoFringer.java,v 1.1 2002/04/06 01:53:58 ray Exp $
+// $Id: AutoFringer.java,v 1.2 2002/04/06 02:07:13 ray Exp $
 
 package com.threerings.miso.tile;
 
+import java.awt.Rectangle;
 import java.util.Random;
 
 import com.samskivert.util.HashIntMap;
@@ -18,6 +19,8 @@ import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileUtil;
 import com.threerings.media.tile.UniformTileSet;
+
+import com.threerings.miso.scene.MisoSceneModel;
 
 /**
  * Automatically fringes a scene according to the rules in the
@@ -39,7 +42,8 @@ public class AutoFringer
      */
     public void fringe (MisoSceneModel scene, TileLayer fringelayer)
     {
-        fringe(scene, fringelayer, 0, 0, scene.width, scene.height);
+        fringe(scene, fringelayer,
+               new Rectangle(0, 0, scene.width, scene.height));
     }
 
     /**
@@ -53,11 +57,11 @@ public class AutoFringer
         // create a hash to cache our masks
         HashIntMap maskcache = new HashIntMap();
 
-        int lastrow = Math.min(r.y + r.height + 1, _scene.height);
-        int lastcol = Math.min(r.x + r.width + 1, _scene.width);
+        int lastrow = Math.min(r.y + r.height + 1, scene.height);
+        int lastcol = Math.min(r.x + r.width + 1, scene.width);
 
         for (int row = Math.max(r.y - 1, 0); row < lastrow; row++) {
-            for (int col = Math.max(r.x - 1); col < lastcol; col++) {
+            for (int col = Math.max(r.x - 1, 0); col < lastcol; col++) {
                 fringelayer.setTile(col, row,
                                     getFringeTile(scene, row, col, maskcache));
             }
