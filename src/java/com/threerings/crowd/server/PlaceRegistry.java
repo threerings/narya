@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.7 2001/08/16 04:28:36 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.8 2001/08/21 19:38:06 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -183,11 +183,11 @@ public class PlaceRegistry implements Subscriber
             return;
         }
 
-        // start the place manager up with the newly created place object
-        pmgr.startup((PlaceObject)object);
-
         // stick the manager into our table
         _pmgrs.put(object.getOid(), pmgr);
+
+        // start the place manager up with the newly created place object
+        pmgr.startup((PlaceObject)object);
     }
 
     public void requestFailed (int oid, ObjectAccessException cause)
