@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.21 2002/04/25 16:23:30 mdb Exp $
+// $Id: LineSegmentPath.java,v 1.22 2002/05/17 21:13:26 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -14,6 +14,7 @@ import java.util.List;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.util.DirectionCodes;
+import com.threerings.util.DirectionUtil;
 
 import com.threerings.media.Log;
 import com.threerings.media.util.MathUtil;
@@ -48,7 +49,7 @@ public class LineSegmentPath
         this();
         addNode(x1, y1, NORTH);
         Point p1 = new Point(x1, y1), p2 = new Point(x2, y2);
-        int dir = getDirection(p1, p2);
+        int dir = DirectionUtil.getDirection(p1, p2);
         addNode(x2, y2, dir);
     }
 
@@ -100,7 +101,16 @@ public class LineSegmentPath
         return _nodes.size();
     }
 
-    // documentation inherited
+    /**
+     * Sets the velocity of this sprite in pixels per millisecond. The
+     * velocity is measured as pixels traversed along the path that the
+     * sprite is traveling rather than in the x or y directions
+     * individually.  Note that the sprite velocity should not be changed
+     * while a path is being traversed; doing so may result in the sprite
+     * position changing unexpectedly.
+     *
+     * @param velocity the sprite velocity in pixels per millisecond.
+     */
     public void setVelocity (float velocity)
     {
         _vel = velocity;
@@ -203,6 +213,10 @@ public class LineSegmentPath
         int nx = _src.loc.x + (int)((_dest.loc.x - _src.loc.x) * pctdone);
         int ny = _src.loc.y + (int)((_dest.loc.y - _src.loc.y) * pctdone);
 
+//         Log.info("Moving sprite [msecs=" + msecs + ", pctdone=" + pctdone +
+//                  ", travpix=" + travpix + ", seglength=" + _seglength +
+//                  ", dx=" + (nx-ox) + ", dy=" + (ny-oy) + "].");
+
         // only update the sprite's location if it actually moved
         if (ox != nx || oy != ny) {
             sprite.setLocation(nx, ny);
@@ -295,7 +309,7 @@ public class LineSegmentPath
         for (int ii = 0; ii < size; ii++) {
             Point p = (Point)points.get(ii);
 
-            int dir = (ii == 0) ? NORTH : getDirection(last, p);
+            int dir = (ii == 0) ? NORTH : DirectionUtil.getDirection(last, p);
             addNode(p.x, p.y, dir);
             last = p;
         }
@@ -308,37 +322,6 @@ public class LineSegmentPath
     {
         return (PathNode)_niter.next();
     }        
-
-    /**
-     * Returns the direction that point <code>b</code> lies in from point
-     * <code>a</code> as one of the {@link DirectionCodes} direction
-     * constants.
-     */
-    protected int getDirection (Point a, Point b)
-    {
-        if (a.x == b.x && a.y > b.y) {
-            return NORTH;
-        } else if (a.x == b.x && a.y < b.y) {
-            return SOUTH;
-
-        } else if (a.x < b.x && a.y > b.y) {
-            return NORTHEAST;
-        } else if (a.x < b.x && a.y == b.y) {
-            return EAST;
-        } else if (a.x < b.x && a.y < b.y) {
-            return SOUTHEAST;
-
-        } else if (a.x > b.x && a.y < b.y) {
-            return SOUTHWEST;
-        } else if (a.x > b.x && a.y == b.y) {
-            return WEST;
-        } else if (a.x > b.x && a.y > b.y) {
-            return NORTHWEST;
-
-        } else {
-            return NONE;
-        }
-    }
 
     /** The nodes that make up the path. */
     protected ArrayList _nodes;
