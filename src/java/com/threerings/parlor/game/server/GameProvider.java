@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleCodes.java 3184 2004-10-28 19:20:27Z mdb $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -19,19 +19,26 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.game;
+package com.threerings.parlor.game.server;
 
-import com.threerings.presents.data.InvocationCodes;
+import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.server.InvocationProvider;
 
 /**
- * Constants relating to the game services.
+ * Provides access to the server-side implementation of the game
+ * invocation services.
  */
-public interface GameCodes extends InvocationCodes
+public interface GameProvider extends InvocationProvider
 {
-    /** The name of the message event to a placeObject that reports
-     * the winners and losers of a game. */
-    public static final String WINNERS_AND_LOSERS = "winnersAndLosers";
+    /**
+     * Called when the client has sent a {@link GameService#playerReady}
+     * service request.
+     */
+    public void playerReady (ClientObject caller);
 
-    /** A chat type for chatting on the game object. */
-    public static final String GAME_CHAT_TYPE = "gameChat";
+    /**
+     * Called when the client has sent a {@link
+     * GameService#startPartyGame} service request.
+     */
+    public void startPartyGame (ClientObject caller);
 }

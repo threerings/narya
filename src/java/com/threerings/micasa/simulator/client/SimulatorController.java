@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorController.java,v 1.3 2004/08/27 02:12:52 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -29,7 +29,7 @@ import com.threerings.presents.client.SessionObserver;
 
 import com.threerings.crowd.data.BodyObject;
 
-import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.data.GameConfig;
 import com.threerings.parlor.util.ParlorContext;
 
 import com.threerings.micasa.Log;

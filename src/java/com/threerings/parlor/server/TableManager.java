@@ -46,8 +46,8 @@ import com.threerings.parlor.data.ParlorCodes;
 import com.threerings.parlor.data.Table;
 import com.threerings.parlor.data.TableConfig;
 import com.threerings.parlor.data.TableLobbyObject;
-import com.threerings.parlor.game.GameConfig;
-import com.threerings.parlor.game.GameManager;
+import com.threerings.parlor.game.data.GameConfig;
+import com.threerings.parlor.game.server.GameManager;
 
 /**
  * A table manager can be used by a place manager to take care of the

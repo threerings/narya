@@ -44,7 +44,7 @@ import com.threerings.parlor.client.SeatednessObserver;
 import com.threerings.parlor.client.TableDirector;
 import com.threerings.parlor.client.TableObserver;
 import com.threerings.parlor.data.Table;
-import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.data.GameConfig;
 
 import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.data.PlaceObject;

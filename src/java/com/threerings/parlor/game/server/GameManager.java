@@ -19,7 +19,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.game;
+package com.threerings.parlor.game.server;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +45,11 @@ import com.threerings.crowd.server.PlaceManagerDelegate;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.data.ParlorCodes;
+import com.threerings.parlor.game.data.GameCodes;
+import com.threerings.parlor.game.data.GameConfig;
+import com.threerings.parlor.game.data.GameMarshaller;
+import com.threerings.parlor.game.data.GameObject;
+import com.threerings.parlor.game.data.PartyGameConfig;
 import com.threerings.parlor.server.ParlorSender;
 
 /**

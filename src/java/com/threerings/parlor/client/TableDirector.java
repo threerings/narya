@@ -37,7 +37,7 @@ import com.threerings.crowd.data.PlaceObject;
 import com.threerings.parlor.Log;
 import com.threerings.parlor.data.Table;
 import com.threerings.parlor.data.TableLobbyObject;
-import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.data.GameConfig;
 import com.threerings.parlor.util.ParlorContext;
 
 /**

@@ -34,7 +34,7 @@ import com.threerings.presents.dobj.OidList;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.server.CrowdServer;
 
-import com.threerings.parlor.game.GameManager;
+import com.threerings.parlor.game.server.GameManager;
 
 import com.threerings.util.MessageBundle;
 import com.threerings.util.Name;

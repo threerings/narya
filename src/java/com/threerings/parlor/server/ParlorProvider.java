@@ -37,8 +37,8 @@ import com.threerings.parlor.Log;
 import com.threerings.parlor.client.ParlorService.InviteListener;
 import com.threerings.parlor.client.ParlorService.TableListener;
 import com.threerings.parlor.data.ParlorCodes;
-import com.threerings.parlor.game.GameConfig;
-import com.threerings.parlor.game.GameManager;
+import com.threerings.parlor.game.data.GameConfig;
+import com.threerings.parlor.game.server.GameManager;
 
 /**
  * The parlor provider handles the server side of the various Parlor

@@ -27,7 +27,7 @@ import com.threerings.parlor.card.data.Card;
 import com.threerings.parlor.card.data.CardCodes;
 import com.threerings.parlor.card.data.Hand;
 
-import com.threerings.parlor.game.GameController;
+import com.threerings.parlor.game.client.GameController;
 
 /**
  * A controller class for card games.  Handles common functions like

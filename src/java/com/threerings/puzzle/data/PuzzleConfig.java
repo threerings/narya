@@ -21,7 +21,7 @@
 
 package com.threerings.puzzle.data;
 
-import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.data.GameConfig;
 
 /**
  * Encapsulates the basic configuration information for a puzzle game.

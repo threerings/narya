@@ -28,7 +28,7 @@ import java.util.Properties;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.crowd.data.PlaceConfig;
-import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.data.GameConfig;
 import com.threerings.micasa.util.MiCasaContext;
 
 public class LobbyConfig extends PlaceConfig

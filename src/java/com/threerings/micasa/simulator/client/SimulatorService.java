@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorService.java,v 1.2 2004/08/27 02:12:52 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -24,7 +24,7 @@ package com.threerings.micasa.simulator.client;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 
-import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.data.GameConfig;
 
 /**
  * Provides access to simulator invocation services.

@@ -21,7 +21,7 @@
 
 package com.threerings.parlor.card.data;
 
-import com.threerings.parlor.game.GameObject;
+import com.threerings.parlor.game.data.GameObject;
 
 /**
  * Game object class for card games.

@@ -22,7 +22,7 @@
 package com.threerings.parlor.data;
 
 import com.threerings.parlor.client.ParlorService;
-import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.data.GameConfig;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.InvocationMarshaller;

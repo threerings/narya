@@ -19,26 +19,23 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.turn;
+package com.threerings.parlor.game.data;
 
-import com.threerings.util.Name;
-
-import com.threerings.parlor.game.GameController;
+import com.threerings.parlor.data.TableConfig;
 
 /**
- * Games that wish to make use of the turn game services should have their
- * controller implement this interface and create an instance of {@link
- * TurnGameControllerDelegate} which should be passed to {@link
- * GameController#addDelegate}.
+ * Provides additional information for party games.
  */
-public interface TurnGameController
+public interface PartyGameConfig extends TableConfig
 {
     /**
-     * Called when the turn changed. This indicates the start of a turn
-     * and the user interface should adjust itself accordingly (activating
-     * controls if it is our turn and deactivating them if it is not).
-     *
-     * @param turnHolder the username of the new holder of the turn.
+     * Returns true if this party game is being played in party game mode,
+     * false if it is not.
      */
-    public void turnDidChange (Name turnHolder);
+    public boolean isPartyGame ();
+
+    /**
+     * Configures this game config as a party game or not.
+     */
+    public void setPartyGame (boolean isPartyGame);
 }

@@ -1,5 +1,5 @@
 //
-// $Id: Simulant.java,v 1.5 2004/08/27 02:12:54 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -27,8 +27,8 @@ import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceObject;
 
-import com.threerings.parlor.game.GameConfig;
-import com.threerings.parlor.game.GameManager;
+import com.threerings.parlor.game.data.GameConfig;
+import com.threerings.parlor.game.server.GameManager;
 
 public abstract class Simulant
 {

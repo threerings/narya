@@ -19,11 +19,11 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.turn;
+package com.threerings.parlor.turn.server;
 
 import com.threerings.util.Name;
 
-import com.threerings.parlor.game.GameManager;
+import com.threerings.parlor.game.server.GameManager;
 
 /**
  * A game manager that wishes to make use of the turn game services should

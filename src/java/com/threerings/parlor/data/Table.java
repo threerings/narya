@@ -31,7 +31,7 @@ import com.threerings.util.Name;
 import com.threerings.presents.dobj.DSet;
 
 import com.threerings.parlor.data.ParlorCodes;
-import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.data.GameConfig;
 
 /**
  * This class represents a table that is being used to matchmake a game by

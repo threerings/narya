@@ -4,7 +4,7 @@
 package com.threerings.parlor.client;
 
 import com.threerings.parlor.client.ParlorReceiver;
-import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.data.GameConfig;
 import com.threerings.presents.client.InvocationDecoder;
 import com.threerings.util.Name;
 

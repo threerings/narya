@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleControllerDelegate.java,v 1.5 2004/10/15 23:33:51 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -23,7 +23,7 @@ package com.threerings.puzzle.client;
 
 import com.threerings.crowd.data.PlaceObject;
 
-import com.threerings.parlor.game.GameControllerDelegate;
+import com.threerings.parlor.game.client.GameControllerDelegate;
 
 import com.threerings.puzzle.data.Board;
 import com.threerings.puzzle.data.PuzzleCodes;

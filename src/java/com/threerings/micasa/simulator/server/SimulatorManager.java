@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorManager.java,v 1.18 2004/10/22 19:27:54 ray Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -37,9 +37,9 @@ import com.threerings.crowd.server.PlaceManager;
 import com.threerings.crowd.server.PlaceRegistry.CreationObserver;
 import com.threerings.crowd.server.PlaceRegistry;
 
-import com.threerings.parlor.game.GameConfig;
-import com.threerings.parlor.game.GameManager;
-import com.threerings.parlor.game.GameObject;
+import com.threerings.parlor.game.data.GameConfig;
+import com.threerings.parlor.game.data.GameObject;
+import com.threerings.parlor.game.server.GameManager;
 
 import com.threerings.micasa.Log;
 

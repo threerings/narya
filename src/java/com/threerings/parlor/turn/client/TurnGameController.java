@@ -1,5 +1,5 @@
 //
-// $Id: GameService.java,v 1.3 2004/08/27 02:20:14 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -19,28 +19,26 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.game;
+package com.threerings.parlor.turn.client;
 
-import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService;
+import com.threerings.util.Name;
+
+import com.threerings.parlor.game.client.GameController;
 
 /**
- * Provides services used by game clients to request that actions be taken
- * by the game manager.
+ * Games that wish to make use of the turn game services should have their
+ * controller implement this interface and create an instance of {@link
+ * TurnGameControllerDelegate} which should be passed to {@link
+ * GameController#addDelegate}.
  */
-public interface GameService extends InvocationService
+public interface TurnGameController
 {
     /**
-     * Lets the game manager know that the calling player is in the game
-     * room and ready to play.
+     * Called when the turn changed. This indicates the start of a turn
+     * and the user interface should adjust itself accordingly (activating
+     * controls if it is our turn and deactivating them if it is not).
+     *
+     * @param turnHolder the username of the new holder of the turn.
      */
-    public void playerReady (Client client);
-
-    /**
-     * Asks the game manager to start the party game.  This should only be
-     * called for party games, and then only by the creating player after
-     * any other game-specific starting prerequisites (e.g., a required
-     * number of players) have been fulfilled.
-     */
-    public void startPartyGame (Client client);
+    public void turnDidChange (Name turnHolder);
 }

@@ -19,10 +19,10 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.game;
+package com.threerings.parlor.game.server;
 
-import com.threerings.parlor.game.GameMarshaller;
-import com.threerings.parlor.game.GameService;
+import com.threerings.parlor.game.data.GameMarshaller;
+import com.threerings.parlor.game.client.GameService;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;

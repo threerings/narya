@@ -21,7 +21,7 @@
 
 package com.threerings.puzzle.data;
 
-import com.threerings.parlor.game.GameObject;
+import com.threerings.parlor.game.data.GameObject;
 
 /**
  * Extends the basic {@link GameObject} to add individual player

@@ -32,7 +32,7 @@ import com.threerings.presents.client.InvocationService;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.data.ParlorCodes;
-import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.data.GameConfig;
 import com.threerings.parlor.util.ParlorContext;
 
 /**

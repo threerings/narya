@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleManagerDelegate.java,v 1.4 2004/08/27 02:20:32 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,7 +21,7 @@
 
 package com.threerings.puzzle.server;
 
-import com.threerings.parlor.game.GameManagerDelegate;
+import com.threerings.parlor.game.server.GameManagerDelegate;
 
 /**
  * Extends the {@link GameManagerDelegate} mechanism with puzzle manager

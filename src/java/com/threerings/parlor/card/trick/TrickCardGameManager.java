@@ -1,5 +1,5 @@
 //
-// $Id: TrickCardGameManager.java,v 1.2 2004/10/15 00:14:23 andrzej Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,7 +21,7 @@
 
 package com.threerings.parlor.card.trick;
 
-import com.threerings.parlor.turn.TurnGameManager;
+import com.threerings.parlor.turn.server.TurnGameManager;
 
 /**
  * A card game manager interface for trick-based card games, such as

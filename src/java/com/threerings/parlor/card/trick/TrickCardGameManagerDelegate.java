@@ -23,9 +23,9 @@ package com.threerings.parlor.card.trick;
 
 import com.threerings.crowd.data.PlaceObject;
 
-import com.threerings.parlor.game.GameManager;
+import com.threerings.parlor.game.server.GameManager;
 
-import com.threerings.parlor.turn.TurnGameManagerDelegate;
+import com.threerings.parlor.turn.server.TurnGameManagerDelegate;
 
 /**
  * A card game manager delegate for trick-based card games, such as

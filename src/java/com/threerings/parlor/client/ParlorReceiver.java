@@ -26,7 +26,7 @@ import com.threerings.util.Name;
 import com.threerings.presents.client.InvocationReceiver;
 
 import com.threerings.parlor.data.ParlorCodes;
-import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.data.GameConfig;
 
 /**
  * Defines, for the parlor services, a set of notifications delivered

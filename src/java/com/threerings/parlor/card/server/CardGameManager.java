@@ -32,7 +32,7 @@ import com.threerings.parlor.card.data.CardGameObject;
 import com.threerings.parlor.card.data.Deck;
 import com.threerings.parlor.card.data.Hand;
 
-import com.threerings.parlor.game.GameManager;
+import com.threerings.parlor.game.server.GameManager;
 
 import com.threerings.presents.client.InvocationService.ConfirmListener;
 import com.threerings.presents.data.ClientObject;

@@ -1,5 +1,5 @@
 //
-// $Id: LobbyController.java,v 1.11 2004/08/27 02:12:50 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -30,7 +30,7 @@ import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.util.CrowdContext;
 
 import com.threerings.parlor.client.*;
-import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.data.GameConfig;
 
 import com.threerings.micasa.Log;
 import com.threerings.micasa.util.MiCasaContext;

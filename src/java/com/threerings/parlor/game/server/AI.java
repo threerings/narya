@@ -1,7 +1,7 @@
 //
-// $Id: AI.java,v 1.1 2004/10/22 19:27:54 ray Exp $
+// $Id$
 
-package com.threerings.parlor.game;
+package com.threerings.parlor.game.server;
 
 /**
  * Represents attributes of an AI player.

@@ -22,7 +22,7 @@
 package com.threerings.parlor;
 
 import com.threerings.parlor.client.GameConfigurator;
-import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.data.GameConfig;
 
 public class TestConfig extends GameConfig
 {

@@ -1,5 +1,5 @@
 //
-// $Id: TrickCardGameObject.java,v 1.2 2004/10/15 00:14:23 andrzej Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,7 +21,7 @@
 
 package com.threerings.parlor.card.trick;
 
-import com.threerings.parlor.turn.TurnGameObject;
+import com.threerings.parlor.turn.data.TurnGameObject;
 
 /**
  * Game objects for trick-based card games must implement this interface.

@@ -19,40 +19,28 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.turn;
+package com.threerings.parlor.game.client;
 
-import com.threerings.util.Name;
-
-import com.threerings.parlor.game.GameObject;
+import com.threerings.presents.client.Client;
+import com.threerings.presents.client.InvocationService;
 
 /**
- * Games that wish to support turn-based play must implement this
- * interface with their {@link GameObject}.
+ * Provides services used by game clients to request that actions be taken
+ * by the game manager.
  */
-public interface TurnGameObject
+public interface GameService extends InvocationService
 {
     /**
-     * Returns the distributed object field name of the
-     * <code>turnHolder</code> field in the object that implements this
-     * interface.
+     * Lets the game manager know that the calling player is in the game
+     * room and ready to play.
      */
-    public String getTurnHolderFieldName ();
+    public void playerReady (Client client);
 
     /**
-     * Returns the username of the player who is currently taking their
-     * turn in this turn-based game or <code>null</code> if no user
-     * currently holds the turn.
+     * Asks the game manager to start the party game.  This should only be
+     * called for party games, and then only by the creating player after
+     * any other game-specific starting prerequisites (e.g., a required
+     * number of players) have been fulfilled.
      */
-    public Name getTurnHolder ();
-
-    /**
-     * Requests that the <code>turnHolder</code> field be set to the specified
-     * value.
-     */
-    public void setTurnHolder (Name turnHolder);
-
-    /**
-     * Returns the array of player names involved in the game.
-     */
-    public Name[] getPlayers ();
+    public void startPartyGame (Client client);
 }

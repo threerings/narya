@@ -32,7 +32,8 @@ import com.threerings.crowd.util.CrowdContext;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.client.*;
-import com.threerings.parlor.game.*;
+import com.threerings.parlor.game.client.*;
+import com.threerings.parlor.game.data.*;
 import com.threerings.parlor.util.ParlorContext;
 
 public class TestClient extends com.threerings.crowd.client.TestClient

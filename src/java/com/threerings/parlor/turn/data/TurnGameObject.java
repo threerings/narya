@@ -1,5 +1,5 @@
 //
-// $Id: GameProvider.java,v 1.3 2004/08/27 02:20:14 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -19,26 +19,40 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.game;
+package com.threerings.parlor.turn.data;
 
-import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.server.InvocationProvider;
+import com.threerings.util.Name;
+
+import com.threerings.parlor.game.data.GameObject;
 
 /**
- * Provides access to the server-side implementation of the game
- * invocation services.
+ * Games that wish to support turn-based play must implement this
+ * interface with their {@link GameObject}.
  */
-public interface GameProvider extends InvocationProvider
+public interface TurnGameObject
 {
     /**
-     * Called when the client has sent a {@link GameService#playerReady}
-     * service request.
+     * Returns the distributed object field name of the
+     * <code>turnHolder</code> field in the object that implements this
+     * interface.
      */
-    public void playerReady (ClientObject caller);
+    public String getTurnHolderFieldName ();
 
     /**
-     * Called when the client has sent a {@link
-     * GameService#startPartyGame} service request.
+     * Returns the username of the player who is currently taking their
+     * turn in this turn-based game or <code>null</code> if no user
+     * currently holds the turn.
      */
-    public void startPartyGame (ClientObject caller);
+    public Name getTurnHolder ();
+
+    /**
+     * Requests that the <code>turnHolder</code> field be set to the specified
+     * value.
+     */
+    public void setTurnHolder (Name turnHolder);
+
+    /**
+     * Returns the array of player names involved in the game.
+     */
+    public Name[] getPlayers ();
 }

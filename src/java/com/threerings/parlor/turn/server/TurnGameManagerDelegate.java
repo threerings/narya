@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameManagerDelegate.java,v 1.10 2004/08/27 02:20:15 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -19,7 +19,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.turn;
+package com.threerings.parlor.turn.server;
 
 import com.threerings.util.Name;
 import com.threerings.util.RandomUtil;
@@ -27,8 +27,10 @@ import com.threerings.util.RandomUtil;
 import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.parlor.Log;
-import com.threerings.parlor.game.GameManager;
-import com.threerings.parlor.game.GameManagerDelegate;
+import com.threerings.parlor.game.server.GameManager;
+import com.threerings.parlor.game.server.GameManagerDelegate;
+
+import com.threerings.parlor.turn.data.TurnGameObject;
 
 /**
  * Performs the server-side turn-based game processing for a turn based

@@ -1,5 +1,5 @@
 //
-// $Id: GameWatcher.java,v 1.3 2004/08/27 02:20:14 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -19,7 +19,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.game;
+package com.threerings.parlor.game.server;
 
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
@@ -27,6 +27,8 @@ import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.PlaceManager;
 import com.threerings.crowd.server.PlaceRegistry;
+
+import com.threerings.parlor.game.data.GameObject;
 
 /**
  * An abstract convenience class used server-side to keep an eye on a game

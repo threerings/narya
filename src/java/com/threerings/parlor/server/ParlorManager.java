@@ -1,5 +1,5 @@
 //
-// $Id: ParlorManager.java,v 1.22 2004/08/27 02:20:14 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -32,8 +32,8 @@ import com.threerings.crowd.server.PlaceRegistry;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.data.ParlorCodes;
-import com.threerings.parlor.game.GameConfig;
-import com.threerings.parlor.game.GameManager;
+import com.threerings.parlor.game.data.GameConfig;
+import com.threerings.parlor.game.server.GameManager;
 
 /**
  * The parlor manager is responsible for the parlor services in

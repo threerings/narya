@@ -21,7 +21,7 @@
 
 package com.threerings.parlor.card.trick;
 
-import com.threerings.parlor.turn.TurnGameControllerDelegate;
+import com.threerings.parlor.turn.client.TurnGameControllerDelegate;
 
 import com.threerings.presents.dobj.AttributeChangedEvent;
 

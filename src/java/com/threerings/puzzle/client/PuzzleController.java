@@ -48,7 +48,7 @@ import com.threerings.presents.dobj.ElementUpdatedEvent;
 import com.threerings.crowd.client.PlaceControllerDelegate;
 import com.threerings.crowd.data.PlaceObject;
 
-import com.threerings.parlor.game.GameController;
+import com.threerings.parlor.game.client.GameController;
 
 import com.threerings.puzzle.Log;
 import com.threerings.puzzle.data.Board;

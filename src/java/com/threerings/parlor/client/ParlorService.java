@@ -26,7 +26,7 @@ import com.threerings.util.Name;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 
-import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.data.GameConfig;
 
 /**
  * Provides an interface to the various parlor invocation services.

@@ -22,7 +22,7 @@
 package com.threerings.micasa.simulator.data;
 
 import com.threerings.micasa.simulator.client.SimulatorService;
-import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.data.GameConfig;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;

@@ -1,5 +1,5 @@
 //
-// $Id: InvitationResponseObserver.java,v 1.7 2004/08/27 02:20:12 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,7 +21,7 @@
 
 package com.threerings.parlor.client;
 
-import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.game.data.GameConfig;
 
 /**
  * A client entity that wishes to generate invitations for games must
