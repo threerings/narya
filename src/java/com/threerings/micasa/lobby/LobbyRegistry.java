@@ -1,5 +1,5 @@
 //
-// $Id: LobbyRegistry.java,v 1.3 2001/10/09 00:48:34 mdb Exp $
+// $Id: LobbyRegistry.java,v 1.4 2001/10/09 19:24:11 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -94,6 +94,14 @@ public class LobbyRegistry implements LobbyCodes
     }
 
     /**
+     * Returns the oid of the default lobby.
+     */
+    public int getDefaultLobbyOid ()
+    {
+        return _defLobbyOid;
+    }
+
+    /**
      * Extracts the properties for a lobby from the server config and
      * creates and initializes the lobby manager.
      */
@@ -180,6 +188,12 @@ public class LobbyRegistry implements LobbyCodes
         // create a lobby record
         Lobby record = new Lobby(placeOid, gameIdent, name);
 
+        // if we don't already have a default lobby, this one is the big
+        // winner
+        if (_defLobbyOid == -1) {
+            _defLobbyOid = placeOid;
+        }
+
         // and register it in all the right lobby tables
         StringTokenizer tok = new StringTokenizer(gameIdent, ",");
         while (tok.hasMoreTokens()) {
@@ -208,6 +222,9 @@ public class LobbyRegistry implements LobbyCodes
     /** A table containing references to all of our lobby records (in the
      * form of category lists. */
     protected HashMap _lobbies = new HashMap();
+
+    /** The oid of the default lobby. */
+    protected int _defLobbyOid = -1;
 
     /** The configuration key for the lobby managers list. */
     protected static final String LOBIDS_KEY =
