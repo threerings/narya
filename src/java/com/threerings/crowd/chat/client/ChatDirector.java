@@ -1,10 +1,12 @@
 //
-// $Id: ChatDirector.java,v 1.24 2002/06/28 04:09:39 ray Exp $
+// $Id: ChatDirector.java,v 1.25 2002/07/17 20:53:31 shaper Exp $
 
 package com.threerings.crowd.chat;
 
 import java.util.ArrayList;
+
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.Tuple;
 
 import com.threerings.presents.client.*;
 import com.threerings.presents.dobj.*;
@@ -143,8 +145,8 @@ public class ChatDirector
         }
 
         // make sure they can say what they want to say
-        for (int ii=0; ii < _validators.size(); ii++) {
-            if (!((ChatValidator) _validators.get(ii)).validateSpeak(message)) {
+        for (int ii = 0; ii < _validators.size(); ii++) {
+            if (!((ChatValidator)_validators.get(ii)).validateSpeak(message)) {
                 return -1;
             }
         }
@@ -177,13 +179,18 @@ public class ChatDirector
     public int requestTell (String target, String message)
     {
         // make sure they can say what they want to say
-        for (int ii=0; ii < _validators.size(); ii++) {
-            if (!((ChatValidator) _validators.get(ii)).validateTell(target,
-                                                                    message)) {
+        for (int ii = 0; ii < _validators.size(); ii++) {
+            if (!((ChatValidator)_validators.get(ii)).validateTell(
+                    target, message)) {
                 return -1;
             }
         }
-        return ChatService.tell(_ctx.getClient(), target, message, this);
+
+        int invid = ChatService.tell(_ctx.getClient(), target, message, this);
+        // cache the tell info for use when reporting success or failure
+        // to our various chat displays
+        _tells.put(invid, new Tuple(target, message));
+        return invid;
     }
 
     /**
@@ -287,10 +294,19 @@ public class ChatDirector
      */
     public void handleTellSucceeded (int invid)
     {
+        // remove the tell info for the successful request
+        Tuple tup = (Tuple)_tells.remove(invid);
+        if (tup == null) {
+            Log.warning("Notified of successful tell request but no " +
+                        "tell info available [invid=" + invid + "].");
+            return;
+        }
+
         // pass this on to our chat displays
+        String target = (String)tup.left, message = (String)tup.right;
         for (int i = 0; i < _displays.size(); i++) {
             ChatDisplay display = (ChatDisplay)_displays.get(i);
-            display.handleResponse(invid, SUCCESS);
+            display.handleTellSucceeded(invid, target, message);
         }
     }
 
@@ -302,10 +318,19 @@ public class ChatDirector
      */
     public void handleTellFailed (int invid, String reason)
     {
+        // remove the tell info for the failed request
+        Tuple tup = (Tuple)_tells.remove(invid);
+        if (tup == null) {
+            Log.warning("Notified of failed tell request but no " +
+                        "tell info available [invid=" + invid + "].");
+            return;
+        }
+
         // pass this on to our chat displays
+        String target = (String)tup.left;
         for (int i = 0; i < _displays.size(); i++) {
             ChatDisplay display = (ChatDisplay)_displays.get(i);
-            display.handleResponse(invid, reason);
+            display.handleTellFailed(invid, target, reason);
         }
     }
 
@@ -398,4 +423,8 @@ public class ChatDirector
 
     /** An optionally present mutelist director. */
     protected MuteDirector _muter;
+
+    /** A cache of the target and message text associated with outstanding
+     * tell chat requests. */
+    protected HashIntMap _tells = new HashIntMap();
 }

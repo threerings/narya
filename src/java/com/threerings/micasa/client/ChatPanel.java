@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.14 2002/04/30 17:27:30 mdb Exp $
+// $Id: ChatPanel.java,v 1.15 2002/07/17 20:53:31 shaper Exp $
 
 package com.threerings.micasa.client;
 
@@ -318,12 +318,28 @@ public class ChatPanel
         }
     }
 
-    // documentation inherited
-    public void handleResponse (int reqid, String status)
+    // documentation inherited from interface
+    public void handleTellSucceeded (int reqid, String target, String message)
     {
-        if (!status.equals(ChatCodes.SUCCESS)) {
-            displayError(status);
+        // wrap the speaker in brackets
+        target = "[You whispered to " + target + "] ";
+
+        // stick a newline on the message
+        message = message + "\n";
+
+        Document doc = _text.getDocument();
+        try {
+            doc.insertString(doc.getLength(), target, _nameStyle);
+            doc.insertString(doc.getLength(), message, _msgStyle);
+        } catch (BadLocationException ble) {
+            Log.warning("Unable to insert text!? [error=" + ble + "].");
         }
+    }
+
+    // documentation inherited from interface
+    public void handleTellFailed (int reqid, String target, String reason)
+    {
+        displayError(reason);
     }
 
     public void willEnterPlace (PlaceObject place)

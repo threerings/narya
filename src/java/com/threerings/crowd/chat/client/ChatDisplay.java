@@ -1,5 +1,5 @@
 //
-// $Id: ChatDisplay.java,v 1.9 2002/04/30 17:27:30 mdb Exp $
+// $Id: ChatDisplay.java,v 1.10 2002/07/17 20:53:31 shaper Exp $
 
 package com.threerings.crowd.chat;
 
@@ -65,23 +65,35 @@ public interface ChatDisplay
         String type, String bundle, String message);
 
     /**
-     * Called in response to a chat request (either speak or tell) that
-     * originated on this client. The request id supplied will match the
-     * one returned when the request was generated and the status will
-     * either indicate success (by being equal to <code>SUCCESS</code>) or
-     * failure (in which case it will contain a message failure code which
-     * can be converted into a displayable string).
-     *
-     * <p> A chat display should track outstanding chat requests so that
-     * it can properly handle the response when it arrives.
+     * Called in response to a successful tell request that originated on
+     * this client.  The request id supplied will match the one returned
+     * when the request was generated, with the target and message
+     * detailing the target user name and tell message text associated
+     * with the request.
      *
      * @param reqid the request id of the request that resulted in this
      * response.
-     * @param status the message code indicating whether the chat request
-     * was successful or not.
+     * @param target the name of the user to whom the tell request was
+     * dispatched.
+     * @param message the text of the message.
      *
-     * @see ChatDirector#requestSpeak
      * @see ChatDirector#requestTell
      */
-    public void handleResponse (int reqid, String status);
+    public void handleTellSucceeded (int reqid, String target, String message);
+
+    /**
+     * Called in response to a failed tell request that originated on this
+     * client.  The request id supplied will match the one returned when
+     * the request was generated, with the target and message detailing
+     * the target user name and tell message text associated with the
+     * request.
+     *
+     * @param reqid the request id of the request that resulted in this
+     * response.
+     * @param reason a translatable string explaining the reason for the
+     * tell request failure.
+     *
+     * @see ChatDirector#requestTell
+     */
+    public void handleTellFailed (int reqid, String target, String reason);
 }
