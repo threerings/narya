@@ -1,5 +1,5 @@
 //
-// $Id: LobbyMarshaller.java,v 1.1 2002/08/14 19:07:49 mdb Exp $
+// $Id: LobbyMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -17,48 +17,21 @@ import java.util.List;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
+ *
+ * <p> Generated from <code>
+ * $Id: LobbyMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+ * </code>
  */
 public class LobbyMarshaller extends InvocationMarshaller
     implements LobbyService
 {
-    // documentation inherited
-    public static class CategoriesMarshaller extends ListenerMarshaller
-        implements CategoriesListener
-    {
-        /** The method id used to dispatch {@link #gotCategories}
-         * responses. */
-        public static final int GOT_CATEGORIES = 0;
-
-        // documentation inherited from interface
-        public void gotCategories (String[] arg1)
-        {
-            omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, GOT_CATEGORIES,
-                               new Object[] { arg1 }));
-        }
-
-        // documentation inherited
-        public void dispatchResponse (int methodId, Object[] args)
-        {
-            switch (methodId) {
-            case GOT_CATEGORIES:
-                ((CategoriesListener)listener).gotCategories(
-                    (String[])args[0]);
-                return;
-
-            default:
-                super.dispatchResponse(methodId, args);
-            }
-        }
-    }
-
     // documentation inherited
     public static class LobbiesMarshaller extends ListenerMarshaller
         implements LobbiesListener
     {
         /** The method id used to dispatch {@link #gotLobbies}
          * responses. */
-        public static final int GOT_LOBBIES = 0;
+        public static final int GOT_LOBBIES = 1;
 
         // documentation inherited from interface
         public void gotLobbies (List arg1)
@@ -75,6 +48,37 @@ public class LobbyMarshaller extends InvocationMarshaller
             case GOT_LOBBIES:
                 ((LobbiesListener)listener).gotLobbies(
                     (List)args[0]);
+                return;
+
+            default:
+                super.dispatchResponse(methodId, args);
+            }
+        }
+    }
+
+    // documentation inherited
+    public static class CategoriesMarshaller extends ListenerMarshaller
+        implements CategoriesListener
+    {
+        /** The method id used to dispatch {@link #gotCategories}
+         * responses. */
+        public static final int GOT_CATEGORIES = 1;
+
+        // documentation inherited from interface
+        public void gotCategories (String[] arg1)
+        {
+            omgr.postEvent(new InvocationResponseEvent(
+                               callerOid, requestId, GOT_CATEGORIES,
+                               new Object[] { arg1 }));
+        }
+
+        // documentation inherited
+        public void dispatchResponse (int methodId, Object[] args)
+        {
+            switch (methodId) {
+            case GOT_CATEGORIES:
+                ((CategoriesListener)listener).gotCategories(
+                    (String[])args[0]);
                 return;
 
             default:
@@ -109,5 +113,5 @@ public class LobbyMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 00:26:00 08/11/02.
+    // Class file generated on 12:33:03 08/20/02.
 }

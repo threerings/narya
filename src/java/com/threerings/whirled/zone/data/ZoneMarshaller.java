@@ -1,5 +1,5 @@
 //
-// $Id: ZoneMarshaller.java,v 1.1 2002/08/14 19:07:58 mdb Exp $
+// $Id: ZoneMarshaller.java,v 1.2 2002/08/20 19:38:16 mdb Exp $
 
 package com.threerings.whirled.zone.data;
 
@@ -18,6 +18,10 @@ import com.threerings.whirled.zone.data.ZoneSummary;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
+ *
+ * <p> Generated from <code>
+ * $Id: ZoneMarshaller.java,v 1.2 2002/08/20 19:38:16 mdb Exp $
+ * </code>
  */
 public class ZoneMarshaller extends InvocationMarshaller
     implements ZoneService
@@ -28,7 +32,7 @@ public class ZoneMarshaller extends InvocationMarshaller
     {
         /** The method id used to dispatch {@link #moveSucceeded}
          * responses. */
-        public static final int MOVE_SUCCEEDED = 0;
+        public static final int MOVE_SUCCEEDED = 1;
 
         // documentation inherited from interface
         public void moveSucceeded (int arg1, PlaceConfig arg2, ZoneSummary arg3)
@@ -37,9 +41,10 @@ public class ZoneMarshaller extends InvocationMarshaller
                                callerOid, requestId, MOVE_SUCCEEDED,
                                new Object[] { new Integer(arg1), arg2, arg3 }));
         }
+
         /** The method id used to dispatch {@link #moveSucceededPlusUpdate}
          * responses. */
-        public static final int MOVE_SUCCEEDED_PLUS_UPDATE = 1;
+        public static final int MOVE_SUCCEEDED_PLUS_UPDATE = 2;
 
         // documentation inherited from interface
         public void moveSucceededPlusUpdate (int arg1, PlaceConfig arg2, ZoneSummary arg3, SceneModel arg4)
@@ -82,5 +87,5 @@ public class ZoneMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 00:26:02 08/11/02.
+    // Class file generated on 12:33:05 08/20/02.
 }

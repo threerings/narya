@@ -1,5 +1,5 @@
 //
-// $Id: SceneDispatcher.java,v 1.1 2002/08/14 19:07:57 mdb Exp $
+// $Id: SceneDispatcher.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -16,6 +16,10 @@ import com.threerings.whirled.data.SceneModel;
 
 /**
  * Dispatches requests to the {@link SceneProvider}.
+ *
+ * <p> Generated from <code>
+ * $Id: SceneDispatcher.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
+ * </code>
  */
 public class SceneDispatcher extends InvocationDispatcher
 {

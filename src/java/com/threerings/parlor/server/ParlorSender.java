@@ -1,5 +1,5 @@
 //
-// $Id: ParlorSender.java,v 1.1 2002/08/14 19:07:54 mdb Exp $
+// $Id: ParlorSender.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -12,6 +12,10 @@ import com.threerings.presents.server.InvocationSender;
 /**
  * Used to issue notifications to a {@link ParlorReceiver} instance on a
  * client.
+ *
+ * <p> Generated from <code>
+ * $Id: ParlorSender.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+ * </code>
  */
 public class ParlorSender extends InvocationSender
 {
@@ -63,5 +67,5 @@ public class ParlorSender extends InvocationSender
             new Object[] { new Integer(arg1) });
     }
 
-    // Generated on 11:25:47 08/12/02.
+    // Generated on 12:37:00 08/20/02.
 }

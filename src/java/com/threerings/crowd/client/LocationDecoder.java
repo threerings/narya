@@ -1,5 +1,5 @@
 //
-// $Id: LocationDecoder.java,v 1.1 2002/08/14 19:07:49 mdb Exp $
+// $Id: LocationDecoder.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -8,6 +8,10 @@ import com.threerings.presents.client.InvocationDecoder;
 
 /**
  * Dispatches calls to a {@link LocationReceiver} instance.
+ *
+ * <p> Generated from <code>
+ * $Id: LocationDecoder.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+ * </code>
  */
 public class LocationDecoder extends InvocationDecoder
 {
@@ -48,5 +52,5 @@ public class LocationDecoder extends InvocationDecoder
         }
     }
 
-    // Generated on 11:25:46 08/12/02.
+    // Generated on 12:36:59 08/20/02.
 }

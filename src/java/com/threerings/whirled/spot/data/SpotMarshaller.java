@@ -1,5 +1,5 @@
 //
-// $Id: SpotMarshaller.java,v 1.1 2002/08/14 19:07:58 mdb Exp $
+// $Id: SpotMarshaller.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -17,6 +17,10 @@ import com.threerings.whirled.spot.client.SpotService.ChangeLocListener;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
+ *
+ * <p> Generated from <code>
+ * $Id: SpotMarshaller.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
+ * </code>
  */
 public class SpotMarshaller extends InvocationMarshaller
     implements SpotService
@@ -27,7 +31,7 @@ public class SpotMarshaller extends InvocationMarshaller
     {
         /** The method id used to dispatch {@link #changeLocSucceeded}
          * responses. */
-        public static final int CHANGE_LOC_SUCCEEDED = 0;
+        public static final int CHANGE_LOC_SUCCEEDED = 1;
 
         // documentation inherited from interface
         public void changeLocSucceeded (int arg1)
@@ -89,5 +93,5 @@ public class SpotMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 00:26:02 08/11/02.
+    // Class file generated on 12:33:05 08/20/02.
 }

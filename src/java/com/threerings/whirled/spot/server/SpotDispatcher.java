@@ -1,5 +1,5 @@
 //
-// $Id: SpotDispatcher.java,v 1.1 2002/08/14 19:07:58 mdb Exp $
+// $Id: SpotDispatcher.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -16,6 +16,10 @@ import com.threerings.whirled.spot.data.SpotMarshaller;
 
 /**
  * Dispatches requests to the {@link SpotProvider}.
+ *
+ * <p> Generated from <code>
+ * $Id: SpotDispatcher.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
+ * </code>
  */
 public class SpotDispatcher extends InvocationDispatcher
 {

@@ -1,5 +1,5 @@
 //
-// $Id: TimeBaseMarshaller.java,v 1.1 2002/08/14 19:07:55 mdb Exp $
+// $Id: TimeBaseMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
 
 package com.threerings.presents.data;
 
@@ -15,6 +15,10 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
+ *
+ * <p> Generated from <code>
+ * $Id: TimeBaseMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+ * </code>
  */
 public class TimeBaseMarshaller extends InvocationMarshaller
     implements TimeBaseService
@@ -25,7 +29,7 @@ public class TimeBaseMarshaller extends InvocationMarshaller
     {
         /** The method id used to dispatch {@link #gotTimeOid}
          * responses. */
-        public static final int GOT_TIME_OID = 0;
+        public static final int GOT_TIME_OID = 1;
 
         // documentation inherited from interface
         public void gotTimeOid (int arg1)
@@ -63,5 +67,5 @@ public class TimeBaseMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 00:26:01 08/11/02.
+    // Class file generated on 12:33:05 08/20/02.
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ChatMarshaller.java,v 1.1 2002/08/14 19:07:49 mdb Exp $
+// $Id: ChatMarshaller.java,v 1.2 2002/08/20 19:38:13 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -15,6 +15,10 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
+ *
+ * <p> Generated from <code>
+ * $Id: ChatMarshaller.java,v 1.2 2002/08/20 19:38:13 mdb Exp $
+ * </code>
  */
 public class ChatMarshaller extends InvocationMarshaller
     implements ChatService
@@ -25,7 +29,7 @@ public class ChatMarshaller extends InvocationMarshaller
     {
         /** The method id used to dispatch {@link #tellSucceeded}
          * responses. */
-        public static final int TELL_SUCCEEDED = 0;
+        public static final int TELL_SUCCEEDED = 1;
 
         // documentation inherited from interface
         public void tellSucceeded ()
@@ -63,5 +67,5 @@ public class ChatMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 00:25:59 08/11/02.
+    // Class file generated on 12:33:02 08/20/02.
 }

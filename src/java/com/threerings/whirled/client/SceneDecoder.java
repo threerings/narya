@@ -1,5 +1,5 @@
 //
-// $Id: SceneDecoder.java,v 1.1 2002/08/14 19:07:57 mdb Exp $
+// $Id: SceneDecoder.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -8,6 +8,10 @@ import com.threerings.whirled.client.SceneReceiver;
 
 /**
  * Dispatches calls to a {@link SceneReceiver} instance.
+ *
+ * <p> Generated from <code>
+ * $Id: SceneDecoder.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
+ * </code>
  */
 public class SceneDecoder extends InvocationDecoder
 {
@@ -48,5 +52,5 @@ public class SceneDecoder extends InvocationDecoder
         }
     }
 
-    // Generated on 11:25:48 08/12/02.
+    // Generated on 12:37:01 08/20/02.
 }

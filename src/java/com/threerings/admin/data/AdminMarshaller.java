@@ -1,5 +1,5 @@
 //
-// $Id: AdminMarshaller.java,v 1.1 2002/08/14 19:07:48 mdb Exp $
+// $Id: AdminMarshaller.java,v 1.2 2002/08/20 19:38:13 mdb Exp $
 
 package com.threerings.admin.data;
 
@@ -15,6 +15,10 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
+ *
+ * <p> Generated from <code>
+ * $Id: AdminMarshaller.java,v 1.2 2002/08/20 19:38:13 mdb Exp $
+ * </code>
  */
 public class AdminMarshaller extends InvocationMarshaller
     implements AdminService
@@ -25,7 +29,7 @@ public class AdminMarshaller extends InvocationMarshaller
     {
         /** The method id used to dispatch {@link #gotConfigInfo}
          * responses. */
-        public static final int GOT_CONFIG_INFO = 0;
+        public static final int GOT_CONFIG_INFO = 1;
 
         // documentation inherited from interface
         public void gotConfigInfo (String[] arg1, int[] arg2)
@@ -63,5 +67,5 @@ public class AdminMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 00:25:58 08/11/02.
+    // Class file generated on 12:33:01 08/20/02.
 }

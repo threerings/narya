@@ -1,5 +1,5 @@
 //
-// $Id: ParlorMarshaller.java,v 1.1 2002/08/14 19:07:53 mdb Exp $
+// $Id: ParlorMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -18,48 +18,21 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
+ *
+ * <p> Generated from <code>
+ * $Id: ParlorMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+ * </code>
  */
 public class ParlorMarshaller extends InvocationMarshaller
     implements ParlorService
 {
-    // documentation inherited
-    public static class InviteMarshaller extends ListenerMarshaller
-        implements InviteListener
-    {
-        /** The method id used to dispatch {@link #inviteReceived}
-         * responses. */
-        public static final int INVITE_RECEIVED = 0;
-
-        // documentation inherited from interface
-        public void inviteReceived (int arg1)
-        {
-            omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, INVITE_RECEIVED,
-                               new Object[] { new Integer(arg1) }));
-        }
-
-        // documentation inherited
-        public void dispatchResponse (int methodId, Object[] args)
-        {
-            switch (methodId) {
-            case INVITE_RECEIVED:
-                ((InviteListener)listener).inviteReceived(
-                    ((Integer)args[0]).intValue());
-                return;
-
-            default:
-                super.dispatchResponse(methodId, args);
-            }
-        }
-    }
-
     // documentation inherited
     public static class TableMarshaller extends ListenerMarshaller
         implements TableListener
     {
         /** The method id used to dispatch {@link #tableCreated}
          * responses. */
-        public static final int TABLE_CREATED = 0;
+        public static final int TABLE_CREATED = 1;
 
         // documentation inherited from interface
         public void tableCreated (int arg1)
@@ -75,6 +48,37 @@ public class ParlorMarshaller extends InvocationMarshaller
             switch (methodId) {
             case TABLE_CREATED:
                 ((TableListener)listener).tableCreated(
+                    ((Integer)args[0]).intValue());
+                return;
+
+            default:
+                super.dispatchResponse(methodId, args);
+            }
+        }
+    }
+
+    // documentation inherited
+    public static class InviteMarshaller extends ListenerMarshaller
+        implements InviteListener
+    {
+        /** The method id used to dispatch {@link #inviteReceived}
+         * responses. */
+        public static final int INVITE_RECEIVED = 1;
+
+        // documentation inherited from interface
+        public void inviteReceived (int arg1)
+        {
+            omgr.postEvent(new InvocationResponseEvent(
+                               callerOid, requestId, INVITE_RECEIVED,
+                               new Object[] { new Integer(arg1) }));
+        }
+
+        // documentation inherited
+        public void dispatchResponse (int methodId, Object[] args)
+        {
+            switch (methodId) {
+            case INVITE_RECEIVED:
+                ((InviteListener)listener).inviteReceived(
                     ((Integer)args[0]).intValue());
                 return;
 
@@ -162,5 +166,5 @@ public class ParlorMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 00:26:01 08/11/02.
+    // Class file generated on 12:33:04 08/20/02.
 }

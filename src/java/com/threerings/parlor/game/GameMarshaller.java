@@ -1,5 +1,5 @@
 //
-// $Id: GameMarshaller.java,v 1.1 2002/08/14 19:07:53 mdb Exp $
+// $Id: GameMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -14,6 +14,10 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
+ *
+ * <p> Generated from <code>
+ * $Id: GameMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+ * </code>
  */
 public class GameMarshaller extends InvocationMarshaller
     implements GameService
@@ -29,5 +33,5 @@ public class GameMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 00:26:01 08/11/02.
+    // Class file generated on 12:33:04 08/20/02.
 }

@@ -1,5 +1,5 @@
 //
-// $Id: LocationMarshaller.java,v 1.1 2002/08/14 19:07:49 mdb Exp $
+// $Id: LocationMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -16,6 +16,10 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
+ *
+ * <p> Generated from <code>
+ * $Id: LocationMarshaller.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+ * </code>
  */
 public class LocationMarshaller extends InvocationMarshaller
     implements LocationService
@@ -26,7 +30,7 @@ public class LocationMarshaller extends InvocationMarshaller
     {
         /** The method id used to dispatch {@link #moveSucceeded}
          * responses. */
-        public static final int MOVE_SUCCEEDED = 0;
+        public static final int MOVE_SUCCEEDED = 1;
 
         // documentation inherited from interface
         public void moveSucceeded (PlaceConfig arg1)
@@ -64,5 +68,5 @@ public class LocationMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 00:25:59 08/11/02.
+    // Class file generated on 12:33:02 08/20/02.
 }

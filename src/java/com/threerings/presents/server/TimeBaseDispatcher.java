@@ -1,5 +1,5 @@
 //
-// $Id: TimeBaseDispatcher.java,v 1.1 2002/08/14 19:07:56 mdb Exp $
+// $Id: TimeBaseDispatcher.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -14,6 +14,10 @@ import com.threerings.presents.server.InvocationException;
 
 /**
  * Dispatches requests to the {@link TimeBaseProvider}.
+ *
+ * <p> Generated from <code>
+ * $Id: TimeBaseDispatcher.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+ * </code>
  */
 public class TimeBaseDispatcher extends InvocationDispatcher
 {

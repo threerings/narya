@@ -1,5 +1,5 @@
 //
-// $Id: ParlorDecoder.java,v 1.1 2002/08/14 19:07:52 mdb Exp $
+// $Id: ParlorDecoder.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -9,6 +9,10 @@ import com.threerings.presents.client.InvocationDecoder;
 
 /**
  * Dispatches calls to a {@link ParlorReceiver} instance.
+ *
+ * <p> Generated from <code>
+ * $Id: ParlorDecoder.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+ * </code>
  */
 public class ParlorDecoder extends InvocationDecoder
 {
@@ -79,5 +83,5 @@ public class ParlorDecoder extends InvocationDecoder
         }
     }
 
-    // Generated on 11:25:47 08/12/02.
+    // Generated on 12:37:00 08/20/02.
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ZoneDispatcher.java,v 1.1 2002/08/14 19:07:58 mdb Exp $
+// $Id: ZoneDispatcher.java,v 1.2 2002/08/20 19:38:16 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -17,6 +17,10 @@ import com.threerings.whirled.zone.data.ZoneSummary;
 
 /**
  * Dispatches requests to the {@link ZoneProvider}.
+ *
+ * <p> Generated from <code>
+ * $Id: ZoneDispatcher.java,v 1.2 2002/08/20 19:38:16 mdb Exp $
+ * </code>
  */
 public class ZoneDispatcher extends InvocationDispatcher
 {

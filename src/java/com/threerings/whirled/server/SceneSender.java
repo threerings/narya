@@ -1,5 +1,5 @@
 //
-// $Id: SceneSender.java,v 1.1 2002/08/14 19:07:57 mdb Exp $
+// $Id: SceneSender.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -11,6 +11,10 @@ import com.threerings.whirled.client.SceneReceiver;
 /**
  * Used to issue notifications to a {@link SceneReceiver} instance on a
  * client.
+ *
+ * <p> Generated from <code>
+ * $Id: SceneSender.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
+ * </code>
  */
 public class SceneSender extends InvocationSender
 {
@@ -26,5 +30,5 @@ public class SceneSender extends InvocationSender
             new Object[] { new Integer(arg1) });
     }
 
-    // Generated on 11:25:48 08/12/02.
+    // Generated on 12:37:01 08/20/02.
 }

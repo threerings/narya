@@ -1,5 +1,5 @@
 //
-// $Id: ParlorDispatcher.java,v 1.1 2002/08/14 19:07:54 mdb Exp $
+// $Id: ParlorDispatcher.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -17,6 +17,10 @@ import com.threerings.presents.server.InvocationException;
 
 /**
  * Dispatches requests to the {@link ParlorProvider}.
+ *
+ * <p> Generated from <code>
+ * $Id: ParlorDispatcher.java,v 1.2 2002/08/20 19:38:14 mdb Exp $
+ * </code>
  */
 public class ParlorDispatcher extends InvocationDispatcher
 {

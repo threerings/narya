@@ -1,5 +1,5 @@
 //
-// $Id: ZoneSender.java,v 1.1 2002/08/14 19:07:58 mdb Exp $
+// $Id: ZoneSender.java,v 1.2 2002/08/20 19:38:16 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -11,6 +11,10 @@ import com.threerings.whirled.zone.client.ZoneReceiver;
 /**
  * Used to issue notifications to a {@link ZoneReceiver} instance on a
  * client.
+ *
+ * <p> Generated from <code>
+ * $Id: ZoneSender.java,v 1.2 2002/08/20 19:38:16 mdb Exp $
+ * </code>
  */
 public class ZoneSender extends InvocationSender
 {
@@ -26,5 +30,5 @@ public class ZoneSender extends InvocationSender
             new Object[] { new Integer(arg1), new Integer(arg2) });
     }
 
-    // Generated on 11:25:47 08/12/02.
+    // Generated on 12:37:00 08/20/02.
 }
