@@ -1,5 +1,5 @@
 //
-// $Id: CastUtil.java,v 1.4 2002/02/21 06:01:51 mdb Exp $
+// $Id: CastUtil.java,v 1.5 2002/03/05 07:15:27 mdb Exp $
 
 package com.threerings.cast.util;
 
@@ -52,5 +52,6 @@ public class CastUtil
     }
 
     protected static final String[] CLASSES = {
-        "legs", "feet", "hands", "torso", "head", "hair", "hat" };
+        "legs", "feet", "hand_left", "hand_right", "torso",
+        "head", "hair", "hat", "eyepatch" };
 }
