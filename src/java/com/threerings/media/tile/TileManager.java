@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.31 2003/04/01 02:16:28 mdb Exp $
+// $Id: TileManager.java,v 1.32 2003/05/05 22:34:48 ray Exp $
 
 package com.threerings.media.tile;
 
@@ -70,9 +70,19 @@ public class TileManager
     public UniformTileSet loadTileSet (
         String rset, String imgPath, int count, int width, int height)
     {
+        return loadTileSet(
+            getImageProvider(rset), rset, imgPath, count, width, height);
+    }
+
+    /**
+     */
+    public UniformTileSet loadTileSet (
+        ImageProvider improv, String improvKey, String imgPath,
+        int count, int width, int height)
+    {
         UniformTileSet uts = loadCachedTileSet(
-            rset, imgPath, count, width, height);
-        uts.setImageProvider(getImageProvider(rset));
+            improvKey, imgPath, count, width, height);
+        uts.setImageProvider(improv);
         return uts;
     }
 
@@ -120,6 +130,16 @@ public class TileManager
     public TileSetRepository getTileSetRepository ()
     {
 	return _setrep;
+    }
+
+    /**
+     * Adds a tileset to be recognized by the specified id. Note that this
+     * tileset registration will override any tileset in the repository
+     * with the same id. Be very careful!
+     */
+    public void addTileSet (int tileSetId, TileSet set)
+    {
+        _setcache.put(tileSetId, set);
     }
 
     /**
