@@ -1,5 +1,5 @@
 //
-// $Id: DirectionUtil.java,v 1.1 2001/12/17 03:32:32 mdb Exp $
+// $Id: DirectionUtil.java,v 1.2 2001/12/17 03:43:54 mdb Exp $
 
 package com.threerings.util;
 
@@ -8,6 +8,14 @@ package com.threerings.util;
  */
 public class DirectionUtil implements DirectionCodes
 {
+    /**
+     * Returns an array of names corresponding to each direction constant.
+     */
+    public static String[] getDirectionNames ()
+    {
+        return DIR_STRINGS;
+    }
+
     /**
      * Returns a string representation of the supplied direction code.
      */
