@@ -1,5 +1,5 @@
 //
-// $Id: ParlorManager.java,v 1.13 2001/10/23 02:22:17 mdb Exp $
+// $Id: ParlorManager.java,v 1.14 2001/10/23 20:23:29 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -208,9 +208,9 @@ public class ParlorManager
      * will be created.
      *
      * @param creator the body object that will own the new table.
-     * @param placeOid the place object id of the place (lobby) in which
-     * this table should be created. The place object specified must
-     * implement the {@link TableLobbyObject} interface.
+     * @param lobbyOid the place object id of the lobby in which this
+     * table should be created. The place object specified must implement
+     * the {@link TableLobbyObject} interface.
      * @param config the configuration of the game to be created.
      *
      * @return the id of the newly created table.
@@ -219,26 +219,26 @@ public class ParlorManager
      * not able processed for some reason. The explanation will be
      * provided in the message data of the exception.
      */
-    public int createTable (BodyObject creator, int placeOid,
+    public int createTable (BodyObject creator, int lobbyOid,
                             GameConfig config)
         throws ServiceFailedException
     {
         // fetch the place object in which we'll be creating a table
         try {
             TableLobbyObject tlobj = (TableLobbyObject)
-                CrowdServer.omgr.getObject(placeOid);
+                CrowdServer.omgr.getObject(lobbyOid);
 
             // make sure the game config implements TableConfig
             if (!(config instanceof TableConfig)) {
                 Log.warning("Requested to matchmake a non-table game " +
                             "using the table services [creator=" + creator +
-                            ", ploid=" + placeOid +
+                            ", loboid=" + lobbyOid +
                             ", config=" + config + "].");
                 throw new ServiceFailedException(INTERNAL_ERROR);
             }
 
             // create a brand spanking new table
-            Table table = new Table(placeOid, config);
+            Table table = new Table(lobbyOid, config);
 
             // stick the creator into position zero
             String error = table.setOccupant(0, creator.username);
@@ -261,7 +261,7 @@ public class ParlorManager
 
         } catch (ClassCastException cce) {
             Log.warning("Requested to create table in non-table-lobby " +
-                        "[creator=" + creator + ", ploid=" + placeOid +
+                        "[creator=" + creator + ", loboid=" + lobbyOid +
                         ", config=" + config + ", cce=" + cce + "].");
             throw new ServiceFailedException(INTERNAL_ERROR);
         }
@@ -282,11 +282,9 @@ public class ParlorManager
      * @param tableId the id of the table to be joined.
      * @param position the position at which to join the table.
      *
-     * @return the id of the newly created table.
-     *
-     * @exception ServiceFailedException thrown if the table creation was
-     * not able processed for some reason. The explanation will be
-     * provided in the message data of the exception.
+     * @exception ServiceFailedException thrown if the joining was not
+     * able processed for some reason. The explanation will be provided in
+     * the message data of the exception.
      */
     public void joinTable (BodyObject joiner, int tableId, int position)
         throws ServiceFailedException
@@ -328,6 +326,60 @@ public class ParlorManager
 
         // update the table in the lobby
         tlobj.updateTables(table);
+    }
+
+    /**
+     * Requests that the specified user be removed from the specified
+     * table. If the user successfully leaves the table, the function will
+     * return normally. If they are not able to leave for some reason
+     * (they aren't sitting at the table, etc.), a {@link
+     * ServiceFailedException} will be thrown with a message code that
+     * describes the reason for failure.
+     *
+     * @param leaver the body object of the user that wishes to leave the
+     * table.
+     * @param tableId the id of the table to be left.
+     *
+     * @exception ServiceFailedException thrown if the leaving was not
+     * able processed for some reason. The explanation will be provided in
+     * the message data of the exception.
+     */
+    public void leaveTable (BodyObject leaver, int tableId)
+        throws ServiceFailedException
+    {
+        // look the table up
+        Table table = (Table)_tables.get(tableId);
+        if (table == null) {
+            throw new ServiceFailedException(NO_SUCH_TABLE);
+        }
+
+        // make sure the lobby for this table is still around
+        TableLobbyObject tlobj = (TableLobbyObject)
+            CrowdServer.omgr.getObject(table.lobbyOid);
+        if (tlobj == null) {
+            Log.warning("User tried to leave table whose lobby has " +
+                        "disappeared [table=" + table +
+                        ", leaver=" + leaver + "].");
+            throw new ServiceFailedException(INTERNAL_ERROR);
+        }
+
+        // request that the user be removed from the table
+        if (!table.clearOccupant(leaver.username)) {
+            throw new ServiceFailedException(NOT_AT_TABLE);
+        }
+
+        // check to see if we just removed the last person from the table
+        if (table.isEmpty()) {
+            Log.info("Clearing empty table.");
+            // remove the table from our tables table and from the lobby
+            _tables.remove(tableId);
+            tlobj.removeFromTables(table.tableId);
+
+        } else {
+            Log.info("Updating sparser table.");
+            // update the table in the lobby
+            tlobj.updateTables(table);
+        }
     }
 
     /**
@@ -373,7 +425,7 @@ public class ParlorManager
     public void placeCreated (PlaceObject plobj, PlaceManager pmgr)
     {
         // see if this place manager is associated with a table
-        Table table = (Table)_pendingTables.get(pmgr);
+        Table table = (Table)_pendingTables.remove(pmgr);
         if (table != null) {
             // update the table with the newly created game object
             table.gameOid = plobj.getOid();

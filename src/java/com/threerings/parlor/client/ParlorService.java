@@ -1,5 +1,5 @@
 //
-// $Id: ParlorService.java,v 1.8 2001/10/23 02:22:16 mdb Exp $
+// $Id: ParlorService.java,v 1.9 2001/10/23 20:23:29 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -155,5 +155,29 @@ public class ParlorService implements ParlorCodes
                  "[tableId=" + tableId + ", position=" + position + "].");
         return invdir.invoke(
             MODULE_NAME, JOIN_TABLE_REQUEST, args, rsptarget);
+    }
+
+    /**
+     * You probably don't want to call this directly, but want to call
+     * {@link TableManager#leaveTable}. Requests that the current user
+     * be removed from the specified table.
+     *
+     * @param client a connected, operational client instance.
+     * @param tableId the unique id of the table from which this user
+     * wishes to be removed.
+     * @param rsptarget the object reference that will receive and process
+     * the response.
+     *
+     * @return the invocation request id of the generated request.
+     */
+    public static int leaveTable (
+        Client client, int tableId, Object rsptarget)
+    {
+        InvocationDirector invdir = client.getInvocationDirector();
+        Object[] args = new Object[] { new Integer(tableId) };
+        Log.info("Sending leave table request " +
+                 "[tableId=" + tableId + "].");
+        return invdir.invoke(
+            MODULE_NAME, LEAVE_TABLE_REQUEST, args, rsptarget);
     }
 }

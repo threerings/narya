@@ -1,5 +1,5 @@
 //
-// $Id: TableConfig.java,v 1.1 2001/10/19 02:04:29 mdb Exp $
+// $Id: TableConfig.java,v 1.2 2001/10/23 20:23:29 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -27,4 +27,9 @@ public interface TableConfig
      * creator any time after the minimum number of players has arrived.
      */
     public int getDesiredPlayers ();
+
+    /**
+     * Sets the desired number of players to the specified value.
+     */
+    public void setDesiredPlayers (int desiredPlayers);
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ParlorProvider.java,v 1.8 2001/10/19 02:04:29 mdb Exp $
+// $Id: ParlorProvider.java,v 1.9 2001/10/23 20:23:29 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -137,6 +137,31 @@ public class ParlorProvider
             // the exception message is the code indicating the reason for
             // the creation rejection
             sendResponse(source, invid, JOIN_FAILED_RESPONSE,
+                         sfe.getMessage());
+        }
+    }
+
+    /**
+     * Processes a request from the client to leave an existing table.
+     */
+    public void handleLeaveTableRequest (
+        BodyObject source, int invid, int tableId)
+    {
+        Log.info("Handling leave table request [source=" + source +
+                 ", invid=" + invid + ", tableId=" + tableId + "].");
+
+        String rsp = null;
+
+        try {
+            // pass the request on to the table manager
+            _pmgr.leaveTable(source, tableId);
+            // there is normally no response. the client will see
+            // themselves removed from the table they just left
+
+        } catch (ServiceFailedException sfe) {
+            // the exception message is the code indicating the reason for
+            // the creation rejection
+            sendResponse(source, invid, LEAVE_FAILED_RESPONSE,
                          sfe.getMessage());
         }
     }

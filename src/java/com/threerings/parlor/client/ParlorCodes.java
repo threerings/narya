@@ -1,5 +1,5 @@
 //
-// $Id: ParlorCodes.java,v 1.8 2001/10/23 02:22:16 mdb Exp $
+// $Id: ParlorCodes.java,v 1.9 2001/10/23 20:23:29 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -80,6 +80,14 @@ public interface ParlorCodes extends InvocationCodes
      * TableManager#handleJoinFailed}. */
     public static final String JOIN_FAILED_RESPONSE = "JoinFailed";
 
+    /** The message identifier for a leave table request. */
+    public static final String LEAVE_TABLE_REQUEST = "LeaveTable";
+
+    /** The response identifier for a leave failed response. This is
+     * mapped by the invocation services to a call to {@link
+     * TableManager#handleLeaveFailed}. */
+    public static final String LEAVE_FAILED_RESPONSE = "LeaveFailed";
+
     /** An error code returned when a user requests to join a table that
      * doesn't exist. */
     public static final String NO_SUCH_TABLE = "m.no_such_table";
@@ -93,4 +101,8 @@ public interface ParlorCodes extends InvocationCodes
      * position that is already occupied. */
     public static final String TABLE_POSITION_OCCUPIED =
         "m.table_position_occupied";
+
+    /** An error code returned when a user requests to leave a table that
+     * they were not sitting at in the first place. */
+    public static final String NOT_AT_TABLE = "m.not_at_table";
 }

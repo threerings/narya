@@ -1,7 +1,9 @@
 //
-// $Id: TableDirector.java,v 1.1 2001/10/23 02:22:16 mdb Exp $
+// $Id: TableDirector.java,v 1.2 2001/10/23 20:23:29 mdb Exp $
 
 package com.threerings.parlor.client;
+
+import java.util.ArrayList;
 
 import com.threerings.presents.dobj.ElementAddedEvent;
 import com.threerings.presents.dobj.ElementUpdatedEvent;
@@ -87,6 +89,35 @@ public class TableManager
     }
 
     /**
+     * Requests that the specified observer be added to the list of
+     * observers that are notified when this client sits down at or stands
+     * up from a table.
+     */
+    public void addSeatednessObserver (SeatednessObserver observer)
+    {
+        _seatedObservers.add(observer);
+    }
+
+    /**
+     * Requests that the specified observer be removed from to the list of
+     * observers that are notified when this client sits down at or stands
+     * up from a table.
+     */
+    public void removeSeatednessObserver (SeatednessObserver observer)
+    {
+        _seatedObservers.remove(observer);
+    }
+
+    /**
+     * Returns true if this client is currently seated at a table, false
+     * if they are not.
+     */
+    public boolean isSeated ()
+    {
+        return (_ourTable != null);
+    }
+
+    /**
      * Sends a request to create a table with the specified game
      * configuration. This user will become the owner of this table and
      * will be added to the first position in the table. The response will
@@ -139,15 +170,35 @@ public class TableManager
             _ctx.getClient(), tableId, position, this);
     }
 
+    /**
+     * Sends a request to leave the specified table at which we are
+     * presumably seated. The response will be communicated via the {@link
+     * TableObserver} interface.
+     */
+    public void leaveTable (int tableId)
+    {
+        // make sure we're currently in a place
+        if (_lobby == null) {
+            Log.warning("Requested to leave a table but we're not " +
+                        "currently in a place [tableId=" + tableId + "].");
+            return;
+        }
+
+        // go ahead and issue the create request
+        ParlorService.leaveTable(_ctx.getClient(), tableId, this);
+    }
+
     // documentation inherited
     public void elementAdded (ElementAddedEvent event)
     {
         if (event.getName().equals(_tableField)) {
             Table table = (Table)event.getElement();
-            _observer.tableAdded(table);
 
             // check to see if we just joined a table
-            checkForOurTable(table);
+            checkSeatedness(table);
+
+            // now let the observer know what's up
+            _observer.tableAdded(table);
         }
     }
 
@@ -156,10 +207,12 @@ public class TableManager
     {
         if (event.getName().equals(_tableField)) {
             Table table = (Table)event.getElement();
-            _observer.tableUpdated(table);
 
             // check to see if we just joined or left a table
-            checkForOurTable(table);
+            checkSeatedness(table);
+
+            // now let the observer know what's up
+            _observer.tableUpdated(table);
         }
     }
 
@@ -168,12 +221,15 @@ public class TableManager
     {
         if (event.getName().equals(_tableField)) {
             Integer tableId = (Integer)event.getKey();
-            _observer.tableRemoved(tableId.intValue());
 
             // check to see if our table just disappeared
             if (_ourTable != null && tableId.equals(_ourTable.tableId)) {
                 _ourTable = null;
+                notifySeatedness(false);
             }
+
+            // now let the observer know what's up
+            _observer.tableRemoved(tableId.intValue());
         }
     }
 
@@ -217,8 +273,10 @@ public class TableManager
      * Checks to see if we're a member of this table and notes it as our
      * table, if so.
      */
-    protected void checkForOurTable (Table table)
+    protected void checkSeatedness (Table table)
     {
+        Table oldTable = _ourTable;
+
         // if this is the same table as our table, clear out our table
         // reference and allow it to be added back if we are still in the
         // table
@@ -231,7 +289,35 @@ public class TableManager
         for (int i = 0; i < table.occupants.length; i++) {
             if (self.username.equals(table.occupants[i])) {
                 _ourTable = table;
-                return;
+                break;
+            }
+        }
+
+        // if nothing changed, bail now
+        if (oldTable == _ourTable ||
+            (oldTable != null && oldTable.equals(_ourTable))) {
+            return;
+        }
+
+        // otherwise notify the observers
+        notifySeatedness(_ourTable != null);
+    }
+
+    /**
+     * Notifies the seatedness observers of a seatedness change.
+     */
+    protected void notifySeatedness (boolean isSeated)
+    {
+        int slength = _seatedObservers.size();
+        for (int i = 0; i < slength; i++) {
+            SeatednessObserver observer = (SeatednessObserver)
+                _seatedObservers.get(i);
+            try {
+                observer.seatednessDidChange(isSeated);
+            } catch (Exception e) {
+                Log.warning("Observer choked in seatednessDidChange() " +
+                            "[observer=" + observer + "].");
+                Log.logStackTrace(e);
             }
         }
     }
@@ -250,4 +336,8 @@ public class TableManager
 
     /** The table of which we are a member if any. */
     protected Table _ourTable;
+
+    /** An array of entities that want to hear about when we stand up or
+     * sit down. */
+    protected ArrayList _seatedObservers = new ArrayList();
 }

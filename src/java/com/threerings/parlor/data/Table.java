@@ -1,5 +1,5 @@
 //
-// $Id: Table.java,v 1.4 2001/10/23 02:22:16 mdb Exp $
+// $Id: Table.java,v 1.5 2001/10/23 20:23:29 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -31,7 +31,7 @@ public class Table
 
     /** The oid of the game that was created from this table or -1 if the
      * table is still in matchmaking mode. */
-    public int gameOid;
+    public int gameOid = -1;
 
     /** An array of the usernames of the occupants of this table (some
      * slots may not be filled. */
@@ -144,12 +144,65 @@ public class Table
     }
 
     /**
+     * Requests that the specified user be removed from their seat at this
+     * table.
+     *
+     * @return true if the user was seated at the table and has now been
+     * removed, false if the user was never seated at the table in the
+     * first place.
+     */
+    public boolean clearOccupant (String username)
+    {
+        for (int i = 0; i < occupants.length; i++) {
+            if (username.equals(occupants[i])) {
+                occupants[i] = "";
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Returns true if this table has occupants in all of the desired
      * positions and should be started.
      */
     public boolean readyToStart ()
     {
-        return false;
+        int need = _tconfig.getMinimumPlayers();
+        if (need == -1) {
+            need = _tconfig.getMaximumPlayers();
+        }
+
+        // make sure the first "need" players are filled in
+        for (int i = 0; i < need; i++) {
+            if (StringUtil.blank(occupants[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Returns true if there is no one sitting at this table.
+     */
+    public boolean isEmpty ()
+    {
+        for (int i = 0; i < occupants.length; i++) {
+            if (!StringUtil.blank(occupants[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Returns true if this table is in play, false if it is still being
+     * matchmade.
+     */
+    public boolean inPlay ()
+    {
+        return gameOid != -1;
     }
 
     // documentation inherited
@@ -174,8 +227,8 @@ public class Table
         throws IOException
     {
         tableId = new Integer(in.readInt());
-        gameOid = in.readInt();
         lobbyOid = in.readInt();
+        gameOid = in.readInt();
         occupants = (String[])ValueMarshaller.readFrom(in);
         config = (GameConfig)ValueMarshaller.readFrom(in);
         _tconfig = (TableConfig)config;
