@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.7 2002/01/16 03:00:06 mdb Exp $
+// $Id: ResourceManager.java,v 1.8 2002/02/06 01:47:08 mdb Exp $
 
 package com.threerings.resource;
 
@@ -266,15 +266,12 @@ public class ResourceManager
 
             try {
                 burl = new URL(resourceURL, path);
-                Log.info("Resolving resource: " + burl);
 
                 // make sure the cache directory exists for this set
                 createCacheDirectory(setName);
 
                 // compute the path to the cache file for this bundle
                 File cfile = new File(genCachePath(setName, path));
-
-                Log.info("Cached to " + cfile.getPath());
 
                 // download the resource bundle from the specified URL
                 InputStream in = burl.openStream();
