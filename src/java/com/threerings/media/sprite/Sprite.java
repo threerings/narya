@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.55 2002/12/04 02:45:09 shaper Exp $
+// $Id: Sprite.java,v 1.56 2002/12/18 23:14:23 ray Exp $
 
 package com.threerings.media.sprite;
 
@@ -319,6 +319,14 @@ public abstract class Sprite extends AbstractMedia
     public void addSpriteObserver (SpriteObserver obs)
     {
         addObserver(obs);
+    }
+
+    /**
+     * Remove a sprite observer.
+     */
+    public void removeSpriteObserver (SpriteObserver obs)
+    {
+        removeObserver(obs);
     }
 
     /**

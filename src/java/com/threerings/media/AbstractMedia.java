@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMedia.java,v 1.6 2002/12/12 23:54:59 shaper Exp $
+// $Id: AbstractMedia.java,v 1.7 2002/12/18 23:14:23 ray Exp $
 
 package com.threerings.media;
 
@@ -207,6 +207,16 @@ public abstract class AbstractMedia
             _observers = new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
         }
         _observers.add(obs);
+    }
+
+    /**
+     * Remove the specified observer from this media element.
+     */
+    protected void removeObserver (Object obs)
+    {
+        if (_observers != null) {
+            _observers.remove(obs);
+        }
     }
 
     /**
