@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.62 2004/08/30 22:08:15 ray Exp $
+// $Id: MisoScenePanel.java,v 1.63 2004/09/09 00:09:22 ray Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -149,7 +149,7 @@ public class MisoScenePanel extends VirtualMediaPanel
      * Completely invalidates our current resolved scene and re-resolves
      * it from the ground up.
      */
-    protected void refreshScene ()
+    public void refreshScene ()
     {
         clearScene();
         rethink();
