@@ -1,5 +1,5 @@
 //
-// $Id: ZoneManager.java,v 1.4 2004/08/27 02:20:51 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -23,6 +23,7 @@ package com.threerings.whirled.zone.server;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.whirled.zone.data.ZoneSummary;
+import com.threerings.whirled.zone.data.ZonedBodyObject;
 
 /**
  * A zone is a collection of scenes organized into a connected group. A
@@ -62,6 +63,19 @@ public interface ZoneManager
      * is successfully resolved or is known to have failed to resolve.
      */
     public void resolveZone (int zoneId, ResolutionListener listener);
+
+    /**
+     * Called when a body has requested to leave a zone. The zone manager
+     * may return null to indicate that the body is allowed to leave the
+     * current zone or a string error code indicating the reason for
+     * denial of access (which will be propagated back to the requesting
+     * client).
+     *
+     * @param body the body object of the user that desires to depart
+     * their current zone (which can be obtained by casting the {@link
+     * BodyObject} to a {@link ZonedBodyObject}).
+     */
+    public String ratifyBodyExit (BodyObject body);
 
     /**
      * Called when a body has requested to enter a zone. The zone manager

@@ -1,5 +1,5 @@
 //
-// $Id: ZoneProvider.java,v 1.19 2004/10/30 04:33:22 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -82,6 +82,22 @@ public class ZoneProvider
         final int fsceneId = sceneId;
         final int fsceneVer = sceneVer;
         final ZoneMoveListener flistener = listener;
+
+        // look up the caller's current zone id and make sure it is happy
+        // about their departure from the current zone
+        if (!(caller instanceof ZonedBodyObject)) {
+            Log.warning("Request to switch zones by non-ZonedBodyObject!? " +
+                        "[clobj=" + caller.getClass() + "].");
+            throw new InvocationException(INTERNAL_ERROR);
+        }
+        ZonedBodyObject zcaller = (ZonedBodyObject)caller;
+        ZoneManager ozmgr = _zonereg.getZoneManager(zcaller.getZoneId());
+        if (ozmgr != null) {
+            String msg = ozmgr.ratifyBodyExit(fsource);
+            if (msg != null) {
+                throw new InvocationException(msg);
+            }
+        }
 
         // look up the zone manager for the zone
         ZoneManager zmgr = _zonereg.getZoneManager(zoneId);
@@ -216,8 +232,12 @@ public class ZoneProvider
      * Ejects the specified body from their current scene and sends them a
      * request to move to the specified new zone and scene. This is the
      * zone-equivalent to {@link LocationProvider#moveBody}.
+     *
+     * @return null if the user was forcibly moved, a string indicating
+     * the reason for denial of departure of their current zone (from
+     * {@link ZoneManager#ratifyBodyExit}).
      */
-    public void moveBody (ZonedBodyObject source, int zoneId, int sceneId)
+    public String moveBody (ZonedBodyObject source, int zoneId, int sceneId)
     {
         if (source.getZoneId() == zoneId) {
             // handle the case of moving somewhere in the same zone
@@ -225,25 +245,44 @@ public class ZoneProvider
 
         } else {
             // first remove them from their old location
-            leaveOccupiedZone(source);
+            String reason = leaveOccupiedZone(source);
+            if (reason != null) {
+                return reason;
+            }
 
             // then send a forced move notification
             ZoneSender.forcedMove((BodyObject)source, zoneId, sceneId);
         }
+        return null;
     }
 
     /**
      * Ejects the specified body from their current scene and zone. This
      * is the zone equivalent to {@link
      * LocationProvider#leaveOccupiedPlace}.
+     *
+     * @return null if the user was forcibly moved, a string indicating
+     * the reason for denial of departure of their current zone (from
+     * {@link ZoneManager#ratifyBodyExit}).
      */
-    public void leaveOccupiedZone (ZonedBodyObject source)
+    public String leaveOccupiedZone (ZonedBodyObject source)
     {
+        // look up the caller's current zone id and make sure it is happy
+        // about their departure from the current zone
+        ZoneManager zmgr = _zonereg.getZoneManager(source.getZoneId());
+        String msg;
+        if (zmgr != null &&
+            (msg = zmgr.ratifyBodyExit((BodyObject)source)) != null) {
+            return msg;
+        }
+
         // remove them from their occupied scene
         _screg.sceneprov.leaveOccupiedScene(source);
 
         // and clear out their zone information
         source.setZoneId(-1);
+
+        return null;
     }
 
     /** The entity that handles basic location changes. */
