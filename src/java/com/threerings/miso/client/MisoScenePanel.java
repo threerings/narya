@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.44 2003/06/19 22:03:14 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.45 2003/06/19 22:20:02 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -368,7 +368,8 @@ public class MisoScenePanel extends VirtualMediaPanel
 
         // if there's no handler, just fire the action immediately
         if (handler == null) {
-            fireObjectAction(null, scobj, new ActionEvent(this, 0, action, 0));
+            fireObjectAction(null, scobj, new SceneObjectActionEvent(
+                                 this, 0, action, 0, scobj));
             return;
         }
 
@@ -380,8 +381,8 @@ public class MisoScenePanel extends VirtualMediaPanel
         // if there's no menu for this object, fire the action immediately
         RadialMenu menu = handler.handlePressed(scobj);
         if (menu == null) {
-            fireObjectAction(handler, scobj,
-                             new ActionEvent(this, 0, action, 0));
+            fireObjectAction(handler, scobj, new SceneObjectActionEvent(
+                                 this, 0, action, 0, scobj));
             return;
         }
 
@@ -400,7 +401,10 @@ public class MisoScenePanel extends VirtualMediaPanel
         _activeMenu = menu;
         _activeMenu.addActionListener(new ActionListener() {
             public void actionPerformed (ActionEvent e) {
-                fireObjectAction(handler, scobj, e);
+                SceneObjectActionEvent event = new SceneObjectActionEvent(
+                    e.getSource(), e.getID(), e.getActionCommand(),
+                    e.getModifiers(), scobj);
+                fireObjectAction(handler, scobj, event);
             }
         });
         _activeMenu.activate(this, mbounds, scobj);
