@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.5 2003/03/31 02:10:04 mdb Exp $
+# $Id: Makefile,v 1.1 2003/03/31 02:10:04 mdb Exp $
 
 #
 # Executable definitions
@@ -13,15 +13,15 @@ MKDIR=mkdir
 # Directory definitions
 
 ROOT=../../../../../../..
-LIBRARIES_PATH=-L/usr/X11R6/lib
+LIBRARIES_PATH=
 INSTALL_PATH=${ROOT}/dist/lib/i686-Linux
 
 #
 # Parameter and file definitions
 
 INCLUDES=-I.. -I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux
-LIBRARIES=-lX11
-TARGET=libkeybd.so
+LIBRARIES=
+TARGET=libsignal.so
 INSTALL_TARGET=${INSTALL_PATH}/${TARGET}
 
 #
@@ -29,13 +29,13 @@ INSTALL_TARGET=${INSTALL_PATH}/${TARGET}
 
 all: ${INSTALL_TARGET}
 
-${INSTALL_TARGET}: com_threerings_util_keybd_Keyboard.c
-	@echo Compiling Keyboard.c
-	@${CC} ${INCLUDES} -c com_threerings_util_keybd_Keyboard.c \
-	    -o com_threerings_util_keybd_Keyboard.o
-	@echo Creating libkeybd.so
+${INSTALL_TARGET}: com_threerings_util_signal_SignalManager.c
+	@echo Compiling SignalManager.c
+	@${CC} ${INCLUDES} -c com_threerings_util_signal_SignalManager.c \
+	    -o com_threerings_util_signal_SignalManager.o
+	@echo Creating libsignal.so
 	@${MKDIR} -p ${INSTALL_PATH}
-	@${CC} -o ${INSTALL_TARGET} com_threerings_util_keybd_Keyboard.o \
+	@${CC} -o ${INSTALL_TARGET} com_threerings_util_signal_SignalManager.o \
 	    ${LIBRARIES} ${LIBRARIES_PATH} -shared
 
 clean:
