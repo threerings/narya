@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.46 2002/10/06 00:53:15 mdb Exp $
+// $Id: GameManager.java,v 1.47 2002/10/07 18:42:21 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -9,6 +9,7 @@ import java.util.Iterator;
 
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.ListUtil;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AttributeChangeListener;
@@ -376,7 +377,9 @@ public class GameManager extends PlaceManager
         // make sure everyone has turned up
         if (!allPlayersReady()) {
             Log.warning("Requested to start a game that is still " +
-                        "awaiting players [game=" + _gameobj + "].");
+                        "awaiting players [game=" + _gameobj.which() +
+                        ", pnames=" + StringUtil.toString(_players) +
+                        ", poids=" + StringUtil.toString(_playerOids) + "].");
             return false;
         }
 
