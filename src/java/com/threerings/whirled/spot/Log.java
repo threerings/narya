@@ -1,11 +1,11 @@
 //
-// $Id: Log.java,v 1.1 2001/11/13 00:12:20 mdb Exp $
+// $Id: Log.java,v 1.2 2001/12/14 00:12:32 mdb Exp $
 
 package com.threerings.whirled.spot;
 
 /**
  * A placeholder class that contains a reference to the log object used by
- * the services provided by this package.
+ * the Whirled Spot services.
  */
 public class Log
 {

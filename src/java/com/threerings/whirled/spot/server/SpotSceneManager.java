@@ -1,0 +1,172 @@
+//
+// $Id: SpotSceneManager.java,v 1.1 2001/12/14 00:12:32 mdb Exp $
+
+package com.threerings.whirled.spot.server;
+
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.Subscriber;
+import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.server.ServiceFailedException;
+
+import com.threerings.crowd.chat.ChatProvider;
+import com.threerings.crowd.data.BodyObject;
+import com.threerings.whirled.server.SceneManager;
+
+import com.threerings.whirled.spot.Log;
+import com.threerings.whirled.spot.client.SpotCodes;
+import com.threerings.whirled.spot.data.SpotOccupantInfo;
+
+/**
+ * Handles the movement of bodies between locations in the scene and
+ * creates the necessary distributed objects to allow bodies in clusters
+ * to chat with one another.
+ */
+public class SpotSceneManager extends SceneManager
+    implements SpotCodes
+{
+    // documentation inherited
+    protected void gotSceneData ()
+    {
+        // keep a casted reference around to our scene
+        _sscene = (RuntimeSpotScene)_scene;
+
+        // now that we have our scene, we create chat objects for each of
+        // the clusters in the scene
+        _clusterOids = new int[_sscene.getClusterCount()];
+
+        // create a subscriber that will grab the oids when we hear back
+        // about object creation
+        Subscriber sub = new Subscriber() {
+            public void objectAvailable (DObject object) {
+                _clusterOids[_index++] = object.getOid();
+            }
+
+            public void requestFailed (int oid, ObjectAccessException cause) {
+                Log.warning("Failed to create cluster object " +
+                            "[cluster=" + _index + ", oid=" + oid +
+                            ", cause=" + cause + "].");
+                // skip to the next cluster in case others didn't fail
+                _index++;
+            }
+
+            protected int _index = 0;
+        };
+
+        // now issue the object creation requests
+        for (int i = 0; i < _clusterOids.length; i++) {
+            _omgr.createObject(DObject.class, sub);
+        }
+
+        // create an array in which to track the occupants of each
+        // location
+        _locationOccs = new int[_sscene.getLocationCount()];
+    }
+
+    /**
+     * Called by the {@link SpotProvider} when we receive a request by a
+     * user to occupy a particular location.
+     *
+     * @exception ServiceFailedException thrown with a reason code
+     * explaining the location change failure if there is a problem
+     * processing the location change request.
+     */
+    protected void handleChangeLocRequest (BodyObject source, int locationId)
+        throws ServiceFailedException
+    {
+        // make sure no one is already in the requested location
+        int locidx = _sscene.getLocationIndex(locationId);
+        if (locidx == -1 || _locationOccs[locidx] != 0) {
+            Log.info("Ignoring request to change to occupied or " +
+                     "non-existent location [user=" + source.username +
+                     ", locId=" + locationId + ", locidx=" + locidx + "].");
+            throw new ServiceFailedException(LOCATION_OCCUPIED);
+        }
+
+        // make sure they have an occupant info object in the place
+        int bodyOid = source.getOid();
+        SpotOccupantInfo soi = (SpotOccupantInfo)
+            _plobj.occupantInfo.get(new Integer(bodyOid));
+        if (soi == null) {
+            Log.warning("Aiya! Can't update non-existent occupant info " +
+                        "with new location [body=" + source + "].");
+            throw new ServiceFailedException(INTERNAL_ERROR);
+        }
+
+        // stick our new friend into that location
+        _locationOccs[locidx] = bodyOid;
+        // update their occupant info
+        soi.locationId = locationId;
+        // and broadcast the update to the place
+        _plobj.updateOccupantInfo(soi);
+    }
+
+    /**
+     * Called by the {@link ClusterChatMessageHandler} when we receive a
+     * cluster chat request.
+     */
+    protected void handleClusterChatRequest (
+        BodyObject source, int locationId, String message)
+    {
+        // make sure this user occupies the specified location
+        int locidx = _sscene.getLocationIndex(locationId);
+        if (locidx == -1 || _locationOccs[locidx] != source.getOid()) {
+            Log.warning("User not in specified location for CCREQ " +
+                        "[body=" + source + ", locId=" + locationId +
+                        ", message=" + message + "].");
+            return;
+        }
+
+        // make sure there's a cluster associated with this location
+        int clusterIndex = _sscene.getClusterIndex(locidx);
+        if (clusterIndex == -1) {
+            Log.warning("User in clusterless location sent CCREQ " +
+                        "[body=" + source + ", locId=" + locationId +
+                        ", message=" + message + "].");
+            return;
+        }
+
+        // all is well, generate a chat notification
+        int clusterOid = _clusterOids[clusterIndex];
+        if (clusterOid > 0) {
+            ChatProvider.sendChatMessage(clusterOid, source.username, message);
+
+        } else {
+            Log.warning("Have no cluster object for CCREQ " +
+                        "[cidx=" + clusterIndex +
+                        ", chatter=" + source.username +
+                        ", message=" + message + "].");
+        }
+    }
+
+    /**
+     * Returns the location index of the location occupied by the
+     * specified body oid or -1 if they occupy no location.
+     */
+    protected int getLocationIndex (int bodyOid)
+    {
+        for (int i = 0; i < _locationOccs.length; i++) {
+            if (_locationOccs[i] == bodyOid) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * We need our own extended occupant info to keep track of what
+     * location each occupant occupies.
+     */
+    protected Class getOccupantInfoClass ()
+    {
+        return SpotOccupantInfo.class;
+    }
+
+    /** A casted reference to our runtime scene instance. */
+    protected RuntimeSpotScene _sscene;
+
+    /** Oids of the cluster chat objects. */
+    protected int[] _clusterOids;
+
+    /** Oids of the bodies that occupy each of our locations. */
+    protected int[] _locationOccs;
+}

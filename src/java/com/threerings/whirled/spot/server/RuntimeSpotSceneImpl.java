@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeSpotSceneImpl.java,v 1.1 2001/11/13 02:25:35 mdb Exp $
+// $Id: RuntimeSpotSceneImpl.java,v 1.2 2001/12/14 00:12:32 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -39,16 +39,39 @@ public class RuntimeSpotSceneImpl extends RuntimeSceneImpl
     }
 
     // documentation inherited
+    public int getLocationCount ()
+    {
+        return _model.locationIds.length;
+    }
+
+    // documentation inherited
+    public int getLocationId (int locidx)
+    {
+        return _model.locationIds[locidx];
+    }
+
+    // documentation inherited
+    public int getLocationIndex (int locationId)
+    {
+        int lcount = _model.locationIds.length;
+        for (int i = 0; i < lcount; i++) {
+            if (_model.locationIds[i] == locationId) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // documentation inherited
     public int getClusterCount ()
     {
         return _clusterCount;
     }
 
     // documentation inherited
-    public int getClusterIndex (int locationId)
+    public int getClusterIndex (int locationIdx)
     {
-        int lidx = getLocationIndex(locationId);
-        return (lidx == -1) ? -1 : _model.locationClusters[lidx];
+        return _model.locationClusters[locationIdx];
     }
 
     // documentation inherited
@@ -69,21 +92,6 @@ public class RuntimeSpotSceneImpl extends RuntimeSceneImpl
     {
         int pidx = getPortalIndex(locationId);
         return (pidx == -1) ? -1 : _model.targetLocIds[pidx];
-    }
-
-    /**
-     * Returns the index of the specified location in the model's internal
-     * location arrays.
-     */
-    protected int getLocationIndex (int locationId)
-    {
-        int lcount = _model.locationIds.length;
-        for (int i = 0; i < lcount; i++) {
-            if (_model.locationIds[i] == locationId) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeSpotScene.java,v 1.1 2001/11/13 02:25:35 mdb Exp $
+// $Id: RuntimeSpotScene.java,v 1.2 2001/12/14 00:12:32 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -14,15 +14,31 @@ import com.threerings.whirled.server.RuntimeScene;
 public interface RuntimeSpotScene extends RuntimeScene
 {
     /**
+     * Returns the number of locations in this scene.
+     */
+    public int getLocationCount ();
+
+    /**
+     * Returns the location id of the location at the specified index.
+     */
+    public int getLocationId (int locidx);
+
+    /**
+     * Returns the index of the specified location id.
+     */
+    public int getLocationIndex (int locationId);
+
+    /**
      * Returns the total number of clusters in this scene.
      */
     public int getClusterCount ();
 
     /**
-     * Returns the cluster index associated with the specified location or
-     * -1 if the location is not associated with a cluster.
+     * Returns the cluster index associated with the specified location
+     * index or -1 if the location at that index is not associated with a
+     * cluster.
      */
-    public int getClusterIndex (int locationId);
+    public int getClusterIndex (int locationIdx);
 
     /**
      * Returns the location id of the default entrance to this scene. If a
