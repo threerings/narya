@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.30 2003/06/05 00:29:45 ray Exp $
+// $Id: Communicator.java,v 1.31 2003/06/05 00:33:43 ray Exp $
 
 package com.threerings.presents.client;
 
@@ -596,7 +596,7 @@ public class Communicator
     protected SocketChannel _channel;
     protected Queue _msgq = new Queue();
 
-    protected int _piid == -1;
+    protected int _piid = -1;
     protected long _lastWrite;
 
     /** We use this to frame our upstream messages. */
