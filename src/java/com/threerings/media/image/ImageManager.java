@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.44 2003/01/17 02:29:32 mdb Exp $
+// $Id: ImageManager.java,v 1.45 2003/01/20 19:38:37 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -101,6 +101,7 @@ public class ImageManager
                 return (int)((CacheRecord)value).getEstimatedMemoryUsage();
             }
         });
+        _ccache.setTracking(true);
 
         // try to figure out which image loader we'll be using
         try {
@@ -508,7 +509,7 @@ public class ImageManager
         new RuntimeAdjust.IntAdjust(
             "Size (in kb of memory used) of the image manager LRU cache " +
             "[requires restart]", "narya.media.image.cache_size",
-            MediaPrefs.config, 2*1024);
+            MediaPrefs.config, 1024);
 
     /** Controls whether or not we prepare images or use raw versions. */
     protected static RuntimeAdjust.BooleanAdjust _prepareImages =
