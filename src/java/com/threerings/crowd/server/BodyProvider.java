@@ -1,5 +1,5 @@
 //
-// $Id: BodyProvider.java,v 1.5 2003/08/09 04:57:41 mdb Exp $
+// $Id: BodyProvider.java,v 1.6 2003/09/11 03:20:06 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -19,6 +19,17 @@ import com.threerings.crowd.data.PlaceObject;
 public class BodyProvider
     implements InvocationProvider
 {
+    /** Used by {@link #updateOccupantInfo}. */
+    public static interface OccupantInfoOp
+    {
+        /**
+         * Updates the supplied occupant info record, returning true if
+         * changes were made and thus the object should be published anew
+         * to the place object, false if no publish should be done.
+         */
+        public boolean update (OccupantInfo oinfo);
+    }
+
     /**
      * Constructs and initializes a body provider instance which will be
      * used to handle all body-related invocation service requests.
@@ -54,11 +65,31 @@ public class BodyProvider
     }
 
     /**
+     * Locates the specified body's occupant info in the specified
+     * location, applies the supplied occuapnt info operation to it and
+     * then broadcasts the updated info (assuming the occop returned true
+     * indicating that an update was made).
+     */
+    public static void updateOccupantInfo (BodyObject body, int locationId,
+                                           OccupantInfoOp occop)
+    {
+        PlaceManager pmgr = CrowdServer.plreg.getPlaceManager(locationId);
+        if (pmgr == null) {
+            return;
+        }
+
+        OccupantInfo info = pmgr.getOccupantInfo(body.getOid());
+        if (info != null && occop.update(info)) {
+            pmgr.updateOccupantInfo(info);
+        }
+    }
+
+    /**
      * Updates the connection status for the given body object's occupant
      * info in the specified location.
      */
     public static void updateOccupantStatus (
-        BodyObject body, int locationId, byte status)
+        BodyObject body, int locationId, final byte status)
     {
         // no need to NOOP
         if (body.status != status) {
@@ -67,25 +98,15 @@ public class BodyProvider
             body.statusTime = System.currentTimeMillis();
         }
 
-        // get the place manager for the specified location
-        PlaceManager pmgr = CrowdServer.plreg.getPlaceManager(locationId);
-        if (pmgr == null) {
-            return;
-        }
-
-        // get the place object for the specified location (which is, in
-        // theory, occupied by this user)
-        PlaceObject plobj = pmgr.getPlaceObject();
-        if (plobj == null) {
-            return;
-        }
-
-        // update the occupant info with the new connection status
-        OccupantInfo info = (OccupantInfo)
-            plobj.occupantInfo.get(new Integer(body.getOid()));
-        if (info != null && info.status != status) {
-            info.status = status;
-            pmgr.updateOccupantInfo(info);
-        }
+        updateOccupantInfo(body, locationId, new OccupantInfoOp() {
+            public boolean update (OccupantInfo info) {
+                if (info.status != status) {
+                    info.status = status;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
     }
 }
