@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.26 2002/04/15 18:05:30 mdb Exp $
+// $Id: GameManager.java,v 1.27 2002/04/19 18:33:10 ray Exp $
 
 package com.threerings.parlor.game;
 
@@ -67,6 +67,30 @@ public class GameManager extends PlaceManager
     }
 
     /**
+     * Sets the specified player as an AI with the specified skill.
+     * It is assumed that this will be set soon after the player names for all
+     * AIs present in the game. (It should be done before human players start
+     * trickling into the game.)
+     *
+     * @param pidx the player index of the AI.
+     * @param skill the skill level, from 0 to 100 inclusive.
+     */
+    public void setAI (int pidx, byte skill)
+    {
+        if (_AIs == null) {
+            _AIs = new byte[_players.length];
+            for (int ii=0; ii < _players.length; ii++) {
+                _AIs[ii] = -1;
+            }
+
+            // and register ourselves to receive AI ticks
+            AIGameTicker.registerAIGame(this);
+        }
+
+        _AIs[pidx] = skill;
+    }
+
+    /**
      * Returns an array of the usernames of the players in this game.
      */
     public String[] getPlayers ()
@@ -116,6 +140,17 @@ public class GameManager extends PlaceManager
     }
 
     // documentation inherited
+    public void shutdown ()
+    {
+        super.shutdown();
+
+        // also remove ourselves from the AIticker, if applicable
+        if (_AIs != null) {
+            AIGameTicker.unregisterAIGame(this);
+        }
+    }
+
+    // documentation inherited
     protected void bodyLeft (int bodyOid)
     {
         super.bodyLeft(bodyOid);
@@ -131,6 +166,11 @@ public class GameManager extends PlaceManager
     {
         Log.info("Game room empty. Going away. " +
                  "[gameOid=" + _gameobj.getOid() + "].");
+
+        // cancel the game if it wasn't over.
+        if (_gameobj.state != GameObject.GAME_OVER) {
+            _gameobj.setState(GameObject.CANCELLED);
+        }
 
         // shut down the place (which will destroy the game object and
         // clean up after everything)
@@ -207,6 +247,14 @@ public class GameManager extends PlaceManager
                 ((GameManagerDelegate)delegate).gameDidStart();
             }
         });
+    }
+
+    /**
+     * Called by the AIGameTicker if we're registered as an AI game.
+     */
+    protected void tickAIs ()
+    {
+        // subclasses should implement their AI gameplay here
     }
 
     /**
@@ -332,7 +380,8 @@ public class GameManager extends PlaceManager
                 if (_players[i].equals(body.username)) {
                     _playerOids[i] = body.getOid();
                 }
-                if (_playerOids[i] == 0) {
+                if ((_playerOids[i] == 0) &&
+                    ((_AIs == null) || (_AIs[i] == -1))) {
                     allSet = false;
                 }
             }
@@ -353,6 +402,10 @@ public class GameManager extends PlaceManager
     /** The usernames of the players of this game. */
     protected String[] _players;
 
-    /** The oids of our player's body objects. */
+    /** The oids of our player and AI body objects. */
     protected int[] _playerOids;
+
+    /** If AIs are present, contains their skill levels, or -1 at human
+     * player indexes.. */
+    protected byte[] _AIs;
 }
