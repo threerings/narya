@@ -35,3 +35,10 @@ Sample tileset XML description (for uniform tiles):
   <height>48</height>
   <tileCount>16</tileCount>
 </tileset>
+
+* 01/07/2003
+** Image management refactor
+x TileSet:ImageProvider needs to provide colorized images
+! Probably give tilesets the ImageManager since they have to give the
+  ImageManager reference to the Tile so that it can lock its colorized
+  source image
