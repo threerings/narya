@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.44 2002/10/03 17:16:15 mdb Exp $
+// $Id: GameManager.java,v 1.45 2002/10/06 00:44:16 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -116,7 +116,7 @@ public class GameManager extends PlaceManager
         int pidx = ListUtil.indexOfEqual(_players, player);
         if (pidx == -1) {
             Log.warning("Attempt to remove non-player from players list " +
-                        "[gameOid=" + _gameobj.getOid() +
+                        "[game=" + _gameobj.which() +
                         ", player=" + player + "].");
             return;
         }
@@ -300,22 +300,18 @@ public class GameManager extends PlaceManager
 
         // let the players of this game know that we're ready to roll (if
         // we have a specific set of players)
-        if (_players != null) {
-            int gameOid = _gameobj.getOid();
-            int pcount = _players.length;
-            for (int ii = 0; ii < pcount; ii++) {
-                BodyObject bobj = CrowdServer.lookupBody(_players[ii]);
-                if (bobj == null) {
-                    Log.warning("Unable to deliver game ready to " +
-                                "non-existent player " +
-                                "[gameOid=" + gameOid +
-                                ", player=" + _players[ii] + "].");
-                    continue;
-                }
-
-                // deliver a game ready notification to the player
-                ParlorSender.gameIsReady(bobj, gameOid);
+        int pcount = (_players != null) ? _players.length : 0;
+        for (int ii = 0; ii < pcount; ii++) {
+            BodyObject bobj = CrowdServer.lookupBody(_players[ii]);
+            if (bobj == null) {
+                Log.warning("Unable to deliver game ready to non-existent " +
+                            "player [game=" + _gameobj.which() +
+                            ", player=" + _players[ii] + "].");
+                continue;
             }
+
+            // deliver a game ready notification to the player
+            ParlorSender.gameIsReady(bobj, _gameobj.getOid());
         }
     }
 
@@ -343,7 +339,7 @@ public class GameManager extends PlaceManager
     protected void placeBecameEmpty ()
     {
 //         Log.info("Game room empty. Going away. " +
-//                  "[gameOid=" + _gameobj.getOid() + "].");
+//                  "[game=" + _gameobj.which() + "].");
 
         // cancel the game if it was in play
         if (_gameobj.state == GameObject.IN_PLAY) {
@@ -624,7 +620,7 @@ public class GameManager extends PlaceManager
         // make sure this is a party game
         if (!_gameconfig.isPartyGame()) {
             Log.warning("Attempt to player-start a non-party game " +
-                        "[gameOid=" + _gameobj.getOid() +
+                        "[game=" + _gameobj.which() +
                         ", caller=" + caller + "].");
             return;
         }
@@ -633,7 +629,7 @@ public class GameManager extends PlaceManager
         BodyObject plobj = (BodyObject)caller;
         if (!plobj.username.equals(_players[0])) {
             Log.warning("Attempt to start party game by non-creating player " +
-                        "[gameOid=" + _gameobj.getOid() +
+                        "[game=" + _gameobj.which() +
                         ", caller=" + caller + "].");
             return;
         }
@@ -641,7 +637,7 @@ public class GameManager extends PlaceManager
         // make sure the game is ready to go
         if (!canStartPartyGame()) {
             Log.warning("Attempt to start party game that can't yet begin " +
-                        "[gameOid=" + _gameobj.getOid() +
+                        "[game=" + _gameobj.which() +
                         ", caller=" + caller + "].");
             return;
         }
