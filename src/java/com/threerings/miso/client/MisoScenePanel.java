@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.14 2003/04/25 18:22:52 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.15 2003/04/25 22:13:14 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -28,6 +28,7 @@ import javax.swing.Icon;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -94,6 +95,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         if (_resolver == null) {
             _resolver = new SceneBlockResolver();
             _resolver.setDaemon(true);
+            _resolver.setPriority(Thread.currentThread().getPriority()-2);
             _resolver.start();
         }
     }
@@ -111,10 +113,11 @@ public class MisoScenePanel extends VirtualMediaPanel
         _vizobjs.clear();
         _masks.clear();
 
-        // recenter and rethink
         centerOnTile(0, 0);
-        rethink();
-        _remgr.invalidateRegion(_vbounds);
+        if (isShowing()) {
+            rethink();
+            _remgr.invalidateRegion(_vbounds);
+        }
     }
 
     /**
@@ -584,78 +587,59 @@ public class MisoScenePanel extends VirtualMediaPanel
      */
     protected void rethink ()
     {
-        Log.info("Rethinking vb:" + StringUtil.toString(_vbounds) +
-                 " ul:" + StringUtil.toString(_ulpos));
-
         // recompute our "area of influence"
-        int infborx = _vbounds.width/4;
-        int infbory = _vbounds.height/4;
+        int infborx = _vbounds.width/3;
+        int infbory = _vbounds.height/3;
         _ibounds.setBounds(_vbounds.x-infborx, _vbounds.y-infbory,
-                           _vbounds.width+2*infborx, _vbounds.height+2*infbory);
+                           _vbounds.width+2*infborx,
+                           // we go extra on the height because objects
+                           // below can influence fairly high up
+                           _vbounds.height+3*infbory);
 
-        // compute the tile bounds of this influential area
-        Rectangle itb = new Rectangle();
-        int minx, miny, maxx, maxy;
-        Point tpos = new Point();
-
-        // calculate minimum x
-        MisoUtil.screenToTile(_metrics, _ibounds.x, _ibounds.y, tpos);
-        itb.x = tpos.x;
-        minx = MathUtil.floorDiv(tpos.x, _metrics.blockwid);
-
-        // calculate minimum y
-        MisoUtil.screenToTile(
-            _metrics, _ibounds.x + _ibounds.width, _ibounds.y, tpos);
-        itb.y = tpos.y;
-        miny = MathUtil.floorDiv(tpos.y, _metrics.blockhei);
-
-        // calculate maximum x
-        MisoUtil.screenToTile(_metrics, _ibounds.x + _ibounds.width,
-                              _ibounds.y + _ibounds.height, tpos);
-        itb.width = (tpos.x-itb.x+1);
-        maxx = MathUtil.floorDiv(tpos.x, _metrics.blockwid);
-
-        // calculate maximum y
-        MisoUtil.screenToTile(
-            _metrics, _ibounds.x, _ibounds.y + _ibounds.height, tpos);
-        itb.height = (tpos.y-itb.y+1);
-        maxy = MathUtil.floorDiv(tpos.y, _metrics.blockhei);
-
-        Log.info("Resolving blocks from " + minx + "," + miny + " to " +
-                 maxx + "," + maxy + " (" + StringUtil.toString(itb) + ").");
-
-        // prune any blocks that are no longer influential
-        for (Iterator iter = _blocks.values().iterator(); iter.hasNext(); ) {
-            SceneBlock block = (SceneBlock)iter.next();
-            if (!itb.intersects(block.getBounds())) {
-                Log.info("Flushing block " + block + ".");
-                iter.remove();
-            }
-        }
+//         Log.info("Rethinking vb:" + StringUtil.toString(_vbounds) +
+//                  " ul:" + StringUtil.toString(_ulpos) +
+//                  " ibounds: " + StringUtil.toString(_ibounds));
 
         // not to worry if we presently have no scene model
         if (_model == null) {
             return;
         }
 
-        // queue up any influential blocks that aren't already resolved to
-        // become so
-        for (int yy = miny; yy <= maxy; yy++) {
-            for (int xx = minx; xx <= maxx; xx++) {
-                int bkey = compose(xx, yy);
-                if (!_blocks.containsKey(bkey)) {
-                    SceneBlock block = new SceneBlock(
-                        this, xx*_metrics.blockwid, yy*_metrics.blockhei,
-                        _metrics.blockwid, _metrics.blockhei);
-                    _blocks.put(bkey, block);
-                    Log.info("Created new block " + block + ".");
+        // compute the intersecting set of blocks
+        applyToTiles(_ibounds, _rethinkOp);
+//         Log.info("Influential blocks " +
+//                  StringUtil.toString(_rethinkOp.blocks) + ".");
 
-                    // queue the block up to be resolved
-                    _pendingBlocks++;
-                    _resolver.resolveBlock(block);
-                }
+        // prune any blocks that are no longer influential
+        Point key = new Point();
+        for (Iterator iter = _blocks.values().iterator(); iter.hasNext(); ) {
+            SceneBlock block = (SceneBlock)iter.next();
+            key.x = block.getBounds().x;
+            key.y = block.getBounds().y;
+            if (!_rethinkOp.blocks.contains(key)) {
+//                 Log.info("Flushing block " + block + ".");
+                iter.remove();
             }
         }
+
+        for (Iterator iter = _rethinkOp.blocks.iterator(); iter.hasNext(); ) {
+            Point origin = (Point)iter.next();
+            int bx = MathUtil.floorDiv(origin.x, _metrics.blockwid);
+            int by = MathUtil.floorDiv(origin.y, _metrics.blockhei);
+            int bkey = compose(bx, by);
+            if (!_blocks.containsKey(bkey)) {
+                SceneBlock block = new SceneBlock(
+                    this, origin.x, origin.y,
+                    _metrics.blockwid, _metrics.blockhei);
+                _blocks.put(bkey, block);
+//                 Log.info("Created new block " + block + ".");
+
+                // queue the block up to be resolved
+                _pendingBlocks++;
+                _resolver.resolveBlock(block);
+            }
+        }
+        _rethinkOp.blocks.clear();
 
         // recompute our visible object set
         recomputeVisible();
@@ -678,9 +662,8 @@ public class MisoScenePanel extends VirtualMediaPanel
         // (zoiks!) then repaint
         Rectangle sbounds = block.getScreenBounds();
         if (sbounds.intersects(_vbounds)) {
-            Log.info("Eek, block came into view during resolution " +
-                     block + ".");
-            _remgr.invalidateRegion(_vbounds);
+//             Log.info("Eek, block came into view during resolution " +
+//                      block + ".");
         }
     }
 
@@ -700,7 +683,6 @@ public class MisoScenePanel extends VirtualMediaPanel
         for (Iterator iter = _blocks.values().iterator(); iter.hasNext(); ) {
             SceneBlock block = (SceneBlock)iter.next();
             if (!block.isResolved()) {
-                Log.info("Skipping unresolved block " + block + ".");
                 continue;
             }
 
@@ -720,8 +702,8 @@ public class MisoScenePanel extends VirtualMediaPanel
         // recompute our object tips
         computeTips();
 
-        Log.info("Computed " + _vizobjs.size() + " visible objects from " +
-                 _blocks.size() + " blocks.");
+//         Log.info("Computed " + _vizobjs.size() + " visible objects from " +
+//                  _blocks.size() + " blocks.");
 
 //         Log.info(StringUtil.listToString(_vizobjs, new StringUtil.Formatter() {
 //             public String toString (Object object) {
@@ -1055,37 +1037,26 @@ public class MisoScenePanel extends VirtualMediaPanel
     }
 
     /**
-     * Renders the base and fringe layer tiles that intersect the
-     * specified clipping rectangle.
+     * Applies the supplied tile operation to all tiles that intersect the
+     * supplied screen rectangle.
      */
-    protected void paintTiles (Graphics2D gfx, Rectangle clip)
+    protected void applyToTiles (Rectangle bounds, TileOp op)
     {
-        // if we're showing coordinates, we need to do some setting up
-        int thw = 0, thh = 0, fhei = 0;
-        FontMetrics fm = null;
-        if (_coordsDebug.getValue()) {
-            fm = gfx.getFontMetrics(_font);
-            fhei = fm.getAscent();
-            thw = _metrics.tilehwid;
-            thh = _metrics.tilehhei;
-            gfx.setFont(_font);
-        }
-
-        // determine which tiles intersect this clipping region: this is
-        // going to be nearly incomprehensible without some sort of
-        // diagram; i'll do what i can to comment it, but you'll want to
-        // print out a scene diagram (docs/miso/scene.ps) and start making
-        // notes if you want to follow along
+        // determine which tiles intersect this region: this is going to
+        // be nearly incomprehensible without some sort of diagram; i'll
+        // do what i can to comment it, but you'll want to print out a
+        // scene diagram (docs/miso/scene.ps) and start making notes if
+        // you want to follow along
 
         // obtain our upper left tile
         Point tpos = MisoUtil.screenToTile(
-            _metrics, clip.x, clip.y, new Point());
+            _metrics, bounds.x, bounds.y, new Point());
 
         // determine which quadrant of the upper left tile we occupy
         Point spos = MisoUtil.tileToScreen(
             _metrics, tpos.x, tpos.y, new Point());
-        boolean left = (clip.x - spos.x < _metrics.tilehwid);
-        boolean top = (clip.y - spos.y < _metrics.tilehhei);
+        boolean left = (bounds.x - spos.x < _metrics.tilehwid);
+        boolean top = (bounds.y - spos.y < _metrics.tilehhei);
 
         // set up our tile position counters
         int dx, dy;
@@ -1110,16 +1081,17 @@ public class MisoScenePanel extends VirtualMediaPanel
         }
 
         // these will bound our loops
-        int rightx = clip.x + clip.width, bottomy = clip.y + clip.height;
+        int rightx = bounds.x + bounds.width,
+            bottomy = bounds.y + bounds.height;
 
-//         Log.info("Preparing to render [tpos=" + StringUtil.toString(tpos) +
+//         Log.info("Preparing to apply [tpos=" + StringUtil.toString(tpos) +
 //                  ", left=" + left + ", top=" + top +
-//                  ", clip=" + StringUtil.toString(clip) +
+//                  ", bounds=" + StringUtil.toString(bounds) +
 //                  ", spos=" + StringUtil.toString(spos) +
 //                  "].");
 
         // obtain the coordinates of the tile that starts the first row
-        // and loop through, rendering the intersecting tiles
+        // and loop through, applying to the intersecting tiles
         MisoUtil.tileToScreen(_metrics, tpos.x, tpos.y, spos);
         while (spos.y < bottomy) {
             // set up our row counters
@@ -1127,69 +1099,11 @@ public class MisoScenePanel extends VirtualMediaPanel
             _tbounds.x = spos.x;
             _tbounds.y = spos.y;
 
-//             Log.info("Rendering row [tx=" + tx + ", ty=" + ty + "].");
+//             Log.info("Applying to row [tx=" + tx + ", ty=" + ty + "].");
 
-            // render the tiles in this row
+            // apply to the tiles in this row
             while (_tbounds.x < rightx) {
-                // draw the base and fringe tile images
-                try {
-                    Tile tile;
-                    boolean passable = true;
-
-                    if ((tile = getBaseTile(tx, ty)) != null) {
-                        tile.paint(gfx, _tbounds.x, _tbounds.y);
-                        passable = ((BaseTile)tile).isPassable();
-
-                        // highlight impassable tiles
-                        if (_traverseDebug.getValue() && !passable) {
-                            fillTile(gfx, tx, ty, Color.yellow);
-                        }
-
-                    } else {
-                        // draw black where there are no tiles
-                        Polygon poly =
-                            MisoUtil.getTilePolygon(_metrics, tx, ty);
-                        gfx.setColor(Color.black);
-                        gfx.fill(poly);
-                    }
-
-                    if ((tile = getFringeTile(tx, ty)) != null) {
-                        tile.paint(gfx, _tbounds.x, _tbounds.y);
-                    }
-
-                    // highlight passable non-traversable tiles
-                    if (_traverseDebug.getValue() && passable && 
-                        !canTraverse(null, tx, ty)) {
-                        fillTile(gfx, tx, ty, Color.green);
-                    }
-
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    Log.warning("Whoops, booched it [tx=" + tx +
-                                ", ty=" + ty + ", tb.x=" + _tbounds.x +
-                                ", rightx=" + rightx + "].");
-                    e.printStackTrace(System.err);
-                }
-
-                // if we're showing coordinates, do that
-                if (_coordsDebug.getValue()) {
-                    gfx.setColor(Color.white);
-
-                    // get the top-left screen coordinates of the tile
-                    int sx = _tbounds.x, sy = _tbounds.y;
-
-                    // draw x-coordinate
-                    String str = String.valueOf(tx);
-                    int xpos = sx + thw - (fm.stringWidth(str) / 2);
-                    gfx.drawString(str, xpos, sy + thh);
-
-                    // draw y-coordinate
-                    str = String.valueOf(ty);
-                    xpos = sx + thw - (fm.stringWidth(str) / 2);
-                    gfx.drawString(str, xpos, sy + thh + fhei);
-
-                    // draw the tile polygon as well
-                    gfx.draw(MisoUtil.getTilePolygon(_metrics, tx, ty));
-                }
+                op.apply(tx, ty, _tbounds);
 
                 // move one tile to the right
                 tx += 1; ty -= 1;
@@ -1203,6 +1117,18 @@ public class MisoScenePanel extends VirtualMediaPanel
             // obtain the screen coordinates of the next starting tile
             MisoUtil.tileToScreen(_metrics, tpos.x, tpos.y, spos);
         }
+    }
+
+    /**
+     * Renders the base and fringe layer tiles that intersect the
+     * specified clipping rectangle.
+     */
+    protected void paintTiles (Graphics2D gfx, Rectangle clip)
+    {
+        // go through rendering our tiles
+        _paintOp.setGraphics(gfx);
+        applyToTiles(clip, _paintOp);
+        _paintOp.setGraphics(null);
     }
 
     /**
@@ -1251,6 +1177,125 @@ public class MisoScenePanel extends VirtualMediaPanel
         return true;
     }
 
+    /** Used with {@link #applyToTiles}. */
+    protected static interface TileOp
+    {
+        public void apply (int tx, int ty, Rectangle tbounds);
+    }
+
+    /** Used by {@link #paintTiles}. */
+    protected class PaintTileOp implements TileOp
+    {
+        public void setGraphics (Graphics2D gfx) {
+            _gfx = gfx;
+            _thw = 0;
+            _thh = 0;
+            _fhei = 0;
+            _fm = null;
+
+            // if we're showing coordinates, we need to do some setting up
+            if (gfx != null && _coordsDebug.getValue()) {
+                _fm = gfx.getFontMetrics(_font);
+                _fhei = _fm.getAscent();
+                _thw = _metrics.tilehwid;
+                _thh = _metrics.tilehhei;
+                gfx.setFont(_font);
+            }
+        }
+
+        public void apply (int tx, int ty, Rectangle tbounds) {
+            // draw the base and fringe tile images
+            try {
+                Tile tile;
+                boolean passable = true;
+
+                if ((tile = getBaseTile(tx, ty)) != null) {
+                    tile.paint(_gfx, tbounds.x, tbounds.y);
+                    passable = ((BaseTile)tile).isPassable();
+
+                    // highlight impassable tiles
+                    if (_traverseDebug.getValue() && !passable) {
+                        fillTile(_gfx, tx, ty, Color.yellow);
+                    }
+
+                } else {
+                    // draw black where there are no tiles
+                    Polygon poly = MisoUtil.getTilePolygon(_metrics, tx, ty);
+                    _gfx.setColor(Color.black);
+                    _gfx.fill(poly);
+                }
+
+                if ((tile = getFringeTile(tx, ty)) != null) {
+                    tile.paint(_gfx, tbounds.x, tbounds.y);
+                }
+
+                // highlight passable non-traversable tiles
+                if (_traverseDebug.getValue() && passable && 
+                    !canTraverse(null, tx, ty)) {
+                    fillTile(_gfx, tx, ty, Color.green);
+                }
+
+            } catch (ArrayIndexOutOfBoundsException e) {
+                Log.warning("Whoops, booched it [tx=" + tx +
+                            ", ty=" + ty + ", tb.x=" + tbounds.x + "].");
+                e.printStackTrace(System.err);
+            }
+
+            // if we're showing coordinates, do that
+            if (_coordsDebug.getValue()) {
+                // set the color according to the scene block
+                int bx = MathUtil.floorDiv(tx, _metrics.blockwid);
+                int by = MathUtil.floorDiv(ty, _metrics.blockhei);
+                if (((bx % 2) ^ (by % 2)) == 0) {
+                    _gfx.setColor(Color.white);
+                } else {
+                    _gfx.setColor(Color.yellow);
+                }
+
+                // get the top-left screen coordinates of the tile
+                int sx = tbounds.x, sy = tbounds.y;
+
+                // draw x-coordinate
+                String str = String.valueOf(tx);
+                int xpos = sx + _thw - (_fm.stringWidth(str) / 2);
+                _gfx.drawString(str, xpos, sy + _thh);
+
+                // draw y-coordinate
+                str = String.valueOf(ty);
+                xpos = sx + _thw - (_fm.stringWidth(str) / 2);
+                _gfx.drawString(str, xpos, sy + _thh + _fhei);
+
+                // draw the tile polygon as well
+                _gfx.draw(MisoUtil.getTilePolygon(_metrics, tx, ty));
+            }
+        }
+
+        protected Graphics2D _gfx;
+        protected FontMetrics _fm;
+        protected int _thw, _thh, _fhei;
+        protected Font _font = new Font("Arial", Font.PLAIN, 7);
+    }
+
+    /** Used by {@link #rethink}. */
+    protected class RethinkOp implements TileOp
+    {
+        public HashSet blocks = new HashSet();
+
+        public HashSet vizblocks = new HashSet();
+
+        public void apply (int tx, int ty, Rectangle tbounds) {
+            _key.x = MathUtil.floorDiv(tx, _metrics.blockwid) *
+                _metrics.blockwid;
+            _key.y = MathUtil.floorDiv(ty, _metrics.blockhei) *
+                _metrics.blockhei;
+            if (!blocks.contains(_key)) {
+                blocks.add(new Point(_key.x, _key.y));
+            }
+        }
+
+        protected Point _key = new Point();
+    }
+
     /** Provides access to a few things. */
     protected MisoContext _ctx;
 
@@ -1271,6 +1316,9 @@ public class MisoScenePanel extends VirtualMediaPanel
 
     /** Contains the bounds of our "area of influence" in screen coords. */
     protected Rectangle _ibounds = new Rectangle();
+
+    /** Used by {@link #rethink}. */
+    protected RethinkOp _rethinkOp = new RethinkOp();
 
     /** Contains our scene blocks. See {@link #getBlock} for details. */
     protected HashIntMap _blocks = new HashIntMap();
@@ -1295,6 +1343,9 @@ public class MisoScenePanel extends VirtualMediaPanel
 
     /** Used when rendering tiles. */
     protected Rectangle _tbounds;
+
+    /** Used to paint tiles. */
+    protected PaintTileOp _paintOp = new PaintTileOp();
 
     /** Used when dirtying sprites. */
     protected Point _tcoords = new Point();
@@ -1327,9 +1378,6 @@ public class MisoScenePanel extends VirtualMediaPanel
 
     /** Flags indicating which features we should show in the scene. */
     protected int _showFlags = 0;
-
-    /** The font to draw tile coordinates. */
-    protected Font _font = new Font("Arial", Font.PLAIN, 7);
 
     /** A scene block resolver shared by all scene panels. */
     protected static SceneBlockResolver _resolver;

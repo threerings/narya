@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlockResolver.java,v 1.1 2003/04/25 18:22:26 mdb Exp $
+// $Id: SceneBlockResolver.java,v 1.2 2003/04/25 22:13:14 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -30,8 +30,10 @@ public class SceneBlockResolver extends LoopingThread
 
         try {
             // resolve the block
-            Log.info("Resolving block " + block + ".");
             block.resolve();
+//             if (block.resolve()) {
+//                 Log.info("Resolved block " + block + ".");
+//             }
 
             // queue it up on the AWT thread to complete its resolution
             EventQueue.invokeLater(new Runnable() {

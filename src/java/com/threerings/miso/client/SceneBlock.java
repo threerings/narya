@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.10 2003/04/25 18:22:52 mdb Exp $
+// $Id: SceneBlock.java,v 1.11 2003/04/25 22:13:14 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -59,8 +59,14 @@ public class SceneBlock
      * block resolution thread to allow us to load up our image data
      * without blocking the AWT thread.
      */
-    protected synchronized void resolve ()
+    protected synchronized boolean resolve ()
     {
+        // if we got canned before we were resolved, go ahead and bail now
+        if (_panel.getBlock(_bounds.x, _bounds.y) != this) {
+            // Log.info("Not resolving abandoned block " + this + ".");
+            return false;
+        }
+
         // resolve our base tiles
         MisoSceneModel model = _panel.getSceneModel();
         for (int yy = 0; yy < _bounds.height; yy++) {
@@ -104,6 +110,8 @@ public class SceneBlock
             Log.warning("Unable to fetch default base tileset [tsid=" + bsetid +
                         ", error=" + e + "].");
         }
+
+        return true;
     }
 
     /**
