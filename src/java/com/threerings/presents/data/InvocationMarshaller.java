@@ -1,5 +1,5 @@
 //
-// $Id: InvocationMarshaller.java,v 1.1 2002/08/14 19:07:55 mdb Exp $
+// $Id: InvocationMarshaller.java,v 1.2 2002/09/20 04:52:49 mdb Exp $
 
 package com.threerings.presents.data;
 
@@ -105,6 +105,14 @@ public class InvocationMarshaller
     public void setInvocationOid (int invOid)
     {
         _invOid = invOid;
+    }
+
+    /**
+     * Returns the code assigned to this marshaller.
+     */
+    public int getInvocationCode ()
+    {
+        return _invCode;
     }
 
     /**

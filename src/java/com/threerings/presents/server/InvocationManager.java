@@ -1,5 +1,5 @@
 //
-// $Id: InvocationManager.java,v 1.13 2002/09/06 01:49:23 mdb Exp $
+// $Id: InvocationManager.java,v 1.14 2002/09/20 04:52:49 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -110,6 +110,19 @@ public class InvocationManager
 
 //         Log.info("Registered service [marsh=" + marsh + "].");
         return marsh;
+    }
+
+    /**
+     * Clears out a dispatcher registration. This should be called to free
+     * up resources when an invocation service is no longer going to be
+     * used.
+     */
+    public void clearDispatcher (InvocationMarshaller marsh)
+    {
+        if (_dispatchers.remove(marsh.getInvocationCode()) == null) {
+            Log.warning("Requested to remove unregistered marshaller? " +
+                        "[marsh=" + marsh + "].");
+        }
     }
 
     public void objectAvailable (DObject object)
