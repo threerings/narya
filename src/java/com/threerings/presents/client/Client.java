@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.50 2004/10/18 21:40:24 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -189,6 +189,18 @@ public class Client
     }
 
     /**
+     * Configures the client with a custom class loader which will be used
+     * when reading objects off of the network.
+     */
+    public void setClassLoader (ClassLoader loader)
+    {
+        _loader = loader;
+        if (_comm != null) {
+            _comm.setClassLoader(loader);
+        }
+    }
+
+    /**
      * Returns the data associated with our authentication response. Users
      * of the Presents system may wish to communicate authentication
      * related information to their client by extending and augmenting
@@ -352,6 +364,7 @@ public class Client
         // otherwise create a new communicator instance and start it up.
         // this will initiate the logon process
         _comm = new Communicator(this);
+        _comm.setClassLoader(_loader);
         _comm.logon();
 
         // register an interval that we'll use to keep the clock synced
@@ -687,6 +700,10 @@ public class Client
 
     /** The entity that manages our network communications. */
     protected Communicator _comm;
+
+    /** A custom class loader used to load objects that come in over the
+     * network. */
+    protected ClassLoader _loader = getClass().getClassLoader();
 
     /** General startup information provided by the server. */
     protected BootstrapData _bstrap;

@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.36 2004/10/21 23:36:27 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -160,6 +160,18 @@ public class Communicator
     {
         // simply append the message to the queue
         _msgq.append(msg);
+    }
+
+    /**
+     * Configures this communicator with a custom class loader to be used
+     * when reading and writing objects over the network.
+     */
+    public void setClassLoader (ClassLoader loader)
+    {
+        _loader = loader;
+        if (_oin != null) {
+            _oin.setClassLoader(loader);
+        }
     }
 
     /**
@@ -439,6 +451,7 @@ public class Communicator
 
             // create our object input and output streams
             _oin = new ObjectInputStream(_fin);
+            _oin.setClassLoader(_loader);
             _oout = new ObjectOutputStream(_fout);
         }
 
@@ -600,6 +613,7 @@ public class Communicator
     protected ObjectInputStream _oin;
 
     protected ClientDObjectMgr _omgr;
+    protected ClassLoader _loader;
 
     /** Used to control low-level message logging. */
     protected static RuntimeAdjust.BooleanAdjust _logMessages =

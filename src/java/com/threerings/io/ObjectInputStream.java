@@ -1,5 +1,5 @@
 //
-// $Id: ObjectInputStream.java,v 1.4 2004/08/27 02:12:36 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -49,6 +49,15 @@ public class ObjectInputStream extends DataInputStream
     }
 
     /**
+     * Customizes the class loader used to instnatiate objects read from
+     * the input stream.
+     */
+    public void setClassLoader (ClassLoader loader)
+    {
+        _loader = loader;
+    }
+
+    /**
      * Reads a {@link Streamable} instance or one of the supported object
      * types from the input stream.
      */
@@ -82,7 +91,7 @@ public class ObjectInputStream extends DataInputStream
                 // read in the class metadata, create a class mapping record
                 // for the class, and cache it
                 String cname = readUTF();
-                Class sclass = Class.forName(cname);
+                Class sclass = Class.forName(cname, true, _loader);
                 Streamer streamer = Streamer.getStreamer(sclass);
                 if (STREAM_DEBUG) {
                     Log.info(hashCode() + ": New class '" + cname + "'.");
@@ -208,6 +217,9 @@ public class ObjectInputStream extends DataInputStream
 
     /** The streamer being used currently. */
     protected Streamer _streamer;
+
+    /** The class loader we use to instantiate objects. */
+    protected ClassLoader _loader = getClass().getClassLoader();
 
     /** Used to activate verbose debug logging. */
     protected static final boolean STREAM_DEBUG = false;

@@ -114,7 +114,8 @@ public class PlaceRegistry
 
         try {
             // load up the manager class
-            Class pmgrClass = loader.loadClass(config.getManagerClassName());
+            Class pmgrClass = Class.forName(
+                config.getManagerClassName(), true, loader);
             // create a place manager for this place
             pmgr = (PlaceManager)pmgrClass.newInstance();
             // let the pmgr know about us and its configuration
