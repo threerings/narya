@@ -1,5 +1,5 @@
 //
-// $Id: ParlorProvider.java,v 1.4 2001/10/02 02:09:06 mdb Exp $
+// $Id: ParlorProvider.java,v 1.5 2001/10/03 03:44:52 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -8,6 +8,7 @@ import com.threerings.cocktail.cher.server.ServiceFailedException;
 import com.threerings.cocktail.party.data.BodyObject;
 import com.threerings.cocktail.party.server.PartyServer;
 
+import com.threerings.parlor.Log;
 import com.threerings.parlor.client.ParlorCodes;
 import com.threerings.parlor.data.GameConfig;
 
@@ -40,6 +41,10 @@ public class ParlorProvider
     public void handleInviteRequest (
         BodyObject source, int invid, String invitee, GameConfig config)
     {
+//          Log.info("Handling invite request [source=" + source +
+//                   ", invid=" + invid + ", invitee=" + invitee +
+//                   ", config=" + config + "].");
+
         String rsp = null;
 
         // ensure that the invitee is online at present
@@ -66,7 +71,7 @@ public class ParlorProvider
      * Processes a request from the client to respond to an outstanding
      * invitation by accepting, refusing, or countering it.
      */
-    public void handleRepsondInviteRequest (
+    public void handleRespondInviteRequest (
         BodyObject source, int invid, int inviteId, int code, Object arg)
     {
         // pass this on to the parlor manager
