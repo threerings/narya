@@ -1,9 +1,8 @@
 //
-// $Id: FramedInputStream.java,v 1.5 2001/08/03 03:10:15 mdb Exp $
+// $Id: FramedInputStream.java,v 1.6 2001/08/21 23:26:21 mdb Exp $
 
 package com.threerings.cocktail.cher.io;
 
-import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
