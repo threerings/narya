@@ -1,8 +1,9 @@
 //
-// $Id: Pathable.java,v 1.1 2002/05/31 07:34:45 mdb Exp $
+// $Id: Pathable.java,v 1.2 2002/06/20 07:50:02 mdb Exp $
 
 package com.threerings.media.util;
 
+import java.awt.Rectangle;
 import com.threerings.util.DirectionCodes;
 
 /**
@@ -19,6 +20,11 @@ public interface Pathable
      * Returns the pathable's current y coordinate.
      */
     public int getY ();
+
+    /**
+     * Returns the rectangle that bounds the pathable.
+     */
+    public Rectangle getBounds ();
 
     /**
      * Updates the pathable's current coordinates.
