@@ -1,5 +1,5 @@
 //
-// $Id: LobbyController.java,v 1.7 2001/10/23 20:24:10 mdb Exp $
+// $Id: LobbyController.java,v 1.8 2001/10/25 23:42:33 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -41,18 +41,23 @@ public class LobbyController
     {
         super.willEnterPlace(plobj);
 
-        // if we're testing and a system property has been specified
-        // requesting that we invite another player, do so now
-        String invitee = System.getProperty("invitee");
-        if (invitee != null) {
-            // create a game config object
-            try {
-                GameConfig config = _config.getGameConfig();
-                _ctx.getParlorDirector().invite(invitee, config, this);
-            } catch (Exception e) {
-                Log.warning("Error instantiating game config.");
-                Log.logStackTrace(e);
+        try {
+            // if a system property has been specified requesting that we
+            // invite another player, do so now
+            String invitee = System.getProperty("invitee");
+            if (invitee != null) {
+                // create a game config object
+                try {
+                    GameConfig config = _config.getGameConfig();
+                    _ctx.getParlorDirector().invite(invitee, config, this);
+                } catch (Exception e) {
+                    Log.warning("Error instantiating game config.");
+                    Log.logStackTrace(e);
+                }
             }
+
+        } catch (SecurityException se) {
+            // nothing to see here, move it along...
         }
     }
 
