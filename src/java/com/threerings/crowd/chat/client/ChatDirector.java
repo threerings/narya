@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.51 2003/09/18 18:13:28 mdb Exp $
+// $Id: ChatDirector.java,v 1.52 2003/09/22 19:15:12 ray Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -371,9 +371,12 @@ public class ChatDirector extends BasicDirector
 
                 // if they have an away message, report that
                 if (awayMessage != null) {
-                    String msg = MessageBundle.tcompose(
-                        "m.recipient_afk", target, awayMessage);
-                    displayFeedback(_bundle, msg);
+                    awayMessage = filter(awayMessage, target, false);
+                    if (awayMessage != null) {
+                        String msg = MessageBundle.tcompose(
+                            "m.recipient_afk", target, awayMessage);
+                        displayFeedback(_bundle, msg);
+                    }
                 }
 
                 // if they are idle, report that
@@ -414,6 +417,12 @@ public class ChatDirector extends BasicDirector
     public void setAwayMessage (String message)
     {
         // pass the buck right on along
+        message = filter(message, null, true);
+        if (message == null) {
+            // they filtered away their own away message..
+            // change it to something
+            message = "...";
+        }
         _cservice.away(_ctx.getClient(), message);
     }
 
