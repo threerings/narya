@@ -1,5 +1,5 @@
 //
-// $Id: InvocationManager.java,v 1.14 2002/09/20 04:52:49 mdb Exp $
+// $Id: InvocationManager.java,v 1.15 2002/10/27 22:24:59 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -210,9 +210,9 @@ public class InvocationManager
             }
         }
 
-//         Log.info("Dispatching invreq [caller=" + source.who() +
-//                  ", methId=" + methodId +
-//                  ", args=" + StringUtil.toString(args) + "].");
+//         Log.debug("Dispatching invreq [caller=" + source.who() +
+//                   ", disp=" + disp + ", methId=" + methodId +
+//                   ", args=" + StringUtil.toString(args) + "].");
 
         // dispatch the request
         try {
