@@ -1,33 +1,26 @@
 //
-// $Id: Cluster.java,v 1.5 2003/03/26 23:42:41 mdb Exp $
+// $Id: Cluster.java,v 1.6 2003/03/27 15:57:47 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
 import java.awt.Rectangle;
 
+import com.samskivert.util.StringUtil;
+
 import com.threerings.io.SimpleStreamableObject;
+import com.threerings.io.Streamable;
+
 import com.threerings.presents.dobj.DSet;
 
 /**
  * Contains information on clusters.
  */
-public class Cluster extends SimpleStreamableObject
-    implements DSet.Entry
+public class Cluster extends Rectangle
+    implements DSet.Entry, Streamable
 {
     /** A unique identifier for this cluster (also the distributed object
      * id of the cluster chat object). */
     public int clusterOid;
-
-    /** The bounds of the cluster in the scene. */
-    public int x, y, width, height;
-
-    /**
-     * Returns the "footprint" of this cluster in tile coordinates.
-     */
-    public Rectangle getFootprint ()
-    {
-        return new Rectangle(x, y, width, height);
-    }
 
     // documentation inherited
     public Comparable getKey ()
@@ -52,6 +45,14 @@ public class Cluster extends SimpleStreamableObject
     public int hashCode ()
     {
         return clusterOid;
+    }
+
+    /**
+     * Generates a string representation of this instance.
+     */
+    public String toString ()
+    {
+        return StringUtil.fieldsToString(this);
     }
 
     /** Used for {@link #geyKey}. */
