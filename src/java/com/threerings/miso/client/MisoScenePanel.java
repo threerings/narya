@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.55 2004/01/11 08:26:18 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.56 2004/01/11 12:22:05 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -233,6 +233,25 @@ public class MisoScenePanel extends VirtualMediaPanel
     }
 
     /**
+     * Returns an iterator over all resolved {@link SceneBlock} instances.
+     */
+    public Iterator enumerateResolvedBlocks ()
+    {
+        return _blocks.values().iterator();
+    }
+
+    /**
+     * Returns the resolved block that contains the specified tile
+     * coordinate or null if no block is resolved for that coordinate.
+     */
+    public SceneBlock getBlock (int tx, int ty)
+    {
+        int bx = MathUtil.floorDiv(tx, _metrics.blockwid);
+        int by = MathUtil.floorDiv(ty, _metrics.blockhei);
+        return (SceneBlock)_blocks.get(compose(bx, by));
+    }
+
+    /**
      * Computes a path for the specified sprite to the specified tile
      * coordinates.
      */
@@ -376,6 +395,18 @@ public class MisoScenePanel extends VirtualMediaPanel
         } else {
             handleMousePressed(_hobject, e);
         }
+    }
+
+    /**
+     * Programmatically "click" a scene object. This results in a call to
+     * {@link handleObjectPressed} with click coordinates in the center of
+     * the object.
+     */
+    public void pressObject (SceneObject scobj)
+    {
+        int px = scobj.bounds.x + scobj.bounds.width/2;
+        int py = scobj.bounds.y + scobj.bounds.height/2;
+        handleObjectPressed(scobj, px, py);
     }
 
     /**
@@ -942,17 +973,6 @@ public class MisoScenePanel extends VirtualMediaPanel
 //                         TileUtil.getTileIndex(scobj.info.tileId));
 //             }
 //         }));
-    }
-
-    /**
-     * Returns the resolved block that contains the specified tile
-     * coordinate or null if no block is resolved for that coordinate.
-     */
-    protected SceneBlock getBlock (int tx, int ty)
-    {
-        int bx = MathUtil.floorDiv(tx, _metrics.blockwid);
-        int by = MathUtil.floorDiv(ty, _metrics.blockhei);
-        return (SceneBlock)_blocks.get(compose(bx, by));
     }
 
     /**
