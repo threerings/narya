@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.47 2003/06/23 20:16:07 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.48 2003/07/27 02:50:53 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -218,6 +218,12 @@ public class MisoScenePanel extends VirtualMediaPanel
      */
     public Path getPath (Sprite sprite, int x, int y)
     {
+        // sanity check
+        if (sprite == null) {
+            throw new IllegalArgumentException(
+                "Can't get path for null sprite [x=" + x + ", y=" + y + ".");
+        }
+
         // get the destination tile coordinates
         Point src = MisoUtil.screenToTile(
             _metrics, sprite.getX(), sprite.getY(), new Point());
