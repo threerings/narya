@@ -1,5 +1,5 @@
 //
-// $Id: ScoreAnimation.java,v 1.3 2004/08/27 02:20:27 mdb Exp $
+// $Id: ScoreAnimation.java,v 1.4 2004/11/12 00:33:38 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -191,8 +191,20 @@ public class ScoreAnimation extends Animation
         if (_comp != null) {
             gfx.setComposite(_comp);
         }
-        _label.render(gfx, _x, _y);
+        paintLabels(gfx, _x, _y);
         gfx.setComposite(ocomp);
+    }
+
+    /**
+     * Derived classes may wish to extend score animation and render more than
+     * just the standard single label.
+     *
+     * @param x the upper left coordinate of the animation.
+     * @param y the upper left coordinate of the animation.
+     */
+    protected void paintLabels (Graphics2D gfx, int x, int y)
+    {
+        _label.render(gfx, x, y);
     }
 
     // documentation inherited
