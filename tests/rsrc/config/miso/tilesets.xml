@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: tilesets.xml,v 1.25 2001/10/25 18:07:13 shaper Exp $ -->
+<!-- $Id: tilesets.xml,v 1.26 2001/11/01 01:35:23 shaper Exp $ -->
 
 <!-- Initial test tileset description data. -->
 
@@ -30,11 +30,11 @@
 
   <tileset tsid="1009" name="Building" layer="Object">
     <imagefile>media/miso/tiles/building.png</imagefile>
-    <rowheight>296</rowheight>
-    <rowwidth>228</rowwidth>
+    <rowheight>293</rowheight>
+    <rowwidth>224</rowwidth>
     <tilecount>4</tilecount>
-    <offsetpos>1, 7</offsetpos>
-    <gapdist>2, 0</gapdist>
+    <offsetpos>2, 2</offsetpos>
+    <gapdist>4, 0</gapdist>
 
     <objects>
       <object tid="0" width="4" height="3"/>
@@ -53,24 +53,6 @@
     <passable>1, 0, 1, 1, 1</passable>
   </tileset>
 
-  <tileset tsid="1011" name="Pirate">
-    <imagefile>media/miso/tiles/pirate.png</imagefile>
-    <rowheight>94, 94, 94, 94, 94, 94, 94, 94</rowheight>
-    <rowwidth>94, 94, 94, 94, 94, 94, 94, 94</rowwidth>
-    <tilecount>6, 6, 6, 6, 6, 6, 6, 6</tilecount>
-    <offsetpos>3, 3</offsetpos>
-    <gapdist>6, 6</gapdist>
-  </tileset>
-
-  <tileset tsid="1012" name="Wench">
-    <imagefile>media/miso/tiles/wench.png</imagefile>
-    <rowheight>94, 94, 94, 94, 94, 94, 94, 94</rowheight>
-    <rowwidth>94, 94, 94, 94, 94, 94, 94, 94</rowwidth>
-    <tilecount>7, 7, 7, 7, 7, 7, 7, 7</tilecount>
-    <offsetpos>52, 51</offsetpos>
-    <gapdist>39, 18</gapdist>
-  </tileset>
-
   <tileset tsid="1014" name="Faux Building" layer="Object">
     <imagefile>media/miso/tiles/faux-building.png</imagefile>
     <rowheight>265</rowheight>
@@ -84,6 +66,13 @@
       <object tid="3" width="3" height="4"/>
     </objects>
 
+  </tileset>
+
+  <tileset tsid="1029" name="Fringe" layer="Fringe">
+    <imagefile>media/miso/tiles/fringe.png</imagefile>
+    <rowheight>48, 48, 48, 48, 48</rowheight>
+    <rowwidth>64, 64, 64, 64, 64</rowwidth>
+    <tilecount>8, 8, 8, 8, 8</tilecount>
   </tileset>
 
 </tilesetgroup>
