@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleBoardView.java,v 1.8 2004/08/27 02:20:27 mdb Exp $
+// $Id: PuzzleBoardView.java,v 1.9 2004/11/11 23:53:51 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -324,7 +324,7 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
         // reposition the animation as appropriate
         Rectangle abounds = new Rectangle(anim.getBounds());
         ArrayList avoidables = (ArrayList)_avoidAnims.clone();
-        if (SwingUtil.positionRect(abounds, _bounds, avoidables)) {
+        if (SwingUtil.positionRect(abounds, _vbounds, avoidables)) {
             anim.setLocation(abounds.x, abounds.y);
         }
 
