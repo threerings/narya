@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorManager.java,v 1.3 2001/12/19 23:30:47 shaper Exp $
+// $Id: SimulatorManager.java,v 1.4 2001/12/20 01:11:18 shaper Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -114,6 +114,9 @@ public class SimulatorManager
                     // set up the simulant's body object
                     BodyObject bobj = (BodyObject)object;
                     bobj.username = "simulant" + (_sims.size() + 1);
+
+                    // map the simulant into the server body set
+                    SimulatorServer.mapBody(bobj.username, bobj);
 
                     // hold onto it for later game creation
                     _sims.add(bobj);
