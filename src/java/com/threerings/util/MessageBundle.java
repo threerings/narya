@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.20 2003/05/20 20:58:31 mdb Exp $
+// $Id: MessageBundle.java,v 1.21 2003/11/05 23:10:43 mdb Exp $
 
 package com.threerings.util;
 
@@ -127,7 +127,7 @@ public class MessageBundle
         }
         Object[] args = new Object[] { new Integer(value) };
         return (format == null) ? (key + StringUtil.toString(args)) :
-            MessageFormat.format(format, args);
+            MessageFormat.format(escape(format), args);
     }
 
     /**
@@ -195,7 +195,7 @@ public class MessageBundle
         }
 
         String msg = getResourceString(key);
-        return (msg != null) ? MessageFormat.format(msg, args)
+        return (msg != null) ? MessageFormat.format(escape(msg), args)
                              : (key + StringUtil.toString(args));
     }
 
@@ -449,6 +449,19 @@ public class MessageBundle
         }
 
         return qualifiedKey.substring(qsidx+1);
+    }
+
+    /**
+     * Used to escape single quotes so that they are not interpreted by
+     * {@link MessageFormat}. As we assume all single quotes are to be
+     * escaped, we cannot use the characters <code>{</code> and
+     * <code>}</code> in our translation strings, but this is a small
+     * price to pay to have to differentiate between messages that will
+     * and won't eventually be parsed by a {@link MessageFormat} instance.
+     */
+    protected static String escape (String message)
+    {
+        return StringUtil.replace(message, "'", "''");
     }
 
     /** The message manager via whom we'll resolve fully qualified
