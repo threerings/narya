@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlockResolver.java,v 1.4 2003/05/12 01:53:19 mdb Exp $
+// $Id: SceneBlockResolver.java,v 1.5 2003/05/20 23:57:48 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -18,10 +18,15 @@ public class SceneBlockResolver extends LoopingThread
     /**
      * Queues up a scene block for resolution.
      */
-    public void resolveBlock (SceneBlock block)
+    public void resolveBlock (SceneBlock block, boolean hipri)
     {
-        Log.debug("Queueing block for resolution " + block + ".");
-        _queue.append(block);
+        Log.debug("Queueing block for resolution " + block +
+                  " (" + hipri + ").");
+        if (hipri) {
+            _queue.prepend(block);
+        } else {
+            _queue.append(block);
+        }
     }
 
     /**

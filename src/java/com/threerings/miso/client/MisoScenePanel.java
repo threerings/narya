@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.31 2003/05/16 00:49:16 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.32 2003/05/20 23:57:48 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -690,11 +690,16 @@ public class MisoScenePanel extends VirtualMediaPanel
                 SceneBlock block = new SceneBlock(
                     this, origin.x, origin.y,
                     _metrics.blockwid, _metrics.blockhei);
+                boolean visible =
+                    block.getFootprint().getBounds().intersects(_vbounds);
                 _blocks.put(bkey, block);
 
                 // queue the block up to be resolved
                 _pendingBlocks++;
-                _resolver.resolveBlock(block);
+                if (visible) {
+                    _visiBlocks.add(block);
+                }
+                _resolver.resolveBlock(block, visible);
                 if (_dpanel != null) {
                     _dpanel.queuedBlock(block);
                 }
@@ -705,6 +710,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         // recompute our visible object set
         recomputeVisible();
 
+        Log.info("Rethunk " + _pendingBlocks + "/" + _visiBlocks.size() + ".");
         return _pendingBlocks;
     }
 
@@ -783,10 +789,11 @@ public class MisoScenePanel extends VirtualMediaPanel
                 _remgr.invalidateRegion(sbounds);
             }
         }
+        --_pendingBlocks;
 
-        // once all the pending blocks have completed their resolution,
-        // recompute our visible object set
-        if (--_pendingBlocks == 0) {
+        // once all the visible pending blocks have completed their
+        // resolution, recompute our visible object set and show ourselves
+        if (_visiBlocks.remove(block) && _visiBlocks.size() == 0) {
             recomputeVisible();
             _delayRepaint = false;
             _remgr.invalidateRegion(_vbounds);
@@ -1416,8 +1423,6 @@ public class MisoScenePanel extends VirtualMediaPanel
     {
         public HashSet blocks = new HashSet();
 
-        public HashSet vizblocks = new HashSet();
-
         public void apply (int tx, int ty, Rectangle tbounds) {
             _key.x = MathUtil.floorDiv(tx, _metrics.blockwid) *
                 _metrics.blockwid;
@@ -1460,6 +1465,9 @@ public class MisoScenePanel extends VirtualMediaPanel
 
     /** A count of blocks in the process of being resolved. */
     protected int _pendingBlocks;
+
+    /** Used to track visible blocks that are waiting to be resolved. */
+    protected HashSet _visiBlocks = new HashSet();
 
     /** Used to avoid repaints while we don't yet have resolved all the
      * blocks needed to render the visible view. */
