@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.50 2002/10/24 18:51:41 mdb Exp $
+// $Id: GameManager.java,v 1.51 2002/10/24 19:05:46 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -226,7 +226,7 @@ public class GameManager extends PlaceManager
     {
         if (_AIs == null) {
             // create and initialize the AI skill level array
-            _AIs = new byte[getPlayerCount()];
+            _AIs = new byte[getPlayerSlots()];
             Arrays.fill(_AIs, (byte)-1);
             // set up a delegate op for AI ticking
             _tickAIOp = new TickAIDelegateOp();
