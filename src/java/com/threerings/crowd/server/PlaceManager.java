@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.13 2001/10/02 02:07:50 mdb Exp $
+// $Id: PlaceManager.java,v 1.14 2001/10/05 23:57:26 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -33,11 +33,19 @@ import com.threerings.cocktail.party.data.*;
 public class PlaceManager implements Subscriber
 {
     /**
-     * Called by the place registry after creating this place manager.
+     * Returns a reference to our place configuration object.
      */
-    public void setPlaceRegistry (PlaceRegistry registry)
+    public PlaceConfig getConfig ()
     {
-        _registry = registry;
+        return _config;
+    }
+
+    /**
+     * Returns the place object managed by this place manager.
+     */
+    public PlaceObject getPlaceObject ()
+    {
+        return _plobj;
     }
 
     /**
@@ -56,6 +64,29 @@ public class PlaceManager implements Subscriber
     protected Class getPlaceObjectClass ()
     {
         return PlaceObject.class;
+    }
+
+    /**
+     * Called by the place registry after creating this place manager.
+     */
+    public void init (PlaceRegistry registry, PlaceConfig config)
+    {
+        _registry = registry;
+        _config = config;
+
+        // let derived classes do initialization stuff
+        didInit();
+    }
+
+    /**
+     * Called after this place manager has been initialized with its
+     * configuration information but before it has been started up with
+     * its place object reference. Derived classes can override this
+     * function and perform any basic initialization that they desire.
+     * They should of course be sure to call <code>super.didInit()</code>.
+     */
+    protected void didInit ()
+    {
     }
 
     /**
@@ -194,14 +225,6 @@ public class PlaceManager implements Subscriber
         _msghandlers.put(name, handler);
     }
 
-    /**
-     * Returns the place object managed by this place manager.
-     */
-    public PlaceObject getPlaceObject ()
-    {
-        return _plobj;
-    }
-
     // nothing doing
     public void objectAvailable (DObject object)
     {
@@ -269,6 +292,7 @@ public class PlaceManager implements Subscriber
     protected void toString (StringBuffer buf)
     {
         buf.append("place=").append(_plobj);
+        buf.append(", config=").append(_config);
     }
 
     /**
@@ -290,6 +314,9 @@ public class PlaceManager implements Subscriber
 
     /** A reference to the place object that we manage. */
     protected PlaceObject _plobj;
+
+    /** A reference to the configuration for our place. */
+    protected PlaceConfig _config;
 
     /** A reference to the place registry with which we're registered. */
     protected PlaceRegistry _registry;

@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.9 2001/10/02 02:07:50 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.10 2001/10/05 23:57:26 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -12,6 +12,7 @@ import com.samskivert.util.Queue;
 import com.threerings.cocktail.cher.dobj.*;
 
 import com.threerings.cocktail.party.Log;
+import com.threerings.cocktail.party.data.PlaceConfig;
 import com.threerings.cocktail.party.data.PlaceObject;
 
 /**
@@ -36,8 +37,10 @@ public class PlaceRegistry implements Subscriber
      * creation of the object and informing the manager when it is
      * created.
      *
-     * @param pmgrClass the {@link PlaceManager} derived class that should
-     * be instantiated to manage the place.
+     * @param config the configuration object for the place to be
+     * created. The {@link PlaceManager} derived class that should be
+     * instantiated to manage the place will be determined from the config
+     * object.
      *
      * @return a reference to the place manager that will manage the new
      * place object.
@@ -45,14 +48,16 @@ public class PlaceRegistry implements Subscriber
      * @exception InstantiationException thrown if an error occurs trying
      * to instantiate and initialize the place manager.
      */
-    public PlaceManager createPlace (Class pmgrClass)
+    public PlaceManager createPlace (PlaceConfig config)
         throws InstantiationException
     {
         try {
+            // load up the manager class
+            Class pmgrClass = Class.forName(config.getManagerClassName());
             // create a place manager for this place
             PlaceManager pmgr = (PlaceManager)pmgrClass.newInstance();
-            // let the pmgr know about us
-            pmgr.setPlaceRegistry(this);
+            // let the pmgr know about us and its configuration
+            pmgr.init(this, config);
 
             // stick the manager on the creation queue because we know
             // we'll get our calls to objectAvailable()/requestFailed() in
@@ -65,9 +70,10 @@ public class PlaceRegistry implements Subscriber
 
             return pmgr;
 
-        } catch (IllegalAccessException iae) {
+        } catch (Exception e) {
+            Log.logStackTrace(e);
             throw new InstantiationException(
-                "Error instantiating place manager: " + iae);
+                "Error creating place manager [config=" + config + "].");
         }
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.9 2001/10/01 22:14:55 mdb Exp $
+// $Id: LocationDirector.java,v 1.10 2001/10/05 23:57:26 mdb Exp $
 
 package com.threerings.cocktail.party.client;
 
@@ -10,8 +10,7 @@ import com.threerings.cocktail.cher.client.*;
 import com.threerings.cocktail.cher.dobj.*;
 
 import com.threerings.cocktail.party.Log;
-import com.threerings.cocktail.party.data.BodyObject;
-import com.threerings.cocktail.party.data.PlaceObject;
+import com.threerings.cocktail.party.data.*;
 import com.threerings.cocktail.party.util.PartyContext;
 
 /**
@@ -127,13 +126,27 @@ public class LocationDirector
      * effected.
      *
      * @param placeId the place oid of our new location.
+     * @param config the configuration information for the new place.
      */
-    protected void didMoveTo (int placeId)
+    protected void didMoveTo (int placeId, PlaceConfig config)
     {
         DObjectManager omgr = _ctx.getDObjectManager();
 
-        // unsubscribe from our old place object
+        // do some cleaning up if we were previously in a place
         if (_plobj != null) {
+            // let the old controller know that things are going away
+            if (_controller != null) {
+                try {
+                    _controller.didLeavePlace(_plobj);
+                } catch (Exception e) {
+                    Log.warning("Place controller choked in " +
+                                "didLeavePlace [plobj=" + _plobj + "].");
+                    Log.logStackTrace(e);
+                }
+                _controller = null;
+            }
+
+            // unsubscribe from our old place object
             omgr.unsubscribeFromObject(_plobj.getOid(), this);
             _plobj = null;
         }
@@ -141,6 +154,18 @@ public class LocationDirector
         // make a note that we're now mostly in the new location
         _previousPlaceId = _placeId;
         _placeId = placeId;
+
+        try {
+            // start up a new place controller to manage the new place
+            Class cclass = config.getControllerClass();
+            _controller = (PlaceController)cclass.newInstance();
+            _controller.init(_ctx, config);
+
+        } catch (Exception e) {
+            Log.warning("Error creating or initializing place controller " +
+                        "[config=" + config + "].");
+            Log.logStackTrace(e);
+        }
 
         // subscribe to our new place object to complete the move
         omgr.subscribeToObject(_placeId, this);
@@ -217,10 +242,10 @@ public class LocationDirector
     /**
      * Called in response to a successful <code>moveTo</code> request.
      */
-    public void handleMoveSucceeded (int invid)
+    public void handleMoveSucceeded (int invid, PlaceConfig config)
     {
         // handle the successful move
-        didMoveTo(_pendingPlaceId);
+        didMoveTo(_pendingPlaceId, config);
 
         // and clear out the tracked pending oid
         _pendingPlaceId = -1;
@@ -244,6 +269,15 @@ public class LocationDirector
         // yay, we have our new place object
         _plobj = (PlaceObject)object;
 
+        // let the place controller know that we're ready to roll
+        try {
+            _controller.willEnterPlace(_plobj);
+        } catch (Exception e) {
+            Log.warning("Controller choked in willEnterPlace " +
+                        "[place=" + _plobj + "].");
+            Log.logStackTrace(e);
+        }
+
         // let our observers know that all is well on the western front
         for (int i = 0; i < _observers.size(); i++) {
             LocationObserver obs = (LocationObserver)_observers.get(i);
@@ -264,6 +298,11 @@ public class LocationDirector
 
         // let the kids know shit be fucked
         notifyFailure(placeId, "m.unable_to_fetch_place_object");
+
+        // we need to sort out what to do about the half-initialized place
+        // controller. presently we punt and hope that calling
+        // didLeavePlace() without ever having called willEnterPlace()
+        // does whatever's necessary
 
         // try to return to our previous location
         recoverFailedMove(placeId);
@@ -312,6 +351,9 @@ public class LocationDirector
 
     /** The place object that we currently occupy. */
     protected PlaceObject _plobj;
+
+    /** The place controller in effect for our current place. */
+    protected PlaceController _controller;
 
     /**
      * The oid of the place for which we have an outstanding moveTo

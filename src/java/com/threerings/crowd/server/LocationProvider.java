@@ -1,10 +1,11 @@
 //
-// $Id: LocationProvider.java,v 1.8 2001/10/01 22:14:55 mdb Exp $
+// $Id: LocationProvider.java,v 1.9 2001/10/05 23:57:26 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
 import com.threerings.cocktail.cher.dobj.DObject;
 import com.threerings.cocktail.cher.server.InvocationProvider;
+import com.threerings.cocktail.cher.server.ServiceFailedException;
 
 import com.threerings.cocktail.party.Log;
 import com.threerings.cocktail.party.client.LocationCodes;
@@ -23,14 +24,15 @@ public class LocationProvider
     public void handleMoveToRequest (BodyObject source, int invid,
                                      int placeId)
     {
-        // try to do the actual move
-        String rcode = moveTo(source, placeId);
+        try {
+            // do the move
+            PlaceConfig config = moveTo(source, placeId);
+            // and send the response
+            sendResponse(source, invid, MOVE_SUCCEEDED_RESPONSE, config);
 
-        // send the response
-        if (rcode.equals(SUCCESS)) {
-            sendResponse(source, invid, MOVE_SUCCEEDED_RESPONSE);
-        } else {
-            sendResponse(source, invid, MOVE_FAILED_RESPONSE, rcode);
+        } catch (ServiceFailedException sfe) {
+            sendResponse(source, invid, MOVE_FAILED_RESPONSE,
+                         sfe.getMessage());
         }
     }
 
@@ -38,10 +40,14 @@ public class LocationProvider
      * Moves the specified body from whatever location they currently
      * occupy to the location identified by the supplied place id.
      *
-     * @return the string <code>SUCCESS</code> if the move was successful
-     * or a reason code for failure if not.
+     * @return the config object for the new location.
+     *
+     * @exception ServiceFaildException thrown if the move was not
+     * successful for some reason (which will be communicated as an error
+     * code in the exception's message data).
      */
-    public static String moveTo (BodyObject source, int placeId)
+    public static PlaceConfig moveTo (BodyObject source, int placeId)
+        throws ServiceFailedException
     {
         int bodoid = source.getOid();
 
@@ -50,7 +56,7 @@ public class LocationProvider
         if (pmgr == null) {
             Log.info("Requested to move to non-existent place " +
                      "[source=" + source + ", place=" + placeId + "].");
-            return NO_SUCH_PLACE;
+            throw new ServiceFailedException(NO_SUCH_PLACE);
         }
 
         // acquire a lock on the body object to ensure that rapid fire
@@ -58,13 +64,13 @@ public class LocationProvider
         if (!source.acquireLock("moveToLock")) {
             // if we're still locked, a previous moveTo request hasn't
             // been fully processed
-            return MOVE_IN_PROGRESS;
+            throw new ServiceFailedException(MOVE_IN_PROGRESS);
         }
 
         // make sure they're not already in the location they're asking to
         // move to
         if (source.location == placeId) {
-            return ALREADY_THERE;
+            throw new ServiceFailedException(ALREADY_THERE);
         }
 
         // find out if they were previously in some other location
@@ -112,6 +118,6 @@ public class LocationProvider
         // once all these events are processed
         source.releaseLock("moveToLock");
 
-        return SUCCESS;
+        return pmgr.getConfig();
     }
 }

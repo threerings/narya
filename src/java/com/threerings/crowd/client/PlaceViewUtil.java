@@ -1,9 +1,8 @@
 //
-// $Id: PlaceViewUtil.java,v 1.1 2001/10/04 20:02:49 mdb Exp $
+// $Id: PlaceViewUtil.java,v 1.2 2001/10/05 23:57:26 mdb Exp $
 
-package com.threerings.cocktail.party.util;
+package com.threerings.cocktail.party.client;
 
-import java.awt.Component;
 import java.awt.Container;
 
 import com.threerings.cocktail.party.Log;
@@ -27,7 +26,7 @@ public class PlaceViewUtil
      * @param plobj the place object that is about to be entered.
      */
     public static void dispatchWillEnterPlace (
-        Component root, PlaceObject plobj)
+        Object root, PlaceObject plobj)
     {
         // dispatch the call on this component if it implements PlaceView
         if (root instanceof PlaceView) {
@@ -60,7 +59,7 @@ public class PlaceViewUtil
      * @param plobj the place object that is about to be entered.
      */
     public static void dispatchDidLeavePlace (
-        Component root, PlaceObject plobj)
+        Object root, PlaceObject plobj)
     {
         // dispatch the call on this component if it implements PlaceView
         if (root instanceof PlaceView) {

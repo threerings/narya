@@ -1,7 +1,7 @@
 //
-// $Id: PlaceView.java,v 1.2 2001/10/04 22:47:48 mdb Exp $
+// $Id: PlaceView.java,v 1.3 2001/10/05 23:57:26 mdb Exp $
 
-package com.threerings.cocktail.party.util;
+package com.threerings.cocktail.party.client;
 
 import com.threerings.cocktail.party.data.PlaceObject;
 
