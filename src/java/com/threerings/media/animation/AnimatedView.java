@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedView.java,v 1.1 2002/01/11 16:17:33 shaper Exp $
+// $Id: AnimatedView.java,v 1.2 2002/02/17 23:39:32 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -35,6 +35,11 @@ public interface AnimatedView
      * complete the painting process before returning from this function).
      * This will only be called on the AWT thread and when it is safe to
      * paint.
+     *
+     * @param invalidRectCount the number of invalide regions that
+     * motivated the animation manager to repaint the animated view (which
+     * could be zero if the view is scrolling and otherwise has no dirty
+     * regions)
      */
-    public void paintImmediately ();
+    public void paintImmediately (int invalidRectCount);
 }
