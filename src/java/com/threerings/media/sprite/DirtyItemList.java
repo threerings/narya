@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.3 2001/10/19 23:26:31 shaper Exp $
+// $Id: DirtyItemList.java,v 1.4 2001/10/22 18:14:57 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -64,13 +64,15 @@ public class DirtyItemList extends ArrayList
 
         /**
          * Paints the dirty item to the given graphics context.  Only
-         * the dirty rectangle of the item is question is actually
-         * drawn.
+         * the portion of the item that falls within the given dirty
+         * rectangle is actually drawn.
          */
-        public void paint (Graphics2D gfx)
+        public void paint (Graphics2D gfx, Rectangle clip)
         {
+            Shape oclip = gfx.getClip();
+
             // clip the draw region to the dirty portion of the item
-            gfx.setClip(dirtyRect);
+            gfx.clip(clip);
 
             // paint the item
             if (obj instanceof Sprite) {
@@ -78,6 +80,14 @@ public class DirtyItemList extends ArrayList
             } else {
                 ((ObjectTile)obj).paint(gfx, bounds);
             }
+
+            // restore original clipping region
+            gfx.setClip(oclip);
+        }
+
+        public String toString ()
+        {
+            return "[obj=" + obj + ", x=" + x + ", y=" + y + "]";
         }
     }
 }
