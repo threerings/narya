@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.6 2001/08/02 20:43:03 shaper Exp $
+// $Id: Sprite.java,v 1.7 2001/08/04 00:36:33 shaper Exp $
 
 package com.threerings.miso.sprite;
 
@@ -160,6 +160,12 @@ public class Sprite
         }
 
         Log.info("moveAlongPath [dest=" + _dest + "].");
+
+	// if we're already here, move on to the next node
+	if (x == _dest.loc.x && y == _dest.loc.y) {
+	    moveAlongPath();
+	    return;
+	}
 
         // determine the horizontal/vertical move increments
         float dist = MathUtil.distance(x, y, _dest.loc.x, _dest.loc.y);
