@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.59 2004/02/25 14:43:57 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.60 2004/08/13 23:08:03 ray Exp $
 
 package com.threerings.miso.client;
 
@@ -892,7 +892,7 @@ public class MisoScenePanel extends VirtualMediaPanel
 
         Rectangle sbounds = block.getScreenBounds();
         if (!_delayRepaint && sbounds != null && sbounds.intersects(_vbounds)) {
-            warnVisible(block, sbounds);
+//            warnVisible(block, sbounds);
             // if we have yet further blocks to resolve, queue up a
             // repaint now so that we get this data onscreen as quickly as
             // possible
