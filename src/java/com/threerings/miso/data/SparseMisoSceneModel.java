@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneModel.java,v 1.5 2003/04/24 21:11:23 mdb Exp $
+// $Id: SparseMisoSceneModel.java,v 1.6 2003/04/25 22:26:25 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -264,6 +264,12 @@ public class SparseMisoSceneModel extends MisoSceneModel
     {
         getSection(col, row, true).setBaseTile(col, row, fqBaseTileId);
         return true;
+    }
+
+    // documentation inherited
+    public void setDefaultBaseTileSet (int tileSetId)
+    {
+        defTileSet = tileSetId;
     }
 
     // documentation inherited
