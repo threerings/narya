@@ -1,5 +1,5 @@
 //
-// $Id: Path.java,v 1.2 2001/12/16 08:05:46 mdb Exp $
+// $Id: Path.java,v 1.3 2002/04/15 23:09:10 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -49,6 +49,13 @@ public interface Path
      * @param velocity the sprite velocity in pixels per millisecond.
      */
     public void setVelocity (float velocity);
+
+    /**
+     * Called when the view that contains the sprite following this path
+     * is scrolling by the specified amount. Gives the path an opportunity
+     * to adjust its internal coordinates by the scrolled amount.
+     */
+    public void viewWillScroll (int dx, int dy);
 
     /**
      * Paint this path on the screen (used for debugging purposes only).

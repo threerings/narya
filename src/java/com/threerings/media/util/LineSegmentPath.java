@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.15 2002/03/16 03:12:12 shaper Exp $
+// $Id: LineSegmentPath.java,v 1.16 2002/04/15 23:09:10 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -15,6 +15,7 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.util.DirectionCodes;
 
+import com.threerings.media.Log;
 import com.threerings.media.util.MathUtil;
 
 /**
@@ -38,14 +39,18 @@ public class LineSegmentPath
     /**
      * Constructs a line segment path that consists of a single segment
      * connecting the point <code>(x1, y1)</code> with <code>(x2,
-     * y2)</code>.  The orientation for both nodes in the path is
-     * <code>NONE</code>.
+     * y2)</code>.  The orientation for the first node is set arbitrarily
+     * and the second node is oriented based on the vector between the two
+     * nodes.
      */
     public LineSegmentPath (int x1, int y1, int x2, int y2)
     {
         _nodes = new ArrayList();
-        _nodes.add(new PathNode(x1, y1, NONE));
-        _nodes.add(new PathNode(x2, y2, NONE));
+        _nodes.add(new PathNode(x1, y1, NORTH));
+        Point p1 = new Point(x1, y1), p2 = new Point(x2, y2);
+        int dir = getDirection(p1, p2);
+        Log.info("orient " + dir + " " + p1 + " " + p2 + ".");
+        _nodes.add(new PathNode(x2, y2, dir));
     }
 
     /**
@@ -87,6 +92,52 @@ public class LineSegmentPath
     public void setVelocity (float velocity)
     {
         _vel = velocity;
+    }
+
+    /**
+     * Computes the velocity at which the sprite will need to travel along
+     * this path such that it will arrive at the destination in
+     * approximately the specified number of milliseconds. Efforts are
+     * taken to get the sprite there as close to the desired time as
+     * possible, but framerate variation may prevent it from arriving
+     * exactly on time.
+     */
+    public void setDuration (long millis)
+    {
+        // if we have only zero or one nodes, we don't have enough
+        // information to compute our velocity
+        int ncount = _nodes.size();
+        if (ncount < 2) {
+            Log.warning("Requested to set duration of bogus path " +
+                        "[path=" + this + ", duration=" + millis + "].");
+            return;
+        }
+
+        // compute the total distance along our path
+        float distance = 0;
+        PathNode start = (PathNode)_nodes.get(0);
+        for (int ii = 1; ii < ncount; ii++) {
+            PathNode end = (PathNode)_nodes.get(ii);
+            distance += MathUtil.distance(
+                start.loc.x, start.loc.y, end.loc.x, end.loc.y);
+            start = end;
+        }
+
+        Log.info("Set velocity [millis=" + millis + ", dist=" + distance +
+                 ", path=" + this + "].");
+        // set the velocity accordingly
+        setVelocity(distance/millis);
+    }
+
+    // documentation inherited from interface
+    public void viewWillScroll (int dx, int dy)
+    {
+        // adjust the coordinates of our path nodes
+        int ncount = _nodes.size();
+        for (int ii = 0; ii < ncount; ii++) {
+            PathNode node = (PathNode)_nodes.get(ii);
+            node.loc.translate(dx, dy);
+        }
     }
 
     // documentation inherited
@@ -261,21 +312,26 @@ public class LineSegmentPath
     {
         if (a.x == b.x && a.y > b.y) {
             return NORTH;
-        } else if (a.x < b.x && a.y > b.y) {
-            return NORTHEAST;
-        } else if (a.x > b.x && a.y == b.y) {
-            return EAST;
-        } else if (a.x > b.x && a.y < b.y) {
-            return SOUTHEAST;
         } else if (a.x == b.x && a.y < b.y) {
             return SOUTH;
+
+        } else if (a.x < b.x && a.y > b.y) {
+            return NORTHEAST;
+        } else if (a.x < b.x && a.y == b.y) {
+            return EAST;
+        } else if (a.x < b.x && a.y < b.y) {
+            return SOUTHEAST;
+
         } else if (a.x > b.x && a.y < b.y) {
             return SOUTHWEST;
         } else if (a.x > b.x && a.y == b.y) {
             return WEST;
         } else if (a.x > b.x && a.y > b.y) {
             return NORTHWEST;
+
         } else {
+            Log.warning("Can't sort out direction between " + a +
+                        " and " + b + ".");
             return NONE;
         }
     }
