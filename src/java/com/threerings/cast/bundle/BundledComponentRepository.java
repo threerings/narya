@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.1 2001/11/27 08:09:35 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.2 2001/11/29 00:15:06 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -271,7 +271,7 @@ public class BundledComponentRepository
         // documentation inherited
         public Image getFrame (int index)
         {
-            int tileIndex = _orient * Sprite.NUM_DIRECTIONS + index;
+            int tileIndex = _orient * getFrameCount() + index;
             try {
                 return _set.getTile(tileIndex).getImage();
             } catch (NoSuchTileException nste) {
