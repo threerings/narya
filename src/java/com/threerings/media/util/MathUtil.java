@@ -1,5 +1,5 @@
 //
-// $Id: MathUtil.java,v 1.3 2001/08/14 22:54:45 mdb Exp $
+// $Id: MathUtil.java,v 1.4 2002/05/17 21:13:03 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -20,6 +20,14 @@ public class MathUtil
     {
 	return (float)Math.sqrt(((x1 - x0) * (x1 - x0)) +
 				((y1 - y0) * (y1 - y0)));
+    }
+
+    /**
+     * Return the distance between the given points.
+     */
+    public static float distance (Point source, Point dest)
+    {
+        return MathUtil.distance(source.x, source.y, dest.x, dest.y);
     }
 
     /**
