@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.4 2002/04/27 18:59:27 mdb Exp $
+// $Id: FrameManager.java,v 1.5 2002/04/27 22:39:45 mdb Exp $
 
 package com.threerings.media;
 
@@ -246,11 +246,11 @@ public class FrameManager
      */
     protected void paintParticipants (long tickStamp)
     {
-        // create our buffer strategy if we don't already have one
-        if (_bufstrat == null) {
-            _frame.createBufferStrategy(2);
-            _bufstrat = _frame.getBufferStrategy();
-        }
+//         // create our buffer strategy if we don't already have one
+//         if (_bufstrat == null) {
+//             _frame.createBufferStrategy(2);
+//             _bufstrat = _frame.getBufferStrategy();
+//         }
 
         // create our off-screen buffer if necessary
         GraphicsConfiguration gc = _frame.getGraphicsConfiguration();
@@ -271,10 +271,10 @@ public class FrameManager
 
             Rectangle bounds = new Rectangle();
             Graphics g = null, fg = null;
-            Insets fi = _frame.getInsets();
             try {
                 g = _backimg.getGraphics();
                 fg = _frame.getGraphics();
+//                 g = _bufstrat.getDrawGraphics();
 
                 // if the image wasn't A-OK, we need to rerender the
                 // whole business rather than just the dirty parts
@@ -314,17 +314,10 @@ public class FrameManager
 
                     try {
                         // render this participant
-//                         Log.info("Rendering [comp=" + pcomp.getClass().getName() +
-//                                  ", bounds=" + StringUtil.toString(bounds) + "].");
-
                         g.setClip(bounds);
                         g.translate(bounds.x, bounds.y);
                         pcomp.paint(g);
                         g.translate(-bounds.x, -bounds.y);
-
-//                         // copy the off-screen buffer on-screen
-//                         fg.setClip(bounds);
-//                         fg.drawImage(_backimg, 0, 0, null);
 
                     } catch (Throwable t) {
                         String ptos = StringUtil.safeToString(part);
@@ -334,9 +327,8 @@ public class FrameManager
                     }
                 }
 
-                // Log.info("insets: " + fi + ", fb: " + _frame.getBounds());
-                // _frame.paint(g);
                 fg.drawImage(_backimg, 0, 0, null);
+//                 _bufstrat.show();
 
             } finally {
                 if (g != null) {
@@ -348,22 +340,6 @@ public class FrameManager
             }
 
         } while (_backimg.contentsLost());
-
-//         Graphics g = null;
-//         try {
-//             g = _bufstrat.getDrawGraphics();
-//             _frame.paint(g);
-//             _bufstrat.show();
-
-//         } catch (Throwable t) {
-//             Log.warning("Frame rendering choked.");
-//             Log.logStackTrace(t);
-
-//         } finally {
-//             if (g != null) {
-//                 g.dispose();
-//             }
-//         }
     }
 
     // documentation inherited
@@ -473,8 +449,8 @@ public class FrameManager
     /** Our custom repaint manager. */
     protected FrameRepaintManager _remgr;
 
-    /** The buffer strategy used to do our rendering. */
-    protected BufferStrategy _bufstrat;
+//     /** The buffer strategy used to do our rendering. */
+//     protected BufferStrategy _bufstrat;
 
     /** The image used to render off-screen. */
     protected VolatileImage _backimg;
