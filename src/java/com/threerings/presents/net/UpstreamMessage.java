@@ -1,5 +1,5 @@
 //
-// $Id: UpstreamMessage.java,v 1.3 2001/05/23 04:03:40 mdb Exp $
+// $Id: UpstreamMessage.java,v 1.4 2001/05/29 03:27:59 mdb Exp $
 
 package com.samskivert.cocktail.cher.net;
 
@@ -82,22 +82,4 @@ public abstract class UpstreamMessage implements TypedObject
      * the client as new messages are generated.
      */
     protected static short _nextMessageId;
-
-    // register our upstream message classes
-    static {
-        TypedObjectFactory.registerClass(AuthRequest.TYPE,
-                                         AuthRequest.class);
-        TypedObjectFactory.registerClass(SubscribeRequest.TYPE,
-                                         SubscribeRequest.class);
-        TypedObjectFactory.registerClass(FetchRequest.TYPE,
-                                         FetchRequest.class);
-        TypedObjectFactory.registerClass(UnsubscribeNotification.TYPE,
-                                         UnsubscribeNotification.class);
-        TypedObjectFactory.registerClass(ForwardEventNotification.TYPE,
-                                         ForwardEventNotification.class);
-        TypedObjectFactory.registerClass(PingNotification.TYPE,
-                                         PingNotification.class);
-        TypedObjectFactory.registerClass(LogoffNotification.TYPE,
-                                         LogoffNotification.class);
-    }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: AuthResponse.java,v 1.2 2001/05/23 04:03:40 mdb Exp $
+// $Id: AuthResponse.java,v 1.3 2001/05/29 03:27:59 mdb Exp $
 
 package com.samskivert.cocktail.cher.net;
 
@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.samskivert.cocktail.cher.io.TypedObjectFactory;
+import com.samskivert.cocktail.cher.dobj.DObjectFactory;
 
 /**
  * The auth response communicates authentication success or failure as
@@ -51,14 +51,14 @@ public class AuthResponse extends DownstreamMessage
         throws IOException
     {
         super.writeTo(out);
-        TypedObjectFactory.writeTo(out, _data);
+        DObjectFactory.writeTo(out, _data);
     }
 
     public void readFrom (DataInputStream in)
         throws IOException
     {
         super.readFrom(in);
-        _data = (AuthResponseData)TypedObjectFactory.readFrom(in);
+        _data = (AuthResponseData)DObjectFactory.readFrom(in);
     }
 
     protected AuthResponseData _data;

@@ -1,5 +1,5 @@
 //
-// $Id: FramingOutputStream.java,v 1.1 2001/05/22 21:51:29 mdb Exp $
+// $Id: FramingOutputStream.java,v 1.2 2001/05/29 03:27:59 mdb Exp $
 
 package com.samskivert.cocktail.cher.io;
 
@@ -91,7 +91,7 @@ public class FramingOutputStream extends OutputStream
      * number of bytes written folling that integer. It then resets the
      * framing output stream to prepare for another framed message.
      */
-    public synchronized void writeFrameAndReset (OutputStream target)
+    public void writeFrameAndReset (OutputStream target)
         throws IOException
     {
         // prefix the frame with the byte count in network byte order (the

@@ -1,5 +1,5 @@
 //
-// $Id: Log.java,v 1.1 2001/05/22 06:07:59 mdb Exp $
+// $Id: Log.java,v 1.2 2001/05/29 03:27:59 mdb Exp $
 
 package com.samskivert.cocktail.cher;
 
@@ -10,7 +10,7 @@ package com.samskivert.cocktail.cher;
 public class Log
 {
     public static com.samskivert.util.Log log =
-	new com.samskivert.util.Log("robodj");
+	new com.samskivert.util.Log("cher");
 
     /** Convenience function. */
     public static void debug (String message)

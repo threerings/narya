@@ -1,5 +1,5 @@
 //
-// $Id: Credentials.java,v 1.2 2001/05/23 04:03:40 mdb Exp $
+// $Id: Credentials.java,v 1.3 2001/05/29 03:27:59 mdb Exp $
 
 package com.samskivert.cocktail.cher.net;
 
@@ -49,11 +49,5 @@ public abstract class Credentials implements TypedObject
         throws IOException
     {
         // we don't do anything here, but we may want to some day
-    }
-
-    // register our credential classes
-    static {
-        TypedObjectFactory.registerClass(UsernamePasswordCreds.TYPE,
-                                         UsernamePasswordCreds.class);
     }
 }

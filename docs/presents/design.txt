@@ -36,3 +36,19 @@ the outgoing socket
 Informs exo-client about connection state changes; provides interface to
 connection + authentication (logon) and disconnection (logoff); provides
 access to omgr and client dobj
+
+* Server components
+
+** Connection Manager
+Listens on accepting socket; creates and manages connection objects;
+informs connection observer of state changes; handles all network traffic
+on own thread; 
+
+** Auth Manager
+Processes auth requests on own thread; uses pluggable Authenticator to
+perform actual authentication; 
+
+** Client Manager
+Registers with connection manager; manages authentication; maps
+connections to existing client objects or creates new client objects for
+newly connecting clients; 

@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.3 2001/05/23 04:03:40 mdb Exp $
+// $Id: Communicator.java,v 1.4 2001/05/29 03:27:59 mdb Exp $
 
 package com.samskivert.cocktail.cher.client;
 
@@ -139,6 +139,8 @@ class Communicator
      */
     protected synchronized void logonSucceeded (AuthResponseData data)
     {
+        Log.info("Logon succeeded: " + data);
+
         // extract bootstrap information
 
         // create a new writer thread and start it up
@@ -147,6 +149,9 @@ class Communicator
         }
         _writer = new Writer();
         _writer.start();
+
+        // let the client know that logon succeeded
+        _client.notifyObservers(Client.CLIENT_DID_LOGON, null);
     }
 
     /**
@@ -160,6 +165,8 @@ class Communicator
         if (_socket == null) {
             return;
         }
+
+        Log.info("Connection failed: " + ioe);
 
         // let the client know that things went south
         _client.notifyObservers(Client.CLIENT_CONNECTION_FAILED, ioe);
@@ -212,10 +219,15 @@ class Communicator
     protected DownstreamMessage receiveMessage ()
         throws IOException
     {
-        // read in the next message frame
-        _fin.clearAndReadFrame(_in);
-        // then use the typed object factory to read and decode the proper
-        // downstream message instance
+        // read in the next message frame (readFrame() can return false
+        // meaning it only read part of the frame from the network, in
+        // which case we simply call it again because we can't do anything
+        // until it has a whole frame; it will throw an exception if it
+        // hits EOF or if something goes awry)
+        while (!_fin.readFrame(_in));
+
+        // then use the typed object factory to read and decode the
+        // proper downstream message instance
         return (DownstreamMessage)TypedObjectFactory.readFrom(_din);
     }
 
@@ -225,6 +237,7 @@ class Communicator
      */
     protected void processMessage (DownstreamMessage msg)
     {
+        Log.info("Process msg: " + msg);
     }
 
     /**
@@ -247,6 +260,8 @@ class Communicator
                     logon();
 
                 } catch (Exception e) {
+                    Log.info("Logon failed: " + e);
+                    Log.logStackTrace(e);
                     // let the observers know that we've failed
                     _client.notifyObservers(Client.CLIENT_FAILED_TO_LOGON, e);
                     // and terminate our communicator thread

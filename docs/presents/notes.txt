@@ -1,5 +1,11 @@
 Cher Mk3 Notes -*- outline -*-
 
+* Check into "connection closed by peer" thread exiting on client
+
+* TypedObjectFactory
+Maybe modify so that types are assigned automatically even if everything
+has to be registered in a single place, since it pretty much does anyway.
+
 * Server components:
   + Connection manager 
   + Client manager

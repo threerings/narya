@@ -1,5 +1,5 @@
 //
-// $Id: FramedInputStream.java,v 1.2 2001/05/22 22:01:08 mdb Exp $
+// $Id: FramedInputStream.java,v 1.3 2001/05/29 03:27:59 mdb Exp $
 
 package com.samskivert.cocktail.cher.io;
 
@@ -17,19 +17,15 @@ import com.samskivert.util.StringUtil;
  * frame can be loaded from the network layer before any higher layer
  * attempts to process it. Additionally, any failure in decoding a frame
  * won't result in the entire stream being skewed due to the remainder of
- * the undecoded frame.
+ * the undecoded frame remaining in the input stream.
  *
  * <p>The framed input stream reads an entire frame worth of data into its
  * internal buffer when <code>readFrame()</code> is called. It then
  * behaves as if this is the only data available on the stream (meaning
  * that when the data in the frame is exhausted, it will behave as if the
- * end of the stream has been reached). A new frame can be read at any
- * time and will be appended to the data available (the frame length data
- * is never inserted into the stream data), but it is assumed that the
- * caller will want to read and process an entire frame before going on to
- * read the next frame (so that <code>clear()</code> can be called in the
- * event of a frame decoding failure without clearing out the data from
- * subsequent frames).
+ * end of the stream has been reached). The buffer can only contain a
+ * single frame at a time, so any data left over from a previous frame
+ * will disappear when <code>readFrame()</code> is called again.
  *
  * <p><em>Note:</em> The framing input stream does not synchronize reads
  * from its internal buffer. It is intended to only be accessed from a
@@ -48,65 +44,68 @@ public class FramedInputStream extends InputStream
     }
 
     /**
-     * Reads a single frame from the provided input stream and appends
-     * that data to the existing data available via the framed input
-     * stream's read methods.
+     * Reads a frame from the provided input stream, or appends to a
+     * partially read frame. Appends the read data to the existing data
+     * available via the framed input stream's read methods. If the entire
+     * frame data is not yet available, <code>readFrame</code> will return
+     * false, otherwise true.
      *
-     * @return the length of the read frame in bytes.
+     * <p> The code assumes that it will be able to read the entire frame
+     * header in a single read. The header is only four bytes and should
+     * always arrive at the beginning of a packet, so unless something is
+     * very funky with the networking layer, this should be a safe
+     * assumption.
+     *
+     * @return true if the entire frame has been read, false if the buffer
+     * contains only a partial frame.
      */
-    public synchronized int readFrame (InputStream source)
+    public boolean readFrame (InputStream source)
         throws IOException
     {
-        // first read in the frame length
-        if (source.read(_header, 0, HEADER_SIZE) < HEADER_SIZE) {
-            throw new EOFException();
-        }
+        // if the buffer currently contains a complete frame, that means
+        // we're not halfway through reading a frame and that we can start
+        // anew.
+        if (_count == _length) {
+            // clear out any prior data
+            _pos = 0;
+            _count = 0;
 
-        // now decode the frame length
-        int flength = (_header[0] << 24) & 0xFF;
-        flength += (_header[1] << 16) & 0xFF;
-        flength += (_header[2] << 8) & 0xFF;
-        flength += _header[3] & 0xFF;
+            // read in the frame length
+            int got = source.read(_header, 0, HEADER_SIZE);
+            if (got < 0) {
+                throw new EOFException();
 
-        // expand our buffer to accomodate the frame data
-        int newcount = _count + flength;
-        if (newcount > _buffer.length) {
-            // increase the buffer size in large increments
-            byte[] newbuf = new byte[Math.max(_buffer.length << 1, newcount)];
-            System.arraycopy(_buffer, 0, newbuf, 0, _count);
-            _buffer = newbuf;
+            } else if (got == 0) {
+                return false;
+
+            } else if (got < HEADER_SIZE) {
+                String errmsg = "FramedInputStream does not support " +
+                    "partially reading the header. Needed " + HEADER_SIZE +
+                    " bytes, got " + got + " bytes.";
+                throw new RuntimeException(errmsg);
+            }
+
+            // decode the frame length
+            _length = (_header[0] << 24) & 0xFF;
+            _length += (_header[1] << 16) & 0xFF;
+            _length += (_header[2] << 8) & 0xFF;
+            _length += _header[3] & 0xFF;
+
+            // if necessary, expand our buffer to accomodate the frame
+            if (_length > _buffer.length) {
+                // increase the buffer size in large increments
+                _buffer = new byte[Math.max(_buffer.length << 1, _length)];
+            }
         }
 
         // read the data into the buffer
-        if (source.read(_buffer, _count, flength) < flength) {
+        int got = source.read(_buffer, _count, _length);
+        if (got < 0) {
             throw new EOFException();
         }
-        _count = newcount;
+        _count += got;
 
-        return flength;
-    }
-
-    /**
-     * Clears out any previously read frame data and reads a new frame
-     * into the buffer.
-     *
-     * @return the length of the read frame in bytes.
-     */
-    public int clearAndReadFrame (InputStream source)
-        throws IOException
-    {
-        clear();
-        return readFrame(source);
-    }
-
-    /**
-     * Clears out any frame data already in the buffer including anything
-     * that hasn't yet been read.
-     */
-    public void clear ()
-    {
-        _pos = 0;
-        _count = 0;
+        return (_count == _length);
     }
 
     /**
@@ -240,6 +239,8 @@ public class FramedInputStream extends InputStream
     }
 
     protected byte[] _header;
+    protected int _length;
+
     protected byte[] _buffer;
     protected int _pos;
     protected int _count;
