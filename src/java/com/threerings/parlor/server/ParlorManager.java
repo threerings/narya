@@ -1,12 +1,15 @@
 //
-// $Id: ParlorManager.java,v 1.1 2001/10/01 02:56:35 mdb Exp $
+// $Id: ParlorManager.java,v 1.2 2001/10/01 22:17:34 mdb Exp $
 
 package com.threerings.parlor.server;
 
 import com.samskivert.util.Config;
 
 import com.threerings.cocktail.cher.server.InvocationManager;
-import com.threerings.parlor.client.ParlorService;
+import com.threerings.cocktail.party.data.BodyObject;
+
+import com.threerings.parlor.client.ParlorCodes;
+import com.threerings.parlor.data.GameConfig;
 
 /**
  * The parlor manager is responsible for the parlor services in
@@ -16,6 +19,7 @@ import com.threerings.parlor.client.ParlorService;
  * game.
  */
 public class ParlorManager
+    implements ParlorCodes
 {
     /**
      * Initializes the parlor manager. This should be called by the server
@@ -30,6 +34,25 @@ public class ParlorManager
     {
         // register our invocation provider
         ParlorProvider pprov = new ParlorProvider(this);
-        invmgr.registerProvider(ParlorService.MODULE, pprov);
+        invmgr.registerProvider(MODULE_NAME, pprov);
+    }
+
+    /**
+     * Issues an invitation from the <code>inviter</code> to the
+     * <code>invitee</code> for a game as described by the supplied config
+     * object.
+     *
+     * @param inviter the player initiating the invitation.
+     * @param invitee the player being invited.
+     * @param config the configuration of the game being proposed.
+     *
+     * @return the <code>SUCCESS</code> constant if the invitation was
+     * accepted and delivered, or a string describing the reason for
+     * failure if it was rejected.
+     */
+    public String invite (BodyObject inviter, BodyObject invitee,
+                          GameConfig config)
+    {
+        return SUCCESS;
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ParlorService.java,v 1.3 2001/10/01 06:19:15 mdb Exp $
+// $Id: ParlorService.java,v 1.4 2001/10/01 22:17:34 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -19,32 +19,8 @@ import com.threerings.parlor.data.GameConfig;
  *
  * @see ParlorDirector
  */
-public class ParlorService
+public class ParlorService implements ParlorCodes
 {
-    /** The module name for the parlor services. */
-    public static final String MODULE = "parlor";
-
-    /** The message identifier for an invitation creation request or
-     * notification. */
-    public static final String INVITE_ID = "Invite";
-
-    /** The message identifier for an invitation cancellation request or
-     * notification. */
-    public static final String CANCEL_INVITE_ID = "CancelInvite";
-
-    /** The message identifier for an invitation response request or
-     * notification. */
-    public static final String RESPOND_INVITE_ID = "RespondInvite";
-
-    /** The response code for an accepted invitation. */
-    public static final int INVITATION_ACCEPTED = 0;
-
-    /** The response code for a refused invitation. */
-    public static final int INVITATION_REFUSED = 1;
-
-    /** The response code for a countered invitation. */
-    public static final int INVITATION_COUNTERED = 2;
-
     /**
      * You probably don't want to call this directly, but want to generate
      * your invitation request via {@link ParlorDirector#invite}. Requests
@@ -68,7 +44,7 @@ public class ParlorService
         Object[] args = new Object[] { invitee, config };
         Log.info("Sending invite request [to=" + invitee +
                  ", cfg=" + config + "].");
-        return invmgr.invoke(MODULE, INVITE_ID, args, rsptarget);
+        return invmgr.invoke(MODULE_NAME, INVITE_ID, args, rsptarget);
     }
 
     /**
@@ -102,7 +78,8 @@ public class ParlorService
         args[2] = (arg == null) ? "" : arg;
         Log.info("Sending invitation response [inviteId=" + inviteId +
                  ", code=" + code + ", arg=" + arg + "].");
-        return invmgr.invoke(MODULE, RESPOND_INVITE_ID, args, rsptarget);
+        return invmgr.invoke(
+            MODULE_NAME, RESPOND_INVITE_ID, args, rsptarget);
     }
 
     /**
@@ -124,6 +101,6 @@ public class ParlorService
         Object[] args = new Object[] { new Integer(inviteId) };
         Log.info("Sending invitation cancellation " +
                  "[inviteId=" + inviteId + "].");
-        return invmgr.invoke(MODULE, CANCEL_INVITE_ID, args, rsptarget);
+        return invmgr.invoke(MODULE_NAME, CANCEL_INVITE_ID, args, rsptarget);
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ParlorDirector.java,v 1.3 2001/10/01 06:19:15 mdb Exp $
+// $Id: ParlorDirector.java,v 1.4 2001/10/01 22:17:34 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -19,6 +19,7 @@ import com.threerings.parlor.util.ParlorContext;
  * that started.
  */
 public class ParlorDirector
+    implements ParlorCodes
 {
     /**
      * Constructs a parlor director and provides it with the parlor
@@ -90,8 +91,7 @@ public class ParlorDirector
 
         // generate the invocation service request
         ParlorService.respond(_ctx.getClient(), invite.remoteId,
-                              ParlorService.INVITATION_ACCEPTED,
-                              null, this);
+                              INVITATION_ACCEPTED, null, this);
     }
 
     /**
@@ -114,8 +114,7 @@ public class ParlorDirector
 
         // generate the invocation service request
         ParlorService.respond(_ctx.getClient(), invite.remoteId,
-                              ParlorService.INVITATION_REFUSED,
-                              message, this);
+                              INVITATION_REFUSED, message, this);
     }
 
     /**
@@ -146,8 +145,7 @@ public class ParlorDirector
 
         // generate the invocation service request
         ParlorService.respond(_ctx.getClient(), invite.remoteId,
-                              ParlorService.INVITATION_COUNTERED,
-                              config, this);
+                              INVITATION_COUNTERED, config, this);
     }
 
     /**
@@ -220,9 +218,9 @@ public class ParlorDirector
      *
      * @param remoteId the unique indentifier for the invitation.
      * @param code the response code, either {@link
-     * ParlorService#INVITATION_ACCEPTED} or {@link
-     * ParlorService#INVITATION_REFUSED} or {@link
-     * ParlorService#INVITATION_COUNTERED}.
+     * ParlorCodes#INVITATION_ACCEPTED} or {@link
+     * ParlorCodes#INVITATION_REFUSED} or {@link
+     * ParlorCodes#INVITATION_COUNTERED}.
      * @param arg in the case of a refused invitation, a string
      * containing a message provided by the invited user explaining the
      * reason for refusal (the empty string if no explanation was
@@ -251,16 +249,16 @@ public class ParlorDirector
         // notify the observer
         try {
             switch (code) {
-            case ParlorService.INVITATION_ACCEPTED:
+            case INVITATION_ACCEPTED:
                 invite.observer.invitationAccepted(invite.inviteId);
                 break;
 
-            case ParlorService.INVITATION_REFUSED:
+            case INVITATION_REFUSED:
                 invite.observer.invitationRefused(
                     invite.inviteId, (String)arg);
                 break;
 
-            case ParlorService.INVITATION_COUNTERED:
+            case INVITATION_COUNTERED:
                 invite.observer.invitationCountered(
                     invite.inviteId, (GameConfig)arg);
                 break;
@@ -275,7 +273,7 @@ public class ParlorDirector
 
         // unless the invitation was countered, we can remove it from the
         // pending table because it's resolved
-        if (code != ParlorService.INVITATION_COUNTERED) {
+        if (code != INVITATION_COUNTERED) {
             _pendingInvites.remove(remoteId);
         }
     }

@@ -1,5 +1,5 @@
 //
-// $Id: GameConfig.java,v 1.2 2001/10/01 06:19:15 mdb Exp $
+// $Id: GameConfig.java,v 1.3 2001/10/01 22:17:34 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -19,7 +19,7 @@ import com.threerings.cocktail.cher.io.Streamable;
  * <p> The game config object is also the mechanism used to instantiate
  * the appropriate game manager and controller. Every game must have an
  * associated game config derived class that overrides {@link
- * #getControllerClass} and {@link getManagerClassName}, returning the
+ * #getControllerClass} and {@link #getManagerClassName}, returning the
  * appropriate game controller and manager class for that game. Thus the
  * entire chain of events that causes a particular game to be created is
  * the construction of the appropriate game config instance which is
