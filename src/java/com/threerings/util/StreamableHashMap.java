@@ -1,10 +1,11 @@
 //
-// $Id: StreamableHashMap.java,v 1.1 2003/05/27 22:48:31 mdb Exp $
+// $Id: StreamableHashMap.java,v 1.2 2003/05/27 22:54:36 ray Exp $
 
 package com.threerings.util;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.HashMap;
 
 import com.threerings.io.ObjectInputStream;
@@ -45,10 +46,10 @@ public class StreamableHashMap extends HashMap
     {
         int ecount = size();
         out.writeInt(ecount);
-        for (Iterator iter = keySet().iterator(); iter.hasNext(); ) {
-            Object key = iter.next();
-            out.writeObject(key);
-            out.writeObject(get(key));
+        for (Iterator iter = entrySet().iterator(); iter.hasNext(); ) {
+            Map.Entry entry = (Map.Entry) iter.next();
+            out.writeObject(entry.getKey());
+            out.writeObject(entry.getValue());
         }
     }
 
