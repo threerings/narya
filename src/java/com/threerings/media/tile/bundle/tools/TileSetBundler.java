@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundler.java,v 1.8 2002/06/21 20:16:34 mdb Exp $
+// $Id: TileSetBundler.java,v 1.9 2003/01/12 01:19:33 shaper Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -202,7 +202,7 @@ public class TileSetBundler
      *
      * @param idBroker the tileset id broker that will be used to map
      * tileset names to tileset ids.
-     * @param bundleDef a file object pointing to the bundle description
+     * @param bundleDesc a file object pointing to the bundle description
      * file.
      * @param target the tileset bundle file that will be created.
      *
