@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaApp.java,v 1.4 2001/11/26 23:46:47 mdb Exp $
+// $Id: MiCasaApp.java,v 1.5 2002/01/19 04:02:11 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -27,7 +27,21 @@ public class MiCasaApp
         _frame = new MiCasaFrame();
 
         // create our client instance
-        _client = new MiCasaClient(_frame);
+        String cclass = System.getProperty("client");
+        if (cclass == null) {
+            cclass = MiCasaClient.class.getName();
+        }
+
+        try {
+            _client = (MiCasaClient)Class.forName(cclass).newInstance();
+        } catch (Exception e) {
+            Log.warning("Unable to instantiate client class " +
+                        "[cclass=" + cclass + "].");
+            Log.logStackTrace(e);
+        }
+
+        // initialize our client instance
+        _client.init(_frame);
     }
 
     public void run ()

@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaClient.java,v 1.7 2001/12/20 01:10:51 shaper Exp $
+// $Id: MiCasaClient.java,v 1.8 2002/01/19 04:02:11 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -26,29 +26,24 @@ import com.threerings.micasa.util.MiCasaContext;
 /**
  * The MiCasa client takes care of instantiating all of the proper
  * managers and loading up all of the necessary configuration and getting
- * the client bootstrapped.
+ * the client bootstrapped. It can be extended by games that require an
+ * extended context implementation.
  */
 public class MiCasaClient
     implements Client.Invoker
 {
     /**
-     * Creates a new client and provides it with a frame in which to
+     * Initializes a new client and provides it with a frame in which to
      * display everything.
      */
-    public MiCasaClient (MiCasaFrame frame)
+    public void init (MiCasaFrame frame)
         throws IOException
     {
         // create our context
-        _ctx = new MiCasaContextImpl();
+        _ctx = createContextImpl();
 
-        // create the handles on our various services
-        _config = new Config();
-        _client = new Client(null, this);
-
-        // create our managers and directors
-        _locdir = new LocationDirector(_ctx);
-        _occmgr = new OccupantManager(_ctx);
-        _pardtr = new ParlorDirector(_ctx);
+        // create the directors/managers/etc. provided by the context
+        createContextServices();
 
         // for test purposes, hardcode the server info
         _client.setServer("bering", 4007);
@@ -77,6 +72,36 @@ public class MiCasaClient
     public MiCasaContext getContext ()
     {
         return _ctx;
+    }
+
+    /**
+     * Creates the {@link MiCasaContext} implementation that will be
+     * passed around to all of the client code. Derived classes may wish
+     * to override this and create some extended context implementation.
+     */
+    protected MiCasaContext createContextImpl ()
+    {
+        return new MiCasaContextImpl();
+    }
+
+    /**
+     * Creates and initializes the various services that are provided by
+     * the context. Derived classes that provide an extended context
+     * should override this method and create their own extended
+     * services. They should be sure to call
+     * <code>super.createContextServices</code>.
+     */
+    protected void createContextServices ()
+        throws IOException
+    {
+        // create the handles on our various services
+        _config = new Config();
+        _client = new Client(null, this);
+
+        // create our managers and directors
+        _locdir = new LocationDirector(_ctx);
+        _occmgr = new OccupantManager(_ctx);
+        _pardtr = new ParlorDirector(_ctx);
     }
 
     // documentation inherited
