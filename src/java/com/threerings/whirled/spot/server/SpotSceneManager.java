@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.43 2003/08/20 21:02:16 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.44 2003/09/22 23:42:49 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -171,8 +171,8 @@ public class SpotSceneManager extends SceneManager
             entry = _sscene.getDefaultEntrance();
         }
 
-        Log.debug("Positioning entering body [who=" + body.who() +
-                  ", where=" + entry.getOppLocation() + "].");
+//         Log.debug("Positioning entering body [who=" + body.who() +
+//                   ", where=" + entry.getOppLocation() + "].");
 
         // create a scene location for them located on the entrance portal
         // but facing the opposite direction
@@ -289,8 +289,13 @@ public class SpotSceneManager extends SceneManager
             throw new InvocationException(NO_SUCH_CLUSTER);
         }
 
-        // see if the friend is already in a cluster
+        // make sure we're in the same scene as said user
         BodyObject friend = (BodyObject)tobj;
+        if (friend.location != joiner.location) {
+            throw new InvocationException(NO_SUCH_CLUSTER);
+        }
+
+        // see if the friend is already in a cluster
         clrec = getCluster(friend.getOid());
         if (clrec != null) {
             clrec.addBody(joiner);
@@ -302,8 +307,8 @@ public class SpotSceneManager extends SceneManager
         checkCanCluster(joiner, friend);
 
         // otherwise we create a new cluster and add our charter members!
-        Log.debug("Creating cluster [starter=" + joiner.who() +
-                  ", target=" + friend.who() + "].");
+//         Log.debug("Creating cluster [starter=" + joiner.who() +
+//                   ", target=" + friend.who() + "].");
         clrec = new ClusterRecord();
         clrec.addBody(friend);
         clrec.addBody(joiner);
@@ -426,7 +431,7 @@ public class SpotSceneManager extends SceneManager
 
             // make sure we can add this body
             if (!canAddBody(this, body)) {
-                Log.debug("Cluster full, refusing growth " + this + ".");
+//                 Log.debug("Cluster full, refusing growth " + this + ".");
                 throw new InvocationException(CLUSTER_FULL);
             }
 
@@ -454,7 +459,7 @@ public class SpotSceneManager extends SceneManager
                 _ssobj.commitTransaction();
             }
 
-            Log.debug("Added " + body.who() + " to "+ this + ".");
+//             Log.debug("Added " + body.who() + " to "+ this + ".");
             return true;
         }
 
@@ -487,7 +492,7 @@ public class SpotSceneManager extends SceneManager
                 body.commitTransaction();
             }
 
-            Log.debug("Removed " + bodyOid + " from "+ this + ".");
+//             Log.debug("Removed " + bodyOid + " from "+ this + ".");
 
             // if we've removed our last body; stick a fork in ourselves
             if (size() == 0) {
@@ -550,8 +555,8 @@ public class SpotSceneManager extends SceneManager
 
         protected void destroy ()
         {
-            Log.debug("Cluster empty, going away " +
-                      "[cloid=" + _clobj.getOid() + "].");
+//             Log.debug("Cluster empty, going away " +
+//                       "[cloid=" + _clobj.getOid() + "].");
             _ssobj.removeFromClusters(_cluster.getKey());
             _clusters.remove(_clobj.getOid());
             CrowdServer.omgr.destroyObject(_clobj.getOid());
