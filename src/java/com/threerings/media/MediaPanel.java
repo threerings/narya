@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.27 2002/12/15 23:12:37 shaper Exp $
+// $Id: MediaPanel.java,v 1.28 2003/02/04 03:11:43 mdb Exp $
 
 package com.threerings.media;
 
@@ -274,7 +274,7 @@ public class MediaPanel extends JComponent
         // compute our average dirty regions per tick
         if (_tick++ == 99) {
             _tick = 0;
-            int dirty = IntListUtil.total(_dirty);
+            int dirty = IntListUtil.sum(_dirty);
             Arrays.fill(_dirty, 0);
             _dirtyPerTick = (float)dirty/100;
         }
