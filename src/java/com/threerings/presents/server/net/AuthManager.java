@@ -1,5 +1,5 @@
 //
-// $Id: AuthManager.java,v 1.7 2001/12/04 01:48:51 mdb Exp $
+// $Id: AuthManager.java,v 1.8 2001/12/04 07:32:10 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -9,6 +9,7 @@ import com.samskivert.util.Queue;
 import com.threerings.presents.Log;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
+import com.threerings.presents.net.AuthResponseData;
 
 /**
  * The authentication manager takes care of the authentication process.
@@ -92,7 +93,9 @@ public class AuthManager extends LoopingThread
 
             // if the authentication request was granted, let the
             // connection manager know that we just authed
-            _conmgr.connectionDidAuthenticate(aconn);
+            if (AuthResponseData.SUCCESS.equals(rsp.getData().code)) {
+                _conmgr.connectionDidAuthenticate(aconn);
+            }
 
         } catch (Exception e) {
             Log.warning("Failure processing authreq [conn=" + aconn + "].");
