@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.20 2002/10/25 21:15:27 mdb Exp $
+// $Id: MediaPanel.java,v 1.21 2002/10/29 20:33:51 shaper Exp $
 
 package com.threerings.media;
 
@@ -265,6 +265,12 @@ public class MediaPanel extends JComponent
 
         for (int ii = 0; ii < dcount; ii++) {
             Rectangle clip = dirty[ii];
+            // sanity-check the dirty rectangle
+            if (clip == null) {
+                Log.warning("Found null dirty rect painting media panel?!");
+                Thread.dumpStack();
+                continue;
+            }
 
             // constrain this dirty region to the bounds of the component
             constrainToBounds(clip);
