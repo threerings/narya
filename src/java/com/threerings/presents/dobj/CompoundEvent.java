@@ -1,5 +1,5 @@
 //
-// $Id: CompoundEvent.java,v 1.5 2002/07/23 05:52:48 mdb Exp $
+// $Id: CompoundEvent.java,v 1.6 2002/10/04 01:32:15 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -33,6 +33,13 @@ public class CompoundEvent extends DEvent
     public CompoundEvent (DObjectManager omgr)
     {
         super(0); // we don't have a single target object oid
+
+        // sanity check
+        if (omgr == null) {
+            String errmsg = "Must receive non-null object manager reference";
+            throw new IllegalArgumentException(errmsg);
+        }
+
         _omgr = omgr;
         _events = new StreamableArrayList();
     }
