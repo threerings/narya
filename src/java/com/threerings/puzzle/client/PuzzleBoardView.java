@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleBoardView.java,v 1.10 2004/11/12 01:09:48 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -378,8 +378,9 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
         // if the action is paused, indicate as much
         if (_pauseLabel != null) {
             Dimension d = _pauseLabel.getSize();
-            _pauseLabel.render(gfx, (_bounds.width - d.width) / 2,
-                                    (_bounds.height - d.height) / 2);
+            _pauseLabel.render(gfx,
+                _vbounds.x + (_vbounds.width - d.width) / 2,
+                _vbounds.y + (_vbounds.height - d.height) / 2);
         }
     }
 
