@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.52 2003/05/13 02:16:21 mdb Exp $
+// $Id: TileSet.java,v 1.53 2003/05/17 18:39:26 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -7,11 +7,15 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
+
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.Throttle;
 import com.samskivert.util.Tuple;
 
 import com.threerings.media.Log;
@@ -197,8 +201,16 @@ public abstract class TileSet
             initTile(tile);
             synchronized (_tiles) {
                 _tiles.put(key, tile);
+                if (_keySet != null) {
+                    _keySet.add(key);
+                } else {
+                    Log.warning("What in the fuck is going on?");
+                }
             }
         }
+
+        // periodically report our image cache performance
+        reportCachePerformance();
 
         return tile;
     }
@@ -352,6 +364,33 @@ public abstract class TileSet
     }
 
     /**
+     * Reports statistics detailing the image manager cache performance
+     * and the current size of the cached images.
+     */
+    protected void reportCachePerformance ()
+    {
+        if (/* Log.getLevel() != Log.log.DEBUG || */
+            _cacheStatThrottle.throttleOp()) {
+            return;
+        }
+
+        // compute our estimated memory usage
+        long size = 0;
+
+        int[] eff = null;
+        synchronized (_tiles) {
+            Iterator iter = _tiles.values().iterator();
+            while (iter.hasNext()) {
+                size += ((Tile)iter.next()).getEstimatedMemoryUsage();
+            }
+            eff = _tiles.getTrackedEffectiveness();
+        }
+        Log.info("TileSet LRU [mem=" + (size / 1024) + "k" +
+                 ", size=" + _tiles.size() +  ", hits=" + eff[0] +
+                 ", misses=" + eff[1] + ", totalKeys=" + _keySet.size() + "].");
+    }
+
+    /**
      * Derived classes can override this, calling
      * <code>super.toString(buf)</code> and then appending additional
      * information to the buffer.
@@ -425,6 +464,12 @@ public abstract class TileSet
     /** A weak cache of our tiles. */
     protected static LRUHashMap _tiles;
 
+    /** The set of all keys we've ever seen. */
+    protected static HashSet _keySet = new HashSet();
+
+    /** Throttle our cache status logging to once every 30 seconds. */
+    protected static Throttle _cacheStatThrottle = new Throttle(1, 30000L);
+
     /** Register our tile cache size with the runtime adjustments
      * framework. */
     protected static RuntimeAdjust.IntAdjust _cacheSize =
@@ -441,5 +486,6 @@ public abstract class TileSet
                 return (int)((Tile)value).getEstimatedMemoryUsage();
             }
         });
+        _tiles.setTracking(true);
     }
 }
