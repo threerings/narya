@@ -1,9 +1,11 @@
 //
-// $Id: GameObject.java,v 1.4 2002/06/12 07:59:19 shaper Exp $
+// $Id: GameObject.java,v 1.5 2002/08/09 23:34:10 shaper Exp $
 
 package com.threerings.parlor.game;
 
+import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
+
 import com.threerings.crowd.data.PlaceObject;
 
 /**
@@ -55,6 +57,16 @@ public class GameObject extends PlaceObject
 
     /** The unique round identifier for the current round. */
     public int roundId;
+
+    /**
+     * Returns the player index of the given user in the game, or 
+     * <code>-1</code> if the player is not involved in the game.
+     */
+    public int getPlayerIndex (String username)
+    {
+        return (players == null) ? -1 : 
+            ListUtil.indexOfEqual(players, username);
+    }
 
     /**
      * Requests that the <code>state</code> field be set to the specified
