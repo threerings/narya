@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoScene.java,v 1.11 2002/02/02 01:09:53 mdb Exp $
+// $Id: EditableMisoScene.java,v 1.12 2002/04/06 01:55:28 ray Exp $
 
 package com.threerings.miso.scene.tools;
 
@@ -48,6 +48,11 @@ public interface EditableMisoScene
      * base tile.
      */
     public void setBaseTile (int x, int y, BaseTile tile, int fqTileId);
+
+    /**
+     * Fill a rectangular area with the specified base tile.
+     */
+    public void setBaseTiles (Rectangle r, BaseTile tile, int fqTileId);
 
     /**
      * Updates the tile at the specified location in the fringe layer.
