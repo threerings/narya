@@ -1,5 +1,5 @@
           //
-// $Id: KeyboardManager.java,v 1.1 2001/12/12 16:55:06 shaper Exp $
+// $Id: KeyboardManager.java,v 1.2 2001/12/12 18:09:20 shaper Exp $
 
 package com.threerings.yohoho.puzzle.util;
 
@@ -52,6 +52,18 @@ public class KeyboardManager implements KeyListener
     }
 
     /**
+     * Sets whether the keyboard manager accepts keyboard input.
+     */
+    public void setEnabled (boolean enabled)
+    {
+        // release all keys if we were enabled and are soon to not be
+        if (!enabled && _enabled) {
+            releaseAllKeys();
+        }
+        _enabled = enabled;
+    }
+
+    /**
      * Sets the expected delay in milliseconds between each key
      * press/release event the keyboard manager should expect to receive
      * while a key is repeating.
@@ -85,7 +97,12 @@ public class KeyboardManager implements KeyListener
     // documentation inherited
     public void keyPressed (KeyEvent e)
     {
-        // logKey("keyPressed", e);
+        logKey("keyPressed", e);
+
+        // bail if we're not accepting input
+        if (!_enabled) {
+            return;
+        }
 
         // get the action command associated with this key
         int keyCode = e.getKeyCode();
@@ -105,7 +122,12 @@ public class KeyboardManager implements KeyListener
     // documentation inherited
     public void keyReleased (KeyEvent e)
     {
-        // logKey("keyReleased", e);
+        logKey("keyReleased", e);
+
+        // bail if we're not accepting input
+        if (!_enabled) {
+            return;
+        }
 
         // get the info object for this key
         KeyInfo info = (KeyInfo)_keys.get(e.getKeyCode());
@@ -208,10 +230,10 @@ public class KeyboardManager implements KeyListener
             long now = System.currentTimeMillis();
             long deltaRelease = now - _lastRelease;
 
-//             Log.info("intervalExpired [id=" + id +
-//                      ", key=" + _keyText +
-//                      ", deltaPress=" + (now - _lastPress) +
-//                      ", deltaRelease=" + deltaRelease + "].");
+            Log.info("intervalExpired [id=" + id +
+                     ", key=" + _keyText +
+                     ", deltaPress=" + (now - _lastPress) +
+                     ", deltaRelease=" + deltaRelease + "].");
 
             if (id == _iid) {
                 // handle a normal interval where we either (a) create a
@@ -308,6 +330,9 @@ public class KeyboardManager implements KeyListener
 
     /** A hashtable mapping key codes to {@link KeyInfo} objects. */
     protected HashIntMap _keys = new HashIntMap();
+
+    /** Whether the keyboard manager is accepting keyboard input. */
+    protected boolean _enabled = true;
 
     /** The component that receives keyboard events and that we associate
      * with posted controller commands. */

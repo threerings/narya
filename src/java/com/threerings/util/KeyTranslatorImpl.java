@@ -1,7 +1,9 @@
 //
-// $Id: KeyTranslatorImpl.java,v 1.1 2001/12/12 16:55:06 shaper Exp $
+// $Id: KeyTranslatorImpl.java,v 1.2 2001/12/12 18:09:20 shaper Exp $
 
 package com.threerings.yohoho.puzzle.util;
+
+import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
 
@@ -46,7 +48,19 @@ public class KeyTranslatorImpl implements KeyTranslator
     {
         return (String)_release.get(keyCode);
     }
-    
+
+    // documentation inherited
+    public Iterator enumeratePressCommands ()
+    {
+        return _press.values().iterator();
+    }
+
+    // documentation inherited
+    public Iterator enumerateReleaseCommands ()
+    {
+        return _release.values().iterator();
+    }
+
     /** The mapping for key presses from key codes to action commands. */
     protected HashIntMap _press = new HashIntMap();
 
