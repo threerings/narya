@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.15 2001/10/13 01:08:59 shaper Exp $
+// $Id: SpriteManager.java,v 1.16 2001/10/25 01:40:26 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -98,14 +98,28 @@ public class SpriteManager
      */
     public DirtyRectList getDirtyRects ()
     {
-        // create a copy of the dirty rectangles
-        DirtyRectList dirty = (DirtyRectList)_dirty.clone();
+        DirtyRectList merged = new DirtyRectList();
 
-        // clear out the list
-        _dirty.clear();
+        while (_dirty.size() > 0) {
+            // pop the next rectangle from the dirty list
+            Rectangle mr = (Rectangle)_dirty.remove(0);
 
-        // return the full original list
-        return dirty;
+            // merge in any overlapping rectangles
+            for (int ii = 0; ii < _dirty.size(); ii++) {
+                Rectangle r = (Rectangle)_dirty.get(ii);
+                if (mr.intersects(r)) {
+                    // remove the overlapping rectangle from the list
+                    _dirty.remove(ii--);
+                    // grow the merged dirty rectangle
+                    mr.add(r);
+                }
+            }
+
+            // add the merged rectangle to the list
+            merged.add(mr);
+        }
+
+        return merged;
     }
 
     /**
