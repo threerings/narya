@@ -1,10 +1,13 @@
 //
-// $Id: SoundManager.java,v 1.4 2002/07/26 16:00:19 mdb Exp $
+// $Id: SoundManager.java,v 1.5 2002/08/02 01:45:19 shaper Exp $
 
 package com.threerings.media;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import java.util.HashMap;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -17,8 +20,12 @@ import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+import org.apache.commons.io.StreamUtils;
 
 import com.samskivert.util.Queue;
+import com.samskivert.util.Tuple;
 
 import com.threerings.resource.ResourceManager;
 
@@ -91,7 +98,7 @@ public class SoundManager
     public void play (String path)
     {
         if (_player != null) {
-            Log.debug("Queueing sound [path=" + path + "].");
+            // Log.debug("Queueing sound [path=" + path + "].");
             _clips.append(path);
         }
     }
@@ -101,38 +108,27 @@ public class SoundManager
      */
     protected void playSound (String path)
     {
-        Log.debug("Playing sound [path=" + path + "].");
+        // Log.debug("Playing sound [path=" + path + "].");
 
-        // get the resource input stream
-        InputStream in = null;
         try {
-            in = _rmgr.getResource(path);
-        } catch (IOException ioe) {
-            Log.warning("Failed to obtain resource input stream " +
-                        "[path=" + path + ", ioe=" + ioe + "].");
-            return;
-        }
-        
-        try {
-            // get the audio input stream and format
-            AudioInputStream ais = AudioSystem.getAudioInputStream(in);
-            // ais = getPCMAudioStream(ais);
-            AudioFormat format = ais.getFormat();
-            Log.debug("Obtained stream [format=" + format + "].");
+            // get the audio input stream
+            Tuple tup = getAudioInfo(path);
+            AudioFormat format = (AudioFormat)tup.left;
+            byte[] data = (byte[])tup.right;
 
             // get the audio output line
-            Clip clip = (Clip)getLine(Clip.class, ais);
+            Clip clip = (Clip)getLine(Clip.class, format, data.length);
             if (clip != null) {
                 // listen to our audio antics
                 clip.addLineListener(this);
 
                 // and start the clip playing
-                clip.open(ais);
+                clip.open(format, data, 0, data.length);
                 clip.start();
             }
 
         } catch (LineUnavailableException lue) {
-            Log.warning("Sound unavailable, fuck it...");
+            Log.warning("Line unavailable, shutting down [lue=" + lue + "].");
             shutdown();
 
         } catch (Exception e) {
@@ -140,6 +136,56 @@ public class SoundManager
                         ", e=" + e + "].");
             Log.logStackTrace(e);
         }
+    }
+
+    /**
+     * Returns a tuple detailing the audio file format and raw audio data
+     * for the given sound file, retrieving the relevant information from
+     * the cache if already present, or loading it into the cache if not.
+     */
+    protected Tuple getAudioInfo (String path)
+        throws IOException, UnsupportedAudioFileException
+    {
+        // try to retrieve the audio information from the cache
+        Tuple tup = (Tuple)_data.get(path);
+        if (tup != null) {
+            return tup;
+        }
+
+        // get the audio input stream
+        InputStream in = _rmgr.getResource(path);
+        // AudioInputStream ais = AudioSystem.getAudioInputStream(in);
+        // ais = getPCMAudioStream(ais);
+
+        // AudioFormat format = ais.getFormat();
+
+        // note that we have to explicitly specify the file format here
+        // because using AudioSystem.getAudioInputStream() or any of the
+        // various other similar methods to determine the audio format
+        // from the file data requires that the supplied input stream
+        // support mark()/reset(), and though this works happily in the
+        // local client, it works not at all when running after launching
+        // from Java Web Start.  we'll doubtless revisit this later; at
+        // the least, to update the audio format to whatever we eventually
+        // decide upon, and at best, to fix this so that we can properly
+        // determine the file format and support automagically playing
+        // different formats.
+        AudioFormat format = new AudioFormat(8000, 8, 1, false, false);
+//         Log.debug("Obtained stream [format=" + format +
+//                   ", encoding=" + format.getEncoding() +
+//                   ", rate=" + format.getSampleRate() +
+//                   ", frameSize=" + format.getFrameSize() +
+//                   ", bits=" + format.getSampleSizeInBits() +
+//                   ", channels=" + format.getChannels() +
+//                   ", isBigEndian=" + format.isBigEndian() + "].");
+
+        // read in all of the data
+        byte[] data = StreamUtils.streamAsBytes(in, BUFFER_SIZE);
+
+        // cache the data
+        tup = new Tuple(format, data);
+        _data.put(path, tup);
+        return tup;
     }
 
     // documentation inherited
@@ -152,7 +198,7 @@ public class SoundManager
 //             clip.stop();
 //             clip.close();
 
-            Log.debug("Finished playing sound [clip=" + clip + "].");
+            // Log.debug("Finished playing sound [clip=" + clip + "].");
         }
     }
 
@@ -179,10 +225,8 @@ public class SoundManager
      * Returns a line suitable for playing the audio in the given stream,
      * or <code>null</code> if an error occurred.
      */
-    protected Line getLine (Class clazz, AudioInputStream ais)
+    protected Line getLine (Class clazz, AudioFormat format, int bufferSize)
     {
-        AudioFormat format = ais.getFormat();
-        int bufferSize = (int)(ais.getFrameLength() * format.getFrameSize());
         DataLine.Info info = new DataLine.Info(clazz, format, bufferSize);
         if (!AudioSystem.isLineSupported(info)) {
             Log.warning("Audio line for clip playback not supported " +
@@ -208,12 +252,18 @@ public class SoundManager
     /** The resource manager from which we obtain audio files. */
     protected ResourceManager _rmgr;
 
+    /** The default mixer. */
+    protected Mixer _mixer;
+
     /** The thread that plays sounds. */
     protected Thread _player;
 
     /** The queue of sound clips to be played. */
     protected Queue _clips = new Queue();
 
-    /** The default mixer. */
-    protected Mixer _mixer;
+    /** The cached audio file data. */
+    protected HashMap _data = new HashMap();
+
+    /** The buffer size in bytes used when reading audio file data. */
+    protected static final int BUFFER_SIZE = 2048;
 }
