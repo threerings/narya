@@ -1,5 +1,5 @@
 //
-// $Id: TileSetRepository.java,v 1.4 2003/01/13 22:49:46 mdb Exp $
+// $Id: TileSetRepository.java,v 1.5 2003/06/18 05:48:45 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -40,6 +40,18 @@ public interface TileSetRepository
      * communicating with the underlying persistence mechanism.
      */
     public TileSet getTileSet (int tileSetId)
+        throws NoSuchTileSetException, PersistenceException;
+
+    /**
+     * Returns the unique identifier of the {@link TileSet} with the
+     * specified tile set name.
+     *
+     * @exception NoSuchTileSetException thrown if no tileset exists with
+     * the specified name.
+     * @exception PersistenceException thrown if an error occurs
+     * communicating with the underlying persistence mechanism.
+     */
+    public int getTileSetId (String setName)
         throws NoSuchTileSetException, PersistenceException;
 
     /**

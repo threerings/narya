@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.33 2003/05/13 21:33:58 ray Exp $
+// $Id: TileManager.java,v 1.34 2003/06/18 05:48:45 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -131,16 +131,6 @@ public class TileManager
     }
 
     /**
-     * Adds a tileset to be recognized by the specified id. Note that this
-     * tileset registration will override any tileset in the repository
-     * with the same id. Be very careful!
-     */
-    public void addTileSet (int tileSetId, TileSet set)
-    {
-        _setcache.put(tileSetId, set);
-    }
-
-    /**
      * Returns the tileset with the specified id. Tilesets are fetched
      * from the tileset repository supplied via {@link
      * #setTileSetRepository}, and are subsequently cached.
@@ -160,13 +150,7 @@ public class TileManager
         }
 
         try {
-            TileSet set = (TileSet)_setcache.get(tileSetId);
-            if (set == null) {
-                set = _setrep.getTileSet(tileSetId);
-                _setcache.put(tileSetId, set);
-            }
-            return set;
-
+            return _setrep.getTileSet(tileSetId);
         } catch (PersistenceException pe) {
             Log.warning("Failure loading tileset [id=" + tileSetId +
                         ", error=" + pe + "].");
@@ -189,16 +173,7 @@ public class TileManager
         }
 
         try {
-            TileSet set = (TileSet)_byname.get(name);
-            if (set == null) {
-                set = _setrep.getTileSet(name);
-                if (set == null) {
-                    throw new NoSuchTileSetException(name);
-                }
-                _byname.put(name, set);
-            }
-            return set;
-
+            return _setrep.getTileSet(name);
         } catch (PersistenceException pe) {
             Log.warning("Failure loading tileset [name=" + name +
                         ", error=" + pe + "].");
@@ -251,14 +226,8 @@ public class TileManager
     /** The entity through which we decode and cache images. */
     protected ImageManager _imgr;
 
-    /** Cache of tilesets that have been requested thus far. */
-    protected HashIntMap _setcache = new HashIntMap();
-
     /** A cache of tilesets that have been loaded by hand. */
     protected HashMap _handcache = new HashMap();
-
-    /** A mapping from tileset name to tileset. */
-    protected HashMap _byname = new HashMap();
 
     /** The tile set repository. */
     protected TileSetRepository _setrep;

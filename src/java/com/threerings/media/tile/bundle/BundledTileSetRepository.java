@@ -1,16 +1,16 @@
 //
-// $Id: BundledTileSetRepository.java,v 1.11 2003/04/01 19:33:07 mdb Exp $
+// $Id: BundledTileSetRepository.java,v 1.12 2003/06/18 05:48:45 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import com.samskivert.io.PersistenceException;
-import com.samskivert.util.CompoundIterator;
-import com.samskivert.util.CompoundIterator.IteratorProvider;
+import com.samskivert.util.HashIntMap;
 
 import com.threerings.resource.ResourceBundle;
 import com.threerings.resource.ResourceManager;
@@ -47,10 +47,12 @@ public class BundledTileSetRepository
                                      final ImageManager imgr,
                                      final String name)
     {
+        _imgr = imgr;
+
         // unpack our bundles in the background
         new Thread(new Runnable() {
             public void run () {
-                initBundles(rmgr, imgr, name);
+                initBundles(rmgr, name);
             }
         }).start();
     }
@@ -58,8 +60,7 @@ public class BundledTileSetRepository
     /**
      * Initializes our bundles, 
      */
-    protected void initBundles (
-        ResourceManager rmgr, ImageManager imgr, String name)
+    protected void initBundles (ResourceManager rmgr, String name)
     {
         // first we obtain the resource set from which we will load up our
         // tileset bundles
@@ -70,9 +71,11 @@ public class BundledTileSetRepository
             Log.warning("Unable to fetch tileset resource set " +
                         "[name=" + name + "]. Perhaps it's not defined " +
                         "in the resource manager config?");
-            _bundles = new TileSetBundle[0];
             return;
         }
+
+        HashIntMap idmap = new HashIntMap();
+        HashMap namemap = new HashMap();
 
         // iterate over the resource bundles in the set, loading up the
         // tileset bundles in each resource bundle
@@ -83,7 +86,7 @@ public class BundledTileSetRepository
                 TileSetBundle tsb = BundleUtil.extractBundle(rbundles[i]);
                 // initialize it and add it to the list
                 tsb.init(rbundles[i]);
-                tbundles.add(tsb);
+                addBundle(idmap, namemap, tsb);
 
             } catch (Exception e) {
                 Log.warning("Unable to load tileset bundle '" +
@@ -94,20 +97,31 @@ public class BundledTileSetRepository
             }
         }
 
-        // finally create one big fat array of all of the tileset bundles
-        TileSetBundle[] bundles = new TileSetBundle[tbundles.size()];
-        tbundles.toArray(bundles);
-
-        // create image providers for our bundles
-        _improvs = new IMImageProvider[bundles.length];
-        for (int ii = 0; ii < bundles.length; ii++) {
-            _improvs[ii] = new IMImageProvider(imgr, bundles[ii]);
-        }
-
         // fill in our bundles array and wake up any waiters
         synchronized (this) {
-            _bundles = bundles;
+            _idmap = idmap;
+            _namemap = namemap;
             notifyAll();
+        }
+    }
+
+    /**
+     * Adds the tilesets in the supplied bundle to our tileset mapping
+     * tables. Any tilesets with the same name or id will be overwritten.
+     */
+    protected void addBundle (HashIntMap idmap, HashMap namemap,
+                              TileSetBundle bundle)
+    {
+        IMImageProvider improv = new IMImageProvider(_imgr, bundle);
+
+        // map all of the tilesets in this bundle
+        for (Iterator iter = bundle.entrySet().iterator(); iter.hasNext(); ) {
+            HashIntMap.Entry entry = (HashIntMap.Entry)iter.next();
+            Integer tsid = (Integer)entry.getKey();
+            TileSet tset = (TileSet)entry.getValue();
+            tset.setImageProvider(improv);
+            idmap.put(tsid.intValue(), tset);
+            namemap.put(tset.getName(), tsid);
         }
     }
 
@@ -116,16 +130,7 @@ public class BundledTileSetRepository
         throws PersistenceException
     {
         waitForBundles();
-        return new CompoundIterator(new IteratorProvider() {
-            public Iterator nextIterator () {
-                if (_bidx < _bundles.length) {
-                    return _bundles[_bidx++].enumerateTileSetIds();
-                } else {
-                    return null;
-                }
-            }
-            protected int _bidx = 0;
-        });
+        return _idmap.keySet().iterator();
     }
 
     // documentation inherited from interface
@@ -133,16 +138,7 @@ public class BundledTileSetRepository
         throws PersistenceException
     {
         waitForBundles();
-        return new CompoundIterator(new IteratorProvider() {
-            public Iterator nextIterator () {
-                if (_bidx < _bundles.length) {
-                    return _bundles[_bidx++].enumerateTileSets();
-                } else {
-                    return null;
-                }
-            }
-            protected int _bidx = 0;
-        });
+        return _idmap.values().iterator();
     }
 
     // documentation inherited from interface
@@ -150,16 +146,23 @@ public class BundledTileSetRepository
         throws NoSuchTileSetException, PersistenceException
     {
         waitForBundles();
-        TileSet tset = null;
-        int blength = _bundles.length;
-        for (int i = 0; i < blength; i++) {
-            tset = _bundles[i].getTileSet(tileSetId);
-            if (tset != null) {
-                tset.setImageProvider(_improvs[i]);
-                return tset;
-            }
+        TileSet tset = (TileSet)_idmap.get(tileSetId);
+        if (tset == null) {
+            throw new NoSuchTileSetException(tileSetId);
         }
-        throw new NoSuchTileSetException(tileSetId);
+        return tset;
+    }
+
+    // documentation inherited from interface
+    public int getTileSetId (String setName)
+        throws NoSuchTileSetException, PersistenceException
+    {
+        waitForBundles();
+        Integer tsid = (Integer)_namemap.get(setName);
+        if (tsid != null) {
+            return tsid.intValue();
+        }
+        throw new NoSuchTileSetException(setName);
     }
 
     // documentation inherited from interface
@@ -167,26 +170,18 @@ public class BundledTileSetRepository
         throws NoSuchTileSetException, PersistenceException
     {
         waitForBundles();
-        int bcount = _bundles.length;
-        for (int ii = 0; ii < bcount; ii++) {
-            TileSetBundle tsb = _bundles[ii];
-            // search for the tileset in this bundle
-            Iterator tsiter = tsb.enumerateTileSets();
-            while (tsiter.hasNext()) {
-                TileSet set = (TileSet)tsiter.next();
-                if (set.getName().equals(setName)) {
-                    set.setImageProvider(_improvs[ii]);
-                    return set;
-                }
-            }
+        TileSet tset = null;
+        Integer tsid = (Integer)_namemap.get(setName);
+        if (tsid != null) {
+            return getTileSet(tsid.intValue());
         }
-        return null;
+        throw new NoSuchTileSetException(setName);
     }
 
     /** Used to allow bundle unpacking to proceed asynchronously. */
     protected synchronized void waitForBundles ()
     {
-        while (_bundles == null) {
+        while (_idmap == null) {
             try {
                 wait();
             } catch (InterruptedException ie) {
@@ -195,9 +190,12 @@ public class BundledTileSetRepository
         }
     }
 
-    /** An array of tileset bundles from which we obtain tilesets. */
-    protected TileSetBundle[] _bundles;
+    /** The image manager via which we load our images. */
+    protected ImageManager _imgr;
 
-    /** Image providers for each of our tile set bundles. */
-    protected IMImageProvider[] _improvs;
+    /** A mapping from tileset id to tileset. */
+    protected HashIntMap _idmap;
+
+    /** A mapping from tileset name to tileset id. */
+    protected HashMap _namemap;
 }
