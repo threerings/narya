@@ -1,5 +1,5 @@
 //
-// $Id: BackedVolatileMirage.java,v 1.1 2003/01/13 22:49:46 mdb Exp $
+// $Id: BackedVolatileMirage.java,v 1.2 2003/01/13 23:56:01 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -28,6 +28,12 @@ public class BackedVolatileMirage extends VolatileMirage
 
         // create our volatile image for the first time
         createVolatileImage();
+    }
+
+    // documentation inherited
+    protected int getTransparency ()
+    {
+        return _source.getColorModel().getTransparency();
     }
 
     // documentation inherited

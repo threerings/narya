@@ -1,5 +1,5 @@
 //
-// $Id: CachedVolatileMirage.java,v 1.1 2003/01/13 22:49:46 mdb Exp $
+// $Id: CachedVolatileMirage.java,v 1.2 2003/01/13 23:56:01 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -38,9 +38,14 @@ public class CachedVolatileMirage extends VolatileMirage
         createVolatileImage();
     }
 
-    /**
-     * Rerenders our volatile image from the its source image data.
-     */
+    // documentation inherited
+    protected int getTransparency ()
+    {
+        BufferedImage source = _imgr.getImage(_source, _zations);
+        return source.getColorModel().getTransparency();
+    }
+
+    // documentation inherited
     protected void refreshVolatileImage ()
     {
         Graphics gfx = null;
