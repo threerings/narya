@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.18 2002/02/06 23:34:17 mdb Exp $
+// $Id: IsoUtil.java,v 1.19 2002/02/06 23:35:47 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -146,8 +146,9 @@ public class IsoUtil
      * Returns true if the footprints of the two object tiles overlap when
      * the objects occupy the specified coordinates, false if not.
      */
-    public boolean objectFootprintsOverlap (ObjectTile tile1, int x1, int y1,
-                                            ObjectTile tile2, int x2, int y2)
+    public static boolean objectFootprintsOverlap (
+        ObjectTile tile1, int x1, int y1,
+        ObjectTile tile2, int x2, int y2)
     {
         return !(x2 > x1 - tile1.getBaseWidth() &&
                  x1 > x2 - tile2.getBaseWidth() &&
