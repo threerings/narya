@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.45 2003/01/20 19:38:37 mdb Exp $
+// $Id: ImageManager.java,v 1.46 2003/02/22 01:48:21 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -216,7 +216,7 @@ public class ImageManager
 //                  ", size=" + ImageUtil.getEstimatedMemoryUsage(image));
 
         // create a cache record
-        crec = new CacheRecord(image);
+        crec = new CacheRecord(key, image);
         _ccache.put(key, crec);
         _keySet.add(key);
 
@@ -415,8 +415,9 @@ public class ImageManager
      * image cache. */
     protected static class CacheRecord
     {
-        public CacheRecord (BufferedImage source)
+        public CacheRecord (ImageKey key, BufferedImage source)
         {
+            _key = key;
             _source = source;
         }
 
@@ -441,9 +442,18 @@ public class ImageManager
                 }
             }
 
-            BufferedImage cimage = ImageUtil.recolorImage(_source, zations);
-            _colorized.add(new Tuple(zations, cimage));
-            return cimage;
+            try {
+                BufferedImage cimage = ImageUtil.recolorImage(_source, zations);
+                _colorized.add(new Tuple(zations, cimage));
+                return cimage;
+
+            } catch (Exception re) {
+                Log.warning("Failure recoloring image [source" + _key +
+                            ", zations=" + StringUtil.toString(zations) +
+                            ", error=" + re + "].");
+                // return the uncolorized version
+                return _source;
+            }
         }
 
         public long getEstimatedMemoryUsage ()
@@ -453,12 +463,13 @@ public class ImageManager
 
         public String toString ()
         {
-            return "[wid=" + _source.getWidth() +
+            return "[key=" + _key + ", wid=" + _source.getWidth() +
                 ", hei=" + _source.getHeight() +
                 ", ccount=" + ((_colorized == null) ? 0 : _colorized.size()) +
                 "]";
         }
 
+        protected ImageKey _key;
         protected BufferedImage _source;
         protected ArrayList _colorized;
     }
