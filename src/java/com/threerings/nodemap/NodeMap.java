@@ -1,5 +1,5 @@
 //
-// $Id: NodeMap.java,v 1.7 2002/06/14 07:56:29 shaper Exp $
+// $Id: NodeMap.java,v 1.8 2002/06/15 01:59:43 shaper Exp $
 
 package com.threerings.nodemap;
 
@@ -120,12 +120,12 @@ public class NodeMap
 	}
 
 	// highlight the last node entered
-	if (_lastnode != null) {
-	    g.setColor(Color.red);
-	    int x = _lastnode.getX(), y = _lastnode.getY();
-	    int wid = _lastnode.getWidth(), hei = _lastnode.getHeight();
-	    g.drawRect(x, y, wid, hei);
-	}
+// 	if (_lastnode != null) {
+// 	    g.setColor(Color.red);
+// 	    int x = _lastnode.getX(), y = _lastnode.getY();
+// 	    int wid = _lastnode.getWidth(), hei = _lastnode.getHeight();
+// 	    g.drawRect(x, y, wid, hei);
+// 	}
 
 	// draw the tool tip, if any
 	if (_tipper != null) {
