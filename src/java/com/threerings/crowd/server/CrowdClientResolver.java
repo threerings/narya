@@ -1,5 +1,5 @@
 //
-// $Id: CrowdClientResolver.java,v 1.1 2002/03/05 05:33:25 mdb Exp $
+// $Id: CrowdClientResolver.java,v 1.2 2002/03/05 05:45:53 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -23,6 +23,8 @@ public class CrowdClientResolver extends ClientResolver
     protected void resolveClientData (ClientObject clobj)
         throws Exception
     {
+        super.resolveClientData(clobj);
+
         // just fill in the username
         ((BodyObject)clobj).username = _username;
     }
