@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.12 2002/06/20 22:38:58 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.13 2002/06/20 23:06:40 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -67,8 +67,10 @@ public class SpotSceneManager extends SceneManager
     {
         int locId = SpotSceneUtil.getUnoccupiedLocation(
             _sscene.getModel(), _locationOccs, preferClusters);
-        // mark the location as pending
-        _locationOccs[_sscene.getLocationIndex(locId)] = -1;
+        if (locId != -1) {
+            // mark the location as pending
+            _locationOccs[_sscene.getLocationIndex(locId)] = -1;
+        }
         return locId;
     }
 
