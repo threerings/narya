@@ -1,8 +1,9 @@
 //
-// $Id: TileUtil.java,v 1.9 2002/03/08 07:50:32 mdb Exp $
+// $Id: TileUtil.java,v 1.10 2002/03/08 18:13:14 mdb Exp $
 
 package com.threerings.cast.util;
 
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 
@@ -65,7 +66,9 @@ public class TileUtil
                 }
 
                 // now splat the recolored image onto the target
-                dimg.getGraphics().drawImage(simg, 0, 0, null);
+                Graphics g = dimg.getGraphics();
+                g.drawImage(simg, 0, 0, null);
+                g.dispose();
             }
         }
     }
