@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.31 2002/10/08 22:00:27 mdb Exp $
+// $Id: Client.java,v 1.32 2002/10/21 18:04:56 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -255,8 +255,9 @@ public class Client
      */
     public synchronized boolean isLoggedOn ()
     {
-        // if we have a communicator, we're logged on
-        return (_comm != null);
+        // we're not "logged on" until we're fully done with the
+        // procedure, meaning we have a client object reference
+        return (_clobj != null);
     }
 
     /**
@@ -290,8 +291,7 @@ public class Client
      */
     public boolean logoff (boolean abortable)
     {
-        // if we have no communicator, we're not logged on anyway, so fake
-        // it
+        // if we have no communicator, we're not logged on anyway
         if (_comm == null) {
             Log.warning("Ignoring request to logoff because we're not " +
                         "logged on.");
@@ -370,8 +370,8 @@ public class Client
      */
     protected void clientObjectDidChange (ClientObject clobj)
     {
-        // slip the new client object into the business
         _clobj = clobj;
+        _cloid = _clobj.getOid();
 
         // report to our observers
         notifyObservers(Client.CLIENT_OBJECT_CHANGED, null);
@@ -414,8 +414,10 @@ public class Client
         // was dispatched
         _invoker.invokeLater(new Runnable() {
             public void run () {
-                // clear out our communicator reference
+                // clear out our references
                 _comm = null;
+                _clobj = null;
+                _cloid = -1;
                 // and let our invocation director know we're logged off
                 _invdir.cleanup();
             }
@@ -547,7 +549,7 @@ public class Client
     protected Invoker _invoker;
 
     /** Our client distribted object id. */
-    protected int _cloid;
+    protected int _cloid = -1;
 
     /** Our client distributed object. */
     protected ClientObject _clobj;
