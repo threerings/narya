@@ -239,15 +239,6 @@ public class ClientManager
     protected synchronized void mapClientObject (
         Name username, ClientObject clobj)
     {
-        // TEMP until we figure some things out
-        if (clobj.getClass().getName().indexOf("YoUserObject") == -1 &&
-            !username.toString().startsWith("! ")) {
-            String errmsg = "Mapping non-YoUserObject with unmassaged name! " +
-                "[username=" + username + "].";
-            Log.logStackTrace(new Exception(errmsg));
-        }
-        // END TEMP
-
         // stuff the object into the mapping table
         _objmap.put(username, clobj);
 

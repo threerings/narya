@@ -108,14 +108,7 @@ public class CrowdServer extends PresentsServer
      */
     public static BodyObject lookupBody (Name username)
     {
-        BodyObject bobj = (BodyObject)clmgr.getClientObject(username);
-        // TEMP until we figure some things out
-        if (bobj == null ||
-            bobj.getClass().getName().indexOf("AuthUserObject") != -1) {
-            return null;
-        }
-        // END TEMP
-        return bobj;
+        return (BodyObject)clmgr.getClientObject(username);
     }
 
     public static void main (String[] args)
