@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.39 2001/10/11 00:41:27 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.40 2001/10/13 01:08:59 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -15,8 +15,8 @@ import com.threerings.whirled.data.Scene;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.util.ClusterUtil;
-
 import com.threerings.miso.tile.MisoTile;
+import com.threerings.miso.tile.ShadowTile;
 
 /**
  * A scene object represents the data model corresponding to a single
@@ -54,6 +54,14 @@ public class MisoSceneImpl implements EditableMisoScene
      * initialized to contain tiles of the specified default tileset and
      * tile id.
      *
+     * <em>Note:</em> Be sure to call {@link #prepareAllObjectTiles}
+     * before the scene is first used so that the base layer will be
+     * properly populated with shadow tiles in the footprint of all
+     * object tiles.  Similarly, any addition of tiles to or removal
+     * of tiles from the object layer of the scene should be followed
+     * by a call to {@link #prepareObjectTile} or {@link
+     * #unprepareObjectTile}, respectively.
+     *
      * @param model the iso scene view model.
      * @param deftile the default tile.
      */
@@ -62,11 +70,15 @@ public class MisoSceneImpl implements EditableMisoScene
 	_model = model;
 	_deftile = deftile;
 
+        // create the individual tile layer arrays
 	baseTiles = new MisoTile[_model.scenewid][_model.scenehei];
 	fringeTiles = new Tile[_model.scenewid][_model.scenehei];
 	objectTiles = new ObjectTile[_model.scenewid][_model.scenehei];
+
+        // create the conjoined array for purely utilitarian purposes
 	tiles = new Tile[][][] { baseTiles, fringeTiles, objectTiles };
 
+        // initialize the always-fully-populated base layer
 	initBaseTiles();
     }
 
@@ -74,6 +86,12 @@ public class MisoSceneImpl implements EditableMisoScene
     public String getName ()
     {
         return name;
+    }
+
+    // documentation inherited
+    public void setDefaultTile (MisoTile tile)
+    {
+        _deftile = tile;
     }
 
     // documentation inherited
@@ -94,11 +112,13 @@ public class MisoSceneImpl implements EditableMisoScene
         return null;
     }
 
+    // documentation inherited
     public Tile[][][] getTiles ()
     {
 	return tiles;
     }
 
+    // documentation inherited
     public Tile[][] getTiles (int lnum)
     {
 	return tiles[lnum];
@@ -265,6 +285,71 @@ public class MisoSceneImpl implements EditableMisoScene
 		baseTiles[xx][yy] = _deftile;
 	    }
 	}
+    }
+
+    /**
+     * Place shadow tiles in the footprint of all object tiles in the
+     * scene.  This method should be called once the scene tiles are
+     * fully populated, but before the scene is used in any other
+     * meaningful capacity.
+     */
+    public void prepareAllObjectTiles ()
+    {
+        for (int xx = 0; xx < _model.scenewid; xx++) {
+            for (int yy = 0; yy < _model.scenehei; yy++) {
+                if (objectTiles[xx][yy] != null) {
+                    prepareObjectTile(xx, yy);
+                }
+            }
+        }
+    }
+
+    /**
+     * Place shadow tiles in the footprint of the object tile at the
+     * given coordinates in the scene.  This method should be called
+     * when an object tile is added to the scene.
+     *
+     * @param x the tile x-coordinate.
+     * @param y the tile y-coordinate.
+     */
+    public void prepareObjectTile (int x, int y)
+    {
+        setObjectTileFootprint(x, y, ShadowTile.TILE);
+    }
+
+    /**
+     * Remove shadow tiles from the footprint of the object tile at
+     * the given coordinates in the scene.  This method should be
+     * called when an object tile is removed from the scene.
+     *
+     * @param x the tile x-coordinate.
+     * @param y the tile y-coordinate.
+     */
+    public void unprepareObjectTile (int x, int y)
+    {
+        setObjectTileFootprint(x, y, _deftile);
+    }
+
+    /**
+     * Place the given tile in the footprint of the object tile at the
+     * given coordinates in the scene.
+     *
+     * @param x the tile x-coordinate.
+     * @param y the tile y-coordinate.
+     * @param stamp the tile to place in the object footprint.
+     */
+    protected void setObjectTileFootprint (int x, int y, MisoTile stamp)
+    {
+        ObjectTile tile = objectTiles[x][y];
+
+        int endx = Math.max(0, (x - tile.baseWidth + 1));
+        int endy = Math.max(0, (y - tile.baseHeight + 1));
+
+        for (int xx = x; xx >= endx; xx--) {
+            for (int yy = y; yy >= endy; yy--) {
+                baseTiles[xx][yy] = stamp;
+            }
+        }
     }
 
     /** The default scene name. */

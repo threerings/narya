@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.24 2001/10/12 00:36:03 shaper Exp $
+// $Id: Sprite.java,v 1.25 2001/10/13 01:08:59 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -209,29 +209,21 @@ public class Sprite
     }
 
     /**
-     * Returns whether the sprite is inside the given polygon in
+     * Returns whether the sprite is inside the given shape in
      * pixel coordinates.
-     *
-     * @param bounds the bounding polygon.
-     *
-     * @return whether the sprite is inside the polygon.
      */
-    public boolean inside (Polygon bounds)
+    public boolean inside (Shape shape)
     {
-        return bounds.contains(_x, _y);
+        return shape.contains(_x, _y);
     }
 
     /**
      * Returns whether the sprite's drawn rectangle intersects the given
-     * polygon in pixel coordinates.
-     *
-     * @param bounds the bounding polygon.
-     *
-     * @return whether the sprite intersects polygon.
+     * shape in pixel coordinates.
      */
-    public boolean intersects (Polygon bounds)
+    public boolean intersects (Shape shape)
     {
-        return bounds.intersects(_rbounds);
+        return shape.intersects(_rbounds);
     }
 
     /**

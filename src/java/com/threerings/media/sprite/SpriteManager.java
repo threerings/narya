@@ -1,10 +1,11 @@
 //
-// $Id: SpriteManager.java,v 1.14 2001/09/13 19:36:20 mdb Exp $
+// $Id: SpriteManager.java,v 1.15 2001/10/13 01:08:59 shaper Exp $
 
 package com.threerings.media.sprite;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import com.samskivert.util.Tuple;
 import com.threerings.media.Log;
@@ -36,29 +37,23 @@ public class SpriteManager
 
     /**
      * When an animated view processes its dirty rectangles, it may
-     * require an expansion of the dirty region which may in turn require
-     * the invalidation of more sprites than were originally invalid. In
-     * such cases, the animated view can call back to the sprite manager,
-     * asking it to append the rectangles of the sprites that intersect a
-     * particular region to the dirty rectangle list that it's processing.
-     * A sprite's rectangle will only be appended if it's not already in
-     * the list.
+     * require an expansion of the dirty region which may in turn
+     * require the invalidation of more sprites than were originally
+     * invalid. In such cases, the animated view can call back to the
+     * sprite manager, asking it to append the sprites that intersect
+     * a particular region to the given list.
      *
-     * @param rects the dirty rectangle list being processed by the
-     * animated view.
+     * @param list the list to fill with any intersecting sprites.
      * @param bounds the bounds the intersection of which we have
      * interest.
      */
-    public void invalidateIntersectingSprites (
-        DirtyRectList rects, Polygon bounds)
+    public void getIntersectingSprites (List list, Shape shape)
     {
         int size = _sprites.size();
         for (int ii = 0; ii < size; ii++) {
             Sprite sprite = (Sprite)_sprites.get(ii);
-            if (sprite.intersects(bounds)) {
-                if (rects.appendDirtyRect(sprite.getRenderedBounds())) {
-                    Log.info("Expanded for: " + sprite);
-                }
+            if (sprite.intersects(shape)) {
+                list.add(sprite);
             }
         }
     }

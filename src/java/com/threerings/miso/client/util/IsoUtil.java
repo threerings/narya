@@ -1,11 +1,13 @@
 //
-// $Id: IsoUtil.java,v 1.7 2001/10/12 00:42:08 shaper Exp $
+// $Id: IsoUtil.java,v 1.8 2001/10/13 01:08:59 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
 import java.awt.*;
+import java.util.Comparator;
 
 import com.threerings.media.sprite.Sprite;
+import com.threerings.media.sprite.DirtyItemList;
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.util.MathUtil;
 
@@ -18,6 +20,20 @@ import com.threerings.miso.scene.*;
  */
 public class IsoUtil
 {
+    /** The comparator used to sort dirty items in ascending render order. */
+    public static final Comparator DIRTY_COMP = new DirtyItemComparator();
+
+    /**
+     * Returns a polygon bounding the given object tile display image,
+     * with the bottom of the polygon shaped to conform to the known
+     * object dimensions.
+     *
+     * @param model the scene view model.
+     * @param root the root tile at which the object is located.
+     * @param tile the object tile.
+     *
+     * @return the bounding polygon.
+     */
     public static Polygon getObjectBounds (
         IsoSceneViewModel model, Polygon root, ObjectTile tile)
     {
@@ -55,7 +71,7 @@ public class IsoUtil
         return boundsPoly;
     }
 
- /**
+    /**
      * Given two points in screen pixel coordinates, return the
      * compass direction that point B lies in from point A from an
      * isometric perspective.
@@ -327,4 +343,29 @@ public class IsoUtil
 
     /** Multiplication factor to embed tile coords in full coords. */
     protected static final int FULL_TILE_FACTOR = 100;
+
+    /**
+     * A comparator class to facilitate sorting the dirty items in
+     * ascending x- and y-coordinate order suitable for rendering in
+     * the isometric view with proper visual results.
+     */
+    protected static class DirtyItemComparator implements Comparator
+    {
+        public int compare (Object a, Object b)
+        {
+            DirtyItemList.DirtyItem da = (DirtyItemList.DirtyItem)a;
+            DirtyItemList.DirtyItem db = (DirtyItemList.DirtyItem)b;
+
+            if (da.y <= db.y && da.x <= db.x) {
+                return -1;
+            }
+
+            return 1;
+        }
+
+        public boolean equals (Object obj)
+        {
+	    return (obj == this);
+        }
+    }
 }

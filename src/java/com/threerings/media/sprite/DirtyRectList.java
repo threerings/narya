@@ -1,5 +1,5 @@
 //
-// $Id: DirtyRectList.java,v 1.1 2001/08/22 02:14:57 mdb Exp $
+// $Id: DirtyRectList.java,v 1.2 2001/10/13 01:08:59 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -16,7 +16,8 @@ public class DirtyRectList extends ArrayList
 {
     /**
      * Appends the specified dirty rectangle to the list only if a
-     * rectangle of the same size is not already in the list.
+     * rectangle of the same position and size is not already in the
+     * list.
      *
      * @return true if the rectangle were appended, false if she weren't.
      * Har!

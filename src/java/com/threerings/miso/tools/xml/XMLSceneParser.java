@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.18 2001/10/11 00:41:27 shaper Exp $
+// $Id: XMLSceneParser.java,v 1.19 2001/10/13 01:08:59 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -310,6 +310,9 @@ public class XMLSceneParser extends DefaultHandler
 
             // read the XML input stream and construct the scene object
 	    XMLUtil.parse(this, bis);
+
+            // place shadow tiles for any objects in the scene
+            _info.scene.prepareAllObjectTiles();
 
             // return the final scene object
             return _info.scene;

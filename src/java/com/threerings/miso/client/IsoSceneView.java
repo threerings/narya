@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.59 2001/10/12 00:42:08 shaper Exp $
+// $Id: IsoSceneView.java,v 1.60 2001/10/13 01:08:59 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -8,7 +8,7 @@ import java.awt.geom.*;
 import java.awt.image.*;
 
 import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 
 import com.samskivert.util.HashIntMap;
 
@@ -17,9 +17,7 @@ import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.ObjectTile;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.util.AStarPathUtil;
-import com.threerings.miso.scene.util.IsoUtil;
-import com.threerings.miso.scene.util.MisoSceneUtil;
+import com.threerings.miso.scene.util.*;
 
 /**
  * The <code>IsoSceneView</code> provides an isometric view of a
@@ -39,9 +37,6 @@ public class IsoSceneView implements SceneView
 
         setModel(model);
 
-        // get the font used to render tile coordinates
-	_font = new Font("Arial", Font.PLAIN, 7);
-
         // create our polygon arrays and create polygons for each of the
         // tiles. we use these repeatedly, so we go ahead and make 'em all
         // up front
@@ -52,14 +47,8 @@ public class IsoSceneView implements SceneView
 	    }
 	}
 
-        // create the hashtable used to store object bounds polygons
-        _objpolys = new HashIntMap();
-
         // create the array used to mark dirty tiles
         _dirty = new boolean[model.scenewid][model.tilehei];
-
-	// create the list of dirty rectangles
-	_dirtyRects = new ArrayList();
 
 	clearDirtyRegions();
     }
@@ -77,6 +66,7 @@ public class IsoSceneView implements SceneView
     public void paint (Graphics g)
     {
 	if (_scene == null) {
+            Log.info("Scene view painted with null scene.");
             return;
         }
 
@@ -88,19 +78,18 @@ public class IsoSceneView implements SceneView
     	gfx.setClip(0, 0, _model.bounds.width, _model.bounds.height);
 
 	if (_numDirty == 0) {
-	    // render the full scene
-	    renderScene(gfx);
-
-	} else {
-	    // render only dirty tiles
-	    renderSceneInvalid(gfx);
-
-	    // draw frames of dirty tiles and rectangles
-	    // drawDirtyRegions(gfx);
-
-	    // clear out the dirty tiles and rectangles
-	    clearDirtyRegions();
+            // invalidate the entire screen
+            invalidate();
 	}
+
+        // render the scene to the graphics context
+        renderScene(gfx);
+
+        // draw frames of dirty tiles and rectangles
+        // drawDirtyRegions(gfx);
+
+        // clear out the dirty tiles and rectangles
+        clearDirtyRegions();
 
 	// draw sprite paths
 	if (_model.showPaths) {
@@ -127,9 +116,21 @@ public class IsoSceneView implements SceneView
     {
     }
 
+    /**
+     * Invalidate the entire visible scene view.
+     */
+    protected void invalidate ()
+    {
+        DirtyRectList rects = new DirtyRectList();
+        rects.add(new Rectangle(
+            0, 0, _model.bounds.width,_model.bounds.height));
+        invalidateRects(rects);
+    }
+
     protected void clearDirtyRegions ()
     {
 	_dirtyRects.clear();
+        _dirtyItems.clear();
 
 	_numDirty = 0;
 	for (int xx = 0; xx < _model.scenewid; xx++) {
@@ -165,11 +166,22 @@ public class IsoSceneView implements SceneView
      *
      * @param gfx the graphics context.
      */
-    protected void renderSceneInvalid (Graphics2D gfx)
+    protected void renderScene (Graphics2D gfx)
+    {
+        renderTiles(gfx);
+        renderDirtyItems(gfx);
+    }
+
+    /**
+     * Renders the base and fringe layer tiles to the given graphics
+     * context.
+     */
+    protected void renderTiles (Graphics2D gfx)
     {
 	int numDrawn = 0;
         Tile[][][] tiles = _scene.getTiles();
 
+        // render the base and fringe layers
 	for (int yy = 0; yy < _model.scenehei; yy++) {
 	    for (int xx = 0; xx < _model.scenewid; xx++) {
 
@@ -181,8 +193,9 @@ public class IsoSceneView implements SceneView
 		// get the tile's screen position
 		Polygon poly = _polys[xx][yy];
 
-		// draw all layers at this tile position
-		for (int kk = 0; kk < MisoScene.NUM_LAYERS; kk++) {
+		// draw both layers at this tile position
+		for (int kk = MisoScene.LAYER_BASE;
+                     kk < MisoScene.LAYER_FRINGE; kk++) {
 
 		    // get the tile at these coordinates and layer
 		    Tile tile = tiles[kk][xx][yy];
@@ -190,16 +203,9 @@ public class IsoSceneView implements SceneView
 			continue;
 		    }
 
-		    // offset the image y-position by the tile-specific height
-		    int ypos = poly.ypoints[0] - _model.tilehhei -
-			(tile.height - _model.tilehei);
-
 		    // draw the tile image
 		    renderTile(gfx, tile, xx, yy, poly);
 		}
-
-		// draw all sprites residing in the current tile
-		_spritemgr.renderSprites(gfx, poly);
 
 		// paint the tile coordinate if desired
   		if (_model.showCoords) {
@@ -216,78 +222,33 @@ public class IsoSceneView implements SceneView
     }
 
     /**
-     * Render the scene to the given graphics context.
-     *
-     * @param gfx the graphics context.
+     * Renders the dirty sprites and objects in the scene to the given
+     * graphics context.
      */
-    protected void renderScene (Graphics2D gfx)
+    protected void renderDirtyItems (Graphics2D gfx)
     {
-        Tile[][][] tiles = _scene.getTiles();
-	int mx = 1;
-	int my = 0;
+        // sort the dirty sprites and objects visually back-to-front
+        _dirtyItems.sort(IsoUtil.DIRTY_COMP);
 
-	int screenY = _model.origin.y;
+        // render dirty sprites and objects
+        int size = _dirtyItems.size();
+        for (int ii = 0; ii < size; ii++) {
+            DirtyItemList.DirtyItem di =
+                (DirtyItemList.DirtyItem)_dirtyItems.get(ii);
 
-	for (int ii = 0; ii < _model.tilerows; ii++) {
-	    // determine starting tile coordinates
-	    int tx = (ii < _model.scenehei) ? 0 : mx++;
-	    int ty = my;
+            if (di.obj instanceof Sprite) {
+                ((Sprite)di.obj).paint(gfx);
 
-	    // determine number of tiles in this row
-	    int length = (ty - tx) + 1;
-
-	    // determine starting screen x-position
-	    int screenX = _model.origin.x - ((length) * _model.tilehwid);
-
-	    for (int jj = 0; jj < length; jj++) {
-
-		for (int kk = 0; kk < MisoScene.NUM_LAYERS; kk++) {
-		    // grab the tile we're rendering
-		    Tile tile = tiles[kk][tx][ty];
-		    if (tile == null) {
-			continue;
-		    }
-
-		    Polygon poly = _polys[tx][ty];
-
-		    // determine screen y-position, accounting for
-		    // tile image height
-		    int ypos = screenY - (tile.height - _model.tilehei);
-
-		    // draw the tile image at the appropriate screen position
-                    renderTile(gfx, tile, tx, ty, poly);
-
-                    // draw all sprites residing in the current tile
-                    // TODO: simplify other tile positioning here to use poly
-                    _spritemgr.renderSprites(gfx, poly);
-                }
-
-		// draw tile coordinates in each tile
-  		if (_model.showCoords) {
-                    paintCoords(gfx, tx, ty, screenX, screenY);
-                }
-
-		// each tile is one tile-width to the right of the previous
-		screenX += _model.tilewid;
-
-		// advance tile x and decrement tile y as we move to
-		// the right drawing the row
-		tx++;
-		ty--;
-	    }
-
-	    // each row is a half-tile-height away from the previous row
-	    screenY += _model.tilehhei;
-
-	    // advance starting y-axis coordinate unless we've hit bottom
-	    if ((++my) > _model.scenehei - 1) {
-                my = _model.scenehei - 1;
+            } else {
+                Polygon poly = (Polygon)
+                    _objpolys.get(getCoordinateKey(di.x, di.y));
+                ((ObjectTile)di.obj).paint(gfx, poly);
             }
-	}
+        }
     }
 
     /**
-     * Render the given tile in the scene to the given graphics
+     * Renders the given tile in the scene to the given graphics
      * context.
      */
     protected void renderTile (
@@ -301,8 +262,8 @@ public class IsoSceneView implements SceneView
     }
 
     /**
-     * Pre-processes all object tiles in the scene to create shadow
-     * tiles and bounding polygons.
+     * Pre-processes all object tiles in the scene to create bounding
+     * polygons.
      */
     protected void prepareAllObjectTiles ()
     {
@@ -320,17 +281,14 @@ public class IsoSceneView implements SceneView
     }
 
     /**
-     * Pre-processes a single object tile.  Creates shadow tiles in
-     * its footprint making the object fully impassable, and creates
-     * the bounding polygon for the object which is used when
-     * invalidating dirty rectangles or tiles, and when rendering the
-     * object to a graphics context.  This method should be called
-     * when an object tile is added to a scene.
+     * Pre-processes a single object tile.  Creates the bounding
+     * polygon for the object which is used when invalidating dirty
+     * rectangles or tiles, and when rendering the object to a
+     * graphics context.  This method should be called when an object
+     * tile is added to a scene.
      */
     protected void prepareObjectTile (ObjectTile tile, int x, int y)
     {
-        // TODO: create shadow tiles in the footprint of this object
-
         // create the bounding polygon for this object
         int key = getCoordinateKey(x, y);
         Polygon bounds = IsoUtil.getObjectBounds(_model, _polys[x][y], tile);
@@ -454,6 +412,9 @@ public class IsoSceneView implements SceneView
 	    // dirty the tiles impacted by this rectangle
 	    invalidateScreenRect(rects, r.x, r.y, r.width, r.height);
 
+            // dirty any sprites or objects impacted by this rectangle
+            invalidateItems(r);
+
 	    // save the rectangle for potential display later
 	    _dirtyRects.add(r);
 	}
@@ -557,6 +518,11 @@ public class IsoSceneView implements SceneView
 	}
     }
 
+    /**
+     * Marks the tile at the given coordinates dirty and adds dirty
+     * rectangles to the dirty rectangle list for any sprites
+     * currently occupying the tile.
+     */
     protected void addDirtyTile (DirtyRectList rects, int x, int y)
     {
 	// constrain x-coordinate to a valid range
@@ -584,7 +550,67 @@ public class IsoSceneView implements SceneView
 
         // and add the dirty rectangles of any sprites that we've just
         // inadvertently touched by dirtying this tile
-        _spritemgr.invalidateIntersectingSprites(rects, _polys[x][y]);
+        invalidateIntersectingSprites(rects, _polys[x][y]);
+    }
+
+    /**
+     * Adds any sprites or objects in the scene whose bounds overlap
+     * with the given dirty rectangle to the dirty item list for later
+     * re-rendering.
+     */
+    protected void invalidateItems (Rectangle r)
+    {
+        // add any sprites impacted by the dirty rectangle
+        _dirtySprites.clear();
+        _spritemgr.getIntersectingSprites(_dirtySprites, r);
+
+        int size = _dirtySprites.size();
+        for (int ii = 0; ii < size; ii++) {
+            Sprite sprite = (Sprite)_dirtySprites.get(ii);
+            Point tpos = new Point();
+            IsoUtil.screenToTile(_model, sprite.getX(), sprite.getY(), tpos);
+
+            if (_dirtyItems.appendDirtyItem(sprite, tpos.x, tpos.y)) {
+                // Log.info("Dirtied item: " + sprite);
+            }
+        }
+
+        // add any objects impacted by the dirty rectangle
+        ObjectTile tiles[][] = _scene.getObjectLayer();
+        Iterator iter = _objpolys.keys();
+        while (iter.hasNext()) {
+            // get the object's coordinates and bounding polygon
+            int coord = ((Integer)iter.next()).intValue();
+            Polygon poly = (Polygon)_objpolys.get(coord);
+
+            if (poly.intersects(r)) {
+                int tx = coord >> 16, ty = coord & 0x0000FFFF;
+                if (_dirtyItems.appendDirtyItem(tiles[tx][ty], tx, ty)) {
+                    // Log.info("Dirtied item: Object(" + tx + ", " +
+                    // ty + ")");
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds dirty rectangles to the dirty rectangle list for any
+     * sprites in the scene whose bounds overlap with the given
+     * polygon.
+     */
+    protected void invalidateIntersectingSprites (
+        DirtyRectList rects, Polygon bounds)
+    {
+        _dirtySprites.clear();
+        _spritemgr.getIntersectingSprites(_dirtySprites, bounds);
+
+        int size = _dirtySprites.size();
+        for (int ii = 0; ii < size; ii++) {
+            Sprite sprite = (Sprite)_dirtySprites.get(ii);
+            if (rects.appendDirtyRect(sprite.getRenderedBounds())) {
+                Log.info("Expanded for: " + sprite);
+            }
+        }
     }
 
     public void setModel (IsoSceneViewModel model)
@@ -674,13 +700,13 @@ public class IsoSceneView implements SceneView
     }
 
     /** The font to draw tile coordinates. */
-    protected Font _font;
+    protected Font _font = new Font("Arial", Font.PLAIN, 7);
 
     /** Polygon instances for all of our tiles. */
     protected Polygon _polys[][];
 
     /** Bounding polygons for all of the object tiles. */
-    protected HashIntMap _objpolys;
+    protected HashIntMap _objpolys = new HashIntMap();
 
     /** The dirty tiles that need to be re-painted. */
     protected boolean _dirty[][];
@@ -689,7 +715,13 @@ public class IsoSceneView implements SceneView
     protected int _numDirty;
 
     /** The dirty rectangles that need to be re-painted. */
-    protected ArrayList _dirtyRects;
+    protected ArrayList _dirtyRects = new ArrayList();
+
+    /** The dirty sprites and objects that need to be re-painted. */
+    protected DirtyItemList _dirtyItems = new DirtyItemList();
+
+    /** The working sprites list used when calculating dirty regions. */
+    protected ArrayList _dirtySprites = new ArrayList();
 
     /** The scene view model data. */
     protected IsoSceneViewModel _model;
