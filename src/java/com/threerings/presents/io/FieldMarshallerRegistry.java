@@ -1,5 +1,5 @@
 //
-// $Id: FieldMarshallerRegistry.java,v 1.3 2001/06/11 17:42:20 mdb Exp $
+// $Id: FieldMarshallerRegistry.java,v 1.4 2001/08/02 05:13:29 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj.io;
 
@@ -63,5 +63,6 @@ public class FieldMarshallerRegistry
         registerMarshaller(FloatFieldMarshaller.class);
         registerMarshaller(DoubleFieldMarshaller.class);
         registerMarshaller(StringFieldMarshaller.class);
+        registerMarshaller(OidListFieldMarshaller.class);
     }
 }
