@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.11 2001/08/16 23:14:20 mdb Exp $
+// $Id: Tile.java,v 1.12 2001/09/28 01:24:27 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -39,6 +39,16 @@ public class Tile
     {
 	this.tsid = (short) tsid;
 	this.tid = (short) tid;
+    }
+
+    /**
+     * Returns the fully qualified tile id for this tile. The fully
+     * qualified id contains both the tile set identifier and the tile
+     * identifier.
+     */
+    public int getTileId ()
+    {
+        return ((int)tsid << 16) | tid;
     }
 
     /**
