@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.29 2001/10/12 00:05:31 mdb Exp $
+// $Id: DObject.java,v 1.30 2001/10/12 00:29:06 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -301,6 +301,11 @@ public class DObject
      */
     public void notifyListeners (DEvent event)
     {
+        // if we have no listeners, we're home free
+        if (_listeners == null) {
+            return;
+        }
+
         // iterate over the listener list, performing the necessary
         // notifications
         int llength = _listeners.length;
