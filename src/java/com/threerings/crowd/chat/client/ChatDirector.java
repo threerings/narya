@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.47 2003/06/26 19:57:24 mdb Exp $
+// $Id: ChatDirector.java,v 1.48 2003/09/15 21:11:40 ray Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -84,17 +84,6 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Sets the mute director, if one is desired.
-     */
-    public void setMuteDirector (MuteDirector muter)
-    {
-        if (_muter == null) {
-            _muter = muter;
-            _muter.setChatDirector(this);
-        }
-    }
-
-    /**
      * Adds the supplied chat display to the chat display list. It will
      * subsequently be notified of incoming chat messages as well as tell
      * responses.
@@ -114,21 +103,21 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Adds the specified chat validator to the list of validators.  All
-     * chat requests will be validated with all validators before they may
-     * be accepted.
+     * Adds the specified chat filter to the list of filters.  All
+     * chat requests and receipts will be filtered with all filters
+     * before they being sent or dispatched locally.
      */
-    public void addChatValidator (ChatValidator validator)
+    public void addChatFilter (ChatFilter filter)
     {
-        _validators.add(validator);
+        _filters.add(filter);
     }
 
     /**
      * Removes the specified chat validator from the list of chat validators.
      */
-    public void removeChatValidator (ChatValidator validator)
+    public void removeChatFilter (ChatFilter filter)
     {
-        _validators.remove(validator);
+        _filters.remove(filter);
     }
 
     /**
@@ -317,9 +306,8 @@ public class ChatDirector extends BasicDirector
         SpeakService speakService, String message, byte mode)
     {
         // make sure they can say what they want to say
-        _validateMessageOp.setMessage(message);
-        _validators.apply(_validateMessageOp);
-        if (!_validateMessageOp.isValid()) {
+        message = filter(message, null, true);
+        if (message == null) {
             return;
         }
 
@@ -334,6 +322,13 @@ public class ChatDirector extends BasicDirector
      */
     public void requestBroadcast (String message)
     {
+        message = filter(message, null, true);
+        if (message == null) {
+            displayFeedback(_bundle,
+                MessageBundle.compose("m.broadcast_failed", "m.filtered"));
+            return;
+        }
+
         _cservice.broadcast(
             _ctx.getClient(), message, new ChatService.InvocationListener() {
                 public void requestFailed (String reason) {
@@ -355,12 +350,11 @@ public class ChatDirector extends BasicDirector
      * of success or failure.
      */
     public void requestTell (
-        final String target, final String message, final ResultListener rl)
+        final String target, String msg, final ResultListener rl)
     {
         // make sure they can say what they want to say
-        _validateMessageOp.setMessage(target, message);
-        _validators.apply(_validateMessageOp);
-        if (!_validateMessageOp.isValid()) {
+        final String message = filter(msg, target, true);
+        if (message == null) {
             if (rl != null) {
                 rl.requestFailed(null);
             }
@@ -468,12 +462,13 @@ public class ChatDirector extends BasicDirector
         if (CHAT_NOTIFICATION.equals(event.getName())) {
             ChatMessage msg = (ChatMessage) event.getArgs()[0];
             String localtype = getLocalType(event.getTargetOid());
+            String message = msg.message;
 
             // if the message came from a user, make sure we want to hear it
             if (msg instanceof UserMessage) {
                 String speaker = ((UserMessage) msg).speaker;
-                if (isBlocked(speaker)) {
-                    // ack! block that message
+                message = filter(message, speaker, false);
+                if (message == null) {
                     return;
 
                 } else if (USER_CHAT_TYPE.equals(localtype)) {
@@ -483,7 +478,7 @@ public class ChatDirector extends BasicDirector
             }
 
             // initialize the client-specific fields of the message
-            msg.setClientInfo(xlate(msg.bundle, msg.message), localtype);
+            msg.setClientInfo(xlate(msg.bundle, message), localtype);
 
             // and send it off!
             dispatchMessage(msg);
@@ -525,14 +520,6 @@ public class ChatDirector extends BasicDirector
     {
         String type = (String)_auxes.get(oid);
         return (type == null) ? PLACE_CHAT_TYPE : type;
-    }
-
-    /**
-     * Returns whether chat from the specified user is to be distributed.
-     */
-    protected boolean isBlocked (String username)
-    {
-        return (_muter != null) && _muter.isMuted(username);
     }
 
     /**
@@ -587,42 +574,44 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * An operation that checks with all chat validators to determine
-     * whether chat messages are valid for display.
+     * Run a message through all the currently registered filters.
      */
-    protected static class ValidateMessageOp implements ObserverList.ObserverOp
+    protected String filter (String msg, String otherUser, boolean outgoing)
     {
-        public boolean isValid ()
-        {
-            return _valid;
-        }
+        _filterMessageOp.setMessage(msg, otherUser, outgoing);
+        _filters.apply(_filterMessageOp);
+        return _filterMessageOp.getMessage();
+    }
 
-        public void setMessage (String message)
+    /**
+     * An operation that checks with all chat filters to properly filter
+     * a message prior to sending to the server or displaying.
+     */
+    protected static class FilterMessageOp implements ObserverList.ObserverOp
+    {
+        public void setMessage (String msg, String otherUser, boolean outgoing)
         {
-            setMessage(null, message);
-        }
-
-        public void setMessage (String target, String message)
-        {
-            _target = target;
-            _message = message;
-            _valid = true;
+            _msg = msg;
+            _otherUser = otherUser;
+            _out = outgoing;
         }
 
         public boolean apply (Object observer)
         {
-            if (_target == null) {
-                _valid = ((ChatValidator)observer).validateSpeak(_message);
-            } else {
-                _valid = ((ChatValidator)observer).validateTell(
-                    _target, _message);
+            if (_msg != null) {
+                _msg = ((ChatFilter) observer).filter(_msg, _otherUser, _out);
             }
-            return _valid;
+            return true;
         }
 
-        protected String _target;
-        protected String _message;
-        protected boolean _valid;
+        public String getMessage ()
+        {
+            return _msg;
+        }
+
+        protected String _otherUser;
+        protected String _msg;
+        protected boolean _out;
     }
 
     /**
@@ -666,16 +655,13 @@ public class ChatDirector extends BasicDirector
     protected ObserverList _displays =
         new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
 
-    /** A list of registered chat validators. */
-    protected ObserverList _validators =
+    /** A list of registered chat filters. */
+    protected ObserverList _filters =
         new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
 
     /** A mapping from auxiliary chat objects to the types under which
      * they are registered. */
     protected HashIntMap _auxes = new HashIntMap();
-
-    /** An optionally present mutelist director. */
-    protected MuteDirector _muter;
 
     /** Validator of who may be added to the chatters list. */
     protected ChatterValidator _chatterValidator;
@@ -690,8 +676,8 @@ public class ChatDirector extends BasicDirector
     /** Used by {@link #nextRequestId}. */
     protected int _requestId;
 
-    /** Operation used to validate chat messages for display. */
-    protected ValidateMessageOp _validateMessageOp = new ValidateMessageOp();
+    /** Operation used to filter chat messages. */
+    protected FilterMessageOp _filterMessageOp = new FilterMessageOp();
 
     /** Operation used to display chat messages. */
     protected DisplayMessageOp _displayMessageOp = new DisplayMessageOp();

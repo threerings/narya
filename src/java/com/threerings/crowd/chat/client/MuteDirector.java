@@ -1,5 +1,5 @@
 //
-// $Id: MuteDirector.java,v 1.9 2003/06/04 02:50:18 ray Exp $
+// $Id: MuteDirector.java,v 1.10 2003/09/15 21:11:40 ray Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -20,7 +20,7 @@ import com.threerings.presents.client.Client;
  * TODO: This class right now is pretty much just a placeholder.
  */
 public class MuteDirector extends BasicDirector
-    implements ChatValidator
+    implements ChatFilter
 {
     /**
      * An interface that can be registered with the MuteDirector to
@@ -61,8 +61,7 @@ public class MuteDirector extends BasicDirector
     {
         if (_chatdir == null) {
             _chatdir = chatdir;
-            _chatdir.addChatValidator(this);
-            _chatdir.setMuteDirector(this);
+            _chatdir.addChatFilter(this);
         }
     }
 
@@ -113,21 +112,21 @@ public class MuteDirector extends BasicDirector
         return (String[]) _mutelist.toArray(new String[_mutelist.size()]);
     }
 
-    // documentation inherited from interface ChatValidator
-    public boolean validateSpeak (String msg)
+    // documentation inherited from interface ChatFilter
+    public String filter (String msg, String otherUser, boolean outgoing)
     {
-        return true; // sure!
-    }
-
-    // documentation inherited from interface ChatValidator
-    public boolean validateTell (String target, String msg)
-    {
-        if (isMuted(target)) {
-            _chatdir.displayFeedback(null, "m.no_tell_mute");
-            return false;
+        // we are only concerned with filtering things going to or coming
+        // from muted users
+        if ((otherUser != null) && isMuted(otherUser)) {
+            // if it was outgoing, explain the dropped message, otherwise
+            // silently drop
+            if (outgoing) {
+                _chatdir.displayFeedback(null, "m.no_tell_mute");
+            }
+            return null;
         }
 
-        return true; // let it go through..
+        return msg;
     }
 
     /**
