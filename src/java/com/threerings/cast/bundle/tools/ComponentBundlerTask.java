@@ -1,5 +1,5 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.18 2003/01/13 22:53:04 mdb Exp $
+// $Id: ComponentBundlerTask.java,v 1.19 2003/06/17 23:29:33 ray Exp $
 
 package com.threerings.cast.bundle.tools;
 
@@ -26,6 +26,7 @@ import java.util.Iterator;
 
 import java.util.jar.JarOutputStream;
 import java.util.jar.JarEntry;
+import java.util.zip.Deflater;
 
 import org.xml.sax.SAXException;
 import org.apache.commons.digester.Digester;
@@ -156,6 +157,7 @@ public class ComponentBundlerTask extends Task
             // make sure we can create our bundle file
             FileOutputStream fout = new FileOutputStream(_target);
             JarOutputStream jout = new JarOutputStream(fout);
+            jout.setLevel(Deflater.BEST_COMPRESSION);
 
             // we'll fill this with component id to tuple mappings
             HashIntMap mapping = new HashIntMap();

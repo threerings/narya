@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundler.java,v 1.16 2003/05/13 21:33:58 ray Exp $
+// $Id: TileSetBundler.java,v 1.17 2003/06/17 23:29:33 ray Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.zip.Deflater;
 
 import org.xml.sax.SAXException;
 
@@ -310,6 +311,7 @@ public class TileSetBundler
         FileOutputStream fout = new FileOutputStream(target);
         Manifest manifest = new Manifest();
         JarOutputStream jar = new JarOutputStream(fout, manifest);
+        jar.setLevel(Deflater.BEST_COMPRESSION);
 
         // create an image provider for loading our tileset images
         SimpleCachingImageProvider improv = new SimpleCachingImageProvider() {

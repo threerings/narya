@@ -1,5 +1,5 @@
 //
-// $Id: MetadataBundlerTask.java,v 1.3 2002/06/26 23:53:07 mdb Exp $
+// $Id: MetadataBundlerTask.java,v 1.4 2003/06/17 23:29:33 ray Exp $
 
 package com.threerings.cast.bundle.tools;
 
@@ -17,6 +17,7 @@ import java.util.HashMap;
 
 import java.util.jar.JarOutputStream;
 import java.util.jar.JarEntry;
+import java.util.zip.Deflater;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -91,6 +92,7 @@ public class MetadataBundlerTask extends Task
 
             // and create the bundle file
             JarOutputStream jout = new JarOutputStream(fout);
+            jout.setLevel(Deflater.BEST_COMPRESSION);
 
             // throw the serialized actions table in there
             JarEntry aentry = new JarEntry(BundleUtil.ACTIONS_PATH);
