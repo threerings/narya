@@ -1,5 +1,5 @@
 //
-// $Id: OccupantManager.java,v 1.8 2001/12/16 08:09:10 mdb Exp $
+// $Id: OccupantManager.java,v 1.9 2001/12/19 23:11:59 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -61,6 +61,20 @@ public class OccupantManager
     public void removeOccupantObserver (OccupantObserver obs)
     {
         _observers.remove(obs);
+    }
+
+    /**
+     * Returns the occupant info for the user in question if it exists in
+     * the currently occupied place. Returns null if no occupant info
+     * exists for the specified body.
+     */
+    public OccupantInfo getOccupantInfo (int bodyOid)
+    {
+        // make sure we're somewhere
+        if (_place == null) {
+            return null;
+        }
+        return (OccupantInfo)_place.occupantInfo.get(new Integer(bodyOid));
     }
 
     // inherit documentation
