@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.15 2002/03/08 09:34:42 mdb Exp $
+// $Id: ImageManager.java,v 1.16 2002/04/28 01:19:11 mdb Exp $
 
 package com.threerings.media;
 
@@ -19,6 +19,8 @@ import javax.imageio.ImageReader;
 
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
+
+import com.samskivert.io.NestableIOException;
 
 import com.threerings.resource.ResourceManager;
 import com.threerings.media.Log;
@@ -79,7 +81,12 @@ public class ImageManager
     public Image loadImage (String path)
         throws IOException
     {
-        return _loader.loadImage(_rmgr.getResource(path));
+        try {
+            return _loader.loadImage(_rmgr.getResource(path));
+        } catch (IllegalArgumentException iae) {
+            String errmsg = "Error loading image [path=" + path + "]";
+            throw new NestableIOException(errmsg, iae);
+        }
     }
 
     /**
@@ -91,7 +98,12 @@ public class ImageManager
     public Image loadImage (InputStream source)
         throws IOException
     {
-        return _loader.loadImage(source);
+        try {
+            return _loader.loadImage(source);
+        } catch (IllegalArgumentException iae) {
+            String errmsg = "Error loading image";
+            throw new NestableIOException(errmsg, iae);
+        }
     }
 
     /**
@@ -102,7 +114,7 @@ public class ImageManager
     public Image createImage (InputStream source)
         throws IOException
     {
-        Image src = _loader.loadImage(source);
+        Image src = loadImage(source);
         int swidth = src.getWidth(null);
         int sheight = src.getHeight(null);
 
