@@ -1,5 +1,5 @@
 //
-// $Id: CompositedActionFrames.java,v 1.12 2003/01/13 22:53:04 mdb Exp $
+// $Id: CompositedActionFrames.java,v 1.13 2003/01/13 23:53:04 mdb Exp $
 
 package com.threerings.cast;
 
@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Transparency;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -226,6 +227,12 @@ public class CompositedActionFrames
                         _action, _sorient) -
                     cf2.ccomp.componentClass.getRenderPriority(
                         _action, _sorient));
+        }
+
+        // documentation inherited
+        protected int getTransparency ()
+        {
+            return Transparency.BITMASK;
         }
 
         // documentation inherited
