@@ -1,5 +1,5 @@
 //
-// $Id: TestObject.java,v 1.1 2002/02/08 23:17:38 mdb Exp $
+// $Id: TestObject.java,v 1.2 2002/02/20 23:35:42 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -25,20 +25,13 @@ public class TestObject extends DObject
 
     /**
      * Requests that the <code>foo</code> field be set to the specified
-     * value.
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
      */
     public void setFoo (int foo)
-    {
-        requestAttributeChange(FOO, new Integer(foo));
-    }
-
-    /**
-     * Requests that the <code>foo</code> field be set to the
-     * specified value and immediately updates the state of the object
-     * to reflect the change. This should <em>only</em> be called on the
-     * server and only then if you know what you're doing.
-     */
-    public void setFooImmediate (int foo)
     {
         this.foo = foo;
         requestAttributeChange(FOO, new Integer(foo));
@@ -46,20 +39,13 @@ public class TestObject extends DObject
 
     /**
      * Requests that the <code>bar</code> field be set to the specified
-     * value.
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
      */
     public void setBar (String bar)
-    {
-        requestAttributeChange(BAR, bar);
-    }
-
-    /**
-     * Requests that the <code>bar</code> field be set to the
-     * specified value and immediately updates the state of the object
-     * to reflect the change. This should <em>only</em> be called on the
-     * server and only then if you know what you're doing.
-     */
-    public void setBarImmediate (String bar)
     {
         this.bar = bar;
         requestAttributeChange(BAR, bar);
@@ -67,7 +53,8 @@ public class TestObject extends DObject
 
     /**
      * Requests that the specified oid be added to the
-     * <code>list</code> oid list.
+     * <code>list</code> oid list. The list will not change until the
+     * event is actually propagated through the system.
      */
     public void addToList (int oid)
     {
@@ -76,7 +63,8 @@ public class TestObject extends DObject
 
     /**
      * Requests that the specified oid be removed from the
-     * <code>list</code> oid list.
+     * <code>list</code> oid list. The list will not change until the
+     * event is actually propagated through the system.
      */
     public void removeFromList (int oid)
     {

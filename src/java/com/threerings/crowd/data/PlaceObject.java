@@ -1,5 +1,5 @@
 //
-// $Id: PlaceObject.java,v 1.2 2002/02/08 23:54:25 mdb Exp $
+// $Id: PlaceObject.java,v 1.3 2002/02/20 23:35:42 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -28,7 +28,8 @@ public class PlaceObject extends DObject
 
     /**
      * Requests that the specified oid be added to the
-     * <code>occupants</code> oid list.
+     * <code>occupants</code> oid list. The list will not change until the
+     * event is actually propagated through the system.
      */
     public void addToOccupants (int oid)
     {
@@ -37,7 +38,8 @@ public class PlaceObject extends DObject
 
     /**
      * Requests that the specified oid be removed from the
-     * <code>occupants</code> oid list.
+     * <code>occupants</code> oid list. The list will not change until the
+     * event is actually propagated through the system.
      */
     public void removeFromOccupants (int oid)
     {
@@ -46,7 +48,8 @@ public class PlaceObject extends DObject
 
     /**
      * Requests that the specified element be added to the
-     * <code>occupantInfo</code> set.
+     * <code>occupantInfo</code> set. The set will not change until the event is
+     * actually propagated through the system.
      */
     public void addToOccupantInfo (DSet.Element elem)
     {
@@ -55,7 +58,8 @@ public class PlaceObject extends DObject
 
     /**
      * Requests that the element matching the supplied key be removed from
-     * the <code>occupantInfo</code> set.
+     * the <code>occupantInfo</code> set. The set will not change until the
+     * event is actually propagated through the system.
      */
     public void removeFromOccupantInfo (Object key)
     {
@@ -64,7 +68,8 @@ public class PlaceObject extends DObject
 
     /**
      * Requests that the specified element be updated in the
-     * <code>occupantInfo</code> set.
+     * <code>occupantInfo</code> set. The set will not change until the event is
+     * actually propagated through the system.
      */
     public void updateOccupantInfo (DSet.Element elem)
     {
@@ -75,10 +80,15 @@ public class PlaceObject extends DObject
      * Requests that the <code>occupantInfo</code> field be set to the
      * specified value. Generally one only adds, updates and removes
      * elements of a distributed set, but certain situations call for a
-     * complete replacement of the set value.
+     * complete replacement of the set value. The local value will be
+     * updated immediately and an event will be propagated through the
+     * system to notify all listeners that the attribute did
+     * change. Proxied copies of this object (on clients) will apply the
+     * value change when they received the attribute changed notification.
      */
     public void setOccupantInfo (DSet value)
     {
+        this.occupantInfo = occupantInfo;
         requestAttributeChange(OCCUPANT_INFO, value);
     }
 }

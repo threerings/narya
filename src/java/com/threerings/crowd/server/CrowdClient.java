@@ -1,5 +1,5 @@
 //
-// $Id: CrowdClient.java,v 1.6 2002/02/03 03:09:06 mdb Exp $
+// $Id: CrowdClient.java,v 1.7 2002/02/20 23:35:42 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -19,11 +19,8 @@ public class CrowdClient extends PresentsClient
         // cast our client object to a body object
         _bodobj = (BodyObject)_clobj;
 
-        // and configure our username (we use the setImmediate form so
-        // that entities later in the session start processing can access
-        // fields set in the body object without having to wait for them
-        // to be flushed through the dobject queue)
-        _bodobj.setUsernameImmediate(_username);
+        // and configure our username
+        _bodobj.setUsername(_username);
 
         // register our body object mapping
         CrowdServer.mapBody(_username, _bodobj);

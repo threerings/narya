@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: gendobj,v 1.6 2002/02/09 00:10:19 mdb Exp $
+# $Id: gendobj,v 1.7 2002/02/20 23:35:42 mdb Exp $
 #
 # gendobj is used to generate DObject source file definitons basded on
 # abbreviated declarations. Because DObject fields all have standard
@@ -184,7 +184,8 @@ sub print_dobj_setters
 
     /**
      * Requests that the specified element be added to the
-     * <code>$field</code> set.
+     * <code>$field</code> set. The set will not change until the event is
+     * actually propagated through the system.
      */
     public void addTo$cfield (DSet.Element elem)
     {
@@ -193,7 +194,8 @@ sub print_dobj_setters
 
     /**
      * Requests that the element matching the supplied key be removed from
-     * the <code>$field</code> set.
+     * the <code>$field</code> set. The set will not change until the
+     * event is actually propagated through the system.
      */
     public void removeFrom$cfield (Object key)
     {
@@ -202,7 +204,8 @@ sub print_dobj_setters
 
     /**
      * Requests that the specified element be updated in the
-     * <code>$field</code> set.
+     * <code>$field</code> set. The set will not change until the event is
+     * actually propagated through the system.
      */
     public void update$cfield (DSet.Element elem)
     {
@@ -213,10 +216,15 @@ sub print_dobj_setters
      * Requests that the <code>$field</code> field be set to the
      * specified value. Generally one only adds, updates and removes
      * elements of a distributed set, but certain situations call for a
-     * complete replacement of the set value.
+     * complete replacement of the set value. The local value will be
+     * updated immediately and an event will be propagated through the
+     * system to notify all listeners that the attribute did
+     * change. Proxied copies of this object (on clients) will apply the
+     * value change when they received the attribute changed notification.
      */
     public void set$cfield (DSet value)
     {
+        this.$field = $field;
         requestAttributeChange($fcode, value);
     }
 EOF
@@ -226,7 +234,8 @@ EOF
 
     /**
      * Requests that the specified oid be added to the
-     * <code>$field</code> oid list.
+     * <code>$field</code> oid list. The list will not change until the
+     * event is actually propagated through the system.
      */
     public void addTo$cfield (int oid)
     {
@@ -235,7 +244,8 @@ EOF
 
     /**
      * Requests that the specified oid be removed from the
-     * <code>$field</code> oid list.
+     * <code>$field</code> oid list. The list will not change until the
+     * event is actually propagated through the system.
      */
     public void removeFrom$cfield (int oid)
     {
@@ -248,20 +258,13 @@ EOF
 
     /**
      * Requests that the <code>$field</code> field be set to the specified
-     * value.
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
      */
     public void set$cfield ($type $field)
-    {
-        requestAttributeChange($fcode, $dobjval);
-    }
-
-    /**
-     * Requests that the <code>$field</code> field be set to the
-     * specified value and immediately updates the state of the object
-     * to reflect the change. This should <em>only</em> be called on the
-     * server and only then if you know what you're doing.
-     */
-    public void set${cfield}Immediate ($type $field)
     {
         this.$field = $field;
         requestAttributeChange($fcode, $dobjval);

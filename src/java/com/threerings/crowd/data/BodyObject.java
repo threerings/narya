@@ -1,5 +1,5 @@
 //
-// $Id: BodyObject.java,v 1.1 2002/02/08 23:10:36 mdb Exp $
+// $Id: BodyObject.java,v 1.2 2002/02/20 23:35:42 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -26,20 +26,13 @@ public class BodyObject extends ClientObject
 
     /**
      * Requests that the <code>username</code> field be set to the specified
-     * value.
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
      */
     public void setUsername (String username)
-    {
-        requestAttributeChange(USERNAME, username);
-    }
-
-    /**
-     * Requests that the <code>username</code> field be set to the
-     * specified value and immediately updates the state of the object
-     * to reflect the change. This should <em>only</em> be called on the
-     * server and only then if you know what you're doing.
-     */
-    public void setUsernameImmediate (String username)
     {
         this.username = username;
         requestAttributeChange(USERNAME, username);
@@ -47,20 +40,13 @@ public class BodyObject extends ClientObject
 
     /**
      * Requests that the <code>location</code> field be set to the specified
-     * value.
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
      */
     public void setLocation (int location)
-    {
-        requestAttributeChange(LOCATION, new Integer(location));
-    }
-
-    /**
-     * Requests that the <code>location</code> field be set to the
-     * specified value and immediately updates the state of the object
-     * to reflect the change. This should <em>only</em> be called on the
-     * server and only then if you know what you're doing.
-     */
-    public void setLocationImmediate (int location)
     {
         this.location = location;
         requestAttributeChange(LOCATION, new Integer(location));

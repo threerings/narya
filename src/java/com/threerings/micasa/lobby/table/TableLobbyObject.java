@@ -1,5 +1,5 @@
 //
-// $Id: TableLobbyObject.java,v 1.1 2002/02/08 23:55:24 mdb Exp $
+// $Id: TableLobbyObject.java,v 1.2 2002/02/20 23:35:42 mdb Exp $
 
 package com.threerings.micasa.lobby.table;
 
@@ -43,7 +43,8 @@ public class TableLobbyObject
 
     /**
      * Requests that the specified element be added to the
-     * <code>tableSet</code> set.
+     * <code>tableSet</code> set. The set will not change until the event is
+     * actually propagated through the system.
      */
     public void addToTableSet (DSet.Element elem)
     {
@@ -52,7 +53,8 @@ public class TableLobbyObject
 
     /**
      * Requests that the element matching the supplied key be removed from
-     * the <code>tableSet</code> set.
+     * the <code>tableSet</code> set. The set will not change until the
+     * event is actually propagated through the system.
      */
     public void removeFromTableSet (Object key)
     {
@@ -61,7 +63,8 @@ public class TableLobbyObject
 
     /**
      * Requests that the specified element be updated in the
-     * <code>tableSet</code> set.
+     * <code>tableSet</code> set. The set will not change until the event is
+     * actually propagated through the system.
      */
     public void updateTableSet (DSet.Element elem)
     {
@@ -72,10 +75,15 @@ public class TableLobbyObject
      * Requests that the <code>tableSet</code> field be set to the
      * specified value. Generally one only adds, updates and removes
      * elements of a distributed set, but certain situations call for a
-     * complete replacement of the set value.
+     * complete replacement of the set value. The local value will be
+     * updated immediately and an event will be propagated through the
+     * system to notify all listeners that the attribute did
+     * change. Proxied copies of this object (on clients) will apply the
+     * value change when they received the attribute changed notification.
      */
     public void setTableSet (DSet value)
     {
+        this.tableSet = tableSet;
         requestAttributeChange(TABLE_SET, value);
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.java,v 1.2 2002/02/13 03:21:28 mdb Exp $
+// $Id: GameObject.java,v 1.3 2002/02/20 23:35:42 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -52,20 +52,13 @@ public class GameObject extends PlaceObject
 
     /**
      * Requests that the <code>state</code> field be set to the specified
-     * value.
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
      */
     public void setState (int state)
-    {
-        requestAttributeChange(STATE, new Integer(state));
-    }
-
-    /**
-     * Requests that the <code>state</code> field be set to the
-     * specified value and immediately updates the state of the object
-     * to reflect the change. This should <em>only</em> be called on the
-     * server and only then if you know what you're doing.
-     */
-    public void setStateImmediate (int state)
     {
         this.state = state;
         requestAttributeChange(STATE, new Integer(state));
@@ -73,20 +66,13 @@ public class GameObject extends PlaceObject
 
     /**
      * Requests that the <code>isRated</code> field be set to the specified
-     * value.
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
      */
     public void setIsRated (boolean isRated)
-    {
-        requestAttributeChange(IS_RATED, new Boolean(isRated));
-    }
-
-    /**
-     * Requests that the <code>isRated</code> field be set to the
-     * specified value and immediately updates the state of the object
-     * to reflect the change. This should <em>only</em> be called on the
-     * server and only then if you know what you're doing.
-     */
-    public void setIsRatedImmediate (boolean isRated)
     {
         this.isRated = isRated;
         requestAttributeChange(IS_RATED, new Boolean(isRated));
@@ -94,20 +80,13 @@ public class GameObject extends PlaceObject
 
     /**
      * Requests that the <code>players</code> field be set to the specified
-     * value.
+     * value. The local value will be updated immediately and an event
+     * will be propagated through the system to notify all listeners that
+     * the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
      */
     public void setPlayers (String[] players)
-    {
-        requestAttributeChange(PLAYERS, players);
-    }
-
-    /**
-     * Requests that the <code>players</code> field be set to the
-     * specified value and immediately updates the state of the object
-     * to reflect the change. This should <em>only</em> be called on the
-     * server and only then if you know what you're doing.
-     */
-    public void setPlayersImmediate (String[] players)
     {
         this.players = players;
         requestAttributeChange(PLAYERS, players);
