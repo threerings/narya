@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.13 2001/07/24 22:52:02 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.14 2001/07/25 01:38:08 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -174,7 +174,7 @@ public class Scene
     /** The unique scene id. */
     protected short _sid;
 
-    /** Hot-spot zone points */
+    /** Hot-spot zone points. */
     protected Point _hotspots[];
 
     /** Exit points to different scenes. */
