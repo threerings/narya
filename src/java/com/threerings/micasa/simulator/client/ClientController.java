@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.1 2001/12/19 09:32:02 shaper Exp $
+// $Id: ClientController.java,v 1.2 2002/01/16 02:59:08 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -14,9 +14,9 @@ import com.threerings.crowd.client.*;
 import com.threerings.crowd.data.*;
 
 import com.threerings.parlor.game.GameConfig;
+import com.threerings.parlor.util.ParlorContext;
 
 import com.threerings.micasa.Log;
-import com.threerings.micasa.simulator.util.SimulatorContext;
 import com.threerings.micasa.simulator.data.SimulatorInfo;
 
 /**
@@ -30,11 +30,13 @@ public class ClientController
      * Creates a new client controller. The controller will set everything
      * up in preparation for logging on.
      */
-    public ClientController (SimulatorContext ctx, SimulatorFrame frame)
+    public ClientController (ParlorContext ctx, SimulatorFrame frame,
+                             SimulatorInfo info)
     {
         // we'll want to keep these around
         _ctx = ctx;
         _frame = frame;
+        _info = info;
 
         // we want to know about logon/logoff
         _ctx.getClient().addObserver(this);
@@ -63,23 +65,20 @@ public class ClientController
         // keep the body object around for stuff
         _body = (BodyObject)client.getClientObject();
 
-        // get a handle on the simulator info
-        SimulatorInfo siminfo = _ctx.getSimulatorInfo();
-
         // create the game config object
         GameConfig config = null;
         try {
             config = (GameConfig)
-                Class.forName(siminfo.gameConfigClass).newInstance();
+                Class.forName(_info.gameConfigClass).newInstance();
         } catch (Exception e) {
             Log.warning("Failed to instantiate game config " +
-                        "[class=" + siminfo.gameConfigClass + "].");
+                        "[class=" + _info.gameConfigClass + "].");
             return;
         }
 
         // send the game creation request
         SimulatorDirector.createGame(
-            client, config, siminfo.simClass, siminfo.playerCount);
+            client, config, _info.simClass, _info.playerCount);
 
         // our work here is done, as the location manager will move us
         // into the game room straightaway
@@ -112,7 +111,8 @@ public class ClientController
         Log.info("Client did logoff [client=" + client + "].");
     }
 
-    protected SimulatorContext _ctx;
+    protected ParlorContext _ctx;
     protected SimulatorFrame _frame;
+    protected SimulatorInfo _info;
     protected BodyObject _body;
 }

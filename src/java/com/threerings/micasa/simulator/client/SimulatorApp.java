@@ -1,8 +1,11 @@
 //
-// $Id: SimulatorApp.java,v 1.1 2001/12/19 09:32:02 shaper Exp $
+// $Id: SimulatorApp.java,v 1.2 2002/01/16 02:59:08 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
+import javax.swing.JFrame;
+
+import com.samskivert.swing.Controller;
 import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.presents.client.Client;
@@ -28,7 +31,7 @@ public class SimulatorApp
         _serverThread = new ServerThread(server);
 
         // create a frame
-        _frame = new SimulatorFrame();
+        _frame = createSimulatorFrame();
 
         // create the simulator info object
         SimulatorInfo siminfo = new SimulatorInfo();
@@ -38,7 +41,23 @@ public class SimulatorApp
             System.getProperty("playercount"), DEFAULT_PLAYER_COUNT);
 
         // create our client instance
-        _client = new SimulatorClient(_frame, siminfo);
+        _client = createSimulatorClient(_frame);
+
+        // set up the top-level client controller
+        Controller ctrl = new ClientController(
+            _client.getContext(), _frame, siminfo);
+        _frame.setController(ctrl);
+    }
+
+    protected SimulatorFrame createSimulatorFrame ()
+    {
+        return new SimpleFrame();
+    }
+
+    protected SimulatorClient createSimulatorClient (SimulatorFrame frame)
+        throws Exception
+    {
+        return new SimpleClient(_frame);
     }
 
     public void run ()
@@ -46,9 +65,10 @@ public class SimulatorApp
         // size and display the window
         int wid = getInt(System.getProperty("width"), 800);
         int hei = getInt(System.getProperty("height"), 600);
-        _frame.setSize(wid, hei);
-        SwingUtil.centerWindow(_frame);
-        _frame.show();
+        JFrame frame = _frame.getFrame();
+        frame.setSize(wid, hei);
+        SwingUtil.centerWindow(frame);
+        frame.show();
 
         // start up the server
         _serverThread.start();
@@ -84,16 +104,7 @@ public class SimulatorApp
 
     public static void main (String[] args)
     {
-        if (args.length < 2) {
-            String msg = "Usage:\n" +
-                "    java com.threerings.simulator.SimulatorApp " +
-                "<game config class name> <simulant class name>\n" +
-                "Optional properties:\n" +
-                "    -Dusername=<user>\n" +
-                "    -Dplayercount=<number>\n" +
-                "    -Dwidth=<width>\n" +
-                "    -Dheight=<height>";
-            System.out.println(msg);
+        if (!checkArgs(args)) {
             return;
         }
 
@@ -106,6 +117,24 @@ public class SimulatorApp
         }
 
         app.run();
+    }
+
+    protected static boolean checkArgs (String[] args)
+    {
+        if (args.length < 2) {
+            String msg = "Usage:\n" +
+                "    java com.threerings.simulator.SimulatorApp " +
+                "<game config class name> <simulant class name>\n" +
+                "Optional properties:\n" +
+                "    -Dusername=<user>\n" +
+                "    -Dplayercount=<number>\n" +
+                "    -Dwidth=<width>\n" +
+                "    -Dheight=<height>";
+            System.out.println(msg);
+            return false;
+        }
+
+        return true;
     }
 
     protected int getInt (String value, int defval)
