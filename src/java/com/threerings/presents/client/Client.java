@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.24 2002/05/28 22:06:05 mdb Exp $
+// $Id: Client.java,v 1.25 2002/05/28 22:07:13 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -300,7 +300,6 @@ public class Client
         PingRequest req = new PingRequest();
         _comm.postMessage(req);
         _dcalc.sentPing(req);
-        Log.info("Sent ping.");
     }
 
     /**
@@ -403,8 +402,6 @@ public class Client
      */
     void gotPong (PongResponse pong)
     {
-        Log.info("Got pong."); 
-
         // if we're not calculating our client/server time delta, then we
         // don't need to do anything with the pong
         if (_dcalc == null) {
