@@ -1,5 +1,5 @@
 //
-// $Id: SwissArmyTileSetRuleSet.java,v 1.6 2001/11/29 20:39:37 mdb Exp $
+// $Id: SwissArmyTileSetRuleSet.java,v 1.7 2001/11/29 21:58:15 mdb Exp $
 
 package com.threerings.media.tools.tile.xml;
 
@@ -12,6 +12,7 @@ import org.apache.commons.digester.Digester;
 import com.samskivert.util.StringUtil;
 import com.samskivert.xml.CallMethodSpecialRule;
 
+import com.threerings.media.Log;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.SwissArmyTileSet;
 
@@ -93,6 +94,36 @@ public class SwissArmyTileSetRuleSet extends TileSetRuleSet
                     starget.setGapSize(new Dimension(values[0], values[1]));
                 }
             });
+    }
+
+    // documentation inherited
+    public boolean isValid (Object target)
+    {
+        SwissArmyTileSet set = (SwissArmyTileSet)target;
+        boolean valid = super.isValid(target);
+
+        // check for a <widths> element
+        if (set.getWidths() == null) {
+            Log.warning("Tile set definition missing valid <widths> " +
+                        "element [set=" + set + "].");
+            valid = false;
+        }
+
+        // check for a <heights> element
+        if (set.getHeights() == null) {
+            Log.warning("Tile set definition missing valid <heights> " +
+                        "element [set=" + set + "].");
+            valid = false;
+        }
+
+        // check for a <tileCounts> element
+        if (set.getTileCounts() == null) {
+            Log.warning("Tile set definition missing valid <tileCounts> " +
+                        "element [set=" + set + "].");
+            valid = false;
+        }
+
+        return valid;
     }
 
     // documentation inherited

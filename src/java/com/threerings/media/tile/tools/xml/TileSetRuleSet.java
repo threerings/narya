@@ -1,5 +1,5 @@
 //
-// $Id: TileSetRuleSet.java,v 1.4 2001/11/21 02:42:15 mdb Exp $
+// $Id: TileSetRuleSet.java,v 1.5 2001/11/29 21:58:15 mdb Exp $
 
 package com.threerings.media.tools.tile.xml;
 
@@ -9,6 +9,11 @@ import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 import org.apache.commons.digester.RuleSetBase;
 
+import com.samskivert.util.StringUtil;
+import com.samskivert.xml.ValidatedSetNextRule;
+import com.samskivert.xml.ValidatedSetNextRule.Validator;
+
+import com.threerings.media.Log;
 import com.threerings.media.tile.TileSet;
 
 /**
@@ -16,7 +21,8 @@ import com.threerings.media.tile.TileSet;
  * instance. Derived classes would extend this and add rules for their own
  * special tilesets.
  */
-public abstract class TileSetRuleSet extends RuleSetBase
+public abstract class TileSetRuleSet
+    extends RuleSetBase implements Validator
 {
     /** The component of the digester path that is appended by the tileset
      * rule set to match a tileset. This is appended to whatever prefix is
@@ -67,6 +73,33 @@ public abstract class TileSetRuleSet extends RuleSetBase
         // grab the image path from an element
         digester.addCallMethod(
             _prefix + TILESET_PATH + "/imagePath", "setImagePath", 0);
+    }
+
+    /**
+     * The ruleset can be provided to a {@link ValidatedSetNextRule} to
+     * ensure that the tileset was fully parsed before doing something
+     * with it.
+     */
+    public boolean isValid (Object target)
+    {
+        TileSet set = (TileSet)target;
+        boolean valid = true;
+
+        // check for the 'name' attribute
+        if (StringUtil.blank(set.getName())) {
+            Log.warning("Tile set definition missing 'name' attribute " +
+                        "[set=" + set + "].");
+            valid = false;
+        }
+
+        // check for an <imagePath> element
+        if (StringUtil.blank(set.getImagePath())) {
+            Log.warning("Tile set definition missing <imagePath> element " +
+                        "[set=" + set + "].");
+            valid = false;
+        }
+
+        return valid;
     }
 
     /**

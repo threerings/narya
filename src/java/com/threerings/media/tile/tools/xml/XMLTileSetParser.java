@@ -1,5 +1,5 @@
 //
-// $Id: XMLTileSetParser.java,v 1.4 2001/11/27 22:06:39 mdb Exp $
+// $Id: XMLTileSetParser.java,v 1.5 2001/11/29 21:58:15 mdb Exp $
 
 package com.threerings.media.tools.tile.xml;
 
@@ -16,6 +16,7 @@ import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 
 import com.samskivert.util.ConfigUtil;
+import com.samskivert.xml.ValidatedSetNextRule;
 
 import com.threerings.media.Log;
 import com.threerings.media.tile.TileSet;
@@ -57,8 +58,10 @@ public class XMLTileSetParser
 
         // add a set next rule which will put tilesets with this prefix
         // into the array list that'll be on the top of the stack
-        _digester.addSetNext(prefix + TileSetRuleSet.TILESET_PATH,
-                             "add", "java.lang.Object");
+        _digester.addRule(prefix + TileSetRuleSet.TILESET_PATH,
+                          new ValidatedSetNextRule(_digester, 
+                                                   "add", Object.class,
+                                                   ruleset));
     }
 
     /**

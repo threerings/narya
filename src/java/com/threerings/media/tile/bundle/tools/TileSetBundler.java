@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundler.java,v 1.2 2001/11/29 00:13:20 mdb Exp $
+// $Id: TileSetBundler.java,v 1.3 2001/11/29 21:58:15 mdb Exp $
 
 package com.threerings.media.tools.tile.bundle;
 
@@ -30,7 +30,7 @@ import com.samskivert.io.PersistenceException;
 import com.threerings.media.Log;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileSetIDBroker;
-import com.threerings.media.tile.bundle.BundledTileSetRepository;
+import com.threerings.media.tile.bundle.BundleUtil;
 import com.threerings.media.tile.bundle.TileSetBundle;
 import com.threerings.media.tools.tile.xml.TileSetRuleSet;
 
@@ -270,8 +270,7 @@ public class TileSetBundler
         try {
             // first write a serialized representation of the tileset
             // bundle object to the bundle jar file
-            JarEntry entry = new JarEntry(
-                BundledTileSetRepository.METADATA_PATH);
+            JarEntry entry = new JarEntry(BundleUtil.METADATA_PATH);
             jar.putNextEntry(entry);
             ObjectOutputStream oout = new ObjectOutputStream(jar);
             oout.writeObject(bundle);

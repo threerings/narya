@@ -1,11 +1,12 @@
 //
-// $Id: UniformTileSetRuleSet.java,v 1.5 2001/11/29 20:39:37 mdb Exp $
+// $Id: UniformTileSetRuleSet.java,v 1.6 2001/11/29 21:58:15 mdb Exp $
 
 package com.threerings.media.tools.tile.xml;
 
 import org.xml.sax.Attributes;
 import org.apache.commons.digester.Digester;
 
+import com.threerings.media.Log;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.UniformTileSet;
 
@@ -41,6 +42,36 @@ public class UniformTileSetRuleSet extends TileSetRuleSet
         digester.addCallMethod(
             _prefix + TILESET_PATH + "/tileCount", "setTileCount", 0,
             new Class[] { java.lang.Integer.TYPE });
+    }
+
+    // documentation inherited
+    public boolean isValid (Object target)
+    {
+        UniformTileSet set = (UniformTileSet)target;
+        boolean valid = super.isValid(target);
+
+        // check for a <width> element
+        if (set.getWidth() == 0) {
+            Log.warning("Tile set definition missing valid <width> " +
+                        "element [set=" + set + "].");
+            valid = false;
+        }
+
+        // check for a <height> element
+        if (set.getHeight() == 0) {
+            Log.warning("Tile set definition missing valid <height> " +
+                        "element [set=" + set + "].");
+            valid = false;
+        }
+
+        // check for a <tileCount> element
+        if (set.getTileCount() == 0) {
+            Log.warning("Tile set definition missing valid <tileCount> " +
+                        "element [set=" + set + "].");
+            valid = false;
+        }
+
+        return valid;
     }
 
     // documentation inherited
