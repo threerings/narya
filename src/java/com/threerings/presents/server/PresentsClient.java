@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.14 2001/08/04 01:54:34 mdb Exp $
+// $Id: PresentsClient.java,v 1.15 2001/08/04 03:26:00 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -114,9 +114,38 @@ public class CherClient implements Subscriber, MessageHandler
         // start using the new connection
         setConnection(conn);
 
-        // we need to queue up an event so that we can finalize the
-        // resumption of the session on the dobjmgr thread
-        CherServer.omgr.postEvent(new ResumeSessionEvent(_clobj.getOid()));
+        // we need to get onto the distributed object thread so that we
+        // can finalize the resumption of the session. we do so by
+        // subscribing to the client object (to which we are normally not
+        // subscribed in between active connections)
+        Subscriber sub = new Subscriber() {
+            public void objectAvailable (DObject dobj)
+            {
+                // we don't want to continue to be subscribed to the
+                // client object so we remove our subscription
+                dobj.removeSubscriber(this);
+                // now that we're on the dobjmgr thread we can resume our
+                // session resumption
+                finishResumeSession();
+            }
+
+            public void requestFailed (int oid, ObjectAccessException cause)
+            {
+                Log.warning("Not able to subscribe to client object and " +
+                            "resume session!? [client=" + CherClient.this +
+                            ", cause=" + cause + "].");
+            }
+
+            public boolean handleEvent (DEvent event, DObject target)
+            {
+                Log.warning("Resuming subscriber received an event!? " +
+                            "[client=" + CherClient.this +
+                            ", event=" + event + "].");
+                // we shouldn't have been subscribed in the first place
+                return false;
+            }
+        };
+        CherServer.omgr.subscribeToObject(_clobj.getOid(), sub);
     }
 
     /**
@@ -313,22 +342,16 @@ public class CherClient implements Subscriber, MessageHandler
     // documentation inherited from interface
     public boolean handleEvent (DEvent event, DObject target)
     {
-        if (event instanceof ResumeSessionEvent) {
-            finishResumeSession();
-
+        // forward the event to the client
+        Connection conn = getConnection();
+        if (conn != null) {
+            // only typed events will be forwarded to the client, so we
+            // need not worry that a non-typed event would make it here
+            TypedEvent tevent = (TypedEvent)event;
+            conn.postMessage(new EventNotification(tevent));
         } else {
-            // forward the event to the client
-            Connection conn = getConnection();
-            if (conn != null) {
-                // only typed events will be forwarded to the client, so
-                // we need not worry that a non-typed event would make it
-                // here
-                TypedEvent tevent = (TypedEvent)event;
-                conn.postMessage(new EventNotification(tevent));
-            } else {
-                Log.info("Dropped event forward notification " +
-                         "[client=" + this + ", event=" + event + "].");
-            }
+            Log.info("Dropped event forward notification " +
+                     "[client=" + this + ", event=" + event + "].");
         }
 
         return true;
@@ -443,24 +466,6 @@ public class CherClient implements Subscriber, MessageHandler
             }
             // then let the client manager know what's up
             client._cmgr.clientDidEndSession(client);
-        }
-    }
-
-    /**
-     * Used to inject ourselves onto the dobjmgr thread.
-     */
-    protected static class ResumeSessionEvent extends DEvent
-    {
-        public ResumeSessionEvent (int oid)
-        {
-            super(oid);
-        }
-
-        public boolean applyToObject (DObject target)
-            throws ObjectAccessException
-        {
-            // nothing to do here and don't tell our subscribers
-            return false;
         }
     }
 
