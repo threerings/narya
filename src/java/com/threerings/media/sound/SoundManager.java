@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.18 2002/11/19 02:24:35 ray Exp $
+// $Id: SoundManager.java,v 1.19 2002/11/19 21:17:35 ray Exp $
 
 package com.threerings.media;
 
@@ -100,8 +100,6 @@ public class SoundManager
     {
         // save things off
         _rmgr = rmgr;
-
-        initMidi();
 
         // create a thread to plays sounds and load sound
         // data from the resource manager
@@ -473,6 +471,10 @@ public class SoundManager
      */
     protected void playSequence (MidiInfo info)
     {
+        if (_sequencer == null) {
+            initMidi();
+        }
+
         stopCurrentSong(false);
         _midiStack.addFirst(info);
         playTopSong();
