@@ -1,5 +1,5 @@
 //
-// $Id: BackgroundTiler.java,v 1.6 2003/11/14 19:39:52 ray Exp $
+// $Id: BackgroundTiler.java,v 1.7 2003/11/19 18:27:10 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -55,6 +55,24 @@ public class BackgroundTiler
             _tiles[3*i+2] =
                 src.getSubimage(width-_w3, sy[i], _w3, thei[i]);
         }
+    }
+
+    /**
+     * Returns the "natural" width of the image being used to tile the
+     * background.
+     */
+    public int getNaturalWidth ()
+    {
+        return _w3*2+_cw3;
+    }
+
+    /**
+     * Returns the "natural" height of the image being used to tile the
+     * background.
+     */
+    public int getNaturalHeight ()
+    {
+        return _h3*2+_ch3;
     }
 
     /**
