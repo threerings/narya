@@ -1,5 +1,5 @@
 //
-// $Id: MP3Manager.java,v 1.1 2002/11/20 01:33:34 ray Exp $
+// $Id: MP3Manager.java,v 1.2 2002/11/20 04:03:09 ray Exp $
 
 package com.threerings.media;
 
@@ -37,7 +37,7 @@ public class MP3Manager
         _player = null;
     }
 
-    public void start (final String path)
+    public void start (final String set, final String path)
     {
         _player = new Thread("narya mp3 relay") {
             public void run () {
@@ -46,7 +46,9 @@ public class MP3Manager
                     inStream = AudioSystem.getAudioInputStream(
 //                       new ByteArrayInputStream(StreamUtils.streamAsBytes(
 //                               _rmgr.getResource(path), 8192)));
-                       new BufferedInputStream(_rmgr.getResource(path), 4096));
+                        // TODO: use the fucking resource sets
+                        new BufferedInputStream(
+                            _rmgr.getResource(set, path), 4096));
                 } catch (Exception e) {
                     Log.warning("MP3 fuckola [path=" + path +
                         ", e=" + e + "].");

@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.21 2002/11/20 02:41:38 ray Exp $
+// $Id: SoundManager.java,v 1.22 2002/11/20 04:03:09 ray Exp $
 
 package com.threerings.media;
 
@@ -61,6 +61,8 @@ import com.threerings.media.Log;
  */
 // TODO:
 //   - fade music out when stopped?
+//   -- CLEANUP is NEEDED (lots of references to Sequences, when we're now
+//   playing mods and mp3s as well. )
 public class SoundManager
     implements MetaEventListener
 {
@@ -107,7 +109,6 @@ public class SoundManager
             public void run () {
                 Object command = null;
                 SoundKey key = null;
-                String path = null;
                 MidiInfo midiInfo = null;
 
                 while (amRunning()) {
@@ -119,12 +120,10 @@ public class SoundManager
 
                             // some commands have an additional argument.
                             if ((PLAY == command) ||
+                                (STOPMUSIC == command) ||
                                 (LOCK == command) ||
                                 (UNLOCK == command)) {
                                 key = (SoundKey) _queue.get();
-
-                            } else if (STOPMUSIC == command) {
-                                path = (String) _queue.get();
 
                             } else if (PLAYMUSIC == command) {
                                 midiInfo = (MidiInfo) _queue.get();
@@ -139,7 +138,7 @@ public class SoundManager
                             playSequence(midiInfo);
 
                         } else if (STOPMUSIC == command) {
-                            stopSequence(path);
+                            stopSequence(key);
 
                         } else if (LOCK == command) {
                             _clipCache.lock(key);
@@ -309,19 +308,19 @@ public class SoundManager
     /**
      * Start playing the specified music repeatedly.
      */
-    public void pushMusic (String path)
+    public void pushMusic (String set, String path)
     {
-        pushMusic(path, -1);
+        pushMusic(set, path, -1);
     }
 
     /**
      * Start playing music for the specified number of loops.
      */
-    public void pushMusic (String path, int numloops)
+    public void pushMusic (String set, String path, int numloops)
     {
         synchronized (_queue) {
             _queue.append(PLAYMUSIC);
-            _queue.append(new MidiInfo(path, numloops));
+            _queue.append(new MidiInfo(set, path, numloops));
         }
     }
 
@@ -329,11 +328,11 @@ public class SoundManager
      * Remove the specified music from the playlist. If it is currently
      * playing, it will be stopped and the previous song will be started.
      */
-    public void removeMusic (String path)
+    public void removeMusic (String set, String path)
     {
         synchronized (_queue) {
             _queue.append(STOPMUSIC);
-            _queue.append(path);
+            _queue.append(new SoundKey(set, path));
         }
     }
 
@@ -496,9 +495,13 @@ public class SoundManager
         // start the new one
         try {
             if (info.path.endsWith(".mp3")) {
-                _mp3player.start(info.path);
+                _mp3player.start(info.set, info.path);
+
+            } else if (info.path.endsWith(".mod")) {
+                _modplayer.start(info.set, info.path);
+
             } else {
-                _sequencer.setSequence(getMidiData(info.path));
+                _sequencer.setSequence(getMidiData(info));
                 if (info.msPosition != -1) {
                     // TODO: this doesn't work correctly
                     _sequencer.setTickPosition(info.tickPosition);
@@ -538,6 +541,10 @@ public class SoundManager
             _stoppingSong = true;
             if (current.path.endsWith(".mp3")) {
                 _mp3player.stop();
+
+            } else if (current.path.endsWith(".mod")) {
+                _modplayer.stop();
+
             } else {
                 _sequencer.stop();
             }
@@ -566,18 +573,22 @@ public class SoundManager
     /**
      * Stop the sequence at the specified path.
      */
-    protected void stopSequence (String path)
+    protected void stopSequence (SoundKey key)
     {
         if (! _midiStack.isEmpty()) {
             MidiInfo current = (MidiInfo) _midiStack.getFirst();
 
             // if we're currently playing this song..
-            if (path.equals(current.path)) {
+            if (key.equals(current)) {
 
                 // stop it
                 _stoppingSong = true;
-                if (path.endsWith(".mp3")) {
+                if (key.path.endsWith(".mp3")) {
                     _mp3player.stop();
+
+                } else if (key.path.endsWith(".mod")) {
+                    _modplayer.stop();
+
                 } else {
                     _sequencer.stop();
                 }
@@ -590,7 +601,7 @@ public class SoundManager
             } else {
                 // we aren't currently playing this song. Simply remove.
                 for (Iterator iter=_midiStack.iterator(); iter.hasNext(); ) {
-                    if (path.equals(((MidiInfo) iter.next()).path)) {
+                    if (key.equals(iter.next())) {
                         iter.remove();
                         return;
                     }
@@ -600,7 +611,7 @@ public class SoundManager
         }
 
         Log.debug("Sequence stopped that wasn't in the stack anymore " +
-            "[path=" + path + "].");
+            "[key=" + key + "].");
     }
 
     /**
@@ -609,6 +620,7 @@ public class SoundManager
     protected void initMidi ()
     {
         _mp3player = new MP3Manager(_rmgr, this);
+        _modplayer = new ModPlayer(_rmgr, this);
 
         try {
             Sequencer seq = MidiSystem.getSequencer();
@@ -747,7 +759,7 @@ public class SoundManager
         } else {
             // set it up and put it in the cache
             AudioInputStream stream = AudioSystem.getAudioInputStream(
-                getResource(key.set, key.path));
+                getResource(key));
             DataLine.Info dinfo = new DataLine.Info(
                 Clip.class, stream.getFormat());
             info = new ClipInfo(dinfo, stream);
@@ -760,18 +772,17 @@ public class SoundManager
     /**
      * Get the midi data for the specified path.
      */
-    protected InputStream getMidiData (String path)
+    protected InputStream getMidiData (MidiInfo info)
         throws IOException
     {
-        InputStream stream = (InputStream) _midiCache.get(path);
+        InputStream stream = (InputStream) _midiCache.get(info);
         if (stream != null) {
             // reset the stream for the new user
             stream.reset();
 
         } else {
-            // TODO: unhack
-            stream = getResource("boot", path);
-            _midiCache.put(path, stream);
+            stream = getResource(info);
+            _midiCache.put(info, stream);
         }
 
         return stream;
@@ -782,11 +793,11 @@ public class SoundManager
      * Get the data specified by the path from the resource bundle.
      * No caching is done.
      */
-    protected InputStream getResource (String set, String path)
+    protected InputStream getResource (SoundKey key)
         throws IOException
     {
         return new ByteArrayInputStream(StreamUtils.streamAsBytes(
-                _rmgr.getResource(set, path), BUFFER_SIZE));
+                _rmgr.getResource(key.set, key.path), BUFFER_SIZE));
     }
 
     /**
@@ -1053,11 +1064,8 @@ public class SoundManager
     /**
      * A class that tracks the information about our playing midi files.
      */
-    protected static class MidiInfo
+    protected static class MidiInfo extends SoundKey
     {
-        /** The path, duh. */
-        public String path;
-
         /** How many times to loop, or -1 for forever. */
         public int loops;
 
@@ -1065,9 +1073,9 @@ public class SoundManager
         public long tickPosition = -1;
         public long msPosition = -1;
 
-        public MidiInfo (String path, int loops)
+        public MidiInfo (String set, String path, int loops)
         {
-            this.path = path;
+            super(set, path);
             this.loops = loops;
         }
     }
@@ -1114,6 +1122,8 @@ public class SoundManager
     protected Sequencer _sequencer;
 
     protected MP3Manager _mp3player;
+
+    protected ModPlayer _modplayer;
 
     /** The receiver used to send midi from the sequencer to an alternate
      * midi device. */
