@@ -1,5 +1,5 @@
 //
-// $Id: ParlorService.java,v 1.2 2001/10/01 05:07:13 mdb Exp $
+// $Id: ParlorService.java,v 1.3 2001/10/01 06:19:15 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -39,8 +39,8 @@ public class ParlorService
     /** The response code for an accepted invitation. */
     public static final int INVITATION_ACCEPTED = 0;
 
-    /** The response code for a rejected invitation. */
-    public static final int INVITATION_REJECTED = 1;
+    /** The response code for a refused invitation. */
+    public static final int INVITATION_REFUSED = 1;
 
     /** The response code for a countered invitation. */
     public static final int INVITATION_COUNTERED = 2;
@@ -72,9 +72,10 @@ public class ParlorService
     }
 
     /**
-     * You probably don't want to call this directly, but want to call
-     * {@link ParlorDirector#counter}. Requests that a counter-invitation be
-     * delivered with the specified parameters.
+     * You probably don't want to call this directly, but want to call one
+     * of {@link ParlorDirector#accept}, {@link ParlorDirector#refuse}, or
+     * {@link ParlorDirector#counter}. Requests that an invitation
+     * response be delivered with the specified parameters.
      *
      * @param client a connected, operational client instance.
      * @param inviteId the unique id previously assigned by the server to

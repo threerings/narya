@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.dobj,v 1.1 2001/10/01 02:56:35 mdb Exp $
+// $Id: GameObject.dobj,v 1.2 2001/10/01 06:19:15 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -17,6 +17,43 @@ import com.threerings.cocktail.party.data.PlaceObject;
  */
 public class GameObject extends PlaceObject
 {
+    /** The field name of the <code>state</code> field. */
+    public static final String STATE = "state";
+
+    /** The field name of the <code>isRated</code> field. */
+    public static final String IS_RATED = "isRated";
+
+    /** A game state constant indicating that the game has not yet started
+     * and is still awaiting the arrival of all of the players. */
+    public static final int AWAITING_PLAYERS = 0;
+
+    /** A game state constant indicating that the game is in play. */
+    public static final int IN_PLAY = 1;
+
+    /** A game state constant indicating that the game ended normally. */
+    public static final int GAME_OVER = 2;
+
+    /** A game state constant indicating that the game was cancelled. */
+    public static final int CANCELLED = 3;
+
+    /** The game state, one of {@link #AWAITING_PLAYERS}, {@link #IN_PLAY},
+     * {@link #GAME_OVER}, or {@link #CANCELLED}. */
+    public int state;
+
     /** Indicates whether or not this game is rated. */
     public boolean isRated;
+
+    /** Requests that the <code>state</code> field be set to the specified
+     * value. */
+    public void setState (int state)
+    {
+        requestAttributeChange(STATE, new Integer(state));
+    }
+
+    /** Requests that the <code>isRated</code> field be set to the
+     * specified value. */
+    public void setIsRated (boolean isRated)
+    {
+        requestAttributeChange(IS_RATED, new Boolean(isRated));
+    }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ParlorDirector.java,v 1.2 2001/10/01 05:07:13 mdb Exp $
+// $Id: ParlorDirector.java,v 1.3 2001/10/01 06:19:15 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -54,7 +54,7 @@ public class ParlorDirector
      * @param config the configuration of the game to which the user is
      * being invited.
      * @param observer the entity that will be notified if this invitation
-     * is accepted, rejected or countered.
+     * is accepted, refused or countered.
      *
      * @return a unique id associated with this invitation that can be
      * used to discern between various outstanding invitations by the
@@ -74,19 +74,62 @@ public class ParlorDirector
     }
 
     /**
+     * Accept an invitation.
+     *
+     * @param inviteId the id of the invitation to accept.
+     */
+    public void accept (int inviteId)
+    {
+        Invitation invite = getInviteByLocalId(inviteId);
+        if (invite == null) {
+            // complain if we didn't find a matching invitation
+            Log.warning("Received request to accept non-existent " +
+                        "invitation [inviteId=" + inviteId + "].");
+            return;
+        }
+
+        // generate the invocation service request
+        ParlorService.respond(_ctx.getClient(), invite.remoteId,
+                              ParlorService.INVITATION_ACCEPTED,
+                              null, this);
+    }
+
+    /**
+     * Refuse an invitation.
+     *
+     * @param inviteId the id of the invitation to accept.
+     * @param message the message to deliver to the inviting user
+     * explaining the reason for the refusal or null if no message is to
+     * be provided.
+     */
+    public void refuse (int inviteId, String message)
+    {
+        Invitation invite = getInviteByLocalId(inviteId);
+        if (invite == null) {
+            // complain if we didn't find a matching invitation
+            Log.warning("Received request to accept non-existent " +
+                        "invitation [inviteId=" + inviteId + "].");
+            return;
+        }
+
+        // generate the invocation service request
+        ParlorService.respond(_ctx.getClient(), invite.remoteId,
+                              ParlorService.INVITATION_REFUSED,
+                              message, this);
+    }
+
+    /**
      * Counters a received invitation with an invitation with different
      * game configuration parameters.
      *
      * @param inviteId the id of the received invitation.
      * @param config the updated game configuration.
      * @param observer the entity that will be notified if this
-     * counter-invitation is accepted, rejected or countered.
+     * counter-invitation is accepted, refused or countered.
      */
     public void counter (int inviteId, GameConfig config,
                          InvitationResponseObserver observer)
     {
-        // look up the invitation record (oh the two separate key spaces
-        // humanity)
         Invitation invite = getInviteByLocalId(inviteId);
         if (invite == null) {
             // complain if we didn't find a matching invitation
@@ -173,16 +216,16 @@ public class ParlorDirector
 
     /**
      * Called by the invocation services when another user has responded
-     * to our invitation by either accepting, rejecting or countering it.
+     * to our invitation by either accepting, refusing or countering it.
      *
      * @param remoteId the unique indentifier for the invitation.
      * @param code the response code, either {@link
      * ParlorService#INVITATION_ACCEPTED} or {@link
-     * ParlorService#INVITATION_REJECTED} or {@link
+     * ParlorService#INVITATION_REFUSED} or {@link
      * ParlorService#INVITATION_COUNTERED}.
-     * @param arg in the case of a rejected invitation, a string
+     * @param arg in the case of a refused invitation, a string
      * containing a message provided by the invited user explaining the
-     * reason for rejection (the empty string if no explanation was
+     * reason for refusal (the empty string if no explanation was
      * provided). In the case of a countered invitation, a new game config
      * object with the modified game configuration.
      */
@@ -204,18 +247,48 @@ public class ParlorDirector
                         invite + ".");
             return;
         }
+
+        // notify the observer
+        try {
+            switch (code) {
+            case ParlorService.INVITATION_ACCEPTED:
+                invite.observer.invitationAccepted(invite.inviteId);
+                break;
+
+            case ParlorService.INVITATION_REFUSED:
+                invite.observer.invitationRefused(
+                    invite.inviteId, (String)arg);
+                break;
+
+            case ParlorService.INVITATION_COUNTERED:
+                invite.observer.invitationCountered(
+                    invite.inviteId, (GameConfig)arg);
+                break;
+            }
+
+        } catch (Exception e) {
+            Log.warning("Invitation response observer choked on response " +
+                        "[code=" + code + ", arg=" + arg +
+                        ", invite=" + invite + "].");
+            Log.logStackTrace(e);
+        }
+
+        // unless the invitation was countered, we can remove it from the
+        // pending table because it's resolved
+        if (code != ParlorService.INVITATION_COUNTERED) {
+            _pendingInvites.remove(remoteId);
+        }
     }
 
     /**
-     * Called by the invocation services when another user has invited us
-     * to play a game.
+     * Called by the invocation services when an outstanding invitation
+     * has been cancelled by the inviting user.
      *
-     * @param inviter the username of the inviting user.
-     * @param config the configuration information for the game to which
-     * we've been invited.
+     * @param remoteId the unique indentifier for the invitation.
      */
-    public void handleCancelInviteNotification (String inviter, GameConfig config)
+    public void handleCancelInviteNotification (int remoteId)
     {
+        // TBD
     }
 
     /**
@@ -253,13 +326,16 @@ public class ParlorDirector
 
     /**
      * Called by the invocation services when an invitation request failed
-     * or was rejected for some reason.
+     * or was rejected for some reason (this is different than an
+     * invitation being refused by the invitee which is handled by {@link
+     * #handleRespondInviteNotification}).
      *
      * @param invid the invocation id of the invitation request.
-     * @param reason a reason code explaining the rejection or failure.
+     * @param reason a reason code explaining the failure.
      */
     public void handleInviteFailed (int invid, String reason)
     {
+        // TBD
     }
 
     /**

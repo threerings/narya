@@ -1,5 +1,5 @@
 //
-// $Id: InvitationResponseObserver.java,v 1.3 2001/10/01 05:07:13 mdb Exp $
+// $Id: InvitationResponseObserver.java,v 1.4 2001/10/01 06:19:15 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -7,7 +7,7 @@ import com.threerings.parlor.data.GameConfig;
 
 /**
  * A client entity that wishes to generate invitations for games must
- * implement this interface. An invitation can be accepted, rejected or
+ * implement this interface. An invitation can be accepted, refused or
  * countered. A countered invitation is one where the game configuration
  * is adjusted by the invited player and proposed back to the inviting
  * player.
@@ -23,15 +23,15 @@ public interface InvitationResponseObserver
     public void invitationAccepted (int inviteId);
 
     /**
-     * Called if the invitation was rejected.
+     * Called if the invitation was refused.
      *
      * @param inviteId the unique id of the invitation for which we
      * received a response.
-     * @param message a message provided by the rejecting user explaining
-     * the reason for their rejection, or the empty string if no message
-     * was provided.
+     * @param message a message provided by the invited user explaining
+     * the reason for their refusal, or the empty string if no message was
+     * provided.
      */
-    public void invitationRejected (int inviteId, String message);
+    public void invitationRefused (int inviteId, String message);
 
     /**
      * Called if the invitation was countered with an alternate game
