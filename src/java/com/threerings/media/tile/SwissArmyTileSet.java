@@ -1,5 +1,5 @@
 //
-// $Id: SwissArmyTileSet.java,v 1.2 2001/11/18 04:09:21 mdb Exp $
+// $Id: SwissArmyTileSet.java,v 1.3 2001/11/27 08:41:01 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -50,6 +50,7 @@ public class SwissArmyTileSet extends TileSet
     protected void computeTileCount ()
     {
         // compute our number of tiles
+        _numTiles = 0;
         for (int i = 0; i < _tileCounts.length; i++) {
             _numTiles += _tileCounts[i];
         }
@@ -104,7 +105,7 @@ public class SwissArmyTileSet extends TileSet
     }
 
     // documentation inherited
-    protected Image extractTileImage (int tileId)
+    protected Image extractTileImage (int tileIndex)
     {
         BufferedImage tsimg = getTilesetImage();
         if (tsimg == null) {
@@ -119,20 +120,20 @@ public class SwissArmyTileSet extends TileSet
         tx = _offsetPos.x;
         ty = _offsetPos.y;
 
-	while ((tcount += _tileCounts[ridx]) < tileId + 1) {
+	while ((tcount += _tileCounts[ridx]) < tileIndex + 1) {
             // increment tile image position by row height and gap distance
 	    ty += (_heights[ridx++] + _gapSize.height);
 	}
 
         // determine the horizontal index of this tile in the row
-	int xidx = tileId - (tcount - _tileCounts[ridx]);
+	int xidx = tileIndex - (tcount - _tileCounts[ridx]);
 
         // final image x-position is based on tile width and gap distance
         tx += (xidx * (_widths[ridx] + _gapSize.width));
 
-	// Log.info("Retrieving tile image [tileId=" + tileId + ", ridx=" +
-	// ridx + ", xidx=" + xidx + ", tx=" + tx +
-	// ", ty=" + ty + "].");
+// 	Log.info("Retrieving tile image [tileIndex=" + tileIndex +
+//                  ", ridx=" + ridx + ", xidx=" + xidx +
+//                  ", tx=" + tx + ", ty=" + ty + "].");
 
 	// crop the tile-sized image chunk from the full image
 	return tsimg.getSubimage(tx, ty, _widths[ridx], _heights[ridx]);
