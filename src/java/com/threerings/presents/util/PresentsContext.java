@@ -1,7 +1,9 @@
 //
-// $Id: PresentsContext.java,v 1.5 2002/03/28 22:32:33 mdb Exp $
+// $Id: PresentsContext.java,v 1.6 2003/11/24 17:51:08 mdb Exp $
 
 package com.threerings.presents.util;
+
+import com.samskivert.util.Config;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.DObjectManager;
@@ -12,6 +14,14 @@ import com.threerings.presents.dobj.DObjectManager;
  */
 public interface PresentsContext
 {
+    /**
+     * Provides a configuration object from which various services can
+     * obtain configuration values and via the properties file that forms
+     * the basis of the configuration object, those services can be
+     * customized.
+     */
+    public Config getConfig ();
+
     /**
      * Returns a reference to the client. This reference should be valid
      * for the life of the application.
