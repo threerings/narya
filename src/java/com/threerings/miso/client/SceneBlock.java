@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.2 2003/04/18 18:33:31 mdb Exp $
+// $Id: SceneBlock.java,v 1.3 2003/04/18 23:18:30 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -221,6 +221,11 @@ public class SceneBlock
      */
     protected final int index (int tx, int ty)
     {
+//         if (!_bounds.contains(tx, ty)) {
+//             String errmsg = "Coordinates out of bounds: +" + tx + "+" + ty +
+//                 " not in " + StringUtil.toString(_bounds);
+//             throw new IllegalArgumentException(errmsg);
+//         }
         return (ty-_bounds.y)*_bounds.width + (tx-_bounds.x);
     }
 
