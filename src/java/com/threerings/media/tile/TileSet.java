@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.32 2002/09/17 21:29:26 mdb Exp $
+// $Id: TileSet.java,v 1.33 2002/10/09 00:23:51 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -317,6 +317,10 @@ public abstract class TileSet
      * because it should be accessed via {@link #getTileSetImage} even by
      * derived classes. */
     private transient Image _tilesetImg;
+
+    /** Increase this value when object's serialized state is impacted by
+     * a class change (modification of fields, inheritance). */
+    private static final long serialVersionUID = 1;
 
     /** Temporary HACKOLA. */
     protected static Colorization[] ZATIONS = new Colorization[] {
