@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.21 2003/10/25 00:10:35 mdb Exp $
+// $Id: SpotProvider.java,v 1.22 2003/11/24 18:17:41 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -172,9 +172,9 @@ public class SpotProvider
         BodyObject source = (BodyObject)caller;
         int cSceneId = getCallerSceneId(caller);
         if (cSceneId != sceneId) {
-            Log.warning("Rejecting changeLocation for invalid scene " +
-                        "[user=" + source.who() + ", insid=" + cSceneId +
-                        ", wantsid=" + sceneId + ", loc=" + loc + "].");
+            Log.info("Rejecting changeLocation for invalid scene " +
+                     "[user=" + source.who() + ", insid=" + cSceneId +
+                     ", wantsid=" + sceneId + ", loc=" + loc + "].");
             throw new InvocationException(INVALID_LOCATION);
         }
 
