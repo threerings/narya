@@ -1,6 +1,5 @@
-
 //
-// $Id: ImageManager.java,v 1.21 2002/10/16 15:57:12 shaper Exp $
+// $Id: ImageManager.java,v 1.22 2002/10/17 17:42:20 mdb Exp $
 
 package com.threerings.media;
 
@@ -55,11 +54,62 @@ public class ImageManager
     }
 
     /**
+     * Loads up the requested image from the specified resource set and
+     * caches it for faster retrieval henceforth.
+     */
+    public Image getImage (String rset, String path)
+    {
+        if (rset == null || path == null) {
+            String errmsg = "Must supply non-null resource set and path " +
+                "[rset=" + rset + ", path=" + path + "]";
+            throw new IllegalArgumentException(errmsg);
+        }
+
+        String key = rset + ":" + path;
+	Image img = (Image)_imgs.get(key);
+	if (img != null) {
+	    // Log.info("Retrieved image from cache [path=" + path + "].");
+	    return img;
+	}
+
+        InputStream imgin = null;
+        try {
+            // first attempt to load the image from the specified resource set
+            imgin = getImageSource(rset, path);
+
+            // if that fails, attempt to load the image from the classpath
+            if (imgin == null) {
+                imgin = _rmgr.getResource(path);
+//                 Log.info("Fell back to classpath [rset=" + rset +
+//                          ", path=" + path + "].");
+            }
+
+            // now load up and optimize the image for display
+            img = createImage(imgin);
+
+        } catch (IOException ioe) {
+            Log.warning("Failure loading image [rset=" + rset +
+                        ", path=" + path + ", error=" + ioe + "].");
+        }
+
+	// Log.info("Loading image into cache [path=" + path + "].");
+        if (img != null) {
+            _imgs.put(key, img);
+        } else {
+            Log.warning("Unable to load image " +
+                        "[rset=" + rset + ", path=" + path + "].");
+            Thread.dumpStack();
+            // fake it so that we don't crap out
+            img = ImageUtil.createImage(1, 1);
+        }
+        return img;
+    }
+
+    /**
      * Loads the image via the resource manager using the specified path
      * and caches it for faster retrieval henceforth.
      */
     public Image getImage (String path)
-        throws IOException
     {
 	Image img = (Image)_imgs.get(path);
 	if (img != null) {
@@ -67,12 +117,19 @@ public class ImageManager
 	    return img;
 	}
 
+        try {
+            img = createImage(_rmgr.getResource(path));
+        } catch (IOException ioe) {
+            Log.warning("Failure loading image [path=" + path +
+                        ", error=" + ioe + "].");
+        }
+
 	// Log.info("Loading image into cache [path=" + path + "].");
-        img = createImage(_rmgr.getResource(path));
         if (img != null) {
             _imgs.put(path, img);
         } else {
             Log.warning("Unable to load image [path=" + path + "].");
+            Thread.dumpStack();
             // fake it so that we don't crap out
             img = ImageUtil.createImage(1, 1);
         }
@@ -107,23 +164,9 @@ public class ImageManager
     public Image loadImage (String rset, String path)
         throws IOException
     {
-        // grab the resource bundles in the specified resource set
-        ResourceBundle[] bundles = _rmgr.getResourceSet(rset);
-        if (bundles == null) {
-            throw new IOException("Failed to load image due to unknown " +
-                                  "resource set " +
-                                  "[rset=" + rset + ", path=" + path + "].");
-        }
-
-        // look for the image in any of the bundles
-        int size = bundles.length;
-        InputStream imgin = null;
-        for (int ii = 0; (ii < size) && (imgin == null); ii++) {
-            imgin = bundles[ii].getResource(path);
-        }
+        InputStream imgin = getImageSource(rset, path);
         if (imgin == null) {
-            throw new IOException("Failed to load image that couldn't be " +
-                                  "found in resource set " +
+            throw new IOException("Image not in resource set " +
                                   "[rset=" + rset + ", path=" + path + "].");
         }
 
@@ -136,6 +179,35 @@ public class ImageManager
                 "[rset=" + rset + ", path=" + path + "]";
             throw new NestableIOException(errmsg, iae);
         }
+    }
+
+    /**
+     * Returns an input stream from which the requested image can be
+     * loaded or null if the image could not be located in any bundle in
+     * the specified resource set.
+     */
+    protected InputStream getImageSource (String rset, String path)
+        throws IOException
+    {
+        // grab the resource bundles in the specified resource set
+        ResourceBundle[] bundles = _rmgr.getResourceSet(rset);
+        if (bundles == null) {
+            throw new IOException("No such resource set " +
+                                  "[rset=" + rset + ", path=" + path + "].");
+        }
+
+        // look for the image in any of the bundles
+        int size = bundles.length;
+        for (int ii = 0; ii < size; ii++) {
+            InputStream imgin = bundles[ii].getResource(path);
+            if (imgin != null) {
+//                 Log.info("Found image [rset=" + rset +
+//                          ", bundle=" + bundles[ii].getSource().getPath() +
+//                          ", path=" + path + "].");
+                return imgin;
+            }
+        }
+        return null;
     }
 
     /**
