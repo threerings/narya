@@ -1,5 +1,5 @@
 //
-// $Id: SpotMarshaller.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
+// $Id: SpotMarshaller.java,v 1.3 2003/02/12 07:23:31 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -10,6 +10,7 @@ import com.threerings.whirled.client.SceneService.SceneMoveListener;
 import com.threerings.whirled.data.SceneMarshaller.SceneMoveMarshaller;
 import com.threerings.whirled.spot.client.SpotService;
 import com.threerings.whirled.spot.client.SpotService.ChangeLocListener;
+import com.threerings.whirled.spot.data.Location;
 
 /**
  * Provides the implementation of the {@link SpotService} interface
@@ -17,10 +18,6 @@ import com.threerings.whirled.spot.client.SpotService.ChangeLocListener;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
- *
- * <p> Generated from <code>
- * $Id: SpotMarshaller.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
- * </code>
  */
 public class SpotMarshaller extends InvocationMarshaller
     implements SpotService
@@ -34,11 +31,11 @@ public class SpotMarshaller extends InvocationMarshaller
         public static final int CHANGE_LOC_SUCCEEDED = 1;
 
         // documentation inherited from interface
-        public void changeLocSucceeded (int arg1)
+        public void changeLocSucceeded ()
         {
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, CHANGE_LOC_SUCCEEDED,
-                               new Object[] { new Integer(arg1) }));
+                               new Object[] {  }));
         }
 
         // documentation inherited
@@ -47,7 +44,7 @@ public class SpotMarshaller extends InvocationMarshaller
             switch (methodId) {
             case CHANGE_LOC_SUCCEEDED:
                 ((ChangeLocListener)listener).changeLocSucceeded(
-                    ((Integer)args[0]).intValue());
+                    );
                 return;
 
             default:
@@ -60,12 +57,12 @@ public class SpotMarshaller extends InvocationMarshaller
     public static final int TRAVERSE_PORTAL = 1;
 
     // documentation inherited from interface
-    public void traversePortal (Client arg1, int arg2, int arg3, int arg4, SceneMoveListener arg5)
+    public void traversePortal (Client arg1, int arg2, int arg3, SceneMoveListener arg4)
     {
-        SceneMoveMarshaller listener5 = new SceneMoveMarshaller();
-        listener5.listener = arg5;
+        SceneMoveMarshaller listener4 = new SceneMoveMarshaller();
+        listener4.listener = arg4;
         sendRequest(arg1, TRAVERSE_PORTAL, new Object[] {
-            new Integer(arg2), new Integer(arg3), new Integer(arg4), listener5
+            new Integer(arg2), new Integer(arg3), listener4
         });
     }
 
@@ -73,12 +70,12 @@ public class SpotMarshaller extends InvocationMarshaller
     public static final int CHANGE_LOC = 2;
 
     // documentation inherited from interface
-    public void changeLoc (Client arg1, int arg2, int arg3, ChangeLocListener arg4)
+    public void changeLoc (Client arg1, Location arg2, int arg3, ChangeLocListener arg4)
     {
         ChangeLocMarshaller listener4 = new ChangeLocMarshaller();
         listener4.listener = arg4;
         sendRequest(arg1, CHANGE_LOC, new Object[] {
-            new Integer(arg2), new Integer(arg3), listener4
+            arg2, new Integer(arg3), listener4
         });
     }
 
@@ -86,12 +83,12 @@ public class SpotMarshaller extends InvocationMarshaller
     public static final int CLUSTER_SPEAK = 3;
 
     // documentation inherited from interface
-    public void clusterSpeak (Client arg1, int arg2, int arg3, String arg4, byte arg5)
+    public void clusterSpeak (Client arg1, String arg2, byte arg3)
     {
         sendRequest(arg1, CLUSTER_SPEAK, new Object[] {
-            new Integer(arg2), new Integer(arg3), arg4, new Byte(arg5)
+            arg2, new Byte(arg3)
         });
     }
 
-    // Class file generated on 12:33:05 08/20/02.
+    // Generated on 10:09:04 02/05/03.
 }

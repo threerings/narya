@@ -1,7 +1,7 @@
 //
-// $Id: EditablePortal.java,v 1.2 2001/12/05 03:38:09 mdb Exp $
+// $Id: EditablePortal.java,v 1.3 2003/02/12 07:23:31 mdb Exp $
 
-package com.threerings.whirled.tools.spot;
+package com.threerings.whirled.spot.tools;
 
 import com.threerings.whirled.spot.data.Portal;
 
@@ -21,13 +21,4 @@ public class EditablePortal extends Portal
     /** The human-readable name of the portal to which this portal links
      * in its target scene. */
     public String targetPortalName;
-
-    // documentation inherited
-    protected void toString (StringBuffer buf)
-    {
-        super.toString(buf);
-        buf.append(", name=").append(name);
-        buf.append(", targetScene=").append(targetSceneName);
-        buf.append(", targetPortal=").append(targetPortalName);
-    }
 }

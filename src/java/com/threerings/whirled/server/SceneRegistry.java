@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.17 2002/10/06 00:44:58 mdb Exp $
+// $Id: SceneRegistry.java,v 1.18 2003/02/12 07:23:31 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -11,19 +11,23 @@ import com.threerings.presents.util.Invoker;
 
 import com.threerings.presents.server.InvocationManager;
 
+import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.server.CrowdServer;
 import com.threerings.crowd.server.PlaceManager;
 
 import com.threerings.whirled.Log;
+import com.threerings.whirled.data.Scene;
 import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.data.SceneObject;
 import com.threerings.whirled.server.persist.SceneRepository;
+import com.threerings.whirled.util.SceneFactory;
+import com.threerings.whirled.util.UpdateList;
 
 /**
- * The scene registry is responsible for the management of all runtime
- * scenes. It handles interaction with the scene repository and ensures
- * that scenes are loaded into memory when needed and flushed from memory
- * when not needed.
+ * The scene registry is responsible for the management of all scenes. It
+ * handles interaction with the scene repository and ensures that scenes
+ * are loaded into memory when needed and flushed from memory when not
+ * needed.
  *
  * <p> The scene repository also takes care of bridging from the blocking,
  * synchronous world of the scene repository to the non-blocking
@@ -37,6 +41,18 @@ import com.threerings.whirled.server.persist.SceneRepository;
  */
 public class SceneRegistry
 {
+    /**
+     * Used to create {@link PlaceConfig} instances for scenes.
+     */
+    public static interface ConfigFactory
+    {
+        /**
+         * Creates the place config instance appropriate to the specified
+         * scene.
+         */
+        PlaceConfig createPlaceConfig (SceneModel model);
+    }
+
     /** Used to provide scene-related server-side services. */
     public SceneProvider sceneprov;
 
@@ -44,26 +60,16 @@ public class SceneRegistry
      * Constructs a scene registry, instructing it to load and store
      * scenes using the supplied scene repository.
      */
-    public SceneRegistry (InvocationManager invmgr, SceneRepository screp)
+    public SceneRegistry (InvocationManager invmgr, SceneRepository screp,
+                          SceneFactory scfact, ConfigFactory confact)
     {
         _screp = screp;
-
-        // use a default runtime scene factory for now; assume that
-        // containing systems will call setRuntimeSceneFactory() later
-        _scfact = new DefaultRuntimeSceneFactory();
+        _scfact = scfact;
+        _confact = confact;
 
         // create/register a scene provider with the invocation services
         sceneprov = new SceneProvider(CrowdServer.plreg.locprov, this);
         invmgr.registerDispatcher(new SceneDispatcher(sceneprov), true);
-    }
-
-    /**
-     * Instructs the scene registry to use the supplied factory to create
-     * runtime scene instances from scene models.
-     */
-    public void setRuntimeSceneFactory (RuntimeSceneFactory factory)
-    {
-        _scfact = factory;
     }
 
     /**
@@ -75,6 +81,15 @@ public class SceneRegistry
     public SceneManager getSceneManager (int sceneId)
     {
         return (SceneManager)_scenemgrs.get(sceneId);
+    }
+
+    /**
+     * Returns a reference to the scene repository in use by this
+     * registry.
+     */
+    public SceneRepository getSceneRepository ()
+    {
+        return _screp;
     }
 
     /**
@@ -155,6 +170,7 @@ public class SceneRegistry
                 {
                     try {
                         _model = _screp.loadSceneModel(fsceneId);
+                        _updates = _screp.loadUpdates(fsceneId);
                     } catch (Exception e) {
                         _cause = e;
                     }
@@ -165,7 +181,7 @@ public class SceneRegistry
                 public void handleResult ()
                 {
                     if (_model != null) {
-                        processSuccessfulResolution(_model);
+                        processSuccessfulResolution(_model, _updates);
                     } else if (_cause != null) {
                         processFailedResolution(fsceneId, _cause);
                     } else {
@@ -176,6 +192,7 @@ public class SceneRegistry
                 }
 
                 protected SceneModel _model;
+                protected UpdateList _updates;
                 protected Exception _cause;
             });
         }
@@ -184,7 +201,8 @@ public class SceneRegistry
     /**
      * Called when the scene resolution has completed successfully.
      */
-    protected void processSuccessfulResolution (SceneModel model)
+    protected void processSuccessfulResolution (
+        SceneModel model, UpdateList updates)
     {
         // now that the scene is loaded, we can create a scene manager for
         // it. that will be initialized by the place registry and when
@@ -192,18 +210,14 @@ public class SceneRegistry
         // what's up
 
         try {
-            // first create our runtime scene instance
-            RuntimeScene scene = _scfact.createScene(model);
+            // first create our scene instance
+            Scene scene = _scfact.createScene(
+                model, _confact.createPlaceConfig(model));
 
             // now create our scene manager
             SceneManager scmgr = (SceneManager)
                 CrowdServer.plreg.createPlace(scene.getPlaceConfig(), null);
-
-            // configure the scene manager with references to useful
-            // stuff; we'll somehow need to convey configuration
-            // information for the scene to the scene manager, but for now
-            // let's punt
-            scmgr.setSceneData(scene, model, this);
+            scmgr.setSceneData(scene, updates, this);
 
             // when the scene manager completes its startup procedings, it
             // will call back to the scene registry and let us know that
@@ -282,9 +296,12 @@ public class SceneRegistry
     /** The entity from which we load scene models. */
     protected SceneRepository _screp;
 
-    /** The entity via which we create runtime scene instances from scene
+    /** Used to generate place configs for our scenes. */
+    protected ConfigFactory _confact;
+
+    /** The entity via which we create scene instances from scene
      * models. */
-    protected RuntimeSceneFactory _scfact;
+    protected SceneFactory _scfact;
 
     /** A mapping from scene ids to scene managers. */
     protected HashIntMap _scenemgrs = new HashIntMap();

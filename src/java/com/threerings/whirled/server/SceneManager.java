@@ -1,10 +1,19 @@
 //
-// $Id: SceneManager.java,v 1.11 2003/02/05 00:23:52 mdb Exp $
+// $Id: SceneManager.java,v 1.12 2003/02/12 07:23:31 mdb Exp $
 
 package com.threerings.whirled.server;
 
+import com.samskivert.io.PersistenceException;
+
 import com.threerings.crowd.server.PlaceManager;
+import com.threerings.presents.util.Invoker;
+
+import com.threerings.whirled.Log;
+import com.threerings.whirled.data.Scene;
 import com.threerings.whirled.data.SceneModel;
+import com.threerings.whirled.data.SceneUpdate;
+import com.threerings.whirled.server.WhirledServer;
+import com.threerings.whirled.util.UpdateList;
 
 /**
  * The scene manager extends the place manager and takes care of basic
@@ -15,37 +24,36 @@ import com.threerings.whirled.data.SceneModel;
 public class SceneManager extends PlaceManager
 {
     /**
-     * Returns the runtime scene object (not the scene distributed object)
-     * being managed by this scene manager.
+     * Returns the scene object (not the scene distributed object) being
+     * managed by this scene manager.
      */
-    public RuntimeScene getScene ()
+    public Scene getScene ()
     {
         return _scene;
-    }
-
-    /**
-     * Returns a reference to the scene model from which we created our
-     * runtime scene object. This model must reflect any modifications
-     * this manager may have made to it in the course of managing the
-     * scene as it will be provided to the client as the definitive
-     * version of the scene. (The scene manager is responsible for writing
-     * changes made to the scene model back to the scene repository.)
-     */
-    public SceneModel getSceneModel ()
-    {
-        return _model;
     }
 
     /**
      * Called by the scene registry once the scene manager has been
      * created (and initialized), but before it is started up.
      */
-    protected void setSceneData (
-        RuntimeScene scene, SceneModel model, SceneRegistry screg)
+    protected void setSceneData (Scene scene, UpdateList updates,
+                                 SceneRegistry screg)
     {
+        // make sure the list and our version of the scene are in
+        // accordance
+        if (!updates.validate(scene.getVersion())) {
+            Log.warning("Provided with invalid updates; flushing " +
+                        "[where=" + where() +
+                        ", sceneId=" + scene.getId() + "].");
+            // clear out the update list as it will not allow us to bring
+            // clients up to date with our current scene version; instead
+            // they'll have to download the whole thing
+            updates = new UpdateList();
+        }
+
         _scene = scene;
-        _model = model;
         _screg = screg;
+        _updates = updates;
 
         // let derived classes react to the receipt of scene data
         gotSceneData();
@@ -85,10 +93,45 @@ public class SceneManager extends PlaceManager
         _screg.unmapSceneManager(this);
     }
 
+    /**
+     * When a modification is made to a scene, the scene manager should
+     * update its internal structures, update the {@link Scene} object,
+     * update the repository (either by storing the updated scene
+     * wholesale or more efficiently updating only what has changed), and
+     * then it should create a {@link SceneUpdate} record that can be
+     * delivered to clients to effect the update to the clients's cached
+     * copy of the scene model. This update will be stored persistently
+     * and provided (along with any other accumulated updates) to clients
+     * that later request to enter the scene with an old version of the
+     * scene data. Updates are not stored forever, but a sizable number of
+     * recent updates are stored so that moderately current clients can
+     * apply incremental patches to their scenes rather than redownloading
+     * the entire scenes when they change.
+     */
+    protected void recordUpdate (final SceneUpdate update)
+    {
+        // add it to our in memory update list
+        _updates.addUpdate(update);
+
+        // and store it in the repository
+        WhirledServer.invoker.postUnit(new Invoker.Unit() {
+            public boolean invoke () {
+                try {
+                    _screg.getSceneRepository().addUpdate(update);
+                } catch (PersistenceException pe) {
+                    Log.warning("Failed to store scene update " +
+                                "[update=" + update + ", error=" + pe + "].");
+                }
+                return false;
+            }
+        });
+    }
+
     // documentation inherited
     public String where ()
     {
-        return _scene.getName() + " (" + super.where() + ")";
+        return _scene.getName() + " (" + super.where() + ":" +
+            _scene.getId() + ")";
     }
 
     // documentation inherited
@@ -98,15 +141,14 @@ public class SceneManager extends PlaceManager
         buf.append(", scene=").append(_scene);
     }
 
-    /** A reference to our runtime scene implementation which provides a
+    /** A reference to our scene implementation which provides a
      * meaningful interpretation of the data in the scene model. */
-    protected RuntimeScene _scene;
+    protected Scene _scene;
 
-    /** A reference to the scene model which we keep around because we may
-     * have to send it to clients that need updated versions of the model
-     * or to update the scene model in the repository if we modify the
-     * scene for some reason. */
-    protected SceneModel _model;
+    /** A list of the updates tracked for this scene. These will be used
+     * to attempt to bring clients up to date efficiently if they request
+     * to enter our scene with old scene model data. */
+    protected UpdateList _updates;
 
     /** A reference to the scene registry so that we can call back to it
      * when we're fully initialized. */

@@ -1,5 +1,5 @@
 //
-// $Id: ZoneMarshaller.java,v 1.2 2002/08/20 19:38:16 mdb Exp $
+// $Id: ZoneMarshaller.java,v 1.3 2003/02/12 07:23:32 mdb Exp $
 
 package com.threerings.whirled.zone.data;
 
@@ -8,6 +8,7 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 import com.threerings.whirled.data.SceneModel;
+import com.threerings.whirled.data.SceneUpdate;
 import com.threerings.whirled.zone.client.ZoneService;
 import com.threerings.whirled.zone.client.ZoneService.ZoneMoveListener;
 import com.threerings.whirled.zone.data.ZoneSummary;
@@ -18,10 +19,6 @@ import com.threerings.whirled.zone.data.ZoneSummary;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
- *
- * <p> Generated from <code>
- * $Id: ZoneMarshaller.java,v 1.2 2002/08/20 19:38:16 mdb Exp $
- * </code>
  */
 public class ZoneMarshaller extends InvocationMarshaller
     implements ZoneService
@@ -42,15 +39,27 @@ public class ZoneMarshaller extends InvocationMarshaller
                                new Object[] { new Integer(arg1), arg2, arg3 }));
         }
 
-        /** The method id used to dispatch {@link #moveSucceededPlusUpdate}
+        /** The method id used to dispatch {@link #moveSucceededWithUpdates}
          * responses. */
-        public static final int MOVE_SUCCEEDED_PLUS_UPDATE = 2;
+        public static final int MOVE_SUCCEEDED_WITH_UPDATES = 2;
 
         // documentation inherited from interface
-        public void moveSucceededPlusUpdate (int arg1, PlaceConfig arg2, ZoneSummary arg3, SceneModel arg4)
+        public void moveSucceededWithUpdates (int arg1, PlaceConfig arg2, ZoneSummary arg3, SceneUpdate[] arg4)
         {
             omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, MOVE_SUCCEEDED_PLUS_UPDATE,
+                               callerOid, requestId, MOVE_SUCCEEDED_WITH_UPDATES,
+                               new Object[] { new Integer(arg1), arg2, arg3, arg4 }));
+        }
+
+        /** The method id used to dispatch {@link #moveSucceededWithScene}
+         * responses. */
+        public static final int MOVE_SUCCEEDED_WITH_SCENE = 3;
+
+        // documentation inherited from interface
+        public void moveSucceededWithScene (int arg1, PlaceConfig arg2, ZoneSummary arg3, SceneModel arg4)
+        {
+            omgr.postEvent(new InvocationResponseEvent(
+                               callerOid, requestId, MOVE_SUCCEEDED_WITH_SCENE,
                                new Object[] { new Integer(arg1), arg2, arg3, arg4 }));
         }
 
@@ -63,8 +72,13 @@ public class ZoneMarshaller extends InvocationMarshaller
                     ((Integer)args[0]).intValue(), (PlaceConfig)args[1], (ZoneSummary)args[2]);
                 return;
 
-            case MOVE_SUCCEEDED_PLUS_UPDATE:
-                ((ZoneMoveListener)listener).moveSucceededPlusUpdate(
+            case MOVE_SUCCEEDED_WITH_UPDATES:
+                ((ZoneMoveListener)listener).moveSucceededWithUpdates(
+                    ((Integer)args[0]).intValue(), (PlaceConfig)args[1], (ZoneSummary)args[2], (SceneUpdate[])args[3]);
+                return;
+
+            case MOVE_SUCCEEDED_WITH_SCENE:
+                ((ZoneMoveListener)listener).moveSucceededWithScene(
                     ((Integer)args[0]).intValue(), (PlaceConfig)args[1], (ZoneSummary)args[2], (SceneModel)args[3]);
                 return;
 
@@ -87,5 +101,5 @@ public class ZoneMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 12:33:05 08/20/02.
+    // Generated on 15:03:19 02/08/03.
 }

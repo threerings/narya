@@ -1,70 +1,61 @@
 //
-// $Id: SpotSceneWriter.java,v 1.6 2001/12/07 05:14:57 mdb Exp $
+// $Id: SpotSceneWriter.java,v 1.7 2003/02/12 07:23:31 mdb Exp $
 
-package com.threerings.whirled.tools.spot.xml;
-
-import java.util.Iterator;
+package com.threerings.whirled.spot.tools.xml;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 import com.megginson.sax.DataWriter;
-import com.samskivert.util.StringUtil;
+import com.threerings.tools.xml.NestableWriter;
 
-import com.threerings.whirled.spot.data.Location;
 import com.threerings.whirled.spot.data.Portal;
-
-import com.threerings.whirled.Log;
-import com.threerings.whirled.tools.EditableScene;
-import com.threerings.whirled.tools.spot.EditablePortal;
-import com.threerings.whirled.tools.spot.EditableSpotScene;
-import com.threerings.whirled.tools.xml.SceneWriter;
+import com.threerings.whirled.spot.data.SpotSceneModel;
+import com.threerings.whirled.spot.tools.EditablePortal;
 
 /**
- * Generates an XML representation of an {@link EditableSpotScene}.
+ * Generates an XML representation of a {@link SpotSceneModel}.
  */
-public class SpotSceneWriter extends SceneWriter
+public class SpotSceneWriter
+    implements NestableWriter
 {
-    protected void addSceneAttributes (
-        EditableScene scene, AttributesImpl attrs)
-    {
-        super.addSceneAttributes(scene, attrs);
-        EditableSpotScene sscene = (EditableSpotScene)scene;
-        attrs.addAttribute("", "defaultEntranceId", "", "",
-                           Integer.toString(sscene.getDefaultEntranceId()));
-    }
+    /** The outer element used to enclose our spot scene definition. */
+    public static final String OUTER_ELEMENT = "spot";
 
-    protected void writeSceneData (EditableScene scene, DataWriter writer)
+    // documentation inherited from interface
+    public void write (Object object, DataWriter writer)
         throws SAXException
     {
-        // we don't want to write our superclass scene data because it
-        // writes out neighbors info which we deal with differently, so we
-        // mean not to call super.writeSceneData()
+        SpotSceneModel model = (SpotSceneModel)object;
+        AttributesImpl attrs = new AttributesImpl();
+        addSceneAttributes(model, attrs);
+        writer.startElement("", OUTER_ELEMENT, "", attrs);
+        writeSceneData(model, writer);
+        writer.endElement(OUTER_ELEMENT);
+    }
 
-        EditableSpotScene sscene = (EditableSpotScene)scene;
-
-        // write out the location info
-        Iterator iter = sscene.getLocations().iterator();
-        while (iter.hasNext()) {
-            Location loc = (Location)iter.next();
-            // skip portals as we'll get those on the next run
-            if (loc instanceof EditablePortal) {
-                continue;
-            }
-
-            AttributesImpl attrs = new AttributesImpl();
-            addSharedAttrs(attrs, loc);
-            attrs.addAttribute("", "clusterIndex", "", "",
-                               Integer.toString(loc.clusterIndex));
-            writer.emptyElement("", "location", "", attrs);
+    protected void addSceneAttributes (SpotSceneModel model,
+                                       AttributesImpl attrs)
+    {
+        if (model.defaultEntranceId != -1) {
+            attrs.addAttribute("", "defaultEntranceId", "", "",
+                               Integer.toString(model.defaultEntranceId));
         }
+    }
 
+    protected void writeSceneData (SpotSceneModel model, DataWriter writer)
+        throws SAXException
+    {
         // write out the portal info
-        iter = sscene.getPortals().iterator();
-        while (iter.hasNext()) {
-            EditablePortal port = (EditablePortal)iter.next();
+        for (int ii = 0; ii < model.portals.length; ii++) {
+            EditablePortal port = (EditablePortal)model.portals[ii];
             AttributesImpl attrs = new AttributesImpl();
-            addSharedAttrs(attrs, port);
+            attrs.addAttribute("", "portalId", "", "",
+                               Integer.toString(port.portalId));
+            attrs.addAttribute("", "x", "", "", Integer.toString(port.x));
+            attrs.addAttribute("", "y", "", "", Integer.toString(port.y));
+            attrs.addAttribute("", "orient", "", "",
+                               Integer.toString(port.orient));
             maybeAddAttr(attrs, "name", port.name);
             maybeAddAttr(attrs, "targetSceneName", port.targetSceneName);
             maybeAddAttr(attrs, "targetPortalName", port.targetPortalName);
@@ -82,19 +73,5 @@ public class SpotSceneWriter extends SceneWriter
         if (value != null) {
             attrs.addAttribute("", name, "", "", value);
         }
-    }
-
-    /**
-     * Adds the attributes that are shared between location and portal
-     * elements.
-     */
-    protected void addSharedAttrs (AttributesImpl attrs, Location loc)
-    {
-        attrs.addAttribute("", "locationId", "", "",
-                           Integer.toString(loc.locationId));
-        attrs.addAttribute("", "x", "", "", Integer.toString(loc.x));
-        attrs.addAttribute("", "y", "", "", Integer.toString(loc.y));
-        attrs.addAttribute("", "orientation", "", "",
-                           Integer.toString(loc.orientation));
     }
 }

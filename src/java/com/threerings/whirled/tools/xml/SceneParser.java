@@ -1,5 +1,5 @@
 //
-// $Id: SceneParser.java,v 1.1 2001/12/05 03:38:09 mdb Exp $
+// $Id: SceneParser.java,v 1.2 2003/02/12 07:23:31 mdb Exp $
 
 package com.threerings.whirled.tools.xml;
 
@@ -9,8 +9,10 @@ import java.io.FileInputStream;
 import org.xml.sax.SAXException;
 import org.apache.commons.digester.Digester;
 
-import com.threerings.whirled.tools.EditableScene;
-import com.threerings.whirled.tools.EditableSceneImpl;
+import com.samskivert.util.StringUtil;
+import com.threerings.tools.xml.NestableRuleSet;
+import com.threerings.whirled.data.AuxModel;
+import com.threerings.whirled.data.SceneModel;
 
 /**
  * A simple class for parsing an editable scene instance.
@@ -19,40 +21,75 @@ public class SceneParser
 {
     /**
      * Constructs a scene parser that parses scenes with the specified XML
-     * path prefix. See the {@link SceneRuleSet#SceneRuleSet}
-     * documentation for more information.
+     * path prefix.
      */
     public SceneParser (String prefix)
     {
         // create and configure our digester
         _digester = new Digester();
-        SceneRuleSet set = new SceneRuleSet();
-        set.setPrefix(prefix);
-        _digester.addRuleSet(set);
-        _digester.addSetNext(prefix, "setScene", EditableScene.class.getName());
+
+        // create our scene rule set
+        SceneRuleSet set = createSceneRuleSet();
+
+        // configure our top-level path prefix
+        if (StringUtil.blank(prefix)) {
+            _prefix = set.getOuterElement();
+        } else {
+            _prefix = prefix + "/" + set.getOuterElement();
+        }
+
+        // add the scene rules
+        set.addRuleInstances(_prefix, _digester);
+
+        // add a rule to grab the finished scene model
+        _digester.addSetNext(_prefix, "setScene", SceneModel.class.getName());
     }
 
     /**
-     * Parses the XML file at the specified path into an editable scene
+     * Creates the rule set used to parse our scene.
+     */
+    protected SceneRuleSet createSceneRuleSet ()
+    {
+        return new SceneRuleSet();
+    }
+
+    /**
+     * Adds a {@link NestableRuleSet} for parsing auxiliary scene models.
+     */
+    public void registerAuxRuleSet (NestableRuleSet set)
+    {
+        // add their outer element to the prefix
+        String prefix = _prefix + "/" + set.getOuterElement();
+
+        // add the rules to generate the aux scene model
+        set.addRuleInstances(prefix, _digester);
+
+        // and add a rule to grab it
+        _digester.addSetNext(prefix, "addAuxModel", AuxModel.class.getName());
+    }
+
+    /**
+     * Parses the XML file at the specified path into a scene model
      * instance.
      */
-    public EditableScene parseScene (String path)
+    public SceneModel parseScene (String path)
         throws IOException, SAXException
     {
-        _scene = null;
+        _model = null;
         _digester.push(this);
         _digester.parse(new FileInputStream(path));
-        return _scene;
+        return _model;
     }
 
     /**
      * Called by the parser once the scene is parsed.
      */
-    public void setScene (EditableScene scene)
+    public void setScene (SceneModel model)
     {
-        _scene = scene;
+        _model = model;
     }
 
+    protected String _prefix;
     protected Digester _digester;
-    protected EditableScene _scene;
+    protected SceneModel _model;
 }

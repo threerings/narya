@@ -1,5 +1,5 @@
 //
-// $Id: SceneService.java,v 1.9 2002/08/14 19:07:57 mdb Exp $
+// $Id: SceneService.java,v 1.10 2003/02/12 07:23:30 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -7,7 +7,9 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 
 import com.threerings.crowd.data.PlaceConfig;
+
 import com.threerings.whirled.data.SceneModel;
+import com.threerings.whirled.data.SceneUpdate;
 
 /**
  * The scene service class provides the client interface to the scene
@@ -34,11 +36,23 @@ public interface SceneService extends InvocationService
          *
          * @param placeId the place object id of the newly occupied scene.
          * @param config metadata related to the newly occupied scene.
-         * @param model the most recent scene data for the newly occupied
-         * scene.
+         * @param updates updates that must be applied to the client's
+         * copy of a scene model to bring it up to date.
          */
-        public void moveSucceededPlusUpdate (
-            int placeId, PlaceConfig config, SceneModel model);
+        public void moveSucceededWithUpdates (int placeId, PlaceConfig config,
+                                              SceneUpdate[] updates);
+
+        /**
+         * Indicates that a move succeeded and that the client's cached
+         * scene information should be updated with the supplied data.
+         *
+         * @param placeId the place object id of the newly occupied scene.
+         * @param config metadata related to the newly occupied scene.
+         * @param model a fresh copy of the most recent scene data for the
+         * newly occupied scene.
+         */
+        public void moveSucceededWithScene (int placeId, PlaceConfig config,
+                                            SceneModel model);
     }
 
     /**
@@ -46,9 +60,9 @@ public interface SceneService extends InvocationService
      * scene.
      *
      * @param sceneId the scene id to which we want to move.
-     * @param sceneVers the version number of the scene object that we
-     * have in our local repository.
+     * @param version the version number of the scene object that we have
+     * in our local repository.
      */
-    public void moveTo (Client client, int sceneId,
-                        int sceneVers, SceneMoveListener listener);
+    public void moveTo (Client client, int sceneId, int version,
+                        SceneMoveListener listener);
 }

@@ -1,5 +1,5 @@
 //
-// $Id: SpotService.java,v 1.11 2002/08/14 19:07:57 mdb Exp $
+// $Id: SpotService.java,v 1.12 2003/02/12 07:23:31 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -7,20 +7,25 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 
 import com.threerings.whirled.client.SceneService.SceneMoveListener;
+import com.threerings.whirled.spot.data.Location;
 
 /**
- * Defines the mechanism by which the client can request to move between
- * locations within a scene and between scenes (taking exit and entry
- * locations into account). These services should not be used directly,
- * but instead should be accessed via the {@link SpotSceneDirector}.
+ * Defines the mechanism by which the client can request to move around
+ * within a scene and between scenes (taking exit and entry locations into
+ * account). These services should not be used directly, but instead
+ * should be accessed via the {@link SpotSceneDirector}.
  */
 public interface SpotService extends InvocationService
 {
     /**
      * Requests to traverse the specified portal.
+     *
+     * @param portalId the portal to be traversed.
+     * @param descSceneVer the version of the destination scene data that
+     * the client has in its local repository.
      */
     public void traversePortal (
-        Client client, int sceneId, int portalId, int sceneVer,
+        Client client, int portalId, int destSceneVer,
         SceneMoveListener listener);
 
     /**
@@ -29,25 +34,32 @@ public interface SpotService extends InvocationService
     public static interface ChangeLocListener extends InvocationListener
     {
         /**
-         * Called when the change location request succeeded.
-         *
-         * @param clusterOid the object id of the cluster object
-         * associated with the new location.
+         * Called when the change location request succeeds.
          */
-        public void changeLocSucceeded (int clusterOid);
+        public void changeLocSucceeded ();
     }
 
     /**
-     * Requests that this client's body be made to occupy the specified
+     * Requests that this client's body be made to move to the specified
      * location.
+     *
+     * @param loc the location to which to move.
+     * @param cluster if zero, a new cluster will be created and assigned
+     * to the calling user; if -1, the calling user will be removed from
+     * any cluster they currently occupy and not made to occupy a new
+     * cluster; if the bodyOid of another user, the calling user will be
+     * made to join the target user's cluster.
      */
-    public void changeLoc (Client client, int sceneId, int locationId,
+    public void changeLoc (Client client, Location loc, int cluster,
                            ChangeLocListener listener);
 
     /**
      * Requests that the supplied message be delivered to listeners in the
      * cluster to which the specified location belongs.
+     *
+     * @param message the text of the message to be spoken.
+     * @param mode an associated mode constant that can be used to
+     * identify different kinds of "speech" (emote, thought bubble, etc.).
      */
-    public void clusterSpeak (Client client, int sceneId, int locationId,
-                              String message, byte mode);
+    public void clusterSpeak (Client client, String message, byte mode);
 }

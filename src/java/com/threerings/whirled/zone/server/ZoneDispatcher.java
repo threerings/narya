@@ -1,5 +1,5 @@
 //
-// $Id: ZoneDispatcher.java,v 1.2 2002/08/20 19:38:16 mdb Exp $
+// $Id: ZoneDispatcher.java,v 1.3 2003/02/12 07:23:32 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -10,6 +10,7 @@ import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.whirled.data.SceneModel;
+import com.threerings.whirled.data.SceneUpdate;
 import com.threerings.whirled.zone.client.ZoneService;
 import com.threerings.whirled.zone.client.ZoneService.ZoneMoveListener;
 import com.threerings.whirled.zone.data.ZoneMarshaller;
@@ -17,10 +18,6 @@ import com.threerings.whirled.zone.data.ZoneSummary;
 
 /**
  * Dispatches requests to the {@link ZoneProvider}.
- *
- * <p> Generated from <code>
- * $Id: ZoneDispatcher.java,v 1.2 2002/08/20 19:38:16 mdb Exp $
- * </code>
  */
 public class ZoneDispatcher extends InvocationDispatcher
 {
@@ -56,4 +53,6 @@ public class ZoneDispatcher extends InvocationDispatcher
             super.dispatchRequest(source, methodId, args);
         }
     }
+
+    // Generated on 15:03:19 02/08/03.
 }

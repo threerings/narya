@@ -1,5 +1,5 @@
 //
-// $Id: ZoneProvider.java,v 1.13 2002/12/03 06:58:57 mdb Exp $
+// $Id: ZoneProvider.java,v 1.14 2003/02/12 07:23:32 mdb Exp $
 
 package com.threerings.whirled.zone.server;
 
@@ -161,10 +161,10 @@ public class ZoneProvider
             }
 
             // check to see if they need a newer version of the scene data
-            SceneModel model = scmgr.getSceneModel();
+            SceneModel model = scmgr.getScene().getSceneModel();
             if (sceneVersion < model.version) {
                 // then send the moveTo response
-                listener.moveSucceededPlusUpdate(ploid, config, summary, model);
+                listener.moveSucceededWithScene(ploid, config, summary, model);
 
             } else {
                 // then send the moveTo response

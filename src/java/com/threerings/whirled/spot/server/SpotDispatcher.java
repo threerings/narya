@@ -1,5 +1,5 @@
 //
-// $Id: SpotDispatcher.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
+// $Id: SpotDispatcher.java,v 1.3 2003/02/12 07:23:31 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -12,14 +12,11 @@ import com.threerings.whirled.client.SceneService.SceneMoveListener;
 import com.threerings.whirled.data.SceneMarshaller.SceneMoveMarshaller;
 import com.threerings.whirled.spot.client.SpotService;
 import com.threerings.whirled.spot.client.SpotService.ChangeLocListener;
+import com.threerings.whirled.spot.data.Location;
 import com.threerings.whirled.spot.data.SpotMarshaller;
 
 /**
  * Dispatches requests to the {@link SpotProvider}.
- *
- * <p> Generated from <code>
- * $Id: SpotDispatcher.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
- * </code>
  */
 public class SpotDispatcher extends InvocationDispatcher
 {
@@ -47,21 +44,21 @@ public class SpotDispatcher extends InvocationDispatcher
         case SpotMarshaller.TRAVERSE_PORTAL:
             ((SpotProvider)provider).traversePortal(
                 source,
-                ((Integer)args[0]).intValue(), ((Integer)args[1]).intValue(), ((Integer)args[2]).intValue(), (SceneMoveListener)args[3]
+                ((Integer)args[0]).intValue(), ((Integer)args[1]).intValue(), (SceneMoveListener)args[2]
             );
             return;
 
         case SpotMarshaller.CHANGE_LOC:
             ((SpotProvider)provider).changeLoc(
                 source,
-                ((Integer)args[0]).intValue(), ((Integer)args[1]).intValue(), (ChangeLocListener)args[2]
+                (Location)args[0], ((Integer)args[1]).intValue(), (ChangeLocListener)args[2]
             );
             return;
 
         case SpotMarshaller.CLUSTER_SPEAK:
             ((SpotProvider)provider).clusterSpeak(
                 source,
-                ((Integer)args[0]).intValue(), ((Integer)args[1]).intValue(), (String)args[2], ((Byte)args[3]).byteValue()
+                (String)args[0], ((Byte)args[1]).byteValue()
             );
             return;
 
@@ -69,4 +66,6 @@ public class SpotDispatcher extends InvocationDispatcher
             super.dispatchRequest(source, methodId, args);
         }
     }
+
+    // Generated on 10:09:04 02/05/03.
 }

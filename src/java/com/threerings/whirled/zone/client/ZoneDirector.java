@@ -1,5 +1,5 @@
 //
-// $Id: ZoneDirector.java,v 1.13 2003/01/18 22:45:16 mdb Exp $
+// $Id: ZoneDirector.java,v 1.14 2003/02/12 07:23:32 mdb Exp $
 
 package com.threerings.whirled.zone.client;
 
@@ -14,6 +14,7 @@ import com.threerings.crowd.data.PlaceConfig;
 
 import com.threerings.whirled.client.SceneDirector;
 import com.threerings.whirled.data.SceneModel;
+import com.threerings.whirled.data.SceneUpdate;
 import com.threerings.whirled.util.WhirledContext;
 
 import com.threerings.whirled.zone.Log;
@@ -161,16 +162,35 @@ public class ZoneDirector extends BasicDirector
     /**
      * Called in response to a successful {@link ZoneService#moveTo}
      * request when our cached scene was out of date and the server
+     * determined that we needed some updates.
+     */
+    public void moveSucceededWithUpdates (
+        int placeId, PlaceConfig config, ZoneSummary summary,
+        SceneUpdate[] updates)
+    {
+        // keep track of the summary
+        _summary = summary;
+
+        // pass the rest off to the standard scene transition code
+        _scdir.moveSucceededWithUpdates(placeId, config, updates);
+
+        // and let the zone observers know what's up
+        notifyObservers(summary);
+    }
+
+    /**
+     * Called in response to a successful {@link ZoneService#moveTo}
+     * request when our cached scene was out of date and the server
      * determined that we needed an updated copy.
      */
-    public void moveSucceededPlusUpdate (
+    public void moveSucceededWithScene (
         int placeId, PlaceConfig config, ZoneSummary summary, SceneModel model)
     {
         // keep track of the summary
         _summary = summary;
 
         // pass the rest off to the standard scene transition code
-        _scdir.moveSucceededPlusUpdate(placeId, config, model);
+        _scdir.moveSucceededWithScene(placeId, config, model);
 
         // and let the zone observers know what's up
         notifyObservers(summary);

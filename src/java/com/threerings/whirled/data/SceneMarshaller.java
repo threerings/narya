@@ -1,5 +1,5 @@
 //
-// $Id: SceneMarshaller.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
+// $Id: SceneMarshaller.java,v 1.3 2003/02/12 07:23:31 mdb Exp $
 
 package com.threerings.whirled.data;
 
@@ -10,6 +10,7 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
 import com.threerings.whirled.client.SceneService;
 import com.threerings.whirled.client.SceneService.SceneMoveListener;
 import com.threerings.whirled.data.SceneModel;
+import com.threerings.whirled.data.SceneUpdate;
 
 /**
  * Provides the implementation of the {@link SceneService} interface
@@ -17,10 +18,6 @@ import com.threerings.whirled.data.SceneModel;
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
- *
- * <p> Generated from <code>
- * $Id: SceneMarshaller.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
- * </code>
  */
 public class SceneMarshaller extends InvocationMarshaller
     implements SceneService
@@ -41,15 +38,27 @@ public class SceneMarshaller extends InvocationMarshaller
                                new Object[] { new Integer(arg1), arg2 }));
         }
 
-        /** The method id used to dispatch {@link #moveSucceededPlusUpdate}
+        /** The method id used to dispatch {@link #moveSucceededWithUpdates}
          * responses. */
-        public static final int MOVE_SUCCEEDED_PLUS_UPDATE = 2;
+        public static final int MOVE_SUCCEEDED_WITH_UPDATES = 2;
 
         // documentation inherited from interface
-        public void moveSucceededPlusUpdate (int arg1, PlaceConfig arg2, SceneModel arg3)
+        public void moveSucceededWithUpdates (int arg1, PlaceConfig arg2, SceneUpdate[] arg3)
         {
             omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, MOVE_SUCCEEDED_PLUS_UPDATE,
+                               callerOid, requestId, MOVE_SUCCEEDED_WITH_UPDATES,
+                               new Object[] { new Integer(arg1), arg2, arg3 }));
+        }
+
+        /** The method id used to dispatch {@link #moveSucceededWithScene}
+         * responses. */
+        public static final int MOVE_SUCCEEDED_WITH_SCENE = 3;
+
+        // documentation inherited from interface
+        public void moveSucceededWithScene (int arg1, PlaceConfig arg2, SceneModel arg3)
+        {
+            omgr.postEvent(new InvocationResponseEvent(
+                               callerOid, requestId, MOVE_SUCCEEDED_WITH_SCENE,
                                new Object[] { new Integer(arg1), arg2, arg3 }));
         }
 
@@ -62,8 +71,13 @@ public class SceneMarshaller extends InvocationMarshaller
                     ((Integer)args[0]).intValue(), (PlaceConfig)args[1]);
                 return;
 
-            case MOVE_SUCCEEDED_PLUS_UPDATE:
-                ((SceneMoveListener)listener).moveSucceededPlusUpdate(
+            case MOVE_SUCCEEDED_WITH_UPDATES:
+                ((SceneMoveListener)listener).moveSucceededWithUpdates(
+                    ((Integer)args[0]).intValue(), (PlaceConfig)args[1], (SceneUpdate[])args[2]);
+                return;
+
+            case MOVE_SUCCEEDED_WITH_SCENE:
+                ((SceneMoveListener)listener).moveSucceededWithScene(
                     ((Integer)args[0]).intValue(), (PlaceConfig)args[1], (SceneModel)args[2]);
                 return;
 
@@ -86,5 +100,5 @@ public class SceneMarshaller extends InvocationMarshaller
         });
     }
 
-    // Class file generated on 12:33:06 08/20/02.
+    // Generated on 14:44:07 02/08/03.
 }

@@ -1,119 +1,79 @@
 //
-// $Id: SpotSceneModel.java,v 1.8 2002/07/23 05:54:52 mdb Exp $
+// $Id: SpotSceneModel.java,v 1.9 2003/02/12 07:23:31 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
-import com.samskivert.util.StringUtil;
+import com.samskivert.util.ArrayUtil;
+import com.samskivert.util.ListUtil;
+
+import com.threerings.io.SimpleStreamableObject;
+import com.threerings.util.DirectionUtil;
+
+import com.threerings.whirled.data.AuxModel;
 import com.threerings.whirled.data.SceneModel;
 
 /**
  * The spot scene model extends the standard scene model with information
- * on locations, clusters and portals. Locations (and by extension,
- * portals) are referenced by an identifier, unique within the scene and
- * unchanging, so that portals can stably reference the target location in
- * the scene to which they connect. Clusters are tracked by index rather
- * than unique identifier, but only exist as an attribute of locations (a
- * location belongs to zero or one clusters).
+ * on portals. Portals are referenced by an identifier, unique within the
+ * scene and unchanging, so that portals can stably reference the target
+ * portal in the scene to which they connect.
  */
-public class SpotSceneModel extends SceneModel
+public class SpotSceneModel extends SimpleStreamableObject
+    implements AuxModel
 {
-    /** The unique (within the scope of this scene) identifier of each
-     * location in this scene (including portals). */
-    public int[] locationIds;
+    /** An array containing all portals in this scene. */
+    public Portal[] portals = new Portal[0];
 
-    /** The x coordinates of the locations in this scene (including
-     * portals). */
-    public int[] locationX;
-
-    /** The y coordinates of the locations in this scene (including
-     * portals). */
-    public int[] locationY;
-
-    /** The orientations associated with the locations in this scene
-     * (including portals). */
-    public int[] locationOrients;
-
-    /** The cluster index of each location in this scene, which can be 0
-     * to indicate that the location is not a member of any cluster
-     * (including portals, which should always be 0). */
-    public int[] locationClusters;
-
-    /** The location id of the default entrance to this scene. If a body
+    /** The portal id of the default entrance to this scene. If a body
      * enters the scene without coming from another scene, this is the
-     * location at which they would appear. */
-    public int defaultEntranceId;
+     * portal at which they would appear. */
+    public int defaultEntranceId = -1;
 
-    /** The location id of each portal in this scene. These must map, in
-     * order, to the neighboring scene ids specified in {@link
-     * #neighborIds}. The neighbor ids being the scene ids of the scenes
-     * to which these portals take a body when "used". Additionally, these
-     * must occur in the same order that the location ids appear in the
-     * above array. */
-    public int[] portalIds;
+    /**
+     * Adds a portal to this scene model.
+     */
+    public void addPortal (Portal portal)
+    {
+        portals = (Portal[])ArrayUtil.append(portals, portal);
+    }
 
-    /** Contains the location ids of the entry location in the target
-     * scene to which this scene's portals connect. Portals in this scene
-     * connect to locations in other scenes as dictated by these
-     * values. */
-    public int[] targetLocIds;
+    /**
+     * Removes a portal from this model.
+     */
+    public void removePortal (Portal portal)
+    {
+        int pidx = ListUtil.indexOfEqual(portals, portal);
+        if (pidx != -1) {
+            portals = (Portal[])ArrayUtil.splice(portals, pidx, 1);
+        }
+    }
 
     // documentation inherited
     public Object clone ()
         throws CloneNotSupportedException
     {
         SpotSceneModel model = (SpotSceneModel)super.clone();
-        model.locationIds = (int[])locationIds.clone();
-        model.locationX = (int[])locationX.clone();
-        model.locationY = (int[])locationY.clone();
-        model.locationOrients = (int[])locationOrients.clone();
-        model.locationClusters = (int[])locationClusters.clone();
-        model.portalIds = (int[])portalIds.clone();
-        model.targetLocIds = (int[])targetLocIds.clone();
+        // clone our portals individually
+        model.portals = new Portal[portals.length];
+        for (int ii = 0, ll = portals.length; ii < ll; ii++) {
+            model.portals[ii] = (Portal)portals[ii].clone();
+        }
         return model;
     }
 
     /**
-     * Creates and returns a blank scene model.
+     * Locates and returns the {@link SpotSceneModel} among the auxiliary
+     * scene models associated with the supplied scene
+     * model. <code>null</code> is returned if no spot scene model could
+     * be found.
      */
-    public static SpotSceneModel blankSpotSceneModel ()
+    public static SpotSceneModel getSceneModel (SceneModel model)
     {
-        SpotSceneModel model = new SpotSceneModel();
-        populateBlankSpotSceneModel(model);
-        return model;
-    }
-
-    /**
-     * Populates a blank scene model with blank values.
-     */
-    protected static void populateBlankSpotSceneModel (SpotSceneModel model)
-    {
-        // populate our superclass fields
-        populateBlankSceneModel(model);
-
-        // now populate our fields
-        model.locationIds = new int[0];
-        model.locationX = new int[0];
-        model.locationY = new int[0];
-        model.locationOrients = new int[0];
-        model.locationClusters = new int[0];
-        model.defaultEntranceId = -1;
-        model.portalIds = new int[0];
-        model.targetLocIds = new int[0];
-    }
-
-    // documentation inherited
-    protected void toString (StringBuffer buf)
-    {
-        super.toString(buf);
-        buf.append(", locationIds=").append(StringUtil.toString(locationIds));
-        buf.append(", locationX=").append(StringUtil.toString(locationX  ));
-        buf.append(", locationY=").append(StringUtil.toString(locationY));
-        buf.append(", locationOrients=").
-            append(StringUtil.toString(locationOrients));
-        buf.append(", locationClusters=").
-            append(StringUtil.toString(locationClusters));
-        buf.append(", defaultEntranceId=").append(defaultEntranceId);
-        buf.append(", portalIds=").append(StringUtil.toString(portalIds));
-        buf.append(", targetLocIds=").append(StringUtil.toString(targetLocIds));
+        for (int ii = 0; ii < model.auxModels.length; ii++) {
+            if (model.auxModels[ii] instanceof SpotSceneModel) {
+                return (SpotSceneModel)model.auxModels[ii];
+            }
+        }
+        return null;
     }
 }

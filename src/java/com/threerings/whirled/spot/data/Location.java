@@ -1,43 +1,75 @@
 //
-// $Id: Location.java,v 1.5 2001/12/05 09:14:29 mdb Exp $
+// $Id: Location.java,v 1.6 2003/02/12 07:23:31 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
-/**
- * A location represents a place to stand in a scene. More specifically,
- * it is a geometric location in a scene with an orientation that would be
- * assumed by any body sprite standing in that location. Locations may
- * optionally belong to a cluster, which associates them with a group of
- * locations for speaking purposes (bodies in the same cluster can "hear"
- * one another speak).
- */
-public class Location
-{
-    /** This location's unique identifier. */
-    public int locationId;
+import com.threerings.io.SimpleStreamableObject;
+import com.threerings.util.DirectionCodes;
+import com.threerings.util.DirectionUtil;
 
-    /** This location's x coordinate (interpreted by the display system). */
+/**
+ * Contains information on a scene occupant's position and orientation.
+ */
+public class Location extends SimpleStreamableObject
+    implements Cloneable
+{
+    /** The user's x position (interpreted by the display system). */
     public int x;
 
-    /** This location's y coordinate (interpreted by the display system). */
+    /** The user's y position (interpreted by the display system). */
     public int y;
 
-    /** This location's y orientation (interpreted by the display system). */
-    public int orientation;
+    /** The user's orientation (defined by {@link DirectionCodes}). */
+    public byte orient;
 
-    /** The cluster to which this location belongs or -1 if it belongs to
-     * no cluster. */
-    public int clusterIndex;
+    /** {@link #toString} helper function. */
+    public String orientToString ()
+    {
+        return DirectionUtil.toShortString(orient);
+    }
 
     /**
-     * Location equality is determined by location id.
+     * A zero-argument constructor used when unserializing instances.
+     */
+    public Location ()
+    {
+    }
+
+    /**
+     * Constructs a location with the specified coordinates and
+     * orientation.
+     */
+    public Location (int x, int y, byte orient)
+    {
+        this.x = x;
+        this.y = y;
+        this.orient = orient;
+
+        if (orient == -1) {
+            Thread.dumpStack();
+        }
+    }
+
+    /**
+     * Creates a clone of this instance.
+     */
+    public Object clone ()
+    {
+        try {
+            return (Location)super.clone();
+        } catch (CloneNotSupportedException cnse) {
+            throw new RuntimeException("Location.clone() failed " + cnse);
+        }
+    }
+
+    /**
+     * Location equality is determined by coordinates.
      */
     public boolean equals (Object other)
     {
         if (other instanceof Location) {
             Location oloc = (Location)other;
-            return locationId == oloc.locationId;
-
+            return (x == oloc.x) && (y == oloc.y);
         } else {
             return false;
         }
@@ -48,29 +80,6 @@ public class Location
      */
     public int hashCode ()
     {
-        return locationId;
-    }
-
-    /**
-     * Generates a string representation of this location instance.
-     */
-    public String toString ()
-    {
-        StringBuffer buf = new StringBuffer("[");
-        toString(buf);
-        return buf.append("]").toString();
-    }
-
-    /**
-     * An efficient, extensible mechanism for generating a string
-     * representation of locations and derived classes.
-     */
-    protected void toString (StringBuffer buf)
-    {
-        buf.append("id=").append(locationId);
-        buf.append(", x=").append(x);
-        buf.append(", y=").append(y);
-        buf.append(", orient=").append(orientation);
-        buf.append(", cluster=").append(clusterIndex);
+        return x ^ y;
     }
 }

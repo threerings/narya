@@ -1,5 +1,5 @@
 //
-// $Id: SceneDispatcher.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
+// $Id: SceneDispatcher.java,v 1.3 2003/02/12 07:23:31 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -13,13 +13,10 @@ import com.threerings.whirled.client.SceneService;
 import com.threerings.whirled.client.SceneService.SceneMoveListener;
 import com.threerings.whirled.data.SceneMarshaller;
 import com.threerings.whirled.data.SceneModel;
+import com.threerings.whirled.data.SceneUpdate;
 
 /**
  * Dispatches requests to the {@link SceneProvider}.
- *
- * <p> Generated from <code>
- * $Id: SceneDispatcher.java,v 1.2 2002/08/20 19:38:15 mdb Exp $
- * </code>
  */
 public class SceneDispatcher extends InvocationDispatcher
 {
@@ -55,4 +52,6 @@ public class SceneDispatcher extends InvocationDispatcher
             super.dispatchRequest(source, methodId, args);
         }
     }
+
+    // Generated on 14:44:07 02/08/03.
 }

@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.23 2002/12/09 04:44:33 shaper Exp $
+// $Id: SceneDirector.java,v 1.24 2003/02/12 07:23:30 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -19,10 +19,13 @@ import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.client.persist.SceneRepository;
+import com.threerings.whirled.data.Scene;
 import com.threerings.whirled.data.SceneCodes;
 import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.util.NoSuchSceneException;
+import com.threerings.whirled.util.SceneFactory;
 import com.threerings.whirled.util.WhirledContext;
+import com.threerings.whirled.data.SceneUpdate;
 
 /**
  * The scene director is the client's interface to all things scene
@@ -49,10 +52,10 @@ public class SceneDirector extends BasicDirector
      * @param screp the entity from which the scene director will load
      * scene data from the local client scene storage.
      * @param dsfact the factory that knows which derivation of {@link
-     * DisplayScene} to create for the current system.
+     * Scene} to create for the current system.
      */
     public SceneDirector (WhirledContext ctx, LocationDirector locdir,
-                          SceneRepository screp, DisplaySceneFactory dsfact)
+                          SceneRepository screp, SceneFactory fact)
     {
         super(ctx);
 
@@ -60,7 +63,7 @@ public class SceneDirector extends BasicDirector
         _ctx = ctx;
         _locdir = locdir;
         _screp = screp;
-        _dsfact = dsfact;
+        _fact = fact;
 
         // set ourselves up as a failure handler with the location
         // director because we need to do special processing
@@ -75,7 +78,7 @@ public class SceneDirector extends BasicDirector
      * Returns the display scene object associated with the scene we
      * currently occupy or null if we currently occupy no scene.
      */
-    public DisplayScene getScene ()
+    public Scene getScene ()
     {
         return _scene;
     }
@@ -202,25 +205,84 @@ public class SceneDirector extends BasicDirector
         if (_model == null) {
             Log.warning("Aiya! Unable to load scene [sid=" + _sceneId +
                         ", plid=" + placeId + "].");
+            return;
         }
 
         // and finally create a display scene instance with the model and
         // the place config
-        _scene = _dsfact.createScene(_model, config);
+        _scene = _fact.createScene(_model, config);
     }
 
     // documentation inherited from interface
-    public void moveSucceededPlusUpdate (
+    public void moveSucceededWithUpdates (
+        int placeId, PlaceConfig config, SceneUpdate[] updates)
+    {
+        // apply the updates to our cached scene
+        SceneModel model = loadSceneModel(_pendingSceneId);
+        boolean failure = false;
+        for (int ii = 0; ii < updates.length; ii++) {
+            try {
+                updates[ii].validate(model);
+            } catch (IllegalStateException ise) {
+                Log.warning("Scene update failed validation [model=" + model +
+                            ", update=" + updates[ii] +
+                            ", error=" + ise.getMessage() + "].");
+                failure = true;
+                break;
+            }
+
+            try {
+                updates[ii].apply(model);
+            } catch (Exception e) {
+                Log.warning("Failure applying scene update [model=" + model +
+                            ", update=" + updates[ii] + "].");
+                Log.logStackTrace(e);
+                failure = true;
+                break;
+            }
+        }
+
+        if (failure) {
+            // delete the now half-booched scene model from the repository
+            try {
+                _screp.deleteSceneModel(_pendingSceneId);
+            } catch (IOException ioe) {
+                Log.warning("Failure removing booched scene model " +
+                            "[sceneId=" + _pendingSceneId + "].");
+                Log.logStackTrace(ioe);
+            }
+
+            // act as if the scene move failed, though we'll be in a funny
+            // state because the server thinks we've changed scenes, but
+            // the client can try again without its booched scene model
+            requestFailed(INTERNAL_ERROR);
+            return;
+        }
+
+        // store the updated scene in the repository
+        try {
+            _screp.storeSceneModel(model);
+        } catch (IOException ioe) {
+            Log.warning("Failed to update repository with updated scene " +
+                        "[sceneId=" + model.sceneId + "].");
+            Log.logStackTrace(ioe);
+        }
+
+        // finally pass through to the normal success handler
+        moveSucceeded(placeId, config);
+    }
+
+    // documentation inherited from interface
+    public void moveSucceededWithScene (
         int placeId, PlaceConfig config, SceneModel model)
     {
         // update the model in the repository
         try {
-            _screp.updateSceneModel(model);
+            _screp.storeSceneModel(model);
         } catch (IOException ioe) {
-            Log.warning("Danger Will Robinson! We were unable to update " +
-                        "our scene cache with a new version of a scene " +
-                        "provided by the server " +
-                        "[newVersion=" + model.version + "].");
+            Log.warning("Failed to update repository with new version " +
+                        "[sceneId=" + model.sceneId +
+                        ", nvers=" + model.version + "].");
             Log.logStackTrace(ioe);
         }
 
@@ -376,14 +438,14 @@ public class SceneDirector extends BasicDirector
     /** The entity via which we load scene data. */
     protected SceneRepository _screp;
 
-    /** The entity we use to create display scenes from scene models. */
-    protected DisplaySceneFactory _dsfact;
+    /** The entity we use to create scenes from scene models. */
+    protected SceneFactory _fact;
 
     /** A cache of scene model information. */
     protected HashIntMap _scache = new HashIntMap();
 
     /** The display scene object for the scene we currently occupy. */
-    protected DisplayScene _scene;
+    protected Scene _scene;
 
     /** The scene model for the scene we currently occupy. */
     protected SceneModel _model;

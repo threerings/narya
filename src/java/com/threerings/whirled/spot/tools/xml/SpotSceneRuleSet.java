@@ -1,54 +1,41 @@
 //
-// $Id: SpotSceneRuleSet.java,v 1.3 2001/12/05 03:40:32 mdb Exp $
+// $Id: SpotSceneRuleSet.java,v 1.4 2003/02/12 07:23:31 mdb Exp $
 
-package com.threerings.whirled.tools.spot.xml;
-
-import org.apache.commons.digester.Digester;
-import org.apache.commons.digester.RuleSetBase;
+package com.threerings.whirled.spot.tools.xml;
 
 import com.samskivert.xml.SetPropertyFieldsRule;
+import com.threerings.tools.xml.NestableRuleSet;
+import org.apache.commons.digester.Digester;
 
-import com.threerings.whirled.tools.xml.SceneRuleSet;
-
-import com.threerings.whirled.spot.data.Location;
-import com.threerings.whirled.tools.spot.EditablePortal;
-import com.threerings.whirled.tools.spot.EditableSpotScene;
-import com.threerings.whirled.tools.spot.EditableSpotSceneImpl;
+import com.threerings.whirled.spot.data.Portal;
+import com.threerings.whirled.spot.data.SpotSceneModel;
+import com.threerings.whirled.spot.tools.EditablePortal;
 
 /**
- * Used to parse an {@link EditableSpotScene} from XML.
+ * Used to parse a {@link SpotSceneModel} from XML.
  */
-public class SpotSceneRuleSet extends SceneRuleSet
+public class SpotSceneRuleSet implements NestableRuleSet
 {
-    /**
-     * Extends the scene rule set with the necessary rules to parse our
-     * spot scene data.
-     */
-    public void addRuleInstances (Digester digester)
+    // documentation inherited from interface
+    public String getOuterElement ()
     {
-        super.addRuleInstances(digester);
-
-        // create Location instances when we see <location>
-        String elclass = Location.class.getName();
-        digester.addObjectCreate(_prefix + "/location", elclass);
-        digester.addRule(_prefix + "/location",
-                         new SetPropertyFieldsRule(digester));
-        digester.addSetNext(_prefix + "/location", "addLocation", elclass);
-
-        // create EditablePortal instances when we see <portal>
-        String epclass = EditablePortal.class.getName();
-        digester.addObjectCreate(_prefix + "/portal", epclass);
-        digester.addRule(_prefix + "/portal",
-                         new SetPropertyFieldsRule(digester));
-        digester.addSetNext(_prefix + "/portal", "addPortal", epclass);
+        return SpotSceneWriter.OUTER_ELEMENT;
     }
 
-    /**
-     * This indicates the class (which should implement {@link
-     * EditableSpotScene}) to be instantiated during the parsing process.
-     */
-    protected Class getSceneClass ()
+    // documentation inherited from interface
+    public void addRuleInstances (String prefix, Digester digester)
     {
-        return EditableSpotSceneImpl.class;
+        digester.addObjectCreate(prefix, SpotSceneModel.class.getName());
+
+        // set up rules to parse and set our fields
+        digester.addRule(prefix, new SetPropertyFieldsRule(digester));
+
+        // create EditablePortal instances when we see <portal>
+        digester.addObjectCreate(prefix + "/portal",
+                                 EditablePortal.class.getName());
+        digester.addRule(prefix + "/portal",
+                         new SetPropertyFieldsRule(digester));
+        digester.addSetNext(prefix + "/portal", "addPortal",
+                            Portal.class.getName());
     }
 }

@@ -1,18 +1,16 @@
 //
-// $Id: SceneModel.java,v 1.8 2002/07/23 05:54:52 mdb Exp $
+// $Id: SceneModel.java,v 1.9 2003/02/12 07:23:31 mdb Exp $
 
 package com.threerings.whirled.data;
 
-import com.samskivert.util.StringUtil;
+import com.samskivert.util.ArrayUtil;
 
 import com.threerings.io.SimpleStreamableObject;
 
 /**
  * The scene model is the bare bones representation of the data for a
  * scene in the Whirled system. From the scene model, one would create an
- * instance of {@link com.threerings.whirled.server.RuntimeScene}, {@link
- * com.threerings.whirled.client.DisplayScene} or {@link
- * com.threerings.whirled.tools.EditableScene}.
+ * instance of {@link Scene}.
  *
  * <p> The scene model is what is loaded from the scene repositories and
  * what is transmitted over the wire when communicating scenes from the
@@ -25,7 +23,7 @@ public class SceneModel extends SimpleStreamableObject
     public int sceneId;
 
     /** The human readable name of this scene. */
-    public String sceneName;
+    public String name;
 
     /** The version number of this scene. Versions are incremented
      * whenever modifications are made to a scene so that clients can
@@ -33,18 +31,15 @@ public class SceneModel extends SimpleStreamableObject
      * scene. */
     public int version;
 
-    /** The scene ids of the scenes that neighbor this scene. A neighbor
-     * is a scene that can be entered from this scene. */
-    public int[] neighborIds;
+    /** Auxiliary scene model information. */
+    public AuxModel[] auxModels = new AuxModel[0];
 
     /**
-     * Generates a string representation of this scene model.
+     * Adds the specified auxiliary model to this scene model.
      */
-    public String toString ()
+    public void addAuxModel (AuxModel auxModel)
     {
-        StringBuffer buf = new StringBuffer("[");
-        toString(buf);
-        return buf.append("]").toString();
+        auxModels = (AuxModel[])ArrayUtil.append(auxModels, auxModel);
     }
 
     // documentation inherited
@@ -52,20 +47,11 @@ public class SceneModel extends SimpleStreamableObject
         throws CloneNotSupportedException
     {
         SceneModel model = (SceneModel)super.clone();
-        model.neighborIds = (int[])neighborIds.clone();
+        model.auxModels = new AuxModel[auxModels.length];
+        for (int ii = 0; ii < auxModels.length; ii++) {
+            model.auxModels[ii] = (AuxModel)auxModels[ii].clone();
+        }
         return model;
-    }
-
-    /**
-     * Derived classes override this to tack their <code>toString</code>
-     * data on to the string buffer.
-     */
-    protected void toString (StringBuffer buf)
-    {
-        buf.append("sceneId=").append(sceneId);
-        buf.append(", name=").append(sceneName);
-        buf.append(", version=").append(version);
-        buf.append(", neighborIds=").append(StringUtil.toString(neighborIds));
     }
 
     /**
@@ -84,8 +70,7 @@ public class SceneModel extends SimpleStreamableObject
     protected static void populateBlankSceneModel (SceneModel model)
     {
         model.sceneId = -1;
-        model.sceneName = "<blank>";
+        model.name = "<blank>";
         model.version = 0;
-        model.neighborIds = new int[0];
     }
 }

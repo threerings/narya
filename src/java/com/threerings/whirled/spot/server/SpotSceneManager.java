@@ -1,10 +1,13 @@
 //
-// $Id: SpotSceneManager.java,v 1.24 2003/01/31 23:10:46 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.25 2003/02/12 07:23:31 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
+import java.util.Iterator;
+
+import com.samskivert.util.ArrayIntSet;
+import com.samskivert.util.HashIntMap;
 import com.samskivert.util.IntIntMap;
-import com.samskivert.util.IntListUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.dobj.DObject;
@@ -20,10 +23,14 @@ import com.threerings.whirled.server.SceneManager;
 
 import com.threerings.whirled.spot.Log;
 import com.threerings.whirled.spot.data.ClusterObject;
+import com.threerings.whirled.spot.data.ClusteredBodyObject;
+import com.threerings.whirled.spot.data.Location;
+import com.threerings.whirled.spot.data.Portal;
+import com.threerings.whirled.spot.data.SceneLocation;
 import com.threerings.whirled.spot.data.SpotCodes;
-import com.threerings.whirled.spot.data.SpotOccupantInfo;
+import com.threerings.whirled.spot.data.SpotScene;
 import com.threerings.whirled.spot.data.SpotSceneModel;
-import com.threerings.whirled.spot.util.SpotSceneUtil;
+import com.threerings.whirled.spot.data.SpotSceneObject;
 
 /**
  * Handles the movement of bodies between locations in the scene and
@@ -41,202 +48,207 @@ public class SpotSceneManager extends SceneManager
         SpotSceneManager mgr = (SpotSceneManager)
             CrowdServer.plreg.getPlaceManager(body.location);
         if (mgr != null) {
-            RuntimeSpotScene scene = (RuntimeSpotScene)mgr.getScene();
+            SpotScene scene = (SpotScene)mgr.getScene();
             try {
-                mgr.handleChangeLocRequest(body, scene.getDefaultEntranceId());
+                Location eloc = scene.getDefaultEntrance().getLocation();
+                mgr.handleChangeLocRequest(body, eloc, -1);
             } catch (InvocationException ie) {
-                Log.warning("Could not walk user to default portal " +
-                            "[error=" + ie + "].");
+                Log.warning("Could not move user to default portal " +
+                            "[where=" + mgr.where() + ", who=" + body.who() +
+                            ", error=" + ie + "].");
             }
         }
     }
 
     /**
-     * Prepares a mapping for an entering body, indicating that they will
-     * be entering at the specified location id. When the time comes to
-     * prepare that body's occupant info, we will use the supplied
-     * location id as their starting location.
+     * Assigns a starting location for an entering body. This will happen
+     * before the body is made to "occupy" the scene (defined by their
+     * having an occupant info record). So when they do finally occupy the
+     * scene, the client will know where to render them.
      */
-    public void mapEnteringBody (int bodyOid, int locationId)
+    public void mapEnteringBody (BodyObject body, int portalId)
     {
-        _entering.put(bodyOid, locationId);
+        _enterers.put(body.getOid(), portalId);
     }
 
     /**
-     * If scene entry fails, this can be called to undo a scene entry
-     * mapping.
+     * Called if a body failed to enter our scene after we assigned them
+     * an entering position.
      */
-    public void clearEnteringBody (int bodyOid)
+    public void clearEnteringBody (BodyObject body)
     {
-        _entering.remove(bodyOid);
+        _enterers.remove(body.getOid());
     }
 
-    /**
-     * Returns the locationId of an unoccupied location in this scene
-     * (portals are not included when selecting). If no locations are
-     * unoccupied, this method returns -1. This will mark the location as
-     * pending so that subsequent calls to
-     * <code>getUnoccupiedLocation()</code> do not return the previously
-     * returned location as unoccupied, giving the caller a chance to
-     * actually occupy the location. However, if another user moves to
-     * that location bewteen the call to this method and the caller's own
-     * request to move to the location, the caller's move request will
-     * fail.
-     */
-    public int getUnoccupiedLocation (boolean preferClusters)
+    // documentation inherited
+    protected void didStartup ()
     {
-        int locId = SpotSceneUtil.getUnoccupiedLocation(
-            _sscene.getModel(), _locationOccs, preferClusters);
-        if (locId != -1) {
-            // mark the location as pending
-//             Log.info("Earmarked location [scene=" + where() +
-//                      ", locId=" + locId + "].");
-            _locationOccs[_sscene.getLocationIndex(locId)] = -1;
-        }
-        return locId;
-    }
+        // get a casted reference to our place object (we need to do this
+        // before calling super.didStartup() because that will call
+        // sceneManagerDidResolve() which may start letting people into
+        // the scene)
+        _ssobj = (SpotSceneObject)_plobj;
 
-    /**
-     * Returns true if the location in question is occupied by another
-     * body (or reserved for someone who's on their way).
-     */
-    public boolean isLocationOccupied (int locId)
-    {
-        return (_locationOccs[_sscene.getLocationIndex(locId)] != 0);
+        super.didStartup();
     }
 
     // documentation inherited
     protected void gotSceneData ()
     {
+        super.gotSceneData();
+
         // keep a casted reference around to our scene
-        _sscene = (RuntimeSpotScene)_scene;
-
-        // now that we have our scene, we create chat objects for each of
-        // the clusters in the scene
-        _clusterObjs = new DObject[_sscene.getClusterCount()];
-
-        // create a subscriber that will grab the oids when we hear back
-        // about object creation
-        Subscriber sub = new Subscriber() {
-            public void objectAvailable (DObject object) {
-                _clusterObjs[_index++] = object;
-            }
-
-            public void requestFailed (int oid, ObjectAccessException cause) {
-                Log.warning("Failed to create cluster object " +
-                            "[where=" + where() + ", cluster=" + _index +
-                            ", oid=" + oid + ", cause=" + cause + "].");
-                // skip to the next cluster in case others didn't fail
-                _index++;
-            }
-
-            protected int _index = 0;
-        };
-
-        // now issue the object creation requests
-        for (int i = 0; i < _clusterObjs.length; i++) {
-            _omgr.createObject(ClusterObject.class, sub);
-        }
-
-        // create an array in which to track the occupants of each
-        // location
-        _locationOccs = new int[_sscene.getLocationCount()];
-
-        _isPortal = new boolean[_sscene.getLocationCount()];
-        SpotSceneModel model = _sscene.getModel();
-        for (int ii=0; ii < model.locationIds.length; ii++) {
-            _isPortal[ii] = IntListUtil.contains(model.portalIds,
-                                                 model.locationIds[ii]);
-        }
+        _sscene = (SpotScene)_scene;
     }
 
-    /**
-     * When a user is entering a scene, we populate their occupant info
-     * with the location prepared by the portal traversal code or with the
-     * default entrance for the scene if no preparation was done.
-     */
+    // documentation inherited
+    protected void bodyLeft (int bodyOid)
+    {
+        super.bodyLeft(bodyOid);
+
+        // clear out their location information
+        _ssobj.removeFromOccupantLocs(new Integer(bodyOid));
+
+        // clear any cluster they may occupy
+        removeFromCluster(bodyOid);
+    }
+
+    // documentation inherited
     protected void populateOccupantInfo (OccupantInfo info, BodyObject body)
     {
         super.populateOccupantInfo(info, body);
 
-        // we have a table for tracking the locations of entering bodies
-        // which is populated by the portal traversal code when a body
-        // requests to enter our scene. if there's a mapped entrance
-        // location for this body, use it, otherwise assume they're coming
-        // in at the default entrance
-        int entryLocId = _entering.remove(body.getOid());
-        if (entryLocId == -1) {
-            entryLocId = _sscene.getDefaultEntranceId();
+        // we don't actually populate their occupant info, but instead
+        // assign them their starting location in the scene
+        int portalId = _enterers.remove(body.getOid());
+        Portal entry;
+        if (portalId != -1) {
+            entry = _sscene.getPortal(portalId);
+            if (entry == null) {
+                Log.warning("Body mapped at invalid portal [where=" + where() +
+                            ", who=" + body.who() +
+                            ", portalId=" + portalId + "].");
+                entry = _sscene.getDefaultEntrance();
+            }
+        } else {
+            entry = _sscene.getDefaultEntrance();
         }
-        ((SpotOccupantInfo)info).locationId = entryLocId;
+
+//         Log.info("Positioning entering body [who=" + body.who() +
+//                  ", where=" + entry.getOppLocation() + "].");
+
+        // create a scene location for them located on the entrance portal
+        // but facing the opposite direction
+        _ssobj.addToOccupantLocs(
+            new SceneLocation(entry.getOppLocation(), body.getOid()));
     }
 
     /**
      * Called by the {@link SpotProvider} when we receive a request by a
      * user to occupy a particular location.
      *
-     * @return the oid of the chat object associated with the cluster to
-     * which this location belongs or -1 if the location is not part of a
-     * cluster.
+     * @param source the body to be moved.
+     * @param loc the location to which to move the body.
+     * @param cluster if zero, a new cluster will be created and assigned
+     * to the moving user; if -1, the moving user will be removed from any
+     * cluster they currently occupy and not made to occupy a new cluster;
+     * if the bodyOid of another user, the moving user will be made to
+     * join the other user's cluster.
      *
      * @exception InvocationException thrown with a reason code explaining
      * the location change failure if there is a problem processing the
      * location change request.
      */
-    protected int handleChangeLocRequest (BodyObject source, int locationId)
+    protected void handleChangeLocRequest (
+        BodyObject source, Location loc, int cluster)
         throws InvocationException
     {
-        // make sure no one is already in the requested location
-        int locidx = _sscene.getLocationIndex(locationId);
-        if (locidx == -1) {
-            Log.warning("Ignoring request to move to non-existent location " +
-                        "[where=" + where() + ", user=" + source.who() +
-                        ", locId=" + locationId + "].");
-            throw new InvocationException(LOCATION_OCCUPIED);
-
-        } else if (_locationOccs[locidx] > 0) {
-            Log.info("Ignoring request to move to occupied location " +
-                     "[where=" + where() + ", user=" + source.who() +
-                     ", locId=" + locationId +
-                     ", occupantOid=" + _locationOccs[locidx] + "].");
-            throw new InvocationException(LOCATION_OCCUPIED);
-        }
-
-        // make sure they have an occupant info object in the place
-        int bodyOid = source.getOid();
-        SpotOccupantInfo soi = (SpotOccupantInfo)getOccupantInfo(bodyOid);
-        if (soi == null) {
-            Log.warning("Aiya! Can't update non-existent occupant info " +
-                        "with new location [where=" + where() +
-                        ", body=" + source.who() + ":" + source.location +
-                        ", newLocId=" + locationId + "].");
+        // make sure they are in our scene
+        if (!_ssobj.occupants.contains(source.getOid())) {
+            Log.warning("Refusing change loc from non-scene occupant " +
+                        "[where=" + where() + ", who=" + source.who() +
+                        ", loc=" + loc + "].");
             throw new InvocationException(INTERNAL_ERROR);
         }
 
-        // clear out any location they previously occupied
-        if (soi.locationId > 0) {
-            int oldlocidx = _sscene.getLocationIndex(soi.locationId);
-            if (oldlocidx == -1) {
-                Log.warning("Changing location for body that was " +
-                            "previously in an invalid location " +
-                            "[where=" + where() + ", info=" + soi + "].");
-            } else {
-                _locationOccs[oldlocidx] = 0;
-            }
+        // update the user's location information in the scene which will
+        // indicate to the client that their avatar should be moved from
+        // its current position to their new position
+        SceneLocation sloc = new SceneLocation(loc, source.getOid());
+        if (!_ssobj.occupantLocs.contains(sloc)) {
+            // complain if they don't already have a location configured
+            Log.warning("Changing loc for occupant without previous loc " +
+                        "[where=" + where() + ", who=" + source.who() +
+                        ", nloc=" + loc + "].");
+            _ssobj.addToOccupantLocs(sloc);
+        } else {
+            _ssobj.updateOccupantLocs(sloc);
         }
 
-        // stick our new friend into that location, if it's not a portal
-        if (!_isPortal[locidx]) {
-            _locationOccs[locidx] = bodyOid;
+        // handle the cluster situation
+        switch (cluster) {
+        case 0:
+            createNewCluster(source);
+            break;
+        case -1:
+            removeFromCluster(source.getOid());
+            break;
+        default:
+            addToCluster(cluster, source);
+            break;
         }
+    }
 
-        // update the location and broadcast to the place
-        soi.locationId = locationId;
-        updateOccupantInfo(soi);
+    /**
+     * Creates a new cluster with the specified user being added to said
+     * cluster.
+     */
+    protected void createNewCluster (BodyObject creator)
+    {
+        // remove them from any previous cluster
+        removeFromCluster(creator.getOid());
 
-        // figure out the cluster chat oid
-        int clusterIdx = _sscene.getClusterIndex(locidx);
-        return (clusterIdx == -1) ? -1 : _clusterObjs[clusterIdx].getOid();
+        // create a cluster record and map this user to it
+        ClusterRecord clrec = new ClusterRecord();
+        if (clrec.addBody(creator)) {
+            _clusters.put(creator.getOid(), clrec);
+        }
+        // if we failed to add the creator, the cluster record will
+        // quietly off itself when it's done subscribing to its object
+    }
+
+    /**
+     * Adds the specified user to the cluster occupied by the specified
+     * other user.
+     */
+    protected void addToCluster (int memberOid, BodyObject joiner)
+    {
+        ClusterRecord clrec = (ClusterRecord)_clusters.get(memberOid);
+        if (clrec == null) {
+            // this isn't completely impossible as the last user might
+            // leave a cluster just as another user is entering it, but
+            // before the entering user's client was informed that the
+            // cluster went away
+            Log.info("Can't add user to non-existent cluster; " +
+                     "creating a new one just for them " +
+                     "[memberOid=" + memberOid +
+                     ", joiner=" + joiner.who() + "].");
+            clrec = new ClusterRecord();
+        }
+        if (clrec.addBody(joiner)) {
+            _clusters.put(joiner.getOid(), clrec);
+        }
+    }
+
+    /**
+     * Removes the specified user from any cluster they occupy.
+     */
+    protected void removeFromCluster (int bodyOid)
+    {
+        ClusterRecord clrec = (ClusterRecord)_clusters.remove(bodyOid);
+        if (clrec != null) {
+            clrec.removeBody(bodyOid);
+        }
     }
 
     /**
@@ -244,99 +256,123 @@ public class SpotSceneManager extends SceneManager
      * request.
      */
     protected void handleClusterSpeakRequest (
-        int sourceOid, String source, int locationId,
-        String bundle, String message, byte mode)
+        int sourceOid, String source, String bundle, String message, byte mode)
     {
-        int locIdx = _sscene.getLocationIndex(locationId);
-
-        // make sure this user occupies the specified location
-        int locOccId = (locIdx == -1) ? -1 : _locationOccs[locIdx];
-        if (locOccId != sourceOid) {
-            Log.warning("User not in specified location for CCREQ " +
+        ClusterRecord clrec = (ClusterRecord)_clusters.get(sourceOid);
+        if (clrec == null) {
+            Log.warning("Non-clustered user requested cluster speak " +
                         "[where=" + where() + ", chatter=" + source +
-                        " (" + sourceOid + "), locId=" + locationId +
-                        ", locIdx=" + locIdx +
-                        ", locOccs=" + StringUtil.toString(_locationOccs) +
-                        ", message=" + message + "].");
-            return;
+                        " (" + sourceOid + "), msg=" + message + "].");
+        } else {
+            SpeakProvider.sendSpeak(clrec.getClusterObject(),
+                                    source, bundle, message, mode);
         }
-
-        // make sure there's a cluster associated with this location
-        int clusterIndex = _sscene.getClusterIndex(locIdx);
-        if (clusterIndex == -1) {
-            Log.warning("User in clusterless location sent CCREQ " +
-                        "[where=" + where() + ", chatter=" + source +
-                        " (" + sourceOid + "), locId=" + locationId +
-                        ", message=" + message + "].");
-            return;
-        }
-
-        DObject clusterObj = _clusterObjs[clusterIndex];
-        if (clusterObj == null) {
-            Log.warning("Have no cluster object for CCREQ " +
-                        "[where=" + where() + ", cidx=" + clusterIndex +
-                        ", chatter=" + source + " (" + sourceOid +
-                        "), message=" + message + "].");
-            return;
-        }
-
-        // all is well, generate a chat notification
-        SpeakProvider.sendSpeak(clusterObj, source, bundle, message, mode);
     }
 
     /**
-     * @return true if the specified user is in the scene and
-     * in a valid location (not on a portal).
+     * Used to manage clusters which are groups of users that can chat to
+     * one another.
      */
-    protected boolean inValidLocation (BodyObject body)
+    protected static class ClusterRecord extends HashIntMap
+        implements Subscriber
     {
-        int bodyOid = body.getOid();
-        for (int ii=0; ii < _locationOccs.length; ii++) {
-            if (_locationOccs[ii] == bodyOid) {
+        public ClusterRecord ()
+        {
+            CrowdServer.omgr.createObject(ClusterObject.class, this);
+        }
+
+        public boolean addBody (BodyObject body)
+        {
+            if (body instanceof ClusteredBodyObject) {
+                if (_clobj != null) {
+                    ((ClusteredBodyObject)body).setClusterOid(_clobj.getOid());
+                }
+                put(body.getOid(), body);
+                _clobj.addToOccupants(body.getOid());
                 return true;
+
+            } else {
+                Log.warning("Refusing to add non-clustered body to cluster " +
+                            "[cloid=" + _clobj.getOid() +
+                            ", size=" + size() + ", who=" + body.who() + "].");
+                return false;
             }
         }
-        return false;
-    }
 
-    /**
-     * When an occupant leaves the room, we want to clear out any location
-     * they may have occupied.
-     */
-    protected void bodyLeft (int bodyOid)
-    {
-        super.bodyLeft(bodyOid);
+        public void removeBody (int bodyOid)
+        {
+            ClusteredBodyObject body = (ClusteredBodyObject)remove(bodyOid);
+            if (body == null) {
+                Log.warning("Requested to remove unknown body from cluster " +
+                            "[cloid=" + _clobj.getOid() +
+                            ", size=" + size() + ", who=" + bodyOid + "].");
+            } else {
+                body.setClusterOid(-1);
+                _clobj.removeFromOccupants(bodyOid);
+            }
 
-        for (int i = 0; i < _locationOccs.length; i++) {
-            if (_locationOccs[i] == bodyOid) {
-                _locationOccs[i] = 0;
-                break;
+            // if we've removed our last body; stick a fork in ourselves
+            if (size() == 0) {
+                destroy();
             }
         }
+
+        public ClusterObject getClusterObject ()
+        {
+            return _clobj;
+        }
+
+        public void objectAvailable (DObject object)
+        {
+            // keep this feller around
+            _clobj = (ClusterObject)object;
+
+            // let any mapped users know about our cluster
+            Iterator iter = values().iterator();
+            while (iter.hasNext()) {
+                ClusteredBodyObject body = (ClusteredBodyObject)iter.next();
+                body.setClusterOid(_clobj.getOid());
+            }
+
+            // if we didn't manage to add our creating user when we first
+            // started up, there's no point in our sticking around
+            if (size() == 0) {
+                destroy();
+            }
+        }
+
+        public void requestFailed (int oid, ObjectAccessException cause)
+        {
+            Log.warning("Aiya! Failed to create cluster object " +
+                        "[cause=" + cause + ", penders=" + size() + "].");
+
+            // let any mapped users know that we're hosed
+            Iterator iter = values().iterator();
+            while (iter.hasNext()) {
+                ClusteredBodyObject body = (ClusteredBodyObject)iter.next();
+                body.setClusterOid(-1);
+            }
+        }
+
+        protected void destroy ()
+        {
+            Log.info("Cluster empty, going away " +
+                     "[cloid=" + _clobj.getOid() + "].");
+            CrowdServer.omgr.destroyObject(_clobj.getOid());
+        }
+
+        protected ClusterObject _clobj;
     }
 
-    /**
-     * We need our own extended occupant info to keep track of what
-     * location each occupant occupies.
-     */
-    protected Class getOccupantInfoClass ()
-    {
-        return SpotOccupantInfo.class;
-    }
+    /** A casted reference to our place object. */
+    protected SpotSceneObject _ssobj;
 
-    /** A casted reference to our runtime scene instance. */
-    protected RuntimeSpotScene _sscene;
+    /** A casted reference to our scene instance. */
+    protected SpotScene _sscene;
 
-    /** Our cluster chat objects. */
-    protected DObject[] _clusterObjs;
+    /** Records with information on all clusters in this scene. */
+    protected HashIntMap _clusters = new HashIntMap();
 
-    /** Oids of the bodies that occupy each of our locations. */
-    protected int[] _locationOccs;
-
-    /** Tracks if each location is a portal. */
-    protected boolean[] _isPortal;
-
-    /** A table of mappings from body oids to entry location ids for
-     * bodies that are entering our scene. */
-    protected IntIntMap _entering = new IntIntMap();
+    /** A mapping of entering bodies to portal ids. */
+    protected IntIntMap _enterers = new IntIntMap();
 }

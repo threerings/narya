@@ -1,5 +1,5 @@
 //
-// $Id: DummySceneRepository.java,v 1.7 2001/11/12 20:56:56 mdb Exp $
+// $Id: DummySceneRepository.java,v 1.8 2003/02/12 07:23:31 mdb Exp $
 
 package com.threerings.whirled.server.persist;
 
@@ -7,7 +7,9 @@ import com.samskivert.io.PersistenceException;
 
 import com.threerings.whirled.Log;
 import com.threerings.whirled.data.SceneModel;
+import com.threerings.whirled.data.SceneUpdate;
 import com.threerings.whirled.util.NoSuchSceneException;
+import com.threerings.whirled.util.UpdateList;
 
 /**
  * The dummy scene repository just pretends to load and store scenes, but
@@ -21,18 +23,18 @@ public class DummySceneRepository implements SceneRepository
         throws PersistenceException, NoSuchSceneException
     {
         Log.info("Creating dummy scene [id=" + sceneId + "].");
-
-        // create a blank scene model
-        SceneModel model = new SceneModel();
-        model.sceneId = sceneId;
-        model.version = 1;
-        model.neighborIds = new int[0];
-
-        return model;
+        return SceneModel.blankSceneModel();
     }
 
-    // documentation inherited
-    public void updateSceneModel (SceneModel model)
+    // documentation inherited from interface
+    public UpdateList loadUpdates (int sceneId)
+        throws PersistenceException, NoSuchSceneException
+    {
+        return new UpdateList();
+    }
+
+    // documentation inherited from interface
+    public void addUpdate (SceneUpdate update)
         throws PersistenceException
     {
         // nothing doing

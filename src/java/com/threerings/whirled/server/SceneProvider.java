@@ -1,5 +1,5 @@
 //
-// $Id: SceneProvider.java,v 1.14 2002/12/14 01:51:00 mdb Exp $
+// $Id: SceneProvider.java,v 1.15 2003/02/12 07:23:31 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -104,9 +104,9 @@ public class SceneProvider
         ((ScenedBodyObject)source).setSceneId(scmgr.getScene().getId());
 
         // check to see if they need a newer version of the scene data
-        SceneModel model = scmgr.getSceneModel();
+        SceneModel model = scmgr.getScene().getSceneModel();
         if (sceneVersion < model.version) {
-            listener.moveSucceededPlusUpdate(ploid, config, model);
+            listener.moveSucceededWithScene(ploid, config, model);
         } else {
             listener.moveSucceeded(ploid, config);
         }

@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.20 2003/01/03 23:07:00 shaper Exp $
+// $Id: SpotSceneDirector.java,v 1.21 2003/02/12 07:23:31 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -9,6 +9,8 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
+import com.threerings.presents.dobj.AttributeChangeListener;
+import com.threerings.presents.dobj.AttributeChangedEvent;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
@@ -26,16 +28,19 @@ import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.util.WhirledContext;
 
 import com.threerings.whirled.spot.Log;
+import com.threerings.whirled.spot.data.ClusteredBodyObject;
 import com.threerings.whirled.spot.data.Location;
 import com.threerings.whirled.spot.data.Portal;
 import com.threerings.whirled.spot.data.SpotCodes;
+import com.threerings.whirled.spot.data.SpotScene;
 
 /**
  * Extends the standard scene director with facilities to move between
  * locations within a scene.
  */
 public class SpotSceneDirector extends BasicDirector
-    implements SpotCodes, Subscriber, SpotService.ChangeLocListener
+    implements SpotCodes, Subscriber, SpotService.ChangeLocListener,
+               AttributeChangeListener
 {
     /**
      * This is used to communicate back to the caller of {@link
@@ -46,13 +51,13 @@ public class SpotSceneDirector extends BasicDirector
         /**
          * Indicates that the requested location change succeeded.
          */
-        public void locationChangeSucceeded (int locationId);
+        public void locationChangeSucceeded (Location loc);
 
         /**
          * Indicates that the requested location change failed and
          * provides a reason code explaining the failure.
          */
-        public void locationChangeFailed (int locationId, String reason);
+        public void locationChangeFailed (Location loc, String reason);
     }
 
     /**
@@ -113,7 +118,7 @@ public class SpotSceneDirector extends BasicDirector
     public boolean traversePortal (int portalId, ResultListener rl)
     {
         // look up the destination scene and location
-        DisplaySpotScene scene = (DisplaySpotScene)_scdir.getScene();
+        SpotScene scene = (SpotScene)_scdir.getScene();
         if (scene == null) {
             Log.warning("Requested to traverse portal when we have " +
                         "no scene [portalId=" + portalId + "].");
@@ -121,26 +126,16 @@ public class SpotSceneDirector extends BasicDirector
         }
 
         // find the portal they're talking about
-        int targetSceneId = -1, targetLocId = -1;
-        Iterator portals = scene.getPortals().iterator();
-        while (portals.hasNext()) {
-            Portal portal = (Portal)portals.next();
-            if (portal.locationId == portalId) {
-                targetSceneId = portal.targetSceneId;
-                targetLocId = portal.targetLocId;
-            }
-        }
-
-        // make sure we found the portal
-        if (targetSceneId == -1) {
-            portals = scene.getPortals().iterator();
+        Portal dest = scene.getPortal(portalId);
+        if (dest == null) {
             Log.warning("Requested to traverse non-existent portal " +
-                        "[portalId=" + portalId +
-                        ", portals=" + StringUtil.toString(portals) + "].");
+                        "[portalId=" + portalId + ", portals=" +
+                        StringUtil.toString(scene.getPortals()) + "].");
+            return false;
         }
 
         // prepare to move to this scene (sets up pending data)
-        if (!_scdir.prepareMoveTo(targetSceneId, rl)) {
+        if (!_scdir.prepareMoveTo(dest.targetSceneId, rl)) {
             return false;
         }
 
@@ -154,53 +149,52 @@ public class SpotSceneDirector extends BasicDirector
         }
 
         // issue a traversePortal request
-        _sservice.traversePortal(
-            _ctx.getClient(), scene.getId(), portalId, sceneVer, _scdir);
+        _sservice.traversePortal(_ctx.getClient(), portalId, sceneVer, _scdir);
         return true;
     }
 
     /**
      * Issues a request to change our location within the scene to the
-     * location identified by the specified id. Most client entities find
-     * out about location changes via changes to the occupant info data,
-     * but the initiator of a location change request can be notified of
-     * its success or failure, primarily so that it can act in
-     * anticipation of a successful location change (like by starting a
-     * sprite moving toward the new location), but backtrack if it finds
-     * out that the location change failed.
+     * specified location. Depending on the value of <code>cluster</code>
+     * the client will be made to create a new cluster, join and existing
+     * cluster or join no cluster at all.
+     *
+     * @param loc the new location to which to move.
+     * @param cluster if zero, a new cluster will be created and assigned
+     * to the calling user; if -1, the calling user will be removed from
+     * any cluster they currently occupy and not made to occupy a new
+     * cluster; if the bodyOid of another user, the calling user will be
+     * made to join the target user's cluster.
+     * @param obs will be notified of success or failure. Most client
+     * entities find out about location changes via changes to the
+     * occupant info data, but the initiator of a location change request
+     * can be notified of its success or failure, primarily so that it can
+     * act in anticipation of a successful location change (like by
+     * starting a sprite moving toward the new location), but backtrack if
+     * it finds out that the location change failed.
      */
-    public void changeLocation (int locationId, ChangeObserver obs)
+    public void changeLocation (Location loc, int cluster, ChangeObserver obs)
     {
         // refuse if there's a pending location change or if we're already
         // at the specified location
-        if ((locationId == _locationId) || (_pendingLocId != -1)) {
+        if (loc.equals(_location) || (_pendingLoc != null)) {
+            Log.info("Not going to " + loc + "; we're at " + _location +
+                     " and we're headed to " + _pendingLoc + ".");
             return;
         }
 
-        // make sure we're currently in a scene
-        DisplaySpotScene scene = (DisplaySpotScene)_scdir.getScene();
+        SpotScene scene = (SpotScene)_scdir.getScene();
         if (scene == null) {
             Log.warning("Requested to change locations, but we're not " +
-                        "currently in any scene [locId=" + locationId + "].");
+                        "currently in any scene [loc=" + loc + "].");
             return;
         }
 
-        // make sure the specified location is in the current scene
-        Location loc = scene.getLocation(locationId);
-        if (loc == null) {
-            Log.warning("Requested to change to a location that's not " +
-                        "in the current scene [locs=" + StringUtil.toString(
-                            scene.getLocations().iterator()) +
-                        ", locId=" + locationId + "].");
-            return;
-        }
+        Log.info("Changing location [loc=" + loc + ", clus=" + cluster + "].");
 
-        // make a note that we're changing to this location
-        _pendingLocId = locationId;
+        _pendingLoc = (Location)loc.clone();
         _changeObserver = obs;
-
-        // and send the location change request
-        _sservice.changeLoc(_ctx.getClient(), scene.getId(), locationId, this);
+        _sservice.changeLoc(_ctx.getClient(), loc, cluster, this);
     }
 
     /**
@@ -225,80 +219,37 @@ public class SpotSceneDirector extends BasicDirector
     public boolean requestClusterSpeak (String message, byte mode)
     {
         // make sure we're currently in a scene
-        DisplaySpotScene scene = (DisplaySpotScene)_scdir.getScene();
+        SpotScene scene = (SpotScene)_scdir.getScene();
         if (scene == null) {
             Log.warning("Requested to speak to cluster, but we're not " +
                         "currently in any scene [message=" + message + "].");
             return false;
         }
 
-        // make sure we're in a location
-        Location loc = scene.getLocation(_locationId);
-        if (loc == null) {
-            Log.info("Ignoring cluster speak as we're not in a valid " +
-                     "location [locId=" + _locationId + "].");
+        // make sure we're part of a cluster
+        if (_self.getClusterOid() <= 0) {
+            Log.info("Ignoring cluster speak as we're not in a cluster " +
+                     "[cloid=" + _self.getClusterOid() + "].");
             return false;
         }
 
-        // make sure the location has an associated cluster
-        if (loc.clusterIndex == -1) {
-            Log.info("Ignoring cluster speak as our location has no " +
-                     "cluster [loc=" + loc + "].");
-            return false;
-        }
-
-        // we're all clear to go
-        _sservice.clusterSpeak(_ctx.getClient(), scene.getId(), _locationId,
-                               message, mode);
+        _sservice.clusterSpeak(_ctx.getClient(), message, mode);
         return true;
     }
 
-    // documentation inherited
-    protected void fetchServices (Client client)
-    {
-        _sservice = (SpotService)client.requireService(SpotService.class);
-    }
-
-    // documentation inherited
-    public void clientDidLogoff (Client client)
-    {
-        super.clientDidLogoff(client);
-
-        // clear out our business
-        _locationId = -1;
-        _pendingLocId = -1;
-        _changeObserver = null;
-        _clobj = null;
-        _sservice = null;
-    }
-
     // documentation inherited from interface
-    public void changeLocSucceeded (int clusterOid)
+    public void changeLocSucceeded ()
     {
         ChangeObserver obs = _changeObserver;
-        _locationId = _pendingLocId;
+        _location = _pendingLoc;
 
         // clear out our pending location info
-        _pendingLocId = -1;
+        _pendingLoc = null;
         _changeObserver = null;
-
-        // determine if our cluster oid changed (which we only care about
-        // if we're doing cluster chat)
-        if (_chatdir != null) {
-            int oldOid = (_clobj == null) ? -1 : _clobj.getOid();
-            if (clusterOid != oldOid) {
-                DObjectManager omgr = _ctx.getDObjectManager();
-                // remove our old subscription if necessary
-                clearCluster();
-                // create a new subscription (we'll wire it up to the chat
-                // director when the subscription completes)
-                omgr.subscribeToObject(clusterOid, this);
-            }
-        }
 
         // if we had an observer, let them know things went well
         if (obs != null) {
-            obs.locationChangeSucceeded(_locationId);
+            obs.locationChangeSucceeded(_location);
         }
     }
 
@@ -306,15 +257,15 @@ public class SpotSceneDirector extends BasicDirector
     public void requestFailed (String reason)
     {
         ChangeObserver obs = _changeObserver;
-        int locId = _pendingLocId;
+        Location loc = _pendingLoc;
 
         // clear out our pending location info
-        _pendingLocId = -1;
+        _pendingLoc = null;
         _changeObserver = null;
 
         // if we had an observer, let them know things went well
         if (obs != null) {
-            obs.locationChangeFailed(locId, reason);
+            obs.locationChangeFailed(loc, reason);
         }
     }
 
@@ -340,13 +291,73 @@ public class SpotSceneDirector extends BasicDirector
                     "[oid=" + oid + ", cause=" + cause + "].");
     }
 
+    // documentation inherited from interface
+    public void attributeChanged (AttributeChangedEvent event)
+    {
+        // if our cluster oid changes from the one we're currently
+        // subscribed to, give it the boot
+        if (_clobj != null && _self.getClusterOid() != _clobj.getOid()) {
+            clearCluster();
+        }
+
+        // if there's a new cluster object, subscribe to it
+        if (_chatdir != null && _self.getClusterOid() > 0) {
+            DObjectManager omgr = _ctx.getDObjectManager();
+            // we'll wire up to the chat director when this completes
+            omgr.subscribeToObject(_self.getClusterOid(), this);
+        }
+    }
+
+    // documentation inherited from interface
+    public void clientDidLogon (Client client)
+    {
+        super.clientDidLogon(client);
+
+        // listen to the client object
+        client.getClientObject().addListener(this);
+        _self = (ClusteredBodyObject)client.getClientObject();
+    }
+
+    // documentation inherited from interface
+    public void clientObjectDidChange (Client client)
+    {
+        super.clientObjectDidChange(client);
+
+        // listen to the client object
+        client.getClientObject().addListener(this);
+        _self = (ClusteredBodyObject)client.getClientObject();
+    }
+
+    // documentation inherited
+    public void clientDidLogoff (Client client)
+    {
+        super.clientDidLogoff(client);
+
+        // clear out our business
+        _location = null;
+        _pendingLoc = null;
+        _changeObserver = null;
+        _sservice = null;
+        clearCluster();
+
+        // stop listening to the client object
+        client.getClientObject().removeListener(this);
+        _self = null;
+    }
+
+    // documentation inherited
+    protected void fetchServices (Client client)
+    {
+        _sservice = (SpotService)client.requireService(SpotService.class);
+    }
+
     /**
      * Clean up after a few things when we depart from a scene.
      */
     protected void handleDeparture ()
     {
         // clear out our last known location id
-        _locationId = -1;
+        _location = null;
 
         // unwire and clear out our cluster chat object if we've got one
         clearCluster();
@@ -377,15 +388,18 @@ public class SpotSceneDirector extends BasicDirector
     /** The scene director with which we are cooperating. */
     protected SceneDirector _scdir;
 
+    /** A casted reference to our clustered body object. */
+    protected ClusteredBodyObject _self;
+
     /** A reference to the chat director with which we coordinate. */
     protected ChatDirector _chatdir;
 
-    /** The location id of the location we currently occupy. */
-    protected int _locationId = -1;
+    /** The location we currently occupy. */
+    protected Location _location;
 
-    /** The location id on which we have an outstanding change location
+    /** The location to which we have an outstanding change location
      * request. */
-    protected int _pendingLocId = -1;
+    protected Location _pendingLoc;
 
     /** The cluster chat object for the cluster we currently occupy. */
     protected DObject _clobj;

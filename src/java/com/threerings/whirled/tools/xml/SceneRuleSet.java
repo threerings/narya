@@ -1,63 +1,43 @@
 //
-// $Id: SceneRuleSet.java,v 1.2 2001/12/05 03:38:09 mdb Exp $
+// $Id: SceneRuleSet.java,v 1.3 2003/02/12 07:23:31 mdb Exp $
 
 package com.threerings.whirled.tools.xml;
 
 import org.apache.commons.digester.Digester;
-import org.apache.commons.digester.RuleSetBase;
 
-import com.threerings.whirled.tools.EditableScene;
-import com.threerings.whirled.tools.EditableSceneImpl;
+import com.samskivert.util.StringUtil;
+import com.samskivert.xml.SetPropertyFieldsRule;
+
+import com.threerings.tools.xml.NestableRuleSet;
+import com.threerings.whirled.data.SceneModel;
 
 /**
- * Used to parse an {@link EditableScene} from XML.
+ * Used to parse a {@link SceneModel} from XML.
  */
-public class SceneRuleSet extends RuleSetBase
+public class SceneRuleSet implements NestableRuleSet
 {
-    /**
-     * Configures this scene rule set to match scenes with the supplied
-     * prefix. For example, passing <code>scene</code> will match the
-     * scene in the following XML file:
-     *
-     * <pre>
-     * &lt;scene name="Scene Name" version="3"&gt;
-     *   &lt;neighbor&gt;North Scene&lt;/neighbor&gt;
-     *   &lt;neighbor&gt;West Scene&lt;/neighbor&gt;
-     *   &lt;!-- ... --&gt;
-     * &lt;/scene&gt;
-     * </pre>
-     */
-    public void setPrefix (String prefix)
+    // documentation inherited from interface
+    public String getOuterElement ()
     {
-        _prefix = prefix;
+        return SceneWriter.OUTER_ELEMENT;
     }
 
-    /**
-     * Adds the necessary rules to the digester to parse our miso scene
-     * data.
-     */
-    public void addRuleInstances (Digester digester)
+    // documentation inherited from interface
+    public void addRuleInstances (String prefix, Digester digester)
     {
         // this creates the appropriate instance when we encounter our tag
-        digester.addObjectCreate(_prefix, getSceneClass().getName());
+        digester.addObjectCreate(prefix, getSceneClass().getName());
 
         // set up rules to parse and set our fields
-        digester.addSetProperties(_prefix);
-        digester.addCallMethod(_prefix + "/neighbor", "addNeighbor", 0);
+        digester.addRule(prefix, new SetPropertyFieldsRule(digester));
     }
 
     /**
-     * This indicates the class (which should implement {@link
-     * EditableScene}) to be instantiated during the parsing process.
+     * This indicates the class (which should extend {@link SceneModel})
+     * to be instantiated during the parsing process.
      */
     protected Class getSceneClass ()
     {
-        return EditableSceneImpl.class;
+        return SceneModel.class;
     }
-
-    /** The prefix at which me match our scenes. */
-    protected String _prefix = DEFAULT_SCENE_PREFIX;
-
-    /** The default prefix which matches &lt;scene&gt;. */
-    protected static final String DEFAULT_SCENE_PREFIX = "scene";
 }

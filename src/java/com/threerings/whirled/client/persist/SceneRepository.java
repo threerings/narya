@@ -1,5 +1,5 @@
 //
-// $Id: SceneRepository.java,v 1.3 2001/11/12 20:56:55 mdb Exp $
+// $Id: SceneRepository.java,v 1.4 2003/02/12 07:23:30 mdb Exp $
 
 package com.threerings.whirled.client.persist;
 
@@ -10,17 +10,14 @@ import com.threerings.whirled.util.NoSuchSceneException;
 
 /**
  * The scene repository provides access to a persistent repository of
- * scene information. The scene models in the repository can be updated
- * with scene data fetched from the server as well as with new scene
- * bundles that are periodically distributed to bring all clients into
- * sync with the latest snapshot of the scene database.
+ * scene information.
  *
  * @see SceneModel
  */
 public interface SceneRepository
 {
     /**
-     * Fetches the mode for the scene with the specified scene id.
+     * Fetches the model for the scene with the specified id.
      *
      * @exception IOException thrown if an error occurs attempting to load
      * the scene data.
@@ -31,13 +28,20 @@ public interface SceneRepository
         throws IOException, NoSuchSceneException;
 
     /**
-     * Updates this scene model in the repository. This is generally only
-     * called when the server has provided us with a newer version of a
-     * scene than we previously had in our local repository.
+     * Updates or inserts this scene model as appropriate.
      *
      * @exception IOException thrown if an error occurs attempting to
-     * update the scene data.
+     * access the repository.
      */
-    public void updateSceneModel (SceneModel model)
+    public void storeSceneModel (SceneModel model)
+        throws IOException;
+
+    /**
+     * Deletes the specified scene model from the repository.
+     *
+     * @exception IOException thrown if an error occurs attempting to
+     * access the repository.
+     */
+    public void deleteSceneModel (int sceneId)
         throws IOException;
 }
