@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.9 2001/08/04 01:54:34 mdb Exp $
+// $Id: ClientManager.java,v 1.10 2001/08/07 21:20:48 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -140,7 +140,9 @@ public class ClientManager implements ConnectionObserver
         if (client != null) {
             Log.info("Unmapped failed client [client=" + client +
                      ", conn=" + conn + ", fault=" + fault + "].");
-            // let the client know things went haywire
+            // let the client know the connection went away
+            client.wasUnmapped();
+            // and let the client know things went haywire
             client.connectionFailed(fault);
 
         } else {
@@ -161,6 +163,9 @@ public class ClientManager implements ConnectionObserver
         if (client != null) {
             Log.info("Unmapped client [client=" + client +
                      ", conn=" + conn + "].");
+            // let the client know the connection went away
+            client.wasUnmapped();
+
         } else {
             Log.info("Closed unmapped connection? [conn=" + conn + "].");
         }

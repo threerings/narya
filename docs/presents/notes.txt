@@ -3,7 +3,7 @@ Cher Notes -*- outline -*-
 * TODO
 Pass cause back to client somehow via FailureResponse in Client.requestFailed
 
-Implement object destroyed; finish wiring up oid list tracking.
+Finish wiring up oid list tracking.
 
 Ensure at time of OBJECT_ADDED that the object being added exists and has
 not been destroyed.

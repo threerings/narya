@@ -1,16 +1,19 @@
 //
-// $Id: PresentsClient.java,v 1.15 2001/08/04 03:26:00 mdb Exp $
+// $Id: PresentsClient.java,v 1.16 2001/08/07 21:20:48 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import com.threerings.cocktail.cher.Log;
 import com.threerings.cocktail.cher.data.ClientObject;
 import com.threerings.cocktail.cher.dobj.*;
 import com.threerings.cocktail.cher.net.*;
 import com.threerings.cocktail.cher.server.net.*;
+import com.threerings.cocktail.cher.util.IntMap;
 
 /**
  * A client object represents a client session in the server. It is
@@ -116,36 +119,18 @@ public class CherClient implements Subscriber, MessageHandler
 
         // we need to get onto the distributed object thread so that we
         // can finalize the resumption of the session. we do so by
-        // subscribing to the client object (to which we are normally not
-        // subscribed in between active connections)
-        Subscriber sub = new Subscriber() {
-            public void objectAvailable (DObject dobj)
+        // posting a special event
+        DEvent event = new DEvent(0)
+        {
+            public boolean applyToObject (DObject target)
             {
-                // we don't want to continue to be subscribed to the
-                // client object so we remove our subscription
-                dobj.removeSubscriber(this);
                 // now that we're on the dobjmgr thread we can resume our
                 // session resumption
                 finishResumeSession();
-            }
-
-            public void requestFailed (int oid, ObjectAccessException cause)
-            {
-                Log.warning("Not able to subscribe to client object and " +
-                            "resume session!? [client=" + CherClient.this +
-                            ", cause=" + cause + "].");
-            }
-
-            public boolean handleEvent (DEvent event, DObject target)
-            {
-                Log.warning("Resuming subscriber received an event!? " +
-                            "[client=" + CherClient.this +
-                            ", event=" + event + "].");
-                // we shouldn't have been subscribed in the first place
                 return false;
             }
         };
-        CherServer.omgr.subscribeToObject(_clobj.getOid(), sub);
+        CherServer.omgr.postEvent(event);
     }
 
     /**
@@ -163,6 +148,78 @@ public class CherClient implements Subscriber, MessageHandler
         sendBootstrap();
 
         Log.info("Session resumed [client=" + this + "].");
+    }
+
+    /**
+     * Requests that the client session be terminated. This is normally
+     * invoked as a result of a logoff request by the client. It should
+     * only be invoked from the conmgr thread.
+     */
+    public void endSession ()
+    {
+        // close our connection (which results in everything being
+        // properly unregistered)
+        Connection conn = getConnection();
+        if (conn != null) {
+            conn.close();
+        } else {
+            Log.info("Unable to close connection for logoff request " +
+                     "[client=" + this + "].");
+        }
+        // then let the client manager know what's up
+        _cmgr.clientDidEndSession(this);
+
+        // we need to get onto the distributed object thread so that we
+        // can finalize the ending of the session. we do so by posting a
+        // special event
+        DEvent event = new DEvent(0)
+        {
+            public boolean applyToObject (DObject target)
+            {
+                // now that we're on the dobjmgr thread we can call into
+                // our derived classes to finish the session termination
+                sessionDidTerminate();
+                return false;
+            }
+        };
+        CherServer.omgr.postEvent(event);
+    }
+
+    /**
+     * Makes a note that this client is subscribed to this object so that
+     * we can clean up after ourselves if and when the client goes
+     * away. This is called by the client internals and needn't be called
+     * by code outside the client.
+     */
+    public synchronized void mapSubscrip (DObject object)
+    {
+        _subscrips.put(object.getOid(), object);
+    }
+
+    /**
+     * Makes a note that this client is no longer subscribed to this
+     * object. The subscription map is used to clean up after the client
+     * when it goes away. This is called by the client internals and
+     * needn't be called by code outside the client.
+     */
+    public synchronized void unmapSubscrip (int oid)
+    {
+        _subscrips.remove(oid);
+    }
+
+    /**
+     * Clears out the tracked client subscriptions. Called when the client
+     * goes away and shouldn't be called otherwise.
+     */
+    protected synchronized void clearSubscrips ()
+    {
+        Enumeration enum = _subscrips.elements();
+        while (enum.hasMoreElements()) {
+            DObject object = (DObject)enum.nextElement();
+            // Log.info("Clearing subscription [client=" + this +
+            // ", obj=" + object + "].");
+            object.removeSubscriber(this);
+        }
     }
 
     /**
@@ -208,6 +265,8 @@ public class CherClient implements Subscriber, MessageHandler
      */
     protected void sessionDidTerminate ()
     {
+        // destroy the client object
+        CherServer.omgr.destroyObject(_clobj.getOid());
     }
 
     /**
@@ -257,14 +316,45 @@ public class CherClient implements Subscriber, MessageHandler
     }
 
     /**
+     * Called by the connection manager when this client's connection is
+     * unmapped. That may be because of a connection failure (in which
+     * case this call will be followed up by a call to
+     * <code>connectionFailed</code>) or it may be because of an orderly
+     * closing of the connection. In either case, the client can deal with
+     * its lack of a connection in this method. This is invoked by the
+     * conmgr thread and should behave accordingly.
+     */
+    protected void wasUnmapped ()
+    {
+        // clear out our connection reference
+        setConnection(null);
+
+        // clear out our subscriptions. we need to do this on the dobjmgr
+        // thread. so we do so by posting a special event. it is important
+        // that we do this *after* we clear out our connection reference.
+        // once the connection ref is null, no more subscriptions will be
+        // processed (even those that were queued up before the connection
+        // went away)
+        DEvent event = new DEvent(0)
+        {
+            public boolean applyToObject (DObject target)
+            {
+                clearSubscrips();
+                return false;
+            }
+        };
+        CherServer.omgr.postEvent(event);
+    }
+
+    /**
      * Called by the connection manager when this client's connection
-     * fails. This is invoked on the conmgr thread, and should behave
+     * fails. This is invoked on the conmgr thread and should behave
      * accordingly.
      */
     protected void connectionFailed (IOException fault)
     {
-        // clear out our connection reference
-        setConnection(null);
+        // nothing to do here presently. the client manager already
+        // complained about the failed connection
     }
 
     /**
@@ -319,7 +409,11 @@ public class CherClient implements Subscriber, MessageHandler
         // queue up an object response
         Connection conn = getConnection();
         if (conn != null) {
+            // pass the successful subscrip on to the client
             conn.postMessage(new ObjectResponse(object));
+            // make a note of this new subscription
+            mapSubscrip(object);
+
         } else {
             Log.info("Dropped object available notification " +
                      "[client=" + this + ", oid=" + object.getOid() + "].");
@@ -404,6 +498,8 @@ public class CherClient implements Subscriber, MessageHandler
                      ", oid=" + req.getOid() + "].");
             // forward the unsubscribe request to the omgr for processing
             CherServer.omgr.unsubscribeFromObject(req.getOid(), client);
+            // update our subscription tracking table
+            client.unmapSubscrip(req.getOid());
         }
     }
 
@@ -455,17 +551,8 @@ public class CherClient implements Subscriber, MessageHandler
         {
             Log.info("Client requested logoff " +
                      "[client=" + client + "].");
-            // close our connection (which results in everything being
-            // properly unregistered)
-            Connection conn = client.getConnection();
-            if (conn != null) {
-                conn.close();
-            } else {
-                Log.info("Unable to close connection for logoff request " +
-                         "[client=" + client + "].");
-            }
-            // then let the client manager know what's up
-            client._cmgr.clientDidEndSession(client);
+            // request that the client end the session
+            client.endSession();
         }
     }
 
@@ -473,6 +560,7 @@ public class CherClient implements Subscriber, MessageHandler
     protected String _username;
     protected Connection _conn;
     protected ClientObject _clobj;
+    protected IntMap _subscrips = new IntMap();
 
     protected static HashMap _disps = new HashMap();
 
