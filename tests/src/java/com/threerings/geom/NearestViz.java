@@ -1,5 +1,5 @@
 //
-// $Id: NearestViz.java,v 1.1 2002/06/25 00:22:44 mdb Exp $
+// $Id: NearestViz.java,v 1.2 2002/06/28 01:29:43 mdb Exp $
 
 package com.threerings.geom;
 
@@ -13,6 +13,8 @@ import java.awt.event.MouseMotionListener;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import com.samskivert.swing.util.SwingUtil;
 
 /**
  * Renders the nearest point on a line just for kicks.
@@ -71,6 +73,7 @@ public class NearestViz extends JPanel
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(new NearestViz(), BorderLayout.CENTER);
         frame.setSize(300, 300);
+        SwingUtil.centerWindow(frame);
         frame.show();
     }
 
