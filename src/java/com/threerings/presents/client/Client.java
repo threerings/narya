@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.40 2003/08/08 20:20:39 mdb Exp $
+// $Id: Client.java,v 1.41 2003/08/12 01:01:09 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -382,8 +382,12 @@ public class Client
      */
     protected void tick ()
     {
-        long now = System.currentTimeMillis();
+        // if we're not connected, skip it
+        if (_comm == null) {
+            return;
+        }
 
+        long now = System.currentTimeMillis();
         if (_dcalc != null) {
             // if we're syncing the clock, send another ping
             PingRequest req = new PingRequest();
