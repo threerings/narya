@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.55 2003/04/05 03:38:41 ray Exp $
+// $Id: SoundManager.java,v 1.56 2003/04/05 19:00:28 mdb Exp $
 
 package com.threerings.media.sound;
 
@@ -697,7 +697,7 @@ public class SoundManager
             _clipCache.put(key, data);
         }
 
-        return data[RandomUtil.getInt(data.length)];
+        return (data.length > 0) ? data[RandomUtil.getInt(data.length)] : null;
     }
 
     protected InputStream getTestClip (SoundKey key)
