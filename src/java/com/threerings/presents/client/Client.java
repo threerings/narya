@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.17 2001/10/11 04:07:52 mdb Exp $
+// $Id: Client.java,v 1.18 2001/10/18 18:40:18 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -196,6 +196,15 @@ public class Client
     }
 
     /**
+     * Returns true if we are logged on, false if we're not.
+     */
+    public synchronized boolean loggedOn ()
+    {
+        // if we have a communicator, we're logged on
+        return (_comm != null);
+    }
+
+    /**
      * Requests that this client connect and logon to the server with
      * which it was previously configured.
      */
@@ -226,6 +235,14 @@ public class Client
      */
     public boolean logoff (boolean abortable)
     {
+        // if we have no communicator, we're not logged on anyway, so fake
+        // it
+        if (_comm == null) {
+            Log.warning("Ignoring request to logoff because we're not " +
+                        "logged on.");
+            return true;
+        }
+
         // if the request is abortable, let's run it past the observers
         // before we act upon it
         if (abortable && notifyObservers(CLIENT_WILL_LOGOFF, null)) {
