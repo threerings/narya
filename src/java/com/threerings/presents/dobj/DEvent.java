@@ -1,5 +1,5 @@
 //
-// $Id: DEvent.java,v 1.9 2002/03/20 03:19:51 mdb Exp $
+// $Id: DEvent.java,v 1.10 2002/03/20 19:06:55 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -105,5 +105,5 @@ public abstract class DEvent
     protected int _toid;
 
     /** The oid of the client that generated this event. */
-    protected int _soid;
+    protected int _soid = -1;
 }
