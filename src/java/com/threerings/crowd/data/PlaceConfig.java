@@ -1,5 +1,5 @@
 //
-// $Id: PlaceConfig.java,v 1.8 2004/08/27 02:12:33 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -59,6 +59,18 @@ public abstract class PlaceConfig extends TrackedStreamableObject
      */
     public abstract String getManagerClassName ();
 
+    /**
+     * The {@link LocationDirector} may be configured to use a custom
+     * class loader when loading the classes associated with a certain
+     * {@link PlaceConfig}, in this case this method will be called prior
+     * to a call to {@link #getControllerClass} to set {@link #_loader}
+     * which should then be used for any dynamic class loading.
+     */
+    public void setClassLoader (ClassLoader loader)
+    {
+        _loader = loader;
+    }
+
     // documentation inherited
     protected void toString (StringBuffer buf)
     {
@@ -66,4 +78,7 @@ public abstract class PlaceConfig extends TrackedStreamableObject
         buf.append(", ");
         super.toString(buf);
     }
+
+    /** The class loader to use when dynamically loading controller classes. */
+    protected transient ClassLoader _loader = getClass().getClassLoader();
 }

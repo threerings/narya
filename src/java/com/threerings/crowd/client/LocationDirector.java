@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.33 2004/08/27 02:12:32 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -273,6 +273,12 @@ public class LocationDirector extends BasicDirector
 
         // make a note that we're now mostly in the new location
         _placeId = placeId;
+
+        // check whether we should use a custom class loader
+        ClassLoader loader = getClassLoader(config);
+        if (loader != null) {
+            config.setClassLoader(loader);
+        }
 
         Class cclass = config.getControllerClass();
         try {
@@ -552,6 +558,18 @@ public class LocationDirector extends BasicDirector
                 return true;
             }
         });
+    }
+
+    /**
+     * By overriding this method, it is possible to customize the location
+     * director to cause it to load the classes associated with a
+     * particular place via a custom class loader. That loader may enforce
+     * restricted privileges or obtain the classes from some special
+     * source.
+     */
+    protected ClassLoader getClassLoader (PlaceConfig config)
+    {
+        return null;
     }
 
     /** The context through which we access needed services. */
