@@ -1,5 +1,5 @@
 //
-// $Id: DisplayObjectInfo.java,v 1.7 2003/02/04 03:33:09 mdb Exp $
+// $Id: DisplayObjectInfo.java,v 1.8 2003/02/12 05:37:19 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -73,5 +73,15 @@ public class DisplayObjectInfo extends ObjectInfo
     public boolean setHovered (boolean hovered)
     {
         return false;
+    }
+
+    /**
+     * Handles the toString-ification of all public members. Derived
+     * classes can override and include non-public members if desired.
+     */
+    protected void toString (StringBuffer buf)
+    {
+        super.toString(buf);
+        buf.append(", rprio=").append(getPriority());
     }
 }
