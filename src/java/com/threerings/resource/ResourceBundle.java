@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.6 2003/01/14 00:58:59 mdb Exp $
+// $Id: ResourceBundle.java,v 1.7 2003/01/14 02:51:40 mdb Exp $
 
 package com.threerings.resource;
 
@@ -85,8 +85,8 @@ public class ResourceBundle
         String tpath = StringUtil.md5hex(_source.getPath() + "%" + path);
         File tfile = new File(_tmpdir, tpath);
         if (tfile.exists() && (tfile.lastModified() > _sourceLastMod)) {
-            System.out.println("Using cached " + _source.getPath() +
-                               ":" + path);
+//             System.out.println("Using cached " + _source.getPath() +
+//                                ":" + path);
             return tfile;
         }
 
@@ -96,7 +96,7 @@ public class ResourceBundle
             return null;
         }
 
-        System.out.println("Unpacking " + path);
+//         System.out.println("Unpacking " + path);
         // copy the resource into the temporary file
         BufferedOutputStream fout =
             new BufferedOutputStream(new FileOutputStream(tfile));
