@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.10 2002/09/16 23:34:55 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.11 2002/10/30 00:27:37 mdb Exp $
 
 package com.threerings.media;
 
@@ -182,13 +182,18 @@ public class VirtualMediaPanel extends MediaPanel
             // determine how far we'll be moving on this tick
             _dx = _nx - _tx; _dy = _ny - _ty;
 
+            Log.info("Scrolling into place [n=(" + _nx + ", " + _ny +
+                     "), t=(" + _tx + ", " + _ty +
+                     "), d=(" + _dx + ", " + _dy +
+                     "), width=" + width + ", height=" + height + "].");
+
             // these are used to prevent the vertical strip from
             // overlapping the horizontal strip
             int sy = _ny, shei = height;
 
             // and add invalid rectangles for the exposed areas
             if (_dy > 0) {
-                shei -= _dy;
+                shei = Math.max(shei - _dy, 0);
                 _remgr.invalidateRegion(_nx, _ny + height - _dy, width, _dy);
             } else if (_dy < 0) {
                 sy -= _dy;
@@ -204,10 +209,6 @@ public class VirtualMediaPanel extends MediaPanel
             // between here and the call to paint() for this tick don't
             // booch everything
             _tx = _nx; _ty = _ny;
-
-//             Log.info("Scrolling into place " +
-//                      "[dx=" + _dx + ", dy=" + _dy +
-//                      ", tx=" + _tx + ", ty=" + _ty + "].");
         }
     }
 
