@@ -1,5 +1,5 @@
 //
-// $Id: ObjectDestroyedEvent.java,v 1.2 2001/10/11 04:07:52 mdb Exp $
+// $Id: ObjectDestroyedEvent.java,v 1.3 2001/10/23 23:56:12 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -39,9 +39,7 @@ public class ObjectDestroyedEvent extends TypedEvent
     {
     }
 
-    /**
-     * Applies this attribute change to the object.
-     */
+    // documentation inherited
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
@@ -50,11 +48,21 @@ public class ObjectDestroyedEvent extends TypedEvent
         return true;
     }
 
+    // documentation inherited
     public short getType ()
     {
         return TYPE;
     }
 
+    // documentation inherited
+    protected void notifyListener (Object listener)
+    {
+        if (listener instanceof ObjectDeathListener) {
+            ((ObjectDeathListener)listener).objectDestroyed(this);
+        }
+    }
+
+    // documentation inherited
     protected void toString (StringBuffer buf)
     {
         buf.append("DESTROY:");
