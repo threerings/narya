@@ -7,6 +7,15 @@ clientWillLogff becomes clientMayLogoff?
 
 Look into nbio waking up all sockets when any data comes in.
 
+(maybe) Allow piggybacking of object subscription onto service defined
+responses (like moveTo request).
+
+(maybe) Allow better server side control of subscription management (to
+ensure that clients don't remain subscribed to objects they should no
+longer be susbcribed to; like scenes they've departed from).
+
+Sort out support for server-side modifiable only fields to DObject.
+
 * Server-side event concentrator
 The client objects will not subscribe directly, but will subscribe through
 the concentrator so that, at least, it can create a single
