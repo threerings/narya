@@ -1,5 +1,5 @@
 //
-// $Id: DirectionUtil.java,v 1.4 2002/05/17 21:12:14 mdb Exp $
+// $Id: DirectionUtil.java,v 1.5 2002/06/26 02:54:56 mdb Exp $
 
 package com.threerings.util;
 
@@ -23,7 +23,7 @@ public class DirectionUtil implements DirectionCodes
      */
     public static String toString (int direction)
     {
-        return ((direction >= SOUTHWEST) && (direction <= SOUTH)) ?
+        return ((direction >= 0) && (direction < FINE_DIRECTION_COUNT)) ?
             DIR_STRINGS[direction] : "INVALID";
     }
 
@@ -33,7 +33,7 @@ public class DirectionUtil implements DirectionCodes
      */
     public static String toShortString (int direction)
     {
-        return ((direction >= SOUTHWEST) && (direction <= SOUTH)) ?
+        return ((direction >= 0) && (direction < FINE_DIRECTION_COUNT)) ?
             SHORT_DIR_STRINGS[direction] : "?";
     }
 
@@ -54,9 +54,36 @@ public class DirectionUtil implements DirectionCodes
     }
 
     /**
-     * Returns the direction that point <code>b</code> lies in from point
-     * <code>a</code> as one of the {@link DirectionCodes} direction
-     * constants.
+     * Rotates the requested <em>fine</em> direction constant clockwise by
+     * the requested number of ticks.
+     */
+    public static int rotateCW (int direction, int ticks)
+    {
+        for (int ii = 0; ii < ticks; ii++) {
+            direction = FINE_CW_ROTATE[direction];
+        }
+        return direction;
+    }
+
+    /**
+     * Rotates the requested <em>fine</em> direction constant
+     * counter-clockwise by the requested number of ticks.
+     */
+    public static int rotateCCW (int direction, int ticks)
+    {
+        for (int ii = 0; ii < ticks; ii++) {
+            direction = FINE_CCW_ROTATE[direction];
+        }
+        return direction;
+    }
+
+    /**
+     * Returns which of the eight compass directions that point
+     * <code>b</code> lies in from point <code>a</code> as one of the
+     * {@link DirectionCodes} direction constants. <em>Note:</em> that the
+     * coordinates supplied are assumed to be logical (screen) rather than
+     * cartesian coordinates and <code>NORTH</code> is considered to point
+     * toward the top of the screen.
      */
     public static int getDirection (Point a, Point b)
     {
@@ -64,44 +91,89 @@ public class DirectionUtil implements DirectionCodes
     }
 
     /**
-     * Returns the direction that point <code>b</code> lies in from point
-     * <code>a</code> as one of the {@link DirectionCodes} direction
-     * constants.
+     * Returns which of the eight compass directions that point
+     * <code>b</code> lies in from point <code>a</code> as one of the
+     * {@link DirectionCodes} direction constants. <em>Note:</em> that the
+     * coordinates supplied are assumed to be logical (screen) rather than
+     * cartesian coordinates and <code>NORTH</code> is considered to point
+     * toward the top of the screen.
      */
     public static int getDirection (int ax, int ay, int bx, int by)
     {
-        if (ax == bx && ay > by) {
-            return NORTH;
-        } else if (ax == bx && ay < by) {
-            return SOUTH;
+        double theta = Math.atan2(by-ay, bx-ax);
+        theta = ((theta + Math.PI) * 4) / Math.PI;
+        return (int)(Math.round(theta) + WEST) % 8;
+    }
 
-        } else if (ax < bx && ay > by) {
-            return NORTHEAST;
-        } else if (ax < bx && ay == by) {
-            return EAST;
-        } else if (ax < bx && ay < by) {
-            return SOUTHEAST;
+    /**
+     * Returns which of the sixteen compass directions that point
+     * <code>b</code> lies in from point <code>a</code> as one of the
+     * {@link DirectionCodes} direction constants. <em>Note:</em> that the
+     * coordinates supplied are assumed to be logical (screen) rather than
+     * cartesian coordinates and <code>NORTH</code> is considered to point
+     * toward the top of the screen.
+     */
+    public static int getFineDirection (Point a, Point b)
+    {
+        return getFineDirection(a.x, a.y, b.x, b.y);
+    }
 
-        } else if (ax > bx && ay < by) {
-            return SOUTHWEST;
-        } else if (ax > bx && ay == by) {
-            return WEST;
-        } else if (ax > bx && ay > by) {
-            return NORTHWEST;
-
-        } else {
-            return NONE;
-        }
+    /**
+     * Returns which of the sixteen compass directions that point
+     * <code>b</code> lies in from point <code>a</code> as one of the
+     * {@link DirectionCodes} direction constants. <em>Note:</em> that the
+     * coordinates supplied are assumed to be logical (screen) rather than
+     * cartesian coordinates and <code>NORTH</code> is considered to point
+     * toward the top of the screen.
+     */
+    public static int getFineDirection (int ax, int ay, int bx, int by)
+    {
+        double theta = Math.atan2(by-ay, bx-ax);
+        theta = ((theta + Math.PI) * 8) / Math.PI;
+        return ANGLE_MAP[(int)Math.round(theta) % FINE_DIRECTION_COUNT];
     }
 
     /** Direction constant string names. */
     protected static final String[] DIR_STRINGS = {
         "SOUTHWEST", "WEST", "NORTHWEST", "NORTH",
-        "NORTHEAST", "EAST", "SOUTHEAST", "SOUTH"
+        "NORTHEAST", "EAST", "SOUTHEAST", "SOUTH",
+        "WESTSOUTHWEST", "WESTNORTHWEST", "NORTHNORTHWEST", "NORTHNORTHEAST",
+        "EASTNORTHEAST", "EASTSOUTHEAST", "SOUTHSOUTHEAST", "SOUTHSOUTHWEST",
     };
 
     /** Abbreviated direction constant string names. */
     protected static final String[] SHORT_DIR_STRINGS = {
-        "SW", "W", "NW", "N", "NE", "E", "SE", "S"
+        "SW", "W", "NW", "N", "NE", "E", "SE", "S",
+        "WSW", "WNW", "NNW", "NNE", "ENE", "ESE", "SSE", "SSW",
     };
-}
+
+    /** Used to rotate a fine compass direction clockwise. */
+    protected static final int[] FINE_CW_ROTATE = {
+        /* SW -> */ WESTSOUTHWEST,  /* W -> */ WESTNORTHWEST,
+        /* NW -> */ NORTHNORTHWEST, /* N -> */ NORTHNORTHEAST,
+        /* NE -> */ EASTNORTHEAST,  /* E -> */ EASTSOUTHEAST,
+        /* SE -> */ SOUTHSOUTHEAST, /* S -> */ SOUTHSOUTHWEST,
+        /* WSW -> */ WEST,          /* WNW -> */ NORTHWEST,
+        /* NNW -> */ NORTH,         /* NNE -> */ NORTHEAST,
+        /* ENE -> */ EAST,          /* ESE -> */ SOUTHEAST,
+        /* SSE -> */ SOUTH,         /* SSW -> */ SOUTHWEST
+    };
+
+    /** Used to rotate a fine compass direction counter-clockwise. */
+    protected static final int[] FINE_CCW_ROTATE = {
+        /* SW -> */ SOUTHSOUTHWEST, /* W -> */ WESTSOUTHWEST,
+        /* NW -> */ WESTNORTHWEST,  /* N -> */ NORTHNORTHWEST,
+        /* NE -> */ NORTHNORTHEAST, /* E -> */ EASTNORTHEAST,
+        /* SE -> */ EASTSOUTHEAST,  /* S -> */ SOUTHSOUTHEAST,
+        /* WSW -> */ SOUTHWEST,     /* WNW -> */ WEST,
+        /* NNW -> */ NORTHWEST,     /* NNE -> */ NORTH,
+        /* ENE -> */ NORTHEAST,     /* ESE -> */ EAST,
+        /* SSE -> */ SOUTHEAST,     /* SSW -> */ SOUTH
+    };                                                            
+
+    /** Used to map an angle to a fine compass direction. */
+    protected static final int[] ANGLE_MAP = {
+        WEST, WESTNORTHWEST, NORTHWEST, NORTHNORTHWEST, NORTH, NORTHNORTHEAST,
+        NORTHEAST, EASTNORTHEAST, EAST, EASTSOUTHEAST, SOUTHEAST,
+        SOUTHSOUTHEAST, SOUTH, SOUTHSOUTHWEST, SOUTHWEST, WESTSOUTHWEST };
+}                                                                       
