@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.19 2002/11/15 23:58:34 mdb Exp $
+// $Id: FrameManager.java,v 1.20 2002/11/16 00:15:57 mdb Exp $
 
 package com.threerings.media;
 
@@ -568,7 +568,7 @@ public class FrameManager
             } else if (!isTicking()) {
                 EventQueue.invokeLater(this);
             } else {
-                Log.info("Dropped frame.");
+                // drop the frame
             }
         }
     };
