@@ -1,7 +1,7 @@
 //
-// $Id: PlaceManager.java,v 1.1 2001/07/20 20:07:37 mdb Exp $
+// $Id: PlaceManager.java,v 1.2 2001/07/23 21:14:27 mdb Exp $
 
-package com.threerings.cocktail.party.place;
+package com.threerings.cocktail.party.server;
 
 public class PlaceManager
 {

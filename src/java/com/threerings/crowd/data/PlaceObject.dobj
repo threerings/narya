@@ -1,10 +1,36 @@
 //
-// $Id: PlaceObject.dobj,v 1.1 2001/07/20 20:07:37 mdb Exp $
+// $Id: PlaceObject.dobj,v 1.2 2001/07/23 21:14:27 mdb Exp $
 
-package com.threerings.cocktail.party.place;
+package com.threerings.cocktail.party.data;
 
-import com.threerings.cocktail.cher.dobj.DObject;
+import com.threerings.cocktail.cher.dobj.*;
 
 public class PlaceObject extends DObject
 {
+    /** The field name of the <code>occupants</code> field. */
+    public static final String OCCUPANTS = "occupants";
+
+    /**
+     * Tracks the oid of the body objects of all of the occupants of this
+     * place.
+     */
+    public OidList occupants;
+
+    /**
+     * Requests that the specified oid be added to the
+     * <code>occupants</code> oid list.
+     */
+    public void addToOccupants (int oid)
+    {
+        requestOidAdd(OCCUPANTS, oid);
+    }
+
+    /**
+     * Requests that the specified oid be removed from the
+     * <code>occupants</code> oid list.
+     */
+    public void removeFromOccupants (int oid)
+    {
+        requestOidRemove(OCCUPANTS, oid);
+    }
 }

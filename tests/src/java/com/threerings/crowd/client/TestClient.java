@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.1 2001/07/20 23:23:50 mdb Exp $
+// $Id: TestClient.java,v 1.2 2001/07/23 21:14:27 mdb Exp $
 
 package com.threerings.cocktail.party.client.test;
 
@@ -19,13 +19,13 @@ public class TestClient
 {
     public TestClient (Credentials creds)
     {
+        // create our context
+        _ctx = new PartyContextImpl();
+
         // create the handles on our various services
         _config = new Config();
         _client = new Client(creds, this);
-        _locmgr = new LocationManager(_client);
-
-        // create our context
-        _ctx = new PartyContextImpl();
+        _locmgr = new LocationManager(_ctx);
 
         // we want to know about logon/logoff
         _client.addObserver(this);
@@ -55,6 +55,9 @@ public class TestClient
     public void clientDidLogon (Client client)
     {
         Log.info("Client did logon [client=" + client + "].");
+
+        // request to move to a place
+        _ctx.getLocationManager().moveTo(15);
     }
 
     public void clientFailedToLogon (Client client, Exception cause)
