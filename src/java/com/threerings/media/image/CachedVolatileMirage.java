@@ -1,10 +1,11 @@
 //
-// $Id: CachedVolatileMirage.java,v 1.2 2003/01/13 23:56:01 mdb Exp $
+// $Id: CachedVolatileMirage.java,v 1.3 2003/04/11 18:48:05 mdb Exp $
 
 package com.threerings.media.image;
 
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
 import com.threerings.media.Log;
@@ -42,7 +43,8 @@ public class CachedVolatileMirage extends VolatileMirage
     protected int getTransparency ()
     {
         BufferedImage source = _imgr.getImage(_source, _zations);
-        return source.getColorModel().getTransparency();
+        return (source == null) ? Transparency.OPAQUE :
+            source.getColorModel().getTransparency();
     }
 
     // documentation inherited
@@ -51,8 +53,10 @@ public class CachedVolatileMirage extends VolatileMirage
         Graphics gfx = null;
         try {
             BufferedImage source = _imgr.getImage(_source, _zations);
-            gfx = _image.getGraphics();
-            gfx.drawImage(source, -_bounds.x, -_bounds.y, null);
+            if (source != null) {
+                gfx = _image.getGraphics();
+                gfx.drawImage(source, -_bounds.x, -_bounds.y, null);
+            }
 
         } catch (Exception e) {
             Log.warning("Failure refreshing mirage " + this + ".");
