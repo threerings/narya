@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.6 2001/08/15 01:08:49 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.7 2001/08/15 22:16:43 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -22,7 +22,7 @@ public class SceneViewPanel extends JPanel
     public SceneViewPanel (TileManager tilemgr, SpriteManager spritemgr)
     {
         // create the data model for the scene view
-        _smodel = new IsoSceneModel();
+        _smodel = new IsoSceneViewModel();
         _smodel.setTileDimensions(TWIDTH, THEIGHT);
         _smodel.setBounds((HTILES * TWIDTH), (VTILES * THEIGHT));
         _smodel.setOrigin(_smodel.bounds.width / 2, VOFFSET);
@@ -106,8 +106,8 @@ public class SceneViewPanel extends JPanel
     /** The graphics context for the offscreen image. */
     protected Graphics _offg;
 
-    /** The scene data model. */
-    protected IsoSceneModel _smodel;
+    /** The scene view data model. */
+    protected IsoSceneViewModel _smodel;
 
     /** The scene view we're managing. */
     protected SceneView _view;

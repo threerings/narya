@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.4 2001/08/15 03:13:06 shaper Exp $
+// $Id: IsoUtil.java,v 1.5 2001/08/15 22:16:43 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -32,7 +32,7 @@ public class IsoUtil
      *         class's direction constants.
      */
     public static int getDirection (
-	IsoSceneModel model, int ax, int ay, int bx, int by)
+	IsoSceneViewModel model, int ax, int ay, int bx, int by)
     {
 	Point afpos = new Point(), bfpos = new Point();
 
@@ -121,7 +121,7 @@ public class IsoUtil
      * @param tpos the point object to place coordinates in.
      */
     public static void screenToTile (
-	IsoSceneModel model, int sx, int sy, Point tpos)
+	IsoSceneViewModel model, int sx, int sy, Point tpos)
     {
 	// calculate line parallel to the y-axis (from mouse pos to x-axis)
 	int bY = (int)(sy - (model.slopeY * sx));
@@ -151,7 +151,7 @@ public class IsoUtil
      * @param spos the point object to place coordinates in.
      */
     public static void tileToScreen (
-	IsoSceneModel model, int x, int y, Point spos)
+	IsoSceneViewModel model, int x, int y, Point spos)
     {
         spos.x = model.origin.x + ((x - y - 1) * model.tilehwid);
         spos.y = model.origin.y + ((x + y) * model.tilehhei);
@@ -167,7 +167,7 @@ public class IsoUtil
      * @param ppos the point object to place coordinates in.
      */
     public static void fineToPixel (
-	IsoSceneModel model, int x, int y, Point ppos)
+	IsoSceneViewModel model, int x, int y, Point ppos)
     {
 	ppos.x = model.tilehwid + ((x - y) * model.finehwid);
 	ppos.y = (x + y) * model.finehhei;
@@ -184,7 +184,7 @@ public class IsoUtil
      * @param fpos the point object to place coordinates in.
      */
     public static void pixelToFine (
-	IsoSceneModel model, int x, int y, Point fpos)
+	IsoSceneViewModel model, int x, int y, Point fpos)
     {
 	// calculate line parallel to the y-axis (from the given
 	// x/y-pos to the x-axis)
@@ -219,7 +219,7 @@ public class IsoUtil
      * @param fpos the point object to place coordinates in.
      */
     public static void screenToFull (
-	IsoSceneModel model, int sx, int sy, Point fpos)
+	IsoSceneViewModel model, int sx, int sy, Point fpos)
     {
 	// get the tile coordinates
 	Point tpos = new Point();
@@ -247,7 +247,7 @@ public class IsoUtil
      * @param spos the point object to place coordinates in.
      */
     public static void fullToScreen (
-	IsoSceneModel model, int x, int y, Point spos)
+	IsoSceneViewModel model, int x, int y, Point spos)
     {
 	// get the tile screen position
 	Point tspos = new Point();
@@ -270,7 +270,8 @@ public class IsoUtil
      * @param x the tile x-position coordinate.
      * @param y the tile y-position coordinate.
      */
-    public static Polygon getTilePolygon (IsoSceneModel model, int x, int y)
+    public static Polygon getTilePolygon (
+	IsoSceneViewModel model, int x, int y)
     {
         // get the top-left screen coordinate for the tile
         Point spos = new Point();

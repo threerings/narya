@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.8 2001/08/15 22:06:21 shaper Exp $
+// $Id: IsoSceneViewModel.java,v 1.9 2001/08/15 22:16:43 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -9,16 +9,16 @@ import java.awt.Point;
 import com.threerings.miso.Log;
 
 /**
- * The IsoSceneModel provides a holding place for the myriad
- * parameters and bits of data that describe the details of an
- * isometric view of a scene.
+ * The <code>IsoSceneViewModel</code> class provides a holding place
+ * for the myriad parameters and bits of data that describe the
+ * details of an isometric view of a scene.
  *
  * <p> The member data are public to facilitate speedy referencing by
  * the <code>IsoSceneView</code> class.  Those wishing to set up an
- * IsoSceneModel object should do so solely via the constructor and
+ * IsoSceneViewModel object should do so solely via the constructor and
  * accessor methods.
  */
-public class IsoSceneModel
+public class IsoSceneViewModel
 {
     /** Tile dimensions and half-dimensions in the view. */
     public int tilewid, tilehei, tilehwid, tilehhei;
@@ -69,9 +69,10 @@ public class IsoSceneModel
     public boolean showPaths;
 
     /**
-     * Construct an IsoSceneModel with reasonable default values.
+     * Construct an <code>IsoSceneViewModel</code> with reasonable
+     * default values.
      */
-    public IsoSceneModel ()
+    public IsoSceneViewModel ()
     {
         setTileDimensions(32, 16);
 	setFineGranularity(4);

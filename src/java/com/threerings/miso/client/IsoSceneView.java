@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.47 2001/08/15 22:06:21 shaper Exp $
+// $Id: IsoSceneView.java,v 1.48 2001/08/15 22:16:43 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -32,7 +32,7 @@ public class IsoSceneView implements EditableSceneView
      * @param model the data model.
      */
     public IsoSceneView (TileManager tilemgr, SpriteManager spritemgr,
-                         IsoSceneModel model)
+                         IsoSceneViewModel model)
     {
 	_tilemgr = tilemgr;
         _spritemgr = spritemgr;
@@ -540,7 +540,7 @@ public class IsoSceneView implements EditableSceneView
 	_scene.tiles[tpos.x][tpos.y][lnum] = tile;
     }
 
-    public void setModel (IsoSceneModel model)
+    public void setModel (IsoSceneViewModel model)
     {
         _model = model;
         _model.precalculate();
@@ -684,8 +684,8 @@ public class IsoSceneView implements EditableSceneView
     /** The dirty rectangles that need to be re-painted. */
     protected ArrayList _dirtyRects;
 
-    /** The scene model data. */
-    protected IsoSceneModel _model;
+    /** The scene view model data. */
+    protected IsoSceneViewModel _model;
 
     /** The scene object to be displayed. */
     protected MisoScene _scene;
