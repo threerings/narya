@@ -1,5 +1,5 @@
 //
-// $Id: SceneManager.java,v 1.1 2001/08/11 04:09:50 mdb Exp $
+// $Id: SceneManager.java,v 1.2 2001/08/21 01:07:19 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -32,6 +32,12 @@ public class SceneManager extends PlaceManager
     {
         super.didStartup();
         _screg.sceneManagerDidInit(this);
+    }
+
+    protected void toString (StringBuffer buf)
+    {
+        super.toString(buf);
+        buf.append("scene=").append(_scene);
     }
 
     protected Scene _scene;

@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.9 2001/08/20 20:54:57 mdb Exp $
+// $Id: PlaceManager.java,v 1.10 2001/08/21 01:07:18 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -220,6 +220,32 @@ public class PlaceManager implements Subscriber
         }
 
         return true;
+    }
+
+    /**
+     * Generates a string representation of this manager. Does so in a way
+     * that makes it easier for derived classes to add to the string
+     * representation.
+     *
+     * @see toString(StringBuffer)
+     */
+    public String toString ()
+    {
+        StringBuffer buf = new StringBuffer();
+        buf.append("[");
+        toString(buf);
+        buf.append("]");
+        return buf.toString();
+    }
+
+    /**
+     * An extensible way to add to the string representation of this
+     * class. Override this (being sure to call super) and append your
+     * info to the buffer.
+     */
+    protected void toString (StringBuffer buf)
+    {
+        buf.append("place=").append(_plobj);
     }
 
     /**
