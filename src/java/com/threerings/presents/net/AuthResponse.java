@@ -1,5 +1,5 @@
 //
-// $Id: AuthResponse.java,v 1.15 2004/08/27 02:20:21 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -30,6 +30,13 @@ package com.threerings.presents.net;
  */
 public class AuthResponse extends DownstreamMessage
 {
+    /** Auxilliary authentication data to be communicated to the {@link
+     * PresentsClient} once a session is started. This is a means by which
+     * the <code>Authenticator</code> can pass information loaded from,
+     * say, an authentication database into the runtime system to be used,
+     * for example for permissions. */
+    public transient Object authdata;
+
     /**
      * Zero argument constructor used when unserializing an instance.
      */

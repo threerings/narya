@@ -297,7 +297,7 @@ public class ClientManager
             try {
                 // create a client and start up its session
                 client = (PresentsClient)_clientClass.newInstance();
-                client.startSession(this, creds, conn);
+                client.startSession(this, creds, conn, rsp.authdata);
 
                 // map their client instance
                 _usermap.put(username, client);

@@ -276,10 +276,11 @@ public class PresentsClient
      * connection instance and client object and begins a client session.
      */
     protected void startSession (
-        ClientManager cmgr, Credentials creds, Connection conn)
+        ClientManager cmgr, Credentials creds, Connection conn, Object authdata)
     {
         _cmgr = cmgr;
         _creds = creds;
+        _authdata = authdata;
         setConnection(conn);
 
         // obtain our starting username
@@ -907,6 +908,7 @@ public class PresentsClient
 
     protected ClientManager _cmgr;
     protected Credentials _creds;
+    protected Object _authdata;
     protected Name _username;
     protected Connection _conn;
     protected ClientObject _clobj;
