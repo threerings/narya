@@ -3,6 +3,11 @@ Cher Notes -*- outline -*-
 * TODO
 Pass cause back to client somehow via FailureResponse in Client.requestFailed
 
+Implement object destroyed; finish wiring up oid list tracking.
+
+Ensure at time of OBJECT_ADDED that the object being added exists and has
+not been destroyed.
+
 * Server-side event concentrator
 The client objects will not subscribe directly, but will subscribe through
 the concentrator so that, at least, it can create a single
