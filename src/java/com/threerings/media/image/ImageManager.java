@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.23 2002/10/25 00:44:16 shaper Exp $
+// $Id: ImageManager.java,v 1.24 2002/11/13 04:24:51 mdb Exp $
 
 package com.threerings.media;
 
@@ -174,7 +174,7 @@ public class ImageManager
         try {
             BufferedInputStream bin = new BufferedInputStream(imgin);
             return _loader.loadImage(bin);
-        } catch (IllegalArgumentException iae) {
+        } catch (Throwable t) {
             String errmsg = "Error loading image " +
                 "[rset=" + rset + ", path=" + path + "]";
             throw new NestableIOException(errmsg, iae);
