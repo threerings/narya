@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.26 2001/12/03 22:01:57 mdb Exp $
+// $Id: PresentsClient.java,v 1.27 2001/12/13 05:32:28 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -484,10 +484,25 @@ public class PresentsClient
         }
     }
 
+    /**
+     * Generates a string representation of this instance.
+     */
     public String toString ()
     {
-        return "[username=" + _username + ", conn=" + _conn +
-            ", cloid=" + ((_clobj == null) ? -1 : _clobj.getOid()) + "]";
+        StringBuffer buf = new StringBuffer("[");
+        toString(buf);
+        return buf.append("]").toString();
+    }
+
+    /**
+     * Derived classes override this to augment stringification.
+     */
+    protected void toString (StringBuffer buf)
+    {
+        buf.append("username=").append(_username);
+        buf.append(", conn=").append(_conn);
+        buf.append(", cloid=").append(
+            (_clobj == null) ? -1 : _clobj.getOid());
     }
 
     /**
