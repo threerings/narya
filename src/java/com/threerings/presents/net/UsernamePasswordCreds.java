@@ -1,5 +1,5 @@
 //
-// $Id: UsernamePasswordCreds.java,v 1.8 2002/09/18 21:58:30 mdb Exp $
+// $Id: UsernamePasswordCreds.java,v 1.9 2002/09/18 22:06:54 mdb Exp $
 
 package com.threerings.presents.net;
 
@@ -61,9 +61,8 @@ public class UsernamePasswordCreds extends Credentials
     // documentation inherited
     public boolean equals (Object other)
     {
-        if (other instanceof UsernamePasswordCredentials) {
-            UsernamePasswordCredentials upcreds =
-                (UsernamePasswordCredentials)other;
+        if (other instanceof UsernamePasswordCreds) {
+            UsernamePasswordCreds upcreds = (UsernamePasswordCreds)other;
             return super.equals(other) &&
                 _password.equals(upcreds._password);
         } else {
