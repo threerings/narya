@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.31 2002/06/18 22:25:33 mdb Exp $
+// $Id: SpriteManager.java,v 1.32 2002/06/20 00:54:53 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -180,8 +180,8 @@ public class SpriteManager
 	// re-sort the sprite list to account for potential new positions
 	_sprites.sort(SPRITE_COMP);
 
-	// notify sprite observers of any collisions
-	handleCollisions();
+//         // notify sprite observers of any collisions
+//         handleCollisions();
 
 	// notify sprite observers of any sprite events.  note that we
 	// explicitly queue up events while ticking and checking for
@@ -257,25 +257,23 @@ public class SpriteManager
 	    return;
 	}
 
-	// calculate the x-position of the right edge of the sprite
-	// we're checking for collisions
+	// calculate the x-position of the right edge of the sprite we're
+	// checking for collisions
 	Rectangle bounds = sprite.getBounds();
 	int edgeX = bounds.x + bounds.width;
 
 	for (int ii = (idx + 1); ii < size; ii++) {
 	    Sprite other = (Sprite)_sprites.get(ii);
 	    Rectangle obounds = other.getBounds();
-
 	    if (obounds.x > edgeX) {
 		// since sprites are stored in the list sorted by
 		// ascending x-position, we know this sprite and any
 		// other sprites farther on in the list can't possibly
 		// intersect with the sprite we're checking, so we're
 		// done.
-		return;
-	    }
+                return;
 
-	    if (obounds.intersects(bounds)) {
+	    } else if (obounds.intersects(bounds)) {
 		sprite.notifyObservers(new CollisionEvent(sprite, other));
 	    }
 	}
