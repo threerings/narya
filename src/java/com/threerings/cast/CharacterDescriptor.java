@@ -1,5 +1,5 @@
 //
-// $Id: CharacterDescriptor.java,v 1.7 2002/05/06 18:08:31 mdb Exp $
+// $Id: CharacterDescriptor.java,v 1.8 2002/06/18 04:55:44 shaper Exp $
 
 package com.threerings.cast;
 
@@ -76,19 +76,24 @@ public class CharacterDescriptor
             return false;
         }
 
-        // if neither has colorizations, we're clear
         Colorization[][] zations = odesc._zations;
         if (zations == null && _zations == null) {
+            // if neither has colorizations, we're clear
             return true;
+
+        } else if (zations == null || _zations == null) {
+            // if one has colorizations whilst the other doesn't, they
+            // can't be equal
+            return false;
         }
 
         // otherwise, all of the colorizations must be equal as well
-        int zlength = _zations.length;
-        if (zlength != zations.length) {
+        int zlength = zations.length;
+        if (zlength != _zations.length) {
             return false;
         }
-        for (int i = 0; i < zlength; i++) {
-            if (!Arrays.equals(_zations[i], zations[i])) {
+        for (int ii = 0; ii < zlength; ii++) {
+            if (!Arrays.equals(_zations[ii], zations[ii])) {
                 return false;
             }
         }
