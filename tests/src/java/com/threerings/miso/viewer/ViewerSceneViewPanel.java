@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.60 2004/08/27 02:21:01 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -79,6 +79,12 @@ public class ViewerSceneViewPanel extends MisoScenePanel
     {
         super.setSceneModel(model);
         Log.info("Using " + model + ".");
+    }
+
+    // documentation inherited
+    public void doLayout ()
+    {
+        super.doLayout();
 
         // now that we have a scene, we can create valid paths for our
         // decoy sprites
@@ -188,6 +194,9 @@ public class ViewerSceneViewPanel extends MisoScenePanel
     protected void createRandomPath (CharacterSprite s)
     {
         Dimension d = _vbounds.getSize();
+        if (d.width <= 0 || d.height <= 0) {
+            return;
+        }
         int x, y;
         do {
             x = RandomUtil.getInt(d.width);
