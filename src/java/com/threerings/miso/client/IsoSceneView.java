@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.92 2002/02/12 08:54:49 mdb Exp $
+// $Id: IsoSceneView.java,v 1.93 2002/02/17 07:16:21 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.animation.AnimationManager;
@@ -76,18 +75,9 @@ public class IsoSceneView implements SceneView
         _spritemgr = spritemgr;
         _model = model;
 
-        // give the model a chance to pre-calculate various things
-        _model.precalculate();
-
-        // create our polygon arrays and create polygons for each of the
-        // tiles. we use these repeatedly, so we go ahead and make 'em all
-        // up front
+        // create our polygon arrays, these will be populated with the
+        // tile polygons as they are requested
         _polys = new Polygon[model.scenewid][model.scenehei];
-	for (int xx = 0; xx < model.scenewid; xx++) {
-	    for (int yy = 0; yy < model.scenehei; yy++) {
-		_polys[xx][yy] = IsoUtil.getTilePolygon(_model, xx, yy);
-	    }
-	}
 
         // create the array used to mark dirty tiles
         _dirty = new boolean[model.scenewid][model.tilehei];
@@ -123,8 +113,9 @@ public class IsoSceneView implements SceneView
         // clear all dirty lists and tile array
 	clearDirtyRegions();
 
-        // generate all object tile polygons
-        initAllObjectBounds();
+        // obtain a list of the objects in the scene and generate records
+        // for each of them that contain precomputed metrics
+        prepareObjectList();
 
         // invalidate the entire screen as there's a new scene in town
         invalidate();
@@ -197,7 +188,7 @@ public class IsoSceneView implements SceneView
                 !StringUtil.blank(_scene.getObjectAction(
                                       _hcoords.x, _hcoords.y))) {
                 hpoly = IsoUtil.getObjectFootprint(
-                    _model, _polys[_hcoords.x][_hcoords.y],
+                    _model, getTilePoly(_hcoords.x, _hcoords.y),
                     (ObjectTile)_hobject);
             }
         }
@@ -206,7 +197,7 @@ public class IsoSceneView implements SceneView
         // then paint the bounds of the highlighted base tile
         if (hpoly == null && _hmode == HIGHLIGHT_ALL &&
             _hcoords.x != -1 && _hcoords.y != -1) {
-            hpoly = _polys[_hcoords.x][_hcoords.y];
+            hpoly = getTilePoly(_hcoords.x, _hcoords.y);
         }
 
         // if we've determined that there's something to highlight
@@ -267,7 +258,7 @@ public class IsoSceneView implements SceneView
 	for (int xx = 0; xx < _model.scenewid; xx++) {
 	    for (int yy = 0; yy < _model.scenehei; yy++) {
 		if (_dirty[xx][yy]) {
-		    gfx.draw(_polys[xx][yy]);
+		    gfx.draw(getTilePoly(xx, yy));
 		}
 	    }
 	}
@@ -324,15 +315,15 @@ public class IsoSceneView implements SceneView
                 // draw the base and fringe tile images
                 Tile tile;
                 if ((tile = base.getTile(xx, yy)) != null) {
-                    tile.paint(gfx, _polys[xx][yy]);
+                    tile.paint(gfx, getTilePoly(xx, yy));
                 }
                 if ((tile = fringe.getTile(xx, yy)) != null) {
-                    tile.paint(gfx, _polys[xx][yy]);
+                    tile.paint(gfx, getTilePoly(xx, yy));
                 }
 
                 // if we're showing coordinates, outline the tiles as well
                 if (_model.showCoords) {
-                    gfx.draw(_polys[xx][yy]);
+                    gfx.draw(getTilePoly(xx, yy));
                 }
 	    }
 	}
@@ -371,55 +362,45 @@ public class IsoSceneView implements SceneView
      * Generates and stores bounding polygons for all object tiles in the
      * scene for later use while rendering.
      */
-    protected void initAllObjectBounds ()
+    protected void prepareObjectList ()
     {
-        // clear out any previously existing object polygons
-        _objpolys.clear();
+        // clear out any previously existing object data
+        _objects.clear();
 
-        // generate bounding polygons for all objects
+        // generate metric records for all objects
         ObjectTileLayer tiles = _scene.getObjectLayer();
         for (int yy = 0; yy < tiles.getHeight(); yy++) {
             for (int xx = 0; xx < tiles.getWidth(); xx++) {
                 ObjectTile tile = tiles.getTile(xx, yy);
-                if (tile != null) {
-                    generateObjectBounds(tile, xx, yy);
+                if (tile == null) {
+                    continue;
                 }
+
+                // create a metrics record for this object
+                ObjectMetrics metrics = new ObjectMetrics();
+                metrics.tile = tile;
+                metrics.x = xx;
+                metrics.y = yy;
+                metrics.action = _scene.getObjectAction(xx, yy);
+                metrics.bounds = IsoUtil.getObjectBounds(
+                    _model, getTilePoly(xx, yy), tile);
+
+                // and add it to the list
+                _objects.add(metrics);
             }
         }
     }
 
     /**
-     * Generates and stores the bounding polygon for the object which
-     * is used when invalidating dirty rectangles or tiles, and when
-     * rendering the object to a graphics context.  This method should
-     * be called when an object tile is added to a scene.
+     * Returns the polygon bounding the tile at the specified coordinates.
      */
-    protected void generateObjectBounds (ObjectTile tile, int x, int y)
+    protected Polygon getTilePoly (int x, int y)
     {
-        // create the bounding polygon for this object
-        int key = getCoordinateKey(x, y);
-
-        // save it off in the object bounds hashtable
-        _objpolys.put(key, newObjectBounds(tile, x, y));
-    }
-
-    /**
-     * Creates and returns a new polygon bounding the given object
-     * tile positioned at the given scene coordinates.
-     */
-    protected Polygon newObjectBounds (ObjectTile tile, int x, int y)
-    {
-        return IsoUtil.getObjectBounds(_model, _polys[x][y], tile);
-    }        
-
-    /**
-     * Returns a unique integer key corresponding to the given
-     * coordinates, suitable for storing and retrieving objects from a
-     * hashtable.
-     */
-    protected int getCoordinateKey (int x, int y)
-    {
-        return (x << 16 | y);
+        Polygon poly = _polys[x][y];
+        if (poly == null) {
+            poly = _polys[x][y] = IsoUtil.getTilePolygon(_model, x, y);
+        }
+        return poly;
     }
 
     /**
@@ -440,7 +421,7 @@ public class IsoSceneView implements SceneView
         for (int yy = 0; yy < _model.scenehei; yy++) {
             for (int xx = 0; xx < _model.scenewid; xx++) {
                 // get the top-left screen coordinates of the tile
-                Rectangle bounds = _polys[xx][yy].getBounds();
+                Rectangle bounds = getTilePoly(xx, yy).getBounds();
 
                 // only draw coordinates if the tile is on-screen
                 if (bounds.intersects(_model.bounds)) {
@@ -592,7 +573,7 @@ public class IsoSceneView implements SceneView
         }
 
         // expand the tile bounds rectangle to include this tile
-        Rectangle bounds = _polys[x][y].getBounds();
+        Rectangle bounds = getTilePoly(x, y).getBounds();
         if (tileBounds.x == -1) {
             tileBounds.setBounds(bounds);
         } else {
@@ -635,29 +616,29 @@ public class IsoSceneView implements SceneView
 
         // add any objects impacted by the dirty rectangle
         if (_scene != null) {
-            ObjectTileLayer tiles = _scene.getObjectLayer();
-            Iterator iter = _objpolys.keys();
+            Iterator iter = _objects.iterator();
             while (iter.hasNext()) {
-                // get the object's coordinates and bounding polygon
-                int coord = ((Integer)iter.next()).intValue();
-                Polygon poly = (Polygon)_objpolys.get(coord);
+                ObjectMetrics metrics = (ObjectMetrics)iter.next();
+                Polygon poly = metrics.bounds;
                 if (!poly.intersects(r)) {
                     continue;
                 }
 
                 // get the dirty portion of the object
                 Rectangle drect = poly.getBounds().intersection(r);
-                int tx = coord >> 16, ty = coord & 0x0000FFFF;
-                ObjectTile tile = tiles.getTile(tx, ty);
+                int tx = metrics.x, ty = metrics.y;
 
                 // compute the footprint if we're rendering those
                 Polygon foot = null;
                 if (_renderObjectFootprints) {
                     foot = IsoUtil.getObjectFootprint(
-                        _model, _polys[tx][ty], tile);
+                        _model, getTilePoly(tx, ty), metrics.tile);
                 }
 
-                _dirtyItems.appendDirtyObject(tile, poly, foot, tx, ty, drect);
+                // add the intersected section of the object to the dirty
+                // items list
+                _dirtyItems.appendDirtyObject(
+                    metrics.tile, poly, foot, tx, ty, drect);
                 // Log.info("Dirtied item: Object(" + tx + ", " + ty + ")");
             }
         }
@@ -769,30 +750,25 @@ public class IsoSceneView implements SceneView
      */
     protected void getHitObjects (DirtyItemList list, int x, int y)
     {
-        ObjectTileLayer tiles = _scene.getObjectLayer();
-        Iterator iter = _objpolys.keys();
-
+        Iterator iter = _objects.iterator();
         while (iter.hasNext()) {
-            // get the object's coordinates and bounding polygon
-            int coord = ((Integer)iter.next()).intValue();
-            Polygon poly = (Polygon)_objpolys.get(coord);
-
+            ObjectMetrics metrics = (ObjectMetrics)iter.next();
             // skip polys that don't contain the point
-            if (!poly.contains(x, y)) {
+            if (!metrics.bounds.contains(x, y)) {
                 continue;
             }
 
             // now check that the pixel in the tile image is
             // non-transparent at that point
-            int tx = coord >> 16, ty = coord & 0x0000FFFF;
-            ObjectTile tile = tiles.getTile(tx, ty);
-            Rectangle pbounds = poly.getBounds();
-            if (!tile.hitTest(x - pbounds.x, y - pbounds.y)) {
+            int tx = metrics.x, ty = metrics.y;
+            Rectangle pbounds = metrics.bounds.getBounds();
+            if (!metrics.tile.hitTest(x - pbounds.x, y - pbounds.y)) {
                 continue;
             }
 
             // we've passed the test, add the object to the list
-            list.appendDirtyObject(tile, poly, null, tx, ty, pbounds);
+            list.appendDirtyObject(metrics.tile, metrics.bounds, null,
+                                   tx, ty, pbounds);
         }
     }
 
@@ -845,6 +821,26 @@ public class IsoSceneView implements SceneView
         }
     }
 
+    /**
+     * A class used to cache necessary information on all object tiles in
+     * the scene.
+     */
+    protected static class ObjectMetrics
+    {
+        /** The x and y tile coordinates of the object. */
+        public int x, y;
+
+        /** A reference to the object tile itself. */
+        public ObjectTile tile;
+
+        /** The object's bounding polygon. */
+        public Polygon bounds;
+
+        /** The action associated with the object or null if no action is
+         * associated. */
+        public String action;
+    }
+
     /** The sprite manager. */
     protected SpriteManager _spritemgr;
 
@@ -866,8 +862,8 @@ public class IsoSceneView implements SceneView
     /** Polygon instances for all of our tiles. */
     protected Polygon _polys[][];
 
-    /** Bounding polygons for all of the object tiles. */
-    protected HashIntMap _objpolys = new HashIntMap();
+    /** Metric information for all of the object tiles. */
+    protected ArrayList _objects = new ArrayList();
 
     /** The dirty tiles that need to be re-painted. */
     protected boolean _dirty[][];
