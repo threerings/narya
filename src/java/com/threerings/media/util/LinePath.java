@@ -1,5 +1,5 @@
 //
-// $Id: LinePath.java,v 1.4 2002/05/31 22:14:44 mdb Exp $
+// $Id: LinePath.java,v 1.5 2002/06/11 00:03:30 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -44,7 +44,6 @@ public class LinePath implements Path
         _source = source;
         _dest = dest;
         _duration = duration;
-        _distance = (int)MathUtil.distance(_source, _dest);
     }
 
     // documentation inherited from interface
@@ -61,11 +60,8 @@ public class LinePath implements Path
         // give the pable a chance to perform any starting antics
         pable.pathBeginning();
 
-        // make a note of the time at which we expect to arrive
-        _arrivalTime = timestamp + _duration;
-
-        // pretend like we just moved the pathable
-        _lastMoveX = _lastMoveY = timestamp;
+        // make a note of when we started
+        _startStamp = timestamp;
 
         // update our position to the start of the path
         tick(pable, timestamp);
@@ -76,44 +72,26 @@ public class LinePath implements Path
     {
         // if we've blown past our arrival time, we need to get our bootay
         // to the prearranged spot and get the hell out
-        if (timestamp >= _arrivalTime) {
+        if (timestamp >= _startStamp + _duration) {
             pable.setLocation(_dest.x, _dest.y);
             pable.pathCompleted();
             return true;
         }
 
-        // the number of milliseconds since we last moved (move delta)
-        float dtX = (float)(timestamp - _lastMoveX);
-        float dtY = (float)(timestamp - _lastMoveY);
-        // the number of milliseconds until we're expected to finish
-        float rtX = (float)(_arrivalTime - _lastMoveX);
-        float rtY = (float)(_arrivalTime - _lastMoveY);
-        // how many pixels we have left to go
-        int leftx = _dest.x - pable.getX(), lefty = _dest.y - pable.getY();
+        // determine where we should be along the path
+        float pct = (timestamp - _startStamp) / (float)_duration;
+        int travx = Math.round((_dest.x - _source.x) * pct);
+        int travy = Math.round((_dest.y - _source.y) * pct);
+        int nx = _source.x + travx, ny = _source.y + travy;
 
-        // we want to move the pathable by the remaining distance
-        // multiplied by the move delta divided by the remaining time and
-        // we update our last move stamps if there is movement to be had
-        // in either direction
-        int dx = Math.round((float)(leftx * dtX) / rtX);
-        if (dx != 0) {
-            _lastMoveX = timestamp;
-        }
-        int dy = Math.round((float)(lefty * dtY) / rtY);
-        if (dy != 0) {
-            _lastMoveY = timestamp;
-        }
-
-//         Log.info("Updated pathable [duration=" + _duration +
-//                  ", dist=" + _distance +
-//                  ", dtX=" + dtX + ", rtX=" + rtX +
-//                  ", dtY=" + dtY + ", rtY=" + rtY +
-//                  ", leftx=" + leftx + ", lefty=" + lefty +
-//                  ", dx=" + dx + ", dy=" + dy + "].");
+//         Log.info("Updated pathable [duration=" + _duration + ", pct=" + pct +
+//                  ", travx=" + travx + ", travy=" + travy +
+//                  ", newx=" + nx + ", newy=" + ny + "].");
 
         // only update the pathable's location if it actually moved
-        if (dx != 0 || dy != 0) {
-            pable.setLocation(pable.getX() + dx, pable.getY() + dy);
+        int cx = pable.getX(), cy = pable.getY();
+        if (cx != nx || cy != ny) {
+            pable.setLocation(nx, ny);
             return true;
         }
 
@@ -123,9 +101,7 @@ public class LinePath implements Path
     // documentation inherited
     public void fastForward (long timeDelta)
     {
-        _arrivalTime += timeDelta;
-        _lastMoveX += timeDelta;
-        _lastMoveY += timeDelta;
+        _startStamp += timeDelta;
     }
 
     // documentation inherited
@@ -146,20 +122,9 @@ public class LinePath implements Path
     /** Our source and destination points. */
     protected Point _source, _dest;
 
-    /** The direct pixel distance along the path. */
-    protected int _distance;
+    /** The time at which we started along the path. */
+    protected long _startStamp;
 
     /** The duration that we're to spend following the path. */
     protected long _duration;
-
-    /** The time at which we expect to complete our path. */
-    protected long _arrivalTime;
-
-    /** The time at which we last actually moved the pathable in the x
-     * direction. */
-    protected long _lastMoveX;
-
-    /** The time at which we last actually moved the pathable in the y
-     * direction. */
-    protected long _lastMoveY;
 }
