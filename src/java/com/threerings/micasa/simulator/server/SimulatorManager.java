@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorManager.java,v 1.13 2002/10/06 00:53:15 mdb Exp $
+// $Id: SimulatorManager.java,v 1.14 2002/10/15 22:47:48 shaper Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -75,14 +75,6 @@ public class SimulatorManager
             _simClass = simClass;
             _playerCount = playerCount;
 
-            // determine the AI player skill level
-            byte skill;
-            try {
-                skill = Byte.parseByte(System.getProperty("skill"));
-            } catch (NumberFormatException nfe) {
-                skill = DEFAULT_SKILL;
-            }
-
             try {
                 // create the game manager and begin its initialization
                 // process. the game manager will take care of notifying
@@ -102,11 +94,6 @@ public class SimulatorManager
                 CreationObserver obs = (_playerCount == 1) ? null : this;
                 _gmgr = (GameManager)_plreg.createPlace(config, obs);
 
-                for (int ii = 1; ii < _playerCount; ii++) {
-                    // mark all simulants as AI players
-                    _gmgr.setAI(ii, skill);
-                }
-
             } catch (Exception e) {
                 Log.warning("Unable to create game manager [e=" + e + "].");
                 Log.logStackTrace(e);
@@ -118,6 +105,19 @@ public class SimulatorManager
         {
             // cast the place to the game object for the game we're creating
             _gobj = (GameObject)place;
+
+            // determine the AI player skill level
+            byte skill;
+            try {
+                skill = Byte.parseByte(System.getProperty("skill"));
+            } catch (NumberFormatException nfe) {
+                skill = DEFAULT_SKILL;
+            }
+
+            for (int ii = 1; ii < _playerCount; ii++) {
+                // mark all simulants as AI players
+                _gmgr.setAI(ii, skill);
+            }
 
             // resolve the simulant body objects
             ClientResolutionListener listener = new ClientResolutionListener()
