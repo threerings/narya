@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.21 2001/10/12 00:03:03 mdb Exp $
+// $Id: PresentsClient.java,v 1.22 2001/10/12 00:29:51 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -29,7 +29,8 @@ import com.threerings.presents.server.net.*;
  * not overlap with its other client duties which are called from the
  * conmgr thread and therefore also need not be synchronized.
  */
-public class PresentsClient implements Subscriber, MessageHandler
+public class PresentsClient
+    implements Subscriber, EventListener, MessageHandler
 {
     /**
      * Returns the username with which this client instance is associated.
