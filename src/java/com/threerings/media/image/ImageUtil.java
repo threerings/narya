@@ -1,14 +1,15 @@
 //
-// $Id: ImageUtil.java,v 1.8 2002/04/06 03:41:18 ray Exp $
+// $Id: ImageUtil.java,v 1.9 2002/04/29 01:12:54 mdb Exp $
 
 package com.threerings.media.util;
 
 import java.awt.Color;
-import java.awt.Image;
 import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
+import java.awt.Shape;
 import java.awt.Transparency;
 
 import java.awt.image.BufferedImage;
@@ -189,6 +190,32 @@ public class ImageUtil
 
         // convert back to RGB space
         return Color.HSBtoRGB(hsv[0], hsv[1], hsv[2]);
+    }
+
+    /**
+     * Paints multiple copies of the supplied image using the supplied
+     * graphics context such that the requested width is filled with the
+     * image.
+     */
+    public static void tileImageAcross (Graphics g, Image image,
+                                        int x, int y, int width)
+    {
+        int iwidth = image.getWidth(null), iheight = image.getHeight(null);
+        int tcount = width/iwidth, extra = width % iwidth;
+
+        // draw the full copies of the image
+        for (int ii = 0; ii < tcount; ii++) {
+            g.drawImage(image, x, y, null);
+            x += iwidth;
+        }
+
+        // clip the final blit
+        if (extra > 0) {
+            Shape oclip = g.getClip();
+            g.clipRect(x, y, extra, iheight);
+            g.drawImage(image, x, y, null);
+            g.setClip(oclip);
+        }
     }
 
     /**
