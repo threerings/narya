@@ -1,5 +1,5 @@
 //
-// $Id: SceneRegistry.java,v 1.12 2001/12/14 01:51:46 mdb Exp $
+// $Id: SceneRegistry.java,v 1.13 2001/12/16 05:39:16 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -8,6 +8,8 @@ import java.util.Properties;
 
 import com.samskivert.util.HashIntMap;
 import com.threerings.presents.util.Invoker;
+
+import com.threerings.presents.server.InvocationManager;
 
 import com.threerings.crowd.server.CrowdServer;
 import com.threerings.crowd.server.PlaceManager;
@@ -39,13 +41,17 @@ public class SceneRegistry
      * Constructs a scene registry, instructing it to load and store
      * scenes using the supplied scene repository.
      */
-    public SceneRegistry (SceneRepository screp)
+    public SceneRegistry (InvocationManager invmgr, SceneRepository screp)
     {
         _screp = screp;
 
         // use a default runtime scene factory for now; assume that
         // containing systems will call setRuntimeSceneFactory() later
         _scfact = new DefaultRuntimeSceneFactory();
+
+        // create/register a scene provider with the invocation services
+        SceneProvider provider = new SceneProvider(this);
+        invmgr.registerProvider(SceneProvider.MODULE_NAME, provider);
     }
 
     /**

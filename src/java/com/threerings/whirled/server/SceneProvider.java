@@ -1,5 +1,5 @@
 //
-// $Id: SceneProvider.java,v 1.6 2001/12/14 23:12:38 mdb Exp $
+// $Id: SceneProvider.java,v 1.7 2001/12/16 05:39:16 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -22,6 +22,15 @@ import com.threerings.whirled.data.SceneModel;
 public class SceneProvider extends InvocationProvider
     implements SceneCodes
 {
+    /**
+     * Constructs a scene provider that will interact with the supplied
+     * scene registry.
+     */
+    public SceneProvider (SceneRegistry screg)
+    {
+        _screg = screg;
+    }
+
     /**
      * Processes a request from a client to move to a new scene.
      */
@@ -56,7 +65,7 @@ public class SceneProvider extends InvocationProvider
 
         // make sure the scene they are headed to is actually loaded into
         // the server
-        WhirledServer.screg.resolveScene(sceneId, rl);
+        _screg.resolveScene(sceneId, rl);
     }
 
     /**
@@ -91,4 +100,7 @@ public class SceneProvider extends InvocationProvider
             sendResponse(source, invid, MOVE_FAILED_RESPONSE, sfe.getMessage());
         }
     }
+
+    /** The scene registry with which we interact. */
+    protected SceneRegistry _screg;
 }

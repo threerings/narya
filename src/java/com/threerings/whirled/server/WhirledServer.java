@@ -1,5 +1,5 @@
 //
-// $Id: WhirledServer.java,v 1.10 2001/12/03 22:07:31 mdb Exp $
+// $Id: WhirledServer.java,v 1.11 2001/12/16 05:39:16 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -58,7 +58,7 @@ public class WhirledServer extends CrowdServer
         _screp = createSceneRepository(conprov);
 
         // create our scene registry
-        screg = new SceneRegistry(_screp);
+        screg = new SceneRegistry(invmgr, _screp);
 
         // register our invocation service providers
         registerProviders(config.getValue(PROVIDERS_KEY, (String[])null));
