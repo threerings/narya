@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.1 2001/11/18 04:09:23 mdb Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.2 2001/11/27 22:17:42 mdb Exp $
 
 package com.threerings.miso.tools;
 
@@ -9,7 +9,7 @@ import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileManager;
 
-import com.threerings.miso.tile.MisoTile;
+import com.threerings.miso.tile.BaseTile;
 
 import com.threerings.miso.scene.DisplayMisoSceneImpl;
 import com.threerings.miso.scene.MisoSceneModel;
@@ -44,20 +44,20 @@ public class EditableMisoSceneImpl
     }
 
     // documentation inherited
-    public MisoTile getDefaultBaseTile ()
+    public BaseTile getDefaultBaseTile ()
     {
         return _defaultBaseTile;
     }
 
     // documentation inherited
-    public void setDefaultBaseTile (MisoTile defaultBaseTile, int fqTileId)
+    public void setDefaultBaseTile (BaseTile defaultBaseTile, int fqTileId)
     {
         _defaultBaseTile = defaultBaseTile;
         _defaultBaseTileId = fqTileId;
     }
 
     // documentation inherited
-    public void setBaseTile (int x, int y, MisoTile tile, int fqTileId)
+    public void setBaseTile (int x, int y, BaseTile tile, int fqTileId)
     {
         _base.setTile(x, y, tile);
         // update the model as well
@@ -132,7 +132,7 @@ public class EditableMisoSceneImpl
     protected int[] _objectTileIds;
 
     /** The default tile with which to fill the base layer. */
-    protected MisoTile _defaultBaseTile;
+    protected BaseTile _defaultBaseTile;
 
     /** The fully qualified tile id of the default base tile. */
     protected int _defaultBaseTileId;

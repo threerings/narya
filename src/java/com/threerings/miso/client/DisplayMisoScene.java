@@ -1,11 +1,11 @@
 //
-// $Id: DisplayMisoScene.java,v 1.1 2001/11/18 04:09:22 mdb Exp $
+// $Id: DisplayMisoScene.java,v 1.2 2001/11/27 22:17:42 mdb Exp $
 
 package com.threerings.miso.scene;
 
 import com.threerings.media.tile.ObjectTileLayer;
 import com.threerings.media.tile.TileLayer;
-import com.threerings.miso.tile.MisoTileLayer;
+import com.threerings.miso.tile.BaseTileLayer;
 
 /**
  * Makes available the information from the {@link MisoSceneModel} in a
@@ -19,7 +19,7 @@ public interface DisplayMisoScene
      * Returns the tiles that comprise the base layer of this scene. This
      * layer is read-only and not to be modified.
      */
-    public MisoTileLayer getBaseLayer ();
+    public BaseTileLayer getBaseLayer ();
 
     /**
      * Returns the tiles that comprise the fringe layer of this scene.

@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.44 2001/11/18 04:09:22 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.45 2001/11/27 22:17:42 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -12,8 +12,8 @@ import com.threerings.media.tile.TileLayer;
 import com.threerings.media.tile.TileManager;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.tile.MisoTile;
-import com.threerings.miso.tile.MisoTileLayer;
+import com.threerings.miso.tile.BaseTile;
+import com.threerings.miso.tile.BaseTileLayer;
 import com.threerings.miso.tile.ShadowTile;
 
 /**
@@ -40,7 +40,7 @@ public class DisplayMisoSceneImpl
         int shei = model.height;
 
         // create the individual tile layer objects
-        _base = new MisoTileLayer(new MisoTile[swid*shei], swid, shei);
+        _base = new BaseTileLayer(new BaseTile[swid*shei], swid, shei);
         _fringe = new TileLayer(new Tile[swid*shei], swid, shei);
         _object = new ObjectTileLayer(new ObjectTile[swid*shei], swid, shei);
 
@@ -55,10 +55,10 @@ public class DisplayMisoSceneImpl
                     // this is a bit magical, but the tile manager will
                     // fetch tiles from the tileset repository and the
                     // tile set id from which we request this tile must
-                    // map to a miso tile as provided by the repository,
-                    // so we just cast it to a miso tile and know that all
+                    // map to a base tile as provided by the repository,
+                    // so we just cast it to a base tile and know that all
                     // is well
-                    MisoTile mtile = (MisoTile)tmgr.getTile(tsid, tid);
+                    BaseTile mtile = (BaseTile)tmgr.getTile(tsid, tid);
                     _base.setTile(column, row, mtile);
                 }
 
@@ -101,7 +101,7 @@ public class DisplayMisoSceneImpl
     }
 
     // documentation inherited
-    public MisoTileLayer getBaseLayer ()
+    public BaseTileLayer getBaseLayer ()
     {
         return _base;
     }
@@ -150,7 +150,7 @@ public class DisplayMisoSceneImpl
      * @param y the tile y-coordinate.
      * @param stamp the tile to place in the object footprint.
      */
-    protected void setObjectTileFootprint (int x, int y, MisoTile stamp)
+    protected void setObjectTileFootprint (int x, int y, BaseTile stamp)
     {
         ObjectTile tile = _object.getTile(y, x);
         int endx = Math.max(0, (x - tile.getBaseWidth() + 1));
@@ -164,7 +164,7 @@ public class DisplayMisoSceneImpl
     }
 
     /** The base layer of tiles. */
-    protected MisoTileLayer _base;
+    protected BaseTileLayer _base;
 
     /** The fringe layer of tiles. */
     protected TileLayer _fringe;

@@ -1,5 +1,5 @@
 //
-// $Id: ShadowTile.java,v 1.3 2001/11/18 04:09:22 mdb Exp $
+// $Id: ShadowTile.java,v 1.4 2001/11/27 22:17:42 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -7,11 +7,11 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 
 /**
- * The shadow tile extends miso tile to provide an always-impassable tile
+ * The shadow tile extends base tile to provide an always-impassable tile
  * that has no display image.  Shadow tiles are intended for placement in
  * the footprint of {@link com.threerings.media.tile.ObjectTile} objects.
  */
-public class ShadowTile extends MisoTile
+public class ShadowTile extends BaseTile
 {
     /** The scene coordinates of the shadow tile's parent object tile. */
     public int ox, oy;

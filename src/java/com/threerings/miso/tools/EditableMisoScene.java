@@ -1,12 +1,12 @@
 //
-// $Id: EditableMisoScene.java,v 1.5 2001/11/18 04:09:23 mdb Exp $
+// $Id: EditableMisoScene.java,v 1.6 2001/11/27 22:17:42 mdb Exp $
 
 package com.threerings.miso.tools;
 
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
 
-import com.threerings.miso.tile.MisoTile;
+import com.threerings.miso.tile.BaseTile;
 import com.threerings.miso.scene.DisplayMisoScene;
 import com.threerings.miso.scene.MisoSceneModel;
 
@@ -25,7 +25,7 @@ public interface EditableMisoScene
     /**
      * Returns the default base tile.
      */
-    public MisoTile getDefaultBaseTile ();
+    public BaseTile getDefaultBaseTile ();
 
     /**
      * Sets the default base tile.
@@ -35,7 +35,7 @@ public interface EditableMisoScene
      * com.threerings.media.tile.TileUtil#getFQTileId}) of the new default
      * base tile.
      */
-    public void setDefaultBaseTile (MisoTile defaultBaseTile, int fqTileId);
+    public void setDefaultBaseTile (BaseTile defaultBaseTile, int fqTileId);
 
     /**
      * Updates the tile at the specified location in the base layer.
@@ -47,7 +47,7 @@ public interface EditableMisoScene
      * com.threerings.media.tile.TileUtil#getFQTileId}) of the new default
      * base tile.
      */
-    public void setBaseTile (int x, int y, MisoTile tile, int fqTileId);
+    public void setBaseTile (int x, int y, BaseTile tile, int fqTileId);
 
     /**
      * Updates the tile at the specified location in the fringe layer.

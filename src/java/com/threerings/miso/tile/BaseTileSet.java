@@ -1,5 +1,5 @@
 //
-// $Id: BaseTileSet.java,v 1.6 2001/11/18 04:09:22 mdb Exp $
+// $Id: BaseTileSet.java,v 1.7 2001/11/27 22:17:42 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -9,12 +9,12 @@ import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.SwissArmyTileSet;
 
 /**
- * The miso tile set extends the swiss army tile set to add support for
- * tile passability. Passability is used to determine whether {@link
+ * The base tileset extends the swiss army tileset to add support for tile
+ * passability. Passability is used to determine whether {@link
  * com.threerings.miso.scene.Traverser} objects can traverse a particular
  * tile in a scene.
  */
-public class MisoTileSet extends SwissArmyTileSet
+public class BaseTileSet extends SwissArmyTileSet
 {
     /**
      * Sets the passability information for the tiles in this tileset.
@@ -28,7 +28,7 @@ public class MisoTileSet extends SwissArmyTileSet
     // documentation inherited
     public Tile createTile (Image image, int tileIndex)
     {
-	return new MisoTile(image, _passable[tileIndex]);
+	return new BaseTile(image, _passable[tileIndex]);
     }
 
     /** Whether each tile is passable. */

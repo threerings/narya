@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.8 2001/11/18 04:09:22 mdb Exp $
+// $Id: AStarPathUtil.java,v 1.9 2001/11/27 22:17:42 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -10,8 +10,8 @@ import com.threerings.media.util.MathUtil;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.Traverser;
-import com.threerings.miso.tile.MisoTile;
-import com.threerings.miso.tile.MisoTileLayer;
+import com.threerings.miso.tile.BaseTile;
+import com.threerings.miso.tile.BaseTileLayer;
 
 /**
  * The <code>AStarPathUtil</code> class provides a facility for
@@ -44,7 +44,7 @@ public class AStarPathUtil
      * @return the list of points in the path.
      */
     public static List getPath (
-	MisoTileLayer tiles, int tilewid, int tilehei, Traverser trav,
+	BaseTileLayer tiles, int tilewid, int tilehei, Traverser trav,
 	int ax, int ay, int bx, int by)
     {
 	AStarInfo info = new AStarInfo(tiles, tilewid, tilehei, trav, bx, by);
@@ -254,7 +254,7 @@ public class AStarPathUtil
 class AStarInfo
 {
     /** The tile layer being traversed. */
-    public MisoTileLayer tiles;
+    public BaseTileLayer tiles;
 
     /** The tile array dimensions. */
     public int tilewid, tilehei;
@@ -275,7 +275,7 @@ class AStarInfo
     public int destx, desty;
 
     public AStarInfo (
-	MisoTileLayer tiles, int tilewid, int tilehei, Traverser trav,
+	BaseTileLayer tiles, int tilewid, int tilehei, Traverser trav,
 	int destx, int desty)
     {
 	// save off references

@@ -1,5 +1,5 @@
 //
-// $Id: BaseTileSetRuleSet.java,v 1.4 2001/11/21 02:42:15 mdb Exp $
+// $Id: BaseTileSetRuleSet.java,v 1.5 2001/11/27 22:17:42 mdb Exp $
 
 package com.threerings.miso.tools.tile.xml;
 
@@ -8,10 +8,10 @@ import org.apache.commons.digester.Digester;
 
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tools.tile.xml.SwissArmyTileSetRuleSet;
-import com.threerings.miso.tile.MisoTileSet;
+import com.threerings.miso.tile.BaseTileSet;
 
 /**
- * Parses {@link MisoTileSet} instances from a tileset description. A
+ * Parses {@link BaseTileSet} instances from a tileset description. A
  * uniform tileset description looks like so:
  *
  * <pre>
@@ -26,7 +26,7 @@ import com.threerings.miso.tile.MisoTileSet;
  * &lt;/tileset&gt;
  * </pre>
  */
-public class MisoTileSetRuleSet extends SwissArmyTileSetRuleSet
+public class BaseTileSetRuleSet extends SwissArmyTileSetRuleSet
 {
     // documentation inherited
     public void addRuleInstances (Digester digester)
@@ -42,6 +42,6 @@ public class MisoTileSetRuleSet extends SwissArmyTileSetRuleSet
     protected TileSet createTileSet (Attributes attributes)
     {
         // we use uniform tilesets
-        return new MisoTileSet();
+        return new BaseTileSet();
     }
 }

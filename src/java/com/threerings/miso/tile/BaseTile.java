@@ -1,5 +1,5 @@
 //
-// $Id: BaseTile.java,v 1.2 2001/11/18 04:09:22 mdb Exp $
+// $Id: BaseTile.java,v 1.3 2001/11/27 22:17:42 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -7,25 +7,25 @@ import java.awt.Image;
 import com.threerings.media.tile.Tile;
 
 /**
- * Extends the base tile class to add support for tile passability.
+ * Extends the tile class to add support for tile passability.
  *
- * @see MisoTileSet
+ * @see BaseTileSet
  */
-public class MisoTile extends Tile
+public class BaseTile extends Tile
 {
     /**
-     * Constructs a new miso tile with the specified image. Passability
+     * Constructs a new base tile with the specified image. Passability
      * will be assumed to be true.
      */
-    public MisoTile (Image image)
+    public BaseTile (Image image)
     {
         super(image);
     }
 
     /**
-     * Constructs a new miso tile with the specified passability.
+     * Constructs a new base tile with the specified passability.
      */
-    public MisoTile (Image image, boolean passable)
+    public BaseTile (Image image, boolean passable)
     {
 	super(image);
 	_passable = passable;

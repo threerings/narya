@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.72 2001/11/18 04:09:22 mdb Exp $
+// $Id: IsoSceneView.java,v 1.73 2001/11/27 22:17:42 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -34,7 +34,7 @@ import com.threerings.miso.Log;
 import com.threerings.miso.scene.DirtyItemList.DirtyItem;
 import com.threerings.miso.scene.util.AStarPathUtil;
 import com.threerings.miso.scene.util.IsoUtil;
-import com.threerings.miso.tile.MisoTileLayer;
+import com.threerings.miso.tile.BaseTileLayer;
 
 /**
  * The iso scene view provides an isometric view of a particular
@@ -217,7 +217,7 @@ public class IsoSceneView implements SceneView
      */
     protected void renderTiles (Graphics2D gfx)
     {
-        MisoTileLayer base = _scene.getBaseLayer();
+        BaseTileLayer base = _scene.getBaseLayer();
         TileLayer fringe = _scene.getFringeLayer();
 
         // render the base and fringe layers

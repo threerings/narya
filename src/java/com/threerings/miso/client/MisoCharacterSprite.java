@@ -1,11 +1,11 @@
 //
-// $Id: MisoCharacterSprite.java,v 1.2 2001/11/18 04:09:22 mdb Exp $
+// $Id: MisoCharacterSprite.java,v 1.3 2001/11/27 22:17:42 mdb Exp $
 
 package com.threerings.miso.scene;
 
 import com.threerings.cast.CharacterSprite;
 
-import com.threerings.miso.tile.MisoTile;
+import com.threerings.miso.tile.BaseTile;
 
 /**
  * The miso character sprite extends the basic character sprite to
@@ -21,7 +21,7 @@ public class MisoCharacterSprite
     implements Traverser
 {
     // documentation inherited
-    public boolean canTraverse (MisoTile tile)
+    public boolean canTraverse (BaseTile tile)
     {
 	// by default, passability is solely the province of the tile
 	return tile.isPassable();
