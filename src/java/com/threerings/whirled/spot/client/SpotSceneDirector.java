@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.5 2001/12/16 21:02:18 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.6 2001/12/16 21:23:27 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -12,6 +12,9 @@ import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
 
 import com.threerings.crowd.chat.ChatDirector;
+import com.threerings.crowd.client.LocationAdapter;
+import com.threerings.crowd.client.LocationDirector;
+import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.whirled.client.SceneDirector;
 import com.threerings.whirled.data.SceneModel;
@@ -51,12 +54,24 @@ public class SpotSceneDirector
      * which will cooperate with the supplied scene director.
      *
      * @param ctx the active client context.
+     * @param locdir the location director with which we will be
+     * cooperating.
      * @param scdir the scene director with which we will be cooperating.
      */
-    public SpotSceneDirector (WhirledContext ctx, SceneDirector scdir)
+    public SpotSceneDirector (WhirledContext ctx, LocationDirector locdir,
+                              SceneDirector scdir)
     {
         _ctx = ctx;
         _scdir = scdir;
+
+        // wire ourselves up to hear about leave place notifications
+        locdir.addLocationObserver(new LocationAdapter() {
+            public void locationDidChange (PlaceObject place) {
+                // we need to clear out our cluster chat object
+                // subscriptions when we leave a place
+                clearClusterScrips();
+            }
+        });
     }
 
     /**
@@ -148,16 +163,8 @@ public class SpotSceneDirector
         }
 
         // make sure the specified location is in the current scene
-        int locidx = -1;
-        Iterator locs = scene.getLocations().iterator();
-        for (int i = 0; locs.hasNext(); i++) {
-            Location loc = (Location)locs.next();
-            if (loc.locationId == locationId) {
-                locidx = i;
-                break;
-            }
-        }
-        if (locidx == -1) {
+        Location loc = scene.getLocation(locationId);
+        if (loc == null) {
             Log.warning("Requested to change to a location that's not " +
                         "in the current scene [locs=" + StringUtil.toString(
                             scene.getLocations().iterator()) +
@@ -188,13 +195,23 @@ public class SpotSceneDirector
         }
 
         // make sure we're in a location
-        if (_locationId > 0) {
-            SpotService.clusterSpeak(
-                _ctx.getClient(), scene.getId(), _locationId, message, this);
-
-        } else {
-            Log.info("Ignoring cluster speak as we're not in a location.");
+        Location loc = scene.getLocation(_locationId);
+        if (loc == null) {
+            Log.info("Ignoring cluster speak as we're not in a valid " +
+                     "location [locId=" + _locationId + "].");
+            return;
         }
+
+        // make sure the location has an associated cluster
+        if (loc.clusterIndex == -1) {
+            Log.info("Ignoring cluster speak as our location has no " +
+                     "cluster [loc=" + loc + "].");
+            return;
+        }
+
+        // we're all clear to go
+        SpotService.clusterSpeak(
+            _ctx.getClient(), scene.getId(), _locationId, message, this);
     }
 
     /**
@@ -268,6 +285,21 @@ public class SpotSceneDirector
     {
         Log.warning("Unable to subscribe to cluster chat object " +
                     "[oid=" + oid + ",, cause=" + cause + "].");
+    }
+
+    /**
+     * Clears out any cluster subscriptions we may have.
+     */
+    protected void clearClusterScrips ()
+    {
+        if (_chatdir != null && _clobj != null) {
+            // unwire the auxilliary chat object
+            _chatdir.removeAuxilliarySource(_clobj);
+            // unsubscribe as well
+            DObjectManager omgr = _ctx.getDObjectManager();
+            omgr.unsubscribeFromObject(_clobj.getOid(), this);
+            _clobj = null;
+        }
     }
 
     /** The active client context. */
