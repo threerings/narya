@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.4 2001/07/16 22:12:01 shaper Exp $
+// $Id: ImageManager.java,v 1.5 2001/07/18 21:19:00 shaper Exp $
 
 package com.threerings.cocktail.miso.media;
 
@@ -9,22 +9,45 @@ import java.awt.*;
 import java.awt.image.*;
 import java.util.Hashtable;
 
+/**
+ * The ImageManager class provides a single point of access for image
+ * retrieval and caching.
+ *
+ * <p> <b>Note:</b> The ImageManager must be initialized with a root
+ * AWT component before images can be retrieved, in the interest of
+ * allowing for proper preparation of images for optimal storage and
+ * eventual display.
+ */
 public class ImageManager
 {
     public static Toolkit tk = Toolkit.getDefaultToolkit();
 
+    /**
+     * Initialize the ImageManager with a root component to which
+     * images will later be rendered.
+     */
     public static void init (Component root)
     {
 	_root = root;
 	tk = root.getToolkit();
     }
 
+    /**
+     * Load the image from the specified filename and cache it for
+     * faster retrieval henceforth.
+     */
     public static Image getImage (String fname)
     {
 	if (_root == null) {
 	    Log.warning("Attempt to get image without valid root component.");
 	    return null;
 	}
+
+	// TODO: fix this to properly find the file within the
+	// classpath.  getResourceAsStream() returns an InputStream,
+	// but java.awt.Toolkit.createImage() can only take one of a
+	// byte[], String, URL, or ImageProducer.
+	fname = "/home/shaper/workspace/cocktail/" + fname;
 
 	Image img = (Image)_imgs.get(fname);
 	if (img != null) {
@@ -55,6 +78,10 @@ public class ImageManager
 	return img;
     }
 
+    /**
+     * Creates a new image representing the specified rectangular
+     * section cropped from the specified full image object.
+     */
     public static BufferedImage getImageCropped (Image fullImg, int x, int y,
 						 int width, int height)
     {
