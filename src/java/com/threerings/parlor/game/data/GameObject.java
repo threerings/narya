@@ -60,6 +60,9 @@ public class GameObject extends PlaceObject
 
     /** The field name of the <code>creator</code> field. */
     public static final String CREATOR = "creator";
+
+    /** The field name of the <code>playerStatus</code> field. */
+    public static final String PLAYER_STATUS = "playerStatus";
     // AUTO-GENERATED: FIELDS END
 
     /** A game state constant indicating that the game has not yet started
@@ -74,6 +77,14 @@ public class GameObject extends PlaceObject
 
     /** A game state constant indicating that the game was cancelled. */
     public static final int CANCELLED = 3;
+
+    /** The player status constant for a player whose game is in play. */
+    public static final int PLAYER_IN_PLAY = 0;
+
+    /** The player status constant for a player whose has been knocked out
+     * of the game. NOTE: This can include a player choosing to leave a
+     * game prematurely. */
+    public static final int PLAYER_LEFT_GAME = 1;
 
     /** Provides general game invocation services. */
     public GameMarshaller gameService;
@@ -98,6 +109,11 @@ public class GameObject extends PlaceObject
     /** The player index of the creating player if this is a party game. */
     public int creator;
 
+    /**  The status of each of the players in the game. The status value
+     * is one of {@link #PLAYER_LEFT_GAME} or {@link
+     * #PLAYER_IN_PLAY}. */
+    public int[] playerStatus;
+
     /**
      * Returns the number of players in the game.
      */
@@ -112,6 +128,32 @@ public class GameObject extends PlaceObject
         }
         return count;
     }
+
+    /**
+     * Returns the number of active players in the game.
+     */
+    public int getActivePlayerCount ()
+    {
+        int count = 0;
+        int size = players.length;
+        for (int ii = 0; ii < size; ii++) {
+            if (isActivePlayer(ii)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Returns whether the given player is still an active player in
+     * the game.  (Ie. whether or not they are still participating.)
+     */
+    public boolean isActivePlayer (int pidx)
+    {
+        return (isOccupiedPlayer(pidx) &&
+                playerStatus != null && playerStatus[pidx] == PLAYER_IN_PLAY);
+    }
+
 
     /**
      * Returns the player index of the given user in the game, or 
@@ -348,6 +390,39 @@ public class GameObject extends PlaceObject
         requestAttributeChange(
             CREATOR, new Integer(value), new Integer(ovalue));
         this.creator = value;
+    }
+
+    /**
+     * Requests that the <code>playerStatus</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public void setPlayerStatus (int[] value)
+    {
+        int[] ovalue = this.playerStatus;
+        requestAttributeChange(
+                PLAYER_STATUS, value, ovalue);
+        this.playerStatus = (value == null) ? null : (int[])value.clone();
+    }
+
+    /**
+     * Requests that the <code>index</code>th element of
+     * <code>playerStatus</code> field be set to the specified value.
+     * The local value will be updated immediately and an event will be
+     * propagated through the system to notify all listeners that the
+     * attribute did change. Proxied copies of this object (on clients)
+     * will apply the value change when they received the attribute
+     * changed notification.
+     */
+    public void setPlayerStatusAt (int value, int index)
+    {
+        int ovalue = this.playerStatus[index];
+        requestElementUpdate(
+                PLAYER_STATUS, index, new Integer(value), new Integer(ovalue));
+        this.playerStatus[index] = value;
     }
     // AUTO-GENERATED: METHODS END
 }

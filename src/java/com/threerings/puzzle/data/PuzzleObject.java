@@ -39,9 +39,6 @@ public class PuzzleObject extends GameObject
     /** The field name of the <code>difficulty</code> field. */
     public static final String DIFFICULTY = "difficulty";
 
-    /** The field name of the <code>playerStatus</code> field. */
-    public static final String PLAYER_STATUS = "playerStatus";
-
     /** The field name of the <code>summaries</code> field. */
     public static final String SUMMARIES = "summaries";
 
@@ -49,23 +46,11 @@ public class PuzzleObject extends GameObject
     public static final String SEED = "seed";
     // AUTO-GENERATED: FIELDS END
 
-    /** The player status constant for a player whose game is in play. */
-    public static final int PLAYER_IN_PLAY = 0;
-
-    /** The player status constant for a player whose has been knocked out
-     * of the game. */
-    public static final int PLAYER_KNOCKED_OUT = 1;
-
     /** Provides general puzzle game invocation services. */
     public PuzzleGameMarshaller puzzleGameService;
 
     /** The puzzle difficulty level. */
     public int difficulty;
-
-    /**  The status of each of the players in the game. The status value
-     * is one of {@link #PLAYER_KNOCKED_OUT} or {@link
-     * #PLAYER_IN_PLAY}. */
-    public int[] playerStatus;
 
     /** Summaries of the boards of all players in this puzzle (may be null
      * if the puzzle doesn't support individual player boards). */
@@ -73,31 +58,6 @@ public class PuzzleObject extends GameObject
 
     /** The seed used to germinate the boards. */
     public long seed;
-
-    /**
-     * Returns the number of active players in the game.
-     */
-    public int getActivePlayerCount ()
-    {
-        int count = 0;
-        int size = players.length;
-        for (int ii = 0; ii < size; ii++) {
-            if (isActivePlayer(ii)) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    /**
-     * Returns whether the given player is still an active player, e.g.,
-     * their game has not ended.
-     */
-    public boolean isActivePlayer (int pidx)
-    {
-        return (isOccupiedPlayer(pidx) &&
-                playerStatus != null && playerStatus[pidx] == PLAYER_IN_PLAY);
-    }
 
     // AUTO-GENERATED: METHODS START
     /**
@@ -130,39 +90,6 @@ public class PuzzleObject extends GameObject
         requestAttributeChange(
             DIFFICULTY, new Integer(value), new Integer(ovalue));
         this.difficulty = value;
-    }
-
-    /**
-     * Requests that the <code>playerStatus</code> field be set to the
-     * specified value. The local value will be updated immediately and an
-     * event will be propagated through the system to notify all listeners
-     * that the attribute did change. Proxied copies of this object (on
-     * clients) will apply the value change when they received the
-     * attribute changed notification.
-     */
-    public void setPlayerStatus (int[] value)
-    {
-        int[] ovalue = this.playerStatus;
-        requestAttributeChange(
-            PLAYER_STATUS, value, ovalue);
-        this.playerStatus = (value == null) ? null : (int[])value.clone();
-    }
-
-    /**
-     * Requests that the <code>index</code>th element of
-     * <code>playerStatus</code> field be set to the specified value.
-     * The local value will be updated immediately and an event will be
-     * propagated through the system to notify all listeners that the
-     * attribute did change. Proxied copies of this object (on clients)
-     * will apply the value change when they received the attribute
-     * changed notification.
-     */
-    public void setPlayerStatusAt (int value, int index)
-    {
-        int ovalue = this.playerStatus[index];
-        requestElementUpdate(
-            PLAYER_STATUS, index, new Integer(value), new Integer(ovalue));
-        this.playerStatus[index] = value;
     }
 
     /**

@@ -49,6 +49,7 @@ import com.threerings.crowd.client.PlaceControllerDelegate;
 import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.parlor.game.client.GameController;
+import com.threerings.parlor.game.data.GameObject;
 
 import com.threerings.puzzle.Log;
 import com.threerings.puzzle.data.Board;
@@ -879,7 +880,7 @@ public abstract class PuzzleController extends GameController
         public void elementUpdated (ElementUpdatedEvent event) {
             String name = event.getName();
             if (name.equals(PuzzleObject.PLAYER_STATUS)) {
-                if (event.getIntValue() == PuzzleObject.PLAYER_KNOCKED_OUT) {
+                if (event.getIntValue() == GameObject.PLAYER_LEFT_GAME) {
                     playerKnockedOut(event.getIndex());
                 }
             }

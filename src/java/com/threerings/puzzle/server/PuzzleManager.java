@@ -34,6 +34,7 @@ import com.threerings.presents.dobj.OidList;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.server.CrowdServer;
 
+import com.threerings.parlor.game.data.GameObject;
 import com.threerings.parlor.game.server.GameManager;
 
 import com.threerings.util.MessageBundle;
@@ -127,7 +128,7 @@ public abstract class PuzzleManager extends GameManager
         _puzobj.startTransaction();
         try {
             // end the player's game
-            _puzobj.setPlayerStatusAt(PuzzleObject.PLAYER_KNOCKED_OUT, pidx);
+            _puzobj.setPlayerStatusAt(GameObject.PLAYER_LEFT_GAME, pidx);
 
             // let derived classes do some business
             playerGameDidEnd(pidx);
