@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.57 2003/09/07 23:30:13 mdb Exp $
+// $Id: PresentsClient.java,v 1.58 2003/09/25 21:07:54 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -152,6 +152,19 @@ public class PresentsClient
     {
         ClientResolutionListener clr = new ClientResolutionListener() {
             public void clientResolved (String username, ClientObject clobj) {
+                // if they old client object is gone by now, they ended
+                // their session while we were switching, so freak out
+                if (_clobj == null) {
+                    Log.warning("Client disappeared before we could " +
+                                "complete the switch to a new client " +
+                                "object [ousername=" + _username +
+                                ", nusername=" + username + "].");
+                    _cmgr.releaseClientObject(username);
+                    Exception error = new Exception("Early withdrawal");
+                    resolutionFailed(username, error);
+                    return;
+                }
+
                 // let the client know that the rug has been yanked out
                 // from under their ass
                 Object[] args = new Object[] { new Integer(clobj.getOid()) };
