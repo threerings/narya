@@ -1,5 +1,5 @@
 //
-// $Id: SignalManager.java,v 1.1 2003/03/31 02:10:04 mdb Exp $
+// $Id: SignalManager.java,v 1.2 2003/03/31 04:10:03 mdb Exp $
 
 package com.threerings.util.signal;
 
@@ -190,7 +190,7 @@ public class SignalManager
         // we "collapse" those into one call back
         long now = System.currentTimeMillis();
         if (signal == SIGINT) {
-            if (_lastINTed == now) {
+            if (now - _lastINTed < 10) {
                 return;
             } else {
                 _lastINTed = now;
