@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.54 2002/11/10 01:43:28 mdb Exp $
+// $Id: DObject.java,v 1.55 2002/12/12 00:30:47 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -115,8 +115,14 @@ public class DObject implements Streamable
         // only add the subscriber if they're not already there
         Object[] subs = ListUtil.testAndAdd(_subs, sub);
         if (subs != null) {
+//             Log.info("Adding subscriber " + which() + ": " + sub + ".");
             _subs = subs;
             _scount++;
+
+        } else {
+            Log.warning("Refusing subscriber that's already in the list " +
+                        "[dobj=" + which() + ", subscriber=" + sub + "]");
+            Thread.dumpStack();
         }
     }
 
@@ -170,6 +176,12 @@ public class DObject implements Streamable
         Object[] els = ListUtil.testAndAdd(_listeners, listener);
         if (els != null) {
             _listeners = els;
+
+        } else {
+            // complain if an object requests to add itself more than once
+            Log.warning("Refusing listener that's already in the list " +
+                        "[dobj=" + which() + ", listener=" + listener + "]");
+            Thread.dumpStack();
         }
     }
 
@@ -232,7 +244,7 @@ public class DObject implements Streamable
     {
         // check for the existence of the lock in the list and add it if
         // it's not already there
-        Object[] list = ListUtil.testAndAdd(_locks, name);
+        Object[] list = ListUtil.testAndAddEqual(_locks, name);
         if (list == null) {
             // a null list means the object was already in the list
             return false;
