@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.14 2001/08/16 23:14:20 mdb Exp $
+// $Id: TileSet.java,v 1.15 2001/08/30 01:13:08 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -13,7 +13,7 @@ import com.threerings.media.ImageManager;
 
 /**
  * A tileset stores information on a single logical set of tiles.  It
- * provides a clean interface for the <code>TileSetManager</code> to
+ * provides a clean interface for the {@link TileSetManager} to
  * retrieve individual tiles from the tileset.
  *
  * <p> Tiles are referenced by their tile id.  The tile id is
@@ -120,17 +120,23 @@ public class TileSet
     }
 
     /**
-     * Return the <code>Tile</code> object from this tileset
-     * corresponding to the specified tile id.  The tile image is
-     * retrieved from the given image manager.
+     * Return the {@link Tile} object from this tileset corresponding
+     * to the specified tile id, or <code>null</code> if no such tile
+     * id exists.  The tile image is retrieved from the given image
+     * manager.
      *
      * @param imgmgr the image manager.
      * @param tid the tile identifier.
      *
-     * @return the tile object.
+     * @return the tile object, or null if no such tile exists.
      */
     public Tile getTile (ImageManager imgmgr, int tid)
     {
+	// bail if there's no such tile
+	if (tid > (_numTiles - 1)) {
+	    return null;
+	}
+
 	// create the tile object
 	Tile tile = new Tile(_tsid, tid);
 
