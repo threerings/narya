@@ -1,5 +1,5 @@
 //
-// $Id: ParlorDirector.java,v 1.17 2002/10/27 22:23:14 mdb Exp $
+// $Id: ParlorDirector.java,v 1.18 2002/12/12 23:55:31 shaper Exp $
 
 package com.threerings.parlor.client;
 
@@ -38,9 +38,6 @@ public class ParlorDirector extends BasicDirector
     {
         super(ctx);
         _ctx = ctx;
-
-        // register as a session observer
-        _ctx.getClient().addClientObserver(this);
 
         // register ourselves with the invocation director as a parlor
         // notification receiver
