@@ -1,15 +1,11 @@
 //
-// $Id: Animation.java,v 1.8 2002/09/20 21:28:20 mdb Exp $
+// $Id: Animation.java,v 1.9 2002/10/08 21:03:37 ray Exp $
 
 package com.threerings.media.animation;
 
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-import java.util.ArrayList;
-
-import com.samskivert.util.StringUtil;
-
+import com.threerings.media.AbstractMedia;
 import com.threerings.media.Log;
 
 /**
@@ -17,7 +13,7 @@ import com.threerings.media.Log;
  * provide animation functionality. It is generally used in conjunction
  * with an {@link AnimationManager}.
  */
-public abstract class Animation
+public abstract class Animation extends AbstractMedia
 {
     /**
      * Constructs an animation.
@@ -26,80 +22,7 @@ public abstract class Animation
      */
     public Animation (Rectangle bounds)
     {
-        _bounds = bounds;
-    }
-
-    /**
-     * Returns the render order of this animation.
-     */
-    public int getRenderOrder ()
-    {
-        return _renderOrder;
-    }
-
-    /**
-     * Sets the render order associated with this animation.  Animations
-     * can be rendered in two layers; those with negative render order and
-     * those with positive render order. In the same layer, animations
-     * will be rendered according to their render order's cardinal value
-     * (least to greatest). Those with the same render order value will be
-     * rendered in arbitrary order.
-     *
-     * <p> This must be set <em>before</em> the animation is handed to the
-     * {@link AnimationManager} and must not change while the {@link
-     * AnimationManager} is managing the animation. If you wish to change
-     * the render order, remove the animation from the manager, change the
-     * order and add it back again.
-     */
-    public void setRenderOrder (int value)
-    {
-        _renderOrder = value;
-    }
-
-    /**
-     * Sets the location at which this animation will be rendered.
-     */
-    public void setLocation (int x, int y)
-    {
-        _bounds.x = x;
-        _bounds.y = y;
-    }
-
-    /**
-     * Returns a rectangle containing all pixels rendered by this
-     * animation.
-     */
-    public Rectangle getBounds ()
-    {
-        return _bounds;
-    }
-
-    /**
-     * Called periodically by the {@link AnimationManager} to give the
-     * animation a chance to do its thing.
-     *
-     * @param tickStamp the system time for this tick.
-     */
-    public abstract void tick (long tickStamp);
-
-    /**
-     * Called by the {@link AnimationManager} to request that the
-     * animation render itself with the given graphics context. The
-     * animation may wish to inspect the clipping region that has been set
-     * on the graphics context to render itself more efficiently. This
-     * method will only be called after it has been established that this
-     * animation's bounds intersect the clipping region.
-     */
-    public abstract void paint (Graphics2D gfx);
-
-    /**
-     * This is called if the animation manager is paused for some length
-     * of time and then unpaused. Animations should adjust any time stamps
-     * they are maintaining internally by the delta so that time maintains
-     * the illusion of flowing smoothly forward.
-     */
-    public void fastForward (long timeDelta)
-    {
+        super(bounds);
     }
 
     /**
@@ -121,14 +44,6 @@ public abstract class Animation
     }
 
     /**
-     * Invalidates the bounds of this animation.
-     */
-    public void invalidate ()
-    {
-        _animmgr.getRegionManager().invalidateRegion(_bounds);
-    }
-
-    /**
      * Called when the animation is finished and the animation manager has
      * removed it from service.
      */
@@ -142,76 +57,20 @@ public abstract class Animation
      */
     public void addAnimationObserver (AnimationObserver obs)
     {
-	// create the observer list if it doesn't yet exist
-	if (_observers == null) {
-	    _observers = new ArrayList();
-	}
-
-	// make sure each observer observes only once
-	if (_observers.contains(obs)) {
-	    Log.info("Attempt to observe animation already observing " +
-		     "[anim=" + this + ", obs=" + obs + "].");
-	    return;
-	}
-
-	// add the observer
-	_observers.add(obs);
+        addObserver(obs);
     }
 
     /**
      * Notifies any animation observers that the given animation event has
      * occurred.
      */
-    public void notifyObservers (AnimationEvent e)
+    public void notifyObservers (AnimationEvent event)
     {
-        int size = (_observers == null) ? 0 : _observers.size();
-        for (int ii = 0; ii < size; ii++) {
-            ((AnimationObserver)_observers.get(ii)).handleEvent(e);
+        if (_observers != null) {
+            _mgr.queueNotification(_observers, event);
         }
     }
 
-    /**
-     * Return a string representation of the animation.
-     */
-    public String toString ()
-    {
-        StringBuffer buf = new StringBuffer();
-        buf.append("[");
-	toString(buf);
-        return buf.append("]").toString();
-    }
-
-    /**
-     * Called automatically when an animation is added to an animation
-     * manager for management.
-     */
-    protected void setAnimationManager (AnimationManager animmgr)
-    {
-        _animmgr = animmgr;
-    }
-
-    /**
-     * This should be overridden by derived classes (which should be sure
-     * to call <code>super.toString()</code>) to append the derived class
-     * specific animation information to the string buffer.
-     */
-    protected void toString (StringBuffer buf)
-    {
-        buf.append("bounds=").append(StringUtil.toString(_bounds));
-    }
-
-    /** Our animation manager. */
-    protected AnimationManager _animmgr;
-
     /** Whether the animation is finished. */
     protected boolean _finished = false;
-
-    /** The animation bounds. */
-    protected Rectangle _bounds;
-
-    /** The render order of this animation. */
-    protected int _renderOrder;
-
-    /** The list of animation observers. */
-    protected ArrayList _observers;
 }

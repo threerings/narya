@@ -1,5 +1,5 @@
 //
-// $Id: ImageSprite.java,v 1.14 2002/09/17 20:21:19 mdb Exp $
+// $Id: ImageSprite.java,v 1.15 2002/10/08 21:03:37 ray Exp $
 
 package com.threerings.media.sprite;
 
@@ -81,9 +81,9 @@ public class ImageSprite extends Sprite
     }
 
     // documentation inherited
-    protected void init (SpriteManager spritemgr)
+    protected void init ()
     {
-        super.init(spritemgr);
+        super.init();
 
         // now that we have our spritemanager, we can initialize our frames
         setFrameIndex(0, true);
@@ -187,8 +187,8 @@ public class ImageSprite extends Sprite
         dirty.add(_bounds);
 
         // give the dirty rectangle to the region manager
-        if (_spritemgr != null) {
-            _spritemgr.getRegionManager().addDirtyRegion(dirty);
+        if (_mgr != null) {
+            _mgr.getRegionManager().addDirtyRegion(dirty);
         }
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.50 2002/07/08 21:15:35 mdb Exp $
+// $Id: Sprite.java,v 1.51 2002/10/08 21:03:37 ray Exp $
 
 package com.threerings.media.sprite;
 
@@ -7,10 +7,9 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
-import java.util.ArrayList;
-
 import com.threerings.util.DirectionCodes;
 
+import com.threerings.media.AbstractMedia;
 import com.threerings.media.Log;
 import com.threerings.media.util.Path;
 import com.threerings.media.util.Pathable;
@@ -20,7 +19,7 @@ import com.threerings.media.util.Pathable;
  * view. A sprite has a position and orientation within the view, and can
  * be moved along a path.
  */
-public abstract class Sprite
+public abstract class Sprite extends AbstractMedia
     implements DirectionCodes, Pathable
 {
     /**
@@ -33,27 +32,7 @@ public abstract class Sprite
      */
     public Sprite ()
     {
-    }
-
-    /**
-     * Called by the sprite manager to initialize the sprite when a sprite
-     * is added to said manager for management.
-     *
-     * @param spritemgr the sprite manager.
-     */
-    protected void init (SpriteManager spritemgr)
-    {
-        _spritemgr = spritemgr;
-    }
-
-    /**
-     * Called by the sprite manager after the sprite is removed from
-     * service.  Derived classes may override this method but should be
-     * sure to call <code>super.shutdown()</code>.
-     */
-    protected void shutdown ()
-    {
-        _spritemgr = null;
+        super(new Rectangle());
     }
 
     /**
@@ -93,14 +72,6 @@ public abstract class Sprite
     }
 
     /**
-     * Returns the sprite's rendered bounds in pixels.
-     */
-    public Rectangle getBounds ()
-    {
-	return _bounds;
-    }
-
-    /**
      * Sprites have an orientation in one of the eight cardinal
      * directions: <code>NORTH</code>, <code>NORTHEAST</code>, etc.
      * Derived classes can choose to override this member function and
@@ -125,31 +96,7 @@ public abstract class Sprite
 	return _orient;
     }
 
-    /**
-     * Returns the render order of this sprite.
-     */
-    public int getRenderOrder ()
-    {
-        return _renderOrder;
-    }
-
-    /**
-     * Sets the render order associated with this animation.  Sprites can
-     * be rendered in two layers; those with negative render order and
-     * those with positive render order.  Someday sprites will be rendered
-     * in each layer according to render order.
-     */
-    public void setRenderOrder (int value)
-    {
-        _renderOrder = value;
-    }
-
-    /**
-     * Moves the sprite to the specified location.
-     *
-     * @param x the x-position in pixels.
-     * @param y the y-position in pixels.
-     */
+    // documentation inherited
     public void setLocation (int x, int y)
     {
         // start with our current bounds
@@ -165,24 +112,20 @@ public abstract class Sprite
 
         // grow the dirty rectangle to incorporate our new bounds and pass
         // the dirty region to our region manager
-        if (_spritemgr != null) {
+        if (_mgr != null) {
             // if our new bounds intersect our old bounds, grow a single
             // dirty rectangle to incorporate them both
             if (_bounds.intersects(dirty)) {
                 dirty.add(_bounds);
             } else {
                 // otherwise invalidate our new bounds separately
-                _spritemgr.getRegionManager().invalidateRegion(_bounds);
+                _mgr.getRegionManager().invalidateRegion(_bounds);
             }
-            _spritemgr.getRegionManager().addDirtyRegion(dirty);
+            _mgr.getRegionManager().addDirtyRegion(dirty);
         }
     }
 
-    /**
-     * Paint the sprite to the specified graphics context.
-     *
-     * @param gfx the graphics context.
-     */
+    // documentation inherited
     public void paint (Graphics2D gfx)
     {
         gfx.draw(_bounds);
@@ -302,24 +245,7 @@ public abstract class Sprite
         notifyObservers(new PathCompletedEvent(this, oldpath));
     }
 
-    /**
-     * Invalidate the sprite's bounding rectangle for later repainting.
-     */
-    public void invalidate ()
-    {
-        if (_spritemgr != null) {
-            _spritemgr.getRegionManager().invalidateRegion(_bounds);
-        }
-    }
-
-    /**
-     * This method is called periodically by the sprite manager to give
-     * the sprite a chance to update its state. The sprite manager will
-     * attempt to call this with the desired refresh rate, but will drop
-     * calls to tick if it can't keep up. Thus, a sprite should rely on
-     * the timestamp information to compute elapsed progress if it wishes
-     * to handle heavy loads gracefully.
-     */
+    // documentation inherited
     public void tick (long tickStamp)
     {
         // if we've a path, move the sprite along toward its destination
@@ -328,12 +254,7 @@ public abstract class Sprite
         }
     }
 
-    /**
-     * This is called if the sprite manager is paused for some length of
-     * time and then unpaused. Sprites should adjust any time stamps they
-     * are maintaining internally by the delta so that time maintains the
-     * illusion of flowing smoothly forward.
-     */
+    // documentation inherited
     public void fastForward (long timeDelta)
     {
         // fast forward any path we're following
@@ -360,20 +281,7 @@ public abstract class Sprite
      */
     public void addSpriteObserver (SpriteObserver obs)
     {
-	// create the observer list if it doesn't yet exist
-	if (_observers == null) {
-	    _observers = new ArrayList();
-	}
-
-	// make sure each observer observes only once
-	if (_observers.contains(obs)) {
-	    Log.info("Attempt to observe sprite already observing " +
-		     "[sprite=" + this + ", obs=" + obs + "].");
-	    return;
-	}
-
-	// add the observer
-	_observers.add(obs);
+        addObserver(obs);
     }
 
     /**
@@ -384,38 +292,19 @@ public abstract class Sprite
     protected void notifyObservers (SpriteEvent event)
     {
 	if (_observers != null) {
-            // we pass this notification off to the sprite manager so that
-            // it can dispatch all of the notifications at once after all
-            // ticking has been completed
-            _spritemgr.notifySpriteObservers(_observers, event);
+            _mgr.queueNotification(_observers, event);
         }
     }
 
-    /**
-     * Return a string representation of the sprite.
-     */
-    public String toString ()
-    {
-        StringBuffer buf = new StringBuffer("[");
-	toString(buf);
-        return buf.append("]").toString();
-    }
-
-    /**
-     * This should be overridden by derived classes (which should be sure
-     * to call <code>super.toString()</code>) to append the derived class
-     * specific sprite information to the string buffer.
-     */
+    // documentation inherited
     protected void toString (StringBuffer buf)
     {
-        buf.append("ox=").append(_ox);
+        super.toString(buf);
+        buf.append(", ox=").append(_ox);
         buf.append(", oy=").append(_oy);
         buf.append(", oxoff=").append(_oxoff);
         buf.append(", oyoff=").append(_oyoff);
     }
-
-    /** The sprite manager. */
-    protected SpriteManager _spritemgr;
 
     /** The location of the sprite's origin in pixel coordinates. If the
      * sprite positions itself via a hotspot that is not the upper left
@@ -429,18 +318,9 @@ public abstract class Sprite
      * its bounds.  */
     protected int _oxoff, _oyoff;
 
-    /** Our rendered bounds in pixel coordinates. */
-    protected Rectangle _bounds = new Rectangle();
-
     /** The orientation of this sprite. */
     protected int _orient = NONE;
 
     /** When moving, the path the sprite is traversing. */
     protected Path _path;
-
-    /** The render order of this sprite. */
-    protected int _renderOrder;
-
-    /** The sprite observers observing this sprite. */
-    protected ArrayList _observers;
 }

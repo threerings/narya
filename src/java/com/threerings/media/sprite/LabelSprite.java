@@ -1,5 +1,5 @@
 //
-// $Id: LabelSprite.java,v 1.3 2002/07/08 21:15:35 mdb Exp $
+// $Id: LabelSprite.java,v 1.4 2002/10/08 21:03:37 ray Exp $
 
 package com.threerings.media.sprite;
 
@@ -35,9 +35,9 @@ public class LabelSprite extends Sprite
     }
 
     // documentation inherited
-    protected void init (SpriteManager spritemgr)
+    protected void init ()
     {
-        super.init(spritemgr);
+        super.init();
 
         // size the bounds to fit our label
         Dimension size = _label.getSize();

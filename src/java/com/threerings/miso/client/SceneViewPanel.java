@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.44 2002/09/24 07:56:25 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.45 2002/10/08 21:03:37 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -169,7 +169,7 @@ public class SceneViewPanel extends VirtualMediaPanel
      */
     protected void paintBits (Graphics2D gfx, int layer, Rectangle dirty)
     {
-        _animmgr.renderAnimations(gfx, layer, dirty);
+        _animmgr.renderMedia(gfx, layer, dirty);
     }
 
     /**

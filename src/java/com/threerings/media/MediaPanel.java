@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.17 2002/06/25 17:31:16 mdb Exp $
+// $Id: MediaPanel.java,v 1.18 2002/10/08 21:03:37 ray Exp $
 
 package com.threerings.media;
 
@@ -371,8 +371,8 @@ public class MediaPanel extends JComponent
      */
     protected void paintBits (Graphics2D gfx, int layer, Rectangle dirty)
     {
-        _animmgr.renderAnimations(gfx, layer, dirty);
-        _spritemgr.renderSprites(gfx, layer, dirty);
+        _animmgr.renderMedia(gfx, layer, dirty);
+        _spritemgr.renderMedia(gfx, layer, dirty);
     }
 
     /** The frame manager with whom we register. */
