@@ -1,5 +1,5 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- $Id: bundle.xml,v 1.1 2001/11/29 00:21:15 mdb Exp $ -->
+<!-- $Id: bundle.xml,v 1.2 2002/02/07 02:53:19 shaper Exp $ -->
 
 <!-- Ground tile bundle tileset descriptions. -->
 <bundle>
@@ -18,6 +18,46 @@
       <widths>64</widths>
       <tileCounts>5</tileCounts>
       <passable>1, 0, 1, 1, 1</passable>
+    </tileset>
+
+    <tileset name="Cobble">
+      <imagePath>cobble.png</imagePath>
+      <heights>48</heights>
+      <widths>64</widths>
+      <tileCounts>3</tileCounts>
+      <passable>1, 1, 1</passable>
+    </tileset>
+
+    <tileset name="Dirt">
+      <imagePath>dirt.png</imagePath>
+      <heights>48</heights>
+      <widths>64</widths>
+      <tileCounts>3</tileCounts>
+      <passable>1, 1, 1</passable>
+    </tileset>
+
+    <tileset name="Sand">
+      <imagePath>sand.png</imagePath>
+      <heights>48</heights>
+      <widths>64</widths>
+      <tileCounts>3</tileCounts>
+      <passable>1, 1, 1</passable>
+    </tileset>
+
+    <tileset name="Wood Planks">
+      <imagePath>woodplanks.png</imagePath>
+      <heights>48</heights>
+      <widths>64</widths>
+      <tileCounts>3</tileCounts>
+      <passable>1, 1, 1</passable>
+    </tileset>
+
+    <tileset name="Seawater">
+      <imagePath>seawater.png</imagePath>
+      <heights>48</heights>
+      <widths>64</widths>
+      <tileCounts>5</tileCounts>
+      <passable>0, 0, 0, 0, 0</passable>
     </tileset>
   </base>
 
