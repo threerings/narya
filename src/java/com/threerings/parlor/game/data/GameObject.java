@@ -109,9 +109,10 @@ public class GameObject extends PlaceObject
     /** The player index of the creating player if this is a party game. */
     public int creator;
 
-    /**  The status of each of the players in the game. The status value
-     * is one of {@link #PLAYER_LEFT_GAME} or {@link
-     * #PLAYER_IN_PLAY}. */
+    /** If null, indicates that all present players are active, or for
+     * more complex games can be non-null to indicate the current status
+     * of each player in the game. The status value is one of
+     * {@link #PLAYER_LEFT_GAME} or {@link #PLAYER_IN_PLAY}. */
     public int[] playerStatus;
 
     /**
@@ -151,7 +152,7 @@ public class GameObject extends PlaceObject
     public boolean isActivePlayer (int pidx)
     {
         return (isOccupiedPlayer(pidx) &&
-                playerStatus != null && playerStatus[pidx] == PLAYER_IN_PLAY);
+            (playerStatus == null || playerStatus[pidx] == PLAYER_IN_PLAY));
     }
 
 
