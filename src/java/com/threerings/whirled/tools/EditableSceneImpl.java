@@ -1,5 +1,5 @@
 //
-// $Id: EditableSceneImpl.java,v 1.2 2001/11/13 02:25:36 mdb Exp $
+// $Id: EditableSceneImpl.java,v 1.3 2001/12/04 22:34:04 mdb Exp $
 
 package com.threerings.whirled.tools;
 
@@ -17,9 +17,9 @@ public class EditableSceneImpl
      * Creates an instance that will obtain data from the supplied scene
      * model and update it when changes are made.
      */
-    public EditableSceneImpl (SceneModel model)
+    public EditableSceneImpl (EditableSceneModel model)
     {
-        super(model, null);
+        super(model.sceneModel, null);
     }
 
     // documentation inherited
@@ -41,8 +41,35 @@ public class EditableSceneImpl
     }
 
     // documentation inherited
-    public SceneModel getSceneModel ()
+    public String getName ()
     {
-        return _model;
+        return _emodel.sceneName;
     }
+
+    // documentation inherited
+    public void setName (String name)
+    {
+        _emodel.sceneName = name;
+    }
+
+    // documentation inherited
+    public String[] getNeighborNames ()
+    {
+        return _emodel.neighborNames;
+    }
+
+    // documentation inherited
+    public void setNeighborNames (String[] neighborNames)
+    {
+        _emodel.neighborNames = neighborNames;
+    }
+
+    // documentation inherited
+    public EditableSceneModel getSceneModel ()
+    {
+        return _emodel;
+    }
+
+    /** A reference to our editable scene model. */
+    protected EditableSceneModel _emodel;
 }

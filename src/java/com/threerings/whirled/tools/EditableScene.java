@@ -1,5 +1,5 @@
 //
-// $Id: EditableScene.java,v 1.1 2001/11/12 20:56:56 mdb Exp $
+// $Id: EditableScene.java,v 1.2 2001/12/04 22:34:04 mdb Exp $
 
 package com.threerings.whirled.tools;
 
@@ -40,12 +40,32 @@ public interface EditableScene extends DisplayScene
      */
     public void setNeighborIds (int[] neighborIds);
 
-    /** 
-     * Implementations must provide a scene model that represents the
-     * current state of this editable scene in response to a call to this
-     * method. Whether they maintain an up to date scene model all along
-     * or generate one at the time this method is called is up to the
-     * implementation.
+    /**
+     * Returns the human readable name of this scene.
      */
-    public SceneModel getSceneModel ();
+    public String getName ();
+
+    /**
+     * Setse the human readable name of this scene.
+     */
+    public void setName (String name);
+
+    /**
+     * Returns the names of the neighbors of this scene.
+     */
+    public String[] getNeighborNames ();
+
+    /**
+     * Sets the names of the neighbors of this scene.
+     */
+    public void setNeighborNames (String[] neighborNames);
+
+    /** 
+     * Implementations must provide an editable scene model that
+     * represents the current state of this editable scene in response to
+     * a call to this method. Whether they maintain an up to date scene
+     * model all along or generate one at the time this method is called
+     * is up to the implementation.
+     */
+    public EditableSceneModel getSceneModel ();
 }

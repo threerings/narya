@@ -1,5 +1,5 @@
 //
-// $Id: EditableSpotScene.java,v 1.2 2001/11/20 04:18:11 mdb Exp $
+// $Id: EditableSpotScene.java,v 1.3 2001/12/04 22:34:04 mdb Exp $
 
 package com.threerings.whirled.tools.spot;
 
@@ -30,24 +30,24 @@ public interface EditableSpotScene
     /**
      * Adds a location to this scene.
      */
-    public void addLocation (Location location);
+    public void addLocation (EditableLocation location);
 
     /**
      * Removes the specified location from the scene.
      */
-    public void removeLocation (Location location);
+    public void removeLocation (EditableLocation location);
 
     /**
      * Adds a portal to this scene (it should be added appropriately to
      * both the location and portal arrays).
      */
-    public void addPortal (Portal portal);
+    public void addPortal (EditablePortal portal);
 
     /**
      * Removes a portal from this scene (it should be removed accordingly
      * from both the location and portal arrays).
      */
-    public void removePortal (Portal portal);
+    public void removePortal (EditablePortal portal);
 
     /** 
      * Implementations must provide a scene model that represents the
@@ -56,5 +56,5 @@ public interface EditableSpotScene
      * or generate one at the time this method is called is up to the
      * implementation.
      */
-    public SpotSceneModel getSpotSceneModel ();
+    public EditableSpotSceneModel getSpotSceneModel ();
 }

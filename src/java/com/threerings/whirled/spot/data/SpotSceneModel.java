@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneModel.java,v 1.4 2001/12/03 19:40:11 mdb Exp $
+// $Id: SpotSceneModel.java,v 1.5 2001/12/04 22:34:04 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -21,8 +21,8 @@ import com.threerings.whirled.data.SceneModel;
  */
 public class SpotSceneModel extends SceneModel
 {
-    /** The unique identifier of each location in this scene (including
-     * portals). */
+    /** The unique (within the scope of this scene) identifier of each
+     * location in this scene (including portals). */
     public int[] locationIds;
 
     /** The x coordinates of the locations in this scene (including
