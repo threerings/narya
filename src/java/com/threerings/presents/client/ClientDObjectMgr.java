@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.8 2001/10/12 00:03:03 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.9 2001/10/16 16:41:14 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -151,7 +151,7 @@ public class ClientDObjectMgr
      */
     protected void dispatchEvent (DEvent event)
     {
-        Log.info("Dispatch event: " + event);
+        // Log.info("Dispatch event: " + event);
 
         // look up the object on which we're dispatching this event
         DObject target = (DObject)_ocache.get(event.getTargetOid());
