@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.dobj,v 1.13 2002/09/18 18:33:20 mdb Exp $
+// $Id: GameObject.dobj,v 1.14 2002/09/20 04:53:42 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -34,7 +34,7 @@ public class GameObject extends PlaceObject
     public static final int CANCELLED = 3;
 
     /** Provides general game invocation services. */
-    public GameMarshaller service;
+    public GameMarshaller gameService;
 
     /** The game state, one of {@link #AWAITING_PLAYERS}, {@link #IN_PLAY},
      * {@link #GAME_OVER}, or {@link #CANCELLED}. */

@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.42 2002/09/20 02:30:11 ray Exp $
+// $Id: GameManager.java,v 1.43 2002/09/20 04:53:42 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -296,7 +296,7 @@ public class GameManager extends PlaceManager
         // create and fill in our game service object
         GameMarshaller service = (GameMarshaller)
             _invmgr.registerDispatcher(new GameDispatcher(this), false);
-        _gameobj.setService(service);
+        _gameobj.setGameService(service);
 
         // let the players of this game know that we're ready to roll (if
         // we have a specific set of players)
@@ -317,6 +317,15 @@ public class GameManager extends PlaceManager
                 ParlorSender.gameIsReady(bobj, gameOid);
             }
         }
+    }
+
+    // documentation inherited
+    protected void didShutdown ()
+    {
+        super.didShutdown();
+
+        // clear out our service registration
+        _invmgr.clearDispatcher(_gameobj.gameService);
     }
 
     // documentation inherited

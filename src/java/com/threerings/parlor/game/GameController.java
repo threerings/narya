@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.19 2002/09/18 19:26:05 mdb Exp $
+// $Id: GameController.java,v 1.20 2002/09/20 04:53:42 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -77,7 +77,7 @@ public abstract class GameController extends PlaceController
         _ctx.getClient().getInvoker().invokeLater(new Runnable() {
             public void run () {
                 // finally let the game manager know that we're ready to roll
-                _gobj.service.playerReady(_ctx.getClient());
+                _gobj.gameService.playerReady(_ctx.getClient());
             }
         });
     }
