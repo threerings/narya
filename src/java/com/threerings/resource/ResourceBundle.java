@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.2 2001/11/20 03:46:28 mdb Exp $
+// $Id: ResourceBundle.java,v 1.3 2002/07/19 20:12:23 shaper Exp $
 
 package com.threerings.resource;
 
@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import com.samskivert.io.NestableIOException;
+
 /**
  * A resource bundle provides access to the resources in a jar file.
  */
@@ -19,14 +21,10 @@ public class ResourceBundle
      * Constructs a resource bundle with the supplied jar file.
      *
      * @param source a file object that references our source jar file.
-     *
-     * @exception IOException thrown if an error occurs reading our jar
-     * file.
      */
     public ResourceBundle (File source)
-        throws IOException
     {
-        _source = new JarFile(source);
+        _source = source;
     }
 
     /**
@@ -45,12 +43,13 @@ public class ResourceBundle
     public InputStream getResource (String path)
         throws IOException
     {
+        resolveJarFile();
         // TBD: determine whether or not we need to convert the path into
         // a platform-dependent path if we're on Windows
-        JarEntry entry = _source.getJarEntry(path);
+        JarEntry entry = _jarSource.getJarEntry(path);
         InputStream stream = null;
         if (entry != null) {
-            stream = _source.getInputStream(entry);
+            stream = _jarSource.getInputStream(entry);
         }
         return stream;
     }
@@ -62,7 +61,12 @@ public class ResourceBundle
      */
     public boolean containsResource (String path)
     {
-        return (_source.getJarEntry(path) != null);
+        try {
+            resolveJarFile();
+            return (_jarSource.getJarEntry(path) != null);
+        } catch (IOException ioe) {
+            return false;
+        }
     }
 
     /**
@@ -70,10 +74,40 @@ public class ResourceBundle
      */
     public String toString ()
     {
-        return "[path=" + _source.getName() +
-            ", entries=" + _source.size() + "]";
+        try {
+            resolveJarFile();
+            return "[path=" + _jarSource.getName() +
+                ", entries=" + _jarSource.size() + "]";
+        } catch (IOException ioe) {
+            return "[file=" + _source + ", ioe=" + ioe + "]";
+        }
     }
 
+    /**
+     * Creates the internal jar file reference if we've not already got
+     * it; we do this lazily so as to avoid any jar- or zip-file-related
+     * antics until and unless doing so is required, and because the
+     * resource manager would like to be able to create bundles before the
+     * associated files have been fully downloaded.
+     */
+    protected void resolveJarFile ()
+        throws IOException
+    {
+        try {
+            if (_jarSource == null) {
+                _jarSource = new JarFile(_source);
+            }
+
+        } catch (IOException ioe) {
+            throw new NestableIOException(
+                "Failed to resolve resource bundle jar file " +
+                "[file=" + _source + "]", ioe);
+        }
+    }
+
+    /** The file from which we construct our jar file. */
+    protected File _source;
+
     /** The jar file from which we load resources. */
-    protected JarFile _source;
+    protected JarFile _jarSource;
 }

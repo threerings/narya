@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.13 2002/04/01 20:47:28 mdb Exp $
+// $Id: ResourceManager.java,v 1.14 2002/07/19 20:12:23 shaper Exp $
 
 package com.threerings.resource;
 
@@ -17,11 +17,14 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import org.apache.commons.io.StreamUtils;
 import com.samskivert.util.StringUtil;
+
+import com.threerings.resource.DownloadManager.DownloadDescriptor;
+import com.threerings.resource.DownloadManager.DownloadObserver;
 
 /**
  * The resource manager is responsible for maintaining a repository of
@@ -38,13 +41,15 @@ import com.samskivert.util.StringUtil;
  * locate a resource in the default resource set, it falls back to loading
  * the resource via the classloader (which will search the classpath).
  *
- * <p> The resource manager must be provided with the URL of a resource
- * definition file which describes these resource sets at construct
- * time. The definition file will be loaded and the resource bundles
- * defined within will be loaded relative to the resource definition URL.
- * The bundles will be cached in the user's home directory and only
- * reloaded when the source resources have been updated. The resource
- * definition file looks something like the following:
+ * <p> Applications that wish to make use of resource sets and their
+ * associated bundles must call {@link #initBundles} after constructing
+ * the resource manager, providing the URL of a resource definition file
+ * which describes these resource sets. The definition file will be loaded
+ * and the resource bundles defined within will be loaded relative to the
+ * resource definition URL.  The bundles will be cached in the user's home
+ * directory and only reloaded when the source resources have been
+ * updated. The resource definition file looks something like the
+ * following:
  *
  * <pre>
  * resource.set.default = sets/misc/config.jar: \
@@ -71,11 +76,35 @@ import com.samskivert.util.StringUtil;
 public class ResourceManager
 {
     /**
-     * Constructs a resource manager which will load resources as
-     * specified in the configuration file, the path to which is supplied
-     * via <code>configPath</code>. If resource sets are not needed and
-     * resources will only be loaded via the classpath, null may be passed
-     * in <code>resourceURL</code> and <code>configPath</code>.
+     * Provides facilities for notifying an observer of resource bundle
+     * download progress.
+     */
+    public interface BundleDownloadObserver
+    {
+        /**
+         * Called when the resource manager is about to check for an
+         * update of any of our resource sets.
+         */
+        public void checkingForUpdate ();
+
+        /**
+         * Called to inform the observer of ongoing progress toward
+         * completion of the overall bundle downloading task.  The caller
+         * is guaranteed to get at least one call reporting 100%
+         * completion.
+         */
+        public void downloadProgress (int percent);
+
+        /**
+         * Called if a failure occurs while checking for an update or
+         * downloading all resource sets.
+         */
+        public void downloadFailed (Exception e);
+    }
+
+    /**
+     * Constructs a resource manager which will load resources via the
+     * classloader, prepending <code>resourceRoot</code> to their path.
      *
      * @param resourceRoot the path to prepend to resource paths prior to
      * attempting to load them via the classloader. When resources are
@@ -85,15 +114,8 @@ public class ResourceManager
      * to isolate them from the rest of the files in the classpath. This
      * is not a platform dependent path (forward slash is always used to
      * separate path elements).
-     * @param resourceURL the base URL from which resources are loaded.
-     * Relative paths specified in the resource definition file will be
-     * loaded relative to this path. If this is null, the system property
-     * <code>resource_url</code> will be used, if available.
-     * @param configPath the path (relative to the resource URL) of the
-     * resource definition file.
      */
-    public ResourceManager (
-        String resourceRoot, String resourceURL, String configPath)
+    public ResourceManager (String resourceRoot)
     {
         // keep track of our root path
         _rootPath = resourceRoot;
@@ -107,7 +129,28 @@ public class ResourceManager
 
         // use the classloader that loaded us
         _loader = getClass().getClassLoader();
+    }
 
+    /**
+     * Initializes the bundle sets to be made available by this resource
+     * manager.  Applications that wish to make use of resource bundles
+     * should call this method after constructing the resource manager.
+     *
+     * @param resourceURL the base URL from which resources are loaded.
+     * Relative paths specified in the resource definition file will be
+     * loaded relative to this path. If this is null, the system property
+     * <code>resource_url</code> will be used, if available.
+     * @param configPath the path (relative to the resource URL) of the
+     * resource definition file.
+     * @param downloadObs the bundle download observer to notify of
+     * download progress and success or failure, or <code>null</code> if
+     * the caller doesn't care to be informed; note that in the latter
+     * case, the calling thread will block until bundle updating is
+     * complete.
+     */
+    public void initBundles (String resourceURL, String configPath,
+                             BundleDownloadObserver downloadObs)
+    {
         // if the resource URL wasn't provided, we try to figure it out
         // for ourselves
         if (resourceURL == null) {
@@ -142,6 +185,7 @@ public class ResourceManager
         Properties config = loadConfig(rurl, configPath);
 
         // resolve the configured resource sets
+        ArrayList dlist = new ArrayList();
         Enumeration names = config.propertyNames();
         while (names.hasMoreElements()) {
             String key = (String)names.nextElement();
@@ -149,8 +193,87 @@ public class ResourceManager
                 continue;
             }
             String setName = key.substring(RESOURCE_SET_PREFIX.length());
-            resolveResourceSet(rurl, setName, config.getProperty(key));
+            resolveResourceSet(rurl, setName, config.getProperty(key), dlist);
         }
+
+        // start the download, blocking if we've no observer
+        DownloadManager dlmgr = new DownloadManager();
+        if (downloadObs == null) {
+            downloadBlocking(dlmgr, dlist);
+        } else {
+            downloadNonBlocking(dlmgr, dlist, downloadObs);
+        }
+    }
+
+    /**
+     * Downloads the files in the supplied download list, blocking the
+     * calling thread until the download is complete or a failure has
+     * occurred.
+     */
+    protected void downloadBlocking (DownloadManager dlmgr, List dlist)
+    {
+        // create an object to wait on while the download takes place
+        final Object lock = new Object();
+
+        // pass the descriptors on to the download manager
+        dlmgr.download(dlist, true, new DownloadObserver() {
+            public void resolvingDownloads () {
+                // nothing for now
+            }
+
+            public void downloadProgress (int percent) {
+                if (percent == 100) {
+                    synchronized (lock) {
+                        // wake things up as the download is finished
+                        lock.notify();
+                    }
+                }
+            }
+
+            public void downloadFailed (DownloadDescriptor desc, Exception e) {
+                Log.warning("Failed to download file " +
+                            "[desc=" + desc + ", e=" + e + "].");
+                synchronized (lock) {
+                    // wake things up since we're fragile and so a
+                    // single failure means all is booched
+                    lock.notify();
+                }
+            }
+        });
+
+        try {
+            synchronized (lock) {
+                // block until the download has completed
+                lock.wait();
+            }
+
+        } catch (InterruptedException ie) {
+            Log.warning("Thread interrupted while waiting for download " +
+                        "to complete [ie=" + ie + "].");
+        }
+    }
+
+    /**
+     * Downloads the files in the supplied download list asynchronously,
+     * notifying the download observer of ongoing progress.
+     */
+    protected void downloadNonBlocking (
+        DownloadManager dlmgr, List dlist, final BundleDownloadObserver obs)
+    {
+        // pass the descriptors on to the download manager
+        dlmgr.download(dlist, true, new DownloadObserver() {
+            public void resolvingDownloads () {
+                obs.checkingForUpdate();
+            }
+
+            public void downloadProgress (int percent) {
+                obs.downloadProgress(percent);
+            }
+
+            public void downloadFailed (DownloadDescriptor desc, Exception e) {
+                obs.downloadFailed(e);
+            }
+        });
     }
 
     /**
@@ -262,7 +385,7 @@ public class ResourceManager
      * information.
      */
     protected void resolveResourceSet (
-        URL resourceURL, String setName, String definition)
+        URL resourceURL, String setName, String definition, List dlist)
     {
         StringTokenizer tok = new StringTokenizer(definition, ":");
         ArrayList set = new ArrayList();
@@ -280,73 +403,18 @@ public class ResourceManager
                 // compute the path to the cache file for this bundle
                 File cfile = new File(genCachePath(setName, path));
 
-                // download the resource bundle from the specified URL
-                URLConnection ucon = burl.openConnection();
-                boolean readData = true;
+                // slap this on the list for retrieval or update by the
+                // download manager
+                dlist.add(new DownloadDescriptor(burl, cfile));
 
-                // set the last-modified time we're looking for
-                long lastModified = 0;
-                if (cfile.exists()) {
-                    lastModified = cfile.lastModified();
-                    ucon.setIfModifiedSince(lastModified);
-                }
-
-                // connect the URL
-                ucon.connect();
-
-                // if this is an HTTP connection, we want to use
-                // if-modified-since
-                if (lastModified != 0) {
-                    if (ucon instanceof HttpURLConnection) {
-                        HttpURLConnection hucon = (HttpURLConnection)ucon;
-                        readData = (hucon.getResponseCode() !=
-                                    HttpURLConnection.HTTP_NOT_MODIFIED);
-
-                    } else if (burl.getProtocol().equals("file")) {
-                        // do some jockeying for file: URLs to determine
-                        // whether or not the data is newer
-                        File tfile = new File(burl.getPath());
-                        readData = (tfile.lastModified() > lastModified);
-                    }
-                }
-
-                // if this is a URL request, we want to keep track of the
-                // last modified time
-                if (ucon instanceof HttpURLConnection) {
-                    HttpURLConnection hucon = (HttpURLConnection)ucon;
-                    lastModified = hucon.getLastModified();
-                } else {
-                    lastModified = 0;
-                }
-
-                // read the data from the URL into the cache file
-                if (readData) {
-                    Log.info("Downloading bundle [url=" + burl + "].");
-                    InputStream in = ucon.getInputStream();
-                    FileOutputStream out = new FileOutputStream(cfile);
-                    // pipe the input stream into the output stream
-                    StreamUtils.pipe(in, out);
-                    in.close();
-                    out.close();
-                    // if we have a last modified time, we want to adjust
-                    // our cache file accordingly
-                    if (lastModified != 0) {
-                        cfile.setLastModified(lastModified);
-                    }
-                }
-
-                // finally add this newly cached file to the set as a
-                // resource bundle
+                // finally, add the file that will be cached to the set as
+                // a resource bundle
                 set.add(new ResourceBundle(cfile));
 
             } catch (MalformedURLException mue) {
                 Log.warning("Unable to create URL for resource " +
                             "[set=" + setName + ", path=" + path +
                             ", error=" + mue + "].");
-
-            } catch (IOException ioe) {
-                Log.warning("Error processing resource set entry " +
-                            "[url=" + burl + ", error=" + ioe + "].");
             }
         }
 
