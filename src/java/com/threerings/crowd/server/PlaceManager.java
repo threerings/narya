@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.10 2001/08/21 01:07:18 mdb Exp $
+// $Id: PlaceManager.java,v 1.11 2001/08/21 01:17:25 shaper Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -227,7 +227,7 @@ public class PlaceManager implements Subscriber
      * that makes it easier for derived classes to add to the string
      * representation.
      *
-     * @see toString(StringBuffer)
+     * @see #toString(StringBuffer)
      */
     public String toString ()
     {
