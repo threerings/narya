@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorManager.java,v 1.2 2001/12/19 10:02:53 shaper Exp $
+// $Id: SimulatorManager.java,v 1.3 2001/12/19 23:30:47 shaper Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import com.samskivert.util.Config;
 
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.server.InvocationManager;
@@ -21,7 +20,6 @@ import com.threerings.crowd.server.PlaceManager;
 import com.threerings.crowd.server.PlaceRegistry;
 import com.threerings.crowd.server.PlaceRegistry.CreationObserver;
 
-import com.threerings.parlor.game.GameCodes;
 import com.threerings.parlor.game.GameConfig;
 import com.threerings.parlor.game.GameManager;
 import com.threerings.parlor.game.GameObject;
@@ -35,7 +33,7 @@ import com.threerings.micasa.simulator.client.SimulatorCodes;
  * services on the server side.
  */
 public class SimulatorManager
-    implements GameCodes, SimulatorCodes
+    implements SimulatorCodes
 {
     /**
      * Initializes the simulator manager manager. This should be called by
@@ -71,6 +69,7 @@ public class SimulatorManager
         {
             // save off game request info
             _source = source;
+            _config = config;
             _simClass = simClass;
             _playerCount = playerCount;
         
@@ -160,7 +159,7 @@ public class SimulatorManager
 
                 // give the simulant its body
                 BodyObject bobj = (BodyObject)_sims.get(ii - 1);
-                sim.setBodyObject(bobj);
+                sim.init(bobj, _config);
 
                 // give the simulant a chance to engage in place antics
                 sim.willEnterPlace(_gobj);
@@ -174,12 +173,6 @@ public class SimulatorManager
                                 "[e=" + e + "].");
                     return;
                 }
-
-                // let the game manager know that the simulant's ready
-                MessageEvent mevt = new MessageEvent(
-                    _gobj.getOid(), PLAYER_READY_NOTIFICATION, null);
-                mevt.setSourceOid(bobj.getOid());
-                SimulatorServer.omgr.postEvent(mevt);
             }
         }
 
@@ -197,6 +190,9 @@ public class SimulatorManager
 
         /** The simulant class instantiated on game creation. */
         protected String _simClass;
+
+        /** The game config object. */
+        protected GameConfig _config;
 
         /** The body object of the player requesting the game creation. */
         protected BodyObject _source;

@@ -1,10 +1,9 @@
 //
-// $Id: SimulatorServer.java,v 1.1 2001/12/19 09:32:02 shaper Exp $
+// $Id: SimulatorServer.java,v 1.2 2001/12/19 23:30:47 shaper Exp $
 
 package com.threerings.micasa.simulator.server;
 
 import com.threerings.crowd.server.CrowdServer;
-import com.threerings.parlor.server.ParlorManager;
 
 import com.threerings.micasa.Log;
 
@@ -14,9 +13,6 @@ import com.threerings.micasa.Log;
  */
 public class SimulatorServer extends CrowdServer
 {
-    /** The parlor manager in operation on this server. */
-    public static ParlorManager parmgr = new ParlorManager();
-
     /** The simulator manager in operation on this server. */
     public static SimulatorManager simmgr = new SimulatorManager();
 
@@ -29,8 +25,7 @@ public class SimulatorServer extends CrowdServer
         // do the base server initialization
         super.init();
 
-        // initialize our managers
-        parmgr.init(config, invmgr);
+        // initialize the manager
         simmgr.init(config, invmgr);
 
         Log.info("Simulator server initialized.");
