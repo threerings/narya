@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.3 2001/11/28 01:13:13 mdb Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.4 2001/11/29 00:18:15 mdb Exp $
 
 package com.threerings.miso.tools.scene;
 
@@ -59,7 +59,7 @@ public class EditableMisoSceneImpl
     // documentation inherited
     public void setBaseTile (int x, int y, BaseTile tile, int fqTileId)
     {
-        _base.setTile(x, y, tile);
+        _base.setTile(y, x, tile);
         // update the model as well
         _model.baseTileIds[_model.width*y + x] = fqTileId;
     }
@@ -67,7 +67,7 @@ public class EditableMisoSceneImpl
     // documentation inherited
     public void setFringeTile (int x, int y, Tile tile, int fqTileId)
     {
-        _fringe.setTile(x, y, tile);
+        _fringe.setTile(y, x, tile);
         // update the model as well
         _model.fringeTileIds[_model.width*y + x] = fqTileId;
     }
@@ -81,7 +81,7 @@ public class EditableMisoSceneImpl
         if (prev != null) {
             clearObjectTile(x, y);
         }
-        _object.setTile(x, y, tile);
+        _object.setTile(y, x, tile);
         // stick this value into our non-sparse object layer
         _objectTileIds[_model.width*y + x] = fqTileId;
     }
@@ -89,7 +89,7 @@ public class EditableMisoSceneImpl
     // documentation inherited
     public void clearBaseTile (int x, int y)
     {
-        _base.setTile(x, y, _defaultBaseTile);
+        _base.setTile(y, x, _defaultBaseTile);
         // clear it out in the model
         _model.baseTileIds[_model.width*y + x] = _defaultBaseTileId;
     }
@@ -97,7 +97,7 @@ public class EditableMisoSceneImpl
     // documentation inherited
     public void clearFringeTile (int x, int y)
     {
-        _fringe.setTile(x, y, null);
+        _fringe.setTile(y, x, null);
         // clear it out in the model
         _model.fringeTileIds[_model.width*y + x] = 0;
     }
@@ -115,7 +115,7 @@ public class EditableMisoSceneImpl
     }
 
     // documentation inherited
-    public MisoSceneModel getModel ()
+    public MisoSceneModel getMisoSceneModel ()
     {
         // we need to flush the object layer to the model prior to
         // returning it

@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoScene.java,v 1.7 2001/11/28 01:13:13 mdb Exp $
+// $Id: EditableMisoScene.java,v 1.8 2001/11/29 00:18:15 mdb Exp $
 
 package com.threerings.miso.tools.scene;
 
@@ -96,5 +96,5 @@ public interface EditableMisoScene
      * Returns a reference to the miso scene model that reflects the
      * changes that have been made to this editable miso scene.
      */
-    public MisoSceneModel getModel ();
+    public MisoSceneModel getMisoSceneModel ();
 }
