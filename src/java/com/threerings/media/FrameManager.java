@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.54 2004/10/23 17:36:32 mdb Exp $
+// $Id: FrameManager.java,v 1.55 2004/10/28 17:21:56 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -615,7 +615,12 @@ public abstract class FrameManager
 
             // translate into the components coordinate system and render
             g.translate(_tbounds.x, _tbounds.y);
-            comp.paint(g);
+            try {
+                comp.paint(g);
+            } catch (Exception e) {
+                Log.warning("Component choked while rendering.");
+                Log.logStackTrace(e);
+            }
             g.translate(-_tbounds.x, -_tbounds.y);
         }
     }
