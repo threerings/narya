@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.20 2001/10/23 02:03:49 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.21 2001/10/24 00:55:08 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -25,8 +25,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     /**
      * Construct the panel and initialize it with a context.
      */
-    public ViewerSceneViewPanel (
-	ViewerContext ctx, SpriteManager spritemgr, CharacterManager charmgr)
+    public ViewerSceneViewPanel (ViewerContext ctx, SpriteManager spritemgr)
     {
 	super(ctx.getConfig(), spritemgr);
 
@@ -35,21 +34,25 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         // create an animation manager for this panel
   	_animmgr = new AnimationManager(spritemgr, this);
 
+        // load up the initial scene
+        prepareStartingScene();
+
+        // construct the character manager from which we obtain sprites
+        CharacterManager charmgr = new CharacterManager(
+            ctx.getConfig(), ctx.getTileManager(), _scenemodel);
+
+        // create the manipulable sprite
+        _sprite = createSprite(spritemgr, charmgr, TSID_CHAR_USER);
+
+        // create the decoy sprites
+        createDecoys(spritemgr, charmgr);
+
         // listen to the desired events
 	addMouseListener(new MouseAdapter() {
             public void mousePressed (MouseEvent e) {
                 ViewerSceneViewPanel.this.mousePressed(e);
             }
         });
-
-        // load up the initial scene
-        prepareStartingScene();
-
-        // create the manipulable sprite
-        _sprite = createSprite(spritemgr, charmgr);
-
-        // create the decoy sprites
-        createDecoys(spritemgr, charmgr);
 
 	PerformanceMonitor.register(this, "paint", 1000);
     }
@@ -58,9 +61,9 @@ public class ViewerSceneViewPanel extends SceneViewPanel
      * Creates a new sprite.
      */
     protected AmbulatorySprite createSprite (
-        SpriteManager spritemgr, CharacterManager charmgr)
+        SpriteManager spritemgr, CharacterManager charmgr, int tsid)
     {
-        AmbulatorySprite s = charmgr.getCharacter(TSID_CHAR);
+        AmbulatorySprite s = charmgr.getCharacter(tsid);
         if (s != null) {
             s.setLocation(300, 300);
             s.addSpriteObserver(this);
@@ -78,7 +81,8 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     {
         _decoys = new AmbulatorySprite[NUM_DECOYS];
         for (int ii = 0; ii < NUM_DECOYS; ii++) {
-            if ((_decoys[ii] = createSprite(spritemgr, charmgr)) != null) {
+            _decoys[ii] = createSprite(spritemgr, charmgr, TSID_CHAR);
+            if (_decoys[ii] != null) {
                 createRandomPath(_decoys[ii]);
             }
         }
@@ -153,8 +157,6 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         do {
             x = RandomUtil.getInt(d.width);
             y = RandomUtil.getInt(d.height);
-            // Log.info("Moving sprite [s=" + s + ", x=" + x +
-            // ", y=" + y + "].");
         } while (!createPath(s, x, y));
     }
 
@@ -163,7 +165,6 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     {
         if (event instanceof PathCompletedEvent) {
             AmbulatorySprite s = (AmbulatorySprite)event.getSprite();
-            // Log.info("Path completed [sprite=" + s + "].");
 
             if (s != _sprite) {
                 // move the sprite to a new random location
@@ -173,13 +174,16 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     }
 
     /** The number of decoy characters milling about. */
-    protected static final int NUM_DECOYS = 10;
+    protected static final int NUM_DECOYS = 2;
 
-    /** The tileset id for the character tiles. */
+    /** The tileset id for the decoy character tiles. */
     protected static final int TSID_CHAR = 1011;
 
+    /** The tileset id for the user character tiles. */
+    protected static final int TSID_CHAR_USER = 1012;
+
     /** The animation manager. */
-    AnimationManager _animmgr;
+    protected AnimationManager _animmgr;
 
     /** The sprite we're manipulating within the view. */
     protected AmbulatorySprite _sprite;

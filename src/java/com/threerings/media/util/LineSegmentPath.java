@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.11 2001/10/12 00:36:03 shaper Exp $
+// $Id: LineSegmentPath.java,v 1.12 2001/10/24 00:55:08 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -9,21 +9,22 @@ import java.awt.Graphics2D;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.samskivert.util.StringUtil;
 import com.threerings.media.util.MathUtil;
 
 /**
- * The <code>LineSegmentPath</code> class is used to cause a sprite to
- * follow a path that is made up of a sequence of line segments. There
- * must be at least two nodes in any worthwhile path. The direction of the
- * first node in the path is meaningless since the sprite begins at that
+ * The line segment path is used to cause a sprite to follow a path
+ * that is made up of a sequence of line segments. There must be at
+ * least two nodes in any worthwhile path. The direction of the first
+ * node in the path is meaningless since the sprite begins at that
  * node and will therefore never be heading towards it.
  */
 public class LineSegmentPath implements Path
 {
     /**
-     * Construct a <code>LineSegmentPath</code> object.
+     * Constructs a line segment path.
      */
     public LineSegmentPath ()
     {
@@ -31,45 +32,17 @@ public class LineSegmentPath implements Path
     }
 
     /**
-     * Construct a <code>LineSegmentPath</code> object with the specified
-     * starting node coordinates.  An arbitrary direction will be assigned
-     * to the starting node.
+     * Constructs a line segment path with the specified list of
+     * points.  An arbitrary direction will be assigned to the
+     * starting node.
      *
      * @param x the starting node x-position.
      * @param y the starting node y-position.
      */
-    public LineSegmentPath (int x, int y)
+    public LineSegmentPath (List points)
     {
         _nodes = new ArrayList();
-
-        // add the starting node with an arbitrarily chosen direction
-        // since direction is meaningless here
-        addNode(x, y, Sprite.DIR_NORTH);
-    }
-
-    /**
-     * Add a node to the path with the specified destination point and
-     * facing direction.
-     *
-     * @param x the x-position.
-     * @param y the y-position.
-     * @param dir the facing direction.
-     */
-    public void addNode (int x, int y, int dir)
-    {
-        _nodes.add(new PathNode(x, y, dir));
-    }
-
-    /**
-     * Add a node to the path with the specified destination point. An
-     * arbitrary direction will be assigned to the node.
-     *
-     * @param x the x-position.
-     * @param y the y-position.
-     */
-    public void addNode (int x, int y)
-    {
-        _nodes.add(new PathNode(x, y, Sprite.DIR_NORTH));
+        createPath(points);
     }
 
     /**
@@ -132,7 +105,7 @@ public class LineSegmentPath implements Path
         _niter = _nodes.iterator();
 
 	// pretend like we were previously heading to our starting position
-        _dest = (PathNode)_niter.next();
+        _dest = getNextNode();
 
         // begin traversing the path
         headToNextNode(sprite, timestamp, timestamp);
@@ -169,6 +142,12 @@ public class LineSegmentPath implements Path
         return false;
     }
 
+    /**
+     * Place the sprite moving along the path at the end of the
+     * previous path node, face it appropriately for the next node,
+     * and start it on its way.  Returns whether the sprite position
+     * moved.
+     */
     protected boolean headToNextNode (Sprite sprite, long startstamp, long now)
     {
         // check to see if we've completed our path
@@ -183,7 +162,7 @@ public class LineSegmentPath implements Path
         _src = _dest;
 
         // pop the next node off the path
-        _dest = (PathNode)_niter.next();
+        _dest = getNextNode();
 
         // adjust the sprite's orientation
         sprite.setOrientation(_dest.dir);
@@ -205,6 +184,7 @@ public class LineSegmentPath implements Path
         return updatePosition(sprite, now);
     }
 
+    // documentation inherited
     public void paint (Graphics2D gfx)
     {
 	gfx.setColor(Color.red);
@@ -219,9 +199,77 @@ public class LineSegmentPath implements Path
 	}
     }
 
+    // documentation inherited
     public String toString ()
     {
         return StringUtil.toString(_nodes.iterator());
+    }
+
+    /**
+     * Populate the path with the path nodes that lead the sprite from
+     * its starting position to the given destination coordinates
+     * following the given list of screen coordinates.
+     */
+    protected void createPath (List points)
+    {
+        Point last = null;
+        int size = points.size();
+        for (int ii = 0; ii < size; ii++) {
+            Point p = (Point)points.get(ii);
+
+            int dir = (ii == 0) ? Sprite.DIR_NORTH : getDirection(last, p);
+            addNode(p.x, p.y, dir);
+            last = p;
+        }
+    }        
+
+    /**
+     * Add a node to the path with the specified destination point and
+     * facing direction.
+     *
+     * @param x the x-position.
+     * @param y the y-position.
+     * @param dir the facing direction.
+     */
+    protected void addNode (int x, int y, int dir)
+    {
+        _nodes.add(new PathNode(x, y, dir));
+    }
+
+    /**
+     * Gets the next node in the path.
+     */
+    protected PathNode getNextNode ()
+    {
+        return (PathNode)_niter.next();
+    }        
+
+    /**
+     * Returns the direction that point <code>b</code> lies in from
+     * point <code>a</code> as one of the <code>Sprite</code>
+     * direction constants.
+     */
+    protected int getDirection (Point a, Point b)
+    {
+        if (a.x == b.x && a.y > b.y) {
+            return Sprite.DIR_NORTH;
+        } else if (a.x < b.x && a.y > b.y) {
+            return Sprite.DIR_NORTHEAST;
+        } else if (a.x > b.x && a.y == b.y) {
+            return Sprite.DIR_EAST;
+        } else if (a.x > b.x && a.y < b.y) {
+            return Sprite.DIR_SOUTHEAST;
+        } else if (a.x == b.x && a.y < b.y) {
+            return Sprite.DIR_SOUTH;
+        } else if (a.x > b.x && a.y < b.y) {
+            return Sprite.DIR_SOUTHWEST;
+        } else if (a.x > b.x && a.y == b.y) {
+            return Sprite.DIR_WEST;
+        } else if (a.x > b.x && a.y > b.y) {
+            return Sprite.DIR_NORTHWEST;
+        }
+
+        return Sprite.DIR_NONE;
     }
 
     /** The nodes that make up the path. */

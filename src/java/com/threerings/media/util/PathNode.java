@@ -1,5 +1,5 @@
 //
-// $Id: PathNode.java,v 1.5 2001/09/05 00:40:33 shaper Exp $
+// $Id: PathNode.java,v 1.6 2001/10/24 00:55:08 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -35,9 +35,20 @@ public class PathNode
     public String toString ()
     {
         StringBuffer buf = new StringBuffer();
-        buf.append("[x=").append(loc.x);
+        buf.append("[");
+        toString(buf);
+        return buf.append("]").toString();
+    }
+
+    /**
+     * This should be overridden by derived classes (which should be sure
+     * to call <code>super.toString()</code>) to append the derived class
+     * specific path node information to the string buffer.
+     */
+    public void toString (StringBuffer buf)
+    {
+        buf.append("x=").append(loc.x);
         buf.append(", y=").append(loc.y);
         buf.append(", dir=").append(dir);
-        return buf.append("]").toString();
     }
 }

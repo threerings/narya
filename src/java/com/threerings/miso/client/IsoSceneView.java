@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.66 2001/10/23 02:04:07 shaper Exp $
+// $Id: IsoSceneView.java,v 1.67 2001/10/24 00:55:08 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -13,21 +13,21 @@ import java.util.*;
 import com.samskivert.util.HashIntMap;
 
 import com.threerings.media.sprite.*;
-import com.threerings.media.sprite.DirtyItemList.DirtyItem;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.ObjectTile;
 
 import com.threerings.miso.Log;
+import com.threerings.miso.scene.DirtyItemList.DirtyItem;
 import com.threerings.miso.scene.util.*;
 
 /**
- * The <code>IsoSceneView</code> provides an isometric view of a
- * particular scene.
+ * The iso scene view provides an isometric view of a particular
+ * scene.
  */
 public class IsoSceneView implements SceneView
 {
     /**
-     * Construct an <code>IsoSceneView</code> object.
+     * Constructs an iso scene view.
      *
      * @param spritemgr the sprite manager.
      * @param model the data model.
@@ -190,7 +190,7 @@ public class IsoSceneView implements SceneView
     }
 
     /**
-     * Render the scene to the given graphics context.
+     * Renders the scene to the given graphics context.
      *
      * @param gfx the graphics context.
      */
@@ -236,21 +236,19 @@ public class IsoSceneView implements SceneView
      */
     protected void renderDirtyItems (Graphics2D gfx)
     {
+        // Log.info("renderDirtyItems");
+
         // sort the dirty sprites and objects visually back-to-front
-        int size = _dirtyItems.size();
-        DirtyItem items[] = new DirtyItem[size];
-        _dirtyItems.toArray(items);
-        Arrays.sort(items, IsoUtil.DIRTY_COMP);
+        DirtyItem items[] = _dirtyItems.sort();
 
         // merge all dirty rectangles for each item into a single
         // rectangle before painting
         Rectangle dirtyRect = new Rectangle();
         DirtyItem cur = null, last = null;
-        for (int ii = 0; ii < size; ii++) {
+        for (int ii = 0; ii < items.length; ii++) {
             cur = items[ii];
 
-            if (last == null ||
-                (cur.x != last.x || cur.y != last.y)) {
+            if (last == null || !cur.equals(last)) {
 
                 if (last != null) {
                     // paint the item with its full dirty rectangle
@@ -590,16 +588,13 @@ public class IsoSceneView implements SceneView
 
         int size = _dirtySprites.size();
         for (int ii = 0; ii < size; ii++) {
-            Sprite sprite = (Sprite)_dirtySprites.get(ii);
-
-            // get the sprite's position in tile coordinates
-            Point tpos = new Point();
-            IsoUtil.screenToTile(_model, sprite.getX(), sprite.getY(), tpos);
+            AmbulatorySprite sprite = (AmbulatorySprite)_dirtySprites.get(ii);
 
             // get the dirty portion of the sprite
             Rectangle drect = sprite.getBounds().intersection(r);
 
-            _dirtyItems.appendDirtySprite(sprite, tpos.x, tpos.y, drect);
+            _dirtyItems.appendDirtySprite(
+                sprite, sprite.getTileX(), sprite.getTileY(), drect);
             // Log.info("Dirtied item: " + sprite);
         }
 
@@ -633,78 +628,18 @@ public class IsoSceneView implements SceneView
             return null;
         }
 
-	// constrain destination pixels to fine coordinates
-	Point fpos = new Point();
-	IsoUtil.screenToFull(_model, x, y, fpos);
+        // get the destination tile coordinates
+        Point dest = new Point();
+        IsoUtil.screenToTile(_model, x, y, dest);
 
-	// calculate tile coordinates for start and end position
-	Point stpos = new Point();
-	IsoUtil.screenToTile(_model, sprite.getX(), sprite.getY(), stpos);
-	int tbx = IsoUtil.fullToTile(fpos.x);
-	int tby = IsoUtil.fullToTile(fpos.y);
-
-        // Log.info("Seeking path [sx=" + stpos.x + ", sy=" + stpos.y +
-        // ", dx=" + tbx + ", dy=" + tby + " ,fdx=" + fpos.x +
-        // ", fdy=" + fpos.y + "].");
-
-        // get a reasonable path from start to end
-	List tilepath = AStarPathUtil.getPath(
+        // get a reasonable tile path through the scene
+	List points = AStarPathUtil.getPath(
             _scene.getBaseLayer(), _model.scenewid, _model.scenehei,
-            sprite, stpos.x, stpos.y, tbx, tby);
-	if (tilepath == null) {
-	    return null;
-	}
+            sprite, sprite.getTileX(), sprite.getTileY(), dest.x, dest.y);
 
-	// TODO: make more visually appealing path segments from start
-	// to second tile, and penultimate to ultimate tile.
-
-	// construct path with starting screen position
-        LineSegmentPath path =
-            new LineSegmentPath(sprite.getX(), sprite.getY());
-
-	// add all nodes on the calculated path
-	Point nspos = new Point();
-	Point prev = stpos;
-	int size = tilepath.size();
-	for (int ii = 1; ii < size - 1; ii++) {
-	    Point n = (Point)tilepath.get(ii);
-
-	    // determine the direction this node lies in from the
-	    // previous node
-	    int dir = IsoUtil.getIsoDirection(prev.x, prev.y, n.x, n.y);
-
-	    // determine the node's position in screen pixel coordinates 
-	    IsoUtil.tileToScreen(_model, n.x, n.y, nspos);
-
-	    // add the node to the path, wandering through the middle
-	    // of each tile in the path for now
-	    path.addNode(nspos.x + _model.tilehwid,
-			 nspos.y + _model.tilehhei, dir);
-
-	    prev = n;
-	}
-
-	// get the final destination point's screen coordinates
-	// constrained to the closest full coordinate
-	Point spos = new Point();
-	IsoUtil.fullToScreen(_model, fpos.x, fpos.y, spos);
-
-	// get the direction we're to face while heading toward the end
-	int dir;
-	if (prev == stpos) {
-	    // if our destination is within our origination tile,
-	    // direction is based on fine coordinates
-	    dir = IsoUtil.getDirection(
-                _model, sprite.getX(), sprite.getY(), spos.x, spos.y);
-	} else {
-	    // else it's based on the last tile we traversed
-	    dir = IsoUtil.getIsoDirection(prev.x, prev.y, tbx, tby);
-	}
-
-	// add the final destination path node
-	path.addNode(spos.x, spos.y, dir);
-
-        return path;
+	// construct a path object to guide the sprite on its merry way
+        return (points == null) ? null :
+            new TilePath(_model, sprite, points, x, y);
     }
 
     /** The stroke used to draw dirty rectangles. */

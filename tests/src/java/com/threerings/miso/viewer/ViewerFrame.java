@@ -1,5 +1,5 @@
 //
-// $Id: ViewerFrame.java,v 1.23 2001/10/23 02:03:49 shaper Exp $
+// $Id: ViewerFrame.java,v 1.24 2001/10/24 00:55:08 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -9,7 +9,6 @@ import com.threerings.media.sprite.SpriteManager;
 import com.threerings.media.tile.TileManager;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.scene.CharacterManager;
 import com.threerings.miso.viewer.util.ViewerContext;
 
 /**
@@ -35,13 +34,9 @@ public class ViewerFrame extends JFrame
         SpriteManager spritemgr = new SpriteManager();
         TileManager tilemgr = ctx.getTileManager();
 
-        // construct the character manager from which we obtain our sprite
-        CharacterManager charmgr = new CharacterManager(
-            ctx.getConfig(), tilemgr);
-
 	// set up the scene view panel with a default scene
         ViewerSceneViewPanel svpanel =
-	    new ViewerSceneViewPanel(ctx, spritemgr, charmgr);
+	    new ViewerSceneViewPanel(ctx, spritemgr);
 
 	// add the main panel to the frame
 	getContentPane().add(svpanel);

@@ -1,13 +1,11 @@
 //
-// $Id: IsoUtil.java,v 1.12 2001/10/22 18:21:41 shaper Exp $
+// $Id: IsoUtil.java,v 1.13 2001/10/24 00:55:08 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
 import java.awt.*;
-import java.util.Comparator;
 
 import com.threerings.media.sprite.Sprite;
-import com.threerings.media.sprite.DirtyItemList.DirtyItem;
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.util.MathUtil;
 
@@ -20,9 +18,6 @@ import com.threerings.miso.scene.*;
  */
 public class IsoUtil
 {
-    /** The dirty item comparator used to sort dirty items back to front. */
-    public static final Comparator DIRTY_COMP = new DirtyItemComparator();
-
     /**
      * Returns a polygon bounding all footprint tiles of the given
      * object tile.
@@ -399,87 +394,4 @@ public class IsoUtil
 
     /** Multiplication factor to embed tile coords in full coords. */
     protected static final int FULL_TILE_FACTOR = 100;
-
-    /**
-     * A comparator class for use in sorting the dirty sprites and
-     * objects in a scene in ascending x- and y-coordinate order
-     * suitable for rendering in the isometric view with proper visual
-     * results.
-     */
-    public static class DirtyItemComparator implements Comparator
-    {
-        public int compare (Object a, Object b)
-        {
-            DirtyItem da = (DirtyItem)a;
-            DirtyItem db = (DirtyItem)b;
-
-            // check whether right edge of a overlaps with left edge of b
-            int comp = getRightOverlap(da, db);
-            if (comp != 0) {
-                return comp;
-            }
-
-            // check whether right edge of b overlaps with left edge of a
-            comp = getRightOverlap(db, da);
-            if (comp != 0) {
-                // reverse ordering per reversed overlap check
-                return (comp == -1) ? 1 : -1;
-            }
-
-            // determine ordering based purely on coordinates
-            if (da.x <= db.x && da.y <= db.y) {
-                return -1;
-            }
-
-            return 1;
-        }
-
-        public boolean equals (Object obj)
-        {
-	    return (obj == this);
-        }
-
-        /**
-         * Checks the right edge of <code>da</code> to see whether it
-         * overlaps with the left edge of <code>db</code>.
-         *
-         * @return -1 if <code>da</code> should be rendered behind
-         * <code>db</code>, 0 if the right edge of <code>da</code>
-         * does not overlap with <code>db</code>, and 1 if
-         * <code>da</code> should be rendered in front of
-         * <code>db</code>.
-         */
-        protected int getRightOverlap (DirtyItem da, DirtyItem db)
-        {
-            int ax = da.x, bx = db.x;
-            int ay = da.y, by = db.y;
-
-            // get da's rightmost corner coordinate
-            if (da.obj instanceof ObjectTile) {
-                ay -= (((ObjectTile)da.obj).baseHeight - 1);
-            }
-
-            // get db's leftmost corner coordinate
-            if (db.obj instanceof ObjectTile) {
-                bx -= (((ObjectTile)db.obj).baseWidth - 1);
-            }
-
-            if (ax < bx && ay > by) {
-                // we most certainly don't overlap
-                return 0;
-            }
-
-            // calculate inequality constant for db's leftmost corner
-            int k = (bx + by);
-
-            // we need to determine whether to render da in front of
-            // db, so we check whether da's rightmost corner is above
-            // or below db's leftmost corner.
-            if (ay <= k - ax) {
-                return -1;
-            } else {
-                return 1;
-            }
-        }
-    }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.2 2001/10/22 18:21:41 shaper Exp $
+// $Id: CharacterManager.java,v 1.3 2001/10/24 00:55:08 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -26,9 +26,11 @@ public class CharacterManager
     /**
      * Construct the character manager.
      */
-    public CharacterManager (Config config, TileManager tilemgr)
+    public CharacterManager (
+        Config config, TileManager tilemgr, IsoSceneViewModel model)
     {
         _tilemgr = tilemgr;
+        _model = model;
 
         // load character data descriptions
         String file = config.getValue(CHARFILE_KEY, DEFAULT_CHARFILE);
@@ -58,8 +60,8 @@ public class CharacterManager
 	MultiFrameImage[] anims = TileUtil.getAmbulatorySpriteFrames(
             _tilemgr, tsid, info.frameCount);
 
-        AmbulatorySprite sprite = new AmbulatorySprite(0, 0, anims);
-        sprite.setFrameRate(info.frameRate);
+        AmbulatorySprite sprite = new AmbulatorySprite(_model, 0, 0, anims);
+        sprite.setFrameRate(info.fps);
         sprite.setOrigin(info.origin.x, info.origin.y);
 
         return sprite;
@@ -79,6 +81,9 @@ public class CharacterManager
     /** The tile manager. */
     protected TileManager _tilemgr;
 
+    /** The iso scene view model. */
+    protected IsoSceneViewModel _model;
+
     /**
      * A class that contains character description information for a
      * single character for use when constructing the character's
@@ -88,13 +93,13 @@ public class CharacterManager
     {
         public int tsid;
         public int frameCount;
-        public int frameRate;
+        public int fps;
         public Point origin = new Point();
 
         public String toString ()
         {
             return "[tsid=" + tsid + ", frameCount=" + frameCount +
-                ", frameRate=" + frameRate + ", origin=" + origin + "]";
+                ", fps=" + fps + ", origin=" + origin + "]";
         }
     }
 }
