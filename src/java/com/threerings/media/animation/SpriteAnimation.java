@@ -1,5 +1,5 @@
 //
-// $Id: SpriteAnimation.java,v 1.1 2002/03/16 03:11:23 shaper Exp $
+// $Id: SpriteAnimation.java,v 1.2 2002/11/06 01:40:39 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -11,26 +11,27 @@ import com.threerings.media.sprite.Sprite;
 import com.threerings.media.sprite.SpriteEvent;
 import com.threerings.media.sprite.SpriteManager;
 import com.threerings.media.sprite.SpriteObserver;
+import com.threerings.media.util.Path;
 
 public class SpriteAnimation extends Animation
     implements SpriteObserver
 {
     /**
-     * Constructs a sprite animation for the given sprite and adds the
-     * sprite to the given sprite manager.  If the sprite has had a path
-     * set, the animation will finish when the sprite completes its path.
+     * Constructs a sprite animation for the given sprite. The first time
+     * the animation is ticked, the sprite will be added to the given
+     * sprite manager and started along the supplied path.
      */
-    public SpriteAnimation (SpriteManager spritemgr, Sprite sprite)
+    public SpriteAnimation (SpriteManager spritemgr, Sprite sprite, Path path)
     {
         super(new Rectangle());
 
         // save things off
         _spritemgr = spritemgr;
         _sprite = sprite;
+        _path = path;
 
         // set up our sprite business
         _sprite.addSpriteObserver(this);
-        _spritemgr.addSprite(_sprite);
     }
 
     /**
@@ -39,7 +40,12 @@ public class SpriteAnimation extends Animation
      */
     public void tick (long timestamp)
     {
-        // nothing for now
+        // start the sprite moving on its path on our first tick
+        if (_path != null) {
+            _spritemgr.addSprite(_sprite);
+            _sprite.move(_path);
+            _path = null;
+        }
     }    
 
     // documentation inherited
@@ -70,4 +76,7 @@ public class SpriteAnimation extends Animation
 
     /** The sprite manager managing our sprite. */
     protected SpriteManager _spritemgr;
+
+    /** The path along which we'll move our sprite. */
+    protected Path _path;
 }
