@@ -1,7 +1,9 @@
 //
-// $Id: TurnGameControllerDelegate.java,v 1.4 2002/10/15 23:07:23 shaper Exp $
+// $Id: TurnGameControllerDelegate.java,v 1.5 2004/04/09 17:36:47 ray Exp $
 
 package com.threerings.parlor.turn;
+
+import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.AttributeChangeListener;
@@ -95,7 +97,7 @@ public class TurnGameControllerDelegate extends GameControllerDelegate
     {
         // handle turn changes
         if (event.getName().equals(_thfield)) {
-            _tgctrl.turnDidChange((String)event.getValue());
+            _tgctrl.turnDidChange((Name)event.getValue());
         }
     }
 

@@ -1,7 +1,9 @@
 //
-// $Id: TurnGameController.java,v 1.5 2004/02/25 14:44:54 mdb Exp $
+// $Id: TurnGameController.java,v 1.6 2004/04/09 17:36:47 ray Exp $
 
 package com.threerings.parlor.turn;
+
+import com.threerings.util.Name;
 
 /**
  * Games that wish to make use of the turn game services should have their
@@ -18,5 +20,5 @@ public interface TurnGameController
      *
      * @param turnHolder the username of the new holder of the turn.
      */
-    public void turnDidChange (String turnHolder);
+    public void turnDidChange (Name turnHolder);
 }
