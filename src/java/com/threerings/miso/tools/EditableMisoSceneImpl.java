@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.17 2002/04/27 18:41:14 mdb Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.18 2002/04/28 03:14:15 mdb Exp $
 
 package com.threerings.miso.scene.tools;
 
@@ -187,21 +187,25 @@ public class EditableMisoSceneImpl
         // we need to flush the object layer to the model prior to
         // returning it
         int ocount = _objects.size();
-        int[] otids = new int[ocount*3];
-        String[] actions = new String[ocount];
 
-        for (int ii = 0; ii < ocount; ii++) {
-            ObjectTile tile = (ObjectTile)_objects.get(ii);
-            Point coords = (Point)_coords.get(tile);
-            otids[3*ii] = coords.x;
-            otids[3*ii+1] = coords.y;
-            otids[3*ii+2] = ((Integer)_objectTileIds.get(tile)).intValue();
-            actions[ii] = (String)_actions.get(tile);
+        // but only do it if we've actually got some objects
+        if (ocount > 0) {
+            int[] otids = new int[ocount*3];
+            String[] actions = new String[ocount];
+
+            for (int ii = 0; ii < ocount; ii++) {
+                ObjectTile tile = (ObjectTile)_objects.get(ii);
+                Point coords = (Point)_coords.get(tile);
+                otids[3*ii] = coords.x;
+                otids[3*ii+1] = coords.y;
+                otids[3*ii+2] = ((Integer)_objectTileIds.get(tile)).intValue();
+                actions[ii] = (String)_actions.get(tile);
+            }
+
+            // stuff the new arrays into the model
+            _model.objectTileIds = otids;
+            _model.objectActions = actions;
         }
-
-        // stuff the new arrays into the model
-        _model.objectTileIds = otids;
-        _model.objectActions = actions;
 
         // and we're ready to roll
         return _model;
