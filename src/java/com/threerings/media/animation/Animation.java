@@ -1,5 +1,5 @@
 //
-// $Id: Animation.java,v 1.6 2002/04/25 16:23:30 mdb Exp $
+// $Id: Animation.java,v 1.7 2002/09/17 20:06:58 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -49,6 +49,15 @@ public abstract class Animation
     }
 
     /**
+     * Sets the location at which this animation will be rendered.
+     */
+    public void setLocation (int x, int y)
+    {
+        _bounds.x = x;
+        _bounds.y = y;
+    }
+
+    /**
      * Returns a rectangle containing all pixels rendered by this
      * animation.
      */
@@ -92,6 +101,15 @@ public abstract class Animation
     public boolean isFinished ()
     {
         return _finished;
+    }
+
+    /**
+     * If this animation has run to completion, it can be reset to prepare
+     * it for another go.
+     */
+    public void reset ()
+    {
+        _finished = false;
     }
 
     /**
