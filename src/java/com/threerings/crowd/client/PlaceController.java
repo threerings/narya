@@ -1,5 +1,5 @@
 //
-// $Id: PlaceController.java,v 1.4 2001/10/11 04:07:51 mdb Exp $
+// $Id: PlaceController.java,v 1.5 2001/10/12 19:31:15 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -40,6 +40,18 @@ public abstract class PlaceController
 
         // create our user interface
         _view = createPlaceView();
+
+        // let the derived classes do any initialization stuff
+        didInit();
+    }
+
+    /**
+     * Derived classes can override this and perform any
+     * initialization-time processing they might need. They should of
+     * course be sure to call <code>super.didInit()</code>.
+     */
+    protected void didInit ()
+    {
     }
 
     /**
