@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.35 2002/11/29 21:22:46 ray Exp $
+// $Id: SoundManager.java,v 1.36 2002/12/04 02:14:12 ray Exp $
 
 package com.threerings.media;
 
@@ -289,6 +289,7 @@ public class SoundManager
         if (_player != null && (_clipVol != 0f) && isEnabled(type)) {
             synchronized (_queue) {
                 if (_queue.size() < MAX_QUEUE_SIZE) {
+                    Log.debug("play requested [key=" + key + "].");
                     _queue.append(PLAY);
                     _queue.append(new SoundKey(pkgPath, key));
 
@@ -348,7 +349,7 @@ public class SoundManager
             AudioInputStream stream = AudioSystem.getAudioInputStream(
                 new ByteArrayInputStream(data));
 
-            LineSpooler.play(stream, _clipVol);
+            LineSpooler.play(stream, _clipVol, key);
 
         } catch (IOException ioe) {
             Log.warning("Error loading sound file [key=" + key +
@@ -718,7 +719,8 @@ public class SoundManager
         /**
          * Attempt to play the specified sound.
          */
-        public static void play (AudioInputStream stream, float volume)
+        public static void play (
+            AudioInputStream stream, float volume, SoundKey key)
             throws LineUnavailableException
         {
             AudioFormat format = stream.getFormat();
@@ -733,7 +735,7 @@ public class SoundManager
                     _openSpoolers.remove(ii--);
                     nn--;
 
-                } else if (spooler.checkPlay(format, stream, volume)) {
+                } else if (spooler.checkPlay(format, stream, volume, key)) {
                     return;
                 }
             }
@@ -745,7 +747,7 @@ public class SoundManager
 
             spooler = new LineSpooler(format);
             _openSpoolers.add(spooler);
-            spooler.checkPlay(format, stream, volume);
+            spooler.checkPlay(format, stream, volume, key);
             spooler.start();
         }
 
@@ -801,10 +803,12 @@ public class SoundManager
          * doing so if we can.
          */
         protected synchronized boolean checkPlay (
-            AudioFormat format, AudioInputStream stream, float volume)
+            AudioFormat format, AudioInputStream stream, float volume,
+            SoundKey key)
         {
             if (_valid && (_stream == null) && _format.matches(format)) {
                 _stream = stream;
+                _key = key;
                 SoundManager.adjustVolume(_line, volume);
                 notify();
                 return true;
@@ -853,6 +857,7 @@ public class SoundManager
             int count = 0;
             byte[] data = new byte[BUFFER_SIZE];
 
+            Log.debug("play happening [key=" + _key.key + "].");
             while (_valid && count != -1) {
                 try {
                     count = _stream.read(data, 0, data.length);
@@ -869,46 +874,24 @@ public class SoundManager
                 }
             }
 
-            // SO, I used to just always drain, but I found what appears
-            // to be a bug in linux's native implementation of drain
-            // that sometimes resulted in the internals of drain
-            // going into an infinite loop. Checking to see if the line
-            // isActive (engaging in I/O) before calling drain seems
-            // to have stopped the problem from happening.
-            //
-            // TODO: look at this some more.
-            // For now I'm turning draining back on, because I've seen
-            // instances of longer sounds reporting that they're not active
-            // while they're still playing, and so the next sound
-            // is significantly delayed. That sucks.
-            //
-            // Nov 29: drain() definitely hoses things.
-            // Mike just had 14 threads stuck in drain(). Back off.
-            if (_line.isActive()) {
-//                Log.info("Waiting for drain (" + hashCode() + ", active=" +
-//                    _line.isActive() + ", running=" + _line.isRunning()+
-//                    ") : " + incDrainers());
-
-                // wait for it to play all the way
+            // There is a major bug with using drain() under linux. It often
+            // causes the thread to just loop forever inside the native
+            // implementation of drain(), and we're screwed.
+            if (_shouldDrain) {
                 _line.drain();
 
-//                Log.info("drained: (" + hashCode() + ") :" + decDrainers());
+            } else {
+                // we instead attempt to sleep long enough such that
+                // everything should be drained.
+                try {
+                    Thread.sleep(NO_DRAIN_SLEEP_TIME);
+                } catch (InterruptedException ie) {
+                }
             }
 
             // clear it out so that we can wait for more.
             _stream = null;
         }
-
-//        protected static final synchronized int incDrainers ()
-//        {
-//            return ++drainers;
-//        }
-//
-//        protected static final synchronized int decDrainers ()
-//        {
-//            return --drainers;
-//        }
-//        static int drainers = 0;
 
         /** The format that our line was opened with. */
         protected AudioFormat _format;
@@ -923,8 +906,14 @@ public class SoundManager
          * we be removed. */
         protected boolean _valid = true;
 
+        /** Used for debugging. */
+        protected SoundKey _key;
+
         /** The list of all the currently instantiated spoolers. */
         protected static ArrayList _openSpoolers = new ArrayList();
+
+        /** Should we attempt to use line.drain()? */
+        protected static boolean _shouldDrain = true;
 
         /** The maximum time a spooler will wait for a stream before
          * deciding to shut down. */
@@ -932,6 +921,18 @@ public class SoundManager
 
         /** The maximum number of spoolers we'll allow. This is a lot. */
         protected static final int MAX_SPOOLERS = 24;
+
+        /** The time we sleep if it's not safe to drain. */
+        protected static final long NO_DRAIN_SLEEP_TIME = 3000L;
+
+        // see if we should use drain.
+        static {
+            String os = System.getProperty("os.name");
+            if (os == null || (os.indexOf("Linux") != -1)) {
+                _shouldDrain = false;
+                Log.info("Detected Linux, will not use drain() on lines.");
+            }
+        }
     }
 
     /**
