@@ -1,5 +1,5 @@
 //
-// $Id: TestServer.java,v 1.1 2001/08/07 20:38:58 mdb Exp $
+// $Id: TestServer.java,v 1.2 2001/08/08 23:48:51 mdb Exp $
 
 package com.threerings.cocktail.cher.server.test;
 
@@ -22,7 +22,7 @@ public class TestServer extends CherServer
         super.init();
 
         // bind the party server config into the namespace
-        config.bindProperties(CONFIG_KEY, CONFIG_PATH);
+        config.bindProperties(CONFIG_KEY, CONFIG_PATH, true);
 
         // register our invocation service providers
         registerProviders(config.getValue(PROVIDERS_KEY, (String[])null));

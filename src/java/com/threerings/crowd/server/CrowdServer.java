@@ -1,5 +1,5 @@
 //
-// $Id: CrowdServer.java,v 1.5 2001/08/04 01:55:41 mdb Exp $
+// $Id: CrowdServer.java,v 1.6 2001/08/08 23:48:51 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -33,7 +33,7 @@ public class PartyServer extends CherServer
         super.init();
 
         // bind the party server config into the namespace
-        config.bindProperties(CONFIG_KEY, CONFIG_PATH);
+        config.bindProperties(CONFIG_KEY, CONFIG_PATH, true);
 
         // configure the client to use our party client
         clmgr.setClientClass(PartyClient.class);

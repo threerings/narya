@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.10 2001/08/08 00:28:49 mdb Exp $
+// $Id: PresentsServer.java,v 1.11 2001/08/08 23:48:51 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -56,7 +56,7 @@ public class CherServer
         // create our configuration object
         config = new Config();
         // bind the cher server config into the namespace
-        config.bindProperties(CONFIG_KEY, CONFIG_PATH);
+        config.bindProperties(CONFIG_KEY, CONFIG_PATH, true);
 
         // create our authentication manager
         authmgr = new AuthManager(new DummyAuthenticator());
