@@ -1,7 +1,9 @@
 //
-// $Id: ResourceManager.java,v 1.30 2003/05/29 16:35:59 mdb Exp $
+// $Id: ResourceManager.java,v 1.31 2003/06/19 01:30:27 ray Exp $
 
 package com.threerings.resource;
+
+import java.awt.EventQueue;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -27,6 +29,7 @@ import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 
+import com.samskivert.util.ResultListener;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.resource.DownloadManager.DownloadDescriptor;
@@ -236,16 +239,15 @@ public class ResourceManager
             resourceURL += "/";
         }
 
-        URL rurl = null;
         try {
-            rurl = new URL(resourceURL);
+            _rurl = new URL(resourceURL);
         } catch (MalformedURLException mue) {
             Log.warning("Invalid resource URL [url=" + resourceURL +
                         ", error=" + mue + "].");
         }
 
         // load up our configuration
-        Properties config = loadConfig(rurl, configPath);
+        Properties config = loadConfig(configPath);
 
         // resolve the configured resource sets
         ArrayList dlist = new ArrayList();
@@ -256,7 +258,7 @@ public class ResourceManager
                 continue;
             }
             String setName = key.substring(RESOURCE_SET_PREFIX.length());
-            resolveResourceSet(rurl, setName, config.getProperty(key), dlist);
+            resolveResourceSet(setName, config.getProperty(key), dlist);
         }
 
         // start the download, blocking if we've no observer
@@ -266,6 +268,97 @@ public class ResourceManager
         } else {
             downloadNonBlocking(dlmgr, dlist, downloadObs);
         }
+    }
+
+    /**
+     * Create the resource bundle for the specified set and path.
+     */
+    protected ResourceBundle createResourceBundle (String setName, String path)
+    {
+        createCacheDirectory(setName);
+        File cfile = new File(genCachePath(setName, path));
+
+        return new ResourceBundle(cfile, true, true);
+    }
+
+    /**
+     * Checks to see if the specified dynamic bundle is already here
+     * and ready to roll.
+     */
+    public boolean checkDynamicBundle (String path)
+    {
+        return createResourceBundle(DYNAMIC_BUNDLE_SET, path).isUnpacked();
+    }
+
+    /**
+     * Resolve the specified dynamic bundle and return it on the specified
+     * result listener.
+     */
+    public void resolveDynamicBundle (String path,
+        final ResultListener listener)
+    {
+        URL burl;
+        try {
+            burl = new URL(_rurl, path);
+        } catch (MalformedURLException mue) {
+            listener.requestFailed(mue);
+            return;
+        }
+
+        final ResourceBundle bundle = createResourceBundle(
+            DYNAMIC_BUNDLE_SET, path);
+        if (bundle.isUnpacked()) {
+            bundle.sourceIsReady();
+            listener.requestCompleted(bundle);
+            return;
+        }
+
+        // slap this on the list for retrieval or update by the
+        // download manager
+        ArrayList list = new ArrayList();
+        list.add(new DownloadDescriptor(burl, bundle.getSource()));
+
+        // TODO: There should only be one download manager for all dynamic
+        // bundles, with each bundle waiting its turn to use it.
+        DownloadObserver obs = new DownloadObserver() {
+            public boolean notifyOnAWTThread () {
+                return false;
+            }
+
+            public void resolvingDownloads () {
+            }
+
+            public void downloadProgress (int percent, long remaining) {
+            }
+
+            public void postDownloadHook () {
+            }
+
+            public void downloadComplete ()
+            {
+                bundle.sourceIsReady();
+                EventQueue.invokeLater(new Runnable() {
+                    public void run () {
+                        listener.requestCompleted(bundle);
+                    }
+                });
+            }
+
+            public void downloadFailed (
+                DownloadDescriptor desc, final Exception e)
+            {
+                Log.warning("Failed to download file " +
+                            "[desc=" + desc + ", e=" + e + "].");
+                EventQueue.invokeLater(new Runnable() {
+                    public void run () {
+                        listener.requestFailed(e);
+                    }
+                });
+            }
+        };
+
+        DownloadManager dlmgr = new DownloadManager();
+        dlmgr.download(list, true, obs);
     }
 
     /**
@@ -383,20 +476,20 @@ public class ResourceManager
      * Loads up the most recent version of the resource manager
      * configuration.
      */
-    protected Properties loadConfig (URL resourceURL, String configPath)
+    protected Properties loadConfig (String configPath)
     {
         Properties config = new Properties();
         URL curl = null;
 
         try {
             if (configPath != null) {
-                curl = new URL(resourceURL, configPath);
+                curl = new URL(_rurl, configPath);
                 config.load(curl.openStream());
             }
 
         } catch (MalformedURLException mue) {
             Log.warning("Unable to construct config URL " +
-                        "[resourceURL=" + resourceURL +
+                        "[resourceURL=" + _rurl +
                         ", configPath=" + configPath +
                         ", error=" + mue + "].");
 
@@ -416,7 +509,7 @@ public class ResourceManager
      * @return true if the directory was successfully created (or was
      * already there), false if we failed to create it.
      */
-    protected boolean createCacheDirectory (URL resourceURL, String setName)
+    protected boolean createCacheDirectory (String setName)
     {
         // compute the path to the top-level cache directory if we haven't
         // already been so configured
@@ -430,8 +523,7 @@ public class ResourceManager
             // next incorporate the resource URL into the cache path so
             // that files fetched from different resource roots do not
             // overwrite one another
-            _cachePath += StringUtil.md5hex(resourceURL.toString()) +
-                File.separator;
+            _cachePath += StringUtil.md5hex(_rurl.toString()) + File.separator;
             if (!createDirectory(_cachePath)) {
                 return false;
             }
@@ -473,8 +565,7 @@ public class ResourceManager
      * Generates the name of the bundle cache file given the name of the
      * resource set to which it belongs and the relative path URL.
      */
-    protected String genCachePath (
-        URL resourceURL, String setName, String resourcePath)
+    protected String genCachePath (String setName, String resourcePath)
     {
         return _cachePath + setName + File.separator +
             StringUtil.replace(resourcePath, "/", "-");
@@ -485,7 +576,7 @@ public class ResourceManager
      * information.
      */
     protected void resolveResourceSet (
-        URL resourceURL, String setName, String definition, List dlist)
+        String setName, String definition, List dlist)
     {
         StringTokenizer tok = new StringTokenizer(definition, ":");
         ArrayList set = new ArrayList();
@@ -495,13 +586,13 @@ public class ResourceManager
             URL burl = null;
 
             try {
-                burl = new URL(resourceURL, path);
+                burl = new URL(_rurl, path);
 
                 // make sure the cache directory exists for this set
-                createCacheDirectory(resourceURL, setName);
+                createCacheDirectory(setName);
 
                 // compute the path to the cache file for this bundle
-                File cfile = new File(genCachePath(resourceURL, setName, path));
+                File cfile = new File(genCachePath(setName, path));
 
                 // slap this on the list for retrieval or update by the
                 // download manager
@@ -692,6 +783,9 @@ public class ResourceManager
     /** The classloader we use for classpath-based resource loading. */
     protected ClassLoader _loader;
 
+    /** The url via which we download our bundles. */
+    protected URL _rurl;
+
     /** The prefix we prepend to resource paths before attempting to load
      * them from the classpath. */
     protected String _rootPath;
@@ -717,4 +811,7 @@ public class ResourceManager
 
     /** The name of our resource bundle cache directory. */
     protected static final String CACHE_PATH = ".narya";
+
+    /** The name of the resource set where we store dynamic bundles. */
+    protected static final String DYNAMIC_BUNDLE_SET = "_dynamic";
 }
