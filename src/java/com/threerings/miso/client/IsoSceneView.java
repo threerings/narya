@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.41 2001/08/13 05:42:36 shaper Exp $
+// $Id: IsoSceneView.java,v 1.42 2001/08/14 21:29:40 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -12,6 +12,7 @@ import com.threerings.miso.Log;
 import com.threerings.miso.sprite.*;
 import com.threerings.miso.tile.Tile;
 import com.threerings.miso.tile.TileManager;
+import com.threerings.miso.scene.util.IsoUtil;
 
 /**
  * The <code>IsoSceneView</code> provides an isometric view of a

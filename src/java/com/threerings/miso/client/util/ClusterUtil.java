@@ -1,11 +1,12 @@
 //
-// $Id: ClusterUtil.java,v 1.2 2001/08/10 21:17:07 shaper Exp $
+// $Id: ClusterUtil.java,v 1.1 2001/08/14 21:29:40 shaper Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.miso.scene.util;
 
 import java.util.ArrayList;
 
 import com.threerings.miso.Log;
+import com.threerings.miso.scene.*;
 
 /**
  * The <code>ClusterUtil</code> class provides utility routines for

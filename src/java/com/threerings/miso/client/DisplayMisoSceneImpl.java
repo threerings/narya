@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.26 2001/08/13 15:00:24 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.27 2001/08/14 21:29:40 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -11,6 +11,7 @@ import com.samskivert.util.StringUtil;
 import com.threerings.miso.Log;
 import com.threerings.miso.tile.Tile;
 import com.threerings.miso.tile.TileManager;
+import com.threerings.miso.scene.util.ClusterUtil;
 
 /**
  * A Scene object represents the data model corresponding to a single

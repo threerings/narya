@@ -1,11 +1,12 @@
 //
-// $Id: IsoUtil.java,v 1.4 2001/08/09 17:04:56 shaper Exp $
+// $Id: IsoUtil.java,v 1.1 2001/08/14 21:29:40 shaper Exp $
 
-package com.threerings.miso.scene;
+package com.threerings.miso.scene.util;
 
 import java.awt.Point;
 import java.awt.Polygon;
 
+import com.threerings.miso.scene.*;
 import com.threerings.miso.sprite.Path;
 import com.threerings.miso.util.MathUtil;
 
