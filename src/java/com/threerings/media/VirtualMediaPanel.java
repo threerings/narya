@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.29 2004/11/11 23:52:43 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -229,23 +229,31 @@ public class VirtualMediaPanel extends MediaPanel
 //                      "), d=(" + _dx + ", " + _dy +
 //                      "), width=" + width + ", height=" + height + "].");
 
-            // these are used to prevent the vertical strip from
-            // overlapping the horizontal strip
-            int sy = _ny, shei = height;
 
-            // and add invalid rectangles for the exposed areas
-            if (_dy > 0) {
-                shei = Math.max(shei - _dy, 0);
-                _remgr.invalidateRegion(_nx, _ny + height - _dy, width, _dy);
-            } else if (_dy < 0) {
-                sy -= _dy;
-                _remgr.invalidateRegion(_nx, _ny, width, -_dy);
+            // Mac OS X's redraw breaks on scrolling, so we repaint the
+            // entire panel 
+            if (RunAnywhere.isMacOS()) {
+                _remgr.invalidateRegion(_nx, _ny, width, height);
+            } else {
+                // these are used to prevent the vertical strip from
+                // overlapping the horizontal strip
+                int sy = _ny, shei = height;
+
+                // and add invalid rectangles for the exposed areas
+                if (_dy > 0) {
+                    shei = Math.max(shei - _dy, 0);
+                    _remgr.invalidateRegion(_nx, _ny + height - _dy, width, _dy);
+                } else if (_dy < 0) {
+                    sy -= _dy;
+                    _remgr.invalidateRegion(_nx, _ny, width, -_dy);
+                }
+                if (_dx > 0) {
+                    _remgr.invalidateRegion(_nx + width - _dx, sy, _dx, shei);
+                } else if (_dx < 0) {
+                    _remgr.invalidateRegion(_nx, sy, -_dx, shei);
+                }
             }
-            if (_dx > 0) {
-                _remgr.invalidateRegion(_nx + width - _dx, sy, _dx, shei);
-            } else if (_dx < 0) {
-                _remgr.invalidateRegion(_nx, sy, -_dx, shei);
-            }
+
 
             // now go ahead and update our location so that changes in
             // between here and the call to paint() for this tick don't
