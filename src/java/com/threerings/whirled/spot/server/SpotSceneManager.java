@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.42 2003/07/16 18:03:30 ray Exp $
+// $Id: SpotSceneManager.java,v 1.43 2003/08/20 21:02:16 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -137,6 +137,17 @@ public class SpotSceneManager extends SceneManager
 
         // clear any cluster they may occupy
         removeFromCluster(bodyOid);
+
+        // let's make damned sure they're not in any cluster
+        Iterator cliter = _clusters.values().iterator();
+        while (cliter.hasNext()) {
+            ClusterRecord clrec = (ClusterRecord)cliter.next();
+            if (clrec.containsKey(bodyOid)) {
+                Log.info("Pruning departed body from cluster [boid=" + bodyOid +
+                         ", cluster=" + clrec + "].");
+                clrec.removeBody(bodyOid);
+            }
+        }
     }
 
     // documentation inherited
