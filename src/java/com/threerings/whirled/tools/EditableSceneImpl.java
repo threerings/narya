@@ -1,9 +1,8 @@
 //
-// $Id: EditableSceneImpl.java,v 1.1 2001/11/12 20:56:56 mdb Exp $
+// $Id: EditableSceneImpl.java,v 1.2 2001/11/13 02:25:36 mdb Exp $
 
 package com.threerings.whirled.tools;
 
-import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.whirled.client.DisplaySceneImpl;
 import com.threerings.whirled.data.SceneModel;
 
