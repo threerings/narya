@@ -1,52 +1,33 @@
 //
-// $Id: TileSetManagerImpl.java,v 1.1 2001/07/16 18:59:31 shaper Exp $
+// $Id: TileSetManagerImpl.java,v 1.2 2001/07/17 17:21:33 shaper Exp $
 
 package com.threerings.cocktail.miso.tile;
 
-import com.samskivert.util.Config;
 import com.samskivert.util.IntMap;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
 
-public class TileSetManagerImpl implements TileSetManager
+public abstract class TileSetManagerImpl implements TileSetManager
 {
-    public TileSetManagerImpl (Config config)
-    {
-	_config = config;
-    }
-
     public TileSet getTileSet (int tsid)
     {
-	TileSet tset = (TileSet)_tilesets.get(tsid);
-	if (tset != null) return tset;
-
-	_tilesets.put(tsid, tset = new TileSet(_config, tsid));
-	return tset;
+	return (TileSet)_tilesets.get(tsid);
     }
 
-    public String[] getTileSetNames ()
+    public ArrayList getTileSets ()
     {
 	int size = _tilesets.size();
 	if (size == 0) return null;
 
-	String[] names = new String[size];
+	ArrayList list = new ArrayList();
+
 	Enumeration sets = _tilesets.elements();
 	for (int ii = 0; ii < size; ii++) {
-	    names[ii] = ((TileSet)sets.nextElement()).getName();
+	    list.add(sets.nextElement());
 	}
 
-	return names;
-    }
-
-    public int getTileSetId (String name)
-    {
-	Enumeration sets = _tilesets.elements();
-	while (sets.hasMoreElements()) {
-	    TileSet tset = (TileSet)sets.nextElement();
-	    if (tset.getName().equals(name)) return tset.getId();
-	}
-
-	return -1;
+	return list;
     }
 
     public int getNumTileSets ()
@@ -54,6 +35,5 @@ public class TileSetManagerImpl implements TileSetManager
 	return _tilesets.size();
     }
 
-    protected Config _config;
     protected IntMap _tilesets = new IntMap();
 }

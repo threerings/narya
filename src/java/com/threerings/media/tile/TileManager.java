@@ -1,13 +1,16 @@
 //
-// $Id: TileManager.java,v 1.4 2001/07/16 22:12:01 shaper Exp $
+// $Id: TileManager.java,v 1.5 2001/07/17 17:21:33 shaper Exp $
 
 package com.threerings.cocktail.miso.tile;
 
 import com.threerings.cocktail.miso.Log;
 
+import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.IntMap;
 
 import java.awt.*;
+import java.io.*;
+import java.util.ArrayList;
 
 /**
  * Provides a simplified interface for managing multiple tilesets and
@@ -34,12 +37,11 @@ public class TileManager
     }
 
     /**
-     * Return a String array of all tileset names ordered by ascending
-     * tileset id.
+     * Return a list of all tilesets available for use.
      */
-    public String[] getTileSetNames ()
+    public ArrayList getTileSets ()
     {
-	return _tsmgr.getTileSetNames();
+	return _tsmgr.getTileSets();
     }
 
     /**
@@ -60,16 +62,44 @@ public class TileManager
 
 	// retrieve the tileset containing the tile
 	TileSet tset = _tsmgr.getTileSet(tsid);
+	if (tset == null) {
+	    Log.warning("Can't create tile due to unknown tileset " +
+			"[tsid=" + tsid + ", tid=" + tid + "].");
+	    return null;
+	}
 
 	// retrieve the tile image from the tileset
 	tile = new Tile(tsid, tid);
-	tile.img = tset.getTileImage(tid);
+	if ((tile.img = tset.getTileImage(tid)) == null) {
+	    Log.warning("Null tile image [tsid="+tsid+", tid="+tid+"].");
+	}
 
 	_tiles.put(utid, tile);
 
 //  	Log.info("Loaded tile into cache [tsid="+tsid+", tid="+tid+"].");
 
 	return tile;
+    }
+
+    /**
+     * Load all tileset objects described in the specified file into
+     * the set of available tilesets.
+     */
+    public void loadTileSets (String fname)
+    {
+	try {
+	    InputStream tis = ConfigUtil.getStream(fname);
+	    if (tis == null) {
+		Log.warning("Couldn't find file [fname=" + fname + "].");
+		return;
+	    }
+
+	    _tsmgr.loadTileSets(tis);
+
+	} catch (IOException ioe) {
+	    Log.warning("Exception loading tileset [fname=" + fname +
+			", ioe=" + ioe + "].");
+	}
     }
 
     // mapping from (tsid << 16 | tid) to tile objects

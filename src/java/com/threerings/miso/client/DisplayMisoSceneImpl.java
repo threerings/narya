@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.4 2001/07/16 22:12:01 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.5 2001/07/17 17:21:33 shaper Exp $
 
 package com.threerings.cocktail.miso.scene;
 
@@ -216,7 +216,7 @@ public class Scene
 
     protected static final String DEF_SCENE_NAME = "Untitled Scene";
 
-    protected static final short DEF_TSID = 0;
+    protected static final short DEF_TSID = 1000;
     protected static final short DEF_TID = 1;
 
     protected String _name;        // the scene name

@@ -1,7 +1,11 @@
 //
-// $Id: TileSetManager.java,v 1.2 2001/07/16 18:59:31 shaper Exp $
+// $Id: TileSetManager.java,v 1.3 2001/07/17 17:21:33 shaper Exp $
 
 package com.threerings.cocktail.miso.tile;
+
+import java.io.InputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public interface TileSetManager
 {
@@ -11,17 +15,18 @@ public interface TileSetManager
     public TileSet getTileSet (int tsid);
 
     /**
-     * Return a String array of all tileset names.
+     * Return a list of all tilesets available for use.
      */
-    public String[] getTileSetNames ();
-
-    /**
-     * Return the tileset id associated with the named tileset.
-     */
-    public int getTileSetId (String name);
+    public ArrayList getTileSets ();
 
     /**
      * Return the total number of tilesets.
      */
     public int getNumTileSets ();
+
+    /**
+     * Load the tilesets described in the specified input stream into
+     * the set of available tilesets.
+     */
+    public void loadTileSets (InputStream tis) throws IOException;
 }

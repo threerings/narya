@@ -1,12 +1,10 @@
 //
-// $Id: TileSet.java,v 1.5 2001/07/16 22:12:01 shaper Exp $
+// $Id: TileSet.java,v 1.6 2001/07/17 17:21:33 shaper Exp $
 
 package com.threerings.cocktail.miso.tile;
 
 import com.threerings.cocktail.miso.Log;
 import com.threerings.cocktail.miso.media.ImageManager;
-
-import com.samskivert.util.Config;
 
 import java.awt.Image;
 import java.awt.Graphics2D;
@@ -31,19 +29,14 @@ import java.awt.image.*;
  */
 public class TileSet
 {
-    public TileSet (Config config, int tsid)
+    public TileSet (String name, int tsid, String imgFile,
+		    int[] rowHeight, int[] tileCount)
     {
+	_name = name;
 	_tsid = tsid;
-
-	// get the tileset name
-	_name = config.getValue(PREFIX + CONF_NAME, (String)null);
-
-	// get the tile image file name
-	_file = config.getValue(PREFIX + CONF_FILE, (String)null);
-
-	// get the row height and tile count for each row
-	_rowHeight = config.getValue(PREFIX + CONF_ROWHEIGHT, (int[])null);
-	_tileCount = config.getValue(PREFIX + CONF_TILECOUNT, (int[])null);
+	_imgFile = imgFile;
+	_rowHeight = rowHeight;
+	_tileCount = tileCount;
 
 	// determine the total number of tiles in the set
 	for (int ii = 0; ii < _tileCount.length; ii++)
@@ -73,13 +66,13 @@ public class TileSet
     {
 	// load the full tile image if we don't already have it
 	if (_imgTiles == null) {
-	    if ((_imgTiles = ImageManager.getImage(_file)) == null) {
+	    if ((_imgTiles = ImageManager.getImage(_imgFile)) == null) {
 		Log.warning("Failed to retrieve full tileset image " +
-			    "[file=" + _file + "].");
+			    "[file=" + _imgFile + "].");
 		return null;
 	    }
 	}
-	
+
 	// find the row number containing the sought-after tile
 	int ridx, tcount, ty, tx;
 	ridx = tcount = ty = tx = 0;
@@ -108,7 +101,7 @@ public class TileSet
 	StringBuffer buf = new StringBuffer();
 
 	buf.append("[name=").append(_name);
-	buf.append(", file=").append(_file);
+	buf.append(", file=").append(_imgFile);
 	buf.append(", tsid=").append(_tsid);
 	buf.append(", numtiles=").append(_numTiles);
 
@@ -127,15 +120,8 @@ public class TileSet
 	return buf.append("}]").toString();
     }
 
-    protected static final String PREFIX = "miso.tileset.";
-
-    protected static final String CONF_FILE = "file";
-    protected static final String CONF_NAME = "name";
-    protected static final String CONF_ROWHEIGHT = "rowheight";
-    protected static final String CONF_TILECOUNT = "tilecount";
-
     protected String _name;      // the tileset name
-    protected String _file;      // the file containing the tile images
+    protected String _imgFile;   // the file containing the tile images
     protected int _tsid;         // the tileset unique identifier
     protected int _rowHeight[];  // the height of each row in pixels
     protected int _tileCount[];  // the number of tiles in each row

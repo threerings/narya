@@ -1,14 +1,15 @@
 //
-// $Id: CompiledTileSetManager.java,v 1.2 2001/07/16 18:59:31 shaper Exp $
+// $Id: CompiledTileSetManager.java,v 1.3 2001/07/17 17:21:33 shaper Exp $
 
 package com.threerings.cocktail.miso.tile;
 
-import com.samskivert.util.Config;
+import java.io.InputStream;
+import java.io.IOException;
 
 public class CompiledTileSetManager extends TileSetManagerImpl
 {
-    public CompiledTileSetManager (Config config)
+    public void loadTileSets (InputStream tis) throws IOException
     {
-	super(config);
+	// TBD
     }
 }
