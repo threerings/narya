@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Properties;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -705,7 +706,14 @@ public class SoundManager
         Config c = (Config) _configs.get(key.pkgPath);
         if (c == null) {
             String propPath = key.pkgPath + Sounds.PROP_NAME;
-            c = new Config(propPath);
+            Properties props = new Properties();
+            try {
+                props.load(_rmgr.getResource(propPath));
+            } catch (IOException ioe) {
+                Log.warning("Failed to load sound properties " +
+                            "[path=" + propPath + ", error=" + ioe + "].");
+            }
+            c = new Config(propPath, props);
             _configs.put(key.pkgPath, c);
         }
         return c;
