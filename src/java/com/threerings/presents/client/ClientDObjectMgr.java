@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.12 2002/02/09 07:50:37 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.13 2002/02/10 04:19:34 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -254,7 +254,7 @@ public class ClientDObjectMgr
      */
     protected void doSubscribe (int oid, Subscriber target)
     {
-        Log.info("doSubscribe: " + oid + ": " + target);
+        // Log.info("doSubscribe: " + oid + ": " + target);
 
         // first see if we've already got the object in our table
         DObject obj = (DObject)_ocache.get(oid);
@@ -278,7 +278,7 @@ public class ClientDObjectMgr
         req = new PendingRequest(oid);
         req.addTarget(target);
         _penders.put(oid, req);
-        Log.info("Registering pending request [oid=" + oid + "].");
+        // Log.info("Registering pending request [oid=" + oid + "].");
 
         // and issue a request to get things rolling
         _comm.postMessage(new SubscribeRequest(oid));
