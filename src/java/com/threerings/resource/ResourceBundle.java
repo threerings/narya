@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.5 2003/01/13 22:50:36 mdb Exp $
+// $Id: ResourceBundle.java,v 1.6 2003/01/14 00:58:59 mdb Exp $
 
 package com.threerings.resource;
 
@@ -32,6 +32,7 @@ public class ResourceBundle
     public ResourceBundle (File source)
     {
         _source = source;
+        _sourceLastMod = source.lastModified();
     }
 
     /**
@@ -83,7 +84,9 @@ public class ResourceBundle
         // compute the path to our temporary file
         String tpath = StringUtil.md5hex(_source.getPath() + "%" + path);
         File tfile = new File(_tmpdir, tpath);
-        if (tfile.exists()) {
+        if (tfile.exists() && (tfile.lastModified() > _sourceLastMod)) {
+            System.out.println("Using cached " + _source.getPath() +
+                               ":" + path);
             return tfile;
         }
 
@@ -93,9 +96,7 @@ public class ResourceBundle
             return null;
         }
 
-        // clean up our unpacked files when the JVM exits
-//         tfile.deleteOnExit();
-
+        System.out.println("Unpacking " + path);
         // copy the resource into the temporary file
         BufferedOutputStream fout =
             new BufferedOutputStream(new FileOutputStream(tfile));
@@ -160,6 +161,9 @@ public class ResourceBundle
 
     /** The file from which we construct our jar file. */
     protected File _source;
+
+    /** The last modified time of our source jar file. */
+    protected long _sourceLastMod;
 
     /** The directory into which our contents are unpacked, if we are
      * unpacked. */
