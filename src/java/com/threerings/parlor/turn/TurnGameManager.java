@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameManager.java,v 1.6 2002/06/19 23:18:58 mdb Exp $
+// $Id: TurnGameManager.java,v 1.7 2002/08/06 23:23:39 shaper Exp $
 
 package com.threerings.parlor.turn;
 
@@ -42,9 +42,15 @@ public interface TurnGameManager
 
     /**
      * Called when we are about to start the next turn. Implementations
-     * can do whatever pre-turn activities need to be done.
+     * can do whatever pre-start turn activities need to be done.
      */
     public void turnWillStart ();
+
+    /**
+     * Called when we have started the next turn. Implementations can do
+     * whatever post-start turn activities need to be done.
+     */
+    public void turnDidStart ();
 
     /**
      * Called when the turn was ended. Implementations can perform any

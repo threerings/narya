@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameManagerDelegate.java,v 1.5 2002/06/19 23:18:58 mdb Exp $
+// $Id: TurnGameManagerDelegate.java,v 1.6 2002/08/06 23:23:39 shaper Exp $
 
 package com.threerings.parlor.turn;
 
@@ -13,7 +13,7 @@ import com.threerings.parlor.util.MathUtil;
 /**
  * Performs the server-side turn-based game processing for a turn based
  * game. Game managers which wish to make use of the turn services must
- * implement {@link TurnGameManager} either create an instance of this
+ * implement {@link TurnGameManager} and either create an instance of this
  * class, or an instance of a derivation which customizes the behavior,
  * either of which would be passed to {@link GameManager#addDelegate} to
  * be activated.
@@ -69,11 +69,14 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
             return;
         }
 
-        // let the derived class do their thing
+        // do pre-start processing
         _tgmgr.turnWillStart();
 
         // and set the turn indicator accordingly
         _turnGame.setTurnHolder(_tgmgr.getPlayerName(_turnIdx));
+
+        // do post-start processing
+        _tgmgr.turnDidStart();
     }
 
     /**
@@ -127,7 +130,7 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
     }
 
     /**
-     * This is called to determine whichi player will take the first
+     * This is called to determine which player will take the first
      * turn. The default implementation chooses a player at random.
      */
     protected void setFirstTurnHolder ()
