@@ -1,5 +1,5 @@
 //
-// $Id: TestServer.java,v 1.3 2001/11/08 02:07:36 mdb Exp $
+// $Id: TestServer.java,v 1.4 2002/03/28 22:32:33 mdb Exp $
 
 package com.threerings.parlor;
 
@@ -23,7 +23,7 @@ public class TestServer extends CrowdServer
         super.init();
 
         // initialize our parlor manager
-        parmgr.init(config, invmgr);
+        parmgr.init(invmgr);
 
         Log.info("Parlor server initialized.");
     }

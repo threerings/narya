@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.36 2002/02/21 06:01:29 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.37 2002/03/28 22:32:32 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -18,7 +18,6 @@ import com.threerings.media.animation.AnimationManager;
 import com.threerings.media.sprite.SpriteManager;
 
 import com.threerings.miso.Log;
-import com.threerings.miso.util.MisoUtil;
 import com.threerings.miso.scene.util.IsoUtil;
 
 /**

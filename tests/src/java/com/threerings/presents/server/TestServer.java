@@ -1,5 +1,5 @@
 //
-// $Id: TestServer.java,v 1.7 2001/11/08 02:07:36 mdb Exp $
+// $Id: TestServer.java,v 1.8 2002/03/28 22:32:33 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -8,21 +8,12 @@ import com.threerings.presents.dobj.*;
 
 public class TestServer extends PresentsServer
 {
-    /** The namespace used for server config properties. */
-    public static final String CONFIG_KEY = "test";
-
     public static TestObject testobj;
 
     public void init ()
         throws Exception
     {
         super.init();
-
-        // bind the crowd server config into the namespace
-        config.bindProperties(CONFIG_KEY, CONFIG_PATH, true);
-
-        // register our invocation service providers
-        registerProviders(config.getValue(PROVIDERS_KEY, (String[])null));
 
         // create a test object
         Subscriber sub = new Subscriber()
@@ -52,11 +43,4 @@ public class TestServer extends PresentsServer
             Log.logStackTrace(e);
         }
     }
-
-    // the path to the config file
-    protected final static String CONFIG_PATH =
-        "rsrc/config/presents/test/server";
-
-    // the config key for our list of invocation provider mappings
-    protected final static String PROVIDERS_KEY = CONFIG_KEY + ".providers";
 }

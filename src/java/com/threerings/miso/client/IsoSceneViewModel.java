@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.22 2002/02/18 06:06:14 mdb Exp $
+// $Id: IsoSceneViewModel.java,v 1.23 2002/03/28 22:32:32 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -7,11 +7,9 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
-import com.samskivert.util.Config;
-
 import com.threerings.miso.Log;
+import com.threerings.miso.MisoConfig;
 import com.threerings.miso.scene.util.IsoUtil;
-import com.threerings.miso.util.MisoUtil;
 
 /**
  * Provides a holding place for the myriad parameters and bits of data
@@ -19,7 +17,7 @@ import com.threerings.miso.util.MisoUtil;
  *
  * <p> The member data are public to facilitate speedy referencing by the
  * {@link IsoSceneView} class.  The model should only be modified through
- * the constructor's passed-in {@link Config} object and the accessor
+ * the configuration data provided via {@link MisoConfig} and the accessor
  * methods.
  */
 public class IsoSceneViewModel
@@ -81,29 +79,34 @@ public class IsoSceneViewModel
      *
      * @param config the config object.
      */
-    public IsoSceneViewModel (Config config)
+    public IsoSceneViewModel ()
     {
 	// set the scene tile dimensions
-	scenewid = config.getValue(SCENE_WIDTH_KEY, DEF_SCENE_WIDTH);
-	scenehei = config.getValue(SCENE_HEIGHT_KEY, DEF_SCENE_HEIGHT);
+	scenewid = MisoConfig.config.getValue(
+            SCENE_WIDTH_KEY, DEF_SCENE_WIDTH);
+	scenehei = MisoConfig.config.getValue(
+            SCENE_HEIGHT_KEY, DEF_SCENE_HEIGHT);
 
 	// get the tile dimensions
-	tilewid = config.getValue(TILE_WIDTH_KEY, DEF_TILE_WIDTH);
-	tilehei = config.getValue(TILE_HEIGHT_KEY, DEF_TILE_HEIGHT);
+	tilewid = MisoConfig.config.getValue(TILE_WIDTH_KEY, DEF_TILE_WIDTH);
+	tilehei = MisoConfig.config.getValue(TILE_HEIGHT_KEY, DEF_TILE_HEIGHT);
 
 	// set the fine coordinate granularity
-	finegran = config.getValue(FINE_GRAN_KEY, DEF_FINE_GRAN);
+	finegran = MisoConfig.config.getValue(FINE_GRAN_KEY, DEF_FINE_GRAN);
 
 	// set our various flags
-        showCoords = config.getValue(SHOW_COORDS_KEY, DEF_SHOW_COORDS);
-	showPaths = config.getValue(SHOW_PATHS_KEY, DEF_SHOW_PATHS);
-	showFootprints = config.getValue(SHOW_FOOTPRINTS_KEY,
-                                         DEF_SHOW_FOOTPRINTS);
+        showCoords = MisoConfig.config.getValue(
+            SHOW_COORDS_KEY, DEF_SHOW_COORDS);
+	showPaths = MisoConfig.config.getValue(SHOW_PATHS_KEY, DEF_SHOW_PATHS);
+	showFootprints = MisoConfig.config.getValue(
+            SHOW_FOOTPRINTS_KEY, DEF_SHOW_FOOTPRINTS);
 
         // precalculate various things
-	int svwid = config.getValue(SCENE_VWIDTH_KEY, DEF_SCENE_VWIDTH);
-	int svhei = config.getValue(SCENE_VHEIGHT_KEY, DEF_SCENE_VHEIGHT);
-	int offy = config.getValue(SCENE_OFFSET_Y_KEY, DEF_OFFSET_Y);
+	int svwid = MisoConfig.config.getValue(
+            SCENE_VWIDTH_KEY, DEF_SCENE_VWIDTH);
+	int svhei = MisoConfig.config.getValue(
+            SCENE_VHEIGHT_KEY, DEF_SCENE_VHEIGHT);
+	int offy = MisoConfig.config.getValue(SCENE_OFFSET_Y_KEY, DEF_OFFSET_Y);
         precalculate(svwid, svhei, offy);
     }
 
@@ -266,48 +269,37 @@ public class IsoSceneViewModel
     }
 
     /** The config key for tile width in pixels. */
-    protected static final String TILE_WIDTH_KEY =
-	MisoUtil.CONFIG_KEY + ".tile_width";
+    protected static final String TILE_WIDTH_KEY = "tile_width";
 
     /** The config key for tile height in pixels. */
-    protected static final String TILE_HEIGHT_KEY =
-	MisoUtil.CONFIG_KEY + ".tile_height";
+    protected static final String TILE_HEIGHT_KEY = "tile_height";
 
     /** The config key for tile fine coordinate granularity. */
-    protected static final String FINE_GRAN_KEY =
-	MisoUtil.CONFIG_KEY + ".fine_granularity";
+    protected static final String FINE_GRAN_KEY = "fine_granularity";
 
     /** The config key for scene view width in tile count. */
-    protected static final String SCENE_VWIDTH_KEY =
-	MisoUtil.CONFIG_KEY + ".scene_view_width";
+    protected static final String SCENE_VWIDTH_KEY = "scene_view_width";
 
     /** The config key for scene view height in tile count. */
-    protected static final String SCENE_VHEIGHT_KEY =
-	MisoUtil.CONFIG_KEY + ".scene_view_height";
+    protected static final String SCENE_VHEIGHT_KEY = "scene_view_height";
 
     /** The config key for scene width in tile count. */
-    protected static final String SCENE_WIDTH_KEY =
-	MisoUtil.CONFIG_KEY + ".scene_width";
+    protected static final String SCENE_WIDTH_KEY = "scene_width";
 
     /** The config key for scene height in tile count. */
-    protected static final String SCENE_HEIGHT_KEY =
-	MisoUtil.CONFIG_KEY + ".scene_height";
+    protected static final String SCENE_HEIGHT_KEY = "scene_height";
 
     /** The config key for scene origin vertical offset in tile count. */
-    protected static final String SCENE_OFFSET_Y_KEY =
-	MisoUtil.CONFIG_KEY + ".scene_offset_y";
+    protected static final String SCENE_OFFSET_Y_KEY = "scene_offset_y";
 
     /** The config key for whether to show tile coordinates. */
-    protected static final String SHOW_COORDS_KEY =
-	MisoUtil.CONFIG_KEY + ".show_coords";
+    protected static final String SHOW_COORDS_KEY = "show_coords";
 
     /** The config key for whether to show sprite paths. */
-    protected static final String SHOW_PATHS_KEY =
-	MisoUtil.CONFIG_KEY + ".show_paths";
+    protected static final String SHOW_PATHS_KEY = "show_paths";
 
     /** The config key for whether to show object tile footprints. */
-    protected static final String SHOW_FOOTPRINTS_KEY =
-	MisoUtil.CONFIG_KEY + ".show_footprints";
+    protected static final String SHOW_FOOTPRINTS_KEY = "show_footprints";
 
     /** Default scene view parameters. */
     protected static final int DEF_TILE_WIDTH = 64;

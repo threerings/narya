@@ -1,11 +1,10 @@
 //
-// $Id: WhirledServer.java,v 1.12 2002/03/05 03:19:18 mdb Exp $
+// $Id: WhirledServer.java,v 1.13 2002/03/28 22:32:33 mdb Exp $
 
 package com.threerings.whirled.server;
 
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.StaticConnectionProvider;
-import com.samskivert.util.Config;
 
 import com.threerings.crowd.server.CrowdServer;
 
@@ -19,9 +18,6 @@ import com.threerings.whirled.server.persist.DummySceneRepository;
  */
 public class WhirledServer extends CrowdServer
 {
-    /** The namespace used for server config properties. */
-    public static final String CONFIG_KEY = "whirled";
-
     /** The database connection provider in use by this server. */
     public static ConnectionProvider conprov;
 
@@ -37,23 +33,17 @@ public class WhirledServer extends CrowdServer
         // do the base server initialization
         super.init();
 
-        // bind the whirled server config into the namespace
-        config.bindProperties(CONFIG_KEY, CONFIG_PATH, true);
-
         // configure the client to use our whirled client
         clmgr.setClientClass(WhirledClient.class);
 
         // create our connection provider
-        conprov = createConnectionProvider(config);
+        conprov = createConnectionProvider();
 
         // create the scene repository
         _screp = createSceneRepository(conprov);
 
         // create our scene registry
         screg = new SceneRegistry(invmgr, _screp);
-
-        // register our invocation service providers
-        registerProviders(config.getValue(PROVIDERS_KEY, (String[])null));
 
         Log.info("Whirled server initialized.");
     }
@@ -69,10 +59,10 @@ public class WhirledServer extends CrowdServer
      * @exception Exception thrown if an error occurs creating the
      * connection provider.
      */
-    protected ConnectionProvider createConnectionProvider (Config config)
+    protected ConnectionProvider createConnectionProvider ()
         throws Exception
     {
-        String dbmap = config.getValue(DBMAP_KEY, DEF_DBMAP);
+        String dbmap = WhirledConfig.config.getValue(DBMAP_KEY, DEF_DBMAP);
         return new StaticConnectionProvider(dbmap);
     }
 
@@ -107,15 +97,8 @@ public class WhirledServer extends CrowdServer
     /** The scene repository in use by this server. */
     protected SceneRepository _screp;
 
-    // the path to the config file
-    protected final static String CONFIG_PATH =
-        "rsrc/config/whirled/server";
-
-    // the config key for our list of invocation provider mappings
-    protected final static String PROVIDERS_KEY = CONFIG_KEY + ".providers";
-
     // connection provider related configuration info
-    protected final static String DBMAP_KEY = CONFIG_KEY + ".dbmap";
+    protected final static String DBMAP_KEY = "dbmap";
     protected final static String DEF_DBMAP =
         "rsrc/config/whirled/dbmap";
 }

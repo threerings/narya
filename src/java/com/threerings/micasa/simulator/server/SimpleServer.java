@@ -1,5 +1,5 @@
 //
-// $Id: SimpleServer.java,v 1.3 2002/03/05 05:33:25 mdb Exp $
+// $Id: SimpleServer.java,v 1.4 2002/03/28 22:32:32 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -21,6 +21,6 @@ public class SimpleServer extends CrowdServer
 
         // create the simulator manager
         SimulatorManager simmgr = new SimulatorManager();
-        simmgr.init(config, invmgr, plreg, clmgr, omgr, this);
+        simmgr.init(invmgr, plreg, clmgr, omgr, this);
     }
 }

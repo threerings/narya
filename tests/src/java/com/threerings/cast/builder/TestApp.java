@@ -1,12 +1,11 @@
 //
-// $Id: TestApp.java,v 1.11 2002/01/16 03:01:24 mdb Exp $
+// $Id: TestApp.java,v 1.12 2002/03/28 22:32:33 mdb Exp $
 
 package com.threerings.cast.builder;
 
 import java.io.IOException;
 import javax.swing.JFrame;
 
-import com.samskivert.util.Config;
 import com.samskivert.swing.util.SwingUtil;
 
 import com.threerings.resource.ResourceManager;
@@ -18,7 +17,6 @@ import com.threerings.cast.ComponentRepository;
 import com.threerings.cast.bundle.BundledComponentRepository;
 
 import com.threerings.miso.scene.MisoCharacterSprite;
-import com.threerings.miso.util.MisoUtil;
 
 public class TestApp
 {
@@ -28,10 +26,6 @@ public class TestApp
         _frame = new TestFrame();
         _frame.setSize(800, 600);
         SwingUtil.centerWindow(_frame);
-
-        // create the handles on our various services
-        _config = new Config();
-        MisoUtil.bindProperties(_config);
 
         ResourceManager rmgr = new ResourceManager(
             "rsrc", null, "config/resource/manager.properties");
@@ -65,7 +59,4 @@ public class TestApp
 
     /** The test frame. */
     protected JFrame _frame;
-
-    /** The config object. */
-    protected Config _config;
 }

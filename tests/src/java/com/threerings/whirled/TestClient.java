@@ -1,9 +1,8 @@
 //
-// $Id: TestClient.java,v 1.10 2002/02/09 20:47:11 mdb Exp $
+// $Id: TestClient.java,v 1.11 2002/03/28 22:32:34 mdb Exp $
 
 package com.threerings.whirled;
 
-import com.samskivert.util.Config;
 import com.samskivert.util.Queue;
 
 import com.threerings.presents.client.*;
@@ -28,7 +27,6 @@ public class TestClient
         _ctx = new WhirledContextImpl();
 
         // create the handles for our various services
-        _config = new Config();
         _client = new Client(creds, this);
         _screp = new DummyClientSceneRepository();
         _occmgr = new OccupantManager(_ctx);
@@ -126,11 +124,6 @@ public class TestClient
 
     protected class WhirledContextImpl implements WhirledContext
     {
-        public Config getConfig ()
-        {
-            return _config;
-        }
-
         public Client getClient ()
         {
             return _client;
@@ -162,7 +155,6 @@ public class TestClient
         }
     }
 
-    protected Config _config;
     protected Client _client;
     protected LocationDirector _locdir;
     protected SceneDirector _scdir;

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.44 2002/03/27 21:49:11 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.45 2002/03/28 22:32:33 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -45,7 +45,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
                                  CharacterManager charmgr,
                                  ComponentRepository crepo)
     {
-	super(new IsoSceneViewModel(ctx.getConfig()));
+	super(new IsoSceneViewModel());
 
         // create the character descriptors
         _descUser = CastUtil.getRandomDescriptor("female", crepo);

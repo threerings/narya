@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaClient.java,v 1.10 2002/02/26 05:48:11 mdb Exp $
+// $Id: MiCasaClient.java,v 1.11 2002/03/28 22:32:31 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -8,8 +8,6 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-
-import com.samskivert.util.Config;
 
 import com.threerings.util.MessageManager;
 
@@ -97,7 +95,6 @@ public class MiCasaClient
         throws IOException
     {
         // create the handles on our various services
-        _config = new Config();
         _client = new Client(null, this);
 
         // create our managers and directors
@@ -128,11 +125,6 @@ public class MiCasaClient
          */
         protected MiCasaContextImpl ()
         {
-        }
-
-        public Config getConfig ()
-        {
-            return _config;
         }
 
         public Client getClient ()
@@ -180,7 +172,6 @@ public class MiCasaClient
     protected MiCasaContext _ctx;
     protected MiCasaFrame _frame;
 
-    protected Config _config;
     protected Client _client;
     protected LocationDirector _locdir;
     protected OccupantManager _occmgr;

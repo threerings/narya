@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.18 2002/03/05 03:19:18 mdb Exp $
+// $Id: PresentsServer.java,v 1.19 2002/03/28 22:32:32 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -25,9 +25,6 @@ public class PresentsServer
     /** The namespace used for server config properties. */
     public static final String CONFIG_KEY = "presents";
 
-    /** The server configuration. */
-    public static Config config;
-
     /** The manager of network connections. */
     public static ConnectionManager conmgr;
 
@@ -51,11 +48,6 @@ public class PresentsServer
     public void init ()
         throws Exception
     {
-        // create our configuration object
-        config = new Config();
-        // bind the presents server config into the namespace
-        config.bindProperties(CONFIG_KEY, CONFIG_PATH, true);
-
         // create our distributed object manager
         omgr = new PresentsDObjectMgr();
 
@@ -64,7 +56,7 @@ public class PresentsServer
         invoker.start();
 
         // create our connection manager
-        conmgr = new ConnectionManager(config);
+        conmgr = new ConnectionManager();
         conmgr.setAuthenticator(new DummyAuthenticator());
 
         // create our client manager
@@ -74,7 +66,9 @@ public class PresentsServer
         invmgr = new InvocationManager(omgr);
 
         // register our invocation service providers
-        registerProviders(config.getValue(PROVIDERS_KEY, (String[])null));
+        String[] providers = null;
+        providers = PresentsConfig.config.getValue(PROVIDERS_KEY, providers);
+        registerProviders(providers);
     }
 
     /**
@@ -182,10 +176,6 @@ public class PresentsServer
         }
     }
 
-    // the path to the config file
-    protected final static String CONFIG_PATH =
-        "rsrc/config/presents/server";
-
     // the config key for our list of invocation provider mappings
-    protected final static String PROVIDERS_KEY = CONFIG_KEY + ".providers";
+    protected final static String PROVIDERS_KEY = "providers";
 }

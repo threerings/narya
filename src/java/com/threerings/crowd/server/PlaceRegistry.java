@@ -1,11 +1,10 @@
 //
-// $Id: PlaceRegistry.java,v 1.18 2001/12/14 00:11:17 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.19 2002/03/28 22:32:31 mdb Exp $
 
 package com.threerings.crowd.server;
 
 import java.util.Iterator;
 
-import com.samskivert.util.Config;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Tuple;
 import com.samskivert.util.Queue;
@@ -49,8 +48,7 @@ public class PlaceRegistry
      * Creates and initializes the place registry; called by the server
      * during its initialization phase.
      */
-    public PlaceRegistry (Config config, InvocationManager invmgr,
-                          RootDObjectManager omgr)
+    public PlaceRegistry (InvocationManager invmgr, RootDObjectManager omgr)
     {
         // we'll need this later
         _omgr = omgr;

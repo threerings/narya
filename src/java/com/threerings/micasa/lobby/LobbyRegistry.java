@@ -1,5 +1,5 @@
 //
-// $Id: LobbyRegistry.java,v 1.7 2001/10/22 23:56:42 mdb Exp $
+// $Id: LobbyRegistry.java,v 1.8 2002/03/28 22:32:31 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -10,6 +10,7 @@ import com.threerings.presents.server.InvocationManager;
 import com.threerings.crowd.data.BodyObject;
 
 import com.threerings.micasa.Log;
+import com.threerings.micasa.server.MiCasaConfig;
 import com.threerings.micasa.server.MiCasaServer;
 
 /**
@@ -72,16 +73,15 @@ public class LobbyRegistry implements LobbyCodes
      * @param config the server configuration.
      * @param invmgr a reference to the server's invocation manager.
      */
-    public void init (Config config, InvocationManager invmgr)
+    public void init (InvocationManager invmgr)
     {
-        _config = config;
-
         // register our invocation service handler
         LobbyProvider provider = new LobbyProvider(this);
         invmgr.registerProvider(MODULE_NAME, provider);
 
         // create our lobby managers
-        String[] lmgrs = config.getValue(LOBIDS_KEY, (String[])null);
+        String[] lmgrs = null;
+        lmgrs = MiCasaConfig.config.getValue(LOBIDS_KEY, lmgrs);
         if (lmgrs == null || lmgrs.length == 0) {
             Log.warning("No lobbies specified in config file (via '" +
                         LOBIDS_KEY + "' parameter).");
@@ -109,9 +109,7 @@ public class LobbyRegistry implements LobbyCodes
     {
         try {
             // extract the properties for this lobby
-            Properties props =
-                _config.getProperties(MiCasaServer.CONFIG_KEY);
-            props = PropertiesUtil.getSubProperties(props, lobbyId);
+            Properties props = MiCasaConfig.config.getSubProperties(lobbyId);
 
             // get the lobby manager class and UGI
             String cfgClass = props.getProperty("config");
@@ -215,10 +213,6 @@ public class LobbyRegistry implements LobbyCodes
         Log.info("Registered lobby [cat=" + category +
                  ", record=" + record + "].");
     }
-
-    /** A reference to the server config object from which we loaded all
-     * of our configuration information. */
-    protected Config _config;
 
     /** A table containing references to all of our lobby records (in the
      * form of category lists. */

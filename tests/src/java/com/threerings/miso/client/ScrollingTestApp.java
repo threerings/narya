@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.7 2002/03/08 22:37:50 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.8 2002/03/28 22:32:33 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -32,8 +32,8 @@ import com.threerings.cast.NoSuchComponentException;
 import com.threerings.cast.bundle.BundledComponentRepository;
 
 import com.threerings.miso.Log;
+import com.threerings.miso.MisoConfig;
 import com.threerings.miso.util.MisoContext;
-import com.threerings.miso.util.MisoUtil;
 
 /**
  * Tests the scrolling capabilities of the IsoSceneView.
@@ -68,7 +68,6 @@ public class ScrollingTestApp
 	_frame = new ScrollingFrame(gc);
 
         // we don't need to configure anything
-        _config = new Config();
         ResourceManager rmgr = new ResourceManager(
             "rsrc", null, "config/resource/manager.properties");
         ImageManager imgr = new ImageManager(rmgr, _frame);
@@ -76,8 +75,8 @@ public class ScrollingTestApp
         _tilemgr.setTileSetRepository(
             new BundledTileSetRepository(rmgr, imgr, "tilesets"));
 
-        // bind our miso properties
-	_config.bindProperties("miso", "rsrc/config/miso/scrolling");
+        // hack in some different MisoProperties
+        MisoConfig.config = new Config("rsrc/config/miso/scrolling");
 
 	// create the context object
 	MisoContext ctx = new ContextImpl();
@@ -89,7 +88,7 @@ public class ScrollingTestApp
         charmgr.setCharacterClass(MisoCharacterSprite.class);
 
         // create our scene view panel
-        _panel = new SceneViewPanel(new IsoSceneViewModel(_config));
+        _panel = new SceneViewPanel(new IsoSceneViewModel());
         _frame.setPanel(_panel);
 
         // create our "ship" sprite
@@ -139,16 +138,10 @@ public class ScrollingTestApp
 
     /**
      * The implementation of the MisoContext interface that provides
-     * handles to the config and manager objects that offer commonly used
-     * services.
+     * handles to the manager objects that offer commonly used services.
      */
     protected class ContextImpl implements MisoContext
     {
-	public Config getConfig ()
-	{
-	    return _config;
-	}
-
 	public TileManager getTileManager ()
 	{
 	    return _tilemgr;
@@ -177,9 +170,6 @@ public class ScrollingTestApp
             ioe.printStackTrace();
         }
     }
-
-    /** The config object. */
-    protected Config _config;
 
     /** The tile manager object. */
     protected TileManager _tilemgr;

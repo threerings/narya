@@ -1,11 +1,10 @@
 //
-// $Id: MiCasaServer.java,v 1.4 2001/10/11 04:13:33 mdb Exp $
+// $Id: MiCasaServer.java,v 1.5 2002/03/28 22:32:32 mdb Exp $
 
 package com.threerings.micasa.server;
 
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.StaticConnectionProvider;
-import com.samskivert.util.Config;
 
 import com.threerings.crowd.server.CrowdServer;
 import com.threerings.parlor.server.ParlorManager;
@@ -19,9 +18,6 @@ import com.threerings.micasa.lobby.LobbyRegistry;
  */
 public class MiCasaServer extends CrowdServer
 {
-    /** The namespace used for server config properties. */
-    public static final String CONFIG_KEY = "micasa";
-
     /** The database connection provider in use by this server. */
     public static ConnectionProvider conprov;
 
@@ -43,17 +39,14 @@ public class MiCasaServer extends CrowdServer
         // configure the client manager to use our client class
         clmgr.setClientClass(MiCasaClient.class);
 
-        // bind the whirled server config into the namespace
-        config.bindProperties(CONFIG_KEY, CONFIG_PATH, true);
-
         // initialize our parlor manager
-        parmgr.init(config, invmgr);
+        parmgr.init(invmgr);
 
         // initialize the lobby registry
-        lobreg.init(config, invmgr);
+        lobreg.init(invmgr);
 
         // create our connection provider
-        String dbmap = config.getValue(DBMAP_KEY, DEF_DBMAP);
+        String dbmap = MiCasaConfig.config.getValue(DBMAP_KEY, DEF_DBMAP);
         conprov = new StaticConnectionProvider(dbmap);
 
         Log.info("MiCasa server initialized.");
@@ -71,12 +64,8 @@ public class MiCasaServer extends CrowdServer
         }
     }
 
-    // the path to the config file
-    protected final static String CONFIG_PATH =
-        "rsrc/config/micasa/server";
-
     // connection provider related configuration info
-    protected final static String DBMAP_KEY = CONFIG_KEY + ".dbmap";
+    protected final static String DBMAP_KEY = "dbmap";
     protected final static String DEF_DBMAP =
         "rsrc/config/micasa/dbmap.properties";
 }

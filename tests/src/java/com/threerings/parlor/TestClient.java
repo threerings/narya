@@ -1,9 +1,8 @@
 //
-// $Id: TestClient.java,v 1.6 2002/02/09 20:47:11 mdb Exp $
+// $Id: TestClient.java,v 1.7 2002/03/28 22:32:33 mdb Exp $
 
 package com.threerings.parlor;
 
-import com.samskivert.util.Config;
 import com.samskivert.util.Queue;
 
 import com.threerings.presents.client.*;
@@ -28,7 +27,6 @@ public class TestClient
         _ctx = new ParlorContextImpl();
 
         // create the handles on our various services
-        _config = new Config();
         _client = new Client(creds, this);
         _locdir = new LocationDirector(_ctx);
         _occmgr = new OccupantManager(_ctx);
@@ -146,11 +144,6 @@ public class TestClient
 
     protected class ParlorContextImpl implements ParlorContext
     {
-        public Config getConfig ()
-        {
-            return _config;
-        }
-
         public Client getClient ()
         {
             return _client;
@@ -182,7 +175,6 @@ public class TestClient
         }
     }
 
-    protected Config _config;
     protected Client _client;
     protected LocationDirector _locdir;
     protected OccupantManager _occmgr;

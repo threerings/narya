@@ -1,18 +1,19 @@
 //
-// $Id: MisoContext.java,v 1.7 2001/11/18 04:09:23 mdb Exp $
+// $Id: MisoContext.java,v 1.8 2002/03/28 22:32:32 mdb Exp $
 
 package com.threerings.miso.util;
 
-import com.samskivert.util.Context;
-
-import com.threerings.media.ImageManager;
 import com.threerings.media.tile.TileManager;
 
-public interface MisoContext extends Context
+/**
+ * Provides Miso code with access to the managers that it needs to do its
+ * thing.
+ */
+public interface MisoContext
 {
     /**
-     * Returns a reference to the tile manager.  This reference is
-     * valid for the lifetime of the application.
+     * Returns a reference to the tile manager. This reference is valid
+     * for the lifetime of the application.
      */
     public TileManager getTileManager ();
 }

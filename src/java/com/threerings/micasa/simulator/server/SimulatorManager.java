@@ -1,11 +1,9 @@
 //
-// $Id: SimulatorManager.java,v 1.8 2002/03/26 01:30:37 shaper Exp $
+// $Id: SimulatorManager.java,v 1.9 2002/03/28 22:32:32 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
 import java.util.ArrayList;
-
-import com.samskivert.util.Config;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.RootDObjectManager;
@@ -41,13 +39,12 @@ public class SimulatorManager
      * the server that is making use of the simulator services on the
      * single instance of simulator manager that it has created.
      *
-     * @param config the configuration object in use by this server.
      * @param invmgr a reference to the invocation manager in use by this
      * server.
      */
-    public void init (Config config, InvocationManager invmgr,
-                      PlaceRegistry plreg, ClientManager clmgr,
-                      RootDObjectManager omgr, SimulatorServer simserv)
+    public void init (InvocationManager invmgr, PlaceRegistry plreg,
+                      ClientManager clmgr, RootDObjectManager omgr,
+                      SimulatorServer simserv)
     {
         // register our simulator provider
         SimulatorProvider sprov = new SimulatorProvider(this);

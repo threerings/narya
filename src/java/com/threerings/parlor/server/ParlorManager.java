@@ -1,9 +1,8 @@
 //
-// $Id: ParlorManager.java,v 1.16 2002/02/20 02:10:02 shaper Exp $
+// $Id: ParlorManager.java,v 1.17 2002/03/28 22:32:32 mdb Exp $
 
 package com.threerings.parlor.server;
 
-import com.samskivert.util.Config;
 import com.samskivert.util.HashIntMap;
 
 import com.threerings.presents.server.InvocationManager;
@@ -32,11 +31,10 @@ public class ParlorManager
      * that is making use of the parlor services on the single instance of
      * parlor manager that it has created.
      *
-     * @param config the configuration object in use by this server.
      * @param invmgr a reference to the invocation manager in use by this
      * server.
      */
-    public void init (Config config, InvocationManager invmgr)
+    public void init (InvocationManager invmgr)
     {
         // register our invocation provider
         ParlorProvider pprov = new ParlorProvider(this);

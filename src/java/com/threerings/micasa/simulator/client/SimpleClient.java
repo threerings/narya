@@ -1,5 +1,5 @@
 //
-// $Id: SimpleClient.java,v 1.2 2002/02/05 22:58:23 mdb Exp $
+// $Id: SimpleClient.java,v 1.3 2002/03/28 22:32:32 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -10,8 +10,6 @@ import java.io.IOException;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-
-import com.samskivert.util.Config;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.DObjectManager;
@@ -36,7 +34,6 @@ public class SimpleClient
         _ctx = new ParlorContextImpl();
 
         // create the handles on our various services
-        _config = new Config();
         _client = new Client(null, this);
 
         // create our managers and directors
@@ -83,11 +80,6 @@ public class SimpleClient
      */
     protected class ParlorContextImpl implements ParlorContext
     {
-        public Config getConfig ()
-        {
-            return _config;
-        }
-
         public Client getClient ()
         {
             return _client;
@@ -123,7 +115,6 @@ public class SimpleClient
     protected ParlorContext _ctx;
     protected SimulatorFrame _frame;
 
-    protected Config _config;
     protected Client _client;
     protected LocationDirector _locdir;
     protected OccupantManager _occmgr;

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.27 2002/02/19 07:43:20 mdb Exp $
+// $Id: ViewerApp.java,v 1.28 2002/03/28 22:32:33 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -10,7 +10,6 @@ import java.awt.GraphicsEnvironment;
 import java.io.IOException;
 
 import com.samskivert.swing.util.SwingUtil;
-import com.samskivert.util.Config;
 
 import com.threerings.resource.ResourceManager;
 import com.threerings.media.ImageManager;
@@ -27,7 +26,6 @@ import com.threerings.miso.scene.MisoCharacterSprite;
 import com.threerings.miso.scene.MisoSceneModel;
 import com.threerings.miso.scene.tools.xml.MisoSceneParser;
 import com.threerings.miso.util.MisoContext;
-import com.threerings.miso.util.MisoUtil;
 
 /**
  * The ViewerApp is a scene viewing application that allows for trying
@@ -68,16 +66,12 @@ public class ViewerApp
 	_frame = new ViewerFrame(gc);
 
         // we don't need to configure anything
-        _config = new Config();
         ResourceManager rmgr = new ResourceManager(
             "rsrc", null, "config/resource/manager.properties");
         ImageManager imgr = new ImageManager(rmgr, _frame);
 	_tilemgr = new TileManager(imgr);
         _tilemgr.setTileSetRepository(
             new BundledTileSetRepository(rmgr, imgr, "tilesets"));
-
-        // bind our miso properties
-        MisoUtil.bindProperties(_config);
 
 	// create the context object
 	MisoContext ctx = new ContextImpl();
@@ -129,11 +123,6 @@ public class ViewerApp
      */
     protected class ContextImpl implements MisoContext
     {
-	public Config getConfig ()
-	{
-	    return _config;
-	}
-
 	public TileManager getTileManager ()
 	{
 	    return _tilemgr;
@@ -162,9 +151,6 @@ public class ViewerApp
             ioe.printStackTrace();
         }
     }
-
-    /** The config object. */
-    protected Config _config;
 
     /** The tile manager object. */
     protected TileManager _tilemgr;

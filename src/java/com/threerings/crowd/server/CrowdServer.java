@@ -1,5 +1,5 @@
 //
-// $Id: CrowdServer.java,v 1.10 2002/03/05 05:33:25 mdb Exp $
+// $Id: CrowdServer.java,v 1.11 2002/03/28 22:32:31 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -31,9 +31,6 @@ public class CrowdServer extends PresentsServer
         // do the presents server initialization
         super.init();
 
-        // bind the crowd server config into the namespace
-        config.bindProperties(CONFIG_KEY, CONFIG_PATH, true);
-
         // configure the client manager to use our client
         clmgr.setClientClass(CrowdClient.class);
 
@@ -41,10 +38,12 @@ public class CrowdServer extends PresentsServer
         clmgr.setClientResolverClass(CrowdClientResolver.class);
 
         // create our place registry
-        plreg = new PlaceRegistry(config, invmgr, omgr);
+        plreg = new PlaceRegistry(invmgr, omgr);
 
         // register our invocation service providers
-        registerProviders(config.getValue(PROVIDERS_KEY, (String[])null));
+        String[] providers = null;
+        providers = CrowdConfig.config.getValue(PROVIDERS_KEY, providers);
+        registerProviders(providers);
 
         Log.info("Crowd server initialized.");
     }
@@ -74,10 +73,6 @@ public class CrowdServer extends PresentsServer
     /** We use this to map usernames to body objects. */
     protected static HashMap _bodymap = new HashMap();
 
-    // the path to the config file
-    protected final static String CONFIG_PATH =
-        "rsrc/config/crowd/server";
-
-    // the config key for our list of invocation provider mappings
-    protected final static String PROVIDERS_KEY = CONFIG_KEY + ".providers";
+    /** The config key for our list of invocation provider mappings. */
+    protected final static String PROVIDERS_KEY = "providers";
 }
