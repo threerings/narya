@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleManagerDelegate.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: PuzzleManagerDelegate.java,v 1.2 2003/11/26 03:17:16 mdb Exp $
 
 package com.threerings.puzzle.server;
 
@@ -17,6 +17,7 @@ public class PuzzleManagerDelegate extends GameManagerDelegate
     public PuzzleManagerDelegate (PuzzleManager puzmgr)
     {
         super(puzmgr);
+        _puzmgr = puzmgr;
     }
 
     /**
@@ -25,4 +26,6 @@ public class PuzzleManagerDelegate extends GameManagerDelegate
     public void difficultyChanged (int level)
     {
     }
+
+    protected PuzzleManager _puzmgr;
 }

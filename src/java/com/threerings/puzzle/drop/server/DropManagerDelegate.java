@@ -1,5 +1,5 @@
 //
-// $Id: DropManagerDelegate.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: DropManagerDelegate.java,v 1.2 2003/11/26 03:17:16 mdb Exp $
 
 package com.threerings.puzzle.drop.server;
 
@@ -64,9 +64,6 @@ public abstract class DropManagerDelegate extends PuzzleManagerDelegate
     public DropManagerDelegate (PuzzleManager puzmgr, DropLogic logic)
     {
         super(puzmgr);
-
-        // save off the puzzle manager
-        _puzmgr = puzmgr;
 
         // configure the game-specific settings
         _usedrop = logic.useBlockDropping();
@@ -145,9 +142,6 @@ public abstract class DropManagerDelegate extends PuzzleManagerDelegate
         // update the player's board levels
         _puzmgr.updateBoardSummary(pidx);
     }
-
-    /** The puzzle manager. */
-    protected PuzzleManager _puzmgr;
 
     /** The drop game board for each player. */
     protected DropBoard[] _dboards;
