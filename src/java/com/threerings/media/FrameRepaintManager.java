@@ -1,5 +1,5 @@
 //
-// $Id: FrameRepaintManager.java,v 1.3 2002/04/27 18:59:55 mdb Exp $
+// $Id: FrameRepaintManager.java,v 1.4 2002/04/27 19:12:00 mdb Exp $
 
 package com.threerings.media;
 
@@ -211,7 +211,8 @@ public class FrameRepaintManager extends RepaintManager
             // coordinates
             Component root = null, ocomp = null;
 
-            // start with the component's untranslated bounds
+            // start with the components bounds which we'll switch to the
+            // opaque parent component's bounds if and when we find one
             _cbounds.setBounds(0, 0, comp.getWidth(), comp.getHeight());
 
             // climb up the parent heirarchy, looking for the first opaque
@@ -229,6 +230,10 @@ public class FrameRepaintManager extends RepaintManager
                 // make a note of the first opaque parent we find
                 if (ocomp == null && ((JComponent)c).isOpaque()) {
                     ocomp = c;
+                    // we need to obtain the opaque parent's coordinates
+                    // in the root coordinate system for when we repaint
+                    _cbounds.setBounds(
+                        0, 0, ocomp.getWidth(), ocomp.getHeight());
                 }
 
                 // translate the coordinates into this component's
@@ -243,11 +248,10 @@ public class FrameRepaintManager extends RepaintManager
                     c.getX(), c.getY(), c.getWidth(), c.getHeight(), drect);
             }
 
-            // make sure we found an opaque parent
+            // if we found no opaque parent, just paint the component
+            // itself (this seems to happen with the top-level layered
+            // pane)
             if (ocomp == null) {
-                Log.warning("Found no opaque parent for dirty component?! " +
-                            "[comp=" + comp + "].");
-                // go ahead and paint the component directly
                 ocomp = comp;
             }
 
@@ -271,7 +275,7 @@ public class FrameRepaintManager extends RepaintManager
                 Graphics og = null, cg = null;
                 try {
                     og = obuf.getGraphics();
-                    comp.paint(og);
+                    ocomp.paint(og);
                     cg = comp.getGraphics();
                     cg.drawImage(obuf, 0, 0, null);
 
