@@ -1,13 +1,14 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.16 2002/04/09 18:06:37 ray Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.17 2002/04/27 18:41:14 mdb Exp $
 
 package com.threerings.miso.scene.tools;
 
+import java.awt.Point;
 import java.awt.Rectangle;
+
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
-
-import com.samskivert.util.HashIntMap;
 
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
@@ -48,7 +49,6 @@ public class EditableMisoSceneImpl
     {
         super(model, tmgr);
         _fringer = tmgr.getAutoFringer();
-        unpackObjectLayer();
     }
 
     /**
@@ -62,14 +62,12 @@ public class EditableMisoSceneImpl
     public EditableMisoSceneImpl (MisoSceneModel model)
     {
         super(model);
-        unpackObjectLayer();
     }
 
     // documentation inherited
     public void setMisoSceneModel (MisoSceneModel model)
     {
         super.setMisoSceneModel(model);
-        unpackObjectLayer();
     }
 
     // documentation inherited
@@ -127,27 +125,22 @@ public class EditableMisoSceneImpl
     }
 
     // documentation inherited
-    public void setObjectTile (int x, int y, ObjectTile tile, int fqTileId)
+    public void addObjectTile (ObjectTile tile, int x, int y, int fqTileId)
     {
-        ObjectTile prev = _object.getTile(x, y);
-        // clear out any previous tile to ensure that everything is
-        // properly cleaned up
-        if (prev != null) {
-            clearObjectTile(x, y);
-        }
-        // stick the new object into the layer
-        _object.setTile(x, y, tile);
+        // add the tile to the list
+        _objects.add(tile);
+        _coords.put(tile, new Point(x, y));
+        _objectTileIds.put(tile, new Integer(fqTileId));
+
         // toggle the "covered" flag on in all base tiles below this
         // object tile
         setObjectTileFootprint(tile, x, y, true);
-        // stick this value into our non-sparse object layer
-        _objectTileIds.put(IsoUtil.coordsToKey(x, y), new Integer(fqTileId));
     }
 
     // documentation inherited from interface
-    public void setObjectAction (int x, int y, String action)
+    public void setObjectAction (ObjectTile tile, String action)
     {
-        _actions.put(objectKey(x, y), action);
+        _actions.put(tile, action);
     }
 
     // documentation inherited
@@ -167,26 +160,25 @@ public class EditableMisoSceneImpl
     }
 
     // documentation inherited
-    public void clearObjectTile (int x, int y)
+    public void removeObjectTile (ObjectTile tile)
     {
-        ObjectTile tile = _object.getTile(x, y);
-        if (tile != null) {
+        // remove the tile from the list and tables
+        _objects.remove(tile);
+        _actions.remove(tile);
+        _objectTileIds.remove(tile);
+
+        Point p = (Point)_coords.remove(tile);
+        if (p != null) {
             // toggle the "covered" flag off on the base tiles in this
             // object tile's footprint
-            setObjectTileFootprint(tile, x, y, false);
-            // clear out the tile itself
-            _object.clearTile(x, y);
+            setObjectTileFootprint(tile, p.x, p.y, false);
         }
-        // clear it out in our non-sparse array
-        _objectTileIds.remove(IsoUtil.coordsToKey(x, y));
-        // clear out any action for this tile as well
-        _actions.remove(objectKey(x, y));
     }
 
     // documentation inherited from interface
-    public void clearObjectAction (int x, int y)
+    public void clearObjectAction (ObjectTile tile)
     {
-        _actions.remove(objectKey(x, y));
+        _actions.remove(tile);
     }
 
     // documentation inherited
@@ -194,24 +186,17 @@ public class EditableMisoSceneImpl
     {
         // we need to flush the object layer to the model prior to
         // returning it
-        int otileCount = _objectTileIds.size();
-        int cols = _object.getWidth();
-        int rows = _object.getHeight();
+        int ocount = _objects.size();
+        int[] otids = new int[ocount*3];
+        String[] actions = new String[ocount];
 
-        // now create and populate the new tileid and actions arrays
-        int[] otids = new int[otileCount*3];
-        String[] actions = new String[otileCount];
-        int otidx = 0, actidx = 0;
-
-        Iterator keys = _objectTileIds.keys();
-        while (keys.hasNext()) {
-            int key = ((Integer) keys.next()).intValue();
-            int c = IsoUtil.xCoordFromKey(key);
-             int r = IsoUtil.yCoordFromKey(key);
-            otids[otidx++] = c;
-            otids[otidx++] = r;
-            otids[otidx++] = ((Integer) _objectTileIds.get(key)).intValue();
-            actions[actidx++] = (String)_actions.get(objectKey(c, r));
+        for (int ii = 0; ii < ocount; ii++) {
+            ObjectTile tile = (ObjectTile)_objects.get(ii);
+            Point coords = (Point)_coords.get(tile);
+            otids[3*ii] = coords.x;
+            otids[3*ii+1] = coords.y;
+            otids[3*ii+2] = ((Integer)_objectTileIds.get(tile)).intValue();
+            actions[ii] = (String)_actions.get(tile);
         }
 
         // stuff the new arrays into the model
@@ -222,28 +207,31 @@ public class EditableMisoSceneImpl
         return _model;
     }
 
-    /**
-     * Unpacks the object layer into an array that we can update along
-     * with the other layers.
-     */
-    protected void unpackObjectLayer ()
+    // documentation inherited
+    protected ObjectTile expandObject (
+        int col, int row, int tsid, int tid, int fqTid, String action)
+        throws NoSuchTileException, NoSuchTileSetException
     {
-        // we need this to track object layer mods
-        _objectTileIds = new HashIntMap();
+        // do the actual object creation
+        ObjectTile tile = super.expandObject(
+            col, row, tsid, tid, fqTid, action);
 
-        // populate our non-spare array
-        int[] otids = _model.objectTileIds;
-        for (int i = 0; i < otids.length; i += 3) {
-            int x = otids[i];
-            int y = otids[i+1];
-            int fqTileId = otids[i+2];
-            _objectTileIds.put(IsoUtil.coordsToKey(x, y),
-                               new Integer(fqTileId));
+        // make sure our array is created (we have to do this specially
+        // here because this method is called before our constructor is
+        // called; yay Java!)
+        if (_objectTileIds == null) {
+            _objectTileIds = new HashMap();
         }
+
+        // we need this to track object layer mods
+        _objectTileIds.put(tile, new Integer(fqTid));
+
+        // pass on the objecty goodness
+        return tile;
     }
 
-    /** where we keep track of object tile ids. */
-    protected HashIntMap _objectTileIds;
+    /** Where we keep track of object tile ids. */
+    protected HashMap _objectTileIds = new HashMap();
 
     /** The default tileset with which to fill the base layer. */
     protected BaseTileSet _defaultBaseTileSet;

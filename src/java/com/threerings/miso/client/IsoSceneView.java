@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.106 2002/04/23 01:18:17 mdb Exp $
+// $Id: IsoSceneView.java,v 1.107 2002/04/27 18:41:14 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -234,13 +234,13 @@ public class IsoSceneView implements SceneView
         // if the highlighted object is an object tile, we want to
         // highlight that
         if (_hobject instanceof ObjectTile) {
+            ObjectTile otile = (ObjectTile)_hobject;
             // if we're only highlighting objects with actions, make sure
             // this one has an action
-            String action = _scene.getObjectAction(_hcoords.x, _hcoords.y);
+            String action = _scene.getObjectAction(otile);
             if (_hmode != HIGHLIGHT_WITH_ACTION || !StringUtil.blank(action)) {
                 Polygon tpoly = getTilePoly(_hcoords.x, _hcoords.y);
-                hpoly = IsoUtil.getObjectFootprint(
-                    _model, tpoly, (ObjectTile)_hobject);
+                hpoly = IsoUtil.getObjectFootprint(_model, tpoly, otile);
             }
         }
 
@@ -402,13 +402,11 @@ public class IsoSceneView implements SceneView
         _objects.clear();
 
         // generate metric records for all objects
-        for (int yy = 0; yy < _model.scenehei; yy++) {
-            for (int xx = 0; xx < _model.scenewid; xx++) {
-                ObjectTile tile = _scene.getObjectTile(xx, yy);
-                if (tile != null) {
-                    generateObjectMetrics(tile, xx, yy);
-                }
-            }
+        Iterator oiter = _scene.getObjectTiles();
+        while (oiter.hasNext()) {
+            ObjectTile tile = (ObjectTile)oiter.next();
+            Point coords = _scene.getObjectCoords(tile);
+            generateObjectMetrics(tile, coords.x, coords.y);
         }
     }
 
@@ -431,15 +429,15 @@ public class IsoSceneView implements SceneView
     }
 
     /**
-     * Clears out the object metrics for the object at the specified tile
-     * coordinates.
+     * Clears out the object metrics for the specified object.
      */
-    protected void clearObjectMetrics (int x, int y)
+    protected void clearObjectMetrics (ObjectTile tile)
     {
-        for (int i = 0; i < _objects.size(); i++) {
-            ObjectMetrics metrics = (ObjectMetrics)_objects.get(i);
-            if (metrics.x == x && metrics.y == y) {
-                _objects.remove(i);
+        int ocount = _objects.size();
+        for (int ii = 0; ii < ocount; ii++) {
+            ObjectMetrics metrics = (ObjectMetrics)_objects.get(ii);
+            if (metrics.tile == tile) {
+                _objects.remove(ii);
                 return;
             }
         }
@@ -751,7 +749,7 @@ public class IsoSceneView implements SceneView
             // to repaint if the object has an action
             if (_hmode != HIGHLIGHT_NEVER) {
                 repaint = (_hmode == HIGHLIGHT_WITH_ACTION) ?
-                    (_scene.getObjectAction(_hcoords.x, _hcoords.y) != null) :
+                    (_scene.getObjectAction((ObjectTile)_hobject) != null) :
                     true;
             }
         }

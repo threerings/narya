@@ -1,7 +1,10 @@
 //
-// $Id: DisplayMisoScene.java,v 1.4 2002/02/17 08:01:15 mdb Exp $
+// $Id: DisplayMisoScene.java,v 1.5 2002/04/27 18:41:14 mdb Exp $
 
 package com.threerings.miso.scene;
+
+import java.awt.Point;
+import java.util.Iterator;
 
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
@@ -21,20 +24,31 @@ public interface DisplayMisoScene
     public BaseTile getBaseTile (int x, int y);
 
     /**
-     * Returns the fring tile at the specified coordinates.
+     * Returns the fringe tile at the specified coordinates.
      */
     public Tile getFringeTile (int x, int y);
 
     /**
-     * Returns the object tile at the specified coordinates.
+     * Returns an iterator over all object tiles in this scene.
      */
-    public ObjectTile getObjectTile (int x, int y);
+    public Iterator getObjectTiles ();
 
     /**
-     * Returns the action associated with the object tile at the specified
-     * column and row. Null is returned if no object tile exists at that
-     * column and row or if the object tile that does exist does not have
-     * an associated action.
+     * Returns the tile coordinates for the specified object tile.
+     *
+     * @param tile the tile for which coordinates are to be fetched; this
+     * tile must have been obtained from a call to {@link
+     * #getObjectTiles}.
      */
-    public String getObjectAction (int column, int row);
+    public Point getObjectCoords (ObjectTile tile);
+
+    /**
+     * Returns the action associated with the specified object tile. Null
+     * is returned if the object tile does not have an associated action.
+     *
+     * @param tile the tile for which the action is to be fetched; this
+     * tile must have been obtained from a call to {@link
+     * #getObjectTiles}.
+     */
+    public String getObjectAction (ObjectTile tile);
 }

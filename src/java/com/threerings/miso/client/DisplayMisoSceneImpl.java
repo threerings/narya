@@ -1,15 +1,18 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.54 2002/04/06 01:52:34 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.55 2002/04/27 18:41:14 mdb Exp $
 
 package com.threerings.miso.scene;
 
-import com.samskivert.util.HashIntMap;
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.ObjectTile;
-import com.threerings.media.tile.ObjectTileLayer;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileLayer;
 
@@ -74,20 +77,6 @@ public class DisplayMisoSceneImpl
         // create the individual tile layer objects
         _base = new BaseTileLayer(new BaseTile[swid*shei], swid, shei);
         _fringe = new TileLayer(new Tile[swid*shei], swid, shei);
-        _object = new ObjectTileLayer(swid, shei);
-
-        // create a mapping for the action strings and populate it
-        _actions = new HashIntMap();
-        for (int i = 0; i < model.objectActions.length; i++) {
-            String action = model.objectActions[i];
-            // skip null or blank actions
-            if (StringUtil.blank(action)) {
-                continue;
-            }
-            // the key is the composite of the column and row
-            _actions.put(objectKey(model.objectTileIds[3*i],
-                                   model.objectTileIds[3*i+1]), action);
-        }
     }
 
     /**
@@ -152,51 +141,81 @@ public class DisplayMisoSceneImpl
                 "model.objectTileIds.length % 3 != 0");
         }
 
-        // now populate the object layer
-        for (int i = 0; i < ocount; i+= 3) {
-            int col = _model.objectTileIds[i];
-            int row = _model.objectTileIds[i+1];
-            int tsid = _model.objectTileIds[i+2];
-            int tid = (tsid & 0xFFFF);
-            tsid >>= 16;
+        // create object tile instances for our objects
+        _objects = new ArrayList();
+        _coords = new HashMap();
+        _actions = new HashMap();
 
-            // create the object tile and stick it into the appropriate
-            // spot in the object layer
-            ObjectTile otile = (ObjectTile)_tmgr.getTile(tsid, tid);
-            _object.setTile(col, row, otile);
-            // generate a "shadow" for this object tile by toggling the
-            // "covered" flag on in all base tiles below it (to prevent
-            // sprites from walking on those tiles)
-            setObjectTileFootprint(otile, col, row, true);
+        for (int ii = 0; ii < ocount; ii+= 3) {
+            int col = _model.objectTileIds[ii];
+            int row = _model.objectTileIds[ii+1];
+            String action = _model.objectActions[ii/3];
+            int fqTid = _model.objectTileIds[ii+2];
+            int tsid = (fqTid >> 16) & 0xFFFF;
+            int tid = (fqTid & 0xFFFF);
+            expandObject(col, row, tsid, tid, fqTid, action);
         }
     }
 
-    // documentation inherited
+    /**
+     * Called to expand each object read from the model into an actual
+     * object tile instance with the appropriate additional data.
+     *
+     * @return the newly created object tile (which will have been put
+     * into all the appropriate lists and tables).
+     */
+    protected ObjectTile expandObject (
+        int col, int row, int tsid, int tid, int fqTid, String action)
+        throws NoSuchTileException, NoSuchTileSetException
+    {
+        // create the object tile and stick it in the list
+        ObjectTile otile = (ObjectTile)_tmgr.getTile(tsid, tid);
+        _objects.add(otile);
+        _coords.put(otile, new Point(col, row));
+
+        // stick the action in the actions table if there is one
+        if (!StringUtil.blank(action)) {
+            _actions.put(otile, action);
+        }
+
+        // generate a "shadow" for this object tile by toggling the
+        // "covered" flag on in all base tiles below it (to prevent
+        // sprites from walking on those tiles)
+        setObjectTileFootprint(otile, col, row, true);
+
+        // return the object tile so that derived classes have easy access
+        // to it
+        return otile;
+    }
+
+    // documentation inherited from interface
     public BaseTile getBaseTile (int x, int y)
     {
         return _base.getTile(x, y);
     }
 
-    // documentation inherited
+    // documentation inherited from interface
     public Tile getFringeTile (int x, int y)
     {
         return _fringe.getTile(x, y);
     }
 
-    // documentation inherited
-    public ObjectTile getObjectTile (int x, int y)
+    // documentation inherited from interface
+    public Iterator getObjectTiles ()
     {
-        return _object.getTile(x, y);
+        return _objects.iterator();
     }
 
     // documentation inherited from interface
-    public String getObjectAction (int column, int row)
+    public Point getObjectCoords (ObjectTile tile)
     {
-        if (_actions != null) {
-            return (String)_actions.get(objectKey(column, row));
-        } else {
-            return null;
-        }
+        return (Point)_coords.get(tile);
+    }
+
+    // documentation inherited from interface
+    public String getObjectAction (ObjectTile tile)
+    {
+        return (String)_actions.get(tile);
     }
 
     /**
@@ -247,15 +266,6 @@ public class DisplayMisoSceneImpl
         // ", sy=" + y + ", ex=" + endx + ", ey=" + endy + "].");
     }
 
-    /**
-     * Computes the action table key for the object at the specified
-     * column and row.
-     */
-    protected static int objectKey (int column, int row)
-    {
-        return (column << 15) + row;
-    }
-
     /** The tile manager from which we load tiles. */
     protected MisoTileManager _tmgr;
 
@@ -268,9 +278,12 @@ public class DisplayMisoSceneImpl
     /** The fringe layer of tiles. */
     protected TileLayer _fringe;
 
-    /** The object layer of tiles. */
-    protected ObjectTileLayer _object;
+    /** The object tiles. */
+    protected ArrayList _objects;
 
-    /** A map from object tile coordinates to action string. */
-    protected HashIntMap _actions;
+    /** A map from object tile to coordinate records. */
+    protected HashMap _coords;
+
+    /** A map from object tile to action string. */
+    protected HashMap _actions;
 }
