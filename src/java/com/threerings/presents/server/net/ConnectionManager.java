@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.15 2002/03/05 03:19:18 mdb Exp $
+// $Id: ConnectionManager.java,v 1.16 2002/03/05 05:33:25 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -12,11 +12,15 @@ import com.samskivert.util.*;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.client.Client;
+
 import com.threerings.presents.io.FramingOutputStream;
 import com.threerings.presents.io.TypedObjectFactory;
+
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.DownstreamMessage;
+
+import com.threerings.presents.server.Authenticator;
 import com.threerings.presents.server.PresentsServer;
 
 /**
@@ -106,6 +110,24 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
+     * Queues a connection up to be closed on the conmgr thread.
+     */
+    public void closeConnection (Connection conn)
+    {
+        _deathq.append(conn);
+    }
+
+    /**
+     * Called by the authenticator to indicate that a connection was
+     * successfully authenticated.
+     */
+    public void connectionDidAuthenticate (Connection conn)
+    {
+        // slap this sucker onto the authenticated connections queue
+        _authq.append(conn);
+    }
+
+    /**
      * Notifies the connection observers of a connection event. Used
      * internally.
      */
@@ -146,6 +168,12 @@ public class ConnectionManager extends LoopingThread
      */
     protected void iterate ()
     {
+        // close any connections that have been queued up to die
+        Connection dconn;
+        while ((dconn = (Connection)_deathq.getNonBlocking()) != null) {
+            dconn.close();
+        }
+
         // send any messages that are waiting on the outgoing queue
         Tuple tup;
         while ((tup = (Tuple)_outq.getNonBlocking()) != null) {
@@ -303,22 +331,14 @@ public class ConnectionManager extends LoopingThread
         notifyObservers(CONNECTION_CLOSED, conn, null, null);
     }
 
-    /**
-     * Called by the auth manager to indicate that a connection was
-     * successfully authenticated.
-     */
-    void connectionDidAuthenticate (Connection conn)
-    {
-        // slap this sucker onto the authenticated connections queue
-        _authq.append(conn);
-    }
-
     protected int _port;
     protected Authenticator _author;
     protected SelectSet _selset;
 
     protected NonblockingServerSocket _listener;
     protected SelectItem _litem;
+
+    protected Queue _deathq = new Queue();
 
     protected Queue _outq = new Queue();
     protected FramingOutputStream _framer;

@@ -1,5 +1,5 @@
 //
-// $Id: SimpleServer.java,v 1.2 2002/02/05 22:57:10 mdb Exp $
+// $Id: SimpleServer.java,v 1.3 2002/03/05 05:33:25 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -22,11 +22,5 @@ public class SimpleServer extends CrowdServer
         // create the simulator manager
         SimulatorManager simmgr = new SimulatorManager();
         simmgr.init(config, invmgr, plreg, clmgr, omgr, this);
-    }
-
-    // documentation inherited
-    public void fakeBodyMapping (String username, BodyObject bodobj)
-    {
-        _bodymap.put(username, bodobj);
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorManager.java,v 1.6 2002/02/05 22:12:42 mdb Exp $
+// $Id: SimulatorManager.java,v 1.7 2002/03/05 05:33:25 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -7,12 +7,10 @@ import java.util.ArrayList;
 
 import com.samskivert.util.Config;
 
-import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.ObjectAccessException;
-import com.threerings.presents.dobj.Subscriber;
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.RootDObjectManager;
-
 import com.threerings.presents.server.ClientManager;
+import com.threerings.presents.server.ClientResolutionListener;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 
@@ -116,20 +114,13 @@ public class SimulatorManager
             // cast the place to the game object for the game we're creating
             _gobj = (GameObject)place;
 
-            // create a subscriber to await creation of each simulant body
-            // object
-            Subscriber sub = new Subscriber() {
-                public void objectAvailable (DObject object)
+            // resolve the simulant body objects
+            ClientResolutionListener listener = new ClientResolutionListener()
+            {
+                public void clientResolved (String username, ClientObject clobj)
                 {
-                    // set up the simulant's body object
-                    BodyObject bobj = (BodyObject)object;
-                    bobj.username = "simulant" + (_sims.size() + 1);
-
-                    // map the simulant into the server body set
-                    _simserv.fakeBodyMapping(bobj.username, bobj);
-
-                    // hold onto it for later game creation
-                    _sims.add(bobj);
+                    // hold onto the body object for later game creation
+                    _sims.add(clobj);
 
                     // create the game if we've received all body objects
                     if (_sims.size() == (_playerCount - 1)) {
@@ -137,18 +128,17 @@ public class SimulatorManager
                     }
                 }
 
-                public void requestFailed (
-                    int oid, ObjectAccessException cause)
+                public void resolutionFailed (String username, Exception cause)
                 {
                     Log.warning("Unable to create simulant body object " +
                                 "[error=" + cause + "].");
                 }
             };
 
-            // fire off simulant body object creation requests
-            Class simobjClass = _clmgr.getClientObjectClass();
+            // resolve client objects for all of our simulants
             for (int ii = 1; ii < _playerCount; ii++) {
-                _omgr.createObject(simobjClass, sub);
+                String username = "simulant" + (_sims.size() + 1);
+                _clmgr.resolveClientObject(username, listener);
             }
         }
 

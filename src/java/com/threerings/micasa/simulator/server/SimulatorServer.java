@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorServer.java,v 1.5 2002/02/05 22:12:42 mdb Exp $
+// $Id: SimulatorServer.java,v 1.6 2002/03/05 05:33:25 mdb Exp $
 
 package com.threerings.micasa.simulator.server;
 
@@ -25,10 +25,4 @@ public interface SimulatorServer
      * primary business.
      */
     public void run ();
-
-    /**
-     * Called by the simulator manager to map a username to a particular
-     * body object. This should only be called from the dobjmgr thread.
-     */
-    public void fakeBodyMapping (String username, BodyObject bodobj);
 }

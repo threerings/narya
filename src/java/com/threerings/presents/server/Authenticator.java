@@ -1,10 +1,13 @@
 //
-// $Id: Authenticator.java,v 1.4 2002/03/05 03:19:18 mdb Exp $
+// $Id: Authenticator.java,v 1.5 2002/03/05 05:33:25 mdb Exp $
 
-package com.threerings.presents.server.net;
+package com.threerings.presents.server;
 
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
+
+import com.threerings.presents.server.net.AuthingConnection;
+import com.threerings.presents.server.net.ConnectionManager;
 
 /**
  * The authenticator is a pluggable component of the authentication

@@ -1,5 +1,5 @@
 //
-// $Id: CrowdServer.java,v 1.9 2001/12/04 01:02:59 mdb Exp $
+// $Id: CrowdServer.java,v 1.10 2002/03/05 05:33:25 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -34,11 +34,11 @@ public class CrowdServer extends PresentsServer
         // bind the crowd server config into the namespace
         config.bindProperties(CONFIG_KEY, CONFIG_PATH, true);
 
-        // configure the client to use our crowd client
+        // configure the client manager to use our client
         clmgr.setClientClass(CrowdClient.class);
 
-        // configure the client to use the body object
-        clmgr.setClientObjectClass(BodyObject.class);
+        // configure the client manager to use our resolver
+        clmgr.setClientResolverClass(CrowdClientResolver.class);
 
         // create our place registry
         plreg = new PlaceRegistry(config, invmgr, omgr);
@@ -50,31 +50,13 @@ public class CrowdServer extends PresentsServer
     }
 
     /**
-     * The crowd server maintains a mapping of username to body object for
-     * all active users on the server. This should only be called from the
+     * The server maintains a mapping of username to body object for all
+     * active users on the server. This should only be called from the
      * dobjmgr thread.
      */
     public static BodyObject lookupBody (String username)
     {
-        return (BodyObject)_bodymap.get(username);
-    }
-
-    /**
-     * Called by the crowd client to map a username to a particular body
-     * object. This should only be called from the dobjmgr thread.
-     */
-    protected static void mapBody (String username, BodyObject bodobj)
-    {
-        _bodymap.put(username, bodobj);
-    }
-
-    /**
-     * Called by the crowd client to unmap a username from a particular
-     * body object. This should only be called from the dobjmgr thread.
-     */
-    protected static void unmapBody (String username)
-    {
-        _bodymap.remove(username);
+        return (BodyObject)clmgr.getClientObject(username);
     }
 
     public static void main (String[] args)

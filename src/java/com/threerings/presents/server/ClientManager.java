@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.13 2001/12/03 22:01:57 mdb Exp $
+// $Id: ClientManager.java,v 1.14 2002/03/05 05:33:25 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -26,6 +26,10 @@ import com.threerings.presents.server.net.*;
  */
 public class ClientManager implements ConnectionObserver
 {
+    /**
+     * Constructs a client manager that will interact with the supplied
+     * connection manager.
+     */
     public ClientManager (ConnectionManager conmgr)
     {
         // register ourselves as a connection observer
@@ -34,10 +38,8 @@ public class ClientManager implements ConnectionObserver
 
     /**
      * Instructs the client manager to construct instances of this derived
-     * class of <code>PresentsClient</code> to managed newly accepted client
+     * class of {@link PresentsClient} to managed newly accepted client
      * connections.
-     *
-     * @see PresentsClient
      */
     public void setClientClass (Class clientClass)
     {
@@ -54,35 +56,103 @@ public class ClientManager implements ConnectionObserver
     }
 
     /**
-     * Instructs the client to create an instance of this
-     * <code>ClientObject</code> derived class when creating the
-     * distributed object that corresponds to a particular client session.
-     *
-     * @see com.threerings.presents.data.ClientObject
+     * Instructs the client to use instances of this {@link
+     * ClientResolver} derived class when resolving clients in preparation
+     * for starting a client session.
      */
-    public void setClientObjectClass (Class clobjClass)
+    public void setClientResolverClass (Class clrClass)
     {
         // sanity check
-        if (!ClientObject.class.isAssignableFrom(clobjClass)) {
-            Log.warning("Requested to use client object class that does " +
-                        "not derive from ClientObject " +
-                        "[class=" + clobjClass.getName() + "].");
-            return;
-        }
+        if (!ClientResolver.class.isAssignableFrom(clrClass)) {
+            Log.warning("Requested to use client resolver class that does " +
+                        "not derive from ClientResolver " +
+                        "[class=" + clrClass.getName() + "].");
 
-        // make a note of it
-        _clobjClass = clobjClass;
+        } else {
+            // make a note of it
+            _clrClass = clrClass;
+        }
     }
 
     /**
-     * Returns the class that should be used when creating a distributed
-     * object to accompany a particular client session. In general, this
-     * is only used by the <code>PresentsClient</code> object when it is
-     * setting up a client's session for the first time.
+     * Returns the client object associated with the specified username.
+     * This will return null unless the client object is resolved for some
+     * reason (like they are logged on).
      */
-    public Class getClientObjectClass ()
+    public ClientObject getClientObject (String username)
     {
-        return _clobjClass;
+        return (ClientObject)_objmap.get(username);
+    }
+
+    /**
+     * Requests that the client object for the specified user be resolved.
+     * If the client object is already resolved, the request will be
+     * processed immediately, otherwise the appropriate client object will
+     * be instantiated and populated by the registered client resolver
+     * (which may involve talking to databases).
+     */
+    public synchronized void resolveClientObject (
+        String username, ClientResolutionListener listener)
+    {
+        // look to see if the client object is already resolved
+        ClientObject clobj = (ClientObject)_objmap.get(username);
+        if (clobj != null) {
+            listener.clientResolved(username, clobj);
+            return;
+        }
+
+        // look to see if it's currently being resolved
+        ClientResolver clr = (ClientResolver)_penders.get(username);
+        if (clr != null) {
+            // throw this guy onto the bandwagon
+            clr.addResolutionListener(listener);
+            return;
+        }
+
+        try {
+            // create a client resolver instance which will create our
+            // client object, populate it and notify the listeners
+            clr = (ClientResolver)_clrClass.newInstance();
+            clr.init(username);
+            clr.addResolutionListener(listener);
+
+            // request that the appropriate client object be created by
+            // the dobject manager which starts the whole business off
+            PresentsServer.omgr.createObject(clr.getClientObjectClass(), clr);
+
+        } catch (Exception e) {
+            // let the listener know that we're hosed
+            listener.resolutionFailed(username, e);
+        }
+    }
+
+    /**
+     * Called by the {@link ClientResolver} once a client object has been
+     * resolved.
+     */
+    protected synchronized void mapClientObject (
+        String username, ClientObject clobj)
+    {
+        // stuff the object into the mapping table
+        _objmap.put(username, clobj);
+
+        // and remove the resolution listener
+        _penders.remove(username);
+    }
+
+    /**
+     * If an entity resolves a client object outside the scope of a normal
+     * client session, it should call this to unmap the client object when
+     * it's finished. This won't actually unmap the client if someone came
+     * along and started a session for that client in the meanwhile.
+     */
+    public synchronized void unmapClientObject (String username)
+    {
+        // we only remove the mapping if there's not a session in progress
+        // (which is indicated by a mapping in the usermap table)
+        if (!_usermap.containsKey(username)) {
+            _objmap.remove(username);
+        }
     }
 
     // documentation inherited
@@ -98,7 +168,7 @@ public class ClientManager implements ConnectionObserver
         if (client != null) {
             Log.info("Session resumed [username=" + username +
                      ", conn=" + conn + "].");
-            client.resumeSession(conn, rsp.getAuthInfo());
+            client.resumeSession(conn);
 
         } else {
             Log.info("Session initiated [username=" + username +
@@ -106,8 +176,9 @@ public class ClientManager implements ConnectionObserver
             // create a new client and stick'em in the table
             try {
                 client = (PresentsClient)_clientClass.newInstance();
-                client.startSession(this, username, conn, rsp.getAuthInfo());
+                client.startSession(this, username, conn);
                 _usermap.put(username, client);
+
             } catch (Exception e) {
                 Log.warning("Failed to instantiate client instance to " +
                             "manage new client connection " +
@@ -162,26 +233,39 @@ public class ClientManager implements ConnectionObserver
      */
     synchronized void clientDidEndSession (PresentsClient client)
     {
+        String username = client.getUsername();
         // remove the client from the username map
-        PresentsClient rc = (PresentsClient)_usermap.remove(client.getUsername());
+        PresentsClient rc = (PresentsClient)_usermap.remove(username);
+        // and the client object mapping as well
+        _objmap.remove(username);
 
-        // sanity check because we can
+        // sanity check just because we can
         if (rc == null) {
             Log.warning("Unregistered client ended session " +
                         "[client=" + client + "].");
-
         } else if (rc != client) {
             Log.warning("Different clients with same username!? " +
                         "[c1=" + rc + ", c2=" + client + "].");
-
         } else {
             Log.info("Ending session [client=" + client + "].");
         }
     }
 
+    /** A mapping from usernames to client instances. */
     protected HashMap _usermap = new HashMap();
+
+    /** A mapping from connections to client instances. */
     protected HashMap _conmap = new HashMap();
 
+    /** A mapping from usernames to client object instances. */
+    protected HashMap _objmap = new HashMap();
+
+    /** A mapping of pending client resolvers. */
+    protected HashMap _penders = new HashMap();
+
+    /** The client class in use. */
     protected Class _clientClass = PresentsClient.class;
-    protected Class _clobjClass = ClientObject.class;
+
+    /** The client resolver class in use. */
+    protected Class _clrClass = ClientResolver.class;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.27 2001/12/13 05:32:28 mdb Exp $
+// $Id: PresentsClient.java,v 1.28 2002/03/05 05:33:25 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -52,7 +52,8 @@ import com.threerings.presents.server.net.MessageHandler;
  * conmgr thread and therefore also need not be synchronized.
  */
 public class PresentsClient
-    implements Subscriber, EventListener, MessageHandler
+    implements Subscriber, EventListener, MessageHandler,
+               ClientResolutionListener
 {
     /**
      * Returns the username with which this client instance is associated.
@@ -71,47 +72,40 @@ public class PresentsClient
     }
 
     /**
-     * Initializes this client instance with the specified username and
-     * connection instance and begins a client session.
+     * Initializes this client instance with the specified username,
+     * connection instance and client object and begins a client session.
      */
     protected void startSession (
-        ClientManager cmgr, String username, Connection conn,
-        final Object authInfo)
+        ClientManager cmgr, String username, Connection conn)
     {
         _cmgr = cmgr;
         _username = username;
         setConnection(conn);
 
-        // create our client object and bootstrap the client once we've
-        // got it
-        Subscriber sub = new Subscriber ()
-        {
-            public void objectAvailable (DObject object)
-            {
-                setClientObject((ClientObject)object);
-                sessionWillStart(authInfo);
-                sendBootstrap();
-            }
-
-            public void requestFailed (int oid, ObjectAccessException cause)
-            {
-                Log.warning("Unable to create client object " +
-                            "[client=" + PresentsClient.this +
-                            ", error=" + cause + "].");
-            }
-        };
-        Class clobjClass = _cmgr.getClientObjectClass();
-        PresentsServer.omgr.createObject(clobjClass, sub);
+        // resolve our client object before we get fully underway
+        cmgr.resolveClientObject(username, this);
     }
 
-    /**
-     * Called when we receive our client object from the dobjmgr. We go
-     * through this synchronized method to ensure that the client object
-     * is visible to the conmgr.
-     */
-    protected synchronized void setClientObject (ClientObject clobj)
+    // documentation inherited from interface
+    public void clientResolved (String username, ClientObject clobj)
     {
+        // we'll be keeping this bad boy
         _clobj = clobj;
+
+        // finish up our regular business
+        sessionWillStart();
+        sendBootstrap();
+    }
+
+    // documentation inherited from interface
+    public void resolutionFailed (String username, Exception reason)
+    {
+        // urk; nothing to do but complain and get the f**k out of dodge
+        Log.warning("Unable to resolve client [username=" + username + "].");
+        Log.logStackTrace(reason);
+
+        // end the session now to prevent danglage
+        endSession();
     }
 
     /**
@@ -119,7 +113,7 @@ public class PresentsClient
      * authenticates as this already established client. This must only be
      * called from the congmr thread.
      */
-    protected void resumeSession (Connection conn, final Object authInfo)
+    protected void resumeSession (Connection conn)
     {
         Connection oldconn = getConnection();
 
@@ -145,7 +139,7 @@ public class PresentsClient
             {
                 // now that we're on the dobjmgr thread we can resume our
                 // session resumption
-                finishResumeSession(authInfo);
+                finishResumeSession();
                 return false;
             }
         };
@@ -157,10 +151,10 @@ public class PresentsClient
      * resumption. We call some call backs and send the bootstrap info to
      * the client.
      */
-    protected void finishResumeSession (Object authInfo)
+    protected void finishResumeSession ()
     {
         // let derived classes do any session resuming
-        sessionWillResume(authInfo);
+        sessionWillResume();
 
         // send off a bootstrap notification immediately because we've
         // already got our client object
@@ -170,38 +164,20 @@ public class PresentsClient
     }
 
     /**
-     * Requests that the client session be terminated. This is normally
-     * invoked as a result of a logoff request by the client. It should
-     * only be invoked from the conmgr thread.
+     * Forcibly terminates a client's session. This must be called from
+     * the dobjmgr thread.
      */
     public void endSession ()
     {
-        // close our connection (which results in everything being
-        // properly unregistered)
+        // queue up a request for our connection to be closed (if we have
+        // a connection, that is)
         Connection conn = getConnection();
         if (conn != null) {
-            conn.close();
-        } else {
-            Log.info("Unable to close connection for logoff request " +
-                     "[client=" + this + "].");
+            PresentsServer.conmgr.closeConnection(conn);
         }
-        // then let the client manager know what's up
-        _cmgr.clientDidEndSession(this);
 
-        // we need to get onto the distributed object thread so that we
-        // can finalize the ending of the session. we do so by posting a
-        // special event
-        DEvent event = new DEvent(0)
-        {
-            public boolean applyToObject (DObject target)
-            {
-                // now that we're on the dobjmgr thread we can call into
-                // our derived classes to finish the session termination
-                sessionDidTerminate();
-                return false;
-            }
-        };
-        PresentsServer.omgr.postEvent(event);
+        // and clean up after ourselves
+        sessionDidEnd();
     }
 
     /**
@@ -260,11 +236,8 @@ public class PresentsClient
      * <p><em>Note:</em> This function will be called on the dobjmgr
      * thread which means that object manipulations are OK, but client
      * instance manipulations must done carefully.
-     *
-     * @param authInfo optional information provided by the authenticator
-     * that it obtained during the authentication phase.
      */
-    protected void sessionWillStart (Object authInfo)
+    protected void sessionWillStart ()
     {
     }
 
@@ -278,11 +251,8 @@ public class PresentsClient
      * <p><em>Note:</em> This function will be called on the dobjmgr
      * thread which means that object manipulations are OK, but client
      * instance manipulations must done carefully.
-     *
-     * @param authInfo optional information provided by the authenticator
-     * that it obtained during the authentication phase.
      */
-    protected void sessionWillResume (Object authInfo)
+    protected void sessionWillResume ()
     {
     }
 
@@ -290,14 +260,17 @@ public class PresentsClient
      * Called when the client session ends (either because the client
      * logged off or because the server forcibly terminated the session).
      * Derived classes that override this method should be sure to call
-     * <code>super.sessionDidTerminate</code>.
+     * <code>super.sessionDidEnd</code>.
      *
      * <p><em>Note:</em> This function will be called on the dobjmgr
      * thread which means that object manipulations are OK, but client
      * instance manipulations must done carefully.
      */
-    protected void sessionDidTerminate ()
+    protected void sessionDidEnd ()
     {
+        // then let the client manager know what's up
+        _cmgr.clientDidEndSession(this);
+
         // destroy the client object
         PresentsServer.omgr.destroyObject(_clobj.getOid());
     }
@@ -363,20 +336,15 @@ public class PresentsClient
         setConnection(null);
 
         // clear out our subscriptions. we need to do this on the dobjmgr
-        // thread. so we do so by posting a special event. it is important
-        // that we do this *after* we clear out our connection reference.
-        // once the connection ref is null, no more subscriptions will be
-        // processed (even those that were queued up before the connection
-        // went away)
-        DEvent event = new DEvent(0)
-        {
-            public boolean applyToObject (DObject target)
-            {
+        // thread. it is important that we do this *after* we clear out
+        // our connection reference. once the connection ref is null, no
+        // more subscriptions will be processed (even those that were
+        // queued up before the connection went away)
+        PresentsServer.omgr.postUnit(new Runnable() {
+            public void run () {
                 clearSubscrips();
-                return false;
             }
-        };
-        PresentsServer.omgr.postEvent(event);
+        });
     }
 
     /**
@@ -595,15 +563,26 @@ public class PresentsClient
     /**
      * Processes logoff requests.
      */
-    protected static class LogoffDispatcher implements MessageDispatcher
+    protected static class LogoffDispatcher
+        implements MessageDispatcher, Runnable
     {
         public void dispatch (PresentsClient client, UpstreamMessage msg)
         {
             Log.info("Client requested logoff " +
                      "[client=" + client + "].");
-            // request that the client end the session
-            client.endSession();
+            _client = client;
+            // queue ourselves up to be run on the object manager thread
+            // where we can safely end the session
+            PresentsServer.omgr.postUnit(this);
         }
+
+        public void run ()
+        {
+            // end the session in a civilized manner
+            _client.endSession();
+        }
+
+        protected PresentsClient _client;
     }
 
     protected ClientManager _cmgr;
