@@ -1,7 +1,9 @@
 //
-// $Id: SpeakProvider.java,v 1.2 2002/09/13 06:42:42 mdb Exp $
+// $Id: SpeakProvider.java,v 1.3 2003/01/22 23:14:44 shaper Exp $
 
 package com.threerings.crowd.chat;
+
+import com.samskivert.util.ObserverList;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
@@ -36,6 +38,28 @@ public class SpeakProvider
     }
 
     /**
+     * An interface to be implemented by entities that would like to be
+     * notified of all speak messages.
+     */
+    public static interface SpeakObserver
+    {
+        /**
+         * Called with the relevant details for every speak message sent
+         * by the speak provider.
+         */
+        public void handleSpeakMessage (DObject speakObj, String speaker,
+                                        String bundle, String message,
+                                        byte mode);
+
+        /**
+         * Called with the relevant details for every system speak message
+         * sent by the speak provider.
+         */
+        public void handleSystemSpeakMessage (
+            DObject speakObj, String bundle, String message);
+    }
+
+    /**
      * Creates a speak provider that will provide speech on the supplied
      * distributed object.
      *
@@ -67,6 +91,24 @@ public class SpeakProvider
             sendSpeak(_speakObj, ((BodyObject)caller).username,
                       null, message, mode);
         }
+    }
+
+    /**
+     * Registers the supplied speak observer to be notified of all speak
+     * messages.
+     */
+    public static void addSpeakObserver (SpeakObserver obs)
+    {
+        _observers.add(obs);
+    }
+
+    /**
+     * Removes the supplied speak observer from the list of observers to
+     * be notified of all speak messages.
+     */
+    public static void removeSpeakObserver (SpeakObserver obs)
+    {
+        _observers.remove(obs);
     }
 
     /**
@@ -111,6 +153,10 @@ public class SpeakProvider
         DObject speakObj, String speaker,
         String bundle, String message, byte mode)
     {
+        // pass the message along to all observers
+        notifyObservers(speakObj, speaker, bundle, message, mode);
+
+        // post the message to the relevant object
         Object[] outargs = null;
         if (bundle == null) {
             outargs = new Object[] { speaker, message, new Byte(mode) };
@@ -135,8 +181,60 @@ public class SpeakProvider
     public static void sendSystemSpeak (
         DObject speakObj, String bundle, String message)
     {
-        speakObj.postMessage(SYSTEM_NOTIFICATION,
-                             new Object[] { bundle, message });
+        // pass the message along to all observers
+        notifyObservers(speakObj, null, bundle, message,
+                        ChatCodes.DEFAULT_MODE);
+
+        // post the message to the relevant object
+        speakObj.postMessage(
+            SYSTEM_NOTIFICATION, new Object[] { bundle, message });
+    }
+
+    /**
+     * Notifies all registered speak observers of the supplied speak
+     * message.
+     */
+    protected static void notifyObservers (DObject speakObj, String speaker,
+                                           String bundle, String message,
+                                           byte mode)
+    {
+        _spokenOp.setMessage(speakObj, speaker, bundle, message, mode);
+        _observers.apply(_spokenOp);
+    }
+
+    protected static class SpokenOp implements ObserverList.ObserverOp
+    {
+        /**
+         * Sets the message information to be passed along to all {@link
+         * SpeakObserver}s.
+         */
+        public void setMessage (DObject speakObj, String speaker, String bundle,
+                                String message, byte mode)
+        {
+            _speakObj = speakObj;
+            _speaker = speaker;
+            _bundle = bundle;
+            _message = message;
+            _mode = mode;
+        }
+
+        // documentation inherited
+        public boolean apply (Object observer)
+        {
+            if (_speaker == null) {
+                ((SpeakObserver)observer).handleSystemSpeakMessage(
+                    _speakObj, _bundle, _message);
+
+            } else {
+                ((SpeakObserver)observer).handleSpeakMessage(
+                    _speakObj, _speaker, _bundle, _message, _mode);
+            }
+            return true;
+        }
+
+        protected DObject _speakObj;
+        protected String _speaker, _bundle, _message;
+        protected byte _mode;
     }
 
     /** Our speech object. */
@@ -144,4 +242,11 @@ public class SpeakProvider
 
     /** The entity that will validate our speakers. */
     protected SpeakerValidator _validator;
+
+    /** The observers to be notified of all speak messages. */
+    protected static ObserverList _observers =
+        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
+
+    /** The operation used to notify observers of speak messages. */
+    protected static SpokenOp _spokenOp = new SpokenOp();
 }
