@@ -1,5 +1,5 @@
 //
-// $Id: SwissArmyTileSetRuleSet.java,v 1.8 2002/02/05 20:29:09 mdb Exp $
+// $Id: SwissArmyTileSetRuleSet.java,v 1.9 2002/04/01 22:53:39 mdb Exp $
 
 package com.threerings.media.tile.tools.xml;
 
@@ -80,7 +80,12 @@ public class SwissArmyTileSetRuleSet extends TileSetRuleSet
                 {
                     int[] values = StringUtil.parseIntArray(bodyText);
                     SwissArmyTileSet starget = (SwissArmyTileSet)target;
-                    starget.setOffsetPos(new Point(values[0], values[1]));
+                    if (values.length == 2) {
+                        starget.setOffsetPos(new Point(values[0], values[1]));
+                    } else {
+                        Log.warning("Invalid 'offsetPos' definition '" +
+                                    bodyText + "'.");
+                    }
                 }
             });
 
@@ -91,7 +96,12 @@ public class SwissArmyTileSetRuleSet extends TileSetRuleSet
                 {
                     int[] values = StringUtil.parseIntArray(bodyText);
                     SwissArmyTileSet starget = (SwissArmyTileSet)target;
-                    starget.setGapSize(new Dimension(values[0], values[1]));
+                    if (values.length == 2) {
+                        starget.setGapSize(new Dimension(values[0], values[1]));
+                    } else {
+                        Log.warning("Invalid 'gapSize' definition '" +
+                                    bodyText + "'.");
+                    }
                 }
             });
     }
