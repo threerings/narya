@@ -1,5 +1,5 @@
 //
-// $Id: RunningConnection.java,v 1.9 2002/11/18 18:53:10 mdb Exp $
+// $Id: RunningConnection.java,v 1.10 2002/12/22 06:36:30 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -37,9 +37,7 @@ public class RunningConnection extends Connection
 
     public String toString ()
     {
-        String addr = (_channel == null) ? "<disconnected>" :
-            StringUtil.toString(_channel.socket().getInetAddress());
         return "[mode=RUNNING, id=" + (hashCode() % 1000) +
-            ", addr=" + addr + "]";
+            ", addr=" + getIPAddress() + "]";
     }
 }

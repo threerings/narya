@@ -1,5 +1,5 @@
 //
-// $Id: Connection.java,v 1.13 2002/11/18 18:53:10 mdb Exp $
+// $Id: Connection.java,v 1.14 2002/12/22 06:36:30 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -80,6 +80,17 @@ public abstract class Connection implements NetEventHandler
     public SocketChannel getChannel ()
     {
         return _channel;
+    }
+
+    /**
+     * Returns a string containing the IP address of the client on the
+     * other end of this connection or <code>&lt;disconnected&gt;</code>
+     * if this connection has no underlying socket channel.
+     */
+    public String getIPAddress ()
+    {
+        return (_channel == null) ? "<disconnected>" :
+            String.valueOf(_channel.socket().getInetAddress());
     }
 
     /**
