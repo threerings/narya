@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.48 2003/07/27 02:50:53 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.49 2003/08/16 03:42:28 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -108,18 +108,38 @@ public class MisoScenePanel extends VirtualMediaPanel
         _model = model;
 
         // clear out old blocks and objects
-        _blocks.clear();
-        _vizobjs.clear();
-        _masks.clear();
-        if (_dpanel != null) {
-            _dpanel.newScene();
-        }
+        clearScene();
 
         centerOnTile(0, 0);
         if (isShowing()) {
             rethink();
             _remgr.invalidateRegion(_vbounds);
         }
+    }
+
+    /**
+     * Clears out our old scene business.
+     */
+    protected void clearScene ()
+    {
+        _blocks.clear();
+        _vizobjs.clear();
+        _masks.clear();
+        if (_dpanel != null) {
+            _dpanel.newScene();
+        }
+    }
+
+    /**
+     * Completely invalidates our current resolved scene and re-resolves
+     * it from the ground up.
+     */
+    protected void refreshScene ()
+    {
+        clearScene();
+        rethink();
+        _delayRepaint = true;
+        _remgr.invalidateRegion(_vbounds);
     }
 
     /**
