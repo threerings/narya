@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.18 2002/10/26 20:31:15 mdb Exp $
+// $Id: FrameManager.java,v 1.19 2002/11/15 23:58:34 mdb Exp $
 
 package com.threerings.media;
 
@@ -24,6 +24,10 @@ import java.awt.EventQueue;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.RepaintManager;
+
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
@@ -150,13 +154,9 @@ public class FrameManager
      */
     public void start ()
     {
-        if (_ticker == null) {
-            // create ticker for queueing up tick requests on AWT thread
-            _ticker = new Ticker();
-            // and start it up
-            _ticker.start();
-            // and kick off our first frame
-            _ticker.tickIn(_millisPerFrame, System.currentTimeMillis());
+        if (_timer == null) {
+            _timer = new Timer(true);
+            _timer.scheduleAtFixedRate(_callTick, new Date(), _millisPerFrame);
         }
     }
 
@@ -165,8 +165,9 @@ public class FrameManager
      */
     public synchronized void stop ()
     {
-        if (_ticker != null) {
-            _ticker = null;
+        if (_timer != null) {
+            _timer.cancel();
+            _timer = null;
         }
     }
 
@@ -176,43 +177,44 @@ public class FrameManager
      */
     public synchronized boolean isRunning ()
     {
-        return (_ticker != null);
+        return (_timer != null);
+    }
+
+    /**
+     * Returns true if we are in the middle of a call to {@link #tick}.
+     */
+    protected synchronized boolean isTicking ()
+    {
+        return _ticking;
     }
 
     /**
      * Called to perform the frame processing and rendering.
      */
-    protected void tick ()
+    protected void tick (long tickStamp)
     {
-        // if our frame is not showing (or is impossibly sized), don't try
-        // rendering anything
-        if (_frame.isShowing() &&
-            _frame.getWidth() > 0 && _frame.getHeight() > 0) {
-            long tickStamp = System.currentTimeMillis();
-            // tick our participants
-            tickParticipants(tickStamp);
-            // repaint our participants
-            paintParticipants(tickStamp);
-        }
+        try {
+            synchronized (this) {
+                _ticking = true;
+            }
 
-        // now determine how many milliseconds we have left before we need
-        // to start the next frame (if any)
-        long end = System.currentTimeMillis();
-        long duration = end - _frameStart;
-        long remaining = _millisPerFrame - duration;
+            // if our frame is not showing (or is impossibly sized), don't try
+            // rendering anything
+            if (_frame.isShowing() &&
+                _frame.getWidth() > 0 && _frame.getHeight() > 0) {
+                // tick our participants
+                tickParticipants(tickStamp);
+                // repaint our participants
+                paintParticipants(tickStamp);
+            }
 
         // note that we've done a frame
 //         PerformanceMonitor.tick(this, "frame-rate");
 
-        // if we have no time remaining, queue up another tick immediately
-        if (remaining <= 0) {
-            // make a note that we're starting our next frame now
-            _frameStart = end;
-            EventQueue.invokeLater(_callTick);
-
-        } else {
-            // otherwise queue one up in the requisite number of millis
-            _ticker.tickIn(remaining, end);
+        } finally {
+            synchronized (this) {
+                _ticking = false;
+            }
         }
     }
 
@@ -364,57 +366,6 @@ public class FrameManager
     public void checkpoint (String name, int ticks)
     {
         Log.info("Frames in last second: " + ticks);
-    }
-
-    /**
-     * Used to queue up frame ticks on the AWT thread at some point in the
-     * future.
-     */
-    protected class Ticker extends Thread
-    {
-        /**
-         * Tells the ticker to queue up a frame in the requisite number of
-         * milliseconds.
-         */
-        public synchronized void tickIn (long millis, long now)
-        {
-            _sleepfor = millis;
-            _now = now;
-            this.notify();
-        }
-
-        public void run ()
-        {
-            synchronized (this) {
-                while (_sleepfor != -1) {
-                    try {
-                        if (_sleepfor == 0) {
-                            this.wait();
-                        }
-                        if (_sleepfor > 0) {
-                            Thread.sleep(_sleepfor);
-
-                            // make a note of our frame start time
-                            _frameStart = System.currentTimeMillis();
-//                             long error =_frameStart - (_sleepfor + _now);
-//                             if (Math.abs(error) > 3) {
-//                                 Log.warning("Funny business: " + error);
-//                             }
-
-                            // queue up our ticker on the AWT thread
-                            EventQueue.invokeLater(_callTick);
-                            _sleepfor = 0;
-                        }
-
-                    } catch (InterruptedException ie) {
-                        Log.warning("Girl interrupted!");
-                    }
-                }
-            }
-        }
-
-        protected long _sleepfor = 0l;
-        protected long _now = 0l;
     }
 
     /**
@@ -585,15 +536,15 @@ public class FrameManager
     /** The image used to render off-screen. */
     protected VolatileImage _backimg;
 
-    /** The number of milliseconds per frame (12 by default, which gives
-     * an fps of 80). */
-    protected long _millisPerFrame = 12;
+    /** The number of milliseconds per frame (14 by default, which gives
+     * an fps of ~71). */
+    protected long _millisPerFrame = 14;
 
-    /** The time at which we started the most recent "frame". */
-    protected long _frameStart;
+    /** The timer that dispatches our frame ticks. */
+    protected Timer _timer;
 
-    /** Used to queue up a tick. */
-    protected Ticker _ticker;
+    /** Used to detect when we need to drop frames. */
+    protected boolean _ticking;
 
     /** The graphics object from our back buffer. */
     protected Graphics _bgfx;
@@ -609,10 +560,16 @@ public class FrameManager
      * "layered" components. */
     protected boolean[] _clipped = new boolean[1];
 
-    /** Used to queue up a call to {@link #tick} on the AWT thread. */
-    protected Runnable _callTick = new Runnable () {
+    /** Used to effect periodic calls to {@link #tick}. */
+    protected TimerTask _callTick = new TimerTask () {
         public void run () {
-            tick();
+            if (EventQueue.isDispatchThread()) {
+                tick(System.currentTimeMillis());
+            } else if (!isTicking()) {
+                EventQueue.invokeLater(this);
+            } else {
+                Log.info("Dropped frame.");
+            }
         }
     };
 
