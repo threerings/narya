@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundle.java,v 1.6 2002/05/09 16:51:26 mdb Exp $
+// $Id: TileSetBundle.java,v 1.7 2002/06/19 08:28:55 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -26,8 +26,7 @@ import com.threerings.media.tile.ImageProvider;
  * A tileset bundle is used to load up tilesets by id from a persistent
  * bundle of tilesets stored on the local filesystem.
  */
-public class TileSetBundle
-    extends HashIntMap
+public class TileSetBundle extends HashIntMap
     implements Serializable, ImageProvider
 {
     /**
