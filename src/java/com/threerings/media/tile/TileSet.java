@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.26 2002/05/06 18:08:32 mdb Exp $
+// $Id: TileSet.java,v 1.27 2002/05/06 23:23:27 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -119,19 +119,9 @@ public abstract class TileSet
             return tset;
         }
 
-        // create the recolored image
-        BufferedImage btimg = (BufferedImage)timg;
-        int zcount = zations.length;
-        Colorization cz;
-        for (int zz = 0; zz < zcount; zz++) {
-            if ((cz = zations[zz]) == null) {
-                continue;
-            }
-            btimg = ImageUtil.recolorImage(btimg, cz);
-        }
-
-        // stuff the recolored image back into the new tileset
-        tset._tilesetImg = btimg;
+        // create the recolored image and update the tileset
+        tset._tilesetImg =
+            ImageUtil.recolorImage((BufferedImage)timg, zations);
 
         return tset;
     }
