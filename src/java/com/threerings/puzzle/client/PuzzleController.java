@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.7 2004/04/29 00:28:05 ray Exp $
+// $Id: PuzzleController.java,v 1.8 2004/04/30 00:02:21 ray Exp $
 
 package com.threerings.puzzle.client;
 
@@ -10,6 +10,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import java.util.ArrayList;
 
@@ -160,14 +161,22 @@ public abstract class PuzzleController extends GameController
             // ...enable "click to unchat" mode in the puzzle board view
             MouseAdapter unpauser = new MouseAdapter() {
                 public void mousePressed (MouseEvent event) {
-                    setChatting(false);
                     _panel.removeMouseListener(this);
                     _panel.getBoardView().removeMouseListener(this);
                     jack.release();
+                    setChatting(false);
                 }
             };
             _panel.addMouseListener(unpauser);
             _panel.getBoardView().addMouseListener(unpauser);
+
+        } else {
+            // if we were unpaused with a key event, blow away the hijacker
+            // business
+            MouseListener[] mousers = _panel.getMouseListeners();
+            if (mousers.length == 1) {
+                mousers[0].mousePressed(null);
+            }
         }
 
         // update the chatting state
