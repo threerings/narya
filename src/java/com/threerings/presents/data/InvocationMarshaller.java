@@ -1,14 +1,10 @@
 //
-// $Id: InvocationMarshaller.java,v 1.3 2002/12/08 02:18:50 mdb Exp $
+// $Id: InvocationMarshaller.java,v 1.4 2002/12/20 23:41:26 mdb Exp $
 
 package com.threerings.presents.data;
 
-import java.io.IOException;
-
 import com.samskivert.util.StringUtil;
 
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.Log;
@@ -127,26 +123,6 @@ public class InvocationMarshaller
     {
         client.getInvocationDirector().sendRequest(
             _invOid, _invCode, methodId, args);
-    }
-
-    /**
-     * Writes this instance to the supplied output stream.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        out.writeInt(_invOid);
-        out.writeShort(_invCode);
-    }
-
-    /**
-     * Reads this instance from the supplied input stream.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException
-    {
-        _invOid = in.readInt();
-        _invCode = in.readShort();
     }
 
     /**

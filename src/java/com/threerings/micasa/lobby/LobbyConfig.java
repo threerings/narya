@@ -1,18 +1,13 @@
 //
-// $Id: LobbyConfig.java,v 1.6 2002/07/23 05:54:52 mdb Exp $
+// $Id: LobbyConfig.java,v 1.7 2002/12/20 23:41:26 mdb Exp $
 
 package com.threerings.micasa.lobby;
-
-import java.io.IOException;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
 import java.util.Properties;
 import com.samskivert.util.StringUtil;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.parlor.game.GameConfig;
@@ -63,26 +58,6 @@ public class LobbyConfig extends PlaceConfig
         throws Exception
     {
         _gameConfigClass = getConfigValue(config, "game_config");
-    }
-
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        out.defaultWriteObject();
-        out.writeUTF(_gameConfigClass);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        in.defaultReadObject();
-        _gameConfigClass = in.readUTF();
     }
 
     // documentation inherited

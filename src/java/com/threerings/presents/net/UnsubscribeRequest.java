@@ -1,12 +1,7 @@
 //
-// $Id: UnsubscribeRequest.java,v 1.8 2002/12/20 23:28:24 mdb Exp $
+// $Id: UnsubscribeRequest.java,v 1.9 2002/12/20 23:41:26 mdb Exp $
 
 package com.threerings.presents.net;
-
-import java.io.IOException;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 
 public class UnsubscribeRequest extends UpstreamMessage
 {

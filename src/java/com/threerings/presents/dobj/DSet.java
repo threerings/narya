@@ -1,17 +1,14 @@
 //
-// $Id: DSet.java,v 1.24 2002/12/20 23:29:04 mdb Exp $
+// $Id: DSet.java,v 1.25 2002/12/20 23:41:26 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.IOException;
 import java.util.Comparator;
 import java.util.Iterator;
 
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.Log;
@@ -298,36 +295,6 @@ public class DSet
     }
 
     /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        out.defaultWriteObject();
-
-        int ecount = _entries.length;
-        for (int ii = 0; ii < ecount; ii++) {
-            if (_entries[ii] != null) {
-                out.writeObject(_entries[ii]);
-            }
-        }
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        in.defaultReadObject();
-
-        _entries = new Entry[Math.max(_size, INITIAL_CAPACITY)];
-        for (int ii = 0; ii < _size; ii++) {
-            _entries[ii] = (Entry)in.readObject();
-        }
-    }
-
-    /**
      * Generates a string representation of this set instance.
      */
     public String toString ()
@@ -347,7 +314,7 @@ public class DSet
     }
 
     /** The entries of the set (in a sparse array). */
-    protected transient Entry[] _entries = new Entry[INITIAL_CAPACITY];
+    protected Entry[] _entries = new Entry[INITIAL_CAPACITY];
 
     /** The number of entries in this set. */
     protected int _size;

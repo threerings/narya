@@ -1,12 +1,8 @@
 //
-// $Id: DEvent.java,v 1.11 2002/07/23 05:52:48 mdb Exp $
+// $Id: DEvent.java,v 1.12 2002/12/20 23:41:26 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.IOException;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 /**
@@ -89,26 +85,6 @@ public abstract class DEvent implements Streamable
     protected void notifyListener (Object listener)
     {
         // the default is to do nothing
-    }
-
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        out.defaultWriteObject();
-        out.writeInt(_toid);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        in.defaultReadObject();
-        _toid = in.readInt();
     }
 
     /**

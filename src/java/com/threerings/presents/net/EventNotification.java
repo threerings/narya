@@ -1,12 +1,7 @@
 //
-// $Id: EventNotification.java,v 1.12 2002/12/20 23:28:24 mdb Exp $
+// $Id: EventNotification.java,v 1.13 2002/12/20 23:41:26 mdb Exp $
 
 package com.threerings.presents.net;
-
-import java.io.IOException;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.presents.dobj.DEvent;
 

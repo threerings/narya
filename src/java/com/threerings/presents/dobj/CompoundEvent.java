@@ -1,13 +1,11 @@
 //
-// $Id: CompoundEvent.java,v 1.7 2002/12/20 23:29:04 mdb Exp $
+// $Id: CompoundEvent.java,v 1.8 2002/12/20 23:41:26 mdb Exp $
 
 package com.threerings.presents.dobj;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 import com.threerings.util.StreamableArrayList;
 
 /**

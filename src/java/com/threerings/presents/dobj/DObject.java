@@ -1,17 +1,14 @@
 //
-// $Id: DObject.java,v 1.55 2002/12/12 00:30:47 mdb Exp $
+// $Id: DObject.java,v 1.56 2002/12/20 23:41:26 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.Log;
@@ -695,26 +692,6 @@ public class DObject implements Streamable
             _tevent.cancel();
         }
     }        
-
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        out.defaultWriteObject();
-        out.writeInt(_oid);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        in.defaultReadObject();
-        _oid = in.readInt();
-    }
 
     /**
      * Removes this object from participation in any transaction in which

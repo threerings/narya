@@ -1,12 +1,8 @@
 //
-// $Id: UpstreamMessage.java,v 1.10 2002/12/20 23:28:24 mdb Exp $
+// $Id: UpstreamMessage.java,v 1.11 2002/12/20 23:41:26 mdb Exp $
 
 package com.threerings.presents.net;
 
-import java.io.IOException;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.SimpleStreamableObject;
 
 /**

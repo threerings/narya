@@ -1,14 +1,9 @@
 //
-// $Id: Table.java,v 1.11 2002/08/14 19:07:53 mdb Exp $
+// $Id: Table.java,v 1.12 2002/12/20 23:41:26 mdb Exp $
 
 package com.threerings.parlor.data;
 
-import java.io.IOException;
-
 import com.samskivert.util.StringUtil;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.presents.dobj.DSet;
 
@@ -253,26 +248,6 @@ public class Table
         } else {
             return false;
         }
-    }
-
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        out.defaultWriteObject();
-        out.writeObject(_tconfig);
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        in.defaultReadObject();
-        _tconfig = (TableConfig)in.readObject();
     }
 
     /**

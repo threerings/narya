@@ -1,17 +1,13 @@
 //
-// $Id: SceneSummary.java,v 1.4 2002/07/23 05:54:53 mdb Exp $
+// $Id: SceneSummary.java,v 1.5 2002/12/20 23:41:27 mdb Exp $
 
 package com.threerings.whirled.zone.data;
-
-import java.io.IOException;
 
 import com.samskivert.util.StringUtil;
 
 import com.threerings.util.DirectionCodes;
 import com.threerings.util.DirectionUtil;
 
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 /**
@@ -52,26 +48,6 @@ public class SceneSummary implements Streamable
     public synchronized void setPopulation (int population)
     {
         _population = population;
-    }
-
-    /**
-     * Writes our custom streamable fields.
-     */
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        out.defaultWriteObject();
-        out.writeInt(getPopulation());
-    }
-
-    /**
-     * Reads our custom streamable fields.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        in.defaultReadObject();
-        _population = in.readInt();
     }
 
     /**
