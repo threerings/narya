@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.7 2002/03/27 21:52:41 mdb Exp $
+// $Id: MessageBundle.java,v 1.8 2002/04/30 17:45:27 mdb Exp $
 
 package com.threerings.util;
 
@@ -38,6 +38,12 @@ public class MessageBundle
      */
     public String get (String key)
     {
+        // if we were unable to resolve our resource bundle, we can't do
+        // any translations
+        if (_bundle == null) {
+            return key;
+        }
+
         // if this string is tainted, we don't translate it, instead we
         // simply remove the taint character and return it to the caller
         if (key.startsWith(TAINT_CHAR)) {
@@ -111,6 +117,12 @@ public class MessageBundle
      */
     public String get (String key, Object[] args)
     {
+        // if we were unable to resolve our resource bundle, we can't do
+        // any translations
+        if (_bundle == null) {
+            return key + StringUtil.toString(args);
+        }
+
         try {
             String message = _bundle.getString(key);
             return MessageFormat.format(message, args);

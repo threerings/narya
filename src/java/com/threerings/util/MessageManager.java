@@ -1,10 +1,11 @@
 //
-// $Id: MessageManager.java,v 1.1 2002/01/29 20:44:35 mdb Exp $
+// $Id: MessageManager.java,v 1.2 2002/04/30 17:45:27 mdb Exp $
 
 package com.threerings.util;
 
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
@@ -80,13 +81,17 @@ public class MessageManager
 
         // if it's not cached, we'll need to resolve it
         String fqpath = _prefix + path;
-        ResourceBundle rbundle = ResourceBundle.getBundle(fqpath, _locale);
-        if (rbundle == null) {
+        ResourceBundle rbundle = null;
+        try {
+            rbundle = ResourceBundle.getBundle(fqpath, _locale);
+        } catch (MissingResourceException mre) {
             Log.warning("Unable to resolve resource bundle " +
-                        "[path=" + fqpath + "].");
+                        "[path=" + fqpath + ", locale=" + _locale + "].");
         }
 
-        // create our message bundle, cache it and return it
+        // create our message bundle, cache it and return it (if we
+        // couldn't resolve the bundle, the message bundle will cope with
+        // it's null resource bundle)
         bundle = new MessageBundle(path, rbundle);
         _cache.put(path, bundle);
         return bundle;
