@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.13 2002/05/31 07:34:23 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.14 2002/06/11 00:04:43 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -98,16 +98,16 @@ public class ScrollingTestApp
             protected void viewFinishedScrolling () {
                 // keep scrolling for a spell
                 if (++_sidx < DX.length) {
-                    LinePath path = new LinePath(_foo.x, _foo.y,
-                                                 _foo.x + DX[_sidx],
-                                                 _foo.y + DY[_sidx], 3000l);
-                    setPath(path, _foo);
+                    int x = _viewmodel.bounds.width/2,
+                        y = _viewmodel.bounds.height/2;
+                    LinePath path = new LinePath(
+                        x, y, x + DX[_sidx], y + DY[_sidx], 3000l);
+                    setPath(path);
                 }
             }
-            protected Point _foo = new Point();
             protected int _sidx = -1;
-            protected final int[] DX = { 0, 1000, -1000, 1000, 2000 };
-            protected final int[] DY = { 1000, 0, 1000, -1000, 1000 };
+            protected final int[] DX = { 162, 0, 1000, -1000, 1000, 2000 };
+            protected final int[] DY = { 140, 1000, 0, 1000, -1000, 1000 };
         };
         _panel.setScrolling(0, 1000, 3000l);
         _frame.setPanel(_panel);
