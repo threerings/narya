@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfiguration.java,v 1.9 2002/04/08 19:41:52 ray Exp $
+// $Id: FringeConfiguration.java,v 1.10 2002/04/15 21:30:56 ray Exp $
 
 package com.threerings.miso.tile;
 
@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.samskivert.util.HashIntMap;
+
+import com.threerings.miso.Log;
 
 /**
  * Used to manage data about which base tilesets fringe on which others
@@ -19,7 +21,7 @@ public class FringeConfiguration implements Serializable
      * The path (relative to the resource directory) at which the fringe
      * configuration should be loaded and stored.
      */
-    public static final String CONFIG_PATH = "config/miso/scene/fringeconf.dat";
+    public static final String CONFIG_PATH = "config/miso/tile/fringeconf.dat";
 
     public static class FringeRecord implements Serializable
     {
