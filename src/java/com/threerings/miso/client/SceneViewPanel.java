@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.12 2001/08/23 00:23:58 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.13 2001/08/29 18:41:46 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -7,13 +7,15 @@ import java.awt.*;
 import java.util.List;
 import javax.swing.*;
 
+import com.samskivert.util.Config;
 import com.threerings.media.sprite.*;
 import com.threerings.media.tile.TileManager;
+import com.threerings.miso.util.MisoUtil;
 
 /**
- * The <code>SceneViewPanel</code> class is responsible for managing a
- * <code>SceneView</code>, rendering it to the screen, and handling
- * view-related UI events.
+ * The scene view panel is responsible for managing a {@link
+ * SceneView}, rendering it to the screen, and handling view-related
+ * UI events.
  */
 public class SceneViewPanel
     extends JPanel implements AnimatedView
@@ -21,13 +23,11 @@ public class SceneViewPanel
     /**
      * Construct the panel and initialize it with a context.
      */
-    public SceneViewPanel (TileManager tilemgr, SpriteManager spritemgr)
+    public SceneViewPanel (Config config, TileManager tilemgr,
+			   SpriteManager spritemgr)
     {
         // create the data model for the scene view
-        _smodel = new IsoSceneViewModel();
-        _smodel.setTileDimensions(TWIDTH, THEIGHT);
-        _smodel.setBounds((HTILES * TWIDTH), (VTILES * THEIGHT));
-        _smodel.setOrigin(_smodel.bounds.width / 2, VOFFSET);
+        _smodel = new IsoSceneViewModel(config);
 
 	// create the scene view
         _view = new IsoSceneView(tilemgr, spritemgr, _smodel);
@@ -124,21 +124,6 @@ public class SceneViewPanel
             super.getPreferredSize() : _smodel.bounds;
 	return psize;
     }
-
-    /** Tile width in pixels. */
-    protected static final int TWIDTH = 64;
-
-    /** Tile height in pixels. */
-    protected static final int THEIGHT = 48;
-
-    /** Number of horizontal tiles in the scene. */
-    protected static final int HTILES = 10;
-
-    /** Number of vertical tiles in the scene. */
-    protected static final int VTILES = 12;
-
-    /** Origin vertical offset in pixels. */
-    protected static final int VOFFSET = -(5 * THEIGHT);
 
     /** The offscreen image used for double-buffering. */
     protected Image _offimg;

@@ -1,5 +1,5 @@
 //
-// $Id: MisoUtil.java,v 1.8 2001/08/16 23:14:21 mdb Exp $
+// $Id: MisoUtil.java,v 1.9 2001/08/29 18:41:46 shaper Exp $
 
 package com.threerings.miso.util;
 
@@ -24,6 +24,9 @@ import com.threerings.miso.tile.*;
  */
 public class MisoUtil
 {
+    /** The config key prefix for miso properties. */
+    public static final String CONFIG_KEY = "miso";
+
     /**
      * Populate the config object with miso configuration values.
      *
@@ -31,7 +34,7 @@ public class MisoUtil
      */
     public static void bindProperties (Config config) throws IOException
     {
-	config.bindProperties("miso", "rsrc/config/miso/miso");
+	config.bindProperties(CONFIG_KEY, "rsrc/config/miso/miso");
     }
 
     /**
@@ -48,7 +51,7 @@ public class MisoUtil
     {
 	try {
             XMLFileSceneRepository scenerepo = (XMLFileSceneRepository)
-                config.instantiateValue("miso.scenerepo", DEF_SCENEREPO);
+                config.instantiateValue(SCENEREPO_KEY, DEF_SCENEREPO);
             scenerepo.init(config, tilemgr);
             return scenerepo;
 
@@ -102,7 +105,7 @@ public class MisoUtil
 	TileSetManagerImpl tilesetmgr = null;
 	try {
 	    tilesetmgr = (TileSetManagerImpl)
-		config.instantiateValue("miso.tilesetmgr", DEF_TILESETMGR);
+		config.instantiateValue(TILESETMGR_KEY, DEF_TILESETMGR);
 	    tilesetmgr.init(config, imgmgr);
 
 	} catch (Exception e) {
@@ -120,4 +123,10 @@ public class MisoUtil
     /** The default tileset manager class name. */
     protected static final String DEF_TILESETMGR =
         EditableTileSetManager.class.getName();
+
+    /** The config key for the scene repository class. */
+    protected static final String SCENEREPO_KEY = CONFIG_KEY + ".scenerepo";
+
+    /** The config key for the tileset manager class. */
+    protected static final String TILESETMGR_KEY = CONFIG_KEY + ".tilesetmgr";
 }

@@ -1,5 +1,5 @@
 //
-// $Id: EditableTileSetManager.java,v 1.9 2001/08/16 23:14:21 mdb Exp $
+// $Id: EditableTileSetManager.java,v 1.10 2001/08/29 18:41:46 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -12,6 +12,7 @@ import com.threerings.media.ImageManager;
 import com.threerings.media.tile.*;
 
 import com.threerings.miso.Log;
+import com.threerings.miso.util.MisoUtil;
 
 /**
  * Extends general tileset manager functionality to allow reading
@@ -26,7 +27,7 @@ public class EditableTileSetManager extends TileSetManagerImpl
         super.init(config, imgmgr);
 
         // load the tilesets from the XML description file
-        String fname = config.getValue("miso.tilesets", (String)null);
+        String fname = config.getValue(TILESETS_KEY, (String)null);
         ArrayList tilesets = null;
         try {
             tilesets = new XMLTileSetParser().loadTileSets(fname);
@@ -50,4 +51,8 @@ public class EditableTileSetManager extends TileSetManagerImpl
             Log.info("Adding tileset to cache [tset=" + tset + "].");
         }
     }
+
+    /** The config key for the tileset description file. */
+    protected static final String TILESETS_KEY =
+	MisoUtil.CONFIG_KEY + ".tilesets";
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.6 2001/08/16 23:14:21 mdb Exp $
+// $Id: ViewerApp.java,v 1.7 2001/08/29 18:41:46 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -53,7 +53,8 @@ public class ViewerApp
 	    MisoUtil.bindProperties(config);
 
             // load the viewer-specific config info
-            config.bindProperties("miso-viewer", "rsrc/config/miso/viewer");
+            config.bindProperties(
+		ViewerModel.CONFIG_KEY, "rsrc/config/miso/viewer");
 
 	} catch (IOException ioe) {
 	    Log.warning("Error loading config information [e=" + ioe + "].");

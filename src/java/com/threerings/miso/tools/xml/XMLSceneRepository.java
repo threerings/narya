@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneRepository.java,v 1.9 2001/08/16 23:14:21 mdb Exp $
+// $Id: XMLSceneRepository.java,v 1.10 2001/08/29 18:41:46 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -11,6 +11,7 @@ import com.samskivert.util.Config;
 import com.threerings.media.tile.TileManager;
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.MisoScene;
+import com.threerings.miso.util.MisoUtil;
 
 /**
  * The <code>XMLFileSceneRepository</code> provides a mechanism for
@@ -35,7 +36,7 @@ public class XMLFileSceneRepository
 
 	// get path-related information
 	_root = System.getProperty("root", "");
-        _sceneRoot = _config.getValue(CFG_SROOT, DEF_SROOT);
+        _sceneRoot = _config.getValue(SCENEROOT_KEY, DEF_SCENEROOT);
 
 	// create the parser and writer objects
         _parser = new XMLSceneParser(_tilemgr);
@@ -101,8 +102,9 @@ public class XMLFileSceneRepository
     protected XMLSceneWriter _writer;
 
     /** The config key for the root scene directory. */
-    protected static final String CFG_SROOT = "miso.sceneroot";
+    protected static final String SCENEROOT_KEY =
+	MisoUtil.CONFIG_KEY + ".sceneroot";
 
     /** The default root scene directory path. */
-    protected static final String DEF_SROOT = "rsrc/scenes";
+    protected static final String DEF_SCENEROOT = "rsrc/scenes";
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.13 2001/08/23 00:23:58 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.14 2001/08/29 18:41:46 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -26,7 +26,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     public ViewerSceneViewPanel (
 	ViewerContext ctx, SpriteManager spritemgr, AmbulatorySprite sprite)
     {
-	super(ctx.getTileManager(), spritemgr);
+	super(ctx.getConfig(), ctx.getTileManager(), spritemgr);
 
 	_ctx = ctx;
         _sprite = sprite;
@@ -41,9 +41,6 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         // load up the initial scene
         prepareStartingScene();
 
-	_smodel.setShowCoordinates(true);
-	_smodel.setShowSpritePaths(true);
-
 	PerformanceMonitor.register(this, "paint", 1000);
     }
 
@@ -56,7 +53,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 
         // get the starting scene filename
         Config config = _ctx.getConfig();
-        String fname = config.getValue(CFG_SCENE, DEF_SCENE);
+        String fname = config.getValue(SCENE_KEY, DEF_SCENE);
 
         try {
             // load and set up the scene
@@ -104,7 +101,8 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     public void mouseDragged (MouseEvent e) { }
 
     /** The config key to obtain the default scene filename. */
-    protected static final String CFG_SCENE = "miso-viewer.default_scene";
+    protected static final String SCENE_KEY =
+	ViewerModel.CONFIG_KEY + ".default_scene";
 
     /** The default scene to load and display. */
     protected static final String DEF_SCENE = "rsrc/scenes/default.xml";
