@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.16 2003/04/22 18:12:40 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.17 2003/05/02 15:11:51 mdb Exp $
 
 package com.threerings.media;
 
@@ -240,6 +240,11 @@ public class VirtualMediaPanel extends MediaPanel
      */
     protected void viewLocationDidChange (int dx, int dy)
     {
+        if (_perfRect != null) {
+            Rectangle sdirty = new Rectangle(_perfRect);
+            sdirty.translate(-dx, -dy);
+            dirtyScreenRect(sdirty);
+        }
     }
 
     /**
