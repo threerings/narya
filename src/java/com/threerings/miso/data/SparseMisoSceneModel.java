@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneModel.java,v 1.1 2003/04/19 22:40:34 mdb Exp $
+// $Id: SparseMisoSceneModel.java,v 1.2 2003/04/19 23:47:24 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -11,6 +11,7 @@ import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.IntListUtil;
 import com.samskivert.util.ListUtil;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.io.SimpleStreamableObject;
 
@@ -240,12 +241,12 @@ public class SparseMisoSceneModel extends MisoSceneModel
     // documentation inherited
     public void getObjects (Rectangle region, ObjectSet set)
     {
-        int minx = MathUtil.floorDiv(region.x, swidth);
-        int maxx = MathUtil.floorDiv(region.x+region.width-1, swidth);
-        int miny = MathUtil.floorDiv(region.y, sheight);
-        int maxy = MathUtil.floorDiv(region.y+region.height-1, sheight);
-        for (int yy = miny; yy <= maxy; yy++) {
-            for (int xx = minx; xx <= maxx; xx++) {
+        int minx = MathUtil.floorDiv(region.x, swidth)*swidth;
+        int maxx = MathUtil.floorDiv(region.x+region.width-1, swidth)*swidth;
+        int miny = MathUtil.floorDiv(region.y, sheight)*sheight;
+        int maxy = MathUtil.floorDiv(region.y+region.height-1, sheight)*sheight;
+        for (int yy = miny; yy <= maxy; yy += sheight) {
+            for (int xx = minx; xx <= maxx; xx += swidth) {
                 Section sec = getSection(xx, yy, false);
                 if (sec != null) {
                     sec.getObjects(region, set);
@@ -296,6 +297,14 @@ public class SparseMisoSceneModel extends MisoSceneModel
     public Iterator getSections ()
     {
         return _sections.values().iterator();
+    }
+
+    // documentation inherited
+    protected void toString (StringBuffer buf)
+    {
+        super.toString(buf);
+        buf.append(", sections=" +
+                   StringUtil.toString(_sections.values().iterator()));
     }
 
     /**
