@@ -1,7 +1,9 @@
 //
-// $Id: SimpleServer.java,v 1.4 2002/03/28 22:32:32 mdb Exp $
+// $Id: SimpleServer.java,v 1.5 2002/06/10 19:16:41 shaper Exp $
 
 package com.threerings.micasa.simulator.server;
+
+import com.samskivert.util.ResultListener;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.server.CrowdServer;
@@ -14,7 +16,7 @@ public class SimpleServer extends CrowdServer
     implements SimulatorServer
 {
     // documentation inherited
-    public void init ()
+    public void init (ResultListener obs)
         throws Exception
     {
         super.init();
@@ -22,5 +24,10 @@ public class SimpleServer extends CrowdServer
         // create the simulator manager
         SimulatorManager simmgr = new SimulatorManager();
         simmgr.init(invmgr, plreg, clmgr, omgr, this);
+
+        if (obs != null) {
+            // let the initialization observer know that we've started up
+            obs.requestCompleted(this);
+        }
     }
 }

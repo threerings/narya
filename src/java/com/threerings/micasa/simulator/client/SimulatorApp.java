@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorApp.java,v 1.7 2002/05/09 04:39:12 shaper Exp $
+// $Id: SimulatorApp.java,v 1.8 2002/06/10 19:16:41 shaper Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.util.SwingUtil;
+import com.samskivert.util.ResultListener;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientAdapter;
@@ -24,13 +25,8 @@ import com.threerings.micasa.simulator.server.SimulatorServer;
  */
 public class SimulatorApp
 {
-    public void init (String[] args) throws Exception
+    public void start (final String[] args) throws Exception
     {
-        // create the server
-        SimulatorServer server = createSimulatorServer();
-        server.init();
-        _serverThread = new ServerThread(server);
-
         // create a frame
         _frame = createSimulatorFrame();
 
@@ -48,6 +44,28 @@ public class SimulatorApp
         Controller ctrl = new ClientController(
             _client.getParlorContext(), _frame, siminfo);
         _frame.setController(ctrl);
+
+        // create the server
+        SimulatorServer server = createSimulatorServer();
+        server.init(new ResultListener() {
+            public void requestCompleted (Object result) {
+                try {
+                    run();
+                } catch (Exception e) {
+                    Log.warning("Simulator initialization failed " +
+                                "[e=" + e + "].");
+                }
+            }
+            public void requestFailed (Exception e) {
+                Log.warning("Simulator initialization failed [e=" + e + "].");
+            }
+        });
+
+        // run the server on a separate thread
+        _serverThread = new ServerThread(server);
+        // start up the server so that we can be notified when
+        // initialization is complete
+        _serverThread.start();
     }
 
     protected SimulatorServer createSimulatorServer ()
@@ -73,9 +91,6 @@ public class SimulatorApp
         frame.pack();
         SwingUtil.centerWindow(frame);
         frame.show();
-
-        // start up the server
-        _serverThread.start();
 
         // start up the client
         Client client = _client.getParlorContext().getClient();
@@ -118,13 +133,11 @@ public class SimulatorApp
 
         SimulatorApp app = new SimulatorApp();
         try {
-            app.init(args);
+            app.start(args);
         } catch (Exception e) {
-            Log.warning("Error initializing application.");
+            Log.warning("Error starting up application.");
             Log.logStackTrace(e);
         }
-
-        app.run();
     }
 
     protected static boolean checkArgs (String[] args)
@@ -169,10 +182,10 @@ public class SimulatorApp
         protected SimulatorServer _server;
     }
 
-    /** The default number of players in the game. */
-    protected static final int DEFAULT_PLAYER_COUNT = 2;
-
     protected SimulatorClient _client;
     protected SimulatorFrame _frame;
     protected ServerThread _serverThread;
+
+    /** The default number of players in the game. */
+    protected static final int DEFAULT_PLAYER_COUNT = 2;
 }
