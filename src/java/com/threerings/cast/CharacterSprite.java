@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.10 2001/10/08 21:04:25 shaper Exp $
+// $Id: CharacterSprite.java,v 1.11 2001/10/12 00:41:48 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -35,11 +35,9 @@ public class AmbulatorySprite extends Sprite implements Traverser
 
         // give ourselves an initial orientation
         setOrientation(DIR_NORTH);
-
-        // we only animate when we're moving
-        setAnimationMode(MOVEMENT_CUED);
     }
 
+    // documentation inherited
     public void setOrientation (int orient)
     {
         super.setOrientation(orient);
@@ -48,6 +46,29 @@ public class AmbulatorySprite extends Sprite implements Traverser
         setFrames(_anims[_orient]);
     }
 
+    // documentation inherited
+    protected void pathBeginning ()
+    {
+        super.pathBeginning();
+
+        // enable walking animation
+        setAnimationMode(TIME_BASED);
+    }
+
+    // documentation inherited
+    protected void pathCompleted ()
+    {
+        super.pathCompleted();
+
+        // come to a halt looking settled and at peace
+        _frame = _frames.getFrame(_frameIdx = 0);
+        invalidate();
+
+        // disable walking animation
+        setAnimationMode(NO_ANIMATION);
+    }
+
+    // documentation inherited
     public boolean canTraverse (MisoTile tile)
     {
 	// by default, passability is solely the province of the tile
