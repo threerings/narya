@@ -1,0 +1,25 @@
+<?xml version="1.0" standalone="yes"?>
+
+<!-- $Id: tilesets.xml,v 1.1 2001/07/17 17:16:53 shaper Exp $ -->
+
+<!-- Initial test tileset description data. -->
+
+<tilesetgroup>
+
+  <tileset>
+    <name>Ground</name>
+    <tsid>1000</tsid>
+    <imagefile>rsrc/media/miso/tiles-base.png</imagefile>
+    <rowheight>16, 16</rowheight>
+    <tilecount>10, 10</tilecount>
+  </tileset>
+
+  <tileset>
+    <name>Wall</name>
+    <tsid>1001</tsid>
+    <imagefile>rsrc/media/miso/tiles-wall.png</imagefile>
+    <rowheight>45, 45</rowheight>
+    <tilecount>2, 2</tilecount>
+  </tileset>
+
+</tilesetgroup>
