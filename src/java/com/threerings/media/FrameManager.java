@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.32 2003/01/15 02:21:07 shaper Exp $
+// $Id: FrameManager.java,v 1.33 2003/03/25 19:06:54 mdb Exp $
 
 package com.threerings.media;
 
@@ -422,12 +422,18 @@ public class FrameManager
 
             // paint our frame participants (which want to be handled
             // specially)
-            _participantPaintOp.setGraphics(_bgfx);
+            _participantPaintOp.init(_bgfx);
             _participants.apply(_participantPaintOp);
+            boolean ppart = _participantPaintOp.paintedSomething();
 
             // repaint any widgets that have declared they need to be
             // repainted since the last tick
-            _remgr.paintComponents(_bgfx, this);
+            boolean pcomp = _remgr.paintComponents(_bgfx, this);
+
+            // if we didn't paint anything, get the fork out of dodge
+            if (!(ppart || pcomp)) {
+                return;
+            }
 
             if (_displayPerf && _perfLabel != null) {
                 // render the current performance status
@@ -683,9 +689,19 @@ public class FrameManager
          * Sets the graphics context to which the frame participants
          * render themselves.
          */
-        public void setGraphics (Graphics g)
+        public void init (Graphics g)
         {
             _g = g;
+            _painted = 0;
+        }
+
+        /**
+         * Returns true if we painted at least one component in our last
+         * application.
+         */
+        public boolean paintedSomething ()
+        {
+            return (_painted > 0);
         }
 
         // documentation inherited
@@ -693,7 +709,7 @@ public class FrameManager
         {
             FrameParticipant part = (FrameParticipant)observer;
             Component pcomp = part.getComponent();
-            if (pcomp == null) {
+            if (pcomp == null || !part.needsPaint()) {
                 return true;
             }
 
@@ -726,6 +742,7 @@ public class FrameManager
                 _g.translate(_bounds.x, _bounds.y);
                 pcomp.paint(_g);
                 _g.translate(-_bounds.x, -_bounds.y);
+                _painted++;
 
             } catch (Throwable t) {
                 String ptos = StringUtil.safeToString(part);
@@ -753,6 +770,9 @@ public class FrameManager
 
         /** The graphics context to which the participants render. */
         protected Graphics _g;
+
+        /** The number of participants that were actually painted. */
+        protected int _painted;
 
         /** A handy rectangle that we reuse time and again to avoid having
          * to instantiate a new rectangle in the midst of the core

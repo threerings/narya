@@ -1,5 +1,5 @@
 //
-// $Id: FrameParticipant.java,v 1.2 2002/06/18 22:25:33 mdb Exp $
+// $Id: FrameParticipant.java,v 1.3 2003/03/25 19:06:54 mdb Exp $
 
 package com.threerings.media;
 
@@ -19,6 +19,13 @@ public interface FrameParticipant
      * choreography is desired between different participants).
      */
     public void tick (long tickStamp);
+
+    /**
+     * Called immediately prior to {@link #getComponent} and then {@link
+     * Component#paint} on said component, to determine whether or not
+     * this frame participant needs to be painted.
+     */
+    public boolean needsPaint ();
 
     /**
      * If a frame participant wishes also to be actively rendered every

@@ -1,5 +1,5 @@
 //
-// $Id: FrameRepaintManager.java,v 1.16 2002/12/09 05:00:48 shaper Exp $
+// $Id: FrameRepaintManager.java,v 1.17 2003/03/25 19:06:54 mdb Exp $
 
 package com.threerings.media;
 
@@ -216,13 +216,15 @@ public class FrameRepaintManager extends RepaintManager
 
     /**
      * Paints the components that have become dirty since the last tick.
+     *
+     * @return true if any components were painted.
      */
-    public void paintComponents (Graphics g, FrameManager fmgr)
+    public boolean paintComponents (Graphics g, FrameManager fmgr)
     {
         synchronized (this) {
             // exit now if there are no dirty rectangles to paint
             if (_dirty.isEmpty()) {
-                return;
+                return false;
             }
 
             // otherwise, swap our hashmaps
@@ -416,6 +418,8 @@ public class FrameRepaintManager extends RepaintManager
 
         // clear out the mapping of dirty components
         _spare.clear();
+
+        return true;
     }
 
     /**

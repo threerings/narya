@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.28 2003/02/04 03:11:43 mdb Exp $
+// $Id: MediaPanel.java,v 1.29 2003/03/25 19:06:54 mdb Exp $
 
 package com.threerings.media;
 
@@ -223,9 +223,21 @@ public class MediaPanel extends JComponent
     {
     }
 
-    /**
-     * Returns this component, as we want to be painted with the tick.
-     */
+    // documentation inherited from interface
+    public boolean needsPaint ()
+    {
+        // compute our average dirty regions per tick
+        if (_tick++ == 99) {
+            _tick = 0;
+            int dirty = IntListUtil.sum(_dirty);
+            Arrays.fill(_dirty, 0);
+            _dirtyPerTick = (float)dirty/100;
+        }
+
+        return (!_tickPaintPending || _remgr.haveDirtyRegions());
+    }
+
+    // documentation inherited from interface
     public Component getComponent ()
     {
         return this;
@@ -269,14 +281,6 @@ public class MediaPanel extends JComponent
 
         } else {
             _tickPaintPending = false;
-        }
-
-        // compute our average dirty regions per tick
-        if (_tick++ == 99) {
-            _tick = 0;
-            int dirty = IntListUtil.sum(_dirty);
-            Arrays.fill(_dirty, 0);
-            _dirtyPerTick = (float)dirty/100;
         }
 
         // if we have no invalid rects, there's no need to repaint
