@@ -1,5 +1,5 @@
 //
-// $Id: ValueMarshaller.java,v 1.1 2001/06/12 02:57:30 mdb Exp $
+// $Id: ValueMarshaller.java,v 1.2 2001/08/09 00:59:53 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj.io;
 
@@ -36,7 +36,7 @@ public class ValueMarshaller
      * The value must be one of the valid distributed object attribute
      * types.
      *
-     * @see DObject
+     * @see com.threerings.cocktail.cher.dobj.DObject
      * @see #readFrom
      */
     public static void writeTo (DataOutputStream out, Object value)
