@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.4 2001/11/29 00:18:15 mdb Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.5 2001/11/29 23:08:28 mdb Exp $
 
 package com.threerings.miso.tools.scene;
 
@@ -10,6 +10,7 @@ import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileManager;
 
 import com.threerings.miso.tile.BaseTile;
+import com.threerings.miso.tile.ShadowTile;
 
 import com.threerings.miso.scene.DisplayMisoSceneImpl;
 import com.threerings.miso.scene.MisoSceneModel;
@@ -41,6 +42,15 @@ public class EditableMisoSceneImpl
 
         // we need this to track object layer mods
         _objectTileIds = new int[_model.baseTileIds.length];
+
+        // populate our non-spare array
+        int[] otids = model.objectTileIds;
+        for (int i = 0; i < otids.length; i += 3) {
+            int x = otids[i];
+            int y = otids[i+1];
+            int fqTileId = otids[i+2];
+            _objectTileIds[model.width*y + x] = fqTileId;
+        }
     }
 
     // documentation inherited
@@ -59,7 +69,7 @@ public class EditableMisoSceneImpl
     // documentation inherited
     public void setBaseTile (int x, int y, BaseTile tile, int fqTileId)
     {
-        _base.setTile(y, x, tile);
+        _base.setTile(x, y, tile);
         // update the model as well
         _model.baseTileIds[_model.width*y + x] = fqTileId;
     }
@@ -67,7 +77,7 @@ public class EditableMisoSceneImpl
     // documentation inherited
     public void setFringeTile (int x, int y, Tile tile, int fqTileId)
     {
-        _fringe.setTile(y, x, tile);
+        _fringe.setTile(x, y, tile);
         // update the model as well
         _model.fringeTileIds[_model.width*y + x] = fqTileId;
     }
@@ -81,33 +91,11 @@ public class EditableMisoSceneImpl
         if (prev != null) {
             clearObjectTile(x, y);
         }
-        _object.setTile(y, x, tile);
+        _object.setTile(x, y, tile);
+        // set the footprint in the base layer
+        setObjectTileFootprint(tile, x, y, new ShadowTile(x, y));
         // stick this value into our non-sparse object layer
         _objectTileIds[_model.width*y + x] = fqTileId;
-    }
-
-    // documentation inherited
-    public void clearBaseTile (int x, int y)
-    {
-        _base.setTile(y, x, _defaultBaseTile);
-        // clear it out in the model
-        _model.baseTileIds[_model.width*y + x] = _defaultBaseTileId;
-    }
-
-    // documentation inherited
-    public void clearFringeTile (int x, int y)
-    {
-        _fringe.setTile(y, x, null);
-        // clear it out in the model
-        _model.fringeTileIds[_model.width*y + x] = 0;
-    }
-
-    // documentation inherited
-    public void clearObjectTile (int x, int y)
-    {
-        setObjectTileFootprint(x, y, _defaultBaseTile);
-        // clear it out in our non-sparse array
-        _objectTileIds[_model.width*y + x] = 0;
         // we don't have to worry about setting the footprint in the model
         // because footprints are always inferred from the contents of the
         // object layer and the base layer in the model can simply contain
@@ -115,11 +103,70 @@ public class EditableMisoSceneImpl
     }
 
     // documentation inherited
+    public void clearBaseTile (int x, int y)
+    {
+        _base.setTile(x, y, _defaultBaseTile);
+        // clear it out in the model
+        _model.baseTileIds[_model.width*y + x] = _defaultBaseTileId;
+    }
+
+    // documentation inherited
+    public void clearFringeTile (int x, int y)
+    {
+        _fringe.setTile(x, y, null);
+        // clear it out in the model
+        _model.fringeTileIds[_model.width*y + x] = 0;
+    }
+
+    // documentation inherited
+    public void clearObjectTile (int x, int y)
+    {
+        ObjectTile tile = _object.getTile(x, y);
+        if (tile != null) {
+            // clear the footprint in the base layer
+            setObjectTileFootprint(tile, x, y, _defaultBaseTile);
+            // clear out the tile itself
+            _object.setTile(x, y, null);
+        }
+        // clear it out in our non-sparse array
+        _objectTileIds[_model.width*y + x] = 0;
+    }
+
+    // documentation inherited
     public MisoSceneModel getMisoSceneModel ()
     {
         // we need to flush the object layer to the model prior to
         // returning it
+        int otileCount = 0;
+        int cols = _object.getWidth();
+        int rows = _object.getHeight();
 
+        // first count how many object tiles we have
+        for (int i = 0; i < _objectTileIds.length; i++) {
+            if (_objectTileIds[i] != 0) {
+                otileCount++;
+            }
+        }
+
+        // now create and populate the new tileid array
+        int[] otids = new int[otileCount*3];
+        int otidx = 0;
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                int tsid = _objectTileIds[_model.width*r + c];
+                if (tsid == 0) {
+                    continue;
+                }
+                otids[otidx++] = c;
+                otids[otidx++] = r;
+                otids[otidx++] = tsid;
+            }
+        }
+
+        // stuff the new array into the model
+        _model.objectTileIds = otids;
+
+        // and we're ready to roll
         return _model;
     }
 

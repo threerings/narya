@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.46 2001/11/29 19:30:51 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.47 2001/11/29 23:08:27 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -48,7 +48,7 @@ public class DisplayMisoSceneImpl
         for (int column = 0; column < shei; column++) {
             for (int row = 0; row < swid; row++) {
                 // first do the base layer
-                int tsid = model.baseTileIds[swid*column+row];
+                int tsid = model.baseTileIds[swid*row+column];
                 if (tsid > 0) {
                     int tid = (tsid & 0xFFFF);
                     tsid >>= 16;
@@ -63,7 +63,7 @@ public class DisplayMisoSceneImpl
                 }
 
                 // then the fringe layer
-                tsid = model.fringeTileIds[swid*column+row];
+                tsid = model.fringeTileIds[swid*row+column];
                 if (tsid > 0) {
                     int tid = (tsid & 0xFFFF);
                     tsid >>= 16;
@@ -82,8 +82,8 @@ public class DisplayMisoSceneImpl
 
         // now populate the object layer
         for (int i = 0; i < ocount; i+= 3) {
-            int row = model.objectTileIds[i];
-            int col = model.objectTileIds[i+1];
+            int col = model.objectTileIds[i];
+            int row = model.objectTileIds[i+1];
             int tsid = model.objectTileIds[i+2];
             int tid = (tsid & 0xFFFF);
             tsid >>= 16;
@@ -96,7 +96,7 @@ public class DisplayMisoSceneImpl
             // we have to generate a shadow for this object tile in the
             // base layer so that we can prevent sprites from walking on
             // the object
-            generateObjectShadow(row, col);
+            setObjectTileFootprint(otile, col, row, new ShadowTile(col, row));
         }
     }
 
@@ -130,37 +130,28 @@ public class DisplayMisoSceneImpl
     }
 
     /**
-     * Place shadow tiles in the footprint of the object tile at the given
-     * coordinates in the scene. This method should be called when an
-     * object tile is added to the scene.
-     *
-     * @param x the tile x-coordinate.
-     * @param y the tile y-coordinate.
-     */
-    protected void generateObjectShadow (int x, int y)
-    {
-        setObjectTileFootprint(x, y, new ShadowTile(x, y));
-    }
-
-    /**
      * Place the given tile in the footprint of the object tile at the
      * given coordinates in the scene.
      *
+     * @param otile the object tile whose footprint should be set.
      * @param x the tile x-coordinate.
      * @param y the tile y-coordinate.
      * @param stamp the tile to place in the object footprint.
      */
-    protected void setObjectTileFootprint (int x, int y, BaseTile stamp)
+    protected void setObjectTileFootprint (
+        ObjectTile otile, int x, int y, BaseTile stamp)
     {
-        ObjectTile tile = _object.getTile(y, x);
-        int endx = Math.max(0, (x - tile.getBaseWidth() + 1));
-        int endy = Math.max(0, (y - tile.getBaseHeight() + 1));
+        int endx = Math.max(0, (x - otile.getBaseWidth() + 1));
+        int endy = Math.max(0, (y - otile.getBaseHeight() + 1));
 
         for (int xx = x; xx >= endx; xx--) {
             for (int yy = y; yy >= endy; yy--) {
-                _base.setTile(yy, xx, stamp);
+                _base.setTile(xx, yy, stamp);
             }
         }
+
+        // Log.info("Set object tile footprint [tile=" + otile + ", sx=" + x +
+        // ", sy=" + y + ", ex=" + endx + ", ey=" + endy + "].");
     }
 
     /** The base layer of tiles. */

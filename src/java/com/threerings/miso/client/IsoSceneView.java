@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.73 2001/11/27 22:17:42 mdb Exp $
+// $Id: IsoSceneView.java,v 1.74 2001/11/29 23:08:27 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -229,10 +229,10 @@ public class IsoSceneView implements SceneView
 
                 // draw the base and fringe tile images
                 Tile tile;
-                if ((tile = base.getTile(yy, xx)) != null) {
+                if ((tile = base.getTile(xx, yy)) != null) {
                     tile.paint(gfx, _polys[xx][yy]);
                 }
-                if ((tile = fringe.getTile(yy, xx)) != null) {
+                if ((tile = fringe.getTile(xx, yy)) != null) {
                     tile.paint(gfx, _polys[xx][yy]);
                 }
 	    }
@@ -271,7 +271,7 @@ public class IsoSceneView implements SceneView
         ObjectTileLayer tiles = _scene.getObjectLayer();
         for (int yy = 0; yy < tiles.getHeight(); yy++) {
             for (int xx = 0; xx < tiles.getWidth(); xx++) {
-                ObjectTile tile = tiles.getTile(yy, xx);
+                ObjectTile tile = tiles.getTile(xx, yy);
                 if (tile != null) {
                     generateObjectBounds(tile, xx, yy);
                 }
@@ -575,7 +575,7 @@ public class IsoSceneView implements SceneView
                 Rectangle drect = poly.getBounds().intersection(r);
                 int tx = coord >> 16, ty = coord & 0x0000FFFF;
                 _dirtyItems.appendDirtyObject(
-                    tiles.getTile(ty, tx), poly, tx, ty, drect);
+                    tiles.getTile(tx, ty), poly, tx, ty, drect);
                 // Log.info("Dirtied item: Object(" + tx + ", " +
                 // ty + ")");
             }
