@@ -1,5 +1,5 @@
 //
-// $Id: ChatCodes.java,v 1.2 2001/10/11 04:07:51 mdb Exp $
+// $Id: ChatCodes.java,v 1.3 2001/10/18 23:55:24 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -18,6 +18,9 @@ public interface ChatCodes extends InvocationCodes
 
     /** The message identifier for a speak notification message. */
     public static final String SPEAK_NOTIFICATION = "spknot";
+
+    /** The message identifier for a system notification message. */
+    public static final String SYSTEM_NOTIFICATION = "sysnot";
 
     /** The message identifier for a tell request. */
     public static final String TELL_REQUEST = "Tell";

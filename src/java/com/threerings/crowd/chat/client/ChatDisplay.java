@@ -1,5 +1,5 @@
 //
-// $Id: ChatDisplay.java,v 1.3 2001/10/11 04:07:51 mdb Exp $
+// $Id: ChatDisplay.java,v 1.4 2001/10/18 23:55:24 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -31,6 +31,17 @@ public interface ChatDisplay
      * @param message the text of the message.
      */
     public void displayTellMessage (String speaker, String message);
+
+    /**
+     * Called to display a system message. A system message is one that is
+     * broadcast to all occupants of a particular place and rather than
+     * originating from some other user in the place, originates from the
+     * server and should be displayed visually differently from speak
+     * messages.
+     *
+     * @param message the text of the message.
+     */
+    public void displaySystemMessage (String message);
 
     /**
      * Called in response to a chat request (either speak or tell) that

@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.11 2001/10/12 00:03:02 mdb Exp $
+// $Id: ChatDirector.java,v 1.12 2001/10/18 23:55:24 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -143,6 +143,8 @@ public class ChatDirector
         String name = event.getName();
         if (name.equals(ChatService.SPEAK_NOTIFICATION)) {
             handleSpeakMessage(event.getArgs());
+        } else if (name.equals(ChatService.SYSTEM_NOTIFICATION)) {
+            handleSystemMessage(event.getArgs());
         }
     }
 
@@ -197,6 +199,17 @@ public class ChatDirector
         for (int i = 0; i < _displays.size(); i++) {
             ChatDisplay display = (ChatDisplay)_displays.get(i);
             display.displaySpeakMessage(speaker, message);
+        }
+    }
+
+    protected void handleSystemMessage (Object[] args)
+    {
+        String message = (String)args[0];
+
+        // pass this on to our chat displays
+        for (int i = 0; i < _displays.size(); i++) {
+            ChatDisplay display = (ChatDisplay)_displays.get(i);
+            display.displaySystemMessage(message);
         }
     }
 

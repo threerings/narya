@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.6 2001/10/18 20:51:59 mdb Exp $
+// $Id: ChatProvider.java,v 1.7 2001/10/18 23:55:24 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -53,6 +53,23 @@ public class ChatProvider
         Object[] outargs = new Object[] { speaker, message };
         MessageEvent nevt = new MessageEvent(
             placeOid, ChatService.SPEAK_NOTIFICATION, outargs);
+        CrowdServer.omgr.postEvent(nevt);
+    }
+
+    /**
+     * Sends a system message notification to the specified place object
+     * with the supplied message content. A system message is one that
+     * will be rendered where the chat messages are rendered, but in a way
+     * that makes it clear that it is a message from the server.
+     *
+     * @param placeOid the place to which to deliver the message.
+     * @param message the text of the message.
+     */
+    public static void sendSystemMessage (int placeOid, String message)
+    {
+        Object[] outargs = new Object[] { message };
+        MessageEvent nevt = new MessageEvent(
+            placeOid, ChatService.SYSTEM_NOTIFICATION, outargs);
         CrowdServer.omgr.postEvent(nevt);
     }
 }
