@@ -1,5 +1,5 @@
 //
-// $Id: TestObject.dobj,v 1.5 2001/11/08 02:07:36 mdb Exp $
+// $Id: TestObject.dobj,v 1.6 2002/02/05 20:27:59 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -45,13 +45,5 @@ public class TestObject extends DObject
     public void removeFromList (int oid)
     {
         requestOidRemove(LIST, oid);
-    }
-
-    protected void toString (StringBuffer buf)
-    {
-        super.toString(buf);
-        buf.append(", foo=").append(foo);
-        buf.append(", bar=").append(bar);
-        buf.append(", list=").append(list);
     }
 }
