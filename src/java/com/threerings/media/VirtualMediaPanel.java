@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.23 2003/11/12 21:47:09 ray Exp $
+// $Id: VirtualMediaPanel.java,v 1.24 2004/02/05 18:53:00 eric Exp $
 
 package com.threerings.media;
 
@@ -322,6 +322,24 @@ public class VirtualMediaPanel extends MediaPanel
                              width - Math.abs(_dx),
                              height - Math.abs(_dy), -_dx, -_dy);
                 gfx.translate(_abounds.x, _abounds.y);
+            } else if (RunAnywhere.isMacOS()) {
+                try {
+                    gfx.copyArea(cx, cy,
+                             width - Math.abs(_dx),
+                             height - Math.abs(_dy), -_dx, -_dy);
+                } catch (Exception e) {
+                    // HACK when it throws an exception trying to do the
+                    // copy area, just tag the are we were trying to copy
+                    // to onto the end of the dirty rects array.
+                    int length = dirty.length;
+                    Rectangle[] ndirty = new Rectangle[length + 1];
+                    System.arraycopy(dirty, 0, ndirty, 0, length);
+                    ndirty[length] =new Rectangle(_vbounds.x + cx-_dx,
+                                                  _vbounds.y + cy-_dy,
+                                                  width - Math.abs(_dx),
+                                                  height - Math.abs(_dy));
+                    dirty = ndirty;
+                }    
             } else {
                 gfx.copyArea(cx, cy,
                              width - Math.abs(_dx),
