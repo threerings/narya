@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.17 2002/06/20 17:54:26 mdb Exp $
+// $Id: ImageUtil.java,v 1.18 2002/11/15 09:29:40 shaper Exp $
 
 package com.threerings.media.util;
 
@@ -22,7 +22,10 @@ import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 
+import java.util.Arrays;
+
 import com.samskivert.util.StringUtil;
+
 import com.threerings.media.Log;
 
 /**
@@ -246,6 +249,156 @@ public class ImageUtil
             g.drawImage(image, x, y, null);
             g.setClip(oclip);
         }
+    }
+
+    /**
+     * Creates and returns a new image consisting of the supplied image
+     * traced with the given color and thickness.
+     */
+    public static BufferedImage createTracedImage (
+        BufferedImage src, Color tcolor, int thickness)
+    {
+        return createTracedImage(src, tcolor, thickness, 1.0f, 1.0f);
+    }
+
+    /**
+     * Creates and returns a new image consisting of the supplied image
+     * traced with the given color, thickness and alpha transparency.
+     */
+    public static BufferedImage createTracedImage (
+        BufferedImage src, Color tcolor, int thickness,
+        float startAlpha, float endAlpha)
+    {
+        Raster srcdata = src.getData(); 
+        if (srcdata.getNumBands() != 4) {
+            throw new IllegalArgumentException(
+                "Can't trace an image with no transparency " +
+                "[image=" + src + "].");
+        }
+
+        // create the destination image
+        int wid = src.getWidth(null), hei = src.getHeight(null);
+        BufferedImage dest = createImage(wid, hei, Transparency.TRANSLUCENT);
+
+        // prepare various bits of working data
+        int srcTrans = src.getColorModel().getTransparency();
+        int[] tpixel = new int[] {
+            tcolor.getRed(), tcolor.getGreen(), tcolor.getBlue(),
+            (int)(startAlpha * 255)};
+        int[] curpixel = new int[4];
+        int[] workpixel = new int[4];
+        WritableRaster destdata = dest.getRaster();
+        boolean[] traced = new boolean[wid * hei];
+        int stepAlpha = (thickness <= 1) ? 0 :
+            (int)(((startAlpha - endAlpha) * 255) / (thickness - 1));
+
+        // TODO: this could be made more efficient, e.g., if we made four
+        // passes through the image in a vertical scan, horizontal scan,
+        // and opposing diagonal scans, making sure each non-transparent
+        // pixel found during each scan is traced on both sides of the
+        // respective scan direction.  for now, we just naively check all
+        // eight pixels surrounding each pixel in the image and fill the
+        // center pixel with the tracing color if it's transparent but has
+        // a non-transparent pixel around it.
+        for (int tt = 0; tt < thickness; tt++) {
+            if (tt > 0) {
+                // clear out the array of pixels traced this go-around
+                Arrays.fill(traced, false);
+                // use the destination image as our new source
+                srcdata = dest.getData();
+                // decrement the trace pixel alpha-level
+                tpixel[3] = Math.max(0, tpixel[3] - stepAlpha);
+            }
+
+            for (int yy = 0; yy < hei; yy++) {
+                for (int xx = 0; xx < wid; xx++) {
+                    // get the pixel we're checking
+                    srcdata.getPixel(xx, yy, curpixel);
+
+                    if (!isTransparentPixel(curpixel)) {
+                        // copy any pixel that isn't transparent
+                        if (tt == 0 && srcTrans == Transparency.BITMASK) {
+                            // give any non-transparent pixel full opacity
+                            curpixel[3] = 255;
+                        }
+                        destdata.setPixel(xx, yy, curpixel);
+
+                    } else if (bordersNonTransparentPixel(
+                                   srcdata, wid, hei, traced,
+                                   xx, yy, workpixel)) {
+                        destdata.setPixel(xx, yy, tpixel);
+                        // note that we traced this pixel this pass so
+                        // that it doesn't impact other-pixel borderedness
+                        traced[(yy*wid)+xx] = true;
+                    }
+                }
+            }
+        }
+
+        return dest;
+    }
+
+    /**
+     * Returns whether the given pixel is bordered by any non-transparent
+     * pixel.
+     */
+    protected static boolean bordersNonTransparentPixel (
+        Raster data, int wid, int hei, boolean[] traced,
+        int x, int y, int[] workpixel)
+    {
+        // check the three-pixel row above the pixel
+        if (y > 0) {
+            for (int rxx = x - 1; rxx <= x + 1; rxx++) {
+                if (rxx < 0 || rxx >= wid || traced[((y-1)*wid)+rxx]) {
+                    continue;
+                }
+
+                data.getPixel(rxx, y - 1, workpixel);
+                if (!isTransparentPixel(workpixel)) {
+                    return true;
+                }
+            }
+        }
+
+        // check the pixel to the left
+        if (x > 0 && !traced[(y*wid)+(x-1)]) {
+            data.getPixel(x - 1, y, workpixel);
+            if (!isTransparentPixel(workpixel)) {
+                return true;
+            }
+        }
+
+        // check the pixel to the right
+        if (x < wid - 1 && !traced[(y*wid)+(x+1)]) {
+            data.getPixel(x + 1, y, workpixel);
+            if (!isTransparentPixel(workpixel)) {
+                return true;
+            }
+        }
+
+        // check the three-pixel row below the pixel
+        if (y < hei - 1) {
+            for (int rxx = x - 1; rxx <= x + 1; rxx++) {
+                if (rxx < 0 || rxx >= wid || traced[((y+1)*wid)+rxx]) {
+                    continue;
+                }
+
+                data.getPixel(rxx, y + 1, workpixel);
+                if (!isTransparentPixel(workpixel)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns whether the given pixel is completely transparent.
+     */
+    protected static boolean isTransparentPixel (int[] pixel)
+    {
+        return (pixel[3] == 0);
     }
 
     /**
