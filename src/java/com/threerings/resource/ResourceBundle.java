@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.8 2003/01/18 19:56:45 mdb Exp $
+// $Id: ResourceBundle.java,v 1.9 2003/02/05 22:48:50 shaper Exp $
 
 package com.threerings.resource;
 
@@ -144,8 +144,10 @@ public class ResourceBundle
     {
         try {
             resolveJarFile();
-            return "[path=" + _jarSource.getName() +
+            return (_jarSource == null) ? "[file=" + _source + "]" :
+                "[path=" + _jarSource.getName() +
                 ", entries=" + _jarSource.size() + "]";
+
         } catch (IOException ioe) {
             return "[file=" + _source + ", ioe=" + ioe + "]";
         }
