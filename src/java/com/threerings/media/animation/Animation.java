@@ -1,5 +1,5 @@
 //
-// $Id: Animation.java,v 1.2 2002/03/12 22:54:16 shaper Exp $
+// $Id: Animation.java,v 1.3 2002/03/14 21:09:01 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -46,6 +46,15 @@ public abstract class Animation
     public void invalidate ()
     {
         _animmgr.addDirtyRect(new Rectangle(_bounds));
+    }
+
+    /**
+     * Invalidates the specified rectangle for later re-rendering by the
+     * {@link AnimationManager}.
+     */
+    public void invalidate (int x, int y, int width, int height)
+    {
+        _animmgr.addDirtyRect(new Rectangle(x, y, width, height));
     }
 
     /**
