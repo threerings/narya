@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.1 2001/07/18 21:16:12 mdb Exp $
+// $Id: ResourceManager.java,v 1.2 2001/08/15 02:12:46 mdb Exp $
 
 package com.threerings.resource;
 
@@ -17,16 +17,22 @@ public class ResourceManager
 {
     /**
      * Temporary means by which to construct a resource manager that loads
-     * resources from the specified source.
+     * resources from the specified source. The resource root is prepended
+     * to any path that is requested and that fully qualified path is
+     * searched for in the classpath.
      */
-    public ResourceManager (URL source)
+    public ResourceManager (String resourceRoot)
     {
-        _source = source;
-        _rootPath = _source.getPath();
+        // keep track of our root path
+        _rootPath = resourceRoot;
+
         // make root path end with a slash
         if (!_rootPath.endsWith("/")) {
             _rootPath = _rootPath + "/";
         }
+
+        // use the classloader that loaded us
+        _loader = getClass().getClassLoader();
     }
 
     /**
@@ -41,16 +47,13 @@ public class ResourceManager
     public InputStream getResource (String path)
         throws IOException
     {
-        try {
-            String rpath = _rootPath + path;
-            URL rurl = new URL(_source, rpath);
-            return rurl.openStream();
-
-        } catch (MalformedURLException mue) {
-            Log.warning("Unable to construct path to resource " +
-                        "[path=" + path + "].");
-            return null;
+        String rpath = _rootPath + path;
+        InputStream in = _loader.getResourceAsStream(rpath);
+        if (in == null) {
+            String errmsg = "Unable to locate resource [path=" + rpath + "]";
+            throw new FileNotFoundException(errmsg);
         }
+        return in;
     }
 
     /**
@@ -92,10 +95,9 @@ public class ResourceManager
     public static void main (String[] args)
     {
         try {
-            String root = System.getProperty("root", "");
-            URL url = new URL("file:" + root + "/rsrc");
-            ResourceManager rmgr = new ResourceManager(url);
-            byte[] data = rmgr.getResourceAsBytes("config/miso.properties");
+            ResourceManager rmgr = new ResourceManager("rsrc");
+            byte[] data = rmgr.getResourceAsBytes(
+                "config/miso/miso.properties");
             System.out.println(new String(data));
 
         } catch (Exception e) {
@@ -103,6 +105,6 @@ public class ResourceManager
         }
     }
 
-    protected URL _source;
+    protected ClassLoader _loader;
     protected String _rootPath;
 }
