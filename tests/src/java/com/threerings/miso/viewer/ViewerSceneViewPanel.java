@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.1 2001/08/04 01:41:02 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.2 2001/08/06 18:57:39 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -31,8 +31,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         _sprite = sprite;
 
         // create an animation manager for this panel
-        AnimationManager animmgr =
-	    new AnimationManager(spritemgr, this, _view);
+  	_animmgr = new AnimationManager(spritemgr, this, _view);
 
         // listen to the desired events
 	addMouseListener(this);
@@ -40,8 +39,6 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 
         // load up the initial scene
         prepareStartingScene();
-
-        PerformanceMonitor.register(this, "paint", 1000);
     }
 
     /**
@@ -69,6 +66,14 @@ public class ViewerSceneViewPanel extends SceneViewPanel
     public void checkpoint (String name, int ticks)
     {
         Log.info(name + " [ticks=" + ticks + "].");
+    }
+
+    public void doLayout ()
+    {
+	super.doLayout();
+
+	// now that we've been fully laid out, start animating
+	_animmgr.start();
     }
 
     /** MouseListener interface methods */
@@ -103,6 +108,9 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 
     /** The default scene to load and display. */
     protected static final String DEF_SCENE = "rsrc/scenes/default.xml";
+
+    /** The animation manager. */
+    AnimationManager _animmgr;
 
     /** The sprite we're manipulating within the view. */
     protected Sprite _sprite;

@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.1 2001/08/04 01:41:02 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.2 2001/08/06 18:57:39 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -50,6 +50,15 @@ public class SceneViewPanel extends JPanel
     {
 	super.paintComponent(g);
 	_view.paint(g);
+    }
+
+    /**
+     * Return the desired size for the panel based on the requested
+     * and calculated bounds of the scene view.
+     */
+    public Dimension getPreferredSize ()
+    {
+	return (_smodel == null) ? super.getPreferredSize() : _smodel.bounds;
     }
 
     /** Tile width in pixels. */

@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.25 2001/08/04 00:22:19 shaper Exp $
+// $Id: IsoSceneView.java,v 1.26 2001/08/06 18:57:39 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -51,6 +51,8 @@ public class IsoSceneView implements EditableSceneView
      */
     public void paint (Graphics g)
     {
+	if (_scene == null) return;
+
 	Graphics2D gfx = (Graphics2D)g;
 
 	// clip the drawing region to our desired bounds since we

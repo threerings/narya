@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.6 2001/08/04 01:41:02 shaper Exp $
+// $Id: AnimationManager.java,v 1.7 2001/08/06 18:57:39 shaper Exp $
 
 package com.threerings.miso.sprite;
 
@@ -40,7 +40,18 @@ public class AnimationManager implements Interval, PerformanceObserver
                 tick();
             }
         };
+    }
 
+    /**
+     * This method should be called by the component the animation
+     * manager is animating after it's been fully laid out within its
+     * container(s); typically, after <code>Component.doLayout()</code>
+     * has been called.  The animation manager will then register
+     * itself with the <code>IntervalManager</code> to effect its
+     * periodic repainting of the target component.
+     */
+    public void start ()
+    {
         // register to monitor the refresh action 
         PerformanceMonitor.register(this, "refresh", 1000);
 
@@ -48,12 +59,21 @@ public class AnimationManager implements Interval, PerformanceObserver
         IntervalManager.register(this, REFRESH_INTERVAL, null, true);
     }
 
+    /**
+     * Called by our interval when we'd like to begin a tick.  Returns
+     * whether we're already ticking, and notes that we've requested
+     * another tick.
+     */
     protected synchronized boolean requestTick ()
     {
         if (_ticking++ > 0) return false;
         return true;
     }
 
+    /**
+     * Called by the tick task when it's finished with a tick.
+     * Returns whether a new tick task should be created immediately.
+     */
     protected synchronized boolean finishedTick ()
     {
         if (--_ticking > 0) {
@@ -82,7 +102,7 @@ public class AnimationManager implements Interval, PerformanceObserver
         _view.invalidateRects(rects);
 
         // update frame-rate information
-        //PerformanceMonitor.tick(AnimationManager.this, "refresh");
+        PerformanceMonitor.tick(AnimationManager.this, "refresh");
 
         // refresh the display
         _target.paintImmediately(_target.getBounds());

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerFrame.java,v 1.7 2001/08/04 01:41:02 shaper Exp $
+// $Id: ViewerFrame.java,v 1.8 2001/08/06 18:57:39 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -50,13 +50,15 @@ class ViewerFrame extends JFrame implements WindowListener
 	gl.setOffAxisPolicy(GroupLayout.STRETCH);
 	top.setLayout(gl);
 
+	top.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
 	// set up the scene view panel with a default scene
         ViewerSceneViewPanel svpanel =
 	    new ViewerSceneViewPanel(_ctx, spritemgr, sprite);
-	top.add(svpanel, GroupLayout.FIXED);
+	top.add(svpanel);
 
 	// add the scene view panel
-	getContentPane().add(svpanel, BorderLayout.CENTER);
+	getContentPane().add(top, BorderLayout.CENTER);
     }
 
     /** WindowListener interface methods */
