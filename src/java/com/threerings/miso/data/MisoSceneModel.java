@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneModel.java,v 1.15 2003/04/18 18:31:20 mdb Exp $
+// $Id: MisoSceneModel.java,v 1.16 2003/04/19 22:40:34 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -9,7 +9,6 @@ import java.util.Random;
 import com.threerings.io.SimpleStreamableObject;
 
 import com.threerings.media.tile.TileUtil;
-import com.threerings.media.util.MathUtil;
 
 import com.threerings.miso.util.ObjectSet;
 
@@ -20,29 +19,12 @@ import com.threerings.miso.util.ObjectSet;
 public abstract class MisoSceneModel extends SimpleStreamableObject
     implements Cloneable
 {
-    /** The width of this scene in tiles. */
-    public short width;
-
-    /** The height of this scene in tiles. */
-    public short height;
-
     /**
      * Creates a completely uninitialized model suitable for little more
      * than unserialization.
      */
     public MisoSceneModel ()
     {
-    }
-
-    /**
-     * Creates a blank model with the specified dimensions.
-     */
-    public MisoSceneModel (int width, int height)
-    {
-        this.width = (short)MathUtil.bound(
-            Short.MIN_VALUE, width, Short.MAX_VALUE);
-        this.height = (short)MathUtil.bound(
-            Short.MIN_VALUE, height, Short.MAX_VALUE);
     }
 
     /**

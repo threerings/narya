@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.8 2003/04/19 17:06:08 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.9 2003/04/19 22:40:34 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -43,6 +43,7 @@ import com.threerings.media.sprite.Sprite;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.TileSet;
+import com.threerings.media.util.MathUtil;
 import com.threerings.media.util.Path;
 
 import com.threerings.miso.Log;
@@ -103,7 +104,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         _masks.clear();
 
         // recenter and rethink
-        centerOnTile(_model.width/2, _model.height/2);
+        centerOnTile(0, 0);
         rethink();
         repaint();
     }
@@ -493,16 +494,6 @@ public class MisoScenePanel extends VirtualMediaPanel
         _activeMenu = null;
     }
 
-    /**
-     * Returns the desired size for the panel based on the requested and
-     * calculated bounds of the scene view.
-     */
-    public Dimension getPreferredSize ()
-    {
-	return (_metrics == null || isPreferredSizeSet()) ?
-            super.getPreferredSize() : _metrics.bounds.getSize();
-    }
-
     // documentation inherited
     public void setBounds (int x, int y, int width, int height)
     {
@@ -589,22 +580,30 @@ public class MisoScenePanel extends VirtualMediaPanel
         // compute the tile bounds of this influential area
         Rectangle itb = new Rectangle();
         int minx, miny, maxx, maxy;
-        Point tpos = MisoUtil.screenToTile(
-            _metrics, _ibounds.x, _ibounds.y, new Point());
+        Point tpos = new Point();
+
+        // calculate minimum x
+        MisoUtil.screenToTile(_metrics, _ibounds.x, _ibounds.y, tpos);
         itb.x = tpos.x;
-        minx = Math.max(0, tpos.x / _metrics.blockwid);
+        minx = MathUtil.floorDiv(tpos.x, _metrics.blockwid);
+
+        // calculate minimum y
         MisoUtil.screenToTile(
             _metrics, _ibounds.x + _ibounds.width, _ibounds.y, tpos);
         itb.y = tpos.y;
-        miny = Math.max(0, tpos.y / _metrics.blockhei);
+        miny = MathUtil.floorDiv(tpos.y, _metrics.blockhei);
+
+        // calculate maximum x
         MisoUtil.screenToTile(_metrics, _ibounds.x + _ibounds.width,
                               _ibounds.y + _ibounds.height, tpos);
-        itb.width = (tpos.x-itb.x);
-        maxx = Math.max(0, tpos.x / _metrics.blockwid);
+        itb.width = (tpos.x-itb.x+1);
+        maxx = MathUtil.floorDiv(tpos.x, _metrics.blockwid);
+
+        // calculate maximum y
         MisoUtil.screenToTile(
             _metrics, _ibounds.x, _ibounds.y + _ibounds.height, tpos);
-        itb.height = (tpos.y-itb.y);
-        maxy = Math.max(0, tpos.y / _metrics.blockhei);
+        itb.height = (tpos.y-itb.y+1);
+        maxy = MathUtil.floorDiv(tpos.y, _metrics.blockhei);
 
 //         Log.info("Resolving blocks from " + minx + "," + miny + " to " +
 //                  maxx + "," + maxy + " (" + StringUtil.toString(itb) + ").");
@@ -630,7 +629,7 @@ public class MisoScenePanel extends VirtualMediaPanel
         // become so
         for (int yy = miny; yy <= maxy; yy++) {
             for (int xx = minx; xx <= maxx; xx++) {
-                int bkey = (xx << 16) | yy;
+                int bkey = compose(xx, yy);
                 if (!_blocks.containsKey(bkey)) {
                     SceneBlock block = new SceneBlock(
                         this, xx*_metrics.blockwid, yy*_metrics.blockhei,
@@ -642,11 +641,17 @@ public class MisoScenePanel extends VirtualMediaPanel
             }
         }
 
-        // if nothing changed, we need do nothing more
-        if (!changed) {
-            return;
+        // if anything changed, we recompute our visible object set
+        if (changed) {
+            recomputeVisible();
         }
+    }
 
+    /**
+     * Recomputes our set of visible objects and their tips.
+     */
+    protected void recomputeVisible ()
+    {
         // flush our visible object set which we'll recreate later
         _vizobjs.clear();
 
@@ -682,11 +687,18 @@ public class MisoScenePanel extends VirtualMediaPanel
      */
     protected SceneBlock getBlock (int tx, int ty)
     {
-        if (tx < 0 || ty < 0) {
-            return null;
-        }
-        int bkey = (tx/_metrics.blockwid << 16) | (ty/_metrics.blockhei);
-        return (SceneBlock)_blocks.get(bkey);
+        int bx = MathUtil.floorDiv(tx, _metrics.blockwid);
+        int by = MathUtil.floorDiv(ty, _metrics.blockhei);
+        return (SceneBlock)_blocks.get(compose(bx, by));
+    }
+
+    /**
+     * Masks off the lower 16 bits of the supplied integers and composes
+     * them into a single int.
+     */
+    protected static int compose (int x, int y)
+    {
+        return (x << 16) | (y & 0xFFFF);
     }
 
     /**
@@ -840,7 +852,7 @@ public class MisoScenePanel extends VirtualMediaPanel
     protected boolean updateTileCoords (int sx, int sy, Point tpos)
     {
         Point npos = MisoUtil.screenToTile(_metrics, sx, sy, new Point());
-        if (!tpos.equals(npos) && _metrics.isCoordinateValid(npos.x, npos.y)) {
+        if (!tpos.equals(npos)) {
             tpos.setLocation(npos.x, npos.y);
             return true;
         } else {

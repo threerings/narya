@@ -1,5 +1,5 @@
 //
-// $Id: SceneObject.java,v 1.3 2003/04/18 23:17:33 mdb Exp $
+// $Id: SceneObject.java,v 1.4 2003/04/19 22:40:34 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -218,6 +218,11 @@ public class SceneObject
             _sspot = MisoUtil.fullToScreen(
                 metrics, _fspot.x, _fspot.y, new Point());
         }
+
+//         Log.info("Computed object metrics " +
+//                  "[tpos=" + StringUtil.coordsToString(tx, ty) +
+//                  ", info=" + info +
+//                  ", sbounds=" + StringUtil.toString(bounds) + "].");
     }
 
     /**

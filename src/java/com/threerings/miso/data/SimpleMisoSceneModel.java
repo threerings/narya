@@ -1,5 +1,5 @@
 //
-// $Id: SimpleMisoSceneModel.java,v 1.4 2003/04/18 22:59:18 mdb Exp $
+// $Id: SimpleMisoSceneModel.java,v 1.5 2003/04/19 22:40:34 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -10,6 +10,7 @@ import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.IntListUtil;
 import com.samskivert.util.ListUtil;
 
+import com.threerings.media.util.MathUtil;
 import com.threerings.miso.util.ObjectSet;
 
 /**
@@ -25,6 +26,12 @@ import com.threerings.miso.util.ObjectSet;
  */
 public class SimpleMisoSceneModel extends MisoSceneModel
 {
+    /** The width of this scene in tiles. */
+    public short width;
+
+    /** The height of this scene in tiles. */
+    public short height;
+
     /** The viewport width in tiles. */
     public int vwidth;
 
@@ -65,7 +72,10 @@ public class SimpleMisoSceneModel extends MisoSceneModel
      */
     public SimpleMisoSceneModel (int width, int height, int vwidth, int vheight)
     {
-        super(width, height);
+        this.width = (short)MathUtil.bound(
+            Short.MIN_VALUE, width, Short.MAX_VALUE);
+        this.height = (short)MathUtil.bound(
+            Short.MIN_VALUE, height, Short.MAX_VALUE);
         this.vwidth = vwidth;
         this.vheight = vheight;
         allocateBaseTileArray();

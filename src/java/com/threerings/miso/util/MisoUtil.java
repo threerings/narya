@@ -1,5 +1,5 @@
 //
-// $Id: MisoUtil.java,v 1.20 2003/04/18 22:59:04 mdb Exp $
+// $Id: MisoUtil.java,v 1.21 2003/04/19 22:40:34 mdb Exp $
 
 package com.threerings.miso.util;
 
@@ -8,6 +8,7 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 
 import com.samskivert.swing.SmartPolygon;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.util.MathUtil;
@@ -16,6 +17,7 @@ import com.threerings.util.DirectionCodes;
 import com.threerings.util.DirectionUtil;
 
 import com.threerings.miso.Log;
+import com.threerings.miso.MisoConfig;
 
 /**
  * Miscellaneous isometric-display-related utility routines.
@@ -47,11 +49,11 @@ public class MisoUtil
         screenToFull(metrics, bx, by, bfpos);
 
         // pull out the tile coordinates for each point
-        int tax = afpos.x / FULL_TILE_FACTOR;
-        int tay = afpos.y / FULL_TILE_FACTOR;
+        int tax = fullToTile(afpos.x);
+        int tay = fullToTile(afpos.y);
 
-        int tbx = bfpos.x / FULL_TILE_FACTOR;
-        int tby = bfpos.y / FULL_TILE_FACTOR;
+        int tbx = fullToTile(bfpos.x);
+        int tby = fullToTile(bfpos.y);
 
         // compare tile coordinates to determine direction
         int dir = getIsoDirection(tax, tay, tbx, tby);
@@ -159,7 +161,7 @@ public class MisoUtil
      */
     public static int fullToTile (int val)
     {
-        return (val / FULL_TILE_FACTOR);
+        return MathUtil.floorDiv(val, FULL_TILE_FACTOR);
     }
 
     /**
@@ -167,7 +169,7 @@ public class MisoUtil
      */
     public static int fullToFine (int val)
     {
-        return (val - ((val / FULL_TILE_FACTOR) * FULL_TILE_FACTOR));
+        return (val - (fullToTile(val) * FULL_TILE_FACTOR));
     }
 
     /**
@@ -187,14 +189,11 @@ public class MisoUtil
     {
         // determine the upper-left of the quadrant that contains our
         // point
-        int zx = (int)Math.floor((float)(sx - metrics.origin.x) /
-                                 metrics.tilewid);
-        int zy = (int)Math.floor((float)(sy - metrics.origin.y) /
-                                 metrics.tilehei);
+        int zx = (int)Math.floor((float)sx / metrics.tilewid);
+        int zy = (int)Math.floor((float)sy / metrics.tilehei);
 
         // these are the screen coordinates of the tile's top
-        int ox = (zx * metrics.tilewid + metrics.origin.x),
-            oy = (zy * metrics.tilehei + metrics.origin.y);
+        int ox = (zx * metrics.tilewid), oy = (zy * metrics.tilehei);
 
         // these are the tile coordinates
         tpos.x = zy + zx; tpos.y = zy - zx;
@@ -235,8 +234,8 @@ public class MisoUtil
     public static Point tileToScreen (
         MisoSceneMetrics metrics, int x, int y, Point spos)
     {
-        spos.x = metrics.origin.x + ((x - y - 1) * metrics.tilehwid);
-        spos.y = metrics.origin.y + ((x + y) * metrics.tilehhei);
+        spos.x = (x - y - 1) * metrics.tilehwid;
+        spos.y = (x + y) * metrics.tilehhei;
         return spos;
     }
 
@@ -289,6 +288,9 @@ public class MisoUtil
         // determine distance along the y-axis
         float ydist = MathUtil.distance(x, y, crossx, crossy);
         fpos.y = (int)(ydist / metrics.finelen);
+
+//         Log.info("Pixel to fine " + StringUtil.coordsToString(x, y) +
+//                  " -> " + StringUtil.toString(fpos) + ".");
     }
 
     /**
@@ -312,6 +314,13 @@ public class MisoUtil
 
         // get the screen coordinates for the containing tile
         Point spos = tileToScreen(metrics, tpos.x, tpos.y, new Point());
+
+//         Log.info("Screen to full " +
+//                  "[screen=" + StringUtil.coordsToString(sx, sy) +
+//                  ", tpos=" + StringUtil.toString(tpos) +
+//                  ", spos=" + StringUtil.toString(spos) +
+//                  ", fpix=" + StringUtil.coordsToString(
+//                      sx-spos.x, sy-spos.y) + "].");
 
         // get the fine coordinates within the containing tile
         pixelToFine(metrics, sx - spos.x, sy - spos.y, fpos);
@@ -338,7 +347,7 @@ public class MisoUtil
         MisoSceneMetrics metrics, int x, int y, Point spos)
     {
         // get the tile screen position
-        int tx = x / FULL_TILE_FACTOR, ty = y / FULL_TILE_FACTOR;
+        int tx = fullToTile(x), ty = fullToTile(y);
         Point tspos = tileToScreen(metrics, tx, ty, new Point());
 
         // get the pixel position of the fine coords within the tile

@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMisoSceneModel.java,v 1.2 2003/04/18 18:31:21 mdb Exp $
+// $Id: VirtualMisoSceneModel.java,v 1.3 2003/04/19 22:40:34 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -14,11 +14,6 @@ public abstract class VirtualMisoSceneModel extends MisoSceneModel
 {
     public VirtualMisoSceneModel ()
     {
-    }
-
-    public VirtualMisoSceneModel (int width, int height)
-    {
-        super(width, height);
     }
 
     // documentation inherited from interface
