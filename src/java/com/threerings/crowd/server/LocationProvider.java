@@ -1,5 +1,5 @@
 //
-// $Id: LocationProvider.java,v 1.14 2002/05/26 02:24:46 mdb Exp $
+// $Id: LocationProvider.java,v 1.15 2002/06/20 22:38:58 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -86,7 +86,7 @@ public class LocationProvider extends InvocationProvider
         // anything in distributed object world
         if (source.location == placeId) {
             Log.info("Going along with client request to move to where " +
-                     "they already are [source=" + source.username +
+                     "they already are [source=" + source.who() +
                      ", placeId=" + placeId + "].");
             return pmgr.getConfig();
         }

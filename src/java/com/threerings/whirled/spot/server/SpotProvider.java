@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.9 2002/06/19 20:27:07 ray Exp $
+// $Id: SpotProvider.java,v 1.10 2002/06/20 22:38:58 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -63,8 +63,7 @@ public class SpotProvider extends InvocationProvider
                 _screg.getSceneManager(sceneId);
             if (smgr == null) {
                 Log.warning("Traverse portal missing source scene " +
-                            "[user=" + source.username +
-                            ", sceneId=" + sceneId +
+                            "[user=" + source.who() + ", sceneId=" + sceneId +
                             ", portalId=" + portalId + "].");
                 throw new ServiceFailedException(INTERNAL_ERROR);
             }
@@ -77,8 +76,7 @@ public class SpotProvider extends InvocationProvider
             // make sure this portal has valid info
             if (destSceneId == -1) {
                 Log.warning("Traverse portal provided with invalid portal " +
-                            "[user=" + source.username +
-                            ", sceneId=" + sceneId +
+                            "[user=" + source.who() + ", sceneId=" + sceneId +
                             ", portalId=" + portalId +
                             ", destSceneId=" + destSceneId + "].");
                 throw new ServiceFailedException(NO_SUCH_PORTAL);
@@ -176,7 +174,7 @@ public class SpotProvider extends InvocationProvider
                 _screg.getSceneManager(sceneId);
             if (smgr == null) {
                 Log.warning("User requested to change location in " +
-                            "non-existent scene [user=" + source.username +
+                            "non-existent scene [user=" + source.who() +
                             ", sceneId=" + sceneId +
                             ", locId=" + locationId + "].");
                 throw new ServiceFailedException(INTERNAL_ERROR);

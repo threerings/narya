@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.11 2002/06/20 22:16:09 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.12 2002/06/20 22:38:58 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -54,12 +54,22 @@ public class SpotSceneManager extends SceneManager
     /**
      * Returns the locationId of an unoccupied location in this scene
      * (portals are not included when selecting). If no locations are
-     * unoccupied, this method returns -1.
+     * unoccupied, this method returns -1. This will mark the location as
+     * pending so that subsequent calls to
+     * <code>getUnoccupiedLocation()</code> do not return the previously
+     * returned location as unoccupied, giving the caller a chance to
+     * actually occupy the location. However, if another user moves to
+     * that location bewteen the call to this method and the caller's own
+     * request to move to the location, the caller's move request will
+     * fail.
      */
     public int getUnoccupiedLocation (boolean preferClusters)
     {
-        return SpotSceneUtil.getUnoccupiedLocation(
+        int locId = SpotSceneUtil.getUnoccupiedLocation(
             _sscene.getModel(), _locationOccs, preferClusters);
+        // mark the location as pending
+        _locationOccs[_sscene.getLocationIndex(locId)] = -1;
+        return locId;
     }
 
     // documentation inherited
@@ -145,15 +155,17 @@ public class SpotSceneManager extends SceneManager
     {
         // make sure no one is already in the requested location
         int locidx = _sscene.getLocationIndex(locationId);
-        if (locidx == -1 || _locationOccs[locidx] != 0) {
-            Log.info("Ignoring request to change to occupied or " +
-                     "non-existent location [where=" + where() +
-                     ", user=" + source.username +
-                     ", locId=" + locationId + ", locidx=" + locidx +
-                     ", lococcs=" + StringUtil.toString(_locationOccs) +
-                     ", occinfo=" + StringUtil.listToString(
-                         _plobj.occupantInfo.entries(),
-                         SpotOccupantInfo.OIDS_AND_LOCS) + "].");
+        if (locidx == -1) {
+            Log.warning("Ignoring request to move to non-existent location " +
+                        "[where=" + where() + ", user=" + source.who() +
+                        ", locId=" + locationId + "].");
+            throw new ServiceFailedException(LOCATION_OCCUPIED);
+
+        } else if (_locationOccs[locidx] > 0) {
+            Log.info("Ignoring request to move to occupied location " +
+                     "[where=" + where() + ", user=" + source.who() +
+                     ", locId=" + locationId +
+                     ", occupantOid=" + _locationOccs[locidx] + "].");
             throw new ServiceFailedException(LOCATION_OCCUPIED);
         }
 
@@ -164,7 +176,7 @@ public class SpotSceneManager extends SceneManager
         if (soi == null) {
             Log.warning("Aiya! Can't update non-existent occupant info " +
                         "with new location [where=" + where() +
-                        ", body=" + source + "].");
+                        ", body=" + source.who() + "].");
             throw new ServiceFailedException(INTERNAL_ERROR);
         }
 
@@ -210,9 +222,9 @@ public class SpotSceneManager extends SceneManager
         int locidx = _sscene.getLocationIndex(locationId);
         if (locidx == -1 || _locationOccs[locidx] != sourceOid) {
             Log.warning("User not in specified location for CCREQ " +
-                        "[where=" + where() + ", body=" + source +
-                        ", locId=" + locationId + ", locidx=" + locidx +
-                        ", message=" + message + "].");
+                        "[where=" + where() + ", chatter=" + source +
+                        " (" + sourceOid + "), locId=" + locationId +
+                        ", locidx=" + locidx + ", message=" + message + "].");
             return;
         }
 
@@ -220,8 +232,8 @@ public class SpotSceneManager extends SceneManager
         int clusterIndex = _sscene.getClusterIndex(locidx);
         if (clusterIndex == -1) {
             Log.warning("User in clusterless location sent CCREQ " +
-                        "[where=" + where() + ", body=" + source +
-                        ", locId=" + locationId +
+                        "[where=" + where() + ", chatter=" + source +
+                        " (" + sourceOid + "), locId=" + locationId +
                         ", message=" + message + "].");
             return;
         }
@@ -234,7 +246,8 @@ public class SpotSceneManager extends SceneManager
         } else {
             Log.warning("Have no cluster object for CCREQ " +
                         "[where=" + where() + ", cidx=" + clusterIndex +
-                        ", chatter=" + source + ", message=" + message + "].");
+                        ", chatter=" + source + " (" + sourceOid +
+                        "), message=" + message + "].");
         }
     }
 
