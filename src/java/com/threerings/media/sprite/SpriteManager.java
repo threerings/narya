@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.7 2001/08/15 22:06:21 shaper Exp $
+// $Id: SpriteManager.java,v 1.8 2001/08/21 00:58:36 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -33,13 +33,24 @@ public class SpriteManager
     }
 
     /**
-     * Add a sprite to the set of sprites managed by this SpriteManager.
+     * Add a sprite to the set of sprites managed by this manager.
      *
      * @param sprite the sprite to add.
      */
     public void addSprite (Sprite sprite)
     {
         _sprites.add(sprite);
+    }
+
+    /**
+     * Removes the specified sprite from the set of sprites managed by
+     * this manager.
+     *
+     * @param sprite the sprite to remove.
+     */
+    public void removeSprite (Sprite sprite)
+    {
+        _sprites.remove(sprite);
     }
 
     /**
