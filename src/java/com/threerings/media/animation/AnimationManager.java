@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.3 2002/01/19 07:00:40 mdb Exp $
+// $Id: AnimationManager.java,v 1.4 2002/01/19 07:01:19 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -217,7 +217,9 @@ public class AnimationManager
         long now = System.currentTimeMillis();
 
         // call tick on all sprites
-        _spritemgr.tick(now, _dirty);
+        if (_spritemgr != null) {
+            _spritemgr.tick(now, _dirty);
+        }
 
         // call tick on all animations
         tickAnimations(now);
