@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.2 2001/10/22 18:13:51 shaper Exp $
+// $Id: AnimatedPanel.java,v 1.3 2001/12/15 04:20:26 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -70,6 +70,12 @@ public class AnimatedPanel extends JPanel implements AnimatedView
 
     // documentation inherited
     public void invalidateRects (DirtyRectList rects)
+    {
+        // nothing for now
+    }
+
+    // documentation inherited
+    public void invalidateRect (Rectangle rect)
     {
         // nothing for now
     }

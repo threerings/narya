@@ -1,8 +1,9 @@
 //
-// $Id: AnimatedView.java,v 1.4 2001/08/23 00:23:58 shaper Exp $
+// $Id: AnimatedView.java,v 1.5 2001/12/15 04:20:26 mdb Exp $
 
 package com.threerings.media.sprite;
 
+import java.awt.Rectangle;
 import javax.swing.JComponent;
 
 /**
@@ -20,6 +21,14 @@ public interface AnimatedView
      * @param rects the list of {@link java.awt.Rectangle} objects.
      */
     public void invalidateRects (DirtyRectList rects);
+
+    /**
+     * Invalidates a rectangle in screen pixel coordinates in the scene
+     * view for later repainting.
+     *
+     * @param rect the {@link java.awt.Rectangle} to dirty.
+     */
+    public void invalidateRect (Rectangle rect);
 
     /**
      * Requests that the animated view paint itself immediately (that it
