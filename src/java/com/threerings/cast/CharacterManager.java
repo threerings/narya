@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.11 2001/12/17 03:33:40 mdb Exp $
+// $Id: CharacterManager.java,v 1.12 2002/02/07 03:20:29 mdb Exp $
 
 package com.threerings.cast;
 
@@ -60,6 +60,15 @@ public class CharacterManager
     }
 
     /**
+     * Instructs the character manager to use the provided cache for
+     * composited action animations.
+     */
+    public void setActionCache (ActionCache cache)
+    {
+        _acache = cache;
+    }
+
+    /**
      * Returns a {@link CharacterSprite} representing the character
      * described by the given {@link CharacterDescriptor}, or
      * <code>null</code> if an error occurs.
@@ -105,15 +114,29 @@ public class CharacterManager
         CharacterDescriptor descrip, String action)
         throws NoSuchComponentException
     {
-        // the cache is keyed on both values
+        // first check the in-memory cache; which is keyed on both values
         Tuple key = new Tuple(descrip, action);
         MultiFrameImage[] frames = (MultiFrameImage[])_frames.get(key);
+
+        // next check the disk cache
+        if (frames == null && _acache != null) {
+            frames = getActionFrames(descrip, action);
+            // cache the result in memory
+            _frames.put(key, frames);
+        }
+
+        // if that failed, we'll just have to generate the danged things
         if (frames == null) {
             // do the compositing
             frames = createCompositeFrames(descrip, action);
-            // cache the result
+            // cache the result on disk if we've got such a cache
+            if (_acache != null) {
+                _acache.cacheActionFrames(descrip, action, frames);
+            }
+            // cache the result in memory as well
             _frames.put(key, frames);
         }
+
         return frames;
     }
 
@@ -162,4 +185,7 @@ public class CharacterManager
 
     /** The character class to be created. */
     protected Class _charClass = CharacterSprite.class;
+
+    /** The action animation cache, if we have one. */
+    protected ActionCache _acache;
 }
