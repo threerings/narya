@@ -1,5 +1,5 @@
 //
-// $Id: OccupantList.java,v 1.6 2002/04/15 14:38:45 shaper Exp $
+// $Id: OccupantList.java,v 1.7 2002/10/27 01:25:18 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -71,7 +71,7 @@ public class OccupantList
     }
 
     // documentation inherited
-    public void occupantUpdated (OccupantInfo info)
+    public void occupantUpdated (OccupantInfo oinfo, OccupantInfo info)
     {
         // nothing doing
     }

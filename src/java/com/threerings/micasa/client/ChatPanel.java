@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.19 2002/08/14 00:48:57 shaper Exp $
+// $Id: ChatPanel.java,v 1.20 2002/10/27 01:25:18 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -172,7 +172,7 @@ public class ChatPanel
     }
 
     // documentation inherited
-    public void occupantUpdated (OccupantInfo info)
+    public void occupantUpdated (OccupantInfo oinfo, OccupantInfo info)
     {
     }
 
