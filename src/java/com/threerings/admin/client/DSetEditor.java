@@ -1,5 +1,5 @@
 //
-// $Id: DSetEditor.java,v 1.1 2004/06/03 17:15:38 ray Exp $
+// $Id: DSetEditor.java,v 1.2 2004/06/03 18:15:03 ray Exp $
 
 package com.threerings.admin.client;
 
@@ -18,13 +18,12 @@ import com.samskivert.util.ListUtil;
 import com.threerings.media.SafeScrollPane;
 
 import com.threerings.presents.Log;
+import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
-import com.threerings.presents.dobj.SettedObject;
 import com.threerings.presents.dobj.EntryAddedEvent;
 import com.threerings.presents.dobj.EntryRemovedEvent;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.SetListener;
-import com.threerings.presents.dobj.SettedObject;
 
 /**
  * Allows simple editing of DSets withing a distributed object.
@@ -100,7 +99,7 @@ public class DSetEditor extends JPanel
      * @param entryClass the Class of the DSet.Entry elements contained in the
      *                   set.
      */
-    public DSetEditor (SettedObject setter, String setName, Class entryClass)
+    public DSetEditor (DObject setter, String setName, Class entryClass)
     {
         this(setter, setName, entryClass, null);
     }
@@ -115,7 +114,7 @@ public class DSetEditor extends JPanel
      * @param editableFields the names of the fields in the entryClass that
      *                       should be editable.
      */
-    public DSetEditor (SettedObject setter, String setName, Class entryClass,
+    public DSetEditor (DObject setter, String setName, Class entryClass,
                        String[] editableFields)
     {
         this(setter, setName, entryClass, editableFields, null);
@@ -132,7 +131,7 @@ public class DSetEditor extends JPanel
      *                       should be editable.
      * @param interp The FieldInterpreter to use.
      */
-    public DSetEditor (SettedObject setter, String setName, Class entryClass,
+    public DSetEditor (DObject setter, String setName, Class entryClass,
                        String[] editableFields, FieldInterpreter interp)
     {
         super(new BorderLayout());
@@ -274,7 +273,7 @@ public class DSetEditor extends JPanel
     }
 
     /** The object that contains the set we're displaying. */
-    protected SettedObject _setter;
+    protected DObject _setter;
 
     /** The name of the set in that object. */
     protected String _setName;

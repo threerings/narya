@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.72 2004/02/25 14:45:16 mdb Exp $
+// $Id: DObject.java,v 1.73 2004/06/03 18:15:03 ray Exp $
 
 package com.threerings.presents.dobj;
 
@@ -253,6 +253,45 @@ public class DObject implements Streamable
     public AccessController getAccessController ()
     {
         return _controller;
+    }
+
+    /**
+     * Get the DSet with the specified name.
+     */
+    public final DSet getSet (String setName)
+    {
+        try {
+            return (DSet) getField(setName).get(this);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("No such set: " + setName);
+        }
+    }
+
+    /**
+     * Request to have the specified item added to the specified DSet.
+     */
+    public void addToSet (String setName, DSet.Entry entry)
+    {
+        getSet(setName); // validate the set
+        requestEntryAdd(setName, entry);
+    }
+
+    /**
+     * Request to have the specified item updated in the specified DSet.
+     */
+    public void updateSet (String setName, DSet.Entry entry)
+    {
+        getSet(setName); // validate the set
+        requestEntryUpdate(setName, entry);
+    }
+
+    /**
+     * Request to have the specified key removed from the specified DSet.
+     */
+    public void removeFromSet (String setName, Comparable key)
+    {
+        getSet(setName); // validate the set
+        requestEntryRemove(setName, key);
     }
 
     /**
