@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedObjectTileSet.java,v 1.5 2003/02/04 02:59:47 mdb Exp $
+// $Id: TrimmedObjectTileSet.java,v 1.6 2003/02/05 00:22:05 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -28,6 +28,33 @@ public class TrimmedObjectTileSet extends TileSet
     public int getTileCount ()
     {
         return _bounds.length;
+    }
+
+    /**
+     * Returns the x coordinate of the spot associated with the specified
+     * tile index.
+     */
+    public int getXSpot (int tileIdx)
+    {
+        return (_bits == null) ? 0 : _bits[tileIdx].xspot;
+    }
+
+    /**
+     * Returns the y coordinate of the spot associated with the specified
+     * tile index.
+     */
+    public int getYSpot (int tileIdx)
+    {
+        return (_bits == null) ? 0 : _bits[tileIdx].yspot;
+    }
+
+    /**
+     * Returns the orientation of the spot associated with the specified
+     * tile index.
+     */
+    public int getSpotOrient (int tileIdx)
+    {
+        return (_bits == null) ? 0 : _bits[tileIdx].sorient;
     }
 
     // documentation inherited
