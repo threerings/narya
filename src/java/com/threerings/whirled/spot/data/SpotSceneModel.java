@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneModel.java,v 1.3 2001/11/29 19:32:06 mdb Exp $
+// $Id: SpotSceneModel.java,v 1.4 2001/12/03 19:40:11 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -13,12 +13,11 @@ import com.threerings.whirled.data.SceneModel;
 /**
  * The spot scene model extends the standard scene model with information
  * on locations, clusters and portals. Locations (and by extension,
- * portals) are referenced by a globally unique identifier so that portals
- * can stably reference the target location in the scene to which they
- * connect. The scene repository is responsible for assigning this unique
- * identifier. Clusters are tracked by index rather than unique
- * identifier, but only exist as an attribute of locations (a location
- * belongs to zero or one clusters).
+ * portals) are referenced by an identifier, unique within the scene and
+ * unchanging, so that portals can stably reference the target location in
+ * the scene to which they connect. Clusters are tracked by index rather
+ * than unique identifier, but only exist as an attribute of locations (a
+ * location belongs to zero or one clusters).
  */
 public class SpotSceneModel extends SceneModel
 {

@@ -1,5 +1,5 @@
 //
-// $Id: Location.java,v 1.1 2001/11/13 02:25:35 mdb Exp $
+// $Id: Location.java,v 1.2 2001/12/03 19:40:11 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -42,23 +42,13 @@ public class Location
     }
 
     /**
-     * Location equality is determined by location id unless the location
-     * id is zero, in which case equality is determined by equal x and y
-     * coordinates. This allows locations to be created by the editor,
-     * where location ids cannot yet have been assigned because they are
-     * assigned by the scene repository, and manipulated as comparable
-     * entities.
+     * Location equality is determined by location id.
      */
     public boolean equals (Object other)
     {
         if (other instanceof Location) {
             Location oloc = (Location)other;
-            if (locationId == 0 && oloc.locationId == 0) {
-                return (x == oloc.x && y == oloc.y);
-            } else {
-                return (locationId == oloc.locationId);
-            }
-
+            return locationId == oloc.locationId;
         } else {
             return false;
         }
@@ -69,7 +59,7 @@ public class Location
      */
     public int hashCode ()
     {
-        return (locationId == 0) ? (x ^ y) : locationId;
+        return locationId;
     }
 
     /**
