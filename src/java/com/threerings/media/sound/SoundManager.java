@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.17 2002/11/16 03:17:41 ray Exp $
+// $Id: SoundManager.java,v 1.18 2002/11/19 02:24:35 ray Exp $
 
 package com.threerings.media;
 
@@ -20,8 +20,10 @@ import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
+import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
+import javax.sound.midi.Receiver;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
 
@@ -45,6 +47,7 @@ import javax.swing.Timer;
 
 import org.apache.commons.io.StreamUtils;
 
+import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.LockableLRUHashMap;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.Queue;
@@ -97,6 +100,8 @@ public class SoundManager
     {
         // save things off
         _rmgr = rmgr;
+
+        initMidi();
 
         // create a thread to plays sounds and load sound
         // data from the resource manager
@@ -333,6 +338,78 @@ public class SoundManager
     }
 
     /**
+     * Get a list of alternate midi devices.
+     */
+    public MidiDevice.Info[] getAlternateMidiDevices ()
+    {
+        ArrayList infos = new ArrayList();
+        CollectionUtil.addAll(infos, MidiSystem.getMidiDeviceInfo());
+
+        // remove the synth/seqs, leaving only hardware midi thingies
+        for (Iterator iter=infos.iterator(); iter.hasNext(); ) {
+            try {
+                MidiDevice dev = MidiSystem.getMidiDevice(
+                    (MidiDevice.Info) iter.next());
+                if ((dev instanceof Sequencer) ||
+                    (dev instanceof Synthesizer)) {
+                    iter.remove();
+                }
+            } catch (MidiUnavailableException mue) {
+                iter.remove();
+            }
+        }
+
+        return (MidiDevice.Info[]) infos.toArray(
+            new MidiDevice.Info[infos.size()]);
+    }
+
+    /**
+     * Attempt to use the alternate midi device for output.
+     * Return true if we're using it.
+     */
+    public boolean useAlternateDevice (MidiDevice.Info devinfo)
+    {
+        Log.info("Trying alternate device: " + devinfo);
+        try {
+            MidiDevice dev = MidiSystem.getMidiDevice(devinfo);
+            Receiver rec = dev.getReceiver();
+            if (rec == null) {
+                Log.info("Got no device!");
+                return false;
+            }
+            _stoppingSong = true;
+            _sequencer.stop();
+            _sequencer.close();
+
+            Receiver old = _sequencer.getTransmitter().getReceiver();
+            Log.info("Old receiver: " + old);
+            if (old != null) {
+                old.close();
+            }
+            _sequencer.open();
+
+            // THIS DOESN'T WORK.
+            // See bug #4347135, specifically notes on the bottom.
+            _sequencer.getTransmitter().setReceiver(rec);
+            playTopSong();
+
+            // possibly shut down an old receiver
+            if (_receiver != null) {
+                _receiver.close();
+            }
+            // set the new receiver
+            _receiver = rec;
+
+            return true;
+
+        } catch (MidiUnavailableException mue) {
+            Log.warning("Use of alternate device failed [e=" + mue +
+                ", device=" + devinfo + "].");
+            return false;
+        }
+    }
+
+    /**
      * On the SoundManager thread,
      * plays the sound file with the given pathname.
      */
@@ -396,23 +473,6 @@ public class SoundManager
      */
     protected void playSequence (MidiInfo info)
     {
-        if (_sequencer == null) {
-            try {
-                Sequencer seq = MidiSystem.getSequencer();
-                seq.open();
-                if (seq instanceof Synthesizer) {
-                    _midiChannels = ((Synthesizer) seq).getChannels();
-                    //updateMusicVolume();
-                }
-                _sequencer = seq;
-                _sequencer.addMetaEventListener(this);
-
-            } catch (MidiUnavailableException mue) {
-                Log.warning("Midi unavailable. Can't play music.");
-                return;
-            }
-        }
-
         stopCurrentSong(false);
         _midiStack.addFirst(info);
         playTopSong();
@@ -526,6 +586,27 @@ public class SoundManager
     }
 
     /**
+     * Initialize the midi system.
+     */
+    protected void initMidi ()
+    {
+        try {
+            Sequencer seq = MidiSystem.getSequencer();
+            seq.open();
+            if (seq instanceof Synthesizer) {
+                _midiChannels = ((Synthesizer) seq).getChannels();
+                //updateMusicVolume();
+            }
+            _sequencer = seq;
+            _sequencer.addMetaEventListener(this);
+
+        } catch (MidiUnavailableException mue) {
+            Log.warning("Midi unavailable. Can't play music.");
+            return;
+        }
+    }
+
+    /**
      * Stop playing and shutdown the midi system.
      */
     protected void shutdownMidi ()
@@ -533,6 +614,9 @@ public class SoundManager
         _sequencer.removeMetaEventListener(this);
         stopCurrentSong(false);
         _sequencer.close();
+        if (_receiver != null) {
+            _receiver.close();
+        }
         _sequencer = null;
         _midiChannels = null;
         _midiStack.clear();
@@ -931,6 +1015,10 @@ public class SoundManager
 
     /** The sequencer that plays midi music. */
     protected Sequencer _sequencer;
+
+    /** The receiver used to send midi from the sequencer to an alternate
+     * midi device. */
+    protected Receiver _receiver;
 
     /** The channels in the sequencer, which we'll use to fuxor volumes. */
     protected MidiChannel[] _midiChannels;
