@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingScene.java,v 1.3 2002/04/06 04:52:41 mdb Exp $
+// $Id: ScrollingScene.java,v 1.4 2002/04/15 17:47:05 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -22,11 +22,11 @@ public class ScrollingScene implements DisplayMisoScene
         throws NoSuchTileSetException, NoSuchTileException
     {
         // grab our four repeating tiles
-        _tiles[0] = (BaseTile)ctx.getTileManager().getTile(8, 0);
-        _tiles[1] = (BaseTile)ctx.getTileManager().getTile(8, 1);
-        _tiles[2] = (BaseTile)ctx.getTileManager().getTile(8, 2);
-        _tiles[3] = (BaseTile)ctx.getTileManager().getTile(8, 3);
-        _tiles[4] = (BaseTile)ctx.getTileManager().getTile(8, 4);
+        _tiles[0] = (BaseTile)ctx.getTileManager().getTile(5, 0);
+        _tiles[1] = (BaseTile)ctx.getTileManager().getTile(5, 1);
+        _tiles[2] = (BaseTile)ctx.getTileManager().getTile(5, 2);
+        _tiles[3] = (BaseTile)ctx.getTileManager().getTile(5, 3);
+        _tiles[4] = (BaseTile)ctx.getTileManager().getTile(5, 4);
     }
 
     // documentation inherited from interface

@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.9 2002/04/06 02:03:54 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.10 2002/04/15 17:47:05 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -88,7 +88,22 @@ public class ScrollingTestApp
         charmgr.setCharacterClass(MisoCharacterSprite.class);
 
         // create our scene view panel
-        _panel = new SceneViewPanel(new IsoSceneViewModel());
+        _panel = new SceneViewPanel(new IsoSceneViewModel()) {
+            public void start () {
+                super.start();
+                // kick things off
+                viewFinishedScrolling();
+            }
+            protected void viewFinishedScrolling () {
+                // keep scrolling for a spell
+                if (++_sidx < DX.length) {
+                    setScrolling(DX[_sidx], DY[_sidx], 10000l);
+                }
+            }
+            protected int _sidx = -1;
+            protected final int[] DX = { 0, 1000, -1000, 1000, 2000 };
+            protected final int[] DY = { 1000, 0, 1000, -1000, 1000 };
+        };
         _frame.setPanel(_panel);
 
         // create our "ship" sprite
@@ -116,10 +131,11 @@ public class ScrollingTestApp
         // set the scene to our scrolling scene
         try {
             _panel.setScene(new ScrollingScene(ctx));
-            _panel.setScrolling(90, 90);
+            _panel.start();
 
         } catch (Exception e) {
             Log.warning("Error creating scene: " + e);
+            Log.logStackTrace(e);
         }
 
         // size and position the window, entering full-screen exclusive
