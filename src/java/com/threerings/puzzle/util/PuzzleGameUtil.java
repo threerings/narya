@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleGameUtil.java,v 1.2 2004/08/27 02:20:33 mdb Exp $
+// $Id: PuzzleGameUtil.java,v 1.3 2004/10/28 18:59:14 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,8 +22,10 @@
 package com.threerings.puzzle.util;
 
 import java.awt.event.KeyEvent;
+
 import com.threerings.util.KeyTranslatorImpl;
 import com.threerings.puzzle.client.PuzzleController;
+import com.threerings.puzzle.client.PuzzlePanel;
 
 /**
  * Puzzle game related utilities.
@@ -38,9 +40,11 @@ public class PuzzleGameUtil
     {
         KeyTranslatorImpl xlate = new KeyTranslatorImpl();
 
-        // add the standard pause keys
-        xlate.addPressCommand(
-            KeyEvent.VK_P, PuzzleController.TOGGLE_CHATTING);
+        if (!PuzzlePanel.isRobotTesting()) {
+            // add the standard pause keys
+            xlate.addPressCommand(
+                KeyEvent.VK_P, PuzzleController.TOGGLE_CHATTING);
+        }
 
         return xlate;
     }
