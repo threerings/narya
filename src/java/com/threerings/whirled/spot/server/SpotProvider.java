@@ -1,8 +1,9 @@
 //
-// $Id: SpotProvider.java,v 1.3 2001/12/16 05:15:27 mdb Exp $
+// $Id: SpotProvider.java,v 1.4 2001/12/16 05:38:26 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
+import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 import com.threerings.presents.server.ServiceFailedException;
@@ -15,7 +16,6 @@ import com.threerings.crowd.server.LocationProvider;
 import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.server.SceneManager;
 import com.threerings.whirled.server.SceneRegistry;
-import com.threerings.whirled.server.WhirledServer;
 
 import com.threerings.whirled.spot.Log;
 import com.threerings.whirled.spot.client.SpotCodes;
@@ -33,10 +33,11 @@ public class SpotProvider extends InvocationProvider
      * wishes to make use of the Spot services.
      */
     public static void init (
-        InvocationManager invmgr, SceneRegistry screg)
+        InvocationManager invmgr, SceneRegistry screg, RootDObjectManager omgr)
     {
-        // we'll need this later
+        // we'll need these later
         _screg = screg;
+        _omgr = omgr;
 
         // register a spot provider instance
         invmgr.registerProvider(MODULE_NAME, new SpotProvider());
@@ -114,7 +115,7 @@ public class SpotProvider extends InvocationProvider
 
             // make sure the scene they are headed to is actually loaded into
             // the server
-            WhirledServer.screg.resolveScene(destSceneId, rl);
+            _screg.resolveScene(destSceneId, rl);
 
         } catch (ServiceFailedException sfe) {
             sendResponse(source, invid, MOVE_FAILED_RESPONSE, sfe.getMessage());
@@ -224,7 +225,7 @@ public class SpotProvider extends InvocationProvider
         int oldLocId = -1;
 
         if (placeOid != -1 && locationId != -1) {
-            place = (PlaceObject)WhirledServer.omgr.getObject(placeOid);
+            place = (PlaceObject)_omgr.getObject(placeOid);
         }
 
         if (place != null) {
@@ -248,4 +249,7 @@ public class SpotProvider extends InvocationProvider
 
     /** The scene registry with which we interoperate. */
     protected static SceneRegistry _screg;
+
+    /** The object manager we use to do dobject stuff. */
+    protected static RootDObjectManager _omgr;
 }
