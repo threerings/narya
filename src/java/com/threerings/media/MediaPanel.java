@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.26 2002/12/08 02:49:53 mdb Exp $
+// $Id: MediaPanel.java,v 1.27 2002/12/15 23:12:37 shaper Exp $
 
 package com.threerings.media;
 
@@ -157,7 +157,7 @@ public class MediaPanel extends JComponent
      */
     public void clearSprites ()
     {
-        _spritemgr.clearSprites();
+        _spritemgr.clearMedia();
     }
 
     /**
@@ -174,6 +174,14 @@ public class MediaPanel extends JComponent
     public void removeAnimation (Animation anim)
     {
         _animmgr.unregisterAnimation(anim);
+    }
+
+    /**
+     * Removes all animations from this panel.
+     */
+    public void clearAnimations ()
+    {
+        _animmgr.clearMedia();
     }
 
     // documentation inherited from interface

@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMediaManager.java,v 1.3 2002/11/26 02:47:04 shaper Exp $
+// $Id: AbstractMediaManager.java,v 1.4 2002/12/15 23:12:37 shaper Exp $
 
 package com.threerings.media;
 
@@ -146,8 +146,9 @@ public abstract class AbstractMediaManager
     }
 
     /**
-     * Clears all media from the manager. This does not invalidate their
-     * vacated bounds; it is assumed that it will be ok.
+     * Clears all media from the manager and calls {@link
+     * AbstractMedia#shutdown} on each. This does not invalidate the
+     * media's vacated bounds; it is assumed that it will be ok.
      */
     protected void clearMedia ()
     {

@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.39 2002/11/05 20:52:39 mdb Exp $
+// $Id: SpriteManager.java,v 1.40 2002/12/15 23:12:37 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -107,17 +107,6 @@ public class SpriteManager extends AbstractMediaManager
     public void removeSprite (Sprite sprite)
     {
         removeMedia(sprite);
-    }
-
-    /**
-     * Clears all sprites from the sprite manager. This does not
-     * invalidate their vacated bounds because it is assumed that either
-     * the whole view will be repainted after this or it is going away
-     * entirely. The sprites will be {@link Sprite#shutdown}, however.
-     */
-    public void clearSprites ()
-    {
-        clearMedia();
     }
 
     /**
