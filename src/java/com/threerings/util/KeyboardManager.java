@@ -1,5 +1,5 @@
-          //
-// $Id: KeyboardManager.java,v 1.6 2002/01/12 02:37:57 shaper Exp $
+//
+// $Id: KeyboardManager.java,v 1.7 2002/01/18 23:12:09 shaper Exp $
 
 package com.threerings.yohoho.puzzle.util;
 
@@ -34,7 +34,7 @@ public class KeyboardManager
      * @param target the component whose keyboard events are to be observed.
      * @param xlate the key translator used to map keyboard events to
      * controller action commands.
-    */
+     */
     public KeyboardManager (Component target, KeyTranslator xlate)
     {
         // save off references
