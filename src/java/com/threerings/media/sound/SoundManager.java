@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.49 2003/03/17 05:28:26 ray Exp $
+// $Id: SoundManager.java,v 1.50 2003/03/17 18:50:18 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -55,6 +55,7 @@ import com.threerings.media.MediaPrefs;
  */
 // TODO:
 //   - fade music out when stopped?
+//   - be able to pause music
 public class SoundManager
     implements MusicPlayer.MusicEventListener
 {
@@ -147,6 +148,7 @@ public class SoundManager
                         } else if (DIE == command) {
                             LineSpooler.shutdown();
                             shutdownMusic();
+                            _player = null;
 
                         } else {
                             Log.warning("Got unknown command [cmd=" + command +
@@ -171,9 +173,8 @@ public class SoundManager
     /**
      * Shut the damn thing off.
      */
-    public synchronized void shutdown ()
+    public void shutdown ()
     {
-        _player = null;
         synchronized (_queue) {
             _queue.clear();
             _queue.append(DIE); // signal death
@@ -184,7 +185,7 @@ public class SoundManager
      * Used by the sound playing thread to determine whether or not to
      * shut down.
      */
-    protected synchronized boolean amRunning ()
+    protected boolean amRunning ()
     {
         return (_player == Thread.currentThread());
     }
