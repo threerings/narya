@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.17 2001/08/02 06:01:12 mdb Exp $
+// $Id: DObject.java,v 1.18 2001/08/03 02:11:40 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -171,8 +171,8 @@ public class DObject
      */
     public void notifySubscribers (DEvent event)
     {
-        Log.info("Dispatching event to " + _subscribers.size() +
-                 " subscribers: " + event);
+        // Log.info("Dispatching event to " + _subscribers.size() +
+        // " subscribers: " + event);
 
         for (int i = 0; i < _subscribers.size(); i++) {
             Subscriber sub = (Subscriber)_subscribers.get(i);

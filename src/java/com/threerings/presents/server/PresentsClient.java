@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.10 2001/07/23 21:13:56 mdb Exp $
+// $Id: PresentsClient.java,v 1.11 2001/08/03 02:12:27 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -309,9 +309,10 @@ public class Client implements Subscriber, MessageHandler
             // fill in the proper source oid
             fevt.setSourceOid(client.getClientObject().getOid());
 
+            // Log.info("Forwarding event [client=" + client +
+            // ", event=" + fevt + "].");
+
             // forward the event to the omgr for processing
-            Log.info("Forwarding event [client=" + client +
-                     ", event=" + fevt + "].");
             CherServer.omgr.postEvent(fevt);
         }
     }

@@ -1,5 +1,5 @@
 //
-// $Id: DObjectFactory.java,v 1.5 2001/06/11 17:42:20 mdb Exp $
+// $Id: DObjectFactory.java,v 1.6 2001/08/03 02:11:40 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj.io;
 
@@ -26,7 +26,7 @@ public class DObjectFactory
     public static void writeTo (DataOutputStream out, DObject dobj)
         throws IOException
     {
-        Log.info("Marshalling object: " + dobj);
+        // Log.info("Marshalling object: " + dobj);
         // look up the marshaller for this object
         Class clazz = dobj.getClass();
         Marshaller marsh = getMarshaller(clazz);

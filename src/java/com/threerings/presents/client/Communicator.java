@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.11 2001/07/25 00:26:44 mdb Exp $
+// $Id: Communicator.java,v 1.12 2001/08/03 02:11:20 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -267,7 +267,7 @@ public class Communicator
      */
     protected void processMessage (DownstreamMessage msg)
     {
-        Log.info("Process msg: " + msg);
+        // Log.info("Process msg: " + msg);
         // post this message to the dobjmgr queue
         _omgr.processMessage(msg);
     }
