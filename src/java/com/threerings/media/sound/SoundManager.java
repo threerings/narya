@@ -281,7 +281,7 @@ public class SoundManager
             if (key.cmd == PLAY && _queue.size() > MAX_QUEUE_SIZE) {
                 queued = add = false;
             } else {
-                _queue.append(key);
+                _queue.appendLoud(key);
                 queued = true;
                 add = okToStartNew && (_freeSpoolers == 0) &&
                         (_spoolerCount < MAX_SPOOLERS);
