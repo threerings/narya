@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.java,v 1.20 2004/08/27 02:20:14 mdb Exp $
+// $Id: GameObject.java,v 1.21 2004/09/01 21:02:44 ray Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -166,6 +166,14 @@ public class GameObject extends PlaceObject
             }
         }
         return count;
+    }
+
+    /**
+     * Returns true if the game is ended in a draw.
+     */
+    public boolean isDraw ()
+    {
+        return getWinnerCount() == getPlayerCount();
     }
 
     /**
