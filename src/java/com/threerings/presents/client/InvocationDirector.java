@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.8 2001/08/21 00:58:10 mdb Exp $
+// $Id: InvocationDirector.java,v 1.9 2001/08/21 19:33:06 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -120,7 +120,7 @@ public class InvocationManager
     {
         // let the client know that we're ready to go now that we've got
         // our subscription to the client object
-        _client.invocationManagerReady();
+        _client.invocationManagerReady((ClientObject)object);
     }
 
     public void requestFailed (int oid, ObjectAccessException cause)
@@ -250,15 +250,6 @@ public class InvocationManager
         return _invocationId++;
     }
 
-    /**
-     * Access to the client object so that the client instance doesn't
-     * have to subscribe to it just to make it available.
-     */
-    protected ClientObject getClientObject ()
-    {
-        return _clobj;
-    }
-
     protected static class Response
     {
         public String name;
@@ -273,7 +264,6 @@ public class InvocationManager
     protected Client _client;
     protected DObjectManager _omgr;
     protected int _imoid;
-    protected ClientObject _clobj;
 
     protected int _invocationId;
     protected IntMap _targets = new IntMap();

@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.12 2001/08/21 00:58:10 mdb Exp $
+// $Id: Client.java,v 1.13 2001/08/21 19:33:06 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
@@ -174,7 +174,7 @@ public class Client
      */
     public ClientObject getClientObject ()
     {
-        return _invmgr.getClientObject();
+        return _clobj;
     }
 
     /**
@@ -286,14 +286,18 @@ public class Client
         // client loose to do things like request invocation services
     }
 
-    void invocationManagerReady ()
+    void invocationManagerReady (ClientObject clobj)
     {
+        // keep this around
+        _clobj = clobj;
+
         // let the client know that logon has now fully succeeded
         notifyObservers(Client.CLIENT_DID_LOGON, null);
     }
 
     protected Credentials _creds;
     protected Invoker _invoker;
+    protected ClientObject _clobj;
 
     protected String _hostname;
     protected int _port;
