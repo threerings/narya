@@ -1,5 +1,5 @@
 //
-// $Id: ParlorProvider.java,v 1.15 2004/08/27 02:20:14 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -114,7 +114,7 @@ public class ParlorProvider
                              GameConfig config, TableListener listener)
         throws InvocationException
     {
-        Log.info("Handling create table request [caller=" + caller +
+        Log.info("Handling create table request [caller=" + caller.who() +
                  ", lobbyOid=" + lobbyOid + ", config=" + config + "].");
 
         // pass the creation request on to the table manager
@@ -130,7 +130,7 @@ public class ParlorProvider
                            int position, InvocationListener listener)
         throws InvocationException
     {
-        Log.info("Handling join table request [caller=" + caller +
+        Log.info("Handling join table request [caller=" + caller.who() +
                  ", lobbyOid=" + lobbyOid + ", tableId=" + tableId +
                  ", position=" + position + "].");
 
@@ -149,7 +149,7 @@ public class ParlorProvider
                             InvocationListener listener)
         throws InvocationException
     {
-        Log.info("Handling leave table request [caller=" + caller +
+        Log.info("Handling leave table request [caller=" + caller.who() +
                  ", lobbyOid=" + lobbyOid + ", tableId=" + tableId + "].");
 
         // pass the join request on to the table manager
