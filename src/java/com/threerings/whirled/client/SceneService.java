@@ -1,5 +1,5 @@
 //
-// $Id: SceneService.java,v 1.7 2002/04/26 00:07:05 ray Exp $
+// $Id: SceneService.java,v 1.8 2002/05/15 23:54:34 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -30,7 +30,7 @@ public class SceneService implements SceneCodes
         Object[] args = new Object[] {
             new Integer(sceneId), new Integer(sceneVers) };
         invdir.invoke(MODULE_NAME, MOVE_TO_REQUEST, args, rsptarget);
-        Log.info("Sent moveTo request [scene=" + sceneId +
-                 ", version=" + sceneVers + "].");
+        Log.debug("Sent moveTo request [scene=" + sceneId +
+                  ", version=" + sceneVers + "].");
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: SpotService.java,v 1.7 2002/04/29 21:03:00 ray Exp $
+// $Id: SpotService.java,v 1.8 2002/05/15 23:54:34 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -31,8 +31,8 @@ public class SpotService implements SpotCodes
             new Integer(sceneId), new Integer(portalId),
             new Integer(sceneVer) };
         invdir.invoke(MODULE_NAME, TRAVERSE_PORTAL_REQUEST, args, rsptarget);
-        Log.info("Sent traversePortal request [sceneId=" + sceneId +
-                 ", portalId=" + portalId + ", sceneVer=" + sceneVer + "].");
+        Log.debug("Sent traversePortal request [sceneId=" + sceneId +
+                  ", portalId=" + portalId + ", sceneVer=" + sceneVer + "].");
     }
 
     /**
@@ -46,8 +46,8 @@ public class SpotService implements SpotCodes
         Object[] args = new Object[] { new Integer(sceneId),
                                        new Integer(locationId) };
         invdir.invoke(MODULE_NAME, CHANGE_LOC_REQUEST, args, rsptarget);
-        Log.info("Sent changeLoc request [sceneId=" + sceneId +
-                 ", locId=" + locationId + "].");
+        Log.debug("Sent changeLoc request [sceneId=" + sceneId +
+                  ", locId=" + locationId + "].");
     }
 
     /**
@@ -62,7 +62,7 @@ public class SpotService implements SpotCodes
         Object[] args = new Object[] {
             new Integer(sceneId), new Integer(locationId), message };
         invdir.invoke(MODULE_NAME, CLUSTER_SPEAK_REQUEST, args, rsptarget);
-        Log.info("Sent clusterSpeak request [sceneId=" + sceneId +
-                 ", locId=" + locationId + ", message=" + message + "].");
+        Log.debug("Sent clusterSpeak request [sceneId=" + sceneId +
+                  ", locId=" + locationId + ", message=" + message + "].");
     }
 }

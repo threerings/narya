@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.7 2002/05/03 04:16:41 mdb Exp $
+// $Id: FrameManager.java,v 1.8 2002/05/15 23:54:34 mdb Exp $
 
 package com.threerings.media;
 
@@ -269,14 +269,14 @@ public class FrameManager
 
             // if we've changed resolutions, recreate the buffer
             if (valres == VolatileImage.IMAGE_INCOMPATIBLE) {
-                Log.info("Back buffer incompatible, recreating.");
+//                 Log.info("Back buffer incompatible, recreating.");
                 createBackBuffer(gc);
             }
 
             // if the image wasn't A-OK, we need to rerender the whole
             // business rather than just the dirty parts
             if (valres != VolatileImage.IMAGE_OK) {
-                Log.info("Lost back buffer, redrawing.");
+//                 Log.info("Lost back buffer, redrawing.");
                 incremental = false;
             }
 

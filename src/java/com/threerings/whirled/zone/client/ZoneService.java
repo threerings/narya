@@ -1,5 +1,5 @@
 //
-// $Id: ZoneService.java,v 1.4 2002/04/16 17:36:17 mdb Exp $
+// $Id: ZoneService.java,v 1.5 2002/05/15 23:54:35 mdb Exp $
 
 package com.threerings.whirled.zone.client;
 
@@ -33,7 +33,7 @@ public class ZoneService implements ZoneCodes
         Object[] args = new Object[] {
             new Integer(zoneId), new Integer(sceneId), new Integer(sceneVers) };
         invdir.invoke(MODULE_NAME, MOVE_TO_REQUEST, args, rsptarget);
-        Log.info("Sent moveTo request [zone=" + zoneId +
-                 ", scene=" + sceneId + ", version=" + sceneVers + "].");
+        Log.debug("Sent moveTo request [zone=" + zoneId +
+                  ", scene=" + sceneId + ", version=" + sceneVers + "].");
     }
 }

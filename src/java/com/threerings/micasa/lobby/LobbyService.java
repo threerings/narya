@@ -1,5 +1,5 @@
 //
-// $Id: LobbyService.java,v 1.2 2001/10/11 04:13:33 mdb Exp $
+// $Id: LobbyService.java,v 1.3 2002/05/15 23:54:34 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -31,7 +31,7 @@ public class LobbyService
     public static int getCategories (Client client, Object rsptarget)
     {
         InvocationDirector invdir = client.getInvocationDirector();
-        Log.info("Sending get categories.");
+        Log.debug("Sending get categories.");
         return invdir.invoke(
             MODULE_NAME, GET_CATEGORIES_REQUEST, null, rsptarget);
     }
@@ -55,7 +55,7 @@ public class LobbyService
     {
         InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] { category };
-        Log.info("Sending get lobbies [category=" + category + "].");
+        Log.debug("Sending get lobbies [category=" + category + "].");
         return invdir.invoke(
             MODULE_NAME, GET_LOBBIES_REQUEST, args, rsptarget);
     }

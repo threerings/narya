@@ -1,5 +1,5 @@
 //
-// $Id: ChatService.java,v 1.6 2001/10/11 04:07:51 mdb Exp $
+// $Id: ChatService.java,v 1.7 2002/05/15 23:54:34 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -35,8 +35,8 @@ public class ChatService implements ChatCodes
     {
         InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] { target, message };
-        Log.info("Sending tell request [tgt=" + target +
-                 ", msg=" + message + "].");
+        Log.debug("Sending tell request [tgt=" + target +
+                  ", msg=" + message + "].");
         return invdir.invoke(MODULE_NAME, TELL_REQUEST, args, rsptarget);
     }
 }

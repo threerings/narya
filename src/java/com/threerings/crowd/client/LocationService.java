@@ -1,5 +1,5 @@
 //
-// $Id: LocationService.java,v 1.5 2002/04/15 16:28:01 shaper Exp $
+// $Id: LocationService.java,v 1.6 2002/05/15 23:54:34 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -28,6 +28,6 @@ public class LocationService implements LocationCodes
         InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] { new Integer(placeId) };
         invdir.invoke(MODULE_NAME, MOVE_TO_REQUEST, args, rsptarget);
-        Log.info("Sent moveTo request [place=" + placeId + "].");
+        Log.debug("Sent moveTo request [place=" + placeId + "].");
     }
 }

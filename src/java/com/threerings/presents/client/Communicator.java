@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.17 2002/03/15 19:11:14 mdb Exp $
+// $Id: Communicator.java,v 1.18 2002/05/15 23:54:34 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -137,7 +137,7 @@ public class Communicator
      */
     protected synchronized void logonSucceeded (AuthResponseData data)
     {
-        Log.info("Logon succeeded: " + data);
+        Log.debug("Logon succeeded: " + data);
 
         // create our distributed object manager
         _omgr = new ClientDObjectMgr(this, _client);
@@ -165,7 +165,7 @@ public class Communicator
             return;
         }
 
-        Log.info("Connection failed: " + ioe);
+        Log.debug("Connection failed: " + ioe);
 
         // let the client know that things went south
         _client.notifyObservers(Client.CLIENT_CONNECTION_FAILED, ioe);
@@ -186,7 +186,7 @@ public class Communicator
             return;
         }
 
-        Log.info("Connection closed.");
+        Log.debug("Connection closed.");
         // now do the whole logoff thing
         logoff();
     }
@@ -202,7 +202,7 @@ public class Communicator
         // let the client know when we finally go away
         _client.communicatorDidExit();
 
-        Log.info("Reader thread exited.");
+        Log.debug("Reader thread exited.");
     }
 
     /**
@@ -212,7 +212,7 @@ public class Communicator
     {
         // clear out our writer reference
         _writer = null;
-        Log.info("Writer thread exited.");
+        Log.debug("Writer thread exited.");
 
         // now that the writer thread has gone away, we can safely close
         // our socket and let the client know that the logoff process has
@@ -289,7 +289,7 @@ public class Communicator
                 logon();
 
             } catch (Exception e) {
-                Log.info("Logon failed: " + e);
+                Log.debug("Logon failed: " + e);
                 // let the observers know that we've failed
                 _client.notifyObservers(Client.CLIENT_FAILED_TO_LOGON, e);
                 // and terminate our communicator thread
@@ -310,8 +310,8 @@ public class Communicator
             int port = _client.getPort();
 
             // establish a socket connection to said server
-            Log.info("Connecting to server [host=" + host +
-                     ", port=" + port + "].");
+            Log.debug("Connecting to server [host=" + host +
+                      ", port=" + port + "].");
             _socket = new Socket(host, port);
 
             // get a handle on our input and output streams
@@ -334,10 +334,10 @@ public class Communicator
             sendMessage(req);
 
             // now wait for the auth response
-            Log.info("Waiting for auth response.");
+            Log.debug("Waiting for auth response.");
             AuthResponse rsp = (AuthResponse)receiveMessage();
             AuthResponseData data = rsp.getData();
-            Log.info("Got auth response: " + data);
+            Log.debug("Got auth response: " + data);
             
             // if the auth request failed, we want to let the communicator
             // know by throwing a logon exception
@@ -371,7 +371,7 @@ public class Communicator
                 // somebody set up us the bomb! we've been interrupted
                 // which means that we're being shut down, so we just
                 // report it and return from iterate() like a good monkey
-                Log.info("Reader thread woken up in time to die.");
+                Log.debug("Reader thread woken up in time to die.");
 
             } catch (EOFException eofe) {
                 // let the communicator know that our connection was
