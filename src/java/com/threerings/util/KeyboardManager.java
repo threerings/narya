@@ -1,5 +1,5 @@
 //
-// $Id: KeyboardManager.java,v 1.12 2002/11/02 00:59:00 shaper Exp $
+// $Id: KeyboardManager.java,v 1.13 2002/11/04 22:28:58 shaper Exp $
 
 package com.threerings.util;
 
@@ -138,6 +138,7 @@ public class KeyboardManager
                 _window = null;
             }
             _target.removeAncestorListener(this);
+            _focus = false;
 
         } else {
             // listen to ancestor events so that we can cease our business
@@ -147,12 +148,15 @@ public class KeyboardManager
             // if we're already showing, listen to window focus events,
             // else we have to wait until the target is added since it
             // doesn't currently have a window
-            if (_target.isShowing()) {
+            if (_target.isShowing() && _window == null) {
                 _window = SwingUtilities.getWindowAncestor(_target);
                 if (_window != null) {
                     _window.addWindowFocusListener(this);
                 }
             }            
+
+            // assume the keyboard focus since we were just enabled
+            _focus = true;
         }
 
         // save off our new enabled state
@@ -216,6 +220,10 @@ public class KeyboardManager
         // bail if we're not enabled, we haven't the focus, or we're not
         // showing on-screen
         if (!_enabled || !_focus || !_target.isShowing()) {
+//             Log.info("dispatchKeyEvent [enabled=" + _enabled +
+//                      ", focus=" + _focus +
+//                      ", showing=" + ((_target == null) ? "N/A" :
+//                                      "" + _target.isShowing()) + "].");
             return false;
         }
 
@@ -630,7 +638,7 @@ public class KeyboardManager
     protected HashIntMap _keys = new HashIntMap();
 
     /** Whether the keyboard manager currently has the keyboard focus. */
-    protected boolean _focus = false;
+    protected boolean _focus;
 
     /** Whether the keyboard manager is accepting keyboard input. */
     protected boolean _enabled;
