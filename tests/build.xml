@@ -4,7 +4,7 @@
   <!-- things you may want to change -->
   <property name="build.compiler" value="jikes"/>
   <property name="java.libraries" value="/usr/share/java"/>
-  <property name="junit.fork"     value="false"/>
+  <property name="junit.fork"     value="true"/>
 
   <!-- things you probably don't want to change -->
   <property name="test.dir"   value="."/>
