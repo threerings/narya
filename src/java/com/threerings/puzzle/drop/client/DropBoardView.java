@@ -1,5 +1,5 @@
 //
-// $Id: DropBoardView.java,v 1.8 2004/10/20 02:23:36 mdb Exp $
+// $Id: DropBoardView.java,v 1.9 2004/10/21 18:07:37 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -256,13 +256,16 @@ public abstract class DropBoardView extends PuzzleBoardView
             return;
         }
 
-        // otherwise create a path and do some bits
+        // note that this piece is moving toward its destination
+        final int tpos = ty * _bwid + tx;
+        _moving[tpos] = true;
+
+        // then create a path and do some bits
         Point end = new Point();
         getPiecePosition(tx, ty, end);
         piece.addSpriteObserver(new PathAdapter() {
             public void pathCompleted (Sprite sprite, Path path, long when) {
                 sprite.removeSpriteObserver(this);
-                int tpos = ty * _bwid + tx;
                 if (_pieces[tpos] != null) {
                     Log.warning("Oh god, we're dropping onto another piece " +
                                 "[sx=" + sx + ", sy=" + sy +
@@ -288,6 +291,17 @@ public abstract class DropBoardView extends PuzzleBoardView
      */
     protected void pieceArrived (long tickStamp, Sprite sprite, int px, int py)
     {
+        _moving[py * _bwid + px] = false;
+    }
+
+    /**
+     * Returns true if the piece that is supposed to be at the specified
+     * coordinates is not yet there but is actually en route to that
+     * location (due to a call to {@link #movePIece}).
+     */
+    protected boolean isMoving (int px, int py)
+    {
+        return _moving[py * _bwid + px];
     }
 
     /**
@@ -353,6 +367,10 @@ public abstract class DropBoardView extends PuzzleBoardView
                 }
             }
         }
+
+        // we use this to track when pieces are animating toward their new
+        // position and are not yet in place
+        _moving = new boolean[width * height];
     }
 
     /**
@@ -588,6 +606,9 @@ public abstract class DropBoardView extends PuzzleBoardView
 
     /** A sprite for every piece displayed in the drop board. */
     protected Sprite[] _pieces;
+
+    /** Indicates whether a piece is en route to its destination. */
+    protected boolean[] _moving;
 
     /** The piece dimensions in pixels. */
     protected int _pwid, _phei;
