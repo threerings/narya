@@ -25,6 +25,8 @@ import java.util.Iterator;
 
 import com.threerings.util.Name;
 
+import com.threerings.presents.dobj.RootDObjectManager;
+import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsServer;
 
 import com.threerings.crowd.Log;
@@ -62,7 +64,7 @@ public class CrowdServer extends PresentsServer
         clmgr.setClientResolverClass(CrowdClientResolver.class);
 
         // create our place registry
-        plreg = new PlaceRegistry(invmgr, omgr);
+        plreg = createPlaceRegistry(invmgr, omgr);
 
         // create our access control implementation
         actrl = createAccessControl();
@@ -74,6 +76,15 @@ public class CrowdServer extends PresentsServer
         ChatProvider.init(invmgr, omgr);
 
         Log.info("Crowd server initialized.");
+    }
+
+    /**
+     * Allow derived instances to create a custom {@link PlaceRegistry}.
+     */
+    protected PlaceRegistry createPlaceRegistry (
+        InvocationManager invmgr, RootDObjectManager omgr)
+    {
+        return new PlaceRegistry(invmgr, omgr);
     }
 
     /**
