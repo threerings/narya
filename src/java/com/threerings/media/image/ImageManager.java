@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.50 2003/04/25 22:12:14 mdb Exp $
+// $Id: ImageManager.java,v 1.51 2003/04/27 06:33:11 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -237,15 +237,15 @@ public class ImageManager
         ImageDataProvider dprov = (ImageDataProvider)_providers.get(rset);
         if (dprov == null) {
             dprov = new ImageDataProvider() {
-                public ImageInputStream loadImageData (String path)
+                public BufferedImage loadImage (String path)
                     throws IOException {
                     // first attempt to load the image from the specified
                     // resource set
                     try {
-                        return _rmgr.getImageResource(rset, path);
+                        return read(_rmgr.getImageResource(rset, path));
                     } catch (FileNotFoundException fnfe) {
                         // fall back to trying the classpath
-                        return _rmgr.getImageResource(path);
+                        return read(_rmgr.getImageResource(path));
                     }
                 }
 
@@ -270,11 +270,9 @@ public class ImageManager
 //         }
 
         BufferedImage image = null;
-        ImageInputStream imgin = null;
         try {
             Log.debug("Loading image " + key + ".");
-            imgin = key.daprov.loadImageData(key.path);
-            image = loadImage(imgin);
+            image = key.daprov.loadImage(key.path);
             if (image == null) {
                 Log.warning("ImageIO.read(" + key + ") returned null.");
             }
@@ -287,42 +285,46 @@ public class ImageManager
             image = createImage(1, 1, Transparency.OPAQUE);
         }
 
-        if (imgin != null) {
-            try {
-                imgin.close();
-            } catch (IOException ioe) {
-                // jesus fucking hoppalong cassidy christ on a polyester
-                // pogo stick! those fuckers at sun have
-                // ImageInputStreamImpl.close() throwing a fucking
-                // IOException if it's already closed; there's no way to
-                // find out if it's already closed or not, so we have to
-                // check for their bullshit exception; as if we should
-                // just "trust" ImageIO.read() to close the fucking input
-                // stream when it's done, especially after the goddamned
-                // fiasco with PNGImageReader not closing it's fucking
-                // inflaters; for the love of humanity
-                if (!"closed".equals(ioe.getMessage())) {
-                    Log.warning("Failure closing image input '" + key + "'.");
-                    Log.logStackTrace(ioe);
-                }
-            }
-        }
-
         return image;
     }
 
     /**
-     * Called by {@link #loadImage(ImageKey)} to do the actual image
-     * loading.
+     * Helper function for loading images.
      */
-    protected BufferedImage loadImage (ImageInputStream imgin)
+    protected static BufferedImage read (ImageInputStream iis)
         throws IOException
     {
-//         ParameterBlock pb = new ParameterBlock();
-//         pb.add(imgin);
-//         return JAI.create("BMP", pb);
+        BufferedImage image = ImageIO.read(iis);
+        closeIIS(iis);
+        return image;
+    }
 
-        return ImageIO.read(imgin);
+    /**
+     * Helper function for closing image input streams.
+     */
+    protected static void closeIIS (ImageInputStream iis)
+    {
+        if (iis == null) {
+            return;
+        }
+
+        try {
+            iis.close();
+        } catch (IOException ioe) {
+            // jesus fucking hoppalong cassidy christ on a polyester pogo
+            // stick! ImageInputStreamImpl.close() throws a fucking
+            // IOException if it's already closed; there's no way to find
+            // out if it's already closed or not, so we have to check for
+            // their bullshit exception; as if we should just "trust"
+            // ImageIO.read() to close the fucking input stream when it's
+            // done, especially after the goddamned fiasco with
+            // PNGImageReader not closing it's fucking inflaters; for the
+            // love of humanity
+            if (!"closed".equals(ioe.getMessage())) {
+                Log.warning("Failure closing image input '" + iis + "'.");
+                Log.logStackTrace(ioe);
+            }
+        }
     }
 
     /**
@@ -502,9 +504,8 @@ public class ImageManager
 
     /** Our default data provider. */
     protected ImageDataProvider _defaultProvider = new ImageDataProvider() {
-        public ImageInputStream loadImageData (String path)
-            throws IOException {
-            return _rmgr.getImageResource(path);
+        public BufferedImage loadImage (String path) throws IOException {
+            return read(_rmgr.getImageResource(path));
         }
 
         public String getIdent () {

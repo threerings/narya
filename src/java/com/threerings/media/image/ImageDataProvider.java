@@ -1,10 +1,10 @@
 //
-// $Id: ImageDataProvider.java,v 1.1 2003/01/13 22:49:46 mdb Exp $
+// $Id: ImageDataProvider.java,v 1.2 2003/04/27 06:33:11 mdb Exp $
 
 package com.threerings.media.image;
 
 import java.io.IOException;
-import javax.imageio.stream.ImageInputStream;
+import java.awt.image.BufferedImage;
 
 /**
  * Provides access to image data for the image with the specified
@@ -22,8 +22,7 @@ public interface ImageDataProvider
     public String getIdent ();
 
     /**
-     * Returns an input stream from which the image data for the specified
-     * image may be loaded.
+     * Returns the image at the specified path.
      */
-    public ImageInputStream loadImageData (String path) throws IOException;
+    public BufferedImage loadImage (String path) throws IOException;
 }
