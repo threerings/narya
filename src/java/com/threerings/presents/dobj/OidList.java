@@ -1,7 +1,11 @@
 //
-// $Id: OidList.java,v 1.1 2001/07/21 01:06:48 mdb Exp $
+// $Id: OidList.java,v 1.2 2001/08/02 05:09:21 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * An oid list is used to store lists of object ids. The list will not
@@ -126,6 +130,25 @@ public class OidList
         int[] oids = new int[_oids.length*2];
         System.arraycopy(_oids, 0, oids, 0, _oids.length);
         _oids = oids;
+    }
+
+    public void writeTo (DataOutputStream out)
+        throws IOException
+    {
+        out.writeInt(_size);
+        for (int i = 0; i < _size; i++) {
+            out.writeInt(_oids[i]);
+        }
+    }
+
+    public void readFrom (DataInputStream in)
+        throws IOException
+    {
+        _size = in.readInt();
+        _oids = new int[Math.max(DEFAULT_SIZE, _size*2)];
+        for (int i = 0; i < _size; i++) {
+            _oids[i] = in.readInt();
+        }
     }
 
     private int[] _oids;
