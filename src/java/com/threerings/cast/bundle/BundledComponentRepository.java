@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.17 2002/08/13 23:09:25 shaper Exp $
+// $Id: BundledComponentRepository.java,v 1.18 2002/09/17 19:11:13 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -31,8 +31,7 @@ import com.threerings.resource.ResourceManager;
 import com.threerings.media.ImageManager;
 import com.threerings.media.util.Colorization;
 import com.threerings.media.util.ImageUtil;
-
-import com.threerings.media.sprite.MultiFrameImage;
+import com.threerings.media.util.MultiFrameImage;
 
 import com.threerings.media.tile.ImageProvider;
 import com.threerings.media.tile.NoSuchTileException;

@@ -1,11 +1,11 @@
 //
-// $Id: TrimmedMultiFrameImage.java,v 1.1 2002/06/19 23:31:57 mdb Exp $
+// $Id: TrimmedMultiFrameImage.java,v 1.2 2002/09/17 19:11:13 mdb Exp $
 
 package com.threerings.cast;
 
 import java.awt.Rectangle;
 
-import com.threerings.media.sprite.MultiFrameImage;
+import com.threerings.media.util.MultiFrameImage;
 
 /**
  * Used to generate more memory efficient composited images in

@@ -1,7 +1,7 @@
 //
-// $Id: MultiFrameImage.java,v 1.2 2002/05/04 19:35:31 mdb Exp $
+// $Id: MultiFrameImage.java,v 1.3 2002/09/17 19:11:13 mdb Exp $
 
-package com.threerings.media.sprite;
+package com.threerings.media.util;
 
 import java.awt.Graphics;
 import java.awt.Image;

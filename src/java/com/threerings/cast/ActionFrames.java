@@ -1,12 +1,11 @@
 //
-// $Id: ActionFrames.java,v 1.5 2002/06/26 23:53:06 mdb Exp $
+// $Id: ActionFrames.java,v 1.6 2002/09/17 19:11:13 mdb Exp $
 
 package com.threerings.cast;
 
 import java.awt.Graphics;
 import java.awt.Image;
 
-import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.util.Colorization;
 import com.threerings.util.DirectionCodes;
 

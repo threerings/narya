@@ -1,5 +1,5 @@
 //
-// $Id: CompositedActionFrames.java,v 1.7 2002/06/26 23:53:06 mdb Exp $
+// $Id: CompositedActionFrames.java,v 1.8 2002/09/17 19:11:13 mdb Exp $
 
 package com.threerings.cast;
 
@@ -9,9 +9,9 @@ import java.awt.Rectangle;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.util.Colorization;
 import com.threerings.media.util.ImageUtil;
+import com.threerings.media.util.MultiFrameImage;
 
 import com.threerings.util.DirectionCodes;
 

@@ -1,5 +1,5 @@
 //
-// $Id: ImageSprite.java,v 1.11 2002/09/17 02:34:05 ray Exp $
+// $Id: ImageSprite.java,v 1.12 2002/09/17 19:11:13 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.threerings.media.Log;
+import com.threerings.media.util.MultiFrameImage;
 
 /**
  * Extends the sprite class to support rendering the sprite with one or

@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.16 2002/07/19 20:13:30 shaper Exp $
+// $Id: ScrollingTestApp.java,v 1.17 2002/09/17 19:11:13 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -17,18 +17,19 @@ import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.Config;
 
 import com.threerings.resource.ResourceManager;
+
 import com.threerings.media.FrameManager;
 import com.threerings.media.ImageManager;
+import com.threerings.media.util.LinePath;
+import com.threerings.media.util.MultiFrameImage;
+import com.threerings.media.util.MultiFrameImageImpl;
 
-import com.threerings.media.sprite.MultiFrameImage;
-import com.threerings.media.sprite.MultiFrameImageImpl;
 import com.threerings.media.sprite.PathCompletedEvent;
 import com.threerings.media.sprite.Sprite;
 import com.threerings.media.sprite.SpriteEvent;
 import com.threerings.media.sprite.SpriteObserver;
 
 import com.threerings.media.tile.bundle.BundledTileSetRepository;
-import com.threerings.media.util.LinePath;
 
 import com.threerings.cast.CharacterComponent;
 import com.threerings.cast.CharacterDescriptor;

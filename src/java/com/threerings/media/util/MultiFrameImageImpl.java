@@ -1,7 +1,7 @@
 //
-// $Id: MultiFrameImageImpl.java,v 1.2 2002/05/04 19:35:31 mdb Exp $
+// $Id: MultiFrameImageImpl.java,v 1.3 2002/09/17 19:11:13 mdb Exp $
 
-package com.threerings.media.sprite;
+package com.threerings.media.util;
 
 import java.awt.Graphics;
 import java.awt.Image;
@@ -10,7 +10,7 @@ import com.threerings.media.util.ImageUtil;
 
 /**
  * A basic implementation of the {@link MultiFrameImage} interface
- * intended to facilitate the creation of sprites whose display frames
+ * intended to facilitate the creation of MFIs whose display frames
  * consist of multiple image objects.
  */
 public class MultiFrameImageImpl implements MultiFrameImage
