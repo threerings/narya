@@ -1,5 +1,5 @@
 //
-// $Id: PlaceRegistry.java,v 1.22 2002/10/06 00:44:58 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.23 2002/10/06 02:37:58 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -91,36 +91,38 @@ public class PlaceRegistry
         PlaceConfig config, CreationObserver observer)
         throws InstantiationException, InvocationException
     {
+        PlaceManager pmgr = null;
+
         try {
             // load up the manager class
             Class pmgrClass = Class.forName(config.getManagerClassName());
             // create a place manager for this place
-            PlaceManager pmgr = (PlaceManager)pmgrClass.newInstance();
+            pmgr = (PlaceManager)pmgrClass.newInstance();
             // let the pmgr know about us and its configuration
             pmgr.init(this, _invmgr, _omgr, config);
-
-            // give the manager an opportunity to abort the whole process
-            // if it fails any permissions checks
-            String errmsg = pmgr.checkPermissions();
-            if (errmsg != null) {
-                throw new InvocationException(errmsg);
-            }
-
-            // stick the manager on the creation queue because we know
-            // we'll get our calls to objectAvailable()/requestFailed() in
-            // the order that we call createObject()
-            _createq.append(new Tuple(pmgr, observer));
-
-            // and request to create the place object
-            _omgr.createObject(pmgr.getPlaceObjectClass(), this);
-
-            return pmgr;
 
         } catch (Exception e) {
             Log.logStackTrace(e);
             throw new InstantiationException(
                 "Error creating place manager [config=" + config + "].");
         }
+
+        // give the manager an opportunity to abort the whole process
+        // if it fails any permissions checks
+        String errmsg = pmgr.checkPermissions();
+        if (errmsg != null) {
+            throw new InvocationException(errmsg);
+        }
+
+        // stick the manager on the creation queue because we know
+        // we'll get our calls to objectAvailable()/requestFailed() in
+        // the order that we call createObject()
+        _createq.append(new Tuple(pmgr, observer));
+
+        // and request to create the place object
+        _omgr.createObject(pmgr.getPlaceObjectClass(), this);
+
+        return pmgr;
     }
 
     /**
