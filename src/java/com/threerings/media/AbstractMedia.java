@@ -1,10 +1,17 @@
 //
-// $Id: AbstractMedia.java,v 1.2 2002/11/05 20:50:42 mdb Exp $
+// $Id: AbstractMedia.java,v 1.3 2002/11/13 23:59:11 mdb Exp $
 
 package com.threerings.media;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Shape;
+
+import java.awt.geom.AffineTransform;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+
 import java.util.ArrayList;
 
 import com.samskivert.util.ObserverList;
@@ -14,6 +21,7 @@ import com.samskivert.util.StringUtil;
  * Something that can be rendered on the media panel.
  */
 public abstract class AbstractMedia
+    implements Shape
 {
     /**
      * Instantiate an abstract media object.
@@ -76,6 +84,61 @@ public abstract class AbstractMedia
     public Rectangle getBounds ()
     {
         return _bounds;
+    }
+
+    // documentation inherited from interface Shape
+    public Rectangle2D getBounds2D ()
+    {
+        return new Rectangle2D.Float(_bounds.x, _bounds.y,
+                                     _bounds.width, _bounds.height);
+    }
+
+    // documentation inherited from interface Shape
+    public boolean contains (double x, double y)
+    {
+        return _bounds.contains(x, y);
+    }
+
+    // documentation inherited from interface Shape
+    public boolean contains (Point2D p)
+    {
+        return _bounds.contains(p);
+    }
+
+    // documentation inherited from interface Shape
+    public boolean intersects (double x, double y, double w, double h)
+    {
+        return _bounds.intersects(x, y, w, h);
+    }
+
+    // documentation inherited from interface Shape
+    public boolean intersects (Rectangle2D r)
+    {
+        return _bounds.intersects(r);
+    }
+
+    // documentation inherited from interface Shape
+    public boolean contains (double x, double y, double w, double h)
+    {
+        return _bounds.contains(x, y, w, h);
+    }
+
+    // documentation inherited from interface Shape
+    public boolean contains (Rectangle2D r)
+    {
+        return _bounds.contains(r);
+    }
+
+    // documentation inherited from interface Shape
+    public PathIterator getPathIterator (AffineTransform at)
+    {
+        return _bounds.getPathIterator(at);
+    }
+
+    // documentation inherited from interface Shape
+    public PathIterator getPathIterator (AffineTransform at, double flatness)
+    {
+        return _bounds.getPathIterator(at, flatness);
     }
 
     /**
