@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.43 2004/08/27 02:12:41 mdb Exp $
+// $Id: SpriteManager.java,v 1.44 2004/10/30 04:33:08 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -26,6 +26,7 @@ import java.awt.Shape;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Iterator;
 
 import com.threerings.media.AbstractMediaManager;
 import com.threerings.media.RegionManager;
@@ -35,6 +36,14 @@ import com.threerings.media.RegionManager;
  */
 public class SpriteManager extends AbstractMediaManager
 {
+    /** A predicate used to operate on sprites (see {@link #removeSprites}. */
+    public static interface Predicate
+    {
+        /** Returns true if this sprite is to be included by the predicate,
+         * false if it should be excluded. */
+        public boolean evaluate (Sprite sprite);
+    }
+
     /**
      * Construct and initialize the sprite manager.
      */
@@ -52,8 +61,7 @@ public class SpriteManager extends AbstractMediaManager
      * a particular region to the given list.
      *
      * @param list the list to fill with any intersecting sprites.
-     * @param bounds the bounds the intersection of which we have
-     * interest.
+     * @param shape the shape in which we have interest.
      */
     public void getIntersectingSprites (List list, Shape shape)
     {
@@ -112,6 +120,15 @@ public class SpriteManager extends AbstractMediaManager
     }
 
     /**
+     * Returns an iterator over our managed sprites. Do not call
+     * {@link Iterator#remove}.
+     */
+    public Iterator enumerateSprites ()
+    {
+        return _media.iterator();
+    }
+
+    /**
      * Removes the specified sprite from the set of sprites managed by
      * this manager.
      *
@@ -120,6 +137,28 @@ public class SpriteManager extends AbstractMediaManager
     public void removeSprite (Sprite sprite)
     {
         removeMedia(sprite);
+    }
+
+    /**
+     * Removes all sprites that match the supplied predicate.
+     */
+    public void removeSprites (Predicate pred)
+    {
+        int idxoff = 0;
+        for (int ii = 0, ll = _media.size(); ii < ll; ii++) {
+            Sprite sprite = (Sprite)_media.get(ii-idxoff);
+            if (pred.evaluate(sprite)) {
+                _media.remove(sprite);
+                sprite.invalidate();
+                sprite.shutdown();
+                // we need to preserve the original "index" relative to the
+                // current tick position, so we don't decrement ii directly
+                idxoff++;
+                if (ii <= _tickpos) {
+                    _tickpos--;
+                }
+            }
+        }
     }
 
     /**
