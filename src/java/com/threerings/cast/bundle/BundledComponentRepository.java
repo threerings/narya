@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.15 2002/06/26 23:53:06 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.16 2002/07/24 22:24:05 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -263,11 +263,6 @@ public class BundledComponentRepository
         public ActionFrames getFrames (
             CharacterComponent component, String action)
         {
-            // load up the tileset for this action
-            String path = component.componentClass.name + "/" +
-                component.name + "/" + action +
-                BundleUtil.TILESET_EXTENSION;
-
             // obtain the action sequence definition for this action
             ActionSequence actseq = (ActionSequence)_actions.get(action);
             if (actseq == null) {
@@ -277,8 +272,21 @@ public class BundledComponentRepository
                 return null;
             }
 
+            // first try loading up a tileset customized for this action
+            String root = component.componentClass.name + "/" +
+                component.name + "/";
+            String path = root + action + BundleUtil.TILESET_EXTENSION;
+
             try {
-                TileSet aset = (TileSet)BundleUtil.loadObject(_bundle, path);
+                TileSet aset = null;
+                aset = (TileSet)BundleUtil.loadObject(_bundle, path);
+                if (aset == null) {
+                    Log.info("Falling back to default [path=" + path + "].");
+                    // try loading the default tileset
+                    path = root + ActionSequence.DEFAULT_SEQUENCE +
+                        BundleUtil.TILESET_EXTENSION;
+                    aset = (TileSet)BundleUtil.loadObject(_bundle, path);
+                }
                 aset.setImageProvider(this);
                 return new TileSetFrameImage(aset, actseq);
 

@@ -1,5 +1,5 @@
 //
-// $Id: ActionSequence.java,v 1.4 2002/06/26 23:53:06 mdb Exp $
+// $Id: ActionSequence.java,v 1.5 2002/07/24 22:24:05 mdb Exp $
 
 package com.threerings.cast;
 
@@ -15,6 +15,16 @@ import java.io.Serializable;
  */
 public class ActionSequence implements Serializable
 {
+    /**
+     * Defines the name of the default action sequence. When component
+     * tilesets are loaded to build a set of composited images for a
+     * particular action sequence, a check is first made for a component
+     * tileset specific to the action sequence and then for the
+     * component's default tileset if the action specific tileset did not
+     * exist.
+     */
+    public static final String DEFAULT_SEQUENCE = "default";
+
     /** The action sequence name. */
     public String name;
 
