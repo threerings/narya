@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.35 2002/06/20 21:42:53 mdb Exp $
+// $Id: CharacterSprite.java,v 1.36 2002/07/24 22:19:50 mdb Exp $
 
 package com.threerings.cast;
 
@@ -27,7 +27,7 @@ public class CharacterSprite extends ImageSprite
         _charmgr = charmgr;
 
         // assign an arbitrary starting orientation
-        _orient = NORTH;
+        _orient = SOUTHWEST;
 
         // pass the buck to derived classes
         didInit();
