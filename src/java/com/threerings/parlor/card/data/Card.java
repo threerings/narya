@@ -1,5 +1,5 @@
 //
-// $Id: Card.java,v 1.1 2004/10/13 02:03:26 andrzej Exp $
+// $Id: Card.java,v 1.2 2004/10/13 19:29:12 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -70,7 +70,7 @@ public class Card implements CardCodes,
      */
     public boolean isNumber()
     {
-        return number <= 11;
+        return number >= 2 && number <= 10;
     }
     
     /**
@@ -101,6 +101,19 @@ public class Card implements CardCodes,
     public boolean isJoker()
     {
         return number == JOKER;
+    }
+    
+    /**
+     * Checks whether or not this card is valid.  The no-arg public constructor
+     * for deserialization creates an invalid card.
+     *
+     * @return true if this card is valid, false if not
+     */
+    public boolean isValid()
+    {
+        return number == JOKER || 
+               (number >= 2 && number <= ACE &&
+                suit >= HEARTS && suit <= SPADES);
     }
     
     /**
