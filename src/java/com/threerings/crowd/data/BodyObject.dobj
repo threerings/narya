@@ -1,5 +1,5 @@
 //
-// $Id: BodyObject.dobj,v 1.5 2001/10/11 04:07:51 mdb Exp $
+// $Id: BodyObject.dobj,v 1.6 2002/02/03 03:09:06 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -29,8 +29,20 @@ public class BodyObject extends ClientObject
         requestAttributeChange(USERNAME, username);
     }
 
+    public void setUsernameImmediate (String username)
+    {
+        this.username = username;
+        requestAttributeChange(USERNAME, username);
+    }
+
     public void setLocation (int location)
     {
+        requestAttributeChange(LOCATION, new Integer(location));
+    }
+
+    public void setLocationImmediate (int location)
+    {
+        this.location = location;
         requestAttributeChange(LOCATION, new Integer(location));
     }
 
