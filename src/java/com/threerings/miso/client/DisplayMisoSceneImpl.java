@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.22 2001/08/10 21:17:07 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.23 2001/08/10 23:07:04 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -115,31 +115,45 @@ public class Scene
 	return ClusterUtil.getClusterIndex(_clusters, loc);
     }
 
-    public void updateLocation (int x, int y, int orient, int clusteridx)
+    public void updateLocation (Location loc, int clusteridx)
     {
 	// look the location up in our existing location list
 	int size = _locations.size();
-	Location loc = null;
 	for (int ii = 0; ii < size; ii++) {
 	    Location tloc = (Location)_locations.get(ii);
 
-	    if (tloc.x == x && tloc.y == y) {
-		// if we found it, update the location information
-		tloc.x = x;
-		tloc.y = y;
-		tloc.orient = orient;
-
-		// and update the cluster contents
+	    if (tloc == loc) {
+		// if we found it, just update the cluster contents
 		ClusterUtil.regroup(_clusters, tloc, clusteridx);
-
 		return;
 	    }
 	}
 
-	// else we didn't find a location object, so create one
-	_locations.add(loc = new Location(x, y, orient));
+	// else we didn't find it, so hold on to the sucker
+	_locations.add(loc);
+
+	// and update the cluster contents
 	ClusterUtil.regroup(_clusters, loc, clusteridx);
-}
+    }
+
+    /**
+     * Return the location object at the given full coordinates, or
+     * null if no location is currently present.
+     *
+     * @param x the full x-position coordinate.
+     * @param y the full y-position coordinate.
+     *
+     * @return the location object.
+     */
+    public Location getLocation (int x, int y)
+    {
+	int size = _locations.size();
+	for (int ii = 0; ii < size; ii++) {
+	    Location loc = (Location)_locations.get(ii);
+	    if (loc.x == x && loc.y == y) return loc;
+	}
+	return null;
+    }
 
     /**
      * Return the scene name.

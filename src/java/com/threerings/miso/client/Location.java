@@ -1,7 +1,9 @@
 //
-// $Id: Location.java,v 1.2 2001/08/10 00:47:34 shaper Exp $
+// $Id: Location.java,v 1.3 2001/08/10 23:07:04 shaper Exp $
 
 package com.threerings.miso.scene;
+
+import com.threerings.miso.sprite.Path;
 
 /**
  * The <code>Location</code> class represents a unique well-defined
@@ -31,6 +33,19 @@ public class Location
 	this.x = x;
 	this.y = y;
 	this.orient = orient;
+    }
+
+    /**
+     * Construct a <code>Location</code> object with a default orientation.
+     *
+     * @param x the x-position full coordinate.
+     * @param y the y-position full coordinate.
+     */
+    public Location (int x, int y)
+    {
+	this.x = x;
+	this.y = y;
+	this.orient = Path.DIR_SOUTHWEST;
     }
 
     /**

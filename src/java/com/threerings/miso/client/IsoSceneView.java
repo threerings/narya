@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.38 2001/08/10 21:17:07 shaper Exp $
+// $Id: IsoSceneView.java,v 1.39 2001/08/10 23:07:04 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -308,9 +308,9 @@ public class IsoSceneView implements EditableSceneView
     }
 
     /**
-     * Paint rectangular demarcations at all locations in the scene,
-     * with each location's cluster index, if any, along the right
-     * side of its rectangle.
+     * Paint demarcations at all locations in the scene, with each
+     * location's cluster index, if any, along the right side of its
+     * rectangle.
      *
      * @param gfx the graphics context.
      */
@@ -318,6 +318,13 @@ public class IsoSceneView implements EditableSceneView
     {
 	ArrayList locations = _scene.getLocations();
 	int size = locations.size();
+
+	// create the location triangle
+	Polygon tri = new Polygon();
+	tri.addPoint(-3, -3);
+	tri.addPoint(3, -3);
+	tri.addPoint(0, 3);
+
 	for (int ii = 0; ii < size; ii++) {
 
 	    // retrieve the location
@@ -331,16 +338,28 @@ public class IsoSceneView implements EditableSceneView
 
 	    int cx = spos.x, cy = spos.y;
 
-	    // outline the location in multiple colors to make sure
-	    // it's visible atop the unknown smorgasbord of potential tiles
+	    // translate the origin to center on the location
+	    gfx.translate(cx, cy);
+
+	    // rotate to reflect the location orientation
+	    double rot = (Math.PI / 4.0f) * loc.orient;
+	    gfx.rotate(rot);
+
+	    // draw the triangle
 	    gfx.setColor(Color.yellow);
-	    gfx.fillRect(cx - 1, cy - 1, 3, 3);
+	    gfx.fill(tri);
 
+	    // outline the triangle in black
+	    gfx.setColor(Color.black);
+	    gfx.draw(tri);
+
+	    // draw the rectangle
 	    gfx.setColor(Color.red);
-	    gfx.drawRect(cx - 2, cy - 2, 4, 4);
+  	    gfx.fillRect(-1, 2, 3, 3);
 
-	    gfx.setColor(Color.green);
-	    gfx.drawRect(cx - 3, cy - 3, 6, 6);
+	    // restore the original transform
+	    gfx.rotate(-rot);
+	    gfx.translate(-cx, -cy);
 
 	    if (clusteridx != -1) {
 		// draw the cluster index number on the right side
@@ -540,9 +559,19 @@ public class IsoSceneView implements EditableSceneView
         return path;
     }
 
-    public void updateLocation (int x, int y, int orient, int clusteridx)
+    public void updateLocation (Location loc, int clusteridx)
     {
-	_scene.updateLocation(x, y, orient, clusteridx);
+	_scene.updateLocation(loc, clusteridx);
+    }
+
+    public Location getLocation (int x, int y)
+    {
+	return _scene.getLocation(x, y);
+    }
+
+    public int getClusterIndex (Location loc)
+    {
+	return _scene.getClusterIndex(loc);
     }
 
     public int getNumClusters ()
