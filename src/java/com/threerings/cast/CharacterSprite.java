@@ -1,65 +1,70 @@
 //
-// $Id: CharacterSprite.java,v 1.17 2001/11/01 01:40:42 shaper Exp $
+// $Id: CharacterSprite.java,v 1.18 2001/11/27 08:09:35 mdb Exp $
 
 package com.threerings.cast;
 
-import java.awt.Point;
-
-import com.threerings.media.sprite.*;
-
-import com.threerings.cast.Log;
+import com.threerings.media.sprite.MultiFrameImage;
+import com.threerings.media.sprite.Path;
+import com.threerings.media.sprite.Sprite;
 
 /**
  * A character sprite is a sprite that animates itself while walking
  * about in a scene.
  */
-public class CharacterSprite extends Sprite
+public class CharacterSprite
+    extends Sprite implements StandardActions
 {
     /**
-     * Constructs a character sprite.
+     * Initializes this character sprite with the specified character
+     * descriptor and character manager. It will obtain animation data
+     * from the supplied character manager.
      */
-    public CharacterSprite ()
+    public void init (CharacterDescriptor descrip, CharacterManager charmgr)
     {
+        // keep track of this stuff
+        _descrip = descrip;
+        _charmgr = charmgr;
+
         // assign an arbitrary starting orientation
         _orient = DIR_NORTH;
     }
 
     /**
-     * Sets the action sequences available for this character sprite
-     * and the animation frames that go along with each action.
-     * Resets the character's currently selected action sequence to
-     * the standing sequence.
+     * Sets the action sequence used when rendering the character, from
+     * the set of available sequences.
      */
-    public void setAnimations (ActionSequence[] seqs,
-                               MultiFrameImage anims[][])
+    public void setActionSequence (String action)
     {
-        _seqs = seqs;
-        _anims = anims;
-        setActionSequence(WALKING);
-    }
+        // get a reference to the action sequence so that we can obtain
+        // our animation frames and configure our frames per second
+        ActionSequence actseq = _charmgr.getActionSequence(action);
+        if (actseq == null) {
+            String errmsg = "No such action '" + action + "'.";
+            throw new IllegalArgumentException(errmsg);
+        }
 
-    /**
-     * Sets the action sequence used when rendering the character,
-     * from the set of available sequences.
-     */
-    public void setActionSequence (int seqidx)
-    {
-        // save off the action sequence index
-        _seqidx = seqidx;
+        try {
+            // obtain our animation frames for this action sequence
+            _frames = _charmgr.getActionFrames(_descrip, action);
 
-        // update the sprite render attributes
-        ActionSequence seq = _seqs[_seqidx];
-        setFrames(_anims[_seqidx][_orient]);
-        setFrameRate(seq.fps);
-        setOrigin(seq.origin.x, seq.origin.y);
+            // update the sprite render attributes
+            setOrigin(actseq.origin.x, actseq.origin.y);
+            setFrameRate(actseq.framesPerSecond);
+            setFrames(_frames[_orient]);
+
+        } catch (NoSuchComponentException nsce) {
+            Log.warning("Character sprite referneces non-existent " +
+                        "component [sprite=" + this + ", err=" + nsce + "].");
+        }
     }
 
     // documentation inherited
     public void setOrientation (int orient)
     {
         super.setOrientation(orient);
+
         // update the sprite frames to reflect the direction
-        setActionSequence((_path == null) ? STANDING : WALKING);
+        setFrames(_frames[orient]);
     }
 
     /**
@@ -117,26 +122,22 @@ public class CharacterSprite extends Sprite
      */
     protected void halt ()
     {
+        // disable animation
+        setAnimationMode(NO_ANIMATION);
         // come to a halt looking settled and at peace
         setActionSequence(STANDING);
-        // disable walking animation
-        setAnimationMode(NO_ANIMATION);
     }
 
-    /** The action sequence constant for standing. */ 
-    protected static final int STANDING = 0;
+    /** A reference to the descriptor for the character that we're
+     * visualizing. */
+    protected CharacterDescriptor _descrip;
 
-    /** The action sequence constant for walking. */ 
-    protected static final int WALKING = 1;
+    /** A reference to the character manager that created us. */
+    protected CharacterManager _charmgr;
 
-    /** The currently selected action sequence. */
-    protected int _seqidx;
-
-    /** The available action sequences. */
-    protected ActionSequence _seqs[];
-
-    /** The animation frames for each action sequence and orientation. */
-    protected MultiFrameImage _anims[][];
+    /** The animation frames for the active action sequence in each
+     * orientation. */
+    protected MultiFrameImage[] _frames;
 
     /** The origin of the sprite. */
     protected int _xorigin, _yorigin;

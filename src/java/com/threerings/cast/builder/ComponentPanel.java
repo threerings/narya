@@ -1,7 +1,7 @@
 //
-// $Id: ComponentPanel.java,v 1.5 2001/11/18 04:09:21 mdb Exp $
+// $Id: ComponentPanel.java,v 1.6 2001/11/27 08:09:35 mdb Exp $
 
-package com.threerings.cast.tools.builder;
+package com.threerings.cast.builder;
 
 import java.util.List;
 import java.util.Map;
@@ -40,12 +40,10 @@ public class ComponentPanel extends JPanel
     protected void addClassEditors (BuilderModel model)
     {
         List classes = model.getComponentClasses();
-        Map components = model.getComponents();
-
         int size = classes.size();
         for (int ii = 0; ii < size; ii++) {
             ComponentClass cclass = (ComponentClass)classes.get(ii);
-            List ccomps = (List)components.get(new Integer(cclass.clid));
+            List ccomps = model.getComponents(cclass);
             add(new ClassEditor(model, cclass, ccomps));
         }
     }

@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.5 2001/11/26 23:48:04 mdb Exp $
+// $Id: ResourceManager.java,v 1.6 2001/11/27 08:09:35 mdb Exp $
 
 package com.threerings.resource;
 
@@ -186,7 +186,7 @@ public class ResourceManager
 
         while (tok.hasMoreTokens()) {
             // obtain the path and fully qualify it
-            String path = tok.nextToken();
+            String path = tok.nextToken().trim();
             if (!path.startsWith(File.separator)) {
                 path = appRoot + path;
             }

@@ -1,8 +1,9 @@
 //
-// $Id: CharacterDescriptor.java,v 1.3 2001/11/01 01:40:42 shaper Exp $
+// $Id: CharacterDescriptor.java,v 1.4 2001/11/27 08:09:34 mdb Exp $
 
 package com.threerings.cast;
 
+import java.util.Arrays;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -14,7 +15,7 @@ public class CharacterDescriptor
     /**
      * Constructs the character descriptor. 
      */
-    public CharacterDescriptor (int components[])
+    public CharacterDescriptor (int[] components)
     {
         _components = components;
     }
@@ -23,9 +24,34 @@ public class CharacterDescriptor
      * Returns an array of the component identifiers comprising the
      * character described by this descriptor.
      */
-    public int[] getComponents ()
+    public int[] getComponentIds ()
     {
         return _components;
+    }
+
+    /**
+     * Compute a sensible hashcode for this object.
+     */
+    public int hashCode ()
+    {
+        int code = 0, clength = _components.length;
+        for (int i = 0; i < clength; i++) {
+            code ^= _components[i];
+        }
+        return code;
+    }
+
+    /**
+     * Compares this character descriptor to another.
+     */
+    public boolean equals (Object other)
+    {
+        if (other instanceof CharacterDescriptor) {
+            return Arrays.equals(_components,
+                                 ((CharacterDescriptor)other)._components);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -33,9 +59,7 @@ public class CharacterDescriptor
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer();
-        buf.append("[").append(StringUtil.toString(_components));
-        return buf.append("]").toString();
+        return "[cids=" + StringUtil.toString(_components) + "]";
     }
 
     /** The component identifiers comprising the character. */

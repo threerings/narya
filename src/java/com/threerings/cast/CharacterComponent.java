@@ -1,7 +1,9 @@
 //
-// $Id: CharacterComponent.java,v 1.3 2001/11/01 01:40:42 shaper Exp $
+// $Id: CharacterComponent.java,v 1.4 2001/11/27 08:09:34 mdb Exp $
 
 package com.threerings.cast;
+
+import java.io.Serializable;
 
 import com.samskivert.util.StringUtil;
 
@@ -10,71 +12,43 @@ import com.threerings.media.sprite.Sprite;
 
 /**
  * The character component represents a single component that can be
- * composited with other character components to comprise an image
- * representing a single monolithic character displayable in any of
- * the eight cardinal compass directions as detailed in the {@link
- * com.threerings.media.sprite.Sprite} class's direction constants.
+ * composited with other character components to generate an image
+ * representing a complete character displayable in any of the eight
+ * compass directions as detailed in the {@link Sprite} class direction
+ * constants.
  */
-public class CharacterComponent
+public class CharacterComponent implements Serializable
 {
+    /** The unique component identifier. */
+    public int componentId;
+
+    /** The component's name. */
+    public String name;
+
+    /** The class of components to which this one belongs. */
+    public ComponentClass componentClass;
+
     /**
-     * Constructs a character component.
+     * Constructs a character component with the specified id of the
+     * specified class.
      */
-    public CharacterComponent (
-        int cid, String fileid, ActionSequence seqs[], ComponentClass cclass)
+    public CharacterComponent (int componentId, String name,
+                               ComponentClass compClass, FrameProvider fprov)
     {
-        _cid = cid;
-        _fileid = fileid;
-        _seqs = seqs;
-        _cclass = cclass;
+        this.componentId = componentId;
+        this.name = name;
+        this.componentClass = compClass;
+        _frameProvider = fprov;
     }
 
     /**
-     * Returns the unique component identifier.
+     * Returns the image frames for the specified action animation or null
+     * if no animation for the specified action is available for this
+     * component.
      */
-    public int getId ()
+    public MultiFrameImage[] getFrames (String action)
     {
-        return _cid;
-    }
-
-    /**
-     * Returns the action sequences for this component.
-     */
-    public ActionSequence[] getActionSequences ()
-    {
-        return _seqs;
-    }
-
-    /**
-     * Returns the display frames used to display this component.
-     */
-    public MultiFrameImage[][] getFrames ()
-    {
-        return _frames;
-    }
-
-    /**
-     * Returns the file id.
-     */
-    public String getFileId ()
-    {
-        return _fileid;
-    }
-
-    /**
-     * Returns the component class associated with this component.
-     */
-    public ComponentClass getComponentClass ()
-    {
-        return _cclass;
-    }
-
-    /**
-     * Sets the frames used to render this component.
-     */
-    public void setFrames (MultiFrameImage frames[][])
-    {
-        _frames = frames;
+        return _frameProvider.getFrames(this, action);
     }
 
     /**
@@ -82,22 +56,10 @@ public class CharacterComponent
      */
     public String toString ()
     {
-        return "[cid=" + _cid + ", clid=" + _cclass.clid +
-            ", seqs=" + StringUtil.toString(_seqs) + "]";
+        return "[componentId=" + componentId + ", name=" + name +
+            ", class=" + componentClass + "]";
     }
 
-    /** The unique character component identifier. */
-    protected int _cid;
-
-    /** The file id specifier for the tile set image file name. */
-    protected String _fileid;
-
-    /** The animation frames for each action sequence and orientation. */
-    protected MultiFrameImage _frames[][];
-
-    /** The component class. */
-    protected ComponentClass _cclass;
-
-    /** The character action sequences. */
-    protected ActionSequence _seqs[];
+    /** The entity from which we obtain our animation frames. */
+    protected FrameProvider _frameProvider;
 }

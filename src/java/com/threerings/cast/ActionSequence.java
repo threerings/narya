@@ -1,37 +1,25 @@
 //
-// $Id: ActionSequence.java,v 1.1 2001/11/01 01:40:42 shaper Exp $
+// $Id: ActionSequence.java,v 1.2 2001/11/27 08:09:34 mdb Exp $
 
 package com.threerings.cast;
 
 import java.awt.Point;
-
-import com.threerings.media.tile.TileSet;
+import java.io.Serializable;
 
 /**
- * The action sequence class describes a single character animation
- * sequence.  An animation sequence may consist of multiple frames of
- * animation, renders at a particular frame rate, and has an origin
- * point that specifies where the base of the character in the
- * animation sequence is to be placed.
+ * The action sequence class describes a particular character animation
+ * sequence. An animation sequence consists of one or more frames of
+ * animation, renders at a particular frame rate, and has an origin point
+ * that specifies the location of the base of the character in relation to
+ * the bounds of the animation images.
  */
-public class ActionSequence
+public class ActionSequence implements Serializable
 {
-    /** The unique action sequence identifier. */
-    public int asid;
-
     /** The action sequence name. */
     public String name;
 
-    /** The file id specifier for the tile set image file name. */
-    public String fileid;
-
-    /** The tile set description for this sequence.  Intended for
-     * cloning with an image path to reference an actual set of tile
-     * images suiting the action sequence.  */
-    public TileSet tileset;
-
     /** The number of frames per second to show when animating. */
-    public int fps;
+    public int framesPerSecond;
 
     /** The position of the character's base for this sequence. */
     public Point origin = new Point();
@@ -41,7 +29,7 @@ public class ActionSequence
      */
     public String toString ()
     {
-        return "[asid=" + asid + ", name=" + name +
-            ", fps=" + fps + ", origin=" + origin + "]";
+        return "[name=" + name + ", framesPerSecond=" + framesPerSecond +
+            ", origin=" + origin + "]";
     }
 }

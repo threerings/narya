@@ -1,34 +1,40 @@
 //
-// $Id: ComponentRepository.java,v 1.3 2001/11/01 01:40:42 shaper Exp $
+// $Id: ComponentRepository.java,v 1.4 2001/11/27 08:09:35 mdb Exp $
 
 package com.threerings.cast;
 
 import java.util.Iterator;
 
 /**
- * The component repository interface is intended to be implemented by
- * classes that provide access to {@link CharacterComponent} objects
- * keyed on their unique component identifier.
+ * Makes available a collection of character components and associated
+ * metadata. Character components are animated sequences that can be
+ * composited together to create a complete character visualization
+ * (imagine interchanging pairs of boots, torsos, hats, etc.).
  */
 public interface ComponentRepository
 {
     /**
      * Returns the {@link CharacterComponent} object for the given
-     * unique component identifier.
+     * component identifier.
      */
-    public CharacterComponent getComponent (int cid)
+    public CharacterComponent getComponent (int componentId)
         throws NoSuchComponentException;
 
     /**
-     * Returns an iterator over the {@link ComponentClass} objects
-     * representing all available character component classes.
+     * Iterates over the {@link ComponentClass} instances representing all
+     * available character component classes.
      */
     public Iterator enumerateComponentClasses ();
 
     /**
-     * Returns an iterator over the <code>Integer</code> objects
-     * representing all available character component identifiers for
-     * the given character component class identifier.
+     * Iterates over the {@link ActionSequence} instances representing
+     * every available action sequence.
      */
-    public Iterator enumerateComponentsByClass (int clid);
+    public Iterator enumerateActionSequences ();
+
+    /**
+     * Iterates over the component ids of all components in the specified
+     * class.
+     */
+    public Iterator enumerateComponentIds (ComponentClass compClass);
 }

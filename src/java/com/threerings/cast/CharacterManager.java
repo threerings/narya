@@ -1,11 +1,13 @@
 //
-// $Id: CharacterManager.java,v 1.9 2001/11/02 15:28:20 shaper Exp $
+// $Id: CharacterManager.java,v 1.10 2001/11/27 08:09:34 mdb Exp $
 
 package com.threerings.cast;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.HashMap;
 
-import com.samskivert.util.CollectionUtil;
+import com.samskivert.util.Tuple;
 
 import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.sprite.Sprite;
@@ -14,21 +16,47 @@ import com.threerings.cast.Log;
 import com.threerings.cast.util.TileUtil;
 
 /**
- * The character manager provides facilities for constructing sprites
- * that are used to represent characters in a scene.
+ * The character manager provides facilities for constructing sprites that
+ * are used to represent characters in a scene. It also handles the
+ * compositing and caching of composited character animations.
  */
 public class CharacterManager
 {
     /**
      * Constructs the character manager.
      */
-    public CharacterManager (ComponentRepository repo)
+    public CharacterManager (ComponentRepository crepo)
     {
         // keep this around
-        _repo = repo;
+        _crepo = crepo;
 
-        // determine component class render order
-        _renderRank = getRenderRank();
+        // populate our actions table
+        Iterator iter = crepo.enumerateActionSequences();
+        while (iter.hasNext()) {
+            ActionSequence action = (ActionSequence)iter.next();
+            _actions.put(action.name, action);
+        }
+    }
+
+    /**
+     * Instructs the character manager to construct instances of this
+     * derived class of {@link CharacterSprite} when creating new sprites.
+     *
+     * @exception IllegalArgumentException thrown if the supplied class
+     * does not derive from {@link CharacterSprite}.
+     */
+    public void setCharacterClass (Class charClass)
+    {
+        // sanity check
+        if (!CharacterSprite.class.isAssignableFrom(charClass)) {
+            String errmsg = "Requested to use character sprite class that " + 
+                "does not derive from CharacterSprite " +
+                "[class=" + charClass.getName() + "].";
+            throw new IllegalArgumentException(errmsg);
+        }
+
+        // make a note of it
+        _charClass = charClass;
     }
 
     /**
@@ -40,127 +68,12 @@ public class CharacterManager
      */
     public CharacterSprite getCharacter (CharacterDescriptor desc)
     {
-        long start = System.currentTimeMillis();
-
-        // get the array of component ids of each class
-        CharacterComponent components[] = getComponents(desc.getComponents());
-        if (components == null || components.length == 0) {
-            Log.warning("No character components in descriptor.");
-            return null;
-        }
-        // assume all components support the same set of action sequences
-        ActionSequence seqs[] = components[0].getActionSequences();
-
-        // create the composite character image
-        MultiFrameImage frames[][] =
-            createCompositeFrames(seqs.length, components);
-        if (frames == null) {
-            return null;
-        }
-
-        // instantiate the character sprite
-        CharacterSprite sprite = createSprite();
-        if (sprite == null) {
-            return null;
-        }
-
-        // populate the character sprite with its attributes
-        sprite.setAnimations(seqs, frames);
-
-        long end = System.currentTimeMillis();
-        Log.info("Generated character sprite [ms=" + (end - start) + "].");
-
-        return sprite;
-    }
-
-    /**
-     * Returns an iterator over the {@link ComponentClass} objects
-     * representing all available character component classes.
-     */
-    public Iterator enumerateComponentClasses ()
-    {
-        return _repo.enumerateComponentClasses();
-    }
-
-    /**
-     * Returns an iterator over the <code>Integer</code> objects
-     * representing all available character component identifiers for
-     * the given character component class identifier.
-     */
-    public Iterator enumerateComponentsByClass (int clid)
-    {
-        return _repo.enumerateComponentsByClass(clid);
-    }
-
-    /**
-     * Instructs the character manager to construct instances of this
-     * derived class of <code>CharacterSprite</code>.
-     */
-    public void setCharacterClass (Class charClass)
-    {
-        // sanity check
-        if (!CharacterSprite.class.isAssignableFrom(charClass)) {
-            Log.warning("Requested to use character class that does not " + 
-                        "derive from CharacterSprite " +
-                        "[class=" + charClass.getName() + "].");
-            return;
-        }
-
-        // make a note of it
-        _charClass = charClass;
-    }
-
-    /**
-     * Returns an array of the character component objects specified
-     * in the given array of component ids.
-     */
-    protected CharacterComponent[] getComponents (int cids[])
-    {
-        int size = cids.length;
-        CharacterComponent components[] = new CharacterComponent[size];
-
         try {
-            for (int ii = 0; ii < size; ii++) {
-                components[ii] = _repo.getComponent(cids[ii]);
-            }
+            CharacterSprite sprite = (CharacterSprite)
+                _charClass.newInstance();
+            sprite.init(desc, this);
+            return sprite;
 
-        } catch (NoSuchComponentException nsce) {
-            Log.warning("Exception retrieving character component " +
-                        "[nsce=" + nsce + "].");
-            return null;
-        }
-
-        return components;
-    }
-
-    /**
-     * Returns an array of multi frame images containing the fully
-     * composited images for the given action sequences and
-     * components.
-     */
-    protected MultiFrameImage[][] createCompositeFrames (
-        int seqCount, CharacterComponent components[])
-    {
-        MultiFrameImage frames[][] =
-            new MultiFrameImage[seqCount][Sprite.NUM_DIRECTIONS];
-
-        // render all component frames one atop another
-        for (int ii = 0; ii < _renderRank.length; ii++) {
-            int clidx = _renderRank[ii].clid;
-            TileUtil.compositeFrames(frames, components[clidx].getFrames());
-        }
-
-        return frames;
-    }
-
-    /**
-     * Returns a new instance of the {@link CharacterSprite}-derived
-     * class specified for use by this character manager.
-     */
-    protected CharacterSprite createSprite ()
-    {
-        try {
-            return (CharacterSprite)_charClass.newInstance();
         } catch (Exception e) {
             Log.warning("Failed to instantiate character sprite " +
                         "[e=" + e + "].");
@@ -170,27 +83,82 @@ public class CharacterManager
     }
 
     /**
-     * Returns an array of {@link ComponentClass} objects sorted into
-     * the appropriate rendering order as specified by each component
-     * class object.
+     * Returns the action sequence instance with the specified name or
+     * null if no such sequence exists.
      */
-    protected ComponentClass[] getRenderRank ()
+    protected ActionSequence getActionSequence (String action)
     {
-        ArrayList classes = new ArrayList();
-        CollectionUtil.addAll(classes, _repo.enumerateComponentClasses());
-
-        ComponentClass rank[] = new ComponentClass[classes.size()];
-        classes.toArray(rank);
-        Arrays.sort(rank, ComponentClass.RENDER_COMP);
-
-        return rank;
+        return (ActionSequence)_actions.get(action);
     }
 
-    /** The order in which to render component classes. */
-    protected ComponentClass _renderRank[];
+    /**
+     * Obtains the composited animation frames for the specified action
+     * for a character with the specified descriptor. The resulting
+     * composited animation will be cached.
+     *
+     * @exception NoSuchComponentException thrown if any of the components
+     * in the supplied descriptor do not exist.
+     * @exception IllegalArgumentException thrown if any of the components
+     * referenced in the descriptor do not support the specified action.
+     */
+    protected MultiFrameImage[] getActionFrames (
+        CharacterDescriptor descrip, String action)
+        throws NoSuchComponentException
+    {
+        // the cache is keyed on both values
+        Tuple key = new Tuple(descrip, action);
+        MultiFrameImage[] frames = (MultiFrameImage[])_frames.get(key);
+        if (frames == null) {
+            // do the compositing
+            frames = createCompositeFrames(descrip, action);
+            // cache the result
+            _frames.put(key, frames);
+        }
+        return frames;
+    }
+
+    /**
+     * Generates the composited animation frames for the specified action
+     * for a character with the specified descriptor.
+     *
+     * @exception NoSuchComponentException thrown if any of the components
+     * in the supplied descriptor do not exist.
+     * @exception IllegalArgumentException thrown if any of the components
+     * referenced in the descriptor do not support the specified action.
+     */
+    protected MultiFrameImage[] createCompositeFrames (
+        CharacterDescriptor descrip, String action)
+        throws NoSuchComponentException
+    {
+        MultiFrameImage[] frames = new MultiFrameImage[Sprite.NUM_DIRECTIONS];
+
+        // obtain the necessary components
+        int[] cids = descrip.getComponentIds();
+        int ccount = cids.length;
+        CharacterComponent[] components = new CharacterComponent[ccount];
+        for (int i = 0; i < ccount; i++) {
+            components[i] = _crepo.getComponent(cids[i]);
+        }
+
+        // sort them into the proper rendering order
+        Arrays.sort(components, ComponentClass.RENDER_COMP);
+
+        // now composite the component frames, one atop the next
+        for (int i = 0; i < ccount; i++) {
+            TileUtil.compositeFrames(frames, components[i].getFrames(action));
+        }
+
+        return frames;
+    }
 
     /** The component repository. */
-    protected ComponentRepository _repo;
+    protected ComponentRepository _crepo;
+
+    /** A table of our action sequences. */
+    protected HashMap _actions = new HashMap();
+
+    /** A cache of composited animation frames. */
+    protected HashMap _frames = new HashMap();
 
     /** The character class to be created. */
     protected Class _charClass = CharacterSprite.class;

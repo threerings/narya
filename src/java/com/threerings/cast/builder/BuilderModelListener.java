@@ -1,7 +1,7 @@
 //
-// $Id: BuilderModelListener.java,v 1.2 2001/11/18 04:09:21 mdb Exp $
+// $Id: BuilderModelListener.java,v 1.3 2001/11/27 08:09:35 mdb Exp $
 
-package com.threerings.cast.tools.builder;
+package com.threerings.cast.builder;
 
 /**
  * The builder model listener interface should be implemented by

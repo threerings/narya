@@ -1,29 +1,32 @@
 //
-// $Id: BuilderModel.java,v 1.3 2001/11/18 04:09:21 mdb Exp $
+// $Id: BuilderModel.java,v 1.4 2001/11/27 08:09:35 mdb Exp $
 
-package com.threerings.cast.tools.builder;
+package com.threerings.cast.builder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import com.samskivert.util.CollectionUtil;
-import com.samskivert.util.HashIntMap;
 
-import com.threerings.cast.CharacterManager;
+import com.threerings.cast.ComponentRepository;
 import com.threerings.cast.ComponentClass;
 
 /**
- * The builder model represents the current state of the character
- * the user is building.
+ * The builder model represents the current state of the character the
+ * user is building.
  */
 public class BuilderModel
 {
     /**
      * Constructs a builder model.
      */
-    public BuilderModel (CharacterManager charmgr)
+    public BuilderModel (ComponentRepository crepo)
     {
-        gatherComponentInfo(charmgr);
-        _selected = new int[_classes.size()];
+        gatherComponentInfo(crepo);
     }
 
     /**
@@ -58,28 +61,36 @@ public class BuilderModel
     }
 
     /**
-     * Returns a map of the components available for each component
-     * class, keyed on component class id.
+     * Returns the list of components available in the specified class.
      */
-    public Map getComponents ()
+    public List getComponents (ComponentClass cclass)
     {
-        return Collections.unmodifiableMap(_components);
+        List list = (List)_components.get(cclass);
+        if (list == null) {
+            list = new ArrayList();
+        }
+        return list;
     }
 
     /**
-     * Returns an array of the currently selected component ids.
+     * Returns the selected components in an array.
      */
     public int[] getSelectedComponents ()
     {
-        return _selected;
+        int[] values = new int[_selected.size()];
+        Iterator iter = _selected.values().iterator();
+        for (int i = 0; iter.hasNext(); i++) {
+            values[i] = ((Integer)iter.next()).intValue();
+        }
+        return values;
     }
 
     /**
-     * Sets the selected component for the given component class id.
+     * Sets the selected component for the given component class.
      */
-    public void setSelectedComponent (int clid, int cid)
+    public void setSelectedComponent (ComponentClass cclass, int cid)
     {
-        _selected[clid] = cid;
+        _selected.put(cclass, new Integer(cid));
         notifyListeners(BuilderModelListener.COMPONENT_CHANGED);
     }
 
@@ -87,22 +98,21 @@ public class BuilderModel
      * Gathers component class and component information from the
      * character manager for later reference by others.
      */
-    protected void gatherComponentInfo (CharacterManager charmgr)
+    protected void gatherComponentInfo (ComponentRepository crepo)
     {
         // get the list of all component classes
-        CollectionUtil.addAll(_classes, charmgr.enumerateComponentClasses());
+        CollectionUtil.addAll(_classes, crepo.enumerateComponentClasses());
 
         for (int ii = 0; ii < _classes.size(); ii++) {
             // get the list of components available for this class
-            int clid = ((ComponentClass)_classes.get(ii)).clid;
-            Iterator iter = charmgr.enumerateComponentsByClass(clid);
+            ComponentClass cclass = (ComponentClass)_classes.get(ii);
+            Iterator iter = crepo.enumerateComponentIds(cclass);
 
             while (iter.hasNext()) {
                 Integer cid = (Integer)iter.next();
-
-                ArrayList clist = (ArrayList)_components.get(clid);
+                ArrayList clist = (ArrayList)_components.get(cclass);
                 if (clist == null) {
-                    _components.put(clid, clist = new ArrayList());
+                    _components.put(cclass, clist = new ArrayList());
                 }
 
                 clist.add(cid);
@@ -111,10 +121,10 @@ public class BuilderModel
     }
 
     /** The currently selected character components. */
-    protected int _selected[];
+    protected HashMap _selected = new HashMap();
 
     /** The hashtable of available component ids for each class. */
-    protected HashIntMap _components = new HashIntMap();
+    protected HashMap _components = new HashMap();
 
     /** The list of all available component classes. */
     protected ArrayList _classes = new ArrayList();

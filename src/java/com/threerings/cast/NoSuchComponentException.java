@@ -1,5 +1,5 @@
 //
-// $Id: NoSuchComponentException.java,v 1.1 2001/10/26 01:17:21 shaper Exp $
+// $Id: NoSuchComponentException.java,v 1.2 2001/11/27 08:09:35 mdb Exp $
 
 package com.threerings.cast;
 
@@ -9,16 +9,16 @@ package com.threerings.cast;
  */
 public class NoSuchComponentException extends Exception
 {
-    public NoSuchComponentException (int cid)
+    public NoSuchComponentException (int componentId)
     {
-        super("No such component [cid=" + cid + "]");
-        _cid = cid;
+        super("No such component [componentId=" + componentId + "]");
+        _componentId = componentId;
     }
 
-    public int getId ()
+    public int getComponentId ()
     {
-        return _cid;
+        return _componentId;
     }
 
-    protected int _cid;
+    protected int _componentId;
 }

@@ -1,7 +1,7 @@
 //
-// $Id: ClassEditor.java,v 1.2 2001/11/18 04:09:21 mdb Exp $
+// $Id: ClassEditor.java,v 1.3 2001/11/27 08:09:35 mdb Exp $
 
-package com.threerings.cast.tools.builder;
+package com.threerings.cast.builder;
 
 import java.util.List;
 
@@ -17,20 +17,20 @@ import com.threerings.cast.Log;
 import com.threerings.cast.ComponentClass;
 
 /**
- * The class editor displays a label and a slider that allow the user
- * to select the desired component for a given component class.
+ * The class editor displays a label and a slider that allow the user to
+ * select the desired component for a given component class.
  */
 public class ClassEditor extends JPanel implements ChangeListener
 {
     /**
      * Constructs a class editor.
      */
-    public ClassEditor (BuilderModel model, ComponentClass cclass,
-                        List components)
+    public ClassEditor (
+        BuilderModel model, ComponentClass cclass, List components)
     {
         _model = model;
         _components = components;
-        _clid = cclass.clid;
+        _cclass = cclass;
 
         GroupLayout gl = new VGroupLayout(GroupLayout.STRETCH);
         gl.setOffAxisPolicy(GroupLayout.STRETCH);
@@ -76,11 +76,11 @@ public class ClassEditor extends JPanel implements ChangeListener
     protected void setSelectedComponent (int idx)
     {
         int cid = ((Integer)_components.get(idx)).intValue();
-        _model.setSelectedComponent(_clid, cid);
+        _model.setSelectedComponent(_cclass, cid);
     }
 
-    /** The component class id associated with this editor. */
-    protected int _clid;
+    /** The component class associated with this editor. */
+    protected ComponentClass _cclass;
 
     /** The components selectable via this editor. */
     protected List _components;

@@ -1,7 +1,7 @@
 //
-// $Id: SpritePanel.java,v 1.3 2001/11/18 04:09:21 mdb Exp $
+// $Id: SpritePanel.java,v 1.4 2001/11/27 08:09:35 mdb Exp $
 
-package com.threerings.cast.tools.builder;
+package com.threerings.cast.builder;
 
 import java.awt.*;
 import javax.swing.BorderFactory;

@@ -1,30 +1,25 @@
 //
-// $Id: BuilderPanel.java,v 1.4 2001/11/18 04:09:21 mdb Exp $
+// $Id: BuilderPanel.java,v 1.5 2001/11/27 08:09:35 mdb Exp $
 
-package com.threerings.cast.tools.builder;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Iterator;
+package com.threerings.cast.builder;
 
 import javax.swing.*;
-
 import com.samskivert.swing.*;
-import com.samskivert.util.StringUtil;
 
-import com.threerings.cast.*;
+import com.threerings.cast.CharacterManager;
+import com.threerings.cast.ComponentRepository;
 
 /**
- * The builder panel presents the user with an overview of a
- * composited character and facilities for altering the individual
- * components that comprise the character's display image.
+ * The builder panel presents the user with an overview of a composited
+ * character and facilities for altering the individual components that
+ * comprise the character's display image.
  */
 public class BuilderPanel extends JPanel
 {
     /**
      * Constructs the builder panel.
      */
-    public BuilderPanel (CharacterManager charmgr)
+    public BuilderPanel (CharacterManager charmgr, ComponentRepository crepo)
     {
         setLayout(new VGroupLayout());
 
@@ -35,7 +30,7 @@ public class BuilderPanel extends JPanel
         gl.setOffAxisPolicy(GroupLayout.STRETCH);
 
         // create the builder model
-        BuilderModel model = new BuilderModel(charmgr);
+        BuilderModel model = new BuilderModel(crepo);
 
         // create the component selection and sprite display panels
         JPanel sub = new JPanel(gl);
