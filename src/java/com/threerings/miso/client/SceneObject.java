@@ -1,5 +1,5 @@
 //
-// $Id: SceneObject.java,v 1.6 2003/04/25 01:15:00 mdb Exp $
+// $Id: SceneObject.java,v 1.7 2003/05/02 21:50:22 ray Exp $
 
 package com.threerings.miso.client;
 
@@ -71,9 +71,18 @@ public class SceneObject
      */
     public SceneObject (MisoScenePanel panel, ObjectInfo info, ObjectTile tile)
     {
+        this(panel.getSceneMetrics(), info, tile);
+    }
+
+    /**
+     * Creates a scene object for display according to the supplied metrics.
+     */
+    public SceneObject (
+        MisoSceneMetrics metrics, ObjectInfo info, ObjectTile tile)
+    {
         this.info = info;
         this.tile = tile;
-        computeInfo(panel.getSceneMetrics());
+        computeInfo(metrics);
     }
 
     /**
