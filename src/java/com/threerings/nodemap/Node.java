@@ -1,10 +1,15 @@
 //
-// $Id: Node.java,v 1.6 2001/10/11 00:41:27 shaper Exp $
+// $Id: Node.java,v 1.7 2002/06/15 01:59:25 shaper Exp $
 
 package com.threerings.nodemap;
 
-import java.awt.*;
-import java.util.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 
 import com.samskivert.swing.ToolTipProvider;
 import com.samskivert.swing.util.SwingUtil;
