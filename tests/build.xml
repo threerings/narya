@@ -42,8 +42,7 @@
   <!-- build the java class files -->
   <target name="compile" depends="prepare">
     <javac srcdir="${src.dir}" destdir="${deploy.dir}/classes"
-      debug="on" optimize="off" deprecation="off"
-      excludes="com/threerings/cast/builder/**">
+      debug="on" optimize="off" deprecation="off">
       <classpath refid="classpath"/>
     </javac>
   </target>
