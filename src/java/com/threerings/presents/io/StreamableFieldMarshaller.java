@@ -1,5 +1,5 @@
 //
-// $Id: StreamableFieldMarshaller.java,v 1.4 2002/02/19 03:30:55 mdb Exp $
+// $Id: StreamableFieldMarshaller.java,v 1.5 2002/03/06 23:45:01 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -7,6 +7,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+
+import com.samskivert.io.NestableIOException;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.io.Streamable;
 
@@ -16,11 +19,10 @@ public class StreamableFieldMarshaller implements FieldMarshaller
         throws IOException, IllegalAccessException
     {
         Streamable value = (Streamable)field.get(obj);
-        // we freak out if our streamable is null
         if (value == null) {
-            out.writeByte(0);
+            out.writeUTF("");
         } else {
-            out.writeByte(1);
+            out.writeUTF(value.getClass().getName());
             value.writeTo(out);
         }
     }
@@ -29,14 +31,15 @@ public class StreamableFieldMarshaller implements FieldMarshaller
         throws IOException, IllegalAccessException
     {
         try {
-            byte isNull = in.readByte();
             Streamable value = null;
+            String scnm = in.readUTF();
 
             // instantiate and unserialize the streamable if we actually
             // have a value
-            if (isNull == 1) {
+            if (!StringUtil.blank(scnm)) {
+                Class sclass = Class.forName(scnm);
                 // create a new instance into which to unmarshall the field
-                value = (Streamable)field.getType().newInstance();
+                value = (Streamable)sclass.newInstance();
                 // unserialize it
                 value.readFrom(in);
             }
@@ -44,10 +47,10 @@ public class StreamableFieldMarshaller implements FieldMarshaller
             // and set the value in the object
             field.set(obj, value);
 
-        } catch (InstantiationException ie) {
-            throw new IOException("Unable to instantiate streamable " +
-                                  "[field=" + field + ", object=" + obj +
-                                  ", error=" + ie + "]");
+        } catch (Exception e) {
+            String errmsg = "Unable to instantiate streamable " +
+                "[field=" + field + ", object=" + obj + "]";
+            throw new NestableIOException(errmsg, e);
         }
     }
 }
