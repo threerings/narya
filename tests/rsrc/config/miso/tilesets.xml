@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: tilesets.xml,v 1.13 2001/08/30 19:15:10 shaper Exp $ -->
+<!-- $Id: tilesets.xml,v 1.14 2001/09/05 00:38:35 shaper Exp $ -->
 
 <!-- Initial test tileset description data. -->
 
@@ -102,6 +102,15 @@
     <rowwidth>64</rowwidth>
     <tilecount>6</tilecount>
     <passable>0, 0, 0, 0, 0, 0</passable>
+  </tileset>
+
+  <tileset>
+    <name>Sword Pieces</name>
+    <tsid>1010</tsid>
+    <imagefile>media/miso/tiles/sword-pieces.png</imagefile>
+    <rowheight>10</rowheight>
+    <rowwidth>10</rowwidth>
+    <tilecount>4</tilecount>
   </tileset>
 
 </tilesetgroup>
