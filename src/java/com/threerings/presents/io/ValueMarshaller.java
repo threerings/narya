@@ -1,5 +1,5 @@
 //
-// $Id: ValueMarshaller.java,v 1.5 2001/10/11 04:07:52 mdb Exp $
+// $Id: ValueMarshaller.java,v 1.6 2001/10/19 18:03:28 mdb Exp $
 
 package com.threerings.presents.dobj.io;
 
@@ -475,7 +475,7 @@ public class ValueMarshaller
             String[] data = (String[])value;
             out.writeInt(data.length);
             for (int i = 0; i < data.length; i++) {
-                out.writeUTF(data[i]);
+                out.writeUTF((data[i] == null) ? "" : data[i]);
             }
         }
 

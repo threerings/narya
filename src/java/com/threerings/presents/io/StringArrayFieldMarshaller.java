@@ -1,5 +1,5 @@
 //
-// $Id: StringArrayFieldMarshaller.java,v 1.1 2001/10/17 02:48:11 mdb Exp $
+// $Id: StringArrayFieldMarshaller.java,v 1.2 2001/10/19 18:03:28 mdb Exp $
 
 package com.threerings.presents.dobj.io;
 
@@ -26,7 +26,7 @@ public class StringArrayFieldMarshaller implements FieldMarshaller
         } else {
             out.writeInt(value.length);
             for (int i = 0; i < value.length; i++) {
-                out.writeUTF(value[i]);
+                out.writeUTF((value[i] == null) ? "" : value[i]);
             }
         }
     }
