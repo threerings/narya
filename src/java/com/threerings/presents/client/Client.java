@@ -1,5 +1,5 @@
 //
-// $Id: Client.java,v 1.41 2003/08/12 01:01:09 mdb Exp $
+// $Id: Client.java,v 1.42 2003/09/25 15:57:38 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -550,7 +550,7 @@ public class Client
         _serverDelta = _dcalc.getTimeDelta();
 
         if (done) {
-            Log.info("Time offset from server: " + _serverDelta + "ms.");
+            Log.debug("Time offset from server: " + _serverDelta + "ms.");
             _dcalc = null;
         }
     }
