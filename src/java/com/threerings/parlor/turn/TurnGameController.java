@@ -1,9 +1,10 @@
 //
-// $Id: TurnGameController.java,v 1.1 2001/10/12 00:30:10 mdb Exp $
+// $Id: TurnGameController.java,v 1.2 2001/10/18 20:53:23 mdb Exp $
 
 package com.threerings.parlor.turn;
 
 import com.threerings.presents.dobj.*;
+import com.threerings.crowd.data.BodyObject;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.game.GameController;
@@ -34,5 +35,17 @@ public abstract class TurnGameController extends GameController
     protected void turnDidChange (String turnHolder)
     {
         Log.info("Turn changed [holder=" + turnHolder + "].");
+    }
+
+    /**
+     * Returns true if the game is in progress and it is our turn; false
+     * otherwise.
+     */
+    protected boolean isOurTurn ()
+    {
+        TurnGameObject turnGame = (TurnGameObject)_gobj;
+        BodyObject self = (BodyObject)_ctx.getClient().getClientObject();
+        return (turnGame.state == TurnGameObject.IN_PLAY &&
+                turnGame.turnHolder.equals(self.username));
     }
 }
