@@ -1,9 +1,14 @@
 //
-// $Id: FrameTest.java,v 1.8 2002/07/23 05:56:53 mdb Exp $
+// $Id: FrameTest.java,v 1.9 2002/12/10 19:38:56 mdb Exp $
 
 package com.threerings.io;
 
 import java.io.*;
+
+import java.nio.channels.Pipe;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
+import java.nio.channels.spi.SelectorProvider;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -15,7 +20,7 @@ public class FrameTest extends TestCase
         super(FrameTest.class.getName());
     }
 
-    public void writeFrames (OutputStream out)
+    public void writeFrames (WritableByteChannel out)
         throws IOException
     {
         FramingOutputStream fout = new FramingOutputStream();
@@ -25,18 +30,21 @@ public class FrameTest extends TestCase
         dout.writeUTF(STRING1);
         dout.writeUTF(STRING2);
         dout.writeUTF(STRING3);
-        fout.writeFrameAndReset(out);
+        out.write(fout.frameAndReturnBuffer());
+        fout.resetFrame();
 
         dout.writeUTF(STRING4);
         dout.writeUTF(STRING5);
         dout.writeUTF(STRING6);
-        fout.writeFrameAndReset(out);
+        out.write(fout.frameAndReturnBuffer());
+        fout.resetFrame();
 
         dout.writeUTF(STRING7);
-        fout.writeFrameAndReset(out);
+        out.write(fout.frameAndReturnBuffer());
+        fout.resetFrame();
     }
 
-    public void readFrames (InputStream in)
+    public void readFrames (ReadableByteChannel in)
         throws IOException
     {
         FramedInputStream fin = new FramedInputStream();
@@ -65,12 +73,9 @@ public class FrameTest extends TestCase
     public void runTest ()
     {
         try {
-            ByteArrayOutputStream bout = new ByteArrayOutputStream();
-            writeFrames(bout);
-
-            byte[] data = bout.toByteArray();
-            ByteArrayInputStream bin = new ByteArrayInputStream(data);
-            readFrames(bin);
+            Pipe pipe = SelectorProvider.provider().openPipe();
+            writeFrames(pipe.sink());
+            readFrames(pipe.source());
 
         } catch (IOException ioe) {
             ioe.printStackTrace(System.err);
@@ -80,6 +85,12 @@ public class FrameTest extends TestCase
     public static Test suite ()
     {
         return new FrameTest();
+    }
+
+    public static void main (String[] args)
+    {
+        FrameTest test = new FrameTest();
+        test.runTest();
     }
 
     protected static final String STRING1 = "This is a test.";
