@@ -1,10 +1,15 @@
 //
-// $Id: MiCasaApp.java,v 1.1 2001/10/03 23:24:09 mdb Exp $
+// $Id: MiCasaApp.java,v 1.2 2001/10/25 23:03:29 mdb Exp $
 
 package com.threerings.micasa.client;
 
 import java.io.IOException;
 import com.samskivert.swing.util.SwingUtil;
+
+import com.threerings.presents.client.Client;
+import com.threerings.presents.net.Credentials;
+import com.threerings.presents.net.UsernamePasswordCreds;
+
 import com.threerings.micasa.Log;
 
 /**
@@ -30,6 +35,17 @@ public class MiCasaApp
         _frame.setSize(800, 600);
         SwingUtil.centerWindow(_frame);
         _frame.show();
+
+        // configure the client with some credentials and logon
+        String username = System.getProperty("username");
+        if (username == null) {
+            username =
+                "bob" + ((int)(Math.random() * Integer.MAX_VALUE) % 500);
+        }
+        Credentials creds = new UsernamePasswordCreds(username, "test");
+        Client client = _client.getContext().getClient();
+        client.setCredentials(creds);
+        client.logon();
     }
 
     public static void main (String[] args)
