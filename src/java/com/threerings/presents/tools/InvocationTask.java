@@ -253,6 +253,12 @@ public abstract class InvocationTask extends Task
     /** Performs the actual work of the task. */
     public void execute () throws BuildException
     {
+        if (_cloader == null) {
+            String errmsg = "This task requires a 'classpathref' attribute " +
+                "to be set to the project's classpath.";
+            throw new BuildException(errmsg);
+        }
+
         try {
             _velocity = VelocityUtil.createEngine();
         } catch (Exception e) {
@@ -312,12 +318,15 @@ public abstract class InvocationTask extends Task
 
         try {
             processService(source, _cloader.loadClass(name));
-        } catch (Exception e) {
+        } catch (ClassNotFoundException cnfe) {
             System.err.println(
-                "Failed to load " + name + ": " + e.getMessage());
-            System.err.println("Make sure the classes for which you will " +
-                               "be generating interfaces are");
-            System.err.println("in ant's classpath.");
+                "Failed to load " + name + ".\n" +
+                "Missing class: " + cnfe.getMessage());
+            System.err.println(
+                "Be sure to set the 'classpathref' attribute to a classpath\n" +
+                "that contains your projects invocation service classes.");
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
         }
     }
 
@@ -376,5 +385,5 @@ public abstract class InvocationTask extends Task
 
     /** A regular expression for matching the interface declaration. */
     protected static final Pattern NAME_PATTERN =
-        Pattern.compile("^\\s*public\\s+interface\\s+(\\S+)\\W");
+        Pattern.compile("^\\s*public\\s+interface\\s+(\\S+)(\\W|$)");
 }
