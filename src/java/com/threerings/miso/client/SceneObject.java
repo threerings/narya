@@ -1,5 +1,5 @@
 //
-// $Id: SceneObject.java,v 1.9 2003/05/31 00:52:15 mdb Exp $
+// $Id: SceneObject.java,v 1.10 2004/01/11 08:24:16 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -139,6 +139,15 @@ public class SceneObject
     public Point getObjectSpot ()
     {
         return _fspot;
+    }
+
+    /**
+     * Returns the location associated with this object's "spot" in screen
+     * coordinates or null if it has no spot.
+     */
+    public Point getObjectScreenSpot ()
+    {
+        return _sspot;
     }
 
     /**
