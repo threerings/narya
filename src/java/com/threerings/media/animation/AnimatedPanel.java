@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.17 2002/02/21 06:01:28 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.18 2002/03/08 01:37:51 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -152,6 +152,9 @@ public class AnimatedPanel extends Canvas implements AnimatedView
         Dimension size = getSize(), vsize = getViewSize();
         _tx = (vsize.width - size.width)/2;
         _ty = (vsize.height - size.height)/2;
+
+//         Log.info("Size: " + size + ", vsize: " + vsize +
+//                  ", tx: " + _ty + ", ty: " + _ty + ".");
     }
 
     // documentation inherited
