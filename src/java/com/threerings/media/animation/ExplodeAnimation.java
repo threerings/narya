@@ -1,5 +1,5 @@
 //
-// $Id: ExplodeAnimation.java,v 1.4 2002/01/15 18:10:25 shaper Exp $
+// $Id: ExplodeAnimation.java,v 1.5 2002/01/19 06:06:05 shaper Exp $
 
 package com.threerings.media.animation;
 
@@ -13,62 +13,108 @@ import com.threerings.media.Log;
 import com.threerings.media.util.RandomUtil;
 
 /**
- * An animation that displays an image exploding into chunks.  The
- * animation ends when all image chunks have exited the animation bounds.
+ * An animation that displays an object exploding into chunks.  The
+ * animation ends when all chunks have exited the animation bounds.
  */
 public class ExplodeAnimation extends Animation
 {
     /**
-     * Constructs an explode animation.
+     * A class that describes an explosion's attributes.
+     */
+    public static class ExplodeInfo {
+        /** The bounds within which to animate. */
+        public Rectangle bounds;
+
+        /** The number of image chunks on each axis. */
+        public int xchunk, ychunk;
+
+        /** The maximum chunk velocity on each axis in pixels per
+         * millisecond. */
+        public float xvel, yvel;
+
+        /** The y-axis chunk acceleration in pixels per millisecond. */
+        public float yacc;
+
+        /** The chunk rotational velocity in rotations per millisecond. */
+        public float rvel;
+    }
+
+    /**
+     * Constructs an explode animation with the chunks represented as
+     * filled rectangles of the specified color.
      *
-     * @param bounds the bounds within which to animate.
-     * @param image the image to animate.
-     * @param xchunk the number of image chunks on the x-axis.
-     * @param ychunk the number of image chunks on the y-axis.
-     * @param sx the starting x-position.
-     * @param sy the starting y-position.
-     * @param xvel the maximum x-axis chunk velocity in pixels per millisecond.
-     * @param yvel the maximum y-axis chunk velocity in pixels per millisecond.
-     * @param yacc the y-axis chunk acceleration in pixels per millisecond.
-     * @param rvel the chunk rotation velocity in rotations per millisecond.
+     * @param color the color to render the chunks in.
+     * @param info the explode info object.
+     * @param x the x-position of the object.
+     * @param y the y-position of the object.
+     * @param width the width of the object.
+     * @param height the height of the object.
      */
     public ExplodeAnimation (
-        Rectangle bounds, Image image, int xchunk, int ychunk,
-        int sx, int sy, float xvel, float yvel, float yacc, float rvel)
+        Color color, ExplodeInfo info, int x, int y, int width, int height)
     {
-        super(bounds);
+        super(info.bounds);
 
-        // save things off
+        _color = color;
+        init(info, x, y, width, height);
+    }
+
+    /**
+     * Constructs an explode animation with the chunks represented as
+     * portions of the actual image.
+     *
+     * @param image the image to animate.
+     * @param info the explode info object.
+     * @param x the x-position of the object.
+     * @param y the y-position of the object.
+     * @param width the width of the object.
+     * @param height the height of the object.
+     */
+    public ExplodeAnimation (
+        Image image, ExplodeInfo info, int x, int y, int width, int height)
+    {
+        super(info.bounds);
+
         _image = image;
-        _xchunk = xchunk;
-        _ychunk = ychunk;
-        _sx = sx;
-        _sy = sy;
-        _yacc = yacc;
+        init(info, x, y, width, height);
+    }
 
-        _rvel = (float)((2.0f * Math.PI) * rvel);
-        _chunkcount = (_xchunk * _ychunk);
+    /**
+     * Initializes the animation with the attributes of the given explode
+     * info object.
+     */
+    protected void init (ExplodeInfo info, int x, int y, int width, int height)
+    {
+        _info = info;
+        _ox = x;
+        _oy = y;
+        _owid = width;
+        _ohei = height;
+
+        _info.rvel = (float)((2.0f * Math.PI) * _info.rvel);
+        _chunkcount = (_info.xchunk * _info.ychunk);
         _cpos = new int[_chunkcount];
         _sxvel = new float[_chunkcount];
         _syvel = new float[_chunkcount];
 
         // determine chunk dimensions
-        _cwid = image.getWidth(null) / _xchunk;
-        _chei = image.getHeight(null) / _ychunk;
+        _cwid = _owid / _info.xchunk;
+        _chei = _ohei / _info.ychunk;
         _hcwid = _cwid / 2;
         _hchei = _chei / 2;
 
         // initialize all chunks
         for (int ii = 0; ii < _chunkcount; ii++) {
             // initialize chunk position
-            int xpos = ii % _xchunk;
-            int ypos = ii / _xchunk;
-            _cpos[ii] = ((sx + (xpos * _cwid)) << 16 | (sy + (ypos * _chei)));
+            int xpos = ii % _info.xchunk;
+            int ypos = ii / _info.xchunk;
+            _cpos[ii] = ((_ox + (xpos * _cwid)) << 16 |
+                         (_oy + (ypos * _chei)));
 
             // initialize chunk velocity
-            _sxvel[ii] = RandomUtil.getFloat(xvel) *
-                ((xpos < (_xchunk / 2)) ? -1.0f : 1.0f);
-            _syvel[ii] = -(RandomUtil.getFloat(yvel));
+            _sxvel[ii] = RandomUtil.getFloat(_info.xvel) *
+                ((xpos < (_info.xchunk / 2)) ? -1.0f : 1.0f);
+            _syvel[ii] = -(RandomUtil.getFloat(_info.yvel));
         }
 
         // initialize the chunk rotation angle
@@ -98,16 +144,16 @@ public class ExplodeAnimation extends Animation
 
             // determine the chunk travel distance
             int xtrav = (int)(_sxvel[ii] * msecs);
-            int ytrav =
-                (int)((_syvel[ii] * msecs) + (0.5f * _yacc * (msecs * msecs)));
+            int ytrav = (int)((_syvel[ii] * msecs) +
+                              (0.5f * _info.yacc * (msecs * msecs)));
 
             // determine the chunk movement direction
-            int xpos = ii % _xchunk;
-            int ypos = ii / _xchunk;
+            int xpos = ii % _info.xchunk;
+            int ypos = ii / _info.xchunk;
 
             // update the chunk position
-            x = _sx + (xpos * _cwid) + xtrav;
-            y = _sy + (ypos * _chei) + ytrav;
+            x = _ox + (xpos * _cwid) + xtrav;
+            y = _oy + (ypos * _chei) + ytrav;
             _cpos[ii] = (x << 16 | y);
 
             // note whether this chunk is still within our bounds
@@ -117,7 +163,7 @@ public class ExplodeAnimation extends Animation
         }
 
         // increment the rotation angle
-        _angle += _rvel;
+        _angle += _info.rvel;
 
         _finished = (inside == 0);
         invalidate();
@@ -132,8 +178,8 @@ public class ExplodeAnimation extends Animation
             int y = _cpos[ii] & 0xFFFF;
 
             // get the chunk position within the image
-            int xpos = ii % _xchunk;
-            int ypos = ii / _xchunk;
+            int xpos = ii % _info.xchunk;
+            int ypos = ii / _info.xchunk;
 
             // calculate image chunk offset
             int xoff = -(xpos * _cwid);
@@ -149,10 +195,17 @@ public class ExplodeAnimation extends Animation
             // set up the desired rotation
             gfx.rotate(_angle);
 
-            // draw the image chunk
-            gfx.clipRect(-_hcwid, -_hchei, _cwid, _chei);
-            gfx.drawImage(_image, -_hcwid + xoff, -_hchei + yoff, null);
-            gfx.setClip(oclip);
+            if (_image != null) {
+                // draw the image chunk
+                gfx.clipRect(-_hcwid, -_hchei, _cwid, _chei);
+                gfx.drawImage(_image, -_hcwid + xoff, -_hchei + yoff, null);
+                gfx.setClip(oclip);
+
+            } else {
+                // draw the color chunk
+                gfx.setColor(_color);
+                gfx.fillRect(-_hcwid, -_hchei, _cwid, _chei);
+            }
 
             // restore the original transform
             gfx.rotate(-_angle);
@@ -165,8 +218,8 @@ public class ExplodeAnimation extends Animation
     {
         super.toString(buf);
 
-        buf.append(", sx=").append(_sx);
-        buf.append(", sy=").append(_sy);
+        buf.append(", sx=").append(_ox);
+        buf.append(", sy=").append(_oy);
     }
 
     /** The current chunk rotation. */
@@ -178,9 +231,6 @@ public class ExplodeAnimation extends Animation
     /** The starting y-axis velocity of each chunk. */
     protected float[] _syvel;
 
-    /** The y-axis acceleration in pixels per millisecond. */
-    protected float _yacc;
-
     /** The current position of each chunk. */
     protected int[] _cpos;
 
@@ -191,19 +241,19 @@ public class ExplodeAnimation extends Animation
      * repeated calculations. */
     protected int _hcwid, _hchei;
 
-    /** The chunk rotational velocity in radians. */
-    protected float _rvel;
-
-    /** The starting position. */
-    protected int _sx, _sy;
-
     /** The total number of image chunks. */
     protected int _chunkcount;
 
-    /** The number of image chunks on each axis. */
-    protected int _xchunk, _ychunk;
+    /** The explode info. */
+    protected ExplodeInfo _info;
 
-    /** The image to animate. */
+    /** The exploding object position and dimensions. */
+    protected int _ox, _oy, _owid, _ohei;
+
+    /** The color to render the object chunks in if we're using a color. */
+    protected Color _color;
+
+    /** The image to animate if we're using an image. */
     protected Image _image;
 
     /** The starting animation time. */
