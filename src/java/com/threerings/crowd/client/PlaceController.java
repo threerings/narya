@@ -1,5 +1,5 @@
 //
-// $Id: PlaceController.java,v 1.6 2002/02/13 03:21:28 mdb Exp $
+// $Id: PlaceController.java,v 1.7 2002/02/14 00:00:45 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -132,7 +132,7 @@ public abstract class PlaceController
      */
     public boolean handleAction (final ActionEvent action)
     {
-        final boolean[] handled = new boolean[0];
+        final boolean[] handled = new boolean[1];
 
         // let our delegates have a crack at the action
         applyToDelegates(new DelegateOp() {
