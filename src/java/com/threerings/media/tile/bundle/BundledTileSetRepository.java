@@ -1,5 +1,5 @@
 //
-// $Id: BundledTileSetRepository.java,v 1.9 2003/01/13 22:49:47 mdb Exp $
+// $Id: BundledTileSetRepository.java,v 1.10 2003/01/14 02:52:04 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -43,8 +43,23 @@ public class BundledTileSetRepository
      * @param name the name of the resource set from which we will be
      * loading our tile data.
      */
-    public BundledTileSetRepository (ResourceManager rmgr, ImageManager imgr,
-                                     String name)
+    public BundledTileSetRepository (final ResourceManager rmgr,
+                                     final ImageManager imgr,
+                                     final String name)
+    {
+        // unpack our bundles in the background
+        new Thread(new Runnable() {
+            public void run () {
+                initBundles(rmgr, imgr, name);
+            }
+        }).start();
+    }
+
+    /**
+     * Initializes our bundles, 
+     */
+    protected void initBundles (
+        ResourceManager rmgr, ImageManager imgr, String name)
     {
         // first we obtain the resource set from which we will load up our
         // tileset bundles
@@ -79,13 +94,19 @@ public class BundledTileSetRepository
         }
 
         // finally create one big fat array of all of the tileset bundles
-        _bundles = new TileSetBundle[tbundles.size()];
-        tbundles.toArray(_bundles);
+        TileSetBundle[] bundles = new TileSetBundle[tbundles.size()];
+        tbundles.toArray(bundles);
 
         // create image providers for our bundles
-        _improvs = new IMImageProvider[_bundles.length];
-        for (int ii = 0; ii < _bundles.length; ii++) {
-            _improvs[ii] = new IMImageProvider(imgr, _bundles[ii]);
+        _improvs = new IMImageProvider[bundles.length];
+        for (int ii = 0; ii < bundles.length; ii++) {
+            _improvs[ii] = new IMImageProvider(imgr, bundles[ii]);
+        }
+
+        // fill in our bundles array and wake up any waiters
+        synchronized (this) {
+            _bundles = bundles;
+            notifyAll();
         }
     }
 
@@ -93,6 +114,7 @@ public class BundledTileSetRepository
     public Iterator enumerateTileSetIds ()
         throws PersistenceException
     {
+        waitForBundles();
         return new CompoundIterator(new IteratorProvider() {
             public Iterator nextIterator () {
                 if (_bidx < _bundles.length) {
@@ -109,6 +131,7 @@ public class BundledTileSetRepository
     public Iterator enumerateTileSets ()
         throws PersistenceException
     {
+        waitForBundles();
         return new CompoundIterator(new IteratorProvider() {
             public Iterator nextIterator () {
                 if (_bidx < _bundles.length) {
@@ -125,6 +148,7 @@ public class BundledTileSetRepository
     public TileSet getTileSet (int tileSetId)
         throws NoSuchTileSetException, PersistenceException
     {
+        waitForBundles();
         TileSet tset = null;
         int blength = _bundles.length;
         for (int i = 0; i < blength; i++) {
@@ -141,6 +165,7 @@ public class BundledTileSetRepository
     public TileSet getTileSet (String setName)
         throws NoSuchTileSetException, PersistenceException
     {
+        waitForBundles();
         int bcount = _bundles.length;
         for (int ii = 0; ii < bcount; ii++) {
             TileSetBundle tsb = _bundles[ii];
@@ -155,6 +180,18 @@ public class BundledTileSetRepository
             }
         }
         return null;
+    }
+
+    /** Used to allow bundle unpacking to proceed asynchronously. */
+    protected synchronized void waitForBundles ()
+    {
+        while (_bundles == null) {
+            try {
+                wait();
+            } catch (InterruptedException ie) {
+                Log.warning("Interrupted waiting for bundles " + ie);
+            }
+        }
     }
 
     /** An array of tileset bundles from which we obtain tilesets. */
