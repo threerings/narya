@@ -1,5 +1,5 @@
 //
-// $Id: TableLobbyObject.java,v 1.6 2003/02/26 17:54:56 mdb Exp $
+// $Id: TableLobbyObject.java,v 1.7 2003/04/30 22:45:57 mdb Exp $
 
 package com.threerings.micasa.lobby.table;
 
@@ -83,7 +83,7 @@ public class TableLobbyObject
      */
     public void setTableSet (DSet tableSet)
     {
-        this.tableSet = tableSet;
         requestAttributeChange(TABLE_SET, tableSet);
+        this.tableSet = tableSet;
     }
 }

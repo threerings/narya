@@ -1,5 +1,5 @@
 //
-// $Id: ClientObject.java,v 1.6 2003/02/26 17:54:56 mdb Exp $
+// $Id: ClientObject.java,v 1.7 2003/04/30 22:45:57 mdb Exp $
 
 package com.threerings.presents.data;
 
@@ -105,7 +105,7 @@ public class ClientObject extends DObject
      */
     public void setReceivers (DSet receivers)
     {
-        this.receivers = receivers;
         requestAttributeChange(RECEIVERS, receivers);
+        this.receivers = receivers;
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: PlaceObject.java,v 1.10 2003/02/26 17:54:55 mdb Exp $
+// $Id: PlaceObject.java,v 1.11 2003/04/30 22:45:57 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -124,8 +124,8 @@ public class PlaceObject extends DObject
      */
     public void setOccupantInfo (DSet occupantInfo)
     {
-        this.occupantInfo = occupantInfo;
         requestAttributeChange(OCCUPANT_INFO, occupantInfo);
+        this.occupantInfo = occupantInfo;
     }
 
     /**
@@ -138,7 +138,7 @@ public class PlaceObject extends DObject
      */
     public void setSpeakService (SpeakMarshaller speakService)
     {
-        this.speakService = speakService;
         requestAttributeChange(SPEAK_SERVICE, speakService);
+        this.speakService = speakService;
     }
 }

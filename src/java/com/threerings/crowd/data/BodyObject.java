@@ -1,5 +1,5 @@
 //
-// $Id: BodyObject.java,v 1.5 2002/10/30 00:42:37 mdb Exp $
+// $Id: BodyObject.java,v 1.6 2003/04/30 22:45:57 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -59,8 +59,8 @@ public class BodyObject extends ClientObject
      */
     public void setUsername (String username)
     {
-        this.username = username;
         requestAttributeChange(USERNAME, username);
+        this.username = username;
     }
 
     /**
@@ -73,8 +73,8 @@ public class BodyObject extends ClientObject
      */
     public void setLocation (int location)
     {
-        this.location = location;
         requestAttributeChange(LOCATION, new Integer(location));
+        this.location = location;
     }
 
     /**
@@ -87,7 +87,7 @@ public class BodyObject extends ClientObject
      */
     public void setStatus (byte status)
     {
-        this.status = status;
         requestAttributeChange(STATUS, new Byte(status));
+        this.status = status;
     }
 }

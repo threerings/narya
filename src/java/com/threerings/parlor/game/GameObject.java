@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.java,v 1.14 2003/01/13 18:36:18 mdb Exp $
+// $Id: GameObject.java,v 1.15 2003/04/30 22:45:57 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -183,8 +183,8 @@ public class GameObject extends PlaceObject
      */
     public void setGameService (GameMarshaller gameService)
     {
-        this.gameService = gameService;
         requestAttributeChange(GAME_SERVICE, gameService);
+        this.gameService = gameService;
     }
 
     /**
@@ -197,8 +197,8 @@ public class GameObject extends PlaceObject
      */
     public void setState (int state)
     {
-        this.state = state;
         requestAttributeChange(STATE, new Integer(state));
+        this.state = state;
     }
 
     /**
@@ -211,8 +211,8 @@ public class GameObject extends PlaceObject
      */
     public void setIsRated (boolean isRated)
     {
-        this.isRated = isRated;
         requestAttributeChange(IS_RATED, new Boolean(isRated));
+        this.isRated = isRated;
     }
 
     /**
@@ -225,8 +225,8 @@ public class GameObject extends PlaceObject
      */
     public void setPlayers (String[] players)
     {
-        this.players = players;
         requestAttributeChange(PLAYERS, players);
+        this.players = players;
     }
 
     /**
@@ -239,8 +239,8 @@ public class GameObject extends PlaceObject
      */
     public void setPlayersAt (String value, int index)
     {
-        this.players[index] = value;
         requestElementUpdate(PLAYERS, value, index);
+        this.players[index] = value;
     }
 
     /**
@@ -253,8 +253,8 @@ public class GameObject extends PlaceObject
      */
     public void setWinners (boolean[] winners)
     {
-        this.winners = winners;
         requestAttributeChange(WINNERS, winners);
+        this.winners = winners;
     }
 
     /**
@@ -267,8 +267,8 @@ public class GameObject extends PlaceObject
      */
     public void setWinnersAt (boolean value, int index)
     {
-        this.winners[index] = value;
         requestElementUpdate(WINNERS, new Boolean(value), index);
+        this.winners[index] = value;
     }
 
     /**
@@ -281,8 +281,8 @@ public class GameObject extends PlaceObject
      */
     public void setRoundId (int roundId)
     {
-        this.roundId = roundId;
         requestAttributeChange(ROUND_ID, new Integer(roundId));
+        this.roundId = roundId;
     }
 
     /**
@@ -295,7 +295,7 @@ public class GameObject extends PlaceObject
      */
     public void setCreator (int creator)
     {
-        this.creator = creator;
         requestAttributeChange(CREATOR, new Integer(creator));
+        this.creator = creator;
     }
 }

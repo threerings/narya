@@ -1,5 +1,5 @@
 //
-// $Id: TimeBaseObject.java,v 1.1 2002/05/28 23:14:06 mdb Exp $
+// $Id: TimeBaseObject.java,v 1.2 2003/04/30 22:45:57 mdb Exp $
 
 package com.threerings.presents.data;
 
@@ -118,8 +118,8 @@ public class TimeBaseObject extends DObject
      */
     public void setEvenBase (long evenBase)
     {
-        this.evenBase = evenBase;
         requestAttributeChange(EVEN_BASE, new Long(evenBase));
+        this.evenBase = evenBase;
     }
 
     /**
@@ -132,7 +132,7 @@ public class TimeBaseObject extends DObject
      */
     public void setOddBase (long oddBase)
     {
-        this.oddBase = oddBase;
         requestAttributeChange(ODD_BASE, new Long(oddBase));
+        this.oddBase = oddBase;
     }
 }

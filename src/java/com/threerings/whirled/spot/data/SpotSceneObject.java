@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneObject.java,v 1.3 2003/02/26 17:54:56 mdb Exp $
+// $Id: SpotSceneObject.java,v 1.4 2003/04/30 22:45:57 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -66,8 +66,8 @@ public class SpotSceneObject extends SceneObject
      */
     public void setOccupantLocs (DSet occupantLocs)
     {
-        this.occupantLocs = occupantLocs;
         requestAttributeChange(OCCUPANT_LOCS, occupantLocs);
+        this.occupantLocs = occupantLocs;
     }
 
     /**
@@ -112,7 +112,7 @@ public class SpotSceneObject extends SceneObject
      */
     public void setClusters (DSet clusters)
     {
-        this.clusters = clusters;
         requestAttributeChange(CLUSTERS, clusters);
+        this.clusters = clusters;
     }
 }
