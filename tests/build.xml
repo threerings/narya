@@ -90,36 +90,23 @@
     </javac>
   </target>
 
-  <!-- run the tests -->
-  <target name="test" depends="compile" description="Run tests.">
-    <junit printsummary="no" haltonfailure="yes" fork="${junit.fork}">
-      <classpath refid="classpath"/>
-      <sysproperty key="test_dir" value="${test.dir}"/>
-      <sysproperty key="resource_url" value="file:${test.dir}/rsrc"/>
-      <formatter type="brief" usefile="false"/>
-      <batchtest>
-        <fileset dir="${src.dir}">
-          <include name="**/*Test.java"/>
-        </fileset>
-      </batchtest>
-    </junit>
-  </target>
-
   <!-- test the component metadata bundling process -->
   <target name="cbundles" description="Build component bundles.">
     <!-- define our tasks -->
     <taskdef name="metabundle"
-      classname="com.threerings.cast.bundle.tools.MetadataBundlerTask"/>
+      classname="com.threerings.cast.bundle.tools.MetadataBundlerTask"
+      classpathref="classpath"/>
     <taskdef name="cbundle"
-      classname="com.threerings.cast.bundle.tools.ComponentBundlerTask"/>
+      classname="com.threerings.cast.bundle.tools.ComponentBundlerTask"
+      classpathref="classpath"/>
 
     <!-- build the metadata bundles -->
     <metabundle actiondef="${cbundle.dir}/actions.xml"
       classdef="${cbundle.dir}/classes.xml"
       target="${cbundle.dir}/metadata.jar"/>
 
-    <!-- blow away the components map file so that we get a consistent
-         mapping every time-->
+    <!-- blow away the components map file so that we get a consistent -->
+    <!-- mapping every time-->
     <delete file="${cbundle.dir}/components.map"/>         
 
     <!-- build the component bundles -->
@@ -139,14 +126,14 @@
 
   <!-- test the tileset bundling process -->
   <target name="tsbundles" description="Build tileset bundles.">
-
-    <!-- blow away the tilesetid map file so that we get a consistent
-         mapping every time-->
+    <!-- blow away the tilesetid map file so that we get a consistent -->
+    <!-- mapping every time-->
     <delete file="${tbundle.dir}/tilesets.map"/>         
 
     <!-- build the tileset bundles -->
     <taskdef name="tilebundle"
-      classname="com.threerings.media.tile.bundle.tools.TileSetBundlerTask"/>
+      classname="com.threerings.media.tile.bundle.tools.TileSetBundlerTask"
+      classpathref="classpath"/>
     <tilebundle config="${tbundle.dir}/bundler-config.xml"
       mapfile="${tbundle.dir}/tilesets.map">
       <fileset dir="${tbundle.dir}/ground" includes="**/*.xml"/>
@@ -158,12 +145,27 @@
 
     <!-- build the fringe configurations -->
     <taskdef name="conffringe"
-      classname="com.threerings.miso.tile.tools.CompileFringeConfigurationTask"/>
+      classname="com.threerings.miso.tile.tools.CompileFringeConfigurationTask"
+      classpathref="classpath"/>
     <conffringe
      tilesetmap="${tbundle.dir}/tilesets.map"
      fringedef="rsrc/config/miso/tile/fringeconf.xml"
      target="rsrc/config/miso/tile/fringeconf.dat"/>
-
   </target>
 
+  <!-- run the tests -->
+  <target name="test" depends="compile,cbundles,tsbundles"
+    description="Run the tests.">
+    <junit printsummary="no" haltonfailure="yes" fork="${junit.fork}">
+      <classpath refid="classpath"/>
+      <sysproperty key="test_dir" value="${test.dir}"/>
+      <sysproperty key="resource_dir" value="${test.dir}/rsrc"/>
+      <formatter type="brief" usefile="false"/>
+      <batchtest>
+        <fileset dir="${src.dir}">
+          <include name="**/*Test.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
 </project>
