@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.17 2001/11/27 08:49:58 mdb Exp $
+// $Id: ViewerApp.java,v 1.18 2001/11/29 20:31:53 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -9,12 +9,18 @@ import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.Config;
 
 import com.threerings.resource.ResourceManager;
+
 import com.threerings.media.sprite.SpriteManager;
 import com.threerings.media.tile.TileManager;
+import com.threerings.media.tile.bundle.BundledTileSetRepository;
+
 import com.threerings.cast.CharacterManager;
 import com.threerings.cast.bundle.BundledComponentRepository;
 
 import com.threerings.miso.Log;
+import com.threerings.miso.scene.DisplayMisoSceneImpl;
+import com.threerings.miso.scene.MisoSceneModel;
+import com.threerings.miso.tools.scene.xml.MisoSceneParser;
 import com.threerings.miso.util.MisoContext;
 import com.threerings.miso.util.MisoUtil;
 
@@ -30,10 +36,17 @@ public class ViewerApp
     public ViewerApp (String[] args)
         throws IOException
     {
+        if (args.length < 1) {
+            System.err.println("Usage: ViewerApp scene_file.xml");
+            System.exit(-1);
+        }
+
         // we don't need to configure anything
         _config = new Config();
         _rsrcmgr = new ResourceManager(null, "rsrc");
 	_tilemgr = new TileManager(_rsrcmgr);
+        _tilemgr.setTileSetRepository(
+            new BundledTileSetRepository(_rsrcmgr, "tilesets"));
 
         // bind our miso properties
         MisoUtil.bindProperties(_config);
@@ -55,8 +68,17 @@ public class ViewerApp
         _panel = new ViewerSceneViewPanel(ctx, spritemgr, charmgr, crepo);
         _frame.setPanel(_panel);
 
-        // determine whether or not the user specified a scene to be
-        // displayed or if we'll be using the default
+        // load up the scene specified by the user
+        try {
+            MisoSceneParser parser = new MisoSceneParser("miso");
+            MisoSceneModel model = parser.parseScene(args[0]);
+            _panel.setScene(new DisplayMisoSceneImpl(model, _tilemgr));
+
+        } catch (Exception e) {
+            Log.warning("Unable to parse scene [path=" + args[0] + "].");
+            Log.logStackTrace(e);
+            System.exit(-1);
+        }
     }
 
     /**
