@@ -1,5 +1,5 @@
 //
-// $Id: EditableSpotSceneImpl.java,v 1.9 2001/12/07 02:10:14 mdb Exp $
+// $Id: EditableSpotSceneImpl.java,v 1.10 2001/12/16 21:22:31 mdb Exp $
 
 package com.threerings.whirled.tools.spot;
 
@@ -117,6 +117,18 @@ public class EditableSpotSceneImpl extends EditableSceneImpl
     public List getLocations ()
     {
         return _delegate.getLocations();
+    }
+
+    // documentation inherited
+    public int getLocationIndex (int locationId)
+    {
+        return _delegate.getLocationIndex(locationId);
+    }
+
+    // documentation inherited
+    public Location getLocation (int locationId)
+    {
+        return _delegate.getLocation(locationId);
     }
 
     // documentation inherited

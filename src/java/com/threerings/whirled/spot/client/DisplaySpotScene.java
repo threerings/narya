@@ -1,5 +1,5 @@
 //
-// $Id: DisplaySpotScene.java,v 1.3 2001/12/05 08:45:05 mdb Exp $
+// $Id: DisplaySpotScene.java,v 1.4 2001/12/16 21:22:30 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -27,6 +27,20 @@ public interface DisplaySpotScene extends DisplayScene
      * which will be instances of {@link Portal}).
      */
     public List getLocations ();
+
+    /**
+     * Convenience function for obtaining a location's index in the
+     * location list given its id.
+     *
+     * @return the location's index or -1 if a location with the specified
+     * id is not in this scene's location list.
+     */
+    public int getLocationIndex (int locationId);
+
+    /**
+     * Convenience funtion for looking up a location by id.
+     */
+    public Location getLocation (int locationId);
 
     /**
      * Returns a list of the portals in this scene.

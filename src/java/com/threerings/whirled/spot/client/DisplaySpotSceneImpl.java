@@ -1,5 +1,5 @@
 //
-// $Id: DisplaySpotSceneImpl.java,v 1.4 2001/12/05 08:45:05 mdb Exp $
+// $Id: DisplaySpotSceneImpl.java,v 1.5 2001/12/16 21:22:30 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -110,6 +110,32 @@ public class DisplaySpotSceneImpl extends DisplaySceneImpl
     public List getLocations ()
     {
         return _locations;
+    }
+
+    // documentation inherited
+    public int getLocationIndex (int locationId)
+    {
+        int lsize = _locations.size();
+        for (int i = 0; i < lsize; i++) {
+            Location loc = (Location)_locations.get(i);
+            if (loc.locationId == locationId) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // documentation inherited
+    public Location getLocation (int locationId)
+    {
+        int lsize = _locations.size();
+        for (int i = 0; i < lsize; i++) {
+            Location loc = (Location)_locations.get(i);
+            if (loc.locationId == locationId) {
+                return loc;
+            }
+        }
+        return null;
     }
 
     // documentation inherited
