@@ -1,16 +1,18 @@
 //
-// $Id: PlaceManager.java,v 1.21 2001/10/24 00:57:39 mdb Exp $
+// $Id: PlaceManager.java,v 1.22 2001/10/24 01:00:09 mdb Exp $
 
 package com.threerings.crowd.server;
 
 import java.util.HashMap;
 import java.util.Properties;
 
-import com.threerings.presents.dobj.MessageListener;
 import com.threerings.presents.dobj.MessageEvent;
-import com.threerings.presents.dobj.OidListListener;
+import com.threerings.presents.dobj.MessageListener;
 import com.threerings.presents.dobj.ObjectAddedEvent;
+import com.threerings.presents.dobj.ObjectDeathListener;
+import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.ObjectRemovedEvent;
+import com.threerings.presents.dobj.OidListListener;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.data.*;
@@ -35,7 +37,7 @@ import com.threerings.crowd.data.*;
  * listeners.
  */
 public class PlaceManager
-    implements MessageListener, OidListListener
+    implements MessageListener, OidListListener, ObjectDeathListener
 {
     /**
      * Returns a reference to our place configuration object.
