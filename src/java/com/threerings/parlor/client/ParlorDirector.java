@@ -1,5 +1,5 @@
 //
-// $Id: ParlorDirector.java,v 1.13 2001/10/23 02:22:16 mdb Exp $
+// $Id: ParlorDirector.java,v 1.14 2002/02/09 11:23:49 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -52,6 +52,24 @@ public class ParlorDirector
     public void setInvitationHandler (InvitationHandler handler)
     {
         _handler = handler;
+    }
+
+    /**
+     * Adds the specified observer to the list of entities that are
+     * notified when we receive a game ready notification.
+     */
+    public void addGameReadyObserver (GameReadyObserver observer)
+    {
+        _grobs.add(observer);
+    }
+
+    /**
+     * Removes the specified observer from the list of entities that are
+     * notified when we receive a game ready notification.
+     */
+    public void removeGameReadyObserver (GameReadyObserver observer)
+    {
+        _grobs.remove(observer);
     }
 
     /**
@@ -196,8 +214,18 @@ public class ParlorDirector
     {
         Log.info("Handling game ready [goid=" + gameOid + "].");
 
-        // go there
-        _ctx.getLocationDirector().moveTo(gameOid);
+        // see what our observers have to say about it
+        boolean handled = false;
+        for (int i = 0; i < _grobs.size(); i++) {
+            GameReadyObserver grob = (GameReadyObserver)_grobs.get(i);
+            handled = grob.receivedGameReady(gameOid) || handled;
+        }
+
+        // if none of the observers took matters into their own hands,
+        // then we'll head on over to the game room ourselves
+        if (!handled) {
+            _ctx.getLocationDirector().moveTo(gameOid);
+        }
     }
 
     /**
@@ -476,4 +504,8 @@ public class ParlorDirector
 
     /** A counter used to assign a unique id to every invitation. */
     protected static int _localInvitationId = 0;
+
+    /** We notify the entities on this list when we get a game ready
+     * notification. */
+    protected ArrayList _grobs = new ArrayList();
 }
