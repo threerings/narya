@@ -1,5 +1,5 @@
 //
-// $Id: DeltaCalculator.java,v 1.1 2002/05/28 21:56:38 mdb Exp $
+// $Id: DeltaCalculator.java,v 1.2 2002/05/28 22:05:52 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -59,6 +59,10 @@ public class DeltaCalculator
         // minus the server's send time (plus network delay): dT = C - S
         _deltas[_iter] = recv - (server + nettime);
 
+        Log.debug("Calculated delta [delay=" + delay +
+                  ", nettime=" + nettime + ", delta=" + _deltas[_iter] +
+                  ", rtt=" + (recv-send) + "].");
+
         return (++_iter >= CLOCK_SYNC_PING_COUNT);
     }
 
@@ -69,8 +73,6 @@ public class DeltaCalculator
     {
         // sort the estimates and return one from the middle
         Arrays.sort(_deltas);
-        Log.info("Returning time delta " +
-                 "[deltas=" + StringUtil.toString(_deltas) + "].");
         return _deltas[_deltas.length/2];
     }
 
