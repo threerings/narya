@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.50 2002/09/25 03:02:00 mdb Exp $
+// $Id: DObject.java,v 1.51 2002/10/02 19:29:23 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -549,6 +549,21 @@ public class DObject implements Streamable
      * control to unknown code which might try to operate on the
      * transacting distributed object (or objects).
      *
+     * <p> Note also: if the object is already engaged in a transaction, a
+     * transaction participant count will be incremented to note that an
+     * additional call to {@link #commitTransaction} is required before
+     * the transaction should actually be committed. Thus <em>every</em>
+     * call to {@link #startTransaction} must be accompanied by a call to
+     * either {@link #commitTransaction} or {@link
+     * #cancelTransaction}. Additionally, if any transaction participant
+     * cancels the transaction, the entire transaction is cancelled for
+     * all participants, regardless of whether the other participants
+     * attempted to commit the transaction.
+     *
+     * <p> Note also: nested transactions are not allowed when an object
+     * is joined to another object's transaction via {@link
+     * #joinTransaction}.
+     *
      * @return the compound event that encapsulates the transaction. This
      * can be ignored if the transaction will be limited to this object,
      * but if it is desired that other objects be involved in the
@@ -559,18 +574,29 @@ public class DObject implements Streamable
     public CompoundEvent startTransaction ()
     {
         if (_tevent != null) {
-            String errmsg = "Cannot start transaction on dobject that " +
-                "is already transacting [dobj=" + this + "]";
-            throw new IllegalStateException(errmsg);
+            // a transaction count of -1 indicates that we're joined to
+            // another objects transaction that should not allow
+            // transaction nesting
+            if (_tcount == -1) {
+                String errmsg = "Object involved in shared transaction, " +
+                    "nesting not allowed [dobj=" + this + "]";
+                throw new IllegalStateException(errmsg);
+            } else {
+                _tcount++;
+            }
+
+        } else {
+            _tevent = new CompoundEvent(_omgr);
+            _tevent.addObject(this);
         }
-        _tevent = new CompoundEvent(_omgr);
-        _tevent.addObject(this);
         return _tevent;
     }
 
     /**
      * Causes this object to join the supplied transaction. See {@link
-     * #startTransaction} for more information on transactions.
+     * #startTransaction} for more information on transactions. The
+     * transaction can be committed by a call to {@link
+     * #commitTransaction} on any participanting object.
      */
     public void joinTransaction (CompoundEvent event)
     {
@@ -581,6 +607,7 @@ public class DObject implements Streamable
         }
         _tevent = event;
         _tevent.addObject(this);
+        _tcount = -1; // make a note that nesting is not allowed
     }
 
     /**
@@ -596,7 +623,22 @@ public class DObject implements Streamable
                 "[dobj=" + this + "]";
             throw new IllegalStateException(errmsg);
         }
-        _tevent.commit();
+
+        // if we are nested, we decrement our nesting count rather than
+        // committing the transaction
+        if (_tcount > 0) {
+            _tcount--;
+
+        } else {
+            // we may actually be doing our final commit after someone
+            // already cancelled this transaction, so we need to perform
+            // the appropriate action at this point
+            if (_tcancelled) {
+                _tevent.cancel();
+            } else {
+                _tevent.commit();
+            }
+        }
     }        
 
     /**
@@ -621,7 +663,16 @@ public class DObject implements Streamable
                 "[dobj=" + this + "]";
             throw new IllegalStateException(errmsg);
         }
-        _tevent.cancel();
+
+        // if we're in a nested transaction, make a note that it is to be
+        // cancelled when all parties commit and decrement the nest count
+        if (_tcount > 0) {
+            _tcancelled = true;
+            _tcount--;
+
+        } else {
+            _tevent.cancel();
+        }
     }        
 
     /**
@@ -650,7 +701,16 @@ public class DObject implements Streamable
      */
     protected void clearTransaction ()
     {
+        // sanity check
+        if (_tcount != 0) {
+            Log.warning("Transaction cleared with non-zero nesting count " +
+                        "[dobj=" + this + "].");
+            _tcount = 0;
+        }
+
+        // clear our transaction state
         _tevent = null;
+        _tcancelled = false;
     }
 
     /**
@@ -757,4 +817,10 @@ public class DObject implements Streamable
     /** The compound event associated with our transaction, if we're
      * currently in a transaction. */
     protected transient CompoundEvent _tevent;
+
+    /** The nesting depth of our current transaction. */
+    protected transient int _tcount;
+
+    /** Whether or not our nested transaction has been cancelled. */
+    protected transient boolean _tcancelled;
 }
