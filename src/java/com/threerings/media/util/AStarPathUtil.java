@@ -181,7 +181,8 @@ public class AStarPathUtil
     public static List getPath (TraversalPred tpred, Object trav, int longest,
                                 int ax, int ay, int bx, int by, boolean partial)
     {
-        return getPath(tpred, new Stepper(), longest, ax, ay, bx, by, partial);
+        return getPath(
+            tpred, new Stepper(), trav, longest, ax, ay, bx, by, partial);
     }
 
     /**
