@@ -1,5 +1,5 @@
 //
-// $Id: FrameSequencer.java,v 1.1 2002/09/17 20:07:28 mdb Exp $
+// $Id: FrameSequencer.java,v 1.2 2002/09/17 21:58:25 ray Exp $
 
 package com.threerings.media.util;
 
@@ -55,7 +55,7 @@ public interface FrameSequencer
          */
         public ConstantRate (double framesPerSecond, boolean loop)
         {
-            _millisPerFrame = (long)(1000d / _millisPerFrame);
+            _millisPerFrame = (long)(1000d / framesPerSecond);
             _loop = loop;
         }
 
@@ -79,7 +79,8 @@ public interface FrameSequencer
 
             // if we're not looping and we've exhausted our frames, we
             // return -1 to indicate that the animation should stop
-            return (!_loop && frameIdx >= _frameCount) ? -1 : frameIdx;
+            return (_loop || frameIdx < _frameCount) ? (frameIdx % _frameCount)
+                                                     : -1;
         }
 
         // documentation inherited from interface
