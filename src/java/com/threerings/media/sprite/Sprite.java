@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.62 2003/01/18 20:45:23 mdb Exp $
+// $Id: Sprite.java,v 1.63 2003/04/20 04:52:33 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -33,6 +33,14 @@ public abstract class Sprite extends AbstractMedia
     public Sprite ()
     {
         super(new Rectangle());
+    }
+
+    /**
+     * Constructs a sprite with the supplied bounds.
+     */
+    public Sprite (Rectangle bounds)
+    {
+        super(bounds);
     }
 
     /**
