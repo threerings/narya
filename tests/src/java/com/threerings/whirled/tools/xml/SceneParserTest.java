@@ -1,5 +1,5 @@
 //
-// $Id: SceneParserTest.java,v 1.1 2001/12/05 03:38:10 mdb Exp $
+// $Id: SceneParserTest.java,v 1.2 2001/12/13 01:35:52 mdb Exp $
 
 package com.threerings.whirled.tools.xml;
 
@@ -43,5 +43,5 @@ public class SceneParserTest extends TestCase
     }
 
     protected static final String TEST_SCENE_PATH =
-        "whirled/tools/xml/scene.xml";
+        "rsrc/whirled/tools/xml/scene.xml";
 }

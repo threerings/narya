@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneParserTest.java,v 1.1 2001/12/05 03:38:09 mdb Exp $
+// $Id: SpotSceneParserTest.java,v 1.2 2001/12/13 01:35:52 mdb Exp $
 
 package com.threerings.whirled.tools.spot.xml;
 
@@ -43,5 +43,5 @@ public class SpotSceneParserTest extends TestCase
     }
 
     protected static final String TEST_SCENE_PATH =
-        "whirled/tools/spot/xml/scene.xml";
+        "rsrc/whirled/tools/spot/xml/scene.xml";
 }

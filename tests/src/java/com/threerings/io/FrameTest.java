@@ -1,5 +1,5 @@
 //
-// $Id: FrameTest.java,v 1.5 2001/11/08 02:21:23 mdb Exp $
+// $Id: FrameTest.java,v 1.6 2001/12/13 01:35:52 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -7,8 +7,6 @@ import java.io.*;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-
-import com.samskivert.test.TestUtil;
 
 public class FrameTest extends TestCase
 {

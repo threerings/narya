@@ -1,5 +1,5 @@
 //
-// $Id: BuildTestTileSetBundle.java,v 1.3 2001/11/29 22:01:03 mdb Exp $
+// $Id: BuildTestTileSetBundle.java,v 1.4 2001/12/13 01:35:51 mdb Exp $
 
 package com.threerings.media.tools.tile.bundle;
 
@@ -64,11 +64,11 @@ public class BuildTestTileSetBundle
     }
 
     protected static final String CONFIG_PATH =
-        "media/tools/tile/bundle/bundler-config.xml";
+        "rsrc/media/tools/tile/bundle/bundler-config.xml";
 
     protected static final String BUNDLE_DESC_PATH =
-        "media/tools/tile/bundle/bundle.xml";
+        "rsrc/media/tools/tile/bundle/bundle.xml";
 
     protected static final String TARGET_PATH =
-        "media/tools/tile/bundle/bundle.jar";
+        "rsrc/media/tools/tile/bundle/bundle.jar";
 }
