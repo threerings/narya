@@ -1,5 +1,5 @@
 //
-// $Id: TraceViz.java,v 1.3 2003/01/15 02:17:52 shaper Exp $
+// $Id: TraceViz.java,v 1.4 2003/01/24 22:54:48 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -51,20 +51,21 @@ public class TraceViz
                                        "[file=" + args[0] + "].");
         }
 
-        // create a compatible image
-        BufferedImage cimage = imgr.createImage(
-            image.getWidth(null), image.getHeight(null),
-            Transparency.TRANSLUCENT);
-        Graphics g = cimage.getGraphics();
-        g.drawImage(image, 0, 0, null);
-        g.dispose();
+//         // create a compatible image
+//         BufferedImage cimage = imgr.createImage(
+//             image.getWidth(null), image.getHeight(null),
+//             Transparency.TRANSLUCENT);
+//         Graphics g = cimage.getGraphics();
+//         g.drawImage(image, 0, 0, null);
+//         g.dispose();
+//         image = cimage;
 
         // create the traced image
         Image timage = ImageUtil.createTracedImage(
-            imgr, cimage, Color.red, 5, 0.4f, 0.1f);
+            imgr, image, Color.red, 5, 0.4f, 0.1f);
 
-        // display the original and traced image
-        content.add(new JLabel(new ImageIcon(cimage)));
+        // display the (prepared) original and traced image
+        content.add(new JLabel(new ImageIcon(image)));
         content.add(new JLabel(new ImageIcon(timage)));
     }
 
