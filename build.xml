@@ -44,7 +44,7 @@
   <!-- build the javadoc documentation -->
   <target name="javadoc" depends="prepare">
     <javadoc sourcepath="src/java"
-             packagenames="com.samskivert.*"
+             packagenames="com.threerings.*"
              destdir="${javadoc.home}">
       <classpath>
         <fileset dir="${java.libraries}" includes="**/*.jar"/>
