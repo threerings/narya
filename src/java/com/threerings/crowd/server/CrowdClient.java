@@ -1,5 +1,5 @@
 //
-// $Id: CrowdClient.java,v 1.15 2002/11/01 00:39:18 shaper Exp $
+// $Id: CrowdClient.java,v 1.16 2002/11/05 05:48:18 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -17,9 +17,9 @@ import com.threerings.crowd.data.PlaceObject;
 public class CrowdClient extends PresentsClient
 {
     // documentation inherited
-    protected void wasUnmapped ()
+    protected void sessionConnectionClosed ()
     {
-        super.wasUnmapped();
+        super.sessionConnectionClosed();
 
         if (_clobj != null) {
             // note that the user's disconnected
