@@ -1,14 +1,11 @@
 //
-// $Id: ObjectRemovedEvent.java,v 1.1 2001/07/21 01:06:48 mdb Exp $
+// $Id: ObjectRemovedEvent.java,v 1.2 2001/07/21 01:09:55 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Method;
-
-import com.threerings.cocktail.cher.dobj.io.ValueMarshaller;
 
 /**
  * An object removed event is dispatched when an object is removed from an
