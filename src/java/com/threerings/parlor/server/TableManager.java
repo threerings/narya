@@ -1,5 +1,5 @@
 //
-// $Id: TableManager.java,v 1.11 2004/08/27 02:20:14 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -57,7 +57,7 @@ import com.threerings.parlor.game.GameManager;
  * to the table manager for the associated invocation services.
  */
 public class TableManager
-    implements ParlorCodes, PlaceRegistry.CreationObserver, OidListListener
+    implements ParlorCodes, OidListListener
 {
     /**
      * Creates a table manager that will work in tandem with the specified
@@ -178,20 +178,10 @@ public class TableManager
 
         // if the table is sufficiently full, start the game automatically
         if (table.shouldBeStarted()) {
-            // create the game manager
-            GameManager gmgr = 
-                createGameManager(table.config, table.getPlayers());
-
-            // and map this table to this game manager so that we can
-            // update the table with the game in progress once it's
-            // created
-            _pendingTables.put(gmgr, table);
-
-            // clear out the occupant to table mappings because this game
-            // is underway
-            for (int i = 0; i < table.bodyOids.length; i++) {
-                _boidMap.remove(table.bodyOids[i]);
-            }
+            // fill the players array into the game config
+            table.config.players = table.getPlayers();
+            // and create the game
+            createGame(table);
 
         } else {
             // make a mapping from this occupant to this table
@@ -268,61 +258,50 @@ public class TableManager
     /**
      * Called when we're ready to create a game (either an invitation has
      * been accepted or a table is ready to start. If there is a problem
-     * creating the game manager, it will be reported in the logs.
-     *
-     * @return a reference to the newly created game manager or null if
-     * something choked during the creation or initialization process.
+     * creating the game manager, it should be reported in the logs.
      */
-    protected GameManager createGameManager (GameConfig config, Name[] players)
+    protected void createGame (final Table table)
+        throws InvocationException
     {
-        GameManager gmgr = null;
-
+        PlaceRegistry.CreationObserver obs =
+            new PlaceRegistry.CreationObserver() {
+            public void placeCreated (PlaceObject plobj, PlaceManager pmgr) {
+                gameCreated(table, plobj);
+            }
+        };
         try {
-            Log.info("Creating game manager [config=" + config + "].");
-
-            // configure the game config with the players array
-            config.players = players;
-
-            // create the game manager and begin it's initialization
-            // process. the game manager will take care of notifying the
-            // players that the game has been created once it has been
-            // started up (which is done by the place registry once the
-            // game object creation has completed)
-            gmgr = (GameManager)CrowdServer.plreg.createPlace(config, this);
-
-        } catch (Exception e) {
-            Log.warning("Unable to create game manager [config=" + config +
-                        ", players=" + StringUtil.toString(players) + "].");
-            Log.logStackTrace(e);
+            CrowdServer.plreg.createPlace(table.config, obs);
+        } catch (InstantiationException ie) {
+            Log.warning("Failed to create manager for game " +
+                        "[config=" + table.config + "]: " + ie);
+            throw new InvocationException(INTERNAL_ERROR);
         }
-
-        return gmgr;
     }
 
     /**
-     * Called by the place registry when the game object has been created
-     * and provided to the game manager. We use this to map game object
-     * oids back to table records when we create games from tables.
+     * Called when our game has been created, we take this opportunity to
+     * clean up the table and transition it to "in play" mode.
      */
-    public void placeCreated (PlaceObject plobj, PlaceManager pmgr)
+    protected void gameCreated (Table table, PlaceObject plobj)
     {
-        // see if this place manager is associated with a table
-        Table table = (Table)_pendingTables.remove(pmgr);
-        if (table != null) {
-            // update the table with the newly created game object
-            table.gameOid = plobj.getOid();
+        // update the table with the newly created game object
+        table.gameOid = plobj.getOid();
 
-            // add an object death listener to unmap the table when the
-            // game finally goes away
-            plobj.addListener(new ObjectDeathListener() {
-                public void objectDestroyed (ObjectDestroyedEvent event) {
-                    unmapTable(event.getTargetOid());
-                }
-            });
-
-            // and then update the lobby object that contains the table
-            _tlobj.updateTables(table);
+        // clear the occupant to table mappings as this game is underway
+        for (int i = 0; i < table.bodyOids.length; i++) {
+            _boidMap.remove(table.bodyOids[i]);
         }
+
+        // add an object death listener to unmap the table when the game
+        // finally goes away
+        plobj.addListener(new ObjectDeathListener() {
+            public void objectDestroyed (ObjectDestroyedEvent event) {
+                unmapTable(event.getTargetOid());
+            }
+        });
+
+        // and then update the lobby object that contains the table
+        _tlobj.updateTables(table);
     }
 
     /**
@@ -393,8 +372,4 @@ public class TableManager
 
     /** A mapping from body oid to table. */
     protected HashIntMap _boidMap = new HashIntMap();
-
-    /** A table of tables that have games that have been created but not
-     * yet started. */
-    protected HashMap _pendingTables = new HashMap();
 }
