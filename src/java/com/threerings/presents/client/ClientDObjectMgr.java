@@ -1,5 +1,5 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.18 2002/12/04 22:04:46 shaper Exp $
+// $Id: ClientDObjectMgr.java,v 1.19 2003/01/21 22:02:37 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -91,11 +91,8 @@ public class ClientDObjectMgr
     // inherit documentation from the interface
     public void removedLastSubscriber (DObject obj)
     {
-        // if object has no subscribers, we no longer need to proxy it;
-        // first remove it from the object table
-        _ocache.remove(obj.getOid());
-
-        // then ship off an unsubscribe message to the server
+        // ship off an unsubscribe message to the server; we'll remove the
+        // object from our table when we get the unsub ack
         _comm.postMessage(new UnsubscribeRequest(obj.getOid()));
     }
 
@@ -132,6 +129,17 @@ public class ClientDObjectMgr
 
             } else if (obj instanceof ObjectResponse) {
                 registerObjectAndNotify(((ObjectResponse)obj).getObject());
+
+            } else if (obj instanceof UnsubscribeResponse) {
+                // now that the server has removed our subscription, we
+                // can remove the object from our local table because we
+                // should not receive further events for this object; it's
+                // possible that the object was destroyed (and thus
+                // removed from our table) in between our request to
+                // unsubscribe and the unsub response from the server,
+                // otherwise we'd log a warning if we failed to remove the
+                // object from our local table here
+                _ocache.remove(((UnsubscribeResponse)obj).getOid());
 
             } else if (obj instanceof FailureResponse) {
                 int oid = ((FailureResponse)obj).getOid();

@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.49 2002/12/22 19:16:31 mdb Exp $
+// $Id: PresentsClient.java,v 1.50 2003/01/21 22:02:37 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -34,6 +34,7 @@ import com.threerings.presents.net.UnsubscribeRequest;
 import com.threerings.presents.net.FailureResponse;
 import com.threerings.presents.net.ObjectResponse;
 import com.threerings.presents.net.PongResponse;
+import com.threerings.presents.net.UnsubscribeResponse;
 
 import com.threerings.presents.server.net.Connection;
 import com.threerings.presents.server.net.MessageHandler;
@@ -728,13 +729,22 @@ public class PresentsClient
         public void dispatch (PresentsClient client, UpstreamMessage msg)
         {
             UnsubscribeRequest req = (UnsubscribeRequest)msg;
-//              Log.info("Unsubscribing [client=" + client +
-//                       ", oid=" + req.getOid() + "].");
+            int oid = req.getOid();
+//             Log.info("Unsubscribing " + client + " [oid=" + oid + "].");
 
             // forward the unsubscribe request to the omgr for processing
-            PresentsServer.omgr.unsubscribeFromObject(req.getOid(), client);
+            PresentsServer.omgr.unsubscribeFromObject(oid, client);
             // update our subscription tracking table
-            client.unmapSubscrip(req.getOid());
+            client.unmapSubscrip(oid);
+
+            // post a response to the client letting them know that we
+            // will no longer send them events regarding this object
+            Connection conn = client.getConnection();
+            if (conn != null) {
+                conn.postMessage(new UnsubscribeResponse(oid));
+            } else {
+                Log.info("Dropped unsub ack " + client + " [oid=" + oid + "].");
+            }
         }
     }
 
