@@ -1,5 +1,5 @@
 //
-// $Id: DropControllerDelegate.java,v 1.6 2004/08/29 06:50:47 mdb Exp $
+// $Id: DropControllerDelegate.java,v 1.7 2004/10/15 23:36:41 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -213,7 +213,9 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
     // documentation inherited
     protected boolean canClearAction ()
     {
-//         Log.info("Drop can clear " + _stable);
+        if (!_stable) {
+            Log.info("Rejecting canClear() request because not stable.");
+        }
         return _stable && super.canClearAction();
     }
 
@@ -441,9 +443,8 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
      */
     protected void dropNextBlock ()
     {
-        if (_blocksprite != null || _ctrl.isWaiting() || !_ctrl.hasAction()) {
+        if (_blocksprite != null || !_ctrl.hasAction()) {
             Log.info("Not dropping block [bs=" + (_blocksprite != null) +
-                     ", waiting=" + _ctrl.isWaiting() +
                      ", action=" + _ctrl.hasAction() + "].");
             return;
         }
@@ -570,7 +571,7 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
      */
     protected boolean canEvolveBoard ()
     {
-        return (!_ctrl.isWaiting() && _dview.getActionCount() == 0);
+        return (_dview.getActionCount() == 0);
     }
 
     /**
@@ -939,36 +940,6 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
     public boolean needsPaint ()
     {
         return false;
-    }
-
-    // documentation inherited
-    public void didSuspend ()
-    {
-        super.didSuspend();
-
-        // make sure our drop sprite is not dropping quickly
-        if (_blocksprite != null) {
-            _fastDrop = false;
-            _blocksprite.setVelocity(getPieceVelocity(false));
-        }
-    }
-
-    // documentation inherited
-    public void didResume (long delta)
-    {
-        super.didResume(delta);
-
-        // fast-forward the board rising timestamps
-        _risestamp += delta;
-        if (_zipstamp != 0) {
-            _zipstamp += delta;
-        }
-
-        Log.info("Drop puzzle resuming, attempting to evolve board.");
-
-        // we're un-paused, so we should try evolving the board to start
-        // things up again
-        unstabilizeBoard();
     }
 
     /**
