@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.37 2003/04/26 17:56:25 mdb Exp $
+// $Id: FrameManager.java,v 1.38 2003/04/29 18:14:37 mdb Exp $
 
 package com.threerings.media;
 
@@ -99,15 +99,6 @@ import com.threerings.media.timer.SystemMediaTimer;
  */
 public abstract class FrameManager
 {
-    /** {@link FrameParticipant}s can implement this interface and be
-     * added to the performance display. */
-    public static interface PerformanceProvider
-    {
-        /** Returns a string that will be appended to the debug
-         * performance display drawn on top of the frame. */
-        public void getPerformanceStatus (StringBuffer buf);
-    }
-
     /**
      * Creates a frame manager that will use a {@link SystemMediaTimer} to
      * obtain timing information, which is available on every platform,
@@ -161,10 +152,6 @@ public abstract class FrameManager
         // turn off double buffering for the whole business because we
         // handle repaints
         _remgr.setDoubleBufferingEnabled(false);
-
-        // register a debug hook to toggle the frame rate display
-        DebugChords.registerHook(
-            FPS_DISPLAY_MODMASK, FPS_DISPLAY_KEYCODE, FPS_DISPLAY_HOOK);
 
         if (DEBUG_EVENTS) {
             addTestListeners();
@@ -336,6 +323,22 @@ public abstract class FrameManager
     }
 
     /**
+     * Returns the number of ticks executed in the last second.
+     */
+    public int getPerfTicks ()
+    {
+        return Math.round(_fps[1]);
+    }
+
+    /**
+     * Returns the number of ticks requested in the last second.
+     */
+    public int getPerfTries ()
+    {
+        return Math.round(_fps[0]);
+    }
+
+    /**
      * Called to perform the frame processing and rendering.
      */
     protected void tick (long tickStamp)
@@ -371,17 +374,9 @@ public abstract class FrameManager
             Log.logStackTrace(t);
         }
 
-        if (_displayPerf) {
-            startPerformanceStatusTick();
-        }
-
         // tick all of our frame participants
         _participantTickOp.setTickStamp(tickStamp);
         _participants.apply(_participantTickOp);
-
-        if (_displayPerf) {
-            finishPerformanceStatusTick();
-        }
     }
 
     /**
@@ -409,14 +404,6 @@ public abstract class FrameManager
         // repainted since the last tick
         boolean pcomp = _remgr.paintComponents(gfx, this);
 
-        if (ppart || pcomp) {
-            if (_displayPerf && _perfLabel != null) {
-                // render the current performance status
-                gfx.setClip(null);
-                _perfLabel.render(gfx, FPS_X, FPS_Y);
-            }
-        }
-
         // let the caller know if anybody painted anything
         return (ppart || pcomp);
     }
@@ -426,54 +413,6 @@ public abstract class FrameManager
      * reexposed.
      */
     protected abstract void restoreFromBack (Rectangle dirty);
-
-    /**
-     * If frame rate display is enabled, builds beginning of performance
-     * status display.
-     */
-    protected void startPerformanceStatusTick ()
-    {
-        if (_perfTicks++ % 100 == 0) {
-            _perfStatus = new StringBuffer();
-            _perfStatus.append("[FPS: ");
-            _perfStatus.append(Math.round(_fps[1])).append("/");
-            _perfStatus.append(Math.round(_fps[0]));
-
-            if (_perfLabel == null) {
-                _perfLabel = new Label(
-                    "", Label.OUTLINE, Color.white, Color.black,
-                    new Font("Arial", Font.PLAIN, 10));
-            }
-        }
-    }
-
-    /**
-     * If frame rate display is enabled, prepares to render new
-     * performance status if it has changed.
-     */
-    protected void finishPerformanceStatusTick ()
-    {
-        if (_perfStatus == null) {
-            return;
-        }
-        _perfStatus.append("]");
-        _perfLabel.setText(_perfStatus.toString());
-        _perfStatus = null;
-
-        // dirty our previous bounds
-        JComponent comp = (JComponent)_frame.getRootPane();
-        Dimension lsize = _perfLabel.getSize();
-        _remgr.addDirtyRegion(comp, FPS_X, FPS_Y, lsize.width, lsize.height);
-
-        // re-layout our status label
-        Graphics2D gfx = (Graphics2D)_frame.getGraphics();
-        _perfLabel.layout(gfx);
-        gfx.dispose();
-
-        // dirty our new bounds
-        lsize = _perfLabel.getSize();
-        _remgr.addDirtyRegion(comp, FPS_X, FPS_Y, lsize.width, lsize.height);
-    }
 
     /**
      * Renders all components in all {@link JLayeredPane} layers that
@@ -581,15 +520,6 @@ public abstract class FrameManager
                 long start = 0L;
                 if (HANG_DEBUG) {
                     start = System.currentTimeMillis();
-                }
-
-                // if this frame participant is a performance provider,
-                // let the add their business to the performance status
-                if ((_perfStatus != null) &&
-                    (observer instanceof PerformanceProvider)) {
-                    _perfStatus.append(", ");
-                    ((PerformanceProvider)
-                     observer).getPerformanceStatus(_perfStatus);
                 }
 
                 ((FrameParticipant)observer).tick(_tickStamp);
@@ -806,18 +736,6 @@ public abstract class FrameManager
      * "layered" components. */
     protected boolean[] _clipped = new boolean[1];
 
-    /** The label used to render peformance status. */
-    protected Label _perfLabel;
-
-    /** Used to build the performance status text. */
-    protected StringBuffer _perfStatus;
-
-    /** Used when reporting performance status. */
-    protected int _perfTicks;
-
-    /** Whether the performance status display is enabled. */
-    protected boolean _displayPerf;
-
     /** The entites that are ticked each frame. */
     protected ObserverList _participants =
         new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
@@ -840,12 +758,6 @@ public abstract class FrameManager
      * long. */
     protected static final boolean HANG_DEBUG = false;
 
-    /** The x-coordinate at which the frames per second is rendered. */
-    protected static final int FPS_X = 5;
-
-    /** The y-coordinate at which the frames per second is rendered. */
-    protected static final int FPS_Y = 27;
-
     /** A debug hook that toggles debug rendering of sprite paths. */
     protected static RuntimeAdjust.BooleanAdjust _useFlip =
         new RuntimeAdjust.BooleanAdjust(
@@ -853,22 +765,6 @@ public abstract class FrameManager
             "rendering, otherwise a volatile back buffer is used " +
             "[requires restart]", "narya.media.frame",
             MediaPrefs.config, false);
-
-    /** A debug hook that allows toggling the frame rate display. */
-    protected DebugChords.Hook FPS_DISPLAY_HOOK = new DebugChords.Hook() {
-        public void invoke () {
-            _displayPerf = !_displayPerf;
-            Log.info((_displayPerf ? "Enabling" : "Disabling") +
-                     " performance status display.");
-        }
-    };
-
-    /** The modifiers for our frame rate display debug hook (Alt+Shift). */
-    protected static int FPS_DISPLAY_MODMASK =
-        KeyEvent.ALT_DOWN_MASK|KeyEvent.SHIFT_DOWN_MASK;
-
-    /** The key code for our frame rate display debug hook (f). */
-    protected static int FPS_DISPLAY_KEYCODE = KeyEvent.VK_F;
 
     /** Whether to enable AWT event debugging for the frame. */
     protected static final boolean DEBUG_EVENTS = false;
