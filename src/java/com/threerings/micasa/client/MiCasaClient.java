@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaClient.java,v 1.13 2002/05/21 04:47:48 mdb Exp $
+// $Id: MiCasaClient.java,v 1.14 2002/07/12 17:01:28 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -57,6 +57,9 @@ public class MiCasaClient
                 // if we're logged on, log off
                 if (_client.loggedOn()) {
                     _client.logoff(true);
+                } else {
+                    // otherwise get the heck out
+                    System.exit(0);
                 }
             }
         });

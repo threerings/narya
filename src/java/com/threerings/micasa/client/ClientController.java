@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.14 2002/05/21 04:47:48 mdb Exp $
+// $Id: ClientController.java,v 1.15 2002/07/12 17:01:28 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -102,6 +102,9 @@ public class ClientController extends Controller
     public void clientDidLogoff (Client client)
     {
         Log.info("Client did logoff [client=" + client + "].");
+
+        // reinstate the logon panel
+        _frame.setPanel(_logonPanel);
     }
 
     protected MiCasaContext _ctx;

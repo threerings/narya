@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaFrame.java,v 1.5 2002/07/12 03:48:45 mdb Exp $
+// $Id: MiCasaFrame.java,v 1.6 2002/07/12 17:01:28 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -44,7 +44,8 @@ public class MiCasaFrame
 	// add the new one
 	getContentPane().add(panel, BorderLayout.CENTER);
         // swing doesn't properly repaint after adding/removing children
-        validate();
+        panel.revalidate();
+        repaint();
     }
 
     /**
