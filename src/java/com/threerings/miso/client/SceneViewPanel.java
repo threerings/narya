@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.42 2002/06/20 07:50:33 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.43 2002/06/21 00:04:41 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -143,15 +143,16 @@ public class SceneViewPanel extends VirtualMediaPanel
     // documentation inherited
     public void setViewLocation (int x, int y)
     {
-        // make sure no one tries to set our view location outside the
-        // bounds defined by the view model
-        int minx = _viewmodel.bounds.x,
-            maxx = _viewmodel.bounds.width-getWidth();
-        int miny = _viewmodel.bounds.y,
-            maxy = _viewmodel.bounds.height-getHeight();
-        if (x < minx) { x = minx; } else if (x > maxx) { x = maxx; }
-        if (y < miny) { y = miny; } else if (y > maxy) { y = maxy; }
-
+        // if we're bounded, make sure no one tries to set our view
+        // location outside the bounds defined by the view model
+        if (_viewmodel.bounded) {
+            int minx = _viewmodel.bounds.x,
+                maxx = _viewmodel.bounds.width-getWidth();
+            int miny = _viewmodel.bounds.y,
+                maxy = _viewmodel.bounds.height-getHeight();
+            if (x < minx) { x = minx; } else if (x > maxx) { x = maxx; }
+            if (y < miny) { y = miny; } else if (y > maxy) { y = maxy; }
+        }
         super.setViewLocation(x, y);
     }
 

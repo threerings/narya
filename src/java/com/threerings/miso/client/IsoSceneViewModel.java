@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.25 2002/06/17 18:01:47 shaper Exp $
+// $Id: IsoSceneViewModel.java,v 1.26 2002/06/21 00:04:41 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -36,6 +36,10 @@ public class IsoSceneViewModel
 
     /** Size of the view in tile count. */
     public int scenevwid, scenevhei;
+
+    /** Whether or not this view can extend beyond the bounds defined by
+     * the view width and height. True if it cannot, false if it can. */
+    public boolean bounded = true;
 
     /** The bounds of the view in screen pixel coordinates. */
     public Rectangle bounds;
