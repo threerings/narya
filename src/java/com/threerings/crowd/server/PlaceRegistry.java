@@ -1,16 +1,15 @@
 //
-// $Id: PlaceRegistry.java,v 1.8 2001/08/21 19:38:06 mdb Exp $
+// $Id: PlaceRegistry.java,v 1.9 2001/10/02 02:07:50 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
-import java.util.Enumeration;
-import java.util.Properties;
+import java.util.Iterator;
 
 import com.samskivert.util.Config;
+import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Queue;
 
 import com.threerings.cocktail.cher.dobj.*;
-import com.threerings.cocktail.cher.util.IntMap;
 
 import com.threerings.cocktail.party.Log;
 import com.threerings.cocktail.party.data.PlaceObject;
@@ -32,57 +31,13 @@ public class PlaceRegistry implements Subscriber
     }
 
     /**
-     * Creates and registers a new place along with a manager to manage
-     * that place. The place object class and place manager class are
-     * determined from the configuration information provided in the
-     * supplied properties instance.
+     * Creates and registers a new place manager along with the place
+     * object to be managed. The registry takes care of tracking the
+     * creation of the object and informing the manager when it is
+     * created.
      *
-     * @param config the configuration information for this place manager.
-     *
-     * @return a reference to the place manager that will manage the new
-     * place object or null if an error occurred creating the place or
-     * place manager.
-     *
-     * @exception InstantiationException thrown if an error occurs trying
-     * to instantiate and initialize the place manager.
-     *
-     * @see PlaceConfig#PLACEOBJ_CLASS
-     * @see PlaceConfig#PLACEMGR_CLASS
-     */
-    public PlaceManager createPlace (Properties config)
-        throws InstantiationException
-    {
-        String pobjcl = config.getProperty(PlaceConfig.PLACEOBJ_CLASS);
-        if (pobjcl == null) {
-            throw new InstantiationException(
-                "No place object classname specified in place config.");
-        }
-
-        String pmgrcl = config.getProperty(PlaceConfig.PLACEMGR_CLASS);
-        if (pobjcl == null) {
-            throw new InstantiationException(
-                "No place manager classname specified in place config.");
-        }
-
-        try {
-            return createPlace(Class.forName(pobjcl),
-                               Class.forName(pmgrcl), config);
-        } catch (Exception e) {
-            throw new InstantiationException(
-                "Error instantiating class: " + e);
-        }
-    }
-
-    /**
-     * Creates and registers a new place along with a manager to manage
-     * that place. The registry takes care of tracking the creation of the
-     * object and informing the manager when it is created.
-     *
-     * @param pobjClass the <code>PlaceObject</code> derived class that
-     * should be instantiated to create the place object.
-     * @param pmgrClass the <code>PlaceManager</code> derived class that
-     * should be instantiated to manage the place.
-     * @param config the configuration information for this place manager.
+     * @param pmgrClass the {@link PlaceManager} derived class that should
+     * be instantiated to manage the place.
      *
      * @return a reference to the place manager that will manage the new
      * place object.
@@ -90,21 +45,23 @@ public class PlaceRegistry implements Subscriber
      * @exception InstantiationException thrown if an error occurs trying
      * to instantiate and initialize the place manager.
      */
-    public PlaceManager createPlace (Class pobjClass, Class pmgrClass,
-                                     Properties config)
+    public PlaceManager createPlace (Class pmgrClass)
         throws InstantiationException
     {
         try {
             // create a place manager for this place
             PlaceManager pmgr = (PlaceManager)pmgrClass.newInstance();
             // let the pmgr know about us
-            pmgr.init(this, config);
+            pmgr.setPlaceRegistry(this);
+
             // stick the manager on the creation queue because we know
             // we'll get our calls to objectAvailable()/requestFailed() in
             // the order that we call createObject()
             _createq.append(pmgr);
+
             // and request to create the place object
-            PartyServer.omgr.createObject(pobjClass, this, false);
+            PartyServer.omgr.createObject(
+                pmgr.getPlaceObjectClass(), this, false);
 
             return pmgr;
 
@@ -128,19 +85,24 @@ public class PlaceRegistry implements Subscriber
      * should only be accessed on the dobjmgr thread and shouldn't be kept
      * around across event dispatches.
      */
-    public Enumeration getPlaces ()
+    public Iterator getPlaces ()
     {
-        final Enumeration enum = _pmgrs.elements();
-        return new Enumeration() {
-            public boolean hasMoreElements ()
+        final Iterator enum = _pmgrs.elements();
+        return new Iterator() {
+            public boolean hasNext ()
             {
-                return enum.hasMoreElements();
+                return enum.hasNext();
             }
 
-            public Object nextElement ()
+            public Object next ()
             {
-                PlaceManager plmgr = (PlaceManager)enum.nextElement();
+                PlaceManager plmgr = (PlaceManager)enum.next();
                 return (plmgr == null) ? null : plmgr.getPlaceObject();
+            }
+
+            public void remove ()
+            {
+                throw new UnsupportedOperationException();
             }
         };
     }
@@ -150,7 +112,7 @@ public class PlaceRegistry implements Subscriber
      * This should only be accessed on the dobjmgr thread and shouldn't be
      * kept around across event dispatches.
      */
-    public Enumeration getPlaceManagers ()
+    public Iterator getPlaceManagers ()
     {
         return _pmgrs.elements();
     }
@@ -213,5 +175,5 @@ public class PlaceRegistry implements Subscriber
     }
 
     protected Queue _createq = new Queue();
-    protected IntMap _pmgrs = new IntMap();
+    protected HashIntMap _pmgrs = new HashIntMap();
 }

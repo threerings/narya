@@ -1,10 +1,10 @@
 //
-// $Id: LocationService.java,v 1.2 2001/10/01 22:14:55 mdb Exp $
+// $Id: LocationService.java,v 1.3 2001/10/02 02:07:50 mdb Exp $
 
 package com.threerings.cocktail.party.client;
 
 import com.threerings.cocktail.cher.client.Client;
-import com.threerings.cocktail.cher.client.InvocationManager;
+import com.threerings.cocktail.cher.client.InvocationDirector;
 import com.threerings.cocktail.party.Log;
 
 /**
@@ -24,9 +24,9 @@ public class LocationService implements LocationCodes
     public static void moveTo (Client client, int placeId,
                                LocationDirector rsptarget)
     {
-        InvocationManager invmgr = client.getInvocationManager();
+        InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] { new Integer(placeId) };
-        invmgr.invoke(MODULE_NAME, MOVE_TO_REQUEST, args, rsptarget);
+        invdir.invoke(MODULE_NAME, MOVE_TO_REQUEST, args, rsptarget);
         Log.info("Sent moveTo request [place=" + placeId + "].");
     }
 }

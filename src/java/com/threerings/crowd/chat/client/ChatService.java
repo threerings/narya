@@ -1,10 +1,10 @@
 //
-// $Id: ChatService.java,v 1.4 2001/10/01 22:14:55 mdb Exp $
+// $Id: ChatService.java,v 1.5 2001/10/02 02:07:50 mdb Exp $
 
 package com.threerings.cocktail.party.chat;
 
 import com.threerings.cocktail.cher.client.Client;
-import com.threerings.cocktail.cher.client.InvocationManager;
+import com.threerings.cocktail.cher.client.InvocationDirector;
 import com.threerings.cocktail.party.Log;
 
 /**
@@ -33,10 +33,10 @@ public class ChatService implements ChatCodes
     public static int tell (Client client, String target, String message,
                             ChatDirector rsptarget)
     {
-        InvocationManager invmgr = client.getInvocationManager();
+        InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] { target, message };
         Log.info("Sending tell request [tgt=" + target +
                  ", msg=" + message + "].");
-        return invmgr.invoke(MODULE_NAME, TELL_REQUEST, args, rsptarget);
+        return invdir.invoke(MODULE_NAME, TELL_REQUEST, args, rsptarget);
     }
 }

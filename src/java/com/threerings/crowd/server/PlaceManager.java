@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.12 2001/08/21 22:34:20 mdb Exp $
+// $Id: PlaceManager.java,v 1.13 2001/10/02 02:07:50 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -25,28 +25,37 @@ import com.threerings.cocktail.party.data.*;
  * handles the place-related component of chatting. It also provides the
  * basis for place-based access control.
  *
- * <p> A derived class is expected to achieve its functionality via the
- * callback functions:
- *
- * <pre>
- * protected void didStartup ()
- * protected void willShutdown ()
- * protected void didShutdown ()
- * </pre>
- *
- * as well as through additions to <code>handleEvent</code>.
+ * <p> A derived class is expected to handle initialization, cleanup and
+ * operational functionality via the calldown functions {@link
+ * #didStartup}, {@link #willShutdown}, and {@link #didShutdown} as well
+ * as through additions to {@link #handleEvent}.
  */
 public class PlaceManager implements Subscriber
 {
     /**
      * Called by the place registry after creating this place manager.
-     * Initialization is followed by startup which will happen when the
-     * place object to be managed is available.
      */
-    public void init (PlaceRegistry registry, Properties config)
+    public void setPlaceRegistry (PlaceRegistry registry)
     {
         _registry = registry;
-        _config = config;
+    }
+
+    /**
+     * A place manager derived class is likely to have a corresponding
+     * derived class of {@link PlaceObject} that it will be managing.
+     * Derived classes should override this method and return the class
+     * object for the place object derived class they desire to use. The
+     * place registry will use this method to create the proper place
+     * object during the place creation process.
+     *
+     * @return the class of the class, derived from {@link PlaceObject},
+     * that this manager wishes to manage.
+     *
+     * @see PlaceRegistry#createPlace
+     */
+    protected Class getPlaceObjectClass ()
+    {
+        return PlaceObject.class;
     }
 
     /**
@@ -78,6 +87,18 @@ public class PlaceManager implements Subscriber
      * method is executed.
      */
     protected void didStartup ()
+    {
+    }
+
+    // not called at present but will eventually be part of the shutdown
+    // and cleanup process
+    protected void willShutdown ()
+    {
+    }
+
+    // not called at present but will eventually be part of the shutdown
+    // and cleanup process
+    protected void didShutdown ()
     {
     }
 
@@ -272,9 +293,6 @@ public class PlaceManager implements Subscriber
 
     /** A reference to the place registry with which we're registered. */
     protected PlaceRegistry _registry;
-
-    /** The configuration provided for this place manager. */
-    protected Properties _config;
 
     /** Message handlers are used to process message events. */
     protected HashMap _msghandlers;

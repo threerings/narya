@@ -1,13 +1,13 @@
 //
-// $Id: OccupantManager.java,v 1.4 2001/10/01 22:14:55 mdb Exp $
+// $Id: OccupantManager.java,v 1.5 2001/10/02 02:07:50 mdb Exp $
 
 package com.threerings.cocktail.party.client;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.samskivert.util.HashIntMap;
 import com.threerings.cocktail.cher.dobj.*;
-import com.threerings.cocktail.cher.util.IntMap;
 
 import com.threerings.cocktail.party.Log;
 import com.threerings.cocktail.party.data.OccupantInfo;
@@ -177,5 +177,5 @@ public class OccupantManager
 
     protected ArrayList _observers = new ArrayList();
     protected PlaceObject _place;
-    protected IntMap _ocache = new IntMap();
+    protected HashIntMap _ocache = new HashIntMap();
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.7 2001/10/01 22:14:55 mdb Exp $
+// $Id: ChatDirector.java,v 1.8 2001/10/02 02:07:50 mdb Exp $
 
 package com.threerings.cocktail.party.chat;
 
@@ -37,7 +37,7 @@ public class ChatDirector
         _ctx.getClient().addObserver(new ClientAdapter() {
             public void clientDidLogon (Client client)
             {
-                client.getInvocationManager().registerReceiver(
+                client.getInvocationDirector().registerReceiver(
                     MODULE_NAME, ChatDirector.this);
             }
         });
@@ -84,7 +84,8 @@ public class ChatDirector
         }
 
         // dispatch a speak request on the active place object
-        int reqid = _ctx.getClient().getInvocationManager().nextInvocationId();
+        int reqid =
+            _ctx.getClient().getInvocationDirector().nextInvocationId();
         Object[] args = new Object[] { new Integer(reqid), message };
         MessageEvent mevt = new MessageEvent(
             _place.getOid(), ChatService.SPEAK_REQUEST, args);
@@ -160,7 +161,7 @@ public class ChatDirector
     }
 
     /**
-     * Called by the invocation manager when another client has requested
+     * Called by the invocation director when another client has requested
      * a tell message be delivered to this client.
      */
     public void handleTellNotification (String source, String message)
