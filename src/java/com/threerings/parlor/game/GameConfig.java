@@ -1,5 +1,5 @@
 //
-// $Id: GameConfig.java,v 1.18 2004/08/27 02:20:14 mdb Exp $
+// $Id: GameConfig.java,v 1.19 2004/10/22 17:50:03 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -41,8 +41,8 @@ import com.threerings.util.Name;
  * provided to the server as part of an invitation or via some other
  * matchmaking mechanism.
  */
-public abstract class GameConfig extends PlaceConfig
-{
+public abstract class GameConfig extends PlaceConfig implements Cloneable
+{ 
     /** The usernames of the players involved in this game, or an empty
      * array if such information is not needed by this particular game. */
     public Name[] players = new Name[0];
@@ -50,6 +50,18 @@ public abstract class GameConfig extends PlaceConfig
     /** Indicates whether or not this game is rated. */
     public boolean rated = true;
 
+    /**
+     * Returns a translatable label describing this game.
+     */
+    public abstract String getGameName ();
+    
+    /**
+     * Returns the message bundle identifier for the bundle that should be
+     * used to translate the translatable strings used to describe the
+     * game config parameters.
+     */
+    public abstract String getBundleName ();
+    
     /**
      * Returns the class that should be used to create a user interface
      * that can be used to configure this instance prior to starting the
@@ -84,5 +96,18 @@ public abstract class GameConfig extends PlaceConfig
     {
         // look ma, it's so sophisticated!
         return getClass().hashCode() + (rated ? 1 : 0);
+    }
+    
+    /**
+     * Returns a clone of this game config.
+     */
+    public GameConfig getClone ()
+    {
+        try {
+            return (GameConfig)clone();
+        } catch (CloneNotSupportedException cnse) {
+            // something has gone horribly awry
+            return null;
+        }
     }
 }

@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleConfig.java,v 1.2 2004/08/27 02:20:28 mdb Exp $
+// $Id: PuzzleConfig.java,v 1.3 2004/10/22 17:50:03 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -30,10 +30,10 @@ public abstract class PuzzleConfig extends GameConfig
     implements Cloneable
 {
     /**
-     * Returns a translatable label describing this puzzle.
+     * Returns a translatable label describing this game.
      */
     public abstract String getPuzzleName ();
-
+    
     /**
      * Returns the puzzle rating type.
      */
@@ -56,6 +56,12 @@ public abstract class PuzzleConfig extends GameConfig
         return PuzzleCodes.SYNC_BOARD_STATE;
     }
 
+    // Documentation inherited.
+    public String getGameName ()
+    {
+        return getPuzzleName();
+    }
+    
     /**
      * Returns the message bundle identifier for the bundle that should be
      * used to translate the translatable strings used to describe the
@@ -67,18 +73,5 @@ public abstract class PuzzleConfig extends GameConfig
     public String getBundleName ()
     {
         return PuzzleCodes.PUZZLE_MESSAGE_BUNDLE;
-    }
-
-    /**
-     * Returns a clone of this puzzle config.
-     */
-    public PuzzleConfig getClone ()
-    {
-        try {
-            return (PuzzleConfig)clone();
-        } catch (CloneNotSupportedException cnse) {
-            // something has gone horribly awry
-            return null;
-        }
     }
 }
