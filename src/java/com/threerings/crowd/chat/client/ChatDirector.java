@@ -286,6 +286,15 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
+     * Dispatches the provided message to our chat displays.
+     */
+    public void dispatchMessage (ChatMessage message)
+    {
+        _displayMessageOp.setMessage(message);
+        _displays.apply(_displayMessageOp);
+    }
+    
+    /**
      * Dispatches a {@link #requestSpeak(SpeakService,String,byte)} on the
      * place object that we currently occupy.
      */
@@ -572,15 +581,6 @@ public class ChatDirector extends BasicDirector
             }
         }
         return message;
-    }
-
-    /**
-     * Dispatches the provided message to our chat displays.
-     */
-    protected void dispatchMessage (ChatMessage message)
-    {
-        _displayMessageOp.setMessage(message);
-        _displays.apply(_displayMessageOp);
     }
 
     /**
