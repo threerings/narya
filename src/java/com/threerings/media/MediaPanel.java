@@ -1,9 +1,12 @@
 //
-// $Id: MediaPanel.java,v 1.32 2003/04/15 00:39:20 mdb Exp $
+// $Id: MediaPanel.java,v 1.33 2003/04/29 18:15:10 mdb Exp $
 
 package com.threerings.media;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.awt.Rectangle;
@@ -16,8 +19,10 @@ import javax.swing.event.AncestorEvent;
 
 import java.util.Arrays;
 
+import com.samskivert.swing.Label;
 import com.samskivert.swing.event.AncestorAdapter;
 import com.samskivert.util.IntListUtil;
+import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.animation.Animation;
@@ -49,8 +54,7 @@ import com.threerings.media.sprite.SpriteManager;
  * paused while the animated panel is hidden.
  */
 public class MediaPanel extends JComponent
-    implements FrameParticipant, MediaConstants,
-               FrameManager.PerformanceProvider
+    implements FrameParticipant, MediaConstants
 {
     /**
      * Constructs a media panel.
@@ -130,7 +134,6 @@ public class MediaPanel extends JComponent
     // documentation inherited from interface
     public void getPerformanceStatus (StringBuffer buf)
     {
-        buf.append("MP:").append(_dirtyPerTick);
     }
 
     /**
@@ -198,6 +201,34 @@ public class MediaPanel extends JComponent
         // now tick our animations and sprites
         _animmgr.tick(tickStamp);
         _spritemgr.tick(tickStamp);
+
+        // if performance debugging is enabled, 
+        if (_perfDebug.getValue()) {
+            if (_perfLabel == null) {
+                _perfLabel = new Label(
+                    "", Label.OUTLINE, Color.white, Color.black,
+                    new Font("Arial", Font.PLAIN, 10));
+                _perfRect = new Rectangle(5, 5, 0, 0);
+            }
+
+            StringBuffer perf = new StringBuffer();
+            perf.append("[FPS: ");
+            perf.append(_framemgr.getPerfTicks()).append("/");
+            perf.append(_framemgr.getPerfTries());
+            perf.append(" MP:").append(_dirtyPerTick).append("]");
+            _perfLabel.setText(perf.toString());
+
+            Graphics2D gfx = (Graphics2D)getGraphics();
+            _perfLabel.layout(gfx);
+            gfx.dispose();
+
+            // make sure the region we dirty contains the old and the new
+            // text (which we ensure by never letting the rect shrink)
+            Dimension psize = _perfLabel.getSize();
+            _perfRect.width = Math.max(_perfRect.width, psize.width);
+            _perfRect.height = Math.max(_perfRect.height, psize.height);
+            dirtyScreenRect(new Rectangle(_perfRect));
+        }
 
         // let derived classes do their business
         didTick(tickStamp);
@@ -299,6 +330,12 @@ public class MediaPanel extends JComponent
         Rectangle[] dirty = _remgr.getDirtyRegions();
         _dirty[_tick] = dirty.length;
         paint(gfx, dirty);
+
+        // render our performance debugging if it's enabled
+        if (_perfLabel != null && _perfDebug.getValue()) {
+            gfx.setClip(null);
+            _perfLabel.render(gfx, _perfRect.x, _perfRect.y);
+        }
     }
 
     /**
@@ -463,4 +500,16 @@ public class MediaPanel extends JComponent
 
     /** Used to keep metrics. */
     protected float _dirtyPerTick;
+
+    /** Used to render performance metrics. */
+    protected Label _perfLabel;
+
+    /** Used to render performance metrics. */
+    protected Rectangle _perfRect;
+
+    /** A debug hook that toggles FPS rendering. */
+    protected static RuntimeAdjust.BooleanAdjust _perfDebug =
+        new RuntimeAdjust.BooleanAdjust(
+            "Toggles frames per second and dirty regions per tick rendering.",
+            "narya.media.fps_display", MediaPrefs.config, false);
 }
