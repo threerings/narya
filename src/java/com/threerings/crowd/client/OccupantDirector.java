@@ -113,7 +113,7 @@ public class OccupantDirector extends BasicDirector
             return null;
         }
 
-        Iterator iter = _place.occupantInfo.entries();
+        Iterator iter = _place.occupantInfo.iterator();
         while (iter.hasNext()) {
             OccupantInfo info = (OccupantInfo)iter.next();
             if (info.username.equals(username)) {

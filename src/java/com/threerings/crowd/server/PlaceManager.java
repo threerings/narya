@@ -130,7 +130,7 @@ public class PlaceManager
     public void applyToOccupants (OccupantOp op)
     {
         if (_plobj != null) {
-            Iterator iter = _plobj.occupantInfo.entries();
+            Iterator iter = _plobj.occupantInfo.iterator();
             while (iter.hasNext()) {
                 op.apply((OccupantInfo)iter.next());
             }

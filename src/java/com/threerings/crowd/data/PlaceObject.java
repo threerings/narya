@@ -93,7 +93,7 @@ public class PlaceObject extends DObject
     public OccupantInfo getOccupantInfo (Name username)
     {
         try {
-            Iterator iter = occupantInfo.entries();
+            Iterator iter = occupantInfo.iterator();
             while (iter.hasNext()) {
                 OccupantInfo info = (OccupantInfo)iter.next();
                 if (info.username.equals(username)) {

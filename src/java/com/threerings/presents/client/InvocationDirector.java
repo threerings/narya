@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.34 2004/08/27 02:20:18 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -363,7 +363,7 @@ public class InvocationDirector
                 _clobj.startTransaction();
                 try {
                     _clobj.setReceivers(new DSet());
-                    Iterator iter = receivers.entries();
+                    Iterator iter = receivers.iterator();
                     while (iter.hasNext()) {
                         _clobj.addToReceivers((Registration)iter.next());
                     }

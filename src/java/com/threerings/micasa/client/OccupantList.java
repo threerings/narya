@@ -1,5 +1,5 @@
 //
-// $Id: OccupantList.java,v 1.9 2004/11/15 01:47:52 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -59,7 +59,7 @@ public class OccupantList
     public void willEnterPlace (PlaceObject plobj)
     {
         // add all of the occupants of the place to our list
-        Iterator users = plobj.occupantInfo.entries();
+        Iterator users = plobj.occupantInfo.iterator();
         while (users.hasNext()) {
             OccupantInfo info = (OccupantInfo)users.next();
             _model.addElement(info.username);
