@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.13 2002/11/15 05:34:43 ray Exp $
+// $Id: SoundManager.java,v 1.14 2002/11/15 20:52:31 ray Exp $
 
 package com.threerings.media;
 
@@ -105,7 +105,6 @@ public class SoundManager
         _player = new Thread() {
             public void run () {
                 Object command = null;
-                SoundType type = null;
                 String path = null;
 
                 while (amRunning()) {
@@ -115,21 +114,20 @@ public class SoundManager
                         synchronized (_queue) {
                             command = _queue.get();
 
-                            if (PLAY == command) {
-                                type = (SoundType) _queue.get();
-                                path = (String) _queue.get();
+                            // some commands have an additional argument.
+                            if ((PLAY == command) ||
+                                (PLAYMUSIC == command) ||
+                                (STOPMUSIC == command) ||
+                                (LOCK == command) ||
+                                (UNLOCK == command)) {
 
-                            } else if ((PLAYMUSIC == command) ||
-                                       (STOPMUSIC == command) ||
-                                       (LOCK == command) ||
-                                       (UNLOCK == command)) {
                                 path = (String) _queue.get();
                             }
                         }
 
                         // execute the command outside of the queue synch
                         if (PLAY == command) {
-                            playSound(type, path);
+                            playSound(path);
 
                         } else if (PLAYMUSIC == command) {
                             playSequence(path);
@@ -149,6 +147,9 @@ public class SoundManager
                             // and re-start the resource freer timer
                             // to do it again in 3 seconds
                             _resourceFreer.restart();
+
+                        } else if (UPDATE_MUSIC_VOL == command) {
+                            updateMusicVolume();
 
                         } else if (DIE == command) {
                             _resourceFreer.stop();
@@ -192,36 +193,61 @@ public class SoundManager
     }
 
     /**
-     * Sets the volume of a particular type of sound.
-     *
-     * @param val a volume parameter between 0f and 1f, inclusive.
+     * Is the specified soundtype enabled?
      */
-    public void setVolume (SoundType type, float val)
+    public boolean isEnabled (SoundType type)
     {
-        // bound it in
-        val = Math.max(0f, Math.min(1f, val));
-        _volumes.put(type, new Float(val));
+        // by default, types are enabled..
+        return (!_disabledTypes.contains(type));
     }
 
     /**
-     * Is the specified soundtype enabled?
+     * Turns on or off the specified sound type.
      */
-    public float getVolume (SoundType type)
+    public void setEnabled (SoundType type, boolean enabled)
     {
-        Float vol = (Float) _volumes.get(type);
-
-        // now we're nice to unregistered sounds..
-        return (vol != null) ? vol.floatValue() : 1f;
+        if (enabled) {
+            _disabledTypes.remove(type);
+        } else {
+            _disabledTypes.add(type);
+        }
     }
 
+    /**
+     * Sets the volume for all sound clips.
+     *
+     * @param val a volume parameter between 0f and 1f, inclusive.
+     */
+    public void setClipVolume (float vol)
+    {
+        _clipVol = Math.max(0f, Math.min(1f, vol));
+    }
+
+    /**
+     * Get the volume for all sound clips.
+     */
+    public float getClipVolume ()
+    {
+        return _clipVol;
+    }
+
+    /**
+     * Sets the volume for music.
+     *
+     * @param val a volume parameter between 0f and 1f, inclusive.
+     */
     public void setMusicVolume (float vol)
     {
-        // TODO
+        _musicVol = Math.max(0f, Math.min(1f, vol));
+        _queue.append(UPDATE_MUSIC_VOL);
     }
 
+    /**
+     * Get the music volume.
+     */
     public float getMusicVolume ()
     {
-        return 1f; // TODO
+        return _musicVol;
     }
 
     /**
@@ -258,11 +284,10 @@ public class SoundManager
             type = DEFAULT;
         }
 
-        if (_player != null && (0f != getVolume(type))) {
+        if (_player != null && isEnabled(type)) {
             synchronized (_queue) {
                 if (_queue.size() < MAX_QUEUE_SIZE) {
                     _queue.append(PLAY);
-                    _queue.append(type);
                     _queue.append(path);
 
                 } else {
@@ -274,6 +299,10 @@ public class SoundManager
         }
     }
 
+    /**
+     * Start playing the specified music, stopping any currently played
+     * music.
+     */
     public void pushMusic (String path)
     {
         synchronized (_queue) {
@@ -282,6 +311,10 @@ public class SoundManager
         }
     }
 
+    /**
+     * Remove the specified music from the playlist. If it is currently
+     * playing, it will be stopped and the previous song will be started.
+     */
     public void removeMusic (String path)
     {
         synchronized (_queue) {
@@ -294,11 +327,11 @@ public class SoundManager
      * On the SoundManager thread,
      * plays the sound file with the given pathname.
      */
-    protected void playSound (SoundType type, String path)
+    protected void playSound (String path)
     {
         // see if we can restart a previously used sound that's still
         // hanging out.
-        if (restartSound(type, path)) {
+        if (restartSound(path)) {
             return;
         }
 
@@ -316,7 +349,7 @@ public class SoundManager
             clip.open(stream);
 
             SoundRecord rec = new SoundRecord(path, clip);
-            rec.start(type);
+            rec.start(_clipVol);
             _activeClips.add(rec);
 
             // and rewind the stream to the beginning for next time
@@ -335,7 +368,7 @@ public class SoundManager
     /**
      * Attempt to reuse a clip that's already been loaded.
      */
-    protected boolean restartSound (SoundType type, String path)
+    protected boolean restartSound (String path)
     {
         long now = System.currentTimeMillis();
 
@@ -343,7 +376,7 @@ public class SoundManager
         for (int ii=0, nn=_activeClips.size(); ii < nn; ii++) {
             SoundRecord rec = (SoundRecord) _activeClips.get(ii);
             if (rec.path.equals(path) && rec.isStoppedSince(now)) {
-                rec.restart(type);
+                rec.restart(_clipVol);
                 return true;
             }
         }
@@ -361,7 +394,8 @@ public class SoundManager
                 Sequencer seq = MidiSystem.getSequencer();
                 seq.open();
                 if (seq instanceof Synthesizer) {
-                    _midiChannels = ((Synthesizer)  seq).getChannels();
+                    _midiChannels = ((Synthesizer) seq).getChannels();
+                    //updateMusicVolume();
                 }
                 _sequencer = seq;
                 _sequencer.addMetaEventListener(this);
@@ -379,6 +413,7 @@ public class SoundManager
         try {
             _sequencer.setSequence(getResource(path));
             _sequencer.start();
+            //updateMusicVolume();
             _midiStack.addFirst(path);
 
         } catch (InvalidMidiDataException imda) {
@@ -414,6 +449,24 @@ public class SoundManager
             } else {
                 // play the next one on the stack (will also stop this one)
                 playSequence((String) _midiStack.removeFirst());
+            }
+        }
+    }
+
+    /**
+     * Attempt to modify the music volume for any playing tracks.
+     */
+    protected void updateMusicVolume ()
+    {
+        if (_midiChannels == null) {
+            Log.warning("Cannot modify music volume!");
+
+        } else {
+            int setting = (int) (_musicVol * 127.0);
+            Log.info("setting musicvol: " + setting +
+                     ", chans=" + _midiChannels.length);
+            for (int ii=0; ii < _midiChannels.length; ii++) {
+                _midiChannels[ii].controlChange(7, (int) (_musicVol * 127));
             }
         }
     }
@@ -498,7 +551,7 @@ public class SoundManager
      * We don't free the resources associated with a clip immediately, because
      * it may be played again shortly.
      */
-    protected class SoundRecord
+    protected static class SoundRecord
         implements LineListener
     {
         public String path;
@@ -546,9 +599,9 @@ public class SoundManager
         /**
          * Start playing the sound.
          */
-        public void start (SoundType type)
+        public void start (float volume)
         {
-            adjustVolume(_clip, type);
+            adjustVolume(volume);
             _clip.start();
             didStart();
         }
@@ -556,15 +609,12 @@ public class SoundManager
         /**
          * Restart the sound from the beginning.
          */
-        public void restart (SoundType type)
+        public void restart (float volume)
         {
-// this seems to be unneeded
-//            if (_clip.isRunning()) {
-//                Log.info("Restarted a sound and sent it a stop..");
-//                _clip.stop();
-//            }
+            // this only gets called after the sound has stopped, so
+            // simply rewind and replay.
             _clip.setFramePosition(0);
-            start(type);
+            start(volume);
         }
 
         /**
@@ -644,6 +694,52 @@ public class SoundManager
             return _length == AudioSystem.NOT_SPECIFIED;
         }
 
+//        /**
+//         * Adjust the volume of this clip.
+//         */
+//        protected void adjustVolume (float volume)
+//        {
+//            if (_clip.isControlSupported(FloatControl.Type.VOLUME)) {
+//                FloatControl vol = (FloatControl) 
+//                    _clip.getControl(FloatControl.Type.VOLUME);
+//
+//                float min = vol.getMinimum();
+//                float max = vol.getMaximum();
+//
+//                float ourval = (volume * (max - min)) + min;
+//                Log.debug("adjust vol: [min=" + min + ", ourval=" + ourval +
+//                    ", max=" + max + "].");
+//                vol.setValue(ourval);
+//
+//            } else {
+//                // fall back
+//                adjustVolumeFallback(vol);
+//            }
+//        }
+
+        /**
+         * Use the gain control to implement volume.
+         */
+        protected void adjustVolume (float volume)
+        {
+            FloatControl vol = (FloatControl) 
+                _clip.getControl(FloatControl.Type.MASTER_GAIN);
+
+            // the only problem is that gain is specified in decibals,
+            // which is a logarithmic scale.
+            // Since we want max volume to leave the sample unchanged, our
+            // maximum volume translates into a 0db gain.
+            float gain;
+            if (volume == 0f) {
+                gain = vol.getMinimum();
+            } else {
+                gain = (float) ((Math.log(volume) / Math.log(10.0)) * 20.0);
+            }
+
+            vol.setValue(gain);
+            Log.info("Set gain: " + gain);
+        }
+
         /** The timestamp of the moment this clip last stopped playing. */
         protected long _stamp;
 
@@ -653,68 +749,6 @@ public class SoundManager
 
         /** The clip we're wrapping. */
         protected Clip _clip;
-    }
-
-    /**
-     * Adjust the volume of this clip.
-     */
-    protected void adjustVolume (Line c, SoundType type)
-    {
-        if (c.isControlSupported(FloatControl.Type.VOLUME)) {
-            try {
-                FloatControl vol = (FloatControl) 
-                    c.getControl(FloatControl.Type.VOLUME);
-
-                float min = vol.getMinimum();
-                float max = vol.getMaximum();
-
-                float ourval = (getVolume(type) * (max - min)) + min;
-                Log.debug("adjust vol: [min=" + min + ", ourval=" + ourval +
-                    ", max=" + max + "].");
-                vol.setValue(ourval);
-                return;
-            } catch (Exception e) {
-                Log.logStackTrace(e);
-            }
-        }
-        // fall back
-        adjustVolumeFallback(c, type);
-    }
-
-    /**
-     * Use the gain control to implement volume.
-     */
-    protected void adjustVolumeFallback (Line c, SoundType type)
-    {
-        FloatControl vol = (FloatControl) 
-            c.getControl(FloatControl.Type.MASTER_GAIN);
-
-        // the only problem is that gain is specified in decibals,
-        // which is a logarithmic scale.
-        // Since we want max volume to leave the sample unchanged, our
-        // maximum volume translates into a 0db gain.
-        float ourSetting = getVolume(type);
-        float gain;
-        if (ourSetting == 1f) {
-            // because our max is a 0db gain, and we're short-circuiting
-            // divide-by-zero problems down below
-            gain = 0f;
-
-        } else {
-
-            // if our setting isn't 1, we need to scale it by the
-            // linear value of the minimum gain.
-            // And we have to be very careful with the sign, since
-            // it fucks up these log/pow methods.
-            double absmin = Math.abs(vol.getMinimum());
-            double minlin = Math.pow(10.0, absmin / 20.0);
-            double ourval = ((1f - ourSetting) * absmin);
-
-            gain = (float) ((Math.log(ourval) / Math.log(10)) * -20d);
-        }
-
-        vol.setValue(gain);
-        //Log.info("Set gain: " + gain);
     }
 
     /**
@@ -738,6 +772,9 @@ public class SoundManager
 
     /** The queue of sound clips to be played. */
     protected Queue _queue = new Queue();
+
+    /** Volume levels for both sound clips and music. */
+    protected float _clipVol = 1f, _musicVol = 1f;
     
     /** The cache of recent audio clips . */
     protected LockableLRUHashMap _dataCache = new LockableLRUHashMap(10);
@@ -755,12 +792,13 @@ public class SoundManager
     protected LinkedList _midiStack = new LinkedList();
 
     /** A set of soundTypes for which sound is enabled. */
-    protected HashMap _volumes = new HashMap();
+    protected HashSet _disabledTypes = new HashSet();
 
     /** Signals to the queue to do different things. */
     protected Object PLAY = new Object();
     protected Object PLAYMUSIC = new Object();
     protected Object STOPMUSIC = new Object();
+    protected Object UPDATE_MUSIC_VOL = new Object();
     protected Object LOCK = new Object();
     protected Object UNLOCK = new Object();
     protected Object FLUSH = new Object();
@@ -768,9 +806,6 @@ public class SoundManager
 
     /** This is apparently the midi code for end of track. Wack. */
     protected static final int MIDI_END_OF_TRACK = 47;
-
-    /** Default volume float object if no others found for a sound type. */
-    protected static final Float DEFAULT_VOLUME = new Float(1f);
 
     /** The queue size at which we start to ignore requests to play sounds. */
     protected static final int MAX_QUEUE_SIZE = 100;
