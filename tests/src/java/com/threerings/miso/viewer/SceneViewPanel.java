@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.7 2001/08/02 20:43:03 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.8 2001/08/02 23:12:19 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -54,7 +54,8 @@ public class SceneViewPanel extends JPanel
         // load up the initial scene
         prepareStartingScene();
 
-        //setDoubleBuffered(false);
+        setDoubleBuffered(false);
+        setOpaque(true);
 
         PerformanceMonitor.register(this, "paint", 1000);
     }

@@ -1,10 +1,11 @@
 //
-// $Id: AnimationManager.java,v 1.4 2001/08/02 18:59:00 shaper Exp $
+// $Id: AnimationManager.java,v 1.5 2001/08/02 23:12:19 shaper Exp $
 
 package com.threerings.miso.sprite;
 
-import java.awt.Component;
 import java.util.ArrayList;
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
@@ -24,13 +25,21 @@ public class AnimationManager implements Interval, PerformanceObserver
      * Construct and initialize the animation manager with a sprite
      * manager and the panel that animations will take place within.
      */
-    public AnimationManager (SpriteManager spritemgr, Component target,
+    public AnimationManager (SpriteManager spritemgr, JComponent target,
                              SceneView view)
     {
         // save off references to the objects we care about
         _spritemgr = spritemgr;
         _target = target;
         _view = view;
+
+        // create a ticker for queueing up tick requests on the AWT thread
+        _ticker = new Runnable() {
+            public void run ()
+            {
+                tick();
+            }
+        };
 
         // register to monitor the refresh action 
         PerformanceMonitor.register(this, "refresh", 1000);
@@ -39,11 +48,32 @@ public class AnimationManager implements Interval, PerformanceObserver
         IntervalManager.register(this, REFRESH_INTERVAL, null, true);
     }
 
+    protected synchronized boolean requestTick ()
+    {
+        if (_ticking++ > 0) return false;
+        return true;
+    }
+
+    protected synchronized boolean finishedTick ()
+    {
+        if (--_ticking > 0) {
+            _ticking = 1;
+            return true;
+        }
+
+        return false;
+    }
+
     public void intervalExpired (int id, Object arg)
     {
-        // refresh the display
-        _target.repaint();
+        if (requestTick()) {
+            // throw the tick task on the AWT thread task queue
+            SwingUtilities.invokeLater(_ticker);
+        }
+    }
 
+    protected void tick ()
+    {
         // call tick on all sprites
         _spritemgr.tick();
 
@@ -52,7 +82,18 @@ public class AnimationManager implements Interval, PerformanceObserver
         _view.invalidateRects(rects);
 
         // update frame-rate information
-        //PerformanceMonitor.tick(this, "refresh");
+        PerformanceMonitor.tick(AnimationManager.this, "refresh");
+
+        // refresh the display
+        _target.paintImmediately(_target.getBounds());
+
+        if (finishedTick()) {
+            // finishedTick returning true means there's been a
+            // request for at least one more tick since we started
+            // this tick, so we want to queue up another tick
+            // immediately
+            SwingUtilities.invokeLater(_ticker);
+        }
     }
 
     public void checkpoint (String name, int ticks)
@@ -60,17 +101,23 @@ public class AnimationManager implements Interval, PerformanceObserver
         Log.info(name + " [ticks=" + ticks + "].");
     }
 
+    /** The ticker runnable that we put on the AWT thread periodically. */
+    protected Runnable _ticker;
+
     /** The desired number of refresh operations per second. */
     protected static final int FRAME_RATE = 20;
 
     /** The milliseconds to sleep to obtain desired frame rate. */
     protected static final long REFRESH_INTERVAL = 1000 / FRAME_RATE;
 
+    /** The number of outstanding tick requests. */
+    protected int _ticking = 0;
+
     /** The sprite manager. */
     protected SpriteManager _spritemgr;
 
     /** The component to refresh. */
-    protected Component _target;
+    protected JComponent _target;
 
     /** The scene view. */
     protected SceneView _view;
