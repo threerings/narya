@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedObjectTileSet.java,v 1.7 2003/02/06 06:23:05 mdb Exp $
+// $Id: TrimmedObjectTileSet.java,v 1.8 2003/02/12 05:33:47 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -50,11 +50,12 @@ public class TrimmedObjectTileSet extends TileSet
 
     /**
      * Returns the orientation of the spot associated with the specified
-     * tile index.
+     * tile index, or <code>-1</code> if the object has no associated
+     * spot.
      */
     public int getSpotOrient (int tileIdx)
     {
-        return (_bits == null) ? 0 : _bits[tileIdx].sorient;
+        return (_bits == null) ? -1 : _bits[tileIdx].sorient;
     }
 
     // documentation inherited
@@ -72,7 +73,7 @@ public class TrimmedObjectTileSet extends TileSet
         if (_bits != null) {
             Bits bits = _bits[tileIndex];
             tile.setPriority(bits.priority);
-            if (bits.xspot != 0 || bits.yspot != 0 || bits.sorient != 0) {
+            if (bits.sorient != -1) {
                 tile.setSpot(bits.xspot, bits.yspot, bits.sorient);
             }
         }
@@ -181,7 +182,7 @@ public class TrimmedObjectTileSet extends TileSet
         public short yspot;
 
         /** The orientation of the "spot" associated with this object. */
-        public byte sorient;
+        public byte sorient = -1;
 
         /** Generates a string representation of this instance. */
         public String toString ()
