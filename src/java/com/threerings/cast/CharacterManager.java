@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.16 2002/03/16 03:15:04 shaper Exp $
+// $Id: CharacterManager.java,v 1.17 2002/04/15 23:06:49 mdb Exp $
 
 package com.threerings.cast;
 
@@ -79,9 +79,25 @@ public class CharacterManager
      */
     public CharacterSprite getCharacter (CharacterDescriptor desc)
     {
+        return getCharacter(desc, _charClass);
+    }
+
+    /**
+     * Returns a {@link CharacterSprite} representing the character
+     * described by the given {@link CharacterDescriptor}, or
+     * <code>null</code> if an error occurs.
+     *
+     * @param desc the character descriptor.
+     * @param charClass the {@link CharacterSprite} derived class that
+     * should be instantiated instead of the configured default (which is
+     * set via {@link #setCharacterClass}).
+     */
+    public CharacterSprite getCharacter (CharacterDescriptor desc,
+                                         Class charClass)
+    {
         try {
             CharacterSprite sprite = (CharacterSprite)
-                _charClass.newInstance();
+                charClass.newInstance();
             sprite.init(desc, this);
             return sprite;
 
