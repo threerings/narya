@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.24 2002/05/17 19:06:23 ray Exp $
+// $Id: IsoSceneViewModel.java,v 1.25 2002/06/17 18:01:47 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -204,6 +204,15 @@ public class IsoSceneViewModel
     {
 	showCoords = !showCoords;
         notifyListeners(IsoSceneViewModelListener.SHOW_COORDINATES_CHANGED);
+    }
+
+    /**
+     * Toggle whether footprints should be drawn for each object tile.
+     */
+    public void toggleShowFootprints ()
+    {
+	showFootprints = !showFootprints;
+        notifyListeners(IsoSceneViewModelListener.SHOW_FOOTPRINTS_CHANGED);
     }
 
     /**
