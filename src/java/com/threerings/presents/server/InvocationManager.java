@@ -1,5 +1,5 @@
 //
-// $Id: InvocationManager.java,v 1.20 2004/02/25 14:45:16 mdb Exp $
+// $Id: InvocationManager.java,v 1.21 2004/07/03 07:19:46 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -182,10 +182,10 @@ public class InvocationManager
         // make sure the client is still around
         ClientObject source = (ClientObject)_omgr.getObject(clientOid);
         if (source == null) {
-            Log.warning("Client no longer around for invocation " +
-                        "request [clientOid=" + clientOid +
-                        ", code=" + invCode + ", methId=" + methodId +
-                        ", args=" + StringUtil.toString(args) + "].");
+            Log.info("Client no longer around for invocation " +
+                     "request [clientOid=" + clientOid +
+                     ", code=" + invCode + ", methId=" + methodId +
+                     ", args=" + StringUtil.toString(args) + "].");
             return;
         }
 
