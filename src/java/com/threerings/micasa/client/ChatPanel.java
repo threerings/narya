@@ -1,21 +1,38 @@
 //
-// $Id: ChatPanel.java,v 1.7 2001/10/18 23:55:37 mdb Exp $
+// $Id: ChatPanel.java,v 1.8 2001/12/14 04:33:53 shaper Exp $
 
 package com.threerings.micasa.client;
 
 import java.awt.Color;
 import java.awt.Dimension;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.*;
-import javax.swing.text.*;
 import java.util.StringTokenizer;
 
-import com.samskivert.swing.*;
-import com.threerings.crowd.chat.*;
-import com.threerings.crowd.client.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+
+import com.samskivert.swing.GroupLayout;
+import com.samskivert.swing.HGroupLayout;
+import com.samskivert.swing.VGroupLayout;
+
+import com.threerings.crowd.chat.ChatCodes;
+import com.threerings.crowd.chat.ChatDirector;
+import com.threerings.crowd.chat.ChatDisplay;
+import com.threerings.crowd.client.OccupantObserver;
+import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
@@ -68,14 +85,26 @@ public class ChatPanel
         epanel.add(_send, GroupLayout.FIXED);
         add(epanel, GroupLayout.FIXED);
 
-        // focus the chat input field by default
-        _entry.requestFocus();
+        // listen to ancestor events to request focus when added
+        addAncestorListener(new AncestorListener() {
+            public void ancestorAdded (AncestorEvent e) {
+                if (_focus) {
+                    _entry.requestFocus();
+                }
+            }
+            public void ancestorMoved (AncestorEvent e) {
+                // don't care
+            }
+            public void ancestorRemoved (AncestorEvent e) {
+                // don't care
+            }
+        });
     }
 
     /**
-     * For appliations where the chat box has extremely limited space, the
-     * send button can be removed to leave more space for the text input
-     * box.
+     * For applications where the chat box has extremely limited space,
+     * the send button can be removed to leave more space for the text
+     * input box.
      */
     public void removeSendButton ()
     {
@@ -83,6 +112,17 @@ public class ChatPanel
             // _send.getParent().remove(_send);
             _send.setVisible(false);
         }
+    }
+
+    /**
+     * Sets whether the chat box text entry field requests the keyboard
+     * focus when the panel receives {@link
+     * AncestorListener#ancestorAdded} or {@link PlaceView#willEnterPlace}
+     * events.
+     */
+    public void setRequestFocus (boolean focus)
+    {
+        _focus = focus;
     }
 
     protected void createStyles (JTextPane text)
@@ -253,7 +293,9 @@ public class ChatPanel
         // we can chat
         _entry.setEnabled(true);
         _send.setEnabled(true);
-        _entry.requestFocus();
+        if (_focus) {
+            _entry.requestFocus();
+        }
     }
 
     public void didLeavePlace (PlaceObject place)
@@ -275,6 +317,8 @@ public class ChatPanel
 
     protected CrowdContext _ctx;
     protected ChatDirector _chatdtr;
+
+    protected boolean _focus = true;
 
     protected JComboBox _roombox;
     protected JTextPane _text;
