@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaApplet.java,v 1.5 2002/01/19 04:16:02 mdb Exp $
+// $Id: MiCasaApplet.java,v 1.6 2002/02/09 20:47:11 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -46,7 +46,7 @@ public class MiCasaApplet extends Applet
                 new UsernamePasswordCreds(username, authkey));
 
             // we want to hide the client frame when we logoff
-            client.addObserver(new ClientAdapter() {
+            client.addClientObserver(new ClientAdapter() {
                 public void clientDidLogoff (Client c)
                 {
                     _frame.setVisible(false);

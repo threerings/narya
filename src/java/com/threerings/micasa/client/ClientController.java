@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.11 2001/12/20 01:10:51 shaper Exp $
+// $Id: ClientController.java,v 1.12 2002/02/09 20:47:11 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -34,7 +34,7 @@ public class ClientController
         _frame = frame;
 
         // we want to know about logon/logoff
-        _ctx.getClient().addObserver(this);
+        _ctx.getClient().addClientObserver(this);
 
         // create the logon panel and display it
         _logonPanel = new LogonPanel(_ctx);

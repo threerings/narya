@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.16 2001/12/16 05:18:20 mdb Exp $
+// $Id: LocationDirector.java,v 1.17 2002/02/09 20:47:11 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -47,7 +47,7 @@ public class LocationDirector
         _ctx = ctx;
 
         // register ourselves as a client observer
-        ctx.getClient().addObserver(this);
+        ctx.getClient().addClientObserver(this);
     }
 
     /**

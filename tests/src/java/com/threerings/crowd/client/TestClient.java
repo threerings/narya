@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.7 2001/11/08 02:07:36 mdb Exp $
+// $Id: TestClient.java,v 1.8 2002/02/09 20:47:11 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -28,7 +28,7 @@ public class TestClient
         _occmgr = new OccupantManager(_ctx);
 
         // we want to know about logon/logoff
-        _client.addObserver(this);
+        _client.addClientObserver(this);
 
         // for test purposes, hardcode the server info
         _client.setServer("localhost", 4007);

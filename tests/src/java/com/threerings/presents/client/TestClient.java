@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.12 2001/11/08 02:07:36 mdb Exp $
+// $Id: TestClient.java,v 1.13 2002/02/09 20:47:11 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -117,7 +117,7 @@ public class TestClient
             new UsernamePasswordCreds("test", "test");
         Client client = new Client(creds, tclient);
         tclient.setClient(client);
-        client.addObserver(tclient);
+        client.addClientObserver(tclient);
         client.setServer("localhost", 4007);
         client.logon();
         // start up our event processing loop

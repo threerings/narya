@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaApp.java,v 1.5 2002/01/19 04:02:11 mdb Exp $
+// $Id: MiCasaApp.java,v 1.6 2002/02/09 20:47:11 mdb Exp $
 
 package com.threerings.micasa.client;
 
@@ -60,7 +60,7 @@ public class MiCasaApp
         }
 
         // we want to exit when we logged off or failed to log on
-        client.addObserver(new ClientAdapter() {
+        client.addClientObserver(new ClientAdapter() {
             public void clientFailedToLogon (Client c, Exception cause) {
                 System.exit(0);
             }

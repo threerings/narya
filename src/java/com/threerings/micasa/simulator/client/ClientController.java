@@ -1,5 +1,5 @@
 //
-// $Id: ClientController.java,v 1.3 2002/02/05 22:57:44 mdb Exp $
+// $Id: ClientController.java,v 1.4 2002/02/09 20:47:11 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -39,7 +39,7 @@ public class ClientController
         _info = info;
 
         // we want to know about logon/logoff
-        _ctx.getClient().addObserver(this);
+        _ctx.getClient().addClientObserver(this);
     }
 
     // documentation inherited

@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorApp.java,v 1.4 2002/02/05 22:58:23 mdb Exp $
+// $Id: SimulatorApp.java,v 1.5 2002/02/09 20:47:11 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -86,7 +86,7 @@ public class SimulatorApp
         client.setServer("localhost", Client.DEFAULT_SERVER_PORT);
 
         // we want to exit when we logged off or failed to log on
-        client.addObserver(new ClientAdapter() {
+        client.addClientObserver(new ClientAdapter() {
             public void clientFailedToLogon (Client c, Exception cause) {
                 System.exit(0);
             }

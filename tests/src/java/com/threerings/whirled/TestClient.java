@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.9 2001/12/17 03:36:36 mdb Exp $
+// $Id: TestClient.java,v 1.10 2002/02/09 20:47:11 mdb Exp $
 
 package com.threerings.whirled;
 
@@ -37,7 +37,7 @@ public class TestClient
             _ctx, _locdir, _screp, new DefaultDisplaySceneFactory());
 
         // we want to know about logon/logoff
-        _client.addObserver(this);
+        _client.addClientObserver(this);
 
         // we want to know about location changes
         _locdir.addLocationObserver(this);
