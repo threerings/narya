@@ -1,11 +1,13 @@
 //
-// $Id: MuteDirector.java,v 1.6 2003/03/20 00:46:34 ray Exp $
+// $Id: MuteDirector.java,v 1.7 2003/04/08 02:49:43 ray Exp $
 
 package com.threerings.crowd.chat;
 
 import java.util.HashSet;
 
 import com.samskivert.util.ObserverList;
+
+import com.threerings.util.MessageBundle;
 
 import com.threerings.crowd.util.CrowdContext;
 
@@ -94,6 +96,8 @@ public class MuteDirector extends BasicDirector
     public void setMuted (String username, boolean mute)
     {
         if (mute ? _mutelist.add(username) : _mutelist.remove(username)) {
+            _chatdir.displayFeedbackMessage(MessageBundle.tcompose(
+                mute ? "m.muted" : "m.unmuted", username));
             notifyObservers(username, mute);
         }
     }
