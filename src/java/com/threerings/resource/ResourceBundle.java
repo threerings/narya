@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.27 2004/06/19 08:09:33 mdb Exp $
+// $Id: ResourceBundle.java,v 1.28 2004/07/03 03:21:05 mdb Exp $
 
 package com.threerings.resource;
 
@@ -186,26 +186,11 @@ public class ResourceBundle
     }
 
     /**
-     * Closes our (possibly opened) jar file.
-     */
-    protected void closeJar ()
-    {
-        try {
-            if (_jarSource != null) {
-                _jarSource.close();
-            }
-        } catch (Exception ioe) {
-            Log.warning("Failed to close jar file [path=" + _source +
-                        ", error=" + ioe + "].");
-        }
-    }
-
-    /**
      * Clears out everything associated with this resource bundle in the
      * hopes that we can download it afresh and everything will work the
      * next time around.
      */
-    protected void wipeBundle ()
+    public void wipeBundle ()
     {
         // clear out our cache directory
         if (_cache != null) {
@@ -371,6 +356,21 @@ public class ResourceBundle
             throw new NestableIOException(
                 "Failed to resolve resource bundle jar file '" +
                 _source + "'", ioe);
+        }
+    }
+
+    /**
+     * Closes our (possibly opened) jar file.
+     */
+    protected void closeJar ()
+    {
+        try {
+            if (_jarSource != null) {
+                _jarSource.close();
+            }
+        } catch (Exception ioe) {
+            Log.warning("Failed to close jar file [path=" + _source +
+                        ", error=" + ioe + "].");
         }
     }
 
