@@ -1,9 +1,9 @@
 //
-// $Id: MisoContext.java,v 1.8 2002/03/28 22:32:32 mdb Exp $
+// $Id: MisoContext.java,v 1.9 2002/04/06 02:04:23 mdb Exp $
 
 package com.threerings.miso.util;
 
-import com.threerings.media.tile.TileManager;
+import com.threerings.miso.tile.MisoTileManager;
 
 /**
  * Provides Miso code with access to the managers that it needs to do its
@@ -15,5 +15,5 @@ public interface MisoContext
      * Returns a reference to the tile manager. This reference is valid
      * for the lifetime of the application.
      */
-    public TileManager getTileManager ();
+    public MisoTileManager getTileManager ();
 }
