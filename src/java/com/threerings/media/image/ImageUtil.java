@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.7 2002/03/08 21:05:01 mdb Exp $
+// $Id: ImageUtil.java,v 1.8 2002/04/06 03:41:18 ray Exp $
 
 package com.threerings.media.util;
 
@@ -15,6 +15,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 
 import com.samskivert.util.StringUtil;
 import com.threerings.media.Log;
@@ -187,6 +189,35 @@ public class ImageUtil
 
         // convert back to RGB space
         return Color.HSBtoRGB(hsv[0], hsv[1], hsv[2]);
+    }
+
+    /**
+     * Create an image using the alpha channel from the first Image
+     * and the RGB values from the second.
+     */
+    public static BufferedImage composeMaskedImage (BufferedImage mask,
+                                                    BufferedImage base)
+    {
+        int wid = base.getWidth(null);
+        int hei = base.getHeight(null);
+
+        Raster maskdata = mask.getData();
+        Raster basedata = base.getData();
+
+        WritableRaster target = basedata.createCompatibleWritableRaster(
+            wid, hei);
+
+        // copy the alpha from the mask image
+        int[] adata = maskdata.getSamples(0, 0, wid, hei, 3, (int[]) null);
+        target.setSamples(0, 0, wid, hei, 3, adata);
+
+        // copy the RGB from the base image
+        for (int ii=0; ii < 3; ii++) {
+            int[] cdata = basedata.getSamples(0, 0, wid, hei, ii, (int[]) null);
+            target.setSamples(0, 0, wid, hei, ii, cdata);
+        }
+
+        return new BufferedImage(mask.getColorModel(), target, true, null);
     }
 
     /**
