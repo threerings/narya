@@ -1,5 +1,5 @@
 //
-// $Id: RuntimeScene.java,v 1.1 2001/11/12 20:56:56 mdb Exp $
+// $Id: RuntimeScene.java,v 1.2 2002/06/20 22:10:55 mdb Exp $
 
 package com.threerings.whirled.server;
 
@@ -25,6 +25,11 @@ public interface RuntimeScene
      * Returns the unique identifier for this scene.
      */
     public int getId ();
+
+    /**
+     * Returns the human readable name of this scene.
+     */
+    public String getName ();
 
     /**
      * Returns the version number of this scene.
