@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.17 2002/01/30 18:30:43 mdb Exp $
+// $Id: InvocationDirector.java,v 1.18 2002/04/10 06:08:59 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.ResultListener;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.data.*;
@@ -35,23 +36,49 @@ import com.threerings.presents.util.ClassUtil;
  * notifications at any time from the server.
  */
 public class InvocationDirector
-    implements Subscriber, MessageListener
+    implements MessageListener
 {
     /**
-     * Initializes the invocation director with the specified invocation
-     * manager oid. It will obtain its distributed object manager and
-     * client object references from the supplied client instance. The
-     * invocation manager oid is the oid of the object on the server to
-     * which to deliver invocation requests.
+     * Initializes the invocation director.
+     *
+     * @param omgr the distributed object manager via which the invocation
+     * manager will send and receive events.
+     * @param cloid the oid of the object on which invocation
+     * notifications as well as invocation responses will be received.
+     * @param imoid the oid of the object on the server to which to
+     * deliver invocation requests.
+     * @param initListener a result listener that will be notified when
+     * the invocation director is up and running (meaning it has
+     * subscribed successfully to the client object and is ready to
+     * process invocation requests); or when initialization has failed.
      */
-    public void init (Client client, int imoid)
+    public void init (DObjectManager omgr, final int cloid, int imoid,
+                      final ResultListener initListener)
     {
-        _client = client;
-        _omgr = client.getDObjectManager();
+        _omgr = omgr;
         _imoid = imoid;
 
         // add ourselves as a subscriber to the client object
-        _omgr.subscribeToObject(client.getClientOid(), this);
+        _omgr.subscribeToObject(cloid, new Subscriber() {
+            public void objectAvailable (DObject object)
+            {
+                // add ourselves as a message listener
+                object.addListener(InvocationDirector.this);
+
+                // let the client know that we're ready to go now that
+                // we've got our subscription to the client object
+                initListener.requestCompleted(object);
+            }
+
+            public void requestFailed (int oid, ObjectAccessException cause)
+            {
+                // aiya! we were unable to subscribe to the client object.
+                // we're hosed, hosed, hosed
+                Log.warning("Invocation director unable to subscribe to " +
+                            "client object [cloid=" + cloid + "]!");
+                initListener.requestFailed(cause);
+            }
+        });
     }
 
     /**
@@ -118,6 +145,9 @@ public class InvocationDirector
      */
     public void registerReceiver (String module, InvocationReceiver receiver)
     {
+        if (_receivers == null) {
+            _receivers = new HashMap();
+        }
         _receivers.put(module, receiver);
     }
 
@@ -128,27 +158,9 @@ public class InvocationDirector
      */
     public void unregisterReceiver (String module)
     {
-        _receivers.remove(module);
-    }
-
-    // documentation inherited
-    public void objectAvailable (DObject object)
-    {
-        // add ourselves as a message listener
-        object.addListener(this);
-
-        // let the client know that we're ready to go now that we've got
-        // our subscription to the client object
-        _client.invocationDirectorReady((ClientObject)object);
-    }
-
-    // documentation inherited
-    public void requestFailed (int oid, ObjectAccessException cause)
-    {
-        // aiya! we were unable to subscribe to the client object. we're
-        // hosed, hosed, hosed
-        Log.warning("Invocation director unable to subscribe to client " +
-                    "object. All is wrong in the universe.");
+        if (_receivers != null) {
+            _receivers.remove(module);
+        }
     }
 
     /**
@@ -221,8 +233,10 @@ public class InvocationDirector
         String module = (String)args[0];
         String proc = (String)args[1];
 
-        InvocationReceiver receiver =
-            (InvocationReceiver)_receivers.get(module);
+        InvocationReceiver receiver = null;
+        if (_receivers != null) {
+            receiver = (InvocationReceiver)_receivers.get(module);
+        }
         if (receiver == null) {
             Log.warning("No receiver registered for notification " +
                         "[args=" + StringUtil.toString(args) + "].");
@@ -275,7 +289,6 @@ public class InvocationDirector
         }
     }
 
-    protected Client _client;
     protected DObjectManager _omgr;
     protected int _imoid;
 

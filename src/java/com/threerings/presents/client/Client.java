@@ -1,10 +1,12 @@
 //
-// $Id: Client.java,v 1.21 2002/03/11 19:51:25 mdb Exp $
+// $Id: Client.java,v 1.22 2002/04/10 06:08:59 mdb Exp $
 
 package com.threerings.presents.client;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.samskivert.util.ResultListener;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
@@ -319,21 +321,25 @@ public class Client
         _cloid = data.clientOid;
 
         // initialize our invocation director
-        _invdir.init(this, data.invOid);
+        ResultListener rl = new ResultListener() {
+            public void requestCompleted (Object result) {
+                // keep this around
+                _clobj = (ClientObject)result;
+                // let the client know that logon has now fully succeeded
+                notifyObservers(Client.CLIENT_DID_LOGON, null);
+            }
+
+            public void requestFailed (Exception cause) {
+                // pass the buck onto the listeners
+                notifyObservers(Client.CLIENT_FAILED_TO_LOGON, cause);
+            }
+        };
+        _invdir.init(_comm.getDObjectManager(), _cloid, data.invOid, rl);
 
         // we can't quite call initialization completed at this point
         // because we need for the invocation director to fully initialize
         // (which requires a round trip to the server) before turning the
         // client loose to do things like request invocation services
-    }
-
-    void invocationDirectorReady (ClientObject clobj)
-    {
-        // keep this around
-        _clobj = clobj;
-
-        // let the client know that logon has now fully succeeded
-        notifyObservers(Client.CLIENT_DID_LOGON, null);
     }
 
     protected Credentials _creds;
