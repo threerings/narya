@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.33 2003/03/25 19:06:54 mdb Exp $
+// $Id: FrameManager.java,v 1.34 2003/03/25 23:05:58 mdb Exp $
 
 package com.threerings.media;
 
@@ -141,7 +141,9 @@ public class FrameManager
     public FrameManager (JFrame frame, MediaTimer timer)
     {
         _frame = frame;
-        _frame.setIgnoreRepaint(true);
+        if (frame instanceof ManagedJFrame) {
+            ((ManagedJFrame)_frame).init(this);
+        }
         _timer = timer;
 
         // set up our custom repaint manager
@@ -458,6 +460,21 @@ public class FrameManager
     }
 
     /**
+     * Called by the {@link ManagedJFrame} when our window was hidden and
+     * reexposed.
+     */
+    protected void restoreFromBack (Rectangle dirty)
+    {
+        if (_fgfx == null) {
+            _fgfx = _frame.getGraphics();
+        }
+        Log.info("Restoring from back buffer " + StringUtil.toString(dirty) + ".");
+        _fgfx.setClip(dirty);
+        _fgfx.drawImage(_backimg, 0, 0, null);
+        _fgfx.setClip(null);
+    }
+
+    /**
      * If frame rate display is enabled, builds beginning of performance
      * status display.
      */
@@ -594,7 +611,7 @@ public class FrameManager
             _fgfx = null;
         }
 
-//         Log.info("Created back buffer.");
+//         Log.info("Created back buffer [" + width + "x" + height + "].");
     }
 
     /**

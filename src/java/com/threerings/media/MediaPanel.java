@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.29 2003/03/25 19:06:54 mdb Exp $
+// $Id: MediaPanel.java,v 1.30 2003/03/25 23:05:58 mdb Exp $
 
 package com.threerings.media;
 
@@ -66,9 +66,6 @@ public class MediaPanel extends JComponent
         // create our animation and sprite managers
         _animmgr = new AnimationManager(_remgr);
         _spritemgr = new SpriteManager(_remgr);
-
-        // we don't want to hear about repaints
-        setIgnoreRepaint(true);
 
         // participate in the frame when we're visible
         addAncestorListener(new AncestorAdapter() {

@@ -1,15 +1,16 @@
 //
-// $Id: ManagedJFrame.java,v 1.3 2002/06/11 00:52:37 mdb Exp $
+// $Id: ManagedJFrame.java,v 1.4 2003/03/25 23:05:58 mdb Exp $
 
 package com.threerings.media;
 
 import java.awt.Graphics;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
 import javax.swing.JFrame;
-import javax.swing.RepaintManager;
 
+import com.samskivert.util.StringUtil;
 import com.threerings.media.Log;
 
 /**
@@ -23,6 +24,7 @@ public class ManagedJFrame extends JFrame
      */
     public ManagedJFrame ()
     {
+        this("");
     }
 
     /**
@@ -34,20 +36,47 @@ public class ManagedJFrame extends JFrame
     }
 
     /**
+     * Called by our frame manager when it's ready to go.
+     */
+    public void init (FrameManager fmgr)
+    {
+        _fmgr = fmgr;
+    }
+
+    /**
+     * We catch paint requests and forward them on to the repaint
+     * infrastructure.
+     */
+    public void paint (Graphics g)
+    {
+        update(g);
+    }
+
+    /**
      * We catch update requests and forward them on to the repaint
      * infrastructure.
      */
     public void update (Graphics g)
     {
-        Shape clip = clip = g.getClip();
+        Shape clip = g.getClip();
+        Rectangle dirty;
         if (clip != null) {
-            Rectangle cb = clip.getBounds();
-            RepaintManager.currentManager(this).addDirtyRegion(
-                getRootPane(), cb.x, cb.y, cb.width, cb.height);
-
+            dirty = clip.getBounds();
         } else {
-            RepaintManager.currentManager(this).addDirtyRegion(
-                getRootPane(), 0, 0, getWidth(), getHeight());
+            dirty = getRootPane().getBounds();
+            // account for our frame insets
+            Insets insets = getInsets();
+            dirty.x += insets.left;
+            dirty.y += insets.top;
+        }
+
+        if (_fmgr != null) {
+            _fmgr.restoreFromBack(dirty);
+        } else {
+            Log.info("Dropping AWT dirty rect " + StringUtil.toString(dirty) +
+                     " [clip=" + StringUtil.toString(clip) + "].");
         }
     }
+
+    protected FrameManager _fmgr;
 }
