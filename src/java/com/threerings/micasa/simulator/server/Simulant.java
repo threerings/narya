@@ -1,8 +1,9 @@
 //
-// $Id: Simulant.java,v 1.2 2001/12/19 23:30:47 shaper Exp $
+// $Id: Simulant.java,v 1.3 2002/02/05 22:11:51 mdb Exp $
 
 package com.threerings.micasa.simulator.client;
 
+import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.MessageEvent;
 
 import com.threerings.crowd.data.BodyObject;
@@ -11,18 +12,17 @@ import com.threerings.crowd.data.PlaceObject;
 import com.threerings.parlor.game.GameCodes;
 import com.threerings.parlor.game.GameConfig;
 
-import com.threerings.micasa.simulator.server.SimulatorServer;
-
 public abstract class Simulant implements GameCodes
 {
     /**
      * Initializes the simulant with a body object and the game config for
      * the game they'll be engaged in.
      */
-    public void init (BodyObject self, GameConfig config)
+    public void init (BodyObject self, GameConfig config, DObjectManager omgr)
     {
         _self = self;
         _config = config;
+        _omgr = omgr;
     }
 
     /**
@@ -53,7 +53,7 @@ public abstract class Simulant implements GameCodes
     protected void postEvent (MessageEvent mevt)
     {
         mevt.setSourceOid(_self.getOid());
-        SimulatorServer.omgr.postEvent(mevt);
+        _omgr.postEvent(mevt);
     }
 
     /** The game config object. */
@@ -61,4 +61,7 @@ public abstract class Simulant implements GameCodes
 
     /** Our body object. */
     protected BodyObject _self;
+
+    /** The object manager with which we're interacting. */
+    protected DObjectManager _omgr;
 }
