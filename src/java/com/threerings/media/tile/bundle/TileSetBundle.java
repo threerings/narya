@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundle.java,v 1.2 2001/11/20 03:48:41 mdb Exp $
+// $Id: TileSetBundle.java,v 1.3 2001/11/29 00:13:42 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -52,6 +52,14 @@ public class TileSetBundle
     public final TileSet getTileSet (int tileSetId)
     {
         return (TileSet)get(tileSetId);
+    }
+
+    /**
+     * Enumerates the tileset ids in this tileset bundle.
+     */
+    public Iterator enumerateTileSetIds ()
+    {
+        return keySet().iterator();
     }
 
     /**

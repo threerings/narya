@@ -1,5 +1,5 @@
 //
-// $Id: TileSetRepository.java,v 1.2 2001/11/18 04:09:21 mdb Exp $
+// $Id: TileSetRepository.java,v 1.3 2001/11/29 00:12:11 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -14,6 +14,13 @@ import com.samskivert.io.PersistenceException;
  */
 public interface TileSetRepository
 {
+    /**
+     * Returns an iterator over the identifiers of all {@link TileSet}
+     * objects available.
+     */
+    public Iterator enumerateTileSetIds ()
+        throws PersistenceException;
+
     /**
      * Returns an iterator over all {@link TileSet} objects available.
      */
