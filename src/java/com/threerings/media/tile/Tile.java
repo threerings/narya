@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.14 2001/10/11 00:41:26 shaper Exp $
+// $Id: Tile.java,v 1.15 2001/10/12 00:38:15 shaper Exp $
 
 package com.threerings.media.tile;
 
@@ -49,8 +49,8 @@ public class Tile
     }
 
     /**
-     * Render the tile into the given rectangle in the given graphics
-     * context.
+     * Render the tile image at the top-left corner of the given shape
+     * in the given graphics context.
      */
     public void paint (Graphics2D gfx, Shape dest)
     {

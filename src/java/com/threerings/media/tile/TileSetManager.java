@@ -1,12 +1,12 @@
 //
-// $Id: TileSetManager.java,v 1.13 2001/10/11 00:41:26 shaper Exp $
+// $Id: TileSetManager.java,v 1.14 2001/10/12 00:38:15 shaper Exp $
 
 package com.threerings.media.tile;
 
 import com.threerings.media.ImageManager;
 
 import java.awt.Image;
-import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * The <code>TileSetManager</code> provides tileset management
@@ -20,22 +20,12 @@ import java.util.ArrayList;
 public interface TileSetManager
 {
     /**
-     * Return the total number of tiles in the specified tileset or -1
-     * if the tileset is not found.
+     * Return an <code>Iterator</code> over all <code>TileSet</code>
+     * objects available.
      *
-     * @param tsid the tileset identifier.
-     * @return the number of tiles.
+     * @return the tileset iterator.
      */
-    public int getNumTilesInSet (int tsid)
-	throws NoSuchTileSetException;
-
-    /**
-     * Return an <code>ArrayList</code> containing all
-     * <code>TileSet</code> objects available.
-     *
-     * @return the list of tilesets.
-     */
-    public ArrayList getAllTileSets ();
+    public Iterator getTileSets ();
 
     /**
      * Return the tileset object corresponding to the specified
@@ -58,11 +48,4 @@ public interface TileSetManager
      */
     public Tile getTile (int tsid, int tid)
 	throws NoSuchTileSetException, NoSuchTileException;
-
-    /**
-     * Return the total number of tilesets available for use.
-     *
-     * @return the number of tilesets.
-     */
-    public int getNumTileSets ();
 }

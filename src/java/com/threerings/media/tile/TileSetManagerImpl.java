@@ -1,12 +1,12 @@
 //
-// $Id: TileSetManagerImpl.java,v 1.13 2001/10/11 00:41:26 shaper Exp $
+// $Id: TileSetManagerImpl.java,v 1.14 2001/10/12 00:38:15 shaper Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Image;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Enumeration;
+import java.util.Collections;
+import java.util.Iterator;
 
 import com.samskivert.util.*;
 
@@ -16,7 +16,7 @@ import com.threerings.media.Log;
 public abstract class TileSetManagerImpl implements TileSetManager
 {
     /**
-     * Initialize the <code>TileSetManager</code>.
+     * Initialize the tile set manager.
      *
      * @param config the config object.
      * @param imgmgr the image manager.
@@ -27,12 +27,7 @@ public abstract class TileSetManagerImpl implements TileSetManager
         _config = config;
     }
 
-    public int getNumTilesInSet (int tsid)
-	throws NoSuchTileSetException
-    {
-	return getTileSet(tsid).getNumTiles();
-    }
-
+    // documentation inherited
     public TileSet getTileSet (int tsid)
 	throws NoSuchTileSetException
     {
@@ -44,22 +39,17 @@ public abstract class TileSetManagerImpl implements TileSetManager
 	return tset;
     }
 
+    // documentation inherited
+    public Iterator getTileSets ()
+    {
+        return Collections.unmodifiableMap(_tilesets).values().iterator();
+    }
+
+    // documentation inherited
     public Tile getTile (int tsid, int tid)
 	throws NoSuchTileSetException, NoSuchTileException
     {
 	return getTileSet(tsid).getTile(_imgmgr, tid);
-    }
-
-    public ArrayList getAllTileSets ()
-    {
-	ArrayList list = new ArrayList();
-	CollectionUtil.addAll(list, _tilesets.elements());
-	return list;
-    }
-
-    public int getNumTileSets ()
-    {
-	return _tilesets.size();
     }
 
     /** The config object. */
