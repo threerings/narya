@@ -1,9 +1,10 @@
 //
-// $Id: OccupantManager.java,v 1.2 2001/08/20 21:52:43 mdb Exp $
+// $Id: OccupantManager.java,v 1.3 2001/08/21 19:37:08 mdb Exp $
 
 package com.threerings.cocktail.party.client;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.threerings.cocktail.cher.dobj.*;
 import com.threerings.cocktail.cher.util.IntMap;
@@ -75,11 +76,20 @@ public class OccupantManager
         // unsubscribe from the old place object if there was one
         if (_place != null) {
             _place.removeSubscriber(this);
+            // clear out the occupant cache for the previous location
+            _ocache.clear();
         }
 
         // subscribe to the new one
         _place = place;
         _place.addSubscriber(this);
+
+        // cache the occupant info for the occupants in this room
+        Iterator iter = _place.occupantInfo.elements();
+        while (iter.hasNext()) {
+            OccupantInfo info = (OccupantInfo)iter.next();
+            _ocache.put(info.getBodyOid(), info);
+        }
     }
 
     // inherit documentation
