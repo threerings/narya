@@ -1,5 +1,5 @@
 //
-// $Id: RegionManager.java,v 1.9 2002/11/07 22:42:51 mdb Exp $
+// $Id: RegionManager.java,v 1.10 2002/11/22 01:54:59 mdb Exp $
 
 package com.threerings.media;
 
@@ -60,6 +60,17 @@ public class RegionManager
             Log.warning("Attempt to dirty a null rect!?");
             Thread.dumpStack();
             return;
+        }
+
+        // more sanity checking
+        long x = rect.x, y = rect.y;
+        if ((Math.abs(x) > Integer.MAX_VALUE/2) ||
+            (Math.abs(y) > Integer.MAX_VALUE/2)) {
+            Log.warning("Requested to dirty questionable region " +
+                        "[rect=" + StringUtil.toString(rect) + "].");
+            if (Log.getLevel() == Log.log.DEBUG) {
+                Thread.dumpStack();
+            }
         }
 
         if (isValidSize(rect.width, rect.height)) {
